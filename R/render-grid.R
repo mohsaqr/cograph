@@ -64,10 +64,16 @@ NULL
 #' @param edge_label_color Edge label text color.
 #' @param edge_label_position Position along edge (0 = source, 0.5 = middle, 1 = target).
 #' @param edge_label_offset Perpendicular offset from edge line.
+#' @param edge_label_bg Background color for edge labels (default "white"). Set to NA for transparent.
+#' @param edge_label_fontface Font face: "plain", "bold", "italic", "bold.italic".
+#' @param edge_label_border Border style: NULL, "rect", "rounded", "circle".
+#' @param edge_label_border_color Border color for label border.
+#' @param edge_label_underline Logical. Underline the label text?
 #' @param bidirectional Logical. Show arrows at both ends of edges?
 #' @param loop_rotation Angle in radians for self-loop direction (default: pi/2 = top).
 #' @param curve_shape Spline tension for curved edges (-1 to 1, default: 0).
 #' @param curve_pivot Pivot position along edge for curve control point (0-1, default: 0.5).
+#' @param curves Curve mode: FALSE (straight), "mutual" (curve reciprocal pairs), "force" (curve all).
 #' @param node_names Alternative names for legend (separate from display labels).
 #' @param legend Logical. Show legend?
 #' @param legend_position Legend position: "topright", "topleft", "bottomright", "bottomleft".
@@ -139,11 +145,17 @@ soplot <- function(network, title = NULL, title_size = 14,
                       edge_label_color = NULL,
                       edge_label_position = NULL,
                       edge_label_offset = NULL,
+                      edge_label_bg = NULL,
+                      edge_label_fontface = NULL,
+                      edge_label_border = NULL,
+                      edge_label_border_color = NULL,
+                      edge_label_underline = NULL,
                       # Advanced edge options
                       bidirectional = NULL,
                       loop_rotation = NULL,
                       curve_shape = NULL,
                       curve_pivot = NULL,
+                      curves = NULL,
                       # Legend options
                       node_names = NULL,
                       legend = FALSE,
@@ -244,10 +256,16 @@ soplot <- function(network, title = NULL, title_size = 14,
     label_color = edge_label_color,
     label_position = edge_label_position,
     label_offset = edge_label_offset,
+    label_bg = edge_label_bg,
+    label_fontface = edge_label_fontface,
+    label_border = edge_label_border,
+    label_border_color = edge_label_border_color,
+    label_underline = edge_label_underline,
     bidirectional = bidirectional,
     loop_rotation = loop_rotation,
     curve_shape = curve_shape,
-    curve_pivot = curve_pivot
+    curve_pivot = curve_pivot,
+    curves = curves
   )
   edge_aes <- edge_aes[!sapply(edge_aes, is.null)]
   if (length(edge_aes) > 0) {

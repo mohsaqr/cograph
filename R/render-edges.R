@@ -61,26 +61,42 @@ render_edges_grid <- function(network) {
     m
   )
 
-  # Auto-separate reciprocal edges (A→B and B→A pairs)
-  # Curve them in opposite directions so they don't overlap
-  reciprocal_offset <- 0.15  # Separation curvature
-  for (i in seq_len(m)) {
-    from_i <- edges$from[i]
-    to_i <- edges$to[i]
-    if (from_i == to_i) next  # Skip self-loops
+  # Get curves mode: FALSE, "mutual", or "force"
+  curves_mode <- if (!is.null(aes$curves)) aes$curves else FALSE
 
-    # Check for reverse edge
-    for (j in seq_len(m)) {
-      if (j == i) next
-      if (edges$from[j] == to_i && edges$to[j] == from_i) {
-        # Found reciprocal pair - curve them in opposite directions
-        # Lower index curves positive, higher index curves negative
-        if (i < j) {
-          curvatures[i] <- reciprocal_offset
-        } else {
-          curvatures[i] <- -reciprocal_offset
+  # Handle curve modes
+  if (identical(curves_mode, "mutual") || identical(curves_mode, "force")) {
+    # Identify reciprocal pairs
+    is_reciprocal <- rep(FALSE, m)
+    for (i in seq_len(m)) {
+      from_i <- edges$from[i]
+      to_i <- edges$to[i]
+      if (from_i == to_i) next
+      for (j in seq_len(m)) {
+        if (j != i && edges$from[j] == to_i && edges$to[j] == from_i) {
+          is_reciprocal[i] <- TRUE
+          break
         }
-        break
+      }
+    }
+
+    # Curve reciprocal edges only (gentle curve)
+    reciprocal_offset <- 0.18
+    for (i in seq_len(m)) {
+      if (is_reciprocal[i]) {
+        curvatures[i] <- reciprocal_offset
+      }
+    }
+
+    # For "force" mode, also curve non-reciprocal edges slightly
+    if (identical(curves_mode, "force")) {
+      for (i in seq_len(m)) {
+        from_i <- edges$from[i]
+        to_i <- edges$to[i]
+        if (is_reciprocal[i] || from_i == to_i) next
+        # Small curve based on node indices
+        sign <- if ((from_i + to_i) %% 2 == 0) 1 else -1
+        curvatures[i] <- sign * 0.1
       }
     }
   }
@@ -344,7 +360,7 @@ draw_self_loop <- function(x, y, node_size, color, width, lty, rotation = pi/2) 
 
 #' Render Edge Labels
 #'
-#' Create grid grobs for edge labels.
+#' Create grid grobs for edge labels with background, borders, and styling.
 #'
 #' @param network A SonnetNetwork object.
 #' @return A grid gList of label grobs.
@@ -364,20 +380,75 @@ render_edge_labels_grid <- function(network) {
   label_color <- if (!is.null(aes$label_color)) aes$label_color else "gray30"
 
   # Label position along edge (0 = at source, 0.5 = midpoint, 1 = at target)
-  label_position <- if (!is.null(aes$label_position)) aes$label_position else 0.5
-  # Label offset perpendicular to edge (positive = left side, negative = right side)
+  # Default 0.65 = slightly closer to target
+  label_position <- if (!is.null(aes$label_position)) aes$label_position else 0.65
+  # Label offset perpendicular to edge - default 0 (on the edge line)
   label_offset <- if (!is.null(aes$label_offset)) aes$label_offset else 0
 
-  # Get curvature for automatic offset
+  # New styling options
+
+  label_bg <- if (!is.null(aes$label_bg)) aes$label_bg else "white"
+  label_bg_padding <- if (!is.null(aes$label_bg_padding)) aes$label_bg_padding else 0.3
+  label_fontface <- if (!is.null(aes$label_fontface)) aes$label_fontface else "plain"
+  label_border <- aes$label_border  # NULL, "rect", "rounded", "circle"
+  label_border_color <- if (!is.null(aes$label_border_color)) aes$label_border_color else "gray50"
+  label_underline <- if (!is.null(aes$label_underline)) aes$label_underline else FALSE
+
+  # Get curvature for positioning
   curvatures <- recycle_to_length(
     if (!is.null(aes$curvature)) aes$curvature else 0,
     m
   )
 
+  # Get curves mode and apply same logic as render_edges_grid
+  curves_mode <- if (!is.null(aes$curves)) aes$curves else FALSE
+
+  if (identical(curves_mode, "mutual") || identical(curves_mode, "force")) {
+    # Identify reciprocal pairs
+    is_reciprocal <- rep(FALSE, m)
+    for (i in seq_len(m)) {
+      from_i <- edges$from[i]
+      to_i <- edges$to[i]
+      if (from_i == to_i) next
+      for (j in seq_len(m)) {
+        if (j != i && edges$from[j] == to_i && edges$to[j] == from_i) {
+          is_reciprocal[i] <- TRUE
+          break
+        }
+      }
+    }
+
+    # Curve reciprocal edges only (gentle curve)
+    reciprocal_offset <- 0.18
+    for (i in seq_len(m)) {
+      if (is_reciprocal[i]) {
+        curvatures[i] <- reciprocal_offset
+      }
+    }
+
+    # For "force" mode, also curve non-reciprocal edges slightly
+    if (identical(curves_mode, "force")) {
+      for (i in seq_len(m)) {
+        from_i <- edges$from[i]
+        to_i <- edges$to[i]
+        if (is_reciprocal[i] || from_i == to_i) next
+        sign <- if ((from_i + to_i) %% 2 == 0) 1 else -1
+        curvatures[i] <- sign * 0.1
+      }
+    }
+  }
+
   # Get curve pivot for label positioning on curves
   curve_pivots <- recycle_to_length(
     if (!is.null(aes$curve_pivot)) aes$curve_pivot else 0.5,
     m
+  )
+
+  # Get node sizes for edge endpoint calculation
+  node_aes <- network$get_node_aes()
+  node_sizes <- recycle_to_length(
+    if (!is.null(node_aes$size)) node_aes$size else 0.05,
+    nrow(nodes)
   )
 
   grobs <- vector("list", m)
@@ -391,10 +462,19 @@ render_edge_labels_grid <- function(network) {
       next
     }
 
-    x1 <- nodes$x[from_idx]
-    y1 <- nodes$y[from_idx]
-    x2 <- nodes$x[to_idx]
-    y2 <- nodes$y[to_idx]
+    # Use actual edge endpoints (same as edge rendering)
+    node_x1 <- nodes$x[from_idx]
+    node_y1 <- nodes$y[from_idx]
+    node_x2 <- nodes$x[to_idx]
+    node_y2 <- nodes$y[to_idx]
+
+    start_pt <- edge_endpoint(node_x1, node_y1, node_x2, node_y2, node_sizes[from_idx])
+    end_pt <- edge_endpoint(node_x2, node_y2, node_x1, node_y1, node_sizes[to_idx])
+
+    x1 <- start_pt$x
+    y1 <- start_pt$y
+    x2 <- end_pt$x
+    y2 <- end_pt$y
 
     # Position along edge
     pos <- if (length(label_position) > 1) label_position[i] else label_position
@@ -425,31 +505,102 @@ render_edge_labels_grid <- function(network) {
       # Quadratic bezier formula
       x <- (1 - t)^2 * x1 + 2 * (1 - t) * t * ctrl$x + t^2 * x2
       y <- (1 - t)^2 * y1 + 2 * (1 - t) * t * ctrl$y + t^2 * y2
-
-      # Auto-offset in direction of curve (away from straight line)
-      auto_offset <- sign(curv) * 0.02  # Small offset in curve direction
     } else {
       # Straight edge
       x <- x1 + pos * (x2 - x1)
       y <- y1 + pos * (y2 - y1)
-      auto_offset <- 0
     }
 
-    # Apply user-specified offset plus auto-offset
+    # Apply user-specified offset (labels follow curve path, no auto-offset needed)
     offset <- if (length(label_offset) > 1) label_offset[i] else label_offset
-    total_offset <- offset + auto_offset
-
-    if (total_offset != 0) {
-      x <- x + total_offset * perp_x
-      y <- y + total_offset * perp_y
+    if (offset != 0) {
+      x <- x + offset * perp_x
+      y <- y + offset * perp_y
     }
 
-    grobs[[i]] <- grid::textGrob(
+    # Create label grob with styling
+    label_grobs <- list()
+
+    # Calculate text dimensions for background/border
+    text_width <- grid::convertWidth(
+      grid::stringWidth(as.character(labels[i])),
+      "npc", valueOnly = TRUE
+    ) * (label_size / 12)  # Scale by font size (smaller)
+    text_height <- grid::convertHeight(
+      grid::stringHeight(as.character(labels[i])),
+      "npc", valueOnly = TRUE
+    ) * (label_size / 12)
+
+    # Add padding (smaller halo)
+    pad_w <- text_width * label_bg_padding * 0.5
+    pad_h <- text_height * label_bg_padding * 0.5
+    bg_width <- text_width + pad_w * 2
+    bg_height <- text_height + pad_h * 2
+
+    # Draw background (white by default)
+    if (!is.na(label_bg) && !is.null(label_bg)) {
+      if (!is.null(label_border) && label_border == "circle") {
+        # Circle background (tight fit)
+        radius <- max(bg_width, bg_height) / 2 * 0.9
+        label_grobs[[length(label_grobs) + 1]] <- grid::circleGrob(
+          x = grid::unit(x, "npc"),
+          y = grid::unit(y, "npc"),
+          r = grid::unit(radius, "npc"),
+          gp = grid::gpar(fill = label_bg, col = label_border_color, lwd = 0.5)
+        )
+      } else if (!is.null(label_border) && label_border == "rounded") {
+        # Rounded rectangle background (tight fit)
+        label_grobs[[length(label_grobs) + 1]] <- grid::roundrectGrob(
+          x = grid::unit(x, "npc"),
+          y = grid::unit(y, "npc"),
+          width = grid::unit(bg_width * 1.1, "npc"),
+          height = grid::unit(bg_height * 1.2, "npc"),
+          r = grid::unit(0.2, "npc"),
+          gp = grid::gpar(fill = label_bg, col = label_border_color, lwd = 0.5)
+        )
+      } else {
+        # Rectangle background (tight fit, default)
+        border_col <- if (!is.null(label_border) && label_border == "rect") label_border_color else NA
+        label_grobs[[length(label_grobs) + 1]] <- grid::rectGrob(
+          x = grid::unit(x, "npc"),
+          y = grid::unit(y, "npc"),
+          width = grid::unit(bg_width * 1.1, "npc"),
+          height = grid::unit(bg_height * 1.2, "npc"),
+          gp = grid::gpar(fill = label_bg, col = border_col, lwd = 0.5)
+        )
+      }
+    }
+
+    # Convert fontface string to numeric
+    fontface_num <- switch(label_fontface,
+      "plain" = 1,
+      "bold" = 2,
+      "italic" = 3,
+      "bold.italic" = 4,
+      1
+    )
+
+    # Draw text
+    label_grobs[[length(label_grobs) + 1]] <- grid::textGrob(
       label = labels[i],
       x = grid::unit(x, "npc"),
       y = grid::unit(y, "npc"),
-      gp = grid::gpar(fontsize = label_size, col = label_color)
+      gp = grid::gpar(fontsize = label_size, col = label_color, fontface = fontface_num)
     )
+
+    # Draw underline if requested
+    if (label_underline) {
+      underline_y <- y - text_height * 0.6
+      label_grobs[[length(label_grobs) + 1]] <- grid::segmentsGrob(
+        x0 = grid::unit(x - text_width / 2, "npc"),
+        y0 = grid::unit(underline_y, "npc"),
+        x1 = grid::unit(x + text_width / 2, "npc"),
+        y1 = grid::unit(underline_y, "npc"),
+        gp = grid::gpar(col = label_color, lwd = 0.8)
+      )
+    }
+
+    grobs[[i]] <- do.call(grid::gList, label_grobs)
   }
 
   do.call(grid::gList, grobs)

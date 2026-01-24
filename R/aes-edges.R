@@ -28,10 +28,18 @@ NULL
 #' @param label_color Edge label text color.
 #' @param label_position Position along edge (0 = source, 0.5 = middle, 1 = target).
 #' @param label_offset Perpendicular offset from edge line.
+#' @param label_bg Background color for edge labels (default "white"). Set to NA for transparent.
+#' @param label_bg_padding Padding around label text as proportion of text size (default 0.3).
+#' @param label_fontface Font face: "plain", "bold", "italic", "bold.italic" (default "plain").
+#' @param label_border Border style: NULL (none), "rect", "rounded", "circle" (default NULL).
+#' @param label_border_color Border color for label border (default "gray50").
+#' @param label_underline Logical. Underline the label text? (default FALSE).
 #' @param bidirectional Logical. Show arrows at both ends of edges?
 #' @param loop_rotation Angle in radians for self-loop direction (default: pi/2 = top).
 #' @param curve_shape Spline tension for curved edges (-1 to 1, default: 0).
 #' @param curve_pivot Pivot position along edge for curve control point (0-1, default: 0.5).
+#' @param curves Curve mode: FALSE (straight edges), "mutual" (only curve reciprocal pairs),
+#'   or "force" (curve all edges). Default FALSE.
 #' @return Modified sonnet_network object.
 #' @export
 #'
@@ -60,10 +68,17 @@ sn_edges <- function(network,
                      label_color = NULL,
                      label_position = NULL,
                      label_offset = NULL,
+                     label_bg = NULL,
+                     label_bg_padding = NULL,
+                     label_fontface = NULL,
+                     label_border = NULL,
+                     label_border_color = NULL,
+                     label_underline = NULL,
                      bidirectional = NULL,
                      loop_rotation = NULL,
                      curve_shape = NULL,
-                     curve_pivot = NULL) {
+                     curve_pivot = NULL,
+                     curves = NULL) {
 
   # Auto-convert matrix/data.frame/igraph to sonnet_network
   network <- ensure_sonnet_network(network)
@@ -171,6 +186,40 @@ sn_edges <- function(network,
     aes$label_offset <- label_offset
   }
 
+  if (!is.null(label_bg)) {
+    aes$label_bg <- label_bg
+  }
+
+  if (!is.null(label_bg_padding)) {
+    aes$label_bg_padding <- label_bg_padding
+  }
+
+  if (!is.null(label_fontface)) {
+    valid_faces <- c("plain", "bold", "italic", "bold.italic")
+    if (!label_fontface %in% valid_faces) {
+      stop("label_fontface must be one of: ", paste(valid_faces, collapse = ", "),
+           call. = FALSE)
+    }
+    aes$label_fontface <- label_fontface
+  }
+
+  if (!is.null(label_border)) {
+    valid_borders <- c("rect", "rounded", "circle")
+    if (!label_border %in% valid_borders) {
+      stop("label_border must be one of: ", paste(valid_borders, collapse = ", "),
+           call. = FALSE)
+    }
+    aes$label_border <- label_border
+  }
+
+  if (!is.null(label_border_color)) {
+    aes$label_border_color <- label_border_color
+  }
+
+  if (!is.null(label_underline)) {
+    aes$label_underline <- label_underline
+  }
+
   if (!is.null(bidirectional)) {
     aes$bidirectional <- resolve_aesthetic(bidirectional, edges_df, m)
   }
@@ -185,6 +234,13 @@ sn_edges <- function(network,
 
   if (!is.null(curve_pivot)) {
     aes$curve_pivot <- resolve_aesthetic(curve_pivot, edges_df, m)
+  }
+
+  if (!is.null(curves)) {
+    if (!isFALSE(curves) && !curves %in% c("mutual", "force")) {
+      stop("curves must be FALSE, 'mutual', or 'force'", call. = FALSE)
+    }
+    aes$curves <- curves
   }
 
   # Apply aesthetics

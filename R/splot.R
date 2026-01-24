@@ -98,6 +98,7 @@ NULL
 #' @param filename Output filename (without extension).
 #' @param width Output width in inches.
 #' @param height Output height in inches.
+#' @param res Resolution in DPI for raster outputs (PNG, JPEG, TIFF). Default 600.
 #' @param ... Additional arguments passed to layout functions.
 #'
 #' @return Invisibly returns the sonnet_network object.
@@ -207,6 +208,7 @@ splot <- function(
     filename = "splot",
     width = 7,
     height = 7,
+    res = 600,
     ...
 ) {
 
@@ -412,17 +414,17 @@ splot <- function(
 
     if (filetype == "png") {
       grDevices::png(full_filename, width = width, height = height,
-                     units = "in", res = 300)
+                     units = "in", res = res)
     } else if (filetype == "pdf") {
       grDevices::pdf(full_filename, width = width, height = height)
     } else if (filetype == "svg") {
       grDevices::svg(full_filename, width = width, height = height)
     } else if (filetype == "jpeg" || filetype == "jpg") {
       grDevices::jpeg(full_filename, width = width, height = height,
-                      units = "in", res = 300)
+                      units = "in", res = res, quality = 100)
     } else if (filetype == "tiff") {
       grDevices::tiff(full_filename, width = width, height = height,
-                      units = "in", res = 300)
+                      units = "in", res = res, compression = "lzw")
     } else {
       stop("Unknown filetype: ", filetype, call. = FALSE)
     }

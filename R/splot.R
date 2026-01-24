@@ -174,7 +174,7 @@ splot <- function(
     curveScale = TRUE,
     curveShape = 0,
     curvePivot = 0.5,
-    curves = FALSE,
+    curves = TRUE,
     asize = 1,
     arrows = TRUE,
     bidirectional = FALSE,
@@ -333,46 +333,50 @@ splot <- function(
     # Line types
     ltys <- recycle_to_length(lty, n_edges)
 
-    # Handle curves mode
+    # Handle curves mode:
+    # FALSE = all straight
+    # TRUE or "mutual" = only reciprocal edges curved (opposite directions)
+    # "force" = all edges curved (reciprocals opposite, singles inward)
     curves_vec <- recycle_to_length(curve, n_edges)
+    is_reciprocal <- rep(FALSE, n_edges)
 
-    if (!identical(curves, FALSE)) {
-      # Identify reciprocal pairs
-      is_reciprocal <- rep(FALSE, n_edges)
-      for (i in seq_len(n_edges)) {
-        from_i <- edges$from[i]
-        to_i <- edges$to[i]
-        if (from_i == to_i) next
-        for (j in seq_len(n_edges)) {
-          if (j != i && edges$from[j] == to_i && edges$to[j] == from_i) {
-            is_reciprocal[i] <- TRUE
-            break
-          }
+    # Identify reciprocal pairs
+    for (i in seq_len(n_edges)) {
+      from_i <- edges$from[i]
+      to_i <- edges$to[i]
+      if (from_i == to_i) next
+      for (j in seq_len(n_edges)) {
+        if (j != i && edges$from[j] == to_i && edges$to[j] == from_i) {
+          is_reciprocal[i] <- TRUE
+          break
         }
       }
+    }
 
-      if (identical(curves, "mutual") || identical(curves, "force")) {
-        # Curve reciprocal edges
-        for (i in seq_len(n_edges)) {
-          if (is_reciprocal[i] && curves_vec[i] == 0) {
+    if (identical(curves, TRUE) || identical(curves, "mutual")) {
+      # Only curve reciprocal edges
+      for (i in seq_len(n_edges)) {
+        if (is_reciprocal[i] && curves_vec[i] == 0) {
+          # Opposite directions: lower index gets positive
+          curves_vec[i] <- if (edges$from[i] < edges$to[i]) 0.2 else -0.2
+        }
+      }
+    } else if (identical(curves, "force")) {
+      # Curve all edges
+      for (i in seq_len(n_edges)) {
+        if (edges$from[i] == edges$to[i]) next  # Skip self-loops
+        if (curves_vec[i] == 0) {
+          if (is_reciprocal[i]) {
+            # Reciprocal: opposite directions
+            curves_vec[i] <- if (edges$from[i] < edges$to[i]) 0.2 else -0.2
+          } else {
+            # Single edge: will be curved inward by render_edges_base
             curves_vec[i] <- 0.2
           }
         }
       }
-
-      if (identical(curves, "force")) {
-        # Also curve non-reciprocal edges slightly
-        for (i in seq_len(n_edges)) {
-          if (!is_reciprocal[i] && edges$from[i] != edges$to[i] && curves_vec[i] == 0) {
-            sign <- if ((edges$from[i] + edges$to[i]) %% 2 == 0) 1 else -1
-            curves_vec[i] <- sign * 0.1
-          }
-        }
-      }
-    } else if (curveScale) {
-      # Auto-curve reciprocal edges
-      curves_vec <- resolve_curvatures(curves_vec, edges, curveScale)
     }
+    # If curves = FALSE, curves_vec stays at 0 (straight edges)
 
     curve_pivots <- recycle_to_length(curvePivot, n_edges)
     curve_shapes <- recycle_to_length(curveShape, n_edges)

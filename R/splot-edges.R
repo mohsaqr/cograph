@@ -68,10 +68,13 @@ draw_straight_edge_base <- function(x1, y1, x2, y2, col = "gray50", lwd = 1,
 #'
 #' Renders a curved edge using xspline() with optional arrow.
 #' Uses qgraph-style curve calculation for smooth, natural-looking curves.
+#' Curve direction is normalized so positive curve always bends the same
+#' visual direction regardless of edge orientation.
 #'
 #' @param x1,y1 Start point coordinates.
 #' @param x2,y2 End point coordinates.
-#' @param curve Curvature amount (positive = left, negative = right).
+#' @param curve Curvature amount (positive = clockwise, negative = counterclockwise
+#'   when looking from source to target).
 #' @param curvePivot Position along edge for control point (0-1).
 #' @param col Edge color.
 #' @param lwd Line width.
@@ -99,13 +102,14 @@ draw_curved_edge_base <- function(x1, y1, x2, y2, curve = 0.2, curvePivot = 0.5,
     return(invisible())
   }
 
-  # Perpendicular unit vector (rotated 90 degrees counterclockwise)
+
+  # Perpendicular unit vector (rotated 90 degrees counterclockwise from edge direction)
+  # Counterclockwise rotation: (dx, dy) -> (-dy, dx)
   px <- -dy / len
   py <- dx / len
 
-  # qgraph-style: curve offset is absolute, not proportional to length
-  # This gives consistent-looking curves regardless of edge length
-  curve_offset <- curve * 0.5  # Scale factor for visual consistency
+  # qgraph-style: curve offset scales with edge length for proportional appearance
+  curve_offset <- curve * len * 0.3  # Scale factor for visual consistency
 
   # Create smooth curve using multiple control points (qgraph approach)
   # Use 5 points for smoother curve: start, 1/4, mid, 3/4, end
@@ -309,12 +313,12 @@ get_edge_label_position <- function(x1, y1, x2, y2, position = 0.5,
     return(list(x = x1, y = y1))
   }
 
-  # Perpendicular unit vector
+  # Same perpendicular as draw_curved_edge_base (counterclockwise rotation)
   px <- -dy / len
   py <- dx / len
 
   # Same curve offset as draw_curved_edge_base
-  curve_offset <- curve * 0.5
+  curve_offset <- curve * len * 0.3
 
   # Base point along edge
   t <- position
@@ -371,6 +375,10 @@ render_edges_base <- function(edges, layout, node_sizes, shapes = "circle",
   if (m == 0) return(invisible())
 
   n <- nrow(layout)
+
+  # Calculate network center for inward curve direction
+  center_x <- mean(layout[, 1])
+  center_y <- mean(layout[, 2])
 
   # Vectorize parameters
   edge.color <- recycle_to_length(edge.color, m)
@@ -434,11 +442,38 @@ render_edges_base <- function(edges, layout, node_sizes, shapes = "circle",
     start <- cent_to_edge(x1, y1, angle_to, node_sizes[from_idx], NULL, shapes[from_idx])
     end <- cent_to_edge(x2, y2, angle_from, node_sizes[to_idx], NULL, shapes[to_idx])
 
+    # Determine curve direction
+    # If curve is positive, bend INWARD toward network center
+    # If curve is negative (reciprocal edge), keep it negative (bend outward)
+    curve_i <- curve[i]
+    if (curve_i > 1e-6) {
+      # Positive curve: determine inward direction toward center
+      mid_x <- (start$x + end$x) / 2
+      mid_y <- (start$y + end$y) / 2
+
+      dx <- end$x - start$x
+      dy <- end$y - start$y
+
+      to_center_x <- center_x - mid_x
+      to_center_y <- center_y - mid_y
+
+      # Cross product: > 0 means center is on left
+      cross <- dx * to_center_y - dy * to_center_x
+
+      # Bend toward center
+      if (cross > 0) {
+        curve_i <- abs(curve_i)   # Bend left toward center
+      } else {
+        curve_i <- -abs(curve_i)  # Bend right toward center
+      }
+    }
+    # If curve is negative, keep it as-is (for reciprocal edges curving outward)
+
     # Draw edge
-    if (abs(curve[i]) > 1e-6) {
+    if (abs(curve_i) > 1e-6) {
       draw_curved_edge_base(
         start$x, start$y, end$x, end$y,
-        curve = curve[i],
+        curve = curve_i,
         curvePivot = curvePivot[i],
         col = edge.color[i],
         lwd = edge.width[i],
@@ -463,7 +498,7 @@ render_edges_base <- function(edges, layout, node_sizes, shapes = "circle",
     label_positions[[i]] <- get_edge_label_position(
       start$x, start$y, end$x, end$y,
       position = edge.label.position,
-      curve = curve[i],
+      curve = curve_i,
       curvePivot = curvePivot[i]
     )
   }

@@ -94,11 +94,11 @@ if (curve_i > 0) {
 3. Adjust curve sign: positive (bend left) if center is to the left, negative (bend right) if center is to the right
 4. Negative curves (reciprocal edges curving outward) keep their original sign
 
-### 2. HIGH PRIORITY: Resolution/DPI
+### 2. ~~HIGH PRIORITY: Resolution/DPI~~ DONE
 
 **Problem**: Output resolution needs to be higher for publication quality.
 
-**Solution**: Add `res` parameter to control DPI for raster outputs (PNG, JPEG, TIFF). Current default is 300, may need 600 for print.
+**Solution**: Added `res` parameter to control DPI for raster outputs (PNG, JPEG, TIFF). Default is now 600 DPI for publication-quality output. The parameter is passed to `grDevices::png()`, `grDevices::jpeg()`, and `grDevices::tiff()` functions.
 
 ### 3. MEDIUM PRIORITY: Edge Label Positioning
 

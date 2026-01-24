@@ -176,9 +176,10 @@ draw_curved_edge_base <- function(x1, y1, x2, y2, curve = 0.2, curvePivot = 0.5,
   }
 }
 
-#' Draw Self-Loop Edge
+#' Draw Self-Loop Edge (qgraph-style)
 #'
-#' Renders a self-loop (edge from node to itself).
+#' Renders a self-loop (edge from node to itself) using a teardrop/circular
+#' loop shape similar to qgraph.
 #'
 #' @param x,y Node center coordinates.
 #' @param node_size Node radius.
@@ -192,49 +193,46 @@ draw_curved_edge_base <- function(x1, y1, x2, y2, curve = 0.2, curvePivot = 0.5,
 draw_self_loop_base <- function(x, y, node_size, col = "gray50", lwd = 1,
                                 lty = 1, rotation = pi/2, arrow = TRUE,
                                 asize = 0.02) {
-  # Loop parameters
-  loop_angle <- pi / 8  # Angle spread for attachment points
 
-  # Attachment points on node edge
-  left_angle <- rotation + loop_angle
-  right_angle <- rotation - loop_angle
+  # qgraph-style loop: circular arc outside the node
+  # Loop size proportional to node size
+  loop_radius <- node_size * 0.8
+  loop_dist <- node_size + loop_radius * 0.9  # Center of loop circle
 
-  left_x <- x + node_size * cos(left_angle)
-  left_y <- y + node_size * sin(left_angle)
-  right_x <- x + node_size * cos(right_angle)
-  right_y <- y + node_size * sin(right_angle)
+  # Center of the loop arc (outside the node)
+  loop_cx <- x + loop_dist * cos(rotation)
+  loop_cy <- y + loop_dist * sin(rotation)
 
-  # Loop control points (outside the node)
-  loop_dist <- node_size * 2.5
+  # Generate circular arc (about 300 degrees, leaving gap for arrow)
+  n_pts <- 40
+  arc_start <- rotation + pi + 0.4  # Start angle (relative to loop center)
+  arc_end <- rotation + pi - 0.4    # End angle
 
-  ctrl1_x <- x + loop_dist * cos(rotation + pi/5)
-  ctrl1_y <- y + loop_dist * sin(rotation + pi/5)
-  ctrl2_x <- x + loop_dist * cos(rotation - pi/5)
-  ctrl2_y <- y + loop_dist * sin(rotation - pi/5)
+  # Handle angle wrapping
+  if (arc_end < arc_start) {
+    arc_end <- arc_end + 2 * pi
+  }
 
-  # Generate smooth curve using xspline
-  spl <- graphics::xspline(
-    x = c(left_x, ctrl1_x, ctrl2_x, right_x),
-    y = c(left_y, ctrl1_y, ctrl2_y, right_y),
-    shape = c(0, 1, 1, 0),
-    open = TRUE,
-    draw = FALSE
-  )
+  angles <- seq(arc_start, arc_end, length.out = n_pts)
+
+  loop_x <- loop_cx + loop_radius * cos(angles)
+  loop_y <- loop_cy + loop_radius * sin(angles)
 
   # Draw the loop
   graphics::lines(
-    x = spl$x,
-    y = spl$y,
+    x = loop_x,
+    y = loop_y,
     col = col,
     lwd = lwd,
     lty = lty
   )
 
-  # Draw arrow at end
+  # Draw arrow at end of loop
   if (arrow && asize > 0) {
-    n <- length(spl$x)
-    angle <- splot_angle(spl$x[n-1], spl$y[n-1], spl$x[n], spl$y[n])
-    draw_arrow_base(right_x, right_y, angle, asize, col = col)
+    n <- length(loop_x)
+    # Arrow angle tangent to circle at endpoint
+    angle <- splot_angle(loop_x[n-1], loop_y[n-1], loop_x[n], loop_y[n])
+    draw_arrow_base(loop_x[n], loop_y[n], angle, asize, col = col)
   }
 }
 

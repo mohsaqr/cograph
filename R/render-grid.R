@@ -73,7 +73,8 @@ NULL
 #' @param loop_rotation Angle in radians for self-loop direction (default: pi/2 = top).
 #' @param curve_shape Spline tension for curved edges (-1 to 1, default: 0).
 #' @param curve_pivot Pivot position along edge for curve control point (0-1, default: 0.5).
-#' @param curves Curve mode: FALSE (straight), "mutual" (curve reciprocal pairs), "force" (curve all).
+#' @param curves Curve mode: TRUE (default) = single edges straight, reciprocal edges
+#'   curve as ellipse (two opposing curves); FALSE = all straight; "force" = all curved.
 #' @param node_names Alternative names for legend (separate from display labels).
 #' @param legend Logical. Show legend?
 #' @param legend_position Legend position: "topright", "topleft", "bottomright", "bottomleft".

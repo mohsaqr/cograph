@@ -61,11 +61,14 @@ render_edges_grid <- function(network) {
     m
   )
 
-  # Get curves mode: FALSE, "mutual", or "force"
-  curves_mode <- if (!is.null(aes$curves)) aes$curves else FALSE
+  # Get curves mode:
+  # TRUE (default) = single edges straight, reciprocal edges curve as ellipse (opposite directions)
+  # FALSE = all straight
+  # "force" = all curved (reciprocals opposite, singles curved)
+  curves_mode <- if (!is.null(aes$curves)) aes$curves else TRUE
 
   # Handle curve modes
-  if (identical(curves_mode, "mutual") || identical(curves_mode, "force")) {
+  if (!identical(curves_mode, FALSE)) {
     # Identify reciprocal pairs
     is_reciprocal <- rep(FALSE, m)
     for (i in seq_len(m)) {
@@ -80,23 +83,26 @@ render_edges_grid <- function(network) {
       }
     }
 
-    # Curve reciprocal edges only (gentle curve)
+    # Curve reciprocal edges in OPPOSITE directions (ellipse shape)
     reciprocal_offset <- 0.18
     for (i in seq_len(m)) {
-      if (is_reciprocal[i]) {
-        curvatures[i] <- reciprocal_offset
+      if (is_reciprocal[i] && curvatures[i] == 0) {
+        from_i <- edges$from[i]
+        to_i <- edges$to[i]
+        # Opposite directions: lower index gets positive curve
+        curvatures[i] <- if (from_i < to_i) reciprocal_offset else -reciprocal_offset
       }
     }
 
-    # For "force" mode, also curve non-reciprocal edges slightly
+    # For "force" mode, also curve non-reciprocal edges
     if (identical(curves_mode, "force")) {
       for (i in seq_len(m)) {
         from_i <- edges$from[i]
         to_i <- edges$to[i]
         if (is_reciprocal[i] || from_i == to_i) next
-        # Small curve based on node indices
-        sign <- if ((from_i + to_i) %% 2 == 0) 1 else -1
-        curvatures[i] <- sign * 0.1
+        if (curvatures[i] == 0) {
+          curvatures[i] <- 0.15  # Positive curve, will be adjusted for inward direction
+        }
       }
     }
   }
@@ -429,9 +435,11 @@ render_edge_labels_grid <- function(network) {
   )
 
   # Get curves mode and apply same logic as render_edges_grid
-  curves_mode <- if (!is.null(aes$curves)) aes$curves else FALSE
+  # TRUE (default) = reciprocal edges curve as ellipse, singles straight
+  # FALSE = all straight; "force" = all curved
+  curves_mode <- if (!is.null(aes$curves)) aes$curves else TRUE
 
-  if (identical(curves_mode, "mutual") || identical(curves_mode, "force")) {
+  if (!identical(curves_mode, FALSE)) {
     # Identify reciprocal pairs
     is_reciprocal <- rep(FALSE, m)
     for (i in seq_len(m)) {
@@ -446,22 +454,25 @@ render_edge_labels_grid <- function(network) {
       }
     }
 
-    # Curve reciprocal edges only (gentle curve)
+    # Curve reciprocal edges in OPPOSITE directions (ellipse shape)
     reciprocal_offset <- 0.18
     for (i in seq_len(m)) {
-      if (is_reciprocal[i]) {
-        curvatures[i] <- reciprocal_offset
+      if (is_reciprocal[i] && curvatures[i] == 0) {
+        from_i <- edges$from[i]
+        to_i <- edges$to[i]
+        curvatures[i] <- if (from_i < to_i) reciprocal_offset else -reciprocal_offset
       }
     }
 
-    # For "force" mode, also curve non-reciprocal edges slightly
+    # For "force" mode, also curve non-reciprocal edges
     if (identical(curves_mode, "force")) {
       for (i in seq_len(m)) {
         from_i <- edges$from[i]
         to_i <- edges$to[i]
         if (is_reciprocal[i] || from_i == to_i) next
-        sign <- if ((from_i + to_i) %% 2 == 0) 1 else -1
-        curvatures[i] <- sign * 0.1
+        if (curvatures[i] == 0) {
+          curvatures[i] <- 0.15
+        }
       }
     }
   }

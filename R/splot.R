@@ -65,7 +65,8 @@ NULL
 #' @param curveScale Logical: auto-curve reciprocal edges?
 #' @param curveShape Spline tension (-1 to 1). Default 0.
 #' @param curvePivot Position along edge for curve control point (0-1).
-#' @param curves Curve mode: FALSE, "mutual" (curve reciprocals), "force" (curve all).
+#' @param curves Curve mode: TRUE (default) = single edges straight, reciprocal edges
+#'   curve as ellipse (two opposing curves); FALSE = all straight; "force" = all curved.
 #' @param asize Arrow head size.
 #' @param arrows Logical or vector: show arrows on directed edges?
 #' @param bidirectional Logical or vector: show arrows at both ends?

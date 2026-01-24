@@ -4,21 +4,33 @@
 \alias{edge_endpoint}
 \title{Calculate Edge Endpoint on Node Border}
 \usage{
-edge_endpoint(node_x, node_y, other_x, other_y, node_size, shape = "circle")
+edge_endpoint(
+  node_x,
+  node_y,
+  other_x,
+  other_y,
+  node_size,
+  shape = "circle",
+  x_scale = 1,
+  y_scale = 1
+)
 }
 \arguments{
-\item{node_x, node_y}{Node center.}
+\item{node_x, node_y}{Node center in npc.}
 
-\item{other_x, other_y}{Other endpoint.}
+\item{other_x, other_y}{Other endpoint in npc.}
 
-\item{node_size}{Node radius.}
+\item{node_size}{Node radius in npc units.}
 
 \item{shape}{Node shape.}
+
+\item{x_scale, y_scale}{Aspect ratio correction factors.}
 }
 \value{
-List with x, y coordinates.
+List with x, y coordinates in npc.
 }
 \description{
-Calculate Edge Endpoint on Node Border
+Calculates the point where an edge should meet the node border.
+Uses plain NPC units to match circleGrob borders.
 }
 \keyword{internal}

@@ -2,14 +2,14 @@
 
 ## Overview
 
-`splot()` is a base R graphics network visualization function, designed as an alternative to `soplot()` which uses grid graphics. The goal is to replicate qgraph-style visualizations with better performance and familiar parameter names.
+`splot()` is a base R graphics network visualization function, designed as an alternative to `soplot()` which uses grid graphics. The goal is to replicate qgraph-style visualizations with better performance while maintaining API consistency with `soplot()`.
 
 ## Philosophy
 
 ### Why Base R Graphics?
 
 1. **Performance**: Base R graphics (`polygon()`, `lines()`, `xspline()`, `symbols()`) are faster than grid grobs for large networks
-2. **Familiarity**: Parameters mirror qgraph conventions (e.g., `vsize`, `edge.color`, `curve`)
+2. **Consistency**: Parameters use snake_case naming matching `soplot()` for unified API
 3. **Simplicity**: Direct coordinate system without NPC unit conversions
 4. **xspline()**: Produces smoother, more natural curves than grid's bezier curves
 
@@ -122,7 +122,64 @@ New parameters added to `splot()`:
 - `legend.edge.colors`: Show positive/negative edge color legend (default TRUE)
 - `legend.node.sizes`: Show node size scale legend (default FALSE)
 
-### 5. LOW PRIORITY: Performance Optimization
+### 5. ~~HIGH PRIORITY: Unified API with soplot()~~ DONE
+
+**Problem**: `splot()` used qgraph-style parameter names (e.g., `vsize`, `edge.color`, `posCol`) while `soplot()` used snake_case (e.g., `node_size`, `edge_color`, `positive_color`). This inconsistency made it harder for users to switch between the two functions.
+
+**Solution**: Updated `splot()` to use the same snake_case parameter names as `soplot()`. The full mapping:
+
+| Old (qgraph-style) | New (snake_case) |
+|-------------------|------------------|
+| `vsize` | `node_size` |
+| `vsize2` | `node_size2` |
+| `shape` | `node_shape` |
+| `color` | `node_fill` |
+| `border.color` | `node_border_color` |
+| `border.width` | `node_border_width` |
+| `alpha` | `node_alpha` |
+| `label.cex` | `label_size` |
+| `label.color` | `label_color` |
+| `label.position` | `label_position` |
+| `pie` | `pie_values` |
+| `pieColor` | `pie_colors` |
+| `donut` | `donut_values` |
+| `donutColor` | `donut_colors` |
+| `donut.inner` | `donut_inner_ratio` |
+| `donut.bg` | `donut_bg_color` |
+| `donut.show.value` | `donut_show_value` |
+| `donut.value.cex` | `donut_value_size` |
+| `donut.value.color` | `donut_value_color` |
+| `edge.color` | `edge_color` |
+| `edge.width` | `edge_width` |
+| `edge.alpha` | `edge_alpha` |
+| `edge.labels` | `edge_labels` |
+| `edge.label.cex` | `edge_label_size` |
+| `edge.label.color` | `edge_label_color` |
+| `edge.label.bg` | `edge_label_bg` |
+| `edge.label.position` | `edge_label_position` |
+| `edge.label.font` | `edge_label_fontface` |
+| `lty` | `edge_style` |
+| `curve` | `curvature` |
+| `curveScale` | `curve_scale` |
+| `curveShape` | `curve_shape` |
+| `curvePivot` | `curve_pivot` |
+| `asize` | `arrow_size` |
+| `arrows` | `show_arrows` |
+| `loopRotation` | `loop_rotation` |
+| `minimum` | `threshold` |
+| `posCol` | `positive_color` |
+| `negCol` | `negative_color` |
+| `title.cex` | `title_size` |
+| `mar` | `margins` |
+| `legend.position` | `legend_position` |
+| `legend.cex` | `legend_size` |
+| `legend.edge.colors` | `legend_edge_colors` |
+| `legend.node.sizes` | `legend_node_sizes` |
+| `nodeNames` | `node_names` |
+
+Now both functions use identical parameter names for the same features.
+
+### 6. LOW PRIORITY: Performance Optimization
 
 For very large networks (>500 nodes), consider:
 - Batch drawing of similar elements
@@ -147,7 +204,19 @@ Quick test:
 ```r
 mat <- matrix(c(0, 0.8, 0.5, 0), 2, 2, byrow=TRUE)
 rownames(mat) <- colnames(mat) <- c("A", "B")
-splot(mat, layout="circle", curve=0.3)
+splot(mat, layout="circle", curvature=0.3)
+```
+
+Verify unified API (both should produce identical plots):
+```r
+mat <- matrix(c(0, 0.8, 0.5, 0), 2, 2, byrow=TRUE)
+rownames(mat) <- colnames(mat) <- c("A", "B")
+
+# splot (base R graphics)
+splot(mat, node_size=0.1, edge_color="blue", curvature=0.3)
+
+# soplot (grid graphics)
+soplot(sonnet(mat), node_size=0.1, edge_color="blue", curvature=0.3)
 ```
 
 ## Related Files

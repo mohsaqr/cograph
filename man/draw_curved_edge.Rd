@@ -17,7 +17,9 @@ draw_curved_edge(
   arrow_size,
   bidirectional = FALSE,
   curve_shape = 0,
-  curve_pivot = 0.5
+  curve_pivot = 0.5,
+  x_scale = 1,
+  y_scale = 1
 )
 }
 \description{

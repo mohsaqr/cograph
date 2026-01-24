@@ -14,7 +14,9 @@ draw_straight_edge(
   lty,
   show_arrow,
   arrow_size,
-  bidirectional = FALSE
+  bidirectional = FALSE,
+  x_scale = 1,
+  y_scale = 1
 )
 }
 \description{

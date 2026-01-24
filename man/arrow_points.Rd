@@ -4,7 +4,7 @@
 \alias{arrow_points}
 \title{Calculate Arrow Head Points}
 \usage{
-arrow_points(x, y, angle, size, width = 0.5)
+arrow_points(x, y, angle, size, width = 0.5, x_scale = 1, y_scale = 1)
 }
 \arguments{
 \item{x, y}{Arrow tip position.}
@@ -14,6 +14,8 @@ arrow_points(x, y, angle, size, width = 0.5)
 \item{size}{Arrow size.}
 
 \item{width}{Arrow width ratio (default 0.5).}
+
+\item{x_scale, y_scale}{Aspect ratio correction factors.}
 }
 \value{
 List with arrow polygon coordinates and midpoint for line connection.

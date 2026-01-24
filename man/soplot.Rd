@@ -52,10 +52,16 @@ soplot(
   edge_label_color = NULL,
   edge_label_position = NULL,
   edge_label_offset = NULL,
+  edge_label_bg = NULL,
+  edge_label_fontface = NULL,
+  edge_label_border = NULL,
+  edge_label_border_color = NULL,
+  edge_label_underline = NULL,
   bidirectional = NULL,
   loop_rotation = NULL,
   curve_shape = NULL,
   curve_pivot = NULL,
+  curves = NULL,
   node_names = NULL,
   legend = FALSE,
   legend_position = "topright"
@@ -108,10 +114,16 @@ sn_render(
   edge_label_color = NULL,
   edge_label_position = NULL,
   edge_label_offset = NULL,
+  edge_label_bg = NULL,
+  edge_label_fontface = NULL,
+  edge_label_border = NULL,
+  edge_label_border_color = NULL,
+  edge_label_underline = NULL,
   bidirectional = NULL,
   loop_rotation = NULL,
   curve_shape = NULL,
   curve_pivot = NULL,
+  curves = NULL,
   node_names = NULL,
   legend = FALSE,
   legend_position = "topright"
@@ -218,6 +230,16 @@ For donut with single value (0-1), shows that proportion filled.}
 
 \item{edge_label_offset}{Perpendicular offset from edge line.}
 
+\item{edge_label_bg}{Background color for edge labels (default "white"). Set to NA for transparent.}
+
+\item{edge_label_fontface}{Font face: "plain", "bold", "italic", "bold.italic".}
+
+\item{edge_label_border}{Border style: NULL, "rect", "rounded", "circle".}
+
+\item{edge_label_border_color}{Border color for label border.}
+
+\item{edge_label_underline}{Logical. Underline the label text?}
+
 \item{bidirectional}{Logical. Show arrows at both ends of edges?}
 
 \item{loop_rotation}{Angle in radians for self-loop direction (default: pi/2 = top).}
@@ -225,6 +247,9 @@ For donut with single value (0-1), shows that proportion filled.}
 \item{curve_shape}{Spline tension for curved edges (-1 to 1, default: 0).}
 
 \item{curve_pivot}{Pivot position along edge for curve control point (0-1, default: 0.5).}
+
+\item{curves}{Curve mode: TRUE (default) = single edges straight, reciprocal edges
+curve as ellipse (two opposing curves); FALSE = all straight; "force" = all curved.}
 
 \item{node_names}{Alternative names for legend (separate from display labels).}
 

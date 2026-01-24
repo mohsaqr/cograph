@@ -22,10 +22,17 @@ sn_edges(
   label_color = NULL,
   label_position = NULL,
   label_offset = NULL,
+  label_bg = NULL,
+  label_bg_padding = NULL,
+  label_fontface = NULL,
+  label_border = NULL,
+  label_border_color = NULL,
+  label_underline = NULL,
   bidirectional = NULL,
   loop_rotation = NULL,
   curve_shape = NULL,
-  curve_pivot = NULL
+  curve_pivot = NULL,
+  curves = NULL
 )
 }
 \arguments{
@@ -67,6 +74,18 @@ values < 1 make them thinner. Applied after all other width calculations.}
 
 \item{label_offset}{Perpendicular offset from edge line.}
 
+\item{label_bg}{Background color for edge labels (default "white"). Set to NA for transparent.}
+
+\item{label_bg_padding}{Padding around label text as proportion of text size (default 0.3).}
+
+\item{label_fontface}{Font face: "plain", "bold", "italic", "bold.italic" (default "plain").}
+
+\item{label_border}{Border style: NULL (none), "rect", "rounded", "circle" (default NULL).}
+
+\item{label_border_color}{Border color for label border (default "gray50").}
+
+\item{label_underline}{Logical. Underline the label text? (default FALSE).}
+
 \item{bidirectional}{Logical. Show arrows at both ends of edges?}
 
 \item{loop_rotation}{Angle in radians for self-loop direction (default: pi/2 = top).}
@@ -74,6 +93,9 @@ values < 1 make them thinner. Applied after all other width calculations.}
 \item{curve_shape}{Spline tension for curved edges (-1 to 1, default: 0).}
 
 \item{curve_pivot}{Pivot position along edge for curve control point (0-1, default: 0.5).}
+
+\item{curves}{Curve mode: FALSE (straight edges), "mutual" (only curve reciprocal pairs),
+or "force" (curve all edges). Default FALSE.}
 }
 \value{
 Modified sonnet_network object.

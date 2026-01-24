@@ -13,6 +13,6 @@ render_edge_labels_grid(network)
 A grid gList of label grobs.
 }
 \description{
-Create grid grobs for edge labels.
+Create grid grobs for edge labels with background, borders, and styling.
 }
 \keyword{internal}

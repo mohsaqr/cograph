@@ -2,153 +2,219 @@
 % Please edit documentation in R/splot.R
 \name{splot}
 \alias{splot}
-\title{Plot Network with Base R Graphics}
+\title{Base R Graphics Network Plotting}
 \usage{
 splot(
   x,
   layout = "spring",
   directed = NULL,
-  vsize = NULL,
-  vsize2 = NULL,
-  shape = "circle",
-  color = NULL,
-  border.color = NULL,
-  border.width = 1,
+  seed = 42,
+  theme = NULL,
+  node_size = NULL,
+  node_size2 = NULL,
+  node_shape = "circle",
+  node_fill = NULL,
+  node_border_color = NULL,
+  node_border_width = 1,
+  node_alpha = 1,
   labels = TRUE,
-  label.cex = NULL,
-  label.color = "black",
-  pie = NULL,
-  pieColor = NULL,
-  donut = NULL,
-  donutColor = NULL,
-  edge.color = NULL,
-  edge.width = NULL,
-  edge.labels = FALSE,
-  edge.label.cex = 0.8,
-  edge.label.bg = "white",
-  edge.label.position = 0.5,
-  lty = 1,
-  curve = 0,
-  curveScale = TRUE,
-  curvePivot = 0.5,
-  asize = 1,
-  arrows = TRUE,
+  label_size = NULL,
+  label_color = "black",
+  label_position = "center",
+  pie_values = NULL,
+  pie_colors = NULL,
+  donut_values = NULL,
+  donut_colors = NULL,
+  donut_inner_ratio = 0.5,
+  donut_bg_color = "gray90",
+  donut_show_value = TRUE,
+  donut_value_size = 0.8,
+  donut_value_color = "black",
+  edge_color = NULL,
+  edge_width = NULL,
+  edge_alpha = 0.8,
+  edge_labels = FALSE,
+  edge_label_size = 0.8,
+  edge_label_color = "gray30",
+  edge_label_bg = "white",
+  edge_label_position = 0.5,
+  edge_label_fontface = 1,
+  edge_style = 1,
+  curvature = 0,
+  curve_scale = TRUE,
+  curve_shape = 0,
+  curve_pivot = 0.5,
+  curves = TRUE,
+  arrow_size = 1,
+  show_arrows = TRUE,
   bidirectional = FALSE,
-  loopRotation = NULL,
-  minimum = 0,
+  loop_rotation = NULL,
+  threshold = 0,
   maximum = NULL,
-  posCol = "#2E7D32",
-  negCol = "#C62828",
+  positive_color = "#2E7D32",
+  negative_color = "#C62828",
   title = NULL,
-  mar = c(0.1, 0.1, 0.1, 0.1),
+  title_size = 1.2,
+  margins = c(0.1, 0.1, 0.1, 0.1),
   background = "white",
   rescale = TRUE,
   aspect = TRUE,
+  usePCH = FALSE,
   legend = FALSE,
+  legend_position = "topright",
+  legend_size = 0.8,
+  legend_edge_colors = TRUE,
+  legend_node_sizes = FALSE,
   groups = NULL,
+  node_names = NULL,
   filetype = "default",
   filename = "splot",
   width = 7,
   height = 7,
+  res = 600,
   ...
 )
 }
 \arguments{
 \item{x}{Network input. Can be:
-  \itemize{
-    \item A square numeric matrix (adjacency/weight matrix)
-    \item A data frame with edge list (from, to, optional weight columns)
-    \item An igraph object
-    \item A sonnet_network object
-  }}
+\itemize{
+\item A square numeric matrix (adjacency/weight matrix)
+\item A data frame with edge list (from, to, optional weight columns)
+\item An igraph object
+\item A sonnet_network object
+}}
 
 \item{layout}{Layout algorithm: "circle", "spring", "groups", or a matrix
-of x,y coordinates, or an igraph layout function.}
+of x,y coordinates, or an igraph layout function. Also supports igraph
+two-letter codes: "kk", "fr", "drl", "mds", "ni", etc.}
 
 \item{directed}{Logical. Force directed interpretation. NULL for auto-detect.}
 
-\item{vsize}{Node size(s). Single value or vector.}
+\item{seed}{Random seed for deterministic layouts. Default 42.}
 
-\item{vsize2}{Secondary node size for ellipse/rectangle height.}
+\item{theme}{Theme name: "classic", "dark", "minimal", "colorblind", etc.}
 
-\item{shape}{Node shape(s): "circle", "square", "triangle", "diamond",
+\item{node_size}{Node size(s). Single value or vector. Default 3.}
+
+\item{node_size2}{Secondary node size for ellipse/rectangle height.}
+
+\item{node_shape}{Node shape(s): "circle", "square", "triangle", "diamond",
 "pentagon", "hexagon", "star", "heart", "ellipse", "cross".}
 
-\item{color}{Node fill color(s).}
+\item{node_fill}{Node fill color(s).}
 
-\item{border.color}{Node border color(s).}
+\item{node_border_color}{Node border color(s).}
 
-\item{border.width}{Node border width(s).}
+\item{node_border_width}{Node border width(s).}
+
+\item{node_alpha}{Node transparency (0-1). Default 1.}
 
 \item{labels}{Node labels: TRUE (use node names/indices), FALSE (none),
 or character vector.}
 
-\item{label.cex}{Label character expansion factor.}
+\item{label_size}{Label character expansion factor.}
 
-\item{label.color}{Label text color.}
+\item{label_color}{Label text color.}
 
-\item{pie}{List of numeric vectors for pie chart nodes. Each element
+\item{label_position}{Label position: "center", "above", "below", "left", "right".}
+
+\item{pie_values}{List of numeric vectors for pie chart nodes. Each element
 corresponds to a node and contains values for pie segments.}
 
-\item{pieColor}{List of color vectors for pie segments.}
+\item{pie_colors}{List of color vectors for pie segments.}
 
-\item{donut}{List of values for donut chart nodes. Single value (0-1)
+\item{donut_values}{List of values for donut chart nodes. Single value (0-1)
 for progress donut, or vector for segmented donut.}
 
-\item{donutColor}{List of color vectors for donut segments.}
+\item{donut_colors}{List of color vectors for donut segments.}
 
-\item{edge.color}{Edge color(s). If NULL, uses posCol/negCol based on weight.}
+\item{donut_inner_ratio}{Inner radius ratio for donut (0-1). Default 0.5.}
 
-\item{edge.width}{Edge width(s). If NULL, scales by weight.}
+\item{donut_bg_color}{Background color for unfilled donut portion.}
 
-\item{edge.labels}{Edge labels: TRUE (show weights), FALSE (none),
+\item{donut_show_value}{Logical: show value in donut center? Default TRUE.}
+
+\item{donut_value_size}{Font size for donut center value.}
+
+\item{donut_value_color}{Color for donut center value.}
+
+\item{edge_color}{Edge color(s). If NULL, uses positive_color/negative_color based on weight.}
+
+\item{edge_width}{Edge width(s). If NULL, scales by weight.}
+
+\item{edge_alpha}{Edge transparency (0-1). Default 0.8.}
+
+\item{edge_labels}{Edge labels: TRUE (show weights), FALSE (none),
 or character vector.}
 
-\item{edge.label.cex}{Edge label size.}
+\item{edge_label_size}{Edge label size.}
 
-\item{edge.label.bg}{Edge label background color.}
+\item{edge_label_color}{Edge label text color.}
 
-\item{edge.label.position}{Position along edge (0-1).}
+\item{edge_label_bg}{Edge label background color.}
 
-\item{lty}{Line type(s): 1=solid, 2=dashed, 3=dotted, etc.}
+\item{edge_label_position}{Position along edge (0-1).}
 
-\item{curve}{Edge curvature. 0 for straight, positive/negative for curves.}
+\item{edge_label_fontface}{Font face: 1=plain, 2=bold, 3=italic.}
 
-\item{curveScale}{Logical: auto-curve reciprocal edges?}
+\item{edge_style}{Line type(s): 1=solid, 2=dashed, 3=dotted, etc.}
 
-\item{curvePivot}{Position along edge for curve control point (0-1).}
+\item{curvature}{Edge curvature. 0 for straight, positive/negative for curves.}
 
-\item{asize}{Arrow head size.}
+\item{curve_scale}{Logical: auto-curve reciprocal edges?}
 
-\item{arrows}{Logical or vector: show arrows on directed edges?}
+\item{curve_shape}{Spline tension (-1 to 1). Default 0.}
+
+\item{curve_pivot}{Position along edge for curve control point (0-1).}
+
+\item{curves}{Curve mode: TRUE (default) = single edges straight, reciprocal edges
+curve as ellipse (two opposing curves); FALSE = all straight; "force" = all curved.}
+
+\item{arrow_size}{Arrow head size.}
+
+\item{show_arrows}{Logical or vector: show arrows on directed edges?}
 
 \item{bidirectional}{Logical or vector: show arrows at both ends?}
 
-\item{loopRotation}{Angle(s) in radians for self-loop direction.}
+\item{loop_rotation}{Angle(s) in radians for self-loop direction.}
 
-\item{minimum}{Minimum absolute weight to display.}
+\item{threshold}{Minimum absolute weight to display.}
 
 \item{maximum}{Maximum weight for scaling. NULL for auto.}
 
-\item{posCol}{Color for positive weights.}
+\item{positive_color}{Color for positive weights.}
 
-\item{negCol}{Color for negative weights.}
+\item{negative_color}{Color for negative weights.}
 
 \item{title}{Plot title.}
 
-\item{mar}{Margins as c(bottom, left, top, right).}
+\item{title_size}{Title font size.}
+
+\item{margins}{Margins as c(bottom, left, top, right).}
 
 \item{background}{Background color.}
 
-\item{rescale}{Logical: rescale layout to [-1, 1]?}
+\item{rescale}{Logical: rescale layout to \link{-1, 1}?}
 
 \item{aspect}{Logical: maintain aspect ratio?}
 
+\item{usePCH}{Logical: use points() for simple circles (faster). Default FALSE.}
+
 \item{legend}{Logical: show legend?}
 
-\item{groups}{Group assignments for node coloring.}
+\item{legend_position}{Position: "topright", "topleft", "bottomright", "bottomleft".}
 
-\item{filetype}{Output format: "default" (screen), "png", "pdf", "svg".}
+\item{legend_size}{Legend text size.}
+
+\item{legend_edge_colors}{Logical: show positive/negative edge colors in legend?}
+
+\item{legend_node_sizes}{Logical: show node size scale in legend?}
+
+\item{groups}{Group assignments for node coloring/legend.}
+
+\item{node_names}{Alternative names for legend (separate from labels).}
+
+\item{filetype}{Output format: "default" (screen), "png", "pdf", "svg", "jpeg", "tiff".}
 
 \item{filename}{Output filename (without extension).}
 
@@ -156,16 +222,49 @@ or character vector.}
 
 \item{height}{Output height in inches.}
 
-\item{...}{Additional arguments (currently unused).}
+\item{res}{Resolution in DPI for raster outputs (PNG, JPEG, TIFF). Default 600.}
+
+\item{...}{Additional arguments passed to layout functions.}
 }
 \value{
 Invisibly returns the sonnet_network object.
 }
 \description{
+Network visualization using base R graphics (similar to qgraph).
+
 Creates a network visualization using base R graphics functions (polygon,
 lines, xspline, etc.) instead of grid graphics. This provides better
-performance for large networks and qgraph-familiar parameter names.
+performance for large networks and uses the same snake_case parameter names
+as soplot() for consistency.
 }
+\section{Node Aesthetics}{
+
+}
+
+\section{Pie/Donut Nodes}{
+
+}
+
+\section{Edge Aesthetics}{
+
+}
+
+\section{Weight Handling}{
+
+}
+
+\section{Plot Settings}{
+
+}
+
+\section{Legend}{
+
+}
+
+\section{Output}{
+
+}
+
 \examples{
 # Basic network from adjacency matrix
 adj <- matrix(c(0, 1, 1, 0,
@@ -175,17 +274,17 @@ adj <- matrix(c(0, 1, 1, 0,
 splot(adj)
 
 # With curved edges
-splot(adj, curve = 0.2)
+splot(adj, curvature = 0.2)
 
 # Weighted network with colors
 w_adj <- matrix(c(0, 0.5, -0.3, 0,
                   0.8, 0, 0.4, -0.2,
                   0, 0, 0, 0.6,
                   0, 0, 0, 0), 4, 4, byrow = TRUE)
-splot(w_adj, posCol = "darkgreen", negCol = "red")
+splot(w_adj, positive_color = "darkgreen", negative_color = "red")
 
 # Pie chart nodes
-splot(adj, pie = list(c(1,2,3), c(2,2), c(1,1,1,1), c(3,1)))
+splot(adj, pie_values = list(c(1,2,3), c(2,2), c(1,1,1,1), c(3,1)))
 
 # Circle layout with labels
 splot(adj, layout = "circle", labels = c("A", "B", "C", "D"))

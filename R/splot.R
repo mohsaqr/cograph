@@ -591,9 +591,9 @@ splot <- function(
     on.exit(grDevices::dev.off(), add = TRUE)
   }
 
-  # Set up plot area
-  old_par <- graphics::par(no.readonly = TRUE)
-  on.exit(graphics::par(old_par), add = TRUE)
+  # Set up plot area - only save/restore parameters we modify
+  old_mar <- graphics::par("mar")
+  on.exit(graphics::par(mar = old_mar), add = TRUE)
 
   # Margins
   title_space <- if (!is.null(title)) 0.5 else 0

@@ -60,6 +60,7 @@ NULL
 #'   - >2 colors: per-node fill colors (recycled to n_nodes)
 #'   Default: "lightgray" fill, "gray90" background when node_shape="donut".
 #' @param donut_colors Deprecated. Use donut_color instead.
+#' @param donut_border_color Border color for donut rings. NULL uses node_border_color.
 #' @param donut_border_width Border width for donut rings. NULL uses node_border_width.
 #' @param donut_inner_ratio Inner radius ratio for donut (0-1). Default 0.5.
 #' @param donut_bg_color Background color for unfilled donut portion.
@@ -142,6 +143,8 @@ NULL
 #' @param margins Margins as c(bottom, left, top, right).
 #' @param background Background color.
 #' @param rescale Logical: rescale layout to [-1, 1]?
+#' @param layout_margin Margin around the layout as fraction of range. Default 0.15.
+#'   Set to 0 for no extra margin (tighter fit). Affects white space around nodes.
 #' @param aspect Logical: maintain aspect ratio?
 #' @param usePCH Logical: use points() for simple circles (faster). Default FALSE.
 #'
@@ -225,6 +228,7 @@ splot <- function(
     donut_values = NULL,
     donut_color = NULL,
     donut_colors = NULL,  # Deprecated: use donut_color
+    donut_border_color = NULL,
     donut_border_width = NULL,
     donut_inner_ratio = 0.5,
     donut_bg_color = "gray90",
@@ -299,6 +303,7 @@ splot <- function(
     margins = c(0.1, 0.1, 0.1, 0.1),
     background = "white",
     rescale = TRUE,
+    layout_margin = 0.15,
     aspect = TRUE,
     usePCH = FALSE,
 
@@ -596,9 +601,9 @@ splot <- function(
   x_range <- range(layout_mat[, 1], na.rm = TRUE)
   y_range <- range(layout_mat[, 2], na.rm = TRUE)
 
-  # Add margin to limits
-  x_margin <- diff(x_range) * 0.15
-  y_margin <- diff(y_range) * 0.15
+  # Add margin to limits (configurable via layout_margin parameter)
+  x_margin <- diff(x_range) * layout_margin
+  y_margin <- diff(y_range) * layout_margin
 
   xlim <- c(x_range[1] - x_margin, x_range[2] + x_margin)
   ylim <- c(y_range[1] - y_margin, y_range[2] + y_margin)
@@ -733,6 +738,13 @@ splot <- function(
     effective_donut_shapes <- recycle_to_length(donut_shape, n_nodes)
   }
 
+  # Vectorize donut_border_color for per-node support
+  effective_donut_border_color <- if (!is.null(donut_border_color)) {
+    recycle_to_length(donut_border_color, n_nodes)
+  } else {
+    NULL
+  }
+
   render_nodes_splot(
     layout = layout_mat,
     node_size = vsize_usr,
@@ -746,6 +758,7 @@ splot <- function(
     pie_border_width = pie_border_width,
     donut_values = effective_donut_values,
     donut_colors = effective_donut_colors,
+    donut_border_color = effective_donut_border_color,
     donut_border_width = donut_border_width,
     donut_inner_ratio = donut_inner_ratio,
     donut_bg_color = effective_bg_color,
@@ -1019,7 +1032,8 @@ render_edges_splot <- function(edges, layout, node_sizes, shapes,
 #' @keywords internal
 render_nodes_splot <- function(layout, node_size, node_size2, node_shape, node_fill,
                                node_border_color, node_border_width, pie_values, pie_colors,
-                               pie_border_width, donut_values, donut_colors, donut_border_width,
+                               pie_border_width, donut_values, donut_colors,
+                               donut_border_color, donut_border_width,
                                donut_inner_ratio, donut_bg_color, donut_shape,
                                donut_show_value, donut_value_size, donut_value_color,
                                donut_value_fontface = "bold", donut_value_fontfamily = "sans",
@@ -1115,6 +1129,13 @@ render_nodes_splot <- function(layout, node_size, node_size2, node_shape, node_f
       # Get per-node donut shape (donut_shape is now a vector)
       current_donut_shape <- if (length(donut_shape) >= i) donut_shape[i] else "circle"
 
+      # Determine effective donut border color (use donut_border_color[i] if set, else node_border_color)
+      effective_donut_border_col <- if (!is.null(donut_border_color) && length(donut_border_color) >= i) {
+        donut_border_color[i]
+      } else {
+        node_border_color[i]
+      }
+
       if (current_donut_shape != "circle") {
         # Use polygon donut for non-circular shapes
         draw_polygon_donut_node_base(
@@ -1126,7 +1147,7 @@ render_nodes_splot <- function(layout, node_size, node_size2, node_shape, node_f
           bg_color = donut_bg_color,
           center_color = node_fill[i],
           donut_shape = current_donut_shape,
-          border.col = node_border_color[i],
+          border.col = effective_donut_border_col,
           border.width = node_border_width[i],
           donut_border.width = donut_border_width,
           show_value = donut_show_value,
@@ -1148,7 +1169,7 @@ render_nodes_splot <- function(layout, node_size, node_size2, node_shape, node_f
           inner_ratio = donut_inner_ratio,
           bg_color = donut_bg_color,
           center_color = node_fill[i],
-          border.col = node_border_color[i],
+          border.col = effective_donut_border_col,
           border.width = node_border_width[i],
           donut_border.width = donut_border_width,
           show_value = donut_show_value,

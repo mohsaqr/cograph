@@ -171,6 +171,60 @@ plots$donut_fill_polygon <- save_plot(quote({
   title("donut_fill with hexagon shape")
 }), "02h_donut_fill_polygon.png")
 
+# Test 2i: NEW - donut_shape inherits from node_shape
+message("Testing donut_shape inherits from node_shape...")
+plots$donut_inherit_shape <- save_plot(quote({
+  splot(adj,
+    layout = "circle",
+    node_shape = "hexagon",  # All nodes are hexagon
+    donut_fill = c(0.3, 0.5, 0.7, 0.9),  # This triggers donut rendering
+    donut_color = c("steelblue", "coral", "forestgreen", "purple"),
+    node_size = 6
+  )
+  title("NEW: Donut inherits node_shape (hexagon)")
+}), "02i_donut_inherit_shape.png")
+
+# Test 2j: NEW - per-node shapes with donut - each inherits its shape
+message("Testing per-node shapes with donut_fill...")
+plots$donut_per_node_shapes <- save_plot(quote({
+  splot(adj,
+    layout = "circle",
+    node_shape = c("circle", "square", "hexagon", "triangle"),
+    donut_fill = c(0.5, 0.6, 0.7, 0.8),
+    donut_color = c("red", "orange", "green", "blue"),
+    node_size = 6
+  )
+  title("NEW: Per-node shapes - each donut inherits its shape")
+}), "02j_donut_per_node_shapes.png")
+
+# Test 2k: NEW - mixed nodes (some donut, some regular) using NA
+message("Testing mixed nodes with NA in donut_fill...")
+plots$donut_mixed_na <- save_plot(quote({
+  splot(adj,
+    layout = "circle",
+    node_shape = c("circle", "square", "hexagon", "triangle"),
+    donut_fill = c(NA, 0.6, 0.8, NA),  # Only nodes 2 & 3 are donuts
+    donut_color = c(NA, "coral", "forestgreen", NA),
+    node_size = 6,
+    node_fill = c("lightblue", "lightgray", "lightgray", "lightyellow")
+  )
+  title("NEW: Mixed - only nodes 2 & 3 are donuts (NA = regular)")
+}), "02k_donut_mixed_na.png")
+
+# Test 2l: NEW - node_shape = "donut" with explicit donut_shape override
+message("Testing donut override with explicit donut_shape...")
+plots$donut_shape_override <- save_plot(quote({
+  splot(adj,
+    layout = "circle",
+    node_shape = "donut",  # "donut" is shorthand for circle donut
+    donut_shape = "hexagon",  # Override: force hexagon donuts
+    donut_fill = c(0.3, 0.5, 0.7, 0.9),
+    donut_color = "steelblue",
+    node_size = 6
+  )
+  title("NEW: node_shape='donut' + donut_shape='hexagon' override")
+}), "02l_donut_shape_override.png")
+
 # Test 3: Edge Label Shadow
 message("Testing Feature 4: Edge Label Shadow...")
 plots$shadow <- save_plot(quote({
@@ -484,6 +538,55 @@ html_content <- tags$html(
                   "green", "blue"),
   node_size = 6
 )  # 4 colors = per-node')
+      )
+    ),
+
+    # ===== NEW: Donut Shape Inheritance =====
+    tags$div(class = "feature",
+      tags$h3("NEW: Donut Shape Inherits from Node Shape"),
+      tags$p("When ", tags$code("donut_shape"), " is not explicitly set, donuts inherit the shape from ", tags$code("node_shape"), "."),
+      tags$ul(
+        tags$li(tags$code("node_shape = 'hexagon'"), " with ", tags$code("donut_fill"), " → hexagon-shaped donuts"),
+        tags$li(tags$code("node_shape = 'donut'"), " → circle donuts (shorthand)"),
+        tags$li("Per-node shapes: each donut inherits its node's shape"),
+        tags$li("Use ", tags$code("donut_shape"), " to override")
+      ),
+      tags$div(class = "plots",
+        make_plot_card("02i_donut_inherit_shape.png", "Donut inherits node_shape",
+'splot(adj,
+  layout = "circle",
+  node_shape = "hexagon",  # All hexagons
+  donut_fill = c(0.3, 0.5, 0.7, 0.9),
+  donut_color = c("steelblue", "coral",
+                  "forestgreen", "purple"),
+  node_size = 6
+)  # Donuts inherit hexagon shape!'),
+        make_plot_card("02j_donut_per_node_shapes.png", "Per-node shapes",
+'splot(adj,
+  layout = "circle",
+  node_shape = c("circle", "square",
+                 "hexagon", "triangle"),
+  donut_fill = c(0.5, 0.6, 0.7, 0.8),
+  donut_color = c("red", "orange",
+                  "green", "blue"),
+  node_size = 6
+)  # Each donut inherits its shape'),
+        make_plot_card("02k_donut_mixed_na.png", "Mixed: some donuts, some regular",
+'splot(adj,
+  layout = "circle",
+  node_shape = c("circle", "square",
+                 "hexagon", "triangle"),
+  donut_fill = c(NA, 0.6, 0.8, NA),
+  node_size = 6
+)  # NA = render as regular node'),
+        make_plot_card("02l_donut_shape_override.png", "Override with donut_shape",
+'splot(adj,
+  layout = "circle",
+  node_shape = "donut",
+  donut_shape = "hexagon",  # Override!
+  donut_fill = c(0.3, 0.5, 0.7, 0.9),
+  node_size = 6
+)  # Force hexagon on "donut" nodes')
       )
     ),
 

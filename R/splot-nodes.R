@@ -257,7 +257,7 @@ draw_polygon_donut_node_base <- function(x, y, size, values, colors = NULL,
 
     # Draw filled portion
     if (prop > 0) {
-      segment_col <- if (!is.null(colors)) colors[1] else "#4A90D9"
+      segment_col <- if (!is.null(colors)) colors[1] else "lightgray"
       filled_verts <- max(1, round(prop * n_verts))
 
       for (i in seq_len(filled_verts)) {
@@ -404,7 +404,7 @@ draw_donut_node_base <- function(x, y, size, values, colors = NULL,
     if (prop > 0) {
       start_ang <- pi / 2
       end_ang <- pi / 2 - 2 * pi * prop
-      fill_col <- if (!is.null(colors)) colors[1] else if (!is.null(default_color)) default_color else "#4A90D9"
+      fill_col <- if (!is.null(colors)) colors[1] else if (!is.null(default_color)) default_color else "lightgray"
       draw_ring_segment(start_ang, end_ang, outer_r, inner_r, fill_col)
     }
 

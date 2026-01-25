@@ -54,7 +54,12 @@ NULL
 #'   qgraph-style API: 0.1 = 10% filled, 0.5 = 50% filled, 1.0 = fully filled.
 #'   Can be a single value (all nodes) or vector (per-node values).
 #' @param donut_values Deprecated. Use donut_fill for simple fill proportion.
-#' @param donut_colors Fill color(s) for the donut ring.
+#' @param donut_color Fill color(s) for the donut ring. Simplified API:
+#'   - Single color: fill color for ALL nodes (e.g., "steelblue")
+#'   - Two colors: fill + background for ALL nodes (e.g., c("steelblue", "lightyellow"))
+#'   - >2 colors: per-node fill colors (recycled to n_nodes)
+#'   Default: "lightgray" fill, "gray90" background when node_shape="donut".
+#' @param donut_colors Deprecated. Use donut_color instead.
 #' @param donut_border_width Border width for donut rings. NULL uses node_border_width.
 #' @param donut_inner_ratio Inner radius ratio for donut (0-1). Default 0.5.
 #' @param donut_bg_color Background color for unfilled donut portion.
@@ -214,7 +219,8 @@ splot <- function(
     pie_border_width = NULL,
     donut_fill = NULL,
     donut_values = NULL,
-    donut_colors = NULL,
+    donut_color = NULL,
+    donut_colors = NULL,  # Deprecated: use donut_color
     donut_border_width = NULL,
     donut_inner_ratio = 0.5,
     donut_bg_color = "gray90",
@@ -662,6 +668,13 @@ splot <- function(
   # 7. RENDER NODES
   # ============================================
 
+  # Auto-enable donut fill when node_shape is "donut" but no fill specified
+  if (is.null(donut_fill) && is.null(donut_values)) {
+    if (any(shapes == "donut")) {
+      donut_fill <- 1.0  # Full ring by default
+    }
+  }
+
   # Handle donut_fill: convert to list format if provided
   # donut_fill takes precedence over donut_values for the new simplified API
   effective_donut_values <- donut_values
@@ -673,6 +686,35 @@ splot <- function(
     } else {
       effective_donut_values <- donut_fill
     }
+  }
+
+  # Handle donut_color (new simplified API) and donut_colors (deprecated)
+  # Priority: donut_color > donut_colors
+  effective_donut_colors <- NULL
+  effective_bg_color <- donut_bg_color
+
+  if (!is.null(donut_color)) {
+    if (is.list(donut_color) && length(donut_color) == 2 * n_nodes) {
+      # List with 2×n_nodes: per-node (fill, bg) pairs - extract odd indices for fill
+      effective_donut_colors <- as.list(donut_color[seq(1, 2 * n_nodes, by = 2)])
+    } else if (length(donut_color) == 2) {
+      # Two colors: fill + background for ALL nodes
+      effective_donut_colors <- as.list(rep(donut_color[1], n_nodes))
+      effective_bg_color <- donut_color[2]
+    } else if (length(donut_color) == 1) {
+      # Single color: fill for all nodes
+      effective_donut_colors <- as.list(rep(donut_color, n_nodes))
+    } else {
+      # Multiple colors (not 2): treat as per-node fill colors
+      cols <- recycle_to_length(donut_color, n_nodes)
+      effective_donut_colors <- as.list(cols)
+    }
+  } else if (!is.null(donut_colors)) {
+    # Deprecated: use old donut_colors parameter
+    effective_donut_colors <- donut_colors
+  } else if (any(shapes == "donut") || !is.null(effective_donut_values)) {
+    # Default fill color: light gray when donuts are being used
+    effective_donut_colors <- as.list(rep("lightgray", n_nodes))
   }
 
   render_nodes_splot(
@@ -687,10 +729,10 @@ splot <- function(
     pie_colors = pie_colors,
     pie_border_width = pie_border_width,
     donut_values = effective_donut_values,
-    donut_colors = donut_colors,
+    donut_colors = effective_donut_colors,
     donut_border_width = donut_border_width,
     donut_inner_ratio = donut_inner_ratio,
-    donut_bg_color = donut_bg_color,
+    donut_bg_color = effective_bg_color,
     donut_shape = donut_shape,
     donut_show_value = donut_show_value,
     donut_value_size = donut_value_size,

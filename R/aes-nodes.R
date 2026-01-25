@@ -33,7 +33,12 @@ NULL
 #'   Can be a single value (all nodes) or vector (per-node values).
 #' @param donut_values Deprecated. Use donut_fill for simple fill proportion.
 #'   Still works for backwards compatibility.
-#' @param donut_colors For donut shape: fill color(s) for the donut ring.
+#' @param donut_color For donut shape: fill color(s) for the donut ring. Simplified API:
+#'   - Single color: fill color for ALL nodes (e.g., "steelblue")
+#'   - Two colors: fill + background for ALL nodes (e.g., c("steelblue", "lightyellow"))
+#'   - >2 colors: per-node fill colors (recycled to n_nodes)
+#'   Default: "lightgray" fill, "gray90" background when shape="donut".
+#' @param donut_colors Deprecated. Use donut_color instead.
 #' @param donut_border_width Border width for donut chart nodes.
 #' @param donut_inner_ratio For donut shape: inner radius ratio (0-1). Default 0.5.
 #' @param donut_bg_color For donut shape: background color for unfilled portion.
@@ -85,7 +90,8 @@ sn_nodes <- function(network,
                      pie_border_width = NULL,
                      donut_fill = NULL,
                      donut_values = NULL,
-                     donut_colors = NULL,
+                     donut_color = NULL,
+                     donut_colors = NULL,  # Deprecated: use donut_color
                      donut_border_width = NULL,
                      donut_inner_ratio = NULL,
                      donut_bg_color = NULL,
@@ -209,8 +215,11 @@ sn_nodes <- function(network,
     aes$donut_values <- donut_values
   }
 
-  if (!is.null(donut_colors)) {
-    aes$donut_colors <- donut_colors
+  if (!is.null(donut_color)) {
+    aes$donut_color <- donut_color
+  } else if (!is.null(donut_colors)) {
+    # Deprecated: use donut_colors as fallback
+    aes$donut_color <- donut_colors
   }
 
   if (!is.null(donut_border_width)) {

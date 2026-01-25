@@ -276,6 +276,39 @@ soplot <- function(network, title = NULL, title_size = 14,
   net <- network$network
   th <- net$get_theme()
 
+  # Rescale layout coordinates to [0.1, 0.9] range (same as splot)
+  # This ensures consistent rendering between soplot and splot
+  nodes <- net$get_nodes()
+  if (!is.null(nodes) && nrow(nodes) > 0 && !is.null(nodes$x) && !is.null(nodes$y)) {
+    x <- nodes$x
+    y <- nodes$y
+
+    # Handle single node case
+    if (nrow(nodes) == 1) {
+      nodes$x <- 0.5
+      nodes$y <- 0.5
+    } else {
+      # Rescale to [0.1, 0.9] range
+      x_range <- range(x, na.rm = TRUE)
+      y_range <- range(y, na.rm = TRUE)
+
+      # Handle constant values
+      if (diff(x_range) > 1e-10) {
+        nodes$x <- 0.1 + 0.8 * (x - x_range[1]) / diff(x_range)
+      } else {
+        nodes$x <- rep(0.5, nrow(nodes))
+      }
+
+      if (diff(y_range) > 1e-10) {
+        nodes$y <- 0.1 + 0.8 * (y - y_range[1]) / diff(y_range)
+      } else {
+        nodes$y <- rep(0.5, nrow(nodes))
+      }
+    }
+
+    net$set_nodes(nodes)
+  }
+
   if (newpage) {
     grid::grid.newpage()
   }

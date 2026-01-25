@@ -236,8 +236,11 @@ sn_nodes <- function(network,
 
   if (!is.null(donut_shape)) {
     valid_shapes <- c("circle", "square", "hexagon", "triangle", "diamond", "pentagon")
-    if (!donut_shape %in% valid_shapes) {
+    # Handle vectorized donut_shape (can be per-node)
+    if (!all(donut_shape %in% valid_shapes)) {
+      invalid <- unique(donut_shape[!donut_shape %in% valid_shapes])
       stop("donut_shape must be one of: ", paste(valid_shapes, collapse = ", "),
+           ". Invalid values: ", paste(invalid, collapse = ", "),
            call. = FALSE)
     }
     aes$donut_shape <- donut_shape

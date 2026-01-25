@@ -55,6 +55,54 @@ render_nodes_grid <- function(network) {
 
     # Additional arguments for special shapes
     extra_args <- list()
+
+    # Check if this node should render as a donut (based on donut_values)
+    has_donut_value <- !is.null(aes$donut_values) && length(aes$donut_values) >= i &&
+                       !is.null(aes$donut_values[[i]]) && !is.na(aes$donut_values[[i]])
+
+    # If donut_values is set for this node, render as donut (override shape)
+    if (has_donut_value && !shapes[i] %in% c("donut", "polygon_donut", "pie", "donut_pie", "double_donut_pie")) {
+      # Determine donut shape from aes$donut_shape
+      effective_donut_shape <- if (!is.null(aes$donut_shape)) {
+        if (length(aes$donut_shape) >= i) aes$donut_shape[i] else aes$donut_shape[1]
+      } else {
+        "circle"
+      }
+
+      # Use polygon_donut for non-circle shapes, regular donut for circles
+      if (effective_donut_shape != "circle") {
+        shape_fn <- get_shape("polygon_donut")
+        extra_args$donut_shape <- effective_donut_shape
+      } else {
+        shape_fn <- get_shape("donut")
+      }
+
+      # Pass donut value
+      extra_args$values <- aes$donut_values[[i]]
+
+      # Pass donut colors
+      if (!is.null(aes$donut_colors)) {
+        if (is.list(aes$donut_colors) && length(aes$donut_colors) >= i) {
+          extra_args$colors <- aes$donut_colors[[i]]
+        } else if (!is.list(aes$donut_colors)) {
+          extra_args$colors <- aes$donut_colors[1]
+        }
+      }
+
+      # Pass all donut parameters
+      if (!is.null(aes$donut_inner_ratio)) extra_args$inner_ratio <- aes$donut_inner_ratio
+      if (!is.null(aes$donut_bg_color)) extra_args$bg_color <- aes$donut_bg_color
+      if (!is.null(aes$donut_show_value)) extra_args$show_value <- aes$donut_show_value
+      if (!is.null(aes$donut_value_size)) extra_args$value_size <- aes$donut_value_size
+      if (!is.null(aes$donut_value_color)) extra_args$value_color <- aes$donut_value_color
+      if (!is.null(aes$donut_value_fontface)) extra_args$value_fontface <- aes$donut_value_fontface
+      if (!is.null(aes$donut_value_fontfamily)) extra_args$value_fontfamily <- aes$donut_value_fontfamily
+      if (!is.null(aes$donut_value_digits)) extra_args$value_digits <- aes$donut_value_digits
+      if (!is.null(aes$donut_value_prefix)) extra_args$value_prefix <- aes$donut_value_prefix
+      if (!is.null(aes$donut_value_suffix)) extra_args$value_suffix <- aes$donut_value_suffix
+      if (!is.null(aes$donut_border_width)) extra_args$donut_border_width <- aes$donut_border_width
+    }
+
     if (shapes[i] %in% c("pie", "donut") && !is.null(aes$pie_values)) {
       if (is.list(aes$pie_values)) {
         extra_args$values <- aes$pie_values[[i]]
@@ -74,6 +122,22 @@ render_nodes_grid <- function(network) {
     }
     # Donut-specific parameters
     if (shapes[i] == "donut" || shapes[i] == "polygon_donut") {
+      # Pass donut_values as values (for explicit donut shapes)
+      if (!is.null(aes$donut_values) && length(aes$donut_values) >= i &&
+          !is.null(aes$donut_values[[i]]) && !is.na(aes$donut_values[[i]])) {
+        extra_args$values <- aes$donut_values[[i]]
+      } else {
+        # Default to 1.0 (fully filled) for explicit donut shapes without values
+        extra_args$values <- 1.0
+      }
+      # Pass donut_colors as colors
+      if (!is.null(aes$donut_colors)) {
+        if (is.list(aes$donut_colors) && length(aes$donut_colors) >= i) {
+          extra_args$colors <- aes$donut_colors[[i]]
+        } else if (!is.list(aes$donut_colors)) {
+          extra_args$colors <- aes$donut_colors[1]
+        }
+      }
       if (!is.null(aes$donut_inner_ratio)) {
         extra_args$inner_ratio <- aes$donut_inner_ratio
       }
@@ -81,7 +145,12 @@ render_nodes_grid <- function(network) {
         extra_args$bg_color <- aes$donut_bg_color
       }
       if (!is.null(aes$donut_shape)) {
-        extra_args$donut_shape <- aes$donut_shape
+        # Handle vectorized donut_shape
+        if (length(aes$donut_shape) >= i) {
+          extra_args$donut_shape <- aes$donut_shape[i]
+        } else {
+          extra_args$donut_shape <- aes$donut_shape[1]
+        }
       }
       if (!is.null(aes$donut_show_value)) {
         extra_args$show_value <- aes$donut_show_value

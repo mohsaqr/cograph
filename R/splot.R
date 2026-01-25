@@ -63,7 +63,11 @@ NULL
 #' @param donut_border_width Border width for donut rings. NULL uses node_border_width.
 #' @param donut_inner_ratio Inner radius ratio for donut (0-1). Default 0.5.
 #' @param donut_bg_color Background color for unfilled donut portion.
-#' @param donut_shape Base shape for donut: "circle", "square", "hexagon", "triangle", "diamond", "pentagon". Default "circle".
+#' @param donut_shape Base shape for donut: "circle", "square", "hexagon", "triangle",
+#'   "diamond", "pentagon". Can be a single value or per-node vector.
+#'   Default inherits from node_shape (e.g., hexagon nodes get hexagon donuts).
+#'   Set explicitly to override (e.g., donut_shape = "hexagon" for hexagon donuts
+#'   on all nodes regardless of node_shape).
 #' @param donut_show_value Logical: show value in donut center? Default FALSE.
 #' @param donut_value_size Font size for donut center value.
 #' @param donut_value_color Color for donut center value.
@@ -671,7 +675,8 @@ splot <- function(
   # Auto-enable donut fill when node_shape is "donut" but no fill specified
   if (is.null(donut_fill) && is.null(donut_values)) {
     if (any(shapes == "donut")) {
-      donut_fill <- 1.0  # Full ring by default
+      # Create per-node fill: 1.0 for donut nodes, NA for others
+      donut_fill <- ifelse(shapes == "donut", 1.0, NA)
     }
   }
 
@@ -717,6 +722,17 @@ splot <- function(
     effective_donut_colors <- as.list(rep("lightgray", n_nodes))
   }
 
+  # Determine effective donut shapes - inherit from node_shape by default
+  # If donut_shape is NULL or "circle" (default), inherit from node_shape
+  # Otherwise, use the explicitly set donut_shape
+  if (is.null(donut_shape) || identical(donut_shape, "circle")) {
+    # Inherit from node_shape, replacing "donut" with "circle"
+    effective_donut_shapes <- ifelse(shapes == "donut", "circle", shapes)
+  } else {
+    # User explicitly set donut_shape - vectorize and use it
+    effective_donut_shapes <- recycle_to_length(donut_shape, n_nodes)
+  }
+
   render_nodes_splot(
     layout = layout_mat,
     node_size = vsize_usr,
@@ -733,7 +749,7 @@ splot <- function(
     donut_border_width = donut_border_width,
     donut_inner_ratio = donut_inner_ratio,
     donut_bg_color = effective_bg_color,
-    donut_shape = donut_shape,
+    donut_shape = effective_donut_shapes,
     donut_show_value = donut_show_value,
     donut_value_size = donut_value_size,
     donut_value_color = donut_value_color,
@@ -1027,7 +1043,10 @@ render_nodes_splot <- function(layout, node_size, node_size2, node_shape, node_f
 
     # Check for pie/donut/donut2
     has_pie <- !is.null(pie_values) && length(pie_values) >= i && !is.null(pie_values[[i]]) && length(pie_values[[i]]) > 0
-    has_donut <- !is.null(donut_values) && length(donut_values) >= i && !is.null(donut_values[[i]])
+    # Check for donut: either node_shape is "donut" OR donut_values has a valid (non-NA) value
+    has_donut <- (node_shape[i] == "donut") ||
+                 (!is.null(donut_values) && length(donut_values) >= i &&
+                  !is.null(donut_values[[i]]) && !is.na(donut_values[[i]]))
     has_donut2 <- !is.null(donut2_values) && length(donut2_values) >= i && !is.null(donut2_values[[i]])
 
     if (has_donut2 || (has_donut && has_pie)) {
@@ -1084,10 +1103,19 @@ render_nodes_splot <- function(layout, node_size, node_size2, node_shape, node_f
 
     } else if (has_donut) {
       # Donut only
-      donut_vals <- donut_values[[i]]
+      # Get donut value, defaulting to 1.0 if node_shape is "donut" but no explicit value
+      donut_vals <- if (!is.null(donut_values) && length(donut_values) >= i &&
+                        !is.null(donut_values[[i]]) && !is.na(donut_values[[i]])) {
+        donut_values[[i]]
+      } else {
+        1.0  # Default to full ring when node_shape is "donut" but no explicit value
+      }
       donut_cols <- if (!is.null(donut_colors) && length(donut_colors) >= i) donut_colors[[i]] else NULL
 
-      if (donut_shape != "circle") {
+      # Get per-node donut shape (donut_shape is now a vector)
+      current_donut_shape <- if (length(donut_shape) >= i) donut_shape[i] else "circle"
+
+      if (current_donut_shape != "circle") {
         # Use polygon donut for non-circular shapes
         draw_polygon_donut_node_base(
           x, y, node_size[i],
@@ -1096,7 +1124,7 @@ render_nodes_splot <- function(layout, node_size, node_size2, node_shape, node_f
           default_color = node_fill[i],
           inner_ratio = donut_inner_ratio,
           bg_color = donut_bg_color,
-          donut_shape = donut_shape,
+          donut_shape = current_donut_shape,
           border.col = node_border_color[i],
           border.width = node_border_width[i],
           donut_border.width = donut_border_width,

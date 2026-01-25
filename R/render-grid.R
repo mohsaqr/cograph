@@ -45,9 +45,25 @@ NULL
 #' @param donut_border_width Border width for donut ring.
 #' @param donut_inner_ratio For donut nodes: inner radius ratio (0-1). Default 0.5.
 #' @param donut_bg_color For donut nodes: background color for unfilled portion.
-#' @param donut_show_value For donut nodes: show value in center? Default TRUE.
+#' @param donut_show_value For donut nodes: show value in center? Default FALSE.
 #' @param donut_value_size For donut nodes: font size for center value.
 #' @param donut_value_color For donut nodes: color for center value text.
+#' @param donut_fill Numeric value (0-1) for donut fill proportion. This is the
+#'   simplified API for creating donut charts. Can be a single value or vector per node.
+#' @param donut_color Fill color(s) for the donut ring. Simplified API:
+#'   single color for fill, or c(fill, background) for both.
+#' @param donut_colors Deprecated. Use donut_color instead.
+#' @param donut_shape Base shape for donut: "circle", "square", "hexagon", "triangle",
+#'   "diamond", "pentagon". Default inherits from node_shape.
+#' @param donut_value_fontface Font face for donut center value: "plain", "bold",
+#'   "italic", "bold.italic". Default "bold".
+#' @param donut_value_fontfamily Font family for donut center value. Default "sans".
+#' @param donut_value_digits Decimal places for donut center value. Default 2.
+#' @param donut_value_prefix Text before donut center value (e.g., "$"). Default "".
+#' @param donut_value_suffix Text after donut center value (e.g., "%"). Default "".
+#' @param donut2_values List of values for inner donut ring (for double donut).
+#' @param donut2_colors List of color vectors for inner donut ring segments.
+#' @param donut2_inner_ratio Inner radius ratio for inner donut ring. Default 0.4.
 #'
 #' @param edge_width Edge width.
 #' @param edge_width_scale Scale factor for edge widths. Values > 1 make edges thicker.
@@ -129,6 +145,19 @@ soplot <- function(network, title = NULL, title_size = 14,
                       donut_show_value = NULL,
                       donut_value_size = NULL,
                       donut_value_color = NULL,
+                      # NEW donut parameters for feature parity with splot
+                      donut_fill = NULL,
+                      donut_color = NULL,
+                      donut_colors = NULL,  # Deprecated: use donut_color
+                      donut_shape = "circle",
+                      donut_value_fontface = "bold",
+                      donut_value_fontfamily = "sans",
+                      donut_value_digits = 2,
+                      donut_value_prefix = "",
+                      donut_value_suffix = "",
+                      donut2_values = NULL,
+                      donut2_colors = NULL,
+                      donut2_inner_ratio = 0.4,
                       # Edge aesthetics
                       edge_width = NULL,
                       edge_width_scale = NULL,
@@ -210,6 +239,77 @@ soplot <- function(network, title = NULL, title_size = 14,
     network <- sn_theme(network, theme)
   }
 
+  # ============================================
+  # DONUT PROCESSING (for feature parity with splot)
+  # ============================================
+
+  # Get node count for processing
+  n_nodes <- nrow(network$network$get_nodes())
+
+  # Get shapes for processing
+  shapes <- recycle_to_length(node_shape %||% "circle", n_nodes)
+
+  # Auto-enable donut fill when node_shape is "donut" but no fill specified
+  if (is.null(donut_fill) && is.null(donut_values)) {
+    if (any(shapes == "donut")) {
+      # Create per-node fill: 1.0 for donut nodes, NA for others
+      donut_fill <- ifelse(shapes == "donut", 1.0, NA)
+    }
+  }
+
+  # Handle donut_fill: convert to list format if provided
+  # donut_fill takes precedence over donut_values for the new simplified API
+  effective_donut_values <- donut_values
+  if (!is.null(donut_fill)) {
+    # Convert donut_fill to list format for internal use
+    if (!is.list(donut_fill)) {
+      fill_vec <- recycle_to_length(donut_fill, n_nodes)
+      effective_donut_values <- as.list(fill_vec)
+    } else {
+      effective_donut_values <- donut_fill
+    }
+  }
+
+  # Handle donut_color (new simplified API) and donut_colors (deprecated)
+  # Priority: donut_color > donut_colors
+  effective_donut_colors <- NULL
+  effective_bg_color <- donut_bg_color
+
+  if (!is.null(donut_color)) {
+    if (is.list(donut_color) && length(donut_color) == 2 * n_nodes) {
+      # List with 2×n_nodes: per-node (fill, bg) pairs - extract odd indices for fill
+      effective_donut_colors <- as.list(donut_color[seq(1, 2 * n_nodes, by = 2)])
+    } else if (length(donut_color) == 2) {
+      # Two colors: fill + background for ALL nodes
+      effective_donut_colors <- as.list(rep(donut_color[1], n_nodes))
+      effective_bg_color <- donut_color[2]
+    } else if (length(donut_color) == 1) {
+      # Single color: fill for all nodes
+      effective_donut_colors <- as.list(rep(donut_color, n_nodes))
+    } else {
+      # Multiple colors (not 2): treat as per-node fill colors
+      cols <- recycle_to_length(donut_color, n_nodes)
+      effective_donut_colors <- as.list(cols)
+    }
+  } else if (!is.null(donut_colors)) {
+    # Deprecated: use old donut_colors parameter
+    effective_donut_colors <- donut_colors
+  } else if (any(shapes == "donut") || !is.null(effective_donut_values)) {
+    # Default fill color: light gray when donuts are being used
+    effective_donut_colors <- as.list(rep("lightgray", n_nodes))
+  }
+
+  # Determine effective donut shapes - inherit from node_shape by default
+  # If donut_shape is NULL or "circle" (default), inherit from node_shape
+  # Otherwise, use the explicitly set donut_shape
+  if (is.null(donut_shape) || identical(donut_shape, "circle")) {
+    # Inherit from node_shape, replacing "donut" with "circle"
+    effective_donut_shapes <- ifelse(shapes == "donut", "circle", shapes)
+  } else {
+    # User explicitly set donut_shape - vectorize and use it
+    effective_donut_shapes <- recycle_to_length(donut_shape, n_nodes)
+  }
+
   # Apply node aesthetics if any specified
   node_aes <- list(
     size = node_size,
@@ -225,13 +325,26 @@ soplot <- function(network, title = NULL, title_size = 14,
     pie_values = pie_values,
     pie_colors = pie_colors,
     pie_border_width = pie_border_width,
-    donut_values = donut_values,
+    # Use processed donut values for feature parity with splot
+    donut_values = effective_donut_values,
+    donut_colors = effective_donut_colors,
     donut_border_width = donut_border_width,
     donut_inner_ratio = donut_inner_ratio,
-    donut_bg_color = donut_bg_color,
+    donut_bg_color = effective_bg_color,
+    donut_shape = effective_donut_shapes,
     donut_show_value = donut_show_value,
     donut_value_size = donut_value_size,
     donut_value_color = donut_value_color,
+    # NEW donut value formatting parameters
+    donut_value_fontface = donut_value_fontface,
+    donut_value_fontfamily = donut_value_fontfamily,
+    donut_value_digits = donut_value_digits,
+    donut_value_prefix = donut_value_prefix,
+    donut_value_suffix = donut_value_suffix,
+    # Double donut parameters
+    donut2_values = donut2_values,
+    donut2_colors = donut2_colors,
+    donut2_inner_ratio = donut2_inner_ratio,
     node_names = node_names
   )
   node_aes <- node_aes[!sapply(node_aes, is.null)]
@@ -371,10 +484,21 @@ soplot <- function(network, title = NULL, title_size = 14,
     node_alpha = node_alpha, label_size = label_size, label_color = label_color,
     label_position = label_position, show_labels = show_labels,
     pie_values = pie_values, pie_colors = pie_colors, pie_border_width = pie_border_width,
-    donut_values = donut_values, donut_border_width = donut_border_width,
+    donut_fill = donut_fill, donut_values = donut_values,
+    donut_color = donut_color, donut_colors = donut_colors,
+    donut_border_width = donut_border_width,
     donut_inner_ratio = donut_inner_ratio, donut_bg_color = donut_bg_color,
+    donut_shape = donut_shape,
     donut_show_value = donut_show_value, donut_value_size = donut_value_size,
-    donut_value_color = donut_value_color, edge_width = edge_width,
+    donut_value_color = donut_value_color,
+    donut_value_fontface = donut_value_fontface,
+    donut_value_fontfamily = donut_value_fontfamily,
+    donut_value_digits = donut_value_digits,
+    donut_value_prefix = donut_value_prefix,
+    donut_value_suffix = donut_value_suffix,
+    donut2_values = donut2_values, donut2_colors = donut2_colors,
+    donut2_inner_ratio = donut2_inner_ratio,
+    edge_width = edge_width,
     edge_width_scale = edge_width_scale, edge_color = edge_color,
     edge_alpha = edge_alpha, edge_style = edge_style,
     curvature = curvature, arrow_size = arrow_size, show_arrows = show_arrows,

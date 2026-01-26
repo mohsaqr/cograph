@@ -13,6 +13,10 @@ register_builtin_layouts <- function() {
   # Circle layout
   register_layout("circle", layout_circle)
 
+  # Oval/Ellipse layout
+  register_layout("oval", layout_oval)
+  register_layout("ellipse", layout_oval)  # Alias
+
   # Spring layout (Fruchterman-Reingold)
   register_layout("spring", layout_spring)
   register_layout("fr", layout_spring)  # Alias
@@ -106,4 +110,8 @@ register_builtin_layouts <- function() {
     names(coords)[1:2] <- c("x", "y")
     coords
   })
+
+  # Gephi Fruchterman-Reingold layout
+  register_layout("gephi_fr", compute_layout_gephi_fr)
+  register_layout("gephi", compute_layout_gephi_fr)  # Alias
 }

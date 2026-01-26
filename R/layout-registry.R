@@ -112,6 +112,18 @@ register_builtin_layouts <- function() {
   })
 
   # Gephi Fruchterman-Reingold layout
-  register_layout("gephi_fr", compute_layout_gephi_fr)
-  register_layout("gephi", compute_layout_gephi_fr)  # Alias
+  register_layout("gephi_fr", function(network, area = 10000, gravity = 10.0,
+                                        speed = 1.0, niter = 100, ...) {
+    g <- network_to_igraph(network)
+    coords <- layout_gephi_fr(g, area = area, gravity = gravity,
+                              speed = speed, niter = niter)
+    data.frame(x = coords[, 1], y = coords[, 2])
+  })
+  register_layout("gephi", function(network, area = 10000, gravity = 10.0,
+                                     speed = 1.0, niter = 100, ...) {
+    g <- network_to_igraph(network)
+    coords <- layout_gephi_fr(g, area = area, gravity = gravity,
+                              speed = speed, niter = niter)
+    data.frame(x = coords[, 1], y = coords[, 2])
+  })
 }

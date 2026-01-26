@@ -159,6 +159,8 @@ NULL
 #' @param margins Margins as c(bottom, left, top, right).
 #' @param background Background color.
 #' @param rescale Logical: rescale layout to [-1, 1]?
+#' @param layout_scale Scale factor for layout. >1 expands (spreads nodes apart),
+#'   <1 contracts (brings nodes closer). Default 1.
 #' @param layout_margin Margin around the layout as fraction of range. Default 0.15.
 #'   Set to 0 for no extra margin (tighter fit). Affects white space around nodes.
 #' @param aspect Logical: maintain aspect ratio?
@@ -330,6 +332,7 @@ splot <- function(
     margins = c(0.1, 0.1, 0.1, 0.1),
     background = "white",
     rescale = TRUE,
+    layout_scale = 1,
     layout_margin = 0.15,
     aspect = TRUE,
     usePCH = FALSE,
@@ -404,6 +407,12 @@ splot <- function(
   # Rescale to [-1, 1]
   if (rescale) {
     layout_mat <- as.matrix(rescale_layout(layout_mat, mar = 0.1))
+  }
+
+  # Apply layout scale (expand/contract around center)
+  if (layout_scale != 1) {
+    center <- colMeans(layout_mat)
+    layout_mat <- t(t(layout_mat - center) * layout_scale + center)
   }
 
   # ============================================

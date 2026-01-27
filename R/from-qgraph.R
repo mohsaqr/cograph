@@ -1,7 +1,7 @@
 #' Convert a qgraph object to Sonnet parameters
 #'
-#' Extracts the network, layout, node labels, node colors, and pie chart data
-#' from a qgraph object and passes them to a Sonnet plotting engine.
+#' Extracts the network, layout, and all relevant arguments from a qgraph
+#' object and passes them to a Sonnet plotting engine.
 #'
 #' @param qgraph_object Return value of \code{qgraph::qgraph()}
 #' @param engine Which Sonnet renderer to use: \code{"splot"}, \code{"soplot"}, or \code{"sonplot"}
@@ -34,45 +34,64 @@ from_qgraph <- function(qgraph_object, engine = c("splot", "soplot", "sonplot"),
   # --- Build params ---
   params <- list(x = x)
 
-  # Layout
+  # Layout: use computed coordinates from qgraph_object$layout
   if (!is.null(qgraph_object$layout)) {
     params$layout <- qgraph_object$layout
   }
 
-  # Labels
-  if (!is.null(args$labels)) {
-    params$labels <- args$labels
-  }
-
-  # Groups
-  if (!is.null(args$groups)) {
-    params$groups <- args$groups
-  }
-
-  # Node colors
-  if (!is.null(args$color)) {
-    params$node_fill <- args$color
-  }
-
-  # Node shape
-  if (!is.null(args$shape)) {
-    params$node_shape <- map_qgraph_shape(args$shape)
-  }
+  # --- Map qgraph Arguments to Sonnet params ---
+  # Node aesthetics
+  if (!is.null(args$labels))       params$labels           <- args$labels
+  if (!is.null(args$groups))       params$groups           <- args$groups
+  if (!is.null(args$color))        params$node_fill        <- args$color
+  if (!is.null(args$vsize))        params$node_size        <- args$vsize
+  if (!is.null(args$vsize2))       params$node_size2       <- args$vsize2
+  if (!is.null(args$shape))        params$node_shape       <- map_qgraph_shape(args$shape)
+  if (!is.null(args$border.color)) params$node_border_color <- args$border.color
+  if (!is.null(args$border.width)) params$node_border_width <- args$border.width
+  if (!is.null(args$label.cex))    params$label_size       <- args$label.cex
+  if (!is.null(args$label.color))  params$label_color      <- args$label.color
 
   # Pie charts
-  if (!is.null(args$pie)) {
-    params$pie_values <- args$pie
+  if (!is.null(args$pie))          params$pie_values       <- args$pie
+  if (!is.null(args$pieColor))     params$pie_colors       <- args$pieColor
+
+  # Edge aesthetics
+  if (!is.null(args$edge.color))   params$edge_color       <- args$edge.color
+  if (!is.null(args$edge.labels))  params$edge_labels      <- args$edge.labels
+  if (!is.null(args$edge.label.cex))      params$edge_label_size     <- args$edge.label.cex
+  if (!is.null(args$edge.label.position)) params$edge_label_position <- args$edge.label.position
+  if (!is.null(args$edge.width))   params$edge_width       <- args$edge.width
+  if (!is.null(args$esize))        params$esize            <- args$esize
+  if (!is.null(args$asize))        params$arrow_size       <- args$asize
+  if (!is.null(args$lty))          params$edge_style       <- args$lty
+  if (!is.null(args$curve))        params$curvature        <- args$curve
+  if (!is.null(args$curveShape))   params$curve_shape      <- args$curveShape
+  if (!is.null(args$curveScale))   params$curve_scale      <- args$curveScale
+  if (isTRUE(args$curveAll))       params$curves           <- "force"
+  if (!is.null(args$directed))     params$directed         <- args$directed
+  if (!is.null(args$arrows) && identical(args$arrows, FALSE)) params$show_arrows <- FALSE
+
+  # Thresholds
+  if (!is.null(args$cut))          params$cut              <- args$cut
+  if (!is.null(args$minimum))      params$threshold        <- args$minimum
+  if (!is.null(args$maximum))      params$maximum          <- args$maximum
+
+  # Colors
+  if (!is.null(args$posCol)) {
+    pc <- args$posCol
+    params$positive_color <- if (length(pc) >= 2) pc[2] else pc[1]
   }
-  if (!is.null(args$pieColor)) {
-    params$pie_colors <- args$pieColor
+  if (!is.null(args$negCol)) {
+    nc <- args$negCol
+    params$negative_color <- if (length(nc) >= 2) nc[2] else nc[1]
   }
 
-  # Title
-  if (!is.null(args$title)) {
-    params$title <- args$title
-  }
+  # Plot settings
+  if (!is.null(args$title))        params$title            <- args$title
+  if (!is.null(args$mar))          params$margins          <- args$mar
 
-  # Apply overrides
+  # Apply overrides (user can override anything)
   for (nm in names(overrides)) {
     params[[nm]] <- overrides[[nm]]
   }

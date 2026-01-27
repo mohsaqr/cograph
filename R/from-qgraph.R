@@ -124,6 +124,10 @@ from_qgraph <- function(qgraph_object, engine = c("splot", "soplot", "sonplot"),
     sonnet_nm <- if (nm %in% names(qgraph_to_sonnet)) qgraph_to_sonnet[[nm]] else nm
     params[[sonnet_nm]] <- overrides[[nm]]
   }
+  # If user overrides layout, remove rescale=FALSE so Sonnet rescales properly
+  if ("layout" %in% names(overrides)) {
+    params$rescale <- NULL
+  }
 
   # --- Plot ---
   if (plot) {

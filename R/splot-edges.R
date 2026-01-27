@@ -218,7 +218,7 @@ draw_curved_edge_base <- function(x1, y1, x2, y2, curve = 0.2, curvePivot = 0.5,
   py <- dx / len
 
   # qgraph-style: curve offset scales with edge length for proportional appearance
-  curve_offset <- curve * len * 0.3
+  curve_offset <- curve * len * 0.25
 
   # Create smooth curve using multiple control points (qgraph approach)
   # Use 5 points for smoother curve: start, 1/4, mid, 3/4, end
@@ -518,7 +518,7 @@ get_edge_label_position <- function(x1, y1, x2, y2, position = 0.5,
 
   # Curved edge - match qgraph-style curve calculation
   # Same curve offset as draw_curved_edge_base
-  curve_offset <- curve * len * 0.3
+  curve_offset <- curve * len * 0.25
 
   # Base point along edge
   t <- position

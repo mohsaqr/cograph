@@ -82,9 +82,9 @@ from_qgraph <- function(qgraph_object, engine = c("splot", "soplot", "sonplot"),
   # Place each per-edge vector into an n×n matrix keyed by (from, to), then extract
   # in the order Sonnet will use.
   edge_vec_to_sonnet_order <- function(v) {
-    if (is.null(v) || length(v) != nrow(el)) return(v)
+    if (is.null(v) || length(v) != length(el$from)) return(v)
     mat <- matrix(NA, n, n)
-    for (i in seq_len(nrow(el))) {
+    for (i in seq_len(length(el$from))) {
       mat[el$from[i], el$to[i]] <- v[i]
     }
     directed <- if (!is.null(el$directed)) any(el$directed) else !isSymmetric(x)

@@ -23,7 +23,7 @@ NULL
 #'   \item{cent2edge_reference}{Reference value in cent2edge: 2.16}
 #'   \item{cent2edge_plot_ref}{Plot reference size: 7}
 #'   \item{curve_ref_diagonal}{Diagonal reference for curve normalization: sqrt(98)}
-#'   \item{arrow_factor}{Arrow size scale factor: 0.06}
+#'   \item{arrow_factor}{Arrow size scale factor: 0.04}
 #' }
 #'
 #' @keywords internal
@@ -52,8 +52,8 @@ QGRAPH_SCALE <- list(
   curve_ref_diagonal = sqrt(7^2 + 7^2),
 
   # Arrow sizing
-  # Bumped from 0.02 to 0.06 for visible arrows at default arrow_size=1
-  arrow_factor = 0.06
+  # Visible but not overpowering at default arrow_size=1
+  arrow_factor = 0.04
 )
 
 #' Sonnet Scaling Constants
@@ -115,8 +115,8 @@ SONNET_SCALE <- list(
   edge_width_default = 1,
 
   # Arrow sizing - unified between splot and soplot
-  # Calibrated to produce visible arrows at default arrow_size=1
-  arrow_factor = 0.06,
+  # Visible but not overpowering at default arrow_size=1
+  arrow_factor = 0.04,
   arrow_default = 1,
 
   # soplot-specific: NPC coordinates

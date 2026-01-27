@@ -574,31 +574,37 @@ splot <- function(
     center_y <- mean(layout_mat[, 2])
 
     if (identical(curves, TRUE) || identical(curves, "mutual")) {
-      # Curve reciprocal edges with direction based on network center
+      # Curve reciprocal edges in opposite directions
+      # Use canonical ordering (lower node index first) so both edges in a pair
+      # compute the same perpendicular reference, then assign opposite signs
       for (i in seq_len(n_edges)) {
         if (is_reciprocal[i]) {
-          # Calculate edge midpoint
           from_idx <- edges$from[i]
           to_idx <- edges$to[i]
+
+          # Canonical direction: always compute perp from lower-index to higher-index node
+          lo <- min(from_idx, to_idx)
+          hi <- max(from_idx, to_idx)
+          dx_canon <- layout_mat[hi, 1] - layout_mat[lo, 1]
+          dy_canon <- layout_mat[hi, 2] - layout_mat[lo, 2]
+
+          # Perpendicular vector (consistent for both edges in the pair)
+          perp_x <- -dy_canon
+          perp_y <- dx_canon
+
+          # Check if positive perp moves outward from center
           mid_x <- (layout_mat[from_idx, 1] + layout_mat[to_idx, 1]) / 2
           mid_y <- (layout_mat[from_idx, 2] + layout_mat[to_idx, 2]) / 2
-
-          # Calculate perpendicular direction (for curve)
-          dx <- layout_mat[to_idx, 1] - layout_mat[from_idx, 1]
-          dy <- layout_mat[to_idx, 2] - layout_mat[from_idx, 2]
-
-          # Perpendicular vector (rotated 90 degrees)
-          perp_x <- -dy
-          perp_y <- dx
-
-          # Check if positive curve moves toward or away from center
           test_x <- mid_x + perp_x * 0.1
           test_y <- mid_y + perp_y * 0.1
           dist_to_center_pos <- sqrt((test_x - center_x)^2 + (test_y - center_y)^2)
           dist_to_center_orig <- sqrt((mid_x - center_x)^2 + (mid_y - center_y)^2)
+          outward_sign <- if (dist_to_center_pos > dist_to_center_orig) 1 else -1
 
-          # Both edges curve OUTWARD (away from center), on opposite sides
-          curves_vec[i] <- if (dist_to_center_pos > dist_to_center_orig) curve_magnitude else -curve_magnitude
+          # Both edges get the same sign. The renderer computes perp from the
+          # edge's own from->to direction, which flips for hi->lo vs lo->hi.
+          # Same sign + flipped perp = opposite curve directions.
+          curves_vec[i] <- outward_sign * curve_magnitude
         }
       }
     } else if (identical(curves, "force")) {

@@ -1,7 +1,8 @@
 #' Convert a qgraph object to Sonnet parameters
 #'
 #' Extracts the network, layout, and all relevant arguments from a qgraph
-#' object and passes them to a Sonnet plotting engine.
+#' object and passes them to a Sonnet plotting engine. Reads resolved values
+#' from \code{graphAttributes} rather than raw \code{Arguments}.
 #'
 #' @param qgraph_object Return value of \code{qgraph::qgraph()}
 #' @param engine Which Sonnet renderer to use: \code{"splot"}, \code{"soplot"}, or \code{"sonplot"}
@@ -16,14 +17,18 @@ from_qgraph <- function(qgraph_object, engine = c("splot", "soplot", "sonplot"),
     stop("Input does not appear to be a qgraph object (missing 'Arguments' field)")
   }
 
-  args <- qgraph_object$Arguments
+  q <- qgraph_object
+  args <- q$Arguments
+  ga_nodes <- q$graphAttributes$Nodes
+  ga_edges <- q$graphAttributes$Edges
+  ga_graph <- q$graphAttributes$Graph
   overrides <- list(...)
 
   # --- Input matrix ---
   x <- args$input
   if (is.null(x)) {
-    el <- qgraph_object$Edgelist
-    n <- length(qgraph_object$graphAttributes$Nodes$names)
+    el <- q$Edgelist
+    n <- length(ga_nodes$names)
     if (is.null(n) || n == 0) n <- max(c(el$from, el$to))
     x <- matrix(0, n, n)
     for (i in seq_along(el$from)) {
@@ -34,69 +39,52 @@ from_qgraph <- function(qgraph_object, engine = c("splot", "soplot", "sonplot"),
   # --- Build params ---
   params <- list(x = x)
 
-  # Layout: use computed coordinates from qgraph_object$layout
-  if (!is.null(qgraph_object$layout)) {
-    params$layout <- qgraph_object$layout
+  # Layout: use computed coordinates
+  if (!is.null(q$layout)) {
+    params$layout <- q$layout
     params$rescale <- FALSE
   }
 
-  # --- Map qgraph Arguments to Sonnet params ---
-  # Node aesthetics
-  if (!is.null(args$labels))       params$labels           <- args$labels
-  if (!is.null(args$groups))       params$groups           <- args$groups
-  if (!is.null(args$color))        params$node_fill        <- args$color
-  if (!is.null(args$vsize))        params$node_size        <- args$vsize
-  if (!is.null(args$vsize2))       params$node_size2       <- args$vsize2
-  if (!is.null(args$shape))        params$node_shape       <- map_qgraph_shape(args$shape)
-  if (!is.null(args$border.color)) params$node_border_color <- args$border.color
-  if (!is.null(args$border.width)) params$node_border_width <- args$border.width
-  if (!is.null(args$label.cex))    params$label_size       <- args$label.cex
-  if (!is.null(args$label.color))  params$label_color      <- args$label.color
+  # --- Node aesthetics from graphAttributes$Nodes ---
+  if (!is.null(ga_nodes$labels))       params$labels            <- ga_nodes$labels
+  else if (!is.null(ga_nodes$names))   params$labels            <- ga_nodes$names
+  if (!is.null(ga_nodes$color))        params$node_fill         <- ga_nodes$color
+  if (!is.null(ga_nodes$width))        params$node_size         <- ga_nodes$width
+  if (!is.null(ga_nodes$shape))        params$node_shape        <- map_qgraph_shape(ga_nodes$shape)
+  if (!is.null(ga_nodes$border.color)) params$node_border_color <- ga_nodes$border.color
+  if (!is.null(ga_nodes$border.width)) params$node_border_width <- ga_nodes$border.width
+  if (!is.null(ga_nodes$label.cex))    params$label_size        <- ga_nodes$label.cex
+  if (!is.null(ga_nodes$label.color))  params$label_color       <- ga_nodes$label.color
 
-  # Pie charts
-  if (!is.null(args$pie))          params$pie_values       <- args$pie
-  if (!is.null(args$pieColor))     params$pie_colors       <- args$pieColor
+  # --- Pie → Donut mapping ---
+  if (!is.null(args$pie))              params$donut_fill        <- as.numeric(args$pie)
+  if (!is.null(ga_nodes$pieColor))     params$donut_color       <- ga_nodes$pieColor
 
-  # Edge aesthetics
-  if (!is.null(args$edge.color))   params$edge_color       <- args$edge.color
-  if (!is.null(args$edge.labels))  params$edge_labels      <- args$edge.labels
-  if (!is.null(args$edge.label.cex))      params$edge_label_size     <- args$edge.label.cex
-  if (!is.null(args$edge.label.position)) params$edge_label_position <- args$edge.label.position
-  if (!is.null(args$edge.width))   params$edge_width       <- args$edge.width
-  if (!is.null(args$esize))        params$esize            <- args$esize
-  if (!is.null(args$asize))        params$arrow_size       <- args$asize
-  if (!is.null(args$lty))          params$edge_style       <- args$lty
-  if (!is.null(args$curve))        params$curvature        <- args$curve
-  if (!is.null(args$curveShape))   params$curve_shape      <- args$curveShape
-  if (!is.null(args$curveScale))   params$curve_scale      <- args$curveScale
-  if (isTRUE(args$curveAll))       params$curves           <- "force"
-  if (!is.null(args$directed))     params$directed         <- args$directed
-  if (!is.null(args$arrows) && identical(args$arrows, FALSE)) params$show_arrows <- FALSE
+  # --- Edge aesthetics from graphAttributes$Edges ---
+  if (!is.null(ga_edges$color))              params$edge_color          <- ga_edges$color
+  if (!is.null(ga_edges$width))              params$edge_width          <- ga_edges$width
+  if (!is.null(ga_edges$labels))             params$edge_labels         <- ga_edges$labels
+  if (!is.null(ga_edges$label.cex))          params$edge_label_size     <- ga_edges$label.cex
+  if (!is.null(ga_edges$lty))                params$edge_style          <- ga_edges$lty
+  if (!is.null(ga_edges$curve))              params$curvature           <- ga_edges$curve
+  if (!is.null(ga_edges$asize))              params$arrow_size          <- ga_edges$asize
+  if (!is.null(ga_edges$edge.label.position)) params$edge_label_position <- ga_edges$edge.label.position
 
-  # Thresholds
-  if (!is.null(args$cut))          params$cut              <- args$cut
-  if (!is.null(args$minimum))      params$threshold        <- args$minimum
-  if (!is.null(args$maximum))      params$maximum          <- args$maximum
+  # --- Graph-level from graphAttributes$Graph ---
+  if (!is.null(ga_graph$cut))          params$cut               <- ga_graph$cut
+  if (!is.null(ga_graph$minimum))      params$threshold         <- ga_graph$minimum
+  if (!is.null(ga_graph$maximum))      params$maximum           <- ga_graph$maximum
+  if (!is.null(ga_graph$groups))       params$groups            <- ga_graph$groups
 
-  # Colors
-  if (!is.null(args$posCol)) {
-    pc <- args$posCol
-    params$positive_color <- if (length(pc) >= 2) pc[2] else pc[1]
-  }
-  if (!is.null(args$negCol)) {
-    nc <- args$negCol
-    params$negative_color <- if (length(nc) >= 2) nc[2] else nc[1]
-  }
+  # --- Directedness from Edgelist ---
+  if (!is.null(q$Edgelist$directed))   params$directed          <- any(q$Edgelist$directed)
 
-  # Plot settings
-  if (!is.null(args$title))        params$title            <- args$title
-
-  # Apply overrides (user can override anything)
+  # --- Apply overrides (user can override anything) ---
   for (nm in names(overrides)) {
     params[[nm]] <- overrides[[nm]]
   }
 
-  # Plot
+  # --- Plot ---
   if (plot) {
     plot_params <- params
     if (engine == "soplot") {

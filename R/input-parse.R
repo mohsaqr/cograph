@@ -19,11 +19,15 @@ parse_input <- function(input, directed = NULL) {
     parse_edgelist(input, directed = directed)
   } else if (inherits(input, "igraph")) {
     parse_igraph(input, directed = directed)
+  } else if (inherits(input, "network")) {
+    parse_statnet(input, directed = directed)
+  } else if (inherits(input, "qgraph")) {
+    parse_qgraph(input, directed = directed)
   } else if (is.list(input) && !is.null(input$edges)) {
     # Already parsed format
     input
   } else {
-    stop("Unsupported input type. Expected matrix, data.frame, or igraph object.",
+    stop("Unsupported input type. Expected matrix, data.frame, igraph, network, or qgraph object.",
          call. = FALSE)
   }
 }

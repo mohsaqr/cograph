@@ -19,6 +19,9 @@ sonnet(
 \item A square numeric matrix (adjacency/weight matrix)
 \item A data frame with edge list (from, to, optional weight columns)
 \item An igraph object
+\item A statnet network object
+\item A qgraph object
+\item A tna object
 }}
 
 \item{layout}{Layout algorithm: "circle", "spring", "groups", "grid",
@@ -37,7 +40,8 @@ A sonnet_network object that can be further customized and rendered.
 }
 \description{
 The main entry point for Sonnet. Accepts adjacency matrices, edge lists,
-or igraph objects and creates a visualization-ready network object.
+igraph, statnet network, qgraph, or tna objects and creates a visualization-ready
+network object.
 }
 \examples{
 # From adjacency matrix

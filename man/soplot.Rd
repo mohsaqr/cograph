@@ -64,6 +64,7 @@ soplot(
   show_arrows = NULL,
   positive_color = NULL,
   negative_color = NULL,
+  edge_duplicates = NULL,
   edge_labels = NULL,
   edge_label_size = NULL,
   edge_label_color = NULL,
@@ -145,6 +146,7 @@ sn_render(
   show_arrows = NULL,
   positive_color = NULL,
   negative_color = NULL,
+  edge_duplicates = NULL,
   edge_labels = NULL,
   edge_label_size = NULL,
   edge_label_color = NULL,
@@ -300,6 +302,10 @@ or "rank" (equal visual spacing).}
 \item{positive_color}{Color for positive edge weights.}
 
 \item{negative_color}{Color for negative edge weights.}
+
+\item{edge_duplicates}{How to handle duplicate edges in undirected networks.
+NULL (default) = stop with error listing duplicates. Options: "sum", "mean",
+"first", "max", "min", or a custom aggregation function.}
 
 \item{edge_labels}{Edge labels. Can be TRUE to show weights, or a vector.}
 

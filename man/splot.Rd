@@ -37,6 +37,8 @@ splot(
   donut_colors = NULL,
   donut_border_color = NULL,
   donut_border_width = NULL,
+  donut_outer_border_color = NULL,
+  donut_border_lty = 1,
   donut_inner_ratio = 0.8,
   donut_bg_color = "gray90",
   donut_shape = "circle",
@@ -105,6 +107,7 @@ splot(
   maximum = NULL,
   positive_color = "#2E7D32",
   negative_color = "#C62828",
+  edge_duplicates = NULL,
   title = NULL,
   title_size = 1.2,
   margins = c(0.1, 0.1, 0.1, 0.1),
@@ -205,13 +208,20 @@ Can be a single value (all nodes) or vector (per-node values).}
 Single color sets fill for all nodes.
 Two colors set fill and background for all nodes.
 More than 2 colors set per-node fill colors (recycled to n_nodes).
-Default: "lightgray" fill, "gray90" background when node_shape="donut".}
+Default: "maroon" fill, "gray90" background when node_shape="donut".}
 
 \item{donut_colors}{Deprecated. Use donut_color instead.}
 
 \item{donut_border_color}{Border color for donut rings. NULL uses node_border_color.}
 
 \item{donut_border_width}{Border width for donut rings. NULL uses node_border_width.}
+
+\item{donut_outer_border_color}{Color for outer boundary border (enables double border).
+NULL (default) shows single border. Set to a color for double border effect.
+Can be scalar or per-node vector.}
+
+\item{donut_border_lty}{Line type for donut borders (1=solid, 2=dashed, 3=dotted, etc.).
+Can be scalar (applies to all) or per-node vector.}
 
 \item{donut_inner_ratio}{Inner radius ratio for donut (0-1). Default 0.5.}
 
@@ -367,6 +377,10 @@ Set NULL to disable rounding.}
 \item{positive_color}{Color for positive weights.}
 
 \item{negative_color}{Color for negative weights.}
+
+\item{edge_duplicates}{How to handle duplicate edges in undirected networks.
+NULL (default) = stop with error listing duplicates. Options: "sum", "mean",
+"first", "max", "min", or a custom aggregation function.}
 
 \item{title}{Plot title.}
 

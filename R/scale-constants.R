@@ -273,6 +273,14 @@ scale_edge_widths <- function(weights,
                                range = c(0.5, 4)) {
   if (length(weights) == 0) return(numeric(0))
 
+  # Validate scale mode
+
+  valid_modes <- c("linear", "log", "sqrt", "rank")
+  if (!mode %in% valid_modes) {
+    stop("edge_scale_mode must be one of: ", paste(valid_modes, collapse = ", "),
+         ". Got: '", mode, "'", call. = FALSE)
+  }
+
   # Use absolute values
   abs_weights <- abs(weights)
 

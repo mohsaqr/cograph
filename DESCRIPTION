@@ -22,6 +22,7 @@ Imports:
     utils
 Suggests:
     igraph,
+    network,
     scales,
     testthat (>= 3.0.0),
     knitr,

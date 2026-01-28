@@ -24,13 +24,14 @@ from_tna <- function(tna_object, engine = c("splot", "soplot"), plot = TRUE,
   overrides <- list(...)
 
   # --- Weights matrix ---
-  x <- round(tna_object$weights, weight_digits)
+  x <- tna_object$weights
 
   # --- Build params ---
   params <- list(
     x          = x,
     labels     = tna_object$labels,
     directed   = TRUE,
+    weight_digits     = weight_digits,
     donut_fill = as.numeric(tna_object$inits),
     donut_inner_ratio = 0.8,
     donut_empty       = FALSE
@@ -102,14 +103,8 @@ from_qgraph <- function(qgraph_object, engine = c("splot", "soplot"), plot = TRU
   }
   n <- nrow(x)
 
-  # --- Round weights and remove near-zero edges ---
-  x <- round(x, weight_digits)
-  if (!show_zero_edges) {
-    x[x == 0] <- 0  # ensure exact zeros (already true after round)
-  }
-
   # --- Build params ---
-  params <- list(x = x)
+  params <- list(x = x, weight_digits = weight_digits)
 
   # Layout: use computed coordinates
   if (!is.null(q$layout)) {

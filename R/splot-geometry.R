@@ -242,7 +242,7 @@ splot_angle <- function(x1, y1, x2, y2) {
   atan2(y2 - y1, x2 - x1)
 }
 
-#' Rescale Layout to [-1, 1] Range
+#' Rescale Layout to -1 to 1 Range
 #'
 #' @param layout Matrix or data frame with x, y columns.
 #' @param mar Margin to leave (as proportion of range).

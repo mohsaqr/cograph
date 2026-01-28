@@ -28,6 +28,8 @@ sonnet(
 
 \item{node_labels}{Character vector of node labels.}
 
+\item{seed}{Random seed for deterministic layouts. Default 42. Set NULL for random.}
+
 \item{...}{Additional arguments passed to the layout function.}
 }
 \value{

@@ -22,7 +22,6 @@ NULL
 #' @param seed Random seed for deterministic layouts. Default 42.
 #' @param theme Theme name: "classic", "dark", "minimal", "colorblind", etc.
 #'
-#' @section Node Aesthetics:
 #' @param node_size Node size(s). Single value or vector. Default 3.
 #' @param node_size2 Secondary node size for ellipse/rectangle height.
 #' @param node_shape Node shape(s): "circle", "square", "triangle", "diamond",
@@ -45,7 +44,6 @@ NULL
 #' @param label_vjust Vertical justification (0=bottom, 0.5=center, 1=top). Default 0.5.
 #' @param label_angle Text rotation angle in degrees. Default 0.
 #'
-#' @section Pie/Donut Nodes:
 #' @param pie_values List of numeric vectors for pie chart nodes. Each element
 #'   corresponds to a node and contains values for pie segments.
 #' @param pie_colors List of color vectors for pie segments.
@@ -54,14 +52,19 @@ NULL
 #'   qgraph-style API: 0.1 = 10% filled, 0.5 = 50% filled, 1.0 = fully filled.
 #'   Can be a single value (all nodes) or vector (per-node values).
 #' @param donut_values Deprecated. Use donut_fill for simple fill proportion.
-#' @param donut_color Fill color(s) for the donut ring. Simplified API:
-#'   - Single color: fill color for ALL nodes (e.g., "steelblue")
-#'   - Two colors: fill + background for ALL nodes (e.g., c("steelblue", "lightyellow"))
-#'   - >2 colors: per-node fill colors (recycled to n_nodes)
-#'   Default: "lightgray" fill, "gray90" background when node_shape="donut".
+#' @param donut_color Fill color(s) for the donut ring.
+#'   Single color sets fill for all nodes.
+#'   Two colors set fill and background for all nodes.
+#'   More than 2 colors set per-node fill colors (recycled to n_nodes).
+#'   Default: "maroon" fill, "gray90" background when node_shape="donut".
 #' @param donut_colors Deprecated. Use donut_color instead.
 #' @param donut_border_color Border color for donut rings. NULL uses node_border_color.
 #' @param donut_border_width Border width for donut rings. NULL uses node_border_width.
+#' @param donut_outer_border_color Color for outer boundary border (enables double border).
+#'   NULL (default) shows single border. Set to a color for double border effect.
+#'   Can be scalar or per-node vector.
+#' @param donut_border_lty Line type for donut borders (1=solid, 2=dashed, 3=dotted, etc.).
+#'   Can be scalar (applies to all) or per-node vector.
 #' @param donut_inner_ratio Inner radius ratio for donut (0-1). Default 0.5.
 #' @param donut_bg_color Background color for unfilled donut portion.
 #' @param donut_shape Base shape for donut: "circle", "square", "hexagon", "triangle",
@@ -77,11 +80,11 @@ NULL
 #' @param donut_value_digits Decimal places for donut center value. Default 2.
 #' @param donut_value_prefix Text before donut center value (e.g., "$"). Default "".
 #' @param donut_value_suffix Text after donut center value (e.g., "%"). Default "".
+#' @param donut_empty Logical: render empty donut rings for NA values? Default TRUE.
 #' @param donut2_values List of values for inner donut ring (for double donut).
 #' @param donut2_colors List of color vectors for inner donut ring segments.
 #' @param donut2_inner_ratio Inner radius ratio for inner donut ring. Default 0.4.
 #'
-#' @section Edge Aesthetics:
 #' @param edge_color Edge color(s). If NULL, uses positive_color/negative_color based on weight.
 #' @param edge_width Edge width(s). If NULL, scales by weight using esize and edge_width_range.
 #' @param esize Base edge size for weight scaling. NULL (default) uses adaptive sizing
@@ -124,7 +127,6 @@ NULL
 #' @param edge_start_length Fraction of edge length for the styled start segment (0-0.5).
 #'   Default 0.15 (15% of edge). Only applies when edge_start_style is not "solid".
 #'
-#' @section Edge CI Underlays:
 #' @param edge_ci Numeric vector of CI widths (0-1 scale). Larger values = more uncertainty.
 #' @param edge_ci_scale Width multiplier for underlay thickness. Default 2.
 #' @param edge_ci_alpha Transparency for underlay (0-1). Default 0.15.
@@ -132,13 +134,12 @@ NULL
 #' @param edge_ci_style Line type for underlay: 1=solid, 2=dashed, 3=dotted. Default 2.
 #' @param edge_ci_arrows Logical: show arrows on underlay? Default FALSE.
 #'
-#' @section Edge Label Templates:
 #' @param edge_label_style Preset style: "none", "estimate", "full", "range", "stars".
-#' @param edge_label_template Template with placeholders: {est}, {range}, {low}, {up}, {p}, {stars}.
+#' @param edge_label_template Template with placeholders: \{est\}, \{range\}, \{low\}, \{up\}, \{p\}, \{stars\}.
 #'   Overrides edge_label_style if provided.
 #' @param edge_label_digits Decimal places for estimates. Default 2.
 #' @param edge_label_oneline Logical: single line format? Default TRUE.
-#' @param edge_label_ci_format CI format: "bracket" for [low, up] or "dash" for low-up.
+#' @param edge_label_ci_format CI format: "bracket" for `[low, up]` or "dash" for `low-up`.
 #' @param edge_ci_lower Numeric vector of lower CI bounds for labels.
 #' @param edge_ci_upper Numeric vector of upper CI bounds for labels.
 #' @param edge_label_p Numeric vector of p-values for edges.
@@ -147,18 +148,20 @@ NULL
 #' @param edge_label_stars Stars for labels: character vector, TRUE (compute from p),
 #'   or numeric (treated as p-values).
 #'
-#' @section Weight Handling:
+#' @param weight_digits Number of decimal places to round edge weights to before
+#'   plotting. Edges that round to zero are automatically removed. Default 2.
+#'   Set NULL to disable rounding.
 #' @param threshold Minimum absolute weight to display.
+#' @param minimum Alias for threshold (qgraph compatibility). Uses max of threshold and minimum.
 #' @param maximum Maximum weight for scaling. NULL for auto.
 #' @param positive_color Color for positive weights.
 #' @param negative_color Color for negative weights.
 #'
-#' @section Plot Settings:
 #' @param title Plot title.
 #' @param title_size Title font size.
 #' @param margins Margins as c(bottom, left, top, right).
 #' @param background Background color.
-#' @param rescale Logical: rescale layout to [-1, 1]?
+#' @param rescale Logical: rescale layout to -1 to 1 range?
 #' @param layout_scale Scale factor for layout. >1 expands (spreads nodes apart),
 #'   <1 contracts (brings nodes closer). Use "auto" to automatically scale based
 #'   on node count (compact for small networks, expanded for large). Default 1.
@@ -169,7 +172,6 @@ NULL
 #' @param scaling Scaling mode: "default" for qgraph-matched scaling where node_size=6
 #'   looks similar to qgraph vsize=6, or "legacy" to preserve pre-v2.0 behavior.
 #'
-#' @section Legend:
 #' @param legend Logical: show legend?
 #' @param legend_position Position: "topright", "topleft", "bottomright", "bottomleft".
 #' @param legend_size Legend text size.
@@ -178,7 +180,6 @@ NULL
 #' @param groups Group assignments for node coloring/legend.
 #' @param node_names Alternative names for legend (separate from labels).
 #'
-#' @section Output:
 #' @param filetype Output format: "default" (screen), "png", "pdf", "svg", "jpeg", "tiff".
 #' @param filename Output filename (without extension).
 #' @param width Output width in inches.
@@ -251,6 +252,8 @@ splot <- function(
     donut_colors = NULL,  # Deprecated: use donut_color
     donut_border_color = NULL,
     donut_border_width = NULL,
+    donut_outer_border_color = NULL,
+    donut_border_lty = 1,
     donut_inner_ratio = 0.8,
     donut_bg_color = "gray90",
     donut_shape = "circle",
@@ -323,6 +326,7 @@ splot <- function(
     edge_label_stars = NULL,
 
     # Weight handling
+    weight_digits = 2,
     threshold = 0,
     minimum = 0,
     maximum = NULL,
@@ -382,6 +386,11 @@ splot <- function(
       call_args[[nm]] <- dots[[nm]]
     }
     return(do.call(splot, call_args))
+  }
+
+  # Round matrix weights to filter near-zero edges globally
+  if (is.matrix(x) && !is.null(weight_digits)) {
+    x <- round(x, weight_digits)
   }
 
   # Set seed for deterministic layouts
@@ -885,7 +894,7 @@ splot <- function(
     effective_donut_colors <- donut_colors
   } else if (any(shapes == "donut") || !is.null(effective_donut_values)) {
     # Default fill color: light gray when donuts are being used
-    effective_donut_colors <- as.list(rep("lightgray", n_nodes))
+    effective_donut_colors <- as.list(rep("maroon", n_nodes))
   }
 
   # Determine effective donut shapes - inherit from node_shape by default
@@ -908,6 +917,16 @@ splot <- function(
     NULL
   }
 
+  # Vectorize donut_outer_border_color for per-node support (double border feature)
+  effective_donut_outer_border_color <- if (!is.null(donut_outer_border_color)) {
+    recycle_to_length(donut_outer_border_color, n_nodes)
+  } else {
+    NULL
+  }
+
+  # Vectorize donut_border_lty for per-node support
+  effective_donut_border_lty <- recycle_to_length(donut_border_lty, n_nodes)
+
   render_nodes_splot(
     layout = layout_mat,
     node_size = vsize_usr,
@@ -923,6 +942,8 @@ splot <- function(
     donut_colors = effective_donut_colors,
     donut_border_color = effective_donut_border_color,
     donut_border_width = donut_border_width,
+    donut_outer_border_color = effective_donut_outer_border_color,
+    donut_border_lty = effective_donut_border_lty,
     donut_inner_ratio = donut_inner_ratio,
     donut_bg_color = effective_bg_color,
     donut_shape = effective_donut_shapes,
@@ -1220,6 +1241,7 @@ render_nodes_splot <- function(layout, node_size, node_size2, node_shape, node_f
                                node_border_color, node_border_width, pie_values, pie_colors,
                                pie_border_width, donut_values, donut_colors,
                                donut_border_color, donut_border_width,
+                               donut_outer_border_color = NULL, donut_border_lty = 1,
                                donut_inner_ratio, donut_bg_color, donut_shape,
                                donut_show_value, donut_value_size, donut_value_color,
                                donut_value_fontface = "bold", donut_value_fontfamily = "sans",
@@ -1246,7 +1268,7 @@ render_nodes_splot <- function(layout, node_size, node_size2, node_shape, node_f
     # Check for donut: either node_shape is "donut" OR donut_values has a valid (non-NA) value
     has_donut <- (node_shape[i] == "donut") ||
                  (!is.null(donut_values) && length(donut_values) >= i &&
-                  !is.null(donut_values[[i]]) && !is.na(donut_values[[i]]))
+                  !is.null(donut_values[[i]]) && length(donut_values[[i]]) > 0 && !anyNA(donut_values[[i]]))
     has_donut2 <- !is.null(donut2_values) && length(donut2_values) >= i && !is.null(donut2_values[[i]])
 
     if (has_donut2 || (has_donut && has_pie)) {
@@ -1305,7 +1327,7 @@ render_nodes_splot <- function(layout, node_size, node_size2, node_shape, node_f
       # Donut only
       # Get donut value, defaulting to 1.0 if node_shape is "donut" but no explicit value
       donut_vals <- if (!is.null(donut_values) && length(donut_values) >= i &&
-                        !is.null(donut_values[[i]]) && !is.na(donut_values[[i]])) {
+                        !is.null(donut_values[[i]]) && length(donut_values[[i]]) > 0 && !anyNA(donut_values[[i]])) {
         donut_values[[i]]
       } else {
         1.0  # Default to full ring when node_shape is "donut" but no explicit value
@@ -1322,6 +1344,16 @@ render_nodes_splot <- function(layout, node_size, node_size2, node_shape, node_f
         node_border_color[i]
       }
 
+      # Get per-node outer border color (for double border feature)
+      effective_outer_border_col <- if (!is.null(donut_outer_border_color) && length(donut_outer_border_color) >= i) {
+        donut_outer_border_color[i]
+      } else {
+        NULL
+      }
+
+      # Get per-node border line type
+      effective_border_lty <- if (length(donut_border_lty) >= i) donut_border_lty[i] else 1
+
       if (current_donut_shape != "circle") {
         # Use polygon donut for non-circular shapes
         draw_polygon_donut_node_base(
@@ -1336,6 +1368,8 @@ render_nodes_splot <- function(layout, node_size, node_size2, node_shape, node_f
           border.col = effective_donut_border_col,
           border.width = node_border_width[i],
           donut_border.width = donut_border_width,
+          outer_border.col = effective_outer_border_col,
+          border.lty = effective_border_lty,
           show_value = donut_show_value,
           value_cex = donut_value_size,
           value_col = donut_value_color,
@@ -1358,6 +1392,8 @@ render_nodes_splot <- function(layout, node_size, node_size2, node_shape, node_f
           border.col = effective_donut_border_col,
           border.width = node_border_width[i],
           donut_border.width = donut_border_width,
+          outer_border.col = effective_outer_border_col,
+          border.lty = effective_border_lty,
           show_value = donut_show_value,
           value_cex = donut_value_size,
           value_col = donut_value_color,

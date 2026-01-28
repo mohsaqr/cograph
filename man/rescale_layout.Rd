@@ -2,7 +2,7 @@
 % Please edit documentation in R/splot-geometry.R
 \name{rescale_layout}
 \alias{rescale_layout}
-\title{Rescale Layout to \link{-1, 1} Range}
+\title{Rescale Layout to -1 to 1 Range}
 \usage{
 rescale_layout(layout, mar = 0.1)
 }
@@ -15,6 +15,6 @@ rescale_layout(layout, mar = 0.1)
 Rescaled layout.
 }
 \description{
-Rescale Layout to \link{-1, 1} Range
+Rescale Layout to -1 to 1 Range
 }
 \keyword{internal}

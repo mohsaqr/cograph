@@ -37,7 +37,7 @@ splot(
   donut_colors = NULL,
   donut_border_color = NULL,
   donut_border_width = NULL,
-  donut_inner_ratio = 0.5,
+  donut_inner_ratio = 0.8,
   donut_bg_color = "gray90",
   donut_shape = "circle",
   donut_show_value = FALSE,
@@ -48,6 +48,7 @@ splot(
   donut_value_digits = 2,
   donut_value_prefix = "",
   donut_value_suffix = "",
+  donut_empty = TRUE,
   donut2_values = NULL,
   donut2_colors = NULL,
   donut2_inner_ratio = 0.4,
@@ -98,7 +99,9 @@ splot(
   edge_label_p_digits = 3,
   edge_label_p_prefix = "p=",
   edge_label_stars = NULL,
+  weight_digits = 2,
   threshold = 0,
+  minimum = 0,
   maximum = NULL,
   positive_color = "#2E7D32",
   negative_color = "#C62828",
@@ -198,12 +201,11 @@ Can be a single value (all nodes) or vector (per-node values).}
 
 \item{donut_values}{Deprecated. Use donut_fill for simple fill proportion.}
 
-\item{donut_color}{Fill color(s) for the donut ring. Simplified API:
-\itemize{
-\item Single color: fill color for ALL nodes (e.g., "steelblue")
-\item Two colors: fill + background for ALL nodes (e.g., c("steelblue", "lightyellow"))
-\item 2 colors: per-node fill colors (recycled to n_nodes)Default: "lightgray" fill, "gray90" background when node_shape="donut".
-}}
+\item{donut_color}{Fill color(s) for the donut ring.
+Single color sets fill for all nodes.
+Two colors set fill and background for all nodes.
+More than 2 colors set per-node fill colors (recycled to n_nodes).
+Default: "lightgray" fill, "gray90" background when node_shape="donut".}
 
 \item{donut_colors}{Deprecated. Use donut_color instead.}
 
@@ -236,6 +238,8 @@ on all nodes regardless of node_shape).}
 \item{donut_value_prefix}{Text before donut center value (e.g., "$"). Default "".}
 
 \item{donut_value_suffix}{Text after donut center value (e.g., "\%"). Default "".}
+
+\item{donut_empty}{Logical: render empty donut rings for NA values? Default TRUE.}
 
 \item{donut2_values}{List of values for inner donut ring (for double donut).}
 
@@ -328,14 +332,14 @@ Default 0.15 (15\% of edge). Only applies when edge_start_style is not "solid".}
 
 \item{edge_label_style}{Preset style: "none", "estimate", "full", "range", "stars".}
 
-\item{edge_label_template}{Template with placeholders: {est}, {range}, {low}, {up}, {p}, {stars}.
+\item{edge_label_template}{Template with placeholders: \{est\}, \{range\}, \{low\}, \{up\}, \{p\}, \{stars\}.
 Overrides edge_label_style if provided.}
 
 \item{edge_label_digits}{Decimal places for estimates. Default 2.}
 
 \item{edge_label_oneline}{Logical: single line format? Default TRUE.}
 
-\item{edge_label_ci_format}{CI format: "bracket" for \link{low, up} or "dash" for low-up.}
+\item{edge_label_ci_format}{CI format: "bracket" for \verb{[low, up]} or "dash" for \code{low-up}.}
 
 \item{edge_ci_lower}{Numeric vector of lower CI bounds for labels.}
 
@@ -350,7 +354,13 @@ Overrides edge_label_style if provided.}
 \item{edge_label_stars}{Stars for labels: character vector, TRUE (compute from p),
 or numeric (treated as p-values).}
 
+\item{weight_digits}{Number of decimal places to round edge weights to before
+plotting. Edges that round to zero are automatically removed. Default 2.
+Set NULL to disable rounding.}
+
 \item{threshold}{Minimum absolute weight to display.}
+
+\item{minimum}{Alias for threshold (qgraph compatibility). Uses max of threshold and minimum.}
 
 \item{maximum}{Maximum weight for scaling. NULL for auto.}
 
@@ -366,7 +376,7 @@ or numeric (treated as p-values).}
 
 \item{background}{Background color.}
 
-\item{rescale}{Logical: rescale layout to \link{-1, 1}?}
+\item{rescale}{Logical: rescale layout to -1 to 1 range?}
 
 \item{layout_scale}{Scale factor for layout. >1 expands (spreads nodes apart),
 <1 contracts (brings nodes closer). Use "auto" to automatically scale based
@@ -419,42 +429,6 @@ lines, xspline, etc.) instead of grid graphics. This provides better
 performance for large networks and uses the same snake_case parameter names
 as soplot() for consistency.
 }
-\section{Node Aesthetics}{
-
-}
-
-\section{Pie/Donut Nodes}{
-
-}
-
-\section{Edge Aesthetics}{
-
-}
-
-\section{Edge CI Underlays}{
-
-}
-
-\section{Edge Label Templates}{
-
-}
-
-\section{Weight Handling}{
-
-}
-
-\section{Plot Settings}{
-
-}
-
-\section{Legend}{
-
-}
-
-\section{Output}{
-
-}
-
 \examples{
 # Basic network from adjacency matrix
 adj <- matrix(c(0, 1, 1, 0,

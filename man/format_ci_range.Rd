@@ -13,7 +13,7 @@ format_ci_range(lower, upper, digits = 2, format = "bracket")
 
 \item{digits}{Number of decimal places.}
 
-\item{format}{CI format: "bracket" for \link{low, up} or "dash" for low-up.}
+\item{format}{CI format: "bracket" for \verb{[low, up]} or "dash" for \code{low-up}.}
 }
 \value{
 Formatted CI range string.

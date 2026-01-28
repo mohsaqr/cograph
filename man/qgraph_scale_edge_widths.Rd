@@ -28,6 +28,6 @@ Numeric vector of scaled edge widths.
 }
 \description{
 Scales edge weights to widths using qgraph's exact formula.
-Output range is \link{1, esize} for continuous scaling (cut = 0).
+Output range is 1 to esize for continuous scaling (cut = 0).
 }
 \keyword{internal}

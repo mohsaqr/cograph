@@ -62,9 +62,9 @@ NULL
 #' @param ci_lower Numeric vector of lower CI bounds for labels.
 #' @param ci_upper Numeric vector of upper CI bounds for labels.
 #' @param label_style Preset style: "none", "estimate", "full", "range", "stars".
-#' @param label_template Template with placeholders: {est}, {range}, {low}, {up}, {p}, {stars}.
+#' @param label_template Template with placeholders: \{est\}, \{range\}, \{low\}, \{up\}, \{p\}, \{stars\}.
 #' @param label_digits Decimal places for estimates in template. Default 2.
-#' @param label_ci_format CI format: "bracket" for [low, up] or "dash" for low-up.
+#' @param label_ci_format CI format: "bracket" for `[low, up]` or "dash" for `low-up`.
 #' @param label_p Numeric vector of p-values for edges.
 #' @param label_p_digits Decimal places for p-values. Default 3.
 #' @param label_p_prefix Prefix for p-values. Default "p=".

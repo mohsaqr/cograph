@@ -2,9 +2,17 @@
 ^\.Rproj\.user$
 ^LICENSE\.md$
 ^README\.Rmd$
+^README\.html$
 ^\.github$
 ^codecov\.yml$
 ^\.lintr$
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
+^\.claude$
+^CLAUDE\.md$
+^Rplots\.pdf$
+^SPLOT_DEVELOPMENT\.md$
+^test_new_features\.R$
+^test_output$
+^test_sonnet\.R$

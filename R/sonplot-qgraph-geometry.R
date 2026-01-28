@@ -58,7 +58,7 @@ qgraph_default_esize <- function(n_nodes, weighted = TRUE, directed = FALSE) {
 #' qgraph Edge Width Scaling (EXACT)
 #'
 #' Scales edge weights to widths using qgraph's exact formula.
-#' Output range is [1, esize] for continuous scaling (cut = 0).
+#' Output range is 1 to esize for continuous scaling (cut = 0).
 #'
 #' @param weights Numeric vector of edge weights.
 #' @param minimum Minimum weight threshold.

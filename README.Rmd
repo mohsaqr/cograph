@@ -1,32 +1,38 @@
+---
+output: github_document
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%",
+  eval = FALSE
+)
+```
 
 # Sonnet <img src="man/figures/logo.png" align="right" height="139" />
 
 <!-- badges: start -->
-
 [![R-CMD-check](https://github.com/username/Sonnet/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/username/Sonnet/actions/workflows/R-CMD-check.yaml)
-[![CRAN
-status](https://www.r-pkg.org/badges/version/Sonnet)](https://CRAN.R-project.org/package=Sonnet)
+[![CRAN status](https://www.r-pkg.org/badges/version/Sonnet)](https://CRAN.R-project.org/package=Sonnet)
 <!-- badges: end -->
 
-**Sonnet** is a modern R package for network visualization. It renders
-publication-ready network plots from adjacency matrices, edge lists, or
-igraph objects using a pipe-friendly API with full control over nodes,
-edges, layouts, and themes.
+**Sonnet** is a modern R package for network visualization. It renders publication-ready network plots from adjacency matrices, edge lists, or igraph objects using a pipe-friendly API with full control over nodes, edges, layouts, and themes.
 
 Key features:
 
 - **Base R and grid rendering** via `splot()` and `soplot()`
-- **Pipe-friendly API**:
-  `sonnet() |> sn_nodes() |> sn_edges() |> sn_theme()`
+- **Pipe-friendly API**: `sonnet() |> sn_nodes() |> sn_edges() |> sn_theme()`
 - **12+ node shapes** including pie charts and donut rings
 - **7 built-in themes** and multiple color palettes
-- **Confidence interval underlays**, edge label templates, weight
-  scaling
+- **Confidence interval underlays**, edge label templates, weight scaling
 - **Converters** for `tna` and `qgraph` objects
 
 ## Installation
 
-``` r
+```{r}
 # Install from CRAN (when available)
 install.packages("Sonnet")
 
@@ -37,7 +43,7 @@ devtools::install_github("username/Sonnet")
 
 ## Quick Start
 
-``` r
+```{r}
 library(Sonnet)
 
 # 10-node directed transition matrix (TNA-style)
@@ -63,7 +69,7 @@ sonnet(mat, layout = "spring") |>
 
 Sonnet accepts three input types:
 
-``` r
+```{r}
 # 1. Adjacency matrix
 adj <- matrix(c(0,1,1, 1,0,1, 1,1,0), nrow = 3)
 splot(adj)
@@ -84,10 +90,9 @@ splot(g)
 
 ## splot() vs soplot()
 
-`splot()` uses base R graphics; `soplot()` uses grid graphics. Both
-accept the same parameters.
+`splot()` uses base R graphics; `soplot()` uses grid graphics. Both accept the same parameters.
 
-``` r
+```{r}
 # Base R (recommended for knitting and file output)
 splot(mat, layout = "circle", theme = "classic")
 
@@ -97,7 +102,7 @@ soplot(mat, layout = "circle", theme = "classic")
 
 ## Layouts
 
-``` r
+```{r}
 # Built-in layouts
 splot(mat, layout = "circle")
 splot(mat, layout = "spring")
@@ -120,7 +125,7 @@ sonnet(mat) |> sn_layout(coords) |> sn_render()
 
 All available shapes:
 
-``` r
+```{r}
 # Shapes: circle, square, triangle, diamond, pentagon, hexagon,
 #         ellipse, heart, star, cross, rectangle
 
@@ -132,7 +137,7 @@ splot(mat, node_shape = shapes, node_fill = palette_rainbow(10), layout = "circl
 
 ## Node Aesthetics
 
-``` r
+```{r}
 splot(mat,
   node_size = seq(0.04, 0.08, length.out = 10),
   node_fill = palette_pastel(10),
@@ -147,7 +152,7 @@ splot(mat,
 
 ## Edge Aesthetics
 
-``` r
+```{r}
 # Width, color, and style
 splot(mat,
   positive_color = "#2E7D32",
@@ -182,7 +187,7 @@ splot(mat,
 
 ## Pie Chart Nodes
 
-``` r
+```{r}
 set.seed(1)
 # Each node gets a vector of pie segment values
 pie_vals <- lapply(1:10, function(i) runif(4))
@@ -219,7 +224,7 @@ splot(mat,
 
 ## Donut Nodes
 
-``` r
+```{r}
 # Simple donut: fill proportion per node (0 to 1)
 fills <- runif(10, 0.3, 0.95)
 splot(mat,
@@ -298,7 +303,7 @@ splot(mat,
 
 ## Weight Handling
 
-``` r
+```{r}
 # Round weights to 1 digit
 splot(mat, weight_digits = 1)
 
@@ -319,7 +324,7 @@ splot(mat, edge_scale_mode = "log")
 
 Seven built-in themes:
 
-``` r
+```{r}
 splot(mat, theme = "classic")
 splot(mat, theme = "dark")
 splot(mat, theme = "colorblind")
@@ -331,7 +336,7 @@ splot(mat, theme = "nature")
 
 ## Color Palettes
 
-``` r
+```{r}
 splot(mat, node_fill = palette_rainbow(10))
 splot(mat, node_fill = palette_colorblind(10))
 splot(mat, node_fill = palette_pastel(10))
@@ -343,7 +348,7 @@ splot(mat, node_fill = palette_diverging(10))
 
 ## Converters: from_tna() and from_qgraph()
 
-``` r
+```{r}
 # Convert a tna object (requires tna package)
 library(tna)
 tna_obj <- tna(my_data)
@@ -360,7 +365,7 @@ from_tna(tna_obj, theme = "dark", layout = "circle")
 
 ## ggplot2 Integration
 
-``` r
+```{r}
 library(ggplot2)
 
 p <- sonnet(mat) |>
@@ -374,7 +379,7 @@ p + labs(title = "My Network") +
 
 ## Saving Plots
 
-``` r
+```{r}
 net <- sonnet(mat) |>
   sn_nodes(fill = palette_pastel(10)) |>
   sn_theme("minimal")
@@ -386,21 +391,21 @@ sn_save(net, "network.svg", width = 8, height = 8)
 
 ## Function Reference
 
-| Function        | Purpose                                          |
-|-----------------|--------------------------------------------------|
-| `sonnet()`      | Create network from matrix, edge list, or igraph |
-| `splot()`       | Render with base R graphics                      |
-| `soplot()`      | Render with grid graphics                        |
-| `sn_nodes()`    | Set node aesthetics                              |
-| `sn_edges()`    | Set edge aesthetics                              |
-| `sn_layout()`   | Apply layout algorithm                           |
-| `sn_theme()`    | Apply visual theme                               |
-| `sn_palette()`  | Apply color palette                              |
-| `sn_render()`   | Render to current device                         |
-| `sn_ggplot()`   | Convert to ggplot2 object                        |
-| `sn_save()`     | Save to file                                     |
-| `from_tna()`    | Convert tna object                               |
-| `from_qgraph()` | Convert qgraph object                            |
+| Function | Purpose |
+|----------|---------|
+| `sonnet()` | Create network from matrix, edge list, or igraph |
+| `splot()` | Render with base R graphics |
+| `soplot()` | Render with grid graphics |
+| `sn_nodes()` | Set node aesthetics |
+| `sn_edges()` | Set edge aesthetics |
+| `sn_layout()` | Apply layout algorithm |
+| `sn_theme()` | Apply visual theme |
+| `sn_palette()` | Apply color palette |
+| `sn_render()` | Render to current device |
+| `sn_ggplot()` | Convert to ggplot2 object |
+| `sn_save()` | Save to file |
+| `from_tna()` | Convert tna object |
+| `from_qgraph()` | Convert qgraph object |
 
 ## License
 

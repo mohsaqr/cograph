@@ -160,11 +160,11 @@ or "force" (curve all edges). Default FALSE.}
 
 \item{label_style}{Preset style: "none", "estimate", "full", "range", "stars".}
 
-\item{label_template}{Template with placeholders: {est}, {range}, {low}, {up}, {p}, {stars}.}
+\item{label_template}{Template with placeholders: \{est\}, \{range\}, \{low\}, \{up\}, \{p\}, \{stars\}.}
 
 \item{label_digits}{Decimal places for estimates in template. Default 2.}
 
-\item{label_ci_format}{CI format: "bracket" for \link{low, up} or "dash" for low-up.}
+\item{label_ci_format}{CI format: "bracket" for \verb{[low, up]} or "dash" for \code{low-up}.}
 
 \item{label_p}{Numeric vector of p-values for edges.}
 

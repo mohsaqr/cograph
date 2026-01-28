@@ -19,7 +19,7 @@ format_edge_label_template(
 )
 }
 \arguments{
-\item{template}{Template string with placeholders: {est}, {range}, {low}, {up}, {p}, {stars}.}
+\item{template}{Template string with placeholders: \{est\}, \{range\}, \{low\}, \{up\}, \{p\}, \{stars\}.}
 
 \item{weight}{Edge weight (estimate).}
 

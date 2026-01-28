@@ -82,7 +82,8 @@ soplot(
   node_names = NULL,
   legend = FALSE,
   legend_position = "topright",
-  scaling = "default"
+  scaling = "default",
+  weight_digits = 2
 )
 
 sn_render(
@@ -162,7 +163,8 @@ sn_render(
   node_names = NULL,
   legend = FALSE,
   legend_position = "topright",
-  scaling = "default"
+  scaling = "default",
+  weight_digits = 2
 )
 }
 \arguments{
@@ -174,6 +176,8 @@ Matrices and other inputs are auto-converted.}
 \item{title_size}{Title font size.}
 
 \item{margins}{Plot margins as c(bottom, left, top, right).}
+
+\item{layout_margin}{Margin around the network layout (proportion of viewport). Default 0.15.}
 
 \item{newpage}{Logical. Start a new graphics page? Default TRUE.}
 
@@ -336,6 +340,10 @@ curve as ellipse (two opposing curves); FALSE = all straight; "force" = all curv
 
 \item{scaling}{Scaling mode: "default" for qgraph-matched scaling where node_size=6
 looks similar to qgraph vsize=6, or "legacy" to preserve pre-v2.0 behavior.}
+
+\item{weight_digits}{Number of decimal places to round edge weights to before
+plotting. Edges that round to zero are automatically removed. Default 2.
+Set NULL to disable rounding.}
 }
 \value{
 Invisible NULL. Called for side effect of drawing.

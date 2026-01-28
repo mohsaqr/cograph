@@ -217,6 +217,8 @@ draw_polygon_donut_node_base <- function(x, y, size, values, colors = NULL,
                                          donut_shape = "square",
                                          border.col = "black", border.width = 1,
                                          donut_border.width = NULL,
+                                         outer_border.col = NULL,
+                                         border.lty = 1,
                                          show_value = TRUE, value_cex = 0.8,
                                          value_col = "black",
                                          value_fontface = "bold", value_fontfamily = "sans",
@@ -258,7 +260,7 @@ draw_polygon_donut_node_base <- function(x, y, size, values, colors = NULL,
 
     # Draw filled portion
     if (prop > 0) {
-      segment_col <- if (!is.null(colors)) colors[1] else "lightgray"
+      segment_col <- if (!is.null(colors)) colors[1] else "maroon"
       filled_verts <- max(1, round(prop * n_verts))
 
       for (i in seq_len(filled_verts)) {
@@ -289,11 +291,24 @@ draw_polygon_donut_node_base <- function(x, y, size, values, colors = NULL,
     }
   }
 
+  # Outer boundary border (double border feature)
+  if (!is.null(outer_border.col)) {
+    # Scale up the outer polygon slightly for the double border
+    outer_boundary <- list(
+      x = x + (outer$x - x) / 0.92,  # Match the 0.92 scaling factor from circular donut
+      y = y + (outer$y - y) / 0.92
+    )
+    graphics::polygon(outer_boundary$x, outer_boundary$y, col = NA,
+                      border = outer_border.col, lwd = border.width, lty = border.lty)
+  }
+
   # Outer border
-  graphics::polygon(outer$x, outer$y, col = NA, border = border.col, lwd = ring_border_width)
+  graphics::polygon(outer$x, outer$y, col = NA, border = border.col,
+                    lwd = ring_border_width, lty = border.lty)
 
   # Inner border and fill (center of donut)
-  graphics::polygon(inner$x, inner$y, col = center_color, border = border.col, lwd = ring_border_width)
+  graphics::polygon(inner$x, inner$y, col = center_color, border = border.col,
+                    lwd = ring_border_width, lty = border.lty)
 
   # Show value in center
   if (show_value && !is.null(center_value)) {
@@ -346,6 +361,8 @@ draw_donut_node_base <- function(x, y, size, values, colors = NULL,
                                  center_color = "white",
                                  border.col = "black", border.width = 1,
                                  donut_border.width = NULL,
+                                 outer_border.col = NULL,
+                                 border.lty = 1,
                                  show_value = TRUE, value_cex = 0.8,
                                  value_col = "black",
                                  value_fontface = "bold", value_fontfamily = "sans",
@@ -362,7 +379,7 @@ draw_donut_node_base <- function(x, y, size, values, colors = NULL,
     x = x + size * cos(angles),
     y = y + size * sin(angles),
     col = "white",
-    border = border.col,
+    border = NA,
     lwd = border.width
   )
 
@@ -406,7 +423,7 @@ draw_donut_node_base <- function(x, y, size, values, colors = NULL,
     if (prop > 0) {
       start_ang <- pi / 2
       end_ang <- pi / 2 - 2 * pi * prop
-      fill_col <- if (!is.null(colors)) colors[1] else if (!is.null(default_color)) default_color else "lightgray"
+      fill_col <- if (!is.null(colors)) colors[1] else if (!is.null(default_color)) default_color else "maroon"
       draw_ring_segment(start_ang, end_ang, outer_r, inner_r, fill_col)
     }
 
@@ -444,17 +461,31 @@ draw_donut_node_base <- function(x, y, size, values, colors = NULL,
   )
 
   # Draw borders
+  # Outer boundary border (double border feature - at full node size)
+  if (!is.null(outer_border.col)) {
+    graphics::lines(
+      x = x + size * cos(seq(0, 2*pi, length.out = n_points)),
+      y = y + size * sin(seq(0, 2*pi, length.out = n_points)),
+      col = outer_border.col,
+      lwd = border.width,
+      lty = border.lty
+    )
+  }
+  # Donut ring outer border (at content_size)
   graphics::lines(
     x = x + outer_r * cos(seq(0, 2*pi, length.out = n_points)),
     y = y + outer_r * sin(seq(0, 2*pi, length.out = n_points)),
     col = border.col,
-    lwd = ring_border_width
+    lwd = ring_border_width,
+    lty = border.lty
   )
+  # Donut ring inner border (inner hole)
   graphics::lines(
     x = x + inner_r * cos(seq(0, 2*pi, length.out = n_points)),
     y = y + inner_r * sin(seq(0, 2*pi, length.out = n_points)),
     col = border.col,
-    lwd = ring_border_width
+    lwd = ring_border_width,
+    lty = border.lty
   )
 
   # Show value in center

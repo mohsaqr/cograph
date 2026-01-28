@@ -12,6 +12,8 @@ Matrices and other inputs are auto-converted.}
 
 \item{layout}{Layout algorithm name or a SonnetLayout object.}
 
+\item{seed}{Random seed for deterministic layouts. Default 42. Set NULL for random.}
+
 \item{...}{Additional arguments passed to the layout function.}
 }
 \value{

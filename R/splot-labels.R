@@ -49,7 +49,7 @@ format_pvalue <- function(p, digits = 3, prefix = "p=") {
 #' @param lower Lower bound.
 #' @param upper Upper bound.
 #' @param digits Number of decimal places.
-#' @param format CI format: "bracket" for [low, up] or "dash" for low-up.
+#' @param format CI format: "bracket" for `[low, up]` or "dash" for `low-up`.
 #' @return Formatted CI range string.
 #' @keywords internal
 format_ci_range <- function(lower, upper, digits = 2, format = "bracket") {
@@ -111,7 +111,7 @@ resolve_stars <- function(stars_input, p_values = NULL, n) {
 #'
 #' Processes a template string with placeholders and substitutes values.
 #'
-#' @param template Template string with placeholders: {est}, {range}, {low}, {up}, {p}, {stars}.
+#' @param template Template string with placeholders: \{est\}, \{range\}, \{low\}, \{up\}, \{p\}, \{stars\}.
 #' @param weight Edge weight (estimate).
 #' @param ci_lower Lower CI bound.
 #' @param ci_upper Upper CI bound.

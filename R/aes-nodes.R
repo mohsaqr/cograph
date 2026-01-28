@@ -33,10 +33,10 @@ NULL
 #'   Can be a single value (all nodes) or vector (per-node values).
 #' @param donut_values Deprecated. Use donut_fill for simple fill proportion.
 #'   Still works for backwards compatibility.
-#' @param donut_color For donut shape: fill color(s) for the donut ring. Simplified API:
-#'   - Single color: fill color for ALL nodes (e.g., "steelblue")
-#'   - Two colors: fill + background for ALL nodes (e.g., c("steelblue", "lightyellow"))
-#'   - >2 colors: per-node fill colors (recycled to n_nodes)
+#' @param donut_color For donut shape: fill color(s) for the donut ring.
+#'   Single color sets fill for all nodes.
+#'   Two colors set fill and background for all nodes.
+#'   More than 2 colors set per-node fill colors (recycled to n_nodes).
 #'   Default: "lightgray" fill, "gray90" background when shape="donut".
 #' @param donut_colors Deprecated. Use donut_color instead.
 #' @param donut_border_width Border width for donut chart nodes.

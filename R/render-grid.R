@@ -13,6 +13,7 @@ NULL
 #' @param title Optional plot title.
 #' @param title_size Title font size.
 #' @param margins Plot margins as c(bottom, left, top, right).
+#' @param layout_margin Margin around the network layout (proportion of viewport). Default 0.15.
 #' @param newpage Logical. Start a new graphics page? Default TRUE.
 #' @param layout Layout algorithm. Built-in: "circle", "spring", "groups", "grid",
 #'   "random", "star", "bipartite". igraph (2-letter): "kk" (Kamada-Kawai),
@@ -21,6 +22,9 @@ NULL
 #' @param theme Theme name: "classic", "dark", "minimal", etc.
 #' @param seed Random seed for deterministic layouts. Default 42. Set NULL for random.
 #' @param labels Node labels. Can be a character vector to set custom labels.
+#' @param weight_digits Number of decimal places to round edge weights to before
+#'   plotting. Edges that round to zero are automatically removed. Default 2.
+#'   Set NULL to disable rounding.
 #' @param threshold Minimum absolute edge weight to display. Edges with
 #'   abs(weight) < threshold are hidden. Similar to qgraph's threshold.
 #' @param maximum Maximum edge weight for width scaling. Weights above this
@@ -207,7 +211,8 @@ soplot <- function(network, title = NULL, title_size = 14,
                       legend = FALSE,
                       legend_position = "topright",
                       # Scaling mode
-                      scaling = "default") {
+                      scaling = "default",
+                      weight_digits = 2) {
 
 
   # Handle tna objects directly
@@ -246,6 +251,11 @@ soplot <- function(network, title = NULL, title_size = 14,
 
   # Determine effective layout
   effective_layout <- layout %||% "spring"
+
+  # Round matrix weights to filter near-zero edges globally
+  if (is.matrix(network) && !is.null(weight_digits)) {
+    network <- round(network, weight_digits)
+  }
 
   # Auto-convert matrix/data.frame/igraph to sonnet_network
   network <- ensure_sonnet_network(network, layout = effective_layout, seed = seed)
@@ -340,7 +350,7 @@ soplot <- function(network, title = NULL, title_size = 14,
     effective_donut_colors <- donut_colors
   } else if (any(shapes == "donut") || !is.null(effective_donut_values)) {
     # Default fill color: light gray when donuts are being used
-    effective_donut_colors <- as.list(rep("lightgray", n_nodes))
+    effective_donut_colors <- as.list(rep("maroon", n_nodes))
   }
 
   # Determine effective donut shapes - inherit from node_shape by default

@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style type="text/css">
+@font-face {
+font-family: octicons-link;
+src: url(data:font/woff;charset=utf-8;base64,d09GRgABAAAAAAZwABAAAAAACFQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABEU0lHAAAGaAAAAAgAAAAIAAAAAUdTVUIAAAZcAAAACgAAAAoAAQAAT1MvMgAAAyQAAABJAAAAYFYEU3RjbWFwAAADcAAAAEUAAACAAJThvmN2dCAAAATkAAAABAAAAAQAAAAAZnBnbQAAA7gAAACyAAABCUM+8IhnYXNwAAAGTAAAABAAAAAQABoAI2dseWYAAAFsAAABPAAAAZwcEq9taGVhZAAAAsgAAAA0AAAANgh4a91oaGVhAAADCAAAABoAAAAkCA8DRGhtdHgAAAL8AAAADAAAAAwGAACfbG9jYQAAAsAAAAAIAAAACABiATBtYXhwAAACqAAAABgAAAAgAA8ASm5hbWUAAAToAAABQgAAAlXu73sOcG9zdAAABiwAAAAeAAAAME3QpOBwcmVwAAAEbAAAAHYAAAB/aFGpk3jaTY6xa8JAGMW/O62BDi0tJLYQincXEypYIiGJjSgHniQ6umTsUEyLm5BV6NDBP8Tpts6F0v+k/0an2i+itHDw3v2+9+DBKTzsJNnWJNTgHEy4BgG3EMI9DCEDOGEXzDADU5hBKMIgNPZqoD3SilVaXZCER3/I7AtxEJLtzzuZfI+VVkprxTlXShWKb3TBecG11rwoNlmmn1P2WYcJczl32etSpKnziC7lQyWe1smVPy/Lt7Kc+0vWY/gAgIIEqAN9we0pwKXreiMasxvabDQMM4riO+qxM2ogwDGOZTXxwxDiycQIcoYFBLj5K3EIaSctAq2kTYiw+ymhce7vwM9jSqO8JyVd5RH9gyTt2+J/yUmYlIR0s04n6+7Vm1ozezUeLEaUjhaDSuXHwVRgvLJn1tQ7xiuVv/ocTRF42mNgZGBgYGbwZOBiAAFGJBIMAAizAFoAAABiAGIAznjaY2BkYGAA4in8zwXi+W2+MjCzMIDApSwvXzC97Z4Ig8N/BxYGZgcgl52BCSQKAA3jCV8CAABfAAAAAAQAAEB42mNgZGBg4f3vACQZQABIMjKgAmYAKEgBXgAAeNpjYGY6wTiBgZWBg2kmUxoDA4MPhGZMYzBi1AHygVLYQUCaawqDA4PChxhmh/8ODDEsvAwHgMKMIDnGL0x7gJQCAwMAJd4MFwAAAHjaY2BgYGaA4DAGRgYQkAHyGMF8NgYrIM3JIAGVYYDT+AEjAwuDFpBmA9KMDEwMCh9i/v8H8sH0/4dQc1iAmAkALaUKLgAAAHjaTY9LDsIgEIbtgqHUPpDi3gPoBVyRTmTddOmqTXThEXqrob2gQ1FjwpDvfwCBdmdXC5AVKFu3e5MfNFJ29KTQT48Ob9/lqYwOGZxeUelN2U2R6+cArgtCJpauW7UQBqnFkUsjAY/kOU1cP+DAgvxwn1chZDwUbd6CFimGXwzwF6tPbFIcjEl+vvmM/byA48e6tWrKArm4ZJlCbdsrxksL1AwWn/yBSJKpYbq8AXaaTb8AAHja28jAwOC00ZrBeQNDQOWO//sdBBgYGRiYWYAEELEwMTE4uzo5Zzo5b2BxdnFOcALxNjA6b2ByTswC8jYwg0VlNuoCTWAMqNzMzsoK1rEhNqByEyerg5PMJlYuVueETKcd/89uBpnpvIEVomeHLoMsAAe1Id4AAAAAAAB42oWQT07CQBTGv0JBhagk7HQzKxca2sJCE1hDt4QF+9JOS0nbaaYDCQfwCJ7Au3AHj+LO13FMmm6cl7785vven0kBjHCBhfpYuNa5Ph1c0e2Xu3jEvWG7UdPDLZ4N92nOm+EBXuAbHmIMSRMs+4aUEd4Nd3CHD8NdvOLTsA2GL8M9PODbcL+hD7C1xoaHeLJSEao0FEW14ckxC+TU8TxvsY6X0eLPmRhry2WVioLpkrbp84LLQPGI7c6sOiUzpWIWS5GzlSgUzzLBSikOPFTOXqly7rqx0Z1Q5BAIoZBSFihQYQOOBEdkCOgXTOHA07HAGjGWiIjaPZNW13/+lm6S9FT7rLHFJ6fQbkATOG1j2OFMucKJJsxIVfQORl+9Jyda6Sl1dUYhSCm1dyClfoeDve4qMYdLEbfqHf3O/AdDumsjAAB42mNgYoAAZQYjBmyAGYQZmdhL8zLdDEydARfoAqIAAAABAAMABwAKABMAB///AA8AAQAAAAAAAAAAAAAAAAABAAAAAA==) format('woff');
+}
+body {
+-webkit-text-size-adjust: 100%;
+text-size-adjust: 100%;
+color: #333;
+font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+font-size: 16px;
+line-height: 1.6;
+word-wrap: break-word;
+}
+a {
+background-color: transparent;
+}
+a:active,
+a:hover {
+outline: 0;
+}
+strong {
+font-weight: bold;
+}
+h1 {
+font-size: 2em;
+margin: 0.67em 0;
+}
+img {
+border: 0;
+}
+hr {
+box-sizing: content-box;
+height: 0;
+}
+pre {
+overflow: auto;
+}
+code,
+kbd,
+pre {
+font-family: monospace, monospace;
+font-size: 1em;
+}
+input {
+color: inherit;
+font: inherit;
+margin: 0;
+}
+html input[disabled] {
+cursor: default;
+}
+input {
+line-height: normal;
+}
+input[type="checkbox"] {
+box-sizing: border-box;
+padding: 0;
+}
+table {
+border-collapse: collapse;
+border-spacing: 0;
+}
+td,
+th {
+padding: 0;
+}
+* {
+box-sizing: border-box;
+}
+input {
+font: 13px / 1.4 Helvetica, arial, nimbussansl, liberationsans, freesans, clean, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+a {
+color: #4078c0;
+text-decoration: none;
+}
+a:hover,
+a:active {
+text-decoration: underline;
+}
+hr {
+height: 0;
+margin: 15px 0;
+overflow: hidden;
+background: transparent;
+border: 0;
+border-bottom: 1px solid #ddd;
+}
+hr:before {
+display: table;
+content: "";
+}
+hr:after {
+display: table;
+clear: both;
+content: "";
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+margin-top: 15px;
+margin-bottom: 15px;
+line-height: 1.1;
+}
+h1 {
+font-size: 30px;
+}
+h2 {
+font-size: 21px;
+}
+h3 {
+font-size: 16px;
+}
+h4 {
+font-size: 14px;
+}
+h5 {
+font-size: 12px;
+}
+h6 {
+font-size: 11px;
+}
+blockquote {
+margin: 0;
+}
+ul,
+ol {
+padding: 0;
+margin-top: 0;
+margin-bottom: 0;
+}
+ol ol,
+ul ol {
+list-style-type: lower-roman;
+}
+ul ul ol,
+ul ol ol,
+ol ul ol,
+ol ol ol {
+list-style-type: lower-alpha;
+}
+dd {
+margin-left: 0;
+}
+code {
+font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+font-size: 12px;
+}
+pre {
+margin-top: 0;
+margin-bottom: 0;
+font: 12px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+.select::-ms-expand {
+opacity: 0;
+}
+.octicon {
+font: normal normal normal 16px/1 octicons-link;
+display: inline-block;
+text-decoration: none;
+text-rendering: auto;
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+-webkit-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
+}
+.octicon-link:before {
+content: '\f05c';
+}
+.markdown-body:before {
+display: table;
+content: "";
+}
+.markdown-body:after {
+display: table;
+clear: both;
+content: "";
+}
+.markdown-body>*:first-child {
+margin-top: 0 !important;
+}
+.markdown-body>*:last-child {
+margin-bottom: 0 !important;
+}
+a:not([href]) {
+color: inherit;
+text-decoration: none;
+}
+.anchor {
+display: inline-block;
+padding-right: 2px;
+margin-left: -18px;
+}
+.anchor:focus {
+outline: none;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+margin-top: 1em;
+margin-bottom: 16px;
+font-weight: bold;
+line-height: 1.4;
+}
+h1 .octicon-link,
+h2 .octicon-link,
+h3 .octicon-link,
+h4 .octicon-link,
+h5 .octicon-link,
+h6 .octicon-link {
+color: #000;
+vertical-align: middle;
+visibility: hidden;
+}
+h1:hover .anchor,
+h2:hover .anchor,
+h3:hover .anchor,
+h4:hover .anchor,
+h5:hover .anchor,
+h6:hover .anchor {
+text-decoration: none;
+}
+h1:hover .anchor .octicon-link,
+h2:hover .anchor .octicon-link,
+h3:hover .anchor .octicon-link,
+h4:hover .anchor .octicon-link,
+h5:hover .anchor .octicon-link,
+h6:hover .anchor .octicon-link {
+visibility: visible;
+}
+h1 {
+padding-bottom: 0.3em;
+font-size: 2.25em;
+line-height: 1.2;
+border-bottom: 1px solid #eee;
+}
+h1 .anchor {
+line-height: 1;
+}
+h2 {
+padding-bottom: 0.3em;
+font-size: 1.75em;
+line-height: 1.225;
+border-bottom: 1px solid #eee;
+}
+h2 .anchor {
+line-height: 1;
+}
+h3 {
+font-size: 1.5em;
+line-height: 1.43;
+}
+h3 .anchor {
+line-height: 1.2;
+}
+h4 {
+font-size: 1.25em;
+}
+h4 .anchor {
+line-height: 1.2;
+}
+h5 {
+font-size: 1em;
+}
+h5 .anchor {
+line-height: 1.1;
+}
+h6 {
+font-size: 1em;
+color: #777;
+}
+h6 .anchor {
+line-height: 1.1;
+}
+p,
+blockquote,
+ul,
+ol,
+dl,
+table,
+pre {
+margin-top: 0;
+margin-bottom: 16px;
+}
+hr {
+height: 4px;
+padding: 0;
+margin: 16px 0;
+background-color: #e7e7e7;
+border: 0 none;
+}
+ul,
+ol {
+padding-left: 2em;
+}
+ul ul,
+ul ol,
+ol ol,
+ol ul {
+margin-top: 0;
+margin-bottom: 0;
+}
+li>p {
+margin-top: 16px;
+}
+dl {
+padding: 0;
+}
+dl dt {
+padding: 0;
+margin-top: 16px;
+font-size: 1em;
+font-style: italic;
+font-weight: bold;
+}
+dl dd {
+padding: 0 16px;
+margin-bottom: 16px;
+}
+blockquote {
+padding: 0 15px;
+color: #777;
+border-left: 4px solid #ddd;
+}
+blockquote>:first-child {
+margin-top: 0;
+}
+blockquote>:last-child {
+margin-bottom: 0;
+}
+table {
+display: block;
+width: 100%;
+overflow: auto;
+word-break: normal;
+word-break: keep-all;
+}
+table th {
+font-weight: bold;
+}
+table th,
+table td {
+padding: 6px 13px;
+border: 1px solid #ddd;
+}
+table tr {
+background-color: #fff;
+border-top: 1px solid #ccc;
+}
+table tr:nth-child(2n) {
+background-color: #f8f8f8;
+}
+img {
+max-width: 100%;
+box-sizing: content-box;
+background-color: #fff;
+}
+code {
+padding: 0;
+padding-top: 0.2em;
+padding-bottom: 0.2em;
+margin: 0;
+font-size: 85%;
+background-color: rgba(0,0,0,0.04);
+border-radius: 3px;
+}
+code:before,
+code:after {
+letter-spacing: -0.2em;
+content: "\00a0";
+}
+pre>code {
+padding: 0;
+margin: 0;
+font-size: 100%;
+word-break: normal;
+white-space: pre;
+background: transparent;
+border: 0;
+}
+.highlight {
+margin-bottom: 16px;
+}
+.highlight pre,
+pre {
+padding: 16px;
+overflow: auto;
+font-size: 85%;
+line-height: 1.45;
+background-color: #f7f7f7;
+border-radius: 3px;
+}
+.highlight pre {
+margin-bottom: 0;
+word-break: normal;
+}
+pre {
+word-wrap: normal;
+}
+pre code {
+display: inline;
+max-width: initial;
+padding: 0;
+margin: 0;
+overflow: initial;
+line-height: inherit;
+word-wrap: normal;
+background-color: transparent;
+border: 0;
+}
+pre code:before,
+pre code:after {
+content: normal;
+}
+kbd {
+display: inline-block;
+padding: 3px 5px;
+font-size: 11px;
+line-height: 10px;
+color: #555;
+vertical-align: middle;
+background-color: #fcfcfc;
+border: solid 1px #ccc;
+border-bottom-color: #bbb;
+border-radius: 3px;
+box-shadow: inset 0 -1px 0 #bbb;
+}
+.pl-c {
+color: #969896;
+}
+.pl-c1,
+.pl-s .pl-v {
+color: #0086b3;
+}
+.pl-e,
+.pl-en {
+color: #795da3;
+}
+.pl-s .pl-s1,
+.pl-smi {
+color: #333;
+}
+.pl-ent {
+color: #63a35c;
+}
+.pl-k {
+color: #a71d5d;
+}
+.pl-pds,
+.pl-s,
+.pl-s .pl-pse .pl-s1,
+.pl-sr,
+.pl-sr .pl-cce,
+.pl-sr .pl-sra,
+.pl-sr .pl-sre {
+color: #183691;
+}
+.pl-v {
+color: #ed6a43;
+}
+.pl-id {
+color: #b52a1d;
+}
+.pl-ii {
+background-color: #b52a1d;
+color: #f8f8f8;
+}
+.pl-sr .pl-cce {
+color: #63a35c;
+font-weight: bold;
+}
+.pl-ml {
+color: #693a17;
+}
+.pl-mh,
+.pl-mh .pl-en,
+.pl-ms {
+color: #1d3e81;
+font-weight: bold;
+}
+.pl-mq {
+color: #008080;
+}
+.pl-mi {
+color: #333;
+font-style: italic;
+}
+.pl-mb {
+color: #333;
+font-weight: bold;
+}
+.pl-md {
+background-color: #ffecec;
+color: #bd2c00;
+}
+.pl-mi1 {
+background-color: #eaffea;
+color: #55a532;
+}
+.pl-mdr {
+color: #795da3;
+font-weight: bold;
+}
+.pl-mo {
+color: #1d3e81;
+}
+kbd {
+display: inline-block;
+padding: 3px 5px;
+font: 11px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+line-height: 10px;
+color: #555;
+vertical-align: middle;
+background-color: #fcfcfc;
+border: solid 1px #ccc;
+border-bottom-color: #bbb;
+border-radius: 3px;
+box-shadow: inset 0 -1px 0 #bbb;
+}
+.task-list-item {
+list-style-type: none;
+}
+.task-list-item+.task-list-item {
+margin-top: 3px;
+}
+.task-list-item input {
+margin: 0 0.35em 0.25em -1.6em;
+vertical-align: middle;
+}
+:checked+.radio-label {
+z-index: 1;
+position: relative;
+border-color: #4078c0;
+}
+.sourceLine {
+display: inline-block;
+}
+code .kw { color: #000000; }
+code .dt { color: #ed6a43; }
+code .dv { color: #009999; }
+code .bn { color: #009999; }
+code .fl { color: #009999; }
+code .ch { color: #009999; }
+code .st { color: #183691; }
+code .co { color: #969896; }
+code .ot { color: #0086b3; }
+code .al { color: #a61717; }
+code .fu { color: #63a35c; }
+code .er { color: #a61717; background-color: #e3d2d2; }
+code .wa { color: #000000; }
+code .cn { color: #008080; }
+code .sc { color: #008080; }
+code .vs { color: #183691; }
+code .ss { color: #183691; }
+code .im { color: #000000; }
+code .va {color: #008080; }
+code .cf { color: #000000; }
+code .op { color: #000000; }
+code .bu { color: #000000; }
+code .ex { color: #000000; }
+code .pp { color: #999999; }
+code .at { color: #008080; }
+code .do { color: #969896; }
+code .an { color: #008080; }
+code .cv { color: #008080; }
+code .in { color: #008080; }
+</style>
+<style>
+body {
+box-sizing: border-box;
+min-width: 200px;
+max-width: 980px;
+margin: 0 auto;
+padding: 45px;
+padding-top: 0px;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<h1 id="sonnet-">Sonnet
+<img role="img" src="man/figures/logo.png" align="right" height="139" /></h1>
+<!-- badges: start -->
+
+<p><a href="https://github.com/username/Sonnet/actions/workflows/R-CMD-check.yaml"><img role="img" aria-label="R-CMD-check" src="data:text/plain; charset=utf-8;charset=utf-8,Not%20Found" alt="R-CMD-check" /></a> <a href="https://CRAN.R-project.org/package=Sonnet"><img role="img" aria-label="CRAN status" src="data:image/svg+xml; charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMzEiIGhlaWdodD0iMjAiIGFyaWEtbGFiZWw9IkNSQU4gbm90IHB1Ymxpc2hlZCI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJiIiB4Mj0iMCIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjYmJiIiBzdG9wLW9wYWNpdHk9Ii4xIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3Atb3BhY2l0eT0iLjEiLz4KICA8L2xpbmVhckdyYWRpZW50PgogIDxtYXNrIGlkPSJhIj4KICAgIDxyZWN0IHdpZHRoPSIxMzEiIGhlaWdodD0iMjAiIHJ4PSIzIiBmaWxsPSIjZmZmIi8+CiAgPC9tYXNrPgogIDxnIG1hc2s9InVybCgjYSkiPgogICAgPHBhdGggZmlsbD0iIzU1NSIgZD0iTTAgMGg0M3YyMEgweiIvPgogICAgPHBhdGggZmlsbD0iI2UwNWQ0NCIgZD0iTTQzIDBoMTE0djIwSDQzeiIvPgogICAgPHBhdGggZmlsbD0idXJsKCNiKSIgZD0iTTAgMGgxMzF2MjBIMHoiLz4KICA8L2c+CiAgPGcgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIKICAgICBmb250LWZhbWlseT0iRGVqYVZ1IFNhbnMsVmVyZGFuYSxHZW5ldmEsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSI+CiAgICA8dGV4dCB4PSIyMS41IiB5PSIxNSIgZmlsbD0iIzAxMDEwMSIgZmlsbC1vcGFjaXR5PSIuMyI+CiAgICAgIENSQU4KICAgIDwvdGV4dD4KICAgIDx0ZXh0IHg9IjIxLjUiIHk9IjE0Ij4KICAgICAgQ1JBTgogICAgPC90ZXh0PgogICAgPHRleHQgeD0iODYiIHk9IjE1IiBmaWxsPSIjMDEwMTAxIiBmaWxsLW9wYWNpdHk9Ii4zIj4KICAgICAgbm90IHB1Ymxpc2hlZAogICAgPC90ZXh0PgogICAgPHRleHQgeD0iODYiIHk9IjE0Ij4KICAgICAgbm90IHB1Ymxpc2hlZAogICAgPC90ZXh0PgogIDwvZz4KPC9zdmc+" alt="CRAN status" /></a></p>
+<!-- badges: end -->
+
+<p><strong>Sonnet</strong> is a modern R package for network
+visualization. It renders publication-ready network plots from adjacency
+matrices, edge lists, or igraph objects using a pipe-friendly API with
+full control over nodes, edges, layouts, and themes.</p>
+<p>Key features:</p>
+<ul>
+<li><strong>Base R and grid rendering</strong> via <code>splot()</code>
+and <code>soplot()</code></li>
+<li><strong>Pipe-friendly API</strong>:
+<code>sonnet() |&gt; sn_nodes() |&gt; sn_edges() |&gt; sn_theme()</code></li>
+<li><strong>12+ node shapes</strong> including pie charts and donut
+rings</li>
+<li><strong>7 built-in themes</strong> and multiple color palettes</li>
+<li><strong>Confidence interval underlays</strong>, edge label
+templates, weight scaling</li>
+<li><strong>Converters</strong> for <code>tna</code> and
+<code>qgraph</code> objects</li>
+</ul>
+<h2 id="installation">Installation</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Install from CRAN (when available)</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;Sonnet&quot;</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co"># Or install the development version from GitHub</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co"># install.packages(&quot;devtools&quot;)</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&quot;username/Sonnet&quot;</span>)</span></code></pre></div>
+<h2 id="quick-start">Quick Start</h2>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">library</span>(Sonnet)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co"># 10-node directed transition matrix (TNA-style)</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>states <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Explore&quot;</span>, <span class="st">&quot;Plan&quot;</span>, <span class="st">&quot;Monitor&quot;</span>, <span class="st">&quot;Evaluate&quot;</span>, <span class="st">&quot;Adapt&quot;</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>            <span class="st">&quot;Reflect&quot;</span>, <span class="st">&quot;Regulate&quot;</span>, <span class="st">&quot;Execute&quot;</span>, <span class="st">&quot;Collaborate&quot;</span>, <span class="st">&quot;Review&quot;</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>mat <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">runif</span>(<span class="dv">100</span>, <span class="dv">0</span>, <span class="fl">0.3</span>), <span class="at">nrow =</span> <span class="dv">10</span>, <span class="at">dimnames =</span> <span class="fu">list</span>(states, states))</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="fu">diag</span>(mat) <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>mat <span class="ot">&lt;-</span> mat <span class="sc">/</span> <span class="fu">rowSums</span>(mat)  <span class="co"># row-normalize</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co"># Basic plot</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="fu">splot</span>(mat)</span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co"># Pipe-chain style</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="fu">sonnet</span>(mat, <span class="at">layout =</span> <span class="st">&quot;spring&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>  <span class="fu">sn_nodes</span>(<span class="at">size =</span> <span class="fl">0.07</span>, <span class="at">fill =</span> <span class="st">&quot;steelblue&quot;</span>, <span class="at">shape =</span> <span class="st">&quot;circle&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>  <span class="fu">sn_edges</span>(<span class="at">width =</span> <span class="st">&quot;weight&quot;</span>, <span class="at">color =</span> <span class="st">&quot;weight&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>  <span class="fu">sn_theme</span>(<span class="st">&quot;minimal&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>  <span class="fu">sn_render</span>()</span></code></pre></div>
+<h2 id="input-formats">Input Formats</h2>
+<p>Sonnet accepts three input types:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># 1. Adjacency matrix</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>adj <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>, <span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>, <span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>), <span class="at">nrow =</span> <span class="dv">3</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="fu">splot</span>(adj)</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co"># 2. Edge list (data.frame with from, to, and optional weight)</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>edges <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>  <span class="at">from =</span> <span class="fu">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;A&quot;</span>, <span class="st">&quot;B&quot;</span>),</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>  <span class="at">to   =</span> <span class="fu">c</span>(<span class="st">&quot;B&quot;</span>, <span class="st">&quot;C&quot;</span>, <span class="st">&quot;C&quot;</span>),</span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>  <span class="at">weight =</span> <span class="fu">c</span>(<span class="fl">0.8</span>, <span class="fl">0.5</span>, <span class="fl">0.3</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>)</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="fu">splot</span>(edges)</span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co"># 3. igraph object</span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="fu">library</span>(igraph)</span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">make_ring</span>(<span class="dv">10</span>)</span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="fu">splot</span>(g)</span></code></pre></div>
+<h2 id="splot-vs-soplot">splot() vs soplot()</h2>
+<p><code>splot()</code> uses base R graphics; <code>soplot()</code> uses
+grid graphics. Both accept the same parameters.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Base R (recommended for knitting and file output)</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">splot</span>(mat, <span class="at">layout =</span> <span class="st">&quot;circle&quot;</span>, <span class="at">theme =</span> <span class="st">&quot;classic&quot;</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co"># Grid-based (useful for sn_ggplot())</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="fu">soplot</span>(mat, <span class="at">layout =</span> <span class="st">&quot;circle&quot;</span>, <span class="at">theme =</span> <span class="st">&quot;classic&quot;</span>)</span></code></pre></div>
+<h2 id="layouts">Layouts</h2>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># Built-in layouts</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">splot</span>(mat, <span class="at">layout =</span> <span class="st">&quot;circle&quot;</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="fu">splot</span>(mat, <span class="at">layout =</span> <span class="st">&quot;spring&quot;</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co"># Group-based layout</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>groups <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="at">length.out =</span> <span class="dv">10</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="fu">sonnet</span>(mat) <span class="sc">|&gt;</span> <span class="fu">sn_layout</span>(<span class="st">&quot;groups&quot;</span>, <span class="at">groups =</span> groups) <span class="sc">|&gt;</span> <span class="fu">sn_render</span>()</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co"># igraph layout codes</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="fu">splot</span>(mat, <span class="at">layout =</span> <span class="st">&quot;kk&quot;</span>)    <span class="co"># Kamada-Kawai</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="fu">splot</span>(mat, <span class="at">layout =</span> <span class="st">&quot;fr&quot;</span>)    <span class="co"># Fruchterman-Reingold</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="fu">splot</span>(mat, <span class="at">layout =</span> <span class="st">&quot;mds&quot;</span>)   <span class="co"># Multidimensional scaling</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co"># Custom coordinates</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>coords <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">runif</span>(<span class="dv">20</span>), <span class="at">ncol =</span> <span class="dv">2</span>)</span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="fu">sonnet</span>(mat) <span class="sc">|&gt;</span> <span class="fu">sn_layout</span>(coords) <span class="sc">|&gt;</span> <span class="fu">sn_render</span>()</span></code></pre></div>
+<h2 id="node-shapes">Node Shapes</h2>
+<p>All available shapes:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Shapes: circle, square, triangle, diamond, pentagon, hexagon,</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#         ellipse, heart, star, cross, rectangle</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co"># One shape per node</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>shapes <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;circle&quot;</span>, <span class="st">&quot;square&quot;</span>, <span class="st">&quot;triangle&quot;</span>, <span class="st">&quot;diamond&quot;</span>, <span class="st">&quot;pentagon&quot;</span>,</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>            <span class="st">&quot;hexagon&quot;</span>, <span class="st">&quot;ellipse&quot;</span>, <span class="st">&quot;heart&quot;</span>, <span class="st">&quot;star&quot;</span>, <span class="st">&quot;cross&quot;</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="fu">splot</span>(mat, <span class="at">node_shape =</span> shapes, <span class="at">node_fill =</span> <span class="fu">palette_rainbow</span>(<span class="dv">10</span>), <span class="at">layout =</span> <span class="st">&quot;circle&quot;</span>)</span></code></pre></div>
+<h2 id="node-aesthetics">Node Aesthetics</h2>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">splot</span>(mat,</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="at">node_size =</span> <span class="fu">seq</span>(<span class="fl">0.04</span>, <span class="fl">0.08</span>, <span class="at">length.out =</span> <span class="dv">10</span>),</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="at">node_fill =</span> <span class="fu">palette_pastel</span>(<span class="dv">10</span>),</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  <span class="at">node_border_color =</span> <span class="st">&quot;gray30&quot;</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  <span class="at">node_border_width =</span> <span class="dv">2</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  <span class="at">node_alpha =</span> <span class="fl">0.85</span>,</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  <span class="at">label_size =</span> <span class="dv">9</span>,</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>  <span class="at">label_color =</span> <span class="st">&quot;black&quot;</span>,</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>  <span class="at">label_position =</span> <span class="st">&quot;center&quot;</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>)</span></code></pre></div>
+<h2 id="edge-aesthetics">Edge Aesthetics</h2>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Width, color, and style</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="fu">splot</span>(mat,</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="at">positive_color =</span> <span class="st">&quot;#2E7D32&quot;</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="at">negative_color =</span> <span class="st">&quot;#C62828&quot;</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  <span class="at">edge_style =</span> <span class="st">&quot;solid&quot;</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>  <span class="at">curvature =</span> <span class="fl">0.2</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  <span class="at">arrow_size =</span> <span class="fl">0.015</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>)</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co"># Confidence interval underlays</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="fu">splot</span>(mat,</span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>  <span class="at">edge_ci =</span> <span class="fu">runif</span>(<span class="fu">sum</span>(mat <span class="sc">&gt;</span> <span class="dv">0</span>), <span class="fl">0.05</span>, <span class="fl">0.2</span>),</span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>  <span class="at">edge_ci_alpha =</span> <span class="fl">0.15</span>,</span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>  <span class="at">edge_ci_scale =</span> <span class="dv">2</span></span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a>)</span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a></span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a><span class="co"># Edge labels with template system</span></span>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a><span class="fu">splot</span>(mat,</span>
+<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a>  <span class="at">edge_label_style =</span> <span class="st">&quot;estimate&quot;</span>,</span>
+<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a>  <span class="at">edge_label_digits =</span> <span class="dv">2</span>,</span>
+<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a>  <span class="at">edge_label_size =</span> <span class="fl">0.6</span>,</span>
+<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a>  <span class="at">edge_label_bg =</span> <span class="st">&quot;white&quot;</span></span>
+<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a>)</span>
+<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a></span>
+<span id="cb8-25"><a href="#cb8-25" tabindex="-1"></a><span class="co"># Custom label template</span></span>
+<span id="cb8-26"><a href="#cb8-26" tabindex="-1"></a><span class="fu">splot</span>(mat,</span>
+<span id="cb8-27"><a href="#cb8-27" tabindex="-1"></a>  <span class="at">edge_label_template =</span> <span class="st">&quot;{est}</span><span class="sc">\n</span><span class="st">[{low}, {up}]&quot;</span>,</span>
+<span id="cb8-28"><a href="#cb8-28" tabindex="-1"></a>  <span class="at">edge_label_p =</span> <span class="fu">runif</span>(<span class="fu">sum</span>(mat <span class="sc">&gt;</span> <span class="dv">0</span>), <span class="dv">0</span>, <span class="fl">0.1</span>),</span>
+<span id="cb8-29"><a href="#cb8-29" tabindex="-1"></a>  <span class="at">edge_label_stars =</span> <span class="cn">TRUE</span></span>
+<span id="cb8-30"><a href="#cb8-30" tabindex="-1"></a>)</span></code></pre></div>
+<h2 id="pie-chart-nodes">Pie Chart Nodes</h2>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="co"># Each node gets a vector of pie segment values</span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>pie_vals <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>, <span class="cf">function</span>(i) <span class="fu">runif</span>(<span class="dv">4</span>))</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>pie_cols <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;#E41A1C&quot;</span>, <span class="st">&quot;#377EB8&quot;</span>, <span class="st">&quot;#4DAF4A&quot;</span>, <span class="st">&quot;#FF7F00&quot;</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="fu">splot</span>(mat,</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>  <span class="at">node_shape =</span> <span class="st">&quot;pie&quot;</span>,</span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>  <span class="at">pie_values =</span> pie_vals,</span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>  <span class="at">pie_colors =</span> pie_cols,</span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>  <span class="at">layout =</span> <span class="st">&quot;circle&quot;</span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a>)</span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co"># Per-node color palettes</span></span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a>pie_cols_multi <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">&quot;#E63946&quot;</span>, <span class="st">&quot;#F1FAEE&quot;</span>, <span class="st">&quot;#A8DADC&quot;</span>),</span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">&quot;#264653&quot;</span>, <span class="st">&quot;#2A9D8F&quot;</span>, <span class="st">&quot;#E9C46A&quot;</span>),</span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">&quot;#F72585&quot;</span>, <span class="st">&quot;#7209B7&quot;</span>, <span class="st">&quot;#3A0CA3&quot;</span>),</span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">&quot;#003049&quot;</span>, <span class="st">&quot;#D62828&quot;</span>, <span class="st">&quot;#F77F00&quot;</span>),</span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">&quot;#606C38&quot;</span>, <span class="st">&quot;#283618&quot;</span>, <span class="st">&quot;#DDA15E&quot;</span>),</span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">&quot;#0077B6&quot;</span>, <span class="st">&quot;#00B4D8&quot;</span>, <span class="st">&quot;#90E0EF&quot;</span>),</span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">&quot;#9B2226&quot;</span>, <span class="st">&quot;#AE2012&quot;</span>, <span class="st">&quot;#BB3E03&quot;</span>),</span>
+<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">&quot;#023047&quot;</span>, <span class="st">&quot;#219EBC&quot;</span>, <span class="st">&quot;#8ECAE6&quot;</span>),</span>
+<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">&quot;#5F0F40&quot;</span>, <span class="st">&quot;#9A031E&quot;</span>, <span class="st">&quot;#FB8B24&quot;</span>),</span>
+<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">&quot;#2D00F7&quot;</span>, <span class="st">&quot;#6A00F4&quot;</span>, <span class="st">&quot;#8900F2&quot;</span>)</span>
+<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a>)</span>
+<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a><span class="fu">splot</span>(mat,</span>
+<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a>  <span class="at">node_shape =</span> <span class="st">&quot;pie&quot;</span>,</span>
+<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a>  <span class="at">pie_values =</span> <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>, <span class="cf">function</span>(i) <span class="fu">runif</span>(<span class="dv">3</span>)),</span>
+<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a>  <span class="at">pie_colors =</span> pie_cols_multi,</span>
+<span id="cb9-30"><a href="#cb9-30" tabindex="-1"></a>  <span class="at">node_size =</span> <span class="dv">6</span>,</span>
+<span id="cb9-31"><a href="#cb9-31" tabindex="-1"></a>  <span class="at">layout =</span> <span class="st">&quot;circle&quot;</span></span>
+<span id="cb9-32"><a href="#cb9-32" tabindex="-1"></a>)</span></code></pre></div>
+<h2 id="donut-nodes">Donut Nodes</h2>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># Simple donut: fill proportion per node (0 to 1)</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>fills <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="dv">10</span>, <span class="fl">0.3</span>, <span class="fl">0.95</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="fu">splot</span>(mat,</span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  <span class="at">node_shape =</span> <span class="st">&quot;donut&quot;</span>,</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>  <span class="at">donut_fill =</span> fills,</span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>  <span class="at">donut_color =</span> <span class="st">&quot;steelblue&quot;</span>,</span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>  <span class="at">layout =</span> <span class="st">&quot;circle&quot;</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>)</span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co"># Segmented donuts with multiple colors</span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>donut_vals <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>, <span class="cf">function</span>(i) <span class="fu">runif</span>(<span class="dv">3</span>))</span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a>donut_cols <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="st">&quot;#E63946&quot;</span>, <span class="st">&quot;#457B9D&quot;</span>, <span class="st">&quot;#2A9D8F&quot;</span>))</span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="fu">splot</span>(mat,</span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a>  <span class="at">donut_values =</span> donut_vals,</span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a>  <span class="at">donut_colors =</span> donut_cols,</span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a>  <span class="at">donut_inner_ratio =</span> <span class="fl">0.6</span>,</span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a>  <span class="at">node_size =</span> <span class="dv">6</span></span>
+<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a>)</span>
+<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a></span>
+<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a><span class="co"># Per-node donut color palettes</span></span>
+<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a>donut_cols_multi <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">&quot;#003049&quot;</span>, <span class="st">&quot;#D62828&quot;</span>, <span class="st">&quot;#F77F00&quot;</span>, <span class="st">&quot;#FCBF49&quot;</span>),</span>
+<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">&quot;#606C38&quot;</span>, <span class="st">&quot;#283618&quot;</span>, <span class="st">&quot;#DDA15E&quot;</span>, <span class="st">&quot;#BC6C25&quot;</span>),</span>
+<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">&quot;#0077B6&quot;</span>, <span class="st">&quot;#00B4D8&quot;</span>, <span class="st">&quot;#90E0EF&quot;</span>, <span class="st">&quot;#CAF0F8&quot;</span>),</span>
+<span id="cb10-25"><a href="#cb10-25" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">&quot;#9B2226&quot;</span>, <span class="st">&quot;#AE2012&quot;</span>, <span class="st">&quot;#BB3E03&quot;</span>, <span class="st">&quot;#CA6702&quot;</span>),</span>
+<span id="cb10-26"><a href="#cb10-26" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">&quot;#5F0F40&quot;</span>, <span class="st">&quot;#9A031E&quot;</span>, <span class="st">&quot;#FB8B24&quot;</span>, <span class="st">&quot;#E36414&quot;</span>),</span>
+<span id="cb10-27"><a href="#cb10-27" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">&quot;#023047&quot;</span>, <span class="st">&quot;#219EBC&quot;</span>, <span class="st">&quot;#8ECAE6&quot;</span>, <span class="st">&quot;#FFB703&quot;</span>),</span>
+<span id="cb10-28"><a href="#cb10-28" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">&quot;#264653&quot;</span>, <span class="st">&quot;#2A9D8F&quot;</span>, <span class="st">&quot;#E9C46A&quot;</span>, <span class="st">&quot;#F4A261&quot;</span>),</span>
+<span id="cb10-29"><a href="#cb10-29" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">&quot;#F72585&quot;</span>, <span class="st">&quot;#B5179E&quot;</span>, <span class="st">&quot;#7209B7&quot;</span>, <span class="st">&quot;#560BAD&quot;</span>),</span>
+<span id="cb10-30"><a href="#cb10-30" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">&quot;#10002B&quot;</span>, <span class="st">&quot;#240046&quot;</span>, <span class="st">&quot;#3C096C&quot;</span>, <span class="st">&quot;#5A189A&quot;</span>),</span>
+<span id="cb10-31"><a href="#cb10-31" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">&quot;#D8F3DC&quot;</span>, <span class="st">&quot;#B7E4C7&quot;</span>, <span class="st">&quot;#95D5B2&quot;</span>, <span class="st">&quot;#74C69D&quot;</span>)</span>
+<span id="cb10-32"><a href="#cb10-32" tabindex="-1"></a>)</span>
+<span id="cb10-33"><a href="#cb10-33" tabindex="-1"></a><span class="fu">splot</span>(mat,</span>
+<span id="cb10-34"><a href="#cb10-34" tabindex="-1"></a>  <span class="at">donut_values =</span> <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>, <span class="cf">function</span>(i) <span class="fu">runif</span>(<span class="dv">4</span>)),</span>
+<span id="cb10-35"><a href="#cb10-35" tabindex="-1"></a>  <span class="at">donut_colors =</span> donut_cols_multi,</span>
+<span id="cb10-36"><a href="#cb10-36" tabindex="-1"></a>  <span class="at">donut_inner_ratio =</span> <span class="fl">0.55</span>,</span>
+<span id="cb10-37"><a href="#cb10-37" tabindex="-1"></a>  <span class="at">node_size =</span> <span class="dv">6</span></span>
+<span id="cb10-38"><a href="#cb10-38" tabindex="-1"></a>)</span>
+<span id="cb10-39"><a href="#cb10-39" tabindex="-1"></a></span>
+<span id="cb10-40"><a href="#cb10-40" tabindex="-1"></a><span class="co"># Polygon donut shapes</span></span>
+<span id="cb10-41"><a href="#cb10-41" tabindex="-1"></a><span class="fu">splot</span>(mat,</span>
+<span id="cb10-42"><a href="#cb10-42" tabindex="-1"></a>  <span class="at">node_shape =</span> <span class="st">&quot;donut&quot;</span>,</span>
+<span id="cb10-43"><a href="#cb10-43" tabindex="-1"></a>  <span class="at">donut_fill =</span> fills,</span>
+<span id="cb10-44"><a href="#cb10-44" tabindex="-1"></a>  <span class="at">donut_shape =</span> <span class="fu">c</span>(<span class="st">&quot;circle&quot;</span>, <span class="st">&quot;hexagon&quot;</span>, <span class="st">&quot;square&quot;</span>, <span class="st">&quot;diamond&quot;</span>, <span class="st">&quot;triangle&quot;</span>,</span>
+<span id="cb10-45"><a href="#cb10-45" tabindex="-1"></a>                  <span class="st">&quot;pentagon&quot;</span>, <span class="st">&quot;circle&quot;</span>, <span class="st">&quot;hexagon&quot;</span>, <span class="st">&quot;square&quot;</span>, <span class="st">&quot;diamond&quot;</span>),</span>
+<span id="cb10-46"><a href="#cb10-46" tabindex="-1"></a>  <span class="at">donut_color =</span> <span class="fu">palette_viridis</span>(<span class="dv">10</span>)</span>
+<span id="cb10-47"><a href="#cb10-47" tabindex="-1"></a>)</span>
+<span id="cb10-48"><a href="#cb10-48" tabindex="-1"></a></span>
+<span id="cb10-49"><a href="#cb10-49" tabindex="-1"></a><span class="co"># Show value in center</span></span>
+<span id="cb10-50"><a href="#cb10-50" tabindex="-1"></a><span class="fu">splot</span>(mat,</span>
+<span id="cb10-51"><a href="#cb10-51" tabindex="-1"></a>  <span class="at">node_shape =</span> <span class="st">&quot;donut&quot;</span>,</span>
+<span id="cb10-52"><a href="#cb10-52" tabindex="-1"></a>  <span class="at">donut_fill =</span> fills,</span>
+<span id="cb10-53"><a href="#cb10-53" tabindex="-1"></a>  <span class="at">donut_show_value =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb10-54"><a href="#cb10-54" tabindex="-1"></a>  <span class="at">donut_value_digits =</span> <span class="dv">0</span>,</span>
+<span id="cb10-55"><a href="#cb10-55" tabindex="-1"></a>  <span class="at">donut_value_suffix =</span> <span class="st">&quot;%&quot;</span></span>
+<span id="cb10-56"><a href="#cb10-56" tabindex="-1"></a>)</span>
+<span id="cb10-57"><a href="#cb10-57" tabindex="-1"></a></span>
+<span id="cb10-58"><a href="#cb10-58" tabindex="-1"></a><span class="co"># Donut + Pie combo: outer donut ring with inner pie segments</span></span>
+<span id="cb10-59"><a href="#cb10-59" tabindex="-1"></a><span class="fu">splot</span>(mat,</span>
+<span id="cb10-60"><a href="#cb10-60" tabindex="-1"></a>  <span class="at">node_shape =</span> <span class="st">&quot;donut&quot;</span>,</span>
+<span id="cb10-61"><a href="#cb10-61" tabindex="-1"></a>  <span class="at">donut_fill =</span> fills,</span>
+<span id="cb10-62"><a href="#cb10-62" tabindex="-1"></a>  <span class="at">donut_color =</span> <span class="st">&quot;steelblue&quot;</span>,</span>
+<span id="cb10-63"><a href="#cb10-63" tabindex="-1"></a>  <span class="at">pie_values =</span> <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>, <span class="cf">function</span>(i) <span class="fu">runif</span>(<span class="dv">3</span>)),</span>
+<span id="cb10-64"><a href="#cb10-64" tabindex="-1"></a>  <span class="at">pie_colors =</span> <span class="fu">c</span>(<span class="st">&quot;#E41A1C&quot;</span>, <span class="st">&quot;#377EB8&quot;</span>, <span class="st">&quot;#4DAF4A&quot;</span>)</span>
+<span id="cb10-65"><a href="#cb10-65" tabindex="-1"></a>)</span>
+<span id="cb10-66"><a href="#cb10-66" tabindex="-1"></a></span>
+<span id="cb10-67"><a href="#cb10-67" tabindex="-1"></a><span class="co"># Double donut: two concentric rings</span></span>
+<span id="cb10-68"><a href="#cb10-68" tabindex="-1"></a><span class="fu">splot</span>(mat,</span>
+<span id="cb10-69"><a href="#cb10-69" tabindex="-1"></a>  <span class="at">node_shape =</span> <span class="st">&quot;donut&quot;</span>,</span>
+<span id="cb10-70"><a href="#cb10-70" tabindex="-1"></a>  <span class="at">donut_fill =</span> fills,</span>
+<span id="cb10-71"><a href="#cb10-71" tabindex="-1"></a>  <span class="at">donut_color =</span> <span class="st">&quot;steelblue&quot;</span>,</span>
+<span id="cb10-72"><a href="#cb10-72" tabindex="-1"></a>  <span class="at">donut2_values =</span> <span class="fu">runif</span>(<span class="dv">10</span>, <span class="fl">0.2</span>, <span class="fl">0.8</span>),</span>
+<span id="cb10-73"><a href="#cb10-73" tabindex="-1"></a>  <span class="at">donut2_colors =</span> <span class="st">&quot;coral&quot;</span></span>
+<span id="cb10-74"><a href="#cb10-74" tabindex="-1"></a>)</span></code></pre></div>
+<h2 id="weight-handling">Weight Handling</h2>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co"># Round weights to 1 digit</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="fu">splot</span>(mat, <span class="at">weight_digits =</span> <span class="dv">1</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="co"># Filter edges below threshold</span></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="fu">splot</span>(mat, <span class="at">threshold =</span> <span class="fl">0.1</span>)</span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="co"># Set maximum for scaling</span></span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="fu">splot</span>(mat, <span class="at">maximum =</span> <span class="fl">1.0</span>)</span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a></span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a><span class="co"># Disable two-tier cutoff</span></span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a><span class="fu">splot</span>(mat, <span class="at">cut =</span> <span class="dv">0</span>)</span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a></span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a><span class="co"># Logarithmic edge scaling</span></span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a><span class="fu">splot</span>(mat, <span class="at">edge_scale_mode =</span> <span class="st">&quot;log&quot;</span>)</span></code></pre></div>
+<h2 id="themes">Themes</h2>
+<p>Seven built-in themes:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">splot</span>(mat, <span class="at">theme =</span> <span class="st">&quot;classic&quot;</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="fu">splot</span>(mat, <span class="at">theme =</span> <span class="st">&quot;dark&quot;</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="fu">splot</span>(mat, <span class="at">theme =</span> <span class="st">&quot;colorblind&quot;</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="fu">splot</span>(mat, <span class="at">theme =</span> <span class="st">&quot;gray&quot;</span>)</span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="fu">splot</span>(mat, <span class="at">theme =</span> <span class="st">&quot;minimal&quot;</span>)</span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="fu">splot</span>(mat, <span class="at">theme =</span> <span class="st">&quot;viridis&quot;</span>)</span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a><span class="fu">splot</span>(mat, <span class="at">theme =</span> <span class="st">&quot;nature&quot;</span>)</span></code></pre></div>
+<h2 id="color-palettes">Color Palettes</h2>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">splot</span>(mat, <span class="at">node_fill =</span> <span class="fu">palette_rainbow</span>(<span class="dv">10</span>))</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="fu">splot</span>(mat, <span class="at">node_fill =</span> <span class="fu">palette_colorblind</span>(<span class="dv">10</span>))</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="fu">splot</span>(mat, <span class="at">node_fill =</span> <span class="fu">palette_pastel</span>(<span class="dv">10</span>))</span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="fu">splot</span>(mat, <span class="at">node_fill =</span> <span class="fu">palette_viridis</span>(<span class="dv">10</span>))</span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a><span class="fu">splot</span>(mat, <span class="at">node_fill =</span> <span class="fu">palette_blues</span>(<span class="dv">10</span>))</span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="fu">splot</span>(mat, <span class="at">node_fill =</span> <span class="fu">palette_reds</span>(<span class="dv">10</span>))</span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="fu">splot</span>(mat, <span class="at">node_fill =</span> <span class="fu">palette_diverging</span>(<span class="dv">10</span>))</span></code></pre></div>
+<h2 id="converters-from_tna-and-from_qgraph">Converters: from_tna() and
+from_qgraph()</h2>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="co"># Convert a tna object (requires tna package)</span></span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="fu">library</span>(tna)</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>tna_obj <span class="ot">&lt;-</span> <span class="fu">tna</span>(my_data)</span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="fu">from_tna</span>(tna_obj)</span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="co"># Convert a qgraph object (requires qgraph package)</span></span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="fu">library</span>(qgraph)</span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a>q <span class="ot">&lt;-</span> <span class="fu">qgraph</span>(mat)</span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="fu">from_qgraph</span>(q)</span>
+<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a></span>
+<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a><span class="co"># Override parameters during conversion</span></span>
+<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a><span class="fu">from_tna</span>(tna_obj, <span class="at">theme =</span> <span class="st">&quot;dark&quot;</span>, <span class="at">layout =</span> <span class="st">&quot;circle&quot;</span>)</span></code></pre></div>
+<h2 id="ggplot2-integration">ggplot2 Integration</h2>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">sonnet</span>(mat) <span class="sc">|&gt;</span></span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a>  <span class="fu">sn_nodes</span>(<span class="at">fill =</span> <span class="st">&quot;steelblue&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a>  <span class="fu">sn_theme</span>(<span class="st">&quot;minimal&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a>  <span class="fu">sn_ggplot</span>()</span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a>p <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;My Network&quot;</span>) <span class="sc">+</span></span>
+<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>))</span></code></pre></div>
+<h2 id="saving-plots">Saving Plots</h2>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>net <span class="ot">&lt;-</span> <span class="fu">sonnet</span>(mat) <span class="sc">|&gt;</span></span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>  <span class="fu">sn_nodes</span>(<span class="at">fill =</span> <span class="fu">palette_pastel</span>(<span class="dv">10</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a>  <span class="fu">sn_theme</span>(<span class="st">&quot;minimal&quot;</span>)</span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a><span class="fu">sn_save</span>(net, <span class="st">&quot;network.pdf&quot;</span>, <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">8</span>)</span>
+<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="fu">sn_save</span>(net, <span class="st">&quot;network.png&quot;</span>, <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">8</span>, <span class="at">dpi =</span> <span class="dv">300</span>)</span>
+<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a><span class="fu">sn_save</span>(net, <span class="st">&quot;network.svg&quot;</span>, <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">8</span>)</span></code></pre></div>
+<h2 id="function-reference">Function Reference</h2>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sonnet()</code></td>
+<td>Create network from matrix, edge list, or igraph</td>
+</tr>
+<tr>
+<td><code>splot()</code></td>
+<td>Render with base R graphics</td>
+</tr>
+<tr>
+<td><code>soplot()</code></td>
+<td>Render with grid graphics</td>
+</tr>
+<tr>
+<td><code>sn_nodes()</code></td>
+<td>Set node aesthetics</td>
+</tr>
+<tr>
+<td><code>sn_edges()</code></td>
+<td>Set edge aesthetics</td>
+</tr>
+<tr>
+<td><code>sn_layout()</code></td>
+<td>Apply layout algorithm</td>
+</tr>
+<tr>
+<td><code>sn_theme()</code></td>
+<td>Apply visual theme</td>
+</tr>
+<tr>
+<td><code>sn_palette()</code></td>
+<td>Apply color palette</td>
+</tr>
+<tr>
+<td><code>sn_render()</code></td>
+<td>Render to current device</td>
+</tr>
+<tr>
+<td><code>sn_ggplot()</code></td>
+<td>Convert to ggplot2 object</td>
+</tr>
+<tr>
+<td><code>sn_save()</code></td>
+<td>Save to file</td>
+</tr>
+<tr>
+<td><code>from_tna()</code></td>
+<td>Convert tna object</td>
+</tr>
+<tr>
+<td><code>from_qgraph()</code></td>
+<td>Convert qgraph object</td>
+</tr>
+</tbody>
+</table>
+<h2 id="license">License</h2>
+<p>MIT License. See <a href="LICENSE.md">LICENSE.md</a> for details.</p>
+
+</body>
+</html>

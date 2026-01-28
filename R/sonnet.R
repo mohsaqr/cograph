@@ -41,6 +41,7 @@ ensure_sonnet_network <- function(x, layout = "spring", seed = 42, ...) {
 #'   "random", "star", "bipartite", or "custom". Default "spring".
 #' @param directed Logical. Force directed interpretation. NULL for auto-detect.
 #' @param node_labels Character vector of node labels.
+#' @param seed Random seed for deterministic layouts. Default 42. Set NULL for random.
 #' @param ... Additional arguments passed to the layout function.
 #'
 #' @return A sonnet_network object that can be further customized and rendered.
@@ -128,6 +129,7 @@ sonnet <- function(input, layout = "spring", directed = NULL,
 #' @param network A sonnet_network object, matrix, data.frame, or igraph object.
 #'   Matrices and other inputs are auto-converted.
 #' @param layout Layout algorithm name or a SonnetLayout object.
+#' @param seed Random seed for deterministic layouts. Default 42. Set NULL for random.
 #' @param ... Additional arguments passed to the layout function.
 #'
 #' @return Modified sonnet_network object.

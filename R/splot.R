@@ -932,11 +932,16 @@ splot <- function(
   # Determine effective donut shapes - inherit from node_shape by default
   # If donut_shape is NULL or "circle" (default), inherit from node_shape
   # Otherwise, use the explicitly set donut_shape
+  valid_donut_base_shapes <- c("circle", "square", "hexagon", "triangle", "diamond", "pentagon")
   if (is.null(donut_shape) || identical(donut_shape, "circle")) {
-    # Inherit from node_shape, replacing special donut shapes with "circle"
-    # donut, donut_pie, double_donut_pie are special shapes that need circle base
+    # Inherit from node_shape, but only if it's a valid donut base shape
+    # donut, donut_pie, double_donut_pie and custom SVG shapes default to "circle"
     special_donut_shapes <- c("donut", "donut_pie", "double_donut_pie")
-    effective_donut_shapes <- ifelse(shapes %in% special_donut_shapes, "circle", shapes)
+    effective_donut_shapes <- ifelse(
+      shapes %in% valid_donut_base_shapes,
+      shapes,
+      "circle"  # Default for SVG shapes and special shapes
+    )
   } else {
     # User explicitly set donut_shape - vectorize and use it
     effective_donut_shapes <- recycle_to_length(donut_shape, n_nodes)

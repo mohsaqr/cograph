@@ -8,6 +8,8 @@ from_qgraph(
   qgraph_object,
   engine = c("splot", "soplot"),
   plot = TRUE,
+  weight_digits = 2,
+  show_zero_edges = FALSE,
   ...
 )
 }
@@ -18,11 +20,18 @@ from_qgraph(
 
 \item{plot}{If TRUE, immediately plot using the chosen engine}
 
+\item{weight_digits}{Number of decimal places to round edge weights to. Default 2.
+  Edges that round to zero are removed unless \code{show_zero_edges = TRUE}.}
+
+\item{show_zero_edges}{If TRUE, keep edges even if their weight rounds to zero. Default FALSE.}
+
 \item{...}{Override any extracted parameter}
 }
 \value{
 Invisibly, a named list of Sonnet parameters
 }
 \description{
-Convert a qgraph object to Sonnet parameters
+Extracts the network, layout, and all relevant arguments from a qgraph
+object and passes them to a Sonnet plotting engine. Reads resolved values
+from \code{graphAttributes} rather than raw \code{Arguments}.
 }

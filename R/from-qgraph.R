@@ -1,3 +1,64 @@
+#' Convert a tna object to Sonnet parameters
+#'
+#' Extracts the transition matrix, labels, and initial state probabilities
+#' from a \code{tna} object and plots with Sonnet. Initial probabilities
+#' are mapped to donut fills.
+#'
+#' @param tna_object A \code{tna} object from \code{tna::tna()}
+#' @param engine Which Sonnet renderer to use: \code{"splot"} or \code{"soplot"}
+#' @param plot If TRUE, immediately plot using the chosen engine
+#' @param weight_digits Number of decimal places to round edge weights to. Default 2.
+#'   Edges that round to zero are removed unless \code{show_zero_edges = TRUE}.
+#' @param show_zero_edges If TRUE, keep edges even if their weight rounds to zero. Default FALSE.
+#' @param ... Additional parameters passed to the plotting engine
+#' @return Invisibly, a named list of Sonnet parameters
+#' @export
+from_tna <- function(tna_object, engine = c("splot", "soplot"), plot = TRUE,
+                     weight_digits = 2, show_zero_edges = FALSE, ...) {
+  engine <- match.arg(engine)
+
+  if (!inherits(tna_object, "tna")) {
+    stop("Input does not appear to be a tna object", call. = FALSE)
+  }
+
+  overrides <- list(...)
+
+  # --- Weights matrix ---
+  x <- round(tna_object$weights, weight_digits)
+
+  # --- Build params ---
+  params <- list(
+    x          = x,
+    labels     = tna_object$labels,
+    directed   = TRUE,
+    donut_fill = as.numeric(tna_object$inits),
+    donut_inner_ratio = 0.8,
+    donut_empty       = FALSE
+  )
+
+  # --- Apply overrides ---
+  for (nm in names(overrides)) {
+    params[[nm]] <- overrides[[nm]]
+  }
+
+  # --- Plot ---
+  if (plot) {
+    plot_params <- params
+    if (engine == "soplot") {
+      plot_params$network <- plot_params$x
+      plot_params$x <- NULL
+    }
+    plot_fn <- switch(engine, splot = splot, soplot = soplot)
+    accepted <- names(formals(plot_fn))
+    if (!"..." %in% accepted) {
+      plot_params <- plot_params[intersect(names(plot_params), accepted)]
+    }
+    do.call(plot_fn, plot_params)
+  }
+
+  invisible(params)
+}
+
 #' Convert a qgraph object to Sonnet parameters
 #'
 #' Extracts the network, layout, and all relevant arguments from a qgraph

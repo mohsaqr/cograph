@@ -210,6 +210,29 @@ soplot <- function(network, title = NULL, title_size = 14,
                       scaling = "default") {
 
 
+  # Handle tna objects directly
+  if (inherits(network, "tna")) {
+    tna_params <- from_tna(network, engine = "soplot", plot = FALSE)
+    call_args <- tna_params
+    # from_tna returns $x; soplot expects $network
+    call_args$network <- call_args$x
+    call_args$x <- NULL
+    call_args$layout <- layout
+    call_args$seed <- seed
+    call_args$theme <- theme
+    # Apply user overrides
+    user_args <- as.list(match.call(expand.dots = FALSE))[-1]
+    user_args$network <- NULL
+    for (nm in names(user_args)) {
+      val <- eval(user_args[[nm]], envir = parent.frame())
+      if (!is.null(val)) call_args[[nm]] <- val
+    }
+    # Filter to accepted soplot params
+    accepted <- names(formals(soplot))
+    call_args <- call_args[intersect(names(call_args), accepted)]
+    return(do.call(soplot, call_args))
+  }
+
   # Set seed for deterministic layouts
   if (!is.null(seed)) {
     set.seed(seed)

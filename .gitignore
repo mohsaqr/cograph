@@ -5,6 +5,10 @@ test_output/
 *.rds
 Rplots.pdf
 
+# Generated HTML (demos/showcase)
+showcase/*.html
+inst/examples/*.html
+
 # R/RStudio
 .Rproj.user
 .Rhistory

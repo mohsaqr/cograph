@@ -581,10 +581,13 @@ soplot <- function(network, title = NULL, title_size = 14,
   # Draw title if provided
   if (!is.null(title)) {
     title_col <- if (!is.null(th)) th$get("title_color") else "black"
+    # Position title within the top margin, ensuring it's visible
+    # Use at least 0.02 from the top edge to prevent clipping
+    title_y <- 1 - max(margins[3] / 2, 0.02)
     grid::grid.text(
       title,
       x = grid::unit(0.5, "npc"),
-      y = grid::unit(1 - margins[3]/2, "npc"),
+      y = grid::unit(title_y, "npc"),
       gp = grid::gpar(fontsize = title_size, col = title_col, fontface = "bold")
     )
   }

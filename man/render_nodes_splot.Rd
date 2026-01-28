@@ -19,6 +19,8 @@ render_nodes_splot(
   donut_colors,
   donut_border_color,
   donut_border_width,
+  donut_outer_border_color = NULL,
+  donut_border_lty = 1,
   donut_inner_ratio,
   donut_bg_color,
   donut_shape,

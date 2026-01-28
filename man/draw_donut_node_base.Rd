@@ -17,6 +17,8 @@ draw_donut_node_base(
   border.col = "black",
   border.width = 1,
   donut_border.width = NULL,
+  outer_border.col = NULL,
+  border.lty = 1,
   show_value = TRUE,
   value_cex = 0.8,
   value_col = "black",

@@ -240,11 +240,17 @@ render_edges_grid <- function(network) {
       1
     )
 
+    # Adjust line width for dotted style (reduce by 30% to avoid overly thick appearance)
+    cur_width <- widths[i]
+    if (lty == 3) {  # dotted
+      cur_width <- cur_width * 0.7
+    }
+
     # Handle self-loops
     if (from_idx == to_idx) {
       # PASS 1: Draw CI underlay for self-loop (if edge_ci provided)
       if (!is.null(edge_ci) && !is.na(edge_ci[i]) && edge_ci[i] > 0) {
-        underlay_width <- widths[i] * (1 + edge_ci[i] * edge_ci_scale)
+        underlay_width <- cur_width * (1 + edge_ci[i] * edge_ci_scale)
         underlay_col <- if (!is.null(edge_ci_color)) edge_ci_color[i] else colors[i]
         underlay_col <- adjust_alpha(underlay_col, edge_ci_alpha)
         underlay_lty <- edge_ci_style
@@ -257,7 +263,7 @@ render_edges_grid <- function(network) {
 
       # PASS 2: Draw main self-loop
       grobs[[length(grobs) + 1]] <- draw_self_loop(
-        x1, y1, node_sizes[from_idx], edge_col, widths[i], lty,
+        x1, y1, node_sizes[from_idx], edge_col, cur_width, lty,
         rotation = loop_rotations[i]
       )
       next
@@ -271,7 +277,7 @@ render_edges_grid <- function(network) {
 
     # PASS 1: Draw CI underlay (if edge_ci provided)
     if (!is.null(edge_ci) && !is.na(edge_ci[i]) && edge_ci[i] > 0) {
-      underlay_width <- widths[i] * (1 + edge_ci[i] * edge_ci_scale)
+      underlay_width <- cur_width * (1 + edge_ci[i] * edge_ci_scale)
       underlay_col <- if (!is.null(edge_ci_color)) edge_ci_color[i] else colors[i]
       underlay_col <- adjust_alpha(underlay_col, edge_ci_alpha)
       underlay_lty <- edge_ci_style
@@ -299,7 +305,7 @@ render_edges_grid <- function(network) {
       # Curved edge
       grobs[[length(grobs) + 1]] <- draw_curved_edge(
         start_pt$x, start_pt$y, end_pt$x, end_pt$y,
-        curvatures[i], edge_col, widths[i], lty,
+        curvatures[i], edge_col, cur_width, lty,
         show_arrows, arrow_size, bidirectionals[i],
         curve_shapes[i], curve_pivots[i],
         x_scale = x_scale, y_scale = y_scale
@@ -308,7 +314,7 @@ render_edges_grid <- function(network) {
       # Straight edge
       grobs[[length(grobs) + 1]] <- draw_straight_edge(
         start_pt$x, start_pt$y, end_pt$x, end_pt$y,
-        edge_col, widths[i], lty, show_arrows, arrow_size,
+        edge_col, cur_width, lty, show_arrows, arrow_size,
         bidirectionals[i],
         x_scale = x_scale, y_scale = y_scale
       )
@@ -548,29 +554,74 @@ render_edge_labels_grid <- function(network) {
 
   if (is.null(labels)) return(grid::gList())
 
-  label_size <- if (!is.null(aes$label_size)) aes$label_size else 8
-  label_color <- if (!is.null(aes$label_color)) aes$label_color else "gray30"
+  # Vectorize edge label parameters (strict: length 1 or m)
+  label_sizes <- expand_param(
+    if (!is.null(aes$label_size)) aes$label_size else 8,
+    m, "edge_label_size"
+  )
+  label_colors <- expand_param(
+    if (!is.null(aes$label_color)) aes$label_color else "gray30",
+    m, "edge_label_color"
+  )
 
   # Label position along edge (0 = at source, 0.5 = midpoint, 1 = at target)
-  # Default 0.65 = slightly closer to target
-  label_position <- if (!is.null(aes$label_position)) aes$label_position else 0.65
+  # Default 0.65 = slightly closer to target (strict vectorization)
+  label_positions <- expand_param(
+    if (!is.null(aes$label_position)) aes$label_position else 0.65,
+    m, "edge_label_position"
+  )
   # Label offset perpendicular to edge - default 0 (on the edge line)
-  label_offset <- if (!is.null(aes$label_offset)) aes$label_offset else 0
+  label_offsets <- expand_param(
+    if (!is.null(aes$label_offset)) aes$label_offset else 0,
+    m, "edge_label_offset"
+  )
 
-  # New styling options
-
-  label_bg <- if (!is.null(aes$label_bg)) aes$label_bg else "white"
+  # New styling options - vectorize (strict)
+  label_bgs <- expand_param(
+    if (!is.null(aes$label_bg)) aes$label_bg else "white",
+    m, "edge_label_bg"
+  )
   label_bg_padding <- if (!is.null(aes$label_bg_padding)) aes$label_bg_padding else 0.3
-  label_fontface <- if (!is.null(aes$label_fontface)) aes$label_fontface else "plain"
+
+  # Vectorize fontface with string-to-number conversion (strict)
+  label_fontface_raw <- expand_param(
+    if (!is.null(aes$label_fontface)) aes$label_fontface else "plain",
+    m, "edge_label_fontface"
+  )
+  label_fontfaces <- sapply(label_fontface_raw, function(ff) {
+    if (is.character(ff)) {
+      switch(ff,
+        "plain" = 1,
+        "bold" = 2,
+        "italic" = 3,
+        "bold.italic" = 4,
+        1  # default
+      )
+    } else {
+      ff
+    }
+  })
   label_border <- aes$label_border  # NULL, "rect", "rounded", "circle"
   label_border_color <- if (!is.null(aes$label_border_color)) aes$label_border_color else "gray50"
   label_underline <- if (!is.null(aes$label_underline)) aes$label_underline else FALSE
 
-  # Shadow options
-  label_shadow <- if (!is.null(aes$label_shadow)) aes$label_shadow else FALSE
-  label_shadow_color <- if (!is.null(aes$label_shadow_color)) aes$label_shadow_color else "gray40"
-  label_shadow_offset <- if (!is.null(aes$label_shadow_offset)) aes$label_shadow_offset else 0.5
-  label_shadow_alpha <- if (!is.null(aes$label_shadow_alpha)) aes$label_shadow_alpha else 0.5
+  # Shadow options (strict vectorization)
+  label_shadows <- expand_param(
+    if (!is.null(aes$label_shadow)) aes$label_shadow else FALSE,
+    m, "edge_label_shadow"
+  )
+  label_shadow_colors <- expand_param(
+    if (!is.null(aes$label_shadow_color)) aes$label_shadow_color else "gray40",
+    m, "edge_label_shadow_color"
+  )
+  label_shadow_offsets <- expand_param(
+    if (!is.null(aes$label_shadow_offset)) aes$label_shadow_offset else 0.5,
+    m, "edge_label_shadow_offset"
+  )
+  label_shadow_alphas <- expand_param(
+    if (!is.null(aes$label_shadow_alpha)) aes$label_shadow_alpha else 0.5,
+    m, "edge_label_shadow_alpha"
+  )
 
   # Get curvature for positioning
   curvatures <- recycle_to_length(
@@ -684,8 +735,8 @@ render_edge_labels_grid <- function(network) {
     x2 <- end_pt$x
     y2 <- end_pt$y
 
-    # Position along edge
-    pos <- if (length(label_position) > 1) label_position[i] else label_position
+    # Position along edge (per-edge value from vectorized label_positions)
+    pos <- label_positions[i]
 
     # Calculate perpendicular direction
     dx <- x2 - x1
@@ -719,8 +770,8 @@ render_edge_labels_grid <- function(network) {
       y <- y1 + pos * (y2 - y1)
     }
 
-    # Apply user-specified offset (labels follow curve path, no auto-offset needed)
-    offset <- if (length(label_offset) > 1) label_offset[i] else label_offset
+    # Apply user-specified offset (per-edge value from vectorized label_offsets)
+    offset <- label_offsets[i]
     if (offset != 0) {
       x <- x + offset * perp_x
       y <- y + offset * perp_y
@@ -730,14 +781,20 @@ render_edge_labels_grid <- function(network) {
     label_grobs <- list()
 
     # Calculate text dimensions for background/border
+    # Get per-edge label styling
+    cur_label_size <- label_sizes[i]
+    cur_label_color <- label_colors[i]
+    cur_label_bg <- label_bgs[i]
+    cur_fontface_num <- label_fontfaces[i]
+
     text_width <- grid::convertWidth(
       grid::stringWidth(as.character(labels[i])),
       "npc", valueOnly = TRUE
-    ) * (label_size / 12)  # Scale by font size (smaller)
+    ) * (cur_label_size / 12)  # Scale by font size (smaller)
     text_height <- grid::convertHeight(
       grid::stringHeight(as.character(labels[i])),
       "npc", valueOnly = TRUE
-    ) * (label_size / 12)
+    ) * (cur_label_size / 12)
 
     # Add padding (smaller halo)
     pad_w <- text_width * label_bg_padding * 0.5
@@ -746,7 +803,7 @@ render_edge_labels_grid <- function(network) {
     bg_height <- text_height + pad_h * 2
 
     # Draw background (white by default)
-    if (!is.na(label_bg) && !is.null(label_bg)) {
+    if (!is.na(cur_label_bg) && !is.null(cur_label_bg)) {
       if (!is.null(label_border) && label_border == "circle") {
         # Circle background (tight fit)
         radius <- max(bg_width, bg_height) / 2 * 0.9
@@ -754,7 +811,7 @@ render_edge_labels_grid <- function(network) {
           x = grid::unit(x, "npc"),
           y = grid::unit(y, "npc"),
           r = grid::unit(radius, "npc"),
-          gp = grid::gpar(fill = label_bg, col = label_border_color, lwd = 0.5)
+          gp = grid::gpar(fill = cur_label_bg, col = label_border_color, lwd = 0.5)
         )
       } else if (!is.null(label_border) && label_border == "rounded") {
         # Rounded rectangle background (tight fit)
@@ -764,7 +821,7 @@ render_edge_labels_grid <- function(network) {
           width = grid::unit(bg_width * 1.1, "npc"),
           height = grid::unit(bg_height * 1.2, "npc"),
           r = grid::unit(0.2, "npc"),
-          gp = grid::gpar(fill = label_bg, col = label_border_color, lwd = 0.5)
+          gp = grid::gpar(fill = cur_label_bg, col = label_border_color, lwd = 0.5)
         )
       } else {
         # Rectangle background (tight fit, default)
@@ -774,31 +831,22 @@ render_edge_labels_grid <- function(network) {
           y = grid::unit(y, "npc"),
           width = grid::unit(bg_width * 1.1, "npc"),
           height = grid::unit(bg_height * 1.2, "npc"),
-          gp = grid::gpar(fill = label_bg, col = border_col, lwd = 0.5)
+          gp = grid::gpar(fill = cur_label_bg, col = border_col, lwd = 0.5)
         )
       }
     }
 
-    # Convert fontface string to numeric
-    fontface_num <- switch(label_fontface,
-      "plain" = 1,
-      "bold" = 2,
-      "italic" = 3,
-      "bold.italic" = 4,
-      1
-    )
-
-    # Draw shadow text first (if enabled)
-    if (label_shadow) {
+    # Draw shadow text first (if enabled) - per-edge shadow settings
+    if (label_shadows[i]) {
       # Calculate shadow offset in NPC units (points to NPC conversion)
-      shadow_offset_npc <- label_shadow_offset * 0.002
-      shadow_col <- adjust_alpha(label_shadow_color, label_shadow_alpha)
+      shadow_offset_npc <- label_shadow_offsets[i] * 0.002
+      shadow_col <- adjust_alpha(label_shadow_colors[i], label_shadow_alphas[i])
 
       label_grobs[[length(label_grobs) + 1]] <- grid::textGrob(
         label = labels[i],
         x = grid::unit(x + shadow_offset_npc, "npc"),
         y = grid::unit(y - shadow_offset_npc, "npc"),
-        gp = grid::gpar(fontsize = label_size, col = shadow_col, fontface = fontface_num)
+        gp = grid::gpar(fontsize = cur_label_size, col = shadow_col, fontface = cur_fontface_num)
       )
     }
 
@@ -807,7 +855,7 @@ render_edge_labels_grid <- function(network) {
       label = labels[i],
       x = grid::unit(x, "npc"),
       y = grid::unit(y, "npc"),
-      gp = grid::gpar(fontsize = label_size, col = label_color, fontface = fontface_num)
+      gp = grid::gpar(fontsize = cur_label_size, col = cur_label_color, fontface = cur_fontface_num)
     )
 
     # Draw underline if requested
@@ -818,7 +866,7 @@ render_edge_labels_grid <- function(network) {
         y0 = grid::unit(underline_y, "npc"),
         x1 = grid::unit(x + text_width / 2, "npc"),
         y1 = grid::unit(underline_y, "npc"),
-        gp = grid::gpar(col = label_color, lwd = 0.8)
+        gp = grid::gpar(col = cur_label_color, lwd = 0.8)
       )
     }
 

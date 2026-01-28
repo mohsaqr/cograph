@@ -22,29 +22,59 @@ render_nodes_grid <- function(network) {
   # Resolve aesthetics to per-node values
   # Default node size uses scale constants: node_default * soplot_node_factor
   default_node_size <- SONNET_SCALE$node_default * SONNET_SCALE$soplot_node_factor
-  sizes <- recycle_to_length(
+  sizes <- expand_param(
     if (!is.null(aes$size)) aes$size else default_node_size,
-    n
+    n, "node_size"
   )
-  shapes <- recycle_to_length(
+  shapes <- expand_param(
     if (!is.null(aes$shape)) aes$shape else "circle",
-    n
+    n, "node_shape"
   )
-  fills <- recycle_to_length(
+  fills <- expand_param(
     if (!is.null(aes$fill)) aes$fill else theme$get("node_fill"),
-    n
+    n, "node_fill"
   )
-  border_colors <- recycle_to_length(
+  border_colors <- expand_param(
     if (!is.null(aes$border_color)) aes$border_color else theme$get("node_border"),
-    n
+    n, "node_border_color"
   )
-  border_widths <- recycle_to_length(
+  border_widths <- expand_param(
     if (!is.null(aes$border_width)) aes$border_width else theme$get("node_border_width"),
-    n
+    n, "node_border_width"
   )
-  alphas <- recycle_to_length(
+  alphas <- expand_param(
     if (!is.null(aes$alpha)) aes$alpha else 1,
-    n
+    n, "node_alpha"
+  )
+
+  # Vectorize donut parameters (strict: length 1 or n)
+  donut_inner_ratios <- expand_param(
+    if (!is.null(aes$donut_inner_ratio)) aes$donut_inner_ratio else 0.5,
+    n, "donut_inner_ratio"
+  )
+  donut_bg_colors <- expand_param(
+    if (!is.null(aes$donut_bg_color)) aes$donut_bg_color else "gray90",
+    n, "donut_bg_color"
+  )
+  donut_show_values <- expand_param(
+    if (!is.null(aes$donut_show_value)) aes$donut_show_value else FALSE,
+    n, "donut_show_value"
+  )
+  donut_value_sizes <- expand_param(
+    if (!is.null(aes$donut_value_size)) aes$donut_value_size else 8,
+    n, "donut_value_size"
+  )
+  donut_value_colors <- expand_param(
+    if (!is.null(aes$donut_value_color)) aes$donut_value_color else "black",
+    n, "donut_value_color"
+  )
+  donut_value_fontfaces <- expand_param(
+    if (!is.null(aes$donut_value_fontface)) aes$donut_value_fontface else "bold",
+    n, "donut_value_fontface"
+  )
+  donut_value_fontfamilies <- expand_param(
+    if (!is.null(aes$donut_value_fontfamily)) aes$donut_value_fontfamily else "sans",
+    n, "donut_value_fontfamily"
   )
 
   # Create grobs for each node
@@ -91,14 +121,14 @@ render_nodes_grid <- function(network) {
         }
       }
 
-      # Pass all donut parameters
-      if (!is.null(aes$donut_inner_ratio)) extra_args$inner_ratio <- aes$donut_inner_ratio
-      if (!is.null(aes$donut_bg_color)) extra_args$bg_color <- aes$donut_bg_color
-      if (!is.null(aes$donut_show_value)) extra_args$show_value <- aes$donut_show_value
-      if (!is.null(aes$donut_value_size)) extra_args$value_size <- aes$donut_value_size
-      if (!is.null(aes$donut_value_color)) extra_args$value_color <- aes$donut_value_color
-      if (!is.null(aes$donut_value_fontface)) extra_args$value_fontface <- aes$donut_value_fontface
-      if (!is.null(aes$donut_value_fontfamily)) extra_args$value_fontfamily <- aes$donut_value_fontfamily
+      # Pass all donut parameters (using pre-vectorized per-node values)
+      extra_args$inner_ratio <- donut_inner_ratios[i]
+      extra_args$bg_color <- donut_bg_colors[i]
+      extra_args$show_value <- donut_show_values[i]
+      extra_args$value_size <- donut_value_sizes[i]
+      extra_args$value_color <- donut_value_colors[i]
+      extra_args$value_fontface <- donut_value_fontfaces[i]
+      extra_args$value_fontfamily <- donut_value_fontfamilies[i]
       if (!is.null(aes$donut_value_digits)) extra_args$value_digits <- aes$donut_value_digits
       if (!is.null(aes$donut_value_prefix)) extra_args$value_prefix <- aes$donut_value_prefix
       if (!is.null(aes$donut_value_suffix)) extra_args$value_suffix <- aes$donut_value_suffix
@@ -140,12 +170,9 @@ render_nodes_grid <- function(network) {
           extra_args$colors <- aes$donut_colors[1]
         }
       }
-      if (!is.null(aes$donut_inner_ratio)) {
-        extra_args$inner_ratio <- aes$donut_inner_ratio
-      }
-      if (!is.null(aes$donut_bg_color)) {
-        extra_args$bg_color <- aes$donut_bg_color
-      }
+      # Use pre-vectorized per-node values
+      extra_args$inner_ratio <- donut_inner_ratios[i]
+      extra_args$bg_color <- donut_bg_colors[i]
       if (!is.null(aes$donut_shape)) {
         # Handle vectorized donut_shape
         if (length(aes$donut_shape) >= i) {
@@ -154,21 +181,11 @@ render_nodes_grid <- function(network) {
           extra_args$donut_shape <- aes$donut_shape[1]
         }
       }
-      if (!is.null(aes$donut_show_value)) {
-        extra_args$show_value <- aes$donut_show_value
-      }
-      if (!is.null(aes$donut_value_size)) {
-        extra_args$value_size <- aes$donut_value_size
-      }
-      if (!is.null(aes$donut_value_color)) {
-        extra_args$value_color <- aes$donut_value_color
-      }
-      if (!is.null(aes$donut_value_fontface)) {
-        extra_args$value_fontface <- aes$donut_value_fontface
-      }
-      if (!is.null(aes$donut_value_fontfamily)) {
-        extra_args$value_fontfamily <- aes$donut_value_fontfamily
-      }
+      extra_args$show_value <- donut_show_values[i]
+      extra_args$value_size <- donut_value_sizes[i]
+      extra_args$value_color <- donut_value_colors[i]
+      extra_args$value_fontface <- donut_value_fontfaces[i]
+      extra_args$value_fontfamily <- donut_value_fontfamilies[i]
       if (!is.null(aes$donut_value_digits)) {
         extra_args$value_digits <- aes$donut_value_digits
       }
@@ -314,43 +331,43 @@ render_node_labels_grid <- function(network) {
 
   # Resolve aesthetics
   labels <- if (!is.null(nodes$label)) nodes$label else as.character(seq_len(n))
-  sizes <- recycle_to_length(
+  sizes <- expand_param(
     if (!is.null(aes$size)) aes$size else 0.05,
-    n
+    n, "node_size"
   )
-  label_sizes <- recycle_to_length(
+  label_sizes <- expand_param(
     if (!is.null(aes$label_size)) aes$label_size else theme$get("label_size"),
-    n
+    n, "label_size"
   )
-  label_colors <- recycle_to_length(
+  label_colors <- expand_param(
     if (!is.null(aes$label_color)) aes$label_color else theme$get("label_color"),
-    n
+    n, "label_color"
   )
-  positions <- recycle_to_length(
+  positions <- expand_param(
     if (!is.null(aes$label_position)) aes$label_position else "center",
-    n
+    n, "label_position"
   )
 
-  # Label font properties
-  label_fontfaces <- recycle_to_length(
+  # Label font properties (strict vectorization)
+  label_fontfaces <- expand_param(
     if (!is.null(aes$label_fontface)) aes$label_fontface else "plain",
-    n
+    n, "label_fontface"
   )
-  label_fontfamilies <- recycle_to_length(
+  label_fontfamilies <- expand_param(
     if (!is.null(aes$label_fontfamily)) aes$label_fontfamily else "sans",
-    n
+    n, "label_fontfamily"
   )
-  label_hjusts <- recycle_to_length(
+  label_hjusts <- expand_param(
     if (!is.null(aes$label_hjust)) aes$label_hjust else 0.5,
-    n
+    n, "label_hjust"
   )
-  label_vjusts <- recycle_to_length(
+  label_vjusts <- expand_param(
     if (!is.null(aes$label_vjust)) aes$label_vjust else 0.5,
-    n
+    n, "label_vjust"
   )
-  label_angles <- recycle_to_length(
+  label_angles <- expand_param(
     if (!is.null(aes$label_angle)) aes$label_angle else 0,
-    n
+    n, "label_angle"
   )
 
   # Create label grobs

@@ -7,10 +7,14 @@
 #' @param qgraph_object Return value of \code{qgraph::qgraph()}
 #' @param engine Which Sonnet renderer to use: \code{"splot"} or \code{"soplot"}
 #' @param plot If TRUE, immediately plot using the chosen engine
+#' @param weight_digits Number of decimal places to round edge weights to. Default 2.
+#'   Edges that round to zero are removed unless \code{show_zero_edges = TRUE}.
+#' @param show_zero_edges If TRUE, keep edges even if their weight rounds to zero. Default FALSE.
 #' @param ... Override any extracted parameter
 #' @return Invisibly, a named list of Sonnet parameters
 #' @export
-from_qgraph <- function(qgraph_object, engine = c("splot", "soplot"), plot = TRUE, ...) {
+from_qgraph <- function(qgraph_object, engine = c("splot", "soplot"), plot = TRUE,
+                         weight_digits = 2, show_zero_edges = FALSE, ...) {
   engine <- match.arg(engine)
 
   if (!inherits(qgraph_object, "qgraph") && is.null(qgraph_object$Arguments)) {
@@ -36,6 +40,12 @@ from_qgraph <- function(qgraph_object, engine = c("splot", "soplot"), plot = TRU
     }
   }
   n <- nrow(x)
+
+  # --- Round weights and remove near-zero edges ---
+  x <- round(x, weight_digits)
+  if (!show_zero_edges) {
+    x[x == 0] <- 0  # ensure exact zeros (already true after round)
+  }
 
   # --- Build params ---
   params <- list(x = x)
@@ -79,6 +89,8 @@ from_qgraph <- function(qgraph_object, engine = c("splot", "soplot"), plot = TRU
       fill_vec <- c(fill_vec, rep(NA_real_, n_nodes - length(fill_vec)))
     }
     params$donut_fill <- fill_vec
+    params$donut_inner_ratio <- 0.8
+    params$donut_empty <- FALSE
   }
   if (!is.null(ga_nodes$pieColor) && !all(is.na(ga_nodes$pieColor)))
     params$donut_color <- ga_nodes$pieColor

@@ -156,6 +156,9 @@ NULL
 #' @param maximum Maximum weight for scaling. NULL for auto.
 #' @param positive_color Color for positive weights.
 #' @param negative_color Color for negative weights.
+#' @param edge_duplicates How to handle duplicate edges in undirected networks.
+#'   NULL (default) = stop with error listing duplicates. Options: "sum", "mean",
+#'   "first", "max", "min", or a custom aggregation function.
 #'
 #' @param title Plot title.
 #' @param title_size Title font size.
@@ -332,6 +335,7 @@ splot <- function(
     maximum = NULL,
     positive_color = "#2E7D32",
     negative_color = "#C62828",
+    edge_duplicates = NULL,
 
     # Plot settings
     title = NULL,
@@ -427,6 +431,34 @@ splot <- function(
   # Determine if directed
   if (is.null(directed)) {
     directed <- network$network$is_directed
+  }
+
+  # Check for duplicate edges in undirected networks
+  if (!directed && !is.null(edges) && nrow(edges) > 0) {
+    dup_check <- detect_duplicate_edges(edges)
+    if (dup_check$has_duplicates) {
+      if (is.null(edge_duplicates)) {
+        # Build error message
+        dup_msg <- vapply(dup_check$info, function(d) {
+          sprintf("  - Nodes %d-%d: %d edges (weights: %s)",
+                  d$nodes[1], d$nodes[2], d$count,
+                  paste(round(d$weights, 2), collapse = ", "))
+        }, character(1))
+        stop("Found ", length(dup_check$info), " duplicate edge pair(s) in undirected network:\n",
+             paste(dup_msg, collapse = "\n"), "\n\n",
+             "Specify how to handle with edge_duplicates parameter:\n",
+             "  edge_duplicates = \"sum\"   # Sum weights\n",
+             "  edge_duplicates = \"mean\"  # Average weights\n",
+             "  edge_duplicates = \"first\" # Keep first edge\n",
+             "  edge_duplicates = \"max\"   # Keep max weight\n",
+             "  edge_duplicates = \"min\"   # Keep min weight\n",
+             call. = FALSE)
+      }
+      edges <- aggregate_duplicate_edges(edges, edge_duplicates)
+      n_edges <- nrow(edges)
+      # Update the network object with deduplicated edges
+      network$network$set_edges(edges)
+    }
   }
 
   # ============================================

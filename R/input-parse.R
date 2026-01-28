@@ -86,3 +86,86 @@ create_edges_df <- function(from, to, weight = NULL, directed = FALSE) {
     stringsAsFactors = FALSE
   )
 }
+
+#' Detect Duplicate Edges in Undirected Network
+#'
+#' For undirected networks, checks if any node pair has multiple edges
+#' (e.g., both A->B and B->A in an edge list).
+#'
+#' @param edges Edge data frame with from, to, and optionally weight columns.
+#' @return List with has_duplicates (logical) and info (list of duplicate details).
+#' @keywords internal
+detect_duplicate_edges <- function(edges) {
+  if (is.null(edges) || nrow(edges) == 0) {
+    return(list(has_duplicates = FALSE, info = NULL))
+  }
+
+  # Create canonical keys (lower index first)
+  keys <- paste(pmin(edges$from, edges$to), pmax(edges$from, edges$to), sep = "-")
+  dup_keys <- keys[duplicated(keys)]
+
+  if (length(dup_keys) == 0) {
+    return(list(has_duplicates = FALSE, info = NULL))
+  }
+
+  # Build info about duplicates
+  info <- lapply(unique(dup_keys), function(k) {
+    idx <- which(keys == k)
+    list(
+      nodes = as.numeric(strsplit(k, "-")[[1]]),
+      count = length(idx),
+      weights = if ("weight" %in% names(edges)) edges$weight[idx] else rep(1, length(idx))
+    )
+  })
+
+  list(has_duplicates = TRUE, info = info)
+}
+
+#' Aggregate Duplicate Edges
+#'
+#' For undirected networks, aggregates multiple edges between the same node pair
+#' using the specified method.
+#'
+#' @param edges Edge data frame with from, to, and optionally weight columns.
+#' @param method Aggregation method: "sum", "mean", "first", "max", "min",
+#'   or a custom function.
+#' @return Deduplicated edge data frame.
+#' @keywords internal
+aggregate_duplicate_edges <- function(edges, method = "mean") {
+  if (is.null(edges) || nrow(edges) == 0) {
+    return(edges)
+  }
+
+  keys <- paste(pmin(edges$from, edges$to), pmax(edges$from, edges$to), sep = "-")
+
+  agg_fn <- if (is.function(method)) {
+    method
+  } else {
+    switch(method,
+      "sum" = sum,
+      "mean" = mean,
+      "first" = function(x) x[1],
+      "max" = max,
+      "min" = min,
+      stop("Unknown aggregation method: ", method,
+           ". Use 'sum', 'mean', 'first', 'max', 'min', or a custom function.",
+           call. = FALSE)
+    )
+  }
+
+  # Aggregate by key
+  unique_keys <- unique(keys)
+  result <- do.call(rbind, lapply(unique_keys, function(k) {
+    idx <- which(keys == k)
+    row <- edges[idx[1], , drop = FALSE]
+    # Ensure canonical order (lower index first)
+    row$from <- min(edges$from[idx[1]], edges$to[idx[1]])
+    row$to <- max(edges$from[idx[1]], edges$to[idx[1]])
+    if ("weight" %in% names(row)) {
+      row$weight <- agg_fn(edges$weight[idx])
+    }
+    row
+  }))
+  rownames(result) <- NULL
+  result
+}

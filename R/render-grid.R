@@ -88,6 +88,9 @@ NULL
 #' @param show_arrows Logical. Show arrows?
 #' @param positive_color Color for positive edge weights.
 #' @param negative_color Color for negative edge weights.
+#' @param edge_duplicates How to handle duplicate edges in undirected networks.
+#'   NULL (default) = stop with error listing duplicates. Options: "sum", "mean",
+#'   "first", "max", "min", or a custom aggregation function.
 #' @param edge_labels Edge labels. Can be TRUE to show weights, or a vector.
 #' @param edge_label_size Edge label text size.
 #' @param edge_label_color Edge label text color.
@@ -189,6 +192,7 @@ soplot <- function(network, title = NULL, title_size = 14,
                       show_arrows = NULL,
                       positive_color = NULL,
                       negative_color = NULL,
+                      edge_duplicates = NULL,
                       # Edge labels
                       edge_labels = NULL,
                       edge_label_size = NULL,
@@ -259,6 +263,35 @@ soplot <- function(network, title = NULL, title_size = 14,
 
   # Auto-convert matrix/data.frame/igraph to sonnet_network
   network <- ensure_sonnet_network(network, layout = effective_layout, seed = seed)
+
+  # Check for duplicate edges in undirected networks
+  net <- network$network
+  directed <- net$is_directed
+  edges <- net$get_edges()
+  if (!directed && !is.null(edges) && nrow(edges) > 0) {
+    dup_check <- detect_duplicate_edges(edges)
+    if (dup_check$has_duplicates) {
+      if (is.null(edge_duplicates)) {
+        # Build error message
+        dup_msg <- vapply(dup_check$info, function(d) {
+          sprintf("  - Nodes %d-%d: %d edges (weights: %s)",
+                  d$nodes[1], d$nodes[2], d$count,
+                  paste(round(d$weights, 2), collapse = ", "))
+        }, character(1))
+        stop("Found ", length(dup_check$info), " duplicate edge pair(s) in undirected network:\n",
+             paste(dup_msg, collapse = "\n"), "\n\n",
+             "Specify how to handle with edge_duplicates parameter:\n",
+             "  edge_duplicates = \"sum\"   # Sum weights\n",
+             "  edge_duplicates = \"mean\"  # Average weights\n",
+             "  edge_duplicates = \"first\" # Keep first edge\n",
+             "  edge_duplicates = \"max\"   # Keep max weight\n",
+             "  edge_duplicates = \"min\"   # Keep min weight\n",
+             call. = FALSE)
+      }
+      edges <- aggregate_duplicate_edges(edges, edge_duplicates)
+      net$set_edges(edges)
+    }
+  }
 
   # Apply custom node labels if provided
   if (!is.null(labels)) {

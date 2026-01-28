@@ -177,29 +177,53 @@ splot(mat,
   curvature = 0.2,
   arrow_size = 0.015
 )
+```
 
-# Confidence interval underlays
+## Confidence Intervals and P-Values
+
+Sonnet supports statistical edge visualization with CI underlays and significance notation.
+
+```{r}
+# Confidence interval underlays (uncertainty bands)
 splot(mat,
   edge_ci = runif(sum(mat > 0), 0.05, 0.2),
   edge_ci_alpha = 0.15,
-  edge_ci_scale = 2
+  edge_ci_scale = 2.5,
+  edge_ci_style = 1  # 1=solid, 2=dashed, 3=dotted
 )
 
-# Edge labels with template system
+# P-values with significance stars (*** p<0.001, ** p<0.01, * p<0.05)
 splot(mat,
-  edge_label_style = "estimate",
-  edge_label_digits = 2,
-  edge_label_size = 0.6,
-  edge_label_bg = "white"
-)
-
-# Custom label template
-splot(mat,
-  edge_label_template = "{est}\n[{low}, {up}]",
+  edge_labels = TRUE,
   edge_label_p = runif(sum(mat > 0), 0, 0.1),
-  edge_label_stars = TRUE
+  edge_label_stars = TRUE,
+  edge_label_size = 0.5
+)
+
+# Custom template with CI bounds
+splot(mat,
+  edge_label_template = "{est}{stars}\n[{low}, {up}]",
+  edge_ci_lower = runif(sum(mat > 0), 0.1, 0.3),
+  edge_ci_upper = runif(sum(mat > 0), 0.4, 0.6),
+  edge_label_p = runif(sum(mat > 0), 0, 0.1),
+  edge_label_stars = TRUE,
+  edge_label_digits = 2,
+  edge_label_size = 0.45
+)
+
+# Publication-ready with CI underlays and labels
+splot(mat,
+  edge_ci = runif(sum(mat > 0), 0.05, 0.2),
+  edge_ci_alpha = 0.12,
+  edge_label_template = "{est}{stars}",
+  edge_label_p = runif(sum(mat > 0), 0, 0.1),
+  edge_label_stars = TRUE,
+  edge_label_size = 0.5,
+  theme = "minimal"
 )
 ```
+
+Template placeholders: `{est}`, `{low}`, `{up}`, `{range}`, `{p}`, `{stars}`
 
 ## Pie Chart Nodes
 

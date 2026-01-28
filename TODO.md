@@ -59,6 +59,79 @@ net$network$list_edge_attrs()
 
 ---
 
+### Meta-Network Visualization (Network of Networks)
+
+**Goal:** Visualize multiple networks as interconnected "super-nodes", where each super-node is a complete network rendered in a circular layout, and edges connect between these network-nodes.
+
+**Use cases:**
+- Multi-layer/multiplex networks
+- Temporal network comparison (networks at different time points)
+- Community visualization (each community as a mini-network)
+- Hierarchical/nested network structures
+- Cross-group relationships
+
+**Proposed API:**
+```r
+# List of networks (each becomes a "super-node")
+networks <- list(
+  group_a = adj_matrix_a,
+  group_b = adj_matrix_b,
+  group_c = adj_matrix_c
+)
+
+# Inter-network connections (which networks connect to which)
+meta_edges <- data.frame(
+  from = c("group_a", "group_a", "group_b"),
+  to = c("group_b", "group_c", "group_c"),
+  weight = c(0.8, 0.5, 0.6)
+)
+
+# Plot the meta-network
+splot_meta(
+  networks = networks,
+  meta_edges = meta_edges,
+  outer_layout = "circle",      # Layout of network-nodes
+  inner_layout = "circle",      # Layout within each network
+  network_size = "auto",        # Size of each network circle (or by n_nodes)
+  network_colors = NULL,        # Fill colors for network backgrounds
+  meta_edge_style = "curved",   # Style for inter-network edges
+  show_network_labels = TRUE,   # Show network names
+  show_node_labels = FALSE      # Show individual node labels
+)
+```
+
+**Visual concept:**
+```
+        ┌─────────┐
+       ╱  Net A    ╲
+      │  ●──●──●   │
+       ╲   ╲ ╱    ╱
+        └────┼────┘
+             │
+    ╭────────┴────────╮
+    │                 │
+┌───┴───┐         ┌───┴───┐
+│ Net B │─────────│ Net C │
+│ ●─●─● │         │ ●─●─● │
+└───────┘         └───────┘
+```
+
+**Implementation approach:**
+1. Compute outer layout positions for each network
+2. For each network, compute inner layout and scale to fit within a circle
+3. Draw network backgrounds (optional circles/boundaries)
+4. Draw all inner network edges
+5. Draw all inner network nodes
+6. Draw meta-edges connecting between networks
+7. Draw labels
+
+**Variations:**
+- `splot_nested()` - For hierarchical nesting (networks within networks)
+- `splot_layers()` - For multi-layer networks stacked vertically
+- `splot_temporal()` - For time-series of networks with transitions
+
+---
+
 ### Export/Import Functions
 
 - `sn_export(net, "network.graphml")` - Export to GraphML, GML, DOT formats

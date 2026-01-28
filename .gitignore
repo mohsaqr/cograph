@@ -1,4 +1,5 @@
 # Test outputs
+test_output/
 *.png
 *.pdf
 *.rds

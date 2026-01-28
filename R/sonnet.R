@@ -6,9 +6,9 @@ NULL
 #' Auto-convert input to sonnet_network
 #'
 #' Internal helper that converts matrices, data frames, igraph, network,
-#' or qgraph objects to sonnet_network objects automatically.
+#' qgraph, or tna objects to sonnet_network objects automatically.
 #'
-#' @param x Input object (matrix, data.frame, igraph, network, qgraph, or sonnet_network).
+#' @param x Input object (matrix, data.frame, igraph, network, qgraph, tna, or sonnet_network).
 #' @param layout Default layout to use if converting.
 #' @param seed Random seed for deterministic layouts.
 #' @param ... Additional arguments passed to sonnet().
@@ -21,18 +21,18 @@ ensure_sonnet_network <- function(x, layout = "spring", seed = 42, ...) {
   }
 
   if (is.matrix(x) || is.data.frame(x) || inherits(x, "igraph") ||
-      inherits(x, "network") || inherits(x, "qgraph")) {
+      inherits(x, "network") || inherits(x, "qgraph") || inherits(x, "tna")) {
     return(sonnet(x, layout = layout, seed = seed, ...))
   }
 
-  stop("Input must be a matrix, data.frame, igraph, network, qgraph, or sonnet_network",
+  stop("Input must be a matrix, data.frame, igraph, network, qgraph, tna, or sonnet_network",
        call. = FALSE)
 }
 
 #' Create a Network Visualization
 #'
 #' The main entry point for Sonnet. Accepts adjacency matrices, edge lists,
-#' igraph, statnet network, or qgraph objects and creates a visualization-ready
+#' igraph, statnet network, qgraph, or tna objects and creates a visualization-ready
 #' network object.
 #'
 #' @param input Network input. Can be:
@@ -41,6 +41,7 @@ ensure_sonnet_network <- function(x, layout = "spring", seed = 42, ...) {
 #'   - An igraph object
 #'   - A statnet network object
 #'   - A qgraph object
+#'   - A tna object
 #' @param layout Layout algorithm: "circle", "spring", "groups", "grid",
 #'   "random", "star", "bipartite", or "custom". Default "spring".
 #' @param directed Logical. Force directed interpretation. NULL for auto-detect.

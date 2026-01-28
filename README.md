@@ -10,8 +10,8 @@ status](https://www.r-pkg.org/badges/version/Sonnet)](https://CRAN.R-project.org
 
 **Sonnet** is a modern R package for network visualization. It renders
 publication-ready network plots from adjacency matrices, edge lists,
-igraph, statnet network, or qgraph objects using a pipe-friendly API
-with full control over nodes, edges, layouts, and themes.
+igraph, statnet network, qgraph, or tna objects using a pipe-friendly
+API with full control over nodes, edges, layouts, and themes.
 
 Key features:
 
@@ -61,7 +61,7 @@ sonnet(mat, layout = "spring") |>
 
 ## Input Formats
 
-Sonnet accepts five input types:
+Sonnet accepts six input types:
 
 ``` r
 # 1. Adjacency matrix
@@ -91,6 +91,11 @@ splot(net)
 library(qgraph)
 q <- qgraph(adj)
 splot(q)
+
+# 6. tna object (transition network analysis)
+library(tna)
+tna_obj <- tna(sequences)
+splot(tna_obj)
 ```
 
 ## splot() vs soplot()
@@ -399,7 +404,7 @@ sn_save(net, "network.svg", width = 8, height = 8)
 
 | Function        | Purpose                                          |
 |-----------------|--------------------------------------------------|
-| `sonnet()`      | Create network from matrix, edge list, igraph, network, or qgraph |
+| `sonnet()`      | Create network from matrix, edge list, igraph, network, qgraph, or tna |
 | `splot()`       | Render with base R graphics                      |
 | `soplot()`      | Render with grid graphics                        |
 | `sn_nodes()`    | Set node aesthetics                              |

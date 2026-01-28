@@ -23,11 +23,13 @@ parse_input <- function(input, directed = NULL) {
     parse_statnet(input, directed = directed)
   } else if (inherits(input, "qgraph")) {
     parse_qgraph(input, directed = directed)
+  } else if (inherits(input, "tna")) {
+    parse_tna(input, directed = directed)
   } else if (is.list(input) && !is.null(input$edges)) {
     # Already parsed format
     input
   } else {
-    stop("Unsupported input type. Expected matrix, data.frame, igraph, network, or qgraph object.",
+    stop("Unsupported input type. Expected matrix, data.frame, igraph, network, qgraph, or tna object.",
          call. = FALSE)
   }
 }

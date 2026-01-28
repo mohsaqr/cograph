@@ -72,8 +72,8 @@ draw_node_base <- function(x, y, size, size2 = NULL, shape = "circle",
   } else if (shape == "database") {
     draw_database_node_base(x, y, size, col, border.col, border.width)
 
-  } else if (startsWith(shape, "_") && !is.null(get_svg_shape(shape))) {
-    # Custom SVG shape
+  } else if (!is.null(get_svg_shape(shape))) {
+    # Custom SVG shape (registered with register_svg_shape)
     svg_data <- get_svg_shape(shape)
     draw_svg_shape_base(x, y, size, svg_data, col, border.col, border.width)
 

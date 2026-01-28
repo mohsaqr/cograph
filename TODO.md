@@ -132,6 +132,114 @@ splot_meta(
 
 ---
 
+### Multi-Layer Stacked Network Visualization
+
+**Goal:** Visualize multiplex/multi-layer networks as stacked rectangular planes with inter-layer edges, creating a 2.5D perspective view.
+
+**Use cases:**
+- Multiplex networks (same nodes, different edge types per layer)
+- Temporal networks (network snapshots at different time points)
+- Multi-relational data (e.g., friendship + work + family networks)
+- Brain connectivity across frequency bands
+- Multi-modal transportation networks
+
+**Visual concept:**
+```
+    Layer 3 (t=3)
+    ┌─────────────────┐
+    │  ●───●     ●    │
+    │  │╲  │    ╱│    │
+    │  ● ╲─●───● │    │
+    └──┼──┼───┼──┼────┘
+       │  │   │  │
+    Layer 2 (t=2)
+    ┌──┼──┼───┼──┼────┐
+    │  ●──●───●──●    │
+    │   ╲ │   │ ╱     │
+    │    ╲●───●╱      │
+    └─────┼───┼───────┘
+          │   │
+    Layer 1 (t=1)
+    ┌─────┼───┼───────┐
+    │  ●──●   ●──●    │
+    │  │   ╲ ╱   │    │
+    │  ●────●────●    │
+    └─────────────────┘
+```
+
+**Proposed API:**
+```r
+# Option 1: List of adjacency matrices (same nodes across layers)
+layers <- list(
+  "Time 1" = adj_t1,
+  "Time 2" = adj_t2,
+  "Time 3" = adj_t3
+)
+
+# Inter-layer edges (optional - connects node i in layer j to node k in layer l)
+inter_edges <- data.frame(
+  from_layer = c(1, 1, 2),
+  from_node = c(1, 3, 2),
+  to_layer = c(2, 2, 3),
+  to_node = c(1, 3, 2),  # Often same node across layers
+  weight = c(1, 1, 1)
+)
+
+splot_multilayer(
+  layers = layers,
+  inter_edges = inter_edges,       # NULL = auto-connect same nodes
+  layout = "spring",               # Layout algorithm (shared or per-layer
+  shared_layout = TRUE,            # Use same node positions across layers
+  layer_spacing = 0.3,             # Vertical spacing between layers
+  perspective = 0.15,              # 3D perspective amount (0 = flat)
+  tilt = 15,                       # Tilt angle in degrees
+  layer_fill = c("#E3F2FD", "#FFF3E0", "#E8F5E9"),  # Layer background colors
+  layer_alpha = 0.3,               # Layer background transparency
+  layer_border = TRUE,             # Draw layer borders
+  inter_edge_color = "gray50",     # Color for inter-layer edges
+  inter_edge_style = "dashed",     # Style for inter-layer edges
+  inter_edge_alpha = 0.5,          # Transparency for inter-layer edges
+  show_layer_labels = TRUE,        # Show layer names
+  label_position = "left"          # Where to place layer labels
+)
+```
+
+**Auto-connect modes for inter-layer edges:**
+```r
+# Connect same nodes across adjacent layers
+splot_multilayer(layers, inter_edges = "adjacent")
+
+# Connect same nodes across all layers
+splot_multilayer(layers, inter_edges = "all")
+
+# No inter-layer edges
+splot_multilayer(layers, inter_edges = NULL)
+
+# Custom inter-layer edges
+splot_multilayer(layers, inter_edges = my_inter_edges_df)
+```
+
+**Additional features:**
+- `highlight_node_across_layers(node_id)` - Highlight a node and its inter-layer connections
+- `layer_opacity` - Fade distant layers for depth perception
+- `rotate_view(angle)` - Rotate the 3D perspective
+- Side-by-side mode as alternative to stacked
+- Animation to "flip through" layers
+
+**Implementation approach:**
+1. Compute base layout (shared or per-layer)
+2. Apply perspective transformation to each layer's coordinates
+3. Add vertical offset for layer stacking
+4. Draw layers back-to-front (painter's algorithm):
+   - Layer background/border
+   - Intra-layer edges
+   - Inter-layer edges (from current to lower layers)
+   - Nodes
+   - Labels
+5. Handle occlusion with transparency or smart ordering
+
+---
+
 ### Export/Import Functions
 
 - `sn_export(net, "network.graphml")` - Export to GraphML, GML, DOT formats

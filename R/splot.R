@@ -379,9 +379,9 @@ splot <- function(
       if (is.null(node_fill)) node_fill <- th$get("node_fill")
       if (is.null(node_border_color)) node_border_color <- th$get("node_border_color")
       if (is.null(background)) background <- th$get("background")
-      if (label_color == "black") label_color <- th$get("label_color")
-      if (positive_color == "#2E7D32") positive_color <- th$get("edge_positive_color")
-      if (negative_color == "#C62828") negative_color <- th$get("edge_negative_color")
+      if (length(label_color) == 1 && label_color == "black") label_color <- th$get("label_color")
+      if (length(positive_color) == 1 && positive_color == "#2E7D32") positive_color <- th$get("edge_positive_color")
+      if (length(negative_color) == 1 && negative_color == "#C62828") negative_color <- th$get("edge_negative_color")
     }
   }
 

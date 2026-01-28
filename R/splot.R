@@ -524,10 +524,13 @@ splot <- function(
   # Node colors
   node_colors <- resolve_node_colors(node_fill, n_nodes, nodes, groups)
 
-  # Apply alpha to node colors
-  if (node_alpha < 1) {
-    node_colors <- sapply(node_colors, function(c) adjust_alpha(c, node_alpha))
-  }
+  # Vectorize node_alpha
+  node_alphas <- recycle_to_length(node_alpha, n_nodes)
+
+  # Apply alpha to node colors (vectorized)
+  node_colors <- mapply(function(col, alpha) {
+    if (alpha < 1) adjust_alpha(col, alpha) else col
+  }, node_colors, node_alphas, SIMPLIFY = TRUE, USE.NAMES = FALSE)
 
   # Border colors
   if (is.null(node_border_color)) {
@@ -582,10 +585,11 @@ splot <- function(
     # Edge colors
     edge_colors <- resolve_edge_colors(edges, edge_color, positive_color, negative_color)
 
-    # Apply edge alpha
-    if (edge_alpha < 1) {
-      edge_colors <- sapply(edge_colors, function(c) adjust_alpha(c, edge_alpha))
-    }
+    # Vectorize edge_alpha and apply to edge colors
+    edge_alphas <- recycle_to_length(edge_alpha, n_edges)
+    edge_colors <- mapply(function(col, alpha) {
+      if (alpha < 1) adjust_alpha(col, alpha) else col
+    }, edge_colors, edge_alphas, SIMPLIFY = TRUE, USE.NAMES = FALSE)
 
     # Apply cut threshold for transparency: edges below cut are faded
     if (!is.null(cut) && cut > 0 && "weight" %in% names(edges)) {
@@ -615,8 +619,30 @@ splot <- function(
       scaling = scaling
     )
 
-    # Line types
-    ltys <- recycle_to_length(edge_style, n_edges)
+    # Line types - convert string values to numeric
+    edge_styles_raw <- recycle_to_length(edge_style, n_edges)
+    ltys <- sapply(edge_styles_raw, function(s) {
+      if (is.character(s)) {
+        switch(s,
+          "solid" = 1,
+          "dashed" = 2,
+          "dotted" = 3,
+          "dotdash" = 4,
+          "longdash" = 5,
+          "twodash" = 6,
+          1  # default
+        )
+      } else {
+        s
+      }
+    })
+
+    # Adjust line widths for dotted style (reduce by 30% to avoid overly thick appearance)
+    for (i in seq_along(ltys)) {
+      if (ltys[i] == 3) {  # dotted
+        edge_widths[i] <- edge_widths[i] * 0.7
+      }
+    }
 
     # Handle curves mode:
     # FALSE = all straight
@@ -781,8 +807,10 @@ splot <- function(
   old_mar <- graphics::par("mar")
   on.exit(graphics::par(mar = old_mar), add = TRUE)
 
-  # Margins
-  title_space <- if (!is.null(title)) 0.5 else 0
+  # Margins - ensure title has adequate space
+  # Default margins[3] (top) is 0.1 which is too small for titles
+  # Add extra space proportional to title_size when title is provided
+  title_space <- if (!is.null(title)) max(1.5, title_size * 1.2) else 0
   graphics::par(mar = c(margins[1], margins[2], margins[3] + title_space, margins[4]))
 
   # Calculate plot limits
@@ -1077,13 +1105,27 @@ render_edges_splot <- function(edges, layout, node_sizes, shapes,
   # Storage for label positions
   label_positions <- vector("list", m)
 
-  # Convert edge_start_style to numeric lty
-  start_lty <- switch(edge_start_style,
-    "solid" = 1,
-    "dashed" = 2,
-    "dotted" = 3,
-    1  # default to solid
-  )
+  # Validate and convert edge_start_style to numeric lty
+  # Accepts string values ("solid", "dashed", "dotted") or numeric (1, 2, 3)
+  if (is.numeric(edge_start_style)) {
+    start_lty <- edge_start_style
+    if (!start_lty %in% c(1, 2, 3)) {
+      warning("edge_start_style numeric value should be 1 (solid), 2 (dashed), or 3 (dotted). ",
+              "Got: ", start_lty, ". Using solid.", call. = FALSE)
+      start_lty <- 1
+    }
+  } else {
+    valid_styles <- c("solid", "dashed", "dotted")
+    if (!edge_start_style %in% valid_styles) {
+      stop("edge_start_style must be one of: ", paste(valid_styles, collapse = ", "),
+           ", or numeric 1-3. Got: '", edge_start_style, "'", call. = FALSE)
+    }
+    start_lty <- switch(edge_start_style,
+      "solid" = 1,
+      "dashed" = 2,
+      "dotted" = 3
+    )
+  }
   start_fraction <- if (start_lty == 1) 0 else edge_start_length
 
   # Helper function to calculate curve direction (bend INWARD toward center)
@@ -1236,32 +1278,67 @@ render_edges_splot <- function(edges, layout, node_sizes, shapes,
       )
     }
 
-    # Store label position (use adjusted curve for correct position)
-    label_positions[[i]] <- get_edge_label_position(
-      start$x, start$y, end$x, end$y,
-      position = edge_label_position,
+    # Store edge start/end and curve info for label positioning
+    label_positions[[i]] <- list(
+      start_x = start$x, start_y = start$y,
+      end_x = end$x, end_y = end$y,
       curve = curve_i,
-      curvePivot = curve_pivot[i],
-      label_offset = edge_label_offset
+      curvePivot = curve_pivot[i]
     )
   }
 
   # Draw edge labels
   if (!is.null(edge_labels)) {
+    # Vectorize edge label parameters (strict: length 1 or m)
+    edge_label_sizes <- expand_param(edge_label_size, m, "edge_label_size")
+    edge_label_colors <- expand_param(edge_label_color, m, "edge_label_color")
+    edge_label_bgs <- expand_param(edge_label_bg, m, "edge_label_bg")
+    edge_label_positions_vec <- expand_param(edge_label_position, m, "edge_label_position")
+    edge_label_offsets <- expand_param(edge_label_offset, m, "edge_label_offset")
+    edge_label_shadows <- expand_param(edge_label_shadow, m, "edge_label_shadow")
+    edge_label_shadow_colors <- expand_param(edge_label_shadow_color, m, "edge_label_shadow_color")
+    edge_label_shadow_offsets <- expand_param(edge_label_shadow_offset, m, "edge_label_shadow_offset")
+    edge_label_shadow_alphas <- expand_param(edge_label_shadow_alpha, m, "edge_label_shadow_alpha")
+
+    # Handle edge_label_fontface - convert strings to numbers if needed
+    edge_label_fontfaces <- expand_param(edge_label_fontface, m, "edge_label_fontface")
+    edge_label_fontfaces <- sapply(edge_label_fontfaces, function(ff) {
+      if (is.character(ff)) {
+        switch(ff,
+          "plain" = 1,
+          "bold" = 2,
+          "italic" = 3,
+          "bold.italic" = 4,
+          1  # default
+        )
+      } else {
+        ff
+      }
+    })
+
     for (i in seq_len(m)) {
       if (!is.null(edge_labels[i]) && !is.na(edge_labels[i]) && edge_labels[i] != "") {
-        pos <- label_positions[[i]]
+        edge_info <- label_positions[[i]]
+        # Compute position with per-edge position and offset
+        pos <- get_edge_label_position(
+          edge_info$start_x, edge_info$start_y,
+          edge_info$end_x, edge_info$end_y,
+          position = edge_label_positions_vec[i],
+          curve = edge_info$curve,
+          curvePivot = edge_info$curvePivot,
+          label_offset = edge_label_offsets[i]
+        )
         draw_edge_label_base(
           pos$x, pos$y,
           label = edge_labels[i],
-          cex = edge_label_size,
-          col = edge_label_color,
-          bg = edge_label_bg,
-          font = edge_label_fontface,
-          shadow = edge_label_shadow,
-          shadow_color = edge_label_shadow_color,
-          shadow_offset = edge_label_shadow_offset,
-          shadow_alpha = edge_label_shadow_alpha
+          cex = edge_label_sizes[i],
+          col = edge_label_colors[i],
+          bg = edge_label_bgs[i],
+          font = edge_label_fontfaces[i],
+          shadow = edge_label_shadows[i],
+          shadow_color = edge_label_shadow_colors[i],
+          shadow_offset = edge_label_shadow_offsets[i],
+          shadow_alpha = edge_label_shadow_alphas[i]
         )
       }
     }
@@ -1292,6 +1369,15 @@ render_nodes_splot <- function(layout, node_size, node_size2, node_shape, node_f
 
   n <- nrow(layout)
   if (n == 0) return(invisible())
+
+  # Vectorize donut parameters (strict: length 1 or n)
+  donut_inner_ratios <- expand_param(donut_inner_ratio, n, "donut_inner_ratio")
+  donut_bg_colors <- expand_param(donut_bg_color, n, "donut_bg_color")
+  donut_show_values <- expand_param(donut_show_value, n, "donut_show_value")
+  donut_value_sizes <- expand_param(donut_value_size, n, "donut_value_size")
+  donut_value_colors <- expand_param(donut_value_color, n, "donut_value_color")
+  donut_value_fontfaces <- expand_param(donut_value_fontface, n, "donut_value_fontface")
+  donut_value_fontfamilies <- expand_param(donut_value_fontfamily, n, "donut_value_fontfamily")
 
   # Render order: largest to smallest
   order_idx <- get_node_order(node_size)
@@ -1329,9 +1415,9 @@ render_nodes_splot <- function(layout, node_size, node_size2, node_shape, node_f
           pie_values = pie_vals,
           pie_colors = pie_cols,
           pie_default_color = node_fill[i],
-          outer_inner_ratio = donut_inner_ratio,
+          outer_inner_ratio = donut_inner_ratios[i],
           inner_inner_ratio = donut2_inner_ratio,
-          bg_color = donut_bg_color,
+          bg_color = donut_bg_colors[i],
           border.col = node_border_color[i],
           border.width = node_border_width[i],
           pie_border.width = pie_border_width,
@@ -1351,8 +1437,8 @@ render_nodes_splot <- function(layout, node_size, node_size2, node_shape, node_f
           pie_values = pie_vals,
           pie_colors = pie_cols,
           pie_default_color = node_fill[i],
-          inner_ratio = donut_inner_ratio,
-          bg_color = donut_bg_color,
+          inner_ratio = donut_inner_ratios[i],
+          bg_color = donut_bg_colors[i],
           border.col = node_border_color[i],
           border.width = node_border_width[i],
           pie_border.width = pie_border_width,
@@ -1398,8 +1484,8 @@ render_nodes_splot <- function(layout, node_size, node_size2, node_shape, node_f
           values = donut_vals,
           colors = donut_cols,
           default_color = node_fill[i],
-          inner_ratio = donut_inner_ratio,
-          bg_color = donut_bg_color,
+          inner_ratio = donut_inner_ratios[i],
+          bg_color = donut_bg_colors[i],
           center_color = node_fill[i],
           donut_shape = current_donut_shape,
           border.col = effective_donut_border_col,
@@ -1407,11 +1493,11 @@ render_nodes_splot <- function(layout, node_size, node_size2, node_shape, node_f
           donut_border.width = donut_border_width,
           outer_border.col = effective_outer_border_col,
           border.lty = effective_border_lty,
-          show_value = donut_show_value,
-          value_cex = donut_value_size,
-          value_col = donut_value_color,
-          value_fontface = donut_value_fontface,
-          value_fontfamily = donut_value_fontfamily,
+          show_value = donut_show_values[i],
+          value_cex = donut_value_sizes[i],
+          value_col = donut_value_colors[i],
+          value_fontface = donut_value_fontfaces[i],
+          value_fontfamily = donut_value_fontfamilies[i],
           value_digits = donut_value_digits,
           value_prefix = donut_value_prefix,
           value_suffix = donut_value_suffix
@@ -1423,19 +1509,19 @@ render_nodes_splot <- function(layout, node_size, node_size2, node_shape, node_f
           values = donut_vals,
           colors = donut_cols,
           default_color = node_fill[i],
-          inner_ratio = donut_inner_ratio,
-          bg_color = donut_bg_color,
+          inner_ratio = donut_inner_ratios[i],
+          bg_color = donut_bg_colors[i],
           center_color = node_fill[i],
           border.col = effective_donut_border_col,
           border.width = node_border_width[i],
           donut_border.width = donut_border_width,
           outer_border.col = effective_outer_border_col,
           border.lty = effective_border_lty,
-          show_value = donut_show_value,
-          value_cex = donut_value_size,
-          value_col = donut_value_color,
-          value_fontface = donut_value_fontface,
-          value_fontfamily = donut_value_fontfamily,
+          show_value = donut_show_values[i],
+          value_cex = donut_value_sizes[i],
+          value_col = donut_value_colors[i],
+          value_fontface = donut_value_fontfaces[i],
+          value_fontfamily = donut_value_fontfamilies[i],
           value_digits = donut_value_digits,
           value_prefix = donut_value_prefix,
           value_suffix = donut_value_suffix
@@ -1477,28 +1563,35 @@ render_nodes_splot <- function(layout, node_size, node_size2, node_shape, node_f
 
   # Render labels
   if (!is.null(labels)) {
+    # Vectorize label parameters (strict: length 1 or n)
+    label_angles <- expand_param(label_angle, n, "label_angle")
+    label_positions <- expand_param(label_position, n, "label_position")
+    label_fontfaces <- expand_param(label_fontface, n, "label_fontface")
+    label_fontfamilies <- expand_param(label_fontfamily, n, "label_fontfamily")
+    label_hjusts <- expand_param(label_hjust, n, "label_hjust")
+    label_vjusts <- expand_param(label_vjust, n, "label_vjust")
+
     for (i in seq_len(n)) {
       if (!is.null(labels[i]) && !is.na(labels[i]) && labels[i] != "") {
         lx <- layout[i, 1]
         ly <- layout[i, 2]
 
-        # Adjust position based on label_position
+        # Adjust position based on per-node label_position
         offset <- node_size[i] * 1.2
-        pos <- NULL
 
-        if (label_position == "above") {
+        if (label_positions[i] == "above") {
           ly <- ly + offset
-        } else if (label_position == "below") {
+        } else if (label_positions[i] == "below") {
           ly <- ly - offset
-        } else if (label_position == "left") {
+        } else if (label_positions[i] == "left") {
           lx <- lx - offset
-        } else if (label_position == "right") {
+        } else if (label_positions[i] == "right") {
           lx <- lx + offset
         }
         # "center" - no offset
 
-        # Convert fontface string to numeric
-        fontface_num <- switch(label_fontface,
+        # Convert fontface string to numeric (per-node)
+        fontface_num <- switch(label_fontfaces[i],
           "plain" = 1,
           "bold" = 2,
           "italic" = 3,
@@ -1512,10 +1605,10 @@ render_nodes_splot <- function(layout, node_size, node_size2, node_shape, node_f
           cex = label_size[i],
           col = label_color[i],
           font = fontface_num,
-          family = label_fontfamily,
-          hjust = label_hjust,
-          vjust = label_vjust,
-          srt = label_angle
+          family = label_fontfamilies[i],
+          hjust = label_hjusts[i],
+          vjust = label_vjusts[i],
+          srt = label_angles[i]
         )
       }
     }

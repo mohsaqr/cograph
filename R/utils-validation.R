@@ -122,6 +122,26 @@ recycle_to_length <- function(x, n) {
   rep_len(x, n)
 }
 
+#' Expand Parameter to Length (Strict)
+#'
+#' Expands a parameter to length n. Only accepts length 1 or length n.
+#' Throws error for any other length (no silent recycling).
+#'
+#' @param x Value to expand.
+#' @param n Target length.
+#' @param name Parameter name for error message.
+#' @return Vector of length n.
+#' @keywords internal
+expand_param <- function(x, n, name = "parameter") {
+  if (length(x) == 1) {
+    return(rep(x, n))
+  }
+  if (length(x) == n) {
+    return(x)
+  }
+  stop(name, " must be length 1 or ", n, ", not ", length(x), call. = FALSE)
+}
+
 #' Resolve Aesthetic Value
 #'
 #' Resolve an aesthetic value that could be a constant, vector, or column name.

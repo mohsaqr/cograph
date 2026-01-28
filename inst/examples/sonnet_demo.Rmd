@@ -91,9 +91,9 @@ splot(mat,
   layout = "circle",
   node_shape = shapes,
   node_fill = palette_rainbow(10),
-  node_size = 0.07,
+  node_size = 6,
   node_border_width = 2,
-  label_size = 8,
+  label_size = 0.9,
   edge_labels = TRUE,
   edge_label_size = 0.5
 )
@@ -142,7 +142,7 @@ splot(mat,
   node_shape = "pie",
   pie_values = pie_vals,
   pie_colors = pie_cols,
-  node_size = 0.08
+  node_size = 6
 )
 ```
 
@@ -160,7 +160,7 @@ splot(mat,
   node_shape = "pie",
   pie_values = pie_vals2,
   pie_colors = pie_cols2,
-  node_size = 0.08,
+  node_size = 6,
   edge_labels = TRUE,
   edge_label_size = 0.5
 )
@@ -179,7 +179,7 @@ splot(mat,
   pie_values = pie_vals3,
   pie_colors = pie_cols3,
   pie_border_width = 2,
-  node_size = 0.09,
+  node_size = 7,
   theme = "dark"
 )
 ```
@@ -238,7 +238,7 @@ splot(mat,
   node_shape = "donut",
   donut_fill = fills,
   donut_color = "steelblue",
-  node_size = 0.08,
+  node_size = 6,
   edge_labels = TRUE,
   edge_label_size = 0.5
 )
@@ -315,7 +315,7 @@ splot(mat,
   donut_fill = fills,
   donut_shape = donut_shapes,
   donut_color = palette_viridis(10),
-  node_size = 0.08
+  node_size = 6
 )
 ```
 
@@ -333,8 +333,8 @@ splot(mat,
   donut_show_value = TRUE,
   donut_value_digits = 0,
   donut_value_suffix = "%",
-  donut_value_size = 8,
-  node_size = 0.08
+  donut_value_size = 0.8,
+  node_size = 6
 )
 ```
 
@@ -355,7 +355,7 @@ splot(mat,
   donut_color = "steelblue",
   pie_values = pie_vals,
   pie_colors = pie_cols,
-  node_size = 0.09
+  node_size = 7
 )
 ```
 
@@ -430,7 +430,7 @@ splot(mat,
   donut_bg_color = "#2B2D42",
   pie_values = pie_vals,
   pie_colors = pie_cols,
-  node_size = 5.5,
+  node_size = 6,
   node_border_color = "#EDF2F4",
   node_border_width = 1,
   donut_border_width = 0.5,
@@ -463,7 +463,7 @@ splot(mat,
   donut_color = "steelblue",
   donut2_values = inner_fills,
   donut2_colors = "coral",
-  node_size = 0.09
+  node_size = 7
 )
 ```
 
@@ -574,7 +574,7 @@ splot(mat,
   donut_shape = "hexagon",
   donut2_values = inner_fills,
   donut2_colors = "#66c2a5",
-  node_size = 0.09,
+  node_size = 7,
   theme = "minimal"
 )
 ```
@@ -693,7 +693,7 @@ splot(mat,
   donut_color = "steelblue",
   donut_show_value = TRUE,
   donut_value_digits = 2,
-  node_size = 0.08,
+  node_size = 6,
   curvature = 0.2,
   arrow_size = 0.015,
   theme = "minimal",

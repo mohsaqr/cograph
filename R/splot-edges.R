@@ -60,13 +60,16 @@ draw_curve_with_start_segment <- function(x, y, col, lwd, lty,
     return(invisible())
   }
 
+  # Convert dotted (lty=3) to tighter pattern for better appearance
+  effective_start_lty <- if (identical(start_lty, 3L) || identical(start_lty, 3)) "11" else start_lty
+
   # Find split index based on arc length
   split_idx <- find_curve_split_index(x, y, start_fraction)
 
   # Draw start segment (dashed/dotted)
   if (split_idx >= 2) {
     graphics::lines(x[1:split_idx], y[1:split_idx],
-                    col = col, lwd = lwd, lty = start_lty)
+                    col = col, lwd = lwd, lty = effective_start_lty)
   }
 
   # Draw main segment (solid)
@@ -129,13 +132,16 @@ draw_straight_edge_base <- function(x1, y1, x2, y2, col = "gray50", lwd = 1,
     split_x <- line_x1 + start_fraction * (line_x2 - line_x1)
     split_y <- line_y1 + start_fraction * (line_y2 - line_y1)
 
+    # Convert dotted (lty=3) to tighter pattern for better appearance
+    effective_start_lty <- if (identical(start_lty, 3L) || identical(start_lty, 3)) "11" else start_lty
+
     # Draw start segment (dashed/dotted)
     graphics::lines(
       x = c(line_x1, split_x),
       y = c(line_y1, split_y),
       col = col,
       lwd = lwd,
-      lty = start_lty
+      lty = effective_start_lty
     )
 
     # Draw main segment (solid)

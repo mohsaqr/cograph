@@ -1,3 +1,46 @@
+#' Generate TNA-style Color Palette for Nodes
+#'
+#' Internal function that generates appropriate qualitative colors based on
+#' the number of states, following TNA's color palette logic.
+#'
+#' @param n_states Number of states (nodes) in the network.
+#' @return Character vector of colors.
+#' @keywords internal
+tna_color_palette <- function(n_states) {
+  color_group <- 4L -
+    1L * (n_states <= 2) -
+    1L * (n_states <= 8) -
+    1L * (n_states <= 12)
+
+  # Check for required packages with fallbacks
+  switch(color_group,
+    # 1-2 states: Accent palette (first n colors)
+    if (requireNamespace("RColorBrewer", quietly = TRUE)) {
+      RColorBrewer::brewer.pal(n = 3, name = "Accent")[seq_len(n_states)]
+    } else {
+      grDevices::hcl.colors(n_states, palette = "Set 2")
+    },
+    # 3-8 states: Full Accent palette
+    if (requireNamespace("RColorBrewer", quietly = TRUE)) {
+      RColorBrewer::brewer.pal(n = n_states, name = "Accent")
+    } else {
+      grDevices::hcl.colors(n_states, palette = "Set 2")
+    },
+    # 9-12 states: Set3 palette
+    if (requireNamespace("RColorBrewer", quietly = TRUE)) {
+      RColorBrewer::brewer.pal(n = n_states, name = "Set3")
+    } else {
+      grDevices::hcl.colors(n_states, palette = "Set 3")
+    },
+    # 13+ states: colorspace qualitative HCL
+    if (requireNamespace("colorspace", quietly = TRUE)) {
+      colorspace::qualitative_hcl(n = n_states, palette = "Set 3")
+    } else {
+      grDevices::hcl.colors(n_states, palette = "Set 3")
+    }
+  )
+}
+
 #' Convert a tna object to Sonnet parameters
 #'
 #' Extracts the transition matrix, labels, and initial state probabilities
@@ -78,6 +121,8 @@ from_tna <- function(tna_object, engine = c("splot", "soplot"), plot = TRUE,
   x <- tna_object$weights
 
   # --- Build params ---
+  n_states <- nrow(x)
+
   params <- list(
     x          = x,
     labels     = tna_object$labels,
@@ -87,6 +132,18 @@ from_tna <- function(tna_object, engine = c("splot", "soplot"), plot = TRUE,
     donut_inner_ratio = 0.8,
     donut_empty       = FALSE
   )
+
+  # --- TNA-specific visual defaults (can be overridden via ...) ---
+  params$node_fill <- tna_color_palette(n_states)
+  params$layout <- "oval"
+  params$arrow_size <- 0.61
+  params$edge_labels <- TRUE
+  params$edge_label_size <- 0.6
+  params$edge_color <- "#003355"
+  params$edge_label_position <- 0.7
+  params$node_size <- 7
+  params$edge_start_length <- 0.2
+  params$edge_start_style <- "dotted"
 
   # --- Apply overrides ---
   for (nm in names(overrides)) {

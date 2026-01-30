@@ -22,11 +22,55 @@ Modified sonnet_network object.
 \description{
 Apply a layout algorithm to compute node positions.
 }
+\details{
+\subsection{Built-in Layouts}{
+
+\describe{
+\item{\strong{spring}}{Force-directed layout (Fruchterman-Reingold style).
+Good general-purpose layout. Default.}
+\item{\strong{circle}}{Nodes arranged in a circle. Good for small networks
+or when structure is less important.}
+\item{\strong{groups}}{Circular layout with grouped nodes clustered together.}
+\item{\strong{grid}}{Nodes in a regular grid.}
+\item{\strong{random}}{Random positions. Useful as starting point.}
+\item{\strong{star}}{Central node with others arranged around it.}
+\item{\strong{bipartite}}{Two-column layout for bipartite networks.}
+}
+}
+
+\subsection{igraph Layouts}{
+
+Two-letter codes for igraph layouts: "kk" (Kamada-Kawai), "fr" (Fruchterman-Reingold),
+"drl", "mds", "ni" (nicely), "tr" (tree), "ci" (circle), etc.
+
+You can also pass igraph layout functions directly or use full names like
+"layout_with_kk".
+}
+}
 \examples{
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-# With sonnet()
-sonnet(adj) |> sn_layout("circle")
+
+# Built-in layouts
+sonnet(adj) |> sn_layout("circle") |> splot()
+sonnet(adj) |> sn_layout("spring") |> splot()
+
+# igraph layouts (if igraph installed)
+\dontrun{
+sonnet(adj) |> sn_layout("kk") |> splot()
+sonnet(adj) |> sn_layout("fr") |> splot()
+}
+
+# Custom coordinates
+coords <- matrix(c(0, 0, 1, 0, 0.5, 1), ncol = 2, byrow = TRUE)
+sonnet(adj) |> sn_layout(coords) |> splot()
 
 # Direct matrix input (auto-converts)
 adj |> sn_layout("circle")
+}
+\seealso{
+\code{\link{sonnet}} for network creation,
+\code{\link{sn_nodes}} for node customization,
+\code{\link{sn_edges}} for edge customization,
+\code{\link{sn_theme}} for visual themes,
+\code{\link{splot}} and \code{\link{soplot}} for plotting
 }

@@ -16,22 +16,111 @@ from_qgraph(
 \arguments{
 \item{qgraph_object}{Return value of \code{qgraph::qgraph()}}
 
-\item{engine}{Which Sonnet renderer to use: \code{"splot"} or \code{"soplot"}}
+\item{engine}{Which Sonnet renderer to use: \code{"splot"} or \code{"soplot"}.
+Default: \code{"splot"}.}
 
-\item{plot}{If TRUE, immediately plot using the chosen engine}
+\item{plot}{Logical. If TRUE (default), immediately plot using the chosen engine.}
 
 \item{weight_digits}{Number of decimal places to round edge weights to. Default 2.
 Edges that round to zero are removed unless \code{show_zero_edges = TRUE}.}
 
-\item{show_zero_edges}{If TRUE, keep edges even if their weight rounds to zero. Default FALSE.}
+\item{show_zero_edges}{Logical. If TRUE, keep edges even if their weight rounds to
+zero. Default: FALSE.}
 
-\item{...}{Override any extracted parameter}
+\item{...}{Override any extracted parameter. Use qgraph-style names (e.g.,
+\code{minimum}) or Sonnet names (e.g., \code{threshold}).}
 }
 \value{
-Invisibly, a named list of Sonnet parameters
+Invisibly, a named list of Sonnet parameters that can be passed to
+\code{splot()} or \code{soplot()}.
 }
 \description{
 Extracts the network, layout, and all relevant arguments from a qgraph
 object and passes them to a Sonnet plotting engine. Reads resolved values
 from \code{graphAttributes} rather than raw \code{Arguments}.
+}
+\details{
+\subsection{Parameter Mapping}{
+
+The following qgraph parameters are automatically extracted and mapped to
+Sonnet equivalents:
+
+\strong{Node properties:}
+\itemize{
+\item \code{labels}/\code{names} \code{->} \code{labels}
+\item \code{color} \code{->} \code{node_fill}
+\item \code{width} \code{->} \code{node_size} (scaled by 1.3x)
+\item \code{shape} \code{->} \code{node_shape} (mapped to Sonnet equivalents)
+\item \code{border.color} \code{->} \code{node_border_color}
+\item \code{border.width} \code{->} \code{node_border_width}
+\item \code{label.cex} \code{->} \code{label_size}
+\item \code{label.color} \code{->} \code{label_color}
+}
+
+\strong{Edge properties:}
+\itemize{
+\item \code{labels} \code{->} \code{edge_labels}
+\item \code{label.cex} \code{->} \code{edge_label_size} (scaled by 0.5x)
+\item \code{lty} \code{->} \code{edge_style} (numeric to name conversion)
+\item \code{curve} \code{->} \code{curvature}
+\item \code{asize} \code{->} \code{arrow_size} (scaled by 0.3x)
+}
+
+\strong{Graph properties:}
+\itemize{
+\item \code{minimum} \code{->} \code{threshold}
+\item \code{maximum} \code{->} \code{maximum}
+\item \code{groups} \code{->} \code{groups}
+\item \code{directed} \code{->} \code{directed}
+\item \code{posCol}/\code{negCol} \code{->} \code{positive_color}/\code{negative_color}
+}
+
+\strong{Pie/Donut:}
+\itemize{
+\item \code{pie} values \code{->} \code{donut_fill} with \code{donut_inner_ratio=0.8}
+\item \code{pieColor} \code{->} \code{donut_color}
+}
+}
+
+\subsection{Important Notes}{
+
+\itemize{
+\item \strong{edge_color and edge_width are NOT extracted} because qgraph bakes
+its cut-based fading into these vectors, producing near-invisible edges.
+Sonnet applies its own weight-based styling instead.
+\item The \code{cut} parameter is also not passed because it causes faint edges
+with hanging labels.
+\item Layout coordinates from qgraph are preserved with \code{rescale=FALSE}.
+\item If you override layout, rescale is automatically re-enabled.
+}
+}
+}
+\examples{
+\dontrun{
+# Convert and plot a qgraph object
+library(qgraph)
+adj <- matrix(c(0, .5, .3, .5, 0, .4, .3, .4, 0), 3, 3)
+q <- qgraph(adj)
+from_qgraph(q)  # Plots with splot
+
+# Use soplot engine instead
+from_qgraph(q, engine = "soplot")
+
+# Override extracted parameters
+from_qgraph(q, node_fill = "steelblue", layout = "circle")
+
+# Extract parameters without plotting
+params <- from_qgraph(q, plot = FALSE)
+names(params)  # See what was extracted
+
+# Works with themed qgraph objects
+q_themed <- qgraph(adj, theme = "colorblind", posCol = "blue")
+from_qgraph(q_themed)
+}
+
+}
+\seealso{
+\code{\link{sonnet}} for creating networks from scratch,
+\code{\link{splot}} and \code{\link{soplot}} for plotting engines,
+\code{\link{from_tna}} for tna object conversion
 }

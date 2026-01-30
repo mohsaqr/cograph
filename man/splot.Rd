@@ -84,6 +84,7 @@ splot(
   loop_rotation = NULL,
   edge_start_style = "solid",
   edge_start_length = 0.15,
+  edge_start_dot_density = "12",
   edge_ci = NULL,
   edge_ci_scale = 2,
   edge_ci_alpha = 0.15,
@@ -328,6 +329,11 @@ curve as ellipse (two opposing curves); FALSE = all straight; "force" = all curv
 \item{edge_start_length}{Fraction of edge length for the styled start segment (0-0.5).
 Default 0.15 (15\% of edge). Only applies when edge_start_style is not "solid".}
 
+\item{edge_start_dot_density}{Pattern for dotted start segments. A two-character string
+where the first digit is dot length and second is gap length (in line width units).
+Default "12" (1 unit dot, 2 units gap). Use "11" for tighter dots, "13" for more spacing.
+Only applies when edge_start_style = "dotted".}
+
 \item{edge_ci}{Numeric vector of CI widths (0-1 scale). Larger values = more uncertainty.}
 
 \item{edge_ci_scale}{Width multiplier for underlay thickness. Default 2.}
@@ -443,6 +449,84 @@ lines, xspline, etc.) instead of grid graphics. This provides better
 performance for large networks and uses the same snake_case parameter names
 as soplot() for consistency.
 }
+\details{
+\subsection{Edge Curve Behavior}{
+
+Edge curving is controlled by three parameters that interact:
+\describe{
+\item{\strong{curves}}{Mode for automatic curving. \code{FALSE} = all straight,
+\code{TRUE} (default) = curve only reciprocal edge pairs as an ellipse,
+\code{"force"} = curve all edges inward toward network center.}
+\item{\strong{curvature}}{Manual curvature amount (0-1 typical). Sets the
+magnitude of curves. Default 0 uses automatic 0.175 for curved edges.
+Positive values curve edges; the direction is automatically determined.
+}
+\item{\strong{curve_scale}}{Not currently used; reserved for future scaling.}
+}
+
+For reciprocal edges (A\code{->}B and B\code{->}A both exist), the edges curve
+in opposite directions to form a visual ellipse, making bidirectional
+relationships clear.
+}
+
+\subsection{Weight Scaling Modes (edge_scale_mode)}{
+
+Controls how edge weights are mapped to visual widths:
+\describe{
+\item{\strong{linear} (default)}{Width proportional to weight. Best when
+weights are similar in magnitude.}
+\item{\strong{log}}{Logarithmic scaling. Best when weights span multiple
+orders of magnitude (e.g., 0.01 to 100).}
+\item{\strong{sqrt}}{Square root scaling. Moderate compression, good for
+moderately skewed distributions.}
+
+\item{\strong{rank}}{Rank-based scaling. Ignores actual values; uses relative
+ordering. All edges get equal visual spacing regardless of weight distribution.}
+}
+}
+
+\subsection{Donut vs Pie vs Double Donut}{
+
+Three ways to show additional data on nodes:
+\describe{
+\item{\strong{Donut (donut_fill)}}{Single ring showing a proportion (0-1).
+Ideal for completion rates, probabilities, or any single metric per node.
+Use \code{donut_color} for fill color and \code{donut_bg_color} for unfilled portion.}
+\item{\strong{Pie (pie_values)}}{Multiple colored segments showing category
+breakdown. Ideal for composition data. Values are normalized to sum to 1.
+Use \code{pie_colors} for segment colors.}
+\item{\strong{Double Donut (donut2_values)}}{Two concentric rings for comparing
+two metrics per node. Outer ring uses \code{donut_fill}/\code{donut_color},
+inner ring uses \code{donut2_values}/\code{donut2_colors}.}
+}
+}
+
+\subsection{CI Underlay System}{
+
+Confidence interval underlays draw a wider, semi-transparent edge behind the
+main edge to visualize uncertainty:
+\describe{
+\item{\strong{edge_ci}}{Vector of CI widths (0-1 scale). Larger = more uncertainty.}
+\item{\strong{edge_ci_scale}}{Multiplier for underlay width relative to main edge.
+Default 2 means underlay is twice as wide as main edge at CI=1.}
+\item{\strong{edge_ci_alpha}}{Transparency of underlay (0-1). Default 0.15.}
+\item{\strong{edge_ci_style}}{Line type: 1=solid, 2=dashed (default), 3=dotted.}
+}
+}
+
+\subsection{Edge Label Templates}{
+
+For statistical output, use templates to format complex labels:
+\describe{
+\item{\strong{edge_label_template}}{Template string with placeholders:
+\code{\{est\}} for estimate/weight, \code{\{low\}}/\code{\{up\}} for CI bounds,
+\code{\{range\}} for formatted range, \code{\{p\}} for p-value, \code{\{stars\}}
+for significance stars.}
+\item{\strong{edge_label_style}}{Preset styles: \code{"estimate"} (weight only),
+\code{"full"} (estimate + CI), \code{"range"} (CI only), \code{"stars"} (significance).}
+}
+}
+}
 \examples{
 # Basic network from adjacency matrix
 adj <- matrix(c(0, 1, 1, 0,
@@ -467,4 +551,13 @@ splot(adj, pie_values = list(c(1,2,3), c(2,2), c(1,1,1,1), c(3,1)))
 # Circle layout with labels
 splot(adj, layout = "circle", labels = c("A", "B", "C", "D"))
 
+}
+\seealso{
+\code{\link{soplot}} for grid graphics rendering (alternative engine),
+\code{\link{sonnet}} for creating network objects,
+\code{\link{sn_nodes}} for node customization,
+\code{\link{sn_edges}} for edge customization,
+\code{\link{sn_layout}} for layout algorithms,
+\code{\link{sn_theme}} for visual themes,
+\code{\link{from_qgraph}} and \code{\link{from_tna}} for converting external objects
 }

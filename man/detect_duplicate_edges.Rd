@@ -7,13 +7,60 @@
 detect_duplicate_edges(edges)
 }
 \arguments{
-\item{edges}{Edge data frame with from, to, and optionally weight columns.}
+\item{edges}{Data frame with \code{from} and \code{to} columns (and optionally
+\code{weight}).}
 }
 \value{
-List with has_duplicates (logical) and info (list of duplicate details).
+A list with two components:
+\describe{
+\item{has_duplicates}{Logical indicating whether any duplicates were found.}
+\item{info}{A list of duplicate details, where each element contains:
+\code{nodes} (the node pair), \code{count} (number of edges), and
+\code{weights} (vector of weights if available).}
+}
 }
 \description{
-For undirected networks, checks if any node pair has multiple edges
-(e.g., both A->B and B->A in an edge list).
+Identifies edges that appear multiple times between the same pair of nodes.
+For undirected networks, edges A\code{->}B and B\code{->}A are considered duplicates.
+For directed networks, only identical from\code{->}to pairs are duplicates.
+}
+\details{
+This function is useful for cleaning network data before visualization.
+Duplicate edges can arise from:
+\itemize{
+\item Data collection errors (same edge recorded twice)
+\item Combining multiple data sources
+\item Converting from formats that allow multi-edges
+\item Edge lists that include both A\code{->}B and B\code{->}A for undirected networks
+}
+
+The function creates canonical keys by sorting node pairs (lower index first),
+so edges 1\code{->}2 and 2\code{->}1 map to the same key "1-2" in undirected mode.
+}
+\examples{
+\dontrun{
+# Create edges with duplicates
+edges <- data.frame(
+  from = c(1, 1, 2, 2, 3),
+  to = c(2, 2, 3, 1, 1),
+  weight = c(0.5, 0.3, 0.4, 0.6, 0.2)
+)
+
+# Detect duplicates (undirected: 1-2 appears 3 times, 1-3 appears 2 times)
+result <- detect_duplicate_edges(edges)
+result$has_duplicates
+# [1] TRUE
+
+# View duplicate details
+result$info[[1]]
+# $nodes: 1, 2
+# $count: 3
+# $weights: 0.5, 0.3, 0.6
+}
+
+}
+\seealso{
+\code{\link{aggregate_duplicate_edges}} for combining duplicates into
+single edges
 }
 \keyword{internal}

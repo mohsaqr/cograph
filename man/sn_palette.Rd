@@ -22,11 +22,45 @@ Modified sonnet_network object.
 \description{
 Apply a color palette for node and/or edge coloring.
 }
+\details{
+\subsection{Available Palettes}{
+
+Use \code{list_palettes()} to see all available palettes. Common options:
+\describe{
+\item{\strong{viridis}}{Perceptually uniform, colorblind-friendly.}
+\item{\strong{colorblind}}{Optimized for color vision deficiency.}
+\item{\strong{pastel}}{Soft, muted colors.}
+\item{\strong{bright}}{Saturated, vivid colors.}
+\item{\strong{grayscale}}{Shades of gray.}
+}
+
+You can also pass a custom palette function that takes \code{n} and returns
+\code{n} colors.
+}
+}
 \examples{
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-# With sonnet()
-sonnet(adj) |> sn_palette("viridis")
+
+# Apply palette to nodes
+sonnet(adj) |> sn_palette("viridis") |> splot()
+
+# Apply to edges
+sonnet(adj) |> sn_palette("colorblind", target = "edges") |> splot()
+
+# Apply to both
+sonnet(adj) |> sn_palette("pastel", target = "both") |> splot()
+
+# Custom palette function
+my_pal <- function(n) rainbow(n, s = 0.7)
+sonnet(adj) |> sn_palette(my_pal) |> splot()
 
 # Direct matrix input
 adj |> sn_palette("viridis")
+}
+\seealso{
+\code{\link{sonnet}} for network creation,
+\code{\link{sn_theme}} for visual themes,
+\code{\link{sn_nodes}} for node customization,
+\code{\link{list_palettes}} to see available palettes,
+\code{\link{splot}} and \code{\link{soplot}} for plotting
 }

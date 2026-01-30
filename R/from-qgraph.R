@@ -78,6 +78,21 @@ tna_color_palette <- function(n_states) {
 #'   \item \strong{inits}: Initial probabilities \code{->} donut_fill (0-1 scale)
 #' }
 #'
+#' ## TNA Visual Defaults
+#' The following visual defaults are applied for TNA plots (all can be overridden via \code{...}):
+#' \itemize{
+#'   \item \code{layout = "oval"}: Oval/elliptical node arrangement
+#'   \item \code{node_fill}: Colors from TNA palette (Accent/Set3 based on state count)
+#'   \item \code{node_size = 7}: Larger nodes for readability
+#'   \item \code{arrow_size = 0.61}: Prominent directional arrows
+#'   \item \code{edge_color = "#003355"}: Dark blue edges
+#'   \item \code{edge_labels = TRUE}: Show transition weights on edges
+#'   \item \code{edge_label_size = 0.6}: Readable edge labels
+#'   \item \code{edge_label_position = 0.7}: Labels positioned toward target
+#'   \item \code{edge_start_style = "dotted"}: Dotted line at edge source
+#'   \item \code{edge_start_length = 0.2}: 20% of edge is dotted
+#' }
+#'
 #' @return Invisibly, a named list of Sonnet parameters that can be passed to
 #'   \code{splot()} or \code{soplot()}.
 #'

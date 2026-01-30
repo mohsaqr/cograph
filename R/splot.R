@@ -126,6 +126,10 @@ NULL
 #'   "dashed", or "dotted". Use dashed/dotted to indicate edge direction (source node).
 #' @param edge_start_length Fraction of edge length for the styled start segment (0-0.5).
 #'   Default 0.15 (15% of edge). Only applies when edge_start_style is not "solid".
+#' @param edge_start_dot_density Pattern for dotted start segments. A two-character string
+#'   where the first digit is dot length and second is gap length (in line width units).
+#'   Default "12" (1 unit dot, 2 units gap). Use "11" for tighter dots, "13" for more spacing.
+#'   Only applies when edge_start_style = "dotted".
 #'
 #' @param edge_ci Numeric vector of CI widths (0-1 scale). Larger values = more uncertainty.
 #' @param edge_ci_scale Width multiplier for underlay thickness. Default 2.
@@ -383,6 +387,7 @@ splot <- function(
     # Edge Start Style (for direction clarity)
     edge_start_style = "solid",
     edge_start_length = 0.15,
+    edge_start_dot_density = "12",
 
     # Edge CI Underlays
     edge_ci = NULL,
@@ -967,7 +972,8 @@ splot <- function(
       is_reciprocal = is_reciprocal,
       # Edge start style parameters
       edge_start_style = edge_start_style,
-      edge_start_length = edge_start_length
+      edge_start_length = edge_start_length,
+      edge_start_dot_density = edge_start_dot_density
     )
   }
 
@@ -1165,7 +1171,8 @@ render_edges_splot <- function(edges, layout, node_sizes, shapes,
                                edge_ci_alpha = 0.15, edge_ci_color = NULL,
                                edge_ci_style = 2, edge_ci_arrows = FALSE,
                                is_reciprocal = NULL,
-                               edge_start_style = "solid", edge_start_length = 0.15) {
+                               edge_start_style = "solid", edge_start_length = 0.15,
+                               edge_start_dot_density = "12") {
 
   m <- nrow(edges)
   if (m == 0) return(invisible())
@@ -1182,14 +1189,19 @@ render_edges_splot <- function(edges, layout, node_sizes, shapes,
   # Storage for label positions
   label_positions <- vector("list", m)
 
-  # Validate and convert edge_start_style to numeric lty
+  # Validate and convert edge_start_style to lty value
+
   # Accepts string values ("solid", "dashed", "dotted") or numeric (1, 2, 3)
   if (is.numeric(edge_start_style)) {
-    start_lty <- edge_start_style
-    if (!start_lty %in% c(1, 2, 3)) {
+    if (!edge_start_style %in% c(1, 2, 3)) {
       warning("edge_start_style numeric value should be 1 (solid), 2 (dashed), or 3 (dotted). ",
-              "Got: ", start_lty, ". Using solid.", call. = FALSE)
+              "Got: ", edge_start_style, ". Using solid.", call. = FALSE)
       start_lty <- 1
+    } else if (edge_start_style == 3) {
+      # Dotted: use custom density pattern
+      start_lty <- edge_start_dot_density
+    } else {
+      start_lty <- edge_start_style
     }
   } else {
     valid_styles <- c("solid", "dashed", "dotted")
@@ -1200,10 +1212,10 @@ render_edges_splot <- function(edges, layout, node_sizes, shapes,
     start_lty <- switch(edge_start_style,
       "solid" = 1,
       "dashed" = 2,
-      "dotted" = 3
+      "dotted" = edge_start_dot_density  # Use custom density pattern
     )
   }
-  start_fraction <- if (start_lty == 1) 0 else edge_start_length
+  start_fraction <- if (identical(start_lty, 1) || identical(start_lty, 1L)) 0 else edge_start_length
 
   # Helper function to calculate curve direction (bend INWARD toward center)
   calc_curve_direction <- function(curve_val, start_x, start_y, end_x, end_y) {

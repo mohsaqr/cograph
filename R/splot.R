@@ -456,11 +456,8 @@ splot <- function(
   # Handle tna objects directly
   if (inherits(x, "tna")) {
     tna_params <- from_tna(x, engine = "splot", plot = FALSE)
-    # User-supplied args override tna defaults
+    # User-supplied args override tna defaults (only if explicitly provided)
     call_args <- tna_params
-    call_args$layout <- layout
-    call_args$seed <- seed
-    call_args$theme <- theme
     user_args <- as.list(match.call(expand.dots = FALSE))[-1]
     user_args$x <- NULL  # already set via tna_params$x
     dots <- list(...)

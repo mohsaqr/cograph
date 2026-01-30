@@ -61,17 +61,76 @@ NULL
 #' @param label_vjust Vertical justification for node labels (0=bottom, 0.5=center, 1=top). Default 0.5.
 #' @param label_angle Text rotation angle in degrees for node labels. Default 0.
 #' @param node_names Alternative names for legend (separate from display labels).
-#' @return Modified sonnet_network object.
+#'
+#' @details
+#' ## Vectorization
+#' All aesthetic parameters can be specified as:
+#' \itemize{
+#'   \item \strong{Single value}: Applied to all nodes (e.g., \code{fill = "blue"})
+#'   \item \strong{Vector}: Per-node values, recycled if shorter than node count
+#'   \item \strong{Column name}: String referencing a column in the node data frame
+#' }
+#'
+#' Parameters are validated for correct length; providing a vector with length
+#' other than 1 or n_nodes will produce a warning about recycling.
+#'
+#' ## Donut Charts
+#' Donut charts are ideal for showing a single proportion (0-1) per node:
+#' \itemize{
+#'   \item Set \code{donut_fill} to a numeric value or vector (0 = empty, 1 = full)
+#'   \item Use \code{donut_color} to set fill color(s)
+#'   \item Use \code{donut_shape} for non-circular donuts ("square", "hexagon", etc.)
+#'   \item Enable \code{donut_show_value = TRUE} to display the value in the center
+#' }
+#'
+#' @return Modified sonnet_network object that can be piped to further customization
+#'   functions or plotting functions.
+#'
+#' @seealso
+#' \code{\link{sn_edges}} for edge customization,
+#' \code{\link{sonnet}} for network creation,
+#' \code{\link{splot}} and \code{\link{soplot}} for plotting,
+#' \code{\link{sn_layout}} for layout algorithms,
+#' \code{\link{sn_theme}} for visual themes
+#'
 #' @export
 #'
 #' @examples
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' # With sonnet()
+#'
+#' # Basic usage with sonnet()
 #' sonnet(adj) |>
 #'   sn_nodes(size = 0.08, fill = "steelblue", shape = "circle")
 #'
-#' # Direct matrix input
+#' # Direct matrix input (auto-converted)
 #' adj |> sn_nodes(fill = "coral", size = 0.1)
+#'
+#' # Per-node customization with vectors
+#' sonnet(adj) |>
+#'   sn_nodes(
+#'     size = c(0.08, 0.06, 0.1),
+#'     fill = c("red", "blue", "green"),
+#'     label_position = c("above", "below", "center")
+#'   ) |>
+#'   splot()
+#'
+#' # Donut chart nodes showing proportions
+#' sonnet(adj) |>
+#'   sn_nodes(
+#'     donut_fill = c(0.25, 0.75, 0.5),
+#'     donut_color = "steelblue",
+#'     donut_show_value = TRUE,
+#'     donut_value_suffix = "%"
+#'   ) |>
+#'   splot()
+#'
+#' # Mixed shapes per node
+#' sonnet(adj) |>
+#'   sn_nodes(
+#'     shape = c("circle", "square", "triangle"),
+#'     fill = c("#E41A1C", "#377EB8", "#4DAF4A")
+#'   ) |>
+#'   splot()
 sn_nodes <- function(network,
                      size = NULL,
                      shape = NULL,

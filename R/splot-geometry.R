@@ -98,12 +98,23 @@ atan2_usr <- function(dy, dx) {
 #' @keywords internal
 cent_to_edge <- function(x, y, angle, cex, cex2 = NULL, shape = "circle") {
 
+  # Defensive checks for invalid inputs
+  if (length(x) == 0 || length(y) == 0 || length(angle) == 0 || length(cex) == 0) {
+    return(list(x = numeric(0), y = numeric(0)))
+  }
+  if (is.na(x) || is.na(y) || is.na(angle) || is.na(cex)) {
+    return(list(x = NA_real_, y = NA_real_))
+  }
+
   # Get aspect correction
   x_scale <- get_x_scale()
   y_scale <- get_y_scale()
   asp <- y_scale / x_scale
 
   if (is.null(cex2)) cex2 <- cex
+
+  # Handle NA or empty shape
+  if (length(shape) == 0 || is.na(shape)) shape <- "circle"
 
   if (shape == "circle") {
     # Circle: simple radial point
@@ -201,7 +212,8 @@ perp_mid <- function(x0, y0, x1, y1, cex, q = 0.5) {
   dy <- y1 - y0
   len <- sqrt(dx^2 + dy^2)
 
-  if (len < 1e-10) {
+  # Defensive check for empty or NA values
+  if (length(len) == 0 || is.na(len) || len < 1e-10) {
     return(list(x = mx, y = my))
   }
 

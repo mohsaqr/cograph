@@ -207,7 +207,8 @@ draw_curved_edge_base <- function(x1, y1, x2, y2, curve = 0.2, curvePivot = 0.5,
   dy <- y2 - y1
   len <- sqrt(dx^2 + dy^2)
 
-  if (len < 1e-10) {
+  # Defensive check for empty or NA values
+  if (length(len) == 0 || is.na(len) || len < 1e-10) {
     return(invisible())
   }
 
@@ -500,7 +501,8 @@ get_edge_label_position <- function(x1, y1, x2, y2, position = 0.5,
   dy <- y2 - y1
   len <- sqrt(dx^2 + dy^2)
 
-  if (len < 1e-10) {
+  # Defensive check for empty or NA values
+  if (length(len) == 0 || is.na(len) || len < 1e-10) {
     return(list(x = x1, y = y1))
   }
 
@@ -508,7 +510,7 @@ get_edge_label_position <- function(x1, y1, x2, y2, position = 0.5,
   px <- -dy / len
   py <- dx / len
 
-  if (abs(curve) < 1e-6) {
+  if (length(curve) == 0 || is.na(curve) || abs(curve) < 1e-6) {
     # Straight edge - position along line with perpendicular offset
     base_x <- x1 + position * dx
     base_y <- y1 + position * dy

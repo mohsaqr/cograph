@@ -51,6 +51,16 @@ ensure_sonnet_network <- function(x, layout = "spring", seed = 42, ...) {
 #'
 #' @return A sonnet_network object that can be further customized and rendered.
 #'
+#' @seealso
+#' \code{\link{splot}} for base R graphics rendering,
+#' \code{\link{soplot}} for grid graphics rendering,
+#' \code{\link{sn_nodes}} for node customization,
+#' \code{\link{sn_edges}} for edge customization,
+#' \code{\link{sn_layout}} for changing layouts,
+#' \code{\link{sn_theme}} for visual themes,
+#' \code{\link{sn_palette}} for color palettes,
+#' \code{\link{from_qgraph}} and \code{\link{from_tna}} for converting external objects
+#'
 #' @export
 #'
 #' @examples
@@ -62,17 +72,24 @@ ensure_sonnet_network <- function(x, layout = "spring", seed = 42, ...) {
 #' edges <- data.frame(from = c(1, 1, 2), to = c(2, 3, 3))
 #' sonnet(edges)
 #'
-#' # With customization
+#' # With customization (pipe-friendly workflow)
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 #' sonnet(adj, layout = "circle") |>
 #'   sn_nodes(fill = "steelblue") |>
-#'   sn_edges(color = "gray50")
+#'   sn_edges(color = "gray50") |>
+#'   splot()
+#'
+#' # Weighted network with automatic styling
+#' w_adj <- matrix(c(0, 0.5, -0.3, 0.5, 0, 0.4, -0.3, 0.4, 0), nrow = 3)
+#' sonnet(w_adj) |>
+#'   sn_edges(color = "weight", width = "weight") |>
+#'   splot()
 #'
 #' # With igraph (if installed)
 #' \dontrun{
 #' library(igraph)
 #' g <- make_ring(10)
-#' sonnet(g)
+#' sonnet(g) |> splot()
 #' }
 sonnet <- function(input, layout = "spring", directed = NULL,
                    node_labels = NULL, seed = 42, ...) {
@@ -137,13 +154,54 @@ sonnet <- function(input, layout = "spring", directed = NULL,
 #' @param seed Random seed for deterministic layouts. Default 42. Set NULL for random.
 #' @param ... Additional arguments passed to the layout function.
 #'
+#' @details
+#' ## Built-in Layouts
+#' \describe{
+#'   \item{\strong{spring}}{Force-directed layout (Fruchterman-Reingold style).
+#'     Good general-purpose layout. Default.}
+#'   \item{\strong{circle}}{Nodes arranged in a circle. Good for small networks
+#'     or when structure is less important.}
+#'   \item{\strong{groups}}{Circular layout with grouped nodes clustered together.}
+#'   \item{\strong{grid}}{Nodes in a regular grid.}
+#'   \item{\strong{random}}{Random positions. Useful as starting point.}
+#'   \item{\strong{star}}{Central node with others arranged around it.}
+#'   \item{\strong{bipartite}}{Two-column layout for bipartite networks.}
+#' }
+#'
+#' ## igraph Layouts
+#' Two-letter codes for igraph layouts: "kk" (Kamada-Kawai), "fr" (Fruchterman-Reingold),
+#' "drl", "mds", "ni" (nicely), "tr" (tree), "ci" (circle), etc.
+#'
+#' You can also pass igraph layout functions directly or use full names like
+#' "layout_with_kk".
+#'
 #' @return Modified sonnet_network object.
+#'
+#' @seealso
+#' \code{\link{sonnet}} for network creation,
+#' \code{\link{sn_nodes}} for node customization,
+#' \code{\link{sn_edges}} for edge customization,
+#' \code{\link{sn_theme}} for visual themes,
+#' \code{\link{splot}} and \code{\link{soplot}} for plotting
+#'
 #' @export
 #'
 #' @examples
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' # With sonnet()
-#' sonnet(adj) |> sn_layout("circle")
+#'
+#' # Built-in layouts
+#' sonnet(adj) |> sn_layout("circle") |> splot()
+#' sonnet(adj) |> sn_layout("spring") |> splot()
+#'
+#' # igraph layouts (if igraph installed)
+#' \dontrun{
+#' sonnet(adj) |> sn_layout("kk") |> splot()
+#' sonnet(adj) |> sn_layout("fr") |> splot()
+#' }
+#'
+#' # Custom coordinates
+#' coords <- matrix(c(0, 0, 1, 0, 0.5, 1), ncol = 2, byrow = TRUE)
+#' sonnet(adj) |> sn_layout(coords) |> splot()
 #'
 #' # Direct matrix input (auto-converts)
 #' adj |> sn_layout("circle")
@@ -213,13 +271,40 @@ sn_layout <- function(network, layout, seed = 42, ...) {
 #' @param theme Theme name (string) or SonnetTheme object.
 #' @param ... Additional theme parameters to override.
 #'
+#' @details
+#' ## Available Themes
+#' \describe{
+#'   \item{\strong{classic}}{Default theme with white background, blue nodes, gray edges.}
+#'   \item{\strong{dark}}{Dark background with light nodes. Good for presentations.}
+#'   \item{\strong{minimal}}{Subtle styling with thin edges and muted colors.}
+#'   \item{\strong{colorblind}}{Optimized for color vision deficiency.}
+#'   \item{\strong{grayscale}}{Black and white only.}
+#'   \item{\strong{vibrant}}{Bold, saturated colors.}
+#' }
+#'
+#' Use \code{list_themes()} to see all available themes.
+#'
 #' @return Modified sonnet_network object.
+#'
+#' @seealso
+#' \code{\link{sonnet}} for network creation,
+#' \code{\link{sn_palette}} for color palettes,
+#' \code{\link{sn_nodes}} for node customization,
+#' \code{\link{sn_edges}} for edge customization,
+#' \code{\link{list_themes}} to see available themes,
+#' \code{\link{splot}} and \code{\link{soplot}} for plotting
+#'
 #' @export
 #'
 #' @examples
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' # With sonnet()
-#' sonnet(adj) |> sn_theme("dark")
+#'
+#' # Apply different themes
+#' sonnet(adj) |> sn_theme("dark") |> splot()
+#' sonnet(adj) |> sn_theme("minimal") |> splot()
+#'
+#' # Override specific theme properties
+#' sonnet(adj) |> sn_theme("classic", background = "lightgray") |> splot()
 #'
 #' # Direct matrix input
 #' adj |> sn_theme("dark")
@@ -263,13 +348,46 @@ sn_theme <- function(network, theme, ...) {
 #' @param target What to apply the palette to: "nodes", "edges", or "both".
 #' @param by Variable to map colors to (for nodes: column name or "group").
 #'
+#' @details
+#' ## Available Palettes
+#' Use \code{list_palettes()} to see all available palettes. Common options:
+#' \describe{
+#'   \item{\strong{viridis}}{Perceptually uniform, colorblind-friendly.}
+#'   \item{\strong{colorblind}}{Optimized for color vision deficiency.}
+#'   \item{\strong{pastel}}{Soft, muted colors.}
+#'   \item{\strong{bright}}{Saturated, vivid colors.}
+#'   \item{\strong{grayscale}}{Shades of gray.}
+#' }
+#'
+#' You can also pass a custom palette function that takes \code{n} and returns
+#' \code{n} colors.
+#'
 #' @return Modified sonnet_network object.
+#'
+#' @seealso
+#' \code{\link{sonnet}} for network creation,
+#' \code{\link{sn_theme}} for visual themes,
+#' \code{\link{sn_nodes}} for node customization,
+#' \code{\link{list_palettes}} to see available palettes,
+#' \code{\link{splot}} and \code{\link{soplot}} for plotting
+#'
 #' @export
 #'
 #' @examples
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' # With sonnet()
-#' sonnet(adj) |> sn_palette("viridis")
+#'
+#' # Apply palette to nodes
+#' sonnet(adj) |> sn_palette("viridis") |> splot()
+#'
+#' # Apply to edges
+#' sonnet(adj) |> sn_palette("colorblind", target = "edges") |> splot()
+#'
+#' # Apply to both
+#' sonnet(adj) |> sn_palette("pastel", target = "both") |> splot()
+#'
+#' # Custom palette function
+#' my_pal <- function(n) rainbow(n, s = 0.7)
+#' sonnet(adj) |> sn_palette(my_pal) |> splot()
 #'
 #' # Direct matrix input
 #' adj |> sn_palette("viridis")

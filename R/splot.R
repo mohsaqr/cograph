@@ -190,7 +190,84 @@ NULL
 #' @param res Resolution in DPI for raster outputs (PNG, JPEG, TIFF). Default 600.
 #' @param ... Additional arguments passed to layout functions.
 #'
+#' @details
+#' ## Edge Curve Behavior
+#' Edge curving is controlled by three parameters that interact:
+#' \describe{
+#'   \item{\strong{curves}}{Mode for automatic curving. \code{FALSE} = all straight,
+#'     \code{TRUE} (default) = curve only reciprocal edge pairs as an ellipse,
+#'     \code{"force"} = curve all edges inward toward network center.}
+#'   \item{\strong{curvature}}{Manual curvature amount (0-1 typical). Sets the
+#'     magnitude of curves. Default 0 uses automatic 0.175 for curved edges.
+#'     Positive values curve edges; the direction is automatically determined.
+#'   }
+#'   \item{\strong{curve_scale}}{Not currently used; reserved for future scaling.}
+#' }
+#'
+#' For reciprocal edges (A\code{->}B and B\code{->}A both exist), the edges curve
+#' in opposite directions to form a visual ellipse, making bidirectional
+#' relationships clear.
+#'
+#' ## Weight Scaling Modes (edge_scale_mode)
+#' Controls how edge weights are mapped to visual widths:
+#' \describe{
+#'   \item{\strong{linear} (default)}{Width proportional to weight. Best when
+#'     weights are similar in magnitude.}
+#'   \item{\strong{log}}{Logarithmic scaling. Best when weights span multiple
+#'     orders of magnitude (e.g., 0.01 to 100).}
+#'   \item{\strong{sqrt}}{Square root scaling. Moderate compression, good for
+#'     moderately skewed distributions.}
+#'
+#'   \item{\strong{rank}}{Rank-based scaling. Ignores actual values; uses relative
+#'     ordering. All edges get equal visual spacing regardless of weight distribution.}
+#' }
+#'
+#' ## Donut vs Pie vs Double Donut
+#' Three ways to show additional data on nodes:
+#' \describe{
+#'   \item{\strong{Donut (donut_fill)}}{Single ring showing a proportion (0-1).
+#'     Ideal for completion rates, probabilities, or any single metric per node.
+#'     Use \code{donut_color} for fill color and \code{donut_bg_color} for unfilled portion.}
+#'   \item{\strong{Pie (pie_values)}}{Multiple colored segments showing category
+#'     breakdown. Ideal for composition data. Values are normalized to sum to 1.
+#'     Use \code{pie_colors} for segment colors.}
+#'   \item{\strong{Double Donut (donut2_values)}}{Two concentric rings for comparing
+#'     two metrics per node. Outer ring uses \code{donut_fill}/\code{donut_color},
+#'     inner ring uses \code{donut2_values}/\code{donut2_colors}.}
+#' }
+#'
+#' ## CI Underlay System
+#' Confidence interval underlays draw a wider, semi-transparent edge behind the
+#' main edge to visualize uncertainty:
+#' \describe{
+#'   \item{\strong{edge_ci}}{Vector of CI widths (0-1 scale). Larger = more uncertainty.}
+#'   \item{\strong{edge_ci_scale}}{Multiplier for underlay width relative to main edge.
+#'     Default 2 means underlay is twice as wide as main edge at CI=1.}
+#'   \item{\strong{edge_ci_alpha}}{Transparency of underlay (0-1). Default 0.15.}
+#'   \item{\strong{edge_ci_style}}{Line type: 1=solid, 2=dashed (default), 3=dotted.}
+#' }
+#'
+#' ## Edge Label Templates
+#' For statistical output, use templates to format complex labels:
+#' \describe{
+#'   \item{\strong{edge_label_template}}{Template string with placeholders:
+#'     \code{\{est\}} for estimate/weight, \code{\{low\}}/\code{\{up\}} for CI bounds,
+#'     \code{\{range\}} for formatted range, \code{\{p\}} for p-value, \code{\{stars\}}
+#'     for significance stars.}
+#'   \item{\strong{edge_label_style}}{Preset styles: \code{"estimate"} (weight only),
+#'     \code{"full"} (estimate + CI), \code{"range"} (CI only), \code{"stars"} (significance).}
+#' }
+#'
 #' @return Invisibly returns the sonnet_network object.
+#'
+#' @seealso
+#' \code{\link{soplot}} for grid graphics rendering (alternative engine),
+#' \code{\link{sonnet}} for creating network objects,
+#' \code{\link{sn_nodes}} for node customization,
+#' \code{\link{sn_edges}} for edge customization,
+#' \code{\link{sn_layout}} for layout algorithms,
+#' \code{\link{sn_theme}} for visual themes,
+#' \code{\link{from_qgraph}} and \code{\link{from_tna}} for converting external objects
 #'
 #' @export
 #'
@@ -1130,6 +1207,17 @@ render_edges_splot <- function(edges, layout, node_sizes, shapes,
 
   # Helper function to calculate curve direction (bend INWARD toward center)
   calc_curve_direction <- function(curve_val, start_x, start_y, end_x, end_y) {
+    # Defensive check: ensure all coordinates are valid scalars
+    if (length(start_x) == 0 || length(start_y) == 0 ||
+        length(end_x) == 0 || length(end_y) == 0 ||
+        any(is.na(c(start_x, start_y, end_x, end_y)))) {
+      return(if (length(curve_val) > 0) curve_val else 0)
+    }
+
+    if (length(curve_val) == 0 || is.na(curve_val)) {
+      return(0)
+    }
+
     if (curve_val > 1e-6) {
       mid_x <- (start_x + end_x) / 2
       mid_y <- (start_y + end_y) / 2
@@ -1141,7 +1229,7 @@ render_edges_splot <- function(edges, layout, node_sizes, shapes,
       # Perpendicular to edge direction (same as draw_curved_edge_base)
       # Clockwise rotation: (dx, dy) -> (dy, -dx)
       len <- sqrt(dx^2 + dy^2)
-      if (len < 1e-10) return(curve_val)
+      if (length(len) == 0 || is.na(len) || len < 1e-10) return(curve_val)
       px <- dy / len
       py <- -dx / len
 
@@ -1158,10 +1246,25 @@ render_edges_splot <- function(edges, layout, node_sizes, shapes,
     from_idx <- edges$from[i]
     to_idx <- edges$to[i]
 
+    # Skip invalid edges (NA or out-of-bounds indices)
+    if (length(from_idx) == 0 || length(to_idx) == 0 ||
+        is.na(from_idx) || is.na(to_idx) ||
+        from_idx < 1 || to_idx < 1 ||
+        from_idx > n || to_idx > n) {
+      next
+    }
+
     x1 <- layout[from_idx, 1]
     y1 <- layout[from_idx, 2]
     x2 <- layout[to_idx, 1]
     y2 <- layout[to_idx, 2]
+
+    # Skip if coordinates are invalid
+    if (length(x1) == 0 || length(y1) == 0 ||
+        length(x2) == 0 || length(y2) == 0 ||
+        any(is.na(c(x1, y1, x2, y2)))) {
+      next
+    }
 
     # Self-loop
     if (from_idx == to_idx) {

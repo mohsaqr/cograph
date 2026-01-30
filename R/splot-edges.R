@@ -60,8 +60,8 @@ draw_curve_with_start_segment <- function(x, y, col, lwd, lty,
     return(invisible())
   }
 
-  # Convert dotted (lty=3) to tighter pattern for better appearance
-  effective_start_lty <- if (identical(start_lty, 3L) || identical(start_lty, 3)) "11" else start_lty
+  # Convert dotted (lty=3) to custom pattern for better appearance
+  effective_start_lty <- if (identical(start_lty, 3L) || identical(start_lty, 3)) "12" else start_lty
 
   # Find split index based on arc length
   split_idx <- find_curve_split_index(x, y, start_fraction)

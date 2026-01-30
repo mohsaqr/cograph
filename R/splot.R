@@ -1422,15 +1422,21 @@ render_edges_splot <- function(edges, layout, node_sizes, shapes,
     for (i in seq_len(m)) {
       if (!is.null(edge_labels[i]) && !is.na(edge_labels[i]) && edge_labels[i] != "") {
         edge_info <- label_positions[[i]]
-        # Compute position with per-edge position and offset
-        pos <- get_edge_label_position(
-          edge_info$start_x, edge_info$start_y,
-          edge_info$end_x, edge_info$end_y,
-          position = edge_label_positions_vec[i],
-          curve = edge_info$curve,
-          curvePivot = edge_info$curvePivot,
-          label_offset = edge_label_offsets[i]
-        )
+        # Self-loops have x, y directly; regular edges have start_x, start_y, etc.
+        if (!is.null(edge_info$x) && !is.null(edge_info$y)) {
+          # Self-loop: use stored position directly
+          pos <- list(x = edge_info$x, y = edge_info$y)
+        } else {
+          # Regular edge: compute position
+          pos <- get_edge_label_position(
+            edge_info$start_x, edge_info$start_y,
+            edge_info$end_x, edge_info$end_y,
+            position = edge_label_positions_vec[i],
+            curve = edge_info$curve,
+            curvePivot = edge_info$curvePivot,
+            label_offset = edge_label_offsets[i]
+          )
+        }
         draw_edge_label_base(
           pos$x, pos$y,
           label = edge_labels[i],

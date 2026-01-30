@@ -16,22 +16,93 @@ from_tna(
 \arguments{
 \item{tna_object}{A \code{tna} object from \code{tna::tna()}}
 
-\item{engine}{Which Sonnet renderer to use: \code{"splot"} or \code{"soplot"}}
+\item{engine}{Which Sonnet renderer to use: \code{"splot"} or \code{"soplot"}.
+Default: \code{"splot"}.}
 
-\item{plot}{If TRUE, immediately plot using the chosen engine}
+\item{plot}{Logical. If TRUE (default), immediately plot using the chosen engine.}
 
 \item{weight_digits}{Number of decimal places to round edge weights to. Default 2.
 Edges that round to zero are removed unless \code{show_zero_edges = TRUE}.}
 
-\item{show_zero_edges}{If TRUE, keep edges even if their weight rounds to zero. Default FALSE.}
+\item{show_zero_edges}{Logical. If TRUE, keep edges even if their weight rounds to
+zero. Default: FALSE.}
 
-\item{...}{Additional parameters passed to the plotting engine}
+\item{...}{Additional parameters passed to the plotting engine (e.g., \code{layout},
+\code{node_fill}, \code{donut_color}).}
 }
 \value{
-Invisibly, a named list of Sonnet parameters
+Invisibly, a named list of Sonnet parameters that can be passed to
+\code{splot()} or \code{soplot()}.
 }
 \description{
 Extracts the transition matrix, labels, and initial state probabilities
 from a \code{tna} object and plots with Sonnet. Initial probabilities
 are mapped to donut fills.
+}
+\details{
+\subsection{Conversion Process}{
+
+The tna object's transition matrix becomes edge weights, labels become
+node labels, and initial state probabilities (\code{inits}) are mapped to
+\code{donut_fill} values to visualize starting state distributions.
+
+TNA networks are always treated as directed because transition matrices
+represent directional state changes.
+
+The default \code{donut_inner_ratio} of 0.8 creates thin rings that
+effectively visualize probability values without obscuring node labels.
+}
+
+\subsection{Parameter Mapping}{
+
+The following tna properties are automatically extracted:
+\itemize{
+\item \strong{weights}: Transition matrix \code{->} edge weights
+\item \strong{labels}: State labels \code{->} node labels
+\item \strong{inits}: Initial probabilities \code{->} donut_fill (0-1 scale)
+}
+}
+
+\subsection{TNA Visual Defaults}{
+
+The following visual defaults are applied for TNA plots (all can be overridden via \code{...}):
+\itemize{
+\item \code{layout = "oval"}: Oval/elliptical node arrangement
+\item \code{node_fill}: Colors from TNA palette (Accent/Set3 based on state count)
+\item \code{node_size = 7}: Larger nodes for readability
+\item \code{arrow_size = 0.61}: Prominent directional arrows
+\item \code{edge_color = "#003355"}: Dark blue edges
+\item \code{edge_labels = TRUE}: Show transition weights on edges
+\item \code{edge_label_size = 0.6}: Readable edge labels
+\item \code{edge_label_position = 0.7}: Labels positioned toward target
+\item \code{edge_start_style = "dotted"}: Dotted line at edge source
+\item \code{edge_start_length = 0.2}: 20\% of edge is dotted
+}
+}
+}
+\examples{
+\dontrun{
+# Convert and plot a tna object
+library(tna)
+trans <- tna(transitions)
+from_tna(trans)  # Plots with donut rings showing initial probabilities
+
+# Use soplot engine instead
+from_tna(trans, engine = "soplot")
+
+# Customize the visualization
+from_tna(trans, layout = "circle", donut_color = c("steelblue", "gray90"))
+
+# Extract parameters without plotting
+params <- from_tna(trans, plot = FALSE)
+# Modify and plot manually
+params$node_fill <- "coral"
+do.call(splot, params)
+}
+
+}
+\seealso{
+\code{\link{sonnet}} for creating networks from scratch,
+\code{\link{splot}} and \code{\link{soplot}} for plotting engines,
+\code{\link{from_qgraph}} for qgraph object conversion
 }

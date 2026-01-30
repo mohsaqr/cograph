@@ -127,6 +127,7 @@ create_edges_df <- function(from, to, weight = NULL, directed = FALSE) {
 #'   single edges
 #'
 #' @examples
+#' \dontrun{
 #' # Create edges with duplicates
 #' edges <- data.frame(
 #'   from = c(1, 1, 2, 2, 3),
@@ -144,6 +145,7 @@ create_edges_df <- function(from, to, weight = NULL, directed = FALSE) {
 #' # $nodes: 1, 2
 #' # $count: 3
 #' # $weights: 0.5, 0.3, 0.6
+#' }
 #'
 #' @keywords internal
 detect_duplicate_edges <- function(edges) {
@@ -208,6 +210,7 @@ detect_duplicate_edges <- function(edges) {
 #'   aggregation
 #'
 #' @examples
+#' \dontrun{
 #' # Create edges with duplicates
 #' edges <- data.frame(
 #'   from = c(1, 1, 2),
@@ -229,6 +232,7 @@ detect_duplicate_edges <- function(edges) {
 #'
 #' # Use custom aggregation function
 #' aggregate_duplicate_edges(edges, method = function(x) sqrt(sum(x^2)))
+#' }
 #'
 #' @keywords internal
 aggregate_duplicate_edges <- function(edges, method = "mean") {

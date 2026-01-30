@@ -176,17 +176,114 @@ or "force" (curve all edges). Default FALSE.}
 or numeric (treated as p-values).}
 }
 \value{
-Modified sonnet_network object.
+Modified sonnet_network object that can be piped to further customization
+functions or plotting functions.
 }
 \description{
 Customize the visual appearance of edges in a network plot.
 }
+\details{
+\subsection{Vectorization}{
+
+Most aesthetic parameters can be specified as:
+\itemize{
+\item \strong{Single value}: Applied to all edges
+\item \strong{Vector}: Per-edge values (must match edge count)
+\item \strong{"weight"}: Special value for \code{width} and \code{color} that
+auto-maps from edge weights
+}
+}
+
+\subsection{Weight-Based Styling}{
+
+When \code{color = "weight"}, edges are colored by sign:
+\itemize{
+\item Positive weights use \code{positive_color} (default: green)
+\item Negative weights use \code{negative_color} (default: red)
+}
+
+When \code{width = "weight"}, edge widths scale with absolute weight values,
+respecting the \code{maximum} parameter if set.
+}
+
+\subsection{Edge Label Templates}{
+
+For statistical output (e.g., regression coefficients with CIs), use templates:
+\itemize{
+\item \code{label_template = "\{est\}"}: Show estimate only
+\item \code{label_template = "\{est\} [\{low\}, \{up\}]"}: Estimate with CI
+\item \code{label_template = "\{est\}\{stars\}"}: Estimate with significance
+}
+
+Preset styles via \code{label_style}:
+\itemize{
+\item \code{"estimate"}: Weight/estimate only
+\item \code{"full"}: Estimate + CI in brackets
+\item \code{"range"}: CI range only
+\item \code{"stars"}: Significance stars
+}
+}
+
+\subsection{CI Underlays}{
+
+Visualize uncertainty by drawing a wider, semi-transparent edge behind:
+\itemize{
+\item \code{ci}: Vector of CI widths (0-1 scale)
+\item \code{ci_scale}: Width multiplier (default 2)
+\item \code{ci_alpha}: Transparency (default 0.15)
+}
+}
+}
 \examples{
 adj <- matrix(c(0, 1, -0.5, 1, 0, 1, -0.5, 1, 0), nrow = 3)
-# With sonnet()
+
+# Basic: auto-style by weight
 sonnet(adj) |>
   sn_edges(width = "weight", color = "weight")
 
-# Direct matrix input
+# Direct matrix input (auto-converted)
 adj |> sn_edges(width = 2, color = "gray50")
+
+# Custom positive/negative colors
+sonnet(adj) |>
+  sn_edges(
+    color = "weight",
+    positive_color = "darkblue",
+    negative_color = "darkred"
+  ) |>
+  splot()
+
+# Edge labels showing weights
+sonnet(adj) |>
+  sn_edges(labels = TRUE, label_size = 0.8) |>
+  splot()
+
+# Statistical output with CI template
+# Suppose we have estimates, lower/upper CI bounds
+estimates <- c(0.5, -0.3, 0.8)
+ci_lo <- c(0.2, -0.6, 0.5)
+ci_hi <- c(0.8, -0.1, 1.1)
+
+\dontrun{
+sonnet(adj) |>
+  sn_edges(
+    label_template = "{est} [{low}, {up}]",
+    ci_lower = ci_lo,
+    ci_upper = ci_hi,
+    label_digits = 2
+  ) |>
+  splot()
+}
+
+# Curved edges for reciprocal pairs
+sonnet(adj) |>
+  sn_edges(curves = "mutual", curvature = 0.3) |>
+  splot()
+}
+\seealso{
+\code{\link{sn_nodes}} for node customization,
+\code{\link{sonnet}} for network creation,
+\code{\link{splot}} and \code{\link{soplot}} for plotting,
+\code{\link{sn_layout}} for layout algorithms,
+\code{\link{sn_theme}} for visual themes
 }

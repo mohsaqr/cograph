@@ -358,6 +358,53 @@ Invisible NULL. Called for side effect of drawing.
 Main plotting function for Sonnet networks. Renders the network visualization
 using grid graphics. Accepts all node and edge aesthetic parameters.
 }
+\details{
+\subsection{soplot vs splot}{
+
+\code{soplot()} uses grid graphics while \code{splot()} uses base R graphics.
+Both accept the same parameters and produce visually similar output. Choose based on:
+\itemize{
+\item \strong{soplot}: Better for integration with ggplot2, combining plots,
+and publication-quality vector graphics.
+\item \strong{splot}: Better for large networks (faster rendering), interactive
+exploration, and traditional R workflows.
+}
+}
+
+\subsection{Edge Curve Behavior}{
+
+Edge curving is controlled by the \code{curves} and \code{curvature} parameters:
+\describe{
+\item{\strong{curves = FALSE}}{All edges are straight lines.}
+\item{\strong{curves = TRUE}}{(Default) Reciprocal edge pairs (A\code{->}B and
+B\code{->}A) curve in opposite directions to form a visual ellipse. Single
+edges remain straight.}
+\item{\strong{curves = "force"}}{All edges curve inward toward the network center.}
+}
+}
+
+\subsection{Weight Scaling Modes (edge_scale_mode)}{
+
+Controls how edge weights map to visual widths:
+\describe{
+\item{\strong{linear}}{Width proportional to weight. Best for similar-magnitude weights.}
+\item{\strong{log}}{Logarithmic scaling. Best for weights spanning orders of magnitude.}
+\item{\strong{sqrt}}{Square root scaling. Moderate compression for skewed data.}
+\item{\strong{rank}}{Rank-based scaling. Equal visual spacing regardless of values.}
+}
+}
+
+\subsection{Donut Visualization}{
+
+The donut system visualizes proportions (0-1) as filled rings around nodes:
+\describe{
+\item{\strong{donut_fill}}{Proportion filled (0-1). Can be scalar or per-node vector.}
+\item{\strong{donut_color}}{Fill color. Single color, c(fill, bg), or per-node vector.}
+\item{\strong{donut_shape}}{Base shape: "circle", "square", "hexagon", etc.}
+\item{\strong{donut_show_value}}{Show numeric value in center.}
+}
+}
+}
 \examples{
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 # With sonnet()
@@ -370,4 +417,13 @@ adj |> soplot(
   node_size = 0.08,
   edge_width = 2
 )
+}
+\seealso{
+\code{\link{splot}} for base R graphics rendering (alternative engine),
+\code{\link{sonnet}} for creating network objects,
+\code{\link{sn_nodes}} for node customization,
+\code{\link{sn_edges}} for edge customization,
+\code{\link{sn_layout}} for layout algorithms,
+\code{\link{sn_theme}} for visual themes,
+\code{\link{from_qgraph}} and \code{\link{from_tna}} for converting external objects
 }

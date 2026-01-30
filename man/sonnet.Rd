@@ -52,16 +52,33 @@ sonnet(adj)
 edges <- data.frame(from = c(1, 1, 2), to = c(2, 3, 3))
 sonnet(edges)
 
-# With customization
+# With customization (pipe-friendly workflow)
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 sonnet(adj, layout = "circle") |>
   sn_nodes(fill = "steelblue") |>
-  sn_edges(color = "gray50")
+  sn_edges(color = "gray50") |>
+  splot()
+
+# Weighted network with automatic styling
+w_adj <- matrix(c(0, 0.5, -0.3, 0.5, 0, 0.4, -0.3, 0.4, 0), nrow = 3)
+sonnet(w_adj) |>
+  sn_edges(color = "weight", width = "weight") |>
+  splot()
 
 # With igraph (if installed)
 \dontrun{
 library(igraph)
 g <- make_ring(10)
-sonnet(g)
+sonnet(g) |> splot()
 }
+}
+\seealso{
+\code{\link{splot}} for base R graphics rendering,
+\code{\link{soplot}} for grid graphics rendering,
+\code{\link{sn_nodes}} for node customization,
+\code{\link{sn_edges}} for edge customization,
+\code{\link{sn_layout}} for changing layouts,
+\code{\link{sn_theme}} for visual themes,
+\code{\link{sn_palette}} for color palettes,
+\code{\link{from_qgraph}} and \code{\link{from_tna}} for converting external objects
 }

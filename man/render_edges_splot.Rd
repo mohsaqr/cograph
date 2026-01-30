@@ -38,7 +38,8 @@ render_edges_splot(
   edge_ci_arrows = FALSE,
   is_reciprocal = NULL,
   edge_start_style = "solid",
-  edge_start_length = 0.15
+  edge_start_length = 0.15,
+  edge_start_dot_density = "12"
 )
 }
 \description{

@@ -7,16 +7,69 @@
 aggregate_duplicate_edges(edges, method = "mean")
 }
 \arguments{
-\item{edges}{Edge data frame with from, to, and optionally weight columns.}
+\item{edges}{Data frame with \code{from}, \code{to}, and \code{weight} columns.}
 
-\item{method}{Aggregation method: "sum", "mean", "first", "max", "min",
-or a custom function.}
+\item{method}{Aggregation method: \code{"sum"} (default), \code{"mean"},
+\code{"max"}, \code{"min"}, \code{"first"}, or a custom function that
+takes a numeric vector and returns a single value.}
 }
 \value{
-Deduplicated edge data frame.
+A deduplicated data frame with the same columns as the input, where
+each node pair appears only once with its aggregated weight.
 }
 \description{
-For undirected networks, aggregates multiple edges between the same node pair
-using the specified method.
+Combines duplicate edges by aggregating their weights using a specified
+function (sum, mean, max, min, or first).
+}
+\details{
+\subsection{Aggregation Methods}{
+
+\describe{
+\item{\strong{sum}}{Total weight of all duplicate edges. Useful for frequency
+counts or when edges represent additive quantities (e.g., number of emails).}
+\item{\strong{mean}}{Average weight. Useful for averaging multiple measurements
+or when duplicates represent repeated observations.}
+\item{\strong{max}}{Maximum weight. Useful for finding the strongest connection
+or most recent value.
+}
+\item{\strong{min}}{Minimum weight. Useful for the most conservative estimate
+or earliest value.}
+\item{\strong{first}}{Keep first occurrence. Useful for preserving original
+order or when duplicates are erroneous.}
+}
+
+The output edge list uses canonical node ordering (lower index first for
+undirected networks), ensuring consistent from/to assignment.
+}
+}
+\examples{
+\dontrun{
+# Create edges with duplicates
+edges <- data.frame(
+  from = c(1, 1, 2),
+  to = c(2, 2, 3),
+  weight = c(0.5, 0.3, 0.4)
+)
+
+# Aggregate by sum (0.5 + 0.3 = 0.8)
+aggregate_duplicate_edges(edges, method = "sum")
+#   from to weight
+# 1    1  2    0.8
+# 2    2  3    0.4
+
+# Aggregate by mean (average: 0.4)
+aggregate_duplicate_edges(edges, method = "mean")
+#   from to weight
+# 1    1  2    0.4
+# 2    2  3    0.4
+
+# Use custom aggregation function
+aggregate_duplicate_edges(edges, method = function(x) sqrt(sum(x^2)))
+}
+
+}
+\seealso{
+\code{\link{detect_duplicate_edges}} for identifying duplicates before
+aggregation
 }
 \keyword{internal}

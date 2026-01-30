@@ -31,7 +31,9 @@ Suggests:
     grImport2,
     rsvg,
     qgraph,
-    tna
+    tna,
+    RColorBrewer,
+    colorspace
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Encoding: UTF-8

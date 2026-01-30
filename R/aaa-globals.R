@@ -173,8 +173,14 @@ get_palette <- function(name) {
   .sonnet_env$palettes[[name]]
 }
 
-#' @keywords internal
+#' List Available Color Palettes
+#'
+#' Returns the names of all registered color palettes.
+#'
+#' @return Character vector of palette names.
+#' @export
+#' @examples
+#' list_palettes()
 list_palettes <- function() {
-
   names(.sonnet_env$palettes)
 }

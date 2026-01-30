@@ -170,7 +170,7 @@ NULL
 #'
 #' # Curved edges for reciprocal pairs
 #' sonnet(adj) |>
-#'   sn_edges(curves = TRUE, curvature = 0.3) |>
+#'   sn_edges(curves = "mutual", curvature = 0.3) |>
 #'   splot()
 sn_edges <- function(network,
                      width = NULL,

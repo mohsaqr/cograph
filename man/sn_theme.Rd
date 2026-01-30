@@ -20,11 +20,39 @@ Modified sonnet_network object.
 \description{
 Apply a visual theme to the network.
 }
+\details{
+\subsection{Available Themes}{
+
+\describe{
+\item{\strong{classic}}{Default theme with white background, blue nodes, gray edges.}
+\item{\strong{dark}}{Dark background with light nodes. Good for presentations.}
+\item{\strong{minimal}}{Subtle styling with thin edges and muted colors.}
+\item{\strong{colorblind}}{Optimized for color vision deficiency.}
+\item{\strong{grayscale}}{Black and white only.}
+\item{\strong{vibrant}}{Bold, saturated colors.}
+}
+
+Use \code{list_themes()} to see all available themes.
+}
+}
 \examples{
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-# With sonnet()
-sonnet(adj) |> sn_theme("dark")
+
+# Apply different themes
+sonnet(adj) |> sn_theme("dark") |> splot()
+sonnet(adj) |> sn_theme("minimal") |> splot()
+
+# Override specific theme properties
+sonnet(adj) |> sn_theme("classic", background = "lightgray") |> splot()
 
 # Direct matrix input
 adj |> sn_theme("dark")
+}
+\seealso{
+\code{\link{sonnet}} for network creation,
+\code{\link{sn_palette}} for color palettes,
+\code{\link{sn_nodes}} for node customization,
+\code{\link{sn_edges}} for edge customization,
+\code{\link{list_themes}} to see available themes,
+\code{\link{splot}} and \code{\link{soplot}} for plotting
 }

@@ -571,6 +571,19 @@ splot <- function(
   }
 
   # ============================================
+  # 2b. AUTO-CONVERT pie_values VECTOR TO donut_fill
+  # ============================================
+
+  # If pie_values is a numeric vector (not list) with values in [0,1],
+  # treat it as donut_fill instead (single proportion per node)
+  if (!is.null(pie_values) && is.numeric(pie_values) && !is.list(pie_values)) {
+    if (all(pie_values >= 0 & pie_values <= 1, na.rm = TRUE)) {
+      donut_fill <- pie_values
+      pie_values <- NULL
+    }
+  }
+
+  # ============================================
   # 3. PARAMETER VECTORIZATION
   # ============================================
 

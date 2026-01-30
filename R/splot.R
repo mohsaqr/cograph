@@ -45,7 +45,9 @@ NULL
 #' @param label_angle Text rotation angle in degrees. Default 0.
 #'
 #' @param pie_values List of numeric vectors for pie chart nodes. Each element
-#'   corresponds to a node and contains values for pie segments.
+#'   corresponds to a node and contains values for pie segments. If a simple
+#'   numeric vector with values in [0,1] is provided (e.g., centrality scores),
+#'   it is automatically converted to donut_fill for convenience.
 #' @param pie_colors List of color vectors for pie segments.
 #' @param pie_border_width Border width for pie slice dividers. NULL uses node_border_width.
 #' @param donut_fill Numeric value (0-1) for donut fill proportion. This is the

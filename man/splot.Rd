@@ -193,7 +193,9 @@ or character vector.}
 \item{label_angle}{Text rotation angle in degrees. Default 0.}
 
 \item{pie_values}{List of numeric vectors for pie chart nodes. Each element
-corresponds to a node and contains values for pie segments.}
+corresponds to a node and contains values for pie segments. If a simple
+numeric vector with values in \link{0,1} is provided (e.g., centrality scores),
+it is automatically converted to donut_fill for convenience.}
 
 \item{pie_colors}{List of color vectors for pie segments.}
 

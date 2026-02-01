@@ -9,8 +9,9 @@
 #'
 #' @param model A tna object or weight matrix.
 #' @param node_list List of 2+ character vectors defining node groups.
-#' @param layout Layout type: "auto" (default), "bipartite", or "polygon".
+#' @param layout Layout type: "auto" (default), "bipartite", "polygon", or "circular".
 #'   When "auto", uses bipartite for 2 groups and polygon for 3+ groups.
+#'   "circular" places groups along arcs of a circle.
 #'   Legacy values "triangle" and "rectangle" are supported as aliases for "polygon".
 #' @param use_list_order Logical. Use node_list order (TRUE) or weight-based order (FALSE).
 #'   Only applies to bipartite layout.
@@ -192,6 +193,9 @@ plot_htna <- function(
   if (layout == "polygon" && n_groups < 3) {
     stop("Polygon layout requires at least 3 groups", call. = FALSE)
   }
+  if (layout == "circular" && n_groups < 2) {
+    stop("Circular layout requires at least 2 groups", call. = FALSE)
+  }
 
   # Determine colors and shapes for each group
   if (is.null(group_colors)) {
@@ -348,6 +352,11 @@ plot_htna <- function(
   } else if (layout == "polygon") {
     # Polygon layout: n groups along edges of a regular n-sided polygon
     pos <- compute_polygon_layout(node_list, lab, group_indices, n_groups, angle_spacing)
+    x_pos <- pos$x
+    y_pos <- pos$y
+  } else if (layout == "circular") {
+    # Circular layout: n groups along arcs of a circle
+    pos <- compute_circular_layout(node_list, lab, group_indices, n_groups, angle_spacing)
     x_pos <- pos$x
     y_pos <- pos$y
   }
@@ -644,6 +653,63 @@ for (i in seq_len(n_sides)) {
       # Single node at midpoint, pushed outward
       x_pos[g_idx] <- mid[1] + outward[1] * edge_push
       y_pos[g_idx] <- mid[2] + outward[2] * edge_push
+    }
+  }
+
+  list(x = x_pos, y = y_pos)
+}
+
+#' Compute Circular Layout
+#'
+#' Positions nodes along arcs of a circle, with each group occupying one arc.
+#' Groups are separated by gaps controlled by angle_spacing.
+#'
+#' @param node_list List of n character vectors.
+#' @param lab Node labels from model.
+#' @param group_indices List of index vectors for each group.
+#' @param n_groups Number of groups.
+#' @param angle_spacing Gap between groups as fraction of arc (0-1). Default 0.15.
+#'
+#' @return List with x and y position vectors.
+#'
+#' @keywords internal
+compute_circular_layout <- function(node_list, lab, group_indices, n_groups, angle_spacing = 0.15) {
+  n <- length(lab)
+  x_pos <- rep(0, n)
+  y_pos <- rep(0, n)
+
+  # Radius of the circle
+  radius <- 1.2
+
+  # Total angle per group (including gap)
+  angle_per_group <- 2 * pi / n_groups
+
+  # Gap angle between groups
+  gap_angle <- angle_per_group * angle_spacing
+
+  # Usable arc angle per group
+  arc_angle <- angle_per_group - gap_angle
+
+  # Place each group along its arc
+  for (i in seq_len(n_groups)) {
+    g_idx <- group_indices[[i]]
+    n_nodes <- length(g_idx)
+
+    # Start angle for this group (starting from top, going clockwise)
+    # Add half gap at start
+    start_angle <- pi/2 - (i - 1) * angle_per_group - gap_angle/2
+    end_angle <- start_angle - arc_angle
+
+    if (n_nodes > 1) {
+      # Distribute nodes along arc
+      angles <- seq(start_angle, end_angle, length.out = n_nodes)
+      x_pos[g_idx] <- radius * cos(angles)
+      y_pos[g_idx] <- radius * sin(angles)
+    } else if (n_nodes == 1) {
+      # Single node at arc midpoint
+      mid_angle <- (start_angle + end_angle) / 2
+      x_pos[g_idx] <- radius * cos(mid_angle)
+      y_pos[g_idx] <- radius * sin(mid_angle)
     }
   }
 

@@ -7,6 +7,7 @@ NULL
 #'
 #' Internal helper that converts matrices, data frames, igraph, network,
 #' qgraph, or tna objects to sonnet_network objects automatically.
+#' Works with both the old R6-based format and the new lightweight format.
 #'
 #' @param x Input object (matrix, data.frame, igraph, network, qgraph, tna, or sonnet_network).
 #' @param layout Default layout to use if converting.
@@ -17,6 +18,13 @@ NULL
 ensure_sonnet_network <- function(x, layout = "spring", seed = 42, ...) {
 
   if (inherits(x, "sonnet_network")) {
+    # Check if this is a new lightweight format without layout
+    # Use getter function to get nodes
+    nodes <- get_nodes(x)
+    if (!is.null(nodes) && (!"x" %in% names(nodes) || all(is.na(nodes$x)))) {
+      # Need to compute layout for the new format
+      x <- compute_layout_for_sonnet(x, layout = layout, seed = seed, ...)
+    }
     return(x)
   }
 
@@ -27,6 +35,83 @@ ensure_sonnet_network <- function(x, layout = "spring", seed = 42, ...) {
 
   stop("Input must be a matrix, data.frame, igraph, network, qgraph, tna, or sonnet_network",
        call. = FALSE)
+}
+
+#' Compute layout for lightweight sonnet_network
+#'
+#' Computes layout coordinates for a sonnet_network object that doesn't have them.
+#'
+#' @param net A sonnet_network object (new lightweight format).
+#' @param layout Layout algorithm name.
+#' @param seed Random seed for deterministic layouts.
+#' @param ... Additional arguments passed to the layout function.
+#' @return The sonnet_network with layout coordinates added.
+#' @noRd
+compute_layout_for_sonnet <- function(net, layout = "spring", seed = 42, ...) {
+  # Get nodes data frame using getter function
+  nodes <- get_nodes(net)
+  n <- nrow(nodes)
+
+  # Set seed for deterministic layouts
+  if (!is.null(seed)) {
+    set.seed(seed)
+  }
+
+  # Two-letter igraph layout codes
+  igraph_codes <- c("kk", "fr", "drl", "mds", "go", "tr", "st", "gr", "rd", "ni", "ci", "lgl", "sp")
+
+  # Build edges for layout computation using getter function
+  edges <- get_edges(net)
+
+  # Get directed status
+  net_directed <- is_directed(net)
+
+  # Compute layout
+  if (is.function(layout)) {
+    # Need to create a temporary R6 network for igraph layout
+    temp_net <- SonnetNetwork$new()
+    temp_net$set_nodes(nodes)
+    temp_net$set_edges(edges)
+    temp_net$set_directed(net_directed)
+    coords <- apply_igraph_layout(temp_net, layout, ...)
+  } else if (is.character(layout) && (
+    grepl("^(igraph_|layout_)", layout) || layout %in% igraph_codes
+  )) {
+    # igraph layout by name
+    temp_net <- SonnetNetwork$new()
+    temp_net$set_nodes(nodes)
+    temp_net$set_edges(edges)
+    temp_net$set_directed(net_directed)
+    coords <- apply_igraph_layout_by_name(temp_net, layout, seed = seed, ...)
+  } else if (is.matrix(layout) || is.data.frame(layout)) {
+    # Custom coordinates
+    coords <- as.data.frame(layout)
+    if (ncol(coords) >= 2) {
+      names(coords)[1:2] <- c("x", "y")
+    }
+  } else {
+    # Built-in Sonnet layout - create temporary network
+    temp_net <- SonnetNetwork$new()
+    temp_net$set_nodes(nodes)
+    temp_net$set_edges(edges)
+    temp_net$set_directed(net_directed)
+    layout_obj <- SonnetLayout$new(layout, ...)
+    coords <- layout_obj$compute(temp_net, ...)
+  }
+
+  # Update nodes with layout coordinates
+  nodes$x <- coords$x
+  nodes$y <- coords$y
+
+  # Update using setter function or direct assignment for new format
+  net$nodes <- nodes
+  net$layout <- coords
+  net$layout_info <- list(
+    name = if (is.function(layout)) "custom_function" else as.character(layout),
+    seed = seed
+  )
+
+  net
 }
 
 #' Create a Network Visualization

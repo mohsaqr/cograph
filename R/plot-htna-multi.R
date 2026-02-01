@@ -28,9 +28,9 @@
 #' @param legend_position Position for legend. Default "topright".
 #' @param curvature Edge curvature. Default 0.3.
 #' @param node_size Size of nodes inside shapes. Default 2.
-#' @param ... Additional parameters passed to tplot().
+#' @param ... Additional parameters passed to plot_tna().
 #'
-#' @return Invisibly returns NULL for summary mode, or the tplot result.
+#' @return Invisibly returns NULL for summary mode, or the plot_tna result.
 #'
 #' @export
 #'
@@ -50,12 +50,12 @@
 #' )
 #'
 #' # Summary edges between clusters + individual edges within
-#' mtna(m, clusters, summary_edges = TRUE)
+#' plot_mtna(m, clusters, summary_edges = TRUE)
 #'
 #' # Control spacing and sizes
-#' mtna(m, clusters, spacing = 4, shape_size = 1.5, node_spacing = 0.6)
+#' plot_mtna(m, clusters, spacing = 4, shape_size = 1.5, node_spacing = 0.6)
 #' }
-mtna <- function(
+plot_mtna <- function(
     model,
     cluster_list,
     layout = "circle",
@@ -693,7 +693,7 @@ mtna <- function(
       dots
     )
 
-    result <- do.call(tplot, tplot_args)
+    result <- do.call(plot_tna, tplot_args)
 
     # Draw cluster borders
     if (show_border) {
@@ -746,3 +746,7 @@ mtna <- function(
 
   invisible(result)
 }
+
+#' @rdname plot_mtna
+#' @export
+mtna <- plot_mtna

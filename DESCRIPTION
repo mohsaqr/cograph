@@ -2,15 +2,15 @@ Package: Sonnet
 Title: Modern Network Visualization for R
 Version: 1.4.0
 Authors@R:
-    person("Mohammed", "Saqr", , "mohammed.saqr@example.com", role = c("aut", "cre"))
+    person("Mohammed", "Saqr", , "mohammed.saqr@uef.fi", role = c("aut", "cre"))
 Description: A modern, extensible network visualization package that provides
     high-quality static and interactive network plots. Sonnet accepts adjacency
     matrices, edge lists, or igraph objects and offers customizable layouts,
     node shapes, edge styles, and themes. Designed for publication-ready
     visualizations with a pipe-friendly API.
 License: MIT + file LICENSE
-URL: https://github.com/username/Sonnet
-BugReports: https://github.com/username/Sonnet/issues
+URL: https://github.com/lamethods/Sonnet
+BugReports: https://github.com/lamethods/Sonnet/issues
 Depends:
     R (>= 4.1.0)
 Imports:

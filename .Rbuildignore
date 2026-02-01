@@ -16,3 +16,7 @@
 ^test_new_features\.R$
 ^test_output$
 ^test_sonnet\.R$
+^cran-comments\.md$
+^TODO\.md$
+^donut_segments_example\.png$
+^showcase$

@@ -33,15 +33,15 @@
 #' @examples
 #' # Simple usage
 #' m <- matrix(runif(25), 5, 5)
-#' tplot(m)
+#' plot_tna(m)
 #'
 #' # With qgraph-style parameters
-#' tplot(m, vsize = 15, edge.label.cex = 2, layout = "circle")
+#' plot_tna(m, vsize = 15, edge.label.cex = 2, layout = "circle")
 #'
 #' # With custom colors
-#' tplot(m, color = rainbow(5), vsize = 10)
+#' plot_tna(m, color = rainbow(5), vsize = 10)
 #'
-tplot <- function(
+plot_tna <- function(
     input,
     color = NULL,
     labels = NULL,
@@ -121,3 +121,7 @@ tplot <- function(
   # Call splot
   do.call(splot, c(splot_args, list(...)))
 }
+
+#' @rdname plot_tna
+#' @export
+tplot <- plot_tna

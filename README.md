@@ -400,6 +400,86 @@ from_qgraph(q)
 from_tna(tna_obj, theme = "dark", layout = "circle")
 ```
 
+## Multi-Cluster Networks: mtna()
+
+`mtna()` visualizes multiple network clusters with summary edges between
+clusters and individual edges within clusters. Each cluster is displayed
+as a shape (circle, square, diamond, triangle) containing its nodes.
+
+<img src="man/figures/mtna_example.png" width="600" />
+
+``` r
+# Create network with 6 clusters
+set.seed(42)
+nodes <- paste0("N", 1:30)
+m <- matrix(runif(900, 0, 0.3), 30, 30)
+diag(m) <- 0
+colnames(m) <- rownames(m) <- nodes
+
+clusters <- list(
+  Alpha = paste0("N", 1:5),
+  Beta = paste0("N", 6:10),
+  Gamma = paste0("N", 11:15),
+  Delta = paste0("N", 16:20),
+  Epsilon = paste0("N", 21:25),
+  Zeta = paste0("N", 26:30)
+)
+
+# Summary edges between clusters + individual edges within
+mtna(m, clusters)
+
+# Control spacing and sizes
+mtna(m, clusters,
+     spacing = 4,         # inter-cluster distance
+     shape_size = 1.3,    # shell size
+     node_spacing = 0.6,  # nodes at 60% of shape radius
+     minimum = 0.15)      # edge weight threshold
+
+# Different layouts
+mtna(m, clusters, layout = "grid")
+mtna(m, clusters, layout = "horizontal")
+mtna(m, clusters, layout = "vertical")
+```
+
+Key parameters:
+- `spacing`: Distance between cluster centers
+- `shape_size`: Size of cluster shells
+- `node_spacing`: Node placement within shapes (0-1)
+- `shapes`: Vector of shapes per cluster ("circle", "square", "diamond", "triangle")
+- `summary_edges`: Show aggregated between-cluster edges (default TRUE)
+- `within_edges`: Show individual within-cluster edges (default TRUE)
+
+## Heterogeneous TNA: plot_htna()
+
+`plot_htna()` creates multi-group network layouts where node groups are
+arranged in geometric patterns (bipartite, triangle, rectangle, polygon,
+or circular).
+
+``` r
+# Triangle layout for 3 groups
+node_types <- list(
+  Teacher = c("Explain", "Question", "Feedback"),
+  Student = c("Answer", "Ask", "Attempt"),
+  System = c("Hint", "Score", "Progress")
+)
+plot_htna(mat, node_types)  # Auto-detects triangle layout
+
+# Rectangle layout for 4 groups
+node_types_4 <- list(
+  Input = c("Click", "Type", "Scroll"),
+  Process = c("Validate", "Transform"),
+  Output = c("Display", "Alert"),
+  Storage = c("Save", "Load", "Cache")
+)
+plot_htna(mat, node_types_4)  # Auto-detects rectangle layout
+
+# Circular layout (groups as arcs)
+plot_htna(mat, node_types, layout = "circular")
+
+# Explicit polygon layout
+plot_htna(mat, node_types, layout = "polygon")
+```
+
 ## ggplot2 Integration
 
 ``` r
@@ -443,6 +523,8 @@ sn_save(net, "network.svg", width = 8, height = 8)
 | `sn_save()`     | Save to file                                     |
 | `from_tna()`    | Convert tna object                               |
 | `from_qgraph()` | Convert qgraph object                            |
+| `mtna()`        | Multi-cluster network with summary edges         |
+| `plot_htna()`   | Multi-group polygon/circular layouts             |
 
 ## License
 

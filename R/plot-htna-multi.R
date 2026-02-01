@@ -415,58 +415,7 @@ mtna <- function(
     # Use slightly smaller radius for edge endpoints to touch the border
     edge_radius <- shell_radius * 0.98
 
-    # STEP 1: Draw shell fills first (background)
-    for (i in seq_len(n_clusters)) {
-      center_x <- cluster_centers[i, 1]
-      center_y <- cluster_centers[i, 2]
-      shape <- cluster_shapes[i]
-      shell_color <- cluster_colors[i]
-      fill_color <- grDevices::adjustcolor(shell_color, alpha.f = 0.15)
-
-      if (shape == "circle") {
-        theta <- seq(0, 2 * pi, length.out = 100)
-        graphics::polygon(
-          x = center_x + shell_radius * cos(theta),
-          y = center_y + shell_radius * sin(theta),
-          border = NA,
-          col = fill_color
-        )
-      } else if (shape == "square") {
-        graphics::rect(
-          xleft = center_x - shell_radius,
-          ybottom = center_y - shell_radius,
-          xright = center_x + shell_radius,
-          ytop = center_y + shell_radius,
-          border = NA,
-          col = fill_color
-        )
-      } else if (shape == "diamond") {
-        graphics::polygon(
-          x = center_x + shell_radius * c(0, 1, 0, -1, 0),
-          y = center_y + shell_radius * c(1, 0, -1, 0, 1),
-          border = NA,
-          col = fill_color
-        )
-      } else if (shape == "triangle") {
-        angles <- c(pi/2, pi/2 + 2*pi/3, pi/2 + 4*pi/3, pi/2)
-        graphics::polygon(
-          x = center_x + shell_radius * cos(angles),
-          y = center_y + shell_radius * sin(angles),
-          border = NA,
-          col = fill_color
-        )
-      } else {
-        theta <- seq(0, 2 * pi, length.out = 100)
-        graphics::polygon(
-          x = center_x + shell_radius * cos(theta),
-          y = center_y + shell_radius * sin(theta),
-          border = NA,
-          col = fill_color
-        )
-      }
-    }
-
-    # STEP 2: Draw summary edges (on top of fills)
+    # STEP 1: Draw summary edges FIRST (behind everything)
     for (i in seq_len(n_clusters)) {
       for (j in seq_len(n_clusters)) {
         if (i != j && cluster_weights[i, j] > 0) {
@@ -543,12 +492,14 @@ mtna <- function(
       }
     }
 
-    # STEP 3: Draw shell borders (on top of edges)
+    # STEP 2: Draw shell fills and borders (on top of summary edges)
     for (i in seq_len(n_clusters)) {
       center_x <- cluster_centers[i, 1]
       center_y <- cluster_centers[i, 2]
       shape <- cluster_shapes[i]
       shell_color <- cluster_colors[i]
+      # Use light fill to cover summary edges underneath
+      fill_color <- grDevices::adjustcolor(shell_color, alpha.f = 0.2)
 
       if (shape == "circle") {
         theta <- seq(0, 2 * pi, length.out = 100)
@@ -556,7 +507,7 @@ mtna <- function(
           x = center_x + shell_radius * cos(theta),
           y = center_y + shell_radius * sin(theta),
           border = shell_color,
-          col = NA,
+          col = fill_color,
           lwd = 3
         )
       } else if (shape == "square") {
@@ -566,7 +517,7 @@ mtna <- function(
           xright = center_x + shell_radius,
           ytop = center_y + shell_radius,
           border = shell_color,
-          col = NA,
+          col = fill_color,
           lwd = 3
         )
       } else if (shape == "diamond") {
@@ -574,7 +525,7 @@ mtna <- function(
           x = center_x + shell_radius * c(0, 1, 0, -1, 0),
           y = center_y + shell_radius * c(1, 0, -1, 0, 1),
           border = shell_color,
-          col = NA,
+          col = fill_color,
           lwd = 3
         )
       } else if (shape == "triangle") {
@@ -583,7 +534,7 @@ mtna <- function(
           x = center_x + shell_radius * cos(angles),
           y = center_y + shell_radius * sin(angles),
           border = shell_color,
-          col = NA,
+          col = fill_color,
           lwd = 3
         )
       } else {
@@ -592,13 +543,13 @@ mtna <- function(
           x = center_x + shell_radius * cos(theta),
           y = center_y + shell_radius * sin(theta),
           border = shell_color,
-          col = NA,
+          col = fill_color,
           lwd = 3
         )
       }
     }
 
-    # STEP 4: Draw within-cluster edges (if enabled)
+    # STEP 3: Draw within-cluster edges (if enabled)
     if (isTRUE(within_edges)) {
       dots <- list(...)
       min_weight <- if (!is.null(dots$minimum)) dots$minimum else 0
@@ -679,7 +630,7 @@ mtna <- function(
       }
     }
 
-    # STEP 5: Draw nodes inside shells and labels
+    # STEP 4: Draw nodes inside shells and labels
     for (i in seq_len(n_clusters)) {
       center_x <- cluster_centers[i, 1]
       center_y <- cluster_centers[i, 2]

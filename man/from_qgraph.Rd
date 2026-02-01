@@ -72,7 +72,7 @@ Sonnet equivalents:
 \item \code{maximum} \code{->} \code{maximum}
 \item \code{groups} \code{->} \code{groups}
 \item \code{directed} \code{->} \code{directed}
-\item \code{posCol}/\code{negCol} \code{->} \code{positive_color}/\code{negative_color}
+\item \code{posCol}/\code{negCol} \code{->} \code{edge_positive_color}/\code{edge_negative_color}
 }
 
 \strong{Pie/Donut:}

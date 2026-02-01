@@ -347,8 +347,8 @@ test_that("soplot() handles positive/negative weight colors", {
   adj <- create_test_matrix(4, weighted = TRUE, symmetric = FALSE)
 
   result <- safe_plot(soplot(adj,
-    positive_color = "darkgreen",
-    negative_color = "darkred"
+    edge_positive_color = "darkgreen",
+    edge_negative_color = "darkred"
   ))
   expect_true(result$success, info = result$error)
 })

@@ -1,6 +1,6 @@
 Package: Sonnet
 Title: Modern Network Visualization for R
-Version: 1.4.0
+Version: 1.5.1
 Authors@R:
     person("Mohammed", "Saqr", , "mohammed.saqr@uef.fi", role = c("aut", "cre"))
 Description: A modern, extensible network visualization package that provides

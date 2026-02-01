@@ -10,19 +10,23 @@ NULL
 #' @param network A sonnet_network object, matrix, data.frame, or igraph object.
 #'   Matrices and other inputs are auto-converted.
 #' @param width Edge width. Can be a single value, vector (per-edge), or "weight".
-#' @param esize Base edge size for weight scaling. NULL (default) uses adaptive sizing
+#' @param edge_size Base edge size for weight scaling. NULL (default) uses adaptive sizing
 #'   based on network size: `15 * exp(-n_nodes/90) + 1`. Larger values = thicker edges.
+#' @param esize Deprecated. Use `edge_size` instead.
 #' @param edge_width_range Output width range as c(min, max) for weight-based scaling.
 #'   Default c(0.5, 4). Edges are scaled to fit within this range.
 #' @param edge_scale_mode Scaling mode for edge weights: "linear" (default),
 #'   "log" (for wide weight ranges), "sqrt" (moderate compression),
 #'   or "rank" (equal visual spacing).
-#' @param cut Two-tier cutoff for edge width scaling. NULL (default) = auto 75th percentile.
+#' @param edge_cutoff Two-tier cutoff for edge width scaling. NULL (default) = auto 75th percentile.
 #'   0 = disabled. Positive number = manual threshold.
+#' @param cut Deprecated. Use `edge_cutoff` instead.
 #' @param color Edge color. Can be a single color, vector, or "weight" for
 #'   automatic coloring based on edge weights.
-#' @param positive_color Color for positive edge weights.
-#' @param negative_color Color for negative edge weights.
+#' @param edge_positive_color Color for positive edge weights.
+#' @param positive_color Deprecated. Use `edge_positive_color` instead.
+#' @param edge_negative_color Color for negative edge weights.
+#' @param negative_color Deprecated. Use `edge_negative_color` instead.
 #' @param alpha Edge transparency (0-1).
 #' @param style Line style: "solid", "dashed", "dotted", "longdash", "twodash".
 #' @param curvature Edge curvature amount (0 = straight).
@@ -84,8 +88,8 @@ NULL
 #' ## Weight-Based Styling
 #' When \code{color = "weight"}, edges are colored by sign:
 #' \itemize{
-#'   \item Positive weights use \code{positive_color} (default: green)
-#'   \item Negative weights use \code{negative_color} (default: red)
+#'   \item Positive weights use \code{edge_positive_color} (default: green)
+#'   \item Negative weights use \code{edge_negative_color} (default: red)
 #' }
 #'
 #' When \code{width = "weight"}, edge widths scale with absolute weight values,
@@ -141,8 +145,8 @@ NULL
 #' sonnet(adj) |>
 #'   sn_edges(
 #'     color = "weight",
-#'     positive_color = "darkblue",
-#'     negative_color = "darkred"
+#'     edge_positive_color = "darkblue",
+#'     edge_negative_color = "darkred"
 #'   ) |>
 #'   splot()
 #'
@@ -174,13 +178,17 @@ NULL
 #'   splot()
 sn_edges <- function(network,
                      width = NULL,
-                     esize = NULL,
+                     edge_size = NULL,
+                     esize = NULL,  # Deprecated: use edge_size
                      edge_width_range = NULL,
                      edge_scale_mode = NULL,
-                     cut = NULL,
+                     edge_cutoff = NULL,
+                     cut = NULL,  # Deprecated: use edge_cutoff
                      color = NULL,
-                     positive_color = NULL,
-                     negative_color = NULL,
+                     edge_positive_color = NULL,
+                     positive_color = NULL,  # Deprecated: use edge_positive_color
+                     edge_negative_color = NULL,
+                     negative_color = NULL,  # Deprecated: use edge_negative_color
                      alpha = NULL,
                      style = NULL,
                      curvature = NULL,
@@ -227,6 +235,14 @@ sn_edges <- function(network,
                      label_p_prefix = NULL,
                      label_stars = NULL) {
 
+  # Handle deprecated parameters
+  edge_size <- handle_deprecated_param(edge_size, esize, "edge_size", "esize")
+  edge_cutoff <- handle_deprecated_param(edge_cutoff, cut, "edge_cutoff", "cut")
+  edge_positive_color <- handle_deprecated_param(edge_positive_color, positive_color,
+                                                  "edge_positive_color", "positive_color")
+  edge_negative_color <- handle_deprecated_param(edge_negative_color, negative_color,
+                                                  "edge_negative_color", "negative_color")
+
   # Auto-convert matrix/data.frame/igraph to sonnet_network
   network <- ensure_sonnet_network(network)
 
@@ -257,9 +273,9 @@ sn_edges <- function(network,
     aes$maximum <- maximum
   }
 
-  # New edge width scaling parameters
-  if (!is.null(esize)) {
-    aes$esize <- esize
+  # Edge width scaling parameters
+  if (!is.null(edge_size)) {
+    aes$esize <- edge_size
   }
 
   if (!is.null(edge_width_range)) {
@@ -275,8 +291,8 @@ sn_edges <- function(network,
     aes$edge_scale_mode <- edge_scale_mode
   }
 
-  if (!is.null(cut)) {
-    aes$cut <- cut
+  if (!is.null(edge_cutoff)) {
+    aes$cut <- edge_cutoff
   }
 
   if (!is.null(width_scale)) {
@@ -287,20 +303,20 @@ sn_edges <- function(network,
     if (identical(color, "weight") && !is.null(edges_df$weight)) {
       # Color by weight sign: positive = green, negative = red
       current_aes <- new_net$get_edge_aes()
-      pos_col <- if (!is.null(positive_color)) positive_color else current_aes$positive_color
-      neg_col <- if (!is.null(negative_color)) negative_color else current_aes$negative_color
+      pos_col <- if (!is.null(edge_positive_color)) edge_positive_color else current_aes$positive_color
+      neg_col <- if (!is.null(edge_negative_color)) edge_negative_color else current_aes$negative_color
       aes$color <- ifelse(edges_df$weight >= 0, pos_col, neg_col)
     } else {
       aes$color <- resolve_aesthetic(color, edges_df, m)
     }
   }
 
-  if (!is.null(positive_color)) {
-    aes$positive_color <- positive_color
+  if (!is.null(edge_positive_color)) {
+    aes$positive_color <- edge_positive_color
   }
 
-  if (!is.null(negative_color)) {
-    aes$negative_color <- negative_color
+  if (!is.null(edge_negative_color)) {
+    aes$negative_color <- edge_negative_color
   }
 
   if (!is.null(alpha)) {

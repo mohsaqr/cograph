@@ -161,8 +161,8 @@ splot(mat,
 ``` r
 # Width, color, and style
 splot(mat,
-  positive_color = "#2E7D32",
-  negative_color = "#C62828",
+  edge_positive_color = "#2E7D32",
+  edge_negative_color = "#C62828",
   edge_style = "solid",
   curvature = 0.2,
   arrow_size = 0.015
@@ -375,7 +375,7 @@ splot(mat, threshold = 0.1)
 splot(mat, maximum = 1.0)
 
 # Disable two-tier cutoff
-splot(mat, cut = 0)
+splot(mat, edge_cutoff = 0)
 
 # Logarithmic edge scaling
 splot(mat, edge_scale_mode = "log")

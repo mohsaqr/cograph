@@ -462,8 +462,8 @@ test_that("splot() handles positive and negative edge colors", {
   adj <- create_test_matrix(4, weighted = TRUE, symmetric = FALSE)
 
   result <- safe_plot(splot(adj,
-    positive_color = "darkgreen",
-    negative_color = "darkred"
+    edge_positive_color = "darkgreen",
+    edge_negative_color = "darkred"
   ))
   expect_true(result$success, info = result$error)
 })

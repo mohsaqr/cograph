@@ -65,8 +65,9 @@ NULL
 #' @param donut_outer_border_color Color for outer boundary border (enables double border).
 #'   NULL (default) shows single border. Set to a color for double border effect.
 #'   Can be scalar or per-node vector.
-#' @param donut_border_lty Line type for donut borders (1=solid, 2=dashed, 3=dotted, etc.).
-#'   Can be scalar (applies to all) or per-node vector.
+#' @param donut_line_type Line type for donut borders: "solid", "dashed", "dotted", or
+#'   numeric (1=solid, 2=dashed, 3=dotted). Can be scalar or per-node vector.
+#' @param donut_border_lty Deprecated. Use `donut_line_type` instead.
 #' @param donut_inner_ratio Inner radius ratio for donut (0-1). Default 0.5.
 #' @param donut_bg_color Background color for unfilled donut portion.
 #' @param donut_shape Base shape for donut: "circle", "square", "hexagon", "triangle",
@@ -87,19 +88,21 @@ NULL
 #' @param donut2_colors List of color vectors for inner donut ring segments.
 #' @param donut2_inner_ratio Inner radius ratio for inner donut ring. Default 0.4.
 #'
-#' @param edge_color Edge color(s). If NULL, uses positive_color/negative_color based on weight.
-#' @param edge_width Edge width(s). If NULL, scales by weight using esize and edge_width_range.
-#' @param esize Base edge size for weight scaling. NULL (default) uses adaptive sizing
+#' @param edge_color Edge color(s). If NULL, uses edge_positive_color/edge_negative_color based on weight.
+#' @param edge_width Edge width(s). If NULL, scales by weight using edge_size and edge_width_range.
+#' @param edge_size Base edge size for weight scaling. NULL (default) uses adaptive sizing
 #'   based on network size: `15 * exp(-n_nodes/90) + 1`. For directed networks, this
 #'   is halved. Larger values = thicker edges overall.
+#' @param esize Deprecated. Use `edge_size` instead.
 #' @param edge_width_range Output width range as c(min, max) for weight-based scaling.
 #'   Default c(0.5, 4). Edges are scaled to fit within this range.
 #' @param edge_scale_mode Scaling mode for edge weights: "linear" (default, qgraph-style),
 #'   "log" (logarithmic for wide weight ranges), "sqrt" (moderate compression),
 #'   or "rank" (equal visual spacing regardless of weight distribution).
-#' @param cut Two-tier cutoff for edge width scaling. NULL (default) = auto-calculate
+#' @param edge_cutoff Two-tier cutoff for edge width scaling. NULL (default) = auto-calculate
 #'   as 75th percentile of weights (qgraph behavior). 0 = disabled (continuous scaling).
-#'   Positive number = manual threshold. Edges below cut get minimal width variation.
+#'   Positive number = manual threshold. Edges below cutoff get minimal width variation.
+#' @param cut Deprecated. Use `edge_cutoff` instead.
 #' @param edge_alpha Edge transparency (0-1). Default 0.8.
 #' @param edge_labels Edge labels: TRUE (show weights), FALSE (none),
 #'   or character vector.
@@ -108,7 +111,7 @@ NULL
 #' @param edge_label_bg Edge label background color.
 #' @param edge_label_position Position along edge (0-1).
 #' @param edge_label_offset Perpendicular offset for edge labels (0 = on line, positive = above).
-#' @param edge_label_fontface Font face: 1=plain, 2=bold, 3=italic.
+#' @param edge_label_fontface Font face: "plain", "bold", "italic", "bold.italic".
 #' @param edge_label_shadow Logical: enable drop shadow for edge labels? Default FALSE.
 #' @param edge_label_shadow_color Color for edge label shadow. Default "gray40".
 #' @param edge_label_shadow_offset Offset distance for shadow in points. Default 0.5.
@@ -161,8 +164,10 @@ NULL
 #' @param threshold Minimum absolute weight to display.
 #' @param minimum Alias for threshold (qgraph compatibility). Uses max of threshold and minimum.
 #' @param maximum Maximum weight for scaling. NULL for auto.
-#' @param positive_color Color for positive weights.
-#' @param negative_color Color for negative weights.
+#' @param edge_positive_color Color for positive weights.
+#' @param positive_color Deprecated. Use `edge_positive_color` instead.
+#' @param edge_negative_color Color for negative weights.
+#' @param negative_color Deprecated. Use `edge_negative_color` instead.
 #' @param edge_duplicates How to handle duplicate edges in undirected networks.
 #'   NULL (default) = stop with error listing duplicates. Options: "sum", "mean",
 #'   "first", "max", "min", or a custom aggregation function.
@@ -178,7 +183,8 @@ NULL
 #' @param layout_margin Margin around the layout as fraction of range. Default 0.15.
 #'   Set to 0 for no extra margin (tighter fit). Affects white space around nodes.
 #' @param aspect Logical: maintain aspect ratio?
-#' @param usePCH Logical: use points() for simple circles (faster). Default FALSE.
+#' @param use_pch Logical: use points() for simple circles (faster). Default FALSE.
+#' @param usePCH Deprecated. Use `use_pch` instead.
 #' @param scaling Scaling mode: "default" for qgraph-matched scaling where node_size=6
 #'   looks similar to qgraph vsize=6, or "legacy" to preserve pre-v2.0 behavior.
 #'
@@ -294,7 +300,7 @@ NULL
 #'                   0.8, 0, 0.4, -0.2,
 #'                   0, 0, 0, 0.6,
 #'                   0, 0, 0, 0), 4, 4, byrow = TRUE)
-#' splot(w_adj, positive_color = "darkgreen", negative_color = "red")
+#' splot(w_adj, edge_positive_color = "darkgreen", edge_negative_color = "red")
 #'
 #' # Pie chart nodes
 #' splot(adj, pie_values = list(c(1,2,3), c(2,2), c(1,1,1,1), c(3,1)))
@@ -340,7 +346,8 @@ splot <- function(
     donut_border_color = NULL,
     donut_border_width = NULL,
     donut_outer_border_color = NULL,
-    donut_border_lty = 1,
+    donut_line_type = "solid",
+    donut_border_lty = NULL,  # Deprecated: use donut_line_type
     donut_inner_ratio = 0.8,
     donut_bg_color = "gray90",
     donut_shape = "circle",
@@ -360,10 +367,12 @@ splot <- function(
     # Edge aesthetics
     edge_color = NULL,
     edge_width = NULL,
-    esize = NULL,
+    edge_size = NULL,
+    esize = NULL,  # Deprecated: use edge_size
     edge_width_range = c(0.1, 4),
     edge_scale_mode = "linear",
-    cut = NULL,
+    edge_cutoff = NULL,
+    cut = NULL,  # Deprecated: use edge_cutoff
     edge_alpha = 0.8,
     edge_labels = FALSE,
     edge_label_size = 0.8,
@@ -371,7 +380,7 @@ splot <- function(
     edge_label_bg = "white",
     edge_label_position = 0.5,
     edge_label_offset = 0,
-    edge_label_fontface = 1,
+    edge_label_fontface = "plain",
     edge_label_shadow = FALSE,
     edge_label_shadow_color = "gray40",
     edge_label_shadow_offset = 0.5,
@@ -419,8 +428,10 @@ splot <- function(
     threshold = 0,
     minimum = 0,
     maximum = NULL,
-    positive_color = "#2E7D32",
-    negative_color = "#C62828",
+    edge_positive_color = "#2E7D32",
+    positive_color = NULL,  # Deprecated: use edge_positive_color
+    edge_negative_color = "#C62828",
+    negative_color = NULL,  # Deprecated: use edge_negative_color
     edge_duplicates = NULL,
 
     # Plot settings
@@ -432,7 +443,8 @@ splot <- function(
     layout_scale = 1,
     layout_margin = 0.15,
     aspect = TRUE,
-    usePCH = FALSE,
+    use_pch = FALSE,
+    usePCH = NULL,  # Deprecated: use use_pch
     scaling = "default",
 
     # Legend
@@ -475,6 +487,40 @@ splot <- function(
     return(do.call(splot, call_args))
   }
 
+  # ============================================
+  # HANDLE DEPRECATED PARAMETERS
+  # ============================================
+  # Detect which arguments were explicitly provided by the user
+  explicit_args <- names(match.call())
+
+  # For params with NULL defaults, simple check works
+  edge_size <- handle_deprecated_param(edge_size, esize, "edge_size", "esize")
+  edge_cutoff <- handle_deprecated_param(edge_cutoff, cut, "edge_cutoff", "cut")
+
+  # For params with non-NULL defaults, use new_val_was_set to check if user explicitly set them
+  use_pch <- handle_deprecated_param(
+    use_pch, usePCH, "use_pch", "usePCH",
+    new_val_was_set = "use_pch" %in% explicit_args
+  )
+  edge_positive_color <- handle_deprecated_param(
+    edge_positive_color, positive_color,
+    "edge_positive_color", "positive_color",
+    new_val_was_set = "edge_positive_color" %in% explicit_args
+  )
+  edge_negative_color <- handle_deprecated_param(
+    edge_negative_color, negative_color,
+    "edge_negative_color", "negative_color",
+    new_val_was_set = "edge_negative_color" %in% explicit_args
+  )
+  donut_line_type <- handle_deprecated_param(
+    donut_line_type, donut_border_lty,
+    "donut_line_type", "donut_border_lty",
+    new_val_was_set = "donut_line_type" %in% explicit_args
+  )
+
+  # Convert edge_label_fontface to numeric if string (for backwards compat with renderers)
+  edge_label_fontface_num <- fontface_to_numeric(edge_label_fontface)
+
   # Round matrix weights to filter near-zero edges globally
   if (is.matrix(x) && !is.null(weight_digits)) {
     x <- round(x, weight_digits)
@@ -497,8 +543,8 @@ splot <- function(
       if (is.null(node_border_color)) node_border_color <- th$get("node_border_color")
       if (is.null(background)) background <- th$get("background")
       if (length(label_color) == 1 && label_color == "black") label_color <- th$get("label_color")
-      if (length(positive_color) == 1 && positive_color == "#2E7D32") positive_color <- th$get("edge_positive_color")
-      if (length(negative_color) == 1 && negative_color == "#C62828") negative_color <- th$get("edge_negative_color")
+      if (length(edge_positive_color) == 1 && edge_positive_color == "#2E7D32") edge_positive_color <- th$get("edge_positive_color")
+      if (length(edge_negative_color) == 1 && edge_negative_color == "#C62828") edge_negative_color <- th$get("edge_negative_color")
     }
   }
 
@@ -696,7 +742,7 @@ splot <- function(
 
   if (n_edges > 0) {
     # Edge colors
-    edge_colors <- resolve_edge_colors(edges, edge_color, positive_color, negative_color)
+    edge_colors <- resolve_edge_colors(edges, edge_color, edge_positive_color, edge_negative_color)
 
     # Vectorize edge_alpha and apply to edge colors
     edge_alphas <- recycle_to_length(edge_alpha, n_edges)
@@ -704,13 +750,13 @@ splot <- function(
       if (alpha < 1) adjust_alpha(col, alpha) else col
     }, edge_colors, edge_alphas, SIMPLIFY = TRUE, USE.NAMES = FALSE)
 
-    # Apply cut threshold for transparency: edges below cut are faded
-    if (!is.null(cut) && cut > 0 && "weight" %in% names(edges)) {
+    # Apply edge_cutoff threshold for transparency: edges below cutoff are faded
+    if (!is.null(edge_cutoff) && edge_cutoff > 0 && "weight" %in% names(edges)) {
       abs_weights <- abs(edges$weight)
-      below_cut <- abs_weights < cut
-      if (any(below_cut)) {
-        # Scale alpha: edges at 0 get 20% of normal alpha, edges near cut get full alpha
-        fade_factor <- ifelse(below_cut, 0.2 + 0.8 * (abs_weights / cut), 1)
+      below_cutoff <- abs_weights < edge_cutoff
+      if (any(below_cutoff)) {
+        # Scale alpha: edges at 0 get 20% of normal alpha, edges near cutoff get full alpha
+        fade_factor <- ifelse(below_cutoff, 0.2 + 0.8 * (abs_weights / edge_cutoff), 1)
         edge_colors <- mapply(function(col, fade) {
           if (fade < 1) adjust_alpha(col, fade) else col
         }, edge_colors, fade_factor, SIMPLIFY = TRUE, USE.NAMES = FALSE)
@@ -721,12 +767,12 @@ splot <- function(
     edge_widths <- resolve_edge_widths(
       edges = edges,
       edge.width = edge_width,
-      esize = esize,
+      esize = edge_size,
       n_nodes = n_nodes,
       directed = directed,
       maximum = maximum,
       minimum = threshold,
-      cut = cut,
+      cut = edge_cutoff,
       edge_width_range = edge_width_range,
       edge_scale_mode = edge_scale_mode,
       scaling = scaling
@@ -1104,8 +1150,8 @@ splot <- function(
     NULL
   }
 
-  # Vectorize donut_border_lty for per-node support
-  effective_donut_border_lty <- recycle_to_length(donut_border_lty, n_nodes)
+  # Vectorize donut_line_type for per-node support
+  effective_donut_line_type <- recycle_to_length(donut_line_type, n_nodes)
 
   render_nodes_splot(
     layout = layout_mat,
@@ -1123,7 +1169,7 @@ splot <- function(
     donut_border_color = effective_donut_border_color,
     donut_border_width = donut_border_width,
     donut_outer_border_color = effective_donut_outer_border_color,
-    donut_border_lty = effective_donut_border_lty,
+    donut_line_type = effective_donut_line_type,
     donut_inner_ratio = donut_inner_ratio,
     donut_bg_color = effective_bg_color,
     donut_shape = effective_donut_shapes,
@@ -1147,7 +1193,7 @@ splot <- function(
     label_hjust = label_hjust,
     label_vjust = label_vjust,
     label_angle = label_angle,
-    usePCH = usePCH
+    use_pch = use_pch
   )
 
   # ============================================
@@ -1171,8 +1217,8 @@ splot <- function(
       position = legend_position,
       cex = legend_size,
       show_edge_colors = legend_edge_colors,
-      positive_color = positive_color,
-      negative_color = negative_color,
+      positive_color = edge_positive_color,
+      negative_color = edge_negative_color,
       has_pos_edges = has_pos_edges,
       has_neg_edges = has_neg_edges,
       show_node_sizes = legend_node_sizes,
@@ -1514,7 +1560,7 @@ render_nodes_splot <- function(layout, node_size, node_size2, node_shape, node_f
                                node_border_color, node_border_width, pie_values, pie_colors,
                                pie_border_width, donut_values, donut_colors,
                                donut_border_color, donut_border_width,
-                               donut_outer_border_color = NULL, donut_border_lty = 1,
+                               donut_outer_border_color = NULL, donut_line_type = "solid",
                                donut_inner_ratio, donut_bg_color, donut_shape,
                                donut_show_value, donut_value_size, donut_value_color,
                                donut_value_fontface = "bold", donut_value_fontfamily = "sans",
@@ -1524,7 +1570,7 @@ render_nodes_splot <- function(layout, node_size, node_size2, node_shape, node_f
                                labels, label_size, label_color, label_position,
                                label_fontface = "plain", label_fontfamily = "sans",
                                label_hjust = 0.5, label_vjust = 0.5, label_angle = 0,
-                               usePCH = FALSE) {
+                               use_pch = FALSE) {
 
   n <- nrow(layout)
   if (n == 0) return(invisible())
@@ -1634,7 +1680,7 @@ render_nodes_splot <- function(layout, node_size, node_size2, node_shape, node_f
       }
 
       # Get per-node border line type
-      effective_border_lty <- if (length(donut_border_lty) >= i) donut_border_lty[i] else 1
+      effective_border_lty <- if (length(donut_line_type) >= i) donut_line_type[i] else "solid"
 
       if (current_donut_shape != "circle") {
         # Use polygon donut for non-circular shapes
@@ -1704,7 +1750,7 @@ render_nodes_splot <- function(layout, node_size, node_size2, node_shape, node_f
 
     } else {
       # Standard node
-      if (usePCH && node_shape[i] == "circle") {
+      if (use_pch && node_shape[i] == "circle") {
         # Fast point-based rendering
         graphics::points(x, y, pch = 21, cex = node_size[i] * 20,
                          bg = node_fill[i], col = node_border_color[i], lwd = node_border_width[i])

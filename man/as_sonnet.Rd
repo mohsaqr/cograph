@@ -23,51 +23,65 @@ as_sonnet(x, directed = NULL, ...)
 \item{...}{Additional arguments (currently unused).}
 }
 \value{
-A sonnet_network object: a list with components:
-\itemize{
-\item \code{from}: Integer vector of source node indices
-\item \code{to}: Integer vector of target node indices
-\item \code{weight}: Numeric vector of edge weights
-}
-
-And attributes:
-\itemize{
-\item \code{nodes}: Data frame with id, label, (x, y if layout applied)
-\item \code{directed}: Logical indicating if network is directed
-\item \code{n_nodes}: Integer count of nodes
-\item \code{n_edges}: Integer count of edges
-\item \code{labels}: Character vector of node labels
-\item \code{source}: Character indicating input type
+A sonnet_network object: a named list with components:
+\describe{
+\item{\code{from}}{Integer vector of source node indices}
+\item{\code{to}}{Integer vector of target node indices}
+\item{\code{weight}}{Numeric vector of edge weights}
+\item{\code{nodes}}{Data frame with id, label, (x, y if layout applied)}
+\item{\code{directed}}{Logical indicating if network is directed}
+\item{\code{n_nodes}}{Integer count of nodes}
+\item{\code{n_edges}}{Integer count of edges}
+\item{\code{labels}}{Character vector of node labels}
+\item{\code{source}}{Character indicating input type}
+\item{\code{layout}}{Layout coordinates (NULL until computed)}
+\item{\code{layout_info}}{Layout algorithm info (NULL until computed)}
 }
 }
 \description{
 Creates a lightweight sonnet_network object from various network inputs.
-The resulting object is a simple list with from/to/weight vectors and
-metadata stored as attributes.
+The resulting object is a named list with all data accessible via \code{$}.
 }
 \details{
 The sonnet_network format is designed to be:
 \itemize{
-\item Simple: Core data accessible via \code{net$from}, \code{net$to}, \code{net$weight}
-\item Extensible: Additional metadata stored as attributes
+\item Simple: All data accessible via \code{net$from}, \code{net$to}, \code{net$weight}, etc.
+\item Modern: Uses named list elements instead of attributes for clean \code{$} access
 \item Compatible: Works seamlessly with splot() and other Sonnet functions
 }
+
+Use getter functions for programmatic access:
+\code{\link{get_nodes}}, \code{\link{get_edges}}, \code{\link{get_labels}}
+
+Use setter functions to modify:
+\code{\link{set_nodes}}, \code{\link{set_edges}}, \code{\link{set_layout}}
 }
 \examples{
 # From adjacency matrix
 mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 net <- as_sonnet(mat)
 
-# Access core data
-net$from     # edge sources
-net$to       # edge targets
-net$weight   # edge weights
+# Direct $ access to all data
+net$from       # edge sources
+net$to         # edge targets
+net$weight     # edge weights
+net$nodes      # nodes data frame
+net$directed   # TRUE/FALSE
+net$n_nodes    # 3
+net$n_edges    # 3
 
-# Access metadata
-nodes(net)       # nodes data frame
+# Getter functions (recommended for programmatic use)
+get_nodes(net)   # nodes data frame
+get_edges(net)   # edges data frame (from, to, weight)
+get_labels(net)  # character vector of labels
 n_nodes(net)     # 3
 n_edges(net)     # 3
 is_directed(net) # FALSE (symmetric matrix)
+
+# Setter functions
+net <- set_nodes(net, data.frame(id = 1:3, label = c("A", "B", "C")))
+net <- set_edges(net, data.frame(from = c(1,2), to = c(2,3), weight = c(0.5, 0.8)))
+net <- set_layout(net, data.frame(x = c(0, 1, 0.5), y = c(0, 0, 1)))
 
 # Plot it
 splot(net)
@@ -81,7 +95,8 @@ splot(net)
 }
 }
 \seealso{
-\code{\link{nodes}} to extract the nodes data frame,
+\code{\link{get_nodes}} to extract the nodes data frame,
+\code{\link{get_edges}} to extract edges as a data frame,
 \code{\link{n_nodes}} and \code{\link{n_edges}} for counts,
 \code{\link{is_directed}} to check directedness,
 \code{\link{splot}} for plotting

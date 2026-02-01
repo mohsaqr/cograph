@@ -38,7 +38,8 @@ splot(
   donut_border_color = NULL,
   donut_border_width = NULL,
   donut_outer_border_color = NULL,
-  donut_border_lty = 1,
+  donut_line_type = "solid",
+  donut_border_lty = NULL,
   donut_inner_ratio = 0.8,
   donut_bg_color = "gray90",
   donut_shape = "circle",
@@ -56,9 +57,11 @@ splot(
   donut2_inner_ratio = 0.4,
   edge_color = NULL,
   edge_width = NULL,
+  edge_size = NULL,
   esize = NULL,
   edge_width_range = c(0.1, 4),
   edge_scale_mode = "linear",
+  edge_cutoff = NULL,
   cut = NULL,
   edge_alpha = 0.8,
   edge_labels = FALSE,
@@ -67,7 +70,7 @@ splot(
   edge_label_bg = "white",
   edge_label_position = 0.5,
   edge_label_offset = 0,
-  edge_label_fontface = 1,
+  edge_label_fontface = "plain",
   edge_label_shadow = FALSE,
   edge_label_shadow_color = "gray40",
   edge_label_shadow_offset = 0.5,
@@ -107,8 +110,10 @@ splot(
   threshold = 0,
   minimum = 0,
   maximum = NULL,
-  positive_color = "#2E7D32",
-  negative_color = "#C62828",
+  edge_positive_color = "#2E7D32",
+  positive_color = NULL,
+  edge_negative_color = "#C62828",
+  negative_color = NULL,
   edge_duplicates = NULL,
   title = NULL,
   title_size = 1.2,
@@ -118,7 +123,8 @@ splot(
   layout_scale = 1,
   layout_margin = 0.15,
   aspect = TRUE,
-  usePCH = FALSE,
+  use_pch = FALSE,
+  usePCH = NULL,
   scaling = "default",
   legend = FALSE,
   legend_position = "topright",
@@ -224,8 +230,10 @@ Default: "maroon" fill, "gray90" background when node_shape="donut".}
 NULL (default) shows single border. Set to a color for double border effect.
 Can be scalar or per-node vector.}
 
-\item{donut_border_lty}{Line type for donut borders (1=solid, 2=dashed, 3=dotted, etc.).
-Can be scalar (applies to all) or per-node vector.}
+\item{donut_line_type}{Line type for donut borders: "solid", "dashed", "dotted", or
+numeric (1=solid, 2=dashed, 3=dotted). Can be scalar or per-node vector.}
+
+\item{donut_border_lty}{Deprecated. Use \code{donut_line_type} instead.}
 
 \item{donut_inner_ratio}{Inner radius ratio for donut (0-1). Default 0.5.}
 
@@ -261,13 +269,15 @@ on all nodes regardless of node_shape).}
 
 \item{donut2_inner_ratio}{Inner radius ratio for inner donut ring. Default 0.4.}
 
-\item{edge_color}{Edge color(s). If NULL, uses positive_color/negative_color based on weight.}
+\item{edge_color}{Edge color(s). If NULL, uses edge_positive_color/edge_negative_color based on weight.}
 
-\item{edge_width}{Edge width(s). If NULL, scales by weight using esize and edge_width_range.}
+\item{edge_width}{Edge width(s). If NULL, scales by weight using edge_size and edge_width_range.}
 
-\item{esize}{Base edge size for weight scaling. NULL (default) uses adaptive sizing
+\item{edge_size}{Base edge size for weight scaling. NULL (default) uses adaptive sizing
 based on network size: \code{15 * exp(-n_nodes/90) + 1}. For directed networks, this
 is halved. Larger values = thicker edges overall.}
+
+\item{esize}{Deprecated. Use \code{edge_size} instead.}
 
 \item{edge_width_range}{Output width range as c(min, max) for weight-based scaling.
 Default c(0.5, 4). Edges are scaled to fit within this range.}
@@ -276,9 +286,11 @@ Default c(0.5, 4). Edges are scaled to fit within this range.}
 "log" (logarithmic for wide weight ranges), "sqrt" (moderate compression),
 or "rank" (equal visual spacing regardless of weight distribution).}
 
-\item{cut}{Two-tier cutoff for edge width scaling. NULL (default) = auto-calculate
+\item{edge_cutoff}{Two-tier cutoff for edge width scaling. NULL (default) = auto-calculate
 as 75th percentile of weights (qgraph behavior). 0 = disabled (continuous scaling).
-Positive number = manual threshold. Edges below cut get minimal width variation.}
+Positive number = manual threshold. Edges below cutoff get minimal width variation.}
+
+\item{cut}{Deprecated. Use \code{edge_cutoff} instead.}
 
 \item{edge_alpha}{Edge transparency (0-1). Default 0.8.}
 
@@ -295,7 +307,7 @@ or character vector.}
 
 \item{edge_label_offset}{Perpendicular offset for edge labels (0 = on line, positive = above).}
 
-\item{edge_label_fontface}{Font face: 1=plain, 2=bold, 3=italic.}
+\item{edge_label_fontface}{Font face: "plain", "bold", "italic", "bold.italic".}
 
 \item{edge_label_shadow}{Logical: enable drop shadow for edge labels? Default FALSE.}
 
@@ -385,9 +397,13 @@ Set NULL to disable rounding.}
 
 \item{maximum}{Maximum weight for scaling. NULL for auto.}
 
-\item{positive_color}{Color for positive weights.}
+\item{edge_positive_color}{Color for positive weights.}
 
-\item{negative_color}{Color for negative weights.}
+\item{positive_color}{Deprecated. Use \code{edge_positive_color} instead.}
+
+\item{edge_negative_color}{Color for negative weights.}
+
+\item{negative_color}{Deprecated. Use \code{edge_negative_color} instead.}
 
 \item{edge_duplicates}{How to handle duplicate edges in undirected networks.
 NULL (default) = stop with error listing duplicates. Options: "sum", "mean",
@@ -412,7 +428,9 @@ Set to 0 for no extra margin (tighter fit). Affects white space around nodes.}
 
 \item{aspect}{Logical: maintain aspect ratio?}
 
-\item{usePCH}{Logical: use points() for simple circles (faster). Default FALSE.}
+\item{use_pch}{Logical: use points() for simple circles (faster). Default FALSE.}
+
+\item{usePCH}{Deprecated. Use \code{use_pch} instead.}
 
 \item{scaling}{Scaling mode: "default" for qgraph-matched scaling where node_size=6
 looks similar to qgraph vsize=6, or "legacy" to preserve pre-v2.0 behavior.}
@@ -548,7 +566,7 @@ w_adj <- matrix(c(0, 0.5, -0.3, 0,
                   0.8, 0, 0.4, -0.2,
                   0, 0, 0, 0.6,
                   0, 0, 0, 0), 4, 4, byrow = TRUE)
-splot(w_adj, positive_color = "darkgreen", negative_color = "red")
+splot(w_adj, edge_positive_color = "darkgreen", edge_negative_color = "red")
 
 # Pie chart nodes
 splot(adj, pie_values = list(c(1,2,3), c(2,2), c(1,1,1,1), c(3,1)))

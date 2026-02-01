@@ -232,7 +232,7 @@ from_tna <- function(tna_object, engine = c("splot", "soplot"), plot = TRUE,
 #'   \item \code{maximum} \code{->} \code{maximum}
 #'   \item \code{groups} \code{->} \code{groups}
 #'   \item \code{directed} \code{->} \code{directed}
-#'   \item \code{posCol}/\code{negCol} \code{->} \code{positive_color}/\code{negative_color}
+#'   \item \code{posCol}/\code{negCol} \code{->} \code{edge_positive_color}/\code{edge_negative_color}
 #' }
 #'
 #' \strong{Pie/Donut:}
@@ -333,8 +333,8 @@ from_qgraph <- function(qgraph_object, engine = c("splot", "soplot"), plot = TRU
   if (!is.null(ga_nodes$label.color))  params$label_color       <- ga_nodes$label.color
 
   # --- Edge colors from qgraph arguments ---
-  if (!is.null(args$posCol))           params$positive_color    <- args$posCol
-  if (!is.null(args$negCol))           params$negative_color    <- args$negCol
+  if (!is.null(args$posCol))           params$edge_positive_color    <- args$posCol
+  if (!is.null(args$negCol))           params$edge_negative_color    <- args$negCol
   if (!is.null(args$theme))            params$theme             <- args$theme
 
   # --- Pie → Donut mapping ---
@@ -404,7 +404,7 @@ from_qgraph <- function(qgraph_object, engine = c("splot", "soplot"), plot = TRU
 
   # --- Apply overrides (user can override anything) ---
   # Map qgraph-style parameter names to Sonnet equivalents
-  qgraph_to_sonnet <- c(minimum = "threshold", cut = "cut")
+  qgraph_to_sonnet <- c(minimum = "threshold", cut = "edge_cutoff")
   for (nm in names(overrides)) {
     sonnet_nm <- if (nm %in% names(qgraph_to_sonnet)) qgraph_to_sonnet[[nm]] else nm
     params[[sonnet_nm]] <- overrides[[nm]]

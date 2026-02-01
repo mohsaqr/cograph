@@ -85,11 +85,11 @@ plot_tna <- function(
   splot_args$edge_label_position <- edge.label.position
   splot_args$edge_label_size <- edge.label.cex
   if (!is.null(edge.color)) splot_args$edge_color <- edge.color
-  if (!is.null(posCol)) splot_args$positive_color <- posCol
-  if (!is.null(negCol)) splot_args$negative_color <- negCol
+  if (!is.null(posCol)) splot_args$edge_positive_color <- posCol
+  if (!is.null(negCol)) splot_args$edge_negative_color <- negCol
 
   # Edge filtering
-  if (!is.null(cut)) splot_args$cut <- cut
+  if (!is.null(cut)) splot_args$edge_cutoff <- cut
   if (!is.null(minimum)) splot_args$threshold <- minimum
 
   # Layout and margins

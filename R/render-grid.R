@@ -69,16 +69,18 @@ NULL
 #' @param donut2_colors List of color vectors for inner donut ring segments.
 #' @param donut2_inner_ratio Inner radius ratio for inner donut ring. Default 0.4.
 #'
-#' @param edge_width Edge width. If NULL, scales by weight using esize and edge_width_range.
-#' @param esize Base edge size for weight scaling. NULL (default) uses adaptive sizing
+#' @param edge_width Edge width. If NULL, scales by weight using edge_size and edge_width_range.
+#' @param edge_size Base edge size for weight scaling. NULL (default) uses adaptive sizing
 #'   based on network size: `15 * exp(-n_nodes/90) + 1`. Larger values = thicker edges.
+#' @param esize Deprecated. Use `edge_size` instead.
 #' @param edge_width_range Output width range as c(min, max) for weight-based scaling.
 #'   Default c(0.5, 4). Edges are scaled to fit within this range.
 #' @param edge_scale_mode Scaling mode for edge weights: "linear" (default),
 #'   "log" (for wide weight ranges), "sqrt" (moderate compression),
 #'   or "rank" (equal visual spacing).
-#' @param cut Two-tier cutoff for edge width scaling. NULL (default) = auto 75th percentile.
+#' @param edge_cutoff Two-tier cutoff for edge width scaling. NULL (default) = auto 75th percentile.
 #'   0 = disabled. Positive number = manual threshold.
+#' @param cut Deprecated. Use `edge_cutoff` instead.
 #' @param edge_width_scale Scale factor for edge widths. Values > 1 make edges thicker.
 #' @param edge_color Edge color.
 #' @param edge_alpha Edge transparency (0-1).
@@ -86,8 +88,10 @@ NULL
 #' @param curvature Edge curvature amount.
 #' @param arrow_size Size of arrow heads.
 #' @param show_arrows Logical. Show arrows?
-#' @param positive_color Color for positive edge weights.
-#' @param negative_color Color for negative edge weights.
+#' @param edge_positive_color Color for positive edge weights.
+#' @param positive_color Deprecated. Use `edge_positive_color` instead.
+#' @param edge_negative_color Color for negative edge weights.
+#' @param negative_color Deprecated. Use `edge_negative_color` instead.
 #' @param edge_duplicates How to handle duplicate edges in undirected networks.
 #'   NULL (default) = stop with error listing duplicates. Options: "sum", "mean",
 #'   "first", "max", "min", or a custom aggregation function.
@@ -227,10 +231,12 @@ soplot <- function(network, title = NULL, title_size = 14,
                       donut2_inner_ratio = 0.4,
                       # Edge aesthetics
                       edge_width = NULL,
-                      esize = NULL,
+                      edge_size = NULL,
+                      esize = NULL,  # Deprecated: use edge_size
                       edge_width_range = NULL,
                       edge_scale_mode = "linear",
-                      cut = NULL,
+                      edge_cutoff = NULL,
+                      cut = NULL,  # Deprecated: use edge_cutoff
                       edge_width_scale = NULL,
                       edge_color = NULL,
                       edge_alpha = NULL,
@@ -238,8 +244,10 @@ soplot <- function(network, title = NULL, title_size = 14,
                       curvature = NULL,
                       arrow_size = NULL,
                       show_arrows = NULL,
-                      positive_color = NULL,
-                      negative_color = NULL,
+                      edge_positive_color = NULL,
+                      positive_color = NULL,  # Deprecated: use edge_positive_color
+                      edge_negative_color = NULL,
+                      negative_color = NULL,  # Deprecated: use edge_negative_color
                       edge_duplicates = NULL,
                       # Edge labels
                       edge_labels = NULL,
@@ -289,6 +297,28 @@ soplot <- function(network, title = NULL, title_size = 14,
     call_args <- call_args[intersect(names(call_args), accepted)]
     return(do.call(soplot, call_args))
   }
+
+  # ============================================
+  # HANDLE DEPRECATED PARAMETERS
+  # ============================================
+  # Detect which arguments were explicitly provided by the user
+  explicit_args <- names(match.call())
+
+  # For params with NULL defaults, simple check works
+  edge_size <- handle_deprecated_param(edge_size, esize, "edge_size", "esize")
+  edge_cutoff <- handle_deprecated_param(edge_cutoff, cut, "edge_cutoff", "cut")
+
+  # For params with non-NULL defaults, use new_val_was_set to check if user explicitly set them
+  edge_positive_color <- handle_deprecated_param(
+    edge_positive_color, positive_color,
+    "edge_positive_color", "positive_color",
+    new_val_was_set = "edge_positive_color" %in% explicit_args
+  )
+  edge_negative_color <- handle_deprecated_param(
+    edge_negative_color, negative_color,
+    "edge_negative_color", "negative_color",
+    new_val_was_set = "edge_negative_color" %in% explicit_args
+  )
 
   # Set seed for deterministic layouts
   if (!is.null(seed)) {
@@ -514,10 +544,10 @@ soplot <- function(network, title = NULL, title_size = 14,
   # Apply edge aesthetics if any specified
   edge_aes <- list(
     width = edge_width,
-    esize = esize,
+    edge_size = edge_size,
     edge_width_range = edge_width_range,
     edge_scale_mode = edge_scale_mode,
-    cut = cut,
+    edge_cutoff = edge_cutoff,
     width_scale = edge_width_scale,
     color = edge_color,
     alpha = edge_alpha,
@@ -525,8 +555,8 @@ soplot <- function(network, title = NULL, title_size = 14,
     curvature = curvature,
     arrow_size = effective_arrow_size,
     show_arrows = show_arrows,
-    positive_color = positive_color,
-    negative_color = negative_color,
+    edge_positive_color = edge_positive_color,
+    edge_negative_color = edge_negative_color,
     maximum = maximum,
     labels = edge_labels,
     label_size = edge_label_size,
@@ -664,12 +694,12 @@ soplot <- function(network, title = NULL, title_size = 14,
     donut_value_suffix = donut_value_suffix,
     donut2_values = donut2_values, donut2_colors = donut2_colors,
     donut2_inner_ratio = donut2_inner_ratio,
-    edge_width = edge_width, esize = esize,
+    edge_width = edge_width, edge_size = edge_size,
     edge_width_range = edge_width_range, edge_scale_mode = edge_scale_mode,
-    cut = cut, edge_width_scale = edge_width_scale, edge_color = edge_color,
+    edge_cutoff = edge_cutoff, edge_width_scale = edge_width_scale, edge_color = edge_color,
     edge_alpha = edge_alpha, edge_style = edge_style,
     curvature = curvature, arrow_size = arrow_size, show_arrows = show_arrows,
-    positive_color = positive_color, negative_color = negative_color,
+    edge_positive_color = edge_positive_color, edge_negative_color = edge_negative_color,
     edge_labels = edge_labels, edge_label_size = edge_label_size,
     edge_label_color = edge_label_color, edge_label_position = edge_label_position,
     edge_label_offset = edge_label_offset,

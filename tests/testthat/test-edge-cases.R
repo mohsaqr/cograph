@@ -199,7 +199,7 @@ test_that("sonnet() handles negative weights", {
 test_that("splot() handles negative weights with coloring", {
   adj <- matrix(c(0, -0.5, -0.3, -0.5, 0, -0.8, -0.3, -0.8, 0), 3, 3)
 
-  result <- safe_plot(splot(adj, positive_color = "blue", negative_color = "red"))
+  result <- safe_plot(splot(adj, edge_positive_color = "blue", edge_negative_color = "red"))
   expect_true(result$success, info = result$error)
 })
 

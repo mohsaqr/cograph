@@ -7,12 +7,16 @@
 sn_edges(
   network,
   width = NULL,
+  edge_size = NULL,
   esize = NULL,
   edge_width_range = NULL,
   edge_scale_mode = NULL,
+  edge_cutoff = NULL,
   cut = NULL,
   color = NULL,
+  edge_positive_color = NULL,
   positive_color = NULL,
+  edge_negative_color = NULL,
   negative_color = NULL,
   alpha = NULL,
   style = NULL,
@@ -65,8 +69,10 @@ Matrices and other inputs are auto-converted.}
 
 \item{width}{Edge width. Can be a single value, vector (per-edge), or "weight".}
 
-\item{esize}{Base edge size for weight scaling. NULL (default) uses adaptive sizing
+\item{edge_size}{Base edge size for weight scaling. NULL (default) uses adaptive sizing
 based on network size: \code{15 * exp(-n_nodes/90) + 1}. Larger values = thicker edges.}
+
+\item{esize}{Deprecated. Use \code{edge_size} instead.}
 
 \item{edge_width_range}{Output width range as c(min, max) for weight-based scaling.
 Default c(0.5, 4). Edges are scaled to fit within this range.}
@@ -75,15 +81,21 @@ Default c(0.5, 4). Edges are scaled to fit within this range.}
 "log" (for wide weight ranges), "sqrt" (moderate compression),
 or "rank" (equal visual spacing).}
 
-\item{cut}{Two-tier cutoff for edge width scaling. NULL (default) = auto 75th percentile.
+\item{edge_cutoff}{Two-tier cutoff for edge width scaling. NULL (default) = auto 75th percentile.
 0 = disabled. Positive number = manual threshold.}
+
+\item{cut}{Deprecated. Use \code{edge_cutoff} instead.}
 
 \item{color}{Edge color. Can be a single color, vector, or "weight" for
 automatic coloring based on edge weights.}
 
-\item{positive_color}{Color for positive edge weights.}
+\item{edge_positive_color}{Color for positive edge weights.}
 
-\item{negative_color}{Color for negative edge weights.}
+\item{positive_color}{Deprecated. Use \code{edge_positive_color} instead.}
+
+\item{edge_negative_color}{Color for negative edge weights.}
+
+\item{negative_color}{Deprecated. Use \code{edge_negative_color} instead.}
 
 \item{alpha}{Edge transparency (0-1).}
 
@@ -198,8 +210,8 @@ auto-maps from edge weights
 
 When \code{color = "weight"}, edges are colored by sign:
 \itemize{
-\item Positive weights use \code{positive_color} (default: green)
-\item Negative weights use \code{negative_color} (default: red)
+\item Positive weights use \code{edge_positive_color} (default: green)
+\item Negative weights use \code{edge_negative_color} (default: red)
 }
 
 When \code{width = "weight"}, edge widths scale with absolute weight values,
@@ -248,8 +260,8 @@ adj |> sn_edges(width = 2, color = "gray50")
 sonnet(adj) |>
   sn_edges(
     color = "weight",
-    positive_color = "darkblue",
-    negative_color = "darkred"
+    edge_positive_color = "darkblue",
+    edge_negative_color = "darkred"
   ) |>
   splot()
 

@@ -20,7 +20,7 @@ render_nodes_splot(
   donut_border_color,
   donut_border_width,
   donut_outer_border_color = NULL,
-  donut_border_lty = 1,
+  donut_line_type = "solid",
   donut_inner_ratio,
   donut_bg_color,
   donut_shape,
@@ -44,7 +44,7 @@ render_nodes_splot(
   label_hjust = 0.5,
   label_vjust = 0.5,
   label_angle = 0,
-  usePCH = FALSE
+  use_pch = FALSE
 )
 }
 \arguments{

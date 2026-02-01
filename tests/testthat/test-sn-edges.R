@@ -90,13 +90,25 @@ test_that("sn_edges() respects maximum parameter with width='weight'", {
 # EDGE WIDTH SCALING PARAMETERS
 # ============================================
 
-test_that("sn_edges() sets esize parameter", {
+test_that("sn_edges() sets edge_size parameter", {
   adj <- create_test_matrix(4)
   net <- sonnet(adj)
 
-  result <- sn_edges(net, esize = 10)
+  result <- sn_edges(net, edge_size = 10)
   aes <- result$network$get_edge_aes()
 
+  expect_equal(aes$esize, 10)
+})
+
+test_that("sn_edges() deprecated esize parameter works with warning", {
+  adj <- create_test_matrix(4)
+  net <- sonnet(adj)
+
+  expect_warning(
+    result <- sn_edges(net, esize = 10),
+    "deprecated"
+  )
+  aes <- result$network$get_edge_aes()
   expect_equal(aes$esize, 10)
 })
 
@@ -128,13 +140,25 @@ test_that("sn_edges() validates edge_scale_mode", {
   expect_error(sn_edges(net, edge_scale_mode = "invalid_mode"))
 })
 
-test_that("sn_edges() sets cut parameter", {
+test_that("sn_edges() sets edge_cutoff parameter", {
   adj <- create_test_matrix(4)
   net <- sonnet(adj)
 
-  result <- sn_edges(net, cut = 0.3)
+  result <- sn_edges(net, edge_cutoff = 0.3)
   aes <- result$network$get_edge_aes()
 
+  expect_equal(aes$cut, 0.3)
+})
+
+test_that("sn_edges() deprecated cut parameter works with warning", {
+  adj <- create_test_matrix(4)
+  net <- sonnet(adj)
+
+  expect_warning(
+    result <- sn_edges(net, cut = 0.3),
+    "deprecated"
+  )
+  aes <- result$network$get_edge_aes()
   expect_equal(aes$cut, 0.3)
 })
 
@@ -173,23 +197,36 @@ test_that("sn_edges() sets color from 'weight'", {
   expect_true(!is.null(aes$color))
 })
 
-test_that("sn_edges() sets positive_color and negative_color", {
+test_that("sn_edges() sets edge_positive_color and edge_negative_color", {
   adj <- create_test_matrix(4, weighted = TRUE)
   net <- sonnet(adj)
 
-  result <- sn_edges(net, positive_color = "darkgreen", negative_color = "darkred")
+  result <- sn_edges(net, edge_positive_color = "darkgreen", edge_negative_color = "darkred")
   aes <- result$network$get_edge_aes()
 
   expect_equal(aes$positive_color, "darkgreen")
   expect_equal(aes$negative_color, "darkred")
 })
 
-test_that("sn_edges() uses positive/negative colors with color='weight'", {
+test_that("sn_edges() deprecated positive_color and negative_color work with warning", {
+  adj <- create_test_matrix(4, weighted = TRUE)
+  net <- sonnet(adj)
+
+  expect_warning(
+    result <- sn_edges(net, positive_color = "darkgreen", negative_color = "darkred"),
+    "deprecated"
+  )
+  aes <- result$network$get_edge_aes()
+  expect_equal(aes$positive_color, "darkgreen")
+  expect_equal(aes$negative_color, "darkred")
+})
+
+test_that("sn_edges() uses edge_positive/edge_negative colors with color='weight'", {
   adj <- create_test_matrix(4, weighted = TRUE, symmetric = FALSE)
   net <- sonnet(adj)
 
   result <- sn_edges(net, color = "weight",
-                     positive_color = "blue", negative_color = "red")
+                     edge_positive_color = "blue", edge_negative_color = "red")
   aes <- result$network$get_edge_aes()
 
   expect_true(!is.null(aes$color))
@@ -716,8 +753,8 @@ test_that("sn_edges() customizations render in splot()", {
       width = "weight",
       color = "weight",
       alpha = 0.8,
-      positive_color = "darkgreen",
-      negative_color = "darkred"
+      edge_positive_color = "darkgreen",
+      edge_negative_color = "darkred"
     )
 
   result <- safe_plot(splot(net))

@@ -310,8 +310,8 @@ test_that("directed weighted network with all customizations", {
       border_width = 2
     ) |>
     sn_edges(
-      positive_color = "darkgreen",
-      negative_color = "darkred",
+      edge_positive_color = "darkgreen",
+      edge_negative_color = "darkred",
       alpha = 0.8
     ) |>
     sn_theme("minimal")

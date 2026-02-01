@@ -51,9 +51,11 @@ soplot(
   donut2_colors = NULL,
   donut2_inner_ratio = 0.4,
   edge_width = NULL,
+  edge_size = NULL,
   esize = NULL,
   edge_width_range = NULL,
   edge_scale_mode = "linear",
+  edge_cutoff = NULL,
   cut = NULL,
   edge_width_scale = NULL,
   edge_color = NULL,
@@ -62,7 +64,9 @@ soplot(
   curvature = NULL,
   arrow_size = NULL,
   show_arrows = NULL,
+  edge_positive_color = NULL,
   positive_color = NULL,
+  edge_negative_color = NULL,
   negative_color = NULL,
   edge_duplicates = NULL,
   edge_labels = NULL,
@@ -133,9 +137,11 @@ sn_render(
   donut2_colors = NULL,
   donut2_inner_ratio = 0.4,
   edge_width = NULL,
+  edge_size = NULL,
   esize = NULL,
   edge_width_range = NULL,
   edge_scale_mode = "linear",
+  edge_cutoff = NULL,
   cut = NULL,
   edge_width_scale = NULL,
   edge_color = NULL,
@@ -144,7 +150,9 @@ sn_render(
   curvature = NULL,
   arrow_size = NULL,
   show_arrows = NULL,
+  edge_positive_color = NULL,
   positive_color = NULL,
+  edge_negative_color = NULL,
   negative_color = NULL,
   edge_duplicates = NULL,
   edge_labels = NULL,
@@ -270,10 +278,12 @@ single color for fill, or c(fill, background) for both.}
 
 \item{donut2_inner_ratio}{Inner radius ratio for inner donut ring. Default 0.4.}
 
-\item{edge_width}{Edge width. If NULL, scales by weight using esize and edge_width_range.}
+\item{edge_width}{Edge width. If NULL, scales by weight using edge_size and edge_width_range.}
 
-\item{esize}{Base edge size for weight scaling. NULL (default) uses adaptive sizing
+\item{edge_size}{Base edge size for weight scaling. NULL (default) uses adaptive sizing
 based on network size: \code{15 * exp(-n_nodes/90) + 1}. Larger values = thicker edges.}
+
+\item{esize}{Deprecated. Use \code{edge_size} instead.}
 
 \item{edge_width_range}{Output width range as c(min, max) for weight-based scaling.
 Default c(0.5, 4). Edges are scaled to fit within this range.}
@@ -282,8 +292,10 @@ Default c(0.5, 4). Edges are scaled to fit within this range.}
 "log" (for wide weight ranges), "sqrt" (moderate compression),
 or "rank" (equal visual spacing).}
 
-\item{cut}{Two-tier cutoff for edge width scaling. NULL (default) = auto 75th percentile.
+\item{edge_cutoff}{Two-tier cutoff for edge width scaling. NULL (default) = auto 75th percentile.
 0 = disabled. Positive number = manual threshold.}
+
+\item{cut}{Deprecated. Use \code{edge_cutoff} instead.}
 
 \item{edge_width_scale}{Scale factor for edge widths. Values > 1 make edges thicker.}
 
@@ -299,9 +311,13 @@ or "rank" (equal visual spacing).}
 
 \item{show_arrows}{Logical. Show arrows?}
 
-\item{positive_color}{Color for positive edge weights.}
+\item{edge_positive_color}{Color for positive edge weights.}
 
-\item{negative_color}{Color for negative edge weights.}
+\item{positive_color}{Deprecated. Use \code{edge_positive_color} instead.}
+
+\item{edge_negative_color}{Color for negative edge weights.}
+
+\item{negative_color}{Deprecated. Use \code{edge_negative_color} instead.}
 
 \item{edge_duplicates}{How to handle duplicate edges in undirected networks.
 NULL (default) = stop with error listing duplicates. Options: "sum", "mean",

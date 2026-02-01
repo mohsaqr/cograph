@@ -1,3 +1,24 @@
+# Sonnet 1.5.1
+
+## Breaking Changes (with backwards compatibility)
+
+The following parameters have been renamed for consistency. The old names still work but emit deprecation warnings:
+
+| Old Name | New Name | Reason |
+|----------|----------|--------|
+| `esize` | `edge_size` | Add `edge_` prefix, expand abbreviation |
+| `cut` | `edge_cutoff` | Add `edge_` prefix, clarify meaning |
+| `usePCH` | `use_pch` | Fix camelCase to snake_case |
+| `positive_color` | `edge_positive_color` | Add `edge_` prefix (matches theme storage) |
+| `negative_color` | `edge_negative_color` | Add `edge_` prefix (matches theme storage) |
+| `donut_border_lty` | `donut_line_type` | Expand `lty` abbreviation |
+
+## Improvements
+
+- `edge_label_fontface` now accepts string values ("plain", "bold", "italic", "bold.italic") in addition to numeric values, matching other fontface parameters
+- Added deprecation helper infrastructure for backwards-compatible parameter renaming
+- Standardized all public API parameters to use consistent snake_case naming
+
 # Sonnet 1.4.0
 
 ## New Features

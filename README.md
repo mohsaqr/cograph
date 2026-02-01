@@ -449,20 +449,87 @@ Key parameters:
 - `summary_edges`: Show aggregated between-cluster edges (default TRUE)
 - `within_edges`: Show individual within-cluster edges (default TRUE)
 
+## Multilevel Networks: mlna()
+
+`mlna()` visualizes multilevel/multiplex networks where multiple layers are
+stacked in a 3D perspective view. Each layer contains nodes connected by
+solid edges (within-layer), while dashed lines connect nodes between adjacent
+layers (inter-layer edges).
+
+<img src="man/figures/mlna_example.png" width="600" />
+
+``` r
+# Create multilevel network
+set.seed(42)
+nodes <- paste0("N", 1:21)
+m <- matrix(runif(441, 0, 0.3), 21, 21)
+diag(m) <- 0
+colnames(m) <- rownames(m) <- nodes
+
+# Define 3 layers
+layers <- list(
+  Macro = paste0("N", 1:7),
+  Meso = paste0("N", 8:14),
+  Micro = paste0("N", 15:21)
+)
+
+# Basic usage with spring layout
+mlna(m, layers, layout = "spring", minimum = 0.18)
+
+# Customize layer dimensions and spacing
+mlna(m, layers,
+     layout = "spring",
+     layer_width = 6,       # horizontal width
+     layer_depth = 3,       # depth (3D effect)
+     layer_spacing = 4,     # vertical distance between layers
+     skew_angle = 25,       # perspective angle
+     node_spacing = 0.95,   # spread of nodes (0-1)
+     node_size = 3.5,
+     minimum = 0.18)
+```
+
+Key parameters:
+- `layout`: Node arrangement within layers ("horizontal", "circle", "spring")
+- `layer_spacing`: Vertical distance between layers
+- `layer_width`: Horizontal width of each layer
+- `layer_depth`: Depth of layer (controls 3D effect)
+- `skew_angle`: Perspective angle in degrees
+- `node_spacing`: How spread out nodes are within layers (0-1)
+- `between_style`: Line style for inter-layer edges (1=solid, 2=dashed, 3=dotted)
+
 ## Heterogeneous TNA: plot_htna()
 
 `plot_htna()` creates multi-group network layouts where node groups are
 arranged in geometric patterns (bipartite, triangle, rectangle, polygon,
 or circular).
 
+**Polygon layout** (groups along polygon edges):
+
+<img src="man/figures/htna_polygon_example.png" width="500" />
+
+**Circular layout** (groups along circle arcs):
+
+<img src="man/figures/htna_circular_example.png" width="500" />
+
 ``` r
-# Triangle layout for 3 groups
+# Create network with 3 groups
+set.seed(42)
+nodes <- paste0("N", 1:15)
+m <- matrix(runif(225, 0, 0.3), 15, 15)
+diag(m) <- 0
+colnames(m) <- rownames(m) <- nodes
+
 node_types <- list(
-  Teacher = c("Explain", "Question", "Feedback"),
-  Student = c("Answer", "Ask", "Attempt"),
-  System = c("Hint", "Score", "Progress")
+  Teacher = paste0("N", 1:5),
+  Student = paste0("N", 6:10),
+  System = paste0("N", 11:15)
 )
-plot_htna(mat, node_types)  # Auto-detects triangle layout
+
+# Polygon layout (triangle for 3 groups)
+plot_htna(m, node_types, layout = "polygon", minimum = 0.15)
+
+# Circular layout (groups as arcs)
+plot_htna(m, node_types, layout = "circular", minimum = 0.15)
 
 # Rectangle layout for 4 groups
 node_types_4 <- list(
@@ -472,12 +539,6 @@ node_types_4 <- list(
   Storage = c("Save", "Load", "Cache")
 )
 plot_htna(mat, node_types_4)  # Auto-detects rectangle layout
-
-# Circular layout (groups as arcs)
-plot_htna(mat, node_types, layout = "circular")
-
-# Explicit polygon layout
-plot_htna(mat, node_types, layout = "polygon")
 ```
 
 ## ggplot2 Integration
@@ -524,6 +585,7 @@ sn_save(net, "network.svg", width = 8, height = 8)
 | `from_tna()`    | Convert tna object                               |
 | `from_qgraph()` | Convert qgraph object                            |
 | `mtna()`        | Multi-cluster network with summary edges         |
+| `mlna()`        | Multilevel network with 3D stacked layers        |
 | `plot_htna()`   | Multi-group polygon/circular layouts             |
 
 ## License

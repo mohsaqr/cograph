@@ -92,18 +92,20 @@ draw_curve_with_start_segment <- function(x, y, col, lwd, lty,
 #' @param bidirectional Logical: draw arrow at source too?
 #' @param start_lty Line type for start segment. 1=solid (default), 2=dashed, 3=dotted.
 #' @param start_fraction Fraction of edge length for start segment (0-0.5). Default 0.
+#' @param arrow_angle Arrow head angle in radians. Default pi/6 (30 degrees).
 #' @keywords internal
 draw_straight_edge_base <- function(x1, y1, x2, y2, col = "gray50", lwd = 1,
                                     lty = 1, arrow = TRUE, asize = 0.02,
                                     bidirectional = FALSE,
-                                    start_lty = 1, start_fraction = 0) {
+                                    start_lty = 1, start_fraction = 0,
+                                    arrow_angle = pi/6) {
   # Calculate angle
   angle <- splot_angle(x1, y1, x2, y2)
 
   # qgraph-style: line ends at arrow base midpoint, arrow TIP at node boundary
   if (arrow && asize > 0) {
     # Get arrow base midpoint (where line should end)
-    base_end <- arrow_base_midpoint(x2, y2, angle, asize)
+    base_end <- arrow_base_midpoint(x2, y2, angle, asize, arrow_angle = arrow_angle)
     line_x2 <- base_end$x
     line_y2 <- base_end$y
   } else {
@@ -114,7 +116,7 @@ draw_straight_edge_base <- function(x1, y1, x2, y2, col = "gray50", lwd = 1,
   # Shorten start if bidirectional
   if (bidirectional && asize > 0) {
     angle_back <- splot_angle(x2, y2, x1, y1)
-    base_start <- arrow_base_midpoint(x1, y1, angle_back, asize)
+    base_start <- arrow_base_midpoint(x1, y1, angle_back, asize, arrow_angle = arrow_angle)
     line_x1 <- base_start$x
     line_y1 <- base_start$y
   } else {
@@ -159,13 +161,13 @@ draw_straight_edge_base <- function(x1, y1, x2, y2, col = "gray50", lwd = 1,
 
   # Draw arrow at target (TIP at node boundary)
   if (arrow && asize > 0) {
-    draw_arrow_base(x2, y2, angle, asize, col = col)
+    draw_arrow_base(x2, y2, angle, asize, arrow_angle = arrow_angle, col = col)
   }
 
   # Draw arrow at source if bidirectional (TIP at node boundary)
   if (bidirectional && asize > 0) {
     angle_back <- splot_angle(x2, y2, x1, y1)
-    draw_arrow_base(x1, y1, angle_back, asize, col = col)
+    draw_arrow_base(x1, y1, angle_back, asize, arrow_angle = arrow_angle, col = col)
   }
 }
 
@@ -189,16 +191,18 @@ draw_straight_edge_base <- function(x1, y1, x2, y2, col = "gray50", lwd = 1,
 #' @param bidirectional Logical: draw arrow at source too?
 #' @param start_lty Line type for start segment. 1=solid (default), 2=dashed, 3=dotted.
 #' @param start_fraction Fraction of edge length for start segment (0-0.5). Default 0.
+#' @param arrow_angle Arrow head angle in radians. Default pi/6 (30 degrees).
 #' @keywords internal
 draw_curved_edge_base <- function(x1, y1, x2, y2, curve = 0.2, curvePivot = 0.5,
                                   col = "gray50", lwd = 1, lty = 1,
                                   arrow = TRUE, asize = 0.02,
                                   bidirectional = FALSE,
-                                  start_lty = 1, start_fraction = 0) {
+                                  start_lty = 1, start_fraction = 0,
+                                  arrow_angle = pi/6) {
   if (abs(curve) < 1e-6) {
     # Fall back to straight edge
     draw_straight_edge_base(x1, y1, x2, y2, col, lwd, lty, arrow, asize, bidirectional,
-                            start_lty, start_fraction)
+                            start_lty, start_fraction, arrow_angle)
     return(invisible())
   }
 
@@ -280,7 +284,7 @@ draw_curved_edge_base <- function(x1, y1, x2, y2, curve = 0.2, curvePivot = 0.5,
     angle <- splot_angle(spl$x[idx], spl$y[idx], x2, y2)
 
     # 2. Find arrow base midpoint (where curve should end)
-    base <- arrow_base_midpoint(x2, y2, angle, asize)
+    base <- arrow_base_midpoint(x2, y2, angle, asize, arrow_angle = arrow_angle)
 
     # 3. Truncate curve: remove points inside arrow radius
     arrow_rad <- asize  # Arrow extends this far back from tip
@@ -299,7 +303,7 @@ draw_curved_edge_base <- function(x1, y1, x2, y2, curve = 0.2, curvePivot = 0.5,
     }
 
     # 5. Draw arrow with TIP at node boundary (x2, y2)
-    draw_arrow_base(x2, y2, angle, asize, col = col)
+    draw_arrow_base(x2, y2, angle, asize, arrow_angle = arrow_angle, col = col)
   } else {
     # No arrow - draw full curve
     draw_curve_with_start_segment(spl$x, spl$y, col, lwd, lty,
@@ -315,7 +319,7 @@ draw_curved_edge_base <- function(x1, y1, x2, y2, curve = 0.2, curvePivot = 0.5,
     angle_back <- splot_angle(spl$x[idx], spl$y[idx], x1, y1)
 
     # Find arrow base midpoint at source
-    base_start <- arrow_base_midpoint(x1, y1, angle_back, asize)
+    base_start <- arrow_base_midpoint(x1, y1, angle_back, asize, arrow_angle = arrow_angle)
 
     # Truncate curve at source: remove points inside arrow radius
     dists_start <- sqrt((spl$x - x1)^2 + (spl$y - y1)^2)
@@ -337,7 +341,7 @@ draw_curved_edge_base <- function(x1, y1, x2, y2, curve = 0.2, curvePivot = 0.5,
         keep_end <- which(rev(cumsum(rev(outside_end)) > 0))
         if (length(keep_end) > 0) {
           angle_fwd <- splot_angle(spl$x[n-3], spl$y[n-3], x2, y2)
-          base_end <- arrow_base_midpoint(x2, y2, angle_fwd, asize)
+          base_end <- arrow_base_midpoint(x2, y2, angle_fwd, asize, arrow_angle = arrow_angle)
           curve_x <- c(curve_x[keep_end], base_end$x)
           curve_y <- c(curve_y[keep_end], base_end$y)
         }
@@ -348,7 +352,7 @@ draw_curved_edge_base <- function(x1, y1, x2, y2, curve = 0.2, curvePivot = 0.5,
     }
 
     # Draw arrow at source
-    draw_arrow_base(x1, y1, angle_back, asize, col = col)
+    draw_arrow_base(x1, y1, angle_back, asize, arrow_angle = arrow_angle, col = col)
   }
 }
 
@@ -365,10 +369,11 @@ draw_curved_edge_base <- function(x1, y1, x2, y2, curve = 0.2, curvePivot = 0.5,
 #' @param rotation Angle in radians for loop direction (default: pi/2 = top).
 #' @param arrow Logical: draw arrow?
 #' @param asize Arrow size.
+#' @param arrow_angle Arrow head angle in radians. Default pi/6 (30 degrees).
 #' @keywords internal
 draw_self_loop_base <- function(x, y, node_size, col = "gray50", lwd = 1,
                                 lty = 1, rotation = pi/2, arrow = TRUE,
-                                asize = 0.02) {
+                                asize = 0.02, arrow_angle = pi/6) {
 
   # qgraph-style loop: circular arc outside the node
   # Loop size proportional to node size
@@ -408,7 +413,7 @@ draw_self_loop_base <- function(x, y, node_size, col = "gray50", lwd = 1,
     n <- length(loop_x)
     # Arrow angle tangent to circle at endpoint
     angle <- splot_angle(loop_x[n-1], loop_y[n-1], loop_x[n], loop_y[n])
-    draw_arrow_base(loop_x[n], loop_y[n], angle, asize, col = col)
+    draw_arrow_base(loop_x[n], loop_y[n], angle, asize, arrow_angle = arrow_angle, col = col)
   }
 }
 

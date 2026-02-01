@@ -22,6 +22,7 @@
 #' @param minimum Minimum edge weight to display
 #' @param posCol Color for positive edges
 #' @param negCol Color for negative edges
+#' @param arrowAngle Arrow head angle in radians. Default pi/6 (30 degrees).
 #' @param title Plot title
 #' @param ... Additional arguments passed to splot()
 #'
@@ -60,6 +61,7 @@ tplot <- function(
     minimum = NULL,
     posCol = NULL,
     negCol = NULL,
+    arrowAngle = NULL,
     title = NULL,
     ...
 ) {
@@ -112,6 +114,9 @@ tplot <- function(
   splot_args$edge_start_style <- "dotted"
   splot_args$edge_start_length <- 0.2
   splot_args$arrow_size <- 0.61
+
+  # Arrow angle
+  if (!is.null(arrowAngle)) splot_args$arrow_angle <- arrowAngle
 
   # Call splot
   do.call(splot, c(splot_args, list(...)))

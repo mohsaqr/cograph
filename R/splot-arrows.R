@@ -13,13 +13,13 @@ NULL
 #' @param y Arrow tip y coordinate.
 #' @param angle Angle of incoming edge (radians).
 #' @param size Arrow size in user coordinates.
-#' @param width Arrow width ratio (default 0.5).
+#' @param arrow_angle Arrow head angle in radians. Default pi/6 (30 degrees).
 #' @return List with x, y coordinates of the arrow base midpoint.
 #' @keywords internal
-arrow_base_midpoint <- function(x, y, angle, size, width = 0.5) {
-  left_angle <- angle + pi - atan(width)
-  right_angle <- angle + pi + atan(width)
-  back_len <- size / cos(atan(width))
+arrow_base_midpoint <- function(x, y, angle, size, arrow_angle = pi/6) {
+  left_angle <- angle + pi - arrow_angle
+  right_angle <- angle + pi + arrow_angle
+  back_len <- size / cos(arrow_angle)
 
   left_x <- x + back_len * cos(left_angle)
   left_y <- y + back_len * sin(left_angle)
@@ -35,10 +35,10 @@ arrow_base_midpoint <- function(x, y, angle, size, width = 0.5) {
 #' This is how far back from the tip the arrow extends.
 #'
 #' @param size Arrow size in user coordinates.
-#' @param width Arrow width ratio (default 0.5).
+#' @param arrow_angle Arrow head angle in radians. Default pi/6 (30 degrees).
 #' @return The arrow radius (distance from tip to base).
 #' @keywords internal
-arrow_radius <- function(size, width = 0.5) {
+arrow_radius <- function(size, arrow_angle = pi/6) {
   size  # The arrow extends 'size' units back from tip
 }
 
@@ -50,19 +50,19 @@ arrow_radius <- function(size, width = 0.5) {
 #' @param y Arrow tip y coordinate.
 #' @param angle Angle of incoming edge (radians).
 #' @param size Arrow size in user coordinates.
-#' @param width Arrow width ratio (default 0.5).
+#' @param arrow_angle Arrow head angle in radians. Default pi/6 (30 degrees).
 #' @param col Arrow fill color.
 #' @param border Arrow border color (default same as fill).
 #' @param lwd Border line width.
 #' @keywords internal
-draw_arrow_base <- function(x, y, angle, size, width = 0.5, col = "black",
+draw_arrow_base <- function(x, y, angle, size, arrow_angle = pi/6, col = "black",
                             border = NULL, lwd = 1) {
   if (is.null(border)) border <- col
 
   # Arrow points relative to tip
-  left_angle <- angle + pi - atan(width)
-  right_angle <- angle + pi + atan(width)
-  back_len <- size / cos(atan(width))
+  left_angle <- angle + pi - arrow_angle
+  right_angle <- angle + pi + arrow_angle
+  back_len <- size / cos(arrow_angle)
 
   left_x <- x + back_len * cos(left_angle)
   left_y <- y + back_len * sin(left_angle)
@@ -87,14 +87,14 @@ draw_arrow_base <- function(x, y, angle, size, width = 0.5, col = "black",
 #' @param y Arrow tip y coordinate.
 #' @param angle Angle of incoming edge (radians).
 #' @param size Arrow size.
-#' @param width Arrow width ratio (default 0.5).
+#' @param arrow_angle Arrow head angle in radians. Default pi/6 (30 degrees).
 #' @return List with x, y vectors and midpoint coordinates.
 #' @keywords internal
-arrow_head_points <- function(x, y, angle, size, width = 0.5) {
+arrow_head_points <- function(x, y, angle, size, arrow_angle = pi/6) {
   # Arrow points relative to tip
-  left_angle <- angle + pi - atan(width)
-  right_angle <- angle + pi + atan(width)
-  back_len <- size / cos(atan(width))
+  left_angle <- angle + pi - arrow_angle
+  right_angle <- angle + pi + arrow_angle
+  back_len <- size / cos(arrow_angle)
 
   left_x <- x + back_len * cos(left_angle)
   left_y <- y + back_len * sin(left_angle)
@@ -122,11 +122,11 @@ arrow_head_points <- function(x, y, angle, size, width = 0.5) {
 #' @param spline_x X coordinates of the spline.
 #' @param spline_y Y coordinates of the spline.
 #' @param size Arrow size.
-#' @param width Arrow width ratio.
+#' @param arrow_angle Arrow head angle in radians. Default pi/6 (30 degrees).
 #' @param col Arrow fill color.
 #' @param border Arrow border color.
 #' @keywords internal
-draw_curved_arrow_base <- function(spline_x, spline_y, size, width = 0.5,
+draw_curved_arrow_base <- function(spline_x, spline_y, size, arrow_angle = pi/6,
                                    col = "black", border = NULL) {
   n <- length(spline_x)
   if (n < 2) return(invisible())
@@ -143,7 +143,7 @@ draw_curved_arrow_base <- function(spline_x, spline_y, size, width = 0.5,
     y = spline_y[n],
     angle = angle,
     size = size,
-    width = width,
+    arrow_angle = arrow_angle,
     col = col,
     border = border
   )
@@ -157,16 +157,16 @@ draw_curved_arrow_base <- function(spline_x, spline_y, size, width = 0.5,
 #' @param y Arrow tip y coordinate.
 #' @param angle Angle of incoming edge (radians).
 #' @param size Arrow size.
-#' @param width Arrow width ratio.
+#' @param arrow_angle Arrow head angle in radians. Default pi/6 (30 degrees).
 #' @param col Arrow color.
 #' @param lwd Line width.
 #' @keywords internal
-draw_open_arrow_base <- function(x, y, angle, size, width = 0.5,
+draw_open_arrow_base <- function(x, y, angle, size, arrow_angle = pi/6,
                                  col = "black", lwd = 1) {
   # Arrow points
-  left_angle <- angle + pi - atan(width)
-  right_angle <- angle + pi + atan(width)
-  back_len <- size / cos(atan(width))
+  left_angle <- angle + pi - arrow_angle
+  right_angle <- angle + pi + arrow_angle
+  back_len <- size / cos(arrow_angle)
 
   left_x <- x + back_len * cos(left_angle)
   left_y <- y + back_len * sin(left_angle)

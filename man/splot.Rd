@@ -195,7 +195,7 @@ or character vector.}
 
 \item{pie_values}{List of numeric vectors for pie chart nodes. Each element
 corresponds to a node and contains values for pie segments. If a simple
-numeric vector with values in \link{0,1} is provided (e.g., centrality scores),
+numeric vector with values between 0 and 1 is provided (e.g., centrality scores),
 it is automatically converted to donut_fill for convenience.}
 
 \item{pie_colors}{List of color vectors for pie segments.}

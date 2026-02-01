@@ -46,7 +46,7 @@ NULL
 #'
 #' @param pie_values List of numeric vectors for pie chart nodes. Each element
 #'   corresponds to a node and contains values for pie segments. If a simple
-#'   numeric vector with values in [0,1] is provided (e.g., centrality scores),
+#'   numeric vector with values between 0 and 1 is provided (e.g., centrality scores),
 #'   it is automatically converted to donut_fill for convenience.
 #' @param pie_colors List of color vectors for pie segments.
 #' @param pie_border_width Border width for pie slice dividers. NULL uses node_border_width.
@@ -121,6 +121,7 @@ NULL
 #' @param curves Curve mode: TRUE (default) = single edges straight, reciprocal edges
 #'   curve as ellipse (two opposing curves); FALSE = all straight; "force" = all curved.
 #' @param arrow_size Arrow head size.
+#' @param arrow_angle Arrow head angle in radians. Default pi/6 (30 degrees).
 #' @param show_arrows Logical or vector: show arrows on directed edges?
 #' @param bidirectional Logical or vector: show arrows at both ends?
 #' @param loop_rotation Angle(s) in radians for self-loop direction.
@@ -382,6 +383,7 @@ splot <- function(
     curve_pivot = 0.5,
     curves = TRUE,
     arrow_size = 1,
+    arrow_angle = pi/6,
     show_arrows = TRUE,
     bidirectional = FALSE,
     loop_rotation = NULL,
@@ -961,6 +963,7 @@ splot <- function(
       curve_pivot = curve_pivots,
       show_arrows = arrows_vec,
       arrow_size = arrow_sizes,
+      arrow_angle = arrow_angle,
       bidirectional = bidirectionals,
       loop_rotation = loop_rotations,
       edge_labels = edge_labels_vec,
@@ -1173,7 +1176,7 @@ splot <- function(
 render_edges_splot <- function(edges, layout, node_sizes, shapes,
                                edge_color, edge_width, edge_style, curvature,
                                curve_shape, curve_pivot, show_arrows, arrow_size,
-                               bidirectional, loop_rotation, edge_labels,
+                               arrow_angle = pi/6, bidirectional, loop_rotation, edge_labels,
                                edge_label_size, edge_label_color, edge_label_bg,
                                edge_label_position, edge_label_offset = 0,
                                edge_label_fontface,
@@ -1305,7 +1308,8 @@ render_edges_splot <- function(edges, layout, node_sizes, shapes,
           lty = edge_ci_style,
           rotation = loop_rotation[i],
           arrow = edge_ci_arrows,
-          asize = arrow_size[i]
+          asize = arrow_size[i],
+          arrow_angle = arrow_angle
         )
       }
 
@@ -1317,7 +1321,8 @@ render_edges_splot <- function(edges, layout, node_sizes, shapes,
         lty = edge_style[i],
         rotation = loop_rotation[i],
         arrow = show_arrows[i],
-        asize = arrow_size[i]
+        asize = arrow_size[i],
+        arrow_angle = arrow_angle
       )
 
       # Label position for self-loop
@@ -1361,7 +1366,8 @@ render_edges_splot <- function(edges, layout, node_sizes, shapes,
           lty = edge_ci_style,
           arrow = edge_ci_arrows,
           asize = arrow_size[i],
-          bidirectional = FALSE
+          bidirectional = FALSE,
+          arrow_angle = arrow_angle
         )
       } else {
         draw_straight_edge_base(
@@ -1371,7 +1377,8 @@ render_edges_splot <- function(edges, layout, node_sizes, shapes,
           lty = edge_ci_style,
           arrow = edge_ci_arrows,
           asize = arrow_size[i],
-          bidirectional = FALSE
+          bidirectional = FALSE,
+          arrow_angle = arrow_angle
         )
       }
     }
@@ -1389,7 +1396,8 @@ render_edges_splot <- function(edges, layout, node_sizes, shapes,
         asize = arrow_size[i],
         bidirectional = bidirectional[i],
         start_lty = start_lty,
-        start_fraction = start_fraction
+        start_fraction = start_fraction,
+        arrow_angle = arrow_angle
       )
     } else {
       draw_straight_edge_base(
@@ -1401,7 +1409,8 @@ render_edges_splot <- function(edges, layout, node_sizes, shapes,
         asize = arrow_size[i],
         bidirectional = bidirectional[i],
         start_lty = start_lty,
-        start_fraction = start_fraction
+        start_fraction = start_fraction,
+        arrow_angle = arrow_angle
       )
     }
 

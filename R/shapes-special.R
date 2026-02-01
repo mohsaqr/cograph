@@ -138,12 +138,15 @@ draw_pie <- function(x, y, size, fill, border_color, border_width,
     xs <- c(x, x + size * cos(angles), x)
     ys <- c(y, y + size * sin(angles), y)
 
+    # Use NA for border if segment_border is 0 or very small
+    seg_col <- if (!is.null(segment_border) && segment_border > 0.1) border_col else NA
+
     grobs[[i]] <- grid::polygonGrob(
       x = grid::unit(xs, "npc"),
       y = grid::unit(ys, "npc"),
       gp = grid::gpar(
         fill = colors[i],
-        col = border_col,
+        col = seg_col,
         lwd = segment_border
       )
     )

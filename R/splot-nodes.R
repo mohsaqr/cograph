@@ -166,8 +166,8 @@ draw_pie_node_base <- function(x, y, size, values, colors = NULL,
     start_angle <- end_angle
   }
 
-  # Draw slice dividers (if more than one slice)
-  if (n > 1) {
+  # Draw slice dividers (if more than one slice and border width > 0)
+  if (n > 1 && !is.null(slice_border_width) && slice_border_width > 0.1) {
     start_angle <- pi / 2
     for (i in seq_len(n)) {
       if (props[i] <= 0) next
@@ -620,8 +620,8 @@ draw_donut_pie_node_base <- function(x, y, size, donut_value = 1,
       start_ang <- end_ang
     }
 
-    # Draw pie slice dividers (if more than one slice)
-    if (n > 1) {
+    # Draw pie slice dividers (if more than one slice and border width > 0)
+    if (n > 1 && !is.null(pie_slice_border) && pie_slice_border > 0.1) {
       start_ang <- pi / 2
       for (i in seq_len(n)) {
         if (props[i] <= 0) next
@@ -808,8 +808,8 @@ draw_double_donut_pie_node_base <- function(x, y, size,
       start_ang <- end_ang
     }
 
-    # Draw pie slice dividers (if more than one slice)
-    if (n > 1) {
+    # Draw pie slice dividers (if more than one slice and border width > 0)
+    if (n > 1 && !is.null(pie_slice_border) && pie_slice_border > 0.1) {
       start_ang <- pi / 2
       for (i in seq_len(n)) {
         if (props[i] <= 0) next

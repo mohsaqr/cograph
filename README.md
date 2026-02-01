@@ -224,16 +224,19 @@ Template placeholders: `{est}`, `{low}`, `{up}`, `{range}`, `{p}`,
 
 ## Pie Chart Nodes
 
+<img src="man/figures/pie_example.png" width="450" />
+
 ``` r
-set.seed(1)
+set.seed(42)
 # Each node gets a vector of pie segment values
 pie_vals <- lapply(1:10, function(i) runif(4))
-pie_cols <- c("#E41A1C", "#377EB8", "#4DAF4A", "#FF7F00")
+pie_cols <- c("#E63946", "#457B9D", "#2A9D8F", "#F4A261")
 
 splot(mat,
   node_shape = "pie",
   pie_values = pie_vals,
   pie_colors = pie_cols,
+  pie_border_width = 0,  # no segment divider lines
   layout = "circle"
 )
 
@@ -261,6 +264,42 @@ splot(mat,
 
 ## Donut Nodes
 
+**Segmented donuts:**
+
+<img src="man/figures/donut_example.png" width="450" />
+
+``` r
+# Segmented donuts with multiple colors
+donut_vals <- lapply(1:10, function(i) runif(4))
+donut_cols <- c("#E63946", "#457B9D", "#2A9D8F", "#F4A261")
+splot(mat,
+  donut_values = donut_vals,
+  donut_colors = list(donut_cols),
+  donut_inner_ratio = 0.65,
+  layout = "circle"
+)
+```
+
+**Donut + Pie combined** (outer donut ring with inner pie segments):
+
+<img src="man/figures/donut_pie_example.png" width="450" />
+
+``` r
+# Combined: donut ring + pie inside
+splot(mat,
+  node_shape = "donut",
+  donut_fill = runif(10, 0.5, 0.95),
+  donut_color = "steelblue",
+  donut_inner_ratio = 0.55,
+  pie_values = pie_vals,
+  pie_colors = pie_cols,
+  pie_border_width = 0,
+  layout = "circle"
+)
+```
+
+**Simple donut with fill proportion:**
+
 ``` r
 # Simple donut: fill proportion per node (0 to 1)
 fills <- runif(10, 0.3, 0.95)
@@ -269,16 +308,6 @@ splot(mat,
   donut_fill = fills,
   donut_color = "steelblue",
   layout = "circle"
-)
-
-# Segmented donuts with multiple colors
-donut_vals <- lapply(1:10, function(i) runif(3))
-donut_cols <- list(c("#E63946", "#457B9D", "#2A9D8F"))
-splot(mat,
-  donut_values = donut_vals,
-  donut_colors = donut_cols,
-  donut_inner_ratio = 0.6,
-  node_size = 6
 )
 
 # Per-node donut color palettes

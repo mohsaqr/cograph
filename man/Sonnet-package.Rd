@@ -50,12 +50,12 @@ Built-in themes include:
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/username/Sonnet}
-  \item Report bugs at \url{https://github.com/username/Sonnet/issues}
+  \item \url{https://github.com/lamethods/Sonnet}
+  \item Report bugs at \url{https://github.com/lamethods/Sonnet/issues}
 }
 
 }
 \author{
-\strong{Maintainer}: Mohammed Saqr \email{mohammed.saqr@example.com}
+\strong{Maintainer}: Mohammed Saqr \email{mohammed.saqr@uef.fi}
 
 }

@@ -62,19 +62,19 @@
 #' )
 #'
 #' # Basic usage
-#' mlna(m, layers)
+#' plot_mlna(m, layers)
 #'
 #' # Customized
-#' mlna(m, layers,
+#' plot_mlna(m, layers,
 #'      layer_spacing = 2.5,
 #'      layer_width = 5,
 #'      between_style = 2,  # dashed
 #'      minimum = 0.1)
 #'
 #' # Circle layout within layers
-#' mlna(m, layers, layout = "circle")
+#' plot_mlna(m, layers, layout = "circle")
 #' }
-mlna <- function(
+plot_mlna <- function(
     model,
     layer_list,
     layout = "horizontal",
@@ -512,3 +512,7 @@ mlna <- function(
 
   invisible(NULL)
 }
+
+#' @rdname plot_mlna
+#' @export
+mlna <- plot_mlna

@@ -502,9 +502,24 @@ splot <- function(
     }
   }
 
-  nodes <- network$network$get_nodes()
-  edges <- network$network$get_edges()
-  layout_coords <- network$network$get_layout()
+  # Extract network data using getter functions
+  # This handles all formats: new list format, old attr format, and R6 wrapper
+  nodes <- get_nodes(network)
+  edges <- get_edges(network)
+  is_net_directed <- is_directed(network)
+
+  # Get layout coordinates from nodes if available, or from layout element
+  if ("x" %in% names(nodes) && !all(is.na(nodes$x))) {
+    layout_coords <- data.frame(x = nodes$x, y = nodes$y)
+  } else if (!is.null(network$layout)) {
+    layout_coords <- network$layout
+  } else if (!is.null(attr(network, "layout"))) {
+    layout_coords <- attr(network, "layout")
+  } else if (!is.null(network$network) && inherits(network$network, "SonnetNetwork")) {
+    layout_coords <- network$network$get_layout()
+  } else {
+    layout_coords <- NULL
+  }
 
   # (oval layout uses elliptical spacing but nodes remain circular via aspect=TRUE)
 
@@ -513,7 +528,7 @@ splot <- function(
 
   # Determine if directed
   if (is.null(directed)) {
-    directed <- network$network$is_directed
+    directed <- is_net_directed
   }
 
   # Check for duplicate edges in undirected networks
@@ -539,8 +554,10 @@ splot <- function(
       }
       edges <- aggregate_duplicate_edges(edges, edge_duplicates)
       n_edges <- nrow(edges)
-      # Update the network object with deduplicated edges
-      network$network$set_edges(edges)
+      # Update the network object with deduplicated edges (old format only)
+      if (!is.null(network$network) && inherits(network$network, "SonnetNetwork")) {
+        network$network$set_edges(edges)
+      }
     }
   }
 

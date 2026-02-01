@@ -1,4 +1,3 @@
-
 # Sonnet <img src="man/figures/logo.png" align="right" height="139" />
 
 <!-- badges: start -->
@@ -8,21 +7,17 @@
 status](https://www.r-pkg.org/badges/version/Sonnet)](https://CRAN.R-project.org/package=Sonnet)
 <!-- badges: end -->
 
-**Sonnet** is a modern R package for network visualization. It renders
-publication-ready network plots from adjacency matrices, edge lists,
-igraph, statnet network, qgraph, or tna objects using a pipe-friendly
-API with full control over nodes, edges, layouts, and themes.
+**Sonnet** is a modern R package for network visualization. Plot networks from
+matrices, igraph, network, qgraph, or tna objects with a single function:
+**`splot()`**.
 
 Key features:
 
-- **Base R and grid rendering** via `splot()` and `soplot()`
-- **Pipe-friendly API**:
-  `sonnet() |> sn_nodes() |> sn_edges() |> sn_theme()`
+- **Universal input**: `splot()` handles adjacency matrices, edge lists, igraph, statnet network, qgraph, and tna objects
 - **12+ node shapes** including pie charts and donut rings
 - **7 built-in themes** and multiple color palettes
-- **Confidence interval underlays**, edge label templates, weight
-  scaling
-- **Converters** for `tna` and `qgraph` objects
+- **Confidence interval underlays**, edge label templates, weight scaling
+- **Specialized TNA functions**: `plot_tna()`, `plot_htna()`, `plot_mtna()`, `plot_mlna()`
 
 ## Installation
 
@@ -51,17 +46,26 @@ mat <- mat / rowSums(mat)  # row-normalize
 # Basic plot
 splot(mat)
 
-# Pipe-chain style
-sonnet(mat, layout = "spring") |>
-  sn_nodes(size = 0.07, fill = "steelblue", shape = "circle") |>
-  sn_edges(width = "weight", color = "weight") |>
-  sn_theme("minimal") |>
-  sn_render()
+# Customized plot
+splot(mat,
+  layout = "oval",
+  node_size = 7,
+  node_fill = palette_pastel(10),
+  edge_labels = TRUE,
+  edge_label_size = 0.4,
+  edge_color = "darkblue",
+  curvature = 0.175,
+  threshold = 0.05,
+  title = "My Network"
+)
 ```
 
-## Input Formats
+> **Note**: `soplot()` provides the same functionality using grid graphics
+> instead of base R. Both functions accept identical parameters.
 
-Sonnet accepts six input types:
+## Supported Input Types
+
+`splot()` automatically detects and handles six input types:
 
 ``` r
 # 1. Adjacency matrix
@@ -98,17 +102,11 @@ tna_obj <- tna(sequences)
 splot(tna_obj)
 ```
 
-## splot() vs soplot()
-
-`splot()` uses base R graphics; `soplot()` uses grid graphics. Both
-accept the same parameters.
+For explicit conversion with parameter overrides, use `from_tna()` or `from_qgraph()`:
 
 ``` r
-# Base R (recommended for knitting and file output)
-splot(mat, layout = "circle", theme = "classic")
-
-# Grid-based (useful for sn_ggplot())
-soplot(mat, layout = "circle", theme = "classic")
+from_tna(tna_obj, theme = "dark", layout = "circle")
+from_qgraph(q, node_fill = "steelblue")
 ```
 
 ## Layouts
@@ -117,10 +115,7 @@ soplot(mat, layout = "circle", theme = "classic")
 # Built-in layouts
 splot(mat, layout = "circle")
 splot(mat, layout = "spring")
-
-# Group-based layout
-groups <- rep(1:3, length.out = 10)
-sonnet(mat) |> sn_layout("groups", groups = groups) |> sn_render()
+splot(mat, layout = "oval")
 
 # igraph layout codes
 splot(mat, layout = "kk")    # Kamada-Kawai
@@ -129,7 +124,7 @@ splot(mat, layout = "mds")   # Multidimensional scaling
 
 # Custom coordinates
 coords <- matrix(runif(20), ncol = 2)
-sonnet(mat) |> sn_layout(coords) |> sn_render()
+splot(mat, layout = coords)
 ```
 
 ## Node Shapes
@@ -412,121 +407,44 @@ splot(mat, node_fill = palette_reds(10))
 splot(mat, node_fill = palette_diverging(10))
 ```
 
-## Converters: from_tna() and from_qgraph()
+## Saving Plots
 
 ``` r
-# Convert a tna object (requires tna package)
-library(tna)
-tna_obj <- tna(my_data)
-from_tna(tna_obj)
+# Save splot output to file
+pdf("network.pdf", width = 8, height = 8)
+splot(mat, theme = "minimal", node_fill = palette_pastel(10))
+dev.off()
 
-# Convert a qgraph object (requires qgraph package)
-library(qgraph)
-q <- qgraph(mat)
-from_qgraph(q)
-
-# Override parameters during conversion
-from_tna(tna_obj, theme = "dark", layout = "circle")
+png("network.png", width = 800, height = 800)
+splot(mat, theme = "minimal")
+dev.off()
 ```
 
-## Multi-Cluster Networks: mtna()
+## Specialized TNA Visualization
 
-`mtna()` visualizes multiple network clusters with summary edges between
-clusters and individual edges within clusters. Each cluster is displayed
-as a shape (circle, square, diamond, triangle) containing its nodes.
+These functions provide specialized layouts for transition network analysis (TNA)
+and related network types.
 
-<img src="man/figures/mtna_example.png" width="600" />
+### plot_tna() - qgraph-Compatible Interface
+
+`plot_tna()` provides a qgraph-compatible interface for TNA network visualization,
+making migration from qgraph straightforward.
 
 ``` r
-# Create network with 6 clusters
-set.seed(42)
-nodes <- paste0("N", 1:30)
-m <- matrix(runif(900, 0, 0.3), 30, 30)
-diag(m) <- 0
-colnames(m) <- rownames(m) <- nodes
+# Simple usage
+m <- matrix(runif(25), 5, 5)
+plot_tna(m)
 
-clusters <- list(
-  Alpha = paste0("N", 1:5),
-  Beta = paste0("N", 6:10),
-  Gamma = paste0("N", 11:15),
-  Delta = paste0("N", 16:20),
-  Epsilon = paste0("N", 21:25),
-  Zeta = paste0("N", 26:30)
-)
+# With qgraph-style parameters
+plot_tna(m, vsize = 15, edge.label.cex = 2, layout = "circle")
 
-# Summary edges between clusters + individual edges within
-mtna(m, clusters)
-
-# Control spacing and sizes
-mtna(m, clusters,
-     spacing = 4,         # inter-cluster distance
-     shape_size = 1.3,    # shell size
-     node_spacing = 0.6,  # nodes at 60% of shape radius
-     minimum = 0.15)      # edge weight threshold
-
-# Different layouts
-mtna(m, clusters, layout = "grid")
-mtna(m, clusters, layout = "horizontal")
-mtna(m, clusters, layout = "vertical")
+# With pie/donut nodes (qgraph-style)
+plot_tna(m, pie = runif(5), pieColor = rainbow(5))
 ```
 
-Key parameters:
-- `spacing`: Distance between cluster centers
-- `shape_size`: Size of cluster shells
-- `node_spacing`: Node placement within shapes (0-1)
-- `shapes`: Vector of shapes per cluster ("circle", "square", "diamond", "triangle")
-- `summary_edges`: Show aggregated between-cluster edges (default TRUE)
-- `within_edges`: Show individual within-cluster edges (default TRUE)
+> **Alias**: `tplot()` is available as a shorthand for `plot_tna()`.
 
-## Multilevel Networks: mlna()
-
-`mlna()` visualizes multilevel/multiplex networks where multiple layers are
-stacked in a 3D perspective view. Each layer contains nodes connected by
-solid edges (within-layer), while dashed lines connect nodes between adjacent
-layers (inter-layer edges).
-
-<img src="man/figures/mlna_example.png" width="600" />
-
-``` r
-# Create multilevel network
-set.seed(42)
-nodes <- paste0("N", 1:21)
-m <- matrix(runif(441, 0, 0.3), 21, 21)
-diag(m) <- 0
-colnames(m) <- rownames(m) <- nodes
-
-# Define 3 layers
-layers <- list(
-  Macro = paste0("N", 1:7),
-  Meso = paste0("N", 8:14),
-  Micro = paste0("N", 15:21)
-)
-
-# Basic usage with spring layout
-mlna(m, layers, layout = "spring", minimum = 0.18)
-
-# Customize layer dimensions and spacing
-mlna(m, layers,
-     layout = "spring",
-     layer_width = 6,       # horizontal width
-     layer_depth = 3,       # depth (3D effect)
-     layer_spacing = 4,     # vertical distance between layers
-     skew_angle = 25,       # perspective angle
-     node_spacing = 0.95,   # spread of nodes (0-1)
-     node_size = 3.5,
-     minimum = 0.18)
-```
-
-Key parameters:
-- `layout`: Node arrangement within layers ("horizontal", "circle", "spring")
-- `layer_spacing`: Vertical distance between layers
-- `layer_width`: Horizontal width of each layer
-- `layer_depth`: Depth of layer (controls 3D effect)
-- `skew_angle`: Perspective angle in degrees
-- `node_spacing`: How spread out nodes are within layers (0-1)
-- `between_style`: Line style for inter-layer edges (1=solid, 2=dashed, 3=dotted)
-
-## Heterogeneous TNA: plot_htna()
+### plot_htna() - Heterogeneous Multi-Group Networks
 
 `plot_htna()` creates multi-group network layouts where node groups are
 arranged in geometric patterns (bipartite, triangle, rectangle, polygon,
@@ -570,52 +488,120 @@ node_types_4 <- list(
 plot_htna(mat, node_types_4)  # Auto-detects rectangle layout
 ```
 
-## ggplot2 Integration
+### plot_mtna() - Multi-Cluster Networks
+
+`plot_mtna()` visualizes multiple network clusters with summary edges between
+clusters and individual edges within clusters. Each cluster is displayed
+as a shape (circle, square, diamond, triangle) containing its nodes.
+
+<img src="man/figures/mtna_example.png" width="600" />
 
 ``` r
-library(ggplot2)
+# Create network with 6 clusters
+set.seed(42)
+nodes <- paste0("N", 1:30)
+m <- matrix(runif(900, 0, 0.3), 30, 30)
+diag(m) <- 0
+colnames(m) <- rownames(m) <- nodes
 
-p <- sonnet(mat) |>
-  sn_nodes(fill = "steelblue") |>
-  sn_theme("minimal") |>
-  sn_ggplot()
+clusters <- list(
+  Alpha = paste0("N", 1:5),
+  Beta = paste0("N", 6:10),
+  Gamma = paste0("N", 11:15),
+  Delta = paste0("N", 16:20),
+  Epsilon = paste0("N", 21:25),
+  Zeta = paste0("N", 26:30)
+)
 
-p + labs(title = "My Network") +
-  theme(plot.title = element_text(hjust = 0.5))
+# Summary edges between clusters + individual edges within
+plot_mtna(m, clusters)
+
+# Control spacing and sizes
+plot_mtna(m, clusters,
+     spacing = 4,         # inter-cluster distance
+     shape_size = 1.3,    # shell size
+     node_spacing = 0.6,  # nodes at 60% of shape radius
+     minimum = 0.15)      # edge weight threshold
+
+# Different layouts
+plot_mtna(m, clusters, layout = "grid")
+plot_mtna(m, clusters, layout = "horizontal")
+plot_mtna(m, clusters, layout = "vertical")
 ```
 
-## Saving Plots
+Key parameters:
+- `spacing`: Distance between cluster centers
+- `shape_size`: Size of cluster shells
+- `node_spacing`: Node placement within shapes (0-1)
+- `shapes`: Vector of shapes per cluster ("circle", "square", "diamond", "triangle")
+- `summary_edges`: Show aggregated between-cluster edges (default TRUE)
+- `within_edges`: Show individual within-cluster edges (default TRUE)
+
+> **Alias**: `mtna()` is available as a shorthand for `plot_mtna()`.
+
+### plot_mlna() - Multilevel 3D Networks
+
+`plot_mlna()` visualizes multilevel/multiplex networks where multiple layers are
+stacked in a 3D perspective view. Each layer contains nodes connected by
+solid edges (within-layer), while dashed lines connect nodes between adjacent
+layers (inter-layer edges).
+
+<img src="man/figures/mlna_example.png" width="600" />
 
 ``` r
-net <- sonnet(mat) |>
-  sn_nodes(fill = palette_pastel(10)) |>
-  sn_theme("minimal")
+# Create multilevel network
+set.seed(42)
+nodes <- paste0("N", 1:21)
+m <- matrix(runif(441, 0, 0.3), 21, 21)
+diag(m) <- 0
+colnames(m) <- rownames(m) <- nodes
 
-sn_save(net, "network.pdf", width = 8, height = 8)
-sn_save(net, "network.png", width = 8, height = 8, dpi = 300)
-sn_save(net, "network.svg", width = 8, height = 8)
+# Define 3 layers
+layers <- list(
+  Macro = paste0("N", 1:7),
+  Meso = paste0("N", 8:14),
+  Micro = paste0("N", 15:21)
+)
+
+# Basic usage with spring layout
+plot_mlna(m, layers, layout = "spring", minimum = 0.18)
+
+# Customize layer dimensions and spacing
+plot_mlna(m, layers,
+     layout = "spring",
+     layer_width = 6,       # horizontal width
+     layer_depth = 3,       # depth (3D effect)
+     layer_spacing = 4,     # vertical distance between layers
+     skew_angle = 25,       # perspective angle
+     node_spacing = 0.95,   # spread of nodes (0-1)
+     node_size = 3.5,
+     minimum = 0.18)
 ```
+
+Key parameters:
+- `layout`: Node arrangement within layers ("horizontal", "circle", "spring")
+- `layer_spacing`: Vertical distance between layers
+- `layer_width`: Horizontal width of each layer
+- `layer_depth`: Depth of layer (controls 3D effect)
+- `skew_angle`: Perspective angle in degrees
+- `node_spacing`: How spread out nodes are within layers (0-1)
+- `between_style`: Line style for inter-layer edges (1=solid, 2=dashed, 3=dotted)
+
+> **Alias**: `mlna()` is available as a shorthand for `plot_mlna()`.
 
 ## Function Reference
 
-| Function        | Purpose                                          |
-|-----------------|--------------------------------------------------|
-| `sonnet()`      | Create network from matrix, edge list, igraph, network, qgraph, or tna |
-| `splot()`       | Render with base R graphics                      |
-| `soplot()`      | Render with grid graphics                        |
-| `sn_nodes()`    | Set node aesthetics                              |
-| `sn_edges()`    | Set edge aesthetics                              |
-| `sn_layout()`   | Apply layout algorithm                           |
-| `sn_theme()`    | Apply visual theme                               |
-| `sn_palette()`  | Apply color palette                              |
-| `sn_render()`   | Render to current device                         |
-| `sn_ggplot()`   | Convert to ggplot2 object                        |
-| `sn_save()`     | Save to file                                     |
-| `from_tna()`    | Convert tna object                               |
-| `from_qgraph()` | Convert qgraph object                            |
-| `mtna()`        | Multi-cluster network with summary edges         |
-| `mlna()`        | Multilevel network with 3D stacked layers        |
-| `plot_htna()`   | Multi-group polygon/circular layouts             |
+| Function | Purpose |
+|----------|---------|
+| `splot()` | Universal network plotting (base R graphics) |
+| `soplot()` | Universal network plotting (grid graphics) |
+| `plot_tna()` | qgraph-compatible TNA plotting (alias: `tplot()`) |
+| `plot_htna()` | Heterogeneous multi-group layouts |
+| `plot_mtna()` | Multi-cluster visualization (alias: `mtna()`) |
+| `plot_mlna()` | Multilevel 3D visualization (alias: `mlna()`) |
+| `from_tna()` | Convert tna object with parameter overrides |
+| `from_qgraph()` | Convert qgraph object with parameter overrides |
+| `palette_*()` | Color palettes (rainbow, colorblind, pastel, viridis, blues, reds, diverging) |
 
 ## License
 

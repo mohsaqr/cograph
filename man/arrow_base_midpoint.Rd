@@ -4,7 +4,7 @@
 \alias{arrow_base_midpoint}
 \title{Calculate Arrow Base Midpoint}
 \usage{
-arrow_base_midpoint(x, y, angle, size, width = 0.5)
+arrow_base_midpoint(x, y, angle, size, arrow_angle = pi/6)
 }
 \arguments{
 \item{x}{Arrow tip x coordinate.}
@@ -15,7 +15,7 @@ arrow_base_midpoint(x, y, angle, size, width = 0.5)
 
 \item{size}{Arrow size in user coordinates.}
 
-\item{width}{Arrow width ratio (default 0.5).}
+\item{arrow_angle}{Arrow head angle in radians. Default pi/6 (30 degrees).}
 }
 \value{
 List with x, y coordinates of the arrow base midpoint.

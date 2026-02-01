@@ -4,7 +4,15 @@
 \alias{draw_open_arrow_base}
 \title{Draw Open Arrow Head}
 \usage{
-draw_open_arrow_base(x, y, angle, size, width = 0.5, col = "black", lwd = 1)
+draw_open_arrow_base(
+  x,
+  y,
+  angle,
+  size,
+  arrow_angle = pi/6,
+  col = "black",
+  lwd = 1
+)
 }
 \arguments{
 \item{x}{Arrow tip x coordinate.}
@@ -15,7 +23,7 @@ draw_open_arrow_base(x, y, angle, size, width = 0.5, col = "black", lwd = 1)
 
 \item{size}{Arrow size.}
 
-\item{width}{Arrow width ratio.}
+\item{arrow_angle}{Arrow head angle in radians. Default pi/6 (30 degrees).}
 
 \item{col}{Arrow color.}
 

@@ -13,7 +13,8 @@ draw_self_loop_base(
   lty = 1,
   rotation = pi/2,
   arrow = TRUE,
-  asize = 0.02
+  asize = 0.02,
+  arrow_angle = pi/6
 )
 }
 \arguments{
@@ -32,6 +33,8 @@ draw_self_loop_base(
 \item{arrow}{Logical: draw arrow?}
 
 \item{asize}{Arrow size.}
+
+\item{arrow_angle}{Arrow head angle in radians. Default pi/6 (30 degrees).}
 }
 \description{
 Renders a self-loop (edge from node to itself) using a teardrop/circular

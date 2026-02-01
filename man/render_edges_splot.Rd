@@ -17,6 +17,7 @@ render_edges_splot(
   curve_pivot,
   show_arrows,
   arrow_size,
+  arrow_angle = pi/6,
   bidirectional,
   loop_rotation,
   edge_labels,

@@ -79,6 +79,7 @@ splot(
   curve_pivot = 0.5,
   curves = TRUE,
   arrow_size = 1,
+  arrow_angle = pi/6,
   show_arrows = TRUE,
   bidirectional = FALSE,
   loop_rotation = NULL,
@@ -318,6 +319,8 @@ or character vector.}
 curve as ellipse (two opposing curves); FALSE = all straight; "force" = all curved.}
 
 \item{arrow_size}{Arrow head size.}
+
+\item{arrow_angle}{Arrow head angle in radians. Default pi/6 (30 degrees).}
 
 \item{show_arrows}{Logical or vector: show arrows on directed edges?}
 

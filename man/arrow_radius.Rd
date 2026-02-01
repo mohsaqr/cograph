@@ -4,12 +4,12 @@
 \alias{arrow_radius}
 \title{Calculate Arrow Radius}
 \usage{
-arrow_radius(size, width = 0.5)
+arrow_radius(size, arrow_angle = pi/6)
 }
 \arguments{
 \item{size}{Arrow size in user coordinates.}
 
-\item{width}{Arrow width ratio (default 0.5).}
+\item{arrow_angle}{Arrow head angle in radians. Default pi/6 (30 degrees).}
 }
 \value{
 The arrow radius (distance from tip to base).

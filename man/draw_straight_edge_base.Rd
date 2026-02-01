@@ -16,7 +16,8 @@ draw_straight_edge_base(
   asize = 0.02,
   bidirectional = FALSE,
   start_lty = 1,
-  start_fraction = 0
+  start_fraction = 0,
+  arrow_angle = pi/6
 )
 }
 \arguments{
@@ -39,6 +40,8 @@ draw_straight_edge_base(
 \item{start_lty}{Line type for start segment. 1=solid (default), 2=dashed, 3=dotted.}
 
 \item{start_fraction}{Fraction of edge length for start segment (0-0.5). Default 0.}
+
+\item{arrow_angle}{Arrow head angle in radians. Default pi/6 (30 degrees).}
 }
 \description{
 Renders a straight edge between two points with optional arrow.

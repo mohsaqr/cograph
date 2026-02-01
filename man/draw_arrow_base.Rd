@@ -9,7 +9,7 @@ draw_arrow_base(
   y,
   angle,
   size,
-  width = 0.5,
+  arrow_angle = pi/6,
   col = "black",
   border = NULL,
   lwd = 1
@@ -24,7 +24,7 @@ draw_arrow_base(
 
 \item{size}{Arrow size in user coordinates.}
 
-\item{width}{Arrow width ratio (default 0.5).}
+\item{arrow_angle}{Arrow head angle in radians. Default pi/6 (30 degrees).}
 
 \item{col}{Arrow fill color.}
 

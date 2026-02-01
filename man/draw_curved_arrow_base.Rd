@@ -8,7 +8,7 @@ draw_curved_arrow_base(
   spline_x,
   spline_y,
   size,
-  width = 0.5,
+  arrow_angle = pi/6,
   col = "black",
   border = NULL
 )
@@ -20,7 +20,7 @@ draw_curved_arrow_base(
 
 \item{size}{Arrow size.}
 
-\item{width}{Arrow width ratio.}
+\item{arrow_angle}{Arrow head angle in radians. Default pi/6 (30 degrees).}
 
 \item{col}{Arrow fill color.}
 

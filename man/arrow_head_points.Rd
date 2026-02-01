@@ -4,7 +4,7 @@
 \alias{arrow_head_points}
 \title{Calculate Arrow Head Points}
 \usage{
-arrow_head_points(x, y, angle, size, width = 0.5)
+arrow_head_points(x, y, angle, size, arrow_angle = pi/6)
 }
 \arguments{
 \item{x}{Arrow tip x coordinate.}
@@ -15,7 +15,7 @@ arrow_head_points(x, y, angle, size, width = 0.5)
 
 \item{size}{Arrow size.}
 
-\item{width}{Arrow width ratio (default 0.5).}
+\item{arrow_angle}{Arrow head angle in radians. Default pi/6 (30 degrees).}
 }
 \value{
 List with x, y vectors and midpoint coordinates.

@@ -24,6 +24,7 @@ tplot(
   minimum = NULL,
   posCol = NULL,
   negCol = NULL,
+  arrowAngle = NULL,
   title = NULL,
   ...
 )
@@ -66,6 +67,8 @@ tplot(
 \item{posCol}{Color for positive edges}
 
 \item{negCol}{Color for negative edges}
+
+\item{arrowAngle}{Arrow head angle in radians. Default pi/6 (30 degrees).}
 
 \item{title}{Plot title}
 

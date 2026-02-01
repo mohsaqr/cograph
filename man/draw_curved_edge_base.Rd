@@ -18,7 +18,8 @@ draw_curved_edge_base(
   asize = 0.02,
   bidirectional = FALSE,
   start_lty = 1,
-  start_fraction = 0
+  start_fraction = 0,
+  arrow_angle = pi/6
 )
 }
 \arguments{
@@ -46,6 +47,8 @@ when looking from source to target).}
 \item{start_lty}{Line type for start segment. 1=solid (default), 2=dashed, 3=dotted.}
 
 \item{start_fraction}{Fraction of edge length for start segment (0-0.5). Default 0.}
+
+\item{arrow_angle}{Arrow head angle in radians. Default pi/6 (30 degrees).}
 }
 \description{
 Renders a curved edge using xspline() with optional arrow.

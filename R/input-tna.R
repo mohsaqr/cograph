@@ -6,19 +6,13 @@ NULL
 #' Parse tna Object
 #'
 #' Convert a tna object to internal network format.
+#' tna objects are simple lists with $weights (matrix), $labels, and $inits.
 #'
-#' @param tna_obj A tna object from the tna package.
+#' @param tna_obj A tna object (list with weights matrix).
 #' @param directed Logical. Force directed interpretation. NULL uses TRUE (tna networks are directed).
 #' @return List with nodes, edges, directed, and weights components.
 #' @noRd
 parse_tna <- function(tna_obj, directed = NULL) {
-  # Check if tna is available
-  if (!requireNamespace("tna", quietly = TRUE)) {
-    stop("Package 'tna' is required for tna input. ",
-         "Please install it with: install.packages('tna')",
-         call. = FALSE)
-  }
-
   # Validate input
   if (!inherits(tna_obj, "tna")) {
     stop("Input must be a tna object", call. = FALSE)

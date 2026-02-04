@@ -12,3 +12,6 @@ Character vector of registered layout names.
 \description{
 List Available Layouts
 }
+\examples{
+list_layouts()
+}

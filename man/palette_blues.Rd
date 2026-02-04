@@ -17,3 +17,6 @@ Character vector of colors.
 \description{
 Generate a blue sequential palette.
 }
+\examples{
+palette_blues(5)
+}

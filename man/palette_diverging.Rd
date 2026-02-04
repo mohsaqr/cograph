@@ -19,3 +19,6 @@ Character vector of colors.
 \description{
 Generate a diverging color palette (blue-white-red).
 }
+\examples{
+palette_diverging(5)
+}

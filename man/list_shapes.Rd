@@ -12,3 +12,6 @@ Character vector of registered shape names.
 \description{
 List Available Shapes
 }
+\examples{
+list_shapes()
+}

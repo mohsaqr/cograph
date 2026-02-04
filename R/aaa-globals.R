@@ -54,6 +54,8 @@ register_shape <- function(name, draw_fn) {
 #' @param name Character. Name of the shape.
 #' @return The shape drawing function, or NULL if not found.
 #' @export
+#' @examples
+#' get_shape("circle")
 get_shape <- function(name) {
 
   .sonnet_env$shapes[[name]]
@@ -63,6 +65,8 @@ get_shape <- function(name) {
 #'
 #' @return Character vector of registered shape names.
 #' @export
+#' @examples
+#' list_shapes()
 list_shapes <- function() {
   names(.sonnet_env$shapes)
 }
@@ -101,6 +105,8 @@ register_layout <- function(name, layout_fn) {
 #' @param name Character. Name of the layout.
 #' @return The layout function, or NULL if not found.
 #' @export
+#' @examples
+#' get_layout("circle")
 get_layout <- function(name) {
   .sonnet_env$layouts[[name]]
 }
@@ -109,6 +115,8 @@ get_layout <- function(name) {
 #'
 #' @return Character vector of registered layout names.
 #' @export
+#' @examples
+#' list_layouts()
 list_layouts <- function() {
   names(.sonnet_env$layouts)
 }
@@ -145,6 +153,8 @@ register_theme <- function(name, theme) {
 #' @param name Character. Name of the theme.
 #' @return The theme object, or NULL if not found.
 #' @export
+#' @examples
+#' get_theme("classic")
 get_theme <- function(name) {
 
   .sonnet_env$themes[[name]]
@@ -154,6 +164,8 @@ get_theme <- function(name) {
 #'
 #' @return Character vector of registered theme names.
 #' @export
+#' @examples
+#' list_themes()
 list_themes <- function() {
   names(.sonnet_env$themes)
 }

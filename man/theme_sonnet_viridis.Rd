@@ -12,3 +12,6 @@ A SonnetTheme object.
 \description{
 Theme using viridis color palette.
 }
+\examples{
+theme <- theme_sonnet_viridis()
+}

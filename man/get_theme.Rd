@@ -15,3 +15,6 @@ The theme object, or NULL if not found.
 \description{
 Get a Registered Theme
 }
+\examples{
+get_theme("classic")
+}

@@ -144,6 +144,8 @@ theme_sonnet_minimal <- function() {
 #'
 #' @return A SonnetTheme object.
 #' @export
+#' @examples
+#' theme <- theme_sonnet_viridis()
 theme_sonnet_viridis <- function() {
   SonnetTheme$new(
     name = "viridis",
@@ -169,6 +171,8 @@ theme_sonnet_viridis <- function() {
 #'
 #' @return A SonnetTheme object.
 #' @export
+#' @examples
+#' theme <- theme_sonnet_nature()
 theme_sonnet_nature <- function() {
   SonnetTheme$new(
     name = "nature",

@@ -15,3 +15,7 @@ Invisible TRUE if removed, FALSE if not found.
 \description{
 Remove a custom SVG shape from the registry.
 }
+\examples{
+# Attempt to unregister a non-existent shape (returns FALSE)
+unregister_svg_shape("nonexistent")
+}

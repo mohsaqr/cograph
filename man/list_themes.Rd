@@ -12,3 +12,6 @@ Character vector of registered theme names.
 \description{
 List Available Themes
 }
+\examples{
+list_themes()
+}

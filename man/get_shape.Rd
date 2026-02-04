@@ -15,3 +15,6 @@ The shape drawing function, or NULL if not found.
 \description{
 Get a Registered Shape
 }
+\examples{
+get_shape("circle")
+}

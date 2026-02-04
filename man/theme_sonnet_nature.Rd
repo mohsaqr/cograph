@@ -12,3 +12,6 @@ A SonnetTheme object.
 \description{
 Earth tones theme inspired by nature.
 }
+\examples{
+theme <- theme_sonnet_nature()
+}

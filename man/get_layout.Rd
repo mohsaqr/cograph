@@ -15,3 +15,6 @@ The layout function, or NULL if not found.
 \description{
 Get a Registered Layout
 }
+\examples{
+get_layout("circle")
+}

@@ -6,12 +6,12 @@
 \title{TNA-Style Network Plot (qgraph Compatible)}
 \usage{
 plot_tna(
-  input,
+  x,
   color = NULL,
   labels = NULL,
   layout = "oval",
   theme = "colorblind",
-  mar = rep(5, 4),
+  mar = c(0.1, 0.1, 0.1, 0.1),
   cut = NULL,
   edge.labels = TRUE,
   edge.label.position = 0.7,
@@ -31,12 +31,12 @@ plot_tna(
 )
 
 tplot(
-  input,
+  x,
   color = NULL,
   labels = NULL,
   layout = "oval",
   theme = "colorblind",
-  mar = rep(5, 4),
+  mar = c(0.1, 0.1, 0.1, 0.1),
   cut = NULL,
   edge.labels = TRUE,
   edge.label.position = 0.7,
@@ -56,7 +56,7 @@ tplot(
 )
 }
 \arguments{
-\item{input}{A weight matrix (adjacency matrix) or tna object}
+\item{x}{A weight matrix (adjacency matrix) or tna object}
 
 \item{color}{Node fill colors}
 

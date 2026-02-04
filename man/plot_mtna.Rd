@@ -6,7 +6,7 @@
 \title{Multi-Cluster TNA Network Plot}
 \usage{
 plot_mtna(
-  model,
+  x,
   cluster_list,
   layout = "circle",
   spacing = 3,
@@ -28,7 +28,7 @@ plot_mtna(
 )
 
 mtna(
-  model,
+  x,
   cluster_list,
   layout = "circle",
   spacing = 3,
@@ -50,7 +50,7 @@ mtna(
 )
 }
 \arguments{
-\item{model}{A tna object or weight matrix.}
+\item{x}{A tna object or weight matrix.}
 
 \item{cluster_list}{List of character vectors defining clusters.
 Each cluster becomes a separate shape in the layout.}

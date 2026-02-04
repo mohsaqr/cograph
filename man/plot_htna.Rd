@@ -5,7 +5,7 @@
 \title{Plot Heterogeneous TNA Network (Multi-Group Layout)}
 \usage{
 plot_htna(
-  model,
+  x,
   node_list,
   layout = "auto",
   use_list_order = TRUE,
@@ -31,7 +31,7 @@ plot_htna(
 )
 }
 \arguments{
-\item{model}{A tna object or weight matrix.}
+\item{x}{A tna object or weight matrix.}
 
 \item{node_list}{List of 2+ character vectors defining node groups.}
 

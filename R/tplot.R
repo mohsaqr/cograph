@@ -47,7 +47,7 @@ plot_tna <- function(
     labels = NULL,
     layout = "oval",
     theme = "colorblind",
-    mar = rep(5, 4),
+    mar = c(0.1, 0.1, 0.1, 0.1),
     cut = NULL,
     edge.labels = TRUE,
     edge.label.position = 0.7,

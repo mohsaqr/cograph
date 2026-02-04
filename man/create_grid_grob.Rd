@@ -7,7 +7,7 @@
 create_grid_grob(network, title = NULL)
 }
 \arguments{
-\item{network}{A sonnet_network object.}
+\item{network}{A cograph_network object.}
 
 \item{title}{Optional plot title.}
 }

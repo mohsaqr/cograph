@@ -28,7 +28,7 @@ svg_shape_registry <- new.env(parent = emptyenv())
 #'   </svg>')
 #'
 #' # Use in network
-#' sonnet(adj) |> sn_nodes(shape = "custom_icon")
+#' cograph(adj) |> sn_nodes(shape = "custom_icon")
 #' }
 register_svg_shape <- function(name, svg_source) {
   if (!is.character(name) || length(name) != 1) {

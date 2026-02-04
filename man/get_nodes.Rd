@@ -2,24 +2,24 @@
 % Please edit documentation in R/class-network.R
 \name{get_nodes}
 \alias{get_nodes}
-\title{Get Nodes from Sonnet Network}
+\title{Get Nodes from Cograph Network}
 \usage{
 get_nodes(x)
 }
 \arguments{
-\item{x}{A sonnet_network object.}
+\item{x}{A cograph_network object.}
 }
 \value{
 A data frame with columns: id, label, name, x, y (and possibly others).
 }
 \description{
-Extracts the nodes data frame from a sonnet_network object.
+Extracts the nodes data frame from a cograph_network object.
 }
 \examples{
 mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-net <- as_sonnet(mat)
+net <- as_cograph(mat)
 get_nodes(net)
 }
 \seealso{
-\code{\link{as_sonnet}}, \code{\link{n_nodes}}, \code{\link{get_edges}}
+\code{\link{as_cograph}}, \code{\link{n_nodes}}, \code{\link{get_edges}}
 }

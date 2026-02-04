@@ -1,8 +1,8 @@
-# Sonnet Confidence Interval and P-Value Demo
+# cograph Confidence Interval and P-Value Demo
 # ============================================
 # This script demonstrates edge uncertainty visualization features.
 
-library(Sonnet)
+library(cograph)
 
 # Create a weighted transition matrix (e.g., regression coefficients)
 set.seed(123)

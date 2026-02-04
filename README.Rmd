@@ -12,19 +12,19 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Sonnet <img src="man/figures/logo.png" align="right" height="139" />
+# cograph <img src="man/figures/logo.png" align="right" height="139" />
 
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/username/Sonnet/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/username/Sonnet/actions/workflows/R-CMD-check.yaml)
-[![CRAN status](https://www.r-pkg.org/badges/version/Sonnet)](https://CRAN.R-project.org/package=Sonnet)
+[![R-CMD-check](https://github.com/username/cograph/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/username/cograph/actions/workflows/R-CMD-check.yaml)
+[![CRAN status](https://www.r-pkg.org/badges/version/cograph)](https://CRAN.R-project.org/package=cograph)
 <!-- badges: end -->
 
-**Sonnet** is a modern R package for network visualization. It renders publication-ready network plots from adjacency matrices, edge lists, igraph, statnet network, qgraph, or tna objects using a pipe-friendly API with full control over nodes, edges, layouts, and themes.
+**cograph** is a modern R package for network visualization. It renders publication-ready network plots from adjacency matrices, edge lists, igraph, statnet network, qgraph, or tna objects using a pipe-friendly API with full control over nodes, edges, layouts, and themes.
 
 Key features:
 
 - **Base R and grid rendering** via `splot()` and `soplot()`
-- **Pipe-friendly API**: `sonnet() |> sn_nodes() |> sn_edges() |> sn_theme()`
+- **Pipe-friendly API**: `cograph() |> sn_nodes() |> sn_edges() |> sn_theme()`
 - **12+ node shapes** including pie charts and donut rings
 - **7 built-in themes** and multiple color palettes
 - **Confidence interval underlays**, edge label templates, weight scaling
@@ -34,17 +34,17 @@ Key features:
 
 ```{r}
 # Install from CRAN (when available)
-install.packages("Sonnet")
+install.packages("cograph")
 
 # Or install the development version from GitHub
 # install.packages("devtools")
-devtools::install_github("username/Sonnet")
+devtools::install_github("username/cograph")
 ```
 
 ## Quick Start
 
 ```{r}
-library(Sonnet)
+library(cograph)
 
 # 10-node directed transition matrix (TNA-style)
 set.seed(42)
@@ -58,7 +58,7 @@ mat <- mat / rowSums(mat)  # row-normalize
 splot(mat)
 
 # Pipe-chain style
-sonnet(mat, layout = "spring") |>
+cograph(mat, layout = "spring") |>
   sn_nodes(size = 0.07, fill = "steelblue", shape = "circle") |>
   sn_edges(width = "weight", color = "weight") |>
   sn_theme("minimal") |>
@@ -67,7 +67,7 @@ sonnet(mat, layout = "spring") |>
 
 ## Input Formats
 
-Sonnet accepts six input types:
+cograph accepts six input types:
 
 ```{r}
 # 1. Adjacency matrix
@@ -125,7 +125,7 @@ splot(mat, layout = "spring")
 
 # Group-based layout
 groups <- rep(1:3, length.out = 10)
-sonnet(mat) |> sn_layout("groups", groups = groups) |> sn_render()
+cograph(mat) |> sn_layout("groups", groups = groups) |> sn_render()
 
 # igraph layout codes
 splot(mat, layout = "kk")    # Kamada-Kawai
@@ -134,7 +134,7 @@ splot(mat, layout = "mds")   # Multidimensional scaling
 
 # Custom coordinates
 coords <- matrix(runif(20), ncol = 2)
-sonnet(mat) |> sn_layout(coords) |> sn_render()
+cograph(mat) |> sn_layout(coords) |> sn_render()
 ```
 
 ## Node Shapes
@@ -181,7 +181,7 @@ splot(mat,
 
 ## Confidence Intervals and P-Values
 
-Sonnet supports statistical edge visualization with CI underlays and significance notation.
+cograph supports statistical edge visualization with CI underlays and significance notation.
 
 ```{r}
 # Confidence interval underlays (uncertainty bands)
@@ -408,7 +408,7 @@ from_tna(tna_obj, theme = "dark", layout = "circle")
 ```{r}
 library(ggplot2)
 
-p <- sonnet(mat) |>
+p <- cograph(mat) |>
   sn_nodes(fill = "steelblue") |>
   sn_theme("minimal") |>
   sn_ggplot()
@@ -420,7 +420,7 @@ p + labs(title = "My Network") +
 ## Saving Plots
 
 ```{r}
-net <- sonnet(mat) |>
+net <- cograph(mat) |>
   sn_nodes(fill = palette_pastel(10)) |>
   sn_theme("minimal")
 
@@ -433,7 +433,7 @@ sn_save(net, "network.svg", width = 8, height = 8)
 
 | Function | Purpose |
 |----------|---------|
-| `sonnet()` | Create network from matrix, edge list, igraph, network, qgraph, or tna |
+| `cograph()` | Create network from matrix, edge list, igraph, network, qgraph, or tna |
 | `splot()` | Render with base R graphics |
 | `soplot()` | Render with grid graphics |
 | `sn_nodes()` | Set node aesthetics |

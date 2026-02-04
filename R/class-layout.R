@@ -1,4 +1,4 @@
-#' @title SonnetLayout R6 Class
+#' @title CographLayout R6 Class
 #'
 #' @description
 #' Class for managing layout algorithms and computing node positions.
@@ -6,20 +6,20 @@
 #' @export
 #' @examples
 #' # Create a circular layout
-#' layout <- SonnetLayout$new("circle")
+#' layout <- CographLayout$new("circle")
 #'
 #' # Apply to network
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- SonnetNetwork$new(adj)
+#' net <- CographNetwork$new(adj)
 #' coords <- layout$compute(net)
-SonnetLayout <- R6::R6Class(
+CographLayout <- R6::R6Class(
 
-  "SonnetLayout",
+  "CographLayout",
   public = list(
-    #' @description Create a new SonnetLayout object.
+    #' @description Create a new CographLayout object.
     #' @param type Layout type (e.g., "circle", "spring", "groups").
     #' @param ... Additional parameters for the layout algorithm.
-    #' @return A new SonnetLayout object.
+    #' @return A new CographLayout object.
     initialize = function(type = "circle", ...) {
       private$.type <- type
       private$.params <- list(...)
@@ -27,12 +27,12 @@ SonnetLayout <- R6::R6Class(
     },
 
     #' @description Compute layout coordinates for a network.
-    #' @param network A SonnetNetwork object.
+    #' @param network A CographNetwork object.
     #' @param ... Additional parameters passed to the layout function.
     #' @return Data frame with x, y coordinates.
     compute = function(network, ...) {
-      if (!is_sonnet_network(network) && !inherits(network, "SonnetNetwork")) {
-        stop("network must be a SonnetNetwork object", call. = FALSE)
+      if (!is_cograph_network(network) && !inherits(network, "CographNetwork")) {
+        stop("network must be a CographNetwork object", call. = FALSE)
       }
 
       # Handle custom coordinates
@@ -106,7 +106,7 @@ SonnetLayout <- R6::R6Class(
 
     #' @description Print layout summary.
     print = function() {
-      cat("SonnetLayout\n")
+      cat("CographLayout\n")
       cat("  Type:", private$.type, "\n")
       if (length(private$.params) > 0) {
         cat("  Parameters:\n")

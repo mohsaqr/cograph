@@ -8,7 +8,7 @@ NULL
 #' Arrange nodes evenly spaced around an ellipse. This creates an oval-shaped
 #' network layout that is wider than it is tall (or vice versa depending on ratio).
 #'
-#' @param network A SonnetNetwork object.
+#' @param network A CographNetwork object.
 #' @param ratio Aspect ratio (width/height). Values > 1 create horizontal ovals,
 #'   values < 1 create vertical ovals. Default 1.5.
 #' @param order Optional vector specifying node order (indices or labels).
@@ -20,7 +20,7 @@ NULL
 #'
 #' @examples
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- SonnetNetwork$new(adj)
+#' net <- CographNetwork$new(adj)
 #' coords <- layout_oval(net, ratio = 1.5)
 layout_oval <- function(network, ratio = 1.5, order = NULL, start_angle = pi/2,
                         clockwise = TRUE, rotation = 0) {

@@ -47,9 +47,9 @@ test_that("splot() accepts weighted edge list", {
   expect_true(result$success, info = result$error)
 })
 
-test_that("splot() accepts sonnet_network object", {
+test_that("splot() accepts cograph_network object", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- safe_plot(splot(net))
   expect_true(result$success, info = result$error)
@@ -654,7 +654,7 @@ test_that("splot() outputs to SVG file", {
 # RETURN VALUE
 # ============================================
 
-test_that("splot() returns sonnet_network invisibly", {
+test_that("splot() returns cograph_network invisibly", {
   adj <- create_test_matrix(4)
 
   result <- with_temp_png({
@@ -662,7 +662,7 @@ test_that("splot() returns sonnet_network invisibly", {
     ret
   })
 
-  expect_sonnet_network(result)
+  expect_cograph_network(result)
 })
 
 # ============================================

@@ -8,23 +8,23 @@ test_that("built-in themes exist", {
   expect_true("minimal" %in% themes)
 })
 
-test_that("theme_sonnet_classic() returns SonnetTheme", {
-  theme <- theme_sonnet_classic()
+test_that("theme_cograph_classic() returns CographTheme", {
+  theme <- theme_cograph_classic()
 
-  expect_s3_class(theme, "SonnetTheme")
+  expect_s3_class(theme, "CographTheme")
   expect_equal(theme$name, "classic")
   expect_equal(theme$get("background"), "white")
 })
 
-test_that("theme_sonnet_dark() has dark background", {
-  theme <- theme_sonnet_dark()
+test_that("theme_cograph_dark() has dark background", {
+  theme <- theme_cograph_dark()
 
   expect_equal(theme$get("background"), "#1a1a2e")
   expect_equal(theme$get("label_color"), "white")
 })
 
-test_that("SonnetTheme merge works", {
-  theme1 <- theme_sonnet_classic()
+test_that("CographTheme merge works", {
+  theme1 <- theme_cograph_classic()
   merged <- theme1$merge(list(background = "gray90", node_fill = "orange"))
 
   expect_equal(merged$get("background"), "gray90")
@@ -34,7 +34,7 @@ test_that("SonnetTheme merge works", {
 })
 
 test_that("custom theme can be registered", {
-  custom <- SonnetTheme$new(
+  custom <- CographTheme$new(
     name = "test_custom",
     background = "black",
     node_fill = "white"

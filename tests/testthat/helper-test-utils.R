@@ -201,10 +201,10 @@ expect_in_range <- function(x, min, max) {
                           paste(range(x, na.rm = TRUE), collapse = "-")))
 }
 
-#' Expect sonnet_network object
+#' Expect cograph_network object
 #' @param x Object to check
-expect_sonnet_network <- function(x) {
-  expect_s3_class(x, "sonnet_network")
+expect_cograph_network <- function(x) {
+  expect_s3_class(x, "cograph_network")
   expect_true(!is.null(x$network))
   expect_true(x$network$n_nodes >= 0)
 }
@@ -250,7 +250,7 @@ with_temp_pdf <- function(expr, width = 7, height = 7, ...) {
 #' Create temporary directory for test outputs
 #' @return Path to temporary directory
 create_temp_dir <- function() {
-  dir <- tempfile(pattern = "sonnet_test_")
+  dir <- tempfile(pattern = "cograph_test_")
   dir.create(dir)
   dir
 }
@@ -297,11 +297,11 @@ expect_soplot_works <- function(...) {
 # ============================================
 
 #' Validate network structure
-#' @param net sonnet_network object
+#' @param net cograph_network object
 #' @param expected_nodes Expected node count
 #' @param expected_edges Expected edge count (approximate)
 validate_network <- function(net, expected_nodes = NULL, expected_edges = NULL) {
-  expect_sonnet_network(net)
+  expect_cograph_network(net)
 
   if (!is.null(expected_nodes)) {
     expect_equal(net$network$n_nodes, expected_nodes)

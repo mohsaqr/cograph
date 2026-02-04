@@ -2,24 +2,24 @@
 % Please edit documentation in R/class-network.R
 \name{get_labels}
 \alias{get_labels}
-\title{Get Labels from Sonnet Network}
+\title{Get Labels from Cograph Network}
 \usage{
 get_labels(x)
 }
 \arguments{
-\item{x}{A sonnet_network object.}
+\item{x}{A cograph_network object.}
 }
 \value{
 A character vector of node labels.
 }
 \description{
-Extracts the node labels vector from a sonnet_network object.
+Extracts the node labels vector from a cograph_network object.
 }
 \examples{
 mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-net <- as_sonnet(mat)
+net <- as_cograph(mat)
 get_labels(net)
 }
 \seealso{
-\code{\link{as_sonnet}}, \code{\link{get_nodes}}
+\code{\link{as_cograph}}, \code{\link{get_nodes}}
 }

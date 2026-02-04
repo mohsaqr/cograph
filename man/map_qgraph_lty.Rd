@@ -2,7 +2,7 @@
 % Please edit documentation in R/from-qgraph.R
 \name{map_qgraph_lty}
 \alias{map_qgraph_lty}
-\title{Map qgraph lty codes to Sonnet edge style names}
+\title{Map qgraph lty codes to cograph edge style names}
 \usage{
 map_qgraph_lty(lty)
 }
@@ -10,9 +10,9 @@ map_qgraph_lty(lty)
 \item{lty}{Numeric or character vector of R line types}
 }
 \value{
-Character vector of Sonnet style names
+Character vector of cograph style names
 }
 \description{
-Map qgraph lty codes to Sonnet edge style names
+Map qgraph lty codes to cograph edge style names
 }
 \keyword{internal}

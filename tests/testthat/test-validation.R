@@ -5,16 +5,16 @@
 # MATRIX VALIDATION
 # ============================================
 
-test_that("sonnet() errors on non-square matrix", {
+test_that("cograph() errors on non-square matrix", {
   non_square <- matrix(1:6, nrow = 2, ncol = 3)
 
-  expect_error(sonnet(non_square), "square")
+  expect_error(cograph(non_square), "square")
 })
 
-test_that("sonnet() errors on non-numeric matrix", {
+test_that("cograph() errors on non-numeric matrix", {
   char_mat <- matrix(letters[1:9], nrow = 3)
 
-  expect_error(sonnet(char_mat))
+  expect_error(cograph(char_mat))
 })
 
 test_that("parse_matrix errors on non-square matrix", {
@@ -33,19 +33,19 @@ test_that("parse_edgelist errors on empty data frame", {
   expect_error(parse_edgelist(empty_df), "empty")
 })
 
-test_that("sonnet() handles edge list with missing from/to columns gracefully", {
+test_that("cograph() handles edge list with missing from/to columns gracefully", {
   bad_df <- data.frame(source = c(1, 2), target = c(2, 3))
 
   # The package may accept alternative column names or auto-detect
   # Just verify it doesn't crash silently with an unintended result
   result <- tryCatch(
-    sonnet(bad_df),
+    cograph(bad_df),
     error = function(e) "error"
   )
 
   # Either errors or produces a valid network (not silent corruption)
   if (!identical(result, "error")) {
-    expect_sonnet_network(result)
+    expect_cograph_network(result)
   }
 })
 
@@ -55,7 +55,7 @@ test_that("sonnet() handles edge list with missing from/to columns gracefully", 
 
 test_that("sn_nodes() validates alpha range", {
   adj <- create_test_matrix(3)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   # Values outside 0-1 should error
   expect_error(sn_nodes(net, alpha = 1.5))
@@ -64,14 +64,14 @@ test_that("sn_nodes() validates alpha range", {
 
 test_that("sn_nodes() validates label_position options", {
   adj <- create_test_matrix(3)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   expect_error(sn_nodes(net, label_position = "invalid_position"))
 })
 
 test_that("sn_nodes() validates donut_shape options", {
   adj <- create_test_matrix(3)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   valid_shapes <- c("circle", "square", "hexagon", "triangle", "diamond", "pentagon")
 
@@ -86,7 +86,7 @@ test_that("sn_nodes() validates donut_shape options", {
 
 test_that("sn_nodes() validates fontface options", {
   adj <- create_test_matrix(3)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   # Valid fontfaces
   for (face in c("plain", "bold", "italic", "bold.italic")) {
@@ -99,21 +99,21 @@ test_that("sn_nodes() validates fontface options", {
 
 test_that("sn_nodes() validates donut_value_fontface options", {
   adj <- create_test_matrix(3)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   expect_error(sn_nodes(net, donut_value_fontface = "invalid"))
 })
 
 test_that("sn_nodes() validates donut_value_format is function", {
   adj <- create_test_matrix(3)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   expect_error(sn_nodes(net, donut_value_format = "not_a_function"))
 })
 
 test_that("sn_edges() validates alpha range", {
   adj <- create_test_matrix(3)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   expect_error(sn_edges(net, alpha = 2.0))
   expect_error(sn_edges(net, alpha = -0.1))
@@ -121,7 +121,7 @@ test_that("sn_edges() validates alpha range", {
 
 test_that("sn_edges() validates edge_scale_mode options", {
   adj <- create_test_matrix(3)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   # Valid modes should work
   for (mode in c("linear", "log", "sqrt", "rank")) {
@@ -134,7 +134,7 @@ test_that("sn_edges() validates edge_scale_mode options", {
 
 test_that("sn_edges() validates style options", {
   adj <- create_test_matrix(3)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   # Valid styles should work
   for (style in c("solid", "dashed", "dotted", "longdash", "twodash")) {
@@ -147,7 +147,7 @@ test_that("sn_edges() validates style options", {
 
 test_that("sn_edges() validates curves parameter", {
   adj <- create_test_matrix(3)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   # Valid values
   expect_silent(sn_edges(net, curves = FALSE))
@@ -161,14 +161,14 @@ test_that("sn_edges() validates curves parameter", {
 
 test_that("sn_edges() validates label_fontface options", {
   adj <- create_test_matrix(3)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   expect_error(sn_edges(net, label_fontface = "invalid"))
 })
 
 test_that("sn_edges() validates label_border options", {
   adj <- create_test_matrix(3)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   # Valid borders
   for (border in c("rect", "rounded", "circle")) {
@@ -181,7 +181,7 @@ test_that("sn_edges() validates label_border options", {
 
 test_that("sn_edges() validates label_ci_format options", {
   adj <- create_test_matrix(3)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   # Valid formats
   expect_silent(sn_edges(net, label_ci_format = "bracket"))
@@ -193,7 +193,7 @@ test_that("sn_edges() validates label_ci_format options", {
 
 test_that("sn_edges() validates label_style options", {
   adj <- create_test_matrix(3)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   # Valid styles
   for (style in c("none", "estimate", "full", "range", "stars")) {
@@ -206,7 +206,7 @@ test_that("sn_edges() validates label_style options", {
 
 test_that("sn_edges() validates ci_alpha range", {
   adj <- create_test_matrix(3)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   expect_error(sn_edges(net, ci_alpha = 1.5))
   expect_error(sn_edges(net, ci_alpha = -0.1))
@@ -214,7 +214,7 @@ test_that("sn_edges() validates ci_alpha range", {
 
 test_that("sn_edges() validates label_shadow_alpha range", {
   adj <- create_test_matrix(3)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   expect_error(sn_edges(net, label_shadow_alpha = 1.5))
   expect_error(sn_edges(net, label_shadow_alpha = -0.1))
@@ -226,16 +226,16 @@ test_that("sn_edges() validates label_shadow_alpha range", {
 
 test_that("sn_theme() errors on unknown theme name", {
   adj <- create_test_matrix(3)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   expect_error(sn_theme(net, "nonexistent_theme"))
 })
 
 test_that("sn_theme() errors on invalid theme type", {
   adj <- create_test_matrix(3)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
-  expect_error(sn_theme(net, 123))  # Not a string or SonnetTheme
+  expect_error(sn_theme(net, 123))  # Not a string or CographTheme
 })
 
 # ============================================
@@ -244,14 +244,14 @@ test_that("sn_theme() errors on invalid theme type", {
 
 test_that("sn_palette() errors on unknown palette name", {
   adj <- create_test_matrix(3)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   expect_error(sn_palette(net, "nonexistent_palette"))
 })
 
 test_that("sn_palette() errors on invalid palette type", {
   adj <- create_test_matrix(3)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   expect_error(sn_palette(net, 123))  # Not a string or function
 })
@@ -262,14 +262,14 @@ test_that("sn_palette() errors on invalid palette type", {
 
 test_that("sn_layout() errors on invalid layout type", {
   adj <- create_test_matrix(3)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   expect_error(sn_layout(net, 123))  # Not a valid layout specification
 })
 
 test_that("sn_layout() handles unknown string layout", {
   adj <- create_test_matrix(3)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   # Should error on unknown layout name
   expect_error(sn_layout(net, "nonexistent_layout"))
@@ -279,24 +279,24 @@ test_that("sn_layout() handles unknown string layout", {
 # INPUT TYPE VALIDATION
 # ============================================
 
-test_that("ensure_sonnet_network errors on unsupported types", {
-  ensure_sonnet_network <- Sonnet:::ensure_sonnet_network
+test_that("ensure_cograph_network errors on unsupported types", {
+  ensure_cograph_network <- cograph:::ensure_cograph_network
 
-  expect_error(ensure_sonnet_network("string"))
-  expect_error(ensure_sonnet_network(123))
-  expect_error(ensure_sonnet_network(list(a = 1)))
+  expect_error(ensure_cograph_network("string"))
+  expect_error(ensure_cograph_network(123))
+  expect_error(ensure_cograph_network(list(a = 1)))
 })
 
 test_that("sn_save() errors on filename without extension", {
   adj <- create_test_matrix(3)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   expect_error(sn_save(net, "no_extension"))
 })
 
 test_that("sn_save() errors on unsupported format", {
   adj <- create_test_matrix(3)
-  net <- sonnet(adj)
+  net <- cograph(adj)
   tmp <- tempfile(fileext = ".xyz")
 
   expect_error(sn_save(net, tmp), "Unsupported")
@@ -346,7 +346,7 @@ test_that("get_shape() returns NULL for unknown shape", {
 
 test_that("sn_nodes() recycles shorter vectors correctly", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   # Single value should be recycled to all nodes
   net2 <- sn_nodes(net, fill = "red")
@@ -357,7 +357,7 @@ test_that("sn_nodes() recycles shorter vectors correctly", {
 
 test_that("sn_nodes() handles exact-length vectors", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   colors <- c("red", "green", "blue", "orange")
   net2 <- sn_nodes(net, fill = colors)
@@ -371,7 +371,7 @@ test_that("sn_nodes() handles exact-length vectors", {
 
 test_that("error messages are informative", {
   adj <- create_test_matrix(3)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   # Check that error messages mention the problematic parameter
   err <- tryCatch(
@@ -393,7 +393,7 @@ test_that("error messages are informative", {
 
 test_that("alpha at boundaries works", {
   adj <- create_test_matrix(3)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   # Exactly 0 and 1 should be valid
   expect_silent(sn_nodes(net, alpha = 0))
@@ -404,7 +404,7 @@ test_that("alpha at boundaries works", {
 
 test_that("empty network does not crash on aesthetic functions", {
   adj <- matrix(0, 3, 3)  # No edges
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   # These should all work without crashing
 

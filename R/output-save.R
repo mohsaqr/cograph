@@ -5,9 +5,9 @@ NULL
 
 #' Save Network Visualization
 #'
-#' Save a Sonnet network visualization to a file.
+#' Save a Cograph network visualization to a file.
 #'
-#' @param network A sonnet_network object, matrix, data.frame, or igraph object.
+#' @param network A cograph_network object, matrix, data.frame, or igraph object.
 #'   Matrices and other inputs are auto-converted.
 #' @param filename Output filename. Format is detected from extension.
 #' @param width Width in inches (default 7).
@@ -22,8 +22,8 @@ NULL
 #' @examples
 #' \dontrun{
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' # With sonnet()
-#' net <- sonnet(adj)
+#' # With cograph()
+#' net <- cograph(adj)
 #' sn_save(net, "network.pdf")
 #'
 #' # Direct matrix input
@@ -32,8 +32,8 @@ NULL
 sn_save <- function(network, filename, width = 7, height = 7, dpi = 300,
                     title = NULL, ...) {
 
-  # Auto-convert matrix/data.frame/igraph to sonnet_network
-  network <- ensure_sonnet_network(network)
+  # Auto-convert matrix/data.frame/igraph to cograph_network
+  network <- ensure_cograph_network(network)
 
   # Detect format from extension
   ext <- tolower(tools::file_ext(filename))
@@ -97,7 +97,7 @@ sn_save <- function(network, filename, width = 7, height = 7, dpi = 300,
 #'
 #' Save network as a ggplot2 object to file using ggsave.
 #'
-#' @param network A sonnet_network object.
+#' @param network A cograph_network object.
 #' @param filename Output filename.
 #' @param width Width in inches.
 #' @param height Height in inches.
@@ -111,7 +111,7 @@ sn_save <- function(network, filename, width = 7, height = 7, dpi = 300,
 #' @examples
 #' \dontrun{
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- sonnet(adj)
+#' net <- cograph(adj)
 #' sn_save_ggplot(net, "network.pdf")
 #' }
 sn_save_ggplot <- function(network, filename, width = 7, height = 7,

@@ -15,7 +15,7 @@ sn_save_ggplot(
 )
 }
 \arguments{
-\item{network}{A sonnet_network object.}
+\item{network}{A cograph_network object.}
 
 \item{filename}{Output filename.}
 
@@ -38,7 +38,7 @@ Save network as a ggplot2 object to file using ggsave.
 \examples{
 \dontrun{
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-net <- sonnet(adj)
+net <- cograph(adj)
 sn_save_ggplot(net, "network.pdf")
 }
 }

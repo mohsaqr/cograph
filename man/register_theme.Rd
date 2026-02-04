@@ -9,7 +9,7 @@ register_theme(name, theme)
 \arguments{
 \item{name}{Character. Name of the theme.}
 
-\item{theme}{A SonnetTheme object or a list of theme parameters.}
+\item{theme}{A CographTheme object or a list of theme parameters.}
 }
 \value{
 Invisible NULL.

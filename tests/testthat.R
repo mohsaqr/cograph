@@ -2,6 +2,6 @@
 # It is recommended that you do not modify it.
 
 library(testthat)
-library(Sonnet)
+library(cograph)
 
-test_check("Sonnet")
+test_check("cograph")

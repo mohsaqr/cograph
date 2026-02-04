@@ -4,5 +4,5 @@
 \alias{methods-plot}
 \title{Plot Methods}
 \description{
-S3 plot methods for Sonnet objects.
+S3 plot methods for Cograph objects.
 }

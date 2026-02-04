@@ -8,7 +8,7 @@ NULL
 #'
 #' Create grid grobs for all edges in the network.
 #'
-#' @param network A SonnetNetwork object.
+#' @param network A CographNetwork object.
 #' @return A grid gList of edge grobs.
 #' @keywords internal
 render_edges_grid <- function(network) {
@@ -168,7 +168,7 @@ render_edges_grid <- function(network) {
   # Default arrow_size uses unified scale constant (0.02)
   # This is already in the correct format - soplot converts user input via scale$arrow_factor
   show_arrows <- if (!is.null(aes$show_arrows)) aes$show_arrows else network$is_directed
-  arrow_size <- if (!is.null(aes$arrow_size)) aes$arrow_size else SONNET_SCALE$arrow_factor
+  arrow_size <- if (!is.null(aes$arrow_size)) aes$arrow_size else COGRAPH_SCALE$arrow_factor
 
   # Bidirectional arrow settings
   bidirectionals <- recycle_to_length(
@@ -510,7 +510,7 @@ draw_self_loop <- function(x, y, node_size, color, width, lty, rotation = pi/2) 
 #'
 #' Create grid grobs for edge labels with background, borders, and styling.
 #'
-#' @param network A SonnetNetwork object.
+#' @param network A CographNetwork object.
 #' @return A grid gList of label grobs.
 #' @keywords internal
 render_edge_labels_grid <- function(network) {

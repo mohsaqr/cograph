@@ -1,4 +1,4 @@
-# Sonnet 1.5.2
+# cograph 1.5.2
 
 ## Breaking Changes
 
@@ -16,7 +16,7 @@
 
 - Added qgraph to splot migration guide (`vignettes/qgraph-to-splot.md`)
 
-# Sonnet 1.5.1
+# cograph 1.5.1
 
 ## Breaking Changes (with backwards compatibility)
 
@@ -37,7 +37,7 @@ The following parameters have been renamed for consistency. The old names still 
 - Added deprecation helper infrastructure for backwards-compatible parameter renaming
 - Standardized all public API parameters to use consistent snake_case naming
 
-# Sonnet 1.4.0
+# cograph 1.4.0
 
 ## New Features
 
@@ -52,7 +52,7 @@ The following parameters have been renamed for consistency. The old names still 
 - Fixed Rd cross-reference warning in splot documentation
 - Fixed pie/donut segment divider lines when border width is 0
 
-# Sonnet 1.3.1
+# cograph 1.3.1
 
 ## New Features
 
@@ -78,7 +78,7 @@ The following parameters have been renamed for consistency. The old names still 
 - Improved roxygen documentation
 - Added TNA plotting defaults and improved dotted edge style
 
-# Sonnet 1.2.7
+# cograph 1.2.7
 
 ## Bug Fixes
 
@@ -93,7 +93,7 @@ The following parameters have been renamed for consistency. The old names still 
 
 - Dropped qgraph cut-based edge_color/edge_width and cut param
 
-# Sonnet 1.2.6
+# cograph 1.2.6
 
 ## New Features
 
@@ -111,11 +111,11 @@ The following parameters have been renamed for consistency. The old names still 
 - Improved curvature, threshold/minimum, donut ratio, and node size defaults
 - Rewrote `from_qgraph()` to read resolved graphAttributes
 
-# Sonnet 1.2.0
+# cograph 1.2.0
 
 ## New Features
 
-- Added `sonplot()` qgraph-compatible plotting function
+- Added `soplot()` qgraph-compatible plotting function
 - Added `layout_oval()` function for oval/ellipse layouts
 - Added `layout_scale` parameter to expand/contract network layout
 - Added `layout_scale = "auto"` for node-count based scaling
@@ -133,9 +133,9 @@ The following parameters have been renamed for consistency. The old names still 
 ## Improvements
 
 - Added unified parameter scaling for splot/soplot alignment
-- Synced all splot() parameters to sonplot() for full feature parity
+- Synced all splot() parameters to soplot() for full feature parity
 
-# Sonnet 1.1.0
+# cograph 1.1.0
 
 ## New Features
 
@@ -166,6 +166,6 @@ The following parameters have been renamed for consistency. The old names still 
 - Added layout rescaling to soplot for consistent rendering with splot
 - Donut/pie content now drawn inside node boundary for visible arrows
 
-# Sonnet 1.0.0
+# cograph 1.0.0
 
-- Initial release of Sonnet network visualization package
+- Initial release of cograph network visualization package

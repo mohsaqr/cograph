@@ -13,7 +13,7 @@ layout_groups(
 )
 }
 \arguments{
-\item{network}{A SonnetNetwork object.}
+\item{network}{A CographNetwork object.}
 
 \item{groups}{Vector specifying group membership for each node.
 Can be numeric, character, or factor.}
@@ -39,7 +39,7 @@ adj <- matrix(0, 9, 9)
 adj[1, 2:3] <- 1; adj[2:3, 1] <- 1  # Group 1
 adj[4, 5:6] <- 1; adj[5:6, 4] <- 1  # Group 2
 adj[7, 8:9] <- 1; adj[8:9, 7] <- 1  # Group 3
-net <- SonnetNetwork$new(adj)
+net <- CographNetwork$new(adj)
 groups <- c(1, 1, 1, 2, 2, 2, 3, 3, 3)
 coords <- layout_groups(net, groups)
 }

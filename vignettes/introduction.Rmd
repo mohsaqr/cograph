@@ -1,8 +1,8 @@
 ---
-title: "Introduction to Sonnet"
+title: "Introduction to cograph"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Introduction to Sonnet}
+  %\VignetteIndexEntry{Introduction to cograph}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -18,15 +18,15 @@ knitr::opts_chunk$set(
 
 ## Overview
 
-Sonnet is a modern R package for network visualization. It provides a clean, pipe-friendly API for creating publication-quality network plots.
+cograph is a modern R package for network visualization. It provides a clean, pipe-friendly API for creating publication-quality network plots.
 
 ```{r setup}
-library(Sonnet)
+library(cograph)
 ```
 
 ## Creating a Network
 
-Sonnet accepts several input formats:
+cograph accepts several input formats:
 
 ### From an Adjacency Matrix
 
@@ -44,7 +44,7 @@ adj <- matrix(c(
 rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D", "E")
 
 # Create and render
-sonnet(adj)
+cograph(adj)
 ```
 
 ### From an Edge List
@@ -56,37 +56,37 @@ edges <- data.frame(
   weight = c(1, 2, 1, 3)
 )
 
-sonnet(edges)
+cograph(edges)
 ```
 
 ## Layouts
 
-Sonnet provides several layout algorithms:
+cograph provides several layout algorithms:
 
 ### Circular Layout
 
 ```{r layout-circle}
-sonnet(adj, layout = "circle")
+cograph(adj, layout = "circle")
 ```
 
 ### Force-Directed (Spring) Layout
 
 ```{r layout-spring}
-sonnet(adj, layout = "spring", seed = 42)
+cograph(adj, layout = "spring", seed = 42)
 ```
 
 ### Group-Based Layout
 
 ```{r layout-groups}
 groups <- c(1, 1, 2, 2, 2)
-sonnet(adj) |>
+cograph(adj) |>
   sn_layout("groups", groups = groups)
 ```
 
 ## Customizing Nodes
 
 ```{r node-customization}
-sonnet(adj) |>
+cograph(adj) |>
   sn_nodes(
     size = 0.08,
     shape = "circle",
@@ -99,7 +99,7 @@ sonnet(adj) |>
 ### Per-Node Styles
 
 ```{r node-per-node}
-sonnet(adj) |>
+cograph(adj) |>
   sn_nodes(
     size = c(0.05, 0.06, 0.08, 0.06, 0.05),
     fill = c("red", "orange", "yellow", "green", "blue")
@@ -111,7 +111,7 @@ sonnet(adj) |>
 Available shapes: `circle`, `square`, `triangle`, `diamond`, `pentagon`, `hexagon`, `ellipse`, `star`, `heart`, `pie`, `cross`.
 
 ```{r node-shapes}
-sonnet(adj) |>
+cograph(adj) |>
   sn_nodes(
     shape = c("circle", "square", "triangle", "diamond", "star")
   )
@@ -122,7 +122,7 @@ sonnet(adj) |>
 ### Basic Edge Styling
 
 ```{r edge-basic}
-sonnet(adj) |>
+cograph(adj) |>
   sn_edges(
     width = 2,
     color = "gray40",
@@ -143,7 +143,7 @@ weighted <- matrix(c(
   0, 0, -0.4, 0.9, 0
 ), nrow = 5, byrow = TRUE)
 
-sonnet(weighted) |>
+cograph(weighted) |>
   sn_edges(
     width = "weight",
     color = "weight",
@@ -164,7 +164,7 @@ dir_adj <- matrix(c(
   0, 0, 0, 0, 0
 ), nrow = 5, byrow = TRUE)
 
-sonnet(dir_adj, directed = TRUE) |>
+cograph(dir_adj, directed = TRUE) |>
   sn_edges(
     curvature = 0.1,
     arrow_size = 0.015
@@ -173,30 +173,30 @@ sonnet(dir_adj, directed = TRUE) |>
 
 ## Themes
 
-Sonnet includes several built-in themes:
+cograph includes several built-in themes:
 
 ### Classic Theme (Default)
 
 ```{r theme-classic}
-sonnet(adj) |> sn_theme("classic")
+cograph(adj) |> sn_theme("classic")
 ```
 
 ### Dark Theme
 
 ```{r theme-dark}
-sonnet(adj) |> sn_theme("dark")
+cograph(adj) |> sn_theme("dark")
 ```
 
 ### Minimal Theme
 
 ```{r theme-minimal}
-sonnet(adj) |> sn_theme("minimal")
+cograph(adj) |> sn_theme("minimal")
 ```
 
 ### Colorblind-Friendly Theme
 
 ```{r theme-colorblind}
-sonnet(adj) |> sn_theme("colorblind")
+cograph(adj) |> sn_theme("colorblind")
 ```
 
 ## ggplot2 Conversion
@@ -206,14 +206,14 @@ Convert your network to a ggplot2 object for additional customization:
 ```{r ggplot-conversion}
 library(ggplot2)
 
-p <- sonnet(adj) |>
+p <- cograph(adj) |>
   sn_nodes(fill = "coral") |>
   sn_ggplot()
 
 p +
   labs(
     title = "My Network",
-    subtitle = "Created with Sonnet"
+    subtitle = "Created with cograph"
   ) +
   theme(plot.title = element_text(hjust = 0.5))
 ```
@@ -237,7 +237,7 @@ rownames(social) <- colnames(social) <-
 groups <- c("Team A", "Team A", "Team A", "Team B", "Team B", "Team B")
 
 social |>
-  sonnet() |>
+  cograph() |>
   sn_layout("groups", groups = groups) |>
   sn_nodes(
     size = 0.06,
@@ -252,7 +252,7 @@ social |>
 ## Saving Plots
 
 ```{r saving, eval=FALSE}
-net <- sonnet(adj) |>
+net <- cograph(adj) |>
   sn_nodes(fill = "steelblue") |>
   sn_theme("minimal")
 

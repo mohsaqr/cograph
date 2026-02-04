@@ -1,6 +1,6 @@
 ---
-title: "Sonnet: Complete Feature Demo"
-author: "Sonnet Package"
+title: "cograph: Complete Feature Demo"
+author: "cograph Package"
 date: "`r Sys.Date()`"
 output:
   html_document:
@@ -704,4 +704,4 @@ splot(mat,
 
 ---
 
-*Generated with Sonnet `r packageVersion("Sonnet")`*
+*Generated with cograph `r packageVersion("cograph")`*

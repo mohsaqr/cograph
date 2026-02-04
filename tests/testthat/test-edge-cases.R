@@ -5,25 +5,25 @@
 # EMPTY AND MINIMAL NETWORKS
 # ============================================
 
-test_that("sonnet() handles empty adjacency matrix (no nodes)", {
+test_that("cograph() handles empty adjacency matrix (no nodes)", {
   # 0x0 matrix might not be meaningful but shouldn't crash
   # Skip if implementation explicitly forbids it
   adj <- matrix(numeric(0), nrow = 0, ncol = 0)
 
   result <- tryCatch(
-    sonnet(adj),
+    cograph(adj),
     error = function(e) "error"
   )
 
   # Either creates network or errors gracefully
-  expect_true(inherits(result, "sonnet_network") || result == "error")
+  expect_true(inherits(result, "cograph_network") || result == "error")
 })
 
-test_that("sonnet() handles single-node network", {
+test_that("cograph() handles single-node network", {
   adj <- matrix(0, 1, 1)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
-  expect_sonnet_network(net)
+  expect_cograph_network(net)
   expect_equal(net$network$n_nodes, 1)
   expect_equal(net$network$n_edges, 0)
 })
@@ -35,11 +35,11 @@ test_that("splot() renders single-node network", {
   expect_true(result$success, info = result$error)
 })
 
-test_that("sonnet() handles two-node network", {
+test_that("cograph() handles two-node network", {
   adj <- matrix(c(0, 1, 1, 0), 2, 2)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
-  expect_sonnet_network(net)
+  expect_cograph_network(net)
   expect_equal(net$network$n_nodes, 2)
 })
 
@@ -50,11 +50,11 @@ test_that("splot() renders two-node network", {
   expect_true(result$success, info = result$error)
 })
 
-test_that("sonnet() handles network with no edges", {
+test_that("cograph() handles network with no edges", {
   adj <- matrix(0, 5, 5)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
-  expect_sonnet_network(net)
+  expect_cograph_network(net)
   expect_equal(net$network$n_nodes, 5)
   expect_equal(net$network$n_edges, 0)
 })
@@ -70,12 +70,12 @@ test_that("splot() renders network with no edges", {
 # SELF-LOOPS
 # ============================================
 
-test_that("sonnet() handles network with self-loops", {
+test_that("cograph() handles network with self-loops", {
   adj <- create_test_matrix(4)
   diag(adj) <- 1
 
-  net <- sonnet(adj)
-  expect_sonnet_network(net)
+  net <- cograph(adj)
+  expect_cograph_network(net)
 })
 
 test_that("splot() renders self-loops correctly", {
@@ -86,12 +86,12 @@ test_that("splot() renders self-loops correctly", {
   expect_true(result$success, info = result$error)
 })
 
-test_that("sonnet() handles network with only self-loops", {
+test_that("cograph() handles network with only self-loops", {
 
   adj <- diag(4)  # Identity matrix = only self-loops
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
-  expect_sonnet_network(net)
+  expect_cograph_network(net)
   # Should have nodes (self-loops may or may not be counted as edges)
   expect_equal(net$network$n_nodes, 4)
 })
@@ -107,11 +107,11 @@ test_that("splot() handles self-loop rotation parameter", {
 # SPECIAL GRAPH TOPOLOGIES
 # ============================================
 
-test_that("sonnet() handles complete graph", {
+test_that("cograph() handles complete graph", {
   adj <- create_test_topology("complete", n = 5)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
-  expect_sonnet_network(net)
+  expect_cograph_network(net)
   # Complete graph of n nodes has n*(n-1)/2 undirected edges
   expect_equal(net$network$n_edges, 10)
 })
@@ -123,11 +123,11 @@ test_that("splot() renders complete graph", {
   expect_true(result$success, info = result$error)
 })
 
-test_that("sonnet() handles star graph", {
+test_that("cograph() handles star graph", {
   adj <- create_test_topology("star", n = 5)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
-  expect_sonnet_network(net)
+  expect_cograph_network(net)
   expect_equal(net$network$n_edges, 4)  # n-1 edges
 })
 
@@ -138,11 +138,11 @@ test_that("splot() renders star graph", {
   expect_true(result$success, info = result$error)
 })
 
-test_that("sonnet() handles ring graph", {
+test_that("cograph() handles ring graph", {
   adj <- create_test_topology("ring", n = 6)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
-  expect_sonnet_network(net)
+  expect_cograph_network(net)
   expect_equal(net$network$n_edges, 6)  # n edges in a ring
 })
 
@@ -153,19 +153,19 @@ test_that("splot() renders ring graph with circle layout", {
   expect_true(result$success, info = result$error)
 })
 
-test_that("sonnet() handles path graph", {
+test_that("cograph() handles path graph", {
   adj <- create_test_topology("path", n = 5)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
-  expect_sonnet_network(net)
+  expect_cograph_network(net)
   expect_equal(net$network$n_edges, 4)  # n-1 edges
 })
 
-test_that("sonnet() handles disconnected graph", {
+test_that("cograph() handles disconnected graph", {
   adj <- create_test_topology("disconnected", n = 6)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
-  expect_sonnet_network(net)
+  expect_cograph_network(net)
 })
 
 test_that("splot() renders disconnected graph", {
@@ -179,21 +179,21 @@ test_that("splot() renders disconnected graph", {
 # WEIGHT EDGE CASES
 # ============================================
 
-test_that("sonnet() handles zero weights", {
+test_that("cograph() handles zero weights", {
   adj <- create_test_matrix(4, weighted = TRUE)
   adj[adj != 0] <- 0  # Set all weights to 0 (but keep structure)
 
   # This might result in empty network depending on implementation
-  net <- sonnet(adj)
-  expect_sonnet_network(net)
+  net <- cograph(adj)
+  expect_cograph_network(net)
 })
 
-test_that("sonnet() handles negative weights", {
+test_that("cograph() handles negative weights", {
   adj <- create_test_matrix(4, weighted = TRUE, symmetric = FALSE)
   adj[adj > 0] <- -abs(adj[adj > 0])  # Make all weights negative
 
-  net <- sonnet(adj)
-  expect_sonnet_network(net)
+  net <- cograph(adj)
+  expect_cograph_network(net)
 })
 
 test_that("splot() handles negative weights with coloring", {
@@ -203,27 +203,27 @@ test_that("splot() handles negative weights with coloring", {
   expect_true(result$success, info = result$error)
 })
 
-test_that("sonnet() handles mixed positive/negative weights", {
+test_that("cograph() handles mixed positive/negative weights", {
   adj <- matrix(c(0, 0.5, -0.3, 0.5, 0, -0.8, -0.3, -0.8, 0), 3, 3)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
-  expect_sonnet_network(net)
+  expect_cograph_network(net)
 })
 
-test_that("sonnet() handles very small weights", {
+test_that("cograph() handles very small weights", {
   adj <- create_test_matrix(4, weighted = TRUE)
   adj[adj != 0] <- adj[adj != 0] * 1e-10
 
-  net <- sonnet(adj)
-  expect_sonnet_network(net)
+  net <- cograph(adj)
+  expect_cograph_network(net)
 })
 
-test_that("sonnet() handles very large weights", {
+test_that("cograph() handles very large weights", {
   adj <- create_test_matrix(4, weighted = TRUE)
   adj[adj != 0] <- adj[adj != 0] * 1e10
 
-  net <- sonnet(adj)
-  expect_sonnet_network(net)
+  net <- cograph(adj)
+  expect_cograph_network(net)
 })
 
 test_that("splot() handles weight_digits filtering near-zero weights", {
@@ -297,33 +297,33 @@ test_that("splot() handles labels with newlines", {
 # NAMED MATRIX EDGE CASES
 # ============================================
 
-test_that("sonnet() preserves row/column names as labels", {
+test_that("cograph() preserves row/column names as labels", {
   adj <- create_test_matrix(3)
   rownames(adj) <- colnames(adj) <- c("Alice", "Bob", "Charlie")
 
-  net <- sonnet(adj)
+  net <- cograph(adj)
   nodes <- net$network$get_nodes()
 
   expect_equal(nodes$label, c("Alice", "Bob", "Charlie"))
 })
 
-test_that("sonnet() handles only rownames (no colnames)", {
+test_that("cograph() handles only rownames (no colnames)", {
   adj <- create_test_matrix(3)
   rownames(adj) <- c("A", "B", "C")
   # colnames remain NULL
 
-  net <- sonnet(adj)
+  net <- cograph(adj)
   nodes <- net$network$get_nodes()
 
   expect_equal(nodes$label, c("A", "B", "C"))
 })
 
-test_that("sonnet() handles mismatched row/colnames", {
+test_that("cograph() handles mismatched row/colnames", {
   adj <- create_test_matrix(3)
   rownames(adj) <- c("R1", "R2", "R3")
   colnames(adj) <- c("C1", "C2", "C3")
 
-  net <- sonnet(adj)
+  net <- cograph(adj)
   # Should use one of them (likely rownames)
   nodes <- net$network$get_nodes()
   expect_equal(length(nodes$label), 3)
@@ -397,13 +397,13 @@ test_that("splot() handles zero edge width", {
 # LARGE NETWORKS
 # ============================================
 
-test_that("sonnet() handles moderately large network", {
+test_that("cograph() handles moderately large network", {
   skip_on_cran()  # Can be slow
 
   adj <- create_test_matrix(50, density = 0.1)
-  net <- sonnet(adj, layout = "spring", seed = 42)
+  net <- cograph(adj, layout = "spring", seed = 42)
 
-  expect_sonnet_network(net)
+  expect_cograph_network(net)
   expect_equal(net$network$n_nodes, 50)
 })
 
@@ -506,24 +506,24 @@ test_that("splot() handles partial donut_fill list", {
 # EDGE LIST EDGE CASES
 # ============================================
 
-test_that("sonnet() handles edge list with duplicate edges", {
+test_that("cograph() handles edge list with duplicate edges", {
   edges <- data.frame(
     from = c(1, 1, 2),
     to = c(2, 2, 3)  # Duplicate edge 1->2
   )
 
-  net <- sonnet(edges)
-  expect_sonnet_network(net)
+  net <- cograph(edges)
+  expect_cograph_network(net)
 })
 
-test_that("sonnet() handles edge list with all same edge", {
+test_that("cograph() handles edge list with all same edge", {
   edges <- data.frame(
     from = c(1, 1, 1),
     to = c(2, 2, 2)
   )
 
-  net <- sonnet(edges)
-  expect_sonnet_network(net)
+  net <- cograph(edges)
+  expect_cograph_network(net)
 })
 
 # ============================================
@@ -541,7 +541,7 @@ test_that("sn_theme() applies correctly after other customizations", {
   adj <- create_test_matrix(4)
 
   # Apply node customizations first, then theme
-  net <- sonnet(adj) |>
+  net <- cograph(adj) |>
     sn_nodes(fill = "red") |>  # Custom color
     sn_theme("dark")  # Theme might override
 

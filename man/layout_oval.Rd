@@ -14,7 +14,7 @@ layout_oval(
 )
 }
 \arguments{
-\item{network}{A SonnetNetwork object.}
+\item{network}{A CographNetwork object.}
 
 \item{ratio}{Aspect ratio (width/height). Values > 1 create horizontal ovals,
 values < 1 create vertical ovals. Default 1.5.}
@@ -36,6 +36,6 @@ network layout that is wider than it is tall (or vice versa depending on ratio).
 }
 \examples{
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-net <- SonnetNetwork$new(adj)
+net <- CographNetwork$new(adj)
 coords <- layout_oval(net, ratio = 1.5)
 }

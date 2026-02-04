@@ -7,7 +7,7 @@ NULL
 #'
 #' Customize the visual appearance of nodes in a network plot.
 #'
-#' @param network A sonnet_network object, matrix, data.frame, or igraph object.
+#' @param network A cograph_network object, matrix, data.frame, or igraph object.
 #'   Matrices and other inputs are auto-converted.
 #' @param size Node size. Can be a single value, vector (per-node), or column name.
 #' @param shape Node shape. Options: "circle", "square", "triangle", "diamond",
@@ -83,12 +83,12 @@ NULL
 #'   \item Enable \code{donut_show_value = TRUE} to display the value in the center
 #' }
 #'
-#' @return Modified sonnet_network object that can be piped to further customization
+#' @return Modified cograph_network object that can be piped to further customization
 #'   functions or plotting functions.
 #'
 #' @seealso
 #' \code{\link{sn_edges}} for edge customization,
-#' \code{\link{sonnet}} for network creation,
+#' \code{\link{cograph}} for network creation,
 #' \code{\link{splot}} and \code{\link{soplot}} for plotting,
 #' \code{\link{sn_layout}} for layout algorithms,
 #' \code{\link{sn_theme}} for visual themes
@@ -98,15 +98,15 @@ NULL
 #' @examples
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 #'
-#' # Basic usage with sonnet()
-#' sonnet(adj) |>
+#' # Basic usage with cograph()
+#' cograph(adj) |>
 #'   sn_nodes(size = 0.08, fill = "steelblue", shape = "circle")
 #'
 #' # Direct matrix input (auto-converted)
 #' adj |> sn_nodes(fill = "coral", size = 0.1)
 #'
 #' # Per-node customization with vectors
-#' sonnet(adj) |>
+#' cograph(adj) |>
 #'   sn_nodes(
 #'     size = c(0.08, 0.06, 0.1),
 #'     fill = c("red", "blue", "green"),
@@ -115,7 +115,7 @@ NULL
 #'   splot()
 #'
 #' # Donut chart nodes showing proportions
-#' sonnet(adj) |>
+#' cograph(adj) |>
 #'   sn_nodes(
 #'     donut_fill = c(0.25, 0.75, 0.5),
 #'     donut_color = "steelblue",
@@ -125,7 +125,7 @@ NULL
 #'   splot()
 #'
 #' # Mixed shapes per node
-#' sonnet(adj) |>
+#' cograph(adj) |>
 #'   sn_nodes(
 #'     shape = c("circle", "square", "triangle"),
 #'     fill = c("#E41A1C", "#377EB8", "#4DAF4A")
@@ -174,8 +174,8 @@ sn_nodes <- function(network,
                      label_angle = NULL,
                      node_names = NULL) {
 
-  # Auto-convert matrix/data.frame/igraph to sonnet_network
-  network <- ensure_sonnet_network(network)
+  # Auto-convert matrix/data.frame/igraph to cograph_network
+  network <- ensure_cograph_network(network)
 
   # Clone the network to maintain immutability
   new_net <- network$network$clone_network()
@@ -394,7 +394,7 @@ sn_nodes <- function(network,
   new_net$set_node_aes(aes)
 
   # Return wrapped object
-  as_sonnet_network(new_net)
+  as_cograph_network(new_net)
 }
 
 #' Map Node Colors by Group

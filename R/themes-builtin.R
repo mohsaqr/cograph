@@ -7,12 +7,12 @@ NULL
 #'
 #' Traditional network visualization style with blue nodes and gray edges.
 #'
-#' @return A SonnetTheme object.
+#' @return A CographTheme object.
 #' @export
 #' @examples
-#' theme <- theme_sonnet_classic()
-theme_sonnet_classic <- function() {
-  SonnetTheme$new(
+#' theme <- theme_cograph_classic()
+theme_cograph_classic <- function() {
+  CographTheme$new(
     name = "classic",
     background = "white",
     node_fill = "#4A90D9",
@@ -34,12 +34,12 @@ theme_sonnet_classic <- function() {
 #'
 #' Theme using colors distinguishable by people with color vision deficiency.
 #'
-#' @return A SonnetTheme object.
+#' @return A CographTheme object.
 #' @export
 #' @examples
-#' theme <- theme_sonnet_colorblind()
-theme_sonnet_colorblind <- function() {
-  SonnetTheme$new(
+#' theme <- theme_cograph_colorblind()
+theme_cograph_colorblind <- function() {
+  CographTheme$new(
     name = "colorblind",
     background = "white",
     node_fill = "#0072B2",
@@ -61,12 +61,12 @@ theme_sonnet_colorblind <- function() {
 #'
 #' Black and white theme suitable for print.
 #'
-#' @return A SonnetTheme object.
+#' @return A CographTheme object.
 #' @export
 #' @examples
-#' theme <- theme_sonnet_gray()
-theme_sonnet_gray <- function() {
-  SonnetTheme$new(
+#' theme <- theme_cograph_gray()
+theme_cograph_gray <- function() {
+  CographTheme$new(
     name = "gray",
     background = "white",
     node_fill = "gray70",
@@ -88,12 +88,12 @@ theme_sonnet_gray <- function() {
 #'
 #' Dark background theme for presentations.
 #'
-#' @return A SonnetTheme object.
+#' @return A CographTheme object.
 #' @export
 #' @examples
-#' theme <- theme_sonnet_dark()
-theme_sonnet_dark <- function() {
-  SonnetTheme$new(
+#' theme <- theme_cograph_dark()
+theme_cograph_dark <- function() {
+  CographTheme$new(
     name = "dark",
     background = "#1a1a2e",
     node_fill = "#e94560",
@@ -115,12 +115,12 @@ theme_sonnet_dark <- function() {
 #'
 #' Clean, minimal style with thin borders.
 #'
-#' @return A SonnetTheme object.
+#' @return A CographTheme object.
 #' @export
 #' @examples
-#' theme <- theme_sonnet_minimal()
-theme_sonnet_minimal <- function() {
-  SonnetTheme$new(
+#' theme <- theme_cograph_minimal()
+theme_cograph_minimal <- function() {
+  CographTheme$new(
     name = "minimal",
     background = "white",
     node_fill = "white",
@@ -142,12 +142,12 @@ theme_sonnet_minimal <- function() {
 #'
 #' Theme using viridis color palette.
 #'
-#' @return A SonnetTheme object.
+#' @return A CographTheme object.
 #' @export
 #' @examples
-#' theme <- theme_sonnet_viridis()
-theme_sonnet_viridis <- function() {
-  SonnetTheme$new(
+#' theme <- theme_cograph_viridis()
+theme_cograph_viridis <- function() {
+  CographTheme$new(
     name = "viridis",
     background = "white",
     node_fill = "#21918c",
@@ -169,12 +169,12 @@ theme_sonnet_viridis <- function() {
 #'
 #' Earth tones theme inspired by nature.
 #'
-#' @return A SonnetTheme object.
+#' @return A CographTheme object.
 #' @export
 #' @examples
-#' theme <- theme_sonnet_nature()
-theme_sonnet_nature <- function() {
-  SonnetTheme$new(
+#' theme <- theme_cograph_nature()
+theme_cograph_nature <- function() {
+  CographTheme$new(
     name = "nature",
     background = "#fefae0",
     node_fill = "#606c38",

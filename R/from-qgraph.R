@@ -41,14 +41,14 @@ tna_color_palette <- function(n_states) {
   )
 }
 
-#' Convert a tna object to Sonnet parameters
+#' Convert a tna object to cograph parameters
 #'
 #' Extracts the transition matrix, labels, and initial state probabilities
-#' from a \code{tna} object and plots with Sonnet. Initial probabilities
+#' from a \code{tna} object and plots with cograph. Initial probabilities
 #' are mapped to donut fills.
 #'
 #' @param tna_object A \code{tna} object from \code{tna::tna()}
-#' @param engine Which Sonnet renderer to use: \code{"splot"} or \code{"soplot"}.
+#' @param engine Which cograph renderer to use: \code{"splot"} or \code{"soplot"}.
 #'   Default: \code{"splot"}.
 #' @param plot Logical. If TRUE (default), immediately plot using the chosen engine.
 #' @param weight_digits Number of decimal places to round edge weights to. Default 2.
@@ -93,11 +93,11 @@ tna_color_palette <- function(n_states) {
 #'   \item \code{edge_start_length = 0.2}: 20% of edge is dotted
 #' }
 #'
-#' @return Invisibly, a named list of Sonnet parameters that can be passed to
+#' @return Invisibly, a named list of cograph parameters that can be passed to
 #'   \code{splot()} or \code{soplot()}.
 #'
 #' @seealso
-#' \code{\link{sonnet}} for creating networks from scratch,
+#' \code{\link{cograph}} for creating networks from scratch,
 #' \code{\link{splot}} and \code{\link{soplot}} for plotting engines,
 #' \code{\link{from_qgraph}} for qgraph object conversion
 #'
@@ -183,14 +183,14 @@ from_tna <- function(tna_object, engine = c("splot", "soplot"), plot = TRUE,
   invisible(params)
 }
 
-#' Convert a qgraph object to Sonnet parameters
+#' Convert a qgraph object to cograph parameters
 #'
 #' Extracts the network, layout, and all relevant arguments from a qgraph
-#' object and passes them to a Sonnet plotting engine. Reads resolved values
+#' object and passes them to a cograph plotting engine. Reads resolved values
 #' from \code{graphAttributes} rather than raw \code{Arguments}.
 #'
 #' @param qgraph_object Return value of \code{qgraph::qgraph()}
-#' @param engine Which Sonnet renderer to use: \code{"splot"} or \code{"soplot"}.
+#' @param engine Which cograph renderer to use: \code{"splot"} or \code{"soplot"}.
 #'   Default: \code{"splot"}.
 #' @param plot Logical. If TRUE (default), immediately plot using the chosen engine.
 #' @param weight_digits Number of decimal places to round edge weights to. Default 2.
@@ -198,19 +198,19 @@ from_tna <- function(tna_object, engine = c("splot", "soplot"), plot = TRUE,
 #' @param show_zero_edges Logical. If TRUE, keep edges even if their weight rounds to
 #'   zero. Default: FALSE.
 #' @param ... Override any extracted parameter. Use qgraph-style names (e.g.,
-#'   \code{minimum}) or Sonnet names (e.g., \code{threshold}).
+#'   \code{minimum}) or cograph names (e.g., \code{threshold}).
 #'
 #' @details
 #' ## Parameter Mapping
 #' The following qgraph parameters are automatically extracted and mapped to
-#' Sonnet equivalents:
+#' cograph equivalents:
 #'
 #' \strong{Node properties:}
 #' \itemize{
 #'   \item \code{labels}/\code{names} \code{->} \code{labels}
 #'   \item \code{color} \code{->} \code{node_fill}
 #'   \item \code{width} \code{->} \code{node_size} (scaled by 1.3x)
-#'   \item \code{shape} \code{->} \code{node_shape} (mapped to Sonnet equivalents)
+#'   \item \code{shape} \code{->} \code{node_shape} (mapped to cograph equivalents)
 #'   \item \code{border.color} \code{->} \code{node_border_color}
 #'   \item \code{border.width} \code{->} \code{node_border_width}
 #'   \item \code{label.cex} \code{->} \code{label_size}
@@ -245,18 +245,18 @@ from_tna <- function(tna_object, engine = c("splot", "soplot"), plot = TRUE,
 #' \itemize{
 #'   \item \strong{edge_color and edge_width are NOT extracted} because qgraph bakes
 #'     its cut-based fading into these vectors, producing near-invisible edges.
-#'     Sonnet applies its own weight-based styling instead.
+#'     cograph applies its own weight-based styling instead.
 #'   \item The \code{cut} parameter is also not passed because it causes faint edges
 #'     with hanging labels.
 #'   \item Layout coordinates from qgraph are preserved with \code{rescale=FALSE}.
 #'   \item If you override layout, rescale is automatically re-enabled.
 #' }
 #'
-#' @return Invisibly, a named list of Sonnet parameters that can be passed to
+#' @return Invisibly, a named list of cograph parameters that can be passed to
 #'   \code{splot()} or \code{soplot()}.
 #'
 #' @seealso
-#' \code{\link{sonnet}} for creating networks from scratch,
+#' \code{\link{cograph}} for creating networks from scratch,
 #' \code{\link{splot}} and \code{\link{soplot}} for plotting engines,
 #' \code{\link{from_tna}} for tna object conversion
 #'
@@ -363,10 +363,10 @@ from_qgraph <- function(qgraph_object, engine = c("splot", "soplot"), plot = TRU
     params$donut_color <- args$pieColor
 
   # --- Reorder per-edge vectors via matrix intermediary ---
-  # qgraph's Edgelist order may differ from Sonnet's which(x!=0, arr.ind=TRUE) order.
+  # qgraph's Edgelist order may differ from cograph's which(x!=0, arr.ind=TRUE) order.
   # Place each per-edge vector into an n×n matrix keyed by (from, to), then extract
-  # in the order Sonnet will use.
-  edge_vec_to_sonnet_order <- function(v) {
+  # in the order cograph will use.
+  edge_vec_to_cograph_order <- function(v) {
     if (is.null(v) || length(v) != length(el$from)) return(v)
     mat <- matrix(NA, n, n)
     for (i in seq_len(length(el$from))) {
@@ -384,14 +384,14 @@ from_qgraph <- function(qgraph_object, engine = c("splot", "soplot"), plot = TRU
   # --- Edge aesthetics from graphAttributes$Edges ---
   # edge_color and edge_width are intentionally not passed — qgraph bakes its
   # cut-based fading into these vectors, producing near-invisible edges. Let
-  # Sonnet apply its own weight-based styling instead.
-  if (!is.null(ga_edges$labels))             params$edge_labels         <- edge_vec_to_sonnet_order(ga_edges$labels)
-  if (!is.null(ga_edges$label.cex))          params$edge_label_size     <- edge_vec_to_sonnet_order(ga_edges$label.cex) * 0.5
-  if (!is.null(ga_edges$lty))                params$edge_style          <- map_qgraph_lty(edge_vec_to_sonnet_order(ga_edges$lty))
+  # cograph apply its own weight-based styling instead.
+  if (!is.null(ga_edges$labels))             params$edge_labels         <- edge_vec_to_cograph_order(ga_edges$labels)
+  if (!is.null(ga_edges$label.cex))          params$edge_label_size     <- edge_vec_to_cograph_order(ga_edges$label.cex) * 0.5
+  if (!is.null(ga_edges$lty))                params$edge_style          <- map_qgraph_lty(edge_vec_to_cograph_order(ga_edges$lty))
   if (!is.null(ga_edges$curve) && length(ga_edges$curve) == 1)
     params$curvature <- ga_edges$curve
-  if (!is.null(ga_edges$asize))              params$arrow_size          <- edge_vec_to_sonnet_order(ga_edges$asize) * 0.3
-  if (!is.null(ga_edges$edge.label.position)) params$edge_label_position <- edge_vec_to_sonnet_order(ga_edges$edge.label.position)
+  if (!is.null(ga_edges$asize))              params$arrow_size          <- edge_vec_to_cograph_order(ga_edges$asize) * 0.3
+  if (!is.null(ga_edges$edge.label.position)) params$edge_label_position <- edge_vec_to_cograph_order(ga_edges$edge.label.position)
 
   # --- Graph-level from graphAttributes$Graph ---
   # cut is intentionally not passed — qgraph's cut causes faint edges with hanging labels
@@ -403,13 +403,13 @@ from_qgraph <- function(qgraph_object, engine = c("splot", "soplot"), plot = TRU
   if (!is.null(q$Edgelist$directed))   params$directed          <- any(q$Edgelist$directed)
 
   # --- Apply overrides (user can override anything) ---
-  # Map qgraph-style parameter names to Sonnet equivalents
-  qgraph_to_sonnet <- c(minimum = "threshold", cut = "edge_cutoff")
+  # Map qgraph-style parameter names to cograph equivalents
+  qgraph_to_cograph <- c(minimum = "threshold", cut = "edge_cutoff")
   for (nm in names(overrides)) {
-    sonnet_nm <- if (nm %in% names(qgraph_to_sonnet)) qgraph_to_sonnet[[nm]] else nm
-    params[[sonnet_nm]] <- overrides[[nm]]
+    cograph_nm <- if (nm %in% names(qgraph_to_cograph)) qgraph_to_cograph[[nm]] else nm
+    params[[cograph_nm]] <- overrides[[nm]]
   }
-  # If user overrides layout, remove rescale=FALSE so Sonnet rescales properly
+  # If user overrides layout, remove rescale=FALSE so cograph rescales properly
   if ("layout" %in% names(overrides)) {
     params$rescale <- NULL
   }
@@ -445,9 +445,9 @@ from_qgraph <- function(qgraph_object, engine = c("splot", "soplot"), plot = TRU
   invisible(params)
 }
 
-#' Map qgraph lty codes to Sonnet edge style names
+#' Map qgraph lty codes to cograph edge style names
 #' @param lty Numeric or character vector of R line types
-#' @return Character vector of Sonnet style names
+#' @return Character vector of cograph style names
 #' @keywords internal
 map_qgraph_lty <- function(lty) {
   mapping <- c("1" = "solid", "2" = "dashed", "3" = "dotted",
@@ -459,9 +459,9 @@ map_qgraph_lty <- function(lty) {
   unname(result)
 }
 
-#' Map qgraph shape names to Sonnet equivalents
+#' Map qgraph shape names to cograph equivalents
 #' @param shapes Character vector of qgraph shape names
-#' @return Character vector of Sonnet shape names
+#' @return Character vector of cograph shape names
 #' @keywords internal
 map_qgraph_shape <- function(shapes) {
   mapping <- c(

@@ -7,7 +7,7 @@ NULL
 #'
 #' Customize the visual appearance of edges in a network plot.
 #'
-#' @param network A sonnet_network object, matrix, data.frame, or igraph object.
+#' @param network A cograph_network object, matrix, data.frame, or igraph object.
 #'   Matrices and other inputs are auto-converted.
 #' @param width Edge width. Can be a single value, vector (per-edge), or "weight".
 #' @param edge_size Base edge size for weight scaling. NULL (default) uses adaptive sizing
@@ -119,12 +119,12 @@ NULL
 #'   \item \code{ci_alpha}: Transparency (default 0.15)
 #' }
 #'
-#' @return Modified sonnet_network object that can be piped to further customization
+#' @return Modified cograph_network object that can be piped to further customization
 #'   functions or plotting functions.
 #'
 #' @seealso
 #' \code{\link{sn_nodes}} for node customization,
-#' \code{\link{sonnet}} for network creation,
+#' \code{\link{cograph}} for network creation,
 #' \code{\link{splot}} and \code{\link{soplot}} for plotting,
 #' \code{\link{sn_layout}} for layout algorithms,
 #' \code{\link{sn_theme}} for visual themes
@@ -135,14 +135,14 @@ NULL
 #' adj <- matrix(c(0, 1, -0.5, 1, 0, 1, -0.5, 1, 0), nrow = 3)
 #'
 #' # Basic: auto-style by weight
-#' sonnet(adj) |>
+#' cograph(adj) |>
 #'   sn_edges(width = "weight", color = "weight")
 #'
 #' # Direct matrix input (auto-converted)
 #' adj |> sn_edges(width = 2, color = "gray50")
 #'
 #' # Custom positive/negative colors
-#' sonnet(adj) |>
+#' cograph(adj) |>
 #'   sn_edges(
 #'     color = "weight",
 #'     edge_positive_color = "darkblue",
@@ -151,7 +151,7 @@ NULL
 #'   splot()
 #'
 #' # Edge labels showing weights
-#' sonnet(adj) |>
+#' cograph(adj) |>
 #'   sn_edges(labels = TRUE, label_size = 0.8) |>
 #'   splot()
 #'
@@ -162,7 +162,7 @@ NULL
 #' ci_hi <- c(0.8, -0.1, 1.1)
 #'
 #' \dontrun{
-#' sonnet(adj) |>
+#' cograph(adj) |>
 #'   sn_edges(
 #'     label_template = "{est} [{low}, {up}]",
 #'     ci_lower = ci_lo,
@@ -173,7 +173,7 @@ NULL
 #' }
 #'
 #' # Curved edges for reciprocal pairs
-#' sonnet(adj) |>
+#' cograph(adj) |>
 #'   sn_edges(curves = "mutual", curvature = 0.3) |>
 #'   splot()
 sn_edges <- function(network,
@@ -243,8 +243,8 @@ sn_edges <- function(network,
   edge_negative_color <- handle_deprecated_param(edge_negative_color, negative_color,
                                                   "edge_negative_color", "negative_color")
 
-  # Auto-convert matrix/data.frame/igraph to sonnet_network
-  network <- ensure_sonnet_network(network)
+  # Auto-convert matrix/data.frame/igraph to cograph_network
+  network <- ensure_cograph_network(network)
 
   # Clone the network to maintain immutability
   new_net <- network$network$clone_network()
@@ -526,7 +526,7 @@ sn_edges <- function(network,
   new_net$set_edge_aes(aes)
 
   # Return wrapped object
-  as_sonnet_network(new_net)
+  as_cograph_network(new_net)
 }
 
 #' Scale Edge Widths (Simple Version)

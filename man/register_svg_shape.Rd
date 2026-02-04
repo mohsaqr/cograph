@@ -29,6 +29,6 @@ register_svg_shape("simple_star",
   </svg>')
 
 # Use in network
-sonnet(adj) |> sn_nodes(shape = "custom_icon")
+cograph(adj) |> sn_nodes(shape = "custom_icon")
 }
 }

@@ -7,7 +7,7 @@
 sn_save(network, filename, width = 7, height = 7, dpi = 300, title = NULL, ...)
 }
 \arguments{
-\item{network}{A sonnet_network object, matrix, data.frame, or igraph object.
+\item{network}{A cograph_network object, matrix, data.frame, or igraph object.
 Matrices and other inputs are auto-converted.}
 
 \item{filename}{Output filename. Format is detected from extension.}
@@ -26,13 +26,13 @@ Matrices and other inputs are auto-converted.}
 Invisible filename.
 }
 \description{
-Save a Sonnet network visualization to a file.
+Save a Cograph network visualization to a file.
 }
 \examples{
 \dontrun{
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-# With sonnet()
-net <- sonnet(adj)
+# With cograph()
+net <- cograph(adj)
 sn_save(net, "network.pdf")
 
 # Direct matrix input

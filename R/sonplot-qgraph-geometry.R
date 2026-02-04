@@ -197,7 +197,7 @@ qgraph_vsize_to_user <- function(vsize, plot_info = NULL) {
 #' qgraph Point on Node Boundary
 #'
 #' Simplified boundary calculation for splot that approximates qgraph behavior
-#' while working with sonnet's coordinate system.
+#' while working with cograph's coordinate system.
 #'
 #' @param x Node center x coordinate.
 #' @param y Node center y coordinate.

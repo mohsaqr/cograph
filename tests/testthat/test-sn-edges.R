@@ -5,18 +5,18 @@
 # BASIC FUNCTIONALITY
 # ============================================
 
-test_that("sn_edges() returns sonnet_network object", {
+test_that("sn_edges() returns cograph_network object", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, width = 2)
 
-  expect_sonnet_network(result)
+  expect_cograph_network(result)
 })
 
 test_that("sn_edges() preserves network structure", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, color = "gray")
 
@@ -27,11 +27,11 @@ test_that("sn_edges() preserves network structure", {
 test_that("sn_edges() can be chained in pipes", {
   adj <- create_test_matrix(4)
 
-  net <- sonnet(adj) |>
+  net <- cograph(adj) |>
     sn_edges(width = 2) |>
     sn_edges(color = "blue")
 
-  expect_sonnet_network(net)
+  expect_cograph_network(net)
 })
 
 test_that("sn_edges() accepts matrix input directly", {
@@ -39,7 +39,7 @@ test_that("sn_edges() accepts matrix input directly", {
 
   result <- sn_edges(adj, color = "gray")
 
-  expect_sonnet_network(result)
+  expect_cograph_network(result)
 })
 
 test_that("sn_edges() accepts weighted matrix", {
@@ -47,7 +47,7 @@ test_that("sn_edges() accepts weighted matrix", {
 
   result <- sn_edges(adj, width = "weight")
 
-  expect_sonnet_network(result)
+  expect_cograph_network(result)
 })
 
 # ============================================
@@ -56,7 +56,7 @@ test_that("sn_edges() accepts weighted matrix", {
 
 test_that("sn_edges() sets scalar width", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, width = 2.5)
   aes <- result$network$get_edge_aes()
@@ -66,7 +66,7 @@ test_that("sn_edges() sets scalar width", {
 
 test_that("sn_edges() sets width from 'weight'", {
   adj <- create_test_matrix(4, weighted = TRUE)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, width = "weight")
   aes <- result$network$get_edge_aes()
@@ -78,7 +78,7 @@ test_that("sn_edges() sets width from 'weight'", {
 
 test_that("sn_edges() respects maximum parameter with width='weight'", {
   adj <- create_test_matrix(4, weighted = TRUE)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, width = "weight", maximum = 0.5)
   aes <- result$network$get_edge_aes()
@@ -92,7 +92,7 @@ test_that("sn_edges() respects maximum parameter with width='weight'", {
 
 test_that("sn_edges() sets edge_size parameter", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, edge_size = 10)
   aes <- result$network$get_edge_aes()
@@ -102,7 +102,7 @@ test_that("sn_edges() sets edge_size parameter", {
 
 test_that("sn_edges() deprecated esize parameter works with warning", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   expect_warning(
     result <- sn_edges(net, esize = 10),
@@ -114,7 +114,7 @@ test_that("sn_edges() deprecated esize parameter works with warning", {
 
 test_that("sn_edges() sets edge_width_range parameter", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, edge_width_range = c(1, 5))
   aes <- result$network$get_edge_aes()
@@ -124,7 +124,7 @@ test_that("sn_edges() sets edge_width_range parameter", {
 
 test_that("sn_edges() sets edge_scale_mode parameter", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   for (mode in c("linear", "log", "sqrt", "rank")) {
     result <- sn_edges(net, edge_scale_mode = mode)
@@ -135,14 +135,14 @@ test_that("sn_edges() sets edge_scale_mode parameter", {
 
 test_that("sn_edges() validates edge_scale_mode", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   expect_error(sn_edges(net, edge_scale_mode = "invalid_mode"))
 })
 
 test_that("sn_edges() sets edge_cutoff parameter", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, edge_cutoff = 0.3)
   aes <- result$network$get_edge_aes()
@@ -152,7 +152,7 @@ test_that("sn_edges() sets edge_cutoff parameter", {
 
 test_that("sn_edges() deprecated cut parameter works with warning", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   expect_warning(
     result <- sn_edges(net, cut = 0.3),
@@ -164,7 +164,7 @@ test_that("sn_edges() deprecated cut parameter works with warning", {
 
 test_that("sn_edges() sets width_scale parameter", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, width_scale = 1.5)
   aes <- result$network$get_edge_aes()
@@ -178,7 +178,7 @@ test_that("sn_edges() sets width_scale parameter", {
 
 test_that("sn_edges() sets scalar color", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, color = "gray50")
   aes <- result$network$get_edge_aes()
@@ -188,7 +188,7 @@ test_that("sn_edges() sets scalar color", {
 
 test_that("sn_edges() sets color from 'weight'", {
   adj <- create_test_matrix(4, weighted = TRUE, symmetric = FALSE)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, color = "weight")
   aes <- result$network$get_edge_aes()
@@ -199,7 +199,7 @@ test_that("sn_edges() sets color from 'weight'", {
 
 test_that("sn_edges() sets edge_positive_color and edge_negative_color", {
   adj <- create_test_matrix(4, weighted = TRUE)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, edge_positive_color = "darkgreen", edge_negative_color = "darkred")
   aes <- result$network$get_edge_aes()
@@ -210,7 +210,7 @@ test_that("sn_edges() sets edge_positive_color and edge_negative_color", {
 
 test_that("sn_edges() deprecated positive_color and negative_color work with warning", {
   adj <- create_test_matrix(4, weighted = TRUE)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   expect_warning(
     result <- sn_edges(net, positive_color = "darkgreen", negative_color = "darkred"),
@@ -223,7 +223,7 @@ test_that("sn_edges() deprecated positive_color and negative_color work with war
 
 test_that("sn_edges() uses edge_positive/edge_negative colors with color='weight'", {
   adj <- create_test_matrix(4, weighted = TRUE, symmetric = FALSE)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, color = "weight",
                      edge_positive_color = "blue", edge_negative_color = "red")
@@ -238,7 +238,7 @@ test_that("sn_edges() uses edge_positive/edge_negative colors with color='weight
 
 test_that("sn_edges() sets alpha", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, alpha = 0.5)
   aes <- result$network$get_edge_aes()
@@ -248,7 +248,7 @@ test_that("sn_edges() sets alpha", {
 
 test_that("sn_edges() validates alpha range", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   expect_error(sn_edges(net, alpha = 1.5))
   expect_error(sn_edges(net, alpha = -0.1))
@@ -260,7 +260,7 @@ test_that("sn_edges() validates alpha range", {
 
 test_that("sn_edges() sets style", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   for (style in c("solid", "dashed", "dotted", "longdash", "twodash")) {
     result <- sn_edges(net, style = style)
@@ -271,7 +271,7 @@ test_that("sn_edges() sets style", {
 
 test_that("sn_edges() validates style", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   expect_error(sn_edges(net, style = "wavy"))
 })
@@ -282,7 +282,7 @@ test_that("sn_edges() validates style", {
 
 test_that("sn_edges() sets curvature", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, curvature = 0.3)
   aes <- result$network$get_edge_aes()
@@ -292,7 +292,7 @@ test_that("sn_edges() sets curvature", {
 
 test_that("sn_edges() sets per-edge curvature", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
   n_edges <- net$network$n_edges
 
   curvs <- seq(0, 0.5, length.out = n_edges)
@@ -308,7 +308,7 @@ test_that("sn_edges() sets per-edge curvature", {
 
 test_that("sn_edges() sets curves parameter", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, curves = FALSE)
   aes <- result$network$get_edge_aes()
@@ -325,14 +325,14 @@ test_that("sn_edges() sets curves parameter", {
 
 test_that("sn_edges() validates curves parameter", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   expect_error(sn_edges(net, curves = "all"))
 })
 
 test_that("sn_edges() sets curve_shape", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, curve_shape = 0.5)
   aes <- result$network$get_edge_aes()
@@ -342,7 +342,7 @@ test_that("sn_edges() sets curve_shape", {
 
 test_that("sn_edges() sets curve_pivot", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, curve_pivot = 0.3)
   aes <- result$network$get_edge_aes()
@@ -356,7 +356,7 @@ test_that("sn_edges() sets curve_pivot", {
 
 test_that("sn_edges() sets arrow_size", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, arrow_size = 1.5)
   aes <- result$network$get_edge_aes()
@@ -366,7 +366,7 @@ test_that("sn_edges() sets arrow_size", {
 
 test_that("sn_edges() sets show_arrows", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, show_arrows = FALSE)
   aes <- result$network$get_edge_aes()
@@ -376,7 +376,7 @@ test_that("sn_edges() sets show_arrows", {
 
 test_that("sn_edges() sets bidirectional", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, bidirectional = TRUE)
   aes <- result$network$get_edge_aes()
@@ -391,7 +391,7 @@ test_that("sn_edges() sets bidirectional", {
 test_that("sn_edges() sets loop_rotation", {
   adj <- create_test_matrix(4)
   diag(adj) <- 1  # Add self-loops
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, loop_rotation = pi/4)
   aes <- result$network$get_edge_aes()
@@ -405,7 +405,7 @@ test_that("sn_edges() sets loop_rotation", {
 
 test_that("sn_edges() sets labels=TRUE to show weights", {
   adj <- create_test_matrix(4, weighted = TRUE)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, labels = TRUE)
   aes <- result$network$get_edge_aes()
@@ -415,7 +415,7 @@ test_that("sn_edges() sets labels=TRUE to show weights", {
 
 test_that("sn_edges() sets custom edge labels", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
   n_edges <- net$network$n_edges
 
   custom_labels <- paste0("E", 1:n_edges)
@@ -427,7 +427,7 @@ test_that("sn_edges() sets custom edge labels", {
 
 test_that("sn_edges() sets label_size", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, label_size = 0.8)
   aes <- result$network$get_edge_aes()
@@ -437,7 +437,7 @@ test_that("sn_edges() sets label_size", {
 
 test_that("sn_edges() sets label_color", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, label_color = "navy")
   aes <- result$network$get_edge_aes()
@@ -447,7 +447,7 @@ test_that("sn_edges() sets label_color", {
 
 test_that("sn_edges() sets label_position", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, label_position = 0.3)
   aes <- result$network$get_edge_aes()
@@ -457,7 +457,7 @@ test_that("sn_edges() sets label_position", {
 
 test_that("sn_edges() sets label_offset", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, label_offset = 0.1)
   aes <- result$network$get_edge_aes()
@@ -467,7 +467,7 @@ test_that("sn_edges() sets label_offset", {
 
 test_that("sn_edges() sets label_bg", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, label_bg = "lightyellow")
   aes <- result$network$get_edge_aes()
@@ -477,7 +477,7 @@ test_that("sn_edges() sets label_bg", {
 
 test_that("sn_edges() sets label_fontface", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   for (face in c("plain", "bold", "italic", "bold.italic")) {
     result <- sn_edges(net, label_fontface = face)
@@ -488,14 +488,14 @@ test_that("sn_edges() sets label_fontface", {
 
 test_that("sn_edges() validates label_fontface", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   expect_error(sn_edges(net, label_fontface = "extra_bold"))
 })
 
 test_that("sn_edges() sets label_border", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   for (border in c("rect", "rounded", "circle")) {
     result <- sn_edges(net, label_border = border)
@@ -506,14 +506,14 @@ test_that("sn_edges() sets label_border", {
 
 test_that("sn_edges() validates label_border", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   expect_error(sn_edges(net, label_border = "hexagon"))
 })
 
 test_that("sn_edges() sets label shadow parameters", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net,
     label_shadow = TRUE,
@@ -531,7 +531,7 @@ test_that("sn_edges() sets label shadow parameters", {
 
 test_that("sn_edges() validates label_shadow_alpha range", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   expect_error(sn_edges(net, label_shadow_alpha = 1.5))
 })
@@ -542,7 +542,7 @@ test_that("sn_edges() validates label_shadow_alpha range", {
 
 test_that("sn_edges() sets ci parameter", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
   n_edges <- net$network$n_edges
 
   ci_vals <- runif(n_edges, 0.1, 0.3)
@@ -554,7 +554,7 @@ test_that("sn_edges() sets ci parameter", {
 
 test_that("sn_edges() sets ci_scale", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, ci_scale = 3)
   aes <- result$network$get_edge_aes()
@@ -564,7 +564,7 @@ test_that("sn_edges() sets ci_scale", {
 
 test_that("sn_edges() sets ci_alpha", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, ci_alpha = 0.2)
   aes <- result$network$get_edge_aes()
@@ -574,14 +574,14 @@ test_that("sn_edges() sets ci_alpha", {
 
 test_that("sn_edges() validates ci_alpha range", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   expect_error(sn_edges(net, ci_alpha = 1.5))
 })
 
 test_that("sn_edges() sets ci_color", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, ci_color = "lightblue")
   aes <- result$network$get_edge_aes()
@@ -591,7 +591,7 @@ test_that("sn_edges() sets ci_color", {
 
 test_that("sn_edges() sets ci_style", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, ci_style = 2)
   aes <- result$network$get_edge_aes()
@@ -601,7 +601,7 @@ test_that("sn_edges() sets ci_style", {
 
 test_that("sn_edges() sets ci_arrows", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, ci_arrows = TRUE)
   aes <- result$network$get_edge_aes()
@@ -615,7 +615,7 @@ test_that("sn_edges() sets ci_arrows", {
 
 test_that("sn_edges() sets ci_lower and ci_upper", {
   adj <- create_test_matrix(4, weighted = TRUE)
-  net <- sonnet(adj)
+  net <- cograph(adj)
   n_edges <- net$network$n_edges
 
   lower <- runif(n_edges, 0, 0.5)
@@ -630,7 +630,7 @@ test_that("sn_edges() sets ci_lower and ci_upper", {
 
 test_that("sn_edges() sets label_style", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   for (style in c("none", "estimate", "full", "range", "stars")) {
     result <- sn_edges(net, label_style = style)
@@ -641,14 +641,14 @@ test_that("sn_edges() sets label_style", {
 
 test_that("sn_edges() validates label_style", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   expect_error(sn_edges(net, label_style = "fancy"))
 })
 
 test_that("sn_edges() sets label_template", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, label_template = "{est} [{low}, {up}]")
   aes <- result$network$get_edge_aes()
@@ -658,7 +658,7 @@ test_that("sn_edges() sets label_template", {
 
 test_that("sn_edges() sets label_digits", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, label_digits = 3)
   aes <- result$network$get_edge_aes()
@@ -668,7 +668,7 @@ test_that("sn_edges() sets label_digits", {
 
 test_that("sn_edges() sets label_ci_format", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, label_ci_format = "bracket")
   aes <- result$network$get_edge_aes()
@@ -681,14 +681,14 @@ test_that("sn_edges() sets label_ci_format", {
 
 test_that("sn_edges() validates label_ci_format", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   expect_error(sn_edges(net, label_ci_format = "parenthesis"))
 })
 
 test_that("sn_edges() sets label_p parameters", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
   n_edges <- net$network$n_edges
 
   p_vals <- runif(n_edges, 0, 0.1)
@@ -706,7 +706,7 @@ test_that("sn_edges() sets label_p parameters", {
 
 test_that("sn_edges() sets label_stars", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net, label_stars = TRUE)
   aes <- result$network$get_edge_aes()
@@ -720,7 +720,7 @@ test_that("sn_edges() sets label_stars", {
 
 test_that("sn_edges() sets multiple parameters at once", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- sn_edges(net,
     width = 2,
@@ -748,7 +748,7 @@ test_that("sn_edges() sets multiple parameters at once", {
 test_that("sn_edges() customizations render in splot()", {
   adj <- create_test_matrix(4, weighted = TRUE)
 
-  net <- sonnet(adj) |>
+  net <- cograph(adj) |>
     sn_edges(
       width = "weight",
       color = "weight",
@@ -764,7 +764,7 @@ test_that("sn_edges() customizations render in splot()", {
 test_that("sn_edges() curvature customizations render in splot()", {
   adj <- create_test_matrix(4)
 
-  net <- sonnet(adj) |>
+  net <- cograph(adj) |>
     sn_edges(curvature = 0.3, style = "dashed")
 
   result <- safe_plot(splot(net))
@@ -773,7 +773,7 @@ test_that("sn_edges() curvature customizations render in splot()", {
 
 test_that("sn_edges() CI underlay customizations render in splot()", {
   adj <- create_test_matrix(4, weighted = TRUE)
-  net <- sonnet(adj)
+  net <- cograph(adj)
   n_edges <- net$network$n_edges
 
   net <- net |>

@@ -101,11 +101,11 @@ tplot(
 \item{...}{Additional arguments passed to splot()}
 }
 \value{
-Invisibly returns the sonnet_network object from splot().
+Invisibly returns the cograph_network object from splot().
 }
 \description{
-A drop-in replacement for qgraph::qgraph() that uses Sonnet's splot engine.
-Accepts qgraph parameter names for seamless migration from qgraph to Sonnet.
+A drop-in replacement for qgraph::qgraph() that uses cograph's splot engine.
+Accepts qgraph parameter names for seamless migration from qgraph to cograph.
 }
 \examples{
 # Simple usage

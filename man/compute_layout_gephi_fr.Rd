@@ -14,7 +14,7 @@ compute_layout_gephi_fr(
 )
 }
 \arguments{
-\item{network}{A sonnet_network object.}
+\item{network}{A cograph_network object.}
 
 \item{area}{Area parameter. Default 10000.}
 

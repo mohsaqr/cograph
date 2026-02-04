@@ -238,78 +238,78 @@ test_that("alpha=1 produces opaque colors", {
 
 test_that("sn_palette() applies palette to nodes", {
   adj <- create_test_matrix(5)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   net2 <- sn_palette(net, "viridis", target = "nodes")
 
-  expect_sonnet_network(net2)
+  expect_cograph_network(net2)
   aes <- net2$network$get_node_aes()
   expect_true(!is.null(aes$fill))
 })
 
 test_that("sn_palette() applies palette to edges", {
   adj <- create_test_matrix(5)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   net2 <- sn_palette(net, "viridis", target = "edges")
 
-  expect_sonnet_network(net2)
+  expect_cograph_network(net2)
   aes <- net2$network$get_edge_aes()
   expect_true(!is.null(aes$positive_color) || !is.null(aes$negative_color))
 })
 
 test_that("sn_palette() applies palette to both nodes and edges", {
   adj <- create_test_matrix(5)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   net2 <- sn_palette(net, "colorblind", target = "both")
 
-  expect_sonnet_network(net2)
+  expect_cograph_network(net2)
 })
 
 test_that("sn_palette() works with string palette name", {
   adj <- create_test_matrix(5)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   # Test all built-in palette names
   for (pal_name in c("rainbow", "colorblind", "pastel", "viridis", "blues", "reds", "diverging")) {
     net2 <- sn_palette(net, pal_name)
-    expect_sonnet_network(net2)
+    expect_cograph_network(net2)
   }
 })
 
 test_that("sn_palette() works with custom palette function", {
   adj <- create_test_matrix(5)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   custom_pal <- function(n) rep("purple", n)
   net2 <- sn_palette(net, custom_pal)
 
-  expect_sonnet_network(net2)
+  expect_cograph_network(net2)
   aes <- net2$network$get_node_aes()
   expect_true(all(aes$fill == "purple"))
 })
 
 test_that("sn_palette() errors on unknown palette name", {
   adj <- create_test_matrix(3)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   expect_error(sn_palette(net, "unknown_palette"))
 })
 
 test_that("sn_palette() can map colors by variable", {
   adj <- create_test_matrix(5)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   # This tests the 'by' parameter functionality
   # When by is specified and exists in nodes, colors are mapped
   net2 <- sn_palette(net, "colorblind", target = "nodes")
-  expect_sonnet_network(net2)
+  expect_cograph_network(net2)
 })
 
 test_that("sn_palette() preserves network structure", {
   adj <- create_test_matrix(5)
-  net <- sonnet(adj)
+  net <- cograph(adj)
   n_nodes_before <- net$network$n_nodes
   n_edges_before <- net$network$n_edges
 
@@ -325,7 +325,7 @@ test_that("sn_palette() preserves network structure", {
 
 test_that("splot() works with palette-customized network", {
   adj <- create_test_matrix(5)
-  net <- sonnet(adj) |>
+  net <- cograph(adj) |>
     sn_palette("viridis", target = "nodes")
 
   result <- safe_plot(splot(net))
@@ -347,9 +347,9 @@ test_that("palette colors render correctly in splot", {
 # ============================================
 
 test_that("list_palettes() returns available palettes", {
-  skip_if_not(exists("list_palettes", envir = asNamespace("Sonnet")))
+  skip_if_not(exists("list_palettes", envir = asNamespace("cograph")))
 
-  palettes <- Sonnet:::list_palettes()
+  palettes <- cograph:::list_palettes()
 
   expect_true(length(palettes) > 0)
   expect_true("rainbow" %in% palettes)
@@ -358,9 +358,9 @@ test_that("list_palettes() returns available palettes", {
 })
 
 test_that("get_palette() retrieves palette functions", {
-  skip_if_not(exists("get_palette", envir = asNamespace("Sonnet")))
+  skip_if_not(exists("get_palette", envir = asNamespace("cograph")))
 
-  pal_fn <- Sonnet:::get_palette("rainbow")
+  pal_fn <- cograph:::get_palette("rainbow")
 
   expect_true(is.function(pal_fn))
   colors <- pal_fn(5)
@@ -368,8 +368,8 @@ test_that("get_palette() retrieves palette functions", {
 })
 
 test_that("get_palette() returns NULL for unknown palette", {
-  skip_if_not(exists("get_palette", envir = asNamespace("Sonnet")))
+  skip_if_not(exists("get_palette", envir = asNamespace("cograph")))
 
-  result <- Sonnet:::get_palette("nonexistent_palette")
+  result <- cograph:::get_palette("nonexistent_palette")
   expect_null(result)
 })

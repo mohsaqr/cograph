@@ -2,7 +2,7 @@
 % Please edit documentation in R/from-qgraph.R
 \name{from_qgraph}
 \alias{from_qgraph}
-\title{Convert a qgraph object to Sonnet parameters}
+\title{Convert a qgraph object to cograph parameters}
 \usage{
 from_qgraph(
   qgraph_object,
@@ -16,7 +16,7 @@ from_qgraph(
 \arguments{
 \item{qgraph_object}{Return value of \code{qgraph::qgraph()}}
 
-\item{engine}{Which Sonnet renderer to use: \code{"splot"} or \code{"soplot"}.
+\item{engine}{Which cograph renderer to use: \code{"splot"} or \code{"soplot"}.
 Default: \code{"splot"}.}
 
 \item{plot}{Logical. If TRUE (default), immediately plot using the chosen engine.}
@@ -28,29 +28,29 @@ Edges that round to zero are removed unless \code{show_zero_edges = TRUE}.}
 zero. Default: FALSE.}
 
 \item{...}{Override any extracted parameter. Use qgraph-style names (e.g.,
-\code{minimum}) or Sonnet names (e.g., \code{threshold}).}
+\code{minimum}) or cograph names (e.g., \code{threshold}).}
 }
 \value{
-Invisibly, a named list of Sonnet parameters that can be passed to
+Invisibly, a named list of cograph parameters that can be passed to
 \code{splot()} or \code{soplot()}.
 }
 \description{
 Extracts the network, layout, and all relevant arguments from a qgraph
-object and passes them to a Sonnet plotting engine. Reads resolved values
+object and passes them to a cograph plotting engine. Reads resolved values
 from \code{graphAttributes} rather than raw \code{Arguments}.
 }
 \details{
 \subsection{Parameter Mapping}{
 
 The following qgraph parameters are automatically extracted and mapped to
-Sonnet equivalents:
+cograph equivalents:
 
 \strong{Node properties:}
 \itemize{
 \item \code{labels}/\code{names} \code{->} \code{labels}
 \item \code{color} \code{->} \code{node_fill}
 \item \code{width} \code{->} \code{node_size} (scaled by 1.3x)
-\item \code{shape} \code{->} \code{node_shape} (mapped to Sonnet equivalents)
+\item \code{shape} \code{->} \code{node_shape} (mapped to cograph equivalents)
 \item \code{border.color} \code{->} \code{node_border_color}
 \item \code{border.width} \code{->} \code{node_border_width}
 \item \code{label.cex} \code{->} \code{label_size}
@@ -87,7 +87,7 @@ Sonnet equivalents:
 \itemize{
 \item \strong{edge_color and edge_width are NOT extracted} because qgraph bakes
 its cut-based fading into these vectors, producing near-invisible edges.
-Sonnet applies its own weight-based styling instead.
+cograph applies its own weight-based styling instead.
 \item The \code{cut} parameter is also not passed because it causes faint edges
 with hanging labels.
 \item Layout coordinates from qgraph are preserved with \code{rescale=FALSE}.
@@ -120,7 +120,7 @@ from_qgraph(q_themed)
 
 }
 \seealso{
-\code{\link{sonnet}} for creating networks from scratch,
+\code{\link{cograph}} for creating networks from scratch,
 \code{\link{splot}} and \code{\link{soplot}} for plotting engines,
 \code{\link{from_tna}} for tna object conversion
 }

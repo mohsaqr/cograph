@@ -10,12 +10,12 @@ NULL
 #' @param arg_name Argument name for error messages.
 #' @keywords internal
 validate_network <- function(x, arg_name = "network") {
-  if (!inherits(x, "SonnetNetwork") && !inherits(x, "sonnet_network")) {
-    stop(arg_name, " must be a SonnetNetwork object", call. = FALSE)
+  if (!inherits(x, "CographNetwork") && !inherits(x, "cograph_network")) {
+    stop(arg_name, " must be a CographNetwork object", call. = FALSE)
   }
 
   # Extract R6 object if wrapped
-  if (inherits(x, "sonnet_network")) {
+  if (inherits(x, "cograph_network")) {
     x <- x$network
   }
 

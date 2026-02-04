@@ -1,4 +1,4 @@
-#' @title SonnetNetwork R6 Class
+#' @title CographNetwork R6 Class
 #'
 #' @description
 #' Core class representing a network for visualization. Stores nodes, edges,
@@ -8,20 +8,20 @@
 #' @examples
 #' # Create network from adjacency matrix
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- SonnetNetwork$new(adj)
+#' net <- CographNetwork$new(adj)
 #'
 #' # Access properties
 #' net$n_nodes
 #' net$n_edges
 #' net$is_directed
-SonnetNetwork <- R6::R6Class(
-  "SonnetNetwork",
+CographNetwork <- R6::R6Class(
+  "CographNetwork",
   public = list(
-    #' @description Create a new SonnetNetwork object.
+    #' @description Create a new CographNetwork object.
     #' @param input Network input (matrix, edge list, or igraph object).
     #' @param directed Logical. Force directed interpretation. NULL for auto-detect.
     #' @param node_labels Character vector of node labels.
-    #' @return A new SonnetNetwork object.
+    #' @return A new CographNetwork object.
     initialize = function(input = NULL, directed = NULL, node_labels = NULL) {
       if (!is.null(input)) {
         parsed <- parse_input(input, directed = directed)
@@ -68,9 +68,9 @@ SonnetNetwork <- R6::R6Class(
     },
 
     #' @description Clone the network with optional modifications.
-    #' @return A new SonnetNetwork object.
+    #' @return A new CographNetwork object.
     clone_network = function() {
-      new_net <- SonnetNetwork$new()
+      new_net <- CographNetwork$new()
       new_net$set_nodes(private$.nodes)
       new_net$set_edges(private$.edges)
       new_net$set_directed(private$.directed)
@@ -151,7 +151,7 @@ SonnetNetwork <- R6::R6Class(
     },
 
     #' @description Set theme.
-    #' @param theme SonnetTheme object or theme name.
+    #' @param theme CographTheme object or theme name.
     set_theme = function(theme) {
       private$.theme <- theme
       invisible(self)
@@ -188,7 +188,7 @@ SonnetNetwork <- R6::R6Class(
     },
 
     #' @description Get theme.
-    #' @return SonnetTheme object.
+    #' @return CographTheme object.
     get_theme = function() {
       private$.theme
     },
@@ -221,7 +221,7 @@ SonnetNetwork <- R6::R6Class(
 
     #' @description Print network summary.
     print = function() {
-      cat("SonnetNetwork\n")
+      cat("CographNetwork\n")
       cat("  Nodes:", self$n_nodes, "\n")
       cat("  Edges:", self$n_edges, "\n")
       cat("  Directed:", self$is_directed, "\n")
@@ -271,23 +271,23 @@ SonnetNetwork <- R6::R6Class(
   )
 )
 
-#' @title Check if object is a SonnetNetwork
+#' @title Check if object is a CographNetwork
 #' @param x Object to check.
 #' @return Logical.
 #' @keywords internal
-is_sonnet_network <- function(x) {
+is_cograph_network <- function(x) {
 
-  inherits(x, "SonnetNetwork") || inherits(x, "sonnet_network")
+  inherits(x, "CographNetwork") || inherits(x, "cograph_network")
 }
 
-#' @title Create sonnet_network S3 class wrapper
-#' @param network SonnetNetwork R6 object.
-#' @return Object with sonnet_network class.
+#' @title Create cograph_network S3 class wrapper
+#' @param network CographNetwork R6 object.
+#' @return Object with cograph_network class.
 #' @keywords internal
-as_sonnet_network <- function(network) {
+as_cograph_network <- function(network) {
   obj <- structure(
     list(network = network),
-    class = c("sonnet_network", "list")
+    class = c("cograph_network", "list")
   )
   # Add direct access to layout and plot params
   obj$layout <- network$get_layout()
@@ -301,26 +301,26 @@ as_sonnet_network <- function(network) {
 }
 
 # =============================================================================
-# Getter Functions for sonnet_network
+# Getter Functions for cograph_network
 # =============================================================================
 
-#' Get Nodes from Sonnet Network
+#' Get Nodes from Cograph Network
 #'
-#' Extracts the nodes data frame from a sonnet_network object.
+#' Extracts the nodes data frame from a cograph_network object.
 #'
-#' @param x A sonnet_network object.
+#' @param x A cograph_network object.
 #' @return A data frame with columns: id, label, name, x, y (and possibly others).
 #'
-#' @seealso \code{\link{as_sonnet}}, \code{\link{n_nodes}}, \code{\link{get_edges}}
+#' @seealso \code{\link{as_cograph}}, \code{\link{n_nodes}}, \code{\link{get_edges}}
 #'
 #' @export
 #'
 #' @examples
 #' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- as_sonnet(mat)
+#' net <- as_cograph(mat)
 #' get_nodes(net)
 get_nodes <- function(x) {
-  if (inherits(x, "sonnet_network")) {
+  if (inherits(x, "cograph_network")) {
     # Check for new list format first (nodes stored as list element)
     if (!is.null(x$nodes) && is.data.frame(x$nodes)) {
       return(x$nodes)
@@ -331,31 +331,31 @@ get_nodes <- function(x) {
       return(nodes_attr)
     }
     # R6 object in old wrapper
-    if (!is.null(x$network) && inherits(x$network, "SonnetNetwork")) {
+    if (!is.null(x$network) && inherits(x$network, "CographNetwork")) {
       return(x$network$get_nodes())
     }
   }
   stop("Cannot extract nodes from this object", call. = FALSE)
 }
 
-#' Get Edges from Sonnet Network
+#' Get Edges from Cograph Network
 #'
-#' Extracts the edges data frame from a sonnet_network object.
+#' Extracts the edges data frame from a cograph_network object.
 #' For the new format, builds a data frame from the from/to/weight vectors.
 #'
-#' @param x A sonnet_network object.
+#' @param x A cograph_network object.
 #' @return A data frame with columns: from, to, weight.
 #'
-#' @seealso \code{\link{as_sonnet}}, \code{\link{n_edges}}, \code{\link{get_nodes}}
+#' @seealso \code{\link{as_cograph}}, \code{\link{n_edges}}, \code{\link{get_nodes}}
 #'
 #' @export
 #'
 #' @examples
 #' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- as_sonnet(mat)
+#' net <- as_cograph(mat)
 #' get_edges(net)
 get_edges <- function(x) {
-  if (inherits(x, "sonnet_network")) {
+  if (inherits(x, "cograph_network")) {
     # Check for new list format (from/to/weight as list elements)
     if (!is.null(x$n_nodes)) {
       # New format: build data frame from vectors
@@ -375,30 +375,30 @@ get_edges <- function(x) {
       return(x$edges)
     }
     # R6 object in old wrapper
-    if (!is.null(x$network) && inherits(x$network, "SonnetNetwork")) {
+    if (!is.null(x$network) && inherits(x$network, "CographNetwork")) {
       return(x$network$get_edges())
     }
   }
   stop("Cannot extract edges from this object", call. = FALSE)
 }
 
-#' Get Labels from Sonnet Network
+#' Get Labels from Cograph Network
 #'
-#' Extracts the node labels vector from a sonnet_network object.
+#' Extracts the node labels vector from a cograph_network object.
 #'
-#' @param x A sonnet_network object.
+#' @param x A cograph_network object.
 #' @return A character vector of node labels.
 #'
-#' @seealso \code{\link{as_sonnet}}, \code{\link{get_nodes}}
+#' @seealso \code{\link{as_cograph}}, \code{\link{get_nodes}}
 #'
 #' @export
 #'
 #' @examples
 #' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- as_sonnet(mat)
+#' net <- as_cograph(mat)
 #' get_labels(net)
 get_labels <- function(x) {
-  if (inherits(x, "sonnet_network")) {
+  if (inherits(x, "cograph_network")) {
     # Check for new list format
     if (!is.null(x$labels)) {
       return(x$labels)
@@ -418,31 +418,31 @@ get_labels <- function(x) {
 }
 
 # =============================================================================
-# Setter Functions for sonnet_network
+# Setter Functions for cograph_network
 # =============================================================================
 
-#' Set Nodes in Sonnet Network
+#' Set Nodes in Cograph Network
 #'
-#' Replaces the nodes data frame in a sonnet_network object.
+#' Replaces the nodes data frame in a cograph_network object.
 #' Automatically updates n_nodes and labels.
 #'
-#' @param x A sonnet_network object.
+#' @param x A cograph_network object.
 #' @param nodes_df A data frame with node information (id, label columns expected).
-#' @return The modified sonnet_network object.
+#' @return The modified cograph_network object.
 #'
-#' @seealso \code{\link{as_sonnet}}, \code{\link{get_nodes}}, \code{\link{set_edges}}
+#' @seealso \code{\link{as_cograph}}, \code{\link{get_nodes}}, \code{\link{set_edges}}
 #'
 #' @export
 #'
 #' @examples
 #' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- as_sonnet(mat)
+#' net <- as_cograph(mat)
 #' new_nodes <- data.frame(id = 1:3, label = c("A", "B", "C"))
 #' net <- set_nodes(net, new_nodes)
 #' get_labels(net)
 set_nodes <- function(x, nodes_df) {
-  if (!inherits(x, "sonnet_network")) {
-    stop("x must be a sonnet_network object", call. = FALSE)
+  if (!inherits(x, "cograph_network")) {
+    stop("x must be a cograph_network object", call. = FALSE)
   }
   if (!is.data.frame(nodes_df)) {
     stop("nodes_df must be a data frame", call. = FALSE)
@@ -464,29 +464,29 @@ set_nodes <- function(x, nodes_df) {
   x
 }
 
-#' Set Edges in Sonnet Network
+#' Set Edges in Cograph Network
 #'
-#' Replaces the edges in a sonnet_network object.
+#' Replaces the edges in a cograph_network object.
 #' Expects a data frame with from, to, and optionally weight columns.
 #' Updates the from, to, weight vectors and n_edges.
 #'
-#' @param x A sonnet_network object.
+#' @param x A cograph_network object.
 #' @param edges_df A data frame with columns: from, to, and optionally weight.
-#' @return The modified sonnet_network object.
+#' @return The modified cograph_network object.
 #'
-#' @seealso \code{\link{as_sonnet}}, \code{\link{get_edges}}, \code{\link{set_nodes}}
+#' @seealso \code{\link{as_cograph}}, \code{\link{get_edges}}, \code{\link{set_nodes}}
 #'
 #' @export
 #'
 #' @examples
 #' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- as_sonnet(mat)
+#' net <- as_cograph(mat)
 #' new_edges <- data.frame(from = c(1, 2), to = c(2, 3), weight = c(0.5, 0.8))
 #' net <- set_edges(net, new_edges)
 #' get_edges(net)
 set_edges <- function(x, edges_df) {
-  if (!inherits(x, "sonnet_network")) {
-    stop("x must be a sonnet_network object", call. = FALSE)
+  if (!inherits(x, "cograph_network")) {
+    stop("x must be a cograph_network object", call. = FALSE)
   }
   if (!is.data.frame(edges_df)) {
     stop("edges_df must be a data frame", call. = FALSE)
@@ -509,28 +509,28 @@ set_edges <- function(x, edges_df) {
   x
 }
 
-#' Set Layout in Sonnet Network
+#' Set Layout in Cograph Network
 #'
-#' Sets the layout coordinates in a sonnet_network object.
+#' Sets the layout coordinates in a cograph_network object.
 #' Updates the x and y columns in the nodes data frame.
 #'
-#' @param x A sonnet_network object.
+#' @param x A cograph_network object.
 #' @param layout_df A data frame with x and y columns, or a matrix with 2 columns.
-#' @return The modified sonnet_network object.
+#' @return The modified cograph_network object.
 #'
-#' @seealso \code{\link{as_sonnet}}, \code{\link{get_nodes}}, \code{\link{sn_layout}}
+#' @seealso \code{\link{as_cograph}}, \code{\link{get_nodes}}, \code{\link{sn_layout}}
 #'
 #' @export
 #'
 #' @examples
 #' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- as_sonnet(mat)
+#' net <- as_cograph(mat)
 #' layout <- data.frame(x = c(0, 1, 0.5), y = c(0, 0, 1))
 #' net <- set_layout(net, layout)
 #' get_nodes(net)
 set_layout <- function(x, layout_df) {
-  if (!inherits(x, "sonnet_network")) {
-    stop("x must be a sonnet_network object", call. = FALSE)
+  if (!inherits(x, "cograph_network")) {
+    stop("x must be a cograph_network object", call. = FALSE)
   }
 
   # Convert matrix to data frame
@@ -560,12 +560,12 @@ set_layout <- function(x, layout_df) {
 }
 
 # =============================================================================
-# New Lightweight sonnet_network Format
+# New Lightweight cograph_network Format
 # =============================================================================
 
-#' Convert to Sonnet Network
+#' Convert to Cograph Network
 #'
-#' Creates a lightweight sonnet_network object from various network inputs.
+#' Creates a lightweight cograph_network object from various network inputs.
 #' The resulting object is a named list with all data accessible via \code{$}.
 #'
 #' @param x Network input. Can be:
@@ -575,11 +575,11 @@ set_layout <- function(x, layout_df) {
 #'   - A statnet network object
 #'   - A qgraph object
 #'   - A tna object
-#'   - An existing sonnet_network object (returned as-is)
+#'   - An existing cograph_network object (returned as-is)
 #' @param directed Logical. Force directed interpretation. NULL for auto-detect.
 #' @param ... Additional arguments (currently unused).
 #'
-#' @return A sonnet_network object: a named list with components:
+#' @return A cograph_network object: a named list with components:
 #'   \describe{
 #'     \item{\code{from}}{Integer vector of source node indices}
 #'     \item{\code{to}}{Integer vector of target node indices}
@@ -595,10 +595,10 @@ set_layout <- function(x, layout_df) {
 #'   }
 #'
 #' @details
-#' The sonnet_network format is designed to be:
+#' The cograph_network format is designed to be:
 #' - Simple: All data accessible via \code{net$from}, \code{net$to}, \code{net$weight}, etc.
 #' - Modern: Uses named list elements instead of attributes for clean \code{$} access
-#' - Compatible: Works seamlessly with splot() and other Sonnet functions
+#' - Compatible: Works seamlessly with splot() and other cograph functions
 #'
 #' Use getter functions for programmatic access:
 #' \code{\link{get_nodes}}, \code{\link{get_edges}}, \code{\link{get_labels}}
@@ -618,7 +618,7 @@ set_layout <- function(x, layout_df) {
 #' @examples
 #' # From adjacency matrix
 #' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- as_sonnet(mat)
+#' net <- as_cograph(mat)
 #'
 #' # Direct $ access to all data
 #' net$from       # edge sources
@@ -649,13 +649,13 @@ set_layout <- function(x, layout_df) {
 #' \dontrun{
 #' library(igraph)
 #' g <- make_ring(10)
-#' net <- as_sonnet(g)
+#' net <- as_cograph(g)
 #' splot(net)
 #' }
-as_sonnet <- function(x, directed = NULL, ...) {
-  # Return as-is if already a sonnet_network
+as_cograph <- function(x, directed = NULL, ...) {
+  # Return as-is if already a cograph_network
 
-  if (inherits(x, "sonnet_network")) {
+  if (inherits(x, "cograph_network")) {
     return(x)
   }
 
@@ -719,26 +719,26 @@ as_sonnet <- function(x, directed = NULL, ...) {
   )
 
   # Set S3 class
-  class(net) <- c("sonnet_network", "list")
+  class(net) <- c("cograph_network", "list")
 
   net
 }
 
-#' Get Nodes from Sonnet Network (Deprecated)
+#' Get Nodes from Cograph Network (Deprecated)
 #'
-#' Extracts the nodes data frame from a sonnet_network object.
+#' Extracts the nodes data frame from a cograph_network object.
 #' \strong{Deprecated}: Use \code{\link{get_nodes}} instead.
 #'
-#' @param x A sonnet_network object.
+#' @param x A cograph_network object.
 #' @return A data frame with columns: id, label, name, x, y (and possibly others).
 #'
-#' @seealso \code{\link{get_nodes}}, \code{\link{as_sonnet}}, \code{\link{n_nodes}}
+#' @seealso \code{\link{get_nodes}}, \code{\link{as_cograph}}, \code{\link{n_nodes}}
 #'
 #' @export
 #'
 #' @examples
 #' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- as_sonnet(mat)
+#' net <- as_cograph(mat)
 #' nodes(net)  # Deprecated, use get_nodes(net) instead
 nodes <- function(x) {
   # Soft deprecation warning
@@ -748,27 +748,27 @@ nodes <- function(x) {
 
 #' Check if Network is Directed
 #'
-#' Checks whether a sonnet_network is directed.
+#' Checks whether a cograph_network is directed.
 #'
-#' @param x A sonnet_network object.
+#' @param x A cograph_network object.
 #' @return Logical: TRUE if directed, FALSE if undirected.
 #'
-#' @seealso \code{\link{as_sonnet}}
+#' @seealso \code{\link{as_cograph}}
 #'
 #' @export
 #'
 #' @examples
 #' # Symmetric matrix -> undirected
 #' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- as_sonnet(mat)
+#' net <- as_cograph(mat)
 #' is_directed(net)  # FALSE
 #'
 #' # Asymmetric matrix -> directed
 #' mat2 <- matrix(c(0, 1, 0, 0, 0, 1, 0, 0, 0), nrow = 3)
-#' net2 <- as_sonnet(mat2)
+#' net2 <- as_cograph(mat2)
 #' is_directed(net2)  # TRUE
 is_directed <- function(x) {
-  if (inherits(x, "sonnet_network")) {
+  if (inherits(x, "cograph_network")) {
     # Check for new list format first (directed stored as list element)
     if (!is.null(x$directed)) {
       return(x$directed)
@@ -779,7 +779,7 @@ is_directed <- function(x) {
       return(dir_attr)
     }
     # R6 object in old wrapper
-    if (!is.null(x$network) && inherits(x$network, "SonnetNetwork")) {
+    if (!is.null(x$network) && inherits(x$network, "CographNetwork")) {
       return(x$network$is_directed)
     }
   }
@@ -788,21 +788,21 @@ is_directed <- function(x) {
 
 #' Get Number of Nodes
 #'
-#' Returns the number of nodes in a sonnet_network.
+#' Returns the number of nodes in a cograph_network.
 #'
-#' @param x A sonnet_network object.
+#' @param x A cograph_network object.
 #' @return Integer: number of nodes.
 #'
-#' @seealso \code{\link{as_sonnet}}, \code{\link{n_edges}}, \code{\link{get_nodes}}
+#' @seealso \code{\link{as_cograph}}, \code{\link{n_edges}}, \code{\link{get_nodes}}
 #'
 #' @export
 #'
 #' @examples
 #' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- as_sonnet(mat)
+#' net <- as_cograph(mat)
 #' n_nodes(net)  # 3
 n_nodes <- function(x) {
-  if (inherits(x, "sonnet_network")) {
+  if (inherits(x, "cograph_network")) {
     # Check for new list format first (n_nodes stored as list element)
     if (!is.null(x$n_nodes)) {
       return(x$n_nodes)
@@ -813,7 +813,7 @@ n_nodes <- function(x) {
       return(n_attr)
     }
     # R6 object in old wrapper
-    if (!is.null(x$network) && inherits(x$network, "SonnetNetwork")) {
+    if (!is.null(x$network) && inherits(x$network, "CographNetwork")) {
       return(x$network$n_nodes)
     }
   }
@@ -822,21 +822,21 @@ n_nodes <- function(x) {
 
 #' Get Number of Edges
 #'
-#' Returns the number of edges in a sonnet_network.
+#' Returns the number of edges in a cograph_network.
 #'
-#' @param x A sonnet_network object.
+#' @param x A cograph_network object.
 #' @return Integer: number of edges.
 #'
-#' @seealso \code{\link{as_sonnet}}, \code{\link{n_nodes}}
+#' @seealso \code{\link{as_cograph}}, \code{\link{n_nodes}}
 #'
 #' @export
 #'
 #' @examples
 #' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- as_sonnet(mat)
+#' net <- as_cograph(mat)
 #' n_edges(net)  # 3
 n_edges <- function(x) {
-  if (inherits(x, "sonnet_network")) {
+  if (inherits(x, "cograph_network")) {
     # Check for new list format first (n_edges stored as list element)
     if (!is.null(x$n_edges)) {
       return(x$n_edges)
@@ -847,7 +847,7 @@ n_edges <- function(x) {
       return(n_attr)
     }
     # R6 object in old wrapper
-    if (!is.null(x$network) && inherits(x$network, "SonnetNetwork")) {
+    if (!is.null(x$network) && inherits(x$network, "CographNetwork")) {
       return(x$network$n_edges)
     }
   }

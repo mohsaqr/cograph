@@ -1,6 +1,6 @@
 # Migrating from qgraph to splot
 
-This guide helps users transition from `qgraph::qgraph()` to `Sonnet::splot()` for network visualization.
+This guide helps users transition from `qgraph::qgraph()` to `cograph::splot()` for network visualization.
 
 ## Why Switch?
 
@@ -17,10 +17,10 @@ This guide helps users transition from `qgraph::qgraph()` to `Sonnet::splot()` f
 ## Quick Start
 
 ```r
-# Install Sonnet
-# devtools::install_github("lamethods/Sonnet")
+# Install cograph
+# devtools::install_github("lamethods/cograph")
 
-library(Sonnet)
+library(cograph)
 
 # Basic usage - identical input format
 adj <- matrix(c(0, .5, .3, .5, 0, .4, .3, .4, 0), 3, 3)
@@ -28,7 +28,7 @@ adj <- matrix(c(0, .5, .3, .5, 0, .4, .3, .4, 0), 3, 3)
 # qgraph style:
 # qgraph::qgraph(adj)
 
-# Sonnet equivalent:
+# cograph equivalent:
 splot(adj)
 ```
 

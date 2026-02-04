@@ -4,5 +4,5 @@
 \alias{methods-print}
 \title{Print Methods}
 \description{
-S3 print methods for Sonnet objects.
+S3 print methods for Cograph objects.
 }

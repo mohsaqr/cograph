@@ -1,13 +1,13 @@
-# Sonnet <img src="man/figures/logo.png" align="right" height="139" />
+# cograph <img src="man/figures/logo.png" align="right" height="139" />
 
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/username/Sonnet/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/username/Sonnet/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/username/cograph/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/username/cograph/actions/workflows/R-CMD-check.yaml)
 [![CRAN
-status](https://www.r-pkg.org/badges/version/Sonnet)](https://CRAN.R-project.org/package=Sonnet)
+status](https://www.r-pkg.org/badges/version/cograph)](https://CRAN.R-project.org/package=cograph)
 <!-- badges: end -->
 
-**Sonnet** is a modern R package for network visualization. Plot networks from
+**cograph** is a modern R package for network visualization. Plot networks from
 matrices, igraph, network, qgraph, or tna objects with a single function:
 **`splot()`**.
 
@@ -23,17 +23,17 @@ Key features:
 
 ``` r
 # Install from CRAN (when available)
-install.packages("Sonnet")
+install.packages("cograph")
 
 # Or install the development version from GitHub
 # install.packages("devtools")
-devtools::install_github("username/Sonnet")
+devtools::install_github("username/cograph")
 ```
 
 ## Quick Start
 
 ``` r
-library(Sonnet)
+library(cograph)
 
 # 10-node directed transition matrix (TNA-style)
 set.seed(42)
@@ -171,7 +171,7 @@ splot(mat,
 
 ## Confidence Intervals and P-Values
 
-Sonnet supports statistical edge visualization with CI underlays and
+cograph supports statistical edge visualization with CI underlays and
 significance notation.
 
 ``` r

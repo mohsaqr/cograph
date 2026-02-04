@@ -2,25 +2,25 @@
 % Please edit documentation in R/class-network.R
 \name{get_edges}
 \alias{get_edges}
-\title{Get Edges from Sonnet Network}
+\title{Get Edges from Cograph Network}
 \usage{
 get_edges(x)
 }
 \arguments{
-\item{x}{A sonnet_network object.}
+\item{x}{A cograph_network object.}
 }
 \value{
 A data frame with columns: from, to, weight.
 }
 \description{
-Extracts the edges data frame from a sonnet_network object.
+Extracts the edges data frame from a cograph_network object.
 For the new format, builds a data frame from the from/to/weight vectors.
 }
 \examples{
 mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-net <- as_sonnet(mat)
+net <- as_cograph(mat)
 get_edges(net)
 }
 \seealso{
-\code{\link{as_sonnet}}, \code{\link{n_edges}}, \code{\link{get_nodes}}
+\code{\link{as_cograph}}, \code{\link{n_edges}}, \code{\link{get_nodes}}
 }

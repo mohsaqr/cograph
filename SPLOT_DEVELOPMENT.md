@@ -321,7 +321,7 @@ rownames(mat) <- colnames(mat) <- c("A", "B")
 splot(mat, node_size=0.1, edge_color="blue", curvature=0.3)
 
 # soplot (grid graphics)
-soplot(sonnet(mat), node_size=0.1, edge_color="blue", curvature=0.3)
+soplot(cograph(mat), node_size=0.1, edge_color="blue", curvature=0.3)
 ```
 
 ## Related Files

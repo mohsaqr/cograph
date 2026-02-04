@@ -6,15 +6,15 @@
 # ============================================
 
 test_that("layout_oval() produces elliptical coordinates", {
-  skip_if_not(exists("layout_oval", envir = asNamespace("Sonnet"), inherits = FALSE),
+  skip_if_not(exists("layout_oval", envir = asNamespace("cograph"), inherits = FALSE),
               "layout_oval not available")
 
   adj <- create_test_matrix(6)
-  net <- SonnetNetwork$new(adj)
+  net <- CographNetwork$new(adj)
 
   # Check the function signature - it might not have a, b parameters
   coords <- tryCatch(
-    Sonnet:::layout_oval(net),
+    cograph:::layout_oval(net),
     error = function(e) NULL
   )
 
@@ -38,15 +38,15 @@ test_that("splot() works with oval layout", {
 })
 
 test_that("layout_oval() accepts custom aspect parameters", {
-  skip_if_not(exists("layout_oval", envir = asNamespace("Sonnet"), inherits = FALSE),
+  skip_if_not(exists("layout_oval", envir = asNamespace("cograph"), inherits = FALSE),
               "layout_oval not available")
 
   adj <- create_test_matrix(8)
-  net <- SonnetNetwork$new(adj)
+  net <- CographNetwork$new(adj)
 
   # Just test that oval layout works (signature may vary)
   coords <- tryCatch(
-    Sonnet:::layout_oval(net),
+    cograph:::layout_oval(net),
     error = function(e) NULL
   )
 
@@ -85,7 +85,7 @@ test_that("splot() works with igraph mds layout", {
 test_that("sn_layout() applies igraph layouts correctly", {
   skip_if_no_igraph()
   adj <- create_test_matrix(6)
-  net <- sonnet(adj, layout = "circle")
+  net <- cograph(adj, layout = "circle")
 
   # Change to igraph layout
   net2 <- sn_layout(net, "kk", seed = 42)
@@ -97,11 +97,11 @@ test_that("sn_layout() applies igraph layouts correctly", {
   expect_false(all(layout1$x == layout2$x))
 })
 
-test_that("sonnet() accepts igraph layout function directly", {
+test_that("cograph() accepts igraph layout function directly", {
   skip_if_no_igraph()
   adj <- create_test_matrix(6)
 
-  net <- sonnet(adj, layout = igraph::layout_with_kk)
+  net <- cograph(adj, layout = igraph::layout_with_kk)
   layout <- net$network$get_layout()
 
   expect_equal(nrow(layout), 6)
@@ -130,7 +130,7 @@ test_that("splot() accepts data.frame layout coordinates", {
 
 test_that("sn_layout() accepts custom coordinates", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   custom_coords <- matrix(c(0.5, 0, 1, 0.5, 0, 0.5, 0.5, 1), ncol = 2)
   net2 <- sn_layout(net, custom_coords)
@@ -143,8 +143,8 @@ test_that("sn_layout() accepts custom coordinates", {
 # LAYOUT NORMALIZATION
 # ============================================
 
-test_that("SonnetLayout normalizes coordinates to [0,1]", {
-  layout <- SonnetLayout$new("circle")
+test_that("CographLayout normalizes coordinates to [0,1]", {
+  layout <- CographLayout$new("circle")
 
   # Test with coordinates outside [0,1]
   coords <- data.frame(x = c(-10, 0, 10, 20), y = c(-5, 0, 5, 10))
@@ -154,8 +154,8 @@ test_that("SonnetLayout normalizes coordinates to [0,1]", {
   expect_true(all(normalized$y >= 0 & normalized$y <= 1))
 })
 
-test_that("SonnetLayout preserves relative positions during normalization", {
-  layout <- SonnetLayout$new("circle")
+test_that("CographLayout preserves relative positions during normalization", {
+  layout <- CographLayout$new("circle")
 
   coords <- data.frame(x = c(0, 10, 20), y = c(0, 10, 20))
   normalized <- layout$normalize_coords(coords)
@@ -224,7 +224,7 @@ test_that("layout_groups() separates groups spatially", {
   # Group 3 internal edges
   adj[5, 6] <- adj[6, 5] <- 1
 
-  net <- SonnetNetwork$new(adj)
+  net <- CographNetwork$new(adj)
   groups <- c(1, 1, 2, 2, 3, 3)
   coords <- layout_groups(net, groups)
 
@@ -252,7 +252,7 @@ test_that("splot() with spring layout and group parameter", {
 
 test_that("layout_spring() accepts iterations parameter", {
   adj <- create_test_matrix(6)
-  net <- SonnetNetwork$new(adj)
+  net <- CographNetwork$new(adj)
 
   coords_few <- layout_spring(net, iterations = 5, seed = 42)
   coords_many <- layout_spring(net, iterations = 100, seed = 42)
@@ -263,7 +263,7 @@ test_that("layout_spring() accepts iterations parameter", {
 
 test_that("layout_spring() produces deterministic output with seed", {
   adj <- create_test_matrix(6)
-  net <- SonnetNetwork$new(adj)
+  net <- CographNetwork$new(adj)
 
   coords1 <- layout_spring(net, iterations = 50, seed = 123)
   coords2 <- layout_spring(net, iterations = 50, seed = 123)
@@ -274,7 +274,7 @@ test_that("layout_spring() produces deterministic output with seed", {
 
 test_that("layout_spring() produces different output with different seeds", {
   adj <- create_test_matrix(6)
-  net <- SonnetNetwork$new(adj)
+  net <- CographNetwork$new(adj)
 
   coords1 <- layout_spring(net, iterations = 50, seed = 123)
   coords2 <- layout_spring(net, iterations = 50, seed = 456)
@@ -289,7 +289,7 @@ test_that("layout_spring() produces different output with different seeds", {
 
 test_that("layout_circle() produces equidistant points", {
   adj <- create_test_matrix(8)
-  net <- SonnetNetwork$new(adj)
+  net <- CographNetwork$new(adj)
   coords <- layout_circle(net)
 
   expect_equal(nrow(coords), 8)
@@ -307,7 +307,7 @@ test_that("layout_circle() produces equidistant points", {
 
 test_that("layout_circle() points are evenly spaced angularly", {
   adj <- create_test_matrix(6)
-  net <- SonnetNetwork$new(adj)
+  net <- CographNetwork$new(adj)
   coords <- layout_circle(net)
 
   cx <- mean(coords$x)
@@ -331,7 +331,7 @@ test_that("layout_circle() points are evenly spaced angularly", {
 
 test_that("layouts handle single-node network", {
   adj <- matrix(0, 1, 1)
-  net <- SonnetNetwork$new(adj)
+  net <- CographNetwork$new(adj)
 
   # Circle layout
   coords_circle <- layout_circle(net)
@@ -344,7 +344,7 @@ test_that("layouts handle single-node network", {
 
 test_that("layouts handle two-node network", {
   adj <- matrix(c(0, 1, 1, 0), 2, 2)
-  net <- SonnetNetwork$new(adj)
+  net <- CographNetwork$new(adj)
 
   coords_circle <- layout_circle(net)
   expect_equal(nrow(coords_circle), 2)
@@ -356,7 +356,7 @@ test_that("layouts handle two-node network", {
 
 test_that("layouts handle disconnected network", {
   adj <- create_test_topology("disconnected", n = 6)
-  net <- SonnetNetwork$new(adj)
+  net <- CographNetwork$new(adj)
 
   coords_spring <- layout_spring(net, iterations = 50, seed = 42)
   expect_equal(nrow(coords_spring), 6)
@@ -374,8 +374,8 @@ test_that("splot() layout_scale expands layout", {
   net2 <- with_temp_png(splot(adj, layout_scale = 1.5, seed = 42))
 
   # Both should work
-  expect_sonnet_network(net1)
-  expect_sonnet_network(net2)
+  expect_cograph_network(net1)
+  expect_cograph_network(net2)
 })
 
 test_that("splot() layout_scale contracts layout", {

@@ -1,4 +1,4 @@
-# Sonnet Project Configuration
+# cograph Project Configuration
 
 ## Environment
 
@@ -12,7 +12,7 @@ powershell -Command "& 'C:\\Program Files\\R\\R-4.5.0\\bin\\Rscript.exe' script_
 
 ## Project Overview
 
-Sonnet is an R package for modern network visualization. Key functions:
+cograph is an R package for modern network visualization. Key functions:
 - `splot()` - Base R graphics network plotting
 - `soplot()` - Grid/ggplot2-style network plotting
 

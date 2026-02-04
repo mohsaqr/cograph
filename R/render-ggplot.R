@@ -1,14 +1,14 @@
 #' @title ggplot2 Conversion
-#' @description Convert Sonnet network to ggplot2 object.
+#' @description Convert Cograph network to ggplot2 object.
 #' @name render-ggplot
 NULL
 
 #' Convert Network to ggplot2
 #'
-#' Convert a Sonnet network visualization to a ggplot2 object for further
+#' Convert a Cograph network visualization to a ggplot2 object for further
 #' customization and composability.
 #'
-#' @param network A sonnet_network object, matrix, data.frame, or igraph object.
+#' @param network A cograph_network object, matrix, data.frame, or igraph object.
 #'   Matrices and other inputs are auto-converted.
 #' @param title Optional plot title.
 #'
@@ -17,8 +17,8 @@ NULL
 #'
 #' @examples
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' # With sonnet()
-#' p <- sonnet(adj) |> sn_ggplot()
+#' # With cograph()
+#' p <- cograph(adj) |> sn_ggplot()
 #' print(p)
 #'
 #' # Direct matrix input
@@ -27,8 +27,8 @@ NULL
 #' # Further customization
 #' p + ggplot2::labs(title = "My Network")
 sn_ggplot <- function(network, title = NULL) {
-  # Auto-convert matrix/data.frame/igraph to sonnet_network
-  network <- ensure_sonnet_network(network)
+  # Auto-convert matrix/data.frame/igraph to cograph_network
+  network <- ensure_cograph_network(network)
 
   net <- network$network
   nodes <- net$get_nodes()

@@ -3,12 +3,12 @@
 #' @name render-grid
 NULL
 
-#' Plot Sonnet Network
+#' Plot Cograph Network
 #'
-#' Main plotting function for Sonnet networks. Renders the network visualization
+#' Main plotting function for Cograph networks. Renders the network visualization
 #' using grid graphics. Accepts all node and edge aesthetic parameters.
 #'
-#' @param network A sonnet_network object, matrix, data.frame, or igraph object.
+#' @param network A cograph_network object, matrix, data.frame, or igraph object.
 #'   Matrices and other inputs are auto-converted.
 #' @param title Optional plot title.
 #' @param title_size Title font size.
@@ -160,7 +160,7 @@ NULL
 #'
 #' @seealso
 #' \code{\link{splot}} for base R graphics rendering (alternative engine),
-#' \code{\link{sonnet}} for creating network objects,
+#' \code{\link{cograph}} for creating network objects,
 #' \code{\link{sn_nodes}} for node customization,
 #' \code{\link{sn_edges}} for edge customization,
 #' \code{\link{sn_layout}} for layout algorithms,
@@ -170,8 +170,8 @@ NULL
 #'
 #' @examples
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' # With sonnet()
-#' sonnet(adj) |> soplot()
+#' # With cograph()
+#' cograph(adj) |> soplot()
 #'
 #' # Direct matrix input with all options
 #' adj |> soplot(
@@ -339,8 +339,8 @@ soplot <- function(network, title = NULL, title_size = 14,
     network <- round(network, weight_digits)
   }
 
-  # Auto-convert matrix/data.frame/igraph to sonnet_network
-  network <- ensure_sonnet_network(network, layout = effective_layout, seed = seed)
+  # Auto-convert matrix/data.frame/igraph to cograph_network
+  network <- ensure_cograph_network(network, layout = effective_layout, seed = seed)
 
   # Check for duplicate edges in undirected networks
   net <- network$network
@@ -719,20 +719,20 @@ soplot <- function(network, title = NULL, title_size = 14,
   ))
 
   # Re-create wrapper with updated data
-  invisible(as_sonnet_network(net))
+  invisible(as_cograph_network(net))
 }
 
 #' Create Grid Grob Tree
 #'
 #' Create a complete grid grob tree for the network (without drawing).
 #'
-#' @param network A sonnet_network object.
+#' @param network A cograph_network object.
 #' @param title Optional plot title.
 #' @return A grid gTree object.
 #' @keywords internal
 create_grid_grob <- function(network, title = NULL) {
-  if (!inherits(network, "sonnet_network")) {
-    stop("network must be a sonnet_network object", call. = FALSE)
+  if (!inherits(network, "cograph_network")) {
+    stop("network must be a cograph_network object", call. = FALSE)
   }
 
   net <- network$network
@@ -770,14 +770,14 @@ create_grid_grob <- function(network, title = NULL) {
     children <- grid::gList(children, title_grob)
   }
 
-  grid::gTree(children = children, name = "sonnet_plot")
+  grid::gTree(children = children, name = "cograph_plot")
 }
 
 #' Render Legend
 #'
 #' Create grid grobs for the network legend.
 #'
-#' @param network A SonnetNetwork object.
+#' @param network A CographNetwork object.
 #' @param position Legend position: "topright", "topleft", "bottomright", "bottomleft".
 #' @return A grid gList of legend grobs.
 #' @keywords internal

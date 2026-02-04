@@ -1,14 +1,14 @@
-#' @title Sonnet: Modern Network Visualization for R
+#' @title cograph: Modern Network Visualization for R
 #'
 #' @description
 #' A modern, extensible network visualization package that provides high-quality
-#' static and interactive network plots. Sonnet accepts adjacency matrices,
+#' static and interactive network plots. cograph accepts adjacency matrices,
 #' edge lists, or igraph objects and offers customizable layouts, node shapes,
 #' edge styles, and themes.
 #'
 #' @section Main Functions:
 #' \itemize{
-#'   \item \code{\link{sonnet}}: Main entry point for creating network visualizations
+#'   \item \code{\link{cograph}}: Main entry point for creating network visualizations
 #'   \item \code{\link{sn_layout}}: Apply layout algorithms
 #'   \item \code{\link{sn_nodes}}: Customize node aesthetics
 #'   \item \code{\link{sn_edges}}: Customize edge aesthetics
@@ -18,7 +18,7 @@
 #' }
 #'
 #' @section Layouts:
-#' Sonnet provides several built-in layouts:
+#' cograph provides several built-in layouts:
 #' \itemize{
 #'   \item \code{circle}: Nodes arranged in a circle
 #'   \item \code{spring}: Fruchterman-Reingold force-directed layout
@@ -37,8 +37,7 @@
 #' }
 #'
 #' @docType package
-#' @name Sonnet-package
-#' @aliases Sonnet
+#' @name cograph-package
 #'
 #' @import R6
 #' @import grid

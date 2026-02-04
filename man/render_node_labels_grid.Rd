@@ -7,7 +7,7 @@
 render_node_labels_grid(network)
 }
 \arguments{
-\item{network}{A SonnetNetwork object.}
+\item{network}{A CographNetwork object.}
 }
 \value{
 A grid gList of label grobs.

@@ -80,9 +80,9 @@ parse_igraph <- function(g, directed = NULL) {
 
 #' Apply igraph Layout Function
 #'
-#' Apply an igraph layout function to a SonnetNetwork.
+#' Apply an igraph layout function to a CographNetwork.
 #'
-#' @param network A SonnetNetwork object.
+#' @param network A CographNetwork object.
 #' @param layout_fn An igraph layout function (e.g., igraph::layout_nicely).
 #' @param ... Additional arguments passed to the layout function.
 #' @return Data frame with x, y coordinates.
@@ -110,7 +110,7 @@ apply_igraph_layout <- function(network, layout_fn, ...) {
 #'
 #' Apply an igraph layout by its name string.
 #'
-#' @param network A SonnetNetwork object.
+#' @param network A CographNetwork object.
 #' @param layout_name Layout name (e.g., "layout_nicely", "kk", "fr").
 #' @param seed Random seed for deterministic layouts. Default 42.
 #' @param ... Additional arguments passed to the layout function.
@@ -184,11 +184,11 @@ apply_igraph_layout_by_name <- function(network, layout_name, seed = 42, ...) {
   apply_igraph_layout(network, layout_fn, ...)
 }
 
-#' Convert SonnetNetwork to igraph
+#' Convert CographNetwork to igraph
 #'
-#' Convert a SonnetNetwork object to an igraph object for layout computation.
+#' Convert a CographNetwork object to an igraph object for layout computation.
 #'
-#' @param network A SonnetNetwork object.
+#' @param network A CographNetwork object.
 #' @return An igraph object.
 #' @noRd
 network_to_igraph <- function(network) {

@@ -1,36 +1,36 @@
 #' @title Plot Methods
-#' @description S3 plot methods for Sonnet objects.
+#' @description S3 plot methods for Cograph objects.
 #' @name methods-plot
 NULL
 
-#' Plot sonnet_network Object
+#' Plot cograph_network Object
 #'
-#' @param x A sonnet_network object.
+#' @param x A cograph_network object.
 #' @param ... Additional arguments passed to sn_render.
 #' @return Invisible x.
 #' @export
 #'
 #' @examples
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- sonnet(adj)
+#' net <- cograph(adj)
 #' plot(net)
-plot.sonnet_network <- function(x, ...) {
+plot.cograph_network <- function(x, ...) {
   sn_render(x, ...)
   invisible(x)
 }
 
-#' Summary of sonnet_network Object
+#' Summary of cograph_network Object
 #'
-#' @param object A sonnet_network object.
+#' @param object A cograph_network object.
 #' @param ... Ignored.
 #' @return A list with network summary information (invisibly).
 #' @export
-summary.sonnet_network <- function(object, ...) {
+summary.cograph_network <- function(object, ...) {
   net <- object$network
   nodes <- net$get_nodes()
   edges <- net$get_edges()
 
-  cat("Sonnet Network Summary\n")
+  cat("Cograph Network Summary\n")
   cat("======================\n\n")
 
   cat("Structure:\n")

@@ -7,25 +7,25 @@
 is_directed(x)
 }
 \arguments{
-\item{x}{A sonnet_network object.}
+\item{x}{A cograph_network object.}
 }
 \value{
 Logical: TRUE if directed, FALSE if undirected.
 }
 \description{
-Checks whether a sonnet_network is directed.
+Checks whether a cograph_network is directed.
 }
 \examples{
 # Symmetric matrix -> undirected
 mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-net <- as_sonnet(mat)
+net <- as_cograph(mat)
 is_directed(net)  # FALSE
 
 # Asymmetric matrix -> directed
 mat2 <- matrix(c(0, 1, 0, 0, 0, 1, 0, 0, 0), nrow = 3)
-net2 <- as_sonnet(mat2)
+net2 <- as_cograph(mat2)
 is_directed(net2)  # TRUE
 }
 \seealso{
-\code{\link{as_sonnet}}
+\code{\link{as_cograph}}
 }

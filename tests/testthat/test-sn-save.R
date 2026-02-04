@@ -7,7 +7,7 @@
 
 test_that("sn_save() creates PDF file", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
   tmp <- tempfile(fileext = ".pdf")
   on.exit(unlink(tmp), add = TRUE)
 
@@ -18,7 +18,7 @@ test_that("sn_save() creates PDF file", {
 
 test_that("sn_save() creates PNG file", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
   tmp <- tempfile(fileext = ".png")
   on.exit(unlink(tmp), add = TRUE)
 
@@ -31,7 +31,7 @@ test_that("sn_save() creates SVG file", {
   skip_on_cran()  # SVG requires cairo which may not be available
 
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
   tmp <- tempfile(fileext = ".svg")
   on.exit(unlink(tmp), add = TRUE)
 
@@ -54,7 +54,7 @@ test_that("sn_save() creates SVG file", {
 
 test_that("sn_save() creates JPEG file", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
   tmp <- tempfile(fileext = ".jpeg")
   on.exit(unlink(tmp), add = TRUE)
 
@@ -65,7 +65,7 @@ test_that("sn_save() creates JPEG file", {
 
 test_that("sn_save() creates JPG file (alias)", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
   tmp <- tempfile(fileext = ".jpg")
   on.exit(unlink(tmp), add = TRUE)
 
@@ -76,7 +76,7 @@ test_that("sn_save() creates JPG file (alias)", {
 
 test_that("sn_save() creates TIFF file", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
   tmp <- tempfile(fileext = ".tiff")
   on.exit(unlink(tmp), add = TRUE)
 
@@ -89,7 +89,7 @@ test_that("sn_save() creates EPS file", {
   skip_on_cran()  # EPS/PostScript may have font issues
 
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
   tmp <- tempfile(fileext = ".eps")
   on.exit(unlink(tmp), add = TRUE)
 
@@ -113,7 +113,7 @@ test_that("sn_save() creates PS file", {
   skip_on_cran()  # PS may have font issues
 
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
   tmp <- tempfile(fileext = ".ps")
   on.exit(unlink(tmp), add = TRUE)
 
@@ -139,7 +139,7 @@ test_that("sn_save() creates PS file", {
 
 test_that("sn_save() respects width and height parameters", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   # Small PNG
   tmp_small <- tempfile(fileext = ".png")
@@ -160,7 +160,7 @@ test_that("sn_save() respects width and height parameters", {
 
 test_that("sn_save() respects dpi parameter", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   # Low DPI
   tmp_low <- tempfile(fileext = ".png")
@@ -185,7 +185,7 @@ test_that("sn_save() respects dpi parameter", {
 
 test_that("sn_save() includes title when specified", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
   tmp <- tempfile(fileext = ".pdf")
   on.exit(unlink(tmp), add = TRUE)
 
@@ -232,7 +232,7 @@ test_that("sn_save() accepts igraph input directly", {
 
 test_that("sn_save() errors on missing extension", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   expect_error(sn_save(net, "filename_without_extension"),
                "extension")
@@ -240,7 +240,7 @@ test_that("sn_save() errors on missing extension", {
 
 test_that("sn_save() errors on unsupported format", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
   tmp <- tempfile(fileext = ".xyz")
 
   expect_error(sn_save(net, tmp), "Unsupported")
@@ -248,7 +248,7 @@ test_that("sn_save() errors on unsupported format", {
 
 test_that("sn_save() returns filename invisibly", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
   tmp <- tempfile(fileext = ".pdf")
   on.exit(unlink(tmp), add = TRUE)
 
@@ -265,7 +265,7 @@ test_that("sn_save_ggplot() creates PDF file", {
   skip_if_not_installed("ggplot2")
 
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
   tmp <- tempfile(fileext = ".pdf")
   on.exit(unlink(tmp), add = TRUE)
 
@@ -277,7 +277,7 @@ test_that("sn_save_ggplot() creates PNG file", {
   skip_if_not_installed("ggplot2")
 
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
   tmp <- tempfile(fileext = ".png")
   on.exit(unlink(tmp), add = TRUE)
 
@@ -289,7 +289,7 @@ test_that("sn_save_ggplot() respects dimensions", {
   skip_if_not_installed("ggplot2")
 
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
   tmp <- tempfile(fileext = ".png")
   on.exit(unlink(tmp), add = TRUE)
 
@@ -301,7 +301,7 @@ test_that("sn_save_ggplot() includes title", {
   skip_if_not_installed("ggplot2")
 
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
   tmp <- tempfile(fileext = ".pdf")
   on.exit(unlink(tmp), add = TRUE)
 
@@ -313,7 +313,7 @@ test_that("sn_save_ggplot() returns filename invisibly", {
   skip_if_not_installed("ggplot2")
 
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
   tmp <- tempfile(fileext = ".pdf")
   on.exit(unlink(tmp), add = TRUE)
 
@@ -326,9 +326,9 @@ test_that("sn_save_ggplot() returns filename invisibly", {
 # SN_RENDER()
 # ============================================
 
-test_that("sn_render() works with sonnet_network", {
+test_that("sn_render() works with cograph_network", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- safe_plot(sn_render(net))
   expect_true(result$success, info = result$error)
@@ -336,7 +336,7 @@ test_that("sn_render() works with sonnet_network", {
 
 test_that("sn_render() works with title", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- safe_plot(sn_render(net, title = "Test Network"))
   expect_true(result$success, info = result$error)
@@ -348,7 +348,7 @@ test_that("sn_render() works with title", {
 
 test_that("sn_save() properly closes device on error", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   # Count devices before
   dev_before <- length(dev.list())
@@ -371,7 +371,7 @@ test_that("sn_save() properly closes device on error", {
 
 test_that("sn_save() preserves customizations", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj) |>
+  net <- cograph(adj) |>
     sn_nodes(fill = "steelblue", size = 0.1) |>
     sn_edges(color = "gray50") |>
     sn_theme("dark")
@@ -385,7 +385,7 @@ test_that("sn_save() preserves customizations", {
 
 test_that("sn_save() works with themed network", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj) |> sn_theme("colorblind")
+  net <- cograph(adj) |> sn_theme("colorblind")
 
   tmp <- tempfile(fileext = ".pdf")
   on.exit(unlink(tmp), add = TRUE)
@@ -396,7 +396,7 @@ test_that("sn_save() works with themed network", {
 
 test_that("sn_save() works with complex network", {
   adj <- create_test_matrix(6)
-  net <- sonnet(adj, layout = "circle") |>
+  net <- cograph(adj, layout = "circle") |>
     sn_nodes(
       fill = palette_colorblind(6),
       shape = c("circle", "square", "triangle", "diamond", "pentagon", "hexagon")
@@ -418,7 +418,7 @@ test_that("sn_save() works with complex network", {
 
 test_that("sn_save() handles empty network (no edges)", {
   adj <- matrix(0, 4, 4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
   tmp <- tempfile(fileext = ".pdf")
   on.exit(unlink(tmp), add = TRUE)
 
@@ -428,7 +428,7 @@ test_that("sn_save() handles empty network (no edges)", {
 
 test_that("sn_save() handles single-node network", {
   adj <- matrix(0, 1, 1)
-  net <- sonnet(adj)
+  net <- cograph(adj)
   tmp <- tempfile(fileext = ".pdf")
   on.exit(unlink(tmp), add = TRUE)
 
@@ -439,7 +439,7 @@ test_that("sn_save() handles single-node network", {
 test_that("sn_save() handles network with self-loops", {
   adj <- create_test_matrix(4)
   diag(adj) <- 1
-  net <- sonnet(adj)
+  net <- cograph(adj)
   tmp <- tempfile(fileext = ".pdf")
   on.exit(unlink(tmp), add = TRUE)
 
@@ -449,7 +449,7 @@ test_that("sn_save() handles network with self-loops", {
 
 test_that("sn_save() handles donut nodes", {
   adj <- create_test_matrix(3)
-  net <- sonnet(adj) |>
+  net <- cograph(adj) |>
     sn_nodes(donut_fill = c(0.3, 0.6, 0.9))
 
   tmp <- tempfile(fileext = ".pdf")
@@ -461,7 +461,7 @@ test_that("sn_save() handles donut nodes", {
 
 test_that("sn_save() handles pie chart nodes", {
   adj <- create_test_matrix(3)
-  net <- sonnet(adj) |>
+  net <- cograph(adj) |>
     sn_nodes(pie_values = list(c(1, 2), c(2, 1), c(1, 1, 1)))
 
   tmp <- tempfile(fileext = ".pdf")
@@ -477,7 +477,7 @@ test_that("sn_save() handles pie chart nodes", {
 
 test_that("sn_save() creates file in specified directory", {
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   tmp_dir <- create_temp_dir()
   on.exit(unlink(tmp_dir, recursive = TRUE), add = TRUE)
@@ -492,7 +492,7 @@ test_that("sn_save() handles paths with spaces", {
   skip_on_cran()  # Path handling can vary by platform
 
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   tmp_dir <- tempfile(pattern = "test dir with spaces")
   dir.create(tmp_dir)

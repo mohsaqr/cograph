@@ -7,19 +7,19 @@
 n_nodes(x)
 }
 \arguments{
-\item{x}{A sonnet_network object.}
+\item{x}{A cograph_network object.}
 }
 \value{
 Integer: number of nodes.
 }
 \description{
-Returns the number of nodes in a sonnet_network.
+Returns the number of nodes in a cograph_network.
 }
 \examples{
 mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-net <- as_sonnet(mat)
+net <- as_cograph(mat)
 n_nodes(net)  # 3
 }
 \seealso{
-\code{\link{as_sonnet}}, \code{\link{n_edges}}, \code{\link{get_nodes}}
+\code{\link{as_cograph}}, \code{\link{n_edges}}, \code{\link{get_nodes}}
 }

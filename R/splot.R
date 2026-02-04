@@ -14,7 +14,7 @@ NULL
 #'   - A square numeric matrix (adjacency/weight matrix)
 #'   - A data frame with edge list (from, to, optional weight columns)
 #'   - An igraph object
-#'   - A sonnet_network object
+#'   - A cograph_network object
 #' @param layout Layout algorithm: "circle", "spring", "groups", or a matrix
 #'   of x,y coordinates, or an igraph layout function. Also supports igraph
 #'   two-letter codes: "kk", "fr", "drl", "mds", "ni", etc.
@@ -271,11 +271,11 @@ NULL
 #'     \code{"full"} (estimate + CI), \code{"range"} (CI only), \code{"stars"} (significance).}
 #' }
 #'
-#' @return Invisibly returns the sonnet_network object.
+#' @return Invisibly returns the cograph_network object.
 #'
 #' @seealso
 #' \code{\link{soplot}} for grid graphics rendering (alternative engine),
-#' \code{\link{sonnet}} for creating network objects,
+#' \code{\link{cograph}} for creating network objects,
 #' \code{\link{sn_nodes}} for node customization,
 #' \code{\link{sn_edges}} for edge customization,
 #' \code{\link{sn_layout}} for layout algorithms,
@@ -531,8 +531,8 @@ splot <- function(
     set.seed(seed)
   }
 
-  # Convert to sonnet_network if needed
-  network <- ensure_sonnet_network(x, layout = layout, seed = seed, ...)
+  # Convert to cograph_network if needed
+  network <- ensure_cograph_network(x, layout = layout, seed = seed, ...)
 
   # Apply theme if specified
   if (!is.null(theme)) {
@@ -561,7 +561,7 @@ splot <- function(
     layout_coords <- network$layout
   } else if (!is.null(attr(network, "layout"))) {
     layout_coords <- attr(network, "layout")
-  } else if (!is.null(network$network) && inherits(network$network, "SonnetNetwork")) {
+  } else if (!is.null(network$network) && inherits(network$network, "CographNetwork")) {
     layout_coords <- network$network$get_layout()
   } else {
     layout_coords <- NULL
@@ -601,7 +601,7 @@ splot <- function(
       edges <- aggregate_duplicate_edges(edges, edge_duplicates)
       n_edges <- nrow(edges)
       # Update the network object with deduplicated edges (old format only)
-      if (!is.null(network$network) && inherits(network$network, "SonnetNetwork")) {
+      if (!is.null(network$network) && inherits(network$network, "CographNetwork")) {
         network$network$set_edges(edges)
       }
     }

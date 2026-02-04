@@ -7,7 +7,7 @@
 render_legend_grid(network, position = "topright")
 }
 \arguments{
-\item{network}{A SonnetNetwork object.}
+\item{network}{A CographNetwork object.}
 
 \item{position}{Legend position: "topright", "topleft", "bottomright", "bottomleft".}
 }

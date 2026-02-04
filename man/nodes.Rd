@@ -2,25 +2,25 @@
 % Please edit documentation in R/class-network.R
 \name{nodes}
 \alias{nodes}
-\title{Get Nodes from Sonnet Network (Deprecated)}
+\title{Get Nodes from Cograph Network (Deprecated)}
 \usage{
 nodes(x)
 }
 \arguments{
-\item{x}{A sonnet_network object.}
+\item{x}{A cograph_network object.}
 }
 \value{
 A data frame with columns: id, label, name, x, y (and possibly others).
 }
 \description{
-Extracts the nodes data frame from a sonnet_network object.
+Extracts the nodes data frame from a cograph_network object.
 \strong{Deprecated}: Use \code{\link{get_nodes}} instead.
 }
 \examples{
 mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-net <- as_sonnet(mat)
+net <- as_cograph(mat)
 nodes(net)  # Deprecated, use get_nodes(net) instead
 }
 \seealso{
-\code{\link{get_nodes}}, \code{\link{as_sonnet}}, \code{\link{n_nodes}}
+\code{\link{get_nodes}}, \code{\link{as_cograph}}, \code{\link{n_nodes}}
 }

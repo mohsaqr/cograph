@@ -3,7 +3,7 @@
 \name{soplot}
 \alias{soplot}
 \alias{sn_render}
-\title{Plot Sonnet Network}
+\title{Plot Cograph Network}
 \usage{
 soplot(
   network,
@@ -178,7 +178,7 @@ sn_render(
 )
 }
 \arguments{
-\item{network}{A sonnet_network object, matrix, data.frame, or igraph object.
+\item{network}{A cograph_network object, matrix, data.frame, or igraph object.
 Matrices and other inputs are auto-converted.}
 
 \item{title}{Optional plot title.}
@@ -371,7 +371,7 @@ Set NULL to disable rounding.}
 Invisible NULL. Called for side effect of drawing.
 }
 \description{
-Main plotting function for Sonnet networks. Renders the network visualization
+Main plotting function for Cograph networks. Renders the network visualization
 using grid graphics. Accepts all node and edge aesthetic parameters.
 }
 \details{
@@ -423,8 +423,8 @@ The donut system visualizes proportions (0-1) as filled rings around nodes:
 }
 \examples{
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-# With sonnet()
-sonnet(adj) |> soplot()
+# With cograph()
+cograph(adj) |> soplot()
 
 # Direct matrix input with all options
 adj |> soplot(
@@ -436,7 +436,7 @@ adj |> soplot(
 }
 \seealso{
 \code{\link{splot}} for base R graphics rendering (alternative engine),
-\code{\link{sonnet}} for creating network objects,
+\code{\link{cograph}} for creating network objects,
 \code{\link{sn_nodes}} for node customization,
 \code{\link{sn_edges}} for edge customization,
 \code{\link{sn_layout}} for layout algorithms,

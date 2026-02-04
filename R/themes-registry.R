@@ -10,12 +10,12 @@ NULL
 #'
 #' @keywords internal
 register_builtin_themes <- function() {
-  register_theme("classic", theme_sonnet_classic())
-  register_theme("colorblind", theme_sonnet_colorblind())
-  register_theme("gray", theme_sonnet_gray())
-  register_theme("grey", theme_sonnet_gray())  # Alias
-  register_theme("dark", theme_sonnet_dark())
-  register_theme("minimal", theme_sonnet_minimal())
-  register_theme("viridis", theme_sonnet_viridis())
-  register_theme("nature", theme_sonnet_nature())
+  register_theme("classic", theme_cograph_classic())
+  register_theme("colorblind", theme_cograph_colorblind())
+  register_theme("gray", theme_cograph_gray())
+  register_theme("grey", theme_cograph_gray())  # Alias
+  register_theme("dark", theme_cograph_dark())
+  register_theme("minimal", theme_cograph_minimal())
+  register_theme("viridis", theme_cograph_viridis())
+  register_theme("nature", theme_cograph_nature())
 }

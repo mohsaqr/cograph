@@ -10,7 +10,7 @@ register_layout(name, layout_fn)
 \item{name}{Character. Name of the layout.}
 
 \item{layout_fn}{Function. A function that computes node positions.
-Should accept a SonnetNetwork object and return a matrix with x, y columns.}
+Should accept a CographNetwork object and return a matrix with x, y columns.}
 }
 \value{
 Invisible NULL.

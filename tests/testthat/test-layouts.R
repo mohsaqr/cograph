@@ -1,6 +1,6 @@
 test_that("layout_circle produces correct coordinates", {
   adj <- matrix(c(0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0), nrow = 4)
-  net <- SonnetNetwork$new(adj)
+  net <- CographNetwork$new(adj)
   coords <- layout_circle(net)
 
   expect_equal(nrow(coords), 4)
@@ -14,7 +14,7 @@ test_that("layout_circle produces correct coordinates", {
 
 test_that("layout_spring produces coordinates", {
   adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-  net <- SonnetNetwork$new(adj)
+  net <- CographNetwork$new(adj)
   coords <- layout_spring(net, iterations = 10, seed = 42)
 
   expect_equal(nrow(coords), 3)
@@ -29,7 +29,7 @@ test_that("layout_groups arranges by group", {
   adj[1, 2] <- adj[2, 1] <- 1
   adj[3, 4] <- adj[4, 3] <- 1
   adj[5, 6] <- adj[6, 5] <- 1
-  net <- SonnetNetwork$new(adj)
+  net <- CographNetwork$new(adj)
   groups <- c(1, 1, 2, 2, 3, 3)
   coords <- layout_groups(net, groups)
 
@@ -40,8 +40,8 @@ test_that("layout_groups arranges by group", {
   expect_true(dist_within_1 < dist_between)
 })
 
-test_that("SonnetLayout normalizes coordinates", {
-  layout <- SonnetLayout$new("circle")
+test_that("CographLayout normalizes coordinates", {
+  layout <- CographLayout$new("circle")
   coords <- data.frame(x = c(-10, 0, 10), y = c(-5, 0, 5))
   normalized <- layout$normalize_coords(coords)
 

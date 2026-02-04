@@ -1,15 +1,15 @@
 #' @title Print Methods
-#' @description S3 print methods for Sonnet objects.
+#' @description S3 print methods for Cograph objects.
 #' @name methods-print
 NULL
 
-#' Print sonnet_network Object
+#' Print cograph_network Object
 #'
-#' @param x A sonnet_network object.
+#' @param x A cograph_network object.
 #' @param ... Ignored.
 #' @return Invisible x.
 #' @export
-print.sonnet_network <- function(x, ...) {
+print.cograph_network <- function(x, ...) {
   # Handle new list-based format (has n_nodes as list element)
   if (!is.null(x$n_nodes)) {
     n <- x$n_nodes
@@ -17,7 +17,7 @@ print.sonnet_network <- function(x, ...) {
     dir <- x$directed
     dir_str <- if (isTRUE(dir)) "directed" else "undirected"
 
-    cat("Sonnet network:", n, "nodes,", e, "edges (", dir_str, ")\n", sep = " ")
+    cat("Cograph network:", n, "nodes,", e, "edges (", dir_str, ")\n", sep = " ")
 
     # Show weight range if there are edges
     if (e > 0 && !is.null(x$weight)) {
@@ -44,7 +44,7 @@ print.sonnet_network <- function(x, ...) {
     dir <- attr(x, "directed")
     dir_str <- if (isTRUE(dir)) "directed" else "undirected"
 
-    cat("Sonnet network:", n, "nodes,", e, "edges (", dir_str, ")\n", sep = " ")
+    cat("Cograph network:", n, "nodes,", e, "edges (", dir_str, ")\n", sep = " ")
 
     # Show weight range if there are edges
     if (e > 0 && !is.null(x$weight)) {
@@ -66,8 +66,8 @@ print.sonnet_network <- function(x, ...) {
 
   # Handle old R6 wrapper format
   net <- x$network
-  if (!is.null(net) && inherits(net, "SonnetNetwork")) {
-    cat("Sonnet Network\n")
+  if (!is.null(net) && inherits(net, "CographNetwork")) {
+    cat("Cograph Network\n")
     cat("==============\n")
     cat("Nodes:", net$n_nodes, "\n")
     cat("Edges:", net$n_edges, "\n")
@@ -87,6 +87,6 @@ print.sonnet_network <- function(x, ...) {
   }
 
   # Fallback
-  cat("Sonnet network object\n")
+  cat("Cograph network object\n")
   invisible(x)
 }

@@ -4,5 +4,5 @@
 \alias{render-ggplot}
 \title{ggplot2 Conversion}
 \description{
-Convert Sonnet network to ggplot2 object.
+Convert Cograph network to ggplot2 object.
 }

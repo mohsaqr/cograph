@@ -1,4 +1,4 @@
-#' @title SonnetTheme R6 Class
+#' @title CographTheme R6 Class
 #'
 #' @description
 #' Class for managing visual themes for network plots.
@@ -6,15 +6,15 @@
 #' @export
 #' @examples
 #' # Create a custom theme
-#' theme <- SonnetTheme$new(
+#' theme <- CographTheme$new(
 #'   background = "white",
 #'   node_fill = "steelblue",
 #'   edge_color = "gray60"
 #' )
-SonnetTheme <- R6::R6Class(
-  "SonnetTheme",
+CographTheme <- R6::R6Class(
+  "CographTheme",
   public = list(
-    #' @description Create a new SonnetTheme object.
+    #' @description Create a new CographTheme object.
     #' @param name Theme name (optional).
     #' @param background Background color.
     #' @param node_fill Default node fill color.
@@ -29,7 +29,7 @@ SonnetTheme <- R6::R6Class(
     #' @param title_color Title color.
     #' @param title_size Title size.
     #' @param legend_background Legend background color.
-    #' @return A new SonnetTheme object.
+    #' @return A new CographTheme object.
     initialize = function(
       name = "custom",
       background = "white",
@@ -87,10 +87,10 @@ SonnetTheme <- R6::R6Class(
     },
 
     #' @description Merge with another theme.
-    #' @param other Another SonnetTheme or list of parameters.
-    #' @return A new merged SonnetTheme.
+    #' @param other Another CographTheme or list of parameters.
+    #' @return A new merged CographTheme.
     merge = function(other) {
-      if (inherits(other, "SonnetTheme")) {
+      if (inherits(other, "CographTheme")) {
         other_params <- other$get_all()
       } else {
         other_params <- other
@@ -98,18 +98,18 @@ SonnetTheme <- R6::R6Class(
 
       new_params <- utils::modifyList(private$.params, other_params)
 
-      do.call(SonnetTheme$new, c(list(name = "merged"), new_params))
+      do.call(CographTheme$new, c(list(name = "merged"), new_params))
     },
 
     #' @description Clone the theme.
-    #' @return A new SonnetTheme.
+    #' @return A new CographTheme.
     clone_theme = function() {
-      do.call(SonnetTheme$new, c(list(name = private$.name), private$.params))
+      do.call(CographTheme$new, c(list(name = private$.name), private$.params))
     },
 
     #' @description Print theme summary.
     print = function() {
-      cat("SonnetTheme:", private$.name, "\n")
+      cat("CographTheme:", private$.name, "\n")
       cat("  Background:", private$.params$background, "\n")
       cat("  Node fill:", private$.params$node_fill, "\n")
       cat("  Node border:", private$.params$node_border, "\n")
@@ -133,10 +133,10 @@ SonnetTheme <- R6::R6Class(
   )
 )
 
-#' @title Check if object is a SonnetTheme
+#' @title Check if object is a CographTheme
 #' @param x Object to check.
 #' @return Logical.
 #' @keywords internal
-is_sonnet_theme <- function(x) {
-  inherits(x, "SonnetTheme")
+is_cograph_theme <- function(x) {
+  inherits(x, "CographTheme")
 }

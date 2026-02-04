@@ -1,10 +1,10 @@
-# Sonnet TODO
+# cograph TODO
 
 ## Pending Features
 
-### Add Metadata Storage to SonnetNetwork
+### Add Metadata Storage to CographNetwork
 
-**Goal:** Add metadata storage capability to SonnetNetwork, allowing users to store and retrieve custom attributes for the graph, nodes, and edges - similar to igraph's attribute system.
+**Goal:** Add metadata storage capability to CographNetwork, allowing users to store and retrieve custom attributes for the graph, nodes, and edges - similar to igraph's attribute system.
 
 **Changes needed in `R/class-network.R`:**
 
@@ -30,9 +30,9 @@
 
 5. Update `clone_network()` to copy metadata
 
-6. Update `as_sonnet_network()` to expose `obj$metadata`
+6. Update `as_cograph_network()` to expose `obj$metadata`
 
-**Changes needed in `R/sonnet.R`:**
+**Changes needed in `R/cograph.R`:**
 
 Add pipe-friendly convenience functions:
 - `sn_set_meta(network, key, value)`
@@ -41,7 +41,7 @@ Add pipe-friendly convenience functions:
 **Usage examples:**
 ```r
 # Graph-level metadata
-net <- sonnet(adj) |>
+net <- cograph(adj) |>
   sn_set_meta("title", "My Network") |>
   sn_set_meta("created", Sys.Date())
 
@@ -243,7 +243,7 @@ splot_multilayer(layers, inter_edges = my_inter_edges_df)
 ### Export/Import Functions
 
 - `sn_export(net, "network.graphml")` - Export to GraphML, GML, DOT formats
-- `sn_save_rds(net, "network.rds")` / `sn_load_rds("network.rds")` - Save/load Sonnet networks
+- `sn_save_rds(net, "network.rds")` / `sn_load_rds("network.rds")` - Save/load cograph networks
 - `sn_to_json(net)` / `sn_from_json()` - JSON serialization
 
 ---

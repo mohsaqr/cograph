@@ -64,7 +64,7 @@ sn_edges(
 )
 }
 \arguments{
-\item{network}{A sonnet_network object, matrix, data.frame, or igraph object.
+\item{network}{A cograph_network object, matrix, data.frame, or igraph object.
 Matrices and other inputs are auto-converted.}
 
 \item{width}{Edge width. Can be a single value, vector (per-edge), or "weight".}
@@ -188,7 +188,7 @@ or "force" (curve all edges). Default FALSE.}
 or numeric (treated as p-values).}
 }
 \value{
-Modified sonnet_network object that can be piped to further customization
+Modified cograph_network object that can be piped to further customization
 functions or plotting functions.
 }
 \description{
@@ -250,14 +250,14 @@ Visualize uncertainty by drawing a wider, semi-transparent edge behind:
 adj <- matrix(c(0, 1, -0.5, 1, 0, 1, -0.5, 1, 0), nrow = 3)
 
 # Basic: auto-style by weight
-sonnet(adj) |>
+cograph(adj) |>
   sn_edges(width = "weight", color = "weight")
 
 # Direct matrix input (auto-converted)
 adj |> sn_edges(width = 2, color = "gray50")
 
 # Custom positive/negative colors
-sonnet(adj) |>
+cograph(adj) |>
   sn_edges(
     color = "weight",
     edge_positive_color = "darkblue",
@@ -266,7 +266,7 @@ sonnet(adj) |>
   splot()
 
 # Edge labels showing weights
-sonnet(adj) |>
+cograph(adj) |>
   sn_edges(labels = TRUE, label_size = 0.8) |>
   splot()
 
@@ -277,7 +277,7 @@ ci_lo <- c(0.2, -0.6, 0.5)
 ci_hi <- c(0.8, -0.1, 1.1)
 
 \dontrun{
-sonnet(adj) |>
+cograph(adj) |>
   sn_edges(
     label_template = "{est} [{low}, {up}]",
     ci_lower = ci_lo,
@@ -288,13 +288,13 @@ sonnet(adj) |>
 }
 
 # Curved edges for reciprocal pairs
-sonnet(adj) |>
+cograph(adj) |>
   sn_edges(curves = "mutual", curvature = 0.3) |>
   splot()
 }
 \seealso{
 \code{\link{sn_nodes}} for node customization,
-\code{\link{sonnet}} for network creation,
+\code{\link{cograph}} for network creation,
 \code{\link{splot}} and \code{\link{soplot}} for plotting,
 \code{\link{sn_layout}} for layout algorithms,
 \code{\link{sn_theme}} for visual themes

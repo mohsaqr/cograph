@@ -2,7 +2,7 @@
 % Please edit documentation in R/from-qgraph.R
 \name{from_tna}
 \alias{from_tna}
-\title{Convert a tna object to Sonnet parameters}
+\title{Convert a tna object to cograph parameters}
 \usage{
 from_tna(
   tna_object,
@@ -16,7 +16,7 @@ from_tna(
 \arguments{
 \item{tna_object}{A \code{tna} object from \code{tna::tna()}}
 
-\item{engine}{Which Sonnet renderer to use: \code{"splot"} or \code{"soplot"}.
+\item{engine}{Which cograph renderer to use: \code{"splot"} or \code{"soplot"}.
 Default: \code{"splot"}.}
 
 \item{plot}{Logical. If TRUE (default), immediately plot using the chosen engine.}
@@ -31,12 +31,12 @@ zero. Default: FALSE.}
 \code{node_fill}, \code{donut_color}).}
 }
 \value{
-Invisibly, a named list of Sonnet parameters that can be passed to
+Invisibly, a named list of cograph parameters that can be passed to
 \code{splot()} or \code{soplot()}.
 }
 \description{
 Extracts the transition matrix, labels, and initial state probabilities
-from a \code{tna} object and plots with Sonnet. Initial probabilities
+from a \code{tna} object and plots with cograph. Initial probabilities
 are mapped to donut fills.
 }
 \details{
@@ -102,7 +102,7 @@ do.call(splot, params)
 
 }
 \seealso{
-\code{\link{sonnet}} for creating networks from scratch,
+\code{\link{cograph}} for creating networks from scratch,
 \code{\link{splot}} and \code{\link{soplot}} for plotting engines,
 \code{\link{from_qgraph}} for qgraph object conversion
 }

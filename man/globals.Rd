@@ -2,7 +2,7 @@
 % Please edit documentation in R/aaa-globals.R
 \name{globals}
 \alias{globals}
-\title{Global Registries for Sonnet}
+\title{Global Registries for cograph}
 \description{
 Internal registries for shapes, layouts, and themes.
 }

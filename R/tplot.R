@@ -1,7 +1,7 @@
 #' TNA-Style Network Plot (qgraph Compatible)
 #'
-#' A drop-in replacement for qgraph::qgraph() that uses Sonnet's splot engine.
-#' Accepts qgraph parameter names for seamless migration from qgraph to Sonnet.
+#' A drop-in replacement for qgraph::qgraph() that uses cograph's splot engine.
+#' Accepts qgraph parameter names for seamless migration from qgraph to cograph.
 #'
 #' @param x A weight matrix (adjacency matrix) or tna object
 #' @param color Node fill colors
@@ -26,7 +26,7 @@
 #' @param title Plot title
 #' @param ... Additional arguments passed to splot()
 #'
-#' @return Invisibly returns the sonnet_network object from splot().
+#' @return Invisibly returns the cograph_network object from splot().
 #'
 #' @export
 #'

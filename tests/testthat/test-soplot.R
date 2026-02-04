@@ -32,11 +32,11 @@ test_that("soplot() works with edge list", {
   expect_true(result$success, info = result$error)
 })
 
-test_that("soplot() works with sonnet_network object", {
+test_that("soplot() works with cograph_network object", {
   skip_if_not_installed("grid")
 
   adj <- create_test_matrix(4)
-  net <- sonnet(adj)
+  net <- cograph(adj)
 
   result <- safe_plot(soplot(net))
   expect_true(result$success, info = result$error)
@@ -227,7 +227,7 @@ test_that("soplot() returns grob object", {
 
   # soplot returns a grob or gTree
   expect_true(inherits(grob, "grob") || inherits(grob, "gTree") ||
-              inherits(grob, "sonnet_network") || is.null(grob))
+              inherits(grob, "cograph_network") || is.null(grob))
 })
 
 # ============================================
@@ -290,12 +290,12 @@ test_that("soplot() handles arrows on directed networks", {
 # INTEGRATION WITH PIPE CHAIN
 # ============================================
 
-test_that("soplot() works with customized sonnet_network", {
+test_that("soplot() works with customized cograph_network", {
   skip_if_not_installed("grid")
 
   adj <- create_test_matrix(4)
 
-  net <- sonnet(adj) |>
+  net <- cograph(adj) |>
     sn_nodes(fill = "coral") |>
     sn_edges(color = "gray")
 
@@ -308,7 +308,7 @@ test_that("soplot() works with themed network", {
 
   adj <- create_test_matrix(4)
 
-  net <- sonnet(adj) |> sn_theme("colorblind")
+  net <- cograph(adj) |> sn_theme("colorblind")
 
   result <- safe_plot(soplot(net))
   expect_true(result$success, info = result$error)

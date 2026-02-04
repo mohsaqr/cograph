@@ -22,6 +22,6 @@ List with x, y coordinates on boundary.
 }
 \description{
 Simplified boundary calculation for splot that approximates qgraph behavior
-while working with sonnet's coordinate system.
+while working with cograph's coordinate system.
 }
 \keyword{internal}

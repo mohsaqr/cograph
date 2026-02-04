@@ -160,7 +160,7 @@ layout_gephi_fr <- function(g, area = 10000, gravity = 10.0, speed = 1.0, niter 
 
 #' Wrapper for Gephi FR Layout (for layout registry)
 #'
-#' @param network A sonnet_network object.
+#' @param network A cograph_network object.
 #' @param area Area parameter. Default 10000.
 #' @param gravity Gravity force. Default 10.0.
 #' @param speed Speed parameter. Default 1.0.

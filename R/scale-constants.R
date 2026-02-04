@@ -56,7 +56,7 @@ QGRAPH_SCALE <- list(
   arrow_factor = 0.04
 )
 
-#' Sonnet Scaling Constants
+#' cograph Scaling Constants
 #'
 #' Central location for all scaling factors used in splot() and soplot().
 #' These constants are calibrated to produce similar visual output to qgraph
@@ -64,11 +64,11 @@ QGRAPH_SCALE <- list(
 #'
 #' @details
 #' The default scaling mode uses values calibrated to match qgraph visual appearance:
-#' - `node_size = 6` in Sonnet should look similar to `vsize = 6` in qgraph
+#' - `node_size = 6` in cograph should look similar to `vsize = 6` in qgraph
 #' - `label_size = 1` uses cex-style multiplier (independent of node size)
 #' - `arrow_size = 1` produces consistent arrows between splot and soplot
 #'
-#' Legacy mode preserves the original Sonnet v1.x behavior where:
+#' Legacy mode preserves the original cograph v1.x behavior where:
 #' - Node sizes used a 0.04 scale factor
 #' - Label sizes were coupled to node size (vsize * 8)
 #' - Arrow sizes differed between splot (0.03) and soplot (0.015)
@@ -87,7 +87,7 @@ QGRAPH_SCALE <- list(
 #' }
 #'
 #' @keywords internal
-SONNET_SCALE <- list(
+COGRAPH_SCALE <- list(
   # Node sizing: node_size=6 should look like qgraph vsize=6
   # Calibrated: 6 * 0.015 = 0.09 user coords (similar visual size to qgraph)
   node_factor = 0.015,
@@ -128,12 +128,12 @@ SONNET_SCALE <- list(
 
 #' Legacy Scaling Constants (Pre-v2.0 Behavior)
 #'
-#' Scaling constants that preserve the original Sonnet v1.x behavior.
+#' Scaling constants that preserve the original cograph v1.x behavior.
 #' Use `scaling = "legacy"` to enable these values.
 #'
-#' @format A list with the same structure as \code{SONNET_SCALE}
+#' @format A list with the same structure as \code{COGRAPH_SCALE}
 #' @keywords internal
-SONNET_SCALE_LEGACY <- list(
+COGRAPH_SCALE_LEGACY <- list(
   # Original splot values
   node_factor = 0.04,
   node_default = 3,
@@ -173,9 +173,9 @@ SONNET_SCALE_LEGACY <- list(
 #' @keywords internal
 get_scale_constants <- function(scaling = "default") {
   if (identical(scaling, "legacy")) {
-    SONNET_SCALE_LEGACY
+    COGRAPH_SCALE_LEGACY
   } else {
-    SONNET_SCALE
+    COGRAPH_SCALE
   }
 }
 

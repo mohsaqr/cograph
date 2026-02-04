@@ -9,7 +9,7 @@ NULL
 #' algorithm. Nodes connected by edges are attracted to each other while
 #' all nodes repel each other.
 #'
-#' @param network A SonnetNetwork object.
+#' @param network A CographNetwork object.
 #' @param iterations Number of iterations (default: 500).
 #' @param cooling Rate of temperature decrease (default: 0.95).
 #' @param repulsion Repulsion constant (default: 1).
@@ -21,7 +21,7 @@ NULL
 #'
 #' @examples
 #' adj <- matrix(c(0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0), nrow = 4)
-#' net <- SonnetNetwork$new(adj)
+#' net <- CographNetwork$new(adj)
 #' coords <- layout_spring(net, seed = 42)
 layout_spring <- function(network, iterations = 500, cooling = 0.95,
                           repulsion = 1, attraction = 1, seed = NULL,

@@ -147,7 +147,7 @@ splot(
 \item A square numeric matrix (adjacency/weight matrix)
 \item A data frame with edge list (from, to, optional weight columns)
 \item An igraph object
-\item A sonnet_network object
+\item A cograph_network object
 }}
 
 \item{layout}{Layout algorithm: "circle", "spring", "groups", or a matrix
@@ -462,7 +462,7 @@ looks similar to qgraph vsize=6, or "legacy" to preserve pre-v2.0 behavior.}
 \item{...}{Additional arguments passed to layout functions.}
 }
 \value{
-Invisibly returns the sonnet_network object.
+Invisibly returns the cograph_network object.
 }
 \description{
 Network visualization using base R graphics (similar to qgraph).
@@ -577,7 +577,7 @@ splot(adj, layout = "circle", labels = c("A", "B", "C", "D"))
 }
 \seealso{
 \code{\link{soplot}} for grid graphics rendering (alternative engine),
-\code{\link{sonnet}} for creating network objects,
+\code{\link{cograph}} for creating network objects,
 \code{\link{sn_nodes}} for node customization,
 \code{\link{sn_edges}} for edge customization,
 \code{\link{sn_layout}} for layout algorithms,

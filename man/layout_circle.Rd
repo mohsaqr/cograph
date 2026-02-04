@@ -7,7 +7,7 @@
 layout_circle(network, order = NULL, start_angle = pi/2, clockwise = TRUE)
 }
 \arguments{
-\item{network}{A SonnetNetwork object.}
+\item{network}{A CographNetwork object.}
 
 \item{order}{Optional vector specifying node order (indices or labels).}
 
@@ -23,6 +23,6 @@ Arrange nodes evenly spaced around a circle.
 }
 \examples{
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-net <- SonnetNetwork$new(adj)
+net <- CographNetwork$new(adj)
 coords <- layout_circle(net)
 }

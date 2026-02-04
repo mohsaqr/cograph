@@ -26,8 +26,8 @@ NULL
 
 .onAttach <- function(libname, pkgname) {
   packageStartupMessage(
-    "Sonnet: Modern Network Visualization for R\n",
+    "cograph: Modern Network Visualization for R\n",
     "Version: ", utils::packageVersion(pkgname), "\n",
-    "Type ?Sonnet for help"
+    "Type ?cograph for help"
   )
 }

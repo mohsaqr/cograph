@@ -1,8 +1,8 @@
-# Sonnet Basic Example
+# cograph Basic Example
 # ====================
-# This script demonstrates the basic usage of the Sonnet package.
+# This script demonstrates the basic usage of the cograph package.
 
-library(Sonnet)
+library(cograph)
 
 # Example 1: Simple Network from Adjacency Matrix
 # ------------------------------------------------
@@ -20,14 +20,14 @@ adj <- matrix(c(
 rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D", "E")
 
 # Basic visualization
-sonnet(adj)
+cograph(adj)
 
 
 # Example 2: Customized Network
 # ------------------------------
 
 adj |>
-  sonnet(layout = "circle") |>
+  cograph(layout = "circle") |>
   sn_nodes(
     size = 0.08,
     fill = "steelblue",
@@ -53,7 +53,7 @@ weighted_adj <- matrix(c(
 ), nrow = 5, byrow = TRUE)
 
 weighted_adj |>
-  sonnet(layout = "spring", seed = 42) |>
+  cograph(layout = "spring", seed = 42) |>
   sn_edges(
     width = "weight",
     color = "weight",
@@ -87,7 +87,7 @@ group_adj[8, 9] <- group_adj[9, 8] <- 1
 groups <- rep(c("Group A", "Group B", "Group C"), each = 4)
 
 group_adj |>
-  sonnet() |>
+  cograph() |>
   sn_layout("groups", groups = groups) |>
   sn_nodes(
     fill = c(rep("#E69F00", 4), rep("#56B4E9", 4), rep("#009E73", 4)),
@@ -101,16 +101,16 @@ group_adj |>
 # ----------------------------
 
 # Classic theme
-sonnet(adj) |> sn_theme("classic") |> sn_render(title = "Classic Theme")
+cograph(adj) |> sn_theme("classic") |> sn_render(title = "Classic Theme")
 
 # Dark theme
-sonnet(adj) |> sn_theme("dark") |> sn_render(title = "Dark Theme")
+cograph(adj) |> sn_theme("dark") |> sn_render(title = "Dark Theme")
 
 # Minimal theme
-sonnet(adj) |> sn_theme("minimal") |> sn_render(title = "Minimal Theme")
+cograph(adj) |> sn_theme("minimal") |> sn_render(title = "Minimal Theme")
 
 # Colorblind-friendly theme
-sonnet(adj) |> sn_theme("colorblind") |> sn_render(title = "Colorblind Theme")
+cograph(adj) |> sn_theme("colorblind") |> sn_render(title = "Colorblind Theme")
 
 
 # Example 6: Different Node Shapes
@@ -119,7 +119,7 @@ sonnet(adj) |> sn_theme("colorblind") |> sn_render(title = "Colorblind Theme")
 shapes <- c("circle", "square", "triangle", "diamond", "star")
 
 adj |>
-  sonnet(layout = "circle") |>
+  cograph(layout = "circle") |>
   sn_nodes(
     shape = shapes,
     size = 0.08,
@@ -134,7 +134,7 @@ adj |>
 library(ggplot2)
 
 p <- adj |>
-  sonnet() |>
+  cograph() |>
   sn_nodes(fill = "coral", size = 0.07) |>
   sn_ggplot()
 
@@ -142,7 +142,7 @@ p <- adj |>
 p +
   labs(
     title = "Network Plot",
-    subtitle = "Created with Sonnet, customized with ggplot2"
+    subtitle = "Created with cograph, customized with ggplot2"
   ) +
   theme(
     plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
@@ -162,7 +162,7 @@ dir_adj <- matrix(c(
 ), nrow = 5, byrow = TRUE)
 
 dir_adj |>
-  sonnet(directed = TRUE, layout = "circle") |>
+  cograph(directed = TRUE, layout = "circle") |>
   sn_edges(
     curvature = 0.15,
     arrow_size = 0.02
@@ -181,7 +181,7 @@ edges <- data.frame(
 )
 
 edges |>
-  sonnet(layout = "spring", seed = 123) |>
+  cograph(layout = "spring", seed = 123) |>
   sn_edges(width = "weight") |>
   sn_nodes(size = 0.06, fill = "mediumpurple") |>
   sn_render(title = "Network from Edge List")
@@ -191,7 +191,7 @@ edges |>
 # -------------------------
 
 # Uncomment to save:
-# net <- sonnet(adj) |>
+# net <- cograph(adj) |>
 #   sn_nodes(fill = "steelblue") |>
 #   sn_theme("minimal")
 #
@@ -199,4 +199,4 @@ edges |>
 # sn_save(net, "network.png", width = 8, height = 8, dpi = 300)
 # sn_save(net, "network.svg", width = 8, height = 8)
 
-cat("\nSonnet examples completed successfully!\n")
+cat("\ncograph examples completed successfully!\n")

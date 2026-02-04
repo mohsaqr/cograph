@@ -1,19 +1,19 @@
-#' @title Global Registries for Sonnet
+#' @title Global Registries for cograph
 #' @description Internal registries for shapes, layouts, and themes.
 #' @name globals
 #' @keywords internal
 NULL
 
 # Package environment for storing registries
-.sonnet_env <- new.env(parent = emptyenv())
+.cograph_env <- new.env(parent = emptyenv())
 
 #' Initialize Global Registries
 #' @keywords internal
 init_registries <- function() {
-  .sonnet_env$shapes <- list()
-  .sonnet_env$layouts <- list()
-  .sonnet_env$themes <- list()
-  .sonnet_env$palettes <- list()
+  .cograph_env$shapes <- list()
+  .cograph_env$layouts <- list()
+  .cograph_env$themes <- list()
+  .cograph_env$palettes <- list()
 }
 
 # ============================================================================
@@ -45,7 +45,7 @@ register_shape <- function(name, draw_fn) {
   if (!is.function(draw_fn)) {
     stop("draw_fn must be a function", call. = FALSE)
   }
-  .sonnet_env$shapes[[name]] <- draw_fn
+  .cograph_env$shapes[[name]] <- draw_fn
   invisible(NULL)
 }
 
@@ -58,7 +58,7 @@ register_shape <- function(name, draw_fn) {
 #' get_shape("circle")
 get_shape <- function(name) {
 
-  .sonnet_env$shapes[[name]]
+  .cograph_env$shapes[[name]]
 }
 
 #' List Available Shapes
@@ -68,7 +68,7 @@ get_shape <- function(name) {
 #' @examples
 #' list_shapes()
 list_shapes <- function() {
-  names(.sonnet_env$shapes)
+  names(.cograph_env$shapes)
 }
 
 # ============================================================================
@@ -81,7 +81,7 @@ list_shapes <- function() {
 #'
 #' @param name Character. Name of the layout.
 #' @param layout_fn Function. A function that computes node positions.
-#'   Should accept a SonnetNetwork object and return a matrix with x, y columns.
+#'   Should accept a CographNetwork object and return a matrix with x, y columns.
 #'
 #' @return Invisible NULL.
 #' @export
@@ -96,7 +96,7 @@ register_layout <- function(name, layout_fn) {
   if (!is.function(layout_fn)) {
     stop("layout_fn must be a function", call. = FALSE)
   }
-  .sonnet_env$layouts[[name]] <- layout_fn
+  .cograph_env$layouts[[name]] <- layout_fn
   invisible(NULL)
 }
 
@@ -108,7 +108,7 @@ register_layout <- function(name, layout_fn) {
 #' @examples
 #' get_layout("circle")
 get_layout <- function(name) {
-  .sonnet_env$layouts[[name]]
+  .cograph_env$layouts[[name]]
 }
 
 #' List Available Layouts
@@ -118,7 +118,7 @@ get_layout <- function(name) {
 #' @examples
 #' list_layouts()
 list_layouts <- function() {
-  names(.sonnet_env$layouts)
+  names(.cograph_env$layouts)
 }
 
 # ============================================================================
@@ -130,7 +130,7 @@ list_layouts <- function() {
 #' Register a new theme for network visualization.
 #'
 #' @param name Character. Name of the theme.
-#' @param theme A SonnetTheme object or a list of theme parameters.
+#' @param theme A CographTheme object or a list of theme parameters.
 #'
 #' @return Invisible NULL.
 #' @export
@@ -144,7 +144,7 @@ list_layouts <- function() {
 #'   edge_color = "gray50"
 #' ))
 register_theme <- function(name, theme) {
-  .sonnet_env$themes[[name]] <- theme
+  .cograph_env$themes[[name]] <- theme
   invisible(NULL)
 }
 
@@ -157,7 +157,7 @@ register_theme <- function(name, theme) {
 #' get_theme("classic")
 get_theme <- function(name) {
 
-  .sonnet_env$themes[[name]]
+  .cograph_env$themes[[name]]
 }
 
 #' List Available Themes
@@ -167,7 +167,7 @@ get_theme <- function(name) {
 #' @examples
 #' list_themes()
 list_themes <- function() {
-  names(.sonnet_env$themes)
+  names(.cograph_env$themes)
 }
 
 # ============================================================================
@@ -176,13 +176,13 @@ list_themes <- function() {
 
 #' @keywords internal
 register_palette <- function(name, palette) {
-  .sonnet_env$palettes[[name]] <- palette
+  .cograph_env$palettes[[name]] <- palette
   invisible(NULL)
 }
 
 #' @keywords internal
 get_palette <- function(name) {
-  .sonnet_env$palettes[[name]]
+  .cograph_env$palettes[[name]]
 }
 
 #' List Available Color Palettes
@@ -194,5 +194,5 @@ get_palette <- function(name) {
 #' @examples
 #' list_palettes()
 list_palettes <- function() {
-  names(.sonnet_env$palettes)
+  names(.cograph_env$palettes)
 }

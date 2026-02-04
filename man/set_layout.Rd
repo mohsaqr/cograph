@@ -2,29 +2,29 @@
 % Please edit documentation in R/class-network.R
 \name{set_layout}
 \alias{set_layout}
-\title{Set Layout in Sonnet Network}
+\title{Set Layout in Cograph Network}
 \usage{
 set_layout(x, layout_df)
 }
 \arguments{
-\item{x}{A sonnet_network object.}
+\item{x}{A cograph_network object.}
 
 \item{layout_df}{A data frame with x and y columns, or a matrix with 2 columns.}
 }
 \value{
-The modified sonnet_network object.
+The modified cograph_network object.
 }
 \description{
-Sets the layout coordinates in a sonnet_network object.
+Sets the layout coordinates in a cograph_network object.
 Updates the x and y columns in the nodes data frame.
 }
 \examples{
 mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-net <- as_sonnet(mat)
+net <- as_cograph(mat)
 layout <- data.frame(x = c(0, 1, 0.5), y = c(0, 0, 1))
 net <- set_layout(net, layout)
 get_nodes(net)
 }
 \seealso{
-\code{\link{as_sonnet}}, \code{\link{get_nodes}}, \code{\link{sn_layout}}
+\code{\link{as_cograph}}, \code{\link{get_nodes}}, \code{\link{sn_layout}}
 }

@@ -133,7 +133,7 @@ test_that("from_qgraph() handles pie/donut conversion", {
 # ============================================
 
 test_that("map_qgraph_shape() converts shapes correctly", {
-  map_qgraph_shape <- Sonnet:::map_qgraph_shape
+  map_qgraph_shape <- cograph:::map_qgraph_shape
 
   # Test known mappings
   expect_equal(map_qgraph_shape("rectangle"), "square")
@@ -145,14 +145,14 @@ test_that("map_qgraph_shape() converts shapes correctly", {
 })
 
 test_that("map_qgraph_shape() preserves unknown shapes", {
-  map_qgraph_shape <- Sonnet:::map_qgraph_shape
+  map_qgraph_shape <- cograph:::map_qgraph_shape
 
   expect_equal(map_qgraph_shape("unknown"), "unknown")
   expect_equal(map_qgraph_shape("custom_shape"), "custom_shape")
 })
 
 test_that("map_qgraph_shape() handles vectors", {
-  map_qgraph_shape <- Sonnet:::map_qgraph_shape
+  map_qgraph_shape <- cograph:::map_qgraph_shape
 
   shapes <- c("rectangle", "circle", "triangle")
   result <- map_qgraph_shape(shapes)
@@ -165,7 +165,7 @@ test_that("map_qgraph_shape() handles vectors", {
 # ============================================
 
 test_that("map_qgraph_lty() converts line types correctly", {
-  map_qgraph_lty <- Sonnet:::map_qgraph_lty
+  map_qgraph_lty <- cograph:::map_qgraph_lty
 
   # Numeric codes
   expect_equal(map_qgraph_lty(1), "solid")
@@ -179,13 +179,13 @@ test_that("map_qgraph_lty() converts line types correctly", {
 })
 
 test_that("map_qgraph_lty() handles unknown values", {
-  map_qgraph_lty <- Sonnet:::map_qgraph_lty
+  map_qgraph_lty <- cograph:::map_qgraph_lty
 
   expect_equal(map_qgraph_lty(99), "solid")  # Falls back to solid
 })
 
 test_that("map_qgraph_lty() handles vectors", {
-  map_qgraph_lty <- Sonnet:::map_qgraph_lty
+  map_qgraph_lty <- cograph:::map_qgraph_lty
 
   ltys <- c(1, 2, 3)
   result <- map_qgraph_lty(ltys)
@@ -353,7 +353,7 @@ test_that("splot() with tna applies user overrides", {
 test_that("from_qgraph() correctly reorders edge vectors", {
   skip_if_no_qgraph()
 
-  # Create a network where qgraph and Sonnet might have different edge orders
+  # Create a network where qgraph and cograph might have different edge orders
   adj <- matrix(c(0, 1, 0.5, 1, 0, 0.8, 0.5, 0.8, 0), 3, 3)
   q <- qgraph::qgraph(adj, DoNotPlot = TRUE)
 

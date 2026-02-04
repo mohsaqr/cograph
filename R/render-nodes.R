@@ -8,7 +8,7 @@ NULL
 #'
 #' Create grid grobs for all nodes in the network.
 #'
-#' @param network A SonnetNetwork object.
+#' @param network A CographNetwork object.
 #' @return A grid gList of node grobs.
 #' @keywords internal
 render_nodes_grid <- function(network) {
@@ -21,7 +21,7 @@ render_nodes_grid <- function(network) {
 
   # Resolve aesthetics to per-node values
   # Default node size uses scale constants: node_default * soplot_node_factor
-  default_node_size <- SONNET_SCALE$node_default * SONNET_SCALE$soplot_node_factor
+  default_node_size <- COGRAPH_SCALE$node_default * COGRAPH_SCALE$soplot_node_factor
   sizes <- expand_param(
     if (!is.null(aes$size)) aes$size else default_node_size,
     n, "node_size"
@@ -314,7 +314,7 @@ render_nodes_grid <- function(network) {
 #'
 #' Create grid grobs for node labels.
 #'
-#' @param network A SonnetNetwork object.
+#' @param network A CographNetwork object.
 #' @return A grid gList of label grobs.
 #' @keywords internal
 render_node_labels_grid <- function(network) {

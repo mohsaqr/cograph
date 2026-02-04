@@ -15,7 +15,7 @@ layout_spring(
 )
 }
 \arguments{
-\item{network}{A SonnetNetwork object.}
+\item{network}{A CographNetwork object.}
 
 \item{iterations}{Number of iterations (default: 500).}
 
@@ -39,6 +39,6 @@ all nodes repel each other.
 }
 \examples{
 adj <- matrix(c(0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0), nrow = 4)
-net <- SonnetNetwork$new(adj)
+net <- CographNetwork$new(adj)
 coords <- layout_spring(net, seed = 42)
 }

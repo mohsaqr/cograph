@@ -2,7 +2,7 @@
 % Please edit documentation in R/from-qgraph.R
 \name{map_qgraph_shape}
 \alias{map_qgraph_shape}
-\title{Map qgraph shape names to Sonnet equivalents}
+\title{Map qgraph shape names to cograph equivalents}
 \usage{
 map_qgraph_shape(shapes)
 }
@@ -10,9 +10,9 @@ map_qgraph_shape(shapes)
 \item{shapes}{Character vector of qgraph shape names}
 }
 \value{
-Character vector of Sonnet shape names
+Character vector of cograph shape names
 }
 \description{
-Map qgraph shape names to Sonnet equivalents
+Map qgraph shape names to cograph equivalents
 }
 \keyword{internal}

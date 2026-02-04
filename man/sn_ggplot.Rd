@@ -7,7 +7,7 @@
 sn_ggplot(network, title = NULL)
 }
 \arguments{
-\item{network}{A sonnet_network object, matrix, data.frame, or igraph object.
+\item{network}{A cograph_network object, matrix, data.frame, or igraph object.
 Matrices and other inputs are auto-converted.}
 
 \item{title}{Optional plot title.}
@@ -16,13 +16,13 @@ Matrices and other inputs are auto-converted.}
 A ggplot2 object.
 }
 \description{
-Convert a Sonnet network visualization to a ggplot2 object for further
+Convert a Cograph network visualization to a ggplot2 object for further
 customization and composability.
 }
 \examples{
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-# With sonnet()
-p <- sonnet(adj) |> sn_ggplot()
+# With cograph()
+p <- cograph(adj) |> sn_ggplot()
 print(p)
 
 # Direct matrix input

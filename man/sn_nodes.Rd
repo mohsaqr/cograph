@@ -50,7 +50,7 @@ sn_nodes(
 )
 }
 \arguments{
-\item{network}{A sonnet_network object, matrix, data.frame, or igraph object.
+\item{network}{A cograph_network object, matrix, data.frame, or igraph object.
 Matrices and other inputs are auto-converted.}
 
 \item{size}{Node size. Can be a single value, vector (per-node), or column name.}
@@ -147,7 +147,7 @@ Default: "lightgray" fill, "gray90" background when shape="donut".}
 \item{node_names}{Alternative names for legend (separate from display labels).}
 }
 \value{
-Modified sonnet_network object that can be piped to further customization
+Modified cograph_network object that can be piped to further customization
 functions or plotting functions.
 }
 \description{
@@ -181,15 +181,15 @@ Donut charts are ideal for showing a single proportion (0-1) per node:
 \examples{
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 
-# Basic usage with sonnet()
-sonnet(adj) |>
+# Basic usage with cograph()
+cograph(adj) |>
   sn_nodes(size = 0.08, fill = "steelblue", shape = "circle")
 
 # Direct matrix input (auto-converted)
 adj |> sn_nodes(fill = "coral", size = 0.1)
 
 # Per-node customization with vectors
-sonnet(adj) |>
+cograph(adj) |>
   sn_nodes(
     size = c(0.08, 0.06, 0.1),
     fill = c("red", "blue", "green"),
@@ -198,7 +198,7 @@ sonnet(adj) |>
   splot()
 
 # Donut chart nodes showing proportions
-sonnet(adj) |>
+cograph(adj) |>
   sn_nodes(
     donut_fill = c(0.25, 0.75, 0.5),
     donut_color = "steelblue",
@@ -208,7 +208,7 @@ sonnet(adj) |>
   splot()
 
 # Mixed shapes per node
-sonnet(adj) |>
+cograph(adj) |>
   sn_nodes(
     shape = c("circle", "square", "triangle"),
     fill = c("#E41A1C", "#377EB8", "#4DAF4A")
@@ -217,7 +217,7 @@ sonnet(adj) |>
 }
 \seealso{
 \code{\link{sn_edges}} for edge customization,
-\code{\link{sonnet}} for network creation,
+\code{\link{cograph}} for network creation,
 \code{\link{splot}} and \code{\link{soplot}} for plotting,
 \code{\link{sn_layout}} for layout algorithms,
 \code{\link{sn_theme}} for visual themes

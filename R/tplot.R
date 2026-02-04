@@ -3,7 +3,7 @@
 #' A drop-in replacement for qgraph::qgraph() that uses Sonnet's splot engine.
 #' Accepts qgraph parameter names for seamless migration from qgraph to Sonnet.
 #'
-#' @param input A weight matrix (adjacency matrix) or tna object
+#' @param x A weight matrix (adjacency matrix) or tna object
 #' @param color Node fill colors
 #' @param labels Node labels
 #' @param layout Layout: "circle", "spring", "oval", or a coordinate matrix
@@ -42,7 +42,7 @@
 #' plot_tna(m, color = rainbow(5), vsize = 10)
 #'
 plot_tna <- function(
-    input,
+    x,
     color = NULL,
     labels = NULL,
     layout = "oval",
@@ -67,7 +67,7 @@ plot_tna <- function(
 ) {
   # Build splot arguments
   splot_args <- list(
-    x = input,
+    x = x,
     directed = directed
   )
 

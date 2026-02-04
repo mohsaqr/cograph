@@ -4,7 +4,7 @@
 #' and individual edges within clusters. Each cluster is displayed as a
 #' shape (circle, square, diamond, triangle) containing its nodes.
 #'
-#' @param input A tna object or weight matrix.
+#' @param x A tna object or weight matrix.
 #' @param cluster_list List of character vectors defining clusters.
 #'   Each cluster becomes a separate shape in the layout.
 #' @param layout How to arrange the clusters: "circle" (default),
@@ -56,7 +56,7 @@
 #' plot_mtna(m, clusters, spacing = 4, shape_size = 1.5, node_spacing = 0.6)
 #' }
 plot_mtna <- function(
-    input,
+    x,
     cluster_list,
     layout = "circle",
     spacing = 3,
@@ -82,16 +82,16 @@ plot_mtna <- function(
     stop("cluster_list must be a list of 2+ character vectors", call. = FALSE)
   }
 
-  # Get labels and weights from input
-  if (inherits(input, "tna")) {
-    lab <- input$labels
-    weights <- input$weights
-  } else if (is.matrix(input)) {
-    lab <- colnames(input)
-    if (is.null(lab)) lab <- as.character(seq_len(ncol(input)))
-    weights <- input
+  # Get labels and weights from x
+  if (inherits(x, "tna")) {
+    lab <- x$labels
+    weights <- x$weights
+  } else if (is.matrix(x)) {
+    lab <- colnames(x)
+    if (is.null(lab)) lab <- as.character(seq_len(ncol(x)))
+    weights <- x
   } else {
-    stop("input must be a tna object or matrix", call. = FALSE)
+    stop("x must be a tna object or matrix", call. = FALSE)
   }
 
   n <- length(lab)
@@ -109,7 +109,7 @@ plot_mtna <- function(
     idx <- match(nodes, lab)
     if (any(is.na(idx))) {
       missing <- nodes[is.na(idx)]
-      stop("Nodes not found in input: ", paste(missing, collapse = ", "), call. = FALSE)
+      stop("Nodes not found in x: ", paste(missing, collapse = ", "), call. = FALSE)
     }
     idx
   })
@@ -683,7 +683,7 @@ plot_mtna <- function(
 
     tplot_args <- c(
       list(
-        input = input,
+        x = x,
         layout = layout_mat,
         color = colors,
         node_shape = shapes,

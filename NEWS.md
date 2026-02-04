@@ -1,3 +1,21 @@
+# Sonnet 1.5.2
+
+## Breaking Changes
+
+- Standardized first parameter name to `x` across all plotting functions:
+  - `plot_tna()`: `input` → `x`
+  - `plot_htna()`: `input` → `x` (was `model`)
+  - `plot_mtna()`: `input` → `x` (was `model`)
+  - `splot()` already used `x`
+
+## Bug Fixes
+
+- Fixed `tplot()` default margins causing tiny plots compared to `splot()`
+
+## Documentation
+
+- Added qgraph to splot migration guide (`vignettes/qgraph-to-splot.md`)
+
 # Sonnet 1.5.1
 
 ## Breaking Changes (with backwards compatibility)

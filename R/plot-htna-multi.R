@@ -28,6 +28,7 @@
 #' @param legend_position Position for legend. Default "topright".
 #' @param curvature Edge curvature. Default 0.3.
 #' @param node_size Size of nodes inside shapes. Default 2.
+#' @param layout_margin Margin around the layout as fraction of range. Default 0.15.
 #' @param ... Additional parameters passed to plot_tna().
 #'
 #' @return Invisibly returns NULL for summary mode, or the plot_tna result.
@@ -74,6 +75,7 @@ plot_mtna <- function(
     legend_position = "topright",
     curvature = 0.3,
     node_size = 2,
+    layout_margin = 0.15,
     ...
 ) {
   # Validate cluster_list
@@ -302,8 +304,13 @@ plot_mtna <- function(
     # First create empty plot with correct dimensions
     all_x <- cluster_centers[, 1]
     all_y <- cluster_centers[, 2]
-    x_range <- range(all_x) + c(-shape_size * 2, shape_size * 2)
-    y_range <- range(all_y) + c(-shape_size * 2, shape_size * 2)
+    # Compute margin: use layout_margin fraction of range, but ensure at least shape_size*1.5
+    x_base <- range(all_x)
+    y_base <- range(all_y)
+    x_margin <- max(diff(x_base) * layout_margin, shape_size * 1.5)
+    y_margin <- max(diff(y_base) * layout_margin, shape_size * 1.5)
+    x_range <- c(x_base[1] - x_margin, x_base[2] + x_margin)
+    y_range <- c(y_base[1] - y_margin, y_base[2] + y_margin)
 
     # Set up blank plot
     graphics::plot.new()

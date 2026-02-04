@@ -24,6 +24,7 @@ plot_mtna(
   legend_position = "topright",
   curvature = 0.3,
   node_size = 2,
+  layout_margin = 0.15,
   ...
 )
 
@@ -46,6 +47,7 @@ mtna(
   legend_position = "topright",
   curvature = 0.3,
   node_size = 2,
+  layout_margin = 0.15,
   ...
 )
 }
@@ -91,6 +93,8 @@ edges within each cluster. Default TRUE.}
 \item{curvature}{Edge curvature. Default 0.3.}
 
 \item{node_size}{Size of nodes inside shapes. Default 2.}
+
+\item{layout_margin}{Margin around the layout as fraction of range. Default 0.15.}
 
 \item{...}{Additional parameters passed to plot_tna().}
 }

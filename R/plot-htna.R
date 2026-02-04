@@ -7,7 +7,7 @@
 #' }
 #' Supports triangle (3), rectangle (4), pentagon (5), hexagon (6), and beyond.
 #'
-#' @param model A tna object or weight matrix.
+#' @param input A tna object or weight matrix.
 #' @param node_list List of 2+ character vectors defining node groups.
 #' @param layout Layout type: "auto" (default), "bipartite", "polygon", or "circular".
 #'   When "auto", uses bipartite for 2 groups and polygon for 3+ groups.
@@ -97,7 +97,7 @@
 #' plot_htna(model, node_types_3, layout = "triangle")
 #' }
 plot_htna <- function(
-    model,
+    input,
     node_list,
     layout = "auto",
     use_list_order = TRUE,
@@ -142,16 +142,16 @@ plot_htna <- function(
     }
   }
 
-  # Get labels and weights from model
-  if (inherits(model, "tna")) {
-    lab <- model$labels
-    weights <- model$weights
-  } else if (is.matrix(model)) {
-    lab <- colnames(model)
-    if (is.null(lab)) lab <- as.character(seq_len(ncol(model)))
-    weights <- model
+  # Get labels and weights from input
+  if (inherits(input, "tna")) {
+    lab <- input$labels
+    weights <- input$weights
+  } else if (is.matrix(input)) {
+    lab <- colnames(input)
+    if (is.null(lab)) lab <- as.character(seq_len(ncol(input)))
+    weights <- input
   } else {
-    stop("model must be a tna object or matrix", call. = FALSE)
+    stop("input must be a tna object or matrix", call. = FALSE)
   }
 
   n <- length(lab)
@@ -170,7 +170,7 @@ plot_htna <- function(
     idx <- match(nodes, lab)
     if (any(is.na(idx))) {
       missing <- nodes[is.na(idx)]
-      stop("Nodes not found in model: ", paste(missing, collapse = ", "), call. = FALSE)
+      stop("Nodes not found in input: ", paste(missing, collapse = ", "), call. = FALSE)
     }
     idx
   })
@@ -403,7 +403,7 @@ plot_htna <- function(
 
   tplot_args <- c(
     list(
-      input = model,
+      input = input,
       layout = layout_mat,
       color = colors,
       node_shape = shapes,

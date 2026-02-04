@@ -4,7 +4,7 @@
 #' and individual edges within clusters. Each cluster is displayed as a
 #' shape (circle, square, diamond, triangle) containing its nodes.
 #'
-#' @param model A tna object or weight matrix.
+#' @param input A tna object or weight matrix.
 #' @param cluster_list List of character vectors defining clusters.
 #'   Each cluster becomes a separate shape in the layout.
 #' @param layout How to arrange the clusters: "circle" (default),
@@ -56,7 +56,7 @@
 #' plot_mtna(m, clusters, spacing = 4, shape_size = 1.5, node_spacing = 0.6)
 #' }
 plot_mtna <- function(
-    model,
+    input,
     cluster_list,
     layout = "circle",
     spacing = 3,
@@ -82,16 +82,16 @@ plot_mtna <- function(
     stop("cluster_list must be a list of 2+ character vectors", call. = FALSE)
   }
 
-  # Get labels and weights from model
-  if (inherits(model, "tna")) {
-    lab <- model$labels
-    weights <- model$weights
-  } else if (is.matrix(model)) {
-    lab <- colnames(model)
-    if (is.null(lab)) lab <- as.character(seq_len(ncol(model)))
-    weights <- model
+  # Get labels and weights from input
+  if (inherits(input, "tna")) {
+    lab <- input$labels
+    weights <- input$weights
+  } else if (is.matrix(input)) {
+    lab <- colnames(input)
+    if (is.null(lab)) lab <- as.character(seq_len(ncol(input)))
+    weights <- input
   } else {
-    stop("model must be a tna object or matrix", call. = FALSE)
+    stop("input must be a tna object or matrix", call. = FALSE)
   }
 
   n <- length(lab)
@@ -109,7 +109,7 @@ plot_mtna <- function(
     idx <- match(nodes, lab)
     if (any(is.na(idx))) {
       missing <- nodes[is.na(idx)]
-      stop("Nodes not found in model: ", paste(missing, collapse = ", "), call. = FALSE)
+      stop("Nodes not found in input: ", paste(missing, collapse = ", "), call. = FALSE)
     }
     idx
   })
@@ -683,7 +683,7 @@ plot_mtna <- function(
 
     tplot_args <- c(
       list(
-        input = model,
+        input = input,
         layout = layout_mat,
         color = colors,
         node_shape = shapes,

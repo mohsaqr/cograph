@@ -36,8 +36,8 @@
 #'   Only applies to bipartite layout.
 #' @param orientation Layout orientation for bipartite: "vertical" (two columns, default)
 #'   or "horizontal" (two rows). Ignored for triangle/rectangle layouts.
-#' @param group1_pos Position for first group in bipartite layout. Default -1.2.
-#' @param group2_pos Position for second group in bipartite layout. Default 1.2.
+#' @param group1_pos Position for first group in bipartite layout. Default -2.
+#' @param group2_pos Position for second group in bipartite layout. Default 2.
 #' @param curvature Edge curvature amount. Default 0.4 for visible curves.
 #' @param group1_color Color for first group nodes. Default "#ffd89d".
 #' @param group2_color Color for second group nodes. Default "#a68ba5".
@@ -115,8 +115,8 @@ plot_htna <- function(
     jitter_amount = 0.8,
     jitter_side = "first",
     orientation = "vertical",
-    group1_pos = -1.2,
-    group2_pos = 1.2,
+    group1_pos = -2,
+    group2_pos = 2,
     curvature = 0.4,
     group1_color = "#ffd89d",
     group2_color = "#a68ba5",
@@ -132,9 +132,8 @@ plot_htna <- function(
     scale = 1,
     ...
 ) {
-  # Apply scale to spacing parameters
-  group1_pos <- group1_pos * scale
-  group2_pos <- group2_pos * scale
+  # Apply scale: use sqrt(scale) for gentler compensation at high-resolution
+  size_scale <- sqrt(scale)
 
 
   # Extended color palette for many groups
@@ -426,13 +425,18 @@ plot_htna <- function(
     dots$`edge.color` <- NULL
   }
 
+  # Set minimal margins for tighter layout
+  old_par <- graphics::par(mar = c(0.5, 0.5, 0.5, 0.5))
+  on.exit(graphics::par(old_par), add = TRUE)
+
   tplot_args <- c(
     list(
       x = x,
       layout = layout_mat,
       color = colors,
       node_shape = shapes,
-      curvature = curvature
+      curvature = curvature,
+      layout_margin = 0.15
     ),
     dots
   )
@@ -468,8 +472,8 @@ plot_htna <- function(
       pch = pch_values,
       pt.bg = group_colors,
       col = if (!is.null(edge_colors)) edge_colors else "black",
-      pt.cex = 1.5,
-      cex = 0.8,
+      pt.cex = 2.5 / size_scale,
+      cex = 1.4 / size_scale,
       bty = "n",
       title = "Groups"
     )
@@ -487,14 +491,14 @@ plot_htna <- function(
         graphics::segments(
           x0 = x_pos[i], y0 = y_pos[i],
           x1 = x_pos[i] + line_len, y1 = y_pos[i],
-          col = colors[i], lwd = 1
+          col = colors[i], lwd = 1 / size_scale
         )
       }
       for (i in rhs_idx) {
         graphics::segments(
           x0 = x_pos[i], y0 = y_pos[i],
           x1 = x_pos[i] - line_len, y1 = y_pos[i],
-          col = colors[i], lwd = 1
+          col = colors[i], lwd = 1 / size_scale
         )
       }
     } else {
@@ -503,14 +507,14 @@ plot_htna <- function(
         graphics::segments(
           x0 = x_pos[i], y0 = y_pos[i],
           x1 = x_pos[i], y1 = y_pos[i] - line_len,
-          col = colors[i], lwd = 1
+          col = colors[i], lwd = 1 / size_scale
         )
       }
       for (i in rhs_idx) {
         graphics::segments(
           x0 = x_pos[i], y0 = y_pos[i],
           x1 = x_pos[i], y1 = y_pos[i] + line_len,
-          col = colors[i], lwd = 1
+          col = colors[i], lwd = 1 / size_scale
         )
       }
     }
@@ -631,7 +635,7 @@ compute_polygon_layout <- function(node_list, lab, group_indices, n_sides, angle
   y_pos <- rep(0, n)
 
   # Radius of the polygon (scaled)
-  radius <- 1.2 * scale
+  radius <- 2 * scale
 
   # Compute vertices of regular polygon
   # Start from top (pi/2) and go clockwise
@@ -705,7 +709,7 @@ compute_circular_layout <- function(node_list, lab, group_indices, n_groups, ang
   y_pos <- rep(0, n)
 
   # Radius of the circle (scaled)
-  radius <- 1.2 * scale
+  radius <- 2 * scale
 
   # Total angle per group (including gap)
   angle_per_group <- 2 * pi / n_groups

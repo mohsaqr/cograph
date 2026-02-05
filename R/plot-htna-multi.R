@@ -14,8 +14,8 @@
 #'   "infomap", "leiden".
 #' @param layout How to arrange the clusters: "circle" (default),
 #'   "grid", "horizontal", "vertical".
-#' @param spacing Distance between cluster centers. Default 3.
-#' @param shape_size Size of each cluster shape (shell radius). Default 1.2.
+#' @param spacing Distance between cluster centers. Default 4.
+#' @param shape_size Size of each cluster shape (shell radius). Default 1.8.
 #' @param node_spacing Radius for node placement within shapes (0-1 relative
 #'   to shape_size). Default 0.5.
 #' @param colors Vector of colors for each cluster. Default auto-generated.
@@ -70,8 +70,8 @@ plot_mtna <- function(
     cluster_list = NULL,
     community = NULL,
     layout = "circle",
-    spacing = 3,
-    shape_size = 1.2,
+    spacing = 4,
+    shape_size = 1.8,
     node_spacing = 0.5,
     colors = NULL,
     shapes = NULL,
@@ -84,14 +84,15 @@ plot_mtna <- function(
     legend = TRUE,
     legend_position = "topright",
     curvature = 0.3,
-    node_size = 2,
+    node_size = 3,
     layout_margin = 0.15,
     scale = 1,
     ...
 ) {
-  # Apply scale to spacing parameters
-  spacing <- spacing * scale
-  shape_size <- shape_size * scale
+  # Apply scale: use sqrt(scale) for gentler compensation at high-resolution
+  size_scale <- sqrt(scale)
+  node_size <- node_size / size_scale
+  edge_scale <- 1 / size_scale
 
   # Handle community parameter - auto-detect clusters
   if (!is.null(community)) {
@@ -329,15 +330,17 @@ plot_mtna <- function(
     # First create empty plot with correct dimensions
     all_x <- cluster_centers[, 1]
     all_y <- cluster_centers[, 2]
-    # Compute margin: use layout_margin fraction of range, but ensure at least shape_size*1.5
+    # Compute margin: use layout_margin fraction of range, but ensure at least shape_size*1.2
     x_base <- range(all_x)
     y_base <- range(all_y)
-    x_margin <- max(diff(x_base) * layout_margin, shape_size * 1.5)
-    y_margin <- max(diff(y_base) * layout_margin, shape_size * 1.5)
+    x_margin <- max(diff(x_base) * layout_margin * 0.5, shape_size * 0.8)
+    y_margin <- max(diff(y_base) * layout_margin * 0.5, shape_size * 0.8)
     x_range <- c(x_base[1] - x_margin, x_base[2] + x_margin)
     y_range <- c(y_base[1] - y_margin, y_base[2] + y_margin)
 
-    # Set up blank plot
+    # Set up blank plot with minimal margins
+    old_par <- graphics::par(mar = c(0.5, 0.5, 0.5, 0.5))
+    on.exit(graphics::par(old_par), add = TRUE)
     graphics::plot.new()
     graphics::plot.window(xlim = x_range, ylim = y_range, asp = 1)
 
@@ -472,7 +475,7 @@ plot_mtna <- function(
           # Edge weight determines line width
           weight <- cluster_weights[i, j]
           max_weight <- max(cluster_weights, na.rm = TRUE)
-          lwd <- 1 + 5 * (weight / max_weight)
+          lwd <- (1 + 5 * (weight / max_weight)) * edge_scale
 
           # Draw curved line using xspline
           mid_x <- (x0 + x1) / 2
@@ -514,10 +517,10 @@ plot_mtna <- function(
           # Draw edge label
           dots <- list(...)
           if (is.null(dots$edge.labels) || !isFALSE(dots$edge.labels)) {
-            label_cex <- if (!is.null(dots$edge.label.cex)) dots$edge.label.cex else 0.6
+            label_cex <- if (!is.null(dots$edge.label.cex)) dots$edge.label.cex else 0.9
             graphics::text(mid_x + off_x * 1.3, mid_y + off_y * 1.3,
                           labels = round(weight, 2),
-                          cex = label_cex,
+                          cex = label_cex / size_scale,
                           col = "gray40")
           }
         }
@@ -540,7 +543,7 @@ plot_mtna <- function(
           y = center_y + shell_radius * sin(theta),
           border = shell_color,
           col = fill_color,
-          lwd = 3
+          lwd = 3 * edge_scale
         )
       } else if (shape == "square") {
         graphics::rect(
@@ -550,7 +553,7 @@ plot_mtna <- function(
           ytop = center_y + shell_radius,
           border = shell_color,
           col = fill_color,
-          lwd = 3
+          lwd = 3 * edge_scale
         )
       } else if (shape == "diamond") {
         graphics::polygon(
@@ -558,7 +561,7 @@ plot_mtna <- function(
           y = center_y + shell_radius * c(1, 0, -1, 0, 1),
           border = shell_color,
           col = fill_color,
-          lwd = 3
+          lwd = 3 * edge_scale
         )
       } else if (shape == "triangle") {
         angles <- c(pi/2, pi/2 + 2*pi/3, pi/2 + 4*pi/3, pi/2)
@@ -567,7 +570,7 @@ plot_mtna <- function(
           y = center_y + shell_radius * sin(angles),
           border = shell_color,
           col = fill_color,
-          lwd = 3
+          lwd = 3 * edge_scale
         )
       } else {
         theta <- seq(0, 2 * pi, length.out = 100)
@@ -576,7 +579,7 @@ plot_mtna <- function(
           y = center_y + shell_radius * sin(theta),
           border = shell_color,
           col = fill_color,
-          lwd = 3
+          lwd = 3 * edge_scale
         )
       }
     }
@@ -616,9 +619,9 @@ plot_mtna <- function(
                   # Edge width based on weight
                   max_within <- max(weights[idx, idx], na.rm = TRUE)
                   if (max_within > 0) {
-                    lwd <- 0.5 + 2 * (weight / max_within)
+                    lwd <- (0.5 + 2 * (weight / max_within)) * edge_scale
                   } else {
-                    lwd <- 1
+                    lwd <- 1 * edge_scale
                   }
 
                   # Curved edge
@@ -701,7 +704,7 @@ plot_mtna <- function(
       if (!is.null(cluster_names)) {
         graphics::text(center_x, center_y - shell_radius - 0.2,
                       labels = cluster_names[i],
-                      cex = 1,
+                      cex = 1 / size_scale,
                       col = shell_color,
                       font = 2)
       }
@@ -769,8 +772,8 @@ plot_mtna <- function(
       pch = pch_values,
       pt.bg = cluster_colors,
       col = edge_colors,
-      pt.cex = 1.5,
-      cex = 0.8,
+      pt.cex = 2.5 / size_scale,
+      cex = 1.4 / size_scale,
       bty = "n",
       title = "Clusters"
     )

@@ -6,7 +6,12 @@
 #'
 #' @param x A tna object or weight matrix.
 #' @param cluster_list List of character vectors defining clusters.
-#'   Each cluster becomes a separate shape in the layout.
+#'   Each cluster becomes a separate shape in the layout. If NULL and
+#'   \code{community} is specified, clusters are auto-detected.
+#' @param community Community detection method to use for auto-clustering.
+#'   If specified, overrides \code{cluster_list}. See \code{\link{detect_communities}}
+#'   for available methods: "louvain", "walktrap", "fast_greedy", "label_prop",
+#'   "infomap", "leiden".
 #' @param layout How to arrange the clusters: "circle" (default),
 #'   "grid", "horizontal", "vertical".
 #' @param spacing Distance between cluster centers. Default 3.
@@ -58,7 +63,8 @@
 #' }
 plot_mtna <- function(
     x,
-    cluster_list,
+    cluster_list = NULL,
+    community = NULL,
     layout = "circle",
     spacing = 3,
     shape_size = 1.2,
@@ -78,8 +84,18 @@ plot_mtna <- function(
     layout_margin = 0.15,
     ...
 ) {
+  # Handle community parameter - auto-detect clusters
+  if (!is.null(community)) {
+    comm_df <- detect_communities(x, method = community)
+    cluster_list <- split(comm_df$node, comm_df$community)
+    names(cluster_list) <- paste0("Cluster_", names(cluster_list))
+  }
+
   # Validate cluster_list
- n_clusters <- length(cluster_list)
+  if (is.null(cluster_list)) {
+    stop("Either cluster_list or community must be specified", call. = FALSE)
+  }
+  n_clusters <- length(cluster_list)
   if (!is.list(cluster_list) || n_clusters < 2) {
     stop("cluster_list must be a list of 2+ character vectors", call. = FALSE)
   }

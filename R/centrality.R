@@ -158,8 +158,35 @@ centrality <- function(x, measures = "all", mode = "all",
   df
 }
 
-#' Convert input to igraph object
-#' @noRd
+#' Convert Network to igraph Object
+#'
+#' Converts various network representations to an igraph object. Supports
+#' matrices, igraph objects, network objects, cograph_network, and tna objects.
+#'
+#' @param x Network input. Can be:
+#'   \itemize{
+#'     \item A square numeric matrix (adjacency/weight matrix)
+#'     \item An igraph object (returned as-is or converted if directed differs)
+#'     \item A statnet network object
+#'     \item A cograph_network object
+#'     \item A tna object
+#'   }
+#' @param directed Logical or NULL. If NULL (default), auto-detect from matrix
+#'   symmetry. Set TRUE to force directed, FALSE to force undirected.
+#'
+#' @return An igraph object.
+#'
+#' @seealso \code{\link{to_data_frame}}, \code{\link{as_cograph}}
+#'
+#' @export
+#' @examples
+#' # From matrix
+#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+#' g <- to_igraph(adj)
+#'
+#' # Force directed
+#' g_dir <- to_igraph(adj, directed = TRUE)
 to_igraph <- function(x, directed = NULL) {
   if (inherits(x, "igraph")) {
     # If directed override specified and different from current, convert

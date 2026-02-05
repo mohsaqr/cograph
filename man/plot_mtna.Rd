@@ -7,7 +7,8 @@
 \usage{
 plot_mtna(
   x,
-  cluster_list,
+  cluster_list = NULL,
+  community = NULL,
   layout = "circle",
   spacing = 3,
   shape_size = 1.2,
@@ -30,7 +31,8 @@ plot_mtna(
 
 mtna(
   x,
-  cluster_list,
+  cluster_list = NULL,
+  community = NULL,
   layout = "circle",
   spacing = 3,
   shape_size = 1.2,
@@ -55,7 +57,13 @@ mtna(
 \item{x}{A tna object or weight matrix.}
 
 \item{cluster_list}{List of character vectors defining clusters.
-Each cluster becomes a separate shape in the layout.}
+Each cluster becomes a separate shape in the layout. If NULL and
+\code{community} is specified, clusters are auto-detected.}
+
+\item{community}{Community detection method to use for auto-clustering.
+If specified, overrides \code{cluster_list}. See \code{\link{detect_communities}}
+for available methods: "louvain", "walktrap", "fast_greedy", "label_prop",
+"infomap", "leiden".}
 
 \item{layout}{How to arrange the clusters: "circle" (default),
 "grid", "horizontal", "vertical".}

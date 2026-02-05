@@ -7,7 +7,8 @@
 \usage{
 plot_mlna(
   model,
-  layer_list,
+  layer_list = NULL,
+  community = NULL,
   layout = "horizontal",
   layer_spacing = 2.2,
   layer_width = 4.5,
@@ -31,7 +32,8 @@ plot_mlna(
 
 mlna(
   model,
-  layer_list,
+  layer_list = NULL,
+  community = NULL,
   layout = "horizontal",
   layer_spacing = 2.2,
   layer_width = 4.5,
@@ -58,7 +60,13 @@ mlna(
 
 \item{layer_list}{List of character vectors defining layers. Each element
 contains node names belonging to that layer. Layers are displayed from
-top to bottom in list order.}
+top to bottom in list order. If NULL and \code{community} is specified,
+layers are auto-detected.}
+
+\item{community}{Community detection method to use for auto-layering.
+If specified, overrides \code{layer_list}. See \code{\link{detect_communities}}
+for available methods: "louvain", "walktrap", "fast_greedy", "label_prop",
+"infomap", "leiden".}
 
 \item{layout}{Node layout within layers: "horizontal" (default) spreads nodes
 horizontally, "circle" arranges nodes in an ellipse, "spring" uses

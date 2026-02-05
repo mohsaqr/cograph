@@ -2,11 +2,40 @@
 % Please edit documentation in R/plot-htna.R
 \name{plot_htna}
 \alias{plot_htna}
+\alias{htna}
 \title{Plot Heterogeneous TNA Network (Multi-Group Layout)}
 \usage{
 plot_htna(
   x,
-  node_list,
+  node_list = NULL,
+  community = NULL,
+  layout = "auto",
+  use_list_order = TRUE,
+  jitter = TRUE,
+  jitter_amount = 0.8,
+  jitter_side = "first",
+  orientation = "vertical",
+  group1_pos = -1.2,
+  group2_pos = 1.2,
+  curvature = 0.4,
+  group1_color = "#ffd89d",
+  group2_color = "#a68ba5",
+  group1_shape = "circle",
+  group2_shape = "square",
+  group_colors = NULL,
+  group_shapes = NULL,
+  angle_spacing = 0.15,
+  edge_colors = NULL,
+  legend = TRUE,
+  legend_position = "topright",
+  extend_lines = FALSE,
+  ...
+)
+
+htna(
+  x,
+  node_list = NULL,
+  community = NULL,
   layout = "auto",
   use_list_order = TRUE,
   jitter = TRUE,
@@ -33,7 +62,13 @@ plot_htna(
 \arguments{
 \item{x}{A tna object or weight matrix.}
 
-\item{node_list}{List of 2+ character vectors defining node groups.}
+\item{node_list}{List of 2+ character vectors defining node groups. If NULL
+and \code{community} is specified, groups are auto-detected.}
+
+\item{community}{Community detection method to use for auto-grouping.
+If specified, overrides \code{node_list}. See \code{\link{detect_communities}}
+for available methods: "louvain", "walktrap", "fast_greedy", "label_prop",
+"infomap", "leiden".}
 
 \item{layout}{Layout type: "auto" (default), "bipartite", "polygon", or "circular".
 When "auto", uses bipartite for 2 groups and polygon for 3+ groups.

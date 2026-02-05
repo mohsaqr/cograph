@@ -34,6 +34,10 @@
 #' @param curvature Edge curvature. Default 0.3.
 #' @param node_size Size of nodes inside shapes. Default 2.
 #' @param layout_margin Margin around the layout as fraction of range. Default 0.15.
+#' @param scale Scaling factor for spacing parameters. Use scale > 1 for
+#'   high-resolution output (e.g., scale = 4 for 300 dpi). This multiplies
+#'   spacing and shape_size to maintain proper proportions at higher resolutions.
+#'   Default 1.
 #' @param ... Additional parameters passed to plot_tna().
 #'
 #' @return Invisibly returns NULL for summary mode, or the plot_tna result.
@@ -82,8 +86,13 @@ plot_mtna <- function(
     curvature = 0.3,
     node_size = 2,
     layout_margin = 0.15,
+    scale = 1,
     ...
 ) {
+  # Apply scale to spacing parameters
+  spacing <- spacing * scale
+  shape_size <- shape_size * scale
+
   # Handle community parameter - auto-detect clusters
   if (!is.null(community)) {
     comm_df <- detect_communities(x, method = community)

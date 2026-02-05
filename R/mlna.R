@@ -44,6 +44,10 @@
 #' @param node_size Size of nodes. Default 2.5.
 #' @param minimum Minimum edge weight threshold. Edges below this are hidden.
 #'   Default 0.
+#' @param scale Scaling factor for spacing parameters. Use scale > 1 for
+#'   high-resolution output (e.g., scale = 4 for 300 dpi). This multiplies
+#'   layer_spacing, layer_width, and layer_depth to maintain proper proportions
+#'   at higher resolutions. Default 1.
 #' @param ... Additional parameters (currently unused).
 #'
 #' @return Invisibly returns NULL.
@@ -101,8 +105,14 @@ plot_mlna <- function(
     curvature = 0.15,
     node_size = 3,
     minimum = 0,
+    scale = 1,
     ...
 ) {
+  # Apply scale to spacing parameters
+  layer_spacing <- layer_spacing * scale
+  layer_width <- layer_width * scale
+  layer_depth <- layer_depth * scale
+
   # ==========================================================================
   # 1. Input Validation & Setup
   # ==========================================================================

@@ -61,6 +61,10 @@
 #'     \item TRUE: Draw lines extending toward the other group (default length 0.1)
 #'     \item Numeric: Length of extension lines
 #'   }
+#' @param scale Scaling factor for spacing parameters. Use scale > 1 for
+#'   high-resolution output (e.g., scale = 4 for 300 dpi). This multiplies
+#'   group positions and polygon/circular radius to maintain proper proportions
+#'   at higher resolutions. Default 1.
 #' @param ... Additional parameters passed to tplot().
 #'
 #' @return Invisibly returns the result from tplot().
@@ -125,8 +129,13 @@ plot_htna <- function(
     legend = TRUE,
     legend_position = "topright",
     extend_lines = FALSE,
+    scale = 1,
     ...
 ) {
+  # Apply scale to spacing parameters
+  group1_pos <- group1_pos * scale
+  group2_pos <- group2_pos * scale
+
 
   # Extended color palette for many groups
   color_palette <- c("#ffd89d", "#a68ba5", "#7eb5d6", "#98d4a2",
@@ -367,12 +376,12 @@ plot_htna <- function(
     }
   } else if (layout == "polygon") {
     # Polygon layout: n groups along edges of a regular n-sided polygon
-    pos <- compute_polygon_layout(node_list, lab, group_indices, n_groups, angle_spacing)
+    pos <- compute_polygon_layout(node_list, lab, group_indices, n_groups, angle_spacing, scale)
     x_pos <- pos$x
     y_pos <- pos$y
   } else if (layout == "circular") {
     # Circular layout: n groups along arcs of a circle
-    pos <- compute_circular_layout(node_list, lab, group_indices, n_groups, angle_spacing)
+    pos <- compute_circular_layout(node_list, lab, group_indices, n_groups, angle_spacing, scale)
     x_pos <- pos$x
     y_pos <- pos$y
   }
@@ -611,18 +620,18 @@ compute_connectivity_jitter_vertical <- function(weights, g1_idx, g2_idx, amount
 #' @param group_indices List of index vectors for each group.
 #' @param n_sides Number of sides (groups).
 #' @param angle_spacing How far to push edges away from vertices (0-1). Default 0.15.
+#' @param scale Scaling factor for radius. Default 1.
 #'
 #' @return List with x and y position vectors.
 #'
 #' @keywords internal
-compute_polygon_layout <- function(node_list, lab, group_indices, n_sides, angle_spacing = 0.15) {
+compute_polygon_layout <- function(node_list, lab, group_indices, n_sides, angle_spacing = 0.15, scale = 1) {
   n <- length(lab)
   x_pos <- rep(0, n)
   y_pos <- rep(0, n)
 
-  # Radius of the polygon
-
-  radius <- 1.2
+  # Radius of the polygon (scaled)
+  radius <- 1.2 * scale
 
   # Compute vertices of regular polygon
   # Start from top (pi/2) and go clockwise
@@ -630,8 +639,8 @@ compute_polygon_layout <- function(node_list, lab, group_indices, n_sides, angle
   vertices_x <- radius * cos(angles)
   vertices_y <- radius * sin(angles)
 
-  # Edge push distance (outward from center)
-  edge_push <- 0.15
+  # Edge push distance (outward from center, scaled)
+  edge_push <- 0.15 * scale
 
   # Place each group along its edge
 
@@ -685,17 +694,18 @@ for (i in seq_len(n_sides)) {
 #' @param group_indices List of index vectors for each group.
 #' @param n_groups Number of groups.
 #' @param angle_spacing Gap between groups as fraction of arc (0-1). Default 0.15.
+#' @param scale Scaling factor for radius. Default 1.
 #'
 #' @return List with x and y position vectors.
 #'
 #' @keywords internal
-compute_circular_layout <- function(node_list, lab, group_indices, n_groups, angle_spacing = 0.15) {
+compute_circular_layout <- function(node_list, lab, group_indices, n_groups, angle_spacing = 0.15, scale = 1) {
   n <- length(lab)
   x_pos <- rep(0, n)
   y_pos <- rep(0, n)
 
-  # Radius of the circle
-  radius <- 1.2
+  # Radius of the circle (scaled)
+  radius <- 1.2 * scale
 
   # Total angle per group (including gap)
   angle_per_group <- 2 * pi / n_groups

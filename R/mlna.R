@@ -12,7 +12,12 @@
 #' @param model A tna object or weight matrix.
 #' @param layer_list List of character vectors defining layers. Each element
 #'   contains node names belonging to that layer. Layers are displayed from
-#'   top to bottom in list order.
+#'   top to bottom in list order. If NULL and \code{community} is specified,
+#'   layers are auto-detected.
+#' @param community Community detection method to use for auto-layering.
+#'   If specified, overrides \code{layer_list}. See \code{\link{detect_communities}}
+#'   for available methods: "louvain", "walktrap", "fast_greedy", "label_prop",
+#'   "infomap", "leiden".
 #' @param layout Node layout within layers: "horizontal" (default) spreads nodes
 #'   horizontally, "circle" arranges nodes in an ellipse, "spring" uses
 #'   force-directed placement based on within-layer connections.
@@ -76,7 +81,8 @@
 #' }
 plot_mlna <- function(
     model,
-    layer_list,
+    layer_list = NULL,
+    community = NULL,
     layout = "horizontal",
     layer_spacing = 2.2,
     layer_width = 4.5,
@@ -101,8 +107,18 @@ plot_mlna <- function(
   # 1. Input Validation & Setup
   # ==========================================================================
 
+  # Handle community parameter - auto-detect layers
+  if (!is.null(community)) {
+    comm_df <- detect_communities(model, method = community)
+    layer_list <- split(comm_df$node, comm_df$community)
+    names(layer_list) <- paste0("Layer_", names(layer_list))
+  }
+
   # Validate layer_list
- n_layers <- length(layer_list)
+  if (is.null(layer_list)) {
+    stop("Either layer_list or community must be specified", call. = FALSE)
+  }
+  n_layers <- length(layer_list)
   if (!is.list(layer_list) || n_layers < 2) {
     stop("layer_list must be a list of 2+ character vectors", call. = FALSE)
   }

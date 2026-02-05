@@ -8,7 +8,12 @@
 #' Supports triangle (3), rectangle (4), pentagon (5), hexagon (6), and beyond.
 #'
 #' @param x A tna object or weight matrix.
-#' @param node_list List of 2+ character vectors defining node groups.
+#' @param node_list List of 2+ character vectors defining node groups. If NULL
+#'   and \code{community} is specified, groups are auto-detected.
+#' @param community Community detection method to use for auto-grouping.
+#'   If specified, overrides \code{node_list}. See \code{\link{detect_communities}}
+#'   for available methods: "louvain", "walktrap", "fast_greedy", "label_prop",
+#'   "infomap", "leiden".
 #' @param layout Layout type: "auto" (default), "bipartite", "polygon", or "circular".
 #'   When "auto", uses bipartite for 2 groups and polygon for 3+ groups.
 #'   "circular" places groups along arcs of a circle.
@@ -98,7 +103,8 @@
 #' }
 plot_htna <- function(
     x,
-    node_list,
+    node_list = NULL,
+    community = NULL,
     layout = "auto",
     use_list_order = TRUE,
     jitter = TRUE,
@@ -131,7 +137,17 @@ plot_htna <- function(
   shape_palette <- c("circle", "square", "diamond", "triangle",
                      "pentagon", "hexagon", "star", "cross")
 
+  # Handle community parameter - auto-detect groups
+  if (!is.null(community)) {
+    comm_df <- detect_communities(x, method = community)
+    node_list <- split(comm_df$node, comm_df$community)
+    names(node_list) <- paste0("Group_", names(node_list))
+  }
+
   # Validate node_list
+  if (is.null(node_list)) {
+    stop("Either node_list or community must be specified", call. = FALSE)
+  }
   n_groups <- length(node_list)
   if (!is.list(node_list) || n_groups < 2) {
     stop("node_list must be a list of 2+ character vectors", call. = FALSE)
@@ -715,3 +731,7 @@ compute_circular_layout <- function(node_list, lab, group_indices, n_groups, ang
 
   list(x = x_pos, y = y_pos)
 }
+
+#' @rdname plot_htna
+#' @export
+htna <- plot_htna

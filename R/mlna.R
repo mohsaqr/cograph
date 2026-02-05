@@ -21,9 +21,9 @@
 #' @param layout Node layout within layers: "horizontal" (default) spreads nodes
 #'   horizontally, "circle" arranges nodes in an ellipse, "spring" uses
 #'   force-directed placement based on within-layer connections.
-#' @param layer_spacing Vertical distance between layer centers. Default 2.2.
-#' @param layer_width Horizontal width of each layer shell. Default 4.5.
-#' @param layer_depth Depth of each layer (for 3D effect). Default 2.2.
+#' @param layer_spacing Vertical distance between layer centers. Default 2.5.
+#' @param layer_width Horizontal width of each layer shell. Default 5.
+#' @param layer_depth Depth of each layer (for 3D effect). Default 2.5.
 #' @param skew_angle Angle of perspective skew in degrees. Default 25.
 #' @param node_spacing Node placement ratio within layer (0-1). Default 0.7.
 #'   Higher values spread nodes closer to the layer edges.
@@ -88,9 +88,9 @@ plot_mlna <- function(
     layer_list = NULL,
     community = NULL,
     layout = "horizontal",
-    layer_spacing = 2.2,
-    layer_width = 4.5,
-    layer_depth = 2.2,
+    layer_spacing = 4,
+    layer_width = 8,
+    layer_depth = 4,
     skew_angle = 25,
     node_spacing = 0.7,
     colors = NULL,
@@ -108,10 +108,11 @@ plot_mlna <- function(
     scale = 1,
     ...
 ) {
-  # Apply scale to spacing parameters
-  layer_spacing <- layer_spacing * scale
-  layer_width <- layer_width * scale
-  layer_depth <- layer_depth * scale
+  # Apply scale: use sqrt(scale) for gentler compensation at high-resolution
+  # At 300 dpi (scale=4), divide by 2 instead of 4 for better proportions
+  size_scale <- sqrt(scale)
+  node_size <- node_size / size_scale
+  edge_scale <- 1 / size_scale  # Used for lwd calculations
 
   # ==========================================================================
   # 1. Input Validation & Setup
@@ -333,13 +334,15 @@ plot_mlna <- function(
   # 4. Set Up Plot
   # ==========================================================================
 
-  # Calculate plot dimensions with padding
+  # Calculate plot dimensions with minimal padding
   all_x <- c(x_pos, unlist(lapply(layer_planes, function(p) p$corners[, 1])))
   all_y <- c(y_pos, unlist(lapply(layer_planes, function(p) p$corners[, 2])))
-  x_range <- range(all_x) + c(-1.5, 2.5)
-  y_range <- range(all_y) + c(-1, 1.5)
+  x_range <- range(all_x) + c(-0.5, 1.5)
+  y_range <- range(all_y) + c(-0.5, 0.5)
 
-  # Set up blank plot
+  # Set up blank plot with minimal margins
+  old_par <- graphics::par(mar = c(0.5, 0.5, 0.5, 0.5))
+  on.exit(graphics::par(old_par), add = TRUE)
   graphics::plot.new()
   graphics::plot.window(xlim = x_range, ylim = y_range, asp = 1)
 
@@ -367,7 +370,7 @@ plot_mlna <- function(
         for (tgt_idx in idx) {
           weight <- weights[src_idx, tgt_idx]
           if (!is.na(weight) && weight > minimum) {
-            lwd <- 0.5 + 2.5 * (abs(weight) / max_w)
+            lwd <- (0.5 + 2.5 * (abs(weight) / max_w)) * edge_scale
             edge_col <- grDevices::adjustcolor(edge_colors[next_layer], alpha.f = 0.6)
             graphics::segments(
               x0 = x_pos[src_idx], y0 = y_pos[src_idx],
@@ -385,7 +388,7 @@ plot_mlna <- function(
         for (tgt_idx in next_idx) {
           weight <- weights[src_idx, tgt_idx]
           if (!is.na(weight) && weight > minimum) {
-            lwd <- 0.5 + 2.5 * (abs(weight) / max_w)
+            lwd <- (0.5 + 2.5 * (abs(weight) / max_w)) * edge_scale
             edge_col <- grDevices::adjustcolor(edge_colors[i], alpha.f = 0.6)
             graphics::segments(
               x0 = x_pos[src_idx], y0 = y_pos[src_idx],
@@ -409,7 +412,7 @@ plot_mlna <- function(
         y = c(corners[, 2], corners[1, 2]),
         border = border_color,
         col = fill_color,
-        lwd = 2.5
+        lwd = 2.5 * edge_scale
       )
 
       # Layer label on the right
@@ -423,7 +426,7 @@ plot_mlna <- function(
           adj = 0,
           col = layer_colors[i],
           font = 2,
-          cex = 1.1
+          cex = 1.1 / size_scale
         )
       }
     }
@@ -454,7 +457,7 @@ plot_mlna <- function(
                 edge_col <- grDevices::adjustcolor(
                   layer_colors[i], red.f = 0.6, green.f = 0.6, blue.f = 0.6
                 )
-                lwd <- 0.8 + 1.5 * (abs(weight) / max_w)
+                lwd <- (0.8 + 1.5 * (abs(weight) / max_w)) * edge_scale
 
                 graphics::xspline(
                   x = c(x0, mid_x + off_x, x1),
@@ -490,14 +493,14 @@ plot_mlna <- function(
       bg = layer_colors[i],
       col = "gray20",
       cex = node_size,
-      lwd = 1.5
+      lwd = 1.5 * edge_scale
     )
 
     # Node labels
     graphics::text(
       x_pos[idx], y_pos[idx],
       labels = lab[idx],
-      cex = 0.75,
+      cex = 0.75 / size_scale,
       pos = 3,
       offset = 0.6,
       font = 1
@@ -529,8 +532,8 @@ plot_mlna <- function(
       pch = pch_values,
       pt.bg = layer_colors,
       col = edge_colors,
-      pt.cex = 1.5,
-      cex = 0.9,
+      pt.cex = 2.5 / size_scale,
+      cex = 1.4 / size_scale,
       bty = "n",
       title = "Layers"
     )

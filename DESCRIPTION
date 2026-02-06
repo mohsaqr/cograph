@@ -32,6 +32,7 @@ Suggests:
     rsvg,
     qgraph,
     tna,
+    gifski,
     RColorBrewer,
     colorspace
 VignetteBuilder: knitr

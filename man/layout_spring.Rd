@@ -11,7 +11,9 @@ layout_spring(
   repulsion = 1,
   attraction = 1,
   seed = NULL,
-  initial = NULL
+  initial = NULL,
+  max_displacement = NULL,
+  anchor_strength = 0
 )
 }
 \arguments{
@@ -27,7 +29,16 @@ layout_spring(
 
 \item{seed}{Random seed for reproducibility.}
 
-\item{initial}{Optional initial coordinates (matrix or data frame).}
+\item{initial}{Optional initial coordinates (matrix or data frame).
+For animations, pass the previous frame's layout to ensure smooth transitions.}
+
+\item{max_displacement}{Maximum distance a node can move from its initial
+position (default: NULL = no limit). Useful for animations to prevent
+large jumps between frames. Values like 0.05-0.1 work well.}
+
+\item{anchor_strength}{Strength of force pulling nodes toward initial positions
+(default: 0). Higher values (e.g., 0.5-2) keep nodes closer to their starting
+positions. Only applies when \code{initial} is provided.}
 }
 \value{
 Data frame with x, y coordinates.
@@ -41,4 +52,7 @@ all nodes repel each other.
 adj <- matrix(c(0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0), nrow = 4)
 net <- CographNetwork$new(adj)
 coords <- layout_spring(net, seed = 42)
+
+# For animations: use previous layout as initial with constraints
+coords2 <- layout_spring(net, initial = coords, max_displacement = 0.05)
 }

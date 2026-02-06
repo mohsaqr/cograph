@@ -16,6 +16,13 @@ NULL
 #' @param attraction Attraction constant (default: 1).
 #' @param seed Random seed for reproducibility.
 #' @param initial Optional initial coordinates (matrix or data frame).
+#'   For animations, pass the previous frame's layout to ensure smooth transitions.
+#' @param max_displacement Maximum distance a node can move from its initial
+#'   position (default: NULL = no limit). Useful for animations to prevent
+#'   large jumps between frames. Values like 0.05-0.1 work well.
+#' @param anchor_strength Strength of force pulling nodes toward initial positions
+#'   (default: 0). Higher values (e.g., 0.5-2) keep nodes closer to their starting
+#'   positions. Only applies when `initial` is provided.
 #' @return Data frame with x, y coordinates.
 #' @export
 #'
@@ -23,9 +30,13 @@ NULL
 #' adj <- matrix(c(0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0), nrow = 4)
 #' net <- CographNetwork$new(adj)
 #' coords <- layout_spring(net, seed = 42)
+#'
+#' # For animations: use previous layout as initial with constraints
+#' coords2 <- layout_spring(net, initial = coords, max_displacement = 0.05)
 layout_spring <- function(network, iterations = 500, cooling = 0.95,
                           repulsion = 1, attraction = 1, seed = NULL,
-                          initial = NULL) {
+                          initial = NULL, max_displacement = NULL,
+                          anchor_strength = 0) {
 
   n <- network$n_nodes
 
@@ -49,12 +60,15 @@ layout_spring <- function(network, iterations = 500, cooling = 0.95,
     } else {
       pos <- as.matrix(initial[, c("x", "y")])
     }
+    # Store anchor positions for animation constraints
+    anchor_pos <- pos
   } else {
     # Random initial positions
     pos <- cbind(
       x = stats::runif(n),
       y = stats::runif(n)
     )
+    anchor_pos <- NULL
   }
 
   # Get edges
@@ -110,6 +124,14 @@ layout_spring <- function(network, iterations = 500, cooling = 0.95,
       disp[j, ] <- disp[j, ] + disp_vec
     }
 
+    # Apply anchor force (pulls nodes toward initial positions)
+    if (!is.null(anchor_pos) && anchor_strength > 0) {
+      for (i in seq_len(n)) {
+        anchor_delta <- anchor_pos[i, ] - pos[i, ]
+        disp[i, ] <- disp[i, ] + anchor_delta * anchor_strength
+      }
+    }
+
     # Apply displacement with temperature limit
     for (i in seq_len(n)) {
       disp_len <- sqrt(sum(disp[i, ]^2))
@@ -126,6 +148,18 @@ layout_spring <- function(network, iterations = 500, cooling = 0.95,
 
     # Cool down
     temp <- temp * cooling
+  }
+
+  # Apply max_displacement constraint (for animations)
+  if (!is.null(max_displacement) && !is.null(anchor_pos)) {
+    for (i in seq_len(n)) {
+      delta <- pos[i, ] - anchor_pos[i, ]
+      dist <- sqrt(sum(delta^2))
+      if (dist > max_displacement) {
+        # Scale back to max_displacement
+        pos[i, ] <- anchor_pos[i, ] + delta * (max_displacement / dist)
+      }
+    }
   }
 
   data.frame(x = pos[, 1], y = pos[, 2])

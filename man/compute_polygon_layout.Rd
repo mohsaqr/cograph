@@ -9,7 +9,8 @@ compute_polygon_layout(
   lab,
   group_indices,
   n_sides,
-  angle_spacing = 0.15
+  angle_spacing = 0.15,
+  scale = 1
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ compute_polygon_layout(
 \item{n_sides}{Number of sides (groups).}
 
 \item{angle_spacing}{How far to push edges away from vertices (0-1). Default 0.15.}
+
+\item{scale}{Scaling factor for radius. Default 1.}
 }
 \value{
 List with x and y position vectors.

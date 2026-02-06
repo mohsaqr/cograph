@@ -9,7 +9,8 @@ compute_circular_layout(
   lab,
   group_indices,
   n_groups,
-  angle_spacing = 0.15
+  angle_spacing = 0.15,
+  scale = 1
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ compute_circular_layout(
 \item{n_groups}{Number of groups.}
 
 \item{angle_spacing}{Gap between groups as fraction of arc (0-1). Default 0.15.}
+
+\item{scale}{Scaling factor for radius. Default 1.}
 }
 \value{
 List with x and y position vectors.

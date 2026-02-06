@@ -187,21 +187,36 @@ apply_igraph_layout_by_name <- function(network, layout_name, seed = 42, ...) {
 #' Convert CographNetwork to igraph
 #'
 #' Convert a CographNetwork object to an igraph object for layout computation.
+#' Handles both old R6 CographNetwork format and new lightweight cograph_network format.
 #'
-#' @param network A CographNetwork object.
+#' @param network A CographNetwork or cograph_network object.
 #' @return An igraph object.
 #' @noRd
 network_to_igraph <- function(network) {
-  edges <- network$get_edges()
-  n <- network$n_nodes
+  # Handle both old R6 format and new lightweight format
+  if (inherits(network, "CographNetwork")) {
+    # Old R6 format with methods
+    edges <- network$get_edges()
+    n <- network$n_nodes
+    is_dir <- network$is_directed
+    nodes <- network$get_nodes()
+  } else if (inherits(network, "cograph_network")) {
+    # New lightweight format - use getter functions
+    edges <- get_edges(network)
+    n <- n_nodes(network)
+    is_dir <- is_directed(network)
+    nodes <- get_nodes(network)
+  } else {
+    stop("network must be a CographNetwork or cograph_network object", call. = FALSE)
+  }
 
   if (is.null(edges) || nrow(edges) == 0) {
     # Empty graph
-    g <- igraph::make_empty_graph(n, directed = network$is_directed)
+    g <- igraph::make_empty_graph(n, directed = is_dir)
   } else {
     # Create edge list
     edge_mat <- as.matrix(edges[, c("from", "to")])
-    g <- igraph::graph_from_edgelist(edge_mat, directed = network$is_directed)
+    g <- igraph::graph_from_edgelist(edge_mat, directed = is_dir)
 
     # Add weights if present
     if (!is.null(edges$weight)) {
@@ -210,7 +225,6 @@ network_to_igraph <- function(network) {
   }
 
   # Add node labels
-  nodes <- network$get_nodes()
   if (!is.null(nodes$label)) {
     igraph::V(g)$name <- nodes$label
   }

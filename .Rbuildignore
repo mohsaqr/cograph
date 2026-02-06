@@ -22,3 +22,5 @@
 ^showcase$
 ^\.DS_Store$
 ^\.\.Rcheck$
+^doc$
+^Meta$

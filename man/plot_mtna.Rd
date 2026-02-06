@@ -10,8 +10,8 @@ plot_mtna(
   cluster_list = NULL,
   community = NULL,
   layout = "circle",
-  spacing = 3,
-  shape_size = 1.2,
+  spacing = 4,
+  shape_size = 1.8,
   node_spacing = 0.5,
   colors = NULL,
   shapes = NULL,
@@ -24,8 +24,9 @@ plot_mtna(
   legend = TRUE,
   legend_position = "topright",
   curvature = 0.3,
-  node_size = 2,
+  node_size = 3,
   layout_margin = 0.15,
+  scale = 1,
   ...
 )
 
@@ -34,8 +35,8 @@ mtna(
   cluster_list = NULL,
   community = NULL,
   layout = "circle",
-  spacing = 3,
-  shape_size = 1.2,
+  spacing = 4,
+  shape_size = 1.8,
   node_spacing = 0.5,
   colors = NULL,
   shapes = NULL,
@@ -48,8 +49,9 @@ mtna(
   legend = TRUE,
   legend_position = "topright",
   curvature = 0.3,
-  node_size = 2,
+  node_size = 3,
   layout_margin = 0.15,
+  scale = 1,
   ...
 )
 }
@@ -68,9 +70,9 @@ for available methods: "louvain", "walktrap", "fast_greedy", "label_prop",
 \item{layout}{How to arrange the clusters: "circle" (default),
 "grid", "horizontal", "vertical".}
 
-\item{spacing}{Distance between cluster centers. Default 3.}
+\item{spacing}{Distance between cluster centers. Default 4.}
 
-\item{shape_size}{Size of each cluster shape (shell radius). Default 1.2.}
+\item{shape_size}{Size of each cluster shape (shell radius). Default 1.8.}
 
 \item{node_spacing}{Radius for node placement within shapes (0-1 relative
 to shape_size). Default 0.5.}
@@ -103,6 +105,11 @@ edges within each cluster. Default TRUE.}
 \item{node_size}{Size of nodes inside shapes. Default 2.}
 
 \item{layout_margin}{Margin around the layout as fraction of range. Default 0.15.}
+
+\item{scale}{Scaling factor for spacing parameters. Use scale > 1 for
+high-resolution output (e.g., scale = 4 for 300 dpi). This multiplies
+spacing and shape_size to maintain proper proportions at higher resolutions.
+Default 1.}
 
 \item{...}{Additional parameters passed to plot_tna().}
 }

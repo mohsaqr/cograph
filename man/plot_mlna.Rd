@@ -10,9 +10,9 @@ plot_mlna(
   layer_list = NULL,
   community = NULL,
   layout = "horizontal",
-  layer_spacing = 2.2,
-  layer_width = 4.5,
-  layer_depth = 2.2,
+  layer_spacing = 4,
+  layer_width = 8,
+  layer_depth = 4,
   skew_angle = 25,
   node_spacing = 0.7,
   colors = NULL,
@@ -27,6 +27,7 @@ plot_mlna(
   curvature = 0.15,
   node_size = 3,
   minimum = 0,
+  scale = 1,
   ...
 )
 
@@ -35,9 +36,9 @@ mlna(
   layer_list = NULL,
   community = NULL,
   layout = "horizontal",
-  layer_spacing = 2.2,
-  layer_width = 4.5,
-  layer_depth = 2.2,
+  layer_spacing = 4,
+  layer_width = 8,
+  layer_depth = 4,
   skew_angle = 25,
   node_spacing = 0.7,
   colors = NULL,
@@ -52,6 +53,7 @@ mlna(
   curvature = 0.15,
   node_size = 3,
   minimum = 0,
+  scale = 1,
   ...
 )
 }
@@ -72,11 +74,11 @@ for available methods: "louvain", "walktrap", "fast_greedy", "label_prop",
 horizontally, "circle" arranges nodes in an ellipse, "spring" uses
 force-directed placement based on within-layer connections.}
 
-\item{layer_spacing}{Vertical distance between layer centers. Default 2.2.}
+\item{layer_spacing}{Vertical distance between layer centers. Default 2.5.}
 
-\item{layer_width}{Horizontal width of each layer shell. Default 4.5.}
+\item{layer_width}{Horizontal width of each layer shell. Default 5.}
 
-\item{layer_depth}{Depth of each layer (for 3D effect). Default 2.2.}
+\item{layer_depth}{Depth of each layer (for 3D effect). Default 2.5.}
 
 \item{skew_angle}{Angle of perspective skew in degrees. Default 25.}
 
@@ -111,6 +113,11 @@ Use 1 for solid, 3 for dotted.}
 
 \item{minimum}{Minimum edge weight threshold. Edges below this are hidden.
 Default 0.}
+
+\item{scale}{Scaling factor for spacing parameters. Use scale > 1 for
+high-resolution output (e.g., scale = 4 for 300 dpi). This multiplies
+layer_spacing, layer_width, and layer_depth to maintain proper proportions
+at higher resolutions. Default 1.}
 
 \item{...}{Additional parameters (currently unused).}
 }

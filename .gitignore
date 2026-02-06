@@ -21,3 +21,5 @@ inst/examples/*.html
 
 # Build artifacts
 *.tar.gz
+/doc/
+/Meta/

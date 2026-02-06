@@ -715,13 +715,271 @@ as_cograph <- function(x, directed = NULL, ...) {
     layout_info = NULL,
     layers = NULL,
     clusters = NULL,
-    groups = NULL
+    groups = NULL,
+    node_groups = NULL  # For auto-dispatch to mlna/htna/mtna
   )
 
   # Set S3 class
   class(net) <- c("cograph_network", "list")
 
   net
+}
+
+#' Set Node Groups for Auto-Plot Selection
+#'
+#' Assigns node groupings to a cograph_network object. The column name in the
+#' resulting data frame determines which plot function \code{splot()} will
+#' auto-dispatch to:
+#' \itemize{
+#'   \item \code{"layer"} column -> \code{plot_mlna()} (multilevel network)
+#'   \item \code{"cluster"} column -> \code{plot_mtna()} (multi-cluster network)
+#'   \item \code{"group"} column -> \code{plot_htna()} (heterogeneous network)
+#' }
+#'
+#' @param x A cograph_network object.
+#' @param groups Node groupings in one of these formats:
+#'   \itemize{
+#'     \item Character string: Community detection method ("louvain", "walktrap",
+#'       "fast_greedy", "label_prop", "infomap", "leiden")
+#'     \item Named list: Group name -> node vector mapping
+#'       (e.g., \code{list(A = c("N1","N2"), B = c("N3","N4"))})
+#'     \item Unnamed vector: Group assignment per node (same order as nodes)
+#'     \item Data frame: Must have "node"/"nodes" column plus one of
+#'       "layer"/"layers", "cluster"/"clusters", or "group"/"groups"
+#'       (plural forms are automatically normalized to singular)
+#'     \item NULL: Use \code{nodes} + one of \code{layers}/\code{clusters}/\code{groups} vectors
+#'   }
+#' @param type Group type determining the plot function. One of:
+#'
+#'   \itemize{
+#'     \item \code{"group"} (default): Uses \code{plot_htna()}
+#'     \item \code{"cluster"}: Uses \code{plot_mtna()}
+#'     \item \code{"layer"}: Uses \code{plot_mlna()}
+#'   }
+#'   Ignored when using vector arguments (\code{layers}, \code{clusters}, \code{groups})
+#'   since the type is inferred from which argument is provided.
+#' @param nodes Character vector of node labels. Use with \code{layers}, \code{clusters},
+#'   or \code{groups} to specify groupings via vectors instead of a data frame.
+#' @param layers Character/factor vector of layer assignments (same length as \code{nodes}).
+#'   Triggers dispatch to \code{plot_mlna()}.
+#' @param clusters Character/factor vector of cluster assignments (same length as \code{nodes}).
+#'   Triggers dispatch to \code{plot_mtna()}.
+#'
+#' @return The modified cograph_network object with \code{node_groups} set.
+#'
+#' @seealso \code{\link{get_groups}}, \code{\link{splot}}, \code{\link{plot_mlna}},
+#'   \code{\link{plot_mtna}}, \code{\link{plot_htna}}, \code{\link{detect_communities}}
+#'
+#' @export
+#'
+#' @examples
+#' # Create network
+#' mat <- matrix(runif(100), 10, 10)
+#' rownames(mat) <- colnames(mat) <- paste0("N", 1:10)
+#' net <- as_cograph(mat)
+#'
+#' # Using vectors (recommended)
+#' net <- set_groups(net,
+#'   nodes = paste0("N", 1:10),
+#'   layers = c(rep("Macro", 3), rep("Meso", 4), rep("Micro", 3))
+#' )
+#'
+#' # Named list -> layers (for plot_mlna)
+#' net <- set_groups(net, list(
+#'   Macro = paste0("N", 1:3),
+#'   Meso = paste0("N", 4:7),
+#'   Micro = paste0("N", 8:10)
+#' ), type = "layer")
+#'
+#' # Vector -> clusters (for plot_mtna)
+#' net <- set_groups(net, c("A", "A", "A", "B", "B", "B", "C", "C", "C", "C"),
+#'                   type = "cluster")
+#'
+#' # Community detection -> groups (for plot_htna)
+#' net <- set_groups(net, "louvain", type = "group")
+#'
+#' # Data frame with explicit columns
+#' df <- data.frame(nodes = paste0("N", 1:10),
+#'                  layers = rep(c("Top", "Bottom"), each = 5))
+#' net <- set_groups(net, df)
+#'
+#' # Check groups
+#' get_groups(net)
+set_groups <- function(x, groups = NULL, type = c("group", "cluster", "layer"),
+                       nodes = NULL, layers = NULL, clusters = NULL) {
+  if (!inherits(x, "cograph_network")) {
+    stop("x must be a cograph_network object", call. = FALSE)
+  }
+
+  type <- match.arg(type)
+  net_labels <- get_labels(x)
+
+  # ==========================================================================
+  # Handle vector arguments: nodes + layers/clusters/groups
+  # ==========================================================================
+  vec_args <- c(!is.null(layers), !is.null(clusters))
+  if (any(vec_args)) {
+    # Determine type from which vector was provided
+    if (!is.null(layers)) {
+      vec_type <- "layer"
+      vec_values <- layers
+    } else if (!is.null(clusters)) {
+      vec_type <- "cluster"
+      vec_values <- clusters
+    }
+
+    # If nodes not provided, assume same order as network nodes
+
+if (is.null(nodes)) {
+      if (length(vec_values) != length(net_labels)) {
+        stop(vec_type, "s vector length (", length(vec_values),
+             ") must match number of nodes (", length(net_labels), ")",
+             call. = FALSE)
+      }
+      nodes <- net_labels
+    }
+
+    # Validate lengths match
+    if (length(nodes) != length(vec_values)) {
+      stop("nodes and ", vec_type, "s must have the same length", call. = FALSE)
+    }
+
+    df <- data.frame(
+      node = nodes,
+      V2 = vec_values,
+      stringsAsFactors = FALSE
+    )
+    names(df)[2] <- vec_type
+
+  # ==========================================================================
+  # Handle groups argument (original API)
+  # ==========================================================================
+  } else if (!is.null(groups)) {
+    if (is.character(groups) && length(groups) == 1) {
+      # Community detection method name
+      df <- detect_communities(x, method = groups)
+      names(df)[names(df) == "community"] <- type
+    } else if (is.list(groups) && !is.data.frame(groups)) {
+      # Named list: list(A = c("N1","N2"), B = c("N3","N4"))
+      df <- data.frame(
+        node = unlist(groups, use.names = FALSE),
+        V2 = rep(names(groups), lengths(groups)),
+        stringsAsFactors = FALSE
+      )
+      names(df)[2] <- type
+    } else if (is.vector(groups) && length(groups) > 1 && !is.list(groups)) {
+      # Vector (same order as nodes)
+      if (length(groups) != length(net_labels)) {
+        stop("groups vector length (", length(groups), ") must match number of nodes (",
+             length(net_labels), ")", call. = FALSE)
+      }
+      df <- data.frame(
+        node = net_labels,
+        V2 = groups,
+        stringsAsFactors = FALSE
+      )
+      names(df)[2] <- type
+    } else if (is.data.frame(groups)) {
+      df <- groups
+
+      # Normalize plural column names to singular
+      col_map <- c(nodes = "node", layers = "layer", clusters = "cluster", groups = "group")
+      for (old_name in names(col_map)) {
+        if (old_name %in% names(df)) {
+          names(df)[names(df) == old_name] <- col_map[old_name]
+        }
+      }
+
+      # If df has "group"/"cluster"/"layer" column, use it; else rename 2nd col
+      if (!any(c("group", "cluster", "layer") %in% names(df))) {
+        if (ncol(df) >= 2) {
+          names(df)[2] <- type
+        } else {
+          stop("Data frame must have at least 2 columns (node and group assignment)",
+               call. = FALSE)
+        }
+      }
+      # Ensure "node" column exists
+      if (!"node" %in% names(df)) {
+        if (ncol(df) >= 1) {
+          names(df)[1] <- "node"
+        }
+      }
+    } else {
+      stop("groups must be: a community detection method name, a named list, ",
+           "a vector, or a data frame", call. = FALSE)
+    }
+  } else {
+    stop("Must provide either 'groups' or vector arguments (nodes + layers/clusters)",
+         call. = FALSE)
+  }
+
+  # ==========================================================================
+  # Validation
+  # ==========================================================================
+  # Check for duplicate nodes in assignment
+  if (anyDuplicated(df$node)) {
+    dups <- df$node[duplicated(df$node)]
+    stop("Duplicate node assignments found: ", paste(unique(dups), collapse = ", "),
+         call. = FALSE)
+  }
+
+  # Check all assigned nodes exist in the network
+  missing_nodes <- setdiff(df$node, net_labels)
+  if (length(missing_nodes) > 0) {
+    stop("Nodes not found in network: ", paste(missing_nodes, collapse = ", "),
+         call. = FALSE)
+  }
+
+  # Check all network nodes are assigned
+  unassigned <- setdiff(net_labels, df$node)
+  if (length(unassigned) > 0) {
+    stop("Nodes missing from group assignment: ", paste(unassigned, collapse = ", "),
+         call. = FALSE)
+  }
+
+  # Check we have at least 2 groups for visualization
+  group_col <- intersect(c("layer", "cluster", "group"), names(df))
+  if (length(group_col) > 0) {
+    n_groups <- length(unique(df[[group_col[1]]]))
+    if (n_groups < 2) {
+      stop("At least 2 groups are required for visualization (found ", n_groups, ")",
+           call. = FALSE)
+    }
+  }
+
+  x$node_groups <- df
+  x
+}
+
+#' Get Node Groups from Cograph Network
+#'
+#' Extracts the node groupings from a cograph_network object.
+#'
+#' @param x A cograph_network object.
+#'
+#' @return A data frame with node groupings, or NULL if not set. The data frame
+#'   has columns:
+#'   \itemize{
+#'     \item \code{node}: Node labels
+#'     \item One of \code{layer}, \code{cluster}, or \code{group}: Group assignment
+#'   }
+#'
+#' @seealso \code{\link{set_groups}}, \code{\link{splot}}
+#'
+#' @export
+#'
+#' @examples
+#' mat <- matrix(runif(25), 5, 5)
+#' rownames(mat) <- colnames(mat) <- LETTERS[1:5]
+#' net <- as_cograph(mat)
+#' net <- set_groups(net, list(G1 = c("A", "B"), G2 = c("C", "D", "E")))
+#' get_groups(net)
+get_groups <- function(x) {
+  if (!inherits(x, "cograph_network")) {
+    stop("x must be a cograph_network object", call. = FALSE)
+  }
+  x$node_groups
 }
 
 #' Get Nodes from Cograph Network (Deprecated)

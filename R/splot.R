@@ -534,6 +534,33 @@ splot <- function(
   # Convert to cograph_network if needed
   network <- ensure_cograph_network(x, layout = layout, seed = seed, ...)
 
+  # ============================================
+  # AUTO-DISPATCH TO SPECIALIZED PLOT FUNCTIONS
+  # ============================================
+  # If network has node_groups metadata, dispatch to mlna/mtna/htna based on column name
+  if (!is.null(network$node_groups)) {
+    ng <- network$node_groups
+
+    # Convert to adjacency matrix for plot functions that expect tna/matrix
+    adj_mat <- to_adjacency_matrix(network)
+
+    if ("layer" %in% names(ng)) {
+      # Dispatch to plot_mlna (multilevel network)
+      group_list <- split(ng$node, ng$layer)
+      return(plot_mlna(adj_mat, layer_list = group_list, ...))
+    }
+    if ("cluster" %in% names(ng)) {
+      # Dispatch to plot_mtna (multi-cluster network)
+      group_list <- split(ng$node, ng$cluster)
+      return(plot_mtna(adj_mat, cluster_list = group_list, ...))
+    }
+    if ("group" %in% names(ng)) {
+      # Dispatch to plot_htna (heterogeneous network)
+      group_list <- split(ng$node, ng$group)
+      return(plot_htna(adj_mat, node_list = group_list, ...))
+    }
+  }
+
   # Apply theme if specified
   if (!is.null(theme)) {
     th <- get_theme(theme)

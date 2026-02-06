@@ -15,8 +15,8 @@ plot_htna(
   jitter_amount = 0.8,
   jitter_side = "first",
   orientation = "vertical",
-  group1_pos = -1.2,
-  group2_pos = 1.2,
+  group1_pos = -2,
+  group2_pos = 2,
   curvature = 0.4,
   group1_color = "#ffd89d",
   group2_color = "#a68ba5",
@@ -29,6 +29,7 @@ plot_htna(
   legend = TRUE,
   legend_position = "topright",
   extend_lines = FALSE,
+  scale = 1,
   ...
 )
 
@@ -42,8 +43,8 @@ htna(
   jitter_amount = 0.8,
   jitter_side = "first",
   orientation = "vertical",
-  group1_pos = -1.2,
-  group2_pos = 1.2,
+  group1_pos = -2,
+  group2_pos = 2,
   curvature = 0.4,
   group1_color = "#ffd89d",
   group2_color = "#a68ba5",
@@ -56,6 +57,7 @@ htna(
   legend = TRUE,
   legend_position = "topright",
   extend_lines = FALSE,
+  scale = 1,
   ...
 )
 }
@@ -98,9 +100,9 @@ Only applies to bipartite layout.}
 \item{orientation}{Layout orientation for bipartite: "vertical" (two columns, default)
 or "horizontal" (two rows). Ignored for triangle/rectangle layouts.}
 
-\item{group1_pos}{Position for first group in bipartite layout. Default -1.2.}
+\item{group1_pos}{Position for first group in bipartite layout. Default -2.}
 
-\item{group2_pos}{Position for second group in bipartite layout. Default 1.2.}
+\item{group2_pos}{Position for second group in bipartite layout. Default 2.}
 
 \item{curvature}{Edge curvature amount. Default 0.4 for visible curves.}
 
@@ -136,6 +138,11 @@ Only applies to bipartite layout.
 \item TRUE: Draw lines extending toward the other group (default length 0.1)
 \item Numeric: Length of extension lines
 }}
+
+\item{scale}{Scaling factor for spacing parameters. Use scale > 1 for
+high-resolution output (e.g., scale = 4 for 300 dpi). This multiplies
+group positions and polygon/circular radius to maintain proper proportions
+at higher resolutions. Default 1.}
 
 \item{...}{Additional parameters passed to tplot().}
 }

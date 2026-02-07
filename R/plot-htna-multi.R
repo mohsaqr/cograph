@@ -26,6 +26,10 @@
 #' @param bundle_strength How tightly to bundle edges (0-1). Default 0.8.
 #' @param summary_edges Logical. Show aggregated summary edges between clusters instead
 #'   of individual node edges. Default TRUE.
+#' @param aggregation Method for aggregating edge weights between clusters:
+#'   "sum" (total flow), "mean" (average strength), "max" (strongest link),
+#'   "min" (weakest link), "median", or "density" (normalized by possible edges).
+#'   Default "sum". Only used when summary_edges = TRUE.
 #' @param within_edges Logical. When summary_edges is TRUE, also show individual
 #'   edges within each cluster. Default TRUE.
 #' @param show_border Logical. Draw a border around each cluster. Default TRUE.
@@ -79,6 +83,7 @@ plot_mtna <- function(
     bundle_edges = TRUE,
     bundle_strength = 0.8,
     summary_edges = TRUE,
+    aggregation = c("sum", "mean", "max", "min", "median", "density"),
     within_edges = TRUE,
     show_border = TRUE,
     legend = TRUE,
@@ -89,6 +94,9 @@ plot_mtna <- function(
     scale = 1,
     ...
 ) {
+  # Match aggregation method
+ aggregation <- match.arg(aggregation)
+
   # Apply scale: use sqrt(scale) for gentler compensation at high-resolution
   size_scale <- sqrt(scale)
   node_size <- node_size / size_scale
@@ -303,8 +311,10 @@ plot_mtna <- function(
     for (i in seq_len(n_clusters)) {
       for (j in seq_len(n_clusters)) {
         if (i != j) {
-          # Sum all edges from cluster i to cluster j
-          cluster_weights[i, j] <- sum(weights[cluster_indices[[i]], cluster_indices[[j]]], na.rm = TRUE)
+          # Aggregate edges from cluster i to cluster j
+          w_ij <- weights[cluster_indices[[i]], cluster_indices[[j]]]
+          n_possible <- length(cluster_indices[[i]]) * length(cluster_indices[[j]])
+          cluster_weights[i, j] <- aggregate_weights(as.vector(w_ij), aggregation, n_possible)
         }
       }
     }
@@ -325,6 +335,10 @@ plot_mtna <- function(
     for (i in seq_len(n_clusters)) {
       cluster_edge_colors[i, ] <- edge_colors[i]
     }
+
+    # Get edge.lwd multiplier from ... (default 1)
+    dots <- list(...)
+    edge_lwd_mult <- if (!is.null(dots$edge.lwd)) dots$edge.lwd else 1
 
     # For summary view, we need to draw manually after setting up the plot
     # First create empty plot with correct dimensions
@@ -475,7 +489,7 @@ plot_mtna <- function(
           # Edge weight determines line width
           weight <- cluster_weights[i, j]
           max_weight <- max(cluster_weights, na.rm = TRUE)
-          lwd <- (1 + 5 * (weight / max_weight)) * edge_scale
+          lwd <- (1 + 5 * (weight / max_weight)) * edge_scale * edge_lwd_mult
 
           # Draw curved line using xspline
           mid_x <- (x0 + x1) / 2
@@ -619,9 +633,9 @@ plot_mtna <- function(
                   # Edge width based on weight
                   max_within <- max(weights[idx, idx], na.rm = TRUE)
                   if (max_within > 0) {
-                    lwd <- (0.5 + 2 * (weight / max_within)) * edge_scale
+                    lwd <- (0.5 + 2 * (weight / max_within)) * edge_scale * edge_lwd_mult
                   } else {
-                    lwd <- 1 * edge_scale
+                    lwd <- 1 * edge_scale * edge_lwd_mult
                   }
 
                   # Curved edge

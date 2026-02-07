@@ -19,6 +19,7 @@ plot_mtna(
   bundle_edges = TRUE,
   bundle_strength = 0.8,
   summary_edges = TRUE,
+  aggregation = c("sum", "mean", "max", "min", "median", "density"),
   within_edges = TRUE,
   show_border = TRUE,
   legend = TRUE,
@@ -44,6 +45,7 @@ mtna(
   bundle_edges = TRUE,
   bundle_strength = 0.8,
   summary_edges = TRUE,
+  aggregation = c("sum", "mean", "max", "min", "median", "density"),
   within_edges = TRUE,
   show_border = TRUE,
   legend = TRUE,
@@ -90,6 +92,11 @@ to shape_size). Default 0.5.}
 
 \item{summary_edges}{Logical. Show aggregated summary edges between clusters instead
 of individual node edges. Default TRUE.}
+
+\item{aggregation}{Method for aggregating edge weights between clusters:
+"sum" (total flow), "mean" (average strength), "max" (strongest link),
+"min" (weakest link), "median", or "density" (normalized by possible edges).
+Default "sum". Only used when summary_edges = TRUE.}
 
 \item{within_edges}{Logical. When summary_edges is TRUE, also show individual
 edges within each cluster. Default TRUE.}

@@ -427,10 +427,11 @@ draw_self_loop_base <- function(x, y, node_size, col = "gray50", lwd = 1,
 #' @param col Text color.
 #' @param bg Background color (or NA for none).
 #' @param font Font face.
-#' @param shadow Logical: enable drop shadow?
-#' @param shadow_color Shadow color.
-#' @param shadow_offset Shadow offset distance.
-#' @param shadow_alpha Shadow transparency.
+#' @param shadow Logical or character: FALSE for none, TRUE or "shadow" for drop shadow,
+#'   "halo" for outline rim around text.
+#' @param shadow_color Shadow/halo color.
+#' @param shadow_offset Shadow/halo offset distance.
+#' @param shadow_alpha Shadow/halo transparency.
 #' @keywords internal
 draw_edge_label_base <- function(x, y, label, cex = 0.8, col = "gray30",
                                  bg = "white", font = 1,
@@ -457,8 +458,34 @@ draw_edge_label_base <- function(x, y, label, cex = 0.8, col = "gray30",
     )
   }
 
-  # Draw shadow text first (if enabled)
-  if (shadow) {
+  # Determine shadow style
+  shadow_style <- if (is.logical(shadow)) {
+    if (shadow) "shadow" else "none"
+  } else if (is.character(shadow)) {
+    shadow
+  } else {
+    "none"
+  }
+
+  # Draw shadow/halo text first (if enabled)
+  if (shadow_style == "halo") {
+    # Draw text in 8 directions for halo/rim effect
+    shadow_off <- shadow_offset * 0.01  # Scale for user coordinates
+    shadow_col <- adjust_alpha(shadow_color, shadow_alpha)
+
+    # 8 directions: N, NE, E, SE, S, SW, W, NW
+    angles <- seq(0, 2 * pi, length.out = 9)[-9]
+    for (angle in angles) {
+      graphics::text(
+        x = x + shadow_off * cos(angle),
+        y = y + shadow_off * sin(angle),
+        labels = label,
+        cex = cex,
+        col = shadow_col,
+        font = font
+      )
+    }
+  } else if (shadow_style == "shadow") {
     # Convert points to user coordinate offset
     shadow_off <- shadow_offset * 0.01  # Scale for user coordinates
     shadow_col <- adjust_alpha(shadow_color, shadow_alpha)

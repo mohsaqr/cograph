@@ -116,6 +116,8 @@ NULL
 #' @param edge_label_shadow_color Color for edge label shadow. Default "gray40".
 #' @param edge_label_shadow_offset Offset distance for shadow in points. Default 0.5.
 #' @param edge_label_shadow_alpha Transparency for shadow (0-1). Default 0.5.
+#' @param edge_label_halo Logical: enable white halo/outline around edge labels for
+#'   readability over dark edges? Default FALSE. When TRUE, overrides shadow settings.
 #' @param edge_style Line type(s): 1=solid, 2=dashed, 3=dotted, etc.
 #' @param curvature Edge curvature. 0 for straight, positive/negative for curves.
 #' @param curve_scale Logical: auto-curve reciprocal edges?
@@ -143,6 +145,8 @@ NULL
 #' @param edge_ci_color Underlay color. NA (default) uses main edge color.
 #' @param edge_ci_style Line type for underlay: 1=solid, 2=dashed, 3=dotted. Default 2.
 #' @param edge_ci_arrows Logical: show arrows on underlay? Default FALSE.
+#' @param edge_priority Numeric vector of edge priorities. Higher values render on top.
+#'   Useful for ensuring significant edges appear above non-significant ones.
 #'
 #' @param edge_label_style Preset style: "none", "estimate", "full", "range", "stars".
 #' @param edge_label_template Template with placeholders: \{est\}, \{range\}, \{low\}, \{up\}, \{p\}, \{stars\}.
@@ -310,7 +314,7 @@ NULL
 #'
 splot <- function(
     x,
-    layout = "spring",
+    layout = "oval",
     directed = NULL,
     seed = 42,
     theme = NULL,
@@ -377,7 +381,7 @@ splot <- function(
     edge_labels = FALSE,
     edge_label_size = 0.8,
     edge_label_color = "gray30",
-    edge_label_bg = "white",
+    edge_label_bg = NA,
     edge_label_position = 0.5,
     edge_label_offset = 0,
     edge_label_fontface = "plain",
@@ -385,6 +389,7 @@ splot <- function(
     edge_label_shadow_color = "gray40",
     edge_label_shadow_offset = 0.5,
     edge_label_shadow_alpha = 0.5,
+    edge_label_halo = TRUE,
     edge_style = 1,
     curvature = 0,
     curve_scale = TRUE,
@@ -409,6 +414,7 @@ splot <- function(
     edge_ci_color = NA,
     edge_ci_style = 2,
     edge_ci_arrows = FALSE,
+    edge_priority = NULL,
 
     # Edge Label Templates
     edge_label_style = "none",
@@ -416,6 +422,7 @@ splot <- function(
     edge_label_digits = 2,
     edge_label_oneline = TRUE,
     edge_label_ci_format = "bracket",
+    edge_label_leading_zero = TRUE,
     edge_ci_lower = NULL,
     edge_ci_upper = NULL,
     edge_label_p = NULL,
@@ -464,6 +471,19 @@ splot <- function(
     res = 600,
     ...
 ) {
+
+  # ============================================
+  # 0. DISPATCH FOR VALIDATION RESULT CLASSES
+  # ============================================
+  if (inherits(x, "cograph_boot") || inherits(x, "tna_bootstrap")) {
+    return(splot.cograph_boot(x, ...))
+  }
+  if (inherits(x, "tna_permutation")) {
+    return(splot.tna_permutation(x, ...))
+  }
+  if (inherits(x, "tna_disparity")) {
+    return(splot.tna_disparity(x, ...))
+  }
 
   # ============================================
   # 1. INPUT PROCESSING
@@ -942,6 +962,7 @@ splot <- function(
         p_prefix = edge_label_p_prefix,
         ci_format = edge_label_ci_format,
         oneline = edge_label_oneline,
+        leading_zero = edge_label_leading_zero,
         n = n_edges
       )
     } else {
@@ -952,7 +973,7 @@ splot <- function(
     # CI underlay parameters
     edge_ci_vec <- if (!is.null(edge_ci)) recycle_to_length(edge_ci, n_edges) else NULL
     edge_ci_colors <- if (!is.null(edge_ci_vec)) {
-      if (is.na(edge_ci_color)) {
+      if (length(edge_ci_color) == 1 && is.na(edge_ci_color)) {
         # Use main edge colors
         edge_colors
       } else {
@@ -1067,6 +1088,7 @@ splot <- function(
       edge_label_shadow_color = edge_label_shadow_color,
       edge_label_shadow_offset = edge_label_shadow_offset,
       edge_label_shadow_alpha = edge_label_shadow_alpha,
+      edge_label_halo = edge_label_halo,
       # CI underlay parameters
       edge_ci = edge_ci_vec,
       edge_ci_scale = edge_ci_scale,
@@ -1074,6 +1096,7 @@ splot <- function(
       edge_ci_color = edge_ci_colors,
       edge_ci_style = edge_ci_style,
       edge_ci_arrows = edge_ci_arrows,
+      edge_priority = edge_priority,
       is_reciprocal = is_reciprocal,
       # Edge start style parameters
       edge_start_style = edge_start_style,
@@ -1272,9 +1295,11 @@ render_edges_splot <- function(edges, layout, node_sizes, shapes,
                                edge_label_fontface,
                                edge_label_shadow = FALSE, edge_label_shadow_color = "gray40",
                                edge_label_shadow_offset = 0.5, edge_label_shadow_alpha = 0.5,
+                               edge_label_halo = TRUE,
                                edge_ci = NULL, edge_ci_scale = 2.0,
                                edge_ci_alpha = 0.15, edge_ci_color = NULL,
                                edge_ci_style = 2, edge_ci_arrows = FALSE,
+                               edge_priority = NULL,
                                is_reciprocal = NULL,
                                edge_start_style = "solid", edge_start_length = 0.15,
                                edge_start_dot_density = "12") {
@@ -1288,8 +1313,12 @@ render_edges_splot <- function(edges, layout, node_sizes, shapes,
   center_x <- mean(layout[, 1])
   center_y <- mean(layout[, 2])
 
-  # Get render order (weakest to strongest)
-  order_idx <- get_edge_order(edges)
+  # Get render order (weakest to strongest, low priority to high priority)
+  order_idx <- get_edge_order(edges, priority = edge_priority)
+
+  # Expand CI parameters to per-edge vectors
+  edge_ci_scales <- expand_param(edge_ci_scale, m, "edge_ci_scale")
+  edge_ci_alphas <- expand_param(edge_ci_alpha, m, "edge_ci_alpha")
 
   # Storage for label positions
   label_positions <- vector("list", m)
@@ -1387,9 +1416,9 @@ render_edges_splot <- function(edges, layout, node_sizes, shapes,
     if (from_idx == to_idx) {
       # PASS 1: Draw CI underlay for self-loop (if edge_ci provided)
       if (!is.null(edge_ci) && !is.na(edge_ci[i]) && edge_ci[i] > 0) {
-        underlay_width <- edge_width[i] * (1 + edge_ci[i] * edge_ci_scale)
+        underlay_width <- edge_width[i] * (1 + edge_ci[i] * edge_ci_scales[i])
         underlay_col <- if (!is.null(edge_ci_color)) edge_ci_color[i] else edge_color[i]
-        underlay_col <- adjust_alpha(underlay_col, edge_ci_alpha)
+        underlay_col <- adjust_alpha(underlay_col, edge_ci_alphas[i])
 
         draw_self_loop_base(
           x1, y1, node_sizes[from_idx],
@@ -1442,9 +1471,9 @@ render_edges_splot <- function(edges, layout, node_sizes, shapes,
 
     # PASS 1: Draw CI underlay (if edge_ci provided)
     if (!is.null(edge_ci) && !is.na(edge_ci[i]) && edge_ci[i] > 0) {
-      underlay_width <- edge_width[i] * (1 + edge_ci[i] * edge_ci_scale)
+      underlay_width <- edge_width[i] * (1 + edge_ci[i] * edge_ci_scales[i])
       underlay_col <- if (!is.null(edge_ci_color)) edge_ci_color[i] else edge_color[i]
-      underlay_col <- adjust_alpha(underlay_col, edge_ci_alpha)
+      underlay_col <- adjust_alpha(underlay_col, edge_ci_alphas[i])
 
       if (abs(curve_i) > 1e-6) {
         draw_curved_edge_base(
@@ -1525,6 +1554,19 @@ render_edges_splot <- function(edges, layout, node_sizes, shapes,
     edge_label_shadow_colors <- expand_param(edge_label_shadow_color, m, "edge_label_shadow_color")
     edge_label_shadow_offsets <- expand_param(edge_label_shadow_offset, m, "edge_label_shadow_offset")
     edge_label_shadow_alphas <- expand_param(edge_label_shadow_alpha, m, "edge_label_shadow_alpha")
+
+    # Apply halo effect if enabled (overrides shadow settings)
+    edge_label_halos <- expand_param(edge_label_halo, m, "edge_label_halo")
+    for (i in seq_len(m)) {
+      if (isTRUE(edge_label_halos[i])) {
+        edge_label_shadows[i] <- "halo"
+        edge_label_shadow_colors[i] <- "white"
+        edge_label_shadow_alphas[i] <- 1.0
+        if (edge_label_shadow_offsets[i] < 0.5) {
+          edge_label_shadow_offsets[i] <- 0.6
+        }
+      }
+    }
 
     # Handle edge_label_fontface - convert strings to numbers if needed
     edge_label_fontfaces <- expand_param(edge_label_fontface, m, "edge_label_fontface")
@@ -1662,20 +1704,43 @@ render_nodes_splot <- function(layout, node_size, node_size2, node_shape, node_f
         pie_vals <- pie_values[[i]]
         pie_cols <- if (!is.null(pie_colors) && length(pie_colors) >= i) pie_colors[[i]] else NULL
 
-        draw_donut_pie_node_base(
-          x, y, node_size[i],
-          donut_value = donut_val,
-          donut_color = donut_col,
-          pie_values = pie_vals,
-          pie_colors = pie_cols,
-          pie_default_color = node_fill[i],
-          inner_ratio = donut_inner_ratios[i],
-          bg_color = donut_bg_colors[i],
-          border.col = node_border_color[i],
-          border.width = node_border_width[i],
-          pie_border.width = pie_border_width,
-          donut_border.width = donut_border_width
-        )
+        # Get per-node donut shape
+        current_donut_shape <- if (length(donut_shape) >= i) donut_shape[i] else "circle"
+
+        if (current_donut_shape != "circle") {
+          # Use polygon donut with pie for non-circular shapes
+          draw_polygon_donut_pie_node_base(
+            x, y, node_size[i],
+            donut_value = donut_val,
+            donut_color = donut_col,
+            donut_shape = current_donut_shape,
+            pie_values = pie_vals,
+            pie_colors = pie_cols,
+            pie_default_color = node_fill[i],
+            inner_ratio = donut_inner_ratios[i],
+            bg_color = donut_bg_colors[i],
+            border.col = node_border_color[i],
+            border.width = node_border_width[i],
+            pie_border.width = pie_border_width,
+            donut_border.width = donut_border_width
+          )
+        } else {
+          # Use circular donut with pie (default)
+          draw_donut_pie_node_base(
+            x, y, node_size[i],
+            donut_value = donut_val,
+            donut_color = donut_col,
+            pie_values = pie_vals,
+            pie_colors = pie_cols,
+            pie_default_color = node_fill[i],
+            inner_ratio = donut_inner_ratios[i],
+            bg_color = donut_bg_colors[i],
+            border.col = node_border_color[i],
+            border.width = node_border_width[i],
+            pie_border.width = pie_border_width,
+            donut_border.width = donut_border_width
+          )
+        }
       }
 
     } else if (has_donut) {

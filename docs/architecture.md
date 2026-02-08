@@ -247,6 +247,181 @@ Special handling for TNA objects:
   - `is_tna_network(net)` - Check if TNA-based
   - `get_tna_model(net)` - Retrieve original tna object
 
+### Conversion Functions
+
+cograph provides bidirectional conversion between network formats. These functions accept any supported input type and convert to the target format.
+
+#### as_cograph() - Universal Import
+
+Location: `R/class-network.R`
+
+Converts any supported format to a `cograph_network`:
+
+```r
+# From various sources
+net <- as_cograph(matrix)        # Adjacency/weight matrix
+net <- as_cograph(data.frame)    # Edge list (from, to, weight)
+net <- as_cograph(igraph_obj)    # igraph object
+net <- as_cograph(network_obj)   # statnet network
+net <- as_cograph(qgraph_obj)    # qgraph object
+net <- as_cograph(tna_obj)       # tna model
+net <- as_cograph(group_tna_obj) # group_tna model
+
+# Force directedness
+net <- as_cograph(matrix, directed = TRUE)
+
+# Idempotent - returns as-is if already cograph_network
+net <- as_cograph(net)
+```
+
+#### to_igraph() - Export to igraph
+
+Location: `R/centrality.R`
+
+Converts any supported format to an igraph object:
+
+```r
+# From matrix
+adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+g <- to_igraph(adj)
+
+# From cograph_network
+net <- as_cograph(adj)
+g <- to_igraph(net)
+
+# From tna object
+g <- to_igraph(tna_model)
+
+# From statnet network
+g <- to_igraph(network_obj)
+
+# Force directed/undirected
+g_dir <- to_igraph(adj, directed = TRUE)
+g_undir <- to_igraph(adj, directed = FALSE)
+```
+
+Supported inputs:
+- `matrix` - Adjacency/weight matrix
+- `cograph_network` - cograph network object
+- `igraph` - Returns as-is (with optional directedness conversion)
+- `network` - statnet network object
+- `tna` - TNA model object
+
+#### to_data_frame() / to_df() - Export to Edge List
+
+Location: `R/network-utils.R`
+
+Converts any supported format to an edge list data frame:
+
+```r
+adj <- matrix(c(0, .5, .8, 0,
+                .5, 0, .3, .6,
+                .8, .3, 0, .4,
+                 0, .6, .4, 0), 4, 4, byrow = TRUE)
+rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
+
+# Convert to edge list
+df <- to_data_frame(adj)
+# or use alias
+df <- to_df(adj)
+
+# Returns:
+#   from to weight
+# 1    A  B    0.5
+# 2    A  C    0.8
+# 3    B  C    0.3
+# ...
+```
+
+Output columns:
+- `from` - Source node name/label
+- `to` - Target node name/label
+- `weight` - Edge weight
+
+#### to_matrix() - Export to Adjacency Matrix
+
+Location: `R/network-utils.R`
+
+Converts any supported format to an adjacency matrix:
+
+```r
+# From cograph_network
+net <- as_cograph(adj)
+mat <- to_matrix(net)
+
+# From igraph
+g <- igraph::make_ring(5)
+mat <- to_matrix(g)
+
+# From tna
+mat <- to_matrix(tna_model)
+```
+
+Returns a square numeric matrix with row/column names preserved.
+
+#### to_network() - Export to statnet network
+
+Location: `R/network-utils.R`
+
+Converts any supported format to a statnet network object:
+
+```r
+adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+
+# Convert to statnet network
+statnet_net <- to_network(adj)
+
+# From cograph_network
+statnet_net <- to_network(cograph_net)
+
+# From igraph
+statnet_net <- to_network(igraph_obj)
+```
+
+Requires the `network` package. Preserves edge weights and vertex names.
+
+#### Conversion Flow Diagram
+
+```
+                    ┌──────────────┐
+                    │    matrix    │
+                    └──────┬───────┘
+                           │
+    ┌──────────────┐       │       ┌──────────────┐
+    │  data.frame  │───────┼───────│    igraph    │
+    └──────────────┘       │       └──────┬───────┘
+                           ▼              │
+                   ┌───────────────┐      │
+    ┌──────────────│  as_cograph() │──────┘
+    │              └───────┬───────┘
+    │                      │
+    │              ┌───────▼───────┐
+    │              │cograph_network│
+    │              └───────┬───────┘
+    │                      │
+    │         ┌────────────┼────────────┬────────────┐
+    │         ▼            ▼            ▼            ▼
+    │  ┌────────────┐ ┌─────────┐ ┌───────────┐ ┌──────────┐
+    │  │to_igraph() │ │ to_df() │ │to_matrix()│ │ splot()  │
+    │  └─────┬──────┘ └────┬────┘ └─────┬─────┘ └──────────┘
+    │        │             │            │
+    │        ▼             ▼            ▼
+    │   ┌─────────┐  ┌───────────┐ ┌─────────┐
+    └──>│ igraph  │  │data.frame │ │ matrix  │
+        └─────────┘  └───────────┘ └────┬────┘
+                                        │
+                                        ▼
+                                  ┌─────────────┐
+                                  │to_network() │
+                                  └──────┬──────┘
+                                         ▼
+                                    ┌─────────┐
+                                    │ network │
+                                    └─────────┘
+```
+
 ---
 
 ## Layout System

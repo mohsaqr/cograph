@@ -416,25 +416,48 @@ to_data_frame <- function(x, directed = NULL) {
 #' @rdname to_data_frame
 #' @export
 to_df <- function(x, directed = NULL) {
+
   to_data_frame(x, directed = directed)
 }
 
 
-# =============================================================================
-# Internal Helper Functions
-# =============================================================================
-
-#' Convert input to adjacency matrix
+#' Convert Network to Adjacency Matrix
 #'
-#' @param x Network input.
-#' @param directed Logical or NULL for directedness.
-#' @return Adjacency matrix.
-#' @noRd
-to_adjacency_matrix <- function(x, directed = NULL) {
+#' Converts any supported network format to an adjacency matrix.
+#'
+#' @param x Network input: matrix, cograph_network, igraph, network, tna, etc.
+#' @param directed Logical or NULL. If NULL (default), auto-detect from input.
+#'
+#' @return A square numeric adjacency matrix with row/column names.
+#'
+#' @seealso \code{\link{to_igraph}}, \code{\link{to_df}}, \code{\link{as_cograph}},
+#'   \code{\link{to_network}}
+#'
+#' @export
+#' @examples
+#' # From matrix
+#' adj <- matrix(c(0, .5, .8, 0,
+#'                 .5, 0, .3, .6,
+#'                 .8, .3, 0, .4,
+#'                  0, .6, .4, 0), 4, 4, byrow = TRUE)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
+#' to_matrix(adj)
+#'
+#' # From cograph_network
+#' net <- as_cograph(adj)
+#' to_matrix(net)
+#'
+#' # From igraph
+#' \dontrun{
+#' g <- igraph::make_ring(5)
+#' to_matrix(g)
+#' }
+to_matrix <- function(x, directed = NULL) {
 
-  # If already a matrix, return as-is (with possible symmetry check)
+  # If already a matrix, return as-is
   if (is.matrix(x)) {
     return(x)
+
   }
 
   # Convert to igraph first
@@ -451,4 +474,78 @@ to_adjacency_matrix <- function(x, directed = NULL) {
   }
 
   adj
+}
+
+
+#' Convert Network to statnet network Object
+#'
+#' Converts any supported network format to a statnet network object.
+#'
+#' @param x Network input: matrix, cograph_network, igraph, tna, etc.
+#' @param directed Logical or NULL. If NULL (default), auto-detect from input.
+#'
+#' @return A network object from the network package.
+#'
+#' @seealso \code{\link{to_igraph}}, \code{\link{to_matrix}}, \code{\link{to_df}},
+#'   \code{\link{as_cograph}}
+#'
+#' @export
+#' @examples
+#' \dontrun{
+#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+#' net <- to_network(adj)
+#' }
+to_network <- function(x, directed = NULL) {
+
+  if (!requireNamespace("network", quietly = TRUE)) {
+    stop("Package 'network' is required for to_network(). ",
+         "Install it with: install.packages('network')", call. = FALSE)
+  }
+
+  # Get adjacency matrix
+
+  adj <- to_matrix(x, directed = directed)
+
+  # Determine directedness
+  is_directed <- if (!is.null(directed)) {
+    directed
+  } else if (inherits(x, "igraph")) {
+    igraph::is_directed(x)
+  } else if (inherits(x, "network")) {
+    network::is.directed(x)
+  } else if (inherits(x, "tna")) {
+    TRUE
+  } else {
+    # Check matrix symmetry
+    !isSymmetric(adj)
+  }
+
+  # Create network object
+  net <- network::network(adj,
+                          directed = is_directed,
+                          ignore.eval = FALSE,
+                          names.eval = "weight")
+
+  # Set vertex names if available
+  if (!is.null(rownames(adj))) {
+    network::set.vertex.attribute(net, "vertex.names", rownames(adj))
+  }
+
+  net
+}
+
+
+# =============================================================================
+# Internal Helper Functions
+# =============================================================================
+
+#' Convert input to adjacency matrix (internal)
+#'
+#' @param x Network input.
+#' @param directed Logical or NULL for directedness.
+#' @return Adjacency matrix.
+#' @noRd
+to_adjacency_matrix <- function(x, directed = NULL) {
+  to_matrix(x, directed = directed)
 }

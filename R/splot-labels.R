@@ -50,15 +50,22 @@ format_pvalue <- function(p, digits = 3, prefix = "p=") {
 #' @param upper Upper bound.
 #' @param digits Number of decimal places.
 #' @param format CI format: "bracket" for `[low, up]` or "dash" for `low-up`.
+#' @param leading_zero Logical: include leading zero for values < 1? Default TRUE.
 #' @return Formatted CI range string.
 #' @keywords internal
-format_ci_range <- function(lower, upper, digits = 2, format = "bracket") {
+format_ci_range <- function(lower, upper, digits = 2, format = "bracket", leading_zero = TRUE) {
   if (is.null(lower) || is.null(upper) || is.na(lower) || is.na(upper)) {
     return("")
   }
 
   low_str <- format(round(lower, digits), nsmall = digits)
   up_str <- format(round(upper, digits), nsmall = digits)
+
+  # Remove leading zero if requested
+  if (!leading_zero) {
+    if (abs(lower) < 1) low_str <- sub("^0\\.", ".", sub("^-0\\.", "-.", low_str))
+    if (abs(upper) < 1) up_str <- sub("^0\\.", ".", sub("^-0\\.", "-.", up_str))
+  }
 
   if (format == "bracket") {
     paste0("[", low_str, ", ", up_str, "]")
@@ -122,6 +129,7 @@ resolve_stars <- function(stars_input, p_values = NULL, n) {
 #' @param p_prefix Prefix for p-values.
 #' @param ci_format CI format: "bracket" or "dash".
 #' @param oneline Logical: single line format (space-separated) or multiline.
+#' @param leading_zero Logical: include leading zero for values < 1? Default TRUE.
 #' @return Formatted label string.
 #' @keywords internal
 format_edge_label_template <- function(template,
@@ -134,7 +142,8 @@ format_edge_label_template <- function(template,
                                        p_digits = 3,
                                        p_prefix = "p=",
                                        ci_format = "bracket",
-                                       oneline = TRUE) {
+                                       oneline = TRUE,
+                                       leading_zero = TRUE) {
   if (is.null(template) || template == "") {
     return("")
   }
@@ -144,7 +153,13 @@ format_edge_label_template <- function(template,
   # Replace {est} - estimate/weight
   if (grepl("\\{est\\}", result)) {
     est_str <- if (!is.na(weight)) {
-      format(round(weight, digits), nsmall = digits)
+      formatted <- format(round(weight, digits), nsmall = digits)
+      # Remove leading zero if requested (e.g., "0.23" -> ".23")
+      if (!leading_zero && abs(weight) < 1) {
+        formatted <- sub("^0\\.", ".", formatted)
+        formatted <- sub("^-0\\.", "-.", formatted)
+      }
+      formatted
     } else {
       ""
     }
@@ -153,14 +168,19 @@ format_edge_label_template <- function(template,
 
   # Replace {range} - full CI range [low, up]
   if (grepl("\\{range\\}", result)) {
-    range_str <- format_ci_range(ci_lower, ci_upper, digits, ci_format)
+    range_str <- format_ci_range(ci_lower, ci_upper, digits, ci_format, leading_zero)
     result <- gsub("\\{range\\}", range_str, result)
   }
 
   # Replace {low} - CI lower bound only
   if (grepl("\\{low\\}", result)) {
     low_str <- if (!is.na(ci_lower)) {
-      format(round(ci_lower, digits), nsmall = digits)
+      formatted <- format(round(ci_lower, digits), nsmall = digits)
+      if (!leading_zero && abs(ci_lower) < 1) {
+        formatted <- sub("^0\\.", ".", formatted)
+        formatted <- sub("^-0\\.", "-.", formatted)
+      }
+      formatted
     } else {
       ""
     }
@@ -170,7 +190,12 @@ format_edge_label_template <- function(template,
   # Replace {up} - CI upper bound only
   if (grepl("\\{up\\}", result)) {
     up_str <- if (!is.na(ci_upper)) {
-      format(round(ci_upper, digits), nsmall = digits)
+      formatted <- format(round(ci_upper, digits), nsmall = digits)
+      if (!leading_zero && abs(ci_upper) < 1) {
+        formatted <- sub("^0\\.", ".", formatted)
+        formatted <- sub("^-0\\.", "-.", formatted)
+      }
+      formatted
     } else {
       ""
     }
@@ -230,6 +255,7 @@ get_template_from_style <- function(style) {
 #' @param p_prefix Prefix for p-values.
 #' @param ci_format CI format: "bracket" or "dash".
 #' @param oneline Logical: single line format.
+#' @param leading_zero Logical: include leading zero for values < 1? Default TRUE.
 #' @param n Number of edges.
 #' @return Character vector of formatted labels.
 #' @keywords internal
@@ -245,6 +271,7 @@ build_edge_labels_from_template <- function(template = NULL,
                                             p_prefix = "p=",
                                             ci_format = "bracket",
                                             oneline = TRUE,
+                                            leading_zero = TRUE,
                                             n) {
   # Determine template to use
   if (is.null(template)) {
@@ -277,7 +304,8 @@ build_edge_labels_from_template <- function(template = NULL,
       p_digits = p_digits,
       p_prefix = p_prefix,
       ci_format = ci_format,
-      oneline = oneline
+      oneline = oneline,
+      leading_zero = leading_zero
     )
   }, character(1))
 

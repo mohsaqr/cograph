@@ -377,11 +377,23 @@ filter_edges_by_weight <- function(edges, minimum = 0) {
 #' Returns indices for rendering edges from weakest to strongest.
 #'
 #' @param edges Edge data frame.
+#' @param priority Optional numeric vector of edge priorities. Higher = on top.
 #' @return Integer vector of indices.
 #' @keywords internal
-get_edge_order <- function(edges) {
-  if (!"weight" %in% names(edges) || nrow(edges) == 0) {
-    return(seq_len(nrow(edges)))
+get_edge_order <- function(edges, priority = NULL) {
+  n <- nrow(edges)
+  if (n == 0) return(integer(0))
+
+  # If priority provided, use it as primary sort key
+  if (!is.null(priority)) {
+    # Sort by priority first (low to high), then by weight
+    weights <- if ("weight" %in% names(edges)) abs(edges$weight) else rep(0, n)
+    return(order(priority, weights))
+  }
+
+  # Default: order by weight (weakest first)
+  if (!"weight" %in% names(edges)) {
+    return(seq_len(n))
   }
 
   order(abs(edges$weight))

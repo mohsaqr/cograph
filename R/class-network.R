@@ -695,12 +695,27 @@ as_cograph <- function(x, directed = NULL, ...) {
 
   nodes_df <- parsed$nodes
 
+  # Build edges data frame (for consistency with cograph())
+  edges_df <- if (length(from_vec) > 0) {
+    data.frame(
+      from = from_vec,
+      to = to_vec,
+      weight = weight_vec,
+      stringsAsFactors = FALSE
+    )
+  } else {
+    data.frame(from = integer(0), to = integer(0), weight = numeric(0))
+  }
+
   # Create the network object with all data as named list elements
   net <- list(
-    # Core edge data
+    # Core edge data (vectors for backwards compatibility)
     from = from_vec,
     to = to_vec,
     weight = weight_vec,
+
+    # Edge data frame (for consistency with cograph())
+    edges = edges_df,
 
     # Metadata as list elements (not attributes)
     nodes = nodes_df,
@@ -716,13 +731,22 @@ as_cograph <- function(x, directed = NULL, ...) {
     layers = NULL,
     clusters = NULL,
     groups = NULL,
-    node_groups = NULL  # For auto-dispatch to mlna/htna/mtna
+    node_groups = NULL,  # For auto-dispatch to mlna/htna/mtna
+
+    # TNA integration (NULL if not from TNA)
+    tna = parsed$tna
   )
 
   # Set S3 class
   class(net) <- c("cograph_network", "list")
 
   net
+}
+
+#' @rdname as_cograph
+#' @export
+to_cograph <- function(x, directed = NULL, ...) {
+  as_cograph(x, directed = directed, ...)
 }
 
 #' Set Node Groups for Auto-Plot Selection

@@ -1,0 +1,309 @@
+
+R version 4.5.1 (2025-06-13) -- "Great Square Root"
+Copyright (C) 2025 The R Foundation for Statistical Computing
+Platform: aarch64-apple-darwin20
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> # Test script for cluster-metrics.R
+> # Run with: devtools::load_all(); source("tests/test-cluster-metrics.R")
+> 
+> library(testthat)
+Warning message:
+package 'testthat' was built under R version 4.5.2 
+> 
+> # Load the package
+> if (!exists("aggregate_weights")) {
++   devtools::load_all(".")
++ }
+ℹ Loading cograph
+cograph: Modern Network Visualization for R
+Version: 1.5.2
+Type ?cograph for help
+> 
+> # ==============================================================================
+> # Test Data
+> # ==============================================================================
+> 
+> # Create a simple weighted network
+> set.seed(42)
+> n <- 10
+> mat <- matrix(runif(n * n), n, n)
+> diag(mat) <- 0  # No self-loops
+> rownames(mat) <- colnames(mat) <- paste0("N", 1:n)
+> 
+> # Define clusters
+> clusters_list <- list(
++   "A" = c("N1", "N2", "N3"),
++   "B" = c("N4", "N5", "N6"),
++   "C" = c("N7", "N8", "N9", "N10")
++ )
+> 
+> clusters_vec <- c(1, 1, 1, 2, 2, 2, 3, 3, 3, 3)
+> names(clusters_vec) <- paste0("N", 1:n)
+> 
+> # ==============================================================================
+> # Test aggregate_weights
+> # ==============================================================================
+> 
+> test_that("aggregate_weights works correctly", {
++   w <- c(1, 2, 3, 4, 5)
++ 
++   expect_equal(aggregate_weights(w, "sum"), 15)
++   expect_equal(aggregate_weights(w, "mean"), 3)
++   expect_equal(aggregate_weights(w, "median"), 3)
++   expect_equal(aggregate_weights(w, "max"), 5)
++   expect_equal(aggregate_weights(w, "min"), 1)
++   expect_equal(aggregate_weights(w, "prod"), 120)
++ 
++   # Density with n_possible
++   expect_equal(aggregate_weights(w, "density", n_possible = 10), 1.5)
++ 
++   # Geometric mean
++   expect_equal(aggregate_weights(w, "geomean"),
++                exp(mean(log(w))), tolerance = 1e-10)
++ 
++   # Handle empty/NA
++   expect_equal(aggregate_weights(c(), "sum"), 0)
++   expect_equal(aggregate_weights(c(NA, NA), "sum"), 0)
++   expect_equal(aggregate_weights(c(0, 0), "sum"), 0)
++ })
+Test passed with 11 successes 🥳.
+> 
+> # ==============================================================================
+> # Test cluster_summary
+> # ==============================================================================
+> 
+> test_that("cluster_summary works with list input", {
++   result <- cluster_summary(mat, clusters_list, method = "sum")
++ 
++   expect_s3_class(result, "cluster_summary")
++   expect_equal(dim(result$between), c(3, 3))
++   expect_equal(length(result$within), 3)
++   expect_equal(result$cluster_names, c("A", "B", "C"))
++   expect_equal(unname(result$cluster_sizes), c(3, 3, 4))
++ 
++   # Between should have 0 on diagonal
++   expect_equal(unname(diag(result$between)), c(0, 0, 0))
++ 
++   # Check a specific between value manually
++   # A -> B = sum of mat[1:3, 4:6]
++   expected_AB <- sum(mat[1:3, 4:6])
++   expect_equal(result$between["A", "B"], expected_AB, tolerance = 1e-10)
++ })
+Test passed with 7 successes 😀.
+> 
+> test_that("cluster_summary works with vector input", {
++   result <- cluster_summary(mat, clusters_vec, method = "sum")
++ 
++   expect_s3_class(result, "cluster_summary")
++   expect_equal(dim(result$between), c(3, 3))
++ })
+Test passed with 2 successes 🥳.
+> 
+> test_that("cluster_summary different methods", {
++   result_sum <- cluster_summary(mat, clusters_list, method = "sum")
++   result_mean <- cluster_summary(mat, clusters_list, method = "mean")
++   result_max <- cluster_summary(mat, clusters_list, method = "max")
++ 
++   # Mean should be smaller than sum (for non-single edges)
++   expect_true(all(result_mean$between <= result_sum$between))
++ 
++   # Max should be <= sum
++   expect_true(all(result_max$between <= result_sum$between))
++ })
+Test passed with 2 successes 🥇.
+> 
+> # ==============================================================================
+> # Test cluster_quality
+> # ==============================================================================
+> 
+> test_that("cluster_quality computes valid metrics", {
++   result <- cluster_quality(mat, clusters_list)
++ 
++   expect_s3_class(result, "cluster_quality")
++   expect_equal(nrow(result$per_cluster), 3)
++ 
++   # Check metric ranges
++   expect_true(all(result$per_cluster$internal_density >= 0, na.rm = TRUE))
++   expect_true(all(result$per_cluster$conductance >= 0 &
++                   result$per_cluster$conductance <= 1, na.rm = TRUE))
++ 
++   # Global metrics
++   expect_true(!is.na(result$global$modularity))
++   expect_true(!is.na(result$global$coverage))
++   expect_true(result$global$coverage >= 0 && result$global$coverage <= 1)
++ })
+Test passed with 7 successes 🎉.
+> 
+> # ==============================================================================
+> # Test layer_similarity
+> # ==============================================================================
+> 
+> test_that("layer_similarity computes correct values", {
++   # Two identical matrices
++   expect_equal(layer_similarity(mat, mat, "jaccard"), 1)
++   expect_equal(layer_similarity(mat, mat, "cosine"), 1, tolerance = 1e-10)
++   expect_equal(layer_similarity(mat, mat, "pearson"), 1, tolerance = 1e-10)
++   expect_equal(layer_similarity(mat, mat, "hamming"), 0)
++ 
++   # Different matrices
++   mat2 <- matrix(runif(n * n), n, n)
++   diag(mat2) <- 0
++ 
++   sim_jaccard <- layer_similarity(mat, mat2, "jaccard")
++   expect_true(sim_jaccard >= 0 && sim_jaccard <= 1)
++ 
++   sim_cosine <- layer_similarity(mat, mat2, "cosine")
++   expect_true(sim_cosine >= -1 && sim_cosine <= 1)
++ })
+Test passed with 6 successes 🎉.
+> 
+> test_that("layer_similarity_matrix is symmetric", {
++   layers <- list(L1 = mat, L2 = mat * 0.5, L3 = mat^2)
++   result <- layer_similarity_matrix(layers, method = "cosine")
++ 
++   expect_equal(dim(result), c(3, 3))
++   expect_equal(unname(diag(result)), c(1, 1, 1))
++   expect_equal(result[1, 2], result[2, 1])
++   expect_equal(result[1, 3], result[3, 1])
++ })
+Test passed with 4 successes 🎉.
+> 
+> # ==============================================================================
+> # Test supra_adjacency
+> # ==============================================================================
+> 
+> test_that("supra_adjacency constructs correct matrix", {
++   layers <- list(L1 = mat, L2 = mat * 2)
++   result <- supra_adjacency(layers, omega = 0.5)
++ 
++   expect_s3_class(result, "supra_adjacency")
++   expect_equal(dim(result), c(20, 20))
++   expect_equal(attr(result, "n_nodes"), 10)
++   expect_equal(attr(result, "n_layers"), 2)
++ 
++   # Check diagonal blocks match original layers
++   L1_extracted <- extract_layer(result, 1)
++   L2_extracted <- extract_layer(result, 2)
++ 
++   expect_equal(L1_extracted, mat, ignore_attr = TRUE)
++   expect_equal(L2_extracted, mat * 2, ignore_attr = TRUE)
++ 
++   # Check inter-layer coupling (diagonal identity * omega)
++   interlayer <- extract_interlayer(result, 1, 2)
++   expect_equal(diag(interlayer), rep(0.5, 10))
++   expect_equal(sum(interlayer) - sum(diag(interlayer)), 0)  # Only diagonal
++ })
+Test passed with 8 successes 🥳.
+> 
+> test_that("supra_adjacency full coupling", {
++   layers <- list(L1 = mat, L2 = mat)
++   result <- supra_adjacency(layers, omega = 1, coupling = "full")
++ 
++   interlayer <- extract_interlayer(result, 1, 2)
++   expect_true(all(interlayer == 1))
++ })
+Test passed with 1 success 🌈.
+> 
+> # ==============================================================================
+> # Test aggregate_layers
+> # ==============================================================================
+> 
+> test_that("aggregate_layers works correctly", {
++   layers <- list(L1 = mat, L2 = mat * 2, L3 = mat * 3)
++ 
++   result_sum <- aggregate_layers(layers, method = "sum")
++   expect_equal(result_sum, mat * 6, tolerance = 1e-10)
++ 
++   result_mean <- aggregate_layers(layers, method = "mean")
++   expect_equal(result_mean, mat * 2, tolerance = 1e-10)
++ 
++   result_max <- aggregate_layers(layers, method = "max")
++   expect_equal(result_max, mat * 3, tolerance = 1e-10)
++ 
++   # Weighted sum
++   result_weighted <- aggregate_layers(layers, method = "sum",
++                                       weights = c(1, 2, 0))
++   expect_equal(result_weighted, mat * 5, tolerance = 1e-10)
++ })
+Test passed with 4 successes 🥳.
+> 
+> test_that("aggregate_layers union/intersection", {
++   # Create sparse matrices
++   mat1 <- matrix(0, 5, 5)
++   mat1[1, 2] <- mat1[2, 3] <- 1
++   mat2 <- matrix(0, 5, 5)
++   mat2[2, 3] <- mat2[3, 4] <- 1
++ 
++   result_union <- aggregate_layers(list(mat1, mat2), method = "union")
++   expect_equal(sum(result_union), 3)  # 3 unique edges
++ 
++   result_intersection <- aggregate_layers(list(mat1, mat2),
++                                           method = "intersection")
++   expect_equal(sum(result_intersection), 1)  # 1 shared edge (2->3)
++ })
+Test passed with 2 successes 🎊.
+> 
+> # ==============================================================================
+> # Test igraph verification (if available)
+> # ==============================================================================
+> 
+> test_that("cluster_summary matches igraph", {
++   skip_if_not_installed("igraph")
++ 
++   result <- verify_with_igraph(mat, clusters_list, method = "sum")
++ 
++   expect_true(result$matches,
++               info = paste("Difference:", result$difference))
++ })
+Test passed with 1 success 😸.
+> 
+> # ==============================================================================
+> # Edge Cases
+> # ==============================================================================
+> 
+> test_that("handles single-node clusters", {
++   clusters_single <- list(
++     "A" = "N1",
++     "B" = c("N2", "N3", "N4", "N5", "N6", "N7", "N8", "N9", "N10")
++   )
++ 
++   result <- cluster_summary(mat, clusters_single, method = "sum")
++   expect_equal(unname(result$within["A"]), 0)  # Single node has no internal edges
++ })
+Test passed with 1 success 🥳.
+> test_that("handles empty weights gracefully", {
++   mat_sparse <- matrix(0, 5, 5)
++   mat_sparse[1, 2] <- 1
++   rownames(mat_sparse) <- colnames(mat_sparse) <- paste0("N", 1:5)
++ 
++   clusters <- list(A = c("N1", "N2"), B = c("N3", "N4", "N5"))
++   result <- cluster_summary(mat_sparse, clusters, method = "mean")
++ 
++   # Between A and B should be 0 (no edges)
++   expect_equal(result$between["A", "B"], 0)
++ })
+Test passed with 1 success 😀.
+> 
+> # ==============================================================================
+> # Summary
+> # ==============================================================================
+> 
+> cat("\n=== All Cluster Metrics Tests Passed ===\n")
+
+=== All Cluster Metrics Tests Passed ===
+> 
+> proc.time()
+   user  system elapsed 
+  1.155   0.132   2.159 

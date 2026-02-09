@@ -1,0 +1,126 @@
+CographLayout           CographLayout R6 Class
+CographNetwork          CographNetwork R6 Class
+CographTheme            CographTheme R6 Class
+aes-edges               Edge Aesthetics
+aes-nodes               Node Aesthetics
+aggregate_layers        Aggregate Layers
+aggregate_weights       Aggregate Edge Weights
+as_cograph              Convert to Cograph Network
+cluster_quality         Cluster Quality Metrics
+cluster_summary         Cluster Summary Statistics
+cograph                 Create a Network Visualization
+cograph-main            Main Entry Point
+cograph-package         cograph: Modern Network Visualization for R
+color_communities       Color Nodes by Community
+detect_communities      Detect Communities in a Network
+filter_edges            Filter Edges by Weight
+filter_nodes            Filter Nodes by Centrality
+from_qgraph             Convert a qgraph object to cograph parameters
+from_tna                Convert a tna object to cograph parameters
+get_edges               Get Edges from Cograph Network
+get_groups              Get Node Groups from Cograph Network
+get_labels              Get Labels from Cograph Network
+get_layout              Get a Registered Layout
+get_nodes               Get Nodes from Cograph Network
+get_shape               Get a Registered Shape
+get_theme               Get a Registered Theme
+get_tna_model           Get Original TNA Model
+input-edgelist          Edge List Input Parsing
+input-igraph            igraph Input Parsing
+input-matrix            Matrix Input Parsing
+input-parse             Input Parsing Functions
+input-qgraph            qgraph Input Parsing
+input-statnet           Statnet Network Input Parsing
+input-tna               tna Input Parsing
+is_directed             Check if Network is Directed
+is_tna_network          Check if Network is TNA-based
+layer_degree_correlation
+                        Degree Correlation Between Layers
+layer_similarity        Layer Similarity
+layer_similarity_matrix
+                        Pairwise Layer Similarities
+layout-circle           Circular Layout
+layout-groups           Group-based Layout
+layout-oval             Oval/Ellipse Layout
+layout-spring           Fruchterman-Reingold Spring Layout
+layout_circle           Circular Layout
+layout_groups           Group-based Layout
+layout_oval             Oval Layout
+layout_spring           Fruchterman-Reingold Spring Layout
+list_layouts            List Available Layouts
+list_palettes           List Available Color Palettes
+list_shapes             List Available Shapes
+list_svg_shapes         List Registered SVG Shapes
+list_themes             List Available Themes
+methods-plot            Plot Methods
+methods-print           Print Methods
+n_edges                 Get Number of Edges
+n_nodes                 Get Number of Nodes
+nodes                   Get Nodes from Cograph Network (Deprecated)
+output-save             Output and Saving
+palette_blues           Blues Palette
+palette_colorblind      Colorblind-friendly Palette
+palette_diverging       Diverging Palette
+palette_pastel          Pastel Palette
+palette_rainbow         Rainbow Palette
+palette_reds            Reds Palette
+palette_viridis         Viridis Palette
+palettes                Color Palettes
+plot-compare            Network Comparison Plots
+plot-heatmap            Network Heatmap Plots
+plot.cograph_network    Plot cograph_network Object
+plot_compare            Plot Network Difference
+plot_comparison_heatmap
+                        Plot Comparison Heatmap
+plot_heatmap            Plot Network as Heatmap
+plot_htna               Plot Heterogeneous TNA Network (Multi-Group
+                        Layout)
+plot_mcml               Multi-Cluster Multi-Layer Network
+plot_ml_heatmap         Multilayer Network Heatmap
+plot_mlna               Multilevel Network Visualization
+plot_mtna               Multi-Cluster TNA Network Plot
+plot_tna                TNA-Style Network Plot (qgraph Compatible)
+print.cograph_network   Print cograph_network Object
+register_layout         Register a Custom Layout
+register_shape          Register a Custom Shape
+register_svg_shape      Register Custom SVG Shape
+register_theme          Register a Custom Theme
+render-ggplot           ggplot2 Conversion
+render-grid             Grid Rendering
+set_edges               Set Edges in Cograph Network
+set_groups              Set Node Groups for Auto-Plot Selection
+set_layout              Set Layout in Cograph Network
+set_nodes               Set Nodes in Cograph Network
+sn_edges                Set Edge Aesthetics
+sn_ggplot               Convert Network to ggplot2
+sn_layout               Apply Layout to Network
+sn_nodes                Set Node Aesthetics
+sn_palette              Apply Color Palette to Network
+sn_save                 Save Network Visualization
+sn_save_ggplot          Save as ggplot2
+sn_theme                Apply Theme to Network
+soplot                  Plot Cograph Network
+splot                   Base R Graphics Network Plotting
+summary.cograph_network
+                        Summary of cograph_network Object
+supra_adjacency         Supra-Adjacency Matrix
+supra_interlayer        Extract Inter-Layer Block
+supra_layer             Extract Layer from Supra-Adjacency Matrix
+theme_cograph_classic   Classic Theme
+theme_cograph_colorblind
+                        Colorblind-friendly Theme
+theme_cograph_dark      Dark Theme
+theme_cograph_gray      Grayscale Theme
+theme_cograph_minimal   Minimal Theme
+theme_cograph_nature    Nature Theme
+theme_cograph_viridis   Viridis Theme
+themes-builtin          Built-in Themes
+tna_animate             Create Animated GIF of TNA Network Evolution
+tna_windows             Generate Windowed TNA Objects from Sequence
+                        Data
+to_data_frame           Export Network as Edge List Data Frame
+to_igraph               Convert Network to igraph Object
+to_matrix               Convert Network to Adjacency Matrix
+to_network              Convert Network to statnet network Object
+unregister_svg_shape    Unregister SVG Shape
+verify_with_igraph      Verify Against igraph

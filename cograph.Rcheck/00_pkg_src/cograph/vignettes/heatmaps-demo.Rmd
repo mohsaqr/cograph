@@ -1,0 +1,334 @@
+---
+title: "Network Heatmaps"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Network Heatmaps}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 6,
+  dpi = 150
+)
+library(cograph)
+library(ggplot2)
+```
+
+## Basic Heatmap
+
+A simple adjacency matrix visualization.
+
+```{r basic}
+# Create a 5x5 transition matrix
+states <- c("Explore", "Plan", "Monitor", "Adapt", "Reflect")
+mat <- matrix(
+  c(0.0, 0.4, 0.2, 0.1, 0.3,
+    0.3, 0.0, 0.3, 0.2, 0.2,
+    0.2, 0.3, 0.0, 0.3, 0.2,
+    0.1, 0.2, 0.4, 0.0, 0.3,
+    0.2, 0.2, 0.2, 0.4, 0.0),
+  nrow = 5, byrow = TRUE,
+  dimnames = list(states, states)
+)
+
+plot_heatmap(mat)
+```
+
+## With Cell Values
+
+Display numeric values inside each cell.
+
+```{r with-values}
+plot_heatmap(mat,
+  show_values = TRUE,
+  value_size = 4,
+  value_digits = 2
+)
+```
+
+## Color Palettes
+
+Different built-in color schemes.
+
+```{r colors, fig.height = 10}
+par(mfrow = c(3, 2))
+
+p1 <- plot_heatmap(mat, colors = "viridis", title = "Viridis")
+p2 <- plot_heatmap(mat, colors = "heat", title = "Heat")
+p3 <- plot_heatmap(mat, colors = "blues", title = "Blues")
+p4 <- plot_heatmap(mat, colors = "reds", title = "Reds")
+p5 <- plot_heatmap(mat, colors = "greens", title = "Greens")
+
+# Custom colors
+p6 <- plot_heatmap(mat,
+  colors = c("#FFF7EC", "#FEE8C8", "#FDD49E", "#FDBB84", "#FC8D59", "#E34A33"),
+  title = "Custom Orange"
+)
+
+gridExtra::grid.arrange(p1, p2, p3, p4, p5, p6, ncol = 2)
+```
+
+## Diverging Scale
+
+For matrices with positive and negative values.
+
+```{r diverging}
+# Create matrix with negative values
+mat_div <- mat - 0.25
+
+plot_heatmap(mat_div,
+  colors = "diverging",
+  midpoint = 0,
+  title = "Diverging Scale (centered at 0)",
+  show_values = TRUE,
+  value_size = 3
+)
+```
+
+## Hide Diagonal
+
+Focus on off-diagonal transitions.
+
+```{r no-diagonal}
+plot_heatmap(mat,
+  show_diagonal = FALSE,
+  title = "Without Diagonal"
+)
+```
+
+## Clustered Heatmap
+
+Group nodes into clusters with borders.
+
+```{r clustered}
+# 8-state network
+states8 <- c("Explore", "Plan", "Monitor", "Adapt",
+             "Reflect", "Regulate", "Execute", "Review")
+set.seed(42)
+mat8 <- matrix(runif(64, 0, 0.4), 8, 8,
+  dimnames = list(states8, states8))
+diag(mat8) <- 0
+
+# Define clusters
+clusters <- list(
+  Cognitive = c("Explore", "Plan", "Monitor", "Adapt"),
+  Metacognitive = c("Reflect", "Regulate", "Execute", "Review")
+)
+
+plot_heatmap(mat8,
+  cluster_list = clusters,
+  title = "Clustered Heatmap"
+)
+```
+
+## Clustered with Values
+
+```{r clustered-values}
+plot_heatmap(mat8,
+  cluster_list = clusters,
+  show_values = TRUE,
+  value_size = 2.5,
+  value_digits = 2,
+  title = "Clusters with Values"
+)
+```
+
+## Four Clusters
+
+```{r four-clusters}
+clusters4 <- list(
+  Planning = c("Explore", "Plan"),
+  Execution = c("Monitor", "Adapt"),
+  Reflection = c("Reflect", "Regulate"),
+  Review = c("Execute", "Review")
+)
+
+plot_heatmap(mat8,
+  cluster_list = clusters4,
+  colors = "heat",
+  title = "Four Clusters"
+)
+```
+
+## Spaced Clusters
+
+Add gaps between cluster blocks for clearer separation.
+
+```{r spaced-clusters}
+plot_heatmap(mat8,
+  cluster_list = clusters4,
+  cluster_spacing = 0.5,
+  title = "Spaced Clusters"
+)
+```
+
+## Multilayer Networks
+
+```{r multilayer-setup}
+set.seed(123)
+nodes <- c("A", "B", "C", "D")
+layers <- list(
+  "Layer 1" = matrix(runif(16, 0, 0.5), 4, 4, dimnames = list(nodes, nodes)),
+  "Layer 2" = matrix(runif(16, 0, 0.5), 4, 4, dimnames = list(nodes, nodes)),
+  "Layer 3" = matrix(runif(16, 0, 0.5), 4, 4, dimnames = list(nodes, nodes))
+)
+for (i in seq_along(layers)) diag(layers[[i]]) <- 0
+```
+
+### 3D Perspective
+
+Heatmaps on tilted planes like `plot_mlna`.
+
+```{r perspective-layers, fig.width = 9, fig.height = 8}
+plot_ml_heatmap(layers, title = "Multilayer Heatmap")
+```
+
+### With Inter-layer Connections
+
+```{r perspective-with-connections, fig.width = 9, fig.height = 8}
+plot_ml_heatmap(layers,
+  show_connections = TRUE,
+  title = "With Inter-layer Coupling"
+)
+```
+
+### Custom Styling
+
+```{r perspective-custom, fig.width = 9, fig.height = 8}
+plot_ml_heatmap(layers,
+  colors = "plasma",
+  layer_spacing = 3,
+  skew = 0.5,
+  show_connections = TRUE,
+  connection_color = "#2E7D32",
+  title = "Custom Style"
+)
+```
+
+### Layer Comparison
+
+Side-by-side difference between layers.
+
+```{r layer-diff, fig.width = 10, fig.height = 4}
+# Compute differences
+diff_12 <- layers[[2]] - layers[[1]]
+diff_23 <- layers[[3]] - layers[[2]]
+
+p1 <- plot_heatmap(diff_12,
+  colors = "diverging",
+  midpoint = 0,
+  title = "Layer 2 - Layer 1",
+  show_values = TRUE,
+  value_size = 3
+)
+
+p2 <- plot_heatmap(diff_23,
+  colors = "diverging",
+  midpoint = 0,
+  title = "Layer 3 - Layer 2",
+  show_values = TRUE,
+  value_size = 3
+)
+
+gridExtra::grid.arrange(p1, p2, ncol = 2)
+```
+
+## Styling Options
+
+### Custom Borders
+
+```{r custom-borders}
+plot_heatmap(mat8,
+  cluster_list = clusters,
+  border_color = "#E63946",
+  border_width = 1.5,
+  title = "Custom Border Style"
+)
+```
+
+### No Axis Labels
+
+```{r no-axis}
+plot_heatmap(mat,
+  show_axis_labels = FALSE,
+  title = "Without Axis Labels"
+)
+```
+
+### Legend Position
+
+```{r legend-position, fig.height = 8}
+p1 <- plot_heatmap(mat, legend_position = "right", title = "Legend Right")
+p2 <- plot_heatmap(mat, legend_position = "bottom", title = "Legend Bottom")
+p3 <- plot_heatmap(mat, legend_position = "left", title = "Legend Left")
+p4 <- plot_heatmap(mat, legend_position = "none", title = "No Legend")
+
+gridExtra::grid.arrange(p1, p2, p3, p4, ncol = 2)
+```
+
+### Custom Limits
+
+```{r limits}
+plot_heatmap(mat,
+  limits = c(0, 1),
+  title = "Fixed Scale 0-1",
+  show_values = TRUE,
+  value_size = 3
+)
+```
+
+## TNA Integration
+
+Direct plotting from tna objects.
+
+```{r tna-integration, eval = FALSE}
+library(tna)
+
+# Single TNA model
+fit <- tna(engagement)
+plot_heatmap(fit)
+
+# With clusters
+plot_heatmap(fit,
+  cluster_list = list(
+    Active = c("Explore", "Plan", "Execute"),
+    Reflective = c("Monitor", "Adapt", "Reflect")
+  )
+)
+
+# Group TNA
+group_fit <- group_tna(engagement, group_var = "condition")
+plot_heatmap(group_fit)
+```
+
+## Comparison: Network vs Heatmap
+
+Side-by-side visualization of the same data.
+
+```{r comparison, fig.width = 10, fig.height = 5}
+p_heat <- plot_heatmap(mat, title = "Heatmap View")
+
+# For network plot, we'd use splot
+# p_net <- splot(mat, title = "Network View")
+
+# Since splot uses base graphics, show heatmap alone
+p_heat
+```
+
+## Summary
+
+| Feature | Parameter | Default |
+|---------|-----------|---------|
+| Show values | `show_values` | FALSE |
+| Color palette | `colors` | "viridis" |
+| Diverging scale | `midpoint` | NULL |
+| Hide diagonal | `show_diagonal` | TRUE |
+| Cluster borders | `cluster_borders` | TRUE |
+| Cluster labels | `cluster_labels` | TRUE |
+| Legend position | `legend_position` | "right" |
+| Axis labels | `show_axis_labels` | TRUE |

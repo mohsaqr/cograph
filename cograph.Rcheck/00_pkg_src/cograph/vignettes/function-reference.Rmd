@@ -1,0 +1,523 @@
+---
+title: "Function Reference"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Function Reference}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(eval = FALSE)
+```
+
+## Quick Start
+
+```r
+library(cograph)
+
+# Plot from various inputs
+splot(adjacency_matrix)
+splot(igraph_object)
+splot(tna_model)
+
+# With customization
+splot(net,
+      layout = "spring",
+      node_fill = "steelblue",
+      edge_color = "weight",
+      title = "My Network")
+```
+
+---
+
+## Plotting Functions
+
+### Network Plots
+
+The core plotting functions for network visualization.
+
+| Function | Description |
+|----------|-------------|
+| `splot()` | Main plotting function using base R graphics |
+| `soplot()` | Grid/ggplot2-style network plotting |
+| `plot_tna()` | Plot TNA model directly |
+
+```r
+# Basic usage
+splot(net)
+soplot(net)
+plot_tna(tna_model)
+
+# With layout and styling
+splot(net, layout = "spring", node_fill = "community")
+```
+
+### Specialized Network Plots
+
+For multi-group, bipartite, and multilevel network structures.
+
+| Function | Description |
+|----------|-------------|
+| `plot_htna()` | Heterogeneous/bipartite networks (two distinct groups) |
+| `plot_mtna()` | Multi-cluster networks (3+ groups) |
+| `plot_mlna()` | Multilevel 3D perspective view |
+| `plot_mcml()` | Multi-cluster multilevel (combines mtna + mlna) |
+
+```r
+# Heterogeneous network (two groups)
+plot_htna(net, groups = list(
+  Students = c("S1", "S2", "S3"),
+  Teachers = c("T1", "T2")
+))
+
+# Multi-cluster network
+plot_mtna(net, clusters = list(
+  Cluster1 = c("A", "B"),
+  Cluster2 = c("C", "D"),
+  Cluster3 = c("E", "F")
+))
+
+# Multilevel (3D perspective)
+plot_mlna(net, layers = list(
+  Cognitive = c("Think", "Learn"),
+  Behavioral = c("Act", "Move"),
+  Affective = c("Feel", "React")
+))
+
+# Multi-cluster multilevel
+plot_mcml(net, clusters = ..., layers = ...)
+```
+
+### Comparison & Heatmaps
+
+Visualize network differences and weight matrices.
+
+| Function | Description |
+|----------|-------------|
+| `plot_compare()` | Difference network (x - y) with pos/neg coloring |
+| `plot_comparison_heatmap()` | Heatmap of weight differences |
+| `plot_heatmap()` | Weight matrix heatmap |
+| `plot_ml_heatmap()` | Multilayer heatmap |
+
+```r
+# Network comparison
+plot_compare(net1, net2)
+# Green edges: net1 > net2 (positive difference)
+# Red edges: net1 < net2 (negative difference)
+
+# Compare with threshold
+plot_compare(net1, net2, threshold = 0.1)
+
+# Heatmap comparison
+plot_comparison_heatmap(net1, net2)
+
+# Basic heatmap
+plot_heatmap(net)
+plot_heatmap(net, cluster = TRUE)
+
+# Multilayer heatmap
+plot_ml_heatmap(ml_net)
+```
+
+---
+
+## Network Creation & Conversion
+
+### Import
+
+| Function | Description |
+|----------|-------------|
+| `as_cograph()` / `to_cograph()` | Convert any format to cograph_network |
+| `cograph()` | Create a cograph_network object |
+
+Supported input formats:
+- Adjacency matrices
+- Edge lists (data.frame with from/to columns)
+- igraph objects
+- TNA models (tna, group_tna)
+- qgraph objects
+
+```r
+# From matrix
+net <- as_cograph(matrix)
+
+# From igraph
+net <- as_cograph(igraph_obj)
+
+# From TNA model
+net <- as_cograph(tna_model)
+
+# Force directedness
+net <- as_cograph(matrix, directed = TRUE)
+```
+
+### Export
+
+| Function | Output | Description |
+|----------|--------|-------------|
+| `to_igraph()` | `igraph` | Export to igraph object |
+| `to_data_frame()` / `to_df()` | `data.frame` | Export to edge list |
+| `to_matrix()` | `matrix` | Export to adjacency matrix |
+| `to_network()` | `network` | Export to statnet network |
+
+```r
+# Convert to igraph for analysis
+g <- to_igraph(net)
+igraph::betweenness(g)
+
+# Export to edge list for CSV
+df <- to_df(net)
+write.csv(df, "edges.csv")
+
+# Export to matrix
+adj <- to_matrix(net)
+
+# Export to statnet for ERGM
+statnet_net <- to_network(net)
+```
+
+---
+
+## Network Utilities
+
+### Community Detection
+
+| Function | Description |
+|----------|-------------|
+| `detect_communities()` | Detect communities using various algorithms |
+| `color_communities()` | Generate colors for community membership |
+
+```r
+# Detect communities
+detect_communities(net, method = "louvain")
+#   node community
+# 1    A         1
+# 2    B         1
+# 3    C         2
+# 4    D         2
+
+# Available methods: louvain, walktrap, fast_greedy, label_prop, infomap, leiden
+
+# Color by community for plotting
+splot(net, node_fill = color_communities(net))
+splot(net, node_fill = color_communities(net, palette = "viridis"))
+```
+
+### Edge Filtering
+
+| Function | Description |
+|----------|-------------|
+| `filter_edges()` | Filter edges by weight expression |
+
+```r
+# Keep only strong edges
+strong_net <- filter_edges(net, weight > 0.5)
+
+# Keep edges above mean
+filtered <- filter_edges(net, weight >= mean(weight))
+```
+
+---
+
+## Piping Workflow
+
+Transform networks using pipe-friendly functions.
+
+| Function | Description |
+|----------|-------------|
+| `cograph()` | Create network object |
+| `sn_layout()` | Apply layout algorithm |
+| `sn_theme()` | Apply visual theme |
+| `sn_palette()` | Apply color palette |
+| `sn_nodes()` | Set node aesthetics |
+| `sn_edges()` | Set edge aesthetics |
+| `sn_render()` | Render to plot |
+| `sn_save()` | Save to file |
+| `sn_ggplot()` | Convert to ggplot2 |
+
+```r
+# Pipe-based workflow
+cograph(adj) |>
+  sn_layout("spring", seed = 42) |>
+  sn_theme("dark") |>
+  sn_nodes(fill = "steelblue", size = 0.08) |>
+  sn_edges(color = "weight", width = "weight") |>
+  sn_render(title = "My Network")
+
+# Save to file
+cograph(adj) |>
+  sn_layout("circle") |>
+  sn_save("network.png", width = 800, height = 600)
+```
+
+---
+
+## TNA Integration
+
+Functions for working with Transition Network Analysis models from the `tna` package.
+
+| Function | Description |
+|----------|-------------|
+| `as_cograph()` | Convert TNA model to cograph (use with tna/group_tna) |
+| `is_tna_network()` | Check if network is from TNA |
+| `get_tna_model()` | Retrieve original TNA model |
+| `plot_tna()` | Plot TNA model directly |
+| `tna_animate()` | Animate TNA transitions |
+| `tna_windows()` | Create time-windowed TNA networks |
+
+```r
+library(tna)
+model <- tna(data)
+
+# Convert and check
+net <- as_cograph(model)
+is_tna_network(net)
+# [1] TRUE
+
+# Retrieve original model
+original <- get_tna_model(net)
+original$weights
+original$inits
+
+# Plot TNA model
+plot_tna(model)
+
+# Animate transitions
+tna_animate(model, duration = 5, fps = 30)
+
+# Time windows
+windows <- tna_windows(data, window_size = 100, step = 50)
+```
+
+---
+
+## Multilayer Networks
+
+### Supra-Adjacency
+
+| Function | Description |
+|----------|-------------|
+| `supra_adjacency()` / `supra()` | Build supra-adjacency matrix |
+| `supra_layer()` | Extract single layer |
+| `supra_interlayer()` | Extract interlayer connections |
+
+```r
+# Build supra-adjacency matrix
+layers <- list(
+  Layer1 = matrix(...),
+  Layer2 = matrix(...),
+  Layer3 = matrix(...)
+)
+supra <- supra_adjacency(layers, interlayer = 0.5)
+
+# Extract components
+supra_layer(supra, "Layer1")
+supra_interlayer(supra, "Layer1", "Layer2")
+```
+
+### Aggregation & Comparison
+
+| Function | Description |
+|----------|-------------|
+| `aggregate_layers()` / `lagg()` | Aggregate across layers |
+| `aggregate_weights()` / `wagg()` | Aggregate edge weights |
+| `layer_similarity()` / `lsim()` | Similarity between two layers |
+| `layer_similarity_matrix()` | All pairwise similarities |
+| `layer_degree_correlation()` | Degree correlation across layers |
+
+```r
+# Aggregate layers
+aggregated <- aggregate_layers(ml_net, method = "mean")
+aggregated <- lagg(ml_net, method = "sum")
+
+# Similarity between layers
+lsim(layer1, layer2, method = "cosine")
+
+# Full similarity matrix
+layer_similarity_matrix(layers)
+```
+
+### Cluster Quality
+
+| Function | Description |
+|----------|-------------|
+| `cluster_quality()` / `cqual()` | Clustering quality metrics |
+| `cluster_summary()` / `csum()` | Summary statistics per cluster |
+
+```r
+# Quality metrics
+cluster_quality(net, clusters)
+# modularity, silhouette, conductance, ...
+
+# Cluster summary
+cluster_summary(net, clusters)
+# size, density, internal edges, ...
+```
+
+---
+
+## Customization Reference
+
+### Themes
+
+Use themes with `splot(net, theme = "dark")` or via piping with `sn_theme()`.
+
+| Theme | Description |
+|-------|-------------|
+| `classic` | White background, blue nodes (default) |
+| `dark` | Dark background, light elements |
+| `minimal` | Subtle, minimal styling |
+| `colorblind` | Optimized for color vision deficiency |
+| `gray` | Grayscale only |
+| `nature` | Nature journal style |
+| `viridis` | Viridis color scheme |
+
+```r
+# Use a theme
+splot(net, theme = "dark")
+
+# Register custom theme
+register_theme("my_theme", list(
+  background = "#1a1a2e",
+  node_fill = "#e94560",
+  edge_color = "#0f3460"
+))
+
+# List available themes
+list_themes()
+```
+
+### Palettes
+
+| Palette | Description |
+|---------|-------------|
+| `viridis` | Perceptually uniform |
+| `colorblind` | Colorblind-friendly |
+| `pastel` | Soft pastel colors |
+| `rainbow` | Rainbow colors |
+| `blues` | Blue gradient |
+| `reds` | Red gradient |
+| `diverging` | Diverging (blue-white-red) |
+
+```r
+# Use palette for node colors
+splot(net, node_fill = palette_viridis(n_nodes(net)))
+
+# Color by community with palette
+splot(net, node_fill = color_communities(net, palette = "colorblind"))
+
+# List available palettes
+list_palettes()
+```
+
+### Shapes
+
+Built-in shapes: `circle`, `square`, `triangle`, `diamond`, `pentagon`, `hexagon`, `star`, `heart`, `ellipse`, `cross`
+
+```r
+# Use built-in shapes
+splot(net, node_shape = "hexagon")
+splot(net, node_shape = "diamond")
+
+# Register SVG shape
+register_svg_shape("custom", "path/to/shape.svg")
+splot(net, node_svg = "custom")
+
+# List available shapes
+list_shapes()
+list_svg_shapes()
+```
+
+---
+
+## Advanced/Internal Functions
+
+<details>
+<summary>Network Accessors (click to expand)</summary>
+
+**Getters**
+
+| Function | Returns |
+|----------|---------|
+| `get_nodes()` | Node data frame (id, label, x, y, ...) |
+| `get_edges()` | Edge data frame (from, to, weight, ...) |
+| `get_labels()` | Node labels |
+| `get_layout()` | Layout coordinates (x, y) |
+| `get_groups()` | Node group assignments |
+| `n_nodes()` | Number of nodes |
+| `n_edges()` | Number of edges |
+| `is_directed()` | Whether network is directed |
+
+**Setters**
+
+| Function | Description |
+|----------|-------------|
+| `set_nodes()` | Replace node data frame |
+| `set_edges()` | Replace edge data frame |
+| `set_layout()` | Set layout coordinates |
+| `set_groups()` | Set node group assignments |
+
+</details>
+
+<details>
+<summary>Layout Functions (click to expand)</summary>
+
+| Function | Description |
+|----------|-------------|
+| `layout_spring()` | Force-directed Fruchterman-Reingold |
+| `layout_circle()` | Circular arrangement |
+| `layout_oval()` | Oval/ellipse arrangement |
+| `layout_groups()` | Grouped circular layout |
+
+```r
+net <- layout_spring(net, seed = 42, iterations = 500)
+net <- layout_circle(net)
+```
+
+</details>
+
+<details>
+<summary>Registry Functions (click to expand)</summary>
+
+| Function | Description |
+|----------|-------------|
+| `list_layouts()` | List available layouts |
+| `register_layout()` | Register custom layout |
+| `list_themes()` | List available themes |
+| `register_theme()` | Register custom theme |
+| `list_shapes()` | List built-in shapes |
+| `register_shape()` | Register custom shape |
+| `list_svg_shapes()` | List registered SVG shapes |
+| `register_svg_shape()` | Register SVG shape |
+| `unregister_svg_shape()` | Remove SVG shape |
+| `list_palettes()` | List available palettes |
+
+</details>
+
+<details>
+<summary>Verification Functions (click to expand)</summary>
+
+| Function | Description |
+|----------|-------------|
+| `verify_igraph()` | Verify igraph is available |
+| `verify_with_igraph()` | Run function with igraph check |
+
+</details>
+
+---
+
+## Quick Reference
+
+| Category | Key Functions |
+|----------|---------------|
+| **Plotting** | `splot()`, `soplot()`, `plot_tna()` |
+| **Specialized Plots** | `plot_htna()`, `plot_mtna()`, `plot_mlna()`, `plot_mcml()` |
+| **Comparison** | `plot_compare()`, `plot_comparison_heatmap()` |
+| **Heatmaps** | `plot_heatmap()`, `plot_ml_heatmap()` |
+| **Import** | `as_cograph()`, `to_cograph()`, `cograph()` |
+| **Export** | `to_igraph()`, `to_df()`, `to_matrix()`, `to_network()` |
+| **Utilities** | `detect_communities()`, `color_communities()`, `filter_edges()` |
+| **Piping** | `sn_layout()`, `sn_theme()`, `sn_nodes()`, `sn_edges()`, `sn_render()`, `sn_save()` |
+| **TNA** | `plot_tna()`, `tna_animate()`, `is_tna_network()`, `get_tna_model()` |
+| **Multilayer** | `supra_adjacency()`, `aggregate_layers()`, `layer_similarity()` |

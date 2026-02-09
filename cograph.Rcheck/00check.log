@@ -1,0 +1,325 @@
+* using log directory ‘/Users/mohammedsaqr/Documents/Git/Sonnet/cograph.Rcheck’
+* using R version 4.5.1 (2025-06-13)
+* using platform: aarch64-apple-darwin20
+* R was compiled by
+    Apple clang version 16.0.0 (clang-1600.0.26.6)
+    GNU Fortran (GCC) 14.2.0
+* running under: macOS Tahoe 26.2
+* using session charset: UTF-8
+* using options ‘--no-manual --no-vignettes’
+* checking for file ‘cograph/DESCRIPTION’ ... OK
+* this is package ‘cograph’ version ‘1.5.2’
+* package encoding: UTF-8
+* checking package namespace information ... OK
+* checking package dependencies ... OK
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* checking whether package ‘cograph’ can be installed ... OK
+* checking installed package size ... INFO
+  installed size is  6.8Mb
+  sub-directories of 1Mb or more:
+    help   5.8Mb
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking code files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking whether startup messages can be suppressed ... OK
+* checking dependencies in R code ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... WARNING
+checkRd: (5) grapes-or-or-grapes.Rd:3: \name should not contain !, | or @
+* checking Rd metadata ... OK
+* checking Rd cross-references ... WARNING
+Missing link(s) in Rd file 'dot-compute_weights.Rd':
+  ‘n_sequences, n_states, n_states’ ‘n_states x n_states’
+
+Missing link(s) in Rd file 'filter_nodes.Rd':
+  ‘centrality’
+
+See section 'Cross-references' in the 'Writing R Extensions' manual.
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... WARNING
+Functions or methods with usage in Rd file 'dot-compute_weights.Rd' but not in code:
+  ‘.compute_weights’
+
+Codoc mismatches from Rd file 'get_edge_order.Rd':
+get_edge_order
+  Code: function(edges, priority = NULL)
+  Docs: function(edges)
+  Argument names in code not in docs:
+    priority
+
+Codoc mismatches from Rd file 'render_edges_splot.Rd':
+render_edges_splot
+  Code: function(edges, layout, node_sizes, shapes, edge_color,
+                 edge_width, edge_style, curvature, curve_shape,
+                 curve_pivot, show_arrows, arrow_size, arrow_angle =
+                 pi/6, bidirectional, loop_rotation, edge_labels,
+                 edge_label_size, edge_label_color, edge_label_bg,
+                 edge_label_position, edge_label_offset = 0,
+                 edge_label_fontface, edge_label_shadow = FALSE,
+                 edge_label_shadow_color = "gray40",
+                 edge_label_shadow_offset = 0.5,
+                 edge_label_shadow_alpha = 0.5, edge_label_halo = TRUE,
+                 edge_ci = NULL, edge_ci_scale = 2, edge_ci_alpha =
+                 0.15, edge_ci_color = NULL, edge_ci_style = 2,
+                 edge_ci_arrows = FALSE, edge_priority = NULL,
+                 is_reciprocal = NULL, edge_start_style = "solid",
+                 edge_start_length = 0.15, edge_start_dot_density =
+                 "12")
+  Docs: function(edges, layout, node_sizes, shapes, edge_color,
+                 edge_width, edge_style, curvature, curve_shape,
+                 curve_pivot, show_arrows, arrow_size, arrow_angle =
+                 pi/6, bidirectional, loop_rotation, edge_labels,
+                 edge_label_size, edge_label_color, edge_label_bg,
+                 edge_label_position, edge_label_offset = 0,
+                 edge_label_fontface, edge_label_shadow = FALSE,
+                 edge_label_shadow_color = "gray40",
+                 edge_label_shadow_offset = 0.5,
+                 edge_label_shadow_alpha = 0.5, edge_ci = NULL,
+                 edge_ci_scale = 2, edge_ci_alpha = 0.15, edge_ci_color
+                 = NULL, edge_ci_style = 2, edge_ci_arrows = FALSE,
+                 is_reciprocal = NULL, edge_start_style = "solid",
+                 edge_start_length = 0.15, edge_start_dot_density =
+                 "12")
+  Argument names in code not in docs:
+    edge_label_halo edge_priority
+  Mismatches in argument names (first 3):
+    Position: 27 Code: edge_label_halo Docs: edge_ci
+    Position: 28 Code: edge_ci Docs: edge_ci_scale
+    Position: 29 Code: edge_ci_scale Docs: edge_ci_alpha
+
+Codoc mismatches from Rd file 'splot.Rd':
+splot
+  Code: function(x, layout = "oval", directed = NULL, seed = 42, theme
+                 = NULL, node_size = NULL, node_size2 = NULL,
+                 node_shape = "circle", node_svg = NULL,
+                 svg_preserve_aspect = TRUE, node_fill = NULL,
+                 node_border_color = NULL, node_border_width = 1,
+                 node_alpha = 1, labels = TRUE, label_size = NULL,
+                 label_color = "black", label_position = "center",
+                 label_fontface = "plain", label_fontfamily = "sans",
+                 label_hjust = 0.5, label_vjust = 0.5, label_angle = 0,
+                 pie_values = NULL, pie_colors = NULL, pie_border_width
+                 = NULL, donut_fill = NULL, donut_values = NULL,
+                 donut_color = NULL, donut_colors = NULL,
+                 donut_border_color = NULL, donut_border_width = NULL,
+                 donut_outer_border_color = NULL, donut_line_type =
+                 "solid", donut_border_lty = NULL, donut_inner_ratio =
+                 0.8, donut_bg_color = "gray90", donut_shape =
+                 "circle", donut_show_value = FALSE, donut_value_size =
+                 0.8, donut_value_color = "black", donut_value_fontface
+                 = "bold", donut_value_fontfamily = "sans",
+                 donut_value_digits = 2, donut_value_prefix = "",
+                 donut_value_suffix = "", donut_empty = TRUE,
+                 donut2_values = NULL, donut2_colors = NULL,
+                 donut2_inner_ratio = 0.4, edge_color = NULL,
+                 edge_width = NULL, edge_size = NULL, esize = NULL,
+                 edge_width_range = c(0.1, 4), edge_scale_mode =
+                 "linear", edge_cutoff = NULL, cut = NULL, edge_alpha =
+                 0.8, edge_labels = FALSE, edge_label_size = 0.8,
+                 edge_label_color = "gray30", edge_label_bg = NA,
+                 edge_label_position = 0.5, edge_label_offset = 0,
+                 edge_label_fontface = "plain", edge_label_shadow =
+                 FALSE, edge_label_shadow_color = "gray40",
+                 edge_label_shadow_offset = 0.5,
+                 edge_label_shadow_alpha = 0.5, edge_label_halo = TRUE,
+                 edge_style = 1, curvature = 0, curve_scale = TRUE,
+                 curve_shape = 0, curve_pivot = 0.5, curves = TRUE,
+                 arrow_size = 1, arrow_angle = pi/6, show_arrows =
+                 TRUE, bidirectional = FALSE, loop_rotation = NULL,
+                 edge_start_style = "solid", edge_start_length = 0.15,
+                 edge_start_dot_density = "12", edge_ci = NULL,
+                 edge_ci_scale = 2, edge_ci_alpha = 0.15, edge_ci_color
+                 = NA, edge_ci_style = 2, edge_ci_arrows = FALSE,
+                 edge_priority = NULL, edge_label_style = "none",
+                 edge_label_template = NULL, edge_label_digits = 2,
+                 edge_label_oneline = TRUE, edge_label_ci_format =
+                 "bracket", edge_label_leading_zero = TRUE,
+                 edge_ci_lower = NULL, edge_ci_upper = NULL,
+                 edge_label_p = NULL, edge_label_p_digits = 3,
+                 edge_label_p_prefix = "p=", edge_label_stars = NULL,
+                 weight_digits = 2, threshold = 0, minimum = 0, maximum
+                 = NULL, edge_positive_color = "#2E7D32",
+                 positive_color = NULL, edge_negative_color =
+                 "#C62828", negative_color = NULL, edge_duplicates =
+                 NULL, title = NULL, title_size = 1.2, margins = c(0.1,
+                 0.1, 0.1, 0.1), background = "white", rescale = TRUE,
+                 layout_scale = 1, layout_margin = 0.15, aspect = TRUE,
+                 use_pch = FALSE, usePCH = NULL, scaling = "default",
+                 legend = FALSE, legend_position = "topright",
+                 legend_size = 0.8, legend_edge_colors = TRUE,
+                 legend_node_sizes = FALSE, groups = NULL, node_names =
+                 NULL, filetype = "default", filename = "splot", width
+                 = 7, height = 7, res = 600, ...)
+  Docs: function(x, layout = "oval", directed = NULL, seed = 42, theme
+                 = NULL, node_size = NULL, node_size2 = NULL,
+                 node_shape = "circle", node_svg = NULL,
+                 svg_preserve_aspect = TRUE, node_fill = NULL,
+                 node_border_color = NULL, node_border_width = 1,
+                 node_alpha = 1, labels = TRUE, label_size = NULL,
+                 label_color = "black", label_position = "center",
+                 label_fontface = "plain", label_fontfamily = "sans",
+                 label_hjust = 0.5, label_vjust = 0.5, label_angle = 0,
+                 pie_values = NULL, pie_colors = NULL, pie_border_width
+                 = NULL, donut_fill = NULL, donut_values = NULL,
+                 donut_color = NULL, donut_colors = NULL,
+                 donut_border_color = NULL, donut_border_width = NULL,
+                 donut_outer_border_color = NULL, donut_line_type =
+                 "solid", donut_border_lty = NULL, donut_inner_ratio =
+                 0.8, donut_bg_color = "gray90", donut_shape =
+                 "circle", donut_show_value = FALSE, donut_value_size =
+                 0.8, donut_value_color = "black", donut_value_fontface
+                 = "bold", donut_value_fontfamily = "sans",
+                 donut_value_digits = 2, donut_value_prefix = "",
+                 donut_value_suffix = "", donut_empty = TRUE,
+                 donut2_values = NULL, donut2_colors = NULL,
+                 donut2_inner_ratio = 0.4, edge_color = NULL,
+                 edge_width = NULL, edge_size = NULL, esize = NULL,
+                 edge_width_range = c(0.1, 4), edge_scale_mode =
+                 "linear", edge_cutoff = NULL, cut = NULL, edge_alpha =
+                 0.8, edge_labels = FALSE, edge_label_size = 0.8,
+                 edge_label_color = "gray30", edge_label_bg = "white",
+                 edge_label_position = 0.5, edge_label_offset = 0,
+                 edge_label_fontface = "plain", edge_label_shadow =
+                 FALSE, edge_label_shadow_color = "gray40",
+                 edge_label_shadow_offset = 0.5,
+                 edge_label_shadow_alpha = 0.5, edge_style = 1,
+                 curvature = 0, curve_scale = TRUE, curve_shape = 0,
+                 curve_pivot = 0.5, curves = TRUE, arrow_size = 1,
+                 arrow_angle = pi/6, show_arrows = TRUE, bidirectional
+                 = FALSE, loop_rotation = NULL, edge_start_style =
+                 "solid", edge_start_length = 0.15,
+                 edge_start_dot_density = "12", edge_ci = NULL,
+                 edge_ci_scale = 2, edge_ci_alpha = 0.15, edge_ci_color
+                 = NA, edge_ci_style = 2, edge_ci_arrows = FALSE,
+                 edge_label_style = "none", edge_label_template = NULL,
+                 edge_label_digits = 2, edge_label_oneline = TRUE,
+                 edge_label_ci_format = "bracket",
+                 edge_label_leading_zero = TRUE, edge_ci_lower = NULL,
+                 edge_ci_upper = NULL, edge_label_p = NULL,
+                 edge_label_p_digits = 3, edge_label_p_prefix = "p=",
+                 edge_label_stars = NULL, weight_digits = 2, threshold
+                 = 0, minimum = 0, maximum = NULL, edge_positive_color
+                 = "#2E7D32", positive_color = NULL,
+                 edge_negative_color = "#C62828", negative_color =
+                 NULL, edge_duplicates = NULL, title = NULL, title_size
+                 = 1.2, margins = c(0.1, 0.1, 0.1, 0.1), background =
+                 "white", rescale = TRUE, layout_scale = 1,
+                 layout_margin = 0.15, aspect = TRUE, use_pch = FALSE,
+                 usePCH = NULL, scaling = "default", legend = FALSE,
+                 legend_position = "topright", legend_size = 0.8,
+                 legend_edge_colors = TRUE, legend_node_sizes = FALSE,
+                 groups = NULL, node_names = NULL, filetype =
+                 "default", filename = "splot", width = 7, height = 7,
+                 res = 600, ...)
+  Argument names in code not in docs:
+    edge_label_halo edge_priority
+  Mismatches in argument names (first 3):
+    Position: 71 Code: edge_label_halo Docs: edge_style
+    Position: 72 Code: edge_style Docs: curvature
+    Position: 73 Code: curvature Docs: curve_scale
+  Mismatches in argument default values:
+    Name: 'edge_label_bg' Code: NA Docs: "white"
+
+* checking Rd \usage sections ... WARNING
+Undocumented arguments in Rd file 'splot.Rd'
+  ‘edge_label_leading_zero’
+
+Functions with \usage entries need to have the appropriate \alias
+entries, and all their arguments documented.
+The \usage entries must correspond to syntactically valid R code.
+See chapter ‘Writing R documentation files’ in the ‘Writing R
+Extensions’ manual.
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... OK
+* checking files in ‘vignettes’ ... WARNING
+Files in the 'vignettes' directory but no files in 'inst/doc':
+  ‘comparison-plots-demo.Rmd’ ‘comparison-plots-demo.html’
+  ‘function-reference.Rmd’ ‘function-reference.html’
+  ‘heatmaps-demo.Rmd’ ‘heatmaps-demo.html’ ‘input-formats.Rmd’
+  ‘input-formats.html’ ‘introduction.Rmd’ ‘mcml-examples.Rmd’
+  ‘mcml-examples.html’ ‘network-structure-and-groups.Rmd’
+  ‘ona-demo.Rmd’ ‘ona-demo.html’ ‘plotting-tna-models.Rmd’
+  ‘tna-cograph-comparison_files/figure-html/p-scatter-1.png’
+  ‘tna-cograph-comparison_files/figure-html/simulated-heatmap-1.png’
+  ‘tna-cograph-comparison_files/figure-html/simulated-plots-1.png’
+  ‘tna-cograph-comparison_files/figure-html/time-boxplots-1.png’
+Files named as vignettes but with no recognized vignette engine:
+   ‘vignettes/comparison-plots-demo.Rmd’
+   ‘vignettes/ona-demo.Rmd’
+(Is a VignetteBuilder field missing?)
+* checking examples ... ERROR
+Running examples in ‘cograph-Ex.R’ failed
+The error most likely occurred in:
+
+> ### Name: set_groups
+> ### Title: Set Node Groups for Auto-Plot Selection
+> ### Aliases: set_groups
+> 
+> ### ** Examples
+> 
+> # Create network
+> mat <- matrix(runif(100), 10, 10)
+> rownames(mat) <- colnames(mat) <- paste0("N", 1:10)
+> net <- as_cograph(mat)
+> 
+> # Using vectors (recommended)
+> net <- set_groups(net,
++   nodes = paste0("N", 1:10),
++   layers = c(rep("Macro", 3), rep("Meso", 4), rep("Micro", 3))
++ )
+> 
+> # Named list -> layers (for plot_mlna)
+> net <- set_groups(net, list(
++   Macro = paste0("N", 1:3),
++   Meso = paste0("N", 4:7),
++   Micro = paste0("N", 8:10)
++ ), type = "layer")
+> 
+> # Vector -> clusters (for plot_mtna)
+> net <- set_groups(net, c("A", "A", "A", "B", "B", "B", "C", "C", "C", "C"),
++                   type = "cluster")
+> 
+> # Community detection -> groups (for plot_htna)
+> net <- set_groups(net, "louvain", type = "group")
+Error in igraph::cluster_louvain(g, weights = edge_weights) : 
+  At vendor/cigraph/src/community/louvain.c:615 : Multi-level community detection works for undirected graphs only. Unimplemented function call
+Calls: set_groups -> detect_communities -> <Anonymous>
+Execution halted
+* checking for unstated dependencies in ‘tests’ ... WARNING
+'::' or ':::' import not declared from: ‘devtools’
+* checking tests ... OK
+  Running ‘test-cluster-metrics.R’
+  Running ‘testthat.R’
+* checking for unstated dependencies in vignettes ... OK
+* checking package vignettes ... WARNING
+Directory 'inst/doc' does not exist.
+Package vignettes without corresponding single PDF/HTML:
+  ‘function-reference.Rmd’
+  ‘heatmaps-demo.Rmd’
+  ‘input-formats.Rmd’
+  ‘introduction.Rmd’
+  ‘mcml-examples.Rmd’
+  ‘network-structure-and-groups.Rmd’
+  ‘plotting-tna-models.Rmd’
+* checking running R code from vignettes ... SKIPPED
+* checking re-building of vignette outputs ... SKIPPED
+* DONE
+Status: 1 ERROR, 7 WARNINGs

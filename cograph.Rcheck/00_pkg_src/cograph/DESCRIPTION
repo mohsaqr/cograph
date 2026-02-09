@@ -1,0 +1,27 @@
+Package: cograph
+Title: Modern Network Visualization for R
+Version: 1.5.2
+Authors@R: 
+    person("Mohammed", "Saqr", , "mohammed.saqr@uef.fi", role = c("aut", "cre"))
+Description: A modern, extensible network visualization package that provides
+    high-quality static and interactive network plots. cograph accepts adjacency
+    matrices, edge lists, or igraph objects and offers customizable layouts,
+    node shapes, edge styles, and themes. Designed for publication-ready
+    visualizations with a pipe-friendly API.
+License: MIT + file LICENSE
+URL: https://github.com/mohsaqr/cograph
+BugReports: https://github.com/mohsaqr/cograph/issues
+Depends: R (>= 4.1.0)
+Imports: R6, grid, grDevices, ggplot2, stats, utils
+Suggests: igraph, network, scales, testthat (>= 3.0.0), knitr,
+        rmarkdown, digest, grImport2, rsvg, qgraph, tna, gifski,
+        RColorBrewer, colorspace, Saqrlab
+VignetteBuilder: knitr
+Config/testthat/edition: 3
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+NeedsCompilation: no
+Packaged: 2026-02-09 20:47:00 UTC; mohammedsaqr
+Author: Mohammed Saqr [aut, cre]
+Maintainer: Mohammed Saqr <mohammed.saqr@uef.fi>

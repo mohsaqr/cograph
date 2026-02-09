@@ -1,0 +1,378 @@
+---
+title: "Plotting TNA Models with splot"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Plotting TNA Models with splot}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 6,
+  dpi = 150
+)
+library(cograph)
+library(tna)
+```
+
+## Introduction
+
+The `cograph` package provides network visualization for Transition Network Analysis (TNA) models through `splot()`. This vignette showcases node styling, shapes, fonts, and creative layouts.
+
+## Loading Data
+
+```{r sample-data}
+model <- tna(group_regulation)
+weights <- model$weights
+labels <- model$labels
+n <- length(labels)
+initial_probs <- model$initial_probs
+```
+
+## Basic Plot
+
+```{r basic-plot, fig.cap="Default TNA plot"}
+splot(model)
+```
+
+## Node Shapes Gallery
+
+Available shapes: `"circle"`, `"square"`, `"triangle"`, `"diamond"`, `"pentagon"`, `"hexagon"`, `"ellipse"`, `"heart"`, `"star"`
+
+```{r shapes-gallery, fig.cap="Node shape gallery"}
+
+# Hexagons - modern technical look
+splot(model, node_shape = "hexagon", node_size = 5, node_fill = "#37474F")
+
+# Diamonds - elegant emphasis
+splot(model, node_shape = "diamond", node_size = 5, node_fill = "#6A1B9A")
+
+# Stars - highlight key nodes
+splot(model, node_shape = "star", node_size = 6, node_fill = "#FF6F00")
+
+# Pentagons - distinctive grouping
+splot(model, node_shape = "pentagon", node_size = 5, node_fill = "#00695C")
+```
+
+## Shape Groupings
+
+Use shapes to encode node categories:
+
+```{r shape-groupings, fig.cap="Shape-based categorization"}
+# Binary grouping (e.g., regulatory vs non-regulatory)
+splot(model,
+      node_shape = rep(c("circle", "square"), length.out = n),
+      node_fill = rep(c("#1976D2", "#D32F2F"), length.out = n),
+      node_size = 5)
+
+# Three-category grouping
+splot(model,
+      node_shape = rep(c("hexagon", "diamond", "triangle"), length.out = n),
+      node_fill = rep(c("#2E7D32", "#F57C00", "#7B1FA2"), length.out = n),
+      node_border_color = "white",
+      node_border_width = 2,
+      node_size = 5)
+
+# Four-category with varied shapes
+splot(model,
+      node_shape = rep(c("circle", "square", "pentagon", "star"), length.out = n),
+      node_fill = rep(c("#0288D1", "#C2185B", "#689F38", "#FFA000"), length.out = n),
+      node_size = 5)
+```
+
+## Font Styling
+
+```{r fonts, fig.cap="Font customization"}
+# Bold labels with custom color
+splot(model,
+      node_size = 4,
+      label_size = 1.1,
+      label_fontface = "bold",
+      label_color = "#1A237E")
+
+# Italic labels below nodes
+splot(model,
+      node_size = 5,
+      label_position = "below",
+      label_size = 0.9,
+      label_fontface = "italic",
+      label_color = "#424242")
+
+# Bold italic with colored nodes
+splot(model,
+      node_shape = "hexagon",
+      node_fill = "#263238",
+      node_size = 5,
+      label_size = 1.0,
+      label_fontface = "bold.italic",
+      label_color = "white")
+```
+
+## Layout Algorithms
+
+### Circle Layout
+
+Nodes arranged in a circle - ideal for cyclic processes:
+
+```{r layout-circle, fig.cap="Circle layout"}
+splot(model, layout = "circle", node_size = 4)
+```
+
+### Spring Layout
+
+Force-directed layout reveals natural clusters:
+
+```{r layout-spring, fig.cap="Spring (force-directed) layout"}
+splot(model, layout = "spring", node_size = 4)
+```
+
+### Oval Layout
+
+Default TNA layout - wider than circle:
+
+```{r layout-oval, fig.cap="Oval layout"}
+splot(model, layout = "oval", node_size = 4)
+```
+
+## Custom Layouts
+
+### Two-Row Layout
+
+```{r layout-two-row, fig.cap="Two-row horizontal layout"}
+layout_2row <- cbind(
+  x = rep(seq(-1, 1, length.out = ceiling(n/2)), 2)[1:n],
+  y = rep(c(0.5, -0.5), each = ceiling(n/2))[1:n]
+)
+splot(model, layout = layout_2row, node_size = 4, layout_scale = 1.2)
+```
+
+### Three-Row Layout
+
+```{r layout-three-row, fig.cap="Three-row hierarchical layout"}
+rows <- rep(1:3, length.out = n)
+layout_3row <- cbind(
+  x = sapply(1:n, function(i) {
+    row_nodes <- which(rows == rows[i])
+    pos <- which(row_nodes == i)
+    seq(-1, 1, length.out = length(row_nodes))[pos]
+  }),
+  y = (2 - rows) * 0.7
+)
+splot(model, layout = layout_3row, node_size = 4, layout_scale = 1.3)
+```
+
+### Diamond Layout
+
+```{r layout-diamond, fig.cap="Diamond formation"}
+angles <- seq(0, 2*pi, length.out = n + 1)[1:n] + pi/4
+radii <- rep(c(0.6, 1), length.out = n)
+layout_diamond <- cbind(
+  x = radii * cos(angles),
+  y = radii * sin(angles)
+)
+splot(model, layout = layout_diamond, node_size = 4, layout_scale = 1.1)
+```
+
+### Spiral Layout
+
+```{r layout-spiral, fig.cap="Spiral arrangement"}
+t <- seq(0, 2.5*pi, length.out = n)
+layout_spiral <- cbind(
+  x = t/max(t) * cos(t),
+  y = t/max(t) * sin(t)
+)
+splot(model, layout = layout_spiral, node_size = 4, layout_scale = 1.2)
+```
+
+### Grid Layout
+
+```{r layout-grid, fig.cap="Grid arrangement"}
+ncol <- ceiling(sqrt(n))
+nrow <- ceiling(n / ncol)
+layout_grid <- cbind(
+  x = ((1:n - 1) %% ncol) / max(1, ncol - 1) * 2 - 1,
+  y = -((1:n - 1) %/% ncol) / max(1, nrow - 1) * 2 + 1
+)
+splot(model, layout = layout_grid, node_size = 4, layout_scale = 1.1)
+```
+
+### Radial Clusters
+
+```{r layout-radial, fig.cap="Radial cluster layout"}
+# Central node with outer ring
+layout_radial <- rbind(
+  c(0, 0),  # Central node
+  cbind(
+    cos(seq(0, 2*pi, length.out = n)),
+    sin(seq(0, 2*pi, length.out = n))
+  )[1:(n-1), ]
+)
+splot(model,
+      layout = layout_radial,
+      node_size = c(6, rep(4, n-1)),
+      node_fill = c("#D32F2F", rep("#1976D2", n-1)),
+      layout_scale = 1.1)
+```
+
+### Arc Layout
+
+```{r layout-arc, fig.cap="Arc arrangement"}
+angles <- seq(pi/6, 5*pi/6, length.out = n)
+layout_arc <- cbind(
+  x = cos(angles),
+  y = sin(angles) - 0.3
+)
+splot(model, layout = layout_arc, node_size = 4, layout_scale = 1.3)
+```
+
+## Combining Elements
+
+### Shapes + Layout + Fonts
+
+```{r combined-1, fig.cap="Combined styling: shapes, layout, fonts"}
+splot(model,
+      layout = "circle",
+      node_shape = rep(c("hexagon", "diamond"), length.out = n),
+      node_fill = rep(c("#1565C0", "#C62828"), length.out = n),
+      node_border_color = "white",
+      node_border_width = 2,
+      node_size = 5,
+      label_fontface = "bold",
+      label_size = 0.9)
+```
+
+### Hierarchical with Donuts
+
+```{r combined-2, fig.cap="Hierarchical layout with donut charts"}
+splot(model,
+      layout = layout_3row,
+      layout_scale = 1.3,
+      donut_fill = initial_probs,
+      donut_color = "#1976D2",
+      donut_inner_ratio = 0.5,
+      node_size = 5,
+      label_position = "below",
+      label_fontface = "bold")
+```
+
+### Radial with Categories
+
+```{r combined-3, fig.cap="Radial layout with shape categories"}
+splot(model,
+      layout = layout_radial,
+      layout_scale = 1.2,
+      node_shape = c("star", rep(c("circle", "square"), length.out = n-1)),
+      node_fill = c("#FF5722", rep(c("#2196F3", "#4CAF50"), length.out = n-1)),
+      node_size = c(7, rep(4, n-1)),
+      label_fontface = "bold",
+      edge_start_style = "dotted")
+```
+
+## Edge Styling
+
+```{r edges, fig.cap="Edge customization"}
+# Dotted start segments show direction
+splot(model,
+      layout = "circle",
+      node_size = 4,
+      edge_start_style = "dotted",
+      edge_start_length = 0.2,
+      edge_color = "#546E7A")
+
+# Arrows with custom styling
+splot(model,
+      layout = "spring",
+      node_shape = "hexagon",
+      node_size = 4,
+      show_arrows = TRUE,
+      arrow_size = 0.5,
+      curvature = 0.3)
+```
+
+## Themes
+
+```{r themes, fig.cap="Built-in themes"}
+# Dark theme for presentations
+splot(model, theme = "dark", node_size = 4, layout = "circle")
+
+# Grayscale for print
+splot(model, theme = "gray", node_size = 4, layout = "spring")
+```
+
+## Publication Example
+
+```{r publication, fig.width=8, fig.height=7, fig.cap="Publication-ready visualization"}
+splot(model,
+      # Layout
+      layout = "circle",
+      layout_scale = 1.2,
+
+      # Nodes
+      node_shape = "hexagon",
+      node_size = 5,
+      donut_fill = initial_probs,
+      donut_color = "#1976D2",
+      donut_inner_ratio = 0.55,
+      donut_border_color = "white",
+
+      # Labels
+      label_size = 0.9,
+      label_fontface = "bold",
+      label_color = "gray20",
+
+      # Edges
+      edge_start_style = "dotted",
+      edge_start_length = 0.15,
+      edge_width_range = c(0.5, 4),
+      curvature = 0.3,
+      threshold = 0.05,
+
+      # Title
+      title = "Group Regulation Transitions")
+```
+
+
+```{r}
+prepared_data <- prepare_data(
+  group_regulation_long,
+  action = "Action",
+  actor = "Actor",
+  time = "Time"
+)
+
+# Build separate TNA models for High and Low achievers
+gtna <- group_tna(prepared_data, group = "Course")
+
+compare(gtna)
+comp <- compare(gtna$High$weights, gtna$Low$weights)
+
+
+pak::pak("mohsaqr/Saqrlab")
+
+Saqrlab::simulate_sequences(n_sequences = 2000, seq_length = 50, max_na = 4)
+
+```
+
+
+
+
+
+
+
+
+
+## Summary
+
+| Feature | Parameters |
+|---------|------------|
+| Shapes | `node_shape`: circle, square, triangle, diamond, pentagon, hexagon, star |
+| Fonts | `label_fontface`: plain, bold, italic, bold.italic |
+| Layouts | `layout`: circle, spring, oval, or custom matrix |
+| Donuts | `donut_fill`, `donut_color`, `donut_inner_ratio` |
+| Edges | `edge_start_style`, `show_arrows`, `curvature` |
+
+See `?splot` for the complete parameter reference.

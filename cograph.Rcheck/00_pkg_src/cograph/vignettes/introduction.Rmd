@@ -1,0 +1,274 @@
+---
+title: "Introduction to cograph"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to cograph}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 6,
+  fig.height = 6
+)
+```
+
+## Overview
+
+cograph is a modern R package for network visualization. It provides a clean, pipe-friendly API for creating publication-quality network plots.
+
+```{r setup}
+library(cograph)
+```
+
+## Creating a Network
+
+cograph accepts several input formats:
+
+### From an Adjacency Matrix
+
+```{r matrix-input}
+# Create a simple adjacency matrix
+adj <- matrix(c(
+  0, 1, 1, 0, 0,
+  1, 0, 1, 1, 0,
+  1, 1, 0, 1, 1,
+  0, 1, 1, 0, 1,
+  0, 0, 1, 1, 0
+), nrow = 5, byrow = TRUE)
+
+# Add labels
+rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D", "E")
+
+# Create and render
+cograph(adj)
+```
+
+### From an Edge List
+
+```{r edgelist-input}
+edges <- data.frame(
+  from = c("Alice", "Alice", "Bob", "Carol"),
+  to = c("Bob", "Carol", "Carol", "Dave"),
+  weight = c(1, 2, 1, 3)
+)
+
+cograph(edges)
+```
+
+## Layouts
+
+cograph provides several layout algorithms:
+
+### Circular Layout
+
+```{r layout-circle}
+cograph(adj, layout = "circle")
+```
+
+### Force-Directed (Spring) Layout
+
+```{r layout-spring}
+cograph(adj, layout = "spring", seed = 42)
+```
+
+### Group-Based Layout
+
+```{r layout-groups}
+groups <- c(1, 1, 2, 2, 2)
+cograph(adj) |>
+  sn_layout("groups", groups = groups)
+```
+
+## Customizing Nodes
+
+```{r node-customization}
+cograph(adj) |>
+  sn_nodes(
+    size = 0.08,
+    shape = "circle",
+    fill = "steelblue",
+    border_color = "navy",
+    border_width = 2
+  )
+```
+
+### Per-Node Styles
+
+```{r node-per-node}
+cograph(adj) |>
+  sn_nodes(
+    size = c(0.05, 0.06, 0.08, 0.06, 0.05),
+    fill = c("red", "orange", "yellow", "green", "blue")
+  )
+```
+
+### Node Shapes
+
+Available shapes: `circle`, `square`, `triangle`, `diamond`, `pentagon`, `hexagon`, `ellipse`, `star`, `heart`, `pie`, `cross`.
+
+```{r node-shapes}
+cograph(adj) |>
+  sn_nodes(
+    shape = c("circle", "square", "triangle", "diamond", "star")
+  )
+```
+
+## Customizing Edges
+
+### Basic Edge Styling
+
+```{r edge-basic}
+cograph(adj) |>
+  sn_edges(
+    width = 2,
+    color = "gray40",
+    alpha = 0.7
+  )
+```
+### Weighted Edges
+
+For weighted networks, edge width and color can be mapped to weights:
+
+```{r edge-weighted}
+# Create weighted adjacency matrix
+weighted <- matrix(c(
+  0, 0.8, -0.5, 0, 0,
+  0.8, 0, 0.3, -0.7, 0,
+  -0.5, 0.3, 0, 0.6, -0.4,
+  0, -0.7, 0.6, 0, 0.9,
+  0, 0, -0.4, 0.9, 0
+), nrow = 5, byrow = TRUE)
+
+cograph(weighted) |>
+  sn_edges(
+    width = "weight",
+    color = "weight",
+    positive_color = "darkgreen",
+    negative_color = "darkred"
+  )
+```
+
+### Directed Networks
+
+```{r edge-directed}
+# Create directed network
+dir_adj <- matrix(c(
+  0, 1, 1, 0, 0,
+  0, 0, 1, 1, 0,
+  0, 0, 0, 1, 1,
+  0, 0, 0, 0, 1,
+  0, 0, 0, 0, 0
+), nrow = 5, byrow = TRUE)
+
+cograph(dir_adj, directed = TRUE) |>
+  sn_edges(
+    curvature = 0.1,
+    arrow_size = 0.015
+  )
+```
+
+## Themes
+
+cograph includes several built-in themes:
+
+### Classic Theme (Default)
+
+```{r theme-classic}
+cograph(adj) |> sn_theme("classic")
+```
+
+### Dark Theme
+
+```{r theme-dark}
+cograph(adj) |> sn_theme("dark")
+```
+
+### Minimal Theme
+
+```{r theme-minimal}
+cograph(adj) |> sn_theme("minimal")
+```
+
+### Colorblind-Friendly Theme
+
+```{r theme-colorblind}
+cograph(adj) |> sn_theme("colorblind")
+```
+
+## ggplot2 Conversion
+
+Convert your network to a ggplot2 object for additional customization:
+
+```{r ggplot-conversion}
+library(ggplot2)
+
+p <- cograph(adj) |>
+  sn_nodes(fill = "coral") |>
+  sn_ggplot()
+
+p +
+  labs(
+    title = "My Network",
+    subtitle = "Created with cograph"
+  ) +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+## Complete Example
+
+```{r complete-example}
+# Social network example
+social <- matrix(c(
+  0, 1, 1, 0, 0, 0,
+  1, 0, 1, 1, 0, 0,
+  1, 1, 0, 1, 1, 0,
+  0, 1, 1, 0, 1, 1,
+  0, 0, 1, 1, 0, 1,
+  0, 0, 0, 1, 1, 0
+), nrow = 6, byrow = TRUE)
+
+rownames(social) <- colnames(social) <-
+  c("Alice", "Bob", "Carol", "Dave", "Eve", "Frank")
+
+groups <- c("Team A", "Team A", "Team A", "Team B", "Team B", "Team B")
+
+social |>
+  cograph() |>
+  sn_layout("groups", groups = groups) |>
+  sn_nodes(
+    size = 0.06,
+    fill = ifelse(groups == "Team A", "#E69F00", "#56B4E9"),
+    border_width = 2
+  ) |>
+  sn_edges(width = 1.5, alpha = 0.6) |>
+  sn_theme("minimal") |>
+  sn_render(title = "Social Network")
+```
+
+## Saving Plots
+
+```{r saving, eval=FALSE}
+net <- cograph(adj) |>
+  sn_nodes(fill = "steelblue") |>
+  sn_theme("minimal")
+
+# Save as PDF
+sn_save(net, "network.pdf", width = 8, height = 8)
+
+# Save as PNG
+sn_save(net, "network.png", width = 8, height = 8, dpi = 300)
+
+# Save as SVG
+sn_save(net, "network.svg", width = 8, height = 8)
+```
+
+## Next Steps
+
+- Explore different layouts with `list_layouts()`
+- Try different shapes with `list_shapes()`
+- See available themes with `list_themes()`
+- Check out the ggplot2 vignette for advanced customization

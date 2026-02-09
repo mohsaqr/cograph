@@ -1,0 +1,274 @@
+---
+title: "ONA Demo: Window-to-Window Transitions"
+author: "Saqr Lab"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 8, fig.height = 8, message = FALSE, warning = FALSE)
+devtools::load_all(".")
+source("../experimental_ona.R")
+```
+
+## What is ONA?
+
+**Ordered Network Analysis (ONA)** computes window-to-window transitions where:
+
+- Every active state in window t connects to every active state in window t+1
+- Multiple codes can be active simultaneously (unlike TNA single-state sequences)
+- Preserves temporal order while allowing co-occurrence
+
+---
+
+## Two Output Types: Frequency vs Relative
+
+The `ona()` function supports two output types via the `type` parameter:
+
+| Type | Description | Row Sum | Use Case |
+|------|-------------|---------|----------|
+| `"frequency"` | Raw transition counts | Variable | Compare absolute activity levels |
+| `"relative"` | Transition probabilities | 1.0 | Compare relative patterns |
+
+### Frequency (Raw Counts)
+
+```
+type = "frequency"
+trans[i,j] = number of times state i active at t AND state j active at t+1
+```
+
+### Relative (Transition Probabilities)
+
+```
+type = "relative"
+trans[i,j] = P(j active at t+1 | i active at t)
+           = frequency[i,j] / rowSum(frequency[i,])
+```
+
+Each row sums to 1.0 (or 0 if no outgoing transitions from that state).
+
+---
+
+## Example 1: Frequency vs Relative Comparison
+
+Let's see the difference with a simple example:
+
+```{r type-comparison}
+# Simple data: 4 timepoints
+data <- data.frame(
+  A = c(1, 0, 0, 0),
+  B = c(0, 1, 1, 0),
+  C = c(0, 0, 0, 1)
+)
+
+cat("Data (one-hot encoded):\n")
+data
+
+cat("\nTransitions:\n")
+cat("t1: A active\n")
+cat("t2: B active     -> A->B\n")
+cat("t3: B active     -> B->B (self-loop)\n")
+cat("t4: C active     -> B->C\n")
+```
+
+```{r frequency-example}
+# FREQUENCY: Raw counts
+freq_model <- ona(data, type = "frequency")
+
+cat("FREQUENCY (raw counts):\n")
+freq_model$weights
+cat("\nRow sums:", rowSums(freq_model$weights), "\n")
+```
+
+```{r relative-example}
+# RELATIVE: Transition probabilities
+rel_model <- ona(data, type = "relative")
+
+cat("RELATIVE (probabilities):\n")
+round(rel_model$weights, 3)
+cat("\nRow sums:", rowSums(rel_model$weights), "\n")
+```
+
+**Interpretation:**
+
+- **Frequency**: A->B = 1 count, B->B = 1 count, B->C = 1 count
+- **Relative**: From B, 50% chance to stay at B, 50% chance to go to C
+
+---
+
+## Example 2: Multiple Active States (ONA-Specific)
+
+This is where ONA differs from TNA - multiple codes can be active per timepoint:
+
+```{r multi-active}
+# t1: A and B both active
+# t2: C and D both active
+multi <- data.frame(
+  A = c(1, 0),
+  B = c(1, 0),
+  C = c(0, 1),
+  D = c(0, 1)
+)
+
+cat("Timepoint 1: A=1, B=1 (both active)\n")
+cat("Timepoint 2: C=1, D=1 (both active)\n\n")
+multi
+```
+
+```{r multi-frequency}
+cat("FREQUENCY:\n")
+wtna(multi, type = "frequency")$weights
+```
+
+All 4 transitions captured: A->C, A->D, B->C, B->D (each = 1)
+
+```{r multi-relative}
+cat("\nRELATIVE:\n")
+round(ona(multi, type = "relative")$weights, 3)
+
+multi
+
+```
+
+From A: 50% to C, 50% to D (row sums to 1)
+
+```{r multi-plot}
+splot(wtna(multi, type = "frequency"),
+      title = "Multi-Code: {A,B} -> {C,D}",
+      layout = "circle",
+      edge_labels = TRUE,
+      curvature = 0.3,
+      edge_color = "#003355")
+
+```
+
+---
+
+## Example 3: Manual Counting Exercise
+
+Let's verify the math manually:
+
+```{r manual-count}
+# 6 timepoints with overlapping codes
+exercise <- data.frame(
+  X = c(1, 1, 0, 0, 0, 0),
+  Y = c(0, 1, 1, 0, 0, 0),
+  Z = c(0, 0, 1, 1, 1, 0)
+)
+
+cat("Data:\n")
+exercise
+
+cat("\nWindow-by-window active codes:\n")
+for (i in 1:6) {
+  active <- names(exercise)[exercise[i,] == 1]
+  cat(sprintf("t%d: {%s}\n", i, paste(active, collapse = ", ")))
+}
+```
+
+```{r manual-transitions}
+cat("\nTransitions (from t to t+1):\n")
+cat("t1->t2: {X} -> {X,Y}     = X->X, X->Y\n")
+cat("t2->t3: {X,Y} -> {Y,Z}   = X->Y, X->Z, Y->Y, Y->Z\n")
+cat("t3->t4: {Y,Z} -> {Z}     = Y->Z, Z->Z\n")
+cat("t4->t5: {Z} -> {Z}       = Z->Z\n")
+cat("t5->t6: {Z} -> {}        = (no transitions, t6 is empty)\n")
+```
+
+```{r manual-verify}
+cat("\nExpected frequency counts:\n")
+cat("X->X: 1, X->Y: 2, X->Z: 1\n")
+cat("Y->Y: 1, Y->Z: 2\n")
+cat("Z->Z: 2\n")
+
+cat("\nActual ONA output:\n")
+ona(exercise, type = "frequency")$weights
+```
+
+---
+
+## Example 4: Saqr Lab Learning Strategies
+
+```{r saqr-data}
+saqr_data <- data.frame(
+  window = 1:20,
+  Planning = c(1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1),
+  Content = c(1,1,1,1,1,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0),
+  Discussion = c(0,0,1,1,1,1,1,0,0,0,0,0,1,1,1,0,0,0,0,0),
+  Practice = c(0,0,0,0,1,1,1,1,1,1,0,0,0,1,1,1,1,0,0,0),
+  Reflection = c(0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,1,1,1,1,1)
+)
+
+head(saqr_data, 10)
+```
+
+```{r saqr-heatmap, fig.height=4, fig.width=10}
+library(ggplot2)
+
+saqr_long <- tidyr::pivot_longer(
+  saqr_data,
+  cols = -window,
+  names_to = "Strategy",
+  values_to = "Active"
+)
+
+ggplot(saqr_long, aes(x = window, y = Strategy, fill = factor(Active))) +
+  geom_tile(color = "white", linewidth = 0.5) +
+  scale_fill_manual(values = c("0" = "#f0f0f0", "1" = "#003355"),
+                    labels = c("Inactive", "Active")) +
+  labs(title = "Learning Strategy Activation Over Time",
+       x = "Window", y = "Strategy", fill = "") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+```{r saqr-both-types}
+saqr_data
+freq <- wtna(saqr_data, type = "frequency", method = "transition")
+splot(freq)
+
+freq4 <- wtna(saqr_data, type = "frequency", method = "transition")
+
+freq4$weights- freq$weights
+
+
+
+```
+
+```{r saqr-plot-freq}
+splot(freq,
+      title = "Learning Strategies - FREQUENCY",
+      layout = "circle",
+      edge_labels = TRUE,
+      edge_width = "weight",
+      curvature = 0.25,
+      node_fill = c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00"),
+      edge_color = "#003355")
+```
+
+```{r saqr-plot-rel}
+splot(rel,
+      title = "Learning Strategies - RELATIVE (probabilities)",
+      layout = "circle",
+      edge_labels = TRUE,
+      edge_label_template = "{w:.0%}",
+      edge_width = "weight",
+      curvature = 0.25,
+      minimum = 0.05,
+      node_fill = c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00"),
+      edge_color = "#003355")
+```
+
+---
+
+## Summary
+
+| Parameter | Values | Description |
+|-----------|--------|-------------|
+| `type` | `"frequency"` | Raw transition counts |
+|        | `"relative"` | Row-normalized probabilities (sum to 1) |
+| `cols` | character vector | Which columns are one-hot codes |
+| `params$actor_col` | column name | Group by actor (compute within-actor) |
+| `params$window_size` | integer | Aggregate rows into windows first |
+
+The `ona()` function returns a TNA-compatible object that works with `splot()`.

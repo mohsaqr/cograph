@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Input Formats</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Input Formats</h1>
+
+
+
+<div id="overview" class="section level2">
+<h2>Overview</h2>
+<p>cograph accepts network data in all common formats used in R. Pass
+any supported object directly to <code>splot()</code> and it will be
+automatically parsed.</p>
+</div>
+<div id="supported-formats" class="section level2">
+<h2>Supported Formats</h2>
+<div id="adjacencyweight-matrices" class="section level3">
+<h3>1. Adjacency/Weight Matrices</h3>
+<p>A square numeric matrix where <code>M[i,j]</code> represents the edge
+weight from node <code>i</code> to node <code>j</code>.</p>
+<p><strong>Sources:</strong></p>
+<ul>
+<li><code>cor()</code>, <code>cov()</code> — correlation and covariance
+matrices</li>
+<li><code>qgraph::getWmat()</code> — extract weights from qgraph
+objects</li>
+<li><code>bootnet::estimateNetwork()</code> — network estimation
+output</li>
+<li><code>psychonetrics</code> — structural equation modeling
+networks</li>
+<li><code>markovchain</code> — transition probability matrices</li>
+<li><code>as.matrix(dist())</code> — distance/dissimilarity
+matrices</li>
+</ul>
+<p><strong>Auto-detection:</strong></p>
+<ul>
+<li>Symmetric matrices are treated as undirected (upper triangle
+only)</li>
+<li>Asymmetric matrices are treated as directed (all entries)</li>
+<li>Node labels extracted from
+<code>rownames()</code>/<code>colnames()</code></li>
+</ul>
+<p><strong>Usage:</strong></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">splot</span>(matrix)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">splot</span>(matrix, <span class="at">directed =</span> <span class="cn">TRUE</span>)  <span class="co"># override auto-detection</span></span></code></pre></div>
+</div>
+<div id="edge-list-data-frames" class="section level3">
+<h3>2. Edge List Data Frames</h3>
+<p>A data frame where each row is an edge with source, target, and
+optional weight columns.</p>
+<p><strong>Sources:</strong></p>
+<ul>
+<li>Database exports (SQL joins on relationship tables)</li>
+<li>CSV files from SNAP, Pajek, KONECT repositories</li>
+<li><code>igraph::as_data_frame(g, what = &quot;edges&quot;)</code></li>
+<li>API responses from social platforms</li>
+<li>Parsed log files</li>
+</ul>
+<p><strong>Column detection (case-insensitive):</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>Purpose</th>
+<th>Recognized names</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Source</td>
+<td><code>from</code>, <code>source</code>, <code>src</code>,
+<code>v1</code>, <code>node1</code>, <code>i</code></td>
+</tr>
+<tr class="even">
+<td>Target</td>
+<td><code>to</code>, <code>target</code>, <code>tgt</code>,
+<code>v2</code>, <code>node2</code>, <code>j</code></td>
+</tr>
+<tr class="odd">
+<td>Weight</td>
+<td><code>weight</code>, <code>w</code>, <code>value</code>,
+<code>strength</code></td>
+</tr>
+</tbody>
+</table>
+<p>Falls back to columns 1 and 2 if no match.</p>
+<p><strong>Usage:</strong></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">splot</span>(<span class="fu">data.frame</span>(<span class="at">from =</span> ..., <span class="at">to =</span> ..., <span class="at">weight =</span> ...))</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">splot</span>(edges, <span class="at">edge_duplicates =</span> <span class="st">&quot;sum&quot;</span>)  <span class="co"># handle duplicates</span></span></code></pre></div>
+</div>
+<div id="igraph-objects" class="section level3">
+<h3>3. igraph Objects</h3>
+<p>Objects of class <code>igraph</code> from the igraph package.</p>
+<p><strong>Sources:</strong></p>
+<ul>
+<li><code>graph_from_data_frame()</code>,
+<code>graph_from_adjacency_matrix()</code></li>
+<li><code>make_graph(&quot;Zachary&quot;)</code>, <code>make_ring()</code>,
+<code>sample_pa()</code>, etc.</li>
+<li><code>read_graph()</code> — import from GraphML, GML, Pajek, edge
+lists</li>
+<li><code>intergraph::asIgraph()</code> — convert from network
+objects</li>
+</ul>
+<p><strong>Preserved:</strong></p>
+<ul>
+<li>Vertex attributes: <code>V(g)$name</code>, <code>V(g)$color</code>,
+etc.</li>
+<li>Edge attributes: <code>E(g)$weight</code>, <code>E(g)$type</code>,
+etc.</li>
+<li>Directedness from <code>is_directed(g)</code></li>
+</ul>
+<p><strong>Usage:</strong></p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">splot</span>(g)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">splot</span>(g, <span class="at">layout =</span> <span class="st">&quot;fr&quot;</span>)  <span class="co"># use igraph layouts: fr, kk, circle, drl, mds</span></span></code></pre></div>
+</div>
+<div id="network-objects-statnet" class="section level3">
+<h3>4. network Objects (statnet)</h3>
+<p>Objects of class <code>network</code> from the network/statnet
+ecosystem.</p>
+<p><strong>Sources:</strong></p>
+<ul>
+<li><code>network::network()</code> — create from matrix or edge
+list</li>
+<li><code>ergm</code> package — exponential random graph models</li>
+<li><code>sna</code> package — social network analysis</li>
+<li><code>intergraph::asNetwork()</code> — convert from igraph</li>
+<li>Import from Pajek, UCINET formats</li>
+</ul>
+<p><strong>Preserved:</strong></p>
+<ul>
+<li>Vertex attributes via <code>%v%</code> operator</li>
+<li>Edge attributes via <code>%e%</code> operator</li>
+<li>Directedness from <code>is.directed()</code></li>
+</ul>
+<p><strong>Usage:</strong></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">splot</span>(net)</span></code></pre></div>
+</div>
+<div id="qgraph-objects" class="section level3">
+<h3>5. qgraph Objects</h3>
+<p>Objects created by the qgraph package.</p>
+<p><strong>Sources:</strong></p>
+<ul>
+<li><code>qgraph::qgraph(..., DoNotPlot = TRUE)</code></li>
+<li><code>bootnet::estimateNetwork()</code> results</li>
+<li><code>psychonetrics</code> model outputs</li>
+</ul>
+<p><strong>Preserved:</strong></p>
+<ul>
+<li>Layout coordinates from <code>q$layout</code></li>
+<li>Edge weights from <code>q$Edgelist</code></li>
+<li>Node labels from <code>q$graphAttributes$Nodes</code></li>
+</ul>
+<p><strong>Usage:</strong></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">splot</span>(qgraph_object)  <span class="co"># preserves existing layout</span></span></code></pre></div>
+</div>
+<div id="tna-objects" class="section level3">
+<h3>6. TNA Objects</h3>
+<p>Objects of class <code>tna</code> from the tna package (Transition
+Network Analysis).</p>
+<p><strong>Sources:</strong></p>
+<ul>
+<li><code>tna::tna()</code> — build from sequence data</li>
+<li><code>tna::group_tna()</code> — grouped transition analysis</li>
+<li>Learning analytics, process mining, behavioral sequences</li>
+</ul>
+<p><strong>Extracted:</strong> - Transition matrix from
+<code>$weights</code> - State labels from <code>$labels</code> - Initial
+probabilities from <code>$inits</code></p>
+<p><strong>Usage:</strong></p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">splot</span>(tna_model)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="fu">splot</span>(tna_model, <span class="at">node_shape =</span> <span class="st">&quot;donut&quot;</span>, <span class="at">donut_fill =</span> tna_model<span class="sc">$</span>inits)</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="fu">splot</span>(group_tna_model, <span class="at">i =</span> <span class="dv">1</span>)  <span class="co"># select group by index or name</span></span></code></pre></div>
+</div>
+</div>
+<div id="weight-preprocessing" class="section level2">
+<h2>Weight Preprocessing</h2>
+<table>
+<colgroup>
+<col width="57%" />
+<col width="42%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>weight_digits = 2</code></td>
+<td>Round weights; edges rounding to zero are removed</td>
+</tr>
+<tr class="even">
+<td><code>threshold = 0.3</code></td>
+<td>Remove edges with |weight| &lt; threshold</td>
+</tr>
+<tr class="odd">
+<td><code>minimum = 0.3</code></td>
+<td>Alias for threshold (qgraph compatibility)</td>
+</tr>
+<tr class="even">
+<td><code>maximum = 1.0</code></td>
+<td>Set reference maximum for edge width scaling</td>
+</tr>
+<tr class="odd">
+<td><code>edge_scale_mode</code></td>
+<td><code>&quot;linear&quot;</code>, <code>&quot;sqrt&quot;</code>, <code>&quot;log&quot;</code>, or
+<code>&quot;rank&quot;</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="special-cases" class="section level2">
+<h2>Special Cases</h2>
+<table>
+<colgroup>
+<col width="47%" />
+<col width="52%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Feature</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Negative weights</td>
+<td>Colored differently (green/red by default)</td>
+</tr>
+<tr class="even">
+<td>Self-loops</td>
+<td>Rendered as loops; control angle with
+<code>loop_rotation</code></td>
+</tr>
+<tr class="odd">
+<td>Reciprocal edges</td>
+<td>Curved apart automatically in directed networks</td>
+</tr>
+<tr class="even">
+<td>Duplicate edges</td>
+<td>Error by default; use <code>edge_duplicates</code> to aggregate</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="conversion-functions" class="section level2">
+<h2>Conversion Functions</h2>
+<p>cograph provides functions to convert between formats. All conversion
+functions accept any supported input type.</p>
+<div id="as_cograph-to_cograph-import-to-cograph" class="section level3">
+<h3>as_cograph() / to_cograph() — Import to cograph</h3>
+<p>Convert any format to a <code>cograph_network</code> object.</p>
+<p><strong>Accepted inputs:</strong></p>
+<ul>
+<li><code>matrix</code> — Adjacency/weight matrix</li>
+<li><code>data.frame</code> — Edge list with from/to/weight columns</li>
+<li><code>igraph</code> — igraph object</li>
+<li><code>network</code> — statnet network object</li>
+<li><code>qgraph</code> — qgraph object</li>
+<li><code>tna</code> — TNA model object</li>
+<li><code>group_tna</code> — Grouped TNA model object</li>
+</ul>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>net <span class="ot">&lt;-</span> <span class="fu">as_cograph</span>(matrix)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>net <span class="ot">&lt;-</span> <span class="fu">as_cograph</span>(igraph_obj)</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>net <span class="ot">&lt;-</span> <span class="fu">as_cograph</span>(tna_model)</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co"># Override auto-detected directedness</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>net <span class="ot">&lt;-</span> <span class="fu">as_cograph</span>(matrix, <span class="at">directed =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<p>The function is idempotent — passing a <code>cograph_network</code>
+returns it unchanged.</p>
+</div>
+<div id="to_igraph-export-to-igraph" class="section level3">
+<h3>to_igraph() — Export to igraph</h3>
+<p>Convert any format to an igraph object:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># From matrix</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>adj <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>), <span class="dv">3</span>, <span class="dv">3</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="fu">rownames</span>(adj) <span class="ot">&lt;-</span> <span class="fu">colnames</span>(adj) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;C&quot;</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">to_igraph</span>(adj)</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co"># From cograph_network</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">to_igraph</span>(net)</span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co"># From tna</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">to_igraph</span>(tna_model)</span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co"># Force directed/undirected</span></span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">to_igraph</span>(adj, <span class="at">directed =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">to_igraph</span>(adj, <span class="at">directed =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+</div>
+<div id="to_data_frame-to_df-export-to-edge-list" class="section level3">
+<h3>to_data_frame() / to_df() — Export to Edge List</h3>
+<p>Convert any format to an edge list data frame:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>adj <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">5</span>, .<span class="dv">8</span>,</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>                .<span class="dv">5</span>, <span class="dv">0</span>, .<span class="dv">3</span>,</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>                .<span class="dv">8</span>, .<span class="dv">3</span>, <span class="dv">0</span>), <span class="dv">3</span>, <span class="dv">3</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="fu">rownames</span>(adj) <span class="ot">&lt;-</span> <span class="fu">colnames</span>(adj) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;C&quot;</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">to_df</span>(adj)</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#   from to weight</span></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co"># 1    A  B    0.5</span></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co"># 2    A  C    0.8</span></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co"># 3    B  C    0.3</span></span></code></pre></div>
+<p>Output columns: <code>from</code>, <code>to</code>,
+<code>weight</code></p>
+</div>
+<div id="to_matrix-export-to-adjacency-matrix" class="section level3">
+<h3>to_matrix() — Export to Adjacency Matrix</h3>
+<p>Convert any format to an adjacency matrix:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># From cograph_network</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>net <span class="ot">&lt;-</span> <span class="fu">as_cograph</span>(adj)</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>mat <span class="ot">&lt;-</span> <span class="fu">to_matrix</span>(net)</span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co"># From igraph</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>g <span class="ot">&lt;-</span> igraph<span class="sc">::</span><span class="fu">make_ring</span>(<span class="dv">5</span>)</span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>mat <span class="ot">&lt;-</span> <span class="fu">to_matrix</span>(g)</span></code></pre></div>
+<p>Returns a square numeric matrix with row/column names preserved.</p>
+</div>
+<div id="to_network-export-to-statnet-network" class="section level3">
+<h3>to_network() — Export to statnet network</h3>
+<p>Convert any format to a statnet network object:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>adj <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>), <span class="dv">3</span>, <span class="dv">3</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="fu">rownames</span>(adj) <span class="ot">&lt;-</span> <span class="fu">colnames</span>(adj) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;C&quot;</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="co"># Convert to statnet network</span></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>statnet_net <span class="ot">&lt;-</span> <span class="fu">to_network</span>(adj)</span></code></pre></div>
+<p>Requires the <code>network</code> package. Preserves edge weights and
+vertex names.</p>
+<table>
+<colgroup>
+<col width="35%" />
+<col width="28%" />
+<col width="35%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Function</th>
+<th>Output</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>as_cograph()</code> / <code>to_cograph()</code></td>
+<td><code>cograph_network</code></td>
+<td>Import for visualization with splot</td>
+</tr>
+<tr class="even">
+<td><code>to_igraph()</code></td>
+<td><code>igraph</code></td>
+<td>Use igraph’s analysis functions</td>
+</tr>
+<tr class="odd">
+<td><code>to_df()</code></td>
+<td><code>data.frame</code></td>
+<td>Export to CSV, database, or other tools</td>
+</tr>
+<tr class="even">
+<td><code>to_matrix()</code></td>
+<td><code>matrix</code></td>
+<td>Export to adjacency matrix for other packages</td>
+</tr>
+<tr class="odd">
+<td><code>to_network()</code></td>
+<td><code>network</code></td>
+<td>Use with statnet/ergm ecosystem</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="summary" class="section level2">
+<h2>Summary</h2>
+<table>
+<colgroup>
+<col width="17%" />
+<col width="17%" />
+<col width="24%" />
+<col width="21%" />
+<col width="19%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Input</th>
+<th>Class</th>
+<th>Directed</th>
+<th>Weights</th>
+<th>Labels</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Matrix</td>
+<td><code>matrix</code></td>
+<td>Symmetry check</td>
+<td>Cell values</td>
+<td>dimnames</td>
+</tr>
+<tr class="even">
+<td>Edge list</td>
+<td><code>data.frame</code></td>
+<td>Reciprocal check</td>
+<td>weight column</td>
+<td>Unique nodes</td>
+</tr>
+<tr class="odd">
+<td>igraph</td>
+<td><code>igraph</code></td>
+<td><code>is_directed()</code></td>
+<td>weight attr</td>
+<td>name attr</td>
+</tr>
+<tr class="even">
+<td>network</td>
+<td><code>network</code></td>
+<td><code>is.directed()</code></td>
+<td>weight attr</td>
+<td>vertex.names</td>
+</tr>
+<tr class="odd">
+<td>qgraph</td>
+<td><code>qgraph</code></td>
+<td>Edgelist</td>
+<td>Edgelist</td>
+<td>Node names</td>
+</tr>
+<tr class="even">
+<td>tna</td>
+<td><code>tna</code></td>
+<td>Always TRUE</td>
+<td><code>$weights</code></td>
+<td><code>$labels</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

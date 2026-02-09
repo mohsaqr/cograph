@@ -246,11 +246,8 @@ sn_edges <- function(network,
   # Auto-convert matrix/data.frame/igraph to cograph_network
   network <- ensure_cograph_network(network)
 
-  # Clone the network to maintain immutability
-  new_net <- network$network$clone_network()
-
   # Get edge count for validation
-  edges_df <- new_net$get_edges()
+  edges_df <- get_edges(network)
   m <- if (is.null(edges_df)) 0 else nrow(edges_df)
 
   # Build aesthetics list
@@ -302,9 +299,9 @@ sn_edges <- function(network,
   if (!is.null(color)) {
     if (identical(color, "weight") && !is.null(edges_df$weight)) {
       # Color by weight sign: positive = green, negative = red
-      current_aes <- new_net$get_edge_aes()
-      pos_col <- if (!is.null(edge_positive_color)) edge_positive_color else current_aes$positive_color
-      neg_col <- if (!is.null(edge_negative_color)) edge_negative_color else current_aes$negative_color
+      current_aes <- if (!is.null(network$edge_aes)) network$edge_aes else list()
+      pos_col <- if (!is.null(edge_positive_color)) edge_positive_color else (current_aes$positive_color %||% "#2E7D32")
+      neg_col <- if (!is.null(edge_negative_color)) edge_negative_color else (current_aes$negative_color %||% "#C62828")
       aes$color <- ifelse(edges_df$weight >= 0, pos_col, neg_col)
     } else {
       aes$color <- resolve_aesthetic(color, edges_df, m)
@@ -522,11 +519,14 @@ sn_edges <- function(network,
     aes$label_stars <- label_stars
   }
 
-  # Apply aesthetics
-  new_net$set_edge_aes(aes)
+  # Apply aesthetics to network (merge with existing)
+  if (is.null(network$edge_aes)) {
+    network$edge_aes <- list()
+  }
+  network$edge_aes <- utils::modifyList(network$edge_aes, aes)
 
-  # Return wrapped object
-  as_cograph_network(new_net)
+  # Return modified network
+  network
 }
 
 #' Scale Edge Widths (Simple Version)

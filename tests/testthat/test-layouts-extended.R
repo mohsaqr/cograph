@@ -90,8 +90,8 @@ test_that("sn_layout() applies igraph layouts correctly", {
   # Change to igraph layout
   net2 <- sn_layout(net, "kk", seed = 42)
 
-  layout1 <- net$network$get_layout()
-  layout2 <- net2$network$get_layout()
+  layout1 <- net$layout
+  layout2 <- net2$layout
 
   # Layouts should be different
   expect_false(all(layout1$x == layout2$x))
@@ -102,7 +102,7 @@ test_that("cograph() accepts igraph layout function directly", {
   adj <- create_test_matrix(6)
 
   net <- cograph(adj, layout = igraph::layout_with_kk)
-  layout <- net$network$get_layout()
+  layout <- net$layout
 
   expect_equal(nrow(layout), 6)
   expect_true(all(c("x", "y") %in% names(layout)))
@@ -135,7 +135,7 @@ test_that("sn_layout() accepts custom coordinates", {
   custom_coords <- matrix(c(0.5, 0, 1, 0.5, 0, 0.5, 0.5, 1), ncol = 2)
   net2 <- sn_layout(net, custom_coords)
 
-  layout <- net2$network$get_layout()
+  layout <- net2$layout
   expect_equal(nrow(layout), 4)
 })
 

@@ -4,7 +4,13 @@
 \alias{format_ci_range}
 \title{Format CI Range}
 \usage{
-format_ci_range(lower, upper, digits = 2, format = "bracket")
+format_ci_range(
+  lower,
+  upper,
+  digits = 2,
+  format = "bracket",
+  leading_zero = TRUE
+)
 }
 \arguments{
 \item{lower}{Lower bound.}
@@ -14,6 +20,8 @@ format_ci_range(lower, upper, digits = 2, format = "bracket")
 \item{digits}{Number of decimal places.}
 
 \item{format}{CI format: "bracket" for \verb{[low, up]} or "dash" for \code{low-up}.}
+
+\item{leading_zero}{Logical: include leading zero for values < 1? Default TRUE.}
 }
 \value{
 Formatted CI range string.

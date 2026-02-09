@@ -1,0 +1,171 @@
+---
+title: "Bootstrap Analysis: TNA vs Cograph"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.width = 12, fig.height = 5)
+library(cograph)
+library(tna)
+library(Saqrlab)
+```
+
+## Simulate Markov Chain Sequences
+
+```{r simulate}
+set.seed(77)
+sequences <- simulate_sequences(
+  states = 10,
+  n_sequences = 100,
+  seq_length = 25,
+  learning_categories = "cognitive",
+  use_learning_states = TRUE,
+  na_range = 3:20
+)
+
+head(sequences, 10)
+```
+
+## Build TNA Model
+
+```{r model}
+model <- tna(sequences)
+model
+
+PL <- plot(model)
+
+from_tna (model)
+
+  
+```
+
+## Run Bootstrap with Same Seed
+
+```{r bootstrap}
+set.seed(2024)
+tna_boot <- tna::bootstrap(model, iter = 1000)
+
+splot(tna_boot)
+
+
+set.seed(2024)
+
+cograph_boot <- cograph::bootstrap(model, iter = 1000)
+
+
+cograph_boot$ci_lower
+cograph_boot$ci_upper
+
+cograph_boot$summary
+
+print(cograph_boot, type="sig")
+
+```
+
+## Compare Significant Matrices
+
+```{r compare}
+cat("Matrices identical:", identical(tna_boot$weights_sig, cograph_boot$weights_sig), "\n")
+cat("P-value correlation:", cor(c(tna_boot$p_values), c(cograph_boot$p_values)), "\n")
+cat("Max difference:", max(abs(tna_boot$weights_sig - cograph_boot$weights_sig)), "\n")
+```
+
+## Bootstrap Visualization (TNA-Matching Style)
+
+The `splot.tna_bootstrap()` method produces TNA-matching visualizations:
+
+- **Solid dark green edges** = significant (p < 0.05)
+- **Dashed light gray edges** = non-significant
+- **Blue nodes** = TNA default styling
+- **No edge labels** by default (clean visualization)
+
+```{r default-plot, fig.height=6}
+# Default: TNA-style bootstrap plot
+splot(cograph_boot, title = "Bootstrap Results (TNA Style)")
+
+```
+
+## Display Modes
+
+```{r display-modes, fig.height=6}
+par(mfrow = c(2, 2))
+
+# Styled: distinguishes sig/non-sig edges (default)
+splot(cograph_boot, show = "styled", title = "Styled (default)")
+
+# Significant only: shows only significant edges
+splot(cograph_boot, show = "significant", title = "Significant Only")
+
+# Full: all edges without styling
+splot(cograph_boot, show = "full", title = "Full Network")
+
+# CI mode: shows confidence interval bands
+splot(cograph_boot, show = "ci", title = "With CI Bands")
+```
+
+## Optional: Add Significance Stars
+
+```{r with-stars, fig.height=6}
+par(mfrow = c(1, 2))
+
+# Default: no stars (TNA style)
+splot(cograph_boot, title = "Default (no stars)")
+
+# With stars: shows *, **, *** based on p-values
+splot(cograph_boot, show_stars = TRUE, title = "With Significance Stars")
+```
+
+## Customizing Significance Styling
+
+```{r custom-styling, fig.height=6}
+par(mfrow = c(1, 2))
+
+# Pink non-significant edges
+splot(cograph_boot,
+      color_nonsig = "pink",
+      title = "Pink Non-Significant")
+
+# Gray dotted non-significant edges
+splot(cograph_boot,
+      color_nonsig = "gray60",
+      edge_style_nonsig = 3,  # dotted
+      title = "Gray Dotted Non-Significant")
+```
+
+## CI Bands Visualization
+
+```{r ci-bands, fig.height=6}
+# CI bands show uncertainty - wider bands = more uncertainty
+splot(cograph_boot,
+      show_ci = TRUE,
+      edge_ci_alpha = 0.25,
+      title = "Bootstrap with CI Uncertainty Bands")
+
+plot(tna_boot)
+
+
+as_cograph(model)
+
+"lightmaroon"
+
+
+Nn <- cograph(model$weights)
+
+Nn$edge_aes
+
+
+as.igraph(model)
+
+
+
+```
+
+## Summary Statistics
+
+```{r summary}
+# Bootstrap summary
+print(cograph_boot)
+
+# Detailed edge-level results
+head(cograph_boot$summary, 10)
+```

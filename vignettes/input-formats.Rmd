@@ -183,7 +183,7 @@ splot(group_tna_model, i = 1)  # select group by index or name
 
 cograph provides functions to convert between formats. All conversion functions accept any supported input type.
 
-### as_cograph() — Import to cograph
+### as_cograph() / to_cograph() — Import to cograph
 
 Convert any format to a `cograph_network` object.
 
@@ -280,7 +280,7 @@ Requires the `network` package. Preserves edge weights and vertex names.
 
 | Function | Output | Use Case |
 |----------|--------|----------|
-| `as_cograph()` | `cograph_network` | Import for visualization with splot |
+| `as_cograph()` / `to_cograph()` | `cograph_network` | Import for visualization with splot |
 | `to_igraph()` | `igraph` | Use igraph's analysis functions |
 | `to_df()` | `data.frame` | Export to CSV, database, or other tools |
 | `to_matrix()` | `matrix` | Export to adjacency matrix for other packages |

@@ -1,0 +1,102 @@
+---
+title: "Network Validation"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 10, fig.height = 4)
+library(cograph)
+library(tna)
+```
+
+## Bootstrap
+
+```{r bootstrap, fig.height=5}
+model <- atna(group_regulation)
+boot_result <- cograph::bootstrap(model, iter = 1000)
+
+boot_result2 <- tna::bootstrap(model, iter = 1000)
+
+
+boot_result$weights_sig - boot_result2$weights_sig 
+
+
+model <- ctna(group_regulation)
+splot(model, directed = TRUE)
+
+
+```
+
+```{r bootstrap-sig, fig.height=5}
+par(mfrow = c(1, 2))
+splot(boot_result, show = "significant", title = "Significant Only")
+splot(boot_result, width_by = "ci", title = "Width = CI Precision")
+```
+
+```{r bootstrap-summary}
+boot_result
+```
+
+## Permutation Test
+
+```{r permutation, fig.height=5}
+# Split data for comparison
+n <- nrow(group_regulation)
+group1 <- group_regulation[1:(n/2), ]
+group2 <- group_regulation[(n/2 + 1):n, ]
+
+model1 <- tna(group1)
+model2 <- tna(group2)
+
+perm_result <- cograph::permutation_test(model1, model2, iter = 500)
+
+par(mfrow = c(1, 3))
+splot(model1, title = "Group 1")
+splot(model2, title = "Group 2")
+splot(perm_result, title = "Differences (dashed = non-sig)")
+
+```
+
+```{r perm-summary}
+perm_result
+```
+
+## Centrality Stability
+
+```{r stability, fig.height=5}
+cs_result <- cograph::estimate_cs(model, iter = 100, drop_prop = seq(0.1, 0.7, 0.1))
+cs_result
+
+plot(cs_result)
+```
+
+## Disparity Filter
+
+```{r disparity, fig.height=5}
+disp_result <- cograph::disparity_filter(model, level = 0.05)
+
+par(mfrow = c(1, 2))
+splot(disp_result, show = "full", title = "Original")
+splot(disp_result, title = "Styled (dashed = non-backbone)")
+```
+
+```{r disp-summary}
+disp_result
+```
+
+## Non-TNA Networks
+
+```{r non-tna, fig.height=5}
+set.seed(42)
+data <- matrix(rnorm(500), 100, 5)
+colnames(data) <- paste0("V", 1:5)
+
+net <- as_cograph(cor(data))
+net <- set_raw_data(net, data, estimator = function(d) cor(d))
+
+boot_cor <- cograph::bootstrap(net, iter = 200)
+
+par(mfrow = c(1, 2))
+splot(net, title = "Correlation Network")
+splot(boot_cor, title = "Styled (dashed = non-sig)")
+```

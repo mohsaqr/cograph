@@ -6,7 +6,7 @@
 \usage{
 splot(
   x,
-  layout = "spring",
+  layout = "oval",
   directed = NULL,
   seed = 42,
   theme = NULL,
@@ -100,6 +100,7 @@ splot(
   edge_label_digits = 2,
   edge_label_oneline = TRUE,
   edge_label_ci_format = "bracket",
+  edge_label_leading_zero = TRUE,
   edge_ci_lower = NULL,
   edge_ci_upper = NULL,
   edge_label_p = NULL,

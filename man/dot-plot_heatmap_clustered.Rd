@@ -7,6 +7,7 @@
 .plot_heatmap_clustered(
   mat,
   cluster_list,
+  cluster_spacing,
   show_legend,
   legend_position,
   legend_title,

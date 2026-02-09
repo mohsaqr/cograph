@@ -205,8 +205,8 @@ expect_in_range <- function(x, min, max) {
 #' @param x Object to check
 expect_cograph_network <- function(x) {
   expect_s3_class(x, "cograph_network")
-  expect_true(!is.null(x$network))
-  expect_true(x$network$n_nodes >= 0)
+  expect_true(!is.null(x$n_nodes))
+  expect_true(n_nodes(x) >= 0)
 }
 
 # ============================================
@@ -304,16 +304,16 @@ validate_network <- function(net, expected_nodes = NULL, expected_edges = NULL) 
   expect_cograph_network(net)
 
   if (!is.null(expected_nodes)) {
-    expect_equal(net$network$n_nodes, expected_nodes)
+    expect_equal(n_nodes(net), expected_nodes)
   }
 
   if (!is.null(expected_edges)) {
-    expect_equal(net$network$n_edges, expected_edges)
+    expect_equal(n_edges(net), expected_edges)
   }
 
   # Validate layout exists
-  layout <- net$network$get_layout()
+  layout <- net$layout
   expect_false(is.null(layout))
-  expect_equal(nrow(layout), net$network$n_nodes)
+  expect_equal(nrow(layout), n_nodes(net))
   expect_true(all(c("x", "y") %in% names(layout)))
 }

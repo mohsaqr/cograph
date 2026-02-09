@@ -243,7 +243,7 @@ test_that("sn_palette() applies palette to nodes", {
   net2 <- sn_palette(net, "viridis", target = "nodes")
 
   expect_cograph_network(net2)
-  aes <- net2$network$get_node_aes()
+  aes <- net2$node_aes
   expect_true(!is.null(aes$fill))
 })
 
@@ -254,7 +254,7 @@ test_that("sn_palette() applies palette to edges", {
   net2 <- sn_palette(net, "viridis", target = "edges")
 
   expect_cograph_network(net2)
-  aes <- net2$network$get_edge_aes()
+  aes <- net2$edge_aes
   expect_true(!is.null(aes$positive_color) || !is.null(aes$negative_color))
 })
 
@@ -286,7 +286,7 @@ test_that("sn_palette() works with custom palette function", {
   net2 <- sn_palette(net, custom_pal)
 
   expect_cograph_network(net2)
-  aes <- net2$network$get_node_aes()
+  aes <- net2$node_aes
   expect_true(all(aes$fill == "purple"))
 })
 
@@ -310,13 +310,13 @@ test_that("sn_palette() can map colors by variable", {
 test_that("sn_palette() preserves network structure", {
   adj <- create_test_matrix(5)
   net <- cograph(adj)
-  n_nodes_before <- net$network$n_nodes
-  n_edges_before <- net$network$n_edges
+  n_nodes_before <- n_nodes(net)
+  n_edges_before <- n_edges(net)
 
   net2 <- sn_palette(net, "viridis")
 
-  expect_equal(net2$network$n_nodes, n_nodes_before)
-  expect_equal(net2$network$n_edges, n_edges_before)
+  expect_equal(n_nodes(net2), n_nodes_before)
+  expect_equal(n_edges(net2), n_edges_before)
 })
 
 # ============================================

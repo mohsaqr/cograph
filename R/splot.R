@@ -552,7 +552,7 @@ splot <- function(
   }
 
   # Convert to cograph_network if needed
-  network <- ensure_cograph_network(x, layout = layout, seed = seed, ...)
+  network <- ensure_cograph_network(x, layout = layout, seed = seed, directed = directed, ...)
 
   # ============================================
   # AUTO-DISPATCH TO SPECIALIZED PLOT FUNCTIONS
@@ -606,10 +606,6 @@ splot <- function(
     layout_coords <- data.frame(x = nodes$x, y = nodes$y)
   } else if (!is.null(network$layout)) {
     layout_coords <- network$layout
-  } else if (!is.null(attr(network, "layout"))) {
-    layout_coords <- attr(network, "layout")
-  } else if (!is.null(network$network) && inherits(network$network, "CographNetwork")) {
-    layout_coords <- network$network$get_layout()
   } else {
     layout_coords <- NULL
   }
@@ -647,10 +643,9 @@ splot <- function(
       }
       edges <- aggregate_duplicate_edges(edges, edge_duplicates)
       n_edges <- nrow(edges)
-      # Update the network object with deduplicated edges (old format only)
-      if (!is.null(network$network) && inherits(network$network, "CographNetwork")) {
-        network$network$set_edges(edges)
-      }
+      # Update the network object with deduplicated edges
+      network$edges <- edges
+      network$n_edges <- n_edges
     }
   }
 
@@ -872,17 +867,32 @@ splot <- function(
       }
     }
 
-    # Curve magnitude (user-specified or default 0.25)
-    curve_magnitude <- if (curvature == 0) 0.175 else abs(curvature)
+    # Curve magnitude (user-specified or default 0.175)
+    # Handle both scalar and per-edge vector curvature
+    if (length(curvature) == 1) {
+      curve_magnitude <- if (curvature == 0) 0.175 else abs(curvature)
+      curves_vec <- rep(0, n_edges)
+    } else {
+      # Per-edge curvature vector provided
+      # curvature = 0 means straight (no curve), otherwise use specified value
+      curve_magnitude <- ifelse(curvature == 0, 0, abs(curvature))
+      curve_magnitude <- recycle_to_length(curve_magnitude, n_edges)
+      curves_vec <- curve_magnitude  # Use directly as curves_vec
+    }
 
-    # Initialize curves vector to 0 (straight)
-    curves_vec <- rep(0, n_edges)
+    # Initialize curves vector to 0 (straight) if scalar curvature
+    if (length(curvature) == 1) {
+      curves_vec <- rep(0, n_edges)
+    }
 
     # Calculate network center for curve direction
     center_x <- mean(layout_mat[, 1])
     center_y <- mean(layout_mat[, 2])
 
-    if (identical(curves, TRUE) || identical(curves, "mutual")) {
+    # Skip auto-curving if per-edge curvature vector was provided
+    per_edge_curvature <- length(curvature) > 1
+
+    if (!per_edge_curvature && (identical(curves, TRUE) || identical(curves, "mutual"))) {
       # Curve reciprocal edges in opposite directions.
       # Use canonical ordering (lower node index first) so both edges in a pair
       # compute the same perpendicular reference, then assign opposite signs.
@@ -916,7 +926,7 @@ splot <- function(
           curves_vec[i] <- outward_sign * curve_magnitude
         }
       }
-    } else if (identical(curves, "force")) {
+    } else if (!per_edge_curvature && identical(curves, "force")) {
       # Curve all edges with the specified magnitude
       for (i in seq_len(n_edges)) {
         if (edges$from[i] == edges$to[i]) next  # Skip self-loops
@@ -1319,6 +1329,7 @@ render_edges_splot <- function(edges, layout, node_sizes, shapes,
   # Expand CI parameters to per-edge vectors
   edge_ci_scales <- expand_param(edge_ci_scale, m, "edge_ci_scale")
   edge_ci_alphas <- expand_param(edge_ci_alpha, m, "edge_ci_alpha")
+  edge_ci_arrows_vec <- expand_param(edge_ci_arrows, m, "edge_ci_arrows")
 
   # Storage for label positions
   label_positions <- vector("list", m)
@@ -1426,7 +1437,7 @@ render_edges_splot <- function(edges, layout, node_sizes, shapes,
           lwd = underlay_width,
           lty = edge_ci_style,
           rotation = loop_rotation[i],
-          arrow = edge_ci_arrows,
+          arrow = edge_ci_arrows_vec[i],
           asize = arrow_size[i],
           arrow_angle = arrow_angle
         )
@@ -1483,7 +1494,7 @@ render_edges_splot <- function(edges, layout, node_sizes, shapes,
           col = underlay_col,
           lwd = underlay_width,
           lty = edge_ci_style,
-          arrow = edge_ci_arrows,
+          arrow = edge_ci_arrows_vec[i],
           asize = arrow_size[i],
           bidirectional = FALSE,
           arrow_angle = arrow_angle
@@ -1494,7 +1505,7 @@ render_edges_splot <- function(edges, layout, node_sizes, shapes,
           col = underlay_col,
           lwd = underlay_width,
           lty = edge_ci_style,
-          arrow = edge_ci_arrows,
+          arrow = edge_ci_arrows_vec[i],
           asize = arrow_size[i],
           bidirectional = FALSE,
           arrow_angle = arrow_angle

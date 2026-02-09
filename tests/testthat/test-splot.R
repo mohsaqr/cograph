@@ -748,8 +748,8 @@ test_that("splot() with same seed produces consistent layouts", {
   net1 <- with_temp_png(splot(adj, layout = "spring", seed = 123))
   net2 <- with_temp_png(splot(adj, layout = "spring", seed = 123))
 
-  layout1 <- net1$network$get_layout()
-  layout2 <- net2$network$get_layout()
+  layout1 <- net1$layout
+  layout2 <- net2$layout
 
   expect_equal(layout1$x, layout2$x)
   expect_equal(layout1$y, layout2$y)

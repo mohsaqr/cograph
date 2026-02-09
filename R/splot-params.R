@@ -75,8 +75,13 @@ resolve_edge_widths <- function(edges,
   m <- nrow(edges)
   if (m == 0) return(numeric(0))
 
+  # Handle "weight" string: signals to use weight-based scaling
+  if (identical(edge.width, "weight")) {
+    edge.width <- NULL
+  }
+
   # If explicit widths provided, use them directly
-  if (!is.null(edge.width)) {
+  if (!is.null(edge.width) && is.numeric(edge.width)) {
     return(recycle_to_length(edge.width, m))
   }
 

@@ -350,7 +350,7 @@ test_that("sn_nodes() recycles shorter vectors correctly", {
 
   # Single value should be recycled to all nodes
   net2 <- sn_nodes(net, fill = "red")
-  aes <- net2$network$get_node_aes()
+  aes <- net2$node_aes
   expect_equal(length(aes$fill), 4)
   expect_true(all(aes$fill == "red"))
 })
@@ -361,7 +361,7 @@ test_that("sn_nodes() handles exact-length vectors", {
 
   colors <- c("red", "green", "blue", "orange")
   net2 <- sn_nodes(net, fill = colors)
-  aes <- net2$network$get_node_aes()
+  aes <- net2$node_aes
   expect_equal(aes$fill, colors)
 })
 

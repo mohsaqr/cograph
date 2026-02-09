@@ -15,7 +15,8 @@ format_edge_label_template(
   p_digits = 3,
   p_prefix = "p=",
   ci_format = "bracket",
-  oneline = TRUE
+  oneline = TRUE,
+  leading_zero = TRUE
 )
 }
 \arguments{
@@ -40,6 +41,8 @@ format_edge_label_template(
 \item{ci_format}{CI format: "bracket" or "dash".}
 
 \item{oneline}{Logical: single line format (space-separated) or multiline.}
+
+\item{leading_zero}{Logical: include leading zero for values < 1? Default TRUE.}
 }
 \value{
 Formatted label string.

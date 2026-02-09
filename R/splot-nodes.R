@@ -654,6 +654,147 @@ draw_donut_pie_node_base <- function(x, y, size, donut_value = 1,
                   col = border.col, lwd = ring_border_width)
 }
 
+#' Draw Polygon Donut with Inner Pie
+#'
+#' Renders a polygon-shaped donut node with a circular pie chart inside.
+#' Supports hexagon, square, diamond, triangle, pentagon shapes for the outer ring.
+#'
+#' @param x,y Node center coordinates.
+#' @param size Outer radius.
+#' @param donut_value Value (0-1) for the donut ring fill proportion.
+#' @param donut_color Color for the filled portion of donut.
+#' @param donut_shape Shape of the donut: "hexagon", "square", "diamond", "triangle", "pentagon".
+#' @param pie_values Numeric vector for pie slices.
+#' @param pie_colors Colors for pie slices.
+#' @param pie_default_color Default pie color if pie_colors not provided.
+#' @param inner_ratio Ratio of inner to outer radius (0-1).
+#' @param bg_color Background color of the donut ring.
+#' @param border.col Border color.
+#' @param border.width Border line width.
+#' @param pie_border.width Border width for pie slice dividers.
+#' @param donut_border.width Border width for donut ring.
+#' @keywords internal
+draw_polygon_donut_pie_node_base <- function(x, y, size, donut_value = 1,
+                                              donut_color = "#4A90D9",
+                                              donut_shape = "hexagon",
+                                              pie_values = NULL, pie_colors = NULL,
+                                              pie_default_color = NULL,
+                                              inner_ratio = 0.5, bg_color = "gray90",
+                                              border.col = "black", border.width = 1,
+                                              pie_border.width = NULL,
+                                              donut_border.width = NULL) {
+  ring_border_width <- if (!is.null(donut_border.width)) donut_border.width else border.width
+  pie_slice_border <- if (!is.null(pie_border.width)) pie_border.width else border.width * 0.5
+
+  # Get outer polygon vertices
+  outer <- get_donut_base_vertices(donut_shape, x, y, size)
+
+  # Get inner polygon vertices (for donut ring)
+  inner <- inset_polygon_vertices(outer, inner_ratio)
+
+  n_verts <- length(outer$x)
+
+  # Helper to draw a ring segment between two adjacent vertices
+
+  draw_ring_segment <- function(idx_start, idx_end, segment_col) {
+    seg_x <- c(outer$x[idx_start], outer$x[idx_end], inner$x[idx_end], inner$x[idx_start])
+    seg_y <- c(outer$y[idx_start], outer$y[idx_end], inner$y[idx_end], inner$y[idx_start])
+    graphics::polygon(seg_x, seg_y, col = segment_col, border = NA)
+  }
+
+  # Draw donut ring background (all segments)
+  for (i in seq_len(n_verts)) {
+    i_next <- if (i == n_verts) 1 else i + 1
+    draw_ring_segment(i, i_next, bg_color)
+  }
+
+  # Draw filled portion of donut
+  donut_prop <- max(0, min(1, donut_value))
+  if (donut_prop > 0) {
+    filled_verts <- max(1, round(donut_prop * n_verts))
+    for (i in seq_len(filled_verts)) {
+      i_next <- if (i == n_verts) 1 else i + 1
+      draw_ring_segment(i, i_next, donut_color)
+    }
+  }
+
+  # Draw outer polygon border
+  graphics::polygon(outer$x, outer$y, col = NA, border = border.col, lwd = ring_border_width)
+
+  # Draw inner polygon border
+  graphics::polygon(inner$x, inner$y, col = NA, border = border.col, lwd = ring_border_width)
+
+  # Calculate pie radius - fits inside the inner polygon
+  # Use inscribed circle radius for the inner polygon
+  inner_center_x <- mean(inner$x)
+  inner_center_y <- mean(inner$y)
+  distances <- sqrt((inner$x - inner_center_x)^2 + (inner$y - inner_center_y)^2)
+  pie_r <- min(distances) * 0.90  # 90% of inscribed radius for padding
+
+  n_points <- 100
+
+  # Draw the pie chart inside
+  if (!is.null(pie_values) && length(pie_values) > 0) {
+    props <- pie_values / sum(pie_values)
+    n <- length(props)
+
+    if (is.null(pie_colors)) {
+      if (!is.null(pie_default_color) && n == 1) {
+        pie_colors <- pie_default_color
+      } else {
+        pie_colors <- grDevices::rainbow(n, s = 0.7, v = 0.9)
+      }
+    }
+    pie_colors <- recycle_to_length(pie_colors, n)
+
+    start_ang <- pi / 2
+    for (i in seq_len(n)) {
+      if (props[i] <= 0) next
+
+      end_ang <- start_ang - 2 * pi * props[i]
+      n_pts <- max(3, ceiling(50 * props[i]))
+      angles <- seq(start_ang, end_ang, length.out = n_pts)
+
+      xs <- c(x, x + pie_r * cos(angles), x)
+      ys <- c(y, y + pie_r * sin(angles), y)
+
+      graphics::polygon(x = xs, y = ys, col = pie_colors[i], border = NA)
+      start_ang <- end_ang
+    }
+
+    # Draw pie slice dividers
+    if (n > 1 && !is.null(pie_slice_border) && pie_slice_border > 0.1) {
+      start_ang <- pi / 2
+      for (i in seq_len(n)) {
+        if (props[i] <= 0) next
+        end_ang <- start_ang - 2 * pi * props[i]
+        graphics::lines(
+          x = c(x, x + pie_r * cos(start_ang)),
+          y = c(y, y + pie_r * sin(start_ang)),
+          col = border.col,
+          lwd = pie_slice_border
+        )
+        start_ang <- end_ang
+      }
+    }
+
+    # Draw pie border circle
+    angles <- seq(0, 2 * pi, length.out = n_points)
+    graphics::lines(x = x + pie_r * cos(angles), y = y + pie_r * sin(angles),
+                    col = border.col, lwd = pie_slice_border)
+  } else {
+    # No pie - fill inner with white
+    angles <- seq(0, 2 * pi, length.out = n_points)
+    graphics::polygon(
+      x = x + pie_r * cos(angles),
+      y = y + pie_r * sin(angles),
+      col = "white",
+      border = border.col,
+      lwd = ring_border_width
+    )
+  }
+}
+
 #' Draw Double Donut with Inner Pie
 #'
 #' Renders a node with two concentric donut rings and an optional inner pie chart.

@@ -3,174 +3,64 @@
 \name{plot_mcml}
 \alias{plot_mcml}
 \alias{mcml}
-\title{Multi-Cluster Multi-Layer Network Visualization}
+\title{Multi-Cluster Multi-Layer Network}
 \usage{
 plot_mcml(
   x,
-  cluster_list = NULL,
-  community = NULL,
-  layout = "circle",
-  spacing = 4,
-  layer_spacing = 3,
-  skew_angle = 20,
-  shape_size = 1.5,
-  node_spacing = 0.6,
-  within_edges = TRUE,
-  shapes = NULL,
-  summary_node_size = 4,
-  summary_edges = TRUE,
-  aggregation = c("sum", "mean", "max", "min", "median", "density"),
-  show_interlayer = TRUE,
-  interlayer_mode = c("center", "all"),
-  interlayer_style = 2,
+  cluster_list,
+  layer_spacing = NULL,
+  spacing = 3,
+  shape_size = 1.2,
+  summary_size = 4,
+  skew_angle = 60,
+  aggregation = c("sum", "mean", "max"),
+  minimum = 0,
   colors = NULL,
   legend = TRUE,
-  legend_position = "topright",
-  title = NULL,
-  curvature = 0.3,
-  node_size = 2,
-  minimum = 0,
-  scale = 1,
   ...
 )
 
 mcml(
   x,
-  cluster_list = NULL,
-  community = NULL,
-  layout = "circle",
-  spacing = 4,
-  layer_spacing = 3,
-  skew_angle = 20,
-  shape_size = 1.5,
-  node_spacing = 0.6,
-  within_edges = TRUE,
-  shapes = NULL,
-  summary_node_size = 4,
-  summary_edges = TRUE,
-  aggregation = c("sum", "mean", "max", "min", "median", "density"),
-  show_interlayer = TRUE,
-  interlayer_mode = c("center", "all"),
-  interlayer_style = 2,
+  cluster_list,
+  layer_spacing = NULL,
+  spacing = 3,
+  shape_size = 1.2,
+  summary_size = 4,
+  skew_angle = 60,
+  aggregation = c("sum", "mean", "max"),
+  minimum = 0,
   colors = NULL,
   legend = TRUE,
-  legend_position = "topright",
-  title = NULL,
-  curvature = 0.3,
-  node_size = 2,
-  minimum = 0,
-  scale = 1,
   ...
 )
 }
 \arguments{
-\item{x}{A tna object or weight matrix.}
+\item{x}{Weight matrix or tna object}
 
-\item{cluster_list}{Named list of character vectors defining clusters.
-Each element contains node names belonging to that cluster.
-If NULL and \code{community} is specified, clusters are auto-detected.}
+\item{cluster_list}{Named list of node vectors per cluster}
 
-\item{community}{Community detection method to use for auto-clustering.
-If specified, overrides \code{cluster_list}. See \code{\link{detect_communities}}
-for available methods: "louvain", "walktrap", "fast_greedy", "label_prop",
-"infomap", "leiden".}
+\item{layer_spacing}{Vertical distance between layers. Default 4.}
 
-\item{layout}{How to arrange the clusters: "circle" (default),
-"grid", "horizontal", "vertical".}
+\item{spacing}{Cluster spacing. Default 3.}
 
-\item{spacing}{Distance between cluster centers. Default 4.}
+\item{shape_size}{Cluster shell size. Default 1.2.}
 
-\item{layer_spacing}{Vertical gap between individual and summary layers. Default 3.}
+\item{summary_size}{Summary node size. Default 4.}
 
-\item{skew_angle}{Angle of perspective skew in degrees. Default 20.}
+\item{skew_angle}{Perspective angle in degrees. Default 25.}
 
-\item{shape_size}{Size of each cluster shape (shell radius). Default 1.5.}
+\item{aggregation}{How to aggregate: "sum", "mean", "max". Default "sum".}
 
-\item{node_spacing}{Radius for node placement within shapes (0-1 relative
-to shape_size). Default 0.6.}
+\item{minimum}{Edge threshold. Default 0.}
 
-\item{within_edges}{Logical. Show edges within clusters in the bottom layer.
-Default TRUE.}
+\item{colors}{Cluster colors. Default auto.}
 
-\item{shapes}{Vector of shapes for cluster shells: "circle", "square",
-"diamond", "triangle". Default cycles through these.}
+\item{legend}{Show legend. Default TRUE.}
 
-\item{summary_node_size}{Size of cluster summary nodes in top layer. Default 4.}
-
-\item{summary_edges}{Logical. Show aggregated edges between clusters in
-the summary layer. Default TRUE.}
-
-\item{aggregation}{Method for aggregating edge weights between clusters:
-"sum" (total flow), "mean" (average strength), "max" (strongest link),
-"min" (weakest link), "median", or "density" (normalized by possible edges).
-Default "sum".}
-
-\item{show_interlayer}{Logical. Show dashed lines connecting individual nodes
-to their cluster summary node. Default TRUE.}
-
-\item{interlayer_mode}{How to draw inter-layer connections: "center" draws
-one line from cluster center, "all" draws lines from each node. Default "center".}
-
-\item{interlayer_style}{Line style for inter-layer connections. Default 2 (dashed).}
-
-\item{colors}{Vector of colors for each cluster. Default auto-generated.}
-
-\item{legend}{Logical. Whether to show legend. Default TRUE.}
-
-\item{legend_position}{Position for legend. Default "topright".}
-
-\item{title}{Plot title. Default NULL.}
-
-\item{curvature}{Edge curvature. Default 0.3.}
-
-\item{node_size}{Size of individual nodes in bottom layer. Default 2.}
-
-\item{minimum}{Minimum edge weight threshold. Edges below this are hidden.
-Default 0.}
-
-\item{scale}{Scaling factor for spacing parameters. Use scale > 1 for
-high-resolution output (e.g., scale = 4 for 300 dpi). Default 1.}
-
-\item{...}{Additional parameters (currently unused).}
-}
-\value{
-Invisibly returns NULL.
+\item{...}{Unused.}
 }
 \description{
-Creates a combined visualization with two layers:
-\itemize{
-\item Layer 1 (Bottom): Individual nodes organized in cluster shells
-\item Layer 2 (Top): Cluster summary nodes showing inter-cluster relationships
-}
-}
-\details{
-This visualization combines the detail of individual node connections with
-an overview of cluster-level relationships in a single 3D perspective view.
-}
-\examples{
-\dontrun{
-# Create network with 8 states
-states8 <- c("Explore", "Plan", "Monitor", "Adapt",
-             "Reflect", "Regulate", "Execute", "Review")
-mat8 <- matrix(runif(64, 0, 0.3), 8, 8,
-               dimnames = list(states8, states8))
-diag(mat8) <- 0
-
-clusters <- list(
-  Planning = c("Explore", "Plan"),
-  Action = c("Monitor", "Adapt"),
-  Meta = c("Reflect", "Regulate"),
-  Review = c("Execute", "Review")
-)
-
-# Basic usage
-plot_mcml(mat8, clusters)
-
-# Customized
-plot_mcml(mat8, clusters,
-  layer_spacing = 4,
-  skew_angle = 25,
-  aggregation = "mean"
-)
-}
+Two-layer visualization: bottom layer shows detailed multi-cluster network,
+top layer shows summary network with one node per cluster.
 }

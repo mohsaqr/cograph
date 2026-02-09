@@ -17,14 +17,14 @@ test_that("complete pipe chain works: cograph |> sn_nodes |> sn_edges |> sn_them
   expect_cograph_network(net)
 
   # Verify customizations applied
-  node_aes <- net$network$get_node_aes()
+  node_aes <- net$node_aes
   expect_true(all(node_aes$size == 5))
   expect_true(all(node_aes$fill == "steelblue"))
 
-  edge_aes <- net$network$get_edge_aes()
+  edge_aes <- net$edge_aes
   expect_true(all(edge_aes$width == 2))
 
-  theme <- net$network$get_theme()
+  theme <- net$theme
   expect_equal(theme$name, "minimal")
 })
 
@@ -205,7 +205,7 @@ test_that("multiple sn_nodes calls accumulate", {
     sn_nodes(size = 6) |>
     sn_nodes(shape = "square")
 
-  aes <- net$network$get_node_aes()
+  aes <- net$node_aes
 
   # All customizations should be preserved
   expect_true(all(aes$fill == "red"))
@@ -221,7 +221,7 @@ test_that("multiple sn_edges calls accumulate", {
     sn_edges(width = 2) |>
     sn_edges(alpha = 0.7)
 
-  aes <- net$network$get_edge_aes()
+  aes <- net$edge_aes
 
   expect_true(all(aes$color == "gray50"))
   expect_true(all(aes$width == 2))
@@ -245,8 +245,8 @@ test_that("full workflow is reproducible with seed", {
     cograph(layout = "spring", seed = 42) |>
     sn_nodes(fill = "steelblue")
 
-  layout1 <- net1$network$get_layout()
-  layout2 <- net2$network$get_layout()
+  layout1 <- net1$layout
+  layout2 <- net2$layout
 
   expect_equal(layout1$x, layout2$x)
   expect_equal(layout1$y, layout2$y)
@@ -258,8 +258,8 @@ test_that("sn_layout preserves seed reproducibility", {
   net1 <- cograph(adj) |> sn_layout("spring", seed = 123)
   net2 <- cograph(adj) |> sn_layout("spring", seed = 123)
 
-  layout1 <- net1$network$get_layout()
-  layout2 <- net2$network$get_layout()
+  layout1 <- net1$layout
+  layout2 <- net2$layout
 
   expect_equal(layout1$x, layout2$x)
   expect_equal(layout1$y, layout2$y)

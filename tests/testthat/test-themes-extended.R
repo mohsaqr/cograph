@@ -77,7 +77,7 @@ test_that("sn_theme() applies themes correctly", {
 
   for (theme_name in c("classic", "dark", "minimal")) {
     net <- cograph(adj) |> sn_theme(theme_name)
-    theme <- net$network$get_theme()
+    theme <- net$theme
 
     expect_equal(theme$name, theme_name)
   }
@@ -215,7 +215,7 @@ test_that("sn_theme() accepts override parameters", {
   net <- cograph(adj) |>
     sn_theme("classic", background = "lightblue")
 
-  theme <- net$network$get_theme()
+  theme <- net$theme
   expect_equal(theme$get("background"), "lightblue")
 })
 
@@ -225,7 +225,7 @@ test_that("sn_theme() overrides merge with base theme", {
   net <- cograph(adj) |>
     sn_theme("dark", node_fill = "yellow")
 
-  theme <- net$network$get_theme()
+  theme <- net$theme
 
   # Override should be applied
   expect_equal(theme$get("node_fill"), "yellow")
@@ -244,7 +244,7 @@ test_that("node aesthetics override theme values", {
     sn_theme("classic") |>
     sn_nodes(fill = "hotpink")
 
-  aes <- net$network$get_node_aes()
+  aes <- net$node_aes
   expect_true(all(aes$fill == "hotpink"))
 })
 
@@ -290,7 +290,7 @@ test_that("sn_theme() accepts CographTheme object directly", {
 
   net2 <- sn_theme(net, custom)
 
-  theme <- net2$network$get_theme()
+  theme <- net2$theme
   expect_equal(theme$get("background"), "pink")
 })
 

@@ -7,50 +7,53 @@ NULL
 #'
 #' Internal helper that converts matrices, data frames, igraph, network,
 #' qgraph, or tna objects to cograph_network objects automatically.
-#' Works with both the old R6-based format and the new lightweight format.
+#' Uses the unified cograph_network format.
 #'
 #' @param x Input object (matrix, data.frame, igraph, network, qgraph, tna, or cograph_network).
 #' @param layout Default layout to use if converting.
 #' @param seed Random seed for deterministic layouts.
+#' @param directed Force directed interpretation. NULL for auto-detect.
 #' @param ... Additional arguments passed to cograph().
-#' @return A cograph_network object.
+#' @return A cograph_network object (unified format).
 #' @noRd
-ensure_cograph_network <- function(x, layout = "spring", seed = 42, ...) {
+ensure_cograph_network <- function(x, layout = "spring", seed = 42, directed = NULL, ...) {
 
   if (inherits(x, "cograph_network")) {
-    # Check if this is a new lightweight format without layout
-    # Use getter function to get nodes
+    # Check if layout needs to be computed
     nodes <- get_nodes(x)
     if (!is.null(nodes) && (!"x" %in% names(nodes) || all(is.na(nodes$x)))) {
-      # Need to compute layout for the new format
+      # Need to compute layout
       x <- compute_layout_for_cograph(x, layout = layout, seed = seed, ...)
+    }
+    # Override directed if explicitly specified
+    if (!is.null(directed)) {
+      x$directed <- directed
     }
     return(x)
   }
 
   if (is.matrix(x) || is.data.frame(x) || inherits(x, "igraph") ||
       inherits(x, "network") || inherits(x, "qgraph") || inherits(x, "tna")) {
-    return(cograph(x, layout = layout, seed = seed, ...))
+    return(cograph(x, layout = layout, seed = seed, directed = directed, ...))
   }
 
   stop("Input must be a matrix, data.frame, igraph, network, qgraph, tna, or cograph_network",
        call. = FALSE)
 }
 
-#' Compute layout for lightweight cograph_network
+#' Compute layout for cograph_network
 #'
 #' Computes layout coordinates for a cograph_network object that doesn't have them.
 #'
-#' @param net A cograph_network object (new lightweight format).
+#' @param net A cograph_network object (unified format).
 #' @param layout Layout algorithm name.
 #' @param seed Random seed for deterministic layouts.
 #' @param ... Additional arguments passed to the layout function.
 #' @return The cograph_network with layout coordinates added.
 #' @noRd
 compute_layout_for_cograph <- function(net, layout = "spring", seed = 42, ...) {
-  # Get nodes data frame using getter function
+  # Get nodes data frame
   nodes <- get_nodes(net)
-  n <- nrow(nodes)
 
   # Set seed for deterministic layouts
   if (!is.null(seed)) {
@@ -60,41 +63,31 @@ compute_layout_for_cograph <- function(net, layout = "spring", seed = 42, ...) {
   # Two-letter igraph layout codes
   igraph_codes <- c("kk", "fr", "drl", "mds", "go", "tr", "st", "gr", "rd", "ni", "ci", "lgl", "sp")
 
-  # Build edges for layout computation using getter function
+  # Build edges for layout computation
   edges <- get_edges(net)
 
   # Get directed status
   net_directed <- is_directed(net)
 
+  # Create temporary R6 network for layout computation
+  temp_net <- CographNetwork$new()
+  temp_net$set_nodes(nodes)
+  temp_net$set_edges(edges)
+  temp_net$set_directed(net_directed)
+
   # Compute layout
   if (is.function(layout)) {
-    # Need to create a temporary R6 network for igraph layout
-    temp_net <- CographNetwork$new()
-    temp_net$set_nodes(nodes)
-    temp_net$set_edges(edges)
-    temp_net$set_directed(net_directed)
     coords <- apply_igraph_layout(temp_net, layout, ...)
   } else if (is.character(layout) && (
     grepl("^(igraph_|layout_)", layout) || layout %in% igraph_codes
   )) {
-    # igraph layout by name
-    temp_net <- CographNetwork$new()
-    temp_net$set_nodes(nodes)
-    temp_net$set_edges(edges)
-    temp_net$set_directed(net_directed)
     coords <- apply_igraph_layout_by_name(temp_net, layout, seed = seed, ...)
   } else if (is.matrix(layout) || is.data.frame(layout)) {
-    # Custom coordinates
     coords <- as.data.frame(layout)
     if (ncol(coords) >= 2) {
       names(coords)[1:2] <- c("x", "y")
     }
   } else {
-    # Built-in cograph layout - create temporary network
-    temp_net <- CographNetwork$new()
-    temp_net$set_nodes(nodes)
-    temp_net$set_edges(edges)
-    temp_net$set_directed(net_directed)
     layout_obj <- CographLayout$new(layout, ...)
     coords <- layout_obj$compute(temp_net, ...)
   }
@@ -103,7 +96,7 @@ compute_layout_for_cograph <- function(net, layout = "spring", seed = 42, ...) {
   nodes$x <- coords$x
   nodes$y <- coords$y
 
-  # Update using setter function or direct assignment for new format
+  # Update network directly
   net$nodes <- nodes
   net$layout <- coords
   net$layout_info <- list(
@@ -179,7 +172,37 @@ compute_layout_for_cograph <- function(net, layout = "spring", seed = 42, ...) {
 cograph <- function(input, layout = "spring", directed = NULL,
                    node_labels = NULL, seed = 42, ...) {
 
-  # Create network object
+  # Parse input first to get TNA metadata if applicable
+  parsed <- parse_input(input, directed = directed)
+
+  # Determine source type
+  source_type <- if (is.matrix(input)) {
+    "matrix"
+  } else if (is.data.frame(input)) {
+    "edgelist"
+  } else if (inherits(input, "igraph")) {
+    "igraph"
+  } else if (inherits(input, "network")) {
+    "network"
+  } else if (inherits(input, "qgraph")) {
+    "qgraph"
+  } else if (inherits(input, "tna")) {
+    "tna"
+  } else {
+    "unknown"
+  }
+
+  # Get full weight matrix if available
+  weights_matrix <- NULL
+  if (!is.null(parsed$tna) && !is.null(parsed$tna$model)) {
+    # TNA: use model's weights matrix
+    weights_matrix <- parsed$tna$model$weights
+  } else if (is.matrix(input) && nrow(input) == ncol(input)) {
+    # Square matrix input: preserve it
+    weights_matrix <- input
+  }
+
+  # Create temporary R6 network object for layout computation
   network <- CographNetwork$new(
     input = input,
     directed = directed,
@@ -187,7 +210,8 @@ cograph <- function(input, layout = "spring", directed = NULL,
   )
 
   # Apply default theme
-  network$set_theme(get_theme("classic"))
+  default_theme <- get_theme("classic")
+  network$set_theme(default_theme)
 
   # Set seed for deterministic layouts
   if (!is.null(seed)) {
@@ -219,14 +243,30 @@ cograph <- function(input, layout = "spring", directed = NULL,
   }
   network$set_layout_coords(coords)
 
+  # Get nodes with layout coordinates
+  nodes_with_layout <- network$get_nodes()
+
   # Store layout info
-  network$set_layout_info(list(
+  layout_info <- list(
     name = if (is.function(layout)) "custom_function" else as.character(layout),
     seed = seed
-  ))
+  )
 
-  # Wrap in S3 class for method dispatch
-  as_cograph_network(network)
+  # Create unified format using constructor
+  .create_cograph_network(
+    nodes = nodes_with_layout,
+    edges = network$get_edges(),
+    directed = network$is_directed,
+    source = source_type,
+    layout = coords,
+    layout_info = layout_info,
+    node_aes = network$get_node_aes(),
+    edge_aes = network$get_edge_aes(),
+    theme = network$get_theme(),
+    plot_params = network$get_plot_params(),
+    tna = parsed$tna,
+    weights = weights_matrix
+  )
 }
 
 #' Apply Layout to Network
@@ -294,8 +334,6 @@ sn_layout <- function(network, layout, seed = 42, ...) {
   # Auto-convert matrix/data.frame/igraph to cograph_network
   network <- ensure_cograph_network(network, layout = layout, seed = seed, ...)
 
-  new_net <- network$network$clone_network()
-
   # Set seed for deterministic layouts
   if (!is.null(seed)) {
     set.seed(seed)
@@ -304,47 +342,51 @@ sn_layout <- function(network, layout, seed = 42, ...) {
   # Two-letter igraph layout codes
   igraph_codes <- c("kk", "fr", "drl", "mds", "go", "tr", "st", "gr", "rd", "ni", "ci", "lgl", "sp")
 
+  # Create a temporary R6 network for layout computation
+  temp_net <- CographNetwork$new()
+  temp_net$set_nodes(get_nodes(network))
+  temp_net$set_edges(get_edges(network))
+  temp_net$set_directed(is_directed(network))
+
   # Handle igraph layout functions
   if (is.function(layout)) {
-    # Assume it's an igraph layout function
-    coords <- apply_igraph_layout(new_net, layout, ...)
-    new_net$set_layout_coords(coords)
-    new_net$set_layout_info(list(name = "custom_function", seed = seed, coords = coords))
-    return(as_cograph_network(new_net))
-  }
-
-  # Create layout object if string
-  if (is.character(layout)) {
+    coords <- apply_igraph_layout(temp_net, layout, ...)
+    layout_info <- list(name = "custom_function", seed = seed, coords = coords)
+  } else if (is.character(layout)) {
     # Check if it's an igraph layout name or two-letter code
     if (grepl("^(igraph_|layout_)", layout) || layout %in% igraph_codes) {
-      coords <- apply_igraph_layout_by_name(new_net, layout, seed = seed, ...)
-      new_net$set_layout_coords(coords)
-      new_net$set_layout_info(list(name = layout, seed = seed, coords = coords))
-      return(as_cograph_network(new_net))
+      coords <- apply_igraph_layout_by_name(temp_net, layout, seed = seed, ...)
+      layout_info <- list(name = layout, seed = seed, coords = coords)
+    } else {
+      layout_obj <- CographLayout$new(layout, ...)
+      coords <- layout_obj$compute(temp_net, ...)
+      layout_info <- list(name = layout, seed = seed, coords = coords)
     }
-    layout_obj <- CographLayout$new(layout, ...)
   } else if (inherits(layout, "CographLayout")) {
-    layout_obj <- layout
+    coords <- layout$compute(temp_net, ...)
+    layout_info <- list(name = "custom", seed = seed, coords = coords)
   } else if (is.matrix(layout) || is.data.frame(layout)) {
-    # Custom coordinates passed directly
     coords <- as.data.frame(layout)
     if (ncol(coords) >= 2) {
       names(coords)[1:2] <- c("x", "y")
     }
-    new_net$set_layout_coords(coords)
-    new_net$set_layout_info(list(name = "custom", seed = seed, coords = coords))
-    return(as_cograph_network(new_net))
+    layout_info <- list(name = "custom", seed = seed, coords = coords)
   } else {
     stop("layout must be a string, CographLayout object, igraph layout function, or coordinate matrix",
          call. = FALSE)
   }
 
-  # Compute and apply coordinates
-  coords <- layout_obj$compute(new_net, ...)
-  new_net$set_layout_coords(coords)
-  new_net$set_layout_info(list(name = layout, seed = seed, coords = coords))
+  # Update nodes with layout coordinates
+  nodes_updated <- get_nodes(network)
+  nodes_updated$x <- coords$x
+  nodes_updated$y <- coords$y
 
-  as_cograph_network(new_net)
+  # Return updated network (modify list directly)
+  network$nodes <- nodes_updated
+  network$layout <- coords
+  network$layout_info <- layout_info
+
+  network
 }
 
 #' Apply Theme to Network
@@ -397,8 +439,6 @@ sn_theme <- function(network, theme, ...) {
   # Auto-convert matrix/data.frame/igraph to cograph_network
   network <- ensure_cograph_network(network)
 
-  new_net <- network$network$clone_network()
-
   # Get theme object
   if (is.character(theme)) {
     theme_obj <- get_theme(theme)
@@ -418,9 +458,10 @@ sn_theme <- function(network, theme, ...) {
     theme_obj <- theme_obj$merge(overrides)
   }
 
-  new_net$set_theme(theme_obj)
+  # Update network (modify list directly)
+  network$theme <- theme_obj
 
-  as_cograph_network(new_net)
+  network
 }
 
 #' Apply Color Palette to Network
@@ -480,8 +521,6 @@ sn_palette <- function(network, palette, target = "nodes", by = NULL) {
   # Auto-convert matrix/data.frame/igraph to cograph_network
   network <- ensure_cograph_network(network)
 
-  new_net <- network$network$clone_network()
-
   # Get palette function
   if (is.character(palette)) {
     pal_fn <- get_palette(palette)
@@ -497,8 +536,8 @@ sn_palette <- function(network, palette, target = "nodes", by = NULL) {
 
   # Apply to nodes
   if (target %in% c("nodes", "both")) {
-    n <- new_net$n_nodes
-    nodes_df <- new_net$get_nodes()
+    n <- n_nodes(network)
+    nodes_df <- get_nodes(network)
 
     if (!is.null(by) && by %in% names(nodes_df)) {
       # Map by variable
@@ -508,21 +547,28 @@ sn_palette <- function(network, palette, target = "nodes", by = NULL) {
       colors <- rep(pal_fn(1), n)
     }
 
-    new_net$set_node_aes(list(fill = colors))
+    # Update node_aes
+    if (is.null(network$node_aes)) {
+      network$node_aes <- list()
+    }
+    network$node_aes$fill <- colors
   }
 
   # Apply to edges
   if (target %in% c("edges", "both")) {
-    edges_df <- new_net$get_edges()
+    edges_df <- get_edges(network)
     if (!is.null(edges_df) && nrow(edges_df) > 0) {
       # Use first two colors for positive/negative
       edge_colors <- pal_fn(2)
-      new_net$set_edge_aes(list(
-        positive_color = edge_colors[1],
-        negative_color = edge_colors[2]
-      ))
+
+      # Update edge_aes
+      if (is.null(network$edge_aes)) {
+        network$edge_aes <- list()
+      }
+      network$edge_aes$positive_color <- edge_colors[1]
+      network$edge_aes$negative_color <- edge_colors[2]
     }
   }
 
-  as_cograph_network(new_net)
+  network
 }

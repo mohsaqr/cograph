@@ -177,12 +177,9 @@ sn_nodes <- function(network,
   # Auto-convert matrix/data.frame/igraph to cograph_network
   network <- ensure_cograph_network(network)
 
-  # Clone the network to maintain immutability
-  new_net <- network$network$clone_network()
-
   # Get node count for validation
-  n <- new_net$n_nodes
-  nodes_df <- new_net$get_nodes()
+  n <- n_nodes(network)
+  nodes_df <- get_nodes(network)
 
   # Build aesthetics list
   aes <- list()
@@ -390,11 +387,14 @@ sn_nodes <- function(network,
     aes$node_names <- resolve_aesthetic(node_names, nodes_df, n)
   }
 
-  # Apply aesthetics
-  new_net$set_node_aes(aes)
+  # Apply aesthetics to network (merge with existing)
+  if (is.null(network$node_aes)) {
+    network$node_aes <- list()
+  }
+  network$node_aes <- utils::modifyList(network$node_aes, aes)
 
-  # Return wrapped object
-  as_cograph_network(new_net)
+  # Return modified network
+  network
 }
 
 #' Map Node Colors by Group

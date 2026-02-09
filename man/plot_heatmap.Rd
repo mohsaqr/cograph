@@ -7,6 +7,7 @@
 plot_heatmap(
   x,
   cluster_list = NULL,
+  cluster_spacing = 0,
   show_legend = TRUE,
   legend_position = "right",
   legend_title = "Weight",
@@ -43,6 +44,8 @@ or any object cograph accepts.}
 
 \item{cluster_list}{Optional list of character vectors defining node clusters.
 Creates a block-structured heatmap with clusters along diagonal.}
+
+\item{cluster_spacing}{Gap size between clusters (in cell units). Default 0.}
 
 \item{show_legend}{Logical: display color legend? Default TRUE.}
 

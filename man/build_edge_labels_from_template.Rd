@@ -17,6 +17,7 @@ build_edge_labels_from_template(
   p_prefix = "p=",
   ci_format = "bracket",
   oneline = TRUE,
+  leading_zero = TRUE,
   n
 )
 }
@@ -44,6 +45,8 @@ build_edge_labels_from_template(
 \item{ci_format}{CI format: "bracket" or "dash".}
 
 \item{oneline}{Logical: single line format.}
+
+\item{leading_zero}{Logical: include leading zero for values < 1? Default TRUE.}
 
 \item{n}{Number of edges.}
 }

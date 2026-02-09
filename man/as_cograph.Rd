@@ -2,9 +2,12 @@
 % Please edit documentation in R/class-network.R
 \name{as_cograph}
 \alias{as_cograph}
+\alias{to_cograph}
 \title{Convert to Cograph Network}
 \usage{
 as_cograph(x, directed = NULL, ...)
+
+to_cograph(x, directed = NULL, ...)
 }
 \arguments{
 \item{x}{Network input. Can be:

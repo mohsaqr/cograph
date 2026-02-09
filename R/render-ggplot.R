@@ -30,12 +30,11 @@ sn_ggplot <- function(network, title = NULL) {
   # Auto-convert matrix/data.frame/igraph to cograph_network
   network <- ensure_cograph_network(network)
 
-  net <- network$network
-  nodes <- net$get_nodes()
-  edges <- net$get_edges()
-  node_aes <- net$get_node_aes()
-  edge_aes <- net$get_edge_aes()
-  theme <- net$get_theme()
+  nodes <- get_nodes(network)
+  edges <- get_edges(network)
+  node_aes <- network$node_aes
+  edge_aes <- network$edge_aes
+  theme <- network$theme
 
   n <- nrow(nodes)
   m <- if (is.null(edges)) 0 else nrow(edges)
@@ -144,7 +143,7 @@ sn_ggplot <- function(network, title = NULL) {
 
   # Add edges
   if (!is.null(edge_df) && nrow(edge_df) > 0) {
-    show_arrows <- if (!is.null(edge_aes$show_arrows)) edge_aes$show_arrows else net$is_directed
+    show_arrows <- if (!is.null(edge_aes$show_arrows)) edge_aes$show_arrows else is_directed(network)
 
     if (show_arrows) {
       p <- p + ggplot2::geom_segment(

@@ -20,8 +20,8 @@ test_that("sn_edges() preserves network structure", {
 
   result <- sn_edges(net, color = "gray")
 
-  expect_equal(result$network$n_nodes, net$network$n_nodes)
-  expect_equal(result$network$n_edges, net$network$n_edges)
+  expect_equal(n_nodes(result), n_nodes(net))
+  expect_equal(n_edges(result), n_edges(net))
 })
 
 test_that("sn_edges() can be chained in pipes", {
@@ -59,7 +59,7 @@ test_that("sn_edges() sets scalar width", {
   net <- cograph(adj)
 
   result <- sn_edges(net, width = 2.5)
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_true(all(aes$width == 2.5))
 })
@@ -69,7 +69,7 @@ test_that("sn_edges() sets width from 'weight'", {
   net <- cograph(adj)
 
   result <- sn_edges(net, width = "weight")
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   # Width should be scaled from weights
   expect_true(!is.null(aes$width))
@@ -81,7 +81,7 @@ test_that("sn_edges() respects maximum parameter with width='weight'", {
   net <- cograph(adj)
 
   result <- sn_edges(net, width = "weight", maximum = 0.5)
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_equal(aes$maximum, 0.5)
 })
@@ -95,7 +95,7 @@ test_that("sn_edges() sets edge_size parameter", {
   net <- cograph(adj)
 
   result <- sn_edges(net, edge_size = 10)
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_equal(aes$esize, 10)
 })
@@ -108,7 +108,7 @@ test_that("sn_edges() deprecated esize parameter works with warning", {
     result <- sn_edges(net, esize = 10),
     "deprecated"
   )
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
   expect_equal(aes$esize, 10)
 })
 
@@ -117,7 +117,7 @@ test_that("sn_edges() sets edge_width_range parameter", {
   net <- cograph(adj)
 
   result <- sn_edges(net, edge_width_range = c(1, 5))
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_equal(aes$edge_width_range, c(1, 5))
 })
@@ -128,7 +128,7 @@ test_that("sn_edges() sets edge_scale_mode parameter", {
 
   for (mode in c("linear", "log", "sqrt", "rank")) {
     result <- sn_edges(net, edge_scale_mode = mode)
-    aes <- result$network$get_edge_aes()
+    aes <- result$edge_aes
     expect_equal(aes$edge_scale_mode, mode)
   }
 })
@@ -145,7 +145,7 @@ test_that("sn_edges() sets edge_cutoff parameter", {
   net <- cograph(adj)
 
   result <- sn_edges(net, edge_cutoff = 0.3)
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_equal(aes$cut, 0.3)
 })
@@ -158,7 +158,7 @@ test_that("sn_edges() deprecated cut parameter works with warning", {
     result <- sn_edges(net, cut = 0.3),
     "deprecated"
   )
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
   expect_equal(aes$cut, 0.3)
 })
 
@@ -167,7 +167,7 @@ test_that("sn_edges() sets width_scale parameter", {
   net <- cograph(adj)
 
   result <- sn_edges(net, width_scale = 1.5)
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_equal(aes$width_scale, 1.5)
 })
@@ -181,7 +181,7 @@ test_that("sn_edges() sets scalar color", {
   net <- cograph(adj)
 
   result <- sn_edges(net, color = "gray50")
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_true(all(aes$color == "gray50"))
 })
@@ -191,7 +191,7 @@ test_that("sn_edges() sets color from 'weight'", {
   net <- cograph(adj)
 
   result <- sn_edges(net, color = "weight")
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   # Color should be assigned based on weight sign
   expect_true(!is.null(aes$color))
@@ -202,7 +202,7 @@ test_that("sn_edges() sets edge_positive_color and edge_negative_color", {
   net <- cograph(adj)
 
   result <- sn_edges(net, edge_positive_color = "darkgreen", edge_negative_color = "darkred")
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_equal(aes$positive_color, "darkgreen")
   expect_equal(aes$negative_color, "darkred")
@@ -216,7 +216,7 @@ test_that("sn_edges() deprecated positive_color and negative_color work with war
     result <- sn_edges(net, positive_color = "darkgreen", negative_color = "darkred"),
     "deprecated"
   )
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
   expect_equal(aes$positive_color, "darkgreen")
   expect_equal(aes$negative_color, "darkred")
 })
@@ -227,7 +227,7 @@ test_that("sn_edges() uses edge_positive/edge_negative colors with color='weight
 
   result <- sn_edges(net, color = "weight",
                      edge_positive_color = "blue", edge_negative_color = "red")
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_true(!is.null(aes$color))
 })
@@ -241,7 +241,7 @@ test_that("sn_edges() sets alpha", {
   net <- cograph(adj)
 
   result <- sn_edges(net, alpha = 0.5)
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_true(all(aes$alpha == 0.5))
 })
@@ -264,7 +264,7 @@ test_that("sn_edges() sets style", {
 
   for (style in c("solid", "dashed", "dotted", "longdash", "twodash")) {
     result <- sn_edges(net, style = style)
-    aes <- result$network$get_edge_aes()
+    aes <- result$edge_aes
     expect_true(all(aes$style == style))
   }
 })
@@ -285,7 +285,7 @@ test_that("sn_edges() sets curvature", {
   net <- cograph(adj)
 
   result <- sn_edges(net, curvature = 0.3)
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_true(all(aes$curvature == 0.3))
 })
@@ -293,11 +293,11 @@ test_that("sn_edges() sets curvature", {
 test_that("sn_edges() sets per-edge curvature", {
   adj <- create_test_matrix(4)
   net <- cograph(adj)
-  n_edges <- net$network$n_edges
+  n_edges <- n_edges(net)
 
   curvs <- seq(0, 0.5, length.out = n_edges)
   result <- sn_edges(net, curvature = curvs)
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_equal(aes$curvature, curvs)
 })
@@ -311,15 +311,15 @@ test_that("sn_edges() sets curves parameter", {
   net <- cograph(adj)
 
   result <- sn_edges(net, curves = FALSE)
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
   expect_equal(aes$curves, FALSE)
 
   result <- sn_edges(net, curves = "mutual")
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
   expect_equal(aes$curves, "mutual")
 
   result <- sn_edges(net, curves = "force")
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
   expect_equal(aes$curves, "force")
 })
 
@@ -335,7 +335,7 @@ test_that("sn_edges() sets curve_shape", {
   net <- cograph(adj)
 
   result <- sn_edges(net, curve_shape = 0.5)
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_true(!is.null(aes$curve_shape))
 })
@@ -345,7 +345,7 @@ test_that("sn_edges() sets curve_pivot", {
   net <- cograph(adj)
 
   result <- sn_edges(net, curve_pivot = 0.3)
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_true(!is.null(aes$curve_pivot))
 })
@@ -359,7 +359,7 @@ test_that("sn_edges() sets arrow_size", {
   net <- cograph(adj)
 
   result <- sn_edges(net, arrow_size = 1.5)
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_equal(aes$arrow_size, 1.5)
 })
@@ -369,7 +369,7 @@ test_that("sn_edges() sets show_arrows", {
   net <- cograph(adj)
 
   result <- sn_edges(net, show_arrows = FALSE)
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_equal(aes$show_arrows, FALSE)
 })
@@ -379,7 +379,7 @@ test_that("sn_edges() sets bidirectional", {
   net <- cograph(adj)
 
   result <- sn_edges(net, bidirectional = TRUE)
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_true(all(aes$bidirectional == TRUE))
 })
@@ -394,7 +394,7 @@ test_that("sn_edges() sets loop_rotation", {
   net <- cograph(adj)
 
   result <- sn_edges(net, loop_rotation = pi/4)
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_true(!is.null(aes$loop_rotation))
 })
@@ -408,7 +408,7 @@ test_that("sn_edges() sets labels=TRUE to show weights", {
   net <- cograph(adj)
 
   result <- sn_edges(net, labels = TRUE)
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_true(!is.null(aes$labels))
 })
@@ -416,11 +416,11 @@ test_that("sn_edges() sets labels=TRUE to show weights", {
 test_that("sn_edges() sets custom edge labels", {
   adj <- create_test_matrix(4)
   net <- cograph(adj)
-  n_edges <- net$network$n_edges
+  n_edges <- n_edges(net)
 
   custom_labels <- paste0("E", 1:n_edges)
   result <- sn_edges(net, labels = custom_labels)
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_equal(aes$labels, custom_labels)
 })
@@ -430,7 +430,7 @@ test_that("sn_edges() sets label_size", {
   net <- cograph(adj)
 
   result <- sn_edges(net, label_size = 0.8)
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_equal(aes$label_size, 0.8)
 })
@@ -440,7 +440,7 @@ test_that("sn_edges() sets label_color", {
   net <- cograph(adj)
 
   result <- sn_edges(net, label_color = "navy")
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_equal(aes$label_color, "navy")
 })
@@ -450,7 +450,7 @@ test_that("sn_edges() sets label_position", {
   net <- cograph(adj)
 
   result <- sn_edges(net, label_position = 0.3)
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_equal(aes$label_position, 0.3)
 })
@@ -460,7 +460,7 @@ test_that("sn_edges() sets label_offset", {
   net <- cograph(adj)
 
   result <- sn_edges(net, label_offset = 0.1)
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_equal(aes$label_offset, 0.1)
 })
@@ -470,7 +470,7 @@ test_that("sn_edges() sets label_bg", {
   net <- cograph(adj)
 
   result <- sn_edges(net, label_bg = "lightyellow")
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_equal(aes$label_bg, "lightyellow")
 })
@@ -481,7 +481,7 @@ test_that("sn_edges() sets label_fontface", {
 
   for (face in c("plain", "bold", "italic", "bold.italic")) {
     result <- sn_edges(net, label_fontface = face)
-    aes <- result$network$get_edge_aes()
+    aes <- result$edge_aes
     expect_equal(aes$label_fontface, face)
   }
 })
@@ -499,7 +499,7 @@ test_that("sn_edges() sets label_border", {
 
   for (border in c("rect", "rounded", "circle")) {
     result <- sn_edges(net, label_border = border)
-    aes <- result$network$get_edge_aes()
+    aes <- result$edge_aes
     expect_equal(aes$label_border, border)
   }
 })
@@ -521,7 +521,7 @@ test_that("sn_edges() sets label shadow parameters", {
     label_shadow_offset = 0.8,
     label_shadow_alpha = 0.3
   )
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_equal(aes$label_shadow, TRUE)
   expect_equal(aes$label_shadow_color, "gray40")
@@ -543,11 +543,11 @@ test_that("sn_edges() validates label_shadow_alpha range", {
 test_that("sn_edges() sets ci parameter", {
   adj <- create_test_matrix(4)
   net <- cograph(adj)
-  n_edges <- net$network$n_edges
+  n_edges <- n_edges(net)
 
   ci_vals <- runif(n_edges, 0.1, 0.3)
   result <- sn_edges(net, ci = ci_vals)
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_equal(aes$ci, ci_vals)
 })
@@ -557,7 +557,7 @@ test_that("sn_edges() sets ci_scale", {
   net <- cograph(adj)
 
   result <- sn_edges(net, ci_scale = 3)
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_equal(aes$ci_scale, 3)
 })
@@ -567,7 +567,7 @@ test_that("sn_edges() sets ci_alpha", {
   net <- cograph(adj)
 
   result <- sn_edges(net, ci_alpha = 0.2)
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_equal(aes$ci_alpha, 0.2)
 })
@@ -584,7 +584,7 @@ test_that("sn_edges() sets ci_color", {
   net <- cograph(adj)
 
   result <- sn_edges(net, ci_color = "lightblue")
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_equal(aes$ci_color, "lightblue")
 })
@@ -594,7 +594,7 @@ test_that("sn_edges() sets ci_style", {
   net <- cograph(adj)
 
   result <- sn_edges(net, ci_style = 2)
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_equal(aes$ci_style, 2)
 })
@@ -604,7 +604,7 @@ test_that("sn_edges() sets ci_arrows", {
   net <- cograph(adj)
 
   result <- sn_edges(net, ci_arrows = TRUE)
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_equal(aes$ci_arrows, TRUE)
 })
@@ -616,13 +616,13 @@ test_that("sn_edges() sets ci_arrows", {
 test_that("sn_edges() sets ci_lower and ci_upper", {
   adj <- create_test_matrix(4, weighted = TRUE)
   net <- cograph(adj)
-  n_edges <- net$network$n_edges
+  n_edges <- n_edges(net)
 
   lower <- runif(n_edges, 0, 0.5)
   upper <- runif(n_edges, 0.5, 1)
 
   result <- sn_edges(net, ci_lower = lower, ci_upper = upper)
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_equal(aes$ci_lower, lower)
   expect_equal(aes$ci_upper, upper)
@@ -634,7 +634,7 @@ test_that("sn_edges() sets label_style", {
 
   for (style in c("none", "estimate", "full", "range", "stars")) {
     result <- sn_edges(net, label_style = style)
-    aes <- result$network$get_edge_aes()
+    aes <- result$edge_aes
     expect_equal(aes$label_style, style)
   }
 })
@@ -651,7 +651,7 @@ test_that("sn_edges() sets label_template", {
   net <- cograph(adj)
 
   result <- sn_edges(net, label_template = "{est} [{low}, {up}]")
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_equal(aes$label_template, "{est} [{low}, {up}]")
 })
@@ -661,7 +661,7 @@ test_that("sn_edges() sets label_digits", {
   net <- cograph(adj)
 
   result <- sn_edges(net, label_digits = 3)
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_equal(aes$label_digits, 3)
 })
@@ -671,11 +671,11 @@ test_that("sn_edges() sets label_ci_format", {
   net <- cograph(adj)
 
   result <- sn_edges(net, label_ci_format = "bracket")
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
   expect_equal(aes$label_ci_format, "bracket")
 
   result <- sn_edges(net, label_ci_format = "dash")
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
   expect_equal(aes$label_ci_format, "dash")
 })
 
@@ -689,7 +689,7 @@ test_that("sn_edges() validates label_ci_format", {
 test_that("sn_edges() sets label_p parameters", {
   adj <- create_test_matrix(4)
   net <- cograph(adj)
-  n_edges <- net$network$n_edges
+  n_edges <- n_edges(net)
 
   p_vals <- runif(n_edges, 0, 0.1)
   result <- sn_edges(net,
@@ -697,7 +697,7 @@ test_that("sn_edges() sets label_p parameters", {
     label_p_digits = 4,
     label_p_prefix = "p = "
   )
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_equal(aes$label_p, p_vals)
   expect_equal(aes$label_p_digits, 4)
@@ -709,7 +709,7 @@ test_that("sn_edges() sets label_stars", {
   net <- cograph(adj)
 
   result <- sn_edges(net, label_stars = TRUE)
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_equal(aes$label_stars, TRUE)
 })
@@ -731,7 +731,7 @@ test_that("sn_edges() sets multiple parameters at once", {
     arrow_size = 1.2
   )
 
-  aes <- result$network$get_edge_aes()
+  aes <- result$edge_aes
 
   expect_true(all(aes$width == 2))
   expect_true(all(aes$color == "gray50"))
@@ -774,7 +774,7 @@ test_that("sn_edges() curvature customizations render in splot()", {
 test_that("sn_edges() CI underlay customizations render in splot()", {
   adj <- create_test_matrix(4, weighted = TRUE)
   net <- cograph(adj)
-  n_edges <- net$network$n_edges
+  n_edges <- n_edges(net)
 
   net <- net |>
     sn_edges(

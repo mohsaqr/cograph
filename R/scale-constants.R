@@ -88,10 +88,10 @@ QGRAPH_SCALE <- list(
 #'
 #' @keywords internal
 COGRAPH_SCALE <- list(
-  # Node sizing: node_size=6 should look like qgraph vsize=6
-  # Calibrated: 6 * 0.015 = 0.09 user coords (similar visual size to qgraph)
+  # Node sizing: node_size=7 should look like qgraph vsize=7
+  # Calibrated: 7 * 0.015 = 0.105 user coords (similar visual size to qgraph)
   node_factor = 0.015,
-  node_default = 6,
+  node_default = 7,
 
   # Label sizing: independent of node, cex-style
   # label_size=1 is the baseline (like cex=1 in base R)

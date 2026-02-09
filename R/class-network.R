@@ -280,24 +280,188 @@ is_cograph_network <- function(x) {
   inherits(x, "CographNetwork") || inherits(x, "cograph_network")
 }
 
-#' @title Create cograph_network S3 class wrapper
+# =============================================================================
+# Unified cograph_network Constructor
+# =============================================================================
+
+#' Create Unified cograph_network Object
+#'
+#' Internal constructor that creates a cograph_network object with the unified
+#' format. Both cograph() and as_cograph() use this to ensure identical output.
+#'
+#' @param nodes Data frame with node information (id, label, x, y, ...).
+#' @param edges Data frame with edge information (from, to, weight).
+#' @param directed Logical. Is the network directed?
+#' @param source Character. Input source type ("matrix", "tna", "igraph", etc.).
+#' @param layout Data frame with x, y coordinates, or NULL.
+#' @param layout_info List with layout metadata (name, seed), or NULL.
+#' @param node_aes List of node aesthetic parameters.
+#' @param edge_aes List of edge aesthetic parameters.
+#' @param theme Theme object or NULL.
+#' @param plot_params List of plot parameters.
+#' @param tna List with TNA metadata (model, type, group_index, group_name), or NULL.
+#' @param weights Full n×n weight matrix for TNA compatibility, or NULL.
+#' @param layers Optional layer assignments.
+#' @param clusters Optional cluster assignments.
+#' @param groups Optional group assignments.
+#' @param node_groups Optional node groupings data frame.
+#' @param raw_data Optional raw data for validation.
+#' @param estimator Optional estimator function for validation.
+#' @return A cograph_network object (named list with class).
+#' @keywords internal
+.create_cograph_network <- function(
+    nodes,
+    edges,
+    directed,
+    source = "unknown",
+    layout = NULL,
+    layout_info = NULL,
+    node_aes = NULL,
+    edge_aes = NULL,
+    theme = NULL,
+    plot_params = NULL,
+    tna = NULL,
+    weights = NULL,
+    layers = NULL,
+    clusters = NULL,
+    groups = NULL,
+    node_groups = NULL,
+    raw_data = NULL,
+    estimator = NULL
+) {
+  # Extract from/to/weight vectors from edges data frame
+  if (!is.null(edges) && nrow(edges) > 0) {
+    from_vec <- as.integer(edges$from)
+    to_vec <- as.integer(edges$to)
+    weight_vec <- if (!is.null(edges$weight)) as.numeric(edges$weight) else rep(1, nrow(edges))
+  } else {
+    from_vec <- integer(0)
+    to_vec <- integer(0)
+    weight_vec <- numeric(0)
+  }
+
+  # Ensure edges data frame has standard columns
+  edges_df <- if (length(from_vec) > 0) {
+    data.frame(
+      from = from_vec,
+      to = to_vec,
+      weight = weight_vec,
+      stringsAsFactors = FALSE
+    )
+  } else {
+    data.frame(from = integer(0), to = integer(0), weight = numeric(0))
+  }
+
+  # Default aesthetics if not provided
+  if (is.null(node_aes)) {
+    node_aes <- list(
+      size = 0.05,
+      shape = "circle",
+      fill = "#4A90D9",
+      border_color = "#2C5AA0",
+      border_width = 1,
+      alpha = 1,
+      label_size = 10,
+      label_color = "black",
+      label_position = "center"
+    )
+  }
+
+  if (is.null(edge_aes)) {
+    edge_aes <- list(
+      width = 1,
+      color = "gray50",
+      positive_color = "#2E7D32",
+      negative_color = "#C62828",
+      alpha = 0.8,
+      style = "solid",
+      curvature = 0,
+      arrow_size = 0.015,
+      show_arrows = NULL
+    )
+  }
+
+  if (is.null(plot_params)) {
+    plot_params <- list()
+  }
+
+  # Build the unified network object
+
+net <- list(
+    # Core edge data (vectors for backwards compatibility)
+    from = from_vec,
+    to = to_vec,
+    weight = weight_vec,
+
+    # Edge data frame
+    edges = edges_df,
+
+    # Core node data
+    nodes = nodes,
+    directed = directed,
+    n_nodes = nrow(nodes),
+    n_edges = length(from_vec),
+    labels = nodes$label,
+
+    # Layout (computed by cograph, NULL by as_cograph)
+    layout = layout,
+    layout_info = layout_info,
+
+    # Aesthetics (set by sn_* functions)
+    node_aes = node_aes,
+    edge_aes = edge_aes,
+    theme = theme,
+    plot_params = plot_params,
+
+    # Metadata
+    source = source,
+
+    # TNA integration
+    tna = tna,
+
+    # Weight matrix (for TNA compatibility and round-trip)
+    weights = weights,
+
+    # Optional
+    layers = layers,
+    clusters = clusters,
+    groups = groups,
+    node_groups = node_groups,
+    raw_data = raw_data,
+    estimator = estimator
+  )
+
+  # Set S3 class
+  class(net) <- c("cograph_network", "list")
+
+  net
+}
+
+#' @title Create cograph_network S3 class wrapper (Deprecated)
+#'
+#' @description
+#' This function is deprecated. Use \code{\link{.create_cograph_network}} instead.
+#' The unified format no longer wraps R6 objects.
+#'
 #' @param network CographNetwork R6 object.
 #' @return Object with cograph_network class.
 #' @keywords internal
 as_cograph_network <- function(network) {
-  obj <- structure(
-    list(network = network),
-    class = c("cograph_network", "list")
+  .Deprecated(".create_cograph_network")
+
+  # Convert R6 to unified format for backwards compatibility
+  .create_cograph_network(
+    nodes = network$get_nodes(),
+    edges = network$get_edges(),
+    directed = network$is_directed,
+    source = "r6_converted",
+    layout = network$get_layout(),
+    layout_info = network$get_layout_info(),
+    node_aes = network$get_node_aes(),
+    edge_aes = network$get_edge_aes(),
+    theme = network$get_theme(),
+    plot_params = network$get_plot_params()
   )
-  # Add direct access to layout and plot params
-  obj$layout <- network$get_layout()
-  obj$layout_info <- network$get_layout_info()
-  obj$plot_params <- network$get_plot_params()
-  obj$nodes <- network$get_nodes()
-  obj$edges <- network$get_edges()
-  obj$node_aes <- network$get_node_aes()
-  obj$edge_aes <- network$get_edge_aes()
-  obj
 }
 
 # =============================================================================
@@ -321,18 +485,9 @@ as_cograph_network <- function(network) {
 #' get_nodes(net)
 get_nodes <- function(x) {
   if (inherits(x, "cograph_network")) {
-    # Check for new list format first (nodes stored as list element)
+    # Unified format: nodes stored as list element
     if (!is.null(x$nodes) && is.data.frame(x$nodes)) {
       return(x$nodes)
-    }
-    # Check for old attr format
-    nodes_attr <- attr(x, "nodes")
-    if (!is.null(nodes_attr)) {
-      return(nodes_attr)
-    }
-    # R6 object in old wrapper
-    if (!is.null(x$network) && inherits(x$network, "CographNetwork")) {
-      return(x$network$get_nodes())
     }
   }
   stop("Cannot extract nodes from this object", call. = FALSE)
@@ -356,9 +511,12 @@ get_nodes <- function(x) {
 #' get_edges(net)
 get_edges <- function(x) {
   if (inherits(x, "cograph_network")) {
-    # Check for new list format (from/to/weight as list elements)
-    if (!is.null(x$n_nodes)) {
-      # New format: build data frame from vectors
+    # Unified format: edges stored as list element
+    if (!is.null(x$edges) && is.data.frame(x$edges)) {
+      return(x$edges)
+    }
+    # Fallback: build from vectors (backwards compatibility)
+    if (!is.null(x$from)) {
       if (length(x$from) > 0) {
         return(data.frame(
           from = x$from,
@@ -369,14 +527,6 @@ get_edges <- function(x) {
       } else {
         return(data.frame(from = integer(0), to = integer(0), weight = numeric(0)))
       }
-    }
-    # Check for old wrapper format with edges stored directly
-    if (!is.null(x$edges) && is.data.frame(x$edges)) {
-      return(x$edges)
-    }
-    # R6 object in old wrapper
-    if (!is.null(x$network) && inherits(x$network, "CographNetwork")) {
-      return(x$network$get_edges())
     }
   }
   stop("Cannot extract edges from this object", call. = FALSE)
@@ -399,16 +549,11 @@ get_edges <- function(x) {
 #' get_labels(net)
 get_labels <- function(x) {
   if (inherits(x, "cograph_network")) {
-    # Check for new list format
+    # Unified format: labels stored as list element
     if (!is.null(x$labels)) {
       return(x$labels)
     }
-    # Check for old attr format
-    labels_attr <- attr(x, "labels")
-    if (!is.null(labels_attr)) {
-      return(labels_attr)
-    }
-    # Try getting from nodes
+    # Fallback: get from nodes
     nodes <- get_nodes(x)
     if (!is.null(nodes) && "label" %in% names(nodes)) {
       return(nodes$label)
@@ -679,68 +824,31 @@ as_cograph <- function(x, directed = NULL, ...) {
     "unknown"
   }
 
-  # Extract from/to/weight from edges data frame
-  edges <- parsed$edges
-  if (!is.null(edges) && nrow(edges) > 0) {
-    from_vec <- as.integer(edges$from)
-    to_vec <- as.integer(edges$to)
-    weight_vec <- if (!is.null(edges$weight)) as.numeric(edges$weight) else rep(1, nrow(edges))
-  } else {
-    from_vec <- integer(0)
-    to_vec <- integer(0)
-    weight_vec <- numeric(0)
+  # Get full weight matrix if available (from parse_input or original matrix)
+  weights_matrix <- NULL
+  if (!is.null(parsed$tna) && !is.null(parsed$tna$model)) {
+    # TNA: use model's weights matrix
+    weights_matrix <- parsed$tna$model$weights
+  } else if (is.matrix(x) && nrow(x) == ncol(x)) {
+    # Square matrix input: preserve it
+    weights_matrix <- x
   }
 
-  # Get nodes data frame
-
-  nodes_df <- parsed$nodes
-
-  # Build edges data frame (for consistency with cograph())
-  edges_df <- if (length(from_vec) > 0) {
-    data.frame(
-      from = from_vec,
-      to = to_vec,
-      weight = weight_vec,
-      stringsAsFactors = FALSE
-    )
-  } else {
-    data.frame(from = integer(0), to = integer(0), weight = numeric(0))
-  }
-
-  # Create the network object with all data as named list elements
-  net <- list(
-    # Core edge data (vectors for backwards compatibility)
-    from = from_vec,
-    to = to_vec,
-    weight = weight_vec,
-
-    # Edge data frame (for consistency with cograph())
-    edges = edges_df,
-
-    # Metadata as list elements (not attributes)
-    nodes = nodes_df,
+  # Use unified constructor
+  .create_cograph_network(
+    nodes = parsed$nodes,
+    edges = parsed$edges,
     directed = parsed$directed,
-    n_nodes = nrow(nodes_df),
-    n_edges = length(from_vec),
-    labels = nodes_df$label,
     source = source_type,
-
-    # Optional elements (NULL if not set)
     layout = NULL,
     layout_info = NULL,
-    layers = NULL,
-    clusters = NULL,
-    groups = NULL,
-    node_groups = NULL,  # For auto-dispatch to mlna/htna/mtna
-
-    # TNA integration (NULL if not from TNA)
-    tna = parsed$tna
+    node_aes = NULL,  # Will use defaults
+    edge_aes = NULL,  # Will use defaults
+    theme = NULL,
+    plot_params = NULL,
+    tna = parsed$tna,
+    weights = weights_matrix
   )
-
-  # Set S3 class
-  class(net) <- c("cograph_network", "list")
-
-  net
 }
 
 #' @rdname as_cograph
@@ -1051,18 +1159,9 @@ nodes <- function(x) {
 #' is_directed(net2)  # TRUE
 is_directed <- function(x) {
   if (inherits(x, "cograph_network")) {
-    # Check for new list format first (directed stored as list element)
+    # Unified format: directed stored as list element
     if (!is.null(x$directed)) {
       return(x$directed)
-    }
-    # Check for old attr format
-    dir_attr <- attr(x, "directed")
-    if (!is.null(dir_attr)) {
-      return(dir_attr)
-    }
-    # R6 object in old wrapper
-    if (!is.null(x$network) && inherits(x$network, "CographNetwork")) {
-      return(x$network$is_directed)
     }
   }
   stop("Cannot determine directedness for this object", call. = FALSE)
@@ -1085,18 +1184,9 @@ is_directed <- function(x) {
 #' n_nodes(net)  # 3
 n_nodes <- function(x) {
   if (inherits(x, "cograph_network")) {
-    # Check for new list format first (n_nodes stored as list element)
+    # Unified format: n_nodes stored as list element
     if (!is.null(x$n_nodes)) {
       return(x$n_nodes)
-    }
-    # Check for old attr format
-    n_attr <- attr(x, "n_nodes")
-    if (!is.null(n_attr)) {
-      return(n_attr)
-    }
-    # R6 object in old wrapper
-    if (!is.null(x$network) && inherits(x$network, "CographNetwork")) {
-      return(x$network$n_nodes)
     }
   }
   stop("Cannot count nodes for this object", call. = FALSE)
@@ -1119,18 +1209,9 @@ n_nodes <- function(x) {
 #' n_edges(net)  # 3
 n_edges <- function(x) {
   if (inherits(x, "cograph_network")) {
-    # Check for new list format first (n_edges stored as list element)
+    # Unified format: n_edges stored as list element
     if (!is.null(x$n_edges)) {
       return(x$n_edges)
-    }
-    # Check for old attr format
-    n_attr <- attr(x, "n_edges")
-    if (!is.null(n_attr)) {
-      return(n_attr)
-    }
-    # R6 object in old wrapper
-    if (!is.null(x$network) && inherits(x$network, "CographNetwork")) {
-      return(x$network$n_edges)
     }
   }
   stop("Cannot count edges for this object", call. = FALSE)

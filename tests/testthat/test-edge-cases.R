@@ -24,8 +24,8 @@ test_that("cograph() handles single-node network", {
   net <- cograph(adj)
 
   expect_cograph_network(net)
-  expect_equal(net$network$n_nodes, 1)
-  expect_equal(net$network$n_edges, 0)
+  expect_equal(n_nodes(net), 1)
+  expect_equal(n_edges(net), 0)
 })
 
 test_that("splot() renders single-node network", {
@@ -40,7 +40,7 @@ test_that("cograph() handles two-node network", {
   net <- cograph(adj)
 
   expect_cograph_network(net)
-  expect_equal(net$network$n_nodes, 2)
+  expect_equal(n_nodes(net), 2)
 })
 
 test_that("splot() renders two-node network", {
@@ -55,8 +55,8 @@ test_that("cograph() handles network with no edges", {
   net <- cograph(adj)
 
   expect_cograph_network(net)
-  expect_equal(net$network$n_nodes, 5)
-  expect_equal(net$network$n_edges, 0)
+  expect_equal(n_nodes(net), 5)
+  expect_equal(n_edges(net), 0)
 })
 
 test_that("splot() renders network with no edges", {
@@ -93,7 +93,7 @@ test_that("cograph() handles network with only self-loops", {
 
   expect_cograph_network(net)
   # Should have nodes (self-loops may or may not be counted as edges)
-  expect_equal(net$network$n_nodes, 4)
+  expect_equal(n_nodes(net), 4)
 })
 
 test_that("splot() handles self-loop rotation parameter", {
@@ -113,7 +113,7 @@ test_that("cograph() handles complete graph", {
 
   expect_cograph_network(net)
   # Complete graph of n nodes has n*(n-1)/2 undirected edges
-  expect_equal(net$network$n_edges, 10)
+  expect_equal(n_edges(net), 10)
 })
 
 test_that("splot() renders complete graph", {
@@ -128,7 +128,7 @@ test_that("cograph() handles star graph", {
   net <- cograph(adj)
 
   expect_cograph_network(net)
-  expect_equal(net$network$n_edges, 4)  # n-1 edges
+  expect_equal(n_edges(net), 4)  # n-1 edges
 })
 
 test_that("splot() renders star graph", {
@@ -143,7 +143,7 @@ test_that("cograph() handles ring graph", {
   net <- cograph(adj)
 
   expect_cograph_network(net)
-  expect_equal(net$network$n_edges, 6)  # n edges in a ring
+  expect_equal(n_edges(net), 6)  # n edges in a ring
 })
 
 test_that("splot() renders ring graph with circle layout", {
@@ -158,7 +158,7 @@ test_that("cograph() handles path graph", {
   net <- cograph(adj)
 
   expect_cograph_network(net)
-  expect_equal(net$network$n_edges, 4)  # n-1 edges
+  expect_equal(n_edges(net), 4)  # n-1 edges
 })
 
 test_that("cograph() handles disconnected graph", {
@@ -302,7 +302,7 @@ test_that("cograph() preserves row/column names as labels", {
   rownames(adj) <- colnames(adj) <- c("Alice", "Bob", "Charlie")
 
   net <- cograph(adj)
-  nodes <- net$network$get_nodes()
+  nodes <- get_nodes(net)
 
   expect_equal(nodes$label, c("Alice", "Bob", "Charlie"))
 })
@@ -313,7 +313,7 @@ test_that("cograph() handles only rownames (no colnames)", {
   # colnames remain NULL
 
   net <- cograph(adj)
-  nodes <- net$network$get_nodes()
+  nodes <- get_nodes(net)
 
   expect_equal(nodes$label, c("A", "B", "C"))
 })
@@ -325,7 +325,7 @@ test_that("cograph() handles mismatched row/colnames", {
 
   net <- cograph(adj)
   # Should use one of them (likely rownames)
-  nodes <- net$network$get_nodes()
+  nodes <- get_nodes(net)
   expect_equal(length(nodes$label), 3)
 })
 
@@ -404,7 +404,7 @@ test_that("cograph() handles moderately large network", {
   net <- cograph(adj, layout = "spring", seed = 42)
 
   expect_cograph_network(net)
-  expect_equal(net$network$n_nodes, 50)
+  expect_equal(n_nodes(net), 50)
 })
 
 test_that("splot() renders moderately large network", {

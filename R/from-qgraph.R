@@ -135,13 +135,24 @@ from_tna <- function(tna_object, engine = c("splot", "soplot"), plot = TRUE,
   # --- Weights matrix ---
   x <- tna_object$weights
 
+  # --- Determine directedness ---
+  # Read from tna object's $directed field if present, otherwise default TRUE
+  # (transition networks are directed by default, co-occurrence networks are not)
+  is_directed <- if (!is.null(tna_object$directed)) {
+    tna_object$directed
+  } else if (!is.null(attr(tna_object, "directed"))) {
+    attr(tna_object, "directed")
+  } else {
+    TRUE  # TNA networks are directed by default
+  }
+
   # --- Build params ---
   n_states <- nrow(x)
 
   params <- list(
     x          = x,
     labels     = tna_object$labels,
-    directed   = TRUE,
+    directed   = is_directed,
     weight_digits     = weight_digits,
     donut_fill = as.numeric(tna_object$inits),
     donut_inner_ratio = 0.8,

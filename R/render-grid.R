@@ -332,7 +332,7 @@ soplot <- function(network, title = NULL, title_size = 14,
   igraph_codes <- c("kk", "fr", "drl", "mds", "go", "tr", "st", "gr", "rd", "ni", "ci", "lgl", "sp")
 
   # Determine effective layout
-  effective_layout <- layout %||% "spring"
+  effective_layout <- layout %||% "oval"
 
   # Round matrix weights to filter near-zero edges globally
   if (is.matrix(network) && !is.null(weight_digits)) {
@@ -343,9 +343,8 @@ soplot <- function(network, title = NULL, title_size = 14,
   network <- ensure_cograph_network(network, layout = effective_layout, seed = seed)
 
   # Check for duplicate edges in undirected networks
-  net <- network$network
-  directed <- net$is_directed
-  edges <- net$get_edges()
+  directed <- is_directed(network)
+  edges <- get_edges(network)
   if (!directed && !is.null(edges) && nrow(edges) > 0) {
     dup_check <- detect_duplicate_edges(edges)
     if (dup_check$has_duplicates) {
@@ -367,30 +366,31 @@ soplot <- function(network, title = NULL, title_size = 14,
              call. = FALSE)
       }
       edges <- aggregate_duplicate_edges(edges, edge_duplicates)
-      net$set_edges(edges)
+      network$edges <- edges
+      network$n_edges <- nrow(edges)
     }
   }
 
   # Apply custom node labels if provided
   if (!is.null(labels)) {
-    net <- network$network
-    nodes_df <- net$get_nodes()
+    nodes_df <- get_nodes(network)
     if (length(labels) != nrow(nodes_df)) {
       stop("labels length (", length(labels), ") must match number of nodes (",
            nrow(nodes_df), ")", call. = FALSE)
     }
     nodes_df$label <- labels
-    net$set_nodes(nodes_df)
+    network$nodes <- nodes_df
+    network$labels <- labels
   }
 
   # Apply threshold - filter out weak edges
- if (!is.null(threshold)) {
-    net <- network$network
-    edges_df <- net$get_edges()
+  if (!is.null(threshold)) {
+    edges_df <- get_edges(network)
     if (!is.null(edges_df) && nrow(edges_df) > 0 && !is.null(edges_df$weight)) {
       keep <- abs(edges_df$weight) >= threshold
       edges_df <- edges_df[keep, , drop = FALSE]
-      net$set_edges(edges_df)
+      network$edges <- edges_df
+      network$n_edges <- nrow(edges_df)
     }
   }
 
@@ -409,7 +409,7 @@ soplot <- function(network, title = NULL, title_size = 14,
   # ============================================
 
   # Get node count for processing
-  n_nodes <- nrow(network$network$get_nodes())
+  n_nodes <- n_nodes(network)
 
   # Get shapes for processing
   shapes <- recycle_to_length(node_shape %||% "circle", n_nodes)
@@ -579,12 +579,11 @@ soplot <- function(network, title = NULL, title_size = 14,
     network <- do.call(sn_edges, c(list(network = network), edge_aes))
   }
 
-  net <- network$network
-  th <- net$get_theme()
+  th <- network$theme
 
   # Rescale layout coordinates to [0.1, 0.9] range (same as splot)
   # This ensures consistent rendering between soplot and splot
-  nodes <- net$get_nodes()
+  nodes <- get_nodes(network)
   if (!is.null(nodes) && nrow(nodes) > 0 && !is.null(nodes$x) && !is.null(nodes$y)) {
     x <- nodes$x
     y <- nodes$y
@@ -612,8 +611,17 @@ soplot <- function(network, title = NULL, title_size = 14,
       }
     }
 
-    net$set_nodes(nodes)
+    network$nodes <- nodes
   }
+
+  # Create temporary R6 network for grid rendering functions
+  net <- CographNetwork$new()
+  net$set_nodes(get_nodes(network))
+  net$set_edges(get_edges(network))
+  net$set_directed(is_directed(network))
+  if (!is.null(network$node_aes)) net$set_node_aes(network$node_aes)
+  if (!is.null(network$edge_aes)) net$set_edge_aes(network$edge_aes)
+  if (!is.null(network$theme)) net$set_theme(network$theme)
 
   if (newpage) {
     grid::grid.newpage()
@@ -709,17 +717,17 @@ soplot <- function(network, title = NULL, title_size = 14,
   )
   # Remove NULL values
   plot_params <- plot_params[!sapply(plot_params, is.null)]
-  net$set_plot_params(plot_params)
 
-  # Store layout coordinates
-  net$set_layout_info(list(
+  # Update the original unified network with plot params and layout info
+  network$plot_params <- plot_params
+  network$layout_info <- list(
     name = effective_layout,
     seed = seed,
-    coords = net$get_layout()
-  ))
+    coords = network$layout
+  )
 
-  # Re-create wrapper with updated data
-  invisible(as_cograph_network(net))
+  # Return the unified format network
+  invisible(network)
 }
 
 #' Create Grid Grob Tree
@@ -735,8 +743,16 @@ create_grid_grob <- function(network, title = NULL) {
     stop("network must be a cograph_network object", call. = FALSE)
   }
 
-  net <- network$network
-  theme <- net$get_theme()
+  theme <- network$theme
+
+  # Create temporary R6 network for grid rendering functions
+  net <- CographNetwork$new()
+  net$set_nodes(get_nodes(network))
+  net$set_edges(get_edges(network))
+  net$set_directed(is_directed(network))
+  if (!is.null(network$node_aes)) net$set_node_aes(network$node_aes)
+  if (!is.null(network$edge_aes)) net$set_edge_aes(network$edge_aes)
+  if (!is.null(network$theme)) net$set_theme(network$theme)
 
   # Background
   bg_color <- if (!is.null(theme)) theme$get("background") else "white"

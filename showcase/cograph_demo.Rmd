@@ -144,6 +144,16 @@ splot(mat,
   pie_colors = pie_cols,
   node_size = 6
 )
+
+library(cograph)
+tna(group_regulation) |>
+  splot() |>
+  sn_layout("spring") |>
+
+  sn_nodes(fill = "steelblue") |>
+  splot()
+
+
 ```
 
 ## Pie with varying segment counts

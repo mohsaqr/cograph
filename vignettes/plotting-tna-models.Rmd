@@ -44,6 +44,7 @@ splot(model)
 Available shapes: `"circle"`, `"square"`, `"triangle"`, `"diamond"`, `"pentagon"`, `"hexagon"`, `"ellipse"`, `"heart"`, `"star"`
 
 ```{r shapes-gallery, fig.cap="Node shape gallery"}
+
 # Hexagons - modern technical look
 splot(model, node_shape = "hexagon", node_size = 5, node_fill = "#37474F")
 
@@ -333,6 +334,36 @@ splot(model,
       # Title
       title = "Group Regulation Transitions")
 ```
+
+
+```{r}
+prepared_data <- prepare_data(
+  group_regulation_long,
+  action = "Action",
+  actor = "Actor",
+  time = "Time"
+)
+
+# Build separate TNA models for High and Low achievers
+gtna <- group_tna(prepared_data, group = "Course")
+
+compare(gtna)
+comp <- compare(gtna$High$weights, gtna$Low$weights)
+
+
+pak::pak("mohsaqr/Saqrlab")
+
+Saqrlab::simulate_sequences(n_sequences = 2000, seq_length = 50, max_na = 4)
+
+```
+
+
+
+
+
+
+
+
 
 ## Summary
 

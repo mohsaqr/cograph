@@ -31,13 +31,14 @@ draw_edge_label_base(
 
 \item{font}{Font face.}
 
-\item{shadow}{Logical: enable drop shadow?}
+\item{shadow}{Logical or character: FALSE for none, TRUE or "shadow" for drop shadow,
+"halo" for outline rim around text.}
 
-\item{shadow_color}{Shadow color.}
+\item{shadow_color}{Shadow/halo color.}
 
-\item{shadow_offset}{Shadow offset distance.}
+\item{shadow_offset}{Shadow/halo offset distance.}
 
-\item{shadow_alpha}{Shadow transparency.}
+\item{shadow_alpha}{Shadow/halo transparency.}
 }
 \description{
 Renders a label on an edge.

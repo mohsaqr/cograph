@@ -4,10 +4,12 @@
 \alias{get_edge_order}
 \title{Get Edge Rendering Order}
 \usage{
-get_edge_order(edges)
+get_edge_order(edges, priority = NULL)
 }
 \arguments{
 \item{edges}{Edge data frame.}
+
+\item{priority}{Optional numeric vector of edge priorities. Higher = on top.}
 }
 \value{
 Integer vector of indices.

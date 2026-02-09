@@ -2,7 +2,7 @@
 % Please edit documentation in R/class-network.R
 \name{as_cograph_network}
 \alias{as_cograph_network}
-\title{Create cograph_network S3 class wrapper}
+\title{Create cograph_network S3 class wrapper (Deprecated)}
 \usage{
 as_cograph_network(network)
 }
@@ -13,6 +13,7 @@ as_cograph_network(network)
 Object with cograph_network class.
 }
 \description{
-Create cograph_network S3 class wrapper
+This function is deprecated. Use \code{\link{.create_cograph_network}} instead.
+The unified format no longer wraps R6 objects.
 }
 \keyword{internal}

@@ -2,6 +2,125 @@
 # Network Utility Functions
 # =============================================================================
 
+#' Convert Network to igraph Object
+#'
+#' Converts various network representations to an igraph object. Supports
+#' matrices, igraph objects, network objects, cograph_network, and tna objects.
+#'
+#' @param x Network input. Can be:
+#'   \itemize{
+#'     \item A square numeric matrix (adjacency/weight matrix)
+#'     \item An igraph object (returned as-is or converted if directed differs)
+#'     \item A statnet network object
+#'     \item A cograph_network object
+#'     \item A tna object
+#'   }
+#' @param directed Logical or NULL. If NULL (default), auto-detect from matrix
+#'   symmetry. Set TRUE to force directed, FALSE to force undirected.
+#'
+#' @return An igraph object.
+#'
+#' @seealso \code{\link{to_data_frame}}, \code{\link{as_cograph}}
+#'
+#' @export
+#' @examples
+#' # From matrix
+#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+#' g <- to_igraph(adj)
+#'
+#' # Force directed
+#' g_dir <- to_igraph(adj, directed = TRUE)
+to_igraph <- function(x, directed = NULL) {
+  if (inherits(x, "igraph")) {
+    # If directed override specified and different from current, convert
+    if (!is.null(directed)) {
+      if (directed && !igraph::is_directed(x)) {
+        x <- igraph::as.directed(x, mode = "mutual")
+      } else if (!directed && igraph::is_directed(x)) {
+        x <- igraph::as.undirected(x, mode = "collapse")
+      }
+    }
+    return(x)
+  }
+
+  if (inherits(x, "cograph_network")) {
+    g <- network_to_igraph(x)
+    # Apply directed override if specified
+    if (!is.null(directed)) {
+      if (directed && !igraph::is_directed(g)) {
+        g <- igraph::as.directed(g, mode = "mutual")
+      } else if (!directed && igraph::is_directed(g)) {
+        g <- igraph::as.undirected(g, mode = "collapse")
+      }
+    }
+    return(g)
+  }
+
+  if (inherits(x, "network")) {
+    if (!requireNamespace("network", quietly = TRUE)) {
+      stop("Package 'network' is required for network input. ",
+           "Please install it with: install.packages('network')",
+           call. = FALSE)
+    }
+    # Get directedness
+    is_dir <- if (!is.null(directed)) {
+      directed
+    } else {
+      network::is.directed(x)
+    }
+    graph_mode <- if (is_dir) "directed" else "undirected"
+
+    # Convert to adjacency matrix, checking for weight attribute first
+    edge_attrs <- network::list.edge.attributes(x)
+    if ("weight" %in% edge_attrs) {
+      adj <- network::as.matrix.network(x, matrix.type = "adjacency",
+                                         attrname = "weight")
+    } else {
+      adj <- network::as.matrix.network(x, matrix.type = "adjacency")
+    }
+
+    g <- igraph::graph_from_adjacency_matrix(adj, mode = graph_mode,
+                                              weighted = TRUE)
+    # Add node names
+    labels <- network::network.vertex.names(x)
+    if (!is.null(labels) && !all(is.na(labels))) {
+      igraph::V(g)$name <- labels
+    }
+    return(g)
+  }
+
+  if (inherits(x, "tna")) {
+    weights <- x$weights
+    # Use directed override if specified, otherwise auto-detect
+    graph_mode <- if (!is.null(directed)) {
+      if (directed) "directed" else "undirected"
+    } else {
+      if (isSymmetric(weights)) "undirected" else "directed"
+    }
+    g <- igraph::graph_from_adjacency_matrix(
+      weights, mode = graph_mode, weighted = TRUE
+    )
+    if (!is.null(x$labels)) igraph::V(g)$name <- x$labels
+    return(g)
+  }
+
+  if (is.matrix(x)) {
+    # Use directed override if specified, otherwise auto-detect
+    graph_mode <- if (!is.null(directed)) {
+      if (directed) "directed" else "undirected"
+    } else {
+      if (isSymmetric(x)) "undirected" else "directed"
+    }
+    g <- igraph::graph_from_adjacency_matrix(x, mode = graph_mode, weighted = TRUE)
+    if (!is.null(rownames(x))) igraph::V(g)$name <- rownames(x)
+    return(g)
+  }
+
+  stop("x must be a matrix, igraph, network, cograph_network, or tna object",
+       call. = FALSE)
+}
+
 #' Detect Communities in a Network
 #'
 #' Detects communities (clusters) in a network using various community detection

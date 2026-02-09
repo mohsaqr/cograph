@@ -905,8 +905,10 @@ to_cograph <- function(x, directed = NULL, ...) {
 #' @export
 #'
 #' @examples
-#' # Create network
+#' # Create network (symmetric for community detection)
 #' mat <- matrix(runif(100), 10, 10)
+#' mat <- (mat + t(mat)) / 2  # Make symmetric (undirected)
+#' diag(mat) <- 0
 #' rownames(mat) <- colnames(mat) <- paste0("N", 1:10)
 #' net <- as_cograph(mat)
 #'

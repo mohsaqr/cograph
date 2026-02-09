@@ -198,9 +198,6 @@ is_tna_network <- function(x) {
 #' # Access attributes
 #' attr(original, "type")              # "relative"
 #' attr(original$data, "colors")       # state colors
-#'
-#' # Use tna functions directly
-#' tna::centrality(get_tna_model(net))
 #' }
 get_tna_model <- function(x) {
   if (!is_tna_network(x)) {

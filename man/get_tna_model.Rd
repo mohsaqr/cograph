@@ -53,9 +53,6 @@ original$data      # sequence data
 # Access attributes
 attr(original, "type")              # "relative"
 attr(original$data, "colors")       # state colors
-
-# Use tna functions directly
-tna::centrality(get_tna_model(net))
 }
 }
 \seealso{

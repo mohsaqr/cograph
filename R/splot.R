@@ -473,19 +473,6 @@ splot <- function(
 ) {
 
   # ============================================
-  # 0. DISPATCH FOR VALIDATION RESULT CLASSES
-  # ============================================
-  if (inherits(x, "cograph_boot") || inherits(x, "tna_bootstrap")) {
-    return(splot.cograph_boot(x, ...))
-  }
-  if (inherits(x, "tna_permutation")) {
-    return(splot.tna_permutation(x, ...))
-  }
-  if (inherits(x, "tna_disparity")) {
-    return(splot.tna_disparity(x, ...))
-  }
-
-  # ============================================
   # 1. INPUT PROCESSING
   # ============================================
 

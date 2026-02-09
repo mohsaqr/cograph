@@ -179,36 +179,7 @@ statnet_net <- to_network(net)
 
 ---
 
-## Network Analysis
-
-### Centrality
-
-The `centrality()` function computes all measures at once.
-
-```r
-centrality(net)
-#   node degree strength betweenness closeness eigenvector pagerank
-# 1    A      2      1.3         0.0       1.0   0.7071068    0.333
-# 2    B      2      0.8         0.5       1.0   0.7071068    0.333
-# 3    C      2      1.1         0.5       1.0   0.7071068    0.333
-```
-
-Individual centrality functions are also available:
-
-| Function | Description |
-|----------|-------------|
-| `centrality_degree()` | Degree centrality |
-| `centrality_strength()` | Weighted degree (strength) |
-| `centrality_betweenness()` | Betweenness centrality |
-| `centrality_closeness()` | Closeness centrality |
-| `centrality_eigenvector()` | Eigenvector centrality |
-| `centrality_pagerank()` | PageRank centrality |
-| `centrality_hub()` | Hub scores (HITS) |
-| `centrality_authority()` | Authority scores (HITS) |
-| `centrality_constraint()` | Burt's constraint |
-| `centrality_coreness()` | K-core decomposition |
-| `centrality_eccentricity()` | Eccentricity |
-| `centrality_transitivity()` | Local clustering coefficient |
+## Network Utilities
 
 ### Community Detection
 
@@ -233,14 +204,11 @@ splot(net, node_fill = color_communities(net))
 splot(net, node_fill = color_communities(net, palette = "viridis"))
 ```
 
-### Filtering & Statistics
+### Edge Filtering
 
 | Function | Description |
 |----------|-------------|
 | `filter_edges()` | Filter edges by weight expression |
-| `filter_nodes()` | Filter nodes by centrality expression |
-| `network_summary()` | Comprehensive network statistics |
-| `degree_distribution()` | Degree distribution |
 
 ```r
 # Keep only strong edges
@@ -248,29 +216,6 @@ strong_net <- filter_edges(net, weight > 0.5)
 
 # Keep edges above mean
 filtered <- filter_edges(net, weight >= mean(weight))
-
-# Keep high-degree nodes
-hubs <- filter_nodes(net, degree >= 3)
-
-# Keep nodes with high PageRank
-important <- filter_nodes(net, pagerank > 0.1)
-
-# Network statistics
-network_summary(net)
-# Network Summary
-# ---------------
-# Nodes: 10
-# Edges: 25
-# Directed: FALSE
-# Density: 0.556
-# Average degree: 5.0
-# ...
-
-degree_distribution(net)
-#   degree count proportion
-# 1      2     3       0.30
-# 2      3     4       0.40
-# 3      4     3       0.30
 ```
 
 ---
@@ -572,8 +517,7 @@ net <- layout_circle(net)
 | **Heatmaps** | `plot_heatmap()`, `plot_ml_heatmap()` |
 | **Import** | `as_cograph()`, `to_cograph()`, `cograph()` |
 | **Export** | `to_igraph()`, `to_df()`, `to_matrix()`, `to_network()` |
-| **Analysis** | `centrality()`, `detect_communities()`, `network_summary()` |
-| **Filtering** | `filter_edges()`, `filter_nodes()` |
+| **Utilities** | `detect_communities()`, `color_communities()`, `filter_edges()` |
 | **Piping** | `sn_layout()`, `sn_theme()`, `sn_nodes()`, `sn_edges()`, `sn_render()`, `sn_save()` |
 | **TNA** | `plot_tna()`, `tna_animate()`, `is_tna_network()`, `get_tna_model()` |
 | **Multilayer** | `supra_adjacency()`, `aggregate_layers()`, `layer_similarity()` |

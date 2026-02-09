@@ -152,6 +152,8 @@ NULL
 #' @param edge_label_template Template with placeholders: \{est\}, \{range\}, \{low\}, \{up\}, \{p\}, \{stars\}.
 #'   Overrides edge_label_style if provided.
 #' @param edge_label_digits Decimal places for estimates. Default 2.
+#' @param edge_label_leading_zero Logical: show leading zero for values < 1? Default TRUE.
+#'   Set to FALSE to display ".5" instead of "0.5".
 #' @param edge_label_oneline Logical: single line format? Default TRUE.
 #' @param edge_label_ci_format CI format: "bracket" for `[low, up]` or "dash" for `low-up`.
 #' @param edge_ci_lower Numeric vector of lower CI bounds for labels.
@@ -632,7 +634,6 @@ splot <- function(
       n_edges <- nrow(edges)
       # Update the network object with deduplicated edges
       network$edges <- edges
-      network$n_edges <- n_edges
     }
   }
 
@@ -855,31 +856,60 @@ splot <- function(
     }
 
     # Curve magnitude (user-specified or default 0.175)
-    # Handle both scalar and per-edge vector curvature
-    if (length(curvature) == 1) {
-      curve_magnitude <- if (curvature == 0) 0.175 else abs(curvature)
-      curves_vec <- rep(0, n_edges)
+    # Vectorize curvature:
+    # - If scalar 0 (default), use 0.175 for all (auto-curve behavior)
+    # - If vector or non-zero scalar, treat 0 as "straight"
+    if (length(curvature) == 1 && curvature == 0) {
+      curve_magnitudes <- rep(0.175, n_edges)
     } else {
-      # Per-edge curvature vector provided
-      # curvature = 0 means straight (no curve), otherwise use specified value
-      curve_magnitude <- ifelse(curvature == 0, 0, abs(curvature))
-      curve_magnitude <- recycle_to_length(curve_magnitude, n_edges)
-      curves_vec <- curve_magnitude  # Use directly as curves_vec
+      # Use provided values (recycle if needed)
+      curve_magnitudes <- abs(recycle_to_length(curvature, n_edges))
     }
 
-    # Initialize curves vector to 0 (straight) if scalar curvature
-    if (length(curvature) == 1) {
-      curves_vec <- rep(0, n_edges)
-    }
+    # Initialize curves vector to 0 (straight)
+    curves_vec <- rep(0, n_edges)
 
     # Calculate network center for curve direction
     center_x <- mean(layout_mat[, 1])
     center_y <- mean(layout_mat[, 2])
 
-    # Skip auto-curving if per-edge curvature vector was provided
+    # Check if per-edge curvature vector was provided
     per_edge_curvature <- length(curvature) > 1
 
-    if (!per_edge_curvature && (identical(curves, TRUE) || identical(curves, "mutual"))) {
+    if (per_edge_curvature) {
+      # Per-edge curvature vector provided - use values directly
+      # Apply sign based on reciprocal edge direction for proper curve separation
+      for (i in seq_len(n_edges)) {
+        if (curve_magnitudes[i] == 0) next  # Skip straight edges
+        if (edges$from[i] == edges$to[i]) next  # Skip self-loops
+
+        from_idx <- edges$from[i]
+        to_idx <- edges$to[i]
+
+        if (is_reciprocal[i]) {
+          # For reciprocal edges, use canonical ordering to determine sign
+          lo <- min(from_idx, to_idx)
+          hi <- max(from_idx, to_idx)
+          dx_canon <- layout_mat[hi, 1] - layout_mat[lo, 1]
+          dy_canon <- layout_mat[hi, 2] - layout_mat[lo, 2]
+          perp_x <- -dy_canon
+          perp_y <- dx_canon
+
+          mid_x <- (layout_mat[from_idx, 1] + layout_mat[to_idx, 1]) / 2
+          mid_y <- (layout_mat[from_idx, 2] + layout_mat[to_idx, 2]) / 2
+          test_x <- mid_x + perp_x * 0.1
+          test_y <- mid_y + perp_y * 0.1
+          dist_to_center_pos <- sqrt((test_x - center_x)^2 + (test_y - center_y)^2)
+          dist_to_center_orig <- sqrt((mid_x - center_x)^2 + (mid_y - center_y)^2)
+          outward_sign <- if (dist_to_center_pos > dist_to_center_orig) 1 else -1
+
+          curves_vec[i] <- outward_sign * curve_magnitudes[i]
+        } else {
+          # Non-reciprocal edge with curvature - just apply magnitude
+          curves_vec[i] <- curve_magnitudes[i]
+        }
+      }
+    } else if (!per_edge_curvature && (identical(curves, TRUE) || identical(curves, "mutual"))) {
       # Curve reciprocal edges in opposite directions.
       # Use canonical ordering (lower node index first) so both edges in a pair
       # compute the same perpendicular reference, then assign opposite signs.
@@ -910,14 +940,14 @@ splot <- function(
           # Both edges get the same sign. The renderer computes perp from the
           # edge's own from->to direction, which flips for hi->lo vs lo->hi.
           # Same sign + flipped perp = opposite curve directions.
-          curves_vec[i] <- outward_sign * curve_magnitude
+          curves_vec[i] <- outward_sign * curve_magnitudes[i]
         }
       }
     } else if (!per_edge_curvature && identical(curves, "force")) {
       # Curve all edges with the specified magnitude
       for (i in seq_len(n_edges)) {
         if (edges$from[i] == edges$to[i]) next  # Skip self-loops
-        curves_vec[i] <- curve_magnitude
+        curves_vec[i] <- curve_magnitudes[i]
       }
     }
     # If curves = FALSE, curves_vec stays at 0 (straight edges)

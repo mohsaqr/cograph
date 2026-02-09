@@ -67,7 +67,7 @@ splot(
   edge_labels = FALSE,
   edge_label_size = 0.8,
   edge_label_color = "gray30",
-  edge_label_bg = "white",
+  edge_label_bg = NA,
   edge_label_position = 0.5,
   edge_label_offset = 0,
   edge_label_fontface = "plain",
@@ -75,6 +75,7 @@ splot(
   edge_label_shadow_color = "gray40",
   edge_label_shadow_offset = 0.5,
   edge_label_shadow_alpha = 0.5,
+  edge_label_halo = TRUE,
   edge_style = 1,
   curvature = 0,
   curve_scale = TRUE,
@@ -95,6 +96,7 @@ splot(
   edge_ci_color = NA,
   edge_ci_style = 2,
   edge_ci_arrows = FALSE,
+  edge_priority = NULL,
   edge_label_style = "none",
   edge_label_template = NULL,
   edge_label_digits = 2,
@@ -318,6 +320,9 @@ or character vector.}
 
 \item{edge_label_shadow_alpha}{Transparency for shadow (0-1). Default 0.5.}
 
+\item{edge_label_halo}{Logical: enable white halo/outline around edge labels for
+readability over dark edges? Default FALSE. When TRUE, overrides shadow settings.}
+
 \item{edge_style}{Line type(s): 1=solid, 2=dashed, 3=dotted, etc.}
 
 \item{curvature}{Edge curvature. 0 for straight, positive/negative for curves.}
@@ -363,6 +368,9 @@ Only applies when edge_start_style = "dotted".}
 \item{edge_ci_style}{Line type for underlay: 1=solid, 2=dashed, 3=dotted. Default 2.}
 
 \item{edge_ci_arrows}{Logical: show arrows on underlay? Default FALSE.}
+
+\item{edge_priority}{Numeric vector of edge priorities. Higher values render on top.
+Useful for ensuring significant edges appear above non-significant ones.}
 
 \item{edge_label_style}{Preset style: "none", "estimate", "full", "range", "stars".}
 

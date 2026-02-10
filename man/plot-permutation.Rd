@@ -2,9 +2,9 @@
 % Please edit documentation in R/plot-permutation.R
 \name{plot-permutation}
 \alias{plot-permutation}
-\title{Permutation Test Plotting Methods}
+\title{Permutation Test Plotting}
 \description{
-Plot methods for permutation test results from tna::permutation_test().
-These methods visualize network comparison with styling to distinguish
+Plot permutation test results from tna::permutation_test().
+Visualizes network comparison with styling to distinguish
 significant from non-significant edge differences.
 }

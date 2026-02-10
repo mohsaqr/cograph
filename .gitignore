@@ -27,3 +27,5 @@ cograph.Rcheck/
 cograph_*.tar.gz
 *.html
 !docs/*.html
+!documents/*.html
+!documents/*.png

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Alluvial & Trajectory Plots - cograph</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(90deg, #4ECDC4, #2E86AB, #A23B72);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle {
+            text-align: center;
+            color: #94a3b8;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+        .func-badges {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .func-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            margin: 0 0.5rem;
+            font-family: monospace;
+            font-size: 1rem;
+        }
+        .func-badge.alluvial { border-color: #4ECDC4; color: #4ECDC4; }
+        .func-badge.traj { border-color: #A23B72; color: #A23B72; }
+        .section {
+            max-width: 1400px;
+            margin: 0 auto 3rem;
+        }
+        .section h2 {
+            color: #f1f5f9;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #334155;
+        }
+        .section p.desc {
+            color: #94a3b8;
+            margin-bottom: 1.5rem;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 1.5rem;
+        }
+        .grid-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        .grid-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+        .card img {
+            width: 100%;
+            display: block;
+            background: #fff;
+        }
+        .card-content {
+            padding: 1rem;
+        }
+        .card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: #f1f5f9;
+        }
+        .card p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        .badge {
+            display: inline-block;
+            background: #7c3aed;
+            color: #fff;
+            padding: 0.2rem 0.6rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            margin-bottom: 0.5rem;
+            font-family: monospace;
+        }
+        .badge.green { background: #059669; }
+        .badge.blue { background: #2563eb; }
+        .badge.orange { background: #d97706; }
+        .badge.pink { background: #db2777; }
+        .badge.cyan { background: #0891b2; }
+        .badge.red { background: #dc2626; }
+        .badge.teal { background: #0d9488; }
+        .code-block {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem auto 2rem;
+            max-width: 900px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+        }
+        .code-block code {
+            color: #22d3ee;
+        }
+        .code-comment { color: #64748b; }
+        .code-string { color: #a5f3fc; }
+        .code-param { color: #fbbf24; }
+        .code-func { color: #4ade80; }
+        .wide-card {
+            grid-column: span 2;
+        }
+        @media (max-width: 900px) {
+            .wide-card { grid-column: span 1; }
+            .grid-3, .grid-2 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Alluvial & Trajectory Plots</h1>
+    <p class="subtitle">Visualize state transitions and individual paths over time</p>
+
+    <div class="func-badges">
+        <span class="func-badge alluvial">plot_alluvial()</span>
+        <span class="func-badge traj">plot_trajectories()</span>
+    </div>
+
+    <!-- Input Methods -->
+    <div class="section">
+        <h2>Input Methods</h2>
+        <p class="desc">Multiple ways to provide transition data - choose the most convenient for your use case.</p>
+        <div class="code-block">
+            <code>
+<span class="code-comment"># 1. Two vectors (like chi-square)</span><br>
+before <- c(<span class="code-string">"A"</span>, <span class="code-string">"A"</span>, <span class="code-string">"B"</span>, <span class="code-string">"B"</span>, ...)<br>
+after  <- c(<span class="code-string">"X"</span>, <span class="code-string">"Y"</span>, <span class="code-string">"X"</span>, <span class="code-string">"Z"</span>, ...)<br>
+<span class="code-func">plot_alluvial</span>(before, after)<br><br>
+
+<span class="code-comment"># 2. Transition matrix</span><br>
+mat <- matrix(c(50, 20, 10, 30), 2, 2)<br>
+rownames(mat) <- c(<span class="code-string">"A"</span>, <span class="code-string">"B"</span>); colnames(mat) <- c(<span class="code-string">"X"</span>, <span class="code-string">"Y"</span>)<br>
+<span class="code-func">plot_alluvial</span>(mat)<br><br>
+
+<span class="code-comment"># 3. Data frame with 2+ columns (each row = one person)</span><br>
+df <- data.frame(T1 = t1, T2 = t2, T3 = t3, T4 = t4)<br>
+<span class="code-func">plot_alluvial</span>(df)        <span class="code-comment"># Aggregated flows</span><br>
+<span class="code-func">plot_trajectories</span>(df)   <span class="code-comment"># Individual lines</span><br><br>
+
+<span class="code-comment"># 4. Data frame with from/to/count columns</span><br>
+df <- data.frame(from = c(<span class="code-string">"A"</span>, <span class="code-string">"B"</span>), to = c(<span class="code-string">"X"</span>, <span class="code-string">"Y"</span>), count = c(50, 30))<br>
+<span class="code-func">plot_alluvial</span>(df)<br><br>
+
+<span class="code-comment"># 5. List of matrices (multi-step)</span><br>
+<span class="code-func">plot_alluvial</span>(list(mat1, mat2, mat3), <span class="code-param">from_title</span> = c(<span class="code-string">"T1"</span>, <span class="code-string">"T2"</span>, <span class="code-string">"T3"</span>, <span class="code-string">"T4"</span>))
+            </code>
+        </div>
+    </div>
+
+    <!-- Aggregated Flows -->
+    <div class="section">
+        <h2>plot_alluvial() - Aggregated Flows</h2>
+        <p class="desc">Traditional Sankey/alluvial diagram where flows are aggregated by transition counts.</p>
+        <div class="grid grid-2">
+            <div class="card">
+                <img src="demo_aggregated.png" alt="Aggregated flows">
+                <div class="card-content">
+                    <span class="badge green">Default</span>
+                    <h3>Basic Aggregated</h3>
+                    <p>Flow width = transition count. Grey flows.</p>
+                </div>
+            </div>
+            <div class="card">
+                <img src="demo_color_source.png" alt="Colored by source">
+                <div class="card-content">
+                    <span class="badge blue">flow_color_by = "source"</span>
+                    <h3>Colored by Source</h3>
+                    <p>Flows inherit color from their origin node.</p>
+                </div>
+            </div>
+        </div>
+        <div class="grid" style="margin-top: 1.5rem;">
+            <div class="card" style="max-width: 600px; margin: 0 auto;">
+                <img src="demo_color_dest.png" alt="Colored by destination">
+                <div class="card-content">
+                    <span class="badge cyan">flow_color_by = "destination"</span>
+                    <h3>Colored by Destination</h3>
+                    <p>Flows inherit color from their target node.</p>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <code>
+<span class="code-func">plot_alluvial</span>(df,<br>
+&nbsp;&nbsp;<span class="code-param">flow_color_by</span> = <span class="code-string">"source"</span>,   <span class="code-comment"># or "destination"</span><br>
+&nbsp;&nbsp;<span class="code-param">from_colors</span> = custom_colors,<br>
+&nbsp;&nbsp;<span class="code-param">show_values</span> = TRUE          <span class="code-comment"># Show counts on flows</span><br>
+)
+            </code>
+        </div>
+    </div>
+
+    <!-- Individual Tracking -->
+    <div class="section">
+        <h2>plot_trajectories() - Individual Tracking</h2>
+        <p class="desc">Track each person's trajectory with individual lines instead of aggregated flows.</p>
+        <div class="grid grid-2">
+            <div class="card">
+                <img src="demo_individual_first.png" alt="Track by first state">
+                <div class="card-content">
+                    <span class="badge teal">flow_color_by = "first"</span>
+                    <h3>Colored by Starting State</h3>
+                    <p>Each line = one person. Color shows where they started (Baseline).</p>
+                </div>
+            </div>
+            <div class="card">
+                <img src="demo_individual_last.png" alt="Track by last state">
+                <div class="card-content">
+                    <span class="badge orange">flow_color_by = "last"</span>
+                    <h3>Colored by Ending State</h3>
+                    <p>Each line = one person. Color shows where they ended (Week 12).</p>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <code>
+<span class="code-func">plot_trajectories</span>(df,<br>
+&nbsp;&nbsp;<span class="code-param">flow_color_by</span> = <span class="code-string">"first"</span>,       <span class="code-comment"># "first", "last", "source", "destination"</span><br>
+&nbsp;&nbsp;<span class="code-param">from_colors</span> = custom_colors,<br>
+&nbsp;&nbsp;<span class="code-param">proportional_nodes</span> = TRUE,   <span class="code-comment"># Node size ~ count</span><br>
+&nbsp;&nbsp;<span class="code-param">line_alpha</span> = 0.35,            <span class="code-comment"># Line transparency</span><br>
+&nbsp;&nbsp;<span class="code-param">line_width</span> = 0.4              <span class="code-comment"># Line thickness</span><br>
+)
+            </code>
+        </div>
+    </div>
+
+    <!-- Proportional Nodes -->
+    <div class="section">
+        <h2>Proportional vs Equal Nodes</h2>
+        <p class="desc">Control whether node sizes reflect counts or are equal.</p>
+        <div class="grid grid-2">
+            <div class="card">
+                <img src="demo_individual_first.png" alt="Proportional nodes">
+                <div class="card-content">
+                    <span class="badge green">proportional_nodes = TRUE</span>
+                    <h3>Proportional (Default)</h3>
+                    <p>Node height reflects the count. Larger groups = taller nodes.</p>
+                </div>
+            </div>
+            <div class="card">
+                <img src="demo_equal_nodes.png" alt="Equal nodes">
+                <div class="card-content">
+                    <span class="badge">proportional_nodes = FALSE</span>
+                    <h3>Equal Size</h3>
+                    <p>All nodes same height regardless of count.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Colors -->
+    <div class="section">
+        <h2>Custom Colors</h2>
+        <div class="code-block">
+            <code>
+<span class="code-comment"># Named vector of colors</span><br>
+custom_colors <- c(<br>
+&nbsp;&nbsp;<span class="code-string">"Light"</span> = <span class="code-string">"#4ECDC4"</span>,     <span class="code-comment"># Teal</span><br>
+&nbsp;&nbsp;<span class="code-string">"Resource"</span> = <span class="code-string">"#2E86AB"</span>,  <span class="code-comment"># Blue</span><br>
+&nbsp;&nbsp;<span class="code-string">"Intense"</span> = <span class="code-string">"#A23B72"</span>   <span class="code-comment"># Berry</span><br>
+)<br><br>
+<span class="code-func">plot_alluvial</span>(df, <span class="code-param">from_colors</span> = custom_colors)<br>
+<span class="code-func">plot_trajectories</span>(df, <span class="code-param">from_colors</span> = custom_colors)
+            </code>
+        </div>
+    </div>
+
+    <!-- Parameter Reference -->
+    <div class="section">
+        <h2>Parameter Reference</h2>
+        <div class="code-block" style="max-width: 100%;">
+            <code>
+<span class="code-comment"># ─────────────────────────────────────────────────────────</span><br>
+<span class="code-comment"># plot_alluvial() - Aggregated Sankey flows</span><br>
+<span class="code-comment"># ─────────────────────────────────────────────────────────</span><br>
+<span class="code-func">plot_alluvial</span>(<br>
+&nbsp;&nbsp;x,                             <span class="code-comment"># Two vectors, matrix, data frame, or list</span><br>
+&nbsp;&nbsp;<span class="code-param">from_title</span> = "From",          <span class="code-comment"># Column title(s)</span><br>
+&nbsp;&nbsp;<span class="code-param">to_title</span> = "To",              <span class="code-comment"># Right column title</span><br>
+&nbsp;&nbsp;<span class="code-param">from_colors</span> = NULL,           <span class="code-comment"># Named vector: c("State" = "#color")</span><br>
+&nbsp;&nbsp;<span class="code-param">flow_fill</span> = "#888888",        <span class="code-comment"># Default flow color</span><br>
+&nbsp;&nbsp;<span class="code-param">flow_alpha</span> = 0.4,             <span class="code-comment"># Flow transparency</span><br>
+&nbsp;&nbsp;<span class="code-param">flow_color_by</span> = NULL,         <span class="code-comment"># "source" or "destination"</span><br>
+&nbsp;&nbsp;<span class="code-param">node_width</span> = 0.08,            <span class="code-comment"># Width of node bars</span><br>
+&nbsp;&nbsp;<span class="code-param">node_spacing</span> = 0.02,          <span class="code-comment"># Gap between nodes</span><br>
+&nbsp;&nbsp;<span class="code-param">label_size</span> = 3.5,             <span class="code-comment"># Node label size</span><br>
+&nbsp;&nbsp;<span class="code-param">label_position</span> = "beside",    <span class="code-comment"># "beside", "outside", "inside", "above", "below"</span><br>
+&nbsp;&nbsp;<span class="code-param">label_halo</span> = TRUE,            <span class="code-comment"># White halo for readability</span><br>
+&nbsp;&nbsp;<span class="code-param">curve_strength</span> = 0.6,         <span class="code-comment"># Bezier curve (0-1)</span><br>
+&nbsp;&nbsp;<span class="code-param">show_values</span> = FALSE,          <span class="code-comment"># Show flow counts?</span><br>
+&nbsp;&nbsp;<span class="code-param">show_totals</span> = FALSE,          <span class="code-comment"># Show node totals?</span><br>
+&nbsp;&nbsp;<span class="code-param">column_gap</span> = 1                <span class="code-comment"># Horizontal spread (0-1)</span><br>
+)<br><br>
+
+<span class="code-comment"># ─────────────────────────────────────────────────────────</span><br>
+<span class="code-comment"># plot_trajectories() - Individual tracking lines</span><br>
+<span class="code-comment"># ─────────────────────────────────────────────────────────</span><br>
+<span class="code-func">plot_trajectories</span>(<br>
+&nbsp;&nbsp;x,                             <span class="code-comment"># Data frame with 2+ columns (rows = individuals)</span><br>
+&nbsp;&nbsp;<span class="code-param">from_title</span> = NULL,            <span class="code-comment"># Column titles (uses df names by default)</span><br>
+&nbsp;&nbsp;<span class="code-param">from_colors</span> = NULL,           <span class="code-comment"># Named vector of colors</span><br>
+&nbsp;&nbsp;<span class="code-param">flow_color_by</span> = "first",      <span class="code-comment"># "first", "last", "source", "destination"</span><br>
+&nbsp;&nbsp;<span class="code-param">line_alpha</span> = 0.3,             <span class="code-comment"># Line transparency</span><br>
+&nbsp;&nbsp;<span class="code-param">line_width</span> = 0.5,             <span class="code-comment"># Line thickness</span><br>
+&nbsp;&nbsp;<span class="code-param">proportional_nodes</span> = TRUE,   <span class="code-comment"># Node size ~ count?</span><br>
+&nbsp;&nbsp;<span class="code-param">node_width</span> = 0.08,            <span class="code-comment"># Width of node bars</span><br>
+&nbsp;&nbsp;<span class="code-param">label_size</span> = 3.5,             <span class="code-comment"># Node label size</span><br>
+&nbsp;&nbsp;<span class="code-param">label_halo</span> = TRUE,            <span class="code-comment"># White halo for readability</span><br>
+&nbsp;&nbsp;<span class="code-param">column_gap</span> = 1                <span class="code-comment"># Horizontal spread (0-1)</span><br>
+)
+            </code>
+        </div>
+    </div>
+
+</body>
+</html>

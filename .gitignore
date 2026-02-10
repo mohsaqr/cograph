@@ -25,3 +25,4 @@ inst/examples/*.html
 /Meta/
 cograph.Rcheck/
 cograph_*.tar.gz
+*.html

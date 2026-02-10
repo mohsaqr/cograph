@@ -466,6 +466,14 @@
         </ul>
       </li>
       <li><a href="#getters-setters">Getters &amp; Setters</a></li>
+      <li><a href="#changelog">Branch History</a>
+        <ul>
+          <li><a href="#changelog">Merge Commits</a></li>
+          <li><a href="#changelog">What Changed</a></li>
+          <li><a href="#changelog">Feature Comparison</a></li>
+        </ul>
+      </li>
+      <li><a href="#aside">Aside Functions</a></li>
     </ul>
   </nav>
 </aside>
@@ -1365,6 +1373,142 @@ centrality(adj, directed = TRUE, mode = "in")</code></pre>
   <div class="func-list-item">CographLayout</div>
   <div class="func-list-item">CographTheme</div>
 </div>
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="changelog">Branch History &amp; Changelog</h2>
+
+<p>This section documents the merge of <code>upstream/main</code> (sonsoleslp/cograph) with <code>cograph_plotonly</code> to create the <code>cograph_merged</code> branch.</p>
+
+<h3>Branch Structure</h3>
+<table>
+  <tr><th>Branch</th><th>Purpose</th><th>Status</th></tr>
+  <tr><td><code>cograph_plotonly</code></td><td>Original plotting-focused branch</td><td>Preserved (reference)</td></tr>
+  <tr><td><code>cograph_plotonly_BACKUP_20260210</code></td><td>Timestamped safety backup</td><td>Preserved</td></tr>
+  <tr><td><code>cograph_merged</code></td><td>New working branch with all changes</td><td><strong>Active</strong></td></tr>
+  <tr><td><code>upstream/main</code></td><td>sonsoleslp/cograph original</td><td>Remote reference</td></tr>
+</table>
+
+<h3>Merge Commits</h3>
+<table>
+  <tr><th>Commit</th><th>Description</th></tr>
+  <tr><td><code>fa91917</code></td><td>Pre-merge commit: stage current work before merge</td></tr>
+  <tr><td><code>472cf5a</code></td><td>Create aside/ folder for estimation functions (kept for future use)</td></tr>
+  <tr><td><code>d4e3dd6</code></td><td>Import CI/CD and pkgdown infrastructure from upstream</td></tr>
+  <tr><td><code>be827b3</code></td><td>Restore centrality and network_summary for non-estimated networks</td></tr>
+  <tr><td><code>37db7ed</code></td><td>Update NAMESPACE and documentation for restored functions</td></tr>
+  <tr><td><code>3230235</code></td><td>Add tests for centrality and network_summary functions</td></tr>
+  <tr><td><code>8d66122</code></td><td>Clean up generated HTML files</td></tr>
+  <tr><td><code>b070439</code></td><td>Add detailed merge changelog documentation</td></tr>
+  <tr><td><code>6909ee2</code></td><td>Add comprehensive package documentation with function sources</td></tr>
+</table>
+
+<h3>What Changed</h3>
+
+<h4>New Files Added</h4>
+<table>
+  <tr><th>File</th><th>Source</th><th>Description</th></tr>
+  <tr><td><code>R/centrality.R</code></td><td><span class="source-badge source-merged">merged</span></td><td>14 centrality functions restored from moved/</td></tr>
+  <tr><td><code>R/network-summary.R</code></td><td><span class="source-badge source-merged">merged</span></td><td>network_summary() and degree_distribution()</td></tr>
+  <tr><td><code>.github/workflows/R-CMD-check.yaml</code></td><td><span class="source-badge source-upstream">upstream</span></td><td>Multi-platform R CMD check</td></tr>
+  <tr><td><code>.github/workflows/pkgdown.yaml</code></td><td><span class="source-badge source-upstream">upstream</span></td><td>Package website deployment</td></tr>
+  <tr><td><code>.github/workflows/test-coverage.yaml</code></td><td><span class="source-badge source-upstream">upstream</span></td><td>Code coverage reporting</td></tr>
+  <tr><td><code>_pkgdown.yml</code></td><td><span class="source-badge source-upstream">upstream</span></td><td>pkgdown configuration</td></tr>
+  <tr><td><code>aside/</code></td><td><span class="source-badge source-new">new</span></td><td>Estimation functions kept for future use</td></tr>
+  <tr><td><code>tests/testthat/test-centrality.R</code></td><td><span class="source-badge source-new">new</span></td><td>18 tests for centrality functions</td></tr>
+  <tr><td><code>tests/testthat/test-network-summary.R</code></td><td><span class="source-badge source-new">new</span></td><td>12 tests for network summary functions</td></tr>
+  <tr><td><code>MERGE_CHANGELOG.md</code></td><td><span class="source-badge source-new">new</span></td><td>Detailed merge documentation</td></tr>
+  <tr><td><code>docs/cograph-complete.html</code></td><td><span class="source-badge source-new">new</span></td><td>This documentation file</td></tr>
+</table>
+
+<h4>Files Modified</h4>
+<table>
+  <tr><th>File</th><th>Change</th></tr>
+  <tr><td><code>NAMESPACE</code></td><td>Added 15 new exports (centrality functions, network_summary, degree_distribution)</td></tr>
+  <tr><td><code>.Rbuildignore</code></td><td>Added <code>^aside$</code> to exclude estimation folder from build</td></tr>
+  <tr><td><code>.gitignore</code></td><td>Added <code>*.html</code> exclusion with <code>!docs/*.html</code> exception</td></tr>
+</table>
+
+<h4>Critical Edit: Removed Duplicate</h4>
+<p>In <code>R/centrality.R</code>, removed duplicate <code>to_igraph()</code> function (lines 161-278) that conflicted with the existing implementation in <code>R/network-utils.R</code>.</p>
+
+<h3>Test Results</h3>
+<table>
+  <tr><th>Metric</th><th>Before Merge</th><th>After Merge</th><th>Change</th></tr>
+  <tr><td>Tests Passing</td><td>1,579</td><td>1,643</td><td style="color: #059669;">+64</td></tr>
+  <tr><td>Tests Skipped</td><td>7</td><td>7</td><td>—</td></tr>
+  <tr><td>R CMD check Errors</td><td>—</td><td>0</td><td style="color: #059669;">✓</td></tr>
+  <tr><td>R CMD check Warnings</td><td>—</td><td>0</td><td style="color: #059669;">✓</td></tr>
+  <tr><td>R CMD check Notes</td><td>—</td><td>4</td><td>(minor)</td></tr>
+</table>
+
+<h3>Feature Comparison: Branches</h3>
+<table>
+  <tr><th>Feature</th><th>upstream/main</th><th>cograph_plotonly</th><th>cograph_merged</th></tr>
+  <tr><td>Network Structure</td><td>R6 CographNetwork</td><td>Lean S3 named list</td><td>Lean S3 named list</td></tr>
+  <tr><td>splot()</td><td>✓</td><td>✓ (enhanced)</td><td>✓ (enhanced)</td></tr>
+  <tr><td>soplot()</td><td>✓</td><td>✓</td><td>✓</td></tr>
+  <tr><td>plot_tna() / tplot()</td><td>✓</td><td>✓</td><td>✓</td></tr>
+  <tr><td>plot_mixed_network()</td><td>—</td><td>✓</td><td>✓</td></tr>
+  <tr><td>Vectorized curvature</td><td>—</td><td>✓</td><td>✓</td></tr>
+  <tr><td>tna_animate()</td><td>—</td><td>✓</td><td>✓</td></tr>
+  <tr><td>Multi-layer functions</td><td>—</td><td>✓</td><td>✓</td></tr>
+  <tr><td>centrality()</td><td>✓</td><td>— (in moved/)</td><td>✓</td></tr>
+  <tr><td>network_summary()</td><td>✓</td><td>— (in moved/)</td><td>✓</td></tr>
+  <tr><td>bootstrap()</td><td>✓</td><td>— (in moved/)</td><td>— (in aside/)</td></tr>
+  <tr><td>permutation_test()</td><td>✓</td><td>— (in moved/)</td><td>— (in aside/)</td></tr>
+  <tr><td>CI/CD Workflows</td><td>✓</td><td>—</td><td>✓</td></tr>
+  <tr><td>R files</td><td>56</td><td>64</td><td>66</td></tr>
+  <tr><td>Test files</td><td>71</td><td>26</td><td>28</td></tr>
+</table>
+
+<h3>What Was NOT Included</h3>
+
+<h4>Kept in aside/ (Estimation Functions)</h4>
+<p>These functions require raw sequence data and are kept for future integration:</p>
+<ul>
+  <li><code>bootstrap()</code> — Edge significance via resampling</li>
+  <li><code>permutation_test()</code> — Network comparison p-values</li>
+  <li><code>estimate_cs()</code> — Centrality stability coefficient</li>
+  <li><code>disparity_filter()</code> — Backbone extraction (Serrano et al.)</li>
+  <li><code>validation-utils.R</code> — Supporting infrastructure</li>
+</ul>
+
+<h4>Not Imported from Upstream</h4>
+<ul>
+  <li><strong>R6 Structure:</strong> Upstream uses R6 <code>CographNetwork</code> class; we kept the lean S3 named list structure</li>
+  <li><strong>Layout functions:</strong> <code>layout_grid_fn</code>, <code>layout_random_fn</code>, <code>layout_star_fn</code>, <code>layout_bipartite_fn</code> (use R6 class)</li>
+  <li><strong>Gephi FR layout:</strong> Added in upstream but uses different architecture</li>
+</ul>
+
+<h3>Rollback Instructions</h3>
+
+<details>
+  <summary>If something goes wrong</summary>
+  <div class="detail-content">
+<pre><code># Return to original state
+git checkout cograph_plotonly
+
+# Delete merged branch if needed
+git branch -D cograph_merged
+
+# Or restore from backup
+git checkout cograph_plotonly_BACKUP_20260210</code></pre>
+  </div>
+</details>
+
+<details>
+  <summary>To restore estimation functions later</summary>
+  <div class="detail-content">
+<pre><code># Copy from aside/ back to R/
+cp aside/estimation/*.R R/
+cp aside/tests/*.R tests/testthat/
+
+# Rebuild
+Rscript -e 'devtools::document()'
+Rscript -e 'devtools::test()'</code></pre>
+  </div>
+</details>
 
 
 <!-- ═══════════════════════════════════════════════════════ -->

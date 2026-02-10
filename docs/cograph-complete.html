@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>cograph - Complete R Package Documentation</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --fg: #1a1a2e;
+    --muted: #6b7280;
+    --accent: #2563eb;
+    --accent-light: #eff6ff;
+    --border: #e5e7eb;
+    --code-bg: #f8fafc;
+    --code-border: #e2e8f0;
+    --table-stripe: #f9fafb;
+    --header-bg: #0f172a;
+    --success: #059669;
+    --warn: #d97706;
+    --sidebar-w: 300px;
+    --output-bg: #f0fdf4;
+    --output-border: #86efac;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    color: var(--fg);
+    line-height: 1.7;
+    background: var(--bg);
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: var(--sidebar-w);
+    height: 100vh;
+    overflow-y: auto;
+    background: var(--header-bg);
+    color: #cbd5e1;
+    padding: 1.5rem 0;
+    font-size: 0.85rem;
+    z-index: 100;
+    scrollbar-width: thin;
+    scrollbar-color: #334155 transparent;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+  .sidebar .logo {
+    padding: 0 1.5rem 1.2rem;
+    border-bottom: 1px solid #1e293b;
+    margin-bottom: 1rem;
+  }
+  .sidebar .logo h1 {
+    font-size: 1.3rem;
+    color: #f1f5f9;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .sidebar .logo p {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 0.2rem;
+  }
+
+  .sidebar nav ul { list-style: none; }
+  .sidebar nav > ul > li > a {
+    display: block;
+    padding: 0.5rem 1.5rem;
+    color: #94a3b8;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    transition: color 0.15s;
+  }
+  .sidebar nav > ul > li > a:hover { color: #e2e8f0; }
+
+  .sidebar nav > ul > li > ul { margin-bottom: 0.5rem; }
+  .sidebar nav > ul > li > ul > li > a {
+    display: block;
+    padding: 0.3rem 1.5rem 0.3rem 2.2rem;
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    transition: all 0.15s;
+    border-left: 2px solid transparent;
+  }
+  .sidebar nav > ul > li > ul > li > a:hover {
+    color: #e2e8f0;
+    background: rgba(255,255,255,0.04);
+    border-left-color: var(--accent);
+  }
+
+  /* ── Main content ── */
+  .main {
+    margin-left: var(--sidebar-w);
+    max-width: 950px;
+    padding: 2.5rem 3rem 5rem;
+  }
+
+  h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 3rem 0 0.5rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid var(--border);
+    color: var(--fg);
+    letter-spacing: -0.02em;
+  }
+  h2:first-of-type { border-top: none; margin-top: 0; padding-top: 0; }
+
+  h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 2rem 0 0.5rem;
+    color: var(--fg);
+  }
+  h3 code {
+    font-size: 1.1rem;
+    color: var(--accent);
+    background: var(--accent-light);
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+  }
+
+  h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 1.5rem 0 0.4rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  p { margin: 0.5rem 0; color: #374151; }
+
+  /* ── Hero ── */
+  .hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+    color: white;
+    padding: 2.5rem 2rem;
+    border-radius: 12px;
+    margin-bottom: 2.5rem;
+  }
+  .hero h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.03em; }
+  .hero p { color: #94a3b8; font-size: 1.05rem; margin-top: 0.5rem; }
+  .hero .badges { margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .hero .badge {
+    display: inline-block;
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .badge-blue { background: #1d4ed8; color: #dbeafe; }
+  .badge-green { background: #065f46; color: #d1fae5; }
+  .badge-purple { background: #5b21b6; color: #ede9fe; }
+  .badge-amber { background: #92400e; color: #fef3c7; }
+  .badge-teal { background: #115e59; color: #ccfbf1; }
+  .badge-rose { background: #9f1239; color: #ffe4e6; }
+  .badge-gray { background: #374151; color: #e5e7eb; }
+  .badge-cyan { background: #0e7490; color: #cffafe; }
+
+  /* ── Code blocks ── */
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    overflow-x: auto;
+    font-size: 0.84rem;
+    line-height: 1.6;
+    margin: 0.8rem 0;
+  }
+  code {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.88em;
+  }
+  p code, li code, td code {
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    color: #be185d;
+    font-size: 0.85em;
+  }
+
+  /* ── Signature blocks ── */
+  .signature {
+    background: #f8fafc;
+    border-left: 3px solid var(--accent);
+    padding: 0.8rem 1rem;
+    border-radius: 0 8px 8px 0;
+    margin: 0.8rem 0;
+    overflow-x: auto;
+  }
+  .signature code { color: var(--fg); font-size: 0.82rem; }
+
+  /* ── Source badge ── */
+  .source-badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+  }
+  .source-plotonly { background: #dbeafe; color: #1e40af; }
+  .source-merged { background: #dcfce7; color: #166534; }
+  .source-upstream { background: #fef3c7; color: #92400e; }
+  .source-new { background: #ede9fe; color: #5b21b6; }
+
+  /* ── Output blocks ── */
+  .output {
+    background: var(--output-bg);
+    border: 1px solid var(--output-border);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    font-size: 0.82rem;
+    overflow-x: auto;
+    margin: 0.5rem 0 1rem;
+    position: relative;
+  }
+  .output::before {
+    content: 'Output';
+    position: absolute;
+    top: -0.6rem;
+    left: 0.8rem;
+    background: var(--output-bg);
+    padding: 0 0.4rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--success);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .output code { color: #166534; background: none; border: none; padding: 0; }
+
+  /* ── Tables ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.8rem 0 1.2rem;
+    font-size: 0.88rem;
+  }
+  th {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border-bottom: 2px solid var(--fg);
+    font-weight: 600;
+    font-size: 0.82rem;
+    white-space: nowrap;
+  }
+  td {
+    padding: 0.45rem 0.8rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tr:nth-child(even) { background: var(--table-stripe); }
+
+  /* ── Collapsible ── */
+  details {
+    margin: 0.8rem 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  summary {
+    padding: 0.7rem 1rem;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    background: #f9fafb;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  summary:hover { background: #f3f4f6; }
+  details[open] summary { border-bottom: 1px solid var(--border); }
+  details .detail-content { padding: 1rem; }
+
+  /* ── Lists ── */
+  ul, ol { padding-left: 1.5rem; margin: 0.4rem 0; }
+  li { margin: 0.25rem 0; color: #374151; }
+
+  /* ── Install box ── */
+  .install-box {
+    background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%);
+    border: 1px solid #bfdbfe;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 1rem 0 2rem;
+  }
+
+  /* ── Quick ref ── */
+  .quick-ref {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+    margin: 1rem 0 2rem;
+  }
+  .quick-ref-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    transition: box-shadow 0.15s;
+  }
+  .quick-ref-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .quick-ref-card h4 {
+    margin: 0 0 0.4rem;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--fg);
+    font-size: 0.92rem;
+  }
+  .quick-ref-card .funcs {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.8rem;
+    color: var(--accent);
+  }
+
+  /* ── Notes ── */
+  .note {
+    background: #fffbeb;
+    border-left: 3px solid #f59e0b;
+    padding: 0.6rem 1rem;
+    border-radius: 0 6px 6px 0;
+    margin: 0.8rem 0;
+    font-size: 0.88rem;
+  }
+
+  .returns {
+    background: #f0f9ff;
+    border-left: 3px solid #0ea5e9;
+    padding: 0.6rem 1rem;
+    border-radius: 0 6px 6px 0;
+    margin: 0.8rem 0;
+    font-size: 0.88rem;
+  }
+
+  /* ── Function list ── */
+  .func-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.5rem;
+    margin: 1rem 0;
+  }
+  .func-list-item {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.82rem;
+    padding: 0.3rem 0.6rem;
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 4px;
+    color: var(--accent);
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; padding: 1.5rem; }
+    .quick-ref { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ SIDEBAR ═══════════════ -->
+<aside class="sidebar">
+  <div class="logo">
+    <h1>cograph</h1>
+    <p>v1.5.2 &middot; cograph_merged</p>
+  </div>
+  <nav>
+    <ul>
+      <li><a href="#getting-started">Getting Started</a></li>
+      <li><a href="#core">Core Functions</a>
+        <ul>
+          <li><a href="#cograph">cograph()</a></li>
+          <li><a href="#as_cograph">as_cograph()</a></li>
+          <li><a href="#from_qgraph">from_qgraph()</a></li>
+          <li><a href="#from_tna">from_tna()</a></li>
+        </ul>
+      </li>
+      <li><a href="#pipe-api">Pipe API</a>
+        <ul>
+          <li><a href="#sn_nodes">sn_nodes()</a></li>
+          <li><a href="#sn_edges">sn_edges()</a></li>
+          <li><a href="#sn_layout">sn_layout()</a></li>
+          <li><a href="#sn_theme">sn_theme()</a></li>
+          <li><a href="#sn_palette">sn_palette()</a></li>
+          <li><a href="#sn_render">sn_render()</a></li>
+        </ul>
+      </li>
+      <li><a href="#plotting">Plotting Engines</a>
+        <ul>
+          <li><a href="#splot">splot()</a></li>
+          <li><a href="#soplot">soplot()</a></li>
+          <li><a href="#plot_tna">plot_tna() / tplot()</a></li>
+        </ul>
+      </li>
+      <li><a href="#specialized">Specialized Plots</a>
+        <ul>
+          <li><a href="#plot_htna">plot_htna() / htna()</a></li>
+          <li><a href="#plot_mtna">plot_mtna() / mtna()</a></li>
+          <li><a href="#plot_mlna">plot_mlna() / mlna()</a></li>
+          <li><a href="#plot_mcml">plot_mcml() / mcml()</a></li>
+          <li><a href="#plot_compare">plot_compare()</a></li>
+          <li><a href="#plot_mixed">plot_mixed_network()</a></li>
+        </ul>
+      </li>
+      <li><a href="#heatmaps">Heatmaps</a>
+        <ul>
+          <li><a href="#plot_heatmap">plot_heatmap()</a></li>
+          <li><a href="#plot_comparison_heatmap">plot_comparison_heatmap()</a></li>
+          <li><a href="#plot_ml_heatmap">plot_ml_heatmap()</a></li>
+        </ul>
+      </li>
+      <li><a href="#animation">Animation</a>
+        <ul>
+          <li><a href="#tna_animate">tna_animate()</a></li>
+          <li><a href="#tna_windows">tna_windows()</a></li>
+        </ul>
+      </li>
+      <li><a href="#analysis">Network Analysis</a>
+        <ul>
+          <li><a href="#centrality">centrality()</a></li>
+          <li><a href="#network_summary">network_summary()</a></li>
+          <li><a href="#degree_distribution">degree_distribution()</a></li>
+          <li><a href="#detect_communities">detect_communities()</a></li>
+          <li><a href="#cluster_quality">cluster_quality()</a></li>
+        </ul>
+      </li>
+      <li><a href="#multilayer">Multi-Layer Analysis</a>
+        <ul>
+          <li><a href="#layer_similarity">layer_similarity()</a></li>
+          <li><a href="#supra_adjacency">supra_adjacency()</a></li>
+          <li><a href="#aggregate_layers">aggregate_layers()</a></li>
+          <li><a href="#extract_layer">extract_layer()</a></li>
+        </ul>
+      </li>
+      <li><a href="#layouts">Layouts</a>
+        <ul>
+          <li><a href="#layout_circle">layout_circle()</a></li>
+          <li><a href="#layout_spring">layout_spring()</a></li>
+          <li><a href="#layout_groups">layout_groups()</a></li>
+          <li><a href="#layout_oval">layout_oval()</a></li>
+        </ul>
+      </li>
+      <li><a href="#themes">Themes</a></li>
+      <li><a href="#palettes">Palettes</a></li>
+      <li><a href="#shapes">Shapes</a></li>
+      <li><a href="#conversion">Conversion Utilities</a>
+        <ul>
+          <li><a href="#to_igraph">to_igraph()</a></li>
+          <li><a href="#to_matrix">to_matrix()</a></li>
+          <li><a href="#to_data_frame">to_data_frame()</a></li>
+          <li><a href="#to_network">to_network()</a></li>
+        </ul>
+      </li>
+      <li><a href="#getters-setters">Getters &amp; Setters</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<!-- ═══════════════ MAIN ═══════════════ -->
+<div class="main">
+
+<!-- Hero -->
+<div class="hero" id="getting-started">
+  <h1>cograph</h1>
+  <p>Modern, extensible network visualization for R &mdash; publication-ready plots from adjacency matrices, edge lists, igraph, qgraph, or tna objects.</p>
+  <div class="badges">
+    <span class="badge badge-blue">Pipe-Friendly API</span>
+    <span class="badge badge-green">7 Built-in Themes</span>
+    <span class="badge badge-purple">12+ Node Shapes</span>
+    <span class="badge badge-teal">CI Underlays</span>
+    <span class="badge badge-amber">qgraph Compatible</span>
+    <span class="badge badge-rose">TNA Integration</span>
+    <span class="badge badge-cyan">Multi-Layer Networks</span>
+    <span class="badge badge-gray">14 Centrality Measures</span>
+  </div>
+</div>
+
+<!-- Source Legend -->
+<div class="note" style="background: #f8fafc; border-left-color: #64748b;">
+  <strong>Source Legend:</strong>
+  <span class="source-badge source-plotonly">plotonly</span> Original cograph_plotonly branch
+  <span class="source-badge source-merged">merged</span> Restored from moved/ folder
+  <span class="source-badge source-upstream">upstream</span> From sonsoleslp/cograph
+  <span class="source-badge source-new">new</span> New in cograph_merged
+</div>
+
+<!-- Quick ref cards -->
+<div class="quick-ref">
+  <div class="quick-ref-card">
+    <h4>Core</h4>
+    <div class="funcs">cograph() &middot; as_cograph() &middot; from_qgraph() &middot; from_tna()</div>
+  </div>
+  <div class="quick-ref-card">
+    <h4>Pipe API</h4>
+    <div class="funcs">sn_nodes() &middot; sn_edges() &middot; sn_layout() &middot; sn_theme() &middot; sn_palette()</div>
+  </div>
+  <div class="quick-ref-card">
+    <h4>Plotting Engines</h4>
+    <div class="funcs">splot() &middot; soplot() &middot; plot_tna() &middot; tplot()</div>
+  </div>
+  <div class="quick-ref-card">
+    <h4>Specialized Plots</h4>
+    <div class="funcs">plot_htna() &middot; plot_mtna() &middot; plot_mlna() &middot; plot_mcml() &middot; plot_compare()</div>
+  </div>
+  <div class="quick-ref-card">
+    <h4>Heatmaps</h4>
+    <div class="funcs">plot_heatmap() &middot; plot_comparison_heatmap() &middot; plot_ml_heatmap()</div>
+  </div>
+  <div class="quick-ref-card">
+    <h4>Animation</h4>
+    <div class="funcs">tna_animate() &middot; tna_windows()</div>
+  </div>
+  <div class="quick-ref-card">
+    <h4>Network Analysis</h4>
+    <div class="funcs">centrality() &middot; network_summary() &middot; detect_communities() &middot; cluster_quality()</div>
+  </div>
+  <div class="quick-ref-card">
+    <h4>Multi-Layer</h4>
+    <div class="funcs">layer_similarity() &middot; supra_adjacency() &middot; aggregate_layers() &middot; extract_layer()</div>
+  </div>
+  <div class="quick-ref-card">
+    <h4>Layouts</h4>
+    <div class="funcs">layout_circle() &middot; layout_spring() &middot; layout_groups() &middot; layout_oval()</div>
+  </div>
+  <div class="quick-ref-card">
+    <h4>Conversion</h4>
+    <div class="funcs">to_igraph() &middot; to_matrix() &middot; to_data_frame() &middot; to_network()</div>
+  </div>
+</div>
+
+<!-- Installation -->
+<div class="install-box">
+  <h4 style="margin-top:0">Installation</h4>
+<pre><code># Development version from GitHub
+devtools::install_github("mohsaqr/Sonnet", ref = "cograph_merged")
+library(cograph)</code></pre>
+  <p style="font-size:0.85rem; color: var(--muted)">Requires R &ge; 4.1.0. Core imports: R6, grid, grDevices, ggplot2. Optional: igraph, network, qgraph, tna, scales, RColorBrewer, colorspace, gifski.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="core">Core Functions</h2>
+
+<!-- cograph -->
+<h3 id="cograph"><code>cograph()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>The main entry point. Accepts adjacency matrices, edge lists, igraph, statnet network, qgraph, or tna objects and creates a visualization-ready network object.</p>
+
+<div class="signature"><code>cograph(input, layout = "spring", directed = NULL, node_labels = NULL, seed = 42, ...)</code></div>
+
+<table>
+  <tr><th>Parameter</th><th>Description</th><th>Default</th></tr>
+  <tr><td><code>input</code></td><td>Square matrix, edge list data frame, igraph, statnet, qgraph, or tna object</td><td>&mdash;</td></tr>
+  <tr><td><code>layout</code></td><td><code>"spring"</code>, <code>"circle"</code>, <code>"groups"</code>, <code>"grid"</code>, <code>"random"</code>, <code>"star"</code>, <code>"bipartite"</code>, <code>"oval"</code></td><td><code>"spring"</code></td></tr>
+  <tr><td><code>directed</code></td><td>Force directed interpretation. <code>NULL</code> for auto-detect</td><td><code>NULL</code></td></tr>
+  <tr><td><code>node_labels</code></td><td>Character vector of node labels</td><td><code>NULL</code></td></tr>
+  <tr><td><code>seed</code></td><td>Random seed for deterministic layouts</td><td><code>42</code></td></tr>
+</table>
+
+<div class="returns"><strong>Returns:</strong> A <code>cograph_network</code> object that can be further customized and rendered.</div>
+
+<details>
+  <summary>Example</summary>
+  <div class="detail-content">
+<pre><code># From adjacency matrix
+adj &lt;- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
+cograph(adj)
+
+# Pipe-friendly workflow
+cograph(adj, layout = "circle") |&gt;
+  sn_nodes(fill = "steelblue") |&gt;
+  sn_edges(color = "gray50") |&gt;
+  splot()</code></pre>
+  </div>
+</details>
+
+<!-- as_cograph -->
+<h3 id="as_cograph"><code>as_cograph()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Creates a lightweight <code>cograph_network</code> object from various network inputs. The resulting object is a named list with all data accessible via <code>$</code>.</p>
+
+<div class="signature"><code>as_cograph(x, directed = NULL, ...)</code></div>
+
+<table>
+  <tr><th>Parameter</th><th>Description</th><th>Default</th></tr>
+  <tr><td><code>x</code></td><td>Square matrix, edge list, igraph, statnet, qgraph, tna, or cograph_network object</td><td>&mdash;</td></tr>
+  <tr><td><code>directed</code></td><td>Force directed interpretation. <code>NULL</code> for auto-detect</td><td><code>NULL</code></td></tr>
+</table>
+
+<div class="returns"><strong>Returns:</strong> A <code>cograph_network</code> named list with <code>$nodes</code>, <code>$edges</code>, <code>$weights</code>, <code>$directed</code>, <code>$source</code>.</div>
+
+<!-- from_qgraph -->
+<h3 id="from_qgraph"><code>from_qgraph()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Convert a qgraph object to cograph parameters. Extracts the network, layout, and all relevant arguments from a qgraph object.</p>
+
+<div class="signature"><code>from_qgraph(qgraph_object, engine = c("splot", "soplot"), plot = TRUE, weight_digits = 2, show_zero_edges = FALSE, ...)</code></div>
+
+<div class="returns"><strong>Returns:</strong> Invisibly, a named list of cograph parameters passable to <code>splot()</code> or <code>soplot()</code>.</div>
+
+<!-- from_tna -->
+<h3 id="from_tna"><code>from_tna()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Convert a tna object to cograph parameters. Extracts the transition matrix, labels, and initial state probabilities.</p>
+
+<div class="signature"><code>from_tna(tna_object, engine = c("splot", "soplot"), plot = TRUE, weight_digits = 2, show_zero_edges = FALSE, ...)</code></div>
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="pipe-api">Pipe API (<code>sn_*</code> Functions)</h2>
+<p>The <code>sn_*</code> family provides a chainable, pipe-friendly API for building network visualizations step by step.</p>
+
+<!-- sn_nodes -->
+<h3 id="sn_nodes"><code>sn_nodes()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Customize node appearance: size, shape, color, labels, pie charts, donut charts, and more.</p>
+
+<div class="signature"><code>sn_nodes(network, size, shape, fill, border_color, border_width, alpha, label_size, label_color, label_position, show_labels, pie_values, pie_colors, donut_fill, donut_color, donut_shape, donut_show_value, node_svg, ...)</code></div>
+
+<table>
+  <tr><th>Parameter</th><th>Description</th><th>Default</th></tr>
+  <tr><td><code>size</code></td><td>Node size. Single value, vector, or column name</td><td><code>NULL</code></td></tr>
+  <tr><td><code>shape</code></td><td><code>"circle"</code>, <code>"square"</code>, <code>"triangle"</code>, <code>"diamond"</code>, <code>"pentagon"</code>, <code>"hexagon"</code>, <code>"ellipse"</code>, <code>"heart"</code>, <code>"star"</code>, <code>"pie"</code>, <code>"donut"</code></td><td><code>NULL</code></td></tr>
+  <tr><td><code>fill</code></td><td>Node fill color(s)</td><td><code>NULL</code></td></tr>
+  <tr><td><code>donut_fill</code></td><td>Numeric 0&ndash;1 proportion for donut charts</td><td><code>NULL</code></td></tr>
+</table>
+
+<!-- sn_edges -->
+<h3 id="sn_edges"><code>sn_edges()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Customize edge appearance: width, color, style, curvature, arrows, labels, CI underlays.</p>
+
+<div class="signature"><code>sn_edges(network, width, color, edge_positive_color, edge_negative_color, alpha, style, curvature, arrow_size, show_arrows, labels, label_size, label_template, ci, ci_scale, ci_alpha, curves, edge_scale_mode, ...)</code></div>
+
+<table>
+  <tr><th>Parameter</th><th>Description</th><th>Default</th></tr>
+  <tr><td><code>width</code></td><td>Edge width. Single value, vector, or <code>"weight"</code></td><td><code>NULL</code></td></tr>
+  <tr><td><code>color</code></td><td>Edge color. Single color, vector, or <code>"weight"</code></td><td><code>NULL</code></td></tr>
+  <tr><td><code>curvature</code></td><td>Edge curvature. Scalar or vector (per-edge)</td><td><code>NULL</code></td></tr>
+  <tr><td><code>ci</code></td><td>CI widths for underlay visualization</td><td><code>NULL</code></td></tr>
+</table>
+
+<!-- sn_layout -->
+<h3 id="sn_layout"><code>sn_layout()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Apply a layout algorithm to compute node positions.</p>
+
+<div class="signature"><code>sn_layout(network, layout = "spring", seed = NULL, ...)</code></div>
+
+<!-- sn_theme -->
+<h3 id="sn_theme"><code>sn_theme()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Apply a predefined or custom theme to the network.</p>
+
+<div class="signature"><code>sn_theme(network, theme = "default", ...)</code></div>
+
+<!-- sn_palette -->
+<h3 id="sn_palette"><code>sn_palette()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Apply a color palette for node/edge coloring.</p>
+
+<div class="signature"><code>sn_palette(network, palette = "default", ...)</code></div>
+
+<!-- sn_render -->
+<h3 id="sn_render"><code>sn_render()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Render the network using the grid graphics system.</p>
+
+<div class="signature"><code>sn_render(network, ...)</code></div>
+
+<!-- sn_ggplot -->
+<h3 id="sn_ggplot"><code>sn_ggplot()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Render the network as a ggplot2 object for further customization.</p>
+
+<div class="signature"><code>sn_ggplot(network, ...)</code></div>
+
+<!-- sn_save -->
+<h3 id="sn_save"><code>sn_save()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Save the network plot to a file (PDF, PNG, SVG).</p>
+
+<div class="signature"><code>sn_save(network, filename, width = 7, height = 7, ...)</code></div>
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="plotting">Plotting Engines</h2>
+
+<!-- splot -->
+<h3 id="splot"><code>splot()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>The primary plotting function using base R graphics. Fast, flexible, and feature-rich.</p>
+
+<div class="signature"><code>splot(x, layout = "spring", directed = NULL, threshold = 0, labels = NULL,
+      node_size = 5, node_fill = NULL, node_shape = "circle", node_border_color = "#333333",
+      edge_color = NULL, edge_width = NULL, edge_labels = FALSE, edge_label_size = 0.7,
+      curvature = NULL, arrow_size = 0.4, title = NULL, theme = "default", ...)</code></div>
+
+<details>
+  <summary>Key parameters</summary>
+  <div class="detail-content">
+<table>
+  <tr><th>Parameter</th><th>Description</th><th>Default</th></tr>
+  <tr><td><code>x</code></td><td>Network input (matrix, igraph, tna, cograph_network)</td><td>&mdash;</td></tr>
+  <tr><td><code>layout</code></td><td>Layout algorithm or coordinate matrix</td><td><code>"spring"</code></td></tr>
+  <tr><td><code>node_size</code></td><td>Node size (numeric or vector)</td><td><code>5</code></td></tr>
+  <tr><td><code>node_fill</code></td><td>Node fill color(s)</td><td><code>NULL</code></td></tr>
+  <tr><td><code>edge_color</code></td><td>Edge color or <code>"weight"</code> for auto</td><td><code>NULL</code></td></tr>
+  <tr><td><code>edge_labels</code></td><td>Show edge labels</td><td><code>FALSE</code></td></tr>
+  <tr><td><code>curvature</code></td><td>Edge curvature (scalar or vector)</td><td><code>NULL</code></td></tr>
+  <tr><td><code>donut_fill</code></td><td>Per-node donut proportions</td><td><code>NULL</code></td></tr>
+</table>
+  </div>
+</details>
+
+<details>
+  <summary>Example</summary>
+  <div class="detail-content">
+<pre><code># Basic plot
+adj &lt;- matrix(c(0, .5, .3, .5, 0, .4, .3, .4, 0), 3, 3)
+rownames(adj) &lt;- colnames(adj) &lt;- c("A", "B", "C")
+splot(adj)
+
+# With customization
+splot(adj, layout = "circle",
+      node_fill = c("red", "blue", "green"),
+      node_size = c(6, 8, 10),
+      edge_color = "weight",
+      edge_labels = TRUE)</code></pre>
+  </div>
+</details>
+
+<!-- soplot -->
+<h3 id="soplot"><code>soplot()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Grid-based plotting engine. Better for complex compositions and ggplot2 integration.</p>
+
+<div class="signature"><code>soplot(x, layout = "spring", directed = NULL, ...)</code></div>
+
+<!-- plot_tna -->
+<h3 id="plot_tna"><code>plot_tna()</code> / <code>tplot()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Specialized plotting for TNA (Transition Network Analysis) objects with optimized defaults.</p>
+
+<div class="signature"><code>plot_tna(x, layout = "oval", edge_color = "#003355", arrow_size = 0.61, ...)</code></div>
+
+<div class="note"><strong>TNA Defaults:</strong> <code>layout = "oval"</code>, <code>node_size = 7</code>, <code>edge_color = "#003355"</code> (dark blue), <code>edge_labels = TRUE</code>, <code>edge_start_style = "dotted"</code></div>
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="specialized">Specialized Plots</h2>
+
+<!-- plot_htna -->
+<h3 id="plot_htna"><code>plot_htna()</code> / <code>htna()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Heterogeneous TNA plots with bipartite or polygon layouts for grouped networks.</p>
+
+<div class="signature"><code>plot_htna(x, layout = "bipartite", ...)</code></div>
+
+<!-- plot_mtna -->
+<h3 id="plot_mtna"><code>plot_mtna()</code> / <code>mtna()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Multi-group TNA networks. Plot multiple TNA groups in a grid layout.</p>
+
+<div class="signature"><code>plot_mtna(x, ncol = NULL, titles = NULL, ...)</code></div>
+
+<!-- plot_mlna -->
+<h3 id="plot_mlna"><code>plot_mlna()</code> / <code>mlna()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Multi-layer network visualization with 3D stacked layers.</p>
+
+<div class="signature"><code>plot_mlna(layers, interlayer = NULL, layer_gap = 0.3, ...)</code></div>
+
+<!-- plot_mcml -->
+<h3 id="plot_mcml"><code>plot_mcml()</code> / <code>mcml()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Multi-Cluster Multi-Layer plots: detail layer + summary cluster layer.</p>
+
+<div class="signature"><code>plot_mcml(x, clusters, summary_fn = "mean", ...)</code></div>
+
+<!-- plot_compare -->
+<h3 id="plot_compare"><code>plot_compare()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Difference network visualization (x - y) with positive/negative edge coloring.</p>
+
+<div class="signature"><code>plot_compare(x, y, layout = NULL, positive_color = "#009900", negative_color = "#C62828", ...)</code></div>
+
+<details>
+  <summary>Example</summary>
+  <div class="detail-content">
+<pre><code># Compare two networks
+net1 &lt;- matrix(c(0, .5, .3, .5, 0, .4, .3, .4, 0), 3, 3)
+net2 &lt;- matrix(c(0, .3, .5, .3, 0, .2, .5, .2, 0), 3, 3)
+plot_compare(net1, net2)</code></pre>
+  </div>
+</details>
+
+<!-- plot_mixed_network -->
+<h3 id="plot_mixed"><code>plot_mixed_network()</code> <span class="source-badge source-new">new</span></h3>
+<p>Plot networks with mixed edge types (positive/negative, directed/undirected) with vectorized curvature support.</p>
+
+<div class="signature"><code>plot_mixed_network(x, curvature = NULL, positive_color = "#2E7D32", negative_color = "#C62828", ...)</code></div>
+
+<div class="note"><strong>New feature:</strong> Supports per-edge curvature values for fine-grained control over edge rendering.</div>
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="heatmaps">Heatmaps</h2>
+
+<!-- plot_heatmap -->
+<h3 id="plot_heatmap"><code>plot_heatmap()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>ggplot2-based heatmap visualization of weight matrices.</p>
+
+<div class="signature"><code>plot_heatmap(x, title = NULL, low_color = "white", high_color = "steelblue", ...)</code></div>
+
+<!-- plot_comparison_heatmap -->
+<h3 id="plot_comparison_heatmap"><code>plot_comparison_heatmap()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Diverging heatmap for comparing two networks (difference matrix).</p>
+
+<div class="signature"><code>plot_comparison_heatmap(x, y, title = NULL, positive_color = "#009900", negative_color = "#C62828", ...)</code></div>
+
+<!-- plot_ml_heatmap -->
+<h3 id="plot_ml_heatmap"><code>plot_ml_heatmap()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Multi-layer heatmap visualization showing all layers in a grid.</p>
+
+<div class="signature"><code>plot_ml_heatmap(layers, titles = NULL, ncol = NULL, ...)</code></div>
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="animation">Animation</h2>
+
+<!-- tna_animate -->
+<h3 id="tna_animate"><code>tna_animate()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Create animated GIF showing network evolution over time windows.</p>
+
+<div class="signature"><code>tna_animate(x, windows = NULL, output = "network.gif", fps = 2, width = 800, height = 600, ...)</code></div>
+
+<table>
+  <tr><th>Parameter</th><th>Description</th><th>Default</th></tr>
+  <tr><td><code>x</code></td><td>TNA object or list of networks</td><td>&mdash;</td></tr>
+  <tr><td><code>windows</code></td><td>Time windows for animation frames</td><td><code>NULL</code></td></tr>
+  <tr><td><code>output</code></td><td>Output GIF filename</td><td><code>"network.gif"</code></td></tr>
+  <tr><td><code>fps</code></td><td>Frames per second</td><td><code>2</code></td></tr>
+</table>
+
+<!-- tna_windows -->
+<h3 id="tna_windows"><code>tna_windows()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Create time-windowed TNA networks from sequence data.</p>
+
+<div class="signature"><code>tna_windows(data, window_size, step = 1, ...)</code></div>
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="analysis">Network Analysis</h2>
+
+<!-- centrality -->
+<h3 id="centrality"><code>centrality()</code> <span class="source-badge source-merged">merged</span></h3>
+<p>Computes centrality measures for nodes in a network. Returns a tidy data frame with one column per measure.</p>
+
+<div class="signature"><code>centrality(x, measures = "all", mode = "all", normalized = FALSE, weighted = TRUE, directed = NULL, loops = TRUE, simplify = "sum", digits = NULL, sort_by = NULL, ...)</code></div>
+
+<table>
+  <tr><th>Parameter</th><th>Description</th><th>Default</th></tr>
+  <tr><td><code>x</code></td><td>Network input (matrix, igraph, cograph_network, tna)</td><td>&mdash;</td></tr>
+  <tr><td><code>measures</code></td><td><code>"all"</code> or vector: <code>"degree"</code>, <code>"strength"</code>, <code>"betweenness"</code>, <code>"closeness"</code>, <code>"eigenvector"</code>, <code>"pagerank"</code>, <code>"authority"</code>, <code>"hub"</code>, <code>"eccentricity"</code>, <code>"coreness"</code>, <code>"constraint"</code>, <code>"transitivity"</code></td><td><code>"all"</code></td></tr>
+  <tr><td><code>mode</code></td><td>For directed: <code>"all"</code>, <code>"in"</code>, <code>"out"</code></td><td><code>"all"</code></td></tr>
+  <tr><td><code>normalized</code></td><td>Normalize to 0-1 range</td><td><code>FALSE</code></td></tr>
+  <tr><td><code>sort_by</code></td><td>Column name to sort results by (descending)</td><td><code>NULL</code></td></tr>
+</table>
+
+<div class="returns"><strong>Returns:</strong> Data frame with columns: <code>node</code>, plus one column per measure (with mode suffix for directional measures).</div>
+
+<details>
+  <summary>Example</summary>
+  <div class="detail-content">
+<pre><code>adj &lt;- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+rownames(adj) &lt;- colnames(adj) &lt;- c("A", "B", "C")
+
+# All centrality measures
+centrality(adj)
+
+# Specific measures, sorted
+centrality(adj, measures = c("degree", "betweenness", "pagerank"),
+           sort_by = "pagerank", digits = 3)
+
+# Directed network
+centrality(adj, directed = TRUE, mode = "in")</code></pre>
+  </div>
+</details>
+
+<h4>Convenience Functions</h4>
+<div class="func-list">
+  <div class="func-list-item">centrality_degree()</div>
+  <div class="func-list-item">centrality_strength()</div>
+  <div class="func-list-item">centrality_betweenness()</div>
+  <div class="func-list-item">centrality_closeness()</div>
+  <div class="func-list-item">centrality_eigenvector()</div>
+  <div class="func-list-item">centrality_pagerank()</div>
+  <div class="func-list-item">centrality_authority()</div>
+  <div class="func-list-item">centrality_hub()</div>
+  <div class="func-list-item">centrality_eccentricity()</div>
+  <div class="func-list-item">centrality_coreness()</div>
+  <div class="func-list-item">centrality_constraint()</div>
+  <div class="func-list-item">centrality_transitivity()</div>
+</div>
+
+<!-- network_summary -->
+<h3 id="network_summary"><code>network_summary()</code> <span class="source-badge source-merged">merged</span></h3>
+<p>Computes comprehensive network-level statistics. Returns a data frame with one row containing various metrics.</p>
+
+<div class="signature"><code>network_summary(x, directed = NULL, weighted = TRUE, mode = "all", loops = TRUE, simplify = "sum", detailed = FALSE, digits = 3, ...)</code></div>
+
+<table>
+  <tr><th>Parameter</th><th>Description</th><th>Default</th></tr>
+  <tr><td><code>x</code></td><td>Network input</td><td>&mdash;</td></tr>
+  <tr><td><code>detailed</code></td><td>Include mean/sd centrality statistics</td><td><code>FALSE</code></td></tr>
+  <tr><td><code>digits</code></td><td>Decimal places for rounding</td><td><code>3</code></td></tr>
+</table>
+
+<div class="returns"><strong>Returns:</strong> Data frame with: <code>node_count</code>, <code>edge_count</code>, <code>density</code>, <code>component_count</code>, <code>diameter</code>, <code>mean_distance</code>, <code>centralization_degree</code>, <code>centralization_betweenness</code>, <code>transitivity</code>, <code>reciprocity</code>, <code>assortativity_degree</code>, and more.</div>
+
+<!-- degree_distribution -->
+<h3 id="degree_distribution"><code>degree_distribution()</code> <span class="source-badge source-merged">merged</span></h3>
+<p>Creates a histogram showing the degree distribution of a network.</p>
+
+<div class="signature"><code>degree_distribution(x, mode = "all", directed = NULL, cumulative = FALSE, main = "Degree Distribution", ...)</code></div>
+
+<!-- detect_communities -->
+<h3 id="detect_communities"><code>detect_communities()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Detect community structure using various algorithms.</p>
+
+<div class="signature"><code>detect_communities(x, method = "louvain", directed = NULL, weights = TRUE, ...)</code></div>
+
+<table>
+  <tr><th>Parameter</th><th>Description</th><th>Default</th></tr>
+  <tr><td><code>method</code></td><td><code>"louvain"</code>, <code>"walktrap"</code>, <code>"fast_greedy"</code>, <code>"label_prop"</code>, <code>"infomap"</code>, <code>"leiden"</code></td><td><code>"louvain"</code></td></tr>
+</table>
+
+<!-- color_communities -->
+<h3 id="color_communities"><code>color_communities()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Generate colors based on community membership.</p>
+
+<div class="signature"><code>color_communities(x, method = "louvain", palette = NULL, ...)</code></div>
+
+<!-- cluster_quality -->
+<h3 id="cluster_quality"><code>cluster_quality()</code> / <code>cqual()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Compute clustering quality metrics: modularity, coverage, conductance.</p>
+
+<div class="signature"><code>cluster_quality(x, membership, ...)</code></div>
+
+<!-- cluster_summary -->
+<h3 id="cluster_summary"><code>cluster_summary()</code> / <code>csum()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Summary statistics for each cluster in a network.</p>
+
+<div class="signature"><code>cluster_summary(x, membership, ...)</code></div>
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="multilayer">Multi-Layer Network Analysis</h2>
+
+<!-- layer_similarity -->
+<h3 id="layer_similarity"><code>layer_similarity()</code> / <code>lsim()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Compute similarity between two network layers using various metrics.</p>
+
+<div class="signature"><code>layer_similarity(layer1, layer2, method = "jaccard", ...)</code></div>
+
+<table>
+  <tr><th>Parameter</th><th>Description</th><th>Default</th></tr>
+  <tr><td><code>method</code></td><td><code>"jaccard"</code>, <code>"cosine"</code>, <code>"pearson"</code>, <code>"spearman"</code>, <code>"hamming"</code></td><td><code>"jaccard"</code></td></tr>
+</table>
+
+<!-- layer_similarity_matrix -->
+<h3 id="layer_similarity_matrix"><code>layer_similarity_matrix()</code> / <code>lsim_matrix()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Compute pairwise similarity matrix for multiple layers.</p>
+
+<div class="signature"><code>layer_similarity_matrix(layers, method = "jaccard", ...)</code></div>
+
+<!-- layer_degree_correlation -->
+<h3 id="layer_degree_correlation"><code>layer_degree_correlation()</code> / <code>ldegcor()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Compute degree correlation between network layers.</p>
+
+<div class="signature"><code>layer_degree_correlation(layer1, layer2, method = "pearson", ...)</code></div>
+
+<!-- supra_adjacency -->
+<h3 id="supra_adjacency"><code>supra_adjacency()</code> / <code>supra()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Construct supra-adjacency matrix from multi-layer network.</p>
+
+<div class="signature"><code>supra_adjacency(layers, interlayer = NULL, ...)</code></div>
+
+<!-- supra_layer -->
+<h3 id="supra_layer"><code>supra_layer()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Extract layer block from supra-adjacency matrix.</p>
+
+<div class="signature"><code>supra_layer(supra, layer_index, n_nodes, ...)</code></div>
+
+<!-- supra_interlayer -->
+<h3 id="supra_interlayer"><code>supra_interlayer()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Extract interlayer block from supra-adjacency matrix.</p>
+
+<div class="signature"><code>supra_interlayer(supra, layer1, layer2, n_nodes, ...)</code></div>
+
+<!-- aggregate_layers -->
+<h3 id="aggregate_layers"><code>aggregate_layers()</code> / <code>lagg()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Aggregate multiple network layers into a single network.</p>
+
+<div class="signature"><code>aggregate_layers(layers, method = "sum", ...)</code></div>
+
+<table>
+  <tr><th>Parameter</th><th>Description</th><th>Default</th></tr>
+  <tr><td><code>method</code></td><td><code>"sum"</code>, <code>"mean"</code>, <code>"max"</code>, <code>"min"</code>, <code>"union"</code>, <code>"intersection"</code></td><td><code>"sum"</code></td></tr>
+</table>
+
+<!-- aggregate_weights -->
+<h3 id="aggregate_weights"><code>aggregate_weights()</code> / <code>wagg()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Aggregate edge weights across layers.</p>
+
+<div class="signature"><code>aggregate_weights(layers, method = "mean", ...)</code></div>
+
+<!-- extract_layer -->
+<h3 id="extract_layer"><code>extract_layer()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Extract a single layer from a multi-layer network.</p>
+
+<div class="signature"><code>extract_layer(x, layer_index, ...)</code></div>
+
+<!-- extract_interlayer -->
+<h3 id="extract_interlayer"><code>extract_interlayer()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Extract interlayer connections between two layers.</p>
+
+<div class="signature"><code>extract_interlayer(x, layer1, layer2, ...)</code></div>
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="layouts">Layouts</h2>
+
+<p>Built-in layout algorithms for positioning nodes.</p>
+
+<!-- layout_circle -->
+<h3 id="layout_circle"><code>layout_circle()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Arrange nodes in a circle.</p>
+
+<div class="signature"><code>layout_circle(network, start_angle = 90, ...)</code></div>
+
+<!-- layout_spring -->
+<h3 id="layout_spring"><code>layout_spring()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Force-directed spring layout (Fruchterman-Reingold).</p>
+
+<div class="signature"><code>layout_spring(network, iterations = 500, seed = NULL, ...)</code></div>
+
+<!-- layout_groups -->
+<h3 id="layout_groups"><code>layout_groups()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Layout with nodes grouped by cluster membership.</p>
+
+<div class="signature"><code>layout_groups(network, groups, ...)</code></div>
+
+<!-- layout_oval -->
+<h3 id="layout_oval"><code>layout_oval()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Arrange nodes in an ellipse (oval). Default for TNA plots.</p>
+
+<div class="signature"><code>layout_oval(network, aspect_ratio = 0.6, ...)</code></div>
+
+<h4>Layout Registry</h4>
+<div class="func-list">
+  <div class="func-list-item">list_layouts()</div>
+  <div class="func-list-item">register_layout()</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="themes">Themes</h2>
+
+<p>Built-in themes for network visualization.</p>
+
+<h4>Available Themes</h4>
+<table>
+  <tr><th>Theme</th><th>Function</th><th>Description</th></tr>
+  <tr><td><code>"default"</code></td><td><code>theme_cograph_classic()</code></td><td>Classic clean style</td></tr>
+  <tr><td><code>"minimal"</code></td><td><code>theme_cograph_minimal()</code></td><td>Minimalist, no borders</td></tr>
+  <tr><td><code>"dark"</code></td><td><code>theme_cograph_dark()</code></td><td>Dark background</td></tr>
+  <tr><td><code>"gray"</code></td><td><code>theme_cograph_gray()</code></td><td>Gray color scheme</td></tr>
+  <tr><td><code>"nature"</code></td><td><code>theme_cograph_nature()</code></td><td>Nature journal style</td></tr>
+  <tr><td><code>"viridis"</code></td><td><code>theme_cograph_viridis()</code></td><td>Viridis color scheme</td></tr>
+  <tr><td><code>"colorblind"</code></td><td><code>theme_cograph_colorblind()</code></td><td>Colorblind-friendly</td></tr>
+</table>
+
+<h4>Theme Registry</h4>
+<div class="func-list">
+  <div class="func-list-item">list_themes()</div>
+  <div class="func-list-item">register_theme()</div>
+  <div class="func-list-item">get_theme()</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="palettes">Palettes</h2>
+
+<p>Built-in color palettes for node/edge coloring.</p>
+
+<h4>Available Palettes</h4>
+<table>
+  <tr><th>Palette</th><th>Function</th><th>Description</th></tr>
+  <tr><td><code>"viridis"</code></td><td><code>palette_viridis()</code></td><td>Perceptually uniform</td></tr>
+  <tr><td><code>"blues"</code></td><td><code>palette_blues()</code></td><td>Sequential blues</td></tr>
+  <tr><td><code>"reds"</code></td><td><code>palette_reds()</code></td><td>Sequential reds</td></tr>
+  <tr><td><code>"diverging"</code></td><td><code>palette_diverging()</code></td><td>Blue-white-red diverging</td></tr>
+  <tr><td><code>"pastel"</code></td><td><code>palette_pastel()</code></td><td>Soft pastel colors</td></tr>
+  <tr><td><code>"rainbow"</code></td><td><code>palette_rainbow()</code></td><td>Full spectrum</td></tr>
+  <tr><td><code>"colorblind"</code></td><td><code>palette_colorblind()</code></td><td>Colorblind-friendly</td></tr>
+</table>
+
+<div class="func-list">
+  <div class="func-list-item">list_palettes()</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="shapes">Shapes</h2>
+
+<p>Node shapes for network visualization.</p>
+
+<h4>Built-in Shapes</h4>
+<div class="func-list">
+  <div class="func-list-item">circle</div>
+  <div class="func-list-item">square</div>
+  <div class="func-list-item">triangle</div>
+  <div class="func-list-item">diamond</div>
+  <div class="func-list-item">pentagon</div>
+  <div class="func-list-item">hexagon</div>
+  <div class="func-list-item">ellipse</div>
+  <div class="func-list-item">rectangle</div>
+  <div class="func-list-item">heart</div>
+  <div class="func-list-item">star</div>
+  <div class="func-list-item">cross</div>
+  <div class="func-list-item">pie</div>
+  <div class="func-list-item">donut</div>
+</div>
+
+<h4>Shape Registry</h4>
+<div class="func-list">
+  <div class="func-list-item">list_shapes()</div>
+  <div class="func-list-item">list_svg_shapes()</div>
+  <div class="func-list-item">register_shape()</div>
+  <div class="func-list-item">register_svg_shape()</div>
+  <div class="func-list-item">unregister_svg_shape()</div>
+  <div class="func-list-item">get_shape()</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="conversion">Conversion Utilities</h2>
+
+<!-- to_igraph -->
+<h3 id="to_igraph"><code>to_igraph()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Convert network to igraph object.</p>
+
+<div class="signature"><code>to_igraph(x, directed = NULL)</code></div>
+
+<table>
+  <tr><th>Parameter</th><th>Description</th><th>Default</th></tr>
+  <tr><td><code>x</code></td><td>Matrix, cograph_network, network, tna, or igraph object</td><td>&mdash;</td></tr>
+  <tr><td><code>directed</code></td><td>Force directed. <code>NULL</code> for auto-detect</td><td><code>NULL</code></td></tr>
+</table>
+
+<div class="returns"><strong>Returns:</strong> An igraph object.</div>
+
+<!-- to_matrix -->
+<h3 id="to_matrix"><code>to_matrix()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Convert network to adjacency matrix.</p>
+
+<div class="signature"><code>to_matrix(x, directed = NULL)</code></div>
+
+<!-- to_data_frame -->
+<h3 id="to_data_frame"><code>to_data_frame()</code> / <code>to_df()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Convert network to edge list data frame.</p>
+
+<div class="signature"><code>to_data_frame(x, directed = NULL)</code></div>
+
+<div class="returns"><strong>Returns:</strong> Data frame with columns: <code>from</code>, <code>to</code>, <code>weight</code>.</div>
+
+<!-- to_network -->
+<h3 id="to_network"><code>to_network()</code> <span class="source-badge source-plotonly">plotonly</span></h3>
+<p>Convert to statnet network object.</p>
+
+<div class="signature"><code>to_network(x, directed = NULL)</code></div>
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="getters-setters">Getters &amp; Setters</h2>
+
+<h4>Getter Functions</h4>
+<table>
+  <tr><th>Function</th><th>Description</th></tr>
+  <tr><td><code>get_nodes(x)</code></td><td>Get nodes data frame</td></tr>
+  <tr><td><code>get_edges(x)</code></td><td>Get edges data frame</td></tr>
+  <tr><td><code>get_labels(x)</code></td><td>Get node labels as character vector</td></tr>
+  <tr><td><code>get_layout(x)</code></td><td>Get layout coordinates</td></tr>
+  <tr><td><code>get_groups(x)</code></td><td>Get group assignments</td></tr>
+  <tr><td><code>n_nodes(x)</code></td><td>Get number of nodes</td></tr>
+  <tr><td><code>n_edges(x)</code></td><td>Get number of edges</td></tr>
+  <tr><td><code>is_directed(x)</code></td><td>Check if network is directed</td></tr>
+  <tr><td><code>is_tna_network(x)</code></td><td>Check if network is from TNA</td></tr>
+</table>
+
+<h4>Setter Functions</h4>
+<table>
+  <tr><th>Function</th><th>Description</th></tr>
+  <tr><td><code>set_nodes(x, nodes)</code></td><td>Set nodes data frame</td></tr>
+  <tr><td><code>set_edges(x, edges)</code></td><td>Set edges data frame</td></tr>
+  <tr><td><code>set_layout(x, layout)</code></td><td>Set layout coordinates</td></tr>
+  <tr><td><code>set_groups(x, groups)</code></td><td>Set group assignments</td></tr>
+</table>
+
+<h4>Filter Functions</h4>
+<table>
+  <tr><th>Function</th><th>Description</th></tr>
+  <tr><td><code>filter_nodes(x, expr)</code></td><td>Filter nodes by expression (e.g., <code>degree >= 3</code>)</td></tr>
+  <tr><td><code>filter_edges(x, expr)</code></td><td>Filter edges by expression (e.g., <code>weight > 0.5</code>)</td></tr>
+</table>
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="all-exports">Complete Export List</h2>
+
+<p>All 133 exported functions organized by source:</p>
+
+<h4>From cograph_plotonly (Original) <span class="source-badge source-plotonly">plotonly</span></h4>
+<div class="func-list">
+  <div class="func-list-item">cograph()</div>
+  <div class="func-list-item">as_cograph()</div>
+  <div class="func-list-item">from_qgraph()</div>
+  <div class="func-list-item">from_tna()</div>
+  <div class="func-list-item">splot()</div>
+  <div class="func-list-item">soplot()</div>
+  <div class="func-list-item">plot_tna()</div>
+  <div class="func-list-item">tplot()</div>
+  <div class="func-list-item">plot_htna()</div>
+  <div class="func-list-item">htna()</div>
+  <div class="func-list-item">plot_mtna()</div>
+  <div class="func-list-item">mtna()</div>
+  <div class="func-list-item">plot_mlna()</div>
+  <div class="func-list-item">mlna()</div>
+  <div class="func-list-item">plot_mcml()</div>
+  <div class="func-list-item">mcml()</div>
+  <div class="func-list-item">plot_compare()</div>
+  <div class="func-list-item">plot_heatmap()</div>
+  <div class="func-list-item">plot_comparison_heatmap()</div>
+  <div class="func-list-item">plot_ml_heatmap()</div>
+  <div class="func-list-item">sn_nodes()</div>
+  <div class="func-list-item">sn_edges()</div>
+  <div class="func-list-item">sn_layout()</div>
+  <div class="func-list-item">sn_theme()</div>
+  <div class="func-list-item">sn_palette()</div>
+  <div class="func-list-item">sn_render()</div>
+  <div class="func-list-item">sn_ggplot()</div>
+  <div class="func-list-item">sn_save()</div>
+  <div class="func-list-item">sn_save_ggplot()</div>
+  <div class="func-list-item">tna_animate()</div>
+  <div class="func-list-item">tna_windows()</div>
+  <div class="func-list-item">detect_communities()</div>
+  <div class="func-list-item">color_communities()</div>
+  <div class="func-list-item">cluster_quality()</div>
+  <div class="func-list-item">cluster_summary()</div>
+  <div class="func-list-item">cqual()</div>
+  <div class="func-list-item">csum()</div>
+  <div class="func-list-item">layer_similarity()</div>
+  <div class="func-list-item">layer_similarity_matrix()</div>
+  <div class="func-list-item">layer_degree_correlation()</div>
+  <div class="func-list-item">lsim()</div>
+  <div class="func-list-item">lsim_matrix()</div>
+  <div class="func-list-item">ldegcor()</div>
+  <div class="func-list-item">supra_adjacency()</div>
+  <div class="func-list-item">supra_layer()</div>
+  <div class="func-list-item">supra_interlayer()</div>
+  <div class="func-list-item">supra()</div>
+  <div class="func-list-item">aggregate_layers()</div>
+  <div class="func-list-item">aggregate_weights()</div>
+  <div class="func-list-item">lagg()</div>
+  <div class="func-list-item">wagg()</div>
+  <div class="func-list-item">extract_layer()</div>
+  <div class="func-list-item">extract_interlayer()</div>
+  <div class="func-list-item">layout_circle()</div>
+  <div class="func-list-item">layout_spring()</div>
+  <div class="func-list-item">layout_groups()</div>
+  <div class="func-list-item">layout_oval()</div>
+  <div class="func-list-item">list_layouts()</div>
+  <div class="func-list-item">register_layout()</div>
+  <div class="func-list-item">list_themes()</div>
+  <div class="func-list-item">register_theme()</div>
+  <div class="func-list-item">get_theme()</div>
+  <div class="func-list-item">list_palettes()</div>
+  <div class="func-list-item">list_shapes()</div>
+  <div class="func-list-item">list_svg_shapes()</div>
+  <div class="func-list-item">register_shape()</div>
+  <div class="func-list-item">register_svg_shape()</div>
+  <div class="func-list-item">unregister_svg_shape()</div>
+  <div class="func-list-item">get_shape()</div>
+  <div class="func-list-item">to_igraph()</div>
+  <div class="func-list-item">to_matrix()</div>
+  <div class="func-list-item">to_data_frame()</div>
+  <div class="func-list-item">to_df()</div>
+  <div class="func-list-item">to_network()</div>
+  <div class="func-list-item">to_cograph()</div>
+  <div class="func-list-item">get_nodes()</div>
+  <div class="func-list-item">set_nodes()</div>
+  <div class="func-list-item">get_edges()</div>
+  <div class="func-list-item">set_edges()</div>
+  <div class="func-list-item">get_labels()</div>
+  <div class="func-list-item">get_layout()</div>
+  <div class="func-list-item">set_layout()</div>
+  <div class="func-list-item">get_groups()</div>
+  <div class="func-list-item">set_groups()</div>
+  <div class="func-list-item">n_nodes()</div>
+  <div class="func-list-item">n_edges()</div>
+  <div class="func-list-item">nodes()</div>
+  <div class="func-list-item">is_directed()</div>
+  <div class="func-list-item">is_tna_network()</div>
+  <div class="func-list-item">filter_nodes()</div>
+  <div class="func-list-item">filter_edges()</div>
+  <div class="func-list-item">verify_igraph()</div>
+  <div class="func-list-item">verify_with_igraph()</div>
+</div>
+
+<h4>Restored from moved/ folder <span class="source-badge source-merged">merged</span></h4>
+<div class="func-list">
+  <div class="func-list-item">centrality()</div>
+  <div class="func-list-item">centrality_degree()</div>
+  <div class="func-list-item">centrality_strength()</div>
+  <div class="func-list-item">centrality_betweenness()</div>
+  <div class="func-list-item">centrality_closeness()</div>
+  <div class="func-list-item">centrality_eigenvector()</div>
+  <div class="func-list-item">centrality_pagerank()</div>
+  <div class="func-list-item">centrality_authority()</div>
+  <div class="func-list-item">centrality_hub()</div>
+  <div class="func-list-item">centrality_eccentricity()</div>
+  <div class="func-list-item">centrality_coreness()</div>
+  <div class="func-list-item">centrality_constraint()</div>
+  <div class="func-list-item">centrality_transitivity()</div>
+  <div class="func-list-item">network_summary()</div>
+  <div class="func-list-item">degree_distribution()</div>
+</div>
+
+<h4>New in cograph_merged <span class="source-badge source-new">new</span></h4>
+<div class="func-list">
+  <div class="func-list-item">plot_mixed_network()</div>
+</div>
+
+<h4>Theme Functions <span class="source-badge source-plotonly">plotonly</span></h4>
+<div class="func-list">
+  <div class="func-list-item">theme_cograph_classic()</div>
+  <div class="func-list-item">theme_cograph_minimal()</div>
+  <div class="func-list-item">theme_cograph_dark()</div>
+  <div class="func-list-item">theme_cograph_gray()</div>
+  <div class="func-list-item">theme_cograph_nature()</div>
+  <div class="func-list-item">theme_cograph_viridis()</div>
+  <div class="func-list-item">theme_cograph_colorblind()</div>
+</div>
+
+<h4>Palette Functions <span class="source-badge source-plotonly">plotonly</span></h4>
+<div class="func-list">
+  <div class="func-list-item">palette_viridis()</div>
+  <div class="func-list-item">palette_blues()</div>
+  <div class="func-list-item">palette_reds()</div>
+  <div class="func-list-item">palette_diverging()</div>
+  <div class="func-list-item">palette_pastel()</div>
+  <div class="func-list-item">palette_rainbow()</div>
+  <div class="func-list-item">palette_colorblind()</div>
+</div>
+
+<h4>R6 Classes <span class="source-badge source-plotonly">plotonly</span></h4>
+<div class="func-list">
+  <div class="func-list-item">CographNetwork</div>
+  <div class="func-list-item">CographLayout</div>
+  <div class="func-list-item">CographTheme</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="aside">Functions in aside/ (Not Exported)</h2>
+
+<p>These estimation/validation functions are kept in <code>aside/</code> for future integration but are NOT part of the current package build. They require raw sequence data and the tna package for estimation.</p>
+
+<div class="func-list">
+  <div class="func-list-item" style="background: #fef3c7;">bootstrap()</div>
+  <div class="func-list-item" style="background: #fef3c7;">permutation_test()</div>
+  <div class="func-list-item" style="background: #fef3c7;">estimate_cs()</div>
+  <div class="func-list-item" style="background: #fef3c7;">disparity_filter()</div>
+  <div class="func-list-item" style="background: #fef3c7;">set_raw_data()</div>
+  <div class="func-list-item" style="background: #fef3c7;">get_raw_data()</div>
+</div>
+
+<div class="note"><strong>To restore:</strong> Copy files from <code>aside/estimation/</code> to <code>R/</code>, run <code>devtools::document()</code>, and <code>devtools::test()</code>.</div>
+
+
+<!-- Footer -->
+<div style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.85rem;">
+  <p><strong>cograph</strong> v1.5.2 &middot; Branch: cograph_merged &middot; Generated: 2026-02-10</p>
+  <p>Documentation covers 133 exported functions from the merged branch combining cograph_plotonly features with restored analysis functions.</p>
+  <p>GitHub: <a href="https://github.com/mohsaqr/Sonnet" style="color: var(--accent);">mohsaqr/Sonnet</a> (cograph_merged branch)</p>
+</div>
+
+</div>
+</body>
+</html>

@@ -24,6 +24,16 @@ NULL
 #'
 #' @param node_size Node size(s). Single value or vector. Default 3.
 #' @param node_size2 Secondary node size for ellipse/rectangle height.
+#' @param scale_nodes_by Scale node sizes by a centrality measure. Can be:
+#'   \itemize{
+#'     \item A measure name: "degree", "strength", "betweenness", "closeness",
+#'       "eigenvector", "pagerank", "authority", "hub", "harmonic", etc.
+#'     \item A list with measure and parameters: list("pagerank", damping = 0.9)
+#'   }
+#'   When used, node_size is ignored. Use node_size_range to control the
+#'   min/max size. Default NULL (no centrality scaling).
+#' @param node_size_range Size range for centrality-based scaling. Numeric
+#'   vector c(min_size, max_size). Default c(2, 8).
 #' @param node_shape Node shape(s): "circle", "square", "triangle", "diamond",
 #'   "pentagon", "hexagon", "star", "heart", "ellipse", "cross", or any custom
 #'   SVG shape registered with register_svg_shape().
@@ -324,6 +334,8 @@ splot <- function(
     # Node aesthetics
     node_size = NULL,
     node_size2 = NULL,
+    scale_nodes_by = NULL,
+    node_size_range = c(2, 8),
     node_shape = "circle",
     node_svg = NULL,
     svg_preserve_aspect = TRUE,
@@ -703,7 +715,21 @@ splot <- function(
   scale <- get_scale_constants(scaling)
 
   # Node sizes (qgraph-style, using scale constants)
-  vsize_usr <- resolve_node_sizes(node_size, n_nodes, scaling = scaling)
+  # Check for centrality-based scaling first
+  centrality_info <- NULL
+  if (!is.null(scale_nodes_by)) {
+    centrality_info <- resolve_centrality_sizes(
+      x = x,
+      scale_by = scale_nodes_by,
+      size_range = node_size_range,
+      n = n_nodes,
+      scaling = scaling
+    )
+    vsize_usr <- centrality_info$sizes
+  } else {
+    vsize_usr <- resolve_node_sizes(node_size, n_nodes, scaling = scaling)
+  }
+
   vsize2_usr <- if (!is.null(node_size2)) {
     resolve_node_sizes(node_size2, n_nodes, scaling = scaling)
   } else {

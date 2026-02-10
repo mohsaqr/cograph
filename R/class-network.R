@@ -1046,6 +1046,9 @@ is_directed <- function(x) {
       return(x$directed)
     }
   }
+  if (inherits(x, "igraph")) {
+    return(igraph::is_directed(x))
+  }
   stop("Cannot determine directedness for this object", call. = FALSE)
 }
 

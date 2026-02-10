@@ -12,6 +12,8 @@ splot(
   theme = NULL,
   node_size = NULL,
   node_size2 = NULL,
+  scale_nodes_by = NULL,
+  node_size_range = c(2, 8),
   node_shape = "circle",
   node_svg = NULL,
   svg_preserve_aspect = TRUE,
@@ -166,6 +168,18 @@ two-letter codes: "kk", "fr", "drl", "mds", "ni", etc.}
 \item{node_size}{Node size(s). Single value or vector. Default 3.}
 
 \item{node_size2}{Secondary node size for ellipse/rectangle height.}
+
+\item{scale_nodes_by}{Scale node sizes by a centrality measure. Can be:
+\itemize{
+\item A measure name: "degree", "strength", "betweenness", "closeness",
+"eigenvector", "pagerank", "authority", "hub", "harmonic", etc.
+\item A list with measure and parameters: list("pagerank", damping = 0.9)
+}
+When used, node_size is ignored. Use node_size_range to control the
+min/max size. Default NULL (no centrality scaling).}
+
+\item{node_size_range}{Size range for centrality-based scaling. Numeric
+vector c(min_size, max_size). Default c(2, 8).}
 
 \item{node_shape}{Node shape(s): "circle", "square", "triangle", "diamond",
 "pentagon", "hexagon", "star", "heart", "ellipse", "cross", or any custom

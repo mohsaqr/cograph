@@ -14,6 +14,11 @@
 \alias{centrality_coreness}
 \alias{centrality_constraint}
 \alias{centrality_transitivity}
+\alias{centrality_harmonic}
+\alias{centrality_diffusion}
+\alias{centrality_leverage}
+\alias{centrality_kreach}
+\alias{centrality_resilience}
 \title{Calculate Network Centrality Measures}
 \usage{
 centrality(
@@ -27,6 +32,13 @@ centrality(
   simplify = "sum",
   digits = NULL,
   sort_by = NULL,
+  cutoff = -1,
+  damping = 0.85,
+  personalized = NULL,
+  transitivity_type = "local",
+  isolates = "nan",
+  lambda = 1,
+  k = 3,
   ...
 )
 
@@ -40,7 +52,7 @@ centrality_closeness(x, mode = "all", ...)
 
 centrality_eigenvector(x, ...)
 
-centrality_pagerank(x, ...)
+centrality_pagerank(x, damping = 0.85, personalized = NULL, ...)
 
 centrality_authority(x, ...)
 
@@ -52,7 +64,17 @@ centrality_coreness(x, mode = "all", ...)
 
 centrality_constraint(x, ...)
 
-centrality_transitivity(x, ...)
+centrality_transitivity(x, transitivity_type = "local", isolates = "nan", ...)
+
+centrality_harmonic(x, mode = "all", ...)
+
+centrality_diffusion(x, mode = "all", lambda = 1, ...)
+
+centrality_leverage(x, mode = "all", ...)
+
+centrality_kreach(x, mode = "all", k = 3, ...)
+
+centrality_resilience(x, ...)
 }
 \arguments{
 \item{x}{Network input (matrix, igraph, network, cograph_network, tna object)}
@@ -61,12 +83,14 @@ centrality_transitivity(x, ...)
 available measures. Can be a character vector of measure names:
 "degree", "strength", "betweenness", "closeness", "eigenvector",
 "pagerank", "authority", "hub", "eccentricity", "coreness",
-"constraint", "transitivity".}
+"constraint", "transitivity", "harmonic", "diffusion", "leverage",
+"kreach", "resilience".}
 
 \item{mode}{For directed networks: "all", "in", or "out". Affects degree,
-strength, closeness, eccentricity, and coreness.}
+strength, closeness, eccentricity, coreness, and harmonic centrality.}
 
-\item{normalized}{Logical. Normalize values to 0-1 range by dividing by max.}
+\item{normalized}{Logical. Normalize values to 0-1 range by dividing by max.
+For closeness, this is passed directly to igraph (proper normalization).}
 
 \item{weighted}{Logical. Use edge weights if available. Default TRUE.}
 
@@ -85,6 +109,25 @@ decimal places. Default NULL (no rounding).}
 
 \item{sort_by}{Character or NULL. Column name to sort results by
 (descending order). Default NULL (original node order).}
+
+\item{cutoff}{Maximum path length to consider for betweenness and closeness.
+Default -1 (no limit). Set to a positive value for faster computation
+on large networks at the cost of accuracy.}
+
+\item{damping}{PageRank damping factor. Default 0.85. Must be between 0 and 1.}
+
+\item{personalized}{Named numeric vector for personalized PageRank.
+Default NULL (standard PageRank). Values should sum to 1.}
+
+\item{transitivity_type}{Type of transitivity to calculate: "local" (default),
+"global", "undirected", "localundirected", "barrat" (weighted), or "weighted".}
+
+\item{isolates}{How to handle isolate nodes in transitivity calculation:
+"nan" (default) returns NaN, "zero" returns 0.}
+
+\item{lambda}{Diffusion scaling factor for diffusion centrality. Default 1.}
+
+\item{k}{Path length parameter for geodesic k-path centrality. Default 3.}
 
 \item{...}{Additional arguments (currently unused)}
 }
@@ -108,13 +151,23 @@ The following centrality measures are available:
 \item{betweenness}{Shortest path centrality}
 \item{closeness}{Inverse distance centrality (supports mode: in/out/all)}
 \item{eigenvector}{Influence-based centrality}
-\item{pagerank}{Random walk centrality}
+\item{pagerank}{Random walk centrality (supports damping and personalization)}
 \item{authority}{HITS authority score}
 \item{hub}{HITS hub score}
 \item{eccentricity}{Maximum distance to other nodes (supports mode)}
 \item{coreness}{K-core membership (supports mode: in/out/all)}
 \item{constraint}{Burt's constraint (structural holes)}
-\item{transitivity}{Local clustering coefficient}
+\item{transitivity}{Local clustering coefficient (supports multiple types)}
+\item{harmonic}{Harmonic centrality - handles disconnected graphs better
+than closeness (supports mode: in/out/all)}
+\item{diffusion}{Diffusion degree centrality - sum of scaled degrees of
+node and its neighbors (supports mode: in/out/all, lambda scaling)}
+\item{leverage}{Leverage centrality - measures influence over neighbors
+based on relative degree differences (supports mode: in/out/all)}
+\item{kreach}{Geodesic k-path centrality - count of nodes reachable
+within distance k (supports mode: in/out/all, k parameter)}
+\item{resilience}{Resilience centrality - minimum number of nodes that
+must be removed to disconnect this node from the network}
 }
 }
 \examples{
@@ -131,4 +184,13 @@ centrality(adj, mode = "in", normalized = TRUE)
 
 # Sort by pagerank
 centrality(adj, sort_by = "pagerank", digits = 3)
+
+# PageRank with custom damping
+centrality(adj, measures = "pagerank", damping = 0.9)
+
+# Harmonic centrality (better for disconnected graphs)
+centrality(adj, measures = "harmonic")
+
+# Global transitivity
+centrality(adj, measures = "transitivity", transitivity_type = "global")
 }

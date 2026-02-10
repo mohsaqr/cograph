@@ -1,0 +1,31 @@
+NETWORK-LEVEL METRICS VALIDATION RESULTS
+=========================================
+
+Timestamp: 2026-02-11 00:24:15 
+Tests: 100 | Seed: 42 
+
+Total tests: 664
+Passed: 664
+Failed: 0
+Pass rate: 100.0%
+
+Graph models tested:
+  - Erdos-Renyi (er)
+  - Barabasi-Albert (ba)
+  - Watts-Strogatz (ws)
+  - Stochastic Block (sbm)
+  - Regular (reg)
+  - Geometric Random (grg)
+
+Metrics validated:
+  - network_girth()
+  - network_radius()
+  - network_vertex_connectivity()
+  - network_clique_size()
+  - network_cut_vertices()
+  - network_bridges()
+  - network_global_efficiency()
+  - network_local_efficiency()
+  - network_small_world()
+  - network_rich_club()
+  - network_summary(extended=TRUE)

@@ -12,6 +12,7 @@ network_summary(
   loops = TRUE,
   simplify = "sum",
   detailed = FALSE,
+  extended = FALSE,
   digits = 3,
   ...
 )
@@ -36,6 +37,10 @@ multiple edges.}
 
 \item{detailed}{Logical. If TRUE, include mean/sd centrality statistics.
 Default FALSE returns 18 basic metrics; TRUE returns 29 metrics.}
+
+\item{extended}{Logical. If TRUE, include additional structural metrics
+(girth, radius, clique size, cut vertices, bridges, efficiency).
+Default FALSE.}
 
 \item{digits}{Integer. Round numeric results to this many decimal places.
 Default 3.}
@@ -67,6 +72,18 @@ A data frame with one row containing network-level statistics:
 \item{authority_score}{Maximum authority score (HITS algorithm)}
 }
 
+\strong{Extended measures (when extended = TRUE):}
+\describe{
+\item{girth}{Length of shortest cycle (Inf if acyclic)}
+\item{radius}{Minimum eccentricity (shortest max-distance from any node)}
+\item{vertex_connectivity}{Minimum nodes to remove to disconnect graph}
+\item{largest_clique_size}{Size of the largest complete subgraph}
+\item{cut_vertex_count}{Number of articulation points (cut vertices)}
+\item{bridge_count}{Number of bridge edges}
+\item{global_efficiency}{Average inverse shortest path length}
+\item{local_efficiency}{Average local efficiency across nodes}
+}
+
 \strong{Detailed measures (when detailed = TRUE):}
 \describe{
 \item{mean_degree, sd_degree, median_degree}{Degree distribution statistics}
@@ -91,6 +108,12 @@ network_summary(adj)
 
 # With detailed statistics
 network_summary(adj, detailed = TRUE)
+
+# With extended structural metrics
+network_summary(adj, extended = TRUE)
+
+# All metrics
+network_summary(adj, detailed = TRUE, extended = TRUE)
 
 # From igraph object
 if (requireNamespace("igraph", quietly = TRUE)) {

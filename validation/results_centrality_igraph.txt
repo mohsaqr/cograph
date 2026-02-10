@@ -1,0 +1,54 @@
+CENTRALITY VALIDATION REPORT
+============================
+
+Timestamp: 2026-02-10 23:23:32 
+Tests: 100 
+Seed: 42 
+Tolerance: 1e-10 
+R version: R version 4.5.1 (2025-06-13) 
+igraph version: 2.2.1 
+cograph version: 1.5.2 
+
+SUMMARY BY MEASURE
+------------------
+               measure passed failed     max_diff total pass_rate
+             authority    100      0 5.273559e-15   100    100.0%
+           betweenness    100      0 0.000000e+00   100    100.0%
+    betweenness_cutoff    100      0 0.000000e+00   100    100.0%
+         closeness_all    100      0 0.000000e+00   100    100.0%
+    closeness_all_norm    100      0 0.000000e+00   100    100.0%
+      closeness_cutoff    100      0 0.000000e+00   100    100.0%
+          closeness_in     45      0 0.000000e+00    45    100.0%
+     closeness_in_norm     45      0 0.000000e+00    45    100.0%
+         closeness_out     45      0 0.000000e+00    45    100.0%
+    closeness_out_norm     45      0 0.000000e+00    45    100.0%
+            constraint    100      0 0.000000e+00   100    100.0%
+          coreness_all    100      0 0.000000e+00   100    100.0%
+           coreness_in     45      0 0.000000e+00    45    100.0%
+          coreness_out     45      0 0.000000e+00    45    100.0%
+            degree_all    100      0 0.000000e+00   100    100.0%
+             degree_in     45      0 0.000000e+00    45    100.0%
+            degree_out     45      0 0.000000e+00    45    100.0%
+      eccentricity_all    100      0 0.000000e+00   100    100.0%
+       eccentricity_in     45      0 0.000000e+00    45    100.0%
+      eccentricity_out     45      0 0.000000e+00    45    100.0%
+           eigenvector    100      0 1.920762e-14   100    100.0%
+          harmonic_all    100      0 0.000000e+00   100    100.0%
+           harmonic_in     45      0 0.000000e+00    45    100.0%
+          harmonic_out     45      0 0.000000e+00    45    100.0%
+                   hub    100      0 2.009504e-14   100    100.0%
+              pagerank    100      0 0.000000e+00   100    100.0%
+      pagerank_damping    100      0 0.000000e+00   100    100.0%
+ pagerank_personalized    100      0 0.000000e+00   100    100.0%
+          strength_all    100      0 0.000000e+00   100    100.0%
+           strength_in     45      0 0.000000e+00    45    100.0%
+          strength_out     45      0 0.000000e+00    45    100.0%
+   transitivity_global    100      0 0.000000e+00   100    100.0%
+    transitivity_local    100      0 0.000000e+00   100    100.0%
+
+
+OVERALL RESULTS
+---------------
+Total tests: 2530
+Passed: 2530 (100.00%)
+Failed: 0 (0.00%)

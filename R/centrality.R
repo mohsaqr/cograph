@@ -8,10 +8,12 @@
 #'   available measures. Can be a character vector of measure names:
 #'   "degree", "strength", "betweenness", "closeness", "eigenvector",
 #'   "pagerank", "authority", "hub", "eccentricity", "coreness",
-#'   "constraint", "transitivity".
+#'   "constraint", "transitivity", "harmonic", "diffusion", "leverage",
+#'   "kreach", "resilience".
 #' @param mode For directed networks: "all", "in", or "out". Affects degree,
-#'   strength, closeness, eccentricity, and coreness.
+#'   strength, closeness, eccentricity, coreness, and harmonic centrality.
 #' @param normalized Logical. Normalize values to 0-1 range by dividing by max.
+#'   For closeness, this is passed directly to igraph (proper normalization).
 #' @param weighted Logical. Use edge weights if available. Default TRUE.
 #' @param directed Logical or NULL. If NULL (default), auto-detect from matrix
 #'   symmetry. Set TRUE to force directed, FALSE to force undirected.
@@ -24,6 +26,18 @@
 #'   decimal places. Default NULL (no rounding).
 #' @param sort_by Character or NULL. Column name to sort results by
 #'   (descending order). Default NULL (original node order).
+#' @param cutoff Maximum path length to consider for betweenness and closeness.
+#'   Default -1 (no limit). Set to a positive value for faster computation
+#'   on large networks at the cost of accuracy.
+#' @param damping PageRank damping factor. Default 0.85. Must be between 0 and 1.
+#' @param personalized Named numeric vector for personalized PageRank.
+#'   Default NULL (standard PageRank). Values should sum to 1.
+#' @param transitivity_type Type of transitivity to calculate: "local" (default),
+#'   "global", "undirected", "localundirected", "barrat" (weighted), or "weighted".
+#' @param isolates How to handle isolate nodes in transitivity calculation:
+#'   "nan" (default) returns NaN, "zero" returns 0.
+#' @param lambda Diffusion scaling factor for diffusion centrality. Default 1.
+#' @param k Path length parameter for geodesic k-path centrality. Default 3.
 #' @param ... Additional arguments (currently unused)
 #'
 #' @return A data frame with columns:
@@ -41,13 +55,23 @@
 #'   \item{betweenness}{Shortest path centrality}
 #'   \item{closeness}{Inverse distance centrality (supports mode: in/out/all)}
 #'   \item{eigenvector}{Influence-based centrality}
-#'   \item{pagerank}{Random walk centrality}
+#'   \item{pagerank}{Random walk centrality (supports damping and personalization)}
 #'   \item{authority}{HITS authority score}
 #'   \item{hub}{HITS hub score}
 #'   \item{eccentricity}{Maximum distance to other nodes (supports mode)}
 #'   \item{coreness}{K-core membership (supports mode: in/out/all)}
 #'   \item{constraint}{Burt's constraint (structural holes)}
-#'   \item{transitivity}{Local clustering coefficient}
+#'   \item{transitivity}{Local clustering coefficient (supports multiple types)}
+#'   \item{harmonic}{Harmonic centrality - handles disconnected graphs better
+#'     than closeness (supports mode: in/out/all)}
+#'   \item{diffusion}{Diffusion degree centrality - sum of scaled degrees of
+#'     node and its neighbors (supports mode: in/out/all, lambda scaling)}
+#'   \item{leverage}{Leverage centrality - measures influence over neighbors
+#'     based on relative degree differences (supports mode: in/out/all)}
+#'   \item{kreach}{Geodesic k-path centrality - count of nodes reachable
+#'     within distance k (supports mode: in/out/all, k parameter)}
+#'   \item{resilience}{Resilience centrality - minimum number of nodes that
+#'     must be removed to disconnect this node from the network}
 #' }
 #'
 #' @export
@@ -65,34 +89,58 @@
 #'
 #' # Sort by pagerank
 #' centrality(adj, sort_by = "pagerank", digits = 3)
+#'
+#' # PageRank with custom damping
+#' centrality(adj, measures = "pagerank", damping = 0.9)
+#'
+#' # Harmonic centrality (better for disconnected graphs)
+#' centrality(adj, measures = "harmonic")
+#'
+#' # Global transitivity
+#' centrality(adj, measures = "transitivity", transitivity_type = "global")
 centrality <- function(x, measures = "all", mode = "all",
                        normalized = FALSE, weighted = TRUE,
                        directed = NULL, loops = TRUE, simplify = "sum",
-                       digits = NULL, sort_by = NULL, ...) {
+                       digits = NULL, sort_by = NULL,
+                       cutoff = -1, damping = 0.85, personalized = NULL,
+                       transitivity_type = "local", isolates = "nan",
+                       lambda = 1, k = 3, ...) {
 
   # Validate mode
-
   mode <- match.arg(mode, c("all", "in", "out"))
+
+  # Validate new parameters
+  transitivity_type <- match.arg(
+    transitivity_type,
+    c("local", "global", "undirected", "localundirected", "barrat", "weighted")
+  )
+  isolates <- match.arg(isolates, c("nan", "zero"))
+
+  if (damping < 0 || damping > 1) {
+    stop("damping must be between 0 and 1", call. = FALSE)
+  }
 
   # Convert input to igraph (pass directed for override)
   g <- to_igraph(x, directed = directed)
 
- # Handle loops (remove if loops = FALSE)
-  if (!loops) {
+  # Handle loops (remove if loops = FALSE)
+  if (!loops && igraph::any_loop(g)) {
     g <- igraph::simplify(g, remove.multiple = FALSE, remove.loops = TRUE)
   }
 
-  # Handle multiple edges
-  if (!isFALSE(simplify) && !identical(simplify, "none")) {
+  # Handle multiple edges (only call simplify if there are actual multiples)
+  if (!isFALSE(simplify) && !identical(simplify, "none") && igraph::any_multiple(g)) {
     simplify <- match.arg(simplify, c("sum", "mean", "max", "min"))
     g <- igraph::simplify(g, remove.multiple = TRUE, remove.loops = FALSE,
                           edge.attr.comb = list(weight = simplify, "ignore"))
   }
 
   # Define which measures support mode parameter
-  mode_measures <- c("degree", "strength", "closeness", "eccentricity", "coreness")
+  mode_measures <- c("degree", "strength", "closeness", "eccentricity",
+                     "coreness", "harmonic", "diffusion", "leverage", "kreach")
   no_mode_measures <- c("betweenness", "eigenvector", "pagerank",
-                        "authority", "hub", "constraint", "transitivity")
+                        "authority", "hub", "constraint", "transitivity",
+                        "resilience")
   all_measures <- c(mode_measures, no_mode_measures)
 
   # Resolve measures
@@ -121,12 +169,23 @@ centrality <- function(x, measures = "all", mode = "all",
     NULL
   }
 
+  # Pre-calculate HITS scores if needed (avoid computing twice)
+  hits_result <- NULL
+  if (any(c("authority", "hub") %in% measures)) {
+    hits_result <- igraph::hits_scores(g, weights = weights)
+  }
+
   for (m in measures) {
     # Calculate value
-    value <- calculate_measure(g, m, mode, weights)
+    value <- calculate_measure(
+      g, m, mode, weights, normalized,
+      cutoff = cutoff, damping = damping, personalized = personalized,
+      transitivity_type = transitivity_type, isolates = isolates,
+      hits_result = hits_result, lambda = lambda, k = k
+    )
 
-    # Normalize if requested
-    if (normalized) {
+    # Normalize if requested (except for closeness which is handled by igraph)
+    if (normalized && m != "closeness") {
       max_val <- max(value, na.rm = TRUE)
       if (!is.na(max_val) && max_val > 0) {
         value <- value / max_val
@@ -158,9 +217,224 @@ centrality <- function(x, measures = "all", mode = "all",
   df
 }
 
+#' Calculate diffusion centrality (vectorized)
+#'
+#' Fast vectorized implementation of diffusion degree centrality.
+#' For each node, sums the scaled degrees of itself and its neighbors.
+#'
+#' @param g igraph object
+#' @param mode "all", "in", or "out" for directed graphs
+#' @param lambda Scaling factor applied to degrees. Default 1.
+#' @return Numeric vector of diffusion centrality values
+#' @noRd
+calculate_diffusion <- function(g, mode = "all", lambda = 1) {
+  n <- igraph::vcount(g)
+  if (n == 0) return(numeric(0))
+
+ # Get scaled degrees
+  d <- igraph::degree(g, mode = mode) * lambda
+
+  # Get adjacency matrix (sparse for efficiency)
+  adj <- igraph::as_adjacency_matrix(g, sparse = TRUE)
+
+  # Calculate neighbor sum based on mode
+  # neighborhood() with order=1 includes the node itself plus neighbors
+  # For mode="out": neighbors are nodes this node points TO
+  # For mode="in": neighbors are nodes that point TO this node
+  # For mode="all": all neighbors (both directions)
+
+  if (igraph::is_directed(g)) {
+    if (mode == "out") {
+      # Out-neighbors: nodes I point to (row i, columns with 1s)
+      neighbor_sum <- as.numeric(adj %*% d)
+    } else if (mode == "in") {
+      # In-neighbors: nodes that point to me (column i, rows with 1s)
+      neighbor_sum <- as.numeric(Matrix::t(adj) %*% d)
+    } else {
+      # All neighbors: combine both directions
+      # Use logical OR to avoid double-counting mutual edges
+      adj_undirected <- adj | Matrix::t(adj)
+      neighbor_sum <- as.numeric(adj_undirected %*% d)
+    }
+  } else {
+    # Undirected: adjacency matrix is symmetric
+    neighbor_sum <- as.numeric(adj %*% d)
+  }
+
+  # Result is own degree + sum of neighbor degrees
+  d + neighbor_sum
+}
+
+#' Calculate leverage centrality (vectorized)
+#'
+#' Fast vectorized implementation of leverage centrality.
+#' Measures how much a node influences its neighbors based on relative degrees.
+#' Formula: l_i = (1/k_i) * sum_j((k_i - k_j) / (k_i + k_j)) for neighbors j
+#'
+#' @param g igraph object
+#' @param mode "all", "in", or "out" for directed graphs
+#' @param loops Logical; whether to count loop edges
+#' @return Numeric vector of leverage centrality values
+#' @noRd
+calculate_leverage <- function(g, mode = "all", loops = TRUE) {
+  n <- igraph::vcount(g)
+  if (n == 0) return(numeric(0))
+
+  # Get degrees
+  k <- igraph::degree(g, mode = mode, loops = loops)
+
+  # Get adjacency matrix
+  adj <- igraph::as_adjacency_matrix(g, sparse = TRUE)
+
+  # For directed graphs with specific mode, use appropriate adjacency
+  if (igraph::is_directed(g)) {
+    if (mode == "in") {
+      adj <- Matrix::t(adj)
+    } else if (mode == "all") {
+      adj <- adj | Matrix::t(adj)
+    }
+  }
+
+  # Vectorized calculation
+  # For each node i, we need: mean over neighbors j of (k_i - k_j)/(k_i + k_j)
+  # Using matrix operations:
+  # - k_i - k_j for all pairs: outer subtraction
+  # - k_i + k_j for all pairs: outer addition
+  # - Select only neighbors using adjacency matrix
+
+  result <- numeric(n)
+
+  for (i in seq_len(n)) {
+    if (k[i] == 0) {
+      result[i] <- NaN
+      next
+    }
+
+    # Get neighbor indices
+    neighbors_i <- which(adj[i, ] != 0)
+
+    if (length(neighbors_i) == 0) {
+      result[i] <- NaN
+      next
+    }
+
+    k_neighbors <- k[neighbors_i]
+
+    # Calculate leverage: mean of (k_i - k_j) / (k_i + k_j)
+    numerator <- k[i] - k_neighbors
+    denominator <- k[i] + k_neighbors
+
+    # Handle division by zero (when k_i = k_j = 0)
+    ratios <- ifelse(denominator == 0, 0, numerator / denominator)
+    result[i] <- mean(ratios)
+  }
+
+  result
+}
+
+#' Calculate geodesic k-path centrality (vectorized)
+#'
+#' Fast vectorized implementation of geodesic k-path centrality.
+#' Counts neighbors that are on a geodesic path less than or equal to k away.
+#'
+#' @param g igraph object
+#' @param mode "all", "in", or "out" for directed graphs
+#' @param weights Edge weights (NULL for unweighted)
+#' @param k Maximum path length. Default 3.
+#' @return Numeric vector of kreach centrality values
+#' @noRd
+calculate_kreach <- function(g, mode = "all", weights = NULL, k = 3) {
+  n <- igraph::vcount(g)
+  if (n == 0) return(numeric(0))
+
+  if (k <= 0) {
+    stop("The k parameter must be greater than 0.", call. = FALSE)
+  }
+
+  # Get shortest path matrix
+  sp <- igraph::distances(g, mode = mode, weights = weights)
+
+  # Count nodes within distance k (excluding self)
+  # rowSums counts how many entries are <= k, subtract 1 for self
+  as.integer(rowSums(sp <= k, na.rm = TRUE) - 1)
+}
+
+#' Calculate resilience centrality
+#'
+#' Measures how many nodes must be removed before a node becomes disconnected
+#' from the rest of the network. This is based on vertex-disjoint paths.
+#' Higher values = more resilient/robust nodes (harder to isolate).
+#'
+#' For each node, this calculates the minimum number of OTHER nodes that need
+#' to be removed to disconnect it from at least one other node it was
+#' previously connected to.
+#'
+#' @param g igraph object
+#' @return Numeric vector of resilience centrality values
+#' @noRd
+calculate_resilience <- function(g) {
+  n <- igraph::vcount(g)
+  if (n == 0) return(numeric(0))
+  if (n == 1) return(0L)
+
+  # For each node, find its minimum vertex connectivity to any neighbor
+  # This represents how many nodes must be removed to cut at least one connection
+  result <- integer(n)
+
+  for (v in seq_len(n)) {
+    # Get neighbors of v
+    neighbors_v <- as.integer(igraph::neighbors(g, v, mode = "all"))
+
+    if (length(neighbors_v) == 0) {
+      # Already isolated
+      result[v] <- 0L
+      next
+    }
+
+    # For each neighbor, count vertex-disjoint paths (excluding direct edge)
+    # The resilience is the minimum across all neighbors
+    min_resilience <- Inf
+
+    for (u in neighbors_v) {
+      # Count vertex-disjoint paths from v to u
+      # This equals the vertex connectivity between them
+      # vertex_connectivity counts internal vertices on disjoint paths
+
+      # For adjacent nodes, we want paths that don't use the direct edge
+      # Remove the edge temporarily and check connectivity
+      edge_id <- igraph::get.edge.ids(g, c(v, u))
+
+      if (length(edge_id) > 0 && edge_id[1] > 0) {
+        # Remove direct edge and count alternative paths
+        g_temp <- igraph::delete_edges(g, edge_id[1])
+        conn <- tryCatch({
+          # Count vertex-disjoint paths in graph without direct edge
+          igraph::vertex_connectivity(g_temp, source = v, target = u)
+        }, error = function(e) {
+          0L
+        })
+      } else {
+        conn <- 0L
+      }
+
+      min_resilience <- min(min_resilience, conn)
+    }
+
+    # Add 1 because the direct edge also counts as a path
+    # Actually, resilience = number of vertex-disjoint paths - 1
+    # (removing that many internal nodes breaks all but one path)
+    result[v] <- as.integer(min_resilience)
+  }
+
+  result
+}
+
 #' Calculate a single centrality measure
 #' @noRd
-calculate_measure <- function(g, measure, mode, weights) {
+calculate_measure <- function(g, measure, mode, weights, normalized,
+                              cutoff, damping, personalized,
+                              transitivity_type, isolates,
+                              hits_result = NULL, lambda = 1, k = 3) {
   directed <- igraph::is_directed(g)
 
   value <- switch(measure,
@@ -168,25 +442,35 @@ calculate_measure <- function(g, measure, mode, weights) {
     "degree" = igraph::degree(g, mode = mode),
     "strength" = igraph::strength(g, mode = mode, weights = weights),
     "closeness" = igraph::closeness(
-      g, mode = mode, weights = weights, normalized = FALSE
+      g, mode = mode, weights = weights, normalized = normalized, cutoff = cutoff
     ),
     "eccentricity" = igraph::eccentricity(g, mode = mode),
     "coreness" = igraph::coreness(g, mode = mode),
+    "harmonic" = igraph::harmonic_centrality(
+      g, mode = mode, weights = weights, normalized = normalized, cutoff = cutoff
+    ),
+    "diffusion" = calculate_diffusion(g, mode = mode, lambda = lambda),
+    "leverage" = calculate_leverage(g, mode = mode),
+    "kreach" = calculate_kreach(g, mode = mode, weights = weights, k = k),
 
     # Measures without mode
+    "resilience" = calculate_resilience(g),
     "betweenness" = igraph::betweenness(
-      g, weights = weights, directed = directed
+      g, weights = weights, directed = directed, cutoff = cutoff
     ),
     "eigenvector" = igraph::eigen_centrality(
       g, weights = weights, directed = directed
     )$vector,
     "pagerank" = igraph::page_rank(
-      g, weights = weights, directed = directed
+      g, weights = weights, directed = directed,
+      damping = damping, personalized = personalized
     )$vector,
-    "authority" = igraph::hits_scores(g, weights = weights)$authority,
-    "hub" = igraph::hits_scores(g, weights = weights)$hub,
+    "authority" = hits_result$authority,
+    "hub" = hits_result$hub,
     "constraint" = igraph::constraint(g, weights = weights),
-    "transitivity" = igraph::transitivity(g, type = "local"),
+    "transitivity" = igraph::transitivity(
+      g, type = transitivity_type, isolates = isolates
+    ),
 
     stop("Unknown measure: ", measure, call. = FALSE)
   )
@@ -235,8 +519,9 @@ centrality_eigenvector <- function(x, ...) {
 
 #' @rdname centrality
 #' @export
-centrality_pagerank <- function(x, ...) {
-  df <- centrality(x, measures = "pagerank", ...)
+centrality_pagerank <- function(x, damping = 0.85, personalized = NULL, ...) {
+  df <- centrality(x, measures = "pagerank",
+                   damping = damping, personalized = personalized, ...)
   stats::setNames(df$pagerank, df$node)
 }
 
@@ -279,7 +564,48 @@ centrality_constraint <- function(x, ...) {
 
 #' @rdname centrality
 #' @export
-centrality_transitivity <- function(x, ...) {
-  df <- centrality(x, measures = "transitivity", ...)
+centrality_transitivity <- function(x, transitivity_type = "local",
+                                    isolates = "nan", ...) {
+  df <- centrality(x, measures = "transitivity",
+                   transitivity_type = transitivity_type, isolates = isolates, ...)
   stats::setNames(df$transitivity, df$node)
+}
+
+#' @rdname centrality
+#' @export
+centrality_harmonic <- function(x, mode = "all", ...) {
+  df <- centrality(x, measures = "harmonic", mode = mode, ...)
+  col <- paste0("harmonic_", mode)
+  stats::setNames(df[[col]], df$node)
+}
+
+#' @rdname centrality
+#' @export
+centrality_diffusion <- function(x, mode = "all", lambda = 1, ...) {
+  df <- centrality(x, measures = "diffusion", mode = mode, lambda = lambda, ...)
+  col <- paste0("diffusion_", mode)
+  stats::setNames(df[[col]], df$node)
+}
+
+#' @rdname centrality
+#' @export
+centrality_leverage <- function(x, mode = "all", ...) {
+  df <- centrality(x, measures = "leverage", mode = mode, ...)
+  col <- paste0("leverage_", mode)
+  stats::setNames(df[[col]], df$node)
+}
+
+#' @rdname centrality
+#' @export
+centrality_kreach <- function(x, mode = "all", k = 3, ...) {
+  df <- centrality(x, measures = "kreach", mode = mode, k = k, ...)
+  col <- paste0("kreach_", mode)
+  stats::setNames(df[[col]], df$node)
+}
+
+#' @rdname centrality
+#' @export
+centrality_resilience <- function(x, ...) {
+  df <- centrality(x, measures = "resilience", ...)
+  stats::setNames(df$resilience, df$node)
 }

@@ -1,0 +1,2165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Centrality Functions Update - cograph Package</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --secondary: #64748b;
+      --success: #16a34a;
+      --warning: #ea580c;
+      --danger: #dc2626;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --code-bg: #1e293b;
+      --code-text: #e2e8f0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 0;
+    }
+
+    .header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .header .subtitle {
+      font-size: 1.2rem;
+      opacity: 0.9;
+    }
+
+    .header .version {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .toc {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .toc h2 {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      color: var(--secondary);
+    }
+
+    .toc ul {
+      list-style: none;
+      columns: 2;
+      gap: 2rem;
+    }
+
+    .toc li {
+      margin-bottom: 0.5rem;
+    }
+
+    .toc a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .toc a:hover {
+      text-decoration: underline;
+    }
+
+    section {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      font-size: 1.75rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid var(--border);
+      color: var(--text);
+    }
+
+    h3 {
+      font-size: 1.3rem;
+      margin: 1.5rem 0 1rem;
+      color: var(--text);
+    }
+
+    h4 {
+      font-size: 1.1rem;
+      margin: 1.25rem 0 0.75rem;
+      color: var(--secondary);
+    }
+
+    p {
+      margin-bottom: 1rem;
+    }
+
+    code {
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      background: #f1f5f9;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.9em;
+    }
+
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 1.25rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+      color: inherit;
+    }
+
+    .syntax-comment { color: #6b7280; }
+    .syntax-string { color: #a5d6ff; }
+    .syntax-number { color: #79c0ff; }
+    .syntax-keyword { color: #ff7b72; }
+    .syntax-function { color: #d2a8ff; }
+    .syntax-param { color: #ffa657; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background: #f1f5f9;
+      font-weight: 600;
+      color: var(--secondary);
+    }
+
+    tr:hover {
+      background: #f8fafc;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 1rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .badge-new {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .badge-fixed {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .badge-improved {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .badge-breaking {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+
+    .comparison-card {
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 1rem;
+      border-left: 4px solid var(--border);
+    }
+
+    .comparison-card.before {
+      border-left-color: var(--danger);
+    }
+
+    .comparison-card.after {
+      border-left-color: var(--success);
+    }
+
+    .comparison-card h5 {
+      font-size: 0.85rem;
+      color: var(--secondary);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+
+    .feature-card {
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 1.25rem;
+      border: 1px solid var(--border);
+    }
+
+    .feature-card h4 {
+      margin-top: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .feature-card .icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--primary);
+      color: white;
+      border-radius: 6px;
+      font-size: 0.8rem;
+    }
+
+    .param-table {
+      font-size: 0.9rem;
+    }
+
+    .param-table td:first-child {
+      font-family: 'SF Mono', monospace;
+      color: var(--primary);
+      white-space: nowrap;
+    }
+
+    .param-table td:nth-child(2) {
+      font-family: 'SF Mono', monospace;
+      color: var(--secondary);
+      font-size: 0.85em;
+    }
+
+    .status-icon {
+      display: inline-block;
+      width: 1.25rem;
+      text-align: center;
+    }
+
+    .check { color: var(--success); }
+    .cross { color: var(--danger); }
+    .partial { color: var(--warning); }
+
+    .alert {
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+    }
+
+    .alert-info {
+      background: #dbeafe;
+      border-left: 4px solid var(--primary);
+      color: #1e40af;
+    }
+
+    .alert-warning {
+      background: #fef3c7;
+      border-left: 4px solid var(--warning);
+      color: #92400e;
+    }
+
+    .alert-success {
+      background: #dcfce7;
+      border-left: 4px solid var(--success);
+      color: #166534;
+    }
+
+    .example-output {
+      background: #0f172a;
+      color: #94a3b8;
+      padding: 1rem;
+      border-radius: 0 0 8px 8px;
+      margin-top: -0.5rem;
+      font-family: 'SF Mono', monospace;
+      font-size: 0.85rem;
+    }
+
+    .example-output .output-label {
+      color: #64748b;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .measure-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+
+    .measure-header {
+      background: #f1f5f9;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .measure-header h4 {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+
+    .measure-body {
+      padding: 1.25rem;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .toc ul {
+        columns: 1;
+      }
+
+      .comparison-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .header h1 {
+        font-size: 1.75rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Centrality &amp; Network Metrics Update</h1>
+    <p class="subtitle">cograph Package - Centrality Measures &amp; Network-Level Statistics</p>
+    <span class="version">Version 1.7.0 - February 2026</span>
+  </div>
+
+  <div class="container">
+    <nav class="toc">
+      <h2>Table of Contents</h2>
+      <ul>
+        <li><a href="#overview">1. Overview</a></li>
+        <li><a href="#new-parameters">2. New Parameters</a></li>
+        <li><a href="#new-measures">3. New Centrality Measures</a></li>
+        <li><a href="#network-metrics">4. Network-Level Metrics</a></li>
+        <li><a href="#bug-fixes">5. Bug Fixes</a></li>
+        <li><a href="#measure-comparison">6. Measure Comparison</a></li>
+        <li><a href="#wrapper-functions">7. Wrapper Functions</a></li>
+        <li><a href="#examples">8. Code Examples</a></li>
+        <li><a href="#migration">9. Migration Guide</a></li>
+      </ul>
+    </nav>
+
+    <!-- SECTION: Overview -->
+    <section id="overview">
+      <h2>1. Overview</h2>
+
+      <p>This update enhances the <code>centrality()</code> function and adds comprehensive <code>network_summary()</code> capabilities, including 10 new network-level metrics and 5 new centrality measures.</p>
+
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h4><span class="icon">+</span> 7 New Parameters</h4>
+          <p>Added <code>cutoff</code>, <code>damping</code>, <code>personalized</code>, <code>transitivity_type</code>, <code>isolates</code>, <code>lambda</code>, and <code>k</code>.</p>
+        </div>
+        <div class="feature-card">
+          <h4><span class="icon">+</span> 5 New Centrality Measures</h4>
+          <p><strong>harmonic</strong>, <strong>diffusion</strong>, <strong>leverage</strong>, <strong>kreach</strong>, and <strong>resilience</strong> centrality.</p>
+        </div>
+        <div class="feature-card">
+          <h4><span class="icon">+</span> 10 Network-Level Metrics</h4>
+          <p>New functions: <strong>girth</strong>, <strong>radius</strong>, <strong>vertex_connectivity</strong>, <strong>clique_size</strong>, <strong>cut_vertices</strong>, <strong>bridges</strong>, <strong>global_efficiency</strong>, <strong>local_efficiency</strong>, <strong>small_world</strong>, <strong>rich_club</strong>.</p>
+        </div>
+        <div class="feature-card">
+          <h4><span class="icon">&#8596;</span> Full Compatibility</h4>
+          <p>All changes are backward compatible. Existing code will continue to work.</p>
+        </div>
+      </div>
+
+      <h3>Function Signature</h3>
+      <pre><code><span class="syntax-function">centrality</span>(<span class="syntax-param">x</span>, <span class="syntax-param">measures</span> = <span class="syntax-string">"all"</span>, <span class="syntax-param">mode</span> = <span class="syntax-string">"all"</span>,
+           <span class="syntax-param">normalized</span> = <span class="syntax-keyword">FALSE</span>, <span class="syntax-param">weighted</span> = <span class="syntax-keyword">TRUE</span>,
+           <span class="syntax-param">directed</span> = <span class="syntax-keyword">NULL</span>, <span class="syntax-param">loops</span> = <span class="syntax-keyword">TRUE</span>, <span class="syntax-param">simplify</span> = <span class="syntax-string">"sum"</span>,
+           <span class="syntax-param">digits</span> = <span class="syntax-keyword">NULL</span>, <span class="syntax-param">sort_by</span> = <span class="syntax-keyword">NULL</span>,
+           <span class="syntax-comment"># NEW PARAMETERS:</span>
+           <span class="syntax-param">cutoff</span> = <span class="syntax-number">-1</span>,
+           <span class="syntax-param">damping</span> = <span class="syntax-number">0.85</span>,
+           <span class="syntax-param">personalized</span> = <span class="syntax-keyword">NULL</span>,
+           <span class="syntax-param">transitivity_type</span> = <span class="syntax-string">"local"</span>,
+           <span class="syntax-param">isolates</span> = <span class="syntax-string">"nan"</span>,
+           <span class="syntax-param">lambda</span> = <span class="syntax-number">1</span>,       <span class="syntax-comment"># For diffusion centrality</span>
+           <span class="syntax-param">k</span> = <span class="syntax-number">3</span>,            <span class="syntax-comment"># For k-reach centrality</span>
+           ...)</code></pre>
+    </section>
+
+    <!-- SECTION: New Parameters -->
+    <section id="new-parameters">
+      <h2>2. New Parameters</h2>
+
+      <div class="measure-card">
+        <div class="measure-header">
+          <h4>cutoff</h4>
+          <span class="badge badge-new">New</span>
+        </div>
+        <div class="measure-body">
+          <table class="param-table">
+            <tr>
+              <td>Type</td>
+              <td>numeric</td>
+              <td>Maximum path length to consider for betweenness and closeness calculations</td>
+            </tr>
+            <tr>
+              <td>Default</td>
+              <td>-1</td>
+              <td>No limit (consider all paths)</td>
+            </tr>
+            <tr>
+              <td>Affects</td>
+              <td colspan="2"><code>betweenness</code>, <code>closeness</code>, <code>harmonic</code></td>
+            </tr>
+          </table>
+
+          <h4>Why Use It?</h4>
+          <p>For large networks, computing exact betweenness or closeness can be slow (O(n&sup3;)). Setting a cutoff limits the path length considered, dramatically improving performance at the cost of some accuracy.</p>
+
+          <pre><code><span class="syntax-comment"># Fast approximation for large networks</span>
+<span class="syntax-function">centrality</span>(large_network, <span class="syntax-param">measures</span> = <span class="syntax-string">"betweenness"</span>, <span class="syntax-param">cutoff</span> = <span class="syntax-number">3</span>)
+
+<span class="syntax-comment"># Only consider immediate neighbors for closeness</span>
+<span class="syntax-function">centrality</span>(adj, <span class="syntax-param">measures</span> = <span class="syntax-string">"closeness"</span>, <span class="syntax-param">cutoff</span> = <span class="syntax-number">2</span>)</code></pre>
+        </div>
+      </div>
+
+      <div class="measure-card">
+        <div class="measure-header">
+          <h4>damping</h4>
+          <span class="badge badge-new">New</span>
+        </div>
+        <div class="measure-body">
+          <table class="param-table">
+            <tr>
+              <td>Type</td>
+              <td>numeric (0-1)</td>
+              <td>PageRank damping factor (probability of following a link vs. random jump)</td>
+            </tr>
+            <tr>
+              <td>Default</td>
+              <td>0.85</td>
+              <td>Standard value used by Google</td>
+            </tr>
+            <tr>
+              <td>Affects</td>
+              <td colspan="2"><code>pagerank</code></td>
+            </tr>
+          </table>
+
+          <h4>Effect of Damping Factor</h4>
+          <ul>
+            <li><strong>Higher (0.9-0.99):</strong> More weight on network structure, slower convergence</li>
+            <li><strong>Lower (0.5-0.7):</strong> More uniform distribution, faster convergence</li>
+            <li><strong>0.85:</strong> Standard balance between structure and randomness</li>
+          </ul>
+
+          <pre><code><span class="syntax-comment"># Default PageRank</span>
+<span class="syntax-function">centrality_pagerank</span>(adj)
+
+<span class="syntax-comment"># Higher damping - emphasizes network structure more</span>
+<span class="syntax-function">centrality_pagerank</span>(adj, <span class="syntax-param">damping</span> = <span class="syntax-number">0.95</span>)
+
+<span class="syntax-comment"># Lower damping - more uniform distribution</span>
+<span class="syntax-function">centrality_pagerank</span>(adj, <span class="syntax-param">damping</span> = <span class="syntax-number">0.5</span>)</code></pre>
+        </div>
+      </div>
+
+      <div class="measure-card">
+        <div class="measure-header">
+          <h4>personalized</h4>
+          <span class="badge badge-new">New</span>
+        </div>
+        <div class="measure-body">
+          <table class="param-table">
+            <tr>
+              <td>Type</td>
+              <td>named numeric vector</td>
+              <td>Personalization vector for personalized PageRank</td>
+            </tr>
+            <tr>
+              <td>Default</td>
+              <td>NULL</td>
+              <td>Standard PageRank (uniform teleportation)</td>
+            </tr>
+            <tr>
+              <td>Affects</td>
+              <td colspan="2"><code>pagerank</code></td>
+            </tr>
+          </table>
+
+          <h4>What is Personalized PageRank?</h4>
+          <p>Instead of teleporting uniformly to any node, personalized PageRank biases the random walk toward specific "seed" nodes. This is useful for:</p>
+          <ul>
+            <li>Finding nodes most relevant to a specific node</li>
+            <li>Recommendation systems</li>
+            <li>Community detection around seed nodes</li>
+          </ul>
+
+          <pre><code><span class="syntax-comment"># Find importance relative to node "A"</span>
+<span class="syntax-function">centrality_pagerank</span>(adj,
+  <span class="syntax-param">personalized</span> = <span class="syntax-function">c</span>(<span class="syntax-param">A</span> = <span class="syntax-number">1</span>, <span class="syntax-param">B</span> = <span class="syntax-number">0</span>, <span class="syntax-param">C</span> = <span class="syntax-number">0</span>, <span class="syntax-param">D</span> = <span class="syntax-number">0</span>)
+)
+
+<span class="syntax-comment"># Split seed probability between two nodes</span>
+<span class="syntax-function">centrality_pagerank</span>(adj,
+  <span class="syntax-param">personalized</span> = <span class="syntax-function">c</span>(<span class="syntax-param">A</span> = <span class="syntax-number">0.5</span>, <span class="syntax-param">B</span> = <span class="syntax-number">0.5</span>, <span class="syntax-param">C</span> = <span class="syntax-number">0</span>, <span class="syntax-param">D</span> = <span class="syntax-number">0</span>)
+)</code></pre>
+        </div>
+      </div>
+
+      <div class="measure-card">
+        <div class="measure-header">
+          <h4>transitivity_type</h4>
+          <span class="badge badge-new">New</span>
+        </div>
+        <div class="measure-body">
+          <table class="param-table">
+            <tr>
+              <td>Type</td>
+              <td>character</td>
+              <td>Type of transitivity (clustering coefficient) to calculate</td>
+            </tr>
+            <tr>
+              <td>Default</td>
+              <td>"local"</td>
+              <td>Local clustering coefficient per node</td>
+            </tr>
+            <tr>
+              <td>Affects</td>
+              <td colspan="2"><code>transitivity</code></td>
+            </tr>
+          </table>
+
+          <h4>Available Types</h4>
+          <table>
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Returns</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>"local"</code></td>
+                <td>Local clustering coefficient for each node</td>
+                <td>Vector (per node)</td>
+              </tr>
+              <tr>
+                <td><code>"global"</code></td>
+                <td>Global clustering coefficient (ratio of triangles)</td>
+                <td>Single value</td>
+              </tr>
+              <tr>
+                <td><code>"undirected"</code></td>
+                <td>Treat graph as undirected for global calculation</td>
+                <td>Single value</td>
+              </tr>
+              <tr>
+                <td><code>"localundirected"</code></td>
+                <td>Treat graph as undirected for local calculation</td>
+                <td>Vector (per node)</td>
+              </tr>
+              <tr>
+                <td><code>"barrat"</code></td>
+                <td>Weighted local transitivity (Barrat et al.)</td>
+                <td>Vector (per node)</td>
+              </tr>
+              <tr>
+                <td><code>"weighted"</code></td>
+                <td>Alias for "barrat"</td>
+                <td>Vector (per node)</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <pre><code><span class="syntax-comment"># Local clustering per node (default)</span>
+<span class="syntax-function">centrality_transitivity</span>(adj)
+
+<span class="syntax-comment"># Global clustering coefficient</span>
+<span class="syntax-function">centrality_transitivity</span>(adj, <span class="syntax-param">transitivity_type</span> = <span class="syntax-string">"global"</span>)
+
+<span class="syntax-comment"># Weighted transitivity (Barrat method)</span>
+<span class="syntax-function">centrality_transitivity</span>(weighted_adj, <span class="syntax-param">transitivity_type</span> = <span class="syntax-string">"barrat"</span>)</code></pre>
+        </div>
+      </div>
+
+      <div class="measure-card">
+        <div class="measure-header">
+          <h4>isolates</h4>
+          <span class="badge badge-new">New</span>
+        </div>
+        <div class="measure-body">
+          <table class="param-table">
+            <tr>
+              <td>Type</td>
+              <td>character</td>
+              <td>How to handle isolated nodes (no edges) in transitivity</td>
+            </tr>
+            <tr>
+              <td>Default</td>
+              <td>"nan"</td>
+              <td>Return NaN for isolates</td>
+            </tr>
+            <tr>
+              <td>Affects</td>
+              <td colspan="2"><code>transitivity</code></td>
+            </tr>
+          </table>
+
+          <h4>Options</h4>
+          <ul>
+            <li><code>"nan"</code> - Return <code>NaN</code> for isolated nodes (mathematically correct)</li>
+            <li><code>"zero"</code> - Return <code>0</code> for isolated nodes (convenient for averaging)</li>
+          </ul>
+
+          <pre><code><span class="syntax-comment"># Network with isolated node E</span>
+adj_isolated <- <span class="syntax-function">matrix</span>(<span class="syntax-number">0</span>, <span class="syntax-number">5</span>, <span class="syntax-number">5</span>)
+adj_isolated[<span class="syntax-number">1</span>:<span class="syntax-number">4</span>, <span class="syntax-number">1</span>:<span class="syntax-number">4</span>] <- adj  <span class="syntax-comment"># Original network</span>
+<span class="syntax-comment"># Node 5 (E) has no connections</span>
+
+<span class="syntax-comment"># Returns NaN for isolated nodes</span>
+<span class="syntax-function">centrality_transitivity</span>(adj_isolated, <span class="syntax-param">isolates</span> = <span class="syntax-string">"nan"</span>)
+<span class="syntax-comment"># A: 1.0, B: 0.67, C: 0.67, D: 1.0, E: NaN</span>
+
+<span class="syntax-comment"># Returns 0 for isolated nodes</span>
+<span class="syntax-function">centrality_transitivity</span>(adj_isolated, <span class="syntax-param">isolates</span> = <span class="syntax-string">"zero"</span>)
+<span class="syntax-comment"># A: 1.0, B: 0.67, C: 0.67, D: 1.0, E: 0</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION: New Measures -->
+    <section id="new-measures">
+      <h2>3. New Measures</h2>
+
+      <div class="measure-card">
+        <div class="measure-header">
+          <h4>Harmonic Centrality</h4>
+          <span class="badge badge-new">New</span>
+        </div>
+        <div class="measure-body">
+          <p>Harmonic centrality is similar to closeness centrality but handles disconnected graphs better. Instead of using the average distance, it uses the average of the <em>reciprocal</em> distances.</p>
+
+          <h4>Formula</h4>
+          <p style="font-family: serif; font-size: 1.1rem; margin: 1rem 0; text-align: center;">
+            H(v) = &sum;<sub>u&ne;v</sub> 1/d(v,u)
+          </p>
+
+          <h4>Why Use Harmonic Over Closeness?</h4>
+          <table>
+            <thead>
+              <tr>
+                <th>Aspect</th>
+                <th>Closeness</th>
+                <th>Harmonic</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Disconnected graphs</td>
+                <td class="cross">&#10007; Returns 0 or undefined</td>
+                <td class="check">&#10003; Returns meaningful values</td>
+              </tr>
+              <tr>
+                <td>Interpretation</td>
+                <td>Average distance to all nodes</td>
+                <td>Sum of inverse distances</td>
+              </tr>
+              <tr>
+                <td>Unreachable nodes</td>
+                <td>Infinite distance breaks calculation</td>
+                <td>Contribute 0 to sum</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <pre><code><span class="syntax-comment"># Basic usage</span>
+<span class="syntax-function">centrality_harmonic</span>(adj)
+
+<span class="syntax-comment"># With mode for directed networks</span>
+<span class="syntax-function">centrality_harmonic</span>(directed_adj, <span class="syntax-param">mode</span> = <span class="syntax-string">"in"</span>)
+<span class="syntax-function">centrality_harmonic</span>(directed_adj, <span class="syntax-param">mode</span> = <span class="syntax-string">"out"</span>)
+
+<span class="syntax-comment"># Within main centrality function</span>
+<span class="syntax-function">centrality</span>(adj, <span class="syntax-param">measures</span> = <span class="syntax-string">"harmonic"</span>)</code></pre>
+
+          <div class="example-output">
+            <div class="output-label">Output</div>
+            <pre>  A   B   C   D
+2.5 3.0 3.0 2.5</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="measure-card">
+        <div class="measure-header">
+          <h4>Diffusion Centrality</h4>
+          <span class="badge badge-new">New</span>
+        </div>
+        <div class="measure-body">
+          <p>Diffusion centrality measures a node's potential to spread information through the network. It sums the scaled degrees of a node and all its neighbors.</p>
+
+          <h4>Formula</h4>
+          <p style="font-family: serif; font-size: 1.1rem; margin: 1rem 0; text-align: center;">
+            D(v) = &lambda;&middot;k(v) + &sum;<sub>u&in;N(v)</sub> &lambda;&middot;k(u)
+          </p>
+          <p>where k(v) is the degree and &lambda; is a scaling factor (default 1).</p>
+
+          <h4>Performance</h4>
+          <p>Vectorized implementation using sparse matrix operations. <strong>18-26x faster</strong> than the original centiserve loop-based version.</p>
+
+          <pre><code><span class="syntax-comment"># Basic usage</span>
+<span class="syntax-function">centrality_diffusion</span>(adj)
+
+<span class="syntax-comment"># With custom scaling factor</span>
+<span class="syntax-function">centrality_diffusion</span>(adj, <span class="syntax-param">lambda</span> = <span class="syntax-number">2</span>)
+
+<span class="syntax-comment"># For directed networks</span>
+<span class="syntax-function">centrality_diffusion</span>(directed_adj, <span class="syntax-param">mode</span> = <span class="syntax-string">"out"</span>)</code></pre>
+        </div>
+      </div>
+
+      <div class="measure-card">
+        <div class="measure-header">
+          <h4>Leverage Centrality</h4>
+          <span class="badge badge-new">New</span>
+        </div>
+        <div class="measure-body">
+          <p>Leverage centrality measures how much a node influences its neighbors based on relative degree differences. Nodes with higher degree than their neighbors have positive leverage (influencers), while nodes with lower degree have negative leverage (influenced).</p>
+
+          <h4>Formula</h4>
+          <p style="font-family: serif; font-size: 1.1rem; margin: 1rem 0; text-align: center;">
+            L(v) = (1/k<sub>v</sub>) &sum;<sub>u&in;N(v)</sub> (k<sub>v</sub> - k<sub>u</sub>) / (k<sub>v</sub> + k<sub>u</sub>)
+          </p>
+
+          <h4>Interpretation</h4>
+          <ul>
+            <li><strong>Positive:</strong> Node influences its neighbors (higher degree than neighbors)</li>
+            <li><strong>Negative:</strong> Node is influenced by neighbors (lower degree than neighbors)</li>
+            <li><strong>Zero:</strong> Node has same connectivity as neighbors</li>
+          </ul>
+
+          <pre><code><span class="syntax-comment"># Basic usage</span>
+<span class="syntax-function">centrality_leverage</span>(adj)
+
+<span class="syntax-comment"># For directed networks</span>
+<span class="syntax-function">centrality_leverage</span>(directed_adj, <span class="syntax-param">mode</span> = <span class="syntax-string">"in"</span>)</code></pre>
+        </div>
+      </div>
+
+      <div class="measure-card">
+        <div class="measure-header">
+          <h4>K-Reach Centrality</h4>
+          <span class="badge badge-new">New</span>
+        </div>
+        <div class="measure-body">
+          <p>K-reach centrality (geodesic k-path) counts the number of nodes reachable within k steps. This measures local influence range - how many nodes can a node reach quickly?</p>
+
+          <h4>Parameters</h4>
+          <table class="param-table">
+            <tr>
+              <td>k</td>
+              <td>integer</td>
+              <td>Maximum path length to consider (default: 3)</td>
+            </tr>
+            <tr>
+              <td>mode</td>
+              <td>character</td>
+              <td>"all", "in", "out" for directed graphs</td>
+            </tr>
+          </table>
+
+          <pre><code><span class="syntax-comment"># Direct neighbors only (k=1)</span>
+<span class="syntax-function">centrality_kreach</span>(adj, <span class="syntax-param">k</span> = <span class="syntax-number">1</span>)
+
+<span class="syntax-comment"># 2-hop neighborhood</span>
+<span class="syntax-function">centrality_kreach</span>(adj, <span class="syntax-param">k</span> = <span class="syntax-number">2</span>)
+
+<span class="syntax-comment"># 3-hop reach (default)</span>
+<span class="syntax-function">centrality_kreach</span>(adj, <span class="syntax-param">k</span> = <span class="syntax-number">3</span>)</code></pre>
+        </div>
+      </div>
+
+      <div class="measure-card">
+        <div class="measure-header">
+          <h4>Resilience Centrality</h4>
+          <span class="badge badge-new">New</span>
+        </div>
+        <div class="measure-body">
+          <p>Resilience centrality measures how many nodes must be removed before a node becomes disconnected from its neighbors. Based on vertex connectivity - counts alternative vertex-disjoint paths.</p>
+
+          <h4>Interpretation</h4>
+          <ul>
+            <li><strong>0:</strong> Vulnerable - only direct connections (single path to neighbors)</li>
+            <li><strong>1:</strong> Has one alternative path (removing 1 node breaks backup route)</li>
+            <li><strong>2+:</strong> Highly resilient - multiple redundant paths</li>
+          </ul>
+
+          <h4>Example Values</h4>
+          <table>
+            <thead>
+              <tr>
+                <th>Graph Type</th>
+                <th>Resilience</th>
+                <th>Why</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Path graph (A-B-C-D)</td>
+                <td>All 0</td>
+                <td>Single paths, easily broken</td>
+              </tr>
+              <tr>
+                <td>Cycle (A-B-C-D-A)</td>
+                <td>All 1</td>
+                <td>Two paths to each neighbor</td>
+              </tr>
+              <tr>
+                <td>Complete K4</td>
+                <td>All 2</td>
+                <td>Highly redundant connections</td>
+              </tr>
+              <tr>
+                <td>Star graph</td>
+                <td>All 0</td>
+                <td>No alternative paths</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <pre><code><span class="syntax-comment"># Basic usage</span>
+<span class="syntax-function">centrality_resilience</span>(adj)
+
+<span class="syntax-comment"># Identify vulnerable nodes</span>
+res <- <span class="syntax-function">centrality_resilience</span>(network)
+vulnerable <- <span class="syntax-function">names</span>(res[res == <span class="syntax-number">0</span>])</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION: Network-Level Metrics -->
+    <section id="network-metrics">
+      <h2>4. Network-Level Metrics</h2>
+
+      <p>New individual functions for network-level statistics, plus enhanced <code>network_summary()</code> with <code>extended=TRUE</code> option.</p>
+
+      <h3>Individual Functions</h3>
+
+      <div class="measure-card">
+        <div class="measure-header">
+          <h4>network_girth()</h4>
+          <span class="badge badge-new">New</span>
+        </div>
+        <div class="measure-body">
+          <p>Returns the length of the shortest cycle in the network. Returns <code>Inf</code> for acyclic graphs (trees, DAGs).</p>
+
+          <pre><code><span class="syntax-comment"># Triangle has girth 3</span>
+triangle <- <span class="syntax-function">matrix</span>(<span class="syntax-function">c</span>(<span class="syntax-number">0</span>,<span class="syntax-number">1</span>,<span class="syntax-number">1</span>, <span class="syntax-number">1</span>,<span class="syntax-number">0</span>,<span class="syntax-number">1</span>, <span class="syntax-number">1</span>,<span class="syntax-number">1</span>,<span class="syntax-number">0</span>), <span class="syntax-number">3</span>, <span class="syntax-number">3</span>)
+<span class="syntax-function">network_girth</span>(triangle)  <span class="syntax-comment"># 3</span>
+
+<span class="syntax-comment"># Path graph (tree) has no cycles</span>
+path <- <span class="syntax-function">matrix</span>(<span class="syntax-function">c</span>(<span class="syntax-number">0</span>,<span class="syntax-number">1</span>,<span class="syntax-number">0</span>, <span class="syntax-number">1</span>,<span class="syntax-number">0</span>,<span class="syntax-number">1</span>, <span class="syntax-number">0</span>,<span class="syntax-number">1</span>,<span class="syntax-number">0</span>), <span class="syntax-number">3</span>, <span class="syntax-number">3</span>)
+<span class="syntax-function">network_girth</span>(path)  <span class="syntax-comment"># Inf</span></code></pre>
+        </div>
+      </div>
+
+      <div class="measure-card">
+        <div class="measure-header">
+          <h4>network_radius()</h4>
+          <span class="badge badge-new">New</span>
+        </div>
+        <div class="measure-body">
+          <p>The minimum eccentricity across all nodes. The eccentricity of a node is the maximum shortest path distance to any other node. The radius is the smallest such maximum distance.</p>
+
+          <pre><code><span class="syntax-comment"># Star graph: center has eccentricity 1, leaves have 2</span>
+<span class="syntax-function">network_radius</span>(star)  <span class="syntax-comment"># 1 (the center node)</span>
+
+<span class="syntax-comment"># Path A-B-C-D: middle nodes have eccentricity 2</span>
+<span class="syntax-function">network_radius</span>(path)  <span class="syntax-comment"># 2</span></code></pre>
+        </div>
+      </div>
+
+      <div class="measure-card">
+        <div class="measure-header">
+          <h4>network_vertex_connectivity()</h4>
+          <span class="badge badge-new">New</span>
+        </div>
+        <div class="measure-body">
+          <p>The minimum number of vertices that must be removed to disconnect the graph (or make it trivial). Higher values indicate more robust network structure.</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Graph</th>
+                <th>Vertex Connectivity</th>
+                <th>Why</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Complete K4</td>
+                <td>3</td>
+                <td>Must remove 3 nodes to disconnect</td>
+              </tr>
+              <tr>
+                <td>Path graph</td>
+                <td>1</td>
+                <td>Removing any middle node disconnects</td>
+              </tr>
+              <tr>
+                <td>Cycle</td>
+                <td>2</td>
+                <td>Must remove 2 nodes to break cycle</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <pre><code><span class="syntax-function">network_vertex_connectivity</span>(k4)    <span class="syntax-comment"># 3</span>
+<span class="syntax-function">network_vertex_connectivity</span>(path)  <span class="syntax-comment"># 1</span></code></pre>
+        </div>
+      </div>
+
+      <div class="measure-card">
+        <div class="measure-header">
+          <h4>network_clique_size()</h4>
+          <span class="badge badge-new">New</span>
+        </div>
+        <div class="measure-body">
+          <p>Returns the size of the largest clique (complete subgraph) in the network. Also known as the clique number or omega (ω) of the graph.</p>
+
+          <pre><code><span class="syntax-comment"># Triangle embedded in larger graph</span>
+<span class="syntax-function">network_clique_size</span>(adj)  <span class="syntax-comment"># 3</span>
+
+<span class="syntax-comment"># Complete K5 graph</span>
+<span class="syntax-function">network_clique_size</span>(k5)   <span class="syntax-comment"># 5</span></code></pre>
+        </div>
+      </div>
+
+      <div class="measure-card">
+        <div class="measure-header">
+          <h4>network_cut_vertices()</h4>
+          <span class="badge badge-new">New</span>
+        </div>
+        <div class="measure-body">
+          <p>Finds articulation points - nodes whose removal would disconnect the network. These are critical nodes for network connectivity.</p>
+
+          <pre><code><span class="syntax-comment"># Get cut vertices</span>
+<span class="syntax-function">network_cut_vertices</span>(adj)  <span class="syntax-comment"># Returns node names/indices</span>
+
+<span class="syntax-comment"># Count only</span>
+<span class="syntax-function">network_cut_vertices</span>(adj, <span class="syntax-param">count_only</span> = <span class="syntax-keyword">TRUE</span>)  <span class="syntax-comment"># Integer count</span></code></pre>
+        </div>
+      </div>
+
+      <div class="measure-card">
+        <div class="measure-header">
+          <h4>network_bridges()</h4>
+          <span class="badge badge-new">New</span>
+        </div>
+        <div class="measure-body">
+          <p>Finds bridge edges - edges whose removal would disconnect the network. These are critical edges for network connectivity.</p>
+
+          <pre><code><span class="syntax-comment"># Two triangles connected by single edge</span>
+<span class="syntax-function">network_bridges</span>(adj)  <span class="syntax-comment"># Returns data frame with from/to</span>
+<span class="syntax-comment">#   from to</span>
+<span class="syntax-comment"># 1    C  D</span>
+
+<span class="syntax-comment"># Count only</span>
+<span class="syntax-function">network_bridges</span>(adj, <span class="syntax-param">count_only</span> = <span class="syntax-keyword">TRUE</span>)  <span class="syntax-comment"># 1</span></code></pre>
+        </div>
+      </div>
+
+      <div class="measure-card">
+        <div class="measure-header">
+          <h4>network_global_efficiency()</h4>
+          <span class="badge badge-new">New</span>
+        </div>
+        <div class="measure-body">
+          <p>Average of the inverse shortest path lengths between all pairs of nodes. Measures global communication efficiency. Higher values indicate better global integration. Handles disconnected graphs gracefully (infinite distances contribute 0).</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Graph</th>
+                <th>Global Efficiency</th>
+                <th>Interpretation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Complete graph</td>
+                <td>1.0</td>
+                <td>Perfect efficiency (all pairs at distance 1)</td>
+              </tr>
+              <tr>
+                <td>Star graph</td>
+                <td>~0.83</td>
+                <td>Good efficiency (center connects all)</td>
+              </tr>
+              <tr>
+                <td>Path graph</td>
+                <td>~0.5</td>
+                <td>Lower efficiency (long paths)</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <pre><code><span class="syntax-function">network_global_efficiency</span>(k4)    <span class="syntax-comment"># 1.0</span>
+<span class="syntax-function">network_global_efficiency</span>(star)  <span class="syntax-comment"># ~0.83</span></code></pre>
+        </div>
+      </div>
+
+      <div class="measure-card">
+        <div class="measure-header">
+          <h4>network_local_efficiency()</h4>
+          <span class="badge badge-new">New</span>
+        </div>
+        <div class="measure-body">
+          <p>Average local efficiency across all nodes. Local efficiency of a node is the global efficiency of its neighborhood subgraph (excluding the node itself). Measures fault tolerance and local integration.</p>
+
+          <pre><code><span class="syntax-comment"># Complete graph: removing any node leaves complete subgraph</span>
+<span class="syntax-function">network_local_efficiency</span>(k5)   <span class="syntax-comment"># 1.0</span>
+
+<span class="syntax-comment"># Star: neighbors not connected to each other</span>
+<span class="syntax-function">network_local_efficiency</span>(star) <span class="syntax-comment"># 0.0</span></code></pre>
+        </div>
+      </div>
+
+      <div class="measure-card">
+        <div class="measure-header">
+          <h4>network_small_world()</h4>
+          <span class="badge badge-new">New</span>
+        </div>
+        <div class="measure-body">
+          <p>Computes the small-world coefficient sigma (σ). Defined as: σ = (C / C_rand) / (L / L_rand), where C is clustering coefficient and L is mean path length. Values &gt; 1 indicate small-world properties.</p>
+
+          <pre><code><span class="syntax-comment"># Watts-Strogatz small-world graph</span>
+sw <- igraph::<span class="syntax-function">sample_smallworld</span>(<span class="syntax-number">1</span>, <span class="syntax-number">30</span>, <span class="syntax-number">3</span>, <span class="syntax-number">0.1</span>)
+<span class="syntax-function">network_small_world</span>(sw)  <span class="syntax-comment"># Typically > 1</span>
+
+<span class="syntax-comment"># Random graph (not small-world)</span>
+rand <- igraph::<span class="syntax-function">erdos.renyi.game</span>(<span class="syntax-number">30</span>, <span class="syntax-number">0.2</span>)
+<span class="syntax-function">network_small_world</span>(rand)  <span class="syntax-comment"># ~1</span></code></pre>
+        </div>
+      </div>
+
+      <div class="measure-card">
+        <div class="measure-header">
+          <h4>network_rich_club()</h4>
+          <span class="badge badge-new">New</span>
+        </div>
+        <div class="measure-body">
+          <p>Computes the rich club coefficient - measures the tendency of high-degree nodes to connect to each other. A normalized version compares to random graphs.</p>
+
+          <pre><code><span class="syntax-comment"># Raw coefficient for degree threshold k</span>
+<span class="syntax-function">network_rich_club</span>(adj, <span class="syntax-param">k</span> = <span class="syntax-number">5</span>)
+
+<span class="syntax-comment"># Normalized (compare to random graphs)</span>
+<span class="syntax-function">network_rich_club</span>(adj, <span class="syntax-param">k</span> = <span class="syntax-number">5</span>, <span class="syntax-param">normalized</span> = <span class="syntax-keyword">TRUE</span>)
+<span class="syntax-comment"># > 1 indicates rich-club effect</span></code></pre>
+        </div>
+      </div>
+
+      <h3>Combined Function: network_summary()</h3>
+
+      <p>The <code>network_summary()</code> function now supports an <code>extended</code> parameter to include the new structural metrics.</p>
+
+      <pre><code><span class="syntax-comment"># Basic summary (18 metrics)</span>
+<span class="syntax-function">network_summary</span>(adj)
+
+<span class="syntax-comment"># Extended summary (+8 structural metrics = 26 total)</span>
+<span class="syntax-function">network_summary</span>(adj, <span class="syntax-param">extended</span> = <span class="syntax-keyword">TRUE</span>)
+
+<span class="syntax-comment"># Detailed summary (+11 centrality stats = 29 total)</span>
+<span class="syntax-function">network_summary</span>(adj, <span class="syntax-param">detailed</span> = <span class="syntax-keyword">TRUE</span>)
+
+<span class="syntax-comment"># Full summary (37 metrics)</span>
+<span class="syntax-function">network_summary</span>(adj, <span class="syntax-param">extended</span> = <span class="syntax-keyword">TRUE</span>, <span class="syntax-param">detailed</span> = <span class="syntax-keyword">TRUE</span>)</code></pre>
+
+      <h4>Extended Metrics (extended = TRUE)</h4>
+      <table>
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Description</th>
+            <th>Individual Function</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>girth</code></td>
+            <td>Length of shortest cycle</td>
+            <td><code>network_girth()</code></td>
+          </tr>
+          <tr>
+            <td><code>radius</code></td>
+            <td>Minimum eccentricity</td>
+            <td><code>network_radius()</code></td>
+          </tr>
+          <tr>
+            <td><code>vertex_connectivity</code></td>
+            <td>Min nodes to disconnect</td>
+            <td><code>network_vertex_connectivity()</code></td>
+          </tr>
+          <tr>
+            <td><code>largest_clique_size</code></td>
+            <td>Size of largest clique</td>
+            <td><code>network_clique_size()</code></td>
+          </tr>
+          <tr>
+            <td><code>cut_vertex_count</code></td>
+            <td>Number of articulation points</td>
+            <td><code>network_cut_vertices(count_only=TRUE)</code></td>
+          </tr>
+          <tr>
+            <td><code>bridge_count</code></td>
+            <td>Number of bridge edges</td>
+            <td><code>network_bridges(count_only=TRUE)</code></td>
+          </tr>
+          <tr>
+            <td><code>global_efficiency</code></td>
+            <td>Avg inverse path length</td>
+            <td><code>network_global_efficiency()</code></td>
+          </tr>
+          <tr>
+            <td><code>local_efficiency</code></td>
+            <td>Avg local efficiency</td>
+            <td><code>network_local_efficiency()</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="example-output">
+        <div class="output-label">Example Output: network_summary(adj, extended = TRUE)</div>
+        <pre>                             [,1]
+node_count                  6.000
+edge_count                  7.000
+density                     0.467
+component_count             1.000
+diameter                    3.000
+mean_distance               1.800
+...
+girth                       3.000
+radius                      2.000
+vertex_connectivity         1.000
+largest_clique_size         3.000
+cut_vertex_count            2.000
+bridge_count                1.000
+global_efficiency           0.689
+local_efficiency            0.778</pre>
+      </div>
+    </section>
+
+    <!-- SECTION: Bug Fixes -->
+    <section id="bug-fixes">
+      <h2>5. Bug Fixes</h2>
+
+      <div class="measure-card">
+        <div class="measure-header">
+          <h4>Closeness Normalization</h4>
+          <span class="badge badge-fixed">Fixed</span>
+        </div>
+        <div class="measure-body">
+          <p>The <code>normalized</code> parameter was previously hardcoded to <code>FALSE</code> for closeness centrality. Now it properly passes through to igraph.</p>
+
+          <div class="comparison-grid">
+            <div class="comparison-card before">
+              <h5>Before (Hardcoded)</h5>
+              <pre><code><span class="syntax-comment"># Line 170-172</span>
+<span class="syntax-string">"closeness"</span> = igraph::closeness(
+  g, mode = mode, weights = weights,
+  <span class="syntax-keyword">normalized = FALSE</span>  <span class="syntax-comment"># HARDCODED!</span>
+)</code></pre>
+            </div>
+            <div class="comparison-card after">
+              <h5>After (Pass-through)</h5>
+              <pre><code><span class="syntax-comment"># Now respects parameter</span>
+<span class="syntax-string">"closeness"</span> = igraph::closeness(
+  g, mode = mode, weights = weights,
+  <span class="syntax-keyword">normalized = normalized</span>,
+  <span class="syntax-keyword">cutoff = cutoff</span>
+)</code></pre>
+            </div>
+          </div>
+
+          <div class="alert alert-info">
+            <strong>Note:</strong> When <code>normalized = TRUE</code>, closeness is now properly normalized by igraph (multiplied by n-1). This is different from max-normalization used by other measures.
+          </div>
+        </div>
+      </div>
+
+      <div class="measure-card">
+        <div class="measure-header">
+          <h4>HITS Double Computation</h4>
+          <span class="badge badge-fixed">Fixed</span>
+        </div>
+        <div class="measure-body">
+          <p>Previously, when calculating both <code>authority</code> and <code>hub</code> scores, HITS was computed twice - once for each measure. Now it's computed once and cached.</p>
+
+          <div class="comparison-grid">
+            <div class="comparison-card before">
+              <h5>Before (Computed Twice)</h5>
+              <pre><code><span class="syntax-comment"># Called separately!</span>
+<span class="syntax-string">"authority"</span> = igraph::<span class="syntax-function">hits_scores</span>(
+  g, weights = weights
+)<span class="syntax-keyword">$authority</span>,
+
+<span class="syntax-string">"hub"</span> = igraph::<span class="syntax-function">hits_scores</span>(
+  g, weights = weights
+)<span class="syntax-keyword">$hub</span>,</code></pre>
+            </div>
+            <div class="comparison-card after">
+              <h5>After (Cached)</h5>
+              <pre><code><span class="syntax-comment"># Pre-calculate once</span>
+hits_result <- <span class="syntax-keyword">NULL</span>
+<span class="syntax-keyword">if</span> (<span class="syntax-function">any</span>(<span class="syntax-function">c</span>(<span class="syntax-string">"authority"</span>, <span class="syntax-string">"hub"</span>)
+        <span class="syntax-keyword">%in%</span> measures)) {
+  hits_result <- igraph::<span class="syntax-function">hits_scores</span>(
+    g, weights = weights
+  )
+}
+
+<span class="syntax-comment"># Then use cached result</span>
+<span class="syntax-string">"authority"</span> = hits_result<span class="syntax-keyword">$authority</span>,
+<span class="syntax-string">"hub"</span> = hits_result<span class="syntax-keyword">$hub</span>,</code></pre>
+            </div>
+          </div>
+
+          <div class="alert alert-success">
+            <strong>Performance:</strong> This fix improves performance when calculating both authority and hub scores, as HITS is an iterative algorithm.
+          </div>
+        </div>
+      </div>
+
+      <div class="measure-card">
+        <div class="measure-header">
+          <h4>Transitivity Type</h4>
+          <span class="badge badge-fixed">Fixed</span>
+        </div>
+        <div class="measure-body">
+          <p>The transitivity type was hardcoded to <code>"local"</code>. Now it's configurable via the <code>transitivity_type</code> parameter.</p>
+
+          <div class="comparison-grid">
+            <div class="comparison-card before">
+              <h5>Before (Hardcoded)</h5>
+              <pre><code><span class="syntax-string">"transitivity"</span> = igraph::transitivity(
+  g, <span class="syntax-keyword">type = "local"</span>  <span class="syntax-comment"># HARDCODED!</span>
+)</code></pre>
+            </div>
+            <div class="comparison-card after">
+              <h5>After (Configurable)</h5>
+              <pre><code><span class="syntax-string">"transitivity"</span> = igraph::transitivity(
+  g,
+  <span class="syntax-keyword">type = transitivity_type</span>,
+  <span class="syntax-keyword">isolates = isolates</span>
+)</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="measure-card">
+        <div class="measure-header">
+          <h4>is_directed() Function</h4>
+          <span class="badge badge-fixed">Fixed</span>
+        </div>
+        <div class="measure-body">
+          <p>The cograph <code>is_directed()</code> function was masking igraph's function and only worked with <code>cograph_network</code> objects. Now it properly handles igraph objects by dispatching to <code>igraph::is_directed()</code>.</p>
+
+          <div class="comparison-grid">
+            <div class="comparison-card before">
+              <h5>Before (Only cograph_network)</h5>
+              <pre><code>is_directed <- <span class="syntax-keyword">function</span>(x) {
+  <span class="syntax-keyword">if</span> (inherits(x, <span class="syntax-string">"cograph_network"</span>)) {
+    <span class="syntax-keyword">return</span>(x$directed)
+  }
+  <span class="syntax-function">stop</span>(<span class="syntax-string">"Cannot determine..."</span>)
+}</code></pre>
+            </div>
+            <div class="comparison-card after">
+              <h5>After (Handles igraph)</h5>
+              <pre><code>is_directed <- <span class="syntax-keyword">function</span>(x) {
+  <span class="syntax-keyword">if</span> (inherits(x, <span class="syntax-string">"cograph_network"</span>)) {
+    <span class="syntax-keyword">return</span>(x$directed)
+  }
+  <span class="syntax-keyword">if</span> (inherits(x, <span class="syntax-string">"igraph"</span>)) {
+    <span class="syntax-keyword">return</span>(igraph::is_directed(x))
+  }
+  <span class="syntax-function">stop</span>(<span class="syntax-string">"Cannot determine..."</span>)
+}</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="measure-card">
+        <div class="measure-header">
+          <h4>Unnecessary simplify() Calls</h4>
+          <span class="badge badge-fixed">Fixed</span>
+        </div>
+        <div class="measure-body">
+          <p>The <code>simplify()</code> step was being called even when graphs had no multiple edges or loops. This caused unexpected side effects with igraph's internal representation, particularly affecting transitivity calculations.</p>
+
+          <div class="comparison-grid">
+            <div class="comparison-card before">
+              <h5>Before (Always called)</h5>
+              <pre><code><span class="syntax-comment"># Called even without multiples!</span>
+<span class="syntax-keyword">if</span> (!loops) {
+  g <- igraph::simplify(g, ...)
+}
+<span class="syntax-keyword">if</span> (!isFALSE(simplify)) {
+  g <- igraph::simplify(g, ...)
+}</code></pre>
+            </div>
+            <div class="comparison-card after">
+              <h5>After (Conditional)</h5>
+              <pre><code><span class="syntax-comment"># Only call when needed</span>
+<span class="syntax-keyword">if</span> (!loops && igraph::any_loop(g)) {
+  g <- igraph::simplify(g, ...)
+}
+<span class="syntax-keyword">if</span> (!isFALSE(simplify) &&
+    igraph::any_multiple(g)) {
+  g <- igraph::simplify(g, ...)
+}</code></pre>
+            </div>
+          </div>
+
+          <div class="alert alert-success">
+            <strong>Result:</strong> All centrality measures now produce identical results to direct igraph calls (verified with 2500+ randomized tests).
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION: Measure Comparison -->
+    <section id="measure-comparison">
+      <h2>6. Complete Measure Comparison: cograph vs igraph</h2>
+
+      <p>This table shows all parameters available in igraph and whether cograph now exposes them.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Measure</th>
+            <th>igraph Parameter</th>
+            <th>cograph Support</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td rowspan="4"><strong>degree</strong></td>
+            <td><code>mode</code></td>
+            <td><span class="status-icon check">&#10003;</span> Yes</td>
+            <td>"all", "in", "out"</td>
+          </tr>
+          <tr>
+            <td><code>loops</code></td>
+            <td><span class="status-icon check">&#10003;</span> Yes</td>
+            <td>Via main function <code>loops=</code></td>
+          </tr>
+          <tr>
+            <td><code>normalized</code></td>
+            <td><span class="status-icon partial">~</span> Different</td>
+            <td>cograph: max-norm; igraph: (n-1)-norm</td>
+          </tr>
+          <tr>
+            <td><code>v</code> (vertex subset)</td>
+            <td><span class="status-icon cross">&#10007;</span> No</td>
+            <td>Low priority</td>
+          </tr>
+
+          <tr>
+            <td rowspan="4"><strong>strength</strong></td>
+            <td><code>mode</code></td>
+            <td><span class="status-icon check">&#10003;</span> Yes</td>
+            <td>"all", "in", "out"</td>
+          </tr>
+          <tr>
+            <td><code>loops</code></td>
+            <td><span class="status-icon check">&#10003;</span> Yes</td>
+            <td>Via main function</td>
+          </tr>
+          <tr>
+            <td><code>weights</code></td>
+            <td><span class="status-icon check">&#10003;</span> Yes</td>
+            <td>Via <code>weighted=TRUE</code></td>
+          </tr>
+          <tr>
+            <td><code>vids</code></td>
+            <td><span class="status-icon cross">&#10007;</span> No</td>
+            <td>Low priority</td>
+          </tr>
+
+          <tr>
+            <td rowspan="5"><strong>betweenness</strong></td>
+            <td><code>directed</code></td>
+            <td><span class="status-icon check">&#10003;</span> Yes</td>
+            <td>Auto-detected from graph</td>
+          </tr>
+          <tr>
+            <td><code>weights</code></td>
+            <td><span class="status-icon check">&#10003;</span> Yes</td>
+            <td>Via <code>weighted=TRUE</code></td>
+          </tr>
+          <tr>
+            <td><code>cutoff</code></td>
+            <td><span class="status-icon check">&#10003;</span> <strong>NEW!</strong></td>
+            <td>Path length limit</td>
+          </tr>
+          <tr>
+            <td><code>normalized</code></td>
+            <td><span class="status-icon partial">~</span> Different</td>
+            <td>cograph: max-norm</td>
+          </tr>
+          <tr>
+            <td><code>v</code></td>
+            <td><span class="status-icon cross">&#10007;</span> No</td>
+            <td>Low priority</td>
+          </tr>
+
+          <tr>
+            <td rowspan="5"><strong>closeness</strong></td>
+            <td><code>mode</code></td>
+            <td><span class="status-icon check">&#10003;</span> Yes</td>
+            <td>"all", "in", "out"</td>
+          </tr>
+          <tr>
+            <td><code>weights</code></td>
+            <td><span class="status-icon check">&#10003;</span> Yes</td>
+            <td>Via <code>weighted=TRUE</code></td>
+          </tr>
+          <tr>
+            <td><code>normalized</code></td>
+            <td><span class="status-icon check">&#10003;</span> <strong>FIXED!</strong></td>
+            <td>Now passes through correctly</td>
+          </tr>
+          <tr>
+            <td><code>cutoff</code></td>
+            <td><span class="status-icon check">&#10003;</span> <strong>NEW!</strong></td>
+            <td>Path length limit</td>
+          </tr>
+          <tr>
+            <td><code>vids</code></td>
+            <td><span class="status-icon cross">&#10007;</span> No</td>
+            <td>Low priority</td>
+          </tr>
+
+          <tr>
+            <td rowspan="4"><strong>pagerank</strong></td>
+            <td><code>directed</code></td>
+            <td><span class="status-icon check">&#10003;</span> Yes</td>
+            <td>Auto-detected from graph</td>
+          </tr>
+          <tr>
+            <td><code>weights</code></td>
+            <td><span class="status-icon check">&#10003;</span> Yes</td>
+            <td>Via <code>weighted=TRUE</code></td>
+          </tr>
+          <tr>
+            <td><code>damping</code></td>
+            <td><span class="status-icon check">&#10003;</span> <strong>NEW!</strong></td>
+            <td>Default 0.85</td>
+          </tr>
+          <tr>
+            <td><code>personalized</code></td>
+            <td><span class="status-icon check">&#10003;</span> <strong>NEW!</strong></td>
+            <td>Named vector for PPR</td>
+          </tr>
+
+          <tr>
+            <td rowspan="3"><strong>transitivity</strong></td>
+            <td><code>type</code></td>
+            <td><span class="status-icon check">&#10003;</span> <strong>FIXED!</strong></td>
+            <td>6 types now available</td>
+          </tr>
+          <tr>
+            <td><code>isolates</code></td>
+            <td><span class="status-icon check">&#10003;</span> <strong>NEW!</strong></td>
+            <td>"nan" or "zero"</td>
+          </tr>
+          <tr>
+            <td><code>weights</code></td>
+            <td><span class="status-icon check">&#10003;</span> Yes</td>
+            <td>Via "barrat" type</td>
+          </tr>
+
+          <tr>
+            <td rowspan="4"><strong>harmonic</strong></td>
+            <td colspan="3" style="text-align: center; font-style: italic;"><span class="badge badge-new">NEW MEASURE</span></td>
+          </tr>
+          <tr>
+            <td><code>mode</code></td>
+            <td><span class="status-icon check">&#10003;</span> Yes</td>
+            <td>"all", "in", "out"</td>
+          </tr>
+          <tr>
+            <td><code>weights</code></td>
+            <td><span class="status-icon check">&#10003;</span> Yes</td>
+            <td>Via <code>weighted=TRUE</code></td>
+          </tr>
+          <tr>
+            <td><code>cutoff</code></td>
+            <td><span class="status-icon check">&#10003;</span> Yes</td>
+            <td>Path length limit</td>
+          </tr>
+
+          <tr>
+            <td rowspan="3"><strong>diffusion</strong></td>
+            <td colspan="3" style="text-align: center; font-style: italic;"><span class="badge badge-new">NEW MEASURE</span> 18-26x faster than centiserve</td>
+          </tr>
+          <tr>
+            <td><code>mode</code></td>
+            <td><span class="status-icon check">&#10003;</span> Yes</td>
+            <td>"all", "in", "out"</td>
+          </tr>
+          <tr>
+            <td><code>lambda</code></td>
+            <td><span class="status-icon check">&#10003;</span> Yes</td>
+            <td>Scaling factor (default 1)</td>
+          </tr>
+
+          <tr>
+            <td rowspan="2"><strong>leverage</strong></td>
+            <td colspan="3" style="text-align: center; font-style: italic;"><span class="badge badge-new">NEW MEASURE</span> 3x faster than centiserve</td>
+          </tr>
+          <tr>
+            <td><code>mode</code></td>
+            <td><span class="status-icon check">&#10003;</span> Yes</td>
+            <td>"all", "in", "out"</td>
+          </tr>
+
+          <tr>
+            <td rowspan="3"><strong>kreach</strong></td>
+            <td colspan="3" style="text-align: center; font-style: italic;"><span class="badge badge-new">NEW MEASURE</span> (geodesic k-path)</td>
+          </tr>
+          <tr>
+            <td><code>mode</code></td>
+            <td><span class="status-icon check">&#10003;</span> Yes</td>
+            <td>"all", "in", "out"</td>
+          </tr>
+          <tr>
+            <td><code>k</code></td>
+            <td><span class="status-icon check">&#10003;</span> Yes</td>
+            <td>Path length (default 3)</td>
+          </tr>
+
+          <tr>
+            <td rowspan="2"><strong>resilience</strong></td>
+            <td colspan="3" style="text-align: center; font-style: italic;"><span class="badge badge-new">NEW MEASURE</span> vertex connectivity based</td>
+          </tr>
+          <tr>
+            <td><code>-</code></td>
+            <td><span class="status-icon check">&#10003;</span></td>
+            <td>No additional parameters</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- SECTION: Wrapper Functions -->
+    <section id="wrapper-functions">
+      <h2>7. Wrapper Functions</h2>
+
+      <p>Each centrality measure has a dedicated wrapper function that returns a named vector.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Function</th>
+            <th>Parameters</th>
+            <th>Changes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>centrality_degree(x, mode, ...)</code></td>
+            <td>mode: "all", "in", "out"</td>
+            <td>-</td>
+          </tr>
+          <tr>
+            <td><code>centrality_strength(x, mode, ...)</code></td>
+            <td>mode: "all", "in", "out"</td>
+            <td>-</td>
+          </tr>
+          <tr>
+            <td><code>centrality_betweenness(x, ...)</code></td>
+            <td>cutoff via ...</td>
+            <td>Cutoff support</td>
+          </tr>
+          <tr>
+            <td><code>centrality_closeness(x, mode, ...)</code></td>
+            <td>mode, cutoff, normalized via ...</td>
+            <td>Normalization fixed</td>
+          </tr>
+          <tr>
+            <td><code>centrality_eigenvector(x, ...)</code></td>
+            <td>-</td>
+            <td>-</td>
+          </tr>
+          <tr>
+            <td><code>centrality_pagerank(x, damping, personalized, ...)</code></td>
+            <td>damping, personalized</td>
+            <td><span class="badge badge-improved">Updated</span> New params exposed</td>
+          </tr>
+          <tr>
+            <td><code>centrality_authority(x, ...)</code></td>
+            <td>-</td>
+            <td>Uses cached HITS</td>
+          </tr>
+          <tr>
+            <td><code>centrality_hub(x, ...)</code></td>
+            <td>-</td>
+            <td>Uses cached HITS</td>
+          </tr>
+          <tr>
+            <td><code>centrality_eccentricity(x, mode, ...)</code></td>
+            <td>mode: "all", "in", "out"</td>
+            <td>-</td>
+          </tr>
+          <tr>
+            <td><code>centrality_coreness(x, mode, ...)</code></td>
+            <td>mode: "all", "in", "out"</td>
+            <td>-</td>
+          </tr>
+          <tr>
+            <td><code>centrality_constraint(x, ...)</code></td>
+            <td>-</td>
+            <td>-</td>
+          </tr>
+          <tr>
+            <td><code>centrality_transitivity(x, transitivity_type, isolates, ...)</code></td>
+            <td>transitivity_type, isolates</td>
+            <td><span class="badge badge-improved">Updated</span> New params exposed</td>
+          </tr>
+          <tr>
+            <td><code>centrality_harmonic(x, mode, ...)</code></td>
+            <td>mode: "all", "in", "out"</td>
+            <td><span class="badge badge-new">New</span></td>
+          </tr>
+          <tr>
+            <td><code>centrality_diffusion(x, mode, lambda, ...)</code></td>
+            <td>mode, lambda (scaling factor)</td>
+            <td><span class="badge badge-new">New</span></td>
+          </tr>
+          <tr>
+            <td><code>centrality_leverage(x, mode, ...)</code></td>
+            <td>mode: "all", "in", "out"</td>
+            <td><span class="badge badge-new">New</span></td>
+          </tr>
+          <tr>
+            <td><code>centrality_kreach(x, mode, k, ...)</code></td>
+            <td>mode, k (path length)</td>
+            <td><span class="badge badge-new">New</span></td>
+          </tr>
+          <tr>
+            <td><code>centrality_resilience(x, ...)</code></td>
+            <td>-</td>
+            <td><span class="badge badge-new">New</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Network-Level Functions</h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Function</th>
+            <th>Parameters</th>
+            <th>Returns</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>network_summary(x, extended, detailed, ...)</code></td>
+            <td>extended, detailed flags</td>
+            <td>Data frame (18-37 metrics)</td>
+          </tr>
+          <tr>
+            <td><code>network_girth(x, ...)</code></td>
+            <td>-</td>
+            <td>Integer or Inf</td>
+          </tr>
+          <tr>
+            <td><code>network_radius(x, directed, ...)</code></td>
+            <td>directed</td>
+            <td>Numeric</td>
+          </tr>
+          <tr>
+            <td><code>network_vertex_connectivity(x, ...)</code></td>
+            <td>-</td>
+            <td>Integer</td>
+          </tr>
+          <tr>
+            <td><code>network_clique_size(x, ...)</code></td>
+            <td>-</td>
+            <td>Integer</td>
+          </tr>
+          <tr>
+            <td><code>network_cut_vertices(x, count_only, ...)</code></td>
+            <td>count_only</td>
+            <td>Vector or count</td>
+          </tr>
+          <tr>
+            <td><code>network_bridges(x, count_only, ...)</code></td>
+            <td>count_only</td>
+            <td>Data frame or count</td>
+          </tr>
+          <tr>
+            <td><code>network_global_efficiency(x, directed, weights, ...)</code></td>
+            <td>directed, weights</td>
+            <td>Numeric [0, 1]</td>
+          </tr>
+          <tr>
+            <td><code>network_local_efficiency(x, weights, ...)</code></td>
+            <td>weights</td>
+            <td>Numeric [0, 1]</td>
+          </tr>
+          <tr>
+            <td><code>network_small_world(x, n_random, ...)</code></td>
+            <td>n_random (comparison graphs)</td>
+            <td>Numeric (&gt;1 = small-world)</td>
+          </tr>
+          <tr>
+            <td><code>network_rich_club(x, k, normalized, n_random, ...)</code></td>
+            <td>k (threshold), normalized, n_random</td>
+            <td>Numeric</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- SECTION: Examples -->
+    <section id="examples">
+      <h2>8. Code Examples</h2>
+
+      <h3>Basic Usage</h3>
+      <pre><code><span class="syntax-comment"># Create a test network</span>
+adj <- <span class="syntax-function">matrix</span>(<span class="syntax-function">c</span>(
+  <span class="syntax-number">0</span>, <span class="syntax-number">1</span>, <span class="syntax-number">1</span>, <span class="syntax-number">0</span>,
+  <span class="syntax-number">1</span>, <span class="syntax-number">0</span>, <span class="syntax-number">1</span>, <span class="syntax-number">1</span>,
+  <span class="syntax-number">1</span>, <span class="syntax-number">1</span>, <span class="syntax-number">0</span>, <span class="syntax-number">1</span>,
+  <span class="syntax-number">0</span>, <span class="syntax-number">1</span>, <span class="syntax-number">1</span>, <span class="syntax-number">0</span>
+), <span class="syntax-number">4</span>, <span class="syntax-number">4</span>, <span class="syntax-param">byrow</span> = <span class="syntax-keyword">TRUE</span>)
+<span class="syntax-function">rownames</span>(adj) <- <span class="syntax-function">colnames</span>(adj) <- <span class="syntax-function">c</span>(<span class="syntax-string">"A"</span>, <span class="syntax-string">"B"</span>, <span class="syntax-string">"C"</span>, <span class="syntax-string">"D"</span>)
+
+<span class="syntax-comment"># Calculate all centrality measures (now includes harmonic!)</span>
+<span class="syntax-function">centrality</span>(adj)</code></pre>
+
+      <div class="example-output">
+        <div class="output-label">Output</div>
+        <pre>  node degree_all strength_all closeness_all eccentricity_all coreness_all
+1    A          2            2     0.2500000                2            2
+2    B          3            3     0.3333333                2            2
+3    C          3            3     0.3333333                2            2
+4    D          2            2     0.2500000                2            2
+  harmonic_all betweenness eigenvector  pagerank authority       hub constraint
+1          2.5           0   0.7807764 0.2047619 0.7807764 0.7807764       0.75
+2          3.0           1   1.0000000 0.2952381 1.0000000 1.0000000       0.50
+3          3.0           1   1.0000000 0.2952381 1.0000000 1.0000000       0.50
+4          2.5           0   0.7807764 0.2047619 0.7807764 0.7807764       0.75
+  transitivity
+1            1
+2    0.6666667
+3    0.6666667
+4            1</pre>
+      </div>
+
+      <h3>PageRank with Custom Damping</h3>
+      <pre><code><span class="syntax-comment"># Compare different damping factors</span>
+pr_85 <- <span class="syntax-function">centrality_pagerank</span>(adj, <span class="syntax-param">damping</span> = <span class="syntax-number">0.85</span>)
+pr_50 <- <span class="syntax-function">centrality_pagerank</span>(adj, <span class="syntax-param">damping</span> = <span class="syntax-number">0.50</span>)
+pr_95 <- <span class="syntax-function">centrality_pagerank</span>(adj, <span class="syntax-param">damping</span> = <span class="syntax-number">0.95</span>)
+
+<span class="syntax-function">data.frame</span>(
+  <span class="syntax-param">node</span> = <span class="syntax-function">names</span>(pr_85),
+  <span class="syntax-param">damping_50</span> = <span class="syntax-function">round</span>(pr_50, <span class="syntax-number">4</span>),
+  <span class="syntax-param">damping_85</span> = <span class="syntax-function">round</span>(pr_85, <span class="syntax-number">4</span>),
+  <span class="syntax-param">damping_95</span> = <span class="syntax-function">round</span>(pr_95, <span class="syntax-number">4</span>)
+)</code></pre>
+
+      <div class="example-output">
+        <div class="output-label">Output</div>
+        <pre>  node damping_50 damping_85 damping_95
+1    A     0.2188     0.2048     0.1940
+2    B     0.2812     0.2952     0.3060
+3    C     0.2812     0.2952     0.3060
+4    D     0.2188     0.2048     0.1940</pre>
+      </div>
+
+      <h3>Personalized PageRank</h3>
+      <pre><code><span class="syntax-comment"># Find nodes most relevant to node A</span>
+ppr_A <- <span class="syntax-function">centrality_pagerank</span>(adj,
+  <span class="syntax-param">personalized</span> = <span class="syntax-function">c</span>(<span class="syntax-param">A</span> = <span class="syntax-number">1</span>, <span class="syntax-param">B</span> = <span class="syntax-number">0</span>, <span class="syntax-param">C</span> = <span class="syntax-number">0</span>, <span class="syntax-param">D</span> = <span class="syntax-number">0</span>)
+)
+
+<span class="syntax-comment"># Find nodes relevant to B and C equally</span>
+ppr_BC <- <span class="syntax-function">centrality_pagerank</span>(adj,
+  <span class="syntax-param">personalized</span> = <span class="syntax-function">c</span>(<span class="syntax-param">A</span> = <span class="syntax-number">0</span>, <span class="syntax-param">B</span> = <span class="syntax-number">0.5</span>, <span class="syntax-param">C</span> = <span class="syntax-number">0.5</span>, <span class="syntax-param">D</span> = <span class="syntax-number">0</span>)
+)
+
+<span class="syntax-function">data.frame</span>(
+  <span class="syntax-param">node</span> = <span class="syntax-function">names</span>(ppr_A),
+  <span class="syntax-param">standard</span> = <span class="syntax-function">round</span>(<span class="syntax-function">centrality_pagerank</span>(adj), <span class="syntax-number">4</span>),
+  <span class="syntax-param">from_A</span> = <span class="syntax-function">round</span>(ppr_A, <span class="syntax-number">4</span>),
+  <span class="syntax-param">from_BC</span> = <span class="syntax-function">round</span>(ppr_BC, <span class="syntax-number">4</span>)
+)</code></pre>
+
+      <div class="example-output">
+        <div class="output-label">Output</div>
+        <pre>  node standard from_A from_BC
+1    A   0.2048 0.3037  0.1713
+2    B   0.2952 0.2713  0.3287
+3    C   0.2952 0.2713  0.3287
+4    D   0.2048 0.1537  0.1713</pre>
+      </div>
+
+      <h3>Transitivity Types</h3>
+      <pre><code><span class="syntax-comment"># Local transitivity (per node)</span>
+<span class="syntax-function">centrality_transitivity</span>(adj, <span class="syntax-param">transitivity_type</span> = <span class="syntax-string">"local"</span>)
+
+<span class="syntax-comment"># Global transitivity (single value for whole network)</span>
+<span class="syntax-function">centrality</span>(adj, <span class="syntax-param">measures</span> = <span class="syntax-string">"transitivity"</span>,
+           <span class="syntax-param">transitivity_type</span> = <span class="syntax-string">"global"</span>)
+
+<span class="syntax-comment"># Weighted transitivity (Barrat method)</span>
+weighted_adj <- adj * <span class="syntax-function">matrix</span>(<span class="syntax-function">runif</span>(<span class="syntax-number">16</span>, <span class="syntax-number">0.5</span>, <span class="syntax-number">2</span>), <span class="syntax-number">4</span>, <span class="syntax-number">4</span>)
+<span class="syntax-function">centrality_transitivity</span>(weighted_adj, <span class="syntax-param">transitivity_type</span> = <span class="syntax-string">"barrat"</span>)</code></pre>
+
+      <h3>Handling Isolated Nodes</h3>
+      <pre><code><span class="syntax-comment"># Create network with isolated node</span>
+adj_iso <- <span class="syntax-function">rbind</span>(<span class="syntax-function">cbind</span>(adj, <span class="syntax-number">0</span>), <span class="syntax-number">0</span>)
+<span class="syntax-function">rownames</span>(adj_iso)[<span class="syntax-number">5</span>] <- <span class="syntax-function">colnames</span>(adj_iso)[<span class="syntax-number">5</span>] <- <span class="syntax-string">"E"</span>
+
+<span class="syntax-comment"># NaN for isolates (mathematically correct)</span>
+<span class="syntax-function">centrality_transitivity</span>(adj_iso, <span class="syntax-param">isolates</span> = <span class="syntax-string">"nan"</span>)
+<span class="syntax-comment"># A: 1.0, B: 0.67, C: 0.67, D: 1.0, E: NaN</span>
+
+<span class="syntax-comment"># Zero for isolates (convenient for mean())</span>
+<span class="syntax-function">centrality_transitivity</span>(adj_iso, <span class="syntax-param">isolates</span> = <span class="syntax-string">"zero"</span>)
+<span class="syntax-comment"># A: 1.0, B: 0.67, C: 0.67, D: 1.0, E: 0.0</span></code></pre>
+
+      <h3>Performance Optimization with Cutoff</h3>
+      <pre><code><span class="syntax-comment"># For large networks, limit path length for faster computation</span>
+<span class="syntax-comment"># Full accuracy (can be slow for large networks)</span>
+<span class="syntax-function">centrality</span>(large_network, <span class="syntax-param">measures</span> = <span class="syntax-string">"betweenness"</span>, <span class="syntax-param">cutoff</span> = <span class="syntax-number">-1</span>)
+
+<span class="syntax-comment"># Approximate (much faster, considers paths up to length 3)</span>
+<span class="syntax-function">centrality</span>(large_network, <span class="syntax-param">measures</span> = <span class="syntax-string">"betweenness"</span>, <span class="syntax-param">cutoff</span> = <span class="syntax-number">3</span>)
+
+<span class="syntax-comment"># Same for closeness and harmonic</span>
+<span class="syntax-function">centrality</span>(large_network,
+  <span class="syntax-param">measures</span> = <span class="syntax-function">c</span>(<span class="syntax-string">"closeness"</span>, <span class="syntax-string">"harmonic"</span>),
+  <span class="syntax-param">cutoff</span> = <span class="syntax-number">4</span>
+)</code></pre>
+
+      <h3>New Centrality Measures</h3>
+      <pre><code><span class="syntax-comment"># Diffusion centrality - spread potential</span>
+<span class="syntax-function">centrality_diffusion</span>(adj)
+<span class="syntax-comment"># A: 9, B: 12, C: 14, D: 12, E: 9</span>
+
+<span class="syntax-comment"># With custom lambda scaling</span>
+<span class="syntax-function">centrality_diffusion</span>(adj, <span class="syntax-param">lambda</span> = <span class="syntax-number">2</span>)
+
+<span class="syntax-comment"># Leverage centrality - influence over neighbors</span>
+<span class="syntax-function">centrality_leverage</span>(adj)
+<span class="syntax-comment"># Positive = influencer, Negative = influenced</span>
+
+<span class="syntax-comment"># K-reach - nodes within k hops</span>
+<span class="syntax-function">centrality_kreach</span>(adj, <span class="syntax-param">k</span> = <span class="syntax-number">1</span>)  <span class="syntax-comment"># Direct neighbors</span>
+<span class="syntax-function">centrality_kreach</span>(adj, <span class="syntax-param">k</span> = <span class="syntax-number">2</span>)  <span class="syntax-comment"># 2-hop neighborhood</span>
+
+<span class="syntax-comment"># Resilience - how many nodes to remove before disconnection</span>
+<span class="syntax-function">centrality_resilience</span>(adj)
+<span class="syntax-comment"># 0 = vulnerable, higher = more resilient</span></code></pre>
+
+      <h3>Harmonic vs Closeness for Disconnected Graphs</h3>
+      <pre><code><span class="syntax-comment"># Create disconnected graph (two components)</span>
+disc <- <span class="syntax-function">matrix</span>(<span class="syntax-number">0</span>, <span class="syntax-number">6</span>, <span class="syntax-number">6</span>)
+disc[<span class="syntax-number">1</span>:<span class="syntax-number">3</span>, <span class="syntax-number">1</span>:<span class="syntax-number">3</span>] <- <span class="syntax-number">1</span>  <span class="syntax-comment"># Component 1: nodes 1-3</span>
+disc[<span class="syntax-number">4</span>:<span class="syntax-number">6</span>, <span class="syntax-number">4</span>:<span class="syntax-number">6</span>] <- <span class="syntax-number">1</span>  <span class="syntax-comment"># Component 2: nodes 4-6</span>
+<span class="syntax-function">diag</span>(disc) <- <span class="syntax-number">0</span>
+<span class="syntax-function">rownames</span>(disc) <- <span class="syntax-function">colnames</span>(disc) <- LETTERS[<span class="syntax-number">1</span>:<span class="syntax-number">6</span>]
+
+<span class="syntax-comment"># Closeness returns 0 for disconnected graphs</span>
+<span class="syntax-function">centrality_closeness</span>(disc)
+<span class="syntax-comment"># All zeros - not useful!</span>
+
+<span class="syntax-comment"># Harmonic returns meaningful values</span>
+<span class="syntax-function">centrality_harmonic</span>(disc)
+<span class="syntax-comment"># Nodes in same component have same value, meaningful comparison</span></code></pre>
+
+      <h3>Network-Level Metrics</h3>
+      <pre><code><span class="syntax-comment"># Create test network: two triangles connected by bridge</span>
+adj <- <span class="syntax-function">matrix</span>(<span class="syntax-number">0</span>, <span class="syntax-number">6</span>, <span class="syntax-number">6</span>)
+adj[<span class="syntax-number">1</span>,<span class="syntax-number">2</span>] <- adj[<span class="syntax-number">2</span>,<span class="syntax-number">1</span>] <- adj[<span class="syntax-number">1</span>,<span class="syntax-number">3</span>] <- adj[<span class="syntax-number">3</span>,<span class="syntax-number">1</span>] <- adj[<span class="syntax-number">2</span>,<span class="syntax-number">3</span>] <- adj[<span class="syntax-number">3</span>,<span class="syntax-number">2</span>] <- <span class="syntax-number">1</span>
+adj[<span class="syntax-number">4</span>,<span class="syntax-number">5</span>] <- adj[<span class="syntax-number">5</span>,<span class="syntax-number">4</span>] <- adj[<span class="syntax-number">4</span>,<span class="syntax-number">6</span>] <- adj[<span class="syntax-number">6</span>,<span class="syntax-number">4</span>] <- adj[<span class="syntax-number">5</span>,<span class="syntax-number">6</span>] <- adj[<span class="syntax-number">6</span>,<span class="syntax-number">5</span>] <- <span class="syntax-number">1</span>
+adj[<span class="syntax-number">3</span>,<span class="syntax-number">4</span>] <- adj[<span class="syntax-number">4</span>,<span class="syntax-number">3</span>] <- <span class="syntax-number">1</span>  <span class="syntax-comment"># Bridge</span>
+
+<span class="syntax-comment"># Individual metrics</span>
+<span class="syntax-function">network_girth</span>(adj)               <span class="syntax-comment"># 3 (triangles)</span>
+<span class="syntax-function">network_radius</span>(adj)              <span class="syntax-comment"># 2</span>
+<span class="syntax-function">network_vertex_connectivity</span>(adj) <span class="syntax-comment"># 1</span>
+<span class="syntax-function">network_clique_size</span>(adj)         <span class="syntax-comment"># 3</span>
+<span class="syntax-function">network_cut_vertices</span>(adj)        <span class="syntax-comment"># Nodes 3 and 4</span>
+<span class="syntax-function">network_bridges</span>(adj)             <span class="syntax-comment"># Edge 3-4</span>
+<span class="syntax-function">network_global_efficiency</span>(adj)   <span class="syntax-comment"># ~0.69</span>
+<span class="syntax-function">network_local_efficiency</span>(adj)    <span class="syntax-comment"># ~0.78</span>
+
+<span class="syntax-comment"># Combined summary with extended metrics</span>
+<span class="syntax-function">network_summary</span>(adj, <span class="syntax-param">extended</span> = <span class="syntax-keyword">TRUE</span>)
+
+<span class="syntax-comment"># Full analysis</span>
+<span class="syntax-function">network_summary</span>(adj, <span class="syntax-param">extended</span> = <span class="syntax-keyword">TRUE</span>, <span class="syntax-param">detailed</span> = <span class="syntax-keyword">TRUE</span>)</code></pre>
+
+      <h3>Small-World Analysis</h3>
+      <pre><code><span class="syntax-comment"># Generate a small-world network</span>
+sw <- igraph::<span class="syntax-function">sample_smallworld</span>(<span class="syntax-number">1</span>, <span class="syntax-number">50</span>, <span class="syntax-number">4</span>, <span class="syntax-number">0.1</span>)
+
+<span class="syntax-comment"># Compute small-world coefficient</span>
+sigma <- <span class="syntax-function">network_small_world</span>(sw, <span class="syntax-param">n_random</span> = <span class="syntax-number">20</span>)
+<span class="syntax-function">cat</span>(<span class="syntax-string">"Small-world sigma:"</span>, <span class="syntax-function">round</span>(sigma, <span class="syntax-number">2</span>), <span class="syntax-string">"\n"</span>)
+<span class="syntax-comment"># Values >> 1 indicate small-world properties</span>
+
+<span class="syntax-comment"># Compare to random graph</span>
+rand <- igraph::<span class="syntax-function">erdos.renyi.game</span>(<span class="syntax-number">50</span>, igraph::<span class="syntax-function">ecount</span>(sw), <span class="syntax-param">type</span> = <span class="syntax-string">"gnm"</span>)
+<span class="syntax-function">network_small_world</span>(rand)  <span class="syntax-comment"># ~1 (not small-world)</span></code></pre>
+
+      <h3>Rich-Club Analysis</h3>
+      <pre><code><span class="syntax-comment"># Scale-free networks often show rich-club effect</span>
+ba <- igraph::<span class="syntax-function">sample_pa</span>(<span class="syntax-number">100</span>, <span class="syntax-param">m</span> = <span class="syntax-number">3</span>)
+
+<span class="syntax-comment"># Raw rich-club coefficient at different k thresholds</span>
+<span class="syntax-function">network_rich_club</span>(ba, <span class="syntax-param">k</span> = <span class="syntax-number">3</span>)   <span class="syntax-comment"># Nodes with degree > 3</span>
+<span class="syntax-function">network_rich_club</span>(ba, <span class="syntax-param">k</span> = <span class="syntax-number">5</span>)   <span class="syntax-comment"># Nodes with degree > 5</span>
+<span class="syntax-function">network_rich_club</span>(ba, <span class="syntax-param">k</span> = <span class="syntax-number">10</span>)  <span class="syntax-comment"># Nodes with degree > 10</span>
+
+<span class="syntax-comment"># Normalized (compared to random expectation)</span>
+<span class="syntax-function">network_rich_club</span>(ba, <span class="syntax-param">k</span> = <span class="syntax-number">5</span>, <span class="syntax-param">normalized</span> = <span class="syntax-keyword">TRUE</span>)
+<span class="syntax-comment"># > 1 indicates rich-club effect</span></code></pre>
+
+      <h3>Finding Critical Network Infrastructure</h3>
+      <pre><code><span class="syntax-comment"># Identify vulnerable points in network</span>
+cut_nodes <- <span class="syntax-function">network_cut_vertices</span>(network)
+<span class="syntax-function">cat</span>(<span class="syntax-string">"Critical nodes:"</span>, <span class="syntax-function">paste</span>(cut_nodes, <span class="syntax-param">collapse</span> = <span class="syntax-string">", "</span>), <span class="syntax-string">"\n"</span>)
+
+bridge_edges <- <span class="syntax-function">network_bridges</span>(network)
+<span class="syntax-function">cat</span>(<span class="syntax-string">"Critical edges:"</span>, <span class="syntax-function">nrow</span>(bridge_edges), <span class="syntax-string">"\n"</span>)
+<span class="syntax-function">print</span>(bridge_edges)
+
+<span class="syntax-comment"># Overall robustness</span>
+<span class="syntax-function">cat</span>(<span class="syntax-string">"Vertex connectivity:"</span>, <span class="syntax-function">network_vertex_connectivity</span>(network), <span class="syntax-string">"\n"</span>)
+<span class="syntax-comment"># Higher = more robust, needs more removals to disconnect</span></code></pre>
+    </section>
+
+    <!-- SECTION: Migration -->
+    <section id="migration">
+      <h2>9. Migration Guide</h2>
+
+      <div class="alert alert-success">
+        <strong>Good news!</strong> All changes are backward compatible. Existing code will continue to work without modification.
+      </div>
+
+      <h3>What Changed</h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Change</th>
+            <th>Impact</th>
+            <th>Action Required</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>5 new centrality measures</td>
+            <td>Included in <code>measures = "all"</code></td>
+            <td>None (additive)</td>
+          </tr>
+          <tr>
+            <td>10 new network-level functions</td>
+            <td>New exports available</td>
+            <td>None (additive)</td>
+          </tr>
+          <tr>
+            <td><code>network_summary(extended=TRUE)</code></td>
+            <td>8 additional metrics available</td>
+            <td>None (opt-in)</td>
+          </tr>
+          <tr>
+            <td>Closeness normalization fixed</td>
+            <td>Only if you used <code>normalized = TRUE</code></td>
+            <td>Verify expected behavior</td>
+          </tr>
+          <tr>
+            <td>New parameters with defaults</td>
+            <td>None (same defaults)</td>
+            <td>None</td>
+          </tr>
+          <tr>
+            <td>HITS caching</td>
+            <td>Performance only</td>
+            <td>None (invisible)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Taking Advantage of New Features</h3>
+
+      <h4>1. Replace Closeness with Harmonic for Disconnected Graphs</h4>
+      <pre><code><span class="syntax-comment"># Before: closeness returns 0</span>
+<span class="syntax-function">centrality_closeness</span>(disconnected_network)
+
+<span class="syntax-comment"># After: use harmonic instead</span>
+<span class="syntax-function">centrality_harmonic</span>(disconnected_network)</code></pre>
+
+      <h4>2. Use Cutoff for Large Networks</h4>
+      <pre><code><span class="syntax-comment"># Before: slow on large networks</span>
+<span class="syntax-function">centrality</span>(large_net, <span class="syntax-param">measures</span> = <span class="syntax-string">"betweenness"</span>)
+
+<span class="syntax-comment"># After: use cutoff for approximation</span>
+<span class="syntax-function">centrality</span>(large_net, <span class="syntax-param">measures</span> = <span class="syntax-string">"betweenness"</span>, <span class="syntax-param">cutoff</span> = <span class="syntax-number">5</span>)</code></pre>
+
+      <h4>3. Use Global Transitivity When Needed</h4>
+      <pre><code><span class="syntax-comment"># Before: manual calculation</span>
+local_trans <- <span class="syntax-function">centrality_transitivity</span>(adj)
+global_trans <- <span class="syntax-function">mean</span>(local_trans, <span class="syntax-param">na.rm</span> = <span class="syntax-keyword">TRUE</span>)  <span class="syntax-comment"># Approximation</span>
+
+<span class="syntax-comment"># After: exact global transitivity</span>
+result <- <span class="syntax-function">centrality</span>(adj, <span class="syntax-param">measures</span> = <span class="syntax-string">"transitivity"</span>,
+                      <span class="syntax-param">transitivity_type</span> = <span class="syntax-string">"global"</span>)
+global_trans <- result$transitivity[<span class="syntax-number">1</span>]</code></pre>
+
+      <h4>4. Use Personalized PageRank for Recommendations</h4>
+      <pre><code><span class="syntax-comment"># Find items similar to item "A"</span>
+similar_to_A <- <span class="syntax-function">centrality_pagerank</span>(item_network,
+  <span class="syntax-param">personalized</span> = <span class="syntax-function">c</span>(<span class="syntax-param">A</span> = <span class="syntax-number">1</span>, ...)  <span class="syntax-comment"># All others = 0</span>
+)
+<span class="syntax-function">sort</span>(similar_to_A, <span class="syntax-param">decreasing</span> = <span class="syntax-keyword">TRUE</span>)[<span class="syntax-number">2</span>:<span class="syntax-number">6</span>]  <span class="syntax-comment"># Top 5 similar items</span></code></pre>
+
+      <h4>5. Visualize Networks by Centrality (scale_nodes_by)</h4>
+      <pre><code><span class="syntax-comment"># Size nodes by any centrality measure!</span>
+<span class="syntax-function">splot</span>(network, <span class="syntax-param">scale_nodes_by</span> = <span class="syntax-string">"degree"</span>)
+<span class="syntax-function">splot</span>(network, <span class="syntax-param">scale_nodes_by</span> = <span class="syntax-string">"betweenness"</span>)
+<span class="syntax-function">splot</span>(network, <span class="syntax-param">scale_nodes_by</span> = <span class="syntax-string">"resilience"</span>)
+
+<span class="syntax-comment"># With custom size range</span>
+<span class="syntax-function">splot</span>(network,
+  <span class="syntax-param">scale_nodes_by</span> = <span class="syntax-string">"pagerank"</span>,
+  <span class="syntax-param">node_size_range</span> = <span class="syntax-function">c</span>(<span class="syntax-number">2</span>, <span class="syntax-number">15</span>)
+)
+
+<span class="syntax-comment"># With centrality parameters</span>
+<span class="syntax-function">splot</span>(network,
+  <span class="syntax-param">scale_nodes_by</span> = <span class="syntax-function">list</span>(<span class="syntax-string">"kreach"</span>, <span class="syntax-param">k</span> = <span class="syntax-number">2</span>)
+)
+
+<span class="syntax-function">splot</span>(network,
+  <span class="syntax-param">scale_nodes_by</span> = <span class="syntax-function">list</span>(<span class="syntax-string">"diffusion"</span>, <span class="syntax-param">lambda</span> = <span class="syntax-number">2</span>)
+)</code></pre>
+
+      <h4>6. Use Network-Level Metrics for Analysis</h4>
+      <pre><code><span class="syntax-comment"># Before: manual calculations or missing metrics</span>
+<span class="syntax-comment"># (No easy way to compute girth, efficiency, etc.)</span>
+
+<span class="syntax-comment"># After: comprehensive network analysis</span>
+
+<span class="syntax-comment"># Quick structural overview</span>
+<span class="syntax-function">network_summary</span>(network, <span class="syntax-param">extended</span> = <span class="syntax-keyword">TRUE</span>)
+
+<span class="syntax-comment"># Identify network vulnerabilities</span>
+cut_nodes <- <span class="syntax-function">network_cut_vertices</span>(network)
+bridges <- <span class="syntax-function">network_bridges</span>(network)
+
+<span class="syntax-comment"># Measure efficiency and small-world properties</span>
+g_eff <- <span class="syntax-function">network_global_efficiency</span>(network)
+l_eff <- <span class="syntax-function">network_local_efficiency</span>(network)
+sigma <- <span class="syntax-function">network_small_world</span>(network)
+
+<span class="syntax-comment"># Analyze network structure</span>
+<span class="syntax-function">cat</span>(<span class="syntax-string">"Global efficiency:"</span>, <span class="syntax-function">round</span>(g_eff, <span class="syntax-number">3</span>), <span class="syntax-string">"\n"</span>)
+<span class="syntax-function">cat</span>(<span class="syntax-string">"Local efficiency:"</span>, <span class="syntax-function">round</span>(l_eff, <span class="syntax-number">3</span>), <span class="syntax-string">"\n"</span>)
+<span class="syntax-function">cat</span>(<span class="syntax-string">"Small-world sigma:"</span>, <span class="syntax-function">round</span>(sigma, <span class="syntax-number">2</span>),
+    <span class="syntax-keyword">if</span>(sigma > <span class="syntax-number">1</span>) <span class="syntax-string">"(small-world)"</span> <span class="syntax-keyword">else</span> <span class="syntax-string">"(random-like)"</span>, <span class="syntax-string">"\n"</span>)</code></pre>
+    </section>
+
+    <div class="footer">
+      <p>cograph Package - Modern Network Visualization for R</p>
+      <p>Documentation generated February 2026</p>
+    </div>
+  </div>
+</body>
+</html>

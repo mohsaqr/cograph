@@ -1,0 +1,30 @@
+DIFFUSION CENTRALITY VALIDATION RESULTS
+=======================================
+
+Timestamp: 2026-02-10 23:40:28 
+
+Test Results:
+  undir_all: PASS
+  undir_lambda: PASS
+  dir_out: PASS
+  dir_in: PASS
+  dir_all: PASS
+  rand_undir: PASS
+  rand_dir_out: PASS
+  rand_dir_in: PASS
+  rand_dir_all: PASS
+  lambda_05: PASS
+  lambda_1: PASS
+  lambda_3: PASS
+  single: PASS
+  disconnected: PASS
+  complete: PASS
+  star: PASS
+
+Performance:
+ nodes original_ms cograph_ms speedup
+   100           5          1     5.0
+   500          24          1    24.0
+  1000          53          2    26.5
+
+Overall: 16/16 tests passed

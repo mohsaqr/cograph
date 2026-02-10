@@ -148,6 +148,91 @@ resolve_node_sizes <- function(vsize, n, default_size = NULL, scale_factor = NUL
   sizes * scale_factor
 }
 
+#' Resolve Centrality-Based Node Sizes
+#'
+#' Calculates node sizes based on centrality measures.
+#'
+#' @param x Network object (igraph, matrix, cograph_network, etc.)
+#' @param scale_by Centrality measure name or list with measure and parameters.
+#'   Valid measures: "degree", "strength", "betweenness", "closeness",
+#'   "eigenvector", "pagerank", "authority", "hub", "eccentricity",
+#'   "coreness", "constraint", "harmonic".
+#' @param size_range Numeric vector of length 2: c(min_size, max_size).
+#'   Default c(2, 8).
+#' @param n Number of nodes (for validation).
+#' @param scaling Scaling mode: "default" or "legacy".
+#' @return Named list with 'sizes' (vector of node sizes) and 'values' (raw centrality values).
+#' @keywords internal
+resolve_centrality_sizes <- function(x, scale_by, size_range = c(2, 8), n = NULL,
+                                     scaling = "default") {
+  if (is.null(scale_by)) {
+    return(NULL)
+  }
+
+  scale <- get_scale_constants(scaling)
+
+  # Parse scale_by argument
+  if (is.character(scale_by)) {
+    measure <- scale_by
+    params <- list()
+  } else if (is.list(scale_by)) {
+    measure <- scale_by$measure %||% scale_by[[1]]
+    params <- scale_by[setdiff(names(scale_by), "measure")]
+  } else {
+    stop("scale_nodes_by must be a character string or list", call. = FALSE)
+  }
+
+  # Valid centrality measures
+  valid_measures <- c("degree", "strength", "betweenness", "closeness",
+                      "eigenvector", "pagerank", "authority", "hub",
+                      "eccentricity", "coreness", "constraint", "transitivity",
+                      "harmonic", "diffusion", "leverage", "kreach",
+                      "resilience")
+
+  measure <- match.arg(tolower(measure), valid_measures)
+
+  # Build centrality call
+  cent_args <- c(list(x = x, measures = measure), params)
+
+  # Calculate centrality
+  cent_result <- tryCatch({
+    do.call(centrality, cent_args)
+  }, error = function(e) {
+    stop("Failed to calculate ", measure, " centrality: ", e$message, call. = FALSE)
+  })
+
+  # Extract the values (column name depends on measure and mode)
+  value_cols <- setdiff(names(cent_result), "node")
+  if (length(value_cols) == 0) {
+    stop("No centrality values returned for measure: ", measure, call. = FALSE)
+  }
+  values <- cent_result[[value_cols[1]]]
+
+  # Handle NA/NaN values
+  values[is.na(values) | is.nan(values)] <- 0
+
+  # Handle all-zero or constant values
+  val_range <- range(values, na.rm = TRUE)
+  if (val_range[1] == val_range[2]) {
+    # All same value - use middle of size range
+    sizes <- rep(mean(size_range), length(values))
+  } else {
+    # Scale to size range
+    normalized <- (values - val_range[1]) / (val_range[2] - val_range[1])
+    sizes <- size_range[1] + normalized * (size_range[2] - size_range[1])
+  }
+
+  # Apply scale factor
+  sizes <- sizes * scale$node_factor
+
+  list(
+    sizes = sizes,
+    values = values,
+    measure = measure,
+    labels = cent_result$node
+  )
+}
+
 #' Resolve Label Sizes
 #'
 #' Determines label sizes, either independent (new default) or coupled to node size (legacy).

@@ -116,6 +116,7 @@ NULL
 #' @param legend_position Legend position: "topright", "topleft", "bottomright", "bottomleft".
 #' @param scaling Scaling mode: "default" for qgraph-matched scaling where node_size=6
 #'   looks similar to qgraph vsize=6, or "legacy" to preserve pre-v2.0 behavior.
+#' @param background Background color for the plot. Default "white".
 #'
 #' @details
 #' ## soplot vs splot
@@ -184,6 +185,7 @@ soplot <- function(network, title = NULL, title_size = 14,
                       margins = c(0.05, 0.05, 0.1, 0.05),
                       layout_margin = 0.15,
                       newpage = TRUE,
+                      background = "white",
                       # Layout and theme
                       layout = NULL,
                       theme = NULL,
@@ -367,7 +369,6 @@ soplot <- function(network, title = NULL, title_size = 14,
       }
       edges <- aggregate_duplicate_edges(edges, edge_duplicates)
       network$edges <- edges
-      network$n_edges <- nrow(edges)
     }
   }
 
@@ -380,7 +381,6 @@ soplot <- function(network, title = NULL, title_size = 14,
     }
     nodes_df$label <- labels
     network$nodes <- nodes_df
-    network$labels <- labels
   }
 
   # Apply threshold - filter out weak edges
@@ -390,7 +390,6 @@ soplot <- function(network, title = NULL, title_size = 14,
       keep <- abs(edges_df$weight) >= threshold
       edges_df <- edges_df[keep, , drop = FALSE]
       network$edges <- edges_df
-      network$n_edges <- nrow(edges_df)
     }
   }
 
@@ -579,8 +578,6 @@ soplot <- function(network, title = NULL, title_size = 14,
     network <- do.call(sn_edges, c(list(network = network), edge_aes))
   }
 
-  th <- network$theme
-
   # Rescale layout coordinates to [0.1, 0.9] range (same as splot)
   # This ensures consistent rendering between soplot and splot
   nodes <- get_nodes(network)
@@ -619,16 +616,13 @@ soplot <- function(network, title = NULL, title_size = 14,
   net$set_nodes(get_nodes(network))
   net$set_edges(get_edges(network))
   net$set_directed(is_directed(network))
-  if (!is.null(network$node_aes)) net$set_node_aes(network$node_aes)
-  if (!is.null(network$edge_aes)) net$set_edge_aes(network$edge_aes)
-  if (!is.null(network$theme)) net$set_theme(network$theme)
 
   if (newpage) {
     grid::grid.newpage()
   }
 
   # Draw background
-  bg_color <- if (!is.null(th)) th$get("background") else "white"
+  bg_color <- background
   grid::grid.rect(gp = grid::gpar(fill = bg_color, col = NA))
 
   # Create viewport with margins
@@ -666,7 +660,7 @@ soplot <- function(network, title = NULL, title_size = 14,
 
   # Draw title if provided
   if (!is.null(title)) {
-    title_col <- if (!is.null(th)) th$get("title_color") else "black"
+    title_col <- "black"
     # Position title within the top margin, ensuring it's visible
     # Use at least 0.02 from the top edge to prevent clipping
     title_y <- 1 - max(margins[3] / 2, 0.02)
@@ -718,12 +712,10 @@ soplot <- function(network, title = NULL, title_size = 14,
   # Remove NULL values
   plot_params <- plot_params[!sapply(plot_params, is.null)]
 
-  # Update the original unified network with plot params and layout info
-  network$plot_params <- plot_params
+  # Update the original unified network with layout info
   network$layout_info <- list(
     name = effective_layout,
-    seed = seed,
-    coords = network$layout
+    seed = seed
   )
 
   # Return the unified format network
@@ -738,24 +730,19 @@ soplot <- function(network, title = NULL, title_size = 14,
 #' @param title Optional plot title.
 #' @return A grid gTree object.
 #' @keywords internal
-create_grid_grob <- function(network, title = NULL) {
+create_grid_grob <- function(network, title = NULL, background = "white") {
   if (!inherits(network, "cograph_network")) {
     stop("network must be a cograph_network object", call. = FALSE)
   }
-
-  theme <- network$theme
 
   # Create temporary R6 network for grid rendering functions
   net <- CographNetwork$new()
   net$set_nodes(get_nodes(network))
   net$set_edges(get_edges(network))
   net$set_directed(is_directed(network))
-  if (!is.null(network$node_aes)) net$set_node_aes(network$node_aes)
-  if (!is.null(network$edge_aes)) net$set_edge_aes(network$edge_aes)
-  if (!is.null(network$theme)) net$set_theme(network$theme)
 
   # Background
-  bg_color <- if (!is.null(theme)) theme$get("background") else "white"
+  bg_color <- background
   bg_grob <- grid::rectGrob(gp = grid::gpar(fill = bg_color, col = NA))
 
   # Edge grobs

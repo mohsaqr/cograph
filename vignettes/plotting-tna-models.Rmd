@@ -336,31 +336,6 @@ splot(model,
 ```
 
 
-```{r}
-prepared_data <- prepare_data(
-  group_regulation_long,
-  action = "Action",
-  actor = "Actor",
-  time = "Time"
-)
-
-# Build separate TNA models for High and Low achievers
-gtna <- group_tna(prepared_data, group = "Course")
-
-compare(gtna)
-comp <- compare(gtna$High$weights, gtna$Low$weights)
-
-
-pak::pak("mohsaqr/Saqrlab")
-
-Saqrlab::simulate_sequences(n_sequences = 2000, seq_length = 50, max_na = 4)
-
-```
-
-
-
-
-
 
 
 

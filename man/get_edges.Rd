@@ -14,7 +14,6 @@ A data frame with columns: from, to, weight.
 }
 \description{
 Extracts the edges data frame from a cograph_network object.
-For the new format, builds a data frame from the from/to/weight vectors.
 }
 \examples{
 mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)

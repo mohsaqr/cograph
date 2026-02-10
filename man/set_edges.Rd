@@ -17,7 +17,6 @@ The modified cograph_network object.
 \description{
 Replaces the edges in a cograph_network object.
 Expects a data frame with from, to, and optionally weight columns.
-Updates the from, to, weight vectors and n_edges.
 }
 \examples{
 mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)

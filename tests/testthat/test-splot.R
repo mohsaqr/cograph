@@ -754,3 +754,150 @@ test_that("splot() with same seed produces consistent layouts", {
   expect_equal(layout1$x, layout2$x)
   expect_equal(layout1$y, layout2$y)
 })
+
+# ============================================
+# VECTORIZED CURVATURE TESTS
+# ============================================
+
+test_that("splot() accepts per-edge curvature vector", {
+  # Create a simple directed network with known edges
+  edges <- data.frame(
+    from = c(1, 2, 1),
+    to = c(2, 1, 3),
+    weight = c(1, 1, 1)
+  )
+  curvatures <- c(0.3, 0.3, 0)  # Two curved, one straight
+
+  result <- safe_plot(splot(edges, directed = TRUE, curvature = curvatures))
+  expect_true(result$success, info = result$error)
+})
+
+test_that("splot() curvature vector is recycled correctly", {
+  # Matrix with 6 edges (3 unique in symmetric case)
+  mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+
+  # Two values recycled to 6
+  result <- safe_plot(splot(mat, curvature = c(0.2, 0)))
+  expect_true(result$success, info = result$error)
+})
+
+test_that("splot() curvature = 0 in vector means straight edge", {
+  edges <- data.frame(
+    from = c(1, 2, 3),
+    to = c(2, 3, 1),
+    weight = c(1, 1, 1)
+  )
+
+  # Mixed curvatures: curved, straight, curved
+  result <- safe_plot(splot(edges, curvature = c(0.3, 0, 0.4)))
+  expect_true(result$success, info = result$error)
+})
+
+test_that("splot() accepts single curvature value (existing behavior)", {
+  adj <- create_test_matrix(4)
+
+  # Single value should still work
+  result <- safe_plot(splot(adj, curvature = 0.25))
+  expect_true(result$success, info = result$error)
+})
+
+test_that("splot() handles curvature vector with directed reciprocal edges", {
+  # Directed graph with reciprocal edges (A <-> B)
+  edges <- data.frame(
+    from = c(1, 2, 1, 3),
+    to = c(2, 1, 3, 1),
+    weight = c(0.5, 0.5, 0.7, 0.3)
+  )
+
+  # Per-edge curvatures
+  curvatures <- c(0.3, 0.3, 0.2, 0.2)
+
+  result <- safe_plot(splot(edges, directed = TRUE, curvature = curvatures))
+  expect_true(result$success, info = result$error)
+})
+
+test_that("splot() handles all-zero curvature vector", {
+  mat <- create_test_matrix(4)
+
+  # All straight edges
+  n_edges <- sum(mat != 0)
+  curvatures <- rep(0, n_edges)
+
+  result <- safe_plot(splot(mat, curvature = curvatures))
+  expect_true(result$success, info = result$error)
+})
+
+test_that("splot() handles all-positive curvature vector", {
+  mat <- create_test_matrix(4)
+
+  # All curved edges
+  n_edges <- sum(mat != 0)
+  curvatures <- rep(0.4, n_edges)
+
+  result <- safe_plot(splot(mat, curvature = curvatures))
+  expect_true(result$success, info = result$error)
+})
+
+test_that("splot() curvature vector works with edge list input", {
+  edges <- create_test_edgelist(n_edges = 5, n_nodes = 4)
+
+  # Per-edge curvatures matching edge count
+  curvatures <- c(0, 0.2, 0.4, 0.1, 0.3)
+
+  result <- safe_plot(splot(edges, curvature = curvatures))
+  expect_true(result$success, info = result$error)
+})
+
+test_that("splot() curvature vector works with cograph_network input", {
+  adj <- create_test_matrix(4)
+  net <- cograph(adj)
+
+  # Get number of edges
+  n_edges <- n_edges(net)
+  curvatures <- runif(n_edges, 0, 0.3)
+
+  result <- safe_plot(splot(net, curvature = curvatures))
+  expect_true(result$success, info = result$error)
+})
+
+test_that("splot() curvature with negative values (curves opposite direction)", {
+  edges <- data.frame(
+    from = c(1, 2),
+    to = c(2, 3),
+    weight = c(1, 1)
+  )
+
+  # Negative curvature curves the opposite direction
+  curvatures <- c(0.3, -0.3)
+
+  result <- safe_plot(splot(edges, curvature = curvatures))
+  expect_true(result$success, info = result$error)
+})
+
+test_that("splot() curvature vector with very small values", {
+  edges <- data.frame(
+    from = c(1, 2, 3),
+    to = c(2, 3, 1),
+    weight = c(1, 1, 1)
+  )
+
+  # Very small curvatures (nearly straight)
+  curvatures <- c(0.01, 0.02, 0.005)
+
+  result <- safe_plot(splot(edges, curvature = curvatures))
+  expect_true(result$success, info = result$error)
+})
+
+test_that("splot() curvature vector with large values", {
+  edges <- data.frame(
+    from = c(1, 2),
+    to = c(2, 1),
+    weight = c(1, 1)
+  )
+
+  # Large curvatures (very curved)
+  curvatures <- c(0.8, 0.9)
+
+  result <- safe_plot(splot(edges, directed = TRUE, curvature = curvatures))
+  expect_true(result$success, info = result$error)
+})

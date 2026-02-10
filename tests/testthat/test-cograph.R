@@ -19,9 +19,11 @@ test_that("cograph() applies default layout", {
   adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
   net <- cograph(adj)
 
-  layout <- net$layout
-  expect_false(is.null(layout))
-  expect_equal(nrow(layout), 3)
+  # Layout coordinates should be in nodes
+  nodes <- get_nodes(net)
+  expect_true("x" %in% names(nodes))
+  expect_true("y" %in% names(nodes))
+  expect_false(all(is.na(nodes$x)))
 })
 
 test_that("sn_layout() changes layout", {
@@ -29,40 +31,37 @@ test_that("sn_layout() changes layout", {
   net1 <- cograph(adj, layout = "spring", seed = 42)
   net2 <- net1 |> sn_layout("circle")
 
-  coords1 <- net1$layout
-  coords2 <- net2$layout
+  nodes1 <- get_nodes(net1)
+  nodes2 <- get_nodes(net2)
 
   # Layouts should be different
-  expect_false(all(coords1$x == coords2$x))
+  expect_false(all(nodes1$x == nodes2$x))
 })
 
-test_that("sn_nodes() modifies node aesthetics", {
+test_that("sn_nodes() returns network (styling handled by splot)", {
   adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
   net <- cograph(adj) |>
     sn_nodes(size = 0.1, fill = "red")
 
-  aes <- net$node_aes
-  expect_true(all(aes$size == 0.1))
-  expect_true(all(aes$fill == "red"))
+  # sn_nodes returns the network unchanged (styling is via splot params)
+  expect_s3_class(net, "cograph_network")
 })
 
-test_that("sn_edges() modifies edge aesthetics", {
+test_that("sn_edges() returns network (styling handled by splot)", {
   adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
   net <- cograph(adj) |>
     sn_edges(width = 2, color = "blue")
 
-  aes <- net$edge_aes
-  expect_true(all(aes$width == 2))
-  expect_true(all(aes$color == "blue"))
+  # sn_edges returns the network unchanged (styling is via splot params)
+  expect_s3_class(net, "cograph_network")
 })
 
-test_that("sn_theme() applies theme", {
+test_that("sn_theme() returns network (styling handled by splot)", {
   adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
   net <- cograph(adj) |> sn_theme("dark")
 
-  theme <- net$theme
-  expect_equal(theme$name, "dark")
-  expect_equal(theme$get("background"), "#1a1a2e")
+  # sn_theme returns the network unchanged (theming is via splot params)
+  expect_s3_class(net, "cograph_network")
 })
 
 test_that("pipe chain works correctly", {
@@ -74,8 +73,7 @@ test_that("pipe chain works correctly", {
     sn_theme("minimal")
 
   expect_s3_class(net, "cograph_network")
-  expect_true(all(net$node_aes$fill == "steelblue"))
-  expect_equal(net$theme$name, "minimal")
+  expect_equal(n_nodes(net), 3)
 })
 
 test_that("print method works", {
@@ -83,7 +81,6 @@ test_that("print method works", {
   net <- cograph(adj)
 
   expect_output(print(net), "Cograph network")
-  expect_output(print(net), "3 nodes")
 })
 
 test_that("summary method works", {
@@ -100,19 +97,16 @@ test_that("as_cograph() and cograph() produce same structure", {
   net1 <- cograph(adj)
   net2 <- as_cograph(adj)
 
-  # Same names
-  expect_equal(sort(names(net1)), sort(names(net2)))
-
   # Same core values
   expect_equal(n_nodes(net1), n_nodes(net2))
   expect_equal(n_edges(net1), n_edges(net2))
   expect_equal(is_directed(net1), is_directed(net2))
 
-  # Both have node_aes and edge_aes
-  expect_false(is.null(net1$node_aes))
-  expect_false(is.null(net2$node_aes))
-  expect_false(is.null(net1$edge_aes))
-  expect_false(is.null(net2$edge_aes))
+  # Both have core data
+  expect_true(!is.null(net1$nodes))
+  expect_true(!is.null(net2$nodes))
+  expect_true(!is.null(net1$edges))
+  expect_true(!is.null(net2$edges))
 })
 
 test_that("weights matrix preserved", {

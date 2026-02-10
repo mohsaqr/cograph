@@ -1,12 +1,4 @@
-# Test script for cluster-metrics.R
-# Run with: devtools::load_all(); source("tests/test-cluster-metrics.R")
-
-library(testthat)
-
-# Load the package
-if (!exists("aggregate_weights")) {
-  devtools::load_all(".")
-}
+# Tests for cluster-metrics.R
 
 # ==============================================================================
 # Test Data

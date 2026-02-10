@@ -28,17 +28,14 @@ to_cograph(x, directed = NULL, ...)
 \value{
 A cograph_network object: a named list with components:
 \describe{
-\item{\code{from}}{Integer vector of source node indices}
-\item{\code{to}}{Integer vector of target node indices}
-\item{\code{weight}}{Numeric vector of edge weights}
 \item{\code{nodes}}{Data frame with id, label, (x, y if layout applied)}
+\item{\code{edges}}{Data frame with from, to, weight columns}
 \item{\code{directed}}{Logical indicating if network is directed}
-\item{\code{n_nodes}}{Integer count of nodes}
-\item{\code{n_edges}}{Integer count of edges}
-\item{\code{labels}}{Character vector of node labels}
+\item{\code{weights}}{Full n×n weight matrix (for to_matrix round-trip)}
 \item{\code{source}}{Character indicating input type}
-\item{\code{layout}}{Layout coordinates (NULL until computed)}
 \item{\code{layout_info}}{Layout algorithm info (NULL until computed)}
+\item{\code{tna}}{TNA metadata (type, group_name, group_index) if from TNA}
+\item{\code{node_groups}}{Optional node groupings data frame}
 }
 }
 \description{
@@ -48,13 +45,14 @@ The resulting object is a named list with all data accessible via \code{$}.
 \details{
 The cograph_network format is designed to be:
 \itemize{
-\item Simple: All data accessible via \code{net$from}, \code{net$to}, \code{net$weight}, etc.
+\item Lean: Only essential data stored, computed values derived on demand
 \item Modern: Uses named list elements instead of attributes for clean \code{$} access
 \item Compatible: Works seamlessly with splot() and other cograph functions
 }
 
 Use getter functions for programmatic access:
-\code{\link{get_nodes}}, \code{\link{get_edges}}, \code{\link{get_labels}}
+\code{\link{get_nodes}}, \code{\link{get_edges}}, \code{\link{get_labels}},
+\code{\link{n_nodes}}, \code{\link{n_edges}}
 
 Use setter functions to modify:
 \code{\link{set_nodes}}, \code{\link{set_edges}}, \code{\link{set_layout}}
@@ -64,14 +62,10 @@ Use setter functions to modify:
 mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 net <- as_cograph(mat)
 
-# Direct $ access to all data
-net$from       # edge sources
-net$to         # edge targets
-net$weight     # edge weights
+# Direct $ access to core data
 net$nodes      # nodes data frame
+net$edges      # edges data frame
 net$directed   # TRUE/FALSE
-net$n_nodes    # 3
-net$n_edges    # 3
 
 # Getter functions (recommended for programmatic use)
 get_nodes(net)   # nodes data frame

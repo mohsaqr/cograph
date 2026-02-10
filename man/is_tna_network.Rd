@@ -10,7 +10,7 @@ is_tna_network(x)
 \item{x}{A cograph_network object.}
 }
 \value{
-Logical: TRUE if the network contains a TNA model, FALSE otherwise.
+Logical: TRUE if the network was created from a TNA object, FALSE otherwise.
 }
 \description{
 Checks whether a cograph_network was created from a tna or group_tna object.
@@ -31,5 +31,5 @@ is_tna_network(net2)
 }
 }
 \seealso{
-\code{\link{get_tna_model}}, \code{\link{as_cograph}}
+\code{\link{as_cograph}}
 }

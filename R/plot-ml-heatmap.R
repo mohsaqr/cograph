@@ -30,7 +30,7 @@
 #' @return A ggplot2 object.
 #'
 #' @examples
-#' \dontrun
+#' \dontrun{
 #' # List of matrices
 #' layers <- list(
 #'   Layer1 = matrix(runif(16), 4, 4),

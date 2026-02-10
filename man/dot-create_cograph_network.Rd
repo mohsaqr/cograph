@@ -11,18 +11,12 @@
   source = "unknown",
   layout = NULL,
   layout_info = NULL,
-  node_aes = NULL,
-  edge_aes = NULL,
-  theme = NULL,
-  plot_params = NULL,
   tna = NULL,
   weights = NULL,
   layers = NULL,
   clusters = NULL,
   groups = NULL,
-  node_groups = NULL,
-  raw_data = NULL,
-  estimator = NULL
+  node_groups = NULL
 )
 }
 \arguments{
@@ -38,15 +32,7 @@
 
 \item{layout_info}{List with layout metadata (name, seed), or NULL.}
 
-\item{node_aes}{List of node aesthetic parameters.}
-
-\item{edge_aes}{List of edge aesthetic parameters.}
-
-\item{theme}{Theme object or NULL.}
-
-\item{plot_params}{List of plot parameters.}
-
-\item{tna}{List with TNA metadata (model, type, group_index, group_name), or NULL.}
+\item{tna}{List with TNA metadata (type, group_index, group_name), or NULL.}
 
 \item{weights}{Full n×n weight matrix for TNA compatibility, or NULL.}
 
@@ -57,10 +43,6 @@
 \item{groups}{Optional group assignments.}
 
 \item{node_groups}{Optional node groupings data frame.}
-
-\item{raw_data}{Optional raw data for validation.}
-
-\item{estimator}{Optional estimator function for validation.}
 }
 \value{
 A cograph_network object (named list with class).

@@ -299,9 +299,8 @@ sn_edges <- function(network,
   if (!is.null(color)) {
     if (identical(color, "weight") && !is.null(edges_df$weight)) {
       # Color by weight sign: positive = green, negative = red
-      current_aes <- if (!is.null(network$edge_aes)) network$edge_aes else list()
-      pos_col <- if (!is.null(edge_positive_color)) edge_positive_color else (current_aes$positive_color %||% "#2E7D32")
-      neg_col <- if (!is.null(edge_negative_color)) edge_negative_color else (current_aes$negative_color %||% "#C62828")
+      pos_col <- if (!is.null(edge_positive_color)) edge_positive_color else "#2E7D32"
+      neg_col <- if (!is.null(edge_negative_color)) edge_negative_color else "#C62828"
       aes$color <- ifelse(edges_df$weight >= 0, pos_col, neg_col)
     } else {
       aes$color <- resolve_aesthetic(color, edges_df, m)

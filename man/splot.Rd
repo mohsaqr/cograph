@@ -383,6 +383,9 @@ Overrides edge_label_style if provided.}
 
 \item{edge_label_ci_format}{CI format: "bracket" for \verb{[low, up]} or "dash" for \code{low-up}.}
 
+\item{edge_label_leading_zero}{Logical: show leading zero for values < 1? Default TRUE.
+Set to FALSE to display ".5" instead of "0.5".}
+
 \item{edge_ci_lower}{Numeric vector of lower CI bounds for labels.}
 
 \item{edge_ci_upper}{Numeric vector of upper CI bounds for labels.}

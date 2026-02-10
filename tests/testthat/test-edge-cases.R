@@ -548,3 +548,135 @@ test_that("sn_theme() applies correctly after other customizations", {
   result <- safe_plot(splot(net))
   expect_true(result$success, info = result$error)
 })
+
+# ============================================
+# STRESS TESTS (LARGE NETWORKS)
+# ============================================
+
+test_that("splot() handles 100-node sparse network", {
+  skip_on_cran()
+
+  n <- 100
+  set.seed(42)
+  mat <- matrix(runif(n * n), n, n)
+  mat[mat < 0.95] <- 0  # Very sparse (~5% density)
+  mat <- mat + t(mat)  # Make symmetric
+  diag(mat) <- 0
+
+  result <- safe_plot(splot(mat, layout = "circle"))
+  expect_true(result$success, info = result$error)
+})
+
+test_that("cograph() handles 100-node network", {
+  skip_on_cran()
+
+  n <- 100
+  set.seed(42)
+  mat <- matrix(0, n, n)
+  # Add sparse edges
+  for (i in 1:(n - 1)) {
+    if (runif(1) > 0.5) {
+      mat[i, i + 1] <- mat[i + 1, i] <- runif(1)
+    }
+  }
+
+  net <- cograph(mat)
+  expect_cograph_network(net)
+  expect_equal(n_nodes(net), 100)
+})
+
+test_that("splot() handles dense network (50 nodes, 50% density)", {
+  skip_on_cran()
+
+  adj <- create_test_matrix(50, density = 0.5, seed = 42)
+
+  result <- safe_plot(splot(adj, layout = "circle"))
+  expect_true(result$success, info = result$error)
+})
+
+# ============================================
+# API COMPATIBILITY TESTS
+# ============================================
+
+test_that("splot() API core parameters work", {
+  mat <- matrix(c(0, 1, 1, 0), 2, 2)
+
+  # These should all work (core API)
+  expect_no_error(with_temp_png(splot(mat, layout = "circle")))
+  expect_no_error(with_temp_png(splot(mat, directed = TRUE)))
+  expect_no_error(with_temp_png(splot(mat, directed = FALSE)))
+  expect_no_error(with_temp_png(splot(mat, node_size = 10)))
+  expect_no_error(with_temp_png(splot(mat, edge_color = "blue")))
+  expect_no_error(with_temp_png(splot(mat, title = "Test")))
+})
+
+test_that("splot() API node aesthetics work", {
+  mat <- create_test_matrix(4)
+
+  expect_no_error(with_temp_png(splot(mat, node_fill = "steelblue")))
+  expect_no_error(with_temp_png(splot(mat, node_shape = "square")))
+  expect_no_error(with_temp_png(splot(mat, node_alpha = 0.7)))
+  expect_no_error(with_temp_png(splot(mat, node_border_color = "black")))
+  expect_no_error(with_temp_png(splot(mat, node_border_width = 2)))
+})
+
+test_that("splot() API edge aesthetics work", {
+  mat <- create_test_matrix(4, weighted = TRUE)
+
+  expect_no_error(with_temp_png(splot(mat, edge_width = 2)))
+  expect_no_error(with_temp_png(splot(mat, edge_alpha = 0.5)))
+  expect_no_error(with_temp_png(splot(mat, edge_style = 2)))
+  expect_no_error(with_temp_png(splot(mat, curvature = 0.2)))
+  expect_no_error(with_temp_png(splot(mat, edge_labels = TRUE)))
+})
+
+test_that("splot() API layout options work", {
+  mat <- create_test_matrix(5)
+
+  expect_no_error(with_temp_png(splot(mat, layout = "circle")))
+  expect_no_error(with_temp_png(splot(mat, layout = "spring", seed = 42)))
+
+  skip_if_no_igraph()
+  expect_no_error(with_temp_png(splot(mat, layout = "kk", seed = 42)))
+  expect_no_error(with_temp_png(splot(mat, layout = "fr", seed = 42)))
+})
+
+test_that("splot() API theme options work", {
+  mat <- create_test_matrix(4)
+
+  expect_no_error(with_temp_png(splot(mat, theme = "classic")))
+  expect_no_error(with_temp_png(splot(mat, theme = "dark")))
+  expect_no_error(with_temp_png(splot(mat, theme = "minimal")))
+  expect_no_error(with_temp_png(splot(mat, theme = "colorblind")))
+})
+
+# ============================================
+# IGRAPH ROUND-TRIP TESTS
+# ============================================
+
+test_that("igraph round-trip preserves structure", {
+  skip_if_no_igraph()
+
+  mat <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
+  rownames(mat) <- colnames(mat) <- c("A", "B", "C")
+
+  net <- as_cograph(mat)
+  ig <- to_igraph(net)
+  net2 <- as_cograph(ig)
+
+  expect_equal(n_nodes(net), n_nodes(net2))
+  expect_equal(n_edges(net), n_edges(net2))
+})
+
+test_that("igraph round-trip preserves weights", {
+  skip_if_no_igraph()
+
+  mat <- matrix(c(0, 0.5, 0.3, 0.5, 0, 0.7, 0.3, 0.7, 0), 3, 3)
+
+  net <- as_cograph(mat)
+  ig <- to_igraph(net)
+  net2 <- as_cograph(ig)
+
+  # Check edge count matches
+  expect_equal(n_edges(net), n_edges(net2))
+})

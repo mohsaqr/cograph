@@ -16,7 +16,6 @@ The modified cograph_network object.
 }
 \description{
 Replaces the nodes data frame in a cograph_network object.
-Automatically updates n_nodes and labels.
 }
 \examples{
 mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)

@@ -49,5 +49,5 @@ hubs <- filter_nodes(adj, degree >= 3)
 splot(hubs, node_fill = color_communities(hubs))
 }
 \seealso{
-\code{\link{filter_edges}}, \code{\link{centrality}}, \code{\link{splot}}
+\code{\link{filter_edges}}, \code{\link{splot}}
 }

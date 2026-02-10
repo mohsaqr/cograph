@@ -12,6 +12,7 @@ soplot(
   margins = c(0.05, 0.05, 0.1, 0.05),
   layout_margin = 0.15,
   newpage = TRUE,
+  background = "white",
   layout = NULL,
   theme = NULL,
   seed = 42,
@@ -98,6 +99,7 @@ sn_render(
   margins = c(0.05, 0.05, 0.1, 0.05),
   layout_margin = 0.15,
   newpage = TRUE,
+  background = "white",
   layout = NULL,
   theme = NULL,
   seed = 42,
@@ -190,6 +192,8 @@ Matrices and other inputs are auto-converted.}
 \item{layout_margin}{Margin around the network layout (proportion of viewport). Default 0.15.}
 
 \item{newpage}{Logical. Start a new graphics page? Default TRUE.}
+
+\item{background}{Background color for the plot. Default "white".}
 
 \item{layout}{Layout algorithm. Built-in: "circle", "spring", "groups", "grid",
 "random", "star", "bipartite". igraph (2-letter): "kk" (Kamada-Kawai),

@@ -1,5 +1,5 @@
 # Tests for TNA integration in cograph
-# Tests is_tna_network() and get_tna_model() functions
+# Tests is_tna_network() function
 
 test_that("is_tna_network returns FALSE for non-TNA networks", {
   # Matrix input
@@ -23,70 +23,6 @@ test_that("is_tna_network returns TRUE for TNA networks", {
   expect_true(is_tna_network(net))
 })
 
-test_that("get_tna_model errors for non-TNA networks", {
-  mat <- matrix(runif(25), 5, 5)
-  net <- as_cograph(mat)
-
-  expect_error(get_tna_model(net), "Not a TNA network")
-})
-
-test_that("get_tna_model returns original tna object", {
-  skip_if_not_installed("tna")
-
-  library(tna)
-  model <- tna(group_regulation)
-  net <- as_cograph(model)
-
-  # Get model back
-
-  retrieved <- get_tna_model(net)
-
-  # Check class
-  expect_s3_class(retrieved, "tna")
-
-  # Check it's the same object (or at least equivalent)
-  expect_equal(retrieved$weights, model$weights)
-  expect_equal(retrieved$inits, model$inits)
-  expect_equal(retrieved$labels, model$labels)
-})
-
-test_that("TNA model fields are accessible via get_tna_model", {
-  skip_if_not_installed("tna")
-
-  library(tna)
-  model <- tna(group_regulation)
-  net <- as_cograph(model)
-
-  retrieved <- get_tna_model(net)
-
-  # Check core fields exist
-  expect_true(!is.null(retrieved$weights))
-  expect_true(!is.null(retrieved$inits))
-  expect_true(!is.null(retrieved$labels))
-
-  # Check weights is a matrix
-  expect_true(is.matrix(retrieved$weights))
-
-  # Check inits is numeric
-  expect_true(is.numeric(retrieved$inits))
-
-  # Check labels is character
-  expect_true(is.character(retrieved$labels))
-})
-
-test_that("TNA attributes are preserved", {
-  skip_if_not_installed("tna")
-
-  library(tna)
-  model <- tna(group_regulation)
-  net <- as_cograph(model)
-
-  retrieved <- get_tna_model(net)
-
-  # Check type attribute
-  expect_equal(attr(retrieved, "type"), attr(model, "type"))
-})
-
 test_that("cograph_network $tna field has correct structure", {
   skip_if_not_installed("tna")
 
@@ -98,8 +34,7 @@ test_that("cograph_network $tna field has correct structure", {
   expect_true(!is.null(net$tna))
   expect_true(is.list(net$tna))
 
-  # Check required fields
-  expect_true("model" %in% names(net$tna))
+  # Check required fields (minimal structure - no model stored)
   expect_true("type" %in% names(net$tna))
   expect_equal(net$tna$type, "tna")
 
@@ -135,17 +70,46 @@ test_that("TNA network can still be plotted", {
   })
 })
 
-test_that("TNA functions can be used on retrieved model", {
+test_that("TNA weights matrix is preserved in cograph_network", {
   skip_if_not_installed("tna")
 
   library(tna)
   model <- tna(group_regulation)
   net <- as_cograph(model)
 
-  # Get model and use TNA function on it
-  retrieved <- get_tna_model(net)
+  # Check weights matrix is stored
+  expect_true(!is.null(net$weights))
+  expect_true(is.matrix(net$weights))
+  expect_equal(dim(net$weights), dim(model$weights))
+  expect_equal(net$weights, model$weights)
+})
 
-  # summary should work on retrieved model
-  summ <- summary(retrieved)
-  expect_true(!is.null(summ))
+test_that("TNA inits are preserved in nodes", {
+  skip_if_not_installed("tna")
+
+  library(tna)
+  model <- tna(group_regulation)
+  net <- as_cograph(model)
+
+  # Check inits are stored in nodes
+  nodes <- get_nodes(net)
+  expect_true("inits" %in% names(nodes))
+  expect_equal(as.numeric(nodes$inits), as.numeric(model$inits))
+})
+
+test_that("TNA colors are extracted if available", {
+  skip_if_not_installed("tna")
+
+  library(tna)
+  model <- tna(group_regulation)
+
+  # Check if colors exist in model
+  has_colors <- !is.null(model$data) && !is.null(attr(model$data, "colors"))
+
+  net <- as_cograph(model)
+  nodes <- get_nodes(net)
+
+  if (has_colors) {
+    expect_true("color" %in% names(nodes))
+  }
 })

@@ -80,3 +80,25 @@ A ggplot2 object.
 Visualizes multiple network layers as heatmaps on tilted 3D-perspective planes,
 similar to the plot_mlna network visualization style.
 }
+\examples{
+\dontrun{
+# List of matrices
+layers <- list(
+  Layer1 = matrix(runif(16), 4, 4),
+  Layer2 = matrix(runif(16), 4, 4),
+  Layer3 = matrix(runif(16), 4, 4)
+)
+plot_ml_heatmap(layers)
+
+# With connections
+plot_ml_heatmap(layers, show_connections = TRUE)
+
+# Custom styling
+plot_ml_heatmap(layers,
+  colors = "plasma",
+  layer_spacing = 3,
+  skew = 0.5
+)
+}
+
+}

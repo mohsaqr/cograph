@@ -372,7 +372,7 @@ filter_edges <- function(x, expr, directed = NULL) {
 #' @return A subgraph adjacency matrix containing only matching nodes.
 #'   Ready for direct use with \code{splot()}.
 #'
-#' @seealso \code{\link{filter_edges}}, \code{\link{centrality}}, \code{\link{splot}}
+#' @seealso \code{\link{filter_edges}}, \code{\link{splot}}
 #'
 #' @export
 #' @examples

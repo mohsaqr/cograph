@@ -205,7 +205,7 @@ expect_in_range <- function(x, min, max) {
 #' @param x Object to check
 expect_cograph_network <- function(x) {
   expect_s3_class(x, "cograph_network")
-  expect_true(!is.null(x$n_nodes))
+  expect_true(!is.null(x$nodes))
   expect_true(n_nodes(x) >= 0)
 }
 

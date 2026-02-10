@@ -65,11 +65,10 @@ summary.cograph_network <- function(object, ...) {
     }
   }
 
-  has_layout <- !is.null(object$layout)
+  # Check if layout is in nodes or layout_info
+  nodes <- get_nodes(object)
+  has_layout <- !is.null(nodes$x) && !all(is.na(nodes$x))
   cat("\nLayout:", if (has_layout) "computed" else "not computed", "\n")
-
-  theme <- object$theme
-  cat("Theme:", if (is.null(theme)) "none" else theme$name, "\n")
 
   weighted <- !is.null(edges$weight) && any(edges$weight != 1)
 

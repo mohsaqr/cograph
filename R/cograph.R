@@ -194,9 +194,9 @@ cograph <- function(input, layout = "spring", directed = NULL,
 
   # Get full weight matrix if available
   weights_matrix <- NULL
-  if (!is.null(parsed$tna) && !is.null(parsed$tna$model)) {
-    # TNA: use model's weights matrix
-    weights_matrix <- parsed$tna$model$weights
+  if (!is.null(parsed$weights_matrix)) {
+    # Use weights matrix from parse_input if provided
+    weights_matrix <- parsed$weights_matrix
   } else if (is.matrix(input) && nrow(input) == ncol(input)) {
     # Square matrix input: preserve it
     weights_matrix <- input
@@ -208,10 +208,6 @@ cograph <- function(input, layout = "spring", directed = NULL,
     directed = directed,
     node_labels = node_labels
   )
-
-  # Apply default theme
-  default_theme <- get_theme("classic")
-  network$set_theme(default_theme)
 
   # Set seed for deterministic layouts
   if (!is.null(seed)) {
@@ -252,7 +248,17 @@ cograph <- function(input, layout = "spring", directed = NULL,
     seed = seed
   )
 
-  # Create unified format using constructor
+  # Create minimal TNA metadata (without model/parent)
+  tna_meta <- NULL
+  if (!is.null(parsed$tna)) {
+    tna_meta <- list(
+      type = parsed$tna$type,
+      group_name = parsed$tna$group_name,
+      group_index = parsed$tna$group_index
+    )
+  }
+
+  # Create lean network using simplified constructor
   .create_cograph_network(
     nodes = nodes_with_layout,
     edges = network$get_edges(),
@@ -260,11 +266,7 @@ cograph <- function(input, layout = "spring", directed = NULL,
     source = source_type,
     layout = coords,
     layout_info = layout_info,
-    node_aes = network$get_node_aes(),
-    edge_aes = network$get_edge_aes(),
-    theme = network$get_theme(),
-    plot_params = network$get_plot_params(),
-    tna = parsed$tna,
+    tna = tna_meta,
     weights = weights_matrix
   )
 }
@@ -458,7 +460,7 @@ sn_theme <- function(network, theme, ...) {
     theme_obj <- theme_obj$merge(overrides)
   }
 
-  # Update network (modify list directly)
+  # Store theme on network
   network$theme <- theme_obj
 
   network

@@ -4,7 +4,7 @@
 \alias{create_grid_grob}
 \title{Create Grid Grob Tree}
 \usage{
-create_grid_grob(network, title = NULL)
+create_grid_grob(network, title = NULL, background = "white")
 }
 \arguments{
 \item{network}{A cograph_network object.}

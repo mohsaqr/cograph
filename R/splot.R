@@ -545,6 +545,16 @@ splot <- function(
     return(splot.tna_bootstrap(x, ...))
   }
 
+  # Dispatch to specialized methods for permutation test objects
+  if (inherits(x, "tna_permutation")) {
+    return(splot.tna_permutation(x, ...))
+  }
+
+  # Dispatch for group permutation tests
+  if (inherits(x, "group_tna_permutation")) {
+    return(splot.group_tna_permutation(x, ...))
+  }
+
   # Convert to cograph_network if needed
   network <- ensure_cograph_network(x, layout = layout, seed = seed, directed = directed, ...)
 

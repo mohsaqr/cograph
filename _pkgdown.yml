@@ -1,0 +1,117 @@
+url: http://sonsoles.me/cograph/
+template:
+  bootstrap: 5
+  bootswatch: yeti
+figures:
+  dev: ragg::agg_png
+  dpi: 180
+  fig.ext: png
+  fig.width: 6
+  fig.height: 6
+  fig.retina: 3
+  fig.asp: NULL
+  bg: NA
+
+authors:
+  Mohammed Saqr:
+    href: https://saqr.me
+  Sonsoles López-Pernas:
+    href: https://sonsoles.me
+  Santtu Tikka:
+    href: http://users.jyu.fi/~santikka/
+navbar:
+  structure:
+    left:  [intro, reference, articles, news]
+    right: [search, github]
+reference:
+  - title: Base R plotting
+    contents:
+    - splot
+    - sn_save
+  - title: Plotting based on `ggplot2`
+    contents:
+    - soplot
+    - sn_render
+    - sn_ggplot
+    - sn_save_ggplot
+  - title: Transition Network Analysis
+    contents:
+    - from_tna
+    - tplot
+    - plot_tna
+    - plot_htna
+  - title: Multi-Cluster TNA Network Plot
+    contents:
+    - mtna
+    - plot_mtna
+  - title: Multilevel Network Visualization
+    contents:
+    - mlna
+    - plot_mlna
+  - title: Network functions
+    contents:
+    - cograph
+    - as_cograph
+    - n_nodes
+    - n_edges
+    - get_edges
+    - get_labels
+    - get_nodes
+    - set_edges
+    - set_nodes
+    - sn_edges
+    - sn_ggplot
+    - sn_nodes
+    - sn_save
+    - aes-nodes
+    - aes-edges
+    - output-save
+    - from_qgraph
+  - title: Palettes
+    contents:
+    - list_palettes
+    - sn_palette
+    - palette_blues
+    - palette_colorblind
+    - palette_diverging
+    - palette_pastel
+    - palette_rainbow
+    - palette_reds
+    - palette_viridis
+    - palettes
+  - title: Shapes
+    contents:
+    - get_shape
+    - list_shapes
+    - list_svg_shapes
+    - register_shape
+    - register_svg_shape
+    - unregister_svg_shape
+  - title: Themes
+    contents:
+    - get_theme
+    - list_themes
+    - sn_theme
+    - register_theme
+    - theme_cograph_classic
+    - theme_cograph_colorblind
+    - theme_cograph_dark
+    - theme_cograph_gray
+    - theme_cograph_minimal
+    - theme_cograph_nature
+    - theme_cograph_viridis
+  - title: Layouts
+    contents:
+    - get_layout
+    - set_layout
+    - sn_layout
+    - layout-circle
+    - layout-groups
+    - layout-oval
+    - layout-spring
+    - layout_circle
+    - layout_groups
+    - layout_oval
+    - layout_spring
+    - list_layouts
+    - register_layout

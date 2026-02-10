@@ -1,6 +1,6 @@
-#' @title Permutation Test Plotting Methods
-#' @description Plot methods for permutation test results from tna::permutation_test().
-#'   These methods visualize network comparison with styling to distinguish
+#' @title Permutation Test Plotting
+#' @description Plot permutation test results from tna::permutation_test().
+#'   Visualizes network comparison with styling to distinguish
 #'   significant from non-significant edge differences.
 #' @name plot-permutation
 NULL
@@ -37,12 +37,22 @@ print.group_tna_permutation <- function(x, ...) {
 
 #' @export
 plot.tna_permutation <- function(x, ...) {
-  splot.tna_permutation(x, ...)
+  plot_permutation(x, ...)
 }
 
 #' @export
 plot.group_tna_permutation <- function(x, ...) {
-  splot.group_tna_permutation(x, ...)
+  plot_group_permutation(x, ...)
+}
+
+#' @export
+splot.tna_permutation <- function(x, ...) {
+  plot_permutation(x, ...)
+}
+
+#' @export
+splot.group_tna_permutation <- function(x, ...) {
+  plot_group_permutation(x, ...)
 }
 
 #' Plot Permutation Test Results
@@ -52,20 +62,14 @@ plot.group_tna_permutation <- function(x, ...) {
 #' objects from the tna package.
 #'
 #' @param x A tna_permutation object (from tna::permutation_test).
-#' @param display Display mode:
-#'   \itemize{
-#'     \item "styled" (default): All edges with styling to distinguish significant/non-significant
-#'     \item "significant": Only significant edge differences
-#'     \item "full": All edge differences without significance styling
-#'   }
-#' @param pos_color Color for positive differences (x > y). Default "#009900" (green).
-#' @param neg_color Color for negative differences (x < y). Default "#C62828" (red).
-#' @param color_nonsig Color for non-significant edges in styled mode. Default "#888888" (grey).
-#' @param edge_style_sig Line style for significant edges (1=solid). Default 1.
-#' @param edge_style_nonsig Line style for non-significant edges (2=dashed). Default 2.
+#' @param show_nonsig Logical: show non-significant edges? Default FALSE (only significant shown).
+#' @param edge_positive_color Color for positive differences (x > y). Default "#009900" (green).
+#' @param edge_negative_color Color for negative differences (x < y). Default "#C62828" (red).
+#' @param edge_nonsig_color Color for non-significant edges. Default "#888888" (grey).
+#' @param edge_nonsig_style Line style for non-significant edges (2=dashed). Default 2.
 #' @param show_stars Logical: show significance stars (*, **, ***) on edges? Default TRUE.
-#' @param show_effect Logical: show effect size in labels? Default FALSE.
-#' @param alpha_nonsig Alpha for non-significant edges. Default 0.4.
+#' @param show_effect Logical: show effect size in parentheses for significant edges? Default FALSE.
+#' @param edge_nonsig_alpha Alpha for non-significant edges. Default 0.4.
 #' @param ... Additional arguments passed to splot().
 #'
 #' @return Invisibly returns the plot.
@@ -78,11 +82,11 @@ plot.group_tna_permutation <- function(x, ...) {
 #'   \item \code{edges$stats}: Data frame with edge_name, diff_true, effect_size, p_value
 #' }
 #'
-#' Edge styling in "styled" mode:
+#' Edge styling:
 #' \itemize{
 #'   \item Significant positive: solid green, bold labels with stars
 #'   \item Significant negative: solid red, bold labels with stars
-#'   \item Non-significant: dashed grey, plain labels, lower alpha
+#'   \item Non-significant (when show_nonsig=TRUE): dashed grey, plain labels, lower alpha
 #' }
 #'
 #' @examples
@@ -91,30 +95,27 @@ plot.group_tna_permutation <- function(x, ...) {
 #' library(tna)
 #' perm <- permutation_test(model1, model2, iter = 1000)
 #'
-#' # Plot with default styling
-#' splot(perm)
-#'
-#' # Show only significant differences
-#' splot(perm, display = "significant")
+#' # Plot significant edges only (default)
+#' plot_permutation(perm)
 #'
 #' # Show effect sizes
-#' splot(perm, show_effect = TRUE)
+#' plot_permutation(perm, show_effect = TRUE)
+#'
+#' # Include non-significant edges
+#' plot_permutation(perm, show_nonsig = TRUE)
 #' }
 #'
 #' @export
-splot.tna_permutation <- function(x,
-                                  display = c("styled", "significant", "full"),
-                                  pos_color = "#009900",
-                                  neg_color = "#C62828",
-                                  color_nonsig = "#888888",
-                                  edge_style_sig = 1,
-                                  edge_style_nonsig = 2,
+plot_permutation <- function(x,
+                                  show_nonsig = FALSE,
+                                  edge_positive_color = "#009900",
+                                  edge_negative_color = "#C62828",
+                                  edge_nonsig_color = "#888888",
+                                  edge_nonsig_style = 2,
                                   show_stars = TRUE,
                                   show_effect = FALSE,
-                                  alpha_nonsig = 0.4,
+                                  edge_nonsig_alpha = 0.4,
                                   ...) {
-  display <- match.arg(display)
-
   level <- attr(x, "level") %||% 0.05
   labels <- attr(x, "labels")
 
@@ -128,15 +129,19 @@ splot.tna_permutation <- function(x,
     stop("Cannot find edge differences in permutation object", call. = FALSE)
   }
 
-  # Get weights based on display mode
-  weights <- switch(display,
-    significant = diffs_sig,
-    diffs_true
-  )
+  # Get weights based on show_nonsig
+  weights <- if (show_nonsig) diffs_true else diffs_sig
 
   # Build args list
   args <- list(...)
   n_nodes <- nrow(weights)
+
+  # Apply same rounding as splot to match edge counts
+  weight_digits <- args$weight_digits
+  if (is.null(weight_digits)) weight_digits <- 2  # splot default
+  if (!is.null(weight_digits)) {
+    weights <- round(weights, weight_digits)
+  }
 
   # Default layout
   if (is.null(args$layout)) args$layout <- "oval"
@@ -152,7 +157,7 @@ splot.tna_permutation <- function(x,
   # Default styling
   if (is.null(args$edge_labels)) args$edge_labels <- TRUE
   if (is.null(args$edge_label_size)) args$edge_label_size <- 0.6
-  if (is.null(args$edge_label_position)) args$edge_label_position <- 0.5
+  if (is.null(args$edge_label_position)) args$edge_label_position <- 0.35
   if (is.null(args$edge_label_halo)) args$edge_label_halo <- TRUE
   if (is.null(args$node_size)) args$node_size <- 7
   if (is.null(args$arrow_size)) args$arrow_size <- 0.61
@@ -192,52 +197,97 @@ splot.tna_permutation <- function(x,
     }
   }
 
-  # Use matrix-based styling (splot handles per-edge conversion internally)
-  # This avoids edge index ordering mismatches
+  # Build per-edge vectors (like bootstrap does)
+  sig_mask <- diffs_sig != 0
 
-  if (display == "styled" && n_edges > 0) {
-    # Create edge color matrix: sig edges get pos/neg colors, non-sig get grey
-    sig_mask <- diffs_sig != 0
-    color_matrix <- matrix(color_nonsig, n_nodes, n_nodes)
-    color_matrix[sig_mask & weights > 0] <- pos_color
-    color_matrix[sig_mask & weights < 0] <- neg_color
+  if (show_nonsig && n_edges > 0) {
+    # Show all edges with styling for sig vs non-sig
+    edge_colors <- character(n_edges)
+    edge_styles <- numeric(n_edges)
+    edge_fontfaces <- numeric(n_edges)
+    edge_alphas <- numeric(n_edges)
 
-    # Create style matrix: sig=solid, non-sig=dashed
-    style_matrix <- matrix(edge_style_nonsig, n_nodes, n_nodes)
-    style_matrix[sig_mask] <- edge_style_sig
+    for (k in seq_len(n_edges)) {
+      i <- edge_idx[k, 1]
+      j <- edge_idx[k, 2]
+      diff_val <- weights[i, j]
 
-    # Create alpha matrix
-    alpha_matrix <- matrix(alpha_nonsig, n_nodes, n_nodes)
-    alpha_matrix[sig_mask] <- 1
+      if (sig_mask[i, j]) {
+        # Significant edge
+        edge_colors[k] <- if (diff_val > 0) edge_positive_color else edge_negative_color
+        edge_styles[k] <- 1  # solid
+        edge_fontfaces[k] <- 2  # bold
+        edge_alphas[k] <- 1
+      } else {
+        # Non-significant edge
+        edge_colors[k] <- edge_nonsig_color
+        edge_styles[k] <- edge_nonsig_style
+        edge_fontfaces[k] <- 1  # plain
+        edge_alphas[k] <- edge_nonsig_alpha
+      }
+    }
 
-    args$edge_color <- color_matrix
-    args$edge_style <- style_matrix
-    args$edge_alpha <- alpha_matrix
+    args$edge_color <- edge_colors
+    args$edge_style <- edge_styles
+    args$edge_label_fontface <- edge_fontfaces
+    args$edge_alpha <- edge_alphas
 
-  } else if (display == "significant") {
-    # For "significant" mode, use pos/neg colors based on direction
-    args$edge_positive_color <- pos_color
-    args$edge_negative_color <- neg_color
   } else {
-    # Full mode - use standard pos/neg coloring
-    args$edge_positive_color <- pos_color
-    args$edge_negative_color <- neg_color
+    # Default: show only significant edges
+    args$edge_positive_color <- edge_positive_color
+    args$edge_negative_color <- edge_negative_color
+    args$edge_label_fontface <- 2  # bold
   }
 
-  # Stars for significance - pass matrix form
-  if (show_stars && n_edges > 0 && !is.null(p_matrix)) {
-    args$edge_label_p <- p_matrix
-    args$edge_label_stars <- TRUE
-    args$edge_label_template <- "{est}{stars}"
+  # Build custom edge labels with optional effect size
+  if (n_edges > 0 && (show_stars || show_effect)) {
+    edge_labels_custom <- character(n_edges)
+
+    for (k in seq_len(n_edges)) {
+      i <- edge_idx[k, 1]
+      j <- edge_idx[k, 2]
+
+      # Format weight (remove leading zero)
+      w <- weights[i, j]
+      w_str <- sub("^0\\.", ".", sprintf("%.2f", w))
+      w_str <- sub("^-0\\.", "-.", w_str)
+
+      # Add stars if requested
+      stars_str <- ""
+      if (show_stars && !is.null(p_matrix)) {
+        p <- p_matrix[i, j]
+        if (!is.na(p)) {
+          if (p < 0.001) stars_str <- "***"
+          else if (p < 0.01) stars_str <- "**"
+          else if (p < 0.05) stars_str <- "*"
+        }
+      }
+
+      # Add effect size if requested, not NA, and edge is significant
+      effect_str <- ""
+      if (show_effect && !is.null(effect_matrix) && sig_mask[i, j]) {
+        eff <- effect_matrix[i, j]
+        if (!is.na(eff) && is.finite(eff)) {
+          effect_str <- sprintf(" (%.1f)", abs(eff))
+        }
+      }
+
+      edge_labels_custom[k] <- paste0(w_str, stars_str, effect_str)
+    }
+
+    args$edge_labels <- edge_labels_custom
   }
+
+  # Edges are scaled by weight by default (splot default behavior)
+  # No need to set edge_width - let splot handle it
 
   # Title
   if (is.null(args$title)) {
-    args$title <- switch(display,
-      styled = "Permutation Test: Network Difference",
-      significant = "Permutation Test: Significant Differences",
-      full = "Permutation Test: All Differences"
-    )
+    args$title <- if (show_nonsig) {
+      "Permutation Test: All Differences"
+    } else {
+      "Permutation Test: Significant Differences"
+    }
   }
 
   # Node colors from tna model
@@ -257,7 +307,7 @@ splot.tna_permutation <- function(x,
 #'
 #' @param x A group_tna_permutation object (from tna::permutation_test on group_tna).
 #' @param i Index or name of specific comparison to plot. NULL for all.
-#' @param ... Additional arguments passed to splot.tna_permutation().
+#' @param ... Additional arguments passed to plot_permutation().
 #'
 #' @return Invisibly returns NULL.
 #'
@@ -268,14 +318,14 @@ splot.tna_permutation <- function(x,
 #' perm <- permutation_test(mod, iter = 1000)
 #'
 #' # Plot all comparisons
-#' splot(perm)
+#' plot_group_permutation(perm)
 #'
 #' # Plot specific comparison
-#' splot(perm, i = "A vs. B")
+#' plot_group_permutation(perm, i = "A vs. B")
 #' }
 #'
 #' @export
-splot.group_tna_permutation <- function(x, i = NULL, ...) {
+plot_group_permutation <- function(x, i = NULL, ...) {
   if (!is.null(i)) {
     # Plot single comparison
     elem <- x[[i]]
@@ -283,7 +333,7 @@ splot.group_tna_permutation <- function(x, i = NULL, ...) {
       stop("Invalid index i=", i, call. = FALSE)
     }
     title <- if (is.character(i)) i else names(x)[i]
-    return(splot.tna_permutation(elem, title = title, ...))
+    return(plot_permutation(elem, title = title, ...))
   }
 
   # Plot all comparisons
@@ -304,7 +354,7 @@ splot.group_tna_permutation <- function(x, i = NULL, ...) {
   pair_names <- names(x)
   for (k in seq_len(n_pairs)) {
     title <- pair_names[k] %||% paste("Comparison", k)
-    splot.tna_permutation(x[[k]], title = title, ...)
+    plot_permutation(x[[k]], title = title, ...)
   }
 
   invisible(NULL)

@@ -540,6 +540,11 @@ splot <- function(
     set.seed(seed)
   }
 
+  # Dispatch to specialized methods for bootstrap objects
+  if (inherits(x, "tna_bootstrap")) {
+    return(splot.tna_bootstrap(x, ...))
+  }
+
   # Convert to cograph_network if needed
   network <- ensure_cograph_network(x, layout = layout, seed = seed, directed = directed, ...)
 

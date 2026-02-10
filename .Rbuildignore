@@ -25,5 +25,6 @@
 ^doc$
 ^Meta$
 ^moved$
+^aside$
 ^.*\.png$
 ^experimental_ona\.R$

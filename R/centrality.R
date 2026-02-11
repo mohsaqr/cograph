@@ -973,3 +973,155 @@ centrality_resilience <- function(x, ...) {
   df <- centrality(x, measures = "resilience", ...)
   stats::setNames(df$resilience, df$node)
 }
+
+
+#' Calculate Edge Centrality Measures
+#'
+#' Computes centrality measures for edges in a network and returns a tidy
+#' data frame. Unlike node centrality, these measures describe edge importance.
+#'
+#' @param x Network input (matrix, igraph, network, cograph_network, tna object)
+#' @param measures Which measures to calculate. Default "all" calculates all
+#'   available edge measures. Options: "betweenness", "weight".
+#' @param weighted Logical. Use edge weights if available. Default TRUE.
+#' @param directed Logical or NULL. If NULL (default), auto-detect from matrix
+#'   symmetry. Set TRUE to force directed, FALSE to force undirected.
+#' @param cutoff Maximum path length for betweenness. Default -1 (no limit).
+#' @param invert_weights Logical or NULL. Invert weights for path-based measures?
+#'   Default NULL (auto-detect: TRUE for tna objects, FALSE otherwise).
+#' @param alpha Numeric. Exponent for weight inversion. Default 1.
+#' @param digits Integer or NULL. Round numeric columns. Default NULL.
+#' @param sort_by Character or NULL. Column to sort by (descending). Default NULL.
+#' @param ... Additional arguments passed to \code{\link{to_igraph}}
+#'
+#' @return A data frame with columns:
+#'   \itemize{
+#'     \item \code{from}: Source node label
+#'     \item \code{to}: Target node label
+#'     \item \code{weight}: Edge weight (if weighted)
+#'     \item \code{betweenness}: Edge betweenness centrality
+#'   }
+#'
+#' @details
+#' Edge centrality measures available:
+#' \describe{
+#'   \item{betweenness}{Number of shortest paths passing through the edge.
+#'     Edges with high betweenness are bridges connecting different parts
+#'     of the network.}
+#'   \item{weight}{Original edge weight (included for reference)}
+#' }
+#'
+#' @export
+#' @examples
+#' # Create test network
+#' mat <- matrix(c(0,1,1,0, 1,0,1,1, 1,1,0,0, 0,1,0,0), 4, 4)
+#' rownames(mat) <- colnames(mat) <- c("A", "B", "C", "D")
+#'
+#' # All edge measures
+#' edge_centrality(mat)
+#'
+#' # Just betweenness
+#' edge_centrality(mat, measures = "betweenness")
+#'
+#' # Sort by betweenness to find bridge edges
+#' edge_centrality(mat, sort_by = "betweenness")
+edge_centrality <- function(x, measures = "all",
+                            weighted = TRUE, directed = NULL,
+                            cutoff = -1, invert_weights = NULL, alpha = 1,
+                            digits = NULL, sort_by = NULL, ...) {
+
+  # Auto-detect invert_weights for tna objects
+ is_tna_input <- inherits(x, c("tna", "group_tna", "ctna", "ftna", "atna",
+                                 "group_ctna", "group_ftna", "group_atna"))
+  if (is.null(invert_weights)) {
+    invert_weights <- is_tna_input
+  }
+
+  # Convert to igraph
+  g <- to_igraph(x, directed = directed, ...)
+  directed <- igraph::is_directed(g)
+
+  # Get edge list
+  edges <- igraph::as_data_frame(g, what = "edges")
+
+  # Get node labels
+  labels <- if (!is.null(igraph::V(g)$name)) {
+    igraph::V(g)$name
+  } else {
+    as.character(seq_len(igraph::vcount(g)))
+  }
+
+  # Build result data frame
+  result <- data.frame(
+    from = edges$from,
+    to = edges$to,
+    stringsAsFactors = FALSE
+  )
+
+  # Available measures
+  all_measures <- c("betweenness", "weight")
+
+  # Resolve measures
+ if (identical(measures, "all")) {
+    measures <- all_measures
+  } else {
+    invalid <- setdiff(measures, all_measures)
+    if (length(invalid) > 0) {
+      stop("Unknown edge measures: ", paste(invalid, collapse = ", "),
+           "\nAvailable: ", paste(all_measures, collapse = ", "), call. = FALSE)
+    }
+  }
+
+  # Get weights
+  weights <- if (weighted && !is.null(igraph::E(g)$weight)) {
+    igraph::E(g)$weight
+  } else {
+    NULL
+  }
+
+  # Add weight column if requested
+  if ("weight" %in% measures) {
+    result$weight <- if (!is.null(weights)) weights else rep(1, nrow(result))
+  }
+
+  # Calculate edge betweenness
+  if ("betweenness" %in% measures) {
+    # Handle weight inversion for path-based measure
+    bet_weights <- weights
+    if (!is.null(weights) && invert_weights) {
+      bet_weights <- 1 / (weights ^ alpha)
+      bet_weights[!is.finite(bet_weights)] <- .Machine$double.xmax
+      reason <- if (is_tna_input) "tna object detected" else "invert_weights=TRUE"
+      message("Note: Weights inverted (1/w^", alpha, ") for edge betweenness (",
+              reason, "). Higher weights = shorter paths.")
+    }
+
+    result$betweenness <- igraph::edge_betweenness(
+      g, weights = bet_weights, directed = directed, cutoff = cutoff
+    )
+  }
+
+  # Round if requested
+  if (!is.null(digits)) {
+    numeric_cols <- sapply(result, is.numeric)
+    result[numeric_cols] <- lapply(result[numeric_cols], round, digits = digits)
+  }
+
+  # Sort if requested
+  if (!is.null(sort_by)) {
+    if (!sort_by %in% names(result)) {
+      stop("sort_by column '", sort_by, "' not found in results", call. = FALSE)
+    }
+    result <- result[order(result[[sort_by]], decreasing = TRUE), ]
+    rownames(result) <- NULL
+  }
+
+  result
+}
+
+#' @rdname edge_centrality
+#' @export
+edge_betweenness <- function(x, ...) {
+  df <- edge_centrality(x, measures = "betweenness", ...)
+  stats::setNames(df$betweenness, paste(df$from, df$to, sep = "->"))
+}

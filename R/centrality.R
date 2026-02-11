@@ -31,9 +31,9 @@
 #'   on large networks at the cost of accuracy.
 #' @param invert_weights Logical. For path-based measures (betweenness, closeness,
 #'   harmonic, eccentricity, kreach), should weights be inverted so that higher
-#'   weights mean shorter paths? Default TRUE, which is appropriate for
-#'   strength/frequency/probability weights (SNA, TNA). Set to FALSE if your
-#'   weights already represent distances/costs.
+#'   weights mean shorter paths? Default FALSE (matching igraph/sna behavior where
+#'   weights = distances/costs). Set to TRUE for strength/frequency weights
+#'   (qgraph/tna style) where higher weights should mean shorter paths.
 #' @param alpha Numeric. Exponent for weight transformation when \code{invert_weights = TRUE}.
 #'   Distance is computed as \code{1 / weight^alpha}. Default 1. Higher values
 #'   increase the influence of weight differences on path lengths.
@@ -110,7 +110,7 @@ centrality <- function(x, measures = "all", mode = "all",
                        normalized = FALSE, weighted = TRUE,
                        directed = NULL, loops = TRUE, simplify = "sum",
                        digits = NULL, sort_by = NULL,
-                       cutoff = -1, invert_weights = TRUE, alpha = 1,
+                       cutoff = -1, invert_weights = FALSE, alpha = 1,
                        damping = 0.85, personalized = NULL,
                        transitivity_type = "local", isolates = "nan",
                        lambda = 1, k = 3, ...) {
@@ -186,14 +186,13 @@ centrality <- function(x, measures = "all", mode = "all",
 
   weights_for_paths <- weights
   if (!is.null(weights) && invert_weights && needs_path_weights) {
-    # Invert weights: distance = 1 / weight^alpha
+    # Invert weights: distance = 1 / weight^alpha (qgraph/tna style)
     weights_for_paths <- 1 / (weights ^ alpha)
     # Handle zeros/infinities
     weights_for_paths[!is.finite(weights_for_paths)] <- .Machine$double.xmax
     message("Note: Weights inverted (1/w^", alpha, ") for path-based measures ",
             "(", paste(intersect(measures, path_based_measures), collapse = ", "), "). ",
-            "Higher original weights = shorter paths. ",
-            "Set invert_weights=FALSE for distance/cost weights.")
+            "Higher original weights = shorter paths (qgraph/tna style).")
   }
 
   # Pre-calculate HITS scores if needed (avoid computing twice)

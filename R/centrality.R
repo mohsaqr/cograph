@@ -853,10 +853,38 @@ centrality_degree <- function(x, mode = "all", ...) {
 
 #' @rdname centrality
 #' @export
+centrality_indegree <- function(x, ...) {
+ df <- centrality(x, measures = "degree", mode = "in", ...)
+  stats::setNames(df$degree_in, df$node)
+}
+
+#' @rdname centrality
+#' @export
+centrality_outdegree <- function(x, ...) {
+  df <- centrality(x, measures = "degree", mode = "out", ...)
+  stats::setNames(df$degree_out, df$node)
+}
+
+#' @rdname centrality
+#' @export
 centrality_strength <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "strength", mode = mode, ...)
   col <- paste0("strength_", mode)
   stats::setNames(df[[col]], df$node)
+}
+
+#' @rdname centrality
+#' @export
+centrality_instrength <- function(x, ...) {
+  df <- centrality(x, measures = "strength", mode = "in", ...)
+  stats::setNames(df$strength_in, df$node)
+}
+
+#' @rdname centrality
+#' @export
+centrality_outstrength <- function(x, ...) {
+  df <- centrality(x, measures = "strength", mode = "out", ...)
+  stats::setNames(df$strength_out, df$node)
 }
 
 #' @rdname centrality
@@ -872,6 +900,20 @@ centrality_closeness <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "closeness", mode = mode, ...)
   col <- paste0("closeness_", mode)
   stats::setNames(df[[col]], df$node)
+}
+
+#' @rdname centrality
+#' @export
+centrality_incloseness <- function(x, ...) {
+  df <- centrality(x, measures = "closeness", mode = "in", ...)
+  stats::setNames(df$closeness_in, df$node)
+}
+
+#' @rdname centrality
+#' @export
+centrality_outcloseness <- function(x, ...) {
+  df <- centrality(x, measures = "closeness", mode = "out", ...)
+  stats::setNames(df$closeness_out, df$node)
 }
 
 #' @rdname centrality
@@ -913,6 +955,20 @@ centrality_eccentricity <- function(x, mode = "all", ...) {
 
 #' @rdname centrality
 #' @export
+centrality_ineccentricity <- function(x, ...) {
+  df <- centrality(x, measures = "eccentricity", mode = "in", ...)
+  stats::setNames(df$eccentricity_in, df$node)
+}
+
+#' @rdname centrality
+#' @export
+centrality_outeccentricity <- function(x, ...) {
+  df <- centrality(x, measures = "eccentricity", mode = "out", ...)
+  stats::setNames(df$eccentricity_out, df$node)
+}
+
+#' @rdname centrality
+#' @export
 centrality_coreness <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "coreness", mode = mode, ...)
   col <- paste0("coreness_", mode)
@@ -941,6 +997,20 @@ centrality_harmonic <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "harmonic", mode = mode, ...)
   col <- paste0("harmonic_", mode)
   stats::setNames(df[[col]], df$node)
+}
+
+#' @rdname centrality
+#' @export
+centrality_inharmonic <- function(x, ...) {
+  df <- centrality(x, measures = "harmonic", mode = "in", ...)
+  stats::setNames(df$harmonic_in, df$node)
+}
+
+#' @rdname centrality
+#' @export
+centrality_outharmonic <- function(x, ...) {
+  df <- centrality(x, measures = "harmonic", mode = "out", ...)
+  stats::setNames(df$harmonic_out, df$node)
 }
 
 #' @rdname centrality

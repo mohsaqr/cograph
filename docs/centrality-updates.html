@@ -395,7 +395,7 @@
   <div class="header">
     <h1>Centrality &amp; Network Metrics Update</h1>
     <p class="subtitle">cograph Package - Centrality Measures &amp; Network-Level Statistics</p>
-    <span class="version">Version 1.7.0 - February 2026</span>
+    <span class="version">Version 1.8.0 - February 2026</span>
   </div>
 
   <div class="container">
@@ -406,11 +406,12 @@
         <li><a href="#new-parameters">2. New Parameters</a></li>
         <li><a href="#new-measures">3. New Centrality Measures</a></li>
         <li><a href="#network-metrics">4. Network-Level Metrics</a></li>
-        <li><a href="#bug-fixes">5. Bug Fixes</a></li>
-        <li><a href="#measure-comparison">6. Measure Comparison</a></li>
-        <li><a href="#wrapper-functions">7. Wrapper Functions</a></li>
-        <li><a href="#examples">8. Code Examples</a></li>
-        <li><a href="#migration">9. Migration Guide</a></li>
+        <li><a href="#robustness">5. Robustness Analysis</a></li>
+        <li><a href="#bug-fixes">6. Bug Fixes</a></li>
+        <li><a href="#measure-comparison">7. Measure Comparison</a></li>
+        <li><a href="#wrapper-functions">8. Wrapper Functions</a></li>
+        <li><a href="#examples">9. Code Examples</a></li>
+        <li><a href="#migration">10. Migration Guide</a></li>
       </ul>
     </nav>
 
@@ -418,7 +419,7 @@
     <section id="overview">
       <h2>1. Overview</h2>
 
-      <p>This update enhances the <code>centrality()</code> function and adds comprehensive <code>network_summary()</code> capabilities, including 10 new network-level metrics and 5 new centrality measures.</p>
+      <p>This update enhances the <code>centrality()</code> function, adds comprehensive <code>network_summary()</code> capabilities, and introduces <strong>robustness analysis</strong> for studying network resilience to targeted attacks and random failures.</p>
 
       <div class="feature-grid">
         <div class="feature-card">
@@ -432,6 +433,10 @@
         <div class="feature-card">
           <h4><span class="icon">+</span> 10 Network-Level Metrics</h4>
           <p>New functions: <strong>girth</strong>, <strong>radius</strong>, <strong>vertex_connectivity</strong>, <strong>clique_size</strong>, <strong>cut_vertices</strong>, <strong>bridges</strong>, <strong>global_efficiency</strong>, <strong>local_efficiency</strong>, <strong>small_world</strong>, <strong>rich_club</strong>.</p>
+        </div>
+        <div class="feature-card">
+          <h4><span class="icon">+</span> Robustness Analysis</h4>
+          <p>New <code>robustness()</code> for attack simulations, <code>plot_robustness()</code> and <code>ggplot_robustness()</code> for visualization, plus <code>robustness_auc()</code> for quantitative comparison.</p>
         </div>
         <div class="feature-card">
           <h4><span class="icon">&#8596;</span> Full Compatibility</h4>
@@ -1222,9 +1227,270 @@ local_efficiency            0.778</pre>
       </div>
     </section>
 
+    <!-- SECTION: Robustness Analysis -->
+    <section id="robustness">
+      <h2>5. Robustness Analysis</h2>
+
+      <p>New functions for network robustness analysis, simulating targeted attacks and random failures. Based on the classic Albert, Jeong &amp; Barabási (2000) methodology.</p>
+
+      <div class="alert alert-info">
+        <strong>Key Insight:</strong> Scale-free networks are robust to random failures but vulnerable to targeted attacks on hub nodes. Random networks degrade more uniformly regardless of attack strategy.
+      </div>
+
+      <h3>Main Function</h3>
+
+      <div class="measure-card">
+        <div class="measure-header">
+          <h4>robustness()</h4>
+          <span class="badge badge-new">New</span>
+        </div>
+        <div class="measure-body">
+          <p>Performs sequential vertex or edge removal, tracking the size of the largest connected component. Supports three attack strategies:</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Strategy</th>
+                <th>Description</th>
+                <th>Typical Use</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>betweenness</code></td>
+                <td>Remove nodes with highest betweenness centrality (recalculated after each removal)</td>
+                <td>Targets bridge nodes that connect different regions</td>
+              </tr>
+              <tr>
+                <td><code>degree</code></td>
+                <td>Remove nodes with highest degree (recalculated after each removal)</td>
+                <td>Targets hub nodes with many connections</td>
+              </tr>
+              <tr>
+                <td><code>random</code></td>
+                <td>Remove nodes in random order (averaged over n_iter iterations)</td>
+                <td>Simulates random component failures</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <pre><code><span class="syntax-comment"># Create a scale-free network</span>
+g <- igraph::<span class="syntax-function">sample_pa</span>(<span class="syntax-number">50</span>, <span class="syntax-param">m</span> = <span class="syntax-number">2</span>, <span class="syntax-param">directed</span> = <span class="syntax-keyword">FALSE</span>)
+
+<span class="syntax-comment"># Targeted attack by betweenness (default)</span>
+rob_btw <- <span class="syntax-function">robustness</span>(g, <span class="syntax-param">measure</span> = <span class="syntax-string">"betweenness"</span>)
+
+<span class="syntax-comment"># Targeted attack by degree</span>
+rob_deg <- <span class="syntax-function">robustness</span>(g, <span class="syntax-param">measure</span> = <span class="syntax-string">"degree"</span>)
+
+<span class="syntax-comment"># Random failure (50 iterations for smooth curve)</span>
+rob_rnd <- <span class="syntax-function">robustness</span>(g, <span class="syntax-param">measure</span> = <span class="syntax-string">"random"</span>, <span class="syntax-param">n_iter</span> = <span class="syntax-number">50</span>)
+
+<span class="syntax-comment"># View results</span>
+<span class="syntax-function">head</span>(rob_btw)
+<span class="syntax-comment">#   removed_pct comp_size comp_pct     measure                  type</span>
+<span class="syntax-comment"># 1        0.00        50     1.00 betweenness Targeted vertex attack</span>
+<span class="syntax-comment"># 2        0.02        49     0.98 betweenness Targeted vertex attack</span>
+<span class="syntax-comment"># 3        0.04        47     0.94 betweenness Targeted vertex attack</span></code></pre>
+
+          <h4>Parameters</h4>
+          <table class="param-table">
+            <tr>
+              <td>x</td>
+              <td>network</td>
+              <td>Matrix, igraph, network, cograph_network, or tna object</td>
+            </tr>
+            <tr>
+              <td>type</td>
+              <td>"vertex" | "edge"</td>
+              <td>Remove vertices (default) or edges</td>
+            </tr>
+            <tr>
+              <td>measure</td>
+              <td>character</td>
+              <td>"betweenness" (default), "degree", or "random"</td>
+            </tr>
+            <tr>
+              <td>n_iter</td>
+              <td>integer</td>
+              <td>Iterations for random (default 100)</td>
+            </tr>
+            <tr>
+              <td>seed</td>
+              <td>integer</td>
+              <td>Random seed for reproducibility</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <h3>Visualization Functions</h3>
+
+      <div class="measure-card">
+        <div class="measure-header">
+          <h4>plot_robustness()</h4>
+          <span class="badge badge-new">New</span>
+        </div>
+        <div class="measure-body">
+          <p>Base R visualization comparing robustness across attack strategies. Colors follow Nature paper convention: Red = Betweenness, Green = Degree, Blue = Random.</p>
+
+          <pre><code><span class="syntax-comment"># Quick comparison of all strategies</span>
+<span class="syntax-function">plot_robustness</span>(<span class="syntax-param">x</span> = g, <span class="syntax-param">n_iter</span> = <span class="syntax-number">50</span>)
+
+<span class="syntax-comment"># Or plot pre-computed results</span>
+<span class="syntax-function">plot_robustness</span>(rob_btw, rob_deg, rob_rnd)
+
+<span class="syntax-comment"># Customize colors and legend</span>
+<span class="syntax-function">plot_robustness</span>(<span class="syntax-param">x</span> = g,
+  <span class="syntax-param">title</span> = <span class="syntax-string">"Network Resilience Analysis"</span>,
+  <span class="syntax-param">colors</span> = <span class="syntax-function">c</span>(<span class="syntax-param">betweenness</span> = <span class="syntax-string">"#E41A1C"</span>,
+             <span class="syntax-param">degree</span> = <span class="syntax-string">"#4DAF4A"</span>,
+             <span class="syntax-param">random</span> = <span class="syntax-string">"#377EB8"</span>),
+  <span class="syntax-param">legend_pos</span> = <span class="syntax-string">"topright"</span>
+)</code></pre>
+
+          <div style="text-align: center; margin: 1.5rem 0;">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='350' viewBox='0 0 500 350'%3E%3Crect fill='%23f8fafc' width='500' height='350'/%3E%3Crect x='60' y='30' width='380' height='260' fill='white' stroke='%23e2e8f0'/%3E%3Ctext x='250' y='20' text-anchor='middle' font-family='sans-serif' font-size='14' font-weight='bold'%3EScale-Free Network (n=50): Robustness Analysis%3C/text%3E%3Cg stroke='%23e2e8f0' stroke-width='1'%3E%3Cline x1='60' y1='95' x2='440' y2='95'/%3E%3Cline x1='60' y1='160' x2='440' y2='160'/%3E%3Cline x1='60' y1='225' x2='440' y2='225'/%3E%3Cline x1='155' y1='30' x2='155' y2='290'/%3E%3Cline x1='250' y1='30' x2='250' y2='290'/%3E%3Cline x1='345' y1='30' x2='345' y2='290'/%3E%3C/g%3E%3Cpath d='M60,30 L80,35 L100,42 L120,55 L140,80 L160,120 L180,170 L200,210 L220,240 L240,260 L260,275 L280,282 L300,286 L400,290' fill='none' stroke='%23377EB8' stroke-width='2'/%3E%3Cpath d='M60,30 L70,50 L80,85 L90,130 L100,180 L110,220 L120,250 L130,270 L140,280 L160,286 L400,290' fill='none' stroke='%23E41A1C' stroke-width='2'/%3E%3Cpath d='M60,30 L70,55 L80,95 L90,145 L100,195 L110,230 L120,258 L130,275 L140,282 L160,287 L400,290' fill='none' stroke='%234DAF4A' stroke-width='2'/%3E%3Ctext x='40' y='35' text-anchor='end' font-family='sans-serif' font-size='11'%3E1.00%3C/text%3E%3Ctext x='40' y='100' text-anchor='end' font-family='sans-serif' font-size='11'%3E0.75%3C/text%3E%3Ctext x='40' y='165' text-anchor='end' font-family='sans-serif' font-size='11'%3E0.50%3C/text%3E%3Ctext x='40' y='230' text-anchor='end' font-family='sans-serif' font-size='11'%3E0.25%3C/text%3E%3Ctext x='40' y='295' text-anchor='end' font-family='sans-serif' font-size='11'%3E0.00%3C/text%3E%3Ctext x='60' y='310' text-anchor='middle' font-family='sans-serif' font-size='11'%3E0.00%3C/text%3E%3Ctext x='155' y='310' text-anchor='middle' font-family='sans-serif' font-size='11'%3E0.25%3C/text%3E%3Ctext x='250' y='310' text-anchor='middle' font-family='sans-serif' font-size='11'%3E0.50%3C/text%3E%3Ctext x='345' y='310' text-anchor='middle' font-family='sans-serif' font-size='11'%3E0.75%3C/text%3E%3Ctext x='440' y='310' text-anchor='middle' font-family='sans-serif' font-size='11'%3E1.00%3C/text%3E%3Ctext x='250' y='340' text-anchor='middle' font-family='sans-serif' font-size='12'%3EFraction of removed nodes%3C/text%3E%3Ctext x='15' y='160' text-anchor='middle' font-family='sans-serif' font-size='12' transform='rotate(-90, 15, 160)'%3EFraction of remaining nodes%3C/text%3E%3Crect x='350' y='45' width='85' height='70' fill='white' stroke='%23e2e8f0'/%3E%3Ctext x='358' y='60' font-family='sans-serif' font-size='10' font-weight='bold'%3ERemoval based on%3C/text%3E%3Cline x1='358' y1='75' x2='378' y2='75' stroke='%23E41A1C' stroke-width='2'/%3E%3Ctext x='383' y='79' font-family='sans-serif' font-size='10'%3EBetweenness%3C/text%3E%3Cline x1='358' y1='90' x2='378' y2='90' stroke='%234DAF4A' stroke-width='2'/%3E%3Ctext x='383' y='94' font-family='sans-serif' font-size='10'%3EDegree%3C/text%3E%3Cline x1='358' y1='105' x2='378' y2='105' stroke='%23377EB8' stroke-width='2'/%3E%3Ctext x='383' y='109' font-family='sans-serif' font-size='10'%3ERandom%3C/text%3E%3C/svg%3E" alt="Robustness plot showing three curves" style="max-width: 100%; border: 1px solid #e2e8f0; border-radius: 8px;">
+          </div>
+          <p style="text-align: center; font-size: 0.9em; color: #64748b;">Targeted attacks (red/green) fragment scale-free networks quickly. Random failures (blue) show gradual degradation.</p>
+        </div>
+      </div>
+
+      <div class="measure-card">
+        <div class="measure-header">
+          <h4>ggplot_robustness()</h4>
+          <span class="badge badge-new">New</span>
+        </div>
+        <div class="measure-body">
+          <p>Publication-quality ggplot2 visualization with faceted comparison of multiple networks. Style matches Nature Scientific Reports figures.</p>
+
+          <pre><code><span class="syntax-comment"># Compare network types</span>
+g_scalefree <- igraph::<span class="syntax-function">sample_pa</span>(<span class="syntax-number">50</span>, <span class="syntax-param">m</span> = <span class="syntax-number">2</span>, <span class="syntax-param">directed</span> = <span class="syntax-keyword">FALSE</span>)
+g_random <- igraph::<span class="syntax-function">sample_gnp</span>(<span class="syntax-number">50</span>, <span class="syntax-number">0.15</span>)
+
+<span class="syntax-function">ggplot_robustness</span>(
+  <span class="syntax-string">"Scale-Free (BA)"</span> = g_scalefree,
+  <span class="syntax-string">"Random (ER)"</span> = g_random,
+  <span class="syntax-param">n_iter</span> = <span class="syntax-number">50</span>
+)
+
+<span class="syntax-comment"># Compare real networks</span>
+<span class="syntax-function">ggplot_robustness</span>(
+  <span class="syntax-string">"Teaching network"</span> = teaching_net,
+  <span class="syntax-string">"Collaborative network"</span> = collab_net,
+  <span class="syntax-param">measures</span> = <span class="syntax-function">c</span>(<span class="syntax-string">"betweenness"</span>, <span class="syntax-string">"degree"</span>, <span class="syntax-string">"random"</span>),
+  <span class="syntax-param">n_iter</span> = <span class="syntax-number">100</span>
+)</code></pre>
+        </div>
+      </div>
+
+      <h3>Analysis Functions</h3>
+
+      <div class="measure-card">
+        <div class="measure-header">
+          <h4>robustness_auc()</h4>
+          <span class="badge badge-new">New</span>
+        </div>
+        <div class="measure-body">
+          <p>Computes Area Under the Curve (AUC) using trapezoidal integration. Higher AUC indicates more robust network. Maximum AUC is 1.0.</p>
+
+          <pre><code><span class="syntax-comment"># Compare robustness quantitatively</span>
+<span class="syntax-function">robustness_auc</span>(rob_btw)  <span class="syntax-comment"># ~0.17 (vulnerable!)</span>
+<span class="syntax-function">robustness_auc</span>(rob_deg)  <span class="syntax-comment"># ~0.16 (vulnerable!)</span>
+<span class="syntax-function">robustness_auc</span>(rob_rnd)  <span class="syntax-comment"># ~0.42 (more robust)</span></code></pre>
+
+          <table>
+            <thead>
+              <tr>
+                <th>AUC Range</th>
+                <th>Interpretation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>0.0 - 0.2</td>
+                <td>Very vulnerable (network fragments quickly)</td>
+              </tr>
+              <tr>
+                <td>0.2 - 0.4</td>
+                <td>Somewhat vulnerable</td>
+              </tr>
+              <tr>
+                <td>0.4 - 0.6</td>
+                <td>Moderate robustness</td>
+              </tr>
+              <tr>
+                <td>0.6 - 0.8</td>
+                <td>Robust</td>
+              </tr>
+              <tr>
+                <td>0.8 - 1.0</td>
+                <td>Very robust (dense/redundant network)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="measure-card">
+        <div class="measure-header">
+          <h4>robustness_summary()</h4>
+          <span class="badge badge-new">New</span>
+        </div>
+        <div class="measure-body">
+          <p>Returns a summary table comparing multiple attack strategies with AUC and critical points.</p>
+
+          <pre><code><span class="syntax-comment"># Quick summary</span>
+<span class="syntax-function">robustness_summary</span>(<span class="syntax-param">x</span> = g, <span class="syntax-param">n_iter</span> = <span class="syntax-number">50</span>)
+
+<span class="syntax-comment"># Or from pre-computed results</span>
+<span class="syntax-function">robustness_summary</span>(rob_btw, rob_deg, rob_rnd)</code></pre>
+
+          <div class="example-output">
+            <div class="output-label">Output</div>
+            <pre>      measure    auc critical_50 critical_10
+1 betweenness 0.1720        0.14        0.26
+2      degree 0.1648        0.16        0.28
+3      random 0.4249        0.42        0.78</pre>
+          </div>
+
+          <table class="param-table">
+            <tr>
+              <td>auc</td>
+              <td>Area under curve (0-1)</td>
+            </tr>
+            <tr>
+              <td>critical_50</td>
+              <td>Fraction removed when LCC drops below 50%</td>
+            </tr>
+            <tr>
+              <td>critical_10</td>
+              <td>Fraction removed when LCC drops below 10%</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <h3>Edge Attacks</h3>
+
+      <p>In addition to vertex removal, robustness analysis supports edge attacks:</p>
+
+      <pre><code><span class="syntax-comment"># Edge attack by betweenness</span>
+rob_edge <- <span class="syntax-function">robustness</span>(g, <span class="syntax-param">type</span> = <span class="syntax-string">"edge"</span>, <span class="syntax-param">measure</span> = <span class="syntax-string">"betweenness"</span>)
+
+<span class="syntax-comment"># Random edge removal</span>
+rob_edge_rnd <- <span class="syntax-function">robustness</span>(g, <span class="syntax-param">type</span> = <span class="syntax-string">"edge"</span>, <span class="syntax-param">measure</span> = <span class="syntax-string">"random"</span>, <span class="syntax-param">n_iter</span> = <span class="syntax-number">50</span>)
+
+<span class="syntax-comment"># Note: degree is only available for vertex attacks</span></code></pre>
+
+      <div class="alert alert-success">
+        <strong>Reference:</strong> Albert, R., Jeong, H., &amp; Barabási, A.L. (2000). Error and attack tolerance of complex networks. <em>Nature</em>, 406, 378-381. <a href="https://doi.org/10.1038/35019019">doi:10.1038/35019019</a>
+      </div>
+    </section>
+
     <!-- SECTION: Bug Fixes -->
     <section id="bug-fixes">
-      <h2>5. Bug Fixes</h2>
+      <h2>6. Bug Fixes</h2>
 
       <div class="measure-card">
         <div class="measure-header">
@@ -1405,7 +1671,7 @@ hits_result <- <span class="syntax-keyword">NULL</span>
 
     <!-- SECTION: Measure Comparison -->
     <section id="measure-comparison">
-      <h2>6. Complete Measure Comparison: cograph vs igraph</h2>
+      <h2>7. Complete Measure Comparison: cograph vs igraph</h2>
 
       <p>This table shows all parameters available in igraph and whether cograph now exposes them.</p>
 
@@ -1631,7 +1897,7 @@ hits_result <- <span class="syntax-keyword">NULL</span>
 
     <!-- SECTION: Wrapper Functions -->
     <section id="wrapper-functions">
-      <h2>7. Wrapper Functions</h2>
+      <h2>8. Wrapper Functions</h2>
 
       <p>Each centrality measure has a dedicated wrapper function that returns a named vector.</p>
 
@@ -1804,7 +2070,7 @@ hits_result <- <span class="syntax-keyword">NULL</span>
 
     <!-- SECTION: Examples -->
     <section id="examples">
-      <h2>8. Code Examples</h2>
+      <h2>9. Code Examples</h2>
 
       <h3>Basic Usage</h3>
       <pre><code><span class="syntax-comment"># Create a test network</span>
@@ -2027,7 +2293,7 @@ bridge_edges <- <span class="syntax-function">network_bridges</span>(network)
 
     <!-- SECTION: Migration -->
     <section id="migration">
-      <h2>9. Migration Guide</h2>
+      <h2>10. Migration Guide</h2>
 
       <div class="alert alert-success">
         <strong>Good news!</strong> All changes are backward compatible. Existing code will continue to work without modification.

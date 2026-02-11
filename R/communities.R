@@ -20,9 +20,9 @@
 #'     \item \code{"fast_greedy"} - Fast greedy modularity optimization
 #'     \item \code{"walktrap"} - Random walk-based detection
 #'     \item \code{"infomap"} - Information theoretic approach
-#'     \item \code{"label_prop"} - Label propagation (very fast)
+#'     \item \code{"label_propagationagation"} - Label propagation (very fast)
 #'     \item \code{"edge_betweenness"} - Girvan-Newman algorithm
-#'     \item \code{"leading_eigen"} - Leading eigenvector method
+#'     \item \code{"leading_eigenvectorvector"} - Leading eigenvector method
 #'     \item \code{"spinglass"} - Spinglass simulation
 #'     \item \code{"optimal"} - Exact modularity optimization (slow)
 #'     \item \code{"fluid"} - Fluid communities algorithm
@@ -56,9 +56,9 @@
 #'   fast_greedy \tab Medium networks \tab O(n² log n) \cr
 #'   walktrap \tab Networks with clear community structure \tab O(n² log n) \cr
 #'   infomap \tab Directed networks, flow-based \tab O(E) \cr
-#'   label_prop \tab Very large networks, speed critical \tab O(E) \cr
+#'   label_propagation \tab Very large networks, speed critical \tab O(E) \cr
 #'   edge_betweenness \tab Small networks, hierarchical \tab O(E² n) \cr
-#'   leading_eigen \tab Networks with dominant structure \tab O(n²) \cr
+#'   leading_eigenvector \tab Networks with dominant structure \tab O(n²) \cr
 #'   spinglass \tab Small networks, allows negative weights \tab O(n³) \cr
 #'   optimal \tab Tiny networks only (<50 nodes) \tab NP-hard \cr
 #'   fluid \tab When k is known \tab O(E k) \cr
@@ -68,8 +68,8 @@
 #' @seealso
 #' \code{\link{community_louvain}}, \code{\link{community_leiden}},
 #' \code{\link{community_fast_greedy}}, \code{\link{community_walktrap}},
-#' \code{\link{community_infomap}}, \code{\link{community_label_prop}},
-#' \code{\link{community_edge_betweenness}}, \code{\link{community_leading_eigen}},
+#' \code{\link{community_infomap}}, \code{\link{community_label_propagation}},
+#' \code{\link{community_edge_betweenness}}, \code{\link{community_leading_eigenvector}},
 #' \code{\link{community_spinglass}}, \code{\link{community_optimal}},
 #' \code{\link{community_fluid}}
 #'
@@ -91,8 +91,8 @@
 #' }
 communities <- function(x,
                         method = c("louvain", "leiden", "fast_greedy",
-                                   "walktrap", "infomap", "label_prop",
-                                   "edge_betweenness", "leading_eigen",
+                                   "walktrap", "infomap", "label_propagation",
+                                   "edge_betweenness", "leading_eigenvector",
                                    "spinglass", "optimal", "fluid"),
                         weights = NULL,
                         resolution = 1,
@@ -108,10 +108,10 @@ communities <- function(x,
     "fast_greedy" = community_fast_greedy(x, weights = weights, ...),
     "walktrap" = community_walktrap(x, weights = weights, ...),
     "infomap" = community_infomap(x, weights = weights, ...),
-    "label_prop" = community_label_prop(x, weights = weights, ...),
+    "label_propagation" = community_label_propagation(x, weights = weights, ...),
     "edge_betweenness" = community_edge_betweenness(x, weights = weights,
                                                      directed = directed, ...),
-    "leading_eigen" = community_leading_eigen(x, weights = weights, ...),
+    "leading_eigenvector" = community_leading_eigenvector(x, weights = weights, ...),
     "spinglass" = community_spinglass(x, weights = weights, ...),
     "optimal" = community_optimal(x, weights = weights, ...),
     "fluid" = community_fluid(x, ...)
@@ -396,7 +396,7 @@ community_infomap <- function(x,
 #'   g <- igraph::make_graph("Zachary")
 #'
 #'   # Basic label propagation
-#'   comm <- community_label_prop(g)
+#'   comm <- community_label_propagation(g)
 #'
 #'   # With some nodes fixed to specific communities
 #'   initial <- rep(NA, igraph::vcount(g))
@@ -404,9 +404,9 @@ community_infomap <- function(x,
 #'   initial[34] <- 2 # Node 34 in community 2
 #'   fixed <- !is.na(initial)
 #'   initial[is.na(initial)] <- seq_len(sum(is.na(initial)))
-#'   comm2 <- community_label_prop(g, initial = initial, fixed = fixed)
+#'   comm2 <- community_label_propagation(g, initial = initial, fixed = fixed)
 #' }
-community_label_prop <- function(x,
+community_label_propagation <- function(x,
                                  weights = NULL,
                                  mode = c("out", "in", "all"),
                                  initial = NULL,
@@ -424,7 +424,7 @@ community_label_prop <- function(x,
     initial = initial,
     fixed = fixed
   )
-  .wrap_communities(result, "label_prop", g)
+  .wrap_communities(result, "label_propagation", g)
 }
 
 
@@ -505,7 +505,7 @@ community_edge_betweenness <- function(x,
 #' \emph{Physical Review E}, 74, 036104.
 #'
 #' @export
-community_leading_eigen <- function(x,
+community_leading_eigenvector <- function(x,
                                     weights = NULL,
                                     steps = -1,
                                     start = NULL,
@@ -535,7 +535,7 @@ community_leading_eigen <- function(x,
     extra = extra,
     env = env
   )
-  .wrap_communities(result, "leading_eigen", g)
+  .wrap_communities(result, "leading_eigenvector", g)
 }
 
 

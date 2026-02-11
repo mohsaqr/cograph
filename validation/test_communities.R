@@ -70,17 +70,17 @@ algorithms <- list(
     cograph = function(g) cograph::community_infomap(g),
     igraph = function(g) cluster_infomap(g)
   ),
-  label_prop = list(
-    cograph = function(g) cograph::community_label_prop(g),
-    igraph = function(g) cluster_label_prop(g)
+  label_propagation = list(
+    cograph = function(g) cograph::community_label_propagation(g),
+    igraph = function(g) cluster_label_propagation(g)
   ),
   edge_betweenness = list(
     cograph = function(g) cograph::community_edge_betweenness(g),
     igraph = function(g) cluster_edge_betweenness(g)
   ),
-  leading_eigen = list(
-    cograph = function(g) cograph::community_leading_eigen(g),
-    igraph = function(g) cluster_leading_eigen(as.undirected(g))
+  leading_eigenvector = list(
+    cograph = function(g) cograph::community_leading_eigenvector(g),
+    igraph = function(g) cluster_leading_eigenvector(as.undirected(g))
   )
 )
 
@@ -114,7 +114,7 @@ for (net_name in names(test_networks)) {
 
     # For deterministic algorithms, membership should match exactly
     # For stochastic ones, just check community count
-    deterministic <- alg_name %in% c("fast_greedy", "walktrap", "edge_betweenness", "leading_eigen")
+    deterministic <- alg_name %in% c("fast_greedy", "walktrap", "edge_betweenness", "leading_eigenvector")
 
     if (deterministic) {
       mem_match <- all(cg_mem == ig_mem)

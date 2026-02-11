@@ -6,8 +6,9 @@
 \usage{
 communities(
   x,
-  method = c("louvain", "leiden", "fast_greedy", "walktrap", "infomap", "label_prop",
-    "edge_betweenness", "leading_eigen", "spinglass", "optimal", "fluid"),
+  method = c("louvain", "leiden", "fast_greedy", "walktrap", "infomap",
+    "label_propagation", "edge_betweenness", "leading_eigenvector", "spinglass",
+    "optimal", "fluid"),
   weights = NULL,
   resolution = 1,
   directed = NULL,
@@ -24,9 +25,9 @@ communities(
 \item \code{"fast_greedy"} - Fast greedy modularity optimization
 \item \code{"walktrap"} - Random walk-based detection
 \item \code{"infomap"} - Information theoretic approach
-\item \code{"label_prop"} - Label propagation (very fast)
+\item \code{"label_propagationagation"} - Label propagation (very fast)
 \item \code{"edge_betweenness"} - Girvan-Newman algorithm
-\item \code{"leading_eigen"} - Leading eigenvector method
+\item \code{"leading_eigenvectorvector"} - Leading eigenvector method
 \item \code{"spinglass"} - Spinglass simulation
 \item \code{"optimal"} - Exact modularity optimization (slow)
 \item \code{"fluid"} - Fluid communities algorithm
@@ -70,9 +71,9 @@ leiden \tab Large networks, better quality than louvain \tab O(n log n) \cr
 fast_greedy \tab Medium networks \tab O(n² log n) \cr
 walktrap \tab Networks with clear community structure \tab O(n² log n) \cr
 infomap \tab Directed networks, flow-based \tab O(E) \cr
-label_prop \tab Very large networks, speed critical \tab O(E) \cr
+label_propagation \tab Very large networks, speed critical \tab O(E) \cr
 edge_betweenness \tab Small networks, hierarchical \tab O(E² n) \cr
-leading_eigen \tab Networks with dominant structure \tab O(n²) \cr
+leading_eigenvector \tab Networks with dominant structure \tab O(n²) \cr
 spinglass \tab Small networks, allows negative weights \tab O(n³) \cr
 optimal \tab Tiny networks only (<50 nodes) \tab NP-hard \cr
 fluid \tab When k is known \tab O(E k) \cr
@@ -98,8 +99,8 @@ if (requireNamespace("igraph", quietly = TRUE)) {
 \seealso{
 \code{\link{community_louvain}}, \code{\link{community_leiden}},
 \code{\link{community_fast_greedy}}, \code{\link{community_walktrap}},
-\code{\link{community_infomap}}, \code{\link{community_label_prop}},
-\code{\link{community_edge_betweenness}}, \code{\link{community_leading_eigen}},
+\code{\link{community_infomap}}, \code{\link{community_label_propagation}},
+\code{\link{community_edge_betweenness}}, \code{\link{community_leading_eigenvector}},
 \code{\link{community_spinglass}}, \code{\link{community_optimal}},
 \code{\link{community_fluid}}
 }

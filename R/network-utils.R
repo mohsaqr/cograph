@@ -294,22 +294,31 @@ color_communities <- function(x, method = "louvain", palette = NULL, ...) {
   node_colors
 }
 
-#' Filter Edges by Weight
+# =============================================================================
+# Enhanced Filtering Functions
+# =============================================================================
+
+#' Filter Edges by Metadata
 #'
-#' Filter edges using a logical expression on edge weights. Returns a matrix
-#' ready for plotting with \code{splot()}.
+#' Filter edges using dplyr-style expressions on any edge column. Returns a
+#' cograph_network object by default (universal format), or optionally the
+#' same format as input when \code{keep_format = TRUE}.
 #'
-#' @param x Network input: matrix, igraph, network, cograph_network, or tna object.
-#' @param expr A logical expression using \code{weight} to filter edges.
-#'   Examples: \code{weight > 0.5}, \code{weight >= mean(weight)},
-#'   \code{abs(weight) > 0.3}.
+#' @param x Network input: cograph_network, matrix, igraph, network, or tna object.
+#' @param ... Filter expressions using any edge column (e.g., \code{weight > 0.5},
+#'   \code{weight > mean(weight)}, \code{abs(weight) > 0.3}).
+#' @param .keep_isolates Logical. Keep nodes with no remaining edges? Default FALSE.
+#' @param keep_format Logical. If TRUE, return the same format as input
+#'   (matrix returns matrix, igraph returns igraph, etc.). Default FALSE
+#'   returns cograph_network (universal format).
 #' @param directed Logical or NULL. If NULL (default), auto-detect from matrix
 #'   symmetry. Set TRUE to force directed, FALSE to force undirected.
+#'   Only used for non-cograph_network inputs.
 #'
-#' @return An adjacency matrix with non-matching edges set to 0. Ready for
-#'   direct use with \code{splot()}.
+#' @return A cograph_network object with filtered edges. If \code{keep_format = TRUE},
+#'   returns the same type as input (matrix, igraph, network, etc.).
 #'
-#' @seealso \code{\link{filter_nodes}}, \code{\link{splot}}
+#' @seealso \code{\link{filter_nodes}}, \code{\link{splot}}, \code{\link{subset_edges}}
 #'
 #' @export
 #' @examples
@@ -319,60 +328,111 @@ color_communities <- function(x, method = "louvain", palette = NULL, ...) {
 #'                  0, .6, .4, 0), 4, 4, byrow = TRUE)
 #' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
 #'
-#' # Keep only strong edges
-#' splot(filter_edges(adj, weight > 0.5))
+#' # Keep only strong edges (returns cograph_network)
+#' filter_edges(adj, weight > 0.5)
+#'
+#' # Keep format: matrix in, matrix out
+#' filter_edges(adj, weight > 0.5, keep_format = TRUE)
 #'
 #' # Keep edges above mean weight
 #' splot(filter_edges(adj, weight >= mean(weight)))
 #'
-#' # Combine with color_communities
-#' filtered <- filter_edges(adj, weight > 0.3)
-#' splot(filtered, node_fill = color_communities(filtered))
-filter_edges <- function(x, expr, directed = NULL) {
+#' # With cograph_network (pipe-friendly)
+#' net <- as_cograph(adj)
+#' net |>
+#'   filter_edges(weight > 0.3) |>
+#'   filter_nodes(degree >= 2) |>
+#'   splot()
+#'
+#' # Keep isolated nodes
+#' filter_edges(net, weight > 0.7, .keep_isolates = TRUE)
+#'
+#' # With igraph (keep_format = TRUE returns igraph)
+#' \dontrun{
+#' g <- igraph::make_ring(5)
+#' filter_edges(g, weight > 0, keep_format = TRUE)  # Returns igraph
+#' }
+filter_edges <- function(x, ..., .keep_isolates = FALSE, keep_format = FALSE,
+                         directed = NULL) {
+  # Detect input format for keep_format option
+  input_class <- .detect_input_class(x)
 
-  # Convert to adjacency matrix
-  adj <- to_adjacency_matrix(x, directed = directed)
+  # Warn if converting complex formats to cograph_network
+  if (!keep_format && input_class %in% c("igraph", "network", "qgraph")) {
+    message("Result converted to cograph_network. Use keep_format = TRUE to return ", input_class, ".")
+  }
 
-  # Capture the expression
-  expr_call <- substitute(expr)
+  # Convert to cograph_network if needed
+  net <- as_cograph(x, directed = directed)
 
-  # Create environment with weight variable
-  weight <- adj
-  env <- list2env(list(weight = weight), parent = parent.frame())
+  # Get edges dataframe
+  edges <- get_edges(net)
 
-  # Evaluate the expression
-  mask <- eval(expr_call, envir = env)
+  if (nrow(edges) == 0) {
+    warning("Network has no edges", call. = FALSE)
+    if (keep_format) {
+      return(.convert_to_format(net, input_class))
+    }
+    return(net)
+  }
 
-  # Apply mask - set non-matching edges to 0
-  result <- adj
-  result[!mask] <- 0
+  # Build evaluation environment with all edge columns
+  eval_env <- list2env(as.list(edges), parent = parent.frame())
+
+  # Capture filter expressions
+  dots <- substitute(list(...))[-1]
+
+  # Evaluate filter conditions
+  mask <- .evaluate_filter_conditions(dots, eval_env, nrow(edges))
+
+  # Apply filter
+  filtered_edges <- edges[mask, , drop = FALSE]
+
+  # Update network
+  result <- .update_cograph_edges(net, filtered_edges, keep_isolates = .keep_isolates)
+
+  # Return in original format if requested
+  if (keep_format) {
+    return(.convert_to_format(result, input_class))
+  }
 
   result
 }
 
-#' Filter Nodes by Centrality
+#' Filter Nodes by Metadata or Centrality
 #'
-#' Filter nodes using a logical expression on centrality measures. Returns
-#' a subgraph matrix ready for plotting with \code{splot()}.
+#' Filter nodes using dplyr-style expressions on any node column or centrality
+#' measure. Returns a cograph_network object by default (universal format), or
+#' optionally the same format as input when \code{keep_format = TRUE}.
 #'
-#' @param x Network input: matrix, igraph, network, cograph_network, or tna object.
-#' @param expr A logical expression using centrality variable names to filter nodes.
-#'   Available variables:
-#'   \itemize{
-#'     \item \code{degree}, \code{indegree}, \code{outdegree}
-#'     \item \code{strength}, \code{instrength}, \code{outstrength}
-#'     \item \code{betweenness}, \code{closeness}, \code{eigenvector}
-#'     \item \code{pagerank}, \code{hub}, \code{authority}
+#' @param x Network input: cograph_network, matrix, igraph, network, or tna object.
+#' @param ... Filter expressions using any node column or centrality measure.
+#'   Available variables include:
+#'   \describe{
+#'     \item{Node columns}{All columns in the nodes dataframe: \code{id}, \code{label},
+#'       \code{name}, \code{x}, \code{y}, \code{inits}, \code{color}, plus any custom}
+#'     \item{Centrality measures}{\code{degree}, \code{indegree}, \code{outdegree},
+#'       \code{strength}, \code{instrength}, \code{outstrength}, \code{betweenness},
+#'       \code{closeness}, \code{eigenvector}, \code{pagerank}, \code{hub}, \code{authority}}
 #'   }
-#'   Examples: \code{degree > 3}, \code{pagerank > 0.1},
-#'   \code{indegree > 2 & outdegree > 1}.
+#'   Examples: \code{degree >= 3}, \code{label \%in\% c("A", "B")},
+#'   \code{pagerank > 0.1 & degree >= 2}.
+#' @param .keep_edges How to handle edges. One of:
+#'   \describe{
+#'     \item{\code{"internal"}}{(default) Keep only edges between remaining nodes}
+#'     \item{\code{"none"}}{Remove all edges}
+#'   }
+#' @param keep_format Logical. If TRUE, return the same format as input
+#'   (matrix returns matrix, igraph returns igraph, etc.). Default FALSE
+#'   returns cograph_network (universal format).
 #' @param directed Logical or NULL. If NULL (default), auto-detect from matrix
 #'   symmetry. Set TRUE to force directed, FALSE to force undirected.
+#'   Only used for non-cograph_network inputs.
 #'
-#' @return A subgraph adjacency matrix containing only matching nodes.
-#'   Ready for direct use with \code{splot()}.
+#' @return A cograph_network object with filtered nodes. If \code{keep_format = TRUE},
+#'   returns the same type as input (matrix, igraph, network, etc.).
 #'
-#' @seealso \code{\link{filter_edges}}, \code{\link{splot}}
+#' @seealso \code{\link{filter_edges}}, \code{\link{splot}}, \code{\link{subset_nodes}}
 #'
 #' @export
 #' @examples
@@ -382,33 +442,110 @@ filter_edges <- function(x, expr, directed = NULL) {
 #'                  0, .6, .4, 0), 4, 4, byrow = TRUE)
 #' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
 #'
-#' # Keep only high-degree nodes
-#' splot(filter_nodes(adj, degree >= 3))
+#' # Keep only high-degree nodes (returns cograph_network)
+#' filter_nodes(adj, degree >= 3)
 #'
-#' # Keep nodes with high PageRank
-#' splot(filter_nodes(adj, pagerank > 0.2))
+#' # Keep format: matrix in, matrix out
+#' filter_nodes(adj, degree >= 3, keep_format = TRUE)
 #'
-#' # Combine with color_communities
-#' hubs <- filter_nodes(adj, degree >= 3)
-#' splot(hubs, node_fill = color_communities(hubs))
-filter_nodes <- function(x, expr, directed = NULL) {
+#' # Filter by node label
+#' splot(filter_nodes(adj, label %in% c("A", "C")))
+#'
+#' # Combine centrality and metadata filters
+#' splot(filter_nodes(adj, degree >= 2 & label != "D"))
+#'
+#' # With cograph_network (pipe-friendly)
+#' net <- as_cograph(adj)
+#' net |>
+#'   filter_edges(weight > 0.3) |>
+#'   filter_nodes(degree >= 2) |>
+#'   splot()
+#'
+#' # With igraph (keep_format = TRUE returns igraph)
+#' \dontrun{
+#' g <- igraph::make_ring(5)
+#' filter_nodes(g, degree >= 2, keep_format = TRUE)  # Returns igraph
+#' }
+filter_nodes <- function(x, ..., .keep_edges = c("internal", "none"),
+                         keep_format = FALSE, directed = NULL) {
+  .keep_edges <- match.arg(.keep_edges)
 
-  # Convert to igraph for centrality calculation
-  g <- to_igraph(x, directed = directed)
-  is_directed <- igraph::is_directed(g)
+  # Detect input format for keep_format option
+  input_class <- .detect_input_class(x)
 
-  # Get weights
-  weights <- if (!is.null(igraph::E(g)$weight)) {
-    igraph::E(g)$weight
-  } else {
-    NULL
+  # Warn if converting complex formats to cograph_network
+  if (!keep_format && input_class %in% c("igraph", "network", "qgraph")) {
+    message("Result converted to cograph_network. Use keep_format = TRUE to return ", input_class, ".")
   }
 
-  # Calculate all centrality measures
-  n_nodes <- igraph::vcount(g)
+  # Convert to cograph_network if needed
+  net <- as_cograph(x, directed = directed)
 
-  # Build environment with all centrality measures
-  centrality_env <- list(
+  # Get nodes dataframe
+  nodes <- get_nodes(net)
+
+  # Calculate centrality measures and add to environment
+  g <- to_igraph(net)
+  centrality_vars <- .compute_centrality_vars(g)
+
+  # Build evaluation environment with:
+  # 1. All node columns
+  # 2. All centrality measures
+  # 3. Parent frame for user variables
+  eval_env <- .build_filter_env(nodes, centrality_vars, parent.frame())
+
+  # Capture filter expressions
+  dots <- substitute(list(...))[-1]
+
+  # Evaluate filter conditions
+  mask <- .evaluate_filter_conditions(dots, eval_env, nrow(nodes))
+
+  # Apply filter
+  selected_idx <- which(mask)
+
+  if (length(selected_idx) == 0) {
+    warning("No nodes match the filter criteria", call. = FALSE)
+    if (keep_format && input_class == "matrix") {
+      return(matrix(0, nrow = 0, ncol = 0))
+    }
+    empty <- .empty_cograph_network(net$directed)
+    if (keep_format) {
+      return(.convert_to_format(empty, input_class))
+    }
+    return(empty)
+  }
+
+  # Create subgraph
+  result <- .subset_cograph_network(net, nodes = selected_idx, keep_edges = .keep_edges)
+
+  # Return in original format if requested
+  if (keep_format) {
+    return(.convert_to_format(result, input_class))
+  }
+
+  result
+}
+
+#' @rdname filter_nodes
+#' @export
+subset_nodes <- filter_nodes
+
+#' @rdname filter_edges
+#' @export
+subset_edges <- filter_edges
+
+# =============================================================================
+# Helper Functions for Filtering
+# =============================================================================
+
+#' Compute Centrality Variables for Filtering
+#' @noRd
+.compute_centrality_vars <- function(g) {
+  is_dir <- igraph::is_directed(g)
+  weights <- igraph::E(g)$weight
+  n <- igraph::vcount(g)
+
+  list(
     # Degree measures
     degree = igraph::degree(g, mode = "all"),
     indegree = igraph::degree(g, mode = "in"),
@@ -419,51 +556,192 @@ filter_nodes <- function(x, expr, directed = NULL) {
     instrength = igraph::strength(g, mode = "in", weights = weights),
     outstrength = igraph::strength(g, mode = "out", weights = weights),
 
-    # Other centrality measures
-    betweenness = igraph::betweenness(g, weights = weights, directed = is_directed),
+    # Other centrality
+    betweenness = igraph::betweenness(g, weights = weights, directed = is_dir),
     closeness = tryCatch(
       igraph::closeness(g, mode = "all", weights = weights),
-      error = function(e) rep(NA_real_, n_nodes)
+      error = function(e) rep(NA_real_, n)
     ),
     eigenvector = tryCatch(
-      igraph::eigen_centrality(g, weights = weights, directed = is_directed)$vector,
-      error = function(e) rep(NA_real_, n_nodes)
+      igraph::eigen_centrality(g, weights = weights, directed = is_dir)$vector,
+      error = function(e) rep(NA_real_, n)
     ),
-    pagerank = igraph::page_rank(g, weights = weights, directed = is_directed)$vector,
+    pagerank = igraph::page_rank(g, weights = weights, directed = is_dir)$vector,
     hub = tryCatch(
       igraph::hits_scores(g, weights = weights)$hub,
-      error = function(e) rep(NA_real_, n_nodes)
+      error = function(e) rep(NA_real_, n)
     ),
     authority = tryCatch(
       igraph::hits_scores(g, weights = weights)$authority,
-      error = function(e) rep(NA_real_, n_nodes)
+      error = function(e) rep(NA_real_, n)
     )
   )
+}
 
-  env <- list2env(centrality_env, parent = parent.frame())
+#' Build Filter Environment
+#' @noRd
+.build_filter_env <- function(df, extra_vars = list(), parent = parent.frame()) {
+  # Combine dataframe columns with extra variables
+  all_vars <- c(as.list(df), extra_vars)
+  list2env(all_vars, parent = parent)
+}
 
-  # Capture and evaluate expression
-  expr_call <- substitute(expr)
-  mask <- eval(expr_call, envir = env)
-
-  # Handle NA in mask
-  mask[is.na(mask)] <- FALSE
-
-  # Get selected node indices
-  selected_nodes <- which(mask)
-
-  if (length(selected_nodes) == 0) {
-    warning("No nodes match the filter criteria", call. = FALSE)
-    # Return empty matrix
-    result <- matrix(0, nrow = 0, ncol = 0)
-    return(result)
+#' Evaluate Filter Conditions
+#' @noRd
+.evaluate_filter_conditions <- function(dots, env, n) {
+  if (length(dots) == 0) {
+    return(rep(TRUE, n))
   }
 
-  # Extract subgraph
-  adj <- to_adjacency_matrix(x, directed = directed)
-  result <- adj[selected_nodes, selected_nodes, drop = FALSE]
+  # Evaluate each condition and combine with AND
+  masks <- lapply(dots, function(expr) {
+    result <- eval(expr, envir = env)
+    result[is.na(result)] <- FALSE
+    result
+  })
 
-  result
+  Reduce(`&`, masks)
+}
+
+#' Create Empty cograph_network
+#' @noRd
+.empty_cograph_network <- function(directed = FALSE) {
+  .create_cograph_network(
+    nodes = data.frame(id = integer(0), label = character(0)),
+    edges = data.frame(from = integer(0), to = integer(0), weight = numeric(0)),
+    directed = directed,
+    source = "filtered"
+  )
+}
+
+#' Subset cograph_network by Node Indices
+#' @noRd
+.subset_cograph_network <- function(net, nodes, keep_edges = "internal") {
+  # Get current data
+  node_df <- get_nodes(net)
+  edge_df <- get_edges(net)
+
+  # Filter nodes
+  new_nodes <- node_df[nodes, , drop = FALSE]
+  new_nodes$id <- seq_len(nrow(new_nodes))
+  rownames(new_nodes) <- NULL
+
+  # Create index mapping (old -> new)
+  node_map <- stats::setNames(seq_along(nodes), nodes)
+
+  # Filter edges
+  if (keep_edges == "internal" && nrow(edge_df) > 0) {
+    # Keep edges where both endpoints are in selection
+    keep_edge <- edge_df$from %in% nodes & edge_df$to %in% nodes
+    new_edges <- edge_df[keep_edge, , drop = FALSE]
+
+    # Remap node indices
+    if (nrow(new_edges) > 0) {
+      new_edges$from <- as.integer(node_map[as.character(new_edges$from)])
+      new_edges$to <- as.integer(node_map[as.character(new_edges$to)])
+      rownames(new_edges) <- NULL
+    }
+  } else {
+    new_edges <- data.frame(from = integer(0), to = integer(0), weight = numeric(0))
+  }
+
+  # Build new weight matrix
+  n <- nrow(new_nodes)
+  new_weights <- matrix(0, n, n, dimnames = list(new_nodes$label, new_nodes$label))
+  if (nrow(new_edges) > 0) {
+    for (i in seq_len(nrow(new_edges))) {
+      new_weights[new_edges$from[i], new_edges$to[i]] <- new_edges$weight[i]
+    }
+  }
+
+  # Create new cograph_network using internal constructor
+  .create_cograph_network(
+    nodes = new_nodes,
+    edges = new_edges,
+    directed = net$directed,
+    source = "filtered",
+    layout_info = NULL,
+    tna = net$tna,
+    weights = new_weights
+  )
+}
+
+#' Update Edges in cograph_network
+#' @noRd
+.update_cograph_edges <- function(net, new_edges, keep_isolates = FALSE) {
+  nodes <- get_nodes(net)
+
+  # Remove isolates if requested
+  if (!keep_isolates && nrow(new_edges) > 0) {
+    connected_nodes <- unique(c(new_edges$from, new_edges$to))
+    if (length(connected_nodes) < nrow(nodes)) {
+      return(.subset_cograph_network(
+        net,
+        nodes = connected_nodes,
+        keep_edges = "internal"
+      ))
+    }
+  }
+
+  # Handle case where all edges are removed and keep_isolates = FALSE
+  if (!keep_isolates && nrow(new_edges) == 0) {
+    return(.empty_cograph_network(net$directed))
+  }
+
+  # Reset row names
+  rownames(new_edges) <- NULL
+
+  # Update weights matrix
+  n <- nrow(nodes)
+  new_weights <- matrix(0, n, n, dimnames = list(nodes$label, nodes$label))
+  if (nrow(new_edges) > 0) {
+    for (i in seq_len(nrow(new_edges))) {
+      new_weights[new_edges$from[i], new_edges$to[i]] <- new_edges$weight[i]
+    }
+  }
+
+  # Create updated cograph_network
+  .create_cograph_network(
+    nodes = nodes,
+    edges = new_edges,
+    directed = net$directed,
+    source = "filtered",
+    layout_info = net$layout_info,
+    tna = net$tna,
+    weights = new_weights
+  )
+}
+
+#' Detect Input Class for Format Preservation
+#' @noRd
+.detect_input_class <- function(x) {
+  if (inherits(x, "cograph_network")) {
+    return("cograph_network")
+  } else if (is.matrix(x)) {
+    return("matrix")
+  } else if (inherits(x, "igraph")) {
+    return("igraph")
+  } else if (inherits(x, "network")) {
+    return("network")
+  } else if (inherits(x, "tna") || inherits(x, "group_tna")) {
+    return("tna")
+  } else if (inherits(x, "qgraph")) {
+    return("qgraph")
+  } else {
+    return("unknown")
+  }
+}
+
+#' Convert cograph_network to Specified Format
+#' @noRd
+.convert_to_format <- function(net, format) {
+switch(format,
+    matrix = to_matrix(net),
+    igraph = to_igraph(net),
+    network = to_network(net),
+    # For tna/qgraph/unknown, return cograph_network (can't reconstruct original)
+    net
+  )
 }
 
 #' Export Network as Edge List Data Frame

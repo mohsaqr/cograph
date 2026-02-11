@@ -2,34 +2,62 @@
 % Please edit documentation in R/network-utils.R
 \name{filter_nodes}
 \alias{filter_nodes}
-\title{Filter Nodes by Centrality}
+\alias{subset_nodes}
+\title{Filter Nodes by Metadata or Centrality}
 \usage{
-filter_nodes(x, expr, directed = NULL)
+filter_nodes(
+  x,
+  ...,
+  .keep_edges = c("internal", "none"),
+  keep_format = FALSE,
+  directed = NULL
+)
+
+subset_nodes(
+  x,
+  ...,
+  .keep_edges = c("internal", "none"),
+  keep_format = FALSE,
+  directed = NULL
+)
 }
 \arguments{
-\item{x}{Network input: matrix, igraph, network, cograph_network, or tna object.}
+\item{x}{Network input: cograph_network, matrix, igraph, network, or tna object.}
 
-\item{expr}{A logical expression using centrality variable names to filter nodes.
-Available variables:
-\itemize{
-\item \code{degree}, \code{indegree}, \code{outdegree}
-\item \code{strength}, \code{instrength}, \code{outstrength}
-\item \code{betweenness}, \code{closeness}, \code{eigenvector}
-\item \code{pagerank}, \code{hub}, \code{authority}
+\item{...}{Filter expressions using any node column or centrality measure.
+Available variables include:
+\describe{
+\item{Node columns}{All columns in the nodes dataframe: \code{id}, \code{label},
+\code{name}, \code{x}, \code{y}, \code{inits}, \code{color}, plus any custom}
+\item{Centrality measures}{\code{degree}, \code{indegree}, \code{outdegree},
+\code{strength}, \code{instrength}, \code{outstrength}, \code{betweenness},
+\code{closeness}, \code{eigenvector}, \code{pagerank}, \code{hub}, \code{authority}}
 }
-Examples: \code{degree > 3}, \code{pagerank > 0.1},
-\code{indegree > 2 & outdegree > 1}.}
+Examples: \code{degree >= 3}, \code{label \%in\% c("A", "B")},
+\code{pagerank > 0.1 & degree >= 2}.}
+
+\item{.keep_edges}{How to handle edges. One of:
+\describe{
+\item{\code{"internal"}}{(default) Keep only edges between remaining nodes}
+\item{\code{"none"}}{Remove all edges}
+}}
+
+\item{keep_format}{Logical. If TRUE, return the same format as input
+(matrix returns matrix, igraph returns igraph, etc.). Default FALSE
+returns cograph_network (universal format).}
 
 \item{directed}{Logical or NULL. If NULL (default), auto-detect from matrix
-symmetry. Set TRUE to force directed, FALSE to force undirected.}
+symmetry. Set TRUE to force directed, FALSE to force undirected.
+Only used for non-cograph_network inputs.}
 }
 \value{
-A subgraph adjacency matrix containing only matching nodes.
-Ready for direct use with \code{splot()}.
+A cograph_network object with filtered nodes. If \code{keep_format = TRUE},
+returns the same type as input (matrix, igraph, network, etc.).
 }
 \description{
-Filter nodes using a logical expression on centrality measures. Returns
-a subgraph matrix ready for plotting with \code{splot()}.
+Filter nodes using dplyr-style expressions on any node column or centrality
+measure. Returns a cograph_network object by default (universal format), or
+optionally the same format as input when \code{keep_format = TRUE}.
 }
 \examples{
 adj <- matrix(c(0, .5, .8, 0,
@@ -38,16 +66,31 @@ adj <- matrix(c(0, .5, .8, 0,
                  0, .6, .4, 0), 4, 4, byrow = TRUE)
 rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
 
-# Keep only high-degree nodes
-splot(filter_nodes(adj, degree >= 3))
+# Keep only high-degree nodes (returns cograph_network)
+filter_nodes(adj, degree >= 3)
 
-# Keep nodes with high PageRank
-splot(filter_nodes(adj, pagerank > 0.2))
+# Keep format: matrix in, matrix out
+filter_nodes(adj, degree >= 3, keep_format = TRUE)
 
-# Combine with color_communities
-hubs <- filter_nodes(adj, degree >= 3)
-splot(hubs, node_fill = color_communities(hubs))
+# Filter by node label
+splot(filter_nodes(adj, label \%in\% c("A", "C")))
+
+# Combine centrality and metadata filters
+splot(filter_nodes(adj, degree >= 2 & label != "D"))
+
+# With cograph_network (pipe-friendly)
+net <- as_cograph(adj)
+net |>
+  filter_edges(weight > 0.3) |>
+  filter_nodes(degree >= 2) |>
+  splot()
+
+# With igraph (keep_format = TRUE returns igraph)
+\dontrun{
+g <- igraph::make_ring(5)
+filter_nodes(g, degree >= 2, keep_format = TRUE)  # Returns igraph
+}
 }
 \seealso{
-\code{\link{filter_edges}}, \code{\link{splot}}
+\code{\link{filter_edges}}, \code{\link{splot}}, \code{\link{subset_nodes}}
 }

@@ -2,27 +2,49 @@
 % Please edit documentation in R/network-utils.R
 \name{filter_edges}
 \alias{filter_edges}
-\title{Filter Edges by Weight}
+\alias{subset_edges}
+\title{Filter Edges by Metadata}
 \usage{
-filter_edges(x, expr, directed = NULL)
+filter_edges(
+  x,
+  ...,
+  .keep_isolates = FALSE,
+  keep_format = FALSE,
+  directed = NULL
+)
+
+subset_edges(
+  x,
+  ...,
+  .keep_isolates = FALSE,
+  keep_format = FALSE,
+  directed = NULL
+)
 }
 \arguments{
-\item{x}{Network input: matrix, igraph, network, cograph_network, or tna object.}
+\item{x}{Network input: cograph_network, matrix, igraph, network, or tna object.}
 
-\item{expr}{A logical expression using \code{weight} to filter edges.
-Examples: \code{weight > 0.5}, \code{weight >= mean(weight)},
-\code{abs(weight) > 0.3}.}
+\item{...}{Filter expressions using any edge column (e.g., \code{weight > 0.5},
+\code{weight > mean(weight)}, \code{abs(weight) > 0.3}).}
+
+\item{.keep_isolates}{Logical. Keep nodes with no remaining edges? Default FALSE.}
+
+\item{keep_format}{Logical. If TRUE, return the same format as input
+(matrix returns matrix, igraph returns igraph, etc.). Default FALSE
+returns cograph_network (universal format).}
 
 \item{directed}{Logical or NULL. If NULL (default), auto-detect from matrix
-symmetry. Set TRUE to force directed, FALSE to force undirected.}
+symmetry. Set TRUE to force directed, FALSE to force undirected.
+Only used for non-cograph_network inputs.}
 }
 \value{
-An adjacency matrix with non-matching edges set to 0. Ready for
-direct use with \code{splot()}.
+A cograph_network object with filtered edges. If \code{keep_format = TRUE},
+returns the same type as input (matrix, igraph, network, etc.).
 }
 \description{
-Filter edges using a logical expression on edge weights. Returns a matrix
-ready for plotting with \code{splot()}.
+Filter edges using dplyr-style expressions on any edge column. Returns a
+cograph_network object by default (universal format), or optionally the
+same format as input when \code{keep_format = TRUE}.
 }
 \examples{
 adj <- matrix(c(0, .5, .8, 0,
@@ -31,16 +53,31 @@ adj <- matrix(c(0, .5, .8, 0,
                  0, .6, .4, 0), 4, 4, byrow = TRUE)
 rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
 
-# Keep only strong edges
-splot(filter_edges(adj, weight > 0.5))
+# Keep only strong edges (returns cograph_network)
+filter_edges(adj, weight > 0.5)
+
+# Keep format: matrix in, matrix out
+filter_edges(adj, weight > 0.5, keep_format = TRUE)
 
 # Keep edges above mean weight
 splot(filter_edges(adj, weight >= mean(weight)))
 
-# Combine with color_communities
-filtered <- filter_edges(adj, weight > 0.3)
-splot(filtered, node_fill = color_communities(filtered))
+# With cograph_network (pipe-friendly)
+net <- as_cograph(adj)
+net |>
+  filter_edges(weight > 0.3) |>
+  filter_nodes(degree >= 2) |>
+  splot()
+
+# Keep isolated nodes
+filter_edges(net, weight > 0.7, .keep_isolates = TRUE)
+
+# With igraph (keep_format = TRUE returns igraph)
+\dontrun{
+g <- igraph::make_ring(5)
+filter_edges(g, weight > 0, keep_format = TRUE)  # Returns igraph
+}
 }
 \seealso{
-\code{\link{filter_nodes}}, \code{\link{splot}}
+\code{\link{filter_nodes}}, \code{\link{splot}}, \code{\link{subset_edges}}
 }

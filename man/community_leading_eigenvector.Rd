@@ -2,9 +2,22 @@
 % Please edit documentation in R/communities.R
 \name{community_leading_eigenvector}
 \alias{community_leading_eigenvector}
+\alias{community_leading_eigen}
 \title{Leading Eigenvector Community Detection}
 \usage{
 community_leading_eigenvector(
+  x,
+  weights = NULL,
+  steps = -1,
+  start = NULL,
+  options = igraph::arpack_defaults(),
+  callback = NULL,
+  extra = NULL,
+  env = parent.frame(),
+  ...
+)
+
+community_leading_eigen(
   x,
   weights = NULL,
   steps = -1,

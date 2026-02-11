@@ -701,6 +701,39 @@ community_fluid <- function(x, no.of.communities, ...) {
 
 
 # ==============================================================================
+# Short Aliases
+# ==============================================================================
+
+#' @rdname community_label_propagation
+#' @export
+community_label_prop <- community_label_propagation
+
+#' @rdname community_leading_eigenvector
+#' @export
+community_leading_eigen <- community_leading_eigenvector
+
+#' @rdname community_edge_betweenness
+#' @export
+community_edge_btwn <- community_edge_betweenness
+
+#' @rdname community_fast_greedy
+#' @export
+community_fastgreedy <- community_fast_greedy
+
+#' @rdname community_spinglass
+#' @export
+community_spin <- community_spinglass
+
+#' @rdname community_walktrap
+#' @export
+community_walk <- community_walktrap
+
+#' @rdname community_infomap
+#' @export
+community_info <- community_infomap
+
+
+# ==============================================================================
 # Helper Functions
 # ==============================================================================
 

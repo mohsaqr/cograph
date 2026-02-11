@@ -2,9 +2,19 @@
 % Please edit documentation in R/communities.R
 \name{community_label_propagation}
 \alias{community_label_propagation}
+\alias{community_label_prop}
 \title{Label Propagation Community Detection}
 \usage{
 community_label_propagation(
+  x,
+  weights = NULL,
+  mode = c("out", "in", "all"),
+  initial = NULL,
+  fixed = NULL,
+  ...
+)
+
+community_label_prop(
   x,
   weights = NULL,
   mode = c("out", "in", "all"),

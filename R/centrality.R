@@ -29,6 +29,14 @@
 #' @param cutoff Maximum path length to consider for betweenness and closeness.
 #'   Default -1 (no limit). Set to a positive value for faster computation
 #'   on large networks at the cost of accuracy.
+#' @param invert_weights Logical. For path-based measures (betweenness, closeness,
+#'   harmonic, eccentricity, kreach), should weights be inverted so that higher
+#'   weights mean shorter paths? Default TRUE, which is appropriate for
+#'   strength/frequency/probability weights (SNA, TNA). Set to FALSE if your
+#'   weights already represent distances/costs.
+#' @param alpha Numeric. Exponent for weight transformation when \code{invert_weights = TRUE}.
+#'   Distance is computed as \code{1 / weight^alpha}. Default 1. Higher values
+#'   increase the influence of weight differences on path lengths.
 #' @param damping PageRank damping factor. Default 0.85. Must be between 0 and 1.
 #' @param personalized Named numeric vector for personalized PageRank.
 #'   Default NULL (standard PageRank). Values should sum to 1.
@@ -102,7 +110,8 @@ centrality <- function(x, measures = "all", mode = "all",
                        normalized = FALSE, weighted = TRUE,
                        directed = NULL, loops = TRUE, simplify = "sum",
                        digits = NULL, sort_by = NULL,
-                       cutoff = -1, damping = 0.85, personalized = NULL,
+                       cutoff = -1, invert_weights = TRUE, alpha = 1,
+                       damping = 0.85, personalized = NULL,
                        transitivity_type = "local", isolates = "nan",
                        lambda = 1, k = 3, ...) {
 
@@ -169,6 +178,24 @@ centrality <- function(x, measures = "all", mode = "all",
     NULL
   }
 
+  # Path-based measures need inverted weights (higher weight = shorter path)
+  # Following qgraph's approach: distance = 1 / weight^alpha
+  path_based_measures <- c("betweenness", "closeness", "harmonic",
+                           "eccentricity", "kreach")
+  needs_path_weights <- any(measures %in% path_based_measures)
+
+  weights_for_paths <- weights
+  if (!is.null(weights) && invert_weights && needs_path_weights) {
+    # Invert weights: distance = 1 / weight^alpha
+    weights_for_paths <- 1 / (weights ^ alpha)
+    # Handle zeros/infinities
+    weights_for_paths[!is.finite(weights_for_paths)] <- .Machine$double.xmax
+    message("Note: Weights inverted (1/w^", alpha, ") for path-based measures ",
+            "(", paste(intersect(measures, path_based_measures), collapse = ", "), "). ",
+            "Higher original weights = shorter paths. ",
+            "Set invert_weights=FALSE for distance/cost weights.")
+  }
+
   # Pre-calculate HITS scores if needed (avoid computing twice)
   hits_result <- NULL
   if (any(c("authority", "hub") %in% measures)) {
@@ -176,9 +203,12 @@ centrality <- function(x, measures = "all", mode = "all",
   }
 
   for (m in measures) {
+    # Use inverted weights for path-based measures, original for others
+    measure_weights <- if (m %in% path_based_measures) weights_for_paths else weights
+
     # Calculate value
     value <- calculate_measure(
-      g, m, mode, weights, normalized,
+      g, m, mode, measure_weights, normalized,
       cutoff = cutoff, damping = damping, personalized = personalized,
       transitivity_type = transitivity_type, isolates = isolates,
       hits_result = hits_result, lambda = lambda, k = k

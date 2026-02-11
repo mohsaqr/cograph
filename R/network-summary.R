@@ -580,6 +580,11 @@ network_bridges <- function(x, count_only = FALSE, ...) {
 #' @param x Network input: matrix, igraph, network, cograph_network, or tna object
 #' @param directed Logical. Consider edge direction? Default TRUE for directed graphs.
 #' @param weights Edge weights (NULL for unweighted). Set to NA to ignore existing weights.
+#' @param invert_weights Logical. Invert weights so higher weights = shorter paths?
+#'   Default TRUE (appropriate for strength/frequency weights). Set FALSE for
+#'   distance/cost weights.
+#' @param alpha Numeric. Exponent for weight inversion: distance = 1/weight^alpha.
+#'   Default 1.
 #' @param ... Additional arguments passed to \code{\link{to_igraph}}
 #'
 #' @return Numeric in \[0, 1\]: global efficiency
@@ -593,7 +598,8 @@ network_bridges <- function(x, count_only = FALSE, ...) {
 #' # Star has lower efficiency
 #' star <- matrix(c(0,1,1,1, 1,0,0,0, 1,0,0,0, 1,0,0,0), 4, 4)
 #' network_global_efficiency(star)  # ~0.83
-network_global_efficiency <- function(x, directed = NULL, weights = NULL, ...) {
+network_global_efficiency <- function(x, directed = NULL, weights = NULL,
+                                      invert_weights = TRUE, alpha = 1, ...) {
   if (inherits(x, "igraph")) {
     g <- x
     if (is.null(directed)) directed <- igraph::is_directed(g)
@@ -608,6 +614,12 @@ network_global_efficiency <- function(x, directed = NULL, weights = NULL, ...) {
   # Get weights
   if (is.null(weights) && !is.null(igraph::E(g)$weight)) {
     weights <- igraph::E(g)$weight
+  }
+
+  # Invert weights for path calculation (higher weight = shorter path)
+  if (!is.null(weights) && invert_weights) {
+    weights <- 1 / (weights ^ alpha)
+    weights[!is.finite(weights)] <- .Machine$double.xmax
   }
 
   # Compute all-pairs shortest paths
@@ -631,6 +643,9 @@ network_global_efficiency <- function(x, directed = NULL, weights = NULL, ...) {
 #'
 #' @param x Network input: matrix, igraph, network, cograph_network, or tna object
 #' @param weights Edge weights (NULL for unweighted). Set to NA to ignore existing weights.
+#' @param invert_weights Logical. Invert weights so higher weights = shorter paths?
+#'   Default TRUE (appropriate for strength/frequency weights).
+#' @param alpha Numeric. Exponent for weight inversion. Default 1.
 #' @param ... Additional arguments passed to \code{\link{to_igraph}}
 #'
 #' @return Numeric in \[0, 1\]: average local efficiency
@@ -644,7 +659,7 @@ network_global_efficiency <- function(x, directed = NULL, weights = NULL, ...) {
 #' # Star: neighbors not connected to each other
 #' star <- matrix(c(0,1,1,1,1, 1,0,0,0,0, 1,0,0,0,0, 1,0,0,0,0, 1,0,0,0,0), 5, 5)
 #' network_local_efficiency(star)  # 0
-network_local_efficiency <- function(x, weights = NULL, ...) {
+network_local_efficiency <- function(x, weights = NULL, invert_weights = TRUE, alpha = 1, ...) {
   if (inherits(x, "igraph")) {
     g <- x
   } else {
@@ -664,6 +679,13 @@ network_local_efficiency <- function(x, weights = NULL, ...) {
     weights <- igraph::E(g)$weight
   }
 
+  # Invert weights on the graph for path calculation
+  if (!is.null(weights) && invert_weights) {
+    inv_weights <- 1 / (weights ^ alpha)
+    inv_weights[!is.finite(inv_weights)] <- .Machine$double.xmax
+    igraph::E(g)$weight <- inv_weights
+  }
+
   local_eff <- numeric(n)
 
   for (v in seq_len(n)) {
@@ -679,7 +701,7 @@ network_local_efficiency <- function(x, weights = NULL, ...) {
     # Induce subgraph on neighbors
     subg <- igraph::induced_subgraph(g, neighbors)
 
-    # Compute efficiency of subgraph
+    # Compute efficiency of subgraph (weights already inverted on g)
     sp <- igraph::distances(subg, mode = "all",
                             weights = if (!is.null(weights)) igraph::E(subg)$weight else NULL)
     diag(sp) <- NA

@@ -9,7 +9,8 @@
 #'   "degree", "strength", "betweenness", "closeness", "eigenvector",
 #'   "pagerank", "authority", "hub", "eccentricity", "coreness",
 #'   "constraint", "transitivity", "harmonic", "diffusion", "leverage",
-#'   "kreach", "resilience".
+#'   "kreach", "resilience", "alpha", "power", "subgraph", "laplacian",
+#'   "load", "current_flow_closeness", "current_flow_betweenness", "voterank".
 #' @param mode For directed networks: "all", "in", or "out". Affects degree,
 #'   strength, closeness, eccentricity, coreness, and harmonic centrality.
 #' @param normalized Logical. Normalize values to 0-1 range by dividing by max.
@@ -81,6 +82,22 @@
 #'     within distance k (supports mode: in/out/all, k parameter)}
 #'   \item{resilience}{Resilience centrality - minimum number of nodes that
 #'     must be removed to disconnect this node from the network}
+#'   \item{alpha}{Alpha/Katz centrality - influence via paths, penalized by
+#'     distance. Similar to eigenvector but includes exogenous contribution}
+#'   \item{power}{Bonacich power centrality - measures influence based on
+#'     connections to other influential nodes}
+#'   \item{subgraph}{Subgraph centrality - participation in closed loops/walks,
+#'     weighting shorter loops more heavily}
+#'   \item{laplacian}{Laplacian centrality - drop in Laplacian energy when
+#'     node is removed. Higher = more important}
+#'   \item{load}{Load centrality - fraction of all shortest paths through node,
+#'     similar to betweenness but weights paths by 1/count}
+#'   \item{current_flow_closeness}{Information centrality - closeness based on
+#'     electrical current flow (requires connected graph)}
+#'   \item{current_flow_betweenness}{Random walk betweenness - betweenness based
+#'     on current flow rather than shortest paths (requires connected graph)}
+#'   \item{voterank}{VoteRank - identifies influential spreaders via iterative
+#'     voting mechanism. Returns normalized rank (1 = most influential)}
 #' }
 #'
 #' @export
@@ -156,10 +173,13 @@ centrality <- function(x, measures = "all", mode = "all",
 
   # Define which measures support mode parameter
   mode_measures <- c("degree", "strength", "closeness", "eccentricity",
-                     "coreness", "harmonic", "diffusion", "leverage", "kreach")
+                     "coreness", "harmonic", "diffusion", "leverage", "kreach",
+                     "alpha", "power")
   no_mode_measures <- c("betweenness", "eigenvector", "pagerank",
                         "authority", "hub", "constraint", "transitivity",
-                        "resilience")
+                        "resilience", "subgraph", "laplacian", "load",
+                        "current_flow_closeness", "current_flow_betweenness",
+                        "voterank")
   all_measures <- c(mode_measures, no_mode_measures)
 
   # Resolve measures
@@ -191,7 +211,7 @@ centrality <- function(x, measures = "all", mode = "all",
   # Path-based measures need inverted weights (higher weight = shorter path)
   # Following qgraph's approach: distance = 1 / weight^alpha
   path_based_measures <- c("betweenness", "closeness", "harmonic",
-                           "eccentricity", "kreach")
+                           "eccentricity", "kreach", "load")
   needs_path_weights <- any(measures %in% path_based_measures)
 
   weights_for_paths <- weights
@@ -468,6 +488,298 @@ calculate_resilience <- function(g) {
   result
 }
 
+#' Calculate Laplacian centrality
+#'
+#' Measures the drop in Laplacian energy when a node is removed.
+#' Higher values indicate more important nodes.
+#'
+#' @param g igraph object
+#' @param weights Edge weights (NULL for unweighted)
+#' @param normalized Whether to normalize by max value
+#' @return Numeric vector of Laplacian centrality values
+#' @noRd
+calculate_laplacian <- function(g, weights = NULL, normalized = FALSE) {
+  n <- igraph::vcount(g)
+  if (n == 0) return(numeric(0))
+  if (n == 1) return(0)
+
+  # Get Laplacian matrix
+  L <- igraph::laplacian_matrix(g, weights = weights, sparse = FALSE)
+
+  # Calculate Laplacian energy of full graph (sum of squared eigenvalues)
+  eig_full <- eigen(L, symmetric = TRUE, only.values = TRUE)$values
+  energy_full <- sum(eig_full^2)
+
+  # For each node, calculate energy drop when removed
+  result <- numeric(n)
+  for (v in seq_len(n)) {
+    # Remove node v (delete row and column)
+    L_reduced <- L[-v, -v, drop = FALSE]
+    if (nrow(L_reduced) == 0) {
+      result[v] <- energy_full
+    } else {
+      eig_reduced <- eigen(L_reduced, symmetric = TRUE, only.values = TRUE)$values
+      energy_reduced <- sum(eig_reduced^2)
+      result[v] <- energy_full - energy_reduced
+    }
+  }
+
+  if (normalized && max(result) > 0) {
+    result <- result / max(result)
+  }
+
+  result
+}
+
+#' Calculate load centrality
+#'
+#' Similar to betweenness but counts fraction of all shortest paths through node.
+#' Based on Newman's variant where paths are weighted by 1/number_of_paths.
+#'
+#' @param g igraph object
+#' @param weights Edge weights (NULL for unweighted)
+#' @param directed Whether to consider edge direction
+#' @return Numeric vector of load centrality values
+#' @noRd
+calculate_load <- function(g, weights = NULL, directed = TRUE) {
+  n <- igraph::vcount(g)
+  if (n == 0) return(numeric(0))
+  if (n == 1) return(0)
+
+  # Get all shortest paths
+  sp_lengths <- igraph::distances(g, mode = if (directed) "out" else "all",
+                                   weights = weights)
+
+  load <- numeric(n)
+
+  for (s in seq_len(n)) {
+    for (t in seq_len(n)) {
+      if (s == t) next
+      if (is.infinite(sp_lengths[s, t])) next
+
+      # Get all shortest paths from s to t
+      paths <- igraph::all_shortest_paths(g, from = s, to = t,
+                                           mode = if (directed) "out" else "all",
+                                           weights = weights)$res
+
+      if (length(paths) == 0) next
+
+      n_paths <- length(paths)
+
+      # Count how many paths go through each intermediate node
+      for (path in paths) {
+        path_nodes <- as.integer(path)
+        # Exclude source and target
+        intermediate <- path_nodes[-c(1, length(path_nodes))]
+        for (v in intermediate) {
+          load[v] <- load[v] + 1 / n_paths
+        }
+      }
+    }
+  }
+
+  load
+}
+
+#' Calculate current-flow closeness centrality (information centrality)
+#'
+#' Based on electrical current flow through the network.
+#' Uses the pseudoinverse of the Laplacian matrix.
+#'
+#' @param g igraph object
+#' @param weights Edge weights (NULL for unweighted)
+#' @return Numeric vector of current-flow closeness values
+#' @noRd
+calculate_current_flow_closeness <- function(g, weights = NULL) {
+  n <- igraph::vcount(g)
+  if (n == 0) return(numeric(0))
+  if (n <= 1) return(rep(NA_real_, n))
+
+  # Must be connected for current flow
+  if (!igraph::is_connected(g, mode = "weak")) {
+    warning("Graph is not connected; current-flow closeness undefined for disconnected nodes")
+    return(rep(NA_real_, n))
+  }
+
+  # Get Laplacian matrix
+  L <- igraph::laplacian_matrix(g, weights = weights, sparse = FALSE)
+
+  # Compute Moore-Penrose pseudoinverse
+  # L+ = (L - J/n)^-1 + J/n where J is all-ones matrix
+  J <- matrix(1, n, n)
+  L_tilde <- L - J / n
+
+  # Use SVD for pseudoinverse (more stable)
+  svd_result <- svd(L_tilde)
+  tol <- max(dim(L_tilde)) * max(svd_result$d) * .Machine$double.eps
+  positive <- svd_result$d > tol
+  if (sum(positive) == 0) {
+    return(rep(NA_real_, n))
+  }
+
+  L_pinv <- svd_result$v[, positive, drop = FALSE] %*%
+    diag(1 / svd_result$d[positive], nrow = sum(positive)) %*%
+    t(svd_result$u[, positive, drop = FALSE])
+
+  # Current-flow closeness for node i is n / sum of effective resistances
+  # Effective resistance R_ij = L+_ii + L+_jj - 2*L+_ij
+  diag_L_pinv <- diag(L_pinv)
+
+  result <- numeric(n)
+  for (i in seq_len(n)) {
+    total_resistance <- 0
+    for (j in seq_len(n)) {
+      if (i != j) {
+        R_ij <- diag_L_pinv[i] + diag_L_pinv[j] - 2 * L_pinv[i, j]
+        total_resistance <- total_resistance + R_ij
+      }
+    }
+    result[i] <- (n - 1) / total_resistance
+  }
+
+  result
+}
+
+#' Calculate current-flow betweenness centrality
+#'
+#' Betweenness based on current flow rather than shortest paths.
+#' Measures the amount of current passing through each node.
+#'
+#' @param g igraph object
+#' @param weights Edge weights (NULL for unweighted, treated as conductances)
+#' @return Numeric vector of current-flow betweenness values
+#' @noRd
+calculate_current_flow_betweenness <- function(g, weights = NULL) {
+  n <- igraph::vcount(g)
+  if (n == 0) return(numeric(0))
+  if (n <= 2) return(rep(0, n))
+
+  # Must be connected
+  if (!igraph::is_connected(g, mode = "weak")) {
+    warning("Graph is not connected; current-flow betweenness undefined")
+    return(rep(NA_real_, n))
+  }
+
+  # Get Laplacian (with weights as conductances)
+  L <- igraph::laplacian_matrix(g, weights = weights, sparse = FALSE)
+
+  # Pseudoinverse of Laplacian
+  J <- matrix(1, n, n)
+  L_tilde <- L - J / n
+
+  svd_result <- svd(L_tilde)
+  tol <- max(dim(L_tilde)) * max(svd_result$d) * .Machine$double.eps
+  positive <- svd_result$d > tol
+
+  if (sum(positive) == 0) {
+    return(rep(NA_real_, n))
+  }
+
+  L_pinv <- svd_result$v[, positive, drop = FALSE] %*%
+    diag(1 / svd_result$d[positive], nrow = sum(positive)) %*%
+    t(svd_result$u[, positive, drop = FALSE])
+
+  # Calculate throughput for each node
+  betweenness <- numeric(n)
+
+  for (s in seq_len(n)) {
+    for (t in seq_len(n)) {
+      if (s >= t) next  # Only consider each pair once
+
+      # Current at node k when unit current flows from s to t
+      # I_k = |L+_ks - L+_kt| for k != s, t
+      for (k in seq_len(n)) {
+        if (k == s || k == t) next
+        current_through_k <- abs(L_pinv[k, s] - L_pinv[k, t])
+        betweenness[k] <- betweenness[k] + current_through_k
+      }
+    }
+  }
+
+  # Normalize by number of pairs
+  betweenness <- betweenness * 2 / ((n - 1) * (n - 2))
+
+  betweenness
+}
+
+#' Calculate VoteRank centrality
+#'
+#' Iteratively finds influential spreaders by voting mechanism.
+#' Each iteration selects the node with most votes, then reduces voting
+#' power of its neighbors.
+#'
+#' @param g igraph object
+#' @param directed Whether to consider edge direction
+#' @return Numeric vector with rank order (1 = most influential, higher = less)
+#' @noRd
+calculate_voterank <- function(g, directed = TRUE)
+{
+  n <- igraph::vcount(g)
+  if (n == 0) return(numeric(0))
+  if (n == 1) return(1)
+
+
+  # Initialize voting ability for all nodes
+  avg_degree <- mean(igraph::degree(g, mode = "all"))
+  if (avg_degree == 0) avg_degree <- 1
+
+  voting_ability <- rep(1, n)
+  selected <- logical(n)
+  rank_order <- rep(NA_integer_, n)
+  rank <- 1
+
+  for (iter in seq_len(n)) {
+    # Calculate votes for each unselected node
+    votes <- numeric(n)
+
+    for (v in which(!selected)) {
+      # Get in-neighbors (nodes that vote for v)
+      if (directed) {
+        voters <- as.integer(igraph::neighbors(g, v, mode = "in"))
+      } else {
+        voters <- as.integer(igraph::neighbors(g, v, mode = "all"))
+      }
+
+      # Sum voting ability of neighbors that haven't been selected
+      votes[v] <- sum(voting_ability[voters[!selected[voters]]])
+    }
+
+    # Select node with maximum votes
+    candidates <- which(!selected)
+    if (length(candidates) == 0) break
+
+    votes_candidates <- votes[candidates]
+    if (all(votes_candidates == 0)) {
+      # No more votes, assign remaining ranks arbitrarily
+      remaining <- which(!selected)
+      rank_order[remaining] <- seq(rank, length.out = length(remaining))
+      break
+    }
+
+    # Winner is candidate with max votes
+    winner <- candidates[which.max(votes_candidates)]
+    selected[winner] <- TRUE
+    rank_order[winner] <- rank
+    rank <- rank + 1
+
+    # Reduce voting ability of winner's neighbors
+    if (directed) {
+      neighbors_of_winner <- as.integer(igraph::neighbors(g, winner, mode = "out"))
+    } else {
+      neighbors_of_winner <- as.integer(igraph::neighbors(g, winner, mode = "all"))
+    }
+
+    for (nb in neighbors_of_winner) {
+      voting_ability[nb] <- max(0, voting_ability[nb] - 1 / avg_degree)
+    }
+  }
+
+  # Convert rank to centrality (lower rank = higher centrality)
+  # Return inverse rank so higher values = more central
+  max_rank <- max(rank_order, na.rm = TRUE)
+  (max_rank + 1 - rank_order) / max_rank
+}
+
 #' Calculate a single centrality measure
 #' @noRd
 calculate_measure <- function(g, measure, mode, weights, normalized,
@@ -491,9 +803,22 @@ calculate_measure <- function(g, measure, mode, weights, normalized,
     "diffusion" = calculate_diffusion(g, mode = mode, lambda = lambda),
     "leverage" = calculate_leverage(g, mode = mode),
     "kreach" = calculate_kreach(g, mode = mode, weights = weights, k = k),
+    "alpha" = igraph::alpha_centrality(
+      g, weights = weights, exo = 1,
+      tol = 1e-07, loops = FALSE, sparse = TRUE
+    ),
+    "power" = igraph::power_centrality(
+      g, exponent = 1, rescale = FALSE, tol = 1e-07, loops = FALSE, sparse = TRUE
+    ),
 
     # Measures without mode
     "resilience" = calculate_resilience(g),
+    "subgraph" = igraph::subgraph_centrality(g, diag = FALSE),
+    "laplacian" = calculate_laplacian(g, weights = weights, normalized = normalized),
+    "load" = calculate_load(g, weights = weights, directed = directed),
+    "current_flow_closeness" = calculate_current_flow_closeness(g, weights = weights),
+    "current_flow_betweenness" = calculate_current_flow_betweenness(g, weights = weights),
+    "voterank" = calculate_voterank(g, directed = directed),
     "betweenness" = igraph::betweenness(
       g, weights = weights, directed = directed, cutoff = cutoff
     ),

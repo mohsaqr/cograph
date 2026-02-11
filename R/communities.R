@@ -701,36 +701,52 @@ community_fluid <- function(x, no.of.communities, ...) {
 
 
 # ==============================================================================
-# Short Aliases
+# Short Aliases (com_*)
 # ==============================================================================
 
-#' @rdname community_label_propagation
+#' @rdname community_louvain
 #' @export
-community_label_prop <- community_label_propagation
+com_lv <- community_louvain
 
-#' @rdname community_leading_eigenvector
+#' @rdname community_leiden
 #' @export
-community_leading_eigen <- community_leading_eigenvector
-
-#' @rdname community_edge_betweenness
-#' @export
-community_edge_btwn <- community_edge_betweenness
+com_ld <- community_leiden
 
 #' @rdname community_fast_greedy
 #' @export
-community_fastgreedy <- community_fast_greedy
-
-#' @rdname community_spinglass
-#' @export
-community_spin <- community_spinglass
+com_fg <- community_fast_greedy
 
 #' @rdname community_walktrap
 #' @export
-community_walk <- community_walktrap
+com_wt <- community_walktrap
 
 #' @rdname community_infomap
 #' @export
-community_info <- community_infomap
+com_im <- community_infomap
+
+#' @rdname community_label_propagation
+#' @export
+com_lp <- community_label_propagation
+
+#' @rdname community_edge_betweenness
+#' @export
+com_eb <- community_edge_betweenness
+
+#' @rdname community_leading_eigenvector
+#' @export
+com_le <- community_leading_eigenvector
+
+#' @rdname community_spinglass
+#' @export
+com_sg <- community_spinglass
+
+#' @rdname community_optimal
+#' @export
+com_op <- community_optimal
+
+#' @rdname community_fluid
+#' @export
+com_fl <- community_fluid
 
 
 # ==============================================================================

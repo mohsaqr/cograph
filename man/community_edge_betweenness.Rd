@@ -2,7 +2,7 @@
 % Please edit documentation in R/communities.R
 \name{community_edge_betweenness}
 \alias{community_edge_betweenness}
-\alias{community_edge_btwn}
+\alias{com_eb}
 \title{Edge Betweenness Community Detection}
 \usage{
 community_edge_betweenness(
@@ -17,7 +17,7 @@ community_edge_betweenness(
   ...
 )
 
-community_edge_btwn(
+com_eb(
   x,
   weights = NULL,
   directed = TRUE,

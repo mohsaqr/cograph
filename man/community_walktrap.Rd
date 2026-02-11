@@ -2,7 +2,7 @@
 % Please edit documentation in R/communities.R
 \name{community_walktrap}
 \alias{community_walktrap}
-\alias{community_walk}
+\alias{com_wt}
 \title{Walktrap Community Detection}
 \usage{
 community_walktrap(
@@ -15,7 +15,7 @@ community_walktrap(
   ...
 )
 
-community_walk(
+com_wt(
   x,
   weights = NULL,
   steps = 4,

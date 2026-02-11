@@ -2,7 +2,7 @@
 % Please edit documentation in R/communities.R
 \name{community_label_propagation}
 \alias{community_label_propagation}
-\alias{community_label_prop}
+\alias{com_lp}
 \title{Label Propagation Community Detection}
 \usage{
 community_label_propagation(
@@ -14,7 +14,7 @@ community_label_propagation(
   ...
 )
 
-community_label_prop(
+com_lp(
   x,
   weights = NULL,
   mode = c("out", "in", "all"),

@@ -2,9 +2,12 @@
 % Please edit documentation in R/communities.R
 \name{community_fluid}
 \alias{community_fluid}
+\alias{com_fl}
 \title{Fluid Communities Detection}
 \usage{
 community_fluid(x, no.of.communities, ...)
+
+com_fl(x, no.of.communities, ...)
 }
 \arguments{
 \item{x}{Network input}

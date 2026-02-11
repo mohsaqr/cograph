@@ -2,7 +2,7 @@
 % Please edit documentation in R/communities.R
 \name{community_fast_greedy}
 \alias{community_fast_greedy}
-\alias{community_fastgreedy}
+\alias{com_fg}
 \title{Fast Greedy Community Detection}
 \usage{
 community_fast_greedy(
@@ -14,7 +14,7 @@ community_fast_greedy(
   ...
 )
 
-community_fastgreedy(
+com_fg(
   x,
   weights = NULL,
   merges = TRUE,

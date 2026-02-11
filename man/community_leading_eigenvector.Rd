@@ -2,7 +2,7 @@
 % Please edit documentation in R/communities.R
 \name{community_leading_eigenvector}
 \alias{community_leading_eigenvector}
-\alias{community_leading_eigen}
+\alias{com_le}
 \title{Leading Eigenvector Community Detection}
 \usage{
 community_leading_eigenvector(
@@ -17,7 +17,7 @@ community_leading_eigenvector(
   ...
 )
 
-community_leading_eigen(
+com_le(
   x,
   weights = NULL,
   steps = -1,

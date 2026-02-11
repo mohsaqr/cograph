@@ -2,9 +2,22 @@
 % Please edit documentation in R/communities.R
 \name{community_leiden}
 \alias{community_leiden}
+\alias{com_ld}
 \title{Leiden Community Detection}
 \usage{
 community_leiden(
+  x,
+  weights = NULL,
+  resolution = 1,
+  objective_function = c("CPM", "modularity"),
+  beta = 0.01,
+  initial_membership = NULL,
+  n_iterations = 2,
+  vertex_weights = NULL,
+  ...
+)
+
+com_ld(
   x,
   weights = NULL,
   resolution = 1,

@@ -2,7 +2,7 @@
 % Please edit documentation in R/communities.R
 \name{community_infomap}
 \alias{community_infomap}
-\alias{community_info}
+\alias{com_im}
 \title{Infomap Community Detection}
 \usage{
 community_infomap(
@@ -14,7 +14,7 @@ community_infomap(
   ...
 )
 
-community_info(
+com_im(
   x,
   weights = NULL,
   v.weights = NULL,

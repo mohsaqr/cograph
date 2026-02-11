@@ -2,7 +2,7 @@
 % Please edit documentation in R/communities.R
 \name{community_spinglass}
 \alias{community_spinglass}
-\alias{community_spin}
+\alias{com_sg}
 \title{Spinglass Community Detection}
 \usage{
 community_spinglass(
@@ -21,7 +21,7 @@ community_spinglass(
   ...
 )
 
-community_spin(
+com_sg(
   x,
   weights = NULL,
   vertex = NULL,

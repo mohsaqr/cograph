@@ -2,9 +2,12 @@
 % Please edit documentation in R/communities.R
 \name{community_optimal}
 \alias{community_optimal}
+\alias{com_op}
 \title{Optimal Community Detection}
 \usage{
 community_optimal(x, weights = NULL, ...)
+
+com_op(x, weights = NULL, ...)
 }
 \arguments{
 \item{x}{Network input}

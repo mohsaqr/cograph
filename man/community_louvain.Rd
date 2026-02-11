@@ -2,9 +2,12 @@
 % Please edit documentation in R/communities.R
 \name{community_louvain}
 \alias{community_louvain}
+\alias{com_lv}
 \title{Louvain Community Detection}
 \usage{
 community_louvain(x, weights = NULL, resolution = 1, ...)
+
+com_lv(x, weights = NULL, resolution = 1, ...)
 }
 \arguments{
 \item{x}{Network input}

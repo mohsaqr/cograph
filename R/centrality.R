@@ -10,7 +10,8 @@
 #'   "pagerank", "authority", "hub", "eccentricity", "coreness",
 #'   "constraint", "transitivity", "harmonic", "diffusion", "leverage",
 #'   "kreach", "resilience", "alpha", "power", "subgraph", "laplacian",
-#'   "load", "current_flow_closeness", "current_flow_betweenness", "voterank".
+#'   "load", "current_flow_closeness", "current_flow_betweenness", "voterank",
+#'   "percolation".
 #' @param mode For directed networks: "all", "in", or "out". Affects degree,
 #'   strength, closeness, eccentricity, coreness, and harmonic centrality.
 #' @param normalized Logical. Normalize values to 0-1 range by dividing by max.
@@ -48,6 +49,9 @@
 #'   "nan" (default) returns NaN, "zero" returns 0.
 #' @param lambda Diffusion scaling factor for diffusion centrality. Default 1.
 #' @param k Path length parameter for geodesic k-path centrality. Default 3.
+#' @param states Named numeric vector of percolation states (0-1) for percolation
+#'   centrality. Each value represents how "activated" or "infected" a node is.
+#'   Default NULL (all nodes get state 1, equivalent to betweenness).
 #' @param ... Additional arguments (currently unused)
 #'
 #' @return A data frame with columns:
@@ -98,6 +102,9 @@
 #'     on current flow rather than shortest paths (requires connected graph)}
 #'   \item{voterank}{VoteRank - identifies influential spreaders via iterative
 #'     voting mechanism. Returns normalized rank (1 = most influential)}
+#'   \item{percolation}{Percolation centrality - importance for spreading processes.
+#'     Uses node states (0-1) to weight paths. When all states equal, equivalent
+#'     to betweenness. Useful for epidemic/information spreading analysis.}
 #' }
 #'
 #' @export
@@ -131,7 +138,7 @@ centrality <- function(x, measures = "all", mode = "all",
                        cutoff = -1, invert_weights = NULL, alpha = 1,
                        damping = 0.85, personalized = NULL,
                        transitivity_type = "local", isolates = "nan",
-                       lambda = 1, k = 3, ...) {
+                       lambda = 1, k = 3, states = NULL, ...) {
 
   # Auto-detect invert_weights based on input type
 
@@ -179,7 +186,7 @@ centrality <- function(x, measures = "all", mode = "all",
                         "authority", "hub", "constraint", "transitivity",
                         "resilience", "subgraph", "laplacian", "load",
                         "current_flow_closeness", "current_flow_betweenness",
-                        "voterank")
+                        "voterank", "percolation")
   all_measures <- c(mode_measures, no_mode_measures)
 
   # Resolve measures
@@ -240,7 +247,7 @@ centrality <- function(x, measures = "all", mode = "all",
       g, m, mode, measure_weights, normalized,
       cutoff = cutoff, damping = damping, personalized = personalized,
       transitivity_type = transitivity_type, isolates = isolates,
-      hits_result = hits_result, lambda = lambda, k = k
+      hits_result = hits_result, lambda = lambda, k = k, states = states
     )
 
     # Normalize if requested (except for closeness which is handled by igraph)
@@ -780,12 +787,109 @@ calculate_voterank <- function(g, directed = TRUE)
   (max_rank + 1 - rank_order) / max_rank
 }
 
+#' Calculate percolation centrality
+#'
+#' Measures node importance for percolation/spreading processes.
+#' Each node has a "percolation state" (0-1) representing how activated/infected it is.
+#' The centrality measures the proportion of percolated paths through each node.
+#'
+#' @param g igraph object
+#' @param states Named numeric vector of percolation states (0-1) for each node.
+#'   If NULL, all nodes get state 1 (equivalent to betweenness).
+#' @param weights Edge weights (NULL for unweighted)
+#' @param directed Whether to respect edge direction
+#' @return Numeric vector of percolation centrality values
+#' @references
+#' Piraveenan, M., Prokopenko, M., & Hossain, L. (2013).
+#' Percolation centrality: Quantifying graph-theoretic impact of nodes during percolation in networks.
+#' @noRd
+calculate_percolation <- function(g, states = NULL, weights = NULL, directed = TRUE) {
+  n <- igraph::vcount(g)
+  if (n == 0) return(numeric(0))
+  if (n <= 2) return(rep(0, n))
+
+  # Get node names/indices
+  node_names <- igraph::V(g)$name
+  if (is.null(node_names)) node_names <- seq_len(n)
+
+  # Initialize percolation states (default all 1.0)
+  if (is.null(states)) {
+    states <- rep(1.0, n)
+    names(states) <- node_names
+  } else {
+    # Ensure states vector matches node order
+    if (is.null(names(states))) {
+      if (length(states) != n) {
+        stop("states vector length must match number of nodes", call. = FALSE)
+      }
+    } else {
+      states <- states[as.character(node_names)]
+    }
+    # Validate states are in [0, 1]
+    states[is.na(states)] <- 1.0
+    states <- pmax(0, pmin(1, states))
+  }
+
+  # Total percolation state
+  total_states <- sum(states)
+  if (total_states == 0) {
+    return(rep(0, n))
+  }
+
+  # Initialize centrality
+  percolation <- numeric(n)
+
+  # For each source node
+  for (s in seq_len(n)) {
+    if (states[s] == 0) next  # Skip nodes with 0 state
+
+    # Get shortest paths from s to all other nodes
+    sp <- igraph::distances(g, v = s, mode = if (directed) "out" else "all",
+                            weights = weights)
+
+    # Get all shortest paths for path counting
+    all_paths <- igraph::all_shortest_paths(
+      g, from = s, mode = if (directed) "out" else "all", weights = weights
+    )
+
+    # Count paths through each node (similar to betweenness)
+    for (path_obj in all_paths$res) {
+      path <- as.integer(path_obj)
+      if (length(path) <= 2) next  # No intermediate nodes
+
+      t <- path[length(path)]  # Target
+      if (s == t) next
+
+      # Get intermediate nodes (exclude source and target)
+      intermediates <- path[-c(1, length(path))]
+
+      # Percolation weight for this source
+      for (v in intermediates) {
+        # pw = states[s] / (total_states - states[v])
+        denom <- total_states - states[v]
+        if (denom > 0) {
+          pw <- states[s] / denom
+          percolation[v] <- percolation[v] + pw
+        }
+      }
+    }
+  }
+
+  # Normalize by (n - 2) for comparability
+  if (n > 2) {
+    percolation <- percolation / (n - 2)
+  }
+
+  percolation
+}
+
 #' Calculate a single centrality measure
 #' @noRd
 calculate_measure <- function(g, measure, mode, weights, normalized,
                               cutoff, damping, personalized,
                               transitivity_type, isolates,
-                              hits_result = NULL, lambda = 1, k = 3) {
+                              hits_result = NULL, lambda = 1, k = 3,
+                              states = NULL) {
   directed <- igraph::is_directed(g)
 
   value <- switch(measure,
@@ -819,6 +923,7 @@ calculate_measure <- function(g, measure, mode, weights, normalized,
     "current_flow_closeness" = calculate_current_flow_closeness(g, weights = weights),
     "current_flow_betweenness" = calculate_current_flow_betweenness(g, weights = weights),
     "voterank" = calculate_voterank(g, directed = directed),
+    "percolation" = calculate_percolation(g, states = states, weights = weights, directed = directed),
     "betweenness" = igraph::betweenness(
       g, weights = weights, directed = directed, cutoff = cutoff
     ),
@@ -1100,6 +1205,13 @@ centrality_current_flow_betweenness <- function(x, ...) {
 centrality_voterank <- function(x, ...) {
   df <- centrality(x, measures = "voterank", ...)
   stats::setNames(df$voterank, df$node)
+}
+
+#' @rdname centrality
+#' @export
+centrality_percolation <- function(x, states = NULL, ...) {
+  df <- centrality(x, measures = "percolation", states = states, ...)
+  stats::setNames(df$percolation, df$node)
 }
 
 

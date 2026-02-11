@@ -1044,6 +1044,64 @@ centrality_resilience <- function(x, ...) {
   stats::setNames(df$resilience, df$node)
 }
 
+#' @rdname centrality
+#' @export
+centrality_alpha <- function(x, mode = "all", ...) {
+  df <- centrality(x, measures = "alpha", mode = mode, ...)
+  col <- paste0("alpha_", mode)
+  stats::setNames(df[[col]], df$node)
+}
+
+#' @rdname centrality
+#' @export
+centrality_power <- function(x, mode = "all", ...) {
+  df <- centrality(x, measures = "power", mode = mode, ...)
+  col <- paste0("power_", mode)
+  stats::setNames(df[[col]], df$node)
+}
+
+#' @rdname centrality
+#' @export
+centrality_subgraph <- function(x, ...) {
+  df <- centrality(x, measures = "subgraph", ...)
+  stats::setNames(df$subgraph, df$node)
+}
+
+#' @rdname centrality
+#' @export
+centrality_laplacian <- function(x, ...) {
+  df <- centrality(x, measures = "laplacian", ...)
+  stats::setNames(df$laplacian, df$node)
+}
+
+#' @rdname centrality
+#' @export
+centrality_load <- function(x, ...) {
+  df <- centrality(x, measures = "load", ...)
+  stats::setNames(df$load, df$node)
+}
+
+#' @rdname centrality
+#' @export
+centrality_current_flow_closeness <- function(x, ...) {
+  df <- centrality(x, measures = "current_flow_closeness", ...)
+  stats::setNames(df$current_flow_closeness, df$node)
+}
+
+#' @rdname centrality
+#' @export
+centrality_current_flow_betweenness <- function(x, ...) {
+  df <- centrality(x, measures = "current_flow_betweenness", ...)
+  stats::setNames(df$current_flow_betweenness, df$node)
+}
+
+#' @rdname centrality
+#' @export
+centrality_voterank <- function(x, ...) {
+  df <- centrality(x, measures = "voterank", ...)
+  stats::setNames(df$voterank, df$node)
+}
+
 
 #' Calculate Edge Centrality Measures
 #'

@@ -580,9 +580,9 @@ network_bridges <- function(x, count_only = FALSE, ...) {
 #' @param x Network input: matrix, igraph, network, cograph_network, or tna object
 #' @param directed Logical. Consider edge direction? Default TRUE for directed graphs.
 #' @param weights Edge weights (NULL for unweighted). Set to NA to ignore existing weights.
-#' @param invert_weights Logical. Invert weights so higher weights = shorter paths?
-#'   Default FALSE (matching igraph/sna where weights = distances). Set TRUE for
-#'   strength/frequency weights (qgraph/tna style).
+#' @param invert_weights Logical or NULL. Invert weights so higher weights = shorter
+#'   paths? Default NULL which auto-detects: TRUE for tna objects, FALSE otherwise
+#'   (matching igraph/sna). Set TRUE for strength/frequency weights (qgraph style).
 #' @param alpha Numeric. Exponent for weight inversion: distance = 1/weight^alpha.
 #'   Default 1.
 #' @param ... Additional arguments passed to \code{\link{to_igraph}}
@@ -599,7 +599,14 @@ network_bridges <- function(x, count_only = FALSE, ...) {
 #' star <- matrix(c(0,1,1,1, 1,0,0,0, 1,0,0,0, 1,0,0,0), 4, 4)
 #' network_global_efficiency(star)  # ~0.83
 network_global_efficiency <- function(x, directed = NULL, weights = NULL,
-                                      invert_weights = FALSE, alpha = 1, ...) {
+                                      invert_weights = NULL, alpha = 1, ...) {
+  # Auto-detect invert_weights for tna objects
+  is_tna_input <- inherits(x, c("tna", "group_tna", "ctna", "ftna", "atna",
+                                 "group_ctna", "group_ftna", "group_atna"))
+  if (is.null(invert_weights)) {
+    invert_weights <- is_tna_input
+  }
+
   if (inherits(x, "igraph")) {
     g <- x
     if (is.null(directed)) directed <- igraph::is_directed(g)
@@ -643,9 +650,9 @@ network_global_efficiency <- function(x, directed = NULL, weights = NULL,
 #'
 #' @param x Network input: matrix, igraph, network, cograph_network, or tna object
 #' @param weights Edge weights (NULL for unweighted). Set to NA to ignore existing weights.
-#' @param invert_weights Logical. Invert weights so higher weights = shorter paths?
-#'   Default FALSE (matching igraph/sna where weights = distances). Set TRUE for
-#'   strength/frequency weights (qgraph/tna style).
+#' @param invert_weights Logical or NULL. Invert weights so higher weights = shorter
+#'   paths? Default NULL which auto-detects: TRUE for tna objects, FALSE otherwise
+#'   (matching igraph/sna). Set TRUE for strength/frequency weights (qgraph style).
 #' @param alpha Numeric. Exponent for weight inversion. Default 1.
 #' @param ... Additional arguments passed to \code{\link{to_igraph}}
 #'
@@ -660,7 +667,14 @@ network_global_efficiency <- function(x, directed = NULL, weights = NULL,
 #' # Star: neighbors not connected to each other
 #' star <- matrix(c(0,1,1,1,1, 1,0,0,0,0, 1,0,0,0,0, 1,0,0,0,0, 1,0,0,0,0), 5, 5)
 #' network_local_efficiency(star)  # 0
-network_local_efficiency <- function(x, weights = NULL, invert_weights = FALSE, alpha = 1, ...) {
+network_local_efficiency <- function(x, weights = NULL, invert_weights = NULL, alpha = 1, ...) {
+  # Auto-detect invert_weights for tna objects
+  is_tna_input <- inherits(x, c("tna", "group_tna", "ctna", "ftna", "atna",
+                                 "group_ctna", "group_ftna", "group_atna"))
+  if (is.null(invert_weights)) {
+    invert_weights <- is_tna_input
+  }
+
   if (inherits(x, "igraph")) {
     g <- x
   } else {

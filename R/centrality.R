@@ -9,7 +9,7 @@
 #'   "degree", "strength", "betweenness", "closeness", "eigenvector",
 #'   "pagerank", "authority", "hub", "eccentricity", "coreness",
 #'   "constraint", "transitivity", "harmonic", "diffusion", "leverage",
-#'   "kreach", "resilience", "alpha", "power", "subgraph", "laplacian",
+#'   "kreach", "alpha", "power", "subgraph", "laplacian",
 #'   "load", "current_flow_closeness", "current_flow_betweenness", "voterank",
 #'   "percolation".
 #' @param mode For directed networks: "all", "in", or "out". Affects degree,
@@ -84,16 +84,14 @@
 #'     based on relative degree differences (supports mode: in/out/all)}
 #'   \item{kreach}{Geodesic k-path centrality - count of nodes reachable
 #'     within distance k (supports mode: in/out/all, k parameter)}
-#'   \item{resilience}{Resilience centrality - minimum number of nodes that
-#'     must be removed to disconnect this node from the network}
 #'   \item{alpha}{Alpha/Katz centrality - influence via paths, penalized by
 #'     distance. Similar to eigenvector but includes exogenous contribution}
 #'   \item{power}{Bonacich power centrality - measures influence based on
 #'     connections to other influential nodes}
 #'   \item{subgraph}{Subgraph centrality - participation in closed loops/walks,
 #'     weighting shorter loops more heavily}
-#'   \item{laplacian}{Laplacian centrality - drop in Laplacian energy when
-#'     node is removed. Higher = more important}
+#'   \item{laplacian}{Laplacian centrality using Qi et al. (2012) local formula.
+#'     Matches NetworkX and centiserve::laplacian()}
 #'   \item{load}{Load centrality - fraction of all shortest paths through node,
 #'     similar to betweenness but weights paths by 1/count}
 #'   \item{current_flow_closeness}{Information centrality - closeness based on
@@ -138,7 +136,8 @@ centrality <- function(x, measures = "all", mode = "all",
                        cutoff = -1, invert_weights = NULL, alpha = 1,
                        damping = 0.85, personalized = NULL,
                        transitivity_type = "local", isolates = "nan",
-                       lambda = 1, k = 3, states = NULL, ...) {
+                       lambda = 1, k = 3, states = NULL,
+                       ...) {
 
   # Auto-detect invert_weights based on input type
 
@@ -184,7 +183,7 @@ centrality <- function(x, measures = "all", mode = "all",
                      "alpha", "power")
   no_mode_measures <- c("betweenness", "eigenvector", "pagerank",
                         "authority", "hub", "constraint", "transitivity",
-                        "resilience", "subgraph", "laplacian", "load",
+                        "subgraph", "laplacian", "load",
                         "current_flow_closeness", "current_flow_betweenness",
                         "voterank", "percolation")
   all_measures <- c(mode_measures, no_mode_measures)
@@ -425,76 +424,6 @@ calculate_kreach <- function(g, mode = "all", weights = NULL, k = 3) {
   as.integer(rowSums(sp <= k, na.rm = TRUE) - 1)
 }
 
-#' Calculate resilience centrality
-#'
-#' Measures how many nodes must be removed before a node becomes disconnected
-#' from the rest of the network. This is based on vertex-disjoint paths.
-#' Higher values = more resilient/robust nodes (harder to isolate).
-#'
-#' For each node, this calculates the minimum number of OTHER nodes that need
-#' to be removed to disconnect it from at least one other node it was
-#' previously connected to.
-#'
-#' @param g igraph object
-#' @return Numeric vector of resilience centrality values
-#' @noRd
-calculate_resilience <- function(g) {
-  n <- igraph::vcount(g)
-  if (n == 0) return(numeric(0))
-  if (n == 1) return(0L)
-
-  # For each node, find its minimum vertex connectivity to any neighbor
-  # This represents how many nodes must be removed to cut at least one connection
-  result <- integer(n)
-
-  for (v in seq_len(n)) {
-    # Get neighbors of v
-    neighbors_v <- as.integer(igraph::neighbors(g, v, mode = "all"))
-
-    if (length(neighbors_v) == 0) {
-      # Already isolated
-      result[v] <- 0L
-      next
-    }
-
-    # For each neighbor, count vertex-disjoint paths (excluding direct edge)
-    # The resilience is the minimum across all neighbors
-    min_resilience <- Inf
-
-    for (u in neighbors_v) {
-      # Count vertex-disjoint paths from v to u
-      # This equals the vertex connectivity between them
-      # vertex_connectivity counts internal vertices on disjoint paths
-
-      # For adjacent nodes, we want paths that don't use the direct edge
-      # Remove the edge temporarily and check connectivity
-      edge_id <- igraph::get.edge.ids(g, c(v, u))
-
-      if (length(edge_id) > 0 && edge_id[1] > 0) {
-        # Remove direct edge and count alternative paths
-        g_temp <- igraph::delete_edges(g, edge_id[1])
-        conn <- tryCatch({
-          # Count vertex-disjoint paths in graph without direct edge
-          igraph::vertex_connectivity(g_temp, source = v, target = u)
-        }, error = function(e) {
-          0L
-        })
-      } else {
-        conn <- 0L
-      }
-
-      min_resilience <- min(min_resilience, conn)
-    }
-
-    # Add 1 because the direct edge also counts as a path
-    # Actually, resilience = number of vertex-disjoint paths - 1
-    # (removing that many internal nodes breaks all but one path)
-    result[v] <- as.integer(min_resilience)
-  }
-
-  result
-}
-
 #' Calculate Laplacian centrality
 #'
 #' Measures the drop in Laplacian energy when a node is removed.
@@ -506,29 +435,18 @@ calculate_resilience <- function(g) {
 #' @return Numeric vector of Laplacian centrality values
 #' @noRd
 calculate_laplacian <- function(g, weights = NULL, normalized = FALSE) {
+  # Qi et al. (2012) local formula: deg² + deg + 2 * Σ(neighbor_degrees)
+  # Matches NetworkX and centiserve::laplacian()
   n <- igraph::vcount(g)
   if (n == 0) return(numeric(0))
   if (n == 1) return(0)
 
-  # Get Laplacian matrix
-  L <- igraph::laplacian_matrix(g, weights = weights, sparse = FALSE)
-
-  # Calculate Laplacian energy of full graph (sum of squared eigenvalues)
-  eig_full <- eigen(L, symmetric = TRUE, only.values = TRUE)$values
-  energy_full <- sum(eig_full^2)
-
-  # For each node, calculate energy drop when removed
   result <- numeric(n)
   for (v in seq_len(n)) {
-    # Remove node v (delete row and column)
-    L_reduced <- L[-v, -v, drop = FALSE]
-    if (nrow(L_reduced) == 0) {
-      result[v] <- energy_full
-    } else {
-      eig_reduced <- eigen(L_reduced, symmetric = TRUE, only.values = TRUE)$values
-      energy_reduced <- sum(eig_reduced^2)
-      result[v] <- energy_full - energy_reduced
-    }
+    deg_v <- igraph::degree(g, v)
+    neighbors <- igraph::neighbors(g, v)
+    sum_neighbor_deg <- sum(igraph::degree(g, neighbors))
+    result[v] <- deg_v^2 + deg_v + 2 * sum_neighbor_deg
   }
 
   if (normalized && max(result) > 0) {
@@ -540,8 +458,9 @@ calculate_laplacian <- function(g, weights = NULL, normalized = FALSE) {
 
 #' Calculate load centrality
 #'
-#' Similar to betweenness but counts fraction of all shortest paths through node.
-#' Based on Newman's variant where paths are weighted by 1/number_of_paths.
+#' Goh et al.'s load centrality as implemented in sna::loadcent.
+#' Uses Brandes-style algorithm where flow is divided equally among
+#' shortest-path predecessors. Matches sna::loadcent().
 #'
 #' @param g igraph object
 #' @param weights Edge weights (NULL for unweighted)
@@ -553,36 +472,59 @@ calculate_load <- function(g, weights = NULL, directed = TRUE) {
   if (n == 0) return(numeric(0))
   if (n == 1) return(0)
 
-  # Get all shortest paths
-  sp_lengths <- igraph::distances(g, mode = if (directed) "out" else "all",
-                                   weights = weights)
-
+  mode <- if (directed) "out" else "all"
   load <- numeric(n)
 
   for (s in seq_len(n)) {
-    for (t in seq_len(n)) {
-      if (s == t) next
-      if (is.infinite(sp_lengths[s, t])) next
+    # Get distances from source
+    dist <- igraph::distances(g, v = s, mode = mode, weights = weights)[1, ]
 
-      # Get all shortest paths from s to t
-      paths <- igraph::all_shortest_paths(g, from = s, to = t,
-                                           mode = if (directed) "out" else "all",
-                                           weights = weights)$res
+    # BFS to find predecessors and sigma (number of shortest paths)
+    sigma <- numeric(n)
+    sigma[s] <- 1
+    pred <- vector("list", n)
 
-      if (length(paths) == 0) next
+    # Process in BFS order
+    queue <- s
+    processed <- integer(0)
 
-      n_paths <- length(paths)
+    while (length(queue) > 0) {
+      v <- queue[1]
+      queue <- queue[-1]
+      processed <- c(processed, v)
 
-      # Count how many paths go through each intermediate node
-      for (path in paths) {
-        path_nodes <- as.integer(path)
-        # Exclude source and target
-        intermediate <- path_nodes[-c(1, length(path_nodes))]
-        for (v in intermediate) {
-          load[v] <- load[v] + 1 / n_paths
+      neighbors_v <- as.integer(igraph::neighbors(g, v, mode = mode))
+      for (w in neighbors_v) {
+        # First visit to w?
+        if (sigma[w] == 0 && w != s) {
+          queue <- c(queue, w)
+        }
+        # Is this a shortest path to w?
+        if (!is.na(dist[w]) && !is.infinite(dist[w]) &&
+            abs(dist[w] - dist[v] - 1) < 1e-10) {
+          sigma[w] <- sigma[w] + sigma[v]
+          pred[[w]] <- c(pred[[w]], v)
         }
       }
     }
+
+    # Accumulation phase (reverse BFS order)
+    # Initialize delta = 1 for all nodes (sna-style)
+    delta <- rep(1, n)
+
+    for (w in rev(processed)) {
+      if (w == s) next
+      # Divide flow equally among predecessors
+      if (length(pred[[w]]) > 0) {
+        flow_per_pred <- delta[w] / length(pred[[w]])
+        for (v in pred[[w]]) {
+          delta[v] <- delta[v] + flow_per_pred
+        }
+      }
+    }
+
+    # Accumulate load from this source
+    load <- load + delta
   }
 
   load
@@ -661,13 +603,20 @@ calculate_current_flow_betweenness <- function(g, weights = NULL) {
   if (n == 0) return(numeric(0))
   if (n <= 2) return(rep(0, n))
 
-  # Must be connected
+  # Must be connected and undirected
   if (!igraph::is_connected(g, mode = "weak")) {
     warning("Graph is not connected; current-flow betweenness undefined")
     return(rep(NA_real_, n))
   }
 
-  # Get Laplacian (with weights as conductances)
+  # Get adjacency matrix (for edge weights)
+  if (is.null(weights)) {
+    A <- igraph::as_adjacency_matrix(g, sparse = FALSE)
+  } else {
+    A <- igraph::as_adjacency_matrix(g, attr = "weight", sparse = FALSE)
+  }
+
+  # Get Laplacian
   L <- igraph::laplacian_matrix(g, weights = weights, sparse = FALSE)
 
   # Pseudoinverse of Laplacian
@@ -686,24 +635,34 @@ calculate_current_flow_betweenness <- function(g, weights = NULL) {
     diag(1 / svd_result$d[positive], nrow = sum(positive)) %*%
     t(svd_result$u[, positive, drop = FALSE])
 
-  # Calculate throughput for each node
+  # Calculate throughput for each node using Brandes & Fleischer algorithm
+  # For each source-target pair, compute current through each node
+  # Throughput = (1/2) * sum of |current| on incident edges
   betweenness <- numeric(n)
 
   for (s in seq_len(n)) {
     for (t in seq_len(n)) {
       if (s >= t) next  # Only consider each pair once
 
-      # Current at node k when unit current flows from s to t
-      # I_k = |L+_ks - L+_kt| for k != s, t
-      for (k in seq_len(n)) {
-        if (k == s || k == t) next
-        current_through_k <- abs(L_pinv[k, s] - L_pinv[k, t])
-        betweenness[k] <- betweenness[k] + current_through_k
+      # Potential at each node: p_v = L+_vs - L+_vt
+      potential <- L_pinv[, s] - L_pinv[, t]
+
+      # For each node v, compute throughput = (1/2) * sum |w_vu * (p_v - p_u)|
+      for (v in seq_len(n)) {
+        if (v == s || v == t) next
+        throughput <- 0
+        for (u in seq_len(n)) {
+          if (A[v, u] > 0) {  # Edge exists
+            edge_current <- A[v, u] * (potential[v] - potential[u])
+            throughput <- throughput + abs(edge_current)
+          }
+        }
+        betweenness[v] <- betweenness[v] + throughput / 2
       }
     }
   }
 
-  # Normalize by number of pairs
+  # Normalize: 2 / ((n-1)(n-2)) matches NetworkX normalized=TRUE
   betweenness <- betweenness * 2 / ((n - 1) * (n - 2))
 
   betweenness
@@ -789,9 +748,9 @@ calculate_voterank <- function(g, directed = TRUE)
 
 #' Calculate percolation centrality
 #'
-#' Measures node importance for percolation/spreading processes.
+#' Measures node importance for percolation/spreading processes using Brandes algorithm.
 #' Each node has a "percolation state" (0-1) representing how activated/infected it is.
-#' The centrality measures the proportion of percolated paths through each node.
+#' When all states are 1, this equals betweenness centrality.
 #'
 #' @param g igraph object
 #' @param states Named numeric vector of percolation states (0-1) for each node.
@@ -808,6 +767,8 @@ calculate_percolation <- function(g, states = NULL, weights = NULL, directed = T
   if (n == 0) return(numeric(0))
   if (n <= 2) return(rep(0, n))
 
+  mode <- if (directed) "out" else "all"
+
   # Get node names/indices
   node_names <- igraph::V(g)$name
   if (is.null(node_names)) node_names <- seq_len(n)
@@ -815,67 +776,79 @@ calculate_percolation <- function(g, states = NULL, weights = NULL, directed = T
   # Initialize percolation states (default all 1.0)
   if (is.null(states)) {
     states <- rep(1.0, n)
-    names(states) <- node_names
   } else {
-    # Ensure states vector matches node order
-    if (is.null(names(states))) {
-      if (length(states) != n) {
-        stop("states vector length must match number of nodes", call. = FALSE)
-      }
-    } else {
+    if (!is.null(names(states))) {
       states <- states[as.character(node_names)]
     }
-    # Validate states are in [0, 1]
+    if (length(states) != n) {
+      stop("states vector length must match number of nodes", call. = FALSE)
+    }
     states[is.na(states)] <- 1.0
     states <- pmax(0, pmin(1, states))
   }
 
   # Total percolation state
-  total_states <- sum(states)
-  if (total_states == 0) {
+  p_sigma_x_t <- sum(states)
+  if (p_sigma_x_t == 0) {
     return(rep(0, n))
   }
 
   # Initialize centrality
   percolation <- numeric(n)
 
-  # For each source node
+  # Brandes-style algorithm for each source
   for (s in seq_len(n)) {
-    if (states[s] == 0) next  # Skip nodes with 0 state
+    if (states[s] == 0) next
 
-    # Get shortest paths from s to all other nodes
-    sp <- igraph::distances(g, v = s, mode = if (directed) "out" else "all",
-                            weights = weights)
+    # BFS/Dijkstra from s
+    dist <- igraph::distances(g, v = s, mode = mode, weights = weights)[1, ]
 
-    # Get all shortest paths for path counting
-    all_paths <- igraph::all_shortest_paths(
-      g, from = s, mode = if (directed) "out" else "all", weights = weights
-    )
+    # Compute sigma (number of shortest paths) and predecessors
+    sigma <- numeric(n)
+    sigma[s] <- 1
+    pred <- vector("list", n)
 
-    # Count paths through each node (similar to betweenness)
-    for (path_obj in all_paths$res) {
-      path <- as.integer(path_obj)
-      if (length(path) <= 2) next  # No intermediate nodes
+    # BFS order processing
+    queue <- s
+    S <- integer(0)  # Stack of nodes in order of distance
 
-      t <- path[length(path)]  # Target
-      if (s == t) next
+    while (length(queue) > 0) {
+      v <- queue[1]
+      queue <- queue[-1]
+      S <- c(S, v)
 
-      # Get intermediate nodes (exclude source and target)
-      intermediates <- path[-c(1, length(path))]
-
-      # Percolation weight for this source
-      for (v in intermediates) {
-        # pw = states[s] / (total_states - states[v])
-        denom <- total_states - states[v]
-        if (denom > 0) {
-          pw <- states[s] / denom
-          percolation[v] <- percolation[v] + pw
+      neighbors_v <- as.integer(igraph::neighbors(g, v, mode = mode))
+      for (w in neighbors_v) {
+        # First visit to w?
+        if (sigma[w] == 0 && w != s) {
+          queue <- c(queue, w)
         }
+        # Is this a shortest path?
+        if (!is.na(dist[w]) && !is.infinite(dist[w]) &&
+            abs(dist[w] - dist[v] - 1) < 1e-10) {
+          sigma[w] <- sigma[w] + sigma[v]
+          pred[[w]] <- c(pred[[w]], v)
+        }
+      }
+    }
+
+    # Accumulation phase (Brandes algorithm)
+    delta <- numeric(n)
+
+    for (w in rev(S)) {
+      coeff <- (1 + delta[w]) / sigma[w]
+      for (v in pred[[w]]) {
+        delta[v] <- delta[v] + sigma[v] * coeff
+      }
+      if (w != s) {
+        # Percolation weight: states[s] / (total - states[w])
+        pw_s_w <- states[s] / (p_sigma_x_t - states[w])
+        percolation[w] <- percolation[w] + delta[w] * pw_s_w
       }
     }
   }
 
-  # Normalize by (n - 2) for comparability
+  # Normalize by (n-2) to match NetworkX
   if (n > 2) {
     percolation <- percolation / (n - 2)
   }
@@ -916,7 +889,6 @@ calculate_measure <- function(g, measure, mode, weights, normalized,
     ),
 
     # Measures without mode
-    "resilience" = calculate_resilience(g),
     "subgraph" = igraph::subgraph_centrality(g, diag = FALSE),
     "laplacian" = calculate_laplacian(g, weights = weights, normalized = normalized),
     "load" = calculate_load(g, weights = weights, directed = directed),
@@ -1140,13 +1112,6 @@ centrality_kreach <- function(x, mode = "all", k = 3, ...) {
   df <- centrality(x, measures = "kreach", mode = mode, k = k, ...)
   col <- paste0("kreach_", mode)
   stats::setNames(df[[col]], df$node)
-}
-
-#' @rdname centrality
-#' @export
-centrality_resilience <- function(x, ...) {
-  df <- centrality(x, measures = "resilience", ...)
-  stats::setNames(df$resilience, df$node)
 }
 
 #' @rdname centrality

@@ -4,7 +4,14 @@
 \alias{network_global_efficiency}
 \title{Global Efficiency}
 \usage{
-network_global_efficiency(x, directed = NULL, weights = NULL, ...)
+network_global_efficiency(
+  x,
+  directed = NULL,
+  weights = NULL,
+  invert_weights = NULL,
+  alpha = 1,
+  ...
+)
 }
 \arguments{
 \item{x}{Network input: matrix, igraph, network, cograph_network, or tna object}
@@ -12,6 +19,13 @@ network_global_efficiency(x, directed = NULL, weights = NULL, ...)
 \item{directed}{Logical. Consider edge direction? Default TRUE for directed graphs.}
 
 \item{weights}{Edge weights (NULL for unweighted). Set to NA to ignore existing weights.}
+
+\item{invert_weights}{Logical or NULL. Invert weights so higher weights = shorter
+paths? Default NULL which auto-detects: TRUE for tna objects, FALSE otherwise
+(matching igraph/sna). Set TRUE for strength/frequency weights (qgraph style).}
+
+\item{alpha}{Numeric. Exponent for weight inversion: distance = 1/weight^alpha.
+Default 1.}
 
 \item{...}{Additional arguments passed to \code{\link{to_igraph}}}
 }

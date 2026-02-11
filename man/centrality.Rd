@@ -3,22 +3,40 @@
 \name{centrality}
 \alias{centrality}
 \alias{centrality_degree}
+\alias{centrality_indegree}
+\alias{centrality_outdegree}
 \alias{centrality_strength}
+\alias{centrality_instrength}
+\alias{centrality_outstrength}
 \alias{centrality_betweenness}
 \alias{centrality_closeness}
+\alias{centrality_incloseness}
+\alias{centrality_outcloseness}
 \alias{centrality_eigenvector}
 \alias{centrality_pagerank}
 \alias{centrality_authority}
 \alias{centrality_hub}
 \alias{centrality_eccentricity}
+\alias{centrality_ineccentricity}
+\alias{centrality_outeccentricity}
 \alias{centrality_coreness}
 \alias{centrality_constraint}
 \alias{centrality_transitivity}
 \alias{centrality_harmonic}
+\alias{centrality_inharmonic}
+\alias{centrality_outharmonic}
 \alias{centrality_diffusion}
 \alias{centrality_leverage}
 \alias{centrality_kreach}
-\alias{centrality_resilience}
+\alias{centrality_alpha}
+\alias{centrality_power}
+\alias{centrality_subgraph}
+\alias{centrality_laplacian}
+\alias{centrality_load}
+\alias{centrality_current_flow_closeness}
+\alias{centrality_current_flow_betweenness}
+\alias{centrality_voterank}
+\alias{centrality_percolation}
 \title{Calculate Network Centrality Measures}
 \usage{
 centrality(
@@ -33,22 +51,37 @@ centrality(
   digits = NULL,
   sort_by = NULL,
   cutoff = -1,
+  invert_weights = NULL,
+  alpha = 1,
   damping = 0.85,
   personalized = NULL,
   transitivity_type = "local",
   isolates = "nan",
   lambda = 1,
   k = 3,
+  states = NULL,
   ...
 )
 
 centrality_degree(x, mode = "all", ...)
 
+centrality_indegree(x, ...)
+
+centrality_outdegree(x, ...)
+
 centrality_strength(x, mode = "all", ...)
+
+centrality_instrength(x, ...)
+
+centrality_outstrength(x, ...)
 
 centrality_betweenness(x, ...)
 
 centrality_closeness(x, mode = "all", ...)
+
+centrality_incloseness(x, ...)
+
+centrality_outcloseness(x, ...)
 
 centrality_eigenvector(x, ...)
 
@@ -60,6 +93,10 @@ centrality_hub(x, ...)
 
 centrality_eccentricity(x, mode = "all", ...)
 
+centrality_ineccentricity(x, ...)
+
+centrality_outeccentricity(x, ...)
+
 centrality_coreness(x, mode = "all", ...)
 
 centrality_constraint(x, ...)
@@ -68,13 +105,33 @@ centrality_transitivity(x, transitivity_type = "local", isolates = "nan", ...)
 
 centrality_harmonic(x, mode = "all", ...)
 
+centrality_inharmonic(x, ...)
+
+centrality_outharmonic(x, ...)
+
 centrality_diffusion(x, mode = "all", lambda = 1, ...)
 
 centrality_leverage(x, mode = "all", ...)
 
 centrality_kreach(x, mode = "all", k = 3, ...)
 
-centrality_resilience(x, ...)
+centrality_alpha(x, mode = "all", ...)
+
+centrality_power(x, mode = "all", ...)
+
+centrality_subgraph(x, ...)
+
+centrality_laplacian(x, ...)
+
+centrality_load(x, ...)
+
+centrality_current_flow_closeness(x, ...)
+
+centrality_current_flow_betweenness(x, ...)
+
+centrality_voterank(x, ...)
+
+centrality_percolation(x, states = NULL, ...)
 }
 \arguments{
 \item{x}{Network input (matrix, igraph, network, cograph_network, tna object)}
@@ -84,7 +141,9 @@ available measures. Can be a character vector of measure names:
 "degree", "strength", "betweenness", "closeness", "eigenvector",
 "pagerank", "authority", "hub", "eccentricity", "coreness",
 "constraint", "transitivity", "harmonic", "diffusion", "leverage",
-"kreach", "resilience".}
+"kreach", "alpha", "power", "subgraph", "laplacian",
+"load", "current_flow_closeness", "current_flow_betweenness", "voterank",
+"percolation".}
 
 \item{mode}{For directed networks: "all", "in", or "out". Affects degree,
 strength, closeness, eccentricity, coreness, and harmonic centrality.}
@@ -114,6 +173,17 @@ decimal places. Default NULL (no rounding).}
 Default -1 (no limit). Set to a positive value for faster computation
 on large networks at the cost of accuracy.}
 
+\item{invert_weights}{Logical or NULL. For path-based measures (betweenness,
+closeness, harmonic, eccentricity, kreach), should weights be inverted so
+that higher weights mean shorter paths? Default NULL which auto-detects:
+TRUE for tna objects (transition probabilities), FALSE otherwise (matching
+igraph/sna). Set explicitly to TRUE for strength/frequency weights (qgraph
+style) or FALSE for distance/cost weights.}
+
+\item{alpha}{Numeric. Exponent for weight transformation when \code{invert_weights = TRUE}.
+Distance is computed as \code{1 / weight^alpha}. Default 1. Higher values
+increase the influence of weight differences on path lengths.}
+
 \item{damping}{PageRank damping factor. Default 0.85. Must be between 0 and 1.}
 
 \item{personalized}{Named numeric vector for personalized PageRank.
@@ -128,6 +198,10 @@ Default NULL (standard PageRank). Values should sum to 1.}
 \item{lambda}{Diffusion scaling factor for diffusion centrality. Default 1.}
 
 \item{k}{Path length parameter for geodesic k-path centrality. Default 3.}
+
+\item{states}{Named numeric vector of percolation states (0-1) for percolation
+centrality. Each value represents how "activated" or "infected" a node is.
+Default NULL (all nodes get state 1, equivalent to betweenness).}
 
 \item{...}{Additional arguments (currently unused)}
 }
@@ -166,8 +240,25 @@ node and its neighbors (supports mode: in/out/all, lambda scaling)}
 based on relative degree differences (supports mode: in/out/all)}
 \item{kreach}{Geodesic k-path centrality - count of nodes reachable
 within distance k (supports mode: in/out/all, k parameter)}
-\item{resilience}{Resilience centrality - minimum number of nodes that
-must be removed to disconnect this node from the network}
+\item{alpha}{Alpha/Katz centrality - influence via paths, penalized by
+distance. Similar to eigenvector but includes exogenous contribution}
+\item{power}{Bonacich power centrality - measures influence based on
+connections to other influential nodes}
+\item{subgraph}{Subgraph centrality - participation in closed loops/walks,
+weighting shorter loops more heavily}
+\item{laplacian}{Laplacian centrality using Qi et al. (2012) local formula.
+Matches NetworkX and centiserve::laplacian()}
+\item{load}{Load centrality - fraction of all shortest paths through node,
+similar to betweenness but weights paths by 1/count}
+\item{current_flow_closeness}{Information centrality - closeness based on
+electrical current flow (requires connected graph)}
+\item{current_flow_betweenness}{Random walk betweenness - betweenness based
+on current flow rather than shortest paths (requires connected graph)}
+\item{voterank}{VoteRank - identifies influential spreaders via iterative
+voting mechanism. Returns normalized rank (1 = most influential)}
+\item{percolation}{Percolation centrality - importance for spreading processes.
+Uses node states (0-1) to weight paths. When all states equal, equivalent
+to betweenness. Useful for epidemic/information spreading analysis.}
 }
 }
 \examples{

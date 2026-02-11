@@ -2,9 +2,19 @@
 % Please edit documentation in R/communities.R
 \name{community_infomap}
 \alias{community_infomap}
+\alias{community_info}
 \title{Infomap Community Detection}
 \usage{
 community_infomap(
+  x,
+  weights = NULL,
+  v.weights = NULL,
+  nb.trials = 10,
+  modularity = TRUE,
+  ...
+)
+
+community_info(
   x,
   weights = NULL,
   v.weights = NULL,

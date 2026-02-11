@@ -2,9 +2,22 @@
 % Please edit documentation in R/communities.R
 \name{community_edge_betweenness}
 \alias{community_edge_betweenness}
+\alias{community_edge_btwn}
 \title{Edge Betweenness Community Detection}
 \usage{
 community_edge_betweenness(
+  x,
+  weights = NULL,
+  directed = TRUE,
+  edge.betweenness = TRUE,
+  merges = TRUE,
+  bridges = TRUE,
+  modularity = TRUE,
+  membership = TRUE,
+  ...
+)
+
+community_edge_btwn(
   x,
   weights = NULL,
   directed = TRUE,

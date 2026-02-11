@@ -2,9 +2,26 @@
 % Please edit documentation in R/communities.R
 \name{community_spinglass}
 \alias{community_spinglass}
+\alias{community_spin}
 \title{Spinglass Community Detection}
 \usage{
 community_spinglass(
+  x,
+  weights = NULL,
+  vertex = NULL,
+  spins = 25,
+  parupdate = FALSE,
+  start.temp = 1,
+  stop.temp = 0.01,
+  cool.fact = 0.99,
+  update.rule = c("config", "random", "simple"),
+  gamma = 1,
+  implementation = c("orig", "neg"),
+  gamma.minus = 1,
+  ...
+)
+
+community_spin(
   x,
   weights = NULL,
   vertex = NULL,

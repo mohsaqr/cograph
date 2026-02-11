@@ -2,9 +2,19 @@
 % Please edit documentation in R/communities.R
 \name{community_fast_greedy}
 \alias{community_fast_greedy}
+\alias{community_fastgreedy}
 \title{Fast Greedy Community Detection}
 \usage{
 community_fast_greedy(
+  x,
+  weights = NULL,
+  merges = TRUE,
+  modularity = TRUE,
+  membership = TRUE,
+  ...
+)
+
+community_fastgreedy(
   x,
   weights = NULL,
   merges = TRUE,

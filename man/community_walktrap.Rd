@@ -2,9 +2,20 @@
 % Please edit documentation in R/communities.R
 \name{community_walktrap}
 \alias{community_walktrap}
+\alias{community_walk}
 \title{Walktrap Community Detection}
 \usage{
 community_walktrap(
+  x,
+  weights = NULL,
+  steps = 4,
+  merges = TRUE,
+  modularity = TRUE,
+  membership = TRUE,
+  ...
+)
+
+community_walk(
   x,
   weights = NULL,
   steps = 4,

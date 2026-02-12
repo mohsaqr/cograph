@@ -1633,7 +1633,7 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
           dx <- x1 - x0
           dy <- y1 - y0
           len <- sqrt(dx^2 + dy^2)
-          shrink <- 0.38  # Larger shrink = shorter edges (match node size)
+          shrink <- 0.42  # Larger shrink = shorter edges (match node size)
 
           x0_adj <- x0 + shrink * dx / len
           y0_adj <- y0 + shrink * dy / len
@@ -1643,26 +1643,28 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
           if (is_mutual) {
             # Single line with closed arrows on both ends
             .draw_closed_arrow(x0_adj, y0_adj, x1_adj, y1_adj,
-                              col = col, lwd = 2.5, both = TRUE)
+                              col = col, lwd = 3, both = TRUE,
+                              head_length = 0.14, head_width = 0.10)
             # Mark both directions as drawn
             drawn_mutual[from, to] <- TRUE
             drawn_mutual[to, from] <- TRUE
           } else {
             # Asymmetric: closed arrow only at end
             .draw_closed_arrow(x0_adj, y0_adj, x1_adj, y1_adj,
-                              col = col, lwd = 2.5, both = FALSE)
+                              col = col, lwd = 3, both = FALSE,
+                              head_length = 0.14, head_width = 0.10)
           }
         }
       }
     }
 
-    # Draw nodes (larger circles)
+    # Draw nodes (larger circles for high-res)
     for (j in 1:3) {
-      graphics::symbols(coords[j, 1], coords[j, 2], circles = 0.38,
+      graphics::symbols(coords[j, 1], coords[j, 2], circles = 0.45,
                        add = TRUE, inches = FALSE,
-                       bg = "white", fg = col, lwd = 2.5)
+                       bg = "white", fg = col, lwd = 3)
       graphics::text(coords[j, 1], coords[j, 2], nodes_short[j],
-                    cex = 0.7, font = 2, col = col)
+                    cex = 0.85, font = 2, col = col)
     }
 
     # Title with count
@@ -1671,7 +1673,7 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
     } else {
       title_text <- sprintf("%s (n=%d)", triad_type, count)
     }
-    graphics::title(main = title_text, line = 1.5, cex.main = 1.0, font.main = 2, col.main = col)
+    graphics::title(main = title_text, line = 1.5, cex.main = 1.1, font.main = 2, col.main = col)
   }
 
   # Add overall caption at bottom

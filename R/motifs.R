@@ -1572,28 +1572,35 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
   # Consistent maroon style for all types
   motif_color <- "#800020"
 
-  # Fixed sizes that work in most devices
-  node_radius <- 0.35
-  node_lwd <- 2
-  text_cex <- 0.7
-  edge_lwd <- 2
-  arrow_len <- 0.10
-  arrow_wid <- 0.07
-  title_cex <- 0.9
-  stats_cex <- 0.65
+  # Get device size and calculate adaptive scale
+  dev_size <- grDevices::dev.size("in")
+  space_per_plot <- min(dev_size[1] / n_cols, dev_size[2] / n_rows)
+  scale <- space_per_plot / 1.8  # 1.8 inch is ideal per subplot
+  scale <- max(0.5, min(scale, 2.5))  # Clamp between 0.5x and 2.5x
+
+  # Adaptive sizes - scale with device
+  node_radius <- 0.40 * scale
+  node_lwd <- 2.5 * scale
+  text_cex <- 0.8 * scale
+  edge_lwd <- 2.5 * scale
+  arrow_len <- 0.12 * scale
+  arrow_wid <- 0.08 * scale
+  title_cex <- 1.0 * scale
+  stats_cex <- 0.7 * scale
 
   # Set up plot
   old_par <- graphics::par(no.readonly = TRUE)
   on.exit(graphics::par(old_par))
 
-  graphics::par(mfrow = c(n_rows, n_cols), mar = c(0.2, 0.2, 2.5, 0.2),
+  graphics::par(mfrow = c(n_rows, n_cols), mar = c(0.2, 0.2, 2.5 * scale, 0.2),
                 oma = c(1.5, 0, 0, 0), bg = "white")
 
-  # Node positions (triangle layout - scaled up for visibility)
+  # Node positions (triangle layout - scale with device)
+  tri_scale <- scale * 0.85
   coords <- matrix(c(
-    0, 0.9,        # A (top)
-    -0.78, -0.45,  # B (bottom-left)
-    0.78, -0.45    # C (bottom-right)
+    0, 0.9 * tri_scale,                    # A (top)
+    -0.78 * tri_scale, -0.45 * tri_scale,  # B (bottom-left)
+    0.78 * tri_scale, -0.45 * tri_scale    # C (bottom-right)
   ), ncol = 2, byrow = TRUE)
 
   for (i in seq_len(n_plots)) {
@@ -1615,8 +1622,9 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
 
     col <- motif_color
 
-    # Set up plot area
-    graphics::plot(NULL, xlim = c(-1.5, 1.5), ylim = c(-1.1, 1.5),
+    # Set up plot area (scaled)
+    lim <- 1.3 * scale
+    graphics::plot(NULL, xlim = c(-lim, lim), ylim = c(-lim * 0.8, lim * 1.1),
                    asp = 1, axes = FALSE, xlab = "", ylab = "")
 
     # Draw edges (arrows)
@@ -1678,12 +1686,12 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
     if (x$params$significance && "z" %in% names(df)) {
       p_val <- df$p[i]
       p_str <- if (p_val < 0.001) "p<.001" else sprintf("p=%.2f", p_val)
-      graphics::mtext(triad_type, side = 3, line = 1.4, cex = title_cex, font = 2, col = col)
+      graphics::mtext(triad_type, side = 3, line = 1.4 * scale, cex = title_cex, font = 2, col = col)
       graphics::mtext(sprintf("n=%d  z=%.1f  %s", count, df$z[i], p_str),
-                     side = 3, line = 0.4, cex = stats_cex, col = "#64748b")
+                     side = 3, line = 0.3 * scale, cex = stats_cex, col = "#64748b")
     } else {
-      graphics::mtext(triad_type, side = 3, line = 1.0, cex = title_cex, font = 2, col = col)
-      graphics::mtext(sprintf("n=%d", count), side = 3, line = 0.1, cex = stats_cex, col = "#64748b")
+      graphics::mtext(triad_type, side = 3, line = 1.0 * scale, cex = title_cex, font = 2, col = col)
+      graphics::mtext(sprintf("n=%d", count), side = 3, line = 0.1 * scale, cex = stats_cex, col = "#64748b")
     }
   }
 

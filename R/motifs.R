@@ -1575,18 +1575,18 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
   # Get device size and calculate adaptive scale
   dev_size <- grDevices::dev.size("in")
   space_per_plot <- min(dev_size[1] / n_cols, dev_size[2] / n_rows)
-  scale <- space_per_plot / 1.8  # 1.8 inch is ideal per subplot
-  scale <- max(0.5, min(scale, 2.5))  # Clamp between 0.5x and 2.5x
+  scale <- space_per_plot / 2.0  # 2.0 inch is ideal per subplot
+  scale <- max(0.6, min(scale, 1.4))  # Clamp between 0.6x and 1.4x
 
   # Adaptive sizes - scale with device
-  node_radius <- 0.40 * scale
-  node_lwd <- 2.5 * scale
-  text_cex <- 0.8 * scale
-  edge_lwd <- 2.5 * scale
-  arrow_len <- 0.12 * scale
-  arrow_wid <- 0.08 * scale
-  title_cex <- 1.0 * scale
-  stats_cex <- 0.7 * scale
+  node_radius <- 0.32 * scale
+  node_lwd <- 2 * scale
+  text_cex <- 0.65 * scale
+  edge_lwd <- 2 * scale
+  arrow_len <- 0.10 * scale
+  arrow_wid <- 0.06 * scale
+  title_cex <- 0.9 * scale
+  stats_cex <- 0.6 * scale
 
   # Set up plot
   old_par <- graphics::par(no.readonly = TRUE)
@@ -1596,11 +1596,11 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
                 oma = c(1.2, 0, 0, 0), bg = "white")
 
   # Node positions (triangle layout - scale with device)
-  tri_scale <- scale * 0.85
+  tri_scale <- scale * 0.7
   coords <- matrix(c(
-    0, 0.9 * tri_scale,                    # A (top)
-    -0.78 * tri_scale, -0.45 * tri_scale,  # B (bottom-left)
-    0.78 * tri_scale, -0.45 * tri_scale    # C (bottom-right)
+    0, 0.85 * tri_scale,                   # A (top)
+    -0.75 * tri_scale, -0.42 * tri_scale,  # B (bottom-left)
+    0.75 * tri_scale, -0.42 * tri_scale    # C (bottom-right)
   ), ncol = 2, byrow = TRUE)
 
   for (i in seq_len(n_plots)) {
@@ -1623,8 +1623,8 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
     col <- motif_color
 
     # Set up plot area (scaled)
-    lim <- 1.3 * scale
-    graphics::plot(NULL, xlim = c(-lim, lim), ylim = c(-lim * 0.8, lim * 1.1),
+    lim <- 1.0 * scale
+    graphics::plot(NULL, xlim = c(-lim, lim), ylim = c(-lim * 0.7, lim * 1.0),
                    asp = 1, axes = FALSE, xlab = "", ylab = "")
 
     # Draw edges (arrows)

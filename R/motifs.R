@@ -1568,21 +1568,21 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
   motif_color <- "#800020"
 
   n_plots <- nrow(df)
-  n_cols <- min(4, n_plots)
+  n_cols <- min(3, n_plots)  # Max 3 columns for better spacing
   n_rows <- ceiling(n_plots / n_cols)
 
   # Set up plot
   old_par <- graphics::par(no.readonly = TRUE)
   on.exit(graphics::par(old_par))
 
-  graphics::par(mfrow = c(n_rows, n_cols), mar = c(0.5, 0.5, 2.5, 0.5),
+  graphics::par(mfrow = c(n_rows, n_cols), mar = c(1.5, 0.5, 3, 0.5),
                 oma = c(3, 0, 0, 0), bg = "white")
 
-  # Node positions (triangle layout)
+  # Node positions (triangle layout - scaled up for visibility)
   coords <- matrix(c(
-    0, 1,         # A (top)
-    -0.866, -0.5, # B (bottom-left)
-    0.866, -0.5   # C (bottom-right)
+    0, 0.9,        # A (top)
+    -0.78, -0.45,  # B (bottom-left)
+    0.78, -0.45    # C (bottom-right)
   ), ncol = 2, byrow = TRUE)
 
   for (i in seq_len(n_plots)) {
@@ -1663,15 +1663,17 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
                     cex = 0.85, font = 2, col = col)
     }
 
-    # Title with frequency, z, p
+    # Title: type on line 1, stats on line 2
     if (x$params$significance && "z" %in% names(df)) {
       p_val <- df$p[i]
-      p_str <- if (p_val < 0.001) "p<.001" else sprintf("p=%.3f", p_val)
-      title_text <- sprintf("%s (n=%d, z=%.1f, %s)", triad_type, count, df$z[i], p_str)
+      p_str <- if (p_val < 0.001) "p<.001" else sprintf("p=%.2f", p_val)
+      graphics::title(main = triad_type, line = 2, cex.main = 1.1, font.main = 2, col.main = col)
+      graphics::mtext(sprintf("n=%d  z=%.1f  %s", count, df$z[i], p_str),
+                     side = 3, line = 0.5, cex = 0.7, col = "#64748b")
     } else {
-      title_text <- sprintf("%s (n=%d)", triad_type, count)
+      graphics::title(main = sprintf("%s (n=%d)", triad_type, count),
+                     line = 1.5, cex.main = 1.1, font.main = 2, col.main = col)
     }
-    graphics::title(main = title_text, line = 1.5, cex.main = 0.95, font.main = 2, col.main = col)
   }
 
   # Build legend mapping abbreviations to full names

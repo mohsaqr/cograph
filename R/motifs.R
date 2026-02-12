@@ -1544,6 +1544,30 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
     return(invisible(NULL))
   }
 
+
+  # Open a new device with proper dimensions for consistent rendering
+  # This avoids RStudio plot pane size issues
+  n_plots <- nrow(df)
+  n_cols <- min(3, n_plots)
+  n_rows <- ceiling(n_plots / n_cols)
+
+  # Calculate ideal dimensions
+  plot_width <- n_cols * 2.8
+ plot_height <- n_rows * 2.5 + 1  # Extra for legend
+
+  # Try to open a new device (works on most systems)
+  new_dev <- tryCatch({
+    if (.Platform$OS.type == "windows") {
+      grDevices::windows(width = plot_width, height = plot_height)
+    } else if (Sys.info()["sysname"] == "Darwin") {
+      grDevices::quartz(width = plot_width, height = plot_height)
+    } else {
+      grDevices::x11(width = plot_width, height = plot_height)
+    }
+    TRUE
+  }, error = function(e) FALSE)
+
+
   # Triad patterns (MAN notation) - adjacency matrices
   triad_patterns <- list(
     "003" = matrix(c(0L,0L,0L, 0L,0L,0L, 0L,0L,0L), 3, 3),
@@ -1567,16 +1591,12 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
   # Consistent maroon style for all types
   motif_color <- "#800020"
 
-  n_plots <- nrow(df)
-  n_cols <- min(3, n_plots)  # Max 3 columns for better spacing
-  n_rows <- ceiling(n_plots / n_cols)
-
   # Set up plot
   old_par <- graphics::par(no.readonly = TRUE)
   on.exit(graphics::par(old_par))
 
   graphics::par(mfrow = c(n_rows, n_cols), mar = c(0.5, 0.5, 3.5, 0.5),
-                oma = c(2.5, 0, 0, 0), bg = "white")
+                oma = c(2, 0, 0, 0), bg = "white")
 
   # Node positions (triangle layout - scaled up for visibility)
   coords <- matrix(c(

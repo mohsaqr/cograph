@@ -1594,13 +1594,9 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
     nodes <- trimws(strsplit(triad_name, " - ")[[1]])
     if (length(nodes) != 3) nodes <- c("A", "B", "C")
 
-    # Abbreviate long names
+    # Abbreviate to 3 letters
     nodes_short <- sapply(nodes, function(nm) {
-      if (nchar(nm) > 8) {
-        paste0(substr(nm, 1, 7), ".")
-      } else {
-        nm
-      }
+      substr(toupper(nm), 1, 3)
     })
 
     mat <- triad_patterns[[triad_type]]

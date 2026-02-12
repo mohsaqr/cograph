@@ -1576,7 +1576,7 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
   on.exit(graphics::par(old_par))
 
   graphics::par(mfrow = c(n_rows, n_cols), mar = c(0.5, 0.5, 2.5, 0.5),
-                oma = c(2, 0, 0, 0), bg = "white")
+                oma = c(3, 0, 0, 0), bg = "white")
 
   # Node positions (triangle layout)
   coords <- matrix(c(
@@ -1663,20 +1663,40 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
                     cex = 0.85, font = 2, col = col)
     }
 
-    # Title with count
+    # Title with frequency, z, p
     if (x$params$significance && "z" %in% names(df)) {
-      title_text <- sprintf("%s (z=%.1f)", triad_type, df$z[i])
+      p_val <- df$p[i]
+      p_str <- if (p_val < 0.001) "p<.001" else sprintf("p=%.3f", p_val)
+      title_text <- sprintf("%s (n=%d, z=%.1f, %s)", triad_type, count, df$z[i], p_str)
     } else {
       title_text <- sprintf("%s (n=%d)", triad_type, count)
     }
-    graphics::title(main = title_text, line = 1.5, cex.main = 1.1, font.main = 2, col.main = col)
+    graphics::title(main = title_text, line = 1.5, cex.main = 0.95, font.main = 2, col.main = col)
   }
 
-  # Add overall caption at bottom
-  graphics::mtext(
-    sprintf("Top %d Motifs | %d individuals", n_plots, x$params$n_individuals),
-    side = 1, outer = TRUE, line = -1, cex = 1.0, font = 1, col = "#64748b"
-  )
+  # Build legend mapping abbreviations to full names
+  # Collect all unique node names from displayed triads
+  all_nodes <- unique(unlist(lapply(df$triad, function(tr) {
+    trimws(strsplit(tr, " - ")[[1]])
+  })))
+
+  # Only show legend if less than 20 unique nodes
+  if (length(all_nodes) <= 20 && length(all_nodes) > 0) {
+    # Create abbreviation mapping
+    abbrev_map <- sapply(all_nodes, function(nm) {
+      paste0(substr(toupper(nm), 1, 3), "=", nm)
+    })
+    abbrev_map <- sort(abbrev_map)
+
+    # Format legend text in multiple columns
+    legend_text <- paste(abbrev_map, collapse = "  ")
+
+    # Add legend at bottom
+    graphics::mtext(
+      legend_text,
+      side = 1, outer = TRUE, line = 0.5, cex = 0.7, font = 1, col = "#64748b"
+    )
+  }
 
   invisible(NULL)
 }

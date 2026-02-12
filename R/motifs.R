@@ -1490,7 +1490,7 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
 
 #' Draw arrow with closed/filled head
 #' @noRd
-.draw_closed_arrow <- function(x0, y0, x1, y1, col = "#7c3aed", lwd = 2.5,
+.draw_closed_arrow <- function(x0, y0, x1, y1, col = "#800020", lwd = 2.5,
                                 both = FALSE, head_length = 0.12, head_width = 0.08) {
   # Draw the line
   graphics::segments(x0, y0, x1, y1, col = col, lwd = lwd)
@@ -1564,8 +1564,8 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
     "300" = matrix(c(0L,1L,1L, 1L,0L,1L, 1L,1L,0L), 3, 3)
   )
 
-  # Consistent purple style for all types
-  motif_color <- "#7c3aed"
+  # Consistent maroon style for all types
+  motif_color <- "#800020"
 
   n_plots <- nrow(df)
   n_cols <- min(4, n_plots)
@@ -1633,7 +1633,7 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
           dx <- x1 - x0
           dy <- y1 - y0
           len <- sqrt(dx^2 + dy^2)
-          shrink <- 0.35  # Larger shrink = shorter edges
+          shrink <- 0.38  # Larger shrink = shorter edges (match node size)
 
           x0_adj <- x0 + shrink * dx / len
           y0_adj <- y0 + shrink * dy / len
@@ -1656,13 +1656,13 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
       }
     }
 
-    # Draw nodes (bigger circles)
+    # Draw nodes (larger circles)
     for (j in 1:3) {
-      graphics::symbols(coords[j, 1], coords[j, 2], circles = 0.32,
+      graphics::symbols(coords[j, 1], coords[j, 2], circles = 0.38,
                        add = TRUE, inches = FALSE,
                        bg = "white", fg = col, lwd = 2.5)
       graphics::text(coords[j, 1], coords[j, 2], nodes_short[j],
-                    cex = 0.65, font = 2, col = col)
+                    cex = 0.7, font = 2, col = col)
     }
 
     # Title with count

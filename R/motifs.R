@@ -875,15 +875,30 @@ d <- x$data
   edges
 }
 
-#' Extract Motifs from Individual-Level Data
+#' Extract Motifs from Network Data
 #'
-#' Extract and analyze triad motifs from transition network data at the
-#' individual level, with flexible filtering, pattern selection, and
-#' statistical significance testing.
+#' Extract and analyze triad motifs from network data with flexible filtering,
+#' pattern selection, and statistical significance testing. Supports both
+#' individual-level analysis (with tna objects or grouped data) and aggregate
+#' analysis (with matrices or networks).
 #'
-#' @param x A tna object, matrix, or cograph_network
+#' @param x Input data. Can be:
+#'   \itemize{
+#'     \item A `tna` object (supports individual-level analysis)
+#'     \item A matrix (aggregate analysis only, unless `data` and `id` provided)
+#'     \item A `cograph_network` object
+#'     \item An `igraph` object
+#'   }
+#' @param data Optional data.frame containing transition data with an ID column
+#'   for individual-level analysis. Required columns: `from`, `to`, and the
+#'   column(s) specified in `id`. If provided, `x` should be NULL or a matrix
+#'   of node labels.
+#' @param id Column name(s) identifying individuals/groups in `data`. Can be
+#'   a single string or character vector for multiple grouping columns.
+#'   Required for individual-level analysis with non-tna inputs.
 #' @param level Analysis level: "individual" counts how many people have each
-#'   triad, "aggregate" analyzes the summed network. Default "individual".
+#'   triad, "aggregate" analyzes the summed/single network. Default depends
+#'   on input: "individual" for tna or when id provided, "aggregate" otherwise.
 #' @param edge_method Method for determining edge presence:
 #'   \describe{
 #'     \item{"any"}{Edge exists if count > 0 (simple, recommended)}
@@ -953,7 +968,7 @@ d <- x$data
 #' library(tna)
 #' Mod <- tna(group_regulation)
 #'
-#' # Basic: triangles only (default)
+#' # Basic: triangles only (default) - individual level for tna
 #' m <- extract_motifs(Mod)
 #' print(m)
 #'
@@ -961,26 +976,30 @@ d <- x$data
 #' m <- extract_motifs(Mod, top = 20, significance = TRUE, n_perm = 100)
 #' plot(m)
 #'
-#' # All network patterns (exclude only chains)
-#' m <- extract_motifs(Mod, pattern = "network")
+#' # From a matrix (aggregate level)
+#' mat <- Mod$weights
+#' m <- extract_motifs(mat)
+#'
+#' # From data.frame with ID column (individual level)
+#' # df has columns: id, from, to (and optionally weight)
+#' m <- extract_motifs(data = df, id = "id")
+#'
+#' # Multiple grouping columns
+#' m <- extract_motifs(data = df, id = c("group", "person"))
 #'
 #' # Only feed-forward loops
 #' m <- extract_motifs(Mod, include_types = "030T")
 #'
 #' # Triangles but exclude cliques
 #' m <- extract_motifs(Mod, pattern = "triangle", exclude_types = "300")
-#'
-#' # Use expected/observed thresholding
-#' m <- extract_motifs(Mod, edge_method = "expected", edge_threshold = 1.5)
-#'
-#' # Group by type
-#' m <- extract_motifs(Mod, by_type = TRUE)
 #' }
 #'
 #' @seealso [extract_triads()], [motif_census()], [plot.cograph_motif_analysis()]
 #' @export
-extract_motifs <- function(x,
-                           level = c("individual", "aggregate"),
+extract_motifs <- function(x = NULL,
+                           data = NULL,
+                           id = NULL,
+                           level = NULL,
                            edge_method = c("any", "expected", "percent"),
                            edge_threshold = 1.5,
                            pattern = c("triangle", "network", "all"),
@@ -993,7 +1012,6 @@ extract_motifs <- function(x,
                            n_perm = 100,
                            seed = NULL) {
 
-  level <- match.arg(level)
   edge_method <- match.arg(edge_method)
   pattern <- match.arg(pattern)
 
@@ -1025,8 +1043,17 @@ extract_motifs <- function(x,
 
   if (!is.null(seed)) set.seed(seed)
 
-  # Get transition data
-  if (inherits(x, "tna")) {
+
+  # ==========================================================================
+  # INPUT HANDLING - Support multiple input types
+  # ==========================================================================
+
+  trans <- NULL
+  labels <- NULL
+  has_individuals <- FALSE
+
+  # Case 1: TNA object (has individual-level data)
+  if (!is.null(x) && inherits(x, "tna")) {
     d <- x$data
     type_attr <- attr(x, "type")
     scaling <- attr(x, "scaling")
@@ -1034,8 +1061,104 @@ extract_motifs <- function(x,
     model <- tna:::initialize_model(d, type_attr, scaling, params, transitions = TRUE)
     trans <- model$trans
     labels <- x$labels
+    has_individuals <- TRUE
+
+  # Case 2: Data.frame with id column(s)
+  } else if (!is.null(data) && !is.null(id)) {
+    if (!is.data.frame(data)) {
+      stop("'data' must be a data.frame")
+    }
+    if (!all(id %in% names(data))) {
+      stop("id column(s) not found in data: ", paste(setdiff(id, names(data)), collapse = ", "))
+    }
+    if (!all(c("from", "to") %in% names(data))) {
+      stop("data must contain 'from' and 'to' columns")
+    }
+
+    # Create composite ID if multiple columns
+    if (length(id) == 1) {
+      data$.id <- data[[id]]
+    } else {
+      data$.id <- do.call(paste, c(data[id], sep = "_"))
+    }
+
+    # Get unique individuals and states
+    unique_ids <- unique(data$.id)
+    all_states <- unique(c(data$from, data$to))
+    labels <- sort(all_states)
+    s <- length(labels)
+    n_ind <- length(unique_ids)
+
+    # Build 3D transition array
+    trans <- array(0, dim = c(n_ind, s, s))
+    state_idx <- setNames(seq_along(labels), labels)
+
+    for (i in seq_along(unique_ids)) {
+      ind_data <- data[data$.id == unique_ids[i], ]
+      for (r in seq_len(nrow(ind_data))) {
+        from_idx <- state_idx[as.character(ind_data$from[r])]
+        to_idx <- state_idx[as.character(ind_data$to[r])]
+        if (!is.na(from_idx) && !is.na(to_idx)) {
+          wt <- if ("weight" %in% names(ind_data)) ind_data$weight[r] else 1
+          trans[i, from_idx, to_idx] <- trans[i, from_idx, to_idx] + wt
+        }
+      }
+    }
+    has_individuals <- TRUE
+
+  # Case 3: Matrix (aggregate only)
+  } else if (!is.null(x) && is.matrix(x)) {
+    mat <- x
+    if (is.null(rownames(mat))) {
+      labels <- paste0("V", seq_len(nrow(mat)))
+    } else {
+      labels <- rownames(mat)
+    }
+    s <- nrow(mat)
+    # Wrap in 3D array with 1 "individual"
+    trans <- array(mat, dim = c(1, s, s))
+    has_individuals <- FALSE
+
+  # Case 4: cograph_network
+  } else if (!is.null(x) && inherits(x, "cograph_network")) {
+    mat <- to_matrix(x)
+    labels <- get_labels(x)
+    s <- nrow(mat)
+    trans <- array(mat, dim = c(1, s, s))
+    has_individuals <- FALSE
+
+  # Case 5: igraph
+
+  } else if (!is.null(x) && inherits(x, "igraph")) {
+    if (!requireNamespace("igraph", quietly = TRUE)) {
+      stop("igraph package required")
+    }
+    # Check if graph has edge weights
+    if ("weight" %in% igraph::edge_attr_names(x)) {
+      mat <- as.matrix(igraph::as_adjacency_matrix(x, attr = "weight", sparse = FALSE))
+    } else {
+      mat <- as.matrix(igraph::as_adjacency_matrix(x, sparse = FALSE))
+    }
+    labels <- igraph::V(x)$name
+    if (is.null(labels)) labels <- paste0("V", seq_len(nrow(mat)))
+    s <- nrow(mat)
+    trans <- array(mat, dim = c(1, s, s))
+    has_individuals <- FALSE
+
   } else {
-    stop("Currently only tna objects are supported for extract_motifs()")
+    stop("Invalid input. Provide a tna object, matrix, cograph_network, igraph, ",
+         "or data.frame with 'data' and 'id' arguments.")
+  }
+
+  # Determine level
+  if (is.null(level)) {
+    level <- if (has_individuals) "individual" else "aggregate"
+  } else {
+    level <- match.arg(level, c("individual", "aggregate"))
+    if (level == "individual" && !has_individuals) {
+      warning("Individual level requested but no individual data available. Using aggregate.")
+      level <- "aggregate"
+    }
   }
 
   n_ind <- dim(trans)[1]

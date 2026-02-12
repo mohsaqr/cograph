@@ -1588,9 +1588,9 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
   title_cex <- 0.9 * scale
   stats_cex <- 0.6 * scale
 
-  # Set up plot
+  # Set up plot (exclude read-only params that can't be restored)
   old_par <- graphics::par(no.readonly = TRUE)
-  on.exit(graphics::par(old_par))
+  on.exit(graphics::par(old_par[!names(old_par) %in% c("cin", "cra", "csi", "cxy", "din", "pin")]))
 
   graphics::par(mfrow = c(n_rows, n_cols), mar = c(0, 0, 2 * scale, 0),
                 oma = c(1.2, 0, 0, 0), bg = "white")

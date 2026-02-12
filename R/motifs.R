@@ -1544,28 +1544,16 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
     return(invisible(NULL))
   }
 
-
-  # Open a new device with proper dimensions for consistent rendering
-  # This avoids RStudio plot pane size issues
   n_plots <- nrow(df)
   n_cols <- min(3, n_plots)
   n_rows <- ceiling(n_plots / n_cols)
 
-  # Calculate ideal dimensions
-  plot_width <- n_cols * 2.8
- plot_height <- n_rows * 2.5 + 1  # Extra for legend
-
-  # Try to open a new device (works on most systems)
-  new_dev <- tryCatch({
-    if (.Platform$OS.type == "windows") {
-      grDevices::windows(width = plot_width, height = plot_height)
-    } else if (Sys.info()["sysname"] == "Darwin") {
-      grDevices::quartz(width = plot_width, height = plot_height)
-    } else {
-      grDevices::x11(width = plot_width, height = plot_height)
-    }
-    TRUE
-  }, error = function(e) FALSE)
+  # Get device size and calculate scaling factor
+  dev_size <- grDevices::dev.size("in")
+  # Base size assumes ~7x7 inches for 3x3 grid
+  base_size <- 7
+  scale_factor <- min(dev_size[1], dev_size[2]) / base_size
+  scale_factor <- max(0.5, min(scale_factor, 1.5))  # Clamp between 0.5 and 1.5
 
 
   # Triad patterns (MAN notation) - adjacency matrices
@@ -1591,11 +1579,21 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
   # Consistent maroon style for all types
   motif_color <- "#800020"
 
+  # Scaled sizes
+  node_radius <- 0.40 * scale_factor
+  node_lwd <- 2.5 * scale_factor
+  text_cex <- 0.75 * scale_factor
+  edge_lwd <- 2.5 * scale_factor
+  arrow_len <- 0.12 * scale_factor
+  arrow_wid <- 0.08 * scale_factor
+  title_cex <- 1.0 * scale_factor
+  stats_cex <- 0.7 * scale_factor
+
   # Set up plot
   old_par <- graphics::par(no.readonly = TRUE)
   on.exit(graphics::par(old_par))
 
-  graphics::par(mfrow = c(n_rows, n_cols), mar = c(0.5, 0.5, 3.5, 0.5),
+  graphics::par(mfrow = c(n_rows, n_cols), mar = c(0.5, 0.5, 3, 0.5),
                 oma = c(2, 0, 0, 0), bg = "white")
 
   # Node positions (triangle layout - scaled up for visibility)
@@ -1649,7 +1647,7 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
           dx <- x1 - x0
           dy <- y1 - y0
           len <- sqrt(dx^2 + dy^2)
-          shrink <- 0.42  # Larger shrink = shorter edges (match node size)
+          shrink <- node_radius + 0.05  # Match node size
 
           x0_adj <- x0 + shrink * dx / len
           y0_adj <- y0 + shrink * dy / len
@@ -1659,40 +1657,40 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
           if (is_mutual) {
             # Single line with closed arrows on both ends
             .draw_closed_arrow(x0_adj, y0_adj, x1_adj, y1_adj,
-                              col = col, lwd = 3, both = TRUE,
-                              head_length = 0.14, head_width = 0.10)
+                              col = col, lwd = edge_lwd, both = TRUE,
+                              head_length = arrow_len, head_width = arrow_wid)
             # Mark both directions as drawn
             drawn_mutual[from, to] <- TRUE
             drawn_mutual[to, from] <- TRUE
           } else {
             # Asymmetric: closed arrow only at end
             .draw_closed_arrow(x0_adj, y0_adj, x1_adj, y1_adj,
-                              col = col, lwd = 3, both = FALSE,
-                              head_length = 0.14, head_width = 0.10)
+                              col = col, lwd = edge_lwd, both = FALSE,
+                              head_length = arrow_len, head_width = arrow_wid)
           }
         }
       }
     }
 
-    # Draw nodes (larger circles for high-res)
+    # Draw nodes (scaled circles)
     for (j in 1:3) {
-      graphics::symbols(coords[j, 1], coords[j, 2], circles = 0.45,
+      graphics::symbols(coords[j, 1], coords[j, 2], circles = node_radius,
                        add = TRUE, inches = FALSE,
-                       bg = "white", fg = col, lwd = 3)
+                       bg = "white", fg = col, lwd = node_lwd)
       graphics::text(coords[j, 1], coords[j, 2], nodes_short[j],
-                    cex = 0.85, font = 2, col = col)
+                    cex = text_cex, font = 2, col = col)
     }
 
     # Title: type at top, stats below it, then diagram
     if (x$params$significance && "z" %in% names(df)) {
       p_val <- df$p[i]
       p_str <- if (p_val < 0.001) "p<.001" else sprintf("p=%.2f", p_val)
-      graphics::mtext(triad_type, side = 3, line = 2, cex = 1.1, font = 2, col = col)
+      graphics::mtext(triad_type, side = 3, line = 1.8, cex = title_cex, font = 2, col = col)
       graphics::mtext(sprintf("n=%d  z=%.1f  %s", count, df$z[i], p_str),
-                     side = 3, line = 0.8, cex = 0.75, col = "#64748b")
+                     side = 3, line = 0.6, cex = stats_cex, col = "#64748b")
     } else {
-      graphics::mtext(triad_type, side = 3, line = 1.5, cex = 1.1, font = 2, col = col)
-      graphics::mtext(sprintf("n=%d", count), side = 3, line = 0.3, cex = 0.75, col = "#64748b")
+      graphics::mtext(triad_type, side = 3, line = 1.2, cex = title_cex, font = 2, col = col)
+      graphics::mtext(sprintf("n=%d", count), side = 3, line = 0.2, cex = stats_cex, col = "#64748b")
     }
   }
 

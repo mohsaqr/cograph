@@ -11,7 +11,7 @@ extract_motifs(
   level = NULL,
   edge_method = c("any", "expected", "percent"),
   edge_threshold = 1.5,
-  pattern = c("triangle", "network", "all"),
+  pattern = c("triangle", "network", "closed", "all"),
   exclude_types = NULL,
   include_types = NULL,
   top = NULL,
@@ -63,6 +63,8 @@ Ignored when edge_method = "any". Default 1.5.}
 Types: 030C, 030T, 120C, 120D, 120U, 210, 300. Default.}
 \item{"network"}{Exclude simple sequential patterns (chains/single edges).
 Excludes: 003, 012, 021C. Includes stars and triangles.}
+\item{"closed"}{Network without chain patterns. Excludes: 003, 012, 021C, 120C.
+Similar to network but also removes mutual+chain (120C).}
 \item{"all"}{Include all 16 MAN types, no filtering.}
 }}
 

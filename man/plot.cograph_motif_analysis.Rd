@@ -10,12 +10,14 @@
   n = 20,
   colors = c("#2166AC", "#B2182B"),
   res = 72,
-  node_size = 0.12,
-  label_size = 5,
+  node_size = 5,
+  label_size = 7,
   title_size = 7,
   stats_size = 5,
   ncol = 5,
   legend = TRUE,
+  color = "#800020",
+  spacing = 1,
   ...
 )
 }
@@ -31,9 +33,9 @@
 
 \item{res}{Resolution for scaling (not used with grid graphics). Default 72.}
 
-\item{node_size}{Size of nodes as proportion of cell (0-1). Default 0.12.}
+\item{node_size}{Size of nodes (1-10 scale, like splot). Default 5.}
 
-\item{label_size}{Font size for node labels (3-letter abbreviations). Default 5.}
+\item{label_size}{Font size for node labels (3-letter abbreviations). Default 7.}
 
 \item{title_size}{Font size for motif type title (e.g., "120C"). Default 7.}
 
@@ -42,6 +44,10 @@
 \item{ncol}{Number of columns in the plot grid. Default 5.}
 
 \item{legend}{Logical, show abbreviation legend at bottom? Default TRUE.}
+
+\item{color}{Color for nodes, edges, and labels. Default "#800020" (maroon).}
+
+\item{spacing}{Spacing multiplier between cells (0.5-2). Default 1.}
 
 \item{...}{Additional arguments (unused)}
 }

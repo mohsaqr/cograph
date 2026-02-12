@@ -916,6 +916,8 @@ d <- x$data
 #'       Types: 030C, 030T, 120C, 120D, 120U, 210, 300. Default.}
 #'     \item{"network"}{Exclude simple sequential patterns (chains/single edges).
 #'       Excludes: 003, 012, 021C. Includes stars and triangles.}
+#'     \item{"closed"}{Network without chain patterns. Excludes: 003, 012, 021C, 120C.
+#'       Similar to network but also removes mutual+chain (120C).}
 #'     \item{"all"}{Include all 16 MAN types, no filtering.}
 #'   }
 #' @param exclude_types Character vector of MAN types to explicitly exclude.
@@ -1002,7 +1004,7 @@ extract_motifs <- function(x = NULL,
                            level = NULL,
                            edge_method = c("any", "expected", "percent"),
                            edge_threshold = 1.5,
-                           pattern = c("triangle", "network", "all"),
+                           pattern = c("triangle", "network", "closed", "all"),
                            exclude_types = NULL,
                            include_types = NULL,
                            top = NULL,
@@ -1022,6 +1024,9 @@ extract_motifs <- function(x = NULL,
   # Network types: exclude chains/sequential (012, 021C) and empty (003)
   network_exclude <- c("003", "012", "021C")
 
+  # Closed types: exclude all chain patterns (003, 012, 021C, 120C)
+  closed_exclude <- c("003", "012", "021C", "120C")
+
   # Determine which types to exclude based on pattern
   if (!is.null(include_types)) {
     # include_types overrides everything - we'll filter to only these
@@ -1034,6 +1039,9 @@ extract_motifs <- function(x = NULL,
     pattern_exclude <- setdiff(all_types, triangle_types)
   } else if (pattern == "network") {
     pattern_exclude <- network_exclude
+  } else if (pattern == "closed") {
+    # Network without chain patterns
+    pattern_exclude <- closed_exclude
   } else {
     pattern_exclude <- character(0)
   }
@@ -1391,12 +1399,14 @@ print.cograph_motif_analysis <- function(x, n = 20, ...) {
 #' @param n Number of triads to show. Default 20.
 #' @param colors Colors for visualization. Default blue/red.
 #' @param res Resolution for scaling (not used with grid graphics). Default 72.
-#' @param node_size Size of nodes as proportion of cell (0-1). Default 0.12.
-#' @param label_size Font size for node labels (3-letter abbreviations). Default 5.
+#' @param node_size Size of nodes (1-10 scale, like splot). Default 5.
+#' @param label_size Font size for node labels (3-letter abbreviations). Default 7.
 #' @param title_size Font size for motif type title (e.g., "120C"). Default 7.
 #' @param stats_size Font size for statistics text (n, z, p). Default 5.
 #' @param ncol Number of columns in the plot grid. Default 5.
 #' @param legend Logical, show abbreviation legend at bottom? Default TRUE.
+#' @param color Color for nodes, edges, and labels. Default "#800020" (maroon).
+#' @param spacing Spacing multiplier between cells (0.5-2). Default 1.
 #' @param ... Additional arguments (unused)
 #'
 #' @return Invisibly returns NULL for triad plots, or a ggplot2 object for other types.
@@ -1425,9 +1435,10 @@ print.cograph_motif_analysis <- function(x, n = 20, ...) {
 #' @export
 plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "significance", "patterns"),
                                          n = 20, colors = c("#2166AC", "#B2182B"),
-                                         res = 72, node_size = 0.12, label_size = 5,
+                                         res = 72, node_size = 5, label_size = 7,
                                          title_size = 7, stats_size = 5, ncol = 5,
-                                         legend = TRUE, ...) {
+                                         legend = TRUE, color = "#800020",
+                                         spacing = 1, ...) {
 
   type <- match.arg(type)
 
@@ -1503,7 +1514,8 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
     # Default: network diagrams with actual node labels
     .plot_triad_networks(x, n, colors, res = res, node_size = node_size,
                         label_size = label_size, title_size = title_size,
-                        stats_size = stats_size, ncol = ncol, legend = legend, ...)
+                        stats_size = stats_size, ncol = ncol, legend = legend,
+                        color = color, spacing = spacing, ...)
     return(invisible(NULL))
   }
 
@@ -1560,9 +1572,9 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
 #' Plot individual triads as network diagrams using grid graphics
 #' @noRd
 .plot_triad_networks <- function(x, n = 12, colors = c("#2166AC", "#B2182B"),
-                                  res = 72, node_size = 0.12, label_size = 5,
+                                  res = 72, node_size = 5, label_size = 7,
                                   title_size = 7, stats_size = 5, ncol = 5,
-                                  legend = TRUE, ...) {
+                                  legend = TRUE, color = "#800020", spacing = 1, ...) {
   df <- utils::head(x$results, n)
 
   if (nrow(df) == 0) {
@@ -1594,7 +1606,7 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
     "300" = matrix(c(0L,1L,1L, 1L,0L,1L, 1L,1L,0L), 3, 3)
   )
 
-  motif_color <- "#800020"
+  motif_color <- color
 
   # Use grid graphics with clipped viewports
 
@@ -1613,9 +1625,10 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
   ))
 
   # Triangle coordinates (0-1 normalized within each cell)
-  # Taller triangles
-  tri_x <- c(0.5, 0.18, 0.82)
-  tri_y <- c(0.72, 0.28, 0.28)
+  # Adjust by spacing factor (higher spacing = more compact triangles)
+  spread <- 0.32 / spacing  # How far from center
+  tri_x <- c(0.5, 0.5 - spread, 0.5 + spread)
+  tri_y <- c(0.5 + spread * 0.7, 0.5 - spread * 0.7, 0.5 - spread * 0.7)
 
   for (i in seq_len(n_plots)) {
     row <- ((i - 1) %/% n_cols) + 1
@@ -1662,10 +1675,10 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
           x0 <- tri_x[from]; y0 <- tri_y[from]
           x1 <- tri_x[to]; y1 <- tri_y[to]
 
-          # Shorten edges for node radius
+          # Shorten edges so arrows don't get buried in nodes
           dx <- x1 - x0; dy <- y1 - y0
           len <- sqrt(dx^2 + dy^2)
-          shrink <- 0.08
+          shrink <- node_size * 0.025 + 0.02  # Convert to npc and add margin
 
           x0_adj <- x0 + shrink * dx / len
           y0_adj <- y0 + shrink * dy / len
@@ -1689,8 +1702,8 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
       }
     }
 
-    # Draw nodes
-    node_r <- grid::unit(node_size, "npc")
+    # Draw nodes - convert node_size (1-10 scale like splot) to npc
+    node_r <- grid::unit(node_size * 0.025, "npc")
     for (j in 1:3) {
       grid::grid.circle(x = tri_x[j], y = tri_y[j], r = node_r,
                        gp = grid::gpar(fill = "white", col = motif_color, lwd = 2))
@@ -1701,7 +1714,7 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
     grid::popViewport()
   }
 
-  # Legend (if enabled and nodes <= 20)
+  # Legend (if enabled and nodes <= 20) - 2 columns
   if (legend) {
     all_nodes <- unique(unlist(lapply(df$triad, function(tr) {
       trimws(strsplit(tr, " - ")[[1]])
@@ -1712,9 +1725,20 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
       abbrev_map <- sapply(all_nodes, function(nm) {
         paste0(substr(toupper(nm), 1, 3), "=", nm)
       })
-      legend_text <- paste(sort(abbrev_map), collapse = "  ")
-      grid::grid.text(legend_text, x = 0.5, y = 0.5,
-                     gp = grid::gpar(fontsize = 8, col = "#64748b"))
+      abbrev_map <- sort(abbrev_map)
+
+      # Split into 2 rows
+      n_items <- length(abbrev_map)
+      mid <- ceiling(n_items / 2)
+      row1 <- paste(abbrev_map[1:mid], collapse = "  ")
+      row2 <- if (mid < n_items) paste(abbrev_map[(mid + 1):n_items], collapse = "  ") else ""
+
+      grid::grid.text(row1, x = 0.5, y = 0.65,
+                     gp = grid::gpar(fontsize = 7, col = "#64748b"))
+      if (nzchar(row2)) {
+        grid::grid.text(row2, x = 0.5, y = 0.35,
+                       gp = grid::gpar(fontsize = 7, col = "#64748b"))
+      }
       grid::popViewport()
     }
   }
@@ -1904,4 +1928,1166 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
   }
 
   invisible(NULL)
+}
+
+
+# =============================================================================
+# TEMPORAL MOTIF ANALYSIS
+# =============================================================================
+
+#' Extract Motifs Across Time Windows
+#'
+#' Analyze how network motifs evolve over temporal sequences by extracting
+#' and counting triad patterns within rolling time windows.
+#'
+#' @param x Input data. Can be:
+#'   \itemize{
+#'     \item A wide data.frame (rows=individuals, columns=time points)
+#'     \item An edge list data.frame (with from, to, time columns)
+#'     \item A long format data.frame (with id, time, state columns)
+#'     \item A `tna_windows` result from [tna_windows()]
+#'   }
+#' @param id Column name(s) for grouping (character). For wide format, separates
+#'   ID columns from time columns. For edge_list/long format, identifies individuals.
+#' @param time Column name for time (edge_list/long format). Default "time".
+#' @param from Column name for source node (edge_list format). Default "from".
+#' @param to Column name for target node (edge_list format). Default "to".
+#' @param state Column name for state (long format). Default "state".
+#' @param format Input format: "auto" (detect), "wide", "edge_list", or "long".
+#' @param window_size Number of time points per window. Default depends on format:
+#'   1 for edge_list, 2 for wide/long.
+#' @param step Window step size. 1 = sliding (default), window_size = tumbling.
+#' @param pattern Pattern filter: "triangle", "network", "closed", or "all".
+#'   See [extract_motifs()] for details.
+#' @param edge_method Method for edge presence: "any", "expected", or "percent".
+#' @param edge_threshold Threshold for expected/percent methods. Default 1.5.
+#' @param min_transitions Minimum transitions per individual/window. Default 5.
+#' @param exclude_types Character vector of MAN types to exclude.
+#' @param include_types Character vector of MAN types to exclusively include.
+#' @param na_threshold Maximum NA proportion before stopping. Default 0.5.
+#' @param seed Random seed for reproducibility.
+#'
+#' @return A `cograph_temporal_motifs` object containing:
+#'   \describe{
+#'     \item{windows}{List of per-window motif results}
+#'     \item{summary}{Data frame with window, start, end, type, count}
+#'     \item{type_trends}{Data frame of type counts over time (wide format)}
+#'     \item{params}{Parameters used}
+#'   }
+#'
+#' @examples
+#' \dontrun{
+#' library(tna)
+#'
+#' # Wide format (default)
+#' data <- group_regulation
+#' m <- extract_motifs_temporal(data, window_size = 5, step = 1)
+#' print(m)
+#' plot(m, type = "trends")
+#' plot(m, type = "heatmap")
+#'
+#' # With ID columns
+#' data_wide <- data.frame(
+#'   person = 1:100,
+#'   group = rep(c("A", "B"), 50),
+#'   T1 = sample(c("Plan", "Execute", "Review"), 100, replace = TRUE),
+#'   T2 = sample(c("Plan", "Execute", "Review"), 100, replace = TRUE),
+#'   T3 = sample(c("Plan", "Execute", "Review"), 100, replace = TRUE)
+#' )
+#' m <- extract_motifs_temporal(data_wide, id = c("person", "group"), window_size = 2)
+#'
+#' # Edge list format
+#' edges <- data.frame(
+#'   from = c("A", "B", "A", "C", "B", "A"),
+#'   to = c("B", "C", "C", "A", "A", "B"),
+#'   time = c(1, 1, 2, 2, 3, 3)
+#' )
+#' m <- extract_motifs_temporal(edges, from = "from", to = "to", time = "time",
+#'                               window_size = 2)
+#'
+#' # Long format
+#' long_data <- data.frame(
+#'   person = rep(1:50, each = 10),
+#'   timepoint = rep(1:10, 50),
+#'   state = sample(c("Plan", "Execute", "Monitor"), 500, replace = TRUE)
+#' )
+#' m <- extract_motifs_temporal(long_data, id = "person", time = "timepoint",
+#'                               state = "state", window_size = 3)
+#'
+#' # Pre-computed windows
+#' windows <- tna_windows(data, window_size = 3)
+#' m <- extract_motifs_temporal(windows)
+#' }
+#'
+#' @seealso [extract_motifs()], [tna_windows()], [plot.cograph_temporal_motifs()]
+#' @export
+extract_motifs_temporal <- function(x,
+                                     id = NULL,
+                                     time = NULL,
+                                     from = NULL,
+                                     to = NULL,
+                                     state = NULL,
+                                     format = c("auto", "wide", "edge_list", "long"),
+                                     window_size = NULL,
+                                     step = 1,
+                                     pattern = c("triangle", "network", "closed", "all"),
+                                     edge_method = c("any", "expected", "percent"),
+                                     edge_threshold = 1.5,
+                                     min_transitions = 5,
+                                     exclude_types = NULL,
+                                     include_types = NULL,
+                                     na_threshold = 0.5,
+                                     seed = NULL) {
+
+  if (!is.null(seed)) set.seed(seed)
+  format <- match.arg(format)
+  pattern <- match.arg(pattern)
+  edge_method <- match.arg(edge_method)
+
+  # Auto-detect format first (needed to set window_size default)
+  if (format == "auto" && is.data.frame(x)) {
+    if (!is.null(from) && !is.null(to)) {
+      format <- "edge_list"
+    } else if (!is.null(state)) {
+      format <- "long"
+    } else {
+      format <- "wide"
+    }
+  }
+
+  # Set default window_size based on format
+  if (is.null(window_size)) {
+    window_size <- if (format == "edge_list") 1L else 2L
+  }
+
+  # ========== FORMAT DETECTION & CONVERSION ==========
+
+  # Case 1: Already tna_windows result
+  if (inherits(x, "tna_windows") ||
+      (is.list(x) && "windows" %in% names(x) && "start_times" %in% names(x))) {
+    win_result <- x
+
+  } else if (is.data.frame(x)) {
+
+    # Case 2: Edge list format (from, to, time, weight)
+    if (format == "edge_list") {
+      if (is.null(from)) from <- "from"
+      if (is.null(to)) to <- "to"
+      if (is.null(time)) time <- "time"
+
+      # Validate columns
+      required <- c(from, to, time)
+      if (!all(required %in% names(x))) {
+        stop("Missing columns: ", paste(setdiff(required, names(x)), collapse = ", "))
+      }
+
+      # Convert edge list to per-window matrices
+      win_result <- .edge_list_to_windows(x, from = from, to = to, time = time,
+                                           id = id, window_size = window_size,
+                                           step = step)
+
+    # Case 3: Long format (id, time, state)
+    } else if (format == "long") {
+      if (is.null(id)) stop("id required for long format")
+      if (is.null(time)) time <- "time"
+      if (is.null(state)) state <- "state"
+
+      # Validate columns
+      required <- c(id, time, state)
+      if (!all(required %in% names(x))) {
+        stop("Missing columns: ", paste(setdiff(required, names(x)), collapse = ", "))
+      }
+
+      # Convert long to wide, then to windows
+      wide_data <- .long_to_wide(x, id = id, time = time, state = state)
+      win_result <- tna_windows(wide_data, window_size = window_size,
+                                 step = step, na_threshold = na_threshold)
+
+    # Case 4: Wide format (T1, T2, T3...)
+    } else {
+      # Handle ID columns if provided
+      if (!is.null(id)) {
+        if (!all(id %in% names(x))) {
+          stop("id column(s) not found: ", paste(setdiff(id, names(x)), collapse = ", "))
+        }
+        time_cols <- setdiff(names(x), id)
+        x_time <- x[, time_cols, drop = FALSE]
+      } else {
+        x_time <- x
+      }
+
+      win_result <- tna_windows(x_time, window_size = window_size,
+                                 step = step, na_threshold = na_threshold)
+    }
+
+  } else {
+    stop("x must be data.frame or tna_windows result")
+  }
+
+  n_windows <- length(win_result$windows)
+  if (n_windows == 0) {
+    warning("No valid windows generated")
+    return(NULL)
+  }
+
+  # Extract motifs for each window
+  window_results <- vector("list", n_windows)
+  summary_list <- list()
+
+  for (i in seq_len(n_windows)) {
+    tna_model <- win_result$windows[[i]]
+
+    # Get weights matrix - handle both tna objects and simple lists
+    weights_mat <- if (inherits(tna_model, "tna")) {
+      tna_model$weights
+    } else if (is.list(tna_model) && "weights" %in% names(tna_model)) {
+      tna_model$weights
+    } else {
+      next
+    }
+
+    # Use aggregate level since we have per-window matrices
+    motifs <- tryCatch({
+      extract_motifs(
+        weights_mat,
+        level = "aggregate",
+        pattern = pattern,
+        edge_method = edge_method,
+        edge_threshold = edge_threshold,
+        min_transitions = min_transitions,
+        exclude_types = exclude_types,
+        include_types = include_types,
+        significance = FALSE
+      )
+    }, error = function(e) NULL)
+
+    # Store motifs along with raw transition counts for edge-based counting
+    if (!is.null(motifs)) {
+      motifs$weights_matrix <- weights_mat
+
+      # Compute raw transition counts from sequence data if available
+      if (inherits(tna_model, "tna") && !is.null(tna_model$data)) {
+        seq_data <- tna_model$data
+        states <- rownames(weights_mat)
+        n_states <- length(states)
+        count_mat <- matrix(0L, nrow = n_states, ncol = n_states,
+                            dimnames = list(states, states))
+
+        for (row_idx in seq_len(nrow(seq_data))) {
+          row <- seq_data[row_idx, ]
+          for (col_idx in seq_len(length(row) - 1)) {
+            from_idx <- row[col_idx]
+            to_idx <- row[col_idx + 1]
+            # Data contains integer indices, convert to state names
+            if (!is.na(from_idx) && !is.na(to_idx) &&
+                from_idx >= 1 && from_idx <= n_states &&
+                to_idx >= 1 && to_idx <= n_states) {
+              count_mat[from_idx, to_idx] <- count_mat[from_idx, to_idx] + 1L
+            }
+          }
+        }
+        motifs$counts_matrix <- count_mat
+      }
+    }
+    window_results[[i]] <- motifs
+
+    # Build summary
+    if (!is.null(motifs) && nrow(motifs$results) > 0) {
+      type_counts <- table(motifs$results$type)
+      summary_list[[i]] <- data.frame(
+        window = i,
+        start = win_result$start_times[i],
+        end = win_result$end_times[i],
+        type = names(type_counts),
+        count = as.integer(type_counts),
+        stringsAsFactors = FALSE
+      )
+    }
+  }
+
+  # Combine summary
+  summary_df <- if (length(summary_list) > 0) {
+    do.call(rbind, summary_list)
+  } else {
+    data.frame(window = integer(0), start = integer(0), end = integer(0),
+               type = character(0), count = integer(0))
+  }
+
+  # Create type trends (pivot to wide format)
+  if (nrow(summary_df) > 0) {
+    all_types <- unique(summary_df$type)
+    type_trends <- data.frame(
+      window = seq_len(n_windows),
+      start = win_result$start_times,
+      end = win_result$end_times
+    )
+    for (tp in all_types) {
+      counts <- sapply(seq_len(n_windows), function(w) {
+        subset_df <- summary_df[summary_df$window == w & summary_df$type == tp, ]
+        if (nrow(subset_df) > 0) sum(subset_df$count) else 0L
+      })
+      type_trends[[tp]] <- counts
+    }
+  } else {
+    type_trends <- data.frame(window = seq_len(n_windows),
+                              start = win_result$start_times,
+                              end = win_result$end_times)
+  }
+
+  result <- list(
+    windows = window_results,
+    summary = summary_df,
+    type_trends = type_trends,
+    params = list(
+      window_size = window_size,
+      step = step,
+      pattern = pattern,
+      edge_method = edge_method,
+      edge_threshold = edge_threshold,
+      min_transitions = min_transitions,
+      n_windows = n_windows,
+      na_proportions = win_result$na_proportions
+    )
+  )
+
+  class(result) <- "cograph_temporal_motifs"
+  result
+}
+
+
+#' Convert edge list with time to windowed transition matrices
+#' @noRd
+.edge_list_to_windows <- function(x, from, to, time, id = NULL,
+                                   window_size, step) {
+  # Get unique time points and states
+  times <- sort(unique(x[[time]]))
+  states <- sort(unique(c(x[[from]], x[[to]])))
+  n_states <- length(states)
+  state_idx <- stats::setNames(seq_along(states), states)
+
+  # Generate window start points
+  n_times <- length(times)
+  if (n_times < window_size) {
+    return(list(windows = list(), start_times = integer(0),
+                end_times = integer(0), na_proportions = numeric(0)))
+  }
+
+  starts <- seq(1, n_times - window_size + 1, by = step)
+  n_windows <- length(starts)
+
+  windows <- vector("list", n_windows)
+
+  for (w in seq_len(n_windows)) {
+    # Get time range for this window
+    window_times <- times[starts[w]:(starts[w] + window_size - 1)]
+
+    # Filter edges in this time window
+    edges_w <- x[x[[time]] %in% window_times, ]
+
+    # Build transition matrix
+    mat <- matrix(0, n_states, n_states, dimnames = list(states, states))
+    for (r in seq_len(nrow(edges_w))) {
+      f <- as.character(edges_w[[from]][r])
+      t <- as.character(edges_w[[to]][r])
+      wt <- if ("weight" %in% names(edges_w)) edges_w$weight[r] else 1
+      mat[f, t] <- mat[f, t] + wt
+    }
+
+    # Create minimal tna-like structure
+    windows[[w]] <- list(weights = mat, labels = states)
+  }
+
+  list(
+    windows = windows,
+    start_times = starts,
+    end_times = starts + window_size - 1,
+    na_proportions = rep(0, n_windows)
+  )
+}
+
+
+#' Convert long format (id, time, state) to wide format for tna_windows
+#' @noRd
+.long_to_wide <- function(x, id, time, state) {
+  # Handle multiple ID columns
+  if (length(id) == 1) {
+    x$.id <- x[[id]]
+  } else {
+    x$.id <- do.call(paste, c(x[id], sep = "_"))
+  }
+
+  unique_ids <- unique(x$.id)
+  unique_times <- sort(unique(x[[time]]))
+
+  # Create wide data frame
+  wide <- data.frame(row.names = seq_along(unique_ids))
+
+  for (t in unique_times) {
+    col_name <- paste0("T", t)
+    wide[[col_name]] <- sapply(unique_ids, function(uid) {
+      val <- x[[state]][x$.id == uid & x[[time]] == t]
+      if (length(val) == 0) NA_character_ else as.character(val[1])
+    })
+  }
+
+  wide
+}
+
+
+#' @method print cograph_temporal_motifs
+#' @export
+print.cograph_temporal_motifs <- function(x, ...) {
+  cat("Temporal Motif Analysis\n")
+  cat(sprintf("Windows: %d | Pattern: %s\n",
+              x$params$n_windows, x$params$pattern))
+  cat(sprintf("Window size: %d | Step: %d\n\n",
+              x$params$window_size, x$params$step))
+
+  if (nrow(x$summary) > 0) {
+    # Aggregate by type
+    agg <- stats::aggregate(count ~ type, data = x$summary, FUN = sum)
+    agg <- agg[order(agg$count, decreasing = TRUE), ]
+    cat("Total occurrences by type:\n")
+    print(agg, row.names = FALSE)
+  } else {
+    cat("No motifs found.\n")
+  }
+
+  invisible(x)
+}
+
+
+#' Plot Temporal Motif Analysis Results
+#'
+#' Create visualizations for temporal motif analysis including trend lines
+#' and heatmaps showing how motif frequencies change over time windows.
+#'
+#' @param x A `cograph_temporal_motifs` object from [extract_motifs_temporal()]
+#' @param type Plot type: "trends" (line plot, default) or "heatmap"
+#' @param top_n Show only top N types by total count. Default 10.
+#' @param colors Optional color palette for types.
+#' @param ... Additional arguments (unused)
+#'
+#' @return A ggplot2 object (invisibly)
+#'
+#' @examples
+#' \dontrun{
+#' m <- extract_motifs_temporal(data, window_size = 5)
+#' plot(m, type = "trends")
+#' plot(m, type = "heatmap")
+#' }
+#'
+#' @method plot cograph_temporal_motifs
+#' @export
+plot.cograph_temporal_motifs <- function(x, type = c("trends", "heatmap"),
+                                          top_n = 10, colors = NULL, ...) {
+  type <- match.arg(type)
+
+  if (!requireNamespace("ggplot2", quietly = TRUE)) {
+    stop("ggplot2 required for plotting")
+  }
+
+  if (type == "trends") {
+    # Line plot of type counts over time
+    trends <- x$type_trends
+    type_cols <- setdiff(names(trends), c("window", "start", "end"))
+
+    if (length(type_cols) == 0) {
+      message("No types to plot")
+      return(invisible(NULL))
+    }
+
+    # Get top N types by total count
+    totals <- colSums(trends[, type_cols, drop = FALSE])
+    top_types <- names(sort(totals, decreasing = TRUE))[1:min(top_n, length(totals))]
+
+    # Reshape to long format
+    df_long <- data.frame()
+    for (tp in top_types) {
+      df_long <- rbind(df_long, data.frame(
+        window = trends$window,
+        type = tp,
+        count = trends[[tp]],
+        stringsAsFactors = FALSE
+      ))
+    }
+
+    # Create time range labels
+    df_long$time_range <- paste0("T", trends$start[df_long$window], "-T",
+                                  trends$end[df_long$window])
+
+    p <- ggplot2::ggplot(df_long, ggplot2::aes(x = window, y = count,
+                                                color = type, group = type)) +
+      ggplot2::geom_line(linewidth = 1.2) +
+      ggplot2::geom_point(size = 2) +
+      ggplot2::scale_x_continuous(breaks = unique(df_long$window),
+                                  labels = unique(df_long$time_range)) +
+      ggplot2::labs(
+        title = "Motif Trends Over Time",
+        subtitle = sprintf("Window size: %d | Pattern: %s",
+                          x$params$window_size, x$params$pattern),
+        x = "Time Window",
+        y = "Count",
+        color = "Type"
+      ) +
+      ggplot2::theme_minimal(base_size = 12) +
+      ggplot2::theme(
+        axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+        plot.title = ggplot2::element_text(face = "bold"),
+        legend.position = "right"
+      )
+
+    print(p)
+    invisible(p)
+
+  } else if (type == "heatmap") {
+    # Heatmap of type x window
+    if (nrow(x$summary) == 0) {
+      message("No data for heatmap")
+      return(invisible(NULL))
+    }
+
+    df <- x$summary
+    df$time_range <- paste0("T", df$start, "-T", df$end)
+
+    p <- ggplot2::ggplot(df, ggplot2::aes(x = factor(window), y = type, fill = count)) +
+      ggplot2::geom_tile(color = "white") +
+      ggplot2::geom_text(ggplot2::aes(label = count), size = 3) +
+      ggplot2::scale_fill_gradient(low = "white", high = "#800020",
+                                   name = "Count") +
+      ggplot2::scale_x_discrete(labels = unique(df$time_range)) +
+      ggplot2::labs(
+        title = "Motif Heatmap by Time Window",
+        x = "Time Window",
+        y = "Motif Type"
+      ) +
+      ggplot2::theme_minimal(base_size = 12) +
+      ggplot2::theme(
+        axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+        plot.title = ggplot2::element_text(face = "bold")
+      )
+
+    print(p)
+    invisible(p)
+  }
+}
+
+
+#' Analyze Triad Persistence Across Time Windows
+#'
+#' Identify which specific labeled triads or MAN types persist, emerge, or fade across
+#' temporal windows in a motif analysis.
+#'
+#' @param x A `cograph_temporal_motifs` object from [extract_motifs_temporal()]
+#' @param by Aggregation level: `"triad"` (default) tracks specific labeled triads
+#'   (e.g., "Plan - Execute - Monitor"), `"type"` aggregates by MAN type (e.g., "021C").
+#'   Use `"type"` to see how many triads of each structural pattern exist per window.
+#' @param edge_weight Logical. If `TRUE`, weight counts by the number of edges in the triad.
+#'   A full bidirectional clique (6 edges) weights 2x, while a minimal triad (3 edges) weights 1x.
+#'   Formula: `count * (n_edges / 3)`. Default `FALSE` for raw counts.
+#' @param min_windows Minimum number of windows a triad/type must appear in to be
+#'   included in the results. Default 1 (include all).
+#' @param min_persistence Minimum persistence score (0-1) to be classified as
+#'   "persistent". Default 0.5 (appears in at least half the windows).
+#'
+#' @return A `cograph_triad_persistence` object containing:
+#'   \describe{
+#'     \item{triads}{Data frame with columns: triad/type label, type (MAN type),
+#'       n_windows (appearances), first_window, last_window, windows (comma-separated),
+#'       persistence (proportion), total_count, status}
+#'     \item{counts_matrix}{Numeric matrix (rows x windows) with observed counts per cell.
+#'       When `by = "type"`, counts show how many triads of that type exist per window.}
+#'     \item{presence_matrix}{Binary matrix showing presence/absence}
+#'     \item{window_totals}{Total number of triads observed per window (for normalization)}
+#'     \item{summary}{List with counts by status}
+#'     \item{params}{List of parameters used, including `by`}
+#'   }
+#'
+#' @section Status Classification:
+#' \describe{
+#'   \item{persistent}{Appears in at least `min_persistence` proportion of windows}
+#'   \item{transient}{Appears in only 1 window}
+#'   \item{emerging}{First appears after window 1 AND last appears in final window}
+#'   \item{fading}{First appears in window 1 AND disappears before final window}
+#'   \item{sporadic}{Other patterns (gaps in appearance)}
+#' }
+#'
+#' @examples
+#' \dontrun{
+#' library(tna)
+#' data <- group_regulation
+#'
+#' # Extract temporal motifs
+#' m <- extract_motifs_temporal(data, window_size = 5, step = 2, pattern = "all")
+#'
+#' # By specific triads (default) - each triad can only appear 0 or 1 time
+#' pers <- triad_persistence(m)
+#' print(pers)
+#' plot(pers, type = "heatmap", top_n = 20)
+#'
+#' # By MAN type - see how many triads of each structural pattern per window
+#' pers_type <- triad_persistence(m, by = "type")
+#' print(pers_type)
+#' plot(pers_type, type = "heatmap")               # Raw counts
+#' plot(pers_type, type = "heatmap", normalize = TRUE)  # As % of window total
+#'
+#' # Weight by edge density (full clique = 2x, minimal triad = 1x)
+#' pers_weighted <- triad_persistence(m, by = "triad", edge_weight = TRUE)
+#' plot(pers_weighted, type = "heatmap", top_n = 20)
+#'
+#' # Access the data
+#' pers_type$counts_matrix    # Counts per cell
+#' pers_type$window_totals    # Total triads per window (for normalization)
+#'
+#' # Filter by status
+#' persistent_types <- pers_type$triads[pers_type$triads$status == "persistent", ]
+#' }
+#'
+#' @seealso [extract_motifs_temporal()], [plot.cograph_triad_persistence()]
+#' @export
+triad_persistence <- function(x, by = c("triad", "type"),
+                              edge_weight = FALSE,
+                              min_windows = 1, min_persistence = 0.5) {
+
+  if (!inherits(x, "cograph_temporal_motifs")) {
+    stop("x must be a cograph_temporal_motifs object from extract_motifs_temporal()")
+  }
+
+  by <- match.arg(by)
+  n_windows <- x$params$n_windows
+
+  # Collect all triads from all windows with their details
+  all_triads_list <- list()
+
+  for (w in seq_len(n_windows)) {
+    motifs <- x$windows[[w]]
+    if (is.null(motifs) || is.null(motifs$results) || nrow(motifs$results) == 0) next
+
+    df <- motifs$results
+    df$window <- w
+
+    # Compute actual transition counts from raw counts matrix
+    if (!is.null(motifs$counts_matrix)) {
+      mat <- motifs$counts_matrix
+      df$edge_count <- sapply(seq_len(nrow(df)), function(i) {
+        nodes <- strsplit(df$triad[i], " - ")[[1]]
+        if (length(nodes) == 3 && all(nodes %in% rownames(mat))) {
+          # Get all edge counts between the 3 nodes (both directions)
+          edges <- c(
+            mat[nodes[1], nodes[2]], mat[nodes[2], nodes[1]],
+            mat[nodes[1], nodes[3]], mat[nodes[3], nodes[1]],
+            mat[nodes[2], nodes[3]], mat[nodes[3], nodes[2]]
+          )
+          # Minimum non-zero edge count = max times full triad could occur
+          nonzero <- edges[edges > 0]
+          base_count <- if (length(nonzero) > 0) min(nonzero) else 0L
+
+          # Apply edge weight multiplier if requested
+          if (edge_weight && base_count > 0) {
+            n_edges <- sum(edges > 0)  # Number of non-zero edges (0-6)
+            # Weight by edge density: 3 edges = 1x, 6 edges = 2x
+            round(base_count * (n_edges / 3), 2)
+          } else {
+            base_count
+          }
+        } else {
+          1L  # Fallback
+        }
+      })
+    } else if (!is.null(motifs$weights_matrix)) {
+      # Fallback to weights if no raw counts available
+      mat <- motifs$weights_matrix
+      df$edge_count <- sapply(seq_len(nrow(df)), function(i) {
+        nodes <- strsplit(df$triad[i], " - ")[[1]]
+        if (length(nodes) == 3 && all(nodes %in% rownames(mat))) {
+          edges <- c(
+            mat[nodes[1], nodes[2]], mat[nodes[2], nodes[1]],
+            mat[nodes[1], nodes[3]], mat[nodes[3], nodes[1]],
+            mat[nodes[2], nodes[3]], mat[nodes[3], nodes[2]]
+          )
+          base_count <- round(sum(edges) * 100)
+
+          if (edge_weight && base_count > 0) {
+            n_edges <- sum(edges > 0)
+            round(base_count * (n_edges / 3), 2)
+          } else {
+            base_count
+          }
+        } else {
+          1L
+        }
+      })
+    } else {
+      df$edge_count <- df$observed
+    }
+
+    all_triads_list[[length(all_triads_list) + 1]] <- df[, c("triad", "type", "edge_count", "window")]
+  }
+
+  if (length(all_triads_list) == 0) {
+    warning("No triads found in any window")
+    return(NULL)
+  }
+
+  all_triads <- do.call(rbind, all_triads_list)
+
+  # Calculate window totals (for normalization)
+  window_totals <- sapply(seq_len(n_windows), function(w) {
+    sum(all_triads$edge_count[all_triads$window == w])
+  })
+  names(window_totals) <- paste0("W", seq_len(n_windows))
+
+  # Determine grouping key based on 'by' parameter
+  if (by == "type") {
+    # Aggregate by MAN type - sum counts across all triads of same type per window
+    unique_items <- sort(unique(all_triads$type))
+    group_col <- "type"
+  } else {
+    # Track individual labeled triads
+    unique_items <- unique(all_triads$triad)
+    group_col <- "triad"
+  }
+
+  # Build counts matrix (actual counts per cell)
+  counts_matrix <- matrix(0L, nrow = length(unique_items), ncol = n_windows,
+                          dimnames = list(unique_items, paste0("W", seq_len(n_windows))))
+
+  # Initialize results data frame
+  results <- data.frame(
+    label = unique_items,
+    type = character(length(unique_items)),
+    n_windows = integer(length(unique_items)),
+    first_window = integer(length(unique_items)),
+    last_window = integer(length(unique_items)),
+    windows = character(length(unique_items)),
+    persistence = numeric(length(unique_items)),
+    total_count = integer(length(unique_items)),
+    status = character(length(unique_items)),
+    stringsAsFactors = FALSE
+  )
+
+  for (i in seq_along(unique_items)) {
+    item <- unique_items[i]
+
+    # Subset based on grouping column
+    if (by == "type") {
+      subset_df <- all_triads[all_triads$type == item, ]
+    } else {
+      subset_df <- all_triads[all_triads$triad == item, ]
+    }
+
+    # Store actual counts per window (sum of edge_count for this item)
+    for (w in unique(subset_df$window)) {
+      counts_matrix[i, w] <- sum(subset_df$edge_count[subset_df$window == w])
+    }
+
+    windows_present <- sort(unique(subset_df$window))
+
+    # Type: for "triad" mode, get dominant type; for "type" mode, it's the item itself
+    if (by == "type") {
+      results$type[i] <- item
+    } else {
+      type_counts <- table(subset_df$type)
+      results$type[i] <- names(type_counts)[which.max(type_counts)]
+    }
+
+    results$n_windows[i] <- length(windows_present)
+    results$first_window[i] <- min(windows_present)
+    results$last_window[i] <- max(windows_present)
+    results$windows[i] <- paste(windows_present, collapse = ",")
+    results$persistence[i] <- length(windows_present) / n_windows
+    results$total_count[i] <- sum(subset_df$edge_count)
+
+    # Classify status
+    pers <- results$persistence[i]
+    first <- results$first_window[i]
+    last <- results$last_window[i]
+
+    if (pers >= min_persistence) {
+      results$status[i] <- "persistent"
+    } else if (length(windows_present) == 1) {
+      results$status[i] <- "transient"
+    } else if (first > 1 && last == n_windows) {
+      results$status[i] <- "emerging"
+    } else if (first == 1 && last < n_windows) {
+      results$status[i] <- "fading"
+    } else {
+      results$status[i] <- "sporadic"
+    }
+  }
+
+  # Filter by min_windows
+  results <- results[results$n_windows >= min_windows, ]
+  counts_matrix <- counts_matrix[results$label, , drop = FALSE]
+
+  # Derive presence matrix from counts
+  presence_matrix <- (counts_matrix > 0L) * 1L
+
+  # Sort by persistence descending, then by total_count
+
+  results <- results[order(-results$persistence, -results$total_count), ]
+  rownames(results) <- NULL
+
+  # Summary stats
+  summary_stats <- list(
+    n_items = nrow(results),
+    n_persistent = sum(results$status == "persistent"),
+    n_transient = sum(results$status == "transient"),
+    n_emerging = sum(results$status == "emerging"),
+    n_fading = sum(results$status == "fading"),
+    n_sporadic = sum(results$status == "sporadic")
+  )
+
+  # For backwards compatibility, also add 'triad' column as alias for 'label'
+  results$triad <- results$label
+
+  out <- list(
+    triads = results,
+    counts_matrix = counts_matrix,
+    presence_matrix = presence_matrix,
+    window_totals = window_totals,
+    summary = summary_stats,
+    params = list(
+      by = by,
+      edge_weight = edge_weight,
+      n_windows = n_windows,
+      min_windows = min_windows,
+      min_persistence = min_persistence
+    )
+  )
+
+  class(out) <- "cograph_triad_persistence"
+  out
+}
+
+
+#' @method print cograph_triad_persistence
+#' @export
+print.cograph_triad_persistence <- function(x, n = 15, ...) {
+  by_label <- if (x$params$by == "type") "MAN types" else "Triads"
+  cat(sprintf("Triad Persistence Analysis (by %s)\n", x$params$by))
+  cat(sprintf("Windows: %d | %s tracked: %d\n\n",
+              x$params$n_windows, by_label, x$summary$n_items))
+
+  cat("Status distribution:\n")
+  cat(sprintf("  Persistent: %d | Transient: %d | Emerging: %d | Fading: %d | Sporadic: %d\n\n",
+              x$summary$n_persistent, x$summary$n_transient,
+              x$summary$n_emerging, x$summary$n_fading, x$summary$n_sporadic))
+
+  if (nrow(x$triads) > 0) {
+    cat(sprintf("Top %d triads by persistence:\n", min(n, nrow(x$triads))))
+    print(utils::head(x$triads[, c("triad", "type", "persistence", "windows", "status")], n),
+          row.names = FALSE)
+  } else {
+    cat("No triads found.\n")
+  }
+
+  invisible(x)
+}
+
+
+#' Plot Triad Persistence Analysis
+#'
+#' Create visualizations for triad persistence analysis including heatmaps,
+#' timelines, and status distribution charts.
+#'
+#' @param x A `cograph_triad_persistence` object from [triad_persistence()]
+#' @param type Plot type: "heatmap" (presence across windows, default),
+#'   "timeline" (first/last appearance), or "status" (status distribution bar chart)
+#' @param top_n Maximum number of triads to display. Default `NULL` shows all triads.
+#'   Set to an integer to limit (e.g., `top_n = 20` for top 20).
+#' @param fill For heatmap type only: "density" (default) colors cells by actual count
+#'   normalized globally across all cells, "binary" shows simple present/absent coloring.
+#' @param normalize Logical. If `TRUE`, normalize counts by the total number of triads
+#'   in each window. This accounts for windows with more data having more observations.
+#'   Default is `FALSE` for raw counts.
+#' @param show_counts Logical. If `TRUE`, display count values inside heatmap cells.
+#'   Default is `TRUE` when matrix is small enough (< 200 cells), `FALSE` otherwise.
+#' @param ... Additional arguments (unused)
+#'
+#' @return A ggplot2 object (invisibly)
+#'
+#' @examples
+#' \dontrun{
+#' library(tna)
+#' m <- extract_motifs_temporal(group_regulation, window_size = 5)
+#'
+#' # By specific triads (default) - counts are always 1
+#' pers <- triad_persistence(m)
+#' plot(pers, type = "heatmap", top_n = 20)
+#'
+#' # By MAN type - shows how many triads of each type per window
+#' pers_type <- triad_persistence(m, by = "type")
+#' plot(pers_type, type = "heatmap")              # Raw counts
+#' plot(pers_type, type = "heatmap", normalize = TRUE)  # Normalized by window totals
+#' plot(pers_type, type = "heatmap", fill = "binary")   # Binary present/absent
+#'
+#' plot(pers, type = "timeline")
+#' plot(pers, type = "status")
+#' }
+#'
+#' @method plot cograph_triad_persistence
+#' @export
+plot.cograph_triad_persistence <- function(x, type = c("heatmap", "timeline", "status"),
+                                            top_n = NULL,
+                                            fill = c("density", "binary"),
+                                            normalize = FALSE,
+                                            show_counts = NULL, ...) {
+  type <- match.arg(type)
+  fill <- match.arg(fill)
+
+  if (!requireNamespace("ggplot2", quietly = TRUE)) {
+    stop("ggplot2 required for plotting")
+  }
+
+  if (nrow(x$triads) == 0) {
+    message("No triads to plot")
+    return(invisible(NULL))
+  }
+
+  if (type == "heatmap") {
+    # Presence heatmap: triads x windows
+    # Handle top_n = NULL (show all) vs integer limit
+    n_show <- if (is.null(top_n)) nrow(x$triads) else min(top_n, nrow(x$triads))
+    df <- x$triads[seq_len(n_show), ]
+
+    # Get counts matrix for density fill
+    mat <- x$counts_matrix[df$label, , drop = FALSE]
+
+    n_triads <- nrow(mat)
+    n_windows <- ncol(mat)
+
+    # Apply normalization if requested (divide by window totals)
+    if (normalize && !is.null(x$window_totals)) {
+      for (j in seq_len(n_windows)) {
+        if (x$window_totals[j] > 0) {
+          mat[, j] <- mat[, j] / x$window_totals[j]
+        }
+      }
+    }
+
+    # Store display values (for labels) - round normalized values
+    display_mat <- if (normalize) round(mat * 100, 1) else mat
+
+    # Adaptive sizing based on density
+    # Text size scales down with more triads
+    y_text_size <- if (n_triads <= 10) 10 else if (n_triads <= 20) 8 else if (n_triads <= 40) 6 else 5
+    x_text_size <- if (n_windows <= 10) 10 else if (n_windows <= 20) 8 else 6
+
+    # Tile border width scales with density
+    tile_border <- if (n_triads * n_windows <= 100) 0.5 else if (n_triads * n_windows <= 400) 0.3 else 0.1
+
+    # Truncate long triad names for dense plots, ensuring uniqueness
+    max_label_len <- if (n_triads <= 15) 50 else if (n_triads <= 30) 30 else 20
+    triad_labels <- df$triad
+    if (any(nchar(triad_labels) > max_label_len)) {
+      triad_labels <- ifelse(nchar(triad_labels) > max_label_len,
+                             paste0(substr(triad_labels, 1, max_label_len - 2), ".."),
+                             triad_labels)
+      # Ensure uniqueness by adding index if duplicated
+      if (any(duplicated(triad_labels))) {
+        dups <- duplicated(triad_labels) | duplicated(triad_labels, fromLast = TRUE)
+        triad_labels[dups] <- paste0(triad_labels[dups], " (", seq_along(which(dups)), ")")
+      }
+    }
+
+    # Calculate fill values based on fill type
+    if (fill == "density") {
+      # Global normalization: darkest cell = highest count across ALL cells
+      global_max <- max(mat, na.rm = TRUE)
+      if (global_max > 0) {
+        fill_mat <- mat / global_max
+      } else {
+        fill_mat <- mat
+      }
+      legend_name <- if (normalize) "% of Window" else "Density"
+    } else {
+      # Binary: present (1) / absent (0)
+      fill_mat <- (mat > 0) * 1
+      legend_name <- NULL
+    }
+
+    # Reshape for ggplot
+    plot_df <- data.frame()
+    for (i in seq_len(nrow(mat))) {
+      for (j in seq_len(ncol(mat))) {
+        plot_df <- rbind(plot_df, data.frame(
+          triad = triad_labels[i],
+          window = j,
+          count = display_mat[i, j],
+          raw_count = x$counts_matrix[df$label[i], j],
+          fill_val = fill_mat[i, j],
+          stringsAsFactors = FALSE
+        ))
+      }
+    }
+
+    # Order triads by persistence (reversed for y-axis)
+    plot_df$triad <- factor(plot_df$triad, levels = rev(triad_labels))
+
+    # Build the plot
+    if (fill == "density") {
+      # Density fill: gradient from white (0) to maroon (max)
+      # Set fill_val to NA for absent cells so they get na.value
+      plot_df$fill_val[plot_df$raw_count == 0] <- NA
+
+      p <- ggplot2::ggplot(plot_df, ggplot2::aes(x = factor(.data$window),
+                                                  y = .data$triad)) +
+        ggplot2::geom_tile(ggplot2::aes(fill = .data$fill_val),
+                           color = "white", linewidth = tile_border) +
+        ggplot2::scale_fill_gradient(low = "#FFFFFF", high = "#800020",
+                                      na.value = "#f5f5f5",
+                                      name = legend_name,
+                                      labels = scales::percent_format(accuracy = 1))
+    } else {
+      # Binary fill: simple present/absent
+      plot_df$present_factor <- factor(ifelse(plot_df$raw_count > 0, "1", "0"), levels = c("0", "1"))
+
+      p <- ggplot2::ggplot(plot_df, ggplot2::aes(x = factor(.data$window),
+                                                  y = .data$triad,
+                                                  fill = .data$present_factor)) +
+        ggplot2::geom_tile(color = if (tile_border > 0.1) "white" else NA,
+                           linewidth = tile_border) +
+        ggplot2::scale_fill_manual(values = c("0" = "#f5f5f5", "1" = "#800020"),
+                                    labels = c("Absent", "Present"), name = NULL)
+    }
+
+    # Determine whether to show counts
+    n_cells <- n_triads * n_windows
+    if (is.null(show_counts)) {
+      show_counts <- n_cells <= 200  # Auto: show for small matrices
+    }
+
+    # Add count labels if requested
+    if (show_counts) {
+      # Only show non-zero counts (use raw_count for filtering)
+      label_df <- plot_df[plot_df$raw_count > 0, ]
+
+      # Adaptive text size based on matrix density
+      count_text_size <- if (n_cells <= 50) 3.5 else if (n_cells <= 100) 3 else if (n_cells <= 200) 2.5 else 2
+
+      # Format label: percentage for normalized, integer for raw
+      if (normalize) {
+        label_df$label_text <- paste0(round(label_df$count, 0), "%")
+      } else {
+        label_df$label_text <- as.character(as.integer(label_df$count))
+      }
+
+      # Text color: white on dark cells (high density), dark on light cells
+      if (fill == "density") {
+        label_df$text_color <- ifelse(label_df$fill_val > 0.5, "white", "#333333")
+      } else {
+        label_df$text_color <- "white"  # Always white on maroon for binary
+      }
+
+      p <- p + ggplot2::geom_text(data = label_df,
+                                   ggplot2::aes(x = factor(.data$window),
+                                                y = .data$triad,
+                                                label = .data$label_text,
+                                                color = .data$text_color),
+                                   size = count_text_size, fontface = "bold",
+                                   show.legend = FALSE) +
+        ggplot2::scale_color_identity()
+    }
+
+    # Adjust aspect ratio for very wide or tall matrices
+    aspect_ratio <- n_windows / n_triads
+    coord_ratio <- if (aspect_ratio > 3) 0.5 else if (aspect_ratio < 0.3) 2 else NULL
+
+    # Build title based on parameters
+    by_mode <- x$params$by
+    title_label <- if (by_mode == "type") "MAN Type" else "Triad"
+    title_suffix <- if (normalize) " (Normalized)" else ""
+    row_label <- if (by_mode == "type") "types" else "triads"
+
+    p <- p +
+      ggplot2::labs(title = paste0(title_label, " Persistence Heatmap", title_suffix),
+                    subtitle = sprintf("%d %s \u00d7 %d windows", n_triads, row_label, n_windows),
+                    x = "Time Window", y = NULL) +
+      ggplot2::theme_minimal(base_size = 11) +
+      ggplot2::theme(
+        axis.text.y = ggplot2::element_text(size = y_text_size),
+        axis.text.x = ggplot2::element_text(size = x_text_size),
+        legend.position = if (n_triads > 30) "right" else "bottom",
+        plot.title = ggplot2::element_text(face = "bold"),
+        panel.grid = ggplot2::element_blank()
+      )
+
+    # Add coord_fixed for better aspect ratio if needed
+    if (!is.null(coord_ratio)) {
+      p <- p + ggplot2::coord_fixed(ratio = coord_ratio)
+    }
+
+    print(p)
+    invisible(p)
+
+  } else if (type == "timeline") {
+    # Timeline showing first/last appearance
+    n_show <- if (is.null(top_n)) nrow(x$triads) else min(top_n, nrow(x$triads))
+    df <- x$triads[seq_len(n_show), ]
+    df$triad <- factor(df$triad, levels = rev(df$triad))
+
+    p <- ggplot2::ggplot(df, ggplot2::aes(y = .data$triad)) +
+      ggplot2::geom_segment(ggplot2::aes(x = .data$first_window,
+                                          xend = .data$last_window,
+                                          yend = .data$triad,
+                                          color = .data$status),
+                            linewidth = 3) +
+      ggplot2::geom_point(ggplot2::aes(x = .data$first_window), size = 3, color = "#2E7D32") +
+      ggplot2::geom_point(ggplot2::aes(x = .data$last_window), size = 3, color = "#C62828") +
+      ggplot2::scale_color_manual(values = c(
+        persistent = "#800020", transient = "#999999",
+        emerging = "#2E7D32", fading = "#C62828", sporadic = "#E69F00"
+      )) +
+      ggplot2::scale_x_continuous(breaks = seq_len(x$params$n_windows)) +
+      ggplot2::labs(title = "Triad Lifespan Timeline",
+                    subtitle = "Green dot = first appearance, Red dot = last appearance",
+                    x = "Time Window", y = NULL, color = "Status") +
+      ggplot2::theme_minimal(base_size = 11) +
+      ggplot2::theme(
+        axis.text.y = ggplot2::element_text(size = 8),
+        legend.position = "right",
+        plot.title = ggplot2::element_text(face = "bold")
+      )
+
+    print(p)
+    invisible(p)
+
+  } else if (type == "status") {
+    # Bar chart of status distribution
+    status_df <- data.frame(
+      status = c("persistent", "transient", "emerging", "fading", "sporadic"),
+      count = c(x$summary$n_persistent, x$summary$n_transient,
+                x$summary$n_emerging, x$summary$n_fading, x$summary$n_sporadic)
+    )
+    status_df <- status_df[status_df$count > 0, ]
+
+    if (nrow(status_df) == 0) {
+      message("No status data to plot")
+      return(invisible(NULL))
+    }
+
+    status_df$status <- factor(status_df$status, levels = status_df$status)
+
+    p <- ggplot2::ggplot(status_df, ggplot2::aes(x = .data$status,
+                                                  y = .data$count,
+                                                  fill = .data$status)) +
+      ggplot2::geom_col(width = 0.7) +
+      ggplot2::geom_text(ggplot2::aes(label = .data$count), vjust = -0.5, fontface = "bold") +
+      ggplot2::scale_fill_manual(values = c(
+        persistent = "#800020", transient = "#999999",
+        emerging = "#2E7D32", fading = "#C62828", sporadic = "#E69F00"
+      )) +
+      ggplot2::labs(title = "Triad Status Distribution",
+                    x = NULL, y = "Number of Triads") +
+      ggplot2::theme_minimal(base_size = 12) +
+      ggplot2::theme(
+        legend.position = "none",
+        plot.title = ggplot2::element_text(face = "bold")
+      ) +
+      ggplot2::ylim(0, max(status_df$count) * 1.15)
+
+    print(p)
+    invisible(p)
+  }
 }

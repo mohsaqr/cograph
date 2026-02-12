@@ -1548,13 +1548,6 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
   n_cols <- min(3, n_plots)
   n_rows <- ceiling(n_plots / n_cols)
 
-  # Get device size and calculate scaling factor
-  dev_size <- grDevices::dev.size("in")
-  # Base size assumes ~7x7 inches for 3x3 grid
-  base_size <- 7
-  scale_factor <- min(dev_size[1], dev_size[2]) / base_size
-  scale_factor <- max(0.5, min(scale_factor, 1.5))  # Clamp between 0.5 and 1.5
-
 
   # Triad patterns (MAN notation) - adjacency matrices
   triad_patterns <- list(
@@ -1579,22 +1572,22 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
   # Consistent maroon style for all types
   motif_color <- "#800020"
 
-  # Scaled sizes
-  node_radius <- 0.40 * scale_factor
-  node_lwd <- 2.5 * scale_factor
-  text_cex <- 0.75 * scale_factor
-  edge_lwd <- 2.5 * scale_factor
-  arrow_len <- 0.12 * scale_factor
-  arrow_wid <- 0.08 * scale_factor
-  title_cex <- 1.0 * scale_factor
-  stats_cex <- 0.7 * scale_factor
+  # Fixed sizes that work in most devices
+  node_radius <- 0.35
+  node_lwd <- 2
+  text_cex <- 0.7
+  edge_lwd <- 2
+  arrow_len <- 0.10
+  arrow_wid <- 0.07
+  title_cex <- 0.9
+  stats_cex <- 0.65
 
   # Set up plot
   old_par <- graphics::par(no.readonly = TRUE)
   on.exit(graphics::par(old_par))
 
-  graphics::par(mfrow = c(n_rows, n_cols), mar = c(0.5, 0.5, 3, 0.5),
-                oma = c(2, 0, 0, 0), bg = "white")
+  graphics::par(mfrow = c(n_rows, n_cols), mar = c(0.2, 0.2, 2.5, 0.2),
+                oma = c(1.5, 0, 0, 0), bg = "white")
 
   # Node positions (triangle layout - scaled up for visibility)
   coords <- matrix(c(
@@ -1685,12 +1678,12 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
     if (x$params$significance && "z" %in% names(df)) {
       p_val <- df$p[i]
       p_str <- if (p_val < 0.001) "p<.001" else sprintf("p=%.2f", p_val)
-      graphics::mtext(triad_type, side = 3, line = 1.8, cex = title_cex, font = 2, col = col)
+      graphics::mtext(triad_type, side = 3, line = 1.4, cex = title_cex, font = 2, col = col)
       graphics::mtext(sprintf("n=%d  z=%.1f  %s", count, df$z[i], p_str),
-                     side = 3, line = 0.6, cex = stats_cex, col = "#64748b")
+                     side = 3, line = 0.4, cex = stats_cex, col = "#64748b")
     } else {
-      graphics::mtext(triad_type, side = 3, line = 1.2, cex = title_cex, font = 2, col = col)
-      graphics::mtext(sprintf("n=%d", count), side = 3, line = 0.2, cex = stats_cex, col = "#64748b")
+      graphics::mtext(triad_type, side = 3, line = 1.0, cex = title_cex, font = 2, col = col)
+      graphics::mtext(sprintf("n=%d", count), side = 3, line = 0.1, cex = stats_cex, col = "#64748b")
     }
   }
 

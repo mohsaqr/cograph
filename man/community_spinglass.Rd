@@ -18,6 +18,7 @@ community_spinglass(
   gamma = 1,
   implementation = c("orig", "neg"),
   gamma.minus = 1,
+  seed = NULL,
   ...
 )
 
@@ -34,6 +35,7 @@ com_sg(
   gamma = 1,
   implementation = c("orig", "neg"),
   gamma.minus = 1,
+  seed = NULL,
   ...
 )
 }
@@ -62,6 +64,8 @@ NULL for full partitioning.}
 \item{implementation}{"orig" (default) or "neg" (for negative weights).}
 
 \item{gamma.minus}{Gamma for negative weights in "neg" implementation.}
+
+\item{seed}{Random seed for reproducibility. Default NULL.}
 
 \item{...}{Additional arguments passed to \code{\link{to_igraph}}}
 }

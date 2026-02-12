@@ -12,6 +12,7 @@ communities(
   weights = NULL,
   resolution = 1,
   directed = NULL,
+  seed = NULL,
   ...
 )
 }
@@ -42,6 +43,9 @@ if available, otherwise unweighted. Set to NA for explicitly unweighted.}
 \item{directed}{Logical; whether to treat the network as directed.
 Default NULL (auto-detect).}
 
+\item{seed}{Random seed for reproducibility. Only applies to stochastic
+algorithms (louvain, leiden, infomap, label_propagation, spinglass).}
+
 \item{...}{Additional parameters passed to the specific algorithm.
 See individual functions for details.}
 }
@@ -51,7 +55,7 @@ with components:
 \describe{
 \item{membership}{Integer vector of community assignments}
 \item{modularity}{Modularity score of the partition}
-\item{algorithm}{Name of the algorithm used
+\item{algorithm}{Name of the algorithm used}
 \item{names}{Node names if available}
 \item{vcount}{Number of nodes}
 }
@@ -88,12 +92,9 @@ if (requireNamespace("igraph", quietly = TRUE)) {
   comm <- communities(g)
   print(comm)
 
-  # Leiden with higher resolution
-  comm2 <- communities(g, method = "leiden", resolution = 1.5)
-
-  # Compare modularity
-  cat("Louvain modularity:", modularity(comm), "\n")
-  cat("Leiden modularity:", modularity(comm2), "\n")
+  # Walktrap
+  comm2 <- communities(g, method = "walktrap")
+  print(comm2)
 }
 }
 \seealso{

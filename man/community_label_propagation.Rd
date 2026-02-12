@@ -11,6 +11,7 @@ community_label_propagation(
   mode = c("out", "in", "all"),
   initial = NULL,
   fixed = NULL,
+  seed = NULL,
   ...
 )
 
@@ -20,6 +21,7 @@ com_lp(
   mode = c("out", "in", "all"),
   initial = NULL,
   fixed = NULL,
+  seed = NULL,
   ...
 )
 }
@@ -33,6 +35,8 @@ com_lp(
 \item{initial}{Initial labels (integer vector or NULL for unique labels).}
 
 \item{fixed}{Logical vector indicating which labels are fixed.}
+
+\item{seed}{Random seed for reproducibility. Default NULL.}
 
 \item{...}{Additional arguments passed to \code{\link{to_igraph}}}
 }

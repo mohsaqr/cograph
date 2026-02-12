@@ -397,6 +397,241 @@ cqual <- cluster_quality
 }
 
 # ==============================================================================
+# 3b. Cluster Significance Testing
+# ==============================================================================
+
+#' Test Significance of Community Structure
+#'
+#' Compares observed modularity against a null model distribution to assess
+#' whether the detected community structure is statistically significant.
+#'
+#' @param x Network input: adjacency matrix, igraph object, or cograph_network.
+#' @param communities A communities object (from \code{\link{communities}} or
+#'   igraph) or a membership vector (integer vector where \code{communities[i]}
+#'   is the community of node i).
+#' @param n_random Number of random networks to generate for the null
+#'   distribution. Default 100.
+#' @param method Null model type:
+#'   \describe{
+#'     \item{"configuration"}{Preserves degree sequence (default). More
+#'       stringent test.}
+#'     \item{"gnm"}{Erdos-Renyi model with same number of edges. Tests against
+#'       random baseline.}
+#'   }
+#' @param seed Random seed for reproducibility. Default NULL.
+#'
+#' @return A \code{cograph_cluster_significance} object with:
+#'   \describe{
+#'     \item{observed_modularity}{Modularity of the input communities}
+#'     \item{null_mean}{Mean modularity of random networks}
+#'     \item{null_sd}{Standard deviation of null modularity}
+#'     \item{z_score}{Standardized score: (observed - null_mean) / null_sd}
+#'     \item{p_value}{One-sided p-value (probability of observing equal or
+#'       higher modularity by chance)}
+#'     \item{null_values}{Vector of modularity values from null distribution}
+#'     \item{method}{Null model method used}
+#'     \item{n_random}{Number of random networks generated}
+#'   }
+#'
+#' @details
+#' The test works by:
+#' \enumerate{
+#'   \item Computing the modularity of the provided community structure
+#'   \item Generating \code{n_random} random networks using the specified null model
+#'   \item For each random network, detecting communities with Louvain and
+#'     computing modularity
+#'   \item Comparing the observed modularity to this null distribution
+#' }
+#'
+#' A significant result (low p-value) indicates that the community structure
+#' is stronger than expected by chance for networks with similar properties.
+#'
+#' @references
+#' Reichardt, J., & Bornholdt, S. (2006).
+#' Statistical mechanics of community detection.
+#' \emph{Physical Review E}, 74, 016110.
+#'
+#' @export
+#' @seealso \code{\link{communities}}, \code{\link{cluster_quality}}
+#'
+#' @examples
+#' if (requireNamespace("igraph", quietly = TRUE)) {
+#'   g <- igraph::make_graph("Zachary")
+#'   comm <- community_louvain(g)
+#'
+#'   # Test significance
+#'   sig <- cluster_significance(g, comm, n_random = 100, seed = 123)
+#'   print(sig)
+#'
+#'   # Configuration model (stricter test)
+#'   sig2 <- cluster_significance(g, comm, method = "configuration")
+#' }
+cluster_significance <- function(x,
+                                  communities,
+                                  n_random = 100,
+                                  method = c("configuration", "gnm"),
+                                  seed = NULL) {
+
+  method <- match.arg(method)
+  if (!is.null(seed)) set.seed(seed)
+
+  # Convert to igraph
+  if (inherits(x, "igraph")) {
+    g <- x
+  } else if (is.matrix(x)) {
+    g <- igraph::graph_from_adjacency_matrix(x, weighted = TRUE, mode = "directed")
+  } else if (inherits(x, "cograph_network")) {
+    g <- to_igraph(x)
+  } else {
+    g <- to_igraph(x)
+  }
+
+  # Get membership vector
+  if (inherits(communities, "communities") ||
+      inherits(communities, "cograph_communities")) {
+    mem <- igraph::membership(communities)
+  } else if (is.numeric(communities) || is.integer(communities)) {
+    mem <- as.integer(communities)
+  } else {
+    stop("communities must be a communities object or membership vector",
+         call. = FALSE)
+  }
+
+  # Observed modularity
+  obs_mod <- igraph::modularity(g, mem)
+
+  # Generate null distribution
+  null_mods <- numeric(n_random)
+  n_nodes <- igraph::vcount(g)
+  n_edges <- igraph::ecount(g)
+
+  for (i in seq_len(n_random)) {
+    if (method == "configuration") {
+      # Configuration model - preserve degree sequence
+      deg <- igraph::degree(g)
+      g_null <- tryCatch(
+        igraph::sample_degseq(deg, method = "configuration"),
+        error = function(e) {
+          # Fallback to configuration.simple if configuration fails
+          igraph::sample_degseq(deg, method = "configuration.simple")
+        }
+      )
+    } else {
+      # G(n,m) model - same number of nodes and edges
+      g_null <- igraph::sample_gnm(n_nodes, n_edges, directed = igraph::is_directed(g))
+    }
+
+    # Detect communities on null graph (use Louvain for speed)
+    comm_null <- tryCatch(
+      igraph::cluster_louvain(g_null),
+      error = function(e) {
+        # If Louvain fails, use fast_greedy
+        igraph::cluster_fast_greedy(igraph::as.undirected(g_null))
+      }
+    )
+    null_mods[i] <- igraph::modularity(comm_null)
+  }
+
+  # Statistics
+  null_mean <- mean(null_mods)
+  null_sd <- sd(null_mods)
+  z_score <- if (null_sd > 0) (obs_mod - null_mean) / null_sd else NA_real_
+  p_value <- if (!is.na(z_score)) pnorm(z_score, lower.tail = FALSE) else NA_real_
+
+  result <- list(
+    observed_modularity = obs_mod,
+    null_mean = null_mean,
+    null_sd = null_sd,
+    z_score = z_score,
+    p_value = p_value,
+    null_values = null_mods,
+    method = method,
+    n_random = n_random
+  )
+  class(result) <- "cograph_cluster_significance"
+  result
+}
+
+#' @rdname cluster_significance
+#' @export
+csig <- cluster_significance
+
+#' @export
+print.cograph_cluster_significance <- function(x, ...) {
+  cat("Cluster Significance Test\n")
+  cat("=========================\n\n")
+  cat("  Null model:          ", x$method, "(n =", x$n_random, ")\n")
+  cat("  Observed modularity: ", round(x$observed_modularity, 4), "\n")
+  cat("  Null mean:           ", round(x$null_mean, 4), "\n")
+  cat("  Null SD:             ", round(x$null_sd, 4), "\n")
+  cat("  Z-score:             ", round(x$z_score, 2), "\n")
+  cat("  P-value:             ", format.pval(x$p_value), "\n\n")
+
+  if (!is.na(x$p_value)) {
+    if (x$p_value < 0.001) {
+      cat("  Conclusion: Highly significant community structure (p < 0.001)\n")
+    } else if (x$p_value < 0.01) {
+      cat("  Conclusion: Very significant community structure (p < 0.01)\n")
+    } else if (x$p_value < 0.05) {
+      cat("  Conclusion: Significant community structure (p < 0.05)\n")
+    } else {
+      cat("  Conclusion: No significant community structure (p >= 0.05)\n")
+    }
+  }
+
+  invisible(x)
+}
+
+#' Plot Cluster Significance
+#'
+#' Creates a histogram of the null distribution with the observed value marked.
+#'
+#' @param x A \code{cograph_cluster_significance} object
+#' @param ... Additional arguments passed to \code{hist}
+#' @return Invisibly returns x
+#' @export
+plot.cograph_cluster_significance <- function(x, ...) {
+  # Create histogram of null distribution
+  h <- graphics::hist(
+    x$null_values,
+    main = paste0("Cluster Significance Test (", x$method, ")"),
+    xlab = "Modularity",
+    col = "lightgray",
+    border = "white",
+    ...
+  )
+
+  # Add observed value line
+  graphics::abline(v = x$observed_modularity, col = "#C62828", lwd = 2, lty = 2)
+
+  # Add legend
+  graphics::legend(
+    "topright",
+    legend = c(
+      paste0("Observed (Q = ", round(x$observed_modularity, 3), ")"),
+      paste0("Null mean (", round(x$null_mean, 3), ")")
+    ),
+    col = c("#C62828", "black"),
+    lwd = c(2, 1),
+    lty = c(2, 1),
+    bty = "n"
+  )
+
+  # Add null mean line
+  graphics::abline(v = x$null_mean, col = "black", lwd = 1)
+
+  # Add p-value text
+  graphics::mtext(
+    paste0("p = ", format.pval(x$p_value)),
+    side = 3,
+    adj = 1,
+    cex = 0.9
+  )
+
+  invisible(x)
+}
+
+# ==============================================================================
 # 4. Layer Similarity Metrics
 # ==============================================================================
 

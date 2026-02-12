@@ -33,6 +33,8 @@
 #'   (louvain, leiden). Higher values yield more communities. Default 1.
 #' @param directed Logical; whether to treat the network as directed.
 #'   Default NULL (auto-detect).
+#' @param seed Random seed for reproducibility. Only applies to stochastic
+#'   algorithms (louvain, leiden, infomap, label_propagation, spinglass).
 #' @param ... Additional parameters passed to the specific algorithm.
 #'   See individual functions for details.
 #'
@@ -41,7 +43,7 @@
 #'   \describe{
 #'     \item{membership}{Integer vector of community assignments}
 #'     \item{modularity}{Modularity score of the partition}
-#'     \item{algorithm}{Name of the algorithm used
+#'     \item{algorithm}{Name of the algorithm used}
 #'     \item{names}{Node names if available}
 #'     \item{vcount}{Number of nodes}
 #'   }
@@ -82,12 +84,9 @@
 #'   comm <- communities(g)
 #'   print(comm)
 #'
-#'   # Leiden with higher resolution
-#'   comm2 <- communities(g, method = "leiden", resolution = 1.5)
-#'
-#'   # Compare modularity
-#'   cat("Louvain modularity:", modularity(comm), "\n")
-#'   cat("Leiden modularity:", modularity(comm2), "\n")
+#'   # Walktrap
+#'   comm2 <- communities(g, method = "walktrap")
+#'   print(comm2)
 #' }
 communities <- function(x,
                         method = c("louvain", "leiden", "fast_greedy",
@@ -97,22 +96,26 @@ communities <- function(x,
                         weights = NULL,
                         resolution = 1,
                         directed = NULL,
+                        seed = NULL,
                         ...) {
 
   method <- match.arg(method)
 
   # Dispatch to specific function
   switch(method,
-    "louvain" = community_louvain(x, weights = weights, resolution = resolution, ...),
-    "leiden" = community_leiden(x, weights = weights, resolution = resolution, ...),
+    "louvain" = community_louvain(x, weights = weights, resolution = resolution,
+                                  seed = seed, ...),
+    "leiden" = community_leiden(x, weights = weights, resolution = resolution,
+                                seed = seed, ...),
     "fast_greedy" = community_fast_greedy(x, weights = weights, ...),
     "walktrap" = community_walktrap(x, weights = weights, ...),
-    "infomap" = community_infomap(x, weights = weights, ...),
-    "label_propagation" = community_label_propagation(x, weights = weights, ...),
+    "infomap" = community_infomap(x, weights = weights, seed = seed, ...),
+    "label_propagation" = community_label_propagation(x, weights = weights,
+                                                       seed = seed, ...),
     "edge_betweenness" = community_edge_betweenness(x, weights = weights,
                                                      directed = directed, ...),
     "leading_eigenvector" = community_leading_eigenvector(x, weights = weights, ...),
-    "spinglass" = community_spinglass(x, weights = weights, ...),
+    "spinglass" = community_spinglass(x, weights = weights, seed = seed, ...),
     "optimal" = community_optimal(x, weights = weights, ...),
     "fluid" = community_fluid(x, ...)
   )
@@ -132,6 +135,7 @@ communities <- function(x,
 #' @param weights Edge weights. NULL uses network weights, NA for unweighted.
 #' @param resolution Resolution parameter. Higher values = more communities.
 #'   Default 1 (standard modularity).
+#' @param seed Random seed for reproducibility. Default NULL.
 #' @param ... Additional arguments passed to \code{\link{to_igraph}}
 #'
 #' @return A \code{cograph_communities} object
@@ -146,9 +150,15 @@ communities <- function(x,
 #' if (requireNamespace("igraph", quietly = TRUE)) {
 #'   g <- igraph::make_graph("Zachary")
 #'   comm <- community_louvain(g)
-#'   membership(comm)
+#'   igraph::membership(comm)
+#'
+#'   # Reproducible result with seed
+#'   comm1 <- community_louvain(g, seed = 42)
+#'   comm2 <- community_louvain(g, seed = 42)
+#'   identical(igraph::membership(comm1), igraph::membership(comm2))
 #' }
-community_louvain <- function(x, weights = NULL, resolution = 1, ...) {
+community_louvain <- function(x, weights = NULL, resolution = 1, seed = NULL, ...) {
+  if (!is.null(seed)) set.seed(seed)
   g <- to_igraph(x, ...)
   w <- .resolve_weights(g, weights)
 
@@ -171,6 +181,7 @@ community_louvain <- function(x, weights = NULL, resolution = 1, ...) {
 #' @param initial_membership Initial community assignments (optional).
 #' @param n_iterations Number of iterations. Default 2. Use -1 for convergence.
 #' @param vertex_weights Vertex weights for CPM objective.
+#' @param seed Random seed for reproducibility. Default NULL.
 #' @param ... Additional arguments passed to \code{\link{to_igraph}}
 #'
 #' @return A \code{cograph_communities} object
@@ -202,8 +213,10 @@ community_leiden <- function(x,
                              initial_membership = NULL,
                              n_iterations = 2,
                              vertex_weights = NULL,
+                             seed = NULL,
                              ...) {
 
+  if (!is.null(seed)) set.seed(seed)
   objective_function <- match.arg(objective_function)
   g <- to_igraph(x, ...)
   w <- .resolve_weights(g, weights)
@@ -335,6 +348,7 @@ community_walktrap <- function(x,
 #' @param v.weights Vertex weights (teleportation weights).
 #' @param nb.trials Number of optimization trials. Default 10.
 #' @param modularity Logical; calculate modularity? Default TRUE.
+#' @param seed Random seed for reproducibility. Default NULL.
 #' @param ... Additional arguments passed to \code{\link{to_igraph}}
 #'
 #' @return A \code{cograph_communities} object
@@ -355,8 +369,10 @@ community_infomap <- function(x,
                               v.weights = NULL,
                               nb.trials = 10,
                               modularity = TRUE,
+                              seed = NULL,
                               ...) {
 
+  if (!is.null(seed)) set.seed(seed)
   g <- to_igraph(x, ...)
   w <- .resolve_weights(g, weights)
 
@@ -381,6 +397,7 @@ community_infomap <- function(x,
 #' @param mode For directed graphs: "out" (default), "in", or "all".
 #' @param initial Initial labels (integer vector or NULL for unique labels).
 #' @param fixed Logical vector indicating which labels are fixed.
+#' @param seed Random seed for reproducibility. Default NULL.
 #' @param ... Additional arguments passed to \code{\link{to_igraph}}
 #'
 #' @return A \code{cograph_communities} object
@@ -411,8 +428,10 @@ community_label_propagation <- function(x,
                                  mode = c("out", "in", "all"),
                                  initial = NULL,
                                  fixed = NULL,
+                                 seed = NULL,
                                  ...) {
 
+  if (!is.null(seed)) set.seed(seed)
   mode <- match.arg(mode)
   g <- to_igraph(x, ...)
   w <- .resolve_weights(g, weights)
@@ -557,6 +576,7 @@ community_leading_eigenvector <- function(x,
 #' @param gamma Gamma parameter for modularity. Default 1.
 #' @param implementation "orig" (default) or "neg" (for negative weights).
 #' @param gamma.minus Gamma for negative weights in "neg" implementation.
+#' @param seed Random seed for reproducibility. Default NULL.
 #' @param ... Additional arguments passed to \code{\link{to_igraph}}
 #'
 #' @return A \code{cograph_communities} object
@@ -579,8 +599,10 @@ community_spinglass <- function(x,
                                 gamma = 1,
                                 implementation = c("orig", "neg"),
                                 gamma.minus = 1,
+                                seed = NULL,
                                 ...) {
 
+  if (!is.null(seed)) set.seed(seed)
   update.rule <- match.arg(update.rule)
   implementation <- match.arg(implementation)
 
@@ -698,6 +720,125 @@ community_fluid <- function(x, no.of.communities, ...) {
   result <- igraph::cluster_fluid_communities(g, no.of.communities = no.of.communities)
   .wrap_communities(result, "fluid", g)
 }
+
+
+# ==============================================================================
+# Consensus Community Detection
+# ==============================================================================
+
+#' Consensus Community Detection
+#'
+#' Runs a stochastic community detection algorithm multiple times and finds
+#' consensus communities via co-occurrence matrix thresholding. This approach
+#' produces more robust and stable community assignments than single runs.
+#'
+#' @param x Network input: matrix, igraph, network, cograph_network, or tna object
+#' @param method Community detection algorithm to use. Default "louvain".
+#'   Must be a stochastic method (louvain, leiden, infomap, label_propagation,
+#'   spinglass).
+#' @param n_runs Number of times to run the algorithm. Default 100.
+#' @param threshold Co-occurrence threshold for consensus. Default 0.5.
+#'   Nodes that appear together in >= threshold proportion of runs are
+#'   placed in the same community.
+#' @param seed Optional seed for reproducibility. If provided, seeds for
+
+#'   individual runs are derived from this seed.
+#' @param ... Additional arguments passed to the community detection method.
+#'
+#' @return A \code{cograph_communities} object with consensus membership.
+#'
+#' @details
+#' The algorithm works as follows:
+#' \enumerate{
+#'   \item Run the specified algorithm \code{n_runs} times (without seeds to
+#'     allow variation)
+#'   \item Build a co-occurrence matrix counting how often each pair of nodes
+#'     appears in the same community
+#'   \item Normalize to proportions (0-1)
+#'   \item Threshold to create a consensus graph (edge if co-occurrence >= threshold)
+#'   \item Run walktrap on the consensus graph to get final communities
+#' }
+#'
+#' @references
+#' Lancichinetti, A., & Fortunato, S. (2012).
+#' Consensus clustering in complex networks.
+#' \emph{Scientific Reports}, 2, 336.
+#'
+#' @export
+#' @seealso \code{\link{communities}}, \code{\link{community_louvain}}
+#'
+#' @examples
+#' if (requireNamespace("igraph", quietly = TRUE)) {
+#'   g <- igraph::make_graph("Zachary")
+#'
+#'   # Consensus from 50 Louvain runs
+#'   cc <- community_consensus(g, method = "louvain", n_runs = 50)
+#'   print(cc)
+#'
+#'   # Stricter threshold for more robust communities
+#'   cc2 <- community_consensus(g, threshold = 0.7, n_runs = 100)
+#' }
+community_consensus <- function(x,
+                                 method = c("louvain", "leiden", "infomap",
+                                            "label_propagation", "spinglass"),
+                                 n_runs = 100,
+                                 threshold = 0.5,
+                                 seed = NULL,
+                                 ...) {
+
+  method <- match.arg(method)
+
+  if (!is.null(seed)) set.seed(seed)
+
+  g <- to_igraph(x)
+  n <- igraph::vcount(g)
+
+  # Co-occurrence matrix
+  cooccur <- matrix(0, n, n)
+
+  # Run algorithm n_runs times (no seed per run - want variation)
+  for (i in seq_len(n_runs)) {
+    comm <- communities(g, method = method, seed = NULL, ...)
+    mem <- igraph::membership(comm)
+
+    # Update co-occurrence for nodes in same community
+    for (c in unique(mem)) {
+      nodes <- which(mem == c)
+      if (length(nodes) > 1) {
+        cooccur[nodes, nodes] <- cooccur[nodes, nodes] + 1
+      }
+    }
+    # Self-co-occurrence (each node is always with itself)
+    diag(cooccur) <- diag(cooccur) + 1
+  }
+
+  # Normalize to proportions
+  cooccur <- cooccur / n_runs
+
+  # Threshold to get consensus graph
+  consensus_adj <- (cooccur >= threshold) * 1
+  diag(consensus_adj) <- 0
+
+  # Final clustering on consensus graph using walktrap (deterministic)
+  consensus_g <- igraph::graph_from_adjacency_matrix(
+    consensus_adj,
+    mode = "undirected",
+    weighted = NULL
+  )
+
+  # Transfer node names if available
+  if (igraph::is_named(g)) {
+    igraph::V(consensus_g)$name <- igraph::V(g)$name
+  }
+
+  result <- igraph::cluster_walktrap(consensus_g)
+
+  .wrap_communities(result, paste0("consensus_", method), g)
+}
+
+#' @rdname community_consensus
+#' @export
+com_consensus <- community_consensus
 
 
 # ==============================================================================

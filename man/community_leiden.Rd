@@ -14,6 +14,7 @@ community_leiden(
   initial_membership = NULL,
   n_iterations = 2,
   vertex_weights = NULL,
+  seed = NULL,
   ...
 )
 
@@ -26,6 +27,7 @@ com_ld(
   initial_membership = NULL,
   n_iterations = 2,
   vertex_weights = NULL,
+  seed = NULL,
   ...
 )
 }
@@ -46,6 +48,8 @@ or "modularity". Default "CPM".}
 \item{n_iterations}{Number of iterations. Default 2. Use -1 for convergence.}
 
 \item{vertex_weights}{Vertex weights for CPM objective.}
+
+\item{seed}{Random seed for reproducibility. Default NULL.}
 
 \item{...}{Additional arguments passed to \code{\link{to_igraph}}}
 }

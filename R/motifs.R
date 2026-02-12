@@ -762,6 +762,139 @@ lookup <- .get_triad_lookup()
 # Cache environment for memoization
 .cograph_cache <- new.env(parent = emptyenv())
 
+# Vectorized triad counting for a single matrix
+# Returns data.frame with columns: i, j, k, type (or NULL if no triads found)
+# @param mat Numeric matrix (adjacency/transition matrix)
+# @param edge_method One of "any", "expected", "percent"
+# @param edge_threshold Threshold value for edge_method
+# @param expected_mat Pre-computed expected matrix (only for edge_method = "expected")
+# @param exclude Character vector of types to exclude
+# @param include Character vector of types to include (NULL = all)
+# @noRd
+.count_triads_matrix_vectorized <- function(mat, edge_method, edge_threshold,
+                                             expected_mat = NULL,
+                                             exclude = character(0),
+                                             include = NULL) {
+  s <- nrow(mat)
+  if (s < 3) return(NULL)
+
+  # Generate all triplet indices at once using combn
+  combos <- utils::combn(s, 3)  # 3 x C(s,3) matrix
+  nc <- ncol(combos)
+  if (nc == 0) return(NULL)
+
+  i <- combos[1, ]
+  j <- combos[2, ]
+  k <- combos[3, ]
+
+  # Vectorized edge extraction using matrix indexing
+  obs_ij <- mat[cbind(i, j)]
+  obs_ji <- mat[cbind(j, i)]
+  obs_ik <- mat[cbind(i, k)]
+  obs_ki <- mat[cbind(k, i)]
+  obs_jk <- mat[cbind(j, k)]
+  obs_kj <- mat[cbind(k, j)]
+
+  # Total weight per triplet
+  total <- obs_ij + obs_ji + obs_ik + obs_ki + obs_jk + obs_kj
+
+  # Skip empty triplets
+  has_edges <- total > 0
+  if (!any(has_edges)) return(NULL)
+
+  # Compute edge strength based on method
+  if (edge_method == "any") {
+    # Any non-zero edge counts as strong
+    e_ij <- as.integer(obs_ij > 0)
+    e_ji <- as.integer(obs_ji > 0)
+    e_ik <- as.integer(obs_ik > 0)
+    e_ki <- as.integer(obs_ki > 0)
+    e_jk <- as.integer(obs_jk > 0)
+    e_kj <- as.integer(obs_kj > 0)
+
+  } else if (edge_method == "percent") {
+    # Edge is strong if >= threshold * total
+    thresh <- total * edge_threshold
+    e_ij <- as.integer(obs_ij >= thresh)
+    e_ji <- as.integer(obs_ji >= thresh)
+    e_ik <- as.integer(obs_ik >= thresh)
+    e_ki <- as.integer(obs_ki >= thresh)
+    e_jk <- as.integer(obs_jk >= thresh)
+    e_kj <- as.integer(obs_kj >= thresh)
+
+  } else {
+    # "expected" method - compare to expected matrix
+    if (is.null(expected_mat)) {
+      stop("expected_mat required for edge_method='expected'", call. = FALSE)
+    }
+    exp_ij <- expected_mat[cbind(i, j)]
+    exp_ji <- expected_mat[cbind(j, i)]
+    exp_ik <- expected_mat[cbind(i, k)]
+    exp_ki <- expected_mat[cbind(k, i)]
+    exp_jk <- expected_mat[cbind(j, k)]
+    exp_kj <- expected_mat[cbind(k, j)]
+
+    # Edge is strong if ratio >= threshold AND obs > 0
+    e_ij <- as.integer((obs_ij / exp_ij) >= edge_threshold & obs_ij > 0)
+    e_ji <- as.integer((obs_ji / exp_ji) >= edge_threshold & obs_ji > 0)
+    e_ik <- as.integer((obs_ik / exp_ik) >= edge_threshold & obs_ik > 0)
+    e_ki <- as.integer((obs_ki / exp_ki) >= edge_threshold & obs_ki > 0)
+    e_jk <- as.integer((obs_jk / exp_jk) >= edge_threshold & obs_jk > 0)
+    e_kj <- as.integer((obs_kj / exp_kj) >= edge_threshold & obs_kj > 0)
+  }
+
+  # Total strong edges per triplet
+  edge_sum <- e_ij + e_ji + e_ik + e_ki + e_jk + e_kj
+
+  # Keep only triplets with at least one strong edge
+  keep <- has_edges & (edge_sum > 0)
+  if (!any(keep)) return(NULL)
+
+  # Subset to valid triplets
+  i <- i[keep]
+  j <- j[keep]
+  k <- k[keep]
+  e_ij <- e_ij[keep]
+  e_ji <- e_ji[keep]
+  e_ik <- e_ik[keep]
+  e_ki <- e_ki[keep]
+  e_jk <- e_jk[keep]
+  e_kj <- e_kj[keep]
+
+  # Classify triads using vectorized lookup
+  triad_types <- .classify_triads_vectorized(e_ij, e_ji, e_ik, e_ki, e_jk, e_kj)
+
+  # Apply include filter (if specified)
+  if (!is.null(include) && length(include) > 0) {
+    keep_include <- triad_types %in% include
+    if (!any(keep_include)) return(NULL)
+    i <- i[keep_include]
+    j <- j[keep_include]
+    k <- k[keep_include]
+    triad_types <- triad_types[keep_include]
+  }
+
+  # Apply exclude filter
+  if (length(exclude) > 0) {
+    keep_exclude <- !(triad_types %in% exclude)
+    if (!any(keep_exclude)) return(NULL)
+    i <- i[keep_exclude]
+    j <- j[keep_exclude]
+    k <- k[keep_exclude]
+    triad_types <- triad_types[keep_exclude]
+  }
+
+  if (length(i) == 0) return(NULL)
+
+  data.frame(
+    i = i,
+    j = j,
+    k = k,
+    type = triad_types,
+    stringsAsFactors = FALSE
+  )
+}
+
 #' Extract Raw Edge List from TNA Model
 #'
 #' Extract individual-level transition counts as an edge list from a tna object.
@@ -1172,7 +1305,7 @@ extract_motifs <- function(x = NULL,
   n_ind <- dim(trans)[1]
   s <- dim(trans)[2]
 
-  # Main counting function
+  # Main counting function (vectorized version)
   count_triads_internal <- function(trans_array, edge_method, edge_threshold,
                                     min_trans, exclude, include = NULL) {
     all_results <- list()
@@ -1182,6 +1315,7 @@ extract_motifs <- function(x = NULL,
       if (sum(mat) < min_trans) next
 
       # For expected method, compute expected matrix
+      expected_mat <- NULL
       if (edge_method == "expected") {
         total_mat <- sum(mat)
         row_sums <- rowSums(mat)
@@ -1190,44 +1324,26 @@ extract_motifs <- function(x = NULL,
         expected_mat[expected_mat == 0] <- 0.001
       }
 
-      for (i in 1:(s-2)) {
-        for (j in (i+1):(s-1)) {
-          for (k in (j+1):s) {
-            obs <- c(mat[i,j], mat[j,i], mat[i,k], mat[k,i], mat[j,k], mat[k,j])
-            total <- sum(obs)
-            if (total == 0) next
+      # Use vectorized helper function
+      triads_df <- .count_triads_matrix_vectorized(
+        mat = mat,
+        edge_method = edge_method,
+        edge_threshold = edge_threshold,
+        expected_mat = expected_mat,
+        exclude = exclude,
+        include = include
+      )
 
-            if (edge_method == "any") {
-              edges_strong <- as.integer(obs > 0)
-            } else if (edge_method == "percent") {
-              threshold <- total * edge_threshold
-              edges_strong <- as.integer(obs >= threshold)
-            } else {
-              exp_vals <- c(expected_mat[i,j], expected_mat[j,i],
-                           expected_mat[i,k], expected_mat[k,i],
-                           expected_mat[j,k], expected_mat[k,j])
-              ratio <- obs / exp_vals
-              edges_strong <- as.integer(ratio >= edge_threshold & obs > 0)
-            }
-
-            if (sum(edges_strong) == 0) next
-
-            code <- edges_strong[1] + 2*edges_strong[2] + 4*edges_strong[3] +
-                    8*edges_strong[4] + 16*edges_strong[5] + 32*edges_strong[6]
-            triad_type <- .get_triad_lookup()[code + 1]
-
-            # Apply include filter first (if specified)
-            if (!is.null(include) && !(triad_type %in% include)) next
-            if (triad_type %in% exclude) next
-
-            all_results[[length(all_results) + 1]] <- data.frame(
-              person = ind,
-              triad = paste(labels[i], labels[j], labels[k], sep = " - "),
-              type = triad_type,
-              stringsAsFactors = FALSE
-            )
-          }
-        }
+      if (!is.null(triads_df) && nrow(triads_df) > 0) {
+        # Convert indices to labels and format result
+        result_df <- data.frame(
+          person = ind,
+          triad = paste(labels[triads_df$i], labels[triads_df$j],
+                        labels[triads_df$k], sep = " - "),
+          type = triads_df$type,
+          stringsAsFactors = FALSE
+        )
+        all_results[[length(all_results) + 1]] <- result_df
       }
     }
 

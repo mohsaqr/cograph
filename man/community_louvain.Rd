@@ -5,9 +5,9 @@
 \alias{com_lv}
 \title{Louvain Community Detection}
 \usage{
-community_louvain(x, weights = NULL, resolution = 1, ...)
+community_louvain(x, weights = NULL, resolution = 1, seed = NULL, ...)
 
-com_lv(x, weights = NULL, resolution = 1, ...)
+com_lv(x, weights = NULL, resolution = 1, seed = NULL, ...)
 }
 \arguments{
 \item{x}{Network input}
@@ -16,6 +16,8 @@ com_lv(x, weights = NULL, resolution = 1, ...)
 
 \item{resolution}{Resolution parameter. Higher values = more communities.
 Default 1 (standard modularity).}
+
+\item{seed}{Random seed for reproducibility. Default NULL.}
 
 \item{...}{Additional arguments passed to \code{\link{to_igraph}}}
 }
@@ -30,7 +32,12 @@ Fast and widely used for large networks.
 if (requireNamespace("igraph", quietly = TRUE)) {
   g <- igraph::make_graph("Zachary")
   comm <- community_louvain(g)
-  membership(comm)
+  igraph::membership(comm)
+
+  # Reproducible result with seed
+  comm1 <- community_louvain(g, seed = 42)
+  comm2 <- community_louvain(g, seed = 42)
+  identical(igraph::membership(comm1), igraph::membership(comm2))
 }
 }
 \references{

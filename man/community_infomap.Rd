@@ -11,6 +11,7 @@ community_infomap(
   v.weights = NULL,
   nb.trials = 10,
   modularity = TRUE,
+  seed = NULL,
   ...
 )
 
@@ -20,6 +21,7 @@ com_im(
   v.weights = NULL,
   nb.trials = 10,
   modularity = TRUE,
+  seed = NULL,
   ...
 )
 }
@@ -33,6 +35,8 @@ com_im(
 \item{nb.trials}{Number of optimization trials. Default 10.}
 
 \item{modularity}{Logical; calculate modularity? Default TRUE.}
+
+\item{seed}{Random seed for reproducibility. Default NULL.}
 
 \item{...}{Additional arguments passed to \code{\link{to_igraph}}}
 }

@@ -1575,8 +1575,8 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
   old_par <- graphics::par(no.readonly = TRUE)
   on.exit(graphics::par(old_par))
 
-  graphics::par(mfrow = c(n_rows, n_cols), mar = c(1.5, 0.5, 3, 0.5),
-                oma = c(3, 0, 0, 0), bg = "white")
+  graphics::par(mfrow = c(n_rows, n_cols), mar = c(1, 0.5, 2.5, 0.5),
+                oma = c(2.5, 0, 0, 0), bg = "white")
 
   # Node positions (triangle layout - scaled up for visibility)
   coords <- matrix(c(
@@ -1667,12 +1667,12 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
     if (x$params$significance && "z" %in% names(df)) {
       p_val <- df$p[i]
       p_str <- if (p_val < 0.001) "p<.001" else sprintf("p=%.2f", p_val)
-      graphics::title(main = triad_type, line = 2, cex.main = 1.1, font.main = 2, col.main = col)
+      graphics::title(main = triad_type, line = 1.3, cex.main = 1.0, font.main = 2, col.main = col)
       graphics::mtext(sprintf("n=%d  z=%.1f  %s", count, df$z[i], p_str),
-                     side = 3, line = 0.5, cex = 0.7, col = "#64748b")
+                     side = 3, line = 0.2, cex = 0.65, col = "#64748b")
     } else {
       graphics::title(main = sprintf("%s (n=%d)", triad_type, count),
-                     line = 1.5, cex.main = 1.1, font.main = 2, col.main = col)
+                     line = 1, cex.main = 1.0, font.main = 2, col.main = col)
     }
   }
 

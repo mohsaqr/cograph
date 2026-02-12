@@ -2,35 +2,83 @@
 % Please edit documentation in R/motifs.R
 \name{extract_motifs}
 \alias{extract_motifs}
-\title{Extract Motifs from Individual-Level Data}
+\title{Extract Motifs from Network Data}
 \usage{
 extract_motifs(
-  x,
-  level = c("individual", "aggregate"),
-  edge_method = c("expected", "percent", "none"),
+  x = NULL,
+  data = NULL,
+  id = NULL,
+  level = NULL,
+  edge_method = c("any", "expected", "percent"),
   edge_threshold = 1.5,
+  pattern = c("triangle", "network", "all"),
+  exclude_types = NULL,
+  include_types = NULL,
+  top = NULL,
+  by_type = FALSE,
   min_transitions = 5,
-  exclude_types = c("003", "012"),
   significance = FALSE,
   n_perm = 100,
   seed = NULL
 )
 }
 \arguments{
-\item{x}{A tna object, matrix, or cograph_network}
+\item{x}{Input data. Can be:
+\itemize{
+\item A \code{tna} object (supports individual-level analysis)
+\item A matrix (aggregate analysis only, unless \code{data} and \code{id} provided)
+\item A \code{cograph_network} object
+\item An \code{igraph} object
+}}
+
+\item{data}{Optional data.frame containing transition data with an ID column
+for individual-level analysis. Required columns: \code{from}, \code{to}, and the
+column(s) specified in \code{id}. If provided, \code{x} should be NULL or a matrix
+of node labels.}
+
+\item{id}{Column name(s) identifying individuals/groups in \code{data}. Can be
+a single string or character vector for multiple grouping columns.
+Required for individual-level analysis with non-tna inputs.}
 
 \item{level}{Analysis level: "individual" counts how many people have each
-triad, "aggregate" analyzes the summed network. Default "individual".}
+triad, "aggregate" analyzes the summed/single network. Default depends
+on input: "individual" for tna or when id provided, "aggregate" otherwise.}
 
-\item{edge_threshold}{Threshold value. For "percent" method, a proportion
-(e.g., 0.15 for 15\%). For "expected" method, a ratio (e.g., 1.5 means
-50\% stronger than expected). Default 1.5.}
+\item{edge_method}{Method for determining edge presence:
+\describe{
+\item{"any"}{Edge exists if count > 0 (simple, recommended)}
+\item{"expected"}{Edge exists if observed/expected >= threshold}
+\item{"percent"}{Edge exists if edge/total >= threshold}
+}
+Default "any".}
+
+\item{edge_threshold}{Threshold value for "expected" or "percent" methods.
+For "percent", a proportion (e.g., 0.15 for 15\%).
+For "expected", a ratio (e.g., 1.5 means 50\% stronger than expected).
+Ignored when edge_method = "any". Default 1.5.}
+
+\item{pattern}{Pattern filter for which triads to include:
+\describe{
+\item{"triangle"}{All 3 node pairs must be connected (any direction).
+Types: 030C, 030T, 120C, 120D, 120U, 210, 300. Default.}
+\item{"network"}{Exclude simple sequential patterns (chains/single edges).
+Excludes: 003, 012, 021C. Includes stars and triangles.}
+\item{"all"}{Include all 16 MAN types, no filtering.}
+}}
+
+\item{exclude_types}{Character vector of MAN types to explicitly exclude.
+Applied after pattern filter. E.g., c("300") to exclude cliques.}
+
+\item{include_types}{Character vector of MAN types to exclusively include.
+If provided, only these types are returned (overrides pattern/exclude).}
+
+\item{top}{Return only the top N results (by observed count or z-score).
+NULL returns all results. Default NULL.}
+
+\item{by_type}{If TRUE, group results by MAN type in output. Default FALSE.}
 
 \item{min_transitions}{Minimum total transitions for a person to be included
 (individual level) or minimum triad weight (aggregate). Default 5.}
-
-\item{exclude_types}{Character vector of MAN types to exclude. Default
-c("003", "012") excludes empty and single-edge triads.}
 
 \item{significance}{Logical. Run permutation significance test? Default FALSE.}
 
@@ -49,25 +97,67 @@ A \code{cograph_motif_analysis} object (list) containing:
 }
 }
 \description{
-Extract and analyze triad motifs from transition network data at the
-individual level, with statistical thresholding and significance testing.
+Extract and analyze triad motifs from network data with flexible filtering,
+pattern selection, and statistical significance testing. Supports both
+individual-level analysis (with tna objects or grouped data) and aggregate
+analysis (with matrices or networks).
 }
+\section{MAN Notation}{
+
+The 16 triad types use MAN (Mutual-Asymmetric-Null) notation where:
+\itemize{
+\item First digit: number of Mutual (bidirectional) pairs
+\item Second digit: number of Asymmetric (one-way) pairs
+\item Third digit: number of Null (no edge) pairs
+\item Letter suffix: subtype variant (C=cycle, T=transitive, D=down, U=up)
+}
+}
+
+\section{Pattern Types}{
+
+\describe{
+\item{Triangle patterns (all pairs connected):}{
+030C (cycle), 030T (feed-forward), 120C (regulated cycle),
+120D (two out-stars), 120U (two in-stars), 210 (mutual+asymmetric), 300 (clique)}
+\item{Network patterns (has structure):}{
+021D (out-star), 021U (in-star), 102 (mutual pair),
+111D (out-star+mutual), 111U (in-star+mutual), 201 (mutual+in-star),
+plus all triangle patterns}
+\item{Sequential patterns (chains):}{
+012 (single edge), 021C (A->B->C chain)}
+\item{Empty:}{003 (no edges)}
+}
+}
+
 \examples{
 \dontrun{
 library(tna)
 Mod <- tna(group_regulation)
 
-# Basic individual-level analysis
+# Basic: triangles only (default) - individual level for tna
 m <- extract_motifs(Mod)
 print(m)
+
+# Top 20 with significance testing
+m <- extract_motifs(Mod, top = 20, significance = TRUE, n_perm = 100)
 plot(m)
 
-# With significance testing
-m <- extract_motifs(Mod, significance = TRUE, n_perm = 100)
-plot(m)
+# From a matrix (aggregate level)
+mat <- Mod$weights
+m <- extract_motifs(mat)
 
-# Different thresholding
-m <- extract_motifs(Mod, edge_method = "percent", edge_threshold = 0.15)
+# From data.frame with ID column (individual level)
+# df has columns: id, from, to (and optionally weight)
+m <- extract_motifs(data = df, id = "id")
+
+# Multiple grouping columns
+m <- extract_motifs(data = df, id = c("group", "person"))
+
+# Only feed-forward loops
+m <- extract_motifs(Mod, include_types = "030T")
+
+# Triangles but exclude cliques
+m <- extract_motifs(Mod, pattern = "triangle", exclude_types = "300")
 }
 
 }

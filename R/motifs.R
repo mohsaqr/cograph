@@ -1382,23 +1382,41 @@ print.cograph_motif_analysis <- function(x, n = 20, ...) {
 
 #' Plot Motif Analysis Results
 #'
-#' Create visualizations for motif analysis results including bar plots
-#' of top triads and type distributions.
+#' Create visualizations for motif analysis results including network diagrams
+#' of triads, bar plots of type distributions, and significance plots.
 #'
 #' @param x A `cograph_motif_analysis` object from [extract_motifs()]
-#' @param type Plot type: "triads" (default), "types", or "significance"
+#' @param type Plot type: "triads" (default network diagrams), "types" (bar plot),
+#'   "significance" (z-score plot), or "patterns" (abstract MAN patterns)
 #' @param n Number of triads to show. Default 20.
-#' @param colors Colors for over/under-represented. Default blue/red.
-#' @param ... Additional arguments passed to plotting functions
+#' @param colors Colors for visualization. Default blue/red.
+#' @param res Resolution for scaling (not used with grid graphics). Default 72.
+#' @param node_size Size of nodes as proportion of cell (0-1). Default 0.12.
+#' @param label_size Font size for node labels (3-letter abbreviations). Default 5.
+#' @param title_size Font size for motif type title (e.g., "120C"). Default 7.
+#' @param stats_size Font size for statistics text (n, z, p). Default 5.
+#' @param ncol Number of columns in the plot grid. Default 5.
+#' @param legend Logical, show abbreviation legend at bottom? Default TRUE.
+#' @param ... Additional arguments (unused)
 #'
-#' @return A ggplot2 object (invisibly)
+#' @return Invisibly returns NULL for triad plots, or a ggplot2 object for other types.
 #'
 #' @examples
 #' \dontrun{
 #' library(tna)
 #' Mod <- tna(group_regulation)
 #' m <- extract_motifs(Mod, significance = TRUE)
+#'
+#' # Default network diagram
 #' plot(m)
+#'
+#' # Customize appearance
+#' plot(m, node_size = 0.15, label_size = 6, title_size = 9)
+#'
+#' # Change layout
+#' plot(m, ncol = 4, n = 12)
+#'
+#' # Other plot types
 #' plot(m, type = "types")
 #' plot(m, type = "significance")
 #' }
@@ -1406,7 +1424,10 @@ print.cograph_motif_analysis <- function(x, n = 20, ...) {
 #' @method plot cograph_motif_analysis
 #' @export
 plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "significance", "patterns"),
-                                         n = 20, colors = c("#2166AC", "#B2182B"), ...) {
+                                         n = 20, colors = c("#2166AC", "#B2182B"),
+                                         res = 72, node_size = 0.12, label_size = 5,
+                                         title_size = 7, stats_size = 5, ncol = 5,
+                                         legend = TRUE, ...) {
 
   type <- match.arg(type)
 
@@ -1480,7 +1501,9 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
 
   } else {
     # Default: network diagrams with actual node labels
-    .plot_triad_networks(x, n, colors, ...)
+    .plot_triad_networks(x, n, colors, res = res, node_size = node_size,
+                        label_size = label_size, title_size = title_size,
+                        stats_size = stats_size, ncol = ncol, legend = legend, ...)
     return(invisible(NULL))
   }
 
@@ -1534,9 +1557,12 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
   }
 }
 
-#' Plot individual triads as network diagrams
+#' Plot individual triads as network diagrams using grid graphics
 #' @noRd
-.plot_triad_networks <- function(x, n = 12, colors = c("#2166AC", "#B2182B"), ...) {
+.plot_triad_networks <- function(x, n = 12, colors = c("#2166AC", "#B2182B"),
+                                  res = 72, node_size = 0.12, label_size = 5,
+                                  title_size = 7, stats_size = 5, ncol = 5,
+                                  legend = TRUE, ...) {
   df <- utils::head(x$results, n)
 
   if (nrow(df) == 0) {
@@ -1545,11 +1571,10 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
   }
 
   n_plots <- nrow(df)
-  n_cols <- min(3, n_plots)
+  n_cols <- min(ncol, n_plots)
   n_rows <- ceiling(n_plots / n_cols)
 
-
-  # Triad patterns (MAN notation) - adjacency matrices
+  # Triad patterns (MAN notation)
   triad_patterns <- list(
     "003" = matrix(c(0L,0L,0L, 0L,0L,0L, 0L,0L,0L), 3, 3),
     "012" = matrix(c(0L,1L,0L, 0L,0L,0L, 0L,0L,0L), 3, 3),
@@ -1569,157 +1594,164 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
     "300" = matrix(c(0L,1L,1L, 1L,0L,1L, 1L,1L,0L), 3, 3)
   )
 
-  # Consistent maroon style for all types
   motif_color <- "#800020"
 
-  # Get device size and calculate adaptive scale
-  dev_size <- grDevices::dev.size("in")
-  space_per_plot <- min(dev_size[1] / n_cols, dev_size[2] / n_rows)
-  scale <- space_per_plot / 2.0  # 2.0 inch is ideal per subplot
-  scale <- max(0.6, min(scale, 1.4))  # Clamp between 0.6x and 1.4x
+  # Use grid graphics with clipped viewports
 
-  # Adaptive sizes - scale with device
-  node_radius <- 0.32 * scale
-  node_lwd <- 2 * scale
-  text_cex <- 0.65 * scale
-  edge_lwd <- 2 * scale
-  arrow_len <- 0.10 * scale
-  arrow_wid <- 0.06 * scale
-  title_cex <- 0.9 * scale
-  stats_cex <- 0.6 * scale
+  grid::grid.newpage()
 
-  # Set up plot (exclude read-only params that can't be restored)
-  old_par <- graphics::par(no.readonly = TRUE)
-  on.exit(graphics::par(old_par[!names(old_par) %in% c("cin", "cra", "csi", "cxy", "din", "pin")]))
+  # Proportional layout that fills the device
+  legend_height <- grid::unit(2, "lines")
 
-  graphics::par(mfrow = c(n_rows, n_cols), mar = c(0, 0, 2 * scale, 0),
-                oma = c(1.2, 0, 0, 0), bg = "white")
+  grid::pushViewport(grid::viewport(
+    layout = grid::grid.layout(
+      nrow = n_rows + 1,
+      ncol = n_cols,
+      heights = grid::unit.c(rep(grid::unit(1, "null"), n_rows), legend_height)
+    ),
+    clip = "on"
+  ))
 
-  # Node positions (triangle layout - scale with device)
-  tri_scale <- scale * 0.7
-  coords <- matrix(c(
-    0, 0.85 * tri_scale,                   # A (top)
-    -0.75 * tri_scale, -0.42 * tri_scale,  # B (bottom-left)
-    0.75 * tri_scale, -0.42 * tri_scale    # C (bottom-right)
-  ), ncol = 2, byrow = TRUE)
+  # Triangle coordinates (0-1 normalized within each cell)
+  # Taller triangles
+  tri_x <- c(0.5, 0.18, 0.82)
+  tri_y <- c(0.72, 0.28, 0.28)
 
   for (i in seq_len(n_plots)) {
+    row <- ((i - 1) %/% n_cols) + 1
+    col <- ((i - 1) %% n_cols) + 1
+
     triad_name <- df$triad[i]
     triad_type <- df$type[i]
     count <- df$observed[i]
 
-    # Parse node names
     nodes <- trimws(strsplit(triad_name, " - ")[[1]])
     if (length(nodes) != 3) nodes <- c("A", "B", "C")
-
-    # Abbreviate to 3 letters
-    nodes_short <- sapply(nodes, function(nm) {
-      substr(toupper(nm), 1, 3)
-    })
+    nodes_short <- sapply(nodes, function(nm) substr(toupper(nm), 1, 3))
 
     mat <- triad_patterns[[triad_type]]
     if (is.null(mat)) mat <- matrix(0L, 3, 3)
 
-    col <- motif_color
+    # Push viewport for this cell with clipping
+    grid::pushViewport(grid::viewport(layout.pos.row = row, layout.pos.col = col, clip = "on"))
 
-    # Set up plot area (scaled)
-    lim <- 1.0 * scale
-    graphics::plot(NULL, xlim = c(-lim, lim), ylim = c(-lim * 0.7, lim * 1.0),
-                   asp = 1, axes = FALSE, xlab = "", ylab = "")
+    # Title at top, stats at bottom
+    if (x$params$significance && "z" %in% names(df)) {
+      p_val <- df$p[i]
+      p_str <- if (p_val < 0.001) "p<.001" else sprintf("p=%.2f", p_val)
+      grid::grid.text(triad_type, x = 0.5, y = 0.94,
+                     gp = grid::gpar(fontsize = title_size, fontface = "bold", col = motif_color))
+      grid::grid.text(sprintf("n=%d z=%.1f %s", count, df$z[i], p_str),
+                     x = 0.5, y = 0.08,
+                     gp = grid::gpar(fontsize = stats_size, col = "#64748b"))
+    } else {
+      grid::grid.text(triad_type, x = 0.5, y = 0.94,
+                     gp = grid::gpar(fontsize = title_size, fontface = "bold", col = motif_color))
+      grid::grid.text(sprintf("n=%d", count), x = 0.5, y = 0.08,
+                     gp = grid::gpar(fontsize = stats_size, col = "#64748b"))
+    }
 
-    # Draw edges (arrows)
-    # Track drawn mutual edges to avoid duplicates
+    # Draw edges first
     drawn_mutual <- matrix(FALSE, 3, 3)
-
     for (from in 1:3) {
       for (to in 1:3) {
         if (from != to && mat[from, to] == 1L) {
           is_mutual <- mat[to, from] == 1L
-
-          # Skip if mutual edge already drawn
           if (is_mutual && drawn_mutual[from, to]) next
 
-          x0 <- coords[from, 1]
-          y0 <- coords[from, 2]
-          x1 <- coords[to, 1]
-          y1 <- coords[to, 2]
+          x0 <- tri_x[from]; y0 <- tri_y[from]
+          x1 <- tri_x[to]; y1 <- tri_y[to]
 
-          # Shorten edges to not overlap nodes
-          dx <- x1 - x0
-          dy <- y1 - y0
+          # Shorten edges for node radius
+          dx <- x1 - x0; dy <- y1 - y0
           len <- sqrt(dx^2 + dy^2)
-          shrink <- node_radius + 0.05  # Match node size
+          shrink <- 0.08
 
           x0_adj <- x0 + shrink * dx / len
           y0_adj <- y0 + shrink * dy / len
           x1_adj <- x1 - shrink * dx / len
           y1_adj <- y1 - shrink * dy / len
 
+          # Draw line
+          grid::grid.lines(x = c(x0_adj, x1_adj), y = c(y0_adj, y1_adj),
+                          gp = grid::gpar(col = motif_color, lwd = 2))
+
+          # Arrow at end
+          .grid_arrow(x1_adj, y1_adj, x0_adj, y0_adj, motif_color)
+
           if (is_mutual) {
-            # Single line with closed arrows on both ends
-            .draw_closed_arrow(x0_adj, y0_adj, x1_adj, y1_adj,
-                              col = col, lwd = edge_lwd, both = TRUE,
-                              head_length = arrow_len, head_width = arrow_wid)
-            # Mark both directions as drawn
+            # Arrow at start too
+            .grid_arrow(x0_adj, y0_adj, x1_adj, y1_adj, motif_color)
             drawn_mutual[from, to] <- TRUE
             drawn_mutual[to, from] <- TRUE
-          } else {
-            # Asymmetric: closed arrow only at end
-            .draw_closed_arrow(x0_adj, y0_adj, x1_adj, y1_adj,
-                              col = col, lwd = edge_lwd, both = FALSE,
-                              head_length = arrow_len, head_width = arrow_wid)
           }
         }
       }
     }
 
-    # Draw nodes (scaled circles)
+    # Draw nodes
+    node_r <- grid::unit(node_size, "npc")
     for (j in 1:3) {
-      graphics::symbols(coords[j, 1], coords[j, 2], circles = node_radius,
-                       add = TRUE, inches = FALSE,
-                       bg = "white", fg = col, lwd = node_lwd)
-      graphics::text(coords[j, 1], coords[j, 2], nodes_short[j],
-                    cex = text_cex, font = 2, col = col)
+      grid::grid.circle(x = tri_x[j], y = tri_y[j], r = node_r,
+                       gp = grid::gpar(fill = "white", col = motif_color, lwd = 2))
+      grid::grid.text(nodes_short[j], x = tri_x[j], y = tri_y[j],
+                     gp = grid::gpar(fontsize = label_size, fontface = "bold", col = motif_color))
     }
 
-    # Title: type at top, stats below it, then diagram
-    if (x$params$significance && "z" %in% names(df)) {
-      p_val <- df$p[i]
-      p_str <- if (p_val < 0.001) "p<.001" else sprintf("p=%.2f", p_val)
-      graphics::mtext(triad_type, side = 3, line = 1.1 * scale, cex = title_cex, font = 2, col = col)
-      graphics::mtext(sprintf("n=%d  z=%.1f  %s", count, df$z[i], p_str),
-                     side = 3, line = 0.2 * scale, cex = stats_cex, col = "#64748b")
-    } else {
-      graphics::mtext(triad_type, side = 3, line = 0.8 * scale, cex = title_cex, font = 2, col = col)
-      graphics::mtext(sprintf("n=%d", count), side = 3, line = 0, cex = stats_cex, col = "#64748b")
+    grid::popViewport()
+  }
+
+  # Legend (if enabled and nodes <= 20)
+  if (legend) {
+    all_nodes <- unique(unlist(lapply(df$triad, function(tr) {
+      trimws(strsplit(tr, " - ")[[1]])
+    })))
+
+    if (length(all_nodes) <= 20 && length(all_nodes) > 0) {
+      grid::pushViewport(grid::viewport(layout.pos.row = n_rows + 1, layout.pos.col = 1:n_cols))
+      abbrev_map <- sapply(all_nodes, function(nm) {
+        paste0(substr(toupper(nm), 1, 3), "=", nm)
+      })
+      legend_text <- paste(sort(abbrev_map), collapse = "  ")
+      grid::grid.text(legend_text, x = 0.5, y = 0.5,
+                     gp = grid::gpar(fontsize = 8, col = "#64748b"))
+      grid::popViewport()
     }
   }
 
-  # Build legend mapping abbreviations to full names
-  # Collect all unique node names from displayed triads
-  all_nodes <- unique(unlist(lapply(df$triad, function(tr) {
-    trimws(strsplit(tr, " - ")[[1]])
-  })))
-
-  # Only show legend if less than 20 unique nodes
-  if (length(all_nodes) <= 20 && length(all_nodes) > 0) {
-    # Create abbreviation mapping
-    abbrev_map <- sapply(all_nodes, function(nm) {
-      paste0(substr(toupper(nm), 1, 3), "=", nm)
-    })
-    abbrev_map <- sort(abbrev_map)
-
-    # Format legend text in multiple columns
-    legend_text <- paste(abbrev_map, collapse = "  ")
-
-    # Add legend at bottom
-    graphics::mtext(
-      legend_text,
-      side = 1, outer = TRUE, line = 0.5, cex = 0.7, font = 1, col = "#64748b"
-    )
-  }
-
+  grid::popViewport()  # layout viewport
   invisible(NULL)
+}
+
+#' Draw arrow head using grid
+#' @noRd
+.grid_arrow <- function(tip_x, tip_y, base_x, base_y, col) {
+  dx <- tip_x - base_x
+  dy <- tip_y - base_y
+  len <- sqrt(dx^2 + dy^2)
+  if (len == 0) return()
+
+  # Unit vectors
+  ux <- dx / len
+  uy <- dy / len
+
+  # Arrow head size
+  head_len <- 0.04
+  head_wid <- 0.025
+
+  # Arrow points
+  ax <- tip_x - head_len * ux
+  ay <- tip_y - head_len * uy
+
+  # Perpendicular
+  px <- -uy
+  py <- ux
+
+  arrow_x <- c(tip_x, ax + head_wid * px, ax - head_wid * px)
+  arrow_y <- c(tip_y, ay + head_wid * py, ay - head_wid * py)
+
+  grid::grid.polygon(x = arrow_x, y = arrow_y,
+                    gp = grid::gpar(fill = col, col = col))
 }
 
 #' @noRd

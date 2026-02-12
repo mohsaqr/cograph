@@ -6,36 +6,68 @@
 \usage{
 \method{plot}{cograph_motif_analysis}(
   x,
-  type = c("triads", "types", "significance"),
+  type = c("triads", "types", "significance", "patterns"),
   n = 20,
   colors = c("#2166AC", "#B2182B"),
+  res = 72,
+  node_size = 0.12,
+  label_size = 5,
+  title_size = 7,
+  stats_size = 5,
+  ncol = 5,
+  legend = TRUE,
   ...
 )
 }
 \arguments{
 \item{x}{A \code{cograph_motif_analysis} object from \code{\link[=extract_motifs]{extract_motifs()}}}
 
-\item{type}{Plot type: "triads" (default), "types", or "significance"}
+\item{type}{Plot type: "triads" (default network diagrams), "types" (bar plot),
+"significance" (z-score plot), or "patterns" (abstract MAN patterns)}
 
 \item{n}{Number of triads to show. Default 20.}
 
-\item{colors}{Colors for over/under-represented. Default blue/red.}
+\item{colors}{Colors for visualization. Default blue/red.}
 
-\item{...}{Additional arguments passed to plotting functions}
+\item{res}{Resolution for scaling (not used with grid graphics). Default 72.}
+
+\item{node_size}{Size of nodes as proportion of cell (0-1). Default 0.12.}
+
+\item{label_size}{Font size for node labels (3-letter abbreviations). Default 5.}
+
+\item{title_size}{Font size for motif type title (e.g., "120C"). Default 7.}
+
+\item{stats_size}{Font size for statistics text (n, z, p). Default 5.}
+
+\item{ncol}{Number of columns in the plot grid. Default 5.}
+
+\item{legend}{Logical, show abbreviation legend at bottom? Default TRUE.}
+
+\item{...}{Additional arguments (unused)}
 }
 \value{
-A ggplot2 object (invisibly)
+Invisibly returns NULL for triad plots, or a ggplot2 object for other types.
 }
 \description{
-Create visualizations for motif analysis results including bar plots
-of top triads and type distributions.
+Create visualizations for motif analysis results including network diagrams
+of triads, bar plots of type distributions, and significance plots.
 }
 \examples{
 \dontrun{
 library(tna)
 Mod <- tna(group_regulation)
 m <- extract_motifs(Mod, significance = TRUE)
+
+# Default network diagram
 plot(m)
+
+# Customize appearance
+plot(m, node_size = 0.15, label_size = 6, title_size = 9)
+
+# Change layout
+plot(m, ncol = 4, n = 12)
+
+# Other plot types
 plot(m, type = "types")
 plot(m, type = "significance")
 }

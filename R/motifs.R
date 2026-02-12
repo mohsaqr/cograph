@@ -1351,47 +1351,213 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
       )
 
   } else if (type == "patterns") {
-    # Visual motif pattern diagrams with counts
+    # Visual motif pattern diagrams (abstract MAN types)
     .plot_motif_patterns(x, n, colors, ...)
     return(invisible(NULL))
 
   } else {
-    # Default: top triads bar plot
-    df <- utils::head(x$results, n)
-    df$triad <- factor(df$triad, levels = rev(df$triad))
-
-    # Color by type
-    type_colors <- c(
-      "021C" = "#E41A1C", "102" = "#377EB8", "030C" = "#4DAF4A",
-      "030T" = "#984EA3", "111D" = "#FF7F00", "111U" = "#FFFF33",
-      "021U" = "#A65628", "021D" = "#F781BF", "201" = "#999999",
-      "120C" = "#66C2A5", "120D" = "#FC8D62", "120U" = "#8DA0CB",
-      "210" = "#E78AC3", "300" = "#A6D854"
-    )
-
-    p <- ggplot2::ggplot(df, ggplot2::aes(x = triad, y = observed, fill = type)) +
-      ggplot2::geom_col(width = 0.7) +
-      ggplot2::geom_text(ggplot2::aes(label = observed), hjust = -0.2, size = 3) +
-      ggplot2::scale_fill_manual(values = type_colors, name = "Type") +
-      ggplot2::coord_flip() +
-      ggplot2::labs(
-        title = sprintf("Top %d Motifs", n),
-        subtitle = sprintf("Pattern: %s | %d individuals",
-                          x$params$pattern, x$params$n_individuals),
-        x = NULL,
-        y = "Number of People"
-      ) +
-      ggplot2::theme_minimal(base_size = 11) +
-      ggplot2::theme(
-        panel.grid.major.y = ggplot2::element_blank(),
-        legend.position = "right",
-        plot.title = ggplot2::element_text(face = "bold")
-      ) +
-      ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult = c(0, 0.15)))
+    # Default: network diagrams with actual node labels
+    .plot_triad_networks(x, n, colors, ...)
+    return(invisible(NULL))
   }
 
   print(p)
   invisible(p)
+}
+
+#' Draw arrow with closed/filled head
+#' @noRd
+.draw_closed_arrow <- function(x0, y0, x1, y1, col = "#7c3aed", lwd = 2.5,
+                                both = FALSE, head_length = 0.12, head_width = 0.08) {
+  # Draw the line
+  graphics::segments(x0, y0, x1, y1, col = col, lwd = lwd)
+
+  # Calculate direction
+
+  dx <- x1 - x0
+  dy <- y1 - y0
+  len <- sqrt(dx^2 + dy^2)
+  if (len == 0) return()
+
+  # Unit vectors
+  ux <- dx / len
+  uy <- dy / len
+
+  # Perpendicular
+  px <- -uy
+  py <- ux
+
+  # Draw arrow head at end (x1, y1)
+  tip_x <- x1
+  tip_y <- y1
+  base_x <- x1 - head_length * ux
+  base_y <- y1 - head_length * uy
+
+  arrow_x <- c(tip_x, base_x + head_width * px, base_x - head_width * px)
+  arrow_y <- c(tip_y, base_y + head_width * py, base_y - head_width * py)
+  graphics::polygon(arrow_x, arrow_y, col = col, border = col)
+
+  # Draw arrow head at start if mutual
+
+  if (both) {
+    tip_x <- x0
+    tip_y <- y0
+    base_x <- x0 + head_length * ux
+    base_y <- y0 + head_length * uy
+
+    arrow_x <- c(tip_x, base_x + head_width * px, base_x - head_width * px)
+    arrow_y <- c(tip_y, base_y + head_width * py, base_y - head_width * py)
+    graphics::polygon(arrow_x, arrow_y, col = col, border = col)
+  }
+}
+
+#' Plot individual triads as network diagrams
+#' @noRd
+.plot_triad_networks <- function(x, n = 12, colors = c("#2166AC", "#B2182B"), ...) {
+  df <- utils::head(x$results, n)
+
+  if (nrow(df) == 0) {
+    message("No triads to plot")
+    return(invisible(NULL))
+  }
+
+  # Triad patterns (MAN notation) - adjacency matrices
+  triad_patterns <- list(
+    "003" = matrix(c(0L,0L,0L, 0L,0L,0L, 0L,0L,0L), 3, 3),
+    "012" = matrix(c(0L,1L,0L, 0L,0L,0L, 0L,0L,0L), 3, 3),
+    "102" = matrix(c(0L,1L,0L, 1L,0L,0L, 0L,0L,0L), 3, 3),
+    "021D" = matrix(c(0L,1L,1L, 0L,0L,0L, 0L,0L,0L), 3, 3),
+    "021U" = matrix(c(0L,0L,0L, 1L,0L,0L, 1L,0L,0L), 3, 3),
+    "021C" = matrix(c(0L,1L,0L, 0L,0L,1L, 0L,0L,0L), 3, 3),
+    "111D" = matrix(c(0L,1L,1L, 1L,0L,0L, 0L,0L,0L), 3, 3),
+    "111U" = matrix(c(0L,1L,0L, 1L,0L,0L, 1L,0L,0L), 3, 3),
+    "030T" = matrix(c(0L,1L,1L, 0L,0L,1L, 0L,0L,0L), 3, 3),
+    "030C" = matrix(c(0L,1L,0L, 0L,0L,1L, 1L,0L,0L), 3, 3),
+    "201" = matrix(c(0L,1L,1L, 1L,0L,0L, 1L,0L,0L), 3, 3),
+    "120D" = matrix(c(0L,1L,1L, 1L,0L,0L, 0L,1L,0L), 3, 3),
+    "120U" = matrix(c(0L,1L,0L, 0L,0L,1L, 1L,1L,0L), 3, 3),
+    "120C" = matrix(c(0L,1L,0L, 1L,0L,1L, 1L,0L,0L), 3, 3),
+    "210" = matrix(c(0L,1L,1L, 1L,0L,1L, 0L,0L,0L), 3, 3),
+    "300" = matrix(c(0L,1L,1L, 1L,0L,1L, 1L,1L,0L), 3, 3)
+  )
+
+  # Consistent purple style for all types
+  motif_color <- "#7c3aed"
+
+  n_plots <- nrow(df)
+  n_cols <- min(4, n_plots)
+  n_rows <- ceiling(n_plots / n_cols)
+
+  # Set up plot
+  old_par <- graphics::par(no.readonly = TRUE)
+  on.exit(graphics::par(old_par))
+
+  graphics::par(mfrow = c(n_rows, n_cols), mar = c(0.5, 0.5, 2.5, 0.5),
+                oma = c(2, 0, 0, 0), bg = "white")
+
+  # Node positions (triangle layout)
+  coords <- matrix(c(
+    0, 1,         # A (top)
+    -0.866, -0.5, # B (bottom-left)
+    0.866, -0.5   # C (bottom-right)
+  ), ncol = 2, byrow = TRUE)
+
+  for (i in seq_len(n_plots)) {
+    triad_name <- df$triad[i]
+    triad_type <- df$type[i]
+    count <- df$observed[i]
+
+    # Parse node names
+    nodes <- trimws(strsplit(triad_name, " - ")[[1]])
+    if (length(nodes) != 3) nodes <- c("A", "B", "C")
+
+    # Abbreviate long names
+    nodes_short <- sapply(nodes, function(nm) {
+      if (nchar(nm) > 8) {
+        paste0(substr(nm, 1, 7), ".")
+      } else {
+        nm
+      }
+    })
+
+    mat <- triad_patterns[[triad_type]]
+    if (is.null(mat)) mat <- matrix(0L, 3, 3)
+
+    col <- motif_color
+
+    # Set up plot area
+    graphics::plot(NULL, xlim = c(-1.5, 1.5), ylim = c(-1.1, 1.5),
+                   asp = 1, axes = FALSE, xlab = "", ylab = "")
+
+    # Draw edges (arrows)
+    # Track drawn mutual edges to avoid duplicates
+    drawn_mutual <- matrix(FALSE, 3, 3)
+
+    for (from in 1:3) {
+      for (to in 1:3) {
+        if (from != to && mat[from, to] == 1L) {
+          is_mutual <- mat[to, from] == 1L
+
+          # Skip if mutual edge already drawn
+          if (is_mutual && drawn_mutual[from, to]) next
+
+          x0 <- coords[from, 1]
+          y0 <- coords[from, 2]
+          x1 <- coords[to, 1]
+          y1 <- coords[to, 2]
+
+          # Shorten edges to not overlap nodes
+          dx <- x1 - x0
+          dy <- y1 - y0
+          len <- sqrt(dx^2 + dy^2)
+          shrink <- 0.35  # Larger shrink = shorter edges
+
+          x0_adj <- x0 + shrink * dx / len
+          y0_adj <- y0 + shrink * dy / len
+          x1_adj <- x1 - shrink * dx / len
+          y1_adj <- y1 - shrink * dy / len
+
+          if (is_mutual) {
+            # Single line with closed arrows on both ends
+            .draw_closed_arrow(x0_adj, y0_adj, x1_adj, y1_adj,
+                              col = col, lwd = 2.5, both = TRUE)
+            # Mark both directions as drawn
+            drawn_mutual[from, to] <- TRUE
+            drawn_mutual[to, from] <- TRUE
+          } else {
+            # Asymmetric: closed arrow only at end
+            .draw_closed_arrow(x0_adj, y0_adj, x1_adj, y1_adj,
+                              col = col, lwd = 2.5, both = FALSE)
+          }
+        }
+      }
+    }
+
+    # Draw nodes (bigger circles)
+    for (j in 1:3) {
+      graphics::symbols(coords[j, 1], coords[j, 2], circles = 0.32,
+                       add = TRUE, inches = FALSE,
+                       bg = "white", fg = col, lwd = 2.5)
+      graphics::text(coords[j, 1], coords[j, 2], nodes_short[j],
+                    cex = 0.65, font = 2, col = col)
+    }
+
+    # Title with count
+    if (x$params$significance && "z" %in% names(df)) {
+      title_text <- sprintf("%s (z=%.1f)", triad_type, df$z[i])
+    } else {
+      title_text <- sprintf("%s (n=%d)", triad_type, count)
+    }
+    graphics::title(main = title_text, line = 1.5, cex.main = 1.0, font.main = 2, col.main = col)
+  }
+
+  # Add overall caption at bottom
+  graphics::mtext(
+    sprintf("Top %d Motifs | %d individuals", n_plots, x$params$n_individuals),
+    side = 1, outer = TRUE, line = -1, cex = 1.0, font = 1, col = "#64748b"
+  )
+
+  invisible(NULL)
 }
 
 #' @noRd

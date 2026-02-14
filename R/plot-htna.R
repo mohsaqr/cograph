@@ -469,9 +469,15 @@ plot_htna <- function(
     nodes_df <- nodes
   }
 
-  # Resolve display labels: priority is labels > label
-  display_labels <- if (!is.null(nodes_df) && "labels" %in% names(nodes_df)) {
-    nodes_df$labels
+  # Resolve display labels: priority is labels > label > first column
+  display_labels <- if (!is.null(nodes_df)) {
+    if ("labels" %in% names(nodes_df)) {
+      nodes_df$labels
+    } else if ("label" %in% names(nodes_df)) {
+      nodes_df$label
+    } else {
+      nodes_df[[1]]  # First column as fallback
+    }
   } else {
     lab  # Fall back to identifiers
   }
@@ -506,9 +512,8 @@ plot_htna <- function(
     dots
   )
 
-  # Add custom labels if they differ from identifiers
-  has_labels_col <- !is.null(nodes_df) && "labels" %in% names(nodes_df)
-  if (has_labels_col || !is.null(label_abbrev)) {
+  # Add custom labels if nodes data exists or abbreviation requested
+  if (!is.null(nodes_df) || !is.null(label_abbrev)) {
     tplot_args$labels <- final_labels
   }
 

@@ -10,7 +10,7 @@ NULL
 #' all nodes repel each other.
 #'
 #' @param network A CographNetwork object.
-#' @param iterations Number of iterations (default: 500).
+#' @param iterations Number of iterations (default: 200).
 #' @param cooling Rate of temperature decrease for exponential cooling (default: 0.95).
 #' @param repulsion Repulsion constant (default: 1.5).
 #' @param attraction Attraction constant (default: 1).
@@ -47,7 +47,7 @@ NULL
 #'
 #' # With circular initialization and VCF cooling
 #' coords4 <- layout_spring(net, init = "circular", cooling_mode = "vcf", seed = 42)
-layout_spring <- function(network, iterations = 500, cooling = 0.95,
+layout_spring <- function(network, iterations = 200, cooling = 0.95,
                           repulsion = 1.5, attraction = 1, seed = NULL,
                           initial = NULL, max_displacement = NULL,
                           anchor_strength = 0, area = 1.5, gravity = 0,
@@ -140,23 +140,38 @@ layout_spring <- function(network, iterations = 500, cooling = 0.95,
     disp[, 1] <- rowSums(dx_mat * force_mat / dist_mat)
     disp[, 2] <- rowSums(dy_mat * force_mat / dist_mat)
 
-    # Calculate attractive forces along edges
-    for (e in seq_len(nrow(edges))) {
-      i <- edges$from[e]
-      j <- edges$to[e]
+    # Calculate attractive forces along edges (FULLY VECTORIZED)
+    from_idx <- edges$from
+    to_idx <- edges$to
+    weights <- if (!is.null(edges$weight)) abs(edges$weight) else rep(1, nrow(edges))
 
-      delta <- pos[i, ] - pos[j, ]
-      dist <- sqrt(sum(delta^2))
-      if (dist < 0.001) dist <- 0.001
+    # Delta vectors for all edges at once
+    delta_x <- pos[from_idx, 1] - pos[to_idx, 1]
+    delta_y <- pos[from_idx, 2] - pos[to_idx, 2]
+    edge_dist <- sqrt(delta_x^2 + delta_y^2)
+    edge_dist[edge_dist < 0.001] <- 0.001
 
-      # Attractive force (weighted)
-      weight <- if (!is.null(edges$weight)) abs(edges$weight[e]) else 1
-      force <- attraction * dist^2 / k * weight
-      disp_vec <- (delta / dist) * force
+    # Force magnitude: attraction * dist^2 / k * weight
+    force_mag <- attraction * edge_dist^2 / k * weights
 
-      disp[i, ] <- disp[i, ] - disp_vec
-      disp[j, ] <- disp[j, ] + disp_vec
-    }
+    # Displacement vectors per edge
+    disp_x <- (delta_x / edge_dist) * force_mag
+    disp_y <- (delta_y / edge_dist) * force_mag
+
+    # Aggregate using rowsum (fast C implementation)
+    # 'from' nodes: subtract displacement
+    from_agg_x <- rowsum(-disp_x, from_idx, reorder = FALSE)
+    from_agg_y <- rowsum(-disp_y, from_idx, reorder = FALSE)
+    from_nodes <- as.integer(rownames(from_agg_x))
+    disp[from_nodes, 1] <- disp[from_nodes, 1] + from_agg_x[, 1]
+    disp[from_nodes, 2] <- disp[from_nodes, 2] + from_agg_y[, 1]
+
+    # 'to' nodes: add displacement
+    to_agg_x <- rowsum(disp_x, to_idx, reorder = FALSE)
+    to_agg_y <- rowsum(disp_y, to_idx, reorder = FALSE)
+    to_nodes <- as.integer(rownames(to_agg_x))
+    disp[to_nodes, 1] <- disp[to_nodes, 1] + to_agg_x[, 1]
+    disp[to_nodes, 2] <- disp[to_nodes, 2] + to_agg_y[, 1]
 
     # Apply gravity force (pulls nodes toward center)
     if (gravity > 0) {
@@ -200,6 +215,8 @@ layout_spring <- function(network, iterations = 500, cooling = 0.95,
   }
 
   # Apply max_displacement constraint (for animations)
+  # When max_displacement is set with initial layout, skip normalization
+  # to preserve relative positions for smooth animations
   if (!is.null(max_displacement) && !is.null(anchor_pos)) {
     for (i in seq_len(n)) {
       delta <- pos[i, ] - anchor_pos[i, ]
@@ -209,6 +226,8 @@ layout_spring <- function(network, iterations = 500, cooling = 0.95,
         pos[i, ] <- anchor_pos[i, ] + delta * (max_displacement / dist)
       }
     }
+    # Return without normalization - positions stay relative to initial
+    return(data.frame(x = pos[, 1], y = pos[, 2]))
   }
 
   # Normalize to [0.05, 0.95] while PRESERVING ASPECT RATIO

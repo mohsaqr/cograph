@@ -124,7 +124,8 @@ compute_layout_for_cograph <- function(net, layout = "spring", seed = 42, ...) {
 #'   "random", "star", "bipartite", or "custom". Default NULL (no layout computed).
 #'   Set to a layout name to compute immediately, or use sn_layout() later.
 #' @param directed Logical. Force directed interpretation. NULL for auto-detect.
-#' @param node_labels Character vector of node labels.
+#' @param nodes Node metadata. Can be NULL or a data frame with node attributes.
+#'   If data frame has a `label` or `labels` column, those are used for display.
 #' @param seed Random seed for deterministic layouts. Default 42. Set NULL for random.
 #' @param ... Additional arguments passed to the layout function.
 #'
@@ -177,7 +178,7 @@ compute_layout_for_cograph <- function(net, layout = "spring", seed = 42, ...) {
 #' cograph(g) |> splot()
 #' }
 cograph <- function(input, layout = NULL, directed = NULL,
-                   node_labels = NULL, seed = 42, ...) {
+                   nodes = NULL, seed = 42, ...) {
 
   # Parse input first to get TNA metadata if applicable
   parsed <- parse_input(input, directed = directed)
@@ -213,7 +214,7 @@ cograph <- function(input, layout = NULL, directed = NULL,
   network <- CographNetwork$new(
     input = input,
     directed = directed,
-    node_labels = node_labels
+    nodes = nodes
   )
 
   # Get nodes (without layout yet)

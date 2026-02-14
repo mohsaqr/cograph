@@ -20,9 +20,10 @@ CographNetwork <- R6::R6Class(
     #' @description Create a new CographNetwork object.
     #' @param input Network input (matrix, edge list, or igraph object).
     #' @param directed Logical. Force directed interpretation. NULL for auto-detect.
-    #' @param node_labels Character vector of node labels.
+    #' @param nodes Node metadata. Can be NULL or a data frame with node attributes.
+    #'   If data frame has a `label` or `labels` column, those are used for display.
     #' @return A new CographNetwork object.
-    initialize = function(input = NULL, directed = NULL, node_labels = NULL) {
+    initialize = function(input = NULL, directed = NULL, nodes = NULL) {
       if (!is.null(input)) {
         parsed <- parse_input(input, directed = directed)
         private$.nodes <- parsed$nodes
@@ -30,12 +31,23 @@ CographNetwork <- R6::R6Class(
         private$.directed <- parsed$directed
         private$.weights <- parsed$weights
 
-        # Set node labels
-        if (!is.null(node_labels)) {
-          if (length(node_labels) != nrow(private$.nodes)) {
-            stop("node_labels length must match number of nodes", call. = FALSE)
+        # Merge nodes metadata if provided as data frame
+        if (is.data.frame(nodes)) {
+          # Match by label if possible
+          if ("label" %in% names(nodes) && "label" %in% names(private$.nodes)) {
+            # Merge by label
+            for (col in setdiff(names(nodes), "label")) {
+              idx <- match(private$.nodes$label, nodes$label)
+              private$.nodes[[col]] <- nodes[[col]][idx]
+            }
+          } else {
+            # Assume same order
+            if (nrow(nodes) == nrow(private$.nodes)) {
+              for (col in names(nodes)) {
+                private$.nodes[[col]] <- nodes[[col]]
+              }
+            }
           }
-          private$.nodes$label <- node_labels
         }
       }
 

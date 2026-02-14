@@ -3,8 +3,9 @@
 #' Two-layer visualization: bottom layer shows detailed multi-cluster network,
 #' top layer shows summary network with one node per cluster.
 #'
-#' @param x Weight matrix or tna object
-#' @param cluster_list Named list of node vectors per cluster
+#' @param x Weight matrix, tna object, or cograph_network
+#' @param cluster_list Named list of node vectors per cluster, column name
+#'   string, or NULL for auto-detection
 #' @param layer_spacing Vertical distance between layers. Default 4.
 #' @param spacing Cluster spacing. Default 3.
 #' @param shape_size Cluster shell size. Default 1.2.
@@ -19,7 +20,7 @@
 #' @export
 plot_mcml <- function(
     x,
-    cluster_list,
+    cluster_list = NULL,
     layer_spacing = NULL,
     spacing = 3,
     shape_size = 1.2,
@@ -33,14 +34,45 @@ plot_mcml <- function(
 ) {
   aggregation <- match.arg(aggregation)
 
-  # Extract weights
-  if (inherits(x, "tna")) {
+  # Extract weights and labels based on input type
+  nodes_df <- NULL
+  if (inherits(x, "cograph_network")) {
+    weights <- to_matrix(x)
+    lab <- x$nodes$label
+    nodes_df <- x$nodes
+  } else if (inherits(x, "tna")) {
     weights <- x$weights
     lab <- x$labels
   } else {
     weights <- x
     lab <- colnames(x)
     if (is.null(lab)) lab <- seq_len(ncol(x))
+  }
+
+
+  # Handle cluster_list: can be list, column name string, or NULL (auto-detect)
+  if (is.character(cluster_list) && length(cluster_list) == 1 &&
+      !is.null(nodes_df) && cluster_list %in% names(nodes_df)) {
+    # Column name provided
+    cluster_col <- nodes_df[[cluster_list]]
+    cluster_list <- split(lab, cluster_col)
+    message("Using '", cluster_list, "' column for clusters")
+  } else if (is.null(cluster_list) && !is.null(nodes_df)) {
+    # Auto-detect from common column names
+    cluster_cols <- c("clusters", "cluster", "groups", "group", "community", "module")
+    for (col in cluster_cols) {
+      if (col %in% names(nodes_df)) {
+        cluster_col <- nodes_df[[col]]
+        cluster_list <- split(lab, cluster_col)
+        message("Using '", col, "' column for clusters")
+        break
+      }
+    }
+  }
+
+  if (is.null(cluster_list)) {
+    stop("cluster_list required: provide a list, column name, or add a ",
+         "'clusters'/'groups' column to nodes")
   }
 
   n_clusters <- length(cluster_list)
@@ -120,7 +152,7 @@ plot_mcml <- function(
   ylim <- range(c(by, ty)) + c(-shape_size * compress - pad, shape_size + pad)
 
   old_par <- graphics::par(mar = c(0.2, 0.2, 0.2, 0.2))
-  on.exit(graphics::par(old_par))
+  on.exit(graphics::par(old_par), add = TRUE)
 
   graphics::plot.new()
   graphics::plot.window(xlim = xlim, ylim = ylim, asp = 1)

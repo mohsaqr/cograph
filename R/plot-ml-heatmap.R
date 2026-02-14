@@ -3,9 +3,10 @@
 #' Visualizes multiple network layers as heatmaps on tilted 3D-perspective planes,
 #' similar to the plot_mlna network visualization style.
 #'
-#' @param x A list of matrices (one per layer), a group_tna object, or a single
-#'   matrix with layer_list specified.
-#' @param layer_list Optional list defining layers (for single matrix input).
+#' @param x A list of matrices (one per layer), a group_tna object,
+#'   cograph_network, or a single matrix with layer_list specified.
+#' @param layer_list Optional list defining layers, column name string,
+#'   or NULL for auto-detection from cograph_network nodes.
 #' @param colors Color palette: "viridis", "heat", "blues", "reds", "inferno",
 #'   "plasma", or a vector of colors. Default "viridis".
 #' @param layer_spacing Vertical spacing between layers. Default 2.5.
@@ -186,6 +187,41 @@ plot_ml_heatmap <- function(
     return(lapply(x, .extract_weights))
   }
 
+  # Handle cograph_network
+  if (inherits(x, "cograph_network")) {
+    mat <- to_matrix(x)
+    nodes_df <- x$nodes
+    lab <- nodes_df$label
+
+    # Handle layer_list: column name string or auto-detect
+    if (is.character(layer_list) && length(layer_list) == 1 &&
+        layer_list %in% names(nodes_df)) {
+      layer_col <- nodes_df[[layer_list]]
+      layer_list <- split(lab, layer_col)
+      message("Using '", layer_list, "' column for layers")
+    } else if (is.null(layer_list)) {
+      # Auto-detect from common column names
+      layer_cols <- c("layers", "layer", "level", "levels")
+      for (col in layer_cols) {
+        if (col %in% names(nodes_df)) {
+          layer_col <- nodes_df[[col]]
+          layer_list <- split(lab, layer_col)
+          message("Using '", col, "' column for layers")
+          break
+        }
+      }
+    }
+
+    if (is.null(layer_list)) {
+      stop("layer_list required: provide a list, column name, or add a ",
+           "'layers'/'level' column to nodes")
+    }
+
+    return(lapply(layer_list, function(nodes) {
+      mat[nodes, nodes, drop = FALSE]
+    }))
+  }
+
   if (is.matrix(x) && !is.null(layer_list)) {
     # Single matrix with layer_list - extract submatrices
     return(lapply(layer_list, function(nodes) {
@@ -193,7 +229,7 @@ plot_ml_heatmap <- function(
     }))
   }
 
-  stop("x must be a list of matrices, a group_tna object, or a matrix with layer_list")
+  stop("x must be a list of matrices, a group_tna object, cograph_network, or a matrix with layer_list")
 }
 
 

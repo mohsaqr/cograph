@@ -469,17 +469,17 @@ plot_htna <- function(
     nodes_df <- nodes
   }
 
-  # Resolve display labels: priority is labels > label > first column
+  # Resolve display labels: priority is label > labels > identifier
   display_labels <- if (!is.null(nodes_df)) {
-    if ("labels" %in% names(nodes_df)) {
-      nodes_df$labels
-    } else if ("label" %in% names(nodes_df)) {
+    if ("label" %in% names(nodes_df)) {
       nodes_df$label
+    } else if ("labels" %in% names(nodes_df)) {
+      nodes_df$labels
     } else {
-      nodes_df[[1]]  # First column as fallback
+      lab  # Fall back to identifiers
     }
   } else {
-    lab  # Fall back to identifiers
+    lab
   }
 
   # Apply label abbreviation if requested

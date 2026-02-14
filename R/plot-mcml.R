@@ -81,12 +81,14 @@ plot_mcml <- function(
   }
 
 
-  # Resolve display labels: priority is label > labels > identifier
+
+  # Resolve display labels: priority is labels > label > identifier
+  # (labels column = display text, label column = identifier)
   display_labels <- if (!is.null(nodes_df)) {
-    if ("label" %in% names(nodes_df)) {
-      nodes_df$label
-    } else if ("labels" %in% names(nodes_df)) {
+    if ("labels" %in% names(nodes_df)) {
       nodes_df$labels
+    } else if ("label" %in% names(nodes_df)) {
+      nodes_df$label
     } else {
       lab  # Fall back to identifiers
     }

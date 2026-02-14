@@ -7,36 +7,55 @@
 \usage{
 cluster_summary(
   x,
-  clusters,
+  clusters = NULL,
   method = c("sum", "mean", "median", "max", "min", "density", "geomean"),
-  directed = TRUE
+  directed = TRUE,
+  as_tna = FALSE
 )
 
 csum(
   x,
-  clusters,
+  clusters = NULL,
   method = c("sum", "mean", "median", "max", "min", "density", "geomean"),
-  directed = TRUE
+  directed = TRUE,
+  as_tna = FALSE
 )
 }
 \arguments{
 \item{x}{Network input: numeric adjacency matrix, cograph_network, or tna object.
 For matrices, node names should be set as row/colnames.}
 
-\item{clusters}{Either a named list of node vectors, or a membership vector
-(integer vector where clusters[i] is the cluster of node i)}
+\item{clusters}{Cluster assignments. Can be:
+\itemize{
+\item NULL (default): Auto-detect from cograph_network's nodes (looks for
+'clusters', 'cluster', 'group', or 'groups' column)
+\item A vector: Cluster membership per node (same order as nodes)
+\item A named list: Group name -> node labels mapping
+}}
 
 \item{method}{Aggregation method: "sum", "mean", "median", "max", "min",
 "density", "geomean"}
 
 \item{directed}{Logical; if TRUE, treat network as directed}
+
+\item{as_tna}{Logical; if TRUE, return a tna-compatible object instead of
+cluster_summary. Default FALSE.}
 }
 \value{
 A \code{cluster_summary} object with:
-\item{between}{Matrix of between-cluster aggregated weights}
-\item{within}{Vector of within-cluster aggregated weights}
+\item{tna}{Row-normalized transition matrix (rows sum to 1)}
+\item{inits}{Initial state distribution (sums to 1)}
+\item{between_weights}{Matrix of between-cluster aggregated weights}
+\item{within_weights}{Vector of within-cluster aggregated weights}
 \item{cluster_sizes}{Number of nodes per cluster}
 \item{cluster_names}{Names of clusters}
+\item{method}{Aggregation method used}
+\item{directed}{Whether network was treated as directed}
+
+If \code{as_tna = TRUE}, returns a tna-compatible object with:
+\item{weights}{Transition matrix (same as tna above)}
+\item{inits}{Initial state distribution}
+\item{labels}{Cluster names}
 }
 \description{
 Computes aggregated edge weights between and within clusters.
@@ -48,19 +67,20 @@ mat <- matrix(runif(100), 10, 10)
 diag(mat) <- 0
 rownames(mat) <- colnames(mat) <- LETTERS[1:10]
 
-# Define clusters
+# Define clusters as vector
+clusters <- c(1, 1, 1, 2, 2, 2, 3, 3, 3, 3)
+result <- cluster_summary(mat, clusters)
+
+# Or as named list
 clusters <- list(
   G1 = c("A", "B", "C"),
   G2 = c("D", "E", "F"),
   G3 = c("G", "H", "I", "J")
 )
-
-# Compute summary
 result <- cluster_summary(mat, clusters)
-result$between  # Between-cluster matrix
-result$within   # Within-cluster values
 
-# Also works with cograph_network objects
+# With cograph_network - auto-detect clusters from nodes
 net <- as_cograph(mat)
-result <- cluster_summary(net, clusters)
+net$nodes$clusters <- c(1, 1, 1, 2, 2, 2, 3, 3, 3, 3)
+result <- cluster_summary(net)  # No clusters arg needed
 }

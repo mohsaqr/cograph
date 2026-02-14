@@ -71,11 +71,22 @@ wagg <- aggregate_weights
 #' @param method Aggregation method: "sum", "mean", "median", "max", "min",
 #'   "density", "geomean"
 #' @param directed Logical; if TRUE, treat network as directed
+#' @param as_tna Logical; if TRUE, return a tna-compatible object instead of
+#'   cluster_summary. Default FALSE.
 #' @return A `cluster_summary` object with:
-#'   \item{between}{Matrix of between-cluster aggregated weights}
-#'   \item{within}{Vector of within-cluster aggregated weights}
+#'   \item{tna}{Row-normalized transition matrix (rows sum to 1)}
+#'   \item{inits}{Initial state distribution (sums to 1)}
+#'   \item{between_weights}{Matrix of between-cluster aggregated weights}
+#'   \item{within_weights}{Vector of within-cluster aggregated weights}
 #'   \item{cluster_sizes}{Number of nodes per cluster}
 #'   \item{cluster_names}{Names of clusters}
+#'   \item{method}{Aggregation method used}
+#'   \item{directed}{Whether network was treated as directed}
+#'
+#'   If `as_tna = TRUE`, returns a tna-compatible object with:
+#'   \item{weights}{Transition matrix (same as tna above)}
+#'   \item{inits}{Initial state distribution}
+#'   \item{labels}{Cluster names}
 #' @export
 #' @examples
 #' # Create adjacency matrix
@@ -103,7 +114,8 @@ cluster_summary <- function(x,
                             clusters = NULL,
                             method = c("sum", "mean", "median", "max",
                                        "min", "density", "geomean"),
-                            directed = TRUE) {
+                            directed = TRUE,
+                            as_tna = FALSE) {
 
   method <- match.arg(method)
 
@@ -210,10 +222,26 @@ cluster_summary <- function(x,
     }
   }
 
-  structure(
+  # TNA transition matrix: row-normalized so each row sums to 1
+  row_sums <- rowSums(between)
+  tna <- between / ifelse(row_sums == 0, 1, row_sums)
+  dimnames(tna) <- list(cluster_names, cluster_names)
+
+  # Inits: initial state distribution (column sums normalized = incoming flow)
+  col_sums <- colSums(between)
+  inits <- col_sums / sum(col_sums)
+  if (!is.finite(sum(inits))) {
+    # Fallback to uniform if no edges
+    inits <- rep(1 / n_clusters, n_clusters)
+  }
+  names(inits) <- cluster_names
+
+  result <- structure(
     list(
-      between = between,
-      within = within,
+      tna = tna,
+      inits = inits,
+      between_weights = between,
+      within_weights = within,
       cluster_sizes = cluster_sizes,
       cluster_names = cluster_names,
       method = method,
@@ -221,11 +249,31 @@ cluster_summary <- function(x,
     ),
     class = "cluster_summary"
   )
+
+  if (as_tna) {
+    return(.cluster_summary_to_tna(result))
+  }
+
+  result
 }
 
 #' @rdname cluster_summary
 #' @export
 csum <- cluster_summary
+
+#' Convert cluster_summary to tna object
+#' @keywords internal
+.cluster_summary_to_tna <- function(x) {
+  structure(
+    list(
+      weights = x$tna,
+      inits = x$inits,
+      labels = x$cluster_names
+    ),
+    type = "relative",
+    class = "tna"
+  )
+}
 
 #' Normalize cluster specification to list format
 #' @keywords internal
@@ -1102,11 +1150,11 @@ verify_with_igraph <- function(x, clusters, method = "sum") {
 
   diag(igraph_result) <- 0
 
-  matches <- all.equal(our_result$between, igraph_result,
+  matches <- all.equal(our_result$between_weights, igraph_result,
                        check.attributes = FALSE, tolerance = 1e-10)
 
   list(
-    our_result = our_result$between,
+    our_result = our_result$between_weights,
     igraph_result = igraph_result,
     matches = isTRUE(matches),
     difference = if (!isTRUE(matches)) matches else NULL
@@ -1123,14 +1171,20 @@ verify_igraph <- verify_with_igraph
 
 #' @export
 print.cluster_summary <- function(x, ...) {
-  cat("Cluster Summary (method: ", x$method, ")\n", sep = "")
+  cat("Cluster Summary\n")
+  cat("---------------\n")
+  cat("Method:", x$method, "\n")
   cat("Clusters:", length(x$cluster_names), "\n")
   cat("Cluster sizes:", paste(x$cluster_sizes, collapse = ", "), "\n\n")
 
-  cat("Between-cluster matrix:\n")
-  print(round(x$between, 4))
-  cat("\nWithin-cluster values:\n")
-  print(round(x$within, 4))
+  cat("Inits:\n")
+  print(round(x$inits, 3))
+  cat("\nTNA (transition matrix):\n")
+  print(round(x$tna, 3))
+  cat("\nBetween-cluster weights:\n")
+  print(round(x$between_weights, 4))
+  cat("\nWithin-cluster weights:\n")
+  print(round(x$within_weights, 4))
 
   invisible(x)
 }
@@ -1267,7 +1321,7 @@ summarize_network <- function(x,
   cs <- cluster_summary(mat, cluster_list, method = method, directed = directed)
 
   # Create cograph_network from between-cluster matrix
-  result <- cograph(cs$between, directed = directed)
+  result <- cograph(cs$between_weights, directed = directed)
 
   # Add cluster sizes to nodes
   result$nodes$size <- cs$cluster_sizes[match(result$nodes$label, cs$cluster_names)]

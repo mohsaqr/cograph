@@ -56,25 +56,25 @@ test_that("cluster_summary works with list input", {
   result <- cluster_summary(mat, clusters_list, method = "sum")
 
   expect_s3_class(result, "cluster_summary")
-  expect_equal(dim(result$between), c(3, 3))
-  expect_equal(length(result$within), 3)
+  expect_equal(dim(result$between_weights), c(3, 3))
+  expect_equal(length(result$within_weights), 3)
   expect_equal(result$cluster_names, c("A", "B", "C"))
   expect_equal(unname(result$cluster_sizes), c(3, 3, 4))
 
   # Between should have 0 on diagonal
-  expect_equal(unname(diag(result$between)), c(0, 0, 0))
+  expect_equal(unname(diag(result$between_weights)), c(0, 0, 0))
 
   # Check a specific between value manually
   # A -> B = sum of mat[1:3, 4:6]
   expected_AB <- sum(mat[1:3, 4:6])
-  expect_equal(result$between["A", "B"], expected_AB, tolerance = 1e-10)
+  expect_equal(result$between_weights["A", "B"], expected_AB, tolerance = 1e-10)
 })
 
 test_that("cluster_summary works with vector input", {
   result <- cluster_summary(mat, clusters_vec, method = "sum")
 
   expect_s3_class(result, "cluster_summary")
-  expect_equal(dim(result$between), c(3, 3))
+  expect_equal(dim(result$between_weights), c(3, 3))
 })
 
 test_that("cluster_summary different methods", {
@@ -83,10 +83,10 @@ test_that("cluster_summary different methods", {
   result_max <- cluster_summary(mat, clusters_list, method = "max")
 
   # Mean should be smaller than sum (for non-single edges)
-  expect_true(all(result_mean$between <= result_sum$between))
+  expect_true(all(result_mean$between_weights <= result_sum$between_weights))
 
   # Max should be <= sum
-  expect_true(all(result_max$between <= result_sum$between))
+  expect_true(all(result_max$between_weights <= result_sum$between_weights))
 })
 
 # ==============================================================================
@@ -237,7 +237,7 @@ test_that("handles single-node clusters", {
   )
 
   result <- cluster_summary(mat, clusters_single, method = "sum")
-  expect_equal(unname(result$within["A"]), 0)  # Single node has no internal edges
+  expect_equal(unname(result$within_weights["A"]), 0)  # Single node has no internal edges
 })
 test_that("handles empty weights gracefully", {
   mat_sparse <- matrix(0, 5, 5)
@@ -248,7 +248,7 @@ test_that("handles empty weights gracefully", {
   result <- cluster_summary(mat_sparse, clusters, method = "mean")
 
   # Between A and B should be 0 (no edges)
-  expect_equal(result$between["A", "B"], 0)
+  expect_equal(result$between_weights["A", "B"], 0)
 })
 
 # ==============================================================================

@@ -20,7 +20,8 @@ csum(
 )
 }
 \arguments{
-\item{x}{Adjacency matrix (numeric matrix with node names as row/colnames)}
+\item{x}{Network input: numeric adjacency matrix, cograph_network, or tna object.
+For matrices, node names should be set as row/colnames.}
 
 \item{clusters}{Either a named list of node vectors, or a membership vector
 (integer vector where clusters[i] is the cluster of node i)}
@@ -58,4 +59,8 @@ clusters <- list(
 result <- cluster_summary(mat, clusters)
 result$between  # Between-cluster matrix
 result$within   # Within-cluster values
+
+# Also works with cograph_network objects
+net <- as_cograph(mat)
+result <- cluster_summary(net, clusters)
 }

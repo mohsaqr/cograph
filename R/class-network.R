@@ -263,9 +263,15 @@ CographNetwork <- R6::R6Class(
       !is.null(private$.weights) && any(private$.weights != 1)
     },
 
-    #' @field node_labels Vector of node labels.
+    #' @field node_labels Vector of node labels (priority: labels > label).
     node_labels = function() {
-      if (is.null(private$.nodes)) NULL else private$.nodes$label
+      if (is.null(private$.nodes)) {
+        NULL
+      } else if (!is.null(private$.nodes$labels)) {
+        private$.nodes$labels
+      } else {
+        private$.nodes$label
+      }
     }
   ),
 
@@ -447,11 +453,16 @@ get_edges <- function(x) {
 #' net <- as_cograph(mat)
 #' get_labels(net)
 get_labels <- function(x) {
+
   if (inherits(x, "cograph_network")) {
-    # Compute from nodes data frame
+    # Compute from nodes data frame (priority: labels > label)
     nodes <- x$nodes
-    if (!is.null(nodes) && "label" %in% names(nodes)) {
-      return(nodes$label)
+    if (!is.null(nodes)) {
+      if ("labels" %in% names(nodes)) {
+        return(nodes$labels)
+      } else if ("label" %in% names(nodes)) {
+        return(nodes$label)
+      }
     }
   }
   stop("Cannot extract labels from this object", call. = FALSE)

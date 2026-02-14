@@ -60,22 +60,24 @@ test_that("CographNetwork$new() handles directed parameter", {
   expect_false(net_undir$is_directed)
 })
 
-test_that("CographNetwork$new() accepts node_labels", {
+test_that("CographNetwork$new() accepts nodes data frame with labels", {
   mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
+  rownames(mat) <- colnames(mat) <- c("1", "2", "3")
   labels <- c("Alpha", "Beta", "Gamma")
-  net <- CographNetwork$new(mat, node_labels = labels)
+  nodes_df <- data.frame(label = c("1", "2", "3"), labels = labels)
+  net <- CographNetwork$new(mat, nodes = nodes_df)
 
+  # node_labels active binding uses 'labels' column (priority: labels > label)
   expect_equal(net$node_labels, labels)
 })
 
-test_that("CographNetwork$new() errors on mismatched node_labels length", {
+test_that("CographNetwork$new() node_labels returns label column when no labels column", {
   mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-  labels <- c("A", "B")  # Wrong length
+  rownames(mat) <- colnames(mat) <- c("A", "B", "C")
+  net <- CographNetwork$new(mat)
 
-  expect_error(
-    CographNetwork$new(mat, node_labels = labels),
-    "node_labels length must match"
-  )
+  # Should return the label column (from rownames)
+  expect_equal(net$node_labels, c("A", "B", "C"))
 })
 
 test_that("CographNetwork$new() initializes default aesthetics", {
@@ -534,6 +536,23 @@ test_that("get_labels() returns character vector of labels", {
 
 test_that("get_labels() errors on non-cograph_network", {
   expect_error(get_labels(list(a = 1)), "Cannot extract labels")
+})
+
+test_that("get_labels() priority: labels > label", {
+  mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
+  rownames(mat) <- colnames(mat) <- c("id1", "id2", "id3")
+  net <- as_cograph(mat)
+
+  # Default: uses label column (which comes from rownames)
+  expect_equal(get_labels(net), c("id1", "id2", "id3"))
+
+  # Add 'label' column - should use it
+  net$nodes$label <- c("Label1", "Label2", "Label3")
+  expect_equal(get_labels(net), c("Label1", "Label2", "Label3"))
+
+  # Add 'labels' column - should take priority over 'label'
+  net$nodes$labels <- c("Display1", "Display2", "Display3")
+  expect_equal(get_labels(net), c("Display1", "Display2", "Display3"))
 })
 
 # =============================================================================

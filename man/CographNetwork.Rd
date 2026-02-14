@@ -28,7 +28,7 @@ net$is_directed
 
 \item{\code{has_weights}}{Whether edges have weights.}
 
-\item{\code{node_labels}}{Vector of node labels.}
+\item{\code{node_labels}}{Vector of node labels (priority: labels > label).}
 }
 \if{html}{\out{</div>}}
 }
@@ -65,7 +65,7 @@ net$is_directed
 \subsection{Method \code{new()}}{
 Create a new CographNetwork object.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CographNetwork$new(input = NULL, directed = NULL, node_labels = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CographNetwork$new(input = NULL, directed = NULL, nodes = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -75,7 +75,8 @@ Create a new CographNetwork object.
 
 \item{\code{directed}}{Logical. Force directed interpretation. NULL for auto-detect.}
 
-\item{\code{node_labels}}{Character vector of node labels.}
+\item{\code{nodes}}{Node metadata. Can be NULL or a data frame with node attributes.
+If data frame has a \code{label} or \code{labels} column, those are used for display.}
 }
 \if{html}{\out{</div>}}
 }

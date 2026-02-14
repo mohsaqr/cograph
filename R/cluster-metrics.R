@@ -59,7 +59,8 @@ wagg <- aggregate_weights
 #' Computes aggregated edge weights between and within clusters.
 #' Results are numerically identical to igraph's contract_vertices + simplify.
 #'
-#' @param x Adjacency matrix (numeric matrix with node names as row/colnames)
+#' @param x Network input: numeric adjacency matrix, cograph_network, or tna object.
+#'   For matrices, node names should be set as row/colnames.
 #' @param clusters Either a named list of node vectors, or a membership vector
 #'   (integer vector where clusters\[i\] is the cluster of node i)
 #' @param method Aggregation method: "sum", "mean", "median", "max", "min",
@@ -88,6 +89,10 @@ wagg <- aggregate_weights
 #' result <- cluster_summary(mat, clusters)
 #' result$between  # Between-cluster matrix
 #' result$within   # Within-cluster values
+#'
+#' # Also works with cograph_network objects
+#' net <- as_cograph(mat)
+#' result <- cluster_summary(net, clusters)
 cluster_summary <- function(x,
                             clusters,
                             method = c("sum", "mean", "median", "max",
@@ -96,9 +101,17 @@ cluster_summary <- function(x,
 
   method <- match.arg(method)
 
+  # Extract matrix from various input types
+  if (inherits(x, "cograph_network")) {
+    # Use stored weights matrix if available, else convert
+    x <- if (!is.null(x$weights)) x$weights else to_matrix(x)
+  } else if (inherits(x, "tna")) {
+    x <- x$weights
+  }
+
   # Validate input matrix
   if (!is.matrix(x) || !is.numeric(x)) {
-    stop("x must be a numeric matrix", call. = FALSE)
+    stop("x must be a cograph_network, tna object, or numeric matrix", call. = FALSE)
   }
   if (nrow(x) != ncol(x)) {
     stop("x must be a square matrix", call. = FALSE)

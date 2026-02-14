@@ -169,12 +169,12 @@ test_that(".normalize_clusters errors on invalid type", {
 test_that("cluster_summary validates input is numeric matrix", {
   expect_error(
     cluster_summary("not a matrix", clusters_list),
-    "must be a numeric matrix"
+    "must be a cograph_network, tna object, or numeric matrix"
   )
 
   expect_error(
     cluster_summary(data.frame(a = 1:5), clusters_list),
-    "must be a numeric matrix"
+    "must be a cograph_network, tna object, or numeric matrix"
   )
 })
 
@@ -237,6 +237,19 @@ test_that("csum is an alias for cluster_summary", {
   result1 <- cluster_summary(mat, clusters_list, method = "sum")
   result2 <- csum(mat, clusters_list, method = "sum")
   expect_equal(result1$between, result2$between)
+})
+
+test_that("cluster_summary works with cograph_network input", {
+  # Create cograph_network from matrix
+  net <- as_cograph(mat)
+
+  # Should produce same results as with matrix directly
+  result_mat <- cluster_summary(mat, clusters_list, method = "sum")
+  result_net <- cluster_summary(net, clusters_list, method = "sum")
+
+  expect_s3_class(result_net, "cluster_summary")
+  expect_equal(result_mat$between, result_net$between)
+  expect_equal(result_mat$within, result_net$within)
 })
 
 # ==============================================================================

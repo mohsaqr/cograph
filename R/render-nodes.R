@@ -329,8 +329,14 @@ render_node_labels_grid <- function(network) {
   show_labels <- if (!is.null(aes$show_labels)) aes$show_labels else TRUE
   if (!show_labels) return(grid::gList())
 
-  # Resolve aesthetics
-  labels <- if (!is.null(nodes$label)) nodes$label else as.character(seq_len(n))
+  # Resolve aesthetics (priority: labels > label > indices)
+  labels <- if (!is.null(nodes$labels)) {
+    nodes$labels
+  } else if (!is.null(nodes$label)) {
+    nodes$label
+  } else {
+    as.character(seq_len(n))
+  }
   sizes <- expand_param(
     if (!is.null(aes$size)) aes$size else 0.05,
     n, "node_size"

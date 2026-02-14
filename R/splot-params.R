@@ -310,9 +310,13 @@ resolve_labels <- function(labels, nodes, n) {
   }
 
   if (identical(labels, TRUE)) {
-    # Use node labels from data or indices
-    if (!is.null(nodes) && "label" %in% names(nodes)) {
-      return(as.character(nodes$label))
+    # Use node labels from data or indices (priority: labels > label > indices)
+    if (!is.null(nodes)) {
+      if ("labels" %in% names(nodes)) {
+        return(as.character(nodes$labels))
+      } else if ("label" %in% names(nodes)) {
+        return(as.character(nodes$label))
+      }
     }
     return(as.character(seq_len(n)))
   }

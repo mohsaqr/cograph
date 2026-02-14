@@ -61,8 +61,13 @@ wagg <- aggregate_weights
 #'
 #' @param x Network input: numeric adjacency matrix, cograph_network, or tna object.
 #'   For matrices, node names should be set as row/colnames.
-#' @param clusters Either a named list of node vectors, or a membership vector
-#'   (integer vector where clusters\[i\] is the cluster of node i)
+#' @param clusters Cluster assignments. Can be:
+#'   \itemize{
+#'     \item NULL (default): Auto-detect from cograph_network's nodes (looks for
+#'       'clusters', 'cluster', 'group', or 'groups' column)
+#'     \item A vector: Cluster membership per node (same order as nodes)
+#'     \item A named list: Group name -> node labels mapping
+#'   }
 #' @param method Aggregation method: "sum", "mean", "median", "max", "min",
 #'   "density", "geomean"
 #' @param directed Logical; if TRUE, treat network as directed
@@ -78,28 +83,33 @@ wagg <- aggregate_weights
 #' diag(mat) <- 0
 #' rownames(mat) <- colnames(mat) <- LETTERS[1:10]
 #'
-#' # Define clusters
+#' # Define clusters as vector
+#' clusters <- c(1, 1, 1, 2, 2, 2, 3, 3, 3, 3)
+#' result <- cluster_summary(mat, clusters)
+#'
+#' # Or as named list
 #' clusters <- list(
 #'   G1 = c("A", "B", "C"),
 #'   G2 = c("D", "E", "F"),
 #'   G3 = c("G", "H", "I", "J")
 #' )
-#'
-#' # Compute summary
 #' result <- cluster_summary(mat, clusters)
-#' result$between  # Between-cluster matrix
-#' result$within   # Within-cluster values
 #'
-#' # Also works with cograph_network objects
+#' # With cograph_network - auto-detect clusters from nodes
 #' net <- as_cograph(mat)
-#' result <- cluster_summary(net, clusters)
+#' net$nodes$clusters <- c(1, 1, 1, 2, 2, 2, 3, 3, 3, 3)
+#' result <- cluster_summary(net)  # No clusters arg needed
 cluster_summary <- function(x,
-                            clusters,
+                            clusters = NULL,
                             method = c("sum", "mean", "median", "max",
                                        "min", "density", "geomean"),
                             directed = TRUE) {
 
   method <- match.arg(method)
+
+  # Store original for cluster extraction
+
+  x_orig <- x
 
   # Extract matrix from various input types
   if (inherits(x, "cograph_network")) {
@@ -107,6 +117,36 @@ cluster_summary <- function(x,
     x <- if (!is.null(x$weights)) x$weights else to_matrix(x)
   } else if (inherits(x, "tna")) {
     x <- x$weights
+  }
+
+  # Auto-detect clusters from cograph_network if not provided
+  if (is.null(clusters) && inherits(x_orig, "cograph_network")) {
+    nodes <- x_orig$nodes
+    if (!is.null(nodes)) {
+      # Look for cluster column (priority order)
+      cluster_cols <- c("clusters", "cluster", "groups", "group")
+      for (col in cluster_cols) {
+        if (col %in% names(nodes)) {
+          clusters <- nodes[[col]]
+          break
+        }
+      }
+    }
+    # Also check node_groups
+    if (is.null(clusters) && !is.null(x_orig$node_groups)) {
+      ng <- x_orig$node_groups
+      cluster_col <- intersect(c("cluster", "group", "layer"), names(ng))
+      if (length(cluster_col) > 0) {
+        clusters <- ng[[cluster_col[1]]]
+      }
+    }
+    if (is.null(clusters)) {
+      stop("No clusters found in cograph_network. ",
+           "Add a 'clusters' column to nodes or provide clusters argument.",
+           call. = FALSE)
+    }
+  } else if (is.null(clusters)) {
+    stop("clusters argument is required for matrix input", call. = FALSE)
   }
 
   # Validate input matrix

@@ -9,11 +9,14 @@
 #' \if{html}{\figure{mlna_example.png}{options: width=600 alt="Multilevel network example"}}
 #' \if{latex}{\figure{mlna_example.png}{options: width=4in}}
 #'
-#' @param model A tna object or weight matrix.
-#' @param layer_list List of character vectors defining layers. Each element
-#'   contains node names belonging to that layer. Layers are displayed from
-#'   top to bottom in list order. If NULL and \code{community} is specified,
-#'   layers are auto-detected.
+#' @param model A tna object, weight matrix, or cograph_network.
+#' @param layer_list Layers can be specified as:
+#'   \itemize{
+#'     \item A list of character vectors (node names per layer)
+#'     \item A string column name from nodes data (e.g., "layer")
+#'     \item NULL to auto-detect from columns named: layer, layers, groups, etc.
+#'     \item NULL with \code{community} specified for algorithmic detection
+#'   }
 #' @param community Community detection method to use for auto-layering.
 #'   If specified, overrides \code{layer_list}. See \code{\link{detect_communities}}
 #'   for available methods: "louvain", "walktrap", "fast_greedy", "label_prop",
@@ -118,6 +121,49 @@ plot_mlna <- function(
   # 1. Input Validation & Setup
   # ==========================================================================
 
+  # Handle cograph_network input
+  nodes_df <- NULL
+  if (inherits(model, "cograph_network")) {
+    nodes_df <- get_nodes(model)
+    lab <- if (!is.null(nodes_df$label)) nodes_df$label else as.character(seq_len(nrow(nodes_df)))
+    weights <- to_matrix(model)
+  } else if (inherits(model, "tna")) {
+    lab <- model$labels
+    weights <- model$weights
+  } else if (is.matrix(model)) {
+    lab <- colnames(model)
+    if (is.null(lab)) lab <- as.character(seq_len(ncol(model)))
+    weights <- model
+  } else {
+    stop("model must be a cograph_network, tna object, or matrix", call. = FALSE)
+  }
+
+  # Handle layer_list as column name string
+  if (is.character(layer_list) && length(layer_list) == 1) {
+    if (is.null(nodes_df)) {
+      stop("To use a column name for layer_list, model must be a cograph_network", call. = FALSE)
+    }
+    if (!layer_list %in% names(nodes_df)) {
+      stop("Column '", layer_list, "' not found in nodes. Available: ",
+           paste(names(nodes_df), collapse = ", "), call. = FALSE)
+    }
+    layer_col <- nodes_df[[layer_list]]
+    layer_list <- split(lab, layer_col)
+  }
+
+  # Auto-detect layers from common column names
+  if (is.null(layer_list) && is.null(community) && !is.null(nodes_df)) {
+    layer_cols <- c("layer", "layers", "level", "levels", "groups", "group", "clusters", "cluster")
+    for (col in layer_cols) {
+      if (col %in% names(nodes_df)) {
+        layer_col <- nodes_df[[col]]
+        layer_list <- split(lab, layer_col)
+        message("Using '", col, "' column for layers")
+        break
+      }
+    }
+  }
+
   # Handle community parameter - auto-detect layers
   if (!is.null(community)) {
     comm_df <- detect_communities(model, method = community)
@@ -132,18 +178,6 @@ plot_mlna <- function(
   n_layers <- length(layer_list)
   if (!is.list(layer_list) || n_layers < 2) {
     stop("layer_list must be a list of 2+ character vectors", call. = FALSE)
-  }
-
-  # Get labels and weights from model
-  if (inherits(model, "tna")) {
-    lab <- model$labels
-    weights <- model$weights
-  } else if (is.matrix(model)) {
-    lab <- colnames(model)
-    if (is.null(lab)) lab <- as.character(seq_len(ncol(model)))
-    weights <- model
-  } else {
-    stop("model must be a tna object or matrix", call. = FALSE)
   }
 
   n <- length(lab)

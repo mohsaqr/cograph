@@ -443,6 +443,12 @@ plot_comparison_heatmap <- function(x, y = NULL,
     return(x)
   }
 
+  # Handle S3 cograph_network
+  if (inherits(x, "cograph_network")) {
+    return(to_matrix(x))
+  }
+
+  # Handle R6 CographNetwork
   if (inherits(x, "CographNetwork")) {
     return(x$get_adjacency())
   }
@@ -463,7 +469,7 @@ plot_comparison_heatmap <- function(x, y = NULL,
     return(x$weights)
   }
 
-  stop("x must be a matrix, CographNetwork, tna, or igraph object")
+  stop("x must be a matrix, cograph_network, tna, or igraph object")
 }
 
 
@@ -517,7 +523,7 @@ plot_comparison_heatmap <- function(x, y = NULL,
 
   # Set up multi-panel plot
   old_par <- graphics::par(mfrow = c(nrow, ncol), mar = c(2, 2, 3, 1))
-  on.exit(graphics::par(old_par))
+  on.exit(graphics::par(old_par), add = TRUE)
 
   results <- list()
 

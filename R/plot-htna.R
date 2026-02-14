@@ -7,9 +7,14 @@
 #' }
 #' Supports triangle (3), rectangle (4), pentagon (5), hexagon (6), and beyond.
 #'
-#' @param x A tna object or weight matrix.
-#' @param node_list List of 2+ character vectors defining node groups. If NULL
-#'   and \code{community} is specified, groups are auto-detected.
+#' @param x A tna object, weight matrix, or cograph_network.
+#' @param node_list Node groups can be specified as:
+#'   \itemize{
+#'     \item A list of character vectors (node names per group)
+#'     \item A string column name from nodes data (e.g., "groups")
+#'     \item NULL to auto-detect from columns named: groups, cluster, community, etc.
+#'     \item NULL with \code{community} specified for algorithmic detection
+#'   }
 #' @param community Community detection method to use for auto-grouping.
 #'   If specified, overrides \code{node_list}. See \code{\link{detect_communities}}
 #'   for available methods: "louvain", "walktrap", "fast_greedy", "label_prop",
@@ -145,6 +150,49 @@ plot_htna <- function(
   shape_palette <- c("circle", "square", "diamond", "triangle",
                      "pentagon", "hexagon", "star", "cross")
 
+  # Handle cograph_network input
+  nodes_df <- NULL
+  if (inherits(x, "cograph_network")) {
+    nodes_df <- get_nodes(x)
+    lab <- if (!is.null(nodes_df$label)) nodes_df$label else as.character(seq_len(nrow(nodes_df)))
+    weights <- to_matrix(x)
+  } else if (inherits(x, "tna")) {
+    lab <- x$labels
+    weights <- x$weights
+  } else if (is.matrix(x)) {
+    lab <- colnames(x)
+    if (is.null(lab)) lab <- as.character(seq_len(ncol(x)))
+    weights <- x
+  } else {
+    stop("x must be a cograph_network, tna object, or matrix", call. = FALSE)
+  }
+
+  # Handle node_list as column name string
+  if (is.character(node_list) && length(node_list) == 1) {
+    if (is.null(nodes_df)) {
+      stop("To use a column name for node_list, x must be a cograph_network", call. = FALSE)
+    }
+    if (!node_list %in% names(nodes_df)) {
+      stop("Column '", node_list, "' not found in nodes. Available: ",
+           paste(names(nodes_df), collapse = ", "), call. = FALSE)
+    }
+    group_col <- nodes_df[[node_list]]
+    node_list <- split(lab, group_col)
+  }
+
+  # Auto-detect groups from common column names
+  if (is.null(node_list) && is.null(community) && !is.null(nodes_df)) {
+    group_cols <- c("groups", "group", "clusters", "cluster", "community", "module", "layer")
+    for (col in group_cols) {
+      if (col %in% names(nodes_df)) {
+        group_col <- nodes_df[[col]]
+        node_list <- split(lab, group_col)
+        message("Using '", col, "' column for node groups")
+        break
+      }
+    }
+  }
+
   # Handle community parameter - auto-detect groups
   if (!is.null(community)) {
     comm_df <- detect_communities(x, method = community)
@@ -164,18 +212,6 @@ plot_htna <- function(
     if (!is.character(node_list[[i]])) {
       stop("node_list elements must be character vectors", call. = FALSE)
     }
-  }
-
-  # Get labels and weights from x
-  if (inherits(x, "tna")) {
-    lab <- x$labels
-    weights <- x$weights
-  } else if (is.matrix(x)) {
-    lab <- colnames(x)
-    if (is.null(lab)) lab <- as.character(seq_len(ncol(x)))
-    weights <- x
-  } else {
-    stop("x must be a tna object or matrix", call. = FALSE)
   }
 
   n <- length(lab)

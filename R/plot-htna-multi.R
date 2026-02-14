@@ -135,6 +135,19 @@ plot_mtna <- function(
     cluster_list <- split(lab, cluster_col)
   }
 
+  # Auto-detect clusters from common column names
+  if (is.null(cluster_list) && is.null(community) && !is.null(nodes_df)) {
+    cluster_cols <- c("clusters", "cluster", "groups", "group", "community", "module")
+    for (col in cluster_cols) {
+      if (col %in% names(nodes_df)) {
+        cluster_col <- nodes_df[[col]]
+        cluster_list <- split(lab, cluster_col)
+        message("Using '", col, "' column for clusters")
+        break
+      }
+    }
+  }
+
   # Handle community parameter - auto-detect clusters
   if (!is.null(community)) {
     comm_df <- detect_communities(x, method = community)

@@ -18,7 +18,7 @@ plot_mcml(
   colors = NULL,
   legend = TRUE,
   show_labels = TRUE,
-  node_labels = NULL,
+  nodes = NULL,
   label_size = NULL,
   label_abbrev = NULL,
   node_size = 1.8,
@@ -40,7 +40,7 @@ mcml(
   colors = NULL,
   legend = TRUE,
   show_labels = TRUE,
-  node_labels = NULL,
+  nodes = NULL,
   label_size = NULL,
   label_abbrev = NULL,
   node_size = 1.8,
@@ -75,12 +75,13 @@ string, or NULL for auto-detection}
 
 \item{show_labels}{Logical. Show node labels. Default TRUE.}
 
-\item{node_labels}{Labels to display. Can be:
+\item{nodes}{Node metadata. Can be:
 \itemize{
-\item NULL (default): Use node identifiers
-\item Column name string: Use values from that column in nodes data
-\item Character vector: Use directly (must match node count)
-}}
+\item NULL (default): Use existing nodes data from cograph_network
+\item Data frame: Must have \code{label} column for matching; if \code{labels}
+column exists, uses it for display text
+}
+Display priority: \code{labels} column > \code{label} column (identifiers).}
 
 \item{label_size}{Label text size. Default NULL (auto-scaled).}
 

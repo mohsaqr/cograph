@@ -30,7 +30,7 @@ plot_htna(
   legend_position = "topright",
   extend_lines = FALSE,
   scale = 1,
-  node_labels = NULL,
+  nodes = NULL,
   label_abbrev = NULL,
   ...
 )
@@ -60,7 +60,7 @@ htna(
   legend_position = "topright",
   extend_lines = FALSE,
   scale = 1,
-  node_labels = NULL,
+  nodes = NULL,
   label_abbrev = NULL,
   ...
 )
@@ -153,12 +153,13 @@ high-resolution output (e.g., scale = 4 for 300 dpi). This multiplies
 group positions and polygon/circular radius to maintain proper proportions
 at higher resolutions. Default 1.}
 
-\item{node_labels}{Labels to display. Can be:
+\item{nodes}{Node metadata. Can be:
 \itemize{
-\item NULL (default): Use node identifiers
-\item Column name string: Use values from that column in nodes data
-\item Character vector: Use directly (must match node count)
-}}
+\item NULL (default): Use existing nodes data from cograph_network
+\item Data frame: Must have \code{label} column for matching; if \code{labels}
+column exists, uses it for display text
+}
+Display priority: \code{labels} column > \code{label} column (identifiers).}
 
 \item{label_abbrev}{Label abbreviation: NULL (none), integer (max chars),
 or "auto" (adaptive based on node count). Applied before passing to tplot.}

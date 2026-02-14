@@ -52,12 +52,13 @@
 #'   layer_spacing, layer_width, and layer_depth to maintain proper proportions
 #'   at higher resolutions. Default 1.
 #' @param show_labels Logical. Show node labels. Default TRUE.
-#' @param node_labels Labels to display. Can be:
+#' @param nodes Node metadata. Can be:
 #'   \itemize{
-#'     \item NULL (default): Use node identifiers
-#'     \item Column name string: Use values from that column in nodes data
-#'     \item Character vector: Use directly (must match node count)
+#'     \item NULL (default): Use existing nodes data from cograph_network
+#'     \item Data frame: Must have `label` column for matching; if `labels`
+#'       column exists, uses it for display text
 #'   }
+#'   Display priority: `labels` column > `label` column (identifiers).
 #' @param label_abbrev Label abbreviation: NULL (none), integer (max chars),
 #'   or "auto" (adaptive based on node count).
 #' @param ... Additional parameters (currently unused).
@@ -119,7 +120,7 @@ plot_mlna <- function(
     minimum = 0,
     scale = 1,
     show_labels = TRUE,
-    node_labels = NULL,
+    nodes = NULL,
     label_abbrev = NULL,
     ...
 ) {
@@ -152,25 +153,16 @@ plot_mlna <- function(
 
   n <- length(lab)
 
-  # Resolve display labels
-  display_labels <- if (is.null(node_labels)) {
-    lab  # Use identifiers
-  } else if (is.character(node_labels) && length(node_labels) == 1 && !is.null(nodes_df)) {
-    # Column name
-    if (node_labels %in% names(nodes_df)) {
-      nodes_df[[node_labels]]
-    } else {
-      warning("Column '", node_labels, "' not found, using node identifiers")
-      lab
-    }
+  # Merge nodes parameter with existing nodes_df
+  if (is.data.frame(nodes)) {
+    nodes_df <- nodes
+  }
+
+  # Resolve display labels: priority is labels > label
+  display_labels <- if (!is.null(nodes_df) && "labels" %in% names(nodes_df)) {
+    nodes_df$labels
   } else {
-    # Direct vector
-    if (length(node_labels) != n) {
-      warning("node_labels length mismatch, using node identifiers")
-      lab
-    } else {
-      node_labels
-    }
+    lab  # Fall back to identifiers
   }
 
   # Handle layer_list as column name string

@@ -70,12 +70,13 @@
 #'   high-resolution output (e.g., scale = 4 for 300 dpi). This multiplies
 #'   group positions and polygon/circular radius to maintain proper proportions
 #'   at higher resolutions. Default 1.
-#' @param node_labels Labels to display. Can be:
+#' @param nodes Node metadata. Can be:
 #'   \itemize{
-#'     \item NULL (default): Use node identifiers
-#'     \item Column name string: Use values from that column in nodes data
-#'     \item Character vector: Use directly (must match node count)
+#'     \item NULL (default): Use existing nodes data from cograph_network
+#'     \item Data frame: Must have `label` column for matching; if `labels`
+#'       column exists, uses it for display text
 #'   }
+#'   Display priority: `labels` column > `label` column (identifiers).
 #' @param label_abbrev Label abbreviation: NULL (none), integer (max chars),
 #'   or "auto" (adaptive based on node count). Applied before passing to tplot.
 #' @param ... Additional parameters passed to tplot().
@@ -143,7 +144,7 @@ plot_htna <- function(
     legend_position = "topright",
     extend_lines = FALSE,
     scale = 1,
-    node_labels = NULL,
+    nodes = NULL,
     label_abbrev = NULL,
     ...
 ) {
@@ -463,25 +464,16 @@ plot_htna <- function(
     }
   }
 
-  # Resolve display labels
-  display_labels <- if (is.null(node_labels)) {
-    lab  # Use identifiers
-  } else if (is.character(node_labels) && length(node_labels) == 1 && !is.null(nodes_df)) {
-    # Column name
-    if (node_labels %in% names(nodes_df)) {
-      nodes_df[[node_labels]]
-    } else {
-      warning("Column '", node_labels, "' not found, using node identifiers")
-      lab
-    }
+  # Merge nodes parameter with existing nodes_df
+  if (is.data.frame(nodes)) {
+    nodes_df <- nodes
+  }
+
+  # Resolve display labels: priority is labels > label
+  display_labels <- if (!is.null(nodes_df) && "labels" %in% names(nodes_df)) {
+    nodes_df$labels
   } else {
-    # Direct vector
-    if (length(node_labels) != n) {
-      warning("node_labels length mismatch, using node identifiers")
-      lab
-    } else {
-      node_labels
-    }
+    lab  # Fall back to identifiers
   }
 
   # Apply label abbreviation if requested
@@ -514,8 +506,9 @@ plot_htna <- function(
     dots
   )
 
-  # Add custom labels if specified (either from node_labels or abbreviation)
-  if (!is.null(node_labels) || !is.null(label_abbrev)) {
+  # Add custom labels if they differ from identifiers
+  has_labels_col <- !is.null(nodes_df) && "labels" %in% names(nodes_df)
+  if (has_labels_col || !is.null(label_abbrev)) {
     tplot_args$labels <- final_labels
   }
 

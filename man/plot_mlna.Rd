@@ -29,7 +29,7 @@ plot_mlna(
   minimum = 0,
   scale = 1,
   show_labels = TRUE,
-  node_labels = NULL,
+  nodes = NULL,
   label_abbrev = NULL,
   ...
 )
@@ -58,7 +58,7 @@ mlna(
   minimum = 0,
   scale = 1,
   show_labels = TRUE,
-  node_labels = NULL,
+  nodes = NULL,
   label_abbrev = NULL,
   ...
 )
@@ -130,12 +130,13 @@ at higher resolutions. Default 1.}
 
 \item{show_labels}{Logical. Show node labels. Default TRUE.}
 
-\item{node_labels}{Labels to display. Can be:
+\item{nodes}{Node metadata. Can be:
 \itemize{
-\item NULL (default): Use node identifiers
-\item Column name string: Use values from that column in nodes data
-\item Character vector: Use directly (must match node count)
-}}
+\item NULL (default): Use existing nodes data from cograph_network
+\item Data frame: Must have \code{label} column for matching; if \code{labels}
+column exists, uses it for display text
+}
+Display priority: \code{labels} column > \code{label} column (identifiers).}
 
 \item{label_abbrev}{Label abbreviation: NULL (none), integer (max chars),
 or "auto" (adaptive based on node count).}

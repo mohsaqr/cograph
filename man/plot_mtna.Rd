@@ -29,7 +29,7 @@ plot_mtna(
   layout_margin = 0.15,
   scale = 1,
   show_labels = FALSE,
-  node_labels = NULL,
+  nodes = NULL,
   label_size = NULL,
   label_abbrev = NULL,
   cluster_shape = NULL,
@@ -60,7 +60,7 @@ mtna(
   layout_margin = 0.15,
   scale = 1,
   show_labels = FALSE,
-  node_labels = NULL,
+  nodes = NULL,
   label_size = NULL,
   label_abbrev = NULL,
   cluster_shape = NULL,
@@ -133,12 +133,13 @@ Default 1.}
 
 \item{show_labels}{Logical. Show node labels inside clusters. Default FALSE.}
 
-\item{node_labels}{Labels to display. Can be:
+\item{nodes}{Node metadata. Can be:
 \itemize{
-\item NULL (default): Use node identifiers
-\item Column name string: Use values from that column in nodes data
-\item Character vector: Use directly (must match node count)
-}}
+\item NULL (default): Use existing nodes data from cograph_network
+\item Data frame: Must have \code{label} column for matching; if \code{labels}
+column exists, uses it for display text
+}
+Display priority: \code{labels} column > \code{label} column (identifiers).}
 
 \item{label_size}{Label text size. Default NULL (auto-scaled).}
 

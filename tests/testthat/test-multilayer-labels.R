@@ -253,7 +253,7 @@ test_that("label_abbrev alias works", {
   expect_equal(result1, result2)
 })
 
-test_that("plot_mcml node_labels uses column from nodes data", {
+test_that("plot_mcml auto-detects labels column from nodes", {
   skip_if_not_installed("png")
 
   mat <- matrix(runif(25), 5, 5)
@@ -261,17 +261,17 @@ test_that("plot_mcml node_labels uses column from nodes data", {
   rownames(mat) <- colnames(mat) <- LETTERS[1:5]
 
   net <- cograph(mat)
-  net$nodes$display_name <- c("Alpha", "Beta", "Gamma", "Delta", "Epsilon")
+  net$nodes$labels <- c("Alpha", "Beta", "Gamma", "Delta", "Epsilon")
   net$nodes$clusters <- c("G1", "G1", "G2", "G2", "G2")
 
   png(tempfile(fileext = ".png"), width = 400, height = 400)
   expect_no_error(
-    plot_mcml(net, show_labels = TRUE, node_labels = "display_name")
+    plot_mcml(net, show_labels = TRUE)  # Auto-detects labels column
   )
   dev.off()
 })
 
-test_that("plot_mcml node_labels accepts character vector", {
+test_that("plot_mcml nodes parameter accepts data frame", {
   skip_if_not_installed("png")
 
   mat <- matrix(runif(25), 5, 5)
@@ -279,11 +279,14 @@ test_that("plot_mcml node_labels accepts character vector", {
   rownames(mat) <- colnames(mat) <- LETTERS[1:5]
 
   clusters <- list(G1 = c("A", "B"), G2 = c("C", "D", "E"))
-  custom_labels <- c("One", "Two", "Three", "Four", "Five")
+  nodes_df <- data.frame(
+    label = LETTERS[1:5],
+    labels = c("One", "Two", "Three", "Four", "Five")
+  )
 
   png(tempfile(fileext = ".png"), width = 400, height = 400)
   expect_no_error(
-    plot_mcml(mat, clusters, show_labels = TRUE, node_labels = custom_labels)
+    plot_mcml(mat, clusters, show_labels = TRUE, nodes = nodes_df)
   )
   dev.off()
 })
@@ -321,7 +324,7 @@ test_that("plot_mcml cluster_shape accepts vector", {
   dev.off()
 })
 
-test_that("plot_mtna node_labels uses column from nodes data", {
+test_that("plot_mtna auto-detects labels column from nodes", {
   skip_if_not_installed("png")
 
   mat <- matrix(runif(25), 5, 5)
@@ -329,17 +332,17 @@ test_that("plot_mtna node_labels uses column from nodes data", {
   rownames(mat) <- colnames(mat) <- LETTERS[1:5]
 
   net <- cograph(mat)
-  net$nodes$display_name <- c("State1", "State2", "State3", "State4", "State5")
+  net$nodes$labels <- c("State1", "State2", "State3", "State4", "State5")
   net$nodes$clusters <- c("G1", "G1", "G2", "G2", "G2")
 
   png(tempfile(fileext = ".png"), width = 400, height = 400)
   expect_no_error(
-    plot_mtna(net, show_labels = TRUE, node_labels = "display_name")
+    plot_mtna(net, show_labels = TRUE)  # Auto-detects labels column
   )
   dev.off()
 })
 
-test_that("plot_mlna node_labels uses column from nodes data", {
+test_that("plot_mlna auto-detects labels column from nodes", {
   skip_if_not_installed("png")
 
   mat <- matrix(runif(36), 6, 6)
@@ -347,17 +350,17 @@ test_that("plot_mlna node_labels uses column from nodes data", {
   rownames(mat) <- colnames(mat) <- LETTERS[1:6]
 
   net <- cograph(mat)
-  net$nodes$display_name <- paste0("Node_", 1:6)
+  net$nodes$labels <- paste0("Node_", 1:6)
   net$nodes$layer <- c("L1", "L1", "L2", "L2", "L3", "L3")
 
   png(tempfile(fileext = ".png"), width = 400, height = 400)
   expect_no_error(
-    plot_mlna(net, show_labels = TRUE, node_labels = "display_name")
+    plot_mlna(net, show_labels = TRUE)  # Auto-detects labels column
   )
   dev.off()
 })
 
-test_that("plot_htna node_labels uses column from nodes data", {
+test_that("plot_htna auto-detects labels column from nodes", {
   skip_if_not_installed("png")
 
   mat <- matrix(runif(36), 6, 6)
@@ -365,12 +368,12 @@ test_that("plot_htna node_labels uses column from nodes data", {
   rownames(mat) <- colnames(mat) <- LETTERS[1:6]
 
   net <- cograph(mat)
-  net$nodes$display_name <- paste0("State_", 1:6)
+  net$nodes$labels <- paste0("State_", 1:6)
   net$nodes$groups <- c("G1", "G1", "G1", "G2", "G2", "G2")
 
   png(tempfile(fileext = ".png"), width = 400, height = 400)
   expect_no_error(
-    plot_htna(net, node_labels = "display_name")
+    plot_htna(net)  # Auto-detects labels column
   )
   dev.off()
 })

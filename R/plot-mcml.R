@@ -32,6 +32,42 @@
 #'   Default "circle".
 #' @param cluster_shape Shape for cluster summary nodes in top layer.
 #'   Can be a single value or vector (one per cluster). Default "circle".
+#' @param title Main plot title. Default NULL.
+#' @param subtitle Subtitle below title. Default NULL.
+#' @param title_size Title text size. Default 1.2.
+#' @param subtitle_size Subtitle text size. Default 0.9.
+#' @param legend_pos Legend position: "right", "left", "top", "bottom", "none".
+#'   Default "right".
+#' @param legend_size Legend text size. Default 0.7.
+#' @param legend_pt_size Legend point size. Default 1.2.
+#' @param summary_labels Show cluster labels on summary nodes. Default TRUE.
+#' @param summary_label_size Summary label text size. Default 0.8.
+#' @param summary_label_pos Summary label position (1=below, 2=left, 3=above,
+#'   4=right). Default 3.
+#' @param summary_label_color Summary label color. Default "gray20".
+#' @param summary_arrows Show arrows on summary edges. Default TRUE.
+#' @param summary_arrow_size Arrow head size. Default 0.15.
+#' @param edge_width_range Min/max edge width for detail edges. Default
+#'   c(0.3, 1.3).
+#' @param summary_edge_width_range Min/max edge width for summary edges.
+#'   Default c(0.5, 2.0).
+#' @param edge_alpha Within-cluster edge transparency. Default 0.35.
+#' @param between_edge_alpha Between-cluster edge transparency. Default 0.6.
+#' @param summary_edge_alpha Summary layer edge transparency. Default 0.7.
+#' @param inter_layer_alpha Inter-layer line transparency. Default 0.5.
+#' @param top_layer_scale Top layer oval x/y scale factors. Default
+#'   c(0.8, 0.25).
+#' @param inter_layer_gap Gap between layers as multiplier of spacing.
+#'   Default 0.6.
+#' @param node_radius_scale Node radius within cluster as multiplier of
+#'   shape_size. Default 0.55.
+#' @param shell_alpha Shell fill transparency. Default 0.15.
+#' @param shell_border_width Shell border line width. Default 2.
+#' @param node_border_color Detail node border color. Default "gray30".
+#' @param summary_border_color Summary node border color. Default "gray20".
+#' @param summary_border_width Summary node border width. Default 2.
+#' @param label_color Detail label color. Default "gray20".
+#' @param label_pos Detail label position (1-4). Default 3.
 #' @param ... Unused.
 #'
 #' @export
@@ -54,6 +90,43 @@ plot_mcml <- function(
     node_size = 1.8,
     node_shape = "circle",
     cluster_shape = "circle",
+    # Title & Legend
+    title = NULL,
+    subtitle = NULL,
+    title_size = 1.2,
+    subtitle_size = 0.9,
+    legend_pos = "right",
+    legend_size = 0.7,
+    legend_pt_size = 1.2,
+    # Summary labels
+    summary_labels = TRUE,
+    summary_label_size = 0.8,
+    summary_label_pos = 3,
+    summary_label_color = "gray20",
+    # Summary arrows
+    summary_arrows = TRUE,
+    summary_arrow_size = 0.15,
+    # Edge control
+    edge_width_range = c(0.3, 1.3),
+    summary_edge_width_range = c(0.5, 2.0),
+    edge_alpha = 0.35,
+    between_edge_alpha = 0.6,
+    summary_edge_alpha = 0.7,
+    inter_layer_alpha = 0.5,
+    # Layout fine-tuning
+    top_layer_scale = c(0.8, 0.25),
+    inter_layer_gap = 0.6,
+    node_radius_scale = 0.55,
+    # Shell styling
+    shell_alpha = 0.15,
+    shell_border_width = 2,
+    # Node styling
+    node_border_color = "gray30",
+    summary_border_color = "gray20",
+    summary_border_width = 2,
+    # Label styling
+    label_color = "gray20",
+    label_pos = 3,
     ...
 ) {
   aggregation <- match.arg(aggregation)
@@ -164,12 +237,13 @@ plot_mcml <- function(
   }
 
   # Top layer positioned above bottom layer (not too far)
-  gap <- spacing * 0.6
+
+  gap <- spacing * inter_layer_gap
   top_base_y <- bottom_top + gap
 
   # Top layer: oval layout with spaced nodes
-  top_radius_x <- spacing * 0.8  # wider horizontally
-  top_radius_y <- spacing * 0.25  # oval shape
+  top_radius_x <- spacing * top_layer_scale[1]
+  top_radius_y <- spacing * top_layer_scale[2]
 
   tx <- top_radius_x * cos(angles)
   ty <- top_radius_y * sin(angles) + top_base_y
@@ -213,7 +287,7 @@ plot_mcml <- function(
   # ============ DRAW INTER-LAYER CONNECTIONS FIRST (behind everything) ============
   # Store node positions for inter-layer connections
   node_positions <- vector("list", n_clusters)
-  node_r <- shape_size * 0.55
+  node_r <- shape_size * node_radius_scale
 
   for (i in seq_len(n_clusters)) {
     idx <- cluster_idx[[i]]
@@ -234,7 +308,7 @@ plot_mcml <- function(
       graphics::segments(
         node_positions[[i]]$x[j], node_positions[[i]]$y[j],
         tx[i], ty[i],
-        col = grDevices::adjustcolor(colors[i], 0.5),
+        col = grDevices::adjustcolor(colors[i], inter_layer_alpha),
         lty = 2, lwd = 1
       )
     }
@@ -247,9 +321,18 @@ plot_mcml <- function(
     for (i in seq_len(n_clusters)) {
       for (j in seq_len(n_clusters)) {
         if (i != j && sw[i, j] > minimum) {
-          lwd <- 0.5 + 1.5 * sw[i, j] / max_sw
-          graphics::segments(tx[i], ty[i], tx[j], ty[j],
-                             col = grDevices::adjustcolor(colors[i], 0.7), lwd = lwd)
+          lwd <- summary_edge_width_range[1] +
+            (summary_edge_width_range[2] - summary_edge_width_range[1]) *
+            sw[i, j] / max_sw
+          edge_col <- grDevices::adjustcolor(colors[i], summary_edge_alpha)
+          if (summary_arrows) {
+            graphics::arrows(tx[i], ty[i], tx[j], ty[j],
+                             col = edge_col, lwd = lwd,
+                             length = summary_arrow_size, angle = 20)
+          } else {
+            graphics::segments(tx[i], ty[i], tx[j], ty[j],
+                               col = edge_col, lwd = lwd)
+          }
         }
       }
     }
@@ -259,7 +342,20 @@ plot_mcml <- function(
   summary_pch <- .shape_to_pch(cluster_shape)
   for (i in seq_len(n_clusters)) {
     graphics::points(tx[i], ty[i], pch = summary_pch[i], bg = colors[i],
-                     col = "gray20", cex = summary_size, lwd = 2)
+                     col = summary_border_color, cex = summary_size,
+                     lwd = summary_border_width)
+  }
+
+  # Summary labels
+  if (summary_labels) {
+    for (i in seq_len(n_clusters)) {
+      graphics::text(tx[i], ty[i],
+                     labels = cluster_names[i],
+                     pos = summary_label_pos,
+                     cex = summary_label_size,
+                     col = summary_label_color,
+                     offset = 0.5)
+    }
   }
 
   # ============ BOTTOM LAYER (detailed clusters) ============
@@ -273,9 +369,12 @@ plot_mcml <- function(
         if (i != j && sw[i, j] > minimum) {
           p1 <- shell_edge(bx[i], by[i], bx[j], by[j], shell_rx, shell_ry)
           p2 <- shell_edge(bx[j], by[j], bx[i], by[i], shell_rx, shell_ry)
-          lwd <- 0.5 + 1.5 * sw[i, j] / max_sw
+          lwd <- summary_edge_width_range[1] +
+            (summary_edge_width_range[2] - summary_edge_width_range[1]) *
+            sw[i, j] / max_sw
           graphics::segments(p1[1], p1[2], p2[1], p2[2],
-                             col = grDevices::adjustcolor(colors[i], 0.6), lwd = lwd)
+                             col = grDevices::adjustcolor(colors[i], between_edge_alpha),
+                             lwd = lwd)
         }
       }
     }
@@ -294,8 +393,8 @@ plot_mcml <- function(
       bx[i] + shell_x,
       by[i] + shell_y,
       border = colors[i],
-      col = grDevices::adjustcolor(colors[i], 0.15),
-      lwd = 2
+      col = grDevices::adjustcolor(colors[i], shell_alpha),
+      lwd = shell_border_width
     )
 
     # Node positions (use pre-computed)
@@ -309,9 +408,11 @@ plot_mcml <- function(
           if (j != k) {
             w <- weights[idx[j], idx[k]]
             if (!is.na(w) && w > minimum) {
-              lwd <- 0.3 + 1 * w / max_w
+              lwd <- edge_width_range[1] +
+                (edge_width_range[2] - edge_width_range[1]) * w / max_w
               graphics::segments(nx[j], ny[j], nx[k], ny[k],
-                                 col = grDevices::adjustcolor(colors[i], 0.35), lwd = lwd)
+                                 col = grDevices::adjustcolor(colors[i], edge_alpha),
+                                 lwd = lwd)
             }
           }
         }
@@ -320,8 +421,8 @@ plot_mcml <- function(
 
     # Nodes - use per-node shapes
     node_pch <- .shape_to_pch(node_shape[idx])
-    graphics::points(nx, ny, pch = node_pch, bg = colors[i], col = "gray30",
-                     cex = node_size)
+    graphics::points(nx, ny, pch = node_pch, bg = colors[i],
+                     col = node_border_color, cex = node_size)
 
     # Node labels
     if (isTRUE(show_labels)) {
@@ -330,19 +431,58 @@ plot_mcml <- function(
         lbl_text <- abbrev_label(lbl_text, label_abbrev, n)
       }
       lbl_cex <- if (is.null(label_size)) 0.6 else label_size
-      graphics::text(nx, ny, labels = lbl_text, cex = lbl_cex, pos = 3,
-                     offset = 0.4, col = "gray20")
+      graphics::text(nx, ny, labels = lbl_text, cex = lbl_cex, pos = label_pos,
+                     offset = 0.4, col = label_color)
     }
   }
 
-  # Legend (positioned inside plot)
-  if (legend) {
+  # Title and subtitle
+
+  if (!is.null(title)) {
+    graphics::title(main = title, cex.main = title_size)
+  }
+  if (!is.null(subtitle)) {
+    graphics::title(sub = subtitle, cex.sub = subtitle_size, line = -0.5)
+  }
+
+  # Legend (positioned based on legend_pos)
+  if (legend && legend_pos != "none") {
+    legend_x <- switch(legend_pos,
+      "right" = max(bx) + shape_size * 0.5,
+      "left" = min(bx) - shape_size * 0.5,
+      "top" = mean(c(min(bx), max(bx))),
+      "bottom" = mean(c(min(bx), max(bx))),
+      max(bx) + shape_size * 0.5  # default to right
+    )
+    legend_y <- switch(legend_pos,
+      "right" = mean(c(max(by), min(ty))),
+      "left" = mean(c(max(by), min(ty))),
+      "top" = max(ty) + 1,
+      "bottom" = min(by) - 1,
+      mean(c(max(by), min(ty)))  # default
+    )
+    legend_horiz <- legend_pos %in% c("top", "bottom")
+    legend_xjust <- switch(legend_pos,
+      "right" = 0,
+      "left" = 1,
+      "top" = 0.5,
+      "bottom" = 0.5,
+      0
+    )
+    legend_yjust <- switch(legend_pos,
+      "right" = 0.5,
+      "left" = 0.5,
+      "top" = 0,
+      "bottom" = 1,
+      0.5
+    )
+
     graphics::legend(
-      x = max(bx) + shape_size * 0.5,
-      y = mean(c(max(by), min(ty))),
+      x = legend_x,
+      y = legend_y,
       legend = cluster_names, pch = 21, pt.bg = colors,
-      col = "gray30", pt.cex = 1.2, cex = 0.7, bty = "n",
-      xjust = 0, yjust = 0.5
+      col = "gray30", pt.cex = legend_pt_size, cex = legend_size, bty = "n",
+      xjust = legend_xjust, yjust = legend_yjust, horiz = legend_horiz
     )
   }
 

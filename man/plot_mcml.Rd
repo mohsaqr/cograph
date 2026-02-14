@@ -24,6 +24,35 @@ plot_mcml(
   node_size = 1.8,
   node_shape = "circle",
   cluster_shape = "circle",
+  title = NULL,
+  subtitle = NULL,
+  title_size = 1.2,
+  subtitle_size = 0.9,
+  legend_pos = "right",
+  legend_size = 0.7,
+  legend_pt_size = 1.2,
+  summary_labels = TRUE,
+  summary_label_size = 0.8,
+  summary_label_pos = 3,
+  summary_label_color = "gray20",
+  summary_arrows = TRUE,
+  summary_arrow_size = 0.15,
+  edge_width_range = c(0.3, 1.3),
+  summary_edge_width_range = c(0.5, 2),
+  edge_alpha = 0.35,
+  between_edge_alpha = 0.6,
+  summary_edge_alpha = 0.7,
+  inter_layer_alpha = 0.5,
+  top_layer_scale = c(0.8, 0.25),
+  inter_layer_gap = 0.6,
+  node_radius_scale = 0.55,
+  shell_alpha = 0.15,
+  shell_border_width = 2,
+  node_border_color = "gray30",
+  summary_border_color = "gray20",
+  summary_border_width = 2,
+  label_color = "gray20",
+  label_pos = 3,
   ...
 )
 
@@ -46,6 +75,35 @@ mcml(
   node_size = 1.8,
   node_shape = "circle",
   cluster_shape = "circle",
+  title = NULL,
+  subtitle = NULL,
+  title_size = 1.2,
+  subtitle_size = 0.9,
+  legend_pos = "right",
+  legend_size = 0.7,
+  legend_pt_size = 1.2,
+  summary_labels = TRUE,
+  summary_label_size = 0.8,
+  summary_label_pos = 3,
+  summary_label_color = "gray20",
+  summary_arrows = TRUE,
+  summary_arrow_size = 0.15,
+  edge_width_range = c(0.3, 1.3),
+  summary_edge_width_range = c(0.5, 2),
+  edge_alpha = 0.35,
+  between_edge_alpha = 0.6,
+  summary_edge_alpha = 0.7,
+  inter_layer_alpha = 0.5,
+  top_layer_scale = c(0.8, 0.25),
+  inter_layer_gap = 0.6,
+  node_radius_scale = 0.55,
+  shell_alpha = 0.15,
+  shell_border_width = 2,
+  node_border_color = "gray30",
+  summary_border_color = "gray20",
+  summary_border_width = 2,
+  label_color = "gray20",
+  label_pos = 3,
   ...
 )
 }
@@ -96,6 +154,71 @@ Default "circle".}
 
 \item{cluster_shape}{Shape for cluster summary nodes in top layer.
 Can be a single value or vector (one per cluster). Default "circle".}
+
+\item{title}{Main plot title. Default NULL.}
+
+\item{subtitle}{Subtitle below title. Default NULL.}
+
+\item{title_size}{Title text size. Default 1.2.}
+
+\item{subtitle_size}{Subtitle text size. Default 0.9.}
+
+\item{legend_pos}{Legend position: "right", "left", "top", "bottom", "none".
+Default "right".}
+
+\item{legend_size}{Legend text size. Default 0.7.}
+
+\item{legend_pt_size}{Legend point size. Default 1.2.}
+
+\item{summary_labels}{Show cluster labels on summary nodes. Default TRUE.}
+
+\item{summary_label_size}{Summary label text size. Default 0.8.}
+
+\item{summary_label_pos}{Summary label position (1=below, 2=left, 3=above,
+4=right). Default 3.}
+
+\item{summary_label_color}{Summary label color. Default "gray20".}
+
+\item{summary_arrows}{Show arrows on summary edges. Default TRUE.}
+
+\item{summary_arrow_size}{Arrow head size. Default 0.15.}
+
+\item{edge_width_range}{Min/max edge width for detail edges. Default
+c(0.3, 1.3).}
+
+\item{summary_edge_width_range}{Min/max edge width for summary edges.
+Default c(0.5, 2.0).}
+
+\item{edge_alpha}{Within-cluster edge transparency. Default 0.35.}
+
+\item{between_edge_alpha}{Between-cluster edge transparency. Default 0.6.}
+
+\item{summary_edge_alpha}{Summary layer edge transparency. Default 0.7.}
+
+\item{inter_layer_alpha}{Inter-layer line transparency. Default 0.5.}
+
+\item{top_layer_scale}{Top layer oval x/y scale factors. Default
+c(0.8, 0.25).}
+
+\item{inter_layer_gap}{Gap between layers as multiplier of spacing.
+Default 0.6.}
+
+\item{node_radius_scale}{Node radius within cluster as multiplier of
+shape_size. Default 0.55.}
+
+\item{shell_alpha}{Shell fill transparency. Default 0.15.}
+
+\item{shell_border_width}{Shell border line width. Default 2.}
+
+\item{node_border_color}{Detail node border color. Default "gray30".}
+
+\item{summary_border_color}{Summary node border color. Default "gray20".}
+
+\item{summary_border_width}{Summary node border width. Default 2.}
+
+\item{label_color}{Detail label color. Default "gray20".}
+
+\item{label_pos}{Detail label position (1-4). Default 3.}
 
 \item{...}{Unused.}
 }

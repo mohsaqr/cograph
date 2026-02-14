@@ -121,7 +121,8 @@ compute_layout_for_cograph <- function(net, layout = "spring", seed = 42, ...) {
 #'   - A qgraph object
 #'   - A tna object
 #' @param layout Layout algorithm: "circle", "spring", "groups", "grid",
-#'   "random", "star", "bipartite", or "custom". Default "spring".
+#'   "random", "star", "bipartite", or "custom". Default NULL (no layout computed).
+#'   Set to a layout name to compute immediately, or use sn_layout() later.
 #' @param directed Logical. Force directed interpretation. NULL for auto-detect.
 #' @param node_labels Character vector of node labels.
 #' @param seed Random seed for deterministic layouts. Default 42. Set NULL for random.
@@ -142,20 +143,26 @@ compute_layout_for_cograph <- function(net, layout = "spring", seed = 42, ...) {
 #' @export
 #'
 #' @examples
-#' # From adjacency matrix
+#' # From adjacency matrix (no layout computed yet - fast!)
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' cograph(adj)
+#' net <- cograph(adj)
+#'
+#' # Layout computed automatically when plotting
+#' splot(net)  # Uses spring layout by default
 #'
 #' # From edge list
 #' edges <- data.frame(from = c(1, 1, 2), to = c(2, 3, 3))
 #' cograph(edges)
 #'
+#' # Compute layout immediately if needed
+#' cograph(adj, layout = "circle") |> splot()
+#'
 #' # With customization (pipe-friendly workflow)
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' cograph(adj, layout = "circle") |>
+#' cograph(adj) |>
 #'   sn_nodes(fill = "steelblue") |>
 #'   sn_edges(color = "gray50") |>
-#'   splot()
+#'   splot(layout = "circle")
 #'
 #' # Weighted network with automatic styling
 #' w_adj <- matrix(c(0, 0.5, -0.3, 0.5, 0, 0.4, -0.3, 0.4, 0), nrow = 3)
@@ -169,7 +176,7 @@ compute_layout_for_cograph <- function(net, layout = "spring", seed = 42, ...) {
 #' g <- make_ring(10)
 #' cograph(g) |> splot()
 #' }
-cograph <- function(input, layout = "spring", directed = NULL,
+cograph <- function(input, layout = NULL, directed = NULL,
                    node_labels = NULL, seed = 42, ...) {
 
   # Parse input first to get TNA metadata if applicable
@@ -209,44 +216,53 @@ cograph <- function(input, layout = "spring", directed = NULL,
     node_labels = node_labels
   )
 
-  # Set seed for deterministic layouts
-  if (!is.null(seed)) {
-    set.seed(seed)
-  }
-
-  # Two-letter igraph layout codes
-  igraph_codes <- c("kk", "fr", "drl", "mds", "go", "tr", "st", "gr", "rd", "ni", "ci", "lgl", "sp")
-
-  # Compute layout - handle igraph layouts
-  if (is.function(layout)) {
-    # igraph layout function passed directly
-    coords <- apply_igraph_layout(network, layout, ...)
-  } else if (is.character(layout) && (
-    grepl("^(igraph_|layout_)", layout) || layout %in% igraph_codes
-  )) {
-    # igraph layout by name or two-letter code
-    coords <- apply_igraph_layout_by_name(network, layout, seed = seed, ...)
-  } else if (is.matrix(layout) || is.data.frame(layout)) {
-    # Custom coordinates passed directly
-    coords <- as.data.frame(layout)
-    if (ncol(coords) >= 2) {
-      names(coords)[1:2] <- c("x", "y")
-    }
-  } else {
-    # Built-in cograph layout
-    layout_obj <- CographLayout$new(layout, ...)
-    coords <- layout_obj$compute(network, ...)
-  }
-  network$set_layout_coords(coords)
-
-  # Get nodes with layout coordinates
+  # Get nodes (without layout yet)
   nodes_with_layout <- network$get_nodes()
+  coords <- NULL
+  layout_info <- NULL
 
-  # Store layout info
-  layout_info <- list(
-    name = if (is.function(layout)) "custom_function" else as.character(layout),
-    seed = seed
-  )
+
+  # Only compute layout if explicitly requested
+  if (!is.null(layout)) {
+    # Set seed for deterministic layouts
+    if (!is.null(seed)) {
+      set.seed(seed)
+    }
+
+    # Two-letter igraph layout codes
+    igraph_codes <- c("kk", "fr", "drl", "mds", "go", "tr", "st", "gr", "rd", "ni", "ci", "lgl", "sp")
+
+    # Compute layout - handle igraph layouts
+    if (is.function(layout)) {
+      # igraph layout function passed directly
+      coords <- apply_igraph_layout(network, layout, ...)
+    } else if (is.character(layout) && (
+      grepl("^(igraph_|layout_)", layout) || layout %in% igraph_codes
+    )) {
+      # igraph layout by name or two-letter code
+      coords <- apply_igraph_layout_by_name(network, layout, seed = seed, ...)
+    } else if (is.matrix(layout) || is.data.frame(layout)) {
+      # Custom coordinates passed directly
+      coords <- as.data.frame(layout)
+      if (ncol(coords) >= 2) {
+        names(coords)[1:2] <- c("x", "y")
+      }
+    } else {
+      # Built-in cograph layout
+      layout_obj <- CographLayout$new(layout, ...)
+      coords <- layout_obj$compute(network, ...)
+    }
+    network$set_layout_coords(coords)
+
+    # Get nodes with layout coordinates
+    nodes_with_layout <- network$get_nodes()
+
+    # Store layout info
+    layout_info <- list(
+      name = if (is.function(layout)) "custom_function" else as.character(layout),
+      seed = seed
+    )
+  }
 
   # Create minimal TNA metadata (without model/parent)
   tna_meta <- NULL

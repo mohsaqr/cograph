@@ -253,6 +253,128 @@ test_that("label_abbrev alias works", {
   expect_equal(result1, result2)
 })
 
+test_that("plot_mcml node_labels uses column from nodes data", {
+  skip_if_not_installed("png")
+
+  mat <- matrix(runif(25), 5, 5)
+  diag(mat) <- 0
+  rownames(mat) <- colnames(mat) <- LETTERS[1:5]
+
+  net <- cograph(mat)
+  net$nodes$display_name <- c("Alpha", "Beta", "Gamma", "Delta", "Epsilon")
+  net$nodes$clusters <- c("G1", "G1", "G2", "G2", "G2")
+
+  png(tempfile(fileext = ".png"), width = 400, height = 400)
+  expect_no_error(
+    plot_mcml(net, show_labels = TRUE, node_labels = "display_name")
+  )
+  dev.off()
+})
+
+test_that("plot_mcml node_labels accepts character vector", {
+  skip_if_not_installed("png")
+
+  mat <- matrix(runif(25), 5, 5)
+  diag(mat) <- 0
+  rownames(mat) <- colnames(mat) <- LETTERS[1:5]
+
+  clusters <- list(G1 = c("A", "B"), G2 = c("C", "D", "E"))
+  custom_labels <- c("One", "Two", "Three", "Four", "Five")
+
+  png(tempfile(fileext = ".png"), width = 400, height = 400)
+  expect_no_error(
+    plot_mcml(mat, clusters, show_labels = TRUE, node_labels = custom_labels)
+  )
+  dev.off()
+})
+
+test_that("plot_mcml node_shape accepts vector", {
+  skip_if_not_installed("png")
+
+  mat <- matrix(runif(25), 5, 5)
+  diag(mat) <- 0
+  rownames(mat) <- colnames(mat) <- LETTERS[1:5]
+
+  clusters <- list(G1 = c("A", "B"), G2 = c("C", "D", "E"))
+  shapes <- c("circle", "square", "diamond", "triangle", "circle")
+
+  png(tempfile(fileext = ".png"), width = 400, height = 400)
+  expect_no_error(
+    plot_mcml(mat, clusters, node_shape = shapes)
+  )
+  dev.off()
+})
+
+test_that("plot_mcml cluster_shape accepts vector", {
+  skip_if_not_installed("png")
+
+  mat <- matrix(runif(36), 6, 6)
+  diag(mat) <- 0
+  rownames(mat) <- colnames(mat) <- LETTERS[1:6]
+
+  clusters <- list(G1 = c("A", "B"), G2 = c("C", "D"), G3 = c("E", "F"))
+
+  png(tempfile(fileext = ".png"), width = 400, height = 400)
+  expect_no_error(
+    plot_mcml(mat, clusters, cluster_shape = c("diamond", "square", "triangle"))
+  )
+  dev.off()
+})
+
+test_that("plot_mtna node_labels uses column from nodes data", {
+  skip_if_not_installed("png")
+
+  mat <- matrix(runif(25), 5, 5)
+  diag(mat) <- 0
+  rownames(mat) <- colnames(mat) <- LETTERS[1:5]
+
+  net <- cograph(mat)
+  net$nodes$display_name <- c("State1", "State2", "State3", "State4", "State5")
+  net$nodes$clusters <- c("G1", "G1", "G2", "G2", "G2")
+
+  png(tempfile(fileext = ".png"), width = 400, height = 400)
+  expect_no_error(
+    plot_mtna(net, show_labels = TRUE, node_labels = "display_name")
+  )
+  dev.off()
+})
+
+test_that("plot_mlna node_labels uses column from nodes data", {
+  skip_if_not_installed("png")
+
+  mat <- matrix(runif(36), 6, 6)
+  diag(mat) <- 0
+  rownames(mat) <- colnames(mat) <- LETTERS[1:6]
+
+  net <- cograph(mat)
+  net$nodes$display_name <- paste0("Node_", 1:6)
+  net$nodes$layer <- c("L1", "L1", "L2", "L2", "L3", "L3")
+
+  png(tempfile(fileext = ".png"), width = 400, height = 400)
+  expect_no_error(
+    plot_mlna(net, show_labels = TRUE, node_labels = "display_name")
+  )
+  dev.off()
+})
+
+test_that("plot_htna node_labels uses column from nodes data", {
+  skip_if_not_installed("png")
+
+  mat <- matrix(runif(36), 6, 6)
+  diag(mat) <- 0
+  rownames(mat) <- colnames(mat) <- LETTERS[1:6]
+
+  net <- cograph(mat)
+  net$nodes$display_name <- paste0("State_", 1:6)
+  net$nodes$groups <- c("G1", "G1", "G1", "G2", "G2", "G2")
+
+  png(tempfile(fileext = ".png"), width = 400, height = 400)
+  expect_no_error(
+    plot_htna(net, node_labels = "display_name")
+  )
+  dev.off()
+})
+
 test_that("cluster_network and cnet aliases work", {
   mat <- matrix(runif(16), 4, 4)
   diag(mat) <- 0

@@ -70,6 +70,12 @@
 #'   high-resolution output (e.g., scale = 4 for 300 dpi). This multiplies
 #'   group positions and polygon/circular radius to maintain proper proportions
 #'   at higher resolutions. Default 1.
+#' @param node_labels Labels to display. Can be:
+#'   \itemize{
+#'     \item NULL (default): Use node identifiers
+#'     \item Column name string: Use values from that column in nodes data
+#'     \item Character vector: Use directly (must match node count)
+#'   }
 #' @param label_abbrev Label abbreviation: NULL (none), integer (max chars),
 #'   or "auto" (adaptive based on node count). Applied before passing to tplot.
 #' @param ... Additional parameters passed to tplot().
@@ -137,6 +143,7 @@ plot_htna <- function(
     legend_position = "topright",
     extend_lines = FALSE,
     scale = 1,
+    node_labels = NULL,
     label_abbrev = NULL,
     ...
 ) {
@@ -456,10 +463,31 @@ plot_htna <- function(
     }
   }
 
+  # Resolve display labels
+  display_labels <- if (is.null(node_labels)) {
+    lab  # Use identifiers
+  } else if (is.character(node_labels) && length(node_labels) == 1 && !is.null(nodes_df)) {
+    # Column name
+    if (node_labels %in% names(nodes_df)) {
+      nodes_df[[node_labels]]
+    } else {
+      warning("Column '", node_labels, "' not found, using node identifiers")
+      lab
+    }
+  } else {
+    # Direct vector
+    if (length(node_labels) != n) {
+      warning("node_labels length mismatch, using node identifiers")
+      lab
+    } else {
+      node_labels
+    }
+  }
+
   # Apply label abbreviation if requested
-  abbrev_labels <- NULL
+  final_labels <- display_labels
   if (!is.null(label_abbrev)) {
-    abbrev_labels <- abbrev_label(lab, label_abbrev, length(lab))
+    final_labels <- abbrev_label(display_labels, label_abbrev, n)
   }
 
   # Call tplot
@@ -486,9 +514,9 @@ plot_htna <- function(
     dots
   )
 
-  # Add abbreviated labels if specified
-  if (!is.null(abbrev_labels)) {
-    tplot_args$labels <- abbrev_labels
+  # Add custom labels if specified (either from node_labels or abbreviation)
+  if (!is.null(node_labels) || !is.null(label_abbrev)) {
+    tplot_args$labels <- final_labels
   }
 
   # Add edge colors if specified (tplot uses edge.color parameter)

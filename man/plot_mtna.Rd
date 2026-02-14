@@ -29,6 +29,7 @@ plot_mtna(
   layout_margin = 0.15,
   scale = 1,
   show_labels = FALSE,
+  node_labels = NULL,
   label_size = NULL,
   label_abbrev = NULL,
   cluster_shape = NULL,
@@ -59,6 +60,7 @@ mtna(
   layout_margin = 0.15,
   scale = 1,
   show_labels = FALSE,
+  node_labels = NULL,
   label_size = NULL,
   label_abbrev = NULL,
   cluster_shape = NULL,
@@ -131,13 +133,20 @@ Default 1.}
 
 \item{show_labels}{Logical. Show node labels inside clusters. Default FALSE.}
 
+\item{node_labels}{Labels to display. Can be:
+\itemize{
+\item NULL (default): Use node identifiers
+\item Column name string: Use values from that column in nodes data
+\item Character vector: Use directly (must match node count)
+}}
+
 \item{label_size}{Label text size. Default NULL (auto-scaled).}
 
 \item{label_abbrev}{Label abbreviation: NULL (none), integer (max chars),
 or "auto" (adaptive based on node count).}
 
 \item{cluster_shape}{Shape for cluster summary nodes when using summary view.
-Overrides \code{shapes} for summary node rendering. Default NULL (use shapes).}
+Can be single value or vector. Overrides \code{shapes}. Default NULL (use shapes).}
 
 \item{...}{Additional parameters passed to plot_tna().}
 }

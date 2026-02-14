@@ -18,6 +18,7 @@ plot_mcml(
   colors = NULL,
   legend = TRUE,
   show_labels = TRUE,
+  node_labels = NULL,
   label_size = NULL,
   label_abbrev = NULL,
   node_size = 1.8,
@@ -39,6 +40,7 @@ mcml(
   colors = NULL,
   legend = TRUE,
   show_labels = TRUE,
+  node_labels = NULL,
   label_size = NULL,
   label_abbrev = NULL,
   node_size = 1.8,
@@ -73,6 +75,13 @@ string, or NULL for auto-detection}
 
 \item{show_labels}{Logical. Show node labels. Default TRUE.}
 
+\item{node_labels}{Labels to display. Can be:
+\itemize{
+\item NULL (default): Use node identifiers
+\item Column name string: Use values from that column in nodes data
+\item Character vector: Use directly (must match node count)
+}}
+
 \item{label_size}{Label text size. Default NULL (auto-scaled).}
 
 \item{label_abbrev}{Label abbreviation: NULL (none), integer (max chars),
@@ -81,10 +90,11 @@ or "auto" (adaptive based on node count).}
 \item{node_size}{Size of nodes in bottom layer. Default 1.8.}
 
 \item{node_shape}{Shape of nodes: "circle", "square", "diamond", "triangle".
+Can be a single value (applied to all) or a vector (one per node).
 Default "circle".}
 
 \item{cluster_shape}{Shape for cluster summary nodes in top layer.
-Default "circle".}
+Can be a single value or vector (one per cluster). Default "circle".}
 
 \item{...}{Unused.}
 }

@@ -52,6 +52,12 @@
 #'   layer_spacing, layer_width, and layer_depth to maintain proper proportions
 #'   at higher resolutions. Default 1.
 #' @param show_labels Logical. Show node labels. Default TRUE.
+#' @param node_labels Labels to display. Can be:
+#'   \itemize{
+#'     \item NULL (default): Use node identifiers
+#'     \item Column name string: Use values from that column in nodes data
+#'     \item Character vector: Use directly (must match node count)
+#'   }
 #' @param label_abbrev Label abbreviation: NULL (none), integer (max chars),
 #'   or "auto" (adaptive based on node count).
 #' @param ... Additional parameters (currently unused).
@@ -113,6 +119,7 @@ plot_mlna <- function(
     minimum = 0,
     scale = 1,
     show_labels = TRUE,
+    node_labels = NULL,
     label_abbrev = NULL,
     ...
 ) {
@@ -141,6 +148,29 @@ plot_mlna <- function(
     weights <- model
   } else {
     stop("model must be a cograph_network, tna object, or matrix", call. = FALSE)
+  }
+
+  n <- length(lab)
+
+  # Resolve display labels
+  display_labels <- if (is.null(node_labels)) {
+    lab  # Use identifiers
+  } else if (is.character(node_labels) && length(node_labels) == 1 && !is.null(nodes_df)) {
+    # Column name
+    if (node_labels %in% names(nodes_df)) {
+      nodes_df[[node_labels]]
+    } else {
+      warning("Column '", node_labels, "' not found, using node identifiers")
+      lab
+    }
+  } else {
+    # Direct vector
+    if (length(node_labels) != n) {
+      warning("node_labels length mismatch, using node identifiers")
+      lab
+    } else {
+      node_labels
+    }
   }
 
   # Handle layer_list as column name string
@@ -537,13 +567,13 @@ plot_mlna <- function(
 
     # Node labels
     if (isTRUE(show_labels)) {
-      node_labels <- lab[idx]
+      lbl_text <- display_labels[idx]
       if (!is.null(label_abbrev)) {
-        node_labels <- abbrev_label(node_labels, label_abbrev, length(lab))
+        lbl_text <- abbrev_label(lbl_text, label_abbrev, n)
       }
       graphics::text(
         x_pos[idx], y_pos[idx],
-        labels = node_labels,
+        labels = lbl_text,
         cex = 0.75 / size_scale,
         pos = 3,
         offset = 0.6,

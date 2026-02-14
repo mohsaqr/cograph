@@ -16,14 +16,21 @@
 #' @param colors Cluster colors. Default auto.
 #' @param legend Show legend. Default TRUE.
 #' @param show_labels Logical. Show node labels. Default TRUE.
+#' @param node_labels Labels to display. Can be:
+#'   \itemize{
+#'     \item NULL (default): Use node identifiers
+#'     \item Column name string: Use values from that column in nodes data
+#'     \item Character vector: Use directly (must match node count)
+#'   }
 #' @param label_size Label text size. Default NULL (auto-scaled).
 #' @param label_abbrev Label abbreviation: NULL (none), integer (max chars),
 #'   or "auto" (adaptive based on node count).
 #' @param node_size Size of nodes in bottom layer. Default 1.8.
 #' @param node_shape Shape of nodes: "circle", "square", "diamond", "triangle".
+#'   Can be a single value (applied to all) or a vector (one per node).
 #'   Default "circle".
 #' @param cluster_shape Shape for cluster summary nodes in top layer.
-#'   Default "circle".
+#'   Can be a single value or vector (one per cluster). Default "circle".
 #' @param ... Unused.
 #'
 #' @export
@@ -40,6 +47,7 @@ plot_mcml <- function(
     colors = NULL,
     legend = TRUE,
     show_labels = TRUE,
+    node_labels = NULL,
     label_size = NULL,
     label_abbrev = NULL,
     node_size = 1.8,
@@ -63,6 +71,32 @@ plot_mcml <- function(
     lab <- colnames(x)
     if (is.null(lab)) lab <- seq_len(ncol(x))
   }
+
+  n <- length(lab)
+
+  # Resolve display labels
+ display_labels <- if (is.null(node_labels)) {
+    lab  # Use identifiers
+  } else if (is.character(node_labels) && length(node_labels) == 1 && !is.null(nodes_df)) {
+    # Column name
+    if (node_labels %in% names(nodes_df)) {
+      nodes_df[[node_labels]]
+    } else {
+      warning("Column '", node_labels, "' not found, using node identifiers")
+      lab
+    }
+  } else {
+    # Direct vector
+    if (length(node_labels) != n) {
+      warning("node_labels length mismatch, using node identifiers")
+      lab
+    } else {
+      node_labels
+    }
+  }
+
+  # Expand node_shape to vector if needed
+  node_shape <- rep_len(node_shape, n)
 
 
   # Handle cluster_list: can be list, column name string, or NULL (auto-detect)
@@ -98,6 +132,9 @@ plot_mcml <- function(
   pal <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442",
            "#0072B2", "#D55E00", "#CC79A7", "#999999")
   if (is.null(colors)) colors <- rep_len(pal, n_clusters)
+
+  # Expand cluster_shape to vector if needed
+  cluster_shape <- rep_len(cluster_shape, n_clusters)
 
   # Cluster indices
   cluster_idx <- lapply(cluster_list, function(nodes) match(nodes, lab))
@@ -217,10 +254,12 @@ plot_mcml <- function(
     }
   }
 
-  # Summary nodes
+  # Summary nodes - use per-cluster shapes
   summary_pch <- .shape_to_pch(cluster_shape)
-  graphics::points(tx, ty, pch = summary_pch, bg = colors, col = "gray20",
-                   cex = summary_size, lwd = 2)
+  for (i in seq_len(n_clusters)) {
+    graphics::points(tx[i], ty[i], pch = summary_pch[i], bg = colors[i],
+                     col = "gray20", cex = summary_size, lwd = 2)
+  }
 
   # ============ BOTTOM LAYER (detailed clusters) ============
 
@@ -278,19 +317,19 @@ plot_mcml <- function(
       }
     }
 
-    # Nodes
-    node_pch <- .shape_to_pch(node_shape)
+    # Nodes - use per-node shapes
+    node_pch <- .shape_to_pch(node_shape[idx])
     graphics::points(nx, ny, pch = node_pch, bg = colors[i], col = "gray30",
                      cex = node_size)
 
     # Node labels
     if (isTRUE(show_labels)) {
-      node_labels <- lab[idx]
+      lbl_text <- display_labels[idx]
       if (!is.null(label_abbrev)) {
-        node_labels <- abbrev_label(node_labels, label_abbrev, length(lab))
+        lbl_text <- abbrev_label(lbl_text, label_abbrev, n)
       }
       lbl_cex <- if (is.null(label_size)) 0.6 else label_size
-      graphics::text(nx, ny, labels = node_labels, cex = lbl_cex, pos = 3,
+      graphics::text(nx, ny, labels = lbl_text, cex = lbl_cex, pos = 3,
                      offset = 0.4, col = "gray20")
     }
   }

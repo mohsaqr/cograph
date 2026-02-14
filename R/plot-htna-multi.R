@@ -46,11 +46,17 @@
 #'   spacing and shape_size to maintain proper proportions at higher resolutions.
 #'   Default 1.
 #' @param show_labels Logical. Show node labels inside clusters. Default FALSE.
+#' @param node_labels Labels to display. Can be:
+#'   \itemize{
+#'     \item NULL (default): Use node identifiers
+#'     \item Column name string: Use values from that column in nodes data
+#'     \item Character vector: Use directly (must match node count)
+#'   }
 #' @param label_size Label text size. Default NULL (auto-scaled).
 #' @param label_abbrev Label abbreviation: NULL (none), integer (max chars),
 #'   or "auto" (adaptive based on node count).
 #' @param cluster_shape Shape for cluster summary nodes when using summary view.
-#'   Overrides \code{shapes} for summary node rendering. Default NULL (use shapes).
+#'   Can be single value or vector. Overrides \code{shapes}. Default NULL (use shapes).
 #' @param ... Additional parameters passed to plot_tna().
 #'
 #' @return Invisibly returns NULL for summary mode, or the plot_tna result.
@@ -105,6 +111,7 @@ plot_mtna <- function(
     layout_margin = 0.15,
     scale = 1,
     show_labels = FALSE,
+    node_labels = NULL,
     label_size = NULL,
     label_abbrev = NULL,
     cluster_shape = NULL,
@@ -133,6 +140,29 @@ plot_mtna <- function(
     weights <- x
   } else {
     stop("x must be a cograph_network, tna object, or matrix", call. = FALSE)
+  }
+
+  n <- length(lab)
+
+  # Resolve display labels
+  display_labels <- if (is.null(node_labels)) {
+    lab  # Use identifiers
+  } else if (is.character(node_labels) && length(node_labels) == 1 && !is.null(nodes_df)) {
+    # Column name
+    if (node_labels %in% names(nodes_df)) {
+      nodes_df[[node_labels]]
+    } else {
+      warning("Column '", node_labels, "' not found, using node identifiers")
+      lab
+    }
+  } else {
+    # Direct vector
+    if (length(node_labels) != n) {
+      warning("node_labels length mismatch, using node identifiers")
+      lab
+    } else {
+      node_labels
+    }
   }
 
   # Handle cluster_list as column name string
@@ -762,12 +792,12 @@ plot_mtna <- function(
 
       # Draw node labels if requested
       if (isTRUE(show_labels)) {
-        node_labels <- lab[idx]
+        lbl_text <- display_labels[idx]
         if (!is.null(label_abbrev)) {
-          node_labels <- abbrev_label(node_labels, label_abbrev, length(lab))
+          lbl_text <- abbrev_label(lbl_text, label_abbrev, n)
         }
         lbl_cex <- if (is.null(label_size)) 0.7 / size_scale else label_size / size_scale
-        graphics::text(inner_x, inner_y, labels = node_labels,
+        graphics::text(inner_x, inner_y, labels = lbl_text,
                        cex = lbl_cex, pos = 3, offset = 0.4, col = "gray20")
       }
 

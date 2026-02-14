@@ -28,12 +28,12 @@ plot_mcml(
   subtitle = NULL,
   title_size = 1.2,
   subtitle_size = 0.9,
-  legend_pos = "right",
+  legend_position = "right",
   legend_size = 0.7,
   legend_pt_size = 1.2,
   summary_labels = TRUE,
   summary_label_size = 0.8,
-  summary_label_pos = 3,
+  summary_label_position = 3,
   summary_label_color = "gray20",
   summary_arrows = TRUE,
   summary_arrow_size = 0.15,
@@ -59,7 +59,7 @@ plot_mcml(
   summary_border_color = "gray20",
   summary_border_width = 2,
   label_color = "gray20",
-  label_pos = 3,
+  label_position = 3,
   ...
 )
 
@@ -86,12 +86,12 @@ mcml(
   subtitle = NULL,
   title_size = 1.2,
   subtitle_size = 0.9,
-  legend_pos = "right",
+  legend_position = "right",
   legend_size = 0.7,
   legend_pt_size = 1.2,
   summary_labels = TRUE,
   summary_label_size = 0.8,
-  summary_label_pos = 3,
+  summary_label_position = 3,
   summary_label_color = "gray20",
   summary_arrows = TRUE,
   summary_arrow_size = 0.15,
@@ -117,7 +117,7 @@ mcml(
   summary_border_color = "gray20",
   summary_border_width = 2,
   label_color = "gray20",
-  label_pos = 3,
+  label_position = 3,
   ...
 )
 }
@@ -177,7 +177,7 @@ Can be a single value or vector (one per cluster). Default "circle".}
 
 \item{subtitle_size}{Subtitle text size. Default 0.9.}
 
-\item{legend_pos}{Legend position: "right", "left", "top", "bottom", "none".
+\item{legend_position}{Legend position: "right", "left", "top", "bottom", "none".
 Default "right".}
 
 \item{legend_size}{Legend text size. Default 0.7.}
@@ -188,7 +188,7 @@ Default "right".}
 
 \item{summary_label_size}{Summary label text size. Default 0.8.}
 
-\item{summary_label_pos}{Summary label position (1=below, 2=left, 3=above,
+\item{summary_label_position}{Summary label position (1=below, 2=left, 3=above,
 4=right). Default 3.}
 
 \item{summary_label_color}{Summary label color. Default "gray20".}
@@ -248,7 +248,7 @@ shape_size. Default 0.55.}
 
 \item{label_color}{Detail label color. Default "gray20".}
 
-\item{label_pos}{Detail label position (1-4). Default 3.}
+\item{label_position}{Detail label position (1-4). Default 3.}
 
 \item{...}{Unused.}
 }

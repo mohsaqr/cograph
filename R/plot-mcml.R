@@ -36,13 +36,13 @@
 #' @param subtitle Subtitle below title. Default NULL.
 #' @param title_size Title text size. Default 1.2.
 #' @param subtitle_size Subtitle text size. Default 0.9.
-#' @param legend_pos Legend position: "right", "left", "top", "bottom", "none".
+#' @param legend_position Legend position: "right", "left", "top", "bottom", "none".
 #'   Default "right".
 #' @param legend_size Legend text size. Default 0.7.
 #' @param legend_pt_size Legend point size. Default 1.2.
 #' @param summary_labels Show cluster labels on summary nodes. Default TRUE.
 #' @param summary_label_size Summary label text size. Default 0.8.
-#' @param summary_label_pos Summary label position (1=below, 2=left, 3=above,
+#' @param summary_label_position Summary label position (1=below, 2=left, 3=above,
 #'   4=right). Default 3.
 #' @param summary_label_color Summary label color. Default "gray20".
 #' @param summary_arrows Show arrows on summary edges. Default TRUE.
@@ -76,7 +76,7 @@
 #' @param summary_border_color Summary node border color. Default "gray20".
 #' @param summary_border_width Summary node border width. Default 2.
 #' @param label_color Detail label color. Default "gray20".
-#' @param label_pos Detail label position (1-4). Default 3.
+#' @param label_position Detail label position (1-4). Default 3.
 #' @param ... Unused.
 #'
 #' @export
@@ -104,13 +104,13 @@ plot_mcml <- function(
     subtitle = NULL,
     title_size = 1.2,
     subtitle_size = 0.9,
-    legend_pos = "right",
+    legend_position = "right",
     legend_size = 0.7,
     legend_pt_size = 1.2,
     # Summary labels
     summary_labels = TRUE,
     summary_label_size = 0.8,
-    summary_label_pos = 3,
+    summary_label_position = 3,
     summary_label_color = "gray20",
     # Summary arrows
     summary_arrows = TRUE,
@@ -143,7 +143,7 @@ plot_mcml <- function(
     summary_border_width = 2,
     # Label styling
     label_color = "gray20",
-    label_pos = 3,
+    label_position = 3,
     ...
 ) {
   aggregation <- match.arg(aggregation)
@@ -377,7 +377,7 @@ plot_mcml <- function(
     for (i in seq_len(n_clusters)) {
       graphics::text(tx[i], ty[i],
                      labels = cluster_names[i],
-                     pos = summary_label_pos,
+                     pos = summary_label_position,
                      cex = summary_label_size,
                      col = summary_label_color,
                      offset = 0.5)
@@ -466,7 +466,7 @@ plot_mcml <- function(
         lbl_text <- abbrev_label(lbl_text, label_abbrev, n)
       }
       lbl_cex <- if (is.null(label_size)) 0.6 else label_size
-      graphics::text(nx, ny, labels = lbl_text, cex = lbl_cex, pos = label_pos,
+      graphics::text(nx, ny, labels = lbl_text, cex = lbl_cex, pos = label_position,
                      offset = 0.4, col = label_color)
     }
   }
@@ -480,31 +480,31 @@ plot_mcml <- function(
     graphics::title(sub = subtitle, cex.sub = subtitle_size, line = -0.5)
   }
 
-  # Legend (positioned based on legend_pos)
-  if (legend && legend_pos != "none") {
-    legend_x <- switch(legend_pos,
+  # Legend (positioned based on legend_position)
+  if (legend && legend_position != "none") {
+    legend_x <- switch(legend_position,
       "right" = max(bx) + shape_size * 0.5,
       "left" = min(bx) - shape_size * 0.5,
       "top" = mean(c(min(bx), max(bx))),
       "bottom" = mean(c(min(bx), max(bx))),
       max(bx) + shape_size * 0.5  # default to right
     )
-    legend_y <- switch(legend_pos,
+    legend_y <- switch(legend_position,
       "right" = mean(c(max(by), min(ty))),
       "left" = mean(c(max(by), min(ty))),
       "top" = max(ty) + 1,
       "bottom" = min(by) - 1,
       mean(c(max(by), min(ty)))  # default
     )
-    legend_horiz <- legend_pos %in% c("top", "bottom")
-    legend_xjust <- switch(legend_pos,
+    legend_horiz <- legend_position %in% c("top", "bottom")
+    legend_xjust <- switch(legend_position,
       "right" = 0,
       "left" = 1,
       "top" = 0.5,
       "bottom" = 0.5,
       0
     )
-    legend_yjust <- switch(legend_pos,
+    legend_yjust <- switch(legend_position,
       "right" = 0.5,
       "left" = 0.5,
       "top" = 0,

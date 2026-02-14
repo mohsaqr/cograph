@@ -4,10 +4,13 @@
 #' and individual edges within clusters. Each cluster is displayed as a
 #' shape (circle, square, diamond, triangle) containing its nodes.
 #'
-#' @param x A tna object or weight matrix.
-#' @param cluster_list List of character vectors defining clusters.
-#'   Each cluster becomes a separate shape in the layout. If NULL and
-#'   \code{community} is specified, clusters are auto-detected.
+#' @param x A tna object, weight matrix, or cograph_network.
+#' @param cluster_list Clusters can be specified as:
+#'   \itemize{
+#'     \item A list of character vectors (node names per cluster)
+#'     \item A string column name from nodes data (e.g., "groups")
+#'     \item NULL with \code{community} specified for auto-detection
+#'   }
 #' @param community Community detection method to use for auto-clustering.
 #'   If specified, overrides \code{cluster_list}. See \code{\link{detect_communities}}
 #'   for available methods: "louvain", "walktrap", "fast_greedy", "label_prop",
@@ -95,12 +98,42 @@ plot_mtna <- function(
     ...
 ) {
   # Match aggregation method
- aggregation <- match.arg(aggregation)
+  aggregation <- match.arg(aggregation)
 
   # Apply scale: use sqrt(scale) for gentler compensation at high-resolution
   size_scale <- sqrt(scale)
   node_size <- node_size / size_scale
   edge_scale <- 1 / size_scale
+
+  # Handle cograph_network input
+  nodes_df <- NULL
+  if (inherits(x, "cograph_network")) {
+    nodes_df <- get_nodes(x)
+    lab <- if (!is.null(nodes_df$label)) nodes_df$label else as.character(seq_len(nrow(nodes_df)))
+    weights <- to_matrix(x)
+  } else if (inherits(x, "tna")) {
+    lab <- x$labels
+    weights <- x$weights
+  } else if (is.matrix(x)) {
+    lab <- colnames(x)
+    if (is.null(lab)) lab <- as.character(seq_len(ncol(x)))
+    weights <- x
+  } else {
+    stop("x must be a cograph_network, tna object, or matrix", call. = FALSE)
+  }
+
+  # Handle cluster_list as column name string
+  if (is.character(cluster_list) && length(cluster_list) == 1) {
+    if (is.null(nodes_df)) {
+      stop("To use a column name for clusters, x must be a cograph_network", call. = FALSE)
+    }
+    if (!cluster_list %in% names(nodes_df)) {
+      stop("Column '", cluster_list, "' not found in nodes. Available: ",
+           paste(names(nodes_df), collapse = ", "), call. = FALSE)
+    }
+    cluster_col <- nodes_df[[cluster_list]]
+    cluster_list <- split(lab, cluster_col)
+  }
 
   # Handle community parameter - auto-detect clusters
   if (!is.null(community)) {
@@ -116,18 +149,6 @@ plot_mtna <- function(
   n_clusters <- length(cluster_list)
   if (!is.list(cluster_list) || n_clusters < 2) {
     stop("cluster_list must be a list of 2+ character vectors", call. = FALSE)
-  }
-
-  # Get labels and weights from x
-  if (inherits(x, "tna")) {
-    lab <- x$labels
-    weights <- x$weights
-  } else if (is.matrix(x)) {
-    lab <- colnames(x)
-    if (is.null(lab)) lab <- as.character(seq_len(ncol(x)))
-    weights <- x
-  } else {
-    stop("x must be a tna object or matrix", call. = FALSE)
   }
 
   n <- length(lab)

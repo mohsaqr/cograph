@@ -47,14 +47,23 @@
 #' @param summary_label_color Summary label color. Default "gray20".
 #' @param summary_arrows Show arrows on summary edges. Default TRUE.
 #' @param summary_arrow_size Arrow head size. Default 0.15.
-#' @param edge_width_range Min/max edge width for detail edges. Default
+#' @param edge_width_range Min/max edge width for within-cluster edges. Default
 #'   c(0.3, 1.3).
-#' @param summary_edge_width_range Min/max edge width for summary edges.
-#'   Default c(0.5, 2.0).
+#' @param between_edge_width_range Min/max edge width for between-cluster edges
+#'   in bottom layer. Default c(0.5, 2.0).
+#' @param summary_edge_width_range Min/max edge width for summary edges in top
+#'   layer. Default c(0.5, 2.0).
 #' @param edge_alpha Within-cluster edge transparency. Default 0.35.
 #' @param between_edge_alpha Between-cluster edge transparency. Default 0.6.
 #' @param summary_edge_alpha Summary layer edge transparency. Default 0.7.
 #' @param inter_layer_alpha Inter-layer line transparency. Default 0.5.
+#' @param edge_labels Show weight labels on within-cluster edges. Default FALSE.
+#' @param edge_label_size Edge label text size. Default 0.5.
+#' @param edge_label_color Edge label color. Default "gray40".
+#' @param edge_label_digits Decimal places for edge labels. Default 2.
+#' @param summary_edge_labels Show weight labels on summary edges. Default
+#'   FALSE.
+#' @param summary_edge_label_size Summary edge label text size. Default 0.6.
 #' @param top_layer_scale Top layer oval x/y scale factors. Default
 #'   c(0.8, 0.25).
 #' @param inter_layer_gap Gap between layers as multiplier of spacing.
@@ -108,11 +117,19 @@ plot_mcml <- function(
     summary_arrow_size = 0.15,
     # Edge control
     edge_width_range = c(0.3, 1.3),
+    between_edge_width_range = c(0.5, 2.0),
     summary_edge_width_range = c(0.5, 2.0),
     edge_alpha = 0.35,
     between_edge_alpha = 0.6,
     summary_edge_alpha = 0.7,
     inter_layer_alpha = 0.5,
+    # Edge labels
+    edge_labels = FALSE,
+    edge_label_size = 0.5,
+    edge_label_color = "gray40",
+    edge_label_digits = 2,
+    summary_edge_labels = FALSE,
+    summary_edge_label_size = 0.6,
     # Layout fine-tuning
     top_layer_scale = c(0.8, 0.25),
     inter_layer_gap = 0.6,
@@ -333,6 +350,15 @@ plot_mcml <- function(
             graphics::segments(tx[i], ty[i], tx[j], ty[j],
                                col = edge_col, lwd = lwd)
           }
+          # Summary edge labels
+          if (summary_edge_labels) {
+            mid_x <- (tx[i] + tx[j]) / 2
+            mid_y <- (ty[i] + ty[j]) / 2
+            graphics::text(mid_x, mid_y,
+                           labels = round(sw[i, j], edge_label_digits),
+                           cex = summary_edge_label_size,
+                           col = edge_label_color)
+          }
         }
       }
     }
@@ -369,8 +395,8 @@ plot_mcml <- function(
         if (i != j && sw[i, j] > minimum) {
           p1 <- shell_edge(bx[i], by[i], bx[j], by[j], shell_rx, shell_ry)
           p2 <- shell_edge(bx[j], by[j], bx[i], by[i], shell_rx, shell_ry)
-          lwd <- summary_edge_width_range[1] +
-            (summary_edge_width_range[2] - summary_edge_width_range[1]) *
+          lwd <- between_edge_width_range[1] +
+            (between_edge_width_range[2] - between_edge_width_range[1]) *
             sw[i, j] / max_sw
           graphics::segments(p1[1], p1[2], p2[1], p2[2],
                              col = grDevices::adjustcolor(colors[i], between_edge_alpha),
@@ -413,6 +439,15 @@ plot_mcml <- function(
               graphics::segments(nx[j], ny[j], nx[k], ny[k],
                                  col = grDevices::adjustcolor(colors[i], edge_alpha),
                                  lwd = lwd)
+              # Within-cluster edge labels
+              if (edge_labels) {
+                mid_x <- (nx[j] + nx[k]) / 2
+                mid_y <- (ny[j] + ny[k]) / 2
+                graphics::text(mid_x, mid_y,
+                               labels = round(w, edge_label_digits),
+                               cex = edge_label_size,
+                               col = edge_label_color)
+              }
             }
           }
         }

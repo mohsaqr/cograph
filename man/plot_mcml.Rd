@@ -38,11 +38,18 @@ plot_mcml(
   summary_arrows = TRUE,
   summary_arrow_size = 0.15,
   edge_width_range = c(0.3, 1.3),
+  between_edge_width_range = c(0.5, 2),
   summary_edge_width_range = c(0.5, 2),
   edge_alpha = 0.35,
   between_edge_alpha = 0.6,
   summary_edge_alpha = 0.7,
   inter_layer_alpha = 0.5,
+  edge_labels = FALSE,
+  edge_label_size = 0.5,
+  edge_label_color = "gray40",
+  edge_label_digits = 2,
+  summary_edge_labels = FALSE,
+  summary_edge_label_size = 0.6,
   top_layer_scale = c(0.8, 0.25),
   inter_layer_gap = 0.6,
   node_radius_scale = 0.55,
@@ -89,11 +96,18 @@ mcml(
   summary_arrows = TRUE,
   summary_arrow_size = 0.15,
   edge_width_range = c(0.3, 1.3),
+  between_edge_width_range = c(0.5, 2),
   summary_edge_width_range = c(0.5, 2),
   edge_alpha = 0.35,
   between_edge_alpha = 0.6,
   summary_edge_alpha = 0.7,
   inter_layer_alpha = 0.5,
+  edge_labels = FALSE,
+  edge_label_size = 0.5,
+  edge_label_color = "gray40",
+  edge_label_digits = 2,
+  summary_edge_labels = FALSE,
+  summary_edge_label_size = 0.6,
   top_layer_scale = c(0.8, 0.25),
   inter_layer_gap = 0.6,
   node_radius_scale = 0.55,
@@ -183,11 +197,14 @@ Default "right".}
 
 \item{summary_arrow_size}{Arrow head size. Default 0.15.}
 
-\item{edge_width_range}{Min/max edge width for detail edges. Default
+\item{edge_width_range}{Min/max edge width for within-cluster edges. Default
 c(0.3, 1.3).}
 
-\item{summary_edge_width_range}{Min/max edge width for summary edges.
-Default c(0.5, 2.0).}
+\item{between_edge_width_range}{Min/max edge width for between-cluster edges
+in bottom layer. Default c(0.5, 2.0).}
+
+\item{summary_edge_width_range}{Min/max edge width for summary edges in top
+layer. Default c(0.5, 2.0).}
 
 \item{edge_alpha}{Within-cluster edge transparency. Default 0.35.}
 
@@ -196,6 +213,19 @@ Default c(0.5, 2.0).}
 \item{summary_edge_alpha}{Summary layer edge transparency. Default 0.7.}
 
 \item{inter_layer_alpha}{Inter-layer line transparency. Default 0.5.}
+
+\item{edge_labels}{Show weight labels on within-cluster edges. Default FALSE.}
+
+\item{edge_label_size}{Edge label text size. Default 0.5.}
+
+\item{edge_label_color}{Edge label color. Default "gray40".}
+
+\item{edge_label_digits}{Decimal places for edge labels. Default 2.}
+
+\item{summary_edge_labels}{Show weight labels on summary edges. Default
+FALSE.}
+
+\item{summary_edge_label_size}{Summary edge label text size. Default 0.6.}
 
 \item{top_layer_scale}{Top layer oval x/y scale factors. Default
 c(0.8, 0.25).}

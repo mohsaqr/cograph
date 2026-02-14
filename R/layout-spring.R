@@ -116,6 +116,19 @@ layout_spring <- function(network, iterations = 200, cooling = 0.95,
     return(data.frame(x = pos[, 1], y = pos[, 2]))
   }
 
+  # Aggregate duplicate edges for layout efficiency
+  # (26 nodes with 24k edges -> 26*25 = 650 unique pairs max)
+  edge_key <- paste(pmin(edges$from, edges$to), pmax(edges$from, edges$to), sep = "-")
+  if (length(unique(edge_key)) < nrow(edges)) {
+    # Has duplicates - aggregate by summing weights
+    weights <- if (!is.null(edges$weight)) edges$weight else rep(1, nrow(edges))
+    agg <- stats::aggregate(weights, by = list(
+      from = pmin(edges$from, edges$to),
+      to = pmax(edges$from, edges$to)
+    ), FUN = sum)
+    edges <- data.frame(from = agg$from, to = agg$to, weight = agg$x)
+  }
+
   # Optimal distance (based on area parameter)
   k <- sqrt(area / n)
 

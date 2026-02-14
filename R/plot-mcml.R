@@ -15,6 +15,15 @@
 #' @param minimum Edge threshold. Default 0.
 #' @param colors Cluster colors. Default auto.
 #' @param legend Show legend. Default TRUE.
+#' @param show_labels Logical. Show node labels. Default TRUE.
+#' @param label_size Label text size. Default NULL (auto-scaled).
+#' @param label_abbrev Label abbreviation: NULL (none), integer (max chars),
+#'   or "auto" (adaptive based on node count).
+#' @param node_size Size of nodes in bottom layer. Default 1.8.
+#' @param node_shape Shape of nodes: "circle", "square", "diamond", "triangle".
+#'   Default "circle".
+#' @param cluster_shape Shape for cluster summary nodes in top layer.
+#'   Default "circle".
 #' @param ... Unused.
 #'
 #' @export
@@ -30,6 +39,12 @@ plot_mcml <- function(
     minimum = 0,
     colors = NULL,
     legend = TRUE,
+    show_labels = TRUE,
+    label_size = NULL,
+    label_abbrev = NULL,
+    node_size = 1.8,
+    node_shape = "circle",
+    cluster_shape = "circle",
     ...
 ) {
   aggregation <- match.arg(aggregation)
@@ -203,7 +218,8 @@ plot_mcml <- function(
   }
 
   # Summary nodes
-  graphics::points(tx, ty, pch = 21, bg = colors, col = "gray20",
+  summary_pch <- .shape_to_pch(cluster_shape)
+  graphics::points(tx, ty, pch = summary_pch, bg = colors, col = "gray20",
                    cex = summary_size, lwd = 2)
 
   # ============ BOTTOM LAYER (detailed clusters) ============
@@ -263,8 +279,20 @@ plot_mcml <- function(
     }
 
     # Nodes
-    graphics::points(nx, ny, pch = 21, bg = colors[i], col = "gray30", cex = 1.8)
+    node_pch <- .shape_to_pch(node_shape)
+    graphics::points(nx, ny, pch = node_pch, bg = colors[i], col = "gray30",
+                     cex = node_size)
 
+    # Node labels
+    if (isTRUE(show_labels)) {
+      node_labels <- lab[idx]
+      if (!is.null(label_abbrev)) {
+        node_labels <- abbrev_label(node_labels, label_abbrev, length(lab))
+      }
+      lbl_cex <- if (is.null(label_size)) 0.6 else label_size
+      graphics::text(nx, ny, labels = node_labels, cex = lbl_cex, pos = 3,
+                     offset = 0.4, col = "gray20")
+    }
   }
 
   # Legend (positioned inside plot)

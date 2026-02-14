@@ -79,7 +79,7 @@ test_that("plot_htna errors when node_list elements are not character vectors", 
 test_that("plot_htna errors for invalid x type", {
   expect_error(
     plot_htna("invalid", node_list = list(G1 = c("A", "B"), G2 = c("C", "D"))),
-    "x must be a tna object or matrix"
+    "x must be a cograph_network, tna object, or matrix"
   )
 })
 

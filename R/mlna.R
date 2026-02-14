@@ -51,6 +51,9 @@
 #'   high-resolution output (e.g., scale = 4 for 300 dpi). This multiplies
 #'   layer_spacing, layer_width, and layer_depth to maintain proper proportions
 #'   at higher resolutions. Default 1.
+#' @param show_labels Logical. Show node labels. Default TRUE.
+#' @param label_abbrev Label abbreviation: NULL (none), integer (max chars),
+#'   or "auto" (adaptive based on node count).
 #' @param ... Additional parameters (currently unused).
 #'
 #' @return Invisibly returns NULL.
@@ -109,6 +112,8 @@ plot_mlna <- function(
     node_size = 3,
     minimum = 0,
     scale = 1,
+    show_labels = TRUE,
+    label_abbrev = NULL,
     ...
 ) {
   # Apply scale: use sqrt(scale) for gentler compensation at high-resolution
@@ -531,14 +536,20 @@ plot_mlna <- function(
     )
 
     # Node labels
-    graphics::text(
-      x_pos[idx], y_pos[idx],
-      labels = lab[idx],
-      cex = 0.75 / size_scale,
-      pos = 3,
-      offset = 0.6,
-      font = 1
-    )
+    if (isTRUE(show_labels)) {
+      node_labels <- lab[idx]
+      if (!is.null(label_abbrev)) {
+        node_labels <- abbrev_label(node_labels, label_abbrev, length(lab))
+      }
+      graphics::text(
+        x_pos[idx], y_pos[idx],
+        labels = node_labels,
+        cex = 0.75 / size_scale,
+        pos = 3,
+        offset = 0.6,
+        font = 1
+      )
+    }
   }
 
   # ==========================================================================

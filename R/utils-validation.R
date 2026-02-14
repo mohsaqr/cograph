@@ -174,3 +174,106 @@ resolve_aesthetic <- function(value, data = NULL, n = NULL, default = NULL) {
 
   value
 }
+
+# ==============================================================================
+# Label Abbreviation
+# ==============================================================================
+
+#' Abbreviate Labels
+#'
+#' Abbreviates labels to a maximum length, adding ellipsis if truncated.
+#'
+#' @param label Character vector of labels to abbreviate.
+#' @param abbrev Abbreviation control:
+#'   \itemize{
+#'     \item NULL: No abbreviation (return labels unchanged)
+#'     \item Integer: Maximum character length (truncate + ellipsis)
+#'     \item "auto": Adaptive abbreviation based on label count
+#'   }
+#' @param n_labels Number of labels (used for "auto" mode). If NULL, uses
+#'   length(label).
+#' @return Character vector of (possibly abbreviated) labels.
+#' @export
+#' @examples
+#' labels <- c("VeryLongStateName", "Short", "AnotherLongName")
+#'
+#' # No abbreviation
+#' abbrev_label(labels, NULL)
+#'
+#' # Fixed max length
+#' abbrev_label(labels, 5)  # "Very...", "Short", "Anot..."
+#'
+#' # Auto-adaptive
+#' abbrev_label(labels, "auto")
+abbrev_label <- function(label, abbrev = NULL, n_labels = NULL) {
+  if (is.null(abbrev)) return(label)
+  if (is.null(n_labels)) n_labels <- length(label)
+
+  if (identical(abbrev, "auto") || identical(abbrev, "adaptive")) {
+    # Adaptive: more labels = shorter abbreviation
+    max_len <- if (n_labels <= 5) {
+      Inf  # No abbreviation for 5 or fewer labels
+
+    } else if (n_labels <= 8) {
+      15
+    } else if (n_labels <= 12) {
+      10
+    } else if (n_labels <= 20) {
+      6
+    } else {
+      4
+    }
+  } else {
+    max_len <- as.integer(abbrev)
+  }
+
+  if (is.infinite(max_len)) return(label)
+
+  # Truncate labels longer than max_len
+  vapply(label, function(lab) {
+    if (nchar(lab) > max_len) {
+      paste0(substr(lab, 1, max_len - 1), "\u2026")  # Unicode ellipsis
+    } else {
+      lab
+    }
+  }, character(1), USE.NAMES = FALSE)
+}
+
+#' @rdname abbrev_label
+#' @export
+label_abbrev <- abbrev_label
+
+# ==============================================================================
+# Shape Utilities
+# ==============================================================================
+
+#' Convert Shape Name to pch Value
+#'
+#' Maps shape names to R's base graphics pch values.
+#'
+#' @param shape Character vector of shape names.
+#' @return Integer vector of pch values.
+#' @keywords internal
+#' @noRd
+.shape_to_pch <- function(shape) {
+  shape_map <- c(
+    "circle" = 21L,
+    "square" = 22L,
+    "diamond" = 23L,
+    "triangle" = 24L,
+    "triangle_down" = 25L,
+    "pentagon" = 21L,
+    "hexagon" = 21L,
+    "star" = 8L,
+    "cross" = 3L,
+    "plus" = 3L
+  )
+
+  vapply(tolower(shape), function(s) {
+    if (s %in% names(shape_map)) {
+      shape_map[[s]]
+    } else {
+      21L  # Default to circle
+    }
+  }, integer(1), USE.NAMES = FALSE)
+}

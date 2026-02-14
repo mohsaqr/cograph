@@ -70,6 +70,8 @@
 #'   high-resolution output (e.g., scale = 4 for 300 dpi). This multiplies
 #'   group positions and polygon/circular radius to maintain proper proportions
 #'   at higher resolutions. Default 1.
+#' @param label_abbrev Label abbreviation: NULL (none), integer (max chars),
+#'   or "auto" (adaptive based on node count). Applied before passing to tplot.
 #' @param ... Additional parameters passed to tplot().
 #'
 #' @return Invisibly returns the result from tplot().
@@ -135,6 +137,7 @@ plot_htna <- function(
     legend_position = "topright",
     extend_lines = FALSE,
     scale = 1,
+    label_abbrev = NULL,
     ...
 ) {
   # Apply scale: use sqrt(scale) for gentler compensation at high-resolution
@@ -453,6 +456,12 @@ plot_htna <- function(
     }
   }
 
+  # Apply label abbreviation if requested
+  abbrev_labels <- NULL
+  if (!is.null(label_abbrev)) {
+    abbrev_labels <- abbrev_label(lab, label_abbrev, length(lab))
+  }
+
   # Call tplot
   # Capture ... args and remove edge.color if we're setting it
   dots <- list(...)
@@ -476,6 +485,11 @@ plot_htna <- function(
     ),
     dots
   )
+
+  # Add abbreviated labels if specified
+  if (!is.null(abbrev_labels)) {
+    tplot_args$labels <- abbrev_labels
+  }
 
   # Add edge colors if specified (tplot uses edge.color parameter)
   if (!is.null(edge_color_matrix)) {

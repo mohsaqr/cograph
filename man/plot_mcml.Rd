@@ -7,7 +7,7 @@
 \usage{
 plot_mcml(
   x,
-  cluster_list,
+  cluster_list = NULL,
   layer_spacing = NULL,
   spacing = 3,
   shape_size = 1.2,
@@ -17,12 +17,18 @@ plot_mcml(
   minimum = 0,
   colors = NULL,
   legend = TRUE,
+  show_labels = TRUE,
+  label_size = NULL,
+  label_abbrev = NULL,
+  node_size = 1.8,
+  node_shape = "circle",
+  cluster_shape = "circle",
   ...
 )
 
 mcml(
   x,
-  cluster_list,
+  cluster_list = NULL,
   layer_spacing = NULL,
   spacing = 3,
   shape_size = 1.2,
@@ -32,13 +38,20 @@ mcml(
   minimum = 0,
   colors = NULL,
   legend = TRUE,
+  show_labels = TRUE,
+  label_size = NULL,
+  label_abbrev = NULL,
+  node_size = 1.8,
+  node_shape = "circle",
+  cluster_shape = "circle",
   ...
 )
 }
 \arguments{
-\item{x}{Weight matrix or tna object}
+\item{x}{Weight matrix, tna object, or cograph_network}
 
-\item{cluster_list}{Named list of node vectors per cluster}
+\item{cluster_list}{Named list of node vectors per cluster, column name
+string, or NULL for auto-detection}
 
 \item{layer_spacing}{Vertical distance between layers. Default 4.}
 
@@ -57,6 +70,21 @@ mcml(
 \item{colors}{Cluster colors. Default auto.}
 
 \item{legend}{Show legend. Default TRUE.}
+
+\item{show_labels}{Logical. Show node labels. Default TRUE.}
+
+\item{label_size}{Label text size. Default NULL (auto-scaled).}
+
+\item{label_abbrev}{Label abbreviation: NULL (none), integer (max chars),
+or "auto" (adaptive based on node count).}
+
+\item{node_size}{Size of nodes in bottom layer. Default 1.8.}
+
+\item{node_shape}{Shape of nodes: "circle", "square", "diamond", "triangle".
+Default "circle".}
+
+\item{cluster_shape}{Shape for cluster summary nodes in top layer.
+Default "circle".}
 
 \item{...}{Unused.}
 }

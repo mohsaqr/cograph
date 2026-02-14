@@ -30,6 +30,7 @@ plot_htna(
   legend_position = "topright",
   extend_lines = FALSE,
   scale = 1,
+  label_abbrev = NULL,
   ...
 )
 
@@ -58,14 +59,20 @@ htna(
   legend_position = "topright",
   extend_lines = FALSE,
   scale = 1,
+  label_abbrev = NULL,
   ...
 )
 }
 \arguments{
-\item{x}{A tna object or weight matrix.}
+\item{x}{A tna object, weight matrix, or cograph_network.}
 
-\item{node_list}{List of 2+ character vectors defining node groups. If NULL
-and \code{community} is specified, groups are auto-detected.}
+\item{node_list}{Node groups can be specified as:
+\itemize{
+\item A list of character vectors (node names per group)
+\item A string column name from nodes data (e.g., "groups")
+\item NULL to auto-detect from columns named: groups, cluster, community, etc.
+\item NULL with \code{community} specified for algorithmic detection
+}}
 
 \item{community}{Community detection method to use for auto-grouping.
 If specified, overrides \code{node_list}. See \code{\link{detect_communities}}
@@ -143,6 +150,9 @@ Only applies to bipartite layout.
 high-resolution output (e.g., scale = 4 for 300 dpi). This multiplies
 group positions and polygon/circular radius to maintain proper proportions
 at higher resolutions. Default 1.}
+
+\item{label_abbrev}{Label abbreviation: NULL (none), integer (max chars),
+or "auto" (adaptive based on node count). Applied before passing to tplot.}
 
 \item{...}{Additional parameters passed to tplot().}
 }

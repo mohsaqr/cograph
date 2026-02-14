@@ -28,6 +28,8 @@ plot_mlna(
   node_size = 3,
   minimum = 0,
   scale = 1,
+  show_labels = TRUE,
+  label_abbrev = NULL,
   ...
 )
 
@@ -54,16 +56,21 @@ mlna(
   node_size = 3,
   minimum = 0,
   scale = 1,
+  show_labels = TRUE,
+  label_abbrev = NULL,
   ...
 )
 }
 \arguments{
-\item{model}{A tna object or weight matrix.}
+\item{model}{A tna object, weight matrix, or cograph_network.}
 
-\item{layer_list}{List of character vectors defining layers. Each element
-contains node names belonging to that layer. Layers are displayed from
-top to bottom in list order. If NULL and \code{community} is specified,
-layers are auto-detected.}
+\item{layer_list}{Layers can be specified as:
+\itemize{
+\item A list of character vectors (node names per layer)
+\item A string column name from nodes data (e.g., "layer")
+\item NULL to auto-detect from columns named: layer, layers, groups, etc.
+\item NULL with \code{community} specified for algorithmic detection
+}}
 
 \item{community}{Community detection method to use for auto-layering.
 If specified, overrides \code{layer_list}. See \code{\link{detect_communities}}
@@ -118,6 +125,11 @@ Default 0.}
 high-resolution output (e.g., scale = 4 for 300 dpi). This multiplies
 layer_spacing, layer_width, and layer_depth to maintain proper proportions
 at higher resolutions. Default 1.}
+
+\item{show_labels}{Logical. Show node labels. Default TRUE.}
+
+\item{label_abbrev}{Label abbreviation: NULL (none), integer (max chars),
+or "auto" (adaptive based on node count).}
 
 \item{...}{Additional parameters (currently unused).}
 }

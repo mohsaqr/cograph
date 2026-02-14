@@ -28,6 +28,10 @@ plot_mtna(
   node_size = 3,
   layout_margin = 0.15,
   scale = 1,
+  show_labels = FALSE,
+  label_size = NULL,
+  label_abbrev = NULL,
+  cluster_shape = NULL,
   ...
 )
 
@@ -54,15 +58,22 @@ mtna(
   node_size = 3,
   layout_margin = 0.15,
   scale = 1,
+  show_labels = FALSE,
+  label_size = NULL,
+  label_abbrev = NULL,
+  cluster_shape = NULL,
   ...
 )
 }
 \arguments{
-\item{x}{A tna object or weight matrix.}
+\item{x}{A tna object, weight matrix, or cograph_network.}
 
-\item{cluster_list}{List of character vectors defining clusters.
-Each cluster becomes a separate shape in the layout. If NULL and
-\code{community} is specified, clusters are auto-detected.}
+\item{cluster_list}{Clusters can be specified as:
+\itemize{
+\item A list of character vectors (node names per cluster)
+\item A string column name from nodes data (e.g., "groups")
+\item NULL with \code{community} specified for auto-detection
+}}
 
 \item{community}{Community detection method to use for auto-clustering.
 If specified, overrides \code{cluster_list}. See \code{\link{detect_communities}}
@@ -109,7 +120,7 @@ edges within each cluster. Default TRUE.}
 
 \item{curvature}{Edge curvature. Default 0.3.}
 
-\item{node_size}{Size of nodes inside shapes. Default 2.}
+\item{node_size}{Size of nodes inside shapes. Default 3.}
 
 \item{layout_margin}{Margin around the layout as fraction of range. Default 0.15.}
 
@@ -117,6 +128,16 @@ edges within each cluster. Default TRUE.}
 high-resolution output (e.g., scale = 4 for 300 dpi). This multiplies
 spacing and shape_size to maintain proper proportions at higher resolutions.
 Default 1.}
+
+\item{show_labels}{Logical. Show node labels inside clusters. Default FALSE.}
+
+\item{label_size}{Label text size. Default NULL (auto-scaled).}
+
+\item{label_abbrev}{Label abbreviation: NULL (none), integer (max chars),
+or "auto" (adaptive based on node count).}
+
+\item{cluster_shape}{Shape for cluster summary nodes when using summary view.
+Overrides \code{shapes} for summary node rendering. Default NULL (use shapes).}
 
 \item{...}{Additional parameters passed to plot_tna().}
 }
@@ -145,6 +166,9 @@ clusters <- list(
 
 # Summary edges between clusters + individual edges within
 plot_mtna(m, clusters, summary_edges = TRUE)
+
+# With node labels
+plot_mtna(m, clusters, show_labels = TRUE, label_abbrev = 3)
 
 # Control spacing and sizes
 plot_mtna(m, clusters, spacing = 4, shape_size = 1.5, node_spacing = 0.6)

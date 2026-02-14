@@ -526,7 +526,7 @@ cluster_significance <- function(x,
       igraph::cluster_louvain(g_null),
       error = function(e) {
         # If Louvain fails, use fast_greedy
-        igraph::cluster_fast_greedy(igraph::as.undirected(g_null))
+        igraph::cluster_fast_greedy(igraph::as_undirected(g_null))
       }
     )
     null_mods[i] <- igraph::modularity(comm_null)
@@ -1084,6 +1084,7 @@ print.cluster_summary <- function(x, ...) {
 
 #' @export
 print.cluster_quality <- function(x, ...) {
+
   cat("Cluster Quality Metrics\n")
   cat("=======================\n\n")
 
@@ -1097,3 +1098,134 @@ print.cluster_quality <- function(x, ...) {
 
   invisible(x)
 }
+
+# ==============================================================================
+# 8. Summarize Network
+# ==============================================================================
+
+#' Summarize Network by Clusters
+#'
+#' Creates a summary network where each cluster becomes a single node.
+#' Edge weights are aggregated from the original network using the specified
+#' method. Returns a cograph_network object ready for plotting.
+#'
+#' @param x A weight matrix, tna object, or cograph_network.
+#' @param cluster_list Cluster specification:
+#'   \itemize{
+#'     \item Named list of node vectors (e.g., \code{list(A = c("n1", "n2"), B = c("n3", "n4"))})
+#'     \item String column name from nodes data (e.g., "clusters", "groups")
+#'     \item NULL to auto-detect from common column names
+#'   }
+#' @param method Aggregation method for edge weights: "sum", "mean", "max",
+#'   "min", "median", "density", "geomean". Default "sum".
+#' @param directed Logical. Treat network as directed. Default TRUE.
+#'
+#' @return A cograph_network object with:
+#'   \itemize{
+#'     \item One node per cluster (named by cluster)
+#'     \item Edge weights = aggregated between-cluster weights
+#'     \item nodes$size = cluster sizes (number of original nodes)
+#'   }
+#'
+#' @export
+#' @seealso \code{\link{cluster_summary}}, \code{\link{plot_mcml}}
+#'
+#' @examples
+#' # Create a network with clusters
+#' mat <- matrix(runif(100), 10, 10)
+#' diag(mat) <- 0
+#' rownames(mat) <- colnames(mat) <- LETTERS[1:10]
+#'
+#' # Define clusters
+#' clusters <- list(
+#'   Group1 = c("A", "B", "C"),
+#'   Group2 = c("D", "E", "F"),
+#'   Group3 = c("G", "H", "I", "J")
+#' )
+#'
+#' # Create summary network
+#' summary_net <- summarize_network(mat, clusters)
+#' splot(summary_net)
+#'
+#' # With cograph_network (auto-detect clusters column)
+#' \dontrun{
+#' Net <- cograph(mat)
+#' Net$nodes$clusters <- rep(c("A", "B", "C"), c(3, 3, 4))
+#' summary_net <- summarize_network(Net)  # Auto-detects 'clusters'
+#' }
+summarize_network <- function(x,
+                               cluster_list = NULL,
+                               method = c("sum", "mean", "max", "min",
+                                          "median", "density", "geomean"),
+                               directed = TRUE) {
+
+  method <- match.arg(method)
+
+  # Extract weight matrix and nodes data
+  nodes_df <- NULL
+  if (inherits(x, "cograph_network")) {
+    mat <- to_matrix(x)
+    nodes_df <- get_nodes(x)
+    lab <- if (!is.null(nodes_df$label)) nodes_df$label else rownames(mat)
+  } else if (inherits(x, "tna")) {
+    mat <- x$weights
+    lab <- x$labels
+    if (is.null(lab)) lab <- rownames(mat)
+  } else if (is.matrix(x)) {
+    mat <- x
+    lab <- rownames(mat)
+    if (is.null(lab)) lab <- as.character(seq_len(nrow(mat)))
+  } else {
+    stop("x must be a cograph_network, tna object, or matrix", call. = FALSE)
+  }
+
+  # Handle cluster_list specification
+  if (is.character(cluster_list) && length(cluster_list) == 1) {
+    # Column name provided
+    if (is.null(nodes_df)) {
+      stop("To use a column name for cluster_list, x must be a cograph_network",
+           call. = FALSE)
+    }
+    if (!cluster_list %in% names(nodes_df)) {
+      stop("Column '", cluster_list, "' not found in nodes. Available: ",
+           paste(names(nodes_df), collapse = ", "), call. = FALSE)
+    }
+    cluster_col <- nodes_df[[cluster_list]]
+    cluster_list <- split(lab, cluster_col)
+  } else if (is.null(cluster_list) && !is.null(nodes_df)) {
+    # Auto-detect from common column names
+    cluster_cols <- c("clusters", "cluster", "groups", "group", "community", "module")
+    for (col in cluster_cols) {
+      if (col %in% names(nodes_df)) {
+        cluster_col <- nodes_df[[col]]
+        cluster_list <- split(lab, cluster_col)
+        message("Using '", col, "' column for clusters")
+        break
+      }
+    }
+  }
+
+  if (is.null(cluster_list)) {
+    stop("cluster_list required: provide a list, column name, or add a ",
+         "'clusters'/'groups' column to nodes", call. = FALSE)
+  }
+
+  # Compute cluster summary
+  cs <- cluster_summary(mat, cluster_list, method = method, directed = directed)
+
+  # Create cograph_network from between-cluster matrix
+  result <- cograph(cs$between, directed = directed)
+
+  # Add cluster sizes to nodes
+  result$nodes$size <- cs$cluster_sizes[match(result$nodes$label, cs$cluster_names)]
+
+  result
+}
+
+#' @rdname summarize_network
+#' @export
+cluster_network <- summarize_network
+
+#' @rdname summarize_network
+#' @export
+cnet <- summarize_network

@@ -39,12 +39,18 @@
 #' @param legend Logical. Whether to show legend. Default TRUE.
 #' @param legend_position Position for legend. Default "topright".
 #' @param curvature Edge curvature. Default 0.3.
-#' @param node_size Size of nodes inside shapes. Default 2.
+#' @param node_size Size of nodes inside shapes. Default 3.
 #' @param layout_margin Margin around the layout as fraction of range. Default 0.15.
 #' @param scale Scaling factor for spacing parameters. Use scale > 1 for
 #'   high-resolution output (e.g., scale = 4 for 300 dpi). This multiplies
 #'   spacing and shape_size to maintain proper proportions at higher resolutions.
 #'   Default 1.
+#' @param show_labels Logical. Show node labels inside clusters. Default FALSE.
+#' @param label_size Label text size. Default NULL (auto-scaled).
+#' @param label_abbrev Label abbreviation: NULL (none), integer (max chars),
+#'   or "auto" (adaptive based on node count).
+#' @param cluster_shape Shape for cluster summary nodes when using summary view.
+#'   Overrides \code{shapes} for summary node rendering. Default NULL (use shapes).
 #' @param ... Additional parameters passed to plot_tna().
 #'
 #' @return Invisibly returns NULL for summary mode, or the plot_tna result.
@@ -68,6 +74,9 @@
 #'
 #' # Summary edges between clusters + individual edges within
 #' plot_mtna(m, clusters, summary_edges = TRUE)
+#'
+#' # With node labels
+#' plot_mtna(m, clusters, show_labels = TRUE, label_abbrev = 3)
 #'
 #' # Control spacing and sizes
 #' plot_mtna(m, clusters, spacing = 4, shape_size = 1.5, node_spacing = 0.6)
@@ -95,6 +104,10 @@ plot_mtna <- function(
     node_size = 3,
     layout_margin = 0.15,
     scale = 1,
+    show_labels = FALSE,
+    label_size = NULL,
+    label_abbrev = NULL,
+    cluster_shape = NULL,
     ...
 ) {
   # Match aggregation method
@@ -746,6 +759,17 @@ plot_mtna <- function(
                       bg = shell_color,
                       col = "gray30",
                       cex = node_size)
+
+      # Draw node labels if requested
+      if (isTRUE(show_labels)) {
+        node_labels <- lab[idx]
+        if (!is.null(label_abbrev)) {
+          node_labels <- abbrev_label(node_labels, label_abbrev, length(lab))
+        }
+        lbl_cex <- if (is.null(label_size)) 0.7 / size_scale else label_size / size_scale
+        graphics::text(inner_x, inner_y, labels = node_labels,
+                       cex = lbl_cex, pos = 3, offset = 0.4, col = "gray20")
+      }
 
       # Draw cluster label
       cluster_names <- names(cluster_list)

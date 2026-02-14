@@ -595,7 +595,7 @@ test_that("plot_mtna() errors with invalid input type", {
 
   expect_error(
     with_temp_png(plot_mtna("invalid", clusters)),
-    "x must be a tna object or matrix"
+    "x must be a cograph_network, tna object, or matrix"
   )
 })
 

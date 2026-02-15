@@ -539,15 +539,38 @@ plot_mcml <- function(
     graphics::points(nx, ny, pch = node_pch, bg = colors[i],
                      col = node_border_color, cex = node_size)
 
-    # Node labels
+    # Node labels - position on outer side of cluster
     if (isTRUE(show_labels)) {
       lbl_text <- display_labels[idx]
       if (!is.null(label_abbrev)) {
         lbl_text <- abbrev_label(lbl_text, label_abbrev, n)
       }
       lbl_cex <- if (is.null(label_size)) 0.6 else label_size
-      graphics::text(nx, ny, labels = lbl_text, cex = lbl_cex, pos = label_position,
-                     offset = 0.4, col = label_color)
+
+      # Calculate label position for each node (outward from cluster center)
+      # pos: 1=below, 2=left, 3=above, 4=right
+      cx <- bx[i]  # cluster center x
+      cy <- by[i]  # cluster center y
+      for (ni in seq_along(nx)) {
+        # Angle from cluster center to node
+        angle <- atan2(ny[ni] - cy, nx[ni] - cx)
+        # Convert angle to pos (outward direction)
+        # Right: -pi/4 to pi/4 -> pos=4
+        # Top: pi/4 to 3*pi/4 -> pos=3
+        # Left: 3*pi/4 to pi or -pi to -3*pi/4 -> pos=2
+        # Bottom: -3*pi/4 to -pi/4 -> pos=1
+        if (angle >= -pi/4 && angle < pi/4) {
+          lbl_pos <- 4  # right
+        } else if (angle >= pi/4 && angle < 3*pi/4) {
+          lbl_pos <- 3  # above
+        } else if (angle >= -3*pi/4 && angle < -pi/4) {
+          lbl_pos <- 1  # below
+        } else {
+          lbl_pos <- 2  # left
+        }
+        graphics::text(nx[ni], ny[ni], labels = lbl_text[ni], cex = lbl_cex,
+                       pos = lbl_pos, offset = 0.4, col = label_color)
+      }
     }
   }
 

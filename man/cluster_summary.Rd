@@ -43,18 +43,23 @@ cluster_summary. Default FALSE.}
 }
 \value{
 A \code{cluster_summary} object with:
-\item{tna}{Row-normalized transition matrix (rows sum to 1)}
-\item{inits}{Initial state distribution (sums to 1)}
+\item{tna}{Between-cluster transition matrix (rows sum to 1, k x k)}
+\item{inits}{Between-cluster initial state distribution (sums to 1)}
+\item{within_tna}{Within-cluster transition matrix (block-diagonal, n x n).
+Each block is row-normalized. Shows transitions between nodes within
+the same cluster.}
+\item{within_inits}{Within-cluster initial state distribution (n x 1)}
 \item{between_weights}{Matrix of between-cluster aggregated weights}
-\item{within_weights}{Vector of within-cluster aggregated weights}
+\item{within_weights}{Vector of within-cluster aggregated weights (scalars)}
 \item{cluster_sizes}{Number of nodes per cluster}
 \item{cluster_names}{Names of clusters}
+\item{node_names}{Names of individual nodes}
 \item{method}{Aggregation method used}
 \item{directed}{Whether network was treated as directed}
 
 If \code{as_tna = TRUE}, returns a tna-compatible object with:
-\item{weights}{Transition matrix (same as tna above)}
-\item{inits}{Initial state distribution}
+\item{weights}{Between-cluster transition matrix (same as tna above)}
+\item{inits}{Between-cluster initial state distribution}
 \item{labels}{Cluster names}
 }
 \description{

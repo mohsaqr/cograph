@@ -74,18 +74,23 @@ wagg <- aggregate_weights
 #' @param as_tna Logical; if TRUE, return a tna-compatible object instead of
 #'   cluster_summary. Default FALSE.
 #' @return A `cluster_summary` object with:
-#'   \item{tna}{Row-normalized transition matrix (rows sum to 1)}
-#'   \item{inits}{Initial state distribution (sums to 1)}
+#'   \item{tna}{Between-cluster transition matrix (rows sum to 1, k x k)}
+#'   \item{inits}{Between-cluster initial state distribution (sums to 1)}
+#'   \item{within_tna}{Within-cluster transition matrix (block-diagonal, n x n).
+#'     Each block is row-normalized. Shows transitions between nodes within
+#'     the same cluster.}
+#'   \item{within_inits}{Within-cluster initial state distribution (n x 1)}
 #'   \item{between_weights}{Matrix of between-cluster aggregated weights}
-#'   \item{within_weights}{Vector of within-cluster aggregated weights}
+#'   \item{within_weights}{Vector of within-cluster aggregated weights (scalars)}
 #'   \item{cluster_sizes}{Number of nodes per cluster}
 #'   \item{cluster_names}{Names of clusters}
+#'   \item{node_names}{Names of individual nodes}
 #'   \item{method}{Aggregation method used}
 #'   \item{directed}{Whether network was treated as directed}
 #'
 #'   If `as_tna = TRUE`, returns a tna-compatible object with:
-#'   \item{weights}{Transition matrix (same as tna above)}
-#'   \item{inits}{Initial state distribution}
+#'   \item{weights}{Between-cluster transition matrix (same as tna above)}
+#'   \item{inits}{Between-cluster initial state distribution}
 #'   \item{labels}{Cluster names}
 #' @export
 #' @examples
@@ -192,6 +197,9 @@ cluster_summary <- function(x,
                     dimnames = list(cluster_names, cluster_names))
   within <- setNames(numeric(n_clusters), cluster_names)
 
+  # Initialize within_tna: block-diagonal matrix (n x n) for within-cluster transitions
+  within_tna_mat <- matrix(0, n, n, dimnames = list(node_names, node_names))
+
   # Compute aggregates
   for (i in seq_len(n_clusters)) {
     idx_i <- cluster_indices[[i]]
@@ -199,12 +207,17 @@ cluster_summary <- function(x,
 
     # Within-cluster (excluding diagonal for density)
     if (n_i > 1) {
-      within_weights <- x[idx_i, idx_i]
-      diag(within_weights) <- 0  # Exclude self-loops for within
+      within_block <- x[idx_i, idx_i]
+      diag(within_block) <- 0  # Exclude self-loops for within
       n_possible_within <- n_i * (n_i - 1)
       if (!directed) n_possible_within <- n_possible_within / 2
-      within[i] <- aggregate_weights(as.vector(within_weights), method,
+      within[i] <- aggregate_weights(as.vector(within_block), method,
                                      n_possible_within)
+
+      # Row-normalize within block for within_tna
+      block_row_sums <- rowSums(within_block)
+      within_block_norm <- within_block / ifelse(block_row_sums == 0, 1, block_row_sums)
+      within_tna_mat[idx_i, idx_i] <- within_block_norm
     }
 
     # Between-cluster
@@ -236,14 +249,25 @@ cluster_summary <- function(x,
   }
   names(inits) <- cluster_names
 
+  # Within inits: column sums of within_tna normalized
+  within_col_sums <- colSums(within_tna_mat)
+  within_inits <- within_col_sums / sum(within_col_sums)
+  if (!is.finite(sum(within_inits))) {
+    within_inits <- rep(1 / n, n)
+  }
+  names(within_inits) <- node_names
+
   result <- structure(
     list(
       tna = tna,
       inits = inits,
+      within_tna = within_tna_mat,
+      within_inits = within_inits,
       between_weights = between,
       within_weights = within,
       cluster_sizes = cluster_sizes,
       cluster_names = cluster_names,
+      node_names = node_names,
       method = method,
       directed = directed
     ),
@@ -1175,16 +1199,26 @@ print.cluster_summary <- function(x, ...) {
   cat("---------------\n")
   cat("Method:", x$method, "\n")
   cat("Clusters:", length(x$cluster_names), "\n")
+  cat("Nodes:", length(x$node_names), "\n")
   cat("Cluster sizes:", paste(x$cluster_sizes, collapse = ", "), "\n\n")
 
-  cat("Inits:\n")
-  print(round(x$inits, 3))
-  cat("\nTNA (transition matrix):\n")
+  cat("Between-cluster TNA:\n")
+  cat("  Inits:", paste(round(x$inits, 3), collapse = ", "), "\n")
+  cat("  Transition matrix:\n")
   print(round(x$tna, 3))
-  cat("\nBetween-cluster weights:\n")
-  print(round(x$between_weights, 4))
-  cat("\nWithin-cluster weights:\n")
-  print(round(x$within_weights, 4))
+
+  cat("\nWithin-cluster TNA:\n")
+  n <- nrow(x$within_tna)
+  if (n <= 10) {
+    cat("  Inits:", paste(round(x$within_inits, 3), collapse = ", "), "\n")
+    cat("  Transition matrix:\n")
+    print(round(x$within_tna, 3))
+  } else {
+    cat("  Nodes:", n, "(showing first 6)\n")
+    cat("  Inits (first 6):", paste(round(x$within_inits[1:6], 3), collapse = ", "), "...\n")
+    cat("  Transition matrix (6x6 corner):\n")
+    print(round(x$within_tna[1:6, 1:6], 3))
+  }
 
   invisible(x)
 }

@@ -900,10 +900,10 @@ test_that("print.cluster_summary works", {
 
   expect_output(print(result), "Cluster Summary")
   expect_output(print(result), "Clusters:")
-  expect_output(print(result), "TNA")
+  expect_output(print(result), "Between-cluster TNA")
+  expect_output(print(result), "Within-cluster TNA")
   expect_output(print(result), "Inits")
-  expect_output(print(result), "Between-cluster weights")
-  expect_output(print(result), "Within-cluster weights")
+  expect_output(print(result), "Transition matrix")
 })
 
 # ==============================================================================
@@ -1030,10 +1030,17 @@ test_that("cluster_significance computes z-score correctly", {
 test_that("cluster_summary returns tna and inits fields", {
   result <- cluster_summary(mat, clusters_list)
 
+  # Between-cluster TNA
   expect_true("tna" %in% names(result))
   expect_true("inits" %in% names(result))
   expect_equal(dim(result$tna), c(3, 3))
   expect_equal(length(result$inits), 3)
+
+  # Within-cluster TNA
+  expect_true("within_tna" %in% names(result))
+  expect_true("within_inits" %in% names(result))
+  expect_equal(dim(result$within_tna), c(8, 8))
+  expect_equal(length(result$within_inits), 8)
 })
 
 test_that("cluster_summary tna rows sum to 1", {
@@ -1048,6 +1055,26 @@ test_that("cluster_summary inits sums to 1", {
   result <- cluster_summary(mat, clusters_list)
 
   expect_equal(sum(result$inits), 1, tolerance = 1e-10)
+  expect_equal(sum(result$within_inits), 1, tolerance = 1e-10)
+})
+
+test_that("cluster_summary within_tna is block diagonal", {
+  result <- cluster_summary(mat, clusters_list)
+
+  # Within_tna should have zeros for between-cluster edges
+  # Group1 = N1, N2; Group2 = N3, N4, N5; Group3 = N6, N7, N8
+  # Check that edges between groups are 0
+  expect_equal(sum(result$within_tna[1:2, 3:8]), 0)  # Group1 -> others
+  expect_equal(sum(result$within_tna[3:5, c(1:2, 6:8)]), 0)  # Group2 -> others
+  expect_equal(sum(result$within_tna[6:8, 1:5]), 0)  # Group3 -> others
+})
+
+test_that("cluster_summary within_tna rows sum to 1 or 0", {
+  result <- cluster_summary(mat, clusters_list)
+
+  # Each row should sum to 1 (for nodes with outgoing edges) or 0 (isolated)
+  row_sums <- rowSums(result$within_tna)
+  expect_true(all(row_sums == 0 | abs(row_sums - 1) < 1e-10))
 })
 
 test_that("cluster_summary as_tna returns tna object", {

@@ -743,7 +743,7 @@ render_edge_labels_grid <- function(network) {
     dy <- y2 - y1
     len <- sqrt(dx^2 + dy^2)
 
-    if (len == 0) {
+    if (is.na(len) || len == 0) {
       grobs[[i]] <- grid::nullGrob()
       next
     }

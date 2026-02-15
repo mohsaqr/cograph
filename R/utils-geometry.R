@@ -80,7 +80,7 @@ curve_control_point <- function(x1, y1, x2, y2, curvature, pivot = 0.5, shape = 
   dy <- y2 - y1
   len <- sqrt(dx^2 + dy^2)
 
-  if (len == 0) {
+  if (is.na(len) || len == 0) {
     return(list(x = mx, y = my))
   }
 

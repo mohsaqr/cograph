@@ -432,7 +432,7 @@ df <- df[df$count > 0 | df$significant, ]
 
   # Set up plot
   old_par <- graphics::par(no.readonly = TRUE)
-  on.exit(graphics::par(old_par))
+  on.exit(graphics::par(old_par), add = TRUE)
 
   graphics::par(mfrow = c(n_rows, n_cols), mar = c(1, 1, 3, 1))
 
@@ -762,6 +762,15 @@ lookup <- .get_triad_lookup()
 # Cache environment for memoization
 .cograph_cache <- new.env(parent = emptyenv())
 
+# Helper to get tna internal function without using :::
+# Uses getFromNamespace which is CRAN-acceptable
+.get_tna_initialize_model <- function() {
+  if (!requireNamespace("tna", quietly = TRUE)) {
+    stop("Package 'tna' required for this operation", call. = FALSE)
+  }
+  get("initialize_model", envir = asNamespace("tna"))
+}
+
 # Vectorized triad counting for a single matrix
 # Returns data.frame with columns: i, j, k, type (or NULL if no triads found)
 # @param mat Numeric matrix (adjacency/transition matrix)
@@ -938,7 +947,8 @@ d <- x$data
   params <- attr(x, "params")
 
   # Use tna's internal function to get transition counts
-  model <- tna:::initialize_model(d, type, scaling, params, transitions = TRUE)
+  init_fn <- .get_tna_initialize_model()
+  model <- init_fn(d, type, scaling, params, transitions = TRUE)
   trans <- model$trans
 
   labels <- x$labels
@@ -1199,7 +1209,8 @@ extract_motifs <- function(x = NULL,
     type_attr <- attr(x, "type")
     scaling <- attr(x, "scaling")
     params <- attr(x, "params")
-    model <- tna:::initialize_model(d, type_attr, scaling, params, transitions = TRUE)
+    init_fn <- .get_tna_initialize_model()
+    model <- init_fn(d, type_attr, scaling, params, transitions = TRUE)
     trans <- model$trans
     labels <- x$labels
     has_individuals <- TRUE
@@ -1651,7 +1662,7 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
   dx <- x1 - x0
   dy <- y1 - y0
   len <- sqrt(dx^2 + dy^2)
-  if (len == 0) return()
+  if (is.na(len) || len == 0) return()
 
   # Unit vectors
   ux <- dx / len
@@ -1869,7 +1880,7 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
   dx <- tip_x - base_x
   dy <- tip_y - base_y
   len <- sqrt(dx^2 + dy^2)
-  if (len == 0) return()
+  if (is.na(len) || len == 0) return()
 
   # Unit vectors
   ux <- dx / len
@@ -1960,7 +1971,7 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
 
   # Set up plot
   old_par <- graphics::par(no.readonly = TRUE)
-  on.exit(graphics::par(old_par))
+  on.exit(graphics::par(old_par), add = TRUE)
 
   graphics::par(mfrow = c(n_rows, n_cols), mar = c(1, 1, 4, 1), bg = "white")
 

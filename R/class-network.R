@@ -33,19 +33,48 @@ CographNetwork <- R6::R6Class(
 
         # Merge nodes metadata if provided as data frame
         if (is.data.frame(nodes)) {
-          # Match by label if possible
-          if ("label" %in% names(nodes) && "label" %in% names(private$.nodes)) {
-            # Merge by label
-            for (col in setdiff(names(nodes), "label")) {
-              idx <- match(private$.nodes$label, nodes$label)
+          # Determine which column to use for matching
+          # Priority: name > label > id (match against network's internal label)
+          net_labels <- private$.nodes$label
+          match_col <- NULL
+          idx <- NULL
+
+          # Try matching by 'name' column first
+          if ("name" %in% names(nodes)) {
+            test_idx <- match(net_labels, nodes$name)
+            if (sum(!is.na(test_idx)) > 0) {
+              match_col <- "name"
+              idx <- test_idx
+            }
+          }
+
+          # Try matching by 'label' column
+          if (is.null(idx) && "label" %in% names(nodes)) {
+            test_idx <- match(net_labels, nodes$label)
+            if (sum(!is.na(test_idx)) > 0) {
+              match_col <- "label"
+              idx <- test_idx
+            }
+          }
+
+          # Try matching by 'id' column
+          if (is.null(idx) && "id" %in% names(nodes)) {
+            test_idx <- match(net_labels, nodes$id)
+            if (sum(!is.na(test_idx)) > 0) {
+              match_col <- "id"
+              idx <- test_idx
+            }
+          }
+
+          if (!is.null(idx)) {
+            # Merge all columns except the match column
+            for (col in setdiff(names(nodes), match_col)) {
               private$.nodes[[col]] <- nodes[[col]][idx]
             }
-          } else {
-            # Assume same order
-            if (nrow(nodes) == nrow(private$.nodes)) {
-              for (col in names(nodes)) {
-                private$.nodes[[col]] <- nodes[[col]]
-              }
+          } else if (nrow(nodes) == nrow(private$.nodes)) {
+            # Fallback: assume same order
+            for (col in names(nodes)) {
+              private$.nodes[[col]] <- nodes[[col]]
             }
           }
         }

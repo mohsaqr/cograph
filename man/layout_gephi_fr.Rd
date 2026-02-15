@@ -4,25 +4,58 @@
 \alias{layout_gephi_fr}
 \title{Gephi Fruchterman-Reingold Layout}
 \usage{
-layout_gephi_fr(g, area = 10000, gravity = 10, speed = 1, niter = 100)
+layout_gephi_fr(
+  g,
+  area = 10000,
+  gravity = 1,
+  speed = 1,
+  niter = 100,
+  seed = NULL,
+  initial = NULL,
+  normalize = TRUE,
+  gravity_mode = c("linear", "degree", "none"),
+  cooling_mode = c("constant", "vcf", "linear"),
+  anchor_strength = 0
+)
 }
 \arguments{
 \item{g}{An igraph graph object.}
 
 \item{area}{Area parameter controlling node spread. Default 10000.}
 
-\item{gravity}{Gravity force pulling nodes toward center. Default 10.0.}
+\item{gravity}{Gravity force pulling nodes toward center. Default 1.0.
+(Note: Reduced from Gephi's default of 10.0 to prevent circular layouts)}
 
 \item{speed}{Speed/cooling parameter. Default 1.0.}
 
 \item{niter}{Number of iterations. Default 100.}
+
+\item{seed}{Random seed for reproducibility. Default NULL.}
+
+\item{initial}{Optional initial coordinates (matrix or data frame).
+Useful for warm-starting or animations.}
+
+\item{normalize}{Logical. If TRUE (default), normalize output to [0,1] range.
+If FALSE, return raw Gephi-scale coordinates.}
+
+\item{gravity_mode}{Gravity behavior: "linear" (default, standard gravity),
+"degree" (high-degree nodes feel stronger gravity, creates hub structure),
+or "none" (no gravity, like igraph FR).}
+
+\item{cooling_mode}{Cooling schedule: "constant" (default, no cooling),
+"vcf" (Variable Cooling Factor - adapts based on movement),
+or "linear" (linear decrease over iterations).}
+
+\item{anchor_strength}{Strength of force pulling nodes toward initial positions
+(default: 0). Only applies when \code{initial} is provided.}
 }
 \value{
 A matrix with x,y coordinates for each node.
 }
 \description{
 Force-directed layout that replicates Gephi's Fruchterman-Reingold algorithm.
-This is a strict port of the Java implementation from Gephi's source code.
+This is a strict port of the Java implementation from Gephi's source code,
+with additional improvements for reproducibility and flexibility.
 }
 \details{
 This layout is a direct port of Gephi's ForceAtlas algorithm variant of
@@ -31,14 +64,18 @@ Fruchterman-Reingold. Key differences from igraph's layout_with_fr:
 \item Uses Gephi's specific constants (SPEED_DIVISOR=800, AREA_MULTIPLICATOR=10000)
 \item Includes configurable gravity toward center
 \item Different cooling/speed mechanism
+\item Supports multiple gravity modes for different layout styles
 }
 }
 \examples{
 \dontrun{
 library(igraph)
 g <- make_ring(10)
-coords <- layout_gephi_fr(g)
+coords <- layout_gephi_fr(g, seed = 42)
 plot(g, layout = coords)
+
+# Non-circular layout with degree-based gravity
+coords2 <- layout_gephi_fr(g, gravity_mode = "degree", seed = 42)
 }
 
 }

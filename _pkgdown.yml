@@ -115,3 +115,75 @@ reference:
     - layout_spring
     - list_layouts
     - register_layout
+  - title: Motif Analysis
+    contents:
+    - motif_census
+    - extract_motifs
+    - extract_motifs_temporal
+    - triad_persistence
+    - extract_triads
+    - triad_census
+  - title: All Other Functions
+    contents:
+    - starts_with("centrality")
+    - starts_with("community")
+    - starts_with("select")
+    - starts_with("filter")
+    - starts_with("network")
+    - starts_with("to_")
+    - starts_with("plot_")
+    - starts_with("com_")
+    - CographLayout
+    - CographNetwork
+    - CographTheme
+    - aggregate_layers
+    - aggregate_weights
+    - cluster_quality
+    - cluster_summary
+    - cograph-main
+    - cograph-package
+    - color_communities
+    - communities
+    - compare_communities
+    - degree_distribution
+    - detect_communities
+    - edge_betweenness
+    - edge_centrality
+    - get_edge_list
+    - get_groups
+    - get_shape
+    - ggplot_robustness
+    - htna
+    - is_directed
+    - is_tna_network
+    - lagg
+    - membership.cograph_communities
+    - modularity.cograph_communities
+    - mcml
+    - n_communities
+    - nodes
+    - robustness
+    - robustness_auc
+    - robustness_summary
+    - set_groups
+    - subset_edges
+    - subset_nodes
+    - supra
+    - supra_adjacency
+    - supra_interlayer
+    - supra_layer
+    - tna_animate
+    - tna_windows
+    - to_cograph
+    - verify_igraph
+    - verify_with_igraph
+    - wagg
+    - starts_with("layer_")
+    - starts_with("input-")
+    - starts_with("methods-")
+    - starts_with("themes-")
+    - starts_with("print.")
+    - starts_with("plot.")
+    - starts_with("summary.")
+    - starts_with("splot.")
+    - matches(".*")

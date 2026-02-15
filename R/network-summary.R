@@ -131,6 +131,12 @@ network_summary <- function(x,
     NULL
   }
 
+  # Compute HITS scores once (hub and authority)
+  hits <- tryCatch(
+    igraph::hits_scores(g, weights = weights),
+    error = function(e) NULL
+  )
+
   # Basic measures (always computed)
   results <- list(
     node_count = igraph::vcount(g),
@@ -170,14 +176,12 @@ network_summary <- function(x,
       NA_real_
     },
     assortativity_degree = igraph::assortativity_degree(g, directed = is_directed),
-    hub_score = tryCatch(
-      igraph::hub_score(g, weights = weights)$value,
-      error = function(e) NA_real_
-    ),
-    authority_score = tryCatch(
-      igraph::authority_score(g, weights = weights)$value,
-      error = function(e) NA_real_
-    )
+    hub_score = if (!is.null(hits) && length(hits$hub_score) > 0) {
+      max(hits$hub_score)
+    } else NA_real_,
+    authority_score = if (!is.null(hits) && length(hits$authority_score) > 0) {
+      max(hits$authority_score)
+    } else NA_real_
   )
 
   # Extended structural measures (only when extended = TRUE)
@@ -683,7 +687,7 @@ network_local_efficiency <- function(x, weights = NULL, invert_weights = NULL, a
 
   # Make undirected for local efficiency calculation
   if (igraph::is_directed(g)) {
-    g <- igraph::as.undirected(g, mode = "collapse")
+    g <- igraph::as_undirected(g, mode = "collapse")
   }
 
   n <- igraph::vcount(g)
@@ -762,7 +766,7 @@ network_small_world <- function(x, n_random = 10, ...) {
 
   # Make undirected
   if (igraph::is_directed(g)) {
-    g <- igraph::as.undirected(g, mode = "collapse")
+    g <- igraph::as_undirected(g, mode = "collapse")
   }
 
   n <- igraph::vcount(g)
@@ -836,7 +840,7 @@ network_rich_club <- function(x, k = NULL, normalized = FALSE, n_random = 10, ..
 
   # Make undirected
   if (igraph::is_directed(g)) {
-    g <- igraph::as.undirected(g, mode = "collapse")
+    g <- igraph::as_undirected(g, mode = "collapse")
   }
 
   # Remove loops and multiple edges

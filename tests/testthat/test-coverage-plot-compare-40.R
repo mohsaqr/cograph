@@ -56,7 +56,7 @@ create_mock_tna <- function(n_nodes = 3, seed = 42) {
 # SKIP:   single_group <- create_mock_group_tna(n_groups = 1)
 # SKIP: 
 # SKIP:   expect_error(
-# SKIP:     with_temp_png(plot_compare(single_group)),
+# SKIP:     with_temp_png(cograph::plot_compare(single_group)),
 # SKIP:     "at least 2 groups"
 # SKIP:   )
 # SKIP: })
@@ -68,7 +68,7 @@ create_mock_tna <- function(n_nodes = 3, seed = 42) {
 # SKIP: test_that("plot_compare auto-compares 2-group group_tna", {
 # SKIP:   two_groups <- create_mock_group_tna(n_groups = 2)
 # SKIP: 
-# SKIP:   result <- with_temp_png(plot_compare(two_groups))
+# SKIP:   result <- with_temp_png(cograph::plot_compare(two_groups))
 # SKIP: 
 # SKIP:   expect_type(result, "list")
 # SKIP:   expect_true("weights" %in% names(result))
@@ -82,7 +82,7 @@ create_mock_tna <- function(n_nodes = 3, seed = 42) {
 # SKIP: test_that("plot_compare plots all pairs for 3-group group_tna", {
 # SKIP:   three_groups <- create_mock_group_tna(n_groups = 3)
 # SKIP: 
-# SKIP:   result <- with_temp_png(plot_compare(three_groups))
+# SKIP:   result <- with_temp_png(cograph::plot_compare(three_groups))
 # SKIP: 
 # SKIP:   # Should return a list with one entry per pair (3 pairs for 3 groups)
 # SKIP:   expect_type(result, "list")
@@ -92,7 +92,7 @@ create_mock_tna <- function(n_nodes = 3, seed = 42) {
 # SKIP: test_that("plot_compare plots all pairs for 4-group group_tna", {
 # SKIP:   four_groups <- create_mock_group_tna(n_groups = 4)
 # SKIP: 
-# SKIP:   result <- with_temp_png(plot_compare(four_groups))
+# SKIP:   result <- with_temp_png(cograph::plot_compare(four_groups))
 # SKIP: 
 # SKIP:   # Should return a list with one entry per pair (6 pairs for 4 groups)
 # SKIP:   expect_type(result, "list")
@@ -106,8 +106,9 @@ create_mock_tna <- function(n_nodes = 3, seed = 42) {
 test_that("plot_compare errors on >4 groups without force", {
   five_groups <- create_mock_group_tna(n_groups = 5)
 
+  # Use cograph::plot_compare explicitly to avoid tna masking
   expect_error(
-    with_temp_png(plot_compare(five_groups)),
+    with_temp_png(cograph::plot_compare(five_groups)),
     "force = TRUE"
   )
 })
@@ -115,7 +116,8 @@ test_that("plot_compare errors on >4 groups without force", {
 test_that("plot_compare works with >4 groups when force = TRUE", {
   five_groups <- create_mock_group_tna(n_groups = 5)
 
-  result <- with_temp_png(plot_compare(five_groups, force = TRUE))
+  # Use cograph::plot_compare explicitly to avoid tna masking
+  result <- with_temp_png(cograph::plot_compare(five_groups, force = TRUE))
 
   # Should return a list with 10 pairs for 5 groups
 
@@ -130,7 +132,8 @@ test_that("plot_compare works with >4 groups when force = TRUE", {
 test_that("plot_compare defaults i=1 when only j specified", {
   three_groups <- create_mock_group_tna(n_groups = 3)
 
-  result <- with_temp_png(plot_compare(three_groups, j = 3))
+  # Use cograph::plot_compare explicitly to avoid tna masking
+  result <- with_temp_png(cograph::plot_compare(three_groups, j = 3))
 
   expect_type(result, "list")
   expect_true("weights" %in% names(result))
@@ -139,7 +142,8 @@ test_that("plot_compare defaults i=1 when only j specified", {
 test_that("plot_compare defaults j=2 when only i specified", {
   three_groups <- create_mock_group_tna(n_groups = 3)
 
-  result <- with_temp_png(plot_compare(three_groups, i = 1))
+  # Use cograph::plot_compare explicitly to avoid tna masking
+  result <- with_temp_png(cograph::plot_compare(three_groups, i = 1))
 
   expect_type(result, "list")
   expect_true("weights" %in% names(result))
@@ -153,8 +157,9 @@ test_that("plot_compare errors on invalid group indices", {
   two_groups <- create_mock_group_tna(n_groups = 2)
 
   # The error occurs as subscript out of bounds before custom check
+  # Use cograph::plot_compare explicitly to avoid tna masking
   expect_error(
-    with_temp_png(plot_compare(two_groups, i = 1, j = 5))
+    with_temp_png(cograph::plot_compare(two_groups, i = 1, j = 5))
   )
 })
 
@@ -162,8 +167,9 @@ test_that("plot_compare errors on invalid character index", {
   two_groups <- create_mock_group_tna(n_groups = 2)
 
   # The error occurs as subscript out of bounds before custom check
+  # Use cograph::plot_compare explicitly to avoid tna masking
   expect_error(
-    with_temp_png(plot_compare(two_groups, i = "A", j = "Z"))
+    with_temp_png(cograph::plot_compare(two_groups, i = "A", j = "Z"))
   )
 })
 
@@ -177,7 +183,7 @@ test_that("plot_compare generates title from group names", {
 
   # Should not error and should use group names in title
   expect_no_error(
-    with_temp_png(plot_compare(two_groups))
+    with_temp_png(cograph::plot_compare(two_groups))
   )
 })
 
@@ -187,7 +193,7 @@ test_that("plot_compare uses character indices for title", {
 
   # Using character indices
   expect_no_error(
-    with_temp_png(plot_compare(three_groups, i = "Low", j = "High"))
+    with_temp_png(cograph::plot_compare(three_groups, i = "Low", j = "High"))
   )
 })
 
@@ -204,7 +210,7 @@ test_that("plot_compare works with plain named list", {
   net_list <- list(A = mat1, B = mat2, C = mat3)
 
   # Default to first two
-  result <- with_temp_png(plot_compare(net_list))
+  result <- with_temp_png(cograph::plot_compare(net_list))
 
   expect_type(result, "list")
   expect_true("weights" %in% names(result))
@@ -218,7 +224,7 @@ test_that("plot_compare list with character indices", {
   net_list <- list(first = mat1, second = mat2, third = mat3)
 
   expect_no_error(
-    with_temp_png(plot_compare(net_list, i = "first", j = "third"))
+    with_temp_png(cograph::plot_compare(net_list, i = "first", j = "third"))
   )
 })
 
@@ -230,7 +236,7 @@ test_that("plot_compare list errors on invalid indices", {
 
   # The error occurs as subscript out of bounds before custom check
   expect_error(
-    with_temp_png(plot_compare(net_list, i = 1, j = 10))
+    with_temp_png(cograph::plot_compare(net_list, i = 1, j = 10))
   )
 })
 
@@ -240,7 +246,7 @@ test_that("plot_compare list errors when single element", {
   net_list <- list(only = mat1)
 
   expect_error(
-    with_temp_png(plot_compare(net_list)),
+    with_temp_png(cograph::plot_compare(net_list)),
     "at least 2"
   )
 })
@@ -252,7 +258,7 @@ test_that("plot_compare list generates title from names", {
   net_list <- list(Morning = mat1, Evening = mat2)
 
   expect_no_error(
-    with_temp_png(plot_compare(net_list))
+    with_temp_png(cograph::plot_compare(net_list))
   )
 })
 
@@ -266,7 +272,7 @@ test_that("plot_compare handles unnamed list", {
 
   net_list <- list(mat1, mat2)  # No names
 
-  result <- with_temp_png(plot_compare(net_list))
+  result <- with_temp_png(cograph::plot_compare(net_list))
 
   expect_type(result, "list")
   expect_true("weights" %in% names(result))
@@ -281,7 +287,7 @@ test_that("plot_compare uses numeric labels when no rownames", {
   mat2 <- matrix(runif(9), 3, 3)
   # No rownames/colnames
 
-  result <- with_temp_png(plot_compare(mat1, mat2))
+  result <- with_temp_png(cograph::plot_compare(mat1, mat2))
 
   expect_type(result, "list")
 })
@@ -525,7 +531,7 @@ test_that("plot_compare with inits length mismatch for both", {
   inits2 <- c(0.5, 0.5)  # Wrong length
 
   expect_warning(
-    with_temp_png(plot_compare(mat1, mat2, inits_x = inits1, inits_y = inits2)),
+    with_temp_png(cograph::plot_compare(mat1, mat2, inits_x = inits1, inits_y = inits2)),
     "length doesn't match"
   )
 })
@@ -537,7 +543,7 @@ test_that("plot_compare with inits_y length mismatch only", {
   inits2 <- c(0.5, 0.5)  # Wrong length
 
   expect_warning(
-    with_temp_png(plot_compare(mat1, mat2, inits_x = inits1, inits_y = inits2)),
+    with_temp_png(cograph::plot_compare(mat1, mat2, inits_x = inits1, inits_y = inits2)),
     "length doesn't match"
   )
 })
@@ -547,8 +553,9 @@ test_that("plot_compare show_inits TRUE without inits available", {
   mat2 <- matrix(runif(4), 2, 2)
 
   # show_inits = TRUE but no inits provided - should still work
+  # Use cograph::plot_compare explicitly to avoid tna masking
   result <- with_temp_png(
-    plot_compare(mat1, mat2, show_inits = TRUE)
+    cograph::plot_compare(mat1, mat2, show_inits = TRUE)
   )
 
   expect_type(result, "list")
@@ -563,7 +570,7 @@ test_that("plot_compare handles all-positive differences", {
   mat1 <- matrix(c(0, 1, 1, 0), 2, 2)
   mat2 <- matrix(c(0, 0.1, 0.1, 0), 2, 2)
 
-  result <- with_temp_png(plot_compare(mat1, mat2))
+  result <- with_temp_png(cograph::plot_compare(mat1, mat2))
 
   # All non-zero differences should be positive
   nonzero <- result$weights[result$weights != 0]
@@ -574,7 +581,7 @@ test_that("plot_compare handles all-negative differences", {
   mat1 <- matrix(c(0, 0.1, 0.1, 0), 2, 2)
   mat2 <- matrix(c(0, 1, 1, 0), 2, 2)
 
-  result <- with_temp_png(plot_compare(mat1, mat2))
+  result <- with_temp_png(cograph::plot_compare(mat1, mat2))
 
   # All non-zero differences should be negative
   nonzero <- result$weights[result$weights != 0]
@@ -585,7 +592,7 @@ test_that("plot_compare handles mixed positive/negative differences", {
   mat1 <- matrix(c(0, 0.8, 0.2, 0), 2, 2)
   mat2 <- matrix(c(0, 0.2, 0.8, 0), 2, 2)
 
-  result <- with_temp_png(plot_compare(mat1, mat2))
+  result <- with_temp_png(cograph::plot_compare(mat1, mat2))
 
   # Should have both positive and negative
   expect_true(any(result$weights > 0))
@@ -602,8 +609,9 @@ test_that("plot_compare caps donut_fill at 1 for large diffs", {
   inits1 <- c(1.0, 0.0)  # Large difference
   inits2 <- c(0.0, 1.0)
 
+  # Use cograph::plot_compare explicitly to avoid tna masking
   result <- with_temp_png(
-    plot_compare(mat1, mat2, inits_x = inits1, inits_y = inits2)
+    cograph::plot_compare(mat1, mat2, inits_x = inits1, inits_y = inits2)
   )
 
   expect_type(result, "list")
@@ -621,8 +629,9 @@ test_that("plot_compare user args override donut settings", {
   inits2 <- c(0.4, 0.6)
 
   # Override node_shape even when donut would be set
+  # Use cograph::plot_compare explicitly to avoid tna masking
   result <- with_temp_png(
-    plot_compare(mat1, mat2,
+    cograph::plot_compare(mat1, mat2,
                  inits_x = inits1,
                  inits_y = inits2,
                  node_shape = "circle")  # Override donut
@@ -635,9 +644,10 @@ test_that("plot_compare edge_width passthrough", {
   mat1 <- matrix(runif(4), 2, 2)
   mat2 <- matrix(runif(4), 2, 2)
 
+  # Use cograph::plot_compare explicitly to avoid tna masking
   expect_no_error(
     with_temp_png(
-      plot_compare(mat1, mat2, edge_width = 5)
+      cograph::plot_compare(mat1, mat2, edge_width = 5)
     )
   )
 })
@@ -688,7 +698,7 @@ test_that("plot_compare works with weighted igraph objects", {
   igraph::E(g1)$weight <- runif(igraph::ecount(g1))
   igraph::E(g2)$weight <- runif(igraph::ecount(g2))
 
-  result <- with_temp_png(plot_compare(g1, g2))
+  result <- with_temp_png(cograph::plot_compare(g1, g2))
 
   expect_type(result, "list")
   expect_true(is.matrix(result$weights))
@@ -773,7 +783,7 @@ test_that("plot_compare respects layout = 'circle'", {
   mat2 <- matrix(runif(16), 4, 4)
 
   expect_no_error(
-    with_temp_png(plot_compare(mat1, mat2, layout = "circle"))
+    with_temp_png(cograph::plot_compare(mat1, mat2, layout = "circle"))
   )
 })
 
@@ -782,7 +792,7 @@ test_that("plot_compare respects layout = 'spring'", {
   mat2 <- matrix(runif(16), 4, 4)
 
   expect_no_error(
-    with_temp_png(plot_compare(mat1, mat2, layout = "spring"))
+    with_temp_png(cograph::plot_compare(mat1, mat2, layout = "spring"))
   )
 })
 
@@ -798,8 +808,9 @@ test_that("plot_compare handles 10-node networks", {
   rownames(mat1) <- colnames(mat1) <- LETTERS[1:10]
   rownames(mat2) <- colnames(mat2) <- LETTERS[1:10]
 
+  # Use cograph::plot_compare explicitly to avoid tna masking
   result <- with_temp_png(
-    plot_compare(mat1, mat2),
+    cograph::plot_compare(mat1, mat2),
     width = 400, height = 400
   )
 
@@ -815,7 +826,7 @@ test_that("plot_compare handles 1x1 matrices", {
   mat1 <- matrix(0, 1, 1)
   mat2 <- matrix(0, 1, 1)
 
-  result <- with_temp_png(plot_compare(mat1, mat2))
+  result <- with_temp_png(cograph::plot_compare(mat1, mat2))
 
   expect_type(result, "list")
   expect_equal(dim(result$weights), c(1, 1))
@@ -829,7 +840,7 @@ test_that("plot_compare handles tiny differences", {
   mat1 <- matrix(c(0, 0.5, 0.5, 0), 2, 2)
   mat2 <- matrix(c(0, 0.5 + 1e-10, 0.5 - 1e-10, 0), 2, 2)
 
-  result <- with_temp_png(plot_compare(mat1, mat2))
+  result <- with_temp_png(cograph::plot_compare(mat1, mat2))
 
   expect_type(result, "list")
 })
@@ -844,7 +855,7 @@ test_that("plot_compare handles sparse differences", {
   mat1[1, 2] <- 0.5  # Single edge
   mat2[1, 2] <- 0.3
 
-  result <- with_temp_png(plot_compare(mat1, mat2))
+  result <- with_temp_png(cograph::plot_compare(mat1, mat2))
 
   expect_type(result, "list")
   # Only one non-zero difference

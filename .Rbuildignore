@@ -28,3 +28,15 @@
 ^aside$
 ^.*\.png$
 ^experimental_ona\.R$
+^tests/testthat/Rplots\.pdf$
+^demo/.*\.png$
+^demo/.*\.html$
+^MERGE_CHANGELOG\.md$
+^bootstrap_demo\.html$
+^documents$
+^permutation_demo\.html$
+^temporal_motifs_demo\.html$
+^triad_persistence_showcase\.html$
+^validation$
+^vignettes/comparison-plots-demo\.Rmd$
+^vignettes/mcml-examples\.Rmd$

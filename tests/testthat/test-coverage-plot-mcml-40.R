@@ -944,14 +944,14 @@ test_that("mcml between$weights has correct dimensions", {
   expect_equal(colnames(result$between$weights), c("Cluster1", "Cluster2", "Cluster3"))
 })
 
-test_that("mcml between$weights diagonal contains within-cluster totals", {
+test_that("mcml between$weights diagonal is zero", {
   weights <- create_test_weights()
   clusters <- create_test_clusters()
 
   result <- mcml(weights, clusters)
 
-  # Diagonal contains within-cluster totals (can be >= 0)
-  expect_true(all(diag(result$between$weights) >= 0))
+  # Diagonal should be zero (no self-loops at cluster level)
+  expect_equal(sum(diag(result$between$weights) != 0), 0)
 })
 
 test_that("mcml between$weights rows sum to 1 (type = tna)", {

@@ -797,7 +797,7 @@ test_that("plot_mtna() handles minimum weight filter", {
 # RETURN VALUE TESTS
 # ============================================
 
-test_that("plot_mtna() returns NULL invisibly in summary mode", {
+test_that("plot_mtna() returns cluster_summary invisibly in summary mode", {
   m <- create_clustered_matrix(16, 4)
   clusters <- create_test_clusters(16, 4)
 
@@ -806,7 +806,8 @@ test_that("plot_mtna() returns NULL invisibly in summary mode", {
     ret
   })
 
-  expect_null(result)
+  # Now returns cluster_summary invisibly per plan
+  expect_s3_class(result, "cluster_summary")
 })
 
 test_that("plot_mtna() returns plot_tna result in non-summary mode", {

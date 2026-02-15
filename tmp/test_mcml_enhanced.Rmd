@@ -1,0 +1,87 @@
+---
+title: "Enhanced mcml() Test"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 10, fig.height = 8)
+devtools::load_all(".")
+```
+
+## Test Setup
+
+```{r}
+set.seed(42)
+mat <- matrix(runif(36, 0.1, 0.5), 6, 6)
+diag(mat) <- 0
+colnames(mat) <- rownames(mat) <- LETTERS[1:6]
+
+clusters <- list(
+  Alpha = c("A", "B"),
+  Beta = c("C", "D"),
+  Gamma = c("E", "F")
+)
+```
+
+## mcml() New Structure
+
+```{r}
+data <- mcml(mat, clusters)
+
+# Show new $summary field
+cat("$summary field:\n")
+cat("  $summary$tna equals $tna:", identical(data$summary$tna, data$tna), "\n")
+cat("  $summary$weights equals $between_weights:", identical(data$summary$weights, data$between_weights), "\n")
+
+# Show new $within field
+cat("\n$within field names:", paste(names(data$within), collapse = ", "), "\n")
+cat("\nAlpha cluster TNA:\n")
+print(round(data$within$Alpha$tna, 3))
+cat("\nAlpha cluster weights:\n")
+print(round(data$within$Alpha$weights, 3))
+```
+
+## Print Method
+
+```{r}
+print(data)
+```
+
+## Plot Comparison: weights vs tna mode
+
+### Mode: weights (default)
+
+```{r fig.height=6}
+plot_mcml(mat, clusters,
+          summary_edge_labels = TRUE,
+          title = "Mode: weights (shows raw aggregated weights)")
+```
+
+### Mode: tna (transition probabilities)
+
+```{r fig.height=6}
+plot_mcml(mat, clusters,
+          mode = "tna",
+          summary_edge_labels = TRUE,
+          title = "Mode: tna (shows row-normalized probabilities)")
+```
+
+### Edge Labels with Within-cluster TNA
+
+```{r fig.height=6}
+plot_mcml(mat, clusters,
+          mode = "tna",
+          edge_labels = TRUE,
+          summary_edge_labels = TRUE,
+          title = "TNA mode with all edge labels")
+```
+
+## Backward Compatibility Check
+
+```{r}
+# Old workflow still works
+data_old <- mcml(mat, clusters)
+cat("Top-level $tna exists:", !is.null(data_old$tna), "\n")
+cat("Top-level $inits exists:", !is.null(data_old$inits), "\n")
+cat("Top-level $between_weights exists:", !is.null(data_old$between_weights), "\n")
+```

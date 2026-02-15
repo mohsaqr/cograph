@@ -2,70 +2,12 @@
 % Please edit documentation in R/plot-mcml.R
 \name{plot_mcml}
 \alias{plot_mcml}
-\alias{mcml}
-\title{Multi-Cluster Multi-Layer Network}
+\title{Plot Multi-Cluster Multi-Layer Network}
 \usage{
 plot_mcml(
   x,
   cluster_list = NULL,
-  layer_spacing = NULL,
-  spacing = 3,
-  shape_size = 1.2,
-  summary_size = 4,
-  skew_angle = 60,
-  aggregation = c("sum", "mean", "max"),
-  minimum = 0,
-  colors = NULL,
-  legend = TRUE,
-  show_labels = TRUE,
-  nodes = NULL,
-  label_size = NULL,
-  label_abbrev = NULL,
-  node_size = 1.8,
-  node_shape = "circle",
-  cluster_shape = "circle",
-  title = NULL,
-  subtitle = NULL,
-  title_size = 1.2,
-  subtitle_size = 0.9,
-  legend_position = "right",
-  legend_size = 0.7,
-  legend_pt_size = 1.2,
-  summary_labels = TRUE,
-  summary_label_size = 0.8,
-  summary_label_position = 3,
-  summary_label_color = "gray20",
-  summary_arrows = TRUE,
-  summary_arrow_size = 0.15,
-  edge_width_range = c(0.3, 1.3),
-  between_edge_width_range = c(0.5, 2),
-  summary_edge_width_range = c(0.5, 2),
-  edge_alpha = 0.35,
-  between_edge_alpha = 0.6,
-  summary_edge_alpha = 0.7,
-  inter_layer_alpha = 0.5,
-  edge_labels = FALSE,
-  edge_label_size = 0.5,
-  edge_label_color = "gray40",
-  edge_label_digits = 2,
-  summary_edge_labels = FALSE,
-  summary_edge_label_size = 0.6,
-  top_layer_scale = c(0.8, 0.25),
-  inter_layer_gap = 0.6,
-  node_radius_scale = 0.55,
-  shell_alpha = 0.15,
-  shell_border_width = 2,
-  node_border_color = "gray30",
-  summary_border_color = "gray20",
-  summary_border_width = 2,
-  label_color = "gray20",
-  label_position = 3,
-  ...
-)
-
-mcml(
-  x,
-  cluster_list = NULL,
+  mode = c("weights", "tna"),
   layer_spacing = NULL,
   spacing = 3,
   shape_size = 1.2,
@@ -122,12 +64,15 @@ mcml(
 )
 }
 \arguments{
-\item{x}{Weight matrix, tna object, or cograph_network}
+\item{x}{Weight matrix, tna object, cograph_network, or cluster_summary object}
 
 \item{cluster_list}{Named list of node vectors per cluster, column name
-string, or NULL for auto-detection}
+string, or NULL for auto-detection. Ignored if x is cluster_summary.}
 
-\item{layer_spacing}{Vertical distance between layers. Default 4.}
+\item{mode}{What values to display on edges: "weights" (default) shows raw
+aggregated weights, "tna" shows transition probabilities (row-normalized).}
+
+\item{layer_spacing}{Vertical distance between layers. Default NULL (auto).}
 
 \item{spacing}{Cluster spacing. Default 3.}
 
@@ -135,9 +80,10 @@ string, or NULL for auto-detection}
 
 \item{summary_size}{Summary node size. Default 4.}
 
-\item{skew_angle}{Perspective angle in degrees. Default 25.}
+\item{skew_angle}{Perspective angle in degrees. Default 60.}
 
-\item{aggregation}{How to aggregate: "sum", "mean", "max". Default "sum".}
+\item{aggregation}{How to aggregate: "sum", "mean", "max". Default "sum".
+Ignored if x is cluster_summary.}
 
 \item{minimum}{Edge threshold. Default 0.}
 
@@ -153,7 +99,8 @@ string, or NULL for auto-detection}
 \item Data frame: Must have \code{label} column for matching; if \code{labels}
 column exists, uses it for display text
 }
-Display priority: \code{labels} column > \code{label} column (identifiers).}
+Display priority: \code{labels} column > \code{label} column (identifiers).
+Ignored if x is cluster_summary.}
 
 \item{label_size}{Label text size. Default NULL (auto-scaled).}
 
@@ -252,7 +199,33 @@ shape_size. Default 0.55.}
 
 \item{...}{Unused.}
 }
+\value{
+Invisibly returns the cluster_summary data object.
+}
 \description{
 Two-layer visualization: bottom layer shows detailed multi-cluster network,
 top layer shows summary network with one node per cluster.
+}
+\examples{
+# Create test matrix
+mat <- matrix(runif(36), 6, 6)
+diag(mat) <- 0
+colnames(mat) <- rownames(mat) <- LETTERS[1:6]
+
+# Define clusters
+clusters <- list(
+  Cluster1 = c("A", "B"),
+  Cluster2 = c("C", "D"),
+  Cluster3 = c("E", "F")
+)
+
+# Plot directly
+plot_mcml(mat, clusters)
+
+# Pre-compute and reuse
+cs <- cluster_summary(mat, clusters)
+plot_mcml(cs)  # Uses pre-computed data
+}
+\seealso{
+\code{\link{cluster_summary}}, \code{\link{plot_mtna}}
 }

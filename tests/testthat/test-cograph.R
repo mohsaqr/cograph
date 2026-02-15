@@ -15,11 +15,23 @@ test_that("cograph() creates network from edge list", {
   expect_equal(n_nodes(net), 3)
 })
 
-test_that("cograph() applies default layout", {
+test_that("cograph() without layout argument has NA coordinates", {
   adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
   net <- cograph(adj)
 
-  # Layout coordinates should be in nodes
+  # Layout coordinates exist but are NA when not explicitly requested
+  nodes <- get_nodes(net)
+  expect_true("x" %in% names(nodes))
+  expect_true("y" %in% names(nodes))
+  # No layout is computed unless explicitly requested
+  expect_true(all(is.na(nodes$x)))
+})
+
+test_that("cograph() applies layout when requested", {
+  adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
+  net <- cograph(adj, layout = "circle")
+
+  # Layout coordinates should be in nodes when layout is specified
   nodes <- get_nodes(net)
   expect_true("x" %in% names(nodes))
   expect_true("y" %in% names(nodes))

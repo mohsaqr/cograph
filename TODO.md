@@ -1,5 +1,11 @@
 # cograph TODO
 
+## Documentation
+
+- [ ] Revise `docs/triad-persistence-heatmap.html` - review content and add example images
+
+---
+
 ## Pending Features
 
 ### Add Metadata Storage to CographNetwork

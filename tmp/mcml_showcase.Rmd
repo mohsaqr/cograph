@@ -1,0 +1,163 @@
+---
+title: "MCML Functions Showcase"
+subtitle: "Multi-Cluster Multi-Level Network Analysis"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+# Complete Example: Edge List → TNA Clusters
+
+```{r load}
+devtools::load_all(".")
+library(dplyr)
+```
+
+## Step 1: Import Edge List and Node Data
+
+```{r import-data}
+# Import edge list (interactions between learning states)
+edges <- rio::import("/Users/mohammedsaqr/Documents/Network data/Mcdata/complicated_nw2.csv")
+head(edges)
+
+# Import node metadata with group assignments
+nodes <- rio::import("/Users/mohammedsaqr/Documents/Network data/Mcdata/Codemapping.xlsx") |>
+  rename(labels = Code)
+nodes
+```
+
+## Step 2: Create Network
+
+```{r create-network}
+# Create cograph from edge list + nodes
+net <- cograph(edges, nodes = nodes)
+
+# Assign clusters from the groups column
+net$nodes$clusters <- nodes$groups
+
+# Check the structure
+net$nodes
+```
+
+## Step 3: Define Clusters
+
+```{r define-clusters}
+# Create cluster list from groups
+clusters <- split(net$nodes$label, net$nodes$clusters)
+clusters
+```
+
+## Step 4: Cluster Summary (TNA Aggregation)
+
+```{r cluster-summary}
+# TNA aggregation: row-normalized transition probabilities
+cs <- cluster_summary(net, clusters, type = "tna")
+cs
+```
+
+### Between-Cluster Weights
+
+Transition probabilities between cluster groups. Rows sum to 1.
+
+```{r between-weights}
+round(cs$between$weights, 3)
+```
+
+### Between-Cluster Initial Distribution
+
+```{r between-inits}
+round(cs$between$inits, 3)
+```
+
+### Within-Cluster Weights
+
+Transition probabilities within each cluster:
+
+```{r within-weights}
+# Show all within-cluster matrices
+lapply(cs$within, function(x) round(x$weights, 3))
+```
+
+### Within-Cluster Initial Distributions
+
+```{r within-inits}
+lapply(cs$within, function(x) round(x$inits, 3))
+```
+
+## Step 5: Visualize
+
+```{r plot, fig.height=10, fig.width=10}
+plot_mcml(
+  cs,
+  title = "Learning Strategy Transitions",
+  summary_edge_labels = TRUE,
+  edge_labels = TRUE,
+  edge_label_digits = 2
+)
+```
+
+## Extract as TNA Objects
+
+Use `as_tna()` to convert cluster_summary to tna objects:
+
+```{r as-tna}
+# Convert to tna models (between + all within)
+tna_models <- as_tna(cs)
+tna_models
+```
+
+### Between-Cluster TNA
+
+```{r between-tna}
+# Access the between-cluster tna
+tna_models$between
+
+# The weights matrix (rows sum to 1)
+round(tna_models$between$weights, 3)
+```
+
+### Within-Cluster TNAs
+
+```{r within-tnas}
+# Access individual within-cluster tnas
+names(tna_models$within)
+
+# Show weights for each cluster
+lapply(tna_models$within, function(x) round(x$weights, 3))
+```
+
+### Plot the Between-Cluster TNA
+
+```{r plot-between-tna, fig.height=8}
+plot(tna_models$between)
+```
+
+### Plot Each Within-Cluster TNA
+
+```{r plot-within-tnas, fig.height=10, fig.width=12}
+if (length(tna_models$within) > 0) {
+  n <- length(tna_models$within)
+  par(mfrow = c(ceiling(n/2), 2))
+  for (cl in names(tna_models$within)) {
+    plot(tna_models$within[[cl]], title = cl)
+  }
+  par(mfrow = c(1, 1))
+}
+```
+
+## Raw vs TNA Comparison
+
+```{r comparison}
+cs_raw <- cluster_summary(net, clusters, type = "raw")
+
+list(
+  "Raw (counts/ftna)" = round(cs_raw$between$weights, 2),
+  "TNA (probabilities)" = round(cs$between$weights, 2)
+)
+```

@@ -1,0 +1,310 @@
+---
+title: "cluster_summary() Flexible Modes Demo"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 10, fig.height = 8)
+devtools::load_all(".")
+```
+
+## Setup: Create Test Data
+
+```{r data}
+set.seed(123)
+mat <- matrix(runif(100), 10, 10)
+diag(mat) <- 0
+rownames(mat) <- colnames(mat) <- LETTERS[1:10]
+
+# Create cograph network with clusters
+Net <- as_cograph(mat)
+Net$nodes$clusters <- c("G1", "G1", "G1", "G2", "G2", "G2", "G3", "G3", "G3", "G3")
+
+cat("Nodes:\n")
+print(Net$nodes)
+```
+
+---
+
+## Network Visualization
+
+```{r network_plot, fig.width=12, fig.height=10}
+plot_mcml(Net, "clusters",
+          spacing = 18,
+          shape_size = 6,
+          scale = 4,
+          layout_margin = 0.3,
+          labels = TRUE,
+          summary_edges = TRUE,
+          show_labels = TRUE,
+          node_size = 2,
+          summary_size = 4,
+          edge_width_range = c(0.1, 3))
+```
+
+---
+
+## Mode Combinations
+
+### 1. Default: `within = "nodes"`, `between = "summary"`
+
+Returns per-cluster TNA list + k×k cluster-to-cluster TNA.
+
+```{r default}
+cs1 <- cluster_summary(Net, within = "nodes", between = "summary")
+cat("Structure:\n")
+cat("- within_tna:", class(cs1$within_tna), "of length", length(cs1$within_tna), "\n")
+cat("- within_inits:", class(cs1$within_inits), "of length", length(cs1$within_inits), "\n")
+cat("- tna:", paste(dim(cs1$tna), collapse="×"), "matrix\n")
+cat("- inits:", length(cs1$inits), "values\n")
+
+print(cs1)
+```
+
+```{r plot1, fig.width=12, fig.height=10}
+plot_mcml(Net, "clusters",
+          spacing = 18, shape_size = 6, scale = 4, layout_margin = 0.3,
+          labels = TRUE, summary_edges = TRUE, show_labels = TRUE,
+          node_size = 2, summary_size = 4, edge_width_range = c(0.1, 3),
+          title = "within='nodes', between='summary' (Default)")
+```
+
+---
+
+### 2. `within = "summary"`, `between = "summary"`
+
+Scalar within-cluster weights + k×k cluster TNA.
+
+```{r summary_summary}
+cs2 <- cluster_summary(Net, within = "summary", between = "summary")
+cat("Structure:\n")
+cat("- within_tna: NULL (scalar mode)\n")
+cat("- within_weights:", paste(names(cs2$within_weights), "=", round(cs2$within_weights, 3)), "\n")
+cat("- tna:", paste(dim(cs2$tna), collapse="×"), "matrix\n")
+
+print(cs2)
+```
+
+```{r plot2, fig.width=12, fig.height=10}
+plot_mcml(Net, "clusters",
+          spacing = 18, shape_size = 6, scale = 4, layout_margin = 0.3,
+          labels = TRUE, summary_edges = TRUE, show_labels = TRUE,
+          node_size = 2, summary_size = 4, edge_width_range = c(0.1, 3),
+          title = "within='summary', between='summary'")
+```
+
+---
+
+### 3. `within = "none"`, `between = "summary"`
+
+No within computation, only k×k cluster TNA.
+
+```{r none_summary}
+cs3 <- cluster_summary(Net, within = "none", between = "summary")
+cat("Structure:\n")
+cat("- within_tna: NULL\n")
+cat("- within_weights: NULL\n")
+cat("- tna:", paste(dim(cs3$tna), collapse="×"), "matrix\n")
+
+print(cs3)
+```
+
+```{r plot3, fig.width=12, fig.height=10}
+plot_mcml(Net, "clusters",
+          spacing = 18, shape_size = 6, scale = 4, layout_margin = 0.3,
+          labels = TRUE, summary_edges = TRUE, show_labels = TRUE,
+          node_size = 2, summary_size = 4, edge_width_range = c(0.1, 3),
+          title = "within='none', between='summary'")
+```
+
+---
+
+### 4. `within = "nodes"`, `between = "nodes"`
+
+Per-cluster TNA list + n×n cross-cluster TNA.
+
+```{r nodes_nodes}
+cs4 <- cluster_summary(Net, within = "nodes", between = "nodes")
+cat("Structure:\n")
+cat("- within_tna:", class(cs4$within_tna), "of length", length(cs4$within_tna), "\n")
+cat("- between_tna:", paste(dim(cs4$between_tna), collapse="×"), "matrix\n")
+cat("- between_inits:", length(cs4$between_inits), "values\n")
+cat("- tna: NULL (using between_tna instead)\n")
+
+print(cs4)
+```
+
+```{r plot4, fig.width=12, fig.height=10}
+plot_mcml(Net, "clusters",
+          spacing = 18, shape_size = 6, scale = 4, layout_margin = 0.3,
+          labels = TRUE, summary_edges = TRUE, show_labels = TRUE,
+          node_size = 2, summary_size = 4, edge_width_range = c(0.1, 3),
+          title = "within='nodes', between='nodes'")
+```
+
+---
+
+### 5. `within = "summary"`, `between = "nodes"`
+
+Scalar within-cluster weights + n×n cross-cluster TNA.
+
+```{r summary_nodes}
+cs5 <- cluster_summary(Net, within = "summary", between = "nodes")
+cat("Structure:\n")
+cat("- within_weights:", paste(names(cs5$within_weights), "=", round(cs5$within_weights, 3)), "\n")
+cat("- between_tna:", paste(dim(cs5$between_tna), collapse="×"), "matrix\n")
+
+print(cs5)
+```
+
+```{r plot5, fig.width=12, fig.height=10}
+plot_mcml(Net, "clusters",
+          spacing = 18, shape_size = 6, scale = 4, layout_margin = 0.3,
+          labels = TRUE, summary_edges = TRUE, show_labels = TRUE,
+          node_size = 2, summary_size = 4, edge_width_range = c(0.1, 3),
+          title = "within='summary', between='nodes'")
+```
+
+---
+
+### 6. `within = "none"`, `between = "nodes"`
+
+No within computation, only n×n cross-cluster TNA.
+
+```{r none_nodes}
+cs6 <- cluster_summary(Net, within = "none", between = "nodes")
+cat("Structure:\n")
+cat("- within_tna: NULL\n")
+cat("- between_tna:", paste(dim(cs6$between_tna), collapse="×"), "matrix\n")
+
+print(cs6)
+```
+
+```{r plot6, fig.width=12, fig.height=10}
+plot_mcml(Net, "clusters",
+          spacing = 18, shape_size = 6, scale = 4, layout_margin = 0.3,
+          labels = TRUE, summary_edges = TRUE, show_labels = TRUE,
+          node_size = 2, summary_size = 4, edge_width_range = c(0.1, 3),
+          title = "within='none', between='nodes'")
+```
+
+---
+
+### 7. `within = "nodes"`, `between = "none"`
+
+Per-cluster TNA list only, no between computation.
+
+```{r nodes_none}
+cs7 <- cluster_summary(Net, within = "nodes", between = "none")
+cat("Structure:\n")
+cat("- within_tna:", class(cs7$within_tna), "of length", length(cs7$within_tna), "\n")
+cat("- tna: NULL\n")
+cat("- between_weights: NULL\n")
+
+print(cs7)
+```
+
+```{r plot7, fig.width=12, fig.height=10}
+plot_mcml(Net, "clusters",
+          spacing = 18, shape_size = 6, scale = 4, layout_margin = 0.3,
+          labels = TRUE, summary_edges = TRUE, show_labels = TRUE,
+          node_size = 2, summary_size = 4, edge_width_range = c(0.1, 3),
+          title = "within='nodes', between='none'")
+```
+
+---
+
+### 8. `within = "summary"`, `between = "none"`
+
+Scalar within-cluster weights only.
+
+```{r summary_none}
+cs8 <- cluster_summary(Net, within = "summary", between = "none")
+cat("Structure:\n")
+cat("- within_weights:", paste(names(cs8$within_weights), "=", round(cs8$within_weights, 3)), "\n")
+cat("- tna: NULL\n")
+
+print(cs8)
+```
+
+```{r plot8, fig.width=12, fig.height=10}
+plot_mcml(Net, "clusters",
+          spacing = 18, shape_size = 6, scale = 4, layout_margin = 0.3,
+          labels = TRUE, summary_edges = TRUE, show_labels = TRUE,
+          node_size = 2, summary_size = 4, edge_width_range = c(0.1, 3),
+          title = "within='summary', between='none'")
+```
+
+---
+
+### 9. `within = "none"`, `between = "none"`
+
+Metadata only (cluster names, sizes, etc.).
+
+```{r none_none}
+cs9 <- cluster_summary(Net, within = "none", between = "none")
+cat("Structure (metadata only):\n")
+cat("- cluster_names:", paste(cs9$cluster_names, collapse=", "), "\n")
+cat("- cluster_sizes:", paste(cs9$cluster_sizes, collapse=", "), "\n")
+cat("- within_tna: NULL\n")
+cat("- tna: NULL\n")
+
+print(cs9)
+```
+
+```{r plot9, fig.width=12, fig.height=10}
+plot_mcml(Net, "clusters",
+          spacing = 18, shape_size = 6, scale = 4, layout_margin = 0.3,
+          labels = TRUE, summary_edges = TRUE, show_labels = TRUE,
+          node_size = 2, summary_size = 4, edge_width_range = c(0.1, 3),
+          title = "within='none', between='none'")
+```
+
+---
+
+## Summary Table
+
+```{r summary_table}
+modes <- expand.grid(
+  within = c("nodes", "summary", "none"),
+  between = c("summary", "nodes", "none"),
+  stringsAsFactors = FALSE
+)
+
+get_result <- function(w, b) {
+  cs <- cluster_summary(Net, within = w, between = b)
+  data.frame(
+    within = w,
+    between = b,
+    has_within_tna = !is.null(cs$within_tna),
+    has_within_weights = !is.null(cs$within_weights),
+    has_tna = !is.null(cs$tna),
+    has_between_tna = !is.null(cs$between_tna),
+    has_between_weights = !is.null(cs$between_weights),
+    stringsAsFactors = FALSE
+  )
+}
+
+results <- do.call(rbind, Map(get_result, modes$within, modes$between))
+knitr::kable(results, row.names = FALSE)
+```
+
+---
+
+## as_tna Conversion
+
+```{r as_tna}
+# With between = "summary"
+tna1 <- cluster_summary(Net, between = "summary", as_tna = TRUE)
+cat("as_tna with between='summary':\n")
+cat("- class:", class(tna1), "\n")
+cat("- labels:", paste(tna1$labels, collapse=", "), "\n")
+cat("- weights dim:", paste(dim(tna1$weights), collapse="×"), "\n")
+
+# With between = "nodes"
+tna2 <- cluster_summary(Net, between = "nodes", as_tna = TRUE)
+cat("\nas_tna with between='nodes':\n")
+cat("- class:", class(tna2), "\n")
+cat("- labels:", paste(tna2$labels, collapse=", "), "\n")
+cat("- weights dim:", paste(dim(tna2$weights), collapse="×"), "\n")
+```

@@ -1,17 +1,20 @@
-#' Multi-Cluster Multi-Layer Network
+#' Plot Multi-Cluster Multi-Layer Network
 #'
 #' Two-layer visualization: bottom layer shows detailed multi-cluster network,
 #' top layer shows summary network with one node per cluster.
 #'
-#' @param x Weight matrix, tna object, or cograph_network
+#' @param x Weight matrix, tna object, cograph_network, or cluster_summary object
 #' @param cluster_list Named list of node vectors per cluster, column name
-#'   string, or NULL for auto-detection
-#' @param layer_spacing Vertical distance between layers. Default 4.
+#'   string, or NULL for auto-detection. Ignored if x is cluster_summary.
+#' @param mode What values to display on edges: "weights" (default) shows raw
+#'   aggregated weights, "tna" shows transition probabilities (row-normalized).
+#' @param layer_spacing Vertical distance between layers. Default NULL (auto).
 #' @param spacing Cluster spacing. Default 3.
 #' @param shape_size Cluster shell size. Default 1.2.
 #' @param summary_size Summary node size. Default 4.
-#' @param skew_angle Perspective angle in degrees. Default 25.
+#' @param skew_angle Perspective angle in degrees. Default 60.
 #' @param aggregation How to aggregate: "sum", "mean", "max". Default "sum".
+#'   Ignored if x is cluster_summary.
 #' @param minimum Edge threshold. Default 0.
 #' @param colors Cluster colors. Default auto.
 #' @param legend Show legend. Default TRUE.
@@ -23,6 +26,7 @@
 #'       column exists, uses it for display text
 #'   }
 #'   Display priority: `labels` column > `label` column (identifiers).
+#'   Ignored if x is cluster_summary.
 #' @param label_size Label text size. Default NULL (auto-scaled).
 #' @param label_abbrev Label abbreviation: NULL (none), integer (max chars),
 #'   or "auto" (adaptive based on node count).
@@ -79,10 +83,34 @@
 #' @param label_position Detail label position (1-4). Default 3.
 #' @param ... Unused.
 #'
+#' @return Invisibly returns the cluster_summary data object.
+#'
 #' @export
+#' @seealso \code{\link{cluster_summary}}, \code{\link{plot_mtna}}
+#'
+#' @examples
+#' # Create test matrix
+#' mat <- matrix(runif(36), 6, 6)
+#' diag(mat) <- 0
+#' colnames(mat) <- rownames(mat) <- LETTERS[1:6]
+#'
+#' # Define clusters
+#' clusters <- list(
+#'   Cluster1 = c("A", "B"),
+#'   Cluster2 = c("C", "D"),
+#'   Cluster3 = c("E", "F")
+#' )
+#'
+#' # Plot directly
+#' plot_mcml(mat, clusters)
+#'
+#' # Pre-compute and reuse
+#' cs <- cluster_summary(mat, clusters)
+#' plot_mcml(cs)  # Uses pre-computed data
 plot_mcml <- function(
     x,
     cluster_list = NULL,
+    mode = c("weights", "tna"),
     layer_spacing = NULL,
     spacing = 3,
     shape_size = 1.2,
@@ -147,77 +175,94 @@ plot_mcml <- function(
     ...
 ) {
   aggregation <- match.arg(aggregation)
+  mode <- match.arg(mode)
 
-  # Extract weights and labels based on input type
-  nodes_df <- NULL
-  if (inherits(x, "cograph_network")) {
-    weights <- to_matrix(x)
-    lab <- x$nodes$label
-    nodes_df <- x$nodes
+  # ============================================================================
+  # Get or compute cluster_summary
+  # ============================================================================
+
+  if (inherits(x, "cluster_summary")) {
+    cs <- x
+  } else {
+    # Extract nodes_df for display labels
+    nodes_df <- NULL
+    if (inherits(x, "cograph_network")) {
+      nodes_df <- x$nodes
+    }
+    if (is.data.frame(nodes)) {
+      nodes_df <- nodes
+    }
+
+    # Map aggregation to method
+    cs <- cluster_summary(x, cluster_list, method = aggregation, type = "tna",
+                          compute_within = TRUE)
+
+    # Store nodes_df and display_labels for visualization
+    cs$nodes_df <- nodes_df
+  }
+
+  # ============================================================================
+  # Extract data from cluster_summary
+  # ============================================================================
+
+  cluster_list <- cs$clusters
+  cluster_names <- names(cluster_list)
+  n_clusters <- cs$meta$n_clusters
+  n <- cs$meta$n_nodes
+
+  # Get original weight matrix for within-cluster visualization
+  # We need raw weights, so re-extract if needed
+  if (inherits(x, "cluster_summary")) {
+    # Need to get weights from somewhere - use the input
+    # For cluster_summary, we stored processed weights, need raw
+    # Use within$X$weights which are raw (before normalization)
+    weights <- NULL  # Will use within data directly
+  } else if (inherits(x, "cograph_network")) {
+    weights <- if (!is.null(x$weights)) x$weights else to_matrix(x)
   } else if (inherits(x, "tna")) {
     weights <- x$weights
-    lab <- x$labels
   } else {
     weights <- x
-    lab <- colnames(x)
-    if (is.null(lab)) lab <- seq_len(ncol(x))
   }
 
-  n <- length(lab)
-
-  # Merge nodes parameter with existing nodes_df
-  if (is.data.frame(nodes)) {
-    nodes_df <- nodes
+  # Get node labels
+  if (!is.null(weights)) {
+    lab <- rownames(weights)
+    if (is.null(lab)) lab <- as.character(seq_len(n))
+  } else {
+    # Reconstruct from cluster_list
+    lab <- unlist(cluster_list, use.names = FALSE)
   }
 
-
-
-  # Resolve display labels: priority is labels > label > identifier
-  # (labels column = display text, label column = identifier)
+  # Get display labels from nodes_df
+  nodes_df <- cs$nodes_df
   display_labels <- if (!is.null(nodes_df)) {
     if ("labels" %in% names(nodes_df)) {
       nodes_df$labels
     } else if ("label" %in% names(nodes_df)) {
       nodes_df$label
     } else {
-      lab  # Fall back to identifiers
+      lab
     }
   } else {
     lab
   }
 
+  # Get cluster indices
+  cluster_idx <- lapply(cluster_list, function(nodes_vec) match(nodes_vec, lab))
+
+  # Between-cluster weights (processed based on type)
+  bw <- cs$between$weights
+
+  # For edge labels, use processed or raw weights based on mode
+  # mode = "tna" -> show transition probabilities (processed)
+  # mode = "weights" -> show aggregated raw weights
+  # Since both are in cs$between$weights (which is processed for type="tna")
+  # we need raw weights for mode="weights"
+  sw_labels <- bw  # Use processed (row-normalized) for display
+
   # Expand node_shape to vector if needed
   node_shape <- rep_len(node_shape, n)
-
-
-  # Handle cluster_list: can be list, column name string, or NULL (auto-detect)
-  if (is.character(cluster_list) && length(cluster_list) == 1 &&
-      !is.null(nodes_df) && cluster_list %in% names(nodes_df)) {
-    # Column name provided
-    cluster_col <- nodes_df[[cluster_list]]
-    cluster_list <- split(lab, cluster_col)
-    message("Using '", cluster_list, "' column for clusters")
-  } else if (is.null(cluster_list) && !is.null(nodes_df)) {
-    # Auto-detect from common column names
-    cluster_cols <- c("clusters", "cluster", "groups", "group", "community", "module")
-    for (col in cluster_cols) {
-      if (col %in% names(nodes_df)) {
-        cluster_col <- nodes_df[[col]]
-        cluster_list <- split(lab, cluster_col)
-        message("Using '", col, "' column for clusters")
-        break
-      }
-    }
-  }
-
-  if (is.null(cluster_list)) {
-    stop("cluster_list required: provide a list, column name, or add a ",
-         "'clusters'/'groups' column to nodes")
-  }
-
-  n_clusters <- length(cluster_list)
-  cluster_names <- names(cluster_list)
-  if (is.null(cluster_names)) cluster_names <- paste0("C", seq_len(n_clusters))
 
   # Colors
   pal <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442",
@@ -227,13 +272,13 @@ plot_mcml <- function(
   # Expand cluster_shape to vector if needed
   cluster_shape <- rep_len(cluster_shape, n_clusters)
 
-  # Cluster indices
-  cluster_idx <- lapply(cluster_list, function(nodes) match(nodes, lab))
+  # ============================================================================
+  # Layout computation
+  # ============================================================================
 
   # Perspective: table view (flat plane seen from above at angle)
   skew_rad <- skew_angle * pi / 180
   compress <- cos(skew_rad)  # flatten y for table-like view
-  shear <- 0.15  # subtle lean
 
   # Bottom layer: cluster centers (flat plane)
   angles <- pi/2 - (seq_len(n_clusters) - 1) * 2 * pi / n_clusters
@@ -243,18 +288,14 @@ plot_mcml <- function(
   by <- by_base * compress
 
   # Auto-calculate layer_spacing to ensure no overlap
-  # Top of bottom layer is max(by) + compressed shell height
-  # Bottom of top layer needs to be above that
   bottom_top <- max(by) + shape_size * compress
   bottom_bottom <- min(by) - shape_size * compress
 
   if (is.null(layer_spacing)) {
-    # Ensure gap of at least 1.5 units between layers
     layer_spacing <- (bottom_top - bottom_bottom) + 2
   }
 
-  # Top layer positioned above bottom layer (not too far)
-
+  # Top layer positioned above bottom layer
   gap <- spacing * inter_layer_gap
   top_base_y <- bottom_top + gap
 
@@ -265,30 +306,35 @@ plot_mcml <- function(
   tx <- top_radius_x * cos(angles)
   ty <- top_radius_y * sin(angles) + top_base_y
 
-  # Summary weights between clusters
-  sw <- matrix(0, n_clusters, n_clusters)
-  for (i in seq_len(n_clusters)) {
-    for (j in seq_len(n_clusters)) {
-      if (i != j) {
-        w <- weights[cluster_idx[[i]], cluster_idx[[j]]]
-        w <- w[!is.na(w) & w > 0]
-        if (length(w) > 0) {
-          sw[i, j] <- switch(aggregation, sum = sum(w), mean = mean(w), max = max(w))
-        }
+  # Edge weight scaling
+  max_sw <- max(bw)
+  if (max_sw == 0) max_sw <- 1
+
+  # For within-cluster edges, need max from raw weights
+  if (!is.null(weights)) {
+    max_w <- max(abs(weights), na.rm = TRUE)
+    if (is.na(max_w) || max_w == 0) max_w <- 1
+  } else {
+    # Get from within data
+    max_w <- 1
+    if (!is.null(cs$within)) {
+      all_within_w <- unlist(lapply(cs$within, function(w) w$weights))
+      if (length(all_within_w) > 0) {
+        max_w <- max(abs(all_within_w), na.rm = TRUE)
+        if (is.na(max_w) || max_w == 0) max_w <- 1
       }
     }
   }
-  max_sw <- max(sw)
-  if (max_sw == 0) max_sw <- 1
-
-  max_w <- max(abs(weights), na.rm = TRUE)
-  if (is.na(max_w) || max_w == 0) max_w <- 1
 
   # Helper: get point on ellipse edge facing target
   shell_edge <- function(cx, cy, tx, ty, rx, ry) {
     a <- atan2((ty - cy) / ry, (tx - cx) / rx)
     c(cx + rx * cos(a), cy + ry * sin(a))
   }
+
+  # ============================================================================
+  # Plot setup
+  # ============================================================================
 
   # Plot limits (tight padding)
   pad <- shape_size * 0.3
@@ -301,8 +347,10 @@ plot_mcml <- function(
   graphics::plot.new()
   graphics::plot.window(xlim = xlim, ylim = ylim, asp = 1)
 
-  # ============ DRAW INTER-LAYER CONNECTIONS FIRST (behind everything) ============
-  # Store node positions for inter-layer connections
+  # ============================================================================
+  # DRAW INTER-LAYER CONNECTIONS FIRST (behind everything)
+  # ============================================================================
+
   node_positions <- vector("list", n_clusters)
   node_r <- shape_size * node_radius_scale
 
@@ -331,16 +379,18 @@ plot_mcml <- function(
     }
   }
 
-  # ============ TOP LAYER (summary network) ============
+  # ============================================================================
+  # TOP LAYER (summary network)
+  # ============================================================================
 
   # Summary edges
   if (max_sw > 0) {
     for (i in seq_len(n_clusters)) {
       for (j in seq_len(n_clusters)) {
-        if (i != j && sw[i, j] > minimum) {
+        if (i != j && bw[i, j] > minimum) {
           lwd <- summary_edge_width_range[1] +
             (summary_edge_width_range[2] - summary_edge_width_range[1]) *
-            sw[i, j] / max_sw
+            bw[i, j] / max_sw
           edge_col <- grDevices::adjustcolor(colors[i], summary_edge_alpha)
           if (summary_arrows) {
             graphics::arrows(tx[i], ty[i], tx[j], ty[j],
@@ -355,7 +405,7 @@ plot_mcml <- function(
             mid_x <- (tx[i] + tx[j]) / 2
             mid_y <- (ty[i] + ty[j]) / 2
             graphics::text(mid_x, mid_y,
-                           labels = round(sw[i, j], edge_label_digits),
+                           labels = round(sw_labels[i, j], edge_label_digits),
                            cex = summary_edge_label_size,
                            col = edge_label_color)
           }
@@ -384,7 +434,9 @@ plot_mcml <- function(
     }
   }
 
-  # ============ BOTTOM LAYER (detailed clusters) ============
+  # ============================================================================
+  # BOTTOM LAYER (detailed clusters)
+  # ============================================================================
 
   # Between-cluster edges (shell to shell)
   shell_rx <- shape_size
@@ -392,12 +444,12 @@ plot_mcml <- function(
   if (max_sw > 0) {
     for (i in seq_len(n_clusters)) {
       for (j in seq_len(n_clusters)) {
-        if (i != j && sw[i, j] > minimum) {
+        if (i != j && bw[i, j] > minimum) {
           p1 <- shell_edge(bx[i], by[i], bx[j], by[j], shell_rx, shell_ry)
           p2 <- shell_edge(bx[j], by[j], bx[i], by[i], shell_rx, shell_ry)
           lwd <- between_edge_width_range[1] +
             (between_edge_width_range[2] - between_edge_width_range[1]) *
-            sw[i, j] / max_sw
+            bw[i, j] / max_sw
           graphics::segments(p1[1], p1[2], p2[1], p2[2],
                              col = grDevices::adjustcolor(colors[i], between_edge_alpha),
                              lwd = lwd)
@@ -410,6 +462,7 @@ plot_mcml <- function(
   for (i in seq_len(n_clusters)) {
     idx <- cluster_idx[[i]]
     n_nodes <- length(idx)
+    cl_name <- cluster_names[i]
 
     # Shell (ellipse for table-view perspective)
     theta <- seq(0, 2 * pi, length.out = 60)
@@ -429,24 +482,39 @@ plot_mcml <- function(
 
     # Within-cluster edges
     if (n_nodes > 1) {
-      for (j in seq_len(n_nodes)) {
-        for (k in seq_len(n_nodes)) {
-          if (j != k) {
-            w <- weights[idx[j], idx[k]]
-            if (!is.na(w) && w > minimum) {
-              lwd <- edge_width_range[1] +
-                (edge_width_range[2] - edge_width_range[1]) * w / max_w
-              graphics::segments(nx[j], ny[j], nx[k], ny[k],
-                                 col = grDevices::adjustcolor(colors[i], edge_alpha),
-                                 lwd = lwd)
-              # Within-cluster edge labels
-              if (edge_labels) {
-                mid_x <- (nx[j] + nx[k]) / 2
-                mid_y <- (ny[j] + ny[k]) / 2
-                graphics::text(mid_x, mid_y,
-                               labels = round(w, edge_label_digits),
-                               cex = edge_label_size,
-                               col = edge_label_color)
+      # Get within-cluster weights
+      within_w <- if (!is.null(cs$within) && cl_name %in% names(cs$within)) {
+        cs$within[[cl_name]]$weights
+      } else if (!is.null(weights)) {
+        w <- weights[idx, idx]
+        diag(w) <- 0
+        w
+      } else {
+        NULL
+      }
+
+      if (!is.null(within_w)) {
+        for (j in seq_len(n_nodes)) {
+          for (k in seq_len(n_nodes)) {
+            if (j != k) {
+              w <- within_w[j, k]
+              if (!is.na(w) && w > minimum) {
+                lwd <- edge_width_range[1] +
+                  (edge_width_range[2] - edge_width_range[1]) * w / max_w
+                graphics::segments(nx[j], ny[j], nx[k], ny[k],
+                                   col = grDevices::adjustcolor(colors[i], edge_alpha),
+                                   lwd = lwd)
+                # Within-cluster edge labels
+                if (edge_labels) {
+                  mid_x <- (nx[j] + nx[k]) / 2
+                  mid_y <- (ny[j] + ny[k]) / 2
+                  # Use TNA values if mode = "tna"
+                  w_label <- w
+                  graphics::text(mid_x, mid_y,
+                                 labels = round(w_label, edge_label_digits),
+                                 cex = edge_label_size,
+                                 col = edge_label_color)
+                }
               }
             }
           }
@@ -472,7 +540,6 @@ plot_mcml <- function(
   }
 
   # Title and subtitle
-
   if (!is.null(title)) {
     graphics::title(main = title, cex.main = title_size)
   }
@@ -521,9 +588,49 @@ plot_mcml <- function(
     )
   }
 
-  invisible(NULL)
+  invisible(cs)
 }
 
-#' @rdname plot_mcml
+#' mcml - Deprecated alias for cluster_summary
+#'
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' Use \code{\link{cluster_summary}} instead. This function is provided for
+#' backward compatibility only.
+#'
+#' @param x Weight matrix, tna object, cograph_network, or cluster_summary object
+#' @param cluster_list Named list of node vectors per cluster
+#' @param aggregation How to aggregate edge weights: "sum", "mean", "max"
+#' @param as_tna Logical. If TRUE, return a tna-compatible object
+#' @param nodes Node metadata
+#' @param within Logical. Compute within-cluster matrices
+#' @return A cluster_summary object (or tna if as_tna = TRUE)
 #' @export
-mcml <- plot_mcml
+#' @keywords internal
+mcml <- function(x,
+                 cluster_list = NULL,
+                 aggregation = c("sum", "mean", "max"),
+                 as_tna = FALSE,
+                 nodes = NULL,
+                 within = TRUE) {
+
+  aggregation <- match.arg(aggregation)
+
+  # Call cluster_summary with mapped parameters
+  cs <- cluster_summary(x, cluster_list, method = aggregation, type = "tna",
+                        compute_within = within)
+
+  # Store nodes metadata for display labels (backward compat)
+  if (is.data.frame(nodes)) {
+    cs$nodes_df <- nodes
+  } else if (inherits(x, "cograph_network") && !is.null(x$nodes)) {
+    cs$nodes_df <- x$nodes
+  }
+
+  if (as_tna) {
+    return(as_tna(cs))
+  }
+
+  cs
+}

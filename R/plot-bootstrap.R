@@ -5,26 +5,6 @@
 #' @name plot-bootstrap
 NULL
 
-# =============================================================================
-# S3 Methods for tna_bootstrap (from tna package)
-# =============================================================================
-
-#' @export
-print.tna_bootstrap <- function(x, ...) {
- method <- x$method %||% "bootstrap"
-  iter <- x$iter %||% x$R %||% NA
-  cat("TNA Bootstrap Analysis (", method, ", iter=", iter, ")\n", sep = "")
-  if (!is.null(x$weights_sig) && !is.null(x$weights_orig)) {
-    cat("Significant edges:", sum(x$weights_sig != 0), "/", sum(x$weights_orig != 0), "\n")
-  }
-  invisible(x)
-}
-
-#' @export
-plot.tna_bootstrap <- function(x, ...) {
-  splot.tna_bootstrap(x, ...)
-}
-
 #' Plot Bootstrap Results
 #'
 #' Visualizes bootstrap analysis results with styling to distinguish

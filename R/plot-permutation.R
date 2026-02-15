@@ -5,51 +5,13 @@
 #' @name plot-permutation
 NULL
 
-# =============================================================================
-# S3 Methods for tna_permutation (from tna package)
-# =============================================================================
-
-#' @export
-print.tna_permutation <- function(x, ...) {
-  level <- attr(x, "level") %||% 0.05
-  n_sig <- sum(x$edges$diffs_sig != 0)
-  n_total <- sum(x$edges$diffs_true != 0)
-  cat("TNA Permutation Test (level=", level, ")\n", sep = "")
-  cat("Significant edge differences:", n_sig, "/", n_total, "\n")
-  if (!is.null(x$centralities)) {
-    n_cent_sig <- sum(x$centralities$diffs_sig[, -1] != 0)
-    n_cent_total <- sum(x$centralities$diffs_true[, -1] != 0)
-    cat("Significant centrality differences:", n_cent_sig, "/", n_cent_total, "\n")
-  }
-  invisible(x)
-}
-
-#' @export
-print.group_tna_permutation <- function(x, ...) {
-  cat("Group TNA Permutation Tests (", length(x), " comparisons)\n", sep = "")
-  for (nm in names(x)) {
-    n_sig <- sum(x[[nm]]$edges$diffs_sig != 0)
-    n_total <- sum(x[[nm]]$edges$diffs_true != 0)
-    cat("  ", nm, ": ", n_sig, "/", n_total, " significant edges\n", sep = "")
-  }
-  invisible(x)
-}
-
-#' @export
-plot.tna_permutation <- function(x, ...) {
-  plot_permutation(x, ...)
-}
-
-#' @export
-plot.group_tna_permutation <- function(x, ...) {
-  plot_group_permutation(x, ...)
-}
-
+#' @rdname plot_permutation
 #' @export
 splot.tna_permutation <- function(x, ...) {
   plot_permutation(x, ...)
 }
 
+#' @rdname plot_group_permutation
 #' @export
 splot.group_tna_permutation <- function(x, ...) {
   plot_group_permutation(x, ...)
@@ -181,14 +143,22 @@ plot_permutation <- function(x,
     p_matrix <- matrix(1, n_nodes, n_nodes)
     effect_matrix <- matrix(0, n_nodes, n_nodes)
 
+    # Get row/column names with null fallback
+    row_names <- rownames(diffs_true)
+    col_names <- colnames(diffs_true)
+    if (is.null(row_names) || is.null(col_names)) {
+      row_names <- seq_len(nrow(diffs_true))
+      col_names <- seq_len(ncol(diffs_true))
+    }
+
     # edge_stats has edge_name like "A -> B"
     for (k in seq_len(nrow(edge_stats))) {
       # Parse edge name
       edge_name <- edge_stats$edge_name[k]
       parts <- strsplit(edge_name, " -> ")[[1]]
       if (length(parts) == 2) {
-        from_idx <- which(rownames(diffs_true) == parts[1])
-        to_idx <- which(colnames(diffs_true) == parts[2])
+        from_idx <- which(row_names == parts[1])
+        to_idx <- which(col_names == parts[2])
         if (length(from_idx) == 1 && length(to_idx) == 1) {
           p_matrix[from_idx, to_idx] <- edge_stats$p_value[k]
           effect_matrix[from_idx, to_idx] <- edge_stats$effect_size[k]
@@ -349,7 +319,7 @@ plot_group_permutation <- function(x, i = NULL, ...) {
 
   # Set up multi-panel plot
   old_par <- graphics::par(mfrow = c(nrow, ncol), mar = c(2, 2, 3, 1))
-  on.exit(graphics::par(old_par))
+  on.exit(graphics::par(old_par), add = TRUE)
 
   pair_names <- names(x)
   for (k in seq_len(n_pairs)) {

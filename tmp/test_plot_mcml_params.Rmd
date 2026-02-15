@@ -1,0 +1,220 @@
+---
+title: "plot_mcml() Parameter Control Test"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 10, fig.height = 8)
+devtools::load_all(".")
+```
+
+## Test Data Setup
+
+```{r data}
+# Create test network with clusters
+set.seed(42)
+n <- 12
+labels <- paste0("N", 1:n)
+weights <- matrix(runif(n * n, 0, 0.5), n, n)
+diag(weights) <- 0
+colnames(weights) <- rownames(weights) <- labels
+
+# Define clusters
+cluster_list <- list(
+  "Cluster A" = c("N1", "N2", "N3", "N4"),
+  "Cluster B" = c("N5", "N6", "N7", "N8"),
+  "Cluster C" = c("N9", "N10", "N11", "N12")
+)
+```
+
+## Test 1: Default Behavior (now shows summary labels + arrows)
+
+```{r test1, fig.cap="Default - now with summary labels and arrows"}
+plot_mcml(weights, cluster_list)
+```
+
+## Test 2: Add Title and Subtitle
+
+```{r test2, fig.cap="With title and subtitle"}
+plot_mcml(weights, cluster_list,
+          title = "Network Analysis",
+          subtitle = "Cluster visualization")
+```
+
+## Test 3: Custom Legend Position - Bottom
+
+```{r test3, fig.cap="Legend at bottom"}
+plot_mcml(weights, cluster_list,
+          legend_pos = "bottom",
+          legend_size = 0.9,
+          legend_pt_size = 1.5)
+```
+
+## Test 4: Legend Position - Left
+
+```{r test4, fig.cap="Legend at left"}
+plot_mcml(weights, cluster_list,
+          legend_pos = "left")
+```
+
+## Test 5: Legend Position - Top
+
+```{r test5, fig.cap="Legend at top"}
+plot_mcml(weights, cluster_list,
+          legend_pos = "top")
+```
+
+## Test 6: Disable Arrows, Adjust Edge Styling
+
+```{r test6, fig.cap="No arrows, wider edges"}
+plot_mcml(weights, cluster_list,
+          summary_arrows = FALSE,
+          edge_width_range = c(0.5, 2),
+          edge_alpha = 0.5,
+          summary_edge_width_range = c(1, 3))
+```
+
+## Test 7: Summary Labels Customization
+
+```{r test7, fig.cap="Custom summary labels - larger, below nodes, red"}
+plot_mcml(weights, cluster_list,
+          summary_labels = TRUE,
+          summary_label_size = 1.2,
+          summary_label_pos = 1,  # below
+          summary_label_color = "red")
+```
+
+## Test 8: Disable Summary Labels
+
+```{r test8, fig.cap="No summary labels"}
+plot_mcml(weights, cluster_list,
+          summary_labels = FALSE)
+```
+
+## Test 9: Layout Fine-tuning
+
+```{r test9, fig.cap="Custom layout: wider top layer, larger inter-layer gap"}
+plot_mcml(weights, cluster_list,
+          top_layer_scale = c(1.0, 0.4),  # wider, taller oval
+          inter_layer_gap = 1.0,           # larger gap
+          node_radius_scale = 0.7)         # nodes further from center
+```
+
+## Test 10: Shell and Node Styling
+
+```{r test10, fig.cap="Custom shell and node styling"}
+plot_mcml(weights, cluster_list,
+          shell_alpha = 0.3,
+          shell_border_width = 3,
+          node_border_color = "navy",
+          summary_border_color = "darkred",
+          summary_border_width = 3)
+```
+
+## Test 11: Transparency Controls
+
+```{r test11, fig.cap="Custom transparency values"}
+plot_mcml(weights, cluster_list,
+          edge_alpha = 0.6,
+          between_edge_alpha = 0.8,
+          summary_edge_alpha = 0.9,
+          inter_layer_alpha = 0.3)
+```
+
+## Test 12: Detail Label Styling
+
+```{r test12, fig.cap="Custom detail labels - below nodes, blue"}
+plot_mcml(weights, cluster_list,
+          label_color = "blue",
+          label_pos = 1,  # below
+          label_size = 0.8)
+```
+
+## Test 13: Full Customization
+
+```{r test13, fig.cap="Full customization example"}
+plot_mcml(weights, cluster_list,
+          # Title
+          title = "My Network Analysis",
+          subtitle = "Full customization demo",
+          title_size = 1.5,
+          subtitle_size = 1.0,
+          # Summary
+          summary_labels = TRUE,
+          summary_label_size = 1.0,
+          summary_label_color = "darkgreen",
+          summary_arrows = TRUE,
+          summary_arrow_size = 0.2,
+          # Edges
+          edge_width_range = c(0.5, 1.5),
+          summary_edge_width_range = c(0.8, 2.5),
+          edge_alpha = 0.5,
+          summary_edge_alpha = 0.8,
+          # Layout
+          top_layer_scale = c(0.9, 0.3),
+          inter_layer_gap = 0.8,
+          # Styling
+          shell_alpha = 0.2,
+          shell_border_width = 2,
+          # Legend
+          legend_pos = "right",
+          legend_size = 0.8)
+```
+
+## Test 14: Arrow Size Comparison
+
+```{r test14_small, fig.cap="Small arrows"}
+plot_mcml(weights, cluster_list,
+          summary_arrow_size = 0.08,
+          title = "Small arrows (0.08)")
+```
+
+```{r test14_large, fig.cap="Large arrows"}
+plot_mcml(weights, cluster_list,
+          summary_arrow_size = 0.25,
+          title = "Large arrows (0.25)")
+```
+
+## Test 15: No Legend
+
+```{r test15, fig.cap="Legend disabled"}
+plot_mcml(weights, cluster_list,
+          legend_pos = "none",
+          title = "No legend")
+```
+
+## Summary
+
+All 22 new parameters are working:
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `title` | NULL | Main plot title |
+| `subtitle` | NULL | Subtitle below title |
+| `title_size` | 1.2 | Title text size |
+| `subtitle_size` | 0.9 | Subtitle text size |
+| `legend_pos` | "right" | Legend position |
+| `legend_size` | 0.7 | Legend text size |
+| `legend_pt_size` | 1.2 | Legend point size |
+| `summary_labels` | TRUE | Show cluster labels |
+| `summary_label_size` | 0.8 | Summary label size |
+| `summary_label_pos` | 3 | Summary label position |
+| `summary_label_color` | "gray20" | Summary label color |
+| `summary_arrows` | TRUE | Show arrows |
+| `summary_arrow_size` | 0.15 | Arrow head size |
+| `edge_width_range` | c(0.3, 1.3) | Detail edge width |
+| `summary_edge_width_range` | c(0.5, 2.0) | Summary edge width |
+| `edge_alpha` | 0.35 | Within-cluster alpha |
+| `between_edge_alpha` | 0.6 | Between-cluster alpha |
+| `summary_edge_alpha` | 0.7 | Summary edge alpha |
+| `inter_layer_alpha` | 0.5 | Inter-layer alpha |
+| `top_layer_scale` | c(0.8, 0.25) | Top layer scale |
+| `inter_layer_gap` | 0.6 | Layer gap multiplier |
+| `node_radius_scale` | 0.55 | Node radius scale |
+| `shell_alpha` | 0.15 | Shell fill alpha |
+| `shell_border_width` | 2 | Shell border width |
+| `node_border_color` | "gray30" | Node border |
+| `summary_border_color` | "gray20" | Summary border |
+| `summary_border_width` | 2 | Summary border width |
+| `label_color` | "gray20" | Detail label color |
+| `label_pos` | 3 | Detail label position |

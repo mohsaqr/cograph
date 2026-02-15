@@ -4,7 +4,7 @@
 #' and individual edges within clusters. Each cluster is displayed as a
 #' shape (circle, square, diamond, triangle) containing its nodes.
 #'
-#' @param x A tna object, weight matrix, or cograph_network.
+#' @param x A tna object, weight matrix, cograph_network, or cluster_summary object.
 #' @param cluster_list Clusters can be specified as:
 #'   \itemize{
 #'     \item A list of character vectors (node names per cluster)
@@ -60,9 +60,11 @@
 #'   Can be single value or vector. Overrides \code{shapes}. Default NULL (use shapes).
 #' @param ... Additional parameters passed to plot_tna().
 #'
-#' @return Invisibly returns NULL for summary mode, or the plot_tna result.
+#' @return Invisibly returns a cluster_summary object for summary mode, or the
+#'   plot_tna result otherwise.
 #'
 #' @export
+#' @seealso \code{\link{cluster_summary}}, \code{\link{plot_mcml}}
 #'
 #' @examples
 #' \dontrun{
@@ -382,18 +384,10 @@ plot_mtna <- function(
 
   # Handle summary edges mode
   if (summary_edges) {
-    # Create aggregated cluster-to-cluster weight matrix
-    cluster_weights <- matrix(0, nrow = n_clusters, ncol = n_clusters)
-    for (i in seq_len(n_clusters)) {
-      for (j in seq_len(n_clusters)) {
-        if (i != j) {
-          # Aggregate edges from cluster i to cluster j
-          w_ij <- weights[cluster_indices[[i]], cluster_indices[[j]]]
-          n_possible <- length(cluster_indices[[i]]) * length(cluster_indices[[j]])
-          cluster_weights[i, j] <- aggregate_weights(as.vector(w_ij), aggregation, n_possible)
-        }
-      }
-    }
+    # Use cluster_summary for aggregation (removes duplicated logic)
+    cs <- cluster_summary(weights, cluster_list, method = aggregation,
+                          type = "raw", compute_within = FALSE)
+    cluster_weights <- cs$between$weights
 
     # Create cluster-level layout (centers)
     cluster_layout <- as.matrix(cluster_centers)
@@ -811,7 +805,7 @@ plot_mtna <- function(
       }
     }
 
-    result <- NULL
+    result <- cs
   } else {
     # Regular mode - show all individual edges
     dots <- list(...)

@@ -38,7 +38,7 @@ to_igraph <- function(x, directed = NULL) {
       if (directed && !igraph::is_directed(x)) {
         x <- igraph::as.directed(x, mode = "mutual")
       } else if (!directed && igraph::is_directed(x)) {
-        x <- igraph::as.undirected(x, mode = "collapse")
+        x <- igraph::as_undirected(x, mode = "collapse")
       }
     }
     return(x)
@@ -51,7 +51,7 @@ to_igraph <- function(x, directed = NULL) {
       if (directed && !igraph::is_directed(g)) {
         g <- igraph::as.directed(g, mode = "mutual")
       } else if (!directed && igraph::is_directed(g)) {
-        g <- igraph::as.undirected(g, mode = "collapse")
+        g <- igraph::as_undirected(g, mode = "collapse")
       }
     }
     return(g)
@@ -182,7 +182,7 @@ detect_communities <- function(x, method = "louvain", directed = NULL,
     "walktrap" = igraph::cluster_walktrap(g, weights = edge_weights),
     "fast_greedy" = {
       # fast_greedy requires undirected graph
-      g_undirected <- igraph::as.undirected(g, mode = "collapse",
+      g_undirected <- igraph::as_undirected(g, mode = "collapse",
                                              edge.attr.comb = "mean")
       igraph::cluster_fast_greedy(g_undirected, weights = edge_weights)
     },

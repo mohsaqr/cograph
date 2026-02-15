@@ -13,7 +13,7 @@
 #' @param seed Random seed for reproducibility. Default NULL.
 #' @param initial Optional initial coordinates (matrix or data frame).
 #'   Useful for warm-starting or animations.
-#' @param normalize Logical. If TRUE (default), normalize output to [0,1] range.
+#' @param normalize Logical. If TRUE (default), normalize output to \[0,1\] range.
 #'   If FALSE, return raw Gephi-scale coordinates.
 #' @param gravity_mode Gravity behavior: "linear" (default, standard gravity),
 #'   "degree" (high-degree nodes feel stronger gravity, creates hub structure),
@@ -82,7 +82,7 @@ layout_gephi_fr <- function(g, area = 10000, gravity = 1.0, speed = 1.0,
     } else {
       coords <- as.matrix(initial[, c("x", "y")])
     }
-    # Scale from [0,1] to Gephi coordinate space if normalized input
+    # Scale from \[0,1\] to Gephi coordinate space if normalized input
     if (all(coords >= 0 & coords <= 1)) {
       coords <- coords * 1000 - 500
     }
@@ -275,7 +275,7 @@ layout_gephi_fr <- function(g, area = 10000, gravity = 1.0, speed = 1.0,
 #' @param niter Number of iterations. Default 100.
 #' @param seed Random seed for reproducibility.
 #' @param initial Optional initial coordinates.
-#' @param normalize Normalize output to [0,1]. Default TRUE.
+#' @param normalize Normalize output to \[0,1\]. Default TRUE.
 #' @param gravity_mode Gravity behavior: "linear", "degree", or "none".
 #' @param cooling_mode Cooling schedule: "constant", "vcf", or "linear".
 #' @param anchor_strength Anchor force strength for animations.

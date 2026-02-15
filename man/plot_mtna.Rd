@@ -68,7 +68,7 @@ mtna(
 )
 }
 \arguments{
-\item{x}{A tna object, weight matrix, or cograph_network.}
+\item{x}{A tna object, weight matrix, cograph_network, or cluster_summary object.}
 
 \item{cluster_list}{Clusters can be specified as:
 \itemize{
@@ -152,7 +152,8 @@ Can be single value or vector. Overrides \code{shapes}. Default NULL (use shapes
 \item{...}{Additional parameters passed to plot_tna().}
 }
 \value{
-Invisibly returns NULL for summary mode, or the plot_tna result.
+Invisibly returns a cluster_summary object for summary mode, or the
+plot_tna result otherwise.
 }
 \description{
 Visualizes multiple network clusters with summary edges between clusters
@@ -183,4 +184,7 @@ plot_mtna(m, clusters, show_labels = TRUE, label_abbrev = 3)
 # Control spacing and sizes
 plot_mtna(m, clusters, spacing = 4, shape_size = 1.5, node_spacing = 0.6)
 }
+}
+\seealso{
+\code{\link{cluster_summary}}, \code{\link{plot_mcml}}
 }

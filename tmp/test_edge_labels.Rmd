@@ -1,0 +1,102 @@
+---
+title: "plot_mcml() Edge Labels & Width Test"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 10, fig.height = 8)
+devtools::load_all(".")
+```
+
+## Test Data
+
+```{r data}
+set.seed(42)
+n <- 12
+labels <- paste0("N", 1:n)
+weights <- matrix(runif(n * n, 0, 0.5), n, n)
+diag(weights) <- 0
+colnames(weights) <- rownames(weights) <- labels
+
+cluster_list <- list(
+  "Cluster A" = c("N1", "N2", "N3", "N4"),
+  "Cluster B" = c("N5", "N6", "N7", "N8"),
+  "Cluster C" = c("N9", "N10", "N11", "N12")
+)
+```
+
+## Test 1: Default (no edge labels)
+
+```{r test1}
+plot_mcml(weights, cluster_list, title = "Default - no edge labels")
+```
+
+## Test 2: Summary Edge Labels ON
+
+```{r test2}
+plot_mcml(weights, cluster_list,
+          summary_edge_labels = TRUE,
+          title = "Summary edge labels ON")
+```
+
+## Test 3: Within-cluster Edge Labels ON
+
+```{r test3}
+plot_mcml(weights, cluster_list,
+          edge_labels = TRUE,
+          title = "Within-cluster edge labels ON")
+```
+
+## Test 4: Both Edge Labels ON
+
+```{r test4}
+plot_mcml(weights, cluster_list,
+          edge_labels = TRUE,
+          summary_edge_labels = TRUE,
+          title = "All edge labels ON")
+```
+
+## Test 5: Custom Edge Label Styling
+
+```{r test5}
+plot_mcml(weights, cluster_list,
+          edge_labels = TRUE,
+          edge_label_size = 0.7,
+          edge_label_color = "darkblue",
+          edge_label_digits = 1,
+          summary_edge_labels = TRUE,
+          summary_edge_label_size = 0.8,
+          title = "Custom edge label styling")
+```
+
+## Test 6: Separate Width Ranges
+
+```{r test6}
+plot_mcml(weights, cluster_list,
+          edge_width_range = c(0.5, 2.0),        # within-cluster: thicker
+          between_edge_width_range = c(1.0, 3.0), # between-cluster: even thicker
+          summary_edge_width_range = c(0.3, 1.0), # summary: thinner
+          title = "Separate width ranges for each edge type")
+```
+
+## Test 7: Thin within-cluster, thick between-cluster
+
+```{r test7}
+plot_mcml(weights, cluster_list,
+          edge_width_range = c(0.1, 0.5),         # very thin within
+          between_edge_width_range = c(2.0, 4.0), # very thick between
+          summary_edge_width_range = c(1.0, 2.0), # medium summary
+          title = "Thin within, thick between")
+```
+
+## Summary of New Parameters
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `edge_labels` | FALSE | Show labels on within-cluster edges |
+| `edge_label_size` | 0.5 | Within-cluster edge label size |
+| `edge_label_color` | "gray40" | Edge label color |
+| `edge_label_digits` | 2 | Decimal places |
+| `summary_edge_labels` | FALSE | Show labels on summary edges |
+| `summary_edge_label_size` | 0.6 | Summary edge label size |
+| `between_edge_width_range` | c(0.5, 2.0) | Width range for between-cluster edges |

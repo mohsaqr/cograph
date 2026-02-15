@@ -29,10 +29,11 @@ plot_ml_heatmap(
 )
 }
 \arguments{
-\item{x}{A list of matrices (one per layer), a group_tna object, or a single
-matrix with layer_list specified.}
+\item{x}{A list of matrices (one per layer), a group_tna object,
+cograph_network, or a single matrix with layer_list specified.}
 
-\item{layer_list}{Optional list defining layers (for single matrix input).}
+\item{layer_list}{Optional list defining layers, column name string,
+or NULL for auto-detection from cograph_network nodes.}
 
 \item{colors}{Color palette: "viridis", "heat", "blues", "reds", "inferno",
 "plasma", or a vector of colors. Default "viridis".}

@@ -1,0 +1,126 @@
+---
+title: "MCML: From Edge List to TNA Models"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+devtools::load_all(".")
+```
+
+# Simulated Data
+
+```{r simulate}
+set.seed(42)
+
+# 20 nodes in 6 clusters
+nodes <- data.frame(
+  label = c("S1", "S2", "S3", "S4",
+            "P1", "P2", "P3",
+            "E1", "E2", "E3", "E4",
+            "R1", "R2", "R3",
+            "C1", "C2", "C3", "C4",
+            "M1", "M2"),
+  cluster = c(rep("Search", 4),
+              rep("Plan", 3),
+              rep("Execute", 4),
+              rep("Review", 3),
+              rep("Collaborate", 4),
+              rep("Monitor", 2))
+)
+
+# Simulate 2000 transitions with cluster affinity
+n_edges <- 2000
+from <- sample(nodes$label, n_edges, replace = TRUE)
+
+# Bias towards same-cluster or adjacent-cluster transitions
+to <- vapply(from, function(f) {
+  f_cluster <- nodes$cluster[nodes$label == f]
+  if (runif(1) < 0.6) {
+    # 60% within-cluster
+    candidates <- nodes$label[nodes$cluster == f_cluster]
+  } else {
+    # 40% between-cluster
+    candidates <- nodes$label[nodes$cluster != f_cluster]
+  }
+  sample(candidates, 1)
+}, character(1))
+
+edges <- data.frame(from = from, to = to)
+edges <- edges[edges$from != edges$to, ]
+head(edges, 10)
+```
+
+# Create Network
+
+```{r network}
+net <- cograph(edges, nodes = nodes)
+net$nodes$clusters <- nodes$cluster
+net
+```
+
+# Define Clusters
+
+```{r clusters}
+clusters <- split(nodes$label, nodes$cluster)
+clusters
+```
+
+# Cluster Summary
+
+```{r summary}
+cs <- cluster_summary(net, clusters, type = "tna")
+cs
+```
+
+## Between-Cluster Weights
+
+Transition probabilities between clusters (rows sum to 1):
+
+```{r between}
+round(cs$between$weights, 3)
+```
+
+## Within-Cluster Weights
+
+Transition probabilities within each cluster:
+
+```{r within}
+lapply(cs$within, function(x) round(x$weights, 3))
+```
+
+# Convert to TNA Models
+
+```{r as-tna}
+tna_models <- as_tna(cs)
+tna_models
+```
+
+# Plot TNA Models
+
+## Between-Cluster Network
+
+```{r plot-between, fig.height=6, fig.width=8}
+plot(tna_models$between, title = "Between Clusters")
+```
+
+## Within-Cluster Networks
+
+```{r plot-within, fig.height=10, fig.width=12}
+n <- length(tna_models$within)
+par(mfrow = c(2, 3))
+for (cl in names(tna_models$within)) {
+  plot(tna_models$within[[cl]], title = cl)
+}
+par(mfrow = c(1, 1))
+```
+
+# MCML Visualization
+
+```{r plot-mcml, fig.height=12, fig.width=14}
+plot_mcml(cs, title = "Learning Process Transitions", edge_labels = TRUE)
+```

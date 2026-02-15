@@ -20,7 +20,12 @@ NULL
 #' coords <- layout_circle(net)
 layout_circle <- function(network, order = NULL, start_angle = pi/2,
                           clockwise = TRUE) {
-  n <- network$n_nodes
+  # Get node count (support both R6 and S3 cograph_network)
+  n <- if (inherits(network, "cograph_network")) {
+    n_nodes(network)
+  } else {
+    network$n_nodes
+  }
 
   if (n == 0) {
     return(data.frame(x = numeric(0), y = numeric(0)))

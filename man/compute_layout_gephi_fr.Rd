@@ -7,9 +7,15 @@
 compute_layout_gephi_fr(
   network,
   area = 10000,
-  gravity = 10,
+  gravity = 1,
   speed = 1,
   niter = 100,
+  seed = NULL,
+  initial = NULL,
+  normalize = TRUE,
+  gravity_mode = "linear",
+  cooling_mode = "constant",
+  anchor_strength = 0,
   ...
 )
 }
@@ -18,11 +24,23 @@ compute_layout_gephi_fr(
 
 \item{area}{Area parameter. Default 10000.}
 
-\item{gravity}{Gravity force. Default 10.0.}
+\item{gravity}{Gravity force. Default 1.0.}
 
 \item{speed}{Speed parameter. Default 1.0.}
 
 \item{niter}{Number of iterations. Default 100.}
+
+\item{seed}{Random seed for reproducibility.}
+
+\item{initial}{Optional initial coordinates.}
+
+\item{normalize}{Normalize output to [0,1]. Default TRUE.}
+
+\item{gravity_mode}{Gravity behavior: "linear", "degree", or "none".}
+
+\item{cooling_mode}{Cooling schedule: "constant", "vcf", or "linear".}
+
+\item{anchor_strength}{Anchor force strength for animations.}
 
 \item{...}{Additional arguments (ignored).}
 }

@@ -845,37 +845,70 @@ test_that("print.cograph_cluster_significance returns invisible x", {
 # Tests for print.cluster_summary (cluster-metrics.R)
 # ==============================================================================
 
-test_that("print.cluster_summary shows basic info", {
-  result <- structure(
+# Helper to create new-style cluster_summary objects
+create_mock_cluster_summary <- function(cluster_names = c("1", "2", "3"),
+                                         cluster_sizes = c(5, 3, 2),
+                                         method = "louvain",
+                                         type = "tna",
+                                         directed = FALSE) {
+  n <- length(cluster_names)
+  between_mat <- matrix(runif(n * n) * 0.3, n, n)
+  diag(between_mat) <- 0
+  rownames(between_mat) <- colnames(between_mat) <- cluster_names
+
+  within_list <- lapply(seq_along(cluster_names), function(i) {
+    sz <- cluster_sizes[i]
+    w <- matrix(runif(sz * sz) * 0.5, sz, sz)
+    diag(w) <- 0
+    list(weights = w, inits = runif(sz))
+  })
+  names(within_list) <- cluster_names
+
+  clusters <- lapply(seq_along(cluster_names), function(i) {
+    paste0("N", seq_len(cluster_sizes[i]))
+  })
+  names(clusters) <- cluster_names
+
+  structure(
     list(
-      cluster_names = c("1", "2", "3"),
-      cluster_sizes = c(5, 3, 2),
-      between = matrix(c(0, 0.2, 0.1, 0.2, 0, 0.15, 0.1, 0.15, 0), 3, 3),
-      within = c(0.5, 0.4, 0.3),
-      method = "louvain",
-      directed = FALSE
+      between = list(
+        weights = between_mat,
+        inits = runif(n)
+      ),
+      within = within_list,
+      clusters = clusters,
+      meta = list(
+        type = type,
+        method = method,
+        directed = directed,
+        n_nodes = sum(cluster_sizes),
+        n_clusters = n,
+        cluster_sizes = setNames(cluster_sizes, cluster_names)
+      )
     ),
     class = "cluster_summary"
+  )
+}
+
+test_that("print.cluster_summary shows basic info", {
+  result <- create_mock_cluster_summary(
+    cluster_names = c("1", "2", "3"),
+    cluster_sizes = c(5, 3, 2),
+    method = "louvain"
   )
 
   output <- capture.output(print(result))
   expect_true(any(grepl("Cluster Summary", output)))
   expect_true(any(grepl("louvain", output)))
   expect_true(any(grepl("Clusters:", output)))
-  expect_true(any(grepl("Between-cluster matrix", output)))
+  expect_true(any(grepl("Between-cluster weights", output)))
 })
 
 test_that("print.cluster_summary shows cluster sizes", {
-  result <- structure(
-    list(
-      cluster_names = c("A", "B"),
-      cluster_sizes = c(10, 5),
-      between = matrix(c(0, 0.3, 0.3, 0), 2, 2),
-      within = c(0.6, 0.4),
-      method = "fast_greedy",
-      directed = TRUE
-    ),
-    class = "cluster_summary"
+  result <- create_mock_cluster_summary(
+    cluster_names = c("A", "B"),
+    cluster_sizes = c(10, 5),
+    method = "fast_greedy"
   )
 
   output <- capture.output(print(result))
@@ -884,16 +917,10 @@ test_that("print.cluster_summary shows cluster sizes", {
 })
 
 test_that("print.cluster_summary returns invisible x", {
-  result <- structure(
-    list(
-      cluster_names = c("1", "2"),
-      cluster_sizes = c(3, 2),
-      between = matrix(c(0, 0.2, 0.2, 0), 2, 2),
-      within = c(0.5, 0.4),
-      method = "walktrap",
-      directed = TRUE
-    ),
-    class = "cluster_summary"
+  result <- create_mock_cluster_summary(
+    cluster_names = c("1", "2"),
+    cluster_sizes = c(3, 2),
+    method = "walktrap"
   )
 
   ret <- print(result)
@@ -1038,14 +1065,11 @@ test_that("all print methods return invisible self", {
   result <- print(motifs)
   expect_s3_class(result, "cograph_motifs")
 
-  # Test cluster_summary
-  cs <- structure(
-    list(
-      cluster_names = "1", cluster_sizes = 3,
-      between = matrix(0, 1, 1), within = 0.5,
-      method = "test", directed = FALSE
-    ),
-    class = "cluster_summary"
+  # Test cluster_summary (using new structure)
+  cs <- create_mock_cluster_summary(
+    cluster_names = "1",
+    cluster_sizes = 3,
+    method = "test"
   )
   result <- print(cs)
   expect_s3_class(result, "cluster_summary")

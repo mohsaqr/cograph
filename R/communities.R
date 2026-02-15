@@ -267,7 +267,7 @@ community_fast_greedy <- function(x,
   # Fast greedy requires undirected
 
   if (igraph::is_directed(g)) {
-    g <- igraph::as.undirected(g, mode = "collapse",
+    g <- igraph::as_undirected(g, mode = "collapse",
                                edge.attr.comb = list(weight = "sum"))
   }
 
@@ -538,7 +538,7 @@ community_leading_eigenvector <- function(x,
 
   # Requires undirected
   if (igraph::is_directed(g)) {
-    g <- igraph::as.undirected(g, mode = "collapse",
+    g <- igraph::as_undirected(g, mode = "collapse",
                                edge.attr.comb = list(weight = "sum"))
   }
 
@@ -707,7 +707,7 @@ community_fluid <- function(x, no.of.communities, ...) {
 
   # Requires undirected, connected
   if (igraph::is_directed(g)) {
-    g <- igraph::as.undirected(g, mode = "collapse",
+    g <- igraph::as_undirected(g, mode = "collapse",
                                edge.attr.comb = list(weight = "sum"))
   }
   if (!igraph::is_connected(g)) {

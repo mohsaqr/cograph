@@ -1,0 +1,171 @@
+---
+title: "TNA Within Nodes Plus Between Summary"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, fig.width = 12, fig.height = 8, warning = FALSE, message = FALSE)
+devtools::load_all(".")
+```
+
+```{r}
+set.seed(42)
+
+# 4 clusters with 3-4 nodes each (13 nodes total)
+nodes <- c("A1", "A2", "A3",           # RED (3 nodes)
+           "B1", "B2", "B3", "B4",     # BLUE (4 nodes)
+           "C1", "C2", "C3",           # GREEN (3 nodes)
+           "D1", "D2", "D3")           # ORANGE (3 nodes)
+
+clusters <- list(
+  RED    = c("A1", "A2", "A3"),
+  BLUE   = c("B1", "B2", "B3", "B4"),
+  GREEN  = c("C1", "C2", "C3"),
+  ORANGE = c("D1", "D2", "D3")
+)
+
+colors <- c(RED = "#E53935", BLUE = "#1E88E5", GREEN = "#43A047", ORANGE = "#FB8C00")
+
+n <- 13
+mat <- matrix(0, n, n, dimnames = list(nodes, nodes))
+
+# Within-cluster edges (stronger: 0.5-1.0)
+for (cl in clusters) {
+  idx <- match(cl, nodes)
+  for (i in idx) for (j in idx) if (i != j) mat[i, j] <- runif(1, 0.5, 1.0)
+}
+
+# Between-cluster edges (weaker: 0.1-0.3)
+for (i in 1:n) {
+  for (j in 1:n) {
+    if (mat[i, j] == 0 && i != j) mat[i, j] <- runif(1, 0.1, 0.3)
+  }
+}
+```
+
+## Data: 4 Clusters
+
+```{r results='asis'}
+cat("- **RED:** A1, A2, A3 (3 nodes)\n")
+cat("- **BLUE:** B1, B2, B3, B4 (4 nodes)\n")
+cat("- **GREEN:** C1, C2, C3 (3 nodes)\n")
+cat("- **ORANGE:** D1, D2, D3 (3 nodes)\n")
+```
+
+---
+
+## Within-Cluster TNAs (Node Level)
+
+Each cluster has its own TNA. Rows sum to 1 within each cluster.
+
+```{r fig.height=8, fig.width=12}
+# Compute within-cluster TNAs
+within_tnas <- lapply(names(clusters), function(cl_name) {
+  cl <- clusters[[cl_name]]
+  idx <- match(cl, nodes)
+  block <- mat[idx, idx]
+  diag(block) <- 0
+  rs <- rowSums(block)
+  tna <- block / ifelse(rs == 0, 1, rs)
+  dimnames(tna) <- list(cl, cl)
+  tna
+})
+names(within_tnas) <- names(clusters)
+
+par(mfrow = c(2, 2), mar = c(2, 2, 3, 2))
+
+for (cl_name in names(clusters)) {
+  net <- cograph(within_tnas[[cl_name]])
+  splot(net,
+        title = paste0(cl_name, " (", nrow(within_tnas[[cl_name]]), "x", ncol(within_tnas[[cl_name]]), ")"),
+        node_fill = colors[cl_name],
+        node_size = 18,
+        edge_labels = TRUE,
+        edge_label_size = 0.9,
+        edge_color = colors[cl_name],
+        edge_width_range = c(1, 3))
+}
+```
+
+```{r}
+for (cl_name in names(clusters)) {
+  cat(cl_name, "TNA:\n")
+  print(round(within_tnas[[cl_name]], 2))
+  cat("\n")
+}
+```
+
+---
+
+## Between-Cluster TNA (Summary 4x4)
+
+Clusters become giant nodes. One value per cluster pair.
+
+```{r fig.height=6, fig.width=7}
+# Compute between-cluster weights
+k <- length(clusters)
+between_raw <- matrix(0, k, k, dimnames = list(names(clusters), names(clusters)))
+
+for (i in seq_along(clusters)) {
+  for (j in seq_along(clusters)) {
+    if (i != j) {
+      idx_i <- match(clusters[[i]], nodes)
+      idx_j <- match(clusters[[j]], nodes)
+      between_raw[i, j] <- sum(mat[idx_i, idx_j])
+    }
+  }
+}
+
+# Row-normalize
+rs <- rowSums(between_raw)
+between_tna <- between_raw / ifelse(rs == 0, 1, rs)
+
+between_net <- cograph(between_tna)
+splot(between_net,
+      title = "Between-Cluster TNA (4x4)",
+      node_fill = colors[names(clusters)],
+      node_size = 35,
+      edge_labels = TRUE,
+      edge_label_size = 0.8,
+      edge_width_range = c(1, 4))
+```
+
+```{r}
+cat("Between-cluster TNA (4x4):\n")
+print(round(between_tna, 2))
+```
+
+---
+
+## All Together
+
+```{r fig.height=10, fig.width=14}
+par(mfrow = c(2, 3), mar = c(2, 2, 3, 2))
+
+# 4 within-cluster TNAs
+for (cl_name in names(clusters)) {
+  net <- cograph(within_tnas[[cl_name]])
+  splot(net, title = paste0("Within ", cl_name),
+        node_fill = colors[cl_name], node_size = 15,
+        edge_labels = TRUE, edge_label_size = 0.8, edge_color = colors[cl_name])
+}
+
+# Between-cluster TNA
+splot(between_net, title = "Between Clusters (4x4)",
+      node_fill = colors[names(clusters)], node_size = 30,
+      edge_labels = TRUE, edge_label_size = 0.7)
+```
+
+---
+
+## Output Structure
+
+```{r}
+cat("within_tna = list(\n")
+cat("  RED    = 3x3 TNA matrix,\n")
+cat("  BLUE   = 4x4 TNA matrix,\n")
+cat("  GREEN  = 3x3 TNA matrix,\n")
+cat("  ORANGE = 3x3 TNA matrix\n")
+cat(")\n\n")
+cat("between_tna = 4x4 TNA matrix\n")
+```

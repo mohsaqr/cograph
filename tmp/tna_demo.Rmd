@@ -1,0 +1,292 @@
+---
+title: "TNA Structure Options"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, fig.width = 10, fig.height = 8, warning = FALSE, message = FALSE)
+devtools::load_all(".")
+```
+
+## The Data: 10 Nodes, 2 Clusters
+
+```{r}
+set.seed(123)
+
+# 10 nodes: 6 in GREEN cluster, 4 in BLUE cluster
+nodes <- c("A", "B", "C", "D", "E", "F",   # GREEN (6 nodes)
+           "G", "H", "I", "J")              # BLUE (4 nodes)
+
+clusters <- list(
+  GREEN = c("A", "B", "C", "D", "E", "F"),
+  BLUE  = c("G", "H", "I", "J")
+)
+
+# Create weight matrix
+n <- 10
+mat <- matrix(0, n, n, dimnames = list(nodes, nodes))
+
+# Within GREEN (stronger: 0.5-1.0)
+for (i in 1:6) {
+  for (j in 1:6) {
+    if (i != j) mat[i, j] <- runif(1, 0.5, 1.0)
+  }
+}
+
+# Within BLUE (stronger: 0.5-1.0)
+for (i in 7:10) {
+  for (j in 7:10) {
+    if (i != j) mat[i, j] <- runif(1, 0.5, 1.0)
+  }
+}
+
+# Between clusters (weaker: 0.1-0.4)
+for (i in 1:6) {
+  for (j in 7:10) {
+    mat[i, j] <- runif(1, 0.1, 0.4)
+    mat[j, i] <- runif(1, 0.1, 0.4)
+  }
+}
+
+# Cluster assignment for each node
+node_cluster <- c(rep("GREEN", 6), rep("BLUE", 4))
+names(node_cluster) <- nodes
+```
+
+```{r results='asis'}
+cat("🟢 **GREEN cluster (6 nodes):** A, B, C, D, E, F\n\n")
+cat("🔵 **BLUE cluster (4 nodes):** G, H, I, J\n\n")
+```
+
+---
+
+## Option A: FULL TNA (All Actual Weights)
+
+All nodes can transition to all other nodes. Clusters = visual grouping only.
+
+```{r fig.height=8}
+row_sums <- rowSums(mat)
+full_tna <- mat / ifelse(row_sums == 0, 1, row_sums)
+
+net <- cograph(full_tna)
+net$nodes$group <- node_cluster[net$nodes$label]
+
+# Manual layout: GREEN on left, BLUE on right
+layout_mat <- matrix(c(
+  # GREEN (A-F) on left side
+  0.15, 0.8,   # A
+  0.05, 0.6,   # B
+  0.05, 0.4,   # C
+  0.15, 0.2,   # D
+  0.25, 0.3,   # E
+  0.25, 0.7,   # F
+  # BLUE (G-J) on right side
+  0.75, 0.8,   # G
+  0.85, 0.6,   # H
+  0.85, 0.4,   # I
+  0.75, 0.2    # J
+), ncol = 2, byrow = TRUE)
+rownames(layout_mat) <- nodes
+
+splot(net,
+      layout = layout_mat,
+      title = "A) FULL TNA: All actual node-to-node weights",
+      node_fill = ifelse(node_cluster[net$nodes$label] == "GREEN", "#4CAF50", "#2196F3"),
+      node_size = 12,
+      edge_width_range = c(0.3, 2),
+      edge_alpha = 0.5,
+      edge_labels = TRUE,
+      edge_label_size = 0.5)
+
+# Add cluster labels
+text(0.15, 0.95, "GREEN", col = "#4CAF50", font = 2, cex = 1.5)
+text(0.80, 0.95, "BLUE", col = "#2196F3", font = 2, cex = 1.5)
+```
+
+---
+
+## Option B: WITHIN-ONLY TNA (No Cross-Cluster Edges)
+
+Only within-cluster transitions. **Zero edges between GREEN and BLUE.**
+
+```{r fig.height=8}
+cs <- cluster_summary(mat, clusters)
+
+net2 <- cograph(cs$within_tna)
+
+splot(net2,
+      layout = layout_mat,
+      title = "B) WITHIN-ONLY: No cross-cluster edges",
+      node_fill = ifelse(node_cluster[net2$nodes$label] == "GREEN", "#4CAF50", "#2196F3"),
+      node_size = 12,
+      edge_width_range = c(0.3, 2),
+      edge_alpha = 0.6,
+      edge_labels = TRUE,
+      edge_label_size = 0.55)
+
+text(0.15, 0.95, "GREEN", col = "#4CAF50", font = 2, cex = 1.5)
+text(0.80, 0.95, "BLUE", col = "#2196F3", font = 2, cex = 1.5)
+```
+
+---
+
+## Option C: HYBRID UNIFORM
+
+- Within-cluster: **actual weights**
+- Between-cluster: **summary split equally** to all targets
+
+```{r fig.height=8}
+hybrid_uniform <- cs$within_tna
+
+for (i in seq_along(clusters)) {
+  for (j in seq_along(clusters)) {
+    if (i != j) {
+      src_nodes <- clusters[[i]]
+      tgt_nodes <- clusters[[j]]
+      uniform_val <- cs$tna[i, j] / length(tgt_nodes)
+      for (src in src_nodes) {
+        for (tgt in tgt_nodes) {
+          hybrid_uniform[src, tgt] <- uniform_val
+        }
+      }
+    }
+  }
+}
+row_sums <- rowSums(hybrid_uniform)
+hybrid_uniform <- hybrid_uniform / ifelse(row_sums == 0, 1, row_sums)
+
+net3 <- cograph(hybrid_uniform)
+
+splot(net3,
+      layout = layout_mat,
+      title = "C) HYBRID UNIFORM: Between = equal split",
+      node_fill = ifelse(node_cluster[net3$nodes$label] == "GREEN", "#4CAF50", "#2196F3"),
+      node_size = 12,
+      edge_width_range = c(0.3, 2),
+      edge_alpha = 0.5,
+      edge_labels = TRUE,
+      edge_label_size = 0.5)
+
+text(0.15, 0.95, "GREEN", col = "#4CAF50", font = 2, cex = 1.5)
+text(0.80, 0.95, "BLUE", col = "#2196F3", font = 2, cex = 1.5)
+```
+
+```{r}
+cat("Cross-cluster weights from GREEN nodes to BLUE nodes:\n")
+cat("(Notice: same value for each target)\n\n")
+print(round(hybrid_uniform[1:3, 7:10], 3))
+```
+
+---
+
+## Option D: HYBRID PROPORTIONAL
+
+- Within-cluster: **actual weights**
+- Between-cluster: **summary split by original ratios**
+
+```{r fig.height=8}
+hybrid_prop <- cs$within_tna
+
+for (i in seq_along(clusters)) {
+  for (j in seq_along(clusters)) {
+    if (i != j) {
+      src_nodes <- clusters[[i]]
+      tgt_nodes <- clusters[[j]]
+      original_block <- mat[src_nodes, tgt_nodes, drop = FALSE]
+      block_row_sums <- rowSums(original_block)
+      prop_block <- original_block / ifelse(block_row_sums == 0, 1, block_row_sums)
+      for (s_idx in seq_along(src_nodes)) {
+        for (t_idx in seq_along(tgt_nodes)) {
+          hybrid_prop[src_nodes[s_idx], tgt_nodes[t_idx]] <- cs$tna[i, j] * prop_block[s_idx, t_idx]
+        }
+      }
+    }
+  }
+}
+row_sums <- rowSums(hybrid_prop)
+hybrid_prop <- hybrid_prop / ifelse(row_sums == 0, 1, row_sums)
+
+net4 <- cograph(hybrid_prop)
+
+splot(net4,
+      layout = layout_mat,
+      title = "D) HYBRID PROPORTIONAL: Between = keeps ratios",
+      node_fill = ifelse(node_cluster[net4$nodes$label] == "GREEN", "#4CAF50", "#2196F3"),
+      node_size = 12,
+      edge_width_range = c(0.3, 2),
+      edge_alpha = 0.5,
+      edge_labels = TRUE,
+      edge_label_size = 0.5)
+
+text(0.15, 0.95, "GREEN", col = "#4CAF50", font = 2, cex = 1.5)
+text(0.80, 0.95, "BLUE", col = "#2196F3", font = 2, cex = 1.5)
+```
+
+```{r}
+cat("Cross-cluster weights from GREEN nodes to BLUE nodes:\n")
+cat("(Notice: different values per target, based on original)\n\n")
+print(round(hybrid_prop[1:3, 7:10], 3))
+```
+
+---
+
+## Side-by-Side Comparison
+
+```{r fig.width=14, fig.height=12}
+par(mfrow = c(2, 2), mar = c(1, 1, 3, 1))
+
+# A) Full
+net1 <- cograph(full_tna)
+splot(net1, layout = layout_mat, title = "A) FULL TNA",
+      node_fill = ifelse(node_cluster[nodes] == "GREEN", "#4CAF50", "#2196F3"),
+      node_size = 10, edge_alpha = 0.4, edge_labels = TRUE, edge_label_size = 0.4)
+
+# B) Within-only
+net2 <- cograph(cs$within_tna)
+splot(net2, layout = layout_mat, title = "B) WITHIN-ONLY",
+      node_fill = ifelse(node_cluster[nodes] == "GREEN", "#4CAF50", "#2196F3"),
+      node_size = 10, edge_alpha = 0.5, edge_labels = TRUE, edge_label_size = 0.45)
+
+# C) Hybrid uniform
+net3 <- cograph(hybrid_uniform)
+splot(net3, layout = layout_mat, title = "C) HYBRID UNIFORM",
+      node_fill = ifelse(node_cluster[nodes] == "GREEN", "#4CAF50", "#2196F3"),
+      node_size = 10, edge_alpha = 0.4, edge_labels = TRUE, edge_label_size = 0.4)
+
+# D) Hybrid proportional
+net4 <- cograph(hybrid_prop)
+splot(net4, layout = layout_mat, title = "D) HYBRID PROPORTIONAL",
+      node_fill = ifelse(node_cluster[nodes] == "GREEN", "#4CAF50", "#2196F3"),
+      node_size = 10, edge_alpha = 0.4, edge_labels = TRUE, edge_label_size = 0.4)
+```
+
+---
+
+## Cluster-Level Summary (2x2)
+
+```{r fig.width=6, fig.height=5}
+between_net <- cograph(cs$tna)
+splot(between_net,
+      title = "BETWEEN-CLUSTER TNA (clusters as giant nodes)",
+      node_fill = c("#4CAF50", "#2196F3"),
+      node_size = 45,
+      edge_labels = TRUE,
+      edge_label_size = 1.0,
+      edge_width_range = c(2, 4))
+```
+
+```{r}
+cat("Cluster-to-cluster transition probabilities:\n")
+print(round(cs$tna, 3))
+```
+
+---
+
+## Summary
+
+| Option | Within GREEN | Within BLUE | GREEN ↔ BLUE | Description |
+|--------|-------------|-------------|--------------|-------------|
+| **A) Full** | Actual | Actual | Actual | All original weights |
+| **B) Within-Only** | Actual | Actual | **ZERO** | No cross-cluster |
+| **C) Hybrid Uniform** | Actual | Actual | Summary/equal | Same weight to all targets |
+| **D) Hybrid Proportional** | Actual | Actual | Summary/ratio | Keeps original proportions |

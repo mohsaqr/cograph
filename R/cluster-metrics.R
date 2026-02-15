@@ -452,12 +452,16 @@ cluster_summary <- function(x,
         names(within_inits_i) <- cl_nodes
       }
 
-      list(
-        weights = within_weights_i,
-        inits = within_inits_i
+      structure(
+        list(
+          weights = within_weights_i,
+          inits = within_inits_i
+        ),
+        class = "tna"
       )
     })
     names(within_data) <- cluster_names
+    class(within_data) <- "group_tna"
   }
 
   # ============================================================================

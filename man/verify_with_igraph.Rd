@@ -5,9 +5,9 @@
 \alias{verify_igraph}
 \title{Verify Against igraph}
 \usage{
-verify_with_igraph(x, clusters, method = "sum")
+verify_with_igraph(x, clusters, method = "sum", type = "raw")
 
-verify_igraph(x, clusters, method = "sum")
+verify_igraph(x, clusters, method = "sum", type = "raw")
 }
 \arguments{
 \item{x}{Adjacency matrix}

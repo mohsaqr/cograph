@@ -35,22 +35,48 @@ test_that("plot_mcml works with basic matrix and clusters", {
   ))
 })
 
-test_that("plot_mcml returns invisibly NULL", {
+test_that("plot_mcml returns cluster_summary invisibly", {
   weights <- create_test_weights()
   clusters <- create_test_clusters()
 
   result <- with_temp_png(plot_mcml(weights, clusters))
 
-  expect_null(result)
+  expect_s3_class(result, "cluster_summary")
+  expect_equal(result$meta$n_clusters, 3)
+  expect_equal(result$meta$n_nodes, 6)
 })
 
-test_that("mcml alias works identically to plot_mcml", {
+test_that("mcml returns cluster_summary", {
   weights <- create_test_weights()
   clusters <- create_test_clusters()
 
+  result <- mcml(weights, clusters)
+
+  expect_s3_class(result, "cluster_summary")
+  expect_equal(result$meta$n_clusters, 3)
+  expect_equal(result$meta$n_nodes, 6)
+  expect_equal(names(result$clusters), c("Cluster1", "Cluster2", "Cluster3"))
+  expect_true(is.matrix(result$between$weights))
+  expect_equal(nrow(result$between$weights), 3)
+  expect_equal(ncol(result$between$weights), 3)
+  expect_true(is.numeric(result$between$inits))
+  expect_equal(length(result$between$inits), 3)
+})
+
+test_that("plot_mcml accepts cluster_summary object", {
+  weights <- create_test_weights()
+  clusters <- create_test_clusters()
+
+  # First extract data
+  data <- cluster_summary(weights, clusters)
+
+  # Then plot from pre-extracted data
   expect_no_error(with_temp_png(
-    mcml(weights, clusters)
+    result <- plot_mcml(data)
   ))
+
+  # Should return the same object
+  expect_s3_class(result, "cluster_summary")
 })
 
 test_that("plot_mcml handles unlabeled matrices", {
@@ -95,15 +121,18 @@ test_that("plot_mcml works with tna objects", {
   data(engagement, package = "tna")
   model <- tna(engagement)
 
-  clusters <- list(
-    High = model$labels[1:2],
-    Mid = model$labels[3:4],
-    Low = model$labels[5:6]
-  )
+  # engagement has 3 labels: Active, Average, Disengaged
+  n_labels <- length(model$labels)
+  if (n_labels >= 2) {
+    clusters <- list(
+      A = model$labels[1],
+      B = model$labels[2:n_labels]
+    )
 
-  expect_no_error(with_temp_png(
-    plot_mcml(model, clusters)
-  ))
+    expect_no_error(with_temp_png(
+      plot_mcml(model, clusters)
+    ))
+  }
 })
 
 test_that("plot_mcml extracts weights and labels from tna", {
@@ -114,18 +143,21 @@ test_that("plot_mcml extracts weights and labels from tna", {
   model <- tna(engagement)
 
   n_labels <- length(model$labels)
-  half <- ceiling(n_labels / 2)
+  if (n_labels >= 2) {
+    half <- ceiling(n_labels / 2)
+    # Ensure we don't go out of bounds
+    second_half_start <- min(half + 1, n_labels)
 
-  clusters <- list(
-    A = model$labels[1:half],
-    B = model$labels[(half + 1):n_labels]
-  )
+    clusters <- list(
+      A = model$labels[1:half],
+      B = model$labels[second_half_start:n_labels]
+    )
 
-  # Should work without error, extracting weights from tna
-
-  expect_no_error(with_temp_png(
-    plot_mcml(model, clusters)
-  ))
+    # Should work without error, extracting weights from tna
+    expect_no_error(with_temp_png(
+      plot_mcml(model, clusters)
+    ))
+  }
 })
 
 # ============================================
@@ -885,4 +917,344 @@ test_that("plot_mcml works in sequence", {
     plot_mcml(weights, clusters, aggregation = "mean")
     plot_mcml(weights, clusters, aggregation = "max")
   }))
+})
+
+# ============================================
+# mcml() Data Extraction Tests - NEW STRUCTURE
+# ============================================
+
+test_that("mcml returns cluster_summary class", {
+  weights <- create_test_weights()
+  clusters <- create_test_clusters()
+
+  result <- mcml(weights, clusters)
+
+  expect_s3_class(result, "cluster_summary")
+})
+
+test_that("mcml between$weights has correct dimensions", {
+  weights <- create_test_weights()
+  clusters <- create_test_clusters()
+
+  result <- mcml(weights, clusters)
+
+  expect_equal(nrow(result$between$weights), 3)
+  expect_equal(ncol(result$between$weights), 3)
+  expect_equal(rownames(result$between$weights), c("Cluster1", "Cluster2", "Cluster3"))
+  expect_equal(colnames(result$between$weights), c("Cluster1", "Cluster2", "Cluster3"))
+})
+
+test_that("mcml between$weights diagonal contains within-cluster totals", {
+  weights <- create_test_weights()
+  clusters <- create_test_clusters()
+
+  result <- mcml(weights, clusters)
+
+  # Diagonal contains within-cluster totals (can be >= 0)
+  expect_true(all(diag(result$between$weights) >= 0))
+})
+
+test_that("mcml between$weights rows sum to 1 (type = tna)", {
+  weights <- create_test_weights()
+  clusters <- create_test_clusters()
+
+  result <- mcml(weights, clusters)
+
+  row_sums <- rowSums(result$between$weights)
+  expect_true(all(abs(row_sums - 1) < 1e-10 | row_sums == 0))
+})
+
+test_that("mcml between$inits sums to 1", {
+  weights <- create_test_weights()
+  clusters <- create_test_clusters()
+
+  result <- mcml(weights, clusters)
+
+  expect_equal(sum(result$between$inits), 1, tolerance = 1e-10)
+  expect_equal(length(result$between$inits), 3)
+  expect_equal(names(result$between$inits), c("Cluster1", "Cluster2", "Cluster3"))
+})
+
+test_that("mcml with mean aggregation stores method", {
+  weights <- create_test_weights()
+  clusters <- create_test_clusters()
+
+  result <- mcml(weights, clusters, aggregation = "mean")
+
+  expect_equal(result$meta$method, "mean")
+})
+
+test_that("mcml with max aggregation stores method", {
+  weights <- create_test_weights()
+  clusters <- create_test_clusters()
+
+  result <- mcml(weights, clusters, aggregation = "max")
+
+  expect_equal(result$meta$method, "max")
+})
+
+test_that("mcml handles unlabeled matrix", {
+  set.seed(42)
+  mat <- matrix(runif(16, 0, 0.5), 4, 4)
+  diag(mat) <- 0
+
+  clusters <- list(
+    C1 = c(1, 2),
+    C2 = c(3, 4)
+  )
+
+  result <- mcml(mat, clusters)
+
+  expect_equal(result$meta$n_nodes, 4)
+  expect_equal(result$meta$n_clusters, 2)
+})
+
+test_that("mcml returns itself when given cluster_summary", {
+  weights <- create_test_weights()
+  clusters <- create_test_clusters()
+
+  data <- cluster_summary(weights, clusters)
+  result <- mcml(data)
+
+  expect_identical(data, result)
+})
+
+test_that("print.cluster_summary outputs summary", {
+  weights <- create_test_weights()
+  clusters <- create_test_clusters()
+
+  data <- mcml(weights, clusters)
+
+  output <- capture.output(print(data))
+
+  expect_true(any(grepl("Cluster Summary", output)))
+  expect_true(any(grepl("Clusters:", output)))
+})
+
+test_that("mcml works with cograph_network input", {
+  weights <- create_test_weights()
+
+  net <- as_cograph(weights)
+  net$nodes$cluster <- c("A", "A", "B", "B", "C", "C")
+
+  result <- mcml(net)
+
+  expect_s3_class(result, "cluster_summary")
+  expect_equal(result$meta$n_clusters, 3)
+})
+
+test_that("mcml as_tna returns cluster_tna class object", {
+  skip_if_not_installed("tna")
+  weights <- create_test_weights()
+  clusters <- create_test_clusters()
+
+  result <- mcml(weights, clusters, as_tna = TRUE)
+
+  expect_s3_class(result, "cluster_tna")
+  expect_s3_class(result$between, "tna")
+  expect_true("weights" %in% names(result$between))
+  expect_true("inits" %in% names(result$between))
+  expect_true("labels" %in% names(result$between))
+})
+
+test_that("mcml as_tna between weights match cluster_summary", {
+  skip_if_not_installed("tna")
+  weights <- create_test_weights()
+  clusters <- create_test_clusters()
+
+  cs <- mcml(weights, clusters)
+  tna_obj <- mcml(weights, clusters, as_tna = TRUE)
+
+  expect_equal(nrow(cs$between$weights), nrow(tna_obj$between$weights))
+  expect_equal(length(cs$between$inits), length(tna_obj$between$inits))
+})
+
+# ============================================
+# mcml() $within Field Tests - NEW STRUCTURE
+# ============================================
+
+test_that("mcml includes within field by default", {
+  weights <- create_test_weights()
+  clusters <- create_test_clusters()
+
+  result <- mcml(weights, clusters)
+
+  expect_true("within" %in% names(result))
+  expect_true(is.list(result$within))
+  expect_equal(names(result$within), c("Cluster1", "Cluster2", "Cluster3"))
+})
+
+test_that("mcml within field contains per-cluster data", {
+  weights <- create_test_weights()
+  clusters <- create_test_clusters()
+
+  result <- mcml(weights, clusters)
+
+  # Each cluster should have weights and inits
+  for (cl_name in names(result$within)) {
+    cl_data <- result$within[[cl_name]]
+    expect_true("weights" %in% names(cl_data))
+    expect_true("inits" %in% names(cl_data))
+  }
+})
+
+test_that("mcml within$weights is row-normalized", {
+  weights <- create_test_weights()
+  clusters <- create_test_clusters()
+
+  result <- mcml(weights, clusters)
+
+  # Check each cluster's weights rows sum to 1 (or 0 if all zeros)
+  for (cl_name in names(result$within)) {
+    cl_w <- result$within[[cl_name]]$weights
+    row_sums <- rowSums(cl_w)
+    expect_true(all(abs(row_sums - 1) < 1e-10 | row_sums == 0))
+  }
+})
+
+test_that("mcml within = FALSE skips within computation", {
+  weights <- create_test_weights()
+  clusters <- create_test_clusters()
+
+  result <- mcml(weights, clusters, within = FALSE)
+
+  expect_null(result$within)
+  # between should still exist
+  expect_true("between" %in% names(result))
+})
+
+test_that("mcml handles single-node clusters in within", {
+  set.seed(42)
+  mat <- matrix(runif(9, 0, 0.5), 3, 3)
+  diag(mat) <- 0
+  colnames(mat) <- rownames(mat) <- LETTERS[1:3]
+
+  clusters <- list(
+    C1 = "A",
+    C2 = "B",
+    C3 = "C"
+  )
+
+  result <- mcml(mat, clusters)
+
+  # Single-node clusters should have 1x1 zero matrices
+  expect_equal(dim(result$within$C1$weights), c(1, 1))
+  expect_equal(result$within$C1$weights[1, 1], 0)
+  expect_equal(result$within$C1$inits, c(A = 1))
+})
+
+# ============================================
+# plot_mcml() mode Parameter Tests
+# ============================================
+
+test_that("plot_mcml uses weights mode by default", {
+  weights <- create_test_weights()
+  clusters <- create_test_clusters()
+
+  # Default mode = "weights"
+  expect_no_error(with_temp_png(
+    plot_mcml(weights, clusters)
+  ))
+})
+
+test_that("plot_mcml respects mode = 'weights'", {
+  weights <- create_test_weights()
+  clusters <- create_test_clusters()
+
+  expect_no_error(with_temp_png(
+    plot_mcml(weights, clusters, mode = "weights")
+  ))
+})
+
+test_that("plot_mcml respects mode = 'tna'", {
+  weights <- create_test_weights()
+  clusters <- create_test_clusters()
+
+  expect_no_error(with_temp_png(
+    plot_mcml(weights, clusters, mode = "tna")
+  ))
+})
+
+test_that("plot_mcml mode = 'tna' with edge labels", {
+  weights <- create_test_weights()
+  clusters <- create_test_clusters()
+
+  # Edge labels should show TNA probabilities when mode = "tna"
+  expect_no_error(with_temp_png(
+    plot_mcml(weights, clusters, mode = "tna", summary_edge_labels = TRUE)
+  ))
+})
+
+test_that("plot_mcml mode = 'tna' with within edge labels", {
+  weights <- create_test_weights()
+  clusters <- create_test_clusters()
+
+  # Within-cluster edge labels should also show TNA values
+  expect_no_error(with_temp_png(
+    plot_mcml(weights, clusters, mode = "tna", edge_labels = TRUE)
+  ))
+})
+
+test_that("plot_mcml errors on invalid mode", {
+  weights <- create_test_weights()
+  clusters <- create_test_clusters()
+
+  expect_error(
+    with_temp_png(plot_mcml(weights, clusters, mode = "invalid")),
+    "arg"
+  )
+})
+
+test_that("plot_mcml mode parameter works with cluster_summary input", {
+  weights <- create_test_weights()
+  clusters <- create_test_clusters()
+
+  # First extract data
+  data <- cluster_summary(weights, clusters)
+
+  # Then plot with mode = "tna"
+  expect_no_error(with_temp_png(
+    plot_mcml(data, mode = "tna", summary_edge_labels = TRUE)
+  ))
+})
+
+# ============================================
+# Backward Compatibility Tests
+# ============================================
+
+test_that("mcml backward compat: main fields exist", {
+  weights <- create_test_weights()
+  clusters <- create_test_clusters()
+
+  result <- mcml(weights, clusters)
+
+  # Key fields should exist
+  expect_true("clusters" %in% names(result))
+  expect_true("between" %in% names(result))
+  expect_true("within" %in% names(result))
+  expect_true("meta" %in% names(result))
+})
+
+test_that("plot_mcml backward compat: default behavior unchanged", {
+  weights <- create_test_weights()
+  clusters <- create_test_clusters()
+
+  # This should work exactly as before - no mode parameter needed
+  expect_no_error(with_temp_png(
+    plot_mcml(weights, clusters, edge_labels = TRUE, summary_edge_labels = TRUE)
+  ))
+})
+
+test_that("plot_mcml backward compat: cluster_summary input", {
+  weights <- create_test_weights()
+  clusters <- create_test_clusters()
+
+  # Old workflow: extract then plot
+  data <- cluster_summary(weights, clusters)
+  expect_no_error(with_temp_png(
+    result <- plot_mcml(data)
+  ))
+
+  # Should return the cluster_summary object
+  expect_s3_class(result, "cluster_summary")
 })

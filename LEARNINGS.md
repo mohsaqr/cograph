@@ -1,10 +1,72 @@
 # Project Learnings
 
 ### 2026-02-15
+- [as_tna refactored]: **Breaking change** - `as_tna()` now returns `cluster_tna` object with both between and within tna models:
+  - `$between`: tna object for cluster-level transitions (uses `tna::tna()`)
+  - `$within`: Named list of tna objects for each cluster's internal network
+  - Single-node clusters and clusters with zero-row nodes are excluded from `$within`
+  - Requires tna package to be installed
+  - Has `print.cluster_tna()` method showing summary
+- [cluster_summary diagonal]: Between-cluster matrix diagonal now contains within-cluster totals (self-loops at cluster level):
+  - Diagonal represents within-cluster transition weight
+  - When `type = "tna"`, diagonal = within-cluster retention rate
+  - `verify_with_igraph()` zeros out both diagonals for comparison (igraph doesn't include self-loops)
+- [mcml_demo.html]: Created polished HTML documentation at `docs/mcml_demo.html`:
+  - Dark theme matching transitions_demo.html style
+  - Cards with images for visualizations
+  - Extensive parameter documentation for cluster_summary(), as_tna(), plot_mcml()
+  - Method and type recommendation tables
+  - Full return structure documentation
+- [extensive roxygen docs]: Added comprehensive roxygen2 documentation to cluster_summary() and as_tna():
+  - All parameters documented with examples and use cases
+  - Return value structure fully documented
+  - Workflow examples included
+  - @seealso links added
+
+- [mcml showcase]: Created comprehensive HTML showcase for MCML functions (`tmp/mcml_showcase.html`):
+  - Documents `cluster_summary()`, `plot_mcml()`, `plot_mtna()`, and helper functions
+  - Includes code examples with visual outputs for all major parameters
+  - Shows aggregation methods, type parameter effects, layout options
+  - Fixed community detection example to use `walktrap` instead of `louvain` (louvain only works with undirected graphs)
+  - Source: `tmp/mcml_showcase.Rmd`
+- [cluster_summary simplified]: **Major refactor** - cluster_summary now uses clean, non-redundant structure:
+  - **New structure**: `$between` (weights, inits), `$within$X` (weights, inits per cluster), `$clusters`, `$meta` (type, method, directed, n_nodes, n_clusters, cluster_sizes)
+  - **Removed duplicates**: `$tna`, `$inits`, `$between_weights`, `$within_tna`, `$within_inits`, `$summary` - all replaced by new structure
+  - **New `type` parameter**: `"tna"` (default, row-normalized), `"cooccurrence"`, `"semi_markov"`, `"raw"` (no normalization)
+  - **mcml() is now a wrapper**: Returns cluster_summary with backward compatibility
+  - **summarize_network() uses type="raw"**: For compatibility with igraph aggregation
+  - **verify_with_igraph defaults to type="raw"**: To match igraph's contract+simplify output
+  - **plot_mcml/plot_mtna accept cluster_summary directly**: Can pre-compute and reuse
+  - **Tests updated**: Use `$between$weights`, `$between$inits`, `$within$X$weights`, `$meta$method`, etc.
+  - **tna masking issue**: Use `cograph::plot_compare()` in tests when tna package is loaded
+
+- [mcml enhanced structure]: Enhanced `mcml()` with group_tna-like structure:
+  - **New `$summary` field**: Organized view of between-cluster data with `tna`, `weights`, `inits`, `labels`. Points to same data as top-level fields.
+  - **New `$within` field**: Named list of per-cluster TNA data. Each element has `tna` (row-normalized), `weights` (raw), `inits`, `labels`.
+  - **New `within` parameter**: Set `within = FALSE` to skip within-cluster computation.
+  - **100% backward compatible**: All top-level fields (`$tna`, `$inits`, `$between_weights`) unchanged.
+- [plot_mcml mode parameter]: Added `mode` parameter to `plot_mcml()`:
+  - `mode = "weights"` (default): Shows raw aggregated weights on edge labels.
+  - `mode = "tna"`: Shows transition probabilities (row-normalized) on edge labels.
+  - Uses `$within[[cluster]]$tna` for within-cluster edge labels when `mode = "tna"`.
+- [NA handling in mcml]: Fixed NA handling in within-cluster TNA computation using `na.rm = TRUE` for `rowSums`/`colSums`.
+- [cluster_summary aligned with mcml]: Updated `cluster_summary()` to have the same organized structure as `mcml()`:
+  - **New `$summary` field**: When `between = "summary"`, includes `tna`, `weights`, `inits`, `labels`.
+  - **New `$within` unified field**: When `within = "nodes"`, each cluster element has `tna`, `weights`, `inits`, `labels`.
+  - Legacy `$within_tna` and `$within_inits` kept for backward compatibility.
+
+
+- [cluster_summary modes]: Enhanced `cluster_summary()` with `within` and `between` parameters for flexible output granularity:
+  - `within = "nodes"` (default): Returns LIST of per-cluster TNA matrices in `within_tna`. Each cluster gets its own n_i × n_i row-normalized transition matrix. `within_inits` is also a list.
+  - `within = "summary"`: Returns only scalar aggregates per cluster in `within_weights`. No `within_tna` or `within_inits`.
+  - `within = "none"`: Skips within-cluster computation entirely.
+  - `between = "summary"` (default): Returns k × k cluster-to-cluster TNA in `tna` and `inits`.
+  - `between = "nodes"`: Returns n × n matrix with only cross-cluster edges in `between_tna`. Within-cluster blocks are zeroed.
+  - `between = "none"`: Skips between-cluster computation.
+  - **Breaking change**: `within_tna` changed from n×n block-diagonal matrix to LIST of per-cluster matrices (cleaner, more useful).
 - [mcml refactor]: Separated data extraction from plotting. `mcml()` is now a pure data extraction function that returns a `cograph_mcml` object. `plot_mcml()` uses `mcml()` internally and returns the data invisibly. This follows cograph's established pattern: extraction -> transformation -> visualization.
 - [plot_mcml]: Added 22 new parameters for full visualization control. Summary labels now shown by default (`summary_labels = TRUE`). Arrows shown by default on summary edges (`summary_arrows = TRUE`). All hardcoded values (edge widths, alphas, layout multipliers) now parameterized.
 - [cluster_summary alignment]: Aligned `cluster_summary()` with `mcml()` structure. Now includes `tna` (row-normalized transition matrix), `inits` (initial state distribution), and `as_tna` parameter. **Breaking change**: renamed `between` → `between_weights` and `within` → `within_weights` for consistency with mcml. Both functions now return identical `tna` and `inits` fields.
-- [within_tna]: Added `within_tna` (n×n block-diagonal matrix) and `within_inits` to `cluster_summary()`. The within_tna shows row-normalized transitions between nodes within the same cluster. Each diagonal block corresponds to one cluster's internal transition dynamics.
 
 ### 2026-02-14
 - [label resolution]: Node labels now use priority order: `labels` > `label` > identifier. The `labels` column takes precedence when both exist. Updated in `get_labels()`, `resolve_labels()`, `render_node_labels_grid()`, and `CographNetwork.node_labels`.

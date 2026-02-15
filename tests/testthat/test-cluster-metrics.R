@@ -53,40 +53,43 @@ test_that("aggregate_weights works correctly", {
 # ==============================================================================
 
 test_that("cluster_summary works with list input", {
-  result <- cluster_summary(mat, clusters_list, method = "sum")
+  # Use type = "raw" to get non-normalized aggregated values
+  result <- cluster_summary(mat, clusters_list, method = "sum", type = "raw")
 
   expect_s3_class(result, "cluster_summary")
-  expect_equal(dim(result$between_weights), c(3, 3))
-  expect_equal(length(result$within_weights), 3)
-  expect_equal(result$cluster_names, c("A", "B", "C"))
-  expect_equal(unname(result$cluster_sizes), c(3, 3, 4))
+  expect_equal(dim(result$between$weights), c(3, 3))
+  expect_equal(length(result$within), 3)
+  expect_equal(names(result$clusters), c("A", "B", "C"))
+  expect_equal(unname(result$meta$cluster_sizes), c(3, 3, 4))
 
-  # Between should have 0 on diagonal
-  expect_equal(unname(diag(result$between_weights)), c(0, 0, 0))
+  # Diagonal contains within-cluster totals (not zeros)
+  # For type="raw", diagonal = sum of within-cluster edges
+  expect_true(all(diag(result$between$weights) >= 0))
 
   # Check a specific between value manually
   # A -> B = sum of mat[1:3, 4:6]
   expected_AB <- sum(mat[1:3, 4:6])
-  expect_equal(result$between_weights["A", "B"], expected_AB, tolerance = 1e-10)
+  expect_equal(result$between$weights["A", "B"], expected_AB, tolerance = 1e-10)
 })
 
 test_that("cluster_summary works with vector input", {
   result <- cluster_summary(mat, clusters_vec, method = "sum")
 
   expect_s3_class(result, "cluster_summary")
-  expect_equal(dim(result$between_weights), c(3, 3))
+  expect_equal(dim(result$between$weights), c(3, 3))
 })
 
 test_that("cluster_summary different methods", {
-  result_sum <- cluster_summary(mat, clusters_list, method = "sum")
-  result_mean <- cluster_summary(mat, clusters_list, method = "mean")
-  result_max <- cluster_summary(mat, clusters_list, method = "max")
+  # Use type = "raw" to get non-normalized values for comparison
+  result_sum <- cluster_summary(mat, clusters_list, method = "sum", type = "raw")
+  result_mean <- cluster_summary(mat, clusters_list, method = "mean", type = "raw")
+  result_max <- cluster_summary(mat, clusters_list, method = "max", type = "raw")
 
   # Mean should be smaller than sum (for non-single edges)
-  expect_true(all(result_mean$between_weights <= result_sum$between_weights))
+  expect_true(all(result_mean$between$weights <= result_sum$between$weights))
 
   # Max should be <= sum
-  expect_true(all(result_max$between_weights <= result_sum$between_weights))
+  expect_true(all(result_max$between$weights <= result_sum$between$weights))
 })
 
 # ==============================================================================
@@ -220,6 +223,7 @@ test_that("aggregate_layers union/intersection", {
 test_that("cluster_summary matches igraph", {
   skip_if_not_installed("igraph")
 
+  # verify_with_igraph defaults to type = "raw" for igraph comparison
   result <- verify_with_igraph(mat, clusters_list, method = "sum")
 
   expect_true(result$matches,
@@ -237,8 +241,10 @@ test_that("handles single-node clusters", {
   )
 
   result <- cluster_summary(mat, clusters_single, method = "sum")
-  expect_equal(unname(result$within_weights["A"]), 0)  # Single node has no internal edges
+  # Single node cluster has no internal edges, so sum of within weights is 0
+  expect_equal(sum(result$within$A$weights), 0)
 })
+
 test_that("handles empty weights gracefully", {
   mat_sparse <- matrix(0, 5, 5)
   mat_sparse[1, 2] <- 1
@@ -248,7 +254,7 @@ test_that("handles empty weights gracefully", {
   result <- cluster_summary(mat_sparse, clusters, method = "mean")
 
   # Between A and B should be 0 (no edges)
-  expect_equal(result$between_weights["A", "B"], 0)
+  expect_equal(result$between$weights["A", "B"], 0)
 })
 
 # ==============================================================================

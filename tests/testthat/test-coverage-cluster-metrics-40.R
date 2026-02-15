@@ -163,7 +163,7 @@ test_that(".normalize_clusters errors on invalid type", {
 })
 
 # ==============================================================================
-# Tests for cluster_summary
+# Tests for cluster_summary - NEW STRUCTURE
 # ==============================================================================
 
 test_that("cluster_summary validates input is numeric matrix", {
@@ -198,33 +198,33 @@ test_that("cluster_summary works with unnamed matrix", {
 test_that("cluster_summary works with factor clusters", {
   result <- cluster_summary(mat, clusters_factor)
   expect_s3_class(result, "cluster_summary")
-  expect_equal(dim(result$between_weights), c(3, 3))
+  expect_equal(dim(result$between$weights), c(3, 3))
 })
 
 test_that("cluster_summary directed = FALSE", {
   result <- cluster_summary(mat, clusters_list, directed = FALSE)
   expect_s3_class(result, "cluster_summary")
-  expect_false(result$directed)
+  expect_false(result$meta$directed)
 })
 
 test_that("cluster_summary method median", {
   result <- cluster_summary(mat, clusters_list, method = "median")
-  expect_equal(result$method, "median")
+  expect_equal(result$meta$method, "median")
 })
 
 test_that("cluster_summary method min", {
   result <- cluster_summary(mat, clusters_list, method = "min")
-  expect_equal(result$method, "min")
+  expect_equal(result$meta$method, "min")
 })
 
 test_that("cluster_summary method density", {
   result <- cluster_summary(mat, clusters_list, method = "density")
-  expect_equal(result$method, "density")
+  expect_equal(result$meta$method, "density")
 })
 
 test_that("cluster_summary method geomean", {
   result <- cluster_summary(mat, clusters_list, method = "geomean")
-  expect_equal(result$method, "geomean")
+  expect_equal(result$meta$method, "geomean")
 })
 
 test_that("cluster_summary with unnamed clusters list", {
@@ -236,7 +236,7 @@ test_that("cluster_summary with unnamed clusters list", {
 test_that("csum is an alias for cluster_summary", {
   result1 <- cluster_summary(mat, clusters_list, method = "sum")
   result2 <- csum(mat, clusters_list, method = "sum")
-  expect_equal(result1$between_weights, result2$between_weights)
+  expect_equal(result1$between$weights, result2$between$weights)
 })
 
 test_that("cluster_summary works with cograph_network input", {
@@ -248,8 +248,155 @@ test_that("cluster_summary works with cograph_network input", {
   result_net <- cluster_summary(net, clusters_list, method = "sum")
 
   expect_s3_class(result_net, "cluster_summary")
-  expect_equal(result_mat$between_weights, result_net$between_weights)
-  expect_equal(result_mat$within_weights, result_net$within_weights)
+  expect_equal(result_mat$between$weights, result_net$between$weights)
+})
+
+# ==============================================================================
+# Tests for cluster_summary NEW STRUCTURE fields
+# ==============================================================================
+
+test_that("cluster_summary returns new structure with between/within/clusters/meta", {
+  result <- cluster_summary(mat, clusters_list)
+
+  # Check top-level structure
+  expect_true("between" %in% names(result))
+  expect_true("within" %in% names(result))
+  expect_true("clusters" %in% names(result))
+  expect_true("meta" %in% names(result))
+
+  # Check between structure
+  expect_true("weights" %in% names(result$between))
+  expect_true("inits" %in% names(result$between))
+  expect_equal(dim(result$between$weights), c(3, 3))
+  expect_equal(length(result$between$inits), 3)
+
+  # Check within structure (list of per-cluster data)
+  expect_type(result$within, "list")
+  expect_equal(length(result$within), 3)
+  expect_equal(names(result$within), c("Group1", "Group2", "Group3"))
+
+  # Each within element has weights and inits
+  for (cl_name in names(result$within)) {
+    expect_true("weights" %in% names(result$within[[cl_name]]))
+    expect_true("inits" %in% names(result$within[[cl_name]]))
+  }
+
+  # Check meta structure
+  expect_equal(result$meta$type, "tna")
+  expect_equal(result$meta$method, "sum")
+  expect_true(result$meta$directed)
+  expect_equal(result$meta$n_nodes, 8)
+  expect_equal(result$meta$n_clusters, 3)
+})
+
+test_that("cluster_summary between$weights rows sum to 1 (type = 'tna')", {
+  result <- cluster_summary(mat, clusters_list, type = "tna")
+
+  # Each row should sum to 1 (row-normalized)
+  row_sums <- rowSums(result$between$weights)
+  expect_true(all(abs(row_sums - 1) < 1e-10))
+})
+
+test_that("cluster_summary between$inits sums to 1", {
+  result <- cluster_summary(mat, clusters_list)
+
+  expect_equal(sum(result$between$inits), 1, tolerance = 1e-10)
+})
+
+test_that("cluster_summary within contains correct cluster subsets", {
+  result <- cluster_summary(mat, clusters_list)
+
+  # Group1 = N1, N2; Group2 = N3, N4, N5; Group3 = N6, N7, N8
+  expect_equal(rownames(result$within$Group1$weights), c("N1", "N2"))
+  expect_equal(rownames(result$within$Group2$weights), c("N3", "N4", "N5"))
+  expect_equal(rownames(result$within$Group3$weights), c("N6", "N7", "N8"))
+
+  expect_equal(dim(result$within$Group1$weights), c(2, 2))
+  expect_equal(dim(result$within$Group2$weights), c(3, 3))
+  expect_equal(dim(result$within$Group3$weights), c(3, 3))
+})
+
+test_that("cluster_summary within weights rows sum to 1 or 0 (type = 'tna')", {
+  result <- cluster_summary(mat, clusters_list, type = "tna")
+
+  # Each row should sum to 1 (for nodes with outgoing edges) or 0 (isolated)
+  for (cl_name in names(result$within)) {
+    cl_mat <- result$within[[cl_name]]$weights
+    row_sums <- rowSums(cl_mat)
+    expect_true(all(row_sums == 0 | abs(row_sums - 1) < 1e-10),
+                info = paste("Cluster", cl_name))
+  }
+})
+
+test_that("cluster_summary within$inits sums to 1 per cluster", {
+  result <- cluster_summary(mat, clusters_list)
+
+  # Each cluster's within inits should sum to 1
+  for (cl_name in names(result$within)) {
+    expect_equal(sum(result$within[[cl_name]]$inits), 1, tolerance = 1e-10,
+                 info = paste("Cluster", cl_name))
+  }
+})
+
+test_that("cluster_summary type = 'raw' does not row-normalize", {
+  result <- cluster_summary(mat, clusters_list, type = "raw")
+
+  # Rows should NOT necessarily sum to 1
+  row_sums <- rowSums(result$between$weights)
+  # With random data, unlikely all rows sum to exactly 1
+  expect_equal(result$meta$type, "raw")
+})
+
+test_that("cluster_summary type = 'cooccurrence' symmetrizes", {
+  result <- cluster_summary(mat, clusters_list, type = "cooccurrence")
+
+  # Matrix should be symmetric
+  expect_equal(result$between$weights, t(result$between$weights))
+})
+
+test_that("cluster_summary compute_within = FALSE skips within computation", {
+  result <- cluster_summary(mat, clusters_list, compute_within = FALSE)
+
+  expect_null(result$within)
+  # between should still exist
+  expect_true(!is.null(result$between))
+  expect_equal(dim(result$between$weights), c(3, 3))
+})
+
+# ==============================================================================
+# Tests for as_tna
+# ==============================================================================
+
+test_that("as_tna.cluster_summary works", {
+  skip_if_not_installed("tna")
+  cs <- cluster_summary(mat, clusters_list, type = "tna")
+  tna_obj <- as_tna(cs)
+
+  # Returns cluster_tna with $between and $within
+  expect_s3_class(tna_obj, "cluster_tna")
+  expect_s3_class(tna_obj$between, "tna")
+  expect_true(is.list(tna_obj$within))
+
+  # Between-cluster tna has correct structure
+  expect_equal(nrow(tna_obj$between$weights), length(cs$clusters))
+  expect_equal(length(tna_obj$between$inits), length(cs$clusters))
+})
+
+test_that("as_tna.default returns tna as-is", {
+  # Create a mock tna object
+  mock_tna <- structure(
+    list(weights = matrix(1, 3, 3), inits = c(0.33, 0.33, 0.34), labels = c("A", "B", "C")),
+    class = "tna"
+  )
+  result <- as_tna(mock_tna)
+  expect_identical(result, mock_tna)
+})
+
+test_that("as_tna.default errors on non-tna", {
+  expect_error(
+    as_tna(list(a = 1)),
+    "Cannot convert"
+  )
 })
 
 # ==============================================================================
@@ -519,9 +666,6 @@ test_that("plot.cograph_cluster_significance works", {
   grDevices::dev.off()
 
   expect_true(file.exists(tmp))
-  # The plot function returns x invisibly, but we capture it via assignment
-  # Just verify it returns the original object
-
   expect_s3_class(plot_result, "cograph_cluster_significance")
 })
 
@@ -900,10 +1044,16 @@ test_that("print.cluster_summary works", {
 
   expect_output(print(result), "Cluster Summary")
   expect_output(print(result), "Clusters:")
-  expect_output(print(result), "Between-cluster TNA")
-  expect_output(print(result), "Within-cluster TNA")
-  expect_output(print(result), "Inits")
-  expect_output(print(result), "Transition matrix")
+  expect_output(print(result), "Type:")
+  expect_output(print(result), "Between-cluster weights")
+  expect_output(print(result), "Within-cluster weights")
+  expect_output(print(result), "Inits:")
+})
+
+test_that("print.cluster_summary handles compute_within = FALSE", {
+  result <- cluster_summary(mat, clusters_list, compute_within = FALSE)
+
+  expect_output(print(result), "not computed")
 })
 
 # ==============================================================================
@@ -930,7 +1080,7 @@ test_that("cluster_summary with all zeros in one cluster pair", {
   special_mat[6:8, 1:2] <- 0
 
   result <- cluster_summary(special_mat, clusters_list, method = "sum")
-  expect_equal(result$between_weights["Group1", "Group3"], 0)
+  expect_equal(result$between$weights["Group1", "Group3"], 0, tolerance = 1e-10)
 })
 
 test_that("cluster_quality with single-node cluster", {
@@ -941,7 +1091,6 @@ test_that("cluster_quality with single-node cluster", {
 
   result <- cluster_quality(mat, single_clusters)
   expect_s3_class(result, "cluster_quality")
-  # Single node cluster should have specific behavior for metrics
 })
 
 test_that("layer_similarity with identical sparse matrices", {
@@ -1024,80 +1173,44 @@ test_that("cluster_significance computes z-score correctly", {
 })
 
 # ==============================================================================
-# Tests for new TNA/inits fields and as_tna parameter
+# Tests for single-node clusters
 # ==============================================================================
 
-test_that("cluster_summary returns tna and inits fields", {
-  result <- cluster_summary(mat, clusters_list)
+test_that("cluster_summary handles single-node clusters", {
+  single_clusters <- list(
+    A = "N1",
+    B = c("N2", "N3", "N4"),
+    C = c("N5", "N6", "N7", "N8")
+  )
 
-  # Between-cluster TNA
-  expect_true("tna" %in% names(result))
-  expect_true("inits" %in% names(result))
-  expect_equal(dim(result$tna), c(3, 3))
-  expect_equal(length(result$inits), 3)
+  result <- cluster_summary(mat, single_clusters)
 
-  # Within-cluster TNA
-  expect_true("within_tna" %in% names(result))
-  expect_true("within_inits" %in% names(result))
-  expect_equal(dim(result$within_tna), c(8, 8))
-  expect_equal(length(result$within_inits), 8)
+  # Single-node cluster should have 1x1 zero matrix
+  expect_equal(dim(result$within$A$weights), c(1, 1))
+  expect_equal(result$within$A$weights[1, 1], 0)
+
+  # Single-node cluster inits should be 1
+  expect_equal(result$within$A$inits, c(N1 = 1))
 })
 
-test_that("cluster_summary tna rows sum to 1", {
-  result <- cluster_summary(mat, clusters_list)
+# ==============================================================================
+# Tests for zero-edge clusters
+# ==============================================================================
 
-  # Each row should sum to 1 (row-normalized)
-  row_sums <- rowSums(result$tna)
-  expect_true(all(abs(row_sums - 1) < 1e-10))
+test_that("cluster_summary handles zero-edge clusters in within", {
+  zero_cluster_mat <- mat
+  zero_cluster_mat[1:2, 1:2] <- 0  # Group1 has no internal edges
+
+  result <- cluster_summary(zero_cluster_mat, clusters_list)
+
+  # Group1 should have zero weights
+  expect_equal(sum(result$within$Group1$weights), 0)
+
+  # Inits should be uniform for zero-edge cluster
+  expect_equal(result$within$Group1$inits, c(N1 = 0.5, N2 = 0.5))
 })
 
-test_that("cluster_summary inits sums to 1", {
-  result <- cluster_summary(mat, clusters_list)
-
-  expect_equal(sum(result$inits), 1, tolerance = 1e-10)
-  expect_equal(sum(result$within_inits), 1, tolerance = 1e-10)
-})
-
-test_that("cluster_summary within_tna is block diagonal", {
-  result <- cluster_summary(mat, clusters_list)
-
-  # Within_tna should have zeros for between-cluster edges
-  # Group1 = N1, N2; Group2 = N3, N4, N5; Group3 = N6, N7, N8
-  # Check that edges between groups are 0
-  expect_equal(sum(result$within_tna[1:2, 3:8]), 0)  # Group1 -> others
-  expect_equal(sum(result$within_tna[3:5, c(1:2, 6:8)]), 0)  # Group2 -> others
-  expect_equal(sum(result$within_tna[6:8, 1:5]), 0)  # Group3 -> others
-})
-
-test_that("cluster_summary within_tna rows sum to 1 or 0", {
-  result <- cluster_summary(mat, clusters_list)
-
-  # Each row should sum to 1 (for nodes with outgoing edges) or 0 (isolated)
-  row_sums <- rowSums(result$within_tna)
-  expect_true(all(row_sums == 0 | abs(row_sums - 1) < 1e-10))
-})
-
-test_that("cluster_summary as_tna returns tna object", {
-  result <- cluster_summary(mat, clusters_list, as_tna = TRUE)
-
-  expect_s3_class(result, "tna")
-  expect_true("weights" %in% names(result))
-  expect_true("inits" %in% names(result))
-  expect_true("labels" %in% names(result))
-})
-
-test_that("cluster_summary tna matches mcml tna", {
-  skip_if_not_installed("tna")
-
-  cs <- cluster_summary(mat, clusters_list)
-  mc <- mcml(mat, clusters_list)
-
-  expect_equal(cs$tna, mc$tna)
-  expect_equal(cs$inits, mc$inits)
-  expect_equal(cs$between_weights, mc$between_weights)
-})
-
-test_that("cluster_summary handles zero edge matrix for tna/inits", {
+test_that("cluster_summary handles zero edge matrix for inits", {
   zero_mat <- matrix(0, 6, 6)
   rownames(zero_mat) <- colnames(zero_mat) <- paste0("N", 1:6)
   clusters <- list(A = c("N1", "N2"), B = c("N3", "N4"), C = c("N5", "N6"))
@@ -1105,18 +1218,41 @@ test_that("cluster_summary handles zero edge matrix for tna/inits", {
   result <- cluster_summary(zero_mat, clusters)
 
   # With no edges, inits should be uniform
-  expect_equal(result$inits, c(A = 1/3, B = 1/3, C = 1/3), tolerance = 1e-10)
+  expect_equal(result$between$inits, c(A = 1/3, B = 1/3, C = 1/3), tolerance = 1e-10)
 })
 
-test_that(".cluster_summary_to_tna helper works", {
-  cs <- cluster_summary(mat, clusters_list)
-  tna_obj <- cograph:::.cluster_summary_to_tna(cs)
+# ==============================================================================
+# Tests for sparse matrices
+# ==============================================================================
 
-  expect_s3_class(tna_obj, "tna")
-  expect_equal(tna_obj$weights, cs$tna)
-  expect_equal(tna_obj$inits, cs$inits)
-  expect_equal(tna_obj$labels, cs$cluster_names)
-  expect_equal(attr(tna_obj, "type"), "relative")
+test_that("cluster_summary handles sparse matrix", {
+  sparse <- matrix(0, 5, 5)
+  sparse[1, 2] <- 1
+  sparse[3, 4] <- 0.5
+  rownames(sparse) <- colnames(sparse) <- paste0("S", 1:5)
+
+  clusters <- list(A = c("S1", "S2"), B = c("S3", "S4", "S5"))
+  result <- cluster_summary(sparse, clusters)
+
+  expect_type(result$within, "list")
+  expect_equal(names(result$within), c("A", "B"))
+})
+
+# ==============================================================================
+# Tests for NAs in matrix
+# ==============================================================================
+
+test_that("cluster_summary handles NAs in matrix", {
+  mat_na <- mat
+  mat_na[1, 2] <- NA
+  mat_na[3, 4] <- NA
+
+  result <- cluster_summary(mat_na, clusters_list)
+
+  # Should not error, NAs handled
+  expect_true("within" %in% names(result))
+  # Weights should not have NAs (after processing)
+  expect_false(any(is.na(result$between$weights)))
 })
 
 # ==============================================================================

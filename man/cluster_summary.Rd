@@ -9,83 +9,250 @@ cluster_summary(
   x,
   clusters = NULL,
   method = c("sum", "mean", "median", "max", "min", "density", "geomean"),
+  type = c("tna", "cooccurrence", "semi_markov", "raw"),
   directed = TRUE,
-  as_tna = FALSE
+  compute_within = TRUE
 )
 
 csum(
   x,
   clusters = NULL,
   method = c("sum", "mean", "median", "max", "min", "density", "geomean"),
+  type = c("tna", "cooccurrence", "semi_markov", "raw"),
   directed = TRUE,
-  as_tna = FALSE
+  compute_within = TRUE
 )
 }
 \arguments{
-\item{x}{Network input: numeric adjacency matrix, cograph_network, or tna object.
-For matrices, node names should be set as row/colnames.}
-
-\item{clusters}{Cluster assignments. Can be:
-\itemize{
-\item NULL (default): Auto-detect from cograph_network's nodes (looks for
-'clusters', 'cluster', 'group', or 'groups' column)
-\item A vector: Cluster membership per node (same order as nodes)
-\item A named list: Group name -> node labels mapping
+\item{x}{Network input. Accepts multiple formats:
+\describe{
+\item{matrix}{Numeric adjacency/weight matrix. Row and column names are
+used as node labels. Values represent edge weights (e.g., transition
+counts, co-occurrence frequencies, or probabilities).}
+\item{cograph_network}{A cograph network object. The function extracts
+the weight matrix from \code{x$weights} or converts via
+\code{to_matrix()}. Clusters can be auto-detected from node attributes.}
+\item{tna}{A tna object from the tna package. Extracts \code{x$weights}.}
+\item{cluster_summary}{If already a cluster_summary, returns unchanged.}
 }}
 
-\item{method}{Aggregation method: "sum", "mean", "median", "max", "min",
-"density", "geomean"}
+\item{clusters}{Cluster/group assignments for nodes. Accepts multiple formats:
+\describe{
+\item{NULL}{(default) Auto-detect from cograph_network. Looks for columns
+named 'clusters', 'cluster', 'groups', or 'group' in \code{x$nodes}.
+Throws an error if no cluster column is found.
+This option only works when \code{x} is a cograph_network.}
+\item{vector}{Cluster membership for each node, in the same order as the
+matrix rows/columns. Can be numeric (1, 2, 3) or character ("A", "B").
+Cluster names will be derived from unique values.
+Example: \code{c(1, 1, 2, 2, 3, 3)} assigns first two nodes to cluster 1.}
+\item{named list}{Explicit mapping of cluster names to node labels.
+List names become cluster names, values are character vectors of node
+labels that must match matrix row/column names.
+Example: \code{list(Alpha = c("A", "B"), Beta = c("C", "D"))}}
+}}
 
-\item{directed}{Logical; if TRUE, treat network as directed}
+\item{method}{Aggregation method for combining edge weights within/between
+clusters. Controls how multiple node-to-node edges are summarized:
+\describe{
+\item{"sum"}{(default) Sum of all edge weights. Best for count data
+(e.g., transition frequencies). Preserves total flow.}
+\item{"mean"}{Average edge weight. Best when cluster sizes differ and
+you want to control for size. Note: when input is already a transition
+matrix (rows sum to 1), "mean" avoids size bias.
+Example: cluster with 5 nodes won't have 5x the weight of cluster with 1 node.}
+\item{"median"}{Median edge weight. Robust to outliers.}
+\item{"max"}{Maximum edge weight. Captures strongest connection.}
+\item{"min"}{Minimum edge weight. Captures weakest connection.}
+\item{"density"}{Sum divided by number of possible edges. Normalizes
+by cluster size combinations.}
+\item{"geomean"}{Geometric mean of positive weights. Useful for
+multiplicative processes.}
+}}
 
-\item{as_tna}{Logical; if TRUE, return a tna-compatible object instead of
-cluster_summary. Default FALSE.}
+\item{type}{Post-processing applied to aggregated weights. Determines the
+interpretation of the resulting matrices:
+\describe{
+\item{"tna"}{(default) Row-normalize so each row sums to 1. Creates
+transition probabilities suitable for Markov chain analysis.
+Interpretation: "Given I'm in cluster A, what's the probability
+of transitioning to cluster B?"
+Required for use with tna package functions.
+Diagonal values represent within-cluster retention rates.}
+\item{"raw"}{No normalization. Returns aggregated counts/weights as-is.
+Use for frequency analysis or when you need raw counts.
+Compatible with igraph's contract + simplify output.}
+\item{"cooccurrence"}{Symmetrize the matrix: (A + t(A)) / 2.
+For undirected co-occurrence analysis.}
+\item{"semi_markov"}{Row-normalize with duration weighting.
+For semi-Markov process analysis.}
+}}
+
+\item{directed}{Logical. If \code{TRUE} (default), treat network as directed.
+A->B and B->A are separate edges. If \code{FALSE}, edges are undirected
+and the matrix is symmetrized before processing.}
+
+\item{compute_within}{Logical. If \code{TRUE} (default), compute within-cluster
+transition matrices for each cluster. Each cluster gets its own n_i x n_i
+matrix showing internal node-to-node transitions.
+Set to \code{FALSE} to skip this computation for better performance when
+only between-cluster summary is needed.}
 }
 \value{
-A \code{cluster_summary} object with:
-\item{tna}{Between-cluster transition matrix (rows sum to 1, k x k)}
-\item{inits}{Between-cluster initial state distribution (sums to 1)}
-\item{within_tna}{Within-cluster transition matrix (block-diagonal, n x n).
-Each block is row-normalized. Shows transitions between nodes within
-the same cluster.}
-\item{within_inits}{Within-cluster initial state distribution (n x 1)}
-\item{between_weights}{Matrix of between-cluster aggregated weights}
-\item{within_weights}{Vector of within-cluster aggregated weights (scalars)}
-\item{cluster_sizes}{Number of nodes per cluster}
-\item{cluster_names}{Names of clusters}
-\item{node_names}{Names of individual nodes}
-\item{method}{Aggregation method used}
-\item{directed}{Whether network was treated as directed}
-
-If \code{as_tna = TRUE}, returns a tna-compatible object with:
-\item{weights}{Between-cluster transition matrix (same as tna above)}
-\item{inits}{Between-cluster initial state distribution}
-\item{labels}{Cluster names}
+A \code{cluster_summary} object (S3 class) containing:
+\describe{
+\item{between}{List with two elements:
+\describe{
+\item{weights}{k x k matrix of cluster-to-cluster weights, where k is
+the number of clusters. Row i, column j contains the aggregated
+weight from cluster i to cluster j. Diagonal contains within-cluster
+totals (self-loops at cluster level). Processing depends on \code{type}.}
+\item{inits}{Numeric vector of length k. Initial state distribution
+across clusters, computed from column sums of the original matrix.
+Represents the proportion of incoming edges to each cluster.}
+}
+}
+\item{within}{Named list with one element per cluster. Each element contains:
+\describe{
+\item{weights}{n_i x n_i matrix for nodes within that cluster.
+Shows internal transitions between nodes in the same cluster.}
+\item{inits}{Initial distribution within the cluster.}
+}
+NULL if \code{compute_within = FALSE}.}
+\item{clusters}{Named list mapping cluster names to their member node labels.
+Example: \code{list(A = c("n1", "n2"), B = c("n3", "n4", "n5"))}}
+\item{meta}{List of metadata:
+\describe{
+\item{type}{The \code{type} argument used ("tna", "raw", etc.)}
+\item{method}{The \code{method} argument used ("sum", "mean", etc.)}
+\item{directed}{Logical, whether network was treated as directed}
+\item{n_nodes}{Total number of nodes in original network}
+\item{n_clusters}{Number of clusters}
+\item{cluster_sizes}{Named vector of cluster sizes}
+}
+}
+}
 }
 \description{
-Computes aggregated edge weights between and within clusters.
-Results are numerically identical to igraph's contract_vertices + simplify.
+Aggregates node-level network weights to cluster-level summaries. Computes
+both between-cluster transitions (how clusters connect to each other) and
+within-cluster transitions (how nodes connect within each cluster).
+}
+\details{
+This is the core function for Multi-Cluster Multi-Level (MCML) analysis.
+Use \code{\link{as_tna}} to convert results to tna objects for further
+analysis with the tna package.
+\subsection{Workflow}{
+
+Typical MCML analysis workflow:
+\preformatted{
+# 1. Create network
+net <- cograph(edges, nodes = nodes)
+net$nodes$clusters <- group_assignments
+
+# 2. Compute cluster summary
+cs <- cluster_summary(net, type = "tna")
+
+# 3. Convert to tna models
+tna_models <- as_tna(cs)
+
+# 4. Analyze/visualize
+plot(tna_models$between)
+tna::centrality(tna_models$between)
+}
+}
+
+\subsection{Between-Cluster Matrix Structure}{
+
+The \code{between$weights} matrix has clusters as both rows and columns:
+\itemize{
+\item Off-diagonal (row i, col j): Aggregated weight from cluster i to cluster j
+\item Diagonal (row i, col i): Within-cluster total (sum of internal edges in cluster i)
+}
+
+When \code{type = "tna"}, rows sum to 1 and diagonal values represent
+"retention rate" - the probability of staying within the same cluster.
+}
+
+\subsection{Choosing method and type}{
+
+\tabular{lll}{
+\strong{Input data} \tab \strong{Recommended} \tab \strong{Reason} \cr
+Edge counts \tab method="sum", type="tna" \tab Preserves total flow, normalizes to probabilities \cr
+Transition matrix \tab method="mean", type="tna" \tab Avoids cluster size bias \cr
+Frequencies \tab method="sum", type="raw" \tab Keep raw counts for analysis \cr
+Correlation matrix \tab method="mean", type="raw" \tab Average correlations \cr
+}
+}
 }
 \examples{
-# Create adjacency matrix
+# -----------------------------------------------------
+# Basic usage with matrix and cluster vector
+# -----------------------------------------------------
 mat <- matrix(runif(100), 10, 10)
 diag(mat) <- 0
 rownames(mat) <- colnames(mat) <- LETTERS[1:10]
 
-# Define clusters as vector
 clusters <- c(1, 1, 1, 2, 2, 2, 3, 3, 3, 3)
-result <- cluster_summary(mat, clusters)
+cs <- cluster_summary(mat, clusters)
 
-# Or as named list
+# Access results
+cs$between$weights    # 3x3 cluster transition matrix
+cs$between$inits      # Initial distribution
+cs$within$`1`$weights # Within-cluster 1 transitions
+cs$meta               # Metadata
+
+# -----------------------------------------------------
+# Named list clusters (more readable)
+# -----------------------------------------------------
 clusters <- list(
-  G1 = c("A", "B", "C"),
-  G2 = c("D", "E", "F"),
-  G3 = c("G", "H", "I", "J")
+  Alpha = c("A", "B", "C"),
+  Beta = c("D", "E", "F"),
+  Gamma = c("G", "H", "I", "J")
 )
-result <- cluster_summary(mat, clusters)
+cs <- cluster_summary(mat, clusters, type = "tna")
+cs$between$weights    # Rows/cols named Alpha, Beta, Gamma
+cs$within$Alpha       # Within Alpha cluster
 
-# With cograph_network - auto-detect clusters from nodes
+# -----------------------------------------------------
+# Auto-detect clusters from cograph_network
+# -----------------------------------------------------
 net <- as_cograph(mat)
 net$nodes$clusters <- c(1, 1, 1, 2, 2, 2, 3, 3, 3, 3)
-result <- cluster_summary(net)  # No clusters arg needed
+cs <- cluster_summary(net)  # No clusters argument needed
+
+# -----------------------------------------------------
+# Different aggregation methods
+# -----------------------------------------------------
+cs_sum <- cluster_summary(mat, clusters, method = "sum")   # Total flow
+cs_mean <- cluster_summary(mat, clusters, method = "mean") # Average
+cs_max <- cluster_summary(mat, clusters, method = "max")   # Strongest
+
+# -----------------------------------------------------
+# Raw counts vs TNA probabilities
+# -----------------------------------------------------
+cs_raw <- cluster_summary(mat, clusters, type = "raw")
+cs_tna <- cluster_summary(mat, clusters, type = "tna")
+
+rowSums(cs_raw$between$weights)  # Various sums
+rowSums(cs_tna$between$weights)  # All equal to 1
+
+# -----------------------------------------------------
+# Skip within-cluster computation for speed
+# -----------------------------------------------------
+cs_fast <- cluster_summary(mat, clusters, compute_within = FALSE)
+cs_fast$within  # NULL
+
+# -----------------------------------------------------
+# Convert to tna objects for tna package
+# -----------------------------------------------------
+cs <- cluster_summary(mat, clusters, type = "tna")
+tna_models <- as_tna(cs)
+# tna_models$between      # tna object
+# tna_models$within$Alpha # tna object
+}
+\seealso{
+\code{\link{as_tna}} to convert results to tna objects,
+\code{\link{plot_mcml}} for two-layer visualization,
+\code{\link{plot_mtna}} for flat cluster visualization
 }

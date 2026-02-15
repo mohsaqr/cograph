@@ -56,84 +56,263 @@ wagg <- aggregate_weights
 
 #' Cluster Summary Statistics
 #'
-#' Computes aggregated edge weights between and within clusters.
-#' Results are numerically identical to igraph's contract_vertices + simplify.
+#' Aggregates node-level network weights to cluster-level summaries. Computes
+#' both between-cluster transitions (how clusters connect to each other) and
+#' within-cluster transitions (how nodes connect within each cluster).
 #'
-#' @param x Network input: numeric adjacency matrix, cograph_network, or tna object.
-#'   For matrices, node names should be set as row/colnames.
-#' @param clusters Cluster assignments. Can be:
-#'   \itemize{
-#'     \item NULL (default): Auto-detect from cograph_network's nodes (looks for
-#'       'clusters', 'cluster', 'group', or 'groups' column)
-#'     \item A vector: Cluster membership per node (same order as nodes)
-#'     \item A named list: Group name -> node labels mapping
+#' This is the core function for Multi-Cluster Multi-Level (MCML) analysis.
+#' Use \code{\link{as_tna}} to convert results to tna objects for further
+#' analysis with the tna package.
+#'
+#' @param x Network input. Accepts multiple formats:
+#'   \describe{
+#'     \item{matrix}{Numeric adjacency/weight matrix. Row and column names are
+#'       used as node labels. Values represent edge weights (e.g., transition
+#'       counts, co-occurrence frequencies, or probabilities).}
+#'     \item{cograph_network}{A cograph network object. The function extracts
+#'       the weight matrix from \code{x$weights} or converts via
+#'       \code{to_matrix()}. Clusters can be auto-detected from node attributes.}
+#'     \item{tna}{A tna object from the tna package. Extracts \code{x$weights}.}
+#'     \item{cluster_summary}{If already a cluster_summary, returns unchanged.}
 #'   }
-#' @param method Aggregation method: "sum", "mean", "median", "max", "min",
-#'   "density", "geomean"
-#' @param directed Logical; if TRUE, treat network as directed
-#' @param as_tna Logical; if TRUE, return a tna-compatible object instead of
-#'   cluster_summary. Default FALSE.
-#' @return A `cluster_summary` object with:
-#'   \item{tna}{Between-cluster transition matrix (rows sum to 1, k x k)}
-#'   \item{inits}{Between-cluster initial state distribution (sums to 1)}
-#'   \item{within_tna}{Within-cluster transition matrix (block-diagonal, n x n).
-#'     Each block is row-normalized. Shows transitions between nodes within
-#'     the same cluster.}
-#'   \item{within_inits}{Within-cluster initial state distribution (n x 1)}
-#'   \item{between_weights}{Matrix of between-cluster aggregated weights}
-#'   \item{within_weights}{Vector of within-cluster aggregated weights (scalars)}
-#'   \item{cluster_sizes}{Number of nodes per cluster}
-#'   \item{cluster_names}{Names of clusters}
-#'   \item{node_names}{Names of individual nodes}
-#'   \item{method}{Aggregation method used}
-#'   \item{directed}{Whether network was treated as directed}
 #'
-#'   If `as_tna = TRUE`, returns a tna-compatible object with:
-#'   \item{weights}{Between-cluster transition matrix (same as tna above)}
-#'   \item{inits}{Between-cluster initial state distribution}
-#'   \item{labels}{Cluster names}
+#' @param clusters Cluster/group assignments for nodes. Accepts multiple formats:
+#'   \describe{
+#'     \item{NULL}{(default) Auto-detect from cograph_network. Looks for columns
+#'       named 'clusters', 'cluster', 'groups', or 'group' in \code{x$nodes}.
+#'       Throws an error if no cluster column is found.
+#'       This option only works when \code{x} is a cograph_network.}
+#'     \item{vector}{Cluster membership for each node, in the same order as the
+
+#'       matrix rows/columns. Can be numeric (1, 2, 3) or character ("A", "B").
+#'       Cluster names will be derived from unique values.
+#'       Example: \code{c(1, 1, 2, 2, 3, 3)} assigns first two nodes to cluster 1.}
+#'     \item{named list}{Explicit mapping of cluster names to node labels.
+#'       List names become cluster names, values are character vectors of node
+#'       labels that must match matrix row/column names.
+#'       Example: \code{list(Alpha = c("A", "B"), Beta = c("C", "D"))}}
+#'   }
+#'
+#' @param method Aggregation method for combining edge weights within/between
+#'   clusters. Controls how multiple node-to-node edges are summarized:
+#'   \describe{
+#'     \item{"sum"}{(default) Sum of all edge weights. Best for count data
+#'       (e.g., transition frequencies). Preserves total flow.}
+#'     \item{"mean"}{Average edge weight. Best when cluster sizes differ and
+#'       you want to control for size. Note: when input is already a transition
+#'       matrix (rows sum to 1), "mean" avoids size bias.
+#'       Example: cluster with 5 nodes won't have 5x the weight of cluster with 1 node.}
+#'     \item{"median"}{Median edge weight. Robust to outliers.}
+#'     \item{"max"}{Maximum edge weight. Captures strongest connection.}
+#'     \item{"min"}{Minimum edge weight. Captures weakest connection.}
+#'     \item{"density"}{Sum divided by number of possible edges. Normalizes
+#'       by cluster size combinations.}
+#'     \item{"geomean"}{Geometric mean of positive weights. Useful for
+#'       multiplicative processes.}
+#'   }
+#'
+#' @param type Post-processing applied to aggregated weights. Determines the
+#'   interpretation of the resulting matrices:
+#'   \describe{
+#'     \item{"tna"}{(default) Row-normalize so each row sums to 1. Creates
+#'       transition probabilities suitable for Markov chain analysis.
+#'       Interpretation: "Given I'm in cluster A, what's the probability
+#'       of transitioning to cluster B?"
+#'       Required for use with tna package functions.
+#'       Diagonal values represent within-cluster retention rates.}
+#'     \item{"raw"}{No normalization. Returns aggregated counts/weights as-is.
+#'       Use for frequency analysis or when you need raw counts.
+#'       Compatible with igraph's contract + simplify output.}
+#'     \item{"cooccurrence"}{Symmetrize the matrix: (A + t(A)) / 2.
+#'       For undirected co-occurrence analysis.}
+#'     \item{"semi_markov"}{Row-normalize with duration weighting.
+#'       For semi-Markov process analysis.}
+#'   }
+#'
+#' @param directed Logical. If \code{TRUE} (default), treat network as directed.
+#'   A->B and B->A are separate edges. If \code{FALSE}, edges are undirected
+#'   and the matrix is symmetrized before processing.
+#'
+#' @param compute_within Logical. If \code{TRUE} (default), compute within-cluster
+#'   transition matrices for each cluster. Each cluster gets its own n_i x n_i
+#'   matrix showing internal node-to-node transitions.
+#'   Set to \code{FALSE} to skip this computation for better performance when
+#'   only between-cluster summary is needed.
+#'
+#' @return A \code{cluster_summary} object (S3 class) containing:
+#'   \describe{
+#'     \item{between}{List with two elements:
+#'       \describe{
+#'         \item{weights}{k x k matrix of cluster-to-cluster weights, where k is
+#'           the number of clusters. Row i, column j contains the aggregated
+#'           weight from cluster i to cluster j. Diagonal contains within-cluster
+#'           totals (self-loops at cluster level). Processing depends on \code{type}.}
+#'         \item{inits}{Numeric vector of length k. Initial state distribution
+#'           across clusters, computed from column sums of the original matrix.
+#'           Represents the proportion of incoming edges to each cluster.}
+#'       }
+#'     }
+#'     \item{within}{Named list with one element per cluster. Each element contains:
+#'       \describe{
+#'         \item{weights}{n_i x n_i matrix for nodes within that cluster.
+#'           Shows internal transitions between nodes in the same cluster.}
+#'         \item{inits}{Initial distribution within the cluster.}
+#'       }
+#'       NULL if \code{compute_within = FALSE}.}
+#'     \item{clusters}{Named list mapping cluster names to their member node labels.
+#'       Example: \code{list(A = c("n1", "n2"), B = c("n3", "n4", "n5"))}}
+#'     \item{meta}{List of metadata:
+#'       \describe{
+#'         \item{type}{The \code{type} argument used ("tna", "raw", etc.)}
+#'         \item{method}{The \code{method} argument used ("sum", "mean", etc.)}
+#'         \item{directed}{Logical, whether network was treated as directed}
+#'         \item{n_nodes}{Total number of nodes in original network}
+#'         \item{n_clusters}{Number of clusters}
+#'         \item{cluster_sizes}{Named vector of cluster sizes}
+#'       }
+#'     }
+#'   }
+#'
+#' @details
+#' ## Workflow
+#'
+#' Typical MCML analysis workflow:
+#' \preformatted{
+#' # 1. Create network
+#' net <- cograph(edges, nodes = nodes)
+#' net$nodes$clusters <- group_assignments
+#'
+#' # 2. Compute cluster summary
+#' cs <- cluster_summary(net, type = "tna")
+#'
+#' # 3. Convert to tna models
+#' tna_models <- as_tna(cs)
+#'
+#' # 4. Analyze/visualize
+#' plot(tna_models$between)
+#' tna::centrality(tna_models$between)
+#' }
+#'
+#' ## Between-Cluster Matrix Structure
+#'
+#' The \code{between$weights} matrix has clusters as both rows and columns:
+#' \itemize{
+#'   \item Off-diagonal (row i, col j): Aggregated weight from cluster i to cluster j
+#'   \item Diagonal (row i, col i): Within-cluster total (sum of internal edges in cluster i)
+#' }
+#'
+#' When \code{type = "tna"}, rows sum to 1 and diagonal values represent
+#' "retention rate" - the probability of staying within the same cluster.
+#'
+#' ## Choosing method and type
+#'
+#' \tabular{lll}{
+#'   \strong{Input data} \tab \strong{Recommended} \tab \strong{Reason} \cr
+#'   Edge counts \tab method="sum", type="tna" \tab Preserves total flow, normalizes to probabilities \cr
+#'   Transition matrix \tab method="mean", type="tna" \tab Avoids cluster size bias \cr
+#'   Frequencies \tab method="sum", type="raw" \tab Keep raw counts for analysis \cr
+#'   Correlation matrix \tab method="mean", type="raw" \tab Average correlations \cr
+#' }
+#'
 #' @export
+#' @seealso
+#'   \code{\link{as_tna}} to convert results to tna objects,
+#'   \code{\link{plot_mcml}} for two-layer visualization,
+#'   \code{\link{plot_mtna}} for flat cluster visualization
+#'
 #' @examples
-#' # Create adjacency matrix
+#' # -----------------------------------------------------
+#' # Basic usage with matrix and cluster vector
+#' # -----------------------------------------------------
 #' mat <- matrix(runif(100), 10, 10)
 #' diag(mat) <- 0
 #' rownames(mat) <- colnames(mat) <- LETTERS[1:10]
 #'
-#' # Define clusters as vector
 #' clusters <- c(1, 1, 1, 2, 2, 2, 3, 3, 3, 3)
-#' result <- cluster_summary(mat, clusters)
+#' cs <- cluster_summary(mat, clusters)
 #'
-#' # Or as named list
+#' # Access results
+#' cs$between$weights    # 3x3 cluster transition matrix
+#' cs$between$inits      # Initial distribution
+#' cs$within$`1`$weights # Within-cluster 1 transitions
+#' cs$meta               # Metadata
+#'
+#' # -----------------------------------------------------
+#' # Named list clusters (more readable)
+#' # -----------------------------------------------------
 #' clusters <- list(
-#'   G1 = c("A", "B", "C"),
-#'   G2 = c("D", "E", "F"),
-#'   G3 = c("G", "H", "I", "J")
+#'   Alpha = c("A", "B", "C"),
+#'   Beta = c("D", "E", "F"),
+#'   Gamma = c("G", "H", "I", "J")
 #' )
-#' result <- cluster_summary(mat, clusters)
+#' cs <- cluster_summary(mat, clusters, type = "tna")
+#' cs$between$weights    # Rows/cols named Alpha, Beta, Gamma
+#' cs$within$Alpha       # Within Alpha cluster
 #'
-#' # With cograph_network - auto-detect clusters from nodes
+#' # -----------------------------------------------------
+#' # Auto-detect clusters from cograph_network
+#' # -----------------------------------------------------
 #' net <- as_cograph(mat)
 #' net$nodes$clusters <- c(1, 1, 1, 2, 2, 2, 3, 3, 3, 3)
-#' result <- cluster_summary(net)  # No clusters arg needed
+#' cs <- cluster_summary(net)  # No clusters argument needed
+#'
+#' # -----------------------------------------------------
+#' # Different aggregation methods
+#' # -----------------------------------------------------
+#' cs_sum <- cluster_summary(mat, clusters, method = "sum")   # Total flow
+#' cs_mean <- cluster_summary(mat, clusters, method = "mean") # Average
+#' cs_max <- cluster_summary(mat, clusters, method = "max")   # Strongest
+#'
+#' # -----------------------------------------------------
+#' # Raw counts vs TNA probabilities
+#' # -----------------------------------------------------
+#' cs_raw <- cluster_summary(mat, clusters, type = "raw")
+#' cs_tna <- cluster_summary(mat, clusters, type = "tna")
+#'
+#' rowSums(cs_raw$between$weights)  # Various sums
+#' rowSums(cs_tna$between$weights)  # All equal to 1
+#'
+#' # -----------------------------------------------------
+#' # Skip within-cluster computation for speed
+#' # -----------------------------------------------------
+#' cs_fast <- cluster_summary(mat, clusters, compute_within = FALSE)
+#' cs_fast$within  # NULL
+#'
+#' # -----------------------------------------------------
+#' # Convert to tna objects for tna package
+#' # -----------------------------------------------------
+#' cs <- cluster_summary(mat, clusters, type = "tna")
+#' tna_models <- as_tna(cs)
+#' # tna_models$between      # tna object
+#' # tna_models$within$Alpha # tna object
 cluster_summary <- function(x,
                             clusters = NULL,
                             method = c("sum", "mean", "median", "max",
                                        "min", "density", "geomean"),
+                            type = c("tna", "cooccurrence", "semi_markov", "raw"),
                             directed = TRUE,
-                            as_tna = FALSE) {
+                            compute_within = TRUE) {
 
+  # If already a cluster_summary, return as-is
+
+  if (inherits(x, "cluster_summary")) {
+    return(x)
+  }
+
+  type <- match.arg(type)
   method <- match.arg(method)
 
   # Store original for cluster extraction
-
   x_orig <- x
 
   # Extract matrix from various input types
   if (inherits(x, "cograph_network")) {
     # Use stored weights matrix if available, else convert
-    x <- if (!is.null(x$weights)) x$weights else to_matrix(x)
+    mat <- if (!is.null(x$weights)) x$weights else to_matrix(x)
   } else if (inherits(x, "tna")) {
-    x <- x$weights
+    mat <- x$weights
+  } else {
+    mat <- x
   }
 
   # Auto-detect clusters from cograph_network if not provided
@@ -167,15 +346,15 @@ cluster_summary <- function(x,
   }
 
   # Validate input matrix
-  if (!is.matrix(x) || !is.numeric(x)) {
+  if (!is.matrix(mat) || !is.numeric(mat)) {
     stop("x must be a cograph_network, tna object, or numeric matrix", call. = FALSE)
   }
-  if (nrow(x) != ncol(x)) {
+  if (nrow(mat) != ncol(mat)) {
     stop("x must be a square matrix", call. = FALSE)
   }
 
-  n <- nrow(x)
-  node_names <- rownames(x)
+  n <- nrow(mat)
+  node_names <- rownames(mat)
   if (is.null(node_names)) node_names <- as.character(seq_len(n))
 
   # Convert clusters to list format
@@ -183,100 +362,130 @@ cluster_summary <- function(x,
   n_clusters <- length(cluster_list)
   cluster_names <- names(cluster_list)
   if (is.null(cluster_names)) cluster_names <- as.character(seq_len(n_clusters))
+  names(cluster_list) <- cluster_names
 
   # Get node indices for each cluster
-  cluster_indices <- lapply(cluster_list, function(nodes) {
-    match(nodes, node_names)
+  cluster_indices <- lapply(cluster_list, function(nodes_vec) {
+    match(nodes_vec, node_names)
   })
 
-  # Compute cluster sizes
-  cluster_sizes <- vapply(cluster_list, length, integer(1))
+  # ============================================================================
+  # Between-cluster computation (always computed)
+  # ============================================================================
 
-  # Initialize output matrices
-  between <- matrix(0, n_clusters, n_clusters,
-                    dimnames = list(cluster_names, cluster_names))
-  within <- setNames(numeric(n_clusters), cluster_names)
+  # Aggregate between-cluster weights
+  between_raw <- matrix(0, n_clusters, n_clusters,
+                        dimnames = list(cluster_names, cluster_names))
 
-  # Initialize within_tna: block-diagonal matrix (n x n) for within-cluster transitions
-  within_tna_mat <- matrix(0, n, n, dimnames = list(node_names, node_names))
-
-  # Compute aggregates
   for (i in seq_len(n_clusters)) {
     idx_i <- cluster_indices[[i]]
     n_i <- length(idx_i)
 
-    # Within-cluster (excluding diagonal for density)
-    if (n_i > 1) {
-      within_block <- x[idx_i, idx_i]
-      diag(within_block) <- 0  # Exclude self-loops for within
-      n_possible_within <- n_i * (n_i - 1)
-      if (!directed) n_possible_within <- n_possible_within / 2
-      within[i] <- aggregate_weights(as.vector(within_block), method,
-                                     n_possible_within)
-
-      # Row-normalize within block for within_tna
-      block_row_sums <- rowSums(within_block)
-      within_block_norm <- within_block / ifelse(block_row_sums == 0, 1, block_row_sums)
-      within_tna_mat[idx_i, idx_i] <- within_block_norm
-    }
-
-    # Between-cluster
     for (j in seq_len(n_clusters)) {
-      if (i == j) next
-
       idx_j <- cluster_indices[[j]]
       n_j <- length(idx_j)
 
-      between_weights <- x[idx_i, idx_j]
-      n_possible_between <- n_i * n_j
-
-      between[i, j] <- aggregate_weights(as.vector(between_weights), method,
-                                         n_possible_between)
+      if (i == j) {
+        # Diagonal: within-cluster total (self-loop at cluster level)
+        if (n_i > 1) {
+          w_ii <- mat[idx_i, idx_i]
+          diag(w_ii) <- 0  # Exclude node self-loops
+          n_possible <- n_i * (n_i - 1)
+          between_raw[i, i] <- aggregate_weights(as.vector(w_ii), method, n_possible)
+        }
+        # Single node cluster: diagonal stays 0
+      } else {
+        # Off-diagonal: between-cluster
+        w_ij <- mat[idx_i, idx_j]
+        n_possible <- n_i * n_j
+        between_raw[i, j] <- aggregate_weights(as.vector(w_ij), method, n_possible)
+      }
     }
   }
 
-  # TNA transition matrix: row-normalized so each row sums to 1
-  row_sums <- rowSums(between)
-  tna <- between / ifelse(row_sums == 0, 1, row_sums)
-  dimnames(tna) <- list(cluster_names, cluster_names)
+  # Process based on type
+  between_weights <- .process_weights(between_raw, type, directed)
 
-  # Inits: initial state distribution (column sums normalized = incoming flow)
-  col_sums <- colSums(between)
-  inits <- col_sums / sum(col_sums)
-  if (!is.finite(sum(inits))) {
-    # Fallback to uniform if no edges
-    inits <- rep(1 / n_clusters, n_clusters)
+  # Compute inits from column sums
+  col_sums <- colSums(between_raw)
+  total <- sum(col_sums)
+  if (total > 0) {
+    between_inits <- col_sums / total
+  } else {
+    between_inits <- rep(1 / n_clusters, n_clusters)
   }
-  names(inits) <- cluster_names
+  names(between_inits) <- cluster_names
 
-  # Within inits: column sums of within_tna normalized
-  within_col_sums <- colSums(within_tna_mat)
-  within_inits <- within_col_sums / sum(within_col_sums)
-  if (!is.finite(sum(within_inits))) {
-    within_inits <- rep(1 / n, n)
+  # Build $between
+  between <- list(
+    weights = between_weights,
+    inits = between_inits
+  )
+
+  # ============================================================================
+  # Within-cluster computation (optional)
+  # ============================================================================
+
+  within_data <- NULL
+  if (isTRUE(compute_within)) {
+    within_data <- lapply(seq_len(n_clusters), function(i) {
+      idx_i <- cluster_indices[[i]]
+      n_i <- length(idx_i)
+      cl_nodes <- cluster_list[[i]]
+
+      if (n_i <= 1) {
+        # Single node: 1x1 zero matrix
+        within_raw <- matrix(0, 1, 1, dimnames = list(cl_nodes, cl_nodes))
+        within_weights_i <- within_raw
+        within_inits_i <- setNames(1, cl_nodes)
+      } else {
+        # Extract within-cluster raw weights
+        within_raw <- mat[idx_i, idx_i]
+        diag(within_raw) <- 0
+        dimnames(within_raw) <- list(cl_nodes, cl_nodes)
+
+        # Process based on type
+        within_weights_i <- .process_weights(within_raw, type, directed)
+
+        # Within-cluster inits (handle NAs)
+        col_sums_w <- colSums(within_raw, na.rm = TRUE)
+        total_w <- sum(col_sums_w, na.rm = TRUE)
+        within_inits_i <- if (!is.na(total_w) && total_w > 0) {
+          col_sums_w / total_w
+        } else {
+          rep(1 / n_i, n_i)
+        }
+        names(within_inits_i) <- cl_nodes
+      }
+
+      list(
+        weights = within_weights_i,
+        inits = within_inits_i
+      )
+    })
+    names(within_data) <- cluster_names
   }
-  names(within_inits) <- node_names
+
+  # ============================================================================
+  # Build result
+  # ============================================================================
 
   result <- structure(
     list(
-      tna = tna,
-      inits = inits,
-      within_tna = within_tna_mat,
-      within_inits = within_inits,
-      between_weights = between,
-      within_weights = within,
-      cluster_sizes = cluster_sizes,
-      cluster_names = cluster_names,
-      node_names = node_names,
-      method = method,
-      directed = directed
+      between = between,
+      within = within_data,
+      clusters = cluster_list,
+      meta = list(
+        type = type,
+        method = method,
+        directed = directed,
+        n_nodes = n,
+        n_clusters = n_clusters,
+        cluster_sizes = vapply(cluster_list, length, integer(1))
+      )
     ),
     class = "cluster_summary"
   )
-
-  if (as_tna) {
-    return(.cluster_summary_to_tna(result))
-  }
 
   result
 }
@@ -285,18 +494,239 @@ cluster_summary <- function(x,
 #' @export
 csum <- cluster_summary
 
-#' Convert cluster_summary to tna object
+#' Process weights based on type
 #' @keywords internal
-.cluster_summary_to_tna <- function(x) {
+.process_weights <- function(raw_weights, type, directed = TRUE) {
+  if (type == "raw") {
+    return(raw_weights)
+  }
+
+  if (type == "cooccurrence") {
+    # Symmetrize
+    return((raw_weights + t(raw_weights)) / 2)
+  }
+
+  if (type == "tna" || type == "semi_markov") {
+    # Row-normalize so rows sum to 1
+    rs <- rowSums(raw_weights, na.rm = TRUE)
+    processed <- raw_weights / ifelse(rs == 0 | is.na(rs), 1, rs)
+    processed[is.na(processed)] <- 0
+    return(processed)
+  }
+
+  # Default: return as-is
+
+  raw_weights
+}
+
+#' Convert cluster_summary to tna Objects
+#'
+#' Converts a \code{cluster_summary} object to proper tna objects that can be
+#' used with all functions from the tna package. Creates both a between-cluster
+#' tna model (cluster-level transitions) and within-cluster tna models (internal
+#' transitions within each cluster).
+#'
+#' This is the final step in the MCML workflow, enabling full integration with
+#' the tna package for centrality analysis, bootstrap validation, permutation
+#' tests, and visualization.
+#'
+#' @param x A \code{cluster_summary} object created by \code{\link{cluster_summary}}.
+#'   The cluster_summary should typically be created with \code{type = "tna"} to
+#'   ensure row-normalized transition probabilities. If created with
+#'   \code{type = "raw"}, the raw counts will be passed to \code{tna::tna()}
+#'   which will normalize them.
+#'
+#' @return A \code{cluster_tna} object (S3 class) containing:
+#'   \describe{
+#'     \item{between}{A tna object representing cluster-level transitions.
+#'       Contains \code{$weights} (k x k transition matrix), \code{$inits}
+#'       (initial distribution), and \code{$labels} (cluster names).
+#'       Use this for analyzing how learners/entities move between high-level
+#'       groups or phases.}
+#'     \item{within}{Named list of tna objects, one per cluster. Each tna object
+#'       represents internal transitions within that cluster. Contains
+#'       \code{$weights} (n_i x n_i matrix), \code{$inits} (initial distribution),
+#'       and \code{$labels} (node labels). Clusters with single nodes or zero-row
+#'       nodes are excluded (tna requires positive row sums).}
+#'   }
+#'
+#' @details
+#' ## Requirements
+#'
+#' The tna package must be installed. If not available, the function throws
+#' an error with installation instructions.
+#'
+#' ## Workflow
+#'
+#' \preformatted{
+#' # Full MCML workflow
+#' net <- cograph(edges, nodes = nodes)
+#' net$nodes$clusters <- group_assignments
+#' cs <- cluster_summary(net, type = "tna")
+#' tna_models <- as_tna(cs)
+#'
+#' # Now use tna package functions
+#' plot(tna_models$between)
+#' tna::centrality(tna_models$between)
+#' tna::bootstrap(tna_models$between, R = 1000)
+#'
+#' # Analyze within-cluster patterns
+#' plot(tna_models$within$ClusterA)
+#' tna::centrality(tna_models$within$ClusterA)
+#' }
+#'
+#' ## Excluded Clusters
+#'
+#' A within-cluster tna cannot be created when:
+#' \itemize{
+#'   \item The cluster has only 1 node (no internal transitions possible)
+#'   \item Some nodes in the cluster have no outgoing edges (row sums to 0)
+#' }
+#'
+#' These clusters are silently excluded from \code{$within}. The between-cluster
+#' model still includes all clusters.
+#'
+#' @export
+#' @seealso
+#'   \code{\link{cluster_summary}} to create the input object,
+#'   \code{\link{plot_mcml}} for visualization without conversion,
+#'   \code{tna::tna} for the underlying tna constructor
+#'
+#' @examples
+#' # -----------------------------------------------------
+#' # Basic usage
+#' # -----------------------------------------------------
+#' mat <- matrix(runif(36), 6, 6)
+#' diag(mat) <- 0
+#' rownames(mat) <- colnames(mat) <- LETTERS[1:6]
+#'
+#' clusters <- list(
+#'   G1 = c("A", "B"),
+#'   G2 = c("C", "D"),
+#'   G3 = c("E", "F")
+#' )
+#'
+#' cs <- cluster_summary(mat, clusters, type = "tna")
+#' tna_models <- as_tna(cs)
+#'
+#' # Print summary
+#' tna_models
+#'
+#' # -----------------------------------------------------
+#' # Access components
+#' # -----------------------------------------------------
+#' # Between-cluster tna
+#' tna_models$between
+#' tna_models$between$weights  # 3x3 transition matrix
+#' tna_models$between$inits    # Initial distribution
+#' tna_models$between$labels   # c("G1", "G2", "G3")
+#'
+#' # Within-cluster tnas
+#' names(tna_models$within)    # Which clusters have within models
+#' tna_models$within$G1        # tna for cluster G1
+#' tna_models$within$G1$weights  # 2x2 matrix (A, B)
+#'
+#' # -----------------------------------------------------
+#' # Use with tna package (requires tna)
+#' # -----------------------------------------------------
+#' \dontrun{
+#' # Plot
+#' plot(tna_models$between)
+#' plot(tna_models$within$G1)
+#'
+#' # Centrality analysis
+#' tna::centrality(tna_models$between)
+#'
+#' # Bootstrap validation
+#' boot <- tna::bootstrap(tna_models$between, R = 1000)
+#' summary(boot)
+#'
+#' # Compare clusters
+#' tna::centrality(tna_models$within$G1)
+#' tna::centrality(tna_models$within$G2)
+#' }
+#'
+#' # -----------------------------------------------------
+#' # Check which within-cluster models were created
+#' # -----------------------------------------------------
+#' cs <- cluster_summary(mat, clusters, type = "tna")
+#' tna_models <- as_tna(cs)
+#'
+#' # All cluster names
+#' names(cs$clusters)
+#'
+#' # Clusters with valid within-models
+#' names(tna_models$within)
+#'
+#' # Clusters excluded (single node or zero rows)
+#' setdiff(names(cs$clusters), names(tna_models$within))
+as_tna <- function(x) {
+  UseMethod("as_tna")
+}
+
+#' @export
+as_tna.cluster_summary <- function(x) {
+  if (!requireNamespace("tna", quietly = TRUE)) {
+    stop("Package 'tna' is required for as_tna()", call. = FALSE)
+  }
+
+  # Between-cluster tna
+  between_tna <- tna::tna(x$between$weights, inits = x$between$inits)
+
+  # Within-cluster tnas
+  within_tnas <- lapply(names(x$within), function(cl) {
+    w <- x$within[[cl]]$weights
+    inits <- x$within[[cl]]$inits
+
+    # Skip if matrix has rows that sum to 0 (tna requires positive rows)
+    if (any(rowSums(w) == 0)) {
+      return(NULL)
+    }
+
+    tna::tna(w, inits = inits)
+  })
+  names(within_tnas) <- names(x$within)
+
+  # Remove NULL entries
+  within_tnas <- within_tnas[!vapply(within_tnas, is.null, logical(1))]
+
   structure(
     list(
-      weights = x$tna,
-      inits = x$inits,
-      labels = x$cluster_names
+      between = between_tna,
+      within = within_tnas
     ),
-    type = "relative",
-    class = "tna"
+    class = "cluster_tna"
   )
+}
+
+#' @export
+as_tna.default <- function(x) {
+ if (inherits(x, "tna")) {
+    return(x)
+  }
+  stop("Cannot convert object of class '", class(x)[1], "' to tna", call. = FALSE)
+}
+
+#' @export
+print.cluster_tna <- function(x, ...) {
+  cat("Cluster TNA Models\n")
+  cat("==================\n\n")
+
+  cat("Between-cluster network:\n")
+  cat("  Clusters:", paste(x$between$labels, collapse = ", "), "\n")
+  cat("  Size:", nrow(x$between$weights), "x", ncol(x$between$weights), "\n\n")
+
+  cat("Within-cluster networks:\n")
+  for (cl in names(x$within)) {
+    w <- x$within[[cl]]
+    cat("  ", cl, ": ", nrow(w$weights), " nodes\n", sep = "")
+  }
+
+  if (length(x$within) == 0) {
+    cat("  (none - clusters may have single nodes or zero rows)\n")
+  }
+
+  invisible(x)
 }
 
 #' Normalize cluster specification to list format
@@ -1142,14 +1572,16 @@ lagg <- aggregate_layers
 #' @param method Aggregation method
 #' @return List with comparison results
 #' @export
-verify_with_igraph <- function(x, clusters, method = "sum") {
+verify_with_igraph <- function(x, clusters, method = "sum", type = "raw") {
 
   if (!requireNamespace("igraph", quietly = TRUE)) {
     message("igraph package not available for verification")
     return(NULL)
   }
 
-  our_result <- cluster_summary(x, clusters, method = method, directed = TRUE)
+  # Use type = "raw" by default since igraph contract+simplify gives raw values
+  our_result <- cluster_summary(x, clusters, method = method, directed = TRUE,
+                                type = type)
 
   g <- igraph::graph_from_adjacency_matrix(x, weighted = TRUE, mode = "directed")
 
@@ -1172,13 +1604,16 @@ verify_with_igraph <- function(x, clusters, method = "sum") {
                                                attr = "weight",
                                                sparse = FALSE)
 
+  # igraph doesn't include self-loops, so zero out diagonals for comparison
   diag(igraph_result) <- 0
+  our_between <- our_result$between$weights
+  diag(our_between) <- 0
 
-  matches <- all.equal(our_result$between_weights, igraph_result,
+  matches <- all.equal(our_between, igraph_result,
                        check.attributes = FALSE, tolerance = 1e-10)
 
   list(
-    our_result = our_result$between_weights,
+    our_result = our_result$between$weights,
     igraph_result = igraph_result,
     matches = isTRUE(matches),
     difference = if (!isTRUE(matches)) matches else NULL
@@ -1197,27 +1632,43 @@ verify_igraph <- verify_with_igraph
 print.cluster_summary <- function(x, ...) {
   cat("Cluster Summary\n")
   cat("---------------\n")
-  cat("Method:", x$method, "\n")
-  cat("Clusters:", length(x$cluster_names), "\n")
-  cat("Nodes:", length(x$node_names), "\n")
-  cat("Cluster sizes:", paste(x$cluster_sizes, collapse = ", "), "\n\n")
 
-  cat("Between-cluster TNA:\n")
-  cat("  Inits:", paste(round(x$inits, 3), collapse = ", "), "\n")
-  cat("  Transition matrix:\n")
-  print(round(x$tna, 3))
+  n_clusters <- x$meta$n_clusters
+  n_nodes <- x$meta$n_nodes
+  cluster_names <- names(x$clusters)
+  cluster_sizes <- x$meta$cluster_sizes
 
-  cat("\nWithin-cluster TNA:\n")
-  n <- nrow(x$within_tna)
-  if (n <= 10) {
-    cat("  Inits:", paste(round(x$within_inits, 3), collapse = ", "), "\n")
-    cat("  Transition matrix:\n")
-    print(round(x$within_tna, 3))
+  cat("Type:", x$meta$type, "\n")
+  cat("Method:", x$meta$method, "\n")
+  cat("Clusters:", n_clusters, "\n")
+  cat("Nodes:", n_nodes, "\n")
+  cat("Cluster sizes:", paste(cluster_sizes, collapse = ", "), "\n\n")
+
+  # Between-cluster output
+  bw <- x$between$weights
+  cat("Between-cluster weights (", nrow(bw), "x", ncol(bw), "):\n", sep = "")
+  cat("  Inits:", paste(round(x$between$inits, 3), collapse = ", "), "\n")
+  if (nrow(bw) <= 6) {
+    print(round(bw, 3))
   } else {
-    cat("  Nodes:", n, "(showing first 6)\n")
-    cat("  Inits (first 6):", paste(round(x$within_inits[1:6], 3), collapse = ", "), "...\n")
-    cat("  Transition matrix (6x6 corner):\n")
-    print(round(x$within_tna[1:6, 1:6], 3))
+    cat("  [showing first 6x6 corner]\n")
+    print(round(bw[1:6, 1:6], 3))
+  }
+
+  # Within-cluster output
+  if (!is.null(x$within)) {
+    cat("\nWithin-cluster weights (per-cluster):\n")
+    n_show <- min(3, length(x$within))
+    for (i in seq_len(n_show)) {
+      cl_name <- names(x$within)[i]
+      cl_mat <- x$within[[cl_name]]$weights
+      cat("  ", cl_name, " (", nrow(cl_mat), " nodes)\n", sep = "")
+    }
+    if (length(x$within) > 3) {
+      cat("  ... and", length(x$within) - 3, "more clusters\n")
+    }
+  } else {
+    cat("\nWithin-cluster: not computed\n")
   }
 
   invisible(x)
@@ -1351,14 +1802,15 @@ summarize_network <- function(x,
          "'clusters'/'groups' column to nodes", call. = FALSE)
   }
 
-  # Compute cluster summary
-  cs <- cluster_summary(mat, cluster_list, method = method, directed = directed)
+  # Compute cluster summary with raw aggregation (no normalization)
+  cs <- cluster_summary(mat, cluster_list, method = method, directed = directed,
+                        type = "raw")
 
   # Create cograph_network from between-cluster matrix
-  result <- cograph(cs$between_weights, directed = directed)
+  result <- cograph(cs$between$weights, directed = directed)
 
   # Add cluster sizes to nodes
-  result$nodes$size <- cs$cluster_sizes[match(result$nodes$label, cs$cluster_names)]
+  result$nodes$size <- cs$meta$cluster_sizes[match(result$nodes$label, names(cs$clusters))]
 
   result
 }

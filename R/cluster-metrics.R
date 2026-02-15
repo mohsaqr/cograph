@@ -119,7 +119,7 @@ wagg <- aggregate_weights
 #'       Interpretation: "Given I'm in cluster A, what's the probability
 #'       of transitioning to cluster B?"
 #'       Required for use with tna package functions.
-#'       Diagonal values represent within-cluster retention rates.}
+#'       Diagonal is zero; within-cluster data is in \code{$within}.}
 #'     \item{"raw"}{No normalization. Returns aggregated counts/weights as-is.
 #'       Use for frequency analysis or when you need raw counts.
 #'       Compatible with igraph's contract + simplify output.}
@@ -145,8 +145,8 @@ wagg <- aggregate_weights
 #'       \describe{
 #'         \item{weights}{k x k matrix of cluster-to-cluster weights, where k is
 #'           the number of clusters. Row i, column j contains the aggregated
-#'           weight from cluster i to cluster j. Diagonal contains within-cluster
-#'           totals (self-loops at cluster level). Processing depends on \code{type}.}
+#'           weight from cluster i to cluster j. Diagonal is zero (within-cluster
+#'           transitions are in \code{$within}). Processing depends on \code{type}.}
 #'         \item{inits}{Numeric vector of length k. Initial state distribution
 #'           across clusters, computed from column sums of the original matrix.
 #'           Represents the proportion of incoming edges to each cluster.}
@@ -386,14 +386,8 @@ cluster_summary <- function(x,
       n_j <- length(idx_j)
 
       if (i == j) {
-        # Diagonal: within-cluster total (self-loop at cluster level)
-        if (n_i > 1) {
-          w_ii <- mat[idx_i, idx_i]
-          diag(w_ii) <- 0  # Exclude node self-loops
-          n_possible <- n_i * (n_i - 1)
-          between_raw[i, i] <- aggregate_weights(as.vector(w_ii), method, n_possible)
-        }
-        # Single node cluster: diagonal stays 0
+        # Diagonal stays 0 (no self-loops at cluster level)
+        # Within-cluster transitions are captured in $within
       } else {
         # Off-diagonal: between-cluster
         w_ij <- mat[idx_i, idx_j]
@@ -1604,12 +1598,9 @@ verify_with_igraph <- function(x, clusters, method = "sum", type = "raw") {
                                                attr = "weight",
                                                sparse = FALSE)
 
-  # igraph doesn't include self-loops, so zero out diagonals for comparison
   diag(igraph_result) <- 0
-  our_between <- our_result$between$weights
-  diag(our_between) <- 0
 
-  matches <- all.equal(our_between, igraph_result,
+  matches <- all.equal(our_result$between$weights, igraph_result,
                        check.attributes = FALSE, tolerance = 1e-10)
 
   list(

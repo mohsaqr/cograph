@@ -62,9 +62,8 @@ test_that("cluster_summary works with list input", {
   expect_equal(names(result$clusters), c("A", "B", "C"))
   expect_equal(unname(result$meta$cluster_sizes), c(3, 3, 4))
 
-  # Diagonal contains within-cluster totals (not zeros)
-  # For type="raw", diagonal = sum of within-cluster edges
-  expect_true(all(diag(result$between$weights) >= 0))
+  # Diagonal should be 0 (no self-loops at cluster level)
+  expect_equal(unname(diag(result$between$weights)), c(0, 0, 0))
 
   # Check a specific between value manually
   # A -> B = sum of mat[1:3, 4:6]

@@ -177,6 +177,18 @@ plot_mcml <- function(
   aggregation <- match.arg(aggregation)
   mode <- match.arg(mode)
 
+  # For mode = "tna", show edge labels by default (like tplot/splot with tna)
+  # Check if user explicitly set these parameters
+ explicit_args <- names(match.call())
+  if (mode == "tna") {
+    if (!"edge_labels" %in% explicit_args) {
+      edge_labels <- TRUE
+    }
+    if (!"summary_edge_labels" %in% explicit_args) {
+      summary_edge_labels <- TRUE
+    }
+  }
+
   # ============================================================================
   # Get or compute cluster_summary
   # ============================================================================

@@ -266,12 +266,21 @@ plot_mcml <- function(
   # Between-cluster weights (processed based on type)
   bw <- cs$between$weights
 
-  # For edge labels, use processed or raw weights based on mode
-  # mode = "tna" -> show transition probabilities (processed)
-  # mode = "weights" -> show aggregated raw weights
-  # Since both are in cs$between$weights (which is processed for type="tna")
-  # we need raw weights for mode="weights"
-  sw_labels <- bw  # Use processed (row-normalized) for display
+  # Add self-loop values (within-cluster totals) to diagonal
+  # This represents the total transition probability staying within each cluster
+  if (!is.null(cs$within)) {
+    for (cl_name in names(cs$within)) {
+      if (cl_name %in% rownames(bw)) {
+        within_w <- cs$within[[cl_name]]$weights
+        # Sum all within-cluster transitions (normalized)
+        diag_val <- sum(within_w, na.rm = TRUE) / nrow(within_w)
+        bw[cl_name, cl_name] <- diag_val
+      }
+    }
+  }
+
+  # For edge labels, use processed weights for display
+  sw_labels <- bw
 
   # Expand node_shape to vector if needed
   node_shape <- rep_len(node_shape, n)
@@ -370,14 +379,15 @@ plot_mcml <- function(
     idx <- cluster_idx[[i]]
     n_nodes <- length(idx)
     if (n_nodes == 1) {
-      node_positions[[i]] <- list(x = bx[i], y = by[i])
+      node_positions[[i]] <- list(x = bx[i], y = by[i], angles = pi/2)
     } else {
       na <- pi/2 - (seq_len(n_nodes) - 1) * 2 * pi / n_nodes
       node_x <- node_r * cos(na)
       node_y <- node_r * sin(na) * compress
       node_positions[[i]] <- list(
         x = bx[i] + node_x,
-        y = by[i] + node_y
+        y = by[i] + node_y,
+        angles = na  # Store original angles for label positioning
       )
     }
     # Draw dashed line from each node to summary node
@@ -395,7 +405,10 @@ plot_mcml <- function(
   # TOP LAYER (summary network)
   # ============================================================================
 
-  # Summary edges
+  summary_node_r <- summary_size * 0.04
+  summary_arrow_sz <- summary_arrow_size
+
+  # 1. Draw regular edges (not self-loops)
   if (max_sw > 0) {
     for (i in seq_len(n_clusters)) {
       for (j in seq_len(n_clusters)) {
@@ -404,19 +417,26 @@ plot_mcml <- function(
             (summary_edge_width_range[2] - summary_edge_width_range[1]) *
             bw[i, j] / max_sw
           edge_col <- grDevices::adjustcolor(colors[i], summary_edge_alpha)
+          angle <- atan2(ty[j] - ty[i], tx[j] - tx[i])
+
           if (summary_arrows) {
-            graphics::arrows(tx[i], ty[i], tx[j], ty[j],
-                             col = edge_col, lwd = lwd,
-                             length = summary_arrow_size, angle = 20)
+            tip_x <- tx[j] - summary_node_r * cos(angle)
+            tip_y <- ty[j] - summary_node_r * sin(angle)
+            line_end_x <- tip_x - summary_arrow_sz * cos(angle)
+            line_end_y <- tip_y - summary_arrow_sz * sin(angle)
+            graphics::segments(tx[i], ty[i], line_end_x, line_end_y,
+                               col = edge_col, lwd = lwd)
+            draw_arrow_base(tip_x, tip_y, angle, summary_arrow_sz,
+                            col = edge_col, border = edge_col, lwd = lwd)
           } else {
             graphics::segments(tx[i], ty[i], tx[j], ty[j],
                                col = edge_col, lwd = lwd)
           }
-          # Summary edge labels
+
           if (summary_edge_labels) {
-            mid_x <- (tx[i] + tx[j]) / 2
-            mid_y <- (ty[i] + ty[j]) / 2
-            graphics::text(mid_x, mid_y,
+            lbl_x <- tx[i] + (tx[j] - tx[i]) * 0.35
+            lbl_y <- ty[i] + (ty[j] - ty[i]) * 0.35
+            graphics::text(lbl_x, lbl_y,
                            labels = round(sw_labels[i, j], edge_label_digits),
                            cex = summary_edge_label_size,
                            col = edge_label_color)
@@ -426,23 +446,108 @@ plot_mcml <- function(
     }
   }
 
-  # Summary nodes - use per-cluster shapes
-  summary_pch <- .shape_to_pch(cluster_shape)
+  # 2. Draw summary nodes as PIE CHARTS (self vs other, single color)
+  pie_radius <- 0.35  # Pie chart radius in plot units
+
   for (i in seq_len(n_clusters)) {
-    graphics::points(tx[i], ty[i], pch = summary_pch[i], bg = colors[i],
-                     col = summary_border_color, cex = summary_size,
-                     lwd = summary_border_width)
+    # Self-loop proportion (within-cluster) vs between-cluster
+    self_val <- bw[i, i]
+    other_val <- sum(bw[i, -i])
+    total <- self_val + other_val
+
+    if (total > 0) {
+      self_prop <- self_val / total
+    } else {
+      self_prop <- 0
+    }
+
+    # Draw "other" slice first (light gray background)
+    if (self_prop < 1) {
+      theta <- seq(0, 2 * pi, length.out = 60)
+      graphics::polygon(tx[i] + pie_radius * cos(theta),
+                        ty[i] + pie_radius * sin(theta),
+                        col = "gray90", border = NA)
+    }
+
+    # Draw "self" slice (cluster color) - starts from top
+    if (self_prop > 0.001) {
+      start_angle <- pi / 2
+      end_angle <- start_angle - self_prop * 2 * pi
+      n_pts <- max(10, round(50 * self_prop))
+      angles <- seq(start_angle, end_angle, length.out = n_pts)
+      slice_x <- c(tx[i], tx[i] + pie_radius * cos(angles), tx[i])
+      slice_y <- c(ty[i], ty[i] + pie_radius * sin(angles), ty[i])
+      graphics::polygon(slice_x, slice_y, col = colors[i], border = NA)
+    }
+
+    # Draw border circle on top
+    theta <- seq(0, 2 * pi, length.out = 60)
+    graphics::lines(tx[i] + pie_radius * cos(theta),
+                    ty[i] + pie_radius * sin(theta),
+                    col = summary_border_color, lwd = summary_border_width)
   }
 
-  # Summary labels
+  # 3. Draw loops on summary pies
+  if (max_sw > 0) {
+    loop_radius <- 0.15
+    for (i in seq_len(n_clusters)) {
+      if (bw[i, i] > minimum) {
+        lwd <- summary_edge_width_range[1] +
+          (summary_edge_width_range[2] - summary_edge_width_range[1]) *
+          bw[i, i] / max_sw
+        edge_col <- grDevices::adjustcolor(colors[i], summary_edge_alpha)
+
+        # Loop rotation pointing outward
+        loop_rot <- atan2(ty[i] - mean(ty), tx[i] - mean(tx))
+
+        # Loop center just outside the pie
+        loop_cx <- tx[i] + (pie_radius + loop_radius) * cos(loop_rot)
+        loop_cy <- ty[i] + (pie_radius + loop_radius) * sin(loop_rot)
+
+        # Draw circular arc
+        n_pts <- 40
+        arc_start <- loop_rot + pi + 0.5
+        arc_end <- loop_rot + pi - 0.5
+        if (arc_end < arc_start) arc_end <- arc_end + 2 * pi
+        angles <- seq(arc_start, arc_end, length.out = n_pts)
+        loop_x <- loop_cx + loop_radius * cos(angles)
+        loop_y <- loop_cy + loop_radius * sin(angles)
+
+        graphics::lines(loop_x, loop_y, col = edge_col, lwd = lwd)
+
+        # Arrow at end
+        if (summary_arrows) {
+          n_lp <- length(loop_x)
+          arr_angle <- atan2(loop_y[n_lp] - loop_y[n_lp-1],
+                             loop_x[n_lp] - loop_x[n_lp-1])
+          draw_arrow_base(loop_x[n_lp], loop_y[n_lp], arr_angle,
+                          summary_arrow_sz * 0.8, col = edge_col)
+        }
+
+        # Loop label
+        if (summary_edge_labels) {
+          lbl_x <- loop_cx + loop_radius * 1.3 * cos(loop_rot)
+          lbl_y <- loop_cy + loop_radius * 1.3 * sin(loop_rot)
+          graphics::text(lbl_x, lbl_y,
+                         labels = round(sw_labels[i, i], edge_label_digits),
+                         cex = summary_edge_label_size,
+                         col = edge_label_color)
+        }
+      }
+    }
+  }
+
+  # 4. Summary labels - perpendicular to loop direction (solution 5)
   if (summary_labels) {
     for (i in seq_len(n_clusters)) {
-      graphics::text(tx[i], ty[i],
+      loop_rot <- atan2(ty[i] - mean(ty), tx[i] - mean(tx))
+      perp <- loop_rot + pi/2
+      lbl_x <- tx[i] + 0.45 * cos(perp)
+      lbl_y <- ty[i] + 0.45 * sin(perp)
+      graphics::text(lbl_x, lbl_y,
                      labels = cluster_names[i],
-                     pos = summary_label_position,
                      cex = summary_label_size,
-                     col = summary_label_color,
-                     offset = 0.5)
+                     col = summary_label_color)
     }
   }
 
@@ -506,6 +611,10 @@ plot_mcml <- function(
       }
 
       if (!is.null(within_w)) {
+        # Node visual radius and arrow size
+        node_vis_r <- node_size * 0.04
+        arrow_size <- 0.06
+
         for (j in seq_len(n_nodes)) {
           for (k in seq_len(n_nodes)) {
             if (j != k) {
@@ -513,17 +622,33 @@ plot_mcml <- function(
               if (!is.na(w) && w > minimum) {
                 lwd <- edge_width_range[1] +
                   (edge_width_range[2] - edge_width_range[1]) * w / max_w
-                graphics::segments(nx[j], ny[j], nx[k], ny[k],
-                                   col = grDevices::adjustcolor(colors[i], edge_alpha),
-                                   lwd = lwd)
-                # Within-cluster edge labels
+                edge_col <- grDevices::adjustcolor(colors[i], edge_alpha)
+
+                # Calculate edge angle
+                angle <- atan2(ny[k] - ny[j], nx[k] - nx[j])
+
+                # Arrow tip at node edge
+                tip_x <- nx[k] - node_vis_r * cos(angle)
+                tip_y <- ny[k] - node_vis_r * sin(angle)
+
+                # Line ends at arrow base
+                line_end_x <- tip_x - arrow_size * cos(angle)
+                line_end_y <- tip_y - arrow_size * sin(angle)
+
+                # Draw edge line
+                graphics::segments(nx[j], ny[j], line_end_x, line_end_y,
+                                   col = edge_col, lwd = lwd)
+
+                # Draw filled arrow using splot style
+                draw_arrow_base(tip_x, tip_y, angle, arrow_size,
+                                col = edge_col, border = edge_col, lwd = lwd)
+
+                # Edge label - position at 1/3 along edge (closer to source)
                 if (edge_labels) {
-                  mid_x <- (nx[j] + nx[k]) / 2
-                  mid_y <- (ny[j] + ny[k]) / 2
-                  # Use TNA values if mode = "tna"
-                  w_label <- w
-                  graphics::text(mid_x, mid_y,
-                                 labels = round(w_label, edge_label_digits),
+                  lbl_x <- nx[j] + (nx[k] - nx[j]) * 0.35
+                  lbl_y <- ny[j] + (ny[k] - ny[j]) * 0.35
+                  graphics::text(lbl_x, lbl_y,
+                                 labels = round(w, edge_label_digits),
                                  cex = edge_label_size,
                                  col = edge_label_color)
                 }
@@ -534,12 +659,55 @@ plot_mcml <- function(
       }
     }
 
-    # Nodes - use per-node shapes
-    node_pch <- .shape_to_pch(node_shape[idx])
-    graphics::points(nx, ny, pch = node_pch, bg = colors[i],
-                     col = node_border_color, cex = node_size)
+    # Nodes as PIE CHARTS showing self-transition proportion
+    node_pie_r <- node_size * 0.035  # Pie radius in plot units
 
-    # Node labels - position on outer side of cluster
+    for (ni in seq_along(nx)) {
+      # Get self-transition proportion for this node
+      self_val <- 0
+      other_val <- 1
+      if (!is.null(within_w)) {
+        node_row <- within_w[ni, ]
+        self_val <- within_w[ni, ni]  # Diagonal = self-transition
+        other_val <- sum(node_row) - self_val
+        total <- self_val + other_val
+        if (total > 0) {
+          self_prop <- self_val / total
+        } else {
+          self_prop <- 0
+        }
+      } else {
+        self_prop <- 0
+      }
+
+      # Draw "other" slice (light version of cluster color)
+      if (self_prop < 1) {
+        theta <- seq(0, 2 * pi, length.out = 40)
+        graphics::polygon(nx[ni] + node_pie_r * cos(theta),
+                          ny[ni] + node_pie_r * sin(theta),
+                          col = grDevices::adjustcolor(colors[i], 0.3),
+                          border = NA)
+      }
+
+      # Draw "self" slice (full cluster color)
+      if (self_prop > 0.001) {
+        start_angle <- pi / 2
+        end_angle <- start_angle - self_prop * 2 * pi
+        n_pts <- max(10, round(40 * self_prop))
+        angles <- seq(start_angle, end_angle, length.out = n_pts)
+        slice_x <- c(nx[ni], nx[ni] + node_pie_r * cos(angles), nx[ni])
+        slice_y <- c(ny[ni], ny[ni] + node_pie_r * sin(angles), ny[ni])
+        graphics::polygon(slice_x, slice_y, col = colors[i], border = NA)
+      }
+
+      # Border
+      theta <- seq(0, 2 * pi, length.out = 40)
+      graphics::lines(nx[ni] + node_pie_r * cos(theta),
+                      ny[ni] + node_pie_r * sin(theta),
+                      col = node_border_color, lwd = 1.5)
+    }
+
+    # Node labels - position on side (left or right only)
     if (isTRUE(show_labels)) {
       lbl_text <- display_labels[idx]
       if (!is.null(label_abbrev)) {
@@ -547,24 +715,13 @@ plot_mcml <- function(
       }
       lbl_cex <- if (is.null(label_size)) 0.6 else label_size
 
-      # Calculate label position for each node (outward from cluster center)
-      # pos: 1=below, 2=left, 3=above, 4=right
-      cx <- bx[i]  # cluster center x
-      cy <- by[i]  # cluster center y
+      # Use original angles for outward direction, but only left or right
+      node_angles <- node_positions[[i]]$angles
       for (ni in seq_along(nx)) {
-        # Angle from cluster center to node
-        angle <- atan2(ny[ni] - cy, nx[ni] - cx)
-        # Convert angle to pos (outward direction)
-        # Right: -pi/4 to pi/4 -> pos=4
-        # Top: pi/4 to 3*pi/4 -> pos=3
-        # Left: 3*pi/4 to pi or -pi to -3*pi/4 -> pos=2
-        # Bottom: -3*pi/4 to -pi/4 -> pos=1
-        if (angle >= -pi/4 && angle < pi/4) {
+        angle <- node_angles[ni]
+        # Only use left (pos=2) or right (pos=4) based on angle
+        if (abs(angle) < pi/2) {
           lbl_pos <- 4  # right
-        } else if (angle >= pi/4 && angle < 3*pi/4) {
-          lbl_pos <- 3  # above
-        } else if (angle >= -3*pi/4 && angle < -pi/4) {
-          lbl_pos <- 1  # below
         } else {
           lbl_pos <- 2  # left
         }

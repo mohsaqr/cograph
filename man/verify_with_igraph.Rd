@@ -15,6 +15,8 @@ verify_igraph(x, clusters, method = "sum", type = "raw")
 \item{clusters}{Cluster specification}
 
 \item{method}{Aggregation method}
+
+\item{type}{Normalization type. Defaults to "raw" for igraph compatibility.}
 }
 \value{
 List with comparison results

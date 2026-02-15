@@ -1564,6 +1564,7 @@ lagg <- aggregate_layers
 #' @param x Adjacency matrix
 #' @param clusters Cluster specification
 #' @param method Aggregation method
+#' @param type Normalization type. Defaults to "raw" for igraph compatibility.
 #' @return List with comparison results
 #' @export
 verify_with_igraph <- function(x, clusters, method = "sum", type = "raw") {

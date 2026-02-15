@@ -78,7 +78,7 @@ transition probabilities suitable for Markov chain analysis.
 Interpretation: "Given I'm in cluster A, what's the probability
 of transitioning to cluster B?"
 Required for use with tna package functions.
-Diagonal values represent within-cluster retention rates.}
+Diagonal is zero; within-cluster data is in \code{$within}.}
 \item{"raw"}{No normalization. Returns aggregated counts/weights as-is.
 Use for frequency analysis or when you need raw counts.
 Compatible with igraph's contract + simplify output.}
@@ -105,8 +105,8 @@ A \code{cluster_summary} object (S3 class) containing:
 \describe{
 \item{weights}{k x k matrix of cluster-to-cluster weights, where k is
 the number of clusters. Row i, column j contains the aggregated
-weight from cluster i to cluster j. Diagonal contains within-cluster
-totals (self-loops at cluster level). Processing depends on \code{type}.}
+weight from cluster i to cluster j. Diagonal is zero (within-cluster
+transitions are in \code{$within}). Processing depends on \code{type}.}
 \item{inits}{Numeric vector of length k. Initial state distribution
 across clusters, computed from column sums of the original matrix.
 Represents the proportion of incoming edges to each cluster.}

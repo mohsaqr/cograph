@@ -138,6 +138,7 @@ splot(
   legend_node_sizes = FALSE,
   groups = NULL,
   node_names = NULL,
+  i = NULL,
   filetype = "default",
   filename = "splot",
   width = 7,
@@ -153,6 +154,9 @@ splot(
 \item A data frame with edge list (from, to, optional weight columns)
 \item An igraph object
 \item A cograph_network object
+\item A tna object (from tna package)
+\item A group_tna object (list of tna objects from tna package).
+Use parameter \code{i} to select a specific group, or omit to plot all groups.
 }}
 
 \item{layout}{Layout algorithm: "circle", "spring", "groups", or a matrix
@@ -474,6 +478,10 @@ looks similar to qgraph vsize=6, or "legacy" to preserve pre-v2.0 behavior.}
 \item{groups}{Group assignments for node coloring/legend.}
 
 \item{node_names}{Alternative names for legend (separate from labels).}
+
+\item{i}{Group index or name when x is a group_tna object. If NULL (default),
+plots all groups in a grid. If specified (e.g., i = 1 or i = "Treatment"),
+plots only that group.}
 
 \item{filetype}{Output format: "default" (screen), "png", "pdf", "svg", "jpeg", "tiff".}
 

@@ -15,6 +15,9 @@ NULL
 #'   - A data frame with edge list (from, to, optional weight columns)
 #'   - An igraph object
 #'   - A cograph_network object
+#'   - A tna object (from tna package)
+#'   - A group_tna object (list of tna objects from tna package).
+#'     Use parameter `i` to select a specific group, or omit to plot all groups.
 #' @param layout Layout algorithm: "circle", "spring", "groups", or a matrix
 #'   of x,y coordinates, or an igraph layout function. Also supports igraph
 #'   two-letter codes: "kk", "fr", "drl", "mds", "ni", etc.
@@ -211,6 +214,9 @@ NULL
 #' @param legend_node_sizes Logical: show node size scale in legend?
 #' @param groups Group assignments for node coloring/legend.
 #' @param node_names Alternative names for legend (separate from labels).
+#' @param i Group index or name when x is a group_tna object. If NULL (default),
+#'   plots all groups in a grid. If specified (e.g., i = 1 or i = "Treatment"),
+#'   plots only that group.
 #'
 #' @param filetype Output format: "default" (screen), "png", "pdf", "svg", "jpeg", "tiff".
 #' @param filename Output filename (without extension).
@@ -477,6 +483,9 @@ splot <- function(
     groups = NULL,
     node_names = NULL,
 
+    # Group selection (for group_tna)
+    i = NULL,
+
     # Output
     filetype = "default",
     filename = "splot",
@@ -506,6 +515,58 @@ splot <- function(
       call_args[[nm]] <- dots[[nm]]
     }
     return(do.call(splot, call_args))
+  }
+
+  # Handle group_tna objects (list of tna objects from tna package)
+  if (inherits(x, "group_tna")) {
+    n_groups <- length(x)
+    group_names <- names(x)
+    if (is.null(group_names)) group_names <- paste0("Group ", seq_len(n_groups))
+
+    # If i is specified, plot just that group
+    if (!is.null(i)) {
+      # Resolve group index
+      if (is.character(i)) {
+        idx <- match(i, group_names)
+        if (is.na(idx)) {
+          stop("Group '", i, "' not found. Available groups: ",
+               paste(group_names, collapse = ", "), call. = FALSE)
+        }
+      } else {
+        idx <- as.integer(i)
+        if (idx < 1 || idx > n_groups) {
+          stop("Group index ", idx, " out of range. Available: 1 to ", n_groups, call. = FALSE)
+        }
+      }
+
+      # Extract single tna object
+      tna_obj <- x[[idx]]
+
+      # Set title to group name if not provided
+      if (is.null(title)) title <- group_names[idx]
+
+      # Recursively call splot with tna object
+      return(splot(tna_obj, title = title, layout = layout, directed = directed,
+                   seed = seed, theme = theme, ...))
+    }
+
+    # No i specified: plot all groups in a grid
+    # Calculate grid dimensions
+    n_cols <- ceiling(sqrt(n_groups))
+    n_rows <- ceiling(n_groups / n_cols)
+
+    # Save current par and restore on exit
+    old_par <- par(mfrow = c(n_rows, n_cols), mar = c(1, 1, 2, 1))
+    on.exit(par(old_par), add = TRUE)
+
+    # Plot each group
+    for (idx in seq_len(n_groups)) {
+      group_title <- if (is.null(title)) group_names[idx] else paste(title, "-", group_names[idx])
+      splot(x[[idx]], title = group_title, layout = layout, directed = directed,
+            seed = seed, theme = theme, ...)
+    }
+
+    return(invisible(NULL))
   }
 
   # ============================================

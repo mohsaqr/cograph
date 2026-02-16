@@ -10,7 +10,8 @@ layout_oval(
   order = NULL,
   start_angle = pi/2,
   clockwise = TRUE,
-  rotation = 0
+  rotation = 0,
+  ...
 )
 }
 \arguments{

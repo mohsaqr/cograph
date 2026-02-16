@@ -17,7 +17,8 @@ layout_spring(
   area = 1.5,
   gravity = 0,
   init = c("random", "circular"),
-  cooling_mode = c("exponential", "vcf", "linear")
+  cooling_mode = c("exponential", "vcf", "linear"),
+  ...
 )
 }
 \arguments{

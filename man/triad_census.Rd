@@ -35,3 +35,20 @@ diag(mat) <- 0
 triad_census(mat)
 
 }
+\seealso{
+\code{\link[=motif_census]{motif_census()}} for statistical significance testing,
+\code{\link[=extract_triads]{extract_triads()}} to get individual triads with node labels
+
+Other motifs: 
+\code{\link{extract_motifs}()},
+\code{\link{extract_motifs_temporal}()},
+\code{\link{extract_triads}()},
+\code{\link{get_edge_list}()},
+\code{\link{motif_census}()},
+\code{\link{plot.cograph_motif_analysis}()},
+\code{\link{plot.cograph_motifs}()},
+\code{\link{plot.cograph_temporal_motifs}()},
+\code{\link{plot.cograph_triad_persistence}()},
+\code{\link{triad_persistence}()}
+}
+\concept{motifs}

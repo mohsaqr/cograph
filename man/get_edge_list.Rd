@@ -40,3 +40,20 @@ agg_edges <- get_edge_list(Mod, by_individual = FALSE)
 }
 
 }
+\seealso{
+\code{\link[=extract_motifs]{extract_motifs()}} for motif analysis using edge lists,
+\code{\link[=extract_motifs_temporal]{extract_motifs_temporal()}} for temporal motif analysis
+
+Other motifs: 
+\code{\link{extract_motifs}()},
+\code{\link{extract_motifs_temporal}()},
+\code{\link{extract_triads}()},
+\code{\link{motif_census}()},
+\code{\link{plot.cograph_motif_analysis}()},
+\code{\link{plot.cograph_motifs}()},
+\code{\link{plot.cograph_temporal_motifs}()},
+\code{\link{plot.cograph_triad_persistence}()},
+\code{\link{triad_census}()},
+\code{\link{triad_persistence}()}
+}
+\concept{motifs}

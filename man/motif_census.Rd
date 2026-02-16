@@ -60,3 +60,21 @@ print(m)
 plot(m)
 
 }
+\seealso{
+\code{\link[=extract_motifs]{extract_motifs()}} for detailed triad extraction with filtering,
+\code{\link[=triad_census]{triad_census()}} for simple MAN counts, \code{\link[=extract_triads]{extract_triads()}} to get
+individual triads with node labels, \code{\link[=plot.cograph_motifs]{plot.cograph_motifs()}} for plotting
+
+Other motifs: 
+\code{\link{extract_motifs}()},
+\code{\link{extract_motifs_temporal}()},
+\code{\link{extract_triads}()},
+\code{\link{get_edge_list}()},
+\code{\link{plot.cograph_motif_analysis}()},
+\code{\link{plot.cograph_motifs}()},
+\code{\link{plot.cograph_temporal_motifs}()},
+\code{\link{plot.cograph_triad_persistence}()},
+\code{\link{triad_census}()},
+\code{\link{triad_persistence}()}
+}
+\concept{motifs}

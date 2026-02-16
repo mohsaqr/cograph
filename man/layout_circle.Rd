@@ -4,7 +4,7 @@
 \alias{layout_circle}
 \title{Circular Layout}
 \usage{
-layout_circle(network, order = NULL, start_angle = pi/2, clockwise = TRUE)
+layout_circle(network, order = NULL, start_angle = pi/2, clockwise = TRUE, ...)
 }
 \arguments{
 \item{network}{A CographNetwork object.}

@@ -1,5 +1,16 @@
 # Project Learnings
 
+### 2026-02-16
+- [motifs refactor]: Split `R/motifs.R` (3,220 lines) into 5 files totaling 2,988 lines:
+  - `R/motifs-data.R` (127 lines) - shared constants: triad patterns (2 versions), MAN descriptions, pattern filters, cache env, ggplot theme helper
+  - `R/motifs.R` (767 lines) - core: motif_census, triad_census, extract_triads, get_edge_list + classify/lookup/count helpers
+  - `R/motifs-extract.R` (611 lines) - extract_motifs + print/plot methods
+  - `R/motifs-plot.R` (435 lines) - shared viz helpers: .plot_triad_networks, .plot_motif_patterns, .plot_motifs_bar/heatmap/network, arrow helpers
+  - `R/motifs-temporal.R` (1,048 lines) - extract_motifs_temporal, triad_persistence + print/plot methods + helper functions
+- [triad patterns]: Two distinct versions exist - visual (column-major, no byrow) for plotting and canonical (byrow=TRUE) for igraph-verified lookup classification. Must not unify them.
+- [for-loop vectorization]: Converted ~12 for-loops to lapply/vapply/vectorized ops. Skipped: .build_triad_lookup (cached, 64 iters), plotting render loops (sequential), permutation test loop (complex random stream dependency).
+- [ggplot theme dedup]: Created `.motifs_ggplot_theme(base_size)` returning `theme_minimal + bold title` as shared base; each plot adds specific overrides on top.
+
 ### 2026-02-15
 - [as_tna refactored]: **Breaking change** - `as_tna()` now returns `cluster_tna` object with both between and within tna models:
   - `$between`: tna object for cluster-level transitions (uses `tna::tna()`)
@@ -95,6 +106,22 @@
 - [membership/modularity generics]: `membership()` and `modularity()` generics come from igraph, not cograph. In tests without `library(igraph)`, call methods directly: `membership.cograph_communities(comm)`.
 - [expect_s3_class info]: `expect_s3_class()` does NOT accept an `info` parameter (unlike `expect_equal()`). Remove it.
 - [splot groups param]: `splot()` captures `groups` as a formal parameter for node coloring. It does NOT pass `groups` to the layout. Use pre-computed coords with `layout_groups()` instead.
+
+### 2026-02-17
+- [plot_time_line]: New exported function in `R/plot-timeline.R` for cluster timeline visualization:
+  - Clusters arranged side-by-side with ellipse shells, within-cluster directed edges, pie chart nodes
+  - Between-cluster edges: curved beziers connecting adjacent clusters only, top nodes curve up, bottom nodes curve down (style 4 "split")
+  - `orientation = "horizontal"` (clusters left-to-right) or `"vertical"` (top-to-bottom)
+  - `layers` parameter: named list of weight matrices for multi-layer stacking with dashed cross-layer connections
+  - `between_minimum` threshold to control density of between-cluster edges (default 0.10)
+  - `between_curve_strength` controls how much curves bow outward (default 0.8)
+  - `global_scale = TRUE` normalizes edge widths across all layers consistently
+  - Returns cluster_summary (single layer) or list of cluster_summary objects (multi-layer)
+  - 27 tests in `tests/testthat/test-plot-timeline.R`
+- [between-cluster edge styles]: Prototyped 4 styles for between-cluster edges:
+  1. Curved bundled (arcs upward) 2. Gradient (source→target color) 3. Tapered ribbon 4. Bezier arcs (horizontal tangent)
+  - User selected style 4 variant: split curves (top up, bottom down)
+- [prototype iteration]: Extensive prototyping in `tmp/multilayer_prototype.Rmd` — iterated through ~15 versions before converging on final design. Key decisions: vertical ellipse shells, 7 nodes per cluster, adjacent-only between edges, split curved beziers, no summary layer needed.
 
 ### 2026-02-14
 - [label resolution]: Node labels now use priority order: `labels` > `label` > identifier. The `labels` column takes precedence when both exist. Updated in `get_labels()`, `resolve_labels()`, `render_node_labels_grid()`, and `CographNetwork.node_labels`.

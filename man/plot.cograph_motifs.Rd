@@ -40,3 +40,19 @@ plot(m)
 plot(m, type = "network")
 
 }
+\seealso{
+\code{\link[=motif_census]{motif_census()}} for the analysis that produces this object
+
+Other motifs: 
+\code{\link{extract_motifs}()},
+\code{\link{extract_motifs_temporal}()},
+\code{\link{extract_triads}()},
+\code{\link{get_edge_list}()},
+\code{\link{motif_census}()},
+\code{\link{plot.cograph_motif_analysis}()},
+\code{\link{plot.cograph_temporal_motifs}()},
+\code{\link{plot.cograph_triad_persistence}()},
+\code{\link{triad_census}()},
+\code{\link{triad_persistence}()}
+}
+\concept{motifs}

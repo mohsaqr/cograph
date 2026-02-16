@@ -31,7 +31,11 @@ NULL
 layout_groups <- function(network, groups, group_positions = NULL,
                           inner_radius = 0.15, outer_radius = 0.35) {
 
-  n <- network$n_nodes
+  n <- if (inherits(network, "cograph_network") && !inherits(network, "CographNetwork")) {
+    n_nodes(network)
+  } else {
+    network$n_nodes
+  }
 
   if (n == 0) {
     return(data.frame(x = numeric(0), y = numeric(0)))

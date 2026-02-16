@@ -19,7 +19,7 @@ NULL
 #' net <- CographNetwork$new(adj)
 #' coords <- layout_circle(net)
 layout_circle <- function(network, order = NULL, start_angle = pi/2,
-                          clockwise = TRUE) {
+                          clockwise = TRUE, ...) {
   # Get node count (support both R6 and S3 cograph_network)
   n <- if (inherits(network, "cograph_network")) {
     n_nodes(network)

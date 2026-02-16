@@ -68,6 +68,34 @@
 - [plot_mcml]: Added 22 new parameters for full visualization control. Summary labels now shown by default (`summary_labels = TRUE`). Arrows shown by default on summary edges (`summary_arrows = TRUE`). All hardcoded values (edge widths, alphas, layout multipliers) now parameterized.
 - [cluster_summary alignment]: Aligned `cluster_summary()` with `mcml()` structure. Now includes `tna` (row-normalized transition matrix), `inits` (initial state distribution), and `as_tna` parameter. **Breaking change**: renamed `between` → `between_weights` and `within` → `within_weights` for consistency with mcml. Both functions now return identical `tna` and `inits` fields.
 
+### 2026-02-16
+- [motifs tests]: Created comprehensive test file `test-coverage-motifs-41.R` (898 lines, 39 tests) targeting:
+  - `get_edge_list()` function with tna objects (not tested elsewhere)
+  - `extract_motifs()` with tna objects and various level/significance options
+  - `.motif_census_undirected()` additional method coverage
+  - `.generate_random_graph()` edge cases for both directed/undirected
+  - `plot.cograph_motifs` network type rendering all standard triads
+  - `extract_triads()` combined filter edge cases
+  - `plot.cograph_motif_analysis` spacing, n > nrow, types edge cases
+  - `.plot_motif_patterns` various type counts
+  - `extract_motifs_temporal` format auto-detection and step > window_size
+  - `tna_windows` integration tests
+  - `triad_persistence` status classification and edge_weight scaling
+  - `plot.cograph_triad_persistence` fill/normalize/timeline options
+  - `.classify_triads_vectorized` all 16 MAN types
+  - Error handling for missing columns and invalid inputs
+  - Full workflow integration test
+  - Regression tests for reproducibility
+- [empty test fix]: Tests with conditional `if (!is.null(result))` blocks need at least one expect_* call outside the block to avoid "empty test" warnings from testthat.
+- [layout ... fix]: All layout functions (circle, oval, spring) now accept `...` to avoid "unused argument" errors when `do.call` passes extra params like `node_group`. This fixed `plot.cograph_communities` and `splot` with `node_group`.
+- [CographLayout in compute_layout]: `compute_layout_for_cograph()` now handles CographLayout objects directly instead of wrapping them in another `CographLayout$new()` (which set `.type` to a non-atomic R6 object, causing `== "custom"` comparison failure).
+- [layout_groups S3 support]: `layout_groups()` now handles S3 `cograph_network` objects using `n_nodes()` instead of `network$n_nodes` field access.
+- [community_optimal hang]: Never test `community_optimal` on dense matrices >50 nodes — `igraph::cluster_optimal` is NP-hard and will hang. Use sparse graphs (e.g., ring) to trigger the >50 warning.
+- [igraph callback signatures]: igraph `cluster_leading_eigen` callback now passes more args than documented. Always use `...` in callback functions.
+- [membership/modularity generics]: `membership()` and `modularity()` generics come from igraph, not cograph. In tests without `library(igraph)`, call methods directly: `membership.cograph_communities(comm)`.
+- [expect_s3_class info]: `expect_s3_class()` does NOT accept an `info` parameter (unlike `expect_equal()`). Remove it.
+- [splot groups param]: `splot()` captures `groups` as a formal parameter for node coloring. It does NOT pass `groups` to the layout. Use pre-computed coords with `layout_groups()` instead.
+
 ### 2026-02-14
 - [label resolution]: Node labels now use priority order: `labels` > `label` > identifier. The `labels` column takes precedence when both exist. Updated in `get_labels()`, `resolve_labels()`, `render_node_labels_grid()`, and `CographNetwork.node_labels`.
 - [cograph support]: `cluster_summary()` now accepts cograph_network and tna objects directly, extracting the weight matrix automatically. Uses `x$weights` for cograph_network (efficient) or `to_matrix()` as fallback.

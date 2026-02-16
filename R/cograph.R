@@ -87,6 +87,8 @@ compute_layout_for_cograph <- function(net, layout = "spring", seed = 42, ...) {
     if (ncol(coords) >= 2) {
       names(coords)[1:2] <- c("x", "y")
     }
+  } else if (inherits(layout, "CographLayout")) {
+    coords <- layout$compute(temp_net, ...)
   } else {
     layout_obj <- CographLayout$new(layout, ...)
     coords <- layout_obj$compute(temp_net, ...)

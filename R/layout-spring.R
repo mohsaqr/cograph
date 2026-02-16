@@ -52,7 +52,7 @@ layout_spring <- function(network, iterations = 200, cooling = 0.95,
                           initial = NULL, max_displacement = NULL,
                           anchor_strength = 0, area = 1.5, gravity = 0,
                           init = c("random", "circular"),
-                          cooling_mode = c("exponential", "vcf", "linear")) {
+                          cooling_mode = c("exponential", "vcf", "linear"), ...) {
 
   # Match arguments
   init <- match.arg(init)

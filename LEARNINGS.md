@@ -6,8 +6,13 @@
   - `$layout`, `$layers`, `$clusters`, `$groups` removed as top-level fields
   - `.create_cograph_network()` now takes `meta = list()` instead of separate `source`, `tna`, `layout_info`, `layers`, `clusters`, `groups` params
   - Layout coordinates stored in `$nodes$x` and `$nodes$y`, not `$layout`
-  - Updated test files: `test-coverage-class-network-40.R`, `test-coverage-class-network-41.R`, `test-coverage-render-grid-40.R`, `test-coverage-render-grid-41.R`, `test-coverage-render-grid-42.R`, `test-coverage-methods-print-40.R`, `test-coverage-methods-print-42.R`
+  - New `$data` field stores original estimation data (sequence matrix from tna, edge list df, or NULL)
+  - New exported getters: `get_source()`, `get_data()`, `get_meta()`
+  - Updated 31 files: 7 R source, 3 man pages, 14 test files, NAMESPACE, LEARNINGS
 - [print method rewrite]: `print.cograph_network` now uses getters: `n_nodes(x)`, `n_edges(x)`, `is_directed(x)`, `get_edges(x)`, `get_nodes(x)`. Old formats (attr-based, R6 wrapper, fallback "Cograph network object") are removed. Test fake objects must have `$nodes` (df), `$edges` (df with weight), `$directed` (logical), optional `$meta`, `$data`.
+- [mock tna objects for testing]: Replaced all `skip_if_not_installed("tna")` guards in `test-coverage-input-tna-40.R` with mock constructors `mock_tna()` and `mock_group_tna()`. tna structure is simple: `list(weights, labels, inits, data)` with class `c("tna", "list")`. group_tna: named list of tna objects with class `c("group_tna", "list")`. This gives 100% coverage without optional deps.
+- [covr non-exported functions]: `covr::package_coverage(type = "none", code = ...)` with `library(pkg)` only exposes exported functions. Non-exported functions (like `parse_tna`, `.create_cograph_network`) aren't accessible to tests. Fix: add `attach(loadNamespace("cograph"), name = "cograph_ns", warn.conflicts = FALSE)` to the covr code string.
+- [CographLayout in as.character]: `compute_layout_for_cograph()` must type-check `layout` before calling `as.character()` — CographLayout R6 objects are environments and `as.character(env)` errors. Use `if (inherits(layout, "CographLayout")) layout$name` instead.
 
 ### 2026-02-16
 - [motifs refactor]: Split `R/motifs.R` (3,220 lines) into 5 files totaling 2,988 lines:

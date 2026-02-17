@@ -245,11 +245,11 @@ test_that("full workflow is reproducible with seed", {
     cograph(layout = "spring", seed = 42) |>
     sn_nodes(fill = "steelblue")
 
-  layout1 <- net1$layout
-  layout2 <- net2$layout
+  nodes1 <- get_nodes(net1)
+  nodes2 <- get_nodes(net2)
 
-  expect_equal(layout1$x, layout2$x)
-  expect_equal(layout1$y, layout2$y)
+  expect_equal(nodes1$x, nodes2$x)
+  expect_equal(nodes1$y, nodes2$y)
 })
 
 test_that("sn_layout preserves seed reproducibility", {
@@ -258,11 +258,11 @@ test_that("sn_layout preserves seed reproducibility", {
   net1 <- cograph(adj) |> sn_layout("spring", seed = 123)
   net2 <- cograph(adj) |> sn_layout("spring", seed = 123)
 
-  layout1 <- net1$layout
-  layout2 <- net2$layout
+  nodes1 <- get_nodes(net1)
+  nodes2 <- get_nodes(net2)
 
-  expect_equal(layout1$x, layout2$x)
-  expect_equal(layout1$y, layout2$y)
+  expect_equal(nodes1$x, nodes2$x)
+  expect_equal(nodes1$y, nodes2$y)
 })
 
 # ============================================

@@ -1,5 +1,14 @@
 # Project Learnings
 
+### 2026-02-17
+- [cograph_network restructuring]: Field paths changed in the lean cograph_network object:
+  - `$source` → `$meta$source`, `$tna` → `$meta$tna`, `$layout_info` → `$meta$layout`
+  - `$layout`, `$layers`, `$clusters`, `$groups` removed as top-level fields
+  - `.create_cograph_network()` now takes `meta = list()` instead of separate `source`, `tna`, `layout_info`, `layers`, `clusters`, `groups` params
+  - Layout coordinates stored in `$nodes$x` and `$nodes$y`, not `$layout`
+  - Updated test files: `test-coverage-class-network-40.R`, `test-coverage-class-network-41.R`, `test-coverage-render-grid-40.R`, `test-coverage-render-grid-41.R`, `test-coverage-render-grid-42.R`, `test-coverage-methods-print-40.R`, `test-coverage-methods-print-42.R`
+- [print method rewrite]: `print.cograph_network` now uses getters: `n_nodes(x)`, `n_edges(x)`, `is_directed(x)`, `get_edges(x)`, `get_nodes(x)`. Old formats (attr-based, R6 wrapper, fallback "Cograph network object") are removed. Test fake objects must have `$nodes` (df), `$edges` (df with weight), `$directed` (logical), optional `$meta`, `$data`.
+
 ### 2026-02-16
 - [motifs refactor]: Split `R/motifs.R` (3,220 lines) into 5 files totaling 2,988 lines:
   - `R/motifs-data.R` (127 lines) - shared constants: triad patterns (2 versions), MAN descriptions, pattern filters, cache env, ggplot theme helper

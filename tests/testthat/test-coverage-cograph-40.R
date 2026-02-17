@@ -121,7 +121,7 @@ test_that("compute_layout_for_cograph uses CographLayout for built-in layouts", 
   result <- cograph:::compute_layout_for_cograph(net, layout = "circle", seed = 42)
 
   expect_s3_class(result, "cograph_network")
-  expect_equal(result$layout_info$name, "circle")
+  expect_equal(result$meta$layout$name, "circle")
   expect_false(all(is.na(result$nodes$x)))
 })
 
@@ -148,7 +148,7 @@ test_that("cograph handles custom coordinate matrix layout", {
 
   expect_s3_class(result, "cograph_network")
   # The coords should be stored
-  expect_true(!is.null(result$layout))
+  expect_false(all(is.na(result$nodes$x)))
 })
 
 test_that("cograph handles custom coordinate data.frame layout", {
@@ -217,7 +217,7 @@ test_that("sn_layout handles custom coordinate matrix", {
   result <- sn_layout(net, custom_coords)
 
   expect_s3_class(result, "cograph_network")
-  expect_equal(result$layout_info$name, "custom")
+  expect_equal(result$meta$layout$name, "custom")
 })
 
 test_that("sn_layout handles custom coordinate data.frame", {
@@ -419,14 +419,14 @@ test_that("cograph correctly identifies matrix source type", {
   mat <- create_test_matrix(3)
   net <- cograph(mat)
 
-  expect_equal(net$source, "matrix")
+  expect_equal(net$meta$source, "matrix")
 })
 
 test_that("cograph correctly identifies edgelist source type", {
   edges <- data.frame(from = c("A", "B"), to = c("B", "C"))
   net <- cograph(edges)
 
-  expect_equal(net$source, "edgelist")
+  expect_equal(net$meta$source, "edgelist")
 })
 
 # =============================================================================
@@ -437,9 +437,9 @@ test_that("cograph stores layout info with name and seed", {
   mat <- create_test_matrix(3)
   net <- cograph(mat, layout = "circle", seed = 123)
 
-  expect_true(!is.null(net$layout_info))
-  expect_equal(net$layout_info$name, "circle")
-  expect_equal(net$layout_info$seed, 123)
+  expect_true(!is.null(net$meta$layout))
+  expect_equal(net$meta$layout$name, "circle")
+  expect_equal(net$meta$layout$seed, 123)
 })
 
 test_that("custom function layout stores 'custom_function' as name", {
@@ -451,7 +451,7 @@ test_that("custom function layout stores 'custom_function' as name", {
   custom_fn <- igraph::layout_in_circle
   net <- cograph(mat, layout = custom_fn, seed = 42)
 
-  expect_equal(net$layout_info$name, "custom_function")
+  expect_equal(net$meta$layout$name, "custom_function")
 })
 
 # =============================================================================
@@ -486,8 +486,8 @@ test_that("sn_layout updates layout_info with new layout", {
   # Change layout
   net2 <- sn_layout(net, "circle", seed = 99)
 
-  expect_equal(net2$layout_info$name, "circle")
-  expect_equal(net2$layout_info$seed, 99)
+  expect_equal(net2$meta$layout$name, "circle")
+  expect_equal(net2$meta$layout$seed, 99)
 })
 
 test_that("sn_layout updates node coordinates", {
@@ -568,7 +568,7 @@ test_that("compute_layout_for_cograph handles igraph function when available", {
   )
 
   expect_s3_class(result, "cograph_network")
-  expect_equal(result$layout_info$name, "custom_function")
+  expect_equal(result$meta$layout$name, "custom_function")
 })
 
 test_that("compute_layout_for_cograph handles igraph layout name when available", {
@@ -613,7 +613,7 @@ test_that("sn_layout handles igraph two-letter code when available", {
   result <- sn_layout(net, "fr", seed = 42)  # Fruchterman-Reingold
 
   expect_s3_class(result, "cograph_network")
-  expect_equal(result$layout_info$name, "fr")
+  expect_equal(result$meta$layout$name, "fr")
 })
 
 test_that("sn_layout handles igraph_ prefix layouts when available", {
@@ -625,7 +625,7 @@ test_that("sn_layout handles igraph_ prefix layouts when available", {
   result <- sn_layout(net, "igraph_circle", seed = 42)
 
   expect_s3_class(result, "cograph_network")
-  expect_equal(result$layout_info$name, "igraph_circle")
+  expect_equal(result$meta$layout$name, "igraph_circle")
 })
 
 test_that("cograph handles directed flag override", {

@@ -150,7 +150,7 @@ parse_group_tna <- function(group_tna_obj, i = 1, directed = NULL) {
 #' }
 is_tna_network <- function(x) {
   (inherits(x, "cograph_network") || inherits(x, "CographNetwork")) &&
-    !is.null(x$tna) &&
-    !is.null(x$tna$type)
+    !is.null(x$meta$tna) &&
+    !is.null(x$meta$tna$type)
 }
 

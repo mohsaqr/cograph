@@ -100,11 +100,16 @@ compute_layout_for_cograph <- function(net, layout = "spring", seed = 42, ...) {
 
   # Update network directly
   net$nodes <- nodes
-  net$layout <- coords
-  net$layout_info <- list(
-    name = if (is.function(layout)) "custom_function" else as.character(layout),
-    seed = seed
-  )
+  layout_name <- if (is.function(layout)) {
+    "custom_function"
+  } else if (inherits(layout, "CographLayout")) {
+    layout$name %||% "custom"
+  } else if (is.character(layout)) {
+    layout
+  } else {
+    "custom"
+  }
+  net$meta$layout <- list(name = layout_name, seed = seed)
 
   net
 }
@@ -277,16 +282,23 @@ cograph <- function(input, layout = NULL, directed = NULL,
     )
   }
 
+  # Capture raw data for $data field
+  raw_data <- if (inherits(input, "tna")) {
+    input$data
+  } else if (is.data.frame(input)) {
+    input
+  } else {
+    NULL
+  }
+
   # Create lean network using simplified constructor
   .create_cograph_network(
     nodes = nodes_with_layout,
     edges = network$get_edges(),
     directed = network$is_directed,
-    source = source_type,
-    layout = coords,
-    layout_info = layout_info,
-    tna = tna_meta,
-    weights = weights_matrix
+    meta = list(source = source_type, layout = layout_info, tna = tna_meta),
+    weights = weights_matrix,
+    data = raw_data
   )
 }
 
@@ -404,8 +416,7 @@ sn_layout <- function(network, layout, seed = 42, ...) {
 
   # Return updated network (modify list directly)
   network$nodes <- nodes_updated
-  network$layout <- coords
-  network$layout_info <- layout_info
+  network$meta$layout <- layout_info
 
   network
 }

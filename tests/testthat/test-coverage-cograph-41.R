@@ -111,7 +111,7 @@ test_that("compute_layout_for_cograph handles function layout when igraph availa
   )
 
   expect_s3_class(result, "cograph_network")
-  expect_equal(result$layout_info$name, "custom_function")
+  expect_equal(result$meta$layout$name, "custom_function")
 })
 
 test_that("compute_layout_for_cograph handles igraph layout name code", {
@@ -187,7 +187,7 @@ test_that("cograph detects igraph source type", {
   g <- igraph::make_ring(4)
   net <- cograph(g)
 
-  expect_equal(net$source, "igraph")
+  expect_equal(net$meta$source, "igraph")
 })
 
 test_that("cograph detects network (statnet) source type", {
@@ -198,7 +198,7 @@ test_that("cograph detects network (statnet) source type", {
 
   result <- cograph(net_obj)
 
-  expect_equal(result$source, "network")
+  expect_equal(result$meta$source, "network")
 })
 
 test_that("cograph detects qgraph source type", {
@@ -215,7 +215,7 @@ test_that("cograph detects qgraph source type", {
 
   result <- cograph(q)
 
-  expect_equal(result$source, "qgraph")
+  expect_equal(result$meta$source, "qgraph")
 })
 
 test_that("cograph detects tna source type", {
@@ -233,7 +233,7 @@ test_that("cograph detects tna source type", {
 
   result <- cograph(tna_obj)
 
-  expect_equal(result$source, "tna")
+  expect_equal(result$meta$source, "tna")
 })
 
 test_that("cograph handles unknown source type gracefully", {
@@ -298,7 +298,7 @@ test_that("cograph handles function layout (igraph layout function)", {
   result <- cograph(mat, layout = igraph::layout_in_circle, seed = 42)
 
   expect_s3_class(result, "cograph_network")
-  expect_equal(result$layout_info$name, "custom_function")
+  expect_equal(result$meta$layout$name, "custom_function")
   expect_false(all(is.na(result$nodes$x)))
 })
 
@@ -370,7 +370,7 @@ test_that("cograph uses CographLayout for built-in layout names", {
   result <- cograph(mat, layout = "spring", seed = 42)
 
   expect_s3_class(result, "cograph_network")
-  expect_equal(result$layout_info$name, "spring")
+  expect_equal(result$meta$layout$name, "spring")
   expect_false(all(is.na(result$nodes$x)))
 })
 
@@ -392,15 +392,15 @@ test_that("cograph creates tna metadata when input is tna object", {
 
   result <- cograph(tna_obj)
 
-  expect_true(!is.null(result$tna))
-  expect_equal(result$tna$type, "tna")
+  expect_true(!is.null(result$meta$tna))
+  expect_equal(result$meta$tna$type, "tna")
 })
 
 test_that("cograph does not create tna metadata for matrix input", {
   mat <- make_test_matrix(3)
   result <- cograph(mat)
 
-  expect_true(is.null(result$tna))
+  expect_true(is.null(result$meta$tna))
 })
 
 # =============================================================================
@@ -415,7 +415,7 @@ test_that("sn_layout handles CographLayout object", {
   result <- sn_layout(net, layout_obj)
 
   expect_s3_class(result, "cograph_network")
-  expect_equal(result$layout_info$name, "custom")
+  expect_equal(result$meta$layout$name, "custom")
   expect_false(all(is.na(result$nodes$x)))
 })
 
@@ -428,7 +428,7 @@ test_that("sn_layout handles igraph layout function when available", {
   result <- sn_layout(net, igraph::layout_in_circle, seed = 42)
 
   expect_s3_class(result, "cograph_network")
-  expect_equal(result$layout_info$name, "custom_function")
+  expect_equal(result$meta$layout$name, "custom_function")
 })
 
 test_that("sn_layout handles igraph two-letter code", {
@@ -440,7 +440,7 @@ test_that("sn_layout handles igraph two-letter code", {
   result <- sn_layout(net, "mds", seed = 42)
 
   expect_s3_class(result, "cograph_network")
-  expect_equal(result$layout_info$name, "mds")
+  expect_equal(result$meta$layout$name, "mds")
 })
 
 test_that("sn_layout handles igraph_ prefix", {
@@ -452,7 +452,7 @@ test_that("sn_layout handles igraph_ prefix", {
   result <- sn_layout(net, "igraph_kk", seed = 42)
 
   expect_s3_class(result, "cograph_network")
-  expect_equal(result$layout_info$name, "igraph_kk")
+  expect_equal(result$meta$layout$name, "igraph_kk")
 })
 
 test_that("sn_layout handles layout_ prefix", {
@@ -464,7 +464,7 @@ test_that("sn_layout handles layout_ prefix", {
   result <- sn_layout(net, "layout_with_fr", seed = 42)
 
   expect_s3_class(result, "cograph_network")
-  expect_equal(result$layout_info$name, "layout_with_fr")
+  expect_equal(result$meta$layout$name, "layout_with_fr")
 })
 
 test_that("sn_layout handles matrix coordinates", {
@@ -475,7 +475,7 @@ test_that("sn_layout handles matrix coordinates", {
   result <- sn_layout(net, coords)
 
   expect_s3_class(result, "cograph_network")
-  expect_equal(result$layout_info$name, "custom")
+  expect_equal(result$meta$layout$name, "custom")
   expect_equal(result$nodes$x[1], 0)
 })
 
@@ -529,7 +529,7 @@ test_that("sn_layout uses built-in layout for non-igraph string", {
   result <- sn_layout(net, "grid", seed = 42)
 
   expect_s3_class(result, "cograph_network")
-  expect_equal(result$layout_info$name, "grid")
+  expect_equal(result$meta$layout$name, "grid")
 })
 
 test_that("sn_layout updates layout coords in network nodes", {
@@ -551,10 +551,10 @@ test_that("sn_layout stores layout info with coords", {
 
   result <- sn_layout(net, "circle", seed = 123)
 
-  expect_true(!is.null(result$layout_info))
-  expect_equal(result$layout_info$name, "circle")
-  expect_equal(result$layout_info$seed, 123)
-  expect_true(!is.null(result$layout_info$coords))
+  expect_true(!is.null(result$meta$layout))
+  expect_equal(result$meta$layout$name, "circle")
+  expect_equal(result$meta$layout$seed, 123)
+  expect_true(!is.null(result$meta$layout$coords))
 })
 
 # =============================================================================
@@ -932,7 +932,7 @@ test_that("pipe chain with all modifiers works", {
   expect_s3_class(result, "cograph_network")
   expect_true(!is.null(result$theme))
   expect_true(!is.null(result$node_aes$fill))
-  expect_equal(result$layout_info$name, "spring")
+  expect_equal(result$meta$layout$name, "spring")
 })
 
 test_that("pipe chain starting from matrix with sn_layout", {
@@ -1016,8 +1016,8 @@ test_that("full workflow with tna input", {
     sn_theme("classic")
 
   expect_s3_class(result, "cograph_network")
-  expect_equal(result$source, "tna")
-  expect_true(!is.null(result$tna))
+  expect_equal(result$meta$source, "tna")
+  expect_true(!is.null(result$meta$tna))
 })
 
 # =============================================================================
@@ -1061,5 +1061,5 @@ test_that("cograph handles NULL layout (no layout computed)", {
 
   expect_s3_class(result, "cograph_network")
   # Layout should be NULL or nodes should have NA coordinates
-  expect_true(is.null(result$layout) || all(is.na(result$nodes$x)))
+  expect_true(all(is.na(result$nodes$x)) || is.null(result$nodes$x))
 })

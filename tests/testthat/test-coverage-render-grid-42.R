@@ -1363,7 +1363,7 @@ test_that("Test 86: soplot() returns network with all plot_params stored", {
   with_temp_png({
     result <- soplot(adj, title = "Test", node_fill = "blue", edge_color = "red")
     expect_s3_class(result, "cograph_network")
-    expect_equal(result$layout_info$name, "oval")
+    expect_equal(result$meta$layout$name, "oval")
   })
 })
 

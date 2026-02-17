@@ -8,14 +8,9 @@
   nodes,
   edges,
   directed,
-  source = "unknown",
-  layout = NULL,
-  layout_info = NULL,
-  tna = NULL,
+  meta = list(),
   weights = NULL,
-  layers = NULL,
-  clusters = NULL,
-  groups = NULL,
+  data = NULL,
   node_groups = NULL
 )
 }
@@ -26,21 +21,11 @@
 
 \item{directed}{Logical. Is the network directed?}
 
-\item{source}{Character. Input source type ("matrix", "tna", "igraph", etc.).}
-
-\item{layout}{Data frame with x, y coordinates, or NULL.}
-
-\item{layout_info}{List with layout metadata (name, seed), or NULL.}
-
-\item{tna}{List with TNA metadata (type, group_index, group_name), or NULL.}
+\item{meta}{List with consolidated metadata: source, layout, tna sub-fields.}
 
 \item{weights}{Full n×n weight matrix for TNA compatibility, or NULL.}
 
-\item{layers}{Optional layer assignments.}
-
-\item{clusters}{Optional cluster assignments.}
-
-\item{groups}{Optional group assignments.}
+\item{data}{Original estimation data (sequence matrix, edge list, etc.), or NULL.}
 
 \item{node_groups}{Optional node groupings data frame.}
 }

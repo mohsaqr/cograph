@@ -841,15 +841,15 @@ test_that("Test 88: soplot() returns invisible cograph_network", {
   })
 })
 
-test_that("Test 89: soplot() preserves layout_info in returned network", {
+test_that("Test 89: soplot() preserves layout info in returned network", {
   skip_if_not_installed("grid")
 
   adj <- create_test_matrix(4)
 
   with_temp_png({
     result <- soplot(adj, layout = "circle", seed = 123)
-    expect_equal(result$layout_info$name, "circle")
-    expect_equal(result$layout_info$seed, 123)
+    expect_equal(result$meta$layout$name, "circle")
+    expect_equal(result$meta$layout$seed, 123)
   })
 })
 

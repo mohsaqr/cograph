@@ -311,9 +311,8 @@ validate_network <- function(net, expected_nodes = NULL, expected_edges = NULL) 
     expect_equal(n_edges(net), expected_edges)
   }
 
-  # Validate layout exists
-  layout <- net$layout
-  expect_false(is.null(layout))
-  expect_equal(nrow(layout), n_nodes(net))
-  expect_true(all(c("x", "y") %in% names(layout)))
+  # Validate layout exists in nodes
+  nodes <- get_nodes(net)
+  expect_true(all(c("x", "y") %in% names(nodes)))
+  expect_false(all(is.na(nodes$x)))
 }

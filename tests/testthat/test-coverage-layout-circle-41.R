@@ -518,8 +518,8 @@ test_that("cograph creates network with circle layout", {
   net <- cograph(adj, layout = "circle")
 
   expect_cograph_network(net)
-  expect_false(is.null(net$layout))
-  expect_equal(nrow(net$layout), 5)
+  expect_true("x" %in% names(get_nodes(net)))
+  expect_false(all(is.na(get_nodes(net)$x)))
 })
 
 # ============================================

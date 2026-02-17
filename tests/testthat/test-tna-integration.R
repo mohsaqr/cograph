@@ -23,24 +23,24 @@ test_that("is_tna_network returns TRUE for TNA networks", {
   expect_true(is_tna_network(net))
 })
 
-test_that("cograph_network $tna field has correct structure", {
+test_that("cograph_network $meta$tna field has correct structure", {
   skip_if_not_installed("tna")
 
   library(tna)
   model <- tna(group_regulation)
   net <- as_cograph(model)
 
-  # Check $tna field exists
-  expect_true(!is.null(net$tna))
-  expect_true(is.list(net$tna))
+  # Check $meta$tna field exists
+  expect_true(!is.null(net$meta$tna))
+  expect_true(is.list(net$meta$tna))
 
   # Check required fields (minimal structure - no model stored)
-  expect_true("type" %in% names(net$tna))
-  expect_equal(net$tna$type, "tna")
+  expect_true("type" %in% names(net$meta$tna))
+  expect_equal(net$meta$tna$type, "tna")
 
   # For single tna, group fields should be NULL
-  expect_null(net$tna$group_index)
-  expect_null(net$tna$group_name)
+  expect_null(net$meta$tna$group_index)
+  expect_null(net$meta$tna$group_name)
 })
 
 test_that("source field is 'tna' for TNA networks", {
@@ -50,7 +50,7 @@ test_that("source field is 'tna' for TNA networks", {
   model <- tna(group_regulation)
   net <- as_cograph(model)
 
-  expect_equal(net$source, "tna")
+  expect_equal(net$meta$source, "tna")
 })
 
 test_that("TNA network can still be plotted", {

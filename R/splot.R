@@ -678,11 +678,9 @@ splot <- function(
   edges <- get_edges(network)
   is_net_directed <- is_directed(network)
 
-  # Get layout coordinates from nodes if available, or from layout element
+  # Get layout coordinates from nodes if available
   if ("x" %in% names(nodes) && !all(is.na(nodes$x))) {
     layout_coords <- data.frame(x = nodes$x, y = nodes$y)
-  } else if (!is.null(network$layout)) {
-    layout_coords <- network$layout
   } else {
     layout_coords <- NULL
   }

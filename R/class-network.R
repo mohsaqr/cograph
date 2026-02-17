@@ -339,14 +339,9 @@ is_cograph_network <- function(x) {
 #' @param nodes Data frame with node information (id, label, x, y, ...).
 #' @param edges Data frame with edge information (from, to, weight).
 #' @param directed Logical. Is the network directed?
-#' @param source Character. Input source type ("matrix", "tna", "igraph", etc.).
-#' @param layout Data frame with x, y coordinates, or NULL.
-#' @param layout_info List with layout metadata (name, seed), or NULL.
-#' @param tna List with TNA metadata (type, group_index, group_name), or NULL.
+#' @param meta List with consolidated metadata: source, layout, tna sub-fields.
 #' @param weights Full n×n weight matrix for TNA compatibility, or NULL.
-#' @param layers Optional layer assignments.
-#' @param clusters Optional cluster assignments.
-#' @param groups Optional group assignments.
+#' @param data Original estimation data (sequence matrix, edge list, etc.), or NULL.
 #' @param node_groups Optional node groupings data frame.
 #' @return A cograph_network object (named list with class).
 #' @keywords internal
@@ -354,14 +349,9 @@ is_cograph_network <- function(x) {
     nodes,
     edges,
     directed,
-    source = "unknown",
-    layout = NULL,
-    layout_info = NULL,
-    tna = NULL,
+    meta = list(),
     weights = NULL,
-    layers = NULL,
-    clusters = NULL,
-    groups = NULL,
+    data = NULL,
     node_groups = NULL
 ) {
   # Ensure edges data frame has standard columns
@@ -376,6 +366,11 @@ is_cograph_network <- function(x) {
     edges_df <- data.frame(from = integer(0), to = integer(0), weight = numeric(0))
   }
 
+  # Ensure meta has required sub-fields
+  if (is.null(meta$source)) meta$source <- "unknown"
+  if (is.null(meta$layout)) meta$layout <- NULL
+  if (is.null(meta$tna)) meta$tna <- NULL
+
   # Build the lean network object
   net <- list(
     # Core data
@@ -386,21 +381,14 @@ is_cograph_network <- function(x) {
     # Full matrix (for to_matrix round-trip)
     weights = weights,
 
-    # Layout coordinates (for backwards compatibility)
-    layout = layout,
+    # Original estimation data
+    data = data,
 
-    # Metadata
-    source = source,
-    layout_info = layout_info,
-
-    # TNA metadata (minimal - no model, no parent)
-    tna = tna,
+    # Consolidated metadata
+    meta = meta,
 
     # Optional groupings
-    node_groups = node_groups,
-    layers = layers,
-    clusters = clusters,
-    groups = groups
+    node_groups = node_groups
   )
 
   # Set S3 class
@@ -495,6 +483,81 @@ get_labels <- function(x) {
     }
   }
   stop("Cannot extract labels from this object", call. = FALSE)
+}
+
+#' Get Source Type from Cograph Network
+#'
+#' Extracts the source type string from a cograph_network object's metadata.
+#'
+#' @param x A cograph_network object.
+#' @return A character string indicating the input type (e.g., "matrix", "tna",
+#'   "igraph", "edgelist"), or "unknown" if not set.
+#'
+#' @seealso \code{\link{as_cograph}}, \code{\link{get_meta}}
+#'
+#' @export
+#'
+#' @examples
+#' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
+#' net <- as_cograph(mat)
+#' get_source(net)  # "matrix"
+get_source <- function(x) {
+  if (!inherits(x, "cograph_network")) {
+    stop("x must be a cograph_network object", call. = FALSE)
+  }
+  x$meta$source %||% "unknown"
+}
+
+#' Get Original Data from Cograph Network
+#'
+#' Extracts the original estimation data stored in a cograph_network object.
+#' This is the raw input data (e.g., sequence matrix from tna, edge list
+#' data frame) preserved for reference.
+#'
+#' @param x A cograph_network object.
+#' @return The original data object, or NULL if not stored.
+#'
+#' @seealso \code{\link{as_cograph}}, \code{\link{get_meta}}
+#'
+#' @export
+#'
+#' @examples
+#' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
+#' net <- as_cograph(mat)
+#' get_data(net)  # NULL (matrices don't store raw data)
+get_data <- function(x) {
+  if (!inherits(x, "cograph_network")) {
+    stop("x must be a cograph_network object", call. = FALSE)
+  }
+  x$data
+}
+
+#' Get Metadata from Cograph Network
+#'
+#' Extracts the consolidated metadata list from a cograph_network object.
+#' The metadata contains source type, layout info, and TNA metadata.
+#'
+#' @param x A cograph_network object.
+#' @return A list with components:
+#'   \describe{
+#'     \item{\code{source}}{Character string indicating input type}
+#'     \item{\code{layout}}{List with layout name and seed, or NULL}
+#'     \item{\code{tna}}{List with TNA metadata (type, group_name, group_index), or NULL}
+#'   }
+#'
+#' @seealso \code{\link{as_cograph}}, \code{\link{get_source}}
+#'
+#' @export
+#'
+#' @examples
+#' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
+#' net <- as_cograph(mat)
+#' get_meta(net)
+get_meta <- function(x) {
+  if (!inherits(x, "cograph_network")) {
+    stop("x must be a cograph_network object", call. = FALSE)
+  }
+  x$meta
 }
 
 # =============================================================================
@@ -632,7 +695,6 @@ set_layout <- function(x, layout_df) {
   nodes$x <- layout_df$x
   nodes$y <- layout_df$y
   x$nodes <- nodes
-  x$layout <- layout_df
 
   x
 }
@@ -663,9 +725,11 @@ set_layout <- function(x, layout_df) {
 #'     \item{\code{edges}}{Data frame with from, to, weight columns}
 #'     \item{\code{directed}}{Logical indicating if network is directed}
 #'     \item{\code{weights}}{Full n×n weight matrix (for to_matrix round-trip)}
-#'     \item{\code{source}}{Character indicating input type}
-#'     \item{\code{layout_info}}{Layout algorithm info (NULL until computed)}
-#'     \item{\code{tna}}{TNA metadata (type, group_name, group_index) if from TNA}
+#'     \item{\code{data}}{Original estimation data (sequence matrix, edge list, etc.), or NULL}
+#'     \item{\code{meta}}{Consolidated metadata list with sub-fields:
+#'       \code{source} (input type string),
+#'       \code{layout} (layout info list or NULL),
+#'       \code{tna} (TNA metadata or NULL)}
 #'     \item{\code{node_groups}}{Optional node groupings data frame}
 #'   }
 #'
@@ -771,15 +835,23 @@ as_cograph <- function(x, directed = NULL, ...) {
     )
   }
 
+  # Capture raw data for $data field
+  raw_data <- if (inherits(x, "tna")) {
+    x$data
+  } else if (is.data.frame(x)) {
+    x
+  } else {
+    NULL
+  }
+
   # Use lean constructor
   .create_cograph_network(
     nodes = parsed$nodes,
     edges = parsed$edges,
     directed = parsed$directed,
-    source = source_type,
-    layout_info = NULL,
-    tna = tna_meta,
-    weights = weights_matrix
+    meta = list(source = source_type, layout = NULL, tna = tna_meta),
+    weights = weights_matrix,
+    data = raw_data
   )
 }
 

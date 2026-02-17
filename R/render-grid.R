@@ -713,7 +713,7 @@ soplot <- function(network, title = NULL, title_size = 14,
   plot_params <- plot_params[!sapply(plot_params, is.null)]
 
   # Update the original unified network with layout info
-  network$layout_info <- list(
+  network$meta$layout <- list(
     name = effective_layout,
     seed = seed
   )

@@ -2,355 +2,245 @@
 # Additional tests for S3 print methods in methods-print.R
 # Target: Cover uncovered branches and edge cases
 
-# ==============================================================================
-# Tests for print.cograph_network - R6 Wrapper Format (lines 68-87)
-# This is the main uncovered code path
-# ==============================================================================
+# Helper to create a proper fake cograph_network for print testing.
+# The new print method uses getters: n_nodes(x) reads nrow(x$nodes),
+# n_edges(x) reads nrow(x$edges), is_directed(x) reads x$directed,
+# get_edges(x)$weight reads x$edges$weight, get_nodes(x) reads x$nodes.
+make_test_net42 <- function(n_nodes = 3, n_edges = 3, directed = FALSE,
+                            weights = NULL, coords = TRUE,
+                            meta = list(), data = NULL) {
+  nodes <- data.frame(
+    id = seq_len(n_nodes),
+    label = LETTERS[seq_len(n_nodes)],
+    name = LETTERS[seq_len(n_nodes)],
+    stringsAsFactors = FALSE
+  )
+  if (coords) {
+    nodes$x <- seq(0, 1, length.out = n_nodes)
+    nodes$y <- seq(0, 1, length.out = n_nodes)
+  } else {
+    nodes$x <- rep(NA_real_, n_nodes)
+    nodes$y <- rep(NA_real_, n_nodes)
+  }
 
-test_that("print.cograph_network handles R6 wrapper format with network", {
-  # Create an R6 CographNetwork object
-  adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-  r6_net <- CographNetwork$new(adj)
+  if (n_edges > 0) {
+    from_idx <- seq_len(n_edges)
+    to_idx <- from_idx + 1L
+    from_idx <- ((from_idx - 1L) %% n_nodes) + 1L
+    to_idx <- ((to_idx - 1L) %% n_nodes) + 1L
+    w <- if (!is.null(weights)) weights else rep(1, n_edges)
+    edges <- data.frame(from = from_idx, to = to_idx, weight = w)
+  } else {
+    edges <- data.frame(from = integer(0), to = integer(0), weight = numeric(0))
+  }
 
-  # Wrap it in the old wrapper format
-  wrapper <- list(network = r6_net)
-  class(wrapper) <- c("cograph_network", "list")
-
-  output <- capture.output(print(wrapper))
-  expect_true(any(grepl("Cograph Network", output)))
-  expect_true(any(grepl("Nodes:", output)))
-  expect_true(any(grepl("Edges:", output)))
-})
-
-test_that("print.cograph_network shows R6 wrapper node count", {
-  adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), nrow = 3)
-  r6_net <- CographNetwork$new(adj)
-
-  wrapper <- list(network = r6_net)
-  class(wrapper) <- c("cograph_network", "list")
-
-  output <- capture.output(print(wrapper))
-  expect_true(any(grepl("Nodes:.*3", output)))
-})
-
-test_that("print.cograph_network shows R6 wrapper edge count", {
-  adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), nrow = 3)
-  r6_net <- CographNetwork$new(adj)
-
-  wrapper <- list(network = r6_net)
-  class(wrapper) <- c("cograph_network", "list")
-
-  output <- capture.output(print(wrapper))
-  expect_true(any(grepl("Edges:", output)))
-})
-
-test_that("print.cograph_network shows R6 wrapper directed status", {
-  # Create a directed network
-  adj <- matrix(c(0, 1, 0, 0, 0, 1, 0, 0, 0), nrow = 3)
-  r6_net <- CographNetwork$new(adj, directed = TRUE)
-
-  wrapper <- list(network = r6_net)
-  class(wrapper) <- c("cograph_network", "list")
-
-  output <- capture.output(print(wrapper))
-  expect_true(any(grepl("Directed:", output)))
-})
-
-test_that("print.cograph_network shows R6 wrapper weighted status", {
-  adj <- matrix(c(0, 0.5, 0.3, 0.5, 0, 0.8, 0.3, 0.8, 0), nrow = 3)
-  r6_net <- CographNetwork$new(adj)
-
-  wrapper <- list(network = r6_net)
-  class(wrapper) <- c("cograph_network", "list")
-
-  output <- capture.output(print(wrapper))
-  expect_true(any(grepl("Weighted:", output)))
-})
-
-test_that("print.cograph_network shows R6 wrapper layout not computed", {
-  adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-  r6_net <- CographNetwork$new(adj)
-  # Do NOT set layout
-
-  wrapper <- list(network = r6_net)
-  class(wrapper) <- c("cograph_network", "list")
-
-  output <- capture.output(print(wrapper))
-  expect_true(any(grepl("Layout:", output)))
-  expect_true(any(grepl("not computed", output)))
-})
-
-test_that("print.cograph_network shows R6 wrapper layout computed", {
-  adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-  r6_net <- CographNetwork$new(adj)
-  # Set layout coordinates
-  coords <- data.frame(x = c(0, 1, 0.5), y = c(0, 0, 1))
-  r6_net$set_layout_coords(coords)
-
-  wrapper <- list(network = r6_net)
-  class(wrapper) <- c("cograph_network", "list")
-
-  output <- capture.output(print(wrapper))
-  expect_true(any(grepl("Layout:", output)))
-  expect_true(any(grepl("computed", output)))
-})
-
-test_that("print.cograph_network shows R6 wrapper theme none", {
-  adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-  r6_net <- CographNetwork$new(adj)
-  # Do NOT set theme
-
-  wrapper <- list(network = r6_net)
-  class(wrapper) <- c("cograph_network", "list")
-
-  output <- capture.output(print(wrapper))
-  expect_true(any(grepl("Theme:", output)))
-  expect_true(any(grepl("none", output)))
-})
-
-test_that("print.cograph_network shows R6 wrapper with theme name", {
-  adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-  r6_net <- CographNetwork$new(adj)
-  # Set theme with a name
-  r6_net$set_theme(list(name = "dark"))
-
-  wrapper <- list(network = r6_net)
-  class(wrapper) <- c("cograph_network", "list")
-
-  output <- capture.output(print(wrapper))
-  expect_true(any(grepl("Theme:.*dark", output)))
-})
-
-test_that("print.cograph_network shows R6 wrapper usage hints", {
-  adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-  r6_net <- CographNetwork$new(adj)
-
-  wrapper <- list(network = r6_net)
-  class(wrapper) <- c("cograph_network", "list")
-
-  output <- capture.output(print(wrapper))
-  expect_true(any(grepl("plot\\(\\)|sn_render\\(\\)", output)))
-  expect_true(any(grepl("sn_ggplot\\(\\)", output)))
-})
-
-test_that("print.cograph_network returns invisible x for R6 wrapper format", {
-  adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-  r6_net <- CographNetwork$new(adj)
-
-  wrapper <- list(network = r6_net)
-  class(wrapper) <- c("cograph_network", "list")
-
-  result <- print(wrapper)
-  expect_identical(result, wrapper)
-})
-
-test_that("print.cograph_network shows R6 header separator", {
-  adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-  r6_net <- CographNetwork$new(adj)
-
-  wrapper <- list(network = r6_net)
-  class(wrapper) <- c("cograph_network", "list")
-
-  output <- capture.output(print(wrapper))
-  expect_true(any(grepl("=", output)))  # Header separator
-})
-
-# ==============================================================================
-# Tests for print.cograph_network - Edge Cases for List Format
-# ==============================================================================
-
-test_that("print.cograph_network handles list format with NULL nodes_df", {
   net <- list(
-    n_nodes = 3,
-    n_edges = 2,
-    directed = FALSE,
-    nodes = NULL,  # NULL nodes
-    edges = data.frame(from = c("A", "B"), to = c("B", "C")),
-    weight = c(1, 1)
+    nodes = nodes,
+    edges = edges,
+    directed = directed,
+    weights = NULL,
+    meta = meta,
+    data = data
   )
   class(net) <- c("cograph_network", "list")
+  net
+}
+
+# ==============================================================================
+# Tests for print.cograph_network - Unified Format Edge Cases
+# ==============================================================================
+
+test_that("print.cograph_network handles nodes missing x column", {
+  net <- make_test_net42(n_nodes = 3, n_edges = 2)
+  # Remove x column to trigger "no layout" path
+  net$nodes$x <- NULL
 
   output <- capture.output(print(net))
   expect_true(any(grepl("Layout:.*none", output)))
 })
 
-test_that("print.cograph_network handles list format with nodes missing x column", {
-  net <- list(
-    n_nodes = 3,
-    n_edges = 2,
-    directed = FALSE,
-    nodes = data.frame(name = c("A", "B", "C")),  # No x column
-    edges = data.frame(from = c("A", "B"), to = c("B", "C")),
-    weight = c(1, 1)
-  )
-  class(net) <- c("cograph_network", "list")
+test_that("print.cograph_network handles directed TRUE", {
+  net <- make_test_net42(n_nodes = 3, n_edges = 2, directed = TRUE,
+                         weights = c(0.5, 0.8))
 
   output <- capture.output(print(net))
-  expect_true(any(grepl("Layout:.*none", output)))
+  expect_true(any(grepl("directed", output)))
+  expect_false(any(grepl("undirected", output)))
 })
 
-test_that("print.cograph_network handles list format with NULL weight", {
-  net <- list(
-    n_nodes = 3,
-    n_edges = 2,
-    directed = FALSE,
-    nodes = data.frame(name = c("A", "B", "C"), x = c(0, 1, 0.5), y = c(0, 0, 1)),
-    edges = data.frame(from = c("A", "B"), to = c("B", "C")),
-    weight = NULL  # NULL weight
-  )
-  class(net) <- c("cograph_network", "list")
-
-  output <- capture.output(print(net))
-  # Should not show Weights line
-  expect_false(any(grepl("Weights:", output)))
-})
-
-test_that("print.cograph_network handles list format with directed NULL", {
-  net <- list(
-    n_nodes = 3,
-    n_edges = 2,
-    directed = NULL,  # NULL directed - should show "undirected"
-    nodes = data.frame(name = c("A", "B", "C"), x = c(0, 1, 0.5), y = c(0, 0, 1)),
-    edges = data.frame(from = c("A", "B"), to = c("B", "C")),
-    weight = c(1, 1)
-  )
-  class(net) <- c("cograph_network", "list")
+test_that("print.cograph_network handles directed FALSE", {
+  net <- make_test_net42(n_nodes = 3, n_edges = 2, directed = FALSE)
 
   output <- capture.output(print(net))
   expect_true(any(grepl("undirected", output)))
 })
 
-test_that("print.cograph_network handles list format with edges but no weight", {
-  net <- list(
-    n_nodes = 3,
-    n_edges = 2,
-    directed = TRUE,
-    nodes = data.frame(name = c("A", "B", "C"), x = c(0, 1, 0.5), y = c(0, 0, 1)),
-    edges = data.frame(from = c("A", "B"), to = c("B", "C"))
-    # No weight element at all
-  )
-  class(net) <- c("cograph_network", "list")
-
-  output <- capture.output(print(net))
-  expect_true(any(grepl("Cograph network:", output)))
-  expect_false(any(grepl("Weights:", output)))
-})
-
-test_that("print.cograph_network handles weight range with NA values", {
-  net <- list(
-    n_nodes = 3,
-    n_edges = 3,
-    directed = FALSE,
-    nodes = data.frame(name = c("A", "B", "C"), x = c(0, 1, 0.5), y = c(0, 0, 1)),
-    edges = data.frame(from = c("A", "B", "A"), to = c("B", "C", "C")),
-    weight = c(0.2, NA, 0.8)  # NA in weights
-  )
-  class(net) <- c("cograph_network", "list")
+test_that("print.cograph_network handles edges with weight column", {
+  net <- make_test_net42(n_nodes = 3, n_edges = 2, weights = c(0.2, 0.8))
 
   output <- capture.output(print(net))
   expect_true(any(grepl("Weights:", output)))
+  expect_true(any(grepl("0\\.2.*to.*0\\.8", output)))
 })
 
-# ==============================================================================
-# Tests for print.cograph_network - Edge Cases for Attr Format
-# ==============================================================================
-
-test_that("print.cograph_network handles attr format with NULL nodes_df", {
-  net <- list(
-    edges = data.frame(from = "A", to = "B"),
-    weight = c(1)
-  )
-  attr(net, "n_nodes") <- 2
-  attr(net, "n_edges") <- 1
-  attr(net, "directed") <- FALSE
-  attr(net, "nodes") <- NULL  # NULL nodes
-  class(net) <- c("cograph_network", "list")
+test_that("print.cograph_network handles edges with equal weights", {
+  net <- make_test_net42(n_nodes = 3, n_edges = 2, weights = c(1, 1))
 
   output <- capture.output(print(net))
-  expect_true(any(grepl("Layout:.*none", output)))
+  expect_true(any(grepl("all equal", output)))
 })
 
-test_that("print.cograph_network handles attr format with nodes missing x column", {
-  net <- list(
-    edges = data.frame(from = "A", to = "B"),
-    weight = c(1)
-  )
-  attr(net, "n_nodes") <- 2
-  attr(net, "n_edges") <- 1
-  attr(net, "directed") <- FALSE
-  attr(net, "nodes") <- data.frame(name = c("A", "B"))  # No x column
-  class(net) <- c("cograph_network", "list")
-
-  output <- capture.output(print(net))
-  expect_true(any(grepl("Layout:.*none", output)))
-})
-
-test_that("print.cograph_network handles attr format with zero edges", {
-  net <- list(
-    edges = data.frame(from = character(0), to = character(0)),
-    weight = numeric(0)
-  )
-  attr(net, "n_nodes") <- 3
-  attr(net, "n_edges") <- 0
-  attr(net, "directed") <- FALSE
-  attr(net, "nodes") <- data.frame(name = c("A", "B", "C"), x = c(0, 1, 0.5), y = c(0, 0, 1))
-  class(net) <- c("cograph_network", "list")
+test_that("print.cograph_network handles zero edges", {
+  net <- make_test_net42(n_nodes = 3, n_edges = 0)
 
   output <- capture.output(print(net))
   expect_true(any(grepl("0.*edges", output)))
   expect_false(any(grepl("Weights:", output)))
 })
 
-test_that("print.cograph_network handles attr format with NULL weight", {
-  net <- list(
-    edges = data.frame(from = "A", to = "B")
-    # weight is missing
-  )
-  attr(net, "n_nodes") <- 2
-  attr(net, "n_edges") <- 1
-  attr(net, "directed") <- FALSE
-  attr(net, "nodes") <- data.frame(name = c("A", "B"), x = c(0, 1), y = c(0, 1))
-  class(net) <- c("cograph_network", "list")
+test_that("print.cograph_network handles layout set", {
+  net <- make_test_net42(n_nodes = 2, n_edges = 1, coords = TRUE)
 
   output <- capture.output(print(net))
-  expect_false(any(grepl("Weights:", output)))
+  expect_true(any(grepl("Layout:.*set", output)))
 })
 
-test_that("print.cograph_network handles attr format with directed NULL", {
-  net <- list(
-    edges = data.frame(from = "A", to = "B"),
-    weight = 1
-  )
-  attr(net, "n_nodes") <- 2
-  attr(net, "n_edges") <- 1
-  attr(net, "directed") <- NULL  # NULL directed
-  attr(net, "nodes") <- data.frame(name = c("A", "B"), x = c(0, 1), y = c(0, 1))
-  class(net) <- c("cograph_network", "list")
+test_that("print.cograph_network handles layout none (all NAs)", {
+  net <- make_test_net42(n_nodes = 2, n_edges = 1, coords = FALSE)
 
   output <- capture.output(print(net))
-  expect_true(any(grepl("undirected", output)))
+  expect_true(any(grepl("Layout:.*none", output)))
+})
+
+test_that("print.cograph_network shows source when set in meta", {
+  net <- make_test_net42(n_nodes = 3, n_edges = 2,
+                         meta = list(source = "matrix"))
+
+  output <- capture.output(print(net))
+  expect_true(any(grepl("Source:.*matrix", output)))
+})
+
+test_that("print.cograph_network hides source when unknown", {
+  net <- make_test_net42(n_nodes = 3, n_edges = 2,
+                         meta = list(source = "unknown"))
+
+  output <- capture.output(print(net))
+  expect_false(any(grepl("Source:", output)))
+})
+
+test_that("print.cograph_network hides source when NULL", {
+  net <- make_test_net42(n_nodes = 3, n_edges = 2,
+                         meta = list())
+
+  output <- capture.output(print(net))
+  expect_false(any(grepl("Source:", output)))
+})
+
+test_that("print.cograph_network shows data matrix info", {
+  net <- make_test_net42(n_nodes = 3, n_edges = 2,
+                         data = matrix(1:12, nrow = 3))
+
+  output <- capture.output(print(net))
+  expect_true(any(grepl("Data:.*matrix", output)))
+  expect_true(any(grepl("3 x 4", output)))
+})
+
+test_that("print.cograph_network shows data frame info", {
+  net <- make_test_net42(n_nodes = 3, n_edges = 2,
+                         data = data.frame(a = 1:5, b = 6:10))
+
+  output <- capture.output(print(net))
+  expect_true(any(grepl("Data:.*data\\.frame", output)))
+  expect_true(any(grepl("5 x 2", output)))
+})
+
+test_that("print.cograph_network shows data vector info", {
+  net <- make_test_net42(n_nodes = 3, n_edges = 2,
+                         data = c(1, 2, 3, 4, 5))
+
+  output <- capture.output(print(net))
+  expect_true(any(grepl("Data:.*numeric", output)))
+  expect_true(any(grepl("length 5", output)))
+})
+
+test_that("print.cograph_network returns invisible x", {
+  net <- make_test_net42(n_nodes = 3, n_edges = 2)
+
+  result <- print(net)
+  expect_identical(result, net)
+})
+
+# ==============================================================================
+# Tests for print.cograph_network - Weight Edge Cases
+# ==============================================================================
+
+test_that("print.cograph_network handles weight range with NA values", {
+  net <- make_test_net42(n_nodes = 3, n_edges = 3,
+                         weights = c(0.2, NA, 0.8))
+
+  output <- capture.output(print(net))
+  expect_true(any(grepl("Weights:", output)))
+})
+
+test_that("print.cograph_network handles negative weights", {
+  net <- make_test_net42(n_nodes = 3, n_edges = 2,
+                         weights = c(-0.5, 0.3))
+
+  output <- capture.output(print(net))
+  expect_true(any(grepl("Weights:", output)))
+  expect_true(any(grepl("-0\\.5", output)))
+})
+
+test_that("print.cograph_network handles very small weights", {
+  net <- make_test_net42(n_nodes = 3, n_edges = 2,
+                         weights = c(0.0001, 0.0002))
+
+  output <- capture.output(print(net))
+  expect_true(any(grepl("Weights:", output)))
+})
+
+test_that("print.cograph_network handles very large weights", {
+  net <- make_test_net42(n_nodes = 3, n_edges = 2,
+                         weights = c(1000, 5000))
+
+  output <- capture.output(print(net))
+  expect_true(any(grepl("Weights:", output)))
+  expect_true(any(grepl("1000", output)))
+})
+
+test_that("print.cograph_network handles Inf weights", {
+  net <- make_test_net42(n_nodes = 3, n_edges = 2,
+                         weights = c(Inf, 1))
+
+  output <- capture.output(print(net))
+  expect_true(any(grepl("Weights:", output)))
 })
 
 # ==============================================================================
 # Tests for Large Network Display
 # ==============================================================================
 
-test_that("print.cograph_network handles large network in list format", {
+test_that("print.cograph_network handles large network", {
   n <- 100
+  nodes <- data.frame(
+    id = seq_len(n),
+    label = paste0("node_", seq_len(n)),
+    name = paste0("node_", seq_len(n)),
+    x = runif(n),
+    y = runif(n)
+  )
+  n_e <- n * 2
+  edges <- data.frame(
+    from = sample(n, n_e, replace = TRUE),
+    to = sample(n, n_e, replace = TRUE),
+    weight = runif(n_e)
+  )
   net <- list(
-    n_nodes = n,
-    n_edges = n * 2,
+    nodes = nodes,
+    edges = edges,
     directed = TRUE,
-    nodes = data.frame(
-      name = paste0("node_", 1:n),
-      x = runif(n),
-      y = runif(n)
-    ),
-    edges = data.frame(
-      from = paste0("node_", sample(n, n * 2, replace = TRUE)),
-      to = paste0("node_", sample(n, n * 2, replace = TRUE))
-    ),
-    weight = runif(n * 2)
+    weights = NULL,
+    meta = list(source = "test")
   )
   class(net) <- c("cograph_network", "list")
 
@@ -360,15 +250,7 @@ test_that("print.cograph_network handles large network in list format", {
 })
 
 test_that("print.cograph_network handles single node network", {
-  net <- list(
-    n_nodes = 1,
-    n_edges = 0,
-    directed = FALSE,
-    nodes = data.frame(name = "A", x = 0.5, y = 0.5),
-    edges = data.frame(from = character(0), to = character(0)),
-    weight = numeric(0)
-  )
-  class(net) <- c("cograph_network", "list")
+  net <- make_test_net42(n_nodes = 1, n_edges = 0)
 
   output <- capture.output(print(net))
   expect_true(any(grepl("1.*nodes", output)))
@@ -376,195 +258,12 @@ test_that("print.cograph_network handles single node network", {
 })
 
 # ==============================================================================
-# Tests for Special Weight Values
+# Tests for Partial/Mixed Coordinates
 # ==============================================================================
-
-test_that("print.cograph_network handles negative weights", {
-  net <- list(
-    n_nodes = 3,
-    n_edges = 2,
-    directed = FALSE,
-    nodes = data.frame(name = c("A", "B", "C"), x = c(0, 1, 0.5), y = c(0, 0, 1)),
-    edges = data.frame(from = c("A", "B"), to = c("B", "C")),
-    weight = c(-0.5, 0.3)
-  )
-  class(net) <- c("cograph_network", "list")
-
-  output <- capture.output(print(net))
-  expect_true(any(grepl("Weights:", output)))
-  expect_true(any(grepl("-0\\.5", output)))
-})
-
-test_that("print.cograph_network handles very small weights", {
-  net <- list(
-    n_nodes = 3,
-    n_edges = 2,
-    directed = FALSE,
-    nodes = data.frame(name = c("A", "B", "C"), x = c(0, 1, 0.5), y = c(0, 0, 1)),
-    edges = data.frame(from = c("A", "B"), to = c("B", "C")),
-    weight = c(0.0001, 0.0002)
-  )
-  class(net) <- c("cograph_network", "list")
-
-  output <- capture.output(print(net))
-  expect_true(any(grepl("Weights:", output)))
-})
-
-test_that("print.cograph_network handles very large weights", {
-  net <- list(
-    n_nodes = 3,
-    n_edges = 2,
-    directed = FALSE,
-    nodes = data.frame(name = c("A", "B", "C"), x = c(0, 1, 0.5), y = c(0, 0, 1)),
-    edges = data.frame(from = c("A", "B"), to = c("B", "C")),
-    weight = c(1000, 5000)
-  )
-  class(net) <- c("cograph_network", "list")
-
-  output <- capture.output(print(net))
-  expect_true(any(grepl("Weights:", output)))
-  expect_true(any(grepl("1000", output)))
-})
-
-test_that("print.cograph_network handles Inf weights", {
-  net <- list(
-    n_nodes = 3,
-    n_edges = 2,
-    directed = FALSE,
-    nodes = data.frame(name = c("A", "B", "C"), x = c(0, 1, 0.5), y = c(0, 0, 1)),
-    edges = data.frame(from = c("A", "B"), to = c("B", "C")),
-    weight = c(Inf, 1)
-  )
-  class(net) <- c("cograph_network", "list")
-
-  output <- capture.output(print(net))
-  expect_true(any(grepl("Weights:", output)))
-})
-
-# ==============================================================================
-# Tests for print.cograph_network - Fallback Edge Cases
-# ==============================================================================
-
-test_that("print.cograph_network fallback with NULL network element", {
-  net <- list(network = NULL, other = "data")
-  class(net) <- c("cograph_network", "list")
-
-  output <- capture.output(print(net))
-  expect_true(any(grepl("Cograph network object", output)))
-})
-
-test_that("print.cograph_network fallback with non-CographNetwork network element", {
-  net <- list(network = list(not_r6 = TRUE))
-  class(net) <- c("cograph_network", "list")
-
-  output <- capture.output(print(net))
-  expect_true(any(grepl("Cograph network object", output)))
-})
-
-test_that("print.cograph_network fallback with empty list", {
-  net <- list()
-  class(net) <- c("cograph_network", "list")
-
-  output <- capture.output(print(net))
-  expect_true(any(grepl("Cograph network object", output)))
-})
-
-# ==============================================================================
-# Tests for R6 Wrapper with Various Network Configurations
-# ==============================================================================
-
-test_that("print.cograph_network R6 wrapper with directed network", {
-  adj <- matrix(c(0, 1, 0, 0, 0, 1, 0, 0, 0), nrow = 3)
-  r6_net <- CographNetwork$new(adj, directed = TRUE)
-
-  wrapper <- list(network = r6_net)
-  class(wrapper) <- c("cograph_network", "list")
-
-  output <- capture.output(print(wrapper))
-  expect_true(any(grepl("Directed:.*TRUE", output)))
-})
-
-test_that("print.cograph_network R6 wrapper with undirected network", {
-  adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-  r6_net <- CographNetwork$new(adj, directed = FALSE)
-
-  wrapper <- list(network = r6_net)
-  class(wrapper) <- c("cograph_network", "list")
-
-  output <- capture.output(print(wrapper))
-  expect_true(any(grepl("Directed:.*FALSE", output)))
-})
-
-test_that("print.cograph_network R6 wrapper with unweighted network", {
-  adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-  r6_net <- CographNetwork$new(adj)
-
-  wrapper <- list(network = r6_net)
-  class(wrapper) <- c("cograph_network", "list")
-
-  output <- capture.output(print(wrapper))
-  expect_true(any(grepl("Weighted:", output)))
-})
-
-test_that("print.cograph_network R6 wrapper with weighted network", {
-  adj <- matrix(c(0, 0.5, 0.3, 0.5, 0, 0.8, 0.3, 0.8, 0), nrow = 3)
-  r6_net <- CographNetwork$new(adj)
-
-  wrapper <- list(network = r6_net)
-  class(wrapper) <- c("cograph_network", "list")
-
-  output <- capture.output(print(wrapper))
-  expect_true(any(grepl("Weighted:.*TRUE", output)))
-})
-
-test_that("print.cograph_network R6 wrapper with empty network", {
-  adj <- matrix(0, nrow = 3, ncol = 3)
-  r6_net <- CographNetwork$new(adj)
-
-  wrapper <- list(network = r6_net)
-  class(wrapper) <- c("cograph_network", "list")
-
-  output <- capture.output(print(wrapper))
-  expect_true(any(grepl("Nodes:", output)))
-  expect_true(any(grepl("Edges:", output)))
-})
-
-# ==============================================================================
-# Tests for print.cograph_network - Mixed Scenarios
-# ==============================================================================
-
-test_that("print.cograph_network prefers list n_nodes over attr n_nodes", {
-  # Create an object that has BOTH list element and attr
-  net <- list(
-    n_nodes = 5,  # List element takes precedence
-    n_edges = 4,
-    directed = TRUE,
-    nodes = data.frame(name = paste0("N", 1:5), x = 1:5, y = 1:5),
-    edges = data.frame(from = 1:4, to = 2:5),
-    weight = rep(1, 4)
-  )
-  attr(net, "n_nodes") <- 10  # Should be ignored
-  class(net) <- c("cograph_network", "list")
-
-  output <- capture.output(print(net))
-  expect_true(any(grepl("5.*nodes", output)))
-  expect_false(any(grepl("10.*nodes", output)))
-})
 
 test_that("print.cograph_network handles partial x/y coordinates", {
-  net <- list(
-    n_nodes = 3,
-    n_edges = 2,
-    directed = FALSE,
-    nodes = data.frame(
-      name = c("A", "B", "C"),
-      x = c(0, NA, 0.5),  # Partial NAs
-      y = c(0, 0, 1)
-    ),
-    edges = data.frame(from = c("A", "B"), to = c("B", "C")),
-    weight = c(1, 1)
-  )
-  class(net) <- c("cograph_network", "list")
+  net <- make_test_net42(n_nodes = 3, n_edges = 2)
+  net$nodes$x <- c(0, NA, 0.5)  # Partial NAs
 
   output <- capture.output(print(net))
   # Should show "set" because not ALL are NA
@@ -572,38 +271,19 @@ test_that("print.cograph_network handles partial x/y coordinates", {
 })
 
 test_that("print.cograph_network handles all-NA coordinates as no layout", {
-  net <- list(
-    n_nodes = 3,
-    n_edges = 2,
-    directed = FALSE,
-    nodes = data.frame(
-      name = c("A", "B", "C"),
-      x = c(NA, NA, NA),
-      y = c(NA, NA, NA)
-    ),
-    edges = data.frame(from = c("A", "B"), to = c("B", "C")),
-    weight = c(1, 1)
-  )
-  class(net) <- c("cograph_network", "list")
+  net <- make_test_net42(n_nodes = 3, n_edges = 2, coords = FALSE)
 
   output <- capture.output(print(net))
   expect_true(any(grepl("Layout:.*none", output)))
 })
 
 # ==============================================================================
-# Tests for print.cograph_network - Output Structure
+# Tests for Output Structure
 # ==============================================================================
 
-test_that("print.cograph_network output order is consistent for list format", {
-  net <- list(
-    n_nodes = 3,
-    n_edges = 3,
-    directed = TRUE,
-    nodes = data.frame(name = c("A", "B", "C"), x = c(0, 1, 0.5), y = c(0, 0, 1)),
-    edges = data.frame(from = c("A", "B", "A"), to = c("B", "C", "C")),
-    weight = c(0.2, 0.5, 0.8)
-  )
-  class(net) <- c("cograph_network", "list")
+test_that("print.cograph_network output order is consistent", {
+  net <- make_test_net42(n_nodes = 3, n_edges = 3, directed = TRUE,
+                         weights = c(0.2, 0.5, 0.8))
 
   output <- capture.output(print(net))
 
@@ -611,31 +291,24 @@ test_that("print.cograph_network output order is consistent for list format", {
   expect_true(grepl("Cograph network:", output[1]))
   # Second line should contain "Weights:"
   expect_true(grepl("Weights:", output[2]))
-  # Third line should contain "Layout:"
-  expect_true(grepl("Layout:", output[3]))
+  # Layout line should be present
+  expect_true(any(grepl("Layout:", output)))
 })
 
-test_that("print.cograph_network output order for R6 format", {
-  adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-  r6_net <- CographNetwork$new(adj)
-  r6_net$set_theme(list(name = "default"))
-  r6_net$set_layout_coords(data.frame(x = c(0, 1, 0.5), y = c(0, 0, 1)))
+test_that("print.cograph_network output with source and data", {
+  net <- make_test_net42(n_nodes = 3, n_edges = 2,
+                         weights = c(0.3, 0.7),
+                         meta = list(source = "edgelist"),
+                         data = matrix(1:6, nrow = 2))
 
-  wrapper <- list(network = r6_net)
-  class(wrapper) <- c("cograph_network", "list")
+  output <- capture.output(print(net))
 
-  output <- capture.output(print(wrapper))
-
-  # Check structure - header, separator, details
-  header_line <- grep("Cograph Network", output)
-  separator_line <- grep("=", output)
-  nodes_line <- grep("Nodes:", output)
-  edges_line <- grep("Edges:", output)
-
-  expect_true(length(header_line) > 0)
-  expect_true(length(separator_line) > 0)
-  expect_true(length(nodes_line) > 0)
-  expect_true(length(edges_line) > 0)
+  # Check all sections present
+  expect_true(any(grepl("Cograph network:", output)))
+  expect_true(any(grepl("Weights:", output)))
+  expect_true(any(grepl("Source:.*edgelist", output)))
+  expect_true(any(grepl("Layout:", output)))
+  expect_true(any(grepl("Data:", output)))
 })
 
 # ==============================================================================
@@ -665,6 +338,7 @@ test_that("print works with cograph() from asymmetric matrix", {
 
   output <- capture.output(print(net))
   expect_true(any(grepl("Cograph", output)))
+  expect_true(any(grepl("directed", output)))
 })
 
 test_that("print works with cograph() from edgelist", {
@@ -679,20 +353,29 @@ test_that("print works with cograph() from edgelist", {
   expect_true(any(grepl("Cograph", output)))
 })
 
+test_that("print works with cograph() weighted network", {
+  adj <- matrix(c(0, 0.5, 0.3, 0.5, 0, 0.8, 0.3, 0.8, 0), nrow = 3)
+  net <- cograph(adj)
+
+  output <- capture.output(print(net))
+  expect_true(any(grepl("Weights:", output)))
+})
+
+test_that("print works with cograph() empty network", {
+  adj <- matrix(0, nrow = 3, ncol = 3)
+  net <- cograph(adj)
+
+  output <- capture.output(print(net))
+  expect_true(any(grepl("0.*edges", output)))
+})
+
 # ==============================================================================
 # Tests for Numeric Precision in Weight Display
 # ==============================================================================
 
 test_that("print.cograph_network rounds weights to 3 decimal places", {
-  net <- list(
-    n_nodes = 3,
-    n_edges = 2,
-    directed = FALSE,
-    nodes = data.frame(name = c("A", "B", "C"), x = c(0, 1, 0.5), y = c(0, 0, 1)),
-    edges = data.frame(from = c("A", "B"), to = c("B", "C")),
-    weight = c(0.123456789, 0.987654321)
-  )
-  class(net) <- c("cograph_network", "list")
+  net <- make_test_net42(n_nodes = 3, n_edges = 2,
+                         weights = c(0.123456789, 0.987654321))
 
   output <- capture.output(print(net))
   combined <- paste(output, collapse = " ")
@@ -706,39 +389,88 @@ test_that("print.cograph_network rounds weights to 3 decimal places", {
 # Tests Ensuring All Print Paths Return Properly
 # ==============================================================================
 
-test_that("print.cograph_network returns invisibly for all code paths", {
-  # List format
-  net1 <- list(
-    n_nodes = 3, n_edges = 2, directed = FALSE,
-    nodes = data.frame(name = c("A", "B", "C"), x = c(0, 1, 0.5), y = c(0, 0, 1)),
-    edges = data.frame(from = c("A", "B"), to = c("B", "C")),
-    weight = c(1, 1)
-  )
-  class(net1) <- c("cograph_network", "list")
+test_that("print.cograph_network returns invisibly for all configurations", {
+  # With edges
+  net1 <- make_test_net42(n_nodes = 3, n_edges = 2, weights = c(0.5, 0.8))
   result1 <- print(net1)
   expect_identical(result1, net1)
 
-  # Attr format
-  net2 <- list(edges = data.frame(from = "A", to = "B"), weight = 1)
-  attr(net2, "n_nodes") <- 2
-  attr(net2, "n_edges") <- 1
-  attr(net2, "directed") <- FALSE
-  attr(net2, "nodes") <- data.frame(name = c("A", "B"), x = c(0, 1), y = c(0, 1))
-  class(net2) <- c("cograph_network", "list")
+  # Without edges
+  net2 <- make_test_net42(n_nodes = 3, n_edges = 0)
   result2 <- print(net2)
   expect_identical(result2, net2)
 
-  # R6 wrapper format
-  adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-  r6_net <- CographNetwork$new(adj)
-  net3 <- list(network = r6_net)
-  class(net3) <- c("cograph_network", "list")
+  # With meta source
+  net3 <- make_test_net42(n_nodes = 3, n_edges = 2,
+                          meta = list(source = "matrix"))
   result3 <- print(net3)
   expect_identical(result3, net3)
 
-  # Fallback format
-  net4 <- list(data = "something")
-  class(net4) <- c("cograph_network", "list")
+  # With data
+  net4 <- make_test_net42(n_nodes = 3, n_edges = 2,
+                          data = data.frame(a = 1:3))
   result4 <- print(net4)
   expect_identical(result4, net4)
+
+  # No layout
+  net5 <- make_test_net42(n_nodes = 3, n_edges = 2, coords = FALSE)
+  result5 <- print(net5)
+  expect_identical(result5, net5)
+})
+
+test_that("print.cograph_network handles all output branches", {
+  # Branch: e > 0 with different weights
+  net1 <- make_test_net42(n_nodes = 3, n_edges = 2, weights = c(0.1, 0.9))
+  out1 <- capture.output(print(net1))
+  expect_true(any(grepl("to", out1)))
+
+  # Branch: e > 0 with equal weights
+  net2 <- make_test_net42(n_nodes = 3, n_edges = 2, weights = c(0.5, 0.5))
+  out2 <- capture.output(print(net2))
+  expect_true(any(grepl("all equal", out2)))
+
+  # Branch: e == 0 (no weights line)
+  net3 <- make_test_net42(n_nodes = 3, n_edges = 0)
+  out3 <- capture.output(print(net3))
+  expect_false(any(grepl("Weights:", out3)))
+
+  # Branch: source present and not "unknown"
+  net4 <- make_test_net42(n_nodes = 3, n_edges = 2,
+                          meta = list(source = "tna"))
+  out4 <- capture.output(print(net4))
+  expect_true(any(grepl("Source:.*tna", out4)))
+
+  # Branch: source "unknown" (hidden)
+  net5 <- make_test_net42(n_nodes = 3, n_edges = 2,
+                          meta = list(source = "unknown"))
+  out5 <- capture.output(print(net5))
+  expect_false(any(grepl("Source:", out5)))
+
+  # Branch: has_layout TRUE
+  net6 <- make_test_net42(n_nodes = 3, n_edges = 2, coords = TRUE)
+  out6 <- capture.output(print(net6))
+  expect_true(any(grepl("Layout:.*set", out6)))
+
+  # Branch: has_layout FALSE
+  net7 <- make_test_net42(n_nodes = 3, n_edges = 2, coords = FALSE)
+  out7 <- capture.output(print(net7))
+  expect_true(any(grepl("Layout:.*none", out7)))
+
+  # Branch: data present (matrix)
+  net8 <- make_test_net42(n_nodes = 3, n_edges = 2,
+                          data = matrix(1:6, nrow = 2))
+  out8 <- capture.output(print(net8))
+  expect_true(any(grepl("Data:", out8)))
+
+  # Branch: data present (vector, no dim)
+  net9 <- make_test_net42(n_nodes = 3, n_edges = 2,
+                          data = c(1.0, 2.0, 3.0))
+  out9 <- capture.output(print(net9))
+  expect_true(any(grepl("Data:.*numeric", out9)))
+  expect_true(any(grepl("length 3", out9)))
+
+  # Branch: data NULL (no Data line)
+  net10 <- make_test_net42(n_nodes = 3, n_edges = 2)
+  out10 <- capture.output(print(net10))
+  expect_false(any(grepl("Data:", out10)))
 })

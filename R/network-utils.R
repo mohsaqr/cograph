@@ -617,7 +617,7 @@ subset_edges <- filter_edges
     nodes = data.frame(id = integer(0), label = character(0)),
     edges = data.frame(from = integer(0), to = integer(0), weight = numeric(0)),
     directed = directed,
-    source = "filtered"
+    meta = list(source = "filtered")
   )
 }
 
@@ -666,9 +666,7 @@ subset_edges <- filter_edges
     nodes = new_nodes,
     edges = new_edges,
     directed = net$directed,
-    source = "filtered",
-    layout_info = NULL,
-    tna = net$tna,
+    meta = list(source = "filtered", tna = net$meta$tna),
     weights = new_weights
   )
 }
@@ -712,9 +710,7 @@ subset_edges <- filter_edges
         nodes = new_nodes,
         edges = remapped_edges,
         directed = net$directed,
-        source = "filtered",
-        layout_info = NULL,
-        tna = net$tna,
+        meta = list(source = "filtered", tna = net$meta$tna),
         weights = new_weights
       ))
     }
@@ -737,9 +733,11 @@ subset_edges <- filter_edges
     nodes = nodes,
     edges = new_edges,
     directed = net$directed,
-    source = "filtered",
-    layout_info = net$layout_info,
-    tna = net$tna,
+    meta = list(
+      source = "filtered",
+      layout = net$meta$layout,
+      tna = net$meta$tna
+    ),
     weights = new_weights
   )
 }

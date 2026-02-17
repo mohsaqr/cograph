@@ -323,12 +323,12 @@ test_that(".create_cograph_network() creates valid structure", {
     nodes = nodes,
     edges = edges,
     directed = FALSE,
-    source = "test"
+    meta = list(source = "test")
   )
 
   expect_s3_class(net, "cograph_network")
   expect_s3_class(net, "list")
-  expect_equal(net$source, "test")
+  expect_equal(net$meta$source, "test")
   expect_false(net$directed)
 })
 
@@ -340,7 +340,7 @@ test_that(".create_cograph_network() handles empty edges", {
     nodes = nodes,
     edges = edges,
     directed = FALSE,
-    source = "test"
+    meta = list(source = "test")
   )
 
   expect_equal(nrow(net$edges), 0)
@@ -365,27 +365,24 @@ test_that(".create_cograph_network() preserves optional fields", {
   edges <- data.frame(from = c(1, 2), to = c(2, 3), weight = c(0.5, 0.8))
   weights_mat <- matrix(0, 3, 3)
   tna_meta <- list(type = "single", group_name = "Test")
-  layout_info <- list(name = "spring", seed = 42)
+  layout_meta <- list(name = "spring", seed = 42)
 
   net <- .create_cograph_network(
     nodes = nodes,
     edges = edges,
     directed = TRUE,
-    source = "tna",
-    weights = weights_mat,
-    tna = tna_meta,
-    layout_info = layout_info,
-    layers = c("A", "A", "B"),
-    clusters = c(1, 1, 2),
-    groups = c("G1", "G1", "G2")
+    meta = list(
+      source = "tna",
+      tna = tna_meta,
+      layout = layout_meta
+    ),
+    weights = weights_mat
   )
 
-  expect_equal(net$tna$type, "single")
-  expect_equal(net$tna$group_name, "Test")
-  expect_equal(net$layout_info$name, "spring")
-  expect_equal(net$layers, c("A", "A", "B"))
-  expect_equal(net$clusters, c(1, 1, 2))
-  expect_equal(net$groups, c("G1", "G1", "G2"))
+  expect_equal(net$meta$tna$type, "single")
+  expect_equal(net$meta$tna$group_name, "Test")
+  expect_equal(net$meta$layout$name, "spring")
+  expect_equal(net$meta$source, "tna")
 })
 
 # =============================================================================
@@ -407,7 +404,7 @@ test_that("as_cograph() creates network from symmetric matrix", {
   expect_s3_class(net, "cograph_network")
   expect_equal(n_nodes(net), 4)
   expect_false(is_directed(net))
-  expect_equal(net$source, "matrix")
+  expect_equal(net$meta$source, "matrix")
 })
 
 test_that("as_cograph() creates network from asymmetric matrix", {
@@ -439,7 +436,7 @@ test_that("as_cograph() creates network from edge list data.frame", {
 
   expect_s3_class(net, "cograph_network")
   expect_equal(n_nodes(net), 3)
-  expect_equal(net$source, "edgelist")
+  expect_equal(net$meta$source, "edgelist")
 })
 
 test_that("as_cograph() preserves weight matrix", {

@@ -32,9 +32,11 @@ A cograph_network object: a named list with components:
 \item{\code{edges}}{Data frame with from, to, weight columns}
 \item{\code{directed}}{Logical indicating if network is directed}
 \item{\code{weights}}{Full n×n weight matrix (for to_matrix round-trip)}
-\item{\code{source}}{Character indicating input type}
-\item{\code{layout_info}}{Layout algorithm info (NULL until computed)}
-\item{\code{tna}}{TNA metadata (type, group_name, group_index) if from TNA}
+\item{\code{data}}{Original estimation data (sequence matrix, edge list, etc.), or NULL}
+\item{\code{meta}}{Consolidated metadata list with sub-fields:
+\code{source} (input type string),
+\code{layout} (layout info list or NULL),
+\code{tna} (TNA metadata or NULL)}
 \item{\code{node_groups}}{Optional node groupings data frame}
 }
 }

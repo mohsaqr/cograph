@@ -1,5 +1,16 @@
 # Project Learnings
 
+### 2026-02-18
+- [chord diagram]: Implemented `plot_chord()` in `R/plot-chord.R` using base R graphics only.
+  - Reuses `.extract_weights()` from `plot-compare.R` and `bezier_points()` from `utils-geometry.R`.
+  - **Critical: d3-chord cross-connection** — beziers connect OPPOSITE arc corners (from_end→to_start, to_end→from_start), NOT parallel corners. This keeps ribbons naturally thick through the centre.
+  - Directed networks split each segment into outgoing/incoming halves; undirected share full arc.
+  - Default palette: vibrant Material Design colors (not pastel) — chord diagrams need saturated colors.
+  - Tick marks auto-detect weight scale: 0–1 probability (interval 0.1) vs integer (nice interval).
+  - `vapply()` cannot return `NULL` (side-effect loops) — use `lapply()` for drawing operations.
+  - `skip_if_not()` in testthat does NOT accept `mode` as second positional arg — use named: `exists("fn", mode = "function")`.
+  - Showcase: `showcase/chord_diagram_guide.Rmd`
+
 ### 2026-02-17
 - [cograph_network restructuring]: Field paths changed in the lean cograph_network object:
   - `$source` → `$meta$source`, `$tna` → `$meta$tna`, `$layout_info` → `$meta$layout`

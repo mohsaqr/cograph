@@ -1,0 +1,220 @@
+---
+title: "Chord Diagram Guide"
+subtitle: "cograph — Native Chord Diagrams with Base R"
+output:
+  html_document:
+    theme: flatly
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  fig.width = 8, fig.height = 8,
+  echo = TRUE, warning = FALSE, message = FALSE
+)
+devtools::load_all(".")
+```
+
+# Overview
+
+`plot_chord()` draws chord diagrams entirely with base R graphics — no
+external dependencies like circlize or chorddiag. Nodes are arcs on the outer
+ring (proportional to total flow) and edges are curved ribbons (proportional
+to weight).
+
+Accepts weight matrices, `cograph_network`, `tna`, and `igraph` objects.
+
+---
+
+# Quick Start
+
+```{r quick-start}
+mat <- matrix(c(
+   0, 25,  5, 15,  2,
+  10,  0, 20,  8, 12,
+   3, 18,  0, 30,  7,
+  20,  5, 10,  0, 15,
+   8, 14,  6, 12,  0
+), 5, 5, byrow = TRUE,
+dimnames = list(
+  c("Learning\nAnalytics", "Network\nAnalysis", "TNA",
+    "ICS", "Generative AI"),
+  c("Learning\nAnalytics", "Network\nAnalysis", "TNA",
+    "ICS", "Generative AI")
+))
+
+plot_chord(mat, chord_alpha = 0.45, segment_width = 0.10,
+           title = "Research Collaboration Network")
+```
+
+---
+
+# TNA Integration
+
+`plot_chord()` accepts `tna` objects directly. Transition probabilities (0–1)
+are auto-detected for tick scaling.
+
+```{r tna-integration}
+library(tna)
+model <- tna(group_regulation)
+
+plot_chord(model,
+           chord_alpha = 0.45,
+           segment_width = 0.10,
+           ticks = TRUE,
+           title = "Group Regulation Transitions")
+```
+
+---
+
+# Customisation
+
+## Segment Colors
+
+Pass a vector of colors matching the number of nodes.
+
+```{r custom-colors}
+plot_chord(mat,
+           segment_colors = c("#6A1B9A", "#E53935", "#00897B",
+                              "#FFB300", "#1E88E5"),
+           chord_alpha = 0.5,
+           segment_width = 0.12,
+           title = "Custom Colors")
+```
+
+## Chord Coloring
+
+Color ribbons by `"source"` (default) or `"target"` segment.
+
+```{r color-by-target, fig.width=14, fig.height=7}
+par(mfrow = c(1, 2))
+plot_chord(mat, chord_color_by = "source", chord_alpha = 0.5,
+           title = "Color by Source")
+plot_chord(mat, chord_color_by = "target", chord_alpha = 0.5,
+           title = "Color by Target")
+```
+
+## Threshold Filtering
+
+Remove weak edges to reduce clutter.
+
+```{r threshold}
+plot_chord(model,
+           chord_alpha = 0.5,
+           threshold = 0.10,
+           self_loop = FALSE,
+           ticks = TRUE,
+           segment_width = 0.10,
+           title = "Threshold = 0.10, No Self-Loops")
+```
+
+## Tick Marks
+
+Tick marks show magnitude along the outer ring. The interval auto-detects the
+weight scale (0–1 for probabilities, integers otherwise).
+
+```{r ticks, fig.width=14, fig.height=7}
+par(mfrow = c(1, 2))
+
+# Probability scale (TNA)
+plot_chord(model, ticks = TRUE, segment_width = 0.10,
+           chord_alpha = 0.45, title = "TNA (auto: 0.1 ticks)")
+
+# Integer scale
+plot_chord(mat, ticks = TRUE, segment_width = 0.10,
+           chord_alpha = 0.45, title = "Integer (auto ticks)")
+```
+
+## Layout Direction
+
+```{r layout-direction, fig.width=14, fig.height=7}
+par(mfrow = c(1, 2))
+plot_chord(mat, start_angle = pi/2, clockwise = TRUE,
+           title = "Clockwise (default)")
+plot_chord(mat, start_angle = pi/2, clockwise = FALSE,
+           title = "Counter-Clockwise")
+```
+
+## Background and Title
+
+```{r dark-background}
+plot_chord(mat,
+           segment_colors = c("#FF6F61", "#6B5B95", "#88B04B",
+                              "#F7CAC9", "#92A8D1"),
+           chord_alpha = 0.5,
+           segment_border_color = "#1a1a2e",
+           background = "#1a1a2e",
+           label_color = "white",
+           title = "Dark Background",
+           title_size = 1.4)
+```
+
+---
+
+# Segment Width and Padding
+
+Control the ring thickness and gaps between segments.
+
+```{r ring-params, fig.width=14, fig.height=7}
+par(mfrow = c(1, 2))
+plot_chord(mat, segment_width = 0.05, segment_pad = 0.01,
+           title = "Thin Ring, Small Gaps")
+plot_chord(mat, segment_width = 0.15, segment_pad = 0.08,
+           title = "Wide Ring, Large Gaps")
+```
+
+---
+
+# Input Types
+
+## From cograph_network
+
+```{r cograph-input}
+net <- cograph(mat)
+plot_chord(net, chord_alpha = 0.5, title = "From cograph_network")
+```
+
+## From igraph
+
+```{r igraph-input}
+library(igraph)
+g <- graph_from_adjacency_matrix(mat, mode = "directed", weighted = TRUE)
+plot_chord(g, chord_alpha = 0.45, title = "From igraph object")
+```
+
+---
+
+# Directed vs Undirected
+
+```{r directed-vs-undirected, fig.width=14, fig.height=7}
+par(mfrow = c(1, 2))
+plot_chord(mat, directed = TRUE, chord_alpha = 0.45,
+           title = "Directed (each direction separate)")
+plot_chord(mat, directed = FALSE, chord_alpha = 0.45,
+           title = "Undirected (merged)")
+```
+
+---
+
+# Full Parameter Reference
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `segment_colors` | vibrant palette | Colors for outer ring arcs |
+| `segment_border_color` | `"white"` | Border between segments |
+| `segment_width` | `0.08` | Ring thickness (fraction of radius) |
+| `segment_pad` | `0.02` | Gap between segments (radians) |
+| `chord_color_by` | `"source"` | `"source"`, `"target"`, or color vector |
+| `chord_alpha` | `0.5` | Ribbon transparency |
+| `chord_border` | `NA` | Ribbon outline color |
+| `self_loop` | `TRUE` | Show self-loop chords |
+| `threshold` | `0` | Min weight to show chord |
+| `ticks` | `FALSE` | Show magnitude tick marks |
+| `tick_interval` | auto | Spacing between ticks |
+| `labels` | row names | `NULL` = auto, `FALSE` = hide |
+| `label_size` | `1` | Label text size |
+| `start_angle` | `pi/2` | Starting angle (top) |
+| `clockwise` | `TRUE` | Layout direction |
+| `background` | `NULL` | Plot background color |
+| `title_size` | `1.2` | Title text size |

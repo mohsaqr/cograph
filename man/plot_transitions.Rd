@@ -38,7 +38,10 @@ plot_transitions(
   line_alpha = 0.3,
   line_width = 0.5,
   jitter_amount = 0.8,
-  proportional_nodes = TRUE
+  proportional_nodes = TRUE,
+  node_label_format = NULL,
+  bundle_size = NULL,
+  bundle_legend = TRUE
 )
 }
 \arguments{
@@ -120,6 +123,16 @@ Default FALSE. When TRUE, each row in the data frame becomes a separate line.}
 \item{jitter_amount}{Vertical jitter for individual lines (0-1). Default 0.8.}
 
 \item{proportional_nodes}{Logical: size nodes proportionally to counts? Default TRUE.}
+
+\item{node_label_format}{Format string for node labels with \code{{state}} and
+\code{{count}} placeholders. Default NULL (plain state name).
+Example: \code{"{state} (n={count})"}.}
+
+\item{bundle_size}{Controls line bundling for large datasets. Default NULL (no bundling).
+Integer >= 2: each drawn line represents that many cases.
+Numeric in (0,1): each line represents that fraction of total individuals.}
+
+\item{bundle_legend}{Logical: show annotation when bundling is active? Default TRUE.}
 }
 \value{
 A ggplot2 object.

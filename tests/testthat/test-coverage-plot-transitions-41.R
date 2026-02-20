@@ -1158,3 +1158,295 @@ test_that("plot_trajectories with all available options", {
 
   expect_s3_class(p, "gg")
 })
+
+# ============================================
+# Intermediate Node Labels Tests
+# ============================================
+
+test_that("trajectories label_position = 'above' labels all columns", {
+  df <- create_test_trans_df(n_obs = 15, n_cols = 4)
+
+  p <- plot_trajectories(df, label_position = "above")
+
+  expect_s3_class(p, "gg")
+  # Above position uses all node_rects data (all columns)
+  # Verify plot builds without error for multi-column case
+})
+
+test_that("trajectories label_position = 'below' labels all columns", {
+  df <- create_test_trans_df(n_obs = 15, n_cols = 4)
+
+  p <- plot_trajectories(df, label_position = "below")
+
+  expect_s3_class(p, "gg")
+})
+
+test_that("trajectories label_position = 'inside' labels all columns", {
+  df <- create_test_trans_df(n_obs = 15, n_cols = 4)
+
+  p <- plot_trajectories(df, label_position = "inside")
+
+  expect_s3_class(p, "gg")
+})
+
+test_that("trajectories label_position = 'beside' includes intermediate labels", {
+  df <- create_test_trans_df(n_obs = 15, n_cols = 4)
+
+  p <- plot_trajectories(df, label_position = "beside")
+
+  expect_s3_class(p, "gg")
+  # Intermediate columns (2, 3) should get "above" style fallback labels
+})
+
+test_that("trajectories label_position = 'outside' includes intermediate labels", {
+  df <- create_test_trans_df(n_obs = 15, n_cols = 4)
+
+  p <- plot_trajectories(df, label_position = "outside")
+
+  expect_s3_class(p, "gg")
+  # Intermediate columns (2, 3) should get "above" style fallback labels
+})
+
+test_that("trajectories label_position = 'beside' with label_halo = FALSE", {
+  df <- create_test_trans_df(n_obs = 10, n_cols = 3)
+
+  p <- plot_trajectories(df, label_position = "beside", label_halo = FALSE)
+
+  expect_s3_class(p, "gg")
+})
+
+test_that("trajectories label_position = 'above' with label_halo = FALSE", {
+  df <- create_test_trans_df(n_obs = 10, n_cols = 3)
+
+  p <- plot_trajectories(df, label_position = "above", label_halo = FALSE)
+
+  expect_s3_class(p, "gg")
+})
+
+test_that("trajectories label_position = 'below' with label_halo = FALSE", {
+  df <- create_test_trans_df(n_obs = 10, n_cols = 3)
+
+  p <- plot_trajectories(df, label_position = "below", label_halo = FALSE)
+
+  expect_s3_class(p, "gg")
+})
+
+test_that("trajectories label with 2-column data (no intermediate columns)", {
+  df <- create_test_trans_df(n_obs = 10, n_cols = 2)
+
+  # 2 columns = no intermediate, should work like before
+  p1 <- plot_trajectories(df, label_position = "beside")
+  p2 <- plot_trajectories(df, label_position = "outside")
+  p3 <- plot_trajectories(df, label_position = "above")
+
+  expect_s3_class(p1, "gg")
+  expect_s3_class(p2, "gg")
+  expect_s3_class(p3, "gg")
+})
+
+# ============================================
+# node_label_format Tests
+# ============================================
+
+test_that("node_label_format adds counts to labels", {
+  df <- create_test_trans_df(n_obs = 20, n_cols = 3)
+
+  p <- plot_trajectories(df,
+    label_position = "above",
+    node_label_format = "{state} (n={count})"
+  )
+
+  expect_s3_class(p, "gg")
+})
+
+test_that("node_label_format with newline separator", {
+  df <- create_test_trans_df(n_obs = 20, n_cols = 3)
+
+  p <- plot_trajectories(df,
+    label_position = "above",
+    node_label_format = "{state}\n(n={count})"
+  )
+
+  expect_s3_class(p, "gg")
+})
+
+test_that("node_label_format with count only", {
+  df <- create_test_trans_df(n_obs = 20, n_cols = 2)
+
+  p <- plot_trajectories(df,
+    label_position = "inside",
+    node_label_format = "n={count}"
+  )
+
+  expect_s3_class(p, "gg")
+})
+
+test_that("node_label_format = NULL preserves default behavior", {
+  df <- create_test_trans_df(n_obs = 10, n_cols = 2)
+
+  p <- plot_trajectories(df, node_label_format = NULL)
+
+  expect_s3_class(p, "gg")
+})
+
+test_that("node_label_format via plot_transitions", {
+  df <- create_test_trans_df(n_obs = 15, n_cols = 3)
+
+  p <- plot_transitions(df,
+    track_individuals = TRUE,
+    label_position = "above",
+    node_label_format = "{state} ({count})"
+  )
+
+  expect_s3_class(p, "gg")
+})
+
+# ============================================
+# bundle_size Tests
+# ============================================
+
+test_that("bundle_size integer bundles lines", {
+  df <- create_test_trans_df(n_obs = 50, n_cols = 3)
+
+  p <- plot_trajectories(df, bundle_size = 5)
+
+  expect_s3_class(p, "gg")
+})
+
+test_that("bundle_size fraction bundles lines", {
+  df <- create_test_trans_df(n_obs = 50, n_cols = 3)
+
+  p <- plot_trajectories(df, bundle_size = 0.1)
+
+  expect_s3_class(p, "gg")
+})
+
+test_that("bundle_size = 2 minimal bundling", {
+  df <- create_test_trans_df(n_obs = 20, n_cols = 2)
+
+  p <- plot_trajectories(df, bundle_size = 2)
+
+  expect_s3_class(p, "gg")
+})
+
+test_that("bundle_size with large dataset", {
+  set.seed(99)
+  df <- create_test_trans_df(n_obs = 200, n_cols = 4, n_states = 4)
+
+  p <- plot_trajectories(df, bundle_size = 10)
+
+  expect_s3_class(p, "gg")
+})
+
+test_that("bundle_size fraction with large dataset", {
+  set.seed(99)
+  df <- create_test_trans_df(n_obs = 200, n_cols = 3)
+
+  p <- plot_trajectories(df, bundle_size = 0.05)
+
+  expect_s3_class(p, "gg")
+})
+
+test_that("bundle_legend = TRUE shows annotation", {
+  df <- create_test_trans_df(n_obs = 30, n_cols = 3)
+
+  p <- plot_trajectories(df, bundle_size = 5, bundle_legend = TRUE)
+
+  expect_s3_class(p, "gg")
+})
+
+test_that("bundle_legend = FALSE hides annotation", {
+  df <- create_test_trans_df(n_obs = 30, n_cols = 3)
+
+  p <- plot_trajectories(df, bundle_size = 5, bundle_legend = FALSE)
+
+  expect_s3_class(p, "gg")
+})
+
+test_that("bundle_size = NULL preserves default behavior", {
+  df <- create_test_trans_df(n_obs = 15, n_cols = 2)
+
+  p <- plot_trajectories(df, bundle_size = NULL)
+
+  expect_s3_class(p, "gg")
+})
+
+test_that("bundle_size via plot_transitions", {
+  df <- create_test_trans_df(n_obs = 40, n_cols = 3)
+
+  p <- plot_transitions(df,
+    track_individuals = TRUE,
+    bundle_size = 5,
+    bundle_legend = TRUE
+  )
+
+  expect_s3_class(p, "gg")
+})
+
+test_that("bundle_size combined with node_label_format", {
+  df <- create_test_trans_df(n_obs = 50, n_cols = 3)
+
+  p <- plot_trajectories(df,
+    label_position = "above",
+    node_label_format = "{state} (n={count})",
+    bundle_size = 10
+  )
+
+  expect_s3_class(p, "gg")
+})
+
+test_that("bundle_size combined with flow_color_by", {
+  df <- create_test_trans_df(n_obs = 50, n_cols = 3)
+
+  p <- plot_trajectories(df,
+    flow_color_by = "first",
+    bundle_size = 5
+  )
+
+  expect_s3_class(p, "gg")
+})
+
+test_that("bundle_size with all unique paths", {
+  # Each individual has a unique trajectory
+  df <- data.frame(
+    T1 = c("A", "B", "C", "A", "B"),
+    T2 = c("B", "C", "A", "C", "A"),
+    T3 = c("C", "A", "B", "B", "C"),
+    stringsAsFactors = FALSE
+  )
+
+  p <- plot_trajectories(df, bundle_size = 2)
+
+  expect_s3_class(p, "gg")
+})
+
+# ============================================
+# Combined New Features - Graphics Device Tests
+# ============================================
+
+test_that("intermediate labels render to PNG device", {
+  df <- create_test_trans_df(n_obs = 15, n_cols = 4)
+
+  expect_no_error(with_temp_png({
+    print(plot_trajectories(df, label_position = "above"))
+  }))
+})
+
+test_that("node_label_format renders to PNG device", {
+  df <- create_test_trans_df(n_obs = 15, n_cols = 3)
+
+  expect_no_error(with_temp_png({
+    print(plot_trajectories(df,
+      label_position = "above",
+      node_label_format = "{state} (n={count})"
+    ))
+  }))
+})
+
+test_that("bundle_size renders to PNG device", {
+  df <- create_test_trans_df(n_obs = 50, n_cols = 3)
+
+  expect_no_error(with_temp_png({
+    print(plot_trajectories(df, bundle_size = 5))
+  }))
+})

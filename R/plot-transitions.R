@@ -56,6 +56,13 @@ NULL
 #' @param line_width Width of individual tracking lines. Default 0.5.
 #' @param jitter_amount Vertical jitter for individual lines (0-1). Default 0.8.
 #' @param proportional_nodes Logical: size nodes proportionally to counts? Default TRUE.
+#' @param node_label_format Format string for node labels with \code{{state}} and
+#'   \code{{count}} placeholders. Default NULL (plain state name).
+#'   Example: \code{"{state} (n={count})"}.
+#' @param bundle_size Controls line bundling for large datasets. Default NULL (no bundling).
+#'   Integer >= 2: each drawn line represents that many cases.
+#'   Numeric in (0,1): each line represents that fraction of total individuals.
+#' @param bundle_legend Logical: show annotation when bundling is active? Default TRUE.
 #'
 #' @return A ggplot2 object.
 #'
@@ -128,7 +135,10 @@ plot_transitions <- function(x,
                              line_alpha = 0.3,
                              line_width = 0.5,
                              jitter_amount = 0.8,
-                             proportional_nodes = TRUE) {
+                             proportional_nodes = TRUE,
+                             node_label_format = NULL,
+                             bundle_size = NULL,
+                             bundle_legend = TRUE) {
 
   label_position <- match.arg(label_position)
   value_position <- match.arg(value_position)
@@ -183,7 +193,9 @@ plot_transitions <- function(x,
       jitter_amount = jitter_amount,
       show_totals = show_totals, total_size = total_size,
       total_color = total_color, column_gap = column_gap,
-      proportional_nodes = proportional_nodes
+      proportional_nodes = proportional_nodes,
+      node_label_format = node_label_format,
+      bundle_size = bundle_size, bundle_legend = bundle_legend
     ))
   }
 
@@ -1090,7 +1102,10 @@ plot_transitions <- function(x,
                                      curve_strength, line_alpha, line_width,
                                      jitter_amount, show_totals, total_size,
                                      total_color, column_gap = 1,
-                                     proportional_nodes = TRUE) {
+                                     proportional_nodes = TRUE,
+                                     node_label_format = NULL,
+                                     bundle_size = NULL,
+                                     bundle_legend = TRUE) {
 
   n_columns <- ncol(df)
   n_individuals <- nrow(df)
@@ -1156,6 +1171,43 @@ plot_transitions <- function(x,
   trajectories <- lapply(seq_len(n_individuals), function(i) {
     as.character(unlist(df[i, ]))
   })
+
+  # Line bundling: aggregate trajectories when bundle_size is set
+  bundled_weights <- rep(1L, length(trajectories))
+  cases_per_line <- 1L
+  if (!is.null(bundle_size)) {
+    # Compute path strings for each individual
+    path_strings <- vapply(trajectories, paste, character(1), collapse = "->")
+    path_counts <- table(path_strings)
+
+    # Compute cases_per_line from bundle_size
+    if (bundle_size > 0 && bundle_size < 1) {
+      # Fraction mode: each line represents that fraction of total
+      cases_per_line <- max(1L, round(n_individuals * bundle_size))
+    } else {
+      # Integer mode: each line represents bundle_size cases
+      cases_per_line <- max(1L, as.integer(bundle_size))
+    }
+
+    # Build reduced trajectory list
+    new_trajectories <- list()
+    new_weights <- integer(0)
+    for (path_name in names(path_counts)) {
+      path_count <- as.integer(path_counts[path_name])
+      lines_to_draw <- max(1L, round(path_count / cases_per_line))
+      # Find first occurrence of this path to get the trajectory
+      first_idx <- which(path_strings == path_name)[1]
+      traj <- trajectories[[first_idx]]
+      weight_per_line <- path_count / lines_to_draw
+      for (k in seq_len(lines_to_draw)) {
+        new_trajectories[[length(new_trajectories) + 1]] <- traj
+        new_weights <- c(new_weights, weight_per_line)
+      }
+    }
+    trajectories <- new_trajectories
+    bundled_weights <- new_weights
+    n_individuals <- length(trajectories)
+  }
 
   # For each segment, compute proper alluvial ordering
   for (seg in seq_len(n_columns - 1)) {
@@ -1268,6 +1320,7 @@ plot_transitions <- function(x,
           to_state = ts,
           first_state = sub_data$first_state[j],
           last_state = sub_data$last_state[j],
+          bundled_weight = bundled_weights[ind],
           stringsAsFactors = FALSE
         )
       }
@@ -1317,16 +1370,47 @@ plot_transitions <- function(x,
 
   node_rects <- do.call(rbind, all_rects)
 
+  # Apply node_label_format if specified
+  if (!is.null(node_label_format)) {
+    node_rects$label <- mapply(function(state, count) {
+      out <- gsub("{state}", state, node_label_format, fixed = TRUE)
+      gsub("{count}", count, out, fixed = TRUE)
+    }, node_rects$label, node_rects$total, USE.NAMES = FALSE)
+  }
+
   # Create plot
-  p <- ggplot() +
-    # Individual lines (draw first, behind nodes)
-    geom_path(
-      data = lines_df,
-      aes(x = x, y = y, group = group, color = line_color),
-      alpha = line_alpha,
-      linewidth = line_width
-    ) +
-    scale_color_identity() +
+  if (!is.null(bundle_size)) {
+    # Scale line widths by bundled_weight
+    lw_min <- line_width * 0.5
+    lw_max <- line_width * 3
+    w_range <- range(lines_df$bundled_weight)
+    if (w_range[1] == w_range[2]) {
+      lines_df$lw <- line_width
+    } else {
+      lines_df$lw <- lw_min + (lines_df$bundled_weight - w_range[1]) /
+        (w_range[2] - w_range[1]) * (lw_max - lw_min)
+    }
+    p <- ggplot() +
+      geom_path(
+        data = lines_df,
+        aes(x = x, y = y, group = group, color = line_color, linewidth = lw),
+        alpha = line_alpha
+      ) +
+      scale_linewidth_identity() +
+      scale_color_identity()
+  } else {
+    p <- ggplot() +
+      # Individual lines (draw first, behind nodes)
+      geom_path(
+        data = lines_df,
+        aes(x = x, y = y, group = group, color = line_color),
+        alpha = line_alpha,
+        linewidth = line_width
+      ) +
+      scale_color_identity()
+  }
+
+  p <- p +
     # Nodes
     geom_rect(
       data = node_rects,
@@ -1338,56 +1422,121 @@ plot_transitions <- function(x,
   # Halo offsets for text readability
   halo_off <- 0.004
 
-  # Add labels with halo
-  if (label_position == "beside") {
+  # Add labels for ALL columns with full position support
+  if (label_position == "beside" || label_position == "outside") {
+    # First/last columns: beside/outside positioning as before
+    # Intermediate columns: fall back to "above" positioning
     left_data <- node_rects[node_rects$col == 1, ]
     right_data <- node_rects[node_rects$col == n_columns, ]
+    mid_data <- node_rects[node_rects$col > 1 & node_rects$col < n_columns, ]
 
+    if (label_position == "beside") {
+      if (label_halo) {
+        for (dx in c(-1, 0, 1)) {
+          for (dy in c(-1, 0, 1)) {
+            if (dx != 0 || dy != 0) {
+              p <- p +
+                geom_text(data = left_data, aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
+                          hjust = 0, size = label_size, color = "white",
+                          nudge_x = dx * halo_off, nudge_y = dy * halo_off) +
+                geom_text(data = right_data, aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
+                          hjust = 1, size = label_size, color = "white",
+                          nudge_x = dx * halo_off, nudge_y = dy * halo_off)
+            }
+          }
+        }
+      }
+      p <- p +
+        geom_text(data = left_data, aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
+                  hjust = 0, size = label_size) +
+        geom_text(data = right_data, aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
+                  hjust = 1, size = label_size)
+    } else {
+      # "outside": left column labels to the left, right column to the right
+      if (label_halo) {
+        for (dx in c(-1, 0, 1)) {
+          for (dy in c(-1, 0, 1)) {
+            if (dx != 0 || dy != 0) {
+              p <- p +
+                geom_text(data = left_data, aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
+                          hjust = 1, size = label_size, color = "white",
+                          nudge_x = dx * halo_off, nudge_y = dy * halo_off) +
+                geom_text(data = right_data, aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
+                          hjust = 0, size = label_size, color = "white",
+                          nudge_x = dx * halo_off, nudge_y = dy * halo_off)
+            }
+          }
+        }
+      }
+      p <- p +
+        geom_text(data = left_data, aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
+                  hjust = 1, size = label_size) +
+        geom_text(data = right_data, aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
+                  hjust = 0, size = label_size)
+    }
+
+    # Intermediate columns: use "above" positioning
+    if (nrow(mid_data) > 0) {
+      if (label_halo) {
+        for (dx in c(-1, 0, 1)) {
+          for (dy in c(-1, 0, 1)) {
+            if (dx != 0 || dy != 0) {
+              p <- p + geom_text(
+                data = mid_data,
+                aes(x = x_pos, y = ymax + 0.02, label = label),
+                hjust = 0.5, vjust = 0, size = label_size, color = "white",
+                nudge_x = dx * halo_off, nudge_y = dy * halo_off
+              )
+            }
+          }
+        }
+      }
+      p <- p + geom_text(data = mid_data,
+        aes(x = x_pos, y = ymax + 0.02, label = label),
+        hjust = 0.5, vjust = 0, size = label_size)
+    }
+
+  } else if (label_position == "above") {
     if (label_halo) {
       for (dx in c(-1, 0, 1)) {
         for (dy in c(-1, 0, 1)) {
           if (dx != 0 || dy != 0) {
-            p <- p +
-              geom_text(data = left_data, aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
-                        hjust = 0, size = label_size, color = "white",
-                        nudge_x = dx * halo_off, nudge_y = dy * halo_off) +
-              geom_text(data = right_data, aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
-                        hjust = 1, size = label_size, color = "white",
-                        nudge_x = dx * halo_off, nudge_y = dy * halo_off)
+            p <- p + geom_text(
+              data = node_rects,
+              aes(x = x_pos, y = ymax + 0.02, label = label),
+              hjust = 0.5, vjust = 0, size = label_size, color = "white",
+              nudge_x = dx * halo_off, nudge_y = dy * halo_off
+            )
           }
         }
       }
     }
-    p <- p +
-      geom_text(data = left_data, aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
-                hjust = 0, size = label_size) +
-      geom_text(data = right_data, aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
-                hjust = 1, size = label_size)
+    p <- p + geom_text(
+      data = node_rects,
+      aes(x = x_pos, y = ymax + 0.02, label = label),
+      hjust = 0.5, vjust = 0, size = label_size
+    )
 
-  } else if (label_position == "outside") {
-    left_data <- node_rects[node_rects$col == 1, ]
-    right_data <- node_rects[node_rects$col == n_columns, ]
-
+  } else if (label_position == "below") {
     if (label_halo) {
       for (dx in c(-1, 0, 1)) {
         for (dy in c(-1, 0, 1)) {
           if (dx != 0 || dy != 0) {
-            p <- p +
-              geom_text(data = left_data, aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
-                        hjust = 1, size = label_size, color = "white",
-                        nudge_x = dx * halo_off, nudge_y = dy * halo_off) +
-              geom_text(data = right_data, aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
-                        hjust = 0, size = label_size, color = "white",
-                        nudge_x = dx * halo_off, nudge_y = dy * halo_off)
+            p <- p + geom_text(
+              data = node_rects,
+              aes(x = x_pos, y = ymin - 0.02, label = label),
+              hjust = 0.5, vjust = 1, size = label_size, color = "white",
+              nudge_x = dx * halo_off, nudge_y = dy * halo_off
+            )
           }
         }
       }
     }
-    p <- p +
-      geom_text(data = left_data, aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
-                hjust = 1, size = label_size) +
-      geom_text(data = right_data, aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
-                hjust = 0, size = label_size)
+    p <- p + geom_text(
+      data = node_rects,
+      aes(x = x_pos, y = ymin - 0.02, label = label),
+      hjust = 0.5, vjust = 1, size = label_size
+    )
 
   } else if (label_position == "inside") {
     p <- p + geom_text(
@@ -1427,11 +1576,25 @@ plot_transitions <- function(x,
     )
   }
 
+  # Bundle legend annotation
+  if (!is.null(bundle_size) && bundle_legend) {
+    legend_y <- min(node_rects$ymin) - 0.04
+    legend_text <- sprintf("Each line \u2248 %s cases", round(cases_per_line))
+    p <- p + annotate("text",
+      x = 0.5, y = legend_y,
+      label = legend_text, size = 3, color = "grey50", fontface = "italic"
+    )
+  }
+
   # Theme
+  y_bottom <- min(node_rects$ymin) - 0.05
+  if (!is.null(bundle_size) && bundle_legend) {
+    y_bottom <- min(node_rects$ymin) - 0.08
+  }
   p <- p +
     coord_cartesian(
       xlim = c(-0.15, 1.15),
-      ylim = c(min(node_rects$ymin) - 0.05, max(node_rects$ymax) + 0.1),
+      ylim = c(y_bottom, max(node_rects$ymax) + 0.1),
       clip = "off"
     ) +
     theme_void() +
@@ -1577,7 +1740,10 @@ plot_trajectories <- function(x,
                               total_size = 4,
                               total_color = "white",
                               column_gap = 1,
-                              proportional_nodes = TRUE) {
+                              proportional_nodes = TRUE,
+                              node_label_format = NULL,
+                              bundle_size = NULL,
+                              bundle_legend = TRUE) {
 
   plot_transitions(
     x = x,
@@ -1600,6 +1766,9 @@ plot_trajectories <- function(x,
     total_color = total_color,
     column_gap = column_gap,
     track_individuals = TRUE,
-    proportional_nodes = proportional_nodes
+    proportional_nodes = proportional_nodes,
+    node_label_format = node_label_format,
+    bundle_size = bundle_size,
+    bundle_legend = bundle_legend
   )
 }

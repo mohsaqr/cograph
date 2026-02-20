@@ -11,7 +11,7 @@ utils::globalVariables(c(
   "x", "y", "z", "id", "group", "color", "fill", "label",
   "xmin", "xmax", "ymin", "ymax", "value", "total",
   "motif", "triad", "count", "direction", "window",
-  "line_color", "flow_color",
+  "line_color", "flow_color", "lw",
 
 
   # Apply function variables

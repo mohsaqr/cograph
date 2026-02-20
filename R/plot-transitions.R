@@ -1390,11 +1390,13 @@ plot_transitions <- function(x,
       lines_df$lw <- lw_min + (lines_df$bundled_weight - w_range[1]) /
         (w_range[2] - w_range[1]) * (lw_max - lw_min)
     }
+    # Auto-boost alpha for bundled plots (fewer lines = less overlap)
+    bundled_alpha <- min(0.85, line_alpha + 0.4)
     p <- ggplot() +
       geom_path(
         data = lines_df,
         aes(x = x, y = y, group = group, color = line_color, linewidth = lw),
-        alpha = line_alpha
+        alpha = bundled_alpha
       ) +
       scale_linewidth_identity() +
       scale_color_identity()

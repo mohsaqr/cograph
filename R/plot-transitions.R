@@ -1390,8 +1390,9 @@ plot_transitions <- function(x,
       lines_df$lw <- lw_min + (lines_df$bundled_weight - w_range[1]) /
         (w_range[2] - w_range[1]) * (lw_max - lw_min)
     }
-    # Auto-boost alpha for bundled plots (fewer lines = less overlap)
-    bundled_alpha <- min(0.85, line_alpha + 0.4)
+    # Auto-boost alpha for bundled plots: fewer lines need higher opacity
+    # If user kept default (0.3), boost to 0.9; otherwise respect their choice
+    bundled_alpha <- if (line_alpha <= 0.3) 0.9 else min(1, line_alpha + 0.3)
     p <- ggplot() +
       geom_path(
         data = lines_df,

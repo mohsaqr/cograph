@@ -61,7 +61,8 @@ NULL
 #'   Example: \code{"{state} (n={count})"}.
 #' @param bundle_size Controls line bundling for large datasets. Default NULL (no bundling).
 #'   Integer >= 2: each drawn line represents that many cases.
-#'   Numeric in (0,1): each line represents that fraction of total individuals.
+#'   Numeric in (0,1): reduce to this fraction of original lines
+#'   (e.g., 0.15 keeps ~15\% of lines).
 #' @param bundle_legend Logical: show annotation when bundling is active? Default TRUE.
 #'
 #' @return A ggplot2 object.
@@ -1182,19 +1183,24 @@ plot_transitions <- function(x,
 
     # Compute cases_per_line from bundle_size
     if (bundle_size > 0 && bundle_size < 1) {
-      # Fraction mode: each line represents that fraction of total
-      cases_per_line <- max(1L, round(n_individuals * bundle_size))
+      # Fraction mode: keep this fraction of original lines
+      # e.g., 0.15 with 4500 individuals → target ~675 lines
+      target_lines <- max(1L, round(n_individuals * bundle_size))
+      n_unique <- length(path_counts)
+      cases_per_line <- max(1L, round(n_individuals / target_lines))
     } else {
       # Integer mode: each line represents bundle_size cases
       cases_per_line <- max(1L, as.integer(bundle_size))
     }
 
     # Build reduced trajectory list
+    # Paths with count < cases_per_line/2 are dropped (rounded to 0 lines)
     new_trajectories <- list()
     new_weights <- integer(0)
     for (path_name in names(path_counts)) {
       path_count <- as.integer(path_counts[path_name])
-      lines_to_draw <- max(1L, round(path_count / cases_per_line))
+      lines_to_draw <- round(path_count / cases_per_line)
+      if (lines_to_draw < 1L) next
       # Find first occurrence of this path to get the trajectory
       first_idx <- which(path_strings == path_name)[1]
       traj <- trajectories[[first_idx]]
@@ -1203,6 +1209,14 @@ plot_transitions <- function(x,
         new_trajectories[[length(new_trajectories) + 1]] <- traj
         new_weights <- c(new_weights, weight_per_line)
       }
+    }
+    # Fall back to top paths if everything got dropped
+    if (length(new_trajectories) == 0) {
+      # Keep the single most common path
+      top_path <- names(sort(path_counts, decreasing = TRUE))[1]
+      first_idx <- which(path_strings == top_path)[1]
+      new_trajectories <- list(trajectories[[first_idx]])
+      new_weights <- as.integer(path_counts[top_path])
     }
     trajectories <- new_trajectories
     bundled_weights <- new_weights
@@ -1380,9 +1394,9 @@ plot_transitions <- function(x,
 
   # Create plot
   if (!is.null(bundle_size)) {
-    # Scale line widths by bundled_weight
-    lw_min <- line_width * 0.5
-    lw_max <- line_width * 3
+    # Scale line widths by bundled_weight (thicker than unbundled)
+    lw_min <- max(line_width, 0.8)
+    lw_max <- max(line_width * 4, 3)
     w_range <- range(lines_df$bundled_weight)
     if (w_range[1] == w_range[2]) {
       lines_df$lw <- line_width

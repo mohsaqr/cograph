@@ -130,7 +130,8 @@ Example: \code{"{state} (n={count})"}.}
 
 \item{bundle_size}{Controls line bundling for large datasets. Default NULL (no bundling).
 Integer >= 2: each drawn line represents that many cases.
-Numeric in (0,1): each line represents that fraction of total individuals.}
+Numeric in (0,1): reduce to this fraction of original lines
+(e.g., 0.15 keeps ~15\\% of lines).}
 
 \item{bundle_legend}{Logical: show annotation when bundling is active? Default TRUE.}
 }

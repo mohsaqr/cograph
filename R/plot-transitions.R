@@ -1394,9 +1394,9 @@ plot_transitions <- function(x,
 
   # Create plot
   if (!is.null(bundle_size)) {
-    # Scale line widths by bundled_weight (thicker than unbundled)
-    lw_min <- max(line_width, 0.8)
-    lw_max <- max(line_width * 4, 3)
+    # Scale line widths by bundled_weight
+    lw_min <- line_width
+    lw_max <- line_width * 2
     w_range <- range(lines_df$bundled_weight)
     if (w_range[1] == w_range[2]) {
       lines_df$lw <- line_width

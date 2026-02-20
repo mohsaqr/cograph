@@ -1665,10 +1665,25 @@ plot_transitions <- function(x,
     }
     if (length(value_labels) > 0) {
       val_df <- do.call(rbind, value_labels)
+      # Draw with white halo for readability over lines
+      if (label_halo) {
+        for (dx in c(-1, 0, 1)) {
+          for (dy in c(-1, 0, 1)) {
+            if (dx != 0 || dy != 0) {
+              p <- p + geom_text(
+                data = val_df,
+                aes(x = x, y = y, label = value),
+                size = value_size, color = "white", fontface = "bold",
+                nudge_x = dx * halo_off, nudge_y = dy * halo_off
+              )
+            }
+          }
+        }
+      }
       p <- p + geom_text(
         data = val_df,
         aes(x = x, y = y, label = value),
-        size = value_size, color = value_color
+        size = value_size, color = value_color, fontface = "bold"
       )
     }
   }

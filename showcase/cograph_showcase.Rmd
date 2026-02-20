@@ -1,0 +1,1014 @@
+---
+title: "cograph: Complete Visualization Showcase"
+subtitle: "Every Plot Type in One Document"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+    toc_depth: 3
+    theme: flatly
+    highlight: tango
+    code_folding: show
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  fig.width = 8, fig.height = 8,
+  dpi = 150, message = FALSE, warning = FALSE,
+  echo = TRUE
+)
+pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
+devtools::load_all(pkg_root)
+```
+
+# Demo Data
+
+A 10-node directed transition matrix used throughout.
+
+```{r demo-data}
+set.seed(42)
+states <- c("Explore", "Plan", "Monitor", "Evaluate", "Adapt",
+            "Reflect", "Regulate", "Execute", "Collaborate", "Review")
+
+mat <- matrix(runif(100, 0, 0.5), 10, 10, dimnames = list(states, states))
+diag(mat) <- 0
+mat["Explore", "Plan"]       <- 0.6
+mat["Plan", "Execute"]       <- 0.7
+mat["Execute", "Monitor"]    <- 0.5
+mat["Monitor", "Evaluate"]   <- 0.6
+mat["Evaluate", "Adapt"]     <- 0.55
+mat["Adapt", "Regulate"]     <- 0.45
+mat["Regulate", "Reflect"]   <- 0.5
+mat["Reflect", "Collaborate"] <- 0.4
+mat["Collaborate", "Review"]  <- 0.5
+mat["Review", "Explore"]      <- 0.35
+mat <- mat / rowSums(mat)
+
+round(mat, 2)
+```
+
+---
+
+# 1. Core Network Plot — splot()
+
+```{r splot-basic}
+splot(mat, layout = "oval",
+      edge_labels = TRUE, edge_label_size = 0.6)
+```
+
+---
+
+# 2. TNA Integration
+
+```{r tna-setup}
+library(tna)
+model <- tna(group_regulation)
+```
+
+## Direct TNA Plotting
+
+```{r tna-splot}
+splot(model)
+```
+
+## TNA with Custom Style
+
+```{r tna-custom, fig.width = 9, fig.height = 9}
+splot(model,
+  node_fill = "#4A90A4",
+  node_border_color = "#2C5F6E",
+  node_border_width = 2,
+  edge_color = "#003355",
+  curvature = 0.2,
+  arrow_size = 0.015,
+  edge_labels = TRUE,
+  edge_label_size = 0.6,
+  layout = "oval"
+)
+```
+
+---
+
+# 3. Node Shapes Gallery
+
+All 10 available shapes, one per node.
+
+```{r shapes-gallery, fig.width = 9, fig.height = 9}
+shapes <- c("circle", "square", "triangle", "diamond", "pentagon",
+            "hexagon", "ellipse", "heart", "star", "cross")
+
+splot(mat,
+  layout = "oval",
+  node_shape = shapes,
+  node_fill = palette_rainbow(10),
+  node_size = 10,
+  node_border_width = 2,
+  label_size = 0.6,
+  edge_labels = TRUE,
+  edge_label_size = 0.4
+)
+```
+
+---
+
+# 4. Edge Styling
+
+## Curved Edges with Dashed Starts
+
+```{r edge-dashed-start}
+splot(mat,
+  layout = "oval",
+  curvature = 0.25,
+  arrow_size = 0.015,
+  edge_start_style = "dashed",
+  edge_start_length = 0.15,
+  edge_labels = TRUE,
+  edge_label_size = 0.5
+)
+```
+
+## Confidence Interval Underlays
+
+```{r edge-ci}
+set.seed(10)
+n_edges <- sum(mat > 0)
+
+splot(mat,
+  layout = "oval",
+  edge_ci = runif(n_edges, 0.05, 0.2),
+  edge_ci_alpha = 0.15,
+  edge_ci_scale = 2
+)
+```
+
+## CI + P-values + Significance Stars
+
+```{r ci-pvalues, fig.width = 10, fig.height = 10}
+set.seed(42)
+ci_lower <- mat * runif(100, 0.6, 0.8)
+ci_upper <- mat * runif(100, 1.2, 1.4)
+pvals <- matrix(NA, 10, 10)
+pvals[mat > 0] <- runif(sum(mat > 0), 0.0001, 0.08)
+
+splot(mat,
+  layout = "oval",
+  node_size = 8,
+  node_fill = "#4A90A4",
+  node_border_color = "#2C5F6E",
+  node_border_width = 2,
+  label_size = 0.6,
+  edge_color = "#666666",
+  edge_width = 1.5,
+  curvature = 0.15,
+  edge_ci_lower = ci_lower,
+  edge_ci_upper = ci_upper,
+  edge_label_p = pvals,
+  edge_label_stars = TRUE,
+  edge_label_style = "full",
+  edge_label_size = 0.65,
+  edge_label_color = "#800020"
+)
+```
+
+## Stars-Only Labels
+
+```{r stars-only, fig.width = 10, fig.height = 10}
+splot(mat,
+  layout = "oval",
+  node_size = 8,
+  node_fill = "#6B8E23",
+  node_border_color = "#3D5214",
+  node_border_width = 2,
+  label_size = 0.6,
+  edge_color = "#555555",
+  edge_width = 1.5,
+  curvature = 0.15,
+  edge_label_p = pvals,
+  edge_label_stars = TRUE,
+  edge_label_template = "{est}{stars}",
+  edge_label_size = 0.8,
+  edge_label_color = "#800020"
+)
+```
+
+---
+
+# 5. Pie Chart Nodes
+
+## Basic Pie
+
+```{r pie-basic}
+set.seed(1)
+pie_vals <- lapply(1:10, function(i) runif(4))
+pie_cols <- c("#E41A1C", "#377EB8", "#4DAF4A", "#FF7F00")
+
+splot(mat,
+  layout = "oval",
+  node_shape = "pie",
+  pie_values = pie_vals,
+  pie_colors = pie_cols,
+  node_size = 6
+)
+```
+
+## Per-Node Color Palettes
+
+```{r pie-per-node, fig.width = 9, fig.height = 9}
+set.seed(20)
+pie_vals_multi <- lapply(1:10, function(i) runif(3))
+pie_cols_multi <- list(
+  c("#E63946", "#F1FAEE", "#A8DADC"),
+  c("#264653", "#2A9D8F", "#E9C46A"),
+  c("#F72585", "#7209B7", "#3A0CA3"),
+  c("#003049", "#D62828", "#F77F00"),
+  c("#606C38", "#283618", "#DDA15E"),
+  c("#0077B6", "#00B4D8", "#90E0EF"),
+  c("#9B2226", "#AE2012", "#BB3E03"),
+  c("#023047", "#219EBC", "#8ECAE6"),
+  c("#5F0F40", "#9A031E", "#FB8B24"),
+  c("#2D00F7", "#6A00F4", "#8900F2")
+)
+
+splot(mat,
+  layout = "oval",
+  node_shape = "pie",
+  pie_values = pie_vals_multi,
+  pie_colors = pie_cols_multi,
+  node_size = 6,
+  node_border_width = 1.5,
+  edge_labels = TRUE,
+  edge_label_size = 0.5
+)
+```
+
+---
+
+# 6. Donut Nodes
+
+## Simple Progress Ring
+
+```{r donut-simple}
+set.seed(2)
+fills <- runif(10, 0.3, 0.95)
+
+splot(mat,
+  layout = "oval",
+  node_shape = "donut",
+  donut_fill = fills,
+  donut_color = "steelblue",
+  node_size = 6,
+  edge_labels = TRUE,
+  edge_label_size = 0.5
+)
+```
+
+## Segmented Donut (3 Categories)
+
+```{r donut-segmented}
+set.seed(21)
+donut_vals <- lapply(1:10, function(i) c(runif(1), runif(1), runif(1)))
+donut_cols <- list(c("#E63946", "#457B9D", "#2A9D8F"))
+
+splot(mat,
+  layout = "oval",
+  donut_values = donut_vals,
+  donut_colors = donut_cols,
+  donut_inner_ratio = 0.6,
+  node_size = 6,
+  node_border_width = 1.5,
+  edge_labels = TRUE,
+  edge_label_size = 0.5
+)
+```
+
+## Donut with Value Display
+
+```{r donut-values}
+set.seed(4)
+fills <- runif(10, 0.2, 0.95)
+
+splot(mat,
+  layout = "oval",
+  node_shape = "donut",
+  donut_fill = fills,
+  donut_color = "coral",
+  donut_show_value = TRUE,
+  donut_value_digits = 0,
+  donut_value_suffix = "%",
+  donut_value_size = 0.8,
+  node_size = 6
+)
+```
+
+## Polygon Donut Shapes
+
+```{r donut-polygon}
+set.seed(3)
+fills <- runif(10, 0.4, 0.9)
+donut_shapes <- c("circle", "hexagon", "square", "diamond", "triangle",
+                  "pentagon", "circle", "hexagon", "square", "diamond")
+
+splot(mat,
+  layout = "oval",
+  node_shape = "donut",
+  donut_fill = fills,
+  donut_shape = donut_shapes,
+  donut_color = palette_viridis(10),
+  node_size = 6
+)
+```
+
+---
+
+# 7. Donut + Pie Combos
+
+## Outer Ring + Inner Pie
+
+```{r donut-pie}
+set.seed(5)
+fills <- runif(10, 0.5, 0.9)
+pie_vals <- lapply(1:10, function(i) runif(3))
+pie_cols <- c("#E41A1C", "#377EB8", "#4DAF4A")
+
+splot(mat,
+  layout = "oval",
+  node_shape = "donut",
+  donut_fill = fills,
+  donut_color = "steelblue",
+  pie_values = pie_vals,
+  pie_colors = pie_cols,
+  node_size = 7
+)
+```
+
+## Dark Theme Donut + Pie
+
+```{r donut-pie-dark, fig.width = 9, fig.height = 9}
+set.seed(13)
+outer_vals <- lapply(1:10, function(i) c(runif(1), runif(1)))
+outer_cols <- list(c("#F72585", "#7209B7"))
+pie_vals <- lapply(1:10, function(i) runif(4))
+pie_cols <- list(c("#4361EE", "#3A0CA3", "#560BAD", "#7209B7"))
+
+splot(mat,
+  layout = "oval",
+  donut_values = outer_vals,
+  donut_colors = outer_cols,
+  donut_inner_ratio = 0.68,
+  donut_bg_color = "#2B2D42",
+  pie_values = pie_vals,
+  pie_colors = pie_cols,
+  node_size = 6,
+  node_border_color = "#EDF2F4",
+  node_border_width = 1,
+  donut_border_width = 0.5,
+  pie_border_width = 0.2,
+  background = "#1A1A2E",
+  positive_color = "#4CC9F0",
+  edge_alpha = 0.8,
+  label_color = "white",
+  edge_labels = TRUE,
+  edge_label_size = 0.5,
+  edge_label_color = "white"
+)
+```
+
+---
+
+# 8. Double Donut
+
+## Progress Rings
+
+```{r double-donut}
+set.seed(6)
+outer_fills <- runif(10, 0.4, 0.9)
+inner_fills <- runif(10, 0.3, 0.8)
+
+splot(mat,
+  layout = "oval",
+  node_shape = "donut",
+  donut_fill = outer_fills,
+  donut_color = "steelblue",
+  donut2_values = inner_fills,
+  donut2_colors = "coral",
+  node_size = 7
+)
+```
+
+## Triple Layer: Donut + Donut + Pie
+
+```{r triple-layer, fig.width = 9, fig.height = 9}
+set.seed(25)
+outer_vals <- lapply(1:10, function(i) c(runif(1), runif(1), runif(1)))
+outer_cols <- list(c("#E63946", "#457B9D", "#2A9D8F"))
+inner_vals <- as.list(runif(10, 0.4, 0.9))
+inner_cols <- list("#F4A261")
+pie_vals <- lapply(1:10, function(i) sample(1:5, 4))
+pie_cols <- list(c("#264653", "#E9C46A", "#F4A261", "#E76F51"))
+
+splot(mat,
+  layout = "oval",
+  donut_values = outer_vals,
+  donut_colors = outer_cols,
+  donut_inner_ratio = 0.7,
+  donut2_values = inner_vals,
+  donut2_colors = inner_cols,
+  donut2_inner_ratio = 0.45,
+  pie_values = pie_vals,
+  pie_colors = pie_cols,
+  donut_bg_color = "gray95",
+  pie_border_width = 0.3,
+  donut_border_width = 0.8,
+  node_border_width = 1.5,
+  node_border_color = "gray30",
+  node_size = 6,
+  edge_labels = TRUE,
+  edge_label_size = 0.5
+)
+```
+
+---
+
+# 9. Chord Diagrams — plot_chord()
+
+Native chord diagrams using only base R graphics.
+
+## Basic Chord Diagram
+
+```{r chord-basic}
+mat_chord <- matrix(c(
+   0, 25,  5, 15,  2,
+  10,  0, 20,  8, 12,
+   3, 18,  0, 30,  7,
+  20,  5, 10,  0, 15,
+   8, 14,  6, 12,  0
+), 5, 5, byrow = TRUE,
+dimnames = list(
+  c("Learning\nAnalytics", "Network\nAnalysis", "TNA",
+    "ICS", "Generative AI"),
+  c("Learning\nAnalytics", "Network\nAnalysis", "TNA",
+    "ICS", "Generative AI")
+))
+
+plot_chord(mat_chord, chord_alpha = 0.45, segment_width = 0.10,
+           title = "Research Collaboration Network")
+```
+
+## Chord Diagram with TNA
+
+```{r chord-tna}
+plot_chord(model,
+           chord_alpha = 0.45,
+           segment_width = 0.10,
+           ticks = TRUE,
+           title = "Group Regulation Transitions")
+```
+
+## Custom Colors + Tick Marks
+
+```{r chord-custom}
+plot_chord(mat_chord,
+           segment_colors = c("#6A1B9A", "#E53935", "#00897B",
+                              "#FFB300", "#1E88E5"),
+           chord_alpha = 0.5,
+           segment_width = 0.12,
+           ticks = TRUE,
+           title = "Custom Colors with Ticks")
+```
+
+## Color by Source vs Target
+
+```{r chord-color-by, fig.width = 14, fig.height = 7}
+par(mfrow = c(1, 2))
+plot_chord(mat_chord, chord_color_by = "source", chord_alpha = 0.5,
+           title = "Color by Source")
+plot_chord(mat_chord, chord_color_by = "target", chord_alpha = 0.5,
+           title = "Color by Target")
+```
+
+## Dark Background
+
+```{r chord-dark}
+plot_chord(mat_chord,
+           segment_colors = c("#FF6F61", "#6B5B95", "#88B04B",
+                              "#F7CAC9", "#92A8D1"),
+           chord_alpha = 0.5,
+           segment_border_color = "#1a1a2e",
+           background = "#1a1a2e",
+           label_color = "white",
+           title = "Dark Background",
+           title_size = 1.4)
+```
+
+## Threshold Filtering
+
+```{r chord-threshold}
+plot_chord(model,
+           chord_alpha = 0.5,
+           threshold = 0.10,
+           self_loop = FALSE,
+           ticks = TRUE,
+           segment_width = 0.10,
+           title = "Threshold = 0.10, No Self-Loops")
+```
+
+---
+
+# 10. Heatmaps — plot_heatmap()
+
+## Standard Heatmap
+
+```{r heatmap-basic, fig.width = 7, fig.height = 6}
+plot_heatmap(mat,
+  title = "Transition Probabilities",
+  show_values = TRUE,
+  value_digits = 2,
+  value_size = 2.5
+)
+```
+
+## Diverging Scale
+
+```{r heatmap-diverging, fig.width = 7, fig.height = 6}
+mat_div <- mat - 0.1
+plot_heatmap(mat_div,
+  colors = "diverging",
+  midpoint = 0,
+  title = "Diverging Scale (centered at 0)",
+  show_values = TRUE,
+  value_size = 2.5
+)
+```
+
+---
+
+# 11. Network Comparison — plot_compare()
+
+## Difference Network
+
+```{r compare-diff, fig.width = 9, fig.height = 9}
+set.seed(99)
+mat_a <- matrix(runif(100, 0, 0.4), 10, 10, dimnames = list(states, states))
+diag(mat_a) <- 0
+mat_a <- mat_a / rowSums(mat_a)
+
+mat_b <- matrix(runif(100, 0, 0.4), 10, 10, dimnames = list(states, states))
+diag(mat_b) <- 0
+mat_b <- mat_b / rowSums(mat_b)
+
+cograph::plot_compare(mat_a, mat_b,
+  title = "Network A vs Network B",
+  layout = "circle"
+)
+```
+
+## Comparison Heatmap
+
+```{r compare-heatmap, fig.width = 8, fig.height = 6}
+cograph::plot_comparison_heatmap(mat_a, mat_b,
+  title = "Weight Differences (A - B)",
+  show_values = TRUE,
+  digits = 2,
+  value_size = 2.5
+)
+```
+
+---
+
+# 12. Multi-Cluster Networks — plot_mtna()
+
+## Cluster Layout with Summary Edges
+
+```{r mtna-setup}
+set.seed(42)
+nodes30 <- paste0("N", 1:30)
+m30 <- matrix(runif(900, 0, 0.3), 30, 30,
+              dimnames = list(nodes30, nodes30))
+diag(m30) <- 0
+
+clusters6 <- list(
+  Alpha   = paste0("N", 1:5),
+  Beta    = paste0("N", 6:10),
+  Gamma   = paste0("N", 11:15),
+  Delta   = paste0("N", 16:20),
+  Epsilon = paste0("N", 21:25),
+  Zeta    = paste0("N", 26:30)
+)
+```
+
+```{r mtna-circle}
+plot_mtna(m30, clusters6,
+  spacing = 4,
+  shape_size = 1.3,
+  node_spacing = 0.6,
+  minimum = 0.2,
+  edge.lwd = 0.2,
+  edge.label.cex = 0.5
+)
+```
+
+---
+
+# 13. Multi-Cluster Multi-Layer — plot_mcml()
+
+Two-layer visualization: detail clusters below, summary network above.
+
+```{r mcml-basic, fig.width = 10, fig.height = 12}
+plot_mcml(m30, clusters6,
+  title = "Multi-Cluster Multi-Layer Network"
+)
+```
+
+## Cluster Summary Data
+
+```{r cluster-summary}
+cs <- cluster_summary(m30, clusters6, type = "tna")
+cs
+
+# Between-cluster weights
+round(cs$between$weights, 3)
+
+# Within-cluster weights (first cluster)
+round(cs$within[[1]]$weights, 3)
+```
+
+## MCML with Labels
+
+```{r mcml-labels, fig.width = 10, fig.height = 12}
+plot_mcml(cs,
+  title = "With Edge Labels",
+  summary_edge_labels = TRUE,
+  edge_labels = TRUE,
+  edge_label_digits = 2
+)
+```
+
+---
+
+# 14. Timeline Networks — plot_time_line()
+
+Horizontal cluster layout with between-cluster connections.
+
+```{r timeline-basic, fig.width = 12, fig.height = 8}
+set.seed(42)
+nodes15 <- paste0("S", 1:15)
+m15 <- matrix(runif(225, 0, 0.3), 15, 15,
+              dimnames = list(nodes15, nodes15))
+diag(m15) <- 0
+
+clusters3 <- list(
+  Phase1 = paste0("S", 1:5),
+  Phase2 = paste0("S", 6:10),
+  Phase3 = paste0("S", 11:15)
+)
+
+plot_time_line(m15, clusters3,
+  orientation = "horizontal",
+  title = "Cluster Timeline",
+  between_minimum = 0.05
+)
+```
+
+## Multi-Layer Timeline
+
+```{r timeline-layers, fig.width = 14, fig.height = 10}
+set.seed(100)
+layer1 <- matrix(runif(225, 0, 0.3), 15, 15,
+                 dimnames = list(nodes15, nodes15))
+diag(layer1) <- 0
+layer2 <- matrix(runif(225, 0, 0.3), 15, 15,
+                 dimnames = list(nodes15, nodes15))
+diag(layer2) <- 0
+
+plot_time_line(m15, clusters3,
+  layers = list("Time 1" = layer1, "Time 2" = layer2),
+  orientation = "horizontal",
+  global_scale = TRUE,
+  title = "Multi-Layer Timeline"
+)
+```
+
+---
+
+# 15. Multilayer Networks — plot_mlna()
+
+Stacked network layers with 3D perspective.
+
+```{r mlna, fig.width = 9, fig.height = 8}
+set.seed(42)
+nodes15b <- paste0("N", 1:15)
+ml_mat <- matrix(runif(225, 0, 0.3), 15, 15,
+                 dimnames = list(nodes15b, nodes15b))
+diag(ml_mat) <- 0
+
+layers <- list(
+  Macro = paste0("N", 1:5),
+  Meso  = paste0("N", 6:10),
+  Micro = paste0("N", 11:15)
+)
+
+plot_mlna(ml_mat, layers,
+  layout = "circle",  # mlna uses its own layout
+  layer_spacing = 5,
+  layer_width = 10,
+  node_spacing = 0.9,
+  node_size = 6,
+  between_edges = TRUE,
+  between_style = 3,
+  curvature = 0.2,
+  minimum = 0.2,
+  scale = 2
+)
+```
+
+---
+
+# 16. 3D Multilayer Heatmap — plot_ml_heatmap()
+
+```{r ml-heatmap, fig.width = 9, fig.height = 8}
+set.seed(123)
+nodes4 <- c("A", "B", "C", "D")
+heat_layers <- list(
+  "Layer 1" = matrix(runif(16, 0, 0.5), 4, 4, dimnames = list(nodes4, nodes4)),
+  "Layer 2" = matrix(runif(16, 0, 0.5), 4, 4, dimnames = list(nodes4, nodes4)),
+  "Layer 3" = matrix(runif(16, 0, 0.5), 4, 4, dimnames = list(nodes4, nodes4))
+)
+invisible(lapply(seq_along(heat_layers), function(i) diag(heat_layers[[i]]) <<- 0))
+
+plot_ml_heatmap(heat_layers,
+  colors = "plasma",
+  layer_spacing = 3,
+  skew = 0.5,
+  show_connections = TRUE,
+  connection_color = "#2E7D32",
+  title = "3D Multilayer Heatmap"
+)
+```
+
+---
+
+# 17. Heterogeneous Networks — plot_htna()
+
+Networks with multiple node types arranged in groups.
+
+```{r htna, fig.width = 9, fig.height = 9}
+set.seed(42)
+nodes8 <- c("S1", "S2", "S3", "S4", "T1", "T2", "T3", "T4")
+m8 <- matrix(runif(64, 0, 0.4), 8, 8, dimnames = list(nodes8, nodes8))
+diag(m8) <- 0
+
+node_list <- list(
+  Students = c("S1", "S2", "S3", "S4"),
+  Teachers = c("T1", "T2", "T3", "T4")
+)
+
+plot_htna(m8, node_list)
+```
+
+---
+
+# 18. Mixed Networks — plot_mixed_network()
+
+Combining symmetric (undirected) and asymmetric (directed) edges.
+
+```{r mixed-network, fig.width = 9, fig.height = 9}
+set.seed(42)
+n <- 8
+labs <- paste0("Node", 1:n)
+
+# Symmetric matrix (undirected relations)
+sym <- matrix(runif(n*n, 0, 0.3), n, n, dimnames = list(labs, labs))
+sym <- (sym + t(sym)) / 2
+diag(sym) <- 0
+sym[sym < 0.15] <- 0
+
+# Asymmetric matrix (directed relations)
+asym <- matrix(runif(n*n, 0, 0.4), n, n, dimnames = list(labs, labs))
+diag(asym) <- 0
+asym[asym < 0.2] <- 0
+
+plot_mixed_network(sym, asym,
+  layout = "spring",
+  title = "Mixed Network: Undirected + Directed",
+  edge_labels = TRUE
+)
+```
+
+---
+
+# 19. Alluvial Diagrams — plot_alluvial()
+
+Aggregated flow diagrams for state transitions.
+
+## Two-Step Alluvial (Matrix)
+
+```{r alluvial-basic, fig.width = 10, fig.height = 7}
+set.seed(42)
+trans_states <- c("Explore", "Plan", "Monitor", "Execute", "Reflect")
+trans_mat <- matrix(sample(10:50, 25, replace = TRUE), 5, 5,
+                    dimnames = list(trans_states, trans_states))
+diag(trans_mat) <- 0
+
+plot_alluvial(trans_mat,
+  from_title = "Time 1",
+  to_title = "Time 2",
+  flow_alpha = 0.4,
+  flow_color_by = "source"
+)
+```
+
+## Multi-Step Alluvial (List of Matrices)
+
+```{r alluvial-multi, fig.width = 12, fig.height = 7}
+set.seed(42)
+states5 <- c("Explore", "Plan", "Monitor", "Execute", "Reflect")
+
+mat1 <- matrix(sample(5:40, 25, replace = TRUE), 5, 5,
+               dimnames = list(states5, states5))
+mat2 <- matrix(sample(5:40, 25, replace = TRUE), 5, 5,
+               dimnames = list(states5, states5))
+mat3 <- matrix(sample(5:40, 25, replace = TRUE), 5, 5,
+               dimnames = list(states5, states5))
+
+plot_alluvial(list(mat1, mat2, mat3),
+  from_title = c("Baseline", "Week 4", "Week 8", "Week 12"),
+  flow_alpha = 0.35,
+  flow_color_by = "source",
+  show_values = TRUE,
+  value_size = 2.5
+)
+```
+
+## Multi-Step Alluvial (Data Frame)
+
+Pass a data frame with 3+ columns — each column is a time point.
+
+```{r alluvial-df, fig.width = 12, fig.height = 7}
+set.seed(99)
+n <- 150
+strategies <- c("Surface", "Deep", "Strategic", "Disengaged")
+
+df_multi <- data.frame(
+  Baseline = sample(strategies, n, replace = TRUE, prob = c(0.35, 0.25, 0.25, 0.15)),
+  Midterm  = sample(strategies, n, replace = TRUE, prob = c(0.25, 0.30, 0.30, 0.15)),
+  Final    = sample(strategies, n, replace = TRUE, prob = c(0.20, 0.35, 0.30, 0.15)),
+  PostTest = sample(strategies, n, replace = TRUE, prob = c(0.15, 0.40, 0.30, 0.15))
+)
+
+plot_alluvial(df_multi,
+  flow_alpha = 0.35,
+  flow_color_by = "source",
+  from_colors = c("#E53935", "#1E88E5", "#43A047", "#8E24AA")
+)
+```
+
+## Alluvial with Values and Totals
+
+```{r alluvial-values, fig.width = 10, fig.height = 7}
+plot_alluvial(trans_mat,
+  from_title = "Before",
+  to_title = "After",
+  flow_alpha = 0.4,
+  flow_color_by = "source",
+  show_values = TRUE,
+  value_size = 3,
+  show_totals = TRUE,
+  total_size = 4
+)
+```
+
+---
+
+# 20. Individual Trajectories — plot_trajectories()
+
+Each individual shown as a separate line across time points.
+
+## Basic Trajectories
+
+```{r trajectories-basic, fig.width = 12, fig.height = 7}
+set.seed(42)
+n <- 80
+strategies <- c("Surface", "Deep", "Strategic", "Disengaged")
+
+df_traj <- data.frame(
+  Baseline = sample(strategies, n, replace = TRUE, prob = c(0.35, 0.25, 0.25, 0.15)),
+  Midterm  = sample(strategies, n, replace = TRUE, prob = c(0.25, 0.30, 0.30, 0.15)),
+  Final    = sample(strategies, n, replace = TRUE, prob = c(0.20, 0.35, 0.30, 0.15))
+)
+
+plot_trajectories(df_traj,
+  flow_color_by = "first",
+  from_colors = c("#E53935", "#1E88E5", "#43A047", "#8E24AA"),
+  line_alpha = 0.3,
+  line_width = 0.5
+)
+```
+
+## Trajectories Colored by Final State
+
+```{r trajectories-last, fig.width = 12, fig.height = 7}
+plot_trajectories(df_traj,
+  flow_color_by = "last",
+  from_colors = c("#E53935", "#1E88E5", "#43A047", "#8E24AA"),
+  line_alpha = 0.4,
+  line_width = 0.6
+)
+```
+
+## Four-Step Trajectories
+
+```{r trajectories-4step, fig.width = 14, fig.height = 7}
+set.seed(77)
+n <- 60
+phases <- c("Low", "Medium", "High")
+
+df_4step <- data.frame(
+  "Week 1"  = sample(phases, n, replace = TRUE, prob = c(0.5, 0.3, 0.2)),
+  "Week 4"  = sample(phases, n, replace = TRUE, prob = c(0.3, 0.4, 0.3)),
+  "Week 8"  = sample(phases, n, replace = TRUE, prob = c(0.2, 0.35, 0.45)),
+  "Week 12" = sample(phases, n, replace = TRUE, prob = c(0.15, 0.30, 0.55)),
+  check.names = FALSE
+)
+
+plot_trajectories(df_4step,
+  flow_color_by = "first",
+  from_colors = c("#E53935", "#FFB300", "#43A047"),
+  line_alpha = 0.35,
+  line_width = 0.6
+)
+```
+
+---
+
+# 21. Bootstrap Visualization
+
+Visualize bootstrap analysis results from the tna package.
+
+```{r bootstrap, fig.width = 9, fig.height = 9}
+boot <- tna::bootstrap(model, iter = 500)
+splot(boot, display = "styled")
+```
+
+## Significant Edges Only
+
+```{r bootstrap-sig, fig.width = 9, fig.height = 9}
+splot(boot, display = "significant")
+```
+
+---
+
+# 22. Robustness Analysis
+
+```{r robustness, fig.width = 10, fig.height = 7}
+g <- igraph::graph_from_adjacency_matrix(mat, mode = "directed", weighted = TRUE)
+plot_robustness(x = g, n_iter = 50, seed = 42)
+```
+
+---
+
+# 23. Legends and Groups
+
+```{r legends}
+groups <- rep(c("Cognitive", "Social", "Metacognitive"), length.out = 10)
+
+splot(mat,
+  layout = "oval",
+  groups = groups,
+  node_fill = palette_colorblind(10),
+  legend = TRUE,
+  legend_position = "topright",
+  legend_edge_colors = TRUE
+)
+```
+
+---
+
+# 24. TNA-Style Donut Fills
+
+Initial state probabilities as donut fills.
+
+```{r tna-style-donut}
+set.seed(8)
+initial_probs <- runif(10, 0.05, 0.5)
+initial_probs <- initial_probs / sum(initial_probs)
+
+splot(mat,
+  layout = "oval",
+  node_shape = "donut",
+  donut_fill = initial_probs / max(initial_probs),
+  donut_color = "steelblue",
+  donut_show_value = TRUE,
+  donut_value_digits = 2,
+  node_size = 6,
+  curvature = 0.2,
+  arrow_size = 0.015,
+  edge_labels = TRUE,
+  edge_label_size = 0.5
+)
+```
+
+---
+
+*Generated with cograph `r packageVersion("cograph")` on `r Sys.Date()`*

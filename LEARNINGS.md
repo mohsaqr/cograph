@@ -1,5 +1,26 @@
 # Project Learnings
 
+### 2026-02-19
+- [bootstrap edge count mismatch]: `splot.tna_bootstrap` built per-edge arrays (edge_priority, edge_ci_scale, etc.) using `which(weights != 0, arr.ind = TRUE)` but splot's internal edge count differed due to:
+  1. **weight_digits rounding**: splot default `weight_digits=2` rounds tiny weights to zero, reducing edge count. Fix: pass `weight_digits=NULL` to splot.
+  2. **R list NULL assignment trap**: `args$weight_digits <- NULL` DELETES the element from the list instead of setting it to NULL. Must use `args["weight_digits"] <- list(NULL)` to actually store NULL in a list.
+  3. **Self-loops excluded**: `cograph()` excludes diagonal entries from edges. Fix: `diag(weights) <- 0` before computing edge_idx.
+  4. **Directed enforcement**: TNA is always directed; auto-detect may choose undirected for near-symmetric matrices, merging reciprocal edges. Fix: pass `directed=TRUE`.
+- [get_edge_order defensive]: Added `rep_len(priority, n)` guard in `get_edge_order()` for length mismatches.
+- [comprehensive showcase]: Created `showcase/cograph_showcase.Rmd` with 24 sections covering all plot types. Key issues:
+  - `tna` package masks `plot_compare()` and `plot_comparison_heatmap()` — use `cograph::` prefix
+  - `plot_htna()` internally sets `node_size` and `edge_labels` — don't pass them again
+  - `plot_comparison_heatmap()` uses `digits` not `value_digits`
+  - `plot_robustness()` needs igraph object, not matrix
+  - `plot_mlna()` doesn't support "oval" layout — use "circle"
+  - `plot_mixed_network()` uses its own layout — don't force "oval"
+  - Only use "oval" layout for direct `splot()` calls
+- [alluvial/trajectories]: `plot_alluvial()` and `plot_trajectories()` are aliases for `plot_transitions()` with different defaults:
+  - `plot_alluvial()`: `track_individuals = FALSE` (aggregate flow ribbons)
+  - `plot_trajectories()`: `track_individuals = TRUE` (individual lines)
+  - Multi-step: pass list of matrices (each = one transition step) or data frame with 3+ columns (auto-creates transitions between consecutive columns)
+  - `from_title` labels each step column; `flow_color_by = "source"/"target"/"first"/"last"` controls coloring
+
 ### 2026-02-18
 - [chord diagram]: Implemented `plot_chord()` in `R/plot-chord.R` using base R graphics only.
   - Reuses `.extract_weights()` from `plot-compare.R` and `bezier_points()` from `utils-geometry.R`.

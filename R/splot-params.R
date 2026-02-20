@@ -480,6 +480,10 @@ get_edge_order <- function(edges, priority = NULL) {
 
   # If priority provided, use it as primary sort key
   if (!is.null(priority)) {
+    # Guard against length mismatch (e.g., from weight rounding)
+    if (length(priority) != n) {
+      priority <- rep_len(priority, n)
+    }
     # Sort by priority first (low to high), then by weight
     weights <- if ("weight" %in% names(edges)) abs(edges$weight) else rep(0, n)
     return(order(priority, weights))

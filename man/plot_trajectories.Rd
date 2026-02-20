@@ -23,6 +23,10 @@ plot_trajectories(
   show_totals = FALSE,
   total_size = 4,
   total_color = "white",
+  show_values = FALSE,
+  value_position = c("center", "origin", "destination"),
+  value_size = 3,
+  value_color = "black",
   column_gap = 1,
   proportional_nodes = TRUE,
   node_label_format = NULL,
@@ -75,6 +79,15 @@ use a vector of titles (e.g., c("T1", "T2", "T3", "T4")).}
 \item{total_size}{Size of total labels. Default 4.}
 
 \item{total_color}{Color of total labels. Default "white".}
+
+\item{show_values}{Logical: show transition counts on flows? Default FALSE.}
+
+\item{value_position}{Position of flow values: "center", "origin", "destination",
+"outside_origin", "outside_destination". Default "center".}
+
+\item{value_size}{Size of value labels on flows. Default 3.}
+
+\item{value_color}{Color of value labels. Default "black".}
 
 \item{column_gap}{Horizontal spread of columns (0-1). Default 1 uses full width.
 Use smaller values (e.g., 0.6) to bring columns closer together.}

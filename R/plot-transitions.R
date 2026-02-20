@@ -196,7 +196,9 @@ plot_transitions <- function(x,
       total_color = total_color, column_gap = column_gap,
       proportional_nodes = proportional_nodes,
       node_label_format = node_label_format,
-      bundle_size = bundle_size, bundle_legend = bundle_legend
+      bundle_size = bundle_size, bundle_legend = bundle_legend,
+      show_values = show_values, value_position = value_position,
+      value_size = value_size, value_color = value_color
     ))
   }
 
@@ -1106,7 +1108,11 @@ plot_transitions <- function(x,
                                      proportional_nodes = TRUE,
                                      node_label_format = NULL,
                                      bundle_size = NULL,
-                                     bundle_legend = TRUE) {
+                                     bundle_legend = TRUE,
+                                     show_values = FALSE,
+                                     value_position = "center",
+                                     value_size = 3,
+                                     value_color = "black") {
 
   n_columns <- ncol(df)
   n_individuals <- nrow(df)
@@ -1593,6 +1599,80 @@ plot_transitions <- function(x,
     )
   }
 
+  # Add flow value labels (transition counts between columns)
+  if (show_values) {
+    # Compute transition counts from original df (before bundling)
+    value_labels <- list()
+    for (seg in seq_len(n_columns - 1)) {
+      from_col <- as.character(df[[seg]])
+      to_col <- as.character(df[[seg + 1]])
+      seg_tab <- table(from_col, to_col)
+      from_nodes_seg <- column_nodes[[seg]]
+      to_nodes_seg <- column_nodes[[seg + 1]]
+
+      # Track current position within each node for stacking
+      from_current <- setNames(from_nodes_seg$top, from_nodes_seg$state)
+      to_current <- setNames(to_nodes_seg$top, to_nodes_seg$state)
+      from_totals_seg <- rowSums(seg_tab)
+      to_totals_seg <- colSums(seg_tab)
+
+      for (fs in rownames(seg_tab)) {
+        for (ts in colnames(seg_tab)) {
+          count <- as.integer(seg_tab[fs, ts])
+          if (count == 0) next
+
+          from_idx <- which(from_nodes_seg$state == fs)
+          to_idx <- which(to_nodes_seg$state == ts)
+          from_h <- from_nodes_seg$top[from_idx] - from_nodes_seg$bottom[from_idx]
+          to_h <- to_nodes_seg$top[to_idx] - to_nodes_seg$bottom[to_idx]
+
+          flow_h_from <- from_h * (count / from_totals_seg[fs])
+          flow_h_to <- to_h * (count / to_totals_seg[ts])
+
+          y_from_top <- from_current[fs]
+          y_from_bottom <- y_from_top - flow_h_from
+          y_to_top <- to_current[ts]
+          y_to_bottom <- y_to_top - flow_h_to
+          from_current[fs] <- y_from_bottom
+          to_current[ts] <- y_to_bottom
+
+          x_from <- x_positions[seg] + node_width / 2
+          x_to <- x_positions[seg + 1] - node_width / 2
+
+          # Position based on value_position
+          if (value_position == "origin") {
+            lx <- x_from + 0.03
+            ly <- (y_from_top + y_from_bottom) / 2
+          } else if (value_position == "destination") {
+            lx <- x_to - 0.03
+            ly <- (y_to_top + y_to_bottom) / 2
+          } else {
+            # center: bezier midpoint
+            lx <- (x_from + x_to) / 2
+            t_mid <- 0.5
+            mid_top <- (1 - t_mid)^3 * y_from_top + 3 * (1 - t_mid)^2 * t_mid * y_from_top +
+                       3 * (1 - t_mid) * t_mid^2 * y_to_top + t_mid^3 * y_to_top
+            mid_bot <- (1 - t_mid)^3 * y_from_bottom + 3 * (1 - t_mid)^2 * t_mid * y_from_bottom +
+                       3 * (1 - t_mid) * t_mid^2 * y_to_bottom + t_mid^3 * y_to_bottom
+            ly <- (mid_top + mid_bot) / 2
+          }
+
+          value_labels[[length(value_labels) + 1]] <- data.frame(
+            x = lx, y = ly, value = count, stringsAsFactors = FALSE
+          )
+        }
+      }
+    }
+    if (length(value_labels) > 0) {
+      val_df <- do.call(rbind, value_labels)
+      p <- p + geom_text(
+        data = val_df,
+        aes(x = x, y = y, label = value),
+        size = value_size, color = value_color
+      )
+    }
+  }
+
   # Bundle legend annotation
   if (!is.null(bundle_size) && bundle_legend) {
     legend_y <- min(node_rects$ymin) - 0.04
@@ -1756,11 +1836,17 @@ plot_trajectories <- function(x,
                               show_totals = FALSE,
                               total_size = 4,
                               total_color = "white",
+                              show_values = FALSE,
+                              value_position = c("center", "origin", "destination"),
+                              value_size = 3,
+                              value_color = "black",
                               column_gap = 1,
                               proportional_nodes = TRUE,
                               node_label_format = NULL,
                               bundle_size = NULL,
                               bundle_legend = TRUE) {
+
+  value_position <- match.arg(value_position)
 
   plot_transitions(
     x = x,
@@ -1781,6 +1867,10 @@ plot_trajectories <- function(x,
     show_totals = show_totals,
     total_size = total_size,
     total_color = total_color,
+    show_values = show_values,
+    value_position = value_position,
+    value_size = value_size,
+    value_color = value_color,
     column_gap = column_gap,
     track_individuals = TRUE,
     proportional_nodes = proportional_nodes,

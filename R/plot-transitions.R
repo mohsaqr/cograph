@@ -1446,78 +1446,53 @@ plot_transitions <- function(x,
   halo_off <- 0.004
 
   # Add labels for ALL columns with full position support
-  if (label_position == "beside" || label_position == "outside") {
-    # First/last columns: beside/outside positioning as before
-    # Intermediate columns: fall back to "above" positioning
-    left_data <- node_rects[node_rects$col == 1, ]
-    right_data <- node_rects[node_rects$col == n_columns, ]
-    mid_data <- node_rects[node_rects$col > 1 & node_rects$col < n_columns, ]
+  # "beside" = labels to the RIGHT of every node (centered vertically)
+  # "outside" = labels to the LEFT of every node (centered vertically)
+  # "above" / "below" / "inside" = same position on all columns
 
-    if (label_position == "beside") {
-      if (label_halo) {
-        for (dx in c(-1, 0, 1)) {
-          for (dy in c(-1, 0, 1)) {
-            if (dx != 0 || dy != 0) {
-              p <- p +
-                geom_text(data = left_data, aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
-                          hjust = 0, size = label_size, color = "white",
-                          nudge_x = dx * halo_off, nudge_y = dy * halo_off) +
-                geom_text(data = right_data, aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
-                          hjust = 1, size = label_size, color = "white",
-                          nudge_x = dx * halo_off, nudge_y = dy * halo_off)
-            }
+  if (label_position == "beside") {
+    # All columns: label to the right of node
+    if (label_halo) {
+      for (dx in c(-1, 0, 1)) {
+        for (dy in c(-1, 0, 1)) {
+          if (dx != 0 || dy != 0) {
+            p <- p + geom_text(
+              data = node_rects,
+              aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
+              hjust = 0, size = label_size, color = "white",
+              nudge_x = dx * halo_off, nudge_y = dy * halo_off
+            )
           }
         }
       }
-      p <- p +
-        geom_text(data = left_data, aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
-                  hjust = 0, size = label_size) +
-        geom_text(data = right_data, aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
-                  hjust = 1, size = label_size)
-    } else {
-      # "outside": left column labels to the left, right column to the right
-      if (label_halo) {
-        for (dx in c(-1, 0, 1)) {
-          for (dy in c(-1, 0, 1)) {
-            if (dx != 0 || dy != 0) {
-              p <- p +
-                geom_text(data = left_data, aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
-                          hjust = 1, size = label_size, color = "white",
-                          nudge_x = dx * halo_off, nudge_y = dy * halo_off) +
-                geom_text(data = right_data, aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
-                          hjust = 0, size = label_size, color = "white",
-                          nudge_x = dx * halo_off, nudge_y = dy * halo_off)
-            }
-          }
-        }
-      }
-      p <- p +
-        geom_text(data = left_data, aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
-                  hjust = 1, size = label_size) +
-        geom_text(data = right_data, aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
-                  hjust = 0, size = label_size)
     }
+    p <- p + geom_text(
+      data = node_rects,
+      aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
+      hjust = 0, size = label_size
+    )
 
-    # Intermediate columns: use "above" positioning
-    if (nrow(mid_data) > 0) {
-      if (label_halo) {
-        for (dx in c(-1, 0, 1)) {
-          for (dy in c(-1, 0, 1)) {
-            if (dx != 0 || dy != 0) {
-              p <- p + geom_text(
-                data = mid_data,
-                aes(x = x_pos, y = ymax + 0.02, label = label),
-                hjust = 0.5, vjust = 0, size = label_size, color = "white",
-                nudge_x = dx * halo_off, nudge_y = dy * halo_off
-              )
-            }
+  } else if (label_position == "outside") {
+    # All columns: label to the left of node
+    if (label_halo) {
+      for (dx in c(-1, 0, 1)) {
+        for (dy in c(-1, 0, 1)) {
+          if (dx != 0 || dy != 0) {
+            p <- p + geom_text(
+              data = node_rects,
+              aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
+              hjust = 1, size = label_size, color = "white",
+              nudge_x = dx * halo_off, nudge_y = dy * halo_off
+            )
           }
         }
       }
-      p <- p + geom_text(data = mid_data,
-        aes(x = x_pos, y = ymax + 0.02, label = label),
-        hjust = 0.5, vjust = 0, size = label_size)
     }
+    p <- p + geom_text(
+      data = node_rects,
+      aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
+      hjust = 1, size = label_size
+    )
 
   } else if (label_position == "above") {
     if (label_halo) {

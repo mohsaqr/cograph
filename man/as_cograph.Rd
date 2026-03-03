@@ -75,7 +75,7 @@ get_edges(net)   # edges data frame (from, to, weight)
 get_labels(net)  # character vector of labels
 n_nodes(net)     # 3
 n_edges(net)     # 3
-is_directed(net) # FALSE (symmetric matrix)
+cograph::is_directed(net) # FALSE (symmetric matrix)
 
 # Setter functions
 net <- set_nodes(net, data.frame(id = 1:3, label = c("A", "B", "C")))

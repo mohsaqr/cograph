@@ -74,7 +74,8 @@ use a vector of titles (e.g., c("T1", "T2", "T3", "T4")).}
 
 \item{label_size}{Size of node labels. Default 3.5.}
 
-\item{label_position}{Position of node labels: "beside" (default), "inside", "above", "below", "outside".}
+\item{label_position}{Position of node labels: "beside" (default), "inside", "above", "below", "outside".
+Applied to first and last columns. See \code{mid_label_position} for middle columns.}
 
 \item{label_halo}{Logical: add white halo around labels for readability? Default TRUE.}
 

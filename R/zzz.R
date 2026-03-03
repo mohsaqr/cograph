@@ -24,10 +24,3 @@ NULL
   register_builtin_palettes()
 }
 
-.onAttach <- function(libname, pkgname) {
-  packageStartupMessage(
-    "cograph: Modern Network Visualization for R\n",
-    "Version: ", utils::packageVersion(pkgname), "\n",
-    "Type ?cograph for help"
-  )
-}

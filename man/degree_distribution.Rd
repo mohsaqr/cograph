@@ -61,21 +61,22 @@ adj <- matrix(c(0, 1, 1, 0,
                 1, 0, 1, 1,
                 1, 1, 0, 1,
                 0, 1, 1, 0), 4, 4, byrow = TRUE)
-degree_distribution(adj)
+cograph::degree_distribution(adj)
 
 # Cumulative distribution
-degree_distribution(adj, cumulative = TRUE)
+cograph::degree_distribution(adj, cumulative = TRUE)
 
 # For directed networks
 directed_adj <- matrix(c(0, 1, 0, 0,
                          0, 0, 1, 0,
                          1, 0, 0, 1,
                          0, 1, 0, 0), 4, 4, byrow = TRUE)
-degree_distribution(directed_adj, mode = "in", main = "In-Degree Distribution")
+cograph::degree_distribution(directed_adj, mode = "in",
+  main = "In-Degree Distribution")
 
 # With igraph
 if (requireNamespace("igraph", quietly = TRUE)) {
   g <- igraph::erdos.renyi.game(100, 0.1)
-  degree_distribution(g, col = "coral")
+  cograph::degree_distribution(g, col = "coral")
 }
 }

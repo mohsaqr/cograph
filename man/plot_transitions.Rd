@@ -20,6 +20,7 @@ plot_transitions(
   node_spacing = 0.02,
   label_size = 3.5,
   label_position = c("beside", "inside", "above", "below", "outside"),
+  mid_label_position = NULL,
   label_halo = TRUE,
   title_size = 5,
   curve_strength = 0.6,
@@ -82,7 +83,11 @@ use a vector of titles (e.g., c("T1", "T2", "T3", "T4")).}
 
 \item{label_size}{Size of node labels. Default 3.5.}
 
-\item{label_position}{Position of node labels: "beside" (default), "inside", "above", "below", "outside".}
+\item{label_position}{Position of node labels: "beside" (default), "inside", "above", "below", "outside".
+Applied to first and last columns. See \code{mid_label_position} for middle columns.}
+
+\item{mid_label_position}{Position of labels for intermediate (middle) columns.
+Same options as \code{label_position}. Default NULL uses \code{label_position} value.}
 
 \item{label_halo}{Logical: add white halo around labels for readability? Default TRUE.}
 
@@ -131,7 +136,7 @@ Example: \code{"{state} (n={count})"}.}
 \item{bundle_size}{Controls line bundling for large datasets. Default NULL (no bundling).
 Integer >= 2: each drawn line represents that many cases.
 Numeric in (0,1): reduce to this fraction of original lines
-(e.g., 0.15 keeps ~15\\% of lines).}
+(e.g., 0.15 keeps about 15 percent of lines).}
 
 \item{bundle_legend}{Logical: show annotation when bundling is active? Default TRUE.}
 }
@@ -165,16 +170,18 @@ plot_transitions(before, after)
 df <- data.frame(time1 = before, time2 = after)
 plot_transitions(df, from_title = "Time 1", to_title = "Time 2")
 
-# Multi-step transitions (list of matrices)
-plot_transitions(list(mat1, mat2, mat3),
-  from_title = c("T1", "T2", "T3", "T4"),
-  show_totals = TRUE
-)
-
 # Custom colors
 plot_transitions(mat,
   from_colors = c("#FFD166", "#06D6A0", "#9D4EDD"),
   to_colors = c("#FFD166", "#EF476F", "#06D6A0")
+)
+}
+
+\dontrun{
+# Multi-step transitions (list of matrices)
+plot_transitions(list(mat1, mat2, mat3),
+  from_title = c("T1", "T2", "T3", "T4"),
+  show_totals = TRUE
 )
 }
 

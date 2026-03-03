@@ -39,6 +39,6 @@ Save network as a ggplot2 object to file using ggsave.
 \dontrun{
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 net <- cograph(adj)
-sn_save_ggplot(net, "network.pdf")
+sn_save_ggplot(net, file.path(tempdir(), "network.pdf"))
 }
 }

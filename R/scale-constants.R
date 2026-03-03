@@ -244,23 +244,6 @@ compute_adaptive_esize <- function(n_nodes, directed = FALSE) {
 #'
 #' This matches qgraph's behavior where weak edges are visually de-emphasized.
 #'
-#' @examples
-#' \dontrun{
-#' weights <- c(0.1, 0.3, 0.5, 0.8, 1.0)
-#'
-#' # Linear scaling (default)
-#' scale_edge_widths(weights, mode = "linear")
-#'
-#' # Log scaling for wide ranges
-#' scale_edge_widths(c(0.01, 0.1, 1, 10, 100), mode = "log")
-#'
-#' # With two-tier cut
-#' scale_edge_widths(weights, cut = 0.5)
-#'
-#' # Rank-based (equal visual spacing)
-#' scale_edge_widths(weights, mode = "rank", cut = 0)
-#' }
-#'
 #' @keywords internal
 scale_edge_widths <- function(weights,
                                esize = NULL,

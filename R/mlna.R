@@ -310,10 +310,11 @@ plot_mlna <- function(
         # Extract within-layer weights
         layer_weights <- weights[idx, idx, drop = FALSE]
 
-        # Initialize positions randomly
-        set.seed(i * 100)  # Reproducible per layer
-        local_x <- runif(n_nodes, -1, 1)
-        local_y <- runif(n_nodes, -1, 1)
+        # Initialize positions on a circle (deterministic, no RNG needed)
+        init_angles <- seq(0, 2 * pi * (1 - 1 / n_nodes), length.out = n_nodes) +
+          (i - 1) * pi / 6
+        local_x <- cos(init_angles)
+        local_y <- sin(init_angles)
 
         # Simple force-directed iterations
         k <- 1.0  # optimal distance

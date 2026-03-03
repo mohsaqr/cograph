@@ -697,7 +697,8 @@ test_that("layout works on disconnected graph", {
   coords <- apply_igraph_layout_by_name(net, "ni", seed = 42)
 
   expect_equal(nrow(coords), 6)
-  expect_true(all(coords$x >= 0.1 & coords$x <= 0.9))
+  # Allow small floating-point tolerance (e.g., 0.90000000000000013)
+  expect_true(all(coords$x >= 0.1 - 1e-10 & coords$x <= 0.9 + 1e-10))
 })
 
 test_that("layout handles graph with self-loop", {

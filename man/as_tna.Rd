@@ -55,12 +55,12 @@ tna_models <- as_tna(cs)
 
 # Now use tna package functions
 plot(tna_models$between)
-tna::centrality(tna_models$between)
-tna::bootstrap(tna_models$between, R = 1000)
+tna::centralities(tna_models$between)
+tna::bootstrap(tna_models$between, iter = 1000)
 
 # Analyze within-cluster patterns
 plot(tna_models$within$ClusterA)
-tna::centrality(tna_models$within$ClusterA)
+tna::centralities(tna_models$within$ClusterA)
 }
 }
 
@@ -119,15 +119,15 @@ plot(tna_models$between)
 plot(tna_models$within$G1)
 
 # Centrality analysis
-tna::centrality(tna_models$between)
+tna::centralities(tna_models$between)
+tna::centralities(tna_models$within$G1)
+tna::centralities(tna_models$within$G2)
+}
 
-# Bootstrap validation
-boot <- tna::bootstrap(tna_models$between, R = 1000)
+\dontrun{
+# Bootstrap validation (requires tna built from sequence data)
+boot <- tna::bootstrap(tna_models$between, iter = 1000)
 summary(boot)
-
-# Compare clusters
-tna::centrality(tna_models$within$G1)
-tna::centrality(tna_models$within$G2)
 }
 
 # -----------------------------------------------------

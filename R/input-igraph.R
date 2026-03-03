@@ -176,8 +176,10 @@ apply_igraph_layout_by_name <- function(network, layout_name, seed = 42, ...) {
          "\nAvailable (2-letter): ", paste(available, collapse = ", "), call. = FALSE)
   }
 
-  # Set seed for deterministic layouts
+  # Set seed for deterministic layouts, restoring RNG state on exit
   if (!is.null(seed)) {
+    saved_rng <- .save_rng()
+    on.exit(.restore_rng(saved_rng), add = TRUE)
     set.seed(seed)
   }
 

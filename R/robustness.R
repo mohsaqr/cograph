@@ -90,8 +90,12 @@ robustness <- function(x,
     stop("For edge attacks, use 'betweenness' or 'random'", call. = FALSE)
   }
 
-  # Set seed
-  if (!is.null(seed)) set.seed(seed)
+  # Set seed, restoring RNG state on exit
+  if (!is.null(seed)) {
+    saved_rng <- .save_rng()
+    on.exit(.restore_rng(saved_rng), add = TRUE)
+    set.seed(seed)
+  }
 
   # Get original largest component size
 
@@ -301,7 +305,11 @@ plot_robustness <- function(...,
     all_data <- do.call(rbind, dots)
   } else if (!is.null(x)) {
     # Compute on-the-fly
-    if (!is.null(seed)) set.seed(seed)
+    if (!is.null(seed)) {
+      saved_rng <- .save_rng()
+      on.exit(.restore_rng(saved_rng), add = TRUE)
+      set.seed(seed)
+    }
     all_data <- do.call(rbind, lapply(measures, function(m) {
       robustness(x, type = type, measure = m, n_iter = n_iter)
     }))
@@ -425,7 +433,11 @@ ggplot_robustness <- function(...,
     names(networks) <- paste0("Network ", seq_along(networks))
   }
 
-  if (!is.null(seed)) set.seed(seed)
+  if (!is.null(seed)) {
+    saved_rng <- .save_rng()
+    on.exit(.restore_rng(saved_rng), add = TRUE)
+    set.seed(seed)
+  }
 
   # Compute robustness
   all_data <- do.call(rbind, lapply(names(networks), function(net_name) {

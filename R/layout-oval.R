@@ -15,6 +15,7 @@ NULL
 #' @param start_angle Starting angle in radians (default: pi/2 for top).
 #' @param clockwise Logical. Arrange nodes clockwise? Default TRUE.
 #' @param rotation Rotation angle in radians to tilt the entire oval. Default 0.
+#' @param ... Additional arguments (ignored).
 #' @return Data frame with x, y coordinates.
 #' @export
 #'

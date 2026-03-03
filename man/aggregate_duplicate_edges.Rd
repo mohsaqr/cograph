@@ -42,32 +42,6 @@ The output edge list uses canonical node ordering (lower index first for
 undirected networks), ensuring consistent from/to assignment.
 }
 }
-\examples{
-\dontrun{
-# Create edges with duplicates
-edges <- data.frame(
-  from = c(1, 1, 2),
-  to = c(2, 2, 3),
-  weight = c(0.5, 0.3, 0.4)
-)
-
-# Aggregate by sum (0.5 + 0.3 = 0.8)
-aggregate_duplicate_edges(edges, method = "sum")
-#   from to weight
-# 1    1  2    0.8
-# 2    2  3    0.4
-
-# Aggregate by mean (average: 0.4)
-aggregate_duplicate_edges(edges, method = "mean")
-#   from to weight
-# 1    1  2    0.4
-# 2    2  3    0.4
-
-# Use custom aggregation function
-aggregate_duplicate_edges(edges, method = function(x) sqrt(sum(x^2)))
-}
-
-}
 \seealso{
 \code{\link{detect_duplicate_edges}} for identifying duplicates before
 aggregation

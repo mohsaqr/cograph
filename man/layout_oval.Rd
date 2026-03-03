@@ -27,6 +27,8 @@ values < 1 create vertical ovals. Default 1.5.}
 \item{clockwise}{Logical. Arrange nodes clockwise? Default TRUE.}
 
 \item{rotation}{Rotation angle in radians to tilt the entire oval. Default 0.}
+
+\item{...}{Additional arguments (ignored).}
 }
 \value{
 Data frame with x, y coordinates.

@@ -36,17 +36,6 @@
 #'   \item Supports multiple gravity modes for different layout styles
 #' }
 #'
-#' @examples
-#' \dontrun{
-#' library(igraph)
-#' g <- make_ring(10)
-#' coords <- layout_gephi_fr(g, seed = 42)
-#' plot(g, layout = coords)
-#'
-#' # Non-circular layout with degree-based gravity
-#' coords2 <- layout_gephi_fr(g, gravity_mode = "degree", seed = 42)
-#' }
-#'
 #' @keywords internal
 layout_gephi_fr <- function(g, area = 10000, gravity = 1.0, speed = 1.0,
                             niter = 100, seed = NULL, initial = NULL,
@@ -59,8 +48,10 @@ layout_gephi_fr <- function(g, area = 10000, gravity = 1.0, speed = 1.0,
   gravity_mode <- match.arg(gravity_mode)
   cooling_mode <- match.arg(cooling_mode)
 
-  # Set seed for reproducibility
+  # Set seed for reproducibility, restoring RNG state on exit
   if (!is.null(seed)) {
+    saved_rng <- .save_rng()
+    on.exit(.restore_rng(saved_rng), add = TRUE)
     set.seed(seed)
   }
 

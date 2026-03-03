@@ -158,7 +158,7 @@ tna_models <- as_tna(cs)
 
 # 4. Analyze/visualize
 plot(tna_models$between)
-tna::centrality(tna_models$between)
+tna::centralities(tna_models$between)
 }
 }
 

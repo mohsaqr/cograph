@@ -105,17 +105,17 @@ tna_color_palette <- function(n_states) {
 #' \dontrun{
 #' # Convert and plot a tna object
 #' library(tna)
-#' trans <- tna(transitions)
-#' from_tna(trans)  # Plots with donut rings showing initial probabilities
+#' model <- tna(group_regulation)
+#' from_tna(model)  # Plots with donut rings showing initial probabilities
 #'
 #' # Use soplot engine instead
-#' from_tna(trans, engine = "soplot")
+#' from_tna(model, engine = "soplot")
 #'
 #' # Customize the visualization
-#' from_tna(trans, layout = "circle", donut_color = c("steelblue", "gray90"))
+#' from_tna(model, layout = "circle", donut_color = c("steelblue", "gray90"))
 #'
 #' # Extract parameters without plotting
-#' params <- from_tna(trans, plot = FALSE)
+#' params <- from_tna(model, plot = FALSE)
 #' # Modify and plot manually
 #' params$node_fill <- "coral"
 #' do.call(splot, params)
@@ -136,14 +136,14 @@ from_tna <- function(tna_object, engine = c("splot", "soplot"), plot = TRUE,
   x <- tna_object$weights
 
   # --- Determine directedness ---
-  # Read from tna object's $directed field if present, otherwise default TRUE
-  # (transition networks are directed by default, co-occurrence networks are not)
+  # Read from tna object's $directed field if present, otherwise auto-detect
+  # from matrix symmetry (co-occurrence networks are symmetric/undirected)
   is_directed <- if (!is.null(tna_object$directed)) {
     tna_object$directed
   } else if (!is.null(attr(tna_object, "directed"))) {
     attr(tna_object, "directed")
   } else {
-    TRUE  # TNA networks are directed by default
+    !is_symmetric_matrix(x)
   }
 
   # --- Build params ---
@@ -162,14 +162,16 @@ from_tna <- function(tna_object, engine = c("splot", "soplot"), plot = TRUE,
   # --- TNA-specific visual defaults (can be overridden via ...) ---
   params$node_fill <- tna_color_palette(n_states)
   params$layout <- "oval"
-  params$arrow_size <- 0.61
   params$edge_labels <- TRUE
   params$edge_label_size <- 0.6
   params$edge_color <- "#003355"
   params$edge_label_position <- 0.7
   params$node_size <- 7
-  params$edge_start_length <- 0.2
-  params$edge_start_style <- "dotted"
+  if (is_directed) {
+    params$arrow_size <- 0.61
+    params$edge_start_length <- 0.2
+    params$edge_start_style <- "dotted"
+  }
 
   # --- Apply overrides ---
   for (nm in names(overrides)) {

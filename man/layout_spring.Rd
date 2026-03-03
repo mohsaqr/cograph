@@ -56,6 +56,8 @@ values (e.g., 0.5-2) prevent nodes from drifting apart.}
 \item{cooling_mode}{Cooling schedule: "exponential" (default, uses \code{cooling}
 parameter), "vcf" (Variable Cooling Factor - adapts based on movement),
 or "linear" (linear decrease over iterations).}
+
+\item{...}{Additional arguments (ignored).}
 }
 \value{
 Data frame with x, y coordinates.

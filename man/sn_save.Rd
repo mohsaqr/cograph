@@ -33,9 +33,9 @@ Save a Cograph network visualization to a file.
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 # With cograph()
 net <- cograph(adj)
-sn_save(net, "network.pdf")
+sn_save(net, file.path(tempdir(), "network.pdf"))
 
 # Direct matrix input
-sn_save(adj, "network.png", dpi = 300)
+sn_save(adj, file.path(tempdir(), "network.png"), dpi = 300)
 }
 }

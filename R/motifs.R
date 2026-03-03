@@ -74,7 +74,11 @@ motif_census <- function(x, size = 3, n_random = 100,
     stop("size must be 3 or 4")
   }
 
-  if (!is.null(seed)) set.seed(seed)
+  if (!is.null(seed)) {
+    saved_rng <- .save_rng()
+    on.exit(.restore_rng(saved_rng), add = TRUE)
+    set.seed(seed)
+  }
 
   # Count motifs in observed network
   observed <- igraph::motifs(g, size = size)
@@ -120,7 +124,11 @@ motif_census <- function(x, size = 3, n_random = 100,
 
 #' @noRd
 .motif_census_undirected <- function(g, n_random, method, seed) {
-  if (!is.null(seed)) set.seed(seed)
+  if (!is.null(seed)) {
+    saved_rng <- .save_rng()
+    on.exit(.restore_rng(saved_rng), add = TRUE)
+    set.seed(seed)
+  }
 
   n <- igraph::vcount(g)
 

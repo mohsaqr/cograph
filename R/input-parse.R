@@ -126,27 +126,6 @@ create_edges_df <- function(from, to, weight = NULL, directed = FALSE) {
 #' @seealso \code{\link{aggregate_duplicate_edges}} for combining duplicates into
 #'   single edges
 #'
-#' @examples
-#' \dontrun{
-#' # Create edges with duplicates
-#' edges <- data.frame(
-#'   from = c(1, 1, 2, 2, 3),
-#'   to = c(2, 2, 3, 1, 1),
-#'   weight = c(0.5, 0.3, 0.4, 0.6, 0.2)
-#' )
-#'
-#' # Detect duplicates (undirected: 1-2 appears 3 times, 1-3 appears 2 times)
-#' result <- detect_duplicate_edges(edges)
-#' result$has_duplicates
-#' # [1] TRUE
-#'
-#' # View duplicate details
-#' result$info[[1]]
-#' # $nodes: 1, 2
-#' # $count: 3
-#' # $weights: 0.5, 0.3, 0.6
-#' }
-#'
 #' @keywords internal
 detect_duplicate_edges <- function(edges) {
   if (is.null(edges) || nrow(edges) == 0) {
@@ -208,31 +187,6 @@ detect_duplicate_edges <- function(edges) {
 #'
 #' @seealso \code{\link{detect_duplicate_edges}} for identifying duplicates before
 #'   aggregation
-#'
-#' @examples
-#' \dontrun{
-#' # Create edges with duplicates
-#' edges <- data.frame(
-#'   from = c(1, 1, 2),
-#'   to = c(2, 2, 3),
-#'   weight = c(0.5, 0.3, 0.4)
-#' )
-#'
-#' # Aggregate by sum (0.5 + 0.3 = 0.8)
-#' aggregate_duplicate_edges(edges, method = "sum")
-#' #   from to weight
-#' # 1    1  2    0.8
-#' # 2    2  3    0.4
-#'
-#' # Aggregate by mean (average: 0.4)
-#' aggregate_duplicate_edges(edges, method = "mean")
-#' #   from to weight
-#' # 1    1  2    0.4
-#' # 2    2  3    0.4
-#'
-#' # Use custom aggregation function
-#' aggregate_duplicate_edges(edges, method = function(x) sqrt(sum(x^2)))
-#' }
 #'
 #' @keywords internal
 aggregate_duplicate_edges <- function(edges, method = "mean") {

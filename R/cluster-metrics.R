@@ -190,7 +190,7 @@ wagg <- aggregate_weights
 #'
 #' # 4. Analyze/visualize
 #' plot(tna_models$between)
-#' tna::centrality(tna_models$between)
+#' tna::centralities(tna_models$between)
 #' }
 #'
 #' ## Between-Cluster Matrix Structure
@@ -411,9 +411,16 @@ cluster_summary <- function(x,
   names(between_inits) <- cluster_names
 
   # Build $between
-  between <- list(
-    weights = between_weights,
-    inits = between_inits
+  between <- structure(
+    list(
+      weights = between_weights,
+      inits = between_inits,
+      labels = cluster_names,
+      data = NULL
+    ),
+    type = if (type == "tna") "relative" else "frequency",
+    scaling = character(0),
+    class = "tna"
   )
 
   # ============================================================================
@@ -455,8 +462,12 @@ cluster_summary <- function(x,
       structure(
         list(
           weights = within_weights_i,
-          inits = within_inits_i
+          inits = within_inits_i,
+          labels = cl_nodes,
+          data = NULL
         ),
+        type = if (type == "tna") "relative" else "frequency",
+        scaling = character(0),
         class = "tna"
       )
     })
@@ -565,12 +576,12 @@ csum <- cluster_summary
 #'
 #' # Now use tna package functions
 #' plot(tna_models$between)
-#' tna::centrality(tna_models$between)
-#' tna::bootstrap(tna_models$between, R = 1000)
+#' tna::centralities(tna_models$between)
+#' tna::bootstrap(tna_models$between, iter = 1000)
 #'
 #' # Analyze within-cluster patterns
 #' plot(tna_models$within$ClusterA)
-#' tna::centrality(tna_models$within$ClusterA)
+#' tna::centralities(tna_models$within$ClusterA)
 #' }
 #'
 #' ## Excluded Clusters
@@ -633,15 +644,15 @@ csum <- cluster_summary
 #' plot(tna_models$within$G1)
 #'
 #' # Centrality analysis
-#' tna::centrality(tna_models$between)
+#' tna::centralities(tna_models$between)
+#' tna::centralities(tna_models$within$G1)
+#' tna::centralities(tna_models$within$G2)
+#' }
 #'
-#' # Bootstrap validation
-#' boot <- tna::bootstrap(tna_models$between, R = 1000)
+#' \dontrun{
+#' # Bootstrap validation (requires tna built from sequence data)
+#' boot <- tna::bootstrap(tna_models$between, iter = 1000)
 #' summary(boot)
-#'
-#' # Compare clusters
-#' tna::centrality(tna_models$within$G1)
-#' tna::centrality(tna_models$within$G2)
 #' }
 #'
 #' # -----------------------------------------------------
@@ -1026,7 +1037,11 @@ cluster_significance <- function(x,
                                   seed = NULL) {
 
   method <- match.arg(method)
-  if (!is.null(seed)) set.seed(seed)
+  if (!is.null(seed)) {
+    saved_rng <- .save_rng()
+    on.exit(.restore_rng(saved_rng), add = TRUE)
+    set.seed(seed)
+  }
 
   # Convert to igraph
   if (inherits(x, "igraph")) {

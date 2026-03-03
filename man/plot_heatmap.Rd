@@ -132,11 +132,13 @@ plot_heatmap(m)
 clusters <- list(Group1 = c("A", "B"), Group2 = c("C", "D", "E"))
 plot_heatmap(m, cluster_list = clusters)
 
-# Multi-layer (group_tna)
-plot_heatmap(group_tna_model)
-
 # Custom colors and legend
 plot_heatmap(m, colors = "heat", limits = c(0, 1), show_values = TRUE)
+}
+
+\dontrun{
+# Multi-layer (group_tna)
+plot_heatmap(group_tna_model)
 }
 
 }

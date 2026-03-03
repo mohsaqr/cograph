@@ -14,6 +14,8 @@ layout_circle(network, order = NULL, start_angle = pi/2, clockwise = TRUE, ...)
 \item{start_angle}{Starting angle in radians (default: pi/2 for top).}
 
 \item{clockwise}{Logical. Arrange nodes clockwise? Default TRUE.}
+
+\item{...}{Additional arguments (ignored).}
 }
 \value{
 Data frame with x, y coordinates.

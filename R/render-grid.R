@@ -322,8 +322,10 @@ soplot <- function(network, title = NULL, title_size = 14,
     new_val_was_set = "edge_negative_color" %in% explicit_args
   )
 
-  # Set seed for deterministic layouts
+  # Set seed for deterministic layouts, restoring RNG state on exit
   if (!is.null(seed)) {
+    saved_rng <- .save_rng()
+    on.exit(.restore_rng(saved_rng), add = TRUE)
     set.seed(seed)
   }
 

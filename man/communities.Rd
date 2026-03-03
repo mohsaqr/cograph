@@ -89,11 +89,11 @@ if (requireNamespace("igraph", quietly = TRUE)) {
   g <- igraph::make_graph("Zachary")
 
   # Default (Louvain)
-  comm <- communities(g)
+  comm <- cograph::communities(g)
   print(comm)
 
   # Walktrap
-  comm2 <- communities(g, method = "walktrap")
+  comm2 <- cograph::communities(g, method = "walktrap")
   print(comm2)
 }
 }

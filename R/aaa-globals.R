@@ -7,6 +7,32 @@ NULL
 # Package environment for storing registries
 .cograph_env <- new.env(parent = emptyenv())
 
+# ============================================================================
+# RNG State Helpers (CRAN requirement: set.seed must not alter caller's RNG)
+# ============================================================================
+
+#' Save current RNG state
+#' @return List with `seed` (the .Random.seed vector or NULL) and `existed` flag.
+#' @noRd
+.save_rng <- function() {
+  if (exists(".Random.seed", envir = globalenv(), inherits = FALSE)) {
+    list(seed = .Random.seed, existed = TRUE)
+  } else {
+    list(seed = NULL, existed = FALSE)
+  }
+}
+
+#' Restore previously saved RNG state
+#' @param state List returned by `.save_rng()`.
+#' @noRd
+.restore_rng <- function(state) {
+  if (state$existed) {
+    assign(".Random.seed", state$seed, envir = globalenv())
+  } else if (exists(".Random.seed", envir = globalenv(), inherits = FALSE)) {
+    rm(".Random.seed", envir = globalenv())
+  }
+}
+
 #' Initialize Global Registries
 #' @keywords internal
 init_registries <- function() {

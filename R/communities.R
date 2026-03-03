@@ -81,11 +81,11 @@
 #'   g <- igraph::make_graph("Zachary")
 #'
 #'   # Default (Louvain)
-#'   comm <- communities(g)
+#'   comm <- cograph::communities(g)
 #'   print(comm)
 #'
 #'   # Walktrap
-#'   comm2 <- communities(g, method = "walktrap")
+#'   comm2 <- cograph::communities(g, method = "walktrap")
 #'   print(comm2)
 #' }
 communities <- function(x,
@@ -158,7 +158,11 @@ communities <- function(x,
 #'   identical(igraph::membership(comm1), igraph::membership(comm2))
 #' }
 community_louvain <- function(x, weights = NULL, resolution = 1, seed = NULL, ...) {
-  if (!is.null(seed)) set.seed(seed)
+  if (!is.null(seed)) {
+    saved_rng <- .save_rng()
+    on.exit(.restore_rng(saved_rng), add = TRUE)
+    set.seed(seed)
+  }
   g <- to_igraph(x, ...)
   w <- .resolve_weights(g, weights)
 
@@ -216,7 +220,11 @@ community_leiden <- function(x,
                              seed = NULL,
                              ...) {
 
-  if (!is.null(seed)) set.seed(seed)
+  if (!is.null(seed)) {
+    saved_rng <- .save_rng()
+    on.exit(.restore_rng(saved_rng), add = TRUE)
+    set.seed(seed)
+  }
   objective_function <- match.arg(objective_function)
   g <- to_igraph(x, ...)
   w <- .resolve_weights(g, weights)
@@ -372,7 +380,11 @@ community_infomap <- function(x,
                               seed = NULL,
                               ...) {
 
-  if (!is.null(seed)) set.seed(seed)
+  if (!is.null(seed)) {
+    saved_rng <- .save_rng()
+    on.exit(.restore_rng(saved_rng), add = TRUE)
+    set.seed(seed)
+  }
   g <- to_igraph(x, ...)
   w <- .resolve_weights(g, weights)
 
@@ -431,7 +443,11 @@ community_label_propagation <- function(x,
                                  seed = NULL,
                                  ...) {
 
-  if (!is.null(seed)) set.seed(seed)
+  if (!is.null(seed)) {
+    saved_rng <- .save_rng()
+    on.exit(.restore_rng(saved_rng), add = TRUE)
+    set.seed(seed)
+  }
   mode <- match.arg(mode)
   g <- to_igraph(x, ...)
   w <- .resolve_weights(g, weights)
@@ -602,7 +618,11 @@ community_spinglass <- function(x,
                                 seed = NULL,
                                 ...) {
 
-  if (!is.null(seed)) set.seed(seed)
+  if (!is.null(seed)) {
+    saved_rng <- .save_rng()
+    on.exit(.restore_rng(saved_rng), add = TRUE)
+    set.seed(seed)
+  }
   update.rule <- match.arg(update.rule)
   implementation <- match.arg(implementation)
 
@@ -788,7 +808,11 @@ community_consensus <- function(x,
 
   method <- match.arg(method)
 
-  if (!is.null(seed)) set.seed(seed)
+  if (!is.null(seed)) {
+    saved_rng <- .save_rng()
+    on.exit(.restore_rng(saved_rng), add = TRUE)
+    set.seed(seed)
+  }
 
   g <- to_igraph(x)
   n <- igraph::vcount(g)

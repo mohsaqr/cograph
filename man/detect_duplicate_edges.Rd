@@ -37,28 +37,6 @@ Duplicate edges can arise from:
 The function creates canonical keys by sorting node pairs (lower index first),
 so edges 1\code{->}2 and 2\code{->}1 map to the same key "1-2" in undirected mode.
 }
-\examples{
-\dontrun{
-# Create edges with duplicates
-edges <- data.frame(
-  from = c(1, 1, 2, 2, 3),
-  to = c(2, 2, 3, 1, 1),
-  weight = c(0.5, 0.3, 0.4, 0.6, 0.2)
-)
-
-# Detect duplicates (undirected: 1-2 appears 3 times, 1-3 appears 2 times)
-result <- detect_duplicate_edges(edges)
-result$has_duplicates
-# [1] TRUE
-
-# View duplicate details
-result$info[[1]]
-# $nodes: 1, 2
-# $count: 3
-# $weights: 0.5, 0.3, 0.6
-}
-
-}
 \seealso{
 \code{\link{aggregate_duplicate_edges}} for combining duplicates into
 single edges

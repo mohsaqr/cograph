@@ -45,7 +45,11 @@ register_builtin_layouts <- function() {
   # Random layout
   register_layout("random", function(network, seed = NULL, ...) {
     n <- network$n_nodes
-    if (!is.null(seed)) set.seed(seed)
+    if (!is.null(seed)) {
+      saved_rng <- .save_rng()
+      on.exit(.restore_rng(saved_rng), add = TRUE)
+      set.seed(seed)
+    }
     data.frame(x = stats::runif(n, 0.1, 0.9), y = stats::runif(n, 0.1, 0.9))
   })
 

@@ -55,8 +55,10 @@ compute_layout_for_cograph <- function(net, layout = "spring", seed = 42, ...) {
   # Get nodes data frame
   nodes <- get_nodes(net)
 
-  # Set seed for deterministic layouts
+  # Set seed for deterministic layouts, restoring RNG state on exit
   if (!is.null(seed)) {
+    saved_rng <- .save_rng()
+    on.exit(.restore_rng(saved_rng), add = TRUE)
     set.seed(seed)
   }
 
@@ -232,8 +234,10 @@ cograph <- function(input, layout = NULL, directed = NULL,
 
   # Only compute layout if explicitly requested
   if (!is.null(layout)) {
-    # Set seed for deterministic layouts
+    # Set seed for deterministic layouts, restoring RNG state on exit
     if (!is.null(seed)) {
+      saved_rng <- .save_rng()
+      on.exit(.restore_rng(saved_rng), add = TRUE)
       set.seed(seed)
     }
 
@@ -367,8 +371,10 @@ sn_layout <- function(network, layout, seed = 42, ...) {
   # Auto-convert matrix/data.frame/igraph to cograph_network
   network <- ensure_cograph_network(network, layout = layout, seed = seed, ...)
 
-  # Set seed for deterministic layouts
+  # Set seed for deterministic layouts, restoring RNG state on exit
   if (!is.null(seed)) {
+    saved_rng <- .save_rng()
+    on.exit(.restore_rng(saved_rng), add = TRUE)
     set.seed(seed)
   }
 

@@ -525,7 +525,7 @@ test_that("parse_input correctly identifies igraph objects", {
 test_that("parse_input correctly identifies tna objects", {
   # Create mock tna object
   mock_tna <- list(
-    weights = matrix(c(0, 0.5, 0.3, 0.5, 0, 0.8, 0.3, 0.8, 0), nrow = 3),
+    weights = matrix(c(0, 0.5, 0.1, 0.3, 0, 0.8, 0.7, 0.2, 0), nrow = 3),
     labels = c("A", "B", "C"),
     inits = c(0.3, 0.4, 0.3)
   )

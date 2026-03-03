@@ -84,12 +84,12 @@ using i and j parameters.
 # Compare two adjacency matrices
 m1 <- matrix(runif(25), 5, 5)
 m2 <- matrix(runif(25), 5, 5)
-plot_compare(m1, m2)
+cograph::plot_compare(m1, m2)
 
 # With node-level differences (e.g., initial probabilities)
 inits1 <- c(0.3, 0.2, 0.2, 0.15, 0.15)
 inits2 <- c(0.1, 0.4, 0.2, 0.2, 0.1)
-plot_compare(m1, m2, inits_x = inits1, inits_y = inits2)
+cograph::plot_compare(m1, m2, inits_x = inits1, inits_y = inits2)
 
 # Compare tna objects (auto-extracts inits)
 # plot_compare(tna_model1, tna_model2)

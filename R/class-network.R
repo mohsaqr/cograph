@@ -771,7 +771,7 @@ set_layout <- function(x, layout_df) {
 #' get_labels(net)  # character vector of labels
 #' n_nodes(net)     # 3
 #' n_edges(net)     # 3
-#' is_directed(net) # FALSE (symmetric matrix)
+#' cograph::is_directed(net) # FALSE (symmetric matrix)
 #'
 #' # Setter functions
 #' net <- set_nodes(net, data.frame(id = 1:3, label = c("A", "B", "C")))
@@ -1157,12 +1157,12 @@ nodes <- function(x) {
 #' # Symmetric matrix -> undirected
 #' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 #' net <- as_cograph(mat)
-#' is_directed(net)  # FALSE
+#' cograph::is_directed(net)  # FALSE
 #'
 #' # Asymmetric matrix -> directed
 #' mat2 <- matrix(c(0, 1, 0, 0, 0, 1, 0, 0, 0), nrow = 3)
 #' net2 <- as_cograph(mat2)
-#' is_directed(net2)  # TRUE
+#' cograph::is_directed(net2)  # TRUE
 is_directed <- function(x) {
   if (inherits(x, "cograph_network")) {
     # Unified format: directed stored as list element

@@ -11,6 +11,7 @@ NULL
 #' @param order Optional vector specifying node order (indices or labels).
 #' @param start_angle Starting angle in radians (default: pi/2 for top).
 #' @param clockwise Logical. Arrange nodes clockwise? Default TRUE.
+#' @param ... Additional arguments (ignored).
 #' @return Data frame with x, y coordinates.
 #' @export
 #'

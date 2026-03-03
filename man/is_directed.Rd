@@ -19,12 +19,12 @@ Checks whether a cograph_network is directed.
 # Symmetric matrix -> undirected
 mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 net <- as_cograph(mat)
-is_directed(net)  # FALSE
+cograph::is_directed(net)  # FALSE
 
 # Asymmetric matrix -> directed
 mat2 <- matrix(c(0, 1, 0, 0, 0, 1, 0, 0, 0), nrow = 3)
 net2 <- as_cograph(mat2)
-is_directed(net2)  # TRUE
+cograph::is_directed(net2)  # TRUE
 }
 \seealso{
 \code{\link{as_cograph}}

@@ -67,16 +67,4 @@ Fruchterman-Reingold. Key differences from igraph's layout_with_fr:
 \item Supports multiple gravity modes for different layout styles
 }
 }
-\examples{
-\dontrun{
-library(igraph)
-g <- make_ring(10)
-coords <- layout_gephi_fr(g, seed = 42)
-plot(g, layout = coords)
-
-# Non-circular layout with degree-based gravity
-coords2 <- layout_gephi_fr(g, gravity_mode = "degree", seed = 42)
-}
-
-}
 \keyword{internal}

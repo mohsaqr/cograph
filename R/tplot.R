@@ -57,7 +57,7 @@ plot_tna <- function(
     pie = NULL,
     pieColor = NULL,
     lty = NULL,
-    directed = TRUE,
+    directed = NULL,
     minimum = NULL,
     posCol = NULL,
     negCol = NULL,
@@ -65,6 +65,12 @@ plot_tna <- function(
     title = NULL,
     ...
 ) {
+  # Auto-detect directedness from matrix symmetry
+  if (is.null(directed)) {
+    mat <- if (inherits(x, "tna")) x$weights else if (is.matrix(x)) x else NULL
+    directed <- if (!is.null(mat)) !is_symmetric_matrix(mat) else TRUE
+  }
+
   # Build splot arguments
   splot_args <- list(
     x = x,
@@ -110,10 +116,12 @@ plot_tna <- function(
     }
   }
 
-  # TNA defaults for edge styling
-  splot_args$edge_start_style <- "dotted"
-  splot_args$edge_start_length <- 0.2
-  splot_args$arrow_size <- 0.61
+  # TNA defaults for edge styling (arrows/start style only for directed)
+  if (directed) {
+    splot_args$edge_start_style <- "dotted"
+    splot_args$edge_start_length <- 0.2
+    splot_args$arrow_size <- 0.61
+  }
 
   # Arrow angle
   if (!is.null(arrowAngle)) splot_args$arrow_angle <- arrowAngle

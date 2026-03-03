@@ -31,6 +31,7 @@ NULL
 #' @param cooling_mode Cooling schedule: "exponential" (default, uses `cooling`
 #'   parameter), "vcf" (Variable Cooling Factor - adapts based on movement),
 #'   or "linear" (linear decrease over iterations).
+#' @param ... Additional arguments (ignored).
 #' @return Data frame with x, y coordinates.
 #' @export
 #'
@@ -73,8 +74,10 @@ layout_spring <- function(network, iterations = 200, cooling = 0.95,
     return(data.frame(x = 0.5, y = 0.5))
   }
 
-  # Set seed if provided
+  # Set seed if provided, restoring RNG state on exit
   if (!is.null(seed)) {
+    saved_rng <- .save_rng()
+    on.exit(.restore_rng(saved_rng), add = TRUE)
     set.seed(seed)
   }
 

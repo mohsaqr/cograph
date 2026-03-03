@@ -488,7 +488,7 @@ splot <- function(
 
     # Output
     filetype = "default",
-    filename = "splot",
+    filename = file.path(tempdir(), "splot"),
     width = 7,
     height = 7,
     res = 600,
@@ -556,8 +556,8 @@ splot <- function(
     n_rows <- ceiling(n_groups / n_cols)
 
     # Save current par and restore on exit
-    old_par <- par(mfrow = c(n_rows, n_cols), mar = c(1, 1, 2, 1))
-    on.exit(par(old_par), add = TRUE)
+    old_par <- graphics::par(mfrow = c(n_rows, n_cols), mar = c(1, 1, 2, 1))
+    on.exit(graphics::par(old_par), add = TRUE)
 
     # Plot each group
     for (idx in seq_len(n_groups)) {
@@ -608,8 +608,10 @@ splot <- function(
     x <- round(x, weight_digits)
   }
 
-  # Set seed for deterministic layouts
+  # Set seed for deterministic layouts, restoring RNG state on exit
   if (!is.null(seed)) {
+    saved_rng <- .save_rng()
+    on.exit(.restore_rng(saved_rng), add = TRUE)
     set.seed(seed)
   }
 

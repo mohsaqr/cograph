@@ -34,6 +34,9 @@ NULL
 #' @param node_spacing Vertical spacing between nodes (0-1 scale). Default 0.02.
 #' @param label_size Size of node labels. Default 3.5.
 #' @param label_position Position of node labels: "beside" (default), "inside", "above", "below", "outside".
+#'   Applied to first and last columns. See \code{mid_label_position} for middle columns.
+#' @param mid_label_position Position of labels for intermediate (middle) columns.
+#'   Same options as \code{label_position}. Default NULL uses \code{label_position} value.
 #' @param label_halo Logical: add white halo around labels for readability? Default TRUE.
 #' @param title_size Size of column titles. Default 5.
 #' @param curve_strength Controls bezier curve shape (0-1). Default 0.6.
@@ -62,7 +65,7 @@ NULL
 #' @param bundle_size Controls line bundling for large datasets. Default NULL (no bundling).
 #'   Integer >= 2: each drawn line represents that many cases.
 #'   Numeric in (0,1): reduce to this fraction of original lines
-#'   (e.g., 0.15 keeps ~15\% of lines).
+#'   (e.g., 0.15 keeps about 15 percent of lines).
 #' @param bundle_legend Logical: show annotation when bundling is active? Default TRUE.
 #'
 #' @return A ggplot2 object.
@@ -89,16 +92,18 @@ NULL
 #' df <- data.frame(time1 = before, time2 = after)
 #' plot_transitions(df, from_title = "Time 1", to_title = "Time 2")
 #'
-#' # Multi-step transitions (list of matrices)
-#' plot_transitions(list(mat1, mat2, mat3),
-#'   from_title = c("T1", "T2", "T3", "T4"),
-#'   show_totals = TRUE
-#' )
-#'
 #' # Custom colors
 #' plot_transitions(mat,
 #'   from_colors = c("#FFD166", "#06D6A0", "#9D4EDD"),
 #'   to_colors = c("#FFD166", "#EF476F", "#06D6A0")
+#' )
+#' }
+#'
+#' \dontrun{
+#' # Multi-step transitions (list of matrices)
+#' plot_transitions(list(mat1, mat2, mat3),
+#'   from_title = c("T1", "T2", "T3", "T4"),
+#'   show_totals = TRUE
 #' )
 #' }
 #'
@@ -119,6 +124,7 @@ plot_transitions <- function(x,
                              node_spacing = 0.02,
                              label_size = 3.5,
                              label_position = c("beside", "inside", "above", "below", "outside"),
+                             mid_label_position = NULL,
                              label_halo = TRUE,
                              title_size = 5,
                              curve_strength = 0.6,
@@ -187,7 +193,9 @@ plot_transitions <- function(x,
       flow_color_by = flow_color_by,
       node_width = node_width, node_border = node_border,
       node_spacing = node_spacing, label_size = label_size,
-      label_position = label_position, label_halo = label_halo,
+      label_position = label_position,
+      mid_label_position = mid_label_position,
+      label_halo = label_halo,
       title_size = title_size,
       curve_strength = curve_strength,
       line_alpha = line_alpha, line_width = line_width,
@@ -1100,7 +1108,9 @@ plot_transitions <- function(x,
 .plot_individual_tracks <- function(df, titles, colors,
                                      flow_color_by = NULL,
                                      node_width, node_border, node_spacing,
-                                     label_size, label_position, label_halo = TRUE,
+                                     label_size, label_position,
+                                     mid_label_position = NULL,
+                                     label_halo = TRUE,
                                      title_size,
                                      curve_strength, line_alpha, line_width,
                                      jitter_amount, show_totals, total_size,
@@ -1445,104 +1455,115 @@ plot_transitions <- function(x,
   # Halo offsets for text readability
   halo_off <- 0.004
 
-  # Add labels for ALL columns with full position support
-  # "beside" = labels to the RIGHT of every node (centered vertically)
-  # "outside" = labels to the LEFT of every node (centered vertically)
-  # "above" / "below" / "inside" = same position on all columns
-
-  if (label_position == "beside") {
-    # All columns: label to the right of node
-    if (label_halo) {
-      for (dx in c(-1, 0, 1)) {
-        for (dy in c(-1, 0, 1)) {
-          if (dx != 0 || dy != 0) {
-            p <- p + geom_text(
-              data = node_rects,
-              aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
-              hjust = 0, size = label_size, color = "white",
-              nudge_x = dx * halo_off, nudge_y = dy * halo_off
-            )
-          }
-        }
-      }
-    }
-    p <- p + geom_text(
-      data = node_rects,
-      aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
-      hjust = 0, size = label_size
-    )
-
-  } else if (label_position == "outside") {
-    # All columns: label to the left of node
-    if (label_halo) {
-      for (dx in c(-1, 0, 1)) {
-        for (dy in c(-1, 0, 1)) {
-          if (dx != 0 || dy != 0) {
-            p <- p + geom_text(
-              data = node_rects,
-              aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
-              hjust = 1, size = label_size, color = "white",
-              nudge_x = dx * halo_off, nudge_y = dy * halo_off
-            )
-          }
-        }
-      }
-    }
-    p <- p + geom_text(
-      data = node_rects,
-      aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
-      hjust = 1, size = label_size
-    )
-
-  } else if (label_position == "above") {
-    if (label_halo) {
-      for (dx in c(-1, 0, 1)) {
-        for (dy in c(-1, 0, 1)) {
-          if (dx != 0 || dy != 0) {
-            p <- p + geom_text(
-              data = node_rects,
-              aes(x = x_pos, y = ymax + 0.02, label = label),
-              hjust = 0.5, vjust = 0, size = label_size, color = "white",
-              nudge_x = dx * halo_off, nudge_y = dy * halo_off
-            )
-          }
-        }
-      }
-    }
-    p <- p + geom_text(
-      data = node_rects,
-      aes(x = x_pos, y = ymax + 0.02, label = label),
-      hjust = 0.5, vjust = 0, size = label_size
-    )
-
-  } else if (label_position == "below") {
-    if (label_halo) {
-      for (dx in c(-1, 0, 1)) {
-        for (dy in c(-1, 0, 1)) {
-          if (dx != 0 || dy != 0) {
-            p <- p + geom_text(
-              data = node_rects,
-              aes(x = x_pos, y = ymin - 0.02, label = label),
-              hjust = 0.5, vjust = 1, size = label_size, color = "white",
-              nudge_x = dx * halo_off, nudge_y = dy * halo_off
-            )
-          }
-        }
-      }
-    }
-    p <- p + geom_text(
-      data = node_rects,
-      aes(x = x_pos, y = ymin - 0.02, label = label),
-      hjust = 0.5, vjust = 1, size = label_size
-    )
-
-  } else if (label_position == "inside") {
-    p <- p + geom_text(
-      data = node_rects,
-      aes(x = x_pos, y = (ymin + ymax) / 2, label = label),
-      hjust = 0.5, size = label_size * 0.8, color = "white", fontface = "bold"
-    )
+  # Resolve mid_label_position (for intermediate columns)
+  valid_positions <- c("beside", "inside", "above", "below", "outside")
+  mid_pos <- if (is.null(mid_label_position)) {
+    label_position
+  } else {
+    match.arg(mid_label_position, valid_positions)
   }
+
+  # Helper: render labels for a data subset at a given position
+  .add_labels <- function(p, data, pos, halo, halo_off, label_size) {
+    if (nrow(data) == 0L) return(p)
+    if (pos == "beside") {
+      if (halo) {
+        for (dx in c(-1, 0, 1)) {
+          for (dy in c(-1, 0, 1)) {
+            if (dx != 0 || dy != 0) {
+              p <- p + geom_text(
+                data = data,
+                aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
+                hjust = 0, size = label_size, color = "white",
+                nudge_x = dx * halo_off, nudge_y = dy * halo_off
+              )
+            }
+          }
+        }
+      }
+      p <- p + geom_text(
+        data = data,
+        aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
+        hjust = 0, size = label_size
+      )
+    } else if (pos == "outside") {
+      if (halo) {
+        for (dx in c(-1, 0, 1)) {
+          for (dy in c(-1, 0, 1)) {
+            if (dx != 0 || dy != 0) {
+              p <- p + geom_text(
+                data = data,
+                aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
+                hjust = 1, size = label_size, color = "white",
+                nudge_x = dx * halo_off, nudge_y = dy * halo_off
+              )
+            }
+          }
+        }
+      }
+      p <- p + geom_text(
+        data = data,
+        aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
+        hjust = 1, size = label_size
+      )
+    } else if (pos == "above") {
+      if (halo) {
+        for (dx in c(-1, 0, 1)) {
+          for (dy in c(-1, 0, 1)) {
+            if (dx != 0 || dy != 0) {
+              p <- p + geom_text(
+                data = data,
+                aes(x = x_pos, y = ymax + 0.02, label = label),
+                hjust = 0.5, vjust = 0, size = label_size, color = "white",
+                nudge_x = dx * halo_off, nudge_y = dy * halo_off
+              )
+            }
+          }
+        }
+      }
+      p <- p + geom_text(
+        data = data,
+        aes(x = x_pos, y = ymax + 0.02, label = label),
+        hjust = 0.5, vjust = 0, size = label_size
+      )
+    } else if (pos == "below") {
+      if (halo) {
+        for (dx in c(-1, 0, 1)) {
+          for (dy in c(-1, 0, 1)) {
+            if (dx != 0 || dy != 0) {
+              p <- p + geom_text(
+                data = data,
+                aes(x = x_pos, y = ymin - 0.02, label = label),
+                hjust = 0.5, vjust = 1, size = label_size, color = "white",
+                nudge_x = dx * halo_off, nudge_y = dy * halo_off
+              )
+            }
+          }
+        }
+      }
+      p <- p + geom_text(
+        data = data,
+        aes(x = x_pos, y = ymin - 0.02, label = label),
+        hjust = 0.5, vjust = 1, size = label_size
+      )
+    } else if (pos == "inside") {
+      p <- p + geom_text(
+        data = data,
+        aes(x = x_pos, y = (ymin + ymax) / 2, label = label),
+        hjust = 0.5, size = label_size * 0.8, color = "white", fontface = "bold"
+      )
+    }
+    p
+  }
+
+  # Split nodes into edge (first/last) and middle columns
+  is_edge <- node_rects$col == 1 | node_rects$col == n_columns
+  edge_rects <- node_rects[is_edge, , drop = FALSE]
+  mid_rects <- node_rects[!is_edge, , drop = FALSE]
+
+  # Render edge column labels with label_position, middle with mid_pos
+  p <- .add_labels(p, edge_rects, label_position, label_halo, halo_off, label_size)
+  p <- .add_labels(p, mid_rects, mid_pos, label_halo, halo_off, label_size)
 
   # Add totals
   if (show_totals) {
@@ -1817,6 +1838,7 @@ plot_trajectories <- function(x,
                               node_spacing = 0.02,
                               label_size = 3.5,
                               label_position = c("beside", "inside", "above", "below", "outside"),
+                              mid_label_position = NULL,
                               label_halo = TRUE,
                               title_size = 5,
                               curve_strength = 0.6,
@@ -1848,6 +1870,7 @@ plot_trajectories <- function(x,
     node_spacing = node_spacing,
     label_size = label_size,
     label_position = label_position,
+    mid_label_position = mid_label_position,
     label_halo = label_halo,
     title_size = title_size,
     curve_strength = curve_strength,

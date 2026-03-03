@@ -85,7 +85,11 @@ extract_motifs_temporal <- function(x,
                                      na_threshold = 0.5,
                                      seed = NULL) {
 
-  if (!is.null(seed)) set.seed(seed)
+  if (!is.null(seed)) {
+    saved_rng <- .save_rng()
+    on.exit(.restore_rng(saved_rng), add = TRUE)
+    set.seed(seed)
+  }
   format <- match.arg(format)
   pattern <- match.arg(pattern)
   edge_method <- match.arg(edge_method)
@@ -394,7 +398,8 @@ print.cograph_temporal_motifs <- function(x, ...) {
 #'
 #' @examples
 #' \dontrun{
-#' m <- extract_motifs_temporal(data, window_size = 5)
+#' library(tna)
+#' m <- extract_motifs_temporal(group_regulation, window_size = 5)
 #' plot(m, type = "trends")
 #' plot(m, type = "heatmap")
 #' }

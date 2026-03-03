@@ -280,45 +280,8 @@ test_that(".onLoad registers diverging palette via register_builtin_palettes", {
 })
 
 # =============================================================================
-# Test: .onAttach startup message
+# Test: .onAttach startup message (removed - no startup message per CRAN policy)
 # =============================================================================
-
-test_that(".onAttach produces startup message with package name", {
-  msg <- capture.output(
-    cograph:::.onAttach("lib", "cograph"),
-    type = "message"
-  )
-  combined <- paste(msg, collapse = " ")
-  expect_true(grepl("cograph", combined, ignore.case = TRUE))
-})
-
-test_that(".onAttach produces startup message with version", {
-  msg <- capture.output(
-    cograph:::.onAttach("lib", "cograph"),
-    type = "message"
-  )
-  combined <- paste(msg, collapse = " ")
-  # Version number pattern (e.g., 0.1.0, 1.0.0)
-  expect_true(grepl("[0-9]+\\.[0-9]+", combined))
-})
-
-test_that(".onAttach produces startup message mentioning help", {
-  msg <- capture.output(
-    cograph:::.onAttach("lib", "cograph"),
-    type = "message"
-  )
-  combined <- paste(msg, collapse = " ")
-  expect_true(grepl("help|\\?cograph", combined, ignore.case = TRUE))
-})
-
-test_that(".onAttach mentions Modern Network Visualization", {
-  msg <- capture.output(
-    cograph:::.onAttach("lib", "cograph"),
-    type = "message"
-  )
-  combined <- paste(msg, collapse = " ")
-  expect_true(grepl("Modern Network Visualization", combined))
-})
 
 # =============================================================================
 # Test: Registry state after package load
@@ -510,12 +473,5 @@ test_that("gray and grey theme aliases have equivalent properties", {
 })
 
 # =============================================================================
-# Test: Startup message format
+# Test: Startup message format (removed - no startup message per CRAN policy)
 # =============================================================================
-
-test_that(".onAttach uses packageStartupMessage", {
-  # packageStartupMessage can be suppressed with suppressPackageStartupMessages
-  expect_silent(suppressPackageStartupMessages(
-    cograph:::.onAttach("lib", "cograph")
-  ))
-})

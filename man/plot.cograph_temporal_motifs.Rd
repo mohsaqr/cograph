@@ -26,7 +26,8 @@ and heatmaps showing how motif frequencies change over time windows.
 }
 \examples{
 \dontrun{
-m <- extract_motifs_temporal(data, window_size = 5)
+library(tna)
+m <- extract_motifs_temporal(group_regulation, window_size = 5)
 plot(m, type = "trends")
 plot(m, type = "heatmap")
 }

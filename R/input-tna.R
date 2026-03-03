@@ -18,22 +18,22 @@ parse_tna <- function(tna_obj, directed = NULL) {
     stop("Input must be a tna object", call. = FALSE)
   }
 
+  # Get the weights matrix
+  x <- tna_obj$weights
+
   # Determine directedness:
   # 1. Use explicit directed parameter if provided
   # 2. Otherwise read from tna object's $directed field or attribute
-  # 3. Default to TRUE (standard tna networks are directed transition matrices)
+  # 3. Auto-detect from matrix symmetry
   if (is.null(directed)) {
     if (!is.null(tna_obj$directed)) {
       directed <- tna_obj$directed
     } else if (!is.null(attr(tna_obj, "directed"))) {
       directed <- attr(tna_obj, "directed")
     } else {
-      directed <- TRUE
+      directed <- !is_symmetric_matrix(x)
     }
   }
-
-  # Get the weights matrix
-  x <- tna_obj$weights
 
   # Get number of nodes and labels
   n <- nrow(x)
@@ -43,7 +43,12 @@ parse_tna <- function(tna_obj, directed = NULL) {
   }
 
   # Extract edges from matrix
-  edge_idx <- which(x != 0, arr.ind = TRUE)
+  # For undirected networks, use upper triangle only to avoid duplicate edges
+  if (directed) {
+    edge_idx <- which(x != 0, arr.ind = TRUE)
+  } else {
+    edge_idx <- which(upper.tri(x) & x != 0, arr.ind = TRUE)
+  }
   if (nrow(edge_idx) == 0) {
     from_idx <- integer(0)
     to_idx <- integer(0)

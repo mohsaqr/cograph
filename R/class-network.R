@@ -861,16 +861,11 @@ to_cograph <- function(x, directed = NULL, ...) {
   as_cograph(x, directed = directed, ...)
 }
 
-#' Set Node Groups for Auto-Plot Selection
+#' Set Node Groups
 #'
-#' Assigns node groupings to a cograph_network object. The column name in the
-#' resulting data frame determines which plot function \code{splot()} will
-#' auto-dispatch to:
-#' \itemize{
-#'   \item \code{"layer"} column -> \code{plot_mlna()} (multilevel network)
-#'   \item \code{"cluster"} column -> \code{plot_mtna()} (multi-cluster network)
-#'   \item \code{"group"} column -> \code{plot_htna()} (heterogeneous network)
-#' }
+#' Assigns node groupings to a cograph_network object. Groups are stored as
+#' metadata with a type column ("layer", "cluster", or "group") for use by
+#' specialized plot functions.
 #'
 #' @param x A cograph_network object.
 #' @param groups Node groupings in one of these formats:
@@ -885,26 +880,18 @@ to_cograph <- function(x, directed = NULL, ...) {
 #'       (plural forms are automatically normalized to singular)
 #'     \item NULL: Use \code{nodes} + one of \code{layers}/\code{clusters}/\code{groups} vectors
 #'   }
-#' @param type Group type determining the plot function. One of:
-#'
-#'   \itemize{
-#'     \item \code{"group"} (default): Uses \code{plot_htna()}
-#'     \item \code{"cluster"}: Uses \code{plot_mtna()}
-#'     \item \code{"layer"}: Uses \code{plot_mlna()}
-#'   }
-#'   Ignored when using vector arguments (\code{layers}, \code{clusters}, \code{groups})
-#'   since the type is inferred from which argument is provided.
+#' @param type Group type. One of \code{"group"} (default), \code{"cluster"},
+#'   or \code{"layer"}. Ignored when using vector arguments (\code{layers},
+#'   \code{clusters}, \code{groups}) since the type is inferred from which
+#'   argument is provided.
 #' @param nodes Character vector of node labels. Use with \code{layers}, \code{clusters},
 #'   or \code{groups} to specify groupings via vectors instead of a data frame.
 #' @param layers Character/factor vector of layer assignments (same length as \code{nodes}).
-#'   Triggers dispatch to \code{plot_mlna()}.
 #' @param clusters Character/factor vector of cluster assignments (same length as \code{nodes}).
-#'   Triggers dispatch to \code{plot_mtna()}.
 #'
 #' @return The modified cograph_network object with \code{node_groups} set.
 #'
-#' @seealso \code{\link{get_groups}}, \code{\link{splot}}, \code{\link{plot_mlna}},
-#'   \code{\link{plot_mtna}}, \code{\link{plot_htna}}, \code{\link{detect_communities}}
+#' @seealso \code{\link{get_groups}}, \code{\link{splot}}, \code{\link{detect_communities}}
 #'
 #' @export
 #'
@@ -922,18 +909,18 @@ to_cograph <- function(x, directed = NULL, ...) {
 #'   layers = c(rep("Macro", 3), rep("Meso", 4), rep("Micro", 3))
 #' )
 #'
-#' # Named list -> layers (for plot_mlna)
+#' # Named list -> layers
 #' net <- set_groups(net, list(
 #'   Macro = paste0("N", 1:3),
 #'   Meso = paste0("N", 4:7),
 #'   Micro = paste0("N", 8:10)
 #' ), type = "layer")
 #'
-#' # Vector -> clusters (for plot_mtna)
+#' # Vector -> clusters
 #' net <- set_groups(net, c("A", "A", "A", "B", "B", "B", "C", "C", "C", "C"),
 #'                   type = "cluster")
 #'
-#' # Community detection -> groups (for plot_htna)
+#' # Community detection -> groups
 #' net <- set_groups(net, "louvain", type = "group")
 #'
 #' # Data frame with explicit columns

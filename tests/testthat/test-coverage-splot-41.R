@@ -153,51 +153,6 @@ test_that("splot() errors on out-of-range group_tna index", {
 })
 
 # ============================================
-# NODE_GROUPS DISPATCH TESTS
-# ============================================
-
-test_that("splot() dispatches to plot_mlna for layer node_groups", {
-  adj <- create_test_matrix(6)
-  net <- cograph(adj)
-  net$node_groups <- data.frame(
-    node = 1:6,
-    layer = c("A", "A", "B", "B", "C", "C")
-  )
-
-  # This should dispatch to plot_mlna
-  result <- safe_plot(splot(net))
-  expect_true(result$success, info = result$error)
-})
-
-test_that("splot() dispatches to plot_mtna for cluster node_groups", {
-  adj <- create_test_matrix(6)
-  net <- cograph(adj)
-  net$node_groups <- data.frame(
-    node = 1:6,
-    cluster = c(1, 1, 2, 2, 3, 3)
-  )
-
-  # This should dispatch to plot_mtna
-  result <- safe_plot(splot(net))
-  expect_true(result$success, info = result$error)
-})
-
-test_that("splot() dispatches to plot_htna for group node_groups", {
-  adj <- create_test_matrix(6)
-  net <- cograph(adj)
-  # Use character node names for plot_htna compatibility
-  net$node_groups <- data.frame(
-    node = c("1", "2", "3", "4", "5", "6"),
-    group = c("X", "X", "Y", "Y", "Z", "Z"),
-    stringsAsFactors = FALSE
-  )
-
-  # This should dispatch to plot_htna
-  result <- safe_plot(splot(net))
-  expect_true(result$success, info = result$error)
-})
-
-# ============================================
 # THEME APPLICATION
 # ============================================
 

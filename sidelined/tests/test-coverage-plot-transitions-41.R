@@ -1450,3 +1450,97 @@ test_that("bundle_size renders to PNG device", {
     print(plot_trajectories(df, bundle_size = 5))
   }))
 })
+
+# ============================================
+# mid_label_position Tests
+# ============================================
+
+test_that("mid_label_position defaults to label_position when NULL", {
+  df <- create_test_trans_df(n_obs = 20, n_cols = 3)
+
+  # NULL mid_label_position should work (uses label_position for all columns)
+  expect_no_error(with_temp_png({
+    print(plot_trajectories(df, label_position = "above", mid_label_position = NULL))
+  }))
+})
+
+test_that("mid_label_position accepts all valid positions", {
+  df <- create_test_trans_df(n_obs = 20, n_cols = 4)
+
+  positions <- c("beside", "inside", "above", "below", "outside")
+  lapply(positions, function(pos) {
+    expect_no_error(with_temp_png({
+      print(plot_trajectories(df, label_position = "beside", mid_label_position = pos))
+    }))
+  })
+})
+
+test_that("mid_label_position independent from label_position", {
+  df <- create_test_trans_df(n_obs = 20, n_cols = 3)
+
+  # Edge = beside, middle = above
+  expect_no_error(with_temp_png({
+    print(plot_trajectories(df, label_position = "beside", mid_label_position = "above"))
+  }))
+
+  # Edge = outside, middle = below
+  expect_no_error(with_temp_png({
+    print(plot_trajectories(df, label_position = "outside", mid_label_position = "below"))
+  }))
+
+  # Edge = above, middle = inside
+  expect_no_error(with_temp_png({
+    print(plot_trajectories(df, label_position = "above", mid_label_position = "inside",
+                            node_width = 0.12))
+  }))
+})
+
+test_that("mid_label_position with 2 columns (no middle columns)", {
+  df <- create_test_trans_df(n_obs = 20, n_cols = 2)
+
+  # With only 2 columns, there are no middle columns;
+  # mid_label_position should have no effect
+  expect_no_error(with_temp_png({
+    print(plot_trajectories(df, label_position = "beside", mid_label_position = "above"))
+  }))
+})
+
+test_that("mid_label_position with many columns", {
+  df <- create_test_trans_df(n_obs = 30, n_cols = 5)
+
+  # 5 columns: col 1 and 5 are edge, cols 2-4 are middle
+  expect_no_error(with_temp_png({
+    print(plot_trajectories(df, label_position = "beside", mid_label_position = "above",
+                            flow_color_by = "first"))
+  }))
+})
+
+test_that("mid_label_position combined with node_label_format", {
+  df <- create_test_trans_df(n_obs = 20, n_cols = 4)
+
+  expect_no_error(with_temp_png({
+    print(plot_trajectories(df, label_position = "outside",
+                            mid_label_position = "above",
+                            node_label_format = "{state} (n={count})"))
+  }))
+})
+
+test_that("mid_label_position combined with bundling", {
+  df <- create_test_trans_df(n_obs = 100, n_cols = 4)
+
+  expect_no_error(with_temp_png({
+    print(plot_trajectories(df, label_position = "beside",
+                            mid_label_position = "below",
+                            bundle_size = 10))
+  }))
+})
+
+test_that("mid_label_position works via plot_transitions with track_individuals", {
+  df <- create_test_trans_df(n_obs = 20, n_cols = 3)
+
+  expect_no_error(with_temp_png({
+    print(plot_transitions(df, track_individuals = TRUE,
+                           label_position = "beside",
+                           mid_label_position = "above"))
+  }))
+})

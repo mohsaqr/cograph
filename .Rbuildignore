@@ -40,3 +40,8 @@
 ^validation$
 ^vignettes/comparison-plots-demo\.Rmd$
 ^vignettes/mcml-examples\.Rmd$
+^LEARNINGS\.md$
+^HANDOFF\.md$
+^CHANGES\.md$
+^tmp$
+^sidelined$

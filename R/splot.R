@@ -1122,16 +1122,45 @@ splot <- function(
   title_space <- if (!is.null(title)) max(1.5, title_size * 1.2) else 0
   graphics::par(mar = c(margins[1], margins[2], margins[3] + title_space, margins[4]))
 
-  # Calculate plot limits
+  # Calculate plot limits accounting for visual extent of nodes, self-loops,
+
+  # and curved edges
   x_range <- range(layout_mat[, 1], na.rm = TRUE)
   y_range <- range(layout_mat[, 2], na.rm = TRUE)
 
-  # Add margin to limits (configurable via layout_margin parameter)
+  # Start with layout_margin as minimum padding
   x_margin <- diff(x_range) * layout_margin
   y_margin <- diff(y_range) * layout_margin
 
-  xlim <- c(x_range[1] - x_margin, x_range[2] + x_margin)
-  ylim <- c(y_range[1] - y_margin, y_range[2] + y_margin)
+  # Expand to encompass node radii at boundary nodes
+  x_lo <- min(layout_mat[, 1] - vsize_usr, na.rm = TRUE)
+  x_hi <- max(layout_mat[, 1] + vsize_usr, na.rm = TRUE)
+  y_lo <- min(layout_mat[, 2] - vsize_usr, na.rm = TRUE)
+  y_hi <- max(layout_mat[, 2] + vsize_usr, na.rm = TRUE)
+
+  # Expand for self-loops (extend ~2.52x node_size in the rotation direction)
+  if (n_edges > 0) {
+    self_loop_idx <- which(edges$from == edges$to)
+    if (length(self_loop_idx) > 0) {
+      loop_extent <- 2.52  # loop_dist + loop_radius = node_size * 2.52
+      for (si in self_loop_idx) {
+        ni <- edges$from[si]
+        r <- vsize_usr[ni] * loop_extent
+        rot <- loop_rotations[si]
+        lx <- layout_mat[ni, 1] + r * cos(rot)
+        ly <- layout_mat[ni, 2] + r * sin(rot)
+        lr <- vsize_usr[ni] * 0.8  # loop_radius
+        x_lo <- min(x_lo, lx - lr)
+        x_hi <- max(x_hi, lx + lr)
+        y_lo <- min(y_lo, ly - lr)
+        y_hi <- max(y_hi, ly + lr)
+      }
+    }
+  }
+
+  # Final limits: max of layout_margin-based padding and actual visual extents
+  xlim <- c(min(x_range[1] - x_margin, x_lo), max(x_range[2] + x_margin, x_hi))
+  ylim <- c(min(y_range[1] - y_margin, y_lo), max(y_range[2] + y_margin, y_hi))
 
   # Create plot
   graphics::plot(

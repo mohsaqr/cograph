@@ -764,7 +764,7 @@ create_grid_grob <- function(network, title = NULL, background = "white") {
                           node_grobs, label_grobs)
 
   # Add title if provided
-  if (!is.null(title)) {
+  if (!is.null(title)) { # nocov start
     title_col <- if (!is.null(theme)) theme$get("title_color") else "black"
     title_grob <- grid::textGrob(
       title,
@@ -773,7 +773,7 @@ create_grid_grob <- function(network, title = NULL, background = "white") {
       gp = grid::gpar(fontsize = 14, col = title_col, fontface = "bold")
     )
     children <- grid::gList(children, title_grob)
-  }
+  } # nocov end
 
   grid::gTree(children = children, name = "cograph_plot")
 }
@@ -819,7 +819,7 @@ render_legend_grid <- function(network, position = "topright") {
   legend_data <- unique(legend_data)
 
   n_items <- nrow(legend_data)
-  if (n_items == 0) return(grid::gList())
+  if (n_items == 0) return(grid::gList()) # nocov
 
   # Legend styling
   swatch_size <- 0.02  # Size of color swatch

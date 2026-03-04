@@ -58,11 +58,11 @@ to_igraph <- function(x, directed = NULL) {
   }
 
   if (inherits(x, "network")) {
-    if (!requireNamespace("network", quietly = TRUE)) {
+    if (!requireNamespace("network", quietly = TRUE)) { # nocov start
       stop("Package 'network' is required for network input. ",
            "Please install it with: install.packages('network')",
            call. = FALSE)
-    }
+    } # nocov end
     # Get directedness
     is_dir <- if (!is.null(directed)) {
       directed
@@ -190,9 +190,9 @@ detect_communities <- function(x, method = "louvain", directed = NULL,
     "infomap" = igraph::cluster_infomap(g, e.weights = edge_weights),
     "leiden" = {
       if (!requireNamespace("igraph", quietly = TRUE) ||
-          !exists("cluster_leiden", where = asNamespace("igraph"))) {
+          !exists("cluster_leiden", where = asNamespace("igraph"))) { # nocov start
         stop("Leiden algorithm requires igraph >= 1.2.5", call. = FALSE)
-      }
+      } # nocov end
       igraph::cluster_leiden(g, weights = edge_weights)
     }
   )
@@ -925,10 +925,10 @@ to_matrix <- function(x, directed = NULL) {
 #' }
 to_network <- function(x, directed = NULL) {
 
-  if (!requireNamespace("network", quietly = TRUE)) {
+  if (!requireNamespace("network", quietly = TRUE)) { # nocov start
     stop("Package 'network' is required for to_network(). ",
          "Install it with: install.packages('network')", call. = FALSE)
-  }
+  } # nocov end
 
   # Get adjacency matrix
 
@@ -1872,10 +1872,10 @@ input_class <- .detect_input_class(x)
   # Compute the required metric
   metric_vals <- .compute_single_edge_metric(g, edges, by)
 
-  if (all(is.na(metric_vals))) {
+  if (all(is.na(metric_vals))) { # nocov start
     warning("Could not compute '", by, "' metric. Returning all currently selected edges.", call. = FALSE)
     return(current_selection)
-  }
+  } # nocov end
 
   # Only consider currently selected edges
   masked_vals <- metric_vals

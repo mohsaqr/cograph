@@ -125,7 +125,7 @@ register_builtin_layouts <- function() {
     AREA_MULTIPLICATOR <- 10000.0
 
     nodes_count <- igraph::vcount(g)
-    if (nodes_count == 0) return(data.frame(x = numeric(0), y = numeric(0)))
+    if (nodes_count == 0) return(data.frame(x = numeric(0), y = numeric(0))) # nocov
 
     # Initialize positions
     coords <- matrix(stats::runif(nodes_count * 2, min = -500, max = 500), ncol = 2)

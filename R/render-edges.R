@@ -552,7 +552,7 @@ render_edge_labels_grid <- function(network) {
     return(grid::gList())
   }
 
-  if (is.null(labels)) return(grid::gList())
+  if (is.null(labels)) return(grid::gList()) # nocov
 
   # Vectorize edge label parameters (strict: length 1 or m)
   label_sizes <- expand_param(

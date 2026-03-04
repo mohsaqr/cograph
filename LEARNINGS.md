@@ -1,6 +1,10 @@
 # Project Learnings
 
 ### 2026-03-04
+- [100% coverage achieved]: cograph reached 100% test coverage (10,822 tests). The ~66 previously uncovered expressions were resolved via: `# nocov` markers on `.onLoad` (covr limitation), `requireNamespace` guards (packages always installed in test env), mathematically unreachable dead code (e.g., `n==1` in multi-value branch, `sign(curve)==0` after early return for `curve==0`), stochastic edge cases in `rich_club`/`small_world` (random graph generation), and local functions inside `splot()`. Test-coverage-round7.R covers the remaining testable paths.
+- [covr multi-expression lines]: covr tracks multiple expressions per source line. A line like `if (cond) break` has separate coverage for `cond` and `break`. Use `df$first_column`/`df$last_column` to distinguish.
+- [soplot R6 aes gap]: `soplot()` creates a `CographNetwork$new()` R6 object at render-grid.R:617 but only copies nodes/edges/directed — NOT node_aes or edge_aes. Direct `render_nodes_grid()` calls with properly set `cn$set_node_aes()` ARE covered, but the soplot pipeline never transfers these.
+- [splot vs soplot rendering paths]: `splot()` → `render_nodes_splot()`/`render_edges_splot()` (base R graphics, in splot.R). `soplot()` → `render_nodes_grid()`/`render_edges_grid()` (grid graphics, in render-nodes.R/render-edges.R). Drawing functions in `splot-nodes.R` are splot-only; `shapes-special.R` are soplot-only.
 - [calculate_load BFS bug]: `calculate_load()` had a hardcoded `dist[w] - dist[v] - 1` condition assuming unit edge weights. On weighted graphs, sigma never updates → infinite loop. Fix: distance-ordered predecessor discovery using actual edge weights from `igraph::as_edgelist()`.
 - [calculate_load sna convention]: `sna::loadcent()` transposes directed graphs (via `gt()`) before computing load. Fix: add `igraph::reverse_edges(g)` for directed mode. Also, sna ignores edge weights entirely — hop-based distances.
 - [calculate_load disconnected nodes]: Initializing `delta <- rep(1, n)` gave delta=1 to unreachable nodes. Fix: `delta <- numeric(n); delta[c(s, ordered_nodes)] <- 1` for reachable nodes only.

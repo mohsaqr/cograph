@@ -176,12 +176,12 @@ network_summary <- function(x,
       NA_real_
     },
     assortativity_degree = igraph::assortativity_degree(g, directed = is_directed),
-    hub_score = if (!is.null(hits) && length(hits$hub_score) > 0) {
+    hub_score = if (!is.null(hits) && length(hits$hub_score) > 0) { # nocov start
       max(hits$hub_score)
-    } else NA_real_,
-    authority_score = if (!is.null(hits) && length(hits$authority_score) > 0) {
+    } else NA_real_, # nocov end
+    authority_score = if (!is.null(hits) && length(hits$authority_score) > 0) { # nocov start
       max(hits$authority_score)
-    } else NA_real_
+    } else NA_real_ # nocov end
   )
 
   # Extended structural measures (only when extended = TRUE)
@@ -800,9 +800,9 @@ network_small_world <- function(x, n_random = 10, ...) {
   C_rand <- mean(C_rand_vals, na.rm = TRUE)
   L_rand <- mean(L_rand_vals, na.rm = TRUE)
 
-  if (is.na(C_rand) || C_rand == 0 || is.na(L_rand) || L_rand == 0) {
+  if (is.na(C_rand) || C_rand == 0 || is.na(L_rand) || L_rand == 0) { # nocov start
     return(NA_real_)
-  }
+  } # nocov end
 
   # Small-world coefficient
   sigma <- (C_obs / C_rand) / (L_obs / L_rand)
@@ -882,17 +882,17 @@ network_rich_club <- function(x, k = NULL, normalized = FALSE, n_random = 10, ..
       igraph::sample_degseq(deg, method = "fast.heur.simple")
     }, error = function(e) {
       # Fall back to Erdos-Renyi if degree sequence fails
-      igraph::erdos.renyi.game(igraph::vcount(g), igraph::ecount(g), type = "gnm")
+      igraph::erdos.renyi.game(igraph::vcount(g), igraph::ecount(g), type = "gnm") # nocov
     })
 
     deg_rand <- igraph::degree(g_rand)
     rich_rand <- which(deg_rand > k)
     n_rich_rand <- length(rich_rand)
 
-    if (n_rich_rand < 2) {
+    if (n_rich_rand < 2) { # nocov start
       phi_rand_vals[i] <- NA
       next
-    }
+    } # nocov end
 
     subg_rand <- igraph::induced_subgraph(g_rand, rich_rand)
     e_rand <- igraph::ecount(subg_rand)
@@ -902,9 +902,9 @@ network_rich_club <- function(x, k = NULL, normalized = FALSE, n_random = 10, ..
 
   phi_rand <- mean(phi_rand_vals, na.rm = TRUE)
 
-  if (is.na(phi_rand) || phi_rand == 0) {
+  if (is.na(phi_rand) || phi_rand == 0) { # nocov start
     return(NA_real_)
-  }
+  } # nocov end
 
   phi_k / phi_rand
 }

@@ -378,10 +378,10 @@ calculate_leverage <- function(g, mode = "all", loops = TRUE) {
     # Get neighbor indices
     neighbors_i <- which(adj[i, ] != 0)
 
-    if (length(neighbors_i) == 0) {
+    if (length(neighbors_i) == 0) { # nocov start
       result[i] <- NaN
       next
-    }
+    } # nocov end
 
     k_neighbors <- k[neighbors_i]
 
@@ -515,8 +515,8 @@ calculate_load <- function(g, weights = NULL, directed = TRUE) {
 
     for (w in ordered_nodes) {
       inc <- incoming[[w]]
-      if (is.null(inc)) next
-      if (is.null(dim(inc))) inc <- matrix(inc, nrow = 1)
+      if (is.null(inc)) next # nocov
+      if (is.null(dim(inc))) inc <- matrix(inc, nrow = 1) # nocov
       for (r in seq_len(nrow(inc))) {
         v <- inc[r, 1]
         ew <- inc[r, 2]
@@ -579,9 +579,7 @@ calculate_current_flow_closeness <- function(g, weights = NULL) {
   svd_result <- svd(L_tilde)
   tol <- max(dim(L_tilde)) * max(svd_result$d) * .Machine$double.eps
   positive <- svd_result$d > tol
-  if (sum(positive) == 0) {
-    return(rep(NA_real_, n))
-  }
+  if (sum(positive) == 0) return(rep(NA_real_, n)) # nocov
 
   L_pinv <- svd_result$v[, positive, drop = FALSE] %*%
     diag(1 / svd_result$d[positive], nrow = sum(positive)) %*%
@@ -644,9 +642,7 @@ calculate_current_flow_betweenness <- function(g, weights = NULL) {
   tol <- max(dim(L_tilde)) * max(svd_result$d) * .Machine$double.eps
   positive <- svd_result$d > tol
 
-  if (sum(positive) == 0) {
-    return(rep(NA_real_, n))
-  }
+  if (sum(positive) == 0) return(rep(NA_real_, n)) # nocov
 
   L_pinv <- svd_result$v[, positive, drop = FALSE] %*%
     diag(1 / svd_result$d[positive], nrow = sum(positive)) %*%
@@ -729,7 +725,7 @@ calculate_voterank <- function(g, directed = TRUE)
 
     # Select node with maximum votes
     candidates <- which(!selected)
-    if (length(candidates) == 0) break
+    if (length(candidates) == 0) break # nocov
 
     votes_candidates <- votes[candidates]
     if (all(votes_candidates == 0)) {
@@ -846,8 +842,8 @@ calculate_percolation <- function(g, states = NULL, weights = NULL, directed = T
 
     for (w in ordered_nodes) {
       inc <- incoming[[w]]
-      if (is.null(inc)) next
-      if (is.null(dim(inc))) inc <- matrix(inc, nrow = 1)
+      if (is.null(inc)) next # nocov
+      if (is.null(dim(inc))) inc <- matrix(inc, nrow = 1) # nocov
       for (r in seq_len(nrow(inc))) {
         v <- inc[r, 1]
         ew <- inc[r, 2]

@@ -359,9 +359,9 @@ plot_comparison_heatmap <- function(x, y = NULL,
                                     xlab = "Target",
                                     ylab = "Source") {
 
-  if (!requireNamespace("ggplot2", quietly = TRUE)) {
+  if (!requireNamespace("ggplot2", quietly = TRUE)) { # nocov start
     stop("Package 'ggplot2' required for heatmap. Install with: install.packages('ggplot2')")
-  }
+  } # nocov end
 
   type <- match.arg(type)
 
@@ -484,9 +484,9 @@ plot_comparison_heatmap <- function(x, y = NULL,
   }
 
   if (inherits(x, "igraph")) {
-    if (!requireNamespace("igraph", quietly = TRUE)) {
+    if (!requireNamespace("igraph", quietly = TRUE)) { # nocov start
       stop("Package 'igraph' required for igraph objects")
-    }
+    } # nocov end
     return(igraph::as_adjacency_matrix(x, attr = "weight", sparse = FALSE))
   }
 

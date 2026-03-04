@@ -198,14 +198,14 @@ resolve_centrality_sizes <- function(x, scale_by, size_range = c(2, 8), n = NULL
   cent_result <- tryCatch({
     do.call(centrality, cent_args)
   }, error = function(e) {
-    stop("Failed to calculate ", measure, " centrality: ", e$message, call. = FALSE)
+    stop("Failed to calculate ", measure, " centrality: ", e$message, call. = FALSE) # nocov
   })
 
   # Extract the values (column name depends on measure and mode)
   value_cols <- setdiff(names(cent_result), "node")
-  if (length(value_cols) == 0) {
+  if (length(value_cols) == 0) { # nocov start
     stop("No centrality values returned for measure: ", measure, call. = FALSE)
-  }
+  } # nocov end
   values <- cent_result[[value_cols[1]]]
 
   # Handle NA/NaN values

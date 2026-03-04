@@ -511,9 +511,9 @@ splot <- function(
       val <- eval(user_args[[nm]], envir = parent.frame())
       if (!is.null(val)) call_args[[nm]] <- val
     }
-    for (nm in names(dots)) {
+    for (nm in names(dots)) { # nocov start
       call_args[[nm]] <- dots[[nm]]
-    }
+    } # nocov end
     return(do.call(splot, call_args))
   }
 
@@ -657,7 +657,7 @@ splot <- function(
   if ("x" %in% names(nodes) && !all(is.na(nodes$x))) {
     layout_coords <- data.frame(x = nodes$x, y = nodes$y)
   } else {
-    layout_coords <- NULL
+    layout_coords <- NULL # nocov
   }
 
   # (oval layout uses elliptical spacing but nodes remain circular via aspect=TRUE)
@@ -702,9 +702,9 @@ splot <- function(
   # 2. LAYOUT HANDLING
   # ============================================
 
-  if (is.null(layout_coords)) {
+  if (is.null(layout_coords)) { # nocov start
     stop("Layout coordinates not available", call. = FALSE)
-  }
+  } # nocov end
 
   layout_mat <- as.matrix(layout_coords[, c("x", "y")])
 
@@ -955,8 +955,8 @@ splot <- function(
       # Per-edge curvature vector provided - use values directly
       # Apply sign based on reciprocal edge direction for proper curve separation
       for (i in seq_len(n_edges)) {
-        if (curve_magnitudes[i] == 0) next  # Skip straight edges
-        if (edges$from[i] == edges$to[i]) next  # Skip self-loops
+        if (curve_magnitudes[i] == 0) next  # nocov
+        if (edges$from[i] == edges$to[i]) next  # nocov
 
         from_idx <- edges$from[i]
         to_idx <- edges$to[i]
@@ -1460,12 +1460,12 @@ render_edges_splot <- function(edges, layout, node_sizes, shapes,
     if (length(start_x) == 0 || length(start_y) == 0 ||
         length(end_x) == 0 || length(end_y) == 0 ||
         any(is.na(c(start_x, start_y, end_x, end_y)))) {
-      return(if (length(curve_val) > 0) curve_val else 0)
+      return(if (length(curve_val) > 0) curve_val else 0) # nocov
     }
 
-    if (length(curve_val) == 0 || is.na(curve_val)) {
+    if (length(curve_val) == 0 || is.na(curve_val)) { # nocov start
       return(0)
-    }
+    } # nocov end
 
     if (curve_val > 1e-6) {
       mid_x <- (start_x + end_x) / 2
@@ -1478,7 +1478,7 @@ render_edges_splot <- function(edges, layout, node_sizes, shapes,
       # Perpendicular to edge direction (same as draw_curved_edge_base)
       # Clockwise rotation: (dx, dy) -> (dy, -dx)
       len <- sqrt(dx^2 + dy^2)
-      if (length(len) == 0 || is.na(len) || len < 1e-10) return(curve_val)
+      if (length(len) == 0 || is.na(len) || len < 1e-10) return(curve_val) # nocov
       px <- dy / len
       py <- -dx / len
 

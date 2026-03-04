@@ -198,10 +198,10 @@ sn_nodes <- function(network,
     if (!is.null(node_svg) && is.character(node_svg)) {
       if (requireNamespace("digest", quietly = TRUE)) {
         temp_name <- paste0("_temp_svg_", substr(digest::digest(node_svg), 1, 8))
-      } else {
+      } else { # nocov start
         hash_val <- sum(utf8ToInt(substr(node_svg, 1, 200))) %% 1e8
         temp_name <- paste0("_temp_svg_", formatC(as.integer(hash_val), width = 8, flag = "0"))
-      }
+      } # nocov end
       if (!temp_name %in% list_svg_shapes()) {
         tryCatch(
           register_svg_shape(temp_name, node_svg),

@@ -4,23 +4,11 @@
 #' @keywords internal
 NULL
 
-.onLoad <- function(libname, pkgname) {
-  # Initialize registries
+.onLoad <- function(libname, pkgname) { # nocov start
   init_registries()
-
-
-  # Register built-in shapes
   register_builtin_shapes()
-
-
-  # Register built-in layouts
   register_builtin_layouts()
-
-
-  # Register built-in themes
   register_builtin_themes()
-
-  # Register built-in palettes
   register_builtin_palettes()
-}
+} # nocov end
 

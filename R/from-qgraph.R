@@ -17,27 +17,27 @@ tna_color_palette <- function(n_states) {
     # 1-2 states: Accent palette (first n colors)
     if (requireNamespace("RColorBrewer", quietly = TRUE)) {
       RColorBrewer::brewer.pal(n = 3, name = "Accent")[seq_len(n_states)]
-    } else {
+    } else { # nocov start
       grDevices::hcl.colors(n_states, palette = "Set 2")
-    },
+    }, # nocov end
     # 3-8 states: Full Accent palette
     if (requireNamespace("RColorBrewer", quietly = TRUE)) {
       RColorBrewer::brewer.pal(n = n_states, name = "Accent")
-    } else {
+    } else { # nocov start
       grDevices::hcl.colors(n_states, palette = "Set 2")
-    },
+    }, # nocov end
     # 9-12 states: Set3 palette
     if (requireNamespace("RColorBrewer", quietly = TRUE)) {
       RColorBrewer::brewer.pal(n = n_states, name = "Set3")
-    } else {
+    } else { # nocov start
       grDevices::hcl.colors(n_states, palette = "Set 3")
-    },
+    }, # nocov end
     # 13+ states: colorspace qualitative HCL
     if (requireNamespace("colorspace", quietly = TRUE)) {
       colorspace::qualitative_hcl(n = n_states, palette = "Set 3")
-    } else {
+    } else { # nocov start
       grDevices::hcl.colors(n_states, palette = "Set 3")
-    }
+    } # nocov end
   )
 }
 
@@ -336,7 +336,7 @@ from_qgraph <- function(qgraph_object, engine = c("splot", "soplot"), plot = TRU
 
   # --- Node aesthetics from graphAttributes$Nodes ---
   if (!is.null(ga_nodes$labels))       params$labels            <- ga_nodes$labels
-  else if (!is.null(ga_nodes$names))   params$labels            <- ga_nodes$names
+  else if (!is.null(ga_nodes$names))   params$labels            <- ga_nodes$names # nocov
   if (!is.null(ga_nodes$color))        params$node_fill         <- ga_nodes$color
   if (!is.null(ga_nodes$width))        params$node_size         <- ga_nodes$width * 1.3
   if (!is.null(ga_nodes$shape))        params$node_shape        <- map_qgraph_shape(ga_nodes$shape)

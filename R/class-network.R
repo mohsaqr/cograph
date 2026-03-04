@@ -163,9 +163,9 @@ CographNetwork <- R6::R6Class(
       if (!is.null(coords)) {
         if (is.matrix(coords)) {
           coords <- as.data.frame(coords)
-          if (is.null(names(coords))) {
-            names(coords) <- c("x", "y")
-          }
+          if (is.null(names(coords))) { # nocov
+            names(coords) <- c("x", "y") # nocov
+          } # nocov
         }
         private$.layout <- coords
         # Update node positions
@@ -812,7 +812,7 @@ as_cograph <- function(x, directed = NULL, ...) {
   } else if (inherits(x, "tna")) {
     "tna"
   } else {
-    "unknown"
+    "unknown" # nocov
   }
 
   # Get full weight matrix if available

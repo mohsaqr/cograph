@@ -54,7 +54,7 @@ sn_ggplot <- function(network, title = NULL) {
     cross = 3, plus = 3
   )
   gg_shapes <- sapply(node_shapes, function(s) {
-    if (s %in% names(shape_map)) shape_map[[s]] else 21
+    if (s %in% names(shape_map)) shape_map[[s]] else 21 # nocov
   })
 
   # Build node data frame

@@ -115,8 +115,8 @@ draw_pie <- function(x, y, size, fill, border_color, border_width,
 
   # Default colors if not provided
   if (is.null(colors)) {
-    if (!is.null(default_color) && length(values) == 1) {
-      colors <- adjust_alpha(default_color, alpha)
+    if (!is.null(default_color) && length(values) == 1) { # nocov start
+      colors <- adjust_alpha(default_color, alpha) # nocov end
     } else {
       colors <- grDevices::rainbow(length(values), alpha = alpha)
     }

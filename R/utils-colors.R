@@ -55,7 +55,7 @@ adjust_brightness <- function(color, amount = 0.2) {
 
   rgb_vals <- pmax(0, pmin(255, rgb_vals))
 
-  grDevices::rgb(rgb_vals[1, 1], rgb_vals[2, 1], rgb_vals[3, 1],
+  grDevices::rgb(rgb_vals[1], rgb_vals[2], rgb_vals[3],
                  maxColorValue = 255)
 }
 

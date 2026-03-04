@@ -241,7 +241,7 @@ splot.tna_bootstrap <- function(x,
       rel_uncertainty[!is.finite(rel_uncertainty)] <- 0
       rel_uncertainty <- pmin(rel_uncertainty, 10)  # Cap at 10x relative uncertainty
       max_rel <- max(rel_uncertainty[weights_orig != 0], na.rm = TRUE)
-      if (!is.finite(max_rel) || max_rel == 0) max_rel <- 1
+      if (!is.finite(max_rel) || max_rel == 0) max_rel <- 1 # nocov
 
       ci_vals <- numeric(n_edges)
       ci_colors <- character(n_edges)

@@ -1,0 +1,25 @@
+COMPREHENSIVE NETWORK PROPERTIES VALIDATION REPORT
+==================================================
+
+Timestamp: 2026-03-04 11:28:37 
+Networks per model: 166 
+Seed: 42 
+Tolerance: 1e-10 
+R version: R version 4.5.1 (2025-06-13) 
+igraph version: 2.2.2 
+cograph version: 1.6.0 
+
+SUMMARY BY CATEGORY
+--------------------
+            category passed failed total     max_diff pass_rate
+        known_graphs     35      0    35 0.0000000000    100.0%
+           simulated   6643      0  6643 0.0000000000    100.0%
+            directed     30      0    30 0.0000000000    100.0%
+            weighted     20      0    20 0.0000000000    100.0%
+     network_summary    110      0   110 0.0004864865    100.0%
+ degree_distribution      5      0     5           NA    100.0%
+         small_world      4      0     4           NA    100.0%
+           rich_club      4      0     4           NA    100.0%
+
+
+OVERALL: 6851 tests, 6851 passed, 0 failed (100.00%)

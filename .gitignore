@@ -29,3 +29,13 @@ cograph_*.tar.gz
 !docs/*.html
 !documents/*.html
 !documents/*.png
+
+# Validation suite outputs (tracked)
+!validation/**/*.html
+!validation/**/*.rds
+!validation/**/*.txt
+
+# Temp files (not tracked)
+tmp/
+slow_animation.gif
+tna_animation.gif

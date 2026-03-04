@@ -239,15 +239,13 @@ test_that("layout_groups accepts data.frame group_positions without rownames", {
   expect_equal(nrow(coords), 4)
 })
 
-test_that("layout_groups with tibble group_positions", {
-  skip_if_not_installed("tibble")
-
+test_that("layout_groups with data.frame group_positions", {
   adj <- create_test_matrix(4)
   net <- CographNetwork$new(adj)
   groups <- c(1, 1, 2, 2)
 
-  # Tibble is a data.frame subclass
-  custom_pos <- tibble::tibble(x = c(0.3, 0.7), y = c(0.4, 0.6))
+  # Data frame with custom positions (also covers tibble which is a subclass)
+  custom_pos <- data.frame(x = c(0.3, 0.7), y = c(0.4, 0.6))
 
   coords <- layout_groups(net, groups, group_positions = custom_pos)
 

@@ -540,3 +540,67 @@ test_that("plot_compare passes additional arguments to splot", {
     cograph::plot_compare(mat1, mat2, node_size = 10)
   ))
 })
+
+# ============================================
+# TNA Styling Defaults Tests
+# ============================================
+
+test_that("plot_compare applies TNA styling when inputs are tna objects", {
+  skip_if_no_tna()
+
+  library(tna)
+  data(engagement, package = "tna")
+
+  model1 <- tna(engagement[1:100, ])
+  model2 <- tna(engagement[101:200, ])
+
+  # Should not error — TNA defaults (edge_labels, node_fill, etc.) applied
+
+  expect_no_error(with_temp_png(
+    cograph::plot_compare(model1, model2)
+  ))
+})
+
+test_that("plot_compare TNA styling can be overridden by user args", {
+  skip_if_no_tna()
+
+  library(tna)
+  data(engagement, package = "tna")
+
+  model1 <- tna(engagement[1:100, ])
+  model2 <- tna(engagement[101:200, ])
+
+  # Override TNA defaults — should not error
+  expect_no_error(with_temp_png(
+    cograph::plot_compare(model1, model2,
+                          edge_labels = FALSE,
+                          node_fill = "gray",
+                          node_size = 5)
+  ))
+})
+
+test_that("plot_compare does not apply TNA styling for plain matrices", {
+  mat1 <- matrix(c(0, 0.5, 0.5, 0), 2, 2)
+  mat2 <- matrix(c(0, 0.3, 0.3, 0), 2, 2)
+
+  # Plain matrices should work without TNA defaults
+  expect_no_error(with_temp_png(
+    cograph::plot_compare(mat1, mat2)
+  ))
+})
+
+test_that("plot_compare group_tna applies TNA styling", {
+  skip_if_no_tna()
+
+  library(tna)
+  data(engagement, package = "tna")
+
+  n <- nrow(engagement)
+  groups <- rep(c("A", "B"), length.out = n)
+  group_model <- group_tna(engagement, group = groups)
+
+  # group_tna elements are tna objects, so TNA styling should apply
+  expect_no_error(with_temp_png(
+    cograph::plot_compare(group_model)
+  ))
+})

@@ -472,49 +472,67 @@ calculate_load <- function(g, weights = NULL, directed = TRUE) {
   if (n == 0) return(numeric(0))
   if (n == 1) return(0)
 
+  # sna convention: transpose directed graphs before computing load
+  if (directed && igraph::is_directed(g)) {
+    g <- igraph::reverse_edges(g)
+  }
   mode <- if (directed) "out" else "all"
   load <- numeric(n)
 
+  # Pre-build incoming neighbor list with edge weights for predecessor checks
+  el <- igraph::as_edgelist(g, names = FALSE)
+  if (is.null(weights)) {
+    edge_w <- rep(1, nrow(el))
+  } else {
+    edge_w <- weights
+  }
+
+  # For each node w, store matrix of (predecessor_v, edge_weight)
+  # In directed mode: predecessor is el[,1] for target el[,2]
+  # In undirected mode: both directions
+  incoming <- vector("list", n)
+  for (i in seq_len(nrow(el))) {
+    incoming[[el[i, 2]]] <- rbind(incoming[[el[i, 2]]], c(el[i, 1], edge_w[i]))
+    if (!directed) {
+      incoming[[el[i, 1]]] <- rbind(incoming[[el[i, 1]]], c(el[i, 2], edge_w[i]))
+    }
+  }
+
   for (s in seq_len(n)) {
     # Get distances from source
-    dist <- igraph::distances(g, v = s, mode = mode, weights = weights)[1, ]
+    # Use NA to force unweighted when weights not provided (NULL = auto-detect)
+    dist_weights <- if (is.null(weights)) NA else weights
+    dist_s <- igraph::distances(g, v = s, mode = mode, weights = dist_weights)[1, ]
 
-    # BFS to find predecessors and sigma (number of shortest paths)
+    # Find predecessors using actual edge weights (not hardcoded 1)
     sigma <- numeric(n)
     sigma[s] <- 1
     pred <- vector("list", n)
 
-    # Process in BFS order
-    queue <- s
-    processed <- integer(0)
+    # Process reachable nodes in distance order
+    reachable <- which(!is.infinite(dist_s) & seq_len(n) != s)
+    ordered_nodes <- reachable[order(dist_s[reachable])]
 
-    while (length(queue) > 0) {
-      v <- queue[1]
-      queue <- queue[-1]
-      processed <- c(processed, v)
-
-      neighbors_v <- as.integer(igraph::neighbors(g, v, mode = mode))
-      for (w in neighbors_v) {
-        # First visit to w?
-        if (sigma[w] == 0 && w != s) {
-          queue <- c(queue, w)
-        }
-        # Is this a shortest path to w?
-        if (!is.na(dist[w]) && !is.infinite(dist[w]) &&
-            abs(dist[w] - dist[v] - 1) < 1e-10) {
+    for (w in ordered_nodes) {
+      inc <- incoming[[w]]
+      if (is.null(inc)) next
+      if (is.null(dim(inc))) inc <- matrix(inc, nrow = 1)
+      for (r in seq_len(nrow(inc))) {
+        v <- inc[r, 1]
+        ew <- inc[r, 2]
+        # Check if edge v->w lies on a shortest path from s
+        if (abs(dist_s[w] - dist_s[v] - ew) < 1e-10) {
           sigma[w] <- sigma[w] + sigma[v]
           pred[[w]] <- c(pred[[w]], v)
         }
       }
     }
 
-    # Accumulation phase (reverse BFS order)
-    # Initialize delta = 1 for all nodes (sna-style)
-    delta <- rep(1, n)
-
-    for (w in rev(processed)) {
-      if (w == s) next
-      # Divide flow equally among predecessors
+    # Accumulation phase (reverse distance order, load-style)
+    # Only reachable nodes (+ source) carry unit load
+    delta <- numeric(n)
+    delta[c(s, ordered_nodes)] <- 1
+    for (w in rev(ordered_nodes)) {
       if (length(pred[[w]]) > 0) {
         flow_per_pred <- delta[w] / length(pred[[w]])
         for (v in pred[[w]]) {
@@ -523,7 +541,6 @@ calculate_load <- function(g, weights = NULL, directed = TRUE) {
       }
     }
 
-    # Accumulate load from this source
     load <- load + delta
   }
 
@@ -796,59 +813,71 @@ calculate_percolation <- function(g, states = NULL, weights = NULL, directed = T
   # Initialize centrality
   percolation <- numeric(n)
 
+  # Pre-build incoming neighbor list with edge weights for predecessor checks
+  el <- igraph::as_edgelist(g, names = FALSE)
+  if (is.null(weights)) {
+    edge_w <- rep(1, nrow(el))
+  } else {
+    edge_w <- weights
+  }
+  incoming <- vector("list", n)
+  for (i in seq_len(nrow(el))) {
+    incoming[[el[i, 2]]] <- rbind(incoming[[el[i, 2]]], c(el[i, 1], edge_w[i]))
+    if (!directed) {
+      incoming[[el[i, 1]]] <- rbind(incoming[[el[i, 1]]], c(el[i, 2], edge_w[i]))
+    }
+  }
+
   # Brandes-style algorithm for each source
   for (s in seq_len(n)) {
     if (states[s] == 0) next
 
-    # BFS/Dijkstra from s
-    dist <- igraph::distances(g, v = s, mode = mode, weights = weights)[1, ]
+    # Distances from source
+    dist_weights <- if (is.null(weights)) NA else weights
+    dist_s <- igraph::distances(g, v = s, mode = mode, weights = dist_weights)[1, ]
 
-    # Compute sigma (number of shortest paths) and predecessors
+    # Find predecessors using actual edge weights
     sigma <- numeric(n)
     sigma[s] <- 1
     pred <- vector("list", n)
 
-    # BFS order processing
-    queue <- s
-    S <- integer(0)  # Stack of nodes in order of distance
+    reachable <- which(!is.infinite(dist_s) & seq_len(n) != s)
+    ordered_nodes <- reachable[order(dist_s[reachable])]
 
-    while (length(queue) > 0) {
-      v <- queue[1]
-      queue <- queue[-1]
-      S <- c(S, v)
-
-      neighbors_v <- as.integer(igraph::neighbors(g, v, mode = mode))
-      for (w in neighbors_v) {
-        # First visit to w?
-        if (sigma[w] == 0 && w != s) {
-          queue <- c(queue, w)
-        }
-        # Is this a shortest path?
-        if (!is.na(dist[w]) && !is.infinite(dist[w]) &&
-            abs(dist[w] - dist[v] - 1) < 1e-10) {
+    for (w in ordered_nodes) {
+      inc <- incoming[[w]]
+      if (is.null(inc)) next
+      if (is.null(dim(inc))) inc <- matrix(inc, nrow = 1)
+      for (r in seq_len(nrow(inc))) {
+        v <- inc[r, 1]
+        ew <- inc[r, 2]
+        if (abs(dist_s[w] - dist_s[v] - ew) < 1e-10) {
           sigma[w] <- sigma[w] + sigma[v]
           pred[[w]] <- c(pred[[w]], v)
         }
       }
     }
 
-    # Accumulation phase (Brandes algorithm)
+    # Accumulation phase (Brandes algorithm, reverse distance order)
     delta <- numeric(n)
 
-    for (w in rev(S)) {
-      coeff <- (1 + delta[w]) / sigma[w]
-      for (v in pred[[w]]) {
-        delta[v] <- delta[v] + sigma[v] * coeff
+    for (w in rev(ordered_nodes)) {
+      if (sigma[w] > 0) {
+        coeff <- (1 + delta[w]) / sigma[w]
+        for (v in pred[[w]]) {
+          delta[v] <- delta[v] + sigma[v] * coeff
+        }
       }
-      if (w != s) {
-        # Percolation weight: states[s] / (total - states[w])
-        pw_s_w <- states[s] / (p_sigma_x_t - states[w])
+      # Percolation weight: states[s] / (total - states[w])
+      denom <- p_sigma_x_t - states[w]
+      if (denom > 0) {
+        pw_s_w <- states[s] / denom
         percolation[w] <- percolation[w] + delta[w] * pw_s_w
       }
     }
   }
 
-  # Normalize by (n-2) to match NetworkX
+  # Normalize by (n-2)
   if (n > 2) {
     percolation <- percolation / (n - 2)
   }

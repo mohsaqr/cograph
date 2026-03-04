@@ -1,0 +1,37 @@
+COMPREHENSIVE COMMUNITY DETECTION VALIDATION REPORT
+===================================================
+
+Timestamp: 2026-03-04 11:28:33 
+Random networks: 1000 
+Seed: 42 
+R version: R version 4.5.1 (2025-06-13) 
+igraph version: 2.2.2 
+cograph version: 1.6.0 
+
+Algorithms tested: fast_greedy, walktrap, edge_betweenness,
+  leading_eigenvector, louvain, leiden, infomap, label_propagation,
+  spinglass, optimal, fluid, consensus
+
+SUMMARY BY GROUP
+-----------------
+          test_group passed failed total pass_rate
+         fast_greedy     10      0    10    100.0%
+            walktrap     10      0    10    100.0%
+    edge_betweenness     10      0    10    100.0%
+ leading_eigenvector     10      0    10    100.0%
+             louvain      5      0     5    100.0%
+              leiden      5      0     5    100.0%
+             infomap      5      0     5    100.0%
+   label_propagation      5      0     5    100.0%
+           spinglass      5      0     5    100.0%
+             optimal      5      0     5    100.0%
+               fluid     15      0    15    100.0%
+           consensus      8      0     8    100.0%
+              params      5      0     5    100.0%
+            directed     50      0    50    100.0%
+            weighted     50      0    50    100.0%
+             compare     10      0    10    100.0%
+             helpers      4      0     4    100.0%
+
+
+OVERALL: 212 tests, 212 passed, 0 failed (100.00%)

@@ -173,6 +173,9 @@ plot_compare <- function(x, y = NULL,
     stop("y is required (or x must be a list with at least 2 elements)")
   }
 
+  # Track TNA input for styling defaults (after group_tna/list resolution)
+  is_tna_input <- inherits(x, "tna")
+
   # Extract weight matrices
   x_mat <- .extract_weights(x)
   y_mat <- .extract_weights(y)
@@ -262,6 +265,29 @@ plot_compare <- function(x, y = NULL,
     ),
     donut_args
   )
+
+  # Apply TNA visual defaults when inputs are TNA objects
+  if (is_tna_input) {
+    n_states <- nrow(diff_mat)
+    tna_colors <- if (!is.null(x$data)) attr(x$data, "colors") else NULL
+    if (is.null(tna_colors)) tna_colors <- tna_color_palette(n_states)
+
+    tna_defaults <- list(
+      edge_labels = TRUE,
+      edge_label_size = 0.6,
+      edge_label_position = 0.7,
+      node_fill = tna_colors,
+      node_size = 7,
+      arrow_size = 0.61,
+      edge_start_style = "dotted",
+      edge_start_length = 0.2
+    )
+    for (nm in names(tna_defaults)) {
+      if (is.null(plot_args[[nm]])) {
+        plot_args[[nm]] <- tna_defaults[[nm]]
+      }
+    }
+  }
 
   # User args override defaults
   for (nm in names(extra_args)) {
@@ -591,6 +617,29 @@ plot_comparison_heatmap <- function(x, y = NULL,
       ),
       donut_args
     )
+
+    # Apply TNA visual defaults when inputs are TNA objects
+    if (inherits(x_net, "tna")) {
+      n_st <- nrow(diff_mat)
+      tna_cols <- if (!is.null(x_net$data)) attr(x_net$data, "colors") else NULL
+      if (is.null(tna_cols)) tna_cols <- tna_color_palette(n_st)
+
+      tna_defs <- list(
+        edge_labels = TRUE,
+        edge_label_size = 0.6,
+        edge_label_position = 0.7,
+        node_fill = tna_cols,
+        node_size = 7,
+        arrow_size = 0.61,
+        edge_start_style = "dotted",
+        edge_start_length = 0.2
+      )
+      for (dnm in names(tna_defs)) {
+        if (is.null(plot_args[[dnm]])) {
+          plot_args[[dnm]] <- tna_defs[[dnm]]
+        }
+      }
+    }
 
     for (arg_nm in names(extra_args)) {
       plot_args[[arg_nm]] <- extra_args[[arg_nm]]

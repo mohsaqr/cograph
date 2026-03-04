@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>cograph Validation Dashboard</title>
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         background: #f5f7fa; color: #333; line-height: 1.6; padding: 20px; }
+  .container { max-width: 1100px; margin: 0 auto; }
+  h1 { font-size: 1.8em; margin-bottom: 10px; color: #1a1a2e; }
+  h2 { font-size: 1.3em; margin: 25px 0 10px; color: #1a1a2e; border-bottom: 2px solid #e0e0e0; padding-bottom: 5px; }
+  .header { background: #1a1a2e; color: #fff; padding: 25px 30px; border-radius: 10px; margin-bottom: 20px; }
+  .header h1 { color: #fff; }
+  .header .meta { font-size: 0.9em; opacity: 0.8; margin-top: 5px; }
+  .summary-cards { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+  .card { background: #fff; border-radius: 8px; padding: 20px; flex: 1; min-width: 200px;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  .card .label { font-size: 0.85em; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+  .card .value { font-size: 2em; font-weight: 700; margin-top: 5px; }
+  .card .value.pass { color: #2ecc71; }
+  .card .value.fail { color: #e74c3c; }
+  .card .value.neutral { color: #3498db; }
+  .progress-bar { background: #e0e0e0; border-radius: 10px; height: 12px; margin-top: 10px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 10px; transition: width 0.3s; }
+  .progress-fill.green { background: linear-gradient(90deg, #27ae60, #2ecc71); }
+  .progress-fill.red { background: linear-gradient(90deg, #c0392b, #e74c3c); }
+  .progress-fill.yellow { background: linear-gradient(90deg, #f39c12, #f1c40f); }
+  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px;
+          overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
+  th { background: #2c3e50; color: #fff; padding: 10px 14px; text-align: left; font-size: 0.85em;
+       text-transform: uppercase; letter-spacing: 0.5px; }
+  td { padding: 8px 14px; border-bottom: 1px solid #eee; font-size: 0.9em; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover { background: #f8f9fa; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.8em; font-weight: 600; }
+  .badge-pass { background: #d4edda; color: #155724; }
+  .badge-fail { background: #f8d7da; color: #721c24; }
+  .badge-warn { background: #fff3cd; color: #856404; }
+  .badge-skip { background: #e2e3e5; color: #383d41; }
+  .config-box { background: #fff; border-radius: 8px; padding: 15px 20px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; font-size: 0.9em; }
+  .config-box code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
+  .footer { text-align: center; color: #999; font-size: 0.8em; margin-top: 30px; padding: 15px; }
+  .section-link { display: inline-block; background: #3498db; color: #fff; padding: 8px 16px;
+                  border-radius: 5px; text-decoration: none; margin: 5px; font-size: 0.9em; }
+  .section-link:hover { background: #2980b9; }
+  .no-data { background: #fff3cd; color: #856404; padding: 20px; border-radius: 8px;
+             text-align: center; margin: 20px 0; }
+</style>
+
+</head>
+<body>
+<div class="container">
+<div class="header"><h1>cograph Comprehensive Validation Dashboard</h1><div class="meta">Combined results from all validation suites | 2026-03-04 11:28:41</div></div>
+<div class="summary-cards">
+  <div class="card"><div class="label">Total Tests</div><div class="value neutral">56757</div></div>
+  <div class="card"><div class="label">Passed</div><div class="value pass">56754</div></div>
+  <div class="card"><div class="label">Failed</div><div class="value fail">3</div></div>
+  <div class="card"><div class="label">Pass Rate</div><div class="value pass">100.0%</div>
+    <div class="progress-bar"><div class="progress-fill green" style="width:100.0%"></div></div>
+  </div>
+  
+</div>
+<h2>Section Reports</h2>
+<table>
+<thead><tr><th>Suite</th><th>Total</th><th>Passed</th><th>Failed</th><th>pass_rate</th></tr></thead>
+<tbody>
+<tr><td>Centrality Measures</td><td>49694</td><td>49691</td><td>3</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>Community Detection</td><td>212</td><td>212</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>Network Properties</td><td>6851</td><td>6851</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+</tbody>
+</table>
+<div style="text-align:center; margin: 20px 0;">
+<a class="section-link" href="centrality_validation.html">Centrality Measures Report</a>
+<a class="section-link" href="communities_validation.html">Community Detection Report</a>
+<a class="section-link" href="network_properties_validation.html">Network Properties Report</a>
+</div>
+<h2>Centrality Measures</h2>
+<div class="config-box"><strong>n_tests:</strong> <code>1000</code> &nbsp;|&nbsp; <strong>seed:</strong> <code>42</code> &nbsp;|&nbsp; <strong>tolerance:</strong> <code>1e-10</code> &nbsp;|&nbsp; <strong>loose_tolerance:</strong> <code>1e-06</code></div>
+<table>
+<thead><tr><th>measure</th><th>passed</th><th>failed</th><th>max_diff</th><th>pass_rate</th></tr></thead>
+<tbody>
+<tr><td>alpha</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>authority</td><td>1000</td><td>0</td><td>5.99520433297585e-15</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>betweenness</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>betweenness_cutoff2</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>betweenness_noloops</td><td>10</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>betweenness_unweighted</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>closeness_all</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>closeness_all_cutoff2</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>closeness_all_norm</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>closeness_in</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>closeness_in_cutoff2</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>closeness_in_norm</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>closeness_out</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>closeness_out_cutoff2</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>closeness_out_norm</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>constraint</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>constraint_unweighted</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>coreness_all</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>coreness_in</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>coreness_out</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>current_flow_betweenness</td><td>156</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>current_flow_closeness</td><td>97</td><td>0</td><td>1.28785870856518e-14</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>degree_all</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>degree_in</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>degree_out</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>diffusion_in</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>diffusion_lam0.5</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>diffusion_lam1.0</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>diffusion_lam2.5</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>diffusion_out</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>eccentricity_all</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>eccentricity_in</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>eccentricity_out</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>edge_betweenness</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>eigenvector</td><td>997</td><td>3</td><td>1</td><td>99.7%</td></tr>
+<tr><td>harmonic_all</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>harmonic_all_cutoff2</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>harmonic_all_norm</td><td>1000</td><td>0</td><td>2.22044604925031e-16</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>harmonic_in</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>harmonic_in_cutoff2</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>harmonic_in_norm</td><td>500</td><td>0</td><td>2.22044604925031e-16</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>harmonic_out</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>harmonic_out_cutoff2</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>harmonic_out_norm</td><td>500</td><td>0</td><td>2.22044604925031e-16</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>hub</td><td>1000</td><td>0</td><td>9.61730695081542e-15</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>kreach_k1</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>kreach_k2</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>kreach_k5</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>laplacian</td><td>307</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>leverage_all</td><td>1000</td><td>0</td><td>0.138888888888889</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>leverage_in</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>leverage_out</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>load</td><td>619</td><td>0</td><td>2.8421709430404e-14</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>measures_multi_structure</td><td>5</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>pagerank</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>pagerank_d05</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>pagerank_d95</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>pagerank_personalized</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>percolation_uniform</td><td>1000</td><td>0</td><td>2.22044604925031e-16</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>power</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>strength_all</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>strength_in</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>strength_out</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>subgraph</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>transitivity_barrat</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>transitivity_global</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>transitivity_local</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>voterank</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+</tbody>
+</table>
+<ul>
+<li><strong>eigenvector</strong> (test 656): Value mismatch: max_diff=1.00e+00 (tol=1.00e-10)</li>
+<li><strong>eigenvector</strong> (test 661): Value mismatch: max_diff=8.65e-08 (tol=1.00e-10)</li>
+<li><strong>eigenvector</strong> (test 729): Value mismatch: max_diff=1.00e+00 (tol=1.00e-10)</li>
+</ul>
+<h2>Community Detection</h2>
+<div class="config-box"><strong>n_random:</strong> <code>1000</code> &nbsp;|&nbsp; <strong>seed:</strong> <code>42</code></div>
+<table>
+<thead><tr><th>test_group</th><th>passed</th><th>failed</th><th>pass_rate</th></tr></thead>
+<tbody>
+<tr><td>fast_greedy</td><td>10</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>walktrap</td><td>10</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>edge_betweenness</td><td>10</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>leading_eigenvector</td><td>10</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>louvain</td><td>5</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>leiden</td><td>5</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>infomap</td><td>5</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>label_propagation</td><td>5</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>spinglass</td><td>5</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>optimal</td><td>5</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>fluid</td><td>15</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>consensus</td><td>8</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>params</td><td>5</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>directed</td><td>50</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>weighted</td><td>50</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>compare</td><td>10</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>helpers</td><td>4</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+</tbody>
+</table>
+<h2>Network Properties</h2>
+<div class="config-box"><strong>n_per_model:</strong> <code>166</code> &nbsp;|&nbsp; <strong>seed:</strong> <code>42</code> &nbsp;|&nbsp; <strong>tolerance:</strong> <code>1e-10</code></div>
+<table>
+<thead><tr><th>category</th><th>passed</th><th>failed</th><th>max_diff</th><th>pass_rate</th></tr></thead>
+<tbody>
+<tr><td>known_graphs</td><td>35</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>simulated</td><td>6643</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>directed</td><td>30</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>weighted</td><td>20</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>network_summary</td><td>110</td><td>0</td><td>0.000486486486486193</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>degree_distribution</td><td>5</td><td>0</td><td>NA</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>small_world</td><td>4</td><td>0</td><td>NA</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>rich_club</td><td>4</td><td>0</td><td>NA</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+</tbody>
+</table>
+<h2>Environment</h2>
+<div class="config-box"><strong>R:</strong> <code>R version 4.5.1 (2025-06-13)</code> &nbsp;|&nbsp; <strong>igraph:</strong> <code>2.2.2</code> &nbsp;|&nbsp; <strong>cograph:</strong> <code>1.5.2</code> &nbsp;|&nbsp; <strong>Platform:</strong> <code>Darwin 25.3.0</code></div>
+<div class="footer">Generated by cograph validation suite &mdash; 2026-03-04 11:28:41</div>
+</div>
+</body>
+</html>

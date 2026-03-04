@@ -1,5 +1,43 @@
 # Project Learnings
 
+### 2026-03-04
+- [calculate_load BFS bug]: `calculate_load()` had a hardcoded `dist[w] - dist[v] - 1` condition assuming unit edge weights. On weighted graphs, sigma never updates → infinite loop. Fix: distance-ordered predecessor discovery using actual edge weights from `igraph::as_edgelist()`.
+- [calculate_load sna convention]: `sna::loadcent()` transposes directed graphs (via `gt()`) before computing load. Fix: add `igraph::reverse_edges(g)` for directed mode. Also, sna ignores edge weights entirely — hop-based distances.
+- [calculate_load disconnected nodes]: Initializing `delta <- rep(1, n)` gave delta=1 to unreachable nodes. Fix: `delta <- numeric(n); delta[c(s, ordered_nodes)] <- 1` for reachable nodes only.
+- [igraph weights=NULL vs NA]: `igraph::distances(g, weights=NULL)` auto-uses `E(g)$weight` if present. To force unweighted distances, use `weights = NA`. This is a critical distinction.
+- [calculate_percolation same bug]: Same hardcoded BFS pattern as load. Same fix applied. Also needed `/2` normalization for undirected graphs (Brandes accumulation counts both (s,t) and (t,s)).
+- [percolation identity]: Uniform-state percolation = `betweenness / ((n-1)*(n-2))`, NOT `betweenness / (n-2)`.
+- [centrality weighted param]: `centrality()` uses `weighted=` parameter name. Passing `use_weights=` gets swallowed by `...` — silently ignored. Always verify parameter names.
+- [centiserve communibet vs current_flow_betweenness]: `centiserve::communibet()` computes communicability betweenness (matrix exponential), NOT current-flow betweenness. They are fundamentally different measures — cannot be compared.
+- [validation suite]: Created comprehensive validation with 1000 networks, ~56,642 tests across centrality (49,579), communities (212), network properties (6,851). All pass at 100%. Reports in `validation/reports/`.
+
+### 2026-03-03
+- [RNG state restoration]: CRAN requires `set.seed()` callers to save/restore `.Random.seed` via `on.exit()`. DRY pattern: `.save_rng()` returns list with seed+existed, `.restore_rng()` restores it. Apply as: `saved_rng <- .save_rng(); on.exit(.restore_rng(saved_rng), add = TRUE); set.seed(seed)`.
+- [has_package vs requireNamespace]: cograph has no `has_package()` function. Use `requireNamespace("pkg", quietly = TRUE)` for optional dependency checks.
+- [direction auto-detection]: `is_symmetric_matrix()` (from input-parse.R) is the correct way to auto-detect directed vs undirected. Replaced hardcoded `directed = TRUE` for TNA objects.
+- [float precision in layout]: Layout normalization can produce `0.90000000000000013` instead of exactly `0.9`. Tests should use tolerance: `>= 0.9 + 1e-10` not `>= 0.9`.
+- [dontrun vs donttest DANGER]: Blanket `\dontrun` → `\donttest` conversion is dangerous. Many examples use undefined variables (pseudo-code), reference missing datasets, or depend on optional packages that mask cograph functions. Only convert examples that are fully self-contained and actually runnable. `@keywords internal` functions should have no `@examples` at all.
+- [namespace masking in examples]: When tna/igraph are loaded during R CMD check `--run-donttest`, they mask cograph functions: `igraph::is_directed`, `igraph::communities`, `igraph::degree_distribution`, `tna::plot_compare`. Use `cograph::` prefix in examples for masked functions.
+- [tna API v1.2.1]: `centrality()` → `centralities()` (plural). `bootstrap()` uses `iter` not `R`. `bootstrap()` requires tna built from sequence data (has `$data`), not from raw matrix. `group_tna()` requires sequence data, not matrix.
+- [repo location]: Canonical cograph repo is now `/Users/mohammedsaqr/Documents/Github/cograph` (was `My Drive (saqr@saqr.me)/Git/Sonnet` on Google Drive, which is now abandoned).
+- [repo confusion pitfall]: Home directory (`/Users/mohammedsaqr`) was accidentally a git repo (origin → `mohsaqr/cris_stats`). The `Documents/Github/cograph` folder inside it had no `.git` — it was an unversioned stale copy. Always verify `git rev-parse --show-toplevel` and `git remote -v` when something feels off.
+- [three-copy problem]: Three copies existed: Google Drive (authoritative), `Documents/Github/Sonnet` (proper local clone), `Documents/Github/cograph` (stale unversioned). Fix: archive stale → rename Sonnet → cograph.
+- [stale copy was behind on]: `mid_label_position` in `plot-transitions.R`, `graphics::par()` namespace in `splot.R`, extended `cluster-metrics.R` tna-class structure, roxygen `@param ...` on layout functions.
+- [remotes]: `origin` = `mohsaqr/Sonnet`, `upstream` = `sonsoleslp/cograph`, `cograph` = `mohsaqr/cograph`.
+
+### 2026-02-21
+- [roxygen percent escaping]: Using `\%` in roxygen comments produces `\\%` in Rd files, which is a literal backslash followed by a comment character — breaks Rd parsing. Use plain text ("percent") or just `%` (roxygen auto-escapes to `\%`).
+- [devtools::check args]: `devtools::check(".", args = "--no-tests --no-examples")` passes a single arg string (unrecognized). Must use a vector: `args = c("--no-tests", "--no-examples", "--no-vignettes", "--no-manual")`.
+- [expect_no_error no dots]: `testthat::expect_no_error()` does not accept `...` args like `info =`. Use a wrapper or separate test blocks for annotated assertions.
+- [ggplot2 label split pattern]: To render different label positions on different data subsets in ggplot2, split the data frame into subsets and add separate `geom_text()` layers — a local helper function avoids code duplication across positions.
+- [mid_label_position for trajectories]: First/last columns use `label_position`, middle columns use `mid_label_position` (defaults to `label_position` when NULL). Requires splitting `node_rects` by `col` index.
+
+### 2026-02-20
+- [tna-compatible objects in cluster_summary]: `cluster_summary()` creates within/between objects with class "tna". The tna package's `print.tna()` expects: `$labels` (character vector), `$data` (can be NULL), `attr(x, "type")` = "relative"/"frequency", `attr(x, "scaling")` = character(0). Missing any of these causes `switch(type, ...)` crash. Fix: set all four in `structure()` call.
+- [R CMD check par import]: Using `par()` without `graphics::` prefix triggers "no visible global function definition" NOTE. Always use `graphics::par()`.
+- [tibble in tests]: Using `tibble::tibble()` in tests triggers "unstated dependencies in tests" WARNING. Use `data.frame()` instead since tibble is a subclass — covers the same code path.
+- [project CLAUDE.md]: Updated from Windows (powershell + .exe paths) to macOS (bash + PATH-based Rscript).
+
 ### 2026-02-19
 - [bootstrap edge count mismatch]: `splot.tna_bootstrap` built per-edge arrays (edge_priority, edge_ci_scale, etc.) using `which(weights != 0, arr.ind = TRUE)` but splot's internal edge count differed due to:
   1. **weight_digits rounding**: splot default `weight_digits=2` rounds tiny weights to zero, reducing edge count. Fix: pass `weight_digits=NULL` to splot.

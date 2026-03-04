@@ -1,5 +1,18 @@
 # Changelog
 
+### 2026-03-04 — Fix load/percolation centrality bugs + comprehensive validation suite
+
+- R/centrality.R: `calculate_load()` complete rewrite — fixed infinite loop on weighted graphs (BFS assumed unit weights), directed graph transpose for sna compatibility, disconnected node handling, self-contribution bug, weights=NA for unweighted distances
+- R/centrality.R: `calculate_percolation()` same BFS fix + /2 normalization for undirected graphs
+- validation/test_centrality_comprehensive.R: Comprehensive centrality validation — 25+ measures, 49,579 tests on 1000 networks, all against external refs (igraph, centiserve, sna)
+- validation/test_communities_comprehensive.R: All 12 community detection algorithms, 212 tests, deterministic+stochastic validation
+- validation/test_network_properties_comprehensive.R: Network metrics on known graphs + 1000 simulated networks, 6,851 tests
+- validation/generate_html_reports.R: Self-contained HTML report generator with "Validated Against" column
+- validation/run_comprehensive_tests.R: Master runner for all 3 suites + report generation
+- validation/README.md: Full documentation of approach, measures, and folder structure
+- validation/reports/: 4 HTML reports (centrality, communities, network_properties, combined dashboard)
+- Tests: 56,642 total validation tests, 100% pass rate
+
 ### 2026-03-03 — Sideline 19 newer function files for lean CRAN submission
 
 - Sidelined 19 R files (19 source, 23 tests, 44 man pages, 1 vignette) to `sidelined/` folder

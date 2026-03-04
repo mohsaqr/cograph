@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Centrality Validation Report</title>
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         background: #f5f7fa; color: #333; line-height: 1.6; padding: 20px; }
+  .container { max-width: 1100px; margin: 0 auto; }
+  h1 { font-size: 1.8em; margin-bottom: 10px; color: #1a1a2e; }
+  h2 { font-size: 1.3em; margin: 25px 0 10px; color: #1a1a2e; border-bottom: 2px solid #e0e0e0; padding-bottom: 5px; }
+  .header { background: #1a1a2e; color: #fff; padding: 25px 30px; border-radius: 10px; margin-bottom: 20px; }
+  .header h1 { color: #fff; }
+  .header .meta { font-size: 0.9em; opacity: 0.8; margin-top: 5px; }
+  .summary-cards { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+  .card { background: #fff; border-radius: 8px; padding: 20px; flex: 1; min-width: 200px;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  .card .label { font-size: 0.85em; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+  .card .value { font-size: 2em; font-weight: 700; margin-top: 5px; }
+  .card .value.pass { color: #2ecc71; }
+  .card .value.fail { color: #e74c3c; }
+  .card .value.neutral { color: #3498db; }
+  .progress-bar { background: #e0e0e0; border-radius: 10px; height: 12px; margin-top: 10px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 10px; transition: width 0.3s; }
+  .progress-fill.green { background: linear-gradient(90deg, #27ae60, #2ecc71); }
+  .progress-fill.red { background: linear-gradient(90deg, #c0392b, #e74c3c); }
+  .progress-fill.yellow { background: linear-gradient(90deg, #f39c12, #f1c40f); }
+  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px;
+          overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
+  th { background: #2c3e50; color: #fff; padding: 10px 14px; text-align: left; font-size: 0.85em;
+       text-transform: uppercase; letter-spacing: 0.5px; }
+  td { padding: 8px 14px; border-bottom: 1px solid #eee; font-size: 0.9em; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover { background: #f8f9fa; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.8em; font-weight: 600; }
+  .badge-pass { background: #d4edda; color: #155724; }
+  .badge-fail { background: #f8d7da; color: #721c24; }
+  .badge-warn { background: #fff3cd; color: #856404; }
+  .badge-skip { background: #e2e3e5; color: #383d41; }
+  .config-box { background: #fff; border-radius: 8px; padding: 15px 20px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; font-size: 0.9em; }
+  .config-box code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
+  .footer { text-align: center; color: #999; font-size: 0.8em; margin-top: 30px; padding: 15px; }
+  .section-link { display: inline-block; background: #3498db; color: #fff; padding: 8px 16px;
+                  border-radius: 5px; text-decoration: none; margin: 5px; font-size: 0.9em; }
+  .section-link:hover { background: #2980b9; }
+  .no-data { background: #fff3cd; color: #856404; padding: 20px; border-radius: 8px;
+             text-align: center; margin: 20px 0; }
+</style>
+
+</head>
+<body>
+<div class="container">
+<div class="header"><h1>Centrality Validation</h1><div class="meta">cograph vs igraph / centiserve / sna | 2026-03-04 11:26:17</div></div>
+<div class="config-box"><strong>n_tests:</strong> <code>1000</code> &nbsp;|&nbsp; <strong>seed:</strong> <code>42</code> &nbsp;|&nbsp; <strong>tolerance:</strong> <code>1e-10</code> &nbsp;|&nbsp; <strong>loose_tolerance:</strong> <code>1e-06</code></div>
+<div class="summary-cards">
+  <div class="card"><div class="label">Total Tests</div><div class="value neutral">49694</div></div>
+  <div class="card"><div class="label">Passed</div><div class="value pass">49691</div></div>
+  <div class="card"><div class="label">Failed</div><div class="value fail">3</div></div>
+  <div class="card"><div class="label">Pass Rate</div><div class="value pass">100.0%</div>
+    <div class="progress-bar"><div class="progress-fill green" style="width:100.0%"></div></div>
+  </div>
+  <div class="card"><div class="label">Max Difference</div><div class="value neutral">1.00e+00</div></div>
+</div>
+<h2>Results by Measure</h2>
+<table>
+<thead><tr><th>measure</th><th>validated_against</th><th>passed</th><th>failed</th><th>max_diff</th><th>pass_rate</th></tr></thead>
+<tbody>
+<tr><td>alpha</td><td>igraph::alpha_centrality()</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>authority</td><td>igraph::authority_score()</td><td>1000</td><td>0</td><td>5.99520433297585e-15</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>betweenness</td><td>igraph::betweenness()</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>betweenness_cutoff2</td><td>igraph::betweenness(cutoff=2)</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>betweenness_noloops</td><td>igraph::betweenness() [no loops]</td><td>10</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>betweenness_unweighted</td><td>igraph::betweenness(weights=NULL)</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>closeness_all</td><td>igraph::closeness(mode='all')</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>closeness_all_cutoff2</td><td>igraph::closeness(cutoff=2)</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>closeness_all_norm</td><td>igraph::closeness(normalized=TRUE)</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>closeness_in</td><td>igraph::closeness(mode='in')</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>closeness_in_cutoff2</td><td>igraph::closeness(cutoff=2)</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>closeness_in_norm</td><td>igraph::closeness(normalized=TRUE)</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>closeness_out</td><td>igraph::closeness(mode='out')</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>closeness_out_cutoff2</td><td>igraph::closeness(cutoff=2)</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>closeness_out_norm</td><td>igraph::closeness(normalized=TRUE)</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>constraint</td><td>igraph::constraint()</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>constraint_unweighted</td><td>igraph::constraint(weights=NULL)</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>coreness_all</td><td>igraph::coreness(mode='all')</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>coreness_in</td><td>igraph::coreness(mode='in')</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>coreness_out</td><td>igraph::coreness(mode='out')</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>current_flow_betweenness</td><td>structural validation (bounds)</td><td>156</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>current_flow_closeness</td><td>centiserve::closeness.currentflow()</td><td>97</td><td>0</td><td>1.28785870856518e-14</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>degree_all</td><td>igraph::degree(mode='all')</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>degree_in</td><td>igraph::degree(mode='in')</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>degree_out</td><td>igraph::degree(mode='out')</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>diffusion_in</td><td>centiserve::diffusion.degree(mode='in')</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>diffusion_lam0.5</td><td>centiserve::diffusion.degree(lambda=0.5)</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>diffusion_lam1.0</td><td>centiserve::diffusion.degree(lambda=1.0)</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>diffusion_lam2.5</td><td>centiserve::diffusion.degree(lambda=2.5)</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>diffusion_out</td><td>centiserve::diffusion.degree(mode='out')</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>eccentricity_all</td><td>igraph::eccentricity(mode='all')</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>eccentricity_in</td><td>igraph::eccentricity(mode='in')</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>eccentricity_out</td><td>igraph::eccentricity(mode='out')</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>edge_betweenness</td><td>igraph::edge_betweenness()</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>eigenvector</td><td>igraph::eigen_centrality()</td><td>997</td><td>3</td><td>1</td><td>99.7%</td></tr>
+<tr><td>harmonic_all</td><td>igraph::harmonic_centrality(mode='all')</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>harmonic_all_cutoff2</td><td>igraph::harmonic_centrality(cutoff=2)</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>harmonic_all_norm</td><td>igraph::harmonic_centrality() / max</td><td>1000</td><td>0</td><td>2.22044604925031e-16</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>harmonic_in</td><td>igraph::harmonic_centrality(mode='in')</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>harmonic_in_cutoff2</td><td>igraph::harmonic_centrality(cutoff=2)</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>harmonic_in_norm</td><td>igraph::harmonic_centrality() / max</td><td>500</td><td>0</td><td>2.22044604925031e-16</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>harmonic_out</td><td>igraph::harmonic_centrality(mode='out')</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>harmonic_out_cutoff2</td><td>igraph::harmonic_centrality(cutoff=2)</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>harmonic_out_norm</td><td>igraph::harmonic_centrality() / max</td><td>500</td><td>0</td><td>2.22044604925031e-16</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>hub</td><td>igraph::hub_score()</td><td>1000</td><td>0</td><td>9.61730695081542e-15</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>kreach_k1</td><td>centiserve::geokpath(k=1)</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>kreach_k2</td><td>centiserve::geokpath(k=2)</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>kreach_k5</td><td>centiserve::geokpath(k=5)</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>laplacian</td><td>centiserve::laplacian()</td><td>307</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>leverage_all</td><td>centiserve::leverage(mode='all')</td><td>1000</td><td>0</td><td>0.138888888888889</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>leverage_in</td><td>centiserve::leverage(mode='in')</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>leverage_out</td><td>centiserve::leverage(mode='out')</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>load</td><td>sna::loadcent()</td><td>619</td><td>0</td><td>2.8421709430404e-14</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>measures_multi_structure</td><td>structural validation (columns)</td><td>5</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>pagerank</td><td>igraph::page_rank(damping=0.85)</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>pagerank_d05</td><td>igraph::page_rank(damping=0.5)</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>pagerank_d95</td><td>igraph::page_rank(damping=0.95)</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>pagerank_personalized</td><td>igraph::page_rank(personalized=...)</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>percolation_uniform</td><td>igraph::betweenness() / ((n-1)*(n-2))</td><td>1000</td><td>0</td><td>2.22044604925031e-16</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>power</td><td>igraph::power_centrality()</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>strength_all</td><td>igraph::strength(mode='all')</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>strength_in</td><td>igraph::strength(mode='in')</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>strength_out</td><td>igraph::strength(mode='out')</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>subgraph</td><td>igraph::subgraph_centrality()</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>transitivity_barrat</td><td>igraph::transitivity(type='barrat')</td><td>500</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>transitivity_global</td><td>igraph::transitivity(type='global')</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>transitivity_local</td><td>igraph::transitivity(type='local')</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>voterank</td><td>structural validation (bounds)</td><td>1000</td><td>0</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+</tbody>
+</table>
+<h2>Failure Details</h2>
+<table>
+<thead><tr><th>Test</th><th>Measure</th><th>Reason</th><th>Nodes</th><th>Edges</th><th>Directed</th><th>Weighted</th></tr></thead>
+<tbody>
+<tr><td>656</td><td>eigenvector</td><td>Value mismatch: max_diff=1.00e+00 (tol=1.00e-10)</td><td>21</td><td>33</td><td>TRUE</td><td>FALSE</td></tr>
+<tr><td>661</td><td>eigenvector</td><td>Value mismatch: max_diff=8.65e-08 (tol=1.00e-10)</td><td>28</td><td>43</td><td>TRUE</td><td>FALSE</td></tr>
+<tr><td>729</td><td>eigenvector</td><td>Value mismatch: max_diff=1.00e+00 (tol=1.00e-10)</td><td>13</td><td>24</td><td>TRUE</td><td>FALSE</td></tr>
+</tbody>
+</table>
+<div class="footer">Generated by cograph validation suite &mdash; 2026-03-04 11:28:41</div>
+</div>
+</body>
+</html>

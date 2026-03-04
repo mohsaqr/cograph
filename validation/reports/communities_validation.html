@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Communities Validation Report</title>
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         background: #f5f7fa; color: #333; line-height: 1.6; padding: 20px; }
+  .container { max-width: 1100px; margin: 0 auto; }
+  h1 { font-size: 1.8em; margin-bottom: 10px; color: #1a1a2e; }
+  h2 { font-size: 1.3em; margin: 25px 0 10px; color: #1a1a2e; border-bottom: 2px solid #e0e0e0; padding-bottom: 5px; }
+  .header { background: #1a1a2e; color: #fff; padding: 25px 30px; border-radius: 10px; margin-bottom: 20px; }
+  .header h1 { color: #fff; }
+  .header .meta { font-size: 0.9em; opacity: 0.8; margin-top: 5px; }
+  .summary-cards { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+  .card { background: #fff; border-radius: 8px; padding: 20px; flex: 1; min-width: 200px;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  .card .label { font-size: 0.85em; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+  .card .value { font-size: 2em; font-weight: 700; margin-top: 5px; }
+  .card .value.pass { color: #2ecc71; }
+  .card .value.fail { color: #e74c3c; }
+  .card .value.neutral { color: #3498db; }
+  .progress-bar { background: #e0e0e0; border-radius: 10px; height: 12px; margin-top: 10px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 10px; transition: width 0.3s; }
+  .progress-fill.green { background: linear-gradient(90deg, #27ae60, #2ecc71); }
+  .progress-fill.red { background: linear-gradient(90deg, #c0392b, #e74c3c); }
+  .progress-fill.yellow { background: linear-gradient(90deg, #f39c12, #f1c40f); }
+  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px;
+          overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
+  th { background: #2c3e50; color: #fff; padding: 10px 14px; text-align: left; font-size: 0.85em;
+       text-transform: uppercase; letter-spacing: 0.5px; }
+  td { padding: 8px 14px; border-bottom: 1px solid #eee; font-size: 0.9em; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover { background: #f8f9fa; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.8em; font-weight: 600; }
+  .badge-pass { background: #d4edda; color: #155724; }
+  .badge-fail { background: #f8d7da; color: #721c24; }
+  .badge-warn { background: #fff3cd; color: #856404; }
+  .badge-skip { background: #e2e3e5; color: #383d41; }
+  .config-box { background: #fff; border-radius: 8px; padding: 15px 20px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; font-size: 0.9em; }
+  .config-box code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
+  .footer { text-align: center; color: #999; font-size: 0.8em; margin-top: 30px; padding: 15px; }
+  .section-link { display: inline-block; background: #3498db; color: #fff; padding: 8px 16px;
+                  border-radius: 5px; text-decoration: none; margin: 5px; font-size: 0.9em; }
+  .section-link:hover { background: #2980b9; }
+  .no-data { background: #fff3cd; color: #856404; padding: 20px; border-radius: 8px;
+             text-align: center; margin: 20px 0; }
+</style>
+
+</head>
+<body>
+<div class="container">
+<div class="header"><h1>Communities Validation</h1><div class="meta">All 12 algorithms + parameter variations | 2026-03-04 11:28:33</div></div>
+<div class="config-box"><strong>n_random:</strong> <code>1000</code> &nbsp;|&nbsp; <strong>seed:</strong> <code>42</code></div>
+<div class="summary-cards">
+  <div class="card"><div class="label">Total Tests</div><div class="value neutral">212</div></div>
+  <div class="card"><div class="label">Passed</div><div class="value pass">212</div></div>
+  <div class="card"><div class="label">Failed</div><div class="value fail">0</div></div>
+  <div class="card"><div class="label">Pass Rate</div><div class="value pass">100.0%</div>
+    <div class="progress-bar"><div class="progress-fill green" style="width:100.0%"></div></div>
+  </div>
+  
+</div>
+<h2>Results by Algorithm / Test</h2>
+<table>
+<thead><tr><th>test_group</th><th>validated_against</th><th>passed</th><th>failed</th><th>pass_rate</th></tr></thead>
+<tbody>
+<tr><td>fast_greedy</td><td>igraph::cluster_fast_greedy()</td><td>10</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>walktrap</td><td>igraph::cluster_walktrap()</td><td>10</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>edge_betweenness</td><td>igraph::cluster_edge_betweenness()</td><td>10</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>leading_eigenvector</td><td>igraph::cluster_leading_eigen()</td><td>10</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>louvain</td><td>igraph::cluster_louvain()</td><td>5</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>leiden</td><td>igraph::cluster_leiden()</td><td>5</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>infomap</td><td>igraph::cluster_infomap()</td><td>5</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>label_propagation</td><td>igraph::cluster_label_prop()</td><td>5</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>spinglass</td><td>igraph::cluster_spinglass()</td><td>5</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>optimal</td><td>igraph::cluster_optimal()</td><td>5</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>fluid</td><td>modularity + n_communities validation</td><td>15</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>consensus</td><td>modularity + community count validation</td><td>8</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>params</td><td>parameter variation monotonicity</td><td>5</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>directed</td><td>igraph community algorithms</td><td>50</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>weighted</td><td>igraph community algorithms</td><td>50</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>compare</td><td>igraph::compare() (NMI/VI/Rand)</td><td>10</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+<tr><td>helpers</td><td>igraph membership/modularity</td><td>4</td><td>0</td><td><span class="badge badge-pass">100.0%</span></td></tr>
+</tbody>
+</table>
+<div class="footer">Generated by cograph validation suite &mdash; 2026-03-04 11:28:41</div>
+</div>
+</body>
+</html>

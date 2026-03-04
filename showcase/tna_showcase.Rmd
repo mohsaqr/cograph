@@ -1,0 +1,202 @@
+---
+title: "cograph — TNA Plotting Examples"
+output:
+  html_document:
+    theme: cosmo
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  fig.width = 8, fig.height = 7, dpi = 150,
+  message = FALSE, warning = FALSE
+)
+devtools::load_all("/Users/mohammedsaqr/Documents/Github/cograph")
+library(tna)
+library(Saqrlab)
+```
+
+# 1. Single TNA Model — group_regulation
+
+Build a TNA model from the `group_regulation` dataset (2000 sequences, 9 states).
+
+```{r tna-model}
+data(group_regulation)
+model <- tna(group_regulation)
+model
+```
+
+## Basic Network Plot
+
+```{r plot-basic, fig.width=9, fig.height=8}
+splot(model,
+      title = "Group Regulation TNA",
+      minimum = 0.05)
+```
+
+# 2. Bootstrap Analysis
+
+Run bootstrap resampling (1000 iterations) to assess edge significance and confidence intervals.
+
+```{r bootstrap, cache=TRUE}
+set.seed(42)
+boot <- bootstrap(model, iter = 1000)
+```
+
+```{r boot-summary}
+sig_edges <- boot$summary[boot$summary$sig, ]
+cat(sprintf("Significant edges: %d / %d\n", nrow(sig_edges), nrow(boot$summary)))
+head(sig_edges[order(sig_edges$p_value), ], 10)
+```
+
+## Bootstrap — Significant Edges Only
+
+```{r plot-boot-sig, fig.width=9, fig.height=8}
+splot(boot,
+      display = "significant",
+      title = "Bootstrap — Significant Edges",
+      show_stars = TRUE)
+```
+
+## Bootstrap — Full Network with Styling
+
+Non-significant edges shown as dashed gray lines.
+
+```{r plot-boot-styled, fig.width=9, fig.height=8}
+splot(boot,
+      display = "styled",
+      title = "Bootstrap — Styled (sig=solid, nonsig=dashed)",
+      show_stars = TRUE,
+      minimum = 0.02)
+```
+
+## Bootstrap — Confidence Intervals
+
+```{r plot-boot-ci, fig.width=9, fig.height=8}
+splot(boot,
+      display = "ci",
+      title = "Bootstrap — With Confidence Intervals",
+      show_ci = TRUE,
+      minimum = 0.05)
+```
+
+# 3. Simulated Group TNA + Permutation Test
+
+Generate two group TNA networks with Saqrlab, then compare with permutation testing.
+
+```{r group-tna}
+set.seed(123)
+group_models <- Saqrlab::generate_group_tna_networks(2)
+group_models
+```
+
+## Plot Each Group
+
+```{r plot-groups, fig.width=14, fig.height=7}
+par(mfrow = c(1, 2))
+splot(group_models[[1]],
+      title = "Group 1",
+      minimum = 0.05)
+splot(group_models[[2]],
+      title = "Group 2",
+      minimum = 0.05)
+par(mfrow = c(1, 1))
+```
+
+## Difference Network
+
+```{r plot-compare, fig.width=9, fig.height=8}
+cograph::plot_compare(
+  group_models[[1]], group_models[[2]],
+  title = "Group 1 vs Group 2 — Difference Network")
+```
+
+## Permutation Test
+
+```{r permutation, cache=TRUE}
+set.seed(42)
+perm <- tna::permutation_test(group_models[[1]], group_models[[2]], iter = 1000)
+```
+
+```{r perm-summary}
+cat(capture.output(str(perm, max.level = 1)), sep = "\n")
+```
+
+## Permutation Test — Network
+
+```{r plot-perm, fig.width=9, fig.height=8}
+cograph::plot_permutation(perm,
+      title = "Permutation Test — Significant Differences",
+      show_nonsig = TRUE)
+```
+
+# 4. Simulated Sequences — Custom Group Comparison
+
+Use `simulate_sequences()` to create two groups with different dynamics.
+
+```{r simulate-custom}
+# Simulate one large dataset and split into two groups
+all_seq <- Saqrlab::simulate_sequences(
+  n_sequences = 1000, seq_length = 15,
+  n_states = 6, use_learning_states = TRUE,
+  categories = "cognitive", seed = 10)
+
+seq1 <- all_seq[1:500, ]
+seq2 <- all_seq[501:1000, ]
+
+model1 <- tna(seq1)
+model2 <- tna(seq2)
+
+cat("Model 1 states:", model1$labels, "\n")
+cat("Model 2 states:", model2$labels, "\n")
+```
+
+## Compare Simulated Groups
+
+```{r compare-sim, fig.width=14, fig.height=7}
+par(mfrow = c(1, 2))
+splot(model1, title = "Simulated Group A",
+      minimum = 0.05)
+splot(model2, title = "Simulated Group B",
+      minimum = 0.05)
+par(mfrow = c(1, 1))
+```
+
+```{r diff-sim, fig.width=9, fig.height=8}
+cograph::plot_compare(model1, model2,
+      title = "Simulated A vs B — Difference")
+```
+
+## Permutation on Simulated Data
+
+```{r perm-sim, cache=TRUE}
+set.seed(42)
+perm_sim <- tna::permutation_test(model1, model2, iter = 500)
+```
+
+```{r plot-perm-sim, fig.width=9, fig.height=8}
+cograph::plot_permutation(perm_sim,
+      title = "Simulated Groups — Permutation Test",
+      show_nonsig = TRUE,
+      show_stars = TRUE)
+```
+
+## Bootstrap on Model 1
+
+```{r boot-sim, cache=TRUE}
+set.seed(42)
+boot_sim <- bootstrap(model1, iter = 500)
+```
+
+```{r plot-boot-sim, fig.width=9, fig.height=8}
+splot(boot_sim,
+      display = "styled",
+      title = "Simulated Group A — Bootstrap",
+      show_stars = TRUE,
+      minimum = 0.03)
+```
+
+---
+
+*Generated with cograph v`r packageVersion("cograph")` + tna v`r packageVersion("tna")` + Saqrlab*

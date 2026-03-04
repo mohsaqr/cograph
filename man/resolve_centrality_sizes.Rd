@@ -9,7 +9,8 @@ resolve_centrality_sizes(
   scale_by,
   size_range = c(2, 8),
   n = NULL,
-  scaling = "default"
+  scaling = "default",
+  scale_exp = 1
 )
 }
 \arguments{
@@ -18,7 +19,10 @@ resolve_centrality_sizes(
 \item{scale_by}{Centrality measure name or list with measure and parameters.
 Valid measures: "degree", "strength", "betweenness", "closeness",
 "eigenvector", "pagerank", "authority", "hub", "eccentricity",
-"coreness", "constraint", "harmonic".}
+"coreness", "constraint", "harmonic". Also accepts directional shorthands:
+"indegree", "outdegree", "instrength", "outstrength", "incloseness",
+"outcloseness", "inharmonic", "outharmonic", "ineccentricity",
+"outeccentricity".}
 
 \item{size_range}{Numeric vector of length 2: c(min_size, max_size).
 Default c(2, 8).}
@@ -26,6 +30,9 @@ Default c(2, 8).}
 \item{n}{Number of nodes (for validation).}
 
 \item{scaling}{Scaling mode: "default" or "legacy".}
+
+\item{scale_exp}{Dampening exponent applied to normalized centrality values
+before mapping to size range. Default 1 (linear).}
 }
 \value{
 Named list with 'sizes' (vector of node sizes) and 'values' (raw centrality values).

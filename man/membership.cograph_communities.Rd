@@ -15,3 +15,10 @@ Named integer vector of community assignments
 \description{
 Get Community Membership
 }
+\examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+g <- igraph::make_graph("Zachary")
+comm <- community_louvain(g)
+igraph::membership(comm)
+\dontshow{\}) # examplesIf}
+}

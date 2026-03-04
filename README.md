@@ -8,7 +8,7 @@ Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repost
 [![R-CMD-check](https://github.com/sonsoleslp/cograph/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/sonsoleslp/cograph/actions/workflows/R-CMD-check.yaml)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/cograph)](https://CRAN.R-project.org/package=cograph)
-[![Codecov](https://codecov.io/gh/sonsoleslp/cograph/branch/main/graph/badge.svg)](https://codecov.io/gh/sonsoleslp/cograph)
+[![Codecov](https://app.codecov.io/gh/sonsoleslp/cograph/branch/main/graph/badge.svg)](https://app.codecov.io/gh/sonsoleslp/cograph)
 [![License:
 MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 <!-- badges: end -->

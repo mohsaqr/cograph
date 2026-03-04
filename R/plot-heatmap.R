@@ -26,6 +26,13 @@ NULL
 #' @param show_values Logical: display values in cells? Default FALSE.
 #' @param value_size Text size for cell values. Default 2.5.
 #' @param value_color Color for cell value text. Default "black".
+#' @param value_fontface Font face for values: "plain", "bold", "italic",
+#'   "bold.italic". Default "plain".
+#' @param value_fontfamily Font family for values: "sans", "serif", "mono".
+#'   Default "sans".
+#' @param value_halo Halo color behind value labels for readability on dark
+#'   cells. Set to a color (e.g., "white") to enable, or NULL (default) to
+#'   disable.
 #' @param value_digits Decimal places for values. Default 2.
 #' @param show_diagonal Logical: show diagonal values? Default TRUE.
 #' @param diagonal_color Optional color for diagonal cells. NULL uses scale.
@@ -92,6 +99,9 @@ plot_heatmap <- function(x,
                          show_values = FALSE,
                          value_size = 2.5,
                          value_color = "black",
+                         value_fontface = "plain",
+                         value_fontfamily = "sans",
+                         value_halo = NULL,
                          value_digits = 2,
                          show_diagonal = TRUE,
                          diagonal_color = NULL,
@@ -112,16 +122,16 @@ plot_heatmap <- function(x,
                          aspect_ratio = 1,
                          ...) {
 
-  if (!requireNamespace("ggplot2", quietly = TRUE)) {
+  if (!requireNamespace("ggplot2", quietly = TRUE)) { # nocov start
     stop("Package 'ggplot2' required. Install with: install.packages('ggplot2')")
-  }
+  } # nocov end
 
   # Handle group_tna → supra-adjacency block matrix
 
   if (inherits(x, "group_tna")) {
     return(.plot_heatmap_group_tna(
       x, show_legend, legend_position, legend_title, colors, limits, midpoint,
-      na_color, show_values, value_size, value_color, value_digits,
+      na_color, show_values, value_size, value_color, value_fontface, value_fontfamily, value_halo, value_digits,
       show_diagonal, diagonal_color, cluster_labels, cluster_borders,
       border_color, border_width, show_axis_labels, axis_text_size,
       axis_text_angle, title, subtitle, xlab, ylab, aspect_ratio
@@ -141,7 +151,7 @@ plot_heatmap <- function(x,
     return(.plot_heatmap_clustered(
       mat, cluster_list, cluster_spacing, show_legend, legend_position,
       legend_title, colors, limits, midpoint, na_color, show_values,
-      value_size, value_color, value_digits, show_diagonal, diagonal_color,
+      value_size, value_color, value_fontface, value_fontfamily, value_halo, value_digits, show_diagonal, diagonal_color,
       cluster_labels, cluster_borders, border_color, border_width,
       show_axis_labels, axis_text_size, axis_text_angle, title, subtitle,
       xlab, ylab, aspect_ratio
@@ -151,7 +161,7 @@ plot_heatmap <- function(x,
   # Single network heatmap
   .plot_heatmap_single(
     mat, show_legend, legend_position, legend_title, colors, limits, midpoint,
-    na_color, show_values, value_size, value_color, value_digits, show_diagonal,
+    na_color, show_values, value_size, value_color, value_fontface, value_fontfamily, value_halo, value_digits, show_diagonal,
     diagonal_color, row_labels, col_labels, show_axis_labels, axis_text_size,
     axis_text_angle, title, subtitle, xlab, ylab, aspect_ratio
   )
@@ -162,7 +172,7 @@ plot_heatmap <- function(x,
 #' @keywords internal
 .plot_heatmap_single <- function(mat, show_legend, legend_position, legend_title,
                                   colors, limits, midpoint, na_color, show_values,
-                                  value_size, value_color, value_digits, show_diagonal,
+                                  value_size, value_color, value_fontface, value_fontfamily, value_halo, value_digits, show_diagonal,
                                   diagonal_color, row_labels, col_labels, show_axis_labels,
                                   axis_text_size, axis_text_angle, title, subtitle,
                                   xlab, ylab, aspect_ratio) {
@@ -185,11 +195,7 @@ plot_heatmap <- function(x,
 
   # Add values if requested
   if (show_values) {
-    p <- p + ggplot2::geom_text(
-      ggplot2::aes(label = ifelse(is.na(.data$value), "",
-                                  round(.data$value, value_digits))),
-      size = value_size, color = value_color
-    )
+    p <- .add_heatmap_values(p, value_size, value_color, value_fontface, value_fontfamily, value_halo, value_digits)
   }
 
   # Add labels and theme
@@ -211,7 +217,8 @@ plot_heatmap <- function(x,
 .plot_heatmap_clustered <- function(mat, cluster_list, cluster_spacing, show_legend,
                                      legend_position, legend_title, colors, limits,
                                      midpoint, na_color, show_values, value_size,
-                                     value_color, value_digits, show_diagonal,
+                                     value_color, value_fontface, value_fontfamily,
+                                     value_halo, value_digits, show_diagonal,
                                      diagonal_color, cluster_labels, cluster_borders,
                                      border_color, border_width, show_axis_labels,
                                      axis_text_size, axis_text_angle, title, subtitle,
@@ -364,11 +371,7 @@ plot_heatmap <- function(x,
 
   # Add values if requested
   if (show_values) {
-    p <- p + ggplot2::geom_text(
-      ggplot2::aes(label = ifelse(is.na(.data$value), "",
-                                  round(.data$value, value_digits))),
-      size = value_size, color = value_color
-    )
+    p <- .add_heatmap_values(p, value_size, value_color, value_fontface, value_fontfamily, value_halo, value_digits)
   }
 
   # Theme
@@ -392,7 +395,7 @@ plot_heatmap <- function(x,
 #' @keywords internal
 .plot_heatmap_group_tna <- function(x, show_legend, legend_position, legend_title,
                                      colors, limits, midpoint, na_color, show_values,
-                                     value_size, value_color, value_digits, show_diagonal,
+                                     value_size, value_color, value_fontface, value_fontfamily, value_halo, value_digits, show_diagonal,
                                      diagonal_color, cluster_labels, cluster_borders,
                                      border_color, border_width, show_axis_labels,
                                      axis_text_size, axis_text_angle, title, subtitle,
@@ -458,11 +461,7 @@ plot_heatmap <- function(x,
 
   # Add values if requested
   if (show_values) {
-    p <- p + ggplot2::geom_text(
-      ggplot2::aes(label = ifelse(is.na(.data$value), "",
-                                  round(.data$value, value_digits))),
-      size = value_size, color = value_color
-    )
+    p <- .add_heatmap_values(p, value_size, value_color, value_fontface, value_fontfamily, value_halo, value_digits)
   }
 
   # Theme with smaller labels for supra matrix
@@ -485,6 +484,30 @@ plot_heatmap <- function(x,
 # ============================================================================
 # Helper Functions
 # ============================================================================
+
+#' Add Value Labels to Heatmap (with optional halo)
+#' @keywords internal
+.add_heatmap_values <- function(p, value_size, value_color, value_fontface,
+                                 value_fontfamily, value_halo, value_digits) {
+  label_aes <- ggplot2::aes(label = ifelse(
+    is.na(.data$value), "", round(.data$value, value_digits)
+  ))
+  if (!is.null(value_halo)) {
+    # Subtle circular halo: 8 equidistant copies at small radius
+    angles <- seq(0, 2 * pi, length.out = 9L)[-9L]
+    halo_r <- 0.012
+    for (a in angles) {
+      p <- p + ggplot2::geom_text(
+        label_aes, size = value_size, color = value_halo,
+        fontface = value_fontface, family = value_fontfamily,
+        nudge_x = cos(a) * halo_r, nudge_y = sin(a) * halo_r
+      )
+    }
+  }
+  p + ggplot2::geom_text(label_aes, size = value_size, color = value_color,
+                          fontface = value_fontface, family = value_fontfamily)
+}
+
 
 #' Convert Matrix to Long Format
 #' @keywords internal
@@ -549,7 +572,7 @@ plot_heatmap <- function(x,
   if (is.character(colors) && length(colors) == 1) {
     # Named palette
     switch(colors,
-      "viridis" = c("#440154", "#21908C", "#FDE725"),
+      "viridis" = c("#FDE725", "#21908C", "#440154"),
       "heat" = c("#FFFFCC", "#FD8D3C", "#BD0026"),
       "blues" = c("#F7FBFF", "#6BAED6", "#08306B"),
       "reds" = c("#FFF5F0", "#FB6A4A", "#A50F15"),

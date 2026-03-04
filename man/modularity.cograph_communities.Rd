@@ -19,3 +19,10 @@ Numeric modularity value
 \description{
 Get Modularity Score
 }
+\examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+g <- igraph::make_graph("Zachary")
+comm <- community_louvain(g)
+igraph::modularity(comm)
+\dontshow{\}) # examplesIf}
+}

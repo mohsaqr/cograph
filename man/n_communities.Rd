@@ -15,3 +15,10 @@ Integer count of communities
 \description{
 Get Number of Communities
 }
+\examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+g <- igraph::make_graph("Zachary")
+comm <- community_louvain(g)
+n_communities(comm)
+\dontshow{\}) # examplesIf}
+}

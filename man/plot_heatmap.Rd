@@ -18,6 +18,9 @@ plot_heatmap(
   show_values = FALSE,
   value_size = 2.5,
   value_color = "black",
+  value_fontface = "plain",
+  value_fontfamily = "sans",
+  value_halo = NULL,
   value_digits = 2,
   show_diagonal = TRUE,
   diagonal_color = NULL,
@@ -68,6 +71,16 @@ Creates a block-structured heatmap with clusters along diagonal.}
 \item{value_size}{Text size for cell values. Default 2.5.}
 
 \item{value_color}{Color for cell value text. Default "black".}
+
+\item{value_fontface}{Font face for values: "plain", "bold", "italic",
+"bold.italic". Default "plain".}
+
+\item{value_fontfamily}{Font family for values: "sans", "serif", "mono".
+Default "sans".}
+
+\item{value_halo}{Halo color behind value labels for readability on dark
+cells. Set to a color (e.g., "white") to enable, or NULL (default) to
+disable.}
 
 \item{value_digits}{Decimal places for values. Default 2.}
 

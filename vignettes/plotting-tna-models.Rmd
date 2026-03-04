@@ -11,9 +11,9 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.width = 7,
-  fig.height = 6,
-  dpi = 150
+  fig.width = 6,
+  fig.height = 5,
+  dpi = 72
 )
 library(cograph)
 library(tna)

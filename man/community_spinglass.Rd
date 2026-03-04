@@ -76,6 +76,13 @@ A \code{cograph_communities} object
 Statistical mechanics approach using simulated annealing.
 Can handle negative edge weights.
 }
+\examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+g <- igraph::make_graph("Zachary")
+comm <- community_spinglass(g)
+igraph::membership(comm)
+\dontshow{\}) # examplesIf}
+}
 \references{
 Reichardt, J., & Bornholdt, S. (2006).
 Statistical mechanics of community detection.

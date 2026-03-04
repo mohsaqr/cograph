@@ -570,7 +570,7 @@ plot_chord <- function(
     seg_flow  <- segs$flow[i]
     seg_span  <- seg_end - seg_start   # signed
 
-    if (abs(seg_flow) < 1e-10) return(invisible(NULL))
+    if (abs(seg_flow) < 1e-10) return(invisible(NULL)) # nocov
 
     # Place ticks from 0 to seg_flow
     tick_vals <- seq(0, seg_flow, by = minor)

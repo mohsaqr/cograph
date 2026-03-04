@@ -263,6 +263,10 @@ community_leiden <- function(x,
 #' \emph{Physical Review E}, 70, 066111.
 #'
 #' @export
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' g <- igraph::make_graph("Zachary")
+#' comm <- community_fast_greedy(g)
+#' igraph::membership(comm)
 community_fast_greedy <- function(x,
                                   weights = NULL,
                                   merges = TRUE,
@@ -486,6 +490,10 @@ community_label_propagation <- function(x,
 #' \emph{PNAS}, 99(12), 7821-7826.
 #'
 #' @export
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' g <- igraph::make_graph("Zachary")
+#' comm <- community_edge_betweenness(g)
+#' igraph::membership(comm)
 community_edge_betweenness <- function(x,
                                        weights = NULL,
                                        directed = TRUE,
@@ -540,6 +548,10 @@ community_edge_betweenness <- function(x,
 #' \emph{Physical Review E}, 74, 036104.
 #'
 #' @export
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' g <- igraph::make_graph("Zachary")
+#' comm <- community_leading_eigenvector(g)
+#' igraph::membership(comm)
 community_leading_eigenvector <- function(x,
                                     weights = NULL,
                                     steps = -1,
@@ -603,6 +615,10 @@ community_leading_eigenvector <- function(x,
 #' \emph{Physical Review E}, 74, 016110.
 #'
 #' @export
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' g <- igraph::make_graph("Zachary")
+#' comm <- community_spinglass(g)
+#' igraph::membership(comm)
 community_spinglass <- function(x,
                                 weights = NULL,
                                 vertex = NULL,
@@ -676,6 +692,10 @@ community_spinglass <- function(x,
 #' \emph{IEEE Transactions on Knowledge and Data Engineering}, 20(2), 172-188.
 #'
 #' @export
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' g <- igraph::make_ring(10)
+#' comm <- community_optimal(g)
+#' igraph::membership(comm)
 community_optimal <- function(x, weights = NULL, ...) {
 
   g <- to_igraph(x, ...)
@@ -957,7 +977,16 @@ com_fl <- community_fluid
 # Methods
 # ==============================================================================
 
+#' Print Community Structure
+#'
+#' @param x A cograph_communities object.
+#' @param ... Ignored.
+#' @return Invisibly returns the original object.
 #' @export
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' g <- igraph::make_graph("Zachary")
+#' comm <- community_louvain(g)
+#' print(comm)
 print.cograph_communities <- function(x, ...) {
   cat("Community structure (", x$algorithm, ")\n", sep = "")
   cat("  Number of communities:", length(unique(x$membership)), "\n")
@@ -979,6 +1008,10 @@ print.cograph_communities <- function(x, ...) {
 #' @param x A cograph_communities object
 #' @return Named integer vector of community assignments
 #' @export
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' g <- igraph::make_graph("Zachary")
+#' comm <- community_louvain(g)
+#' igraph::membership(comm)
 membership.cograph_communities <- function(x) {
   m <- x$membership
   if (!is.null(x$names)) {
@@ -993,6 +1026,10 @@ membership.cograph_communities <- function(x) {
 #' @param x A cograph_communities object
 #' @return Integer count of communities
 #' @export
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' g <- igraph::make_graph("Zachary")
+#' comm <- community_louvain(g)
+#' n_communities(comm)
 n_communities <- function(x) {
   length(unique(x$membership))
 }
@@ -1003,6 +1040,10 @@ n_communities <- function(x) {
 #' @param x A cograph_communities object
 #' @return Named integer vector of community sizes
 #' @export
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' g <- igraph::make_graph("Zachary")
+#' comm <- community_louvain(g)
+#' community_sizes(comm)
 community_sizes <- function(x) {
   as.integer(table(x$membership))
 }
@@ -1015,6 +1056,10 @@ community_sizes <- function(x) {
 #' @param ... Additional arguments
 #' @return Numeric modularity value
 #' @export
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' g <- igraph::make_graph("Zachary")
+#' comm <- community_louvain(g)
+#' igraph::modularity(comm)
 modularity.cograph_communities <- function(x, graph = NULL, ...) {
   # Try stored modularity first
   if (!is.null(x$modularity)) {
@@ -1067,6 +1112,11 @@ compare_communities <- function(comm1, comm2,
 #' @param ... Additional arguments passed to splot
 #' @return Invisibly returns the plot
 #' @export
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' g <- igraph::make_graph("Zachary")
+#' comm <- community_louvain(g)
+#' mat <- igraph::as_adjacency_matrix(g, sparse = FALSE)
+#' plot(comm, network = mat)
 plot.cograph_communities <- function(x, network = NULL, ...) {
   if (is.null(network)) {
     stop("network argument required for plotting", call. = FALSE)

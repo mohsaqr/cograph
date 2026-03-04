@@ -9,6 +9,10 @@ NULL
 #' @param ... Ignored.
 #' @return Invisible x.
 #' @export
+#' @examples
+#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
+#' net <- cograph(adj)
+#' print(net)
 print.cograph_network <- function(x, ...) {
   n <- n_nodes(x)
   e <- n_edges(x)

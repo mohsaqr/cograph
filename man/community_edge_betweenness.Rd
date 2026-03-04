@@ -55,6 +55,13 @@ A \code{cograph_communities} object
 Girvan-Newman algorithm. Iteratively removes edges with highest
 betweenness centrality to reveal community structure.
 }
+\examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+g <- igraph::make_graph("Zachary")
+comm <- community_edge_betweenness(g)
+igraph::membership(comm)
+\dontshow{\}) # examplesIf}
+}
 \references{
 Girvan, M., & Newman, M.E.J. (2002).
 Community structure in social and biological networks.

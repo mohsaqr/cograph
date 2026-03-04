@@ -25,6 +25,10 @@ plot.cograph_network <- function(x, ...) {
 #' @param ... Ignored.
 #' @return A list with network summary information (invisibly).
 #' @export
+#' @examples
+#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
+#' net <- cograph(adj)
+#' summary(net)
 summary.cograph_network <- function(object, ...) {
   nodes <- get_nodes(object)
   edges <- get_edges(object)

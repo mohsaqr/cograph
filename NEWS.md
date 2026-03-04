@@ -1,3 +1,31 @@
+# cograph 1.6.0
+
+## New Features
+
+- Added `plot_transitions()` for alluvial/Sankey flow diagrams with `plot_alluvial()` and `plot_trajectories()` wrappers
+- Added `plot_heatmap()` for adjacency matrix heatmaps with optional clustering
+- Added `plot_ml_heatmap()` for multilayer heatmaps with 3D perspective
+- Added `plot_mixed_network()` for combined symmetric/asymmetric edge networks
+- Added `plot_chord()` for chord diagrams
+- Added `threshold` parameter to all new plot functions for filtering low-weight edges/cells
+- Added `value_digits` parameter to `plot_transitions()` for controlling decimal formatting on flow labels
+- Added directional shorthand names for `scale_nodes_by`: `indegree`, `outdegree`, `instrength`, `outstrength`, `incloseness`, `outcloseness`, `inharmonic`, `outharmonic`, `ineccentricity`, `outeccentricity`
+- Added `scale_nodes_scale` parameter to `splot()` for dampening/exaggerating centrality-based node sizing (e.g., 0.5 for sqrt compression)
+- Added `value_fontface`, `value_fontfamily`, and `value_halo` parameters to `plot_heatmap()` for text styling and readability on dark backgrounds
+
+## Bug Fixes
+
+- Fixed overlapping flow value labels in multi-step alluvial plots
+- Removed zero-value labels that appeared after rounding in transition plots
+- Fixed self-loop and edge clipping in `splot()` viewport calculation
+- Fixed viridis palette direction in `plot_heatmap()` so high values get dark colors
+- Fixed alluvial label halo rendering producing spike artifacts by using circular offsets
+
+## Improvements
+
+- Added comprehensive centrality measures with validation suite
+- Achieved 100% test coverage
+
 # cograph 1.5.2
 
 ## Breaking Changes

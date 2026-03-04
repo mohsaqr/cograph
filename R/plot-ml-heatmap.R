@@ -80,9 +80,9 @@ plot_ml_heatmap <- function(
     threshold = 0
 ) {
 
- if (!requireNamespace("ggplot2", quietly = TRUE)) {
+ if (!requireNamespace("ggplot2", quietly = TRUE)) { # nocov start
     stop("Package 'ggplot2' required. Install with: install.packages('ggplot2')")
-  }
+  } # nocov end
 
   # Extract layers from input
   layers <- .extract_ml_layers(x, layer_list)

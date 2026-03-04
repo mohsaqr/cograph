@@ -302,6 +302,87 @@ test_that("resolve_centrality_sizes handles NaN/NA in centrality values", {
 })
 
 # ============================================
+# DIRECTIONAL SHORTHANDS TESTS
+# ============================================
+
+test_that("resolve_centrality_sizes accepts directional shorthand 'instrength'", {
+  mat <- matrix(c(0, 0.5, 0, 0.3, 0, 0.7, 0.2, 0, 0), 3, 3)
+  result <- resolve_centrality_sizes(mat, scale_by = "instrength")
+  expect_equal(result$measure, "strength")
+  expect_equal(length(result$sizes), 3)
+})
+
+test_that("resolve_centrality_sizes accepts directional shorthand 'outstrength'", {
+  mat <- matrix(c(0, 0.5, 0, 0.3, 0, 0.7, 0.2, 0, 0), 3, 3)
+  result <- resolve_centrality_sizes(mat, scale_by = "outstrength")
+  expect_equal(result$measure, "strength")
+  expect_equal(length(result$sizes), 3)
+})
+
+test_that("resolve_centrality_sizes accepts directional shorthand 'indegree'", {
+  mat <- matrix(c(0, 1, 0, 0, 0, 1, 1, 0, 0), 3, 3)
+  result <- resolve_centrality_sizes(mat, scale_by = "indegree")
+  expect_equal(result$measure, "degree")
+})
+
+test_that("resolve_centrality_sizes accepts directional shorthand 'outdegree'", {
+  mat <- matrix(c(0, 1, 0, 0, 0, 1, 1, 0, 0), 3, 3)
+  result <- resolve_centrality_sizes(mat, scale_by = "outdegree")
+  expect_equal(result$measure, "degree")
+})
+
+test_that("resolve_centrality_sizes directional shorthands are case-insensitive", {
+  mat <- matrix(c(0, 0.5, 0, 0.3, 0, 0.7, 0.2, 0, 0), 3, 3)
+  result <- resolve_centrality_sizes(mat, scale_by = "InStrength")
+  expect_equal(result$measure, "strength")
+})
+
+test_that("resolve_centrality_sizes: all directional shorthands resolve correctly", {
+  mat <- matrix(c(0, 0.5, 0, 0.3, 0, 0.7, 0.2, 0, 0), 3, 3)
+  shorthands <- c("incloseness", "outcloseness", "inharmonic", "outharmonic",
+                   "ineccentricity", "outeccentricity")
+  expected_measures <- c("closeness", "closeness", "harmonic", "harmonic",
+                          "eccentricity", "eccentricity")
+  vapply(seq_along(shorthands), function(i) {
+    result <- resolve_centrality_sizes(mat, scale_by = shorthands[i])
+    expect_equal(result$measure, expected_measures[i],
+                 info = paste("Shorthand:", shorthands[i]))
+    TRUE
+  }, logical(1))
+})
+
+# ============================================
+# SCALE_EXP (scale_nodes_scale) TESTS
+# ============================================
+
+test_that("resolve_centrality_sizes: scale_exp = 1 is default (linear)", {
+  mat <- matrix(c(0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0), 4, 4)
+  result_default <- resolve_centrality_sizes(mat, scale_by = "degree")
+  result_exp1 <- resolve_centrality_sizes(mat, scale_by = "degree", scale_exp = 1)
+  expect_equal(result_default$sizes, result_exp1$sizes)
+})
+
+test_that("resolve_centrality_sizes: scale_exp != 1 changes intermediate sizes", {
+  mat <- matrix(c(0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0), 4, 4)
+  result_linear <- resolve_centrality_sizes(mat, scale_by = "degree", scale_exp = 1)
+  result_sqrt <- resolve_centrality_sizes(mat, scale_by = "degree", scale_exp = 0.5)
+  result_sq <- resolve_centrality_sizes(mat, scale_by = "degree", scale_exp = 2)
+  # Raw values are identical
+  expect_equal(result_linear$values, result_sqrt$values)
+  expect_equal(result_linear$values, result_sq$values)
+  # Sizes differ for non-extreme nodes when exp != 1
+  expect_false(all(result_linear$sizes == result_sqrt$sizes))
+  expect_false(all(result_linear$sizes == result_sq$sizes))
+})
+
+test_that("resolve_centrality_sizes: scale_exp works with constant values", {
+  mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+  result <- resolve_centrality_sizes(mat, scale_by = "degree", scale_exp = 0.5)
+  # All nodes have same degree -> should use middle of range regardless of exp
+  expect_equal(length(unique(result$sizes)), 1)
+})
+
+# ============================================
 # RESOLVE_LABEL_SIZES TESTS
 # ============================================
 

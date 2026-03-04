@@ -352,34 +352,17 @@ plot_transitions <- function(x,
     ) +
     scale_fill_identity()
 
-  # Halo offsets for text readability
-  halo_off <- 0.004
   from_data <- node_rects[node_rects$side == "from", ]
   to_data <- node_rects[node_rects$side == "to", ]
 
   # Add node labels based on position
   if (label_position == "beside") {
-    # Labels beside nodes (outside)
-    if (label_halo) {
-      for (dx in c(-1, 0, 1)) {
-        for (dy in c(-1, 0, 1)) {
-          if (dx != 0 || dy != 0) {
-            p <- p +
-              geom_text(data = from_data, aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
-                        hjust = 0, size = label_size, color = "white",
-                        nudge_x = dx * halo_off, nudge_y = dy * halo_off) +
-              geom_text(data = to_data, aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
-                        hjust = 1, size = label_size, color = "white",
-                        nudge_x = dx * halo_off, nudge_y = dy * halo_off)
-          }
-        }
-      }
-    }
-    p <- p +
-      geom_text(data = from_data, aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
-                hjust = 0, size = label_size) +
-      geom_text(data = to_data, aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
-                hjust = 1, size = label_size)
+    p <- .text_or_halo(p, from_data,
+      aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
+      hjust = 0, size = label_size, halo = label_halo)
+    p <- .text_or_halo(p, to_data,
+      aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
+      hjust = 1, size = label_size, halo = label_halo)
 
   } else if (label_position == "inside") {
     # Labels inside nodes (no halo needed - white on colored)
@@ -390,73 +373,28 @@ plot_transitions <- function(x,
                 hjust = 0.5, size = label_size, color = "white", fontface = "bold")
 
   } else if (label_position == "above") {
-    # Labels above nodes
-    if (label_halo) {
-      for (dx in c(-1, 0, 1)) {
-        for (dy in c(-1, 0, 1)) {
-          if (dx != 0 || dy != 0) {
-            p <- p +
-              geom_text(data = from_data, aes(x = (xmin + xmax) / 2, y = ymax + 0.02, label = label),
-                        hjust = 0.5, vjust = 0, size = label_size, color = "white",
-                        nudge_x = dx * halo_off, nudge_y = dy * halo_off) +
-              geom_text(data = to_data, aes(x = (xmin + xmax) / 2, y = ymax + 0.02, label = label),
-                        hjust = 0.5, vjust = 0, size = label_size, color = "white",
-                        nudge_x = dx * halo_off, nudge_y = dy * halo_off)
-          }
-        }
-      }
-    }
-    p <- p +
-      geom_text(data = from_data, aes(x = (xmin + xmax) / 2, y = ymax + 0.02, label = label),
-                hjust = 0.5, vjust = 0, size = label_size) +
-      geom_text(data = to_data, aes(x = (xmin + xmax) / 2, y = ymax + 0.02, label = label),
-                hjust = 0.5, vjust = 0, size = label_size)
+    p <- .text_or_halo(p, from_data,
+      aes(x = (xmin + xmax) / 2, y = ymax + 0.02, label = label),
+      hjust = 0.5, vjust = 0, size = label_size, halo = label_halo)
+    p <- .text_or_halo(p, to_data,
+      aes(x = (xmin + xmax) / 2, y = ymax + 0.02, label = label),
+      hjust = 0.5, vjust = 0, size = label_size, halo = label_halo)
 
   } else if (label_position == "below") {
-    # Labels below nodes
-    if (label_halo) {
-      for (dx in c(-1, 0, 1)) {
-        for (dy in c(-1, 0, 1)) {
-          if (dx != 0 || dy != 0) {
-            p <- p +
-              geom_text(data = from_data, aes(x = (xmin + xmax) / 2, y = ymin - 0.02, label = label),
-                        hjust = 0.5, vjust = 1, size = label_size, color = "white",
-                        nudge_x = dx * halo_off, nudge_y = dy * halo_off) +
-              geom_text(data = to_data, aes(x = (xmin + xmax) / 2, y = ymin - 0.02, label = label),
-                        hjust = 0.5, vjust = 1, size = label_size, color = "white",
-                        nudge_x = dx * halo_off, nudge_y = dy * halo_off)
-          }
-        }
-      }
-    }
-    p <- p +
-      geom_text(data = from_data, aes(x = (xmin + xmax) / 2, y = ymin - 0.02, label = label),
-                hjust = 0.5, vjust = 1, size = label_size) +
-      geom_text(data = to_data, aes(x = (xmin + xmax) / 2, y = ymin - 0.02, label = label),
-                hjust = 0.5, vjust = 1, size = label_size)
+    p <- .text_or_halo(p, from_data,
+      aes(x = (xmin + xmax) / 2, y = ymin - 0.02, label = label),
+      hjust = 0.5, vjust = 1, size = label_size, halo = label_halo)
+    p <- .text_or_halo(p, to_data,
+      aes(x = (xmin + xmax) / 2, y = ymin - 0.02, label = label),
+      hjust = 0.5, vjust = 1, size = label_size, halo = label_halo)
 
   } else if (label_position == "outside") {
-    # Labels on outer edges (far left for from, far right for to)
-    if (label_halo) {
-      for (dx in c(-1, 0, 1)) {
-        for (dy in c(-1, 0, 1)) {
-          if (dx != 0 || dy != 0) {
-            p <- p +
-              geom_text(data = from_data, aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
-                        hjust = 1, size = label_size, color = "white",
-                        nudge_x = dx * halo_off, nudge_y = dy * halo_off) +
-              geom_text(data = to_data, aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
-                        hjust = 0, size = label_size, color = "white",
-                        nudge_x = dx * halo_off, nudge_y = dy * halo_off)
-          }
-        }
-      }
-    }
-    p <- p +
-      geom_text(data = from_data, aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
-                hjust = 1, size = label_size) +
-      geom_text(data = to_data, aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
-                hjust = 0, size = label_size)
+    p <- .text_or_halo(p, from_data,
+      aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
+      hjust = 1, size = label_size, halo = label_halo)
+    p <- .text_or_halo(p, to_data,
+      aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
+      hjust = 0, size = label_size, halo = label_halo)
   }
 
   # Add totals on nodes if requested
@@ -470,29 +408,15 @@ plot_transitions <- function(x,
       )
   }
 
-  # Column titles with halo
+  # Column titles
   title_y <- max(node_rects$ymax) + 0.08
   title_x_left <- x_left + node_width / 2
   title_x_right <- x_right - node_width / 2
 
-  if (label_halo) {
-    for (dx in c(-1, 0, 1)) {
-      for (dy in c(-1, 0, 1)) {
-        if (dx != 0 || dy != 0) {
-          p <- p +
-            annotate("text", x = title_x_left + dx * halo_off, y = title_y + dy * halo_off,
-                     label = from_title, size = title_size, fontface = "bold", color = "white") +
-            annotate("text", x = title_x_right + dx * halo_off, y = title_y + dy * halo_off,
-                     label = to_title, size = title_size, fontface = "bold", color = "white")
-        }
-      }
-    }
-  }
-  p <- p +
-    annotate("text", x = title_x_left, y = title_y,
-             label = from_title, size = title_size, fontface = "bold") +
-    annotate("text", x = title_x_right, y = title_y,
-             label = to_title, size = title_size, fontface = "bold")
+  p <- .annotate_or_halo(p, title_x_left, title_y, from_title,
+                          title_size, label_halo)
+  p <- .annotate_or_halo(p, title_x_right, title_y, to_title,
+                          title_size, label_halo)
 
   # Add value labels on flows if requested
   if (show_values && nrow(flow_centers) > 0) {
@@ -523,6 +447,52 @@ plot_transitions <- function(x,
 # =============================================================================
 # Helper Functions
 # =============================================================================
+
+#' Add text with optional subtle halo (8-direction circular outline)
+#'
+#' Uses 8 evenly-spaced circular offsets at a small radius for a tight
+#' text-shaped outline. Unlike grid offsets, circular offsets keep equal
+#' distance in all directions, preventing spike artifacts.
+#' @noRd
+.text_or_halo <- function(p, data, mapping, hjust, size, halo,
+                           vjust = 0.5, color = "black", fontface = "plain",
+                           halo_color = "white", halo_radius = 0.0015) {
+  if (halo) {
+    angles <- seq(0, 2 * pi, length.out = 9L)[-9L]
+    for (a in angles) {
+      p <- p + geom_text(
+        data = data, mapping = mapping,
+        hjust = hjust, vjust = vjust, size = size,
+        color = halo_color, fontface = fontface,
+        nudge_x = cos(a) * halo_radius,
+        nudge_y = sin(a) * halo_radius
+      )
+    }
+  }
+  p + geom_text(
+    data = data, mapping = mapping,
+    hjust = hjust, vjust = vjust, size = size,
+    color = color, fontface = fontface
+  )
+}
+
+#' Add annotate text with optional subtle halo
+#' @noRd
+.annotate_or_halo <- function(p, x, y, label, size, halo,
+                                fontface = "bold", color = "black",
+                                halo_color = "white", halo_radius = 0.0015) {
+  if (halo) {
+    angles <- seq(0, 2 * pi, length.out = 9L)[-9L]
+    for (a in angles) {
+      p <- p + annotate("text",
+        x = x + cos(a) * halo_radius, y = y + sin(a) * halo_radius,
+        label = label, size = size, fontface = fontface, color = halo_color)
+    }
+  }
+  p + annotate("text", x = x, y = y, label = label,
+               size = size, fontface = fontface, color = color)
+}
+
 
 #' Convert transition matrix to data frame
 #' @noRd
@@ -757,46 +727,6 @@ plot_transitions <- function(x,
   colorRampPalette(palette)(n)
 }
 
-#' Add halo text layers to a ggplot
-#' @noRd
-.add_halo_text <- function(p, data, aes_mapping, size, color = "black",
-                            hjust = 0.5, vjust = 0.5, fontface = "plain",
-                            halo_color = "white", halo_expand = 0.003) {
-  # Draw white halo by offsetting text in 8 directions
-  offsets <- list(
-    c(-1, -1), c(0, -1), c(1, -1),
-    c(-1, 0),            c(1, 0),
-    c(-1, 1),  c(0, 1),  c(1, 1)
-  )
-
-  for (off in offsets) {
-    p <- p + geom_text(
-      data = data,
-      mapping = aes_mapping,
-      size = size,
-      color = halo_color,
-      hjust = hjust,
-      vjust = vjust,
-      fontface = fontface,
-      nudge_x = off[1] * halo_expand,
-      nudge_y = off[2] * halo_expand
-    )
-  }
-
-  # Draw main text on top
-  p <- p + geom_text(
-    data = data,
-    mapping = aes_mapping,
-    size = size,
-    color = color,
-    hjust = hjust,
-    vjust = vjust,
-    fontface = fontface
-  )
-
-  p
-}
-
 #' Multi-step transitions helper
 #' @noRd
 .plot_transitions_multi <- function(matrices, titles, colors,
@@ -964,100 +894,37 @@ plot_transitions <- function(x,
     ) +
     scale_fill_identity()
 
-  # Halo offsets for text readability
-  halo_off <- 0.004
-
   # Add labels based on position
   if (label_position == "beside") {
     left_data <- node_rects[node_rects$col == 1, ]
     right_data <- node_rects[node_rects$col == n_columns, ]
-
-    if (label_halo) {
-      for (dx in c(-1, 0, 1)) {
-        for (dy in c(-1, 0, 1)) {
-          if (dx != 0 || dy != 0) {
-            p <- p +
-              geom_text(data = left_data, aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
-                        hjust = 0, size = label_size, color = "white",
-                        nudge_x = dx * halo_off, nudge_y = dy * halo_off) +
-              geom_text(data = right_data, aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
-                        hjust = 1, size = label_size, color = "white",
-                        nudge_x = dx * halo_off, nudge_y = dy * halo_off)
-          }
-        }
-      }
-    }
-    p <- p +
-      geom_text(data = left_data, aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
-                hjust = 0, size = label_size) +
-      geom_text(data = right_data, aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
-                hjust = 1, size = label_size)
+    p <- .text_or_halo(p, left_data,
+      aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
+      hjust = 0, size = label_size, halo = label_halo)
+    p <- .text_or_halo(p, right_data,
+      aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
+      hjust = 1, size = label_size, halo = label_halo)
 
   } else if (label_position == "outside") {
     left_data <- node_rects[node_rects$col == 1, ]
     right_data <- node_rects[node_rects$col == n_columns, ]
-
-    if (label_halo) {
-      for (dx in c(-1, 0, 1)) {
-        for (dy in c(-1, 0, 1)) {
-          if (dx != 0 || dy != 0) {
-            p <- p +
-              geom_text(data = left_data, aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
-                        hjust = 1, size = label_size, color = "white",
-                        nudge_x = dx * halo_off, nudge_y = dy * halo_off) +
-              geom_text(data = right_data, aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
-                        hjust = 0, size = label_size, color = "white",
-                        nudge_x = dx * halo_off, nudge_y = dy * halo_off)
-          }
-        }
-      }
-    }
-    p <- p +
-      geom_text(data = left_data, aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
-                hjust = 1, size = label_size) +
-      geom_text(data = right_data, aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
-                hjust = 0, size = label_size)
+    p <- .text_or_halo(p, left_data,
+      aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
+      hjust = 1, size = label_size, halo = label_halo)
+    p <- .text_or_halo(p, right_data,
+      aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
+      hjust = 0, size = label_size, halo = label_halo)
 
   } else if (label_position == "above") {
-    if (label_halo) {
-      for (dx in c(-1, 0, 1)) {
-        for (dy in c(-1, 0, 1)) {
-          if (dx != 0 || dy != 0) {
-            p <- p + geom_text(
-              data = node_rects,
-              aes(x = x_pos, y = ymax + 0.02, label = label),
-              hjust = 0.5, vjust = 0, size = label_size, color = "white",
-              nudge_x = dx * halo_off, nudge_y = dy * halo_off
-            )
-          }
-        }
-      }
-    }
-    p <- p + geom_text(
-      data = node_rects,
+    p <- .text_or_halo(p, node_rects,
       aes(x = x_pos, y = ymax + 0.02, label = label),
-      hjust = 0.5, vjust = 0, size = label_size
-    )
+      hjust = 0.5, vjust = 0, size = label_size, halo = label_halo)
+
   } else if (label_position == "below") {
-    if (label_halo) {
-      for (dx in c(-1, 0, 1)) {
-        for (dy in c(-1, 0, 1)) {
-          if (dx != 0 || dy != 0) {
-            p <- p + geom_text(
-              data = node_rects,
-              aes(x = x_pos, y = ymin - 0.02, label = label),
-              hjust = 0.5, vjust = 1, size = label_size, color = "white",
-              nudge_x = dx * halo_off, nudge_y = dy * halo_off
-            )
-          }
-        }
-      }
-    }
-    p <- p + geom_text(
-      data = node_rects,
+    p <- .text_or_halo(p, node_rects,
       aes(x = x_pos, y = ymin - 0.02, label = label),
-      hjust = 0.5, vjust = 1, size = label_size
-    )
+      hjust = 0.5, vjust = 1, size = label_size, halo = label_halo)
+
   } else if (label_position == "inside") {
     # Inside labels don't need halo (white on colored background)
     p <- p + geom_text(
@@ -1090,25 +957,11 @@ plot_transitions <- function(x,
     }
   }
 
-  # Add column titles with halo
+  # Add column titles
   title_y <- max(node_rects$ymax) + 0.04
   for (col in seq_len(n_columns)) {
-    if (label_halo) {
-      for (dx in c(-1, 0, 1)) {
-        for (dy in c(-1, 0, 1)) {
-          if (dx != 0 || dy != 0) {
-            p <- p + annotate("text",
-              x = x_positions[col] + dx * halo_off, y = title_y + dy * halo_off,
-              label = titles[col], size = title_size, fontface = "bold", color = "white"
-            )
-          }
-        }
-      }
-    }
-    p <- p + annotate("text",
-      x = x_positions[col], y = title_y,
-      label = titles[col], size = title_size, fontface = "bold"
-    )
+    p <- .annotate_or_halo(p, x_positions[col], title_y, titles[col],
+                            title_size, label_halo)
   }
 
   # Theme
@@ -1474,8 +1327,7 @@ plot_transitions <- function(x,
     ) +
     scale_fill_identity()
 
-  # Halo offsets for text readability
-  halo_off <- 0.004
+
 
   # Resolve mid_label_position (for intermediate columns)
   valid_positions <- c("beside", "inside", "above", "below", "outside")
@@ -1486,88 +1338,24 @@ plot_transitions <- function(x,
   }
 
   # Helper: render labels for a data subset at a given position
-  .add_labels <- function(p, data, pos, halo, halo_off, label_size) {
+  .add_labels <- function(p, data, pos, halo, label_size) {
     if (nrow(data) == 0L) return(p)
     if (pos == "beside") {
-      if (halo) {
-        for (dx in c(-1, 0, 1)) {
-          for (dy in c(-1, 0, 1)) {
-            if (dx != 0 || dy != 0) {
-              p <- p + geom_text(
-                data = data,
-                aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
-                hjust = 0, size = label_size, color = "white",
-                nudge_x = dx * halo_off, nudge_y = dy * halo_off
-              )
-            }
-          }
-        }
-      }
-      p <- p + geom_text(
-        data = data,
+      p <- .text_or_halo(p, data,
         aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
-        hjust = 0, size = label_size
-      )
+        hjust = 0, size = label_size, halo = halo)
     } else if (pos == "outside") {
-      if (halo) {
-        for (dx in c(-1, 0, 1)) {
-          for (dy in c(-1, 0, 1)) {
-            if (dx != 0 || dy != 0) {
-              p <- p + geom_text(
-                data = data,
-                aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
-                hjust = 1, size = label_size, color = "white",
-                nudge_x = dx * halo_off, nudge_y = dy * halo_off
-              )
-            }
-          }
-        }
-      }
-      p <- p + geom_text(
-        data = data,
+      p <- .text_or_halo(p, data,
         aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
-        hjust = 1, size = label_size
-      )
+        hjust = 1, size = label_size, halo = halo)
     } else if (pos == "above") {
-      if (halo) {
-        for (dx in c(-1, 0, 1)) {
-          for (dy in c(-1, 0, 1)) {
-            if (dx != 0 || dy != 0) {
-              p <- p + geom_text(
-                data = data,
-                aes(x = x_pos, y = ymax + 0.02, label = label),
-                hjust = 0.5, vjust = 0, size = label_size, color = "white",
-                nudge_x = dx * halo_off, nudge_y = dy * halo_off
-              )
-            }
-          }
-        }
-      }
-      p <- p + geom_text(
-        data = data,
+      p <- .text_or_halo(p, data,
         aes(x = x_pos, y = ymax + 0.02, label = label),
-        hjust = 0.5, vjust = 0, size = label_size
-      )
+        hjust = 0.5, vjust = 0, size = label_size, halo = halo)
     } else if (pos == "below") {
-      if (halo) {
-        for (dx in c(-1, 0, 1)) {
-          for (dy in c(-1, 0, 1)) {
-            if (dx != 0 || dy != 0) {
-              p <- p + geom_text(
-                data = data,
-                aes(x = x_pos, y = ymin - 0.02, label = label),
-                hjust = 0.5, vjust = 1, size = label_size, color = "white",
-                nudge_x = dx * halo_off, nudge_y = dy * halo_off
-              )
-            }
-          }
-        }
-      }
-      p <- p + geom_text(
-        data = data,
+      p <- .text_or_halo(p, data,
         aes(x = x_pos, y = ymin - 0.02, label = label),
-        hjust = 0.5, vjust = 1, size = label_size
-      )
+        hjust = 0.5, vjust = 1, size = label_size, halo = halo)
     } else if (pos == "inside") {
       p <- p + geom_text(
         data = data,
@@ -1584,8 +1372,8 @@ plot_transitions <- function(x,
   mid_rects <- node_rects[!is_edge, , drop = FALSE]
 
   # Render edge column labels with label_position, middle with mid_pos
-  p <- .add_labels(p, edge_rects, label_position, label_halo, halo_off, label_size)
-  p <- .add_labels(p, mid_rects, mid_pos, label_halo, halo_off, label_size)
+  p <- .add_labels(p, edge_rects, label_position, label_halo, label_size)
+  p <- .add_labels(p, mid_rects, mid_pos, label_halo, label_size)
 
   # Add totals
   if (show_totals) {
@@ -1597,25 +1385,11 @@ plot_transitions <- function(x,
     )
   }
 
-  # Add titles with halo
+  # Add titles
   title_y <- max(node_rects$ymax) + 0.04
   for (col in seq_len(n_columns)) {
-    if (label_halo) {
-      for (dx in c(-1, 0, 1)) {
-        for (dy in c(-1, 0, 1)) {
-          if (dx != 0 || dy != 0) {
-            p <- p + annotate("text",
-              x = x_positions[col] + dx * halo_off, y = title_y + dy * halo_off,
-              label = titles[col], size = title_size, fontface = "bold", color = "white"
-            )
-          }
-        }
-      }
-    }
-    p <- p + annotate("text",
-      x = x_positions[col], y = title_y,
-      label = titles[col], size = title_size, fontface = "bold"
-    )
+    p <- .annotate_or_halo(p, x_positions[col], title_y, titles[col],
+                            title_size, label_halo)
   }
 
   # Add flow value labels (transition counts between columns)
@@ -1688,28 +1462,10 @@ plot_transitions <- function(x,
       val_df <- val_df[val_df$value != 0, ]
     }
     if (length(value_labels) > 0 && nrow(val_df) > 0) {
-      # Draw with white halo for readability over lines
-      if (label_halo) {
-        for (dx in c(-1, 0, 1)) {
-          for (dy in c(-1, 0, 1)) {
-            if (dx != 0 || dy != 0) {
-              p <- p + geom_text(
-                data = val_df,
-                aes(x = x, y = y, label = value),
-                size = value_size, color = "white", fontface = "bold",
-                nudge_x = dx * halo_off, nudge_y = dy * halo_off,
-                check_overlap = TRUE
-              )
-            }
-          }
-        }
-      }
-      p <- p + geom_text(
-        data = val_df,
+      p <- .text_or_halo(p, val_df,
         aes(x = x, y = y, label = value),
-        size = value_size, color = value_color, fontface = "bold",
-        check_overlap = TRUE
-      )
+        hjust = 0.5, size = value_size, halo = label_halo,
+        color = value_color, fontface = "bold")
     }
   }
 

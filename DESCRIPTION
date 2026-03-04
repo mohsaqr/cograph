@@ -1,8 +1,11 @@
 Package: cograph
 Title: Analysis and Visualization of Complex Networks
 Version: 1.6.0
-Authors@R:
-    person("Mohammed", "Saqr", , "mohammed.saqr@uef.fi", role = c("aut", "cre"))
+Authors@R: c(
+    person("Sonsoles", "López-Pernas", , "sonsoles.lopez@uef.fi", role = c("aut", "cre", "cph")),
+    person("Mohammed", "Saqr", , "mohammed.saqr@uef.fi", role = c("aut", "cph")),
+    person("Santtu", "Tikka", role = "aut")
+    )
 Description: Tools for the analysis, visualization, and manipulation of dynamical,
     social, and complex networks. Provides comprehensive network metrics including
     centrality measures, motif analysis, community detection, and network comparison.
@@ -13,10 +16,10 @@ Description: Tools for the analysis, visualization, and manipulation of dynamica
     publication-ready plotting with customizable layouts, node shapes, edge styles,
     and themes through an intuitive, pipe-friendly API.
 License: MIT + file LICENSE
-URL: https://github.com/mohsaqr/cograph
-BugReports: https://github.com/mohsaqr/cograph/issues
+URL: https://sonsoles.me/cograph/, https://github.com/sonsoleslp/cograph
+BugReports: https://github.com/sonsoleslp/cograph/issues
 Depends:
-    R (>= 4.1.0)
+    R (>= 4.4.0)
 Imports:
     R6,
     grid,

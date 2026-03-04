@@ -19,3 +19,11 @@ Invisibly returns the plot
 \description{
 Visualizes network with community coloring using splot.
 }
+\examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+g <- igraph::make_graph("Zachary")
+comm <- community_louvain(g)
+mat <- igraph::as_adjacency_matrix(g, sparse = FALSE)
+plot(comm, network = mat)
+\dontshow{\}) # examplesIf}
+}

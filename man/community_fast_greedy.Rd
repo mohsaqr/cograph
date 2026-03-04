@@ -43,6 +43,13 @@ A \code{cograph_communities} object with optional dendrogram
 Hierarchical agglomeration using greedy modularity optimization.
 Produces a dendrogram of community merges.
 }
+\examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+g <- igraph::make_graph("Zachary")
+comm <- community_fast_greedy(g)
+igraph::membership(comm)
+\dontshow{\}) # examplesIf}
+}
 \references{
 Clauset, A., Newman, M.E.J., & Moore, C. (2004).
 Finding community structure in very large networks.

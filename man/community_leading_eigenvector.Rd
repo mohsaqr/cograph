@@ -55,6 +55,13 @@ A \code{cograph_communities} object
 Detects communities using the leading eigenvector of the modularity matrix.
 Hierarchical divisive algorithm.
 }
+\examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+g <- igraph::make_graph("Zachary")
+comm <- community_leading_eigenvector(g)
+igraph::membership(comm)
+\dontshow{\}) # examplesIf}
+}
 \references{
 Newman, M.E.J. (2006).
 Finding community structure using the eigenvectors of matrices.

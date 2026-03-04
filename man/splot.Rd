@@ -14,6 +14,7 @@ splot(
   node_size2 = NULL,
   scale_nodes_by = NULL,
   node_size_range = c(2, 8),
+  scale_nodes_scale = 1,
   node_shape = "circle",
   node_svg = NULL,
   svg_preserve_aspect = TRUE,
@@ -177,6 +178,9 @@ two-letter codes: "kk", "fr", "drl", "mds", "ni", etc.}
 \itemize{
 \item A measure name: "degree", "strength", "betweenness", "closeness",
 "eigenvector", "pagerank", "authority", "hub", "harmonic", etc.
+\item A directional shorthand: "indegree", "outdegree", "instrength",
+"outstrength", "incloseness", "outcloseness", "inharmonic",
+"outharmonic", "ineccentricity", "outeccentricity".
 \item A list with measure and parameters: list("pagerank", damping = 0.9)
 }
 When used, node_size is ignored. Use node_size_range to control the
@@ -184,6 +188,10 @@ min/max size. Default NULL (no centrality scaling).}
 
 \item{node_size_range}{Size range for centrality-based scaling. Numeric
 vector c(min_size, max_size). Default c(2, 8).}
+
+\item{scale_nodes_scale}{Dampening exponent for centrality-based sizing.
+Values < 1 compress differences (e.g., 0.5 applies square root), values > 1
+exaggerate differences. Default 1 (linear).}
 
 \item{node_shape}{Node shape(s): "circle", "square", "triangle", "diamond",
 "pentagon", "hexagon", "star", "heart", "ellipse", "cross", or any custom

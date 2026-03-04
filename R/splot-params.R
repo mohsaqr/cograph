@@ -156,15 +156,20 @@ resolve_node_sizes <- function(vsize, n, default_size = NULL, scale_factor = NUL
 #' @param scale_by Centrality measure name or list with measure and parameters.
 #'   Valid measures: "degree", "strength", "betweenness", "closeness",
 #'   "eigenvector", "pagerank", "authority", "hub", "eccentricity",
-#'   "coreness", "constraint", "harmonic".
+#'   "coreness", "constraint", "harmonic". Also accepts directional shorthands:
+#'   "indegree", "outdegree", "instrength", "outstrength", "incloseness",
+#'   "outcloseness", "inharmonic", "outharmonic", "ineccentricity",
+#'   "outeccentricity".
 #' @param size_range Numeric vector of length 2: c(min_size, max_size).
 #'   Default c(2, 8).
 #' @param n Number of nodes (for validation).
 #' @param scaling Scaling mode: "default" or "legacy".
+#' @param scale_exp Dampening exponent applied to normalized centrality values
+#'   before mapping to size range. Default 1 (linear).
 #' @return Named list with 'sizes' (vector of node sizes) and 'values' (raw centrality values).
 #' @keywords internal
 resolve_centrality_sizes <- function(x, scale_by, size_range = c(2, 8), n = NULL,
-                                     scaling = "default") {
+                                     scaling = "default", scale_exp = 1) {
   if (is.null(scale_by)) {
     return(NULL)
   }
@@ -189,7 +194,28 @@ resolve_centrality_sizes <- function(x, scale_by, size_range = c(2, 8), n = NULL
                       "harmonic", "diffusion", "leverage", "kreach",
                       "resilience")
 
-  measure <- match.arg(tolower(measure), valid_measures)
+  # Map directional shorthands to (measure, mode) pairs
+  directional_map <- list(
+    indegree        = list(measure = "degree",       mode = "in"),
+    outdegree       = list(measure = "degree",       mode = "out"),
+    instrength      = list(measure = "strength",     mode = "in"),
+    outstrength     = list(measure = "strength",     mode = "out"),
+    incloseness     = list(measure = "closeness",    mode = "in"),
+    outcloseness    = list(measure = "closeness",    mode = "out"),
+    inharmonic      = list(measure = "harmonic",     mode = "in"),
+    outharmonic     = list(measure = "harmonic",     mode = "out"),
+    ineccentricity  = list(measure = "eccentricity", mode = "in"),
+    outeccentricity = list(measure = "eccentricity", mode = "out")
+  )
+
+  measure_lower <- tolower(measure)
+  if (measure_lower %in% names(directional_map)) {
+    mapped <- directional_map[[measure_lower]]
+    measure <- mapped$measure
+    params$mode <- mapped$mode
+  } else {
+    measure <- match.arg(measure_lower, valid_measures)
+  }
 
   # Build centrality call
   cent_args <- c(list(x = x, measures = measure), params)
@@ -219,6 +245,7 @@ resolve_centrality_sizes <- function(x, scale_by, size_range = c(2, 8), n = NULL
   } else {
     # Scale to size range
     normalized <- (values - val_range[1]) / (val_range[2] - val_range[1])
+    normalized <- normalized^scale_exp
     sizes <- size_range[1] + normalized * (size_range[2] - size_range[1])
   }
 

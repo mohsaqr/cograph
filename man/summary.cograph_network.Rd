@@ -17,3 +17,8 @@ A list with network summary information (invisibly).
 \description{
 Summary of cograph_network Object
 }
+\examples{
+adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
+net <- cograph(adj)
+summary(net)
+}

@@ -26,6 +26,13 @@ Very slow - only use for small networks (<50 nodes).
 \note{
 This is an NP-hard problem. Use only for tiny networks.
 }
+\examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+g <- igraph::make_ring(10)
+comm <- community_optimal(g)
+igraph::membership(comm)
+\dontshow{\}) # examplesIf}
+}
 \references{
 Brandes, U., Delling, D., Gaertler, M., Gorke, R., Hoefer, M.,
 Nikoloski, Z., & Wagner, D. (2008).

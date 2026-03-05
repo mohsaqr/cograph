@@ -26,9 +26,9 @@ communities(
 \item \code{"fast_greedy"} - Fast greedy modularity optimization
 \item \code{"walktrap"} - Random walk-based detection
 \item \code{"infomap"} - Information theoretic approach
-\item \code{"label_propagationagation"} - Label propagation (very fast)
+\item \code{"label_propagation"} - Label propagation (very fast)
 \item \code{"edge_betweenness"} - Girvan-Newman algorithm
-\item \code{"leading_eigenvectorvector"} - Leading eigenvector method
+\item \code{"leading_eigenvector"} - Leading eigenvector method
 \item \code{"spinglass"} - Spinglass simulation
 \item \code{"optimal"} - Exact modularity optimization (slow)
 \item \code{"fluid"} - Fluid communities algorithm

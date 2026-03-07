@@ -3,6 +3,7 @@
 #' @description
 #' Class for managing visual themes for network plots.
 #'
+#' @return A \code{CographTheme} R6 object.
 #' @export
 #' @examples
 #' # Create a custom theme

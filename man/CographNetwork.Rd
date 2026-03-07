@@ -3,6 +3,9 @@
 \name{CographNetwork}
 \alias{CographNetwork}
 \title{CographNetwork R6 Class}
+\value{
+A \code{CographNetwork} R6 object.
+}
 \description{
 Core class representing a network for visualization. Stores nodes, edges,
 layout coordinates, and aesthetic mappings.

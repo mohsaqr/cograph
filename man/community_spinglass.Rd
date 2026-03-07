@@ -71,6 +71,8 @@ NULL for full partitioning.}
 }
 \value{
 A \code{cograph_communities} object
+
+A \code{cograph_communities} object. See \code{\link{detect_communities}}.
 }
 \description{
 Statistical mechanics approach using simulated annealing.
@@ -82,6 +84,10 @@ g <- igraph::make_graph("Zachary")
 comm <- community_spinglass(g)
 igraph::membership(comm)
 \dontshow{\}) # examplesIf}
+\dontrun{
+net <- as_cograph(matrix(runif(25), 5, 5))
+com_sg(net)
+}
 }
 \references{
 Reichardt, J., & Bornholdt, S. (2006).

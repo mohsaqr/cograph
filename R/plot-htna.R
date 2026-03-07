@@ -243,9 +243,9 @@ plot_htna <- function(
   if (layout == "polygon" && n_groups < 3) {
     stop("Polygon layout requires at least 3 groups", call. = FALSE)
   }
-  if (layout == "circular" && n_groups < 2) {
+  if (layout == "circular" && n_groups < 2) { # nocov start
     stop("Circular layout requires at least 2 groups", call. = FALSE)
-  }
+  } # nocov end
 
   # Determine colors and shapes for each group
   if (is.null(group_colors)) {
@@ -721,9 +721,9 @@ for (i in seq_len(n_sides)) {
     outward <- outward / sqrt(sum(outward^2))  # Normalize
 
     # Make sure it points outward (away from origin)
-    if (sum(outward * mid) < 0) {
+    if (sum(outward * mid) < 0) { # nocov start
       outward <- -outward
-    }
+    } # nocov end
 
     if (n_nodes > 1) {
       # Distribute nodes along edge with gaps at corners
@@ -804,4 +804,12 @@ compute_circular_layout <- function(node_list, lab, group_indices, n_groups, ang
 
 #' @rdname plot_htna
 #' @export
+#' @examples
+#' \dontrun{
+#' mat <- matrix(runif(36, 0, 0.3), 6, 6)
+#' diag(mat) <- 0
+#' colnames(mat) <- rownames(mat) <- c("A", "B", "C", "D", "E", "F")
+#' groups <- list(Group1 = c("A", "B", "C"), Group2 = c("D", "E", "F"))
+#' htna(mat, groups)
+#' }
 htna <- plot_htna

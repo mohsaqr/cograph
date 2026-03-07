@@ -38,6 +38,8 @@ com_fg(
 }
 \value{
 A \code{cograph_communities} object with optional dendrogram
+
+A \code{cograph_communities} object. See \code{\link{detect_communities}}.
 }
 \description{
 Hierarchical agglomeration using greedy modularity optimization.

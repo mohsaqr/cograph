@@ -52,6 +52,9 @@ A data frame with columns:
 \item \code{weight}: Edge weight (if weighted)
 \item \code{betweenness}: Edge betweenness centrality
 }
+
+Named numeric vector of edge betweenness values (named by
+\code{"from->to"}).
 }
 \description{
 Computes centrality measures for edges in a network and returns a tidy
@@ -79,4 +82,9 @@ edge_centrality(mat, measures = "betweenness")
 
 # Sort by betweenness to find bridge edges
 edge_centrality(mat, sort_by = "betweenness")
+\dontrun{
+mat <- matrix(c(0,1,1,0, 1,0,1,1, 1,1,0,0, 0,1,0,0), 4, 4)
+rownames(mat) <- colnames(mat) <- c("A", "B", "C", "D")
+edge_betweenness(mat)
+}
 }

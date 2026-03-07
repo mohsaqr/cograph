@@ -23,6 +23,8 @@ Default 1 (standard modularity).}
 }
 \value{
 A \code{cograph_communities} object
+
+A \code{cograph_communities} object. See \code{\link{detect_communities}}.
 }
 \description{
 Multi-level modularity optimization using the Louvain algorithm.

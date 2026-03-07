@@ -50,6 +50,8 @@ com_eb(
 }
 \value{
 A \code{cograph_communities} object
+
+A \code{cograph_communities} object. See \code{\link{detect_communities}}.
 }
 \description{
 Girvan-Newman algorithm. Iteratively removes edges with highest
@@ -61,6 +63,10 @@ g <- igraph::make_graph("Zachary")
 comm <- community_edge_betweenness(g)
 igraph::membership(comm)
 \dontshow{\}) # examplesIf}
+\dontrun{
+net <- as_cograph(matrix(runif(25), 5, 5))
+com_eb(net)
+}
 }
 \references{
 Girvan, M., & Newman, M.E.J. (2002).

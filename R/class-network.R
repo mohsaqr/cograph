@@ -4,6 +4,7 @@
 #' Core class representing a network for visualization. Stores nodes, edges,
 #' layout coordinates, and aesthetic mappings.
 #'
+#' @return A \code{CographNetwork} R6 object.
 #' @export
 #' @examples
 #' # Create network from adjacency matrix
@@ -352,7 +353,8 @@ is_cograph_network <- function(x) {
     meta = list(),
     weights = NULL,
     data = NULL,
-    node_groups = NULL
+    node_groups = NULL,
+    type = NULL
 ) {
   # Ensure edges data frame has standard columns
   if (!is.null(edges) && nrow(edges) > 0) {
@@ -370,6 +372,7 @@ is_cograph_network <- function(x) {
   if (is.null(meta$source)) meta$source <- "unknown"
   if (is.null(meta$layout)) meta$layout <- NULL
   if (is.null(meta$tna)) meta$tna <- NULL
+  if (!is.null(type)) meta$type <- type
 
   # Build the lean network object
   net <- list(
@@ -856,7 +859,13 @@ as_cograph <- function(x, directed = NULL, ...) {
 }
 
 #' @rdname as_cograph
+#' @return A \code{cograph_network} object. See \code{\link{as_cograph}}.
 #' @export
+#' @examples
+#' \dontrun{
+#' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
+#' net <- to_cograph(mat)
+#' }
 to_cograph <- function(x, directed = NULL, ...) {
   as_cograph(x, directed = directed, ...)
 }

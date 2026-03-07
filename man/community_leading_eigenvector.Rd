@@ -50,6 +50,8 @@ com_le(
 }
 \value{
 A \code{cograph_communities} object
+
+A \code{cograph_communities} object. See \code{\link{detect_communities}}.
 }
 \description{
 Detects communities using the leading eigenvector of the modularity matrix.
@@ -61,6 +63,10 @@ g <- igraph::make_graph("Zachary")
 comm <- community_leading_eigenvector(g)
 igraph::membership(comm)
 \dontshow{\}) # examplesIf}
+\dontrun{
+net <- as_cograph(matrix(runif(25), 5, 5))
+com_le(net)
+}
 }
 \references{
 Newman, M.E.J. (2006).

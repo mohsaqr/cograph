@@ -6,12 +6,14 @@
 NULL
 
 #' @rdname plot_permutation
+#' @return Invisibly returns \code{NULL}. Called for side effect of producing a plot.
 #' @export
 splot.tna_permutation <- function(x, ...) {
   plot_permutation(x, ...)
 }
 
 #' @rdname plot_group_permutation
+#' @return Invisibly returns \code{NULL}. Called for side effect of producing a plot.
 #' @export
 splot.group_tna_permutation <- function(x, ...) {
   plot_group_permutation(x, ...)

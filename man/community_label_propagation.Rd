@@ -42,6 +42,8 @@ com_lp(
 }
 \value{
 A \code{cograph_communities} object
+
+A \code{cograph_communities} object. See \code{\link{detect_communities}}.
 }
 \description{
 Fast semi-synchronous label propagation algorithm.
@@ -61,6 +63,10 @@ if (requireNamespace("igraph", quietly = TRUE)) {
   fixed <- !is.na(initial)
   initial[is.na(initial)] <- seq_len(sum(is.na(initial)))
   comm2 <- community_label_propagation(g, initial = initial, fixed = fixed)
+}
+\dontrun{
+net <- as_cograph(matrix(runif(25), 5, 5))
+com_lp(net)
 }
 }
 \references{

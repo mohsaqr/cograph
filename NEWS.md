@@ -2,16 +2,45 @@
 
 ## New Features
 
+### Network Analysis
+- Added `cluster_summary()` for aggregating network weights at the cluster level with between-cluster and within-cluster matrices
+- Added `build_mcml()` for building Markov Chain Multi-Level models from raw transition data (edge lists or sequences)
+- Added `cluster_quality()` for computing modularity-based cluster quality metrics
+- Added `cluster_significance()` for permutation-based significance testing of cluster structure
+- Added `as_tna()` to convert cluster summaries to TNA objects for downstream analysis
+- Added `summarize_network()` for computing comprehensive network-level summary statistics
+- Added `detect_communities()` with 11 community detection algorithms and shorthand wrappers (`com_lv`, `com_fg`, `com_wt`, etc.)
+- Added `simplify()` for pruning weak edges from networks
+- Added supra-adjacency matrix construction (`supra_adjacency`, `supra_layer`, `supra_interlayer`) for multilayer network analysis
+- Added `layer_similarity()`, `layer_similarity_matrix()`, and `layer_degree_correlation()` for multilayer comparison
+- Added `verify_with_igraph()` for cross-validating network metrics against igraph
+
+### Centrality
+- Added 23 centrality measures with individual help pages: `centrality_degree`, `centrality_strength`, `centrality_betweenness`, `centrality_closeness`, `centrality_eigenvector`, `centrality_pagerank`, `centrality_harmonic`, `centrality_authority`, `centrality_alpha`, `centrality_power`, `centrality_kreach`, `centrality_diffusion`, `centrality_percolation`, `centrality_eccentricity`, `centrality_transitivity`, `centrality_constraint`, `centrality_coreness`, `centrality_load`, `centrality_subgraph`, `centrality_leverage`, `centrality_laplacian`, `centrality_current_flow_betweenness`, `centrality_current_flow_closeness`, `centrality_voterank`
+- Added `edge_betweenness()` for edge-level centrality
+- Added directional shorthand names for `scale_nodes_by`: `indegree`, `outdegree`, `instrength`, `outstrength`, `incloseness`, `outcloseness`, `inharmonic`, `outharmonic`, `ineccentricity`, `outeccentricity`
+- Added `scale_nodes_scale` parameter to `splot()` for dampening/exaggerating centrality-based node sizing
+
+### Visualization
+- Added `plot_mcml()` for Markov Chain Multi-Level network visualization with between-cluster summary edges and within-cluster detail
+- Added `plot_htna()` for hierarchical multi-group network visualization with circular and polygon layouts
+- Added `plot_mtna()` for multi-cluster TNA network visualization with shape-based cluster containers
+- Added `plot_mlna()` / `mlna()` for multilayer network visualization with 3D perspective
 - Added `plot_transitions()` for alluvial/Sankey flow diagrams with `plot_alluvial()` and `plot_trajectories()` wrappers
 - Added `plot_heatmap()` for adjacency matrix heatmaps with optional clustering
 - Added `plot_ml_heatmap()` for multilayer heatmaps with 3D perspective
 - Added `plot_mixed_network()` for combined symmetric/asymmetric edge networks
 - Added `plot_chord()` for chord diagrams
+- Added `plot_compare()` for difference network visualization
+- Added `splot()` S3 methods for bootstrap and permutation result plotting
 - Added `threshold` parameter to all new plot functions for filtering low-weight edges/cells
-- Added `value_digits` parameter to `plot_transitions()` for controlling decimal formatting on flow labels
-- Added directional shorthand names for `scale_nodes_by`: `indegree`, `outdegree`, `instrength`, `outstrength`, `incloseness`, `outcloseness`, `inharmonic`, `outharmonic`, `ineccentricity`, `outeccentricity`
-- Added `scale_nodes_scale` parameter to `splot()` for dampening/exaggerating centrality-based node sizing (e.g., 0.5 for sqrt compression)
-- Added `value_fontface`, `value_fontfamily`, and `value_halo` parameters to `plot_heatmap()` for text styling and readability on dark backgrounds
+- Added `value_fontface`, `value_fontfamily`, and `value_halo` parameters to `plot_heatmap()` for text styling
+
+### Network Utilities
+- Added `filter_edges()`, `subset_edges()` for edge filtering and subsetting
+- Added `aggregate_weights()` and `aggregate_layers()` for weight aggregation across layers
+- Added `set_node_groups()` / `get_node_groups()` for managing cluster assignments on cograph_network objects
+- Consolidated cograph_network metadata under `$meta` with getter/setter functions
 
 ## Bug Fixes
 
@@ -20,11 +49,16 @@
 - Fixed self-loop and edge clipping in `splot()` viewport calculation
 - Fixed viridis palette direction in `plot_heatmap()` so high values get dark colors
 - Fixed alluvial label halo rendering producing spike artifacts by using circular offsets
+- Fixed load and percolation centrality computation bugs
+- Fixed `build_mcml()` density method crash when weight vector had no names
 
 ## Improvements
 
-- Added comprehensive centrality measures with validation suite
-- Achieved 100% test coverage
+- Achieved 100% test coverage (12,520 tests)
+- Added `@return` and `@examples` to all exported functions for CRAN compliance
+- Updated DESCRIPTION Title and Description for CRAN standards
+- R CMD check: 0 errors, 0 warnings
+- All URLs validated with `urlchecker::url_check()`
 
 # cograph 1.5.2
 

@@ -17,6 +17,8 @@ plot_group_permutation(x, i = NULL, ...)
 \item{i}{Index or name of specific comparison to plot. NULL for all.}
 }
 \value{
+Invisibly returns \code{NULL}. Called for side effect of producing a plot.
+
 Invisibly returns NULL.
 }
 \description{

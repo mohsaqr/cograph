@@ -55,6 +55,8 @@ or "modularity". Default "CPM".}
 }
 \value{
 A \code{cograph_communities} object
+
+A \code{cograph_communities} object. See \code{\link{detect_communities}}.
 }
 \description{
 Leiden algorithm - an improved version of Louvain that guarantees

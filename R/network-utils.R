@@ -538,6 +538,7 @@ filter_nodes <- function(x, ..., .keep_edges = c("internal", "none"),
 subset_nodes <- filter_nodes
 
 #' @rdname filter_edges
+#' @return See \code{\link{filter_edges}}.
 #' @export
 subset_edges <- filter_edges
 

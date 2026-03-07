@@ -42,6 +42,8 @@ plot_permutation(
 \item{edge_nonsig_alpha}{Alpha for non-significant edges. Default 0.4.}
 }
 \value{
+Invisibly returns \code{NULL}. Called for side effect of producing a plot.
+
 Invisibly returns the plot.
 }
 \description{

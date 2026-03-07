@@ -373,6 +373,8 @@ Set NULL to disable rounding.}
 }
 \value{
 Invisible NULL. Called for side effect of drawing.
+
+Invisible NULL. Called for side effect of drawing.
 }
 \description{
 Main plotting function for Cograph networks. Renders the network visualization
@@ -437,6 +439,10 @@ adj |> soplot(
   node_size = 0.08,
   edge_width = 2
 )
+\dontrun{
+mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
+sn_render(mat)
+}
 }
 \seealso{
 \code{\link{splot}} for base R graphics rendering (alternative engine),

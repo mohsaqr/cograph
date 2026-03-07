@@ -15,18 +15,23 @@ NULL
 #' @param asym_matrix An asymmetric matrix representing directed relationships.
 #'   These edges will be drawn curved with arrows. Reciprocal edges curve in
 #'   opposite directions.
-#' @param layout Layout algorithm or coordinate matrix. Default "circle".
-#' @param sym_color Color for symmetric/undirected edges. Default "gray40".
+#' @param layout Layout algorithm or coordinate matrix. Default "oval".
+#' @param sym_color Color for symmetric/undirected edges. Default "#457B9D" (steel blue).
 #' @param asym_color Color for asymmetric/directed edges. Can be a single color
 #'   or a vector of two colors for positive/negative directions. Default
-#'   c("steelblue", "coral").
+#'   "#003355" (dark blue, matching TNA style).
 #' @param curvature Curvature magnitude for directed edges. Default 0.3.
-#' @param edge_width Edge width. Default 2.5.
-#' @param node_size Node size. Default 8.
+#' @param edge_width Edge width(s). If NULL (default), scales automatically by
+#'   edge weight like TNA plots. Pass a numeric value to override.
+#' @param node_size Node size. Default 7.
 #' @param title Plot title. Default NULL.
 #' @param threshold Minimum absolute edge weight to display. Values with
 #'   \code{abs(value) < threshold} are set to zero (edge removed). Default 0.
+#'   Zero-weight edges are always removed regardless of this setting.
 #' @param edge_labels Show edge weight labels. Default TRUE.
+#' @param arrow_size Arrow head size for directed edges. Default 0.61 (TNA style).
+#' @param edge_label_size Size of edge labels. Default 0.6.
+#' @param edge_label_position Position of edge labels along edge (0-1). Default 0.7.
 #' @param ... Additional arguments passed to splot().
 #'
 #' @return Invisibly returns the combined cograph_network object.
@@ -51,15 +56,18 @@ NULL
 plot_mixed_network <- function(
     sym_matrix,
     asym_matrix,
-    layout = "circle",
-    sym_color = "gray40",
-    asym_color = c("steelblue", "coral"),
+    layout = "oval",
+    sym_color = "#457B9D",
+    asym_color = "#003355",
     curvature = 0.3,
-    edge_width = 2.5,
-    node_size = 8,
+    edge_width = NULL,
+    node_size = 7,
     title = NULL,
     threshold = 0,
     edge_labels = TRUE,
+    arrow_size = 0.61,
+    edge_label_size = 0.6,
+    edge_label_position = 0.7,
     ...
 ) {
   # Validate inputs
@@ -73,11 +81,10 @@ plot_mixed_network <- function(
 
   n <- nrow(sym_matrix)
 
-  # Apply threshold
-  if (threshold > 0) {
-    sym_matrix[abs(sym_matrix) < threshold] <- 0
-    asym_matrix[abs(asym_matrix) < threshold] <- 0
-  }
+  # Remove zero edges and apply threshold
+  effective_threshold <- max(threshold, .Machine$double.eps)
+  sym_matrix[abs(sym_matrix) < effective_threshold] <- 0
+  asym_matrix[abs(asym_matrix) < effective_threshold] <- 0
 
   # Get node names
   node_names <- rownames(sym_matrix)
@@ -159,10 +166,7 @@ plot_mixed_network <- function(
     weight = edges$weight
   )
 
-  # Determine edge label style
- edge_label_style <- if (edge_labels) "weight" else "none"
-
-  # Plot
+  # Plot with TNA-style defaults
   splot(
     edge_df,
     directed = TRUE,
@@ -173,7 +177,12 @@ plot_mixed_network <- function(
     edge_width = edge_width,
     node_size = node_size,
     title = title,
-    edge_label_style = edge_label_style,
+    edge_labels = edge_labels,
+    edge_label_size = edge_label_size,
+    edge_label_position = edge_label_position,
+    arrow_size = arrow_size,
+    edge_start_style = "dotted",
+    edge_start_length = 0.2,
     node_names = node_names,
     ...
   )

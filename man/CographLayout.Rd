@@ -3,6 +3,9 @@
 \name{CographLayout}
 \alias{CographLayout}
 \title{CographLayout R6 Class}
+\value{
+A \code{CographLayout} R6 object.
+}
 \description{
 Class for managing layout algorithms and computing node positions.
 }

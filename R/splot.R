@@ -577,6 +577,23 @@ splot <- function(
   }
 
   # ============================================
+  # HANDLE cluster_summary / cluster_tna
+  # ============================================
+
+  # Handle cluster_summary objects -> dispatch to plot_mcml
+  if (inherits(x, "cluster_summary")) {
+    return(plot_mcml(x, ...))
+  }
+
+  # Handle cluster_tna objects (from as_tna)
+  if (inherits(x, "cluster_tna")) {
+    if (!is.null(i)) {
+      return(splot(x$within[[i]], title = title, ...))
+    }
+    return(splot(x$between, title = title %||% "Between-cluster network", ...))
+  }
+
+  # ============================================
   # HANDLE DEPRECATED PARAMETERS
   # ============================================
   # Detect which arguments were explicitly provided by the user

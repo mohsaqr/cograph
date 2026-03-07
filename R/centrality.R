@@ -945,147 +945,343 @@ calculate_measure <- function(g, measure, mode, weights, normalized,
   unname(value)
 }
 
-#' @rdname centrality
+#' Degree Centrality
+#'
+#' Number of edges connected to each node. For directed networks,
+#' \code{centrality_indegree} counts incoming edges and
+#' \code{centrality_outdegree} counts outgoing edges.
+#'
+#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
+#' @param mode For directed networks: \code{"all"} (default), \code{"in"}, or
+#'   \code{"out"}.
+#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
+#'   \code{normalized}, \code{weighted}, \code{directed}).
+#'
+#' @return Named numeric vector of degree values.
+#'
+#' @seealso \code{\link{centrality}} for computing multiple measures at once,
+#'   \code{\link{centrality_strength}} for the weighted version.
+#'
 #' @export
+#' @examples
+#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+#' centrality_degree(adj)
 centrality_degree <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "degree", mode = mode, ...)
   col <- paste0("degree_", mode)
   stats::setNames(df[[col]], df$node)
 }
 
-#' @rdname centrality
+#' @rdname centrality_degree
 #' @export
 centrality_indegree <- function(x, ...) {
- df <- centrality(x, measures = "degree", mode = "in", ...)
+  df <- centrality(x, measures = "degree", mode = "in", ...)
   stats::setNames(df$degree_in, df$node)
 }
 
-#' @rdname centrality
+#' @rdname centrality_degree
 #' @export
 centrality_outdegree <- function(x, ...) {
   df <- centrality(x, measures = "degree", mode = "out", ...)
   stats::setNames(df$degree_out, df$node)
 }
 
-#' @rdname centrality
+#' Strength Centrality (Weighted Degree)
+#'
+#' Sum of edge weights connected to each node. For directed networks,
+#' \code{centrality_instrength} sums incoming weights and
+#' \code{centrality_outstrength} sums outgoing weights.
+#'
+#' @inheritParams centrality_degree
+#'
+#' @return Named numeric vector of strength values.
+#'
+#' @seealso \code{\link{centrality}} for computing multiple measures at once,
+#'   \code{\link{centrality_degree}} for the unweighted version.
+#'
 #' @export
+#' @examples
+#' mat <- matrix(c(0, .5, .3, .5, 0, .8, .3, .8, 0), 3, 3)
+#' rownames(mat) <- colnames(mat) <- c("A", "B", "C")
+#' centrality_strength(mat)
 centrality_strength <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "strength", mode = mode, ...)
   col <- paste0("strength_", mode)
   stats::setNames(df[[col]], df$node)
 }
 
-#' @rdname centrality
+#' @rdname centrality_strength
 #' @export
 centrality_instrength <- function(x, ...) {
   df <- centrality(x, measures = "strength", mode = "in", ...)
   stats::setNames(df$strength_in, df$node)
 }
 
-#' @rdname centrality
+#' @rdname centrality_strength
 #' @export
 centrality_outstrength <- function(x, ...) {
   df <- centrality(x, measures = "strength", mode = "out", ...)
   stats::setNames(df$strength_out, df$node)
 }
 
-#' @rdname centrality
+#' Betweenness Centrality
+#'
+#' Fraction of shortest paths passing through each node. Nodes with high
+#' betweenness act as bridges connecting different parts of the network.
+#'
+#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
+#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
+#'   \code{normalized}, \code{weighted}, \code{directed}, \code{cutoff},
+#'   \code{invert_weights}).
+#'
+#' @return Named numeric vector of betweenness values.
+#'
+#' @seealso \code{\link{centrality}} for computing multiple measures at once,
+#'   \code{\link{centrality_load}} for a related measure.
+#'
 #' @export
+#' @examples
+#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+#' centrality_betweenness(adj)
 centrality_betweenness <- function(x, ...) {
   df <- centrality(x, measures = "betweenness", ...)
   stats::setNames(df$betweenness, df$node)
 }
 
-#' @rdname centrality
+#' Closeness Centrality
+#'
+#' Inverse of the average shortest path distance from a node to all others.
+#' For directed networks, \code{centrality_incloseness} and
+#' \code{centrality_outcloseness} measure incoming and outgoing closeness.
+#'
+#' @inheritParams centrality_degree
+#'
+#' @return Named numeric vector of closeness values.
+#'
+#' @seealso \code{\link{centrality}} for computing multiple measures at once,
+#'   \code{\link{centrality_harmonic}} for a variant that handles disconnected
+#'   graphs.
+#'
 #' @export
+#' @examples
+#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+#' centrality_closeness(adj)
 centrality_closeness <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "closeness", mode = mode, ...)
   col <- paste0("closeness_", mode)
   stats::setNames(df[[col]], df$node)
 }
 
-#' @rdname centrality
+#' @rdname centrality_closeness
 #' @export
 centrality_incloseness <- function(x, ...) {
   df <- centrality(x, measures = "closeness", mode = "in", ...)
   stats::setNames(df$closeness_in, df$node)
 }
 
-#' @rdname centrality
+#' @rdname centrality_closeness
 #' @export
 centrality_outcloseness <- function(x, ...) {
   df <- centrality(x, measures = "closeness", mode = "out", ...)
   stats::setNames(df$closeness_out, df$node)
 }
 
-#' @rdname centrality
+#' Eigenvector Centrality
+#'
+#' Influence-based centrality where a node's score depends on the scores
+#' of its neighbors. Nodes connected to other high-scoring nodes get
+#' higher scores.
+#'
+#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
+#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
+#'   \code{weighted}, \code{directed}).
+#'
+#' @return Named numeric vector of eigenvector centrality values.
+#'
+#' @seealso \code{\link{centrality}} for computing multiple measures at once,
+#'   \code{\link{centrality_pagerank}} for a random walk variant.
+#'
 #' @export
+#' @examples
+#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+#' centrality_eigenvector(adj)
 centrality_eigenvector <- function(x, ...) {
   df <- centrality(x, measures = "eigenvector", ...)
   stats::setNames(df$eigenvector, df$node)
 }
 
-#' @rdname centrality
+#' PageRank Centrality
+#'
+#' Random walk centrality measuring node importance. Simulates a random
+#' walker that follows edges with probability \code{damping} and jumps to a
+#' random node with probability \code{1 - damping}.
+#'
+#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
+#' @param damping Damping factor (probability of following an edge). Default 0.85.
+#' @param personalized Named numeric vector for personalized PageRank.
+#'   Values should sum to 1. Default \code{NULL} (uniform).
+#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
+#'   \code{weighted}, \code{directed}).
+#'
+#' @return Named numeric vector of PageRank values.
+#'
+#' @seealso \code{\link{centrality}} for computing multiple measures at once,
+#'   \code{\link{centrality_eigenvector}} for a related measure.
+#'
 #' @export
+#' @examples
+#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+#' centrality_pagerank(adj)
+#' centrality_pagerank(adj, damping = 0.9)
 centrality_pagerank <- function(x, damping = 0.85, personalized = NULL, ...) {
   df <- centrality(x, measures = "pagerank",
                    damping = damping, personalized = personalized, ...)
   stats::setNames(df$pagerank, df$node)
 }
 
-#' @rdname centrality
+#' HITS Authority and Hub Scores
+#'
+#' Kleinberg's HITS algorithm. \code{centrality_authority} scores nodes
+#' pointed to by good hubs. \code{centrality_hub} scores nodes that point
+#' to good authorities.
+#'
+#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
+#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
+#'   \code{weighted}, \code{directed}).
+#'
+#' @return Named numeric vector of authority or hub scores.
+#'
+#' @seealso \code{\link{centrality}} for computing multiple measures at once.
+#'
 #' @export
+#' @examples
+#' adj <- matrix(c(0, 1, 0, 0, 0, 1, 1, 1, 0), 3, 3)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+#' centrality_authority(adj)
+#' centrality_hub(adj)
 centrality_authority <- function(x, ...) {
   df <- centrality(x, measures = "authority", ...)
   stats::setNames(df$authority, df$node)
 }
 
-#' @rdname centrality
+#' @rdname centrality_authority
 #' @export
 centrality_hub <- function(x, ...) {
   df <- centrality(x, measures = "hub", ...)
   stats::setNames(df$hub, df$node)
 }
 
-#' @rdname centrality
+#' Eccentricity
+#'
+#' Maximum shortest path distance from a node to any other node.
+#' For directed networks, \code{centrality_ineccentricity} and
+#' \code{centrality_outeccentricity} use incoming and outgoing paths.
+#'
+#' @inheritParams centrality_degree
+#'
+#' @return Named numeric vector of eccentricity values.
+#'
+#' @seealso \code{\link{centrality}} for computing multiple measures at once.
+#'
 #' @export
+#' @examples
+#' adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+#' centrality_eccentricity(adj)
 centrality_eccentricity <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "eccentricity", mode = mode, ...)
   col <- paste0("eccentricity_", mode)
   stats::setNames(df[[col]], df$node)
 }
 
-#' @rdname centrality
+#' @rdname centrality_eccentricity
 #' @export
 centrality_ineccentricity <- function(x, ...) {
   df <- centrality(x, measures = "eccentricity", mode = "in", ...)
   stats::setNames(df$eccentricity_in, df$node)
 }
 
-#' @rdname centrality
+#' @rdname centrality_eccentricity
 #' @export
 centrality_outeccentricity <- function(x, ...) {
   df <- centrality(x, measures = "eccentricity", mode = "out", ...)
   stats::setNames(df$eccentricity_out, df$node)
 }
 
-#' @rdname centrality
+#' K-Core Decomposition (Coreness)
+#'
+#' Assigns each node to its maximum k-core. A k-core is a maximal subgraph
+#' where every node has at least k connections within the subgraph.
+#'
+#' @inheritParams centrality_degree
+#'
+#' @return Named numeric vector of coreness values.
+#'
+#' @seealso \code{\link{centrality}} for computing multiple measures at once.
+#'
 #' @export
+#' @examples
+#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+#' centrality_coreness(adj)
 centrality_coreness <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "coreness", mode = mode, ...)
   col <- paste0("coreness_", mode)
   stats::setNames(df[[col]], df$node)
 }
 
-#' @rdname centrality
+#' Burt's Constraint
+#'
+#' Network constraint measuring the extent to which a node's connections are
+#' redundant. Low constraint indicates access to structural holes (brokerage
+#' opportunities).
+#'
+#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
+#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
+#'   \code{weighted}, \code{directed}).
+#'
+#' @return Named numeric vector of constraint values.
+#'
+#' @seealso \code{\link{centrality}} for computing multiple measures at once.
+#'
 #' @export
+#' @examples
+#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+#' centrality_constraint(adj)
 centrality_constraint <- function(x, ...) {
   df <- centrality(x, measures = "constraint", ...)
   stats::setNames(df$constraint, df$node)
 }
 
-#' @rdname centrality
+#' Local Transitivity (Clustering Coefficient)
+#'
+#' Proportion of triangles around each node relative to the number of
+#' possible triangles. Measures how tightly clustered a node's neighborhood is.
+#'
+#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
+#' @param transitivity_type Type of transitivity: \code{"local"} (default),
+#'   \code{"global"}, \code{"undirected"}, \code{"localundirected"},
+#'   \code{"barrat"} (weighted), or \code{"weighted"}.
+#' @param isolates How to handle isolate nodes: \code{"nan"} (default) or
+#'   \code{"zero"}.
+#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
+#'   \code{weighted}, \code{directed}).
+#'
+#' @return Named numeric vector of transitivity values.
+#'
+#' @seealso \code{\link{centrality}} for computing multiple measures at once.
+#'
 #' @export
+#' @examples
+#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+#' centrality_transitivity(adj)
 centrality_transitivity <- function(x, transitivity_type = "local",
                                     isolates = "nan", ...) {
   df <- centrality(x, measures = "transitivity",
@@ -1093,112 +1289,335 @@ centrality_transitivity <- function(x, transitivity_type = "local",
   stats::setNames(df$transitivity, df$node)
 }
 
-#' @rdname centrality
+#' Harmonic Centrality
+#'
+#' Sum of inverse shortest path distances to all other nodes. Unlike closeness,
+#' harmonic centrality handles disconnected graphs naturally (unreachable nodes
+#' contribute 0 instead of making the measure undefined).
+#'
+#' @inheritParams centrality_degree
+#'
+#' @return Named numeric vector of harmonic centrality values.
+#'
+#' @seealso \code{\link{centrality}} for computing multiple measures at once,
+#'   \code{\link{centrality_closeness}} for the traditional variant.
+#'
 #' @export
+#' @examples
+#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+#' centrality_harmonic(adj)
 centrality_harmonic <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "harmonic", mode = mode, ...)
   col <- paste0("harmonic_", mode)
   stats::setNames(df[[col]], df$node)
 }
 
-#' @rdname centrality
+#' @rdname centrality_harmonic
 #' @export
 centrality_inharmonic <- function(x, ...) {
   df <- centrality(x, measures = "harmonic", mode = "in", ...)
   stats::setNames(df$harmonic_in, df$node)
 }
 
-#' @rdname centrality
+#' @rdname centrality_harmonic
 #' @export
 centrality_outharmonic <- function(x, ...) {
   df <- centrality(x, measures = "harmonic", mode = "out", ...)
   stats::setNames(df$harmonic_out, df$node)
 }
 
-#' @rdname centrality
+#' Diffusion Centrality
+#'
+#' Sum of scaled degrees of a node and its neighbors, measuring the node's
+#' potential for spreading information through the network.
+#'
+#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
+#' @param mode For directed networks: \code{"all"} (default), \code{"in"}, or
+#'   \code{"out"}.
+#' @param lambda Scaling factor for neighbor contributions. Default 1.
+#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
+#'   \code{weighted}, \code{directed}).
+#'
+#' @return Named numeric vector of diffusion centrality values.
+#'
+#' @seealso \code{\link{centrality}} for computing multiple measures at once.
+#'
 #' @export
+#' @examples
+#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+#' centrality_diffusion(adj)
 centrality_diffusion <- function(x, mode = "all", lambda = 1, ...) {
   df <- centrality(x, measures = "diffusion", mode = mode, lambda = lambda, ...)
   col <- paste0("diffusion_", mode)
   stats::setNames(df[[col]], df$node)
 }
 
-#' @rdname centrality
+#' Leverage Centrality
+#'
+#' Measures a node's influence over its neighbors based on relative degree
+#' differences. Positive values indicate the node has more connections than
+#' its average neighbor.
+#'
+#' @inheritParams centrality_degree
+#'
+#' @return Named numeric vector of leverage centrality values (range -1 to 1).
+#'
+#' @seealso \code{\link{centrality}} for computing multiple measures at once.
+#'
 #' @export
+#' @examples
+#' adj <- matrix(c(0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0), 4, 4)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
+#' centrality_leverage(adj)
 centrality_leverage <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "leverage", mode = mode, ...)
   col <- paste0("leverage_", mode)
   stats::setNames(df[[col]], df$node)
 }
 
-#' @rdname centrality
+#' Geodesic K-Path Centrality
+#'
+#' Count of nodes reachable within shortest path distance \code{k}. Measures
+#' how many nodes a given node can reach quickly.
+#'
+#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
+#' @param mode For directed networks: \code{"all"} (default), \code{"in"}, or
+#'   \code{"out"}.
+#' @param k Maximum path length. Default 3.
+#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
+#'   \code{weighted}, \code{directed}, \code{invert_weights}).
+#'
+#' @return Named numeric vector of k-reach centrality values.
+#'
+#' @seealso \code{\link{centrality}} for computing multiple measures at once.
+#'
 #' @export
+#' @examples
+#' adj <- matrix(c(0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0), 4, 4)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
+#' centrality_kreach(adj, k = 2)
 centrality_kreach <- function(x, mode = "all", k = 3, ...) {
   df <- centrality(x, measures = "kreach", mode = mode, k = k, ...)
   col <- paste0("kreach_", mode)
   stats::setNames(df[[col]], df$node)
 }
 
-#' @rdname centrality
+#' Alpha (Katz) Centrality
+#'
+#' Influence via all paths penalized by distance. Similar to eigenvector
+#' centrality but includes an exogenous contribution, making it well-defined
+#' even for directed acyclic graphs.
+#'
+#' @inheritParams centrality_degree
+#'
+#' @return Named numeric vector of alpha centrality values.
+#'
+#' @seealso \code{\link{centrality}} for computing multiple measures at once,
+#'   \code{\link{centrality_eigenvector}} for a related measure.
+#'
 #' @export
+#' @examples
+#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+#' centrality_alpha(adj)
 centrality_alpha <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "alpha", mode = mode, ...)
   col <- paste0("alpha_", mode)
   stats::setNames(df[[col]], df$node)
 }
 
-#' @rdname centrality
+#' Bonacich Power Centrality
+#'
+#' Measures influence based on connections to other influential nodes.
+#' The power parameter controls whether connections to well-connected
+#' nodes increase or decrease centrality.
+#'
+#' @inheritParams centrality_degree
+#'
+#' @return Named numeric vector of power centrality values.
+#'
+#' @seealso \code{\link{centrality}} for computing multiple measures at once,
+#'   \code{\link{centrality_eigenvector}} for a related measure.
+#'
 #' @export
+#' @examples
+#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+#' centrality_power(adj)
 centrality_power <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "power", mode = mode, ...)
   col <- paste0("power_", mode)
   stats::setNames(df[[col]], df$node)
 }
 
-#' @rdname centrality
+#' Subgraph Centrality
+#'
+#' Participation in closed loops (walks), weighting shorter loops more heavily.
+#' Based on the diagonal of the matrix exponential of the adjacency matrix.
+#'
+#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
+#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
+#'   \code{weighted}, \code{directed}).
+#'
+#' @return Named numeric vector of subgraph centrality values.
+#'
+#' @seealso \code{\link{centrality}} for computing multiple measures at once.
+#'
 #' @export
+#' @examples
+#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+#' centrality_subgraph(adj)
 centrality_subgraph <- function(x, ...) {
   df <- centrality(x, measures = "subgraph", ...)
   stats::setNames(df$subgraph, df$node)
 }
 
-#' @rdname centrality
+#' Laplacian Centrality
+#'
+#' Energy drop from the graph Laplacian when a node is removed
+#' (Qi et al. 2012). Measures a node's importance to the overall
+#' network energy.
+#'
+#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
+#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
+#'   \code{weighted}, \code{directed}).
+#'
+#' @return Named numeric vector of Laplacian centrality values.
+#'
+#' @seealso \code{\link{centrality}} for computing multiple measures at once.
+#'
 #' @export
+#' @examples
+#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+#' centrality_laplacian(adj)
 centrality_laplacian <- function(x, ...) {
   df <- centrality(x, measures = "laplacian", ...)
   stats::setNames(df$laplacian, df$node)
 }
 
-#' @rdname centrality
+#' Load Centrality
+#'
+#' Fraction of all shortest paths passing through a node, similar to
+#' betweenness but weighting paths by 1/count (Goh et al. 2001).
+#'
+#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
+#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
+#'   \code{weighted}, \code{directed}).
+#'
+#' @return Named numeric vector of load centrality values.
+#'
+#' @seealso \code{\link{centrality}} for computing multiple measures at once,
+#'   \code{\link{centrality_betweenness}} for the standard variant.
+#'
 #' @export
+#' @examples
+#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+#' centrality_load(adj)
 centrality_load <- function(x, ...) {
   df <- centrality(x, measures = "load", ...)
   stats::setNames(df$load, df$node)
 }
 
-#' @rdname centrality
+#' Current Flow Closeness Centrality
+#'
+#' Information centrality based on electrical current flow through the network.
+#' Uses the pseudoinverse of the Laplacian matrix. Requires a connected graph.
+#'
+#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
+#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
+#'   \code{weighted}, \code{directed}).
+#'
+#' @return Named numeric vector of current flow closeness values.
+#'
+#' @seealso \code{\link{centrality}} for computing multiple measures at once,
+#'   \code{\link{centrality_closeness}} for the shortest-path variant.
+#'
 #' @export
+#' @examples
+#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+#' centrality_current_flow_closeness(adj)
 centrality_current_flow_closeness <- function(x, ...) {
   df <- centrality(x, measures = "current_flow_closeness", ...)
   stats::setNames(df$current_flow_closeness, df$node)
 }
 
-#' @rdname centrality
+#' Current Flow Betweenness Centrality
+#'
+#' Betweenness based on electrical current flow rather than shortest paths.
+#' Uses the Laplacian pseudoinverse. Requires a connected graph.
+#'
+#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
+#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
+#'   \code{weighted}, \code{directed}).
+#'
+#' @return Named numeric vector of current flow betweenness values.
+#'
+#' @seealso \code{\link{centrality}} for computing multiple measures at once,
+#'   \code{\link{centrality_betweenness}} for the shortest-path variant.
+#'
 #' @export
+#' @examples
+#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+#' centrality_current_flow_betweenness(adj)
 centrality_current_flow_betweenness <- function(x, ...) {
   df <- centrality(x, measures = "current_flow_betweenness", ...)
   stats::setNames(df$current_flow_betweenness, df$node)
 }
 
-#' @rdname centrality
+#' VoteRank Centrality
+#'
+#' Identifies influential spreaders via an iterative voting mechanism.
+#' Returns normalized rank (1 = most influential). Based on
+#' Zhang et al. (2016).
+#'
+#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
+#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
+#'   \code{weighted}, \code{directed}).
+#'
+#' @return Named numeric vector of VoteRank values.
+#'
+#' @seealso \code{\link{centrality}} for computing multiple measures at once.
+#'
 #' @export
+#' @examples
+#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+#' centrality_voterank(adj)
 centrality_voterank <- function(x, ...) {
   df <- centrality(x, measures = "voterank", ...)
   stats::setNames(df$voterank, df$node)
 }
 
-#' @rdname centrality
+#' Percolation Centrality
+#'
+#' Importance for spreading processes using node states. Each node has
+#' a state (0-1) representing how activated it is. When all states are
+#' equal, equivalent to betweenness.
+#'
+#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
+#' @param states Named numeric vector of node states (0-1). Default \code{NULL}
+#'   (all nodes get state 1).
+#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
+#'   \code{weighted}, \code{directed}).
+#'
+#' @return Named numeric vector of percolation centrality values.
+#'
+#' @seealso \code{\link{centrality}} for computing multiple measures at once,
+#'   \code{\link{centrality_betweenness}} which this generalizes.
+#'
 #' @export
+#' @examples
+#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+#' centrality_percolation(adj)
+#' centrality_percolation(adj, states = c(A = 0.8, B = 0.2, C = 0.5))
 centrality_percolation <- function(x, states = NULL, ...) {
   df <- centrality(x, measures = "percolation", states = states, ...)
   stats::setNames(df$percolation, df$node)
@@ -1350,7 +1769,15 @@ edge_centrality <- function(x, measures = "all",
 }
 
 #' @rdname edge_centrality
+#' @return Named numeric vector of edge betweenness values (named by
+#'   \code{"from->to"}).
 #' @export
+#' @examples
+#' \dontrun{
+#' mat <- matrix(c(0,1,1,0, 1,0,1,1, 1,1,0,0, 0,1,0,0), 4, 4)
+#' rownames(mat) <- colnames(mat) <- c("A", "B", "C", "D")
+#' edge_betweenness(mat)
+#' }
 edge_betweenness <- function(x, ...) {
   df <- edge_centrality(x, measures = "betweenness", ...)
   stats::setNames(df$betweenness, paste(df$from, df$to, sep = "->"))

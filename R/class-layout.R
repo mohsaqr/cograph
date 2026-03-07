@@ -3,6 +3,7 @@
 #' @description
 #' Class for managing layout algorithms and computing node positions.
 #'
+#' @return A \code{CographLayout} R6 object.
 #' @export
 #' @examples
 #' # Create a circular layout

@@ -20,9 +20,9 @@
 #'     \item \code{"fast_greedy"} - Fast greedy modularity optimization
 #'     \item \code{"walktrap"} - Random walk-based detection
 #'     \item \code{"infomap"} - Information theoretic approach
-#'     \item \code{"label_propagationagation"} - Label propagation (very fast)
+#'     \item \code{"label_propagation"} - Label propagation (very fast)
 #'     \item \code{"edge_betweenness"} - Girvan-Newman algorithm
-#'     \item \code{"leading_eigenvectorvector"} - Leading eigenvector method
+#'     \item \code{"leading_eigenvector"} - Leading eigenvector method
 #'     \item \code{"spinglass"} - Spinglass simulation
 #'     \item \code{"optimal"} - Exact modularity optimization (slow)
 #'     \item \code{"fluid"} - Fluid communities algorithm
@@ -890,46 +890,87 @@ com_consensus <- community_consensus
 # ==============================================================================
 
 #' @rdname community_louvain
+#' @return A \code{cograph_communities} object. See \code{\link{detect_communities}}.
 #' @export
 com_lv <- community_louvain
 
 #' @rdname community_leiden
+#' @return A \code{cograph_communities} object. See \code{\link{detect_communities}}.
 #' @export
 com_ld <- community_leiden
 
 #' @rdname community_fast_greedy
+#' @return A \code{cograph_communities} object. See \code{\link{detect_communities}}.
 #' @export
 com_fg <- community_fast_greedy
 
 #' @rdname community_walktrap
+#' @return A \code{cograph_communities} object. See \code{\link{detect_communities}}.
 #' @export
 com_wt <- community_walktrap
 
 #' @rdname community_infomap
+#' @return A \code{cograph_communities} object. See \code{\link{detect_communities}}.
 #' @export
 com_im <- community_infomap
 
 #' @rdname community_label_propagation
+#' @return A \code{cograph_communities} object. See \code{\link{detect_communities}}.
+#' @examples
+#' \dontrun{
+#' net <- as_cograph(matrix(runif(25), 5, 5))
+#' com_lp(net)
+#' }
 #' @export
 com_lp <- community_label_propagation
 
 #' @rdname community_edge_betweenness
+#' @return A \code{cograph_communities} object. See \code{\link{detect_communities}}.
+#' @examples
+#' \dontrun{
+#' net <- as_cograph(matrix(runif(25), 5, 5))
+#' com_eb(net)
+#' }
 #' @export
 com_eb <- community_edge_betweenness
 
 #' @rdname community_leading_eigenvector
+#' @return A \code{cograph_communities} object. See \code{\link{detect_communities}}.
+#' @examples
+#' \dontrun{
+#' net <- as_cograph(matrix(runif(25), 5, 5))
+#' com_le(net)
+#' }
 #' @export
 com_le <- community_leading_eigenvector
 
 #' @rdname community_spinglass
+#' @return A \code{cograph_communities} object. See \code{\link{detect_communities}}.
+#' @examples
+#' \dontrun{
+#' net <- as_cograph(matrix(runif(25), 5, 5))
+#' com_sg(net)
+#' }
 #' @export
 com_sg <- community_spinglass
 
 #' @rdname community_optimal
+#' @return A \code{cograph_communities} object. See \code{\link{detect_communities}}.
+#' @examples
+#' \dontrun{
+#' net <- as_cograph(matrix(runif(25), 5, 5))
+#' com_op(net)
+#' }
 #' @export
 com_op <- community_optimal
 
 #' @rdname community_fluid
+#' @return A \code{cograph_communities} object. See \code{\link{detect_communities}}.
+#' @examples
+#' \dontrun{
+#' net <- as_cograph(matrix(runif(25), 5, 5))
+#' com_fl(net)
+#' }
 #' @export
 com_fl <- community_fluid
 

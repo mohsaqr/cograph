@@ -18,6 +18,8 @@ com_op(x, weights = NULL, ...)
 }
 \value{
 A \code{cograph_communities} object
+
+A \code{cograph_communities} object. See \code{\link{detect_communities}}.
 }
 \description{
 Finds the optimal community structure by maximizing modularity exactly.
@@ -32,6 +34,10 @@ g <- igraph::make_ring(10)
 comm <- community_optimal(g)
 igraph::membership(comm)
 \dontshow{\}) # examplesIf}
+\dontrun{
+net <- as_cograph(matrix(runif(25), 5, 5))
+com_op(net)
+}
 }
 \references{
 Brandes, U., Delling, D., Gaertler, M., Gorke, R., Hoefer, M.,

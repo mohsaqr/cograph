@@ -39,6 +39,8 @@ A cograph_network object: a named list with components:
 \code{tna} (TNA metadata or NULL)}
 \item{\code{node_groups}}{Optional node groupings data frame}
 }
+
+A \code{cograph_network} object. See \code{\link{as_cograph}}.
 }
 \description{
 Creates a lightweight cograph_network object from various network inputs.
@@ -91,6 +93,10 @@ library(igraph)
 g <- make_ring(10)
 net <- as_cograph(g)
 splot(net)
+}
+\dontrun{
+mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
+net <- to_cograph(mat)
 }
 }
 \seealso{

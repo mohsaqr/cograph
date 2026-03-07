@@ -3,6 +3,9 @@
 \name{CographTheme}
 \alias{CographTheme}
 \title{CographTheme R6 Class}
+\value{
+A \code{CographTheme} R6 object.
+}
 \description{
 Class for managing visual themes for network plots.
 }

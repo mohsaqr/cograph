@@ -2,41 +2,6 @@
 % Please edit documentation in R/centrality.R
 \name{centrality}
 \alias{centrality}
-\alias{centrality_degree}
-\alias{centrality_indegree}
-\alias{centrality_outdegree}
-\alias{centrality_strength}
-\alias{centrality_instrength}
-\alias{centrality_outstrength}
-\alias{centrality_betweenness}
-\alias{centrality_closeness}
-\alias{centrality_incloseness}
-\alias{centrality_outcloseness}
-\alias{centrality_eigenvector}
-\alias{centrality_pagerank}
-\alias{centrality_authority}
-\alias{centrality_hub}
-\alias{centrality_eccentricity}
-\alias{centrality_ineccentricity}
-\alias{centrality_outeccentricity}
-\alias{centrality_coreness}
-\alias{centrality_constraint}
-\alias{centrality_transitivity}
-\alias{centrality_harmonic}
-\alias{centrality_inharmonic}
-\alias{centrality_outharmonic}
-\alias{centrality_diffusion}
-\alias{centrality_leverage}
-\alias{centrality_kreach}
-\alias{centrality_alpha}
-\alias{centrality_power}
-\alias{centrality_subgraph}
-\alias{centrality_laplacian}
-\alias{centrality_load}
-\alias{centrality_current_flow_closeness}
-\alias{centrality_current_flow_betweenness}
-\alias{centrality_voterank}
-\alias{centrality_percolation}
 \title{Calculate Network Centrality Measures}
 \usage{
 centrality(
@@ -62,76 +27,6 @@ centrality(
   states = NULL,
   ...
 )
-
-centrality_degree(x, mode = "all", ...)
-
-centrality_indegree(x, ...)
-
-centrality_outdegree(x, ...)
-
-centrality_strength(x, mode = "all", ...)
-
-centrality_instrength(x, ...)
-
-centrality_outstrength(x, ...)
-
-centrality_betweenness(x, ...)
-
-centrality_closeness(x, mode = "all", ...)
-
-centrality_incloseness(x, ...)
-
-centrality_outcloseness(x, ...)
-
-centrality_eigenvector(x, ...)
-
-centrality_pagerank(x, damping = 0.85, personalized = NULL, ...)
-
-centrality_authority(x, ...)
-
-centrality_hub(x, ...)
-
-centrality_eccentricity(x, mode = "all", ...)
-
-centrality_ineccentricity(x, ...)
-
-centrality_outeccentricity(x, ...)
-
-centrality_coreness(x, mode = "all", ...)
-
-centrality_constraint(x, ...)
-
-centrality_transitivity(x, transitivity_type = "local", isolates = "nan", ...)
-
-centrality_harmonic(x, mode = "all", ...)
-
-centrality_inharmonic(x, ...)
-
-centrality_outharmonic(x, ...)
-
-centrality_diffusion(x, mode = "all", lambda = 1, ...)
-
-centrality_leverage(x, mode = "all", ...)
-
-centrality_kreach(x, mode = "all", k = 3, ...)
-
-centrality_alpha(x, mode = "all", ...)
-
-centrality_power(x, mode = "all", ...)
-
-centrality_subgraph(x, ...)
-
-centrality_laplacian(x, ...)
-
-centrality_load(x, ...)
-
-centrality_current_flow_closeness(x, ...)
-
-centrality_current_flow_betweenness(x, ...)
-
-centrality_voterank(x, ...)
-
-centrality_percolation(x, states = NULL, ...)
 }
 \arguments{
 \item{x}{Network input (matrix, igraph, network, cograph_network, tna object)}

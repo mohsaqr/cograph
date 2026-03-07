@@ -7,15 +7,18 @@
 plot_mixed_network(
   sym_matrix,
   asym_matrix,
-  layout = "circle",
-  sym_color = "gray40",
-  asym_color = c("steelblue", "coral"),
+  layout = "oval",
+  sym_color = "#457B9D",
+  asym_color = "#003355",
   curvature = 0.3,
-  edge_width = 2.5,
-  node_size = 8,
+  edge_width = NULL,
+  node_size = 7,
   title = NULL,
   threshold = 0,
   edge_labels = TRUE,
+  arrow_size = 0.61,
+  edge_label_size = 0.6,
+  edge_label_position = 0.7,
   ...
 )
 }
@@ -27,26 +30,34 @@ These edges will be drawn straight without arrows.}
 These edges will be drawn curved with arrows. Reciprocal edges curve in
 opposite directions.}
 
-\item{layout}{Layout algorithm or coordinate matrix. Default "circle".}
+\item{layout}{Layout algorithm or coordinate matrix. Default "oval".}
 
-\item{sym_color}{Color for symmetric/undirected edges. Default "gray40".}
+\item{sym_color}{Color for symmetric/undirected edges. Default "#457B9D" (steel blue).}
 
 \item{asym_color}{Color for asymmetric/directed edges. Can be a single color
 or a vector of two colors for positive/negative directions. Default
-c("steelblue", "coral").}
+"#003355" (dark blue, matching TNA style).}
 
 \item{curvature}{Curvature magnitude for directed edges. Default 0.3.}
 
-\item{edge_width}{Edge width. Default 2.5.}
+\item{edge_width}{Edge width(s). If NULL (default), scales automatically by
+edge weight like TNA plots. Pass a numeric value to override.}
 
-\item{node_size}{Node size. Default 8.}
+\item{node_size}{Node size. Default 7.}
 
 \item{title}{Plot title. Default NULL.}
 
 \item{threshold}{Minimum absolute edge weight to display. Values with
-\code{abs(value) < threshold} are set to zero (edge removed). Default 0.}
+\code{abs(value) < threshold} are set to zero (edge removed). Default 0.
+Zero-weight edges are always removed regardless of this setting.}
 
 \item{edge_labels}{Show edge weight labels. Default TRUE.}
+
+\item{arrow_size}{Arrow head size for directed edges. Default 0.61 (TNA style).}
+
+\item{edge_label_size}{Size of edge labels. Default 0.6.}
+
+\item{edge_label_position}{Position of edge labels along edge (0-1). Default 0.7.}
 
 \item{...}{Additional arguments passed to splot().}
 }

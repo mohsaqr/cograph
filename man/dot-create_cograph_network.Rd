@@ -11,7 +11,8 @@
   meta = list(),
   weights = NULL,
   data = NULL,
-  node_groups = NULL
+  node_groups = NULL,
+  type = NULL
 )
 }
 \arguments{

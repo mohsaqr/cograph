@@ -894,5 +894,11 @@ render_legend_grid <- function(network, position = "topright") {
 }
 
 #' @rdname soplot
+#' @return Invisible NULL. Called for side effect of drawing.
 #' @export
+#' @examples
+#' \dontrun{
+#' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
+#' sn_render(mat)
+#' }
 sn_render <- soplot

@@ -18,6 +18,8 @@ com_fl(x, no.of.communities, ...)
 }
 \value{
 A \code{cograph_communities} object
+
+A \code{cograph_communities} object. See \code{\link{detect_communities}}.
 }
 \description{
 Simulates fluid dynamics where communities compete for nodes.
@@ -29,6 +31,10 @@ if (requireNamespace("igraph", quietly = TRUE)) {
 
   # Detect exactly 2 communities
   comm <- community_fluid(g, no.of.communities = 2)
+}
+\dontrun{
+net <- as_cograph(matrix(runif(25), 5, 5))
+com_fl(net)
 }
 }
 \references{

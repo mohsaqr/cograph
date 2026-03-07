@@ -42,6 +42,8 @@ com_im(
 }
 \value{
 A \code{cograph_communities} object
+
+A \code{cograph_communities} object. See \code{\link{detect_communities}}.
 }
 \description{
 Information-theoretic community detection based on random walk dynamics.

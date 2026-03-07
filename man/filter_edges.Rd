@@ -40,6 +40,8 @@ Only used for non-cograph_network inputs.}
 \value{
 A cograph_network object with filtered edges. If \code{keep_format = TRUE},
 returns the same type as input (matrix, igraph, network, etc.).
+
+See \code{\link{filter_edges}}.
 }
 \description{
 Filter edges using dplyr-style expressions on any edge column. Returns a

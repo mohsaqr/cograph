@@ -162,11 +162,13 @@ from_tna <- function(tna_object, engine = c("splot", "soplot"), plot = TRUE,
   # --- TNA-specific visual defaults (can be overridden via ...) ---
   params$node_fill <- tna_color_palette(n_states)
   params$layout <- "oval"
-  params$edge_labels <- TRUE
+  params$edge_label_style <- "estimate"
+  params$edge_label_leading_zero <- FALSE
   params$edge_label_size <- 0.6
   params$edge_color <- "#003355"
   params$edge_label_position <- 0.7
   params$node_size <- 7
+  params$minimum <- 0.01
   if (is_directed) {
     params$arrow_size <- 0.61
     params$edge_start_length <- 0.2

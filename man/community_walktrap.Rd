@@ -42,6 +42,8 @@ com_wt(
 }
 \value{
 A \code{cograph_communities} object
+
+A \code{cograph_communities} object. See \code{\link{detect_communities}}.
 }
 \description{
 Detects communities via random walks. Nodes within the same community

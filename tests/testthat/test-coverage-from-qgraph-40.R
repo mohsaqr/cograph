@@ -717,7 +717,9 @@ test_that("from_tna sets TNA visual defaults", {
 
   expect_equal(params$layout, "oval")
   expect_equal(params$arrow_size, 0.61)
-  expect_true(params$edge_labels)
+  expect_equal(params$edge_label_style, "estimate")
+  expect_false(params$edge_label_leading_zero)
+  expect_equal(params$minimum, 0.01)
   expect_equal(params$edge_label_size, 0.6)
   expect_equal(params$edge_color, "#003355")
   expect_equal(params$edge_label_position, 0.7)

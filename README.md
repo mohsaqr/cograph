@@ -20,7 +20,7 @@ Network Analysis (TNA).
 ## Installation
 
 ``` r
-# Install from CRAN (when available)
+# Install from CRAN
 install.packages("cograph")
 
 # Development version from GitHub
@@ -167,105 +167,32 @@ splot(mat,
 
 <img src="man/figures/README-donut-pie-1.jpeg" alt="" width="100%" />
 
-## plot_htna()
-
-Heterogeneous multi-group networks with bipartite or polygon layouts.
+## Chord Diagram
 
 ``` r
-# 8-state network with 2 groups
-states8 <- c("Explore", "Plan", "Monitor", "Adapt",
-             "Reflect", "Regulate", "Execute", "Review")
-mat8 <- matrix(runif(64, 0, 0.3), 8, 8,
-  dimnames = list(states8, states8))
-diag(mat8) <- 0
-
-groups <- list(
-  Cognitive = c("Explore", "Plan", "Monitor", "Adapt"),
-  Metacognitive = c("Reflect", "Regulate", "Execute", "Review")
-)
-
-plot_htna(mat8, groups,
-  group_colors = c("#ffd89d", "#a68ba5"),
-  group_shapes = c("circle", "square")
-)
+plot_chord(mat, title = "Transition Chord Diagram")
 ```
 
-<img src="man/figures/README-plot-htna-1.jpeg" alt="" width="100%" />
+<img src="man/figures/README-chord-1.jpeg" alt="" width="100%" />
 
-## plot_mtna()
-
-Multi-cluster networks with summary edges between clusters.
+## Heatmap
 
 ``` r
-clusters <- list(
-  Planning = c("Explore", "Plan"),
-  Action = c("Monitor", "Adapt"),
-  Meta = c("Reflect", "Regulate"),
-  Review = c("Execute", "Review")
-)
-
-plot_mtna(mat8, clusters,
-  shapes = c("circle", "square", "diamond", "triangle"),
-  summary_edges = TRUE
-)
+plot_heatmap(mat, show_values = TRUE, colors = "viridis",
+             value_fontface = "bold", title = "Transition Heatmap")
 ```
 
-<img src="man/figures/README-plot-mtna-1.jpeg" alt="" width="100%" />
+<img src="man/figures/README-heatmap-1.jpeg" alt="" width="100%" />
 
-## plot_mlna()
-
-Multilevel 3D perspective networks with stacked layers.
+## Alluvial Flow
 
 ``` r
-layers <- list(
-  Macro = c("Explore", "Plan"),
-  Meso = c("Monitor", "Adapt", "Reflect"),
-  Micro = c("Regulate", "Execute", "Review")
-)
-
-plot_mlna(mat8, layers,
-  layout = "horizontal",
-  layer_spacing = 2.5,
-  between_edges = TRUE
-)
+plot_transitions(mat, flow_color_by = "from", flow_alpha = 0.5,
+                 from_title = "Source", to_title = "Target")
 ```
 
-<img src="man/figures/README-plot-mlna-1.jpeg" alt="" width="100%" />
-
-## CI Example
-
-Sophisticated visualization: hexagon nodes with precision donut +
-probability pie.
-
-``` r
-# Precision as donut fill (outer ring)
-precision <- c(0.95, 0.87, 0.72, 0.91, 0.68)
-
-# Probability distribution as pie (inner)
-prob_vals <- list(
-  c(0.6, 0.3, 0.1),
-  c(0.5, 0.4, 0.1),
-  c(0.4, 0.3, 0.3),
-  c(0.7, 0.2, 0.1),
-  c(0.3, 0.4, 0.3)
-)
-
-splot(mat,
-  node_shape = "hexagon",
-  donut_fill = precision,
-  donut_color = "#2E7D32",
-  donut_show_value = TRUE,
-  donut_value_suffix = "%",
-  donut_value_digits = 0,
-  pie_values = prob_vals,
-  pie_colors = c("#1976D2", "#FFA000", "#C62828"),
-  layout = "circle",
-  curvature = 0.25
-)
-```
-
-<img src="man/figures/README-ci-example-1.jpeg" alt="" width="100%" />
+<img src="man/figures/README-alluvial-1.jpeg" alt="" width="100%" />
 
 ## License
 
-MIT License. See [LICENSE.md](LICENSE.md) for details.
+MIT License.

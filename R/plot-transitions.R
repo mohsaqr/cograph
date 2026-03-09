@@ -114,6 +114,7 @@ NULL
 plot_transitions <- function(x,
                              from_title = "From",
                              to_title = "To",
+                             title = NULL,
                              from_colors = NULL,
                              to_colors = NULL,
                              flow_fill = "#888888",
@@ -156,7 +157,7 @@ plot_transitions <- function(x,
 
   # Handle multi-step transitions (list of matrices)
   if (is.list(x) && !is.data.frame(x)) {
-    return(.plot_transitions_multi(
+    p <- .plot_transitions_multi(
       x, titles = from_title, colors = from_colors,
       flow_fill = flow_fill, flow_alpha = flow_alpha,
       flow_color_by = flow_color_by,
@@ -171,7 +172,9 @@ plot_transitions <- function(x,
       total_size = total_size, total_color = total_color,
       min_flow = min_flow, threshold = threshold,
       value_digits = value_digits, column_gap = column_gap
-    ))
+    )
+    if (!is.null(title)) p <- p + labs(title = title)
+    return(p)
   }
 
   # Handle two vectors input (like chi-square: compute contingency table)
@@ -193,7 +196,7 @@ plot_transitions <- function(x,
     if (is.null(from_title) || identical(from_title, "From")) {
       from_title <- names(x)
     }
-    return(.plot_individual_tracks(
+    p <- .plot_individual_tracks(
       x, titles = from_title, colors = from_colors,
       flow_color_by = flow_color_by,
       node_width = node_width, node_border = node_border,
@@ -213,7 +216,9 @@ plot_transitions <- function(x,
       show_values = show_values, value_position = value_position,
       value_size = value_size, value_color = value_color,
       value_digits = value_digits
-    ))
+    )
+    if (!is.null(title)) p <- p + labs(title = title)
+    return(p)
   }
 
   # Convert input to standard format
@@ -233,7 +238,7 @@ plot_transitions <- function(x,
         from_title <- names(x)
       }
       # Call multi-step function
-      return(.plot_transitions_multi(
+      p <- .plot_transitions_multi(
         matrices, titles = from_title, colors = from_colors,
         flow_fill = flow_fill, flow_alpha = flow_alpha,
         flow_color_by = flow_color_by,
@@ -248,7 +253,9 @@ plot_transitions <- function(x,
         total_size = total_size, total_color = total_color,
         min_flow = min_flow, threshold = threshold,
         value_digits = value_digits, column_gap = column_gap
-      ))
+      )
+      if (!is.null(title)) p <- p + labs(title = title)
+      return(p)
     } else if (ncol(x) == 2 && !all(c("from", "to", "count") %in% names(x))) {
       # Compute contingency table from two columns
       tab <- table(x[[1]], x[[2]])
@@ -440,6 +447,7 @@ plot_transitions <- function(x,
       plot.margin = margin(20, 20, 20, 20)
     )
 
+  if (!is.null(title)) p <- p + labs(title = title)
   p
 }
 
@@ -484,13 +492,18 @@ plot_transitions <- function(x,
   if (halo) {
     angles <- seq(0, 2 * pi, length.out = 9L)[-9L]
     for (a in angles) {
-      p <- p + annotate("text",
-        x = x + cos(a) * halo_radius, y = y + sin(a) * halo_radius,
-        label = label, size = size, fontface = fontface, color = halo_color)
+      d <- data.frame(x = x + cos(a) * halo_radius,
+                      y = y + sin(a) * halo_radius,
+                      label = label)
+      p <- p + geom_text(data = d, aes(x = x, y = y, label = label),
+                         size = size, fontface = fontface, color = halo_color,
+                         inherit.aes = FALSE)
     }
   }
-  p + annotate("text", x = x, y = y, label = label,
-               size = size, fontface = fontface, color = color)
+  d_main <- data.frame(x = x, y = y, label = label)
+  p + geom_text(data = d_main, aes(x = x, y = y, label = label),
+                size = size, fontface = fontface, color = color,
+                inherit.aes = FALSE)
 }
 
 
@@ -1473,10 +1486,10 @@ plot_transitions <- function(x,
   if (!is.null(bundle_size) && bundle_legend) {
     legend_y <- min(node_rects$ymin) - 0.04
     legend_text <- sprintf("Each line \u2248 %s cases", round(cases_per_line))
-    p <- p + annotate("text",
-      x = 0.5, y = legend_y,
-      label = legend_text, size = 3, color = "grey50", fontface = "italic"
-    )
+    d_leg <- data.frame(x = 0.5, y = legend_y, label = legend_text)
+    p <- p + geom_text(data = d_leg, aes(x = x, y = y, label = label),
+                       size = 3, color = "grey50", fontface = "italic",
+                       inherit.aes = FALSE)
   }
 
   # Theme
@@ -1527,6 +1540,7 @@ plot_transitions <- function(x,
 plot_alluvial <- function(x,
                           from_title = "From",
                           to_title = "To",
+                          title = NULL,
                           from_colors = NULL,
                           to_colors = NULL,
                           flow_fill = "#888888",
@@ -1559,6 +1573,7 @@ plot_alluvial <- function(x,
     x = x,
     from_title = from_title,
     to_title = to_title,
+    title = title,
     from_colors = from_colors,
     to_colors = to_colors,
     flow_fill = flow_fill,
@@ -1620,6 +1635,7 @@ plot_alluvial <- function(x,
 #' @export
 plot_trajectories <- function(x,
                               from_title = NULL,
+                              title = NULL,
                               from_colors = NULL,
                               flow_color_by = "first",
                               node_width = 0.08,
@@ -1653,6 +1669,7 @@ plot_trajectories <- function(x,
   plot_transitions(
     x = x,
     from_title = from_title,
+    title = title,
     from_colors = from_colors,
     flow_color_by = flow_color_by,
     node_width = node_width,

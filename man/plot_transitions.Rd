@@ -8,6 +8,7 @@ plot_transitions(
   x,
   from_title = "From",
   to_title = "To",
+  title = NULL,
   from_colors = NULL,
   to_colors = NULL,
   flow_fill = "#888888",

@@ -607,15 +607,28 @@ splot <- function(
 
   # Handle cluster_summary objects -> dispatch to plot_mcml
   if (inherits(x, "cluster_summary")) {
-    return(plot_mcml(x, ...))
+    cs_args <- list()
+    for (nm in names(.user_explicit)) {
+      if (nm != "x") cs_args[[nm]] <- eval(.user_explicit[[nm]], envir = parent.frame())
+    }
+    for (nm in names(.dots)) cs_args[[nm]] <- .dots[[nm]]
+    return(do.call(plot_mcml, c(list(x = x), cs_args)))
   }
 
   # Handle cluster_tna objects (from as_tna)
   if (inherits(x, "cluster_tna")) {
-    if (!is.null(i)) {
-      return(splot(x$within[[i]], title = title, ...))
+    ct_args <- list()
+    for (nm in names(.user_explicit)) {
+      if (nm %in% c("x", "i")) next
+      ct_args[[nm]] <- eval(.user_explicit[[nm]], envir = parent.frame())
     }
-    return(splot(x$between, title = title %||% "Between-cluster network", ...))
+    for (nm in names(.dots)) ct_args[[nm]] <- .dots[[nm]]
+    if (!is.null(i)) {
+      if (is.null(ct_args$title)) ct_args$title <- title
+      return(do.call(splot, c(list(x = x$within[[i]]), ct_args)))
+    }
+    if (is.null(ct_args$title)) ct_args$title <- title %||% "Between-cluster network"
+    return(do.call(splot, c(list(x = x$between), ct_args)))
   }
 
   # ============================================
@@ -718,17 +731,34 @@ splot <- function(
 
   # Dispatch to specialized methods for bootstrap objects
   if (inherits(x, "tna_bootstrap")) {
-    return(splot.tna_bootstrap(x, ...))
+    # Build call args from all user-provided params (not just ...) so that
+    # named splot params like minimum/threshold/layout/title are forwarded
+    boot_args <- list()
+    for (nm in names(.user_explicit)) {
+      if (nm != "x") boot_args[[nm]] <- eval(.user_explicit[[nm]], envir = parent.frame())
+    }
+    for (nm in names(.dots)) boot_args[[nm]] <- .dots[[nm]]
+    return(do.call(splot.tna_bootstrap, c(list(x = x), boot_args)))
   }
 
   # Dispatch to specialized methods for permutation test objects
   if (inherits(x, "tna_permutation")) {
-    return(splot.tna_permutation(x, ...))
+    perm_args <- list()
+    for (nm in names(.user_explicit)) {
+      if (nm != "x") perm_args[[nm]] <- eval(.user_explicit[[nm]], envir = parent.frame())
+    }
+    for (nm in names(.dots)) perm_args[[nm]] <- .dots[[nm]]
+    return(do.call(splot.tna_permutation, c(list(x = x), perm_args)))
   }
 
   # Dispatch for group permutation tests
   if (inherits(x, "group_tna_permutation")) {
-    return(splot.group_tna_permutation(x, ...))
+    gperm_args <- list()
+    for (nm in names(.user_explicit)) {
+      if (nm != "x") gperm_args[[nm]] <- eval(.user_explicit[[nm]], envir = parent.frame())
+    }
+    for (nm in names(.dots)) gperm_args[[nm]] <- .dots[[nm]]
+    return(do.call(splot.group_tna_permutation, c(list(x = x), gperm_args)))
   }
 
   # Convert to cograph_network if needed
@@ -930,10 +960,27 @@ splot <- function(
     edges <- filter_edges_by_weight(edges, effective_threshold)
     n_edges <- nrow(edges)
 
-    # Subset edge_labels to match filtered edges
-    if (n_edges < orig_n_edges && is.character(edge_labels) && length(edge_labels) == orig_n_edges) {
+    # Subset all per-edge vectors to match filtered edge count
+    if (n_edges < orig_n_edges) {
       keep_idx <- which(abs(orig_weights) >= effective_threshold)
-      edge_labels <- edge_labels[keep_idx]
+      .subset_if_per_edge <- function(v) {
+        if (!is.null(v) && length(v) == orig_n_edges) v[keep_idx] else v
+      }
+      if (is.character(edge_labels) && length(edge_labels) == orig_n_edges)
+        edge_labels <- edge_labels[keep_idx]
+      edge_style             <- .subset_if_per_edge(edge_style)
+      edge_color             <- .subset_if_per_edge(edge_color)
+      edge_width             <- .subset_if_per_edge(edge_width)
+      edge_priority          <- .subset_if_per_edge(edge_priority)
+      edge_ci                <- .subset_if_per_edge(edge_ci)
+      edge_ci_alpha          <- .subset_if_per_edge(edge_ci_alpha)
+      edge_ci_scale          <- .subset_if_per_edge(edge_ci_scale)
+      edge_ci_color          <- .subset_if_per_edge(edge_ci_color)
+      edge_label_fontface    <- .subset_if_per_edge(edge_label_fontface)
+      edge_label_position    <- .subset_if_per_edge(edge_label_position)
+      edge_label_p           <- .subset_if_per_edge(edge_label_p)
+      edge_ci_lower          <- .subset_if_per_edge(edge_ci_lower)
+      edge_ci_upper          <- .subset_if_per_edge(edge_ci_upper)
     }
   }
 

@@ -408,3 +408,98 @@ test_that("from_qgraph() output can be customized with sn_* functions", {
   # Just verify it completes without error
   expect_true(TRUE)
 })
+
+# ============================================
+# TNA_STYLING PARAMETER
+# ============================================
+
+test_that("splot() tna_styling = TRUE works on plain matrix", {
+  mat <- create_test_matrix(4, symmetric = FALSE)
+  result <- safe_plot(splot(mat, tna_styling = TRUE))
+  expect_true(result$success, info = result$error)
+})
+
+test_that("splot() tna_styling = TRUE with user overrides", {
+  mat <- create_test_matrix(4, symmetric = FALSE)
+  result <- safe_plot(splot(mat, tna_styling = TRUE,
+                            edge_color = "red", layout = "circle"))
+  expect_true(result$success, info = result$error)
+})
+
+test_that("splot() tna_styling = FALSE on tna object strips visual defaults", {
+  mat <- matrix(c(0, 0.5, 0.5, 0.3, 0, 0.7, 0.4, 0.6, 0), 3, 3, byrow = TRUE)
+  rownames(mat) <- colnames(mat) <- c("A", "B", "C")
+  mock_tna <- structure(
+    list(weights = mat, labels = c("A", "B", "C"),
+         inits = c(0.4, 0.3, 0.3), data = NULL),
+    class = c("tna", "list")
+  )
+  result <- safe_plot(splot(mock_tna, tna_styling = FALSE))
+  expect_true(result$success, info = result$error)
+})
+
+test_that(".tna_style_defaults() returns expected structure", {
+  defs <- cograph:::.tna_style_defaults(5, TRUE)
+  expect_true(is.list(defs))
+  expect_equal(defs$layout, "oval")
+  expect_equal(defs$edge_color, "#003355")
+  expect_equal(defs$node_size, 7)
+  expect_equal(defs$arrow_size, 0.61)
+  expect_equal(defs$edge_start_style, "dotted")
+  expect_equal(length(defs$node_fill), 5)
+
+  # Undirected — no arrow defaults
+
+  defs_undir <- cograph:::.tna_style_defaults(3, FALSE)
+  expect_null(defs_undir$arrow_size)
+  expect_null(defs_undir$edge_start_style)
+})
+
+test_that("group_tna forwards all user args", {
+  mat <- matrix(c(0, 0.5, 0.5, 0.3, 0, 0.7, 0.4, 0.6, 0), 3, 3, byrow = TRUE)
+  rownames(mat) <- colnames(mat) <- c("A", "B", "C")
+  mock_tna <- structure(
+    list(weights = mat, labels = c("A", "B", "C"),
+         inits = c(0.4, 0.3, 0.3), data = NULL),
+    class = c("tna", "list")
+  )
+  mock_group <- structure(
+    list(G1 = mock_tna, G2 = mock_tna),
+    class = c("group_tna", "list")
+  )
+
+  # All user args (node_size, edge_color) should be forwarded
+  result <- safe_plot(splot(mock_group, edge_color = "darkred", node_size = 10))
+  expect_true(result$success, info = result$error)
+
+  # i selection with user args forwarded via ...
+  result2 <- safe_plot(splot(mock_group, i = 1, edge_color = "purple",
+                             background = "gray95"))
+  expect_true(result2$success, info = result2$error)
+
+  # Custom title with grid (covers paste(title, "-", group_name) branch)
+  result3 <- safe_plot(splot(mock_group, title = "My Network"))
+  expect_true(result3$success, info = result3$error)
+})
+
+test_that("splot() tna object with ... args", {
+  mat <- matrix(c(0, 0.5, 0.5, 0.3, 0, 0.7, 0.4, 0.6, 0), 3, 3, byrow = TRUE)
+  rownames(mat) <- colnames(mat) <- c("A", "B", "C")
+  mock_tna <- structure(
+    list(weights = mat, labels = c("A", "B", "C"),
+         inits = c(0.4, 0.3, 0.3), data = NULL),
+    class = c("tna", "list")
+  )
+  # Pass background via ... to hit the .dots loop in tna path
+  result <- safe_plot(splot(mock_tna, background = "gray95"))
+  expect_true(result$success, info = result$error)
+})
+
+test_that("splot() tna_styling = TRUE on non-matrix input (igraph)", {
+  skip_if_not_installed("igraph")
+  g <- igraph::make_ring(4)
+  # Covers the non-matrix default directed = TRUE branch
+
+  result <- safe_plot(splot(g, tna_styling = TRUE))
+  expect_true(result$success, info = result$error)
+})

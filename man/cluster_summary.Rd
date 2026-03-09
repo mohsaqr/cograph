@@ -46,6 +46,9 @@ This option only works when \code{x} is a cograph_network.}
 matrix rows/columns. Can be numeric (1, 2, 3) or character ("A", "B").
 Cluster names will be derived from unique values.
 Example: \code{c(1, 1, 2, 2, 3, 3)} assigns first two nodes to cluster 1.}
+\item{data.frame}{A data frame where the first column contains node names
+and the second column contains group/cluster names.
+Example: \code{data.frame(node = c("A", "B", "C"), group = c("G1", "G1", "G2"))}}
 \item{named list}{Explicit mapping of cluster names to node labels.
 List names become cluster names, values are character vectors of node
 labels that must match matrix row/column names.

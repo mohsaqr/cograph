@@ -71,13 +71,14 @@ plot_tna <- function(
     directed <- if (!is.null(mat)) !is_symmetric_matrix(mat) else TRUE
   }
 
-  # Build splot arguments
+  # Build splot arguments — use tna_styling for all visual defaults
   splot_args <- list(
     x = x,
-    directed = directed
+    directed = directed,
+    tna_styling = TRUE
   )
 
-  # Node parameters
+  # Node parameters (user-provided overrides)
   if (!is.null(color)) splot_args$node_fill <- color
   if (!is.null(labels)) splot_args$labels <- labels
   splot_args$node_size <- vsize
@@ -114,13 +115,6 @@ plot_tna <- function(
     } else {
       splot_args$edge_style <- lty
     }
-  }
-
-  # TNA defaults for edge styling (arrows/start style only for directed)
-  if (directed) {
-    splot_args$edge_start_style <- "dotted"
-    splot_args$edge_start_length <- 0.2
-    splot_args$arrow_size <- 0.61
   }
 
   # Arrow angle

@@ -983,3 +983,55 @@ test_that("build_mcml_sequence errors with NULL clusters", {
     "clusters argument is required"
   )
 })
+
+# ==============================================================================
+# Test: Data frame cluster specification
+# ==============================================================================
+
+test_that("build_mcml accepts data frame clusters", {
+  clusters_df <- data.frame(
+    node  = c("A", "B", "C", "D"),
+    group = c("G1", "G1", "G2", "G2"),
+    stringsAsFactors = FALSE
+  )
+
+  # Edge list input
+  result <- build_mcml(edges_simple, clusters_df, type = "raw")
+  expect_s3_class(result, "cluster_summary")
+  expect_equal(dim(result$between$weights), c(2, 2))
+  expect_equal(sort(names(result$clusters)), c("G1", "G2"))
+
+  # Sequence input
+  result2 <- build_mcml(seqs, clusters_df, type = "tna")
+  expect_s3_class(result2, "cluster_summary")
+  expect_equal(dim(result2$between$weights), c(2, 2))
+
+  # Weighted edge list
+  result3 <- build_mcml(edges_weighted, clusters_df, type = "raw", method = "sum")
+  expect_s3_class(result3, "cluster_summary")
+  expect_equal(dim(result3$between$weights), c(2, 2))
+})
+
+test_that("cluster_summary accepts data frame clusters", {
+  mat <- matrix(c(0, .3, .2, 0,
+                  .4, 0, 0, .1,
+                  .1, 0, 0, .5,
+                  0, .2, .3, 0), 4, 4, byrow = TRUE)
+  rownames(mat) <- colnames(mat) <- c("A", "B", "C", "D")
+
+  clusters_df <- data.frame(
+    node  = c("A", "B", "C", "D"),
+    group = c("G1", "G1", "G2", "G2"),
+    stringsAsFactors = FALSE
+  )
+
+  result <- cluster_summary(mat, clusters_df, type = "tna")
+  expect_s3_class(result, "cluster_summary")
+  expect_equal(dim(result$between$weights), c(2, 2))
+
+  # Results should match named list input
+  clusters_list_local <- list(G1 = c("A", "B"), G2 = c("C", "D"))
+  result2 <- cluster_summary(mat, clusters_list_local, type = "tna")
+  expect_equal(result$between$weights, result2$between$weights)
+  expect_equal(result$between$inits, result2$between$inits)
+})

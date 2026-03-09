@@ -7,6 +7,7 @@
 plot_trajectories(
   x,
   from_title = NULL,
+  title = NULL,
   from_colors = NULL,
   flow_color_by = "first",
   node_width = 0.08,

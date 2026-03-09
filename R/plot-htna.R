@@ -39,13 +39,31 @@
 #' @param jitter_side Which side(s) to apply jitter: "first", "second", "both", or "none".
 #'   Default "first" (only first group nodes are jittered toward center).
 #'   Only applies to bipartite layout.
-#' @param orientation Layout orientation for bipartite: "vertical" (two columns, default)
-#'   or "horizontal" (two rows). Ignored for triangle/rectangle layouts.
+#' @param orientation Layout orientation for bipartite: "vertical" (two columns, default),
+#'   "horizontal" (two rows), "facing" (both groups on same horizontal line,
+#'   group1 left, group2 right, tip-to-tip), or "circular" (two facing semicircles
+#'   with a gap between them). Ignored for triangle/rectangle layouts.
 #' @param group1_pos Position for first group in bipartite layout. Default -2.
+#'   Overridden by \code{group_spacing} if specified.
 #' @param group2_pos Position for second group in bipartite layout. Default 2.
+#'   Overridden by \code{group_spacing} if specified.
+#' @param group_spacing Numeric. Distance between the two groups in bipartite layout.
+#'   Overrides \code{group1_pos}/\code{group2_pos}. For example, \code{group_spacing = 6}
+#'   places groups at x = -3 and x = 3. Default NULL (uses group1_pos/group2_pos).
+#' @param node_spacing Numeric. Vertical (or horizontal) gap between nodes within a group.
+#'   Default NULL (auto-computed from the largest group size).
+#'   Increase for more space between nodes (e.g., 0.5 or 0.8).
+#' @param columns Integer or vector of length 2. Number of sub-columns per group.
+#'   A single value applies to both groups. A vector of 2 sets columns per group
+#'   independently (e.g., \code{c(2, 1)} puts the first group in 2 columns).
+#'   Nodes are distributed evenly across sub-columns. Default 1.
+#' @param column_spacing Numeric. Horizontal distance between sub-columns within
+#'   a group. Default NULL (auto: \code{node_spacing * 2}).
+#' @param layout_margin Margin around the layout (0-1). Default 0.15. Increase if
+#'   labels or self-loops are clipped at the edges.
 #' @param curvature Edge curvature amount. Default 0.4 for visible curves.
-#' @param group1_color Color for first group nodes. Default "#ffd89d".
-#' @param group2_color Color for second group nodes. Default "#a68ba5".
+#' @param group1_color Color for first group nodes. Default "#4FC3F7".
+#' @param group2_color Color for second group nodes. Default "#fbb550".
 #' @param group1_shape Shape for first group nodes. Default "circle".
 #' @param group2_shape Shape for second group nodes. Default "square".
 #' @param group_colors Vector of colors for each group. Overrides group1_color/group2_color.
@@ -56,9 +74,13 @@
 #'   Higher values create larger empty angles at vertices. Only applies to triangle/rectangle layouts.
 #' @param edge_colors Vector of colors for edges by source group. If NULL (default),
 #'   uses darker versions of group_colors. Set to FALSE to use default edge color.
+#' @param intra_curvature Numeric. Curvature amount for intra-group edges (edges
+#'   between nodes in the same group). When set, intra-group edges are drawn
+#'   separately with curves that arc away from the opposing group. Default NULL
+#'   (intra-group edges drawn normally by splot). Typical values: 0.3 to 1.0.
 #' @param legend Logical. Whether to show a legend. Default TRUE for polygon layouts.
 #' @param legend_position Position for legend: "topright", "topleft", "bottomright",
-#'   "bottomleft", "right", "left", "top", "bottom". Default "topright".
+#'   "bottomleft", "right", "left", "top", "bottom". Default "bottomright".
 #' @param extend_lines Logical or numeric. Draw extension lines from nodes.
 #'   Only applies to bipartite layout.
 #'   \itemize{
@@ -110,17 +132,23 @@ plot_htna <- function(
     orientation = "vertical",
     group1_pos = -2,
     group2_pos = 2,
+    group_spacing = NULL,
+    node_spacing = NULL,
+    columns = 1,
+    column_spacing = NULL,
+    layout_margin = 0.15,
     curvature = 0.4,
-    group1_color = "#ffd89d",
-    group2_color = "#a68ba5",
+    group1_color = "#4FC3F7",
+    group2_color = "#fbb550",
     group1_shape = "circle",
     group2_shape = "square",
     group_colors = NULL,
     group_shapes = NULL,
     angle_spacing = 0.15,
     edge_colors = NULL,
+    intra_curvature = NULL,
     legend = TRUE,
-    legend_position = "topright",
+    legend_position = "bottomright",
     extend_lines = FALSE,
     scale = 1,
     nodes = NULL,
@@ -132,7 +160,7 @@ plot_htna <- function(
 
 
   # Extended color palette for many groups
-  color_palette <- c("#ffd89d", "#a68ba5", "#7eb5d6", "#98d4a2",
+  color_palette <- c("#4FC3F7", "#fbb550", "#7eb5d6", "#98d4a2",
                      "#f4a582", "#92c5de", "#d6c1de", "#b8e186",
                      "#fdcdac", "#cbd5e8", "#f4cae4", "#e6f5c9")
 
@@ -297,6 +325,29 @@ plot_htna <- function(
     n_g1 <- length(lhs_idx)
     n_g2 <- length(rhs_idx)
 
+    # Apply group_spacing: overrides group1_pos/group2_pos
+    if (!is.null(group_spacing)) {
+      group1_pos <- -group_spacing / 2
+      group2_pos <-  group_spacing / 2
+    }
+
+    # Resolve columns per group: scalar or vector of length 2
+    cols_per_group <- rep_len(as.integer(columns), 2)
+    cols_per_group[cols_per_group < 1] <- 1L
+
+    # Auto-compute node_spacing: use rows per column, not total nodes
+    n_rows_g1 <- ceiling(n_g1 / cols_per_group[1])
+    n_rows_g2 <- ceiling(n_g2 / cols_per_group[2])
+    n_max_rows <- max(n_rows_g1, n_rows_g2)
+    if (is.null(node_spacing)) {
+      node_spacing <- if (n_max_rows <= 4) 0.5 else 2 / (n_max_rows - 1)
+    }
+
+    # Auto-compute column_spacing if not specified (2 node sizes ≈ node_spacing)
+    if (is.null(column_spacing)) {
+      column_spacing <- node_spacing * 2
+    }
+
     # Map jitter_side to internal values
     jitter_side_internal <- switch(jitter_side,
       "first" = "group1",
@@ -307,22 +358,32 @@ plot_htna <- function(
     )
 
     if (orientation == "vertical") {
-      # VERTICAL: Two vertical columns side by side
-      # group1 on left, group2 on right, nodes stacked vertically within each
-      x_pos[lhs_idx] <- group1_pos
-      x_pos[rhs_idx] <- group2_pos
-
-      # Spread nodes vertically within each column
-      if (n_g1 > 1) {
-        y_pos[lhs_idx] <- seq(1, -1, length.out = n_g1)
-      } else if (n_g1 == 1) {
-        y_pos[lhs_idx] <- 0
+      # VERTICAL: groups as left/right, nodes stacked vertically
+      # Place nodes in sub-columns within each group
+      .place_group_vertical <- function(g_idx, center_x, n_cols) {
+        ng <- length(g_idx)
+        if (ng == 0) return(NULL) # nocov
+        n_per_col <- ceiling(ng / n_cols)
+        col_assign <- rep(seq_len(n_cols), each = n_per_col)[seq_len(ng)]
+        # Sub-column x offsets centered around center_x
+        col_offsets <- seq(-(n_cols - 1) / 2, (n_cols - 1) / 2,
+                           length.out = n_cols) * column_spacing
+        for (cc in seq_len(n_cols)) {
+          in_col <- which(col_assign == cc)
+          if (length(in_col) == 0) next # nocov
+          nodes_in_col <- g_idx[in_col]
+          x_pos[nodes_in_col] <<- center_x + col_offsets[cc]
+          nr <- length(nodes_in_col)
+          if (nr > 1) {
+            half_span <- (nr - 1) * node_spacing / 2
+            y_pos[nodes_in_col] <<- seq(half_span, -half_span, length.out = nr)
+          } else {
+            y_pos[nodes_in_col] <<- 0
+          }
+        }
       }
-      if (n_g2 > 1) {
-        y_pos[rhs_idx] <- seq(1, -1, length.out = n_g2)
-      } else if (n_g2 == 1) {
-        y_pos[rhs_idx] <- 0
-      }
+      .place_group_vertical(lhs_idx, group1_pos, cols_per_group[1])
+      .place_group_vertical(rhs_idx, group2_pos, cols_per_group[2])
 
       # Apply jitter (horizontal direction - toward center)
       if (isTRUE(jitter) && jitter_side != "none") {
@@ -365,23 +426,31 @@ plot_htna <- function(
         y_pos[rhs_idx] <- y_g2_sorted[g2_order]
       }
 
-    } else {
-      # HORIZONTAL: Two horizontal rows stacked top/bottom
-      # group1 on top, group2 on bottom, nodes spread horizontally within each
-      y_pos[lhs_idx] <- group1_pos
-      y_pos[rhs_idx] <- group2_pos
-
-      # Spread nodes horizontally within each row
-      if (n_g1 > 1) {
-        x_pos[lhs_idx] <- seq(-1, 1, length.out = n_g1)
-      } else if (n_g1 == 1) {
-        x_pos[lhs_idx] <- 0
+    } else if (orientation == "horizontal") {
+      # HORIZONTAL: groups as top/bottom, nodes spread horizontally
+      .place_group_horizontal <- function(g_idx, center_y, n_cols) {
+        ng <- length(g_idx)
+        if (ng == 0) return(NULL) # nocov
+        n_per_row <- ceiling(ng / n_cols)
+        row_assign <- rep(seq_len(n_cols), each = n_per_row)[seq_len(ng)]
+        row_offsets <- seq(-(n_cols - 1) / 2, (n_cols - 1) / 2,
+                           length.out = n_cols) * column_spacing
+        for (rr in seq_len(n_cols)) {
+          in_row <- which(row_assign == rr)
+          if (length(in_row) == 0) next # nocov
+          nodes_in_row <- g_idx[in_row]
+          y_pos[nodes_in_row] <<- center_y + row_offsets[rr]
+          nr <- length(nodes_in_row)
+          if (nr > 1) {
+            half_span <- (nr - 1) * node_spacing / 2
+            x_pos[nodes_in_row] <<- seq(-half_span, half_span, length.out = nr)
+          } else {
+            x_pos[nodes_in_row] <<- 0
+          }
+        }
       }
-      if (n_g2 > 1) {
-        x_pos[rhs_idx] <- seq(-1, 1, length.out = n_g2)
-      } else if (n_g2 == 1) {
-        x_pos[rhs_idx] <- 0
-      }
+      .place_group_horizontal(lhs_idx, group1_pos, cols_per_group[1])
+      .place_group_horizontal(rhs_idx, group2_pos, cols_per_group[2])
 
       # Apply jitter (vertical direction - toward center)
       if (isTRUE(jitter) && jitter_side != "none") {
@@ -398,6 +467,41 @@ plot_htna <- function(
           }
         }
       }
+    } else if (orientation == "facing") {
+      # FACING: both groups on same horizontal level, group1 left, group2 right
+      gap <- if (!is.null(group_spacing)) group_spacing else abs(group2_pos - group1_pos)
+
+      if (n_g1 > 1) {
+        x_pos[lhs_idx] <- seq(-gap / 2 - (n_g1 - 1) * node_spacing,
+                               -gap / 2, length.out = n_g1)
+      } else {
+        x_pos[lhs_idx] <- -gap / 2
+      }
+      y_pos[lhs_idx] <- 0
+
+      if (n_g2 > 1) {
+        x_pos[rhs_idx] <- seq(gap / 2,
+                               gap / 2 + (n_g2 - 1) * node_spacing, length.out = n_g2)
+      } else {
+        x_pos[rhs_idx] <- gap / 2
+      }
+      y_pos[rhs_idx] <- 0
+
+    } else if (orientation == "circular") {
+      # CIRCULAR: two facing semicircles with a gap
+      gap <- if (!is.null(group_spacing)) group_spacing else abs(group2_pos - group1_pos)
+      # Radius sized so arc length ~ total node span
+      radius <- max(n_g1, n_g2) * node_spacing / pi
+
+      # Group1: left semicircle opening right (angles pi/2 to -pi/2, top to bottom)
+      angles_g1 <- seq(pi / 2, -pi / 2, length.out = n_g1)
+      x_pos[lhs_idx] <- -gap / 2 + radius * cos(angles_g1)
+      y_pos[lhs_idx] <- radius * sin(angles_g1)
+
+      # Group2: right semicircle opening left (angles pi/2 to 3pi/2, top to bottom)
+      angles_g2 <- seq(pi / 2, 3 * pi / 2, length.out = n_g2)
+      x_pos[rhs_idx] <- gap / 2 + radius * cos(angles_g2)
+      y_pos[rhs_idx] <- radius * sin(angles_g2)
     }
   } else if (layout == "polygon") {
     # Polygon layout: n groups along edges of a regular n-sided polygon
@@ -413,6 +517,16 @@ plot_htna <- function(
 
   layout_mat <- cbind(x = x_pos, y = y_pos)
 
+  # Normalize layout to [-1, 1] using uniform scale (preserves aspect ratio)
+  # This ensures node sizes render correctly and intra-edge coordinates match
+  x_range <- range(layout_mat[, 1])
+  y_range <- range(layout_mat[, 2])
+  max_span <- max(diff(x_range), diff(y_range))
+  if (max_span > 0) {
+    layout_mat[, 1] <- (layout_mat[, 1] - mean(x_range)) / (max_span / 2)
+    layout_mat[, 2] <- (layout_mat[, 2] - mean(y_range)) / (max_span / 2)
+  }
+
   # Compute edge colors based on source group
   # Create a mapping from node index to group index
   node_to_group <- rep(NA, n)
@@ -423,7 +537,7 @@ plot_htna <- function(
   # Determine edge colors
   if (is.null(edge_colors)) {
     # Use darker/more saturated versions of group colors for edges
-    edge_color_palette <- c("#e6a500", "#7a5a7a", "#4a90b8", "#5cb85c",
+    edge_color_palette <- c("#0288D1", "#E09800", "#4a90b8", "#5cb85c",
                             "#d9534f", "#5bc0de", "#9b59b6", "#8bc34a",
                             "#ff7043", "#78909c", "#ab47bc", "#aed581")
     edge_colors <- rep_len(edge_color_palette, n_groups)
@@ -476,21 +590,46 @@ plot_htna <- function(
     dots$`edge.color` <- NULL
   }
 
+  # Extract threshold for intra-edge filtering
+  threshold_val <- dots$threshold %||% dots$minimum %||% 0
+
+  # Handle intra-group edges: zero them out from main plot, draw separately
+  plot_x <- x
+  if (!is.null(intra_curvature) && intra_curvature > 0) {
+    cross_weights <- weights
+    for (gi in seq_along(group_indices)) {
+      g_idx <- group_indices[[gi]]
+      pairs <- expand.grid(a = g_idx, b = g_idx)
+      pairs <- pairs[pairs$a != pairs$b, ]
+      cross_weights[cbind(pairs$a, pairs$b)] <- 0
+    }
+    colnames(cross_weights) <- lab
+    rownames(cross_weights) <- lab
+    # Preserve tna object (keeps donuts, styling) — only swap weights
+    if (inherits(x, "tna")) {
+      plot_x <- x
+      plot_x$weights <- cross_weights
+    } else {
+      plot_x <- cross_weights
+    }
+  }
+
   # Set minimal margins for tighter layout
   old_par <- graphics::par(mar = c(0.5, 0.5, 0.5, 0.5))
   on.exit(graphics::par(old_par), add = TRUE)
 
-  tplot_args <- c(
-    list(
-      x = x,
-      layout = layout_mat,
-      color = colors,
-      node_shape = shapes,
-      curvature = curvature,
-      layout_margin = 0.15
-    ),
-    dots
+  tplot_base <- list(
+    x = plot_x,
+    layout = layout_mat,
+    color = colors,
+    node_shape = shapes,
+    curvature = curvature,
+    layout_margin = layout_margin
   )
+  # We normalize layout ourselves — disable splot's rescaling
+  tplot_base$rescale <- FALSE
+  tplot_base$layout_scale <- 1
+  tplot_args <- c(tplot_base, dots)
 
   # Add custom labels if nodes data exists or abbreviation requested
   if (!is.null(nodes_df) || !is.null(label_abbrev)) {
@@ -576,7 +715,175 @@ plot_htna <- function(
     }
   }
 
+  # Draw intra-group edges with curvature (after main plot)
+  if (!is.null(intra_curvature) && intra_curvature > 0) {
+    .draw_intra_group_edges(
+      layout_mat = layout_mat,
+      weights = weights,
+      group_indices = group_indices,
+      edge_colors = edge_colors,
+      intra_curvature = intra_curvature,
+      orientation = orientation,
+      layout_type = layout,
+      threshold = threshold_val,
+      directed = TRUE
+    )
+  }
+
   invisible(result)
+}
+
+#' Draw Intra-Group Edges with Curvature
+#'
+#' Draws curved edges between nodes within the same group. Uses quadratic
+#' bezier arcs with height proportional to distance, producing consistent
+#' rounded arcs for both adjacent and distant node pairs.
+#'
+#' @param layout_mat Layout matrix (n x 2) with x, y coordinates.
+#' @param weights Full weight matrix including intra-group edges.
+#' @param group_indices List of index vectors per group.
+#' @param edge_colors Vector of edge colors per group.
+#' @param intra_curvature Curvature amount for intra-group edges.
+#' @param orientation Layout orientation ("vertical", "horizontal", "facing").
+#' @param threshold Minimum weight threshold for drawing edges.
+#' @param directed Logical: draw arrows?
+#'
+#' @keywords internal
+.draw_intra_group_edges <- function(layout_mat, weights, group_indices,
+                                     edge_colors, intra_curvature, orientation,
+                                     layout_type = "bipartite",
+                                     threshold, directed) {
+  all_center <- colMeans(layout_mat)
+  node_r <- 7 * 0.015
+
+  for (gi in seq_along(group_indices)) {
+    g_idx <- group_indices[[gi]]
+    if (length(g_idx) < 2) next
+
+    # Curve direction: for bipartite = away from other group (fixed per group),
+    # for circular/polygon = computed per-edge toward center
+    per_edge_curve <- layout_type %in% c("circular", "polygon")
+    curve_sign <- 1  # default, overridden below or per-edge
+    if (!per_edge_curve) {
+      g_center <- colMeans(layout_mat[g_idx, , drop = FALSE])
+      if (orientation == "horizontal") {
+        curve_sign <- if (g_center[2] > all_center[2]) 1 else -1
+      } else if (orientation == "facing") {
+        curve_sign <- if (g_center[1] < all_center[1]) 1 else -1
+      } else {
+        curve_sign <- if (g_center[1] > all_center[1]) 1 else -1
+      }
+    }
+
+    e_col <- if (!is.null(edge_colors) && gi <= length(edge_colors)) {
+      edge_colors[gi]
+    } else {
+      "gray50"
+    }
+
+    # Max weight for scaling line widths
+    intra_w <- weights[g_idx, g_idx, drop = FALSE]
+    diag(intra_w) <- 0
+    max_w <- max(abs(intra_w), na.rm = TRUE)
+    if (max_w == 0) next # nocov
+
+    for (ii in seq_along(g_idx)) {
+      for (jj in seq_along(g_idx)) {
+        if (ii == jj) next
+        src <- g_idx[ii]
+        tgt <- g_idx[jj]
+        w <- weights[src, tgt]
+        if (is.na(w) || abs(w) < threshold) next
+
+        lwd <- 0.5 + (abs(w) / max_w) * 3
+
+        x1 <- layout_mat[src, 1]
+        y1 <- layout_mat[src, 2]
+        x2 <- layout_mat[tgt, 1]
+        y2 <- layout_mat[tgt, 2]
+
+        # Shorten edges by node radius
+        edge_angle <- atan2(y2 - y1, x2 - x1)
+        x1 <- x1 + node_r * cos(edge_angle)
+        y1 <- y1 + node_r * sin(edge_angle)
+        x2 <- x2 - node_r * cos(edge_angle)
+        y2 <- y2 - node_r * sin(edge_angle)
+
+        # For circular/polygon: compute curve direction per-edge toward center
+        if (per_edge_curve) {
+          mx <- (x1 + x2) / 2
+          my <- (y1 + y2) / 2
+          d <- sqrt((x2 - x1)^2 + (y2 - y1)^2)
+          if (d > 1e-10) {
+            px <- -(y2 - y1) / d
+            py <- (x2 - x1) / d
+            # Pick perpendicular direction pointing toward center
+            d_pos <- (mx + px - all_center[1])^2 + (my + py - all_center[2])^2
+            d_neg <- (mx - px - all_center[1])^2 + (my - py - all_center[2])^2
+            curve_sign <- if (d_pos < d_neg) 1 else -1
+          }
+        }
+
+        .draw_intra_arc(x1, y1, x2, y2,
+                         intra_curvature = intra_curvature,
+                         curve_sign = curve_sign,
+                         col = grDevices::adjustcolor(e_col, alpha.f = 0.7),
+                         lwd = lwd * 1.5, lty = 3,
+                         arrow = directed, asize = 0.03)
+      }
+    }
+  }
+}
+
+#' Draw a Smooth Bezier Arc for Intra-Group Edges
+#'
+#' Uses a quadratic bezier curve with arc height proportional to distance,
+#' ensuring consistent rounded arcs for both close and distant node pairs
+#' (avoids the narrow spike issue with standard curvature for adjacent nodes).
+#'
+#' @param x1,y1 Start coordinates.
+#' @param x2,y2 End coordinates.
+#' @param intra_curvature Base curvature amount (controls arc height ratio).
+#' @param curve_sign Direction of curve (+1 or -1).
+#' @param col Edge color.
+#' @param lwd Line width.
+#' @param arrow Draw arrow at target?
+#' @param asize Arrow size.
+#'
+#' @keywords internal
+.draw_intra_arc <- function(x1, y1, x2, y2, intra_curvature, curve_sign,
+                             col, lwd, lty = 1, arrow, asize) {
+  dx <- x2 - x1
+  dy <- y2 - y1
+  dist <- sqrt(dx^2 + dy^2)
+  if (dist < 1e-10) return(invisible())
+
+  # Perpendicular unit vector
+  px <- -dy / dist
+  py <- dx / dist
+
+  # Arc height proportional to distance — consistent aspect ratio
+  # min height ensures very close nodes still have visible arcs
+  arc_height <- intra_curvature * max(dist * 0.5, 0.06) * curve_sign
+
+  # Bezier control point at midpoint + perpendicular offset
+  mx <- (x1 + x2) / 2
+  my <- (y1 + y2) / 2
+  cx <- mx + px * arc_height
+  cy <- my + py * arc_height
+
+  # Generate smooth quadratic bezier: B(t) = (1-t)^2*P0 + 2(1-t)t*C + t^2*P2
+  t <- seq(0, 1, length.out = 40)
+  arc_x <- (1 - t)^2 * x1 + 2 * (1 - t) * t * cx + t^2 * x2
+  arc_y <- (1 - t)^2 * y1 + 2 * (1 - t) * t * cy + t^2 * y2
+
+  graphics::lines(arc_x, arc_y, col = col, lwd = lwd, lty = lty)
+
+  # Arrow at target: direction of travel = from control point toward target
+  if (arrow && asize > 0) {
+    arr_angle <- atan2(y2 - cy, x2 - cx)
+    draw_arrow_base(x2, y2, arr_angle, asize, col = col)
+  }
 }
 
 #' Compute Connectivity-Based Jitter (Horizontal Layout)

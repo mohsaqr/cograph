@@ -220,6 +220,12 @@ NULL
 #' @param legend_node_sizes Logical: show node size scale in legend?
 #' @param groups Group assignments for node coloring/legend.
 #' @param node_names Alternative names for legend (separate from labels).
+#' @param tna_styling Logical or NULL. If \code{TRUE}, applies TNA visual defaults
+#'   (oval layout, TNA color palette, edge labels as estimates, dotted edge starts,
+#'   etc.) as a base layer. Any explicitly provided argument overrides the TNA default.
+#'   If \code{FALSE}, no TNA styling is applied. If \code{NULL} (default),
+#'   automatically set to \code{TRUE} when \code{x} is a tna object, \code{FALSE}
+#'   otherwise. Can be used with any input type (matrix, igraph, cograph_network).
 #' @param i Group index or name when x is a group_tna object. If NULL (default),
 #'   plots all groups in a grid. If specified (e.g., i = 1 or i = "Treatment"),
 #'   plots only that group.
@@ -490,6 +496,9 @@ splot <- function(
     groups = NULL,
     node_names = NULL,
 
+    # TNA styling
+    tna_styling = NULL,
+
     # Group selection (for group_tna)
     i = NULL,
 
@@ -506,21 +515,31 @@ splot <- function(
   # 1. INPUT PROCESSING
   # ============================================
 
+  # --- Collect explicitly-provided user args (for tna/group_tna dispatch) ---
+  # match.call only captures args the user actually typed, not defaults
+  .user_explicit <- as.list(match.call(expand.dots = FALSE))[-1]
+  .user_explicit$x <- NULL
+  .dots <- list(...)
+
   # Handle tna objects directly
   if (inherits(x, "tna")) {
     tna_params <- from_tna(x, engine = "splot", plot = FALSE)
-    # User-supplied args override tna defaults (only if explicitly provided)
-    call_args <- tna_params
-    user_args <- as.list(match.call(expand.dots = FALSE))[-1]
-    user_args$x <- NULL  # already set via tna_params$x
-    dots <- list(...)
-    for (nm in names(user_args)) {
-      val <- eval(user_args[[nm]], envir = parent.frame())
-      if (!is.null(val)) call_args[[nm]] <- val
+    # tna_styling is implicitly TRUE for tna objects unless user said FALSE
+    if (identical(tna_styling, FALSE)) {
+      # Strip visual defaults, keep only structural data
+      structural <- c("x", "labels", "directed", "weight_digits",
+                      "donut_fill", "donut_inner_ratio", "donut_empty")
+      tna_params <- tna_params[intersect(names(tna_params), structural)]
     }
-    for (nm in names(dots)) { # nocov start
-      call_args[[nm]] <- dots[[nm]]
+    # Build call: tna defaults as base, user-explicit args always win
+    call_args <- tna_params
+    for (nm in names(.user_explicit)) {
+      call_args[[nm]] <- eval(.user_explicit[[nm]], envir = parent.frame())
+    }
+    for (nm in names(.dots)) { # nocov start
+      call_args[[nm]] <- .dots[[nm]]
     } # nocov end
+    call_args$tna_styling <- NULL  # consumed; don't pass to recursive call
     return(do.call(splot, call_args))
   }
 
@@ -529,6 +548,16 @@ splot <- function(
     n_groups <- length(x)
     group_names <- names(x)
     if (is.null(group_names)) group_names <- paste0("Group ", seq_len(n_groups))
+
+    # Build forwarded args: everything the user explicitly provided except x and i
+    fwd_args <- list()
+    for (nm in names(.user_explicit)) {
+      if (nm %in% c("x", "i")) next
+      fwd_args[[nm]] <- eval(.user_explicit[[nm]], envir = parent.frame())
+    }
+    for (nm in names(.dots)) { # nocov start
+      fwd_args[[nm]] <- .dots[[nm]]
+    } # nocov end
 
     # If i is specified, plot just that group
     if (!is.null(i)) {
@@ -546,31 +575,27 @@ splot <- function(
         }
       }
 
-      # Extract single tna object
-      tna_obj <- x[[idx]]
-
       # Set title to group name if not provided
-      if (is.null(title)) title <- group_names[idx]
+      if (is.null(fwd_args$title)) fwd_args$title <- group_names[idx]
 
-      # Recursively call splot with tna object
-      return(splot(tna_obj, title = title, layout = layout, directed = directed,
-                   seed = seed, theme = theme, ...))
+      return(do.call(splot, c(list(x = x[[idx]]), fwd_args)))
     }
 
     # No i specified: plot all groups in a grid
-    # Calculate grid dimensions
     n_cols <- ceiling(sqrt(n_groups))
     n_rows <- ceiling(n_groups / n_cols)
 
-    # Save current par and restore on exit
     old_par <- graphics::par(mfrow = c(n_rows, n_cols), mar = c(1, 1, 2, 1))
     on.exit(graphics::par(old_par), add = TRUE)
 
-    # Plot each group
     for (idx in seq_len(n_groups)) {
-      group_title <- if (is.null(title)) group_names[idx] else paste(title, "-", group_names[idx])
-      splot(x[[idx]], title = group_title, layout = layout, directed = directed,
-            seed = seed, theme = theme, ...)
+      grp_fwd <- fwd_args
+      grp_fwd$title <- if (is.null(fwd_args$title)) {
+        group_names[idx]
+      } else {
+        paste(fwd_args$title, "-", group_names[idx])
+      }
+      do.call(splot, c(list(x = x[[idx]]), grp_fwd))
     }
 
     return(invisible(NULL))
@@ -582,15 +607,28 @@ splot <- function(
 
   # Handle cluster_summary objects -> dispatch to plot_mcml
   if (inherits(x, "cluster_summary")) {
-    return(plot_mcml(x, ...))
+    cs_args <- list()
+    for (nm in names(.user_explicit)) {
+      if (nm != "x") cs_args[[nm]] <- eval(.user_explicit[[nm]], envir = parent.frame())
+    }
+    for (nm in names(.dots)) cs_args[[nm]] <- .dots[[nm]]
+    return(do.call(plot_mcml, c(list(x = x), cs_args)))
   }
 
   # Handle cluster_tna objects (from as_tna)
   if (inherits(x, "cluster_tna")) {
-    if (!is.null(i)) {
-      return(splot(x$within[[i]], title = title, ...))
+    ct_args <- list()
+    for (nm in names(.user_explicit)) {
+      if (nm %in% c("x", "i")) next
+      ct_args[[nm]] <- eval(.user_explicit[[nm]], envir = parent.frame())
     }
-    return(splot(x$between, title = title %||% "Between-cluster network", ...))
+    for (nm in names(.dots)) ct_args[[nm]] <- .dots[[nm]]
+    if (!is.null(i)) {
+      if (is.null(ct_args$title)) ct_args$title <- title
+      return(do.call(splot, c(list(x = x$within[[i]]), ct_args)))
+    }
+    if (is.null(ct_args$title)) ct_args$title <- title %||% "Between-cluster network"
+    return(do.call(splot, c(list(x = x$between), ct_args)))
   }
 
   # ============================================
@@ -627,6 +665,58 @@ splot <- function(
   # Convert edge_label_fontface to numeric if string (for backwards compat with renderers)
   edge_label_fontface_num <- fontface_to_numeric(edge_label_fontface)
 
+  # ============================================
+  # APPLY TNA STYLING DEFAULTS
+  # ============================================
+  # tna_styling = TRUE applies TNA visual defaults as a base layer.
+  # Any user-explicit arg always wins. NULL defaults are filled;
+
+  # non-NULL defaults are only overridden if the user didn't specify them.
+  if (isTRUE(tna_styling)) {
+    # Detect directedness for TNA defaults (matrix or network)
+    .tna_dir <- if (!is.null(directed)) {
+      directed
+    } else if (is.matrix(x)) {
+      !is_symmetric_matrix(x)
+    } else {
+      TRUE
+    }
+    .tna_n <- if (is.matrix(x)) nrow(x) else NULL
+    .tna_defs <- .tna_style_defaults(.tna_n, .tna_dir)
+
+    # Parameters with NULL defaults — fill if user didn't set them
+    if (is.null(node_fill) && !is.null(.tna_defs$node_fill))
+      node_fill <- .tna_defs$node_fill
+    if (is.null(node_size))
+      node_size <- .tna_defs$node_size
+    if (is.null(edge_color))
+      edge_color <- .tna_defs$edge_color
+
+    # Parameters with non-NULL defaults — only override if user didn't explicitly set
+    if (!"layout" %in% explicit_args)
+      layout <- .tna_defs$layout
+    if (!"edge_label_style" %in% explicit_args)
+      edge_label_style <- .tna_defs$edge_label_style
+    if (!"edge_label_leading_zero" %in% explicit_args)
+      edge_label_leading_zero <- .tna_defs$edge_label_leading_zero
+    if (!"edge_label_size" %in% explicit_args)
+      edge_label_size <- .tna_defs$edge_label_size
+    if (!"edge_label_position" %in% explicit_args)
+      edge_label_position <- .tna_defs$edge_label_position
+    if (!"minimum" %in% explicit_args)
+      minimum <- .tna_defs$minimum
+
+    # Directed-only defaults
+    if (isTRUE(.tna_dir)) {
+      if (!"arrow_size" %in% explicit_args && !is.null(.tna_defs$arrow_size))
+        arrow_size <- .tna_defs$arrow_size
+      if (!"edge_start_length" %in% explicit_args && !is.null(.tna_defs$edge_start_length))
+        edge_start_length <- .tna_defs$edge_start_length
+      if (!"edge_start_style" %in% explicit_args && !is.null(.tna_defs$edge_start_style))
+        edge_start_style <- .tna_defs$edge_start_style
+    }
+  }
+
   # Round matrix weights to filter near-zero edges globally
   if (is.matrix(x) && !is.null(weight_digits)) {
     x <- round(x, weight_digits)
@@ -641,17 +731,34 @@ splot <- function(
 
   # Dispatch to specialized methods for bootstrap objects
   if (inherits(x, "tna_bootstrap")) {
-    return(splot.tna_bootstrap(x, ...))
+    # Build call args from all user-provided params (not just ...) so that
+    # named splot params like minimum/threshold/layout/title are forwarded
+    boot_args <- list()
+    for (nm in names(.user_explicit)) {
+      if (nm != "x") boot_args[[nm]] <- eval(.user_explicit[[nm]], envir = parent.frame())
+    }
+    for (nm in names(.dots)) boot_args[[nm]] <- .dots[[nm]]
+    return(do.call(splot.tna_bootstrap, c(list(x = x), boot_args)))
   }
 
   # Dispatch to specialized methods for permutation test objects
   if (inherits(x, "tna_permutation")) {
-    return(splot.tna_permutation(x, ...))
+    perm_args <- list()
+    for (nm in names(.user_explicit)) {
+      if (nm != "x") perm_args[[nm]] <- eval(.user_explicit[[nm]], envir = parent.frame())
+    }
+    for (nm in names(.dots)) perm_args[[nm]] <- .dots[[nm]]
+    return(do.call(splot.tna_permutation, c(list(x = x), perm_args)))
   }
 
   # Dispatch for group permutation tests
   if (inherits(x, "group_tna_permutation")) {
-    return(splot.group_tna_permutation(x, ...))
+    gperm_args <- list()
+    for (nm in names(.user_explicit)) {
+      if (nm != "x") gperm_args[[nm]] <- eval(.user_explicit[[nm]], envir = parent.frame())
+    }
+    for (nm in names(.dots)) gperm_args[[nm]] <- .dots[[nm]]
+    return(do.call(splot.group_tna_permutation, c(list(x = x), gperm_args)))
   }
 
   # Convert to cograph_network if needed
@@ -853,10 +960,27 @@ splot <- function(
     edges <- filter_edges_by_weight(edges, effective_threshold)
     n_edges <- nrow(edges)
 
-    # Subset edge_labels to match filtered edges
-    if (n_edges < orig_n_edges && is.character(edge_labels) && length(edge_labels) == orig_n_edges) {
+    # Subset all per-edge vectors to match filtered edge count
+    if (n_edges < orig_n_edges) {
       keep_idx <- which(abs(orig_weights) >= effective_threshold)
-      edge_labels <- edge_labels[keep_idx]
+      .subset_if_per_edge <- function(v) {
+        if (!is.null(v) && length(v) == orig_n_edges) v[keep_idx] else v
+      }
+      if (is.character(edge_labels) && length(edge_labels) == orig_n_edges)
+        edge_labels <- edge_labels[keep_idx]
+      edge_style             <- .subset_if_per_edge(edge_style)
+      edge_color             <- .subset_if_per_edge(edge_color)
+      edge_width             <- .subset_if_per_edge(edge_width)
+      edge_priority          <- .subset_if_per_edge(edge_priority)
+      edge_ci                <- .subset_if_per_edge(edge_ci)
+      edge_ci_alpha          <- .subset_if_per_edge(edge_ci_alpha)
+      edge_ci_scale          <- .subset_if_per_edge(edge_ci_scale)
+      edge_ci_color          <- .subset_if_per_edge(edge_ci_color)
+      edge_label_fontface    <- .subset_if_per_edge(edge_label_fontface)
+      edge_label_position    <- .subset_if_per_edge(edge_label_position)
+      edge_label_p           <- .subset_if_per_edge(edge_label_p)
+      edge_ci_lower          <- .subset_if_per_edge(edge_ci_lower)
+      edge_ci_upper          <- .subset_if_per_edge(edge_ci_upper)
     }
   }
 

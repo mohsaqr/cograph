@@ -1,5 +1,13 @@
 # Project Learnings
 
+### 2026-03-09
+- [rescale=FALSE + layout_scale=1]: When providing custom layout coordinates to splot/tplot, must set `rescale = FALSE` and `layout_scale = 1` to prevent splot from normalizing coordinates. Otherwise, absolute spacing values are meaningless and intra-edge post-drawing coordinates won't match the plot.
+- [uniform normalization]: When normalizing layout coordinates to [-1, 1], use the same scale factor for both axes (`max_span = max(diff(x_range), diff(y_range))`). Independent axis normalization distorts aspect ratios and makes spacing parameters unpredictable.
+- [intra-edge separation pattern]: To draw intra-group edges differently from inter-group: (1) zero out intra weights from matrix, (2) preserve tna object by only swapping `$weights`, (3) pass to tplot for inter-group rendering, (4) draw intra edges post-tplot using `graphics::lines()` with custom bezier curves. Coordinate systems must match (hence rescale=FALSE).
+- [per-edge curve direction]: For circular/polygon layouts, a fixed curve_sign per group doesn't work — edges curve in wrong direction for some pairs. Fix: compute perpendicular direction toward network center for each edge pair individually. Compare distances of midpoint + perpendicular vs midpoint - perpendicular from center.
+- [bezier arc height]: `arc_height = curvature * max(dist * 0.5, 0.06)` works well — proportional to distance with a minimum for adjacent nodes. Using `draw_curved_edge_base` creates narrow spikes for close nodes; custom quadratic bezier avoids this.
+- [tna object preservation]: When modifying weights for a tna object, copy the whole object and only swap `$weights`. This preserves donut styling, labels, and initial probabilities that tplot/splot relies on.
+
 ### 2026-03-04
 - [100% coverage achieved]: cograph reached 100% test coverage (10,822 tests). The ~66 previously uncovered expressions were resolved via: `# nocov` markers on `.onLoad` (covr limitation), `requireNamespace` guards (packages always installed in test env), mathematically unreachable dead code (e.g., `n==1` in multi-value branch, `sign(curve)==0` after early return for `curve==0`), stochastic edge cases in `rich_club`/`small_world` (random graph generation), and local functions inside `splot()`. Test-coverage-round7.R covers the remaining testable paths.
 - [covr multi-expression lines]: covr tracks multiple expressions per source line. A line like `if (cond) break` has separate coverage for `cond` and `break`. Use `df$first_column`/`df$last_column` to distinguish.

@@ -36,6 +36,9 @@ vs sequence data. Otherwise falls back to \code{\link{cluster_summary}}.}
 \item{named list}{Direct mapping. List names = cluster names, values =
 character vectors of node labels.
 Example: \code{list(A = c("N1","N2"), B = c("N3","N4"))}}
+\item{data.frame}{A data frame where the first column contains node names
+and the second column contains group/cluster names.
+Example: \code{data.frame(node = c("N1","N2","N3"), group = c("A","A","B"))}}
 \item{membership vector}{Character or numeric vector. Node names are
 extracted from the data.
 Example: \code{c("A","A","B","B")}}

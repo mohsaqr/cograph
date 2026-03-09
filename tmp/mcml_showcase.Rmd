@@ -14,14 +14,12 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 
 # Complete Example: Edge List → TNA Clusters
 
-```{r load}
-devtools::load_all(".")
-library(dplyr)
-```
+
 
 ## Step 1: Import Edge List and Node Data
 
 ```{r import-data}
+library(tidyverse)
 # Import edge list (interactions between learning states)
 edges <- rio::import("/Users/mohammedsaqr/Documents/Network data/Mcdata/complicated_nw2.csv")
 head(edges)
@@ -30,19 +28,21 @@ head(edges)
 nodes <- rio::import("/Users/mohammedsaqr/Documents/Network data/Mcdata/Codemapping.xlsx") |>
   rename(labels = Code)
 nodes
+
 ```
 
 ## Step 2: Create Network
 
 ```{r create-network}
+library(cograph)
 # Create cograph from edge list + nodes
-net <- cograph(edges, nodes = nodes)
+net <-  cograph(edges, nodes = nodes)
 
 # Assign clusters from the groups column
 net$nodes$clusters <- nodes$groups
 
 # Check the structure
-net$nodes
+
 ```
 
 ## Step 3: Define Clusters

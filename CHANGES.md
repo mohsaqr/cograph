@@ -1,5 +1,17 @@
 # Changelog
 
+### 2026-03-09 — plot_htna: new orientations, intra-group edges, modern colors
+
+- R/plot-htna.R: Added `orientation = "facing"` (tip-to-tip) and `orientation = "circular"` (two semicircles) for bipartite layouts
+- R/plot-htna.R: Added `intra_curvature` parameter — draws intra-group edges as dotted bezier arcs, separate from inter-group edges; preserves tna object styling (donuts)
+- R/plot-htna.R: New internal functions `.draw_intra_group_edges()` and `.draw_intra_arc()` for post-tplot bezier rendering with per-edge curve direction
+- R/plot-htna.R: Uniform coordinate normalization for all layouts + `rescale = FALSE` + `layout_scale = 1`
+- R/plot-htna.R: Updated default colors — `group1_color = "#4FC3F7"` (modern blue), `group2_color = "#fbb550"` (warm gold); edge palette updated to match
+- R/plot-htna.R: Changed `legend_position` default from `"topright"` to `"bottomright"`
+- R/plot-htna.R: Added `# nocov` on 5 unreachable defensive guards
+- tests/testthat/test-coverage-plot-htna-41.R: 10 new tests (facing, circular, intra_curvature with all layouts, tna object, .draw_intra_arc, .draw_intra_group_edges)
+- Tests: 12,548+ pass, 0 fail, 100% coverage
+
 ### 2026-03-04 — Achieve 100% test coverage
 
 - tests/testthat/test-coverage-round7.R: NEW — 60 tests targeting remaining uncovered lines (centrality edge cases, shapes, edge labels, soplot title, plot_compare, plot_permutation, plot_bootstrap CI mode, color_communities palette recycling)

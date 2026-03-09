@@ -139,6 +139,7 @@ splot(
   legend_node_sizes = FALSE,
   groups = NULL,
   node_names = NULL,
+  tna_styling = NULL,
   i = NULL,
   filetype = "default",
   filename = file.path(tempdir(), "splot"),
@@ -486,6 +487,13 @@ looks similar to qgraph vsize=6, or "legacy" to preserve pre-v2.0 behavior.}
 \item{groups}{Group assignments for node coloring/legend.}
 
 \item{node_names}{Alternative names for legend (separate from labels).}
+
+\item{tna_styling}{Logical or NULL. If \code{TRUE}, applies TNA visual defaults
+(oval layout, TNA color palette, edge labels as estimates, dotted edge starts,
+etc.) as a base layer. Any explicitly provided argument overrides the TNA default.
+If \code{FALSE}, no TNA styling is applied. If \code{NULL} (default),
+automatically set to \code{TRUE} when \code{x} is a tna object, \code{FALSE}
+otherwise. Can be used with any input type (matrix, igraph, cograph_network).}
 
 \item{i}{Group index or name when x is a group_tna object. If NULL (default),
 plots all groups in a grid. If specified (e.g., i = 1 or i = "Treatment"),

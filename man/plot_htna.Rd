@@ -17,17 +17,23 @@ plot_htna(
   orientation = "vertical",
   group1_pos = -2,
   group2_pos = 2,
+  group_spacing = NULL,
+  node_spacing = NULL,
+  columns = 1,
+  column_spacing = NULL,
+  layout_margin = 0.15,
   curvature = 0.4,
-  group1_color = "#ffd89d",
-  group2_color = "#a68ba5",
+  group1_color = "#4FC3F7",
+  group2_color = "#fbb550",
   group1_shape = "circle",
   group2_shape = "square",
   group_colors = NULL,
   group_shapes = NULL,
   angle_spacing = 0.15,
   edge_colors = NULL,
+  intra_curvature = NULL,
   legend = TRUE,
-  legend_position = "topright",
+  legend_position = "bottomright",
   extend_lines = FALSE,
   scale = 1,
   nodes = NULL,
@@ -47,17 +53,23 @@ htna(
   orientation = "vertical",
   group1_pos = -2,
   group2_pos = 2,
+  group_spacing = NULL,
+  node_spacing = NULL,
+  columns = 1,
+  column_spacing = NULL,
+  layout_margin = 0.15,
   curvature = 0.4,
-  group1_color = "#ffd89d",
-  group2_color = "#a68ba5",
+  group1_color = "#4FC3F7",
+  group2_color = "#fbb550",
   group1_shape = "circle",
   group2_shape = "square",
   group_colors = NULL,
   group_shapes = NULL,
   angle_spacing = 0.15,
   edge_colors = NULL,
+  intra_curvature = NULL,
   legend = TRUE,
-  legend_position = "topright",
+  legend_position = "bottomright",
   extend_lines = FALSE,
   scale = 1,
   nodes = NULL,
@@ -106,18 +118,41 @@ Higher values spread nodes more toward the center. Only applies to bipartite lay
 Default "first" (only first group nodes are jittered toward center).
 Only applies to bipartite layout.}
 
-\item{orientation}{Layout orientation for bipartite: "vertical" (two columns, default)
-or "horizontal" (two rows). Ignored for triangle/rectangle layouts.}
+\item{orientation}{Layout orientation for bipartite: "vertical" (two columns, default),
+"horizontal" (two rows), "facing" (both groups on same horizontal line,
+group1 left, group2 right, tip-to-tip), or "circular" (two facing semicircles
+with a gap between them). Ignored for triangle/rectangle layouts.}
 
-\item{group1_pos}{Position for first group in bipartite layout. Default -2.}
+\item{group1_pos}{Position for first group in bipartite layout. Default -2.
+Overridden by \code{group_spacing} if specified.}
 
-\item{group2_pos}{Position for second group in bipartite layout. Default 2.}
+\item{group2_pos}{Position for second group in bipartite layout. Default 2.
+Overridden by \code{group_spacing} if specified.}
+
+\item{group_spacing}{Numeric. Distance between the two groups in bipartite layout.
+Overrides \code{group1_pos}/\code{group2_pos}. For example, \code{group_spacing = 6}
+places groups at x = -3 and x = 3. Default NULL (uses group1_pos/group2_pos).}
+
+\item{node_spacing}{Numeric. Vertical (or horizontal) gap between nodes within a group.
+Default NULL (auto-computed from the largest group size).
+Increase for more space between nodes (e.g., 0.5 or 0.8).}
+
+\item{columns}{Integer or vector of length 2. Number of sub-columns per group.
+A single value applies to both groups. A vector of 2 sets columns per group
+independently (e.g., \code{c(2, 1)} puts the first group in 2 columns).
+Nodes are distributed evenly across sub-columns. Default 1.}
+
+\item{column_spacing}{Numeric. Horizontal distance between sub-columns within
+a group. Default NULL (auto: \code{node_spacing * 2}).}
+
+\item{layout_margin}{Margin around the layout (0-1). Default 0.15. Increase if
+labels or self-loops are clipped at the edges.}
 
 \item{curvature}{Edge curvature amount. Default 0.4 for visible curves.}
 
-\item{group1_color}{Color for first group nodes. Default "#ffd89d".}
+\item{group1_color}{Color for first group nodes. Default "#4FC3F7".}
 
-\item{group2_color}{Color for second group nodes. Default "#a68ba5".}
+\item{group2_color}{Color for second group nodes. Default "#fbb550".}
 
 \item{group1_shape}{Shape for first group nodes. Default "circle".}
 
@@ -135,10 +170,15 @@ Higher values create larger empty angles at vertices. Only applies to triangle/r
 \item{edge_colors}{Vector of colors for edges by source group. If NULL (default),
 uses darker versions of group_colors. Set to FALSE to use default edge color.}
 
+\item{intra_curvature}{Numeric. Curvature amount for intra-group edges (edges
+between nodes in the same group). When set, intra-group edges are drawn
+separately with curves that arc away from the opposing group. Default NULL
+(intra-group edges drawn normally by splot). Typical values: 0.3 to 1.0.}
+
 \item{legend}{Logical. Whether to show a legend. Default TRUE for polygon layouts.}
 
 \item{legend_position}{Position for legend: "topright", "topleft", "bottomright",
-"bottomleft", "right", "left", "top", "bottom". Default "topright".}
+"bottomleft", "right", "left", "top", "bottom". Default "bottomright".}
 
 \item{extend_lines}{Logical or numeric. Draw extension lines from nodes.
 Only applies to bipartite layout.

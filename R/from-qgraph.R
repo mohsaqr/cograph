@@ -41,6 +41,37 @@ tna_color_palette <- function(n_states) {
   )
 }
 
+#' TNA Visual Style Defaults
+#'
+#' Returns the standard TNA visual defaults as a named list. Used by
+#' \code{splot(tna_styling = TRUE)}, \code{from_tna()}, and \code{plot_tna()}.
+#'
+#' @param n_nodes Number of nodes (for color palette). NULL skips node_fill.
+#' @param directed Logical. If TRUE, includes arrow/edge-start defaults.
+#' @return Named list of splot parameters.
+#' @keywords internal
+.tna_style_defaults <- function(n_nodes = NULL, directed = TRUE) {
+  defaults <- list(
+    layout                 = "oval",
+    edge_label_style       = "estimate",
+    edge_label_leading_zero = FALSE,
+    edge_label_size        = 0.6,
+    edge_color             = "#003355",
+    edge_label_position    = 0.7,
+    node_size              = 7,
+    minimum                = 0.01
+  )
+  if (!is.null(n_nodes)) {
+    defaults$node_fill <- tna_color_palette(n_nodes)
+  }
+  if (isTRUE(directed)) {
+    defaults$arrow_size        <- 0.61
+    defaults$edge_start_length <- 0.2
+    defaults$edge_start_style  <- "dotted"
+  }
+  defaults
+}
+
 #' Convert a tna object to cograph parameters
 #'
 #' Extracts the transition matrix, labels, and initial state probabilities
@@ -159,21 +190,9 @@ from_tna <- function(tna_object, engine = c("splot", "soplot"), plot = TRUE,
     donut_empty       = FALSE
   )
 
-  # --- TNA-specific visual defaults (can be overridden via ...) ---
-  params$node_fill <- tna_color_palette(n_states)
-  params$layout <- "oval"
-  params$edge_label_style <- "estimate"
-  params$edge_label_leading_zero <- FALSE
-  params$edge_label_size <- 0.6
-  params$edge_color <- "#003355"
-  params$edge_label_position <- 0.7
-  params$node_size <- 7
-  params$minimum <- 0.01
-  if (is_directed) {
-    params$arrow_size <- 0.61
-    params$edge_start_length <- 0.2
-    params$edge_start_style <- "dotted"
-  }
+  # --- TNA-specific visual defaults ---
+  tna_defaults <- .tna_style_defaults(n_states, is_directed)
+  params <- c(params, tna_defaults)
 
   # --- Apply overrides ---
   for (nm in names(overrides)) {

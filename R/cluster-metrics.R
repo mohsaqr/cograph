@@ -87,6 +87,9 @@ wagg <- aggregate_weights
 #'       matrix rows/columns. Can be numeric (1, 2, 3) or character ("A", "B").
 #'       Cluster names will be derived from unique values.
 #'       Example: \code{c(1, 1, 2, 2, 3, 3)} assigns first two nodes to cluster 1.}
+#'     \item{data.frame}{A data frame where the first column contains node names
+#'       and the second column contains group/cluster names.
+#'       Example: \code{data.frame(node = c("A", "B", "C"), group = c("G1", "G1", "G2"))}}
 #'     \item{named list}{Explicit mapping of cluster names to node labels.
 #'       List names become cluster names, values are character vectors of node
 #'       labels that must match matrix row/column names.
@@ -542,6 +545,9 @@ csum <- cluster_summary
 #'     \item{named list}{Direct mapping. List names = cluster names, values =
 #'       character vectors of node labels.
 #'       Example: \code{list(A = c("N1","N2"), B = c("N3","N4"))}}
+#'     \item{data.frame}{A data frame where the first column contains node names
+#'       and the second column contains group/cluster names.
+#'       Example: \code{data.frame(node = c("N1","N2","N3"), group = c("A","A","B"))}}
 #'     \item{membership vector}{Character or numeric vector. Node names are
 #'       extracted from the data.
 #'       Example: \code{c("A","A","B","B")}}
@@ -709,6 +715,14 @@ build_mcml <- function(x,
 #' Build node-to-cluster lookup from cluster specification
 #' @keywords internal
 .build_cluster_lookup <- function(clusters, all_nodes) {
+  if (is.data.frame(clusters)) { # nocov start
+    # Defensive: .normalize_clusters converts df to list before this is called
+    stopifnot(ncol(clusters) >= 2)
+    nodes <- as.character(clusters[[1]])
+    groups <- as.character(clusters[[2]])
+    clusters <- split(nodes, groups)
+  } # nocov end
+
   if (is.list(clusters) && !is.data.frame(clusters)) {
     # Named list: cluster_name -> node vector
     lookup <- character(0)
@@ -1332,6 +1346,14 @@ print.cluster_tna <- function(x, ...) {
 #' Normalize cluster specification to list format
 #' @keywords internal
 .normalize_clusters <- function(clusters, node_names) {
+  if (is.data.frame(clusters)) {
+    # Data frame with node and group columns
+    stopifnot(ncol(clusters) >= 2)
+    nodes <- as.character(clusters[[1]])
+    groups <- as.character(clusters[[2]])
+    clusters <- split(nodes, groups)
+  }
+
   if (is.list(clusters)) {
     # Already a list - validate node names
     all_nodes <- unlist(clusters)

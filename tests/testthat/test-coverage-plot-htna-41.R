@@ -319,3 +319,272 @@ test_that("plot_htna handles unrecognized group_shapes gracefully", {
   )
   expect_true(result$success, info = result$error)
 })
+
+# ============================================
+# Facing orientation
+# ============================================
+
+test_that("plot_htna works with facing orientation", {
+  m <- make_htna_mat()
+  groups <- make_htna_groups()
+
+  result <- safe_plot(plot_htna(m, groups, orientation = "facing"))
+  expect_true(result$success, info = result$error)
+})
+
+test_that("plot_htna facing with single-node groups", {
+  m <- matrix(c(0, 0.5, 0.3, 0.4, 0, 0.2, 0.1, 0.6, 0), 3, 3)
+  colnames(m) <- rownames(m) <- c("A", "B", "C")
+
+  groups <- list(G1 = "A", G2 = c("B", "C"))
+  result <- safe_plot(plot_htna(m, groups, orientation = "facing"))
+  expect_true(result$success, info = result$error)
+})
+
+# ============================================
+# Circular orientation (bipartite)
+# ============================================
+
+test_that("plot_htna works with circular orientation", {
+  m <- make_htna_mat()
+  groups <- make_htna_groups()
+
+  result <- safe_plot(plot_htna(m, groups, orientation = "circular",
+                                angle_spacing = 0.35))
+  expect_true(result$success, info = result$error)
+})
+
+test_that("plot_htna circular with group_spacing", {
+  m <- make_htna_mat()
+  groups <- make_htna_groups()
+
+  result <- safe_plot(plot_htna(m, groups, orientation = "circular",
+                                group_spacing = 3))
+  expect_true(result$success, info = result$error)
+})
+
+# ============================================
+# intra_curvature — draws intra-group edges separately
+# ============================================
+
+test_that("plot_htna with intra_curvature draws intra edges", {
+  m <- make_htna_mat()
+  groups <- make_htna_groups()
+
+  result <- safe_plot(plot_htna(m, groups, intra_curvature = 0.5,
+                                curvature = 0))
+  expect_true(result$success, info = result$error)
+})
+
+test_that("plot_htna intra_curvature with circular orientation", {
+  m <- make_htna_mat()
+  groups <- make_htna_groups()
+
+  result <- safe_plot(plot_htna(m, groups, orientation = "circular",
+                                intra_curvature = 0.5, curvature = 0,
+                                angle_spacing = 0.35))
+  expect_true(result$success, info = result$error)
+})
+
+test_that("plot_htna intra_curvature with horizontal orientation", {
+  m <- make_htna_mat()
+  groups <- make_htna_groups()
+
+  result <- safe_plot(plot_htna(m, groups, orientation = "horizontal",
+                                intra_curvature = 0.5))
+  expect_true(result$success, info = result$error)
+})
+
+test_that("plot_htna intra_curvature with facing orientation", {
+  m <- make_htna_mat()
+  groups <- make_htna_groups()
+
+  result <- safe_plot(plot_htna(m, groups, orientation = "facing",
+                                intra_curvature = 0.5))
+  expect_true(result$success, info = result$error)
+})
+
+test_that("plot_htna intra_curvature with polygon layout", {
+  set.seed(42)
+  n <- 9
+  m <- matrix(runif(n * n, 0, 0.3), n, n)
+  diag(m) <- 0
+  colnames(m) <- rownames(m) <- paste0("N", seq_len(n))
+
+  groups <- list(G1 = paste0("N", 1:3), G2 = paste0("N", 4:6),
+                 G3 = paste0("N", 7:9))
+
+  result <- safe_plot(plot_htna(m, groups, layout = "polygon",
+                                intra_curvature = 0.5))
+  expect_true(result$success, info = result$error)
+})
+
+test_that("plot_htna intra_curvature with threshold filters weak edges", {
+  m <- make_htna_mat()
+  groups <- make_htna_groups()
+
+  result <- safe_plot(plot_htna(m, groups, intra_curvature = 0.5,
+                                threshold = 0.4))
+  expect_true(result$success, info = result$error)
+})
+
+# ============================================
+# .draw_intra_arc directly
+# ============================================
+
+test_that(".draw_intra_arc draws bezier arc with arrow", {
+  draw_arc <- cograph:::.draw_intra_arc
+
+  result <- safe_plot({
+    plot.new()
+    plot.window(xlim = c(-1, 1), ylim = c(-1, 1))
+    draw_arc(0, 0, 0.5, 0.5, intra_curvature = 0.5, curve_sign = 1,
+             col = "red", lwd = 2, lty = 3, arrow = TRUE, asize = 0.03)
+  })
+  expect_true(result$success, info = result$error)
+})
+
+test_that(".draw_intra_arc handles zero distance gracefully", {
+  draw_arc <- cograph:::.draw_intra_arc
+
+  result <- safe_plot({
+    plot.new()
+    plot.window(xlim = c(-1, 1), ylim = c(-1, 1))
+    draw_arc(0.5, 0.5, 0.5, 0.5, intra_curvature = 0.5, curve_sign = 1,
+             col = "blue", lwd = 1, arrow = TRUE, asize = 0.03)
+  })
+  expect_true(result$success, info = result$error)
+})
+
+test_that(".draw_intra_arc with negative curve_sign", {
+  draw_arc <- cograph:::.draw_intra_arc
+
+  result <- safe_plot({
+    plot.new()
+    plot.window(xlim = c(-1, 1), ylim = c(-1, 1))
+    draw_arc(-0.3, 0, 0.3, 0, intra_curvature = 0.8, curve_sign = -1,
+             col = "green", lwd = 2, lty = 1, arrow = TRUE, asize = 0.05)
+  })
+  expect_true(result$success, info = result$error)
+})
+
+test_that(".draw_intra_arc without arrow", {
+  draw_arc <- cograph:::.draw_intra_arc
+
+  result <- safe_plot({
+    plot.new()
+    plot.window(xlim = c(-1, 1), ylim = c(-1, 1))
+    draw_arc(0, -0.5, 0, 0.5, intra_curvature = 0.5, curve_sign = 1,
+             col = "purple", lwd = 1, arrow = FALSE, asize = 0)
+  })
+  expect_true(result$success, info = result$error)
+})
+
+# ============================================
+# .draw_intra_group_edges directly
+# ============================================
+
+test_that(".draw_intra_group_edges works with bipartite layout", {
+  draw_intra <- cograph:::.draw_intra_group_edges
+
+  m <- make_htna_mat()
+  layout_mat <- cbind(
+    x = c(rep(-0.5, 4), rep(0.5, 4)),
+    y = c(seq(0.5, -0.5, length.out = 4), seq(0.5, -0.5, length.out = 4))
+  )
+  group_indices <- list(1:4, 5:8)
+
+  result <- safe_plot({
+    plot.new()
+    plot.window(xlim = c(-1, 1), ylim = c(-1, 1))
+    draw_intra(layout_mat, m, group_indices,
+               edge_colors = c("blue", "red"),
+               intra_curvature = 0.5, orientation = "vertical",
+               layout_type = "bipartite", threshold = 0, directed = TRUE)
+  })
+  expect_true(result$success, info = result$error)
+})
+
+test_that(".draw_intra_group_edges skips single-node groups", {
+  draw_intra <- cograph:::.draw_intra_group_edges
+
+  m <- matrix(c(0, 0.5, 0.3, 0.4, 0, 0.2, 0.1, 0.6, 0), 3, 3)
+  layout_mat <- cbind(x = c(-0.5, 0.5, 0.5), y = c(0, 0.3, -0.3))
+  group_indices <- list(1L, 2:3)
+
+  result <- safe_plot({
+    plot.new()
+    plot.window(xlim = c(-1, 1), ylim = c(-1, 1))
+    draw_intra(layout_mat, m, group_indices,
+               edge_colors = c("blue", "red"),
+               intra_curvature = 0.5, orientation = "vertical",
+               layout_type = "bipartite", threshold = 0, directed = TRUE)
+  })
+  expect_true(result$success, info = result$error)
+})
+
+test_that(".draw_intra_group_edges with NULL edge_colors", {
+  draw_intra <- cograph:::.draw_intra_group_edges
+
+  m <- make_htna_mat()
+  layout_mat <- cbind(
+    x = c(rep(-0.5, 4), rep(0.5, 4)),
+    y = c(seq(0.5, -0.5, length.out = 4), seq(0.5, -0.5, length.out = 4))
+  )
+  group_indices <- list(1:4, 5:8)
+
+  result <- safe_plot({
+    plot.new()
+    plot.window(xlim = c(-1, 1), ylim = c(-1, 1))
+    draw_intra(layout_mat, m, group_indices,
+               edge_colors = NULL,
+               intra_curvature = 0.5, orientation = "vertical",
+               layout_type = "bipartite", threshold = 0, directed = TRUE)
+  })
+  expect_true(result$success, info = result$error)
+})
+
+test_that("plot_htna facing with single-node group2", {
+  m <- matrix(c(0, 0.5, 0.3, 0.4, 0, 0.2, 0.1, 0.6, 0), 3, 3)
+  colnames(m) <- rownames(m) <- c("A", "B", "C")
+
+  groups <- list(G1 = c("A", "B"), G2 = "C")
+  result <- safe_plot(plot_htna(m, groups, orientation = "facing"))
+  expect_true(result$success, info = result$error)
+})
+
+test_that("plot_htna intra_curvature with tna object preserves donuts", {
+  # Create mock tna object
+  m <- make_htna_mat()
+  mock_tna <- list(
+    weights = m,
+    labels = colnames(m),
+    inits = rep(1 / ncol(m), ncol(m)),
+    data = NULL
+  )
+  class(mock_tna) <- c("tna", "list")
+  groups <- make_htna_groups()
+
+  result <- safe_plot(plot_htna(mock_tna, groups, intra_curvature = 0.5))
+  expect_true(result$success, info = result$error)
+})
+
+test_that(".draw_intra_group_edges per-edge curve for circular layout", {
+  draw_intra <- cograph:::.draw_intra_group_edges
+
+  m <- make_htna_mat()
+  # Circular-like layout
+  angles <- seq(0, 2 * pi, length.out = 9)[1:8]
+  layout_mat <- cbind(x = cos(angles), y = sin(angles))
+  group_indices <- list(1:4, 5:8)
+
+  result <- safe_plot({
+    plot.new()
+    plot.window(xlim = c(-1.5, 1.5), ylim = c(-1.5, 1.5))
+    draw_intra(layout_mat, m, group_indices,
+               edge_colors = c("blue", "red"),
+               intra_curvature = 0.5, orientation = "vertical",
+               layout_type = "circular", threshold = 0, directed = TRUE)
+  })
+  expect_true(result$success, info = result$error)
+})

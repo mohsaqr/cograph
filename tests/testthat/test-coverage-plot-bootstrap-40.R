@@ -831,3 +831,26 @@ test_that("splot.tna_bootstrap works with engagement data", {
   # Skip known incompatibility with current tna version
   skip("Real TNA bootstrap objects have different structure - covered by mock tests")
 })
+
+test_that("splot bootstrap with minimum filters edges and subsets per-edge arrays", {
+  # Create a bootstrap with some small and some large weights
+  # so minimum filtering removes some edges and .subset_if_per_edge
+
+  # exercises both branches (length matches → subset, length doesn't → pass through)
+  boot <- create_mock_bootstrap(n = 4)
+  # Inject some very small weights that will be filtered by minimum
+  boot$weights[1, 2] <- 0.005
+  boot$weights_orig[1, 2] <- 0.005
+  boot$weights[3, 4] <- 0.008
+  boot$weights_orig[3, 4] <- 0.008
+
+  # With minimum=0.05, those small edges get removed
+  # Scalar edge_color from splot.tna_bootstrap triggers the "else v" path
+  # in .subset_if_per_edge (length != orig_n_edges)
+  expect_no_error(with_temp_png(
+    splot(boot, display = "styled", minimum = 0.05)
+  ))
+  expect_no_error(with_temp_png(
+    splot(boot, display = "significant", minimum = 0.05)
+  ))
+})

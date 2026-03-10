@@ -55,6 +55,8 @@ use a vector of titles (e.g., c("T1", "T2", "T3", "T4")).}
 
 \item{to_title}{Title for the right column. Default "To". Ignored for multi-step.}
 
+\item{title}{Optional plot title. Applied via ggplot2::labs(title = title).}
+
 \item{from_colors}{Colors for left-side nodes. Default uses palette.}
 
 \item{to_colors}{Colors for right-side nodes. Default uses palette.}

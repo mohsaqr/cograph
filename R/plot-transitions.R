@@ -22,6 +22,7 @@ NULL
 #' @param from_title Title for the left column. Default "From". For multi-step,
 #'   use a vector of titles (e.g., c("T1", "T2", "T3", "T4")).
 #' @param to_title Title for the right column. Default "To". Ignored for multi-step.
+#' @param title Optional plot title. Applied via ggplot2::labs(title = title).
 #' @param from_colors Colors for left-side nodes. Default uses palette.
 #' @param to_colors Colors for right-side nodes. Default uses palette.
 #' @param flow_fill Fill color for flows. Default "#888888" (grey). Ignored if flow_color_by is set.

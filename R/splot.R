@@ -342,6 +342,7 @@ NULL
 #' # Circle layout with labels
 #' splot(adj, layout = "circle", labels = c("A", "B", "C", "D"))
 #'
+#' @export
 splot <- function(
     x,
     layout = "oval",
@@ -515,11 +516,14 @@ splot <- function(
   # 1. INPUT PROCESSING
   # ============================================
 
-  # --- Collect explicitly-provided user args (for tna/group_tna dispatch) ---
+  # --- Collect explicitly-provided user args (for dispatch forwarding) ---
   # match.call only captures args the user actually typed, not defaults
   .user_explicit <- as.list(match.call(expand.dots = FALSE))[-1]
   .user_explicit$x <- NULL
   .dots <- list(...)
+  # Evaluate user-explicit args once from local scope (safe, no re-eval of AST)
+  # Exclude "..." — those are already captured in .dots
+  .user_args <- mget(setdiff(names(.user_explicit), "..."), envir = environment())
 
   # Handle tna objects directly
   if (inherits(x, "tna")) {
@@ -531,14 +535,7 @@ splot <- function(
                       "donut_fill", "donut_inner_ratio", "donut_empty")
       tna_params <- tna_params[intersect(names(tna_params), structural)]
     }
-    # Build call: tna defaults as base, user-explicit args always win
-    call_args <- tna_params
-    for (nm in names(.user_explicit)) {
-      call_args[[nm]] <- eval(.user_explicit[[nm]], envir = parent.frame())
-    }
-    for (nm in names(.dots)) { # nocov start
-      call_args[[nm]] <- .dots[[nm]]
-    } # nocov end
+    call_args <- .collect_dispatch_args(.user_args, .dots, base = tna_params)
     call_args$tna_styling <- NULL  # consumed; don't pass to recursive call
     return(do.call(splot, call_args))
   }
@@ -550,14 +547,7 @@ splot <- function(
     if (is.null(group_names)) group_names <- paste0("Group ", seq_len(n_groups))
 
     # Build forwarded args: everything the user explicitly provided except x and i
-    fwd_args <- list()
-    for (nm in names(.user_explicit)) {
-      if (nm %in% c("x", "i")) next
-      fwd_args[[nm]] <- eval(.user_explicit[[nm]], envir = parent.frame())
-    }
-    for (nm in names(.dots)) { # nocov start
-      fwd_args[[nm]] <- .dots[[nm]]
-    } # nocov end
+    fwd_args <- .collect_dispatch_args(.user_args, .dots, skip = c("x", "i"))
 
     # If i is specified, plot just that group
     if (!is.null(i)) {
@@ -607,22 +597,12 @@ splot <- function(
 
   # Handle cluster_summary objects -> dispatch to plot_mcml
   if (inherits(x, "cluster_summary")) {
-    cs_args <- list()
-    for (nm in names(.user_explicit)) {
-      if (nm != "x") cs_args[[nm]] <- eval(.user_explicit[[nm]], envir = parent.frame())
-    }
-    for (nm in names(.dots)) cs_args[[nm]] <- .dots[[nm]]
-    return(do.call(plot_mcml, c(list(x = x), cs_args)))
+    return(do.call(plot_mcml, c(list(x = x), .collect_dispatch_args(.user_args, .dots))))
   }
 
   # Handle cluster_tna objects (from as_tna)
   if (inherits(x, "cluster_tna")) {
-    ct_args <- list()
-    for (nm in names(.user_explicit)) {
-      if (nm %in% c("x", "i")) next
-      ct_args[[nm]] <- eval(.user_explicit[[nm]], envir = parent.frame())
-    }
-    for (nm in names(.dots)) ct_args[[nm]] <- .dots[[nm]]
+    ct_args <- .collect_dispatch_args(.user_args, .dots, skip = c("x", "i"))
     if (!is.null(i)) {
       if (is.null(ct_args$title)) ct_args$title <- title
       return(do.call(splot, c(list(x = x$within[[i]]), ct_args)))
@@ -631,11 +611,26 @@ splot <- function(
     return(do.call(splot, c(list(x = x$between), ct_args)))
   }
 
+  # Dispatch to specialized methods for bootstrap objects
+  if (inherits(x, "tna_bootstrap")) {
+    return(do.call(splot.tna_bootstrap, c(list(x = x), .collect_dispatch_args(.user_args, .dots))))
+  }
+
+  # Dispatch to specialized methods for permutation test objects
+  if (inherits(x, "tna_permutation")) {
+    return(do.call(splot.tna_permutation, c(list(x = x), .collect_dispatch_args(.user_args, .dots))))
+  }
+
+  # Dispatch for group permutation tests
+  if (inherits(x, "group_tna_permutation")) {
+    return(do.call(splot.group_tna_permutation, c(list(x = x), .collect_dispatch_args(.user_args, .dots))))
+  }
+
   # ============================================
   # HANDLE DEPRECATED PARAMETERS
   # ============================================
   # Detect which arguments were explicitly provided by the user
-  explicit_args <- names(match.call())
+  explicit_args <- names(.user_explicit)
 
   # For params with NULL defaults, simple check works
   edge_size <- handle_deprecated_param(edge_size, esize, "edge_size", "esize")
@@ -727,38 +722,6 @@ splot <- function(
     saved_rng <- .save_rng()
     on.exit(.restore_rng(saved_rng), add = TRUE)
     set.seed(seed)
-  }
-
-  # Dispatch to specialized methods for bootstrap objects
-  if (inherits(x, "tna_bootstrap")) {
-    # Build call args from all user-provided params (not just ...) so that
-    # named splot params like minimum/threshold/layout/title are forwarded
-    boot_args <- list()
-    for (nm in names(.user_explicit)) {
-      if (nm != "x") boot_args[[nm]] <- eval(.user_explicit[[nm]], envir = parent.frame())
-    }
-    for (nm in names(.dots)) boot_args[[nm]] <- .dots[[nm]]
-    return(do.call(splot.tna_bootstrap, c(list(x = x), boot_args)))
-  }
-
-  # Dispatch to specialized methods for permutation test objects
-  if (inherits(x, "tna_permutation")) {
-    perm_args <- list()
-    for (nm in names(.user_explicit)) {
-      if (nm != "x") perm_args[[nm]] <- eval(.user_explicit[[nm]], envir = parent.frame())
-    }
-    for (nm in names(.dots)) perm_args[[nm]] <- .dots[[nm]]
-    return(do.call(splot.tna_permutation, c(list(x = x), perm_args)))
-  }
-
-  # Dispatch for group permutation tests
-  if (inherits(x, "group_tna_permutation")) {
-    gperm_args <- list()
-    for (nm in names(.user_explicit)) {
-      if (nm != "x") gperm_args[[nm]] <- eval(.user_explicit[[nm]], envir = parent.frame())
-    }
-    for (nm in names(.dots)) gperm_args[[nm]] <- .dots[[nm]]
-    return(do.call(splot.group_tna_permutation, c(list(x = x), gperm_args)))
   }
 
   # Convert to cograph_network if needed
@@ -2357,4 +2320,24 @@ render_legend_splot <- function(groups, node_names, nodes, node_colors,
     cex = cex,
     seg.len = 1.5
   )
+}
+
+#' Collect user-explicit args for dispatch forwarding
+#'
+#' Merges evaluated user args and dots, optionally starting from a base list.
+#' Used by splot() to forward all user-provided parameters across dispatch
+#' boundaries (bootstrap, permutation, cluster, etc.).
+#'
+#' @param user_args Named list of evaluated user-explicit args.
+#' @param dots The ... args (already evaluated).
+#' @param skip Character vector of arg names to exclude (default "x").
+#' @param base Optional base list to merge on top of (e.g., tna_params).
+#' @return Named list of args ready for do.call().
+#' @noRd
+.collect_dispatch_args <- function(user_args, dots, skip = "x", base = list()) {
+  nms <- setdiff(names(user_args), skip)
+  result <- base
+  result[nms] <- user_args[nms]
+  result[names(dots)] <- dots
+  result
 }

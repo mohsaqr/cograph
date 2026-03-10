@@ -49,3 +49,4 @@
 ^tmp$
 ^sidelined$
 ^.*\.gif$
+^tutorials$

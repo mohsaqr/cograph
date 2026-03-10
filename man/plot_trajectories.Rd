@@ -51,6 +51,8 @@ plot_trajectories(
 \item{from_title}{Title for the left column. Default "From". For multi-step,
 use a vector of titles (e.g., c("T1", "T2", "T3", "T4")).}
 
+\item{title}{Optional plot title. Applied via ggplot2::labs(title = title).}
+
 \item{from_colors}{Colors for left-side nodes. Default uses palette.}
 
 \item{flow_color_by}{Color flows by "source", "destination", or NULL (use flow_fill). Default NULL.}

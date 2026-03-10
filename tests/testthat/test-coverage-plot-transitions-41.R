@@ -1640,3 +1640,46 @@ test_that("multi-step transitions respect threshold and value_digits", {
                            show_values = TRUE, show_totals = TRUE))
   }))
 })
+
+# ============================================
+# Title parameter coverage
+# ============================================
+
+test_that("title param works on multi-step list path", {
+  m1 <- create_test_trans_matrix(same_states = TRUE)
+  m2 <- create_test_trans_matrix(same_states = TRUE, seed = 99)
+  p <- plot_transitions(list(m1, m2), title = "Multi-step Title")
+  expect_equal(p$labels$title, "Multi-step Title")
+})
+
+test_that("title param works on track_individuals path", {
+  df <- data.frame(
+    t1 = c("A", "B", "A", "B", "A"),
+    t2 = c("B", "A", "A", "B", "B"),
+    t3 = c("A", "A", "B", "A", "B")
+  )
+  p <- plot_transitions(df, track_individuals = TRUE, title = "Track Title")
+  expect_equal(p$labels$title, "Track Title")
+})
+
+test_that("title param works on auto multi-step df path", {
+  df <- data.frame(
+    t1 = c("A", "B", "A", "B", "A"),
+    t2 = c("B", "A", "A", "B", "B"),
+    t3 = c("A", "A", "B", "A", "B")
+  )
+  p <- plot_transitions(df, title = "Auto Multi Title")
+  expect_equal(p$labels$title, "Auto Multi Title")
+})
+
+test_that("title param works on standard matrix path", {
+  mat <- create_test_trans_matrix()
+  p <- plot_transitions(mat, title = "Standard Title")
+  expect_equal(p$labels$title, "Standard Title")
+})
+
+test_that("NULL title default does not add title label", {
+  mat <- create_test_trans_matrix()
+  p <- plot_transitions(mat)
+  expect_null(p$labels$title)
+})

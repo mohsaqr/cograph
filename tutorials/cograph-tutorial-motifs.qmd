@@ -1,0 +1,690 @@
+---
+title: "Motif Analysis with cograph: Patterns, Significance & Visualization"
+description: |
+    Discover recurring interaction patterns in networks --- from aggregate census to individual-level significance testing
+date: "2026-03-12"
+author:
+  - name: Mohammed Saqr
+    url: https://saqr.me
+    affiliation: University of Eastern Finland
+  - name: Sonsoles López-Pernas
+    url: https://sonsoles.me
+    affiliation: University of Eastern Finland
+citation:
+  type: article
+  author:
+    - family: "Saqr"
+      given: "Mohammed"
+    - family: "López-Pernas"
+      given: "Sonsoles"
+categories:
+  - tutorial
+  - R
+  - network analysis
+  - motifs
+warning: false
+message: false
+fig.align: center
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: false
+    code-tools: false
+    theme: cosmo
+    self-contained: true
+execute:
+  warning: false
+  message: false
+knitr:
+  opts_chunk:
+    fig.width: 8
+    fig.height: 6
+    dpi: 150
+    comment: ""
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(igraph)
+library(tna)
+devtools::load_all(".")
+```
+
+# Introduction
+
+Networks encode *pairwise* relationships --- who connects to whom and how strongly. But many of the most interesting behavioral patterns are *higher-order*: three nodes forming a feedback loop, a hub funneling information to two recipients, or a fully reciprocal clique. These three-node subgraph patterns are called **triadic motifs**, and they reveal the micro-level building blocks of network structure.
+
+**Why motifs matter:**
+
+- **Feed-forward loops** (A $\to$ B $\to$ C with A $\to$ C) indicate hierarchical information flow
+- **Reciprocal cycles** (A $\leftrightarrow$ B $\leftrightarrow$ C $\leftrightarrow$ A) suggest tightly coupled feedback
+- **Stars** (A $\to$ B, A $\to$ C) reveal broadcasting or gatekeeping roles
+- **Cliques** (all six directed edges present) mark the densest possible local structure
+
+cograph provides a complete motif analysis toolkit that works at two levels:
+
+1. **Aggregate analysis** --- count motif types across the whole network and test significance against a null model (like igraph's approach, but easier to use)
+2. **Individual-level analysis** --- count how many *people* (sessions, actors) exhibit each specific node triple, and test whether that frequency exceeds chance
+
+This tutorial covers:
+
+1. **The MAN classification** --- 16 triad types and what they mean
+2. **Quick census** --- `triad_census()` for a fast type count
+3. **Aggregate significance** --- `motif_census()` with configuration model null
+4. **Extracting specific triads** --- `extract_triads()` with node labels
+5. **Individual-level motif analysis** --- `extract_motifs()` from tna objects
+6. **Significance testing** --- permutation-based individual significance
+7. **Pattern filtering** --- triangles, networks, closed patterns
+8. **Visualization** --- bar plots, significance plots, network diagrams, abstract patterns
+9. **Comparing groups** --- motif profiles across conditions
+
+For **network visualization**, see the companion tutorial: [Plotting with cograph](cograph-tutorial-plotting.html). For **centralities and communities**, see [Network Analysis with cograph](cograph-tutorial-analysis.html).
+
+::: {.callout-note}
+## GitHub Development Version
+
+This tutorial covers features available in the **GitHub development version** of cograph.
+
+```{r}
+#| label: install
+#| eval: false
+# Development version with full features
+devtools::install_github("sonsoleslp/cograph")
+```
+:::
+
+# The Data
+
+We use the `coding` dataset from the [tna](https://cran.r-project.org/package=tna) package throughout this tutorial. It contains 429 coding sessions where pairs of students collaborate on programming tasks. Each session is a sequence of interaction behaviors:
+
+```{r}
+#| label: data-overview
+library(tna)
+
+# Build a TNA model from the coding dataset
+Mod <- tna(coding)
+
+cat("States:", paste(Mod$labels, collapse = ", "), "\n")
+cat("Number of states:", length(Mod$labels), "\n")
+cat("Number of sessions:", nrow(coding), "\n")
+```
+
+The nine behavioral states capture different interaction modes during collaborative coding --- from giving commands to making requests, verifying work, or expressing frustration.
+
+```{r}
+#| label: fig-network
+#| fig-cap: "Transition network of collaborative coding behaviors. Edge widths reflect transition probabilities."
+#| fig-width: 7
+#| fig-height: 7
+splot(Mod, minimum = 0.04, title = "Coding Interactions")
+```
+
+The weight matrix shows transition probabilities between states:
+
+```{r}
+#| label: weight-matrix
+round(Mod$weights, 3)
+```
+
+# The MAN Classification
+
+Every set of three nodes in a directed network forms one of exactly **16 possible triad configurations**, classified by the MAN (Mutual-Asymmetric-Null) system (Holland & Leinhardt, 1976):
+
+- **M** (Mutual): number of reciprocal (bidirectional) pairs
+- **A** (Asymmetric): number of one-way pairs
+- **N** (Null): number of unconnected pairs
+
+The three digits are followed by a letter suffix for subtypes: **C** (cycle), **T** (transitive), **D** (down/out), **U** (up/in).
+
+::: {.callout-tip collapse="true"}
+## Full MAN Type Reference
+
+| Type | Name | Description |
+|------|------|-------------|
+| 003 | Empty | No edges between any pair |
+| 012 | Single edge | One directed edge only |
+| 102 | Mutual pair | One reciprocal pair, third node isolated |
+| 021D | Out-star | A $\to$ B, A $\to$ C (one source, two targets) |
+| 021U | In-star | B $\to$ A, C $\to$ A (two sources, one target) |
+| 021C | Chain | A $\to$ B $\to$ C (sequential path) |
+| 111D | Out-star + mutual | Mutual pair plus outgoing edge |
+| 111U | In-star + mutual | Mutual pair plus incoming edge |
+| 030T | Feed-forward | A $\to$ B $\to$ C, A $\to$ C (transitive) |
+| 030C | Cycle | A $\to$ B $\to$ C $\to$ A (directed cycle) |
+| 201 | Double mutual | Two mutual pairs sharing a node |
+| 120D | Regulated out-star | Mutual pair plus two outgoing edges |
+| 120U | Regulated in-star | Mutual pair plus two incoming edges |
+| 120C | Regulated cycle | Mutual pair plus cycle through third |
+| 210 | Near-clique | All pairs connected, one asymmetric |
+| 300 | Clique | All three pairs fully mutual |
+:::
+
+The first four types (003, 012, 102, 021D/U/C) describe sparse or sequential patterns. The last seven (030T/C through 300) involve triangles --- all three node pairs have at least one edge. Triangle motifs are typically the most informative because they capture genuine three-way interaction structure.
+
+# Quick Census: `triad_census()`
+
+The simplest entry point is `triad_census()`, which counts how many of each type appear in the network:
+
+```{r}
+#| label: census-basic
+mat <- Mod$weights
+tc <- triad_census(mat)
+tc
+```
+
+::: {.callout-tip}
+## Interpreting a Dense Network
+
+When all states are interconnected (as in this transition matrix where every state can transition to every other), you often see all 84 possible triads as type 300 (clique). This is because the weight matrix has nonzero entries everywhere. Motif analysis becomes more informative when you either:
+
+1. **Threshold the matrix** to keep only strong transitions
+2. **Work at the individual level** where sessions have sparser patterns
+:::
+
+Let's threshold to see more variety:
+
+```{r}
+#| label: census-threshold
+# Keep only transitions above 5% probability
+mat_thresh <- mat
+mat_thresh[mat_thresh < 0.05] <- 0
+tc_thresh <- triad_census(mat_thresh)
+tc_thresh[tc_thresh > 0]
+```
+
+# Aggregate Motif Significance: `motif_census()`
+
+Counting motifs is useful, but the key question is: *are these counts unusual?* A network with many cliques might just be dense. To determine statistical significance, `motif_census()` compares observed counts against a **null model** --- random networks that preserve the degree distribution but randomize connections.
+
+```{r}
+#| label: motif-census
+mc <- motif_census(mat, n_random = 500, seed = 42)
+mc
+```
+
+The function uses igraph's **configuration model** as the null: it generates random networks with identical in-degree and out-degree sequences, then counts motifs in each. The z-score measures how many standard deviations the observed count deviates from the null mean.
+
+::: {.callout-tip collapse="true"}
+## Understanding the Null Model
+
+The **configuration model** works by:
+
+1. Recording each node's in-degree and out-degree from the observed network
+2. Creating "stubs" (half-edges) for each node matching its degree
+3. Randomly pairing stubs to form edges
+4. Counting motifs in the resulting random network
+5. Repeating many times to build a null distribution
+
+This preserves the degree sequence *exactly* --- the same number of edges enter and leave each node. Any deviation from the null therefore reflects higher-order structure beyond what degree alone would predict.
+:::
+
+## Plotting the Census
+
+```{r}
+#| label: fig-motif-census
+#| fig-cap: "Motif census with significance. Bars show z-scores; dashed lines mark the significance threshold."
+#| fig-width: 8
+#| fig-height: 5
+plot(mc)
+```
+
+The bar plot highlights over-represented (red) and under-represented (blue) motif types relative to the configuration model.
+
+## Thresholded Census
+
+For a more informative analysis on a dense network, threshold first:
+
+```{r}
+#| label: fig-motif-census-thresh
+#| fig-cap: "Motif census on thresholded network (minimum edge weight 0.05)."
+#| fig-width: 8
+#| fig-height: 5
+mc_thresh <- motif_census(mat_thresh, n_random = 500, seed = 42)
+mc_thresh
+plot(mc_thresh)
+```
+
+# Extracting Specific Triads: `extract_triads()`
+
+`motif_census()` tells you *how many* of each type exist, but not *which nodes* form them. `extract_triads()` lists every triad with full node labels and edge weights:
+
+```{r}
+#| label: extract-triads
+triads <- extract_triads(mat, min_total = 1)
+cat("Total triads:", nrow(triads), "\n\n")
+head(triads, 10)
+```
+
+## Filter by Type
+
+Find specific motif patterns. For example, feed-forward loops (030T) in a thresholded network:
+
+```{r}
+#| label: extract-feedforward
+ff <- extract_triads(mat_thresh, type = "030T", min_total = 0)
+cat("Feed-forward loops found:", nrow(ff), "\n\n")
+if (nrow(ff) > 0) print(ff)
+```
+
+## Filter by Node Involvement
+
+Find all triads involving a specific node:
+
+```{r}
+#| label: extract-involving
+# All triads involving "Frustrate"
+frust_triads <- extract_triads(mat_thresh, involving = "Frustrate", min_total = 0)
+cat("Triads involving Frustrate:", nrow(frust_triads), "\n\n")
+head(frust_triads)
+```
+
+## Strongest Triads
+
+Sort by total weight to find the most active three-node interactions:
+
+```{r}
+#| label: strongest-triads
+triads <- extract_triads(mat, min_total = 0.5)
+strongest <- triads[order(triads$total_weight, decreasing = TRUE), ]
+cat("Strongest triads:\n")
+head(strongest[, c("A", "B", "C", "type", "total_weight")], 10)
+```
+
+::: {.callout-tip}
+## Typical Workflow
+
+A common analysis pattern is:
+
+1. **`motif_census()`** to identify which *types* are over/under-represented
+2. **`extract_triads(type = ...)`** to see which *specific nodes* form those patterns
+3. Sort by `total_weight` to find the strongest instances
+:::
+
+# Individual-Level Analysis: `extract_motifs()`
+
+The functions above analyze the *aggregate* weight matrix. But in longitudinal or multi-session data, the aggregate matrix hides individual variation. `extract_motifs()` works at the **individual level** --- it counts triads within each person's (or session's) transition matrix, then aggregates across individuals.
+
+This answers a fundamentally different question: not "does this triad exist in the average network?" but "how many individuals exhibit this triad pattern?"
+
+```{r}
+#| label: extract-motifs-basic
+# Individual-level analysis from a tna object
+em <- extract_motifs(Mod, pattern = "triangle")
+em
+```
+
+The `observed` column shows how many of the 429 sessions contain each triad. The dominant type classification tells you what kind of three-way interaction each triad represents.
+
+## Interpreting Results
+
+```{r}
+#| label: motifs-interpret
+# Top triads with type info
+results <- em$results
+cat("Most common triads (by number of sessions):\n\n")
+head(results, 15)
+```
+
+The triad **Command - Request - Specify** appears in 224 out of 429 sessions --- over half. This means that in most coding sessions, these three behaviors form a tightly connected triangle. The type 120C (regulated cycle) tells us this involves a mutual pair plus a cycle through the third node.
+
+## Pattern Filters
+
+`extract_motifs()` supports four pattern filters that control which triad types are included:
+
+```{r}
+#| label: pattern-filters
+# Triangle: all 3 pairs connected (default)
+em_tri <- extract_motifs(Mod, pattern = "triangle")
+cat("Triangle types:", nrow(em_tri$results), "triads found\n")
+cat("Types:", paste(names(em_tri$type_summary), collapse = ", "), "\n\n")
+
+# Network: exclude empty and simple chains
+em_net <- extract_motifs(Mod, pattern = "network")
+cat("Network types:", nrow(em_net$results), "triads found\n")
+cat("Types:", paste(names(em_net$type_summary), collapse = ", "), "\n\n")
+
+# All: include everything
+em_all <- extract_motifs(Mod, pattern = "all")
+cat("All types:", nrow(em_all$results), "triads found\n")
+cat("Types:", paste(names(em_all$type_summary), collapse = ", "), "\n")
+```
+
+::: {.callout-tip collapse="true"}
+## Which Pattern Filter Should I Use?
+
+- **`"triangle"`** (default): Best for most analyses. Focuses on genuine three-way interaction where all three node pairs have at least one edge. Excludes stars, chains, and isolated pairs.
+- **`"network"`**: Broader view that also includes stars (021D, 021U) and mutual pairs. Useful when you want to capture gatekeeping or hub patterns.
+- **`"closed"`**: Like network but excludes certain open patterns. A middle ground.
+- **`"all"`**: Complete census of all 16 types. Good for exploratory analysis.
+:::
+
+## Include/Exclude Specific Types
+
+For fine-grained control, use `include_types` or `exclude_types`:
+
+```{r}
+#| label: include-exclude
+# Only feed-forward loops and cycles
+em_ff <- extract_motifs(Mod, include_types = c("030T", "030C"))
+cat("Feed-forward + cycle triads:", nrow(em_ff$results), "\n")
+head(em_ff$results)
+```
+
+```{r}
+#| label: exclude-cliques
+# Triangles but exclude cliques (too dense to be informative)
+em_noclique <- extract_motifs(Mod, pattern = "triangle", exclude_types = "300")
+cat("Triangle triads (no cliques):", nrow(em_noclique$results), "\n")
+cat("Types:", paste(names(em_noclique$type_summary), collapse = ", "), "\n")
+```
+
+# Significance Testing
+
+The most powerful analysis asks: **do certain triads appear in more sessions than expected by chance?** `extract_motifs()` with `significance = TRUE` runs a permutation test, shuffling transitions within each session while preserving the overall structure.
+
+```{r}
+#| label: sig-testing
+#| cache: true
+em_sig <- extract_motifs(
+  Mod,
+  pattern = "triangle",
+  significance = TRUE,
+  n_perm = 100,
+  seed = 42
+)
+em_sig
+```
+
+Significant triads (marked with `*`, `**`, or `***`) appear in more sessions than the null model predicts. These are the genuine recurring patterns --- not artifacts of density or degree.
+
+```{r}
+#| label: sig-results
+# Show significant triads
+sig_triads <- em_sig$results[em_sig$results$sig != "", ]
+cat("Significant triads:", nrow(sig_triads), "out of", nrow(em_sig$results), "\n\n")
+print(sig_triads[, c("triad", "type", "observed", "expected", "z", "sig")])
+```
+
+::: {.callout-tip collapse="true"}
+## How the Permutation Test Works
+
+For each permutation:
+
+1. Within each session, the transition matrix is randomized while preserving row and column sums (degree sequence)
+2. Triads are counted in each randomized session
+3. The total count across sessions is recorded
+
+After all permutations, the null distribution gives us the expected count and standard deviation. The z-score measures how far the observed count is from the null mean in units of standard deviation. A two-tailed p-value tests whether the triad is significantly over- *or* under-represented.
+
+The `n_perm` parameter controls the precision of the null distribution. Use 100 for exploration, 1000 for publication-quality results.
+:::
+
+# Visualization
+
+`extract_motifs()` results support multiple visualization types.
+
+## Network Diagrams (Default)
+
+The default plot draws actual network diagrams for each triad, showing node labels and edge directions:
+
+```{r}
+#| label: fig-triads-network
+#| fig-cap: "Top triads as network diagrams. Each panel shows one triad with its MAN type and session count."
+#| fig-width: 10
+#| fig-height: 8
+plot(em_sig, n = 15)
+```
+
+### Customizing Appearance
+
+```{r}
+#| label: fig-triads-custom
+#| fig-cap: "Customized triad network diagrams with adjusted sizes and colors."
+#| fig-width: 10
+#| fig-height: 6
+plot(em_sig, n = 10, ncol = 5,
+     node_size = 6, label_size = 8, title_size = 9,
+     color = "#2166AC")
+```
+
+## Type Distribution
+
+View the distribution of motif types across all discovered triads:
+
+```{r}
+#| label: fig-types-bar
+#| fig-cap: "Distribution of MAN triad types across all discovered triads."
+#| fig-width: 8
+#| fig-height: 5
+plot(em, type = "types")
+```
+
+## Significance Plot
+
+When significance testing has been performed, view z-scores for the most and least represented triads:
+
+```{r}
+#| label: fig-significance
+#| fig-cap: "Significance plot showing over-represented (red) and under-represented (blue) triads."
+#| fig-width: 8
+#| fig-height: 6
+plot(em_sig, type = "significance", n = 15)
+```
+
+## Abstract MAN Patterns
+
+View the abstract triad patterns (without specific node labels):
+
+```{r}
+#| label: fig-patterns
+#| fig-cap: "Abstract MAN triad patterns showing the structure of each type found in the data."
+#| fig-width: 10
+#| fig-height: 8
+plot(em, type = "patterns")
+```
+
+# Working with Matrices and igraph
+
+All motif functions accept multiple input types. Here we demonstrate with a matrix and igraph object directly.
+
+## From a Matrix
+
+```{r}
+#| label: matrix-input
+# Create a transition matrix
+states <- c("Plan", "Execute", "Monitor", "Adapt", "Reflect")
+mat5 <- matrix(c(
+  0.00, 0.35, 0.20, 0.15, 0.30,
+  0.25, 0.00, 0.30, 0.20, 0.25,
+  0.15, 0.25, 0.00, 0.35, 0.25,
+  0.10, 0.20, 0.35, 0.00, 0.35,
+  0.20, 0.15, 0.25, 0.40, 0.00
+), nrow = 5, byrow = TRUE,
+dimnames = list(states, states))
+
+# Aggregate motif census
+mc5 <- motif_census(mat5, n_random = 200, seed = 42)
+mc5
+
+# Extract triads with labels
+triads5 <- extract_triads(mat5, min_total = 0.5)
+head(triads5[, c("A", "B", "C", "type", "total_weight")])
+```
+
+## From an igraph Object
+
+```{r}
+#| label: igraph-input
+# Convert to igraph
+g <- igraph::graph_from_adjacency_matrix(
+  mat5, mode = "directed", weighted = TRUE
+)
+
+# Same functions work with igraph
+mc_ig <- motif_census(g, n_random = 200, seed = 42)
+tc_ig <- triad_census(g)
+
+# Results are identical
+cat("Z-scores identical:", identical(mc5$z_scores, mc_ig$z_scores), "\n")
+```
+
+## From an Edge List
+
+`extract_motifs()` also accepts edge-list data frames with an ID column for individual-level analysis:
+
+```{r}
+#| label: edgelist-input
+# Create synthetic edge-list data
+set.seed(42)
+n_sessions <- 50
+edges <- data.frame(
+  id = rep(seq_len(n_sessions), each = 10),
+  from = sample(states, n_sessions * 10, replace = TRUE),
+  to = sample(states, n_sessions * 10, replace = TRUE),
+  stringsAsFactors = FALSE
+)
+
+# Individual-level motif analysis
+em_edges <- extract_motifs(data = edges, id = "id", pattern = "triangle")
+cat("Triads found:", nrow(em_edges$results), "\n")
+head(em_edges$results)
+```
+
+# Comparing Groups
+
+A powerful application is comparing motif profiles across groups to identify structural differences.
+
+## Side-by-Side Analysis
+
+```{r}
+#| label: group-comparison
+#| cache: true
+# Build separate tna models
+# Use the coding dataset, split by project (encoded in row names)
+sessions <- rownames(coding)
+projects <- sub("_S[0-9]+$", "", sessions)
+project_ids <- unique(projects)
+
+# Split into two groups based on project count
+set.seed(42)
+group_assign <- ifelse(
+  projects %in% project_ids[1:floor(length(project_ids) / 2)],
+  "Group_A", "Group_B"
+)
+
+coding_a <- coding[group_assign == "Group_A", ]
+coding_b <- coding[group_assign == "Group_B", ]
+
+Mod_a <- tna(coding_a)
+Mod_b <- tna(coding_b)
+
+cat("Group A:", nrow(coding_a), "sessions\n")
+cat("Group B:", nrow(coding_b), "sessions\n")
+```
+
+```{r}
+#| label: group-motifs
+# Motif analysis per group
+em_a <- extract_motifs(Mod_a, pattern = "triangle", significance = TRUE,
+                       n_perm = 100, seed = 42)
+em_b <- extract_motifs(Mod_b, pattern = "triangle", significance = TRUE,
+                       n_perm = 42, seed = 42)
+
+cat("\n=== Group A: Top triads ===\n")
+head(em_a$results[, c("triad", "type", "observed", "z", "sig")], 10)
+
+cat("\n=== Group B: Top triads ===\n")
+head(em_b$results[, c("triad", "type", "observed", "z", "sig")], 10)
+```
+
+## Type Distribution Comparison
+
+```{r}
+#| label: fig-group-types
+#| fig-cap: "Motif type distributions for Group A (left) and Group B (right)."
+#| fig-width: 12
+#| fig-height: 5
+par(mfrow = c(1, 2))
+barplot(em_a$type_summary, main = "Group A: Type Distribution",
+        col = "#4FC3F7", las = 2, cex.names = 0.8)
+barplot(em_b$type_summary, main = "Group B: Type Distribution",
+        col = "#fbb550", las = 2, cex.names = 0.8)
+par(mfrow = c(1, 1))
+```
+
+# Edge Method Options
+
+The `edge_method` parameter in `extract_motifs()` controls how edges are determined from weighted transition matrices:
+
+```{r}
+#| label: edge-methods
+# "any" (default): edge exists if count > 0
+em_any <- extract_motifs(Mod, edge_method = "any", pattern = "all")
+cat("Edge method 'any':", nrow(em_any$results), "triads\n")
+cat("Types:", paste(names(em_any$type_summary), collapse = ", "), "\n\n")
+
+# "expected": edge exists if observed/expected >= threshold
+em_exp <- extract_motifs(Mod, edge_method = "expected",
+                         edge_threshold = 1.5, pattern = "all")
+cat("Edge method 'expected' (1.5x):", nrow(em_exp$results), "triads\n")
+cat("Types:", paste(names(em_exp$type_summary), collapse = ", "), "\n")
+```
+
+::: {.callout-tip collapse="true"}
+## Choosing an Edge Method
+
+- **`"any"`**: Most permissive. An edge exists if there is *any* transition. Good for sparse individual-level data where even a single transition is meaningful.
+- **`"expected"`**: An edge exists only if it occurs at least `threshold` times more than expected by chance (based on row and column marginals). Good for dense networks where you want to focus on *disproportionately strong* transitions.
+- **`"percent"`**: An edge exists if it accounts for at least `threshold` proportion of all transitions from that node. Good when you want a fixed relative threshold.
+
+For individual-level analysis with tna objects, `"any"` is typically best because individual sessions are sparse. For aggregate matrices, `"expected"` helps cut through the density.
+:::
+
+# Advanced: Aggregate-Level `extract_motifs()`
+
+While `extract_motifs()` defaults to individual-level analysis for tna objects, you can force aggregate mode or analyze a plain matrix:
+
+```{r}
+#| label: aggregate-motifs
+# Aggregate analysis of the weight matrix
+em_agg <- extract_motifs(Mod$weights, pattern = "triangle")
+cat("Aggregate triads:", nrow(em_agg$results), "\n\n")
+head(em_agg$results)
+```
+
+For aggregate analysis with significance, `motif_census()` is preferred since it uses igraph's optimized configuration model:
+
+```{r}
+#| label: aggregate-sig
+mc_full <- motif_census(Mod$weights, n_random = 500, seed = 42)
+mc_full
+```
+
+# Summary
+
+| Function | Level | Input | Output | Use When |
+|----------|-------|-------|--------|----------|
+| `triad_census()` | Aggregate | Matrix, igraph | 16-element named vector | Quick count of MAN types |
+| `motif_census()` | Aggregate | Matrix, igraph | Counts + z-scores + p-values | Testing which types are over/under-represented |
+| `extract_triads()` | Aggregate | Matrix, igraph | Data frame with node labels | Finding *which nodes* form each type |
+| `extract_motifs()` | Individual or Aggregate | tna, matrix, edge list | Triad frequencies + significance | Individual-level analysis: "how many sessions have this triad?" |
+
+: {tbl-colwidths="[18,12,18,22,30]"}
+
+**Recommended workflow:**
+
+1. **Explore** with `triad_census()` to see what types exist
+2. **Test significance** with `motif_census()` to identify interesting types
+3. **Extract triads** with `extract_triads(type = ...)` to see specific nodes
+4. **Individual analysis** with `extract_motifs(Mod, significance = TRUE)` to measure person-level prevalence
+
+::: {.callout-note}
+## References
+
+- Holland, P.W. & Leinhardt, S. (1976). Local structure in social networks. *Sociological Methodology*, 7, 1--45.
+- Milo, R., Shen-Orr, S., Itzkovitz, S., et al. (2002). Network motifs: Simple building blocks of complex networks. *Science*, 298(5594), 824--827.
+- Wasserman, S. & Faust, K. (1994). *Social Network Analysis: Methods and Applications*. Cambridge University Press.
+:::

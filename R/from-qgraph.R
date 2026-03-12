@@ -511,3 +511,73 @@ map_qgraph_shape <- function(shapes) {
   result[unknown] <- shapes[unknown]
   unname(result)
 }
+
+#' Translate qgraph-style parameter names to cograph equivalents
+#'
+#' When splot() receives a tna object, users often pass qgraph-style parameter
+#' names (e.g., \code{size = 20}, \code{edge.color = "red"}) because the tna
+#' package uses qgraph for plotting. This function renames those keys to their
+#' cograph equivalents and applies value transforms where needed.
+#'
+#' @param dots Named list (typically from \code{list(...)}).
+#' @return Named list with qgraph keys renamed to cograph equivalents.
+#' @keywords internal
+.translate_qgraph_dots <- function(dots) {
+  if (length(dots) == 0L || is.null(names(dots))) return(dots)
+
+  # qgraph name -> cograph name
+  name_map <- c(
+    "size"                = "node_size",
+    "vsize"               = "node_size",
+    "color"               = "node_fill",
+    "pie"                 = "donut_fill",
+    "pieColor"            = "donut_color",
+    "edge.labels"         = "edge_labels",
+    "edge.label.position" = "edge_label_position",
+    "edge.label.cex"      = "edge_label_size",
+    "edge.label.color"    = "edge_label_color",
+    "edge.color"          = "edge_color",
+    "posCol"              = "edge_positive_color",
+    "negCol"              = "edge_negative_color",
+    "lty"                 = "edge_style",
+    "arrowAngle"          = "arrow_angle",
+    "mar"                 = "margins",
+    "label.cex"           = "label_size",
+    "label.color"         = "label_color",
+    "border.color"        = "node_border_color",
+    "border.width"        = "node_border_width",
+    "asize"               = "arrow_size",
+    "shape"               = "node_shape"
+  )
+
+  orig_nms <- names(dots)
+  mapped <- name_map[orig_nms]
+  has_mapping <- !is.na(mapped)
+
+  # Track which qgraph names were translated (for value transforms below)
+  translated_from <- character(0)
+
+  # Rename: skip if cograph name already present (cograph wins)
+  for (idx in which(has_mapping)) {
+    cograph_nm <- mapped[idx]
+    if (cograph_nm %in% orig_nms) next
+    translated_from <- c(translated_from, orig_nms[idx])
+    names(dots)[idx] <- cograph_nm
+  }
+
+  # Value transforms — only when the value came from a qgraph alias
+  if ("asize" %in% translated_from) {
+    dots$arrow_size <- dots$arrow_size * 0.20
+  }
+  if ("edge.label.cex" %in% translated_from) {
+    dots$edge_label_size <- dots$edge_label_size * 1.2
+  }
+  if ("lty" %in% translated_from) {
+    dots$edge_style <- map_qgraph_lty(dots$edge_style)
+  }
+  if ("shape" %in% translated_from) {
+    dots$node_shape <- map_qgraph_shape(dots$node_shape)
+  }
+
+  dots
+}

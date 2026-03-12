@@ -1,5 +1,17 @@
 # Project Learnings
 
+### 2026-03-12
+- [qgraph arg translation]: When splot receives tna-family objects, qgraph-style params (size, vsize, edge.color, lty, shape, asize, etc.) land in `...` and are silently ignored. Fix: `.translate_qgraph_dots()` in from-qgraph.R renames keys + applies value transforms. Called early in splot (before dispatch) so all 6 tna paths benefit. Gate: `inherits(x, c("tna", "group_tna", ...))` — non-tna objects untouched.
+- [qgraph value scaling]: qgraph and cograph scale some params differently: `asize` → `arrow_size * 0.20` (qgraph arrows barely scale), `edge.label.cex` → `edge_label_size * 1.2` (splot renders slightly smaller). Numeric `lty` codes and `shape` names need mapping via existing `map_qgraph_lty()` / `map_qgraph_shape()`.
+- [cograph-wins precedence]: When both cograph name (e.g., `node_size`) and qgraph alias (e.g., `size`) appear in dots, skip renaming the alias — cograph name takes precedence naturally since `.collect_dispatch_args` merges dots last. Track which names were actually translated via `translated_from` vector to avoid applying value transforms to user-provided cograph values.
+
+### 2026-03-10
+- [splot dispatch arg forwarding]: Named splot params (minimum, threshold, layout, title) are CONSUMED by splot's function signature and do NOT flow into `...`. Dispatch via `handler(x, ...)` loses these params. Fix: capture with `match.call(expand.dots = FALSE)`, evaluate with `mget(setdiff(names(.user_explicit), "..."), envir = environment())`, and forward via `do.call(target, c(list(x = x), .collect_dispatch_args(.user_args, .dots)))`.
+- [mget vs eval for match.call]: `eval(.user_explicit[[nm]], envir = parent.frame())` re-evaluates raw AST nodes which can fail. `mget(names, envir = environment())` safely gets already-evaluated local values.
+- [roxygen @noRd placement]: `@noRd` must be in a standalone roxygen block. Placing it between a main function's roxygen block and its definition causes the helper to inherit the main function's `@export`.
+- [ggplot2 4.0 size * size.unit]: `GeomText$draw_panel` multiplies `data$size * size.unit`; crashes when size is non-numeric. This can surface in testthat `test_file()` context but not in standalone execution — use `p$labels$title` assertions instead of `with_temp_png({ print(...) })` for title param tests.
+- [match.call expand.dots]: `match.call(expand.dots = FALSE)` includes `"..."` in its names. Must exclude with `setdiff(names(.user_explicit), "...")` before passing to `mget()`, otherwise get `'...' used in an incorrect context` error.
+
 ### 2026-03-09
 - [rescale=FALSE + layout_scale=1]: When providing custom layout coordinates to splot/tplot, must set `rescale = FALSE` and `layout_scale = 1` to prevent splot from normalizing coordinates. Otherwise, absolute spacing values are meaningless and intra-edge post-drawing coordinates won't match the plot.
 - [uniform normalization]: When normalizing layout coordinates to [-1, 1], use the same scale factor for both axes (`max_span = max(diff(x_range), diff(y_range))`). Independent axis normalization distorts aspect ratios and makes spacing parameters unpredictable.

@@ -521,6 +521,14 @@ splot <- function(
   .user_explicit <- as.list(match.call(expand.dots = FALSE))[-1]
   .user_explicit$x <- NULL
   .dots <- list(...)
+
+  # Translate qgraph-style args for tna-family objects (early, before any dispatch)
+  if (inherits(x, c("tna", "group_tna", "tna_bootstrap",
+                     "tna_permutation", "group_tna_permutation",
+                     "cluster_tna"))) {
+    .dots <- .translate_qgraph_dots(.dots)
+  }
+
   # Evaluate user-explicit args once from local scope (safe, no re-eval of AST)
   # Exclude "..." — those are already captured in .dots
   .user_args <- mget(setdiff(names(.user_explicit), "..."), envir = environment())

@@ -1,5 +1,24 @@
 # Changelog
 
+### 2026-03-12 — Motif analysis tutorial + unified API benchmarking
+
+- tutorials/cograph-tutorial-motifs.qmd: NEW — comprehensive tutorial (11 sections, 71 code chunks) covering motif_census, triad_census, extract_triads, extract_motifs with significance testing, visualization, group comparisons
+- tutorials/cograph-tutorial-motifs.html: Rendered output (2.6MB self-contained HTML)
+- docs/superpowers/plans/2026-03-12-unified-motifs-api.md: Implementation plan for unified motifs()/subgraphs() API with exact configuration model
+- tmp/bench_all_modes_v2.R, tmp/bench_all_modes_coding.R: Full equivalence tests on coding dataset (3 modes, 1000 perms, seed=42)
+- tmp/bench_config_model.R, tmp/bench_prealloc.R: Configuration model benchmarks
+- tmp/verify_census_equiv.R, tmp/verify_igraph_equiv.R, tmp/verify_config_exact.R: Verification scripts for null model correctness
+
+### 2026-03-12 — Re-integrate static motifs module (4 files)
+
+- R/motifs-data.R: Restored from sidelined/ — shared constants (triad patterns, MAN descriptions, cache, ggplot theme)
+- R/motifs.R: Restored — `motif_census()`, `triad_census()`, `extract_triads()`, `get_edge_list()` with print/plot S3 methods
+- R/motifs-extract.R: Restored — `extract_motifs()` with print/plot S3 methods; fixed bare NSE vars to `.data$` prefix
+- R/motifs-plot.R: Restored — viz helpers (.plot_motifs_bar/heatmap/network, .plot_triad_networks, .plot_motif_patterns); fixed bare NSE vars to `.data$` prefix
+- Removed `@seealso` references to temporal functions (`extract_motifs_temporal`, `triad_persistence`) not yet re-integrated
+- tests/testthat/test-coverage-motifs-{40,41,43}.R: Restored from sidelined/, truncated temporal test sections
+- Tests: 12,809 pass, 0 fail
+
 ### 2026-03-12 — Add qgraph arg translation in splot's tna dispatch
 
 - R/from-qgraph.R: Added `.translate_qgraph_dots()` — translates qgraph-style parameter names (size, vsize, edge.color, lty, shape, etc.) to cograph equivalents with value transforms (asize * 0.20, edge.label.cex * 1.2, numeric lty → name, shape mapping)

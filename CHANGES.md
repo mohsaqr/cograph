@@ -1,5 +1,25 @@
 # Changelog
 
+### 2026-03-12 — Add qgraph arg translation in splot's tna dispatch
+
+- R/from-qgraph.R: Added `.translate_qgraph_dots()` — translates qgraph-style parameter names (size, vsize, edge.color, lty, shape, etc.) to cograph equivalents with value transforms (asize * 0.20, edge.label.cex * 1.2, numeric lty → name, shape mapping)
+- R/splot.R: Call `.translate_qgraph_dots(.dots)` early in splot for all tna-family classes (tna, group_tna, tna_bootstrap, tna_permutation, group_tna_permutation, cluster_tna) — before any dispatch or arg collection
+- tests/testthat/test-qgraph-args.R: 52 new tests — unit tests for `.translate_qgraph_dots()` (empty, unnamed, rename, precedence, all params, value transforms) + integration tests for splot dispatch with tna, group_tna, tna_bootstrap, tna_permutation, group_tna_permutation + non-tna regression test
+- Tests: 12,628 pass, 0 fail
+
+### 2026-03-10 — Fix splot dispatch arg forwarding, add title param, 100% coverage
+
+- R/splot.R: Extracted `.collect_dispatch_args()` helper — replaces 6 copy-paste dispatch blocks with one-liner calls
+- R/splot.R: Capture user args via `match.call(expand.dots = FALSE)` + `mget()` instead of `eval()`
+- R/splot.R: Moved bootstrap/permutation/group_permutation dispatches before deprecated-param handling
+- R/splot.R: Removed redundant `match.call()` at line 638, reuse `.user_explicit`
+- R/plot-transitions.R: Added `title` parameter to `plot_transitions`, `plot_alluvial`, `plot_trajectories`; applied via `labs(title = title)` at 4 exit paths
+- .Rbuildignore: Added `^tutorials` entry
+- tests/testthat/test-coverage-plot-transitions-41.R: 5 new title coverage tests (4 paths + NULL default)
+- tests/testthat/test-coverage-plot-bootstrap-40.R: 1 new `.subset_if_per_edge` else branch test
+- Tests: 12,575 pass, 0 fail, 100% coverage
+- R CMD check: 0 errors, 0 warnings
+
 ### 2026-03-09 — plot_htna: new orientations, intra-group edges, modern colors
 
 - R/plot-htna.R: Added `orientation = "facing"` (tip-to-tip) and `orientation = "circular"` (two semicircles) for bipartite layouts

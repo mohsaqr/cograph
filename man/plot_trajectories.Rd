@@ -17,7 +17,12 @@ plot_trajectories(
   label_position = c("beside", "inside", "above", "below", "outside"),
   mid_label_position = NULL,
   label_halo = TRUE,
+  label_color = "black",
+  label_fontface = "plain",
+  label_nudge = 0.02,
   title_size = 5,
+  title_color = "black",
+  title_fontface = "bold",
   curve_strength = 0.6,
   line_alpha = 0.3,
   line_width = 0.5,
@@ -25,10 +30,14 @@ plot_trajectories(
   show_totals = FALSE,
   total_size = 4,
   total_color = "white",
+  total_fontface = "bold",
   show_values = FALSE,
   value_position = c("center", "origin", "destination"),
   value_size = 3,
   value_color = "black",
+  value_halo = NULL,
+  value_fontface = "bold",
+  value_min = 0,
   value_digits = 2,
   column_gap = 1,
   proportional_nodes = TRUE,
@@ -73,7 +82,19 @@ Same options as \code{label_position}. Default NULL uses \code{label_position} v
 
 \item{label_halo}{Logical: add white halo around labels for readability? Default TRUE.}
 
+\item{label_color}{Color of state name labels. Default "black".}
+
+\item{label_fontface}{Font face of state name labels ("plain", "bold", "italic",
+"bold.italic"). Default "plain".}
+
+\item{label_nudge}{Distance between node edge and label (in plot units).
+Default 0.02. Increase for more spacing.}
+
 \item{title_size}{Size of column titles. Default 5.}
+
+\item{title_color}{Color of column title text. Default "black".}
+
+\item{title_fontface}{Font face of column titles. Default "bold".}
 
 \item{curve_strength}{Controls bezier curve shape (0-1). Default 0.6.}
 
@@ -89,6 +110,8 @@ Same options as \code{label_position}. Default NULL uses \code{label_position} v
 
 \item{total_color}{Color of total labels. Default "white".}
 
+\item{total_fontface}{Font face of total labels. Default "bold".}
+
 \item{show_values}{Logical: show transition counts on flows? Default FALSE.}
 
 \item{value_position}{Position of flow values: "center", "origin", "destination",
@@ -97,6 +120,14 @@ Same options as \code{label_position}. Default NULL uses \code{label_position} v
 \item{value_size}{Size of value labels on flows. Default 3.}
 
 \item{value_color}{Color of value labels. Default "black".}
+
+\item{value_halo}{Logical: add halo around flow value labels? Default NULL
+(inherits from \code{label_halo}).}
+
+\item{value_fontface}{Font face of flow value labels. Default "bold".}
+
+\item{value_min}{Minimum count to show a flow value label. Default 0 (show all).
+Use to hide small flows (e.g., \code{value_min = 100}).}
 
 \item{value_digits}{Number of decimal places for flow value labels and node
 totals. Default 2.}

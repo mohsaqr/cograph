@@ -5,7 +5,7 @@
 \alias{to_cograph}
 \title{Convert to Cograph Network}
 \usage{
-as_cograph(x, directed = NULL, ...)
+as_cograph(x, directed = NULL, simplify = FALSE, ...)
 
 to_cograph(x, directed = NULL, ...)
 }

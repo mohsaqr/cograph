@@ -4,7 +4,15 @@
 \alias{cograph}
 \title{Create a Network Visualization}
 \usage{
-cograph(input, layout = NULL, directed = NULL, nodes = NULL, seed = 42, ...)
+cograph(
+  input,
+  layout = NULL,
+  directed = NULL,
+  nodes = NULL,
+  seed = 42,
+  simplify = FALSE,
+  ...
+)
 }
 \arguments{
 \item{input}{Network input. Can be:

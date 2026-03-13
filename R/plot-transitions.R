@@ -39,16 +39,29 @@ NULL
 #' @param mid_label_position Position of labels for intermediate (middle) columns.
 #'   Same options as \code{label_position}. Default NULL uses \code{label_position} value.
 #' @param label_halo Logical: add white halo around labels for readability? Default TRUE.
+#' @param label_color Color of state name labels. Default "black".
+#' @param label_fontface Font face of state name labels ("plain", "bold", "italic",
+#'   "bold.italic"). Default "plain".
+#' @param label_nudge Distance between node edge and label (in plot units).
+#'   Default 0.02. Increase for more spacing.
 #' @param title_size Size of column titles. Default 5.
+#' @param title_color Color of column title text. Default "black".
+#' @param title_fontface Font face of column titles. Default "bold".
 #' @param curve_strength Controls bezier curve shape (0-1). Default 0.6.
 #' @param show_values Logical: show transition counts on flows? Default FALSE.
 #' @param value_position Position of flow values: "center", "origin", "destination",
 #'   "outside_origin", "outside_destination". Default "center".
 #' @param value_size Size of value labels on flows. Default 3.
 #' @param value_color Color of value labels. Default "black".
+#' @param value_halo Logical: add halo around flow value labels? Default NULL
+#'   (inherits from \code{label_halo}).
+#' @param value_fontface Font face of flow value labels. Default "bold".
+#' @param value_min Minimum count to show a flow value label. Default 0 (show all).
+#'   Use to hide small flows (e.g., \code{value_min = 100}).
 #' @param show_totals Logical: show total counts on nodes? Default FALSE.
 #' @param total_size Size of total labels. Default 4.
 #' @param total_color Color of total labels. Default "white".
+#' @param total_fontface Font face of total labels. Default "bold".
 #' @param conserve_flow Logical: should left and right totals match? Default TRUE.
 #'   When FALSE, each side scales independently (allows for "lost" or "gained" items).
 #' @param min_flow Minimum flow value to display. Default 0 (show all).
@@ -130,15 +143,24 @@ plot_transitions <- function(x,
                              label_position = c("beside", "inside", "above", "below", "outside"),
                              mid_label_position = NULL,
                              label_halo = TRUE,
+                             label_color = "black",
+                             label_fontface = "plain",
+                             label_nudge = 0.02,
                              title_size = 5,
+                             title_color = "black",
+                             title_fontface = "bold",
                              curve_strength = 0.6,
                              show_values = FALSE,
                              value_position = c("center", "origin", "destination", "outside_origin", "outside_destination"),
                              value_size = 3,
                              value_color = "black",
+                             value_halo = NULL,
+                             value_fontface = "bold",
+                             value_min = 0,
                              show_totals = FALSE,
                              total_size = 4,
                              total_color = "white",
+                             total_fontface = "bold",
                              conserve_flow = TRUE,
                              min_flow = 0,
                              threshold = 0,
@@ -155,6 +177,7 @@ plot_transitions <- function(x,
 
   label_position <- match.arg(label_position)
   value_position <- match.arg(value_position)
+  if (is.null(value_halo)) value_halo <- label_halo
 
   # Handle multi-step transitions (list of matrices)
   if (is.list(x) && !is.data.frame(x)) {
@@ -166,11 +189,17 @@ plot_transitions <- function(x,
       node_width = node_width, node_border = node_border,
       node_spacing = node_spacing, label_size = label_size,
       label_position = label_position, label_halo = label_halo,
-      title_size = title_size,
+      label_color = label_color, label_fontface = label_fontface,
+      label_nudge = label_nudge,
+      title_size = title_size, title_color = title_color,
+      title_fontface = title_fontface,
       curve_strength = curve_strength, show_values = show_values,
       value_position = value_position, value_size = value_size,
-      value_color = value_color, show_totals = show_totals,
+      value_color = value_color, value_halo = value_halo,
+      value_fontface = value_fontface, value_min = value_min,
+      show_totals = show_totals,
       total_size = total_size, total_color = total_color,
+      total_fontface = total_fontface,
       min_flow = min_flow, threshold = threshold,
       value_digits = value_digits, column_gap = column_gap
     )
@@ -205,18 +234,23 @@ plot_transitions <- function(x,
       label_position = label_position,
       mid_label_position = mid_label_position,
       label_halo = label_halo,
-      title_size = title_size,
+      label_color = label_color, label_fontface = label_fontface,
+      label_nudge = label_nudge,
+      title_size = title_size, title_color = title_color,
+      title_fontface = title_fontface,
       curve_strength = curve_strength,
       line_alpha = line_alpha, line_width = line_width,
       jitter_amount = jitter_amount,
       show_totals = show_totals, total_size = total_size,
-      total_color = total_color, column_gap = column_gap,
+      total_color = total_color, total_fontface = total_fontface,
+      column_gap = column_gap,
       proportional_nodes = proportional_nodes,
       node_label_format = node_label_format,
       bundle_size = bundle_size, bundle_legend = bundle_legend,
       show_values = show_values, value_position = value_position,
       value_size = value_size, value_color = value_color,
-      value_digits = value_digits
+      value_halo = value_halo, value_fontface = value_fontface,
+      value_min = value_min, value_digits = value_digits
     )
     if (!is.null(title)) p <- p + labs(title = title)
     return(p)
@@ -748,10 +782,18 @@ plot_transitions <- function(x,
                                      flow_border, flow_border_width,
                                      node_width, node_border, node_spacing,
                                      label_size, label_position, label_halo = TRUE,
-                                     title_size,
+                                     label_color = "black", label_fontface = "plain",
+                                     label_nudge = 0.02,
+                                     title_size, title_color = "black",
+                                     title_fontface = "bold",
                                      curve_strength, show_values, value_position,
-                                     value_size, value_color, show_totals,
-                                     total_size, total_color, min_flow,
+                                     value_size, value_color,
+                                     value_halo = TRUE, value_fontface = "bold",
+                                     value_min = 0,
+                                     show_totals,
+                                     total_size, total_color,
+                                     total_fontface = "bold",
+                                     min_flow,
                                      threshold = 0, value_digits = 2,
                                      column_gap = 1) {
 
@@ -909,42 +951,50 @@ plot_transitions <- function(x,
     scale_fill_identity()
 
   # Add labels based on position
+  nudge <- label_nudge
   if (label_position == "beside") {
     left_data <- node_rects[node_rects$col == 1, ]
     right_data <- node_rects[node_rects$col == n_columns, ]
     p <- .text_or_halo(p, left_data,
-      aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
-      hjust = 0, size = label_size, halo = label_halo)
+      aes(x = xmax + nudge, y = (ymin + ymax) / 2, label = label),
+      hjust = 0, size = label_size, halo = label_halo,
+      color = label_color, fontface = label_fontface)
     p <- .text_or_halo(p, right_data,
-      aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
-      hjust = 1, size = label_size, halo = label_halo)
+      aes(x = xmin - nudge, y = (ymin + ymax) / 2, label = label),
+      hjust = 1, size = label_size, halo = label_halo,
+      color = label_color, fontface = label_fontface)
 
   } else if (label_position == "outside") {
     left_data <- node_rects[node_rects$col == 1, ]
     right_data <- node_rects[node_rects$col == n_columns, ]
     p <- .text_or_halo(p, left_data,
-      aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
-      hjust = 1, size = label_size, halo = label_halo)
+      aes(x = xmin - nudge, y = (ymin + ymax) / 2, label = label),
+      hjust = 1, size = label_size, halo = label_halo,
+      color = label_color, fontface = label_fontface)
     p <- .text_or_halo(p, right_data,
-      aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
-      hjust = 0, size = label_size, halo = label_halo)
+      aes(x = xmax + nudge, y = (ymin + ymax) / 2, label = label),
+      hjust = 0, size = label_size, halo = label_halo,
+      color = label_color, fontface = label_fontface)
 
   } else if (label_position == "above") {
     p <- .text_or_halo(p, node_rects,
-      aes(x = x_pos, y = ymax + 0.02, label = label),
-      hjust = 0.5, vjust = 0, size = label_size, halo = label_halo)
+      aes(x = x_pos, y = ymax + nudge, label = label),
+      hjust = 0.5, vjust = 0, size = label_size, halo = label_halo,
+      color = label_color, fontface = label_fontface)
 
   } else if (label_position == "below") {
     p <- .text_or_halo(p, node_rects,
-      aes(x = x_pos, y = ymin - 0.02, label = label),
-      hjust = 0.5, vjust = 1, size = label_size, halo = label_halo)
+      aes(x = x_pos, y = ymin - nudge, label = label),
+      hjust = 0.5, vjust = 1, size = label_size, halo = label_halo,
+      color = label_color, fontface = label_fontface)
 
   } else if (label_position == "inside") {
     # Inside labels don't need halo (white on colored background)
     p <- p + geom_text(
       data = node_rects,
       aes(x = x_pos, y = (ymin + ymax) / 2, label = label),
-      hjust = 0.5, size = label_size * 0.8, color = "white", fontface = "bold"
+      hjust = 0.5, size = label_size * 0.8, color = "white",
+      fontface = label_fontface
     )
   }
 
@@ -954,20 +1004,19 @@ plot_transitions <- function(x,
       data = node_rects,
       aes(x = x_pos, y = (ymin + ymax) / 2,
           label = round(total, value_digits)),
-      size = total_size, color = total_color, fontface = "bold"
+      size = total_size, color = total_color, fontface = total_fontface
     )
   }
 
   # Add values on flows
   if (show_values && nrow(flow_centers) > 0) {
     fc <- flow_centers[round(flow_centers$value, value_digits) != 0, ]
+    if (value_min > 0) fc <- fc[fc$value >= value_min, ]
     if (nrow(fc) > 0) {
-      p <- p + geom_text(
-        data = fc,
+      p <- .text_or_halo(p, fc,
         aes(x = x, y = y, label = round(value, value_digits)),
-        size = value_size, color = value_color,
-        check_overlap = TRUE
-      )
+        hjust = 0.5, size = value_size, halo = value_halo,
+        color = value_color, fontface = value_fontface)
     }
   }
 
@@ -975,7 +1024,8 @@ plot_transitions <- function(x,
   title_y <- max(node_rects$ymax) + 0.04
   for (col in seq_len(n_columns)) {
     p <- .annotate_or_halo(p, x_positions[col], title_y, titles[col],
-                            title_size, label_halo)
+                            title_size, label_halo,
+                            fontface = title_fontface, color = title_color)
   }
 
   # Theme
@@ -999,10 +1049,16 @@ plot_transitions <- function(x,
                                      label_size, label_position,
                                      mid_label_position = NULL,
                                      label_halo = TRUE,
+                                     label_color = "black",
+                                     label_fontface = "plain",
+                                     label_nudge = 0.02,
                                      title_size,
+                                     title_color = "black",
+                                     title_fontface = "bold",
                                      curve_strength, line_alpha, line_width,
                                      jitter_amount, show_totals, total_size,
-                                     total_color, column_gap = 1,
+                                     total_color, total_fontface = "bold",
+                                     column_gap = 1,
                                      proportional_nodes = TRUE,
                                      node_label_format = NULL,
                                      bundle_size = NULL,
@@ -1011,6 +1067,9 @@ plot_transitions <- function(x,
                                      value_position = "center",
                                      value_size = 3,
                                      value_color = "black",
+                                     value_halo = TRUE,
+                                     value_fontface = "bold",
+                                     value_min = 0,
                                      value_digits = 2) {
 
   n_columns <- ncol(df)
@@ -1354,27 +1413,33 @@ plot_transitions <- function(x,
   # Helper: render labels for a data subset at a given position
   .add_labels <- function(p, data, pos, halo, label_size) {
     if (nrow(data) == 0L) return(p)
+    nudge <- label_nudge
     if (pos == "beside") {
       p <- .text_or_halo(p, data,
-        aes(x = xmax + 0.02, y = (ymin + ymax) / 2, label = label),
-        hjust = 0, size = label_size, halo = halo)
+        aes(x = xmax + nudge, y = (ymin + ymax) / 2, label = label),
+        hjust = 0, size = label_size, halo = halo,
+        color = label_color, fontface = label_fontface)
     } else if (pos == "outside") {
       p <- .text_or_halo(p, data,
-        aes(x = xmin - 0.02, y = (ymin + ymax) / 2, label = label),
-        hjust = 1, size = label_size, halo = halo)
+        aes(x = xmin - nudge, y = (ymin + ymax) / 2, label = label),
+        hjust = 1, size = label_size, halo = halo,
+        color = label_color, fontface = label_fontface)
     } else if (pos == "above") {
       p <- .text_or_halo(p, data,
-        aes(x = x_pos, y = ymax + 0.02, label = label),
-        hjust = 0.5, vjust = 0, size = label_size, halo = halo)
+        aes(x = x_pos, y = ymax + nudge, label = label),
+        hjust = 0.5, vjust = 0, size = label_size, halo = halo,
+        color = label_color, fontface = label_fontface)
     } else if (pos == "below") {
       p <- .text_or_halo(p, data,
-        aes(x = x_pos, y = ymin - 0.02, label = label),
-        hjust = 0.5, vjust = 1, size = label_size, halo = halo)
+        aes(x = x_pos, y = ymin - nudge, label = label),
+        hjust = 0.5, vjust = 1, size = label_size, halo = halo,
+        color = label_color, fontface = label_fontface)
     } else if (pos == "inside") {
       p <- p + geom_text(
         data = data,
         aes(x = x_pos, y = (ymin + ymax) / 2, label = label),
-        hjust = 0.5, size = label_size * 0.8, color = "white", fontface = "bold"
+        hjust = 0.5, size = label_size * 0.8, color = "white",
+        fontface = label_fontface
       )
     }
     p
@@ -1395,7 +1460,7 @@ plot_transitions <- function(x,
       data = node_rects,
       aes(x = x_pos, y = (ymin + ymax) / 2,
           label = round(total, value_digits)),
-      size = total_size, color = total_color, fontface = "bold"
+      size = total_size, color = total_color, fontface = total_fontface
     )
   }
 
@@ -1403,7 +1468,8 @@ plot_transitions <- function(x,
   title_y <- max(node_rects$ymax) + 0.04
   for (col in seq_len(n_columns)) {
     p <- .annotate_or_halo(p, x_positions[col], title_y, titles[col],
-                            title_size, label_halo)
+                            title_size, label_halo,
+                            fontface = title_fontface, color = title_color)
   }
 
   # Add flow value labels (transition counts between columns)
@@ -1474,12 +1540,13 @@ plot_transitions <- function(x,
     if (length(value_labels) > 0) {
       val_df <- do.call(rbind, value_labels)
       val_df <- val_df[val_df$value != 0, ]
+      if (value_min > 0) val_df <- val_df[val_df$value >= value_min, ]
     }
     if (length(value_labels) > 0 && nrow(val_df) > 0) {
       p <- .text_or_halo(p, val_df,
         aes(x = x, y = y, label = value),
-        hjust = 0.5, size = value_size, halo = label_halo,
-        color = value_color, fontface = "bold")
+        hjust = 0.5, size = value_size, halo = value_halo,
+        color = value_color, fontface = value_fontface)
     }
   }
 
@@ -1555,15 +1622,24 @@ plot_alluvial <- function(x,
                           label_size = 3.5,
                           label_position = c("beside", "inside", "above", "below", "outside"),
                           label_halo = TRUE,
+                          label_color = "black",
+                          label_fontface = "plain",
+                          label_nudge = 0.02,
                           title_size = 5,
+                          title_color = "black",
+                          title_fontface = "bold",
                           curve_strength = 0.6,
                           show_values = FALSE,
                           value_position = c("center", "origin", "destination", "outside_origin", "outside_destination"),
                           value_size = 3,
                           value_color = "black",
+                          value_halo = NULL,
+                          value_fontface = "bold",
+                          value_min = 0,
                           show_totals = FALSE,
                           total_size = 4,
                           total_color = "white",
+                          total_fontface = "bold",
                           conserve_flow = TRUE,
                           min_flow = 0,
                           threshold = 0,
@@ -1588,15 +1664,24 @@ plot_alluvial <- function(x,
     label_size = label_size,
     label_position = label_position,
     label_halo = label_halo,
+    label_color = label_color,
+    label_fontface = label_fontface,
+    label_nudge = label_nudge,
     title_size = title_size,
+    title_color = title_color,
+    title_fontface = title_fontface,
     curve_strength = curve_strength,
     show_values = show_values,
     value_position = value_position,
     value_size = value_size,
     value_color = value_color,
+    value_halo = value_halo,
+    value_fontface = value_fontface,
+    value_min = value_min,
     show_totals = show_totals,
     total_size = total_size,
     total_color = total_color,
+    total_fontface = total_fontface,
     conserve_flow = conserve_flow,
     min_flow = min_flow,
     threshold = threshold,
@@ -1646,7 +1731,12 @@ plot_trajectories <- function(x,
                               label_position = c("beside", "inside", "above", "below", "outside"),
                               mid_label_position = NULL,
                               label_halo = TRUE,
+                              label_color = "black",
+                              label_fontface = "plain",
+                              label_nudge = 0.02,
                               title_size = 5,
+                              title_color = "black",
+                              title_fontface = "bold",
                               curve_strength = 0.6,
                               line_alpha = 0.3,
                               line_width = 0.5,
@@ -1654,10 +1744,14 @@ plot_trajectories <- function(x,
                               show_totals = FALSE,
                               total_size = 4,
                               total_color = "white",
+                              total_fontface = "bold",
                               show_values = FALSE,
                               value_position = c("center", "origin", "destination"),
                               value_size = 3,
                               value_color = "black",
+                              value_halo = NULL,
+                              value_fontface = "bold",
+                              value_min = 0,
                               value_digits = 2,
                               column_gap = 1,
                               proportional_nodes = TRUE,
@@ -1680,7 +1774,12 @@ plot_trajectories <- function(x,
     label_position = label_position,
     mid_label_position = mid_label_position,
     label_halo = label_halo,
+    label_color = label_color,
+    label_fontface = label_fontface,
+    label_nudge = label_nudge,
     title_size = title_size,
+    title_color = title_color,
+    title_fontface = title_fontface,
     curve_strength = curve_strength,
     line_alpha = line_alpha,
     line_width = line_width,
@@ -1688,10 +1787,14 @@ plot_trajectories <- function(x,
     show_totals = show_totals,
     total_size = total_size,
     total_color = total_color,
+    total_fontface = total_fontface,
     show_values = show_values,
     value_position = value_position,
     value_size = value_size,
     value_color = value_color,
+    value_halo = value_halo,
+    value_fontface = value_fontface,
+    value_min = value_min,
     value_digits = value_digits,
     column_gap = column_gap,
     track_individuals = TRUE,

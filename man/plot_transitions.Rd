@@ -54,7 +54,11 @@ plot_transitions(
   proportional_nodes = TRUE,
   node_label_format = NULL,
   bundle_size = NULL,
-  bundle_legend = TRUE
+  bundle_legend = TRUE,
+  bundle_legend_size = 3,
+  bundle_legend_color = "grey50",
+  bundle_legend_fontface = "italic",
+  bundle_legend_position = c("bottom", "top")
 )
 }
 \arguments{
@@ -181,7 +185,18 @@ Integer >= 2: each drawn line represents that many cases.
 Numeric in (0,1): reduce to this fraction of original lines
 (e.g., 0.15 keeps about 15 percent of lines).}
 
-\item{bundle_legend}{Logical: show annotation when bundling is active? Default TRUE.}
+\item{bundle_legend}{Logical or character: show annotation when bundling is
+active? Default TRUE shows "Each line ~ N cases" below the plot.
+Pass a string to use custom text (with \code{{n}} placeholder for count).}
+
+\item{bundle_legend_size}{Size of the bundle legend text. Default 3.}
+
+\item{bundle_legend_color}{Color of the bundle legend text. Default "grey50".}
+
+\item{bundle_legend_fontface}{Font face of the bundle legend text. Default "italic".}
+
+\item{bundle_legend_position}{Position of the bundle legend: "bottom" (default)
+or "top".}
 }
 \value{
 A ggplot2 object.

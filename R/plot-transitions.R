@@ -85,7 +85,14 @@ NULL
 #'   Integer >= 2: each drawn line represents that many cases.
 #'   Numeric in (0,1): reduce to this fraction of original lines
 #'   (e.g., 0.15 keeps about 15 percent of lines).
-#' @param bundle_legend Logical: show annotation when bundling is active? Default TRUE.
+#' @param bundle_legend Logical or character: show annotation when bundling is
+#'   active? Default TRUE shows "Each line ~ N cases" below the plot.
+#'   Pass a string to use custom text (with \code{{n}} placeholder for count).
+#' @param bundle_legend_size Size of the bundle legend text. Default 3.
+#' @param bundle_legend_color Color of the bundle legend text. Default "grey50".
+#' @param bundle_legend_fontface Font face of the bundle legend text. Default "italic".
+#' @param bundle_legend_position Position of the bundle legend: "bottom" (default)
+#'   or "top".
 #'
 #' @return A ggplot2 object.
 #'
@@ -173,10 +180,15 @@ plot_transitions <- function(x,
                              proportional_nodes = TRUE,
                              node_label_format = NULL,
                              bundle_size = NULL,
-                             bundle_legend = TRUE) {
+                             bundle_legend = TRUE,
+                             bundle_legend_size = 3,
+                             bundle_legend_color = "grey50",
+                             bundle_legend_fontface = "italic",
+                             bundle_legend_position = c("bottom", "top")) {
 
   label_position <- match.arg(label_position)
   value_position <- match.arg(value_position)
+  bundle_legend_position <- match.arg(bundle_legend_position)
   if (is.null(value_halo)) value_halo <- label_halo
 
   # Handle multi-step transitions (list of matrices)
@@ -247,6 +259,10 @@ plot_transitions <- function(x,
       proportional_nodes = proportional_nodes,
       node_label_format = node_label_format,
       bundle_size = bundle_size, bundle_legend = bundle_legend,
+      bundle_legend_size = bundle_legend_size,
+      bundle_legend_color = bundle_legend_color,
+      bundle_legend_fontface = bundle_legend_fontface,
+      bundle_legend_position = bundle_legend_position,
       show_values = show_values, value_position = value_position,
       value_size = value_size, value_color = value_color,
       value_halo = value_halo, value_fontface = value_fontface,
@@ -1063,6 +1079,10 @@ plot_transitions <- function(x,
                                      node_label_format = NULL,
                                      bundle_size = NULL,
                                      bundle_legend = TRUE,
+                                     bundle_legend_size = 3,
+                                     bundle_legend_color = "grey50",
+                                     bundle_legend_fontface = "italic",
+                                     bundle_legend_position = "bottom",
                                      show_values = FALSE,
                                      value_position = "center",
                                      value_size = 3,
@@ -1551,24 +1571,39 @@ plot_transitions <- function(x,
   }
 
   # Bundle legend annotation
-  if (!is.null(bundle_size) && bundle_legend) {
-    legend_y <- min(node_rects$ymin) - 0.04
-    legend_text <- sprintf("Each line \u2248 %s cases", round(cases_per_line))
+  show_bundle_legend <- !is.null(bundle_size) && !isFALSE(bundle_legend)
+  if (show_bundle_legend) {
+    if (is.character(bundle_legend)) {
+      legend_text <- gsub("{n}", round(cases_per_line), bundle_legend,
+                          fixed = TRUE)
+    } else {
+      legend_text <- sprintf("Each line \u2248 %s cases", round(cases_per_line))
+    }
+    if (bundle_legend_position == "top") {
+      legend_y <- max(node_rects$ymax) + 0.08
+    } else {
+      legend_y <- min(node_rects$ymin) - 0.04
+    }
     d_leg <- data.frame(x = 0.5, y = legend_y, label = legend_text)
     p <- p + geom_text(data = d_leg, aes(x = x, y = y, label = label),
-                       size = 3, color = "grey50", fontface = "italic",
+                       size = bundle_legend_size, color = bundle_legend_color,
+                       fontface = bundle_legend_fontface,
                        inherit.aes = FALSE)
   }
 
   # Theme
   y_bottom <- min(node_rects$ymin) - 0.05
-  if (!is.null(bundle_size) && bundle_legend) {
+  if (show_bundle_legend && bundle_legend_position == "bottom") {
     y_bottom <- min(node_rects$ymin) - 0.08
+  }
+  y_top <- max(node_rects$ymax) + 0.1
+  if (show_bundle_legend && bundle_legend_position == "top") {
+    y_top <- max(node_rects$ymax) + 0.14
   }
   p <- p +
     coord_cartesian(
       xlim = c(-0.15, 1.15),
-      ylim = c(y_bottom, max(node_rects$ymax) + 0.1),
+      ylim = c(y_bottom, y_top),
       clip = "off"
     ) +
     theme_void() +
@@ -1757,9 +1792,14 @@ plot_trajectories <- function(x,
                               proportional_nodes = TRUE,
                               node_label_format = NULL,
                               bundle_size = NULL,
-                              bundle_legend = TRUE) {
+                              bundle_legend = TRUE,
+                              bundle_legend_size = 3,
+                              bundle_legend_color = "grey50",
+                              bundle_legend_fontface = "italic",
+                              bundle_legend_position = c("bottom", "top")) {
 
   value_position <- match.arg(value_position)
+  bundle_legend_position <- match.arg(bundle_legend_position)
 
   plot_transitions(
     x = x,
@@ -1801,6 +1841,10 @@ plot_trajectories <- function(x,
     proportional_nodes = proportional_nodes,
     node_label_format = node_label_format,
     bundle_size = bundle_size,
-    bundle_legend = bundle_legend
+    bundle_legend = bundle_legend,
+    bundle_legend_size = bundle_legend_size,
+    bundle_legend_color = bundle_legend_color,
+    bundle_legend_fontface = bundle_legend_fontface,
+    bundle_legend_position = bundle_legend_position
   )
 }

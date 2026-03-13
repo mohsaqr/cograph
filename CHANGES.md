@@ -1,5 +1,12 @@
 # Changelog
 
+### 2026-03-13 — Fix spiky text halo (8→16 directions)
+
+- R/plot-transitions.R: `.text_or_halo()` and `.annotate_or_halo()` increased from 8 to 16 circular offset directions (22.5° spacing) for smooth halo outline.
+- R/splot-edges.R: Edge label halo updated from 8 to 16 directions.
+- R/plot-heatmap.R: Heatmap value label halo updated from 8 to 16 directions.
+- Tests: 13,289 pass, 0 fail
+
 ### 2026-03-13 — Clean and package robustness + disparity filter
 
 - R/robustness.R: `n_iter` default changed from 100 to 1000 (matching brainGraph). Sequential + static strategies, vertex/edge attacks, betweenness/degree/random measures.

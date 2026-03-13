@@ -457,17 +457,17 @@ plot_transitions <- function(x,
 # Helper Functions
 # =============================================================================
 
-#' Add text with optional subtle halo (8-direction circular outline)
+#' Add text with optional subtle halo (16-direction circular outline)
 #'
-#' Uses 8 evenly-spaced circular offsets at a small radius for a tight
-#' text-shaped outline. Unlike grid offsets, circular offsets keep equal
-#' distance in all directions, preventing spike artifacts.
+#' Uses 16 evenly-spaced circular offsets at a small radius for a tight
+#' text-shaped outline. 16 directions (22.5 deg spacing) produce a smooth
+#' halo without the serrated edges that 8 directions create.
 #' @noRd
 .text_or_halo <- function(p, data, mapping, hjust, size, halo,
                            vjust = 0.5, color = "black", fontface = "plain",
                            halo_color = "white", halo_radius = 0.0015) {
   if (halo) {
-    angles <- seq(0, 2 * pi, length.out = 9L)[-9L]
+    angles <- seq(0, 2 * pi, length.out = 17L)[-17L]
     for (a in angles) {
       p <- p + geom_text(
         data = data, mapping = mapping,
@@ -485,13 +485,13 @@ plot_transitions <- function(x,
   )
 }
 
-#' Add annotate text with optional subtle halo
+#' Add annotate text with optional subtle halo (16-direction)
 #' @noRd
 .annotate_or_halo <- function(p, x, y, label, size, halo,
                                 fontface = "bold", color = "black",
                                 halo_color = "white", halo_radius = 0.0015) {
   if (halo) {
-    angles <- seq(0, 2 * pi, length.out = 9L)[-9L]
+    angles <- seq(0, 2 * pi, length.out = 17L)[-17L]
     for (a in angles) {
       d <- data.frame(x = x + cos(a) * halo_radius,
                       y = y + sin(a) * halo_radius,

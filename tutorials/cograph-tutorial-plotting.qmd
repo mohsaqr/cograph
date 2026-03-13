@@ -1,0 +1,688 @@
+---
+title: "Network Visualization with cograph: A Complete Plotting Guide"
+description: |
+    Publication-ready network plots with one function call --- from basic graphs to donut-pie composites
+date: "2026-03-05"
+author:
+  - name: Mohammed Saqr
+    url: https://saqr.me
+    affiliation: University of Eastern Finland
+  - name: Sonsoles López-Pernas
+    url: https://sonsoles.me
+    affiliation: University of Eastern Finland
+citation:
+  type: article
+  author:
+    - family: "Saqr"
+      given: "Mohammed"
+    - family: "López-Pernas"
+      given: "Sonsoles"
+categories:
+  - tutorial
+  - R
+  - visualization
+warning: false
+message: false
+fig.align: center
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: false
+    code-tools: false
+    theme: cosmo
+    self-contained: true
+execute:
+  warning: false
+  message: false
+knitr:
+  opts_chunk:
+    fig.width: 8
+    fig.height: 8
+    dpi: 150
+    comment: ""
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(tna)
+devtools::load_all(".")
+```
+
+# Introduction
+
+Network visualization in R has traditionally meant choosing between two extremes: quick-and-dirty plots that look like hairballs, or heavily customized code that takes longer to write than the analysis itself. **cograph** collapses this tradeoff. The `splot()` function produces publication-ready network visualizations from a single call, with sensible defaults that you can override parameter by parameter.
+
+This tutorial demonstrates everything through a single TNA model of collaborative regulation behaviors. We start with a zero-argument plot and progressively layer in customization --- so you can see exactly what each parameter changes.
+
+1. **The plot** --- one line, zero arguments, publication-ready
+2. **Node styling** --- shapes, colors, sizes, labels, centrality-based scaling
+3. **Edge styling** --- width, color, curvature, labels, thresholds
+4. **Donuts and pies** --- composite node shapes for multivariate data
+5. **Themes and palettes** --- pre-built visual themes
+6. **Pipe-friendly API** --- the `sn_*` function family for chainable plot building
+7. **Specialized plots** --- chord diagrams, heatmaps, alluvial flows
+8. **Group comparisons** --- difference networks and multi-group grids
+9. **Bootstrap** --- validated network visualization
+10. **Permutation testing** --- significant group differences
+11. **Mixed networks** --- directed and undirected edges combined
+
+For **network analysis** (centrality, communities, filtering), see the companion tutorial: [Network Analysis with cograph](cograph-tutorial-analysis.html). For TNA-specific workflows, see the [TNA tutorial](../tna-tutorial/index.html).
+
+::: {.callout-note}
+## GitHub Development Version
+
+This tutorial covers the full feature set available in the **GitHub development version** of cograph. The CRAN release provides the core plotting engine; the development version adds themes, pipe API, specialized plots, and additional features.
+
+```{r}
+#| label: install
+#| eval: false
+# Development version with full features
+devtools::install_github("sonsoleslp/cograph")
+```
+:::
+
+
+# Building the Model
+
+We use the built-in `group_regulation` dataset from the `tna` package --- coded collaborative regulation behaviors from student groups. This gives us a 9-state directed transition network, the kind of rich structure that showcases cograph's capabilities.
+
+```{r}
+#| label: build-model
+library(tna)
+data("group_regulation")
+model <- tna(group_regulation)
+model
+```
+
+We also prepare a group model for later comparison and permutation sections:
+
+```{r}
+#| label: build-group-model
+data("group_regulation_long")
+prepared <- prepare_data(group_regulation_long,
+                         action = "Action", actor = "Actor", time = "Time")
+group_model <- group_tna(prepared, group = "Achiever")
+```
+
+
+# The Plot
+
+One function. Zero arguments beyond the model. Publication-ready.
+
+```{r}
+#| label: fig-the-plot
+#| fig-cap: "splot(model) --- that's it"
+splot(model)
+```
+
+When cograph receives a TNA object, it auto-applies TNA-appropriate defaults: oval layout, dark blue edges weighted by transition probability, donut rings showing initial state probabilities, and directional arrows. Every aspect of this plot can be customized --- the rest of this tutorial shows how.
+
+
+# Node Styling
+
+## Shapes
+
+Every node can have its own shape. cograph supports circles, squares, hexagons, diamonds, triangles, pentagons, stars, hearts, and more:
+
+```{r}
+#| label: fig-node-shapes
+#| fig-cap: "Different shapes per node"
+splot(model,
+  node_shape = c("circle", "square", "hexagon", "diamond", "triangle",
+                 "pentagon", "star", "heart", "circle"),
+  layout = "circle"
+)
+```
+
+::: {.callout-tip collapse="true"}
+## All Built-In Shapes
+
+`"circle"`, `"square"`, `"triangle"`, `"diamond"`, `"pentagon"`, `"hexagon"`, `"star"`, `"heart"`, `"ellipse"`, `"cross"`, `"rectangle"`, `"pie"`, `"donut"`
+
+You can also register **custom SVG shapes** with `register_svg_shape()` and use them by name.
+:::
+
+## Colors and Sizes
+
+```{r}
+#| label: fig-node-colors
+#| fig-cap: "Custom fills, borders, and per-node sizes"
+splot(model,
+  node_fill = palette_viridis(9),
+  node_border_color = "white",
+  node_border_width = 2,
+  node_size = c(12, 8, 10, 9, 7, 11, 8, 10, 9)
+)
+```
+
+## Scaling Nodes by Centrality
+
+`scale_nodes_by` maps a centrality measure to node size --- larger nodes are more central. This is one of the most useful parameters for making network structure immediately visible:
+
+```{r}
+#| label: fig-scale-nodes
+#| fig-cap: "Node size proportional to different centrality measures"
+#| fig-width: 10
+#| fig-height: 5
+par(mfrow = c(1, 2), mar = c(1, 1, 2, 1))
+splot(model, scale_nodes_by = "betweenness", node_size_range = c(3, 14),
+      title = "Betweenness")
+splot(model, scale_nodes_by = "strength", node_size_range = c(3, 14),
+      title = "Strength")
+```
+
+::: {.callout-tip collapse="true"}
+## scale_nodes_by Options
+
+Any centrality measure name works: `"degree"`, `"strength"`, `"betweenness"`, `"closeness"`, `"eigenvector"`, `"pagerank"`, `"authority"`, `"hub"`, `"eccentricity"`, `"coreness"`, `"constraint"`, `"transitivity"`, `"harmonic"`, `"diffusion"`, `"leverage"`, `"kreach"`.
+
+For directional measures (in/out), use a list: `scale_nodes_by = list("strength", mode = "in")`.
+
+| Parameter | Default | Description |
+|---|---|---|
+| `scale_nodes_by` | `NULL` | Centrality measure name or list with mode |
+| `node_size_range` | `c(2, 8)` | `c(min, max)` size range for mapping |
+:::
+
+
+# Edge Styling
+
+## Width and Curvature
+
+```{r}
+#| label: fig-edge-width
+#| fig-cap: "Custom edge width range with curvature"
+splot(model,
+  edge_width = 3,
+  curvature = 0.3,
+  arrow_size = 0.015
+)
+```
+
+## Edge Labels
+
+Display transition probabilities directly on edges:
+
+```{r}
+#| label: fig-edge-labels
+#| fig-cap: "Edge labels showing transition weights"
+splot(model,
+  edge_labels = TRUE,
+  edge_label_size = 0.6,
+  edge_label_bg = "white",
+  threshold = 0.05
+)
+```
+
+## Thresholding
+
+Hide weak transitions to reveal the backbone:
+
+```{r}
+#| label: fig-threshold
+#| fig-cap: "Thresholding removes visual clutter"
+#| fig-width: 10
+#| fig-height: 5
+par(mfrow = c(1, 2), mar = c(1, 1, 2, 1))
+splot(model, title = "All edges")
+splot(model, threshold = 0.10, title = "threshold = 0.10")
+```
+
+::: {.callout-tip collapse="true"}
+## Edge Parameters
+
+| Parameter | Default | Description |
+|---|---|---|
+| `edge_width` | auto | Base edge width |
+| `edge_width_range` | auto | `c(min, max)` width range |
+| `edge_color` | auto | Edge color |
+| `edge_alpha` | `1` | Transparency |
+| `edge_style` | `"solid"` | `"solid"`, `"dashed"`, `"dotted"` |
+| `curvature` | auto | Curve amount |
+| `arrow_size` | auto | Arrowhead size |
+| `threshold` | `0` | Hide edges below this weight |
+| `edge_labels` | `FALSE` | Show weight labels |
+| `edge_label_style` | `"plain"` | `"plain"`, `"ci"`, `"stars"`, `"full"` |
+| `edge_positive_color` | auto | Color for positive weights |
+| `edge_negative_color` | auto | Color for negative weights |
+:::
+
+
+# Donuts and Pies
+
+Donut and pie node shapes encode **additional quantitative information** directly in the node rendering. In TNA, the donut ring is automatically filled from initial state probabilities --- but you can use it for any node-level metric.
+
+## Donut Nodes
+
+The default TNA plot already shows donut fills from `model$inits`. You can customize the appearance:
+
+```{r}
+#| label: fig-donuts-custom
+#| fig-cap: "Hexagonal donut shapes with custom color"
+splot(model,
+  donut_shape = "hexagon",
+  donut_color = "#2E7D32"
+)
+```
+
+## Pie Nodes
+
+Pie chart nodes show a categorical distribution per node. You can combine them with the outer donut ring:
+
+```{r}
+#| label: fig-donut-pie
+#| fig-cap: "Donut ring (initial probability) + inner pie segments"
+# Each node gets a 3-slice pie (e.g., from a clustering or condition split)
+pie_vals <- list(
+  c(0.5, 0.3, 0.2), c(0.4, 0.4, 0.2), c(0.3, 0.3, 0.4),
+  c(0.6, 0.2, 0.2), c(0.2, 0.5, 0.3), c(0.4, 0.3, 0.3),
+  c(0.7, 0.2, 0.1), c(0.3, 0.4, 0.3), c(0.5, 0.2, 0.3)
+)
+
+splot(model,
+  pie_values = pie_vals,
+  pie_colors = c("#1976D2", "#FFA000", "#C62828"),
+  layout = "circle"
+)
+```
+
+::: {.callout-tip collapse="true"}
+## Donut & Pie Parameters
+
+| Parameter | Default | Description |
+|---|---|---|
+| `donut_fill` | auto (from TNA inits) | Numeric 0--1 per node |
+| `donut_color` | auto | Fill color for the ring |
+| `donut_inner_ratio` | `0.5` | Inner radius ratio (0--1) |
+| `donut_shape` | `"circle"` | `"circle"`, `"square"`, `"hexagon"`, `"diamond"`, `"triangle"`, `"pentagon"` |
+| `donut_show_value` | `FALSE` | Show numeric value in center |
+| `donut_value_suffix` | `""` | Text after value (e.g., `"%"`) |
+| `pie_values` | `NULL` | List of numeric vectors per node |
+| `pie_colors` | auto | Colors for pie segments |
+:::
+
+
+# Themes and Palettes
+
+Themes apply a coordinated set of visual defaults with a single parameter:
+
+```{r}
+#| label: fig-themes
+#| fig-cap: "Four built-in themes"
+#| fig-width: 10
+#| fig-height: 10
+par(mfrow = c(2, 2), mar = c(1, 1, 2, 1))
+splot(model, theme = "classic",    title = "classic")
+splot(model, theme = "dark",       title = "dark")
+splot(model, theme = "minimal",    title = "minimal")
+splot(model, theme = "colorblind", title = "colorblind")
+```
+
+```{r}
+#| label: fig-palettes
+#| fig-cap: "Color palettes for nodes"
+#| fig-width: 10
+#| fig-height: 5
+par(mfrow = c(1, 3), mar = c(1, 1, 2, 1))
+splot(model, node_fill = palette_viridis(9),    title = "viridis")
+splot(model, node_fill = palette_pastel(9),     title = "pastel")
+splot(model, node_fill = palette_colorblind(9), title = "colorblind")
+```
+
+::: {.callout-tip collapse="true"}
+## All Themes
+
+| Theme | Description |
+|---|---|
+| `"classic"` | Clean, professional (default) |
+| `"dark"` | Dark background, light elements |
+| `"minimal"` | Reduced chrome, subtle colors |
+| `"colorblind"` | Colorblind-safe palette |
+| `"grayscale"` | No color, grayscale only |
+| `"vibrant"` | Bold, saturated colors |
+| `"nature"` | Earth-tone palette |
+| `"viridis"` | Viridis color scale |
+
+Use `list_themes()` to see all registered themes. Create custom themes with `register_theme()`.
+:::
+
+
+# Pipe-Friendly API
+
+The `sn_*` function family lets you build plots incrementally using the pipe operator. Each function takes a cograph_network and returns a modified one:
+
+```{r}
+#| label: fig-pipe
+#| fig-cap: "Dark-themed hexagon network built with pipes"
+model |>
+  cograph(layout = "circle") |>
+  sn_theme("dark") |>
+  sn_nodes(size = 10, shape = "hexagon",
+           border_color = "white", border_width = 2) |>
+  sn_edges(width = 4, curvature = 0.2) |>
+  soplot(title = "Built with pipes")
+```
+
+::: {.callout-tip collapse="true"}
+## All sn_* Functions
+
+| Function | What It Configures |
+|---|---|
+| `sn_layout(network, layout, seed)` | Layout algorithm |
+| `sn_theme(network, theme)` | Visual theme |
+| `sn_palette(network, palette, target, by)` | Color palette for nodes or edges |
+| `sn_nodes(network, ...)` | All node aesthetics (size, shape, fill, labels, pie, donut) |
+| `sn_edges(network, ...)` | All edge aesthetics (width, color, labels, curvature, CI) |
+| `sn_render(network, ...)` | Render with grid graphics (alias for `soplot()`) |
+| `sn_ggplot(network, title)` | Convert to ggplot2 object |
+| `sn_save(network, filename, ...)` | Save to file (PDF/PNG/SVG) |
+:::
+
+
+# Specialized Plots
+
+## Chord Diagram
+
+Chord diagrams show flows as curved ribbons around a circle. The width of each ribbon is proportional to the transition weight:
+
+```{r}
+#| label: fig-chord
+#| fig-cap: "Chord diagram of transition flows"
+plot_chord(model, chord_alpha = 0.6, title = "Transition Flows")
+```
+
+::: {.callout-tip collapse="true"}
+## Chord Diagram Parameters
+
+| Parameter | Default | Description |
+|---|---|---|
+| `segment_colors` | auto | Colors for each node's arc |
+| `chord_color_by` | `"source"` | Color ribbons by `"source"`, `"target"`, or `"weight"` |
+| `chord_alpha` | `0.5` | Ribbon transparency |
+| `self_loop` | `FALSE` | Show self-transition arcs? |
+| `threshold` | `0` | Hide chords below this weight |
+:::
+
+## Heatmap
+
+The adjacency matrix as a color-coded grid, optionally grouped by cluster:
+
+```{r}
+#| label: fig-heatmap
+#| fig-cap: "Transition heatmap with clustered groups"
+#| fig-width: 9
+#| fig-height: 8
+clusters <- list(
+  Social    = c("discuss", "consensus", "cohesion", "emotion"),
+  Cognitive = c("plan", "monitor", "adapt", "synthesis"),
+  Meta      = c("coregulate")
+)
+
+plot_heatmap(model,
+  cluster_list = clusters,
+  show_values = TRUE,
+  value_size = 3.5,
+  title = "Transition Heatmap"
+)
+```
+
+## Alluvial / Sankey Diagram
+
+Shows source-to-target flow as an alluvial diagram:
+
+```{r}
+#| label: fig-alluvial
+#| fig-cap: "Alluvial diagram of transition flows"
+#| fig-width: 9
+#| fig-height: 7
+plot_alluvial(model$weights, threshold = 0.05)
+```
+
+
+# Group Comparisons
+
+## Multi-Group Grid
+
+When you pass a `group_tna` object, splot renders all groups in a grid:
+
+```{r}
+#| label: fig-group-grid
+#| fig-cap: "High vs Low achiever networks side by side"
+#| fig-width: 12
+#| fig-height: 6
+splot(group_model, i = NULL)
+```
+
+## Difference Network
+
+`plot_compare()` computes and visualizes the element-wise difference between two groups. Green edges are stronger in the first group; red edges are stronger in the second:
+
+```{r}
+#| label: fig-compare
+#| fig-cap: "Difference network: High - Low achievers"
+plot_compare(group_model,
+  pos_color = "#2A9D8F",
+  neg_color = "#E76F51",
+  title = "High vs Low"
+)
+```
+
+
+# Bootstrap
+
+The bootstrap procedure determines which edges are stable properties of the data and which are sampling artifacts. Pass a `tna_bootstrap` object to `splot()` and it automatically styles significant vs. non-significant edges:
+
+```{r}
+#| label: bootstrap
+#| cache: true
+set.seed(265)
+boot <- bootstrap(model, iter = 1000, level = 0.05)
+```
+
+```{r}
+#| label: fig-bootstrap-styled
+#| fig-cap: "Bootstrap-validated network (solid = significant, dashed = non-significant)"
+splot(boot)
+```
+
+```{r}
+#| label: fig-bootstrap-sig
+#| fig-cap: "Only significant edges shown"
+splot(boot, display = "significant")
+```
+
+```{r}
+#| label: fig-bootstrap-ci
+#| fig-cap: "Confidence interval labels on edges"
+splot(boot, display = "ci", threshold = 0.05)
+```
+
+::: {.callout-tip collapse="true"}
+## Bootstrap Display Modes
+
+| `display` | Description |
+|---|---|
+| `"styled"` (default) | Significant = solid, non-significant = dashed |
+| `"significant"` | Only significant edges shown |
+| `"full"` | All edges shown with equal styling |
+| `"ci"` | Confidence interval labels on edges |
+
+Additional parameters: `show_stars` (significance stars), `show_ci` (CI values), `width_by` (scale width by weight or CI width).
+:::
+
+
+# Permutation Testing
+
+Permutation testing evaluates whether between-group differences are statistically significant. Pass the result to `splot()` to visualize which edge differences survived the permutation test:
+
+```{r}
+#| label: permutation
+#| cache: true
+set.seed(265)
+perm <- permutation_test(group_model, iter = 1000)
+```
+
+```{r}
+#| label: fig-permutation
+#| fig-cap: "Permutation test: significant between-group edge differences"
+splot(perm)
+```
+
+::: {.callout-tip collapse="true"}
+## Permutation Plot Parameters
+
+| Parameter | Default | Description |
+|---|---|---|
+| `show_nonsig` | `TRUE` | Show non-significant edges? |
+| `edge_nonsig_color` | `"gray80"` | Color for non-significant edges |
+| `edge_nonsig_alpha` | `0.3` | Transparency for non-significant edges |
+| `show_stars` | `FALSE` | Show significance stars |
+| `show_effect` | `FALSE` | Show effect sizes |
+:::
+
+
+# Mixed Networks
+
+Overlay directed and undirected edges on the same plot. This is useful when you have two types of relationships --- for example, symmetric co-occurrence patterns and asymmetric transition probabilities. The defaults follow TNA conventions: oval layout, weight-scaled edges, dotted edge starts, and visible edge labels.
+
+```{r}
+#| label: fig-mixed
+#| fig-cap: "Co-occurrence (steel blue, straight) and transitions (dark blue, curved) with TNA-style defaults"
+# Undirected: symmetric co-occurrence (half the weight for visual balance)
+set.seed(42)
+sym <- (model$weights + t(model$weights)) / 2
+noise <- matrix(runif(length(sym), -0.02, 0.02), nrow = nrow(sym))
+noise <- (noise + t(noise)) / 2  # keep symmetric
+diag(noise) <- 0
+sym <- pmax(sym * 0.5 + noise, 0)
+
+# Directed: original transition probabilities
+asym <- model$weights
+
+# Defaults: oval layout, blue edges, weight-scaled widths, edge labels
+plot_mixed_network(sym, asym, threshold = 0.03,
+  title = "Co-occurrence + Transitions"
+)
+```
+
+You can distinguish edge types by color: undirected co-occurrence edges are straight steel-blue lines, while directed transitions are curved dark-blue arrows with dotted starts. Edge widths scale automatically by weight, so stronger connections stand out.
+
+```{r}
+#| label: fig-mixed-custom
+#| fig-cap: "Custom colors to visually separate edge types"
+plot_mixed_network(sym, asym, threshold = 0.03,
+  sym_color = "#E63946",
+  asym_color = "#003355",
+  title = "Red undirected + Blue directed"
+)
+```
+
+
+# Saving and Exporting
+
+## Direct File Output
+
+```{r}
+#| label: save-splot
+#| eval: false
+# Save as PNG
+splot(model, filename = "network.png", width = 8, height = 8, res = 300)
+
+# Save as PDF
+splot(model, filename = "network.pdf", width = 8, height = 8)
+
+# Save as SVG
+splot(model, filename = "network.svg", width = 8, height = 8)
+```
+
+## Pipe-Friendly Saving
+
+```{r}
+#| label: save-pipe
+#| eval: false
+model |>
+  cograph(layout = "circle") |>
+  sn_theme("dark") |>
+  sn_nodes(size = 10) |>
+  sn_save("network_dark.png", width = 8, height = 8, dpi = 300)
+```
+
+## ggplot2 Export
+
+```{r}
+#| label: save-ggplot
+#| eval: false
+p <- model |>
+  cograph(layout = "circle") |>
+  sn_ggplot()
+
+ggplot2::ggsave("network.pdf", p, width = 8, height = 8)
+```
+
+
+# Complete Parameter Reference
+
+::: {.callout-tip collapse="true"}
+## splot() --- All Parameters
+
+**Input & Layout:**
+`x`, `layout`, `directed`, `seed`, `theme`, `title`, `background`, `groups`
+
+**Node Appearance:**
+`node_size`, `node_size2`, `node_shape`, `node_fill`, `node_border_color`, `node_border_width`, `node_alpha`, `scale_nodes_by`, `node_size_range`
+
+**Labels:**
+`labels`, `label_size`, `label_color`, `label_position`, `label_fontface`, `label_fontfamily`
+
+**Donut:**
+`donut_fill`, `donut_color`, `donut_inner_ratio`, `donut_shape`, `donut_show_value`, `donut_value_suffix`, `donut_value_digits`, `donut2_values`, `donut2_colors`
+
+**Pie:**
+`pie_values`, `pie_colors`
+
+**Edge Appearance:**
+`edge_color`, `edge_width`, `edge_size`, `edge_width_range`, `edge_scale_mode`, `edge_cutoff`, `edge_alpha`, `edge_style`, `edge_start_style`, `edge_positive_color`, `edge_negative_color`, `curvature`, `curves`
+
+**Arrows:**
+`arrow_size`, `arrow_angle`, `show_arrows`, `bidirectional`
+
+**Edge Labels:**
+`edge_labels`, `edge_label_size`, `edge_label_color`, `edge_label_bg`, `edge_label_position`, `edge_label_offset`, `edge_label_fontface`, `edge_label_style`, `edge_label_template`
+
+**CI Underlay:**
+`edge_ci`, `edge_ci_scale`, `edge_ci_alpha`, `edge_ci_color`, `edge_ci_style`
+
+**Weight / Threshold:**
+`threshold`, `minimum`, `maximum`, `weight_digits`
+
+**Layout Control:**
+`rescale`, `layout_scale`, `layout_margin`, `aspect`, `loop_rotation`
+
+**File Output:**
+`filename`, `filetype`, `width`, `height`, `res`
+
+**TNA:**
+`i` (group index for group_tna)
+:::
+
+::: {.callout-tip collapse="true"}
+## All Available Layouts
+
+**Built-in:** `"oval"` (default), `"circle"`, `"spring"`, `"grid"`, `"random"`, `"star"`, `"bipartite"`, `"groups"`
+
+**igraph (two-letter codes):** `"kk"` (Kamada-Kawai), `"fr"` (Fruchterman-Reingold), `"drl"`, `"mds"`, `"lgl"`, `"ni"` (nicely), `"tr"` (tree), `"st"` (Sugiyama)
+
+You can also pass a **custom layout matrix** (2-column matrix with x, y coordinates) or a **layout function**.
+:::
+
+
+# References {.unnumbered}
+
+- cograph: Modern R Package for Network Visualization. <https://github.com/sonsoleslp/cograph>
+
+- Saqr, M., López-Pernas, S., Törmänen, T., Kaliisa, R., Misiejuk, K., & Tikka, S. (2025). Transition Network Analysis: A Novel Framework for Modeling, Visualizing, and Identifying the Temporal Patterns of Learners and Learning Processes. In *Proceedings of the 15th International Learning Analytics and Knowledge Conference (LAK '25)* (pp. 351--361). ACM. <https://doi.org/10.1145/3706468.3706513>
+
+- Tikka, S., López-Pernas, S., & Saqr, M. (2025). tna: An R Package for Transition Network Analysis. *Applied Psychological Measurement*. <https://doi.org/10.1177/01466216251348840>

@@ -1,0 +1,905 @@
+---
+title: "Network Analysis with cograph: Import, Utilities, Centralities & Communities"
+description: |
+    From raw data to complete network analysis in R --- no boilerplate required
+date: "2026-03-05"
+author:
+  - name: Mohammed Saqr
+    url: https://saqr.me
+    affiliation: University of Eastern Finland
+  - name: Sonsoles López-Pernas
+    url: https://sonsoles.me
+    affiliation: University of Eastern Finland
+citation:
+  type: article
+  author:
+    - family: "Saqr"
+      given: "Mohammed"
+    - family: "López-Pernas"
+      given: "Sonsoles"
+categories:
+  - tutorial
+  - R
+  - network analysis
+warning: false
+message: false
+fig.align: center
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: false
+    code-tools: false
+    theme: cosmo
+    self-contained: true
+execute:
+  warning: false
+  message: false
+knitr:
+  opts_chunk:
+    fig.width: 8
+    fig.height: 6
+    dpi: 150
+    comment: ""
+---
+
+```{r}
+#| label: setup
+#| include: false
+devtools::load_all(".")
+```
+
+# Introduction
+
+Most network analysis in R involves a frustrating ritual: convert your data into the right format, learn a package-specific API, compute one metric at a time, then wrangle outputs back into something usable. If your data comes from a different source --- a transition matrix here, an igraph object there, a statnet network elsewhere --- you spend more time on format conversion than on actual analysis.
+
+**cograph** eliminates this friction. Every function accepts every major network format directly: adjacency matrices, edge-list data frames, igraph, statnet network, qgraph, and tna objects. You never convert manually. You call `centrality_degree(mat)` or `communities(g)` and it works, regardless of what `mat` or `g` happens to be.
+
+This tutorial covers the analysis side of cograph:
+
+1. **Importing networks** --- six formats, zero conversion code
+2. **Inspecting and converting** --- getters, summaries, format conversion
+3. **Filtering and selecting** --- dplyr-style expressions, centrality-aware selection
+4. **Centrality measures** --- 25 node-level measures, edge centrality, directional variants
+5. **Network properties** --- 37 summary metrics plus specialized diagnostics
+6. **Community detection** --- 11 algorithms, consensus, comparison
+
+For **visualization and plotting**, see the companion tutorial: [Plotting with cograph](cograph-tutorial-plotting.html). For **TNA-specific workflows**, see the [TNA tutorial](../tna-tutorial/index.html).
+
+::: {.callout-note}
+## GitHub Development Version
+
+This tutorial covers the full feature set available in the **GitHub development version** of cograph. The CRAN release provides the core plotting engine; the development version adds the full analysis toolkit (centralities, communities, network properties, filtering, and selection).
+
+```{r}
+#| label: install
+#| eval: false
+# Development version with full features
+devtools::install_github("sonsoleslp/cograph")
+```
+:::
+
+# Sample Data
+
+Throughout this tutorial we use a 5-state directed transition matrix representing regulatory learning behaviors. This is the kind of weighted directed network that appears in learning analytics, process mining, and behavioral research.
+
+```{r}
+#| label: sample-data
+# A 5-state transition matrix (directed, weighted)
+states <- c("Explore", "Plan", "Monitor", "Adapt", "Reflect")
+mat <- matrix(
+  c(0.00, 0.35, 0.20, 0.15, 0.30,
+    0.25, 0.00, 0.30, 0.20, 0.25,
+    0.15, 0.25, 0.00, 0.35, 0.25,
+    0.10, 0.20, 0.35, 0.00, 0.35,
+    0.20, 0.15, 0.25, 0.40, 0.00),
+  nrow = 5, byrow = TRUE,
+  dimnames = list(states, states)
+)
+round(mat, 2)
+```
+
+We also create a larger 8-node undirected network for demonstrations that benefit from more structure:
+
+```{r}
+#| label: sample-data-large
+# 8-node network for community detection examples
+set.seed(42)
+nodes8 <- c("A", "B", "C", "D", "E", "F", "G", "H")
+mat8 <- matrix(0, 8, 8, dimnames = list(nodes8, nodes8))
+
+# Create two clusters with strong internal connections
+# Cluster 1: A, B, C, D
+mat8["A", "B"] <- mat8["B", "A"] <- 0.8
+mat8["A", "C"] <- mat8["C", "A"] <- 0.6
+mat8["B", "C"] <- mat8["C", "B"] <- 0.7
+mat8["B", "D"] <- mat8["D", "B"] <- 0.5
+mat8["C", "D"] <- mat8["D", "C"] <- 0.6
+
+# Cluster 2: E, F, G, H
+mat8["E", "F"] <- mat8["F", "E"] <- 0.9
+mat8["E", "G"] <- mat8["G", "E"] <- 0.7
+mat8["F", "G"] <- mat8["G", "F"] <- 0.8
+mat8["G", "H"] <- mat8["H", "G"] <- 0.6
+mat8["F", "H"] <- mat8["H", "F"] <- 0.5
+
+# Weak between-cluster bridges
+mat8["D", "E"] <- mat8["E", "D"] <- 0.15
+mat8["C", "G"] <- mat8["G", "C"] <- 0.10
+```
+
+
+# Importing Networks
+
+Every cograph function accepts six network formats directly. You never need a separate conversion step --- just pass your data and cograph figures out the rest.
+
+## From a Matrix
+
+The most common input: a square adjacency or weight matrix. Row and column names become node labels. Directedness is auto-detected from matrix symmetry (symmetric = undirected, asymmetric = directed).
+
+```{r}
+#| label: import-matrix
+# Asymmetric matrix → auto-detected as directed
+net <- as_cograph(mat)
+net
+```
+
+```{r}
+#| label: import-matrix-undirected
+# Symmetric matrix → auto-detected as undirected
+net_u <- as_cograph(mat8)
+net_u
+```
+
+You can override auto-detection with `directed = TRUE` or `directed = FALSE`.
+
+## From a Data Frame (Edge List)
+
+An edge-list data frame with source, target, and optionally weight columns. Column names are auto-detected from common conventions (`from`/`to`, `source`/`target`, `v1`/`v2`, etc.).
+
+```{r}
+#| label: import-edgelist
+# Create an edge list data frame
+edges_df <- data.frame(
+  from   = c("A", "A", "B", "B", "C"),
+  to     = c("B", "C", "C", "D", "D"),
+  weight = c(0.8, 0.6, 0.7, 0.5, 0.6)
+)
+
+net_df <- as_cograph(edges_df)
+net_df
+```
+
+## From an igraph Object
+
+If you already have an igraph object from another analysis, pass it directly. All vertex and edge attributes are preserved.
+
+```{r}
+#| label: import-igraph
+library(igraph)
+
+# Resolve namespace conflicts (igraph masks some cograph functions)
+communities    <- cograph::communities
+membership     <- cograph::membership.cograph_communities
+modularity     <- cograph::modularity.cograph_communities
+edge_betweenness <- cograph::edge_betweenness
+degree_distribution <- cograph::degree_distribution
+
+# Create an igraph object
+g <- graph_from_adjacency_matrix(mat, mode = "directed", weighted = TRUE)
+
+# Pass directly --- no conversion needed
+net_ig <- as_cograph(g)
+net_ig
+```
+
+::: {.callout-tip collapse="true"}
+## From a statnet network Object
+
+If you work with the `network` / `sna` ecosystem, cograph accepts statnet network objects directly:
+
+```{r}
+#| label: import-statnet
+#| eval: false
+library(network)
+n <- network(mat8, directed = FALSE)
+net_sn <- as_cograph(n)
+```
+:::
+
+::: {.callout-tip collapse="true"}
+## From a qgraph Object
+
+For users of the `qgraph` package (common in psychological network analysis):
+
+```{r}
+#| label: import-qgraph
+#| eval: false
+library(qgraph)
+q <- qgraph(mat)
+net_qg <- as_cograph(q)
+```
+:::
+
+::: {.callout-tip collapse="true"}
+## From a TNA Object
+
+cograph has first-class integration with the `tna` package. TNA objects carry additional metadata (initial state probabilities, state labels, color schemes) that cograph preserves automatically:
+
+```{r}
+#| label: import-tna
+#| eval: false
+library(tna)
+model <- tna(engagement)
+net_tna <- as_cograph(model)
+```
+
+When a TNA object is detected, cograph automatically adjusts weight inversion for path-based centrality measures (because TNA transition probabilities are similarities, not distances).
+:::
+
+::: {.callout-tip collapse="true"}
+## Format Auto-Detection Summary
+
+| Input | Detection Method | Directed? |
+|---|---|---|
+| Square matrix | `is.matrix()` | Auto from symmetry |
+| Data frame | `is.data.frame()` | Auto from bidirectional edges |
+| igraph | `inherits(x, "igraph")` | From igraph's `is_directed()` |
+| statnet network | `inherits(x, "network")` | From `network::is.directed()` |
+| qgraph | `inherits(x, "qgraph")` | From qgraph attributes |
+| tna | `inherits(x, "tna")` | Auto from matrix symmetry |
+
+You can always override with `directed = TRUE` or `directed = FALSE`.
+:::
+
+# Inspecting Networks
+
+Once you have a cograph_network object, a set of getter functions gives you clean access to every component.
+
+```{r}
+#| label: inspect
+# Basic properties
+cat("Nodes:", n_nodes(net), "\n")
+cat("Edges:", n_edges(net), "\n")
+cat("Directed:", cograph::is_directed(net), "\n")
+cat("Labels:", paste(get_labels(net), collapse = ", "), "\n")
+```
+
+```{r}
+#| label: inspect-nodes
+# Node table
+get_nodes(net)
+```
+
+```{r}
+#| label: inspect-edges
+# Edge table (from, to, weight)
+get_edges(net)
+```
+
+The `summary()` method provides a one-line overview of the network structure:
+
+```{r}
+#| label: summary
+summary(net)
+```
+
+::: {.callout-tip collapse="true"}
+## All Getter Functions
+
+| Function | Returns |
+|---|---|
+| `get_nodes(x)` | Node data frame (id, label, name) |
+| `get_edges(x)` | Edge data frame (from, to, weight) |
+| `get_labels(x)` | Character vector of node labels |
+| `get_source(x)` | Input format name (e.g., "matrix") |
+| `get_data(x)` | Original raw input data |
+| `get_meta(x)` | Metadata list |
+| `n_nodes(x)` | Integer node count |
+| `n_edges(x)` | Integer edge count |
+| `is_directed(x)` | Logical |
+| `get_groups(x)` | Group assignments (if set) |
+:::
+
+# Conversion
+
+Sometimes you need to move between formats --- for example, to use an igraph-specific algorithm or to export an edge list to a file. cograph provides four conversion functions that accept **any** input format:
+
+```{r}
+#| label: convert-igraph
+# Matrix → igraph (for access to igraph's full toolkit)
+g <- to_igraph(mat)
+g
+```
+
+```{r}
+#| label: convert-matrix
+# igraph → matrix (for matrix algebra or heatmaps)
+m <- to_matrix(g)
+round(m, 2)
+```
+
+```{r}
+#| label: convert-df
+# Any format → edge list data frame (for CSV export or dplyr pipelines)
+df <- to_data_frame(mat)
+df
+```
+
+::: {.callout-tip collapse="true"}
+## Conversion Functions
+
+| Function | Returns | Use Case |
+|---|---|---|
+| `to_igraph(x)` | igraph object | Access igraph's full algorithm suite |
+| `to_matrix(x)` | Adjacency matrix | Matrix algebra, heatmap input |
+| `to_data_frame(x)` | Edge list data frame | CSV export, dplyr pipelines |
+| `to_network(x)` | statnet network object | Use with sna/ergm packages |
+
+All accept matrix, data.frame, igraph, network, cograph_network, or tna objects. The `directed` parameter can override auto-detection.
+:::
+
+
+# Filtering and Selection
+
+Filtering lets you extract subsets of your network using expressions evaluated against node or edge properties --- including centrality measures computed lazily on demand. This is one of the most powerful features in cograph: you can filter by structural properties without computing them first.
+
+## Filtering Edges
+
+`filter_edges()` uses dplyr-style expressions evaluated against the edge data frame. Keep only the strong transitions:
+
+```{r}
+#| label: filter-edges
+# Keep only edges with weight > 0.25
+strong_net <- filter_edges(mat, weight > 0.25)
+get_edges(strong_net)
+```
+
+Multiple conditions combine with AND logic:
+
+```{r}
+#| label: filter-edges-multi
+# Edges from "Adapt" with weight > 0.30
+adapt_strong <- filter_edges(mat, from == "Adapt", weight > 0.30)
+get_edges(adapt_strong)
+```
+
+## Filtering Nodes
+
+`filter_nodes()` evaluates expressions against node properties. What makes this powerful is that **centrality measures are available as lazy-computed columns** --- you don't need to compute them first:
+
+```{r}
+#| label: filter-nodes-centrality
+# Keep only nodes with degree centrality > 4
+# "degree" is computed on the fly inside the filter
+high_degree <- filter_nodes(mat, degree > 4)
+get_labels(high_degree)
+```
+
+::: {.callout-tip collapse="true"}
+## Available Lazy Centrality Columns in filter_nodes()
+
+These column names are computed automatically when referenced in a filter expression:
+
+| Column | Measure |
+|---|---|
+| `degree` | Degree centrality |
+| `strength` | Weighted degree |
+| `betweenness` | Betweenness centrality |
+| `closeness` | Closeness centrality |
+| `eigenvector` | Eigenvector centrality |
+| `pagerank` | PageRank |
+| `hub` | Hub score |
+| `authority` | Authority score |
+| `coreness` | K-core decomposition |
+| `constraint` | Burt's structural constraint |
+| `eccentricity` | Eccentricity |
+| `transitivity` | Local clustering coefficient |
+
+These are not pre-computed --- they are evaluated only when you reference them, so there is no performance cost when filtering by other attributes.
+:::
+
+## Selecting Nodes
+
+`select_nodes()` provides six selection modes that combine with AND logic:
+
+```{r}
+#| label: select-by-name
+# Select specific nodes by name
+sub <- select_nodes(mat, name = c("Plan", "Monitor", "Adapt"))
+get_labels(sub)
+```
+
+```{r}
+#| label: select-top
+# Top 3 nodes by betweenness centrality
+top3 <- select_nodes(mat, top = 3, by = "betweenness")
+get_labels(top3)
+```
+
+```{r}
+#| label: select-neighbors
+# Select "Monitor" and its direct neighbors
+neighborhood <- select_neighbors(mat, of = "Monitor", order = 1)
+get_labels(neighborhood)
+```
+
+::: {.callout-tip collapse="true"}
+## All Selection Modes
+
+| Mode | Parameter | Example |
+|---|---|---|
+| By name | `name = c("A", "B")` | Exact node names |
+| By index | `index = c(1, 3, 5)` | Positional indices |
+| Top-N by centrality | `top = 5, by = "degree"` | Highest centrality |
+| Neighbors | `neighbors_of = "A", order = 2` | Ego network to depth 2 |
+| Component | `component = "largest"` | Largest connected component |
+| NSE expression | `... (e.g., degree > 5)` | Any expression, like `filter_nodes()` |
+
+Combine modes freely --- they are intersected with AND logic.
+:::
+
+## Selecting Edges
+
+```{r}
+#| label: select-top-edges
+# Top 5 strongest edges
+top5 <- select_top_edges(mat, n = 5)
+get_edges(top5)
+```
+
+```{r}
+#| label: select-bridges
+# Bridge edges (whose removal disconnects components)
+bridges <- select_bridges(mat8)
+get_edges(bridges)
+```
+
+::: {.callout-tip collapse="true"}
+## Edge Selection Modes
+
+| Mode | Parameter | Description |
+|---|---|---|
+| Top-N | `top = 10, by = "weight"` | Strongest/highest edges |
+| Involving nodes | `involving = c("A", "B")` | Edges touching specific nodes |
+| Between sets | `between = list(set1, set2)` | Edges between two node groups |
+| Bridges only | `bridges_only = TRUE` | Edges whose removal disconnects |
+| Mutual only | `mutual_only = TRUE` | Reciprocated edges (directed networks) |
+
+**Lazy edge metrics** are available in expressions: `abs_weight`, `from_degree`, `to_degree`, `edge_betweenness`, `is_bridge`, `is_mutual`, `same_community`.
+:::
+
+## Convenience Wrappers
+
+For the most common operations, cograph provides one-call wrappers:
+
+| Function | Equivalent |
+|---|---|
+| `select_top(x, n, by)` | `select_nodes(x, top = n, by = by)` |
+| `select_neighbors(x, of, order)` | `select_nodes(x, neighbors_of = of, order = order)` |
+| `select_component(x, "largest")` | `select_nodes(x, component = "largest")` |
+| `select_bridges(x)` | `select_edges(x, bridges_only = TRUE)` |
+| `select_top_edges(x, n)` | `select_edges(x, top = n)` |
+| `select_edges_involving(x, nodes)` | `select_edges(x, involving = nodes)` |
+| `select_edges_between(x, s1, s2)` | `select_edges(x, between = list(s1, s2))` |
+
+
+# Centrality Measures
+
+Centrality reduces each node to a single number reflecting its structural importance. Different measures answer different questions, and the right measure depends on what "important" means for your research question.
+
+## The centrality() Function
+
+`centrality()` computes multiple measures at once and returns a tidy data frame:
+
+```{r}
+#| label: centrality-all
+# Compute the most common measures at once
+cent <- centrality(mat, measures = c(
+  "degree", "strength", "betweenness", "closeness",
+  "eigenvector", "pagerank", "harmonic", "hub", "authority"
+))
+cent
+```
+
+Request specific measures:
+
+```{r}
+#| label: centrality-specific
+# Just degree and betweenness
+cent_subset <- centrality(mat, measures = c("degree", "betweenness", "pagerank"))
+cent_subset
+```
+
+::: {.callout-tip collapse="true"}
+## Key Parameters
+
+| Parameter | Default | What It Controls |
+|---|---|---|
+| `measures` | `"all"` | Which measures to compute (character vector or "all") |
+| `mode` | `"all"` | Direction for mode-aware measures: `"all"`, `"in"`, `"out"` |
+| `normalized` | `FALSE` | Normalize to [0, 1]? |
+| `weighted` | `TRUE` | Use edge weights? |
+| `directed` | `NULL` | Override directedness (NULL = auto-detect) |
+| `damping` | `0.85` | PageRank damping factor |
+| `alpha` | `1` | Alpha centrality exponent |
+| `k` | `3` | k-reach neighborhood depth |
+| `digits` | `NULL` | Round output (NULL = no rounding) |
+| `sort_by` | `NULL` | Sort rows by a measure name |
+:::
+
+## Individual Wrappers
+
+Every measure has a dedicated function that returns a named numeric vector. These are simpler when you need just one measure:
+
+```{r}
+#| label: centrality-wrappers
+# Each returns a named numeric vector
+centrality_degree(mat)
+centrality_betweenness(mat)
+centrality_pagerank(mat)
+```
+
+## Directional Measures
+
+For directed networks, ten measures support `mode = "in"` and `mode = "out"`. cograph provides shorthand wrappers so you don't need the `mode` argument:
+
+```{r}
+#| label: centrality-directional
+# InStrength: total incoming weight (which states are "attractors"?)
+centrality_instrength(mat)
+
+# OutStrength: total outgoing weight (which states are frequent origins?)
+centrality_outstrength(mat)
+```
+
+::: {.callout-tip collapse="true"}
+## All 25 Centrality Measures
+
+| Measure | Directional? | Question It Answers |
+|---|---|---|
+| **degree** | in/out/all | How many connections does this node have? |
+| **strength** | in/out/all | How much total weight flows through this node? |
+| **betweenness** | --- | Does this node sit on paths between other nodes? |
+| **closeness** | in/out/all | How quickly can this node reach (or be reached by) others? |
+| **eigenvector** | --- | Is this node connected to other well-connected nodes? |
+| **pagerank** | --- | How important is this node in a random-walk model? |
+| **authority** | --- | Is this node a destination for important hubs? |
+| **hub** | --- | Does this node point to important authorities? |
+| **eccentricity** | in/out/all | How far is the farthest reachable node? |
+| **coreness** | in/out/all | What is the densest core this node belongs to? |
+| **constraint** | --- | How constrained is this node by its local neighborhood? |
+| **transitivity** | --- | Do this node's neighbors connect to each other? |
+| **harmonic** | in/out/all | Closeness variant robust to disconnected networks |
+| **diffusion** | --- | How well does this node spread activation? |
+| **leverage** | --- | Does this node have more connections than its neighbors? |
+| **kreach** | --- | How many nodes are reachable within k steps? |
+| **alpha** | --- | Bonacich alpha (exogenous influence) centrality |
+| **power** | --- | Bonacich power centrality |
+| **subgraph** | --- | Importance based on all closed walks through this node |
+| **laplacian** | --- | Importance in the graph's Laplacian spectrum |
+| **load** | --- | Load centrality (traffic-based betweenness variant) |
+| **current_flow_closeness** | --- | Information centrality via electrical current analogy |
+| **current_flow_betweenness** | --- | Betweenness via current flow (not just shortest paths) |
+| **voterank** | --- | Iterative influence maximization score |
+| **percolation** | --- | Importance for network connectivity under failure |
+
+**Directional wrappers**: `centrality_indegree()`, `centrality_outdegree()`, `centrality_instrength()`, `centrality_outstrength()`, `centrality_incloseness()`, `centrality_outcloseness()`, `centrality_inharmonic()`, `centrality_outharmonic()`, `centrality_ineccentricity()`, `centrality_outeccentricity()`.
+:::
+
+## Edge Centrality
+
+Node centrality tells you which nodes are important. Edge centrality tells you which **transitions** are important --- which connections serve as structural bridges.
+
+```{r}
+#| label: edge-centrality
+# Edge betweenness: which edges carry the most shortest-path traffic?
+eb <- edge_betweenness(mat)
+eb
+```
+
+```{r}
+#| label: edge-centrality-df
+# Full edge centrality data frame
+edf <- edge_centrality(mat)
+edf
+```
+
+## TNA Weight Inversion
+
+When the input is a TNA object, cograph automatically inverts weights for path-based measures (betweenness, closeness, harmonic, eccentricity, and others). This is because TNA transition probabilities are **similarities** (higher = closer) while shortest-path algorithms expect **distances** (lower = closer). You don't need to do anything --- it just works.
+
+
+# Network Properties
+
+While centrality characterizes individual nodes, network properties characterize the **network as a whole**: how dense it is, how clustered, how efficiently information flows through it.
+
+## network_summary()
+
+The `network_summary()` function computes up to 37 metrics in a single call:
+
+```{r}
+#| label: summary-basic
+# Basic summary (18 metrics)
+network_summary(mat)
+```
+
+```{r}
+#| label: summary-extended
+# Extended summary (adds girth, radius, efficiency, etc.)
+network_summary(mat, extended = TRUE)
+```
+
+```{r}
+#| label: summary-detailed
+# Detailed summary (adds centrality distribution statistics)
+network_summary(mat, detailed = TRUE)
+```
+
+::: {.callout-tip collapse="true"}
+## What Each Metric Tells You
+
+**Always included (18 metrics):**
+
+| Metric | Interpretation |
+|---|---|
+| `node_count`, `edge_count` | Network size |
+| `density` | Proportion of possible edges that exist |
+| `component_count` | Number of disconnected components |
+| `diameter` | Longest shortest path in the network |
+| `mean_distance` | Average shortest path length |
+| `min_cut` | Minimum edges to disconnect the network |
+| `centralization_degree` | How unequal is the degree distribution? |
+| `centralization_closeness` | How centralized is reachability? |
+| `centralization_betweenness` | How much does one node dominate bridging? |
+| `centralization_eigenvector` | How concentrated is influence? |
+| `transitivity` | Global clustering coefficient |
+| `reciprocity` | Proportion of mutual edges (directed) |
+| `assortativity_degree` | Do high-degree nodes connect to other high-degree nodes? |
+| `hub_score`, `authority_score` | Max hub/authority centrality |
+| `is_connected`, `is_bipartite` | Structural properties |
+
+**Extended (`extended = TRUE`, adds 8):**
+
+| Metric | Interpretation |
+|---|---|
+| `girth` | Shortest cycle length |
+| `radius` | Minimum eccentricity |
+| `vertex_connectivity` | Min nodes to remove to disconnect |
+| `largest_clique_size` | Size of the largest complete subgraph |
+| `cut_vertex_count` | Articulation points (bridges) |
+| `bridge_count` | Bridge edges |
+| `global_efficiency` | Average inverse shortest path |
+| `local_efficiency` | Mean ego-network efficiency |
+
+**Detailed (`detailed = TRUE`, adds 11):**
+
+Descriptive statistics (mean, SD, median) for degree, strength, betweenness, closeness, eigenvector, PageRank, constraint, and local transitivity.
+:::
+
+## Individual Property Functions
+
+For specific analyses, dedicated functions provide richer output than the summary table:
+
+```{r}
+#| label: degree-dist
+# Degree distribution (histogram of degree values)
+degree_distribution(mat)
+```
+
+```{r}
+#| label: small-world
+# Small-world coefficient (compares clustering and path length to random graphs)
+sw <- network_small_world(mat8, n_random = 100)
+cat("Small-world coefficient:", round(sw, 3), "\n")
+```
+
+```{r}
+#| label: rich-club
+# Rich-club coefficient (do high-degree nodes preferentially connect?)
+rc <- network_rich_club(mat8, normalized = TRUE, n_random = 100)
+cat("Rich-club coefficient:", round(rc, 3), "\n")
+```
+
+::: {.callout-tip collapse="true"}
+## All Individual Property Functions
+
+| Function | Returns | Use Case |
+|---|---|---|
+| `degree_distribution(x)` | Numeric vector | Degree histogram, power-law testing |
+| `network_girth(x)` | Integer | Shortest cycle length |
+| `network_radius(x)` | Integer | Network compactness |
+| `network_vertex_connectivity(x)` | Integer | Robustness to node failure |
+| `network_clique_size(x)` | Integer | Largest complete subgraph |
+| `network_cut_vertices(x)` | Character vector | Articulation points |
+| `network_bridges(x)` | Data frame | Bridge edges |
+| `network_global_efficiency(x)` | Numeric [0, 1] | Information flow efficiency |
+| `network_local_efficiency(x)` | Numeric [0, 1] | Local fault tolerance |
+| `network_small_world(x)` | List (sigma, omega) | Small-world characterization |
+| `network_rich_club(x, k)` | Data frame | Rich-club phenomenon |
+:::
+
+
+# Community Detection
+
+Communities are groups of nodes that are more densely connected to each other than to the rest of the network. Detecting them reveals the **modular structure** of a system: which behaviors cluster together, which brain regions form functional modules, which actors form cohesive subgroups.
+
+## Basic Usage
+
+The `communities()` function applies a community detection algorithm and returns a `cograph_communities` object:
+
+```{r}
+#| label: communities-basic
+# Detect communities using the default algorithm (Louvain)
+comms <- communities(mat8)
+comms
+```
+
+```{r}
+#| label: communities-membership
+# Which community does each node belong to?
+membership(comms)
+```
+
+```{r}
+#| label: communities-sizes
+# How large is each community?
+community_sizes(comms)
+```
+
+```{r}
+#| label: communities-modularity
+# Modularity score (how well-separated are the communities?)
+modularity(comms)
+```
+
+## Choosing an Algorithm
+
+cograph provides 11 community detection algorithms. Each has different strengths:
+
+```{r}
+#| label: communities-algorithms
+# Fast greedy: modularity optimization (fast, undirected)
+comms_fg <- community_fast_greedy(mat8)
+
+# Walktrap: random-walk based (captures flow structure)
+comms_wt <- community_walktrap(mat8)
+
+# Leiden: improved Louvain with resolution parameter
+comms_ld <- community_leiden(mat8)
+```
+
+::: {.callout-tip collapse="true"}
+## All 11 Algorithms
+
+| Function | Short Alias | Algorithm | Best For |
+|---|---|---|---|
+| `community_louvain()` | `com_lv()` | Louvain modularity | General purpose, large networks |
+| `community_leiden()` | `com_ld()` | Leiden (improved Louvain) | Better-defined communities |
+| `community_fast_greedy()` | `com_fg()` | Fast greedy | Quick modularity optimization |
+| `community_walktrap()` | `com_wt()` | Random walk | Flow-based structure |
+| `community_infomap()` | `com_im()` | Information flow | Directed flow networks |
+| `community_label_propagation()` | `com_lp()` | Label propagation | Very large networks |
+| `community_edge_betweenness()` | `com_eb()` | Edge betweenness | Small networks, clear bridges |
+| `community_leading_eigenvector()` | `com_le()` | Leading eigenvector | Spectral decomposition |
+| `community_spinglass()` | `com_sg()` | Spin glass | Small, fine-grained structure |
+| `community_optimal()` | `com_op()` | Exact optimization | Tiny networks (NP-hard) |
+| `community_fluid()` | `com_fl()` | Fluid communities | When k is known a priori |
+
+Every function also has a **two-letter alias** (e.g., `com_lv()`, `com_fg()`) for quick interactive use.
+:::
+
+## Consensus Communities
+
+A single algorithm run can be sensitive to initialization. Consensus communities run the algorithm many times and keep only the assignments that appear consistently:
+
+```{r}
+#| label: communities-consensus
+# Run Louvain 100 times, keep consistent assignments
+consensus <- community_consensus(mat8, method = "louvain", n_runs = 100, seed = 42)
+consensus
+```
+
+## Comparing Community Structures
+
+When you run two different algorithms, how similar are their results? `compare_communities()` quantifies this with information-theoretic metrics:
+
+```{r}
+#| label: communities-compare
+# Compare Louvain vs. Walktrap
+nmi <- compare_communities(comms, comms_wt, method = "nmi")
+cat("Normalized Mutual Information:", round(nmi, 3), "\n")
+
+# Adjusted Rand Index
+ari <- compare_communities(comms, comms_wt, method = "adjusted.rand")
+cat("Adjusted Rand Index:", round(ari, 3), "\n")
+```
+
+::: {.callout-tip collapse="true"}
+## Comparison Methods
+
+| Method | Range | Interpretation |
+|---|---|---|
+| `"nmi"` | [0, 1] | 1 = identical, 0 = unrelated |
+| `"vi"` | [0, log(n)] | Lower = more similar (Variation of Information) |
+| `"rand"` | [0, 1] | Proportion of concordant pairs |
+| `"adjusted.rand"` | [-1, 1] | Chance-corrected Rand (0 = random) |
+| `"split.join"` | [0, 2n] | Lower = more similar |
+:::
+
+## Visualizing Communities
+
+The `plot()` method for community objects colors nodes by community membership:
+
+```{r}
+#| label: fig-communities-plot
+#| fig-cap: "Community structure detected by Louvain"
+#| fig-width: 8
+#| fig-height: 8
+plot(comms, net_u)
+```
+
+You can also use `color_communities()` to get a color vector for use with `splot()`:
+
+```{r}
+#| label: color-communities
+# Get community colors as a named vector (for splot's node_fill parameter)
+colors <- color_communities(mat8, method = "louvain")
+colors
+```
+
+
+# Putting It All Together
+
+A complete analysis pipeline, from import to communities, in a few lines:
+
+```{r}
+#| label: workflow
+#| eval: false
+devtools::load_all(".")
+
+# 1. Import (works with any format)
+net <- as_cograph(my_matrix)
+
+# 2. Inspect
+summary(net)
+n_nodes(net)
+n_edges(net)
+
+# 3. Filter
+core <- filter_nodes(net, degree > 3)
+strong <- filter_edges(net, weight > 0.2)
+
+# 4. Select subnetwork
+top5 <- select_top(net, n = 5, by = "betweenness")
+ego <- select_neighbors(net, of = "Monitor", order = 2)
+
+# 5. Centrality
+centrality(net, measures = c("degree", "betweenness", "pagerank"))
+centrality_instrength(net)
+centrality_outstrength(net)
+
+# 6. Network properties
+network_summary(net, extended = TRUE, detailed = TRUE)
+network_small_world(net)
+
+# 7. Communities
+comms <- communities(net)
+membership(comms)
+community_sizes(comms)
+plot(comms, net)
+
+# 8. Export
+to_igraph(net)                # for igraph analyses
+to_data_frame(net)            # for CSV export
+write.csv(centrality(net), "centralities.csv")
+```
+
+# References {.unnumbered}
+
+- cograph: Modern R Package for Network Visualization. <https://github.com/sonsoleslp/cograph>
+
+- Saqr, M., López-Pernas, S., Törmänen, T., Kaliisa, R., Misiejuk, K., & Tikka, S. (2025). Transition Network Analysis: A Novel Framework for Modeling, Visualizing, and Identifying the Temporal Patterns of Learners and Learning Processes. In *Proceedings of the 15th International Learning Analytics and Knowledge Conference (LAK '25)* (pp. 351--361). ACM. <https://doi.org/10.1145/3706468.3706513>
+
+- Tikka, S., López-Pernas, S., & Saqr, M. (2025). tna: An R Package for Transition Network Analysis. *Applied Psychological Measurement*. <https://doi.org/10.1177/01466216251348840>

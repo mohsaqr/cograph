@@ -6,13 +6,20 @@ NULL
 #' Parse tna Object
 #'
 #' Convert a tna object to internal network format.
-#' tna objects are simple lists with $weights (matrix), $labels, and $inits.
+#' When the tna object contains raw sequence data ($data), each individual
+#' transition is preserved as a separate edge in the edge list (temporal
+#' multigraph). Use simplify to aggregate into a weighted simple graph.
 #'
 #' @param tna_obj A tna object (list with weights matrix).
-#' @param directed Logical. Force directed interpretation. NULL uses TRUE (tna networks are directed).
+#' @param directed Logical. Force directed interpretation. NULL uses TRUE
+#'   (tna networks are directed).
+#' @param simplify Logical or character. If FALSE (default), every transition
+#'   from $data is a separate edge. If TRUE or a string ("sum", "mean", "max",
+#'   "min"), duplicate edges are aggregated. When $data is NULL, falls back
+#'   to the weight matrix (always simplified).
 #' @return List with nodes, edges, directed, weights_matrix, and tna components.
 #' @noRd
-parse_tna <- function(tna_obj, directed = NULL) {
+parse_tna <- function(tna_obj, directed = NULL, simplify = FALSE) {
   # Validate input
   if (!inherits(tna_obj, "tna")) {
     stop("Input must be a tna object", call. = FALSE)
@@ -21,10 +28,7 @@ parse_tna <- function(tna_obj, directed = NULL) {
   # Get the weights matrix
   x <- tna_obj$weights
 
-  # Determine directedness:
-  # 1. Use explicit directed parameter if provided
-  # 2. Otherwise read from tna object's $directed field or attribute
-  # 3. Auto-detect from matrix symmetry
+  # Determine directedness
   if (is.null(directed)) {
     if (!is.null(tna_obj$directed)) {
       directed <- tna_obj$directed
@@ -35,33 +39,29 @@ parse_tna <- function(tna_obj, directed = NULL) {
     }
   }
 
-  # Get number of nodes and labels
+  # Get labels
   n <- nrow(x)
   labels <- tna_obj$labels
   if (is.null(labels) || all(is.na(labels))) {
     labels <- as.character(seq_len(n))
   }
 
-  # Extract edges from matrix
-  # For undirected networks, use upper triangle only to avoid duplicate edges
-  if (directed) {
-    edge_idx <- which(x != 0, arr.ind = TRUE)
+  # Build edges: prefer raw transitions from $data, fall back to weight matrix
+  if (!is.null(tna_obj$data) && is.matrix(tna_obj$data)) {
+    edges <- .extract_tna_transitions(tna_obj$data, labels)
   } else {
-    edge_idx <- which(upper.tri(x) & x != 0, arr.ind = TRUE)
-  }
-  if (nrow(edge_idx) == 0) {
-    from_idx <- integer(0)
-    to_idx <- integer(0)
-    weight_vals <- numeric(0)
-  } else {
-    from_idx <- edge_idx[, 1]
-    to_idx <- edge_idx[, 2]
-    weight_vals <- x[edge_idx]
+    # No raw data — extract from aggregated weight matrix
+    edges <- .edges_from_weight_matrix(x, directed)
   }
 
-  # Create data structures
+  # Simplify if requested
+  if (!isFALSE(simplify)) {
+    method <- if (isTRUE(simplify)) "sum" else simplify
+    edges <- .simplify_tna_edges(edges, method, directed)
+  }
+
+  # Create node data frame
   nodes <- create_nodes_df(n, labels)
-  edges <- create_edges_df(from_idx, to_idx, weight_vals, directed)
 
   # Store initial probabilities as node attribute (for donut visualization)
   if (!is.null(tna_obj$inits)) {
@@ -80,7 +80,7 @@ parse_tna <- function(tna_obj, directed = NULL) {
     nodes = nodes,
     edges = edges,
     directed = directed,
-    weights_matrix = x,  # Store full matrix for to_matrix round-trip
+    weights_matrix = x,
     tna = list(
       type = "tna",
       group_index = NULL,
@@ -88,6 +88,128 @@ parse_tna <- function(tna_obj, directed = NULL) {
     )
   )
 }
+
+#' Extract Individual Transitions from tna Sequence Data
+#'
+#' Converts the raw sequence matrix ($data) into a temporal edge list.
+#' Each consecutive pair of states within a session becomes one edge.
+#'
+#' @param data Matrix where rows = sessions, columns = time steps,
+#'   values = integer state indices.
+#' @param labels Character vector of state names.
+#' @return Data frame with columns: from, to, weight, session, time.
+#' @noRd
+.extract_tna_transitions <- function(data, labels) {
+  n_sessions <- nrow(data)
+  n_cols <- ncol(data)
+
+  # Pre-allocate — upper bound is n_sessions * (n_cols - 1)
+  max_edges <- n_sessions * (n_cols - 1L)
+  from_vec <- integer(max_edges)
+  to_vec <- integer(max_edges)
+  session_vec <- integer(max_edges)
+  time_vec <- integer(max_edges)
+  k <- 0L
+
+  for (i in seq_len(n_sessions)) {
+    row <- data[i, ]
+    valid <- which(is.finite(row) & !is.na(row))
+    if (length(valid) < 2L) next
+    # Consecutive pairs within valid positions
+    for (j in seq_len(length(valid) - 1L)) {
+      k <- k + 1L
+      from_vec[k] <- row[valid[j]]
+      to_vec[k] <- row[valid[j + 1L]]
+      session_vec[k] <- i
+      time_vec[k] <- j
+    }
+  }
+
+  # Trim to actual size
+  if (k == 0L) {
+    return(data.frame(
+      from = integer(0), to = integer(0), weight = numeric(0),
+      session = integer(0), time = integer(0),
+      stringsAsFactors = FALSE
+    ))
+  }
+  from_vec <- from_vec[seq_len(k)]
+  to_vec <- to_vec[seq_len(k)]
+  session_vec <- session_vec[seq_len(k)]
+  time_vec <- time_vec[seq_len(k)]
+
+  data.frame(
+    from = from_vec,
+    to = to_vec,
+    weight = rep(1, k),
+    session = session_vec,
+    time = time_vec,
+    stringsAsFactors = FALSE
+  )
+}
+
+#' Extract Edges from Weight Matrix
+#'
+#' Fallback when $data is not available.
+#'
+#' @param x Weight matrix.
+#' @param directed Logical.
+#' @return Data frame with from, to, weight columns.
+#' @noRd
+.edges_from_weight_matrix <- function(x, directed) {
+  if (directed) {
+    edge_idx <- which(x != 0, arr.ind = TRUE)
+  } else {
+    edge_idx <- which(upper.tri(x) & x != 0, arr.ind = TRUE)
+  }
+  if (nrow(edge_idx) == 0) {
+    return(data.frame(from = integer(0), to = integer(0),
+                      weight = numeric(0), stringsAsFactors = FALSE))
+  }
+  data.frame(
+    from = edge_idx[, 1],
+    to = edge_idx[, 2],
+    weight = x[edge_idx],
+    stringsAsFactors = FALSE
+  )
+}
+
+#' Simplify tna Edge List
+#'
+#' Aggregate duplicate edges using the specified method.
+#'
+#' @param edges Data frame with from, to, weight (and optionally session, time).
+#' @param method Aggregation method: "sum", "mean", "max", "min".
+#' @param directed Logical.
+#' @return Simplified data frame with from, to, weight.
+#' @noRd
+.simplify_tna_edges <- function(edges, method = "sum", directed = TRUE) {
+  if (nrow(edges) == 0) return(edges[, c("from", "to", "weight")])
+
+  method <- match.arg(method, c("sum", "mean", "max", "min"))
+  agg_fn <- switch(method, sum = sum, mean = mean, max = max, min = min)
+
+  if (directed) {
+    keys <- paste(edges$from, edges$to, sep = "->")
+  } else {
+    keys <- paste(pmin(edges$from, edges$to), pmax(edges$from, edges$to),
+                  sep = "-")
+  }
+
+  unique_keys <- unique(keys)
+  result <- do.call(rbind, lapply(unique_keys, function(k) {
+    idx <- which(keys == k)
+    data.frame(
+      from = edges$from[idx[1]],
+      to = edges$to[idx[1]],
+      weight = agg_fn(edges$weight[idx]),
+      stringsAsFactors = FALSE
+    )
+  }))
+  rownames(result) <- NULL
+  result
+}
+
 
 #' Parse group_tna Object
 #'
@@ -97,9 +219,11 @@ parse_tna <- function(tna_obj, directed = NULL) {
 #' @param group_tna_obj A group_tna object (named list of tna objects).
 #' @param i Index of the group to extract.
 #' @param directed Logical. Force directed interpretation. NULL uses TRUE.
+#' @param simplify Logical or character. Passed to parse_tna.
 #' @return List with nodes, edges, directed, weights_matrix, and tna components.
 #' @noRd
-parse_group_tna <- function(group_tna_obj, i = 1, directed = NULL) {
+parse_group_tna <- function(group_tna_obj, i = 1, directed = NULL,
+                            simplify = FALSE) {
   # Validate input
   if (!inherits(group_tna_obj, "group_tna")) {
     stop("Input must be a group_tna object", call. = FALSE)
@@ -114,7 +238,7 @@ parse_group_tna <- function(group_tna_obj, i = 1, directed = NULL) {
   group_name <- names(group_tna_obj)[i]
 
   # Parse using parse_tna
-  parsed <- parse_tna(tna_obj, directed = directed)
+  parsed <- parse_tna(tna_obj, directed = directed, simplify = simplify)
 
   # Update tna metadata for group_tna context (minimal - no parent stored)
   parsed$tna$type <- "group_tna"
@@ -158,4 +282,3 @@ is_tna_network <- function(x) {
     !is.null(x$meta$tna) &&
     !is.null(x$meta$tna$type)
 }
-

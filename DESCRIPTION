@@ -19,7 +19,7 @@ License: MIT + file LICENSE
 URL: https://sonsoles.me/cograph/, https://github.com/sonsoleslp/cograph
 BugReports: https://github.com/sonsoleslp/cograph/issues
 Depends:
-    R (>= 4.4.0)
+    R (>= 4.1.0)
 Imports:
     R6,
     grid,
@@ -40,6 +40,7 @@ Suggests:
     qgraph,
     tna,
     gifski,
+    brainGraph,
     RColorBrewer,
     colorspace,
     Matrix,

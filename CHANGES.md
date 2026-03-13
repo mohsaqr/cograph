@@ -1,5 +1,26 @@
 # Changelog
 
+### 2026-03-13 — Clean and package robustness + disparity filter
+
+- R/robustness.R: `n_iter` default changed from 100 to 1000 (matching brainGraph). Sequential + static strategies, vertex/edge attacks, betweenness/degree/random measures.
+- R/disparity.R: Disparity filter with methods for matrix, tna, cograph_network, igraph. Verified against tna and disparityfilter CRAN packages.
+- R/cograph-package.R: Added `@importFrom graphics abline legend lines par plot` to fix R CMD check NOTEs.
+- DESCRIPTION: Added brainGraph to Suggests (used in verification tests).
+- tutorials/cograph-tutorial-robustness.qmd: Complete rewrite as proper tutorial (matching style of analysis/plotting tutorials). Covers backbone extraction, robustness analysis, strategy comparison, disparity filter levels.
+- tests/testthat/test-robustness.R: 123 tests (including static strategy, brainGraph verification)
+- tests/testthat/test-disparity.R: 29 tests (including igraph methods)
+- Tests: 13,246 pass, 0 fail
+
+### 2026-03-13 — Re-integrate robustness module from sidelined/
+
+- R/robustness.R: NEW — `robustness()` (targeted/random vertex/edge removal), `plot_robustness()` (base R), `ggplot_robustness()` (ggplot2 faceted), `robustness_auc()` (AUC), `robustness_summary()` (critical points). Internal: `robustness_vertex_attack()`, `robustness_edge_attack()`.
+- tests/testthat/test-robustness.R: 107 tests covering all measures, input types, edge cases, AUC, summary, both plot functions
+- Tests: 13,302 pass, 0 fail
+
+### 2026-03-13 — Update motifs tutorial to unified API
+
+- tutorials/cograph-tutorial-motifs.qmd: Rewritten to use `motifs()`/`subgraphs()` API. Added auto-detection + windowing section, legacy function mapping table.
+
 ### 2026-03-13 — Implement unified motifs() / subgraphs() API
 
 - R/motifs-api.R: NEW — `motifs()` (census, nodes exchangeable) + `subgraphs()` (instances, named node triples) with auto-detection of actor/session columns, windowing (rolling/tumbling), exact configuration model significance. Print + plot S3 methods for `cograph_motif_result`. Supports tna, cograph_network, matrix, igraph, data.frame inputs.

@@ -87,14 +87,17 @@ strongest <- triads[order(triads$total_weight, decreasing = TRUE), ]
 
 }
 \seealso{
-\code{\link[=motif_census]{motif_census()}}, \code{\link[=triad_census]{triad_census()}}, \code{\link[=extract_motifs]{extract_motifs()}}
+\code{\link[=motifs]{motifs()}}, \code{\link[=subgraphs]{subgraphs()}}, \code{\link[=motif_census]{motif_census()}}, \code{\link[=extract_motifs]{extract_motifs()}}
 
 Other motifs: 
 \code{\link{extract_motifs}()},
 \code{\link{get_edge_list}()},
 \code{\link{motif_census}()},
+\code{\link{motifs}()},
 \code{\link{plot.cograph_motif_analysis}()},
 \code{\link{plot.cograph_motifs}()},
+\code{\link{subgraphs}()},
 \code{\link{triad_census}()}
 }
 \concept{motifs}
+\keyword{internal}

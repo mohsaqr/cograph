@@ -36,10 +36,10 @@
 #' print(m)
 #' plot(m)
 #'
-#' @seealso [extract_motifs()] for detailed triad extraction with filtering,
-#'   [triad_census()] for simple MAN counts, [extract_triads()] to get
-#'   individual triads with node labels, [plot.cograph_motifs()] for plotting
+#' @seealso [motifs()] for the unified API, [extract_motifs()] for detailed
+#'   triad extraction, [plot.cograph_motifs()] for plotting
 #' @family motifs
+#' @keywords internal
 #' @export
 motif_census <- function(x, size = 3, n_random = 100,
                          method = c("configuration", "gnm"),
@@ -328,9 +328,9 @@ plot.cograph_motifs <- function(x, type = c("bar", "heatmap", "network"),
 #' diag(mat) <- 0
 #' triad_census(mat)
 #'
-#' @seealso [motif_census()] for statistical significance testing,
-#'   [extract_triads()] to get individual triads with node labels
+#' @seealso [motifs()] for the unified API, [motif_census()]
 #' @family motifs
+#' @keywords internal
 #' @export
 triad_census <- function(x) {
   if (inherits(x, "igraph")) {
@@ -418,8 +418,9 @@ triad_census <- function(x) {
 #' triads <- extract_triads(net)
 #' strongest <- triads[order(triads$total_weight, decreasing = TRUE), ]
 #'
-#' @seealso [motif_census()], [triad_census()], [extract_motifs()]
+#' @seealso [motifs()], [subgraphs()], [motif_census()], [extract_motifs()]
 #' @family motifs
+#' @keywords internal
 #' @export
 extract_triads <- function(x, type = NULL, involving = NULL,
                            threshold = 0, min_total = 5, directed = NULL) {

@@ -4,12 +4,10 @@
 \alias{triad_census}
 \title{Triad Census}
 \usage{
-triad_census(x, directed = TRUE)
+triad_census(x)
 }
 \arguments{
 \item{x}{A matrix, igraph object, or cograph_network}
-
-\item{directed}{Logical. Default TRUE.}
 }
 \value{
 Named vector of triad counts
@@ -18,6 +16,9 @@ Named vector of triad counts
 Count the 16 types of triads in a directed network using MAN notation.
 }
 \details{
+Triad census is defined only for directed networks. The input is always
+treated as directed.
+
 MAN notation describes triads by:
 \itemize{
 \item M: number of Mutual (reciprocal) edges
@@ -36,15 +37,17 @@ triad_census(mat)
 
 }
 \seealso{
-\code{\link[=motif_census]{motif_census()}} for statistical significance testing,
-\code{\link[=extract_triads]{extract_triads()}} to get individual triads with node labels
+\code{\link[=motifs]{motifs()}} for the unified API, \code{\link[=motif_census]{motif_census()}}
 
 Other motifs: 
 \code{\link{extract_motifs}()},
 \code{\link{extract_triads}()},
 \code{\link{get_edge_list}()},
 \code{\link{motif_census}()},
+\code{\link{motifs}()},
 \code{\link{plot.cograph_motif_analysis}()},
-\code{\link{plot.cograph_motifs}()}
+\code{\link{plot.cograph_motifs}()},
+\code{\link{subgraphs}()}
 }
 \concept{motifs}
+\keyword{internal}

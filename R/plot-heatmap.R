@@ -493,8 +493,8 @@ plot_heatmap <- function(x,
     is.na(.data$value), "", round(.data$value, value_digits)
   ))
   if (!is.null(value_halo)) {
-    # Subtle circular halo: 8 equidistant copies at small radius
-    angles <- seq(0, 2 * pi, length.out = 9L)[-9L]
+    # Subtle circular halo: 16 equidistant copies for smooth outline
+    angles <- seq(0, 2 * pi, length.out = 17L)[-17L]
     halo_r <- 0.012
     for (a in angles) {
       p <- p + ggplot2::geom_text(

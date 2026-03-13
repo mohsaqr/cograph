@@ -469,12 +469,12 @@ draw_edge_label_base <- function(x, y, label, cex = 0.8, col = "gray30",
 
   # Draw shadow/halo text first (if enabled)
   if (shadow_style == "halo") {
-    # Draw text in 8 directions for halo/rim effect
+    # Draw text in 16 directions for smooth halo/rim effect
     shadow_off <- shadow_offset * 0.01  # Scale for user coordinates
     shadow_col <- adjust_alpha(shadow_color, shadow_alpha)
 
-    # 8 directions: N, NE, E, SE, S, SW, W, NW
-    angles <- seq(0, 2 * pi, length.out = 9)[-9]
+    # 16 directions for smooth halo (22.5 deg spacing)
+    angles <- seq(0, 2 * pi, length.out = 17)[-17]
     for (angle in angles) {
       graphics::text(
         x = x + shadow_off * cos(angle),

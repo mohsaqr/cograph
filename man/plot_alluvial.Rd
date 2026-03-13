@@ -36,6 +36,7 @@ plot_alluvial(
   value_color = "black",
   value_halo = NULL,
   value_fontface = "bold",
+  value_nudge = 0.03,
   value_min = 0,
   show_totals = FALSE,
   total_size = 4,
@@ -122,6 +123,9 @@ Default 0.02. Increase for more spacing.}
 (inherits from \code{label_halo}).}
 
 \item{value_fontface}{Font face of flow value labels. Default "bold".}
+
+\item{value_nudge}{Distance of value labels from node edge when using
+"origin" or "destination" positions. Default 0.03.}
 
 \item{value_min}{Minimum count to show a flow value label. Default 0 (show all).
 Use to hide small flows (e.g., \code{value_min = 100}).}

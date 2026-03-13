@@ -56,6 +56,8 @@ NULL
 #' @param value_halo Logical: add halo around flow value labels? Default NULL
 #'   (inherits from \code{label_halo}).
 #' @param value_fontface Font face of flow value labels. Default "bold".
+#' @param value_nudge Distance of value labels from node edge when using
+#'   "origin" or "destination" positions. Default 0.03.
 #' @param value_min Minimum count to show a flow value label. Default 0 (show all).
 #'   Use to hide small flows (e.g., \code{value_min = 100}).
 #' @param show_totals Logical: show total counts on nodes? Default FALSE.
@@ -163,6 +165,7 @@ plot_transitions <- function(x,
                              value_color = "black",
                              value_halo = NULL,
                              value_fontface = "bold",
+                             value_nudge = 0.03,
                              value_min = 0,
                              show_totals = FALSE,
                              total_size = 4,
@@ -208,7 +211,8 @@ plot_transitions <- function(x,
       curve_strength = curve_strength, show_values = show_values,
       value_position = value_position, value_size = value_size,
       value_color = value_color, value_halo = value_halo,
-      value_fontface = value_fontface, value_min = value_min,
+      value_fontface = value_fontface, value_nudge = value_nudge,
+      value_min = value_min,
       show_totals = show_totals,
       total_size = total_size, total_color = total_color,
       total_fontface = total_fontface,
@@ -266,7 +270,8 @@ plot_transitions <- function(x,
       show_values = show_values, value_position = value_position,
       value_size = value_size, value_color = value_color,
       value_halo = value_halo, value_fontface = value_fontface,
-      value_min = value_min, value_digits = value_digits
+      value_nudge = value_nudge, value_min = value_min,
+      value_digits = value_digits
     )
     if (!is.null(title)) p <- p + labs(title = title)
     return(p)
@@ -380,7 +385,8 @@ plot_transitions <- function(x,
   # Build flow polygons
   flow_data <- .build_flow_polygons(
     trans_df, from_nodes, to_nodes,
-    x_left, x_right, node_width, curve_strength, value_position
+    x_left, x_right, node_width, curve_strength, value_position,
+    value_nudge = value_nudge
   )
   flow_polys <- flow_data$polys
   flow_centers <- flow_data$centers
@@ -609,7 +615,8 @@ plot_transitions <- function(x,
 #' @noRd
 .build_flow_polygons <- function(trans_df, from_nodes, to_nodes,
                                   x_left, x_right, node_width, curve_strength,
-                                  value_position = "center") {
+                                  value_position = "center",
+                                  value_nudge = 0.03) {
   polys <- list()
   centers <- list()
   poly_id <- 1
@@ -665,16 +672,16 @@ plot_transitions <- function(x,
 
     # Store point for value label based on value_position
     if (value_position == "origin") {
-      label_x <- x_from + 0.03
+      label_x <- x_from + value_nudge
       label_y <- (y_from_top + y_from_bottom) / 2
     } else if (value_position == "destination") {
-      label_x <- x_to - 0.03
+      label_x <- x_to - value_nudge
       label_y <- (y_to_top + y_to_bottom) / 2
     } else if (value_position == "outside_origin") {
-      label_x <- x_from - node_width - 0.02
+      label_x <- x_from - node_width - value_nudge
       label_y <- (y_from_top + y_from_bottom) / 2
     } else if (value_position == "outside_destination") {
-      label_x <- x_to + node_width + 0.02
+      label_x <- x_to + node_width + value_nudge
       label_y <- (y_to_top + y_to_bottom) / 2
     } else {
       # center - use bezier midpoint
@@ -805,7 +812,7 @@ plot_transitions <- function(x,
                                      curve_strength, show_values, value_position,
                                      value_size, value_color,
                                      value_halo = TRUE, value_fontface = "bold",
-                                     value_min = 0,
+                                     value_nudge = 0.03, value_min = 0,
                                      show_totals,
                                      total_size, total_color,
                                      total_fontface = "bold",
@@ -897,7 +904,8 @@ plot_transitions <- function(x,
 
     flow_data <- .build_flow_polygons(
       trans_df, from_nodes, to_nodes,
-      x_left, x_right, node_width, curve_strength, value_position
+      x_left, x_right, node_width, curve_strength, value_position,
+      value_nudge = value_nudge
     )
 
     if (!is.null(flow_data$polys)) {
@@ -1089,6 +1097,7 @@ plot_transitions <- function(x,
                                      value_color = "black",
                                      value_halo = TRUE,
                                      value_fontface = "bold",
+                                     value_nudge = 0.03,
                                      value_min = 0,
                                      value_digits = 2) {
 
@@ -1534,10 +1543,10 @@ plot_transitions <- function(x,
 
           # Position based on value_position
           if (value_position == "origin") {
-            lx <- x_from + 0.03
+            lx <- x_from + value_nudge
             ly <- (y_from_top + y_from_bottom) / 2
           } else if (value_position == "destination") {
-            lx <- x_to - 0.03
+            lx <- x_to - value_nudge
             ly <- (y_to_top + y_to_bottom) / 2
           } else {
             # center: bezier midpoint
@@ -1670,6 +1679,7 @@ plot_alluvial <- function(x,
                           value_color = "black",
                           value_halo = NULL,
                           value_fontface = "bold",
+                          value_nudge = 0.03,
                           value_min = 0,
                           show_totals = FALSE,
                           total_size = 4,
@@ -1712,6 +1722,7 @@ plot_alluvial <- function(x,
     value_color = value_color,
     value_halo = value_halo,
     value_fontface = value_fontface,
+    value_nudge = value_nudge,
     value_min = value_min,
     show_totals = show_totals,
     total_size = total_size,
@@ -1786,6 +1797,7 @@ plot_trajectories <- function(x,
                               value_color = "black",
                               value_halo = NULL,
                               value_fontface = "bold",
+                              value_nudge = 0.03,
                               value_min = 0,
                               value_digits = 2,
                               column_gap = 1,
@@ -1834,6 +1846,7 @@ plot_trajectories <- function(x,
     value_color = value_color,
     value_halo = value_halo,
     value_fontface = value_fontface,
+    value_nudge = value_nudge,
     value_min = value_min,
     value_digits = value_digits,
     column_gap = column_gap,

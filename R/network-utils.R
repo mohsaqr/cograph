@@ -885,7 +885,11 @@ to_matrix <- function(x, directed = NULL) {
   # If already a matrix, return as-is
   if (is.matrix(x)) {
     return(x)
+  }
 
+  # cograph_network with stored weight matrix: use it directly
+  if (inherits(x, "cograph_network") && !is.null(x$weights) && is.matrix(x$weights)) {
+    return(x$weights)
   }
 
   # Convert to igraph first

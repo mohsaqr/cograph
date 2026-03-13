@@ -11,7 +11,7 @@ NULL
 #' @param directed Logical. Force directed interpretation. NULL for auto-detect.
 #' @return List with nodes, edges, directed, and weights components.
 #' @keywords internal
-parse_input <- function(input, directed = NULL) {
+parse_input <- function(input, directed = NULL, simplify = FALSE) {
   # Detect input type
   if (is.matrix(input)) {
     parse_matrix(input, directed = directed)
@@ -24,7 +24,7 @@ parse_input <- function(input, directed = NULL) {
   } else if (inherits(input, "qgraph")) {
     parse_qgraph(input, directed = directed)
   } else if (inherits(input, "tna")) {
-    parse_tna(input, directed = directed)
+    parse_tna(input, directed = directed, simplify = simplify)
   } else if (is.list(input) && !is.null(input$edges)) {
     # Already parsed format
     input

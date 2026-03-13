@@ -1,0 +1,38 @@
+#' Student Interaction Edge List
+#'
+#' An edge list of observed interactions between 34 students during
+#' collaborative learning sessions. Each row represents one observed
+#' interaction between two students. The same pair may appear multiple
+#' times, reflecting repeated interactions.
+#'
+#' @format A data frame with 389 rows and 2 columns:
+#' \describe{
+#'   \item{from}{Character. Anonymized two-letter student code (e.g., "Ac", "Bd")}
+#'   \item{to}{Character. Anonymized two-letter student code (e.g., "Ce", "Df")}
+#' }
+#'
+#' @details
+#' The dataset includes self-loops (34 rows where \code{from == to}),
+#' which may represent self-directed actions. These can be removed with
+#' \code{student_interactions[student_interactions$from != student_interactions$to, ]}.
+#'
+#' Because interactions repeat, this edge list naturally represents a
+#' multigraph when loaded into igraph with
+#' \code{igraph::graph_from_data_frame()}.
+#'
+#' @examples
+#' # Load and build network
+#' data(student_interactions)
+#' head(student_interactions)
+#'
+#' # Remove self-loops and build igraph
+#' el <- student_interactions[student_interactions$from != student_interactions$to, ]
+#' if (requireNamespace("igraph", quietly = TRUE)) {
+#'   g <- igraph::graph_from_data_frame(el, directed = FALSE)
+#'   cat("Students:", igraph::vcount(g), "\n")
+#'   cat("Interactions:", igraph::ecount(g), "\n")
+#' }
+#'
+#' @source Anonymized collaborative learning interaction data.
+#' @name student_interactions
+"student_interactions"

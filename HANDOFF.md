@@ -1,42 +1,39 @@
 # Session Handoff — 2026-03-13
 
 ## Completed
-- Implemented unified motifs API per plan at `docs/superpowers/plans/2026-03-12-unified-motifs-api.md`
-  - `R/motifs-api.R`: `motifs()` (census) and `subgraphs()` (instances) with auto-detection, windowing, significance
-  - `R/motifs-data.R`: Added `.detect_actor_column()`, `.detect_order_column()`, `.edgelist_to_trans_array()`
-  - `tests/testthat/test-motifs-api.R`: 99 tests covering all input types, modes, significance, windowing, plots
-  - Marked old functions (`motif_census`, `triad_census`, `extract_triads`, `extract_motifs`) as `@keywords internal`
-  - 99.5% coverage on motifs-api.R, full package 100%
-- (Prior session) Created comprehensive motif tutorial, benchmarked API, re-integrated motifs from sidelined/
+- Robustness module fully packaged: `robustness()`, `plot_robustness()`, `ggplot_robustness()`, `robustness_auc()`, `robustness_summary()`
+- Disparity filter fully packaged: `disparity_filter()` with methods for matrix, tna, cograph_network, igraph
+- `n_iter` default changed from 100 to 1000 across all functions (matching brainGraph convention)
+- Tutorial completely rewritten in proper tutorial style (matching analysis/plotting tutorials)
+- Fixed R CMD check: added `@importFrom graphics` and brainGraph to Suggests
+- Student interactions dataset re-anonymized with two-letter codes (Ac, Bd, Ce...)
+- Static strategy added to match brainGraph's approach (Albert et al. 2000)
+- All verified against brainGraph, tna package, and disparityfilter CRAN package
 
 ## Current State
 - **Branch**: `dev`
 - **Version**: 1.6.0
-- **Tests**: 13,094 pass, 0 fail
-- **New API**:
-  - `motifs(x)` — census (type counts, significance by default, nodes exchangeable)
-  - `subgraphs(x)` — instances (named node triples, significance by default, nodes NOT exchangeable)
-  - Auto-detects session/actor columns, supports windowing
-  - Works with: tna, cograph_network, matrix, igraph, data.frame edge list
-  - S3 class: `cograph_motif_result` with print/plot methods
-- **Old API**: Still exported for backward compatibility but `@keywords internal`
+- **Tests**: 13,246 pass, 0 failures
+- R CMD check: 0 errors, 2 warnings (pre-existing Rd cross-ref and usage issues), 2 notes
+- Tutorial renders cleanly to HTML
+- Package docs regenerated
 
 ## Key Decisions
-- `subgraphs()` is a thin wrapper: `motifs(..., named_nodes = TRUE)`
-- Census uses exact config model for individual significance, igraph for aggregate
-- Instance significance uses batch stub-shuffling with presence matrix optimization
-- `cograph_motif_result` is a separate S3 class from `cograph_motif_analysis` (old) to avoid collision
+- `n_iter = 1000` default: matches brainGraph convention. Tutorial uses explicit lower values (100) for rendering speed.
+- No parallel execution for random mode: user explicitly deferred this.
+- Disparity filter `level = 0.50` used in tutorial (user's preference); function default remains `level = 0.05`.
+- Sequential strategy is default (stronger attack); static matches brainGraph for benchmarking.
 
-## Still Sidelined
-- `motifs-temporal.R` — temporal motif analysis (depends on tna-animate.R)
-- All other sidelined files per `sidelined/REIMPLEMENTATION.md`
+## Open Issues
+- Pre-existing R CMD check warnings (Rd cross-references, usage sections) unrelated to robustness/disparity
+- No quarto installed; tutorial rendered via rmarkdown::render()
 
 ## Next Steps
-- Update tutorial to use unified `motifs()`/`subgraphs()` API
-- Commit and push all changes
-- Consider updating the plan docs/report in tmp/
+- Git commit and push all changes
+- Consider adding parallel execution for random mode (deferred by user)
+- qgraph arg translation plan exists but not yet implemented (separate task)
 
 ## Context
 - Working directory: `/Users/mohammedsaqr/Documents/Github/cograph`
 - Remotes: `origin` → mohsaqr/Sonnet, `cograph` → mohsaqr/cograph, `upstream` → sonsoleslp/cograph
-- R 4.5+, macOS Darwin
+- Key files: R/robustness.R, R/disparity.R, R/cograph-package.R, tests/testthat/test-robustness.R, tests/testthat/test-disparity.R, tutorials/cograph-tutorial-robustness.qmd, DESCRIPTION

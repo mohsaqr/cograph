@@ -1,0 +1,565 @@
+---
+title: "Network Robustness and Backbone Extraction with cograph"
+description: |
+    Simulate targeted attacks and random failures to assess network resilience ---
+    with principled backbone extraction via the disparity filter
+date: "2026-03-13"
+author:
+  - name: Mohammed Saqr
+    url: https://saqr.me
+    affiliation: University of Eastern Finland
+  - name: Sonsoles López-Pernas
+    url: https://sonsoles.me
+    affiliation: University of Eastern Finland
+citation:
+  type: article
+  author:
+    - family: "Saqr"
+      given: "Mohammed"
+    - family: "López-Pernas"
+      given: "Sonsoles"
+categories:
+  - tutorial
+  - R
+  - network analysis
+  - robustness
+warning: false
+message: false
+fig.align: center
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: false
+    code-tools: false
+    theme: cosmo
+    self-contained: true
+execute:
+  warning: false
+  message: false
+knitr:
+  opts_chunk:
+    fig.width: 8
+    fig.height: 6
+    dpi: 150
+    comment: ""
+---
+
+```{r}
+#| label: setup
+#| include: false
+devtools::load_all(".")
+library(tna)
+library(igraph)
+library(ggplot2)
+```
+
+# Introduction
+
+How robust is a network to disruption? If the most central node is removed, does the entire structure collapse --- or does it absorb the shock? **Network robustness analysis** answers this by simulating sequential removal of nodes (or edges) and tracking how the largest connected component shrinks (Albert, Jeong & Barabási, 2000).
+
+This tutorial covers two cograph capabilities:
+
+1. **Backbone extraction** with `disparity_filter()` --- a statistically principled method for identifying significant edges (Serrano, Boguñá & Vespignani, 2009)
+2. **Robustness analysis** with `robustness()` --- targeted attacks and random failures on the resulting backbone
+
+We use two real-world datasets: a **student interaction network** (edge list) and a **human-AI behavioral network** (transition matrix from 429 programming sessions).
+
+::: {.callout-note}
+## GitHub Development Version
+
+Robustness analysis and the disparity filter are available in the **GitHub development version** of cograph.
+
+```{r}
+#| label: install
+#| eval: false
+devtools::install_github("sonsoleslp/cograph")
+```
+:::
+
+# Backbone Extraction with the Disparity Filter
+
+## Why Not Simple Thresholds?
+
+A common preprocessing step is to threshold edge weights (e.g., "remove all edges below 0.10"). This applies a global cutoff that ignores network structure --- a weight of 0.05 might be trivial for a well-connected hub but critical for a peripheral node with only two neighbors.
+
+The **disparity filter** (Serrano et al., 2009) is a statistically principled alternative. For each node $i$ with degree $k_i$ and each edge $(i, j)$ with normalized weight $p_{ij} = w_{ij}/s_i$, the null-model p-value is:
+
+$$\alpha_{ij} = (1 - p_{ij})^{(k_i - 1)}$$
+
+An edge is retained in the backbone if $\alpha_{ij} < \text{level}$ from **either** endpoint. This preserves locally important edges even in low-traffic regions of the network.
+
+## Quick Example
+
+```{r}
+#| label: disparity-demo
+mat_demo <- matrix(c(
+  0.0, 0.8, 0.1, 0.1,
+  0.3, 0.0, 0.5, 0.2,
+  0.1, 0.1, 0.0, 0.8,
+  0.2, 0.1, 0.7, 0.0
+), nrow = 4, byrow = TRUE)
+rownames(mat_demo) <- colnames(mat_demo) <- c("A", "B", "C", "D")
+
+# Significance matrix (1 = backbone edge, 0 = filtered)
+disparity_filter(mat_demo, level = 0.50)
+```
+
+The function accepts matrices, igraph objects, tna objects, and cograph_network objects. When called on a tna or igraph object, it returns a `tna_disparity` object with the backbone, original weights, and summary statistics.
+
+# Robustness Analysis
+
+## The Algorithm
+
+`robustness()` simulates sequential removal of nodes (or edges) and tracks the size of the largest connected component at each step.
+
+Three **measures** determine *which* element to remove next:
+
+| Measure | Target | Deterministic? |
+|---|---|---|
+| **Betweenness** | Bridge nodes between network regions | Yes |
+| **Degree** | Highly connected hub nodes | Yes |
+| **Random** | Random order, averaged over `n_iter` runs | No |
+
+Two **strategies** determine *when* centrality is computed:
+
+| Strategy | Description | Reference |
+|---|---|---|
+| **Sequential** (default) | Recalculate centrality after each removal --- a stronger, adaptive attack | Holme et al. (2002) |
+| **Static** | Compute centrality once on the original network, remove in that fixed order | Albert et al. (2000); brainGraph |
+
+::: {.callout-tip}
+## Which Strategy to Choose?
+
+**Sequential** recalculation produces a stronger attack because removing a hub changes which nodes become the new bridges. Use it as the default. **Static** ordering matches the original Albert et al. (2000) methodology and the brainGraph R package --- use it when comparing against those benchmarks.
+:::
+
+## Quick Example
+
+```{r}
+#| label: robustness-demo
+# Scale-free network (robust to random, vulnerable to targeted)
+set.seed(42)
+g_demo <- igraph::sample_pa(50, m = 2, directed = FALSE)
+
+rob_btw <- robustness(g_demo, measure = "betweenness")
+rob_deg <- robustness(g_demo, measure = "degree")
+rob_rnd <- robustness(g_demo, measure = "random", n_iter = 100, seed = 42)
+
+plot_robustness(rob_btw, rob_deg, rob_rnd,
+                title = "Scale-free Network: Vertex Robustness")
+```
+
+The gap between the targeted-attack curves (red/green) and the random-failure curve (blue) is a hallmark of scale-free networks.
+
+# Part 1: Student Interaction Network
+
+## Loading and Building the Network
+
+The `student_interactions` dataset is an edge list of interactions between 34 students during collaborative learning. The same pair can appear multiple times, so the raw graph is a **multigraph**.
+
+```{r}
+#| label: student-load
+data(student_interactions)
+el <- student_interactions[student_interactions$from != student_interactions$to, ]
+
+cat("Interactions:", nrow(el), "\n")
+cat("Unique student pairs:", nrow(unique(el)), "\n")
+cat("Students:", length(unique(c(el$from, el$to))), "\n")
+```
+
+We build three network representations:
+
+```{r}
+#| label: student-build
+# 1. Multigraph: raw parallel edges
+g_multi <- graph_from_data_frame(el, directed = FALSE)
+
+# 2. Aggregated: simple graph (edge count = number of interactions)
+g_agg <- simplify(g_multi)
+
+# 3. Weighted: parallel edges collapsed to weights
+E(g_multi)$weight <- 1
+g_weighted <- simplify(g_multi, edge.attr.comb = list(weight = "sum"))
+
+cat("Multigraph: ", vcount(g_multi), "nodes,", ecount(g_multi), "edges\n")
+cat("Aggregated: ", vcount(g_agg), "nodes,", ecount(g_agg), "edges\n")
+cat("Weighted:   ", vcount(g_weighted), "nodes,", ecount(g_weighted),
+    "edges, max weight =", max(E(g_weighted)$weight), "\n")
+```
+
+## Extracting the Backbone
+
+```{r}
+#| label: student-backbone
+disp_student <- disparity_filter(g_weighted, level = 0.50)
+disp_student
+```
+
+```{r}
+#| label: fig-student-network
+#| fig-cap: "Student interaction network: full weighted graph vs disparity backbone"
+#| fig-height: 6
+#| fig-width: 14
+par(mfrow = c(1, 2))
+
+splot(g_weighted, layout = "fr", title = "Full Network")
+
+# Backbone: remove isolated nodes for cleaner visualization
+mat_bb <- disp_student$weights_filtered
+keep <- rowSums(mat_bb) > 0 | colSums(mat_bb) > 0
+splot(mat_bb[keep, keep], layout = "fr",
+      title = sprintf("Backbone (p < 0.50, %d/%d nodes)",
+                       sum(keep), nrow(mat_bb)))
+par(mfrow = c(1, 1))
+```
+
+## Robustness: Effect of Backbone Extraction
+
+Does removing statistically insignificant edges change the robustness profile? The backbone strips away weak ties, exposing structural vulnerabilities that the full network masks.
+
+```{r}
+#| label: fig-student-backbone-robust
+#| fig-cap: "Backbone extraction reveals hidden vulnerability to targeted attacks"
+#| fig-height: 5
+#| fig-width: 12
+ggplot_robustness(
+  "Full network" = g_agg,
+  "Backbone (p < 0.50)" = disp_student$weights_filtered,
+  n_iter = 100, seed = 42, ncol = 2
+)
+```
+
+In the full network, weak ties keep the graph connected even as hubs are removed. The backbone tells a different story: targeted attacks collapse the network much faster than random failures.
+
+## Robustness: Effect of Aggregation
+
+Does collapsing parallel edges to a simple graph matter?
+
+```{r}
+#| label: fig-student-aggregation
+#| fig-cap: "Vertex robustness is largely unaffected by aggregation"
+#| fig-height: 5
+#| fig-width: 12
+ggplot_robustness(
+  "Multigraph (raw)" = g_multi,
+  "Aggregated (simple)" = g_agg,
+  n_iter = 100, seed = 42, ncol = 2
+)
+```
+
+For **vertex** robustness, both produce similar curves --- the largest connected component depends on node reachability, not edge multiplicity.
+
+## Edge Robustness
+
+When we remove **edges** instead of nodes, aggregation matters much more --- a multigraph has far more edges to remove before connectivity breaks.
+
+```{r}
+#| label: fig-student-edge
+#| fig-cap: "Edge robustness: aggregation matters for edge removal"
+#| fig-height: 5
+#| fig-width: 12
+rob_edge_multi_btw <- robustness(g_multi, type = "edge", measure = "betweenness")
+rob_edge_multi_rnd <- robustness(g_multi, type = "edge", measure = "random",
+                                  n_iter = 100, seed = 42)
+rob_edge_agg_btw <- robustness(g_agg, type = "edge", measure = "betweenness")
+rob_edge_agg_rnd <- robustness(g_agg, type = "edge", measure = "random",
+                                n_iter = 100, seed = 42)
+
+par(mfrow = c(1, 2))
+plot_robustness(rob_edge_multi_btw, rob_edge_multi_rnd,
+                title = "Multigraph: Edge Robustness")
+plot_robustness(rob_edge_agg_btw, rob_edge_agg_rnd,
+                title = "Aggregated: Edge Robustness")
+par(mfrow = c(1, 1))
+```
+
+## Summary Metrics
+
+`robustness_summary()` returns the **AUC** (area under the robustness curve; 1.0 = maximally robust) and **critical thresholds** --- the fraction of nodes removed before the largest component drops below 50% and 10% of its original size.
+
+```{r}
+#| label: tbl-student-summary
+#| tbl-cap: "Student Network: Full vs Backbone Robustness"
+rob_full_btw <- robustness(g_agg, measure = "betweenness")
+rob_full_deg <- robustness(g_agg, measure = "degree")
+rob_full_rnd <- robustness(g_agg, measure = "random", n_iter = 100, seed = 42)
+
+rob_bb_btw <- robustness(disp_student$weights_filtered, measure = "betweenness")
+rob_bb_deg <- robustness(disp_student$weights_filtered, measure = "degree")
+rob_bb_rnd <- robustness(disp_student$weights_filtered, measure = "random",
+                          n_iter = 100, seed = 42)
+
+knitr::kable(rbind(
+  cbind(Network = "Full", robustness_summary(rob_full_btw, rob_full_deg, rob_full_rnd)),
+  cbind(Network = "Backbone", robustness_summary(rob_bb_btw, rob_bb_deg, rob_bb_rnd))
+), row.names = FALSE)
+```
+
+
+# Part 2: Human-AI Interaction Network
+
+## The Dense Network Problem
+
+The `human_ai` dataset contains 429 programming sessions coded into 17 behavioral states. We build a transition network using `tna::tna()`.
+
+```{r}
+#| label: hai-setup
+mod <- tna(human_ai)
+mat_full <- mod$weights
+n_states <- nrow(mat_full)
+n_possible <- n_states * (n_states - 1)
+
+cat("States:  ", n_states, "\n")
+cat("Sessions:", nrow(human_ai), "\n")
+cat("Edges:   ", sum(mat_full > 0), "of", n_possible, "possible\n")
+cat("Density: ", round(sum(mat_full > 0) / n_possible, 2), "\n")
+```
+
+At over 90% density, removing any single node cannot fragment the network. Robustness analysis on the raw matrix produces near-identical straight lines for all attack strategies --- there is no structural vulnerability to exploit. We need backbone extraction.
+
+## Backbone Extraction
+
+```{r}
+#| label: hai-backbone
+disp_hai <- disparity_filter(mod, level = 0.50)
+disp_hai
+
+mat_backbone <- disp_hai$weights_filtered
+cat("Backbone density:", round(sum(mat_backbone > 0) / n_possible, 2), "\n")
+```
+
+```{r}
+#| label: fig-hai-networks
+#| fig-cap: "Full transition network vs disparity backbone"
+#| fig-height: 6
+#| fig-width: 14
+par(mfrow = c(1, 2))
+splot(mod, minimum = 0.01, layout = "fr", title = "Full Network (90%+ density)")
+splot(mat_backbone, layout = "fr", title = "Backbone (p < 0.50)")
+par(mfrow = c(1, 1))
+```
+
+## Robustness: Full vs Backbone
+
+```{r}
+#| label: fig-hai-robust
+#| fig-cap: "Backbone extraction is essential for meaningful robustness analysis"
+#| fig-height: 5
+#| fig-width: 12
+ggplot_robustness(
+  "Full (no filtering)" = mat_full,
+  "Backbone (p < 0.50)" = mat_backbone,
+  n_iter = 100, seed = 42, ncol = 2
+)
+```
+
+Without backbone extraction, all attack strategies overlap --- the dense network absorbs every removal. After filtering, clear differentiation emerges: betweenness attack collapses the network much faster than random removal.
+
+## Comparing Human, AI, and Combined Networks
+
+We apply the same disparity filter to separate Human and AI action networks:
+
+```{r}
+#| label: hai-compare
+disp_human <- disparity_filter(tna(coding), level = 0.50)
+disp_ai <- disparity_filter(tna(ai_coding), level = 0.50)
+
+cat("Human backbone: ", disp_human$n_edges_filtered, "edges\n")
+cat("AI backbone:    ", disp_ai$n_edges_filtered, "edges\n")
+cat("Combined backbone:", disp_hai$n_edges_filtered, "edges\n")
+```
+
+```{r}
+#| label: fig-hai-compare
+#| fig-cap: "Robustness comparison across Human, AI, and Combined backbones"
+#| fig-height: 5
+#| fig-width: 16
+ggplot_robustness(
+  "Human" = disp_human$weights_filtered,
+  "AI" = disp_ai$weights_filtered,
+  "Combined" = mat_backbone,
+  n_iter = 100, seed = 42, ncol = 3
+)
+```
+
+## Robustness Metrics
+
+```{r}
+#| label: tbl-hai-summary
+#| tbl-cap: "Human-AI Network: Full vs Backbone Robustness"
+rob_hai_btw <- robustness(mat_backbone, measure = "betweenness")
+rob_hai_deg <- robustness(mat_backbone, measure = "degree")
+rob_hai_rnd <- robustness(mat_backbone, measure = "random", n_iter = 100, seed = 42)
+
+rob_full_hai_btw <- robustness(mat_full, measure = "betweenness")
+rob_full_hai_deg <- robustness(mat_full, measure = "degree")
+rob_full_hai_rnd <- robustness(mat_full, measure = "random", n_iter = 100, seed = 42)
+
+knitr::kable(rbind(
+  cbind(Network = "Full", robustness_summary(rob_full_hai_btw, rob_full_hai_deg, rob_full_hai_rnd)),
+  cbind(Network = "Backbone", robustness_summary(rob_hai_btw, rob_hai_deg, rob_hai_rnd))
+), row.names = FALSE)
+```
+
+
+# Sequential vs Static Strategy
+
+The `strategy` parameter controls whether centrality is recalculated after each removal or computed once on the original network.
+
+```{r}
+#| label: fig-strategy
+#| fig-cap: "Sequential recalculation produces a stronger attack than static ordering"
+#| fig-height: 5
+#| fig-width: 12
+# Sequential (default): recalculate after each removal
+rob_seq_btw <- robustness(disp_student$weights_filtered,
+                           measure = "betweenness", strategy = "sequential")
+rob_seq_deg <- robustness(disp_student$weights_filtered,
+                           measure = "degree", strategy = "sequential")
+rob_seq_rnd <- robustness(disp_student$weights_filtered,
+                           measure = "random", n_iter = 100, seed = 42)
+
+# Static (brainGraph-style): compute centrality once
+rob_sta_btw <- robustness(disp_student$weights_filtered,
+                           measure = "betweenness", strategy = "static")
+rob_sta_deg <- robustness(disp_student$weights_filtered,
+                           measure = "degree", strategy = "static")
+
+par(mfrow = c(1, 2))
+plot_robustness(rob_seq_btw, rob_seq_deg, rob_seq_rnd,
+                title = "Sequential (recalculate after each removal)")
+plot_robustness(rob_sta_btw, rob_sta_deg, rob_seq_rnd,
+                title = "Static (centrality computed once)")
+par(mfrow = c(1, 1))
+```
+
+```{r}
+#| label: tbl-strategy
+#| tbl-cap: "AUC comparison: Sequential vs Static attack strategies"
+knitr::kable(data.frame(
+  Measure = c("Betweenness", "Degree"),
+  Sequential = c(round(robustness_auc(rob_seq_btw), 3),
+                 round(robustness_auc(rob_seq_deg), 3)),
+  Static = c(round(robustness_auc(rob_sta_btw), 3),
+             round(robustness_auc(rob_sta_deg), 3))
+))
+```
+
+Sequential recalculation produces lower AUC (= more effective attack) because removing a hub changes which nodes are now most central. Static ordering uses the original ranking, which becomes stale as the network shrinks.
+
+
+# Effect of Disparity Level
+
+The disparity filter's `level` parameter controls how aggressively the backbone is pruned. Lower levels retain only the most statistically significant edges:
+
+```{r}
+#| label: fig-levels
+#| fig-cap: "Stricter filtering reveals greater vulnerability"
+levels_test <- c(0.01, 0.05, 0.10, 0.50)
+colors_l <- c("#7570B3", "#D95F02", "#1B9E77", "#999999")
+
+plot(NULL, xlim = c(0, 1), ylim = c(0, 1),
+     xlab = "Fraction of removed nodes",
+     ylab = "Fraction of remaining nodes",
+     main = "Human-AI: Betweenness Attack at Different Backbone Levels",
+     las = 1, xaxs = "i", yaxs = "i")
+abline(h = seq(0, 1, 0.25), col = "gray90")
+abline(v = seq(0, 1, 0.25), col = "gray90")
+
+edge_counts <- vapply(levels_test, function(l) {
+  disparity_filter(mod, level = l)$n_edges_filtered
+}, integer(1))
+
+for (i in seq_along(levels_test)) {
+  disp <- disparity_filter(mod, level = levels_test[i])
+  rob <- robustness(disp$weights_filtered, measure = "betweenness")
+  lines(rob$removed_pct, rob$comp_pct, col = colors_l[i], lwd = 2)
+}
+
+legend("topright",
+       legend = sprintf("p < %.2f (%d edges)", levels_test, edge_counts),
+       col = colors_l, lwd = 2, bty = "n", title = "Disparity level")
+```
+
+Stricter levels produce sparser backbones that collapse faster under attack. We use `level = 0.50` throughout this tutorial, which provides a good balance between retaining meaningful structure and removing noise.
+
+
+# Reproducibility
+
+Random robustness is stochastic. Setting the `seed` parameter ensures identical results:
+
+```{r}
+#| label: reproducibility
+rob_a <- robustness(g_weighted, measure = "random", n_iter = 100, seed = 123)
+rob_b <- robustness(g_weighted, measure = "random", n_iter = 100, seed = 123)
+identical(rob_a$comp_pct, rob_b$comp_pct)
+```
+
+
+# Input Types
+
+`robustness()` and `disparity_filter()` accept all major network formats:
+
+```{r}
+#| label: input-types
+# Matrix
+rob_mat <- robustness(mat_backbone)
+
+# igraph
+rob_ig <- robustness(g_weighted)
+
+# tna object
+rob_tna <- robustness(mod)
+
+# cograph_network
+rob_cg <- robustness(as_cograph(mat_backbone))
+
+cat("Matrix AUC: ", round(robustness_auc(rob_mat), 3), "\n")
+cat("igraph AUC: ", round(robustness_auc(rob_ig), 3), "\n")
+cat("tna AUC:    ", round(robustness_auc(rob_tna), 3), "\n")
+cat("cograph AUC:", round(robustness_auc(rob_cg), 3), "\n")
+```
+
+
+# Function Reference
+
+## Core Functions
+
+| Function | Purpose |
+|---|---|
+| `disparity_filter(x, level)` | Extract statistically significant backbone |
+| `robustness(x, type, measure, strategy)` | Simulate node/edge removal |
+| `robustness_auc(x)` | Area under the robustness curve |
+| `robustness_summary(...)` | AUC + critical thresholds |
+| `plot_robustness(...)` | Base R robustness plot |
+| `ggplot_robustness(...)` | ggplot2 faceted comparison |
+
+## Key Parameters
+
+| Parameter | Values | Default |
+|---|---|---|
+| `type` | `"vertex"`, `"edge"` | `"vertex"` |
+| `measure` | `"betweenness"`, `"degree"`, `"random"` | `"betweenness"` |
+| `strategy` | `"sequential"`, `"static"` | `"sequential"` |
+| `n_iter` | Integer (random only) | `1000` |
+| `seed` | Integer or `NULL` | `NULL` |
+| `level` | Disparity filter significance | `0.05` |
+
+
+# Key Takeaways
+
+- **Backbone extraction matters**: Dense networks mask structural vulnerabilities. The disparity filter provides a statistically principled way to extract the significant skeleton.
+- **Aggregation**: Minimal effect on vertex robustness, but substantial for edge robustness.
+- **Strategy choice**: Sequential recalculation (default) produces stronger attacks than static ordering (brainGraph-style). Report which strategy you used.
+- **Both preprocessing and strategy decisions should be reported** when publishing robustness results.
+
+
+# References
+
+Albert, R., Jeong, H., & Barabási, A.L. (2000). Error and attack tolerance of complex networks. *Nature*, 406, 378--382. doi:10.1038/35019019
+
+Holme, P., Kim, B. J., Yoon, C. N., & Han, S. K. (2002). Attack vulnerability of complex networks. *Physical Review E*, 65(5), 056109. doi:10.1103/PhysRevE.65.056109
+
+Serrano, M. Á., Boguñá, M., & Vespignani, A. (2009). Extracting the multiscale backbone of complex weighted networks. *Proceedings of the National Academy of Sciences*, 106(16), 6483--6488. doi:10.1073/pnas.0808904106

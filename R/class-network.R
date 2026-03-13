@@ -24,9 +24,10 @@ CographNetwork <- R6::R6Class(
     #' @param nodes Node metadata. Can be NULL or a data frame with node attributes.
     #'   If data frame has a `label` or `labels` column, those are used for display.
     #' @return A new CographNetwork object.
-    initialize = function(input = NULL, directed = NULL, nodes = NULL) {
+    initialize = function(input = NULL, directed = NULL, nodes = NULL,
+                          simplify = FALSE) {
       if (!is.null(input)) {
-        parsed <- parse_input(input, directed = directed)
+        parsed <- parse_input(input, directed = directed, simplify = simplify)
         private$.nodes <- parsed$nodes
         private$.edges <- parsed$edges
         private$.directed <- parsed$directed
@@ -356,7 +357,7 @@ is_cograph_network <- function(x) {
     node_groups = NULL,
     type = NULL
 ) {
-  # Ensure edges data frame has standard columns
+  # Ensure edges data frame has standard columns, preserving extra columns
   if (!is.null(edges) && nrow(edges) > 0) {
     edges_df <- data.frame(
       from = as.integer(edges$from),
@@ -364,6 +365,11 @@ is_cograph_network <- function(x) {
       weight = if (!is.null(edges$weight)) as.numeric(edges$weight) else rep(1, nrow(edges)),
       stringsAsFactors = FALSE
     )
+    # Preserve extra columns (e.g., session, time from temporal edge lists)
+    extra_cols <- setdiff(names(edges), c("from", "to", "weight"))
+    for (col in extra_cols) {
+      edges_df[[col]] <- edges[[col]]
+    }
   } else {
     edges_df <- data.frame(from = integer(0), to = integer(0), weight = numeric(0))
   }
@@ -791,7 +797,7 @@ set_layout <- function(x, layout_df) {
 #' net <- as_cograph(g)
 #' splot(net)
 #' }
-as_cograph <- function(x, directed = NULL, ...) {
+as_cograph <- function(x, directed = NULL, simplify = FALSE, ...) {
   # Return as-is if already a cograph_network
 
   if (inherits(x, "cograph_network")) {
@@ -799,7 +805,7 @@ as_cograph <- function(x, directed = NULL, ...) {
   }
 
   # Parse the input
-  parsed <- parse_input(x, directed = directed)
+  parsed <- parse_input(x, directed = directed, simplify = simplify)
 
   # Determine source type
   source_type <- if (is.matrix(x)) {

@@ -187,10 +187,10 @@ compute_layout_for_cograph <- function(net, layout = "spring", seed = 42, ...) {
 #' cograph(g) |> splot()
 #' }
 cograph <- function(input, layout = NULL, directed = NULL,
-                   nodes = NULL, seed = 42, ...) {
+                   nodes = NULL, seed = 42, simplify = FALSE, ...) {
 
   # Parse input first to get TNA metadata if applicable
-  parsed <- parse_input(input, directed = directed)
+  parsed <- parse_input(input, directed = directed, simplify = simplify)
 
   # Determine source type
   source_type <- if (is.matrix(input)) {
@@ -223,7 +223,8 @@ cograph <- function(input, layout = NULL, directed = NULL,
   network <- CographNetwork$new(
     input = input,
     directed = directed,
-    nodes = nodes
+    nodes = nodes,
+    simplify = simplify
   )
 
   # Get nodes (without layout yet)

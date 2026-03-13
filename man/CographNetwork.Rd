@@ -68,7 +68,12 @@ net$is_directed
 \subsection{Method \code{new()}}{
 Create a new CographNetwork object.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CographNetwork$new(input = NULL, directed = NULL, nodes = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CographNetwork$new(
+  input = NULL,
+  directed = NULL,
+  nodes = NULL,
+  simplify = FALSE
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

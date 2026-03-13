@@ -4,7 +4,7 @@
 \alias{parse_input}
 \title{Parse Network Input}
 \usage{
-parse_input(input, directed = NULL)
+parse_input(input, directed = NULL, simplify = FALSE)
 }
 \arguments{
 \item{input}{Network input: matrix, data.frame (edge list), or igraph object.}

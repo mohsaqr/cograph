@@ -1,5 +1,14 @@
 # Changelog
 
+### 2026-03-13 — Implement unified motifs() / subgraphs() API
+
+- R/motifs-api.R: NEW — `motifs()` (census, nodes exchangeable) + `subgraphs()` (instances, named node triples) with auto-detection of actor/session columns, windowing (rolling/tumbling), exact configuration model significance. Print + plot S3 methods for `cograph_motif_result`. Supports tna, cograph_network, matrix, igraph, data.frame inputs.
+- R/motifs-data.R: Added `.detect_actor_column()`, `.detect_order_column()`, `.edgelist_to_trans_array()` with windowing support
+- R/motifs.R: Marked `motif_census`, `triad_census`, `extract_triads` as `@keywords internal`
+- R/motifs-extract.R: Marked `extract_motifs` as `@keywords internal`
+- tests/testthat/test-motifs-api.R: NEW — 99 tests covering all dispatch paths, significance modes, windowing, auto-detection, plot types, error handling
+- Tests: 13,094 pass, 0 fail. Coverage: 99.5% on motifs-api.R
+
 ### 2026-03-12 — Motif analysis tutorial + unified API benchmarking
 
 - tutorials/cograph-tutorial-motifs.qmd: NEW — comprehensive tutorial (11 sections, 71 code chunks) covering motif_census, triad_census, extract_triads, extract_motifs with significance testing, visualization, group comparisons

@@ -47,8 +47,10 @@ Other motifs:
 \code{\link{extract_motifs}()},
 \code{\link{extract_triads}()},
 \code{\link{motif_census}()},
+\code{\link{motifs}()},
 \code{\link{plot.cograph_motif_analysis}()},
 \code{\link{plot.cograph_motifs}()},
+\code{\link{subgraphs}()},
 \code{\link{triad_census}()}
 }
 \concept{motifs}

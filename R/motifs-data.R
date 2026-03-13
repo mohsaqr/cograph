@@ -125,3 +125,122 @@
       plot.title = ggplot2::element_text(face = "bold")
     )
 }
+
+#' Auto-detect actor/session grouping column in a data.frame
+#' Returns the original column name (preserving case), or NULL
+#' @noRd
+.detect_actor_column <- function(df) {
+  if (!is.data.frame(df)) return(NULL)
+  nms <- names(df)
+  nms_lower <- tolower(nms)
+  # Priority order: session_id > session > actor > user > participant > individual > id
+  candidates <- c("session_id", "session", "actor", "user",
+                   "participant", "individual", "id")
+  for (cand in candidates) {
+    idx <- match(cand, nms_lower)
+    if (!is.na(idx)) return(nms[idx])
+  }
+  NULL
+}
+
+#' Auto-detect ordering/time column in a data.frame
+#' Returns the original column name (preserving case), or NULL
+#' @noRd
+.detect_order_column <- function(df) {
+  if (!is.data.frame(df)) return(NULL)
+  nms <- names(df)
+  nms_lower <- tolower(nms)
+  candidates <- c("timestamp", "time", "seq", "step", "order")
+  for (cand in candidates) {
+    idx <- match(cand, nms_lower)
+    if (!is.na(idx)) return(nms[idx])
+  }
+  NULL
+}
+
+#' Convert edge list data.frame to 3D transition array
+#' @return list(trans = array[groups, states, states], labels = character,
+#'   groups = character)
+#' @noRd
+.edgelist_to_trans_array <- function(el,
+                                      actor_col = NULL,
+                                      order_col = NULL,
+                                      window = NULL,
+                                      window_type = "rolling") {
+  # Detect weight column
+  weight_col <- NULL
+  wt_idx <- match("weight", tolower(names(el)))
+  if (!is.na(wt_idx)) weight_col <- names(el)[wt_idx]
+
+  # Get all unique states
+  labels <- sort(unique(c(as.character(el$from), as.character(el$to))))
+  s <- length(labels)
+  state_idx <- setNames(seq_along(labels), labels)
+
+  # Assign group IDs
+  if (!is.null(actor_col)) {
+    group_ids <- as.character(el[[actor_col]])
+  } else {
+    group_ids <- rep("__all__", nrow(el))
+  }
+
+  # Order within groups if order column provided
+  if (!is.null(order_col)) {
+    sort_order <- order(group_ids, el[[order_col]])
+    el <- el[sort_order, ]
+    group_ids <- group_ids[sort_order]
+  }
+
+  # Apply windowing if requested
+  if (!is.null(window) && is.numeric(window) && window > 0) {
+    groups <- split(seq_len(nrow(el)), group_ids)
+    new_rows <- list()
+    new_group_ids <- character(0)
+
+    for (gname in names(groups)) {
+      idx <- groups[[gname]]
+      n_edges <- length(idx)
+      if (n_edges == 0) next
+
+      if (window_type == "tumbling") {
+        starts <- seq(1, n_edges, by = window)
+      } else {
+        starts <- seq_len(max(1, n_edges - window + 1))
+      }
+
+      for (wi in seq_along(starts)) {
+        st <- starts[wi]
+        en <- min(st + window - 1, n_edges)
+        w_idx <- idx[st:en]
+        new_rows <- c(new_rows, list(w_idx))
+        new_group_ids <- c(new_group_ids, paste0(gname, "_w", wi))
+      }
+    }
+
+    row_indices <- unlist(new_rows)
+    el <- el[row_indices, ]
+    group_ids <- rep(new_group_ids, lengths(new_rows))
+  }
+
+  # Build 3D array
+  unique_groups <- unique(group_ids)
+  n_groups <- length(unique_groups)
+  group_idx <- match(group_ids, unique_groups)
+
+  trans <- array(0, dim = c(n_groups, s, s))
+
+  from_idx <- state_idx[as.character(el$from)]
+  to_idx <- state_idx[as.character(el$to)]
+  wt <- if (!is.null(weight_col)) as.numeric(el[[weight_col]]) else rep(1, nrow(el))
+
+  # Vectorized fill using aggregate
+  valid <- !is.na(from_idx) & !is.na(to_idx)
+  agg_df <- data.frame(g = group_idx[valid], f = from_idx[valid],
+                        t = to_idx[valid], w = wt[valid])
+  if (nrow(agg_df) > 0) {
+    agg <- stats::aggregate(w ~ g + f + t, data = agg_df, FUN = sum)
+    trans[cbind(agg$g, agg$f, agg$t)] <- agg$w
+  }
+
+  list(trans = trans, labels = labels, groups = unique_groups)
+}

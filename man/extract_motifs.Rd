@@ -53,8 +53,10 @@ on input: "individual" for tna or when id provided, "aggregate" otherwise.}
 Default "any".}
 
 \item{edge_threshold}{Threshold value for "expected" or "percent" methods.
-For "percent", a proportion (e.g., 0.15 for 15\%).
-For "expected", a ratio (e.g., 1.5 means 50\% stronger than expected).
+For "expected", a ratio (e.g., 1.5 means 50\\% stronger than expected).
+The default 1.5 is calibrated for this method.
+For "percent", a proportion (e.g., 0.15 for 15\\% of triad total weight).
+When using "percent", set this explicitly (e.g., 0.15).
 Ignored when edge_method = "any". Default 1.5.}
 
 \item{pattern}{Pattern filter for which triads to include:
@@ -166,14 +168,17 @@ m <- extract_motifs(data = df, id = c("group", "person"))
 
 }
 \seealso{
-\code{\link[=extract_triads]{extract_triads()}}, \code{\link[=motif_census]{motif_census()}}, \code{\link[=plot.cograph_motif_analysis]{plot.cograph_motif_analysis()}}
+\code{\link[=motifs]{motifs()}}, \code{\link[=subgraphs]{subgraphs()}}, \code{\link[=extract_triads]{extract_triads()}}, \code{\link[=motif_census]{motif_census()}}
 
 Other motifs: 
 \code{\link{extract_triads}()},
 \code{\link{get_edge_list}()},
 \code{\link{motif_census}()},
+\code{\link{motifs}()},
 \code{\link{plot.cograph_motif_analysis}()},
 \code{\link{plot.cograph_motifs}()},
+\code{\link{subgraphs}()},
 \code{\link{triad_census}()}
 }
 \concept{motifs}
+\keyword{internal}

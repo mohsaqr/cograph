@@ -126,8 +126,9 @@
 #' m <- extract_motifs(data = df, id = c("group", "person"))
 #' }
 #'
-#' @seealso [extract_triads()], [motif_census()], [plot.cograph_motif_analysis()]
+#' @seealso [motifs()], [subgraphs()], [extract_triads()], [motif_census()]
 #' @family motifs
+#' @keywords internal
 #' @export
 extract_motifs <- function(x = NULL,
                            data = NULL,

@@ -12,6 +12,10 @@
 
 ### 2026-03-14
 - [tna_communities vs cograph_communities]: `tna::communities()` returns class `tna_communities` with `$assignments` data.frame (columns: `state`, `<method_name>` where values are community IDs) and `$counts`. `cograph::communities()` returns class `cograph_communities` wrapping igraph community objects with `igraph::membership()`. Different conversion logic needed: `tna_communities` uses `split(asgn$state, asgn[[method_col]])`, `cograph_communities` uses `split(names(membership), membership)`. Check `tna_communities` first since it doesn't inherit from `communities` class.
+- [splot.tna_disparity S3 registration]: NAMESPACE has `export(splot.tna_disparity)` instead of `S3method(splot, tna_disparity)`. This means `splot(disparity_obj)` doesn't dispatch — must call `splot.tna_disparity(x)` directly. Same issue for `splot.tna_bootstrap`, `splot.tna_permutation`, `splot.group_tna_permutation`.
+- [covr package_coverage speed]: With 13,400+ tests, `covr::package_coverage()` takes ~25-30 minutes on macOS. No way to speed it up — instruments every line and reruns all tests. Plan accordingly.
+- [split() on character never yields empty groups]: `split(seq_len(n), character_vec)` only produces groups for values that actually exist in the vector. Unlike factor-based splitting, empty groups are impossible. Defensive `if (length(group) == 0) next` guards are unreachable — mark with `# nocov`.
+- [disparity_filter.default vs .matrix dispatch]: R dispatches `disparity_filter(mat)` to `disparity_filter.matrix`, never to `.default`. To cover `.default`'s matrix path (line 72), call `disparity_filter.default(mat)` directly in tests.
 
 ### 2026-03-12
 - [motif tutorial rendering]: Quarto is not installed on this machine. Use `rmarkdown::render("file.qmd", output_format="html_document")` as fallback — works fine for .qmd files, just uses rmarkdown's HTML format instead of Quarto's.

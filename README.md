@@ -101,7 +101,7 @@ library(tna)
 library(cograph)
 
 # Build a TNA model from sequence data
-fit <- tna(engagement)
+fit <- tna(group_regulation)
 
 # One-liner visualization
 splot(fit)

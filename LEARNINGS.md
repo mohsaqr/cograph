@@ -10,6 +10,9 @@
 - [cograph_network $data edge list detection]: `as_cograph(edge_list)` stores the original data.frame in `$data`. To detect if a cograph_network has edge list metadata, check `is.data.frame(x$data) && all(c("from", "to") %in% tolower(names(x$data)))`. The `$data` may also be a tna sequence matrix or NULL.
 - [auto-detection column priority]: Actor: session_id > session > actor > user > participant > individual > id. Order: timestamp > time > seq > step > order. Case-insensitive match but preserves original column name.
 
+### 2026-03-14
+- [tna_communities vs cograph_communities]: `tna::communities()` returns class `tna_communities` with `$assignments` data.frame (columns: `state`, `<method_name>` where values are community IDs) and `$counts`. `cograph::communities()` returns class `cograph_communities` wrapping igraph community objects with `igraph::membership()`. Different conversion logic needed: `tna_communities` uses `split(asgn$state, asgn[[method_col]])`, `cograph_communities` uses `split(names(membership), membership)`. Check `tna_communities` first since it doesn't inherit from `communities` class.
+
 ### 2026-03-12
 - [motif tutorial rendering]: Quarto is not installed on this machine. Use `rmarkdown::render("file.qmd", output_format="html_document")` as fallback — works fine for .qmd files, just uses rmarkdown's HTML format instead of Quarto's.
 - [coding dataset density]: The coding dataset (9 states) has a fully connected weight matrix — all 84 possible triads are type 300 (clique). Individual-level analysis with `extract_motifs(Mod)` is much more informative because per-session matrices are sparse. For aggregate analysis, threshold the matrix first (`mat[mat < 0.05] <- 0`).

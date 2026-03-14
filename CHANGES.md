@@ -1,5 +1,12 @@
 # Changelog
 
+### 2026-03-14 — Fix overlay_communities for tna_communities objects
+
+- R/plot-communities.R: Added `tna_communities` handling — converts `$assignments` data.frame via `split(state, method_col)`. Existing `cograph_communities` and named list paths unchanged.
+- tests/testthat/test-overlay-communities.R: Added test for `tna_communities` from `tna::communities(model, method = "walktrap")`. Total: 18 tests pass.
+- Tutorial (tmp/tutorial_blobs.R): Now runs cleanly — `communities()` → `overlay_communities()` pipeline works.
+- Tests: 13,382 pass, 0 fail
+
 ### 2026-03-13 — Fix spiky text halo (8→16 directions)
 
 - R/plot-transitions.R: `.text_or_halo()` and `.annotate_or_halo()` increased from 8 to 16 circular offset directions (22.5° spacing) for smooth halo outline.

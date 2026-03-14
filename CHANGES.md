@@ -1,11 +1,24 @@
 # Changelog
 
-### 2026-03-14 — Fix overlay_communities for tna_communities objects
+### 2026-03-14 — v1.8.2: 100% coverage, README overhaul
 
-- R/plot-communities.R: Added `tna_communities` handling — converts `$assignments` data.frame via `split(state, method_col)`. Existing `cograph_communities` and named list paths unchanged.
-- tests/testthat/test-overlay-communities.R: Added test for `tna_communities` from `tna::communities(model, method = "walktrap")`. Total: 18 tests pass.
-- Tutorial (tmp/tutorial_blobs.R): Now runs cleanly — `communities()` → `overlay_communities()` pipeline works.
-- Tests: 13,382 pass, 0 fail
+- README.md: Comprehensive rewrite with feature tables for all plot functions, network analysis, community detection, multilayer support, and quality metrics
+- DESCRIPTION: Bumped to 1.8.2
+- tests/testthat/test-coverage-100pct-v2.R: NEW — 26 tests covering disparity filter default/plot/splot methods, empty tna transitions, undirected edge simplification, multi-step value_min filtering
+- R/motifs-data.R: Marked unreachable defensive guard as `# nocov` (line 203)
+- Coverage: 99.73% → 100% (0 uncovered lines)
+- Tests: 13,450+ pass, 0 fail
+
+### 2026-03-14 — v1.7.0–1.8.0: overlay_communities, plot_simplicial, full community detection
+
+- R/plot-communities.R: `overlay_communities()` — accepts 6 input formats: method name strings (walktrap, louvain, etc. with partial matching), named lists, numeric/factor membership vectors, `cograph_communities`, `tna_communities`. Auto-converts directed→undirected for igraph detection.
+- R/plot-simplicial.R: `plot_simplicial()` — higher-order pathway visualization with smooth blob geometry, flexible separators, dismantled view
+- R/blob-helpers.R: Shared geometry helpers (`.smooth_blob`, `.darken_colors`, `.extract_blob_states`, `.blob_layout`)
+- tests/testthat/test-overlay-communities.R: 33+ tests
+- tests/testthat/test-plot-simplicial.R: 78+ tests
+- tutorials/cograph-tutorial-communities.qmd: Full tutorial
+- Deleted R/hypa.R (unrequested, 0% coverage)
+- Tests: 13,392+ pass, 0 fail. Coverage: 99.73%
 
 ### 2026-03-13 — Fix spiky text halo (8→16 directions)
 

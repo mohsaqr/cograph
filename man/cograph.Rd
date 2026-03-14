@@ -36,6 +36,10 @@ If data frame has a \code{label} or \code{labels} column, those are used for dis
 
 \item{seed}{Random seed for deterministic layouts. Default 42. Set NULL for random.}
 
+\item{simplify}{Logical or character. If FALSE (default), every transition
+from tna sequence data is a separate edge. If TRUE or a string
+("sum", "mean", "max", "min"), duplicate edges are aggregated.}
+
 \item{...}{Additional arguments passed to the layout function.}
 }
 \value{

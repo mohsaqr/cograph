@@ -23,6 +23,9 @@ CographNetwork <- R6::R6Class(
     #' @param directed Logical. Force directed interpretation. NULL for auto-detect.
     #' @param nodes Node metadata. Can be NULL or a data frame with node attributes.
     #'   If data frame has a `label` or `labels` column, those are used for display.
+    #' @param simplify Logical or character. If FALSE (default), every transition
+    #'   from tna sequence data is a separate edge. If TRUE or a string
+    #'   ("sum", "mean", "max", "min"), duplicate edges are aggregated.
     #' @return A new CographNetwork object.
     initialize = function(input = NULL, directed = NULL, nodes = NULL,
                           simplify = FALSE) {
@@ -726,6 +729,9 @@ set_layout <- function(x, layout_df) {
 #'   - A tna object
 #'   - An existing cograph_network object (returned as-is)
 #' @param directed Logical. Force directed interpretation. NULL for auto-detect.
+#' @param simplify Logical or character. If FALSE (default), every transition
+#'   from tna sequence data is a separate edge. If TRUE or a string
+#'   ("sum", "mean", "max", "min"), duplicate edges are aggregated.
 #' @param ... Additional arguments (currently unused).
 #'
 #' @return A cograph_network object: a named list with components:

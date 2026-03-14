@@ -23,6 +23,10 @@ to_cograph(x, directed = NULL, ...)
 
 \item{directed}{Logical. Force directed interpretation. NULL for auto-detect.}
 
+\item{simplify}{Logical or character. If FALSE (default), every transition
+from tna sequence data is a separate edge. If TRUE or a string
+("sum", "mean", "max", "min"), duplicate edges are aggregated.}
+
 \item{...}{Additional arguments (currently unused).}
 }
 \value{

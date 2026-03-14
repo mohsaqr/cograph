@@ -75,5 +75,5 @@ Extracting the multiscale backbone of complex weighted networks.
 Proceedings of the National Academy of Sciences, 106(16), 6483-6488.
 }
 \seealso{
-\code{\link{bootstrap}} for bootstrap-based significance testing
+\code{\link[tna]{bootstrap}} for bootstrap-based significance testing
 }

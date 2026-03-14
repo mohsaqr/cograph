@@ -33,34 +33,34 @@ devtools::install_github("sonsoleslp/cograph")
 
 ### Network Plotting
 
-| Function | Description |
-|---|---|
-| `splot()` | Base R network plot (core engine) |
-| `soplot()` | Grid/ggplot2 network rendering |
-| `tplot()` | qgraph drop-in replacement for TNA |
-| `plot_htna()` | Hierarchical multi-group TNA layouts |
-| `plot_mtna()` | Multi-cluster TNA with shape containers |
-| `plot_mcml()` | Markov Chain Multi-Level visualization |
-| `plot_mlna()` | Multilayer 3D perspective networks |
-| `plot_mixed_network()` | Combined symmetric/asymmetric edges |
+| Function               | Description                             |
+|------------------------|-----------------------------------------|
+| `splot()`              | Base R network plot (core engine)       |
+| `soplot()`             | Grid/ggplot2 network rendering          |
+| `tplot()`              | qgraph drop-in replacement for TNA      |
+| `plot_htna()`          | Hierarchical multi-group TNA layouts    |
+| `plot_mtna()`          | Multi-cluster TNA with shape containers |
+| `plot_mcml()`          | Markov Chain Multi-Level visualization  |
+| `plot_mlna()`          | Multilayer 3D perspective networks      |
+| `plot_mixed_network()` | Combined symmetric/asymmetric edges     |
 
 ### Flow and Comparison Plots
 
-| Function | Description |
-|---|---|
-| `plot_transitions()` | Alluvial/Sankey flow diagrams |
-| `plot_alluvial()` | Alluvial wrapper with flow coloring |
+| Function              | Description                            |
+|-----------------------|----------------------------------------|
+| `plot_transitions()`  | Alluvial/Sankey flow diagrams          |
+| `plot_alluvial()`     | Alluvial wrapper with flow coloring    |
 | `plot_trajectories()` | Individual tracking with line bundling |
-| `plot_chord()` | Chord diagrams with ticks |
-| `plot_heatmap()` | Adjacency heatmaps with clustering |
-| `plot_compare()` | Difference network visualization |
-| `plot_bootstrap()` | Bootstrap CI result plots |
-| `plot_permutation()` | Permutation test result plots |
+| `plot_chord()`        | Chord diagrams with ticks              |
+| `plot_heatmap()`      | Adjacency heatmaps with clustering     |
+| `plot_compare()`      | Difference network visualization       |
+| `plot_bootstrap()`    | Bootstrap CI result plots              |
+| `plot_permutation()`  | Permutation test result plots          |
 
 ### Community and Higher-Order Structure
 
 | Function | Description |
-|---|---|
+|----|----|
 | `overlay_communities()` | Community blob overlays on network plots |
 | `plot_simplicial()` | Higher-order pathway (simplicial complex) visualization |
 | `detect_communities()` | 11 igraph algorithms with shorthand wrappers |
@@ -69,11 +69,11 @@ devtools::install_github("sonsoleslp/cograph")
 ### Network Analysis
 
 | Function | Description |
-|---|---|
+|----|----|
 | `centrality()` | 23+ centrality measures with individual wrappers |
 | `motifs()` / `subgraphs()` | Motif/triad census with per-actor windowing |
 | `robustness()` | Network robustness analysis |
-| `disparity_filter()` | Backbone extraction (Serrano et al. 2009) |
+| `disparity_filter()` | Backbone extraction (Serrano et al. 2009) |
 | `cluster_summary()` | Between/within cluster weight aggregation |
 | `build_mcml()` | Markov Chain Multi-Level model construction |
 | `summarize_network()` | Comprehensive network-level statistics |
@@ -82,12 +82,12 @@ devtools::install_github("sonsoleslp/cograph")
 
 ### Multilayer Networks
 
-| Function | Description |
-|---|---|
-| `supra_adjacency()` | Supra-adjacency matrix construction |
-| `layer_similarity()` | Layer comparison measures |
-| `aggregate_layers()` | Weight aggregation across layers |
-| `plot_ml_heatmap()` | Multilayer heatmaps with 3D perspective |
+| Function             | Description                             |
+|----------------------|-----------------------------------------|
+| `supra_adjacency()`  | Supra-adjacency matrix construction     |
+| `layer_similarity()` | Layer comparison measures               |
+| `aggregate_layers()` | Weight aggregation across layers        |
+| `plot_ml_heatmap()`  | Multilayer heatmaps with 3D perspective |
 
 ## Examples
 

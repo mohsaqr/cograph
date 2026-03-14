@@ -11,7 +11,7 @@ Description: Tools for the analysis, visualization, and manipulation of dynamica
     centrality measures, motif analysis, community detection, and network comparison.
     Features a validation engine with bootstrap confidence intervals, permutation
     testing, and centrality stability analysis. Supports multiple input formats
-    (adjacency matrices, edge lists, igraph objects) and offers flexible tools for
+    (adjacency matrices, edge lists, 'igraph' objects) and offers flexible tools for
     heterogeneous, multi-layer, and hierarchical network analysis. Includes
     publication-ready plotting with customizable layouts, node shapes, edge styles,
     and themes through an intuitive, pipe-friendly API.

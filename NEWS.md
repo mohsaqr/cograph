@@ -1,3 +1,43 @@
+# cograph 1.8.2
+
+## Improvements
+
+- Achieved 100% test coverage (13,450+ tests, 0 failures)
+- Updated README with comprehensive feature overview tables
+- Fixed R CMD check warnings: documented all missing `@param` tags and fixed cross-package `\link{}` reference
+- R CMD check: 0 errors, 0 warnings
+
+# cograph 1.8.0
+
+## New Features
+
+- Added `overlay_communities()` for community blob overlays on network plots
+- Added `plot_simplicial()` for higher-order pathway (simplicial complex) visualization
+
+# cograph 1.7.0
+
+## New Features
+
+- Added `robustness()` and `ggplot_robustness()` for network robustness analysis with attack strategies
+- Added `disparity_filter()` for backbone extraction (Serrano et al. 2009) with methods for matrices, tna, igraph, and cograph_network objects
+- Added `temporal_edge_list()` for converting sequence data to temporal edge lists
+- Added `motifs()` / `subgraphs()` unified API with auto-detection and per-actor windowing
+- Added qgraph argument translation in `splot()` tna dispatch (size, vsize, edge.color, etc.)
+- Added `value_nudge` parameter for flow label distance control in transition plots
+- Added bundle legend label controls: size, color, fontface, position
+- Added granular label controls to `plot_transitions()` / `plot_trajectories()` / `plot_alluvial()`
+- Added example datasets: `gamer_data`, `group_engagement`, `srl_data`
+- Added tutorials for plotting and motif analysis
+
+## Bug Fixes
+
+- Fixed spiky text halo by increasing offset directions from 8 to 16
+- Fixed argument forwarding in splot dispatch for bootstrap/permutation objects
+
+## Improvements
+
+- Simplified splot dispatch: extracted helper, added `mget()` reorder, documented title param
+
 # cograph 1.6.0
 
 ## New Features

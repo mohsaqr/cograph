@@ -466,7 +466,7 @@ extract_motifs <- function(x = NULL,
   result
 }
 
-#' @method print cograph_motif_analysis
+#' @noRd
 #' @export
 print.cograph_motif_analysis <- function(x, n = 20, ...) {
   cat("Motif Analysis\n")

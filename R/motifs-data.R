@@ -200,7 +200,7 @@
     for (gname in names(groups)) {
       idx <- groups[[gname]]
       n_edges <- length(idx)
-      if (n_edges == 0) next
+      if (n_edges == 0) next # nocov
 
       if (window_type == "tumbling") {
         starts <- seq(1, n_edges, by = window)

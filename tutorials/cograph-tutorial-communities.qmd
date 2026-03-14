@@ -1,0 +1,237 @@
+---
+title: "Community Visualization with cograph"
+description: |
+    Overlay community blobs on networks and visualize higher-order simplicial pathways
+date: "2026-03-14"
+author:
+  - name: Mohammed Saqr
+    url: https://saqr.me
+    affiliation: University of Eastern Finland
+  - name: Sonsoles López-Pernas
+    url: https://sonsoles.me
+    affiliation: University of Eastern Finland
+citation:
+  type: article
+  author:
+    - family: "Saqr"
+      given: "Mohammed"
+    - family: "López-Pernas"
+      given: "Sonsoles"
+categories:
+  - tutorial
+  - R
+  - visualization
+warning: false
+message: false
+fig.align: center
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: false
+    code-tools: false
+    theme: cosmo
+    self-contained: true
+execute:
+  warning: false
+  message: false
+knitr:
+  opts_chunk:
+    fig.width: 8
+    fig.height: 8
+    dpi: 150
+    comment: ""
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(tna)
+devtools::load_all(".")
+```
+
+# Introduction
+
+cograph provides two functions for visualizing community structure and higher-order relationships in networks:
+
+- **`overlay_communities()`** --- renders a network with `splot()` and overlays smooth blob shapes highlighting communities
+- **`plot_simplicial()`** --- visualizes higher-order pathways (simplicial complexes) as blobs on a ggplot2 canvas
+
+Both accept any network type: `tna`, matrix, `igraph`, or `cograph_network`.
+
+We use a TNA model of collaborative group regulation throughout:
+
+```{r}
+model <- tna(group_regulation)
+```
+
+# overlay_communities()
+
+## Method Name
+
+The simplest way: pass an igraph community detection method name. Partial matching and flexible naming are supported.
+
+```{r}
+#| fig.width: 10
+#| fig.height: 10
+overlay_communities(model, "walktrap")
+```
+
+Any igraph `cluster_*` method works: `"walktrap"`, `"louvain"`, `"fast_greedy"`, `"leading_eigen"`, `"infomap"`, `"leiden"`, `"label_prop"`, `"edge_betweenness"`, `"spinglass"`, `"optimal"`, `"fluid_communities"`. You can use the full igraph name (`"cluster_walktrap"`), the short name (`"walktrap"`), or a partial match (`"leading_eige"`). Directed graphs are automatically converted to undirected for detection.
+
+```{r}
+#| fig.width: 10
+#| fig.height: 10
+overlay_communities(model, "louvain")
+```
+
+## Named List
+
+Define communities manually with a named list:
+
+```{r}
+#| fig.width: 10
+#| fig.height: 10
+overlay_communities(model, list(
+  Regulatory = c("plan", "monitor", "adapt"),
+  Social     = c("cohesion", "emotion", "consensus"),
+  Task       = c("discuss", "synthesis", "coregulate")
+))
+```
+
+## Membership Vector
+
+A numeric vector or factor where each position maps to a node:
+
+```{r}
+#| fig.width: 10
+#| fig.height: 10
+overlay_communities(model, c(1, 1, 1, 2, 2, 2, 3, 3, 3))
+```
+
+## Communities Object
+
+Pass a `cograph_communities` or `tna_communities` object directly:
+
+```{r}
+#| fig.width: 10
+#| fig.height: 10
+comm <- communities(model, method = "walktrap")
+overlay_communities(model, comm)
+```
+
+## Custom Colors
+
+```{r}
+#| fig.width: 10
+#| fig.height: 10
+overlay_communities(model, list(
+  Regulatory = c("plan", "monitor", "adapt"),
+  Social     = c("cohesion", "emotion", "consensus"),
+  Task       = c("discuss", "synthesis", "coregulate")
+), blob_colors = c("#E8B4B8", "#B4D7E8", "#C5E8B4"), blob_alpha = 0.35)
+```
+
+## Overlapping Communities
+
+Communities can share nodes:
+
+```{r}
+#| fig.width: 10
+#| fig.height: 10
+overlay_communities(model, list(
+  "Self-Regulation" = c("plan", "monitor", "adapt", "emotion"),
+  Collaboration     = c("cohesion", "consensus", "discuss",
+                         "coregulate", "synthesis")
+), blob_colors = c("#4FC3F7", "#fbb550"), blob_alpha = 0.30)
+```
+
+## Pass splot Arguments
+
+All `...` arguments go to `splot()`:
+
+```{r}
+#| fig.width: 10
+#| fig.height: 10
+overlay_communities(model, list(
+  Regulatory = c("plan", "monitor", "adapt"),
+  Social     = c("cohesion", "emotion", "consensus"),
+  Task       = c("discuss", "synthesis", "coregulate")
+), title = "Group Regulation + Communities", minimum = 0.05)
+```
+
+# plot_simplicial()
+
+Visualize higher-order pathways as smooth blobs. Source nodes are blue, target nodes are red.
+
+## Basic Pathways
+
+```{r}
+#| fig.width: 10
+#| fig.height: 10
+plot_simplicial(model, c(
+  "plan monitor -> adapt",
+  "cohesion emotion -> consensus",
+  "discuss synthesis -> coregulate"
+), title = "Three Simplicial Pathways")
+```
+
+## Flexible Separators
+
+Separators are auto-detected and tokens are validated against state names (case-insensitive):
+
+```{r}
+#| fig.width: 10
+#| fig.height: 10
+plot_simplicial(model, c(
+  "plan, monitor -> adapt",
+  "cohesion - emotion - consensus",
+  "discuss synthesis coregulate"
+), title = "Mixed Separator Styles")
+```
+
+## Dismantled View
+
+One panel per pathway:
+
+```{r}
+#| fig.width: 8
+#| fig.height: 8
+plots <- plot_simplicial(model, c(
+  "plan monitor -> adapt",
+  "cohesion emotion -> consensus",
+  "discuss synthesis -> coregulate"
+), dismantled = TRUE)
+```
+
+## Custom Styling
+
+```{r}
+#| fig.width: 10
+#| fig.height: 10
+plot_simplicial(model,
+  c("plan monitor -> adapt",
+    "adapt monitor -> plan",
+    "plan adapt -> monitor"),
+  blob_colors = c("#B0D4F1", "#8BBDE0", "#6AA6CF"),
+  blob_alpha = 0.30,
+  blob_linewidth = 1.0,
+  blob_line_alpha = 0.9,
+  title = "Regulatory Cycle"
+)
+```
+
+## No Network Needed
+
+States are inferred from pathway strings when no network is provided:
+
+```{r}
+#| fig.width: 10
+#| fig.height: 10
+plot_simplicial(
+  pathways = c("A B -> C", "C D -> E", "A E -> B"),
+  blob_alpha = 0.30,
+  title = "States Inferred from Pathways"
+)
+```

@@ -9,6 +9,9 @@ subgraphs(...)
 \arguments{
 \item{...}{Additional arguments passed to plot helpers.}
 }
+\value{
+Same as \code{\link{motifs}}. See that function for details.
+}
 \description{
 Convenience wrapper for \code{motifs(x, named_nodes = TRUE, ...)}. Returns
 specific node triples forming each MAN pattern.

@@ -1277,6 +1277,8 @@ as_tna <- function(x) {
   UseMethod("as_tna")
 }
 
+#' @rdname as_tna
+#' @return A \code{tna} object with the cluster summary weights as the transition matrix.
 #' @export
 as_tna.cluster_summary <- function(x) {
   if (!requireNamespace("tna", quietly = TRUE)) {
@@ -1313,6 +1315,8 @@ as_tna.cluster_summary <- function(x) {
   )
 }
 
+#' @rdname as_tna
+#' @return A \code{tna} object constructed from the input.
 #' @export
 as_tna.default <- function(x) {
  if (inherits(x, "tna")) {
@@ -1321,6 +1325,7 @@ as_tna.default <- function(x) {
   stop("Cannot convert object of class '", class(x)[1], "' to tna", call. = FALSE)
 }
 
+#' @noRd
 #' @export
 print.cluster_tna <- function(x, ...) {
   cat("Cluster TNA Models\n")
@@ -1749,6 +1754,7 @@ cluster_significance <- function(x,
 #' }
 csig <- cluster_significance
 
+#' @noRd
 #' @export
 print.cograph_cluster_significance <- function(x, ...) {
   cat("Cluster Significance Test\n")
@@ -2292,6 +2298,7 @@ verify_igraph <- verify_with_igraph
 # Print Methods
 # ==============================================================================
 
+#' @noRd
 #' @export
 print.cluster_summary <- function(x, ...) {
   cat("Cluster Summary\n")
@@ -2338,6 +2345,7 @@ print.cluster_summary <- function(x, ...) {
   invisible(x)
 }
 
+#' @noRd
 #' @export
 print.mcml_network <- function(x, ...) {
   n_clusters <- x$meta$n_clusters
@@ -2366,6 +2374,7 @@ print.mcml_network <- function(x, ...) {
   invisible(x)
 }
 
+#' @noRd
 #' @export
 print.cluster_quality <- function(x, ...) {
 

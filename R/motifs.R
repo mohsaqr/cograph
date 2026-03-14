@@ -200,7 +200,7 @@ motif_census <- function(x, size = 3, n_random = 100,
   igraph::simplify(g_rand)
 }
 
-#' @method print cograph_motifs
+#' @noRd
 #' @export
 print.cograph_motifs <- function(x, ...) {
   cat("Network Motif Analysis\n")

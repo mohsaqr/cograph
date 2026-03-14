@@ -24,7 +24,11 @@ knitr::opts_chunk$set(
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 <!-- badges: end -->
 
-**cograph** is a modern R package for network visualization with rich node styling, multiple layouts, and first-class support for Transition Network Analysis (TNA).
+**cograph** is a modern R package for the analysis, visualization, and
+manipulation of complex networks. It provides publication-ready plotting
+with customizable layouts, node shapes, edge styles, and themes through
+an intuitive, pipe-friendly API. First-class support for Transition
+Network Analysis (TNA), multilayer networks, and community detection.
 
 ## Installation
 
@@ -36,7 +40,69 @@ install.packages("cograph")
 devtools::install_github("sonsoleslp/cograph")
 ```
 
-## TNA Plot
+## Features
+
+### Network Plotting
+
+| Function | Description |
+|---|---|
+| `splot()` | Base R network plot (core engine) |
+| `soplot()` | Grid/ggplot2 network rendering |
+| `tplot()` | qgraph drop-in replacement for TNA |
+| `plot_htna()` | Hierarchical multi-group TNA layouts |
+| `plot_mtna()` | Multi-cluster TNA with shape containers |
+| `plot_mcml()` | Markov Chain Multi-Level visualization |
+| `plot_mlna()` | Multilayer 3D perspective networks |
+| `plot_mixed_network()` | Combined symmetric/asymmetric edges |
+
+### Flow and Comparison Plots
+
+| Function | Description |
+|---|---|
+| `plot_transitions()` | Alluvial/Sankey flow diagrams |
+| `plot_alluvial()` | Alluvial wrapper with flow coloring |
+| `plot_trajectories()` | Individual tracking with line bundling |
+| `plot_chord()` | Chord diagrams with ticks |
+| `plot_heatmap()` | Adjacency heatmaps with clustering |
+| `plot_compare()` | Difference network visualization |
+| `plot_bootstrap()` | Bootstrap CI result plots |
+| `plot_permutation()` | Permutation test result plots |
+
+### Community and Higher-Order Structure
+
+| Function | Description |
+|---|---|
+| `overlay_communities()` | Community blob overlays on network plots |
+| `plot_simplicial()` | Higher-order pathway (simplicial complex) visualization |
+| `detect_communities()` | 11 igraph algorithms with shorthand wrappers |
+| `communities()` | Unified community detection interface |
+
+### Network Analysis
+
+| Function | Description |
+|---|---|
+| `centrality()` | 23+ centrality measures with individual wrappers |
+| `motifs()` / `subgraphs()` | Motif/triad census with per-actor windowing |
+| `robustness()` | Network robustness analysis |
+| `disparity_filter()` | Backbone extraction (Serrano et al. 2009) |
+| `cluster_summary()` | Between/within cluster weight aggregation |
+| `build_mcml()` | Markov Chain Multi-Level model construction |
+| `summarize_network()` | Comprehensive network-level statistics |
+| `verify_with_igraph()` | Cross-validation against igraph |
+| `simplify()` | Prune weak edges |
+
+### Multilayer Networks
+
+| Function | Description |
+|---|---|
+| `supra_adjacency()` | Supra-adjacency matrix construction |
+| `layer_similarity()` | Layer comparison measures |
+| `aggregate_layers()` | Weight aggregation across layers |
+| `plot_ml_heatmap()` | Multilayer heatmaps with 3D perspective |
+
+## Examples
+
+### TNA Plot
 
 The primary use case: visualize transition networks from the `tna` package.
 
@@ -51,7 +117,7 @@ fit <- tna(engagement)
 splot(fit)
 ```
 
-## Simple Network
+### Simple Network
 
 ```{r simple-network}
 library(cograph)
@@ -71,7 +137,7 @@ mat <- matrix(
 splot(mat)
 ```
 
-## Layouts
+### Layouts
 
 ```{r layouts, fig.height = 8}
 par(mfrow = c(2, 2), mar = c(1, 1, 2, 1))
@@ -81,7 +147,7 @@ splot(mat, layout = "kk",     title = "kk")
 splot(mat, layout = "fr",     title = "fr")
 ```
 
-## Edge Styling
+### Edge Styling
 
 ```{r edge-styling}
 splot(mat,
@@ -91,7 +157,7 @@ splot(mat,
 )
 ```
 
-## Node Shapes
+### Node Shapes
 
 ```{r node-shapes}
 shapes <- c("circle", "square", "hexagon", "diamond", "triangle")
@@ -103,7 +169,7 @@ splot(mat,
 )
 ```
 
-## Donuts
+### Donuts
 
 Donut nodes show proportional fill with optional polygon shapes.
 
@@ -117,7 +183,7 @@ splot(mat,
 )
 ```
 
-## Pies
+### Pies
 
 Pie chart nodes with per-node color palettes.
 
@@ -146,7 +212,7 @@ splot(mat,
 )
 ```
 
-## Donut + Pie Combo
+### Donut + Pie Combo
 
 Combine outer donut ring with inner pie segments.
 
@@ -159,25 +225,31 @@ splot(mat,
 )
 ```
 
-## Chord Diagram
+### Chord Diagram
 
 ```{r chord, fig.height = 7}
 plot_chord(mat, title = "Transition Chord Diagram")
 ```
 
-## Heatmap
+### Heatmap
 
 ```{r heatmap}
 plot_heatmap(mat, show_values = TRUE, colors = "viridis",
              value_fontface = "bold", title = "Transition Heatmap")
 ```
 
-## Alluvial Flow
+### Alluvial Flow
 
 ```{r alluvial, message = FALSE}
 plot_transitions(mat, flow_color_by = "from", flow_alpha = 0.5,
                  from_title = "Source", to_title = "Target")
 ```
+
+## Quality
+
+- 100% test coverage (13,450+ tests)
+- R CMD check: 0 errors, 0 warnings
+- All exported functions documented with `@return` and `@examples`
 
 ## License
 

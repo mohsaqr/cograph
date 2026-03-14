@@ -589,13 +589,14 @@ motifs <- function(x,
 #' specific node triples forming each MAN pattern.
 #'
 #' @inheritParams motifs
+#' @return Same as \code{\link{motifs}}. See that function for details.
 #' @seealso [motifs()]
 #' @family motifs
 #' @export
 subgraphs <- function(...) motifs(..., named_nodes = TRUE)
 
 
-#' @method print cograph_motif_result
+#' @noRd
 #' @export
 print.cograph_motif_result <- function(x, ...) {
   mode_label <- if (x$named_nodes) "Motif Subgraphs" else "Motif Census"

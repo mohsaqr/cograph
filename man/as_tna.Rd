@@ -2,9 +2,15 @@
 % Please edit documentation in R/cluster-metrics.R
 \name{as_tna}
 \alias{as_tna}
+\alias{as_tna.cluster_summary}
+\alias{as_tna.default}
 \title{Convert cluster_summary to tna Objects}
 \usage{
 as_tna(x)
+
+\method{as_tna}{cluster_summary}(x)
+
+\method{as_tna}{default}(x)
 }
 \arguments{
 \item{x}{A \code{cluster_summary} object created by \code{\link{cluster_summary}}.
@@ -27,6 +33,10 @@ represents internal transitions within that cluster. Contains
 and \code{$labels} (node labels). Clusters with single nodes or zero-row
 nodes are excluded (tna requires positive row sums).}
 }
+
+A \code{tna} object with the cluster summary weights as the transition matrix.
+
+A \code{tna} object constructed from the input.
 }
 \description{
 Converts a \code{cluster_summary} object to proper tna objects that can be

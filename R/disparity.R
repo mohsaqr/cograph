@@ -205,6 +205,7 @@ disparity_filter.igraph <- function(x, level = 0.05, ...) {
 # Print Method
 # =============================================================================
 
+#' @noRd
 #' @export
 print.tna_disparity <- function(x, ...) {
   cat("Disparity Filter Result\n")
@@ -227,6 +228,7 @@ print.tna_disparity <- function(x, ...) {
 #' @param type Plot type: "backbone" (default) or "comparison".
 #' @param ... Additional arguments passed to splot.
 #'
+#' @return Invisibly returns \code{NULL}. Called for the side effect of producing a plot.
 #' @export
 plot.tna_disparity <- function(x, type = c("backbone", "comparison"), ...) {
   type <- match.arg(type)
@@ -257,6 +259,7 @@ plot.tna_disparity <- function(x, type = c("backbone", "comparison"), ...) {
 #' @param alpha_nonsig Alpha for non-backbone edges. Default 0.3.
 #' @param ... Additional arguments passed to splot.
 #'
+#' @return Invisibly returns \code{NULL}. Called for the side effect of producing a plot.
 #' @export
 splot.tna_disparity <- function(x, show = c("styled", "backbone", "full"),
                                 edge_style_sig = 1, edge_style_nonsig = 2,

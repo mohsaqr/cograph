@@ -13,6 +13,9 @@
 
 \item{...}{Additional arguments passed to splot.}
 }
+\value{
+Invisibly returns \code{NULL}. Called for the side effect of producing a plot.
+}
 \description{
 Plot Disparity Filter Result
 }

@@ -159,8 +159,7 @@
 }
 
 #' Convert edge list data.frame to 3D transition array
-#' @return list(trans = array[groups, states, states], labels = character,
-#'   groups = character)
+#' @return list with trans (3D array), labels (character), groups (character)
 #' @noRd
 .edgelist_to_trans_array <- function(el,
                                       actor_col = NULL,

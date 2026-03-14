@@ -25,11 +25,14 @@ ggplot_robustness(
 
 \item{measures}{Attack strategies to compare. Default c("betweenness", "degree", "random").}
 
+\item{strategy}{Character string; "sequential" (default) recalculates centrality
+after each removal, "static" uses initial centrality ranking throughout.}
+
 \item{colors}{Named vector of colors for measures.}
 
 \item{title}{Overall title. Default NULL.}
 
-\item{n_iter}{Iterations for random. Default 100.}
+\item{n_iter}{Iterations for random. Default 1000.}
 
 \item{seed}{Random seed. Default NULL.}
 

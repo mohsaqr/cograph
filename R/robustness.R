@@ -419,8 +419,10 @@ plot_robustness <- function(...,
 #' @param networks Named list of networks (alternative to ...).
 #' @param measures Attack strategies to compare. Default c("betweenness", "degree", "random").
 #' @param colors Named vector of colors for measures.
+#' @param strategy Character string; "sequential" (default) recalculates centrality
+#'   after each removal, "static" uses initial centrality ranking throughout.
 #' @param title Overall title. Default NULL.
-#' @param n_iter Iterations for random. Default 100.
+#' @param n_iter Iterations for random. Default 1000.
 #' @param seed Random seed. Default NULL.
 #' @param type Removal type. Default "vertex".
 #' @param ncol Columns in facet. Default NULL (auto).

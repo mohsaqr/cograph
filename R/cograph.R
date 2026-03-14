@@ -136,6 +136,9 @@ compute_layout_for_cograph <- function(net, layout = "spring", seed = 42, ...) {
 #' @param nodes Node metadata. Can be NULL or a data frame with node attributes.
 #'   If data frame has a `label` or `labels` column, those are used for display.
 #' @param seed Random seed for deterministic layouts. Default 42. Set NULL for random.
+#' @param simplify Logical or character. If FALSE (default), every transition
+#'   from tna sequence data is a separate edge. If TRUE or a string
+#'   ("sum", "mean", "max", "min"), duplicate edges are aggregated.
 #' @param ... Additional arguments passed to the layout function.
 #'
 #' @return A cograph_network object that can be further customized and rendered.

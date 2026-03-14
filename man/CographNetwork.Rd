@@ -85,6 +85,10 @@ Create a new CographNetwork object.
 
 \item{\code{nodes}}{Node metadata. Can be NULL or a data frame with node attributes.
 If data frame has a \code{label} or \code{labels} column, those are used for display.}
+
+\item{\code{simplify}}{Logical or character. If FALSE (default), every transition
+from tna sequence data is a separate edge. If TRUE or a string
+("sum", "mean", "max", "min"), duplicate edges are aggregated.}
 }
 \if{html}{\out{</div>}}
 }

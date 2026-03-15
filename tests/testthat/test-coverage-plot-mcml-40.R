@@ -56,11 +56,11 @@ test_that("mcml returns cluster_summary", {
   expect_equal(result$meta$n_clusters, 3)
   expect_equal(result$meta$n_nodes, 6)
   expect_equal(names(result$clusters), c("Cluster1", "Cluster2", "Cluster3"))
-  expect_true(is.matrix(result$between$weights))
-  expect_equal(nrow(result$between$weights), 3)
-  expect_equal(ncol(result$between$weights), 3)
-  expect_true(is.numeric(result$between$inits))
-  expect_equal(length(result$between$inits), 3)
+  expect_true(is.matrix(result$macro$weights))
+  expect_equal(nrow(result$macro$weights), 3)
+  expect_equal(ncol(result$macro$weights), 3)
+  expect_true(is.numeric(result$macro$inits))
+  expect_equal(length(result$macro$inits), 3)
 })
 
 test_that("plot_mcml accepts cluster_summary object", {
@@ -938,10 +938,10 @@ test_that("mcml between$weights has correct dimensions", {
 
   result <- mcml(weights, clusters)
 
-  expect_equal(nrow(result$between$weights), 3)
-  expect_equal(ncol(result$between$weights), 3)
-  expect_equal(rownames(result$between$weights), c("Cluster1", "Cluster2", "Cluster3"))
-  expect_equal(colnames(result$between$weights), c("Cluster1", "Cluster2", "Cluster3"))
+  expect_equal(nrow(result$macro$weights), 3)
+  expect_equal(ncol(result$macro$weights), 3)
+  expect_equal(rownames(result$macro$weights), c("Cluster1", "Cluster2", "Cluster3"))
+  expect_equal(colnames(result$macro$weights), c("Cluster1", "Cluster2", "Cluster3"))
 })
 
 test_that("mcml between$weights diagonal is zero", {
@@ -951,7 +951,7 @@ test_that("mcml between$weights diagonal is zero", {
   result <- mcml(weights, clusters)
 
   # Diagonal should be zero (no self-loops at cluster level)
-  expect_equal(sum(diag(result$between$weights) != 0), 0)
+  expect_equal(sum(diag(result$macro$weights) != 0), 0)
 })
 
 test_that("mcml between$weights rows sum to 1 (type = tna)", {
@@ -960,7 +960,7 @@ test_that("mcml between$weights rows sum to 1 (type = tna)", {
 
   result <- mcml(weights, clusters)
 
-  row_sums <- rowSums(result$between$weights)
+  row_sums <- rowSums(result$macro$weights)
   expect_true(all(abs(row_sums - 1) < 1e-10 | row_sums == 0))
 })
 
@@ -970,9 +970,9 @@ test_that("mcml between$inits sums to 1", {
 
   result <- mcml(weights, clusters)
 
-  expect_equal(sum(result$between$inits), 1, tolerance = 1e-10)
-  expect_equal(length(result$between$inits), 3)
-  expect_equal(names(result$between$inits), c("Cluster1", "Cluster2", "Cluster3"))
+  expect_equal(sum(result$macro$inits), 1, tolerance = 1e-10)
+  expect_equal(length(result$macro$inits), 3)
+  expect_equal(names(result$macro$inits), c("Cluster1", "Cluster2", "Cluster3"))
 })
 
 test_that("mcml with mean aggregation stores method", {
@@ -1043,21 +1043,21 @@ test_that("mcml works with cograph_network input", {
   expect_equal(result$meta$n_clusters, 3)
 })
 
-test_that("mcml as_tna returns cluster_tna class object", {
+test_that("mcml as_tna returns group_tna class object", {
   skip_if_not_installed("tna")
   weights <- create_test_weights()
   clusters <- create_test_clusters()
 
   result <- mcml(weights, clusters, as_tna = TRUE)
 
-  expect_s3_class(result, "cluster_tna")
-  expect_s3_class(result$between, "tna")
-  expect_true("weights" %in% names(result$between))
-  expect_true("inits" %in% names(result$between))
-  expect_true("labels" %in% names(result$between))
+  expect_s3_class(result, "group_tna")
+  expect_s3_class(result$macro, "tna")
+  expect_true("weights" %in% names(result$macro))
+  expect_true("inits" %in% names(result$macro))
+  expect_true("labels" %in% names(result$macro))
 })
 
-test_that("mcml as_tna between weights match cluster_summary", {
+test_that("mcml as_tna macro weights match cluster_summary", {
   skip_if_not_installed("tna")
   weights <- create_test_weights()
   clusters <- create_test_clusters()
@@ -1065,65 +1065,65 @@ test_that("mcml as_tna between weights match cluster_summary", {
   cs <- mcml(weights, clusters)
   tna_obj <- mcml(weights, clusters, as_tna = TRUE)
 
-  expect_equal(nrow(cs$between$weights), nrow(tna_obj$between$weights))
-  expect_equal(length(cs$between$inits), length(tna_obj$between$inits))
+  expect_equal(nrow(cs$macro$weights), nrow(tna_obj$macro$weights))
+  expect_equal(length(cs$macro$inits), length(tna_obj$macro$inits))
 })
 
 # ============================================
-# mcml() $within Field Tests - NEW STRUCTURE
+# mcml() $clusters Field Tests - NEW STRUCTURE
 # ============================================
 
-test_that("mcml includes within field by default", {
+test_that("mcml includes clusters field by default", {
   weights <- create_test_weights()
   clusters <- create_test_clusters()
 
   result <- mcml(weights, clusters)
 
-  expect_true("within" %in% names(result))
-  expect_true(is.list(result$within))
-  expect_equal(names(result$within), c("Cluster1", "Cluster2", "Cluster3"))
+  expect_true("clusters" %in% names(result))
+  expect_true(is.list(result$clusters))
+  expect_equal(names(result$clusters), c("Cluster1", "Cluster2", "Cluster3"))
 })
 
-test_that("mcml within field contains per-cluster data", {
+test_that("mcml clusters field contains per-cluster data", {
   weights <- create_test_weights()
   clusters <- create_test_clusters()
 
   result <- mcml(weights, clusters)
 
   # Each cluster should have weights and inits
-  for (cl_name in names(result$within)) {
-    cl_data <- result$within[[cl_name]]
+  for (cl_name in names(result$clusters)) {
+    cl_data <- result$clusters[[cl_name]]
     expect_true("weights" %in% names(cl_data))
     expect_true("inits" %in% names(cl_data))
   }
 })
 
-test_that("mcml within$weights is row-normalized", {
+test_that("mcml clusters weights is row-normalized", {
   weights <- create_test_weights()
   clusters <- create_test_clusters()
 
   result <- mcml(weights, clusters)
 
   # Check each cluster's weights rows sum to 1 (or 0 if all zeros)
-  for (cl_name in names(result$within)) {
-    cl_w <- result$within[[cl_name]]$weights
+  for (cl_name in names(result$clusters)) {
+    cl_w <- result$clusters[[cl_name]]$weights
     row_sums <- rowSums(cl_w)
     expect_true(all(abs(row_sums - 1) < 1e-10 | row_sums == 0))
   }
 })
 
-test_that("mcml within = FALSE skips within computation", {
+test_that("mcml within = FALSE skips clusters computation", {
   weights <- create_test_weights()
   clusters <- create_test_clusters()
 
   result <- mcml(weights, clusters, within = FALSE)
 
-  expect_null(result$within)
-  # between should still exist
-  expect_true("between" %in% names(result))
+  expect_null(result$clusters)
+  # macro should still exist
+  expect_true("macro" %in% names(result))
 })
 
-test_that("mcml handles single-node clusters in within", {
+test_that("mcml handles single-node clusters in clusters field", {
   set.seed(42)
   mat <- matrix(runif(9, 0, 0.5), 3, 3)
   diag(mat) <- 0
@@ -1138,9 +1138,9 @@ test_that("mcml handles single-node clusters in within", {
   result <- mcml(mat, clusters)
 
   # Single-node clusters should have 1x1 zero matrices
-  expect_equal(dim(result$within$C1$weights), c(1, 1))
-  expect_equal(result$within$C1$weights[1, 1], 0)
-  expect_equal(result$within$C1$inits, c(A = 1))
+  expect_equal(dim(result$clusters$C1$weights), c(1, 1))
+  expect_equal(result$clusters$C1$weights[1, 1], 0)
+  expect_equal(result$clusters$C1$inits, c(A = 1))
 })
 
 # ============================================
@@ -1230,8 +1230,7 @@ test_that("mcml backward compat: main fields exist", {
 
   # Key fields should exist
   expect_true("clusters" %in% names(result))
-  expect_true("between" %in% names(result))
-  expect_true("within" %in% names(result))
+  expect_true("macro" %in% names(result))
   expect_true("meta" %in% names(result))
 })
 

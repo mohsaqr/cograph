@@ -48,7 +48,7 @@ test_that("build_mcml works with edge list + list clusters", {
   result <- build_mcml(edges_simple, clusters_list, type = "raw")
 
   expect_s3_class(result, "cluster_summary")
-  expect_equal(dim(result$between$weights), c(2, 2))
+  expect_equal(dim(result$macro$weights), c(2, 2))
   expect_equal(names(result$clusters), c("G1", "G2"))
   expect_equal(result$meta$source, "transitions")
 
@@ -57,10 +57,10 @@ test_that("build_mcml works with edge list + list clusters", {
   # C->D: G2->G2, C->D: G2->G2, D->A: G2->G1,
   # A->D: G1->G2, D->C: G2->G2
   # G1->G1 = 2, G1->G2 = 2, G2->G2 = 3, G2->G1 = 1
-  expect_equal(result$between$weights["G1", "G1"], 2)
-  expect_equal(result$between$weights["G1", "G2"], 2)
-  expect_equal(result$between$weights["G2", "G2"], 3)
-  expect_equal(result$between$weights["G2", "G1"], 1)
+  expect_equal(result$macro$weights["G1", "G1"], 2)
+  expect_equal(result$macro$weights["G1", "G2"], 2)
+  expect_equal(result$macro$weights["G2", "G2"], 3)
+  expect_equal(result$macro$weights["G2", "G1"], 1)
 })
 
 # ==============================================================================
@@ -87,10 +87,10 @@ test_that("build_mcml uses weight column from edge list", {
 
   # A->C has weight 2 (G1->G2), no other G1->G2 transitions
   # (A->B is within G1)
-  expect_equal(result$between$weights["G1", "G2"], 2)
+  expect_equal(result$macro$weights["G1", "G2"], 2)
 
   # D->A has weight 2 (G2->G1)
-  expect_equal(result$between$weights["G2", "G1"], 2)
+  expect_equal(result$macro$weights["G2", "G1"], 2)
 })
 
 # ==============================================================================
@@ -108,10 +108,10 @@ test_that("build_mcml works with sequence data", {
   # Row 2: C->D (G2->G2), D->C (G2->G2), C->A (G2->G1)
   # Row 3: B->A (G1->G1), A->D (G1->G2), D->C (G2->G2)
   # G1->G1 = 2, G1->G2 = 2, G2->G2 = 4, G2->G1 = 1
-  expect_equal(result$between$weights["G1", "G1"], 2)
-  expect_equal(result$between$weights["G1", "G2"], 2)
-  expect_equal(result$between$weights["G2", "G2"], 4)
-  expect_equal(result$between$weights["G2", "G1"], 1)
+  expect_equal(result$macro$weights["G1", "G1"], 2)
+  expect_equal(result$macro$weights["G1", "G2"], 2)
+  expect_equal(result$macro$weights["G2", "G2"], 4)
+  expect_equal(result$macro$weights["G2", "G1"], 1)
 })
 
 # ==============================================================================
@@ -135,7 +135,7 @@ test_that("build_mcml uses sequence path for tna with $data", {
   expect_s3_class(result, "cluster_summary")
   expect_equal(result$meta$source, "transitions")
   # Same as sequence test above
-  expect_equal(result$between$weights["G1", "G2"], 2)
+  expect_equal(result$macro$weights["G1", "G2"], 2)
 })
 
 # ==============================================================================
@@ -215,9 +215,9 @@ test_that("build_mcml skips NA transitions in sequences", {
   # Row 2: C->NA (skip), NA->D (skip)
   # Row 3: NA->A (skip), A->B (G1->G1)
   # G1->G1 = 2, G1->G2 = 1, G2->G1 = 0
-  expect_equal(result$between$weights["G1", "G1"], 2)
-  expect_equal(result$between$weights["G1", "G2"], 1)
-  expect_equal(result$between$weights["G2", "G1"], 0)
+  expect_equal(result$macro$weights["G1", "G1"], 2)
+  expect_equal(result$macro$weights["G1", "G2"], 1)
+  expect_equal(result$macro$weights["G2", "G1"], 0)
 })
 
 # ==============================================================================
@@ -234,8 +234,8 @@ test_that("single-node clusters get 1x1 zero within matrix", {
 
   result <- build_mcml(edges_3node, cls, type = "raw")
 
-  expect_equal(dim(result$within$G2$weights), c(1, 1))
-  expect_equal(result$within$G2$weights[1, 1], 0)
+  expect_equal(dim(result$clusters$G2$weights), c(1, 1))
+  expect_equal(result$clusters$G2$weights[1, 1], 0)
 })
 
 # ==============================================================================
@@ -263,8 +263,8 @@ test_that("build_mcml with compute_within = FALSE returns NULL within", {
   result <- build_mcml(edges_simple, clusters_list, type = "raw",
                         compute_within = FALSE)
 
-  expect_null(result$within)
-  expect_equal(dim(result$between$weights), c(2, 2))
+  expect_null(result$clusters)
+  expect_equal(dim(result$macro$weights), c(2, 2))
 })
 
 # ==============================================================================
@@ -289,7 +289,7 @@ test_that("build_mcml returns cluster_summary as-is", {
 test_that("build_mcml type='tna' row-normalizes between matrix", {
   result <- build_mcml(edges_simple, clusters_list, type = "tna")
 
-  rs <- rowSums(result$between$weights)
+  rs <- rowSums(result$macro$weights)
   # Rows with non-zero entries should sum to 1
   nonzero_rows <- rs[rs > 0]
   expect_true(all(abs(nonzero_rows - 1) < 1e-10))
@@ -303,12 +303,12 @@ test_that("build_mcml correctly computes within-cluster matrices", {
   result <- build_mcml(edges_simple, clusters_list, type = "raw")
 
   # Within G1: A->B (1), B->A (1)
-  expect_equal(result$within$G1$weights["A", "B"], 1)
-  expect_equal(result$within$G1$weights["B", "A"], 1)
+  expect_equal(result$clusters$G1$weights["A", "B"], 1)
+  expect_equal(result$clusters$G1$weights["B", "A"], 1)
 
   # Within G2: C->D (2), D->C (1)
-  expect_equal(result$within$G2$weights["C", "D"], 2)
-  expect_equal(result$within$G2$weights["D", "C"], 1)
+  expect_equal(result$clusters$G2$weights["C", "D"], 2)
+  expect_equal(result$clusters$G2$weights["D", "C"], 1)
 })
 
 # ==============================================================================
@@ -329,19 +329,19 @@ test_that("build_mcml raw counts match manual edge-by-edge calculation", {
   result <- build_mcml(edges_simple, clusters_list, type = "raw")
 
   # Between matrix includes diagonal (within-cluster loops)
-  expect_equal(result$between$weights["G1", "G1"], 2)
-  expect_equal(result$between$weights["G1", "G2"], 2)
-  expect_equal(result$between$weights["G2", "G2"], 3)
-  expect_equal(result$between$weights["G2", "G1"], 1)
+  expect_equal(result$macro$weights["G1", "G1"], 2)
+  expect_equal(result$macro$weights["G1", "G2"], 2)
+  expect_equal(result$macro$weights["G2", "G2"], 3)
+  expect_equal(result$macro$weights["G2", "G1"], 1)
 
   # Total transitions = 8
-  expect_equal(sum(result$between$weights), 8)
+  expect_equal(sum(result$macro$weights), 8)
 
   # Within G1 detail: A->B=1, B->A=1
-  expect_equal(sum(result$within$G1$weights), 2)
+  expect_equal(sum(result$clusters$G1$weights), 2)
 
   # Within G2 detail: C->D=2, D->C=1
-  expect_equal(sum(result$within$G2$weights), 3)
+  expect_equal(sum(result$clusters$G2$weights), 3)
 })
 
 # ==============================================================================
@@ -365,9 +365,9 @@ test_that("build_mcml respects aggregation method", {
                             type = "raw")
 
   # G1->G2: weights 2, 4, 6
-  expect_equal(result_sum$between$weights["G1", "G2"], 12)
-  expect_equal(result_mean$between$weights["G1", "G2"], 4)
-  expect_equal(result_max$between$weights["G1", "G2"], 6)
+  expect_equal(result_sum$macro$weights["G1", "G2"], 12)
+  expect_equal(result_mean$macro$weights["G1", "G2"], 4)
+  expect_equal(result_max$macro$weights["G1", "G2"], 6)
 })
 
 # ==============================================================================
@@ -380,8 +380,8 @@ test_that("build_mcml output works with as_tna", {
   result <- build_mcml(edges_simple, clusters_list, type = "tna")
   tna_models <- as_tna(result)
 
-  expect_s3_class(tna_models, "cluster_tna")
-  expect_s3_class(tna_models$between, "tna")
+  expect_s3_class(tna_models, "group_tna")
+  expect_s3_class(tna_models$macro, "tna")
 })
 
 # ==============================================================================
@@ -401,9 +401,9 @@ test_that("node-level self-loops (A->A) count on diagonal", {
   # A->B is G1->G1
   # A->C is G1->G2
   # C->D is G2->G2
-  expect_equal(result$between$weights["G1", "G1"], 2)  # A->A + A->B
-  expect_equal(result$between$weights["G1", "G2"], 1)  # A->C
-  expect_equal(result$between$weights["G2", "G2"], 1)  # C->D
+  expect_equal(result$macro$weights["G1", "G1"], 2)  # A->A + A->B
+  expect_equal(result$macro$weights["G1", "G2"], 1)  # A->C
+  expect_equal(result$macro$weights["G2", "G2"], 1)  # C->D
 })
 
 test_that("build_mcml output works with print methods", {
@@ -817,7 +817,7 @@ test_that("build_mcml with cograph_network without data falls back", {
 
 test_that("build_mcml type=cooccurrence symmetrizes between matrix", {
   result <- build_mcml(edges_simple, clusters_list, type = "cooccurrence")
-  expect_equal(result$between$weights, t(result$between$weights))
+  expect_equal(result$macro$weights, t(result$macro$weights))
 })
 
 test_that("build_mcml type=frequency preserves raw counts", {
@@ -825,12 +825,12 @@ test_that("build_mcml type=frequency preserves raw counts", {
   expect_s3_class(result, "cluster_summary")
   # Should be same as raw
   result_raw <- build_mcml(edges_simple, clusters_list, type = "raw")
-  expect_equal(result$between$weights, result_raw$between$weights)
+  expect_equal(result$macro$weights, result_raw$macro$weights)
 })
 
 test_that("build_mcml type=semi_markov row-normalizes", {
   result <- build_mcml(edges_simple, clusters_list, type = "semi_markov")
-  rs <- rowSums(result$between$weights)
+  rs <- rowSums(result$macro$weights)
   nonzero <- rs[rs > 0]
   expect_true(all(abs(nonzero - 1) < 1e-10))
 })
@@ -854,9 +854,9 @@ test_that("build_mcml attaches recoded sequence data to between tna", {
   result <- build_mcml(seqs, clusters_list, type = "raw")
 
   # Between tna should have recoded data
-  expect_true(!is.null(result$between$data))
+  expect_true(!is.null(result$macro$data))
   # All values should be cluster names
-  all_vals <- unlist(result$between$data, use.names = FALSE)
+  all_vals <- unlist(result$macro$data, use.names = FALSE)
   all_vals <- all_vals[!is.na(all_vals)]
   expect_true(all(all_vals %in% c("G1", "G2")))
 })
@@ -865,7 +865,7 @@ test_that("build_mcml within tna has filtered sequence data", {
   result <- build_mcml(seqs, clusters_list, type = "raw")
 
   # Within G1 should have sequence data with only A/B (others NA)
-  within_g1_data <- result$within$G1$data
+  within_g1_data <- result$clusters$G1$data
   expect_true(!is.null(within_g1_data))
   all_vals <- unlist(within_g1_data, use.names = FALSE)
   non_na <- all_vals[!is.na(all_vals)]
@@ -882,7 +882,7 @@ test_that("build_mcml with method=density computes n_possible", {
 
   expect_s3_class(result, "cluster_summary")
   # G1->G2: 2 transitions, n_possible = 2*2 = 4, density = 2/4 = 0.5
-  expect_equal(result$between$weights["G1", "G2"], 0.5)
+  expect_equal(result$macro$weights["G1", "G2"], 0.5)
 })
 
 # ==============================================================================
@@ -901,8 +901,8 @@ test_that("build_mcml handles zero-weight transitions for inits", {
   result <- build_mcml(edges_zero, clusters_list, type = "raw")
 
   # Inits should be uniform 1/k
-  expect_equal(result$between$inits[["G1"]], 0.5)
-  expect_equal(result$between$inits[["G2"]], 0.5)
+  expect_equal(result$macro$inits[["G1"]], 0.5)
+  expect_equal(result$macro$inits[["G2"]], 0.5)
 })
 
 # ==============================================================================
@@ -998,18 +998,18 @@ test_that("build_mcml accepts data frame clusters", {
   # Edge list input
   result <- build_mcml(edges_simple, clusters_df, type = "raw")
   expect_s3_class(result, "cluster_summary")
-  expect_equal(dim(result$between$weights), c(2, 2))
+  expect_equal(dim(result$macro$weights), c(2, 2))
   expect_equal(sort(names(result$clusters)), c("G1", "G2"))
 
   # Sequence input
   result2 <- build_mcml(seqs, clusters_df, type = "tna")
   expect_s3_class(result2, "cluster_summary")
-  expect_equal(dim(result2$between$weights), c(2, 2))
+  expect_equal(dim(result2$macro$weights), c(2, 2))
 
   # Weighted edge list
   result3 <- build_mcml(edges_weighted, clusters_df, type = "raw", method = "sum")
   expect_s3_class(result3, "cluster_summary")
-  expect_equal(dim(result3$between$weights), c(2, 2))
+  expect_equal(dim(result3$macro$weights), c(2, 2))
 })
 
 test_that("cluster_summary accepts data frame clusters", {
@@ -1027,11 +1027,11 @@ test_that("cluster_summary accepts data frame clusters", {
 
   result <- cluster_summary(mat, clusters_df, type = "tna")
   expect_s3_class(result, "cluster_summary")
-  expect_equal(dim(result$between$weights), c(2, 2))
+  expect_equal(dim(result$macro$weights), c(2, 2))
 
   # Results should match named list input
   clusters_list_local <- list(G1 = c("A", "B"), G2 = c("C", "D"))
   result2 <- cluster_summary(mat, clusters_list_local, type = "tna")
-  expect_equal(result$between$weights, result2$between$weights)
-  expect_equal(result$between$inits, result2$between$inits)
+  expect_equal(result$macro$weights, result2$macro$weights)
+  expect_equal(result$macro$inits, result2$macro$inits)
 })

@@ -524,8 +524,7 @@ splot <- function(
 
   # Translate qgraph-style args for tna-family objects (early, before any dispatch)
   if (inherits(x, c("tna", "group_tna", "tna_bootstrap",
-                     "tna_permutation", "group_tna_permutation",
-                     "cluster_tna"))) {
+                     "tna_permutation", "group_tna_permutation"))) {
     .dots <- .translate_qgraph_dots(.dots)
   }
 
@@ -600,23 +599,12 @@ splot <- function(
   }
 
   # ============================================
-  # HANDLE cluster_summary / cluster_tna
+  # HANDLE cluster_summary
   # ============================================
 
   # Handle cluster_summary objects -> dispatch to plot_mcml
   if (inherits(x, "cluster_summary")) {
     return(do.call(plot_mcml, c(list(x = x), .collect_dispatch_args(.user_args, .dots))))
-  }
-
-  # Handle cluster_tna objects (from as_tna)
-  if (inherits(x, "cluster_tna")) {
-    ct_args <- .collect_dispatch_args(.user_args, .dots, skip = c("x", "i"))
-    if (!is.null(i)) {
-      if (is.null(ct_args$title)) ct_args$title <- title
-      return(do.call(splot, c(list(x = x$within[[i]]), ct_args)))
-    }
-    if (is.null(ct_args$title)) ct_args$title <- title %||% "Between-cluster network"
-    return(do.call(splot, c(list(x = x$between), ct_args)))
   }
 
   # Dispatch to specialized methods for bootstrap objects

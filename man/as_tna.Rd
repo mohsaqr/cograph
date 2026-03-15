@@ -3,12 +3,15 @@
 \name{as_tna}
 \alias{as_tna}
 \alias{as_tna.cluster_summary}
+\alias{as_tna.mcml}
 \alias{as_tna.default}
 \title{Convert cluster_summary to tna Objects}
 \usage{
 as_tna(x)
 
 \method{as_tna}{cluster_summary}(x)
+
+\method{as_tna}{mcml}(x)
 
 \method{as_tna}{default}(x)
 }
@@ -36,6 +39,8 @@ object represents internal transitions within that cluster. Contains
 and \code{$labels} (node labels). Clusters with single nodes or zero-row
 nodes are excluded (tna requires positive row sums).}
 }
+
+A \code{group_tna} object (flat list of tna objects: macro + per-cluster).
 
 A \code{group_tna} object (flat list of tna objects: macro + per-cluster).
 

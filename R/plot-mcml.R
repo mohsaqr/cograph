@@ -460,7 +460,7 @@ plot_mcml <- function(
   # Get or compute cluster_summary
   # ============================================================================
 
-  if (inherits(x, "cluster_summary")) {
+  if (inherits(x, c("cluster_summary", "mcml"))) {
     cs <- x
   } else {
     # Extract nodes_df for display labels
@@ -491,11 +491,9 @@ plot_mcml <- function(
 
   # Get original weight matrix for within-cluster visualization
   # We need raw weights, so re-extract if needed
-  if (inherits(x, "cluster_summary")) {
-    # Need to get weights from somewhere - use the input
-    # For cluster_summary, we stored processed weights, need raw
-    # Use clusters$X$weights which are raw (before normalization)
-    weights <- NULL  # Will use within data directly
+  if (inherits(x, c("cluster_summary", "mcml"))) {
+    # Use clusters$X$weights directly
+    weights <- NULL
   } else if (inherits(x, "cograph_network")) {
     weights <- if (!is.null(x$weights)) x$weights else to_matrix(x)
   } else if (inherits(x, "tna")) {

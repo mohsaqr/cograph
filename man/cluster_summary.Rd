@@ -108,8 +108,8 @@ A \code{cluster_summary} object (S3 class) containing:
 \describe{
 \item{weights}{k x k matrix of cluster-to-cluster weights, where k is
 the number of clusters. Row i, column j contains the aggregated
-weight from cluster i to cluster j. Diagonal is zero (per-cluster
-transitions are in \code{$clusters}). Processing depends on \code{type}.}
+weight from cluster i to cluster j. Diagonal contains aggregated
+intra-cluster weight (retention / self-loops). Processing depends on \code{type}.}
 \item{inits}{Numeric vector of length k. Initial state distribution
 across clusters, computed from column sums of the original matrix.
 Represents the proportion of incoming edges to each cluster.}
@@ -118,9 +118,9 @@ Represents the proportion of incoming edges to each cluster.}
 \item{clusters}{Named list with one element per cluster. Each element is
 a tna object containing:
 \describe{
-\item{weights}{n_i x n_i matrix for nodes within that cluster.
+\item{weights}{n_i x n_i matrix for nodes inside that cluster.
 Shows internal transitions between nodes in the same cluster.}
-\item{inits}{Initial distribution within the cluster.}
+\item{inits}{Initial distribution for the cluster.}
 }
 NULL if \code{compute_within = FALSE}.}
 \item{cluster_members}{Named list mapping cluster names to their member node labels.
@@ -142,7 +142,7 @@ See \code{\link{cluster_summary}}.
 \description{
 Aggregates node-level network weights to cluster-level summaries. Computes
 both macro (cluster-to-cluster) transitions and per-cluster transitions
-(how nodes connect within each cluster).
+(how nodes connect inside each cluster).
 }
 \details{
 This is the core function for Multi-Cluster Multi-Level (MCML) analysis.
@@ -177,7 +177,7 @@ The \code{macro$weights} matrix has clusters as both rows and columns:
 }
 
 When \code{type = "tna"}, rows sum to 1 and diagonal values represent
-"retention rate" - the probability of staying within the same cluster.
+"retention rate" - the probability of staying inside the same cluster.
 }
 
 \subsection{Choosing method and type}{

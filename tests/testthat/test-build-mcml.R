@@ -47,7 +47,7 @@ seqs <- data.frame(
 test_that("build_mcml works with edge list + list clusters", {
   result <- build_mcml(edges_simple, clusters_list, type = "raw")
 
-  expect_s3_class(result, "cluster_summary")
+  expect_s3_class(result, "mcml")
   expect_equal(dim(result$macro$weights), c(2, 2))
   expect_equal(names(result$clusters), c("G1", "G2"))
   expect_equal(result$meta$source, "transitions")
@@ -73,7 +73,7 @@ test_that("build_mcml works with column name clusters", {
   # Build lookup from both from+group and to+group
   result <- build_mcml(edges_grouped, "group", type = "raw")
 
-  expect_s3_class(result, "cluster_summary")
+  expect_s3_class(result, "mcml")
   # Should have 2 clusters
   expect_equal(length(result$clusters), 2)
 })
@@ -100,7 +100,7 @@ test_that("build_mcml uses weight column from edge list", {
 test_that("build_mcml works with sequence data", {
   result <- build_mcml(seqs, clusters_list, type = "raw")
 
-  expect_s3_class(result, "cluster_summary")
+  expect_s3_class(result, "mcml")
   expect_equal(result$meta$source, "transitions")
 
   # Manual count of transitions:
@@ -132,7 +132,7 @@ test_that("build_mcml uses sequence path for tna with $data", {
 
   result <- build_mcml(mock_tna, clusters_list, type = "raw")
 
-  expect_s3_class(result, "cluster_summary")
+  expect_s3_class(result, "mcml")
   expect_equal(result$meta$source, "transitions")
   # Same as sequence test above
   expect_equal(result$macro$weights["G1", "G2"], 2)
@@ -161,7 +161,7 @@ test_that("build_mcml falls back to cluster_summary for tna without $data", {
 
   result <- build_mcml(mock_tna, clusters_list, type = "raw")
 
-  expect_s3_class(result, "cluster_summary")
+  expect_s3_class(result, "mcml")
   # This uses cluster_summary, so meta$source should NOT be "transitions"
   expect_null(result$meta$source)
 })
@@ -177,7 +177,7 @@ test_that("build_mcml delegates square matrix to cluster_summary", {
 
   result <- build_mcml(mat, clusters_list, type = "raw")
 
-  expect_s3_class(result, "cluster_summary")
+  expect_s3_class(result, "mcml")
   # Uses cluster_summary path, no transitions source
   expect_null(result$meta$source)
 })
@@ -192,7 +192,7 @@ test_that("build_mcml treats non-square matrix as sequence data", {
 
   result <- build_mcml(seq_mat, clusters_list, type = "raw")
 
-  expect_s3_class(result, "cluster_summary")
+  expect_s3_class(result, "mcml")
   expect_equal(result$meta$source, "transitions")
 })
 
@@ -210,7 +210,7 @@ test_that("build_mcml skips NA transitions in sequences", {
 
   result <- build_mcml(seqs_na, clusters_list, type = "raw")
 
-  expect_s3_class(result, "cluster_summary")
+  expect_s3_class(result, "mcml")
   # Row 1: A->B (G1->G1), B->C (G1->G2)
   # Row 2: C->NA (skip), NA->D (skip)
   # Row 3: NA->A (skip), A->B (G1->G1)
@@ -409,21 +409,19 @@ test_that("node-level self-loops (A->A) count on diagonal", {
 test_that("build_mcml output works with print methods", {
   result <- build_mcml(edges_simple, clusters_list, type = "tna")
 
-  # Should print via mcml_network method
-  expect_output(print(result), "MCML Network")
-  # Should also work as cluster_summary
-  expect_s3_class(result, "cluster_summary")
+  # Should print via mcml method
+  expect_output(print(result), "MCML")
+  expect_s3_class(result, "mcml")
 })
 
 # ==============================================================================
-# Test: mcml_network class and edges
+# Test: mcml class and edges
 # ==============================================================================
 
-test_that("build_mcml returns mcml_network class with edges", {
+test_that("build_mcml returns mcml class with edges", {
   result <- build_mcml(edges_simple, clusters_list, type = "raw")
 
-  expect_s3_class(result, "mcml_network")
-  expect_s3_class(result, "cluster_summary")
+  expect_s3_class(result, "mcml")
 
   # Edges data.frame
 
@@ -448,16 +446,16 @@ test_that("build_mcml returns mcml_network class with edges", {
   expect_equal(ac$type, "between")
 })
 
-test_that("matrix fallback does NOT produce mcml_network class", {
+test_that("matrix input also produces mcml class", {
   mat <- matrix(runif(16), 4, 4)
   diag(mat) <- 0
   rownames(mat) <- colnames(mat) <- LETTERS[1:4]
 
   result <- build_mcml(mat, clusters_list, type = "raw")
 
-  # Falls back to cluster_summary, not mcml_network
-  expect_false(inherits(result, "mcml_network"))
-  expect_s3_class(result, "cluster_summary")
+  # Matrix path wrapped via .as_mcml
+  expect_s3_class(result, "mcml")
+  expect_false(inherits(result, "cluster_summary"))
 })
 
 # ==============================================================================
@@ -747,7 +745,7 @@ test_that("build_mcml with cograph_network + edgelist data", {
 
   result <- build_mcml(net, clusters_list, type = "raw")
 
-  expect_s3_class(result, "cluster_summary")
+  expect_s3_class(result, "mcml")
   expect_equal(result$meta$source, "transitions")
 })
 
@@ -760,7 +758,7 @@ test_that("build_mcml with cograph_network + sequence data", {
 
   result <- build_mcml(net, clusters_list, type = "raw")
 
-  expect_s3_class(result, "cluster_summary")
+  expect_s3_class(result, "mcml")
   expect_equal(result$meta$source, "transitions")
 })
 
@@ -774,7 +772,7 @@ test_that("build_mcml with cograph_network auto-detects clusters from nodes", {
 
   result <- build_mcml(net, type = "raw")
 
-  expect_s3_class(result, "cluster_summary")
+  expect_s3_class(result, "mcml")
   expect_equal(result$meta$n_clusters, 2)
 })
 
@@ -795,7 +793,7 @@ test_that("build_mcml with cograph_network auto-detects from node_groups", {
 
   result <- build_mcml(net, type = "raw")
 
-  expect_s3_class(result, "cluster_summary")
+  expect_s3_class(result, "mcml")
   expect_equal(result$meta$n_clusters, 2)
 })
 
@@ -808,7 +806,7 @@ test_that("build_mcml with cograph_network without data falls back", {
 
   result <- build_mcml(net, type = "raw")
 
-  expect_s3_class(result, "cluster_summary")
+  expect_s3_class(result, "mcml")
 })
 
 # ==============================================================================
@@ -822,7 +820,7 @@ test_that("build_mcml type=cooccurrence symmetrizes between matrix", {
 
 test_that("build_mcml type=frequency preserves raw counts", {
   result <- build_mcml(edges_simple, clusters_list, type = "frequency")
-  expect_s3_class(result, "cluster_summary")
+  expect_s3_class(result, "mcml")
   # Should be same as raw
   result_raw <- build_mcml(edges_simple, clusters_list, type = "raw")
   expect_equal(result$macro$weights, result_raw$macro$weights)
@@ -875,7 +873,7 @@ test_that("build_mcml with method=density computes n_possible", {
   result <- build_mcml(edges_simple, clusters_list, method = "density",
                         type = "raw")
 
-  expect_s3_class(result, "cluster_summary")
+  expect_s3_class(result, "mcml")
   # G1->G2: 2 transitions, n_possible = 2*2 = 4, density = 2/4 = 0.5
   expect_equal(result$macro$weights["G1", "G2"], 0.5)
 })
@@ -920,7 +918,7 @@ test_that("build_mcml edgelist defaults to columns 1,2 for non-standard names", 
   result <- cograph:::.build_mcml_edgelist(
     df_weird, clusters_list, "sum", "raw", TRUE, TRUE
   )
-  expect_s3_class(result, "cluster_summary")
+  expect_s3_class(result, "mcml")
 })
 
 # ==============================================================================
@@ -947,7 +945,7 @@ test_that("build_mcml_edgelist normalizes vector clusters", {
     edges_simple, vec, "sum", "raw", TRUE, TRUE
   )
 
-  expect_s3_class(result, "cluster_summary")
+  expect_s3_class(result, "mcml")
   expect_equal(result$meta$n_clusters, 2)
 })
 
@@ -992,18 +990,18 @@ test_that("build_mcml accepts data frame clusters", {
 
   # Edge list input
   result <- build_mcml(edges_simple, clusters_df, type = "raw")
-  expect_s3_class(result, "cluster_summary")
+  expect_s3_class(result, "mcml")
   expect_equal(dim(result$macro$weights), c(2, 2))
   expect_equal(sort(names(result$clusters)), c("G1", "G2"))
 
   # Sequence input
   result2 <- build_mcml(seqs, clusters_df, type = "tna")
-  expect_s3_class(result2, "cluster_summary")
+  expect_s3_class(result2, "mcml")
   expect_equal(dim(result2$macro$weights), c(2, 2))
 
   # Weighted edge list
   result3 <- build_mcml(edges_weighted, clusters_df, type = "raw", method = "sum")
-  expect_s3_class(result3, "cluster_summary")
+  expect_s3_class(result3, "mcml")
   expect_equal(dim(result3$macro$weights), c(2, 2))
 })
 
@@ -1029,4 +1027,101 @@ test_that("cluster_summary accepts data frame clusters", {
   result2 <- cluster_summary(mat, clusters_list_local, type = "tna")
   expect_equal(result$macro$weights, result2$macro$weights)
   expect_equal(result$macro$inits, result2$macro$inits)
+})
+
+# ==============================================================================
+# as_mcml() Tests
+# ==============================================================================
+
+test_that("as_mcml.cluster_summary converts to mcml", {
+  mat <- matrix(c(.5, .2, .3,
+                  .1, .6, .3,
+                  .4, .1, .5), 3, 3, byrow = TRUE,
+                dimnames = list(c("A", "B", "C"), c("A", "B", "C")))
+  clusters <- list(G1 = c("A", "B"), G2 = c("C"))
+  cs <- cluster_summary(mat, clusters, type = "tna")
+
+  result <- as_mcml(cs)
+  expect_s3_class(result, "mcml")
+  expect_equal(names(result), c("macro", "clusters", "cluster_members", "meta"))
+  expect_equal(result$macro$labels, c("G1", "G2"))
+  expect_equal(dim(result$macro$weights), c(2, 2))
+  # No tna class on components
+  expect_false(inherits(result$macro, "tna"))
+})
+
+test_that("as_mcml.mcml returns input unchanged", {
+  mat <- matrix(c(.5, .2, .3,
+                  .1, .6, .3,
+                  .4, .1, .5), 3, 3, byrow = TRUE,
+                dimnames = list(c("A", "B", "C"), c("A", "B", "C")))
+  clusters <- list(G1 = c("A", "B"), G2 = c("C"))
+  m <- build_mcml(mat, clusters, type = "tna")
+  result <- as_mcml(m)
+  expect_identical(result, m)
+})
+
+test_that("as_mcml.default errors for unsupported types", {
+  expect_error(as_mcml(42), "Cannot convert")
+  expect_error(as_mcml("text"), "Cannot convert")
+  expect_error(as_mcml(list(a = 1)), "Cannot convert")
+})
+
+test_that("as_mcml.group_tna works with node-level grouping", {
+  # Build a group_tna with different labels per group (node-level)
+  mat <- matrix(c(.4, .3, .2, .1,
+                  .2, .5, .1, .2,
+                  .1, .1, .5, .3,
+                  .1, .2, .3, .4), 4, 4, byrow = TRUE,
+                dimnames = list(c("A", "B", "C", "D"),
+                                c("A", "B", "C", "D")))
+  clusters <- list(G1 = c("A", "B"), G2 = c("C", "D"))
+  cs <- cluster_summary(mat, clusters, type = "tna")
+  gt <- as_tna(cs)
+
+  result <- as_mcml(gt)
+  expect_s3_class(result, "mcml")
+  expect_equal(names(result), c("macro", "clusters", "cluster_members", "meta"))
+  expect_equal(dim(result$macro$weights), c(2, 2))
+})
+
+test_that("as_mcml.group_tna with clusters creates row-level mcml", {
+  skip_if_not_installed("tna")
+
+  # Build synthetic group_tna with same labels across groups
+  w1 <- matrix(c(.5, .5, .3, .7), 2, 2,
+               dimnames = list(c("A", "B"), c("A", "B")))
+  w2 <- matrix(c(.6, .4, .2, .8), 2, 2,
+               dimnames = list(c("A", "B"), c("A", "B")))
+
+  t1 <- tna::tna(w1)
+  t2 <- tna::tna(w2)
+  gt <- list(cluster_1 = t1, cluster_2 = t2)
+  class(gt) <- "group_tna"
+
+  assignments <- c(1, 1, 2, 2, 1)
+
+  result <- as_mcml(gt, clusters = assignments)
+  expect_s3_class(result, "mcml")
+  expect_null(result$macro$weights)
+  expect_equal(result$macro$data, assignments)
+  expect_equal(result$macro$labels, c("cluster_1", "cluster_2"))
+  expect_equal(result$meta$source, "group_tna")
+  expect_equal(result$meta$n_clusters, 2)
+})
+
+test_that("as_mcml.group_tna errors when same labels and no clusters", {
+  skip_if_not_installed("tna")
+
+  w1 <- matrix(c(.5, .5, .3, .7), 2, 2,
+               dimnames = list(c("A", "B"), c("A", "B")))
+  w2 <- matrix(c(.6, .4, .2, .8), 2, 2,
+               dimnames = list(c("A", "B"), c("A", "B")))
+
+  t1 <- tna::tna(w1)
+  t2 <- tna::tna(w2)
+  gt <- list(G1 = t1, G2 = t2)
+  class(gt) <- "group_tna"
+
+  expect_error(as_mcml(gt), "row-level group_tna")
 })

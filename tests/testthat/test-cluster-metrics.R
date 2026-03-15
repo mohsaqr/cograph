@@ -244,6 +244,43 @@ test_that("handles single-node clusters", {
   expect_equal(sum(result$clusters$A$weights), 0)
 })
 
+test_that("self-loops are preserved in macro diagonal and cluster matrices", {
+  # TNA-style row-stochastic matrix WITH self-loops
+  mat_sl <- matrix(0.1, 5, 5)
+  diag(mat_sl) <- 0.6  # Strong self-loops
+  rownames(mat_sl) <- colnames(mat_sl) <- paste0("N", 1:5)
+
+  clusters_sl <- list(A = c("N1", "N2"), B = c("N3", "N4", "N5"))
+  result <- cluster_summary(mat_sl, clusters_sl, method = "sum", type = "raw")
+
+  # Macro diagonal should include self-loops (not zero)
+  expect_true(diag(result$macro$weights)["A"] > 0)
+  expect_true(diag(result$macro$weights)["B"] > 0)
+
+  # Macro diagonal A = sum of mat_sl[1:2, 1:2] = 0.6+0.1+0.1+0.6 = 1.4
+  expect_equal(result$macro$weights["A", "A"],
+               sum(mat_sl[1:2, 1:2]), tolerance = 1e-10)
+
+  # Within-cluster matrices should have self-loops on diagonal
+  expect_true(result$clusters$A$weights[1, 1] > 0)
+  expect_true(result$clusters$B$weights[1, 1] > 0)
+})
+
+test_that("single-node cluster preserves self-loop", {
+  mat_sl <- matrix(0.1, 5, 5)
+  diag(mat_sl) <- 0.5
+  rownames(mat_sl) <- colnames(mat_sl) <- paste0("N", 1:5)
+
+  clusters_sl <- list(A = "N1", B = paste0("N", 2:5))
+  result <- cluster_summary(mat_sl, clusters_sl, method = "sum", type = "raw")
+
+  # Single-node cluster A: macro diagonal = self-loop = 0.5
+  expect_equal(result$macro$weights["A", "A"], 0.5, tolerance = 1e-10)
+
+  # Within-cluster matrix for A should be 1x1 with self-loop value
+  expect_equal(result$clusters$A$weights[1, 1], 0.5, tolerance = 1e-10)
+})
+
 test_that("handles empty weights gracefully", {
   mat_sparse <- matrix(0, 5, 5)
   mat_sparse[1, 2] <- 1

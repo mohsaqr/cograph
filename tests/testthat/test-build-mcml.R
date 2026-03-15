@@ -847,29 +847,24 @@ test_that("build_mcml errors on unsupported input type", {
 })
 
 # ==============================================================================
-# Sequence data with recoded between/within data
+# Sequence data preserved as-is in macro and cluster tna models
 # ==============================================================================
 
-test_that("build_mcml attaches recoded sequence data to between tna", {
+test_that("build_mcml preserves original sequence data in macro tna", {
   result <- build_mcml(seqs, clusters_list, type = "raw")
 
-  # Between tna should have recoded data
+  # Macro tna should have the original sequence data, untransformed
   expect_true(!is.null(result$macro$data))
-  # All values should be cluster names
-  all_vals <- unlist(result$macro$data, use.names = FALSE)
-  all_vals <- all_vals[!is.na(all_vals)]
-  expect_true(all(all_vals %in% c("G1", "G2")))
+  expect_equal(result$macro$data, seqs)
 })
 
-test_that("build_mcml within tna has filtered sequence data", {
+test_that("build_mcml preserves original sequence data in cluster tna", {
   result <- build_mcml(seqs, clusters_list, type = "raw")
 
-  # Within G1 should have sequence data with only A/B (others NA)
-  within_g1_data <- result$clusters$G1$data
-  expect_true(!is.null(within_g1_data))
-  all_vals <- unlist(within_g1_data, use.names = FALSE)
-  non_na <- all_vals[!is.na(all_vals)]
-  expect_true(all(non_na %in% c("A", "B")))
+  # Each cluster tna gets the original data (user decides how to use it)
+  expect_true(!is.null(result$clusters$G1$data))
+  expect_equal(result$clusters$G1$data, seqs)
+  expect_equal(result$clusters$G2$data, seqs)
 })
 
 # ==============================================================================

@@ -297,7 +297,7 @@ test_that("handles empty weights gracefully", {
 # Test sequence data propagation to tna models
 # ==============================================================================
 
-test_that("cluster_summary propagates tna sequence data to macro and clusters", {
+test_that("cluster_summary preserves original tna sequence data in all models", {
   skip_if_not_installed("tna")
 
   seqs <- data.frame(
@@ -309,21 +309,15 @@ test_that("cluster_summary propagates tna sequence data to macro and clusters", 
 
   result <- cluster_summary(tna_obj, clusters_list, method = "sum", type = "tna")
 
-  # Macro should have recoded sequence data
+  # Macro and clusters all get the original data, untransformed
   expect_false(is.null(result$macro$data))
-  expect_equal(nrow(result$macro$data), 4)
-  # All values should be cluster names
-  all_vals <- unlist(result$macro$data)
-  expect_true(all(all_vals %in% c("A", "B", "C")))
+  expect_identical(result$macro$data, tna_obj$data)
 
-  # Cluster A should have filtered data with NAs for non-A nodes
   expect_false(is.null(result$clusters$A$data))
-  a_vals <- unlist(result$clusters$A$data)
-  expect_true(all(a_vals %in% c("N1", "N2", "N3", NA)))
+  expect_identical(result$clusters$A$data, tna_obj$data)
 
-  # Cluster B similarly
-  b_vals <- unlist(result$clusters$B$data)
-  expect_true(all(b_vals %in% c("N4", "N5", "N6", NA)))
+  expect_false(is.null(result$clusters$B$data))
+  expect_identical(result$clusters$B$data, tna_obj$data)
 })
 
 test_that("cluster_summary with matrix input has NULL data in tna models", {

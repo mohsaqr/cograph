@@ -418,40 +418,8 @@ cluster_summary <- function(x,
   }
   names(between_inits) <- cluster_names
 
-  # ============================================================================
-  # Sequence data (if input tna has $data, recode for macro and per-cluster)
-  # ============================================================================
-
-  macro_seq_data <- NULL
-  cl_seq_data_list <- NULL
-  if (inherits(x_orig, "tna") && !is.null(x_orig$data)) {
-    tna_data <- x_orig$data
-    tna_labels <- attr(tna_data, "labels")
-    if (is.null(tna_labels)) tna_labels <- x_orig$labels
-
-    # node_name -> cluster_name lookup (vectorized)
-    cluster_lookup <- setNames(
-      rep(cluster_names, lengths(cluster_list)),
-      unlist(cluster_list)
-    )
-
-    # Decode numeric → node labels
-    node_decoded <- matrix(tna_labels[tna_data], nrow = nrow(tna_data))
-
-    # Recode to cluster labels for macro
-    macro_recoded <- matrix(cluster_lookup[node_decoded], nrow = nrow(tna_data))
-    macro_seq_data <- as.data.frame(macro_recoded, stringsAsFactors = FALSE)
-    if (!is.null(colnames(tna_data))) colnames(macro_seq_data) <- colnames(tna_data)
-
-    # Filter per cluster: keep only that cluster's nodes, NA others
-    cl_seq_data_list <- lapply(cluster_list, function(cl_nodes) {
-      filtered <- node_decoded
-      filtered[!filtered %in% cl_nodes] <- NA_character_
-      df <- as.data.frame(filtered, stringsAsFactors = FALSE)
-      if (!is.null(colnames(tna_data))) colnames(df) <- colnames(tna_data)
-      df
-    })
-  }
+  # Preserve original sequence data from tna input (no transformation)
+  orig_data <- if (inherits(x_orig, "tna")) x_orig$data
 
   # Build $macro
   between <- structure(
@@ -459,7 +427,7 @@ cluster_summary <- function(x,
       weights = between_weights,
       inits = between_inits,
       labels = cluster_names,
-      data = macro_seq_data
+      data = orig_data
     ),
     type = if (type == "tna") "relative" else "frequency",
     scaling = character(0),
@@ -503,15 +471,12 @@ cluster_summary <- function(x,
         names(cl_inits_i) <- cl_nodes
       }
 
-      # Per-cluster sequence data (if available)
-      cl_seq <- if (!is.null(cl_seq_data_list)) cl_seq_data_list[[cl_name]]
-
       structure(
         list(
           weights = cl_weights_i,
           inits = cl_inits_i,
           labels = cl_nodes,
-          data = cl_seq
+          data = orig_data
         ),
         type = if (type == "tna") "relative" else "frequency",
         scaling = character(0),
@@ -869,42 +834,13 @@ build_mcml <- function(x,
   }
   names(between_inits) <- cluster_names
 
-  # ---- Build recoded sequence data if input is sequences ----
-  between_seq_data <- NULL
-  cl_seq_data_list <- NULL
-  is_seq <- is.data.frame(data) && !any(tolower(names(data)) %in%
-    c("from", "source", "src", "v1", "node1", "i",
-      "to", "target", "tgt", "v2", "node2", "j"))
-
-  if (is_seq) {
-    # Recode sequences to cluster labels
-    between_seq_data <- as.data.frame(
-      lapply(data, function(col) {
-        recoded <- unname(cluster_lookup[as.character(col)])
-        recoded
-      }),
-      stringsAsFactors = FALSE
-    )
-
-    # Filter sequences per cluster (keep only that cluster's nodes, NA others)
-    cl_seq_data_list <- lapply(cluster_list, function(cl_nodes) {
-      as.data.frame(
-        lapply(data, function(col) {
-          vals <- as.character(col)
-          vals[!vals %in% cl_nodes] <- NA_character_
-          vals
-        }),
-        stringsAsFactors = FALSE
-      )
-    })
-  }
-
+  # Preserve original data as-is (no recoding or filtering)
   between <- structure(
     list(
       weights = between_weights,
       inits = between_inits,
       labels = cluster_names,
-      data = between_seq_data
+      data = data
     ),
     type = if (type == "tna") "relative" else "frequency",
     scaling = character(0),
@@ -973,19 +909,12 @@ build_mcml <- function(x,
         names(cl_inits_i) <- cl_nodes
       }
 
-      # Attach filtered sequence data for this cluster
-      cl_seq_data <- if (!is.null(cl_seq_data_list)) {
-        cl_seq_data_list[[cl_name]]
-      } else {
-        NULL
-      }
-
       structure(
         list(
           weights = cl_weights_i,
           inits = cl_inits_i,
           labels = cl_nodes,
-          data = cl_seq_data
+          data = data
         ),
         type = if (type == "tna") "relative" else "frequency",
         scaling = character(0),

@@ -23,7 +23,7 @@ ensure row-normalized transition probabilities. If created with
 which will normalize them.}
 }
 \value{
-A \code{group_tna} object (S3 class) — a flat named list of tna
+A \code{group_tna} object (S3 class) -- a flat named list of tna
 objects. The first element is named \code{"macro"} and represents the
 cluster-level transitions. Subsequent elements are named by cluster name
 and represent internal transitions within each cluster.

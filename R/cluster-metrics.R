@@ -391,7 +391,7 @@ cluster_summary <- function(x,
 
       if (i == j) {
         # Diagonal: aggregated intra-cluster weight (retention)
-        # Includes node self-loops (A->A) — these are valid intra-cluster flow
+        # Includes node self-loops (A->A) -- these are valid intra-cluster flow
         w_ii <- mat[idx_i, idx_i, drop = FALSE]
         n_possible <- n_i * n_i
         between_raw[i, j] <- aggregate_weights(as.vector(w_ii), method,
@@ -732,7 +732,7 @@ build_mcml <- function(x,
   nms <- names(x)
 
   # ------------------------------------------------------------------
-  # Case 1: clusters provided → row-level grouping (from group_model)
+  # Case 1: clusters provided -> row-level grouping (from group_model)
   # ------------------------------------------------------------------
   if (!is.null(clusters)) {
     cluster_nms <- names(x)
@@ -784,7 +784,7 @@ build_mcml <- function(x,
   }
 
   # ------------------------------------------------------------------
-  # Case 2: no clusters → node-level grouping (from as_tna)
+  # Case 2: no clusters -> node-level grouping (from as_tna)
   # ------------------------------------------------------------------
   cluster_nms <- setdiff(nms, "macro")
   if (length(cluster_nms) == 0) cluster_nms <- nms
@@ -793,7 +793,7 @@ build_mcml <- function(x,
   label_sets <- lapply(cluster_nms, function(nm) sort(x[[nm]]$labels))
   all_same <- length(unique(label_sets)) == 1
   if (all_same && length(cluster_nms) > 1) {
-    stop("All groups have the same labels — this is a row-level group_tna. ",
+    stop("All groups have the same labels -- this is a row-level group_tna. ",
          "Provide clusters argument with row-to-group assignments.",
          call. = FALSE)
   }
@@ -984,7 +984,7 @@ build_mcml <- function(x,
   between_raw <- matrix(0, n_clusters, n_clusters,
                         dimnames = list(cluster_names, cluster_names))
 
-  # Include ALL transitions — node-level self-loops (A->A) are valid
+  # Include ALL transitions -- node-level self-loops (A->A) are valid
   # cluster-level self-loops (e.g. discuss->discuss = Social->Social)
   b_from <- from_clusters
   b_to <- to_clusters
@@ -1308,7 +1308,7 @@ build_mcml <- function(x,
 #'   \code{type = "raw"}, the raw counts will be passed to \code{tna::tna()}
 #'   which will normalize them.
 #'
-#' @return A \code{group_tna} object (S3 class) — a flat named list of tna
+#' @return A \code{group_tna} object (S3 class) -- a flat named list of tna
 #'   objects. The first element is named \code{"macro"} and represents the
 #'   cluster-level transitions. Subsequent elements are named by cluster name
 #'   and represent internal transitions within each cluster.
@@ -1523,16 +1523,16 @@ as_tna.default <- function(x) {
   stop("Cannot convert object of class '", class(x)[1], "' to tna", call. = FALSE)
 }
 
-# print.cluster_tna removed — as_tna() now returns group_tna directly,
+# print.cluster_tna removed -- as_tna() now returns group_tna directly,
 # which has its own print method via the tna package.
 
 # ==============================================================================
-# 8. as_mcml — Convert to mcml
+# 8. as_mcml -- Convert to mcml
 # ==============================================================================
 
 #' Convert to mcml
 #'
-#' Convert various objects to the \code{mcml} class — a clean, tna-independent
+#' Convert various objects to the \code{mcml} class -- a clean, tna-independent
 #' representation of a multilayer cluster network.
 #'
 #' @param x Object to convert.

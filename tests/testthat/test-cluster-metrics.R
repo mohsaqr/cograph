@@ -57,25 +57,25 @@ test_that("cluster_summary works with list input", {
   result <- cluster_summary(mat, clusters_list, method = "sum", type = "raw")
 
   expect_s3_class(result, "cluster_summary")
-  expect_equal(dim(result$between$weights), c(3, 3))
-  expect_equal(length(result$within), 3)
+  expect_equal(dim(result$macro$weights), c(3, 3))
+  expect_equal(length(result$clusters), 3)
   expect_equal(names(result$clusters), c("A", "B", "C"))
   expect_equal(unname(result$meta$cluster_sizes), c(3, 3, 4))
 
   # Diagonal should be 0 (no self-loops at cluster level)
-  expect_equal(unname(diag(result$between$weights)), c(0, 0, 0))
+  expect_equal(unname(diag(result$macro$weights)), c(0, 0, 0))
 
   # Check a specific between value manually
   # A -> B = sum of mat[1:3, 4:6]
   expected_AB <- sum(mat[1:3, 4:6])
-  expect_equal(result$between$weights["A", "B"], expected_AB, tolerance = 1e-10)
+  expect_equal(result$macro$weights["A", "B"], expected_AB, tolerance = 1e-10)
 })
 
 test_that("cluster_summary works with vector input", {
   result <- cluster_summary(mat, clusters_vec, method = "sum")
 
   expect_s3_class(result, "cluster_summary")
-  expect_equal(dim(result$between$weights), c(3, 3))
+  expect_equal(dim(result$macro$weights), c(3, 3))
 })
 
 test_that("cluster_summary different methods", {
@@ -85,10 +85,10 @@ test_that("cluster_summary different methods", {
   result_max <- cluster_summary(mat, clusters_list, method = "max", type = "raw")
 
   # Mean should be smaller than sum (for non-single edges)
-  expect_true(all(result_mean$between$weights <= result_sum$between$weights))
+  expect_true(all(result_mean$macro$weights <= result_sum$macro$weights))
 
   # Max should be <= sum
-  expect_true(all(result_max$between$weights <= result_sum$between$weights))
+  expect_true(all(result_max$macro$weights <= result_sum$macro$weights))
 })
 
 # ==============================================================================
@@ -241,7 +241,7 @@ test_that("handles single-node clusters", {
 
   result <- cluster_summary(mat, clusters_single, method = "sum")
   # Single node cluster has no internal edges, so sum of within weights is 0
-  expect_equal(sum(result$within$A$weights), 0)
+  expect_equal(sum(result$clusters$A$weights), 0)
 })
 
 test_that("handles empty weights gracefully", {
@@ -253,25 +253,23 @@ test_that("handles empty weights gracefully", {
   result <- cluster_summary(mat_sparse, clusters, method = "mean")
 
   # Between A and B should be 0 (no edges)
-  expect_equal(result$between$weights["A", "B"], 0)
+  expect_equal(result$macro$weights["A", "B"], 0)
 })
 
 # ==============================================================================
 # Test as_tna() group_tna class on $within
 # ==============================================================================
 
-test_that("as_tna.cluster_summary sets group_tna class on $within", {
+test_that("as_tna.cluster_summary returns group_tna with macro and cluster elements", {
   skip_if_not_installed("tna")
 
   cs <- cluster_summary(mat, clusters_list, method = "mean", type = "tna")
   ct <- as_tna(cs)
 
-  expect_s3_class(ct, "cluster_tna")
-  expect_s3_class(ct$within, "group_tna")
-  expect_s3_class(ct$between, "tna")
-  expect_true(length(ct$within) > 0)
-  # Each within element should be a tna object
-  lapply(ct$within, function(w) expect_s3_class(w, "tna"))
+  expect_s3_class(ct, "group_tna")
+  expect_s3_class(ct$macro, "tna")
+  # Each cluster element should be a tna object
+  lapply(names(cs$clusters), function(cl) expect_s3_class(ct[[cl]], "tna"))
 })
 
 # ==============================================================================
@@ -284,23 +282,23 @@ test_that("splot dispatches cluster_summary to plot_mcml", {
   expect_no_error(splot(cs))
 })
 
-test_that("splot dispatches cluster_tna (between)", {
+test_that("splot dispatches group_tna (macro)", {
   skip_if_not_installed("tna")
 
   cs <- cluster_summary(mat, clusters_list, method = "mean", type = "tna")
   ct <- as_tna(cs)
-  # Default: plots between-cluster network
+  # Default: plots macro (between-cluster) network
   expect_no_error(splot(ct))
 })
 
-test_that("splot dispatches cluster_tna with i for within-cluster", {
+test_that("splot dispatches group_tna with i for within-cluster", {
   skip_if_not_installed("tna")
 
   cs <- cluster_summary(mat, clusters_list, method = "mean", type = "tna")
   ct <- as_tna(cs)
-  within_names <- names(ct$within)
-  if (length(within_names) > 0) {
-    expect_no_error(splot(ct, i = within_names[1]))
+  cluster_names <- names(cs$clusters)
+  if (length(cluster_names) > 0) {
+    expect_no_error(splot(ct, i = cluster_names[1]))
   }
 })
 
@@ -314,7 +312,7 @@ test_that("cluster_summary auto-detects clusters from cograph_network nodes", {
   net$nodes$cluster <- c(rep("A", 3), rep("B", 3), rep("C", 4))
   result <- cluster_summary(net, method = "sum")
   expect_s3_class(result, "cluster_summary")
-  expect_equal(dim(result$between$weights), c(3, 3))
+  expect_equal(dim(result$macro$weights), c(3, 3))
 })
 
 test_that("cluster_summary errors when no clusters and plain matrix", {
@@ -329,7 +327,7 @@ test_that("cluster_summary errors when no clusters and plain matrix", {
 test_that("cluster_summary type = raw returns raw weights", {
   result <- cluster_summary(mat, clusters_list, method = "sum", type = "raw")
   # "raw" should not normalize
-  expect_true(all(result$between$weights >= 0))
+  expect_true(all(result$macro$weights >= 0))
 })
 
 # ==============================================================================

@@ -20,29 +20,32 @@ ensure row-normalized transition probabilities. If created with
 which will normalize them.}
 }
 \value{
-A \code{cluster_tna} object (S3 class) containing:
+A \code{group_tna} object (S3 class) — a flat named list of tna
+objects. The first element is named \code{"macro"} and represents the
+cluster-level transitions. Subsequent elements are named by cluster name
+and represent internal transitions within each cluster.
 \describe{
-\item{between}{A tna object representing cluster-level transitions.
+\item{macro}{A tna object representing cluster-level transitions.
 Contains \code{$weights} (k x k transition matrix), \code{$inits}
 (initial distribution), and \code{$labels} (cluster names).
 Use this for analyzing how learners/entities move between high-level
 groups or phases.}
-\item{within}{Named list of tna objects, one per cluster. Each tna object
-represents internal transitions within that cluster. Contains
+\item{<cluster_name>}{Per-cluster tna objects, one per cluster. Each tna
+object represents internal transitions within that cluster. Contains
 \code{$weights} (n_i x n_i matrix), \code{$inits} (initial distribution),
 and \code{$labels} (node labels). Clusters with single nodes or zero-row
 nodes are excluded (tna requires positive row sums).}
 }
 
-A \code{tna} object with the cluster summary weights as the transition matrix.
+A \code{group_tna} object (flat list of tna objects: macro + per-cluster).
 
 A \code{tna} object constructed from the input.
 }
 \description{
 Converts a \code{cluster_summary} object to proper tna objects that can be
-used with all functions from the tna package. Creates both a between-cluster
-tna model (cluster-level transitions) and within-cluster tna models (internal
-transitions within each cluster).
+used with all functions from the tna package. Creates a macro (cluster-level)
+tna model and per-cluster tna models (internal transitions within each
+cluster), returned as a flat \code{group_tna} object.
 }
 \details{
 This is the final step in the MCML workflow, enabling full integration with
@@ -64,25 +67,25 @@ cs <- cluster_summary(net, type = "tna")
 tna_models <- as_tna(cs)
 
 # Now use tna package functions
-plot(tna_models$between)
-tna::centralities(tna_models$between)
-tna::bootstrap(tna_models$between, iter = 1000)
+plot(tna_models$macro)
+tna::centralities(tna_models$macro)
+tna::bootstrap(tna_models$macro, iter = 1000)
 
-# Analyze within-cluster patterns
-plot(tna_models$within$ClusterA)
-tna::centralities(tna_models$within$ClusterA)
+# Analyze per-cluster patterns
+plot(tna_models$ClusterA)
+tna::centralities(tna_models$ClusterA)
 }
 }
 
 \subsection{Excluded Clusters}{
 
-A within-cluster tna cannot be created when:
+A per-cluster tna cannot be created when:
 \itemize{
 \item The cluster has only 1 node (no internal transitions possible)
 \item Some nodes in the cluster have no outgoing edges (row sums to 0)
 }
 
-These clusters are silently excluded from \code{$within}. The between-cluster
+These clusters are silently excluded. The macro (cluster-level)
 model still includes all clusters.
 }
 }
@@ -109,34 +112,34 @@ tna_models
 # -----------------------------------------------------
 # Access components
 # -----------------------------------------------------
-# Between-cluster tna
-tna_models$between
-tna_models$between$weights  # 3x3 transition matrix
-tna_models$between$inits    # Initial distribution
-tna_models$between$labels   # c("G1", "G2", "G3")
+# Macro (cluster-level) tna
+tna_models$macro
+tna_models$macro$weights  # 3x3 transition matrix
+tna_models$macro$inits    # Initial distribution
+tna_models$macro$labels   # c("G1", "G2", "G3")
 
-# Within-cluster tnas
-names(tna_models$within)    # Which clusters have within models
-tna_models$within$G1        # tna for cluster G1
-tna_models$within$G1$weights  # 2x2 matrix (A, B)
+# Per-cluster tnas
+names(tna_models)          # "macro", "G1", "G2", "G3"
+tna_models$G1              # tna for cluster G1
+tna_models$G1$weights      # 2x2 matrix (A, B)
 
 # -----------------------------------------------------
 # Use with tna package (requires tna)
 # -----------------------------------------------------
 \dontrun{
 # Plot
-plot(tna_models$between)
-plot(tna_models$within$G1)
+plot(tna_models$macro)
+plot(tna_models$G1)
 
 # Centrality analysis
-tna::centralities(tna_models$between)
-tna::centralities(tna_models$within$G1)
-tna::centralities(tna_models$within$G2)
+tna::centralities(tna_models$macro)
+tna::centralities(tna_models$G1)
+tna::centralities(tna_models$G2)
 }
 
 \dontrun{
 # Bootstrap validation (requires tna built from sequence data)
-boot <- tna::bootstrap(tna_models$between, iter = 1000)
+boot <- tna::bootstrap(tna_models$macro, iter = 1000)
 summary(boot)
 }
 
@@ -147,13 +150,13 @@ cs <- cluster_summary(mat, clusters, type = "tna")
 tna_models <- as_tna(cs)
 
 # All cluster names
-names(cs$clusters)
+names(cs$cluster_members)
 
-# Clusters with valid within-models
-names(tna_models$within)
+# Clusters with valid per-cluster models
+setdiff(names(tna_models), "macro")
 
 # Clusters excluded (single node or zero rows)
-setdiff(names(cs$clusters), names(tna_models$within))
+setdiff(names(cs$cluster_members), names(tna_models))
 }
 \seealso{
 \code{\link{cluster_summary}} to create the input object,

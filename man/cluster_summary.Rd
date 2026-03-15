@@ -81,7 +81,7 @@ transition probabilities suitable for Markov chain analysis.
 Interpretation: "Given I'm in cluster A, what's the probability
 of transitioning to cluster B?"
 Required for use with tna package functions.
-Diagonal is zero; within-cluster data is in \code{$within}.}
+Diagonal is zero; per-cluster data is in \code{$clusters}.}
 \item{"raw"}{No normalization. Returns aggregated counts/weights as-is.
 Use for frequency analysis or when you need raw counts.
 Compatible with igraph's contract + simplify output.}
@@ -95,34 +95,35 @@ For semi-Markov process analysis.}
 A->B and B->A are separate edges. If \code{FALSE}, edges are undirected
 and the matrix is symmetrized before processing.}
 
-\item{compute_within}{Logical. If \code{TRUE} (default), compute within-cluster
+\item{compute_within}{Logical. If \code{TRUE} (default), compute per-cluster
 transition matrices for each cluster. Each cluster gets its own n_i x n_i
 matrix showing internal node-to-node transitions.
 Set to \code{FALSE} to skip this computation for better performance when
-only between-cluster summary is needed.}
+only the macro (cluster-level) summary is needed.}
 }
 \value{
 A \code{cluster_summary} object (S3 class) containing:
 \describe{
-\item{between}{List with two elements:
+\item{macro}{A tna object representing the macro (cluster-level) network:
 \describe{
 \item{weights}{k x k matrix of cluster-to-cluster weights, where k is
 the number of clusters. Row i, column j contains the aggregated
-weight from cluster i to cluster j. Diagonal is zero (within-cluster
-transitions are in \code{$within}). Processing depends on \code{type}.}
+weight from cluster i to cluster j. Diagonal is zero (per-cluster
+transitions are in \code{$clusters}). Processing depends on \code{type}.}
 \item{inits}{Numeric vector of length k. Initial state distribution
 across clusters, computed from column sums of the original matrix.
 Represents the proportion of incoming edges to each cluster.}
 }
 }
-\item{within}{Named list with one element per cluster. Each element contains:
+\item{clusters}{Named list with one element per cluster. Each element is
+a tna object containing:
 \describe{
 \item{weights}{n_i x n_i matrix for nodes within that cluster.
 Shows internal transitions between nodes in the same cluster.}
 \item{inits}{Initial distribution within the cluster.}
 }
 NULL if \code{compute_within = FALSE}.}
-\item{clusters}{Named list mapping cluster names to their member node labels.
+\item{cluster_members}{Named list mapping cluster names to their member node labels.
 Example: \code{list(A = c("n1", "n2"), B = c("n3", "n4", "n5"))}}
 \item{meta}{List of metadata:
 \describe{
@@ -140,8 +141,8 @@ See \code{\link{cluster_summary}}.
 }
 \description{
 Aggregates node-level network weights to cluster-level summaries. Computes
-both between-cluster transitions (how clusters connect to each other) and
-within-cluster transitions (how nodes connect within each cluster).
+both macro (cluster-to-cluster) transitions and per-cluster transitions
+(how nodes connect within each cluster).
 }
 \details{
 This is the core function for Multi-Cluster Multi-Level (MCML) analysis.
@@ -162,17 +163,17 @@ cs <- cluster_summary(net, type = "tna")
 tna_models <- as_tna(cs)
 
 # 4. Analyze/visualize
-plot(tna_models$between)
-tna::centralities(tna_models$between)
+plot(tna_models$macro)
+tna::centralities(tna_models$macro)
 }
 }
 
 \subsection{Between-Cluster Matrix Structure}{
 
-The \code{between$weights} matrix has clusters as both rows and columns:
+The \code{macro$weights} matrix has clusters as both rows and columns:
 \itemize{
 \item Off-diagonal (row i, col j): Aggregated weight from cluster i to cluster j
-\item Diagonal (row i, col i): Within-cluster total (sum of internal edges in cluster i)
+\item Diagonal (row i, col i): Per-cluster total (sum of internal edges in cluster i)
 }
 
 When \code{type = "tna"}, rows sum to 1 and diagonal values represent
@@ -202,9 +203,9 @@ clusters <- c(1, 1, 1, 2, 2, 2, 3, 3, 3, 3)
 cs <- cluster_summary(mat, clusters)
 
 # Access results
-cs$between$weights    # 3x3 cluster transition matrix
-cs$between$inits      # Initial distribution
-cs$within$`1`$weights # Within-cluster 1 transitions
+cs$macro$weights      # 3x3 cluster transition matrix
+cs$macro$inits        # Initial distribution
+cs$clusters$`1`$weights # Per-cluster 1 transitions
 cs$meta               # Metadata
 
 # -----------------------------------------------------
@@ -216,8 +217,8 @@ clusters <- list(
   Gamma = c("G", "H", "I", "J")
 )
 cs <- cluster_summary(mat, clusters, type = "tna")
-cs$between$weights    # Rows/cols named Alpha, Beta, Gamma
-cs$within$Alpha       # Within Alpha cluster
+cs$macro$weights      # Rows/cols named Alpha, Beta, Gamma
+cs$clusters$Alpha     # Per-cluster Alpha network
 
 # -----------------------------------------------------
 # Auto-detect clusters from cograph_network
@@ -239,22 +240,22 @@ cs_max <- cluster_summary(mat, clusters, method = "max")   # Strongest
 cs_raw <- cluster_summary(mat, clusters, type = "raw")
 cs_tna <- cluster_summary(mat, clusters, type = "tna")
 
-rowSums(cs_raw$between$weights)  # Various sums
-rowSums(cs_tna$between$weights)  # All equal to 1
+rowSums(cs_raw$macro$weights)  # Various sums
+rowSums(cs_tna$macro$weights)  # All equal to 1
 
 # -----------------------------------------------------
 # Skip within-cluster computation for speed
 # -----------------------------------------------------
 cs_fast <- cluster_summary(mat, clusters, compute_within = FALSE)
-cs_fast$within  # NULL
+cs_fast$clusters  # NULL
 
 # -----------------------------------------------------
 # Convert to tna objects for tna package
 # -----------------------------------------------------
 cs <- cluster_summary(mat, clusters, type = "tna")
 tna_models <- as_tna(cs)
-# tna_models$between      # tna object
-# tna_models$within$Alpha # tna object
+# tna_models$macro         # tna object
+# tna_models$Alpha         # tna object (cluster network)
 \dontrun{
 csum(matrix_data, clusters)
 }

@@ -484,7 +484,7 @@ plot_mcml <- function(
   # Extract data from cluster_summary
   # ============================================================================
 
-  cluster_list <- cs$clusters
+  cluster_list <- cs$cluster_members
   cluster_names <- names(cluster_list)
   n_clusters <- cs$meta$n_clusters
   n <- cs$meta$n_nodes
@@ -494,7 +494,7 @@ plot_mcml <- function(
   if (inherits(x, "cluster_summary")) {
     # Need to get weights from somewhere - use the input
     # For cluster_summary, we stored processed weights, need raw
-    # Use within$X$weights which are raw (before normalization)
+    # Use clusters$X$weights which are raw (before normalization)
     weights <- NULL  # Will use within data directly
   } else if (inherits(x, "cograph_network")) {
     weights <- if (!is.null(x$weights)) x$weights else to_matrix(x)
@@ -531,14 +531,14 @@ plot_mcml <- function(
   cluster_idx <- lapply(cluster_list, function(nodes_vec) match(nodes_vec, lab))
 
   # Between-cluster weights (processed based on type)
-  bw <- cs$between$weights
+  bw <- cs$macro$weights
 
   # Add self-loop values (within-cluster totals) to diagonal
   # This represents the total transition probability staying within each cluster
-  if (!is.null(cs$within)) {
-    for (cl_name in names(cs$within)) {
+  if (!is.null(cs$clusters)) {
+    for (cl_name in names(cs$clusters)) {
       if (cl_name %in% rownames(bw)) {
-        within_w <- cs$within[[cl_name]]$weights
+        within_w <- cs$clusters[[cl_name]]$weights
         # Sum all within-cluster transitions (normalized)
         diag_val <- sum(within_w, na.rm = TRUE) / nrow(within_w)
         bw[cl_name, cl_name] <- diag_val
@@ -605,8 +605,8 @@ plot_mcml <- function(
   } else {
     # Get from within data
     max_w <- 1
-    if (!is.null(cs$within)) {
-      all_within_w <- unlist(lapply(cs$within, function(w) w$weights))
+    if (!is.null(cs$clusters)) {
+      all_within_w <- unlist(lapply(cs$clusters, function(w) w$weights))
       if (length(all_within_w) > 0) {
         max_w <- max(abs(all_within_w), na.rm = TRUE)
         if (is.na(max_w) || max_w == 0) max_w <- 1
@@ -893,8 +893,8 @@ plot_mcml <- function(
     # Within-cluster edges
     if (n_nodes > 1) {
       # Get within-cluster weights
-      within_w <- if (!is.null(cs$within) && cl_name %in% names(cs$within)) {
-        cs$within[[cl_name]]$weights
+      within_w <- if (!is.null(cs$clusters) && cl_name %in% names(cs$clusters)) {
+        cs$clusters[[cl_name]]$weights
       } else if (!is.null(weights)) { # nocov start
         w <- weights[idx, idx]
         diag(w) <- 0

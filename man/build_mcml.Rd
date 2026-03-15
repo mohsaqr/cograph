@@ -80,7 +80,7 @@ edges <- data.frame(
 )
 clusters <- list(G1 = c("A", "B"), G2 = c("C", "D"))
 cs <- build_mcml(edges, clusters)
-cs$between$weights
+cs$macro$weights
 
 # Sequence data with clusters
 seqs <- data.frame(
@@ -90,7 +90,7 @@ seqs <- data.frame(
   T4 = c("D", "A", "C")
 )
 cs <- build_mcml(seqs, clusters, type = "raw")
-cs$between$weights
+cs$macro$weights
 }
 \seealso{
 \code{\link{cluster_summary}} for matrix-based aggregation,

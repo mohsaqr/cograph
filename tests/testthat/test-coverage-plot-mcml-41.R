@@ -45,7 +45,7 @@ test_that("plot_mcml pie charts show self vs other proportions", {
 
   expect_s3_class(result, "cluster_summary")
   # Check that self-loop values are computed (can be >= 0)
-  expect_true(all(diag(result$between$weights) >= 0))
+  expect_true(all(diag(result$macro$weights) >= 0))
 })
 
 test_that("plot_mcml handles zero self-loop values", {
@@ -179,29 +179,29 @@ test_that("plot_mcml edge labels positioned at 1/3 along edge", {
 # cluster_summary within Class Tests
 # ============================================
 
-test_that("cluster_summary within has group_tna class", {
+test_that("cluster_summary clusters has group_tna class", {
   weights <- create_test_weights()
   clusters <- create_test_clusters()
 
   cs <- cluster_summary(weights, clusters, type = "tna", compute_within = TRUE)
 
-  expect_s3_class(cs$within, "group_tna")
+  expect_s3_class(cs$clusters, "group_tna")
 })
 
-test_that("cluster_summary within elements have tna class", {
+test_that("cluster_summary clusters elements have tna class", {
   weights <- create_test_weights()
   clusters <- create_test_clusters()
 
   cs <- cluster_summary(weights, clusters, type = "tna", compute_within = TRUE)
 
-  for (w in cs$within) {
+  for (w in cs$clusters) {
     expect_s3_class(w, "tna")
     expect_true("weights" %in% names(w))
     expect_true("inits" %in% names(w))
   }
 })
 
-test_that("splot works with cluster_summary$within", {
+test_that("splot works with cluster_summary$clusters", {
   skip_if_not_installed("tna")
   weights <- create_test_weights()
   clusters <- create_test_clusters()
@@ -209,11 +209,11 @@ test_that("splot works with cluster_summary$within", {
   cs <- cluster_summary(weights, clusters, type = "tna", compute_within = TRUE)
 
   expect_no_error(with_temp_png(
-    splot(cs$within)
+    splot(cs$clusters)
   ))
 })
 
-test_that("splot works with cluster_summary$within using i parameter", {
+test_that("splot works with cluster_summary$clusters using i parameter", {
   skip_if_not_installed("tna")
   weights <- create_test_weights()
   clusters <- create_test_clusters()
@@ -222,12 +222,12 @@ test_that("splot works with cluster_summary$within using i parameter", {
 
   # By index
   expect_no_error(with_temp_png(
-    splot(cs$within, i = 1)
+    splot(cs$clusters, i = 1)
   ))
 
   # By name
   expect_no_error(with_temp_png(
-    splot(cs$within, i = "Cluster_A")
+    splot(cs$clusters, i = "Cluster_A")
   ))
 })
 
@@ -244,7 +244,7 @@ test_that("plot_mcml computes self-loop values from within data", {
   )
 
   # Self-loop values should be computed from within-cluster transitions
-  expect_true(all(diag(result$between$weights) >= 0))
+  expect_true(all(diag(result$macro$weights) >= 0))
 })
 
 test_that("plot_mcml handles clusters with single nodes", {

@@ -175,9 +175,9 @@ test_that("as_tna.cluster_summary handles zero-row exclusion", {
   cs <- cluster_summary(sparse_mat, clusters_list, type = "tna")
   tna_obj <- as_tna(cs)
 
-  expect_s3_class(tna_obj, "cluster_tna")
+  expect_s3_class(tna_obj, "group_tna")
   # Group1 has single node behavior (zero rows) - may or may not be excluded
-  expect_true(is.list(tna_obj$within))
+  expect_s3_class(tna_obj$macro, "tna")
 })
 
 test_that("as_tna.cluster_summary excludes clusters with zero rowSums", {
@@ -201,47 +201,38 @@ test_that("as_tna.cluster_summary excludes clusters with zero rowSums", {
   cs <- cluster_summary(test_mat, clusters, type = "tna")
   tna_obj <- as_tna(cs)
 
-  expect_s3_class(tna_obj, "cluster_tna")
-  # Some within clusters may be excluded due to zero rows
-  expect_true(is.list(tna_obj$within))
+  expect_s3_class(tna_obj, "group_tna")
+  # Some clusters may be excluded due to zero rows
+  expect_s3_class(tna_obj$macro, "tna")
 })
 
 # ==============================================================================
 # 4. print.cluster_tna: entire print method
 # ==============================================================================
 
-test_that("print.cluster_tna works with valid cluster_tna object", {
+test_that("print.group_tna works with valid group_tna object from as_tna", {
   skip_if_not_installed("tna")
 
   cs <- cluster_summary(mat8, clusters_list, type = "tna")
   tna_obj <- as_tna(cs)
 
-  expect_output(print(tna_obj), "Cluster TNA Models")
-  expect_output(print(tna_obj), "Between-cluster network")
-  expect_output(print(tna_obj), "Within-cluster networks")
+  expect_output(print(tna_obj), "macro")
 })
 
-test_that("print.cluster_tna handles empty within list", {
+test_that("print.group_tna handles group_tna with only macro", {
   skip_if_not_installed("tna")
 
-  # Create a cluster_tna with empty within
+  # Create a proper group_tna with only macro element
+  w <- matrix(runif(9), 3, 3)
+  diag(w) <- 0
+  w <- w / rowSums(w)
+  rownames(w) <- colnames(w) <- c("A", "B", "C")
   mock_tna <- structure(
-    list(
-      between = structure(
-        list(
-          weights = matrix(runif(9), 3, 3),
-          inits = c(0.33, 0.33, 0.34),
-          labels = c("A", "B", "C")
-        ),
-        class = "tna"
-      ),
-      within = list()
-    ),
-    class = "cluster_tna"
+    list(macro = tna::tna(w, inits = c(A = 0.33, B = 0.33, C = 0.34))),
+    class = "group_tna"
   )
 
-  expect_output(print(mock_tna), "Cluster TNA Models")
-  expect_output(print(mock_tna), "none")
+  expect_output(print(mock_tna), "macro")
 })
 
 # ==============================================================================
@@ -697,7 +688,7 @@ test_that("cluster_summary type semi_markov works", {
   expect_equal(result$meta$type, "semi_markov")
 
   # Rows should sum to 1
-  row_sums <- rowSums(result$between$weights)
+  row_sums <- rowSums(result$macro$weights)
   expect_true(all(abs(row_sums - 1) < 1e-10))
 })
 
@@ -712,7 +703,7 @@ test_that("cluster_summary handles matrix without names", {
 
   expect_s3_class(result, "cluster_summary")
   # Node names should be auto-generated
-  expect_true(all(unlist(result$clusters) %in% as.character(1:8)))
+  expect_true(all(unlist(result$cluster_members) %in% as.character(1:8)))
 })
 
 test_that("cluster_summary handles unnamed cluster list", {
@@ -754,7 +745,7 @@ test_that("cluster_summary produces valid between$inits with dense matrix", {
   result <- cluster_summary(dense, clusters_list)
 
   # Inits should sum to 1
-  expect_equal(sum(result$between$inits), 1, tolerance = 1e-10)
+  expect_equal(sum(result$macro$inits), 1, tolerance = 1e-10)
 })
 
 test_that("cluster_summary produces uniform inits for zero-weight matrix", {
@@ -764,7 +755,7 @@ test_that("cluster_summary produces uniform inits for zero-weight matrix", {
   result <- cluster_summary(zero_mat, clusters_list)
 
   # With no edges, inits should be uniform
-  expect_equal(result$between$inits, c(Group1 = 1 / 3, Group2 = 1 / 3, Group3 = 1 / 3),
+  expect_equal(result$macro$inits, c(Group1 = 1 / 3, Group2 = 1 / 3, Group3 = 1 / 3),
                tolerance = 1e-10)
 })
 

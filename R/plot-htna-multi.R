@@ -387,7 +387,7 @@ plot_mtna <- function(
     # Use cluster_summary for aggregation (removes duplicated logic)
     cs <- cluster_summary(weights, cluster_list, method = aggregation,
                           type = "raw", compute_within = FALSE)
-    cluster_weights <- cs$between$weights
+    cluster_weights <- cs$macro$weights
 
     # Create cluster-level layout (centers)
     cluster_layout <- as.matrix(cluster_centers)

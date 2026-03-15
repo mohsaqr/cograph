@@ -235,6 +235,7 @@ test_that("sn_save_ggplot() handles network with negative weights", {
 
 test_that("sn_save_ggplot() creates SVG file", {
   skip_if_not_installed("ggplot2")
+  skip_if_not_installed("svglite")
   skip_on_cran()
 
   adj <- create_test_matrix(4)

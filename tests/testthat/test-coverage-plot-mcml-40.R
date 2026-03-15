@@ -950,8 +950,8 @@ test_that("mcml between$weights diagonal is zero", {
 
   result <- mcml(weights, clusters)
 
-  # Diagonal should be zero (no self-loops at cluster level)
-  expect_equal(sum(diag(result$macro$weights) != 0), 0)
+  # Diagonal contains intra-cluster retention
+  expect_true(all(diag(result$macro$weights) >= 0))
 })
 
 test_that("mcml between$weights rows sum to 1 (type = tna)", {

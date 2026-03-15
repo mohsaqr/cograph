@@ -530,21 +530,8 @@ plot_mcml <- function(
   # Get cluster indices
   cluster_idx <- lapply(cluster_list, function(nodes_vec) match(nodes_vec, lab))
 
-  # Between-cluster weights (processed based on type)
+  # Macro weights (diagonal already contains intra-cluster retention)
   bw <- cs$macro$weights
-
-  # Add self-loop values (within-cluster totals) to diagonal
-  # This represents the total transition probability staying within each cluster
-  if (!is.null(cs$clusters)) {
-    for (cl_name in names(cs$clusters)) {
-      if (cl_name %in% rownames(bw)) {
-        within_w <- cs$clusters[[cl_name]]$weights
-        # Sum all within-cluster transitions (normalized)
-        diag_val <- sum(within_w, na.rm = TRUE) / nrow(within_w)
-        bw[cl_name, cl_name] <- diag_val
-      }
-    }
-  }
 
   # For edge labels, use processed weights for display
   sw_labels <- bw
@@ -890,7 +877,8 @@ plot_mcml <- function(
     nx <- node_positions[[i]]$x
     ny <- node_positions[[i]]$y
 
-    # Within-cluster edges
+    # Within-cluster weights (used for edges and pie charts)
+    within_w <- NULL
     if (n_nodes > 1) {
       # Get within-cluster weights
       within_w <- if (!is.null(cs$clusters) && cl_name %in% names(cs$clusters)) {

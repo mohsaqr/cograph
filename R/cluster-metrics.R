@@ -58,7 +58,7 @@ wagg <- aggregate_weights
 #'
 #' Aggregates node-level network weights to cluster-level summaries. Computes
 #' both macro (cluster-to-cluster) transitions and per-cluster transitions
-#' (how nodes connect within each cluster).
+#' (how nodes connect inside each cluster).
 #'
 #' This is the core function for Multi-Cluster Multi-Level (MCML) analysis.
 #' Use \code{\link{as_tna}} to convert results to tna objects for further
@@ -148,8 +148,8 @@ wagg <- aggregate_weights
 #'       \describe{
 #'         \item{weights}{k x k matrix of cluster-to-cluster weights, where k is
 #'           the number of clusters. Row i, column j contains the aggregated
-#'           weight from cluster i to cluster j. Diagonal is zero (per-cluster
-#'           transitions are in \code{$clusters}). Processing depends on \code{type}.}
+#'           weight from cluster i to cluster j. Diagonal contains aggregated
+#'           intra-cluster weight (retention / self-loops). Processing depends on \code{type}.}
 #'         \item{inits}{Numeric vector of length k. Initial state distribution
 #'           across clusters, computed from column sums of the original matrix.
 #'           Represents the proportion of incoming edges to each cluster.}
@@ -158,9 +158,9 @@ wagg <- aggregate_weights
 #'     \item{clusters}{Named list with one element per cluster. Each element is
 #'       a tna object containing:
 #'       \describe{
-#'         \item{weights}{n_i x n_i matrix for nodes within that cluster.
+#'         \item{weights}{n_i x n_i matrix for nodes inside that cluster.
 #'           Shows internal transitions between nodes in the same cluster.}
-#'         \item{inits}{Initial distribution within the cluster.}
+#'         \item{inits}{Initial distribution for the cluster.}
 #'       }
 #'       NULL if \code{compute_within = FALSE}.}
 #'     \item{cluster_members}{Named list mapping cluster names to their member node labels.
@@ -206,7 +206,7 @@ wagg <- aggregate_weights
 #' }
 #'
 #' When \code{type = "tna"}, rows sum to 1 and diagonal values represent
-#' "retention rate" - the probability of staying within the same cluster.
+#' "retention rate" - the probability of staying inside the same cluster.
 #'
 #' ## Choosing method and type
 #'
@@ -390,10 +390,16 @@ cluster_summary <- function(x,
       n_j <- length(idx_j)
 
       if (i == j) {
-        # Diagonal stays 0 (no self-loops at cluster level)
-        # Per-cluster transitions are captured in $clusters
+        # Diagonal: aggregated intra-cluster weight (retention)
+        if (n_i > 1) {
+          w_ii <- mat[idx_i, idx_i, drop = FALSE]
+          diag(w_ii) <- 0  # Exclude node self-loops
+          n_possible <- n_i * (n_i - 1)
+          between_raw[i, j] <- aggregate_weights(as.vector(w_ii), method,
+                                                  n_possible)
+        }
       } else {
-        # Off-diagonal: macro (cluster-to-cluster)
+        # Off-diagonal: inter-cluster transitions
         w_ij <- mat[idx_i, idx_j]
         n_possible <- n_i * n_j
         between_raw[i, j] <- aggregate_weights(as.vector(w_ij), method, n_possible)
@@ -431,42 +437,42 @@ cluster_summary <- function(x,
   # Per-cluster computation (optional)
   # ============================================================================
 
-  within_data <- NULL
+  cl_data <- NULL
   if (isTRUE(compute_within)) {
-    within_data <- lapply(seq_len(n_clusters), function(i) {
+    cl_data <- lapply(seq_len(n_clusters), function(i) {
       idx_i <- cluster_indices[[i]]
       n_i <- length(idx_i)
       cl_nodes <- cluster_list[[i]]
 
       if (n_i <= 1) {
         # Single node: 1x1 zero matrix
-        within_raw <- matrix(0, 1, 1, dimnames = list(cl_nodes, cl_nodes))
-        within_weights_i <- within_raw
-        within_inits_i <- setNames(1, cl_nodes)
+        cl_raw <- matrix(0, 1, 1, dimnames = list(cl_nodes, cl_nodes))
+        cl_weights_i <- cl_raw
+        cl_inits_i <- setNames(1, cl_nodes)
       } else {
-        # Extract within-cluster raw weights
-        within_raw <- mat[idx_i, idx_i]
-        diag(within_raw) <- 0
-        dimnames(within_raw) <- list(cl_nodes, cl_nodes)
+        # Extract intra-cluster raw weights
+        cl_raw <- mat[idx_i, idx_i]
+        diag(cl_raw) <- 0
+        dimnames(cl_raw) <- list(cl_nodes, cl_nodes)
 
         # Process based on type
-        within_weights_i <- .process_weights(within_raw, type, directed)
+        cl_weights_i <- .process_weights(cl_raw, type, directed)
 
-        # Within-cluster inits (handle NAs)
-        col_sums_w <- colSums(within_raw, na.rm = TRUE)
+        # Per-cluster inits (handle NAs)
+        col_sums_w <- colSums(cl_raw, na.rm = TRUE)
         total_w <- sum(col_sums_w, na.rm = TRUE)
-        within_inits_i <- if (!is.na(total_w) && total_w > 0) {
+        cl_inits_i <- if (!is.na(total_w) && total_w > 0) {
           col_sums_w / total_w
         } else {
           rep(1 / n_i, n_i)
         }
-        names(within_inits_i) <- cl_nodes
+        names(cl_inits_i) <- cl_nodes
       }
 
       structure(
         list(
-          weights = within_weights_i,
-          inits = within_inits_i,
+          weights = cl_weights_i,
+          inits = cl_inits_i,
           labels = cl_nodes,
           data = NULL
         ),
@@ -475,8 +481,8 @@ cluster_summary <- function(x,
         class = "tna"
       )
     })
-    names(within_data) <- cluster_names
-    class(within_data) <- "group_tna"
+    names(cl_data) <- cluster_names
+    class(cl_data) <- "group_tna"
   }
 
   # ============================================================================
@@ -486,7 +492,7 @@ cluster_summary <- function(x,
   result <- structure(
     list(
       macro = between,
-      clusters = within_data,
+      clusters = cl_data,
       cluster_members = cluster_list,
       meta = list(
         type = type,
@@ -828,7 +834,7 @@ build_mcml <- function(x,
 
   # ---- Build recoded sequence data if input is sequences ----
   between_seq_data <- NULL
-  within_seq_data_list <- NULL
+  cl_seq_data_list <- NULL
   is_seq <- is.data.frame(data) && !any(tolower(names(data)) %in%
     c("from", "source", "src", "v1", "node1", "i",
       "to", "target", "tgt", "v2", "node2", "j"))
@@ -844,7 +850,7 @@ build_mcml <- function(x,
     )
 
     # Filter sequences per cluster (keep only that cluster's nodes, NA others)
-    within_seq_data_list <- lapply(cluster_list, function(cl_nodes) {
+    cl_seq_data_list <- lapply(cluster_list, function(cl_nodes) {
       as.data.frame(
         lapply(data, function(col) {
           vals <- as.character(col)
@@ -869,23 +875,23 @@ build_mcml <- function(x,
   )
 
   # ---- Per-cluster matrices ----
-  within_data <- NULL
+  cl_data <- NULL
   if (isTRUE(compute_within)) {
-    # Filter per-cluster transitions (same cluster, not self-loop)
-    is_within <- from_clusters == to_clusters
-    w_from <- from_nodes[is_within]
-    w_to <- to_nodes[is_within]
-    w_w <- weights[is_within]
+    # Filter intra-cluster transitions (same cluster, not self-loop)
+    is_intra <- from_clusters == to_clusters
+    w_from <- from_nodes[is_intra]
+    w_to <- to_nodes[is_intra]
+    w_w <- weights[is_intra]
 
-    within_data <- lapply(seq_len(n_clusters), function(i) {
+    cl_data <- lapply(seq_len(n_clusters), function(i) {
       cl_name <- cluster_names[i]
       cl_nodes <- cluster_list[[cl_name]]
       n_i <- length(cl_nodes)
 
       if (n_i <= 1) {
-        within_weights_i <- matrix(0, 1, 1,
-                                    dimnames = list(cl_nodes, cl_nodes))
-        within_inits_i <- setNames(1, cl_nodes)
+        cl_weights_i <- matrix(0, 1, 1,
+                                dimnames = list(cl_nodes, cl_nodes))
+        cl_inits_i <- setNames(1, cl_nodes)
       } else {
         # Filter transitions for this cluster
         in_cluster <- w_from %in% cl_nodes & w_to %in% cl_nodes
@@ -897,8 +903,8 @@ build_mcml <- function(x,
         ct <- w_to[keep]
         cw <- w_w[keep]
 
-        within_raw <- matrix(0, n_i, n_i,
-                              dimnames = list(cl_nodes, cl_nodes))
+        cl_raw <- matrix(0, n_i, n_i,
+                          dimnames = list(cl_nodes, cl_nodes))
 
         if (length(cf) > 0) {
           pair_keys <- paste(cf, ct, sep = "\t")
@@ -907,33 +913,33 @@ build_mcml <- function(x,
           })
           for (key in names(agg_vals)) {
             parts <- strsplit(key, "\t")[[1]]
-            within_raw[parts[1], parts[2]] <- agg_vals[[key]]
+            cl_raw[parts[1], parts[2]] <- agg_vals[[key]]
           }
         }
 
-        within_weights_i <- .process_weights(within_raw, type, directed)
+        cl_weights_i <- .process_weights(cl_raw, type, directed)
 
-        col_sums_w <- colSums(within_raw, na.rm = TRUE)
+        col_sums_w <- colSums(cl_raw, na.rm = TRUE)
         total_w <- sum(col_sums_w, na.rm = TRUE)
-        within_inits_i <- if (!is.na(total_w) && total_w > 0) {
+        cl_inits_i <- if (!is.na(total_w) && total_w > 0) {
           col_sums_w / total_w
         } else {
           rep(1 / n_i, n_i)
         }
-        names(within_inits_i) <- cl_nodes
+        names(cl_inits_i) <- cl_nodes
       }
 
       # Attach filtered sequence data for this cluster
-      cl_seq_data <- if (!is.null(within_seq_data_list)) {
-        within_seq_data_list[[cl_name]]
+      cl_seq_data <- if (!is.null(cl_seq_data_list)) {
+        cl_seq_data_list[[cl_name]]
       } else {
         NULL
       }
 
       structure(
         list(
-          weights = within_weights_i,
-          inits = within_inits_i,
+          weights = cl_weights_i,
+          inits = cl_inits_i,
           labels = cl_nodes,
           data = cl_seq_data
         ),
@@ -942,8 +948,8 @@ build_mcml <- function(x,
         class = "tna"
       )
     })
-    names(within_data) <- cluster_names
-    class(within_data) <- "group_tna"
+    names(cl_data) <- cluster_names
+    class(cl_data) <- "group_tna"
   }
 
   # ---- Edges data.frame ----
@@ -965,7 +971,7 @@ build_mcml <- function(x,
   structure(
     list(
       macro = between,
-      clusters = within_data,
+      clusters = cl_data,
       edges = edges,
       data = data,
       cluster_members = cluster_list,
@@ -2251,7 +2257,11 @@ verify_with_igraph <- function(x, clusters, method = "sum", type = "raw") {
 
   diag(igraph_result) <- 0
 
-  matches <- all.equal(our_result$macro$weights, igraph_result,
+  # Compare off-diagonal only (diagonal = intra-cluster retention,
+  # not comparable to igraph's contract+simplify)
+  our_offdiag <- our_result$macro$weights
+  diag(our_offdiag) <- 0
+  matches <- all.equal(our_offdiag, igraph_result,
                        check.attributes = FALSE, tolerance = 1e-10)
 
   list(

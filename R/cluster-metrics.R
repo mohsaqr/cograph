@@ -612,8 +612,8 @@ build_mcml <- function(x,
                        directed = TRUE,
                        compute_within = TRUE) {
 
-  # If already a cluster_summary, return as-is
-  if (inherits(x, "cluster_summary")) {
+  # If already an mcml or cluster_summary, return as-is
+  if (inherits(x, c("mcml", "cluster_summary"))) {
     return(x)
   }
 
@@ -623,15 +623,17 @@ build_mcml <- function(x,
   input_type <- .detect_mcml_input(x)
 
   switch(input_type,
+    "group_tna" = .group_tna_to_mcml(x, clusters, method, type,
+                                       directed, compute_within),
     "edgelist" = .build_mcml_edgelist(x, clusters, method, type,
                                        directed, compute_within),
     "sequence" = .build_mcml_sequence(x, clusters, method, type,
                                        directed, compute_within),
-    "tna_data" = .build_mcml_sequence(x$data, clusters, method, type,
-                                       directed, compute_within),
-    "tna_matrix" = cluster_summary(x, clusters, method = method, type = type,
-                                    directed = directed,
-                                    compute_within = compute_within),
+    "tna_data" = .build_mcml_sequence(.decode_tna_data(x$data), clusters,
+                                       method, type, directed, compute_within),
+    "tna_matrix" = .as_mcml(cluster_summary(x, clusters, method = method,
+                     type = type, directed = directed,
+                     compute_within = compute_within)),
     "cograph_data" = {
       data <- x$data
       # Auto-detect clusters from network if not provided
@@ -651,20 +653,208 @@ build_mcml <- function(x,
       if (is.null(clusters)) {
         clusters <- .auto_detect_clusters(x)
       }
-      cluster_summary(x, clusters, method = method, type = type,
-                       directed = directed, compute_within = compute_within)
-    },
-    "matrix" = cluster_summary(x, clusters, method = method, type = type,
+      .as_mcml(cluster_summary(x, clusters, method = method, type = type,
                                 directed = directed,
-                                compute_within = compute_within),
+                                compute_within = compute_within))
+    },
+    "matrix" = .as_mcml(cluster_summary(x, clusters, method = method,
+                          type = type, directed = directed,
+                          compute_within = compute_within)),
     stop("Cannot build MCML from input of class '", class(x)[1], "'",
          call. = FALSE)
   )
 }
 
+#' Convert a cluster_summary to mcml (strip tna classes)
+#' @keywords internal
+.as_mcml <- function(cs) {
+  # Strip tna class from macro
+  m <- unclass(cs$macro)
+  attributes(m) <- NULL
+  names(m) <- c("weights", "inits", "labels", "data")
+  if (length(m) >= 4) {
+    names(m) <- c("weights", "inits", "labels", "data")[seq_along(m)]
+  }
+
+  # Strip tna/group_tna from clusters
+  cl <- NULL
+  if (!is.null(cs$clusters)) {
+    cl <- lapply(cs$clusters, function(obj) {
+      o <- unclass(obj)
+      attributes(o) <- NULL
+      names(o) <- c("weights", "inits", "labels", "data")[seq_along(o)]
+      o
+    })
+    names(cl) <- names(cs$clusters)
+  }
+
+  structure(
+    list(
+      macro = m,
+      clusters = cl,
+      cluster_members = cs$cluster_members,
+      meta = cs$meta
+    ),
+    class = "mcml"
+  )
+}
+
+#' Decode numeric tna_seq_data back to character labels
+#' @keywords internal
+.decode_tna_data <- function(data) {
+  if (is.null(data)) return(NULL)
+  tna_labels <- attr(data, "labels")
+  if (is.null(tna_labels) || !is.numeric(data)) return(data)
+  decoded <- as.data.frame(
+    matrix(tna_labels[data], nrow = nrow(data)),
+    stringsAsFactors = FALSE
+  )
+  if (!is.null(colnames(data))) colnames(decoded) <- colnames(data)
+  decoded
+}
+
+#' Convert a group_tna to mcml
+#'
+#' Two modes depending on whether \code{clusters} is provided:
+#' \describe{
+#'   \item{With clusters (row-level)}{For group_tna from
+#'     \code{tna::group_model(cluster_data(...))}. \code{clusters} is the
+#'     row-to-group assignments. Per-cluster tnas are taken as-is.
+#'     Macro data is the assignments vector.}
+#'   \item{Without clusters (node-level)}{For group_tna from
+#'     \code{as_tna(cluster_summary(...))}. Cluster membership inferred
+#'     from each tna's labels. Macro rebuilt from original data.}
+#' }
+#' @keywords internal
+.group_tna_to_mcml <- function(x, clusters = NULL, method = "sum",
+                                type = "tna", directed = TRUE,
+                                compute_within = TRUE) {
+  nms <- names(x)
+
+  # ------------------------------------------------------------------
+  # Case 1: clusters provided → row-level grouping (from group_model)
+  # ------------------------------------------------------------------
+  if (!is.null(clusters)) {
+    cluster_nms <- names(x)
+
+    # Strip tna classes, preserve data
+    cl_data <- lapply(cluster_nms, function(nm) {
+      obj <- x[[nm]]
+      list(
+        weights = obj$weights,
+        inits = obj$inits,
+        labels = obj$labels,
+        data = obj$data
+      )
+    })
+    names(cl_data) <- cluster_nms
+
+    # Macro data = the assignments
+    macro_data <- clusters
+
+    # All groups share the same labels (states)
+    all_labels <- x[[1]]$labels
+    n_groups <- length(cluster_nms)
+
+    return(structure(
+      list(
+        macro = list(
+          weights = NULL,
+          inits = NULL,
+          labels = cluster_nms,
+          data = macro_data
+        ),
+        clusters = cl_data,
+        cluster_members = NULL,
+        meta = list(
+          type = type,
+          method = method,
+          directed = directed,
+          n_nodes = length(all_labels),
+          n_clusters = n_groups,
+          cluster_sizes = vapply(cl_data, function(cl) {
+            nrow_data <- if (!is.null(cl$data)) nrow(cl$data) else 0L
+            nrow_data
+          }, integer(1)),
+          source = "group_tna"
+        )
+      ),
+      class = "mcml"
+    ))
+  }
+
+  # ------------------------------------------------------------------
+  # Case 2: no clusters → node-level grouping (from as_tna)
+  # ------------------------------------------------------------------
+  cluster_nms <- setdiff(nms, "macro")
+  if (length(cluster_nms) == 0) cluster_nms <- nms
+
+  # Check if labels differ across groups (node-level) or are same (row-level)
+  label_sets <- lapply(cluster_nms, function(nm) sort(x[[nm]]$labels))
+  all_same <- length(unique(label_sets)) == 1
+  if (all_same && length(cluster_nms) > 1) {
+    stop("All groups have the same labels — this is a row-level group_tna. ",
+         "Provide clusters argument with row-to-group assignments.",
+         call. = FALSE)
+  }
+
+  # Node-level: membership from each tna's labels
+  cluster_members <- lapply(cluster_nms, function(nm) x[[nm]]$labels)
+  names(cluster_members) <- cluster_nms
+
+  # Recover dropped clusters from macro labels
+  if ("macro" %in% nms) {
+    missing <- setdiff(x[["macro"]]$labels, cluster_nms)
+    if (length(missing) > 0) {
+      assigned <- unlist(cluster_members, use.names = FALSE)
+      orig <- NULL
+      for (nm in nms) {
+        if (!is.null(x[[nm]]$data)) { orig <- x[[nm]]$data; break }
+      }
+      if (!is.null(orig)) {
+        decoded <- .decode_tna_data(orig)
+        if (is.data.frame(decoded)) {
+          all_nodes <- sort(unique(unlist(decoded, use.names = FALSE)))
+          all_nodes <- all_nodes[!is.na(all_nodes)]
+          unassigned <- setdiff(all_nodes, assigned)
+          if (length(missing) == 1 && length(unassigned) > 0) {
+            cluster_members[[missing]] <- unassigned
+          }
+        }
+      }
+    }
+  }
+
+  # Rebuild from data if available
+  orig_data <- NULL
+  for (nm in nms) {
+    if (!is.null(x[[nm]]$data)) { orig_data <- x[[nm]]$data; break }
+  }
+
+  if (!is.null(orig_data)) {
+    .build_mcml_sequence(.decode_tna_data(orig_data), cluster_members,
+                          method, type, directed, compute_within)
+  } else {
+    # No data: reconstruct from weight matrices
+    all_nodes <- unlist(cluster_members, use.names = FALSE)
+    n <- length(all_nodes)
+    mat <- matrix(0, n, n, dimnames = list(all_nodes, all_nodes))
+    lapply(cluster_nms, function(nm) {
+      w <- x[[nm]]$weights
+      labs <- x[[nm]]$labels
+      mat[labs, labs] <<- w
+    })
+    .as_mcml(cluster_summary(mat, cluster_members, method = method,
+                              type = type, directed = directed,
+                              compute_within = compute_within))
+  }
+}
+
 #' Detect input type for build_mcml
 #' @keywords internal
 .detect_mcml_input <- function(x) {
+  if (inherits(x, "group_tna")) return("group_tna")
+
   if (inherits(x, "tna")) {
     if (!is.null(x$data)) return("tna_data")
     return("tna_matrix")
@@ -835,16 +1025,11 @@ build_mcml <- function(x,
   names(between_inits) <- cluster_names
 
   # Preserve original data as-is (no recoding or filtering)
-  between <- structure(
-    list(
-      weights = between_weights,
-      inits = between_inits,
-      labels = cluster_names,
-      data = data
-    ),
-    type = if (type == "tna") "relative" else "frequency",
-    scaling = character(0),
-    class = "tna"
+  between <- list(
+    weights = between_weights,
+    inits = between_inits,
+    labels = cluster_names,
+    data = data
   )
 
   # ---- Per-cluster matrices ----
@@ -909,20 +1094,14 @@ build_mcml <- function(x,
         names(cl_inits_i) <- cl_nodes
       }
 
-      structure(
-        list(
-          weights = cl_weights_i,
-          inits = cl_inits_i,
-          labels = cl_nodes,
-          data = data
-        ),
-        type = if (type == "tna") "relative" else "frequency",
-        scaling = character(0),
-        class = "tna"
+      list(
+        weights = cl_weights_i,
+        inits = cl_inits_i,
+        labels = cl_nodes,
+        data = data
       )
     })
     names(cl_data) <- cluster_names
-    class(cl_data) <- "group_tna"
   }
 
   # ---- Edges data.frame ----
@@ -958,7 +1137,7 @@ build_mcml <- function(x,
         source = "transitions"
       )
     ),
-    class = c("mcml_network", "cluster_summary")
+    class = "mcml"
   )
 }
 
@@ -1270,6 +1449,7 @@ as_tna.cluster_summary <- function(x) {
 
   # Macro (cluster-level) tna
   between_tna <- tna::tna(x$macro$weights, inits = x$macro$inits)
+  between_tna$data <- x$macro$data
 
   # Per-cluster tnas
   within_tnas <- lapply(names(x$clusters), function(cl) {
@@ -1281,7 +1461,9 @@ as_tna.cluster_summary <- function(x) {
       return(NULL)
     }
 
-    tna::tna(w, inits = inits)
+    obj <- tna::tna(w, inits = inits)
+    obj$data <- x$clusters[[cl]]$data
+    obj
   })
   names(within_tnas) <- names(x$clusters)
 
@@ -1289,6 +1471,43 @@ as_tna.cluster_summary <- function(x) {
   within_tnas <- within_tnas[!vapply(within_tnas, is.null, logical(1))]
 
   # Combine macro + all cluster tnas into flat group_tna
+  all_tnas <- c(list(macro = between_tna), within_tnas)
+  class(all_tnas) <- "group_tna"
+  all_tnas
+}
+
+#' @rdname as_tna
+#' @return A \code{group_tna} object (flat list of tna objects: macro + per-cluster).
+#' @export
+as_tna.mcml <- function(x) {
+  if (!requireNamespace("tna", quietly = TRUE)) {
+    stop("Package 'tna' is required for as_tna()", call. = FALSE) # nocov
+  }
+
+  # Macro (cluster-level) tna
+  between_tna <- tna::tna(x$macro$weights, inits = x$macro$inits)
+  between_tna$data <- x$macro$data
+
+  # Per-cluster tnas
+  within_tnas <- list()
+  if (!is.null(x$clusters)) {
+    within_tnas <- lapply(names(x$clusters), function(cl) {
+      w <- x$clusters[[cl]]$weights
+      inits <- x$clusters[[cl]]$inits
+
+      # Skip if matrix has rows that sum to 0 (tna requires positive rows)
+      if (any(rowSums(w) == 0)) {
+        return(NULL)
+      }
+
+      obj <- tna::tna(w, inits = inits)
+      obj$data <- x$clusters[[cl]]$data
+      obj
+    })
+    names(within_tnas) <- names(x$clusters)
+    within_tnas <- within_tnas[!vapply(within_tnas, is.null, logical(1))]
+  }
+
   all_tnas <- c(list(macro = between_tna), within_tnas)
   class(all_tnas) <- "group_tna"
   all_tnas
@@ -1306,6 +1525,86 @@ as_tna.default <- function(x) {
 
 # print.cluster_tna removed — as_tna() now returns group_tna directly,
 # which has its own print method via the tna package.
+
+# ==============================================================================
+# 8. as_mcml — Convert to mcml
+# ==============================================================================
+
+#' Convert to mcml
+#'
+#' Convert various objects to the \code{mcml} class — a clean, tna-independent
+#' representation of a multilayer cluster network.
+#'
+#' @param x Object to convert.
+#' @param ... Additional arguments passed to methods.
+#' @return An \code{mcml} object with components \code{macro}, \code{clusters},
+#'   \code{cluster_members}, and \code{meta}.
+#' @seealso \code{\link{build_mcml}}, \code{\link{as_tna}}
+#' @export
+#'
+#' @examples
+#' # From cluster_summary
+#' mat <- matrix(c(0.5, 0.2, 0.3,
+#'                 0.1, 0.6, 0.3,
+#'                 0.4, 0.1, 0.5), 3, 3, byrow = TRUE,
+#'               dimnames = list(c("A", "B", "C"), c("A", "B", "C")))
+#' clusters <- list(G1 = c("A", "B"), G2 = c("C"))
+#' cs <- cluster_summary(mat, clusters, type = "tna")
+#' m <- as_mcml(cs)
+#' m$macro$weights
+#'
+#' \dontrun{
+#' # From group_tna with cluster assignments
+#' library(tna)
+#' seqs <- data.frame(T1 = c("A", "B", "A"), T2 = c("B", "A", "B"))
+#' mod <- tna(seqs)
+#' cl <- cluster_data(mod, k = 2)
+#' gt <- group_model(cl)
+#' m <- as_mcml(gt, clusters = cl$assignments)
+#' }
+as_mcml <- function(x, ...) {
+  UseMethod("as_mcml")
+}
+
+#' @rdname as_mcml
+#' @return An \code{mcml} object.
+#' @export
+as_mcml.cluster_summary <- function(x, ...) {
+  .as_mcml(x)
+}
+
+#' @rdname as_mcml
+#' @param clusters Integer or character vector of row-to-group assignments.
+#'   Required when the \code{group_tna} has the same labels across all groups
+#'   (row-level clustering from \code{tna::group_model(cluster_data(...))}).
+#' @param method Aggregation method for macro weights (default \code{"sum"}).
+#' @param type Transition type (default \code{"tna"}).
+#' @param directed Logical; whether the network is directed (default \code{TRUE}).
+#' @return An \code{mcml} object. When \code{clusters} is provided,
+#'   \code{macro$data} contains the cluster assignments and \code{macro$weights}
+#'   is \code{NULL} (the macro is the sequence of clusters, not a summary).
+#' @export
+as_mcml.group_tna <- function(x, clusters = NULL, method = "sum",
+                               type = "tna", directed = TRUE, ...) {
+  .group_tna_to_mcml(x, clusters = clusters, method = method,
+                      type = type, directed = directed,
+                      compute_within = TRUE)
+}
+
+#' @rdname as_mcml
+#' @return The input \code{mcml} object unchanged.
+#' @export
+as_mcml.mcml <- function(x, ...) {
+  x
+}
+
+#' @rdname as_mcml
+#' @export
+as_mcml.default <- function(x, ...) {
+  if (inherits(x, "mcml")) return(x)
+  stop("Cannot convert object of class '", class(x)[1], "' to mcml. ",
+       "Use build_mcml() for raw data inputs.", call. = FALSE)
+}
 
 #' Normalize cluster specification to list format
 #' @keywords internal
@@ -2310,7 +2609,7 @@ print.cluster_summary <- function(x, ...) {
 
 #' @noRd
 #' @export
-print.mcml_network <- function(x, ...) {
+print.mcml <- function(x, ...) {
   n_clusters <- x$meta$n_clusters
   n_nodes <- x$meta$n_nodes
   cluster_sizes <- x$meta$cluster_sizes

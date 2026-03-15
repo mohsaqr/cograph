@@ -391,13 +391,11 @@ cluster_summary <- function(x,
 
       if (i == j) {
         # Diagonal: aggregated intra-cluster weight (retention)
-        if (n_i > 1) {
-          w_ii <- mat[idx_i, idx_i, drop = FALSE]
-          diag(w_ii) <- 0  # Exclude node self-loops
-          n_possible <- n_i * (n_i - 1)
-          between_raw[i, j] <- aggregate_weights(as.vector(w_ii), method,
-                                                  n_possible)
-        }
+        # Includes node self-loops (A->A) — these are valid intra-cluster flow
+        w_ii <- mat[idx_i, idx_i, drop = FALSE]
+        n_possible <- n_i * n_i
+        between_raw[i, j] <- aggregate_weights(as.vector(w_ii), method,
+                                                n_possible)
       } else {
         # Off-diagonal: inter-cluster transitions
         w_ij <- mat[idx_i, idx_j]
@@ -445,14 +443,14 @@ cluster_summary <- function(x,
       cl_nodes <- cluster_list[[i]]
 
       if (n_i <= 1) {
-        # Single node: 1x1 zero matrix
-        cl_raw <- matrix(0, 1, 1, dimnames = list(cl_nodes, cl_nodes))
-        cl_weights_i <- cl_raw
+        # Single node: self-loop value preserved
+        cl_raw <- mat[idx_i, idx_i, drop = FALSE]
+        dimnames(cl_raw) <- list(cl_nodes, cl_nodes)
+        cl_weights_i <- .process_weights(cl_raw, type, directed)
         cl_inits_i <- setNames(1, cl_nodes)
       } else {
-        # Extract intra-cluster raw weights
+        # Extract intra-cluster raw weights (self-loops preserved)
         cl_raw <- mat[idx_i, idx_i]
-        diag(cl_raw) <- 0
         dimnames(cl_raw) <- list(cl_nodes, cl_nodes)
 
         # Process based on type
@@ -877,7 +875,7 @@ build_mcml <- function(x,
   # ---- Per-cluster matrices ----
   cl_data <- NULL
   if (isTRUE(compute_within)) {
-    # Filter intra-cluster transitions (same cluster, not self-loop)
+    # Filter intra-cluster transitions (same cluster, including self-loops)
     is_intra <- from_clusters == to_clusters
     w_from <- from_nodes[is_intra]
     w_to <- to_nodes[is_intra]
@@ -889,16 +887,23 @@ build_mcml <- function(x,
       n_i <- length(cl_nodes)
 
       if (n_i <= 1) {
-        cl_weights_i <- matrix(0, 1, 1,
-                                dimnames = list(cl_nodes, cl_nodes))
+        # Single node: build matrix from self-loop transitions
+        in_cluster <- w_from %in% cl_nodes & w_to %in% cl_nodes
+        self_w <- w_w[in_cluster]
+        self_val <- if (length(self_w) > 0) {
+          aggregate_weights(self_w, method)
+        } else {
+          0
+        }
+        cl_raw <- matrix(self_val, 1, 1,
+                          dimnames = list(cl_nodes, cl_nodes))
+        cl_weights_i <- .process_weights(cl_raw, type, directed)
         cl_inits_i <- setNames(1, cl_nodes)
       } else {
-        # Filter transitions for this cluster
+        # Filter transitions for this cluster (self-loops preserved)
         in_cluster <- w_from %in% cl_nodes & w_to %in% cl_nodes
-        # Remove self-loops
-        not_self <- w_from != w_to
 
-        keep <- in_cluster & not_self
+        keep <- in_cluster
         cf <- w_from[keep]
         ct <- w_to[keep]
         cw <- w_w[keep]

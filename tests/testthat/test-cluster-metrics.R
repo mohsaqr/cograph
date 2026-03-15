@@ -294,7 +294,46 @@ test_that("handles empty weights gracefully", {
 })
 
 # ==============================================================================
-# Test as_tna() group_tna class on $within
+# Test sequence data propagation to tna models
+# ==============================================================================
+
+test_that("cluster_summary propagates tna sequence data to macro and clusters", {
+  skip_if_not_installed("tna")
+
+  seqs <- data.frame(
+    t1 = c("N1", "N4", "N1", "N7"),
+    t2 = c("N2", "N5", "N8", "N8"),
+    t3 = c("N3", "N6", "N9", "N10")
+  )
+  tna_obj <- tna::tna(seqs)
+
+  result <- cluster_summary(tna_obj, clusters_list, method = "sum", type = "tna")
+
+  # Macro should have recoded sequence data
+  expect_false(is.null(result$macro$data))
+  expect_equal(nrow(result$macro$data), 4)
+  # All values should be cluster names
+  all_vals <- unlist(result$macro$data)
+  expect_true(all(all_vals %in% c("A", "B", "C")))
+
+  # Cluster A should have filtered data with NAs for non-A nodes
+  expect_false(is.null(result$clusters$A$data))
+  a_vals <- unlist(result$clusters$A$data)
+  expect_true(all(a_vals %in% c("N1", "N2", "N3", NA)))
+
+  # Cluster B similarly
+  b_vals <- unlist(result$clusters$B$data)
+  expect_true(all(b_vals %in% c("N4", "N5", "N6", NA)))
+})
+
+test_that("cluster_summary with matrix input has NULL data in tna models", {
+  result <- cluster_summary(mat, clusters_list, method = "sum", type = "tna")
+  expect_null(result$macro$data)
+  expect_null(result$clusters$A$data)
+})
+
+# ==============================================================================
+# Test as_tna() group_tna class
 # ==============================================================================
 
 test_that("as_tna.cluster_summary returns group_tna with macro and cluster elements", {

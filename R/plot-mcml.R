@@ -879,14 +879,11 @@ plot_mcml <- function(
     within_w <- NULL
     if (n_nodes > 1) {
       # Get within-cluster weights
-      within_w <- if (!is.null(cs$clusters) && cl_name %in% names(cs$clusters)) {
-        cs$clusters[[cl_name]]$weights
+      if (!is.null(cs$clusters) && cl_name %in% names(cs$clusters)) {
+        within_w <- cs$clusters[[cl_name]]$weights
       } else if (!is.null(weights)) { # nocov start
-        w <- weights[idx, idx]
-        diag(w) <- 0
-        w # nocov end
-      } else {
-        NULL
+        within_w <- weights[idx, idx]
+        diag(within_w) <- 0 # nocov end
       }
 
       if (!is.null(within_w)) {

@@ -46,7 +46,7 @@ is \code{NULL} (the macro is the sequence of clusters, not a summary).
 The input \code{mcml} object unchanged.
 }
 \description{
-Convert various objects to the \code{mcml} class — a clean, tna-independent
+Convert various objects to the \code{mcml} class -- a clean, tna-independent
 representation of a multilayer cluster network.
 }
 \examples{

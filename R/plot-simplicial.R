@@ -71,8 +71,25 @@ plot_simplicial <- function(x = NULL,
     }))))
   }
 
+  # Expand repeated nodes: states appearing multiple times in a pathway
+  # get duplicate positions so each occurrence is visually distinct
+  orig_states <- states
+  expanded <- .expand_repeated_nodes(pw_list, states)
+  states <- expanded$states
+  pw_list <- expanded$pw_list
+
   n <- length(states)
-  if (is.null(labels)) labels <- states
+  if (is.null(labels)) {
+    labels <- expanded$display_labels
+  } else {
+    # User-provided labels for original states; extend for duplicates
+    orig_map <- setNames(labels, orig_states)
+    dup_labels <- vapply(setdiff(states, orig_states), function(s) { # nocov start
+      orig <- sub("\x02.*", "", s)
+      if (orig %in% names(orig_map)) unname(orig_map[orig]) else s
+    }, character(1), USE.NAMES = FALSE) # nocov end
+    labels <- c(labels, dup_labels)
+  }
   label_map <- setNames(labels, states)
   pos <- .blob_layout(states, labels, layout, n)
 

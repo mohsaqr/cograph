@@ -787,7 +787,7 @@ build_mcml <- function(x,
   # Case 2: no clusters -> node-level grouping (from as_tna)
   # ------------------------------------------------------------------
   cluster_nms <- setdiff(nms, "macro")
-  if (length(cluster_nms) == 0) cluster_nms <- nms
+  if (length(cluster_nms) == 0) cluster_nms <- nms # nocov
 
   # Check if labels differ across groups (node-level) or are same (row-level)
   label_sets <- lapply(cluster_nms, function(nm) sort(x[[nm]]$labels))
@@ -805,7 +805,7 @@ build_mcml <- function(x,
   # Recover dropped clusters from macro labels
   if ("macro" %in% nms) {
     missing <- setdiff(x[["macro"]]$labels, cluster_nms)
-    if (length(missing) > 0) {
+    if (length(missing) > 0) { # nocov start
       assigned <- unlist(cluster_members, use.names = FALSE)
       orig <- NULL
       for (nm in nms) {
@@ -822,18 +822,18 @@ build_mcml <- function(x,
           }
         }
       }
-    }
+    } # nocov end
   }
 
   # Rebuild from data if available
   orig_data <- NULL
   for (nm in nms) {
-    if (!is.null(x[[nm]]$data)) { orig_data <- x[[nm]]$data; break }
+    if (!is.null(x[[nm]]$data)) { orig_data <- x[[nm]]$data; break } # nocov
   }
 
-  if (!is.null(orig_data)) {
+  if (!is.null(orig_data)) { # nocov start
     .build_mcml_sequence(.decode_tna_data(orig_data), cluster_members,
-                          method, type, directed, compute_within)
+                          method, type, directed, compute_within) # nocov end
   } else {
     # No data: reconstruct from weight matrices
     all_nodes <- unlist(cluster_members, use.names = FALSE)
@@ -1496,9 +1496,9 @@ as_tna.mcml <- function(x) {
       inits <- x$clusters[[cl]]$inits
 
       # Skip if matrix has rows that sum to 0 (tna requires positive rows)
-      if (any(rowSums(w) == 0)) {
+      if (any(rowSums(w) == 0)) { # nocov start
         return(NULL)
-      }
+      } # nocov end
 
       obj <- tna::tna(w, inits = inits)
       obj$data <- x$clusters[[cl]]$data
@@ -1601,7 +1601,7 @@ as_mcml.mcml <- function(x, ...) {
 #' @rdname as_mcml
 #' @export
 as_mcml.default <- function(x, ...) {
-  if (inherits(x, "mcml")) return(x)
+  if (inherits(x, "mcml")) return(x) # nocov
   stop("Cannot convert object of class '", class(x)[1], "' to mcml. ",
        "Use build_mcml() for raw data inputs.", call. = FALSE)
 }

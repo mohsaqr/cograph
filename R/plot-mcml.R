@@ -534,6 +534,13 @@ plot_mcml <- function(
   # For edge labels, use processed weights for display
   sw_labels <- bw
 
+  # Format label: drop leading zero (0.35 -> .35)
+  fmt_lbl <- function(val, digits) {
+    v <- round(val, digits)
+    if (v == 0) return(NULL)
+    sub("^0\\.", ".", as.character(v))
+  }
+
   # Expand node_shape to vector if needed
   node_shape <- rep_len(node_shape, n)
 
@@ -703,7 +710,8 @@ plot_mcml <- function(
   if (max_sw > 0) {
     for (i in seq_len(n_clusters)) {
       for (j in seq_len(n_clusters)) {
-        if (i != j && bw[i, j] > minimum) {
+        if (i != j && bw[i, j] > minimum &&
+            round(bw[i, j], edge_label_digits) != 0) {
           lwd <- summary_edge_width_range[1] +
             (summary_edge_width_range[2] - summary_edge_width_range[1]) *
             bw[i, j] / max_sw
@@ -730,17 +738,20 @@ plot_mcml <- function(
           }
 
           if (summary_edge_labels) {
-            # Place label at 70% along edge (near target, avoids overlap)
-            lbl_x <- src_x + (tip_x - src_x) * 0.7
-            lbl_y <- src_y + (tip_y - src_y) * 0.7
-            # Offset slightly perpendicular to edge
-            perp <- angle + pi / 2
-            lbl_x <- lbl_x + 0.08 * cos(perp)
-            lbl_y <- lbl_y + 0.08 * sin(perp)
-            graphics::text(lbl_x, lbl_y,
-                           labels = round(sw_labels[i, j], edge_label_digits),
-                           cex = summary_edge_label_size,
-                           col = edge_label_color)
+            lbl_txt <- fmt_lbl(sw_labels[i, j], edge_label_digits)
+            if (!is.null(lbl_txt)) {
+              # Place label at 70% along edge (near target, avoids overlap)
+              lbl_x <- src_x + (tip_x - src_x) * 0.7
+              lbl_y <- src_y + (tip_y - src_y) * 0.7
+              # Offset slightly perpendicular to edge
+              perp <- angle + pi / 2
+              lbl_x <- lbl_x + 0.08 * cos(perp)
+              lbl_y <- lbl_y + 0.08 * sin(perp)
+              graphics::text(lbl_x, lbl_y,
+                             labels = lbl_txt,
+                             cex = summary_edge_label_size,
+                             col = edge_label_color)
+            }
           }
         }
       }
@@ -751,7 +762,7 @@ plot_mcml <- function(
   if (max_sw > 0) {
     loop_radius <- 0.15
     for (i in seq_len(n_clusters)) {
-      if (bw[i, i] > minimum) {
+      if (bw[i, i] > minimum && round(bw[i, i], edge_label_digits) != 0) {
         lwd <- summary_edge_width_range[1] +
           (summary_edge_width_range[2] - summary_edge_width_range[1]) *
           bw[i, i] / max_sw
@@ -785,12 +796,15 @@ plot_mcml <- function(
 
         # Loop label at the outward tip of the loop
         if (summary_edge_labels) {
-          lbl_x <- loop_cx + loop_radius * 1.3 * cos(loop_rot)
-          lbl_y <- loop_cy + loop_radius * 1.3 * sin(loop_rot)
-          graphics::text(lbl_x, lbl_y,
-                         labels = round(sw_labels[i, i], edge_label_digits),
-                         cex = summary_edge_label_size,
-                         col = edge_label_color)
+          lbl_txt <- fmt_lbl(sw_labels[i, i], edge_label_digits)
+          if (!is.null(lbl_txt)) {
+            lbl_x <- loop_cx + loop_radius * 1.3 * cos(loop_rot)
+            lbl_y <- loop_cy + loop_radius * 1.3 * sin(loop_rot)
+            graphics::text(lbl_x, lbl_y,
+                           labels = lbl_txt,
+                           cex = summary_edge_label_size,
+                           col = edge_label_color)
+          }
         }
       }
     }
@@ -827,7 +841,8 @@ plot_mcml <- function(
   if (max_sw > 0) {
     for (i in seq_len(n_clusters)) {
       for (j in seq_len(n_clusters)) {
-        if (i != j && bw[i, j] > minimum) {
+        if (i != j && bw[i, j] > minimum &&
+            round(bw[i, j], edge_label_digits) != 0) {
           p1 <- shell_edge(bx[i], by[i], bx[j], by[j], shell_rx, shell_ry)
           p2 <- shell_edge(bx[j], by[j], bx[i], by[i], shell_rx, shell_ry)
           lwd <- between_edge_width_range[1] +
@@ -895,7 +910,8 @@ plot_mcml <- function(
           for (k in seq_len(n_nodes)) {
             if (j != k) {
               w <- within_w[j, k]
-              if (!is.na(w) && w > minimum) {
+              if (!is.na(w) && w > minimum &&
+                  round(w, edge_label_digits) != 0) {
                 lwd <- edge_width_range[1] +
                   (edge_width_range[2] - edge_width_range[1]) * w / max_w
                 edge_col <- grDevices::adjustcolor(colors[i], edge_alpha)
@@ -921,12 +937,15 @@ plot_mcml <- function(
 
                 # Edge label - position at 1/3 along edge (closer to source)
                 if (edge_labels) {
-                  lbl_x <- nx[j] + (nx[k] - nx[j]) * 0.35
-                  lbl_y <- ny[j] + (ny[k] - ny[j]) * 0.35
-                  graphics::text(lbl_x, lbl_y,
-                                 labels = round(w, edge_label_digits),
-                                 cex = edge_label_size,
-                                 col = edge_label_color)
+                  lbl_txt <- fmt_lbl(w, edge_label_digits)
+                  if (!is.null(lbl_txt)) {
+                    lbl_x <- nx[j] + (nx[k] - nx[j]) * 0.35
+                    lbl_y <- ny[j] + (ny[k] - ny[j]) * 0.35
+                    graphics::text(lbl_x, lbl_y,
+                                   labels = lbl_txt,
+                                   cex = edge_label_size,
+                                   col = edge_label_color)
+                  }
                 }
               }
             }

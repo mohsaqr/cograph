@@ -1125,3 +1125,85 @@ test_that("as_mcml.group_tna errors when same labels and no clusters", {
 
   expect_error(as_mcml(gt), "row-level group_tna")
 })
+
+# ==============================================================================
+# .decode_tna_data Tests
+# ==============================================================================
+
+test_that(".decode_tna_data decodes numeric tna_seq_data", {
+  # Simulate tna_seq_data: numeric matrix with "labels" attribute
+  m <- matrix(c(1L, 2L, 3L, 2L, 3L, 1L), nrow = 2, byrow = TRUE,
+              dimnames = list(NULL, c("T1", "T2", "T3")))
+  attr(m, "labels") <- c("A", "B", "C")
+
+  result <- cograph:::.decode_tna_data(m)
+  expect_s3_class(result, "data.frame")
+  expect_equal(nrow(result), 2)
+  expect_equal(ncol(result), 3)
+  expect_equal(colnames(result), c("T1", "T2", "T3"))
+  expect_equal(result$T1, c("A", "B"))
+  expect_equal(result$T2, c("B", "C"))
+  expect_equal(result$T3, c("C", "A"))
+})
+
+test_that(".decode_tna_data returns NULL for NULL input", {
+  expect_null(cograph:::.decode_tna_data(NULL))
+})
+
+test_that(".decode_tna_data returns data unchanged if not numeric", {
+  df <- data.frame(T1 = c("A", "B"), T2 = c("B", "C"))
+  result <- cograph:::.decode_tna_data(df)
+  expect_equal(result, df)
+})
+
+test_that(".decode_tna_data returns data unchanged if no labels attr", {
+  m <- matrix(1:6, nrow = 2)
+  result <- cograph:::.decode_tna_data(m)
+  expect_equal(result, m)
+})
+
+# ==============================================================================
+# .detect_mcml_input group_tna Tests
+# ==============================================================================
+
+test_that(".detect_mcml_input detects group_tna", {
+  gt <- list(a = 1)
+  class(gt) <- "group_tna"
+  expect_equal(cograph:::.detect_mcml_input(gt), "group_tna")
+})
+
+test_that("build_mcml accepts group_tna input", {
+  skip_if_not_installed("tna")
+
+  w1 <- matrix(c(.5, .5, .3, .7), 2, 2,
+               dimnames = list(c("A", "B"), c("A", "B")))
+  w2 <- matrix(c(.6, .4, .2, .8), 2, 2,
+               dimnames = list(c("A", "B"), c("A", "B")))
+  t1 <- tna::tna(w1)
+  t2 <- tna::tna(w2)
+  gt <- list(cluster_1 = t1, cluster_2 = t2)
+  class(gt) <- "group_tna"
+
+  result <- build_mcml(gt, clusters = c(1, 2, 1))
+  expect_s3_class(result, "mcml")
+  expect_null(result$macro$weights)
+  expect_equal(result$macro$data, c(1, 2, 1))
+})
+
+# ==============================================================================
+# Single-node cluster with self-loop transitions
+# ==============================================================================
+
+test_that("single-node cluster aggregates self-loop from sequence data", {
+  seqs <- data.frame(
+    T1 = c("A", "A", "C"),
+    T2 = c("A", "B", "C"),
+    T3 = c("B", "A", "C"),
+    stringsAsFactors = FALSE
+  )
+  clusters <- list(G1 = c("A", "B"), G2 = c("C"))
+  result <- build_mcml(seqs, clusters, type = "raw")
+  expect_s3_class(result, "mcml")
+  # G2 (single node C) should have self-loop weight > 0
+  expect_true(result$clusters$G2$weights[1, 1] > 0)
+})

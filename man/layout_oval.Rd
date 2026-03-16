@@ -41,4 +41,5 @@ network layout that is wider than it is tall (or vice versa depending on ratio).
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 net <- CographNetwork$new(adj)
 coords <- layout_oval(net, ratio = 1.5)
+
 }

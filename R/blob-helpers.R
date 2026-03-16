@@ -1,6 +1,58 @@
 # Shared helpers for plot_simplicial() and overlay_communities()
 
 # =========================================================================
+# Repeated-node expansion
+# =========================================================================
+
+#' Expand repeated nodes in pathways
+#'
+#' When a state appears multiple times in a pathway's sequence
+#' (e.g., "A B -> B" where B is both source and target), creates
+#' duplicate node IDs so each occurrence gets its own layout position.
+#' Display labels for duplicates map back to the original state name.
+#'
+#' @param pw_list Parsed pathway list (each element has source/target).
+#' @param states Character vector of unique state names.
+#' @return List with \code{states} (expanded), \code{pw_list} (updated),
+#'   and \code{display_labels} (original names for all states).
+#' @noRd
+.expand_repeated_nodes <- function(pw_list, states) {
+  new_states <- states
+
+  pw_list <- lapply(pw_list, function(pw) {
+    full_seq <- c(pw$source, pw$target)
+    n <- length(full_seq)
+    new_ids <- character(n)
+    seen <- integer(0)
+    names(seen) <- character(0)
+
+    for (i in seq_len(n)) {
+      s <- full_seq[i]
+      if (is.na(seen[s])) {
+        seen[s] <- 1L
+        new_ids[i] <- s
+      } else {
+        seen[s] <- seen[s] + 1L
+        dup_id <- paste0(s, "\x02", seen[s])
+        new_ids[i] <- dup_id
+        if (!(dup_id %in% new_states)) {
+          new_states <<- c(new_states, dup_id)
+        }
+      }
+    }
+
+    n_src <- length(pw$source)
+    list(source = new_ids[seq_len(n_src)], target = new_ids[n])
+  })
+
+  display_labels <- vapply(new_states, function(s) {
+    sub("\x02.*", "", s)
+  }, character(1), USE.NAMES = FALSE)
+
+  list(states = new_states, pw_list = pw_list, display_labels = display_labels)
+}
+
+# =========================================================================
 # State extraction
 # =========================================================================
 

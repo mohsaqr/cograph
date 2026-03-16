@@ -1,6 +1,7 @@
 #' @title Statnet Network Input Parsing
 #' @description Functions for parsing statnet network objects.
 #' @name input-statnet
+#' @keywords internal
 NULL
 
 #' Parse Statnet Network Object

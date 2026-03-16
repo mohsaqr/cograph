@@ -17,8 +17,6 @@ plot_group_permutation(x, i = NULL, ...)
 \item{i}{Index or name of specific comparison to plot. NULL for all.}
 }
 \value{
-Invisibly returns \code{NULL}. Called for side effect of producing a plot.
-
 Invisibly returns NULL.
 }
 \description{
@@ -26,16 +24,19 @@ Visualizes all pairwise permutation test results from a group_tna object.
 Creates a multi-panel plot with one panel per comparison.
 }
 \examples{
-\dontrun{
-library(tna)
-mod <- group_tna(data, group = groups)
-perm <- permutation_test(mod, iter = 1000)
-
-# Plot all comparisons
-plot_group_permutation(perm)
-
-# Plot specific comparison
-plot_group_permutation(perm, i = "A vs. B")
+\donttest{
+# Create a mock group_tna_permutation object
+set.seed(42)
+d1 <- matrix(c(0, 0.2, -0.1, -0.2, 0, 0.1, 0.1, -0.1, 0), 3, 3)
+rownames(d1) <- colnames(d1) <- c("A", "B", "C")
+d1_sig <- d1
+d1_sig[abs(d1) < 0.15] <- 0
+perm1 <- list(edges = list(diffs_true = d1, diffs_sig = d1_sig, stats = NULL))
+attr(perm1, "labels") <- c("A", "B", "C")
+class(perm1) <- c("tna_permutation", "list")
+gperm <- list("G1 vs. G2" = perm1)
+class(gperm) <- c("group_tna_permutation", "list")
+plot_group_permutation(gperm)
 }
 
 }

@@ -17,3 +17,13 @@ Invisibly returns x
 \description{
 Creates a histogram of the null distribution with the observed value marked.
 }
+\examples{
+\donttest{
+if (requireNamespace("igraph", quietly = TRUE)) {
+  g <- igraph::make_graph("Zachary")
+  comm <- community_louvain(g)
+  sig <- cluster_significance(g, comm, n_random = 20, seed = 42)
+  plot(sig)
+}
+}
+}

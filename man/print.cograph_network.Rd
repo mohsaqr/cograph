@@ -12,7 +12,7 @@
 \item{...}{Ignored.}
 }
 \value{
-Invisible x.
+The input object \code{x}, invisibly.
 }
 \description{
 Print cograph_network Object
@@ -21,4 +21,5 @@ Print cograph_network Object
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 net <- cograph(adj)
 print(net)
+
 }

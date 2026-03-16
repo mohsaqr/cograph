@@ -1,6 +1,10 @@
 #' @title Color Palettes
 #' @description Built-in color palettes for network visualization.
 #' @name palettes
+#' @return A character vector of hex color codes.
+#' @examples
+#' palette_blues(5)
+#' palette_reds(5)
 NULL
 
 #' Rainbow Palette

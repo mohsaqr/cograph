@@ -1,6 +1,7 @@
 #' @title Edge Aesthetics
 #' @description Functions for setting edge aesthetic properties.
 #' @name aes-edges
+#' @keywords internal
 NULL
 
 #' Set Edge Aesthetics

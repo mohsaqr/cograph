@@ -161,16 +161,12 @@ Creates an alluvial (Sankey) diagram showing aggregated flows between states.
 This is an alias for \code{plot_transitions()} with aggregated flows (default).
 }
 \examples{
-\dontrun{
+\donttest{
 # From a transition matrix
 mat <- matrix(c(50, 10, 5, 15, 40, 10), 2, 3)
 rownames(mat) <- c("A", "B")
 colnames(mat) <- c("X", "Y", "Z")
 plot_alluvial(mat)
-
-# From a data frame with multiple time points
-df <- data.frame(T1 = c("A","A","B"), T2 = c("X","Y","X"), T3 = c("P","P","Q"))
-plot_alluvial(df, flow_color_by = "source")
 }
 
 }

@@ -38,6 +38,7 @@
 #'
 #' @docType package
 #' @name cograph-package
+#' @keywords internal
 #'
 #' @import R6
 #' @import grid

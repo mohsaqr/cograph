@@ -3,6 +3,17 @@
 \name{render-grid}
 \alias{render-grid}
 \title{Grid Rendering}
+\value{
+See individual functions: \code{\link{soplot}} returns a
+\code{cograph_network} object invisibly; \code{\link{sn_ggplot}} returns a
+ggplot2 object.
+}
 \description{
 Main grid-based rendering functions.
+}
+\examples{
+\donttest{
+adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
+soplot(adj)
+}
 }

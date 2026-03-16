@@ -23,19 +23,16 @@ Matrices and other inputs are auto-converted.}
 \item{...}{Additional arguments passed to the graphics device.}
 }
 \value{
-Invisible filename.
+The output \code{filename}, invisibly.
 }
 \description{
 Save a Cograph network visualization to a file.
 }
 \examples{
-\dontrun{
+\donttest{
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-# With cograph()
 net <- cograph(adj)
 sn_save(net, file.path(tempdir(), "network.pdf"))
-
-# Direct matrix input
-sn_save(adj, file.path(tempdir(), "network.png"), dpi = 300)
 }
+
 }

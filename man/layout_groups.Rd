@@ -42,4 +42,5 @@ adj[7, 8:9] <- 1; adj[8:9, 7] <- 1  # Group 3
 net <- CographNetwork$new(adj)
 groups <- c(1, 1, 1, 2, 2, 2, 3, 3, 3)
 coords <- layout_groups(net, groups)
+
 }

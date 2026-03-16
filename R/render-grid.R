@@ -1,6 +1,14 @@
 #' @title Grid Rendering
 #' @description Main grid-based rendering functions.
 #' @name render-grid
+#' @return See individual functions: \code{\link{soplot}} returns a
+#'   \code{cograph_network} object invisibly; \code{\link{sn_ggplot}} returns a
+#'   ggplot2 object.
+#' @examples
+#' \donttest{
+#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
+#' soplot(adj)
+#' }
 NULL
 
 #' Plot Cograph Network
@@ -897,7 +905,7 @@ render_legend_grid <- function(network, position = "topright") {
 #' @return Invisible NULL. Called for side effect of drawing.
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 #' sn_render(mat)
 #' }

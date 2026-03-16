@@ -33,6 +33,11 @@
 #'   cat("Interactions:", igraph::ecount(g), "\n")
 #' }
 #'
+#' @return A data frame with 389 rows and 2 columns:
+#' \describe{
+#'   \item{from}{Character. Anonymized two-letter student code.}
+#'   \item{to}{Character. Anonymized two-letter student code.}
+#' }
 #' @source Anonymized collaborative learning interaction data.
 #' @name student_interactions
 "student_interactions"

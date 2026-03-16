@@ -16,19 +16,16 @@ Logical: TRUE if the network was created from a TNA object, FALSE otherwise.
 Checks whether a cograph_network was created from a tna or group_tna object.
 }
 \examples{
-\dontrun{
-library(tna)
-model <- tna(group_regulation)
-net <- as_cograph(model)
-is_tna_network(net)
-#> TRUE
-
 # Non-TNA network
-mat <- matrix(runif(25), 5, 5)
-net2 <- as_cograph(mat)
-is_tna_network(net2)
-#> FALSE
-}
+mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
+net <- as_cograph(mat)
+is_tna_network(net)  # FALSE
+
+\dontshow{if (requireNamespace("tna", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+model <- tna::tna(tna::group_regulation)
+net_tna <- as_cograph(model)
+is_tna_network(net_tna)  # TRUE
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link{as_cograph}}

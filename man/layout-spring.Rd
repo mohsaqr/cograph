@@ -6,3 +6,4 @@
 \description{
 Force-directed layout using the Fruchterman-Reingold algorithm.
 }
+\keyword{internal}

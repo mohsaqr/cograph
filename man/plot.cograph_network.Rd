@@ -12,13 +12,16 @@
 \item{...}{Additional arguments passed to sn_render.}
 }
 \value{
-Invisible x.
+The input object \code{x}, invisibly.
 }
 \description{
 Plot cograph_network Object
 }
 \examples{
+\donttest{
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 net <- cograph(adj)
 plot(net)
+}
+
 }

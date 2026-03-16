@@ -3,6 +3,9 @@
 \name{themes-registry}
 \alias{themes-registry}
 \title{Theme Registry Functions}
+\value{
+No return value, called for side effects.
+}
 \description{
 Functions for registering built-in themes.
 }

@@ -6,3 +6,4 @@
 \description{
 The primary function for creating network visualizations.
 }
+\keyword{internal}

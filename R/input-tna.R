@@ -1,6 +1,7 @@
 #' @title tna Input Parsing
 #' @description Functions for parsing tna objects.
 #' @name input-tna
+#' @keywords internal
 NULL
 
 #' Parse tna Object
@@ -264,19 +265,16 @@ parse_group_tna <- function(group_tna_obj, i = 1, directed = NULL,
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' library(tna)
-#' model <- tna(group_regulation)
-#' net <- as_cograph(model)
-#' is_tna_network(net)
-#' #> TRUE
-#'
 #' # Non-TNA network
-#' mat <- matrix(runif(25), 5, 5)
-#' net2 <- as_cograph(mat)
-#' is_tna_network(net2)
-#' #> FALSE
-#' }
+#' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
+#' net <- as_cograph(mat)
+#' is_tna_network(net)  # FALSE
+#'
+#' @examplesIf requireNamespace("tna", quietly = TRUE)
+#' model <- tna::tna(tna::group_regulation)
+#' net_tna <- as_cograph(model)
+#' is_tna_network(net_tna)  # TRUE
+#'
 is_tna_network <- function(x) {
   (inherits(x, "cograph_network") || inherits(x, "CographNetwork")) &&
     !is.null(x$meta$tna) &&

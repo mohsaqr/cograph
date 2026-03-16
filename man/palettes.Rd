@@ -3,6 +3,13 @@
 \name{palettes}
 \alias{palettes}
 \title{Color Palettes}
+\value{
+A character vector of hex color codes.
+}
 \description{
 Built-in color palettes for network visualization.
+}
+\examples{
+palette_blues(5)
+palette_reds(5)
 }

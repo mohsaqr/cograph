@@ -6,3 +6,4 @@
 \description{
 Visualize differences between two networks.
 }
+\keyword{internal}

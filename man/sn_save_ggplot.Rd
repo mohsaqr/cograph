@@ -30,15 +30,16 @@ sn_save_ggplot(
 \item{...}{Additional arguments passed to ggsave.}
 }
 \value{
-Invisible filename.
+The output \code{filename}, invisibly.
 }
 \description{
 Save network as a ggplot2 object to file using ggsave.
 }
 \examples{
-\dontrun{
+\donttest{
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 net <- cograph(adj)
 sn_save_ggplot(net, file.path(tempdir(), "network.pdf"))
 }
+
 }

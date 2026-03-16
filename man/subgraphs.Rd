@@ -16,6 +16,11 @@ Same as \code{\link{motifs}}. See that function for details.
 Convenience wrapper for \code{motifs(x, named_nodes = TRUE, ...)}. Returns
 specific node triples forming each MAN pattern.
 }
+\examples{
+mat <- matrix(c(0,3,2,0, 0,0,5,1, 0,0,0,4, 2,0,0,0), 4, 4, byrow = TRUE)
+rownames(mat) <- colnames(mat) <- c("Plan","Execute","Monitor","Adapt")
+subgraphs(mat, significance = FALSE)
+}
 \seealso{
 \code{\link[=motifs]{motifs()}}
 

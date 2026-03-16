@@ -1,6 +1,7 @@
 #' @title qgraph Input Parsing
 #' @description Functions for parsing qgraph objects.
 #' @name input-qgraph
+#' @keywords internal
 NULL
 
 #' Parse qgraph Object

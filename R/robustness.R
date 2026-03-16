@@ -601,6 +601,13 @@ robustness_auc <- function(x) {
 #'
 #' @return Data frame with AUC and critical points for each measure.
 #'
+#' @examples
+#' \donttest{
+#' if (requireNamespace("igraph", quietly = TRUE)) {
+#'   g <- igraph::sample_pa(30, m = 2, directed = FALSE)
+#'   robustness_summary(x = g, measures = c("degree", "random"), n_iter = 10)
+#' }
+#' }
 #' @export
 robustness_summary <- function(..., x = NULL, measures = NULL, n_iter = 1000) {
 

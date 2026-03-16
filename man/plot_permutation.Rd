@@ -42,8 +42,6 @@ plot_permutation(
 \item{edge_nonsig_alpha}{Alpha for non-significant edges. Default 0.4.}
 }
 \value{
-Invisibly returns \code{NULL}. Called for side effect of producing a plot.
-
 Invisibly returns the plot.
 }
 \description{
@@ -67,19 +65,29 @@ Edge styling:
 }
 }
 \examples{
-\dontrun{
-# Permutation test between two TNA models (requires tna package)
-library(tna)
-perm <- permutation_test(model1, model2, iter = 1000)
-
-# Plot significant edges only (default)
+\donttest{
+# Create a mock tna_permutation object with synthetic data
+set.seed(42)
+diffs <- matrix(c(0, 0.15, -0.1, -0.2, 0, 0.05, 0.1, -0.05, 0), 3, 3)
+rownames(diffs) <- colnames(diffs) <- c("A", "B", "C")
+diffs_sig <- diffs
+diffs_sig[abs(diffs) < 0.1] <- 0
+perm <- list(
+  edges = list(
+    diffs_true = diffs,
+    diffs_sig = diffs_sig,
+    stats = data.frame(
+      edge_name = c("A -> B", "A -> C", "B -> A", "B -> C", "C -> A", "C -> B"),
+      diff_true = c(0.15, -0.1, -0.2, 0.05, 0.1, -0.05),
+      effect_size = c(2.1, -1.5, -2.8, 0.4, 1.2, -0.3),
+      p_value = c(0.01, 0.04, 0.001, 0.3, 0.02, 0.5)
+    )
+  )
+)
+attr(perm, "level") <- 0.05
+attr(perm, "labels") <- c("A", "B", "C")
+class(perm) <- c("tna_permutation", "list")
 plot_permutation(perm)
-
-# Show effect sizes
-plot_permutation(perm, show_effect = TRUE)
-
-# Include non-significant edges
-plot_permutation(perm, show_nonsig = TRUE)
 }
 
 }

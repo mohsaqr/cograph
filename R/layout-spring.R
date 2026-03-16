@@ -1,6 +1,7 @@
 #' @title Fruchterman-Reingold Spring Layout
 #' @description Force-directed layout using the Fruchterman-Reingold algorithm.
 #' @name layout-spring
+#' @keywords internal
 NULL
 
 #' Fruchterman-Reingold Spring Layout
@@ -33,7 +34,6 @@ NULL
 #'   or "linear" (linear decrease over iterations).
 #' @param ... Additional arguments (ignored).
 #' @return Data frame with x, y coordinates.
-#' @export
 #'
 #' @examples
 #' adj <- matrix(c(0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0), nrow = 4)
@@ -48,6 +48,8 @@ NULL
 #'
 #' # With circular initialization and VCF cooling
 #' coords4 <- layout_spring(net, init = "circular", cooling_mode = "vcf", seed = 42)
+#'
+#' @export
 layout_spring <- function(network, iterations = 200, cooling = 0.95,
                           repulsion = 1.5, attraction = 1, seed = NULL,
                           initial = NULL, max_displacement = NULL,

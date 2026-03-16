@@ -3,6 +3,13 @@
 \name{themes-builtin}
 \alias{themes-builtin}
 \title{Built-in Themes}
+\value{
+A \code{CographTheme} object.
+}
 \description{
 Pre-defined themes for network visualization.
+}
+\examples{
+theme_cograph_classic()
+theme_cograph_dark()
 }

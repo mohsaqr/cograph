@@ -2046,6 +2046,15 @@ print.cograph_cluster_significance <- function(x, ...) {
 #' @param x A \code{cograph_cluster_significance} object
 #' @param ... Additional arguments passed to \code{hist}
 #' @return Invisibly returns x
+#' @examples
+#' \donttest{
+#' if (requireNamespace("igraph", quietly = TRUE)) {
+#'   g <- igraph::make_graph("Zachary")
+#'   comm <- community_louvain(g)
+#'   sig <- cluster_significance(g, comm, n_random = 20, seed = 42)
+#'   plot(sig)
+#' }
+#' }
 #' @export
 plot.cograph_cluster_significance <- function(x, ...) {
   # Create histogram of null distribution
@@ -2200,6 +2209,11 @@ lsim_matrix <- layer_similarity_matrix
 #' @param layers List of adjacency matrices
 #' @param mode Degree type: "total", "in", "out"
 #' @return Correlation matrix between layer degree sequences
+#' @examples
+#' mat1 <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
+#' mat2 <- matrix(c(0, 0, 1, 1, 0, 0, 0, 1, 0), 3, 3)
+#' layers <- list(L1 = mat1, L2 = mat2)
+#' layer_degree_correlation(layers, mode = "total")
 #' @export
 layer_degree_correlation <- function(layers, mode = c("total", "in", "out")) {
   mode <- match.arg(mode)

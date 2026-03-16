@@ -2,6 +2,7 @@
 #' @description Visualize networks as heatmaps with support for multi-cluster
 #'   and multi-layer structures.
 #' @name plot-heatmap
+#' @keywords internal
 NULL
 
 #' Plot Network as Heatmap

@@ -29,9 +29,24 @@
 #'     by fine-grained code (32 states).}
 #' }
 #'
+#' @return A \code{data.frame} where each row is one session. The first
+#'   columns identify the session; the remaining columns (T1, T2, ...) hold
+#'   the sequential action codes, with \code{NA} indicating the session ended
+#'   before that time step.  Six variants are provided: \code{coding} (human
+#'   actions by category, 9 states), \code{coding_detailed} (human actions by
+#'   fine-grained code, 15 states), \code{ai_coding} (AI actions by category,
+#'   8 states), \code{ai_detailed} (AI actions by fine-grained code, 18 states),
+#'   \code{human_ai} (both actors by category, 17 states), and
+#'   \code{human_ai_detailed} (both actors by fine-grained code, 32 states).
+#'
 #' @source Human-AI programming interaction study, 34 projects, 429 sessions.
 #' @name hai_datasets
 #' @aliases coding coding_detailed ai_coding ai_detailed human_ai human_ai_detailed
+#'
+#' @examples
+#' data(coding)
+#' head(coding[, 1:6])
+#' dim(coding)
 NULL
 
 #' @rdname hai_datasets

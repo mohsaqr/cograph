@@ -6,3 +6,4 @@
 \description{
 Arrange nodes in groups, with each group in a circular arrangement.
 }
+\keyword{internal}

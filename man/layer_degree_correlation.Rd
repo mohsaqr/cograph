@@ -20,3 +20,9 @@ Correlation matrix between layer degree sequences
 \description{
 Measures hub consistency across layers via degree correlation.
 }
+\examples{
+mat1 <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
+mat2 <- matrix(c(0, 0, 1, 1, 0, 0, 0, 1, 0), 3, 3)
+layers <- list(L1 = mat1, L2 = mat2)
+layer_degree_correlation(layers, mode = "total")
+}

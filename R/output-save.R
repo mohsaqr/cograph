@@ -1,6 +1,7 @@
 #' @title Output and Saving
 #' @description Functions for saving network visualizations to files.
 #' @name output-save
+#' @keywords internal
 NULL
 
 #' Save Network Visualization
@@ -16,19 +17,16 @@ NULL
 #' @param title Optional plot title.
 #' @param ... Additional arguments passed to the graphics device.
 #'
-#' @return Invisible filename.
-#' @export
+#' @return The output \code{filename}, invisibly.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' # With cograph()
 #' net <- cograph(adj)
 #' sn_save(net, file.path(tempdir(), "network.pdf"))
-#'
-#' # Direct matrix input
-#' sn_save(adj, file.path(tempdir(), "network.png"), dpi = 300)
 #' }
+#'
+#' @export
 sn_save <- function(network, filename, width = 7, height = 7, dpi = 300,
                     title = NULL, ...) {
 
@@ -105,15 +103,16 @@ sn_save <- function(network, filename, width = 7, height = 7, dpi = 300,
 #' @param title Optional plot title.
 #' @param ... Additional arguments passed to ggsave.
 #'
-#' @return Invisible filename.
-#' @export
+#' @return The output \code{filename}, invisibly.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 #' net <- cograph(adj)
 #' sn_save_ggplot(net, file.path(tempdir(), "network.pdf"))
 #' }
+#'
+#' @export
 sn_save_ggplot <- function(network, filename, width = 7, height = 7,
                            dpi = 300, title = NULL, ...) {
 

@@ -1,18 +1,21 @@
 #' @title Print Methods
 #' @description S3 print methods for Cograph objects.
 #' @name methods-print
+#' @keywords internal
 NULL
 
 #' Print cograph_network Object
 #'
 #' @param x A cograph_network object.
 #' @param ... Ignored.
-#' @return Invisible x.
-#' @export
+#' @return The input object \code{x}, invisibly.
+#'
 #' @examples
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 #' net <- cograph(adj)
 #' print(net)
+#'
+#' @export
 print.cograph_network <- function(x, ...) {
   n <- n_nodes(x)
   e <- n_edges(x)

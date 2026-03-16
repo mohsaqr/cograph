@@ -6,3 +6,4 @@
 \description{
 Functions for parsing adjacency/weight matrices.
 }
+\keyword{internal}

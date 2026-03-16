@@ -1,19 +1,23 @@
 #' @title Plot Methods
 #' @description S3 plot methods for Cograph objects.
 #' @name methods-plot
+#' @keywords internal
 NULL
 
 #' Plot cograph_network Object
 #'
 #' @param x A cograph_network object.
 #' @param ... Additional arguments passed to sn_render.
-#' @return Invisible x.
-#' @export
+#' @return The input object \code{x}, invisibly.
 #'
 #' @examples
+#' \donttest{
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 #' net <- cograph(adj)
 #' plot(net)
+#' }
+#'
+#' @export
 plot.cograph_network <- function(x, ...) {
   sn_render(x, ...)
   invisible(x)
@@ -23,12 +27,16 @@ plot.cograph_network <- function(x, ...) {
 #'
 #' @param object A cograph_network object.
 #' @param ... Ignored.
-#' @return A list with network summary information (invisibly).
-#' @export
+#' @return A list with network summary information (invisibly), containing
+#'   elements \code{n_nodes}, \code{n_edges}, \code{directed}, \code{weighted},
+#'   and \code{has_layout}.
+#'
 #' @examples
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 #' net <- cograph(adj)
 #' summary(net)
+#'
+#' @export
 summary.cograph_network <- function(object, ...) {
   nodes <- get_nodes(object)
   edges <- get_edges(object)

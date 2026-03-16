@@ -6,3 +6,4 @@
 \description{
 Functions for setting node aesthetic properties.
 }
+\keyword{internal}

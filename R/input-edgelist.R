@@ -1,6 +1,7 @@
 #' @title Edge List Input Parsing
 #' @description Functions for parsing edge list data frames.
 #' @name input-edgelist
+#' @keywords internal
 NULL
 
 #' Parse Edge List Data Frame

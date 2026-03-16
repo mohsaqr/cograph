@@ -1,6 +1,7 @@
 #' @title Circular Layout
 #' @description Arrange nodes in a circle.
 #' @name layout-circle
+#' @keywords internal
 NULL
 
 #' Circular Layout
@@ -13,12 +14,13 @@ NULL
 #' @param clockwise Logical. Arrange nodes clockwise? Default TRUE.
 #' @param ... Additional arguments (ignored).
 #' @return Data frame with x, y coordinates.
-#' @export
 #'
 #' @examples
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 #' net <- CographNetwork$new(adj)
 #' coords <- layout_circle(net)
+#'
+#' @export
 layout_circle <- function(network, order = NULL, start_angle = pi/2,
                           clockwise = TRUE, ...) {
   # Get node count (support both R6 and S3 cograph_network)

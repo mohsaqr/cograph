@@ -27,4 +27,5 @@ Arrange nodes evenly spaced around a circle.
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 net <- CographNetwork$new(adj)
 coords <- layout_circle(net)
+
 }

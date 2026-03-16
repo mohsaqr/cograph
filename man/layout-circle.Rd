@@ -6,3 +6,4 @@
 \description{
 Arrange nodes in a circle.
 }
+\keyword{internal}

@@ -6,3 +6,4 @@
 \description{
 Functions for parsing edge list data frames.
 }
+\keyword{internal}

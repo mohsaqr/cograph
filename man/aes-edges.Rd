@@ -6,3 +6,4 @@
 \description{
 Functions for setting edge aesthetic properties.
 }
+\keyword{internal}

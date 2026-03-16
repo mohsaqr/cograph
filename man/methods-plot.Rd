@@ -6,3 +6,4 @@
 \description{
 S3 plot methods for Cograph objects.
 }
+\keyword{internal}

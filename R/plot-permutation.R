@@ -3,17 +3,16 @@
 #'   Visualizes network comparison with styling to distinguish
 #'   significant from non-significant edge differences.
 #' @name plot-permutation
+#' @keywords internal
 NULL
 
 #' @rdname plot_permutation
-#' @return Invisibly returns \code{NULL}. Called for side effect of producing a plot.
 #' @export
 splot.tna_permutation <- function(x, ...) {
   plot_permutation(x, ...)
 }
 
 #' @rdname plot_group_permutation
-#' @return Invisibly returns \code{NULL}. Called for side effect of producing a plot.
 #' @export
 splot.group_tna_permutation <- function(x, ...) {
   plot_group_permutation(x, ...)
@@ -54,19 +53,29 @@ splot.group_tna_permutation <- function(x, ...) {
 #' }
 #'
 #' @examples
-#' \dontrun{
-#' # Permutation test between two TNA models (requires tna package)
-#' library(tna)
-#' perm <- permutation_test(model1, model2, iter = 1000)
-#'
-#' # Plot significant edges only (default)
+#' \donttest{
+#' # Create a mock tna_permutation object with synthetic data
+#' set.seed(42)
+#' diffs <- matrix(c(0, 0.15, -0.1, -0.2, 0, 0.05, 0.1, -0.05, 0), 3, 3)
+#' rownames(diffs) <- colnames(diffs) <- c("A", "B", "C")
+#' diffs_sig <- diffs
+#' diffs_sig[abs(diffs) < 0.1] <- 0
+#' perm <- list(
+#'   edges = list(
+#'     diffs_true = diffs,
+#'     diffs_sig = diffs_sig,
+#'     stats = data.frame(
+#'       edge_name = c("A -> B", "A -> C", "B -> A", "B -> C", "C -> A", "C -> B"),
+#'       diff_true = c(0.15, -0.1, -0.2, 0.05, 0.1, -0.05),
+#'       effect_size = c(2.1, -1.5, -2.8, 0.4, 1.2, -0.3),
+#'       p_value = c(0.01, 0.04, 0.001, 0.3, 0.02, 0.5)
+#'     )
+#'   )
+#' )
+#' attr(perm, "level") <- 0.05
+#' attr(perm, "labels") <- c("A", "B", "C")
+#' class(perm) <- c("tna_permutation", "list")
 #' plot_permutation(perm)
-#'
-#' # Show effect sizes
-#' plot_permutation(perm, show_effect = TRUE)
-#'
-#' # Include non-significant edges
-#' plot_permutation(perm, show_nonsig = TRUE)
 #' }
 #'
 #' @export
@@ -284,16 +293,19 @@ plot_permutation <- function(x,
 #' @return Invisibly returns NULL.
 #'
 #' @examples
-#' \dontrun{
-#' library(tna)
-#' mod <- group_tna(data, group = groups)
-#' perm <- permutation_test(mod, iter = 1000)
-#'
-#' # Plot all comparisons
-#' plot_group_permutation(perm)
-#'
-#' # Plot specific comparison
-#' plot_group_permutation(perm, i = "A vs. B")
+#' \donttest{
+#' # Create a mock group_tna_permutation object
+#' set.seed(42)
+#' d1 <- matrix(c(0, 0.2, -0.1, -0.2, 0, 0.1, 0.1, -0.1, 0), 3, 3)
+#' rownames(d1) <- colnames(d1) <- c("A", "B", "C")
+#' d1_sig <- d1
+#' d1_sig[abs(d1) < 0.15] <- 0
+#' perm1 <- list(edges = list(diffs_true = d1, diffs_sig = d1_sig, stats = NULL))
+#' attr(perm1, "labels") <- c("A", "B", "C")
+#' class(perm1) <- c("tna_permutation", "list")
+#' gperm <- list("G1 vs. G2" = perm1)
+#' class(gperm) <- c("group_tna_permutation", "list")
+#' plot_group_permutation(gperm)
 #' }
 #'
 #' @export

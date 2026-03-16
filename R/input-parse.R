@@ -1,6 +1,7 @@
 #' @title Input Parsing Functions
 #' @description Functions for parsing network input into internal format.
 #' @name input-parse
+#' @keywords internal
 NULL
 
 #' Parse Network Input

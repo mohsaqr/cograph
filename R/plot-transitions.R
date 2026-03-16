@@ -2,6 +2,7 @@
 #' @description Alluvial/Sankey diagram for visualizing transitions between
 #'   two categorical states, such as cluster membership changes.
 #' @name plot-transitions
+#' @keywords internal
 NULL
 
 #' Plot Transitions Between States
@@ -1635,16 +1636,12 @@ plot_transitions <- function(x,
 #' @return A ggplot2 object.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # From a transition matrix
 #' mat <- matrix(c(50, 10, 5, 15, 40, 10), 2, 3)
 #' rownames(mat) <- c("A", "B")
 #' colnames(mat) <- c("X", "Y", "Z")
 #' plot_alluvial(mat)
-#'
-#' # From a data frame with multiple time points
-#' df <- data.frame(T1 = c("A","A","B"), T2 = c("X","Y","X"), T3 = c("P","P","Q"))
-#' plot_alluvial(df, flow_color_by = "source")
 #' }
 #'
 #' @seealso \code{\link{plot_transitions}}, \code{\link{plot_trajectories}}
@@ -1748,19 +1745,14 @@ plot_alluvial <- function(x,
 #' @return A ggplot2 object.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Track individual trajectories across time points
 #' df <- data.frame(
 #'   Baseline = c("Light", "Light", "Intense", "Resource"),
 #'   Week4 = c("Light", "Intense", "Intense", "Light"),
 #'   Week8 = c("Resource", "Intense", "Light", "Light")
 #' )
-#'
-#' # Color by starting state
 #' plot_trajectories(df, flow_color_by = "first")
-#'
-#' # Color by ending state
-#' plot_trajectories(df, flow_color_by = "last")
 #' }
 #'
 #' @seealso \code{\link{plot_transitions}}, \code{\link{plot_alluvial}}

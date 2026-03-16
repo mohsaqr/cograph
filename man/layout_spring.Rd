@@ -80,4 +80,5 @@ coords3 <- layout_spring(net, gravity = 0.5, area = 2, seed = 42)
 
 # With circular initialization and VCF cooling
 coords4 <- layout_spring(net, init = "circular", cooling_mode = "vcf", seed = 42)
+
 }

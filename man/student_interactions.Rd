@@ -17,6 +17,13 @@ Anonymized collaborative learning interaction data.
 \usage{
 student_interactions
 }
+\value{
+A data frame with 389 rows and 2 columns:
+\describe{
+\item{from}{Character. Anonymized two-letter student code.}
+\item{to}{Character. Anonymized two-letter student code.}
+}
+}
 \description{
 An edge list of observed interactions between 34 students during
 collaborative learning sessions. Each row represents one observed

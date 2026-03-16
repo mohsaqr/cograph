@@ -3,6 +3,15 @@
 \name{render-ggplot}
 \alias{render-ggplot}
 \title{ggplot2 Conversion}
+\value{
+A ggplot2 object representing the network.
+}
 \description{
 Convert Cograph network to ggplot2 object.
+}
+\examples{
+\donttest{
+adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
+p <- sn_ggplot(adj)
+}
 }

@@ -6,3 +6,4 @@
 \description{
 Functions for parsing tna objects.
 }
+\keyword{internal}

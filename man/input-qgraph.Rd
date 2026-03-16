@@ -6,3 +6,4 @@
 \description{
 Functions for parsing qgraph objects.
 }
+\keyword{internal}

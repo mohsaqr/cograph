@@ -377,3 +377,112 @@ test_that("plot_simplicial respects blob_linetype", {
     )
   ))
 })
+
+# ============================================
+# Repeated-node expansion tests
+# ============================================
+
+test_that(".expand_repeated_nodes no-op when no repeats", {
+  pw_list <- list(list(source = c("A", "B"), target = "C"))
+  states <- c("A", "B", "C")
+  expanded <- cograph:::.expand_repeated_nodes(pw_list, states)
+  expect_equal(expanded$states, states)
+  expect_equal(expanded$pw_list[[1]]$source, c("A", "B"))
+  expect_equal(expanded$pw_list[[1]]$target, "C")
+  expect_equal(expanded$display_labels, c("A", "B", "C"))
+})
+
+test_that(".expand_repeated_nodes duplicates target in source", {
+  pw_list <- list(list(source = c("A", "B"), target = "B"))
+  states <- c("A", "B")
+  expanded <- cograph:::.expand_repeated_nodes(pw_list, states)
+  expect_length(expanded$states, 3)
+  expect_equal(expanded$pw_list[[1]]$source, c("A", "B"))
+  # Target should be a duplicate ID, not "B"
+  expect_true(expanded$pw_list[[1]]$target != "B")
+  # Display label for duplicate maps back to "B"
+  expect_equal(expanded$display_labels[3], "B")
+})
+
+test_that(".expand_repeated_nodes handles source-internal duplicates", {
+  pw_list <- list(list(source = c("A", "B", "A"), target = "C"))
+  states <- c("A", "B", "C")
+  expanded <- cograph:::.expand_repeated_nodes(pw_list, states)
+  # A appears twice in source — second gets a dup ID
+  expect_length(expanded$states, 4)
+  expect_equal(expanded$pw_list[[1]]$source[1], "A")
+  expect_true(expanded$pw_list[[1]]$source[3] != "A")
+  expect_equal(expanded$display_labels[4], "A")
+})
+
+test_that(".expand_repeated_nodes handles multiple pathways sharing dup", {
+  pw_list <- list(
+    list(source = c("A", "B"), target = "B"),
+    list(source = c("C", "B"), target = "B")
+  )
+  states <- c("A", "B", "C")
+  expanded <- cograph:::.expand_repeated_nodes(pw_list, states)
+  # Both pathways duplicate B — should reuse same dup ID
+  dup_target_1 <- expanded$pw_list[[1]]$target
+  dup_target_2 <- expanded$pw_list[[2]]$target
+  expect_true(dup_target_1 != "B")
+  expect_true(dup_target_2 != "B")
+  # Both are dup IDs (may differ since seen count is per-pathway)
+  expect_length(expanded$states, 4)  # A, B, C, + 1 dup
+})
+
+test_that(".expand_repeated_nodes preserves all display labels", {
+  pw_list <- list(list(source = c("X", "Y", "X"), target = "Y"))
+  states <- c("X", "Y")
+  expanded <- cograph:::.expand_repeated_nodes(pw_list, states)
+  # X dup + Y dup = 2 extras
+  expect_true(all(expanded$display_labels %in% c("X", "Y")))
+})
+
+# ============================================
+# plot_simplicial with repeated states
+# ============================================
+
+test_that("plot_simplicial renders repeated-state pathway (target = source)", {
+  expect_no_error(with_temp_png(
+    plot_simplicial(pathways = "A B -> B", shadow = FALSE)
+  ))
+})
+
+test_that("plot_simplicial renders repeated-state pathway (source repeat)", {
+  expect_no_error(with_temp_png(
+    plot_simplicial(pathways = "A B A -> C", shadow = FALSE)
+  ))
+})
+
+test_that("plot_simplicial dismantled with repeated states", {
+  result <- with_temp_png(
+    plot_simplicial(
+      pathways = c("A B -> B", "C D -> C"),
+      dismantled = TRUE, shadow = FALSE
+    )
+  )
+  expect_true(is.list(result))
+  expect_length(result, 2)
+  expect_s3_class(result[[1]], "ggplot")
+})
+
+test_that("plot_simplicial combined with mix of repeated and unique", {
+  expect_no_error(with_temp_png(
+    plot_simplicial(
+      pathways = c("A B -> C", "A B -> B"),
+      shadow = FALSE
+    )
+  ))
+})
+
+test_that("plot_simplicial custom labels with repeated states", {
+  mat <- matrix(0.1, 3, 3, dimnames = list(c("a", "b", "c"), c("a", "b", "c")))
+  expect_no_error(with_temp_png(
+    plot_simplicial(
+      mat, "a b -> b",
+      labels = c("Alpha", "Beta", "Gamma"),
+      shadow = FALSE
+    )
+  ))
+})

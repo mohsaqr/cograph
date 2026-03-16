@@ -1,6 +1,7 @@
 #' @title Oval/Ellipse Layout
 #' @description Arrange nodes in an oval (ellipse) shape.
 #' @name layout-oval
+#' @keywords internal
 NULL
 
 #' Oval Layout
@@ -17,12 +18,13 @@ NULL
 #' @param rotation Rotation angle in radians to tilt the entire oval. Default 0.
 #' @param ... Additional arguments (ignored).
 #' @return Data frame with x, y coordinates.
-#' @export
 #'
 #' @examples
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 #' net <- CographNetwork$new(adj)
 #' coords <- layout_oval(net, ratio = 1.5)
+#'
+#' @export
 layout_oval <- function(network, ratio = 1.5, order = NULL, start_angle = pi/2,
                         clockwise = TRUE, rotation = 0, ...) {
   # Get node count (support both R6 and S3 cograph_network)

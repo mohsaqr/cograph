@@ -3,6 +3,7 @@
 #'   These methods visualize bootstrapped TNA models with styling to distinguish
 #'   significant from non-significant edges.
 #' @name plot-bootstrap
+#' @keywords internal
 NULL
 
 #' Plot Bootstrap Results
@@ -48,20 +49,23 @@ NULL
 #' }
 #'
 #' @examples
-#' \dontrun{
-#' # Bootstrap a TNA model (requires tna package)
-#' library(tna)
-#' model <- tna(sequences)
-#' boot <- bootstrap(model, iter = 1000)
-#'
-#' # Plot with default styling
+#' \donttest{
+#' # Create a mock tna_bootstrap object with synthetic data
+#' set.seed(42)
+#' w <- matrix(c(0, 0.3, 0.1, 0.2, 0, 0.4, 0.3, 0.1, 0), 3, 3)
+#' rownames(w) <- colnames(w) <- c("A", "B", "C")
+#' p <- matrix(c(1, 0.01, 0.5, 0.03, 1, 0.001, 0.2, 0.8, 1), 3, 3)
+#' boot <- list(
+#'   weights = w,
+#'   p_values = p,
+#'   ci_lower = w - 0.05,
+#'   ci_upper = w + 0.05,
+#'   level = 0.05,
+#'   model = list(weights = w, labels = c("A", "B", "C"))
+#' )
+#' class(boot) <- c("tna_bootstrap", "list")
 #' splot(boot)
-#'
-#' # Show only significant edges
 #' splot(boot, display = "significant")
-#'
-#' # Show CI bands
-#' splot(boot, display = "ci")
 #' }
 #'
 #' @export

@@ -176,19 +176,14 @@ as a separate line. This is an alias for \code{plot_transitions()} with
 \code{track_individuals = TRUE}.
 }
 \examples{
-\dontrun{
+\donttest{
 # Track individual trajectories across time points
 df <- data.frame(
   Baseline = c("Light", "Light", "Intense", "Resource"),
   Week4 = c("Light", "Intense", "Intense", "Light"),
   Week8 = c("Resource", "Intense", "Light", "Light")
 )
-
-# Color by starting state
 plot_trajectories(df, flow_color_by = "first")
-
-# Color by ending state
-plot_trajectories(df, flow_color_by = "last")
 }
 
 }

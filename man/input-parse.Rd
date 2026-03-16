@@ -6,3 +6,4 @@
 \description{
 Functions for parsing network input into internal format.
 }
+\keyword{internal}

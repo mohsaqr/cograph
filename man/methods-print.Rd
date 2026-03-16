@@ -6,3 +6,4 @@
 \description{
 S3 print methods for Cograph objects.
 }
+\keyword{internal}

@@ -1,6 +1,7 @@
 #' @title Node Aesthetics
 #' @description Functions for setting node aesthetic properties.
 #' @name aes-nodes
+#' @keywords internal
 NULL
 
 #' Set Node Aesthetics

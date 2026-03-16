@@ -6,3 +6,4 @@
 \description{
 Arrange nodes in an oval (ellipse) shape.
 }
+\keyword{internal}

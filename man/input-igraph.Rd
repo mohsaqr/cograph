@@ -6,3 +6,4 @@
 \description{
 Functions for parsing igraph objects.
 }
+\keyword{internal}

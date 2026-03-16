@@ -1,6 +1,7 @@
 #' @title Theme Registry Functions
 #' @description Functions for registering built-in themes.
 #' @name themes-registry
+#' @return No return value, called for side effects.
 #' @keywords internal
 NULL
 

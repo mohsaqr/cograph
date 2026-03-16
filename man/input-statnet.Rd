@@ -6,3 +6,4 @@
 \description{
 Functions for parsing statnet network objects.
 }
+\keyword{internal}

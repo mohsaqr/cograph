@@ -1,6 +1,7 @@
 #' @title Main Entry Point
 #' @description The primary function for creating network visualizations.
 #' @name cograph-main
+#' @keywords internal
 NULL
 
 #' Auto-convert input to cograph_network

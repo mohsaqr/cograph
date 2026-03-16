@@ -1,6 +1,12 @@
 #' @title ggplot2 Conversion
 #' @description Convert Cograph network to ggplot2 object.
 #' @name render-ggplot
+#' @return A ggplot2 object representing the network.
+#' @examples
+#' \donttest{
+#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
+#' p <- sn_ggplot(adj)
+#' }
 NULL
 
 #' Convert Network to ggplot2

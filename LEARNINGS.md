@@ -1,5 +1,13 @@
 # Project Learnings
 
+### 2026-03-18 (coverage + QMD)
+- [devtools::load_all in test files breaks covr]: covr installs the package into a temp dir and runs tests there. Any `devtools::load_all(".")` in a test file points to the wrong directory and fails. Never put `load_all()` in test files — use it only in interactive sessions or in `testthat::test_file()` calls from the console.
+- [detect_communities returns data.frame]: `detect_communities()` returns a data.frame with columns `node` and `community` (not `$membership`). Access with `setNames(comm$community, comm$node)`.
+- [louvain requires undirected]: `detect_communities(net, method="louvain")` fails on directed graphs with "Unimplemented function call". Use an undirected network or switch to a directed-compatible method (e.g. "walktrap").
+- [splot has no show_labels param]: Labels are shown automatically from matrix dimnames. There is no `show_labels` parameter — passing it causes "unused argument" error via the layout_fn dispatch.
+- [tna_styling=TRUE works standalone]: `tna_styling = TRUE` in splot() calls `.tna_style_defaults(n_nodes, directed)` — works with any input, not just tna objects. Use this to get TNA defaults (oval layout, node palette, arrow sizing, dotted edges) without manually duplicating them.
+- [S3method vs export in NAMESPACE]: `@export` on `splot.foo` emits `export(splot.foo)`. `@method splot foo` + `@export` emits `S3method(splot,foo)`. The former works with cograph's manual `inherits()` dispatch but breaks `UseMethod` and hides methods from `methods("splot")`. Always use `@method` for S3 functions.
+
 ### 2026-03-18 (Nestimate)
 - [edge_idx for undirected splot]: When building per-edge arrays (edge_style, edge_color, etc.) to pass to splot, the length must match what splot counts. For directed, use `which(weights != 0, arr.ind=TRUE)`. For undirected, splot only processes upper-triangle edges, so use `which(weights != 0 & upper.tri(weights), arr.ind=TRUE)`. Mismatch causes "must be length 1 or N, not 2N" errors.
 - [devtools::load_all + S3 dispatch]: `devtools::load_all()` reads the NAMESPACE file to register S3 methods. New `@export` methods that add S3method() entries to NAMESPACE only take effect after `devtools::document()` is run. If `document()` hasn't been run yet, `plot.new_class()` dispatch won't work even after `load_all()`.

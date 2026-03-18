@@ -1,44 +1,60 @@
-# Session Handoff — 2026-03-18 (updated)
+# Session Handoff — 2026-03-18
 
 ## Completed
-- Added Nestimate plotting support (5 new dispatch branches, 3 new/extended files, 45 new tests)
-- New: splot.net_bootstrap, splot.net_permutation, splot.boot_glasso, plot_netobject_group, plot_netobject_ml
-- Full suite: 13,512 PASS, 0 FAIL, 39 SKIP; R CMD check: 0 errors, 0 warnings, 0 notes
-- Previous: Ran full test suite: 13,466 PASS, 0 FAIL, 39 SKIP (all skips are device/env-specific)
-- Ran `R CMD check --as-cran`: 0 errors, 0 warnings, 0 notes
-- Fixed the only note (`data-raw` top-level dir) by adding `^data-raw$` to `.Rbuildignore`
-- Rewrote CLAUDE.md with full project overview, architecture, two rendering paths, splot dispatch pattern, TNA styling, key gotchas, test conventions
-- Rewrote `cran-comments.md` with current check results (0/0/0) and changes since 1.5.2
-- Completely revised NEWS.md to align with actual git commit history:
-  - Verified version boundaries with `git log --oneline <v1>...<v2>` and `git merge-base --is-ancestor`
-  - Moved 12 features from 1.6.0 → 1.7.0 (cluster_summary, build_mcml, plot_mcml, plot_chord, simplify, threshold param, directional scale_nodes_by, supra_adjacency, verify_with_igraph, set_node_groups, $meta consolidation, scale_nodes_scale)
-  - Moved 4 items from 1.7.0 → 1.8.0 (value_nudge, bundle legend controls, granular label controls, text halo fix)
-  - Expanded 1.8.2 to include: mcml S3 class + as_mcml(), print.cograph_network enrichment, MCML field renames ($between→$macro, $within→$clusters), pipeline data integrity, R 4.1 compat, plot_mcml zero-weight edge fix
-  - Stripped all internal process items from every version (test counts, R CMD check results, .Rbuildignore changes — these are not user-facing)
+
+- **Nestimate plotting support** (full implementation):
+  - `R/plot-nestimate.R` — `splot.netobject`, `splot.boot_glasso`, `plot_netobject_group`, `plot_netobject_ml`, S3 aliases
+  - `R/plot-bootstrap.R` — appended `splot.net_bootstrap`
+  - `R/plot-permutation.R` — appended `splot.net_permutation`
+  - `R/splot.R` — 6 new `inherits()` dispatch branches (netobject + 5 Nestimate types)
+  - `NAMESPACE` — all 4 new splot.* registered as `S3method()` (not plain export)
+  - `tests/testthat/test-coverage-plot-nestimate-40.R` — 52 tests, 100% coverage
+
+- **Coverage fixes** (99.82% → 100%):
+  - Removed `devtools::load_all()` from test file (was breaking covr)
+  - Added tests for `splot.net_bootstrap` significant-edge branch and `show_ci+show_stars=FALSE` path
+  - Added tests for `print.cograph_network` method labels, negative weights, self-loops, node_groups
+  - Fixed `@method` S3 annotations, `boot_glasso` edge_alpha pre-rounding, `common_scale` single-group bug, dead-code double null-guard
+
+- **Class demo tutorial** — `tutorials/cograph-class-demo.qmd`:
+  - 15-node undirected network with planted block structure (3 groups of 5)
+  - 5 layouts: oval, spring, circle, grid, mds
+  - 5 edge styles on oval layout
+  - Louvain community detection with colour-coded nodes + membership table
+  - Polished publication plot (TNA styling + communities + minimum filter)
+  - Heatmap showing block structure
+  - Quick-reference cheatsheet
+  - Rendered to `tmp/cograph-class-demo.html`
 
 ## Current State
-- **Branch**: `dev`
-- **Version**: 1.8.2
-- **Tests**: 13,512 pass, 0 failures, 39 skips
-- **R CMD check**: 0 errors | 0 warnings | 0 notes
-- **Coverage**: 100%
-- **Nestimate support**: Complete — all 5 object types dispatch correctly
-- **CRAN submission**: Ready — `devtools::submit_cran()` when user decides
+
+- All tests: **13,518 pass, 0 failures**, 39 skips (device/env-specific)
+- Coverage: **100%**
+- Branch: `dev`
+- Last commits: `a680212` (coverage fixes), `ad50b1d` (Nestimate support)
+- Tutorial files not yet committed (QMD in `tutorials/`, HTML in `tmp/`)
 
 ## Key Decisions
-- NEWS.md is user-facing only: no test counts, no R CMD check pass/fail, no .Rbuildignore changes
-- `data-raw` excluded via `.Rbuildignore` (not deleted) — raw data scripts preserved for development
-- Version misattribution corrected: 1.7.0 and 1.8.0 boundaries identified via git log, not from memory
+
+- **`splot.netobject` uses `tna_styling = TRUE`** — reuses the existing TNA styling mechanism rather than duplicating defaults manually. For undirected networks, sets `layout="spring"`, `directed=FALSE`, `show_arrows=FALSE` in `args` before the call so `tna_styling`'s layout guard doesn't override to "oval".
+- **Group/ML panels pass the `netobject` itself** (not `$weights`) to `splot()` — triggers `splot.netobject` dispatch so each panel gets full TNA styling automatically.
+- **Louvain requires undirected** — class demo uses an undirected network throughout for consistency.
 
 ## Open Issues
-- `splot.tna_disparity` registered as `export()` in NAMESPACE instead of `S3method(splot, tna_disparity)` — works via direct call but not via `splot(disparity_obj)` dispatch. Pre-existing issue, low priority.
+
+- Legacy tna S3 methods (`splot.tna_bootstrap`, `splot.tna_permutation`, `splot.tna_disparity`, `splot.group_tna_permutation`) still registered as plain `export()` in NAMESPACE instead of `S3method()`. Known pre-existing bug, not introduced in this session.
+- `tutorials/cograph-class-demo.qmd` is untracked — not yet committed.
 
 ## Next Steps
-1. Submit via `devtools::submit_cran()` when ready
-2. Optionally fix `splot.tna_disparity` S3 registration (post-submission)
-3. Nestimate integration is complete — test with real Nestimate objects when available
+
+1. Commit the tutorial files if desired
+2. Consider fixing legacy tna S3 NAMESPACE registrations (low risk, purely correctness)
+3. Push dev → main when ready for release
 
 ## Context
-- Working directory: `/Users/mohammedsaqr/Documents/Github/cograph`
-- Remotes: `origin` → mohsaqr/Sonnet, `cograph` → mohsaqr/cograph, `upstream` → sonsoleslp/cograph
-- When pushing: merge dev→main, push BOTH branches to ALL THREE remotes
+
+- R 4.5+, macOS Darwin, devtools workflow
+- Nestimate installed as `Nestimate` (capital N): `build_network()`, `bootstrap_network()`, `Nestimate::permutation_test()`
+- Coverage runs take ~25–30 min (`covr::package_coverage(".")`)
+- Quarto path: `/Applications/RStudio.app/Contents/Resources/app/quarto/bin/quarto`
+- Three git remotes: `origin` (mohsaqr/Sonnet), `cograph` (mohsaqr/cograph), `upstream` (sonsoleslp/cograph)

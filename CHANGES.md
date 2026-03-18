@@ -1,5 +1,23 @@
 # Changelog
 
+### 2026-03-18 — Nestimate plotting support
+- R/splot.R: Added 5 dispatch branches for Nestimate object classes (net_bootstrap, net_permutation, boot_glasso, netobject_group, netobject_ml) after existing tna dispatch, before deprecated parameter handling
+- R/plot-bootstrap.R: Appended splot.net_bootstrap() — styled/significant/full display modes, CI/stars, directed-aware edge indexing (upper.tri for undirected)
+- R/plot-permutation.R: Appended splot.net_permutation() — p_values and effect_size as pre-built matrices, no edge-name parsing needed
+- R/plot-nestimate.R: New file with splot.boot_glasso() (inclusion-scaled alpha), plot_netobject_group() (multi-panel grid with common scale), plot_netobject_ml() (side-by-side between/within), and S3 plot() aliases
+- tests/testthat/test-coverage-plot-nestimate-40.R: 45 tests, 0 failures
+- R CMD check: 0 errors, 0 warnings, 0 notes; full suite: 13,512 pass, 0 fail, 39 skips
+
+### 2026-03-18 — CRAN prep: NEWS.md revision and CLAUDE.md rewrite
+- NEWS.md: Full rewrite aligning all versions with actual git history. Moved 12 features from 1.6.0 → 1.7.0, 4 items from 1.7.0 → 1.8.0, expanded 1.8.2 section. Removed internal process items from all versions.
+- CLAUDE.md: Complete rewrite with project overview, two rendering paths, splot dispatch pattern, TNA styling, key gotchas, test conventions
+- cran-comments.md: Updated to reflect 0/0/0 check results and comprehensive changes-since-1.5.2 list
+
+### 2026-03-17 — CRAN prep: clean --as-cran check
+- .Rbuildignore: Added `^data-raw$` to suppress top-level NOTE
+- R CMD check --as-cran: 0 errors, 0 warnings, 0 notes
+- Tests: 13,466 pass, 0 fail, 39 skips (device/env-specific)
+
 ### 2026-03-14 — v1.8.2: 100% coverage, README overhaul
 
 - README.md: Comprehensive rewrite with feature tables for all plot functions, network analysis, community detection, multilayer support, and quality metrics

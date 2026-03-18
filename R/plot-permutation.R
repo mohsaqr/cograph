@@ -110,11 +110,8 @@ plot_permutation <- function(x,
   n_nodes <- nrow(weights)
 
   # Apply same rounding as splot to match edge counts
-  weight_digits <- args$weight_digits
-  if (is.null(weight_digits)) weight_digits <- 2  # splot default
-  if (!is.null(weight_digits)) {
-    weights <- round(weights, weight_digits)
-  }
+  weight_digits <- args$weight_digits %||% 2
+  weights       <- round(weights, weight_digits)
 
   # Default layout
   if (is.null(args$layout)) args$layout <- "oval"
@@ -236,12 +233,7 @@ plot_permutation <- function(x,
       # Add stars if requested
       stars_str <- ""
       if (show_stars && !is.null(p_matrix)) {
-        p <- p_matrix[i, j]
-        if (!is.na(p)) {
-          if (p < 0.001) stars_str <- "***"
-          else if (p < 0.01) stars_str <- "**"
-          else if (p < 0.05) stars_str <- "*"
-        }
+        stars_str <- get_significance_stars(p_matrix[i, j])
       }
 
       # Add effect size if requested, not NA, and edge is significant
@@ -344,5 +336,138 @@ plot_group_permutation <- function(x, i = NULL, ...) {
   invisible(NULL)
 }
 
-# Null coalescing operator (if not defined elsewhere)
-`%||%` <- function(a, b) if (is.null(a)) b else a
+
+#' Plot Nestimate Permutation Test Results
+#'
+#' Visualizes \code{net_permutation} objects from the Nestimate package.
+#' Differs from \code{plot_permutation}: p_values and effect_size are already
+#' p×p matrices (no edge-name parsing needed), and \code{directed} comes from
+#' \code{x$x$directed}.
+#'
+#' @param x A \code{net_permutation} object (from Nestimate).
+#' @param show_nonsig Logical: show non-significant edges? Default FALSE.
+#' @param show_effect Logical: show effect size in parentheses? Default FALSE.
+#' @param edge_positive_color Color for positive differences. Default \code{"#009900"}.
+#' @param edge_negative_color Color for negative differences. Default \code{"#C62828"}.
+#' @param edge_nonsig_color Color for non-significant edges. Default \code{"#888888"}.
+#' @param edge_nonsig_style Line style for non-significant edges. Default 2L.
+#' @param show_stars Logical: show significance stars? Default TRUE.
+#' @param ... Additional arguments passed to \code{splot()}.
+#'
+#' @return Invisibly returns the plot.
+#' @keywords internal
+#' @method splot net_permutation
+#' @export
+splot.net_permutation <- function(x,
+                                  show_nonsig         = FALSE,
+                                  show_effect         = FALSE,
+                                  edge_positive_color = "#009900",
+                                  edge_negative_color = "#C62828",
+                                  edge_nonsig_color   = "#888888",
+                                  edge_nonsig_style   = 2L,
+                                  show_stars          = TRUE,
+                                  ...) {
+  sig_level     <- x$alpha %||% 0.05
+  diffs_true    <- x$diff
+  diffs_sig     <- x$diff_sig
+  p_matrix      <- x$p_values
+  effect_matrix <- x$effect_size
+  is_directed   <- isTRUE(x$x$directed)
+  labels        <- x$x$nodes$label %||% rownames(diffs_true)
+
+  if (is.null(diffs_true)) stop("Cannot find diff matrix in net_permutation object", call. = FALSE)
+
+  weights_display <- if (show_nonsig) diffs_true else diffs_sig
+  args            <- list(...)
+  n_nodes         <- nrow(weights_display)
+
+  # Round to match splot's internal weight_digits (default 2), so edge_idx
+  # is consistent with the edge count splot sees when building the plot.
+  weight_digits    <- args$weight_digits %||% 2
+  weights_display  <- round(weights_display, weight_digits)
+
+  if (is.null(args$layout))  args$layout  <- if (is_directed) "oval" else "spring"
+  if (is.null(args$labels))  args$labels  <- labels
+  if (is.null(args$directed)) args$directed <- is_directed
+  if (is.null(args$show_arrows)) args$show_arrows <- is_directed
+
+  if (is.null(args$edge_labels))             args$edge_labels             <- TRUE
+  if (is.null(args$edge_label_size))         args$edge_label_size         <- 0.6
+  if (is.null(args$edge_label_position))     args$edge_label_position     <- 0.35
+  if (is.null(args$edge_label_halo))         args$edge_label_halo         <- TRUE
+  if (is.null(args$node_size))               args$node_size               <- 7
+  if (is.null(args$arrow_size))              args$arrow_size              <- 0.61
+  if (is.null(args$node_fill))               args$node_fill               <- tna_color_palette(n_nodes)
+  if (is.null(args$edge_label_leading_zero)) args$edge_label_leading_zero <- FALSE
+
+  edge_idx <- which(weights_display != 0, arr.ind = TRUE)
+  n_edges  <- nrow(edge_idx)
+
+  if (n_edges == 0) {
+    message("No edges to display")
+    return(invisible(NULL))
+  }
+
+  sig_mask <- if (!is.null(diffs_sig)) diffs_sig != 0 else matrix(FALSE, n_nodes, n_nodes)
+
+  if (show_nonsig) {
+    edge_colors    <- character(n_edges)
+    edge_styles    <- numeric(n_edges)
+    edge_fontfaces <- numeric(n_edges)
+    edge_alphas    <- numeric(n_edges)
+
+    for (k in seq_len(n_edges)) {
+      i <- edge_idx[k, 1]; j <- edge_idx[k, 2]
+      dv <- weights_display[i, j]
+      if (sig_mask[i, j]) {
+        edge_colors[k]    <- if (dv > 0) edge_positive_color else edge_negative_color
+        edge_styles[k]    <- 1
+        edge_fontfaces[k] <- 2
+        edge_alphas[k]    <- 1
+      } else {
+        edge_colors[k]    <- edge_nonsig_color
+        edge_styles[k]    <- edge_nonsig_style
+        edge_fontfaces[k] <- 1
+        edge_alphas[k]    <- 0.4
+      }
+    }
+    args$edge_color          <- edge_colors
+    args$edge_style          <- edge_styles
+    args$edge_label_fontface <- edge_fontfaces
+    args$edge_alpha          <- edge_alphas
+  } else {
+    args$edge_positive_color <- edge_positive_color
+    args$edge_negative_color <- edge_negative_color
+    args$edge_label_fontface <- 2
+  }
+
+  if (n_edges > 0 && (show_stars || show_effect)) {
+    edge_labels_custom <- character(n_edges)
+    for (k in seq_len(n_edges)) {
+      i  <- edge_idx[k, 1]; j <- edge_idx[k, 2]
+      w  <- weights_display[i, j]
+      ws <- sub("^0\\.", ".", sprintf("%.2f", w))
+      ws <- sub("^-0\\.", "-.", ws)
+
+      stars_str <- ""
+      if (show_stars && !is.null(p_matrix)) {
+        stars_str <- get_significance_stars(p_matrix[i, j])
+      }
+
+      effect_str <- ""
+      if (show_effect && !is.null(effect_matrix) && sig_mask[i, j]) {
+        eff <- effect_matrix[i, j]
+        if (!is.na(eff) && is.finite(eff)) effect_str <- sprintf(" (%.1f)", abs(eff))
+      }
+
+      edge_labels_custom[k] <- paste0(ws, stars_str, effect_str)
+    }
+    args$edge_labels <- edge_labels_custom
+  }
+
+  if (is.null(args$title)) {
+    args$title <- if (show_nonsig) "Permutation Test: All Differences" else "Permutation Test: Significant Differences"
+  }
+
+  do.call(splot, c(list(x = weights_display), args))
+}

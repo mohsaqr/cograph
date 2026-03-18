@@ -1,5 +1,15 @@
 # Project Learnings
 
+### 2026-03-18 (Nestimate)
+- [edge_idx for undirected splot]: When building per-edge arrays (edge_style, edge_color, etc.) to pass to splot, the length must match what splot counts. For directed, use `which(weights != 0, arr.ind=TRUE)`. For undirected, splot only processes upper-triangle edges, so use `which(weights != 0 & upper.tri(weights), arr.ind=TRUE)`. Mismatch causes "must be length 1 or N, not 2N" errors.
+- [devtools::load_all + S3 dispatch]: `devtools::load_all()` reads the NAMESPACE file to register S3 methods. New `@export` methods that add S3method() entries to NAMESPACE only take effect after `devtools::document()` is run. If `document()` hasn't been run yet, `plot.new_class()` dispatch won't work even after `load_all()`.
+- [Nestimate field layout vs tna]: net_bootstrap: weights at `$original$weights` (not `$weights`), sig level at `$ci_level` (not `$level`), directed at `$original$directed` (not always TRUE). net_permutation: p_values and effect_size are already p×p matrices, no edge-name parsing needed. boot_glasso: edge names use " -- " separator (space-dash-dash-space).
+
+### 2026-03-18
+- [NEWS.md is user-facing only]: NEWS.md entries must describe changes the user of the package will experience — new functions, API changes, bug fixes visible to callers. Internal items (test suite counts, R CMD check pass/fail, .Rbuildignore edits, coverage milestones) do NOT belong in NEWS.md. Violating this is flagged as "nonsense" by the user.
+- [version boundary verification]: To verify which commits belong to which version, use `git log --oneline v1.6.0...v1.7.0` (three dots) or `git log --oneline <version-bump-commit-1>..<version-bump-commit-2>`. Use `git merge-base --is-ancestor <commit> <version-bump-commit>` to confirm a specific commit is before a version boundary.
+- [NEWS.md misattribution pattern]: The original NEWS.md had 12+ features listed under the wrong version (1.6.0 instead of 1.7.0). When revising changelog entries, always verify against `git log` — do not trust existing NEWS.md attribution.
+
 ### 2026-03-13
 - [robustness re-integration]: `sidelined/R/robustness.R` was standalone — no cross-deps with other sidelined modules. Uses `to_igraph()` (already in core), `.save_rng()`/`.restore_rng()` (from `aaa-globals.R`), igraph, and ggplot2 (optional). Direct copy + `devtools::document()` was sufficient. 5 exports: `robustness`, `plot_robustness`, `ggplot_robustness`, `robustness_auc`, `robustness_summary`. 2 internal helpers: `robustness_vertex_attack`, `robustness_edge_attack`.
 - [brainGraph n_iter convention]: brainGraph uses N=1000 default for random mode with `foreach %dopar%` parallelism. Our default changed from 100 to 1000 to match. brainGraph only implements static strategy for targeted attacks (no sequential recalculation).

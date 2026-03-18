@@ -108,7 +108,7 @@ splot.tna_bootstrap <- function(x,
   n_nodes <- nrow(weights)
 
   # TNA edge color
-  tna_edge_color <- "#003355"
+  tna_edge_color <- COGRAPH_SCALE$tna_edge_color
 
   # Inherit styling from original model if available
   if (inherit_style && !is.null(x$model)) {
@@ -300,5 +300,149 @@ splot.tna_bootstrap <- function(x,
   do.call(splot, c(list(x = weights), args))
 }
 
-# Null coalescing operator (if not defined elsewhere)
-`%||%` <- function(a, b) if (is.null(a)) b else a
+
+#' Plot Nestimate Bootstrap Results
+#'
+#' Visualizes \code{net_bootstrap} objects from the Nestimate package.
+#' Mirrors \code{splot.tna_bootstrap} but adapts to Nestimate's field layout:
+#' weights live under \code{$original$weights}, directed is not always TRUE,
+#' and there are no donut/inits.
+#'
+#' @param x A \code{net_bootstrap} object (from Nestimate).
+#' @param display Display mode: \code{"styled"} (default), \code{"significant"}, or \code{"full"}.
+#' @param show_ci Logical: overlay CI bounds on edge labels? Default FALSE.
+#' @param show_stars Logical: show significance stars on edge labels? Default FALSE.
+#' @param inherit_style Logical: inherit labels/layout/colors from network? Default TRUE.
+#' @param ... Additional arguments passed to \code{splot()}.
+#'
+#' @return Invisibly returns the plot.
+#' @keywords internal
+#' @method splot net_bootstrap
+#' @export
+splot.net_bootstrap <- function(x,
+                                display       = c("styled", "significant", "full"),
+                                show_ci       = FALSE,
+                                show_stars    = TRUE,
+                                inherit_style = TRUE,
+                                ...) {
+  display <- match.arg(display)
+
+  sig_level    <- x$ci_level %||% 0.05
+  weights_orig <- x$original$weights %||% x$model$weights
+  if (is.null(weights_orig)) stop("Cannot find weight matrix in net_bootstrap object", call. = FALSE)
+
+  p_values    <- x$p_values
+  weights_sig <- if (!is.null(p_values)) weights_orig * (p_values < sig_level) else NULL
+
+  weights <- switch(display,
+    significant = weights_sig %||% weights_orig,
+    full        = weights_orig,
+    weights_orig
+  )
+
+  args        <- list(...)
+  n_nodes     <- nrow(weights)
+  is_directed <- isTRUE(x$original$directed)
+  labels      <- x$original$nodes$label %||% rownames(weights_orig)
+
+  tna_edge_color <- COGRAPH_SCALE$tna_edge_color
+
+  if (inherit_style) {
+    if (is.null(args$labels))    args$labels    <- labels
+    if (is.null(args$layout))    args$layout    <- if (is_directed) "oval" else "spring"
+    if (is.null(args$node_fill)) args$node_fill <- tna_color_palette(n_nodes)
+  }
+
+  if (!"directed"    %in% names(args)) args$directed    <- is_directed
+  if (!"show_arrows" %in% names(args)) args$show_arrows <- is_directed
+
+  # Round weights to match splot's default (weight_digits = 2) so near-zero
+  # edges (displaying as "0.00") are filtered out before computing edge_idx.
+  diag(weights) <- 0
+  wd <- args$weight_digits %||% 2
+  if (!is.null(wd)) weights <- round(weights, wd)
+
+  # For undirected networks splot only processes upper-triangle edges,
+  # so per-edge arrays must use the same index set.
+  if (is_directed) {
+    edge_idx <- which(weights != 0, arr.ind = TRUE)
+  } else {
+    edge_idx <- which(weights != 0 & upper.tri(weights), arr.ind = TRUE)
+  }
+  n_edges  <- nrow(edge_idx)
+
+  if (is.null(args$edge_color))              args$edge_color              <- tna_edge_color
+  if (is.null(args$edge_labels))             args$edge_labels             <- TRUE
+  if (is.null(args$edge_label_size))         args$edge_label_size         <- 0.6
+  if (is.null(args$edge_label_position))     args$edge_label_position     <- 0.7
+  if (is.null(args$edge_label_halo))         args$edge_label_halo         <- TRUE
+  if (is.null(args$node_size))               args$node_size               <- 7
+  if (is.null(args$arrow_size))              args$arrow_size              <- 0.61
+  if (is.null(args$edge_label_leading_zero)) args$edge_label_leading_zero <- FALSE
+
+  # Styled mode: mirror splot.tna_bootstrap exactly —
+  # sig = solid TNA blue (priority 1, bold, label at 0.7)
+  # nonsig = dashed pink with CI underlay (priority 0, plain, label at 0.4)
+  if (display == "styled" && n_edges > 0 && !is.null(p_values)) {
+    sig_mask             <- p_values < sig_level
+    edge_styles          <- numeric(n_edges)
+    edge_colors          <- character(n_edges)
+    edge_fontfaces       <- numeric(n_edges)
+    edge_priorities      <- numeric(n_edges)
+    edge_label_positions <- numeric(n_edges)
+    ci_vals              <- numeric(n_edges)
+    ci_colors            <- character(n_edges)
+    ci_scales            <- numeric(n_edges)
+    ci_alphas            <- numeric(n_edges)
+
+    for (k in seq_len(n_edges)) {
+      i <- edge_idx[k, 1]; j <- edge_idx[k, 2]
+      if (sig_mask[i, j]) {
+        edge_styles[k]          <- 1
+        edge_colors[k]          <- tna_edge_color
+        edge_fontfaces[k]       <- 2
+        edge_priorities[k]      <- 1
+        edge_label_positions[k] <- 0.7
+        ci_vals[k]              <- 0
+        ci_colors[k]            <- NA
+        ci_scales[k]            <- 0
+        ci_alphas[k]            <- 0
+      } else {
+        edge_styles[k]          <- 2
+        edge_colors[k]          <- "#E091AA"
+        edge_fontfaces[k]       <- 1
+        edge_priorities[k]      <- 0
+        edge_label_positions[k] <- 0.4
+        ci_vals[k]              <- 0.5
+        ci_colors[k]            <- "#E091AA"
+        ci_scales[k]            <- 1.0
+        ci_alphas[k]            <- 0.4
+      }
+    }
+    args$edge_style          <- edge_styles
+    args$edge_color          <- edge_colors
+    args$edge_label_fontface <- edge_fontfaces
+    args$edge_label_position <- edge_label_positions
+    args$edge_priority       <- edge_priorities
+    args$edge_ci             <- ci_vals
+    args$edge_ci_alpha       <- ci_alphas
+    args$edge_ci_scale       <- ci_scales
+    args$edge_ci_color       <- ci_colors
+    args$edge_ci_style       <- 1
+  }
+
+  if (show_stars && n_edges > 0 && !is.null(p_values)) {
+    args$edge_label_p        <- p_values[edge_idx]
+    args$edge_label_stars    <- TRUE
+    args$edge_label_template <- "{est}{stars}"
+  }
+
+  if (show_ci && n_edges > 0 && !is.null(x$ci_lower) && !is.null(x$ci_upper)) {
+    args$edge_ci_lower <- x$ci_lower[edge_idx]
+    args$edge_ci_upper <- x$ci_upper[edge_idx]
+    if (is.null(args$edge_label_template))
+      args$edge_label_template <- "{est}{stars} [{low}, {up}]"
+  }
+
+  do.call(splot, c(list(x = weights), args))
+}

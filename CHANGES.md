@@ -1,5 +1,15 @@
 # Changelog
 
+### 2026-03-18 — Class demo tutorial + coverage fixes
+- tutorials/cograph-class-demo.qmd: New class-ready tutorial — 15-node network, 5 layouts, 5 edge styles, Louvain community detection with colour coding, polished publication plot, heatmap, quick-reference cheatsheet
+- tests/testthat/test-coverage-plot-nestimate-40.R: Fixed devtools::load_all() breaking covr; added tests for splot.net_bootstrap sig branch and show_ci+show_stars=FALSE path
+- tests/testthat/test-coverage-methods-print-42.R: Added tests for method labels, negative weights, self-loops, and node_groups branches in print.cograph_network
+- R/plot-nestimate.R: common_scale now computed before single-group early return; edge_alpha pre-rounds weights (length-mismatch fix); @method annotations corrected
+- R/plot-bootstrap.R, R/plot-permutation.R: @method S3 annotations; dead-code double null-guard simplified
+- NAMESPACE: all 4 new splot.* methods now emit S3method() entries
+- Coverage: 100% (was 99.82% after first Nestimate commit)
+- Tests: 13,518 pass, 0 failures
+
 ### 2026-03-18 — Nestimate plotting support
 - R/splot.R: Added 5 dispatch branches for Nestimate object classes (net_bootstrap, net_permutation, boot_glasso, netobject_group, netobject_ml) after existing tna dispatch, before deprecated parameter handling
 - R/plot-bootstrap.R: Appended splot.net_bootstrap() — styled/significant/full display modes, CI/stars, directed-aware edge indexing (upper.tri for undirected)

@@ -474,3 +474,39 @@ test_that("print.cograph_network handles all output branches", {
   out10 <- capture.output(print(net10))
   expect_false(any(grepl("Data:", out10)))
 })
+
+test_that("print.cograph_network: known method label shown in header", {
+  net <- make_test_net42(n_nodes = 3, n_edges = 2, meta = list(tna = list(method = "relative")))
+  out <- capture.output(print(net))
+  expect_true(any(grepl("Transition Network", out)))
+})
+
+test_that("print.cograph_network: unknown method falls back to sprintf header", {
+  net <- make_test_net42(n_nodes = 3, n_edges = 2, meta = list(tna = list(method = "custom_algo")))
+  out <- capture.output(print(net))
+  expect_true(any(grepl("method: custom_algo", out)))
+})
+
+test_that("print.cograph_network: negative weights matrix shows +/- edge counts", {
+  net <- make_test_net42(n_nodes = 3, n_edges = 0)
+  net$weights <- matrix(c(0, -0.3, 0.2, -0.3, 0, 0.1, 0.2, 0.1, 0), 3, 3,
+                        dimnames = list(LETTERS[1:3], LETTERS[1:3]))
+  out <- capture.output(print(net))
+  expect_true(any(grepl("\\+|\\-", out)))
+})
+
+test_that("print.cograph_network: self-loops in weights matrix reported", {
+  net <- make_test_net42(n_nodes = 3, n_edges = 0)
+  net$weights <- matrix(0, 3, 3, dimnames = list(LETTERS[1:3], LETTERS[1:3]))
+  diag(net$weights) <- c(0.5, 0.3, 0.0)
+  net$weights[1, 2] <- 0.4
+  out <- capture.output(print(net))
+  expect_true(any(grepl("Self-loop", out)))
+})
+
+test_that("print.cograph_network: node_groups with recognized column shown", {
+  net <- make_test_net42(n_nodes = 3, n_edges = 2)
+  net$node_groups <- data.frame(cluster = c("A", "A", "B"), stringsAsFactors = FALSE)
+  out <- capture.output(print(net))
+  expect_true(any(grepl("Groups:", out)))
+})

@@ -3,9 +3,6 @@
 # (splot.net_bootstrap, splot.net_permutation, splot.boot_glasso,
 #  plot_netobject_group, plot_netobject_ml and their S3 aliases)
 
-# Ensure package is loaded (needed when running testthat::test_file() standalone)
-devtools::load_all(".", quiet = TRUE)
-
 # ============================================================
 # Mock factories
 # ============================================================
@@ -192,6 +189,19 @@ test_that("net_bootstrap: show_stars = TRUE", {
 test_that("net_bootstrap: show_ci = TRUE", {
   mock_nb <- create_mock_net_bootstrap()
   expect_no_error(with_temp_png(splot.net_bootstrap(mock_nb, show_ci = TRUE)))
+})
+
+test_that("net_bootstrap: show_ci = TRUE, show_stars = FALSE (line 444 path)", {
+  mock_nb <- create_mock_net_bootstrap()
+  expect_no_error(with_temp_png(splot.net_bootstrap(mock_nb, show_ci = TRUE, show_stars = FALSE)))
+})
+
+test_that("net_bootstrap: styled mode with guaranteed significant edges (lines 401-409)", {
+  mock_nb <- create_mock_net_bootstrap(n = 4, seed = 42)
+  # Force at least one edge to be significant (p < 0.05) with non-zero weight
+  mock_nb$p_values[1, 2] <- 0.01
+  mock_nb$original$weights[1, 2] <- 0.35
+  expect_no_error(with_temp_png(splot.net_bootstrap(mock_nb)))
 })
 
 test_that("net_bootstrap: inherit_style = FALSE", {

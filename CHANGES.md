@@ -1,5 +1,26 @@
 # Changelog
 
+### 2026-03-21 — plot_simplicial() full HON/HYPA/simplicial pipeline
+
+**cograph changes:**
+- R/plot-simplicial.R: Full rewrite — accepts tna/netobject/net_hon/net_hypa directly; auto-builds HON/HYPA from sequence data via Nestimate; new params: `method` (hon/hypa), `max_pathways`, `ncol`; dismantled mode uses gridExtra grid layout with scaled nodes and suppressed per-panel titles; `pathways` can be a net_hon/net_hypa object
+- R/blob-helpers.R: Added .extract_hon_pathways(), .extract_hypa_pathways() (with label_map translation and sorting by count/ratio), .build_hon_label_map(), .extract_sequence_data(), .build_higher_order(); updated .extract_blob_states() for net_hon/net_hypa
+- DESCRIPTION: Added Nestimate to Suggests
+- tests/testthat/test-coverage-plot-hon-40.R: 74 tests — mock factories, label translation, direct tna/netobject support, grid layout, max_pathways, regression
+- tests/testthat/test-plot-simplicial.R: Updated dismantled tests for grob return type
+- tutorials/cograph-tutorial-simplicial.qmd + .html: Full tutorial — TNA → MOGen → HON → HYPA → simplicial visualization → simplicial complex analysis → persistent homology → Q-analysis
+
+**Nestimate changes:**
+- R/utils.R: Added .coerce_sequence_input() — tna/netobject to labeled data.frame
+- R/hon.R: build_hon() accepts tna/netobject directly, outputs labeled states
+- R/hypa.R: build_hypa() accepts tna/netobject directly
+- R/mogen.R: build_mogen(), path_counts(), state_frequencies() accept tna/netobject
+- R/build_network.R: Reverted column stripping; long-format passes full data to prepare_data
+- R/prepare_data.R: .aggregate_metadata() now collects ties silently and reports one summary line instead of per-session warnings
+- R/simplicial.R: New file — build_simplicial() (clique/pathway/VR), betti_numbers(), euler_characteristic(), persistent_homology(), simplicial_degree(), q_analysis(), verify_simplicial(); plot methods for all three object types; igraph-verified, Euler-Poincaré verified
+
+- Tests: 13,593 pass, 0 failures (cograph)
+
 ### 2026-03-18 — Class demo tutorial + coverage fixes
 - tutorials/cograph-class-demo.qmd: New class-ready tutorial — 15-node network, 5 layouts, 5 edge styles, Louvain community detection with colour coding, polished publication plot, heatmap, quick-reference cheatsheet
 - tests/testthat/test-coverage-plot-nestimate-40.R: Fixed devtools::load_all() breaking covr; added tests for splot.net_bootstrap sig branch and show_ci+show_stars=FALSE path

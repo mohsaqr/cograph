@@ -1,5 +1,15 @@
 # Project Learnings
 
+### 2026-03-21 (HON/HYPA/simplicial full pipeline)
+- [net_hon structure]: `build_hon()` returns list with `$edges` (data.frame: path, from_order, count, probability), `$first_order_states` (character), `$matrix`. Class `"net_hon"`. Higher-order edges have `from_order > 1`. Path format: `"A -> B -> C"`.
+- [net_hypa structure]: `build_hypa()` returns list with `$scores` (data.frame: path, anomaly, ratio), `$nodes` (character with `\x01` separator). Class `"net_hypa"`. Anomaly values: `"normal"`, `"over"`, `"under"`.
+- [HON path to simplicial conversion]: HON path `"A -> B -> C"` converts to simplicial format `"A B -> C"` (all states before last arrow become sources, last becomes target). Same conversion for HYPA paths.
+- [build_network long format]: When using `action`/`session`/`time` params, `prepare_data()` aggregates extra columns (code, superclass, etc.) into metadata. Ties in categorical columns are resolved by first occurrence. The fix: one summary message, not per-session warnings.
+- [build_hon/hypa accept tna/netobject]: `.coerce_sequence_input()` in Nestimate's utils.R converts tna/netobject to labeled data.frame. tna uses `attr(data, "labels")`, netobject uses `$nodes$label` but when built from `build_network()` the `$data` already has labels.
+- [plot_simplicial auto-build]: When `x` is tna/netobject and `pathways` is NULL, plot_simplicial calls `.build_higher_order()` which requires Nestimate. The sequence data is extracted and labels are preserved end-to-end.
+- [never use cat() in tutorials]: User finds cat() statements ugly. Use inline R markdown, data frame returns, and markdown prose instead.
+- [gridExtra dismantled layout]: plot_simplicial dismantled mode uses `gridExtra::arrangeGrob()` with `padding = unit(0, "line")` and `margin(2,2,2,2)` per panel. Nodes scaled to 60%, labels to 70% for grid fit. Per-panel titles suppressed.
+
 ### 2026-03-18 (coverage + QMD)
 - [devtools::load_all in test files breaks covr]: covr installs the package into a temp dir and runs tests there. Any `devtools::load_all(".")` in a test file points to the wrong directory and fails. Never put `load_all()` in test files — use it only in interactive sessions or in `testthat::test_file()` calls from the console.
 - [detect_communities returns data.frame]: `detect_communities()` returns a data.frame with columns `node` and `community` (not `$membership`). Access with `setNames(comm$community, comm$node)`.

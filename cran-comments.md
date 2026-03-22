@@ -1,46 +1,41 @@
 ## R CMD check results
 
-0 errors | 0 warnings | 1 note
-
-* Note: "data-raw" directory at top level — contains source data generation scripts, excluded from package build.
+0 errors | 0 warnings | 0 notes
 
 ## Test environments
 
-* local macOS aarch64, R 4.5.1
+* local macOS aarch64 (Tahoe 26.3.1), R 4.5.2
 * GitHub Actions (ubuntu-latest, windows-latest, macos-latest)
 * R-hub
 
+## Test results
+
+13,466 tests pass, 0 failures. 39 skips are all device/environment-specific
+(SVG device requires XQuartz, PostScript font issues on macOS — not package bugs).
+
 ## Downstream dependencies
 
-No reverse dependencies on CRAN (verified via `tools::package_dependencies("cograph", reverse = TRUE)`).
+No reverse dependencies on CRAN (verified via
+`tools::package_dependencies("cograph", reverse = TRUE)`).
 
 ## Changes since last CRAN release (1.5.2)
 
-### New plot functions
-* `plot_transitions()`, `plot_alluvial()`, `plot_trajectories()` — alluvial/Sankey flow diagrams
-* `plot_heatmap()`, `plot_ml_heatmap()` — adjacency heatmaps with clustering
-* `plot_chord()` — chord diagrams
-* `plot_mixed_network()` — combined symmetric/asymmetric edge networks
-* `plot_compare()` — difference network visualization
-* `plot_bootstrap()`, `plot_permutation()` — statistical result visualization
-* `overlay_communities()` — community blob overlays on network plots
-* `plot_simplicial()` — higher-order pathway visualization
-* `plot_htna()` — hierarchical multi-group TNA layouts
-* `plot_mtna()` — multi-cluster TNA with shape containers
-* `plot_mcml()` — Markov Chain Multi-Level visualization
-* `plot_mlna()` — multilayer 3D perspective networks
-
-### New analysis functions
-* `centrality()` — 23+ centrality measures with individual wrappers
-* `motifs()` / `subgraphs()` — motif/triad census with per-actor windowing
-* `robustness()` — network robustness analysis
-* `disparity_filter()` — backbone extraction (Serrano et al. 2009)
+### New analysis capabilities
+* `centrality()` — 23 centrality measures with per-measure wrappers
 * `detect_communities()` — 11 community detection algorithms
-* `cluster_summary()`, `build_mcml()` — cluster-level analysis
-* `supra_adjacency()`, `layer_similarity()`, `aggregate_layers()` — multilayer networks
-* `summarize_network()`, `verify_with_igraph()` — network-level statistics
+* `motifs()` / `subgraphs()` — triad census and instance extraction with significance testing
+* `cluster_summary()` / `build_mcml()` — cluster-level aggregation and multi-level models
+* `robustness()` — network robustness under targeted/random attack
+* `disparity_filter()` — backbone extraction (Serrano et al. 2009)
+* `network_summary()` — comprehensive network-level statistics
 
-### Improvements
-* 100% test coverage (13,450+ tests)
-* Added `@return` and `@examples` to all exported functions
-* All URLs validated with `urlchecker::url_check()`
+### New visualization functions
+* `plot_transitions()` / `plot_alluvial()` / `plot_trajectories()` — flow diagrams
+* `plot_mcml()` — multi-level cluster visualization
+* `plot_chord()` — chord diagrams
+* `plot_heatmap()` / `plot_ml_heatmap()` — matrix heatmaps
+* `plot_compare()` — difference network visualization
+* `plot_bootstrap()` / `plot_permutation()` — significance visualization
+* `plot_mixed_network()` — combined directed/undirected edges
+* `overlay_communities()` — community blob overlays
+* `plot_simplicial()` — simplicial complex visualization

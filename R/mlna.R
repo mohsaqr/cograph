@@ -6,9 +6,6 @@
 #' (inter-layer edges). Each layer is enclosed in a parallelogram shell giving
 #' a pseudo-3D appearance.
 #'
-#' \if{html}{\figure{mlna_example.png}{options: width=600 alt="Multilevel network example"}}
-#' \if{latex}{\figure{mlna_example.png}{options: width=4in}}
-#'
 #' @param model A tna object, weight matrix, or cograph_network.
 #' @param layer_list Layers can be specified as:
 #'   \itemize{

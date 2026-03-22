@@ -155,10 +155,6 @@ in a 3D perspective view. Each layer contains nodes connected by solid edges
 (inter-layer edges). Each layer is enclosed in a parallelogram shell giving
 a pseudo-3D appearance.
 }
-\details{
-\if{html}{\figure{mlna_example.png}{options: width=600 alt="Multilevel network example"}}
-\if{latex}{\figure{mlna_example.png}{options: width=4in}}
-}
 \examples{
 \dontrun{
 # Create multilevel network

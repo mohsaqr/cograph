@@ -18,6 +18,7 @@ Description: Tools for the analysis, visualization, and manipulation of dynamica
 License: MIT + file LICENSE
 URL: https://sonsoles.me/cograph/, https://github.com/sonsoleslp/cograph
 BugReports: https://github.com/sonsoleslp/cograph/issues
+Additional_repositories: https://mohsaqr.r-universe.dev
 Depends:
     R (>= 4.1.0)
 Imports:
@@ -47,7 +48,8 @@ Suggests:
     centiserve,
     sna,
     reticulate,
-    gridExtra
+    gridExtra,
+    Nestimate
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Encoding: UTF-8

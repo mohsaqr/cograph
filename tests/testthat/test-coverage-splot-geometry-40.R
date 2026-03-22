@@ -11,51 +11,8 @@ get_y_scale <- cograph:::get_y_scale
 atan2_usr <- cograph:::atan2_usr
 cent_to_edge <- cograph:::cent_to_edge
 perp_mid <- cograph:::perp_mid
-splot_distance <- cograph:::splot_distance
 splot_angle <- cograph:::splot_angle
 rescale_layout <- cograph:::rescale_layout
-
-# ============================================
-# splot_distance() TESTS
-# ============================================
-
-test_that("splot_distance returns zero for same point", {
-  expect_equal(splot_distance(0, 0, 0, 0), 0)
-  expect_equal(splot_distance(5, 5, 5, 5), 0)
-  expect_equal(splot_distance(-3, 7, -3, 7), 0)
-})
-
-test_that("splot_distance calculates horizontal distance correctly", {
-  expect_equal(splot_distance(0, 0, 3, 0), 3)
-  expect_equal(splot_distance(0, 0, -4, 0), 4)
-  expect_equal(splot_distance(2, 5, 7, 5), 5)
-})
-
-test_that("splot_distance calculates vertical distance correctly", {
-  expect_equal(splot_distance(0, 0, 0, 4), 4)
-  expect_equal(splot_distance(0, 0, 0, -5), 5)
-  expect_equal(splot_distance(3, 2, 3, 8), 6)
-})
-
-test_that("splot_distance calculates diagonal distance correctly", {
-  # 3-4-5 triangle
-
-expect_equal(splot_distance(0, 0, 3, 4), 5)
-  # 5-12-13 triangle
-  expect_equal(splot_distance(0, 0, 5, 12), 13)
-  # Unit diagonal
-  expect_equal(splot_distance(0, 0, 1, 1), sqrt(2))
-})
-
-test_that("splot_distance is symmetric", {
-  expect_equal(splot_distance(1, 2, 5, 8), splot_distance(5, 8, 1, 2))
-  expect_equal(splot_distance(-3, 4, 7, -2), splot_distance(7, -2, -3, 4))
-})
-
-test_that("splot_distance handles negative coordinates", {
-  expect_equal(splot_distance(-1, -1, -4, -5), 5)
-  expect_equal(splot_distance(-2, -3, 1, 1), 5)
-})
 
 # ============================================
 # splot_angle() TESTS
@@ -673,8 +630,9 @@ test_that("geometry functions work together for edge drawing", {
   angle_AB <- splot_angle(nodeA[1], nodeA[2], nodeB[1], nodeB[2])
   expect_equal(angle_AB, 0)  # Horizontal to the right
 
-  # Calculate distance
-  dist_AB <- splot_distance(nodeA[1], nodeA[2], nodeB[1], nodeB[2])
+  # Calculate distance using point_distance (canonical)
+  point_distance <- cograph:::point_distance
+  dist_AB <- point_distance(nodeA[1], nodeA[2], nodeB[1], nodeB[2])
   expect_equal(dist_AB, 2)
 
   # Get edge start point (on boundary of node A facing B)
@@ -740,14 +698,6 @@ test_that("coordinate transformations preserve relative positions", {
 # ============================================
 # EDGE CASE TESTS
 # ============================================
-
-test_that("splot_distance handles very small distances", {
-  expect_equal(splot_distance(0, 0, 1e-10, 0), 1e-10, tolerance = 1e-15)
-})
-
-test_that("splot_distance handles very large distances", {
-  expect_equal(splot_distance(0, 0, 1e6, 0), 1e6)
-})
 
 test_that("splot_angle handles very small differences", {
   angle <- splot_angle(0, 0, 1e-10, 1e-10)

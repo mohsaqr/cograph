@@ -269,16 +269,9 @@ plot_compare <- function(x, y = NULL,
     tna_colors <- if (!is.null(x$data)) attr(x$data, "colors") else NULL
     if (is.null(tna_colors)) tna_colors <- tna_color_palette(n_states)
 
-    tna_defaults <- list(
-      edge_labels = TRUE,
-      edge_label_size = 0.6,
-      edge_label_position = 0.7,
-      node_fill = tna_colors,
-      node_size = 7,
-      arrow_size = 0.61,
-      edge_start_style = "dotted",
-      edge_start_length = 0.2
-    )
+    tna_defaults <- .tna_style_defaults(directed = TRUE)
+    tna_defaults$edge_labels <- TRUE
+    tna_defaults$node_fill <- tna_colors
     for (nm in names(tna_defaults)) {
       if (is.null(plot_args[[nm]])) {
         plot_args[[nm]] <- tna_defaults[[nm]]
@@ -619,16 +612,9 @@ plot_comparison_heatmap <- function(x, y = NULL,
       tna_cols <- if (!is.null(x_net$data)) attr(x_net$data, "colors") else NULL
       if (is.null(tna_cols)) tna_cols <- tna_color_palette(n_st)
 
-      tna_defs <- list(
-        edge_labels = TRUE,
-        edge_label_size = 0.6,
-        edge_label_position = 0.7,
-        node_fill = tna_cols,
-        node_size = 7,
-        arrow_size = 0.61,
-        edge_start_style = "dotted",
-        edge_start_length = 0.2
-      )
+      tna_defs <- .tna_style_defaults(directed = TRUE)
+      tna_defs$edge_labels <- TRUE
+      tna_defs$node_fill <- tna_cols
       for (dnm in names(tna_defs)) {
         if (is.null(plot_args[[dnm]])) {
           plot_args[[dnm]] <- tna_defs[[dnm]]

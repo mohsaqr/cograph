@@ -414,9 +414,7 @@ extract_motifs <- function(x = NULL,
     obs_freq$expected <- round(null_mean, 1)
     obs_freq$z <- round((obs_freq$observed - null_mean) / null_sd, 2)
     obs_freq$p <- round(2 * stats::pnorm(-abs(obs_freq$z)), 4)
-    obs_freq$sig <- ifelse(obs_freq$p < 0.001, "***",
-                          ifelse(obs_freq$p < 0.01, "**",
-                                ifelse(obs_freq$p < 0.05, "*", "")))
+    obs_freq$sig <- get_significance_stars(obs_freq$p)
   }
 
   # Sort by observed (or z if significance)

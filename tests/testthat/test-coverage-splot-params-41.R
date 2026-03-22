@@ -11,7 +11,6 @@ resolve_node_colors <- cograph:::resolve_node_colors
 resolve_labels <- cograph:::resolve_labels
 resolve_edge_labels <- cograph:::resolve_edge_labels
 resolve_shapes <- cograph:::resolve_shapes
-resolve_curvatures <- cograph:::resolve_curvatures
 resolve_loop_rotation <- cograph:::resolve_loop_rotation
 filter_edges_by_weight <- cograph:::filter_edges_by_weight
 get_edge_order <- cograph:::get_edge_order
@@ -568,52 +567,6 @@ test_that("resolve_shapes recycles shape vector", {
 })
 
 # ============================================
-# RESOLVE_CURVATURES TESTS
-# ============================================
-
-test_that("resolve_curvatures returns empty for zero edges", {
-  edges <- data.frame(from = integer(0), to = integer(0))
-  result <- resolve_curvatures(0, edges)
-  expect_equal(length(result), 0)
-})
-
-test_that("resolve_curvatures recycles curvature vector", {
-  edges <- data.frame(from = c(1, 2, 3, 4), to = c(2, 3, 4, 1))
-  result <- resolve_curvatures(c(0.1, 0.2), edges)
-  expect_equal(result, c(0.1, 0.2, 0.1, 0.2))
-})
-
-test_that("resolve_curvatures returns as-is when curveScale is FALSE", {
-  edges <- data.frame(from = c(1, 2), to = c(2, 1))  # Reciprocal
-  result <- resolve_curvatures(0, edges, curveScale = FALSE)
-  expect_equal(result, c(0, 0))
-})
-
-test_that("resolve_curvatures applies default curvature to reciprocal edges", {
-  edges <- data.frame(from = c(1, 2), to = c(2, 1))  # Reciprocal pair
-  result <- resolve_curvatures(0, edges, curveScale = TRUE, default_curve = 0.3)
-  expect_equal(result, c(0.3, 0.3))
-})
-
-test_that("resolve_curvatures skips self-loops for reciprocal detection", {
-  edges <- data.frame(from = c(1, 1, 2), to = c(1, 2, 1))  # Self-loop + reciprocal
-  result <- resolve_curvatures(0, edges, curveScale = TRUE, default_curve = 0.25)
-  # Self-loop (edge 1) should not be curved
-  expect_equal(result[1], 0)
-  # Reciprocal pair (edges 2 and 3) should be curved
-  expect_equal(result[2], 0.25)
-  expect_equal(result[3], 0.25)
-})
-
-test_that("resolve_curvatures preserves non-zero curvature for reciprocal edges", {
-  edges <- data.frame(from = c(1, 2), to = c(2, 1))
-  # Pre-set curvature for first edge
-  result <- resolve_curvatures(c(0.5, 0), edges, curveScale = TRUE, default_curve = 0.3)
-  expect_equal(result[1], 0.5)  # Keeps original
-  expect_equal(result[2], 0.3)  # Gets default
-})
-
-# ============================================
 # RESOLVE_LOOP_ROTATION TESTS
 # ============================================
 
@@ -805,9 +758,6 @@ test_that("resolve functions work together for complete workflow", {
 
   shapes <- resolve_shapes(NULL, n)
   expect_equal(shapes, rep("circle", n))
-
-  curves <- resolve_curvatures(0, edges)
-  expect_equal(length(curves), m)
 
   # Filter and order
   filtered <- filter_edges_by_weight(edges, minimum = 0.4)

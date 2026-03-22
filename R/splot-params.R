@@ -393,48 +393,6 @@ resolve_shapes <- function(shape, n) {
   recycle_to_length(shape, n)
 }
 
-#' Resolve Curvature Parameter
-#'
-#' Determines edge curvatures, handling reciprocal edges.
-#'
-#' @param curve User-specified curvature(s).
-#' @param edges Edge data frame.
-#' @param curveScale Logical: scale curvature for reciprocal edges?
-#' @param default_curve Default curvature for reciprocal edges.
-#' @return Vector of curvatures.
-#' @keywords internal
-resolve_curvatures <- function(curve, edges, curveScale = TRUE,
-                               default_curve = 0.2) {
-  m <- nrow(edges)
-  if (m == 0) return(numeric(0))
-
-  curves <- recycle_to_length(curve, m)
-
-  if (!curveScale) {
-    return(curves)
-  }
-
-  # Identify reciprocal edges and apply default curvature
-  for (i in seq_len(m)) {
-    from_i <- edges$from[i]
-    to_i <- edges$to[i]
-
-    if (from_i == to_i) next  # Skip self-loops
-
-    # Check for reciprocal
-    for (j in seq_len(m)) {
-      if (j != i && edges$from[j] == to_i && edges$to[j] == from_i) {
-        # Found reciprocal - apply curvature if not already set
-        if (curves[i] == 0) {
-          curves[i] <- default_curve
-        }
-        break
-      }
-    }
-  }
-
-  curves
-}
 
 #' Resolve Loop Rotation
 #'
@@ -533,4 +491,302 @@ get_edge_order <- function(edges, priority = NULL) {
 #' @keywords internal
 get_node_order <- function(sizes) {
   order(sizes, decreasing = TRUE)
+}
+
+#' Check and Handle Duplicate Edges
+#'
+#' Detects duplicate edges in undirected networks and either errors with
+#' guidance or aggregates them per the user's \code{edge_duplicates} setting.
+#'
+#' @param edges Edge data frame.
+#' @param directed Logical: is the network directed?
+#' @param edge_duplicates Aggregation method (NULL to error, or "sum"/"mean"/etc).
+#' @return Possibly aggregated edge data frame.
+#' @keywords internal
+check_duplicate_edges <- function(edges, directed, edge_duplicates) {
+  if (directed || is.null(edges) || nrow(edges) == 0) return(edges)
+
+  dup_check <- detect_duplicate_edges(edges)
+  if (!dup_check$has_duplicates) return(edges)
+
+  if (is.null(edge_duplicates)) {
+    dup_msg <- vapply(dup_check$info, function(d) {
+      sprintf("  - Nodes %d-%d: %d edges (weights: %s)",
+              d$nodes[1], d$nodes[2], d$count,
+              paste(round(d$weights, 2), collapse = ", "))
+    }, character(1))
+    stop("Found ", length(dup_check$info), " duplicate edge pair(s) in undirected network:\n",
+         paste(dup_msg, collapse = "\n"), "\n\n",
+         "Specify how to handle with edge_duplicates parameter:\n",
+         "  edge_duplicates = \"sum\"   # Sum weights\n",
+         "  edge_duplicates = \"mean\"  # Average weights\n",
+         "  edge_duplicates = \"first\" # Keep first edge\n",
+         "  edge_duplicates = \"max\"   # Keep max weight\n",
+         "  edge_duplicates = \"min\"   # Keep min weight\n",
+         call. = FALSE)
+  }
+
+  aggregate_duplicate_edges(edges, edge_duplicates)
+}
+
+#' Compute Plot Limits
+#'
+#' Calculates xlim/ylim accounting for node radii, self-loop extents,
+#' and layout margin padding.
+#'
+#' @param layout_mat Two-column layout matrix.
+#' @param vsize_usr Node radii in user coordinates.
+#' @param layout_margin Fractional margin padding.
+#' @param edges Edge data frame.
+#' @param n_edges Number of edges.
+#' @param loop_rotations Per-edge loop rotation angles.
+#' @return List with \code{xlim} and \code{ylim}.
+#' @keywords internal
+compute_plot_limits <- function(layout_mat, vsize_usr, layout_margin,
+                                edges, n_edges, loop_rotations) {
+  x_range <- range(layout_mat[, 1], na.rm = TRUE)
+  y_range <- range(layout_mat[, 2], na.rm = TRUE)
+  x_margin <- diff(x_range) * layout_margin
+  y_margin <- diff(y_range) * layout_margin
+
+  # Expand to encompass node radii at boundary nodes
+  x_lo <- min(layout_mat[, 1] - vsize_usr, na.rm = TRUE)
+  x_hi <- max(layout_mat[, 1] + vsize_usr, na.rm = TRUE)
+  y_lo <- min(layout_mat[, 2] - vsize_usr, na.rm = TRUE)
+  y_hi <- max(layout_mat[, 2] + vsize_usr, na.rm = TRUE)
+
+  # Expand for self-loops
+  if (n_edges > 0) {
+    self_loop_idx <- which(edges$from == edges$to)
+    if (length(self_loop_idx) > 0) {
+      loop_extent <- 2.52
+      ni <- edges$from[self_loop_idx]
+      r <- vsize_usr[ni] * loop_extent
+      rot <- loop_rotations[self_loop_idx]
+      lx <- layout_mat[ni, 1] + r * cos(rot)
+      ly <- layout_mat[ni, 2] + r * sin(rot)
+      lr <- vsize_usr[ni] * 0.8
+      x_lo <- min(x_lo, lx - lr)
+      x_hi <- max(x_hi, lx + lr)
+      y_lo <- min(y_lo, ly - lr)
+      y_hi <- max(y_hi, ly + lr)
+    }
+  }
+
+  list(
+    xlim = c(min(x_range[1] - x_margin, x_lo), max(x_range[2] + x_margin, x_hi)),
+    ylim = c(min(y_range[1] - y_margin, y_lo), max(y_range[2] + y_margin, y_hi))
+  )
+}
+
+#' Resolve Edge Styles
+#'
+#' Converts edge style strings to numeric lty values and adjusts
+#' edge widths for dotted style (30% reduction).
+#'
+#' @param edge_style Edge style specification (character or numeric).
+#' @param edge_widths Numeric vector of edge widths.
+#' @param n_edges Number of edges.
+#' @return List with \code{ltys} (numeric lty vector) and \code{edge_widths}.
+#' @keywords internal
+resolve_edge_styles <- function(edge_style, edge_widths, n_edges) {
+  edge_styles_raw <- recycle_to_length(edge_style, n_edges)
+  ltys <- vapply(edge_styles_raw, function(s) {
+    if (is.character(s)) {
+      switch(s,
+        "solid" = 1, "dashed" = 2, "dotted" = 3,
+        "dotdash" = 4, "longdash" = 5, "twodash" = 6, 1)
+    } else {
+      s
+    }
+  }, numeric(1))
+  # Dotted edges: reduce width by 30% to avoid overly thick appearance
+  edge_widths[ltys == 3] <- edge_widths[ltys == 3] * 0.7
+  list(ltys = ltys, edge_widths = edge_widths)
+}
+
+#' Resolve Donut Parameters
+#'
+#' Normalizes donut/pie overlay parameters into the canonical format
+#' expected by render_nodes_splot(). Handles donut_fill auto-enable,
+#' list conversion, empty-value NA replacement, color encoding (1/2/n-color),
+#' shape inheritance, and border vectorization.
+#'
+#' @param donut_fill User-specified donut fill values.
+#' @param donut_values Raw donut values (deprecated path).
+#' @param donut_color Donut color specification (1, 2, or n colors).
+#' @param donut_colors Deprecated donut colors (list).
+#' @param donut_bg_color Background color.
+#' @param donut_shape Donut base shape override.
+#' @param donut_border_color Border color.
+#' @param donut_outer_border_color Outer border color.
+#' @param donut_line_type Line type.
+#' @param donut_empty Logical: render empty rings?
+#' @param shapes Resolved node shapes vector.
+#' @param n_nodes Number of nodes.
+#' @return Named list of effective_* parameters.
+#' @keywords internal
+resolve_donut_params <- function(donut_fill, donut_values, donut_color,
+                                 donut_colors, donut_bg_color, donut_shape,
+                                 donut_border_color, donut_outer_border_color,
+                                 donut_line_type, donut_empty, shapes, n_nodes) {
+  # Auto-enable donut fill when node_shape is "donut" but no fill specified
+  if (is.null(donut_fill) && is.null(donut_values)) {
+    if (any(shapes == "donut")) {
+      donut_fill <- ifelse(shapes == "donut", 1.0, NA)
+    }
+  }
+
+  # Handle donut_fill: convert to list format
+  effective_donut_values <- donut_values
+  if (!is.null(donut_fill)) {
+    if (!is.list(donut_fill)) {
+      fill_vec <- recycle_to_length(donut_fill, n_nodes)
+      effective_donut_values <- as.list(fill_vec)
+    } else {
+      effective_donut_values <- donut_fill
+    }
+  }
+
+  # Replace NA values with 0 when donut_empty = TRUE
+  if (donut_empty && !is.null(effective_donut_values)) {
+    na_idx <- which(vapply(effective_donut_values,
+      function(v) length(v) == 1 && is.na(v), logical(1)))
+    effective_donut_values[na_idx] <- lapply(na_idx, function(i) 0)
+  }
+
+  # Resolve donut colors (donut_color > donut_colors priority)
+  effective_donut_colors <- NULL
+  effective_bg_color <- donut_bg_color
+
+  if (!is.null(donut_color)) {
+    if (is.list(donut_color) && length(donut_color) == 2 * n_nodes) {
+      effective_donut_colors <- as.list(donut_color[seq(1, 2 * n_nodes, by = 2)])
+    } else if (length(donut_color) == 2) {
+      effective_donut_colors <- as.list(rep(donut_color[1], n_nodes))
+      effective_bg_color <- donut_color[2]
+    } else if (length(donut_color) == 1) {
+      effective_donut_colors <- as.list(rep(donut_color, n_nodes))
+    } else {
+      cols <- recycle_to_length(donut_color, n_nodes)
+      effective_donut_colors <- as.list(cols)
+    }
+  } else if (!is.null(donut_colors)) {
+    effective_donut_colors <- donut_colors
+  } else if (any(shapes == "donut") || !is.null(effective_donut_values)) {
+    effective_donut_colors <- as.list(rep("maroon", n_nodes))
+  }
+
+  # Resolve donut shapes (inherit from node_shape)
+  valid_donut_base_shapes <- c("circle", "square", "hexagon", "triangle",
+                               "diamond", "pentagon")
+  if (is.null(donut_shape) || identical(donut_shape, "circle")) {
+    effective_donut_shapes <- ifelse(
+      shapes %in% valid_donut_base_shapes, shapes, "circle")
+  } else {
+    effective_donut_shapes <- recycle_to_length(donut_shape, n_nodes)
+  }
+
+  # Vectorize border params
+  effective_donut_border_color <- if (!is.null(donut_border_color)) {
+    recycle_to_length(donut_border_color, n_nodes)
+  } else {
+    NULL
+  }
+
+  effective_donut_outer_border_color <- if (!is.null(donut_outer_border_color)) {
+    recycle_to_length(donut_outer_border_color, n_nodes)
+  } else {
+    NULL
+  }
+
+  effective_donut_line_type <- recycle_to_length(donut_line_type, n_nodes)
+
+  list(
+    donut_values = effective_donut_values,
+    donut_colors = effective_donut_colors,
+    bg_color = effective_bg_color,
+    donut_shapes = effective_donut_shapes,
+    donut_border_color = effective_donut_border_color,
+    donut_outer_border_color = effective_donut_outer_border_color,
+    donut_line_type = effective_donut_line_type
+  )
+}
+
+#' Compute Edge Curvatures
+#'
+#' Determines per-edge curvature values based on reciprocal-edge detection,
+#' curve mode, and layout geometry.
+#'
+#' @param curvature User-specified curvature scalar or vector.
+#' @param curves Curve mode: FALSE, TRUE/"mutual", or "force".
+#' @param edges Edge data frame with from/to columns.
+#' @param layout_mat Two-column layout matrix.
+#' @return List with \code{curves_vec}, \code{is_reciprocal}.
+#' @keywords internal
+compute_edge_curvatures <- function(curvature, curves, edges, layout_mat) {
+  n_edges <- nrow(edges)
+  if (n_edges == 0) {
+    return(list(curves_vec = numeric(0), is_reciprocal = logical(0))) # nocov
+  }
+
+  # Identify reciprocal pairs via hash-set lookup (O(n))
+  edge_keys <- paste(edges$from, edges$to, sep = "-")
+  reverse_keys <- paste(edges$to, edges$from, sep = "-")
+  is_reciprocal <- reverse_keys %in% edge_keys & edges$from != edges$to
+
+  # Curve magnitude
+  if (length(curvature) == 1 && curvature == 0) {
+    curve_magnitudes <- rep(0.175, n_edges)
+  } else {
+    curve_magnitudes <- abs(recycle_to_length(curvature, n_edges))
+  }
+
+  curves_vec <- rep(0, n_edges)
+  center_x <- mean(layout_mat[, 1])
+  center_y <- mean(layout_mat[, 2])
+  per_edge_curvature <- length(curvature) > 1
+
+  # Helper: compute outward sign for a reciprocal edge pair
+  outward_sign <- function(from_idx, to_idx) {
+    lo <- min(from_idx, to_idx)
+    hi <- max(from_idx, to_idx)
+    dx_canon <- layout_mat[hi, 1] - layout_mat[lo, 1]
+    dy_canon <- layout_mat[hi, 2] - layout_mat[lo, 2]
+    perp_x <- -dy_canon
+    perp_y <- dx_canon
+    mid_x <- (layout_mat[from_idx, 1] + layout_mat[to_idx, 1]) / 2
+    mid_y <- (layout_mat[from_idx, 2] + layout_mat[to_idx, 2]) / 2
+    test_x <- mid_x + perp_x * 0.1
+    test_y <- mid_y + perp_y * 0.1
+    dist_pos <- sqrt((test_x - center_x)^2 + (test_y - center_y)^2)
+    dist_orig <- sqrt((mid_x - center_x)^2 + (mid_y - center_y)^2)
+    if (dist_pos > dist_orig) 1 else -1
+  }
+
+  if (per_edge_curvature) {
+    # Per-edge curvature vector: apply sign for reciprocal separation
+    non_self <- edges$from != edges$to & curve_magnitudes != 0
+    idx <- which(non_self)
+    curves_vec[idx] <- vapply(idx, function(i) {
+      if (is_reciprocal[i]) {
+        outward_sign(edges$from[i], edges$to[i]) * curve_magnitudes[i]
+      } else {
+        curve_magnitudes[i]
+      }
+    }, numeric(1))
+  } else if (identical(curves, TRUE) || identical(curves, "mutual")) {
+    # Curve reciprocal edges in opposite directions
+    recip_idx <- which(is_reciprocal)
+    curves_vec[recip_idx] <- vapply(recip_idx, function(i) {
+      outward_sign(edges$from[i], edges$to[i]) * curve_magnitudes[i]
+    }, numeric(1))
+  } else if (identical(curves, "force")) {
+    # Curve all non-self-loop edges
+    non_self <- edges$from != edges$to
+    curves_vec[non_self] <- curve_magnitudes[non_self]
+  }
+  # curves = FALSE: curves_vec stays at 0
+
+  list(curves_vec = curves_vec, is_reciprocal = is_reciprocal)
 }

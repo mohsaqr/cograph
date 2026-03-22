@@ -3,13 +3,30 @@
 #' Visualize higher-order pathways as smooth blobs overlaid on a
 #' network layout. Source nodes are blue, target nodes are red.
 #'
-#' @param x A network object: \code{tna}, matrix, \code{igraph}, or
-#'   \code{cograph_network}. When \code{NULL}, states are inferred
-#'   from \code{pathways}.
-#' @param pathways Character vector of pathway strings. Supports
-#'   separators: \code{"A B -> C"}, \code{"A, B, C"},
+#' Supports direct use with \code{tna} and \code{netobject} models:
+#' when \code{x} has sequence data, HON or HYPA pathways are built
+#' automatically (requires the \pkg{Nestimate} package). Pathways can
+#' also be passed as \code{net_hon} or \code{net_hypa} objects, with
+#' labels auto-translated when \code{x} is a \code{tna}/\code{netobject}.
+#'
+#' @param x A network object: \code{tna}, \code{netobject}, matrix,
+#'   \code{igraph}, \code{cograph_network}, \code{net_hon}, or
+#'   \code{net_hypa}. When \code{x} is a \code{tna} or
+#'   \code{netobject} with sequence data and \code{pathways} is
+#'   \code{NULL}, higher-order pathways are built automatically
+#'   using the \code{method} parameter.
+#' @param pathways Character vector of pathway strings, a list of
+#'   character vectors, or a \code{net_hon} / \code{net_hypa} object.
+#'   String separators: \code{"A B -> C"}, \code{"A, B, C"},
 #'   \code{"A - B - C"}, \code{"A B C"}. Last state is the target.
-#'   Also accepts a list of character vectors.
+#'   When \code{NULL} and \code{x} is a model with sequence data,
+#'   pathways are built automatically.
+#' @param method Higher-order method when auto-building from a
+#'   \code{tna}/\code{netobject}: \code{"hon"} (default) or
+#'   \code{"hypa"}.
+#' @param max_pathways Maximum number of pathways to display. HON
+#'   pathways are ranked by count, HYPA by anomaly ratio.
+#'   \code{NULL} shows all. Default \code{10}.
 #' @param layout \code{"circle"} (default) or a coordinate matrix.
 #' @param labels Display labels. \code{NULL} uses state names.
 #' @param node_color Source node fill color.
@@ -24,10 +41,16 @@
 #' @param blob_line_alpha Blob border line transparency.
 #' @param shadow Draw soft drop shadows?
 #' @param title Plot title.
-#' @param dismantled If \code{TRUE}, one panel per pathway.
-#' @param ... Additional arguments (currently unused).
+#' @param dismantled If \code{TRUE}, one panel per pathway arranged
+#'   in a grid layout.
+#' @param ncol Number of columns in the grid when \code{dismantled = TRUE}.
+#'   Default \code{NULL} auto-selects based on the number of pathways.
+#' @param ... Additional arguments passed to
+#'   \code{Nestimate::build_hon()} or \code{Nestimate::build_hypa()}
+#'   when auto-building.
 #'
-#' @return A \code{ggplot} object (or list if dismantled), invisibly.
+#' @return A \code{ggplot} object (or combined grid if dismantled),
+#'   invisibly.
 #'
 #' @examples
 #' \donttest{
@@ -35,12 +58,23 @@
 #'               dimnames = list(LETTERS[1:4], LETTERS[1:4]))
 #' diag(mat) <- 0
 #' plot_simplicial(mat, c("A B -> C", "B C -> D"))
+#'
+#' # Direct from tna model (requires Nestimate):
+#' # model <- tna::tna(tna::group_regulation)
+#' # plot_simplicial(model, dismantled = TRUE)
+#' # plot_simplicial(model, method = "hypa")
+#'
+#' # With pre-built HON + tna for label translation:
+#' # hon <- Nestimate::build_hon(as.data.frame(model$data))
+#' # plot_simplicial(model, hon, dismantled = TRUE)
 #' }
 #'
 #' @import ggplot2
 #' @export
 plot_simplicial <- function(x = NULL,
-                            pathways,
+                            pathways = NULL,
+                            method = "hon",
+                            max_pathways = 10L,
                             layout = "circle",
                             labels = NULL,
                             node_color = "#4A7FB5",
@@ -56,7 +90,71 @@ plot_simplicial <- function(x = NULL,
                             shadow = TRUE,
                             title = NULL,
                             dismantled = FALSE,
+                            ncol = NULL,
                             ...) {
+
+  # Build label map for numeric ID -> label translation
+  label_map <- .build_hon_label_map(x)
+
+  # --- Resolve pathways ---
+  # 1. pathways is a net_hon / net_hypa object
+  if (inherits(pathways, "net_hon")) {
+    pathways <- .extract_hon_pathways(pathways, label_map = label_map)
+    if (length(pathways) == 0L) {
+      message("No higher-order pathways found in HON object.")
+      return(invisible(NULL))
+    }
+  } else if (inherits(pathways, "net_hypa")) {
+    pathways <- .extract_hypa_pathways(pathways, label_map = label_map)
+    if (length(pathways) == 0L) {
+      message("No anomalous pathways found in HYPA object.")
+      return(invisible(NULL))
+    }
+  }
+
+  # 2. pathways still NULL — auto-extract or auto-build
+  if (is.null(pathways)) {
+    if (inherits(x, "net_hon")) {
+      pathways <- .extract_hon_pathways(x, label_map = label_map)
+      if (length(pathways) == 0L) {
+        message("No higher-order pathways found in HON object.")
+        return(invisible(NULL))
+      }
+      x <- NULL
+    } else if (inherits(x, "net_hypa")) {
+      pathways <- .extract_hypa_pathways(x, label_map = label_map)
+      if (length(pathways) == 0L) {
+        message("No anomalous pathways found in HYPA object.")
+        return(invisible(NULL))
+      }
+      x <- NULL
+    } else if (inherits(x, c("tna", "netobject"))) {
+      # Auto-build HON/HYPA from the model's sequence data
+      ho_obj <- .build_higher_order(x, method = method, ...)
+      if (method == "hon") {
+        pathways <- .extract_hon_pathways(ho_obj)
+        if (length(pathways) == 0L) {
+          message("No higher-order pathways found.")
+          return(invisible(NULL))
+        }
+      } else {
+        pathways <- .extract_hypa_pathways(ho_obj)
+        if (length(pathways) == 0L) {
+          message("No anomalous pathways found.")
+          return(invisible(NULL))
+        }
+      }
+    } else {
+      stop("'pathways' must be provided unless 'x' is a tna, netobject, ",
+           "net_hon, or net_hypa object.", call. = FALSE)
+    }
+  }
+
+  # Limit number of pathways
+  if (!is.null(max_pathways) && is.character(pathways) &&
+      length(pathways) > max_pathways) {
+    pathways <- pathways[seq_len(max_pathways)]
+  }
 
   states <- .extract_blob_states(x)
   pw_list <- .parse_pathways(pathways, states)
@@ -101,16 +199,31 @@ plot_simplicial <- function(x = NULL,
   ring_border <- .darken_colors(ring_color, 0.15)
 
   if (dismantled) {
+    # Scale down for grid panels
+    grid_node_size <- node_size * 0.6
+    grid_label_size <- label_size * 0.7
     plots <- lapply(seq_along(pw_list), function(k) {
-      .plot_single_pathway(
+      p <- .plot_single_pathway(
         pw_list[[k]], pos, states, label_map,
         node_color, target_color, ring_color, ring_border,
         blob_colors[k], blob_borders[k], blob_linetype[k], blob_alpha,
-        blob_linewidth, blob_line_alpha, shadow, node_size, label_size
+        blob_linewidth, blob_line_alpha, shadow,
+        grid_node_size, grid_label_size,
+        show_title = FALSE
       )
+      p + ggplot2::theme(plot.margin = ggplot2::margin(2, 2, 2, 2))
     })
-    lapply(plots, print)
-    return(invisible(plots))
+    nc <- ncol %||% ceiling(sqrt(length(plots)))
+    if (requireNamespace("gridExtra", quietly = TRUE)) {
+      combined <- do.call(gridExtra::arrangeGrob,
+                          c(plots, list(ncol = nc,
+                                        padding = grid::unit(0, "line"))))
+      grid::grid.newpage()
+      grid::grid.draw(combined)
+      return(invisible(combined))
+    }
+    lapply(plots, print) # nocov
+    return(invisible(plots)) # nocov
   }
 
   p <- .plot_combined_pathways(
@@ -194,7 +307,8 @@ plot_simplicial <- function(x = NULL,
                                   ring_color, ring_border,
                                   blob_color, blob_border, blob_lty, blob_alpha,
                                   blob_linewidth, blob_line_alpha,
-                                  shadow, node_size, label_size) {
+                                  shadow, node_size, label_size,
+                                  show_title = TRUE) {
   name_to_idx <- setNames(seq_along(states), states)
   all_st <- unique(c(pw$source, pw$target))
   ndf <- pos[unname(name_to_idx[all_st]), , drop = FALSE]
@@ -203,11 +317,6 @@ plot_simplicial <- function(x = NULL,
 
   cx <- mean(ndf$x); cy <- mean(ndf$y)
   half <- max(max(ndf$x) - min(ndf$x), max(ndf$y) - min(ndf$y)) / 2 + 3.5
-
-  src_lab <- vapply(pw$source, function(s) label_map[s], character(1),
-                     USE.NAMES = FALSE)
-  title_str <- sprintf("%s  \u2192  %s",
-                        paste(src_lab, collapse = " | "), label_map[pw$target])
 
   p <- .blob_base_plot(c(cx - half, cx + half), c(cy - half, cy + half))
   if (shadow) p <- .add_shadow(p, blob)
@@ -218,7 +327,15 @@ plot_simplicial <- function(x = NULL,
                          alpha = blob_alpha)
   p <- .add_pathway_nodes(p, ndf, is_target, node_color, target_color,
                            ring_color, ring_border, node_size, label_size)
-  p + labs(title = title_str)
+  if (show_title) {
+    src_lab <- vapply(pw$source, function(s) label_map[s], character(1),
+                       USE.NAMES = FALSE)
+    title_str <- sprintf("%s  \u2192  %s",
+                          paste(src_lab, collapse = " | "),
+                          label_map[pw$target])
+    p <- p + labs(title = title_str)
+  }
+  p
 }
 
 #' @noRd

@@ -232,34 +232,23 @@ draw_curved_edge_base <- function(x1, y1, x2, y2, curve = 0.2, curvePivot = 0.5,
   # Create smooth curve using multiple control points (qgraph approach)
   # Use 5 points for smoother curve: start, 1/4, mid, 3/4, end
   t_vals <- c(0, 0.25, 0.5, 0.75, 1)
-  n_pts <- length(t_vals)
+  # Vectorized control point computation
+  bx <- x1 + t_vals * dx
+  by <- y1 + t_vals * dy
 
-  ctrl_x <- numeric(n_pts)
-  ctrl_y <- numeric(n_pts)
-
-  for (i in seq_along(t_vals)) {
-    t <- t_vals[i]
-    # Base point along edge
-    bx <- x1 + t * dx
-    by <- y1 + t * dy
-
-    # Parabolic offset - maximum at curvePivot, zero at ends
-    # This creates a smooth symmetric curve
-    offset_factor <- 4 * t * (1 - t)  # Parabola peaking at t=0.5
-
-    # Adjust for pivot position (shift the peak)
-    if (curvePivot != 0.5) {
-      # Skewed parabola
-      if (t <= curvePivot) {
-        offset_factor <- (t / curvePivot)^2 * 4 * curvePivot * (1 - curvePivot)
-      } else {
-        offset_factor <- ((1 - t) / (1 - curvePivot))^2 * 4 * curvePivot * (1 - curvePivot)
-      }
-    }
-
-    ctrl_x[i] <- bx + curve_offset * offset_factor * px
-    ctrl_y[i] <- by + curve_offset * offset_factor * py
+  # Parabolic offset - maximum at curvePivot, zero at ends
+  if (curvePivot != 0.5) {
+    # Skewed parabola
+    peak <- 4 * curvePivot * (1 - curvePivot)
+    offset_factor <- ifelse(t_vals <= curvePivot,
+      (t_vals / curvePivot)^2 * peak,
+      ((1 - t_vals) / (1 - curvePivot))^2 * peak)
+  } else {
+    offset_factor <- 4 * t_vals * (1 - t_vals)
   }
+
+  ctrl_x <- bx + curve_offset * offset_factor * px
+  ctrl_y <- by + curve_offset * offset_factor * py
 
   # Generate smooth xspline through control points
   # shape = 1 for smooth interpolation, 0 for corners at endpoints

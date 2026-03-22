@@ -975,8 +975,7 @@ set_groups <- function(x, groups = NULL, type = c("group", "cluster", "layer"),
     }
 
     # If nodes not provided, assume same order as network nodes
-
-if (is.null(nodes)) {
+    if (is.null(nodes)) {
       if (length(vec_values) != length(net_labels)) {
         stop(vec_type, "s vector length (", length(vec_values),
              ") must match number of nodes (", length(net_labels), ")",
@@ -1030,11 +1029,8 @@ if (is.null(nodes)) {
 
       # Normalize plural column names to singular
       col_map <- c(nodes = "node", layers = "layer", clusters = "cluster", groups = "group")
-      for (old_name in names(col_map)) {
-        if (old_name %in% names(df)) {
-          names(df)[names(df) == old_name] <- col_map[old_name]
-        }
-      }
+      matches <- intersect(names(col_map), names(df))
+      names(df)[match(matches, names(df))] <- col_map[matches]
 
       # If df has "group"/"cluster"/"layer" column, use it; else rename 2nd col
       if (!any(c("group", "cluster", "layer") %in% names(df))) {

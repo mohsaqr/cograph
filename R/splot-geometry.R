@@ -234,15 +234,6 @@ perp_mid <- function(x0, y0, x1, y1, cex, q = 0.5) {
   )
 }
 
-#' Calculate Distance Between Two Points
-#'
-#' @param x1,y1 First point.
-#' @param x2,y2 Second point.
-#' @return Euclidean distance.
-#' @keywords internal
-splot_distance <- function(x1, y1, x2, y2) {
-  sqrt((x2 - x1)^2 + (y2 - y1)^2)
-}
 
 #' Calculate Angle Between Two Points
 #'

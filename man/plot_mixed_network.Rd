@@ -9,7 +9,7 @@ plot_mixed_network(
   asym_matrix,
   layout = "oval",
   sym_color = "#457B9D",
-  asym_color = "#003355",
+  asym_color = COGRAPH_SCALE$tna_edge_color,
   curvature = 0.3,
   edge_width = NULL,
   node_size = 7,

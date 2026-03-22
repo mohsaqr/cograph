@@ -71,6 +71,13 @@
     states <- rownames(x)
     return(if (is.null(states)) paste0("S", seq_len(nrow(x))) else states)
   }
+  if (inherits(x, "net_hon")) return(x$first_order_states)
+  if (inherits(x, "net_hypa")) {
+    parts <- strsplit(
+      gsub("\x01", " -> ", x$nodes, fixed = TRUE), " -> ", fixed = TRUE
+    )
+    return(sort(unique(unlist(parts))))
+  }
   stop("x must be a tna object, matrix, igraph, or cograph_network.")
 }
 
@@ -250,4 +257,138 @@
     )
   }
   p
+}
+
+# =========================================================================
+# Nestimate higher-order pathway extraction
+# =========================================================================
+
+#' Extract higher-order pathways from a net_hon object
+#'
+#' Converts HON edge paths (format \code{"A -> B -> C"}) where
+#' \code{from_order > 1} into simplicial pathway strings
+#' (\code{"A B -> C"}). Sorted by count (descending).
+#'
+#' @param x A \code{net_hon} object from \code{nestimate::build_hon()}.
+#' @param label_map Named character vector mapping numeric IDs to labels.
+#' @return Character vector of pathway strings.
+#' @noRd
+.extract_hon_pathways <- function(x, label_map = NULL) {
+  edges <- x$edges
+  ho <- edges[edges$from_order > 1L, , drop = FALSE]
+  if (nrow(ho) == 0L) return(character(0))
+  ho <- ho[order(-ho$count), , drop = FALSE]
+  vapply(ho$path, function(p) {
+    parts <- trimws(strsplit(p, "->", fixed = TRUE)[[1]])
+    if (!is.null(label_map)) {
+      parts <- vapply(parts, function(s) {
+        if (s %in% names(label_map)) unname(label_map[s]) else s
+      }, character(1), USE.NAMES = FALSE)
+    }
+    src <- parts[-length(parts)]
+    tgt <- parts[length(parts)]
+    paste0(paste(src, collapse = " "), " -> ", tgt)
+  }, character(1), USE.NAMES = FALSE)
+}
+
+#' Extract anomalous pathways from a net_hypa object
+#'
+#' Converts HYPA scored paths (format \code{"A -> B -> C"}) where
+#' \code{anomaly != "normal"} into simplicial pathway strings.
+#' Sorted by ratio (descending).
+#'
+#' @param x A \code{net_hypa} object from \code{nestimate::build_hypa()}.
+#' @param type Which anomalies to include: \code{"all"} (default),
+#'   \code{"over"}, or \code{"under"}.
+#' @param label_map Named character vector mapping numeric IDs to labels.
+#' @return Character vector of pathway strings.
+#' @noRd
+.extract_hypa_pathways <- function(x, type = "all", label_map = NULL) {
+  scores <- x$scores
+  if (type == "all") {
+    anom <- scores[scores$anomaly != "normal", , drop = FALSE]
+  } else {
+    anom <- scores[scores$anomaly == type, , drop = FALSE]
+  }
+  if (nrow(anom) == 0L) return(character(0))
+  if ("ratio" %in% names(anom)) {
+    anom <- anom[order(-anom$ratio), , drop = FALSE]
+  }
+  vapply(anom$path, function(p) {
+    parts <- trimws(strsplit(p, "->", fixed = TRUE)[[1]])
+    if (!is.null(label_map)) {
+      parts <- vapply(parts, function(s) {
+        if (s %in% names(label_map)) unname(label_map[s]) else s
+      }, character(1), USE.NAMES = FALSE)
+    }
+    src <- parts[-length(parts)]
+    tgt <- parts[length(parts)]
+    paste0(paste(src, collapse = " "), " -> ", tgt)
+  }, character(1), USE.NAMES = FALSE)
+}
+
+#' Build label map from a tna object for HON/HYPA numeric ID translation
+#' @noRd
+.build_hon_label_map <- function(x) {
+  if (inherits(x, "tna") && !is.null(x$labels)) {
+    return(setNames(x$labels, as.character(seq_along(x$labels))))
+  }
+  if (inherits(x, "netobject") && !is.null(rownames(x$weights))) {
+    nms <- rownames(x$weights)
+    if (all(grepl("^\\d+$", nms))) {
+      return(setNames(nms, nms))
+    }
+  }
+  NULL
+}
+
+#' Extract labeled sequence data from a tna or netobject
+#'
+#' Returns a data.frame with state labels (not numeric IDs) suitable
+#' for passing to \code{Nestimate::build_hon()} / \code{build_hypa()}.
+#'
+#' @param x A \code{tna} or \code{netobject}.
+#' @return A data.frame of sequence data with label names, or \code{NULL}.
+#' @noRd
+.extract_sequence_data <- function(x) {
+  if (inherits(x, "tna") && !is.null(x$data)) {
+    df <- as.data.frame(x$data)
+    lbl <- attr(x$data, "labels") %||% x$labels
+    if (!is.null(lbl) && all(vapply(df, is.numeric, logical(1)))) {
+      df[] <- lapply(df, function(col) lbl[col])
+    }
+    return(df)
+  }
+  if (inherits(x, "netobject") && !is.null(x$data)) {
+    df <- as.data.frame(x$data)
+    lbl <- rownames(x$weights)
+    if (!is.null(lbl) && all(vapply(df, is.numeric, logical(1)))) {
+      df[] <- lapply(df, function(col) lbl[col])
+    }
+    return(df)
+  }
+  NULL
+}
+
+#' Build HON or HYPA from a tna/netobject (requires Nestimate)
+#' @noRd
+.build_higher_order <- function(x, method = "hon", ...) {
+  if (!requireNamespace("Nestimate", quietly = TRUE)) {
+    stop("Package 'Nestimate' is required for automatic higher-order ",
+         "pathway extraction. Install it or pass pathways manually.",
+         call. = FALSE)
+  }
+  seq_data <- .extract_sequence_data(x)
+  if (is.null(seq_data)) {
+    stop("Cannot extract sequence data from '", class(x)[1],
+         "' object. Provide pathways manually or pass a tna/netobject ",
+         "with sequence data.", call. = FALSE)
+  }
+  if (method == "hon") {
+    Nestimate::build_hon(seq_data, ...)
+  } else if (method == "hypa") {
+    Nestimate::build_hypa(seq_data, ...)
+  } else {
+    stop("method must be 'hon' or 'hypa'.", call. = FALSE)
+  }
 }

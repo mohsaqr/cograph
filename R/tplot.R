@@ -52,7 +52,7 @@ plot_tna <- function(
     edge.labels = TRUE,
     edge.label.position = 0.7,
     edge.label.cex = 0.6,
-    edge.color = "#003355",
+    edge.color = COGRAPH_SCALE$tna_edge_color,
     vsize = 7,
     pie = NULL,
     pieColor = NULL,

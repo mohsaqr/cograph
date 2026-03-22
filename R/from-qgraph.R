@@ -56,7 +56,7 @@ tna_color_palette <- function(n_states) {
     edge_label_style       = "estimate",
     edge_label_leading_zero = FALSE,
     edge_label_size        = 0.6,
-    edge_color             = "#003355",
+    edge_color             = COGRAPH_SCALE$tna_edge_color,
     edge_label_position    = 0.7,
     node_size              = 7,
     minimum                = 0.01

@@ -681,5 +681,3 @@ plot_heatmap <- function(x,
 }
 
 
-# Null-coalescing operator (internal)
-`%||%` <- function(a, b) if (is.null(a)) b else a

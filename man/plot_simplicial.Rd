@@ -6,7 +6,9 @@
 \usage{
 plot_simplicial(
   x = NULL,
-  pathways,
+  pathways = NULL,
+  method = "hon",
+  max_pathways = 10L,
   layout = "circle",
   labels = NULL,
   node_color = "#4A7FB5",
@@ -22,18 +24,32 @@ plot_simplicial(
   shadow = TRUE,
   title = NULL,
   dismantled = FALSE,
+  ncol = NULL,
   ...
 )
 }
 \arguments{
-\item{x}{A network object: \code{tna}, matrix, \code{igraph}, or
-\code{cograph_network}. When \code{NULL}, states are inferred
-from \code{pathways}.}
+\item{x}{A network object: \code{tna}, \code{netobject}, matrix,
+\code{igraph}, \code{cograph_network}, \code{net_hon}, or
+\code{net_hypa}. When \code{x} is a \code{tna} or
+\code{netobject} with sequence data and \code{pathways} is
+\code{NULL}, higher-order pathways are built automatically
+using the \code{method} parameter.}
 
-\item{pathways}{Character vector of pathway strings. Supports
-separators: \code{"A B -> C"}, \code{"A, B, C"},
+\item{pathways}{Character vector of pathway strings, a list of
+character vectors, or a \code{net_hon} / \code{net_hypa} object.
+String separators: \code{"A B -> C"}, \code{"A, B, C"},
 \code{"A - B - C"}, \code{"A B C"}. Last state is the target.
-Also accepts a list of character vectors.}
+When \code{NULL} and \code{x} is a model with sequence data,
+pathways are built automatically.}
+
+\item{method}{Higher-order method when auto-building from a
+\code{tna}/\code{netobject}: \code{"hon"} (default) or
+\code{"hypa"}.}
+
+\item{max_pathways}{Maximum number of pathways to display. HON
+pathways are ranked by count, HYPA by anomaly ratio.
+\code{NULL} shows all. Default \code{10}.}
 
 \item{layout}{\code{"circle"} (default) or a coordinate matrix.}
 
@@ -63,16 +79,30 @@ Also accepts a list of character vectors.}
 
 \item{title}{Plot title.}
 
-\item{dismantled}{If \code{TRUE}, one panel per pathway.}
+\item{dismantled}{If \code{TRUE}, one panel per pathway arranged
+in a grid layout.}
 
-\item{...}{Additional arguments (currently unused).}
+\item{ncol}{Number of columns in the grid when \code{dismantled = TRUE}.
+Default \code{NULL} auto-selects based on the number of pathways.}
+
+\item{...}{Additional arguments passed to
+\code{Nestimate::build_hon()} or \code{Nestimate::build_hypa()}
+when auto-building.}
 }
 \value{
-A \code{ggplot} object (or list if dismantled), invisibly.
+A \code{ggplot} object (or combined grid if dismantled),
+invisibly.
 }
 \description{
 Visualize higher-order pathways as smooth blobs overlaid on a
 network layout. Source nodes are blue, target nodes are red.
+}
+\details{
+Supports direct use with \code{tna} and \code{netobject} models:
+when \code{x} has sequence data, HON or HYPA pathways are built
+automatically (requires the \pkg{Nestimate} package). Pathways can
+also be passed as \code{net_hon} or \code{net_hypa} objects, with
+labels auto-translated when \code{x} is a \code{tna}/\code{netobject}.
 }
 \examples{
 \donttest{
@@ -80,6 +110,15 @@ mat <- matrix(runif(16), 4, 4,
               dimnames = list(LETTERS[1:4], LETTERS[1:4]))
 diag(mat) <- 0
 plot_simplicial(mat, c("A B -> C", "B C -> D"))
+
+# Direct from tna model (requires Nestimate):
+# model <- tna::tna(tna::group_regulation)
+# plot_simplicial(model, dismantled = TRUE)
+# plot_simplicial(model, method = "hypa")
+
+# With pre-built HON + tna for label translation:
+# hon <- Nestimate::build_hon(as.data.frame(model$data))
+# plot_simplicial(model, hon, dismantled = TRUE)
 }
 
 }

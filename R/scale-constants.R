@@ -123,7 +123,10 @@ COGRAPH_SCALE <- list(
   # When converting node_size for soplot (NPC coords), use this factor
   # Calibrated: splot uses ~2.6 user coord range, soplot uses 1.0 NPC
   # To match: 0.015 / 2.6 ≈ 0.006
-  soplot_node_factor = 0.006
+  soplot_node_factor = 0.006,
+
+  # TNA default edge color (dark blue)
+  tna_edge_color = "#003355"
 )
 
 #' Legacy Scaling Constants (Pre-v2.0 Behavior)

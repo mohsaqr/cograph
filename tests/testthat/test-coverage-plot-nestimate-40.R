@@ -430,3 +430,99 @@ test_that("netobject_ml: dispatch via plot()", {
   mock_ml <- create_mock_netobject_ml()
   expect_no_error(with_temp_png(plot(mock_ml), width = 600, height = 300))
 })
+
+# ============================================================
+# Mock factory: wtna_mixed
+# ============================================================
+
+create_mock_wtna_mixed <- function(n = 4, with_initial = FALSE) {
+  set.seed(99)
+  nms <- LETTERS[1:n]
+  # asymmetric transition weights
+  trans_w <- matrix(runif(n * n, 0, 0.4), n, n, dimnames = list(nms, nms))
+  diag(trans_w) <- 0
+  # symmetric co-occurrence weights
+  coocc_w <- matrix(0, n, n, dimnames = list(nms, nms))
+  coocc_w[1, 2] <- coocc_w[2, 1] <- 0.5
+  coocc_w[3, 4] <- coocc_w[4, 3] <- 0.4
+
+  trans_net <- structure(
+    list(weights = trans_w, directed = TRUE,
+         nodes = data.frame(label = nms, stringsAsFactors = FALSE),
+         initial = if (with_initial) setNames(rep(1/n, n), nms) else NULL),
+    class = c("netobject", "cograph_network")
+  )
+  coocc_net <- structure(
+    list(weights = coocc_w, directed = FALSE,
+         nodes = data.frame(label = nms, stringsAsFactors = FALSE)),
+    class = c("netobject", "cograph_network")
+  )
+  structure(
+    list(transition = trans_net, cooccurrence = coocc_net, method = "wtna_both"),
+    class = "wtna_mixed"
+  )
+}
+
+# ============================================================
+# Tests: splot.wtna_mixed
+# ============================================================
+
+test_that("wtna_mixed: overlay type calls plot_mixed_network", {
+  x <- create_mock_wtna_mixed()
+  expect_no_error(with_temp_png(splot.wtna_mixed(x, type = "overlay")))
+})
+
+test_that("wtna_mixed: overlay inherits initial from transition net", {
+  x <- create_mock_wtna_mixed(with_initial = TRUE)
+  expect_no_error(with_temp_png(splot.wtna_mixed(x, type = "overlay")))
+})
+
+test_that("wtna_mixed: group type renders two-panel netobject_group", {
+  x <- create_mock_wtna_mixed()
+  expect_no_error(with_temp_png(splot.wtna_mixed(x, type = "group"),
+                                width = 600, height = 300))
+})
+
+test_that("wtna_mixed: default type is overlay", {
+  x <- create_mock_wtna_mixed()
+  expect_no_error(with_temp_png(splot.wtna_mixed(x)))
+})
+
+test_that("wtna_mixed: returns invisibly", {
+  x <- create_mock_wtna_mixed()
+  result <- with_temp_png(splot.wtna_mixed(x))
+  expect_true(!is.null(result))
+})
+
+test_that("wtna_mixed: dispatch via splot()", {
+  x <- create_mock_wtna_mixed()
+  expect_no_error(with_temp_png(splot(x)))
+})
+
+# ============================================================
+# Tests: plot_mixed_network — initial parameter
+# ============================================================
+
+test_that("plot_mixed_network: initial probabilities draw donuts", {
+  sym <- matrix(0, 4, 4, dimnames = list(LETTERS[1:4], LETTERS[1:4]))
+  sym[1, 2] <- sym[2, 1] <- 0.5
+
+  asym <- matrix(0, 4, 4, dimnames = list(LETTERS[1:4], LETTERS[1:4]))
+  asym[1, 3] <- 0.7
+  asym[3, 1] <- 0.3
+
+  init <- setNames(c(0.4, 0.3, 0.2, 0.1), LETTERS[1:4])
+  expect_no_error(with_temp_png(plot_mixed_network(sym, asym, initial = init)))
+})
+
+test_that("plot_mixed_network: initial = non-numeric stops with error", {
+  sym <- matrix(0, 3, 3)
+  sym[1, 2] <- sym[2, 1] <- 0.5
+  asym <- matrix(0, 3, 3)
+  asym[1, 3] <- 0.5
+
+  expect_error(
+    plot_mixed_network(sym, asym, initial = c("a", "b", "c")),
+    "initial must be"
+  )
+})

@@ -181,28 +181,30 @@ plot_mixed_network <- function(
     weight = edges$weight
   )
 
-  # Plot with TNA-style defaults
-  splot(
-    edge_df,
-    directed = TRUE,
-    layout = layout,
-    curvature = curvature_vec,
-    show_arrows = arrows_vec,
-    edge_color = color_vec,
-    edge_width = edge_width,
-    node_size = node_size,
-    title = title,
-    edge_labels = edge_labels,
-    edge_label_size = edge_label_size,
-    edge_label_position = edge_label_position,
-    arrow_size = arrow_size,
-    edge_start_style = "dotted",
-    edge_start_length = 0.2,
-    labels = node_names,
-    donut_fill = donut_vals,
-    donut_empty = if (!is.null(donut_vals)) FALSE else NULL,
-    ...
+  # Build splot call — only include donut args when initial probs are present
+  splot_args <- c(
+    list(
+      edge_df,
+      directed           = TRUE,
+      layout             = layout,
+      curvature          = curvature_vec,
+      show_arrows        = arrows_vec,
+      edge_color         = color_vec,
+      edge_width         = edge_width,
+      node_size          = node_size,
+      title              = title,
+      edge_labels        = edge_labels,
+      edge_label_size    = edge_label_size,
+      edge_label_position = edge_label_position,
+      arrow_size         = arrow_size,
+      edge_start_style   = "dotted",
+      edge_start_length  = 0.2,
+      labels             = node_names
+    ),
+    if (!is.null(donut_vals)) list(donut_fill = donut_vals, donut_empty = FALSE),
+    list(...)
   )
+  do.call(splot, splot_args)
 
   # Return combined network invisibly
   invisible(list(

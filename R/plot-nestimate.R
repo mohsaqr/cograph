@@ -140,27 +140,39 @@ splot.boot_glasso <- function(x,
 
 #' Plot a Mixed Window TNA Object
 #'
-#' Plot a \code{wtna_mixed} object as a single mixed network.
-#'
-#' Renders transition edges (directed, curved, with arrows) and co-occurrence
-#' edges (undirected, straight, no arrows) together in one plot using
-#' \code{\link{plot_mixed_network}}.
+#' Plot a \code{wtna_mixed} object either as a single overlaid network or as
+#' two separate group panels.
 #'
 #' @param x A \code{wtna_mixed} object (from Nestimate \code{wtna(..., method = "both")}).
-#' @param ... Additional arguments passed to \code{\link{plot_mixed_network}}.
+#' @param type Character. \code{"overlay"} (default) renders both networks on a
+#'   single canvas via \code{\link{plot_mixed_network}} — co-occurrence as straight
+#'   undirected edges, transitions as curved directed arrows.
+#'   \code{"group"} plots each component as a separate panel.
+#' @param ... Additional arguments passed to \code{\link{plot_mixed_network}}
+#'   (\code{type = "overlay"}) or \code{\link{splot}} (\code{type = "group"}).
 #'
 #' @return Invisibly returns \code{x}.
 #' @keywords internal
 #' @export
-splot.wtna_mixed <- function(x, ...) {
-  args <- list(...)
-  if (is.null(args$initial) && !is.null(x$transition$initial))
-    args$initial <- x$transition$initial
-  do.call(plot_mixed_network, c(
-    list(sym_matrix  = x$cooccurrence$weights,
-         asym_matrix = x$transition$weights),
-    args
-  ))
+splot.wtna_mixed <- function(x, type = c("overlay", "group"), ...) {
+  type <- match.arg(type)
+  if (type == "overlay") {
+    args <- list(...)
+    if (is.null(args$initial) && !is.null(x$transition$initial))
+      args$initial <- x$transition$initial
+    do.call(plot_mixed_network, c(
+      list(sym_matrix  = x$cooccurrence$weights,
+           asym_matrix = x$transition$weights),
+      args
+    ))
+  } else {
+    group <- structure(
+      list(Transition = x$transition, `Co-occurrence` = x$cooccurrence),
+      group_col = "network_type",
+      class = "netobject_group"
+    )
+    splot(group, ...)
+  }
   invisible(x)
 }
 

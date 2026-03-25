@@ -1,6 +1,13 @@
 ## R CMD check results
 
-0 errors | 0 warnings | 0 notes
+0 errors | 0 warnings | 1 note
+
+The single NOTE is the standard CRAN incoming feasibility check:
+
+- **Nestimate in Suggests** is not on CRAN but is available via
+  `Additional_repositories: https://mohsaqr.r-universe.dev` (confirmed
+  resolvable). All Nestimate functionality is guarded with
+  `requireNamespace("Nestimate", quietly = TRUE)`.
 
 ## Test environments
 
@@ -10,7 +17,7 @@
 
 ## Test results
 
-13,466 tests pass, 0 failures. 39 skips are all device/environment-specific
+13,659 tests pass, 0 failures. 39 skips are all device/environment-specific
 (SVG device requires XQuartz, PostScript font issues on macOS — not package bugs).
 
 ## Downstream dependencies

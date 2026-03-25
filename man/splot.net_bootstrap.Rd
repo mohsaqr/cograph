@@ -4,7 +4,7 @@
 \alias{splot.net_bootstrap}
 \title{Plot Nestimate Bootstrap Results}
 \usage{
-\method{splot}{net_bootstrap}(
+splot.net_bootstrap(
   x,
   display = c("styled", "significant", "full"),
   show_ci = FALSE,

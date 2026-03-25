@@ -1,5 +1,10 @@
 # Project Learnings
 
+### 2026-03-23 (Nestimate bootstrap/permutation validation)
+- [net_permutation undirected edge_idx bug]: `splot.net_permutation` used `which(weights_display != 0, arr.ind=TRUE)` for all networks, producing 2N edges for symmetric undirected matrices. splot only processes upper-triangle edges for undirected, so per-edge arrays (colors, styles, fontfaces) had wrong length. Fixed by adding `if (is_directed) ... else ... & upper.tri()` — same pattern already used in `splot.net_bootstrap`.
+- [Nestimate $significant field]: `net_bootstrap$significant` is a weight matrix (significant weights, 0 for non-sig), NOT a logical mask. Equivalent to `weights * (p_values < ci_level)`. cograph computes this correctly.
+- [Nestimate build_network API]: `estimate_network()` is deprecated; use `build_network(data, method="relative")` for directed TNA-style or `build_network(data, method="glasso")` for undirected. Sequence data (categorical) → directed methods; numeric data → association methods (glasso, cor, pcor).
+
 ### 2026-03-21 (HON/HYPA/simplicial full pipeline)
 - [net_hon structure]: `build_hon()` returns list with `$edges` (data.frame: path, from_order, count, probability), `$first_order_states` (character), `$matrix`. Class `"net_hon"`. Higher-order edges have `from_order > 1`. Path format: `"A -> B -> C"`.
 - [net_hypa structure]: `build_hypa()` returns list with `$scores` (data.frame: path, anomaly, ratio), `$nodes` (character with `\x01` separator). Class `"net_hypa"`. Anomaly values: `"normal"`, `"over"`, `"under"`.

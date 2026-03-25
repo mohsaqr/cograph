@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Platform**: macOS (Darwin), R 4.1+ (currently R 4.5+)
 - **Version**: 1.8.2 (CRAN has 1.5.2)
 - **Rscript**: Available on PATH
+- **Additional repo**: `https://mohsaqr.r-universe.dev` registered for Nestimate dependency resolution (see `Additional_repositories` in DESCRIPTION)
 
 ## Common Commands
 
@@ -22,6 +23,9 @@ Rscript -e 'testthat::test_file("tests/testthat/test-splot.R")'
 
 # Build documentation
 Rscript -e 'devtools::document(".")'
+
+# Build vignettes
+Rscript -e 'devtools::build_vignettes(".")'
 
 # Quick R CMD check (no tests/examples/vignettes)
 Rscript -e 'devtools::check(".", args = c("--no-tests", "--no-examples", "--no-vignettes", "--no-manual"))'
@@ -40,6 +44,10 @@ Rscript -e 'covr::package_coverage(".")'
 # Install locally
 Rscript -e 'devtools::install(".", upgrade = "never")'
 ```
+
+## CI Matrix
+
+GitHub Actions (`R-CMD-check.yaml`) tests on: macOS-latest (release), Windows-latest (release), Ubuntu-latest (devel, release, oldrel-1). The workflow registers `mohsaqr.r-universe.dev` via `~/.Rprofile` for Nestimate resolution.
 
 ## Project Overview
 
@@ -185,7 +193,6 @@ Helpers in `aaa-globals.R`.
 - **namespace masking**: When `tna` or `igraph` are loaded, they mask `plot_compare()`, `communities()`, `degree_distribution()`, `is_directed()`. Use `cograph::` prefix in examples and tests.
 - **`%||%`**: Defined locally in `aaa-globals.R` (not imported from rlang) for R 4.1 compatibility.
 - **detect_communities()** returns a data.frame with columns `node` + `community`, not `$membership`. Use `setNames(comm$community, comm$node)` for named membership vectors.
-
 - **S3method vs export in NAMESPACE**: `@export` on `splot.foo` emits `export(splot.foo)`. Use `@method splot foo` + `@export` to emit `S3method(splot,foo)`. The former breaks `UseMethod` dispatch (which is why the `inherits()` cascade exists).
 - **`dontrun` vs `donttest`**: Do NOT blindly convert `\dontrun` to `\donttest`. Many examples use undefined variables or depend on optional packages that mask cograph functions. Only convert fully self-contained, runnable examples.
 - **Nestimate field differences from tna**: `net_bootstrap$original$weights` (not `$weights`), `$ci_level` (not `$level`). `net_permutation` p_values/effect_size are already matrices. `boot_glasso` edge names use `" -- "` separator.
@@ -194,8 +201,16 @@ Helpers in `aaa-globals.R`.
 
 Coverage tests follow `test-coverage-{module}-{round}.R` (rounds: 40, 41, 42, ...). Target: 100% line coverage. Use `# nocov` only for genuinely unreachable defensive guards.
 
-Test helpers in `tests/testthat/helper-cograph.R` expose internal functions via `cograph:::` for testing. Never put `devtools::load_all()` inside test files — it breaks covr.
+Two test helper files load before every test:
+- `tests/testthat/helper-cograph.R` — exposes internal functions via `cograph:::` for testing
+- `tests/testthat/helper-test-utils.R` — test data generators (`create_test_matrix()`, `create_test_edgelist()`, etc.) and custom expectations
+
+Never put `devtools::load_all()` inside test files — it breaks covr.
 
 ## Optional Dependencies
 
 All suggested packages must be guarded with `requireNamespace("pkg", quietly = TRUE)`. Use `# nocov` on fallback branches unreachable in the test environment.
+
+## CRAN Submission
+
+`cran-comments.md` tracks submission notes. Before submitting: run the strict CRAN incoming check (see Commands above), ensure zero NOTEs, and verify `Additional_repositories` points to `https://mohsaqr.r-universe.dev` for Nestimate.

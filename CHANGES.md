@@ -1,5 +1,18 @@
 # Changelog
 
+### 2026-03-24 — CRAN prep: fix S3 method registration NOTE
+- R/plot-nestimate.R: Removed `@method splot netobject` and `@method splot boot_glasso` tags — now registered as plain `export()` instead of `S3method()`, fixing S3 generic/method consistency NOTE (splot is not a formal S3 generic)
+- R/plot-bootstrap.R: Removed `@method splot net_bootstrap` tag (same fix)
+- R/plot-permutation.R: Removed `@method splot net_permutation` tag (same fix)
+- NAMESPACE: Regenerated — 4 `S3method(splot,...)` entries replaced with `export(splot....)`, consistent with tna splot methods
+- cran-comments.md: Updated test count (13,659), check results (0 errors, 0 warnings, 1 expected NOTE)
+- Strict CRAN incoming check passes: 0 errors, 0 warnings, 1 NOTE (standard incoming feasibility — Nestimate in Additional_repositories)
+
+### 2026-03-23 — Nestimate bootstrap/permutation validation
+- R/plot-permutation.R: Fixed `splot.net_permutation` undirected edge indexing — was using full matrix `which(!=0)` instead of `upper.tri()` for undirected networks, causing per-edge array length mismatch error with `show_nonsig=TRUE`
+- tests/testthat/test-validate-nestimate-bootstrap-permutation.R: New — 66 tests validating real Nestimate `bootstrap_network()` and `permutation_test()` objects against cograph's processing (significance classification, CI indexing, edge labels, directed/undirected handling)
+- Tests: 155 bootstrap/permutation tests pass, 0 failures
+
 ### 2026-03-21 — plot_simplicial() full HON/HYPA/simplicial pipeline
 
 **cograph changes:**

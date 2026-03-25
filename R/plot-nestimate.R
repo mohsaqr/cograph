@@ -18,7 +18,6 @@ NULL
 #'
 #' @return Invisibly returns the plot.
 #' @keywords internal
-#' @method splot netobject
 #' @export
 splot.netobject <- function(x, ...) {
   args   <- list(...)
@@ -30,6 +29,11 @@ splot.netobject <- function(x, ...) {
   if (is_dir) {
     # Directed: tna_styling = TRUE applies all TNA defaults (oval layout,
     # node palette, arrow sizing, dotted edge starts, minimum = 0.01, etc.)
+    # If the netobject carries initial probabilities (tna/ftna/atna), show donuts.
+    if (!is.null(x$initial) && is.null(args$donut_fill)) {
+      args$donut_fill  <- as.numeric(x$initial)
+      args$donut_empty <- args$donut_empty %||% FALSE
+    }
     do.call(splot, c(list(x = x$weights, tna_styling = TRUE), args))
   } else {
     # Undirected: same node/edge styling but spring layout, no arrows, solid edges.
@@ -62,7 +66,6 @@ splot.netobject <- function(x, ...) {
 #'
 #' @return Invisibly returns the plot.
 #' @keywords internal
-#' @method splot boot_glasso
 #' @export
 splot.boot_glasso <- function(x,
                               use_thresholded     = TRUE,

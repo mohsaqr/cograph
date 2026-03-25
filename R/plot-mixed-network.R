@@ -32,6 +32,9 @@ NULL
 #' @param arrow_size Arrow head size for directed edges. Default 0.61 (TNA style).
 #' @param edge_label_size Size of edge labels. Default 0.6.
 #' @param edge_label_position Position of edge labels along edge (0-1). Default 0.7.
+#' @param initial Optional named numeric vector of initial state probabilities
+#'   (length = number of nodes). When provided, nodes are drawn as donuts with
+#'   the fill proportion equal to the initial probability. Default NULL.
 #' @param ... Additional arguments passed to splot().
 #'
 #' @return Invisibly returns the combined cograph_network object.

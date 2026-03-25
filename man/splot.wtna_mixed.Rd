@@ -4,28 +4,24 @@
 \alias{splot.wtna_mixed}
 \title{Plot a Mixed Window TNA Object}
 \usage{
-splot.wtna_mixed(
-  x,
-  titles = c("Transition", "Co-occurrence"),
-  common_scale = TRUE,
-  ...
-)
+splot.wtna_mixed(x, type = c("overlay", "group"), ...)
 }
 \arguments{
 \item{x}{A \code{wtna_mixed} object (from Nestimate \code{wtna(..., method = "both")}).}
 
-\item{titles}{Character vector of length 2. Panel titles.
-Default: \code{c("Transition", "Co-occurrence")}.}
+\item{type}{Character. \code{"overlay"} (default) renders both networks on a
+single canvas via \code{\link{plot_mixed_network}} — co-occurrence as straight
+undirected edges, transitions as curved directed arrows.
+\code{"group"} plots each component as a separate panel.}
 
-\item{common_scale}{Logical: use the same maximum weight for both panels? Default TRUE.}
-
-\item{...}{Additional arguments passed to \code{splot()}.}
+\item{...}{Additional arguments passed to \code{\link{plot_mixed_network}}
+(\code{type = "overlay"}) or \code{\link{splot}} (\code{type = "group"}).}
 }
 \value{
 Invisibly returns \code{x}.
 }
 \description{
-Side-by-side plot for a \code{wtna_mixed} object: transition network (directed)
-on the left and co-occurrence network (undirected) on the right.
+Plot a \code{wtna_mixed} object either as a single overlaid network or as
+two separate group panels.
 }
 \keyword{internal}

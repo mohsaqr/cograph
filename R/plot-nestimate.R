@@ -26,10 +26,13 @@ splot.netobject <- function(x, ...) {
 
   if (is.null(args$labels)) args$labels <- labels
 
-  # Auto-detect integer weights → suppress decimal places
+  # Auto-detect integer weights → suppress decimal places on matrix and labels
   if (is.null(args$weight_digits)) {
     nz <- x$weights[x$weights != 0]
-    if (length(nz) > 0 && all(nz == floor(nz))) args$weight_digits <- 0L
+    if (length(nz) > 0 && all(nz == floor(nz))) {
+      args$weight_digits      <- 0L
+      if (is.null(args$edge_label_digits)) args$edge_label_digits <- 0L
+    }
   }
 
   if (is_dir) {

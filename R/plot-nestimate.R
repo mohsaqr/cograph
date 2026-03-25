@@ -26,6 +26,12 @@ splot.netobject <- function(x, ...) {
 
   if (is.null(args$labels)) args$labels <- labels
 
+  # Auto-detect integer weights → suppress decimal places
+  if (is.null(args$weight_digits)) {
+    nz <- x$weights[x$weights != 0]
+    if (length(nz) > 0 && all(nz == floor(nz))) args$weight_digits <- 0L
+  }
+
   if (is_dir) {
     # Directed: tna_styling = TRUE applies all TNA defaults (oval layout,
     # node palette, arrow sizing, dotted edge starts, minimum = 0.01, etc.)

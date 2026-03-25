@@ -153,11 +153,14 @@ splot.boot_glasso <- function(x,
 #' @keywords internal
 #' @export
 splot.wtna_mixed <- function(x, ...) {
-  plot_mixed_network(
-    sym_matrix  = x$cooccurrence$weights,
-    asym_matrix = x$transition$weights,
-    ...
-  )
+  args <- list(...)
+  if (is.null(args$initial) && !is.null(x$transition$initial))
+    args$initial <- x$transition$initial
+  do.call(plot_mixed_network, c(
+    list(sym_matrix  = x$cooccurrence$weights,
+         asym_matrix = x$transition$weights),
+    args
+  ))
   invisible(x)
 }
 

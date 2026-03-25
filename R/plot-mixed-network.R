@@ -57,7 +57,7 @@ plot_mixed_network <- function(
     sym_matrix,
     asym_matrix,
     layout = "oval",
-    sym_color = "#457B9D",
+    sym_color = "ivory4",
     asym_color = COGRAPH_SCALE$tna_edge_color,
     curvature = 0.3,
     edge_width = NULL,
@@ -68,6 +68,7 @@ plot_mixed_network <- function(
     arrow_size = 0.61,
     edge_label_size = 0.6,
     edge_label_position = 0.7,
+    initial = NULL,
     ...
 ) {
   # Validate inputs
@@ -86,13 +87,27 @@ plot_mixed_network <- function(
   sym_matrix[abs(sym_matrix) < effective_threshold] <- 0
   asym_matrix[abs(asym_matrix) < effective_threshold] <- 0
 
-  # Get node names
-  node_names <- rownames(sym_matrix)
-  if (is.null(node_names)) {
-    node_names <- rownames(asym_matrix)
-  }
-  if (is.null(node_names)) {
-    node_names <- as.character(seq_len(n))
+  # Get node names from matrix dimnames
+  node_names <- rownames(asym_matrix)
+  if (is.null(node_names)) node_names <- rownames(sym_matrix)
+  if (is.null(node_names)) node_names <- as.character(seq_len(n))
+
+  # Validate and align initial state probabilities
+  donut_vals <- NULL
+  if (!is.null(initial)) {
+    if (!is.numeric(initial))
+      stop("initial must be a named numeric vector of state probabilities", call. = FALSE)
+    if (!is.null(names(initial))) {
+      # Align to node order; missing states get 0
+      aligned <- setNames(numeric(n), node_names)
+      common  <- intersect(names(initial), node_names)
+      aligned[common] <- initial[common]
+      initial <- aligned
+    }
+    if (abs(sum(initial) - 1) > 0.01)
+      warning("initial probabilities do not sum to 1 (sum = ", round(sum(initial), 4), ")",
+              call. = FALSE)
+    donut_vals <- as.numeric(initial)
   }
 
   # Build edge list from both matrices
@@ -183,7 +198,9 @@ plot_mixed_network <- function(
     arrow_size = arrow_size,
     edge_start_style = "dotted",
     edge_start_length = 0.2,
-    node_names = node_names,
+    labels = node_names,
+    donut_fill = donut_vals,
+    donut_empty = if (!is.null(donut_vals)) FALSE else NULL,
     ...
   )
 

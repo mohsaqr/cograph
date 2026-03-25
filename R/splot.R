@@ -652,6 +652,11 @@ splot <- function(
     return(do.call(plot_netobject_ml, c(list(x = x), .collect_dispatch_args(.user_args, .dots))))
   }
 
+  # Nestimate: mixed wtna (transition + co-occurrence)
+  if (inherits(x, "wtna_mixed")) {
+    return(do.call(splot.wtna_mixed, c(list(x = x), .collect_dispatch_args(.user_args, .dots))))
+  }
+
   # ============================================
   # HANDLE DEPRECATED PARAMETERS
   # ============================================

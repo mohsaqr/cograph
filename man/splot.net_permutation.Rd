@@ -4,7 +4,7 @@
 \alias{splot.net_permutation}
 \title{Plot Nestimate Permutation Test Results}
 \usage{
-\method{splot}{net_permutation}(
+splot.net_permutation(
   x,
   show_nonsig = FALSE,
   show_effect = FALSE,

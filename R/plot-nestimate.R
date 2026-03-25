@@ -140,42 +140,24 @@ splot.boot_glasso <- function(x,
 
 #' Plot a Mixed Window TNA Object
 #'
-#' Side-by-side plot for a \code{wtna_mixed} object: transition network (directed)
-#' on the left and co-occurrence network (undirected) on the right.
+#' Plot a \code{wtna_mixed} object as a single mixed network.
+#'
+#' Renders transition edges (directed, curved, with arrows) and co-occurrence
+#' edges (undirected, straight, no arrows) together in one plot using
+#' \code{\link{plot_mixed_network}}.
 #'
 #' @param x A \code{wtna_mixed} object (from Nestimate \code{wtna(..., method = "both")}).
-#' @param titles Character vector of length 2. Panel titles.
-#'   Default: \code{c("Transition", "Co-occurrence")}.
-#' @param common_scale Logical: use the same maximum weight for both panels? Default TRUE.
-#' @param ... Additional arguments passed to \code{splot()}.
+#' @param ... Additional arguments passed to \code{\link{plot_mixed_network}}.
 #'
 #' @return Invisibly returns \code{x}.
 #' @keywords internal
 #' @export
-splot.wtna_mixed <- function(x,
-                              titles       = c("Transition", "Co-occurrence"),
-                              common_scale = TRUE,
-                              ...) {
-  if (length(titles) < 2L) stop("titles must have length >= 2", call. = FALSE)
-
-  max_abs <- NULL
-  if (common_scale) {
-    max_abs <- max(abs(x$transition$weights), abs(x$cooccurrence$weights),
-                  na.rm = TRUE)
-    if (!is.finite(max_abs) || max_abs == 0) max_abs <- NULL # nocov
-  }
-
-  old_par <- graphics::par(mfrow = c(1L, 2L), mar = c(2, 2, 3, 1))
-  on.exit(graphics::par(old_par), add = TRUE)
-
-  nets   <- list(x$transition, x$cooccurrence)
-  for (i in 1:2) {
-    args        <- list(...)
-    args$title  <- titles[[i]]
-    if (!is.null(max_abs)) args$maximum <- max_abs
-    do.call(splot, c(list(x = nets[[i]]), args))
-  }
-
+splot.wtna_mixed <- function(x, ...) {
+  plot_mixed_network(
+    sym_matrix  = x$cooccurrence$weights,
+    asym_matrix = x$transition$weights,
+    ...
+  )
   invisible(x)
 }
 

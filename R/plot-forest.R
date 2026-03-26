@@ -473,6 +473,7 @@ NULL
     interval     = c("ci", "cr", "both"),
     show_nonsig  = TRUE,
     n_top        = NULL,
+    node_colors  = NULL,
     cr_color     = "#D4829A",
     ring_color   = "#C8C8C8",
     median_color = "#AAAAAA",
@@ -513,9 +514,24 @@ NULL
   from_nodes <- unique(df$from)
   n_from     <- length(from_nodes)
 
-  # Okabe-Ito palette — colorblind safe, slightly darkened for legibility
+  # Node colors: use supplied palette/named vector, or fall back to darkened Okabe-Ito
   oi <- c("#005A8E","#B87D00","#007B5A","#A84A00","#2A91C9","#A35284","#C4B800","#222222","#666666")
-  node_col   <- setNames(oi[((seq_len(n_from) - 1L) %% length(oi)) + 1L], from_nodes)
+  if (is.null(node_colors)) {
+    node_col <- setNames(oi[((seq_len(n_from) - 1L) %% length(oi)) + 1L], from_nodes)
+  } else if (!is.null(names(node_colors))) {
+    # Named vector — match by node name, fill missing with Okabe-Ito
+    node_col <- node_colors[from_nodes]
+    missing  <- is.na(node_col)
+    if (any(missing))
+      node_col[missing] <- oi[((which(missing) - 1L) %% length(oi)) + 1L]
+    names(node_col) <- from_nodes
+  } else {
+    # Unnamed vector — assign in order, cycling if needed
+    node_col <- setNames(
+      node_colors[((seq_len(n_from) - 1L) %% length(node_colors)) + 1L],
+      from_nodes
+    )
+  }
 
   df$color     <- node_col[df$from]
   df$alpha_val <- ifelse(df$sig, 1, 0.50)
@@ -748,6 +764,7 @@ plot_bootstrap_forest.net_bootstrap <- function(
     show_nonsig  = TRUE,
     sort_by      = c("estimate", "significance", "name"),
     n_top        = NULL,
+    node_colors  = NULL,
     sig_color    = "#2C6E8A",
     cr_color     = "#D4829A",
     nonsig_color = "#CCCCCC",
@@ -765,11 +782,22 @@ plot_bootstrap_forest.net_bootstrap <- function(
 ) {
   layout <- match.arg(layout)
   df     <- .forest_df_net_bootstrap(x, alpha)
+
+  # Auto-read node colors from the original network object if not supplied
+  if (is.null(node_colors) && layout == "grouped") {
+    orig_nodes <- x$original$nodes
+    if (!is.null(orig_nodes) && "color" %in% names(orig_nodes)) {
+      nms         <- orig_nodes$name %||% orig_nodes$label %||% orig_nodes$id
+      node_colors <- setNames(orig_nodes$color, nms)
+    }
+  }
+
   grouped_args <- list(
     df           = df,
     interval     = match.arg(interval),
     show_nonsig  = show_nonsig,
     n_top        = n_top,
+    node_colors  = node_colors,
     cr_color     = cr_color,
     ring_color   = ring_color,
     median_color = median_color,
@@ -828,6 +856,7 @@ plot_bootstrap_forest.boot_glasso <- function(
     show_nonsig  = TRUE,
     sort_by      = c("estimate", "significance", "name"),
     n_top        = NULL,
+    node_colors  = NULL,
     sig_color    = "#2C6E8A",
     cr_color     = "#D4829A",
     nonsig_color = "#CCCCCC",
@@ -850,6 +879,7 @@ plot_bootstrap_forest.boot_glasso <- function(
     interval     = match.arg(interval),
     show_nonsig  = show_nonsig,
     n_top        = n_top,
+    node_colors  = node_colors,
     cr_color     = cr_color,
     ring_color   = ring_color,
     median_color = median_color,

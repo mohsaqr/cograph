@@ -466,6 +466,228 @@ NULL
   p
 }
 
+# ── grouped radial builder ───────────────────────────────────────────────────
+
+.build_grouped_radial_plot <- function(
+    df,
+    interval     = c("ci", "cr", "both"),
+    show_nonsig  = TRUE,
+    n_top        = NULL,
+    cr_color     = "#D4829A",
+    ring_color   = "#C8C8C8",
+    median_color = "#AAAAAA",
+    label_size   = 2.9,
+    label_color  = NULL,
+    point_size   = 1.5,
+    r_inner      = 0.38,
+    r_outer      = 0.72,
+    gap_rad      = 0.10,
+    title        = NULL,
+    subtitle     = NULL
+) {
+  interval <- match.arg(interval)
+
+  has_cr <- isTRUE(df$has_cr[1]) && !all(is.na(df$cr_lower))
+  if (interval %in% c("cr", "both") && !has_cr) {
+    message("Consistency range not available; showing CI only.")
+    interval <- "ci"
+  }
+
+  # Parse from / to out of "A → B" or "A — B"
+  parts   <- strsplit(df$edge, " [\u2192\u2014] ")
+  df$from <- vapply(parts, `[[`, character(1), 1L)
+  df$to   <- vapply(parts, `[[`, character(1), 2L)
+
+  if (!show_nonsig) df <- df[df$sig, , drop = FALSE]
+  if (nrow(df) == 0) stop("No edges to display.")
+
+  # Sort: within each from-node, alphabetically by to-node
+  df <- df[order(df$from, df$to), ]
+
+  if (!is.null(n_top)) {
+    keep <- order(abs(df$estimate), decreasing = TRUE)[seq_len(min(n_top, nrow(df)))]
+    df   <- df[sort(keep), ]
+    df   <- df[order(df$from, df$to), ]
+  }
+
+  from_nodes <- unique(df$from)
+  n_from     <- length(from_nodes)
+
+  # Okabe-Ito palette — colorblind safe, slightly darkened for legibility
+  oi <- c("#005A8E","#B87D00","#007B5A","#A84A00","#2A91C9","#A35284","#C4B800","#222222","#666666")
+  node_col   <- setNames(oi[((seq_len(n_from) - 1L) %% length(oi)) + 1L], from_nodes)
+
+  df$color     <- node_col[df$from]
+  df$alpha_val <- ifelse(df$sig, 1, 0.50)
+
+  # Sector angles: clockwise from top, gap between sectors
+  available   <- 2 * pi - gap_rad * n_from
+  edge_counts <- vapply(from_nodes, function(n) sum(df$from == n), integer(1))
+  sector_sz   <- (edge_counts / sum(edge_counts)) * available
+
+  sector_start <- numeric(n_from)
+  sector_start[1] <- pi / 2
+  for (i in seq_len(n_from - 1L))
+    sector_start[i + 1L] <- sector_start[i] - sector_sz[i] - gap_rad
+
+  # Assign one angle per edge within its sector (clockwise)
+  df$angle     <- NA_real_
+  sector_mid   <- numeric(n_from)
+
+  for (i in seq_along(from_nodes)) {
+    node  <- from_nodes[i]
+    idx   <- which(df$from == node)
+    n_e   <- length(idx)
+    s     <- sector_start[i]
+    sz    <- sector_sz[i]
+    sector_mid[i] <- s - sz / 2
+    pad   <- sz * 0.08
+    df$angle[idx] <- if (n_e == 1L) {
+      s - sz / 2
+    } else {
+      seq(s - pad, s - sz + pad, length.out = n_e)
+    }
+  }
+
+  angles <- df$angle
+
+  # Radial scale: zoom to data range
+  v_min   <- min(df$ci_lower, na.rm = TRUE)
+  v_max   <- max(df$ci_upper, na.rm = TRUE) * 1.05
+  to_r    <- function(v) r_inner + pmin(pmax((v - v_min) / (v_max - v_min), 0), 1) * (r_outer - r_inner)
+
+  r_median <- to_r(median(df$estimate, na.rm = TRUE))
+
+  df$x_est <- to_r(df$estimate) * cos(angles)
+  df$y_est <- to_r(df$estimate) * sin(angles)
+  df$x_lo  <- to_r(df$ci_lower) * cos(angles)
+  df$y_lo  <- to_r(df$ci_lower) * sin(angles)
+  df$x_hi  <- to_r(df$ci_upper) * cos(angles)
+  df$y_hi  <- to_r(df$ci_upper) * sin(angles)
+
+  if (interval %in% c("cr", "both")) {
+    df$x_crl  <- to_r(df$cr_lower) * cos(angles)
+    df$y_crl  <- to_r(df$cr_lower) * sin(angles)
+    df$x_crh  <- to_r(df$cr_upper) * cos(angles)
+    df$y_crh  <- to_r(df$cr_upper) * sin(angles)
+    df$cr_col <- cr_color
+  }
+
+  # Outer (target) labels
+  label_r   <- r_outer + 0.06
+  df$x_lab  <- label_r * cos(angles)
+  df$y_lab  <- label_r * sin(angles)
+  deg       <- angles * 180 / pi
+  flip      <- cos(angles) < 0
+  df$text_angle <- ifelse(flip, deg + 180, deg)
+  df$hjust      <- ifelse(flip, 1, 0)
+  df$lab_col    <- if (is.null(label_color)) df$color else label_color
+
+  # Inner (source) labels — tangential, at sector midpoints inside inner ring
+  src_r   <- r_inner * 0.80
+  src_df  <- data.frame(
+    node        = from_nodes,
+    angle       = sector_mid,
+    x_lab       = src_r * cos(sector_mid),
+    y_lab       = src_r * sin(sector_mid),
+    color       = node_col[from_nodes],
+    stringsAsFactors = FALSE
+  )
+  src_deg            <- sector_mid * 180 / pi
+  src_flip           <- cos(sector_mid) < 0
+  src_df$text_angle  <- ifelse(src_flip, src_deg + 90, src_deg - 90)
+
+  # Reference geometry
+  theta_seq   <- seq(0, 2 * pi, length.out = 300)
+  ring_inner  <- data.frame(x = r_inner * cos(theta_seq), y = r_inner * sin(theta_seq))
+  ring_median <- data.frame(x = r_median * cos(theta_seq), y = r_median * sin(theta_seq))
+  ring_outer  <- data.frame(x = r_outer * cos(theta_seq), y = r_outer * sin(theta_seq))
+
+  lim <- 1.52
+
+  p <- ggplot2::ggplot() +
+    ggplot2::geom_path(
+      data = ring_outer, ggplot2::aes(x = x, y = y),
+      colour = ring_color, linewidth = 0.25
+    ) +
+    ggplot2::geom_path(
+      data = ring_inner, ggplot2::aes(x = x, y = y),
+      colour = ring_color, linewidth = 0.25
+    ) +
+    # Guide spokes
+    ggplot2::geom_segment(
+      data = df,
+      ggplot2::aes(x = r_inner * cos(angle), y = r_inner * sin(angle),
+                   xend = r_outer * cos(angle), yend = r_outer * sin(angle),
+                   colour = color, alpha = I(alpha_val * 0.12)),
+      linewidth = 0.3
+    )
+
+  if (interval %in% c("ci", "both")) {
+    p <- p + ggplot2::geom_segment(
+      data = df,
+      ggplot2::aes(x = x_lo, y = y_lo, xend = x_hi, yend = y_hi,
+                   colour = color, alpha = alpha_val),
+      linewidth = 0.7, lineend = "round"
+    )
+  }
+
+  if (interval %in% c("cr", "both")) {
+    p <- p + ggplot2::geom_segment(
+      data = df,
+      ggplot2::aes(x = x_crl, y = y_crl, xend = x_crh, yend = y_crh,
+                   colour = cr_col, alpha = I(alpha_val * 0.5)),
+      linewidth = 0.45, lineend = "round"
+    )
+  }
+
+  p <- p +
+    ggplot2::geom_point(
+      data = df,
+      ggplot2::aes(x = x_est, y = y_est, colour = color, alpha = alpha_val),
+      shape = 15, size = point_size * 0.45
+    ) +
+    ggplot2::geom_path(
+      data = ring_median, ggplot2::aes(x = x, y = y),
+      colour = median_color, linewidth = 0.25, linetype = "dashed"
+    ) +
+    # Target labels — outer ring, radial
+    ggplot2::geom_text(
+      data = df,
+      ggplot2::aes(x = x_lab, y = y_lab, label = to,
+                   angle = text_angle, hjust = hjust,
+                   colour = lab_col, alpha = alpha_val),
+      size = label_size
+    ) +
+    # Source labels — inner ring, tangential, bold
+    ggplot2::geom_text(
+      data = src_df,
+      ggplot2::aes(x = x_lab, y = y_lab, label = node,
+                   angle = text_angle, colour = color),
+      hjust = 0.5, size = label_size * 1.15, fontface = "bold"
+    ) +
+    ggplot2::scale_colour_identity() +
+    ggplot2::scale_alpha_identity() +
+    ggplot2::coord_equal(clip = "off",
+                         xlim = c(-lim, lim), ylim = c(-lim, lim)) +
+    ggplot2::labs(title = title, subtitle = subtitle) +
+    ggplot2::theme_void(base_size = 11) +
+    ggplot2::theme(
+      plot.title    = ggplot2::element_text(
+        size = 12, face = "bold", hjust = 0.5,
+        colour = "#1A1A1A", margin = ggplot2::margin(b = 4)
+      ),
+      plot.subtitle = ggplot2::element_text(
+        size = 9, hjust = 0.5,
+        colour = "#666666", margin = ggplot2::margin(b = 8)
+      ),
+      plot.margin     = ggplot2::margin(20, 40, 20, 40),
+      plot.background = ggplot2::element_rect(fill = "white", colour = NA)
+    )
+
+  p
+}
+
 # ── exported S3 generics ──────────────────────────────────────────────────────
 
 #' Forest Plot for Bootstrap Network Results
@@ -521,7 +743,7 @@ plot_bootstrap_forest <- function(x, ...) UseMethod("plot_bootstrap_forest")
 plot_bootstrap_forest.net_bootstrap <- function(
     x,
     alpha        = NULL,
-    layout       = c("linear", "radial"),
+    layout       = c("linear", "radial", "grouped"),
     interval     = c("ci", "cr", "both"),
     show_nonsig  = TRUE,
     sort_by      = c("estimate", "significance", "name"),
@@ -531,16 +753,38 @@ plot_bootstrap_forest.net_bootstrap <- function(
     nonsig_color = "#CCCCCC",
     ring_color   = "#C8C8C8",
     median_color = "#AAAAAA",
-    label_size   = 2.3,
+    label_size   = 2.9,
     label_color  = NULL,
     point_size   = if (match.arg(layout) == "radial") 2 else 3,
+    r_inner      = 0.38,
+    r_outer      = 0.72,
+    gap_rad      = 0.10,
     title        = NULL,
     subtitle     = NULL,
     ...
 ) {
   layout <- match.arg(layout)
   df     <- .forest_df_net_bootstrap(x, alpha)
-  if (layout == "radial") {
+  grouped_args <- list(
+    df           = df,
+    interval     = match.arg(interval),
+    show_nonsig  = show_nonsig,
+    n_top        = n_top,
+    cr_color     = cr_color,
+    ring_color   = ring_color,
+    median_color = median_color,
+    label_size   = label_size,
+    label_color  = label_color,
+    point_size   = point_size,
+    r_inner      = r_inner,
+    r_outer      = r_outer,
+    gap_rad      = gap_rad,
+    title        = title,
+    subtitle     = subtitle
+  )
+  if (layout == "grouped") {
+    do.call(.build_grouped_radial_plot, grouped_args)
+  } else if (layout == "radial") {
     .build_radial_forest_plot(
       df,
       interval     = match.arg(interval),
@@ -579,7 +823,7 @@ plot_bootstrap_forest.net_bootstrap <- function(
 plot_bootstrap_forest.boot_glasso <- function(
     x,
     alpha        = NULL,
-    layout       = c("linear", "radial"),
+    layout       = c("linear", "radial", "grouped"),
     interval     = c("ci", "cr", "both"),
     show_nonsig  = TRUE,
     sort_by      = c("estimate", "significance", "name"),
@@ -589,16 +833,38 @@ plot_bootstrap_forest.boot_glasso <- function(
     nonsig_color = "#CCCCCC",
     ring_color   = "#C8C8C8",
     median_color = "#AAAAAA",
-    label_size   = 2.3,
+    label_size   = 2.9,
     label_color  = NULL,
     point_size   = if (match.arg(layout) == "radial") 2 else 3,
+    r_inner      = 0.38,
+    r_outer      = 0.72,
+    gap_rad      = 0.10,
     title        = NULL,
     subtitle     = NULL,
     ...
 ) {
   layout <- match.arg(layout)
   df     <- .forest_df_boot_glasso(x, alpha)
-  if (layout == "radial") {
+  grouped_args <- list(
+    df           = df,
+    interval     = match.arg(interval),
+    show_nonsig  = show_nonsig,
+    n_top        = n_top,
+    cr_color     = cr_color,
+    ring_color   = ring_color,
+    median_color = median_color,
+    label_size   = label_size,
+    label_color  = label_color,
+    point_size   = point_size,
+    r_inner      = r_inner,
+    r_outer      = r_outer,
+    gap_rad      = gap_rad,
+    title        = title,
+    subtitle     = subtitle
+  )
+  if (layout == "grouped") {
+    do.call(.build_grouped_radial_plot, grouped_args)
+  } else if (layout == "radial") {
     .build_radial_forest_plot(
       df,
       interval     = match.arg(interval),

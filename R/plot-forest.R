@@ -726,8 +726,8 @@ NULL
 #'   interval, default), \code{"cr"} (consistency range, stability inference
 #'   only), or \code{"both"} (CI as outer bar, CR as inner bar).
 #' @param layout \code{"linear"} (default) draws the classic tall forest plot;
-#'   \code{"radial"} arranges each edge as a spoke around a circle, with the
-#'   inner ring at 0 and the outer ring at 1 (or the data maximum).
+#'   \code{"circular"} arranges each edge as a spoke around a circle, with the
+#'   inner ring at the data minimum and the outer ring at the data maximum.
 #' @param show_nonsig Logical: include non-significant edges (greyed out)?
 #'   Default \code{TRUE}.
 #' @param sort_by How to order edges on the y-axis (linear layout) or
@@ -759,7 +759,7 @@ plot_bootstrap_forest <- function(x, ...) UseMethod("plot_bootstrap_forest")
 plot_bootstrap_forest.net_bootstrap <- function(
     x,
     alpha        = NULL,
-    layout       = c("linear", "radial", "grouped"),
+    layout       = c("linear", "circular", "grouped"),
     interval     = c("ci", "cr", "both"),
     show_nonsig  = TRUE,
     sort_by      = c("estimate", "significance", "name"),
@@ -772,7 +772,7 @@ plot_bootstrap_forest.net_bootstrap <- function(
     median_color = "#AAAAAA",
     label_size   = 2.9,
     label_color  = NULL,
-    point_size   = if (match.arg(layout) == "radial") 2 else 3,
+    point_size   = if (match.arg(layout) == "circular") 2 else 3,
     r_inner      = 0.38,
     r_outer      = 0.72,
     gap_rad      = 0.10,
@@ -812,7 +812,7 @@ plot_bootstrap_forest.net_bootstrap <- function(
   )
   if (layout == "grouped") {
     do.call(.build_grouped_radial_plot, grouped_args)
-  } else if (layout == "radial") {
+  } else if (layout == "circular") {
     .build_radial_forest_plot(
       df,
       interval     = match.arg(interval),
@@ -851,7 +851,7 @@ plot_bootstrap_forest.net_bootstrap <- function(
 plot_bootstrap_forest.boot_glasso <- function(
     x,
     alpha        = NULL,
-    layout       = c("linear", "radial", "grouped"),
+    layout       = c("linear", "circular", "grouped"),
     interval     = c("ci", "cr", "both"),
     show_nonsig  = TRUE,
     sort_by      = c("estimate", "significance", "name"),
@@ -864,7 +864,7 @@ plot_bootstrap_forest.boot_glasso <- function(
     median_color = "#AAAAAA",
     label_size   = 2.9,
     label_color  = NULL,
-    point_size   = if (match.arg(layout) == "radial") 2 else 3,
+    point_size   = if (match.arg(layout) == "circular") 2 else 3,
     r_inner      = 0.38,
     r_outer      = 0.72,
     gap_rad      = 0.10,
@@ -894,7 +894,7 @@ plot_bootstrap_forest.boot_glasso <- function(
   )
   if (layout == "grouped") {
     do.call(.build_grouped_radial_plot, grouped_args)
-  } else if (layout == "radial") {
+  } else if (layout == "circular") {
     .build_radial_forest_plot(
       df,
       interval     = match.arg(interval),

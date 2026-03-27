@@ -245,11 +245,6 @@ plot_transitions(mat, flow_color_by = "from", flow_alpha = 0.5,
                  from_title = "Source", to_title = "Target")
 ```
 
-## Quality
-
-- 100% test coverage (13,450+ tests)
-- R CMD check: 0 errors, 0 warnings
-- All exported functions documented with `@return` and `@examples`
 
 ## License
 

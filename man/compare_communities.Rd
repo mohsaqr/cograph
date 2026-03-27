@@ -11,9 +11,9 @@ compare_communities(
 )
 }
 \arguments{
-\item{comm1}{First community structure}
+\item{comm1}{First community structure (communities object or membership vector)}
 
-\item{comm2}{Second community structure}
+\item{comm2}{Second community structure (communities object or membership vector)}
 
 \item{method}{Comparison method: "vi" (variation of information),
 "nmi" (normalized mutual information), "split.join",

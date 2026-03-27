@@ -272,6 +272,8 @@ plot_compare <- function(x, y = NULL,
     tna_defaults <- .tna_style_defaults(directed = TRUE)
     tna_defaults$edge_labels <- TRUE
     tna_defaults$node_fill <- tna_colors
+    # Remove edge_color from defaults so pos/neg colors are used for sign-based coloring
+    tna_defaults$edge_color <- NULL
     for (nm in names(tna_defaults)) {
       if (is.null(plot_args[[nm]])) {
         plot_args[[nm]] <- tna_defaults[[nm]]

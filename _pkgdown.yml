@@ -119,8 +119,6 @@ reference:
     contents:
     - motif_census
     - extract_motifs
-    - extract_motifs_temporal
-    - triad_persistence
     - extract_triads
     - triad_census
   - title: All Other Functions
@@ -172,8 +170,6 @@ reference:
     - supra_adjacency
     - supra_interlayer
     - supra_layer
-    - tna_animate
-    - tna_windows
     - to_cograph
     - verify_igraph
     - verify_with_igraph

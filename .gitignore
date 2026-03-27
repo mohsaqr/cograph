@@ -29,7 +29,7 @@ cograph_*.tar.gz
 !docs/*.html
 !documents/*.html
 !documents/*.png
-
+aside/
 # Validation suite outputs (tracked)
 !validation/**/*.html
 !validation/**/*.rds

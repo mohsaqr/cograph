@@ -1,0 +1,37 @@
+# Plot Single Network Heatmap
+
+Plot Single Network Heatmap
+
+## Usage
+
+``` r
+.plot_heatmap_single(
+  mat,
+  show_legend,
+  legend_position,
+  legend_title,
+  colors,
+  limits,
+  midpoint,
+  na_color,
+  show_values,
+  value_size,
+  value_color,
+  value_fontface,
+  value_fontfamily,
+  value_halo,
+  value_digits,
+  show_diagonal,
+  diagonal_color,
+  row_labels,
+  col_labels,
+  show_axis_labels,
+  axis_text_size,
+  axis_text_angle,
+  title,
+  subtitle,
+  xlab,
+  ylab,
+  aspect_ratio
+)
+```

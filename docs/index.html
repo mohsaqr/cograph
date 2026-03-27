@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.8.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,12 +37,10 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="articles/comparison-plots-demo.html">Network Comparison and Visualization</a></li>
     <li><a class="dropdown-item" href="articles/function-reference.html">Function Reference</a></li>
-    <li><a class="dropdown-item" href="articles/heatmaps-demo.html">Network Heatmaps</a></li>
     <li><a class="dropdown-item" href="articles/input-formats.html">Input Formats</a></li>
     <li><a class="dropdown-item" href="articles/introduction.html">Introduction to cograph</a></li>
     <li><a class="dropdown-item" href="articles/mcml-examples.html">Nice Examples</a></li>
     <li><a class="dropdown-item" href="articles/network-structure-and-groups.html">Network Structure and Node Groups</a></li>
-    <li><a class="dropdown-item" href="articles/ona-demo.html">ONA Demo: Window-to-Window Transitions</a></li>
     <li><a class="dropdown-item" href="articles/plotting-tna-models.html">Plotting TNA Models with splot</a></li>
   </ul>
 </li>
@@ -52,7 +50,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
 </form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/mohsaqr/cograph/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/sonsoleslp/cograph/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -65,37 +63,246 @@
 </h1></div>
 <!-- badges: start -->
 
-<p><strong>cograph</strong> is a modern R package for network visualization with rich node styling, multiple layouts, and first-class support for Transition Network Analysis (TNA).</p>
+<p><strong>cograph</strong> is a modern R package for the analysis, visualization, and manipulation of complex networks. It provides publication-ready plotting with customizable layouts, node shapes, edge styles, and themes through an intuitive, pipe-friendly API. First-class support for Transition Network Analysis (TNA), multilayer networks, and community detection.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Install from CRAN (when available)</span></span>
+<code class="sourceCode R"><span><span class="co"># Install from CRAN</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"cograph"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Development version from GitHub</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"sonsoleslp/cograph"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/install-deprecated.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"sonsoleslp/cograph"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="tna-plot">TNA Plot<a class="anchor" aria-label="anchor" href="#tna-plot"></a>
+<h2 id="features">Features<a class="anchor" aria-label="anchor" href="#features"></a>
 </h2>
+<div class="section level3">
+<h3 id="network-plotting">Network Plotting<a class="anchor" aria-label="anchor" href="#network-plotting"></a>
+</h3>
+<table class="table">
+<thead><tr>
+<th>Function</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code><a href="reference/splot.html">splot()</a></code></td>
+<td>Base R network plot (core engine)</td>
+</tr>
+<tr>
+<td><code><a href="reference/soplot.html">soplot()</a></code></td>
+<td>Grid/ggplot2 network rendering</td>
+</tr>
+<tr>
+<td><code><a href="reference/plot_tna.html">tplot()</a></code></td>
+<td>qgraph drop-in replacement for TNA</td>
+</tr>
+<tr>
+<td><code><a href="reference/plot_htna.html">plot_htna()</a></code></td>
+<td>Hierarchical multi-group TNA layouts</td>
+</tr>
+<tr>
+<td><code><a href="reference/plot_mtna.html">plot_mtna()</a></code></td>
+<td>Multi-cluster TNA with shape containers</td>
+</tr>
+<tr>
+<td><code><a href="reference/plot_mcml.html">plot_mcml()</a></code></td>
+<td>Markov Chain Multi-Level visualization</td>
+</tr>
+<tr>
+<td><code><a href="reference/plot_mlna.html">plot_mlna()</a></code></td>
+<td>Multilayer 3D perspective networks</td>
+</tr>
+<tr>
+<td><code><a href="reference/plot_mixed_network.html">plot_mixed_network()</a></code></td>
+<td>Combined symmetric/asymmetric edges</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level3">
+<h3 id="flow-and-comparison-plots">Flow and Comparison Plots<a class="anchor" aria-label="anchor" href="#flow-and-comparison-plots"></a>
+</h3>
+<table class="table">
+<thead><tr>
+<th>Function</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code><a href="reference/plot_transitions.html">plot_transitions()</a></code></td>
+<td>Alluvial/Sankey flow diagrams</td>
+</tr>
+<tr>
+<td><code><a href="reference/plot_alluvial.html">plot_alluvial()</a></code></td>
+<td>Alluvial wrapper with flow coloring</td>
+</tr>
+<tr>
+<td><code><a href="reference/plot_trajectories.html">plot_trajectories()</a></code></td>
+<td>Individual tracking with line bundling</td>
+</tr>
+<tr>
+<td><code><a href="reference/plot_chord.html">plot_chord()</a></code></td>
+<td>Chord diagrams with ticks</td>
+</tr>
+<tr>
+<td><code><a href="reference/plot_heatmap.html">plot_heatmap()</a></code></td>
+<td>Adjacency heatmaps with clustering</td>
+</tr>
+<tr>
+<td><code><a href="reference/plot_compare.html">plot_compare()</a></code></td>
+<td>Difference network visualization</td>
+</tr>
+<tr>
+<td><code>plot_bootstrap()</code></td>
+<td>Bootstrap CI result plots</td>
+</tr>
+<tr>
+<td><code><a href="reference/plot_permutation.html">plot_permutation()</a></code></td>
+<td>Permutation test result plots</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level3">
+<h3 id="community-and-higher-order-structure">Community and Higher-Order Structure<a class="anchor" aria-label="anchor" href="#community-and-higher-order-structure"></a>
+</h3>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr>
+<th>Function</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code><a href="reference/overlay_communities.html">overlay_communities()</a></code></td>
+<td>Community blob overlays on network plots</td>
+</tr>
+<tr>
+<td><code><a href="reference/plot_simplicial.html">plot_simplicial()</a></code></td>
+<td>Higher-order pathway (simplicial complex) visualization</td>
+</tr>
+<tr>
+<td><code><a href="reference/detect_communities.html">detect_communities()</a></code></td>
+<td>11 igraph algorithms with shorthand wrappers</td>
+</tr>
+<tr>
+<td><code><a href="reference/communities.html">communities()</a></code></td>
+<td>Unified community detection interface</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level3">
+<h3 id="network-analysis">Network Analysis<a class="anchor" aria-label="anchor" href="#network-analysis"></a>
+</h3>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr>
+<th>Function</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code><a href="reference/centrality.html">centrality()</a></code></td>
+<td>23+ centrality measures with individual wrappers</td>
+</tr>
+<tr>
+<td>
+<code><a href="reference/motifs.html">motifs()</a></code> / <code><a href="reference/subgraphs.html">subgraphs()</a></code>
+</td>
+<td>Motif/triad census with per-actor windowing</td>
+</tr>
+<tr>
+<td><code><a href="reference/robustness.html">robustness()</a></code></td>
+<td>Network robustness analysis</td>
+</tr>
+<tr>
+<td><code><a href="reference/disparity_filter.html">disparity_filter()</a></code></td>
+<td>Backbone extraction (Serrano et al. 2009)</td>
+</tr>
+<tr>
+<td><code><a href="reference/cluster_summary.html">cluster_summary()</a></code></td>
+<td>Between/within cluster weight aggregation</td>
+</tr>
+<tr>
+<td><code><a href="reference/build_mcml.html">build_mcml()</a></code></td>
+<td>Markov Chain Multi-Level model construction</td>
+</tr>
+<tr>
+<td><code><a href="reference/summarize_network.html">summarize_network()</a></code></td>
+<td>Comprehensive network-level statistics</td>
+</tr>
+<tr>
+<td><code><a href="reference/verify_with_igraph.html">verify_with_igraph()</a></code></td>
+<td>Cross-validation against igraph</td>
+</tr>
+<tr>
+<td><code><a href="reference/simplify.html">simplify()</a></code></td>
+<td>Prune weak edges</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level3">
+<h3 id="multilayer-networks">Multilayer Networks<a class="anchor" aria-label="anchor" href="#multilayer-networks"></a>
+</h3>
+<table class="table">
+<thead><tr>
+<th>Function</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code><a href="reference/supra_adjacency.html">supra_adjacency()</a></code></td>
+<td>Supra-adjacency matrix construction</td>
+</tr>
+<tr>
+<td><code><a href="reference/layer_similarity.html">layer_similarity()</a></code></td>
+<td>Layer comparison measures</td>
+</tr>
+<tr>
+<td><code><a href="reference/aggregate_layers.html">aggregate_layers()</a></code></td>
+<td>Weight aggregation across layers</td>
+</tr>
+<tr>
+<td><code><a href="reference/plot_ml_heatmap.html">plot_ml_heatmap()</a></code></td>
+<td>Multilayer heatmaps with 3D perspective</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section level2">
+<h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
+</h2>
+<div class="section level3">
+<h3 id="tna-plot">TNA Plot<a class="anchor" aria-label="anchor" href="#tna-plot"></a>
+</h3>
 <p>The primary use case: visualize transition networks from the <code>tna</code> package.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/sonsoleslp/tna/" class="external-link">tna</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mohsaqr/cograph" class="external-link">cograph</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sonsoles.me/cograph/" class="external-link">cograph</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Build a TNA model from sequence data</span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://sonsoles.me/tna/reference/build_model.html" class="external-link">tna</a></span><span class="op">(</span><span class="va">engagement</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://sonsoles.me/tna/reference/build_model.html" class="external-link">tna</a></span><span class="op">(</span><span class="va">group_regulation</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># One-liner visualization</span></span>
 <span><span class="fu"><a href="reference/splot.html">splot</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-tna-plot-1.jpeg" alt="" width="100%"></p>
 </div>
-<div class="section level2">
-<h2 id="simple-network">Simple Network<a class="anchor" aria-label="anchor" href="#simple-network"></a>
-</h2>
+<div class="section level3">
+<h3 id="simple-network">Simple Network<a class="anchor" aria-label="anchor" href="#simple-network"></a>
+</h3>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mohsaqr/cograph" class="external-link">cograph</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sonsoles.me/cograph/" class="external-link">cograph</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Create a transition matrix</span></span>
 <span><span class="va">states</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Explore"</span>, <span class="st">"Plan"</span>, <span class="st">"Monitor"</span>, <span class="st">"Adapt"</span>, <span class="st">"Reflect"</span><span class="op">)</span></span>
@@ -112,9 +319,9 @@
 <span><span class="fu"><a href="reference/splot.html">splot</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-simple-network-1.jpeg" alt="" width="100%"></p>
 </div>
-<div class="section level2">
-<h2 id="layouts">Layouts<a class="anchor" aria-label="anchor" href="#layouts"></a>
-</h2>
+<div class="section level3">
+<h3 id="layouts">Layouts<a class="anchor" aria-label="anchor" href="#layouts"></a>
+</h3>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/splot.html">splot</a></span><span class="op">(</span><span class="va">mat</span>, layout <span class="op">=</span> <span class="st">"oval"</span>,   title <span class="op">=</span> <span class="st">"oval"</span><span class="op">)</span></span>
@@ -123,9 +330,9 @@
 <span><span class="fu"><a href="reference/splot.html">splot</a></span><span class="op">(</span><span class="va">mat</span>, layout <span class="op">=</span> <span class="st">"fr"</span>,     title <span class="op">=</span> <span class="st">"fr"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-layouts-1.jpeg" alt="" width="100%"></p>
 </div>
-<div class="section level2">
-<h2 id="edge-styling">Edge Styling<a class="anchor" aria-label="anchor" href="#edge-styling"></a>
-</h2>
+<div class="section level3">
+<h3 id="edge-styling">Edge Styling<a class="anchor" aria-label="anchor" href="#edge-styling"></a>
+</h3>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/splot.html">splot</a></span><span class="op">(</span><span class="va">mat</span>,</span>
 <span>  curvature <span class="op">=</span> <span class="fl">0.3</span>,</span>
@@ -134,9 +341,9 @@
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-edge-styling-1.jpeg" alt="" width="100%"></p>
 </div>
-<div class="section level2">
-<h2 id="node-shapes">Node Shapes<a class="anchor" aria-label="anchor" href="#node-shapes"></a>
-</h2>
+<div class="section level3">
+<h3 id="node-shapes">Node Shapes<a class="anchor" aria-label="anchor" href="#node-shapes"></a>
+</h3>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">shapes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"circle"</span>, <span class="st">"square"</span>, <span class="st">"hexagon"</span>, <span class="st">"diamond"</span>, <span class="st">"triangle"</span><span class="op">)</span></span>
 <span></span>
@@ -147,9 +354,9 @@
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-node-shapes-1.jpeg" alt="" width="100%"></p>
 </div>
-<div class="section level2">
-<h2 id="donuts">Donuts<a class="anchor" aria-label="anchor" href="#donuts"></a>
-</h2>
+<div class="section level3">
+<h3 id="donuts">Donuts<a class="anchor" aria-label="anchor" href="#donuts"></a>
+</h3>
 <p>Donut nodes show proportional fill with optional polygon shapes.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fills</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.9</span>, <span class="fl">0.7</span>, <span class="fl">0.5</span>, <span class="fl">0.3</span>, <span class="fl">0.8</span><span class="op">)</span></span>
@@ -161,9 +368,9 @@
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-donuts-1.jpeg" alt="" width="100%"></p>
 </div>
-<div class="section level2">
-<h2 id="pies">Pies<a class="anchor" aria-label="anchor" href="#pies"></a>
-</h2>
+<div class="section level3">
+<h3 id="pies">Pies<a class="anchor" aria-label="anchor" href="#pies"></a>
+</h3>
 <p>Pie chart nodes with per-node color palettes.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pie_vals</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -190,9 +397,9 @@
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-pies-1.jpeg" alt="" width="100%"></p>
 </div>
-<div class="section level2">
-<h2 id="donut--pie-combo">Donut + Pie Combo<a class="anchor" aria-label="anchor" href="#donut--pie-combo"></a>
-</h2>
+<div class="section level3">
+<h3 id="donut--pie-combo">Donut + Pie Combo<a class="anchor" aria-label="anchor" href="#donut--pie-combo"></a>
+</h3>
 <p>Combine outer donut ring with inner pie segments.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/splot.html">splot</a></span><span class="op">(</span><span class="va">mat</span>,</span>
@@ -203,107 +410,52 @@
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-donut-pie-1.jpeg" alt="" width="100%"></p>
 </div>
-<div class="section level2">
-<h2 id="plot_htna">plot_htna()<a class="anchor" aria-label="anchor" href="#plot_htna"></a>
-</h2>
-<p>Heterogeneous multi-group networks with bipartite or polygon layouts.</p>
+<div class="section level3">
+<h3 id="chord-diagram">Chord Diagram<a class="anchor" aria-label="anchor" href="#chord-diagram"></a>
+</h3>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># 8-state network with 2 groups</span></span>
-<span><span class="va">states8</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Explore"</span>, <span class="st">"Plan"</span>, <span class="st">"Monitor"</span>, <span class="st">"Adapt"</span>,</span>
-<span>             <span class="st">"Reflect"</span>, <span class="st">"Regulate"</span>, <span class="st">"Execute"</span>, <span class="st">"Review"</span><span class="op">)</span></span>
-<span><span class="va">mat8</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">64</span>, <span class="fl">0</span>, <span class="fl">0.3</span><span class="op">)</span>, <span class="fl">8</span>, <span class="fl">8</span>,</span>
-<span>  dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">states8</span>, <span class="va">states8</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">mat8</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
-<span></span>
-<span><span class="va">groups</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  Cognitive <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Explore"</span>, <span class="st">"Plan"</span>, <span class="st">"Monitor"</span>, <span class="st">"Adapt"</span><span class="op">)</span>,</span>
-<span>  Metacognitive <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Reflect"</span>, <span class="st">"Regulate"</span>, <span class="st">"Execute"</span>, <span class="st">"Review"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="reference/plot_htna.html">plot_htna</a></span><span class="op">(</span><span class="va">mat8</span>, <span class="va">groups</span>,</span>
-<span>  group_colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#ffd89d"</span>, <span class="st">"#a68ba5"</span><span class="op">)</span>,</span>
-<span>  group_shapes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"circle"</span>, <span class="st">"square"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-plot-htna-1.jpeg" alt="" width="100%"></p>
+<code class="sourceCode R"><span><span class="fu"><a href="reference/plot_chord.html">plot_chord</a></span><span class="op">(</span><span class="va">mat</span>, title <span class="op">=</span> <span class="st">"Transition Chord Diagram"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-chord-1.jpeg" alt="" width="100%"></p>
 </div>
-<div class="section level2">
-<h2 id="plot_mtna">plot_mtna()<a class="anchor" aria-label="anchor" href="#plot_mtna"></a>
-</h2>
-<p>Multi-cluster networks with summary edges between clusters.</p>
+<div class="section level3">
+<h3 id="heatmap">Heatmap<a class="anchor" aria-label="anchor" href="#heatmap"></a>
+</h3>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">clusters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  Planning <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Explore"</span>, <span class="st">"Plan"</span><span class="op">)</span>,</span>
-<span>  Action <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Monitor"</span>, <span class="st">"Adapt"</span><span class="op">)</span>,</span>
-<span>  Meta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Reflect"</span>, <span class="st">"Regulate"</span><span class="op">)</span>,</span>
-<span>  Review <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Execute"</span>, <span class="st">"Review"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="reference/plot_mtna.html">plot_mtna</a></span><span class="op">(</span><span class="va">mat8</span>, <span class="va">clusters</span>,</span>
-<span>  shapes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"circle"</span>, <span class="st">"square"</span>, <span class="st">"diamond"</span>, <span class="st">"triangle"</span><span class="op">)</span>,</span>
-<span>  summary_edges <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-plot-mtna-1.jpeg" alt="" width="100%"></p>
+<code class="sourceCode R"><span><span class="fu"><a href="reference/plot_heatmap.html">plot_heatmap</a></span><span class="op">(</span><span class="va">mat</span>, show_values <span class="op">=</span> <span class="cn">TRUE</span>, colors <span class="op">=</span> <span class="st">"viridis"</span>,</span>
+<span>             value_fontface <span class="op">=</span> <span class="st">"bold"</span>, title <span class="op">=</span> <span class="st">"Transition Heatmap"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-heatmap-1.jpeg" alt="" width="100%"></p>
 </div>
-<div class="section level2">
-<h2 id="plot_mlna">plot_mlna()<a class="anchor" aria-label="anchor" href="#plot_mlna"></a>
-</h2>
-<p>Multilevel 3D perspective networks with stacked layers.</p>
+<div class="section level3">
+<h3 id="alluvial-flow">Alluvial Flow<a class="anchor" aria-label="anchor" href="#alluvial-flow"></a>
+</h3>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">layers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  Macro <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Explore"</span>, <span class="st">"Plan"</span><span class="op">)</span>,</span>
-<span>  Meso <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Monitor"</span>, <span class="st">"Adapt"</span>, <span class="st">"Reflect"</span><span class="op">)</span>,</span>
-<span>  Micro <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Regulate"</span>, <span class="st">"Execute"</span>, <span class="st">"Review"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="reference/plot_mlna.html">plot_mlna</a></span><span class="op">(</span><span class="va">mat8</span>, <span class="va">layers</span>,</span>
-<span>  layout <span class="op">=</span> <span class="st">"horizontal"</span>,</span>
-<span>  layer_spacing <span class="op">=</span> <span class="fl">2.5</span>,</span>
-<span>  between_edges <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-plot-mlna-1.jpeg" alt="" width="100%"></p>
+<code class="sourceCode R"><span><span class="fu"><a href="reference/plot_transitions.html">plot_transitions</a></span><span class="op">(</span><span class="va">mat</span>, flow_color_by <span class="op">=</span> <span class="st">"from"</span>, flow_alpha <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>                 from_title <span class="op">=</span> <span class="st">"Source"</span>, to_title <span class="op">=</span> <span class="st">"Target"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-alluvial-1.jpeg" alt="" width="100%"></p>
+</div>
 </div>
 <div class="section level2">
-<h2 id="ci-example">CI Example<a class="anchor" aria-label="anchor" href="#ci-example"></a>
+<h2 id="quality">Quality<a class="anchor" aria-label="anchor" href="#quality"></a>
 </h2>
-<p>Sophisticated visualization: hexagon nodes with precision donut + probability pie.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Precision as donut fill (outer ring)</span></span>
-<span><span class="va">precision</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.95</span>, <span class="fl">0.87</span>, <span class="fl">0.72</span>, <span class="fl">0.91</span>, <span class="fl">0.68</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Probability distribution as pie (inner)</span></span>
-<span><span class="va">prob_vals</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.6</span>, <span class="fl">0.3</span>, <span class="fl">0.1</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.4</span>, <span class="fl">0.1</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.4</span>, <span class="fl">0.3</span>, <span class="fl">0.3</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.7</span>, <span class="fl">0.2</span>, <span class="fl">0.1</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.3</span>, <span class="fl">0.4</span>, <span class="fl">0.3</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="reference/splot.html">splot</a></span><span class="op">(</span><span class="va">mat</span>,</span>
-<span>  node_shape <span class="op">=</span> <span class="st">"hexagon"</span>,</span>
-<span>  donut_fill <span class="op">=</span> <span class="va">precision</span>,</span>
-<span>  donut_color <span class="op">=</span> <span class="st">"#2E7D32"</span>,</span>
-<span>  donut_show_value <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  donut_value_suffix <span class="op">=</span> <span class="st">"%"</span>,</span>
-<span>  donut_value_digits <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  pie_values <span class="op">=</span> <span class="va">prob_vals</span>,</span>
-<span>  pie_colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#1976D2"</span>, <span class="st">"#FFA000"</span>, <span class="st">"#C62828"</span><span class="op">)</span>,</span>
-<span>  layout <span class="op">=</span> <span class="st">"circle"</span>,</span>
-<span>  curvature <span class="op">=</span> <span class="fl">0.25</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-ci-example-1.jpeg" alt="" width="100%"></p>
+<ul>
+<li>100% test coverage (13,450+ tests)</li>
+<li>R CMD check: 0 errors, 0 warnings</li>
+<li>All exported functions documented with <code>@return</code> and <code>@examples</code>
+</li>
+</ul>
 </div>
 <div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
 </h2>
-<p>MIT License. See <a href="LICENSE.html">LICENSE.md</a> for details.</p>
+<p>MIT License.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/mohsaqr/cograph/" class="external-link">Browse source code</a></li>
-<li><a href="https://github.com/mohsaqr/cograph/issues" class="external-link">Report a bug</a></li>
+<li><a href="https://cloud.r-project.org/package=cograph" class="external-link">View on CRAN</a></li>
+<li><a href="https://github.com/sonsoleslp/cograph/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/sonsoleslp/cograph/issues" class="external-link">Report a bug</a></li>
 </ul>
 </div>
 
@@ -327,7 +479,11 @@
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
 <li>
-<a href="https://saqr.me" class="external-link">Mohammed Saqr</a> <br><small class="roles"> Author, maintainer </small>   </li>
+<a href="https://sonsoles.me" class="external-link">Sonsoles López-Pernas</a> <br><small class="roles"> Author, maintainer, copyright holder </small>   </li>
+<li>
+<a href="https://saqr.me" class="external-link">Mohammed Saqr</a> <br><small class="roles"> Author, copyright holder </small>   </li>
+<li>
+<a href="http://users.jyu.fi/~santikka/" class="external-link">Santtu Tikka</a> <br><small class="roles"> Author </small>   </li>
 </ul>
 </div>
 
@@ -337,7 +493,7 @@
 <li><a href="https://www.repostatus.org/#active" class="external-link"><img src="https://www.repostatus.org/badges/latest/active.svg" alt="Project Status: Active"></a></li>
 <li><a href="https://github.com/sonsoleslp/cograph/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/sonsoleslp/cograph/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
 <li><a href="https://CRAN.R-project.org/package=cograph" class="external-link"><img src="https://www.r-pkg.org/badges/version/cograph" alt="CRAN status"></a></li>
-<li><a href="https://codecov.io/gh/sonsoleslp/cograph" class="external-link"><img src="https://codecov.io/gh/sonsoleslp/cograph/branch/main/graph/badge.svg" alt="Codecov"></a></li>
+<li><a href="https://app.codecov.io/gh/sonsoleslp/cograph" class="external-link"><img src="https://app.codecov.io/gh/sonsoleslp/cograph/branch/main/graph/badge.svg" alt="Codecov"></a></li>
 <li><a href="https://opensource.org/licenses/MIT" class="external-link"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a></li>
 </ul>
 </div>
@@ -347,11 +503,11 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://saqr.me" class="external-link">Mohammed Saqr</a>.</p>
+  <p>Developed by <a href="https://sonsoles.me" class="external-link">Sonsoles López-Pernas</a>, <a href="https://saqr.me" class="external-link">Mohammed Saqr</a>, <a href="http://users.jyu.fi/~santikka/" class="external-link">Santtu Tikka</a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

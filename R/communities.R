@@ -1122,8 +1122,8 @@ modularity.cograph_communities <- function(x, graph = NULL, ...) {
 #'
 #' Compares two community structures using various similarity measures.
 #'
-#' @param comm1 First community structure
-#' @param comm2 Second community structure
+#' @param comm1 First community structure (communities object or membership vector)
+#' @param comm2 Second community structure (communities object or membership vector)
 #' @param method Comparison method: "vi" (variation of information),
 #'   "nmi" (normalized mutual information), "split.join",
 #'   "rand" (Rand index), "adjusted.rand"
@@ -1140,6 +1140,25 @@ compare_communities <- function(comm1, comm2,
                                 method = c("vi", "nmi", "split.join",
                                            "rand", "adjusted.rand")) {
   method <- match.arg(method)
+
+  # Convert to 0-indexed communities objects for igraph's C code
+  # igraph's C code expects membership indices in [0, n-1] range
+  .to_zero_indexed <- function(comm) {
+    if (inherits(comm, "communities")) {
+      # Modify membership in place
+      comm$membership <- comm$membership - 1L
+      comm
+    } else {
+      # Convert membership vector to a communities-like object
+      # This avoids igraph's as.factor conversion in i_compare
+      mem <- as.integer(as.factor(comm)) - 1L
+      structure(list(membership = mem), class = "communities")
+    }
+  }
+
+  comm1 <- .to_zero_indexed(comm1)
+  comm2 <- .to_zero_indexed(comm2)
+
   igraph::compare(comm1, comm2, method = method)
 }
 

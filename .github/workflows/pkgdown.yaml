@@ -31,6 +31,11 @@ jobs:
         with:
           use-public-rspm: true
 
+      - name: Register additional repositories
+        run: |
+          cat('options(repos = c(mohsaqr = "https://mohsaqr.r-universe.dev", CRAN = "https://cloud.r-project.org"))\n', file = "~/.Rprofile", append = TRUE)
+        shell: Rscript {0}
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::pkgdown, local::.

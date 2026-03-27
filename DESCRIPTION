@@ -2,19 +2,17 @@ Package: cograph
 Title: Analysis and Visualization of Complex Networks
 Version: 2.0.0
 Authors@R: c(
-    person("Mohammed", "Saqr", , "mohammed.saqr@uef.fi", role = c("aut", "cph")),
-    person("Sonsoles", "López-Pernas", , "sonsoles.lopez@uef.fi", role = c("aut", "cre", "cph")),
+    person("Mohammed", "Saqr", role = "aut"),
+    person("Sonsoles", "L\u00f3pez-Pernas", 
+           email = "sonsoles.lopez@uef.fi", role = c("aut", "cre")),
     person("Santtu", "Tikka", role = "aut")
-    )
-Description: Tools for the analysis, visualization, and manipulation of dynamical,
-    social, and complex networks. Provides comprehensive network metrics including
-    centrality measures, motif analysis, community detection, and network comparison.
-    Features a validation engine with bootstrap confidence intervals, permutation
-    testing, and centrality stability analysis. Supports multiple input formats
-    (adjacency matrices, edge lists, 'igraph' objects) and offers flexible tools for
-    heterogeneous, multi-layer, and hierarchical network analysis. Includes
-    publication-ready plotting with customizable layouts, node shapes, edge styles,
-    and themes through an intuitive, pipe-friendly API.
+  )
+Description: Provides tools for the analysis, visualization, and manipulation
+  of dynamical, social (Saqr et al. (2024) <doi:10.1007/978-3-031-54464-4_10>) and 
+  complex networks (Saqr et al. (2025) <doi:10.1145/3706468.3706513>). The package 
+  supports multiple network formats and offers flexible tools for heterogeneous, 
+  multi-layer, and hierarchical network analysis with simple syntax and
+  extensive toolset.
 License: MIT + file LICENSE
 URL: https://sonsoles.me/cograph/, https://github.com/sonsoleslp/cograph
 BugReports: https://github.com/sonsoleslp/cograph/issues

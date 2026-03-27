@@ -37,7 +37,7 @@ clusters <- c(1,1,1,2,2,2,3,3,3,3)
 q <- cluster_quality(mat, clusters)
 q$per_cluster   # Per-cluster metrics
 q$global        # Modularity, coverage
-\dontrun{
-cqual(cs)
-}
+mat <- matrix(runif(100), 10, 10)
+diag(mat) <- 0
+cqual(mat, c(1,1,1,2,2,2,3,3,3,3))
 }

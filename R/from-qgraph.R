@@ -132,11 +132,9 @@ tna_color_palette <- function(n_states) {
 #' \code{\link{splot}} and \code{\link{soplot}} for plotting engines,
 #' \code{\link{from_qgraph}} for qgraph object conversion
 #'
-#' @examples
-#' \dontrun{
+#' @examplesIf requireNamespace("tna", quietly = TRUE)
 #' # Convert and plot a tna object
-#' library(tna)
-#' model <- tna(group_regulation)
+#' model <- tna::tna(tna::group_regulation)
 #' from_tna(model)  # Plots with donut rings showing initial probabilities
 #'
 #' # Use soplot engine instead
@@ -150,7 +148,6 @@ tna_color_palette <- function(n_states) {
 #' # Modify and plot manually
 #' params$node_fill <- "coral"
 #' do.call(splot, params)
-#' }
 #'
 #' @export
 from_tna <- function(tna_object, engine = c("splot", "soplot"), plot = TRUE,
@@ -294,12 +291,10 @@ from_tna <- function(tna_object, engine = c("splot", "soplot"), plot = TRUE,
 #' \code{\link{splot}} and \code{\link{soplot}} for plotting engines,
 #' \code{\link{from_tna}} for tna object conversion
 #'
-#' @examples
-#' \dontrun{
+#' @examplesIf requireNamespace("qgraph", quietly = TRUE)
 #' # Convert and plot a qgraph object
-#' library(qgraph)
 #' adj <- matrix(c(0, .5, .3, .5, 0, .4, .3, .4, 0), 3, 3)
-#' q <- qgraph(adj)
+#' q <- qgraph::qgraph(adj)
 #' from_qgraph(q)  # Plots with splot
 #'
 #' # Use soplot engine instead
@@ -313,9 +308,8 @@ from_tna <- function(tna_object, engine = c("splot", "soplot"), plot = TRUE,
 #' names(params)  # See what was extracted
 #'
 #' # Works with themed qgraph objects
-#' q_themed <- qgraph(adj, theme = "colorblind", posCol = "blue")
+#' q_themed <- qgraph::qgraph(adj, theme = "colorblind", posCol = "blue")
 #' from_qgraph(q_themed)
-#' }
 #'
 #' @export
 from_qgraph <- function(qgraph_object, engine = c("splot", "soplot"), plot = TRUE,

@@ -64,10 +64,10 @@ if (requireNamespace("igraph", quietly = TRUE)) {
   initial[is.na(initial)] <- seq_len(sum(is.na(initial)))
   comm2 <- community_label_propagation(g, initial = initial, fixed = fixed)
 }
-\dontrun{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 net <- as_cograph(matrix(runif(25), 5, 5))
 com_lp(net)
-}
+\dontshow{\}) # examplesIf}
 }
 \references{
 Raghavan, U.N., Albert, R., & Kumara, S. (2007).

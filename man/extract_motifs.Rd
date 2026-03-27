@@ -134,9 +134,8 @@ plus all triangle patterns}
 }
 
 \examples{
-\dontrun{
-library(tna)
-Mod <- tna(group_regulation)
+\dontshow{if (requireNamespace("tna", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+Mod <- tna::tna(tna::group_regulation)
 
 # Basic: triangles only (default) - individual level for tna
 m <- extract_motifs(Mod)
@@ -155,17 +154,14 @@ m <- extract_motifs(Mod, include_types = "030T")
 
 # Triangles but exclude cliques
 m <- extract_motifs(Mod, pattern = "triangle", exclude_types = "300")
-}
 
-\dontrun{
+\donttest{
 # From data.frame with ID column (individual level)
 # df has columns: id, from, to (and optionally weight)
-m <- extract_motifs(data = df, id = "id")
-
-# Multiple grouping columns
-m <- extract_motifs(data = df, id = c("group", "person"))
+# m <- extract_motifs(data = df, id = "id")
+# m <- extract_motifs(data = df, id = c("group", "person"))
 }
-
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link[=motifs]{motifs()}}, \code{\link[=subgraphs]{subgraphs()}}, \code{\link[=extract_triads]{extract_triads()}}, \code{\link[=motif_census]{motif_census()}}

@@ -916,61 +916,50 @@ com_im <- community_infomap
 
 #' @rdname community_label_propagation
 #' @return A \code{cograph_communities} object. See \code{\link{detect_communities}}.
-#' @examples
-#' \dontrun{
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' net <- as_cograph(matrix(runif(25), 5, 5))
 #' com_lp(net)
-#' }
 #' @export
 com_lp <- community_label_propagation
 
 #' @rdname community_edge_betweenness
 #' @return A \code{cograph_communities} object. See \code{\link{detect_communities}}.
-#' @examples
-#' \dontrun{
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' net <- as_cograph(matrix(runif(25), 5, 5))
 #' com_eb(net)
-#' }
 #' @export
 com_eb <- community_edge_betweenness
 
 #' @rdname community_leading_eigenvector
 #' @return A \code{cograph_communities} object. See \code{\link{detect_communities}}.
-#' @examples
-#' \dontrun{
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' net <- as_cograph(matrix(runif(25), 5, 5))
 #' com_le(net)
-#' }
 #' @export
 com_le <- community_leading_eigenvector
 
 #' @rdname community_spinglass
 #' @return A \code{cograph_communities} object. See \code{\link{detect_communities}}.
-#' @examples
-#' \dontrun{
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' net <- as_cograph(matrix(runif(25), 5, 5))
 #' com_sg(net)
-#' }
 #' @export
 com_sg <- community_spinglass
 
 #' @rdname community_optimal
 #' @return A \code{cograph_communities} object. See \code{\link{detect_communities}}.
-#' @examples
-#' \dontrun{
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' net <- as_cograph(matrix(runif(25), 5, 5))
 #' com_op(net)
-#' }
 #' @export
 com_op <- community_optimal
 
 #' @rdname community_fluid
 #' @return A \code{cograph_communities} object. See \code{\link{detect_communities}}.
-#' @examples
-#' \dontrun{
-#' net <- as_cograph(matrix(runif(25), 5, 5))
-#' com_fl(net)
-#' }
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' m <- matrix(runif(25), 5, 5); diag(m) <- 0
+#' net <- as_cograph(m)
+#' com_fl(net, no.of.communities = 2)
 #' @export
 com_fl <- community_fluid
 

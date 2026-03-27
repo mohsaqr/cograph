@@ -10,8 +10,9 @@ plot_edge_diff_forest(x, ...)
 \method{plot_edge_diff_forest}{boot_glasso}(
   x,
   alpha = NULL,
-  layout = c("linear", "circular"),
+  layout = c("linear", "circular", "chord", "tile"),
   show_nonsig = FALSE,
+  nonzero_only = FALSE,
   sort_by = c("estimate", "significance", "name"),
   n_top = NULL,
   pos_color = "#C0392B",
@@ -36,9 +37,17 @@ plot_edge_diff_forest(x, ...)
 
 \item{alpha}{Significance threshold. Default: inherits from object.}
 
-\item{layout}{\code{"linear"} (default) or \code{"circular"}.}
+\item{layout}{\code{"linear"} (default), \code{"circular"}, or
+\code{"chord"}.  The chord layout places all edge names on a unit circle
+and connects significant pairs with bezier arcs; arc width and colour
+encode the mean bootstrap difference.}
 
 \item{show_nonsig}{Include non-significant pairs? Default \code{FALSE}.}
+
+\item{nonzero_only}{If \code{TRUE}, restrict to edges that are non-zero in
+the original network (identified via \code{$original_pcor}). Useful for
+EBICglasso results where many edges are regularised to exactly zero.
+Default \code{FALSE}.}
 
 \item{sort_by}{\code{"estimate"} (default), \code{"significance"}, or
 \code{"name"} (linear only).}
@@ -51,13 +60,13 @@ plot_edge_diff_forest(x, ...)
 
 \item{nonsig_color}{Colour for non-significant pairs.}
 
-\item{ring_color}{Ring colour (circular only).}
+\item{ring_color}{Ring colour (circular/chord). Default light grey.}
 
-\item{label_size}{Text size (circular only).}
+\item{label_size}{Text size. Default \code{2.3}.}
 
-\item{label_color}{Fixed label colour (circular only; \code{NULL} = inherit).}
+\item{label_color}{Fixed label colour (\code{NULL} = inherit).}
 
-\item{point_size}{Size of estimate square.}
+\item{point_size}{Size of estimate square (linear/circular).}
 
 \item{r_inner}{Inner ring radius (circular). Default \code{0.38}.}
 
@@ -75,4 +84,12 @@ Visualises pairwise edge weight differences from a \code{boot_glasso} object.
 Each row (linear) or spoke (circular) is one edge pair; the CI bar spans the
 bootstrap CI of the difference; a dashed line/ring marks zero.
 Red = first edge larger; blue = second edge larger.
+}
+\examples{
+\dontshow{if (requireNamespace("Nestimate", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+set.seed(1)
+data1 <- as.data.frame(matrix(rnorm(60), 20, 3, dimnames = list(NULL, c("A","B","C"))))
+bg <- Nestimate::boot_glasso(data1, iter = 50)
+plot_edge_diff_forest(bg)
+\dontshow{\}) # examplesIf}
 }

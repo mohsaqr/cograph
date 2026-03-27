@@ -7,9 +7,18 @@
 #'
 #' @name plot_bootstrap_forest
 #' @keywords internal
+#' @importFrom stats quantile
+#' @importFrom utils head
 NULL
 
-# ── helpers ──────────────────────────────────────────────────────────────────
+utils::globalVariables(c(
+  "alpha_val", "angle", "cr_col", "edge", "grp", "hjust",
+  "lab", "lab_col", "linewidth", "lx", "ly", "name", "node",
+  "text_angle", "to", "x_crh", "x_crl", "x_est", "x_hi", "x_lab", "x_lo",
+  "y_crh", "y_crl", "y_est", "y_hi", "y_lab", "y_lo"
+))
+
+# -- helpers ------------------------------------------------------------------
 
 .p_stars <- function(p) {
   vapply(p, function(v) {
@@ -62,7 +71,7 @@ NULL
 }
 
 # Extract long-form data frame from a boot_glasso object.
-# boot_glasso has no consistency range — cr columns set to NA.
+# boot_glasso has no consistency range -- cr columns set to NA.
 .forest_df_boot_glasso <- function(x, alpha) {
   alpha  <- alpha %||% x$alpha %||% 0.05
   thresh <- 1 - alpha
@@ -85,7 +94,7 @@ NULL
   )
 }
 
-# ── core plot builder ─────────────────────────────────────────────────────────
+# -- core plot builder ---------------------------------------------------------
 
 .build_forest_plot <- function(
     df,
@@ -264,7 +273,7 @@ NULL
   p
 }
 
-# ── radial forest builder ─────────────────────────────────────────────────────
+# -- radial forest builder -----------------------------------------------------
 
 .build_radial_forest_plot <- function(
     df,
@@ -306,7 +315,7 @@ NULL
   df$color     <- ifelse(df$sig, sig_color, nonsig_plot)
   df$alpha_val <- ifelse(df$sig, 1, 0.9)
 
-  # Clockwise from top (pi/2 → pi/2 - 2*pi), one angle per edge
+  # Clockwise from top (pi/2 -> pi/2 - 2*pi), one angle per edge
   angles   <- seq(pi / 2, pi / 2 - 2 * pi, length.out = n + 1)[seq_len(n)]
   df$angle <- angles
 
@@ -386,7 +395,7 @@ NULL
       ggplot2::aes(x = x, y = y),
       colour = ring_color, linewidth = 0.25
     ) +
-    # Guide spokes: inner ring → outer ring
+    # Guide spokes: inner ring -> outer ring
     ggplot2::geom_segment(
       data = df,
       ggplot2::aes(x = r_inner * cos(angle), y = r_inner * sin(angle),
@@ -419,7 +428,7 @@ NULL
       ggplot2::aes(x = x_est, y = y_est, colour = color, alpha = alpha_val),
       shape = 15, size = point_size * 0.45
     ) +
-    # Median ring — slightly more prominent
+    # Median ring -- slightly more prominent
     ggplot2::geom_path(
       data = ring_median,
       ggplot2::aes(x = x, y = y),
@@ -466,7 +475,7 @@ NULL
   p
 }
 
-# ── grouped radial builder ───────────────────────────────────────────────────
+# -- grouped radial builder ---------------------------------------------------
 
 .build_grouped_radial_plot <- function(
     df,
@@ -494,7 +503,7 @@ NULL
     interval <- "ci"
   }
 
-  # Parse from / to out of "A → B" or "A — B"
+  # Parse from / to out of "A -> B" or "A -- B"
   parts   <- strsplit(df$edge, " [\u2192\u2014] ")
   df$from <- vapply(parts, `[[`, character(1), 1L)
   df$to   <- vapply(parts, `[[`, character(1), 2L)
@@ -519,14 +528,14 @@ NULL
   if (is.null(node_colors)) {
     node_col <- setNames(oi[((seq_len(n_from) - 1L) %% length(oi)) + 1L], from_nodes)
   } else if (!is.null(names(node_colors))) {
-    # Named vector — match by node name, fill missing with Okabe-Ito
+    # Named vector -- match by node name, fill missing with Okabe-Ito
     node_col <- node_colors[from_nodes]
     missing  <- is.na(node_col)
     if (any(missing))
       node_col[missing] <- oi[((which(missing) - 1L) %% length(oi)) + 1L]
     names(node_col) <- from_nodes
   } else {
-    # Unnamed vector — assign in order, cycling if needed
+    # Unnamed vector -- assign in order, cycling if needed
     node_col <- setNames(
       node_colors[((seq_len(n_from) - 1L) %% length(node_colors)) + 1L],
       from_nodes
@@ -599,7 +608,7 @@ NULL
   df$hjust      <- ifelse(flip, 1, 0)
   df$lab_col    <- if (is.null(label_color)) df$color else label_color
 
-  # Inner (source) labels — tangential, at sector midpoints inside inner ring
+  # Inner (source) labels -- tangential, at sector midpoints inside inner ring
   src_r   <- r_inner * 0.80
   src_df  <- data.frame(
     node        = from_nodes,
@@ -667,7 +676,7 @@ NULL
       data = ring_median, ggplot2::aes(x = x, y = y),
       colour = median_color, linewidth = 0.25, linetype = "dashed"
     ) +
-    # Target labels — outer ring, radial
+    # Target labels -- outer ring, radial
     ggplot2::geom_text(
       data = df,
       ggplot2::aes(x = x_lab, y = y_lab, label = to,
@@ -675,7 +684,7 @@ NULL
                    colour = lab_col, alpha = alpha_val),
       size = label_size
     ) +
-    # Source labels — inner ring, tangential, bold
+    # Source labels -- inner ring, tangential, bold
     ggplot2::geom_text(
       data = src_df,
       ggplot2::aes(x = x_lab, y = y_lab, label = node,
@@ -704,7 +713,7 @@ NULL
   p
 }
 
-# ── exported S3 generics ──────────────────────────────────────────────────────
+# -- exported S3 generics ------------------------------------------------------
 
 #' Forest Plot for Bootstrap Network Results
 #'
@@ -928,17 +937,236 @@ plot_bootstrap_forest.boot_glasso <- function(
   }
 }
 
-# ── edge difference forest ────────────────────────────────────────────────────
+#' @rdname plot_bootstrap_forest
+#' @export
+plot_bootstrap_forest.net_bootstrap_group <- function(
+    x,
+    layout       = c("linear", "circular"),
+    interval     = c("ci", "cr", "both"),
+    show_nonsig  = TRUE,
+    n_top        = NULL,
+    all_edges    = FALSE,
+    pos_color    = NULL,
+    title        = NULL,
+    subtitle     = NULL,
+    label_size   = 2.8,
+    ...
+) {
+  layout   <- match.arg(layout)
+  interval <- match.arg(interval)
+
+  # Circular multi-group: fall back to first group
+  if (layout == "circular") {
+    sub_note <- paste0(
+      subtitle %||% "",
+      if (!is.null(subtitle)) "  |  " else "",
+      "Note: circular layout shows first group only"
+    )
+    return(plot_bootstrap_forest(x[[1L]], layout = "circular",
+                                 interval = interval,
+                                 show_nonsig = show_nonsig,
+                                 n_top = n_top,
+                                 title = title,
+                                 subtitle = sub_note,
+                                 label_size = label_size,
+                                 ...))
+  }
+
+  # Extract per-group data frames
+  grp_names <- names(x)
+  if (is.null(grp_names)) grp_names <- paste0("Group", seq_along(x))
+
+  df_list <- lapply(x, function(boot) .forest_df_net_bootstrap(boot, alpha = NULL))
+  names(df_list) <- grp_names
+
+  # Determine edge universe
+  edge_sets <- lapply(df_list, function(d) d$edge)
+  if (all_edges) {
+    edge_universe <- Reduce(union, edge_sets)
+  } else {
+    edge_universe <- Reduce(intersect, edge_sets)
+  }
+  if (length(edge_universe) == 0L)
+    stop("No edges in common across groups. Use all_edges = TRUE to show the union.",
+         call. = FALSE)
+
+  # Filter / align each group df to the edge universe
+  df_list <- lapply(df_list, function(d) {
+    d <- d[d$edge %in% edge_universe, , drop = FALSE]
+    # Fill missing rows with NA (for union case)
+    missing_edges <- setdiff(edge_universe, d$edge)
+    if (length(missing_edges) > 0L) {
+      na_rows <- data.frame(
+        edge     = missing_edges,
+        estimate = NA_real_,
+        ci_lower = NA_real_,
+        ci_upper = NA_real_,
+        cr_lower = NA_real_,
+        cr_upper = NA_real_,
+        p_value  = NA_real_,
+        sig      = FALSE,
+        has_cr   = FALSE,
+        stringsAsFactors = FALSE
+      )
+      d <- rbind(d, na_rows)
+    }
+    d
+  })
+
+  # Combine with group column
+  combined <- do.call(rbind, Map(function(d, nm) {
+    d$group <- nm
+    d
+  }, df_list, grp_names))
+
+  # Sort edges by mean estimate across groups (ascending)
+  mean_by_edge <- tapply(combined$estimate, combined$edge, mean, na.rm = TRUE)
+  edge_order   <- names(sort(mean_by_edge))
+  combined$edge <- factor(combined$edge, levels = edge_order)
+
+  if (!show_nonsig) {
+    # Keep an edge if it is significant in at least one group
+    sig_edges <- unique(combined$edge[!is.na(combined$sig) & combined$sig])
+    combined  <- combined[combined$edge %in% sig_edges, , drop = FALSE]
+    if (nrow(combined) == 0L)
+      stop("No significant edges. Use show_nonsig = TRUE.", call. = FALSE)
+  }
+
+  if (!is.null(n_top)) {
+    abs_mean  <- abs(mean_by_edge[levels(combined$edge)])
+    top_edges <- names(sort(abs_mean, decreasing = TRUE))[seq_len(min(n_top, length(abs_mean)))]
+    combined  <- combined[combined$edge %in% top_edges, , drop = FALSE]
+    # Rebuild factor levels in sorted order
+    remaining_means <- mean_by_edge[top_edges]
+    combined$edge   <- factor(as.character(combined$edge),
+                               levels = names(sort(remaining_means)))
+  }
+
+  # Okabe-Ito darkened palette for groups
+  oi        <- c("#005A8E","#B87D00","#007B5A","#A84A00","#2A91C9","#A35284",
+                 "#C4B800","#222222","#666666")
+  grp_colors <- setNames(oi[seq_along(x)], grp_names)
+
+  combined$grp_col  <- grp_colors[combined$group]
+  combined$group_f  <- factor(combined$group, levels = grp_names)
+
+  # Determine which CI columns to use
+  ci_lo_col <- switch(interval,
+    ci   = "ci_lower",
+    cr   = "cr_lower",
+    both = "ci_lower"
+  )
+  ci_hi_col <- switch(interval,
+    ci   = "ci_upper",
+    cr   = "cr_upper",
+    both = "ci_upper"
+  )
+
+  p <- ggplot2::ggplot(combined,
+         ggplot2::aes(x = .data$estimate, y = .data$edge,
+                      colour = .data$group_f,
+                      group  = .data$group_f)) +
+    ggplot2::geom_vline(
+      xintercept = 0, linetype = "dashed",
+      colour = "#555555", linewidth = 0.45, alpha = 0.6
+    ) +
+    ggplot2::geom_errorbarh(
+      ggplot2::aes(
+        xmin = .data[[ci_lo_col]],
+        xmax = .data[[ci_hi_col]]
+      ),
+      height    = 0.28,
+      linewidth = 0.65,
+      position  = ggplot2::position_dodge(0.6),
+      na.rm     = TRUE
+    ) +
+    ggplot2::geom_point(
+      shape    = 15,
+      size     = 3,
+      position = ggplot2::position_dodge(0.6),
+      na.rm    = TRUE
+    ) +
+    ggplot2::scale_colour_manual(
+      values = grp_colors,
+      name   = "Group"
+    ) +
+    ggplot2::labs(
+      x        = "Edge Weight (Bootstrap Estimate)",
+      y        = NULL,
+      title    = title,
+      subtitle = subtitle,
+      caption  = "Squares: point estimates  |  Bars: bootstrap CI  |  Colour: group"
+    ) +
+    ggplot2::theme_minimal(base_size = 11) +
+    ggplot2::theme(
+      panel.grid.major.y = ggplot2::element_blank(),
+      panel.grid.minor   = ggplot2::element_blank(),
+      panel.grid.major.x = ggplot2::element_line(
+        colour    = "#EBEBEB",
+        linewidth = 0.4
+      ),
+      axis.text.y   = ggplot2::element_text(
+        size   = 9,
+        colour = "#333333",
+        margin = ggplot2::margin(r = 4)
+      ),
+      axis.text.x   = ggplot2::element_text(size = 8.5, colour = "#555555"),
+      axis.title.x  = ggplot2::element_text(
+        size   = 9, colour = "#555555",
+        margin = ggplot2::margin(t = 6)
+      ),
+      legend.position = "top",
+      legend.title    = ggplot2::element_text(size = 9, face = "bold"),
+      legend.text     = ggplot2::element_text(size = 9),
+      plot.title    = ggplot2::element_text(
+        size   = 12, face = "bold", colour = "#1A1A1A",
+        margin = ggplot2::margin(b = 4)
+      ),
+      plot.subtitle = ggplot2::element_text(
+        size   = 9.5, colour = "#666666",
+        margin = ggplot2::margin(b = 8)
+      ),
+      plot.caption  = ggplot2::element_text(
+        size   = 7.5, colour = "#888888",
+        hjust  = 0, margin = ggplot2::margin(t = 8)
+      ),
+      plot.margin      = ggplot2::margin(12, 16, 8, 12),
+      plot.background  = ggplot2::element_rect(fill = "white", colour = NA),
+      panel.background = ggplot2::element_rect(fill = "white", colour = NA)
+    )
+
+  p
+}
+
+# -- edge difference forest ----------------------------------------------------
 
 # Compute pairwise bootstrap difference data frame from a boot_glasso object.
-.forest_df_edge_diff <- function(x, alpha) {
+.forest_df_edge_diff <- function(x, alpha, nonzero_only = FALSE) {
   alpha    <- alpha %||% x$alpha %||% 0.05
   boot_mat <- x$boot_edges
   p_mat    <- x$edge_diff_p
   if (is.null(boot_mat))
-    stop("No boot_edges — re-run boot_glasso().", call. = FALSE)
+    stop("No boot_edges \u2014 re-run boot_glasso().", call. = FALSE)
   if (is.null(p_mat))
-    stop("No edge_diff_p — re-run boot_glasso().", call. = FALSE)
+    stop("No edge_diff_p \u2014 re-run boot_glasso().", call. = FALSE)
+
+  # Optionally restrict to edges present in the original network
+  if (nonzero_only) {
+    orig <- x$original_pcor
+    if (!is.null(orig)) {
+      orig_upper <- orig[upper.tri(orig)]
+      nz_names   <- colnames(boot_mat)[orig_upper != 0]
+    } else {
+      # Fallback: edges with non-trivial mean bootstrap weight
+      edge_means <- colMeans(boot_mat, na.rm = TRUE)
+      threshold  <- max(abs(edge_means)) * 0.10
+      nz_names   <- colnames(boot_mat)[abs(edge_means) >= threshold]
+    }
+    if (length(nz_names) == 0L) stop("No non-zero edges found.", call. = FALSE)
+    keep     <- match(nz_names, colnames(boot_mat))
+    boot_mat <- boot_mat[, keep, drop = FALSE]
+    p_mat    <- p_mat[keep, keep, drop = FALSE]
+  }
 
   edge_nms <- colnames(boot_mat)
   pairs    <- which(upper.tri(p_mat), arr.ind = TRUE)
@@ -948,7 +1176,7 @@ plot_bootstrap_forest.boot_glasso <- function(
               boot_mat[, pairs[, 2L], drop = FALSE]
 
   data.frame(
-    edge     = paste0(edge_nms[pairs[, 1L]], " \u21d4 ", edge_nms[pairs[, 2L]]),
+    edge     = paste0(edge_nms[pairs[, 1L]], " vs ", edge_nms[pairs[, 2L]]),
     edge1    = edge_nms[pairs[, 1L]],
     edge2    = edge_nms[pairs[, 2L]],
     estimate = colMeans(diff_mat, na.rm = TRUE),
@@ -1001,8 +1229,8 @@ plot_bootstrap_forest.boot_glasso <- function(
   x_lim  <- c(xr[1] - x_pad * 0.4, xr[2] + x_pad)
 
   caption <- paste0(
-    "\u25A0 = mean bootstrap difference  |  Bars: 95% bootstrap CI  |  ",
-    "Red: edge\u2081 > edge\u2082  |  Blue: edge\u2081 < edge\u2082  |  ",
+    "[=] = mean bootstrap difference  |  Bars: 95% bootstrap CI  |  ",
+    "Red: edge_1 > edge_2  |  Blue: edge_1 < edge_2  |  ",
     "* p<0.05  ** p<0.01  *** p<0.001"
   )
 
@@ -1029,7 +1257,7 @@ plot_bootstrap_forest.boot_glasso <- function(
     ggplot2::scale_alpha_identity() +
     ggplot2::scale_x_continuous(limits = x_lim, expand = c(0, 0)) +
     ggplot2::labs(
-      x        = "Bootstrap Weight Difference (edge\u2081 \u2212 edge\u2082)",
+      x        = "Bootstrap Weight Difference (edge_1 - edge_2)",
       y        = NULL,
       title    = title,
       subtitle = subtitle,
@@ -1061,7 +1289,7 @@ plot_bootstrap_forest.boot_glasso <- function(
   p
 }
 
-# Circular forest for edge differences — dashed reference ring at 0
+# Circular forest for edge differences -- dashed reference ring at 0
 .build_edge_diff_circular <- function(
     df,
     show_nonsig  = FALSE,
@@ -1189,18 +1417,25 @@ plot_bootstrap_forest.boot_glasso <- function(
 #' @param x A \code{boot_glasso} object with \code{$boot_edges} and
 #'   \code{$edge_diff_p}.
 #' @param alpha Significance threshold. Default: inherits from object.
-#' @param layout \code{"linear"} (default) or \code{"circular"}.
+#' @param layout \code{"linear"} (default), \code{"circular"}, or
+#'   \code{"chord"}.  The chord layout places all edge names on a unit circle
+#'   and connects significant pairs with bezier arcs; arc width and colour
+#'   encode the mean bootstrap difference.
 #' @param show_nonsig Include non-significant pairs? Default \code{FALSE}.
+#' @param nonzero_only If \code{TRUE}, restrict to edges that are non-zero in
+#'   the original network (identified via \code{$original_pcor}). Useful for
+#'   EBICglasso results where many edges are regularised to exactly zero.
+#'   Default \code{FALSE}.
 #' @param sort_by \code{"estimate"} (default), \code{"significance"}, or
 #'   \code{"name"} (linear only).
 #' @param n_top Restrict to top N pairs by absolute difference.
 #' @param pos_color Colour when edge1 > edge2. Default crimson.
 #' @param neg_color Colour when edge1 < edge2. Default teal.
 #' @param nonsig_color Colour for non-significant pairs.
-#' @param ring_color Ring colour (circular only).
-#' @param label_size Text size (circular only).
-#' @param label_color Fixed label colour (circular only; \code{NULL} = inherit).
-#' @param point_size Size of estimate square.
+#' @param ring_color Ring colour (circular/chord). Default light grey.
+#' @param label_size Text size. Default \code{2.3}.
+#' @param label_color Fixed label colour (\code{NULL} = inherit).
+#' @param point_size Size of estimate square (linear/circular).
 #' @param r_inner Inner ring radius (circular). Default \code{0.38}.
 #' @param r_outer Outer ring radius (circular). Default \code{0.72}.
 #' @param title Plot title.
@@ -1208,6 +1443,11 @@ plot_bootstrap_forest.boot_glasso <- function(
 #' @param ... Currently unused.
 #'
 #' @return A \code{ggplot} object.
+#' @examplesIf requireNamespace("Nestimate", quietly = TRUE)
+#' set.seed(1)
+#' data1 <- as.data.frame(matrix(rnorm(60), 20, 3, dimnames = list(NULL, c("A","B","C"))))
+#' bg <- Nestimate::boot_glasso(data1, iter = 50)
+#' plot_edge_diff_forest(bg)
 #' @export
 plot_edge_diff_forest <- function(x, ...) UseMethod("plot_edge_diff_forest")
 
@@ -1216,8 +1456,9 @@ plot_edge_diff_forest <- function(x, ...) UseMethod("plot_edge_diff_forest")
 plot_edge_diff_forest.boot_glasso <- function(
     x,
     alpha        = NULL,
-    layout       = c("linear", "circular"),
+    layout       = c("linear", "circular", "chord", "tile"),
     show_nonsig  = FALSE,
+    nonzero_only = FALSE,
     sort_by      = c("estimate", "significance", "name"),
     n_top        = NULL,
     pos_color    = "#C0392B",
@@ -1234,9 +1475,30 @@ plot_edge_diff_forest.boot_glasso <- function(
     ...
 ) {
   layout <- match.arg(layout)
-  df     <- .forest_df_edge_diff(x, alpha)
 
-  if (layout == "circular") {
+  if (layout == "tile") {
+    return(.build_edge_diff_tile(x,
+      pos_color = pos_color, neg_color = neg_color,
+      title = title, subtitle = subtitle))
+  }
+
+  df <- .forest_df_edge_diff(x, alpha, nonzero_only = nonzero_only)
+
+  if (layout == "chord") {
+    .build_edge_diff_chord(
+      df,
+      show_nonsig  = show_nonsig,
+      n_top        = n_top,
+      pos_color    = pos_color,
+      neg_color    = neg_color,
+      nonsig_color = nonsig_color,
+      ring_color   = ring_color,
+      label_size   = label_size,
+      label_color  = label_color,
+      title        = title,
+      subtitle     = subtitle
+    )
+  } else if (layout == "circular") {
     .build_edge_diff_circular(
       df,
       show_nonsig  = show_nonsig,
@@ -1267,4 +1529,314 @@ plot_edge_diff_forest.boot_glasso <- function(
       subtitle     = subtitle
     )
   }
+}
+
+# ---- Chord arc diagram for edge differences ----------------------------------
+
+.build_edge_diff_chord <- function(
+    df,
+    show_nonsig  = FALSE,
+    n_top        = NULL,
+    pos_color    = "#C0392B",
+    neg_color    = "#2C6E8A",
+    nonsig_color = "#AAAAAA",
+    ring_color   = "#C8C8C8",
+    label_size   = 2.5,
+    label_color  = NULL,
+    title        = NULL,
+    subtitle     = NULL
+) {
+  # --- keep all edges for ring, filter only display arcs ---------------------
+  all_edges <- sort(unique(c(df$edge1, df$edge2)))
+  N         <- length(all_edges)
+
+  df_arcs <- if (!show_nonsig) df[df$sig, , drop = FALSE] else df
+  if (!is.null(n_top)) {
+    df_arcs <- df_arcs[order(abs(df_arcs$estimate), decreasing = TRUE), , drop = FALSE]
+    df_arcs <- head(df_arcs, n_top)
+  }
+  if (nrow(df_arcs) == 0L) {
+    return(
+      ggplot2::ggplot() +
+        ggplot2::labs(title = title, subtitle = "No pairs to display.") +
+        ggplot2::theme_void()
+    )
+  }
+
+  # --- per-node degree (# significant connections) and total |estimate| -----
+  sig_df      <- df[df$sig, , drop = FALSE]
+  node_degree <- vapply(all_edges, function(e)
+    sum(sig_df$edge1 == e | sig_df$edge2 == e), integer(1L))
+  node_total  <- vapply(all_edges, function(e)
+    sum(abs(df$estimate[df$edge1 == e | df$edge2 == e])), numeric(1L))
+  if (sum(node_total) == 0) node_total[] <- 1
+
+  # --- angular layout: arc width ~ total |estimate|, gaps between nodes -----
+  gap_each  <- 0.08                              # radians gap per node
+  total_gap <- gap_each * N
+  total_arc <- 2 * pi - total_gap
+  arc_w     <- node_total / sum(node_total) * total_arc
+
+  # Clockwise from top: start angles decrease
+  starts <- numeric(N)
+  starts[1L] <- pi / 2
+  for (i in seq(2L, N)) starts[i] <- starts[i - 1L] - arc_w[i - 1L] - gap_each
+  ends <- starts - arc_w
+  mids <- (starts + ends) / 2
+
+  # --- thick arc segment polygons -------------------------------------------
+  r_in  <- 0.86
+  r_out <- 1.00
+  n_arc <- 60L
+
+  # Node colour by degree (light -> dark blue)
+  max_deg  <- max(node_degree, 1L)
+  deg_ramp <- grDevices::colorRamp(c("#AED6F1", "#1A5276"))
+  node_col <- vapply(node_degree, function(d) {
+    t <- d / max_deg
+    m <- deg_ramp(t)
+    grDevices::rgb(m[1L], m[2L], m[3L], maxColorValue = 255)
+  }, character(1L))
+
+  seg_list <- lapply(seq_len(N), function(i) {
+    theta <- seq(starts[i], ends[i], length.out = n_arc)
+    xs    <- c(r_in  * cos(theta), rev(r_out * cos(theta)))
+    ys    <- c(r_in  * sin(theta), rev(r_out * sin(theta)))
+    data.frame(x = xs, y = ys, node = i, fill = node_col[i],
+               stringsAsFactors = FALSE)
+  })
+  seg_df <- do.call(rbind, seg_list)
+
+  # --- colour ramp for ribbons (neg -> white -> pos) --------------------------
+  diff_max <- max(abs(df_arcs$estimate), na.rm = TRUE)
+  if (diff_max == 0) diff_max <- 1
+  cramp    <- grDevices::colorRamp(c(neg_color, "#FFFFFF", pos_color))
+
+  arc_col_fn <- function(est) {
+    t   <- pmin(pmax((est / diff_max + 1) / 2, 0), 1)
+    m   <- cramp(t)
+    grDevices::rgb(m[, 1L], m[, 2L], m[, 3L], maxColorValue = 255)
+  }
+
+  # --- bezier ribbons from midpoint of each node segment --------------------
+  n_pts <- 100L
+  t_seq <- seq(0, 1, length.out = n_pts)
+
+  arc_list <- lapply(seq_len(nrow(df_arcs)), function(i) {
+    row  <- df_arcs[i, , drop = FALSE]
+    idx1 <- match(row$edge1, all_edges)
+    idx2 <- match(row$edge2, all_edges)
+    x0   <- r_in * cos(mids[idx1]);  y0 <- r_in * sin(mids[idx1])
+    x2   <- r_in * cos(mids[idx2]);  y2 <- r_in * sin(mids[idx2])
+    bx   <- (1 - t_seq)^2 * x0 + t_seq^2 * x2
+    by   <- (1 - t_seq)^2 * y0 + t_seq^2 * y2
+    col   <- if (row$sig) arc_col_fn(row$estimate) else nonsig_color
+    lwd   <- if (row$sig) 0.3 + 3.5 * abs(row$estimate) / diff_max else 0.3
+    alpha <- if (row$sig) 0.80 else 0.18
+    data.frame(x = bx, y = by, group = i,
+               color = col, linewidth = lwd, alpha = alpha,
+               stringsAsFactors = FALSE)
+  })
+  arc_df <- do.call(rbind, arc_list)
+
+  # --- labels outside ring --------------------------------------------------
+  label_r <- 1.14
+  lab_df  <- data.frame(
+    name        = all_edges,
+    lx          = label_r * cos(mids),
+    ly          = label_r * sin(mids),
+    text_angle  = ifelse(cos(mids) < -0.01, mids * 180 / pi + 180, mids * 180 / pi),
+    hjust       = ifelse(cos(mids) < -0.01, 1, 0),
+    stringsAsFactors = FALSE
+  )
+
+  # --- legend gradient bar --------------------------------------------------
+  leg_n  <- 200L
+  leg_df <- data.frame(
+    x     = seq(-0.55, 0.55, length.out = leg_n),
+    y     = -1.44,
+    color = arc_col_fn(seq(-diff_max, diff_max, length.out = leg_n))
+  )
+
+  lim <- 1.58
+
+  # --- plot: arcs first (bottom), segments on top ---------------------------
+  p <- ggplot2::ggplot() +
+    # Ribbons (drawn under node segments)
+    ggplot2::geom_path(
+      data = arc_df,
+      ggplot2::aes(x = x, y = y, group = group,
+                   colour = color, alpha = alpha, linewidth = linewidth)
+    ) +
+    # Node arc segments (thick, coloured by degree)
+    ggplot2::geom_polygon(
+      data = seg_df,
+      ggplot2::aes(x = x, y = y, group = node, fill = fill),
+      colour = "white", linewidth = 0.3
+    ) +
+    # Labels
+    ggplot2::geom_text(
+      data = lab_df,
+      ggplot2::aes(x = lx, y = ly, label = name,
+                   angle = text_angle, hjust = hjust),
+      colour = if (!is.null(label_color)) label_color else "#2A2A2A",
+      size   = label_size
+    ) +
+    # Legend gradient
+    ggplot2::geom_tile(
+      data = leg_df,
+      ggplot2::aes(x = x, y = y, fill = color),
+      height = 0.045, width = 1.1 / leg_n + 0.001
+    ) +
+    ggplot2::annotate("text", x = -0.62, y = -1.44,
+      label = sprintf("-%.2f", diff_max),
+      hjust = 1, size = 2.5, colour = neg_color) +
+    ggplot2::annotate("text", x =  0.62, y = -1.44,
+      label = sprintf("+%.2f", diff_max),
+      hjust = 0, size = 2.5, colour = pos_color) +
+    ggplot2::annotate("text", x = 0, y = -1.52,
+      label = "Mean edge difference",
+      hjust = 0.5, size = 2.3, colour = "#666666") +
+    ggplot2::scale_colour_identity() +
+    ggplot2::scale_fill_identity() +
+    ggplot2::scale_alpha_identity() +
+    ggplot2::scale_linewidth_identity() +
+    ggplot2::coord_equal(clip = "off",
+                         xlim = c(-lim, lim), ylim = c(-lim, lim)) +
+    ggplot2::labs(title = title, subtitle = subtitle) +
+    ggplot2::theme_void(base_size = 11) +
+    ggplot2::theme(
+      plot.title    = ggplot2::element_text(
+        size = 12, face = "bold", hjust = 0.5, colour = "#1A1A1A",
+        margin = ggplot2::margin(b = 4)),
+      plot.subtitle = ggplot2::element_text(
+        size = 9, hjust = 0.5, colour = "#666666",
+        margin = ggplot2::margin(b = 8)),
+      plot.margin     = ggplot2::margin(20, 40, 20, 40),
+      plot.background = ggplot2::element_rect(fill = "white", colour = NA)
+    )
+  p
+}
+
+# ---- Tile heatmap for edge differences ---------------------------------------
+
+.build_edge_diff_tile <- function(
+    x,
+    order     = c("sample", "id"),
+    pos_color = "#C0392B",
+    neg_color = "#2C6E8A",
+    title     = NULL,
+    subtitle  = NULL
+) {
+  if (is.null(x$edge_diff_p))
+    stop("No edge_diff_p \u2014 re-run boot_glasso().", call. = FALSE)
+
+  order      <- match.arg(order)
+  p_mat      <- x$edge_diff_p
+  alpha      <- x$alpha %||% 0.05
+  boot_mat   <- x$boot_edges
+  edge_names <- colnames(p_mat)
+  n_e        <- length(edge_names)
+
+  edge_means    <- colMeans(boot_mat, na.rm = TRUE)
+  mean_diff_mat <- outer(edge_means, edge_means, `-`)
+  rownames(mean_diff_mat) <- colnames(mean_diff_mat) <- edge_names
+
+  edge_weights <- x$edge_ci$weight
+  names(edge_weights) <- x$edge_ci$edge
+
+  ordered_names <- if (order == "sample")
+    edge_names[order(abs(edge_weights[edge_names]))] else sort(edge_names)
+
+  grid     <- expand.grid(edge1 = ordered_names, edge2 = ordered_names,
+                           stringsAsFactors = FALSE)
+  idx1     <- match(grid$edge1, ordered_names)
+  idx2     <- match(grid$edge2, ordered_names)
+  is_upper <- idx1 < idx2
+  is_diag  <- idx1 == idx2
+
+  grid$p_value   <- p_mat[cbind(grid$edge1, grid$edge2)]
+  grid$mean_diff <- mean_diff_mat[cbind(grid$edge1, grid$edge2)]
+  grid$sig       <- grid$p_value < alpha
+
+  grid$fill_val              <- ifelse(is_upper | is_diag, grid$mean_diff, NA_real_)
+  grid$fill_val[is_diag]     <- 0
+  grid$alpha_val             <- 0
+  grid$alpha_val[is_upper &  grid$sig] <- 1
+  grid$alpha_val[is_upper & !grid$sig] <- 0.08
+  grid$alpha_val[is_diag]              <- 0.06
+
+  grid$stars <- ""
+  grid$stars[is_upper & grid$sig] <- vapply(
+    grid$p_value[is_upper & grid$sig],
+    function(p) if (p < 0.001) "***" else if (p < 0.01) "**" else "*",
+    character(1L)
+  )
+  grid$label <- ifelse(is_diag, sprintf("%.2f", edge_weights[grid$edge1]), "")
+
+  grid$edge1 <- factor(grid$edge1, levels = ordered_names)
+  grid$edge2 <- factor(grid$edge2, levels = rev(ordered_names))
+
+  label_size <- if (n_e <= 10) 3.2 else if (n_e <= 20) 2.5 else 1.8
+  star_size  <- label_size * 0.80
+
+  ut      <- which(upper.tri(p_mat), arr.ind = TRUE)
+  n_sig   <- sum(p_mat[ut] < alpha)
+  n_pairs <- nrow(ut)
+  auto_sub <- sprintf(
+    "%d of %d pairs significantly different (p < %s)  |  Red: row > col  |  Blue: col > row",
+    n_sig, n_pairs, alpha
+  )
+
+  diff_max <- max(abs(grid$fill_val), na.rm = TRUE)
+  if (diff_max == 0) diff_max <- 0.1
+
+  ggplot2::ggplot(grid, ggplot2::aes(x = .data$edge1, y = .data$edge2)) +
+    ggplot2::geom_tile(fill = "white", colour = "#F0F0F0", linewidth = 0.25) +
+    ggplot2::geom_tile(
+      ggplot2::aes(fill = .data$fill_val, alpha = .data$alpha_val),
+      colour = "white", linewidth = 0.25
+    ) +
+    ggplot2::geom_text(
+      data = grid[is_upper & grid$sig, ],
+      ggplot2::aes(label = .data$stars),
+      size = star_size, colour = "white", fontface = "bold"
+    ) +
+    ggplot2::geom_text(
+      data = grid[is_diag, ],
+      ggplot2::aes(label = .data$label),
+      size = label_size * 0.88, colour = "#444444"
+    ) +
+    ggplot2::scale_fill_gradient2(
+      low = neg_color, high = pos_color, mid = "white", midpoint = 0,
+      limits = c(-diff_max, diff_max), na.value = "transparent",
+      name = "Mean\ndifference"
+    ) +
+    ggplot2::scale_alpha_identity() +
+    ggplot2::labs(
+      title    = title %||% "Bootstrap Edge Difference Test",
+      subtitle = subtitle %||% auto_sub,
+      x = NULL, y = NULL
+    ) +
+    ggplot2::coord_fixed() +
+    ggplot2::theme_minimal(base_size = 11) +
+    ggplot2::theme(
+      panel.grid       = ggplot2::element_blank(),
+      axis.text.x      = ggplot2::element_text(
+        angle = 45, hjust = 1, vjust = 1,
+        size = label_size * 2.8, colour = "#333333"),
+      axis.text.y      = ggplot2::element_text(
+        size = label_size * 2.8, colour = "#333333"),
+      plot.title       = ggplot2::element_text(
+        size = 13, face = "bold", colour = "#1A1A1A",
+        margin = ggplot2::margin(b = 4)),
+      plot.subtitle    = ggplot2::element_text(
+        size = 9, colour = "#666666",
+        margin = ggplot2::margin(b = 10)),
+      legend.title     = ggplot2::element_text(size = 8.5, colour = "#444444"),
+      legend.text      = ggplot2::element_text(size = 8, colour = "#555555"),
+      legend.key.width = ggplot2::unit(0.5, "cm"),
+      plot.background  = ggplot2::element_rect(fill = "white", colour = NA),
+      plot.margin      = ggplot2::margin(12, 12, 12, 12)
+    )
 }

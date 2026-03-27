@@ -1,5 +1,13 @@
 # Changelog
 
+### 2026-03-27 — CRAN extra check fixes: 0 errors / 0 warnings / 0 notes
+- R/plot-communities.R: Fixed `overlay_communities` example — changed `method = "louvain"` to `method = "infomap"` since the tna model weight matrix is directed and Louvain requires undirected graphs
+- R/plot-forest.R: Fixed `plot_edge_diff_forest` example — removed incorrect second dataset argument from `boot_glasso()` call (function takes one dataset); replaced non-ASCII unicode subscripts ₁/₂, ⇔, − in plot labels with ASCII equivalents to avoid locale conversion failures
+- R/network-utils.R: Fixed `to_matrix` example — replaced unweighted `igraph::make_ring(5)` with `igraph::graph_from_adjacency_matrix(adj, mode = "undirected", weighted = TRUE)` since `to_matrix.igraph` requests the "weight" attribute
+- R/motifs-api.R: Fixed `motifs` example — changed `tna::coding` (not an exported tna dataset) to `tna::group_regulation`
+- R/communities.R: Fixed `com_fl` alias example — added `no.of.communities = 2` (required argument) and `diag(m) <- 0` (Louvain/fluid requires simple graphs with no self-loops)
+- R/cluster-metrics.R: Fixed `as_mcml` example — reverted to `\dontrun{}` (requires both tna and Nestimate::cluster_data); fixed `as_tna` bootstrap example — reverted to `\dontrun{}` (tna::bootstrap requires $data field absent in as_tna objects)
+
 ### 2026-03-24 — CRAN prep: fix S3 method registration NOTE
 - R/plot-nestimate.R: Removed `@method splot netobject` and `@method splot boot_glasso` tags — now registered as plain `export()` instead of `S3method()`, fixing S3 generic/method consistency NOTE (splot is not a formal S3 generic)
 - R/plot-bootstrap.R: Removed `@method splot net_bootstrap` tag (same fix)

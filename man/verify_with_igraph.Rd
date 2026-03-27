@@ -25,11 +25,11 @@ List with comparison results
 Confirms numerical match with igraph's contract_vertices + simplify.
 }
 \examples{
-\dontrun{
-mat <- matrix(runif(100), 10, 10)
-diag(mat) <- 0
-rownames(mat) <- colnames(mat) <- LETTERS[1:10]
-clusters <- c(1,1,1,2,2,2,3,3,3,3)
-verify_igraph(mat, clusters)
+if (requireNamespace("igraph", quietly = TRUE)) {
+  mat <- matrix(runif(100), 10, 10)
+  diag(mat) <- 0
+  rownames(mat) <- colnames(mat) <- LETTERS[1:10]
+  clusters <- c(1,1,1,2,2,2,3,3,3,3)
+  verify_igraph(mat, clusters)
 }
 }

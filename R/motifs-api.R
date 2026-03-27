@@ -64,14 +64,13 @@
 #' rownames(mat) <- colnames(mat) <- c("Plan","Execute","Monitor","Adapt")
 #' motifs(mat, significance = FALSE)
 #'
-#' \dontrun{
-#' # Census from tna object
-#' library(tna)
-#' Mod <- tna(coding)
-#' motifs(Mod)
+#' if (requireNamespace("tna", quietly = TRUE)) {
+#'   # Census from tna object
+#'   Mod <- tna::tna(tna::group_regulation)
+#'   motifs(Mod)
 #'
-#' # Instances: specific node triples
-#' subgraphs(Mod)
+#'   # Instances: specific node triples
+#'   subgraphs(Mod)
 #' }
 #'
 #' @seealso [subgraphs()], [motif_census()], [extract_motifs()]

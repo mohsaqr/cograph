@@ -32,10 +32,11 @@ if (requireNamespace("igraph", quietly = TRUE)) {
   # Detect exactly 2 communities
   comm <- community_fluid(g, no.of.communities = 2)
 }
-\dontrun{
-net <- as_cograph(matrix(runif(25), 5, 5))
-com_fl(net)
-}
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+m <- matrix(runif(25), 5, 5); diag(m) <- 0
+net <- as_cograph(m)
+com_fl(net, no.of.communities = 2)
+\dontshow{\}) # examplesIf}
 }
 \references{
 Pares, F., Gasulla, D.G., Vilalta, A., Moreno, J., Ayguade, E.,

@@ -4,7 +4,7 @@
 \alias{splot.boot_glasso}
 \title{Plot Nestimate GLASSO Bootstrap Results}
 \usage{
-\method{splot}{boot_glasso}(
+splot.boot_glasso(
   x,
   use_thresholded = TRUE,
   show_inclusion = TRUE,

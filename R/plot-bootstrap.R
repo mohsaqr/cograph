@@ -317,7 +317,6 @@ splot.tna_bootstrap <- function(x,
 #'
 #' @return Invisibly returns the plot.
 #' @keywords internal
-#' @method splot net_bootstrap
 #' @export
 splot.net_bootstrap <- function(x,
                                 display       = c("styled", "significant", "full"),

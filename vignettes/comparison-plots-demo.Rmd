@@ -14,8 +14,8 @@ knitr::opts_chunk$set(
   warning = FALSE,
   fig.width = 8,
   fig.height = 7,
-  fig.dpi = 72,
-  dpi = 72
+  fig.dpi = 60,
+  dpi = 60
 )
 library(tna)
 devtools::load_all()

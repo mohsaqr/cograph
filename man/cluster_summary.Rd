@@ -256,9 +256,10 @@ cs <- cluster_summary(mat, clusters, type = "tna")
 tna_models <- as_tna(cs)
 # tna_models$macro         # tna object
 # tna_models$Alpha         # tna object (cluster network)
-\dontrun{
-csum(matrix_data, clusters)
-}
+mat <- matrix(c(0.5, 0.2, 0.3, 0.1, 0.6, 0.3, 0.4, 0.1, 0.5), 3, 3,
+              byrow = TRUE,
+              dimnames = list(c("A", "B", "C"), c("A", "B", "C")))
+csum(mat, list(G1 = c("A", "B"), G2 = c("C")))
 }
 \seealso{
 \code{\link{as_tna}} to convert results to tna objects,

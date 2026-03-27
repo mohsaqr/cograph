@@ -125,8 +125,14 @@ NULL
 #' )
 #' }
 #'
-#' \dontrun{
+#' \donttest{
 #' # Multi-step transitions (list of matrices)
+#' mat1 <- matrix(c(40, 10, 5, 15, 35, 5, 5, 15, 25), 3, 3, byrow = TRUE,
+#'                dimnames = list(c("A","B","C"), c("A","B","C")))
+#' mat2 <- matrix(c(35, 15, 5, 10, 30, 10, 10, 10, 30), 3, 3, byrow = TRUE,
+#'                dimnames = list(c("A","B","C"), c("A","B","C")))
+#' mat3 <- matrix(c(30, 20, 5, 5, 25, 15, 15, 5, 35), 3, 3, byrow = TRUE,
+#'                dimnames = list(c("A","B","C"), c("A","B","C")))
 #' plot_transitions(list(mat1, mat2, mat3),
 #'   from_title = c("T1", "T2", "T3", "T4"),
 #'   show_totals = TRUE

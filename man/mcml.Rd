@@ -36,7 +36,7 @@ Use \code{\link{cluster_summary}} instead. This function is provided for
 backward compatibility only.
 }
 \examples{
-\dontrun{
+\donttest{
 mat <- matrix(runif(100, 0, 0.3), 10, 10)
 diag(mat) <- 0
 colnames(mat) <- rownames(mat) <- paste0("N", 1:10)

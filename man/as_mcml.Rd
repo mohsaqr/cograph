@@ -61,12 +61,11 @@ m <- as_mcml(cs)
 m$macro$weights
 
 \dontrun{
-# From group_tna with cluster assignments
-library(tna)
+# From group_tna with cluster assignments (requires tna + Nestimate)
 seqs <- data.frame(T1 = c("A", "B", "A"), T2 = c("B", "A", "B"))
-mod <- tna(seqs)
-cl <- cluster_data(mod, k = 2)
-gt <- group_model(cl)
+mod <- tna::tna(seqs)
+cl <- Nestimate::cluster_data(mod, k = 2)
+gt <- tna::group_model(cl)
 m <- as_mcml(gt, clusters = cl$assignments)
 }
 }

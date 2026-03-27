@@ -431,7 +431,7 @@ plot_mcml(mat, clusters)
 cs <- cluster_summary(mat, clusters)
 plot_mcml(cs)
 
-\dontrun{
+\donttest{
 # 3. TNA mode — transition probabilities with edge labels
 plot_mcml(mat, clusters, mode = "tna")
 

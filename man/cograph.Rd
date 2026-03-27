@@ -79,10 +79,9 @@ cograph(w_adj) |>
   splot()
 
 # With igraph (if installed)
-\dontrun{
-library(igraph)
-g <- make_ring(10)
-cograph(g) |> splot()
+if (requireNamespace("igraph", quietly = TRUE)) {
+  g <- igraph::make_ring(10)
+  cograph(g) |> splot()
 }
 }
 \seealso{

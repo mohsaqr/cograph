@@ -8,7 +8,7 @@ plot_mixed_network(
   sym_matrix,
   asym_matrix,
   layout = "oval",
-  sym_color = "#457B9D",
+  sym_color = "ivory4",
   asym_color = COGRAPH_SCALE$tna_edge_color,
   curvature = 0.3,
   edge_width = NULL,
@@ -19,6 +19,7 @@ plot_mixed_network(
   arrow_size = 0.61,
   edge_label_size = 0.6,
   edge_label_position = 0.7,
+  initial = NULL,
   ...
 )
 }
@@ -58,6 +59,10 @@ Zero-weight edges are always removed regardless of this setting.}
 \item{edge_label_size}{Size of edge labels. Default 0.6.}
 
 \item{edge_label_position}{Position of edge labels along edge (0-1). Default 0.7.}
+
+\item{initial}{Optional named numeric vector of initial state probabilities
+(length = number of nodes). When provided, nodes are drawn as donuts with
+the fill proportion equal to the initial probability. Default NULL.}
 
 \item{...}{Additional arguments passed to splot().}
 }

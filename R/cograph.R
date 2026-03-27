@@ -185,10 +185,9 @@ compute_layout_for_cograph <- function(net, layout = "spring", seed = 42, ...) {
 #'   splot()
 #'
 #' # With igraph (if installed)
-#' \dontrun{
-#' library(igraph)
-#' g <- make_ring(10)
-#' cograph(g) |> splot()
+#' if (requireNamespace("igraph", quietly = TRUE)) {
+#'   g <- igraph::make_ring(10)
+#'   cograph(g) |> splot()
 #' }
 cograph <- function(input, layout = NULL, directed = NULL,
                    nodes = NULL, seed = 42, simplify = FALSE, ...) {
@@ -361,9 +360,9 @@ cograph <- function(input, layout = NULL, directed = NULL,
 #' cograph(adj) |> sn_layout("spring") |> splot()
 #'
 #' # igraph layouts (if igraph installed)
-#' \dontrun{
-#' cograph(adj) |> sn_layout("kk") |> splot()
-#' cograph(adj) |> sn_layout("fr") |> splot()
+#' if (requireNamespace("igraph", quietly = TRUE)) {
+#'   cograph(adj) |> sn_layout("kk") |> splot()
+#'   cograph(adj) |> sn_layout("fr") |> splot()
 #' }
 #'
 #' # Custom coordinates

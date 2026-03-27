@@ -69,11 +69,10 @@
 #' plot_chord(mat)
 #' plot_chord(mat, chord_alpha = 0.6, ticks = TRUE)
 #'
-#' \dontrun{
-#' # TNA transition network
-#' library(tna)
-#' model <- tna(group_regulation)
-#' plot_chord(model, ticks = TRUE, segment_width = 0.10)
+#' if (requireNamespace("tna", quietly = TRUE)) {
+#'   # TNA transition network
+#'   model <- tna::tna(tna::group_regulation)
+#'   plot_chord(model, ticks = TRUE, segment_width = 0.10)
 #' }
 #'
 #' @export

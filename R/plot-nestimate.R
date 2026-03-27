@@ -26,9 +26,23 @@ splot.netobject <- function(x, ...) {
 
   if (is.null(args$labels)) args$labels <- labels
 
+  # Auto-detect integer weights → suppress decimal places on matrix and labels
+  if (is.null(args$weight_digits)) {
+    nz <- x$weights[x$weights != 0]
+    if (length(nz) > 0 && all(nz == floor(nz))) {
+      args$weight_digits      <- 0L
+      if (is.null(args$edge_label_digits)) args$edge_label_digits <- 0L
+    }
+  }
+
   if (is_dir) {
     # Directed: tna_styling = TRUE applies all TNA defaults (oval layout,
     # node palette, arrow sizing, dotted edge starts, minimum = 0.01, etc.)
+    # If the netobject carries initial probabilities (tna/ftna/atna), show donuts.
+    if (!is.null(x$initial) && is.null(args$donut_fill)) {
+      args$donut_fill  <- as.numeric(x$initial)
+      args$donut_empty <- args$donut_empty %||% FALSE
+    }
     do.call(splot, c(list(x = x$weights, tna_styling = TRUE), args))
   } else {
     # Undirected: same node/edge styling but spring layout, no arrows, solid edges.
@@ -124,6 +138,45 @@ splot.boot_glasso <- function(x,
 }
 
 
+#' Plot a Mixed Window TNA Object
+#'
+#' Plot a \code{wtna_mixed} object either as a single overlaid network or as
+#' two separate group panels.
+#'
+#' @param x A \code{wtna_mixed} object (from Nestimate \code{wtna(..., method = "both")}).
+#' @param type Character. \code{"overlay"} (default) renders both networks on a
+#'   single canvas via \code{\link{plot_mixed_network}} — co-occurrence as straight
+#'   undirected edges, transitions as curved directed arrows.
+#'   \code{"group"} plots each component as a separate panel.
+#' @param ... Additional arguments passed to \code{\link{plot_mixed_network}}
+#'   (\code{type = "overlay"}) or \code{\link{splot}} (\code{type = "group"}).
+#'
+#' @return Invisibly returns \code{x}.
+#' @keywords internal
+#' @export
+splot.wtna_mixed <- function(x, type = c("overlay", "group"), ...) {
+  type <- match.arg(type)
+  if (type == "overlay") {
+    args <- list(...)
+    if (is.null(args$initial) && !is.null(x$transition$initial))
+      args$initial <- x$transition$initial
+    do.call(plot_mixed_network, c(
+      list(sym_matrix  = x$cooccurrence$weights,
+           asym_matrix = x$transition$weights),
+      args
+    ))
+  } else {
+    group <- structure(
+      list(Transition = x$transition, `Co-occurrence` = x$cooccurrence),
+      group_col = "network_type",
+      class = "netobject_group"
+    )
+    splot(group, ...)
+  }
+  invisible(x)
+}
+
+
 #' Plot a Group of Nestimate netobjects
 #'
 #' Creates a multi-panel plot for a \code{netobject_group} list, one panel per group.
@@ -137,6 +190,13 @@ splot.boot_glasso <- function(x,
 #' @param ... Additional arguments passed to \code{splot()}.
 #'
 #' @return Invisibly returns \code{x}.
+#' @examples
+#' mat <- matrix(c(0, .5, .3, .5, 0, .4, .3, .4, 0), 3, 3)
+#' colnames(mat) <- rownames(mat) <- c("A", "B", "C")
+#' net1 <- as_cograph(mat)
+#' net2 <- as_cograph(mat * 0.5)
+#' grp <- structure(list(G1 = net1, G2 = net2), class = c("netobject_group", "list"))
+#' plot_netobject_group(grp)
 #' @export
 plot_netobject_group <- function(x,
                                  nrow         = NULL,
@@ -205,6 +265,13 @@ plot.netobject_group <- function(x, ...) plot_netobject_group(x, ...)
 #' @param ... Additional arguments passed to \code{splot()}.
 #'
 #' @return Invisibly returns \code{x}.
+#' @examples
+#' mat <- matrix(c(0, .5, .3, .5, 0, .4, .3, .4, 0), 3, 3)
+#' colnames(mat) <- rownames(mat) <- c("A", "B", "C")
+#' btw <- as_cograph(mat)
+#' wth <- as_cograph(mat * 0.6)
+#' ml <- structure(list(between = btw, within = wth), class = c("netobject_ml", "list"))
+#' plot_netobject_ml(ml)
 #' @export
 plot_netobject_ml <- function(x,
                               layout       = NULL,

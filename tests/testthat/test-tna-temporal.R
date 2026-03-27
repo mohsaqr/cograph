@@ -270,6 +270,7 @@ test_that("parse_tna handles single-element sessions", {
 })
 
 test_that("simplify with real tna data produces correct totals", {
+  skip_on_cran()
   skip_if_not_installed("tna")
   library(tna)
   mod <- tna(human_ai)

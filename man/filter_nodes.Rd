@@ -86,9 +86,9 @@ net |>
   splot()
 
 # With igraph (keep_format = TRUE returns igraph)
-\dontrun{
-g <- igraph::make_ring(5)
-filter_nodes(g, degree >= 2, keep_format = TRUE)  # Returns igraph
+if (requireNamespace("igraph", quietly = TRUE)) {
+  g <- igraph::make_ring(5)
+  filter_nodes(g, degree >= 2, keep_format = TRUE)  # Returns igraph
 }
 }
 \seealso{

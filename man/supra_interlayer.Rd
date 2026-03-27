@@ -23,12 +23,12 @@ Inter-layer adjacency matrix
 Extract Inter-Layer Block
 }
 \examples{
-\dontrun{
-S <- supra_adjacency(layers, omega = 0.5)
+L1 <- matrix(c(0,.5,.3,.5,0,.4,.3,.4,0), 3, 3)
+L2 <- matrix(c(0,.2,.6,.2,0,.1,.6,.1,0), 3, 3)
+S <- supra_adjacency(list(L1 = L1, L2 = L2), omega = 0.5)
 supra_interlayer(S, 1, 2)
-}
-\dontrun{
-S <- supra_adjacency(layers, omega = 0.5)
+L1 <- matrix(c(0,.5,.3,.5,0,.4,.3,.4,0), 3, 3)
+L2 <- matrix(c(0,.2,.6,.2,0,.1,.6,.1,0), 3, 3)
+S <- supra_adjacency(list(L1 = L1, L2 = L2), omega = 0.5)
 extract_interlayer(S, 1, 2)
-}
 }

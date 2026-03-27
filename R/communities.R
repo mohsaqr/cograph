@@ -101,6 +101,16 @@ communities <- function(x,
 
   method <- match.arg(method)
 
+  # Check for directed graph with undirected-only method
+  undirected_only <- c("louvain", "leiden", "fast_greedy", "leading_eigenvector", "fluid")
+  if (method %in% undirected_only) {
+    g <- to_igraph(x)
+    if (igraph::is_directed(g)) {
+      message("Method '", method, "' requires undirected graph; falling back to 'walktrap'")
+      method <- "walktrap"
+    }
+  }
+
   # Dispatch to specific function
   switch(method,
     "louvain" = community_louvain(x, weights = weights, resolution = resolution,

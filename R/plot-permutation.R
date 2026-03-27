@@ -356,7 +356,6 @@ plot_group_permutation <- function(x, i = NULL, ...) {
 #'
 #' @return Invisibly returns the plot.
 #' @keywords internal
-#' @method splot net_permutation
 #' @export
 splot.net_permutation <- function(x,
                                   show_nonsig         = FALSE,

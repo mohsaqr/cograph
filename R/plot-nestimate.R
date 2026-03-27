@@ -18,7 +18,6 @@ NULL
 #'
 #' @return Invisibly returns the plot.
 #' @keywords internal
-#' @method splot netobject
 #' @export
 splot.netobject <- function(x, ...) {
   args   <- list(...)
@@ -62,7 +61,6 @@ splot.netobject <- function(x, ...) {
 #'
 #' @return Invisibly returns the plot.
 #' @keywords internal
-#' @method splot boot_glasso
 #' @export
 splot.boot_glasso <- function(x,
                               use_thresholded     = TRUE,

@@ -4,7 +4,7 @@
 \alias{splot.netobject}
 \title{Plot a Nestimate netobject}
 \usage{
-\method{splot}{netobject}(x, ...)
+splot.netobject(x, ...)
 }
 \arguments{
 \item{x}{A \code{netobject} (from Nestimate).}

@@ -399,7 +399,13 @@ splot.net_permutation <- function(x,
   if (is.null(args$node_fill))               args$node_fill               <- tna_color_palette(n_nodes)
   if (is.null(args$edge_label_leading_zero)) args$edge_label_leading_zero <- FALSE
 
-  edge_idx <- which(weights_display != 0, arr.ind = TRUE)
+  # For undirected networks splot only processes upper-triangle edges,
+  # so per-edge arrays must use the same index set.
+  if (is_directed) {
+    edge_idx <- which(weights_display != 0, arr.ind = TRUE)
+  } else {
+    edge_idx <- which(weights_display != 0 & upper.tri(weights_display), arr.ind = TRUE)
+  }
   n_edges  <- nrow(edge_idx)
 
   if (n_edges == 0) {

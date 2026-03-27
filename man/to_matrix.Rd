@@ -30,10 +30,10 @@ to_matrix(adj)
 net <- as_cograph(adj)
 to_matrix(net)
 
-# From igraph
-\dontrun{
-g <- igraph::make_ring(5)
-to_matrix(g)
+# From igraph (weighted graph)
+if (requireNamespace("igraph", quietly = TRUE)) {
+  g <- igraph::graph_from_adjacency_matrix(adj, mode = "undirected", weighted = TRUE)
+  to_matrix(g)
 }
 }
 \seealso{

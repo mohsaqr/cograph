@@ -27,9 +27,8 @@ A data frame with columns:
 Extract individual-level transition counts as an edge list from a tna object.
 }
 \examples{
-\dontrun{
-library(tna)
-Mod <- tna(group_regulation)
+\dontshow{if (requireNamespace("tna", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+Mod <- tna::tna(tna::group_regulation)
 
 # Get edge list by individual
 edges <- get_edge_list(Mod)
@@ -37,8 +36,7 @@ head(edges)
 
 # Aggregate across individuals
 agg_edges <- get_edge_list(Mod, by_individual = FALSE)
-}
-
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link[=extract_motifs]{extract_motifs()}} for motif analysis using edge lists

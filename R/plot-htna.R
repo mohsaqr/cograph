@@ -1112,7 +1112,7 @@ compute_circular_layout <- function(node_list, lab, group_indices, n_groups, ang
 #' @rdname plot_htna
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' mat <- matrix(runif(36, 0, 0.3), 6, 6)
 #' diag(mat) <- 0
 #' colnames(mat) <- rownames(mat) <- c("A", "B", "C", "D", "E", "F")

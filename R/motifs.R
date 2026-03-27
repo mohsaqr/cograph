@@ -696,10 +696,8 @@ extract_triads <- function(x, type = NULL, involving = NULL,
 #'     \item{count}{Number of transitions}
 #'   }
 #'
-#' @examples
-#' \dontrun{
-#' library(tna)
-#' Mod <- tna(group_regulation)
+#' @examplesIf requireNamespace("tna", quietly = TRUE)
+#' Mod <- tna::tna(tna::group_regulation)
 #'
 #' # Get edge list by individual
 #' edges <- get_edge_list(Mod)
@@ -707,7 +705,6 @@ extract_triads <- function(x, type = NULL, involving = NULL,
 #'
 #' # Aggregate across individuals
 #' agg_edges <- get_edge_list(Mod, by_individual = FALSE)
-#' }
 #'
 #' @seealso [extract_motifs()] for motif analysis using edge lists
 #' @family motifs

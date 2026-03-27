@@ -797,11 +797,10 @@ set_layout <- function(x, layout_df) {
 #' splot(net)
 #'
 #' # From igraph (if installed)
-#' \dontrun{
-#' library(igraph)
-#' g <- make_ring(10)
-#' net <- as_cograph(g)
-#' splot(net)
+#' if (requireNamespace("igraph", quietly = TRUE)) {
+#'   g <- igraph::make_ring(10)
+#'   net <- as_cograph(g)
+#'   splot(net)
 #' }
 as_cograph <- function(x, directed = NULL, simplify = FALSE, ...) {
   # Return as-is if already a cograph_network
@@ -874,10 +873,8 @@ as_cograph <- function(x, directed = NULL, simplify = FALSE, ...) {
 #' @return A \code{cograph_network} object. See \code{\link{as_cograph}}.
 #' @export
 #' @examples
-#' \dontrun{
 #' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 #' net <- to_cograph(mat)
-#' }
 to_cograph <- function(x, directed = NULL, ...) {
   as_cograph(x, directed = directed, ...)
 }

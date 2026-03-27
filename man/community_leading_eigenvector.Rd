@@ -63,10 +63,10 @@ g <- igraph::make_graph("Zachary")
 comm <- community_leading_eigenvector(g)
 igraph::membership(comm)
 \dontshow{\}) # examplesIf}
-\dontrun{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 net <- as_cograph(matrix(runif(25), 5, 5))
 com_le(net)
-}
+\dontshow{\}) # examplesIf}
 }
 \references{
 Newman, M.E.J. (2006).

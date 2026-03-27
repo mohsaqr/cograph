@@ -7,16 +7,25 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.width = 7,
-  fig.height = 6,
-  dpi = 150
-)
+```{r include=FALSE}
+
 library(cograph)
 library(tna)
+
+
+data("group_regulation_long")
+
+
+Model <- Nestimate::build_network(group_regulation_long, actor="Actor", action = "Action", time="Time", method = "relative")
+
+
+Sig <- Nestimate::bootstrap_network(Model)
+summary(Sig)
+
+splot(Model)
+splot(Sig)
+
+
 ```
 
 ## Introduction

@@ -515,9 +515,10 @@ cluster_summary <- function(x,
 #' @return See \code{\link{cluster_summary}}.
 #' @export
 #' @examples
-#' \dontrun{
-#' csum(matrix_data, clusters)
-#' }
+#' mat <- matrix(c(0.5, 0.2, 0.3, 0.1, 0.6, 0.3, 0.4, 0.1, 0.5), 3, 3,
+#'               byrow = TRUE,
+#'               dimnames = list(c("A", "B", "C"), c("A", "B", "C")))
+#' csum(mat, list(G1 = c("A", "B"), G2 = c("C")))
 csum <- cluster_summary
 
 # ==============================================================================
@@ -1404,21 +1405,24 @@ build_mcml <- function(x,
 #' # -----------------------------------------------------
 #' # Use with tna package (requires tna)
 #' # -----------------------------------------------------
-#' \dontrun{
-#' # Plot
-#' plot(tna_models$macro)
-#' plot(tna_models$G1)
+#' if (requireNamespace("tna", quietly = TRUE)) {
+#'   # Plot
+#'   plot(tna_models$macro)
+#'   plot(tna_models$G1)
 #'
-#' # Centrality analysis
-#' tna::centralities(tna_models$macro)
-#' tna::centralities(tna_models$G1)
-#' tna::centralities(tna_models$G2)
+#'   # Centrality analysis
+#'   tna::centralities(tna_models$macro)
+#'   tna::centralities(tna_models$G1)
+#'   tna::centralities(tna_models$G2)
 #' }
 #'
 #' \dontrun{
-#' # Bootstrap validation (requires tna built from sequence data)
-#' boot <- tna::bootstrap(tna_models$macro, iter = 1000)
-#' summary(boot)
+#' # Bootstrap requires a tna object built from raw sequence data (has $data)
+#' # as_tna() returns weight-matrix-based tnas which don't satisfy that requirement
+#' if (requireNamespace("tna", quietly = TRUE)) {
+#'   boot <- tna::bootstrap(tna_models$macro, iter = 1000)
+#'   summary(boot)
+#' }
 #' }
 #'
 #' # -----------------------------------------------------
@@ -1554,12 +1558,11 @@ as_tna.default <- function(x) {
 #' m$macro$weights
 #'
 #' \dontrun{
-#' # From group_tna with cluster assignments
-#' library(tna)
+#' # From group_tna with cluster assignments (requires tna + Nestimate)
 #' seqs <- data.frame(T1 = c("A", "B", "A"), T2 = c("B", "A", "B"))
-#' mod <- tna(seqs)
-#' cl <- cluster_data(mod, k = 2)
-#' gt <- group_model(cl)
+#' mod <- tna::tna(seqs)
+#' cl <- Nestimate::cluster_data(mod, k = 2)
+#' gt <- tna::group_model(cl)
 #' m <- as_mcml(gt, clusters = cl$assignments)
 #' }
 as_mcml <- function(x, ...) {
@@ -1808,9 +1811,9 @@ cluster_quality <- function(x,
 #' @return See \code{\link{cluster_quality}}.
 #' @export
 #' @examples
-#' \dontrun{
-#' cqual(cs)
-#' }
+#' mat <- matrix(runif(100), 10, 10)
+#' diag(mat) <- 0
+#' cqual(mat, c(1,1,1,2,2,2,3,3,3,3))
 cqual <- cluster_quality
 
 #' Compute modularity
@@ -2007,8 +2010,10 @@ cluster_significance <- function(x,
 #' @return See \code{\link{cluster_significance}}.
 #' @export
 #' @examples
-#' \dontrun{
-#' csig(cs)
+#' if (requireNamespace("igraph", quietly = TRUE)) {
+#'   g <- igraph::make_graph("Zachary")
+#'   comm <- community_louvain(g)
+#'   csig(g, comm, n_random = 20, seed = 1)
 #' }
 csig <- cluster_significance
 
@@ -2356,10 +2361,10 @@ supra <- supra_adjacency
 #' @return Intra-layer adjacency matrix
 #' @export
 #' @examples
-#' \dontrun{
-#' S <- supra_adjacency(layers, omega = 0.5)
+#' L1 <- matrix(c(0,.5,.3,.5,0,.4,.3,.4,0), 3, 3)
+#' L2 <- matrix(c(0,.2,.6,.2,0,.1,.6,.1,0), 3, 3)
+#' S <- supra_adjacency(list(L1 = L1, L2 = L2), omega = 0.5)
 #' supra_layer(S, 1)
-#' }
 supra_layer <- function(x, layer) {
   n <- attr(x, "n_nodes")
   L <- attr(x, "n_layers")
@@ -2380,10 +2385,10 @@ supra_layer <- function(x, layer) {
 #' @rdname supra_layer
 #' @export
 #' @examples
-#' \dontrun{
-#' S <- supra_adjacency(layers, omega = 0.5)
+#' L1 <- matrix(c(0,.5,.3,.5,0,.4,.3,.4,0), 3, 3)
+#' L2 <- matrix(c(0,.2,.6,.2,0,.1,.6,.1,0), 3, 3)
+#' S <- supra_adjacency(list(L1 = L1, L2 = L2), omega = 0.5)
 #' extract_layer(S, 2)
-#' }
 extract_layer <- supra_layer
 
 #' Extract Inter-Layer Block
@@ -2394,10 +2399,10 @@ extract_layer <- supra_layer
 #' @return Inter-layer adjacency matrix
 #' @export
 #' @examples
-#' \dontrun{
-#' S <- supra_adjacency(layers, omega = 0.5)
+#' L1 <- matrix(c(0,.5,.3,.5,0,.4,.3,.4,0), 3, 3)
+#' L2 <- matrix(c(0,.2,.6,.2,0,.1,.6,.1,0), 3, 3)
+#' S <- supra_adjacency(list(L1 = L1, L2 = L2), omega = 0.5)
 #' supra_interlayer(S, 1, 2)
-#' }
 supra_interlayer <- function(x, from, to) {
   n <- attr(x, "n_nodes")
   L <- attr(x, "n_layers")
@@ -2415,10 +2420,10 @@ supra_interlayer <- function(x, from, to) {
 #' @rdname supra_interlayer
 #' @export
 #' @examples
-#' \dontrun{
-#' S <- supra_adjacency(layers, omega = 0.5)
+#' L1 <- matrix(c(0,.5,.3,.5,0,.4,.3,.4,0), 3, 3)
+#' L2 <- matrix(c(0,.2,.6,.2,0,.1,.6,.1,0), 3, 3)
+#' S <- supra_adjacency(list(L1 = L1, L2 = L2), omega = 0.5)
 #' extract_interlayer(S, 1, 2)
-#' }
 extract_interlayer <- supra_interlayer
 
 # ==============================================================================
@@ -2561,12 +2566,12 @@ verify_with_igraph <- function(x, clusters, method = "sum", type = "raw") {
 #' @rdname verify_with_igraph
 #' @export
 #' @examples
-#' \dontrun{
-#' mat <- matrix(runif(100), 10, 10)
-#' diag(mat) <- 0
-#' rownames(mat) <- colnames(mat) <- LETTERS[1:10]
-#' clusters <- c(1,1,1,2,2,2,3,3,3,3)
-#' verify_igraph(mat, clusters)
+#' if (requireNamespace("igraph", quietly = TRUE)) {
+#'   mat <- matrix(runif(100), 10, 10)
+#'   diag(mat) <- 0
+#'   rownames(mat) <- colnames(mat) <- LETTERS[1:10]
+#'   clusters <- c(1,1,1,2,2,2,3,3,3,3)
+#'   verify_igraph(mat, clusters)
 #' }
 verify_igraph <- verify_with_igraph
 
@@ -2717,11 +2722,9 @@ print.cluster_quality <- function(x, ...) {
 #' splot(summary_net)
 #'
 #' # With cograph_network (auto-detect clusters column)
-#' \dontrun{
 #' Net <- cograph(mat)
 #' Net$nodes$clusters <- rep(c("A", "B", "C"), c(3, 3, 4))
 #' summary_net <- summarize_network(Net)  # Auto-detects 'clusters'
-#' }
 summarize_network <- function(x,
                                cluster_list = NULL,
                                method = c("sum", "mean", "max", "min",

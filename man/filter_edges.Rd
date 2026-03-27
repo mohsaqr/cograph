@@ -75,9 +75,9 @@ net |>
 filter_edges(net, weight > 0.7, .keep_isolates = TRUE)
 
 # With igraph (keep_format = TRUE returns igraph)
-\dontrun{
-g <- igraph::make_ring(5)
-filter_edges(g, weight > 0, keep_format = TRUE)  # Returns igraph
+if (requireNamespace("igraph", quietly = TRUE)) {
+  g <- igraph::make_ring(5)
+  filter_edges(g, weight > 0, keep_format = TRUE)  # Returns igraph
 }
 }
 \seealso{

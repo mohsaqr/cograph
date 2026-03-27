@@ -39,3 +39,4 @@ aside/
 tmp/
 slow_animation.gif
 tna_animation.gif
+*.log

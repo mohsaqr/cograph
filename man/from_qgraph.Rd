@@ -96,11 +96,10 @@ with hanging labels.
 }
 }
 \examples{
-\dontrun{
+\dontshow{if (requireNamespace("qgraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Convert and plot a qgraph object
-library(qgraph)
 adj <- matrix(c(0, .5, .3, .5, 0, .4, .3, .4, 0), 3, 3)
-q <- qgraph(adj)
+q <- qgraph::qgraph(adj)
 from_qgraph(q)  # Plots with splot
 
 # Use soplot engine instead
@@ -114,10 +113,9 @@ params <- from_qgraph(q, plot = FALSE)
 names(params)  # See what was extracted
 
 # Works with themed qgraph objects
-q_themed <- qgraph(adj, theme = "colorblind", posCol = "blue")
+q_themed <- qgraph::qgraph(adj, theme = "colorblind", posCol = "blue")
 from_qgraph(q_themed)
-}
-
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link{cograph}} for creating networks from scratch,

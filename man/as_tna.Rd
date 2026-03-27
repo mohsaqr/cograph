@@ -131,21 +131,24 @@ tna_models$G1$weights      # 2x2 matrix (A, B)
 # -----------------------------------------------------
 # Use with tna package (requires tna)
 # -----------------------------------------------------
-\dontrun{
-# Plot
-plot(tna_models$macro)
-plot(tna_models$G1)
+if (requireNamespace("tna", quietly = TRUE)) {
+  # Plot
+  plot(tna_models$macro)
+  plot(tna_models$G1)
 
-# Centrality analysis
-tna::centralities(tna_models$macro)
-tna::centralities(tna_models$G1)
-tna::centralities(tna_models$G2)
+  # Centrality analysis
+  tna::centralities(tna_models$macro)
+  tna::centralities(tna_models$G1)
+  tna::centralities(tna_models$G2)
 }
 
 \dontrun{
-# Bootstrap validation (requires tna built from sequence data)
-boot <- tna::bootstrap(tna_models$macro, iter = 1000)
-summary(boot)
+# Bootstrap requires a tna object built from raw sequence data (has $data)
+# as_tna() returns weight-matrix-based tnas which don't satisfy that requirement
+if (requireNamespace("tna", quietly = TRUE)) {
+  boot <- tna::bootstrap(tna_models$macro, iter = 1000)
+  summary(boot)
+}
 }
 
 # -----------------------------------------------------

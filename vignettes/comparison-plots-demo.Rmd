@@ -87,7 +87,7 @@ plot_permutation(permutation_results,
 ## 1.5 Group TNA (All Pairs)
 
 ```{r compare-group-tna, fig.width=14, fig.height=10}
-group_model <- group_model(engagement_mmm)
+group_model <- group_model(group_regulation, group = c(rep("H",1000),rep("L",1000)))
 plot_compare(group_model, node_size = 7)
 ```
 

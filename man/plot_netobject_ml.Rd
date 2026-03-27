@@ -34,3 +34,11 @@ Invisibly returns \code{x}.
 Creates a side-by-side plot for a \code{netobject_ml} object, showing the
 between-person and within-person networks.
 }
+\examples{
+mat <- matrix(c(0, .5, .3, .5, 0, .4, .3, .4, 0), 3, 3)
+colnames(mat) <- rownames(mat) <- c("A", "B", "C")
+btw <- as_cograph(mat)
+wth <- as_cograph(mat * 0.6)
+ml <- structure(list(between = btw, within = wth), class = c("netobject_ml", "list"))
+plot_netobject_ml(ml)
+}

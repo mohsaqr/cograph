@@ -92,16 +92,13 @@ net <- set_layout(net, data.frame(x = c(0, 1, 0.5), y = c(0, 0, 1)))
 splot(net)
 
 # From igraph (if installed)
-\dontrun{
-library(igraph)
-g <- make_ring(10)
-net <- as_cograph(g)
-splot(net)
+if (requireNamespace("igraph", quietly = TRUE)) {
+  g <- igraph::make_ring(10)
+  net <- as_cograph(g)
+  splot(net)
 }
-\dontrun{
 mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 net <- to_cograph(mat)
-}
 }
 \seealso{
 \code{\link{get_nodes}} to extract the nodes data frame,

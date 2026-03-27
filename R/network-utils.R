@@ -348,9 +348,9 @@ color_communities <- function(x, method = "louvain", palette = NULL, ...) {
 #' filter_edges(net, weight > 0.7, .keep_isolates = TRUE)
 #'
 #' # With igraph (keep_format = TRUE returns igraph)
-#' \dontrun{
-#' g <- igraph::make_ring(5)
-#' filter_edges(g, weight > 0, keep_format = TRUE)  # Returns igraph
+#' if (requireNamespace("igraph", quietly = TRUE)) {
+#'   g <- igraph::make_ring(5)
+#'   filter_edges(g, weight > 0, keep_format = TRUE)  # Returns igraph
 #' }
 filter_edges <- function(x, ..., .keep_isolates = FALSE, keep_format = FALSE,
                          directed = NULL) {
@@ -469,9 +469,9 @@ filter_edges <- function(x, ..., .keep_isolates = FALSE, keep_format = FALSE,
 #'   splot()
 #'
 #' # With igraph (keep_format = TRUE returns igraph)
-#' \dontrun{
-#' g <- igraph::make_ring(5)
-#' filter_nodes(g, degree >= 2, keep_format = TRUE)  # Returns igraph
+#' if (requireNamespace("igraph", quietly = TRUE)) {
+#'   g <- igraph::make_ring(5)
+#'   filter_nodes(g, degree >= 2, keep_format = TRUE)  # Returns igraph
 #' }
 filter_nodes <- function(x, ..., .keep_edges = c("internal", "none"),
                          keep_format = FALSE, directed = NULL) {
@@ -875,10 +875,10 @@ to_df <- function(x, directed = NULL) {
 #' net <- as_cograph(adj)
 #' to_matrix(net)
 #'
-#' # From igraph
-#' \dontrun{
-#' g <- igraph::make_ring(5)
-#' to_matrix(g)
+#' # From igraph (weighted graph)
+#' if (requireNamespace("igraph", quietly = TRUE)) {
+#'   g <- igraph::graph_from_adjacency_matrix(adj, mode = "undirected", weighted = TRUE)
+#'   to_matrix(g)
 #' }
 to_matrix <- function(x, directed = NULL) {
 
@@ -923,10 +923,10 @@ to_matrix <- function(x, directed = NULL) {
 #'
 #' @export
 #' @examples
-#' \dontrun{
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' net <- to_network(adj)
+#' if (requireNamespace("network", quietly = TRUE)) {
+#'   adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+#'   rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+#'   net <- to_network(adj)
 #' }
 to_network <- function(x, directed = NULL) {
 

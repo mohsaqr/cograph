@@ -1773,11 +1773,9 @@ edge_centrality <- function(x, measures = "all",
 #'   \code{"from->to"}).
 #' @export
 #' @examples
-#' \dontrun{
 #' mat <- matrix(c(0,1,1,0, 1,0,1,1, 1,1,0,0, 0,1,0,0), 4, 4)
 #' rownames(mat) <- colnames(mat) <- c("A", "B", "C", "D")
 #' edge_betweenness(mat)
-#' }
 edge_betweenness <- function(x, ...) {
   df <- edge_centrality(x, measures = "betweenness", ...)
   stats::setNames(df$betweenness, paste(df$from, df$to, sep = "->"))

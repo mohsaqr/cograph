@@ -124,14 +124,13 @@ mat <- matrix(c(0,3,2,0, 0,0,5,1, 0,0,0,4, 2,0,0,0), 4, 4, byrow = TRUE)
 rownames(mat) <- colnames(mat) <- c("Plan","Execute","Monitor","Adapt")
 motifs(mat, significance = FALSE)
 
-\dontrun{
-# Census from tna object
-library(tna)
-Mod <- tna(coding)
-motifs(Mod)
+if (requireNamespace("tna", quietly = TRUE)) {
+  # Census from tna object
+  Mod <- tna::tna(tna::group_regulation)
+  motifs(Mod)
 
-# Instances: specific node triples
-subgraphs(Mod)
+  # Instances: specific node triples
+  subgraphs(Mod)
 }
 
 }

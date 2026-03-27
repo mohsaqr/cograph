@@ -18,10 +18,10 @@ A network object from the network package.
 Converts any supported network format to a statnet network object.
 }
 \examples{
-\dontrun{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-net <- to_network(adj)
+if (requireNamespace("network", quietly = TRUE)) {
+  adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+  rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+  net <- to_network(adj)
 }
 }
 \seealso{

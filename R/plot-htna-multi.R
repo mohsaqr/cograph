@@ -67,7 +67,7 @@
 #' @seealso \code{\link{cluster_summary}}, \code{\link{plot_mcml}}
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Create network with 4 clusters
 #' nodes <- paste0("N", 1:20)
 #' m <- matrix(runif(400, 0, 0.3), 20, 20)
@@ -881,7 +881,7 @@ plot_mtna <- function(
 #' @return See \code{\link{plot_mtna}}.
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' nodes <- paste0("N", 1:12)
 #' m <- matrix(runif(144, 0, 0.3), 12, 12)
 #' diag(m) <- 0

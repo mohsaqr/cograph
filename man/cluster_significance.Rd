@@ -86,8 +86,10 @@ if (requireNamespace("igraph", quietly = TRUE)) {
   # Configuration model (stricter test)
   sig2 <- cluster_significance(g, comm, method = "configuration")
 }
-\dontrun{
-csig(cs)
+if (requireNamespace("igraph", quietly = TRUE)) {
+  g <- igraph::make_graph("Zachary")
+  comm <- community_louvain(g)
+  csig(g, comm, n_random = 20, seed = 1)
 }
 }
 \references{

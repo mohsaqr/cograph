@@ -63,10 +63,10 @@ g <- igraph::make_graph("Zachary")
 comm <- community_edge_betweenness(g)
 igraph::membership(comm)
 \dontshow{\}) # examplesIf}
-\dontrun{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 net <- as_cograph(matrix(runif(25), 5, 5))
 com_eb(net)
-}
+\dontshow{\}) # examplesIf}
 }
 \references{
 Girvan, M., & Newman, M.E.J. (2002).

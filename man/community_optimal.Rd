@@ -34,10 +34,10 @@ g <- igraph::make_ring(10)
 comm <- community_optimal(g)
 igraph::membership(comm)
 \dontshow{\}) # examplesIf}
-\dontrun{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 net <- as_cograph(matrix(runif(25), 5, 5))
 com_op(net)
-}
+\dontshow{\}) # examplesIf}
 }
 \references{
 Brandes, U., Delling, D., Gaertler, M., Gorke, R., Hoefer, M.,

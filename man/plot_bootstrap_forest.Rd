@@ -4,6 +4,7 @@
 \alias{plot_bootstrap_forest}
 \alias{plot_bootstrap_forest.net_bootstrap}
 \alias{plot_bootstrap_forest.boot_glasso}
+\alias{plot_bootstrap_forest.net_bootstrap_group}
 \title{Forest Plot for Bootstrap Network Results}
 \usage{
 plot_bootstrap_forest(x, ...)
@@ -55,6 +56,20 @@ plot_bootstrap_forest(x, ...)
   gap_rad = 0.1,
   title = NULL,
   subtitle = NULL,
+  ...
+)
+
+\method{plot_bootstrap_forest}{net_bootstrap_group}(
+  x,
+  layout = c("linear", "circular"),
+  interval = c("ci", "cr", "both"),
+  show_nonsig = TRUE,
+  n_top = NULL,
+  all_edges = FALSE,
+  pos_color = NULL,
+  title = NULL,
+  subtitle = NULL,
+  label_size = 2.8,
   ...
 )
 }

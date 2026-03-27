@@ -1,5 +1,13 @@
 # Project Learnings
 
+### 2026-03-27 (CRAN --as-cran example fixes)
+- [louvain vs directed graphs]: `igraph::cluster_louvain` requires undirected graphs. Any example passing a directed tna weight matrix to `communities(..., method="louvain")` will fail. Use `method = "infomap"` for directed inputs.
+- [donttest vs dontrun under --as-cran]: `\donttest{}` blocks ARE executed when `--as-cran` is set (via `--run-donttest`). Only `\dontrun{}` is guaranteed to never run. Use `\dontrun{}` for examples that need unavailable packages, cross-package dependencies, or locale-sensitive graphics.
+- [Unicode in ggplot labels fails in check locale]: Characters outside Latin-1 (subscripts ₁₂, ⇔, −, β, etc.) cause `grid.Call(C_textBounds, ...) : conversion failure` in the CRAN check environment which uses a non-UTF8 locale. Replace with ASCII in any rendered plot label (axis, title, caption). Error messages in `stop()` are fine.
+- [igraph::make_ring is unweighted]: `make_ring(n)` creates a graph with no weight attribute. `to_matrix.igraph` calls `as_adjacency_matrix(..., attr = "weight")` which errors on unweighted graphs. Use `graph_from_adjacency_matrix(mat, weighted = TRUE)` in examples.
+- [tna datasets]: tna exports `group_regulation`, `group_regulation_long`, `engagement`, `engagement_mmm`. Does NOT export `coding` — that is a cograph dataset.
+- [persistent_homology input]: Takes a netobject/matrix, NOT a `simplicial_complex`. `.sc_extract_matrix()` dispatches on tna, netobject, cograph_network, net_hon, raw matrix — not simplicial_complex. Call `persistent_homology(net)`, not `persistent_homology(sc)`.
+
 ### 2026-03-23 (Nestimate bootstrap/permutation validation)
 - [net_permutation undirected edge_idx bug]: `splot.net_permutation` used `which(weights_display != 0, arr.ind=TRUE)` for all networks, producing 2N edges for symmetric undirected matrices. splot only processes upper-triangle edges for undirected, so per-edge arrays (colors, styles, fontfaces) had wrong length. Fixed by adding `if (is_directed) ... else ... & upper.tri()` — same pattern already used in `splot.net_bootstrap`.
 - [Nestimate $significant field]: `net_bootstrap$significant` is a weight matrix (significant weights, 0 for non-sig), NOT a logical mask. Equivalent to `weights * (p_values < ci_level)`. cograph computes this correctly.

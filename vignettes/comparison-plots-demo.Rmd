@@ -18,6 +18,7 @@ knitr::opts_chunk$set(
   dpi = 60
 )
 library(tna)
+library(cograph)
 set.seed(42)
 ```
 

@@ -209,14 +209,10 @@ plot_heatmap(m1, title = "Network Heatmap", colors = "viridis")
 
 ## 4.2 Comparison Heatmaps
 
-```{r heatmap-compare, fig.width=12, fig.height=4}
-library(patchwork)
-
-p1 <- plot_heatmap(m1, title = "Network 1", colors = "blues")
-p2 <- plot_heatmap(m2, title = "Network 2", colors = "blues")
-p3 <- plot_comparison_heatmap(m1, m2, type = "difference")
-
-p1 + p2 + p3
+```{r heatmap-compare, fig.width=12, fig.height=4, fig.ncol=3}
+plot_heatmap(m1, title = "Network 1", colors = "blues")
+plot_heatmap(m2, title = "Network 2", colors = "blues")
+plot_comparison_heatmap(m1, m2, type = "difference")
 ```
 
 ## 4.3 Group TNA Supra-Adjacency

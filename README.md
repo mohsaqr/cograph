@@ -1,5 +1,5 @@
 
-# cograph <img src="man/figures/logo.png" align="right" height="139" />
+# cograph <img src="https://sonsoles.me/cograph/reference/figures/logo.png" align="right" width="139" />
 
 <!-- badges: start -->
 
@@ -101,7 +101,7 @@ library(tna)
 library(cograph)
 
 # Build a TNA model from sequence data
-fit <- tna(group_regulation)
+fit <- tna(engagement)
 
 # One-liner visualization
 splot(fit)
@@ -256,12 +256,6 @@ plot_transitions(mat, flow_color_by = "from", flow_alpha = 0.5,
 ```
 
 <img src="man/figures/README-alluvial-1.jpeg" alt="" width="100%" />
-
-## Quality
-
-- 100% test coverage (13,450+ tests)
-- R CMD check: 0 errors, 0 warnings
-- All exported functions documented with `@return` and `@examples`
 
 ## License
 

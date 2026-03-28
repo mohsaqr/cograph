@@ -273,7 +273,7 @@ test_that("simplify with real tna data produces correct totals", {
   skip_on_cran()
   skip_if_not_installed("tna")
   library(tna)
-  mod <- tna(human_ai)
+  mod <- tna(human_wide)
 
   parsed_raw <- parse_tna(mod, simplify = FALSE)
   parsed_agg <- parse_tna(mod, simplify = "sum")

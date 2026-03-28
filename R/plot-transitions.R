@@ -201,6 +201,21 @@ plot_transitions <- function(x,
   bundle_legend_position <- match.arg(bundle_legend_position)
   if (is.null(value_halo)) value_halo <- label_halo
 
+  # Handle tna objects: convert to a format the existing paths understand
+  if (inherits(x, "tna")) {
+    if (!is.null(x$data) && is.matrix(x$data)) {
+      # Sequence data available: convert integer indices to labeled data.frame
+      labs <- x$labels %||% as.character(seq_len(max(x$data, na.rm = TRUE)))
+      x <- as.data.frame(apply(x$data, 2, function(col) labs[col]),
+                          stringsAsFactors = FALSE)
+      # Drop rows with any NA (ragged sequences padded with NA)
+      x <- x[stats::complete.cases(x), , drop = FALSE]
+    } else {
+      # No sequence data: fall back to weight matrix (single-step transition)
+      x <- x$weights
+    }
+  }
+
   # Handle multi-step transitions (list of matrices)
   if (is.list(x) && !is.data.frame(x)) {
     p <- .plot_transitions_multi(

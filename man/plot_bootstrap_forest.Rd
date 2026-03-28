@@ -3,6 +3,7 @@
 \name{plot_bootstrap_forest}
 \alias{plot_bootstrap_forest}
 \alias{plot_bootstrap_forest.net_bootstrap}
+\alias{plot_bootstrap_forest.tna_bootstrap}
 \alias{plot_bootstrap_forest.boot_glasso}
 \alias{plot_bootstrap_forest.net_bootstrap_group}
 \title{Forest Plot for Bootstrap Network Results}
@@ -10,6 +11,31 @@
 plot_bootstrap_forest(x, ...)
 
 \method{plot_bootstrap_forest}{net_bootstrap}(
+  x,
+  alpha = NULL,
+  layout = c("linear", "circular", "grouped"),
+  interval = c("ci", "cr", "both"),
+  show_nonsig = TRUE,
+  sort_by = c("estimate", "significance", "name"),
+  n_top = NULL,
+  node_colors = NULL,
+  sig_color = "#2C6E8A",
+  cr_color = "#D4829A",
+  nonsig_color = "#CCCCCC",
+  ring_color = "#C8C8C8",
+  median_color = "#AAAAAA",
+  label_size = 2.9,
+  label_color = NULL,
+  point_size = if (match.arg(layout) == "circular") 2 else 3,
+  r_inner = 0.38,
+  r_outer = 0.72,
+  gap_rad = 0.1,
+  title = NULL,
+  subtitle = NULL,
+  ...
+)
+
+\method{plot_bootstrap_forest}{tna_bootstrap}(
   x,
   alpha = NULL,
   layout = c("linear", "circular", "grouped"),
@@ -74,7 +100,8 @@ plot_bootstrap_forest(x, ...)
 )
 }
 \arguments{
-\item{x}{A \code{net_bootstrap} or \code{boot_glasso} object.}
+\item{x}{A \code{tna_bootstrap} (from \code{tna::bootstrap}),
+\code{net_bootstrap}, or \code{boot_glasso} object.}
 
 \item{...}{Currently unused.}
 

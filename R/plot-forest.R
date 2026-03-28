@@ -70,6 +70,50 @@ utils::globalVariables(c(
   )
 }
 
+# Extract long-form data frame from a tna_bootstrap object.
+# Returns columns: edge, estimate, ci_lower, ci_upper, cr_lower, cr_upper,
+#                  p_value, sig, has_cr
+.forest_df_tna_bootstrap <- function(x, alpha) {
+  alpha <- alpha %||% x$level %||% 0.05
+
+  # tna_bootstrap uses different field names than net_bootstrap
+  mean_mat <- x$weights_mean %||% x$weights_orig %||% x$model$weights
+  lo_mat   <- x$ci_lower
+  hi_mat   <- x$ci_upper
+  pv_mat   <- x$p_values
+  crl_mat  <- x$cr_lower
+  crh_mat  <- x$cr_upper
+
+  if (is.null(mean_mat)) {
+    stop("Cannot find weight matrix in bootstrap object", call. = FALSE)
+  }
+
+  # TNA networks are always directed
+  nms <- rownames(mean_mat) %||% x$model$labels %||%
+         as.character(seq_len(nrow(mean_mat)))
+
+  keep <- which(mean_mat != 0, arr.ind = TRUE)
+  keep <- keep[keep[, 1] != keep[, 2], , drop = FALSE]
+  sep  <- " \u2192 "
+
+  if (nrow(keep) == 0) {
+    stop("No non-zero edges found in bootstrap results.", call. = FALSE)
+  }
+
+  data.frame(
+    edge     = paste0(nms[keep[, 1]], sep, nms[keep[, 2]]),
+    estimate = mean_mat[keep],
+    ci_lower = lo_mat[keep],
+    ci_upper = hi_mat[keep],
+    cr_lower = if (!is.null(crl_mat)) crl_mat[keep] else NA_real_,
+    cr_upper = if (!is.null(crh_mat)) crh_mat[keep] else NA_real_,
+    p_value  = pv_mat[keep],
+    sig      = pv_mat[keep] < alpha,
+    has_cr   = !is.null(crl_mat),
+    stringsAsFactors = FALSE
+  )
+}
+
 # Extract long-form data frame from a boot_glasso object.
 # boot_glasso has no consistency range -- cr columns set to NA.
 .forest_df_boot_glasso <- function(x, alpha) {
@@ -728,7 +772,8 @@ utils::globalVariables(c(
 #' range (\code{cr_lower}/\code{cr_upper}) are available. Use
 #' \code{interval = "both"} to overlay both on the same plot.
 #'
-#' @param x A \code{net_bootstrap} or \code{boot_glasso} object.
+#' @param x A \code{tna_bootstrap} (from \code{tna::bootstrap}),
+#'   \code{net_bootstrap}, or \code{boot_glasso} object.
 #' @param alpha Significance threshold. Default: inherits from the object
 #'   (\code{$ci_level} or \code{$alpha}), falling back to \code{0.05}.
 #' @param interval Which interval to display: \code{"ci"} (bootstrap confidence
@@ -798,6 +843,99 @@ plot_bootstrap_forest.net_bootstrap <- function(
     if (!is.null(orig_nodes) && "color" %in% names(orig_nodes)) {
       nms         <- orig_nodes$name %||% orig_nodes$label %||% orig_nodes$id
       node_colors <- setNames(orig_nodes$color, nms)
+    }
+  }
+
+  grouped_args <- list(
+    df           = df,
+    interval     = match.arg(interval),
+    show_nonsig  = show_nonsig,
+    n_top        = n_top,
+    node_colors  = node_colors,
+    cr_color     = cr_color,
+    ring_color   = ring_color,
+    median_color = median_color,
+    label_size   = label_size,
+    label_color  = label_color,
+    point_size   = point_size,
+    r_inner      = r_inner,
+    r_outer      = r_outer,
+    gap_rad      = gap_rad,
+    title        = title,
+    subtitle     = subtitle
+  )
+  if (layout == "grouped") {
+    do.call(.build_grouped_radial_plot, grouped_args)
+  } else if (layout == "circular") {
+    .build_radial_forest_plot(
+      df,
+      interval     = match.arg(interval),
+      show_nonsig  = show_nonsig,
+      n_top        = n_top,
+      sig_color    = sig_color,
+      cr_color     = cr_color,
+      nonsig_color = nonsig_color,
+      ring_color   = ring_color,
+      median_color = median_color,
+      label_size   = label_size,
+      label_color  = label_color,
+      point_size   = point_size,
+      title        = title,
+      subtitle     = subtitle
+    )
+  } else {
+    .build_forest_plot(
+      df,
+      interval     = match.arg(interval),
+      show_nonsig  = show_nonsig,
+      sort_by      = match.arg(sort_by),
+      n_top        = n_top,
+      sig_color    = sig_color,
+      cr_color     = cr_color,
+      nonsig_color = nonsig_color,
+      point_size   = point_size,
+      title        = title,
+      subtitle     = subtitle
+    )
+  }
+}
+
+#' @rdname plot_bootstrap_forest
+#' @method plot_bootstrap_forest tna_bootstrap
+#' @export
+plot_bootstrap_forest.tna_bootstrap <- function(
+    x,
+    alpha        = NULL,
+    layout       = c("linear", "circular", "grouped"),
+    interval     = c("ci", "cr", "both"),
+    show_nonsig  = TRUE,
+    sort_by      = c("estimate", "significance", "name"),
+    n_top        = NULL,
+    node_colors  = NULL,
+    sig_color    = "#2C6E8A",
+    cr_color     = "#D4829A",
+    nonsig_color = "#CCCCCC",
+    ring_color   = "#C8C8C8",
+    median_color = "#AAAAAA",
+    label_size   = 2.9,
+    label_color  = NULL,
+    point_size   = if (match.arg(layout) == "circular") 2 else 3,
+    r_inner      = 0.38,
+    r_outer      = 0.72,
+    gap_rad      = 0.10,
+    title        = NULL,
+    subtitle     = NULL,
+    ...
+) {
+  layout <- match.arg(layout)
+  df     <- .forest_df_tna_bootstrap(x, alpha)
+
+  # Auto-read node colors from the tna model if not supplied
+  if (is.null(node_colors) && layout == "grouped") {
+    if (!is.null(x$model$colors)) {
+      nms         <- x$model$labels %||% rownames(x$weights_mean) %||%
+                     as.character(seq_along(x$model$colors))
+      node_colors <- setNames(x$model$colors, nms)
     }
   }
 

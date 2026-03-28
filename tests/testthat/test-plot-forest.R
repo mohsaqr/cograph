@@ -1,3 +1,29 @@
+test_that("plot_bootstrap_forest.tna_bootstrap linear works", {
+  skip_if_not_installed("tna")
+  library(tna)
+  model <- tna(engagement)
+  boot <- bootstrap(model, iter = 50)
+  p <- plot_bootstrap_forest(boot)
+  expect_true(inherits(p, "ggplot"))
+})
+
+test_that("plot_bootstrap_forest.tna_bootstrap circular works", {
+  skip_if_not_installed("tna")
+  library(tna)
+  model <- tna(engagement)
+  boot <- bootstrap(model, iter = 50)
+  p <- plot_bootstrap_forest(boot, layout = "circular")
+  expect_true(inherits(p, "ggplot"))
+})
+
+test_that("plot_bootstrap_forest.tna_bootstrap grouped works", {
+  skip_if_not_installed("tna")
+  library(tna)
+  model <- tna(engagement)
+  boot <- bootstrap(model, iter = 50)
+  p <- plot_bootstrap_forest(boot, layout = "grouped")
+  expect_true(inherits(p, "ggplot"))
+})
 
 test_that("plot_bootstrap_forest.net_bootstrap circular works", {
   skip_if_not_installed("Nestimate")

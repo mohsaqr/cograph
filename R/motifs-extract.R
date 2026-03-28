@@ -93,7 +93,8 @@
 #'   \item{Empty:}{003 (no edges)}
 #' }
 #'
-#' @examplesIf requireNamespace("tna", quietly = TRUE)
+#' @examples
+#' \dontrun{
 #' Mod <- tna::tna(tna::group_regulation)
 #'
 #' # Basic: triangles only (default) - individual level for tna
@@ -114,7 +115,6 @@
 #' # Triangles but exclude cliques
 #' m <- extract_motifs(Mod, pattern = "triangle", exclude_types = "300")
 #'
-#' \donttest{
 #' # From data.frame with ID column (individual level)
 #' # df has columns: id, from, to (and optionally weight)
 #' # m <- extract_motifs(data = df, id = "id")
@@ -510,7 +510,8 @@ print.cograph_motif_analysis <- function(x, n = 20, ...) {
 #'
 #' @return Invisibly returns NULL for triad plots, or a ggplot2 object for other types.
 #'
-#' @examplesIf requireNamespace("tna", quietly = TRUE)
+#' @examples
+#' \dontrun{
 #' Mod <- tna::tna(tna::group_regulation)
 #' m <- extract_motifs(Mod, significance = TRUE)
 #'
@@ -526,6 +527,7 @@ print.cograph_motif_analysis <- function(x, n = 20, ...) {
 #' # Other plot types
 #' plot(m, type = "types")
 #' plot(m, type = "significance")
+#' }
 #'
 #' @seealso [extract_motifs()] for the analysis that produces this object,
 #'   [motif_census()] for statistical motif analysis

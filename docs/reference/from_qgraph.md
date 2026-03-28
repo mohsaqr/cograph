@@ -134,25 +134,34 @@ for tna object conversion
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
 # Convert and plot a qgraph object
-library(qgraph)
 adj <- matrix(c(0, .5, .3, .5, 0, .4, .3, .4, 0), 3, 3)
-q <- qgraph(adj)
+q <- qgraph::qgraph(adj)
+
 from_qgraph(q)  # Plots with splot
+
 
 # Use soplot engine instead
 from_qgraph(q, engine = "soplot")
 
+
 # Override extracted parameters
 from_qgraph(q, node_fill = "steelblue", layout = "circle")
+
 
 # Extract parameters without plotting
 params <- from_qgraph(q, plot = FALSE)
 names(params)  # See what was extracted
+#>  [1] "x"                   "weight_digits"       "layout"             
+#>  [4] "rescale"             "labels"              "node_fill"          
+#>  [7] "node_size"           "node_shape"          "node_border_color"  
+#> [10] "node_border_width"   "label_size"          "label_color"        
+#> [13] "edge_labels"         "edge_label_size"     "edge_style"         
+#> [16] "arrow_size"          "edge_label_position" "threshold"          
+#> [19] "maximum"             "groups"              "directed"           
 
 # Works with themed qgraph objects
-q_themed <- qgraph(adj, theme = "colorblind", posCol = "blue")
+q_themed <- qgraph::qgraph(adj, theme = "colorblind", posCol = "blue")
+
 from_qgraph(q_themed)
-} # }
 ```

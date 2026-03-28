@@ -132,9 +132,8 @@ cograph(w_adj) |>
 
 
 # With igraph (if installed)
-if (FALSE) { # \dontrun{
-library(igraph)
-g <- make_ring(10)
-cograph(g) |> splot()
-} # }
+if (requireNamespace("igraph", quietly = TRUE)) {
+  g <- igraph::make_ring(10)
+  cograph(g) |> splot()
+}
 ```

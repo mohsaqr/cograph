@@ -88,8 +88,11 @@ if (requireNamespace("igraph", quietly = TRUE)) {
   initial[is.na(initial)] <- seq_len(sum(is.na(initial)))
   comm2 <- community_label_propagation(g, initial = initial, fixed = fixed)
 }
-if (FALSE) { # \dontrun{
 net <- as_cograph(matrix(runif(25), 5, 5))
 com_lp(net)
-} # }
+#> Community structure (label_propagation)
+#>   Number of communities: 1 
+#>   Modularity: 0 
+#>   Community sizes: 5 
+#>   Nodes: 5 
 ```

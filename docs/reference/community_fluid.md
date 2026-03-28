@@ -49,8 +49,12 @@ if (requireNamespace("igraph", quietly = TRUE)) {
   # Detect exactly 2 communities
   comm <- community_fluid(g, no.of.communities = 2)
 }
-if (FALSE) { # \dontrun{
-net <- as_cograph(matrix(runif(25), 5, 5))
-com_fl(net)
-} # }
+m <- matrix(runif(25), 5, 5); diag(m) <- 0
+net <- as_cograph(m)
+com_fl(net, no.of.communities = 2)
+#> Community structure (fluid)
+#>   Number of communities: 2 
+#>   Modularity: NA 
+#>   Community sizes: 2, 3 
+#>   Nodes: 5 
 ```

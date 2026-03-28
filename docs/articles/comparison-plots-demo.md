@@ -83,7 +83,7 @@ plot_permutation(permutation_results,
 
 ``` r
 
-group_model <- group_model(engagement_mmm)
+group_model <- group_model(group_regulation, group = c(rep("H",1000),rep("L",1000)))
 plot_compare(group_model, node_size = 7)
 ```
 
@@ -236,16 +236,24 @@ plot_heatmap(m1, title = "Network Heatmap", colors = "viridis")
 
 ``` r
 
-library(patchwork)
-
-p1 <- plot_heatmap(m1, title = "Network 1", colors = "blues")
-p2 <- plot_heatmap(m2, title = "Network 2", colors = "blues")
-p3 <- plot_comparison_heatmap(m1, m2, type = "difference")
-
-p1 + p2 + p3
+plot_heatmap(m1, title = "Network 1", colors = "blues")
 ```
 
 ![](comparison-plots-demo_files/figure-html/heatmap-compare-1.png)
+
+``` r
+
+plot_heatmap(m2, title = "Network 2", colors = "blues")
+```
+
+![](comparison-plots-demo_files/figure-html/heatmap-compare-2.png)
+
+``` r
+
+plot_comparison_heatmap(m1, m2, type = "difference")
+```
+
+![](comparison-plots-demo_files/figure-html/heatmap-compare-3.png)
 
 ### 4.3 Group TNA Supra-Adjacency
 
@@ -398,32 +406,19 @@ sessionInfo()
     ## [1] stats     graphics  grDevices utils     datasets  methods   base     
     ## 
     ## other attached packages:
-    ## [1] patchwork_1.3.2 cograph_1.8.2   testthat_3.3.2  tna_1.2.1      
+    ## [1] cograph_2.0.0 tna_1.2.1    
     ## 
     ## loaded via a namespace (and not attached):
-    ##  [1] gtable_0.3.6        xfun_0.57           bslib_0.10.0       
-    ##  [4] ggplot2_4.0.2       htmlwidgets_1.6.4   devtools_2.5.0     
-    ##  [7] collapse_2.1.6      lattice_0.22-9      vctrs_0.7.2        
-    ## [10] tools_4.5.2         generics_0.1.4      parallel_4.5.2     
-    ## [13] tibble_3.3.1        cluster_2.1.8.2     pkgconfig_2.0.3    
-    ## [16] Matrix_1.7-5        data.table_1.18.2.1 checkmate_2.3.4    
-    ## [19] RColorBrewer_1.1-3  S7_0.2.1            desc_1.4.3         
-    ## [22] lifecycle_1.0.5     compiler_4.5.2      farver_2.1.2       
-    ## [25] textshaping_1.0.5   brio_1.1.5          permute_0.9-10     
-    ## [28] htmltools_0.5.9     usethis_3.2.1       sass_0.4.10        
-    ## [31] yaml_2.3.12         pillar_1.11.1       pkgdown_2.2.0      
-    ## [34] nloptr_2.2.1        jquerylib_0.1.4     MASS_7.3-65        
-    ## [37] ellipsis_0.3.2      cachem_1.1.0        vegan_2.7-3        
-    ## [40] sessioninfo_1.2.3   boot_1.3-32         nlme_3.1-168       
-    ## [43] tidyselect_1.2.1    digest_0.6.39       dplyr_1.2.0        
-    ## [46] purrr_1.2.1         labeling_0.4.3      splines_4.5.2      
-    ## [49] rprojroot_2.1.1     fastmap_1.2.0       grid_4.5.2         
-    ## [52] colorspace_2.1-2    cli_3.6.5           magrittr_2.0.4     
-    ## [55] pkgbuild_1.4.8      withr_3.0.2         scales_1.4.0       
-    ## [58] backports_1.5.0     rmarkdown_2.31      igraph_2.2.2       
-    ## [61] otel_0.2.0          ragg_1.5.2          memoise_2.0.1      
-    ## [64] evaluate_1.0.5      seqHMM_2.2.0        knitr_1.51         
-    ## [67] mgcv_1.9-4          rlang_1.1.7         Rcpp_1.1.1         
-    ## [70] gridBase_0.4-7      glue_1.8.0          TraMineR_2.2-13    
-    ## [73] pkgload_1.5.0       rstudioapi_0.18.0   jsonlite_2.0.0     
-    ## [76] R6_2.6.1            systemfonts_1.3.2   fs_2.0.1
+    ##  [1] gtable_0.3.6       jsonlite_2.0.0     dplyr_1.2.0        compiler_4.5.2    
+    ##  [5] tidyselect_1.2.1   jquerylib_0.1.4    systemfonts_1.3.2  scales_1.4.0      
+    ##  [9] textshaping_1.0.5  yaml_2.3.12        fastmap_1.2.0      ggplot2_4.0.2     
+    ## [13] R6_2.6.1           labeling_0.4.3     generics_0.1.4     igraph_2.2.2      
+    ## [17] knitr_1.51         backports_1.5.0    htmlwidgets_1.6.4  checkmate_2.3.4   
+    ## [21] tibble_3.3.1       desc_1.4.3         pillar_1.11.1      bslib_0.10.0      
+    ## [25] RColorBrewer_1.1-3 rlang_1.1.7        cachem_1.1.0       xfun_0.57         
+    ## [29] fs_2.0.1           sass_0.4.10        S7_0.2.1           otel_0.2.0        
+    ## [33] cli_3.6.5          withr_3.0.2        pkgdown_2.2.0      magrittr_2.0.4    
+    ## [37] digest_0.6.39      grid_4.5.2         rstudioapi_0.18.0  lifecycle_1.0.5   
+    ## [41] vctrs_0.7.2        evaluate_1.0.5     glue_1.8.0         farver_2.1.2      
+    ## [45] ragg_1.5.2         rmarkdown_2.31     tools_4.5.2        pkgconfig_2.0.3   
+    ## [49] htmltools_0.5.9

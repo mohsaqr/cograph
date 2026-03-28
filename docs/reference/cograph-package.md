@@ -71,6 +71,6 @@ Useful links:
 
 Authors:
 
-- Mohammed Saqr <mohammed.saqr@uef.fi> \[copyright holder\]
+- Mohammed Saqr \[copyright holder\]
 
 - Santtu Tikka

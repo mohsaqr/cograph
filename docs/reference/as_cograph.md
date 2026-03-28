@@ -168,14 +168,12 @@ splot(net)
 
 
 # From igraph (if installed)
-if (FALSE) { # \dontrun{
-library(igraph)
-g <- make_ring(10)
-net <- as_cograph(g)
-splot(net)
-} # }
-if (FALSE) { # \dontrun{
+if (requireNamespace("igraph", quietly = TRUE)) {
+  g <- igraph::make_ring(10)
+  net <- as_cograph(g)
+  splot(net)
+}
+
 mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 net <- to_cograph(mat)
-} # }
 ```

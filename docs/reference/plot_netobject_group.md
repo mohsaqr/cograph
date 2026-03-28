@@ -52,3 +52,14 @@ plot(x, ...)
 ## Value
 
 Invisibly returns `x`.
+
+## Examples
+
+``` r
+mat <- matrix(c(0, .5, .3, .5, 0, .4, .3, .4, 0), 3, 3)
+colnames(mat) <- rownames(mat) <- c("A", "B", "C")
+net1 <- as_cograph(mat)
+net2 <- as_cograph(mat * 0.5)
+grp <- structure(list(G1 = net1, G2 = net2), class = c("netobject_group", "list"))
+plot_netobject_group(grp)
+```

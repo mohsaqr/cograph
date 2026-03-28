@@ -348,6 +348,8 @@
   : Plot Network Difference
 - [`plot_comparison_heatmap()`](http://sonsoles.me/cograph/reference/plot_comparison_heatmap.md)
   : Plot Comparison Heatmap
+- [`plot_edge_diff_forest()`](http://sonsoles.me/cograph/reference/plot_edge_diff_forest.md)
+  : Forest Plot for Bootstrap Edge Differences
 - [`splot.group_tna_permutation()`](http://sonsoles.me/cograph/reference/plot_group_permutation.md)
   [`plot_group_permutation()`](http://sonsoles.me/cograph/reference/plot_group_permutation.md)
   : Plot Group Permutation Test Results

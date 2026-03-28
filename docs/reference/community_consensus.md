@@ -104,6 +104,6 @@ if (requireNamespace("igraph", quietly = TRUE)) {
 }
 #> Community structure (consensus_louvain)
 #>   Number of communities: 4 
-#>   Modularity: 0.5527 
-#>   Community sizes: 13, 4, 5, 12 
+#>   Modularity: 0.6385 
+#>   Community sizes: 6, 5, 12, 11 
 ```

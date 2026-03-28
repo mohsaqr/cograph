@@ -9,8 +9,7 @@ be overridden by the caller.
 ## Usage
 
 ``` r
-# S3 method for class 'netobject'
-splot(x, ...)
+splot.netobject(x, ...)
 ```
 
 ## Arguments

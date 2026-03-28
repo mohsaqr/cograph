@@ -126,9 +126,9 @@ edge_centrality(mat, sort_by = "betweenness")
 #> 2    A  B      1           2
 #> 3    B  C      1           2
 #> 4    A  C      1           1
-if (FALSE) { # \dontrun{
 mat <- matrix(c(0,1,1,0, 1,0,1,1, 1,1,0,0, 0,1,0,0), 4, 4)
 rownames(mat) <- colnames(mat) <- c("A", "B", "C", "D")
 edge_betweenness(mat)
-} # }
+#> A->B A->C B->C B->D 
+#>    2    1    2    3 
 ```

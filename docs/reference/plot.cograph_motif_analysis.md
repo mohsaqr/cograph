@@ -112,8 +112,7 @@ Other motifs:
 
 ``` r
 if (FALSE) { # \dontrun{
-library(tna)
-Mod <- tna(group_regulation)
+Mod <- tna::tna(tna::group_regulation)
 m <- extract_motifs(Mod, significance = TRUE)
 
 # Default network diagram

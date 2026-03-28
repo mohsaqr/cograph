@@ -99,10 +99,12 @@ cograph(adj) |> sn_layout("spring") |> splot()
 
 
 # igraph layouts (if igraph installed)
-if (FALSE) { # \dontrun{
-cograph(adj) |> sn_layout("kk") |> splot()
-cograph(adj) |> sn_layout("fr") |> splot()
-} # }
+if (requireNamespace("igraph", quietly = TRUE)) {
+  cograph(adj) |> sn_layout("kk") |> splot()
+  cograph(adj) |> sn_layout("fr") |> splot()
+}
+
+
 
 # Custom coordinates
 coords <- matrix(c(0, 0, 1, 0, 0.5, 1), ncol = 2, byrow = TRUE)

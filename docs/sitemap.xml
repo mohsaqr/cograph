@@ -15,6 +15,7 @@
 <url><loc>http://sonsoles.me/cograph/articles/mcml-examples.html</loc></url>
 <url><loc>http://sonsoles.me/cograph/articles/network-structure-and-groups.html</loc></url>
 <url><loc>http://sonsoles.me/cograph/articles/plotting-tna-models.html</loc></url>
+<url><loc>http://sonsoles.me/cograph/articles/why-cograph.html</loc></url>
 <url><loc>http://sonsoles.me/cograph/authors.html</loc></url>
 <url><loc>http://sonsoles.me/cograph/index.html</loc></url>
 <url><loc>http://sonsoles.me/cograph/mcml_demo.html</loc></url>
@@ -340,9 +341,11 @@
 <url><loc>http://sonsoles.me/cograph/reference/plot.cograph_network.html</loc></url>
 <url><loc>http://sonsoles.me/cograph/reference/plot.tna_disparity.html</loc></url>
 <url><loc>http://sonsoles.me/cograph/reference/plot_alluvial.html</loc></url>
+<url><loc>http://sonsoles.me/cograph/reference/plot_bootstrap_forest.html</loc></url>
 <url><loc>http://sonsoles.me/cograph/reference/plot_chord.html</loc></url>
 <url><loc>http://sonsoles.me/cograph/reference/plot_compare.html</loc></url>
 <url><loc>http://sonsoles.me/cograph/reference/plot_comparison_heatmap.html</loc></url>
+<url><loc>http://sonsoles.me/cograph/reference/plot_edge_diff_forest.html</loc></url>
 <url><loc>http://sonsoles.me/cograph/reference/plot_group_permutation.html</loc></url>
 <url><loc>http://sonsoles.me/cograph/reference/plot_heatmap.html</loc></url>
 <url><loc>http://sonsoles.me/cograph/reference/plot_htna.html</loc></url>
@@ -470,6 +473,7 @@
 <url><loc>http://sonsoles.me/cograph/reference/splot.netobject.html</loc></url>
 <url><loc>http://sonsoles.me/cograph/reference/splot.tna_bootstrap.html</loc></url>
 <url><loc>http://sonsoles.me/cograph/reference/splot.tna_disparity.html</loc></url>
+<url><loc>http://sonsoles.me/cograph/reference/splot.wtna_mixed.html</loc></url>
 <url><loc>http://sonsoles.me/cograph/reference/splot_angle.html</loc></url>
 <url><loc>http://sonsoles.me/cograph/reference/square_vertices.html</loc></url>
 <url><loc>http://sonsoles.me/cograph/reference/star_vertices.html</loc></url>

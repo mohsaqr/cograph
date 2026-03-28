@@ -63,15 +63,19 @@ Other motifs:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-library(tna)
-Mod <- tna(group_regulation)
+Mod <- tna::tna(tna::group_regulation)
 
 # Get edge list by individual
 edges <- get_edge_list(Mod)
 head(edges)
+#>   id      from        to count
+#> 1  1 synthesis     adapt     1
+#> 2  1     adapt consensus     1
+#> 3  1  cohesion consensus     1
+#> 4  1      plan consensus     1
+#> 5  1 consensus   discuss     1
+#> 6  1 consensus      plan     1
 
 # Aggregate across individuals
 agg_edges <- get_edge_list(Mod, by_individual = FALSE)
-} # }
 ```

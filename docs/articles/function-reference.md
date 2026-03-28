@@ -210,17 +210,14 @@ splot(net_from_edges, title = "From Edge List")
 
 ``` r
 
-
 # From igraph
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::make_ring(5)
-  igraph::V(g)$name <- LETTERS[1:5]
-  net_from_igraph <- as_cograph(g)
-  splot(net_from_igraph, title = "From igraph Ring")
-}
+g <- igraph::make_ring(5)
+igraph::V(g)$name <- LETTERS[1:5]
+net_from_igraph <- as_cograph(g)
+splot(net_from_igraph, title = "From igraph Ring")
 ```
 
-![](function-reference_files/figure-html/import-2.png)
+![](function-reference_files/figure-html/unnamed-chunk-2-1.png)
 
 ### Export
 
@@ -282,30 +279,28 @@ print(adj)
 
 ``` r
 
-if (requireNamespace("igraph", quietly = TRUE)) {
-  # Use Zachary's karate club
-  g <- igraph::make_graph("Zachary")
+# Use Zachary's karate club example from igraph
+g <- igraph::make_graph("Zachary")
 
-  # Detect communities with different methods
-  comm_louvain <- community_louvain(g)
-  comm_walktrap <- community_walktrap(g)
+# Detect communities with different methods
+comm_louvain <- community_louvain(g)
+comm_walktrap <- community_walktrap(g)
 
-  cat("Louvain communities:", length(unique(igraph::membership(comm_louvain))), "\n")
-  cat("Walktrap communities:", length(unique(igraph::membership(comm_walktrap))), "\n")
+cat("Louvain communities:", length(unique(igraph::membership(comm_louvain))), "\n")
+#> Louvain communities: 4
+cat("Walktrap communities:", length(unique(igraph::membership(comm_walktrap))), "\n")
+#> Walktrap communities: 5
 
-  # Compare community structures
-  nmi <- compare_communities(comm_louvain, comm_walktrap, "nmi")
-  cat("NMI between methods:", round(nmi, 3), "\n")
-
-  # Plot with community coloring
-  mat <- igraph::as_adjacency_matrix(g, sparse = FALSE)
-  splot(mat,
-        node_fill = igraph::membership(comm_louvain),
-        title = "Zachary Karate Club - Louvain Communities")
-}
-#> Louvain communities: 4 
-#> Walktrap communities: 5 
+# Compare community structures
+nmi <- compare_communities(comm_louvain, comm_walktrap, "nmi")
+cat("NMI between methods:", round(nmi, 3), "\n")
 #> NMI between methods: 0.762
+
+# Plot with community coloring
+mat <- igraph::as_adjacency_matrix(g, sparse = FALSE)
+splot(mat,
+      node_fill = igraph::membership(comm_louvain),
+      title = "Zachary Karate Club - Louvain Communities")
 ```
 
 ![](function-reference_files/figure-html/community-detection-1.png)

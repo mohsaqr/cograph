@@ -89,8 +89,12 @@ g <- igraph::make_graph("Zachary")
 comm <- community_edge_betweenness(g)
 igraph::membership(comm)
 #>  [1] 1 1 2 1 3 3 3 1 4 5 3 1 1 1 4 4 3 1 4 1 4 1 4 4 2 2 4 2 2 4 4 2 4 4
-if (FALSE) { # \dontrun{
 net <- as_cograph(matrix(runif(25), 5, 5))
 com_eb(net)
-} # }
+#> Warning: At vendor/cigraph/src/community/edge_betweenness.c:504 : Membership vector will be selected based on the highest modularity score.
+#> Community structure (edge_betweenness)
+#>   Number of communities: 1 
+#>   Modularity: 0 
+#>   Community sizes: 5 
+#>   Nodes: 5 
 ```

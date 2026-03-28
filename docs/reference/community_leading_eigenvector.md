@@ -89,8 +89,11 @@ g <- igraph::make_graph("Zachary")
 comm <- community_leading_eigenvector(g)
 igraph::membership(comm)
 #>  [1] 1 3 3 3 1 1 1 3 2 2 1 1 3 3 2 2 1 3 2 3 2 3 2 4 4 4 2 4 4 2 2 4 2 2
-if (FALSE) { # \dontrun{
 net <- as_cograph(matrix(runif(25), 5, 5))
 com_le(net)
-} # }
+#> Community structure (leading_eigenvector)
+#>   Number of communities: 2 
+#>   Modularity: 0.151 
+#>   Community sizes: 3, 2 
+#>   Nodes: 5 
 ```

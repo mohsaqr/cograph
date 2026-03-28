@@ -142,14 +142,27 @@ if (requireNamespace("igraph", quietly = TRUE)) {
 #> =========================
 #> 
 #>   Null model:           configuration (n = 100 )
-#>   Observed modularity:  0.4198 
+#>   Observed modularity:  0.4156 
 #>   Null mean:            0.3771 
 #>   Null SD:              0.0274 
-#>   Z-score:              1.56 
-#>   P-value:              0.059632 
+#>   Z-score:              1.4 
+#>   P-value:              0.080012 
 #> 
 #>   Conclusion: No significant community structure (p >= 0.05)
-if (FALSE) { # \dontrun{
-csig(cs)
-} # }
+if (requireNamespace("igraph", quietly = TRUE)) {
+  g <- igraph::make_graph("Zachary")
+  comm <- community_louvain(g)
+  csig(g, comm, n_random = 20, seed = 1)
+}
+#> Cluster Significance Test
+#> =========================
+#> 
+#>   Null model:           configuration (n = 20 )
+#>   Observed modularity:  0.4156 
+#>   Null mean:            0.3866 
+#>   Null SD:              0.0189 
+#>   Z-score:              1.54 
+#>   P-value:              0.062349 
+#> 
+#>   Conclusion: No significant community structure (p >= 0.05)
 ```

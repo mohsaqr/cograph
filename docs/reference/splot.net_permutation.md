@@ -8,8 +8,7 @@ matrices (no edge-name parsing needed), and `directed` comes from
 ## Usage
 
 ``` r
-# S3 method for class 'net_permutation'
-splot(
+splot.net_permutation(
   x,
   show_nonsig = FALSE,
   show_effect = FALSE,

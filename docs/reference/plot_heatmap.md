@@ -229,8 +229,12 @@ plot_heatmap(m, colors = "heat", limits = c(0, 1), show_values = TRUE)
 
 # }
 
-if (FALSE) { # \dontrun{
-# Multi-layer (group_tna)
-plot_heatmap(group_tna_model)
-} # }
+# \donttest{
+# Multi-layer (group_tna) — requires tna package and sequence data
+if (requireNamespace("tna", quietly = TRUE)) {
+  mod <- tna::tna(tna::group_regulation)
+  plot_heatmap(mod)
+}
+
+# }
 ```

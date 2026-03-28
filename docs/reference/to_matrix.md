@@ -54,9 +54,14 @@ to_matrix(net)
 #> C 0.8 0.3 0.0 0.4
 #> D 0.0 0.6 0.4 0.0
 
-# From igraph
-if (FALSE) { # \dontrun{
-g <- igraph::make_ring(5)
-to_matrix(g)
-} # }
+# From igraph (weighted graph)
+if (requireNamespace("igraph", quietly = TRUE)) {
+  g <- igraph::graph_from_adjacency_matrix(adj, mode = "undirected", weighted = TRUE)
+  to_matrix(g)
+}
+#>     A   B   C   D
+#> A 0.0 0.5 0.8 0.0
+#> B 0.5 0.0 0.3 0.6
+#> C 0.8 0.3 0.0 0.4
+#> D 0.0 0.6 0.4 0.0
 ```

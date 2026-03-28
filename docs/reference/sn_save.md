@@ -50,6 +50,6 @@ The output `filename`, invisibly.
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 net <- cograph(adj)
 sn_save(net, file.path(tempdir(), "network.pdf"))
-#> Saved to: /var/folders/_r/89nfxkg95kv6p6_l4fbmf7540000gn/T//Rtmp7i4Kqi/network.pdf
+#> Saved to: /var/folders/_r/89nfxkg95kv6p6_l4fbmf7540000gn/T//RtmpSe5Ca6/network.pdf
 # }
 ```

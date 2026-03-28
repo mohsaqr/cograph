@@ -119,9 +119,12 @@ community detection. *Physical Review E*, 74, 016110.
 g <- igraph::make_graph("Zachary")
 comm <- community_spinglass(g)
 igraph::membership(comm)
-#>  [1] 2 2 2 2 1 1 1 2 4 4 1 2 2 2 4 4 1 2 4 2 4 2 4 3 3 3 4 3 3 4 4 3 4 4
-if (FALSE) { # \dontrun{
+#>  [1] 3 3 3 3 2 2 2 3 4 4 2 3 3 3 4 4 2 3 4 3 4 3 4 1 1 1 4 1 1 4 4 1 4 4
 net <- as_cograph(matrix(runif(25), 5, 5))
 com_sg(net)
-} # }
+#> Community structure (spinglass)
+#>   Number of communities: 1 
+#>   Modularity: 0.1823 
+#>   Community sizes: 5 
+#>   Nodes: 5 
 ```

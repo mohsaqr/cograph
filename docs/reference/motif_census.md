@@ -104,8 +104,8 @@ print(m)
 #> 
 #> Significant motifs:
 #>  motif count expected    z       p
-#>   111U     2      0.1 3.94 8.2e-05
-#>   120D     2      0.3 3.06  0.0022
+#>   111U     2      0.1 4.87 1.1e-06
+#>   120D     2      0.2 3.95 7.7e-05
 #> 
 #> Over-represented: 2 | Under-represented: 0
 plot(m)

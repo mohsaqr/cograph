@@ -8,8 +8,7 @@ are no donut/inits.
 ## Usage
 
 ``` r
-# S3 method for class 'net_bootstrap'
-splot(
+splot.net_bootstrap(
   x,
   display = c("styled", "significant", "full"),
   show_ci = FALSE,

@@ -117,8 +117,12 @@ filter_edges(net, weight > 0.7, .keep_isolates = TRUE)
 #> Layout: none 
 
 # With igraph (keep_format = TRUE returns igraph)
-if (FALSE) { # \dontrun{
-g <- igraph::make_ring(5)
-filter_edges(g, weight > 0, keep_format = TRUE)  # Returns igraph
-} # }
+if (requireNamespace("igraph", quietly = TRUE)) {
+  g <- igraph::make_ring(5)
+  filter_edges(g, weight > 0, keep_format = TRUE)  # Returns igraph
+}
+#> IGRAPH 26d639a UNW- 5 5 -- 
+#> + attr: name (v/c), weight (e/n)
+#> + edges from 26d639a (vertex names):
+#> [1] 1--2 2--3 3--4 4--5 1--5
 ```

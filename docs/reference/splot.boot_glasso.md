@@ -7,8 +7,7 @@ edge transparency.
 ## Usage
 
 ``` r
-# S3 method for class 'boot_glasso'
-splot(
+splot.boot_glasso(
   x,
   use_thresholded = TRUE,
   show_inclusion = TRUE,

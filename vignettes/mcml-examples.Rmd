@@ -12,6 +12,7 @@ knitr::opts_chunk$set(echo = TRUE, fig.width = 8, fig.height = 8,
                         fig.dpi = 60, dpi = 60)
 library(ggplot2)
 library(tna)
+library(cograph)
 ```
 
 ## Group Regulation Network

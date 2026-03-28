@@ -117,22 +117,22 @@ qgraph object conversion
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
 # Convert and plot a tna object
-library(tna)
-model <- tna(group_regulation)
+model <- tna::tna(tna::group_regulation)
 from_tna(model)  # Plots with donut rings showing initial probabilities
+
 
 # Use soplot engine instead
 from_tna(model, engine = "soplot")
 
+
 # Customize the visualization
 from_tna(model, layout = "circle", donut_color = c("steelblue", "gray90"))
+
 
 # Extract parameters without plotting
 params <- from_tna(model, plot = FALSE)
 # Modify and plot manually
 params$node_fill <- "coral"
 do.call(splot, params)
-} # }
 ```

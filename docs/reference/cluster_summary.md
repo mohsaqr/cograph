@@ -312,17 +312,17 @@ cs <- cluster_summary(mat, clusters)
 # Access results
 cs$macro$weights      # 3x3 cluster transition matrix
 #>           1         2         3
-#> 1 0.2495608 0.3729609 0.3774784
-#> 2 0.2967925 0.2382151 0.4649924
-#> 3 0.2874557 0.3801982 0.3323461
+#> 1 0.2045016 0.3525657 0.4429327
+#> 2 0.3576291 0.1684127 0.4739582
+#> 3 0.3421101 0.3489438 0.3089461
 cs$macro$inits        # Initial distribution
 #>         1         2         3 
-#> 0.2794208 0.3336864 0.3868928 
+#> 0.3026111 0.3026495 0.3947394 
 cs$clusters$`1`$weights # Per-cluster 1 transitions
-#>           A         B         C
-#> A 0.0000000 0.2686738 0.7313262
-#> B 0.6185259 0.0000000 0.3814741
-#> C 0.5573098 0.4426902 0.0000000
+#>            A         B         C
+#> A 0.00000000 0.6494059 0.3505941
+#> B 0.58300859 0.0000000 0.4169914
+#> C 0.09880297 0.9011970 0.0000000
 cs$meta               # Metadata
 #> $type
 #> [1] "tna"
@@ -355,9 +355,9 @@ clusters <- list(
 cs <- cluster_summary(mat, clusters, type = "tna")
 cs$macro$weights      # Rows/cols named Alpha, Beta, Gamma
 #>           Alpha      Beta     Gamma
-#> Alpha 0.2495608 0.3729609 0.3774784
-#> Beta  0.2967925 0.2382151 0.4649924
-#> Gamma 0.2874557 0.3801982 0.3323461
+#> Alpha 0.2045016 0.3525657 0.4429327
+#> Beta  0.3576291 0.1684127 0.4739582
+#> Gamma 0.3421101 0.3489438 0.3089461
 cs$clusters$Alpha     # Per-cluster Alpha network
 #> State Labels : 
 #> 
@@ -365,15 +365,15 @@ cs$clusters$Alpha     # Per-cluster Alpha network
 #> 
 #> Transition Probability Matrix :
 #> 
-#>           A         B         C
-#> A 0.0000000 0.2686738 0.7313262
-#> B 0.6185259 0.0000000 0.3814741
-#> C 0.5573098 0.4426902 0.0000000
+#>            A         B         C
+#> A 0.00000000 0.6494059 0.3505941
+#> B 0.58300859 0.0000000 0.4169914
+#> C 0.09880297 0.9011970 0.0000000
 #> 
 #> Initial Probabilities : 
 #> 
 #>         A         B         C 
-#> 0.3757529 0.2663703 0.3578768 
+#> 0.2184813 0.5165037 0.2650150 
 
 # -----------------------------------------------------
 # Auto-detect clusters from cograph_network
@@ -397,7 +397,7 @@ cs_tna <- cluster_summary(mat, clusters, type = "tna")
 
 rowSums(cs_raw$macro$weights)  # Various sums
 #>    Alpha     Beta    Gamma 
-#> 14.76478 15.97687 20.32726 
+#> 15.15559 12.57661 20.12633 
 rowSums(cs_tna$macro$weights)  # All equal to 1
 #> Alpha  Beta Gamma 
 #>     1     1     1 
@@ -416,7 +416,25 @@ cs <- cluster_summary(mat, clusters, type = "tna")
 tna_models <- as_tna(cs)
 # tna_models$macro         # tna object
 # tna_models$Alpha         # tna object (cluster network)
-if (FALSE) { # \dontrun{
-csum(matrix_data, clusters)
-} # }
+mat <- matrix(c(0.5, 0.2, 0.3, 0.1, 0.6, 0.3, 0.4, 0.1, 0.5), 3, 3,
+              byrow = TRUE,
+              dimnames = list(c("A", "B", "C"), c("A", "B", "C")))
+csum(mat, list(G1 = c("A", "B"), G2 = c("C")))
+#> Cluster Summary
+#> ---------------
+#> Type: tna 
+#> Method: sum 
+#> Clusters: 2 
+#> Nodes: 3 
+#> Cluster sizes: 2, 1 
+#> 
+#> Macro (cluster-level) weights (2x2):
+#>   Inits: 0.633, 0.367 
+#>     G1  G2
+#> G1 0.7 0.3
+#> G2 0.5 0.5
+#> 
+#> Per-cluster weights:
+#>   G1 (2 nodes)
+#>   G2 (1 nodes)
 ```

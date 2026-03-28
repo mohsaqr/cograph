@@ -50,8 +50,11 @@ g <- igraph::make_ring(10)
 comm <- community_optimal(g)
 igraph::membership(comm)
 #>  [1] 1 1 2 2 2 3 3 3 3 1
-if (FALSE) { # \dontrun{
 net <- as_cograph(matrix(runif(25), 5, 5))
 com_op(net)
-} # }
+#> Community structure (optimal)
+#>   Number of communities: 2 
+#>   Modularity: 0.2496 
+#>   Community sizes: 2, 3 
+#>   Nodes: 5 
 ```

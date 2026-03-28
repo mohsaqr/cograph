@@ -70,7 +70,24 @@ q$global        # Modularity, coverage
 #> $n_clusters
 #> [1] 3
 #> 
-if (FALSE) { # \dontrun{
-cqual(cs)
-} # }
+mat <- matrix(runif(100), 10, 10)
+diag(mat) <- 0
+cqual(mat, c(1,1,1,2,2,2,3,3,3,3))
+#> Cluster Quality Metrics
+#> =======================
+#> 
+#> Global metrics:
+#>   Modularity: -0.0673 
+#>   Coverage:   0.271 
+#>   Clusters:   3 
+#> 
+#> Per-cluster metrics:
+#>  cluster cluster_name n_nodes internal_edges cut_edges internal_density
+#>        1            1       3       4.392079  21.96938        0.7320132
+#>        2            2       3       2.757767  22.01327        0.4596278
+#>        3            3       4       5.831567  25.85041        0.4859639
+#>  avg_internal_degree expansion cut_ratio conductance
+#>             2.928053  7.323126  1.046161   0.7143691
+#>             1.838511  7.337758  1.048251   0.7996450
+#>             2.915783  6.462602  1.077100   0.6890954
 ```

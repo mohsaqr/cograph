@@ -95,9 +95,8 @@ splot(summary_net)
 
 
 # With cograph_network (auto-detect clusters column)
-if (FALSE) { # \dontrun{
 Net <- cograph(mat)
 Net$nodes$clusters <- rep(c("A", "B", "C"), c(3, 3, 4))
 summary_net <- summarize_network(Net)  # Auto-detects 'clusters'
-} # }
+#> Using 'clusters' column for clusters
 ```

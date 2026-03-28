@@ -425,7 +425,7 @@ utils::globalVariables(c(
     ), 2))
   )
 
-  lim <- 1.52
+  lim <- 1.85
 
   p <- ggplot2::ggplot() +
     # Q1 / Q3 faint grid rings
@@ -530,12 +530,16 @@ utils::globalVariables(c(
     cr_color     = "#D4829A",
     ring_color   = "#C8C8C8",
     median_color = "#AAAAAA",
-    label_size   = 2.9,
+    label_size   = NULL,
     label_color  = NULL,
-    point_size   = 1.5,
-    r_inner      = 0.38,
-    r_outer      = 0.72,
-    gap_rad      = 0.10,
+    point_size   = NULL,
+    r_inner      = NULL,
+    r_outer      = NULL,
+    gap_rad      = NULL,
+    label_offset = NULL,
+    src_label_size = NULL,
+    margins      = c(0.1, 0.1, 0.1, 0.1),
+    scale        = 1,
     title        = NULL,
     subtitle     = NULL
 ) {
@@ -566,6 +570,21 @@ utils::globalVariables(c(
 
   from_nodes <- unique(df$from)
   n_from     <- length(from_nodes)
+  n_edges    <- nrow(df)
+
+  # Adaptive sizing: scale labels and geometry for dense plots
+  label_size     <- label_size     %||% if (n_edges > 60) 3.2 else if (n_edges > 30) 3.4 else 3.6
+  point_size     <- point_size     %||% if (n_edges > 60) 1.0 else 1.5
+  r_inner        <- r_inner        %||% if (n_from > 6) 0.10 else 0.12
+  r_outer        <- r_outer        %||% 0.14
+  gap_rad        <- gap_rad        %||% if (n_from > 6) 0.04 else 0.06
+  label_offset   <- label_offset   %||% 0.005
+  src_label_size <- src_label_size %||% (label_size * 0.80)
+
+  # Apply scale factor to all visual sizes
+  label_size     <- label_size * scale
+  src_label_size <- src_label_size * scale
+  point_size     <- point_size * scale
 
   # Node colors: use supplied palette/named vector, or fall back to darkened Okabe-Ito
   oi <- c("#005A8E","#B87D00","#007B5A","#A84A00","#2A91C9","#A35284","#C4B800","#222222","#666666")
@@ -643,7 +662,7 @@ utils::globalVariables(c(
   }
 
   # Outer (target) labels
-  label_r   <- r_outer + 0.06
+  label_r   <- r_outer + label_offset
   df$x_lab  <- label_r * cos(angles)
   df$y_lab  <- label_r * sin(angles)
   deg       <- angles * 180 / pi
@@ -653,7 +672,7 @@ utils::globalVariables(c(
   df$lab_col    <- if (is.null(label_color)) df$color else label_color
 
   # Inner (source) labels -- tangential, at sector midpoints inside inner ring
-  src_r   <- r_inner * 0.80
+  src_r   <- r_inner * 0.92
   src_df  <- data.frame(
     node        = from_nodes,
     angle       = sector_mid,
@@ -672,7 +691,10 @@ utils::globalVariables(c(
   ring_median <- data.frame(x = r_median * cos(theta_seq), y = r_median * sin(theta_seq))
   ring_outer  <- data.frame(x = r_outer * cos(theta_seq), y = r_outer * sin(theta_seq))
 
-  lim <- 1.52
+  # Margins: c(bottom, left, top, right) as fractions of the plot radius
+  # Similar to splot margins -- controls whitespace around the radial plot
+  mar_b <- margins[1]; mar_l <- margins[2]
+  mar_t <- margins[3]; mar_r <- margins[4]
 
   p <- ggplot2::ggplot() +
     ggplot2::geom_path(
@@ -733,24 +755,26 @@ utils::globalVariables(c(
       data = src_df,
       ggplot2::aes(x = x_lab, y = y_lab, label = node,
                    angle = text_angle, colour = color),
-      hjust = 0.5, size = label_size * 1.15, fontface = "bold"
+      hjust = 0.5, size = src_label_size, fontface = "bold"
     ) +
     ggplot2::scale_colour_identity() +
     ggplot2::scale_alpha_identity() +
-    ggplot2::coord_equal(clip = "off",
-                         xlim = c(-lim, lim), ylim = c(-lim, lim)) +
+    ggplot2::coord_fixed(ratio = 1, clip = "off") +
     ggplot2::labs(title = title, subtitle = subtitle) +
     ggplot2::theme_void(base_size = 11) +
     ggplot2::theme(
       plot.title    = ggplot2::element_text(
-        size = 12, face = "bold", hjust = 0.5,
+        size = 12 * scale, face = "bold", hjust = 0.5,
         colour = "#1A1A1A", margin = ggplot2::margin(b = 4)
       ),
       plot.subtitle = ggplot2::element_text(
-        size = 9, hjust = 0.5,
-        colour = "#666666", margin = ggplot2::margin(b = 8)
+        size = 9 * scale, hjust = 0.5,
+        colour = "#666666", margin = ggplot2::margin(b = 4)
       ),
-      plot.margin     = ggplot2::margin(20, 40, 20, 40),
+      plot.margin     = ggplot2::margin(
+        t = mar_t * 100, r = mar_r * 100,
+        b = mar_b * 100, l = mar_l * 100
+      ),
       plot.background = ggplot2::element_rect(fill = "white", colour = NA)
     )
 
@@ -800,6 +824,16 @@ utils::globalVariables(c(
 #' @param label_color Fixed colour for edge labels (radial layout only). \code{NULL} (default)
 #'   inherits the edge colour (teal for significant, grey for non-significant).
 #' @param point_size Size of the estimate square. Default \code{3} (linear) or \code{2} (radial).
+#' @param r_inner Inner ring radius (grouped layout). Default \code{NULL} (auto).
+#' @param r_outer Outer ring radius (grouped layout). Default \code{NULL} (auto).
+#' @param gap_rad Gap in radians between sectors (grouped layout). Default \code{NULL} (auto).
+#' @param label_offset Distance between outer ring and labels (grouped layout). Default \code{NULL} (auto).
+#' @param src_label_size Text size for source node labels in the center (grouped layout).
+#'   Default \code{NULL} (auto, \code{label_size * 0.80}).
+#' @param margins Margins as \code{c(bottom, left, top, right)} fractions (grouped layout).
+#'   Default \code{c(0.1, 0.1, 0.1, 0.1)}.
+#' @param scale Scaling factor applied to all text and point sizes (grouped layout).
+#'   Default \code{1}. Use values > 1 for high-DPI output, < 1 for small devices.
 #' @param title Plot title. Default \code{NULL}.
 #' @param subtitle Plot subtitle. Default \code{NULL}.
 #' @param ... Currently unused.
@@ -824,12 +858,16 @@ plot_bootstrap_forest.net_bootstrap <- function(
     nonsig_color = "#CCCCCC",
     ring_color   = "#C8C8C8",
     median_color = "#AAAAAA",
-    label_size   = 2.9,
+    label_size   = NULL,
     label_color  = NULL,
-    point_size   = if (match.arg(layout) == "circular") 2 else 3,
-    r_inner      = 0.38,
-    r_outer      = 0.72,
-    gap_rad      = 0.10,
+    point_size   = NULL,
+    r_inner      = NULL,
+    r_outer      = NULL,
+    gap_rad      = NULL,
+    label_offset   = NULL,
+    src_label_size = NULL,
+    margins      = c(0.1, 0.1, 0.1, 0.1),
+    scale        = 1,
     title        = NULL,
     subtitle     = NULL,
     ...
@@ -846,23 +884,33 @@ plot_bootstrap_forest.net_bootstrap <- function(
     }
   }
 
+  # Defaults for non-grouped layouts when NULL
+  if (layout != "grouped") {
+    label_size <- label_size %||% 2.9
+    point_size <- point_size %||% if (layout == "circular") 2 else 3
+  }
+
   grouped_args <- list(
-    df           = df,
-    interval     = match.arg(interval),
-    show_nonsig  = show_nonsig,
-    n_top        = n_top,
-    node_colors  = node_colors,
-    cr_color     = cr_color,
-    ring_color   = ring_color,
-    median_color = median_color,
-    label_size   = label_size,
-    label_color  = label_color,
-    point_size   = point_size,
-    r_inner      = r_inner,
-    r_outer      = r_outer,
-    gap_rad      = gap_rad,
-    title        = title,
-    subtitle     = subtitle
+    df             = df,
+    interval       = match.arg(interval),
+    show_nonsig    = show_nonsig,
+    n_top          = n_top,
+    node_colors    = node_colors,
+    cr_color       = cr_color,
+    ring_color     = ring_color,
+    median_color   = median_color,
+    label_size     = label_size,
+    label_color    = label_color,
+    point_size     = point_size,
+    r_inner        = r_inner,
+    r_outer        = r_outer,
+    gap_rad        = gap_rad,
+    label_offset   = label_offset,
+    src_label_size = src_label_size,
+    margins        = margins,
+    scale          = scale,
+    title          = title,
+    subtitle       = subtitle
   )
   if (layout == "grouped") {
     do.call(.build_grouped_radial_plot, grouped_args)
@@ -917,12 +965,16 @@ plot_bootstrap_forest.tna_bootstrap <- function(
     nonsig_color = "#CCCCCC",
     ring_color   = "#C8C8C8",
     median_color = "#AAAAAA",
-    label_size   = 2.9,
+    label_size   = NULL,
     label_color  = NULL,
-    point_size   = if (match.arg(layout) == "circular") 2 else 3,
-    r_inner      = 0.38,
-    r_outer      = 0.72,
-    gap_rad      = 0.10,
+    point_size   = NULL,
+    r_inner      = NULL,
+    r_outer      = NULL,
+    gap_rad      = NULL,
+    label_offset   = NULL,
+    src_label_size = NULL,
+    margins      = c(0.1, 0.1, 0.1, 0.1),
+    scale        = 1,
     title        = NULL,
     subtitle     = NULL,
     ...
@@ -939,23 +991,33 @@ plot_bootstrap_forest.tna_bootstrap <- function(
     }
   }
 
+  # Defaults for non-grouped layouts when NULL
+  if (layout != "grouped") {
+    label_size <- label_size %||% 2.9
+    point_size <- point_size %||% if (layout == "circular") 2 else 3
+  }
+
   grouped_args <- list(
-    df           = df,
-    interval     = match.arg(interval),
-    show_nonsig  = show_nonsig,
-    n_top        = n_top,
-    node_colors  = node_colors,
-    cr_color     = cr_color,
-    ring_color   = ring_color,
-    median_color = median_color,
-    label_size   = label_size,
-    label_color  = label_color,
-    point_size   = point_size,
-    r_inner      = r_inner,
-    r_outer      = r_outer,
-    gap_rad      = gap_rad,
-    title        = title,
-    subtitle     = subtitle
+    df             = df,
+    interval       = match.arg(interval),
+    show_nonsig    = show_nonsig,
+    n_top          = n_top,
+    node_colors    = node_colors,
+    cr_color       = cr_color,
+    ring_color     = ring_color,
+    median_color   = median_color,
+    label_size     = label_size,
+    label_color    = label_color,
+    point_size     = point_size,
+    r_inner        = r_inner,
+    r_outer        = r_outer,
+    gap_rad        = gap_rad,
+    label_offset   = label_offset,
+    src_label_size = src_label_size,
+    margins        = margins,
+    scale          = scale,
+    title          = title,
+    subtitle       = subtitle
   )
   if (layout == "grouped") {
     do.call(.build_grouped_radial_plot, grouped_args)
@@ -1009,35 +1071,49 @@ plot_bootstrap_forest.boot_glasso <- function(
     nonsig_color = "#CCCCCC",
     ring_color   = "#C8C8C8",
     median_color = "#AAAAAA",
-    label_size   = 2.9,
+    label_size   = NULL,
     label_color  = NULL,
-    point_size   = if (match.arg(layout) == "circular") 2 else 3,
-    r_inner      = 0.38,
-    r_outer      = 0.72,
-    gap_rad      = 0.10,
+    point_size   = NULL,
+    r_inner      = NULL,
+    r_outer      = NULL,
+    gap_rad      = NULL,
+    label_offset   = NULL,
+    src_label_size = NULL,
+    margins      = c(0.1, 0.1, 0.1, 0.1),
+    scale        = 1,
     title        = NULL,
     subtitle     = NULL,
     ...
 ) {
   layout <- match.arg(layout)
   df     <- .forest_df_boot_glasso(x, alpha)
+  # Defaults for non-grouped layouts when NULL
+  if (layout != "grouped") {
+    label_size <- label_size %||% 2.9
+    point_size <- point_size %||% if (layout == "circular") 2 else 3
+  }
+
   grouped_args <- list(
-    df           = df,
-    interval     = match.arg(interval),
-    show_nonsig  = show_nonsig,
-    n_top        = n_top,
-    node_colors  = node_colors,
-    cr_color     = cr_color,
-    ring_color   = ring_color,
-    median_color = median_color,
-    label_size   = label_size,
-    label_color  = label_color,
-    point_size   = point_size,
-    r_inner      = r_inner,
-    r_outer      = r_outer,
-    gap_rad      = gap_rad,
-    title        = title,
-    subtitle     = subtitle
+    df             = df,
+    interval       = match.arg(interval),
+    show_nonsig    = show_nonsig,
+    n_top          = n_top,
+    node_colors    = node_colors,
+    cr_color       = cr_color,
+    ring_color     = ring_color,
+    median_color   = median_color,
+    label_size     = label_size,
+    label_color    = label_color,
+    point_size     = point_size,
+    r_inner        = r_inner,
+    r_outer        = r_outer,
+    gap_rad        = gap_rad,
+    label_offset   = label_offset,
+    src_label_size = src_label_size,
+    margins        = margins,
+    scale          = scale,
+    title          = title,
+    subtitle       = subtitle
   )
   if (layout == "grouped") {
     do.call(.build_grouped_radial_plot, grouped_args)

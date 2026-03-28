@@ -24,12 +24,16 @@ plot_bootstrap_forest(x, ...)
   nonsig_color = "#CCCCCC",
   ring_color = "#C8C8C8",
   median_color = "#AAAAAA",
-  label_size = 2.9,
+  label_size = NULL,
   label_color = NULL,
-  point_size = if (match.arg(layout) == "circular") 2 else 3,
-  r_inner = 0.38,
-  r_outer = 0.72,
-  gap_rad = 0.1,
+  point_size = NULL,
+  r_inner = NULL,
+  r_outer = NULL,
+  gap_rad = NULL,
+  label_offset = NULL,
+  src_label_size = NULL,
+  margins = c(0.1, 0.1, 0.1, 0.1),
+  scale = 1,
   title = NULL,
   subtitle = NULL,
   ...
@@ -49,12 +53,16 @@ plot_bootstrap_forest(x, ...)
   nonsig_color = "#CCCCCC",
   ring_color = "#C8C8C8",
   median_color = "#AAAAAA",
-  label_size = 2.9,
+  label_size = NULL,
   label_color = NULL,
-  point_size = if (match.arg(layout) == "circular") 2 else 3,
-  r_inner = 0.38,
-  r_outer = 0.72,
-  gap_rad = 0.1,
+  point_size = NULL,
+  r_inner = NULL,
+  r_outer = NULL,
+  gap_rad = NULL,
+  label_offset = NULL,
+  src_label_size = NULL,
+  margins = c(0.1, 0.1, 0.1, 0.1),
+  scale = 1,
   title = NULL,
   subtitle = NULL,
   ...
@@ -74,12 +82,16 @@ plot_bootstrap_forest(x, ...)
   nonsig_color = "#CCCCCC",
   ring_color = "#C8C8C8",
   median_color = "#AAAAAA",
-  label_size = 2.9,
+  label_size = NULL,
   label_color = NULL,
-  point_size = if (match.arg(layout) == "circular") 2 else 3,
-  r_inner = 0.38,
-  r_outer = 0.72,
-  gap_rad = 0.1,
+  point_size = NULL,
+  r_inner = NULL,
+  r_outer = NULL,
+  gap_rad = NULL,
+  label_offset = NULL,
+  src_label_size = NULL,
+  margins = c(0.1, 0.1, 0.1, 0.1),
+  scale = 1,
   title = NULL,
   subtitle = NULL,
   ...
@@ -144,6 +156,23 @@ Default \code{"#D4820A"} (amber).}
 inherits the edge colour (teal for significant, grey for non-significant).}
 
 \item{point_size}{Size of the estimate square. Default \code{3} (linear) or \code{2} (radial).}
+
+\item{r_inner}{Inner ring radius (grouped layout). Default \code{NULL} (auto).}
+
+\item{r_outer}{Outer ring radius (grouped layout). Default \code{NULL} (auto).}
+
+\item{gap_rad}{Gap in radians between sectors (grouped layout). Default \code{NULL} (auto).}
+
+\item{label_offset}{Distance between outer ring and labels (grouped layout). Default \code{NULL} (auto).}
+
+\item{src_label_size}{Text size for source node labels in the center (grouped layout).
+Default \code{NULL} (auto, \code{label_size * 0.80}).}
+
+\item{margins}{Margins as \code{c(bottom, left, top, right)} fractions (grouped layout).
+Default \code{c(0.1, 0.1, 0.1, 0.1)}.}
+
+\item{scale}{Scaling factor applied to all text and point sizes (grouped layout).
+Default \code{1}. Use values > 1 for high-DPI output, < 1 for small devices.}
 
 \item{title}{Plot title. Default \code{NULL}.}
 

@@ -1683,3 +1683,31 @@ test_that("NULL title default does not add title label", {
   p <- plot_transitions(mat)
   expect_null(p$labels$title)
 })
+
+# ============================================
+# tna object support
+# ============================================
+
+test_that("plot_transitions handles tna with sequence data", {
+  skip_if_not_installed("tna")
+  library(tna)
+  model <- tna(engagement)
+  p <- plot_transitions(model)
+  expect_true(inherits(p, "ggplot"))
+})
+
+test_that("plot_alluvial handles tna", {
+  skip_if_not_installed("tna")
+  library(tna)
+  model <- tna(engagement)
+  p <- plot_alluvial(model)
+  expect_true(inherits(p, "ggplot"))
+})
+
+test_that("plot_trajectories handles tna with sequence data", {
+  skip_if_not_installed("tna")
+  library(tna)
+  model <- tna(engagement)
+  p <- plot_trajectories(model)
+  expect_true(inherits(p, "ggplot"))
+})

@@ -622,6 +622,11 @@ splot <- function(
     return(do.call(splot.group_tna_permutation, c(list(x = x), .collect_dispatch_args(.user_args, .dots))))
   }
 
+  # Dispatch for tna disparity filter results
+  if (inherits(x, "tna_disparity")) {
+    return(do.call(splot.tna_disparity, c(list(x = x), .collect_dispatch_args(.user_args, .dots))))
+  }
+
   # Nestimate: base netobject — apply directed/undirected styling defaults
   if (inherits(x, "netobject")) {
     return(do.call(splot.netobject, c(list(x = x), .collect_dispatch_args(.user_args, .dots))))

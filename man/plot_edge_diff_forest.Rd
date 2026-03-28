@@ -89,7 +89,7 @@ Red = first edge larger; blue = second edge larger.
 \dontshow{if (requireNamespace("Nestimate", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 set.seed(1)
 data1 <- as.data.frame(matrix(rnorm(60), 20, 3, dimnames = list(NULL, c("A","B","C"))))
-bg <- Nestimate::boot_glasso(data1, iter = 50)
+bg <- Nestimate::boot_glasso(data1, iter = 50, centrality = c("strength", "expected_influence"))
 plot_edge_diff_forest(bg)
 \dontshow{\}) # examplesIf}
 }

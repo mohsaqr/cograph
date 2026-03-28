@@ -59,7 +59,7 @@ Create visualizations for motif analysis results including network diagrams
 of triads, bar plots of type distributions, and significance plots.
 }
 \examples{
-\dontshow{if (requireNamespace("tna", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+\dontrun{
 Mod <- tna::tna(tna::group_regulation)
 m <- extract_motifs(Mod, significance = TRUE)
 
@@ -75,7 +75,8 @@ plot(m, ncol = 4, n = 12)
 # Other plot types
 plot(m, type = "types")
 plot(m, type = "significance")
-\dontshow{\}) # examplesIf}
+}
+
 }
 \seealso{
 \code{\link[=extract_motifs]{extract_motifs()}} for the analysis that produces this object,

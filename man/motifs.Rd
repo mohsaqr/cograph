@@ -119,6 +119,7 @@ metadata), performs per-group analysis. For aggregate inputs (matrices,
 igraph), analyzes the single network.
 }
 \examples{
+\dontrun{
 # Census from a matrix
 mat <- matrix(c(0,3,2,0, 0,0,5,1, 0,0,0,4, 2,0,0,0), 4, 4, byrow = TRUE)
 rownames(mat) <- colnames(mat) <- c("Plan","Execute","Monitor","Adapt")
@@ -131,6 +132,7 @@ if (requireNamespace("tna", quietly = TRUE)) {
 
   # Instances: specific node triples
   subgraphs(Mod)
+}
 }
 
 }

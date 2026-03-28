@@ -2,9 +2,9 @@ Package: cograph
 Title: Analysis and Visualization of Complex Networks
 Version: 2.0.0
 Authors@R: c(
-    person("Mohammed", "Saqr", role = "aut"),
-    person("Sonsoles", "L\u00f3pez-Pernas", 
-           email = "sonsoles.lopez@uef.fi", role = c("aut", "cre")),
+    person("Mohammed", "Saqr", role = c("aut", "cph")),
+    person("Sonsoles", "L\u00f3pez-Pernas",
+           email = "sonsoles.lopez@uef.fi", role = c("aut", "cre", "cph")),
     person("Santtu", "Tikka", role = "aut")
   )
 Description: Provides tools for the analysis, visualization, and manipulation

@@ -56,11 +56,11 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Sonsoles López-Pernas \email{sonsoles.lopez@uef.fi}
+\strong{Maintainer}: Sonsoles López-Pernas \email{sonsoles.lopez@uef.fi} [copyright holder]
 
 Authors:
 \itemize{
-  \item Mohammed Saqr
+  \item Mohammed Saqr [copyright holder]
   \item Santtu Tikka
 }
 

@@ -26,14 +26,14 @@ navbar:
 articles:
   - title: Guides
     contents:
-    - why-cograph
-    - function-reference
-    - network-structure-and-groups
+    - "why-cograph"
+    - "function-reference"
+    - "network-structure-and-groups"
   - title: Examples
     contents:
-    - plotting-tna-models
-    - comparison-plots-demo
-    - mcml-examples
+    - "plotting-tna-models"
+    - "comparison-plots-demo"
+    - "mcml-examples"
 
 reference:
   - title: Base R plotting

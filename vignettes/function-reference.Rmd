@@ -12,8 +12,8 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.width = 6,
-  fig.dpi = 60,
-  dpi = 60,
+  fig.dpi = 50,
+  dpi = 50,
   fig.height = 5
 )
 library(cograph)

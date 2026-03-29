@@ -1,10 +1,5 @@
 ---
 title: "Network Structure and Node Groups"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Network Structure and Node Groups}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r, include = FALSE}
@@ -13,8 +8,8 @@ knitr::opts_chunk$set(
   comment = "#>",
   fig.width = 6,
   fig.height = 4,
-  fig.dpi = 50,
-  dpi = 50
+  fig.dpi = 300,
+  dpi = 300
 )
 ```
 

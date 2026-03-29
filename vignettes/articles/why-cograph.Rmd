@@ -1,11 +1,5 @@
 ---
 title: "Why cograph?"
-output: rmarkdown::html_vignette
-
-vignette: >
-  %\VignetteIndexEntry{Why cograph?}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r, include=FALSE}
@@ -16,8 +10,8 @@ knitr::opts_chunk$set(
   comment = "#>",
   fig.width = 8,
   fig.height = 5,
-  fig.dpi = 50,
-  dpi = 50
+  fig.dpi = 300,
+  dpi = 300
 )
 ```
 

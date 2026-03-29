@@ -1,10 +1,5 @@
 ---
 title: "Network Comparison and Visualization"
-output:
-  html_document:
-    toc: true
-    toc_float: true
-    theme: flatly
 ---
 
 ```{r setup, include=FALSE}
@@ -14,8 +9,8 @@ knitr::opts_chunk$set(
   warning = FALSE,
   fig.width = 8,
   fig.height = 7,
-  fig.dpi = 50,
-  dpi = 50
+  fig.dpi = 300,
+  dpi = 300
 )
 library(tna)
 library(cograph)

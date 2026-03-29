@@ -14,8 +14,8 @@ knitr::opts_chunk$set(
   warning = FALSE,
   fig.width = 8,
   fig.height = 7,
-  fig.dpi = 60,
-  dpi = 60
+  fig.dpi = 50,
+  dpi = 50
 )
 library(tna)
 library(cograph)

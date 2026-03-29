@@ -1,15 +1,10 @@
 ---
 title: "Nice Examples"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Nice Examples}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, fig.width = 8, fig.height = 8, 
-                        fig.dpi = 60, dpi = 60)
+                        fig.dpi = 300, dpi = 300)
 library(ggplot2)
 library(tna)
 library(cograph)

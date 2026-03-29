@@ -1,10 +1,5 @@
 ---
 title: "Plotting TNA Models with splot"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Plotting TNA Models with splot}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}
@@ -13,8 +8,8 @@ knitr::opts_chunk$set(
   comment = "#>",
   fig.width = 6,
   fig.height = 5,
-  fig.dpi = 50,
-  dpi = 50
+  fig.dpi = 300,
+  dpi = 300
 )
 library(cograph)
 library(tna)

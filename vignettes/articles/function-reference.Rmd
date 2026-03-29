@@ -1,10 +1,5 @@
 ---
 title: "Function Reference"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Function Reference}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}
@@ -12,8 +7,8 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.width = 6,
-  fig.dpi = 50,
-  dpi = 50,
+  fig.dpi = 300,
+  dpi = 300,
   fig.height = 5
 )
 library(cograph)

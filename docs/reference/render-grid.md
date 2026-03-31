@@ -13,9 +13,8 @@ a ggplot2 object.
 ## Examples
 
 ``` r
-# \donttest{
+if (FALSE) { # \dontrun{
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 soplot(adj)
-
-# }
+} # }
 ```

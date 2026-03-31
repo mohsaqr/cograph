@@ -54,7 +54,7 @@ net <- as_cograph(matrix(runif(25), 5, 5))
 com_op(net)
 #> Community structure (optimal)
 #>   Number of communities: 2 
-#>   Modularity: 0.2496 
-#>   Community sizes: 2, 3 
+#>   Modularity: 0.2432 
+#>   Community sizes: 4, 1 
 #>   Nodes: 5 
 ```

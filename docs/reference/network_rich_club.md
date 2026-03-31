@@ -49,5 +49,5 @@ if (requireNamespace("igraph", quietly = TRUE)) {
 }
 #> Warning: `barabasi.game()` was deprecated in igraph 2.0.0.
 #> ℹ Please use `sample_pa()` instead.
-#> [1] 0.6
+#> [1] 0.3555556
 ```

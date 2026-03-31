@@ -62,13 +62,12 @@ The `splot` result (invisibly).
 ## Examples
 
 ``` r
-# \donttest{
+if (FALSE) { # \dontrun{
 mat <- matrix(runif(25), 5, 5,
               dimnames = list(LETTERS[1:5], LETTERS[1:5]))
 diag(mat) <- 0
 overlay_communities(mat, list(g1 = c("A", "B"), g2 = c("C", "D", "E")))
-
-# }
+} # }
 
 if (requireNamespace("tna", quietly = TRUE)) {
   model <- tna::tna(tna::group_regulation)

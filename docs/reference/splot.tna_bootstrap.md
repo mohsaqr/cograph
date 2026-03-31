@@ -104,7 +104,7 @@ Edge styling in "styled" mode:
 ## Examples
 
 ``` r
-# \donttest{
+if (FALSE) { # \dontrun{
 # Create a mock tna_bootstrap object with synthetic data
 set.seed(42)
 w <- matrix(c(0, 0.3, 0.1, 0.2, 0, 0.4, 0.3, 0.1, 0), 3, 3)
@@ -120,8 +120,6 @@ boot <- list(
 )
 class(boot) <- c("tna_bootstrap", "list")
 splot(boot)
-
 splot(boot, display = "significant")
-
-# }
+} # }
 ```

@@ -32,5 +32,5 @@ Numeric modularity value
 g <- igraph::make_graph("Zachary")
 comm <- community_louvain(g)
 igraph::modularity(comm)
-#> [1] 0.4188034
+#> [1] 0.4151052
 ```

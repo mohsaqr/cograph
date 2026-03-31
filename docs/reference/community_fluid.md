@@ -55,6 +55,6 @@ com_fl(net, no.of.communities = 2)
 #> Community structure (fluid)
 #>   Number of communities: 2 
 #>   Modularity: NA 
-#>   Community sizes: 2, 3 
+#>   Community sizes: 1, 4 
 #>   Nodes: 5 
 ```

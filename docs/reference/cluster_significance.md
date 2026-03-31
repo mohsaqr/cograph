@@ -127,6 +127,7 @@ community detection. *Physical Review E*, 74, 016110.
 ## Examples
 
 ``` r
+if (FALSE) { # \dontrun{
 if (requireNamespace("igraph", quietly = TRUE)) {
   g <- igraph::make_graph("Zachary")
   comm <- community_louvain(g)
@@ -138,17 +139,7 @@ if (requireNamespace("igraph", quietly = TRUE)) {
   # Configuration model (stricter test)
   sig2 <- cluster_significance(g, comm, method = "configuration")
 }
-#> Cluster Significance Test
-#> =========================
-#> 
-#>   Null model:           configuration (n = 100 )
-#>   Observed modularity:  0.4156 
-#>   Null mean:            0.3771 
-#>   Null SD:              0.0274 
-#>   Z-score:              1.4 
-#>   P-value:              0.080012 
-#> 
-#>   Conclusion: No significant community structure (p >= 0.05)
+} # }
 if (requireNamespace("igraph", quietly = TRUE)) {
   g <- igraph::make_graph("Zachary")
   comm <- community_louvain(g)

@@ -33,7 +33,7 @@ Invisibly returns NULL.
 ## Examples
 
 ``` r
-# \donttest{
+if (FALSE) { # \dontrun{
 # Create a mock group_tna_permutation object
 set.seed(42)
 d1 <- matrix(c(0, 0.2, -0.1, -0.2, 0, 0.1, 0.1, -0.1, 0), 3, 3)
@@ -46,6 +46,5 @@ class(perm1) <- c("tna_permutation", "list")
 gperm <- list("G1 vs. G2" = perm1)
 class(gperm) <- c("group_tna_permutation", "list")
 plot_group_permutation(gperm)
-
-# }
+} # }
 ```

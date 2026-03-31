@@ -31,7 +31,7 @@ plot.
 ## Examples
 
 ``` r
-# \donttest{
+if (FALSE) { # \dontrun{
 mat <- matrix(c(
   0.0, 0.5, 0.1, 0.0,
   0.3, 0.0, 0.4, 0.1,
@@ -41,8 +41,6 @@ mat <- matrix(c(
 rownames(mat) <- colnames(mat) <- c("A", "B", "C", "D")
 disp <- disparity_filter(cograph(mat), level = 0.05)
 plot(disp)
-
 plot(disp, type = "comparison")
-
-# }
+} # }
 ```

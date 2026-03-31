@@ -116,7 +116,7 @@ compare using i and j parameters.
 ## Examples
 
 ``` r
-# \donttest{
+if (FALSE) { # \dontrun{
 # Compare two adjacency matrices
 set.seed(42)
 m1 <- matrix(runif(25), 5, 5)
@@ -125,11 +125,9 @@ rownames(m1) <- colnames(m1) <- LETTERS[1:5]
 rownames(m2) <- colnames(m2) <- LETTERS[1:5]
 plot_compare(m1, m2)
 
-
 # With node-level differences
 inits1 <- c(0.3, 0.2, 0.2, 0.15, 0.15)
 inits2 <- c(0.1, 0.4, 0.2, 0.2, 0.1)
 plot_compare(m1, m2, inits_x = inits1, inits_y = inits2)
-
-# }
+} # }
 ```

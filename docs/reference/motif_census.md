@@ -103,9 +103,9 @@ print(m)
 #> Null model: configuration (n=100)
 #> 
 #> Significant motifs:
-#>  motif count expected    z       p
-#>   111U     2      0.1 4.87 1.1e-06
-#>   120D     2      0.2 3.95 7.7e-05
+#>  motif count expected    z      p
+#>   111U     2      0.2 3.16 0.0016
+#>   120D     2      0.2 2.95 0.0032
 #> 
 #> Over-represented: 2 | Under-represented: 0
 plot(m)

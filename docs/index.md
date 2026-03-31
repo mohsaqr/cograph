@@ -1,4 +1,4 @@
-# cograph ![](reference/figures/logo.png)
+# cograph ![](https://sonsoles.me/cograph/reference/figures/logo.png)
 
 **cograph** is a modern R package for the analysis, visualization, and
 manipulation of complex networks. It provides publication-ready plotting
@@ -90,7 +90,7 @@ library(tna)
 library(cograph)
 
 # Build a TNA model from sequence data
-fit <- tna(group_regulation)
+fit <- tna(engagement)
 
 # One-liner visualization
 splot(fit)
@@ -255,12 +255,6 @@ plot_transitions(mat, flow_color_by = "from", flow_alpha = 0.5,
 ```
 
 ![](reference/figures/README-alluvial-1.jpeg)
-
-## Quality
-
-- 100% test coverage (13,450+ tests)
-- R CMD check: 0 errors, 0 warnings
-- All exported functions documented with `@return` and `@examples`
 
 ## License
 

@@ -573,17 +573,15 @@ cs <- cluster_summary(mat, clusters)
 plot_mcml(cs)
 
 
-# \donttest{
+if (FALSE) { # \dontrun{
 # 3. TNA mode — transition probabilities with edge labels
 plot_mcml(mat, clusters, mode = "tna")
-
 
 # 4. Custom shapes — different shape per cluster
 plot_mcml(mat, clusters,
   node_shape = "diamond",
   cluster_shape = c("circle", "square", "triangle")
 )
-
 
 # 5. Styling — custom colors, transparency, edge widths
 plot_mcml(mat, clusters,
@@ -594,14 +592,12 @@ plot_mcml(mat, clusters,
   edge_width_range = c(0.5, 2.0)
 )
 
-
 # 6. Edge labels on both layers
 plot_mcml(mat, clusters,
   edge_labels = TRUE,
   summary_edge_labels = TRUE,
   edge_label_digits = 1
 )
-
 
 # 7. Layout tuning — adjust spacing, perspective, and layer gap
 plot_mcml(mat, clusters,
@@ -611,13 +607,11 @@ plot_mcml(mat, clusters,
   inter_layer_gap = 0.8
 )
 
-
 # 8. With mean aggregation for size-normalized comparison
 plot_mcml(mat, clusters,
   aggregation = "mean",
   title = "Mean-aggregated cluster network"
 )
-
 
 # 9. Label abbreviation for dense networks
 big_mat <- matrix(runif(400), 20, 20)
@@ -630,7 +624,6 @@ big_clusters <- list(
 )
 plot_mcml(big_mat, big_clusters, label_abbrev = "auto")
 
-
 # 10. Minimal clean plot — no legend, no labels, no arrows
 plot_mcml(mat, clusters,
   legend = FALSE,
@@ -638,6 +631,5 @@ plot_mcml(mat, clusters,
   summary_labels = FALSE,
   summary_arrows = FALSE
 )
-
-# }
+} # }
 ```

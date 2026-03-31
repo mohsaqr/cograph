@@ -33,6 +33,6 @@ if (requireNamespace("igraph", quietly = TRUE)) {
   cat("Betweenness attack AUC:", round(robustness_auc(rob_btw), 3), "\n")
   cat("Random failure AUC:", round(robustness_auc(rob_rnd), 3), "\n")
 }
-#> Betweenness attack AUC: 0.203 
-#> Random failure AUC: 0.432 
+#> Betweenness attack AUC: 0.196 
+#> Random failure AUC: 0.434 
 ```

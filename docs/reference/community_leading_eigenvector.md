@@ -93,7 +93,7 @@ net <- as_cograph(matrix(runif(25), 5, 5))
 com_le(net)
 #> Community structure (leading_eigenvector)
 #>   Number of communities: 2 
-#>   Modularity: 0.151 
-#>   Community sizes: 3, 2 
+#>   Modularity: 0.0413 
+#>   Community sizes: 2, 3 
 #>   Nodes: 5 
 ```

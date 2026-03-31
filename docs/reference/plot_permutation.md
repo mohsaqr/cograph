@@ -95,7 +95,7 @@ Edge styling:
 ## Examples
 
 ``` r
-# \donttest{
+if (FALSE) { # \dontrun{
 # Create a mock tna_permutation object with synthetic data
 set.seed(42)
 diffs <- matrix(c(0, 0.15, -0.1, -0.2, 0, 0.05, 0.1, -0.05, 0), 3, 3)
@@ -118,6 +118,5 @@ attr(perm, "level") <- 0.05
 attr(perm, "labels") <- c("A", "B", "C")
 class(perm) <- c("tna_permutation", "list")
 plot_permutation(perm)
-
-# }
+} # }
 ```

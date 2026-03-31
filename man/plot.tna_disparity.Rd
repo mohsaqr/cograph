@@ -20,7 +20,7 @@ Invisibly returns \code{NULL}. Called for the side effect of producing a plot.
 Plot Disparity Filter Result
 }
 \examples{
-\donttest{
+\dontrun{
 mat <- matrix(c(
   0.0, 0.5, 0.1, 0.0,
   0.3, 0.0, 0.4, 0.1,

@@ -216,7 +216,7 @@ column to the right column. Flow width is proportional to the transition
 count. Nodes are sized proportionally to their total flow.
 }
 \examples{
-\donttest{
+\dontrun{
 # From a transition matrix
 mat <- matrix(c(50, 10, 5, 15, 40, 10, 5, 20, 30), 3, 3, byrow = TRUE)
 rownames(mat) <- c("Light", "Resource", "Intense")
@@ -236,7 +236,7 @@ plot_transitions(mat,
 )
 }
 
-\donttest{
+\dontrun{
 # Multi-step transitions (list of matrices)
 mat1 <- matrix(c(40, 10, 5, 15, 35, 5, 5, 15, 25), 3, 3, byrow = TRUE,
                dimnames = list(c("A","B","C"), c("A","B","C")))

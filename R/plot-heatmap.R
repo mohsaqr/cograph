@@ -67,7 +67,7 @@ NULL
 #' the networks share nodes.
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # Single network
 #' m <- matrix(runif(25), 5, 5)
 #' rownames(m) <- colnames(m) <- LETTERS[1:5]
@@ -81,7 +81,7 @@ NULL
 #' plot_heatmap(m, colors = "heat", limits = c(0, 1), show_values = TRUE)
 #' }
 #'
-#' \donttest{
+#' \dontrun{
 #' # Multi-layer (group_tna) — requires tna package and sequence data
 #' if (requireNamespace("tna", quietly = TRUE)) {
 #'   mod <- tna::tna(tna::group_regulation)

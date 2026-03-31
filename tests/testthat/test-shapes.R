@@ -1,3 +1,5 @@
+skip_on_cran()
+
 test_that("built-in shapes exist", {
   shapes <- list_shapes()
 

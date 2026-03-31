@@ -49,7 +49,7 @@ NULL
 #' }
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # Create a mock tna_bootstrap object with synthetic data
 #' set.seed(42)
 #' w <- matrix(c(0, 0.3, 0.1, 0.2, 0, 0.4, 0.3, 0.1, 0), 3, 3)

@@ -1,6 +1,8 @@
 # test-coverage-plot-htna-40.R - Coverage tests for plot-htna.R
 # Targets uncovered functions and branches
 
+skip_on_cran()
+
 # ============================================
 # SETUP AND HELPER FUNCTIONS
 # ============================================

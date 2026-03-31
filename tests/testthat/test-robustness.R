@@ -6,6 +6,8 @@
 # ==============================================================================
 
 # Create test networks
+skip_on_cran()
+
 set.seed(42)
 
 # Create a simple connected network

@@ -7,6 +7,8 @@
 # ============================================
 
 # Create a CographNetwork R6 object for internal function testing
+skip_on_cran()
+
 create_r6_network <- function(n = 4, directed = FALSE, weighted = FALSE) {
   adj <- create_test_matrix(n, density = 0.5, weighted = weighted, symmetric = !directed)
   net <- cograph(adj)

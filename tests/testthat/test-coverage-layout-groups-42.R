@@ -6,6 +6,8 @@
 # SETUP: Access internal function
 # ============================================
 
+skip_on_cran()
+
 layout_groups <- cograph:::layout_groups
 
 # ============================================

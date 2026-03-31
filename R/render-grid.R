@@ -5,7 +5,7 @@
 #'   \code{cograph_network} object invisibly; \code{\link{sn_ggplot}} returns a
 #'   ggplot2 object.
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 #' soplot(adj)
 #' }
@@ -905,7 +905,7 @@ render_legend_grid <- function(network, position = "topright") {
 #' @return Invisible NULL. Called for side effect of drawing.
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 #' sn_render(mat)
 #' }

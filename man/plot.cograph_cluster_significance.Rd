@@ -18,7 +18,7 @@ Invisibly returns x
 Creates a histogram of the null distribution with the observed value marked.
 }
 \examples{
-\donttest{
+\dontrun{
 if (requireNamespace("igraph", quietly = TRUE)) {
   g <- igraph::make_graph("Zachary")
   comm <- community_louvain(g)

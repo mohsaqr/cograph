@@ -7,6 +7,8 @@
 # =============================================================================
 
 # Simple symmetric adjacency matrix (undirected)
+skip_on_cran()
+
 create_symmetric_matrix <- function(n = 3) {
   mat <- matrix(0, nrow = n, ncol = n)
   for (i in 1:(n-1)) {

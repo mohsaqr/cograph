@@ -5,6 +5,8 @@
 # SETUP: Access internal functions
 # =============================================================================
 
+skip_on_cran()
+
 parse_qgraph <- cograph:::parse_qgraph
 create_nodes_df <- cograph:::create_nodes_df
 create_edges_df <- cograph:::create_edges_df

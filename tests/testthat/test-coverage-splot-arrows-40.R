@@ -6,6 +6,8 @@
 # ============================================
 
 # Make internal arrow functions available for testing
+skip_on_cran()
+
 arrow_base_midpoint <- cograph:::arrow_base_midpoint
 arrow_radius <- cograph:::arrow_radius
 draw_arrow_base <- cograph:::draw_arrow_base

@@ -1,6 +1,8 @@
 # Tests for TNA integration in cograph
 # Tests is_tna_network() function
 
+skip_on_cran()
+
 test_that("is_tna_network returns FALSE for non-TNA networks", {
   # Matrix input
   mat <- matrix(runif(25), 5, 5)

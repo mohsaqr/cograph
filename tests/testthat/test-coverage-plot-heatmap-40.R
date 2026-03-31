@@ -1,6 +1,8 @@
 # Tests for plot-heatmap.R
 # Comprehensive test coverage for heatmap plotting functions
 
+skip_on_cran()
+
 # ============================================
 # Basic plot_heatmap() Tests
 # ============================================

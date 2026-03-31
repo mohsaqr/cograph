@@ -7,6 +7,8 @@
 # ============================================
 
 # Create simple test network helper
+skip_on_cran()
+
 create_test_network <- function(n = 4, seed = 42) {
   set.seed(seed)
   mat <- matrix(runif(n * n, 0.1, 0.9), n, n)

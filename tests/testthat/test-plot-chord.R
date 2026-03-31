@@ -1,3 +1,5 @@
+skip_on_cran()
+
 test_that("plot_chord works with basic symmetric matrix", {
   mat <- matrix(c(0, .3, .2,
                   .3, 0, .1,

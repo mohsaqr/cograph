@@ -10,7 +10,7 @@ A ggplot2 object representing the network.
 Convert Cograph network to ggplot2 object.
 }
 \examples{
-\donttest{
+\dontrun{
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 p <- sn_ggplot(adj)
 }

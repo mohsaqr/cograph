@@ -5,6 +5,8 @@
 # TNA AND GROUP_TNA HANDLING
 # ============================================
 
+skip_on_cran()
+
 test_that("splot() handles tna object input", {
   skip_if_no_tna()
 

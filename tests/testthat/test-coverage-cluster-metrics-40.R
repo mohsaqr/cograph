@@ -6,6 +6,8 @@
 # ==============================================================================
 
 # Create test matrices with node names
+skip_on_cran()
+
 set.seed(123)
 n <- 8
 mat <- matrix(runif(n * n), n, n)

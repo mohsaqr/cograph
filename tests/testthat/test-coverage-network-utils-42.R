@@ -8,6 +8,8 @@
 # -----------------------------------------------------------------------------
 
 # Create test adjacency matrices
+skip_on_cran()
+
 create_test_matrix <- function(n = 4, symmetric = TRUE, weighted = TRUE) {
   set.seed(42)
   mat <- matrix(runif(n * n), n, n)

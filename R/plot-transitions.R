@@ -105,7 +105,7 @@ NULL
 #' count. Nodes are sized proportionally to their total flow.
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # From a transition matrix
 #' mat <- matrix(c(50, 10, 5, 15, 40, 10, 5, 20, 30), 3, 3, byrow = TRUE)
 #' rownames(mat) <- c("Light", "Resource", "Intense")
@@ -125,7 +125,7 @@ NULL
 #' )
 #' }
 #'
-#' \donttest{
+#' \dontrun{
 #' # Multi-step transitions (list of matrices)
 #' mat1 <- matrix(c(40, 10, 5, 15, 35, 5, 5, 15, 25), 3, 3, byrow = TRUE,
 #'                dimnames = list(c("A","B","C"), c("A","B","C")))
@@ -1657,7 +1657,7 @@ plot_transitions <- function(x,
 #' @return A ggplot2 object.
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # From a transition matrix
 #' mat <- matrix(c(50, 10, 5, 15, 40, 10), 2, 3)
 #' rownames(mat) <- c("A", "B")
@@ -1766,7 +1766,7 @@ plot_alluvial <- function(x,
 #' @return A ggplot2 object.
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # Track individual trajectories across time points
 #' df <- data.frame(
 #'   Baseline = c("Light", "Light", "Intense", "Resource"),

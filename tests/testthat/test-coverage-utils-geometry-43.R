@@ -8,6 +8,8 @@
 # Import internal functions
 # ============================================
 
+skip_on_cran()
+
 point_distance <- cograph:::point_distance
 point_angle <- cograph:::point_angle
 point_on_circle <- cograph:::point_on_circle

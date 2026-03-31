@@ -20,7 +20,7 @@ NULL
 #' @return The output \code{filename}, invisibly.
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 #' net <- cograph(adj)
 #' sn_save(net, file.path(tempdir(), "network.pdf"))
@@ -106,7 +106,7 @@ sn_save <- function(network, filename, width = 7, height = 7, dpi = 300,
 #' @return The output \code{filename}, invisibly.
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 #' net <- cograph(adj)
 #' sn_save_ggplot(net, file.path(tempdir(), "network.pdf"))

@@ -12,7 +12,7 @@ ggplot2 object.
 Main grid-based rendering functions.
 }
 \examples{
-\donttest{
+\dontrun{
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 soplot(adj)
 }

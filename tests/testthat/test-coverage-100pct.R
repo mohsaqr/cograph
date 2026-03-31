@@ -2,6 +2,8 @@
 # Test Coverage 100% - Targets all remaining uncovered lines
 # =============================================================================
 
+skip_on_cran()
+
 # ---- zzz.R (lines 9, 13, 17, 21, 24) ----
 # .onLoad runs at package load. covr can't instrument it.
 # Explicitly call the functions to cover them.

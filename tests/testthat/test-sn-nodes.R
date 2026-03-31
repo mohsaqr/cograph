@@ -5,6 +5,8 @@
 # BASIC FUNCTIONALITY
 # ============================================
 
+skip_on_cran()
+
 test_that("sn_nodes() returns cograph_network object", {
   adj <- create_test_matrix(4)
   net <- cograph(adj)

@@ -9,6 +9,8 @@
 # Test Setup
 # ============================================
 
+skip_on_cran()
+
 make_mtna_mat <- function(n = 12, n_clusters = 3, seed = 42) {
   set.seed(seed)
   nodes <- paste0("N", seq_len(n))

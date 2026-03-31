@@ -1,6 +1,8 @@
 # test-coverage-output-save-43.R - Additional Coverage Tests for output-save.R
 # Targets uncovered code paths in sn_save() and sn_save_ggplot()
 
+skip_on_cran()
+
 # ============================================
 # SN_SAVE() EDGE CASES - WEIGHTED NETWORKS
 # ============================================

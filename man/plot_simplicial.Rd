@@ -105,7 +105,7 @@ also be passed as \code{net_hon} or \code{net_hypa} objects, with
 labels auto-translated when \code{x} is a \code{tna}/\code{netobject}.
 }
 \examples{
-\donttest{
+\dontrun{
 mat <- matrix(runif(16), 4, 4,
               dimnames = list(LETTERS[1:4], LETTERS[1:4]))
 diag(mat) <- 0

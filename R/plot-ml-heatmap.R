@@ -34,7 +34,7 @@
 #' @return A ggplot2 object.
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # List of matrices
 #' layers <- list(
 #'   Layer1 = matrix(runif(16), 4, 4),

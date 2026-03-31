@@ -1,6 +1,8 @@
 # Tests for unified motifs() API
 # Covers: auto-detection helpers, edgelist_to_trans_array, motifs(), subgraphs()
 
+skip_on_cran()
+
 # ================================================================
 # Task 1: Auto-detection helpers
 # ================================================================

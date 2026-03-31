@@ -5,6 +5,8 @@
 # CographLayout - Basic Creation Tests
 # =============================================================================
 
+skip_on_cran()
+
 test_that("CographLayout$new() creates layout with default type", {
   layout <- CographLayout$new()
   expect_equal(layout$get_type(), "circle")

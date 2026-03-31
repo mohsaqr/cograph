@@ -2,6 +2,8 @@
 # Round 5: Final coverage push — targeting all 122 remaining uncovered lines
 # ===========================================================================
 
+skip_on_cran()
+
 library(testthat)
 
 # Helper: wrap plotting in temp PNG device

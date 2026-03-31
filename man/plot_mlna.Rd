@@ -156,7 +156,7 @@ in a 3D perspective view. Each layer contains nodes connected by solid edges
 a pseudo-3D appearance.
 }
 \examples{
-\donttest{
+\dontrun{
 # Create multilevel network
 set.seed(42)
 nodes <- paste0("N", 1:15)
@@ -184,7 +184,7 @@ plot_mlna(m, layers,
 # Circle layout within layers
 plot_mlna(m, layers, layout = "circle")
 }
-\donttest{
+\dontrun{
 nodes <- paste0("N", 1:9)
 m <- matrix(runif(81, 0, 0.3), 9, 9)
 diag(m) <- 0

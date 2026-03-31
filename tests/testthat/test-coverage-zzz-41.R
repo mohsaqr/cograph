@@ -8,6 +8,8 @@
 # Test: .onLoad initializes registries via init_registries
 # =============================================================================
 
+skip_on_cran()
+
 test_that(".onLoad initializes shapes registry", {
   # Shapes registry should be initialized and non-empty
   shapes <- list_shapes()

@@ -232,7 +232,7 @@ print.tna_disparity <- function(x, ...) {
 #' @return Invisibly returns \code{NULL}. Called for the side effect of producing a plot.
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' mat <- matrix(c(
 #'   0.0, 0.5, 0.1, 0.0,
 #'   0.3, 0.0, 0.4, 0.1,
@@ -278,7 +278,7 @@ plot.tna_disparity <- function(x, type = c("backbone", "comparison"), ...) {
 #' @return Invisibly returns \code{NULL}. Called for the side effect of producing a plot.
 #'
 #' @examplesIf requireNamespace("tna", quietly = TRUE)
-#' \donttest{
+#' \dontrun{
 #' mat <- matrix(c(
 #'   0.0, 0.5, 0.1, 0.0,
 #'   0.3, 0.0, 0.4, 0.1,

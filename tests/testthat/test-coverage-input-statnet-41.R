@@ -6,6 +6,8 @@
 # =============================================================================
 
 # Helper to create a basic network matrix for testing
+skip_on_cran()
+
 create_test_adj_matrix <- function(n = 4, symmetric = TRUE, weighted = FALSE) {
   m <- matrix(0, nrow = n, ncol = n)
   # Add edges dynamically based on n

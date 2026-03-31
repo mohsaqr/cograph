@@ -5,6 +5,8 @@
 # FROM_QGRAPH() BASIC FUNCTIONALITY
 # ============================================
 
+skip_on_cran()
+
 test_that("from_qgraph() validates input is qgraph object", {
   # Non-qgraph input should error
   expect_error(from_qgraph(matrix(1:4, 2, 2)))

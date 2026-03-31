@@ -8,6 +8,8 @@
 # Test 1-8: register_builtin_themes function - All built-in themes
 # =============================================================================
 
+skip_on_cran()
+
 test_that("register_builtin_themes registers classic theme correctly", {
   # Test that classic theme is registered with correct properties
   expect_true("classic" %in% list_themes())

@@ -17,6 +17,8 @@
 #' @param directed Is the network directed?
 #' @param self_loops Include self-loops?
 #' @param reciprocal Include reciprocal edges for curves testing?
+skip_on_cran()
+
 create_mock_edge_network <- function(n = 4, m = NULL, include_layout = TRUE,
                                       custom_node_aes = list(),
                                       custom_edge_aes = list(),

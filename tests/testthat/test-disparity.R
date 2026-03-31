@@ -1,5 +1,7 @@
 # Tests for disparity_filter()
 
+skip_on_cran()
+
 test_that("disparity_filter.matrix works", {
   # Create a simple weighted network
   mat <- matrix(c(

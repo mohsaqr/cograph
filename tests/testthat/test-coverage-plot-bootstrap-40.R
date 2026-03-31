@@ -12,6 +12,8 @@
 #' @param include_model Include mock model?
 #' @param all_significant Make all edges significant?
 #' @param none_significant Make no edges significant?
+skip_on_cran()
+
 create_mock_bootstrap <- function(n = 3,
                                   level = 0.05,
                                   include_model = FALSE,

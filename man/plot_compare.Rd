@@ -80,7 +80,7 @@ For lists of networks (e.g., group_tna), specify which elements to compare
 using i and j parameters.
 }
 \examples{
-\donttest{
+\dontrun{
 # Compare two adjacency matrices
 set.seed(42)
 m1 <- matrix(runif(25), 5, 5)

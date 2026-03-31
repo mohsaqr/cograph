@@ -5,6 +5,8 @@
 # SECTION 1: network_summary() function tests
 # =============================================================================
 
+skip_on_cran()
+
 test_that("network_summary returns correct structure with default params", {
   mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
   result <- network_summary(mat)

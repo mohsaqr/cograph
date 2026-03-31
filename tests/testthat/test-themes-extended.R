@@ -5,6 +5,8 @@
 # ALL BUILT-IN THEMES
 # ============================================
 
+skip_on_cran()
+
 test_that("theme_cograph_classic() creates valid theme", {
   theme <- theme_cograph_classic()
 

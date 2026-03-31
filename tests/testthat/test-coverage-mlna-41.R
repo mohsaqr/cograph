@@ -5,6 +5,8 @@
 # COGRAPH_NETWORK INPUT TESTS
 # ============================================
 
+skip_on_cran()
+
 test_that("plot_mlna works with cograph_network input", {
   set.seed(42)
   nodes <- paste0("N", 1:6)

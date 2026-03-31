@@ -11,6 +11,8 @@
 #' @param include_layout Include layout coordinates?
 #' @param custom_aes Custom node aesthetics (list)
 #' @param custom_theme Custom theme object or NULL
+skip_on_cran()
+
 create_mock_network <- function(n = 3, include_layout = TRUE,
                                  custom_aes = list(), custom_theme = NULL) {
   # Create nodes data frame

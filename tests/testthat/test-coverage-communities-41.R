@@ -6,6 +6,8 @@
 # ==============================================================================
 
 # Create test networks with various properties
+skip_on_cran()
+
 set.seed(42)
 
 # Small network for testing

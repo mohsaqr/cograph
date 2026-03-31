@@ -5,6 +5,8 @@
 # Test Setup
 # ============================================
 
+skip_on_cran()
+
 create_test_weights <- function(n = 12, seed = 42) {
   set.seed(seed)
   mat <- matrix(runif(n * n, 0.1, 0.8), n, n)

@@ -5,6 +5,8 @@
 # 1. Initial Parameter Tests
 # =============================================================================
 
+skip_on_cran()
+
 test_that("layout_spring accepts initial as data.frame", {
   net <- CographNetwork$new(create_test_matrix(5))
 

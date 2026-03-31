@@ -176,7 +176,7 @@ as a separate line. This is an alias for \code{plot_transitions()} with
 \code{track_individuals = TRUE}.
 }
 \examples{
-\donttest{
+\dontrun{
 # Track individual trajectories across time points
 df <- data.frame(
   Baseline = c("Light", "Light", "Intense", "Resource"),

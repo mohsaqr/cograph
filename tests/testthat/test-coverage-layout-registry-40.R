@@ -4,6 +4,8 @@
 # Comprehensive tests for all layout registration functions and built-in layouts
 
 # Helper function to create test networks
+skip_on_cran()
+
 create_test_network <- function(n = 5, edges = TRUE) {
   mat <- matrix(0, n, n)
   if (edges && n > 1) {

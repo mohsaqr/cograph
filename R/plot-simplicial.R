@@ -53,7 +53,7 @@
 #'   invisibly.
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' mat <- matrix(runif(16), 4, 4,
 #'               dimnames = list(LETTERS[1:4], LETTERS[1:4]))
 #' diag(mat) <- 0

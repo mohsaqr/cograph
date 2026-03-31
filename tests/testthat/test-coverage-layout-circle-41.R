@@ -7,6 +7,8 @@
 # ============================================
 
 # Access internal function for direct testing
+skip_on_cran()
+
 layout_circle <- cograph:::layout_circle
 
 # ============================================

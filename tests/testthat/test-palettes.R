@@ -5,6 +5,8 @@
 # PALETTE FUNCTION BASICS
 # ============================================
 
+skip_on_cran()
+
 test_that("palette_rainbow() returns correct number of colors", {
   for (n in c(1, 3, 5, 10, 20)) {
     colors <- palette_rainbow(n)

@@ -4,6 +4,8 @@
 # Pathway parsing tests
 # ============================================
 
+skip_on_cran()
+
 test_that(".parse_pathway_string handles arrow separator", {
   states <- c("plan", "cohesion", "emotion", "discuss")
   p <- cograph:::.parse_pathway_string("plan, cohesion -> emotion", states)

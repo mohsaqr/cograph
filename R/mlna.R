@@ -65,7 +65,7 @@
 #' @export
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # Create multilevel network
 #' set.seed(42)
 #' nodes <- paste0("N", 1:15)
@@ -618,7 +618,7 @@ plot_mlna <- function(
 #' @return See \code{\link{plot_mlna}}.
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' nodes <- paste0("N", 1:9)
 #' m <- matrix(runif(81, 0, 0.3), 9, 9)
 #' diag(m) <- 0

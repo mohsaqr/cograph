@@ -5,6 +5,8 @@
 # LAYOUT OVAL / ELLIPSE
 # ============================================
 
+skip_on_cran()
+
 test_that("layout_oval() produces elliptical coordinates", {
   skip_if_not(exists("layout_oval", envir = asNamespace("cograph"), inherits = FALSE),
               "layout_oval not available")

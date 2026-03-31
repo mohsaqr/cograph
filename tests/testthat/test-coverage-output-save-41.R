@@ -1,6 +1,8 @@
 # test-coverage-output-save-41.R - Additional Coverage Tests for output-save.R
 # Targets uncovered code paths to improve coverage from 86%
 
+skip_on_cran()
+
 # ============================================
 # SN_SAVE() - SVG FORMAT EDGE CASES
 # ============================================

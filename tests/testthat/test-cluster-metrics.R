@@ -5,6 +5,8 @@
 # ==============================================================================
 
 # Create a simple weighted network
+skip_on_cran()
+
 set.seed(42)
 n <- 10
 mat <- matrix(runif(n * n), n, n)

@@ -2,6 +2,8 @@
 # Targeting uncovered lines and branches
 
 # Make internal functions available
+skip_on_cran()
+
 layout_gephi_fr <- cograph:::layout_gephi_fr
 compute_layout_gephi_fr <- cograph:::compute_layout_gephi_fr
 network_to_igraph <- cograph:::network_to_igraph

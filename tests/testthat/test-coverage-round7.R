@@ -4,6 +4,8 @@
 #   render-edges.R, render-grid.R, splot.R, class-network.R, aes-nodes.R,
 #   network-summary.R, plot-bootstrap.R, plot-permutation.R
 
+skip_on_cran()
+
 library(testthat)
 library(cograph)
 

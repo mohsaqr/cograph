@@ -2,6 +2,8 @@
 # Focus: soplot() path, render-grid.R, render-nodes.R, render-ggplot.R,
 #   shapes-special.R, plot-compare.R, output-save.R, splot.R edge label paths
 
+skip_on_cran()
+
 library(testthat)
 library(cograph)
 

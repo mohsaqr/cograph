@@ -6,6 +6,8 @@
 # 1. Circular Initialization Tests
 # =============================================================================
 
+skip_on_cran()
+
 test_that("layout_spring uses circular initialization when init='circular'", {
 
   adj <- create_test_matrix(6)

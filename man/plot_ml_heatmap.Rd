@@ -87,7 +87,7 @@ Visualizes multiple network layers as heatmaps on tilted 3D-perspective planes,
 similar to the plot_mlna network visualization style.
 }
 \examples{
-\donttest{
+\dontrun{
 # List of matrices
 layers <- list(
   Layer1 = matrix(runif(16), 4, 4),

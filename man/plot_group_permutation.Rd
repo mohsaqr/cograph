@@ -24,7 +24,7 @@ Visualizes all pairwise permutation test results from a group_tna object.
 Creates a multi-panel plot with one panel per comparison.
 }
 \examples{
-\donttest{
+\dontrun{
 # Create a mock group_tna_permutation object
 set.seed(42)
 d1 <- matrix(c(0, 0.2, -0.1, -0.2, 0, 0.1, 0.1, -0.1, 0), 3, 3)

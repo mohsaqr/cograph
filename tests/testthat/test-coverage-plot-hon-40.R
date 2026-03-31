@@ -1,5 +1,7 @@
 # Tests for plot_simplicial() with net_hon and net_hypa objects
 
+skip_on_cran()
+
 # ============================================
 # Mock factories (no nestimate dependency)
 # ============================================

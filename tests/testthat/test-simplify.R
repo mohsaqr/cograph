@@ -1,5 +1,7 @@
 # Tests for simplify()
 
+skip_on_cran()
+
 test_that("simplify.matrix removes self-loops", {
   mat <- matrix(c(0.5, 0.3, 0, 0.3, 0.2, 0.4, 0, 0.4, 0.1), 3, 3)
   rownames(mat) <- colnames(mat) <- c("A", "B", "C")

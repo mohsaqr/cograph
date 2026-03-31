@@ -6,6 +6,8 @@
 # INTERNAL FUNCTION: scale_edge_widths_simple
 # ============================================
 
+skip_on_cran()
+
 test_that("scale_edge_widths_simple returns mean of range for all NA values", {
   result <- cograph:::scale_edge_widths_simple(c(NA, NA, NA))
   expected_mean <- mean(c(0.5, 3))

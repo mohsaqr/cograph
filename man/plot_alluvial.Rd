@@ -161,7 +161,7 @@ Creates an alluvial (Sankey) diagram showing aggregated flows between states.
 This is an alias for \code{plot_transitions()} with aggregated flows (default).
 }
 \examples{
-\donttest{
+\dontrun{
 # From a transition matrix
 mat <- matrix(c(50, 10, 5, 15, 40, 10), 2, 3)
 rownames(mat) <- c("A", "B")

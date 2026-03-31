@@ -5,6 +5,8 @@
 # BASIC FUNCTIONALITY
 # ============================================
 
+skip_on_cran()
+
 test_that("soplot() works with adjacency matrix", {
   skip_if_not_installed("grid")
 

@@ -1,5 +1,7 @@
 # Tests for network summary functions
 
+skip_on_cran()
+
 test_that("network_summary works with adjacency matrix", {
   mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
   rownames(mat) <- colnames(mat) <- c("A", "B", "C")

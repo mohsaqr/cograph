@@ -1,3 +1,5 @@
+skip_on_cran()
+
 test_that("plot_bootstrap_forest.tna_bootstrap linear works", {
   skip_if_not_installed("tna")
   library(tna)

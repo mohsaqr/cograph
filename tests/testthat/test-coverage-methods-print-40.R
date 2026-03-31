@@ -6,6 +6,8 @@
 # The new print method uses getters: n_nodes(x) reads nrow(x$nodes),
 # n_edges(x) reads nrow(x$edges), is_directed(x) reads x$directed,
 # get_edges(x)$weight reads x$edges$weight, get_nodes(x) reads x$nodes.
+skip_on_cran()
+
 make_test_net <- function(n_nodes = 3, n_edges = 3, directed = FALSE,
                           weights = NULL, coords = TRUE,
                           meta = list()) {

@@ -1905,6 +1905,7 @@ cqual <- cluster_quality
 #' @seealso \code{\link{communities}}, \code{\link{cluster_quality}}
 #'
 #' @examples
+#' \dontrun{
 #' if (requireNamespace("igraph", quietly = TRUE)) {
 #'   g <- igraph::make_graph("Zachary")
 #'   comm <- community_louvain(g)
@@ -1915,6 +1916,7 @@ cqual <- cluster_quality
 #'
 #'   # Configuration model (stricter test)
 #'   sig2 <- cluster_significance(g, comm, method = "configuration")
+#' }
 #' }
 cluster_significance <- function(x,
                                   communities,
@@ -2052,7 +2054,7 @@ print.cograph_cluster_significance <- function(x, ...) {
 #' @param ... Additional arguments passed to \code{hist}
 #' @return Invisibly returns x
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' if (requireNamespace("igraph", quietly = TRUE)) {
 #'   g <- igraph::make_graph("Zachary")
 #'   comm <- community_louvain(g)

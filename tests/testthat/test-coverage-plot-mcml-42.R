@@ -7,6 +7,8 @@
 # Test Setup
 # ============================================
 
+skip_on_cran()
+
 create_mcml_weights <- function(n = 6, seed = 42) {
   set.seed(seed)
   mat <- matrix(runif(n * n, 0, 0.5), n, n)

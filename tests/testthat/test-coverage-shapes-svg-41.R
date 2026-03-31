@@ -15,6 +15,8 @@
 # Test: register_svg_shape() - Input Validation
 # =============================================================================
 
+skip_on_cran()
+
 test_that("register_svg_shape validates name parameter - must be character", {
   expect_error(
     register_svg_shape(123, "<svg></svg>"),

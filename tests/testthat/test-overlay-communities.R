@@ -1,6 +1,8 @@
 # Tests for overlay_communities
 
 # Helper: create a named symmetric matrix for overlay tests
+skip_on_cran()
+
 .test_mat <- function(n = 5) {
   nms <- paste0("S", seq_len(n))
   mat <- matrix(runif(n * n), n, n, dimnames = list(nms, nms))

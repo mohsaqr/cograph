@@ -53,7 +53,7 @@ splot.group_tna_permutation <- function(x, ...) {
 #' }
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # Create a mock tna_permutation object with synthetic data
 #' set.seed(42)
 #' diffs <- matrix(c(0, 0.15, -0.1, -0.2, 0, 0.05, 0.1, -0.05, 0), 3, 3)
@@ -285,7 +285,7 @@ plot_permutation <- function(x,
 #' @return Invisibly returns NULL.
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # Create a mock group_tna_permutation object
 #' set.seed(42)
 #' d1 <- matrix(c(0, 0.2, -0.1, -0.2, 0, 0.1, 0.1, -0.1, 0), 3, 3)

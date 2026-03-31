@@ -5,6 +5,8 @@
 # Setup Test Data
 # ==============================================================================
 
+skip_on_cran()
+
 set.seed(456)
 
 # Standard 8-node test matrix

@@ -2,6 +2,8 @@
 # Targets uncovered lines in cograph.R (87.5% -> higher coverage)
 
 # Helper to create test matrices
+skip_on_cran()
+
 create_test_matrix <- function(n = 3, symmetric = TRUE) {
   mat <- matrix(runif(n * n), nrow = n)
   if (symmetric) {

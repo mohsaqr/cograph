@@ -34,7 +34,7 @@ Plot Disparity Results with splot
 }
 \examples{
 \dontshow{if (requireNamespace("tna", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-\donttest{
+\dontrun{
 mat <- matrix(c(
   0.0, 0.5, 0.1, 0.0,
   0.3, 0.0, 0.4, 0.1,

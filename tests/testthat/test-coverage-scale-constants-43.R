@@ -6,6 +6,8 @@
 # Internal Functions Access
 # ============================================
 
+skip_on_cran()
+
 get_scale_constants <- cograph:::get_scale_constants
 compute_adaptive_esize <- cograph:::compute_adaptive_esize
 scale_edge_widths <- cograph:::scale_edge_widths

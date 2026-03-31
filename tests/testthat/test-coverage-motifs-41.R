@@ -6,6 +6,8 @@
 # =============================================================================
 
 # Create test matrices for motif analysis
+skip_on_cran()
+
 create_directed_matrix <- function(n = 5, seed = 42) {
   set.seed(seed)
   mat <- matrix(sample(0:1, n * n, replace = TRUE, prob = c(0.6, 0.4)), n, n)

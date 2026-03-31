@@ -2,6 +2,8 @@
 # Targets uncovered lines from code review fixes
 
 # Helper to create test matrices
+skip_on_cran()
+
 create_test_mat <- function(n, seed = 42) {
   set.seed(seed)
   m <- matrix(sample(0:5, n * n, replace = TRUE), n, n)

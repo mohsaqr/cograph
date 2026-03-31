@@ -21,7 +21,7 @@
 #' @return The \code{splot} result (invisibly).
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' mat <- matrix(runif(25), 5, 5,
 #'               dimnames = list(LETTERS[1:5], LETTERS[1:5]))
 #' diag(mat) <- 0

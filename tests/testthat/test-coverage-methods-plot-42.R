@@ -6,6 +6,8 @@
 # Tests for plot.cograph_network
 # ==============================================================================
 
+skip_on_cran()
+
 test_that("plot.cograph_network plots a basic network", {
   adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
   rownames(adj) <- colnames(adj) <- c("A", "B", "C")

@@ -52,3 +52,5 @@
 ^.*\.gif$
 ^tutorials$
 ^data-raw$
+^CRAN_TIMING_SUMMARY\.md$
+.DS_Store

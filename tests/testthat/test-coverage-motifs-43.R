@@ -6,6 +6,8 @@
 # =============================================================================
 
 # Helper: Create test matrices
+skip_on_cran()
+
 create_test_matrix <- function(n = 5, seed = 123, density = 0.4) {
   set.seed(seed)
   mat <- matrix(sample(0:1, n * n, replace = TRUE, prob = c(1 - density, density)), n, n)

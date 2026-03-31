@@ -60,7 +60,7 @@ A ggplot2 object.
 Creates a heatmap visualization comparing two networks.
 }
 \examples{
-\donttest{
+\dontrun{
 set.seed(42)
 m1 <- matrix(runif(25), 5, 5)
 m2 <- matrix(runif(25), 5, 5)

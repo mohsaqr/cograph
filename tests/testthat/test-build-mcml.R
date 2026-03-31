@@ -5,6 +5,8 @@
 # ==============================================================================
 
 # Simple edge list
+skip_on_cran()
+
 edges_simple <- data.frame(
   from   = c("A", "A", "B", "C", "C", "D", "A", "D"),
   to     = c("B", "C", "A", "D", "D", "A", "D", "C"),

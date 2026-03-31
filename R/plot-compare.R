@@ -45,7 +45,7 @@ NULL
 #' using i and j parameters.
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # Compare two adjacency matrices
 #' set.seed(42)
 #' m1 <- matrix(runif(25), 5, 5)
@@ -319,7 +319,7 @@ plot_compare <- function(x, y = NULL,
 #' @return A ggplot2 object.
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' set.seed(42)
 #' m1 <- matrix(runif(25), 5, 5)
 #' m2 <- matrix(runif(25), 5, 5)

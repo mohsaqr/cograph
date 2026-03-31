@@ -6,6 +6,8 @@
 # disparity.R — lines 69-72: disparity_filter.default
 # ============================================
 
+skip_on_cran()
+
 test_that("disparity_filter.default errors on non-matrix input", {
   expect_error(
     disparity_filter(data.frame(a = 1:3)),

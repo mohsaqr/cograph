@@ -6,6 +6,8 @@
 # MAP_NODE_COLORS() TESTS
 # ============================================
 
+skip_on_cran()
+
 test_that("map_node_colors returns correct length output", {
   groups <- c("A", "B", "C", "A", "B")
   result <- cograph:::map_node_colors(groups)

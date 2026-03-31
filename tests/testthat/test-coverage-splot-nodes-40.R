@@ -2,6 +2,8 @@
 # Tests for node rendering functions including shapes, pie/donut nodes, labels
 
 # Make internal functions available for testing
+skip_on_cran()
+
 draw_node_base <- cograph:::draw_node_base
 draw_pie_node_base <- cograph:::draw_pie_node_base
 draw_donut_node_base <- cograph:::draw_donut_node_base

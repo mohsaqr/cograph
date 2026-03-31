@@ -4,6 +4,8 @@
 # =============================================================================
 # Helper function local to this test file (avoids collision with test-utils)
 # =============================================================================
+skip_on_cran()
+
 make_test_matrix <- function(n = 3, symmetric = TRUE, with_names = TRUE) {
   mat <- matrix(runif(n * n), nrow = n)
   if (symmetric) {

@@ -2,7 +2,7 @@
 # Test Coverage 100% - Targets all remaining uncovered lines
 # =============================================================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 # ---- zzz.R (lines 9, 13, 17, 21, 24) ----
 # .onLoad runs at package load. covr can't instrument it.
@@ -412,7 +412,7 @@ test_that("tna_color_palette returns colors for various state counts", {
 # ---- output-save.R (lines 63-64, 79-81) ----
 
 test_that("sn_save: SVG output", {
-  skip_on_cran()
+  skip_coverage_tests()
   mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3,
                 dimnames = list(LETTERS[1:3], LETTERS[1:3]))
   net <- cograph(mat)
@@ -428,7 +428,7 @@ test_that("sn_save: SVG output", {
 })
 
 test_that("sn_save: PS output", {
-  skip_on_cran()
+  skip_coverage_tests()
   mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3,
                 dimnames = list(LETTERS[1:3], LETTERS[1:3]))
   net <- cograph(mat)
@@ -452,7 +452,7 @@ test_that("sn_save: PS output", {
 # ---- plot-bootstrap.R (line 244) ----
 
 test_that("plot_bootstrap: very wide CI caps relative uncertainty", {
-  skip_on_cran()
+  skip_coverage_tests()
   # Create minimal bootstrap object
   mat <- matrix(c(0, 0.5, 0.3, 0.5, 0, 0.4, 0.3, 0.4, 0), 3, 3,
                 dimnames = list(LETTERS[1:3], LETTERS[1:3]))
@@ -485,7 +485,7 @@ test_that("plot_compare: extract weights from cograph_network", {
 # ---- plot-permutation.R (line 230) ----
 
 test_that("plot_permutation: negative weight formatting", {
-  skip_on_cran()
+  skip_coverage_tests()
   # Create minimal permutation object with negative weights
   perm_obj <- list(
     edges = list(
@@ -611,7 +611,7 @@ test_that("splot: donut shape without explicit values", {
 })
 
 test_that("splot: SVG filetype output", {
-  skip_on_cran()
+  skip_coverage_tests()
   mat <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3,
                 dimnames = list(LETTERS[1:3], LETTERS[1:3]))
   tmpfile <- tempfile(fileext = ".svg")

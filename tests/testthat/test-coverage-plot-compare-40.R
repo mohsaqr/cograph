@@ -7,7 +7,7 @@
 # ============================================
 
 # Create a mock group_tna-like object for testing
-skip_on_cran()
+skip_coverage_tests()
 
 create_mock_group_tna <- function(n_groups = 2, n_nodes = 3) {
   groups <- vector("list", n_groups)

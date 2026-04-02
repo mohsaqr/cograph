@@ -5,7 +5,7 @@
 # CographLayout - Basic Creation Tests
 # =============================================================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 test_that("CographLayout$new() creates layout with default type", {
   layout <- CographLayout$new()

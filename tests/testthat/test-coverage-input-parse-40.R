@@ -5,7 +5,7 @@
 # parse_input() tests - Main dispatch function
 # =============================================================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 test_that("parse_input dispatches to parse_matrix for matrix input", {
   m <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)

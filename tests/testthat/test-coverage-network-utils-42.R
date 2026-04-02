@@ -8,7 +8,7 @@
 # -----------------------------------------------------------------------------
 
 # Create test adjacency matrices
-skip_on_cran()
+skip_coverage_tests()
 
 create_test_matrix <- function(n = 4, symmetric = TRUE, weighted = TRUE) {
   set.seed(42)

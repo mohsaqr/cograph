@@ -24,16 +24,26 @@
 \arguments{
 \item{x}{A \code{cograph_motif_analysis} object from \code{\link[=extract_motifs]{extract_motifs()}}}
 
-\item{type}{Plot type: "triads" (default network diagrams), "types" (bar plot),
-"significance" (z-score plot), or "patterns" (abstract MAN patterns)}
+\item{type}{Plot type:
+\describe{
+\item{\code{"triads"}}{(default) Network diagrams of specific named triads,
+arranged in a grid. Each cell shows the three nodes and their edges.}
+\item{\code{"types"}}{Bar chart of MAN type frequencies.}
+\item{\code{"significance"}}{Z-score plot showing over- and under-represented
+types. Requires \code{significance = TRUE} in \code{extract_motifs()}.}
+\item{\code{"patterns"}}{Abstract MAN pattern diagrams showing edge
+structure of each triad type without specific node labels.}
+}}
 
-\item{n}{Number of triads to show. Default 20.}
+\item{n}{Number of triads/patterns to show. Default 20.}
 
-\item{colors}{Colors for visualization. Default blue/red.}
+\item{colors}{Two-element color vector for the types/significance plots:
+first color for over-represented, second for under-represented.
+Default \code{c("#2166AC", "#B2182B")} (blue/red).}
 
-\item{res}{Resolution for scaling (not used with grid graphics). Default 72.}
+\item{res}{Resolution for scaling (kept for backwards compatibility). Default 72.}
 
-\item{node_size}{Size of nodes (1-10 scale, like splot). Default 5.}
+\item{node_size}{Size of nodes in triad diagrams (1-10 scale). Default 5.}
 
 \item{label_size}{Font size for node labels (3-letter abbreviations). Default 7.}
 
@@ -43,16 +53,18 @@
 
 \item{ncol}{Number of columns in the plot grid. Default 5.}
 
-\item{legend}{Logical, show abbreviation legend at bottom? Default TRUE.}
+\item{legend}{Show abbreviation legend at bottom? Default TRUE.}
 
-\item{color}{Color for nodes, edges, and labels. Default "#800020" (maroon).}
+\item{color}{Color for nodes, edges, and labels in triad diagrams.
+Default \code{"#800020"} (maroon).}
 
-\item{spacing}{Spacing multiplier between cells (0.5-2). Default 1.}
+\item{spacing}{Spacing multiplier between grid cells (0.5-2). Default 1.}
 
-\item{...}{Additional arguments (unused)}
+\item{...}{Additional arguments (unused).}
 }
 \value{
-Invisibly returns NULL for triad plots, or a ggplot2 object for other types.
+Invisibly returns NULL for triad plots, or a ggplot2 object for
+types/significance/patterns plots.
 }
 \description{
 Create visualizations for motif analysis results including network diagrams

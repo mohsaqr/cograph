@@ -2,7 +2,7 @@
 # Round 5: Final coverage push — targeting all 122 remaining uncovered lines
 # ===========================================================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 library(testthat)
 

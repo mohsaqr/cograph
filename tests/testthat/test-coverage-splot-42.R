@@ -5,7 +5,7 @@
 # DEPRECATED PARAMETER HANDLING
 # ============================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 test_that("splot() warns when using deprecated esize parameter", {
   adj <- create_test_matrix(4)

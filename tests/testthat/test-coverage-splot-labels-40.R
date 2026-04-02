@@ -7,7 +7,7 @@
 # ============================================
 
 # Create simple test network helper
-skip_on_cran()
+skip_coverage_tests()
 
 create_test_network <- function(n = 4, seed = 42) {
   set.seed(seed)

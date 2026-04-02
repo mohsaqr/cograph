@@ -5,7 +5,7 @@
 # TNA AND GROUP_TNA HANDLING
 # ============================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 test_that("splot() handles tna object input", {
   skip_if_no_tna()

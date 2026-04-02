@@ -6,7 +6,7 @@
 # ==============================================================================
 
 # Create test networks with various properties
-skip_on_cran()
+skip_coverage_tests()
 
 set.seed(42)
 

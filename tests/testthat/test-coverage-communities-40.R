@@ -1,7 +1,7 @@
 # Tests for communities.R - comprehensive coverage tests
 # Testing all community detection functions, helper functions, and methods
 
-skip_on_cran()
+skip_coverage_tests()
 
 # ==============================================================================
 # Test Setup

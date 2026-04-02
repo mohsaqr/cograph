@@ -55,8 +55,9 @@
 #' @param top Return only the top N results (by observed count or z-score).
 #'   NULL returns all results. Default NULL.
 #' @param by_type If TRUE, group results by MAN type in output. Default FALSE.
-#' @param min_transitions Minimum total transitions for a person to be included
-#'   (individual level) or minimum triad weight (aggregate). Default 5.
+#' @param min_transitions At individual level: minimum total transitions for a
+#'   person to be included in the analysis. At aggregate level: minimum triad
+#'   weight to count as present. Default 5.
 #' @param significance Logical. Run permutation significance test? Default FALSE.
 #' @param n_perm Number of permutations for significance test. Default 100.
 #' @param seed Random seed for reproducibility.
@@ -459,7 +460,8 @@ extract_motifs <- function(x = NULL,
   result
 }
 
-#' @noRd
+#' @rdname extract_motifs
+#' @method print cograph_motif_analysis
 #' @export
 print.cograph_motif_analysis <- function(x, n = 20, ...) {
   cat("Motif Analysis\n")
@@ -493,22 +495,34 @@ print.cograph_motif_analysis <- function(x, n = 20, ...) {
 #' of triads, bar plots of type distributions, and significance plots.
 #'
 #' @param x A `cograph_motif_analysis` object from [extract_motifs()]
-#' @param type Plot type: "triads" (default network diagrams), "types" (bar plot),
-#'   "significance" (z-score plot), or "patterns" (abstract MAN patterns)
-#' @param n Number of triads to show. Default 20.
-#' @param colors Colors for visualization. Default blue/red.
-#' @param res Resolution for scaling (not used with grid graphics). Default 72.
-#' @param node_size Size of nodes (1-10 scale, like splot). Default 5.
+#' @param type Plot type:
+#'   \describe{
+#'     \item{\code{"triads"}}{(default) Network diagrams of specific named triads,
+#'       arranged in a grid. Each cell shows the three nodes and their edges.}
+#'     \item{\code{"types"}}{Bar chart of MAN type frequencies.}
+#'     \item{\code{"significance"}}{Z-score plot showing over- and under-represented
+#'       types. Requires \code{significance = TRUE} in \code{extract_motifs()}.}
+#'     \item{\code{"patterns"}}{Abstract MAN pattern diagrams showing edge
+#'       structure of each triad type without specific node labels.}
+#'   }
+#' @param n Number of triads/patterns to show. Default 20.
+#' @param colors Two-element color vector for the types/significance plots:
+#'   first color for over-represented, second for under-represented.
+#'   Default \code{c("#2166AC", "#B2182B")} (blue/red).
+#' @param res Resolution for scaling (kept for backwards compatibility). Default 72.
+#' @param node_size Size of nodes in triad diagrams (1-10 scale). Default 5.
 #' @param label_size Font size for node labels (3-letter abbreviations). Default 7.
 #' @param title_size Font size for motif type title (e.g., "120C"). Default 7.
 #' @param stats_size Font size for statistics text (n, z, p). Default 5.
 #' @param ncol Number of columns in the plot grid. Default 5.
-#' @param legend Logical, show abbreviation legend at bottom? Default TRUE.
-#' @param color Color for nodes, edges, and labels. Default "#800020" (maroon).
-#' @param spacing Spacing multiplier between cells (0.5-2). Default 1.
-#' @param ... Additional arguments (unused)
+#' @param legend Show abbreviation legend at bottom? Default TRUE.
+#' @param color Color for nodes, edges, and labels in triad diagrams.
+#'   Default \code{"#800020"} (maroon).
+#' @param spacing Spacing multiplier between grid cells (0.5-2). Default 1.
+#' @param ... Additional arguments (unused).
 #'
-#' @return Invisibly returns NULL for triad plots, or a ggplot2 object for other types.
+#' @return Invisibly returns NULL for triad plots, or a ggplot2 object for
+#'   types/significance/patterns plots.
 #'
 #' @examples
 #' \dontrun{

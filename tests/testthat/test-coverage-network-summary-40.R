@@ -5,7 +5,7 @@
 # SECTION 1: network_summary() function tests
 # =============================================================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 test_that("network_summary returns correct structure with default params", {
   mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)

@@ -3,7 +3,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # Skip all tests if igraph is not installed
-skip_on_cran()
+skip_coverage_tests()
 
 skip_if_not_installed("igraph")
 

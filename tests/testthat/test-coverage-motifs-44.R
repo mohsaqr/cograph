@@ -2,7 +2,7 @@
 # Targets uncovered lines from code review fixes
 
 # Helper to create test matrices
-skip_on_cran()
+skip_coverage_tests()
 
 create_test_mat <- function(n, seed = 42) {
   set.seed(seed)

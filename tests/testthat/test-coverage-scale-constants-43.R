@@ -6,7 +6,7 @@
 # Internal Functions Access
 # ============================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 get_scale_constants <- cograph:::get_scale_constants
 compute_adaptive_esize <- cograph:::compute_adaptive_esize

@@ -8,7 +8,7 @@
 # Test: register_builtin_themes function
 # =============================================================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 test_that("register_builtin_themes registers classic theme", {
   expect_true("classic" %in% list_themes())

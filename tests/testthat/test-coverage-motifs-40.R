@@ -6,7 +6,7 @@
 # =============================================================================
 
 # Create test matrices for motif analysis
-skip_on_cran()
+skip_coverage_tests()
 
 create_directed_matrix <- function(n = 5, seed = 42) {
   set.seed(seed)

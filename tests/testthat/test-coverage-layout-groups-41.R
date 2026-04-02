@@ -7,7 +7,7 @@
 # SETUP: Access internal function
 # ============================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 layout_groups <- cograph:::layout_groups
 

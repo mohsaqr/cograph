@@ -2,6 +2,7 @@
 % Please edit documentation in R/motifs.R
 \name{motif_census}
 \alias{motif_census}
+\alias{print.cograph_motifs}
 \title{Network Motif Analysis}
 \usage{
 motif_census(
@@ -12,6 +13,8 @@ motif_census(
   directed = NULL,
   seed = NULL
 )
+
+\method{print}{cograph_motifs}(x, ...)
 }
 \arguments{
 \item{x}{A matrix, igraph object, or cograph_network}

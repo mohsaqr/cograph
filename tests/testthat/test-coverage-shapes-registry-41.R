@@ -8,7 +8,7 @@
 # Test: register_builtin_shapes comprehensive coverage
 # =============================================================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 test_that("register_builtin_shapes initializes all expected shapes", {
   # Force re-registration to ensure function is called

@@ -948,7 +948,7 @@ test_that("%||% operator works correctly (internal)", {
 # ============================================
 
 test_that("plot_permutation handles larger networks", {
-  skip_on_cran()
+  skip_coverage_tests()
 
   perm <- create_mock_permutation(n = 10, n_sig = 15, seed = 123)
 
@@ -959,7 +959,7 @@ test_that("plot_permutation handles larger networks", {
 })
 
 test_that("plot_permutation handles show_nonsig with larger networks", {
-  skip_on_cran()
+  skip_coverage_tests()
 
   perm <- create_mock_permutation(n = 8, n_sig = 10, seed = 456)
 

@@ -5,7 +5,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Environment
 
 - **Platform**: macOS (Darwin), R 4.1+ (currently R 4.5+)
-- **Version**: 2.0.0
+- **Version**: 1.8.9 (CRAN has 1.5.2)
+- **Rscript**: Available on PATH
 - **Additional repo**: `https://mohsaqr.r-universe.dev` registered for Nestimate dependency resolution (see `Additional_repositories` in DESCRIPTION)
 
 ## Common Commands
@@ -52,24 +53,25 @@ GitHub Actions (`R-CMD-check.yaml`) tests on: macOS-latest (release), Windows-la
 
 cograph is an R package for analysis and visualization of complex networks. Key entry points:
 
-- `splot()` -- Base R graphics network plotting (core engine)
-- `soplot()` -- Grid/ggplot2-style network plotting (separate rendering path)
-- `plot_tna()` / `tplot()` -- TNA-style wrappers around splot with qgraph-compatible parameters
-- `plot_compare()` -- Difference networks
-- `plot_htna()` -- Hierarchical multi-group TNA layouts
-- `plot_mtna()` -- Multi-cluster TNA with shape containers
-- `plot_chord()` -- Chord diagrams (base R, directed/undirected ribbons)
-- `plot_heatmap()` -- Adjacency matrix heatmaps
-- `plot_mixed_network()` -- Combined undirected + directed edge styling from two matrices
-- `plot_transitions()` / `plot_alluvial()` / `plot_trajectories()` -- Flow diagrams (`plot_alluvial` and `plot_trajectories` are aliases with different `track_individuals` defaults)
-- `plot_bootstrap()` / `plot_permutation()` -- Statistical result visualization
-- `cluster_summary()` / `plot_mcml()` -- Multi-cluster multi-layer analysis and visualization
-- `plot_mlna()` -- Multilayer 3D perspective networks
-- `plot_simplicial()` -- Higher-order pathway (simplicial complex) visualization
-- `robustness()` / `plot_robustness()` -- Network robustness under node/edge removal attacks
-- `centrality()` -- 23+ centrality measures
-- `motifs()` / `subgraphs()` -- Triad census and motif analysis
-- `detect_communities()` -- 11 community detection algorithms
+- `splot()` — Base R graphics network plotting (core engine)
+- `soplot()` — Grid/ggplot2-style network plotting (separate rendering path)
+- `plot_tna()` / `tplot()` — TNA-style wrappers around splot with qgraph-compatible parameters
+- `plot_compare()` — Difference networks
+- `plot_htna()` — Hierarchical multi-group TNA layouts
+- `plot_mtna()` — Multi-cluster TNA with shape containers
+- `plot_chord()` — Chord diagrams (base R, directed/undirected ribbons)
+- `plot_heatmap()` — Adjacency matrix heatmaps
+- `plot_mixed_network()` — Combined undirected + directed edge styling from two matrices
+- `plot_transitions()` / `plot_alluvial()` / `plot_trajectories()` — Flow diagrams (`plot_alluvial` and `plot_trajectories` are aliases with different `track_individuals` defaults)
+- `plot_bootstrap()` / `plot_permutation()` — Statistical result visualization
+- `plot_bootstrap_forest()` / `plot_edge_diff_forest()` — ggplot2 forest plots for bootstrap CIs and edge differences
+- `cluster_summary()` / `plot_mcml()` — Multi-cluster multi-layer analysis and visualization
+- `plot_mlna()` — Multilayer 3D perspective networks
+- `plot_simplicial()` — Higher-order pathway (simplicial complex) visualization
+- `robustness()` / `plot_robustness()` — Network robustness under node/edge removal attacks
+- `centrality()` — 23+ centrality measures
+- `motifs()` / `subgraphs()` — Triad census and motif analysis
+- `detect_communities()` — 11 community detection algorithms
 
 ## Architecture
 
@@ -116,24 +118,24 @@ Dispatches to:
 - **TNA objects**: `plot_mcml`, `splot.tna_bootstrap`, `splot.tna_permutation`, `splot.group_tna_permutation`
 - **Nestimate objects**: `splot.netobject`, `splot.net_bootstrap`, `splot.net_permutation`, `splot.boot_glasso`, `plot_netobject_group`, `plot_netobject_ml`
 
-**Known registration bug**: `splot.tna_disparity`, `splot.tna_bootstrap`, `splot.tna_permutation`, `splot.group_tna_permutation` are registered as `export()` in NAMESPACE instead of `S3method()`. This means `splot(obj)` does NOT dispatch via S3 for these classes -- the explicit `inherits()` checks in splot.R handle them instead. The nestimate S3 methods (`splot.netobject`, `splot.net_bootstrap`, `splot.boot_glasso`) ARE properly registered as `S3method()`.
+**Known registration bug**: `splot.tna_disparity`, `splot.tna_bootstrap`, `splot.tna_permutation`, `splot.group_tna_permutation` are registered as `export()` in NAMESPACE instead of `S3method()`. This means `splot(obj)` does NOT dispatch via S3 for these classes — the explicit `inherits()` checks in splot.R handle them instead. The nestimate S3 methods (`splot.netobject`, `splot.net_bootstrap`, `splot.boot_glasso`) ARE properly registered as `S3method()`.
 
 ### Nestimate Integration
 
-cograph plots nestimate objects without importing the package -- dispatch is via `inherits()` class-name checking only. Supported classes: `netobject`, `boot_glasso`, `net_bootstrap`, `net_permutation`, `netobject_group`, `netobject_ml`. Implementation in `plot-nestimate.R`, `plot-bootstrap.R`, `plot-permutation.R`.
+cograph plots nestimate objects without importing the package — dispatch is via `inherits()` class-name checking only. Supported classes: `netobject`, `boot_glasso`, `net_bootstrap`, `net_permutation`, `netobject_group`, `netobject_ml`. Implementation in `plot-nestimate.R`, `plot-bootstrap.R`, `plot-permutation.R`.
 
 Nestimate also provides three higher-order network methods relevant to `plot_simplicial()`:
-- **HON** (`build_hon`): Higher-Order Network construction from sequence data
-- **HYPA** (`hypa`): Hypothesis testing for path anomalies using multi-hypergeometric null model
-- **HONEM** (`honem`): Higher-Order Network Embedding via matrix factorization
+- **HON** (`build_hon`): Higher-Order Network construction from sequence data, expanding state space to capture variable-length memory dependencies
+- **HYPA** (`hypa`): Hypothesis testing for path anomalies using multi-hypergeometric null model on De Bruijn graphs (LaRock et al. 2020)
+- **HONEM** (`honem`): Higher-Order Network Embedding via matrix factorization of HON neighborhood matrices (Saebi et al. 2020)
 
 ### TNA Styling and qgraph Translation
 
 `from-qgraph.R` has two key roles:
 
-1. **`.translate_qgraph_dots()`** -- renames qgraph-style params (`vsize` -> `node_size`, `asize` -> `arrow_size`, `edge.color` -> `edge_color`, etc.) with value transforms (e.g., `asize * 0.20`). Called early in splot before dispatch, gated by `inherits(x, c("tna", ...))`. When both cograph name and qgraph alias are present, cograph name wins.
+1. **`.translate_qgraph_dots()`** — renames qgraph-style params (`vsize` -> `node_size`, `asize` -> `arrow_size`, `edge.color` -> `edge_color`, etc.) with value transforms (e.g., `asize * 0.20`). Called early in splot before dispatch, gated by `inherits(x, c("tna", ...))`. When both cograph name and qgraph alias are present, cograph name wins.
 
-2. **`.tna_style_defaults()`** -- `tna_styling = TRUE` (used by `plot_tna()` and `splot.netobject`) applies TNA visual defaults:
+2. **`.tna_style_defaults()`** — `tna_styling = TRUE` (used by `plot_tna()` and `splot.netobject`) applies TNA visual defaults:
    - NULL-default params: filled if user didn't set them
    - Non-NULL-default params: only overridden if user didn't explicitly pass them (checked via `"param_name" %in% explicit_args`)
    - User-explicit args always win
@@ -162,11 +164,11 @@ Two modes: **census** (`named_nodes = FALSE`) counts MAN type frequencies with s
 
 ### Simplicial / HON / HYPA Pipeline
 
-`plot_simplicial()` in `plot-simplicial.R` visualizes higher-order pathways as smooth blobs over a network layout. When given a `tna`/`netobject` with sequence data and no explicit pathways, it auto-builds HON or HYPA via `Nestimate::build_hon()` / `Nestimate::build_hypa()`. Shared node-expansion helpers live in `blob-helpers.R`, also used by `overlay_communities()`.
+`plot_simplicial()` in `plot-simplicial.R` visualizes higher-order pathways as smooth blobs over a network layout. When given a `tna`/`netobject` with sequence data and no explicit pathways, it auto-builds HON or HYPA via `Nestimate::build_hon()` / `Nestimate::build_hypa()`. Shared node-expansion helpers (for repeated states in pathways) live in `blob-helpers.R`, which is also used by `overlay_communities()`.
 
 ### Scaling Constants
 
-`QGRAPH_SCALE` and `COGRAPH_SCALE` in `scale-constants.R` -- calibrated constants for qgraph-compatible visual formulas (vsize, esize, arrow sizing) and cograph-native defaults.
+`QGRAPH_SCALE` and `COGRAPH_SCALE` in `scale-constants.R` — calibrated constants for qgraph-compatible visual formulas (vsize, esize, arrow sizing) and cograph-native defaults.
 
 ### Registries
 
@@ -198,13 +200,13 @@ Helpers in `aaa-globals.R`.
 
 ## Test Conventions
 
-Coverage tests follow `test-coverage-{module}-{round}.R` (rounds: 40, 41, 42, ...). Target: 100% line coverage. Use `# nocov` only for genuinely unreachable defensive guards.
+133 test files with ~13,400+ tests. Coverage tests follow `test-coverage-{module}-{round}.R` (rounds: 40, 41, 42, ...). Target: 100% line coverage (achieved). Use `# nocov` only for genuinely unreachable defensive guards.
 
 Two test helper files load before every test:
-- `tests/testthat/helper-cograph.R` -- exposes internal functions via `cograph:::` for testing
-- `tests/testthat/helper-test-utils.R` -- test data generators (`create_test_matrix()`, `create_test_edgelist()`, etc.) and custom expectations
+- `tests/testthat/helper-cograph.R` — exposes internal functions via `cograph:::` for testing
+- `tests/testthat/helper-test-utils.R` — test data generators (`create_test_matrix()`, `create_test_edgelist()`, etc.) and custom expectations
 
-Never put `devtools::load_all()` inside test files -- it breaks covr.
+Never put `devtools::load_all()` inside test files — it breaks covr.
 
 ## Optional Dependencies
 

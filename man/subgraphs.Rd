@@ -7,10 +7,13 @@
 subgraphs(...)
 }
 \arguments{
-\item{...}{Additional arguments passed to plot helpers.}
+\item{...}{Additional arguments passed to internal plot helpers.}
 }
 \value{
-Same as \code{\link{motifs}}. See that function for details.
+A \code{cograph_motif_result} object with \code{named_nodes = TRUE}.
+Contains \code{$results} (data frame with columns \code{triad}, \code{type},
+\code{observed}, and optionally \code{z}, \code{p}, \code{sig}),
+\code{$type_summary}, \code{$level}, \code{$n_units}, and \code{$params}.
 }
 \description{
 Convenience wrapper for \code{motifs(x, named_nodes = TRUE, ...)}. Returns

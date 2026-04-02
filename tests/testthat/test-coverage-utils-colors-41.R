@@ -6,7 +6,7 @@
 # ADJUST_ALPHA TESTS (Additional coverage)
 # ============================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 test_that("adjust_alpha returns NA for NA input", {
   result <- cograph:::adjust_alpha(NA, alpha = 0.5)

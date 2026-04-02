@@ -6,7 +6,7 @@
 # MAP_NODE_COLORS() TESTS
 # ============================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 test_that("map_node_colors returns correct length output", {
   groups <- c("A", "B", "C", "A", "B")

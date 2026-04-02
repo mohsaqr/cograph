@@ -2,7 +2,7 @@
 # Tests for polygon vertex generation functions
 
 # Make internal functions available for testing
-skip_on_cran()
+skip_coverage_tests()
 
 circle_vertices <- cograph:::circle_vertices
 square_vertices <- cograph:::square_vertices

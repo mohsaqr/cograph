@@ -6,7 +6,7 @@
 # ==============================================================================
 
 # Create test matrices with node names
-skip_on_cran()
+skip_coverage_tests()
 
 set.seed(123)
 n <- 8

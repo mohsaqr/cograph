@@ -8,7 +8,7 @@
 # Import internal functions
 # ============================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 point_distance <- cograph:::point_distance
 point_angle <- cograph:::point_angle

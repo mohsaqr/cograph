@@ -6,7 +6,7 @@
 # ============================================
 
 # Ensure layout_oval is available
-skip_on_cran()
+skip_coverage_tests()
 
 layout_oval <- cograph:::layout_oval
 

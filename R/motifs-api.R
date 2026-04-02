@@ -30,7 +30,17 @@
 #'   transitions into windows of this size. NULL (default) means no windowing.
 #' @param window_type Character. Window type: "rolling" (default) or "tumbling".
 #'   Only used when \code{window} is set.
-#' @param pattern Pattern filter: "triangle" (default), "network", "closed", "all".
+#' @param pattern Which MAN triad types to include in the analysis:
+#'   \describe{
+#'     \item{\code{"triangle"}}{(default) Only the 7 closed triangle types:
+#'       030C, 030T, 120C, 120D, 120U, 210, 300. Excludes trivial open patterns
+#'       (empty triads, single edges, chains, stars, mutual pairs).}
+#'     \item{\code{"network"}}{All types except trivially open ones. Excludes
+#'       003 (empty), 012 (single edge), 021C (chain).}
+#'     \item{\code{"closed"}}{Like \code{"network"} but also excludes 120C
+#'       (mixed regulated). Excludes 003, 012, 021C, 120C.}
+#'     \item{\code{"all"}}{All 16 MAN types, including empty and trivial patterns.}
+#'   }
 #' @param include Character vector of MAN types to include exclusively.
 #'   Overrides \code{pattern}.
 #' @param exclude Character vector of MAN types to exclude. Applied after
@@ -590,7 +600,10 @@ motifs <- function(x,
 #' specific node triples forming each MAN pattern.
 #'
 #' @inheritParams motifs
-#' @return Same as \code{\link{motifs}}. See that function for details.
+#' @return A \code{cograph_motif_result} object with \code{named_nodes = TRUE}.
+#'   Contains \code{$results} (data frame with columns \code{triad}, \code{type},
+#'   \code{observed}, and optionally \code{z}, \code{p}, \code{sig}),
+#'   \code{$type_summary}, \code{$level}, \code{$n_units}, and \code{$params}.
 #' @examples
 #' mat <- matrix(c(0,3,2,0, 0,0,5,1, 0,0,0,4, 2,0,0,0), 4, 4, byrow = TRUE)
 #' rownames(mat) <- colnames(mat) <- c("Plan","Execute","Monitor","Adapt")
@@ -601,7 +614,8 @@ motifs <- function(x,
 subgraphs <- function(...) motifs(..., named_nodes = TRUE)
 
 
-#' @noRd
+#' @rdname motifs
+#' @method print cograph_motif_result
 #' @export
 print.cograph_motif_result <- function(x, ...) {
   mode_label <- if (x$named_nodes) "Motif Subgraphs" else "Motif Census"
@@ -636,12 +650,24 @@ print.cograph_motif_result <- function(x, ...) {
 }
 
 
-#' @param type Plot type: "triads" (network diagrams), "types" (bar chart),
-#'   "significance" (z-score plot), "patterns" (abstract MAN diagrams).
-#' @param n Number of items to plot. Default 15.
-#' @param ncol Number of columns in triad grid. Default 5.
-#' @param colors Colors for visualization. Default blue/red.
-#' @param ... Additional arguments passed to plot helpers.
+#' @param type Plot type:
+#'   \describe{
+#'     \item{\code{"triads"}}{Network diagrams of specific node triples (instance
+#'       mode) or falls back to patterns (census mode). Arranged in a grid.}
+#'     \item{\code{"types"}}{Bar chart of MAN type frequencies.}
+#'     \item{\code{"significance"}}{Z-score plot showing over- and
+#'       under-represented types relative to a null model. Requires
+#'       \code{significance = TRUE} in the \code{motifs()} call.}
+#'     \item{\code{"patterns"}}{Abstract MAN pattern diagrams showing the edge
+#'       structure of each triad type.}
+#'   }
+#' @param n Maximum number of items to plot. Default 15.
+#' @param ncol Number of columns in the triad/pattern grid. Default 5.
+#' @param colors Two-element color vector: first color for over-represented or
+#'   positive values, second for under-represented or negative values.
+#'   Default \code{c("#2166AC", "#B2182B")} (blue/red).
+#' @param ... Additional arguments passed to internal plot helpers.
+#' @return Invisibly returns the input \code{x}.
 #' @rdname motifs
 #' @method plot cograph_motif_result
 #' @export

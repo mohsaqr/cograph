@@ -2,6 +2,7 @@
 % Please edit documentation in R/motifs-api.R
 \name{motifs}
 \alias{motifs}
+\alias{print.cograph_motif_result}
 \alias{plot.cograph_motif_result}
 \title{Network Motif Analysis}
 \usage{
@@ -23,6 +24,8 @@ motifs(
   top = NULL,
   seed = NULL
 )
+
+\method{print}{cograph_motif_result}(x, ...)
 
 \method{plot}{cograph_motif_result}(
   x,
@@ -52,7 +55,17 @@ transitions into windows of this size. NULL (default) means no windowing.}
 \item{window_type}{Character. Window type: "rolling" (default) or "tumbling".
 Only used when \code{window} is set.}
 
-\item{pattern}{Pattern filter: "triangle" (default), "network", "closed", "all".}
+\item{pattern}{Which MAN triad types to include in the analysis:
+\describe{
+\item{\code{"triangle"}}{(default) Only the 7 closed triangle types:
+030C, 030T, 120C, 120D, 120U, 210, 300. Excludes trivial open patterns
+(empty triads, single edges, chains, stars, mutual pairs).}
+\item{\code{"network"}}{All types except trivially open ones. Excludes
+003 (empty), 012 (single edge), 021C (chain).}
+\item{\code{"closed"}}{Like \code{"network"} but also excludes 120C
+(mixed regulated). Excludes 003, 012, 021C, 120C.}
+\item{\code{"all"}}{All 16 MAN types, including empty and trivial patterns.}
+}}
 
 \item{include}{Character vector of MAN types to include exclusively.
 Overrides \code{pattern}.}
@@ -79,16 +92,27 @@ Default 5.}
 
 \item{seed}{Random seed for reproducibility.}
 
-\item{type}{Plot type: "triads" (network diagrams), "types" (bar chart),
-"significance" (z-score plot), "patterns" (abstract MAN diagrams).}
+\item{...}{Additional arguments passed to internal plot helpers.}
 
-\item{n}{Number of items to plot. Default 15.}
+\item{type}{Plot type:
+\describe{
+\item{\code{"triads"}}{Network diagrams of specific node triples (instance
+mode) or falls back to patterns (census mode). Arranged in a grid.}
+\item{\code{"types"}}{Bar chart of MAN type frequencies.}
+\item{\code{"significance"}}{Z-score plot showing over- and
+under-represented types relative to a null model. Requires
+\code{significance = TRUE} in the \code{motifs()} call.}
+\item{\code{"patterns"}}{Abstract MAN pattern diagrams showing the edge
+structure of each triad type.}
+}}
 
-\item{ncol}{Number of columns in triad grid. Default 5.}
+\item{n}{Maximum number of items to plot. Default 15.}
 
-\item{colors}{Colors for visualization. Default blue/red.}
+\item{ncol}{Number of columns in the triad/pattern grid. Default 5.}
 
-\item{...}{Additional arguments passed to plot helpers.}
+\item{colors}{Two-element color vector: first color for over-represented or
+positive values, second for under-represented or negative values.
+Default \code{c("#2166AC", "#B2182B")} (blue/red).}
 }
 \value{
 A \code{cograph_motif_result} object with:
@@ -101,6 +125,8 @@ Instances: triad, type, observed, (z, p, sig).}
 \item{n_units}{Number of units analyzed}
 \item{params}{List of parameters used}
 }
+
+Invisibly returns the input \code{x}.
 }
 \description{
 Two modes of motif analysis for networks:

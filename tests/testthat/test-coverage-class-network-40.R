@@ -7,7 +7,7 @@
 # =============================================================================
 
 # Simple symmetric adjacency matrix (undirected)
-skip_on_cran()
+skip_coverage_tests()
 
 create_symmetric_matrix <- function(n = 3) {
   mat <- matrix(0, nrow = n, ncol = n)

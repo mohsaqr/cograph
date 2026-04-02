@@ -7,7 +7,7 @@
 # Test Setup
 # ============================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 create_mcml_weights <- function(n = 6, seed = 42) {
   set.seed(seed)

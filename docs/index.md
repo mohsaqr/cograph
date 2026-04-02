@@ -17,6 +17,24 @@ install.packages("cograph")
 devtools::install_github("sonsoleslp/cograph")
 ```
 
+## How to use it?
+
+- [Network Visualization with cograph: A Complete Plotting
+  Guide](http://sonsoles.me/cograph/articles/1_cograph-tutorial-plotting.md)
+- [Why cograph?](http://sonsoles.me/cograph/articles/2_why-cograph.md)
+- [Plotting TNA Models with
+  splot](http://sonsoles.me/cograph/articles/3_plotting-tna-models.md)
+- [Visualization of communities and hyper order
+  networks](http://sonsoles.me/cograph/articles/cograph-tutorial-communities.md)
+- [Network Estimation and Visualization with Nestimate +
+  cograph](http://sonsoles.me/cograph/articles/cograph-tutorial-nestimate.md)
+- [Advanced
+  examples](http://sonsoles.me/cograph/articles/mcml-examples.md)
+- [Bootstrap Forest
+  Plots](http://sonsoles.me/cograph/articles/bootstrap-forest.md)
+- [Migrating from qgraph to
+  splot](http://sonsoles.me/cograph/articles/qgraph-to-splot.md)
+
 ## Features
 
 ### Network Plotting
@@ -90,7 +108,7 @@ library(tna)
 library(cograph)
 
 # Build a TNA model from sequence data
-fit <- tna(engagement)
+fit <- tna(group_regulation)
 
 # One-liner visualization
 splot(fit)

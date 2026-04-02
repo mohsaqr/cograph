@@ -556,9 +556,9 @@ p <- mat |> cograph() |> sn_ggplot()
 
 **Package resources:**
 
-- [cograph function reference](https://saqr.me/cograph/) — complete list
+- [cograph function reference](https://saqr.me/cograph) — complete list
   of all functions with examples
-- [cograph pkgdown site](https://sonsoleslp.github.io/cograph/) — full
+- [cograph pkgdown site](https://sonsoles.me/cograph/) — full
   documentation and articles
 
 **Blog posts:**

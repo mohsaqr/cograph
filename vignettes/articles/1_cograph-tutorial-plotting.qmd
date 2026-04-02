@@ -62,7 +62,7 @@ This tutorial demonstrates everything through a single TNA model of collaborativ
 10. **Permutation testing** --- significant group differences
 11. **Mixed networks** --- directed and undirected edges combined
 
-For **network analysis** (centrality, communities, filtering), see the companion tutorial: [Network Analysis with cograph](cograph-tutorial-analysis.html). For TNA-specific workflows, see the [TNA tutorial](./3_plotting-tna-models.html).
+For TNA-specific workflows, see the [TNA tutorial](./tna-models.html).
 
 ::: {.callout-note}
 ## GitHub Development Version

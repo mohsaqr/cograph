@@ -230,7 +230,7 @@ See `plot_mtna`.
 ## Examples
 
 ``` r
-# \donttest{
+if (FALSE) { # \dontrun{
 # Create network with 4 clusters
 nodes <- paste0("N", 1:20)
 m <- matrix(runif(400, 0, 0.3), 20, 20)
@@ -247,22 +247,18 @@ clusters <- list(
 # Summary edges between clusters + individual edges within
 plot_mtna(m, clusters, summary_edges = TRUE)
 
-
 # With node labels
 plot_mtna(m, clusters, show_labels = TRUE, label_abbrev = 3)
 
-
 # Control spacing and sizes
 plot_mtna(m, clusters, spacing = 4, shape_size = 1.5, node_spacing = 0.6)
-
-# }
-# \donttest{
+} # }
+if (FALSE) { # \dontrun{
 nodes <- paste0("N", 1:12)
 m <- matrix(runif(144, 0, 0.3), 12, 12)
 diag(m) <- 0
 colnames(m) <- rownames(m) <- nodes
 clusters <- list(C1 = nodes[1:4], C2 = nodes[5:8], C3 = nodes[9:12])
 mtna(m, clusters)
-
-# }
+} # }
 ```

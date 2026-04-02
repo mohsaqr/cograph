@@ -665,9 +665,8 @@ adj |> soplot(
   edge_width = 2
 )
 
-# \donttest{
+if (FALSE) { # \dontrun{
 mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 sn_render(mat)
-
-# }
+} # }
 ```

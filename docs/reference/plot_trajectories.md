@@ -278,7 +278,7 @@ A ggplot2 object.
 ## Examples
 
 ``` r
-# \donttest{
+if (FALSE) { # \dontrun{
 # Track individual trajectories across time points
 df <- data.frame(
   Baseline = c("Light", "Light", "Intense", "Resource"),
@@ -286,6 +286,5 @@ df <- data.frame(
   Week8 = c("Resource", "Intense", "Light", "Light")
 )
 plot_trajectories(df, flow_color_by = "first")
-
-# }
+} # }
 ```

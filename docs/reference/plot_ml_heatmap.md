@@ -133,7 +133,7 @@ A ggplot2 object.
 ## Examples
 
 ``` r
-# \donttest{
+if (FALSE) { # \dontrun{
 # List of matrices
 layers <- list(
   Layer1 = matrix(runif(16), 4, 4),
@@ -142,10 +142,8 @@ layers <- list(
 )
 plot_ml_heatmap(layers)
 
-
 # With connections
 plot_ml_heatmap(layers, show_connections = TRUE)
-
 
 # Custom styling
 plot_ml_heatmap(layers,
@@ -153,6 +151,5 @@ plot_ml_heatmap(layers,
   layer_spacing = 3,
   skew = 0.5
 )
-
-# }
+} # }
 ```

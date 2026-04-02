@@ -35,12 +35,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/comparison-plots-demo.html">Network Comparison and Visualization</a></li>
-    <li><a class="dropdown-item" href="articles/function-reference.html">Function Reference</a></li>
-    <li><a class="dropdown-item" href="articles/input-formats.html">Input Formats</a></li>
-    <li><a class="dropdown-item" href="articles/introduction.html">Introduction to cograph</a></li>
-    <li><a class="dropdown-item" href="articles/mcml-examples.html">Nice Examples</a></li>
-    <li><a class="dropdown-item" href="articles/network-structure-and-groups.html">Network Structure and Node Groups</a></li>
+<li><a class="dropdown-item" href="articles/mcml-examples.html">Examples</a></li>
     <li><a class="dropdown-item" href="articles/plotting-tna-models.html">Plotting TNA Models with splot</a></li>
     <li><a class="dropdown-item" href="articles/why-cograph.html">Why cograph?</a></li>
   </ul>
@@ -60,7 +55,7 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="cograph-">cograph <img src="reference/figures/logo.png" align="right" height="139"><a class="anchor" aria-label="anchor" href="#cograph-"></a>
+<div class="page-header"><h1 id="cograph-">cograph <img src="https://sonsoles.me/cograph/reference/figures/logo.png" align="right" width="139"><a class="anchor" aria-label="anchor" href="#cograph-"></a>
 </h1></div>
 <!-- badges: start -->
 
@@ -293,7 +288,7 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sonsoles.me/cograph/" class="external-link">cograph</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Build a TNA model from sequence data</span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://sonsoles.me/tna/reference/build_model.html" class="external-link">tna</a></span><span class="op">(</span><span class="va">group_regulation</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://sonsoles.me/tna/reference/build_model.html" class="external-link">tna</a></span><span class="op">(</span><span class="va">engagement</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># One-liner visualization</span></span>
 <span><span class="fu"><a href="reference/splot.html">splot</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
@@ -434,16 +429,6 @@
 <span>                 from_title <span class="op">=</span> <span class="st">"Source"</span>, to_title <span class="op">=</span> <span class="st">"Target"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-alluvial-1.jpeg" alt="" width="100%"></p>
 </div>
-</div>
-<div class="section level2">
-<h2 id="quality">Quality<a class="anchor" aria-label="anchor" href="#quality"></a>
-</h2>
-<ul>
-<li>100% test coverage (13,450+ tests)</li>
-<li>R CMD check: 0 errors, 0 warnings</li>
-<li>All exported functions documented with <code>@return</code> and <code>@examples</code>
-</li>
-</ul>
 </div>
 <div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>

@@ -34,13 +34,10 @@ Data frame with AUC and critical points for each measure.
 ## Examples
 
 ``` r
-# \donttest{
+if (FALSE) { # \dontrun{
 if (requireNamespace("igraph", quietly = TRUE)) {
   g <- igraph::sample_pa(30, m = 2, directed = FALSE)
   robustness_summary(x = g, measures = c("degree", "random"), n_iter = 10)
 }
-#>   measure    auc critical_50 critical_10
-#> 1  degree 0.1911      0.1667      0.3333
-#> 2  random 0.4253      0.4333      0.8000
-# }
+} # }
 ```

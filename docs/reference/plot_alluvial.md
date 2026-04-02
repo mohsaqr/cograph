@@ -260,12 +260,11 @@ A ggplot2 object.
 ## Examples
 
 ``` r
-# \donttest{
+if (FALSE) { # \dontrun{
 # From a transition matrix
 mat <- matrix(c(50, 10, 5, 15, 40, 10), 2, 3)
 rownames(mat) <- c("A", "B")
 colnames(mat) <- c("X", "Y", "Z")
 plot_alluvial(mat)
-
-# }
+} # }
 ```

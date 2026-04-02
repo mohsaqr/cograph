@@ -1,12 +1,19 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>http://sonsoles.me/cograph/404.html</loc></url>
+<url><loc>http://sonsoles.me/cograph/CHANGES.html</loc></url>
 <url><loc>http://sonsoles.me/cograph/CLAUDE.html</loc></url>
+<url><loc>http://sonsoles.me/cograph/CRAN_TIMING_SUMMARY.html</loc></url>
+<url><loc>http://sonsoles.me/cograph/HANDOFF.html</loc></url>
+<url><loc>http://sonsoles.me/cograph/LEARNINGS.html</loc></url>
 <url><loc>http://sonsoles.me/cograph/LICENSE-text.html</loc></url>
 <url><loc>http://sonsoles.me/cograph/LICENSE.html</loc></url>
 <url><loc>http://sonsoles.me/cograph/MERGE_CHANGELOG.html</loc></url>
 <url><loc>http://sonsoles.me/cograph/SPLOT_DEVELOPMENT.html</loc></url>
 <url><loc>http://sonsoles.me/cograph/TODO.html</loc></url>
 <url><loc>http://sonsoles.me/cograph/architecture.html</loc></url>
+<url><loc>http://sonsoles.me/cograph/articles/articles/comparison-plots-demo.html</loc></url>
+<url><loc>http://sonsoles.me/cograph/articles/articles/function-reference.html</loc></url>
+<url><loc>http://sonsoles.me/cograph/articles/articles/network-structure-and-groups.html</loc></url>
 <url><loc>http://sonsoles.me/cograph/articles/comparison-plots-demo.html</loc></url>
 <url><loc>http://sonsoles.me/cograph/articles/function-reference.html</loc></url>
 <url><loc>http://sonsoles.me/cograph/articles/index.html</loc></url>

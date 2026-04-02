@@ -31,12 +31,46 @@ plot_bootstrap_forest(
   nonsig_color = "#CCCCCC",
   ring_color = "#C8C8C8",
   median_color = "#AAAAAA",
-  label_size = 2.9,
+  label_size = NULL,
   label_color = NULL,
-  point_size = if (match.arg(layout) == "circular") 2 else 3,
-  r_inner = 0.38,
-  r_outer = 0.72,
-  gap_rad = 0.1,
+  point_size = NULL,
+  r_inner = NULL,
+  r_outer = NULL,
+  gap_rad = NULL,
+  label_offset = NULL,
+  src_label_size = NULL,
+  margins = c(0.1, 0.1, 0.1, 0.1),
+  scale = 1,
+  title = NULL,
+  subtitle = NULL,
+  ...
+)
+
+# S3 method for class 'tna_bootstrap'
+plot_bootstrap_forest(
+  x,
+  alpha = NULL,
+  layout = c("linear", "circular", "grouped"),
+  interval = c("ci", "cr", "both"),
+  show_nonsig = TRUE,
+  sort_by = c("estimate", "significance", "name"),
+  n_top = NULL,
+  node_colors = NULL,
+  sig_color = "#2C6E8A",
+  cr_color = "#D4829A",
+  nonsig_color = "#CCCCCC",
+  ring_color = "#C8C8C8",
+  median_color = "#AAAAAA",
+  label_size = NULL,
+  label_color = NULL,
+  point_size = NULL,
+  r_inner = NULL,
+  r_outer = NULL,
+  gap_rad = NULL,
+  label_offset = NULL,
+  src_label_size = NULL,
+  margins = c(0.1, 0.1, 0.1, 0.1),
+  scale = 1,
   title = NULL,
   subtitle = NULL,
   ...
@@ -57,12 +91,16 @@ plot_bootstrap_forest(
   nonsig_color = "#CCCCCC",
   ring_color = "#C8C8C8",
   median_color = "#AAAAAA",
-  label_size = 2.9,
+  label_size = NULL,
   label_color = NULL,
-  point_size = if (match.arg(layout) == "circular") 2 else 3,
-  r_inner = 0.38,
-  r_outer = 0.72,
-  gap_rad = 0.1,
+  point_size = NULL,
+  r_inner = NULL,
+  r_outer = NULL,
+  gap_rad = NULL,
+  label_offset = NULL,
+  src_label_size = NULL,
+  margins = c(0.1, 0.1, 0.1, 0.1),
+  scale = 1,
   title = NULL,
   subtitle = NULL,
   ...
@@ -88,7 +126,9 @@ plot_bootstrap_forest(
 
 - x:
 
-  A `net_bootstrap` or `boot_glasso` object.
+  A `tna_bootstrap` (from
+  [`tna::bootstrap`](http://sonsoles.me/tna/reference/bootstrap.md)),
+  `net_bootstrap`, or `boot_glasso` object.
 
 - ...:
 
@@ -163,6 +203,40 @@ plot_bootstrap_forest(
 - point_size:
 
   Size of the estimate square. Default `3` (linear) or `2` (radial).
+
+- r_inner:
+
+  Inner ring radius (grouped layout). Default `NULL` (auto).
+
+- r_outer:
+
+  Outer ring radius (grouped layout). Default `NULL` (auto).
+
+- gap_rad:
+
+  Gap in radians between sectors (grouped layout). Default `NULL`
+  (auto).
+
+- label_offset:
+
+  Distance between outer ring and labels (grouped layout). Default
+  `NULL` (auto).
+
+- src_label_size:
+
+  Text size for source node labels in the center (grouped layout).
+  Default `NULL` (auto, `label_size * 0.80`).
+
+- margins:
+
+  Margins as `c(bottom, left, top, right)` fractions (grouped layout).
+  Default `c(0.1, 0.1, 0.1, 0.1)`.
+
+- scale:
+
+  Scaling factor applied to all text and point sizes (grouped layout).
+  Default `1`. Use values \> 1 for high-DPI output, \< 1 for small
+  devices.
 
 - title:
 

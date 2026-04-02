@@ -41,5 +41,5 @@ if (requireNamespace("igraph", quietly = TRUE)) {
   c2 <- community_leiden(g)
   compare_communities(c1, c2, "nmi")
 }
-#> [1] 0.5449399
+#> [1] 0.5277648
 ```

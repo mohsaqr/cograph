@@ -152,8 +152,8 @@ if (requireNamespace("igraph", quietly = TRUE)) {
 #>   removed_pct comp_size comp_pct     measure                   type
 #> 1        0.00        50     1.00 betweenness Targeted vertex attack
 #> 2        0.02        49     0.98 betweenness Targeted vertex attack
-#> 3        0.04        47     0.94 betweenness Targeted vertex attack
-#> 4        0.06        46     0.92 betweenness Targeted vertex attack
+#> 3        0.04        46     0.92 betweenness Targeted vertex attack
+#> 4        0.06        41     0.82 betweenness Targeted vertex attack
 #> 5        0.08        40     0.80 betweenness Targeted vertex attack
-#> 6        0.10        38     0.76 betweenness Targeted vertex attack
+#> 6        0.10        37     0.74 betweenness Targeted vertex attack
 ```

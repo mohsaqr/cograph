@@ -62,7 +62,7 @@ This tutorial demonstrates everything through a single TNA model of collaborativ
 10. **Permutation testing** --- significant group differences
 11. **Mixed networks** --- directed and undirected edges combined
 
-For **network analysis** (centrality, communities, filtering), see the companion tutorial: [Network Analysis with cograph](cograph-tutorial-analysis.html). For TNA-specific workflows, see the [TNA tutorial](../tna-tutorial/index.html).
+For **network analysis** (centrality, communities, filtering), see the companion tutorial: [Network Analysis with cograph](cograph-tutorial-analysis.html). For TNA-specific workflows, see the [TNA tutorial](./3_plotting-tna-models.html).
 
 ::: {.callout-note}
 ## GitHub Development Version
@@ -73,7 +73,9 @@ This tutorial covers the full feature set available in the **GitHub development 
 #| label: install
 #| eval: false
 # Development version with full features
-devtools::install_github("sonsoleslp/cograph")
+# devtools::install_github("sonsoleslp/cograph")
+# CRAN version
+install.packages("cograph")
 ```
 :::
 
@@ -254,10 +256,12 @@ The default TNA plot already shows donut fills from `model$inits`. You can custo
 
 ```{r}
 #| label: fig-donuts-custom
-#| fig-cap: "Hexagonal donut shapes with custom color"
-splot(model,
-  donut_shape = "hexagon",
-  donut_color = "#2E7D32"
+#| fig-cap: "Donuts with custom styling"
+splot(model, 
+      donut_color = "black",
+      donut_bg_color = "white",
+      donut_border_color = "black",
+      donut_shape = "circle"
 )
 ```
 
@@ -571,6 +575,238 @@ plot_mixed_network(sym, asym, threshold = 0.03,
   asym_color = "#003355",
   title = "Red undirected + Blue directed"
 )
+```
+
+
+
+# Multi-Cluster Visualization
+
+`plot_mcml()` draws two layers simultaneously: individual nodes inside cluster shells (bottom) and aggregated cluster-level summary pies (top).
+
+```{r}
+#| label: fig-mcml
+#| fig-cap: "Two-layer hierarchical cluster view"
+#| fig-width: 9
+#| fig-height: 9
+clusters <- list(
+  Social    = c("discuss", "consensus", "cohesion", "emotion"),
+  Cognitive = c("plan", "monitor", "adapt", "synthesis"),
+  Meta      = c("coregulate")
+)
+
+mat <- model$weights
+
+plot_mcml(mat, clusters, mode = "tna",
+  title = "Collaborative Regulation Clusters")
+```
+
+`plot_mtna()` provides a flat single-layer alternative:
+
+```{r}
+#| label: fig-mtna
+#| fig-cap: "Flat cluster layout"
+#| fig-width: 9
+#| fig-height: 9
+plot_mtna(mat, clusters, show_labels = TRUE, label_abbrev = 4,
+  title = "Flat Cluster Map")
+```
+
+
+# Nestimate Integration
+
+The **Nestimate** package estimates networks from sequence data using multiple methods. Its objects dispatch through `splot()` automatically.
+
+```{r}
+#| label: nestimate
+library(Nestimate)
+
+net <- build_network(group_regulation, method = "relative")
+splot(net, title = "Nestimate: relative transitions")
+```
+
+Bootstrap stability:
+
+```{r}
+#| label: nestimate-boot
+#| cache: true
+set.seed(42)
+nboot <- bootstrap_network(net, iter = 500)
+splot(nboot, title = "Nestimate bootstrap")
+```
+
+Group comparison:
+
+```{r}
+#| label: nestimate-group
+#| fig-width: 12
+#| fig-height: 6
+grp <- build_network(group_regulation_long, method = "relative",
+  action = "Action", actor = "Actor", time = "Time",
+  group = "Achiever")
+splot(grp)
+```
+
+
+# Motifs
+
+Motif analysis identifies recurring local connectivity patterns — the building blocks of network structure. cograph uses the MAN (Mutual, Asymmetric, Null) classification for directed triads: 16 possible patterns from empty (003) to fully connected (300).
+
+## Census
+
+`motifs()` counts how often each MAN type appears and tests significance against a configuration model null:
+
+```{r}
+#| label: motifs-census
+mot <- motifs(model, significance = TRUE, n_perm = 100, seed = 42)
+mot
+
+```
+
+## Visualization
+
+
+
+```{r}
+#| label: fig-motifs-significance
+#| fig-cap: "Significance: z-scores against configuration model"
+plot(mot, type = "significance")
+```
+
+```{r}
+#| label: fig-motifs-patterns
+#| fig-cap: "MAN triad pattern diagrams"
+#| fig-width: 10
+#| fig-height: 6
+plot(mot, type = "patterns")
+```
+
+## Named subgraphs
+
+`subgraphs()` identifies the specific node triples forming each pattern — which states participate in which motifs:
+
+```{r}
+#| label: subgraphs
+sg <- subgraphs(model, significance = TRUE, top = 10, pattern="triangle")
+sg
+
+```
+
+```{r}
+#| label: fig-subgraphs
+#| fig-cap: "Top triads as network diagrams"
+#| fig-width: 10
+#| fig-height: 6
+plot(sg, n = 10, ncol = 5)
+
+```
+
+
+# Higher-Order Networks
+
+Standard TNA assumes first-order Markov dynamics: the next state depends only on the current state. Higher-order analysis tests whether longer sequential memory exists — cases where what happened two or three steps ago changes the transition probabilities.
+
+## Model order selection
+
+`build_mogen()` fits Markov models at increasing orders and selects the best via AIC/BIC:
+
+```{r}
+#| label: hon-setup
+data("human_cat", package = "Nestimate")
+hon_net <- build_network(human_cat, method = "tna",
+  action = "category", time = "timestamp", session = "session_id")
+```
+
+```{r}
+#| label: mogen
+mg <- build_mogen(hon_net, max_order = 4)
+summary(mg)
+```
+
+```{r}
+#| label: fig-mogen
+#| fig-cap: "Model selection: information criteria across Markov orders"
+#| fig-width: 8
+#| fig-height: 5
+plot(mg)
+```
+
+## Higher-Order Network (HON)
+
+HON detects *where* in the state space higher-order dependencies exist — which transitions change depending on prior context:
+
+```{r}
+#| label: hon
+hon <- build_hon(hon_net)
+hon
+```
+
+## Path anomaly detection (HYPA)
+
+HYPA identifies paths that occur significantly more or less often than expected under a hypergeometric null model:
+
+```{r}
+#| label: hypa
+hypa <- build_hypa(hon_net)
+table(hypa$scores$anomaly)
+```
+
+Over-represented paths — learned behavioral routines:
+
+```{r}
+#| label: hypa-over
+over <- subset(hypa$scores, anomaly == "over")
+
+head(over)
+
+```
+
+## Simplicial visualization
+
+`plot_simplicial()` renders higher-order pathways as smooth blobs over the network. Source states appear in blue, target states in red.
+
+```{r}
+#| label: fig-simplicial
+#| fig-cap: "Top 6 higher-order pathways (HON)"
+#| fig-width: 10
+#| fig-height: 10
+plot_simplicial(hon_net, max_pathways = 6,
+  title = "Higher-Order Pathways")
+```
+
+Dismantled view — one panel per pathway:
+
+```{r}
+#| label: fig-simplicial-dismantled
+#| fig-cap: "Individual pathway panels"
+#| fig-width: 12
+#| fig-height: 12
+plot_simplicial(hon_net, max_pathways = 9,
+  dismantled = TRUE, ncol = 3)
+```
+
+HYPA anomalous pathways:
+
+```{r}
+#| label: fig-simplicial-hypa
+#| fig-cap: "Anomalous pathways detected by HYPA"
+#| fig-width: 12
+#| fig-height: 12
+plot_simplicial(hon_net, method = "hypa", max_pathways = 9,
+  dismantled = TRUE, ncol = 3)
+```
+
+
+# Robustness
+
+`robustness()` simulates network degradation under targeted and random node/edge removal:
+
+```{r}
+#| label: fig-robustness
+#| fig-cap: "Network robustness under targeted and random node removal"
+plot_robustness(x = mat,
+  measures = c("betweenness", "degree", "random"),
+  n_iter = 50, seed = 42,
+  title = "Node Removal Robustness")
 ```
 
 

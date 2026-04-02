@@ -40,14 +40,15 @@ knitr:
   opts_chunk:
     fig.width: 8
     fig.height: 6
-    dpi: 150
+    dpi: 50
     comment: ""
 ---
 
 ```{r}
 #| label: setup
 #| include: false
-devtools::load_all(".")
+library(tna)
+library(cograph)
 ```
 
 # Introduction
@@ -65,7 +66,7 @@ This tutorial covers the analysis side of cograph:
 5. **Network properties** --- 37 summary metrics plus specialized diagnostics
 6. **Community detection** --- 11 algorithms, consensus, comparison
 
-For **visualization and plotting**, see the companion tutorial: [Plotting with cograph](cograph-tutorial-plotting.html). For **TNA-specific workflows**, see the [TNA tutorial](../tna-tutorial/index.html).
+For **visualization and plotting**, see the companion tutorial: [Plotting with cograph](1_cograph-tutorial-plotting.html). For **TNA-specific workflows**, see the [TNA tutorial](3_plotting-tna-models.html). For a tutorial centered around **communities**, see [Visualization of communities and hyper order networks](cograph-tutorial-communities.html).
 
 ::: {.callout-note}
 ## GitHub Development Version
@@ -77,6 +78,7 @@ This tutorial covers the full feature set available in the **GitHub development 
 #| eval: false
 # Development version with full features
 devtools::install_github("sonsoleslp/cograph")
+
 ```
 :::
 
@@ -260,10 +262,14 @@ Once you have a cograph_network object, a set of getter functions gives you clea
 ```{r}
 #| label: inspect
 # Basic properties
-cat("Nodes:", n_nodes(net), "\n")
-cat("Edges:", n_edges(net), "\n")
-cat("Directed:", cograph::is_directed(net), "\n")
-cat("Labels:", paste(get_labels(net), collapse = ", "), "\n")
+# Nodes
+n_nodes(net) 
+#Edges
+n_edges(net)
+# Directed?
+cograph::is_directed(net) 
+# Labels
+get_labels(net)
 ```
 
 ```{r}
@@ -682,24 +688,19 @@ Descriptive statistics (mean, SD, median) for degree, strength, betweenness, clo
 
 For specific analyses, dedicated functions provide richer output than the summary table:
 
-```{r}
-#| label: degree-dist
-# Degree distribution (histogram of degree values)
-degree_distribution(mat)
-```
 
 ```{r}
 #| label: small-world
 # Small-world coefficient (compares clustering and path length to random graphs)
 sw <- network_small_world(mat8, n_random = 100)
-cat("Small-world coefficient:", round(sw, 3), "\n")
+round(sw, 3)
 ```
 
 ```{r}
 #| label: rich-club
 # Rich-club coefficient (do high-degree nodes preferentially connect?)
 rc <- network_rich_club(mat8, normalized = TRUE, n_random = 100)
-cat("Rich-club coefficient:", round(rc, 3), "\n")
+round(rc, 3)
 ```
 
 ::: {.callout-tip collapse="true"}
@@ -809,11 +810,12 @@ When you run two different algorithms, how similar are their results? `compare_c
 #| label: communities-compare
 # Compare Louvain vs. Walktrap
 nmi <- compare_communities(comms, comms_wt, method = "nmi")
-cat("Normalized Mutual Information:", round(nmi, 3), "\n")
+# Normalized Mutual Information
+round(nmi, 3)
 
 # Adjusted Rand Index
 ari <- compare_communities(comms, comms_wt, method = "adjusted.rand")
-cat("Adjusted Rand Index:", round(ari, 3), "\n")
+round(ari, 3)
 ```
 
 ::: {.callout-tip collapse="true"}
@@ -827,27 +829,6 @@ cat("Adjusted Rand Index:", round(ari, 3), "\n")
 | `"adjusted.rand"` | [-1, 1] | Chance-corrected Rand (0 = random) |
 | `"split.join"` | [0, 2n] | Lower = more similar |
 :::
-
-## Visualizing Communities
-
-The `plot()` method for community objects colors nodes by community membership:
-
-```{r}
-#| label: fig-communities-plot
-#| fig-cap: "Community structure detected by Louvain"
-#| fig-width: 8
-#| fig-height: 8
-plot(comms, net_u)
-```
-
-You can also use `color_communities()` to get a color vector for use with `splot()`:
-
-```{r}
-#| label: color-communities
-# Get community colors as a named vector (for splot's node_fill parameter)
-colors <- color_communities(mat8, method = "louvain")
-colors
-```
 
 
 # Putting It All Together

@@ -597,13 +597,15 @@ test_that("get_donut_base_vertices returns vertices for circle", {
 test_that("get_donut_base_vertices returns vertices for square", {
   verts <- get_donut_base_vertices("square", 0, 0, 1)
 
-  expect_equal(length(verts$x), 4)
+  # 4 corners * 25 subdivisions = 100 vertices
+  expect_equal(length(verts$x), 100)
 })
 
 test_that("get_donut_base_vertices returns vertices for rectangle", {
   verts <- get_donut_base_vertices("rectangle", 0, 0, 1)
 
-  expect_equal(length(verts$x), 4)
+  # 4 corners * 25 subdivisions = 100 vertices
+  expect_equal(length(verts$x), 100)
   # Rectangle has r * 0.7 height
   expect_equal(max(abs(verts$y)), 0.7, tolerance = 0.001)
 })
@@ -611,25 +613,29 @@ test_that("get_donut_base_vertices returns vertices for rectangle", {
 test_that("get_donut_base_vertices returns vertices for triangle", {
   verts <- get_donut_base_vertices("triangle", 0, 0, 1)
 
-  expect_equal(length(verts$x), 3)
+  # 3 corners * 25 subdivisions = 75 vertices
+  expect_equal(length(verts$x), 75)
 })
 
 test_that("get_donut_base_vertices returns vertices for diamond", {
   verts <- get_donut_base_vertices("diamond", 0, 0, 1)
 
-  expect_equal(length(verts$x), 4)
+  # 4 corners * 25 subdivisions = 100 vertices
+  expect_equal(length(verts$x), 100)
 })
 
 test_that("get_donut_base_vertices returns vertices for pentagon", {
   verts <- get_donut_base_vertices("pentagon", 0, 0, 1)
 
-  expect_equal(length(verts$x), 5)
+  # 5 corners * 25 subdivisions = 125 vertices
+  expect_equal(length(verts$x), 125)
 })
 
 test_that("get_donut_base_vertices returns vertices for hexagon", {
   verts <- get_donut_base_vertices("hexagon", 0, 0, 1)
 
-  expect_equal(length(verts$x), 6)
+  # 6 corners * 25 subdivisions = 150 vertices
+  expect_equal(length(verts$x), 150)
 })
 
 test_that("get_donut_base_vertices defaults to circle for unknown shape", {

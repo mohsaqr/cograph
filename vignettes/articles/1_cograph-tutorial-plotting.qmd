@@ -3,13 +3,6 @@ title: "Network Visualization with cograph: A Complete Plotting Guide"
 description: |
     Publication-ready network plots with one function call --- from basic graphs to donut-pie composites
 date: "2026-03-05"
-author:
-  - name: Mohammed Saqr
-    url: https://saqr.me
-    affiliation: University of Eastern Finland
-  - name: Sonsoles López-Pernas
-    url: https://sonsoles.me
-    affiliation: University of Eastern Finland
 citation:
   type: article
   author:

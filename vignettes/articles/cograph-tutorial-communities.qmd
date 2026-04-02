@@ -3,13 +3,6 @@ title: "Visualization of communities and hyper order networks"
 description: |
     Overlay community blobs on networks and visualize higher-order simplicial pathways
 date: "2026-03-14"
-author:
-  - name: Mohammed Saqr
-    url: https://saqr.me
-    affiliation: University of Eastern Finland
-  - name: Sonsoles López-Pernas
-    url: https://sonsoles.me
-    affiliation: University of Eastern Finland
 citation:
   type: article
   author:

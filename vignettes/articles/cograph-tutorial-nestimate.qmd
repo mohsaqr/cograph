@@ -4,13 +4,6 @@ description: |
     From raw sequence data to publication-ready statistical network plots ---
     build, bootstrap, compare, and visualize using Nestimate and cograph together.
 date: "2026-04-01"
-author:
-  - name: Mohammed Saqr
-    url: https://saqr.me
-    affiliation: University of Eastern Finland
-  - name: Sonsoles López-Pernas
-    url: https://sonsoles.me
-    affiliation: University of Eastern Finland
 categories:
   - tutorial
   - R

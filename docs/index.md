@@ -1,4 +1,4 @@
-# cograph ![](https://sonsoles.me/cograph/reference/figures/logo.png)
+# cograph
 
 **cograph** is a modern R package for the analysis, visualization, and
 manipulation of complex networks. It provides publication-ready plotting

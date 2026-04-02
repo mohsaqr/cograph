@@ -25,19 +25,34 @@ plot(
 
 - type:
 
-  Plot type: "bar" (default), "heatmap", or "network"
+  Plot type:
+
+  `"bar"`
+
+  :   (default) Bar chart of motif frequencies, colored by significance
+      direction (over/under-represented).
+
+  `"heatmap"`
+
+  :   Heatmap of z-scores across motif types.
+
+  `"network"`
+
+  :   Network diagrams of the top motifs by \|z-score\|.
 
 - show_nonsig:
 
-  Show non-significant motifs? Default FALSE
+  Show non-significant motifs? Default FALSE.
 
 - top_n:
 
-  Show only top N motifs by \|z-score\|. Default NULL (all)
+  Show only top N motifs by \|z-score\|. Default NULL (all).
 
 - colors:
 
-  Colors for under/neutral/over-represented. Default blue/gray/red.
+  Three-element color vector for under-represented, neutral, and
+  over-represented motifs. Default `c("#2166AC", "#999999", "#B2182B")`
+  (blue/gray/red).
 
 - ...:
 

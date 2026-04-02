@@ -1,0 +1,337 @@
+---
+title: "Why cograph?"
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  message = FALSE, 
+  warning = FALSE,
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 5,
+  fig.dpi = 300,
+  dpi = 300
+)
+```
+
+
+```{r setup}
+library(tna)
+library(cograph)
+```
+ 
+
+## Do we need another network package?
+
+R already has igraph for computation and qgraph for psychometric networks. tidygraph tries to unify things with a dplyr grammar. So why write another one?
+
+The short answer: none of these packages let you go from a raw matrix to a filtered, annotated, publication-ready figure without switching between ecosystems, reformatting objects, or writing boilerplate. cograph tries to close that gap.
+
+This document walks through the specific things cograph does differently, with working examples.
+
+## Filtering and selecting — like data frames
+
+In igraph, subsetting a network means calling `induced_subgraph()`, `delete_edges()`, or indexing into `V(g)` and `E(g)`. In tidygraph, you need `activate(nodes) |> filter(...)`. Both approaches require you to think about the object structure.
+
+cograph lets you filter nodes and edges with expressions that look like `subset()`:
+
+```{r}
+mat <- matrix(c(
+  0.0, 0.5, 0.8, 0.1, 0.0,
+  0.3, 0.0, 0.2, 0.6, 0.4,
+  0.7, 0.1, 0.0, 0.3, 0.5,
+  0.0, 0.4, 0.2, 0.0, 0.9,
+  0.1, 0.3, 0.6, 0.8, 0.0
+), 5, 5, byrow = TRUE)
+rownames(mat) <- colnames(mat) <- c("Read", "Write", "Plan", "Code", "Test")
+net <- as_cograph(mat)
+```
+
+Keep only edges above a threshold:
+
+```{r}
+strong <- filter_edges(net, weight > 0.5)
+get_edges(strong)
+```
+
+Keep nodes that have high degree *and* high PageRank — the centrality measures are computed on the fly:
+
+```{r}
+hubs <- filter_nodes(net, degree >= 3 & pagerank > 0.15)
+get_nodes(hubs)
+```
+
+### Structural selections
+
+`select_nodes()` goes further. It knows about components, neighborhoods, articulation points, and k-cores — and it computes them lazily (only what your expression actually references):
+
+```{r}
+# Top 3 nodes by betweenness
+top3 <- select_top(net, n = 3, by = "betweenness")
+get_nodes(top3)
+```
+
+```{r}
+# Ego network: everything within 1 hop of "Code"
+ego <- select_neighbors(net, of = "Code", order = 1)
+get_nodes(ego)
+```
+
+For edges, you can select by structure too:
+
+```{r}
+# Edges involving "Code"
+code_edges <- select_edges_involving(net, nodes = "Code")
+get_edges(code_edges)
+```
+
+```{r}
+# Top 5 edges by weight
+top5 <- select_top_edges(net, n = 5)
+get_edges(top5)
+```
+
+```{r}
+# Edges between two node sets
+between <- select_edges_between(net,
+  set1 = c("Read", "Write"),
+  set2 = c("Code", "Test")
+)
+get_edges(between)
+```
+
+### Format in, same format out
+
+If you pass a matrix, you can get a matrix back:
+
+```{r}
+filter_edges(mat, weight > 0.5, keep_format = TRUE)
+```
+
+Same for igraph objects. No lock-in.
+
+## Centrality — one call, tidy table
+
+igraph requires a separate function for each centrality measure, and each returns a different format. `page_rank(g)` gives you a list with `$vector`. `betweenness(g)` gives a named numeric. Building a comparison table takes 10+ lines.
+
+In cograph, one call with no arguments returns all 34 measures as a tidy data frame:
+
+```{r}
+centrality(net, digits = 3)
+```
+
+That includes degree, strength, betweenness, closeness, PageRank, eigenvector, but also less common ones like load, current-flow betweenness, voterank, percolation, diffusion, and leverage — all computed natively, without extra packages.
+
+If you only need a subset:
+
+```{r}
+centrality(net, measures = c("degree", "betweenness", "pagerank"), digits = 3)
+```
+
+Need just one measure as a named vector? Use the wrapper:
+
+```{r}
+centrality_pagerank(net)
+```
+
+```{r}
+centrality_betweenness(net)
+```
+
+You can normalize, sort, and round in the same call:
+
+```{r}
+centrality(net, measures = c("degree", "betweenness", "pagerank"),
+           normalized = TRUE, sort_by = "pagerank", digits = 3)
+```
+
+### Edge-level centrality
+
+```{r}
+edge_centrality(net, sort_by = "betweenness", digits = 3)
+```
+
+### Network-level summary
+
+One-row data frame with density, diameter, transitivity, centralization, reciprocity, and more:
+
+```{r}
+network_summary(net, digits = 3)
+```
+
+Add `detailed = TRUE` for mean/sd of node-level measures, or `extended = TRUE` for girth, radius, global efficiency, etc.
+
+## Community detection — one call
+
+igraph has `cluster_louvain()`, `cluster_walktrap()`, etc. — different function per algorithm, inconsistent parameter names. cograph wraps all of them behind one function with a default:
+
+```{r}
+# Undirected network for community detection
+sym <- (mat + t(mat)) / 2
+diag(sym) <- 0
+cograph::communities(sym)
+```
+
+Pick a different algorithm by name, or use two-letter shorthands:
+
+```{r}
+cograph::communities(sym, method = "walktrap")
+com_fg(sym)   # fast greedy
+com_im(mat)   # infomap (works on directed too)
+```
+
+If you just want a node-to-community data frame:
+
+```{r}
+detect_communities(sym, method = "walktrap")
+```
+
+### Quality and significance
+
+How good is the partition?
+
+```{r}
+comm <- com_wt(mat)
+det <- detect_communities(mat, method = "walktrap")
+cluster_list <- split(det$node, det$community)
+cqual(mat, cluster_list)
+```
+
+Is the modularity significantly higher than chance? Permutation test against a null model:
+
+```{r}
+csig(mat, comm, n_random = 200, seed = 1)
+```
+
+### Compare two solutions
+
+```{r}
+comm2 <- com_fg(mat)
+compare_communities(comm, comm2, method = "nmi")
+```
+
+### Consensus clustering
+
+Run a stochastic algorithm many times and threshold the co-occurrence matrix:
+
+```{r}
+com_consensus(mat, method = "infomap", n_runs = 50, seed = 1)
+```
+
+## Format interoperability
+
+cograph accepts matrices, edge lists, igraph, statnet, qgraph, and tna objects natively. And it converts back:
+
+```{r}
+net <- as_cograph(mat)
+
+# To igraph
+g <- to_igraph(net)
+class(g)
+
+# To matrix
+m <- to_matrix(net)
+m[1:3, 1:3]
+
+# To edge list
+head(to_df(net))
+```
+
+No format lock-in. Use cograph for what it's good at, convert back when you need something else.
+
+## Robustness, motifs, backbone
+
+A few more things that would otherwise require separate packages:
+
+### Robustness analysis
+
+How does the network hold up when you remove nodes by betweenness (targeted attack) vs. random failure?
+
+```{r}
+rob <- robustness(mat, measure = "betweenness", strategy = "sequential", seed = 1)
+rob_rand <- robustness(mat, measure = "random", n_iter = 50, seed = 1)
+
+# Area under curve — higher means more robust
+robustness_auc(rob)
+robustness_auc(rob_rand)
+```
+
+### Disparity filter (backbone extraction)
+
+Keep only edges that carry a disproportionate share of a node's weight:
+
+```{r}
+backbone <- disparity_filter(mat, level = 0.5)
+backbone
+```
+
+### Motif census
+
+Count triad types with significance testing against a configuration model:
+
+```{r}
+motif_census(mat, n_random = 100)
+```
+
+## Working with probabilistic networks
+
+cograph was built with transition networks in mind — matrices where rows sum to 1 and edges are probabilities, not just weights. This matters in a few places.
+
+### Smart weight inversion
+
+Path-based centrality measures (betweenness, closeness, harmonic) need distances, not probabilities. For transition networks, a high-probability edge should mean *short* distance. cograph handles this automatically:
+
+- For tna objects: weights are inverted (distance = 1/probability)
+- For other networks: weights are used as-is (standard igraph convention)
+
+No manual toggle needed.
+
+### First-class tna support
+
+If you use the [tna](https://cran.r-project.org/package=tna) package for Transition Network Analysis, cograph understands its objects directly:
+
+```{r}
+model <- tna(group_regulation)
+splot(model)
+```
+
+Bootstrap results render automatically — significant transitions as solid edges, non-significant as dashed:
+
+```{r}
+boot <- bootstrap(model, iter = 1000)
+splot(boot)
+```
+
+Permutation test results get color-coded by group effect:
+
+```{r}
+model1 <- tna(group_regulation[1:1000,])
+model2 <- tna(group_regulation[1001:2000,])
+
+perm <- permutation_test(model1, model2, iter = 1000)
+splot(perm)
+```
+
+Group comparisons with `plot_compare()` show element-wise probability differences, with donuts on nodes for initial state shifts.
+
+### qgraph compatibility
+
+Researchers coming from qgraph can use familiar parameter names — `vsize`, `asize`, `edge.color`, etc. — they are translated automatically. When both the cograph name and the qgraph alias are present, the cograph name wins.
+
+### Nestimate integration
+
+cograph also plots [Nestimate](https://mohsaqr.r-universe.dev/Nestimate) objects (bootstrap forests, permutation results, glasso networks) without importing the package — dispatch is by class name only.
+
+## Summary
+
+cograph is not trying to replace igraph's graph algorithms or tidygraph's data manipulation. It fills a different gap: going from data to a filtered, annotated, publication-ready network figure with minimal code, while staying interoperable with everything else in the R network ecosystem.
+
+The main ideas:
+
+- **Filter and select** with data-frame-like expressions, not object-specific APIs
+- **Centrality** as a tidy data frame, not a list of separate calls
+- **Community detection** behind one function with shorthands, quality metrics, and significance tests
+- **Statistical annotation** (CIs, p-values, stars) directly on the figure
+- **No format lock-in** — matrix/igraph/statnet/tna in and out
+- **Probabilistic networks** handled correctly out of the box

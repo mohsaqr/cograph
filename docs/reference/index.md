@@ -173,8 +173,10 @@
 ## Motif Analysis
 
 - [`motif_census()`](http://sonsoles.me/cograph/reference/motif_census.md)
+  [`print(`*`<cograph_motifs>`*`)`](http://sonsoles.me/cograph/reference/motif_census.md)
   : Network Motif Analysis
 - [`extract_motifs()`](http://sonsoles.me/cograph/reference/extract_motifs.md)
+  [`print(`*`<cograph_motif_analysis>`*`)`](http://sonsoles.me/cograph/reference/extract_motifs.md)
   : Extract Motifs from Network Data
 - [`extract_triads()`](http://sonsoles.me/cograph/reference/extract_triads.md)
   : Extract Triads with Node Labels
@@ -478,13 +480,14 @@
   : Pairwise Layer Similarities
 - [`themes-builtin`](http://sonsoles.me/cograph/reference/themes-builtin.md)
   : Built-in Themes
+- [`motifs()`](http://sonsoles.me/cograph/reference/motifs.md)
+  [`print(`*`<cograph_motif_result>`*`)`](http://sonsoles.me/cograph/reference/motifs.md)
+  [`plot(`*`<cograph_motif_result>`*`)`](http://sonsoles.me/cograph/reference/motifs.md)
+  : Network Motif Analysis
 - [`print(`*`<cograph_communities>`*`)`](http://sonsoles.me/cograph/reference/print.cograph_communities.md)
   : Print Community Structure
 - [`print(`*`<cograph_network>`*`)`](http://sonsoles.me/cograph/reference/print.cograph_network.md)
   : Print cograph_network Object
-- [`motifs()`](http://sonsoles.me/cograph/reference/motifs.md)
-  [`plot(`*`<cograph_motif_result>`*`)`](http://sonsoles.me/cograph/reference/motifs.md)
-  : Network Motif Analysis
 - [`plot(`*`<cograph_cluster_significance>`*`)`](http://sonsoles.me/cograph/reference/plot.cograph_cluster_significance.md)
   : Plot Cluster Significance
 - [`plot(`*`<cograph_communities>`*`)`](http://sonsoles.me/cograph/reference/plot.cograph_communities.md)

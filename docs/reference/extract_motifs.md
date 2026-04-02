@@ -25,6 +25,9 @@ extract_motifs(
   n_perm = 100,
   seed = NULL
 )
+
+# S3 method for class 'cograph_motif_analysis'
+print(x, n = 20, ...)
 ```
 
 ## Arguments
@@ -131,8 +134,9 @@ extract_motifs(
 
 - min_transitions:
 
-  Minimum total transitions for a person to be included (individual
-  level) or minimum triad weight (aggregate). Default 5.
+  At individual level: minimum total transitions for a person to be
+  included in the analysis. At aggregate level: minimum triad weight to
+  count as present. Default 5.
 
 - significance:
 

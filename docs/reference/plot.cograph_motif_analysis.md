@@ -35,24 +35,45 @@ plot(
 
 - type:
 
-  Plot type: "triads" (default network diagrams), "types" (bar plot),
-  "significance" (z-score plot), or "patterns" (abstract MAN patterns)
+  Plot type:
+
+  `"triads"`
+
+  :   (default) Network diagrams of specific named triads, arranged in a
+      grid. Each cell shows the three nodes and their edges.
+
+  `"types"`
+
+  :   Bar chart of MAN type frequencies.
+
+  `"significance"`
+
+  :   Z-score plot showing over- and under-represented types. Requires
+      `significance = TRUE` in
+      [`extract_motifs()`](http://sonsoles.me/cograph/reference/extract_motifs.md).
+
+  `"patterns"`
+
+  :   Abstract MAN pattern diagrams showing edge structure of each triad
+      type without specific node labels.
 
 - n:
 
-  Number of triads to show. Default 20.
+  Number of triads/patterns to show. Default 20.
 
 - colors:
 
-  Colors for visualization. Default blue/red.
+  Two-element color vector for the types/significance plots: first color
+  for over-represented, second for under-represented. Default
+  `c("#2166AC", "#B2182B")` (blue/red).
 
 - res:
 
-  Resolution for scaling (not used with grid graphics). Default 72.
+  Resolution for scaling (kept for backwards compatibility). Default 72.
 
 - node_size:
 
-  Size of nodes (1-10 scale, like splot). Default 5.
+  Size of nodes in triad diagrams (1-10 scale). Default 5.
 
 - label_size:
 
@@ -72,24 +93,25 @@ plot(
 
 - legend:
 
-  Logical, show abbreviation legend at bottom? Default TRUE.
+  Show abbreviation legend at bottom? Default TRUE.
 
 - color:
 
-  Color for nodes, edges, and labels. Default "#800020" (maroon).
+  Color for nodes, edges, and labels in triad diagrams. Default
+  `"#800020"` (maroon).
 
 - spacing:
 
-  Spacing multiplier between cells (0.5-2). Default 1.
+  Spacing multiplier between grid cells (0.5-2). Default 1.
 
 - ...:
 
-  Additional arguments (unused)
+  Additional arguments (unused).
 
 ## Value
 
-Invisibly returns NULL for triad plots, or a ggplot2 object for other
-types.
+Invisibly returns NULL for triad plots, or a ggplot2 object for
+types/significance/patterns plots.
 
 ## See also
 

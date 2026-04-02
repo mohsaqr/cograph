@@ -14,6 +14,9 @@ motif_census(
   directed = NULL,
   seed = NULL
 )
+
+# S3 method for class 'cograph_motifs'
+print(x, ...)
 ```
 
 ## Arguments

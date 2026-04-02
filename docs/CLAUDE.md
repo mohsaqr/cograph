@@ -6,7 +6,8 @@ with code in this repository.
 ## Environment
 
 - **Platform**: macOS (Darwin), R 4.1+ (currently R 4.5+)
-- **Version**: 2.0.0
+- **Version**: 1.8.9 (CRAN has 1.5.2)
+- **Rscript**: Available on PATH
 - **Additional repo**: `https://mohsaqr.r-universe.dev` registered for
   Nestimate dependency resolution (see `Additional_repositories` in
   DESCRIPTION)
@@ -59,52 +60,56 @@ Nestimate resolution.
 cograph is an R package for analysis and visualization of complex
 networks. Key entry points:
 
-- [`splot()`](http://sonsoles.me/cograph/reference/splot.md) – Base R
+- [`splot()`](http://sonsoles.me/cograph/reference/splot.md) — Base R
   graphics network plotting (core engine)
-- [`soplot()`](http://sonsoles.me/cograph/reference/soplot.md) –
+- [`soplot()`](http://sonsoles.me/cograph/reference/soplot.md) —
   Grid/ggplot2-style network plotting (separate rendering path)
 - [`plot_tna()`](http://sonsoles.me/cograph/reference/plot_tna.md) /
-  [`tplot()`](http://sonsoles.me/cograph/reference/plot_tna.md) –
+  [`tplot()`](http://sonsoles.me/cograph/reference/plot_tna.md) —
   TNA-style wrappers around splot with qgraph-compatible parameters
 - [`plot_compare()`](http://sonsoles.me/cograph/reference/plot_compare.md)
-  – Difference networks
-- [`plot_htna()`](http://sonsoles.me/cograph/reference/plot_htna.md) –
+  — Difference networks
+- [`plot_htna()`](http://sonsoles.me/cograph/reference/plot_htna.md) —
   Hierarchical multi-group TNA layouts
-- [`plot_mtna()`](http://sonsoles.me/cograph/reference/plot_mtna.md) –
+- [`plot_mtna()`](http://sonsoles.me/cograph/reference/plot_mtna.md) —
   Multi-cluster TNA with shape containers
-- [`plot_chord()`](http://sonsoles.me/cograph/reference/plot_chord.md) –
+- [`plot_chord()`](http://sonsoles.me/cograph/reference/plot_chord.md) —
   Chord diagrams (base R, directed/undirected ribbons)
 - [`plot_heatmap()`](http://sonsoles.me/cograph/reference/plot_heatmap.md)
-  – Adjacency matrix heatmaps
+  — Adjacency matrix heatmaps
 - [`plot_mixed_network()`](http://sonsoles.me/cograph/reference/plot_mixed_network.md)
-  – Combined undirected + directed edge styling from two matrices
+  — Combined undirected + directed edge styling from two matrices
 - [`plot_transitions()`](http://sonsoles.me/cograph/reference/plot_transitions.md)
   /
   [`plot_alluvial()`](http://sonsoles.me/cograph/reference/plot_alluvial.md)
   /
   [`plot_trajectories()`](http://sonsoles.me/cograph/reference/plot_trajectories.md)
-  – Flow diagrams (`plot_alluvial` and `plot_trajectories` are aliases
+  — Flow diagrams (`plot_alluvial` and `plot_trajectories` are aliases
   with different `track_individuals` defaults)
 - `plot_bootstrap()` /
   [`plot_permutation()`](http://sonsoles.me/cograph/reference/plot_permutation.md)
-  – Statistical result visualization
+  — Statistical result visualization
+- [`plot_bootstrap_forest()`](http://sonsoles.me/cograph/reference/plot_bootstrap_forest.md)
+  /
+  [`plot_edge_diff_forest()`](http://sonsoles.me/cograph/reference/plot_edge_diff_forest.md)
+  — ggplot2 forest plots for bootstrap CIs and edge differences
 - [`cluster_summary()`](http://sonsoles.me/cograph/reference/cluster_summary.md)
-  / [`plot_mcml()`](http://sonsoles.me/cograph/reference/plot_mcml.md) –
+  / [`plot_mcml()`](http://sonsoles.me/cograph/reference/plot_mcml.md) —
   Multi-cluster multi-layer analysis and visualization
-- [`plot_mlna()`](http://sonsoles.me/cograph/reference/plot_mlna.md) –
+- [`plot_mlna()`](http://sonsoles.me/cograph/reference/plot_mlna.md) —
   Multilayer 3D perspective networks
 - [`plot_simplicial()`](http://sonsoles.me/cograph/reference/plot_simplicial.md)
-  – Higher-order pathway (simplicial complex) visualization
+  — Higher-order pathway (simplicial complex) visualization
 - [`robustness()`](http://sonsoles.me/cograph/reference/robustness.md) /
   [`plot_robustness()`](http://sonsoles.me/cograph/reference/plot_robustness.md)
-  – Network robustness under node/edge removal attacks
-- [`centrality()`](http://sonsoles.me/cograph/reference/centrality.md) –
+  — Network robustness under node/edge removal attacks
+- [`centrality()`](http://sonsoles.me/cograph/reference/centrality.md) —
   23+ centrality measures
 - [`motifs()`](http://sonsoles.me/cograph/reference/motifs.md) /
-  [`subgraphs()`](http://sonsoles.me/cograph/reference/subgraphs.md) –
+  [`subgraphs()`](http://sonsoles.me/cograph/reference/subgraphs.md) —
   Triad census and motif analysis
 - [`detect_communities()`](http://sonsoles.me/cograph/reference/detect_communities.md)
-  – 11 community detection algorithms
+  — 11 community detection algorithms
 
 ## Architecture
 
@@ -187,7 +192,7 @@ objects**: `splot.netobject`, `splot.net_bootstrap`,
 `splot.tna_bootstrap`, `splot.tna_permutation`,
 `splot.group_tna_permutation` are registered as `export()` in NAMESPACE
 instead of `S3method()`. This means `splot(obj)` does NOT dispatch via
-S3 for these classes – the explicit
+S3 for these classes — the explicit
 [`inherits()`](https://rdrr.io/r/base/class.html) checks in splot.R
 handle them instead. The nestimate S3 methods (`splot.netobject`,
 `splot.net_bootstrap`, `splot.boot_glasso`) ARE properly registered as
@@ -195,7 +200,7 @@ handle them instead. The nestimate S3 methods (`splot.netobject`,
 
 ### Nestimate Integration
 
-cograph plots nestimate objects without importing the package – dispatch
+cograph plots nestimate objects without importing the package — dispatch
 is via [`inherits()`](https://rdrr.io/r/base/class.html) class-name
 checking only. Supported classes: `netobject`, `boot_glasso`,
 `net_bootstrap`, `net_permutation`, `netobject_group`, `netobject_ml`.
@@ -205,23 +210,25 @@ Implementation in `plot-nestimate.R`, `plot-bootstrap.R`,
 Nestimate also provides three higher-order network methods relevant to
 [`plot_simplicial()`](http://sonsoles.me/cograph/reference/plot_simplicial.md): -
 **HON** (`build_hon`): Higher-Order Network construction from sequence
-data - **HYPA** (`hypa`): Hypothesis testing for path anomalies using
-multi-hypergeometric null model - **HONEM** (`honem`): Higher-Order
-Network Embedding via matrix factorization
+data, expanding state space to capture variable-length memory
+dependencies - **HYPA** (`hypa`): Hypothesis testing for path anomalies
+using multi-hypergeometric null model on De Bruijn graphs (LaRock et
+al. 2020) - **HONEM** (`honem`): Higher-Order Network Embedding via
+matrix factorization of HON neighborhood matrices (Saebi et al. 2020)
 
 ### TNA Styling and qgraph Translation
 
 `from-qgraph.R` has two key roles:
 
 1.  **[`.translate_qgraph_dots()`](http://sonsoles.me/cograph/reference/dot-translate_qgraph_dots.md)**
-    – renames qgraph-style params (`vsize` -\> `node_size`, `asize` -\>
+    — renames qgraph-style params (`vsize` -\> `node_size`, `asize` -\>
     `arrow_size`, `edge.color` -\> `edge_color`, etc.) with value
     transforms (e.g., `asize * 0.20`). Called early in splot before
     dispatch, gated by `inherits(x, c("tna", ...))`. When both cograph
     name and qgraph alias are present, cograph name wins.
 
 2.  **[`.tna_style_defaults()`](http://sonsoles.me/cograph/reference/dot-tna_style_defaults.md)**
-    – `tna_styling = TRUE` (used by
+    — `tna_styling = TRUE` (used by
     [`plot_tna()`](http://sonsoles.me/cograph/reference/plot_tna.md) and
     `splot.netobject`) applies TNA visual defaults:
 
@@ -284,12 +291,13 @@ and no explicit pathways, it auto-builds HON or HYPA via
 [`Nestimate::build_hon()`](https://rdrr.io/pkg/Nestimate/man/build_hon.html)
 /
 [`Nestimate::build_hypa()`](https://rdrr.io/pkg/Nestimate/man/build_hypa.html).
-Shared node-expansion helpers live in `blob-helpers.R`, also used by
+Shared node-expansion helpers (for repeated states in pathways) live in
+`blob-helpers.R`, which is also used by
 [`overlay_communities()`](http://sonsoles.me/cograph/reference/overlay_communities.md).
 
 ### Scaling Constants
 
-`QGRAPH_SCALE` and `COGRAPH_SCALE` in `scale-constants.R` – calibrated
+`QGRAPH_SCALE` and `COGRAPH_SCALE` in `scale-constants.R` — calibrated
 constants for qgraph-compatible visual formulas (vsize, esize, arrow
 sizing) and cograph-native defaults.
 
@@ -361,19 +369,20 @@ Helpers in `aaa-globals.R`.
 
 ## Test Conventions
 
-Coverage tests follow `test-coverage-{module}-{round}.R` (rounds: 40,
-41, 42, …). Target: 100% line coverage. Use `# nocov` only for genuinely
-unreachable defensive guards.
+133 test files with ~13,400+ tests. Coverage tests follow
+`test-coverage-{module}-{round}.R` (rounds: 40, 41, 42, …). Target: 100%
+line coverage (achieved). Use `# nocov` only for genuinely unreachable
+defensive guards.
 
 Two test helper files load before every test: -
-`tests/testthat/helper-cograph.R` – exposes internal functions via
-`cograph:::` for testing - `tests/testthat/helper-test-utils.R` – test
+`tests/testthat/helper-cograph.R` — exposes internal functions via
+`cograph:::` for testing - `tests/testthat/helper-test-utils.R` — test
 data generators (`create_test_matrix()`, `create_test_edgelist()`, etc.)
 and custom expectations
 
 Never put
 [`devtools::load_all()`](https://devtools.r-lib.org/reference/load_all.html)
-inside test files – it breaks covr.
+inside test files — it breaks covr.
 
 ## Optional Dependencies
 

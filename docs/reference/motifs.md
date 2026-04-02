@@ -33,6 +33,9 @@ motifs(
 )
 
 # S3 method for class 'cograph_motif_result'
+print(x, ...)
+
+# S3 method for class 'cograph_motif_result'
 plot(
   x,
   type = c("triads", "types", "significance", "patterns"),
@@ -77,7 +80,27 @@ plot(
 
 - pattern:
 
-  Pattern filter: "triangle" (default), "network", "closed", "all".
+  Which MAN triad types to include in the analysis:
+
+  `"triangle"`
+
+  :   (default) Only the 7 closed triangle types: 030C, 030T, 120C,
+      120D, 120U, 210, 300. Excludes trivial open patterns (empty
+      triads, single edges, chains, stars, mutual pairs).
+
+  `"network"`
+
+  :   All types except trivially open ones. Excludes 003 (empty), 012
+      (single edge), 021C (chain).
+
+  `"closed"`
+
+  :   Like `"network"` but also excludes 120C (mixed regulated).
+      Excludes 003, 012, 021C, 120C.
+
+  `"all"`
+
+  :   All 16 MAN types, including empty and trivial patterns.
 
 - include:
 
@@ -123,26 +146,47 @@ plot(
 
   Random seed for reproducibility.
 
+- ...:
+
+  Additional arguments passed to internal plot helpers.
+
 - type:
 
-  Plot type: "triads" (network diagrams), "types" (bar chart),
-  "significance" (z-score plot), "patterns" (abstract MAN diagrams).
+  Plot type:
+
+  `"triads"`
+
+  :   Network diagrams of specific node triples (instance mode) or falls
+      back to patterns (census mode). Arranged in a grid.
+
+  `"types"`
+
+  :   Bar chart of MAN type frequencies.
+
+  `"significance"`
+
+  :   Z-score plot showing over- and under-represented types relative to
+      a null model. Requires `significance = TRUE` in the `motifs()`
+      call.
+
+  `"patterns"`
+
+  :   Abstract MAN pattern diagrams showing the edge structure of each
+      triad type.
 
 - n:
 
-  Number of items to plot. Default 15.
+  Maximum number of items to plot. Default 15.
 
 - ncol:
 
-  Number of columns in triad grid. Default 5.
+  Number of columns in the triad/pattern grid. Default 5.
 
 - colors:
 
-  Colors for visualization. Default blue/red.
-
-- ...:
-
-  Additional arguments passed to plot helpers.
+  Two-element color vector: first color for over-represented or positive
+  values, second for under-represented or negative values. Default
+  `c("#2166AC", "#B2182B")` (blue/red).
 
 ## Value
 
@@ -172,6 +216,8 @@ A `cograph_motif_result` object with:
 - params:
 
   List of parameters used
+
+Invisibly returns the input `x`.
 
 ## Details
 

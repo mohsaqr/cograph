@@ -13,12 +13,14 @@ subgraphs(...)
 
 - ...:
 
-  Additional arguments passed to plot helpers.
+  Additional arguments passed to internal plot helpers.
 
 ## Value
 
-Same as [`motifs`](http://sonsoles.me/cograph/reference/motifs.md). See
-that function for details.
+A `cograph_motif_result` object with `named_nodes = TRUE`. Contains
+`$results` (data frame with columns `triad`, `type`, `observed`, and
+optionally `z`, `p`, `sig`), `$type_summary`, `$level`, `$n_units`, and
+`$params`.
 
 ## See also
 

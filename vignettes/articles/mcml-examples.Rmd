@@ -1,5 +1,5 @@
 ---
-title: "Examples"
+title: "Advanced examples"
 ---
 
 ```{r setup, include=FALSE}

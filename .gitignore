@@ -1,10 +1,11 @@
 # Test outputs
 test_output/
 *.png
+!man/**/*.png
 *.pdf
 *.rds
 Rplots.pdf
-
+*.Rcheck
 # Generated HTML (demos/showcase)
 showcase/*.html
 inst/examples/*.html
@@ -15,7 +16,7 @@ inst/examples/*.html
 .RData
 .Ruserdata
 *.Rproj
-
+*_cache/
 # Mac
 .DS_Store
 

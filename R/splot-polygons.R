@@ -227,9 +227,34 @@ inset_polygon_vertices <- function(outer, inner_ratio) {
   )
 }
 
+#' Subdivide Polygon Edges
+#'
+#' Interpolates extra points along each edge of a polygon so that
+#' vertex-count-based fill calculations produce smooth, accurate proportions.
+#'
+#' @param verts List with \code{x}, \code{y} vectors of corner vertices.
+#' @param n_per_edge Number of subdivisions per edge.
+#' @return List with \code{x}, \code{y} vectors (n_corners * n_per_edge points).
+#' @keywords internal
+subdivide_polygon <- function(verts, n_per_edge = 25) {
+  n <- length(verts$x)
+  xs <- numeric(n * n_per_edge)
+  ys <- numeric(n * n_per_edge)
+  idx <- 1L
+  for (i in seq_len(n)) {
+    j <- if (i == n) 1L else i + 1L
+    t <- seq(0, 1, length.out = n_per_edge + 1L)[seq_len(n_per_edge)]
+    xs[idx:(idx + n_per_edge - 1L)] <- verts$x[i] + t * (verts$x[j] - verts$x[i])
+    ys[idx:(idx + n_per_edge - 1L)] <- verts$y[i] + t * (verts$y[j] - verts$y[i])
+    idx <- idx + n_per_edge
+  }
+  list(x = xs, y = ys)
+}
+
 #' Get Polygon Vertices by Shape Name
 #'
 #' Returns outer polygon vertices for donut ring shapes.
+#' Non-circle shapes are subdivided so that fill proportions are accurate.
 #'
 #' @param shape Shape name.
 #' @param x Center x coordinate.
@@ -238,17 +263,18 @@ inset_polygon_vertices <- function(outer, inner_ratio) {
 #' @return List with x, y vectors of vertices.
 #' @keywords internal
 get_donut_base_vertices <- function(shape, x, y, r) {
-  switch(shape,
-    circle = circle_vertices(x, y, r, n = 100),
-    square = square_vertices(x, y, r),
+  if (shape == "circle") return(circle_vertices(x, y, r, n = 100))
+  corners <- switch(shape,
+    square    = square_vertices(x, y, r),
     rectangle = rectangle_vertices(x, y, r, r * 0.7),
-    triangle = triangle_vertices(x, y, r),
-    diamond = diamond_vertices(x, y, r),
-    pentagon = pentagon_vertices(x, y, r),
-    hexagon = hexagon_vertices(x, y, r),
+    triangle  = triangle_vertices(x, y, r),
+    diamond   = diamond_vertices(x, y, r),
+    pentagon  = pentagon_vertices(x, y, r),
+    hexagon   = hexagon_vertices(x, y, r),
     # Default to circle
-    circle_vertices(x, y, r, n = 100)
+    return(circle_vertices(x, y, r, n = 100))
   )
+  subdivide_polygon(corners)
 }
 
 #' Generate Gear Vertices

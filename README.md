@@ -36,6 +36,7 @@ devtools::install_github("sonsoleslp/cograph")
   Guide](articles/1_cograph-tutorial-plotting.html)
 - [Why cograph?](articles/2_why-cograph.html)
 - [Plotting TNA Models with splot](articles/plotting-tna-models.html)
+- [Network analysis](articles/cograph-tutorial-analysis.html)
 - [Visualization of communities and hyper order
   networks](articles/cograph-tutorial-communities.html)
 - [Network Estimation and Visualization with Nestimate +

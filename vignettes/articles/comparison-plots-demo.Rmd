@@ -324,11 +324,3 @@ splot(matrix(0, 1, 1),
       title = "Low Precision\n(Wide CI)")
 
 ```
-
----
-
-# Session Info
-
-```{r session}
-sessionInfo()
-```

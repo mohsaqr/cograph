@@ -6,7 +6,7 @@
 # Tests for plot.cograph_network
 # ==============================================================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 test_that("plot.cograph_network plots a basic network", {
   adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)

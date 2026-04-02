@@ -7,7 +7,7 @@
 # Test: register_builtin_shapes - Basic Shapes
 # =============================================================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 test_that("register_builtin_shapes registers circle shape", {
   expect_true("circle" %in% list_shapes())

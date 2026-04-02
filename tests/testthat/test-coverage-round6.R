@@ -2,7 +2,7 @@
 # Focus: soplot() path, render-grid.R, render-nodes.R, render-ggplot.R,
 #   shapes-special.R, plot-compare.R, output-save.R, splot.R edge label paths
 
-skip_on_cran()
+skip_coverage_tests()
 
 library(testthat)
 library(cograph)

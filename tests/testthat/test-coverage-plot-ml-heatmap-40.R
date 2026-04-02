@@ -880,7 +880,7 @@ test_that("plot_ml_heatmap handles 1x1 matrices", {
 
 test_that("plot_ml_heatmap handles larger matrices", {
   skip_if_not_installed("ggplot2")
-  skip_on_cran()
+  skip_coverage_tests()
 
   set.seed(42)
   layers <- list(

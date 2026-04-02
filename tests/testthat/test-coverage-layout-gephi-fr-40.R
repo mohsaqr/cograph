@@ -2,7 +2,7 @@
 # Targeting uncovered lines and branches
 
 # Make internal functions available
-skip_on_cran()
+skip_coverage_tests()
 
 layout_gephi_fr <- cograph:::layout_gephi_fr
 compute_layout_gephi_fr <- cograph:::compute_layout_gephi_fr

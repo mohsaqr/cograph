@@ -8,7 +8,7 @@
 # Test Setup
 # ============================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 make_htna_mat <- function(n = 8, seed = 42) {
   set.seed(seed)

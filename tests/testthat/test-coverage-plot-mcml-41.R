@@ -5,7 +5,7 @@
 # Test Setup
 # ============================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 create_test_weights <- function(n = 12, seed = 42) {
   set.seed(seed)

@@ -5,7 +5,7 @@
 # Tests all igraph input parsing and layout functions
 
 # Make internal functions available for testing
-skip_on_cran()
+skip_coverage_tests()
 
 parse_igraph <- cograph:::parse_igraph
 apply_igraph_layout <- cograph:::apply_igraph_layout

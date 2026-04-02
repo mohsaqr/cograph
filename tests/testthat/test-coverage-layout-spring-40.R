@@ -6,7 +6,7 @@
 # 1. Circular Initialization Tests
 # =============================================================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 test_that("layout_spring uses circular initialization when init='circular'", {
 

@@ -6,7 +6,7 @@
 # SECTION 1: TNA OBJECT HANDLING (Tests 1-10)
 # ============================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 test_that("Test 1: soplot() handles tna object directly", {
   skip_if_not_installed("grid")

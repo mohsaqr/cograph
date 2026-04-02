@@ -6,7 +6,7 @@
 # Focus: register_layout, get_layout, list_layouts and built-in layout functions
 
 # Helper function to create mock network with specific n_nodes
-skip_on_cran()
+skip_coverage_tests()
 
 create_mock_network <- function(n = 5) {
   net <- list(n_nodes = n)

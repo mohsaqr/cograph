@@ -5,7 +5,7 @@
 # TNA_COLOR_PALETTE() COVERAGE
 # ============================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 test_that("tna_color_palette returns colors for 1-2 states", {
   tna_color_palette <- cograph:::tna_color_palette

@@ -7,7 +7,7 @@
 # ============================================
 
 # Access internal function for direct testing
-skip_on_cran()
+skip_coverage_tests()
 
 layout_circle <- cograph:::layout_circle
 

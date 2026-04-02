@@ -6,7 +6,7 @@
 # HANDLE_DEPRECATED_PARAM TESTS
 # ============================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 test_that("handle_deprecated_param returns new_val when old_val is NULL", {
   result <- cograph:::handle_deprecated_param(

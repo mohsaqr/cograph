@@ -2,7 +2,7 @@
 # Coverage for transition flow visualization functions
 # Tests plot_transitions, plot_alluvial, plot_trajectories and helpers
 
-skip_on_cran()
+skip_coverage_tests()
 
 # ============================================
 # Test Data Generators

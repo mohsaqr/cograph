@@ -634,7 +634,7 @@ test_that("plot_ml_heatmap handles mixed positive/negative values", {
 
 test_that("plot_ml_heatmap handles many layers", {
   skip_if_not_installed("ggplot2")
-  skip_on_cran()
+  skip_coverage_tests()
 
   set.seed(42)
   layers <- lapply(1:10, function(i) {
@@ -649,7 +649,7 @@ test_that("plot_ml_heatmap handles many layers", {
 
 test_that("plot_ml_heatmap renders many layers", {
   skip_if_not_installed("ggplot2")
-  skip_on_cran()
+  skip_coverage_tests()
 
   set.seed(42)
   layers <- lapply(1:5, function(i) {

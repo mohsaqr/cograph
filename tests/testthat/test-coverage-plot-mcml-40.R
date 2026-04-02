@@ -730,7 +730,7 @@ test_that("plot_mcml handles small skew angles", {
 # ============================================
 
 test_that("plot_mcml handles larger networks", {
-  skip_on_cran()
+  skip_coverage_tests()
 
   set.seed(42)
   n <- 20

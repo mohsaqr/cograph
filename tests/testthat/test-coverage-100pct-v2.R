@@ -6,7 +6,7 @@
 # disparity.R — lines 69-72: disparity_filter.default
 # ============================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 test_that("disparity_filter.default errors on non-matrix input", {
   expect_error(

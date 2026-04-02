@@ -6,7 +6,7 @@
 # ============================================
 
 # Helper function to create test matrix with clusters
-skip_on_cran()
+skip_coverage_tests()
 
 create_clustered_matrix <- function(n_nodes = 20, n_clusters = 4, seed = 42) {
   set.seed(seed)

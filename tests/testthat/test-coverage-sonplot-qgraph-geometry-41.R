@@ -2,7 +2,7 @@
 # Tests for qgraph-compatible geometry utilities
 
 # Make internal qgraph geometry functions available
-skip_on_cran()
+skip_coverage_tests()
 
 qgraph_plot_info <- cograph:::qgraph_plot_info
 qgraph_default_vsize <- cograph:::qgraph_default_vsize

@@ -110,6 +110,18 @@ plot_simplicial <- function(x = NULL,
       message("No anomalous pathways found in HYPA object.")
       return(invisible(NULL))
     }
+  } else if (inherits(pathways, "net_association_rules")) {
+    pathways <- .extract_association_pathways(pathways)
+    if (length(pathways) == 0L) {
+      message("No association rules to plot.")
+      return(invisible(NULL))
+    }
+  } else if (inherits(pathways, "net_link_prediction")) {
+    pathways <- .extract_link_prediction_pathways(pathways)
+    if (length(pathways) == 0L) {
+      message("No link predictions to plot.")
+      return(invisible(NULL))
+    }
   }
 
   # 2. pathways still NULL — auto-extract or auto-build

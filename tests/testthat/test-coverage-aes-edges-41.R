@@ -6,7 +6,7 @@
 # INTERNAL FUNCTION: scale_edge_widths_simple
 # ============================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 test_that("scale_edge_widths_simple returns mean of range for all NA values", {
   result <- cograph:::scale_edge_widths_simple(c(NA, NA, NA))

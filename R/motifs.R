@@ -200,7 +200,8 @@ motif_census <- function(x, size = 3, n_random = 100,
   igraph::simplify(g_rand)
 }
 
-#' @noRd
+#' @rdname motif_census
+#' @method print cograph_motifs
 #' @export
 print.cograph_motifs <- function(x, ...) {
   cat("Network Motif Analysis\n")
@@ -236,10 +237,18 @@ print.cograph_motifs <- function(x, ...) {
 #' Visualize motif frequencies and their statistical significance.
 #'
 #' @param x A `cograph_motifs` object from [motif_census()]
-#' @param type Plot type: "bar" (default), "heatmap", or "network"
-#' @param show_nonsig Show non-significant motifs? Default FALSE
-#' @param top_n Show only top N motifs by |z-score|. Default NULL (all)
-#' @param colors Colors for under/neutral/over-represented. Default blue/gray/red.
+#' @param type Plot type:
+#'   \describe{
+#'     \item{\code{"bar"}}{(default) Bar chart of motif frequencies, colored by
+#'       significance direction (over/under-represented).}
+#'     \item{\code{"heatmap"}}{Heatmap of z-scores across motif types.}
+#'     \item{\code{"network"}}{Network diagrams of the top motifs by |z-score|.}
+#'   }
+#' @param show_nonsig Show non-significant motifs? Default FALSE.
+#' @param top_n Show only top N motifs by |z-score|. Default NULL (all).
+#' @param colors Three-element color vector for under-represented, neutral, and
+#'   over-represented motifs. Default \code{c("#2166AC", "#999999", "#B2182B")}
+#'   (blue/gray/red).
 #' @param ... Additional arguments passed to plotting functions
 #'
 #' @return A ggplot2 object (invisibly)

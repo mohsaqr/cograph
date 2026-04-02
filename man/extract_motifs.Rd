@@ -2,6 +2,7 @@
 % Please edit documentation in R/motifs-extract.R
 \name{extract_motifs}
 \alias{extract_motifs}
+\alias{print.cograph_motif_analysis}
 \title{Extract Motifs from Network Data}
 \usage{
 extract_motifs(
@@ -21,6 +22,8 @@ extract_motifs(
   n_perm = 100,
   seed = NULL
 )
+
+\method{print}{cograph_motif_analysis}(x, n = 20, ...)
 }
 \arguments{
 \item{x}{Input data. Can be:
@@ -81,8 +84,9 @@ NULL returns all results. Default NULL.}
 
 \item{by_type}{If TRUE, group results by MAN type in output. Default FALSE.}
 
-\item{min_transitions}{Minimum total transitions for a person to be included
-(individual level) or minimum triad weight (aggregate). Default 5.}
+\item{min_transitions}{At individual level: minimum total transitions for a
+person to be included in the analysis. At aggregate level: minimum triad
+weight to count as present. Default 5.}
 
 \item{significance}{Logical. Run permutation significance test? Default FALSE.}
 

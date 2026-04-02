@@ -12,7 +12,7 @@
 #' @param custom_aes Custom node aesthetics (list)
 #' @param custom_theme Custom theme object or NULL
 #' @param use_labels_column Use 'labels' instead of 'label' column
-skip_on_cran()
+skip_coverage_tests()
 
 create_mock_network_ext <- function(n = 3, include_layout = TRUE,
                                      custom_aes = list(), custom_theme = NULL,

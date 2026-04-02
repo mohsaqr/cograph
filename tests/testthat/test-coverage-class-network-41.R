@@ -5,7 +5,7 @@
 # CographNetwork R6 Class - Node Matching Edge Cases
 # =============================================================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 test_that("CographNetwork$new() matches nodes by 'name' column", {
   mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)

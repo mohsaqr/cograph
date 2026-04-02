@@ -16,13 +16,21 @@
 \arguments{
 \item{x}{A \code{cograph_motifs} object from \code{\link[=motif_census]{motif_census()}}}
 
-\item{type}{Plot type: "bar" (default), "heatmap", or "network"}
+\item{type}{Plot type:
+\describe{
+\item{\code{"bar"}}{(default) Bar chart of motif frequencies, colored by
+significance direction (over/under-represented).}
+\item{\code{"heatmap"}}{Heatmap of z-scores across motif types.}
+\item{\code{"network"}}{Network diagrams of the top motifs by |z-score|.}
+}}
 
-\item{show_nonsig}{Show non-significant motifs? Default FALSE}
+\item{show_nonsig}{Show non-significant motifs? Default FALSE.}
 
-\item{top_n}{Show only top N motifs by |z-score|. Default NULL (all)}
+\item{top_n}{Show only top N motifs by |z-score|. Default NULL (all).}
 
-\item{colors}{Colors for under/neutral/over-represented. Default blue/gray/red.}
+\item{colors}{Three-element color vector for under-represented, neutral, and
+over-represented motifs. Default \code{c("#2166AC", "#999999", "#B2182B")}
+(blue/gray/red).}
 
 \item{...}{Additional arguments passed to plotting functions}
 }

@@ -2,7 +2,7 @@
 # Tests for coordinate transformations and geometry functions
 
 # Make internal geometry functions available
-skip_on_cran()
+skip_coverage_tests()
 
 usr_to_in_x <- cograph:::usr_to_in_x
 usr_to_in_y <- cograph:::usr_to_in_y

@@ -5,7 +5,7 @@
 # BASIC INPUT TESTS
 # ============================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 test_that("plot_mlna works with basic matrix input", {
   set.seed(42)

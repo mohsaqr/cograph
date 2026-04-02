@@ -6,7 +6,7 @@
 # =============================================================================
 
 # Helper: Create test matrices
-skip_on_cran()
+skip_coverage_tests()
 
 create_test_matrix <- function(n = 5, seed = 123, density = 0.4) {
   set.seed(seed)

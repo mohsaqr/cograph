@@ -6,7 +6,7 @@
 # plot-chord.R gaps
 # ============================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 test_that("plot_chord background parameter draws rect (line 147)", {
   mat <- matrix(c(0, .3, .2,

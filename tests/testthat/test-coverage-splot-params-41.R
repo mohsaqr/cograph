@@ -2,7 +2,7 @@
 # Tests for splot parameter vectorization helpers
 
 # Load internal functions for testing
-skip_on_cran()
+skip_coverage_tests()
 
 resolve_edge_colors <- cograph:::resolve_edge_colors
 resolve_edge_widths <- cograph:::resolve_edge_widths

@@ -7,7 +7,7 @@
 # Mock factories
 # ============================================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 create_mock_netobject <- function(n = 4, seed = 42, directed = TRUE) {
   set.seed(seed)

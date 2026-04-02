@@ -2,6 +2,23 @@
 # Provides common test setup functions and custom expectations
 
 # ============================================
+# CI Test Gating
+# ============================================
+
+#' Skip coverage-only tests in CI lite jobs
+#'
+#' Coverage tests (test-coverage-*.R) are expensive and only need to run on
+#' one CI platform. This helper skips them unless COGRAPH_COVERAGE_TESTS=true
+#' is set in the environment. Locally, devtools::test() runs all tests because
+#' the env var is unset and we default to running everything.
+skip_coverage_tests <- function() {
+  run_coverage <- Sys.getenv("COGRAPH_COVERAGE_TESTS", unset = "true")
+  if (!identical(run_coverage, "true")) {
+    skip("Coverage tests skipped (set COGRAPH_COVERAGE_TESTS=true to run)")
+  }
+}
+
+# ============================================
 # Test Data Generators
 # ============================================
 

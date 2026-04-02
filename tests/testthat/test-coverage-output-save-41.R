@@ -1,14 +1,14 @@
 # test-coverage-output-save-41.R - Additional Coverage Tests for output-save.R
 # Targets uncovered code paths to improve coverage from 86%
 
-skip_on_cran()
+skip_coverage_tests()
 
 # ============================================
 # SN_SAVE() - SVG FORMAT EDGE CASES
 # ============================================
 
 test_that("sn_save() creates SVG with custom dimensions", {
-  skip_on_cran()
+  skip_coverage_tests()
 
   adj <- create_test_matrix(4)
   net <- cograph(adj)
@@ -32,7 +32,7 @@ test_that("sn_save() creates SVG with custom dimensions", {
 })
 
 test_that("sn_save() creates SVG with title", {
-  skip_on_cran()
+  skip_coverage_tests()
 
   adj <- create_test_matrix(4)
   net <- cograph(adj)
@@ -60,7 +60,7 @@ test_that("sn_save() creates SVG with title", {
 # ============================================
 
 test_that("sn_save() creates EPS with custom dimensions", {
-  skip_on_cran()
+  skip_coverage_tests()
 
   adj <- create_test_matrix(4)
   net <- cograph(adj)
@@ -84,7 +84,7 @@ test_that("sn_save() creates EPS with custom dimensions", {
 })
 
 test_that("sn_save() creates EPS with title", {
-  skip_on_cran()
+  skip_coverage_tests()
 
   adj <- create_test_matrix(4)
   net <- cograph(adj)
@@ -112,7 +112,7 @@ test_that("sn_save() creates EPS with title", {
 # ============================================
 
 test_that("sn_save() creates PS with custom dimensions", {
-  skip_on_cran()
+  skip_coverage_tests()
 
   adj <- create_test_matrix(4)
   net <- cograph(adj)
@@ -136,7 +136,7 @@ test_that("sn_save() creates PS with custom dimensions", {
 })
 
 test_that("sn_save() creates PS with title", {
-  skip_on_cran()
+  skip_coverage_tests()
 
   adj <- create_test_matrix(4)
   net <- cograph(adj)
@@ -427,7 +427,7 @@ test_that("sn_save_ggplot() creates TIFF file", {
 
 test_that("sn_save_ggplot() creates EPS file", {
   skip_if_not_installed("ggplot2")
-  skip_on_cran()
+  skip_coverage_tests()
 
   adj <- create_test_matrix(4)
   net <- cograph(adj)
@@ -452,7 +452,7 @@ test_that("sn_save_ggplot() creates EPS file", {
 
 test_that("sn_save_ggplot() creates PS file", {
   skip_if_not_installed("ggplot2")
-  skip_on_cran()
+  skip_coverage_tests()
 
   adj <- create_test_matrix(4)
   net <- cograph(adj)
@@ -779,7 +779,7 @@ test_that("sn_save_ggplot() returns invisible filename for all formats", {
 # ============================================
 
 test_that("sn_save() handles filename with unicode characters", {
-  skip_on_cran()
+  skip_coverage_tests()
 
   adj <- create_test_matrix(4)
   net <- cograph(adj)

@@ -9,7 +9,7 @@
 # Test Setup
 # ============================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 make_mtna_mat <- function(n = 12, n_clusters = 3, seed = 42) {
   set.seed(seed)

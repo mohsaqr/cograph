@@ -1,7 +1,7 @@
 # test-coverage-output-save-43.R - Additional Coverage Tests for output-save.R
 # Targets uncovered code paths in sn_save() and sn_save_ggplot()
 
-skip_on_cran()
+skip_coverage_tests()
 
 # ============================================
 # SN_SAVE() EDGE CASES - WEIGHTED NETWORKS
@@ -238,7 +238,7 @@ test_that("sn_save_ggplot() handles network with negative weights", {
 test_that("sn_save_ggplot() creates SVG file", {
   skip_if_not_installed("ggplot2")
   skip_if_not_installed("svglite")
-  skip_on_cran()
+  skip_coverage_tests()
 
   adj <- create_test_matrix(4)
   net <- cograph(adj)

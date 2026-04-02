@@ -2,7 +2,7 @@
 # Tests for edge rendering functions in base R graphics
 
 # Load internal functions for testing
-skip_on_cran()
+skip_coverage_tests()
 
 find_curve_split_index <- cograph:::find_curve_split_index
 draw_curve_with_start_segment <- cograph:::draw_curve_with_start_segment

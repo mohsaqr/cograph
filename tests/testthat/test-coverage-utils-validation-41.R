@@ -3,7 +3,7 @@
 # Targets uncovered functions and branches
 
 # Make internal functions available for testing
-skip_on_cran()
+skip_coverage_tests()
 
 validate_network <- cograph:::validate_network
 validate_color <- cograph:::validate_color

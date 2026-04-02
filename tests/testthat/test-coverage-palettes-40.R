@@ -6,7 +6,7 @@
 # PALETTE_RAINBOW TESTS
 # ============================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 test_that("palette_rainbow returns correct number of colors for various n", {
   expect_equal(length(palette_rainbow(1)), 1)

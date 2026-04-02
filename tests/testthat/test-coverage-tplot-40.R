@@ -5,7 +5,7 @@
 # BASIC FUNCTIONALITY
 # ============================================
 
-skip_on_cran()
+skip_coverage_tests()
 
 test_that("plot_tna() accepts adjacency matrix", {
   adj <- create_test_matrix(5)

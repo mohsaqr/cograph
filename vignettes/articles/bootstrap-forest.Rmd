@@ -56,7 +56,7 @@ plot_bootstrap_forest(boot_tna, layout = "circular",
 ```
 
 ### Grouped Radial
-```{r tna-grouped, fig.width=7, fig.asp=1}
+```{r tna-grouped, fig.width=10, fig.asp=1}
 plot_bootstrap_forest(boot_tna, layout = "grouped",
   title = "Human-AI Interaction — Grouped by Source Node")
 ```

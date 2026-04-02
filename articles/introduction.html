@@ -42,7 +42,6 @@
     <li><a class="dropdown-item" href="../articles/cograph-tutorial.html">Network Analysis and Visualization with cograph</a></li>
     <li><a class="dropdown-item" href="../articles/comparison-plots-demo.html">Network Comparison and Visualization</a></li>
     <li><a class="dropdown-item" href="../articles/function-reference.html">Function Reference</a></li>
-    <li><a class="dropdown-item" href="../articles/input-formats.html">Input Formats</a></li>
     <li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
     <li><a class="dropdown-item" href="../articles/mcml-examples.html">Examples</a></li>
     <li><a class="dropdown-item" href="../articles/multi_network.html">Multi-Group, Multi-Cluster, and Multilevel Networks</a></li>
@@ -82,459 +81,1215 @@
 
     
     
-<div class="section level2">
-<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
-</h2>
-<p>cograph is a modern R package for network visualization. It provides
-a clean, pipe-friendly API for creating publication-quality network
-plots.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sonsoles.me/cograph/" class="external-link">cograph</a></span><span class="op">)</span></span></code></pre></div>
-</div>
 <div class="section level2">
-<h2 id="creating-a-network">Creating a Network<a class="anchor" aria-label="anchor" href="#creating-a-network"></a>
+<h2 id="why-cograph">Why cograph<a class="anchor" aria-label="anchor" href="#why-cograph"></a>
 </h2>
-<p>cograph accepts several input formats:</p>
-<div class="section level3">
-<h3 id="from-an-adjacency-matrix">From an Adjacency Matrix<a class="anchor" aria-label="anchor" href="#from-an-adjacency-matrix"></a>
-</h3>
+<p>R has several network packages — igraph for graph algorithms, qgraph
+for psychometric networks, tidygraph for dplyr-style manipulation. Each
+does one thing well but forces you into its own data format and API.
+Going from a raw matrix to a filtered, annotated, publication-ready
+figure typically means loading three packages, converting between
+formats, and writing boilerplate code to stitch the results
+together.</p>
+<p>cograph was designed to eliminate that friction. Every function —
+plotting, centrality, community detection, filtering — accepts any major
+network format directly: matrices, edge lists, igraph, statnet, qgraph,
+and tna objects. No manual conversion. Centrality returns a tidy data
+frame, not a list of separate calls. Community detection is one function
+with 11 algorithms behind it. Statistical annotations (confidence
+intervals, p-values, significance stars) render directly on the figure.
+And when you need igraph or statnet for something cograph does not do,
+<code><a href="../reference/to_igraph.html">to_igraph()</a></code> and <code><a href="../reference/to_network.html">to_network()</a></code> convert back
+without data loss.</p>
+<p>Beyond standard network analysis, cograph visualizes higher-order
+sequential pathways as simplicial blob diagrams, renders bootstrap
+stability results with forest plots (linear, circular, and grouped
+layouts), and performs motif analysis that identifies specific named
+node triples — not just abstract type counts.</p>
+<p>The result is a single package that covers the full workflow from
+data import to publication-ready output, while remaining interoperable
+with the rest of the R network ecosystem.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Create a simple adjacency matrix</span></span>
-<span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>,</span>
-<span>  <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>,</span>
-<span>  <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>,</span>
-<span>  <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>,</span>
-<span>  <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span></span>
-<span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">5</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Add labels</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span>, <span class="st">"E"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Create and render</span></span>
-<span><span class="fu"><a href="../reference/cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Cograph network: 5 nodes, 7 edges ( undirected )</span></span>
-<span><span class="co">#&gt; Source: matrix </span></span>
-<span><span class="co">#&gt;   Nodes (5): A, B, C, D, E</span></span>
-<span><span class="co">#&gt;   Edges: 7 / 10 (density: 70.0%)</span></span>
-<span><span class="co">#&gt;   Weights: [1.000, 1.000]  |  mean: 1.000</span></span>
-<span><span class="co">#&gt;   Strongest edges:</span></span>
-<span><span class="co">#&gt;     A -- B  1.000</span></span>
-<span><span class="co">#&gt;     A -- C  1.000</span></span>
-<span><span class="co">#&gt;     B -- C  1.000</span></span>
-<span><span class="co">#&gt;     B -- D  1.000</span></span>
-<span><span class="co">#&gt;     C -- D  1.000</span></span>
-<span><span class="co">#&gt; Layout: none</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
+<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">10</span></span>
+<span><span class="va">states</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Explore"</span>, <span class="st">"Plan"</span>, <span class="st">"Monitor"</span>, <span class="st">"Adapt"</span>, <span class="st">"Reflect"</span>,</span>
+<span>            <span class="st">"Discuss"</span>, <span class="st">"Synthesize"</span>, <span class="st">"Evaluate"</span>, <span class="st">"Create"</span>, <span class="st">"Share"</span><span class="op">)</span></span>
+<span><span class="va">mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">n</span>, <span class="va">n</span>, dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">states</span>, <span class="va">states</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co"># Sparse: ~30% of edges populated</span></span>
+<span><span class="va">edges</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/row.html" class="external-link">row</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span> <span class="op">!=</span> <span class="fu"><a href="https://rdrr.io/r/base/col.html" class="external-link">col</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span><span class="op">)</span>, <span class="fl">30</span><span class="op">)</span></span>
+<span><span class="va">mat</span><span class="op">[</span><span class="va">edges</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">30</span>, <span class="fl">0.05</span>, <span class="fl">0.5</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="section level3">
-<h3 id="from-an-edge-list">From an Edge List<a class="anchor" aria-label="anchor" href="#from-an-edge-list"></a>
-</h3>
+<div class="section level2">
+<h2 id="plotting">Plotting<a class="anchor" aria-label="anchor" href="#plotting"></a>
+</h2>
+<p><code><a href="../reference/splot.html">splot()</a></code> is the main plotting function. One call,
+publication-ready output.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">edges</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  from <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Alice"</span>, <span class="st">"Alice"</span>, <span class="st">"Bob"</span>, <span class="st">"Carol"</span><span class="op">)</span>,</span>
-<span>  to <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Bob"</span>, <span class="st">"Carol"</span>, <span class="st">"Carol"</span>, <span class="st">"Dave"</span><span class="op">)</span>,</span>
-<span>  weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/cograph.html">cograph</a></span><span class="op">(</span><span class="va">edges</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Cograph network: 4 nodes, 4 edges ( undirected )</span></span>
-<span><span class="co">#&gt; Source: edgelist </span></span>
-<span><span class="co">#&gt; Data: data.frame (4 x 3) </span></span>
-<span><span class="co">#&gt;   Nodes (4): Alice, Bob, Carol, Dave</span></span>
-<span><span class="co">#&gt; Weights: 1 to 3 </span></span>
-<span><span class="co">#&gt; Layout: none</span></span></code></pre></div>
-</div>
-</div>
-<div class="section level2">
-<h2 id="layouts">Layouts<a class="anchor" aria-label="anchor" href="#layouts"></a>
-</h2>
-<p>cograph provides several layout algorithms:</p>
-<div class="section level3">
-<h3 id="circular-layout">Circular Layout<a class="anchor" aria-label="anchor" href="#circular-layout"></a>
-</h3>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/splot.html">splot</a></span><span class="op">(</span><span class="va">mat</span>, tna_styling <span class="op">=</span> <span class="cn">TRUE</span>, minimum <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>  title <span class="op">=</span> <span class="st">"Learning Regulation Network"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="introduction_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="504"></p>
+<p>Key parameters: <code>layout</code>, <code>minimum</code>,
+<code>node_fill</code>, <code>node_size</code>,
+<code>edge_labels</code>, <code>curvature</code>,
+<code>scale_nodes_by</code>, <code>theme</code>,
+<code>tna_styling</code>.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span>, layout <span class="op">=</span> <span class="st">"circle"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Cograph network: 5 nodes, 7 edges ( undirected )</span></span>
-<span><span class="co">#&gt; Source: matrix </span></span>
-<span><span class="co">#&gt;   Nodes (5): A, B, C, D, E</span></span>
-<span><span class="co">#&gt;   Edges: 7 / 10 (density: 70.0%)</span></span>
-<span><span class="co">#&gt;   Weights: [1.000, 1.000]  |  mean: 1.000</span></span>
-<span><span class="co">#&gt;   Strongest edges:</span></span>
-<span><span class="co">#&gt;     A -- B  1.000</span></span>
-<span><span class="co">#&gt;     A -- C  1.000</span></span>
-<span><span class="co">#&gt;     B -- C  1.000</span></span>
-<span><span class="co">#&gt;     B -- D  1.000</span></span>
-<span><span class="co">#&gt;     C -- D  1.000</span></span>
-<span><span class="co">#&gt; Layout: set</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/splot.html">splot</a></span><span class="op">(</span><span class="va">mat</span>, layout <span class="op">=</span> <span class="st">"spring"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/splot.html">splot</a></span><span class="op">(</span><span class="va">mat</span>, minimum <span class="op">=</span> <span class="fl">0.1</span>, edge_labels <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/splot.html">splot</a></span><span class="op">(</span><span class="va">mat</span>, scale_nodes_by <span class="op">=</span> <span class="st">"betweenness"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/splot.html">splot</a></span><span class="op">(</span><span class="va">mat</span>, theme <span class="op">=</span> <span class="st">"dark"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/splot.html">splot</a></span><span class="op">(</span><span class="va">mat</span>, tna_styling <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p>Layouts: <code>"oval"</code>, <code>"spring"</code>,
+<code>"circle"</code>, <code>"grid"</code>, <code>"mds"</code>,
+<code>"star"</code>, <code>"bipartite"</code>, <code>"groups"</code>, or
+a custom coordinate matrix.</p>
+<p>Themes: <code>"default"</code>, <code>"dark"</code>,
+<code>"minimal"</code>, <code>"gray"</code>, <code>"nature"</code>,
+<code>"colorblind"</code>, <code>"viridis"</code>.</p>
+<p>Node shapes: <code>"circle"</code>, <code>"square"</code>,
+<code>"triangle"</code>, <code>"diamond"</code>,
+<code>"pentagon"</code>, <code>"hexagon"</code>, <code>"star"</code>,
+<code>"heart"</code>, <code>"ellipse"</code>, <code>"cross"</code>,
+<code>"rectangle"</code>, <code>"pie"</code>, <code>"donut"</code>, or
+custom SVG via <code><a href="../reference/register_svg_shape.html">register_svg_shape()</a></code>.</p>
 </div>
-<div class="section level3">
-<h3 id="force-directed-spring-layout">Force-Directed (Spring) Layout<a class="anchor" aria-label="anchor" href="#force-directed-spring-layout"></a>
-</h3>
+<div class="section level2">
+<h2 id="specialized-plots">Specialized plots<a class="anchor" aria-label="anchor" href="#specialized-plots"></a>
+</h2>
+<table class="table">
+<colgroup>
+<col width="52%">
+<col width="47%">
+</colgroup>
+<thead><tr class="header">
+<th>Function</th>
+<th>Purpose</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code><a href="../reference/splot.html">splot()</a></code></td>
+<td>Network graph (base R)</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/soplot.html">soplot()</a></code></td>
+<td>Grid/ggplot2 network</td>
+</tr>
+<tr class="odd">
+<td>
+<code><a href="../reference/plot_tna.html">plot_tna()</a></code> / <code><a href="../reference/plot_tna.html">tplot()</a></code>
+</td>
+<td>TNA-style wrappers with qgraph-compatible parameters</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/plot_chord.html">plot_chord()</a></code></td>
+<td>Chord diagram (directed/undirected ribbons)</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/plot_heatmap.html">plot_heatmap()</a></code></td>
+<td>Adjacency heatmap with clustering</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/plot_ml_heatmap.html">plot_ml_heatmap()</a></code></td>
+<td>Multi-layer comparison heatmap</td>
+</tr>
+<tr class="odd">
+<td>
+<code><a href="../reference/plot_transitions.html">plot_transitions()</a></code> / <code><a href="../reference/plot_alluvial.html">plot_alluvial()</a></code>
+</td>
+<td>Alluvial / Sankey flow diagrams</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/plot_trajectories.html">plot_trajectories()</a></code></td>
+<td>Individual trajectory tracking</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/plot_compare.html">plot_compare()</a></code></td>
+<td>Difference network between two matrices</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/plot_comparison_heatmap.html">plot_comparison_heatmap()</a></code></td>
+<td>Side-by-side heatmap comparison</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/plot_mixed_network.html">plot_mixed_network()</a></code></td>
+<td>Directed + undirected edges combined</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/plot_bootstrap_forest.html">plot_bootstrap_forest()</a></code></td>
+<td>Bootstrap CI forest plots (linear, circular, grouped)</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/plot_edge_diff_forest.html">plot_edge_diff_forest()</a></code></td>
+<td>Edge difference plots (linear, circular, chord, tile)</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/plot_simplicial.html">plot_simplicial()</a></code></td>
+<td>Higher-order pathway blob overlays</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/overlay_communities.html">overlay_communities()</a></code></td>
+<td>Community blob overlays on network</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/plot_mcml.html">plot_mcml()</a></code></td>
+<td>Two-layer hierarchical cluster visualization</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/plot_mtna.html">plot_mtna()</a></code></td>
+<td>Flat multi-cluster layout</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/plot_mlna.html">plot_mlna()</a></code></td>
+<td>Stacked multilayer 3D perspective</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/plot_htna.html">plot_htna()</a></code></td>
+<td>Multi-group heterogeneous TNA layout</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/plot_robustness.html">plot_robustness()</a></code></td>
+<td>Robustness degradation curves</td>
+</tr>
+<tr class="odd">
+<td>
+<code><a href="../reference/plot_permutation.html">plot_permutation()</a></code> /
+<code><a href="../reference/plot_group_permutation.html">plot_group_permutation()</a></code>
+</td>
+<td>Permutation test results</td>
+</tr>
+</tbody>
+</table>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span>, layout <span class="op">=</span> <span class="st">"spring"</span>, seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Cograph network: 5 nodes, 7 edges ( undirected )</span></span>
-<span><span class="co">#&gt; Source: matrix </span></span>
-<span><span class="co">#&gt;   Nodes (5): A, B, C, D, E</span></span>
-<span><span class="co">#&gt;   Edges: 7 / 10 (density: 70.0%)</span></span>
-<span><span class="co">#&gt;   Weights: [1.000, 1.000]  |  mean: 1.000</span></span>
-<span><span class="co">#&gt;   Strongest edges:</span></span>
-<span><span class="co">#&gt;     A -- B  1.000</span></span>
-<span><span class="co">#&gt;     A -- C  1.000</span></span>
-<span><span class="co">#&gt;     B -- C  1.000</span></span>
-<span><span class="co">#&gt;     B -- D  1.000</span></span>
-<span><span class="co">#&gt;     C -- D  1.000</span></span>
-<span><span class="co">#&gt; Layout: set</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_simplicial.html">plot_simplicial</a></span><span class="op">(</span><span class="va">mat</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Explore Plan -&gt; Monitor"</span>,</span>
+<span>    <span class="st">"Monitor Adapt -&gt; Reflect"</span>,</span>
+<span>    <span class="st">"Discuss Synthesize -&gt; Evaluate"</span>,</span>
+<span>    <span class="st">"Create Share -&gt; Explore"</span><span class="op">)</span>,</span>
+<span>  dismantled <span class="op">=</span> <span class="cn">TRUE</span>, ncol <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  title <span class="op">=</span> <span class="st">"Higher-Order Pathways"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="introduction_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="720"></p>
 </div>
-<div class="section level3">
-<h3 id="group-based-layout">Group-Based Layout<a class="anchor" aria-label="anchor" href="#group-based-layout"></a>
-</h3>
+<div class="section level2">
+<h2 id="input-formats">Input formats<a class="anchor" aria-label="anchor" href="#input-formats"></a>
+</h2>
+<p>Every function accepts six formats directly.</p>
+<table class="table">
+<thead><tr class="header">
+<th>Format</th>
+<th>Example</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Matrix</td>
+<td><code>splot(mat)</code></td>
+</tr>
+<tr class="even">
+<td>Edge list</td>
+<td><code>splot(data.frame(from = "A", to = "B", weight = 1))</code></td>
+</tr>
+<tr class="odd">
+<td>igraph</td>
+<td><code>splot(igraph::make_ring(5))</code></td>
+</tr>
+<tr class="even">
+<td>statnet</td>
+<td><code>splot(network::network(mat))</code></td>
+</tr>
+<tr class="odd">
+<td>qgraph</td>
+<td><code>from_qgraph(q)</code></td>
+</tr>
+<tr class="even">
+<td>tna</td>
+<td><code>splot(tna::tna(data))</code></td>
+</tr>
+</tbody>
+</table>
+<p>Conversion utilities:</p>
+<table class="table">
+<thead><tr class="header">
+<th>Function</th>
+<th>Output</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>as_cograph(x)</code></td>
+<td>cograph_network object</td>
+</tr>
+<tr class="even">
+<td><code>to_igraph(x)</code></td>
+<td>igraph object</td>
+</tr>
+<tr class="odd">
+<td><code>to_matrix(x)</code></td>
+<td>Adjacency matrix</td>
+</tr>
+<tr class="even">
+<td>
+<code>to_data_frame(x)</code> / <code>to_df(x)</code>
+</td>
+<td>Edge list data frame</td>
+</tr>
+<tr class="odd">
+<td><code>to_network(x)</code></td>
+<td>statnet network object</td>
+</tr>
+<tr class="even">
+<td><code>from_qgraph(q)</code></td>
+<td>Extract qgraph styles into cograph</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level2">
+<h2 id="filtering-and-selection">Filtering and selection<a class="anchor" aria-label="anchor" href="#filtering-and-selection"></a>
+</h2>
+<p>Filter edges and nodes with expressions. Centrality measures are
+lazy-computed inside <code><a href="../reference/filter_nodes.html">filter_nodes()</a></code>.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">groups</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/sn_layout.html">sn_layout</a></span><span class="op">(</span><span class="st">"groups"</span>, groups <span class="op">=</span> <span class="va">groups</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Cograph network: 5 nodes, 7 edges ( undirected )</span></span>
-<span><span class="co">#&gt; Source: matrix </span></span>
-<span><span class="co">#&gt;   Nodes (5): A, B, C, D, E</span></span>
-<span><span class="co">#&gt;   Edges: 7 / 10 (density: 70.0%)</span></span>
-<span><span class="co">#&gt;   Weights: [1.000, 1.000]  |  mean: 1.000</span></span>
-<span><span class="co">#&gt;   Strongest edges:</span></span>
-<span><span class="co">#&gt;     A -- B  1.000</span></span>
-<span><span class="co">#&gt;     A -- C  1.000</span></span>
-<span><span class="co">#&gt;     B -- C  1.000</span></span>
-<span><span class="co">#&gt;     B -- D  1.000</span></span>
-<span><span class="co">#&gt;     C -- D  1.000</span></span>
-<span><span class="co">#&gt; Layout: set</span></span></code></pre></div>
-</div>
-</div>
-<div class="section level2">
-<h2 id="customizing-nodes">Customizing Nodes<a class="anchor" aria-label="anchor" href="#customizing-nodes"></a>
-</h2>
+<code class="sourceCode R"><span><span class="va">strong</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/filter_edges.html">filter_edges</a></span><span class="op">(</span><span class="va">mat</span>, <span class="va">weight</span> <span class="op">&gt;</span> <span class="fl">0.3</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/get_edges.html">get_edges</a></span><span class="op">(</span><span class="va">strong</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    from to weight</span></span>
+<span><span class="co">#&gt; 1     8  3   0.33</span></span>
+<span><span class="co">#&gt; 2    10  3   0.49</span></span>
+<span><span class="co">#&gt; 3     8  4   0.43</span></span>
+<span><span class="co">#&gt; 4    10  4   0.39</span></span>
+<span><span class="co">#&gt; 5     1  5   0.35</span></span>
+<span><span class="co">#&gt; 6     6  5   0.35</span></span>
+<span><span class="co">#&gt; 7     7  5   0.42</span></span>
+<span><span class="co">#&gt; 8     2  6   0.40</span></span>
+<span><span class="co">#&gt; 9     4  6   0.34</span></span>
+<span><span class="co">#&gt; 10    2  8   0.49</span></span>
+<span><span class="co">#&gt; 11    9  8   0.39</span></span>
+<span><span class="co">#&gt; 12    3  9   0.37</span></span>
+<span><span class="co">#&gt; 13    2 10   0.36</span></span></code></pre></div>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/sn_nodes.html">sn_nodes</a></span><span class="op">(</span></span>
-<span>    size <span class="op">=</span> <span class="fl">0.08</span>,</span>
-<span>    shape <span class="op">=</span> <span class="st">"circle"</span>,</span>
-<span>    fill <span class="op">=</span> <span class="st">"steelblue"</span>,</span>
-<span>    border_color <span class="op">=</span> <span class="st">"navy"</span>,</span>
-<span>    border_width <span class="op">=</span> <span class="fl">2</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="co">#&gt; Cograph network: 5 nodes, 7 edges ( undirected )</span></span>
-<span><span class="co">#&gt; Source: matrix </span></span>
-<span><span class="co">#&gt;   Nodes (5): A, B, C, D, E</span></span>
-<span><span class="co">#&gt;   Edges: 7 / 10 (density: 70.0%)</span></span>
-<span><span class="co">#&gt;   Weights: [1.000, 1.000]  |  mean: 1.000</span></span>
-<span><span class="co">#&gt;   Strongest edges:</span></span>
-<span><span class="co">#&gt;     A -- B  1.000</span></span>
-<span><span class="co">#&gt;     A -- C  1.000</span></span>
-<span><span class="co">#&gt;     B -- C  1.000</span></span>
-<span><span class="co">#&gt;     B -- D  1.000</span></span>
-<span><span class="co">#&gt;     C -- D  1.000</span></span>
-<span><span class="co">#&gt; Layout: set</span></span></code></pre></div>
-<div class="section level3">
-<h3 id="per-node-styles">Per-Node Styles<a class="anchor" aria-label="anchor" href="#per-node-styles"></a>
-</h3>
+<code class="sourceCode R"><span><span class="va">top3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/select_nodes.html">select_nodes</a></span><span class="op">(</span><span class="va">mat</span>, top <span class="op">=</span> <span class="fl">3</span>, by <span class="op">=</span> <span class="st">"betweenness"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/get_labels.html">get_labels</a></span><span class="op">(</span><span class="va">top3</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Plan"    "Monitor" "Adapt"</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="52%">
+<col width="47%">
+</colgroup>
+<thead><tr class="header">
+<th>Function</th>
+<th>Purpose</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>filter_edges(x, ...)</code></td>
+<td>Filter by weight, from, to</td>
+</tr>
+<tr class="even">
+<td><code>filter_nodes(x, ...)</code></td>
+<td>Filter by degree, centrality, label</td>
+</tr>
+<tr class="odd">
+<td><code>select_nodes(x, ...)</code></td>
+<td>Top-N by centrality, by name, neighbors</td>
+</tr>
+<tr class="even">
+<td><code>select_edges(x, ...)</code></td>
+<td>Top-N, involving, between, bridges, mutual</td>
+</tr>
+<tr class="odd">
+<td><code>select_neighbors(x, of)</code></td>
+<td>Ego-network extraction (multi-hop)</td>
+</tr>
+<tr class="even">
+<td><code>select_component(x)</code></td>
+<td>Largest or named component</td>
+</tr>
+<tr class="odd">
+<td><code>select_top(x, n, by)</code></td>
+<td>Top-N nodes by any centrality</td>
+</tr>
+<tr class="even">
+<td><code>select_bridges(x)</code></td>
+<td>Bridge edges only</td>
+</tr>
+<tr class="odd">
+<td><code>select_top_edges(x, n)</code></td>
+<td>Top-N edges by weight</td>
+</tr>
+<tr class="even">
+<td><code>select_edges_involving(x, nodes)</code></td>
+<td>Edges touching specific nodes</td>
+</tr>
+<tr class="odd">
+<td><code>select_edges_between(x, s1, s2)</code></td>
+<td>Edges between two node sets</td>
+</tr>
+<tr class="even">
+<td>
+<code>subset_nodes(x, ...)</code> /
+<code>subset_edges(x, ...)</code>
+</td>
+<td>Base R-style subsetting</td>
+</tr>
+<tr class="odd">
+<td><code>simplify(x)</code></td>
+<td>Remove multi-edges and self-loops</td>
+</tr>
+</tbody>
+</table>
+<p>Getters and setters:</p>
+<table class="table">
+<thead><tr class="header">
+<th>Function</th>
+<th>Purpose</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>
+<code>get_nodes(x)</code> / <code>set_nodes(x, df)</code>
+</td>
+<td>Node data frame</td>
+</tr>
+<tr class="even">
+<td>
+<code>get_edges(x)</code> / <code>set_edges(x, df)</code>
+</td>
+<td>Edge data frame</td>
+</tr>
+<tr class="odd">
+<td><code>get_labels(x)</code></td>
+<td>Node label vector</td>
+</tr>
+<tr class="even">
+<td>
+<code>n_nodes(x)</code> / <code>n_edges(x)</code>
+</td>
+<td>Counts</td>
+</tr>
+<tr class="odd">
+<td><code>is_directed(x)</code></td>
+<td>Directedness</td>
+</tr>
+<tr class="even">
+<td>
+<code>set_groups(x)</code> / <code>get_groups(x)</code>
+</td>
+<td>Group assignments</td>
+</tr>
+<tr class="odd">
+<td><code>set_layout(x, layout)</code></td>
+<td>Layout coordinates</td>
+</tr>
+<tr class="even">
+<td><code>summarize_network(x)</code></td>
+<td>Network summary</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level2">
+<h2 id="centrality">Centrality<a class="anchor" aria-label="anchor" href="#centrality"></a>
+</h2>
+<p><code><a href="../reference/centrality.html">centrality()</a></code> computes up to 25 measures and returns a
+data frame.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/sn_nodes.html">sn_nodes</a></span><span class="op">(</span></span>
-<span>    size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.06</span>, <span class="fl">0.08</span>, <span class="fl">0.06</span>, <span class="fl">0.05</span><span class="op">)</span>,</span>
-<span>    fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"orange"</span>, <span class="st">"yellow"</span>, <span class="st">"green"</span>, <span class="st">"blue"</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="co">#&gt; Cograph network: 5 nodes, 7 edges ( undirected )</span></span>
-<span><span class="co">#&gt; Source: matrix </span></span>
-<span><span class="co">#&gt;   Nodes (5): A, B, C, D, E</span></span>
-<span><span class="co">#&gt;   Edges: 7 / 10 (density: 70.0%)</span></span>
-<span><span class="co">#&gt;   Weights: [1.000, 1.000]  |  mean: 1.000</span></span>
-<span><span class="co">#&gt;   Strongest edges:</span></span>
-<span><span class="co">#&gt;     A -- B  1.000</span></span>
-<span><span class="co">#&gt;     A -- C  1.000</span></span>
-<span><span class="co">#&gt;     B -- C  1.000</span></span>
-<span><span class="co">#&gt;     B -- D  1.000</span></span>
-<span><span class="co">#&gt;     C -- D  1.000</span></span>
-<span><span class="co">#&gt; Layout: set</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="node-shapes">Node Shapes<a class="anchor" aria-label="anchor" href="#node-shapes"></a>
-</h3>
-<p>Available shapes: <code>circle</code>, <code>square</code>,
-<code>triangle</code>, <code>diamond</code>, <code>pentagon</code>,
-<code>hexagon</code>, <code>ellipse</code>, <code>star</code>,
-<code>heart</code>, <code>pie</code>, <code>cross</code>.</p>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/centrality.html">centrality</a></span><span class="op">(</span><span class="va">mat</span>, measures <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"degree"</span>, <span class="st">"betweenness"</span>, <span class="st">"pagerank"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;          node degree_all betweenness   pagerank</span></span>
+<span><span class="co">#&gt; 1     Explore          6         5.0 0.11846147</span></span>
+<span><span class="co">#&gt; 2        Plan          7        15.5 0.03640953</span></span>
+<span><span class="co">#&gt; 3     Monitor          8        18.0 0.18376724</span></span>
+<span><span class="co">#&gt; 4       Adapt          6        15.0 0.12356096</span></span>
+<span><span class="co">#&gt; 5     Reflect          6        10.0 0.12513119</span></span>
+<span><span class="co">#&gt; 6     Discuss          5         0.5 0.06803638</span></span>
+<span><span class="co">#&gt; 7  Synthesize          4         6.5 0.03760071</span></span>
+<span><span class="co">#&gt; 8    Evaluate          5         3.0 0.07386400</span></span>
+<span><span class="co">#&gt; 9      Create          7        13.0 0.13821279</span></span>
+<span><span class="co">#&gt; 10      Share          6         9.0 0.09495573</span></span></code></pre></div>
+<p>Individual functions return named vectors:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/sn_nodes.html">sn_nodes</a></span><span class="op">(</span></span>
-<span>    shape <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"circle"</span>, <span class="st">"square"</span>, <span class="st">"triangle"</span>, <span class="st">"diamond"</span>, <span class="st">"star"</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="co">#&gt; Cograph network: 5 nodes, 7 edges ( undirected )</span></span>
-<span><span class="co">#&gt; Source: matrix </span></span>
-<span><span class="co">#&gt;   Nodes (5): A, B, C, D, E</span></span>
-<span><span class="co">#&gt;   Edges: 7 / 10 (density: 70.0%)</span></span>
-<span><span class="co">#&gt;   Weights: [1.000, 1.000]  |  mean: 1.000</span></span>
-<span><span class="co">#&gt;   Strongest edges:</span></span>
-<span><span class="co">#&gt;     A -- B  1.000</span></span>
-<span><span class="co">#&gt;     A -- C  1.000</span></span>
-<span><span class="co">#&gt;     B -- C  1.000</span></span>
-<span><span class="co">#&gt;     B -- D  1.000</span></span>
-<span><span class="co">#&gt;     C -- D  1.000</span></span>
-<span><span class="co">#&gt; Layout: set</span></span></code></pre></div>
-</div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/centrality_degree.html">centrality_degree</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize </span></span>
+<span><span class="co">#&gt;          6          7          8          6          6          5          4 </span></span>
+<span><span class="co">#&gt;   Evaluate     Create      Share </span></span>
+<span><span class="co">#&gt;          5          7          6</span></span>
+<span><span class="fu"><a href="../reference/centrality_pagerank.html">centrality_pagerank</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize </span></span>
+<span><span class="co">#&gt; 0.11846147 0.03640953 0.18376724 0.12356096 0.12513119 0.06803638 0.03760071 </span></span>
+<span><span class="co">#&gt;   Evaluate     Create      Share </span></span>
+<span><span class="co">#&gt; 0.07386400 0.13821279 0.09495573</span></span></code></pre></div>
+<p>All 25 measures:</p>
+<table class="table">
+<colgroup>
+<col width="47%">
+<col width="52%">
+</colgroup>
+<thead><tr class="header">
+<th>Category</th>
+<th>Functions</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Degree</td>
+<td>
+<code><a href="../reference/centrality_degree.html">centrality_degree()</a></code>,
+<code><a href="../reference/centrality_strength.html">centrality_strength()</a></code>, <code><a href="../reference/centrality_degree.html">centrality_indegree()</a></code>,
+<code><a href="../reference/centrality_degree.html">centrality_outdegree()</a></code>,
+<code><a href="../reference/centrality_strength.html">centrality_instrength()</a></code>,
+<code><a href="../reference/centrality_strength.html">centrality_outstrength()</a></code>
+</td>
+</tr>
+<tr class="even">
+<td>Path</td>
+<td>
+<code><a href="../reference/centrality_betweenness.html">centrality_betweenness()</a></code>,
+<code><a href="../reference/centrality_closeness.html">centrality_closeness()</a></code>, <code><a href="../reference/centrality_harmonic.html">centrality_harmonic()</a></code>,
+<code><a href="../reference/centrality_eccentricity.html">centrality_eccentricity()</a></code> (each with in/out variants)</td>
+</tr>
+<tr class="odd">
+<td>Spectral</td>
+<td>
+<code><a href="../reference/centrality_eigenvector.html">centrality_eigenvector()</a></code>,
+<code><a href="../reference/centrality_pagerank.html">centrality_pagerank()</a></code>, <code><a href="../reference/centrality_authority.html">centrality_authority()</a></code>,
+<code><a href="../reference/centrality_authority.html">centrality_hub()</a></code>, <code><a href="../reference/centrality_alpha.html">centrality_alpha()</a></code>,
+<code><a href="../reference/centrality_power.html">centrality_power()</a></code>, <code><a href="../reference/centrality_subgraph.html">centrality_subgraph()</a></code>
+</td>
+</tr>
+<tr class="even">
+<td>Structural</td>
+<td>
+<code><a href="../reference/centrality_coreness.html">centrality_coreness()</a></code>,
+<code><a href="../reference/centrality_constraint.html">centrality_constraint()</a></code>,
+<code><a href="../reference/centrality_transitivity.html">centrality_transitivity()</a></code>,
+<code><a href="../reference/centrality_laplacian.html">centrality_laplacian()</a></code>
+</td>
+</tr>
+<tr class="odd">
+<td>Flow</td>
+<td>
+<code><a href="../reference/centrality_current_flow_closeness.html">centrality_current_flow_closeness()</a></code>,
+<code><a href="../reference/centrality_current_flow_betweenness.html">centrality_current_flow_betweenness()</a></code>,
+<code><a href="../reference/centrality_load.html">centrality_load()</a></code>
+</td>
+</tr>
+<tr class="even">
+<td>Spreading</td>
+<td>
+<code><a href="../reference/centrality_diffusion.html">centrality_diffusion()</a></code>,
+<code><a href="../reference/centrality_leverage.html">centrality_leverage()</a></code>, <code><a href="../reference/centrality_kreach.html">centrality_kreach()</a></code>,
+<code><a href="../reference/centrality_voterank.html">centrality_voterank()</a></code>,
+<code><a href="../reference/centrality_percolation.html">centrality_percolation()</a></code>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Edge centrality: <code><a href="../reference/edge_centrality.html">edge_centrality()</a></code>,
+<code><a href="../reference/edge_centrality.html">edge_betweenness()</a></code>.</p>
 </div>
 <div class="section level2">
-<h2 id="customizing-edges">Customizing Edges<a class="anchor" aria-label="anchor" href="#customizing-edges"></a>
+<h2 id="network-properties">Network properties<a class="anchor" aria-label="anchor" href="#network-properties"></a>
 </h2>
-<div class="section level3">
-<h3 id="basic-edge-styling">Basic Edge Styling<a class="anchor" aria-label="anchor" href="#basic-edge-styling"></a>
-</h3>
+<p><code><a href="../reference/network_summary.html">network_summary()</a></code> computes up to 37 network-level
+metrics.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/sn_edges.html">sn_edges</a></span><span class="op">(</span></span>
-<span>    width <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>    color <span class="op">=</span> <span class="st">"gray40"</span>,</span>
-<span>    alpha <span class="op">=</span> <span class="fl">0.7</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="co">#&gt; Cograph network: 5 nodes, 7 edges ( undirected )</span></span>
-<span><span class="co">#&gt; Source: matrix </span></span>
-<span><span class="co">#&gt;   Nodes (5): A, B, C, D, E</span></span>
-<span><span class="co">#&gt;   Edges: 7 / 10 (density: 70.0%)</span></span>
-<span><span class="co">#&gt;   Weights: [1.000, 1.000]  |  mean: 1.000</span></span>
-<span><span class="co">#&gt;   Strongest edges:</span></span>
-<span><span class="co">#&gt;     A -- B  1.000</span></span>
-<span><span class="co">#&gt;     A -- C  1.000</span></span>
-<span><span class="co">#&gt;     B -- C  1.000</span></span>
-<span><span class="co">#&gt;     B -- D  1.000</span></span>
-<span><span class="co">#&gt;     C -- D  1.000</span></span>
-<span><span class="co">#&gt; Layout: set</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/network_summary.html">network_summary</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   node_count edge_count density component_count diameter mean_distance min_cut</span></span>
+<span><span class="co">#&gt; 1         10         30   0.333               1     0.97         0.435       1</span></span>
+<span><span class="co">#&gt;   centralization_degree centralization_in_degree centralization_out_degree</span></span>
+<span><span class="co">#&gt; 1                 0.123                    0.333                     0.222</span></span>
+<span><span class="co">#&gt;   centralization_betweenness centralization_closeness centralization_eigen</span></span>
+<span><span class="co">#&gt; 1                      0.149                    0.238                0.479</span></span>
+<span><span class="co">#&gt;   transitivity reciprocity assortativity_degree hub_score authority_score</span></span>
+<span><span class="co">#&gt; 1        0.423       0.111               -0.116        NA              NA</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="52%">
+<col width="47%">
+</colgroup>
+<thead><tr class="header">
+<th>Function</th>
+<th>Purpose</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code><a href="../reference/network_summary.html">network_summary()</a></code></td>
+<td>37 metrics (density, diameter, clustering, etc.)</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/network_small_world.html">network_small_world()</a></code></td>
+<td>Small-world coefficient</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/network_rich_club.html">network_rich_club()</a></code></td>
+<td>Rich-club coefficient</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/network_global_efficiency.html">network_global_efficiency()</a></code></td>
+<td>Global efficiency</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/network_local_efficiency.html">network_local_efficiency()</a></code></td>
+<td>Local efficiency</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/degree_distribution.html">degree_distribution()</a></code></td>
+<td>Degree histogram</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/network_girth.html">network_girth()</a></code></td>
+<td>Shortest cycle</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/network_radius.html">network_radius()</a></code></td>
+<td>Minimum eccentricity</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/network_bridges.html">network_bridges()</a></code></td>
+<td>Bridge edges</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/network_cut_vertices.html">network_cut_vertices()</a></code></td>
+<td>Articulation points</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/network_vertex_connectivity.html">network_vertex_connectivity()</a></code></td>
+<td>Minimum vertices to disconnect</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/network_clique_size.html">network_clique_size()</a></code></td>
+<td>Largest complete subgraph</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div class="section level3">
-<h3 id="weighted-edges">Weighted Edges<a class="anchor" aria-label="anchor" href="#weighted-edges"></a>
-</h3>
-<p>For weighted networks, edge width and color can be mapped to
-weights:</p>
+<div class="section level2">
+<h2 id="community-detection">Community detection<a class="anchor" aria-label="anchor" href="#community-detection"></a>
+</h2>
+<p>11 algorithms with a consistent interface.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Create weighted adjacency matrix</span></span>
-<span><span class="va">weighted</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="fl">0</span>, <span class="fl">0.8</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="fl">0</span>, <span class="fl">0</span>,</span>
-<span>  <span class="fl">0.8</span>, <span class="fl">0</span>, <span class="fl">0.3</span>, <span class="op">-</span><span class="fl">0.7</span>, <span class="fl">0</span>,</span>
-<span>  <span class="op">-</span><span class="fl">0.5</span>, <span class="fl">0.3</span>, <span class="fl">0</span>, <span class="fl">0.6</span>, <span class="op">-</span><span class="fl">0.4</span>,</span>
-<span>  <span class="fl">0</span>, <span class="op">-</span><span class="fl">0.7</span>, <span class="fl">0.6</span>, <span class="fl">0</span>, <span class="fl">0.9</span>,</span>
-<span>  <span class="fl">0</span>, <span class="fl">0</span>, <span class="op">-</span><span class="fl">0.4</span>, <span class="fl">0.9</span>, <span class="fl">0</span></span>
-<span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">5</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/cograph.html">cograph</a></span><span class="op">(</span><span class="va">weighted</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/sn_edges.html">sn_edges</a></span><span class="op">(</span></span>
-<span>    width <span class="op">=</span> <span class="st">"weight"</span>,</span>
-<span>    color <span class="op">=</span> <span class="st">"weight"</span>,</span>
-<span>    positive_color <span class="op">=</span> <span class="st">"darkgreen"</span>,</span>
-<span>    negative_color <span class="op">=</span> <span class="st">"darkred"</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: 'positive_color' is deprecated, use 'edge_positive_color' instead.</span></span>
-<span><span class="co">#&gt; Warning: 'negative_color' is deprecated, use 'edge_negative_color' instead.</span></span>
-<span><span class="co">#&gt; Cograph network: 5 nodes, 7 edges ( undirected )</span></span>
-<span><span class="co">#&gt; Source: matrix </span></span>
-<span><span class="co">#&gt;   Nodes (5): 1, 2, 3, 4, 5</span></span>
-<span><span class="co">#&gt;   Edges: 7 / 10 (density: 70.0%)</span></span>
-<span><span class="co">#&gt;   Weights: [-0.700, 0.900]  |  +4 / -3 edges</span></span>
-<span><span class="co">#&gt;   Strongest edges:</span></span>
-<span><span class="co">#&gt;     4 -- 5  0.900</span></span>
-<span><span class="co">#&gt;     1 -- 2  0.800</span></span>
-<span><span class="co">#&gt;     2 -- 4  -0.700</span></span>
-<span><span class="co">#&gt;     3 -- 4  0.600</span></span>
-<span><span class="co">#&gt;     1 -- 3  -0.500</span></span>
-<span><span class="co">#&gt; Layout: set</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">comms</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/communities.html">communities</a></span><span class="op">(</span><span class="va">mat</span>, method <span class="op">=</span> <span class="st">"walktrap"</span><span class="op">)</span></span>
+<span><span class="va">comms</span></span>
+<span><span class="co">#&gt; Community structure (walktrap)</span></span>
+<span><span class="co">#&gt;   Number of communities: 2 </span></span>
+<span><span class="co">#&gt;   Modularity: 0.1976 </span></span>
+<span><span class="co">#&gt;   Community sizes: 5, 5 </span></span>
+<span><span class="co">#&gt;   Nodes: 10</span></span>
+<span><span class="fu"><a href="../reference/community_sizes.html">community_sizes</a></span><span class="op">(</span><span class="va">comms</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 5 5</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th>Function</th>
+<th>Algorithm</th>
+<th>Alias</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code><a href="../reference/community_louvain.html">community_louvain()</a></code></td>
+<td>Louvain modularity</td>
+<td><code><a href="../reference/community_louvain.html">com_lv()</a></code></td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/community_leiden.html">community_leiden()</a></code></td>
+<td>Leiden (improved Louvain)</td>
+<td><code><a href="../reference/community_leiden.html">com_ld()</a></code></td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/community_fast_greedy.html">community_fast_greedy()</a></code></td>
+<td>Fast greedy</td>
+<td><code><a href="../reference/community_fast_greedy.html">com_fg()</a></code></td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/community_walktrap.html">community_walktrap()</a></code></td>
+<td>Random walk</td>
+<td><code><a href="../reference/community_walktrap.html">com_wt()</a></code></td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/community_infomap.html">community_infomap()</a></code></td>
+<td>Information flow</td>
+<td><code><a href="../reference/community_infomap.html">com_im()</a></code></td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/community_label_propagation.html">community_label_propagation()</a></code></td>
+<td>Label propagation</td>
+<td><code><a href="../reference/community_label_propagation.html">com_lp()</a></code></td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/community_edge_betweenness.html">community_edge_betweenness()</a></code></td>
+<td>Edge betweenness</td>
+<td><code><a href="../reference/community_edge_betweenness.html">com_eb()</a></code></td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/community_leading_eigenvector.html">community_leading_eigenvector()</a></code></td>
+<td>Leading eigenvector</td>
+<td><code><a href="../reference/community_leading_eigenvector.html">com_le()</a></code></td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/community_spinglass.html">community_spinglass()</a></code></td>
+<td>Spin glass</td>
+<td><code><a href="../reference/community_spinglass.html">com_sg()</a></code></td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/community_optimal.html">community_optimal()</a></code></td>
+<td>Exact optimization</td>
+<td><code><a href="../reference/community_optimal.html">com_op()</a></code></td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/community_fluid.html">community_fluid()</a></code></td>
+<td>Fluid communities</td>
+<td><code><a href="../reference/community_fluid.html">com_fl()</a></code></td>
+</tr>
+</tbody>
+</table>
+<p>Additional community functions:</p>
+<table class="table">
+<colgroup>
+<col width="52%">
+<col width="47%">
+</colgroup>
+<thead><tr class="header">
+<th>Function</th>
+<th>Purpose</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code><a href="../reference/community_consensus.html">community_consensus()</a></code></td>
+<td>Run algorithm N times, keep stable assignments</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/compare_communities.html">compare_communities()</a></code></td>
+<td>Compare partitions (NMI, VI, Rand, adjusted Rand)</td>
+</tr>
+<tr class="odd">
+<td><code>modularity()</code></td>
+<td>Modularity score</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/community_sizes.html">community_sizes()</a></code></td>
+<td>Size of each community</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/color_communities.html">color_communities()</a></code></td>
+<td>Color vector from community membership</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/cluster_quality.html">cluster_quality()</a></code></td>
+<td>Quality metrics (silhouette, Dunn index)</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/cluster_significance.html">cluster_significance()</a></code></td>
+<td>Permutation-based significance testing</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/detect_communities.html">detect_communities()</a></code></td>
+<td>Alternative interface (returns data frame)</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div class="section level3">
-<h3 id="directed-networks">Directed Networks<a class="anchor" aria-label="anchor" href="#directed-networks"></a>
-</h3>
+<div class="section level2">
+<h2 id="motifs">Motifs<a class="anchor" aria-label="anchor" href="#motifs"></a>
+</h2>
+<p>Motif analysis identifies recurring 3-node patterns using the MAN
+classification (16 directed triad types).</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Create directed network</span></span>
-<span><span class="va">dir_adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>,</span>
-<span>  <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>,</span>
-<span>  <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>,</span>
-<span>  <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>,</span>
-<span>  <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span></span>
-<span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">5</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/cograph.html">cograph</a></span><span class="op">(</span><span class="va">dir_adj</span>, directed <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/sn_edges.html">sn_edges</a></span><span class="op">(</span></span>
-<span>    curvature <span class="op">=</span> <span class="fl">0.1</span>,</span>
-<span>    arrow_size <span class="op">=</span> <span class="fl">0.015</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="co">#&gt; Cograph network: 5 nodes, 7 edges ( directed )</span></span>
-<span><span class="co">#&gt; Source: matrix </span></span>
-<span><span class="co">#&gt;   Nodes (5): 1, 2, 3, 4, 5</span></span>
-<span><span class="co">#&gt;   Edges: 7 / 20 (density: 35.0%)</span></span>
-<span><span class="co">#&gt;   Weights: [1.000, 1.000]  |  mean: 1.000</span></span>
-<span><span class="co">#&gt;   Strongest edges:</span></span>
-<span><span class="co">#&gt;     1 -&gt; 2  1.000</span></span>
-<span><span class="co">#&gt;     1 -&gt; 3  1.000</span></span>
-<span><span class="co">#&gt;     2 -&gt; 3  1.000</span></span>
-<span><span class="co">#&gt;     2 -&gt; 4  1.000</span></span>
-<span><span class="co">#&gt;     3 -&gt; 4  1.000</span></span>
-<span><span class="co">#&gt; Layout: set</span></span></code></pre></div>
-</div>
+<code class="sourceCode R"><span><span class="va">mot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/motifs.html">motifs</a></span><span class="op">(</span><span class="va">mat</span>, significance <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">mot</span></span>
+<span><span class="co">#&gt; Motif Census </span></span>
+<span><span class="co">#&gt; Level: aggregate | States: 10 | Pattern: triangle </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Type distribution:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; 030C 030T 120C 120D 120U </span></span>
+<span><span class="co">#&gt;    1    1    1    1    1 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Top 5 results:</span></span>
+<span><span class="co">#&gt;  type count</span></span>
+<span><span class="co">#&gt;  030T    11</span></span>
+<span><span class="co">#&gt;  120C     3</span></span>
+<span><span class="co">#&gt;  030C     2</span></span>
+<span><span class="co">#&gt;  120D     2</span></span>
+<span><span class="co">#&gt;  120U     1</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th>Function</th>
+<th>Purpose</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code><a href="../reference/motifs.html">motifs()</a></code></td>
+<td>MAN type census with significance testing</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/subgraphs.html">subgraphs()</a></code></td>
+<td>Named node triples forming each pattern</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/motif_census.html">motif_census()</a></code></td>
+<td>Low-level triad census</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/extract_motifs.html">extract_motifs()</a></code></td>
+<td>Per-individual motif extraction</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/extract_triads.html">extract_triads()</a></code></td>
+<td>Extract specific triad types</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/triad_census.html">triad_census()</a></code></td>
+<td>Raw 16-type triad count</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/get_edge_list.html">get_edge_list()</a></code></td>
+<td>Edge list from tna for motif input</td>
+</tr>
+</tbody>
+</table>
+<p>Plot types: <code>plot(mot, type = "types")</code>,
+<code>"significance"</code>, <code>"triads"</code>,
+<code>"patterns"</code>.</p>
 </div>
 <div class="section level2">
-<h2 id="themes">Themes<a class="anchor" aria-label="anchor" href="#themes"></a>
+<h2 id="robustness">Robustness<a class="anchor" aria-label="anchor" href="#robustness"></a>
 </h2>
-<p>cograph includes several built-in themes:</p>
-<div class="section level3">
-<h3 id="classic-theme-default">Classic Theme (Default)<a class="anchor" aria-label="anchor" href="#classic-theme-default"></a>
-</h3>
+<p>Simulate network degradation under targeted and random removal.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/sn_theme.html">sn_theme</a></span><span class="op">(</span><span class="st">"classic"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Cograph network: 5 nodes, 7 edges ( undirected )</span></span>
-<span><span class="co">#&gt; Source: matrix </span></span>
-<span><span class="co">#&gt;   Nodes (5): A, B, C, D, E</span></span>
-<span><span class="co">#&gt;   Edges: 7 / 10 (density: 70.0%)</span></span>
-<span><span class="co">#&gt;   Weights: [1.000, 1.000]  |  mean: 1.000</span></span>
-<span><span class="co">#&gt;   Strongest edges:</span></span>
-<span><span class="co">#&gt;     A -- B  1.000</span></span>
-<span><span class="co">#&gt;     A -- C  1.000</span></span>
-<span><span class="co">#&gt;     B -- C  1.000</span></span>
-<span><span class="co">#&gt;     B -- D  1.000</span></span>
-<span><span class="co">#&gt;     C -- D  1.000</span></span>
-<span><span class="co">#&gt; Layout: set</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/robustness.html">robustness</a></span><span class="op">(</span><span class="va">mat</span>, type <span class="op">=</span> <span class="st">"vertex"</span>, measure <span class="op">=</span> <span class="st">"betweenness"</span>, n_iter <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plot_robustness.html">plot_robustness</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">mat</span>, measures <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"betweenness"</span>, <span class="st">"degree"</span>, <span class="st">"random"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th>Function</th>
+<th>Purpose</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code><a href="../reference/robustness.html">robustness()</a></code></td>
+<td>Simulate removal attacks (vertex or edge)</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/plot_robustness.html">plot_robustness()</a></code></td>
+<td>Plot robustness curves for multiple strategies</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/robustness_summary.html">robustness_summary()</a></code></td>
+<td>AUC and summary statistics</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/robustness_auc.html">robustness_auc()</a></code></td>
+<td>Area under the robustness curve</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div class="section level3">
-<h3 id="dark-theme">Dark Theme<a class="anchor" aria-label="anchor" href="#dark-theme"></a>
-</h3>
+<div class="section level2">
+<h2 id="disparity-filter">Disparity filter<a class="anchor" aria-label="anchor" href="#disparity-filter"></a>
+</h2>
+<p>Backbone extraction using the disparity filter (Serrano et
+al. 2009).</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/sn_theme.html">sn_theme</a></span><span class="op">(</span><span class="st">"dark"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Cograph network: 5 nodes, 7 edges ( undirected )</span></span>
-<span><span class="co">#&gt; Source: matrix </span></span>
-<span><span class="co">#&gt;   Nodes (5): A, B, C, D, E</span></span>
-<span><span class="co">#&gt;   Edges: 7 / 10 (density: 70.0%)</span></span>
-<span><span class="co">#&gt;   Weights: [1.000, 1.000]  |  mean: 1.000</span></span>
-<span><span class="co">#&gt;   Strongest edges:</span></span>
-<span><span class="co">#&gt;     A -- B  1.000</span></span>
-<span><span class="co">#&gt;     A -- C  1.000</span></span>
-<span><span class="co">#&gt;     B -- C  1.000</span></span>
-<span><span class="co">#&gt;     B -- D  1.000</span></span>
-<span><span class="co">#&gt;     C -- D  1.000</span></span>
-<span><span class="co">#&gt; Layout: set</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/disparity_filter.html">disparity_filter</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/splot.tna_disparity.html">splot.tna_disparity</a></span><span class="op">(</span><span class="fu"><a href="../reference/disparity_filter.html">disparity_filter</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="section level3">
-<h3 id="minimal-theme">Minimal Theme<a class="anchor" aria-label="anchor" href="#minimal-theme"></a>
-</h3>
+<div class="section level2">
+<h2 id="multi-cluster-visualization">Multi-cluster visualization<a class="anchor" aria-label="anchor" href="#multi-cluster-visualization"></a>
+</h2>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/sn_theme.html">sn_theme</a></span><span class="op">(</span><span class="st">"minimal"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Cograph network: 5 nodes, 7 edges ( undirected )</span></span>
-<span><span class="co">#&gt; Source: matrix </span></span>
-<span><span class="co">#&gt;   Nodes (5): A, B, C, D, E</span></span>
-<span><span class="co">#&gt;   Edges: 7 / 10 (density: 70.0%)</span></span>
-<span><span class="co">#&gt;   Weights: [1.000, 1.000]  |  mean: 1.000</span></span>
-<span><span class="co">#&gt;   Strongest edges:</span></span>
-<span><span class="co">#&gt;     A -- B  1.000</span></span>
-<span><span class="co">#&gt;     A -- C  1.000</span></span>
-<span><span class="co">#&gt;     B -- C  1.000</span></span>
-<span><span class="co">#&gt;     B -- D  1.000</span></span>
-<span><span class="co">#&gt;     C -- D  1.000</span></span>
-<span><span class="co">#&gt; Layout: set</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">clusters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  Cognitive  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Explore"</span>, <span class="st">"Plan"</span>, <span class="st">"Monitor"</span>, <span class="st">"Adapt"</span>, <span class="st">"Reflect"</span><span class="op">)</span>,</span>
+<span>  Social     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Discuss"</span>, <span class="st">"Synthesize"</span>, <span class="st">"Share"</span><span class="op">)</span>,</span>
+<span>  Evaluative <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Evaluate"</span>, <span class="st">"Create"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plot_mcml.html">plot_mcml</a></span><span class="op">(</span><span class="va">mat</span>, <span class="va">clusters</span>, mode <span class="op">=</span> <span class="st">"tna"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plot_mtna.html">plot_mtna</a></span><span class="op">(</span><span class="va">mat</span>, <span class="va">clusters</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="43%">
+<col width="56%">
+</colgroup>
+<thead><tr class="header">
+<th>Function</th>
+<th>Architecture</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code><a href="../reference/plot_mcml.html">plot_mcml()</a></code></td>
+<td>Two-layer: detail nodes + summary pies</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/plot_mtna.html">plot_mtna()</a></code></td>
+<td>Flat cluster layout</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/plot_mlna.html">plot_mlna()</a></code></td>
+<td>Stacked 3D multilayer</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/plot_htna.html">plot_htna()</a></code></td>
+<td>Multi-group heterogeneous TNA</td>
+</tr>
+<tr class="odd">
+<td>
+<code><a href="../reference/cluster_summary.html">cluster_summary()</a></code> / <code><a href="../reference/build_mcml.html">build_mcml()</a></code>
+</td>
+<td>Pre-compute cluster aggregation</td>
+</tr>
+<tr class="even">
+<td>
+<code><a href="../reference/as_tna.html">as_tna()</a></code> / <code><a href="../reference/as_mcml.html">as_mcml()</a></code>
+</td>
+<td>Convert cluster summaries to tna objects</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/summarize_network.html">cluster_network()</a></code></td>
+<td>Extract cluster-level network</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div class="section level3">
-<h3 id="colorblind-friendly-theme">Colorblind-Friendly Theme<a class="anchor" aria-label="anchor" href="#colorblind-friendly-theme"></a>
-</h3>
+<div class="section level2">
+<h2 id="multilayer-networks">Multilayer networks<a class="anchor" aria-label="anchor" href="#multilayer-networks"></a>
+</h2>
+<p>Construct and analyze supra-adjacency matrices for
+multilayer/multiplex networks.</p>
+<table class="table">
+<thead><tr class="header">
+<th>Function</th>
+<th>Purpose</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>
+<code><a href="../reference/plot_mlna.html">mlna()</a></code> / <code><a href="../reference/supra_adjacency.html">supra_adjacency()</a></code>
+</td>
+<td>Build supra-adjacency matrix</td>
+</tr>
+<tr class="even">
+<td>
+<code><a href="../reference/supra_layer.html">supra_layer()</a></code> / <code><a href="../reference/supra_interlayer.html">supra_interlayer()</a></code>
+</td>
+<td>Extract individual layers</td>
+</tr>
+<tr class="odd">
+<td>
+<code><a href="../reference/aggregate_layers.html">aggregate_layers()</a></code> /
+<code><a href="../reference/aggregate_weights.html">aggregate_weights()</a></code>
+</td>
+<td>Combine layers</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/plot_mlna.html">plot_mlna()</a></code></td>
+<td>3D perspective visualization</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/plot_ml_heatmap.html">plot_ml_heatmap()</a></code></td>
+<td>Multi-layer heatmap comparison</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level2">
+<h2 id="higher-order-networks">Higher-order networks<a class="anchor" aria-label="anchor" href="#higher-order-networks"></a>
+</h2>
+<p>Detect sequential dependencies beyond first-order Markov models.
+Requires the <strong>Nestimate</strong> package.</p>
+<table class="table">
+<thead><tr class="header">
+<th>Function</th>
+<th>Purpose</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code><a href="https://rdrr.io/pkg/Nestimate/man/build_hon.html" class="external-link">build_hon()</a></code></td>
+<td>Higher-Order Network construction</td>
+</tr>
+<tr class="even">
+<td><code><a href="https://rdrr.io/pkg/Nestimate/man/build_hypa.html" class="external-link">build_hypa()</a></code></td>
+<td>Path anomaly detection (hypergeometric null)</td>
+</tr>
+<tr class="odd">
+<td><code><a href="https://rdrr.io/pkg/Nestimate/man/build_mogen.html" class="external-link">build_mogen()</a></code></td>
+<td>Multi-order model selection (AIC/BIC)</td>
+</tr>
+<tr class="even">
+<td><code><a href="https://rdrr.io/pkg/Nestimate/man/path_counts.html" class="external-link">path_counts()</a></code></td>
+<td>k-step path frequencies</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/plot_simplicial.html">plot_simplicial()</a></code></td>
+<td>Visualize pathways as blob overlays</td>
+</tr>
+<tr class="even">
+<td><code><a href="https://rdrr.io/pkg/Nestimate/man/build_simplicial.html" class="external-link">build_simplicial()</a></code></td>
+<td>Simplicial complex from cliques</td>
+</tr>
+<tr class="odd">
+<td><code><a href="https://rdrr.io/pkg/Nestimate/man/persistent_homology.html" class="external-link">persistent_homology()</a></code></td>
+<td>Topological persistence across thresholds</td>
+</tr>
+<tr class="even">
+<td><code><a href="https://rdrr.io/pkg/Nestimate/man/q_analysis.html" class="external-link">q_analysis()</a></code></td>
+<td>Multi-level structural connectivity</td>
+</tr>
+<tr class="odd">
+<td><code><a href="https://rdrr.io/pkg/Nestimate/man/verify_simplicial.html" class="external-link">verify_simplicial()</a></code></td>
+<td>Cross-validate via Euler-Poincare theorem</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level2">
+<h2 id="nestimate-integration">Nestimate integration<a class="anchor" aria-label="anchor" href="#nestimate-integration"></a>
+</h2>
+<p><strong>Nestimate</strong> estimates networks from sequence data. Its
+objects dispatch through <code><a href="../reference/splot.html">splot()</a></code> automatically.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/sn_theme.html">sn_theme</a></span><span class="op">(</span><span class="st">"colorblind"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Cograph network: 5 nodes, 7 edges ( undirected )</span></span>
-<span><span class="co">#&gt; Source: matrix </span></span>
-<span><span class="co">#&gt;   Nodes (5): A, B, C, D, E</span></span>
-<span><span class="co">#&gt;   Edges: 7 / 10 (density: 70.0%)</span></span>
-<span><span class="co">#&gt;   Weights: [1.000, 1.000]  |  mean: 1.000</span></span>
-<span><span class="co">#&gt;   Strongest edges:</span></span>
-<span><span class="co">#&gt;     A -- B  1.000</span></span>
-<span><span class="co">#&gt;     A -- C  1.000</span></span>
-<span><span class="co">#&gt;     B -- C  1.000</span></span>
-<span><span class="co">#&gt;     B -- D  1.000</span></span>
-<span><span class="co">#&gt;     C -- D  1.000</span></span>
-<span><span class="co">#&gt; Layout: set</span></span></code></pre></div>
-</div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mohsaqr/Nestimate" class="external-link">Nestimate</a></span><span class="op">)</span></span>
+<span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Nestimate/man/build_network.html" class="external-link">build_network</a></span><span class="op">(</span><span class="va">data</span>, method <span class="op">=</span> <span class="st">"relative"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/splot.html">splot</a></span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">boot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Nestimate/man/bootstrap_network.html" class="external-link">bootstrap_network</a></span><span class="op">(</span><span class="va">net</span>, iter <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/splot.html">splot</a></span><span class="op">(</span><span class="va">boot</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plot_bootstrap_forest.html">plot_bootstrap_forest</a></span><span class="op">(</span><span class="va">boot</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plot_bootstrap_forest.html">plot_bootstrap_forest</a></span><span class="op">(</span><span class="va">boot</span>, layout <span class="op">=</span> <span class="st">"circular"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plot_bootstrap_forest.html">plot_bootstrap_forest</a></span><span class="op">(</span><span class="va">boot</span>, layout <span class="op">=</span> <span class="st">"grouped"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">grp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Nestimate/man/build_network.html" class="external-link">build_network</a></span><span class="op">(</span><span class="va">data</span>, method <span class="op">=</span> <span class="st">"relative"</span>, group <span class="op">=</span> <span class="st">"condition"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/splot.html">splot</a></span><span class="op">(</span><span class="va">grp</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">perm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Nestimate/man/permutation_test.html" class="external-link">permutation_test</a></span><span class="op">(</span><span class="va">grp</span><span class="op">$</span><span class="va">A</span>, <span class="va">grp</span><span class="op">$</span><span class="va">B</span>, iter <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/splot.html">splot</a></span><span class="op">(</span><span class="va">perm</span><span class="op">)</span></span></code></pre></div>
+<p>Estimation methods: <code>"relative"</code>,
+<code>"frequency"</code>, <code>"attention"</code>,
+<code>"glasso"</code>, <code>"pcor"</code>,
+<code>"co_occurrence"</code>.</p>
+<table class="table">
+<colgroup>
+<col width="32%">
+<col width="68%">
+</colgroup>
+<thead><tr class="header">
+<th>Object</th>
+<th>splot() produces</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>netobject</code></td>
+<td>Network plot (TNA styling)</td>
+</tr>
+<tr class="even">
+<td><code>net_bootstrap</code></td>
+<td>Stability-styled (solid = stable, dashed = unstable)</td>
+</tr>
+<tr class="odd">
+<td><code>netobject_group</code></td>
+<td>Multi-panel grid (one per group)</td>
+</tr>
+<tr class="even">
+<td><code>net_permutation</code></td>
+<td>Colored difference network</td>
+</tr>
+<tr class="odd">
+<td><code>boot_glasso</code></td>
+<td>GLASSO bootstrap stability</td>
+</tr>
+<tr class="even">
+<td><code>wtna_mixed</code></td>
+<td>Mixed window TNA</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level2">
-<h2 id="ggplot2-conversion">ggplot2 Conversion<a class="anchor" aria-label="anchor" href="#ggplot2-conversion"></a>
+<h2 id="tna-integration">TNA integration<a class="anchor" aria-label="anchor" href="#tna-integration"></a>
 </h2>
-<p>Convert your network to a ggplot2 object for additional
-customization:</p>
+<p>Direct support for all tna package objects:</p>
+<table class="table">
+<thead><tr class="header">
+<th>Object</th>
+<th>What splot() does</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>tna</code></td>
+<td>Network with donut rings, TNA styling</td>
+</tr>
+<tr class="even">
+<td><code>group_tna</code></td>
+<td>Multi-panel grid per group</td>
+</tr>
+<tr class="odd">
+<td><code>tna_bootstrap</code></td>
+<td>Stability-styled edges</td>
+</tr>
+<tr class="even">
+<td><code>tna_permutation</code></td>
+<td>Colored difference network</td>
+</tr>
+<tr class="odd">
+<td><code>group_tna_permutation</code></td>
+<td>Multi-panel permutation results</td>
+</tr>
+<tr class="even">
+<td><code>tna_disparity</code></td>
+<td>Backbone filter visualization</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level2">
+<h2 id="palettes">Palettes<a class="anchor" aria-label="anchor" href="#palettes"></a>
+</h2>
+<table class="table">
+<thead><tr class="header">
+<th>Function</th>
+<th>Colors</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>palette_viridis(n)</code></td>
+<td>Viridis scale</td>
+</tr>
+<tr class="even">
+<td><code>palette_pastel(n)</code></td>
+<td>Soft pastel</td>
+</tr>
+<tr class="odd">
+<td><code>palette_blues(n)</code></td>
+<td>Blue gradient</td>
+</tr>
+<tr class="even">
+<td><code>palette_reds(n)</code></td>
+<td>Red gradient</td>
+</tr>
+<tr class="odd">
+<td><code>palette_diverging(n)</code></td>
+<td>Blue-white-red</td>
+</tr>
+<tr class="even">
+<td><code>palette_colorblind(n)</code></td>
+<td>Colorblind-safe</td>
+</tr>
+<tr class="odd">
+<td><code>palette_rainbow(n)</code></td>
+<td>Rainbow</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level2">
+<h2 id="pipe-api">Pipe API<a class="anchor" aria-label="anchor" href="#pipe-api"></a>
+</h2>
+<p>The <code>sn_*</code> functions provide a chainable builder for the
+grid/ggplot2 rendering path.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'ggplot2'</span></span>
-<span><span class="co">#&gt; The following object is masked from 'package:cograph':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     get_theme</span></span>
-<span></span>
-<span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/sn_nodes.html">sn_nodes</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"coral"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/sn_ggplot.html">sn_ggplot</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">p</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
-<span>    title <span class="op">=</span> <span class="st">"My Network"</span>,</span>
-<span>    subtitle <span class="op">=</span> <span class="st">"Created with cograph"</span></span>
-<span>  <span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>hjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="introduction_files/figure-html/ggplot-conversion-1.png" class="r-plt" alt="" width="300"></p>
-</div>
-<div class="section level2">
-<h2 id="complete-example">Complete Example<a class="anchor" aria-label="anchor" href="#complete-example"></a>
-</h2>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Social network example</span></span>
-<span><span class="va">social</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>,</span>
-<span>  <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>,</span>
-<span>  <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>,</span>
-<span>  <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>,</span>
-<span>  <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>,</span>
-<span>  <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span></span>
-<span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">6</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">social</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">social</span><span class="op">)</span> <span class="op">&lt;-</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Alice"</span>, <span class="st">"Bob"</span>, <span class="st">"Carol"</span>, <span class="st">"Dave"</span>, <span class="st">"Eve"</span>, <span class="st">"Frank"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">groups</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Team A"</span>, <span class="st">"Team A"</span>, <span class="st">"Team A"</span>, <span class="st">"Team B"</span>, <span class="st">"Team B"</span>, <span class="st">"Team B"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">social</span> <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="va">mat</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/cograph.html">cograph</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/sn_layout.html">sn_layout</a></span><span class="op">(</span><span class="st">"groups"</span>, groups <span class="op">=</span> <span class="va">groups</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/sn_nodes.html">sn_nodes</a></span><span class="op">(</span></span>
-<span>    size <span class="op">=</span> <span class="fl">0.06</span>,</span>
-<span>    fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">groups</span> <span class="op">==</span> <span class="st">"Team A"</span>, <span class="st">"#E69F00"</span>, <span class="st">"#56B4E9"</span><span class="op">)</span>,</span>
-<span>    border_width <span class="op">=</span> <span class="fl">2</span></span>
-<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/sn_edges.html">sn_edges</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">1.5</span>, alpha <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/sn_layout.html">sn_layout</a></span><span class="op">(</span><span class="st">"spring"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/sn_theme.html">sn_theme</a></span><span class="op">(</span><span class="st">"minimal"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/soplot.html">sn_render</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Social Network"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="introduction_files/figure-html/complete-example-1.png" class="r-plt" alt="" width="300"></p>
+<span>  <span class="fu"><a href="../reference/sn_nodes.html">sn_nodes</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">8</span>, fill <span class="op">=</span> <span class="st">"steelblue"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/sn_edges.html">sn_edges</a></span><span class="op">(</span>curvature <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/soplot.html">sn_render</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"My Network"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">mat</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/cograph.html">cograph</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/sn_save.html">sn_save</a></span><span class="op">(</span><span class="st">"network.pdf"</span><span class="op">)</span></span>
+<span><span class="va">p</span> <span class="op">&lt;-</span> <span class="va">mat</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/cograph.html">cograph</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/sn_ggplot.html">sn_ggplot</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="52%">
+<col width="47%">
+</colgroup>
+<thead><tr class="header">
+<th>Function</th>
+<th>Purpose</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>
+<code><a href="../reference/cograph.html">cograph()</a></code> / <code><a href="../reference/as_cograph.html">as_cograph()</a></code>
+</td>
+<td>Create network object</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/sn_nodes.html">sn_nodes()</a></code></td>
+<td>Node aesthetics</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/sn_edges.html">sn_edges()</a></code></td>
+<td>Edge aesthetics</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/sn_layout.html">sn_layout()</a></code></td>
+<td>Layout algorithm</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/sn_theme.html">sn_theme()</a></code></td>
+<td>Visual theme</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/sn_palette.html">sn_palette()</a></code></td>
+<td>Color palette</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/soplot.html">sn_render()</a></code></td>
+<td>Render to screen</td>
+</tr>
+<tr class="even">
+<td>
+<code><a href="../reference/sn_save.html">sn_save()</a></code> / <code><a href="../reference/sn_save_ggplot.html">sn_save_ggplot()</a></code>
+</td>
+<td>Save to file</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/sn_ggplot.html">sn_ggplot()</a></code></td>
+<td>Convert to ggplot2 object</td>
+</tr>
+<tr class="even">
+<td>
+<code><a href="../reference/register_theme.html">register_theme()</a></code> / <code><a href="../reference/register_layout.html">register_layout()</a></code> /
+<code><a href="../reference/register_shape.html">register_shape()</a></code>
+</td>
+<td>Register custom themes, layouts, shapes</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level2">
-<h2 id="saving-plots">Saving Plots<a class="anchor" aria-label="anchor" href="#saving-plots"></a>
+<h2 id="further-reading">Further reading<a class="anchor" aria-label="anchor" href="#further-reading"></a>
 </h2>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/sn_nodes.html">sn_nodes</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"steelblue"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/sn_theme.html">sn_theme</a></span><span class="op">(</span><span class="st">"minimal"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Save as PDF</span></span>
-<span><span class="fu"><a href="../reference/sn_save.html">sn_save</a></span><span class="op">(</span><span class="va">net</span>, <span class="st">"network.pdf"</span>, width <span class="op">=</span> <span class="fl">8</span>, height <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Save as PNG</span></span>
-<span><span class="fu"><a href="../reference/sn_save.html">sn_save</a></span><span class="op">(</span><span class="va">net</span>, <span class="st">"network.png"</span>, width <span class="op">=</span> <span class="fl">8</span>, height <span class="op">=</span> <span class="fl">8</span>, dpi <span class="op">=</span> <span class="fl">300</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Save as SVG</span></span>
-<span><span class="fu"><a href="../reference/sn_save.html">sn_save</a></span><span class="op">(</span><span class="va">net</span>, <span class="st">"network.svg"</span>, width <span class="op">=</span> <span class="fl">8</span>, height <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="next-steps">Next Steps<a class="anchor" aria-label="anchor" href="#next-steps"></a>
-</h2>
+<p><strong>Package resources:</strong></p>
 <ul>
-<li>Explore different layouts with <code><a href="../reference/list_layouts.html">list_layouts()</a></code>
-</li>
-<li>Try different shapes with <code><a href="../reference/list_shapes.html">list_shapes()</a></code>
-</li>
-<li>See available themes with <code><a href="../reference/list_themes.html">list_themes()</a></code>
-</li>
-<li>Check out the ggplot2 vignette for advanced customization</li>
+<li>
+<a href="https://saqr.me/cograph/" class="external-link">cograph function reference</a> —
+complete list of all functions with examples</li>
+<li>
+<a href="https://sonsoleslp.github.io/cograph/" class="external-link">cograph pkgdown
+site</a> — full documentation and articles</li>
+</ul>
+<p><strong>Blog posts:</strong></p>
+<ul>
+<li>
+<a href="https://saqr.me/blog/2026/cograph-network-visualization/" class="external-link">cograph:
+Complex Network Analysis and Visualization</a> — overview of the package
+design and capabilities</li>
+<li>
+<a href="https://saqr.me/blog/2026/human-ai-interaction-cograph/" class="external-link">Human–AI
+Interaction: A TNA with cograph</a> — worked example analyzing 13,002
+turns of human–AI coding collaboration</li>
+</ul>
+<p><strong>References:</strong></p>
+<ul>
+<li><p>Saqr, M., López-Pernas, S., Conde, M. A., &amp; Hernández-García,
+A. (2024). Social Network Analysis: A Primer, a Guide and a Tutorial in
+R. In <em>Learning Analytics Methods and Tutorials</em>. Springer. <a href="https://doi.org/10.1007/978-3-031-54464-4_15" class="external-link uri">https://doi.org/10.1007/978-3-031-54464-4_15</a></p></li>
+<li><p>Saqr, M., López-Pernas, S., Conde, M. A., &amp; Hernández-García,
+A. (2024). Community Detection: A Practical Guide to Unraveling Learning
+Communities. In <em>Learning Analytics Methods and Tutorials</em>.
+Springer. <a href="https://doi.org/10.1007/978-3-031-54464-4_16" class="external-link uri">https://doi.org/10.1007/978-3-031-54464-4_16</a></p></li>
+<li><p>Saqr, M., López-Pernas, S., Törmänen, T., Kaliisa, R., Misiejuk,
+K., &amp; Tikka, S. (2025). Transition Network Analysis: A Novel
+Framework for Modeling, Visualizing, and Identifying the Temporal
+Patterns of Learners and Learning Processes. In <em>Proceedings of the
+15th LAK Conference</em> (pp. 351–361). ACM. <a href="https://doi.org/10.1145/3706468.3706513" class="external-link uri">https://doi.org/10.1145/3706468.3706513</a></p></li>
+<li><p>Tikka, S., López-Pernas, S., &amp; Saqr, M. (2025). tna: An R
+Package for Transition Network Analysis. <em>Applied Psychological
+Measurement</em>. <a href="https://doi.org/10.1177/01466216251348840" class="external-link uri">https://doi.org/10.1177/01466216251348840</a></p></li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

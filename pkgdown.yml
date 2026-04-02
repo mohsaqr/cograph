@@ -11,7 +11,6 @@ articles:
   articles/cograph-tutorial: cograph-tutorial.html
   articles/comparison-plots-demo: comparison-plots-demo.html
   articles/function-reference: function-reference.html
-  input-formats: input-formats.html
   introduction: introduction.html
   articles/mcml-examples: mcml-examples.html
   articles/multi_network: multi_network.html
@@ -20,7 +19,7 @@ articles:
   articles/plotting-tna-models: plotting-tna-models.html
   articles/qgraph-to-splot: qgraph-to-splot.html
   articles/why-cograph: why-cograph.html
-last_built: 2026-04-02T09:01Z
+last_built: 2026-04-02T10:35Z
 urls:
   reference: http://sonsoles.me/cograph/reference
   article: http://sonsoles.me/cograph/articles

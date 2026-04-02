@@ -41,8 +41,6 @@
 - [Function
   Reference](http://sonsoles.me/cograph/articles/function-reference.md):
 
-- [Input Formats](http://sonsoles.me/cograph/articles/input-formats.md):
-
 - [Introduction to
   cograph](http://sonsoles.me/cograph/articles/introduction.md):
 

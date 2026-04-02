@@ -2,10 +2,25 @@ pandoc: 3.1.11
 pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
+  articles/basic_example: basic_example.html
+  articles/bootstrap-forest: bootstrap-forest.html
+  articles/co_pvalue: co_pvalue.html
+  articles/cograph-tutorial-communities: cograph-tutorial-communities.html
+  articles/cograph-tutorial-nestimate: cograph-tutorial-nestimate.html
+  articles/cograph-tutorial-plotting: cograph-tutorial-plotting.html
+  articles/cograph-tutorial: cograph-tutorial.html
+  articles/comparison-plots-demo: comparison-plots-demo.html
+  articles/function-reference: function-reference.html
+  input-formats: input-formats.html
+  introduction: introduction.html
   articles/mcml-examples: mcml-examples.html
+  articles/multi_network: multi_network.html
+  articles/network-structure-and-groups: network-structure-and-groups.html
+  articles/pie_donut_guide: pie_donut_guide.html
   articles/plotting-tna-models: plotting-tna-models.html
+  articles/qgraph-to-splot: qgraph-to-splot.html
   articles/why-cograph: why-cograph.html
-last_built: 2026-04-02T07:08Z
+last_built: 2026-04-02T09:01Z
 urls:
   reference: http://sonsoles.me/cograph/reference
   article: http://sonsoles.me/cograph/articles

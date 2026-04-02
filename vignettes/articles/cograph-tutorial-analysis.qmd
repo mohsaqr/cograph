@@ -838,7 +838,7 @@ A complete analysis pipeline, from import to communities, in a few lines:
 ```{r}
 #| label: workflow
 #| eval: false
-devtools::load_all(".")
+library(cograph)
 
 # 1. Import (works with any format)
 net <- as_cograph(my_matrix)

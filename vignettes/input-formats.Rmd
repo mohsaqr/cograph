@@ -1,0 +1,430 @@
+---
+title: "Input Formats"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Input Formats}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 6,
+  fig.height = 5,
+  fig.dpi = 50,
+  dpi = 50
+)
+library(cograph)
+```
+
+## Overview
+
+cograph accepts network data in all common formats used in R. Pass any supported object directly to `splot()` and it will be automatically parsed.
+
+## Supported Formats
+
+### 1. Adjacency/Weight Matrices
+
+A square numeric matrix where `M[i,j]` represents the edge weight from node `i` to node `j`.
+
+**Sources:**
+
+- `cor()`, `cov()` — correlation and covariance matrices
+- `qgraph::getWmat()` — extract weights from qgraph objects
+- `bootnet::estimateNetwork()` — network estimation output
+- `psychonetrics` — structural equation modeling networks
+- `markovchain` — transition probability matrices
+- `as.matrix(dist())` — distance/dissimilarity matrices
+
+**Auto-detection:**
+
+- Symmetric matrices are treated as undirected (upper triangle only)
+- Asymmetric matrices are treated as directed (all entries)
+- Node labels extracted from `rownames()`/`colnames()`
+
+**Usage:**
+
+```{r matrix-example}
+# Create a weighted adjacency matrix
+adj_matrix <- matrix(
+  c(0, 0.8, 0.5, 0.2,
+    0.8, 0, 0.6, 0,
+    0.5, 0.6, 0, 0.7,
+    0.2, 0, 0.7, 0),
+  nrow = 4, byrow = TRUE,
+  dimnames = list(c("A", "B", "C", "D"), c("A", "B", "C", "D"))
+)
+
+# Plot directly from matrix
+splot(adj_matrix, title = "From Adjacency Matrix")
+
+# Create a directed (asymmetric) matrix
+directed_matrix <- matrix(
+  c(0, 0.9, 0, 0,
+    0.2, 0, 0.7, 0,
+    0.5, 0, 0, 0.8,
+    0, 0.3, 0.4, 0),
+  nrow = 4, byrow = TRUE,
+  dimnames = list(c("A", "B", "C", "D"), c("A", "B", "C", "D"))
+)
+
+# Directed networks detected automatically
+splot(directed_matrix, title = "Directed Network (auto-detected)")
+```
+
+### 2. Edge List Data Frames
+
+A data frame where each row is an edge with source, target, and optional weight columns.
+
+**Sources:**
+
+- Database exports (SQL joins on relationship tables)
+- CSV files from SNAP, Pajek, KONECT repositories
+- `igraph::as_data_frame(g, what = "edges")`
+- API responses from social platforms
+- Parsed log files
+
+**Column detection (case-insensitive):**
+
+| Purpose | Recognized names |
+|---------|------------------|
+| Source | `from`, `source`, `src`, `v1`, `node1`, `i` |
+| Target | `to`, `target`, `tgt`, `v2`, `node2`, `j` |
+| Weight | `weight`, `w`, `value`, `strength` |
+
+Falls back to columns 1 and 2 if no match.
+
+**Usage:**
+
+```{r edgelist-example}
+# Create an edge list data frame
+edges <- data.frame(
+  from = c("Alice", "Alice", "Bob", "Bob", "Carol", "Dave"),
+  to = c("Bob", "Carol", "Carol", "Dave", "Dave", "Alice"),
+  weight = c(0.9, 0.5, 0.7, 0.3, 0.8, 0.4)
+)
+
+print(edges)
+
+# Plot from edge list
+splot(edges, title = "From Edge List")
+
+# Alternative column names work too
+edges_alt <- data.frame(
+  source = c("X", "X", "Y", "Z"),
+  target = c("Y", "Z", "Z", "X"),
+  value = c(1, 0.5, 0.8, 0.3)
+)
+splot(edges_alt, title = "Alternative Column Names")
+```
+
+### 3. igraph Objects
+
+Objects of class `igraph` from the igraph package.
+
+**Sources:**
+
+- `graph_from_data_frame()`, `graph_from_adjacency_matrix()`
+- `make_graph("Zachary")`, `make_ring()`, `sample_pa()`, etc.
+- `read_graph()` — import from GraphML, GML, Pajek, edge lists
+- `intergraph::asIgraph()` — convert from network objects
+
+**Preserved:**
+
+- Vertex attributes: `V(g)$name`, `V(g)$color`, etc.
+- Edge attributes: `E(g)$weight`, `E(g)$type`, etc.
+- Directedness from `is_directed(g)`
+
+**Usage:**
+
+```{r igraph-example, eval=requireNamespace("igraph", quietly = TRUE)}
+# Create igraph objects
+g_ring <- igraph::make_ring(6)
+igraph::V(g_ring)$name <- LETTERS[1:6]
+
+splot(g_ring, title = "igraph Ring Graph")
+
+# Famous graph with vertex names
+g_zachary <- igraph::make_graph("Zachary")
+splot(g_zachary, title = "Zachary Karate Club")
+
+# Weighted graph
+g_weighted <- igraph::graph_from_adjacency_matrix(
+  adj_matrix,
+  mode = "undirected",
+  weighted = TRUE
+)
+splot(g_weighted, title = "Weighted igraph")
+```
+
+### 4. network Objects (statnet)
+Objects of class `network` from the network/statnet ecosystem.
+
+**Sources:**
+
+- `network::network()` — create from matrix or edge list
+- `ergm` package — exponential random graph models
+- `sna` package — social network analysis
+- `intergraph::asNetwork()` — convert from igraph
+- Import from Pajek, UCINET formats
+
+**Preserved:**
+
+- Vertex attributes via `%v%` operator
+- Edge attributes via `%e%` operator
+- Directedness from `is.directed()`
+
+**Usage:**
+
+```{r network-example, eval=requireNamespace("network", quietly = TRUE)}
+# Create a network object
+net_obj <- network::network(adj_matrix, directed = FALSE)
+
+splot(net_obj, title = "From statnet network")
+```
+
+### 5. qgraph Objects
+
+Objects created by the qgraph package.
+
+**Sources:**
+
+- `qgraph::qgraph(..., DoNotPlot = TRUE)`
+- `bootnet::estimateNetwork()` results
+- `psychonetrics` model outputs
+
+**Preserved:**
+
+- Layout coordinates from `q$layout`
+- Edge weights from `q$Edgelist`
+- Node labels from `q$graphAttributes$Nodes`
+
+**Usage:**
+
+```{r qgraph-example, eval=requireNamespace("qgraph", quietly = TRUE)}
+# Create a qgraph object (without plotting)
+q <- qgraph::qgraph(adj_matrix, DoNotPlot = TRUE)
+
+# Plot with cograph (preserves layout)
+splot(q, title = "From qgraph Object")
+```
+
+### 6. TNA Objects
+
+Objects of class `tna` from the tna package (Transition Network Analysis).
+
+**Sources:**
+
+- `tna::tna()` — build from sequence data
+- `tna::group_tna()` — grouped transition analysis
+- Learning analytics, process mining, behavioral sequences
+
+**Extracted:**
+
+- Transition matrix from `$weights`
+- State labels from `$labels`
+- Initial probabilities from `$inits`
+
+**Usage:**
+
+```{r tna-example, eval=requireNamespace("tna", quietly = TRUE), message=FALSE}
+library(tna)
+
+# Build TNA model from included dataset
+tna_model <- tna(group_regulation)
+
+# Plot TNA model directly
+splot(tna_model, title = "From TNA Model")
+
+# With donut nodes showing initial probabilities
+splot(tna_model,
+      node_shape = "donut",
+      donut_fill = tna_model$inits,
+      title = "TNA with Initial Probabilities")
+```
+
+## Weight Preprocessing
+
+| Parameter | Effect |
+|-----------|--------|
+| `weight_digits = 2` | Round weights; edges rounding to zero are removed |
+| `threshold = 0.3` | Remove edges with \|weight\| < threshold |
+| `minimum = 0.3` | Alias for threshold (qgraph compatibility) |
+| `maximum = 1.0` | Set reference maximum for edge width scaling |
+| `edge_scale_mode` | `"linear"`, `"sqrt"`, `"log"`, or `"rank"` |
+
+```{r weight-preprocessing}
+# Create a network with varying weights
+weights_matrix <- matrix(
+  c(0, 0.1, 0.5, 0.9,
+    0.1, 0, 0.2, 0.7,
+    0.5, 0.2, 0, 0.3,
+    0.9, 0.7, 0.3, 0),
+  nrow = 4, byrow = TRUE,
+  dimnames = list(LETTERS[1:4], LETTERS[1:4])
+)
+
+# Apply threshold to remove weak edges
+splot(weights_matrix, threshold = 0.4, title = "Threshold = 0.4 (weak edges removed)")
+```
+
+## Special Cases
+
+| Feature | Behavior |
+|---------|----------|
+| Negative weights | Colored differently (green/red by default) |
+| Self-loops | Rendered as loops; control angle with `loop_rotation` |
+| Reciprocal edges | Curved apart automatically in directed networks |
+| Duplicate edges | Error by default; use `edge_duplicates` to aggregate |
+
+```{r special-cases}
+# Network with negative weights (e.g., correlation matrix)
+cor_matrix <- matrix(
+  c(1, 0.8, -0.5, 0.3,
+    0.8, 1, 0.2, -0.7,
+    -0.5, 0.2, 1, 0.4,
+    0.3, -0.7, 0.4, 1),
+  nrow = 4, byrow = TRUE,
+  dimnames = list(LETTERS[1:4], LETTERS[1:4])
+)
+diag(cor_matrix) <- 0
+
+splot(cor_matrix, title = "Negative Weights (red = negative)")
+```
+
+## Conversion Functions
+
+cograph provides functions to convert between formats. All conversion functions accept any supported input type.
+
+### as_cograph() / to_cograph() — Import to cograph
+
+Convert any format to a `cograph_network` object.
+
+**Accepted inputs:**
+
+- `matrix` — Adjacency/weight matrix
+- `data.frame` — Edge list with from/to/weight columns
+- `igraph` — igraph object
+- `network` — statnet network object
+- `qgraph` — qgraph object
+- `tna` — TNA model object
+- `group_tna` — Grouped TNA model object
+
+```{r as-cograph-example}
+# From matrix
+net <- as_cograph(adj_matrix)
+print(net)
+
+# From edge list
+net_edges <- as_cograph(edges)
+print(net_edges)
+
+# Override auto-detected directedness
+net_directed <- as_cograph(adj_matrix, directed = TRUE)
+cat("Directed:", attr(net_directed, "directed"), "\n")
+```
+
+```{r as-cograph-igraph, eval=requireNamespace("igraph", quietly = TRUE)}
+# From igraph
+g <- igraph::make_ring(5)
+igraph::V(g)$name <- LETTERS[1:5]
+net_from_igraph <- as_cograph(g)
+print(net_from_igraph)
+```
+
+The function is idempotent — passing a `cograph_network` returns it unchanged.
+
+### to_igraph() — Export to igraph
+
+Convert any format to an igraph object:
+
+```{r to-igraph-example, eval=requireNamespace("igraph", quietly = TRUE)}
+# From matrix
+g <- to_igraph(adj_matrix)
+cat("Vertices:", igraph::vcount(g), "\n")
+cat("Edges:", igraph::ecount(g), "\n")
+
+# From cograph_network
+net <- as_cograph(adj_matrix)
+g2 <- to_igraph(net)
+
+# Check attributes preserved
+cat("Vertex names:", paste(igraph::V(g2)$name, collapse = ", "), "\n")
+```
+
+### to_data_frame() / to_df() — Export to Edge List
+
+Convert any format to an edge list data frame:
+
+```{r to-df-example}
+# From matrix
+df <- to_df(adj_matrix)
+print(df)
+
+# From cograph_network
+net <- as_cograph(adj_matrix)
+df2 <- to_df(net)
+print(df2)
+```
+
+Output columns: `from`, `to`, `weight`
+
+### to_matrix() — Export to Adjacency Matrix
+
+Convert any format to an adjacency matrix:
+
+```{r to-matrix-example}
+# From cograph_network
+net <- as_cograph(edges)
+mat <- to_matrix(net)
+print(mat)
+```
+
+```{r to-matrix-igraph, eval=requireNamespace("igraph", quietly = TRUE)}
+# From igraph (with weights)
+g <- igraph::graph_from_adjacency_matrix(
+  matrix(c(0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0), 4, 4,
+         dimnames = list(c("W", "X", "Y", "Z"), c("W", "X", "Y", "Z"))),
+  mode = "undirected",
+  weighted = TRUE
+)
+mat <- to_matrix(g)
+print(mat)
+```
+
+Returns a square numeric matrix with row/column names preserved.
+
+### to_network() — Export to statnet network
+
+Convert any format to a statnet network object:
+
+```{r to-network-example, eval=requireNamespace("network", quietly = TRUE)}
+# Convert matrix to statnet network
+statnet_net <- to_network(adj_matrix)
+print(statnet_net)
+```
+
+Requires the `network` package. Preserves edge weights and vertex names.
+
+## Conversion Summary
+
+| Function | Output | Use Case |
+|----------|--------|----------|
+| `as_cograph()` / `to_cograph()` | `cograph_network` | Import for visualization with splot |
+| `to_igraph()` | `igraph` | Use igraph's analysis functions |
+| `to_df()` | `data.frame` | Export to CSV, database, or other tools |
+| `to_matrix()` | `matrix` | Export to adjacency matrix for other packages |
+| `to_network()` | `network` | Use with statnet/ergm ecosystem |
+
+## Format Summary
+
+| Input | Class | Directed | Weights | Labels |
+|-------|-------|----------|---------|--------|
+| Matrix | `matrix` | Symmetry check | Cell values | dimnames |
+| Edge list | `data.frame` | Reciprocal check | weight column | Unique nodes |
+| igraph | `igraph` | `is_directed()` | weight attr | name attr |
+| network | `network` | `is.directed()` | weight attr | vertex.names |
+| qgraph | `qgraph` | Edgelist | Edgelist | Node names |
+| tna | `tna` | Always TRUE | `$weights` | `$labels` |

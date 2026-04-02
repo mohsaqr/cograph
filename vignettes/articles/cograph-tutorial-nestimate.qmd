@@ -1,0 +1,337 @@
+---
+title: "Network Estimation and Visualization with Nestimate + cograph"
+description: |
+    From raw sequence data to publication-ready statistical network plots ---
+    build, bootstrap, compare, and visualize using Nestimate and cograph together.
+date: "2026-04-01"
+author:
+  - name: Mohammed Saqr
+    url: https://saqr.me
+    affiliation: University of Eastern Finland
+  - name: Sonsoles López-Pernas
+    url: https://sonsoles.me
+    affiliation: University of Eastern Finland
+categories:
+  - tutorial
+  - R
+  - visualization
+  - Nestimate
+warning: false
+message: false
+fig.align: center
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: false
+    code-tools: false
+    theme: cosmo
+    self-contained: true
+execute:
+  warning: false
+  message: false
+knitr:
+  opts_chunk:
+    fig.width: 8
+    fig.height: 7
+    dpi: 150
+    comment: ""
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(Nestimate)
+library(tna)
+library(cograph)
+```
+
+# Introduction
+
+**Nestimate** is a general-purpose network estimation package. It provides a unified `build_network()` interface that accepts raw sequence data and constructs networks using multiple methods: transition probabilities, partial correlations, regularized networks (GLASSO), co-occurrence, and more. The result is a `netobject` that works directly with cograph's `splot()` — no conversion needed.
+
+Beyond estimation, Nestimate provides bootstrap stability analysis, permutation-based group comparisons, higher-order network construction (HON, HYPA), and motif analysis. All output objects dispatch through `splot()` automatically.
+
+
+# Data
+
+We use `group_regulation_long` — a long-format dataset of 9 collaborative regulation behaviors coded across student groups, with achievement group labels (High vs Low).
+
+```{r}
+#| label: data
+data("group_regulation_long")
+head(group_regulation_long)
+```
+
+
+# Estimating Networks
+
+`build_network()` estimates a network from raw data. The `method` argument selects the estimator.
+
+```{r}
+#| label: build-network
+net <- build_network(group_regulation_long,
+  action = "Action", actor = "Actor", method = "relative")
+net
+```
+
+`splot()` renders the `netobject` directly:
+
+```{r}
+#| label: fig-base
+#| fig-cap: "Collaborative regulation — relative transition probabilities"
+splot(net)
+```
+
+One line builds different network types:
+
+```{r}
+#| label: estimators
+#| eval: false
+build_network(group_regulation_long, action = "Action", actor = "Actor", method = "frequency")
+build_network(group_regulation_long, action = "Action", actor = "Actor", method = "attention")
+build_network(group_regulation_long, action = "Action", actor = "Actor", method = "co_occurrence")
+build_network(group_regulation_long, action = "Action", actor = "Actor", method = "glasso")
+build_network(group_regulation, method = "pcor")
+```
+
+
+# Bootstrap Stability
+
+`bootstrap_network()` resamples the data and refits the model at each iteration, identifying which edges are stable and which are sampling artifacts.
+
+```{r}
+#| label: run-bootstrap
+#| cache: true
+set.seed(265)
+boot <- bootstrap_network(net, iter = 1000)
+boot
+```
+
+## Network plots
+
+Significant edges appear solid; non-significant edges appear dashed grey.
+
+```{r}
+#| label: fig-boot-styled
+#| fig-cap: "Solid = stable edges, dashed = unstable"
+splot(boot)
+```
+
+```{r}
+#| label: fig-boot-sig
+#| fig-cap: "Significant edges only"
+splot(boot, display = "significant")
+```
+
+```{r}
+#| label: fig-boot-stars
+#| fig-cap: "With significance stars"
+splot(boot, show_stars = TRUE)
+```
+
+```{r}
+#| label: fig-boot-ci
+#| fig-cap: "With 95% confidence intervals"
+splot(boot, show_ci = TRUE)
+```
+
+## Forest plots
+
+Forest plots show edge weights and confidence intervals in a compact format. Three layouts are available:
+
+```{r}
+#| label: fig-forest-linear
+#| fig-cap: "Linear forest plot"
+#| fig-height: 11
+#| fig-width: 6
+plot_bootstrap_forest(boot)
+```
+
+```{r}
+#| label: fig-forest-circular
+#| fig-cap: "Circular forest plot"
+plot_bootstrap_forest(boot, layout = "circular")
+```
+
+```{r}
+#| label: fig-forest-grouped
+#| fig-cap: "Grouped by source node"
+plot_bootstrap_forest(boot, layout = "grouped")
+```
+
+
+# Group Networks
+
+Pass `group =` to `build_network()` to estimate a separate network per group. `splot()` renders all groups in an automatic grid.
+
+```{r}
+#| label: build-group
+grp_net <- build_network(group_regulation_long, method = "relative",
+  action = "Action", actor = "Actor", time = "Time", group = "Achiever")
+names(grp_net)
+```
+
+```{r}
+#| label: fig-group-default
+#| fig-cap: "High vs Low achievers on a common weight scale"
+#| fig-width: 12
+#| fig-height: 6
+splot(grp_net)
+```
+
+`common_scale = TRUE` (default) makes edge widths directly comparable across panels:
+
+```{r}
+#| label: fig-group-noscale
+#| fig-cap: "Each group on its own scale"
+#| fig-width: 12
+#| fig-height: 6
+splot(grp_net, common_scale = FALSE)
+```
+
+
+# Permutation Testing
+
+`permutation_test()` tests whether each edge differs significantly between two groups.
+
+```{r}
+#| label: run-perm
+#| cache: true
+set.seed(265)
+perm <- Nestimate::permutation_test(grp_net$High, grp_net$Low, iter = 1000)
+perm
+```
+
+```{r}
+#| label: fig-perm-sig
+#| fig-cap: "Green = High > Low, red = Low > High (p < 0.05)"
+splot(perm)
+```
+
+```{r}
+#| label: fig-perm-nonsig
+#| fig-cap: "All edges — significant solid, non-significant dashed"
+splot(perm, show_nonsig = TRUE)
+```
+
+```{r}
+#| label: fig-perm-effect
+#| fig-cap: "With significance stars and effect sizes"
+splot(perm, show_stars = TRUE, show_effect = TRUE)
+```
+
+
+# Motifs
+
+Nestimate objects work directly with cograph's motif analysis. `motifs()` counts MAN triad types; `subgraphs()` identifies specific node triples.
+
+```{r}
+#| label: motifs-census
+mot <- cograph::motifs(net, significance = TRUE, n_perm = 100, seed = 42)
+mot
+```
+
+```{r}
+#| label: fig-motifs-types
+#| fig-cap: "Triad type distribution"
+plot(mot, type = "types")
+```
+
+```{r}
+#| label: fig-motifs-sig
+#| fig-cap: "Over- and under-represented triad types"
+plot(mot, type = "significance")
+```
+
+Named subgraphs — which states form which patterns:
+
+```{r}
+#| label: subgraphs
+sg <- cograph::subgraphs(net, significance = FALSE, top = 10)
+sg
+```
+
+```{r}
+#| label: fig-motifs-patterns
+#| fig-cap: "MAN triad pattern diagrams"
+#| fig-width: 10
+#| fig-height: 6
+plot(mot, type = "patterns")
+```
+
+
+# Higher-Order Networks
+
+When first-order Markov models are insufficient, Nestimate detects higher-order sequential dependencies.
+
+## HON
+
+`build_hon()` identifies transitions where prior context changes the outgoing distribution:
+
+```{r}
+#| label: hon
+hon <- build_hon(net)
+hon
+```
+
+## HYPA
+
+`build_hypa()` detects paths that occur significantly more or less often than expected:
+
+```{r}
+#| label: hypa
+hypa <- build_hypa(net)
+table(hypa$scores$anomaly)
+```
+
+```{r}
+#| label: hypa-over
+over <- hypa$scores[hypa$scores$anomaly == "over", ]
+head(over[order(-over$ratio), c("path", "ratio", "observed", "expected")], 8)
+```
+
+## Simplicial visualization
+
+```{r}
+#| label: fig-simplicial
+#| fig-cap: "Top higher-order pathways"
+#| fig-width: 10
+#| fig-height: 10
+plot_simplicial(net, max_pathways = 6, title = "Higher-Order Pathways")
+```
+
+```{r}
+#| label: fig-simplicial-dismantled
+#| fig-cap: "Individual pathway panels"
+#| fig-width: 12
+#| fig-height: 12
+plot_simplicial(net, max_pathways = 9, dismantled = TRUE, ncol = 3)
+```
+
+
+# The Dispatch Chain
+
+Every Nestimate object routes through `splot()`:
+
+```{r}
+#| label: dispatch
+#| eval: false
+splot(net)      # netobject       → network plot
+splot(boot)     # net_bootstrap   → stability-styled
+splot(grp_net)  # netobject_group → multi-panel grid
+splot(perm)     # net_permutation → difference network
+```
+
+All standard `splot()` arguments (`layout`, `node_fill`, `edge_color`, `title`, etc.) work with every object type.
+
+
+# References {.unnumbered}
+
+- Saqr, M., López-Pernas, S., Törmänen, T., Kaliisa, R., Misiejuk, K., & Tikka, S. (2025). Transition Network Analysis: A Novel Framework for Modeling, Visualizing, and Identifying the Temporal Patterns of Learners and Learning Processes. In *Proceedings of the 15th International Learning Analytics and Knowledge Conference (LAK '25)* (pp. 351--361). ACM. <https://doi.org/10.1145/3706468.3706513>
+
+- Tikka, S., López-Pernas, S., & Saqr, M. (2025). tna: An R Package for Transition Network Analysis. *Applied Psychological Measurement*. <https://doi.org/10.1177/01466216251348840>
+
+- cograph: <https://github.com/sonsoleslp/cograph>
+- Nestimate: <https://github.com/mohsaqr/Nestimate>

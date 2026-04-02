@@ -38,9 +38,6 @@
 - [Network Comparison and
   Visualization](http://sonsoles.me/cograph/articles/comparison-plots-demo.md):
 
-- [Function
-  Reference](http://sonsoles.me/cograph/articles/function-reference.md):
-
 - [Introduction to
   cograph](http://sonsoles.me/cograph/articles/introduction.md):
 

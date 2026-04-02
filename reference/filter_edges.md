@@ -121,8 +121,8 @@ if (requireNamespace("igraph", quietly = TRUE)) {
   g <- igraph::make_ring(5)
   filter_edges(g, weight > 0, keep_format = TRUE)  # Returns igraph
 }
-#> IGRAPH 9b0a766 UNW- 5 5 -- 
+#> IGRAPH a2391de UNW- 5 5 -- 
 #> + attr: name (v/c), weight (e/n)
-#> + edges from 9b0a766 (vertex names):
+#> + edges from a2391de (vertex names):
 #> [1] 1--2 2--3 3--4 4--5 1--5
 ```

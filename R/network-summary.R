@@ -1129,3 +1129,176 @@ trophic_incoherence <- function(x, cannibalism = TRUE) {
   # uses ddof=1 (sample std) and would diverge.
   sqrt(mean((diffs - mean(diffs))^2))
 }
+
+
+# ---------------------------------------------------------------------------
+# Group centrality family (Everett & Borgatti 1999)
+# ---------------------------------------------------------------------------
+
+#' Group Centrality (Everett-Borgatti 1999)
+#'
+#' Group centrality measures the importance of a \emph{set} of nodes
+#' \eqn{C \subseteq V} rather than a single node. Three variants are
+#' supported:
+#'
+#' \describe{
+#'   \item{betweenness}{\eqn{GBC(C) = \sum_{s,t \in V \setminus C, s \ne t}
+#'     \sigma(s, t \mid C) / \sigma(s, t)}, where \eqn{\sigma(s, t)} is the
+#'     number of shortest \eqn{s}-\eqn{t} paths and \eqn{\sigma(s, t \mid C)}
+#'     is the number of those paths passing through at least one node in
+#'     \eqn{C}. Normalized by \eqn{1 / ((|V| - |C|)(|V| - |C| - 1))}.}
+#'   \item{closeness}{\eqn{GCC(C) = (|V| - |C|) / \sum_{v \in V \setminus C}
+#'     d(v, C)}, where \eqn{d(v, C) = \min_{c \in C} d(v, c)} is the shortest
+#'     distance from \eqn{v} to any group member. Unreachable nodes
+#'     contribute 0 to the denominator sum (matching NetworkX convention).
+#'     For directed graphs, cograph uses \eqn{d(v, c)} in the original
+#'     direction, equivalent to NetworkX's "reverse then multi-source".}
+#'   \item{degree}{\eqn{GDC(C) = |N(C) \setminus C| / (|V| - |C|)}, the
+#'     fraction of non-group nodes adjacent to at least one group member.
+#'     \code{mode = "in"} / \code{"out"} pick the corresponding directed
+#'     neighborhood.}
+#' }
+#'
+#' @section Divergence from NetworkX on betweenness:
+#' \code{networkx.group_betweenness_centrality} uses the Puzis-Yahalom-Elovici
+#' iterative algorithm, which produces results that diverge from the textbook
+#' Everett-Borgatti / Puzis 2008 "at least one node in C" definition on some
+#' graph topologies (verified via an independent Python brute-force). cograph
+#' implements the textbook formula directly; group_closeness and group_degree
+#' match NetworkX exactly.
+#'
+#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
+#' @param nodes Integer vector of node indices (1-based) or character vector
+#'   of node names identifying the group \eqn{C}.
+#' @param measure One of \code{"betweenness"}, \code{"closeness"},
+#'   \code{"degree"}.
+#' @param mode For directed graphs with \code{measure = "degree"}: \code{"all"}
+#'   (both directions), \code{"out"} (outgoing), or \code{"in"} (incoming).
+#'   Ignored for undirected graphs and other measures.
+#' @param normalized Logical, for \code{"betweenness"} only. If \code{TRUE}
+#'   (default), divide by \eqn{(|V| - |C|)(|V| - |C| - 1)}.
+#'
+#' @return A single numeric scalar — the group centrality of the set
+#'   \code{nodes}.
+#'
+#' @seealso \code{\link{centrality}} for per-node measures.
+#' @references
+#' Everett, M. G., & Borgatti, S. P. (1999). The centrality of groups and
+#' classes. \emph{Journal of Mathematical Sociology}, 23(3), 181-201.
+#'
+#' Puzis, R., Yahalom, R., & Elovici, Y. (2008). Augmentative data collection
+#' for betweenness centrality. In \emph{Advances in Social Networks Analysis
+#' and Mining} (pp. 196-200). IEEE.
+#'
+#' @export
+#' @examples
+#' g <- igraph::make_graph("Zachary")
+#' group_centrality(g, nodes = c(1, 2, 3), measure = "betweenness")
+#' group_centrality(g, nodes = c(1, 2, 3), measure = "closeness")
+#' group_centrality(g, nodes = c(1, 2, 3), measure = "degree")
+group_centrality <- function(x, nodes,
+                             measure = c("betweenness", "closeness", "degree"),
+                             mode = c("all", "out", "in"),
+                             normalized = TRUE) {
+  measure <- match.arg(measure)
+  mode <- match.arg(mode)
+
+  g <- to_igraph(x)
+  n <- igraph::vcount(g)
+
+  # Resolve node names to integer indices
+  if (is.character(nodes)) {
+    vnames <- igraph::V(g)$name
+    if (is.null(vnames)) {
+      stop("group_centrality: node names not available on graph", call. = FALSE)
+    }
+    C <- match(nodes, vnames)
+    if (anyNA(C)) {
+      stop("group_centrality: unknown nodes: ",
+           paste(nodes[is.na(C)], collapse = ", "), call. = FALSE)
+    }
+  } else {
+    C <- as.integer(nodes)
+  }
+  if (any(C < 1L | C > n)) {
+    stop("group_centrality: node indices out of range [1, ", n, "]",
+         call. = FALSE)
+  }
+  C <- unique(C)
+
+  switch(measure,
+    "betweenness" = .group_betweenness(g, C, normalized = normalized),
+    "closeness"   = .group_closeness(g, C),
+    "degree"      = .group_degree(g, C, mode = mode)
+  )
+}
+
+
+#' Group betweenness: textbook Everett-Borgatti formula
+#' @keywords internal
+#' @noRd
+.group_betweenness <- function(g, C, normalized = TRUE) {
+  n <- igraph::vcount(g)
+  V_minus_C <- setdiff(seq_len(n), C)
+  if (length(V_minus_C) < 2L) return(0)
+
+  total <- 0
+  for (s in V_minus_C) {
+    for (t in V_minus_C) {
+      if (s == t) next
+      asp <- igraph::all_shortest_paths(g, from = s, to = t, weights = NA)
+      paths <- asp$res
+      if (length(paths) == 0L) next
+      through <- sum(vapply(paths, function(p) {
+        pv <- as.integer(p)
+        if (length(pv) <= 2L) return(FALSE)
+        inner <- pv[-c(1L, length(pv))]
+        any(inner %in% C)
+      }, logical(1)))
+      total <- total + through / length(paths)
+    }
+  }
+
+  if (normalized) {
+    k <- length(V_minus_C)
+    total <- total / (k * (k - 1L))
+  }
+  total
+}
+
+
+#' Group closeness: |V - C| / sum of min-distance-to-C over V - C
+#' @keywords internal
+#' @noRd
+.group_closeness <- function(g, C) {
+  n <- igraph::vcount(g)
+  V_minus_C <- setdiff(seq_len(n), C)
+  if (length(V_minus_C) == 0L) return(0)
+
+  # distances(g, v = V-C, to = C): matrix where D[i, j] = dist from V-C[i] to C[j]
+  # min per row = distance from each v in V-C to the closest group member.
+  D <- igraph::distances(g, v = V_minus_C, to = C, mode = "out", weights = NA)
+  d_vec <- apply(D, 1, min)
+  closeness_sum <- sum(d_vec[is.finite(d_vec)])
+  if (closeness_sum == 0) return(0)
+  length(V_minus_C) / closeness_sum
+}
+
+
+#' Group degree: |N(C) - C| / (N - |C|)
+#' @keywords internal
+#' @noRd
+.group_degree <- function(g, C, mode = "all") {
+  n <- igraph::vcount(g)
+  if (!igraph::is_directed(g)) mode <- "all"
+
+  nbrs <- integer(0)
+  for (c in C) {
+    nbrs <- c(nbrs, as.integer(igraph::neighbors(g, c, mode = mode)))
+  }
+  nbrs_unique <- unique(nbrs)
+  nbrs_outside <- setdiff(nbrs_unique, C)
+  k <- n - length(C)
+  if (k == 0L) return(0)
+  length(nbrs_outside) / k
+}

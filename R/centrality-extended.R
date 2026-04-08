@@ -1946,6 +1946,49 @@ calculate_prestige_domain <- function(g) {
 }
 
 
+#' Domain Proximity Prestige (sna::prestige, cmode = "domain.proximity")
+#'
+#' Distance-weighted variant of domain prestige. For each node v:
+#'   PD(v) = R_v^2 / (D_v * (n - 1))
+#' where R_v = number of OTHER nodes that reach v, and D_v = sum of geodesic
+#' distances from those reachers to v. Returns 0 when v is unreachable.
+#'
+#' Matches sna::prestige(cmode = "domain.proximity") bit-exact on strongly
+#' connected directed graphs. On graphs with any unreachable pair, sna has a
+#' known bug: its formula does (counts > 0) * gdist element-wise and then
+#' sums, but FALSE * Inf = NaN in IEEE 754, so the entire denominator becomes
+#' NaN and sna zeros every node via p[is.nan(p)] <- 0. cograph's
+#' implementation uses is.finite() masking before summing and produces the
+#' mathematically correct values on any directed graph.
+#'
+#' @keywords internal
+#' @noRd
+calculate_prestige_domain_proximity <- function(g) {
+  n <- igraph::vcount(g)
+  if (n == 0) return(numeric(0))
+  if (!igraph::is_directed(g)) {
+    warning("prestige_domain_proximity requires a directed graph; returning NA",
+            call. = FALSE)
+    return(rep(NA_real_, n))
+  }
+  if (n == 1) return(0)
+
+  # distances(g, mode = "out")[i, j] = distance from i to j following directed
+  # edges. Column j holds distances from every source (including self = 0) to j.
+  D <- igraph::distances(g, mode = "out", weights = NA)
+
+  vapply(seq_len(n), function(v) {
+    dv <- D[, v]              # distances from every u to v (self = 0)
+    reach <- is.finite(dv)    # includes self
+    R_v <- sum(reach) - 1L    # other reachers (exclude self)
+    if (R_v <= 0) return(0)
+    D_v <- sum(dv[reach])     # self contributes 0
+    if (D_v <= 0) return(0)
+    (R_v * R_v) / (D_v * (n - 1))
+  }, numeric(1))
+}
+
+
 # =============================================================================
 # Shared helper
 # =============================================================================

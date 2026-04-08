@@ -312,3 +312,55 @@ test_that("prestige_domain matches sna::prestige(cmode='domain') BIT-EXACT", {
                                     i, n, igraph::ecount(g)))
   }
 })
+
+test_that("prestige_domain_proximity warns and returns NA on undirected", {
+  expect_warning(v <- centrality_prestige_domain_proximity(k3), "directed")
+  expect_true(all(is.na(v)))
+})
+
+test_that("prestige_domain_proximity matches sna BIT-EXACT (strongly connected)", {
+  skip_if_not_installed("sna")
+  skip_if_not_installed("igraph")
+  # Strongly connected directed graphs only: sna's formula has a
+  # FALSE * Inf = NaN bug that zeros every node when any pair is
+  # unreachable. cograph's is.finite()-masked formula is correct
+  # on all directed graphs, but bit-exact matching requires the
+  # subset where sna's formula is well-defined.
+  set.seed(7002)
+  tested <- 0
+  attempts <- 0
+  while (tested < 8 && attempts < 200) {
+    attempts <- attempts + 1
+    n <- sample(5:12, 1)
+    g <- igraph::sample_gnp(n, runif(1, 0.4, 0.7), directed = TRUE)
+    if (!igraph::is_connected(g, mode = "strong")) next
+    A  <- as.matrix(igraph::as_adjacency_matrix(g))
+    cog <- centrality(g, measures = "prestige_domain_proximity")$prestige_domain_proximity
+    sn  <- sna::prestige(A, cmode = "domain.proximity")
+    expect_identical(cog, as.numeric(sn),
+                     info = sprintf("strongly connected n=%d, m=%d",
+                                    n, igraph::ecount(g)))
+    tested <- tested + 1
+  }
+  expect_gte(tested, 3)  # ensure we actually ran some tests
+})
+
+test_that("prestige_domain_proximity gives correct values where sna has a bug", {
+  skip_if_not_installed("sna")
+  skip_if_not_installed("igraph")
+  # On a directed graph with any unreachable pair, sna::prestige's
+  # domain.proximity formula produces NaN -> all zeros (a known bug).
+  # cograph produces the mathematically correct values.
+  set.seed(7003)
+  # Build a graph with a disconnected isolated node guaranteed
+  g <- igraph::make_graph(c(1,2, 2,3, 3,1, 1,4, 4,5), n = 6, directed = TRUE)
+  # Node 6 is isolated -> unreachable pairs -> sna returns all zeros
+  A   <- as.matrix(igraph::as_adjacency_matrix(g))
+  cog <- centrality(g, measures = "prestige_domain_proximity")$prestige_domain_proximity
+  sn  <- sna::prestige(A, cmode = "domain.proximity")
+  # sna zeros everything due to the NaN bug
+  expect_true(all(sn == 0))
+  # cograph gives sensible non-zero values
+  expect_true(sum(cog > 0) >= 2,
+              info = "cograph should compute non-zero values where sna has NaN bug")
+})

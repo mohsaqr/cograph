@@ -496,6 +496,140 @@ test_that("trophic_incoherence warns + NA on undirected input", {
   expect_true(is.na(q))
 })
 
+# ===========================================================================
+# group_centrality family (Everett-Borgatti 1999)
+# ===========================================================================
+
+test_that("group_centrality: degree matches NetworkX BIT-EXACT (undirected)", {
+  skip_if_not(has_nx(), "NetworkX not available")
+  nx <- reticulate::import("networkx")
+  set.seed(7101)
+  for (i in 1:6) {
+    n <- sample(10:15, 1)
+    repeat {
+      g <- igraph::sample_gnp(n, 0.4, directed = FALSE)
+      if (igraph::is_connected(g)) break
+    }
+    S <- sort(sample(seq_len(n), 3))
+
+    el <- igraph::as_edgelist(g)
+    g_py <- nx$Graph()
+    g_py$add_nodes_from(as.integer(0:(n - 1)))
+    for (j in seq_len(nrow(el))) {
+      g_py$add_edge(as.integer(el[j, 1] - 1), as.integer(el[j, 2] - 1))
+    }
+    S_py <- reticulate::py_eval(sprintf("set([%s])",
+                                        paste(S - 1L, collapse = ",")))
+    cog <- group_centrality(g, S, measure = "degree")
+    nxv <- nx$group_degree_centrality(g_py, S_py)
+    expect_equal(cog, nxv, tolerance = 0,
+                 info = sprintf("undirected graph %d (n=%d)", i, n))
+  }
+})
+
+test_that("group_centrality: closeness matches NetworkX BIT-EXACT (undirected)", {
+  skip_if_not(has_nx(), "NetworkX not available")
+  nx <- reticulate::import("networkx")
+  set.seed(7102)
+  for (i in 1:6) {
+    n <- sample(10:15, 1)
+    repeat {
+      g <- igraph::sample_gnp(n, 0.4, directed = FALSE)
+      if (igraph::is_connected(g)) break
+    }
+    S <- sort(sample(seq_len(n), 3))
+
+    el <- igraph::as_edgelist(g)
+    g_py <- nx$Graph()
+    g_py$add_nodes_from(as.integer(0:(n - 1)))
+    for (j in seq_len(nrow(el))) {
+      g_py$add_edge(as.integer(el[j, 1] - 1), as.integer(el[j, 2] - 1))
+    }
+    S_py <- reticulate::py_eval(sprintf("set([%s])",
+                                        paste(S - 1L, collapse = ",")))
+    cog <- group_centrality(g, S, measure = "closeness")
+    nxv <- nx$group_closeness_centrality(g_py, S_py)
+    expect_equal(cog, nxv, tolerance = 1e-13,
+                 info = sprintf("undirected graph %d (n=%d)", i, n))
+  }
+})
+
+test_that("group_centrality: directed degree modes match NetworkX", {
+  skip_if_not(has_nx(), "NetworkX not available")
+  nx <- reticulate::import("networkx")
+  set.seed(7103)
+  tested <- 0
+  for (i in 1:10) {
+    n <- sample(10:14, 1)
+    g <- igraph::sample_gnp(n, 0.35, directed = TRUE)
+    if (igraph::ecount(g) < 4) next
+    S <- sort(sample(seq_len(n), 3))
+
+    el <- igraph::as_edgelist(g)
+    g_py <- nx$DiGraph()
+    g_py$add_nodes_from(as.integer(0:(n - 1)))
+    for (j in seq_len(nrow(el))) {
+      g_py$add_edge(as.integer(el[j, 1] - 1), as.integer(el[j, 2] - 1))
+    }
+    S_py <- reticulate::py_eval(sprintf("set([%s])",
+                                        paste(S - 1L, collapse = ",")))
+
+    cog_out <- group_centrality(g, S, measure = "degree", mode = "out")
+    nxv_out <- nx$group_out_degree_centrality(g_py, S_py)
+    expect_equal(cog_out, nxv_out, tolerance = 0,
+                 info = sprintf("out-deg graph %d", i))
+
+    cog_in <- group_centrality(g, S, measure = "degree", mode = "in")
+    nxv_in <- nx$group_in_degree_centrality(g_py, S_py)
+    expect_equal(cog_in, nxv_in, tolerance = 0,
+                 info = sprintf("in-deg graph %d", i))
+
+    tested <- tested + 1
+  }
+  expect_gte(tested, 5)
+})
+
+test_that("group_centrality: textbook betweenness on directed 4-cycle", {
+  # Known case: 0->1->2->3->0, C = {1}
+  # NX gives GBC({1}) = 3.0 normalized=FALSE (matches textbook any)
+  g <- igraph::make_graph(c(1,2, 2,3, 3,4, 4,1), n = 4, directed = TRUE)
+  v <- group_centrality(g, nodes = 2, measure = "betweenness", normalized = FALSE)
+  expect_equal(v, 3, tolerance = 1e-12)
+
+  # C = {1, 2}: path 0->1->2->3 has both, counted ONCE in any-formula
+  v2 <- group_centrality(g, nodes = c(2, 3), measure = "betweenness", normalized = FALSE)
+  expect_equal(v2, 1, tolerance = 1e-12)
+})
+
+test_that("group_centrality: betweenness on a 6-node directed graph (textbook)", {
+  # Hand-verified case — matches NX output because on this graph the
+  # Puzis iterative algorithm happens to agree with the textbook formula.
+  el <- matrix(c(1,6, 2,1, 3,1, 4,1, 5,1, 2,6, 6,2, 1,3, 3,6,
+                 2,4, 3,4, 5,4, 1,5, 4,5),
+               ncol = 2, byrow = TRUE)
+  g <- igraph::make_graph(as.vector(t(el)), n = 6, directed = TRUE)
+  v <- group_centrality(g, nodes = c(1, 2), measure = "betweenness",
+                        normalized = FALSE)
+  expect_equal(v, 7.5, tolerance = 1e-12)
+})
+
+test_that("group_centrality: node-name lookup", {
+  adj <- matrix(c(0,1,1,0, 1,0,1,1, 1,1,0,1, 0,1,1,0), 4, 4)
+  rownames(adj) <- colnames(adj) <- LETTERS[1:4]
+  v <- group_centrality(adj, nodes = c("A", "B"), measure = "degree")
+  expect_type(v, "double")
+  expect_true(is.finite(v))
+})
+
+test_that("group_centrality: unknown node name errors", {
+  adj <- matrix(c(0,1,1,0, 1,0,1,1, 1,1,0,1, 0,1,1,0), 4, 4)
+  rownames(adj) <- colnames(adj) <- LETTERS[1:4]
+  expect_error(
+    group_centrality(adj, nodes = c("A", "Z"), measure = "degree"),
+    "unknown nodes"
+  )
+})
+
 test_that("trophic_incoherence matches NetworkX BIT-EXACT", {
   skip_if_not(has_nx(), "NetworkX not available")
   nx <- reticulate::import("networkx")

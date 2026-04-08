@@ -87,7 +87,7 @@ strongest <- triads[order(triads$total_weight, decreasing = TRUE), ]
 
 }
 \seealso{
-\code{\link[igraph:motifs]{igraph::motifs()}}, \code{\link[=subgraphs]{subgraphs()}}, \code{\link[=motif_census]{motif_census()}}, \code{\link[=extract_motifs]{extract_motifs()}}
+\code{\link[=motifs]{motifs()}}, \code{\link[=subgraphs]{subgraphs()}}, \code{\link[=motif_census]{motif_census()}}, \code{\link[=extract_motifs]{extract_motifs()}}
 
 Other motifs: 
 \code{\link{extract_motifs}()},

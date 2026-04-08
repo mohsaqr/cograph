@@ -29,9 +29,10 @@
 #' @details
 #' \strong{Continuous method (Borgatti-Everett):}
 #' Finds a coreness vector \code{c} (values 0-1) that maximizes the correlation
-#' between the adjacency matrix and the ideal pattern matrix \code{cc'} (outer
-#' product). The algorithm initializes from eigenvector centrality and iteratively
-#' refines via power iteration until convergence.
+#' between the adjacency matrix and the ideal rank-1 pattern matrix
+#' (the outer product of the coreness vector with itself). The algorithm
+#' initializes from eigenvector centrality and iteratively refines via
+#' power iteration until convergence.
 #'
 #' \strong{Discrete method:}
 #' Produces a binary core (1) / periphery (0) assignment. Starts from the

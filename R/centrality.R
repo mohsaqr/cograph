@@ -2283,6 +2283,9 @@ centrality_mnc <- function(x, mode = "all", ...) {
 #' Edge count divided by max component size^1.5 in the neighborhood subgraph.
 #'
 #' @inheritParams centrality_degree
+#' @param dmnc_epsilon Numeric. Epsilon exponent for DMNC. Default 1.7 as
+#'   recommended by Lin et al. (2008). centiserve uses 1.67 (four-community
+#'   assumption). Must be between 1 and 2.
 #'
 #' @return Named numeric vector of DMNC values.
 #'
@@ -2934,7 +2937,7 @@ centrality_information <- function(x, ...) {
 #' @param x Directed network input (matrix, igraph, cograph_network, tna object).
 #' @param ... Additional arguments passed to \code{\link{centrality}}.
 #'
-#' @return Named numeric vector of pairwise disconnectivity values in [0, 1].
+#' @return Named numeric vector of pairwise disconnectivity values in \eqn{[0, 1]}.
 #'
 #' @seealso \code{\link{centrality}}, \code{\link{robustness}}.
 #' @references

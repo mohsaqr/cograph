@@ -12,7 +12,7 @@ centrality_pairwisedis(x, ...)
 \item{...}{Additional arguments passed to \code{\link{centrality}}.}
 }
 \value{
-Named numeric vector of pairwise disconnectivity values in \link{0, 1}.
+Named numeric vector of pairwise disconnectivity values in \eqn{[0, 1]}.
 }
 \description{
 For a directed network, \code{pairwisedis(v)} is the fraction of ordered

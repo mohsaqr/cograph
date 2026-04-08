@@ -47,5 +47,6 @@ Trophic coherence determines food-web stability. \emph{PNAS}, 111(50),
 17923-17928.
 }
 \seealso{
-\code{\link{centrality_trophic_level}} for the per-node levels.
+\code{\link{centrality}} (the \code{trophic_level} measure) for
+the per-node levels used in the incoherence calculation.
 }

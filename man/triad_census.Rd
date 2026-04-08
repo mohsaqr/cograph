@@ -37,7 +37,7 @@ triad_census(mat)
 
 }
 \seealso{
-\code{\link[igraph:motifs]{igraph::motifs()}} for the unified API, \code{\link[=motif_census]{motif_census()}}
+\code{\link[=motifs]{motifs()}} for the unified API, \code{\link[=motif_census]{motif_census()}}
 
 Other motifs: 
 \code{\link{extract_motifs}()},

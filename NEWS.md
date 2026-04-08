@@ -1,4 +1,4 @@
-# cograph (development version)
+# cograph 2.0.1
 
 ## New Features
 

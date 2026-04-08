@@ -1797,6 +1797,47 @@ calculate_information <- function(g, weights = NULL) {
 }
 
 
+#' Pairwise Disconnectivity (Potapov, Voss, et al. 2008)
+#'
+#' For directed graphs: fraction of ordered reachable pairs that become
+#' unreachable when node v is removed.
+#'
+#'   PD(v) = (|P(G)| - |P(G - v)|) / |P(G)|
+#'
+#' where P(G) is the number of ordered (s,t) pairs with s != t and a directed
+#' path from s to t. Matches centiserve::pairwisedis exactly.
+#'
+#' @keywords internal
+#' @noRd
+calculate_pairwisedis <- function(g) {
+  n <- igraph::vcount(g)
+  if (n == 0) return(numeric(0))
+  if (!igraph::is_directed(g)) {
+    warning("pairwisedis requires a directed graph; returning NA",
+            call. = FALSE)
+    return(rep(NA_real_, n))
+  }
+  if (n == 1) return(0)
+
+  # Count reachable ordered pairs (exclude s == t) using NA weights to force
+  # unweighted distances (matches centiserve, which uses shortest.paths w=NA).
+  sp_full <- igraph::distances(g, v = igraph::V(g),
+                               to = igraph::V(g), mode = "out", weights = NA)
+  all_paths <- sum(is.finite(sp_full)) - n  # subtract self-pairs (diagonal)
+
+  if (all_paths == 0) return(rep(0, n))
+
+  # For each node, delete it and recount
+  vapply(seq_len(n), function(v) {
+    g_minus <- igraph::delete_vertices(g, v)
+    sp <- igraph::distances(g_minus, v = igraph::V(g_minus),
+                            to = igraph::V(g_minus), mode = "out", weights = NA)
+    paths <- sum(is.finite(sp)) - igraph::vcount(g_minus)
+    (all_paths - paths) / all_paths
+  }, numeric(1))
+}
+
+
 # =============================================================================
 # Shared helper
 # =============================================================================

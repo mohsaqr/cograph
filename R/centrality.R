@@ -300,7 +300,7 @@ centrality <- function(x, measures = "all", mode = "all",
                         "second_order", "infection", "nonbacktracking",
                         "spanning_tree",
                         # Batch 3 — classical measures with reference validation
-                        "katz", "hubbell", "information")
+                        "katz", "hubbell", "information", "pairwisedis")
   all_measures <- c(mode_measures, no_mode_measures)
 
   # Resolve measures
@@ -1147,6 +1147,7 @@ calculate_measure <- function(g, measure, mode, weights, normalized,
     "hubbell" = calculate_hubbell(g, weights = weights,
                                   weightfactor = hubbell_weight),
     "information" = calculate_information(g, weights = weights),
+    "pairwisedis" = calculate_pairwisedis(g),
 
     stop("Unknown measure: ", measure, call. = FALSE)
   )
@@ -2881,6 +2882,40 @@ centrality_hubbell <- function(x, hubbell_weight = 0.5, ...) {
 centrality_information <- function(x, ...) {
   df <- centrality(x, measures = "information", ...)
   stats::setNames(df$information, df$node)
+}
+
+
+#' Pairwise Disconnectivity (Potapov et al. 2008)
+#'
+#' For a directed network, \code{pairwisedis(v)} is the fraction of ordered
+#' reachable pairs \eqn{(s, t)} that become unreachable when node \eqn{v} is
+#' removed:
+#' \deqn{PD(v) = (|P(G)| - |P(G - v)|) / |P(G)|}
+#' where \eqn{|P(G)|} is the number of ordered pairs \eqn{(s, t), s \ne t}
+#' with a directed path from \eqn{s} to \eqn{t}.
+#'
+#' Bit-exact match against \code{centiserve::pairwisedis} on directed
+#' graphs. Requires the input to be directed; returns \code{NA} with a
+#' warning on undirected inputs.
+#'
+#' @param x Directed network input (matrix, igraph, cograph_network, tna object).
+#' @param ... Additional arguments passed to \code{\link{centrality}}.
+#'
+#' @return Named numeric vector of pairwise disconnectivity values in [0, 1].
+#'
+#' @seealso \code{\link{centrality}}, \code{\link{robustness}}.
+#' @references
+#' Potapov, A. P., Voss, N., Sasse, N., & Wingender, E. (2008). Topology of
+#' mammalian transcription networks. \emph{Genome Informatics}, 18, 193-204.
+#'
+#' @export
+#' @examples
+#' adj <- matrix(c(0,1,0, 0,0,1, 1,0,0), 3, 3, byrow = TRUE)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+#' centrality_pairwisedis(adj)
+centrality_pairwisedis <- function(x, ...) {
+  df <- centrality(x, measures = "pairwisedis", ...)
+  stats::setNames(df$pairwisedis, df$node)
 }
 
 

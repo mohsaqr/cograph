@@ -12,6 +12,10 @@ skip_coverage_tests()
 k3 <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
 rownames(k3) <- colnames(k3) <- c("A", "B", "C")
 
+# Directed 3-cycle (for directed-only measures)
+d3 <- matrix(c(0,1,0, 0,0,1, 1,0,0), 3, 3, byrow = TRUE)
+rownames(d3) <- colnames(d3) <- c("A","B","C")
+
 # ===========================================================================
 # Katz centrality (Katz 1953)
 # ===========================================================================
@@ -149,5 +153,40 @@ test_that("information matches sna::infocent BIT-EXACT (connected)", {
     sn  <- sna::infocent(A)
     expect_identical(cog, sn,
                      info = sprintf("graph %d, n=%d", i, n))
+  }
+})
+
+# ===========================================================================
+# Pairwise Disconnectivity (Potapov et al. 2008)
+# ===========================================================================
+
+test_that("pairwisedis warns and returns NA on undirected input", {
+  expect_warning(v <- centrality_pairwisedis(k3), "directed")
+  expect_true(all(is.na(v)))
+})
+
+test_that("pairwisedis works on directed 3-cycle", {
+  v <- centrality_pairwisedis(d3)
+  expect_length(v, 3)
+  # All nodes equivalent by symmetry
+  expect_equal(v[[1]], v[[2]])
+  # For a 3-cycle: 6 reachable ordered pairs before removal; 1 remaining
+  # after any removal -> PD = (6 - 1) / 6 = 5/6
+  expect_equal(unname(v[[1]]), 5/6, tolerance = 1e-10)
+})
+
+test_that("pairwisedis matches centiserve::pairwisedis BIT-EXACT", {
+  skip_if_not_installed("centiserve")
+  skip_if_not_installed("igraph")
+  set.seed(4001)
+  for (i in 1:12) {
+    n <- sample(5:20, 1)
+    g <- igraph::sample_gnp(n, runif(1, 0.2, 0.5), directed = TRUE)
+    if (igraph::ecount(g) < 2) next
+    cog <- centrality(g, measures = "pairwisedis")$pairwisedis
+    cs  <- centiserve::pairwisedis(g)
+    expect_identical(cog, cs,
+                     info = sprintf("graph %d, n=%d, m=%d",
+                                    i, n, igraph::ecount(g)))
   }
 })

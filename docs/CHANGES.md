@@ -1,5 +1,17 @@
 # Changes
 
+## 2026-04-08 — Consolidated centrality validation runner
+
+- scripts/validate_centrality.R: New reproducible validation runner consolidating the three scratch scripts from `/tmp`. Covers all 25 Batch 3+4+5+6 checks in one pass:
+  - Batch 3: katz, hubbell, information, pairwisedis, reaching_local, reaching_global
+  - Batch 4: prestige_domain, prestige_domain_proximity (+ sna bug regression test)
+  - Batch 5: 5 Gould-Fernandez brokerage roles
+  - Batch 6: estrada_index (+ identity check), trophic_incoherence, group_centrality (closeness/degree/betweenness), dispersion
+- Script gracefully SKIPs checks when optional references (sna, centiserve, networkx) are unavailable; exits non-zero on any FAIL.
+- Supports `--snapshot` (write expected-output file) and `--diff` (compare against prior snapshot) modes for CI regression detection.
+- scripts/validate_centrality_snapshot.txt: First snapshot — 25 pass, 0 fail, 0 skip on R 4.5.2 / igraph 2.2.2 / sna 2.8 / centiserve 1.0.0 / networkx 3.6.1.
+- Two bootstrap fixes during development: `read.dcf()[1,1]` returns a named character so `identical(., "cograph")` needed `unname()`; hubbell check needed `hubbell_weight =` (not `weightfactor =`) per the `centrality()` signature.
+
 ## 2026-04-08 — Extended centrality batch: 64 measures + 39 convenience wrappers
 
 - R/centrality.R: Wired 5 remaining measures (salsa, leaderrank, participation, within_module_z, gateway) into `calculate_measure` dispatcher. Updated measure count from 59 to 64. Added `@param` docs for `decay_parameter` and `membership`.

@@ -5,7 +5,7 @@
 #'
 #' @param x Network input (matrix, igraph, network, cograph_network, tna object)
 #' @param measures Which measures to calculate. Default "all" calculates all
-#'   available measures (80 total). Can be a character vector of measure names.
+#'   available measures (82 total). Can be a character vector of measure names.
 #'   **Core** (igraph-backed): "degree", "strength", "betweenness", "closeness",
 #'   "eigenvector", "pagerank", "authority", "hub", "eccentricity", "coreness",
 #'   "constraint", "transitivity", "harmonic", "alpha", "power", "subgraph".
@@ -23,7 +23,8 @@
 #'   "bridging", "local_bridging", "effective_size", "diversity",
 #'   "cross_clique", "markov".
 #'   **Influence**: "integration", "expected", "gilschmidt".
-#'   **Directed-only**: "salsa", "leaderrank", "trophic_level", "pairwisedis".
+#'   **Directed-only**: "salsa", "leaderrank", "trophic_level", "pairwisedis",
+#'   "prestige_domain", "prestige_domain_proximity".
 #'   **Community-aware** (require \code{membership}): "participation",
 #'   "within_module_z", "gateway".
 #'   **Zoo (batch 2)**: "gravity", "collective_influence", "local_hindex",

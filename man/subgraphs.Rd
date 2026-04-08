@@ -25,7 +25,7 @@ rownames(mat) <- colnames(mat) <- c("Plan","Execute","Monitor","Adapt")
 subgraphs(mat, significance = FALSE)
 }
 \seealso{
-\code{\link[=motifs]{motifs()}}
+\code{\link[igraph:motifs]{igraph::motifs()}}
 
 Other motifs: 
 \code{\link{extract_motifs}()},

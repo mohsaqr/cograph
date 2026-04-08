@@ -74,12 +74,14 @@ test_that("degree_distribution works with adjacency matrix", {
                   1, 1, 0, 1,
                   0, 1, 1, 0), 4, 4, byrow = TRUE)
 
-  # Should not error; returns histogram object invisibly
-  expect_no_error({
-    pdf(NULL)  # suppress plot output
-    result <- degree_distribution(mat)
-    dev.off()
-  })
+  pdf(NULL)
+  result <- degree_distribution(mat)
+  dev.off()
+
+  expect_true(is.list(result))
+  expect_named(result, c("degree", "table", "breaks", "counts", "proportions"))
+  expect_equal(sum(result$counts), 4L)
+  expect_equal(sum(result$proportions), 1)
 })
 
 test_that("degree_distribution cumulative works", {
@@ -111,11 +113,106 @@ test_that("degree_distribution with directed mode works", {
 test_that("degree_distribution with igraph works", {
   skip_if_not_installed("igraph")
 
-  g <- igraph::erdos.renyi.game(20, 0.3)
+  g <- igraph::sample_gnp(20, 0.3)
 
   expect_no_error({
     pdf(NULL)
     result <- degree_distribution(g)
     dev.off()
   })
+})
+
+test_that("degree_distribution bins parameter controls bin count", {
+  mat <- create_test_matrix(30, density = 0.2)
+  pdf(NULL)
+  res <- degree_distribution(mat, bins = 4)
+  dev.off()
+
+  expect_equal(length(res$counts), 4L)
+})
+
+test_that("degree_distribution bin_width parameter works", {
+  mat <- create_test_matrix(30, density = 0.2)
+  pdf(NULL)
+  res <- degree_distribution(mat, bin_width = 3)
+  dev.off()
+
+  diffs <- diff(res$breaks)
+  expect_true(all(abs(diffs - 3) < 1e-10))
+})
+
+test_that("degree_distribution custom breaks vector works", {
+  mat <- create_test_matrix(30, density = 0.2)
+  pdf(NULL)
+  res <- degree_distribution(mat, breaks = c(0, 5, 10, 15, 20, 30))
+  dev.off()
+
+  expect_equal(res$breaks, c(0, 5, 10, 15, 20, 30))
+  expect_equal(length(res$counts), 5L)
+})
+
+test_that("degree_distribution breaks string works", {
+  mat <- create_test_matrix(30, density = 0.2)
+  pdf(NULL)
+  res <- degree_distribution(mat, breaks = "Sturges")
+  dev.off()
+
+  expect_true(length(res$counts) > 0)
+})
+
+test_that("degree_distribution normalize produces proportions", {
+  mat <- create_test_matrix(30, density = 0.2)
+  pdf(NULL)
+  res <- degree_distribution(mat, normalize = TRUE)
+  dev.off()
+
+  expect_equal(sum(res$proportions), 1)
+})
+
+test_that("degree_distribution log scales work", {
+  mat <- create_test_matrix(50, density = 0.15)
+
+  pdf(NULL)
+  expect_no_error(degree_distribution(mat, log = "y"))
+  expect_no_error(degree_distribution(mat, cumulative = TRUE, log = "xy"))
+  expect_no_error(degree_distribution(mat, cumulative = TRUE, log = "x"))
+  expect_no_error(degree_distribution(mat, cumulative = TRUE, log = "y"))
+  dev.off()
+})
+
+test_that("degree_distribution border parameter works", {
+  mat <- create_test_matrix(20, density = 0.3)
+  pdf(NULL)
+  expect_no_error(degree_distribution(mat, border = "black"))
+  dev.off()
+})
+
+test_that("degree_distribution custom ylab works", {
+  mat <- create_test_matrix(20, density = 0.3)
+  pdf(NULL)
+  expect_no_error(degree_distribution(mat, ylab = "Count"))
+  expect_no_error(degree_distribution(mat, cumulative = TRUE, ylab = "CDF"))
+  expect_no_error(degree_distribution(mat, normalize = TRUE, ylab = "Frac"))
+  dev.off()
+})
+
+test_that("degree_distribution default ylab auto-selects", {
+  mat <- create_test_matrix(20, density = 0.3)
+  # Just verify no error with default ylab = NULL in each mode
+  pdf(NULL)
+  expect_no_error(degree_distribution(mat))
+  expect_no_error(degree_distribution(mat, normalize = TRUE))
+  expect_no_error(degree_distribution(mat, cumulative = TRUE))
+  dev.off()
+})
+
+test_that("degree_distribution integer-aligned default for small range", {
+  mat <- create_test_matrix(20, density = 0.3)
+  pdf(NULL)
+  res <- degree_distribution(mat)
+  dev.off()
+
+  # Default integer bins: breaks should be 0.5-spaced
+  diffs <- diff(res$breaks)
+  expect_true(all(abs(diffs - 1) < 1e-10))
 })

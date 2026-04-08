@@ -89,7 +89,7 @@
 #'
 #' # From igraph object
 #' if (requireNamespace("igraph", quietly = TRUE)) {
-#'   g <- igraph::erdos.renyi.game(20, 0.3)
+#'   g <- igraph::sample_gnp(20, 0.3)
 #'   network_summary(g)
 #' }
 network_summary <- function(x,
@@ -246,41 +246,73 @@ network_summary <- function(x,
 
 #' Degree Distribution Visualization
 #'
-#' Creates a histogram showing the degree distribution of a network.
-#' Useful for understanding the connectivity patterns and identifying
-#' whether a network follows particular degree distributions (e.g.,
-#' power-law, normal).
+#' Creates a histogram or cumulative distribution plot of node degrees. By
+#' default, bins are integer-aligned (one bar per degree value) so each bar
+#' maps to an exact degree.
 #'
-#' @param x Network input: matrix, igraph, network, cograph_network, or tna object
+#' @param x Network input: matrix, igraph, network, cograph_network, or tna
+#'   object.
 #' @param mode For directed networks: "all", "in", or "out". Default "all".
 #' @param directed Logical or NULL. If NULL (default), auto-detect from matrix
 #'   symmetry. Set TRUE to force directed, FALSE to force undirected.
-#' @param loops Logical. If TRUE (default), keep self-loops. Set FALSE to remove them.
+#' @param loops Logical. If TRUE (default), keep self-loops. Set FALSE to
+#'   remove them.
 #' @param simplify How to combine multiple edges between the same node pair.
 #'   Options: "sum" (default), "mean", "max", "min", or FALSE/"none" to keep
 #'   multiple edges.
-#' @param cumulative Logical. If TRUE, show cumulative distribution instead of
-#'   frequency distribution. Default FALSE.
+#' @param cumulative Logical. If TRUE, show CCDF (complementary cumulative
+#'   distribution: P(degree >= k)) instead of frequency. Default FALSE.
+#' @param breaks Bin specification passed to \code{\link[graphics]{hist}}. Can
+#'   be a numeric vector of breakpoints, a single number giving the number of
+#'   bins, or a character string naming an algorithm (e.g. "Sturges", "FD",
+#'   "scott"). Overrides \code{bins} and \code{bin_width}. Default NULL
+#'   (auto-detect).
+#' @param bins Integer. Approximate number of bins. Overrides \code{bin_width}.
+#'   Default NULL.
+#' @param bin_width Numeric. Width of each bin. Default NULL (auto: 1 when the
+#'   degree range is \eqn{\le 50}{<= 50}, otherwise Freedman-Diaconis).
+#' @param normalize Logical. If TRUE, the y-axis shows proportions (bars sum
+#'   to 1) instead of counts. Default FALSE.
+#' @param log Character. Axis log-scaling: "" (none, default), "x", "y", or
+#'   "xy". For cumulative plots, "xy" produces log-log CCDF (standard for
+#'   power-law inspection).
 #' @param main Character. Plot title. Default "Degree Distribution".
 #' @param xlab Character. X-axis label. Default "Degree".
-#' @param ylab Character. Y-axis label. Default "Frequency" (or "Cumulative
-#'   Frequency" if cumulative = TRUE).
-#' @param col Character. Bar fill color. Default "steelblue".
-#' @param ... Additional arguments passed to \code{\link[graphics]{hist}}.
+#' @param ylab Character. Y-axis label. Default auto-chosen based on
+#'   \code{normalize} and \code{cumulative}.
+#' @param col Character. Bar/line fill color. Default "steelblue".
+#' @param border Character. Bar border color. Default "white".
+#' @param ... Additional graphical arguments passed to
+#'   \code{\link[graphics]{barplot}} (histogram) or
+#'   \code{\link[graphics]{plot}} (cumulative).
 #'
-#' @return Invisibly returns the histogram object from \code{graphics::hist()}.
+#' @return Invisibly returns a list with components:
+#'   \describe{
+#'     \item{degree}{Named integer vector of per-node degrees.}
+#'     \item{table}{Table of degree frequencies.}
+#'     \item{breaks}{Breakpoints used for the histogram (non-cumulative only).}
+#'     \item{counts}{Bin counts (non-cumulative only).}
+#'     \item{proportions}{Bin proportions (non-cumulative only).}
+#'   }
 #'
 #' @export
 #' @examples
-#' # Basic usage
+#' # Basic usage — integer-aligned bins by default
 #' adj <- matrix(c(0, 1, 1, 0,
 #'                 1, 0, 1, 1,
 #'                 1, 1, 0, 1,
 #'                 0, 1, 1, 0), 4, 4, byrow = TRUE)
 #' cograph::degree_distribution(adj)
 #'
-#' # Cumulative distribution
+#' # Cumulative (CCDF)
 #' cograph::degree_distribution(adj, cumulative = TRUE)
+#'
+#' # Control bins
+#' \dontrun{
+#' cograph::degree_distribution(large_net, bins = 15)
+#' cograph::degree_distribution(large_net, bin_width = 5)
+#' cograph::degree_distribution(large_net, breaks = c(0, 5, 10, 20, 50, 100))
+#' }
 #'
 #' # For directed networks
 #' directed_adj <- matrix(c(0, 1, 0, 0,
@@ -292,7 +324,7 @@ network_summary <- function(x,
 #'
 #' # With igraph
 #' if (requireNamespace("igraph", quietly = TRUE)) {
-#'   g <- igraph::erdos.renyi.game(100, 0.1)
+#'   g <- igraph::sample_gnp(100, 0.1)
 #'   cograph::degree_distribution(g, col = "coral")
 #' }
 degree_distribution <- function(x,
@@ -301,14 +333,21 @@ degree_distribution <- function(x,
                                 loops = TRUE,
                                 simplify = "sum",
                                 cumulative = FALSE,
+                                breaks = NULL,
+                                bins = NULL,
+                                bin_width = NULL,
+                                normalize = FALSE,
+                                log = "",
                                 main = "Degree Distribution",
                                 xlab = "Degree",
-                                ylab = "Frequency",
+                                ylab = NULL,
                                 col = "steelblue",
+                                border = "white",
                                 ...) {
 
   # Validate mode
   mode <- match.arg(mode, c("all", "in", "out"))
+  stopifnot(is.character(log), length(log) == 1L, log %in% c("", "x", "y", "xy"))
 
   # Convert input to igraph
   g <- to_igraph(x, directed = directed)
@@ -327,43 +366,145 @@ degree_distribution <- function(x,
 
   # Get degree values
   deg <- igraph::degree(g, mode = mode)
+  deg_range <- range(deg)
 
-  # Adjust y-axis label for cumulative
+  # Compute breaks
+  computed_breaks <- .compute_degree_breaks(deg, deg_range, breaks, bins,
+                                            bin_width)
 
-  if (cumulative && ylab == "Frequency") {
-    ylab <- "Cumulative Frequency"
+  # Default y-axis label
+  if (is.null(ylab)) {
+    ylab <- if (cumulative) {
+      "P(Degree \u2265 k)"
+    } else if (normalize) {
+      "Proportion"
+    } else {
+      "Frequency"
+    }
   }
 
-  # Create histogram
   if (cumulative) {
-    # For cumulative, we need to compute the empirical CDF
-    deg_sorted <- sort(deg)
-    n <- length(deg_sorted)
-    cum_freq <- seq_len(n) / n
-
-    # Create histogram for return value, but plot CDF
-    h <- graphics::hist(deg, plot = FALSE, ...)
-
-    # Plot cumulative distribution as step function
-    graphics::plot(deg_sorted, cum_freq,
-                   type = "s",
-                   main = main,
-                   xlab = xlab,
-                   ylab = ylab,
-                   col = col,
-                   lwd = 2,
-                   ...)
+    .plot_cumulative_degree(deg, log, main, xlab, ylab, col, ...)
   } else {
-    # Standard histogram
-    h <- graphics::hist(deg,
-                        main = main,
-                        xlab = xlab,
-                        ylab = ylab,
-                        col = col,
-                        ...)
+    .plot_histogram_degree(deg, computed_breaks, normalize, log, main, xlab,
+                           ylab, col, border, ...)
   }
 
-  invisible(h)
+  # Return value
+  deg_table <- table(deg)
+  h <- graphics::hist(deg, breaks = computed_breaks, plot = FALSE)
+
+  invisible(list(
+    degree = deg,
+    table = deg_table,
+    breaks = h$breaks,
+    counts = h$counts,
+    proportions = h$counts / sum(h$counts)
+  ))
+}
+
+#' Compute histogram breaks for degree data
+#' @noRd
+.compute_degree_breaks <- function(deg, deg_range, breaks, bins, bin_width) {
+  if (!is.null(breaks)) return(breaks)
+
+  if (!is.null(bins)) {
+    return(seq(deg_range[1] - 0.5, deg_range[2] + 0.5,
+               length.out = bins + 1L))
+  }
+
+  if (!is.null(bin_width)) {
+    lo <- deg_range[1] - bin_width / 2
+    hi <- deg_range[2] + bin_width / 2
+    brks <- seq(lo, hi, by = bin_width)
+    # Ensure last break covers max value
+    if (brks[length(brks)] < deg_range[2]) {
+      brks <- c(brks, brks[length(brks)] + bin_width)
+    }
+    return(brks)
+  }
+
+  # Default: integer-aligned when range <= 50, Freedman-Diaconis otherwise
+  span <- deg_range[2] - deg_range[1]
+  if (span <= 50) {
+    seq(deg_range[1] - 0.5, deg_range[2] + 0.5, by = 1)
+  } else {
+    "FD"
+  }
+}
+
+#' Plot cumulative degree distribution (CCDF)
+#' @noRd
+.plot_cumulative_degree <- function(deg, log, main, xlab, ylab, col, ...) {
+  deg_tab <- table(deg)
+  k_vals <- as.integer(names(deg_tab))
+  n <- length(deg)
+  # CCDF: P(degree >= k)
+  ccdf <- vapply(k_vals, function(k) sum(deg >= k) / n, numeric(1))
+
+  use_log <- if (log == "xy") "xy" else if (log == "x") "x" else
+    if (log == "y") "y" else ""
+
+  # Filter zeros for log scale
+  keep <- if (nzchar(use_log)) ccdf > 0 else rep(TRUE, length(ccdf))
+
+  graphics::plot(k_vals[keep], ccdf[keep],
+                 type = "b",
+                 pch = 16,
+                 log = use_log,
+                 main = main,
+                 xlab = xlab,
+                 ylab = ylab,
+                 col = col,
+                 lwd = 2,
+                 ...)
+  graphics::grid(col = grDevices::adjustcolor("gray50", 0.3), lty = 1)
+}
+
+#' Plot histogram for degree distribution
+#' @noRd
+.plot_histogram_degree <- function(deg, breaks, normalize, log, main, xlab,
+                                   ylab, col, border, ...) {
+  h <- graphics::hist(deg, breaks = breaks, plot = FALSE)
+
+  heights <- if (normalize) h$counts / sum(h$counts) else h$counts
+  bar_names <- .degree_bar_labels(h$breaks)
+
+  use_log <- if (log %in% c("y", "xy")) "y" else ""
+  if (nzchar(use_log)) {
+    heights[heights == 0] <- NA
+  }
+
+  graphics::barplot(heights,
+                    names.arg = bar_names,
+                    main = main,
+                    xlab = xlab,
+                    ylab = ylab,
+                    col = col,
+                    border = border,
+                    log = use_log,
+                    space = 0,
+                    las = 1,
+                    ...)
+  graphics::grid(nx = NA, ny = NULL,
+                 col = grDevices::adjustcolor("gray50", 0.3), lty = 1)
+}
+
+#' Create bar labels from histogram breaks
+#' @noRd
+.degree_bar_labels <- function(brks) {
+  vapply(seq_len(length(brks) - 1L), function(i) {
+    lo <- ceiling(brks[i])
+    hi <- floor(brks[i + 1L])
+    if (lo > hi) {
+      # Sub-integer bin width: use decimal range
+      sprintf("%.1f", (brks[i] + brks[i + 1L]) / 2)
+    } else if (lo == hi) {
+      as.character(lo)
+    } else {
+      sprintf("%d-%d", lo, hi)
+    }
+  }, character(1))
 }
 
 
@@ -686,11 +827,6 @@ network_local_efficiency <- function(x, weights = NULL, invert_weights = NULL, a
     g <- to_igraph(x, ...)
   }
 
-  # Make undirected for local efficiency calculation
-  if (igraph::is_directed(g)) {
-    g <- igraph::as_undirected(g, mode = "collapse")
-  }
-
   n <- igraph::vcount(g)
   if (n <= 1) return(NA_real_)
 
@@ -704,34 +840,13 @@ network_local_efficiency <- function(x, weights = NULL, invert_weights = NULL, a
     inv_weights <- 1 / (weights ^ alpha)
     inv_weights[!is.finite(inv_weights)] <- .Machine$double.xmax
     igraph::E(g)$weight <- inv_weights
+    weights <- inv_weights
   }
 
-  local_eff <- numeric(n)
-
-  for (v in seq_len(n)) {
-    # Get neighbors
-    neighbors <- igraph::neighbors(g, v, mode = "all")
-    k <- length(neighbors)
-
-    if (k <= 1) {
-      local_eff[v] <- 0
-      next
-    }
-
-    # Induce subgraph on neighbors
-    subg <- igraph::induced_subgraph(g, neighbors)
-
-    # Compute efficiency of subgraph (weights already inverted on g)
-    sp <- igraph::distances(subg, mode = "all",
-                            weights = if (!is.null(weights)) igraph::E(subg)$weight else NULL)
-    diag(sp) <- NA
-    inv_sp <- 1 / sp
-    inv_sp[is.infinite(sp)] <- 0
-
-    local_eff[v] <- sum(inv_sp, na.rm = TRUE) / (k * (k - 1))
-  }
-
-  mean(local_eff, na.rm = TRUE)
+  # Use igraph's Latora-Marchiori (2001) implementation directly
+  igraph::average_local_efficiency(g, weights = weights,
+                                    directed = igraph::is_directed(g),
+                                    mode = "all")
 }
 
 
@@ -792,7 +907,7 @@ network_small_world <- function(x, n_random = 10, ...) {
 
   for (i in seq_len(n_random)) {
     # Erdos-Renyi random graph with same n and m
-    g_rand <- igraph::erdos.renyi.game(n, m, type = "gnm")
+    g_rand <- igraph::sample_gnm(n, m)
     C_rand_vals[i] <- igraph::transitivity(g_rand, type = "global")
     L_rand_vals[i] <- igraph::mean_distance(g_rand, directed = FALSE)
   }
@@ -882,7 +997,7 @@ network_rich_club <- function(x, k = NULL, normalized = FALSE, n_random = 10, ..
       igraph::sample_degseq(deg, method = "fast.heur.simple")
     }, error = function(e) {
       # Fall back to Erdos-Renyi if degree sequence fails
-      igraph::erdos.renyi.game(igraph::vcount(g), igraph::ecount(g), type = "gnm") # nocov
+      igraph::sample_gnm(igraph::vcount(g), igraph::ecount(g)) # nocov
     })
 
     deg_rand <- igraph::degree(g_rand)

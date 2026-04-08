@@ -20,5 +20,6 @@ List with x, y vectors of vertices.
 }
 \description{
 Returns outer polygon vertices for donut ring shapes.
+Non-circle shapes are subdivided so that fill proportions are accurate.
 }
 \keyword{internal}

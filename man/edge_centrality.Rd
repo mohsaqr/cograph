@@ -24,7 +24,8 @@ edge_betweenness(x, ...)
 \item{x}{Network input (matrix, igraph, network, cograph_network, tna object)}
 
 \item{measures}{Which measures to calculate. Default "all" calculates all
-available edge measures. Options: "betweenness", "weight".}
+available edge measures. Options: "betweenness", "weight", "overlap",
+"simmelian", "reciprocity".}
 
 \item{weighted}{Logical. Use edge weights if available. Default TRUE.}
 
@@ -45,13 +46,8 @@ Default NULL (auto-detect: TRUE for tna objects, FALSE otherwise).}
 \item{...}{Additional arguments passed to \code{\link{to_igraph}}}
 }
 \value{
-A data frame with columns:
-\itemize{
-\item \code{from}: Source node label
-\item \code{to}: Target node label
-\item \code{weight}: Edge weight (if weighted)
-\item \code{betweenness}: Edge betweenness centrality
-}
+A data frame with columns \code{from}, \code{to}, and one column
+per requested measure.
 
 Named numeric vector of edge betweenness values (named by
 \code{"from->to"}).
@@ -61,12 +57,15 @@ Computes centrality measures for edges in a network and returns a tidy
 data frame. Unlike node centrality, these measures describe edge importance.
 }
 \details{
-Edge centrality measures available:
+Edge measures available:
 \describe{
-\item{betweenness}{Number of shortest paths passing through the edge.
-Edges with high betweenness are bridges connecting different parts
-of the network.}
-\item{weight}{Original edge weight (included for reference)}
+\item{betweenness}{Number of shortest paths passing through the edge.}
+\item{weight}{Original edge weight.}
+\item{overlap}{Jaccard neighborhood overlap of edge endpoints.}
+\item{simmelian}{Number of triangles the edge participates in.}
+\item{reciprocity}{Whether the reverse edge exists (directed only).
+Adds columns: \code{reciprocated}, \code{reverse_weight},
+\code{weight_ratio}.}
 }
 }
 \examples{

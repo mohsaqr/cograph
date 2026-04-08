@@ -64,7 +64,7 @@ plot(m)
 
 }
 \seealso{
-\code{\link[=motifs]{motifs()}} for the unified API, \code{\link[=extract_motifs]{extract_motifs()}} for detailed
+\code{\link[igraph:motifs]{igraph::motifs()}} for the unified API, \code{\link[=extract_motifs]{extract_motifs()}} for detailed
 triad extraction, \code{\link[=plot.cograph_motifs]{plot.cograph_motifs()}} for plotting
 
 Other motifs: 

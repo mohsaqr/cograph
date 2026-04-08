@@ -2,9 +2,22 @@
 
 ## Completed
 
+### Batch 4 — Directed Prestige Family (Wasserman-Faust / sna)
+
+Added 2 classical directed-graph prestige measures from the `sna::prestige` family, bringing the total to **82 measures**. Both implemented natively (no sna runtime dependency) and matched bit-exact against sna where sna's formula is well-defined:
+
+| Measure | Reference | Status |
+|---|---|---|
+| `centrality_prestige_domain()` | `sna::prestige(cmode = "domain")` | **BIT-EXACT** (12 random directed graphs) |
+| `centrality_prestige_domain_proximity()` | `sna::prestige(cmode = "domain.proximity")` | **BIT-EXACT** on strongly connected graphs; diverges (correctly) from sna's `FALSE * Inf = NaN` bug on graphs with unreachable pairs |
+
+**Uncovered an sna bug** during validation: `prestige(cmode = "domain.proximity")` zeros out every node when any pair is unreachable because `(counts > 0) * gdist` produces `NaN` in the denominator (`FALSE * Inf = NaN` in IEEE 754). cograph uses `is.finite()` masking before summing and produces the mathematically correct values. Test suite covers both bit-exact match on sc graphs AND the divergence test on disconnected graphs.
+
+Committed as 2 per-measure commits (`2aee770`, `e665386`) + doc refresh.
+
 ### Batch 3 — 5 Classical Measures with Bit-Exact Reference Validation
 
-Added 5 node centrality measures + 1 graph-level hierarchy statistic, bringing the total to **80 measures**. Every Batch 3 measure matches its primary reference implementation *bit-exact* (via `expect_identical`) — implementations mirror the references' exact LAPACK call sequences so no floating-point rounding difference remains:
+Added 5 node centrality measures + 1 graph-level hierarchy statistic, bringing the total to 80 measures. Every Batch 3 measure matches its primary reference implementation *bit-exact* (via `expect_identical`) — implementations mirror the references' exact LAPACK call sequences so no floating-point rounding difference remains:
 
 | Measure | Reference | Status |
 |---|---|---|
@@ -24,7 +37,7 @@ Committed as 5 per-measure commits (`bf3a929`, `736a593`, `c14733c`, `4cf8459`, 
 
 Implemented 75 node centrality measures callable via `centrality(g)` — tidy data frame output, mode suffixes, consistent parameters, 40+ convenience wrappers.
 
-**Reference: [Zoo of Centralities](https://centralityzoo.github.io/comparison/) catalogs 409 measures. Batch 1+2+3 cover 80 (~20%), including all foundational ones plus recent high-impact measures.**
+**Reference: [Zoo of Centralities](https://centralityzoo.github.io/comparison/) catalogs 409 measures. Batch 1+2+3+4 cover 82 (~20%), including all foundational ones plus recent high-impact measures.**
 
 ### Validation Summary (4,000+ graph comparisons)
 

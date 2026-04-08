@@ -77,6 +77,9 @@
 #' @param katz_alpha Attenuation factor for Katz centrality. Must satisfy
 #'   \eqn{\alpha < 1 / \rho(A)}. Default 0.1 (matches centiserve and NetworkX
 #'   conventions). Only used when \code{"katz"} is in \code{measures}.
+#' @param hubbell_weight Weight factor \eqn{w} for Hubbell centrality. Must
+#'   satisfy \eqn{w \cdot \rho(W) \le 1} for solvability. Default 0.5. Only
+#'   used when \code{"hubbell"} is in \code{measures}.
 #' @param ... Additional arguments (currently unused)
 #'
 #' @return A data frame with columns:
@@ -221,7 +224,7 @@ centrality <- function(x, measures = "all", mode = "all",
                        lambda = 1, k = 3, states = NULL,
                        decay_parameter = 0.5, dmnc_epsilon = 1.7,
                        membership = NULL,
-                       katz_alpha = 0.1,
+                       katz_alpha = 0.1, hubbell_weight = 0.5,
                        ...) {
 
   # Auto-detect invert_weights based on input type
@@ -297,7 +300,7 @@ centrality <- function(x, measures = "all", mode = "all",
                         "second_order", "infection", "nonbacktracking",
                         "spanning_tree",
                         # Batch 3 — classical measures with reference validation
-                        "katz")
+                        "katz", "hubbell")
   all_measures <- c(mode_measures, no_mode_measures)
 
   # Resolve measures
@@ -367,7 +370,7 @@ centrality <- function(x, measures = "all", mode = "all",
       hits_result = hits_result, lambda = lambda, k = k, states = states,
       decay_parameter = decay_parameter, dmnc_epsilon = dmnc_epsilon,
       membership = membership,
-      katz_alpha = katz_alpha
+      katz_alpha = katz_alpha, hubbell_weight = hubbell_weight
     )
 
     # Normalize if requested (except for closeness which is handled by igraph)
@@ -1011,7 +1014,7 @@ calculate_measure <- function(g, measure, mode, weights, normalized,
                               states = NULL, decay_parameter = 0.5,
                               dmnc_epsilon = 1.7,
                               membership = NULL,
-                              katz_alpha = 0.1) {
+                              katz_alpha = 0.1, hubbell_weight = 0.5) {
   directed <- igraph::is_directed(g)
 
   value <- switch(measure,
@@ -1141,6 +1144,8 @@ calculate_measure <- function(g, measure, mode, weights, normalized,
 
     # Batch 3 — classical measures with reference-package validation
     "katz" = calculate_katz(g, weights = weights, alpha = katz_alpha),
+    "hubbell" = calculate_hubbell(g, weights = weights,
+                                  weightfactor = hubbell_weight),
 
     stop("Unknown measure: ", measure, call. = FALSE)
   )
@@ -2799,6 +2804,49 @@ centrality_gateway <- function(x, membership = NULL, mode = "all", ...) {
 centrality_katz <- function(x, katz_alpha = 0.1, ...) {
   df <- centrality(x, measures = "katz", katz_alpha = katz_alpha, ...)
   stats::setNames(df$katz, df$node)
+}
+
+
+#' Hubbell Centrality
+#'
+#' Hubbell (1965) input-output centrality:
+#' \eqn{C = (I - w W)^{-1} \mathbf{1}}, where \eqn{W} is the (weighted)
+#' adjacency matrix and \eqn{w} is a weight factor that must satisfy
+#' \eqn{w \cdot \rho(W) < 1} for the system to be solvable.
+#'
+#' Bit-exact match against \code{centiserve::hubbell} when edge weights are
+#' passed explicitly (cograph mirrors centiserve's full-inverse LAPACK call
+#' path).
+#'
+#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
+#' @param hubbell_weight Attenuation factor \eqn{w}. Default 0.5. If
+#'   \eqn{w \cdot \rho(W) \ge 1}, the function returns \code{NA} with a warning.
+#' @param ... Additional arguments passed to \code{\link{centrality}}.
+#'
+#' @return Named numeric vector of Hubbell centrality values (or \code{NA} if
+#'   the system is not solvable).
+#'
+#' @section Note on centiserve equivalence:
+#' \code{centiserve::hubbell(g, weights = NULL)} silently resets all edge
+#' weights to 1, ignoring the graph's weight attribute. To reproduce cograph's
+#' values with centiserve on a weighted graph, pass
+#' \code{weights = igraph::E(g)$weight} explicitly.
+#'
+#' @seealso \code{\link{centrality}}, \code{\link{centrality_katz}}.
+#' @references
+#' Hubbell, C. H. (1965). An input-output approach to clique identification.
+#' \emph{Sociometry}, 28(4), 377-399.
+#'
+#' @export
+#' @examples
+#' # Small weighted path graph; spectral radius permits weightfactor = 0.5
+#' adj <- matrix(0, 4, 4)
+#' adj[1,2] <- adj[2,1] <- adj[2,3] <- adj[3,2] <- adj[3,4] <- adj[4,3] <- 0.3
+#' rownames(adj) <- colnames(adj) <- LETTERS[1:4]
+#' centrality_hubbell(adj, hubbell_weight = 0.5)
+centrality_hubbell <- function(x, hubbell_weight = 0.5, ...) {
+  df <- centrality(x, measures = "hubbell", hubbell_weight = hubbell_weight, ...)
+  stats::setNames(df$hubbell, df$node)
 }
 
 

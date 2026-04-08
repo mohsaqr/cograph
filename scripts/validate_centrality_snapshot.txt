@@ -1,0 +1,26 @@
+batch	measure	reference	status
+3	katz	centiserve::katzcent	PASS
+3	hubbell	centiserve::hubbell	PASS
+3	information	sna::infocent	PASS
+3	pairwisedis	centiserve::pairwisedis	PASS
+3	reaching_local	nx.local_reaching_centrality	PASS
+3	reaching_global	nx.global_reaching_centrality	PASS
+4	prestige_domain	sna::prestige(domain)	PASS
+4	prestige_domain_proximity	sna::prestige(domain.proximity)	PASS
+4	prestige_domain_proximity	(cograph > sna bug case)	PASS
+5	brokerage_coordinator	sna::brokerage$raw.nli[,w_I]	PASS
+5	brokerage_itinerant	sna::brokerage$raw.nli[,w_O]	PASS
+5	brokerage_representative	sna::brokerage$raw.nli[,b_IO]	PASS
+5	brokerage_gatekeeper	sna::brokerage$raw.nli[,b_OI]	PASS
+5	brokerage_liaison	sna::brokerage$raw.nli[,b_O]	PASS
+6	estrada_index	nx.estrada_index	PASS
+6	estrada_index (identity)	sum(centrality(,subgraph))	PASS
+6	trophic_incoherence (chain)	q == 0 on perfect 4-chain	PASS
+6	trophic_incoherence	nx.trophic_incoherence_parameter	PASS
+6	group_centrality(closeness, undirected)	nx.group_closeness_centrality	PASS
+6	group_centrality(degree, undirected)	nx.group_degree_centrality	PASS
+6	group_centrality(closeness, directed)	nx.group_closeness_centrality	PASS
+6	group_centrality(degree, in)	nx.group_in_degree_centrality	PASS
+6	group_centrality(degree, out)	nx.group_out_degree_centrality	PASS
+6	group_centrality(betweenness)	textbook Everett-Borgatti (hand-verified)	PASS
+6	dispersion (karate edges)	nx.dispersion	PASS

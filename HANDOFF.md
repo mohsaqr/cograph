@@ -2,7 +2,24 @@
 
 ## Completed
 
-### Centrality expansion: Batches 3, 4, 5, 6
+### scripts/validate_centrality.R (consolidation session)
+
+Bundled the three `/tmp/*_validation.R` scratch scripts from the Batch 3+4+5+6 expansion into a single reproducible runner at `scripts/validate_centrality.R`, with an expected-output snapshot at `scripts/validate_centrality_snapshot.txt`.
+
+- **25 checks, all passing** on R 4.5.2 / igraph 2.2.2 / sna 2.8 / centiserve 1.0.0 / networkx 3.6.1 (Python 3.14).
+- Every optional reference (sna, centiserve, reticulate+networkx) is gated behind `requireNamespace()` / `py_module_available()`, so the script degrades to SKIP rows (not FAIL) on machines without those packages. Useful for running on lean CI.
+- Supports three invocation modes:
+  - `Rscript scripts/validate_centrality.R` — run and print report
+  - `Rscript scripts/validate_centrality.R --snapshot` — write the expected-status snapshot file
+  - `Rscript scripts/validate_centrality.R --diff` — compare current run against snapshot, report added/removed/changed rows
+- Exits non-zero if any check returns FAIL (SKIPs do not fail the run).
+- Two bootstrap bugs caught during first run: (1) my `identical(read.dcf(...)[1,1], "cograph")` check silently returned FALSE because `read.dcf` results are named, causing the script to fall back to the installed CRAN 1.8.9 which doesn't know about Batch 3+ measures — fixed with `unname()`; (2) the hubbell check was using `weightfactor =` but the `centrality()` top-level signature takes `hubbell_weight =`.
+
+This satisfies **step 2** of the next-steps list from the prior session.
+
+---
+
+### Centrality expansion: Batches 3, 4, 5, 6 (prior session)
 
 Added **12 new centrality measures + 4 new top-level functions** across four numbered batches, all with bit-exact validation against established references wherever the references are well-defined. Committed as 17 per-feature commits on `main`, all pushed to `origin` (mohsaqr/Sonnet), `cograph` (mohsaqr/cograph), and `upstream` (sonsoleslp/cograph). Current HEAD: `58d2491`.
 
@@ -165,7 +182,7 @@ None blocking. The following are deferred but not urgent:
 Priority order if the next session picks up centrality work:
 
 1. **CRAN readiness check** — run `rcmdcheck::rcmdcheck(".", args = c("--as-cran", "--no-manual"))` and fix any NOTEs/WARNINGs introduced by the 12 new functions and their examples.
-2. **Full validation stress script** — bundle `/tmp/batch3_stress.R`, `/tmp/new_measures_validation.R`, and `/tmp/batch6_full_validation.R` into a single `scripts/validate_centrality.R` that covers Batches 3+4+5+6 in one reproducible pass, and store the expected-output snapshot.
+2. ~~**Full validation stress script**~~ — **DONE** in this session. See `scripts/validate_centrality.R` + `scripts/validate_centrality_snapshot.txt`.
 3. **Split `test-centrality-batch3.R`** into 4 files by batch for readability.
 4. **File NetworkX bug report** for `group_betweenness_centrality` vs the Puzis algorithm divergence, with the 12-node reproducing case from this session.
 5. **Future Zoo additions** (deferred — all require new APIs or license verification): DomiRank (no license), ViralRank (no code found), Expected Force (non-commercial license), Shapley value centrality (no reference impl), EigenTrust (specialized), brainGraph hubness (niche composite).

@@ -1631,6 +1631,56 @@ calculate_spanning_tree <- function(g) {
 
 
 # =============================================================================
+# Batch 3: Classical measures with reference-package validation
+# =============================================================================
+#
+# Each measure has an external reference implementation used for equivalence
+# tests. Implementations match the references' exact LAPACK call sequences so
+# results are bit-exact identical (verified across diverse graph topologies).
+
+
+#' Katz centrality (Katz 1953)
+#'
+#' C_Katz = (I - alpha * A^T)^{-1} * 1
+#'
+#' Mathematically identical to Bonacich alpha centrality with a uniform
+#' exogenous vector of ones. Implementation mirrors centiserve::katzcent's
+#' exact construction so results are bit-exact identical; also matches
+#' igraph::alpha_centrality(exo=1) and networkx.katz_centrality_numpy at
+#' floating-point precision.
+#'
+#' @keywords internal
+#' @noRd
+calculate_katz <- function(g, weights = NULL, alpha = 0.1) {
+  n <- igraph::vcount(g)
+  if (n == 0) return(numeric(0))
+  if (n == 1) return(0)
+
+  # Match centiserve::katzcent's exact construction so the result is bit-exact
+  # identical: take dense adjacency, compute (I - alpha A^T)^{-1}, then
+  # multiply by all-ones.
+  if (is.null(weights) && !("weight" %in% igraph::edge_attr_names(g))) {
+    A <- as.matrix(igraph::as_adjacency_matrix(g, names = FALSE, sparse = FALSE))
+  } else {
+    w <- if (is.null(weights)) igraph::E(g)$weight else as.numeric(weights)
+    g2 <- igraph::set_edge_attr(g, "weight", value = w)
+    A <- as.matrix(igraph::as_adjacency_matrix(g2, names = FALSE,
+                                                attr = "weight", sparse = FALSE))
+  }
+
+  res <- tryCatch(
+    solve(diag(x = 1, nrow = n) - (alpha * t(A))) %*% matrix(1, nrow = n, ncol = 1),
+    error = function(e) {
+      warning("katz: linear solve failed (", conditionMessage(e),
+              "); returning NA", call. = FALSE)
+      matrix(NA_real_, n, 1)
+    }
+  )
+  as.numeric(res[, 1])
+}
+
+
+# =============================================================================
 # Shared helper
 # =============================================================================
 

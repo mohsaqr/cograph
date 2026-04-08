@@ -74,6 +74,9 @@
 #' @param membership Integer vector of community assignments (one per node) for
 #'   community-aware measures: participation, within_module_z, gateway.
 #'   Default NULL. Required when requesting these measures.
+#' @param katz_alpha Attenuation factor for Katz centrality. Must satisfy
+#'   \eqn{\alpha < 1 / \rho(A)}. Default 0.1 (matches centiserve and NetworkX
+#'   conventions). Only used when \code{"katz"} is in \code{measures}.
 #' @param ... Additional arguments (currently unused)
 #'
 #' @return A data frame with columns:
@@ -218,6 +221,7 @@ centrality <- function(x, measures = "all", mode = "all",
                        lambda = 1, k = 3, states = NULL,
                        decay_parameter = 0.5, dmnc_epsilon = 1.7,
                        membership = NULL,
+                       katz_alpha = 0.1,
                        ...) {
 
   # Auto-detect invert_weights based on input type
@@ -291,7 +295,9 @@ centrality <- function(x, measures = "all", mode = "all",
                         "salsa", "leaderrank", "trophic_level",
                         # Zoo batch 2 — no-mode measures
                         "second_order", "infection", "nonbacktracking",
-                        "spanning_tree")
+                        "spanning_tree",
+                        # Batch 3 — classical measures with reference validation
+                        "katz")
   all_measures <- c(mode_measures, no_mode_measures)
 
   # Resolve measures
@@ -360,7 +366,8 @@ centrality <- function(x, measures = "all", mode = "all",
       transitivity_type = transitivity_type, isolates = isolates,
       hits_result = hits_result, lambda = lambda, k = k, states = states,
       decay_parameter = decay_parameter, dmnc_epsilon = dmnc_epsilon,
-      membership = membership
+      membership = membership,
+      katz_alpha = katz_alpha
     )
 
     # Normalize if requested (except for closeness which is handled by igraph)
@@ -1003,7 +1010,8 @@ calculate_measure <- function(g, measure, mode, weights, normalized,
                               hits_result = NULL, lambda = 1, k = 3,
                               states = NULL, decay_parameter = 0.5,
                               dmnc_epsilon = 1.7,
-                              membership = NULL) {
+                              membership = NULL,
+                              katz_alpha = 0.1) {
   directed <- igraph::is_directed(g)
 
   value <- switch(measure,
@@ -1130,6 +1138,9 @@ calculate_measure <- function(g, measure, mode, weights, normalized,
     "within_module_z" = calculate_within_module_z(g, membership = membership,
                                                    mode = mode),
     "gateway" = calculate_gateway(g, membership = membership, mode = mode),
+
+    # Batch 3 — classical measures with reference-package validation
+    "katz" = calculate_katz(g, weights = weights, alpha = katz_alpha),
 
     stop("Unknown measure: ", measure, call. = FALSE)
   )
@@ -2746,6 +2757,48 @@ centrality_gateway <- function(x, membership = NULL, mode = "all", ...) {
                    membership = membership, ...)
   col <- paste0("gateway_", mode)
   stats::setNames(df[[col]], df$node)
+}
+
+
+# ---------------------------------------------------------------------------
+# Batch 3 wrappers: classical measures validated against centiserve / sna /
+# igraph / NetworkX reference implementations.
+# ---------------------------------------------------------------------------
+
+#' Katz Centrality
+#'
+#' Katz (1953) status index: \eqn{C = (I - \alpha A^T)^{-1} \mathbf{1}}.
+#' Each node's score sums attenuated walks of every length back to it, with
+#' attenuation \eqn{\alpha} applied per step. Rankings are identical to
+#' Bonacich's alpha centrality with a uniform exogenous vector.
+#'
+#' Equivalence is verified bit-exact against \code{centiserve::katzcent}
+#' (cograph mirrors centiserve's exact LAPACK call sequence) and at machine
+#' epsilon against \code{igraph::alpha_centrality(exo = 1)} and
+#' \code{networkx.katz_centrality_numpy}.
+#'
+#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
+#' @param katz_alpha Attenuation factor. Must satisfy
+#'   \eqn{\alpha < 1 / \rho(A)} where \eqn{\rho(A)} is the spectral radius.
+#'   Default 0.1 matches centiserve and NetworkX conventions.
+#' @param ... Additional arguments passed to \code{\link{centrality}}.
+#'
+#' @return Named numeric vector of Katz centrality values.
+#'
+#' @seealso \code{\link{centrality}}, \code{\link{centrality_eigenvector}},
+#'   \code{\link{centrality_pagerank}}.
+#' @references
+#' Katz, L. (1953). A new status index derived from sociometric analysis.
+#' \emph{Psychometrika}, 18(1), 39-43.
+#'
+#' @export
+#' @examples
+#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+#' centrality_katz(adj)
+centrality_katz <- function(x, katz_alpha = 0.1, ...) {
+  df <- centrality(x, measures = "katz", katz_alpha = katz_alpha, ...)
+  stats::setNames(df$katz, df$node)
 }
 
 

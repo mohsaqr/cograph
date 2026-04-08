@@ -117,7 +117,7 @@ network_summary(adj, detailed = TRUE, extended = TRUE)
 
 # From igraph object
 if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::erdos.renyi.game(20, 0.3)
+  g <- igraph::sample_gnp(20, 0.3)
   network_summary(g)
 }
 }

@@ -26,6 +26,7 @@ centrality(
   k = 3,
   states = NULL,
   decay_parameter = 0.5,
+  dmnc_epsilon = 1.7,
   membership = NULL,
   ...
 )
@@ -48,7 +49,7 @@ available measures (64 total). Can be a character vector of measure names.
 "random_walk".
 \strong{Path-based}: "stress", "flow_betweenness".
 \strong{Local/neighborhood}: "lobby", "entropy", "semilocal", "clusterrank",
-"bottleneck", "centroid", "mnc", "dmnc", "topological_coefficient",
+"bottleneck", "centroid", "mnc", "dmnc", "lac", "topological_coefficient",
 "bridging", "local_bridging", "effective_size", "diversity",
 "cross_clique", "markov".
 \strong{Influence}: "integration", "expected", "gilschmidt".
@@ -116,6 +117,10 @@ Default NULL (all nodes get state 1, equivalent to betweenness).}
 
 \item{decay_parameter}{Numeric. Decay parameter for decay and generalized
 closeness centrality. Default 0.5. Must be between 0 and 1.}
+
+\item{dmnc_epsilon}{Numeric. Epsilon exponent for DMNC (Density of Maximum
+Neighborhood Component). Default 1.7 as recommended by Lin et al. (2008).
+centiserve uses 1.67 (four-community assumption). Must be between 1 and 2.}
 
 \item{membership}{Integer vector of community assignments (one per node) for
 community-aware measures: participation, within_module_z, gateway.

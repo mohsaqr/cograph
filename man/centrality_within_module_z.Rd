@@ -4,7 +4,7 @@
 \alias{centrality_within_module_z}
 \title{Within-Module Degree Z-Score}
 \usage{
-centrality_within_module_z(x, membership, mode = "all", ...)
+centrality_within_module_z(x, membership = NULL, mode = "all", ...)
 }
 \arguments{
 \item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}

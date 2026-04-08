@@ -6,6 +6,7 @@
 
 - `centrality_katz()` — Katz (1953) status index. Bit-exact match against `centiserve::katzcent` (cograph mirrors centiserve's exact LAPACK call sequence). Also matches `igraph::alpha_centrality(exo = 1)` and `networkx.katz_centrality_numpy` at machine epsilon. New `katz_alpha` parameter (default 0.1).
 - `centrality_hubbell()` — Hubbell (1965) input-output centrality. Bit-exact match against `centiserve::hubbell` (cograph mirrors centiserve's full-inverse LAPACK call path). Note: centiserve's default (`weights = NULL`) silently ignores `E(g)$weight`; to reproduce cograph's behavior with centiserve on weighted graphs, pass `weights = igraph::E(g)$weight` explicitly. New `hubbell_weight` parameter (default 0.5).
+- `centrality_information()` — Stephenson-Zelen (1989) information centrality. Bit-exact match against `sna::infocent` on connected undirected graphs (cograph mirrors sna's exact construction and `solve()` call sequence).
 
 # cograph 1.8.2
 

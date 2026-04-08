@@ -300,7 +300,7 @@ centrality <- function(x, measures = "all", mode = "all",
                         "second_order", "infection", "nonbacktracking",
                         "spanning_tree",
                         # Batch 3 — classical measures with reference validation
-                        "katz", "hubbell")
+                        "katz", "hubbell", "information")
   all_measures <- c(mode_measures, no_mode_measures)
 
   # Resolve measures
@@ -1146,6 +1146,7 @@ calculate_measure <- function(g, measure, mode, weights, normalized,
     "katz" = calculate_katz(g, weights = weights, alpha = katz_alpha),
     "hubbell" = calculate_hubbell(g, weights = weights,
                                   weightfactor = hubbell_weight),
+    "information" = calculate_information(g, weights = weights),
 
     stop("Unknown measure: ", measure, call. = FALSE)
   )
@@ -2847,6 +2848,39 @@ centrality_katz <- function(x, katz_alpha = 0.1, ...) {
 centrality_hubbell <- function(x, hubbell_weight = 0.5, ...) {
   df <- centrality(x, measures = "hubbell", hubbell_weight = hubbell_weight, ...)
   stats::setNames(df$hubbell, df$node)
+}
+
+
+#' Information Centrality (Stephenson-Zelen)
+#'
+#' Information centrality (Stephenson & Zelen 1989) measures a node's
+#' importance in terms of the "information" contained in all paths (not only
+#' shortest) passing through it. Defined via the inverse of a Laplacian-like
+#' matrix, yielding per-node
+#' \eqn{IC_i = 1 / (C_{ii} + (\mathrm{tr}(C) - 2 R_i) / n)} where
+#' \eqn{C = A^{-1}} and \eqn{R_i} is the row sum of \eqn{C}.
+#'
+#' Bit-exact match against \code{sna::infocent} on connected undirected
+#' graphs (cograph mirrors sna's exact construction and call sequence).
+#'
+#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
+#' @param ... Additional arguments passed to \code{\link{centrality}}.
+#'
+#' @return Named numeric vector of information centrality values.
+#'
+#' @seealso \code{\link{centrality}}, \code{\link{centrality_current_flow_closeness}}.
+#' @references
+#' Stephenson, K., & Zelen, M. (1989). Rethinking centrality: Methods and
+#' examples. \emph{Social Networks}, 11(1), 1-37.
+#'
+#' @export
+#' @examples
+#' adj <- matrix(c(0,1,1,0, 1,0,1,1, 1,1,0,1, 0,1,1,0), 4, 4)
+#' rownames(adj) <- colnames(adj) <- LETTERS[1:4]
+#' centrality_information(adj)
+centrality_information <- function(x, ...) {
+  df <- centrality(x, measures = "information", ...)
+  stats::setNames(df$information, df$node)
 }
 
 

@@ -5,7 +5,7 @@
 #'
 #' @param x Network input (matrix, igraph, network, cograph_network, tna object)
 #' @param measures Which measures to calculate. Default "all" calculates all
-#'   available measures (64 total). Can be a character vector of measure names.
+#'   available measures (80 total). Can be a character vector of measure names.
 #'   **Core** (igraph-backed): "degree", "strength", "betweenness", "closeness",
 #'   "eigenvector", "pagerank", "authority", "hub", "eccentricity", "coreness",
 #'   "constraint", "transitivity", "harmonic", "alpha", "power", "subgraph".
@@ -23,9 +23,17 @@
 #'   "bridging", "local_bridging", "effective_size", "diversity",
 #'   "cross_clique", "markov".
 #'   **Influence**: "integration", "expected", "gilschmidt".
-#'   **Directed-only**: "salsa", "leaderrank".
+#'   **Directed-only**: "salsa", "leaderrank", "trophic_level", "pairwisedis".
 #'   **Community-aware** (require \code{membership}): "participation",
 #'   "within_module_z", "gateway".
+#'   **Zoo (batch 2)**: "gravity", "collective_influence", "local_hindex",
+#'   "hindex_strength", "onion", "second_order", "infection", "nonbacktracking",
+#'   "spanning_tree".
+#'   **Classical (batch 3, reference-validated)**: "katz" (Katz 1953),
+#'   "hubbell" (Hubbell 1965), "information" (Stephenson-Zelen 1989),
+#'   "reaching_local" (Mones et al. 2012). See \code{\link{centrality_katz}},
+#'   \code{\link{centrality_hubbell}}, \code{\link{centrality_information}},
+#'   \code{\link{centrality_pairwisedis}}, \code{\link{centrality_reaching_local}}.
 #' @param mode For directed networks: "all", "in", or "out". Affects degree,
 #'   strength, closeness, eccentricity, coreness, and harmonic centrality.
 #' @param normalized Logical. Normalize values to 0-1 range by dividing by max.

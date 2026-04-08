@@ -364,3 +364,115 @@ test_that("prestige_domain_proximity gives correct values where sna has a bug", 
   expect_true(sum(cog > 0) >= 2,
               info = "cograph should compute non-zero values where sna has NaN bug")
 })
+
+# ===========================================================================
+# Batch 5 — Gould-Fernandez brokerage (5 roles)
+# ===========================================================================
+
+# Small deterministic test graph: 4 nodes, 2 groups
+brokerage_g <- matrix(c(
+  0, 1, 1, 0,
+  0, 0, 1, 1,
+  0, 0, 0, 1,
+  1, 0, 0, 0
+), 4, 4, byrow = TRUE)
+rownames(brokerage_g) <- colnames(brokerage_g) <- LETTERS[1:4]
+brokerage_cl <- c(1, 1, 2, 2)
+
+test_that("brokerage measures warn + NA when membership is missing", {
+  # Matches the convention used by participation, within_module_z, gateway
+  expect_warning(
+    v <- centrality_brokerage_coordinator(brokerage_g),
+    "membership"
+  )
+  expect_true(all(is.na(v)))
+})
+
+test_that("brokerage measures warn + NA on undirected input", {
+  k3 <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+  expect_warning(
+    v <- centrality_brokerage_coordinator(k3, membership = c(1, 1, 2)),
+    "directed"
+  )
+  expect_true(all(is.na(v)))
+})
+
+test_that("brokerage measures return correct length and type", {
+  for (fn in list(centrality_brokerage_coordinator,
+                  centrality_brokerage_itinerant,
+                  centrality_brokerage_representative,
+                  centrality_brokerage_gatekeeper,
+                  centrality_brokerage_liaison)) {
+    v <- fn(brokerage_g, membership = brokerage_cl)
+    expect_length(v, 4)
+    expect_named(v, LETTERS[1:4])
+    expect_type(v, "integer")
+  }
+})
+
+test_that("brokerage all 5 roles match sna BIT-EXACT (20 random graphs)", {
+  skip_if_not_installed("sna")
+  skip_if_not_installed("igraph")
+  set.seed(8001)
+  cog_col <- c(w_I = "brokerage_coordinator",
+               w_O = "brokerage_itinerant",
+               b_IO = "brokerage_representative",
+               b_OI = "brokerage_gatekeeper",
+               b_O = "brokerage_liaison")
+  for (i in 1:20) {
+    n  <- sample(8:15, 1)
+    g  <- igraph::sample_gnp(n, runif(1, 0.2, 0.5), directed = TRUE)
+    if (igraph::ecount(g) < 3) next
+    cl <- sample(1:3, n, replace = TRUE)
+    A  <- as.matrix(igraph::as_adjacency_matrix(g))
+    ref <- sna::brokerage(A, cl = cl)$raw.nli  # N x 6 (w_I,w_O,b_IO,b_OI,b_O,t)
+
+    for (sna_role in names(cog_col)) {
+      cog <- centrality(g, measures = cog_col[[sna_role]],
+                        membership = cl)[[cog_col[[sna_role]]]]
+      expect_identical(cog, as.integer(ref[, sna_role]),
+                       info = sprintf("graph %d (n=%d) role %s",
+                                      i, n, sna_role))
+    }
+  }
+})
+
+test_that("brokerage on small deterministic graph gives exact roles", {
+  # Adjacency (4 nodes, 2 groups):
+  #   A(1) -> B(1), A(1) -> C(2), B(1) -> C(2), B(1) -> D(2),
+  #   C(2) -> D(2), D(2) -> A(1)
+  # Enumerate open 2-paths through each broker by hand:
+  #   v = A(1): in = {D}, out = {B, C}
+  #     D -> A -> B: (2,1,1) b_OI, open (no D->B)  [count]
+  #     D -> A -> C: (2,1,2) w_O, BUT D->C? no. open [count]
+  #   v = B(1): in = {A}, out = {C, D}
+  #     A -> B -> C: (1,1,2) b_IO, but A->C IS edge -> CLOSED, skip
+  #     A -> B -> D: (1,1,2) b_IO, A->D? no, open [count]
+  #   v = C(2): in = {A, B}, out = {D}
+  #     A -> C -> D: (1,2,2) b_OI, A->D? no, open [count]
+  #     B -> C -> D: (1,2,2) b_OI, B->D IS edge -> CLOSED, skip
+  #   v = D(2): in = {B, C}, out = {A}
+  #     B -> D -> A: (1,2,1) w_O, B->A? no, open [count]
+  #     C -> D -> A: (2,2,1) b_IO, C->A? no, open [count]
+  #
+  # Expected raw counts per node:
+  #   A: w_O=1, b_OI=1, others=0
+  #   B: b_IO=1, others=0
+  #   C: b_OI=1, others=0
+  #   D: w_O=1, b_IO=1, others=0
+  expect_equal(unname(centrality_brokerage_coordinator(brokerage_g,
+                                                       membership = brokerage_cl)),
+               c(0L, 0L, 0L, 0L))
+  expect_equal(unname(centrality_brokerage_itinerant(brokerage_g,
+                                                     membership = brokerage_cl)),
+               c(1L, 0L, 0L, 1L))
+  expect_equal(unname(centrality_brokerage_representative(brokerage_g,
+                                                          membership = brokerage_cl)),
+               c(0L, 1L, 0L, 1L))
+  expect_equal(unname(centrality_brokerage_gatekeeper(brokerage_g,
+                                                      membership = brokerage_cl)),
+               c(1L, 0L, 1L, 0L))
+  expect_equal(unname(centrality_brokerage_liaison(brokerage_g,
+                                                   membership = brokerage_cl)),
+               c(0L, 0L, 0L, 0L))
+})

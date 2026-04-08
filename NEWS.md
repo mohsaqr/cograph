@@ -2,6 +2,20 @@
 
 ## New Features
 
+### Centrality Batch 5 — Gould-Fernandez brokerage (5 roles)
+
+Added the five Gould-Fernandez (1989) brokerage role counts, a foundational measure in social network analysis (~1500 citations). Each role is a separate per-node measure requiring a `membership` argument (following the same pattern as `participation`, `within_module_z`, `gateway`), and counts open directed 2-paths `a -> v -> c` through broker `v`:
+
+- `centrality_brokerage_coordinator()` — all three in broker's group (w_I)
+- `centrality_brokerage_itinerant()` — endpoints same group, broker different (w_O, "consultant")
+- `centrality_brokerage_representative()` — broker + source same, target different (b_IO)
+- `centrality_brokerage_gatekeeper()` — broker + target same, source different (b_OI)
+- `centrality_brokerage_liaison()` — all three in different groups (b_O)
+
+Bit-exact match against `sna::brokerage$raw.nli` for all five roles across 20 random directed graphs. Implemented natively (no runtime dependency on sna). Key implementation detail: the Gould-Fernandez counting rule requires **open 2-paths only** — triads where a direct edge `a -> c` already exists are excluded. This matches sna's C implementation exactly and was derived empirically (sna's `.C("brokerage_R", ...)` has no R-level source).
+
+Directed-only; warns and returns `NA` on undirected input.
+
 ### Centrality Batch 4 — directed prestige family (Wasserman-Faust / sna)
 
 - `centrality_prestige_domain()` — directed-graph prestige measure: for each node \eqn{v}, the number of other nodes that can reach \eqn{v} via a directed path. Classical Wasserman-Faust (1994) measure from `sna::prestige(cmode = "domain")`. Bit-exact match against sna, implemented natively via `igraph::distances(mode = "out")` + `colSums(is.finite(D)) - 1` (no runtime dependency on sna). Directed-only; returns NA with a warning on undirected input.

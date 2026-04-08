@@ -12,6 +12,14 @@ skip_coverage_tests()
 k3 <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
 rownames(k3) <- colnames(k3) <- c("A", "B", "C")
 
+path4 <- matrix(c(
+  0, 1, 0, 0,
+  1, 0, 1, 0,
+  0, 1, 0, 1,
+  0, 0, 1, 0
+), 4, 4)
+rownames(path4) <- colnames(path4) <- c("A", "B", "C", "D")
+
 # Directed 3-cycle (for directed-only measures)
 d3 <- matrix(c(0,1,0, 0,0,1, 1,0,0), 3, 3, byrow = TRUE)
 rownames(d3) <- colnames(d3) <- c("A","B","C")
@@ -189,4 +197,86 @@ test_that("pairwisedis matches centiserve::pairwisedis BIT-EXACT", {
                      info = sprintf("graph %d, n=%d, m=%d",
                                     i, n, igraph::ecount(g)))
   }
+})
+
+# ===========================================================================
+# Local + Global Reaching Centrality (Mones, Vicsek & Vicsek 2012)
+# ===========================================================================
+
+test_that("reaching_local returns proportion of reachable nodes", {
+  # Undirected K3: every node reaches both others in 1 step
+  # normalized harmonic = (1 + 1)/2 = 1
+  v <- centrality_reaching_local(k3)
+  expect_equal(unname(v), rep(1, 3))
+
+  # Path A-B-C-D: harmonic mean of inverse distances / (N-1)
+  # Node A: 1/1 + 1/2 + 1/3 = 11/6, / 3 = 11/18 ≈ 0.6111
+  v2 <- centrality_reaching_local(path4)
+  expect_equal(unname(v2[["A"]]), 11/18, tolerance = 1e-10)
+})
+
+test_that("reaching_global scalar within [0, 1]", {
+  r <- reaching_global(path4)
+  expect_length(r, 1)
+  expect_true(r >= 0 && r <= 1)
+})
+
+test_that("reaching_local on undirected matches normalized harmonic BIT-EXACT", {
+  skip_if_not_installed("igraph")
+  set.seed(5001)
+  for (i in 1:8) {
+    n <- sample(6:20, 1)
+    g <- igraph::sample_gnp(n, 0.4, directed = FALSE)
+    if (igraph::ecount(g) < 2) next
+    cog <- centrality(g, measures = "reaching_local")$reaching_local_all
+    hm  <- igraph::harmonic_centrality(g, normalized = TRUE)
+    expect_identical(cog, unname(hm),
+                     info = sprintf("graph %d, n=%d", i, n))
+  }
+})
+
+test_that("reaching_local matches NetworkX (karate undirected)", {
+  skip_if_not(has_nx(), "NetworkX not available")
+  nx <- reticulate::import("networkx")
+  g_r  <- igraph::make_graph("Zachary")
+  g_nx <- nx$karate_club_graph()
+  cog <- centrality(g_r, measures = "reaching_local")$reaching_local_all
+  nxv <- unname(sapply(0:33,
+                       function(v) nx$local_reaching_centrality(g_nx, as.integer(v))))
+  expect_equal(cog, nxv, tolerance = 1e-15)
+})
+
+test_that("reaching_local matches NetworkX on directed unweighted graphs", {
+  skip_if_not(has_nx(), "NetworkX not available")
+  nx <- reticulate::import("networkx")
+  set.seed(6001)
+  for (i in 1:3) {
+    n <- sample(6:12, 1)
+    g <- igraph::sample_gnp(n, 0.35, directed = TRUE)
+    el <- igraph::as_edgelist(g)
+    g_py <- nx$DiGraph()
+    g_py$add_nodes_from(as.integer(0:(n - 1)))
+    if (nrow(el) > 0) {
+      edges_py <- lapply(seq_len(nrow(el)),
+                         function(i) c(as.integer(el[i, 1] - 1),
+                                       as.integer(el[i, 2] - 1)))
+      g_py$add_edges_from(edges_py)
+    }
+    cog <- centrality(g, measures = "reaching_local", mode = "out")$reaching_local_out
+    nxv <- unname(sapply(0:(n - 1),
+                         function(v) nx$local_reaching_centrality(g_py, as.integer(v))))
+    # Directed unweighted reaching: simple integer counts -> bit-exact match.
+    expect_identical(cog, nxv,
+                     info = sprintf("graph %d, n=%d", i, n))
+  }
+})
+
+test_that("reaching_global matches NetworkX global_reaching_centrality on karate", {
+  skip_if_not(has_nx(), "NetworkX not available")
+  nx <- reticulate::import("networkx")
+  g_r  <- igraph::make_graph("Zachary")
+  g_nx <- nx$karate_club_graph()
+  cog <- reaching_global(g_r)
+  nxv <- nx$global_reaching_centrality(g_nx)
+  expect_equal(cog, nxv, tolerance = 1e-13)
 })

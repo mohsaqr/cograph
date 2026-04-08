@@ -1838,6 +1838,84 @@ calculate_pairwisedis <- function(g) {
 }
 
 
+#' Local Reaching Centrality (Mones, Vicsek, Vicsek 2012)
+#'
+#' Unweighted directed:  LRC(v) = |reachable from v| / (N - 1)
+#' Unweighted undirected: LRC(v) = sum_{u != v} (1/d(v,u)) / (N-1)
+#'   (equivalent to igraph::harmonic_centrality with normalized = TRUE)
+#'
+#' Matches networkx.local_reaching_centrality exactly for unweighted graphs.
+#' For the weighted branch (edge weights interpreted as strengths), NetworkX
+#' uses the average edge weight along each shortest path with distances
+#' computed as total_weight / edge_weight; we implement that variant.
+#'
+#' @keywords internal
+#' @noRd
+calculate_reaching_local <- function(g, mode = "all", weights = NULL) {
+  n <- igraph::vcount(g)
+  if (n == 0) return(numeric(0))
+  if (n == 1) return(0)
+
+  directed <- igraph::is_directed(g)
+  dir_mode <- if (!directed) "all" else mode
+
+  # "Effectively unweighted" = no weights arg and either no weight attr
+  # or all weights are exactly 1 (cograph parses binary matrices as weighted
+  # graphs with w=1, so we must treat those as unweighted).
+  edge_w <- if (!is.null(weights)) as.numeric(weights)
+  else if ("weight" %in% igraph::edge_attr_names(g)) igraph::E(g)$weight
+  else NULL
+  unweighted <- is.null(edge_w) || all(edge_w == 1)
+
+  # Directed unweighted: simple proportion of reachable nodes (paper + NetworkX)
+  if (directed && unweighted) {
+    d <- igraph::distances(g, v = igraph::V(g), to = igraph::V(g),
+                           mode = dir_mode, weights = NA)
+    return(vapply(seq_len(n), function(v) {
+      reach <- sum(is.finite(d[v, ]) & d[v, ] > 0)
+      reach / (n - 1)
+    }, numeric(1)))
+  }
+
+  # Undirected unweighted: normalized harmonic (== NetworkX LRC)
+  if (unweighted) {
+    return(as.numeric(igraph::harmonic_centrality(g, mode = dir_mode,
+                                                  normalized = TRUE)))
+  }
+
+  # Weighted branch: NetworkX uses "average edge weight on shortest path"
+  # where shortest path is computed with distances = total_weight / edge_weight
+  # (higher weight => shorter path). Implemented directly:
+  w <- edge_w
+  if (any(w < 0)) {
+    stop("reaching_local: edge weights must be non-negative", call. = FALSE)
+  }
+  total_w <- sum(w)
+  if (total_w <= 0) {
+    return(rep(0, n))
+  }
+
+  # Shortest paths computed with "length" = total_w / w_e. We then use the
+  # path's vertex sequence to fetch the ORIGINAL edge weights and average.
+  edge_dist <- total_w / w
+
+  vapply(seq_len(n), function(v) {
+    paths <- igraph::shortest_paths(g, from = v, mode = dir_mode,
+                                    weights = edge_dist,
+                                    output = "vpath")$vpath
+    avg_ws <- vapply(paths, function(p) {
+      p <- as.integer(p)
+      plen <- length(p) - 1L
+      if (plen <= 0L) return(0)  # unreachable or self
+      eids <- igraph::get_edge_ids(g, vp = cbind(p[-length(p)], p[-1L]))
+      sum(w[eids]) / plen
+    }, numeric(1))
+
+    sum(avg_ws) / (n - 1)
+  }, numeric(1))
+}
+
+
 # =============================================================================
 # Shared helper
 # =============================================================================

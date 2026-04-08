@@ -1739,6 +1739,64 @@ calculate_hubbell <- function(g, weights = NULL, weightfactor = 0.5) {
 }
 
 
+#' Information centrality (Stephenson & Zelen 1989)
+#'
+#' Information centrality expresses a node's importance in terms of the
+#' "information" contained in all paths (not only shortest) passing through
+#' it. Defined via the inverse of a Laplacian-like matrix:
+#'   A_ij = 1 if i != j and edge absent, 1 - m_ij if edge present
+#'   diag(A) = 1 + degree_i
+#'   C   = A^{-1}
+#'   Tr  = trace(C), R_i = sum of row i of C
+#'   IC_i = 1 / (C_ii + (Tr - 2 R_i) / n)
+#'
+#' Matches sna::infocent exactly on connected undirected graphs.
+#' Returns 0 for isolated nodes.
+#'
+#' @keywords internal
+#' @noRd
+calculate_information <- function(g, weights = NULL) {
+  n <- igraph::vcount(g)
+  if (n == 0) return(numeric(0))
+  if (n == 1) return(0)
+
+  if (is.null(weights)) {
+    m <- as.matrix(igraph::as_adjacency_matrix(g, sparse = FALSE))
+  } else {
+    g2 <- igraph::set_edge_attr(g, "weight", value = as.numeric(weights))
+    m <- as.matrix(igraph::as_adjacency_matrix(g2, attr = "weight", sparse = FALSE))
+  }
+  # Symmetrize (Stephenson-Zelen is defined for undirected networks)
+  m <- (m + t(m)) / 2
+
+  # Match sna::infocent's exact construction and call sequence so the result
+  # is bit-exact identical (no LAPACK reordering, no broadcast tricks).
+  diag(m) <- NA
+  iso <- vapply(seq_len(n),
+                function(i) all(is.na(m[i, ]) | m[i, ] == 0),
+                logical(1))
+  ix <- which(!iso)
+  if (length(ix) == 0) return(rep(0, n))
+
+  m_sub <- m[ix, ix, drop = FALSE]
+  A <- 1 - m_sub
+  A[m_sub == 0] <- 1
+  diag(A) <- 1 + apply(m_sub, 1, sum, na.rm = TRUE)
+
+  Cn <- tryCatch(solve(A, tol = 1e-20), error = function(e) NULL)
+  if (is.null(Cn)) return(rep(NA_real_, n))
+
+  Tr <- sum(diag(Cn))
+  R  <- apply(Cn, 1, sum)
+  k  <- length(ix)
+  IC <- 1 / (diag(Cn) + (Tr - 2 * R) / k)
+
+  cent <- rep(0, n)
+  cent[ix] <- IC
+  as.numeric(cent)
+}
+
+
 # =============================================================================
 # Shared helper
 # =============================================================================

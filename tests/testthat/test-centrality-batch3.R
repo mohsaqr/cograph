@@ -122,3 +122,32 @@ test_that("hubbell matches centiserve::hubbell BIT-EXACT (weighted)", {
                      info = sprintf("graph %d, n=%d, wf=%.4f", i, n, wf))
   }
 })
+
+# ===========================================================================
+# Information centrality (Stephenson-Zelen 1989)
+# ===========================================================================
+
+test_that("information centrality is symmetric on K3", {
+  v <- centrality_information(k3)
+  expect_length(v, 3)
+  expect_equal(v[[1]], v[[2]])
+  expect_equal(v[[2]], v[[3]])
+})
+
+test_that("information matches sna::infocent BIT-EXACT (connected)", {
+  skip_if_not_installed("sna")
+  skip_if_not_installed("igraph")
+  set.seed(3001)
+  for (i in 1:12) {
+    n <- sample(6:20, 1)
+    repeat {
+      g <- igraph::sample_gnp(n, 0.4, directed = FALSE)
+      if (igraph::is_connected(g)) break
+    }
+    A <- as.matrix(igraph::as_adjacency_matrix(g))
+    cog <- centrality(g, measures = "information")$information
+    sn  <- sna::infocent(A)
+    expect_identical(cog, sn,
+                     info = sprintf("graph %d, n=%d", i, n))
+  }
+})

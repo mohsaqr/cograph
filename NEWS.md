@@ -8,6 +8,7 @@
 - `centrality_hubbell()` — Hubbell (1965) input-output centrality. Bit-exact match against `centiserve::hubbell` (cograph mirrors centiserve's full-inverse LAPACK call path). Note: centiserve's default (`weights = NULL`) silently ignores `E(g)$weight`; to reproduce cograph's behavior with centiserve on weighted graphs, pass `weights = igraph::E(g)$weight` explicitly. New `hubbell_weight` parameter (default 0.5).
 - `centrality_information()` — Stephenson-Zelen (1989) information centrality. Bit-exact match against `sna::infocent` on connected undirected graphs (cograph mirrors sna's exact construction and `solve()` call sequence).
 - `centrality_pairwisedis()` — Pairwise disconnectivity (Potapov et al. 2008). Directed-only; fraction of reachable ordered pairs that become unreachable when each node is removed. Bit-exact match against `centiserve::pairwisedis`. Warns and returns `NA` on undirected input, matching the convention used by `salsa`, `leaderrank`, and `trophic_level`.
+- `centrality_reaching_local()` / `reaching_global()` — Local and global reaching centrality (Mones, Vicsek & Vicsek 2012). Bit-exact match against `networkx.local_reaching_centrality` across the directed unweighted, undirected unweighted, and weighted branches. Undirected unweighted LRC coincides with `igraph::harmonic_centrality(normalized = TRUE)` (documented). `reaching_global()` is a graph-level hierarchy statistic in [0, 1].
 
 # cograph 1.8.2
 

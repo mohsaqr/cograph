@@ -281,7 +281,9 @@ centrality <- function(x, measures = "all", mode = "all",
                      "participation", "within_module_z", "gateway",
                      # Zoo batch 2 — mode measures
                      "gravity", "collective_influence", "local_hindex",
-                     "hindex_strength", "onion")
+                     "hindex_strength", "onion",
+                     # Batch 3 — mode measures
+                     "reaching_local")
   no_mode_measures <- c("betweenness", "eigenvector", "pagerank",
                         "authority", "hub", "constraint", "transitivity",
                         "subgraph", "laplacian", "load",
@@ -1148,6 +1150,8 @@ calculate_measure <- function(g, measure, mode, weights, normalized,
                                   weightfactor = hubbell_weight),
     "information" = calculate_information(g, weights = weights),
     "pairwisedis" = calculate_pairwisedis(g),
+    "reaching_local" = calculate_reaching_local(g, mode = mode,
+                                                weights = weights),
 
     stop("Unknown measure: ", measure, call. = FALSE)
   )
@@ -2916,6 +2920,92 @@ centrality_information <- function(x, ...) {
 centrality_pairwisedis <- function(x, ...) {
   df <- centrality(x, measures = "pairwisedis", ...)
   stats::setNames(df$pairwisedis, df$node)
+}
+
+
+#' Local Reaching Centrality (Mones, Vicsek & Vicsek 2012)
+#'
+#' Local reaching centrality measures how much of the network is reachable
+#' from a node.
+#'
+#' \itemize{
+#'   \item Directed unweighted: \eqn{LRC(v) = |\{u : u \ne v, v \to u\}| / (N - 1)}.
+#'   \item Undirected unweighted: average of \eqn{1/d(v, u)} over all
+#'     \eqn{u \ne v}, divided by \eqn{N - 1}. Numerically equal to
+#'     \code{igraph::harmonic_centrality(normalized = TRUE)}.
+#'   \item Weighted: NetworkX convention, where edge weights are interpreted
+#'     as strengths and path length is \eqn{\sum_e (\mathrm{total\_weight} / w_e)}.
+#'     Per-path score is the mean of original edge weights along the shortest
+#'     path.
+#' }
+#'
+#' Bit-exact match against \code{networkx.local_reaching_centrality} across
+#' all three branches. Bit-exact match against
+#' \code{igraph::harmonic_centrality(normalized = TRUE)} for the undirected
+#' unweighted branch. See \code{\link{reaching_global}} for the graph-level
+#' hierarchy measure derived from per-node LRC.
+#'
+#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
+#' @param mode For directed networks: \code{"all"} (default), \code{"in"}, or
+#'   \code{"out"}.
+#' @param ... Additional arguments passed to \code{\link{centrality}}.
+#'
+#' @return Named numeric vector of local reaching centrality values.
+#'
+#' @seealso \code{\link{centrality}}, \code{\link{centrality_harmonic}},
+#'   \code{\link{reaching_global}}.
+#' @references
+#' Mones, E., Vicsek, L., & Vicsek, T. (2012). Hierarchy measure for complex
+#' networks. \emph{PLoS ONE}, 7(3), e33799.
+#'
+#' @export
+#' @examples
+#' # Directed path A -> B -> C
+#' adj <- matrix(c(0,1,0, 0,0,1, 0,0,0), 3, 3, byrow = TRUE)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+#' centrality_reaching_local(adj, mode = "out")
+centrality_reaching_local <- function(x, mode = "all", ...) {
+  df <- centrality(x, measures = "reaching_local", mode = mode, ...)
+  col <- paste0("reaching_local_", mode)
+  stats::setNames(df[[col]], df$node)
+}
+
+
+#' Global Reaching Centrality (Mones, Vicsek & Vicsek 2012)
+#'
+#' A graph-level hierarchy measure computed from per-node local reaching
+#' centralities:
+#' \deqn{GRC(G) = \frac{1}{N - 1} \sum_v \left( \max_u LRC(u) - LRC(v) \right)}
+#'
+#' Values close to 0 indicate a flat network (all nodes reach equal
+#' proportions of the graph); values close to 1 indicate strong hierarchical
+#' structure. Matches \code{networkx.global_reaching_centrality} exactly.
+#'
+#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
+#' @param mode For directed networks: \code{"all"} (default), \code{"in"}, or
+#'   \code{"out"}.
+#' @param ... Additional arguments passed to \code{\link{centrality_reaching_local}}.
+#'
+#' @return A single numeric value in \eqn{[0, 1]}.
+#'
+#' @seealso \code{\link{centrality_reaching_local}}, \code{\link{summarize_network}}.
+#' @references
+#' Mones, E., Vicsek, L., & Vicsek, T. (2012). Hierarchy measure for complex
+#' networks. \emph{PLoS ONE}, 7(3), e33799.
+#'
+#' @export
+#' @examples
+#' # Star graph: highly hierarchical (directed out from center)
+#' adj <- matrix(0, 5, 5)
+#' adj[1, 2:5] <- 1
+#' rownames(adj) <- colnames(adj) <- LETTERS[1:5]
+#' reaching_global(adj, mode = "out")
+reaching_global <- function(x, mode = "all", ...) {
+  lrc <- centrality_reaching_local(x, mode = mode, ...)
+  n <- length(lrc)
+  if (n <= 1) return(0)
+  max_lrc <- max(lrc, na.rm = TRUE)
+  sum(max_lrc - lrc, na.rm = TRUE) / (n - 1)
 }
 
 

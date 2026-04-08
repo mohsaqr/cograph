@@ -24,7 +24,7 @@ centralization(
 \item{...}{Additional arguments passed to to_igraph()}
 }
 \value{
-Numeric scalar in \link{0, 1}
+Numeric scalar in \eqn{[0, 1]}
 }
 \description{
 Computes Freeman's centralization for degree, betweenness, closeness,

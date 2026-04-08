@@ -12,6 +12,10 @@ centrality_dmnc(x, mode = "all", dmnc_epsilon = 1.7, ...)
 \item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
 \code{"out"}.}
 
+\item{dmnc_epsilon}{Numeric. Epsilon exponent for DMNC. Default 1.7 as
+recommended by Lin et al. (2008). centiserve uses 1.67 (four-community
+assumption). Must be between 1 and 2.}
+
 \item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
 \code{normalized}, \code{weighted}, \code{directed}).}
 }

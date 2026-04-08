@@ -510,8 +510,8 @@ calculate_semilocal <- function(g, mode = "all") {
 
 #' ClusterRank (centiserve-compatible)
 #'
-#' cc[v] * sum(degree(w) + 1) for neighbors w. Uses clustering coefficient
-#' directly, not 10^(-cc).
+#' `cc[v] * sum(degree(w) + 1)` for neighbors `w`. Uses clustering coefficient
+#' directly, not `10^(-cc)`.
 #' @keywords internal
 #' @noRd
 calculate_clusterrank <- function(g, mode = "all") {
@@ -560,8 +560,9 @@ calculate_bottleneck <- function(g, mode = "all") {
 
 #' Centroid value (centiserve-compatible)
 #'
-#' For each pair (u,v), gamma[u,v] = count of nodes w where d(u,w) < d(v,w).
-#' f[u,v] = gamma[u,v] - gamma[v,u]. Centroid(v) = min f[v,i] over all i.
+#' For each pair `(u, v)`, `gamma[u, v]` = count of nodes `w` where
+#' `d(u, w) < d(v, w)`. `f[u, v] = gamma[u, v] - gamma[v, u]`.
+#' `Centroid(v) = min f[v, i]` over all `i`.
 #' @keywords internal
 #' @noRd
 calculate_centroid <- function(g, mode = "all", weights = NULL) {
@@ -1186,7 +1187,7 @@ calculate_gateway <- function(g, membership = NULL, mode = "all") {
 #' @param directed Logical or NULL
 #' @param mode "all", "in", or "out"
 #' @param ... Additional arguments passed to to_igraph()
-#' @return Numeric scalar in [0, 1]
+#' @return Numeric scalar in \eqn{[0, 1]}
 #'
 #' @export
 #' @examples
@@ -1953,12 +1954,12 @@ calculate_prestige_domain <- function(g) {
 #' where R_v = number of OTHER nodes that reach v, and D_v = sum of geodesic
 #' distances from those reachers to v. Returns 0 when v is unreachable.
 #'
-#' Matches sna::prestige(cmode = "domain.proximity") bit-exact on strongly
+#' Matches `sna::prestige(cmode = "domain.proximity")` bit-exact on strongly
 #' connected directed graphs. On graphs with any unreachable pair, sna has a
-#' known bug: its formula does (counts > 0) * gdist element-wise and then
-#' sums, but FALSE * Inf = NaN in IEEE 754, so the entire denominator becomes
-#' NaN and sna zeros every node via p[is.nan(p)] <- 0. cograph's
-#' implementation uses is.finite() masking before summing and produces the
+#' known bug: its formula does `(counts > 0) * gdist` element-wise and then
+#' sums, but `FALSE * Inf = NaN` in IEEE 754, so the entire denominator becomes
+#' `NaN` and sna zeros every node via `p[is.nan(p)] <- 0`. cograph's
+#' implementation uses `is.finite()` masking before summing and produces the
 #' mathematically correct values on any directed graph.
 #'
 #' @keywords internal

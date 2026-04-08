@@ -1093,7 +1093,8 @@ estrada_index <- function(x) {
 #' @return A single numeric value (\code{NA_real_} for empty edge sets or
 #'   undirected input).
 #'
-#' @seealso \code{\link{centrality_trophic_level}} for the per-node levels.
+#' @seealso \code{\link{centrality}} (the \code{trophic_level} measure) for
+#'   the per-node levels used in the incoherence calculation.
 #' @references
 #' Johnson, S., Dominguez-Garcia, V., Donetti, L., & Munoz, M. A. (2014).
 #' Trophic coherence determines food-web stability. \emph{PNAS}, 111(50),

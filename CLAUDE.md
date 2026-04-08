@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Environment
 
 - **Platform**: macOS (Darwin), R 4.1+ (currently R 4.5+)
-- **Version**: 1.8.9 (CRAN has 1.5.2)
+- **Version**: 2.0.0
 - **Rscript**: Available on PATH
 - **Additional repo**: `https://mohsaqr.r-universe.dev` registered for Nestimate dependency resolution (see `Additional_repositories` in DESCRIPTION)
 
@@ -43,11 +43,16 @@ Rscript -e 'covr::package_coverage(".")'
 
 # Install locally
 Rscript -e 'devtools::install(".", upgrade = "never")'
+
+# Build pkgdown site locally
+Rscript -e 'pkgdown::build_site()'
 ```
 
 ## CI Matrix
 
 GitHub Actions (`R-CMD-check.yaml`) tests on: macOS-latest (release), Windows-latest (release), Ubuntu-latest (devel, release, oldrel-1). The workflow registers `mohsaqr.r-universe.dev` via `~/.Rprofile` for Nestimate resolution.
+
+**Test split**: Coverage tests (`test-coverage-*.R`, 92 files) are expensive and only run on Ubuntu release via `COGRAPH_COVERAGE_TESTS=true` env var. Feature tests (37 files) run on all 5 platforms. Locally, `devtools::test()` runs everything (env var defaults to `"true"` when unset). The `skip_coverage_tests()` helper in `helper-test-utils.R` gates this.
 
 ## Project Overview
 
@@ -72,6 +77,8 @@ cograph is an R package for analysis and visualization of complex networks. Key 
 - `centrality()` — 23+ centrality measures
 - `motifs()` / `subgraphs()` — Triad census and motif analysis
 - `detect_communities()` — 11 community detection algorithms
+- `disparity_filter()` — Backbone extraction via disparity filter (S3: matrix, igraph, tna, cograph_network)
+- `cluster_quality()` / `cluster_significance()` — Cluster evaluation metrics
 
 ## Architecture
 
@@ -115,7 +122,7 @@ return(do.call(splot.tna_bootstrap, c(list(x = x), .collect_dispatch_args(.user_
 `.collect_dispatch_args()` (splot.R ~line 2077) merges user args + dots, with optional `base` defaults and `skip` exclusions. User-explicit args always win over base defaults.
 
 Dispatches to:
-- **TNA objects**: `plot_mcml`, `splot.tna_bootstrap`, `splot.tna_permutation`, `splot.group_tna_permutation`
+- **TNA objects**: `plot_mcml`, `splot.tna_bootstrap`, `splot.tna_permutation`, `splot.group_tna_permutation`, `splot.tna_disparity`, `splot.wtna_mixed`
 - **Nestimate objects**: `splot.netobject`, `splot.net_bootstrap`, `splot.net_permutation`, `splot.boot_glasso`, `plot_netobject_group`, `plot_netobject_ml`
 
 **Known registration bug**: `splot.tna_disparity`, `splot.tna_bootstrap`, `splot.tna_permutation`, `splot.group_tna_permutation` are registered as `export()` in NAMESPACE instead of `S3method()`. This means `splot(obj)` does NOT dispatch via S3 for these classes — the explicit `inherits()` checks in splot.R handle them instead. The nestimate S3 methods (`splot.netobject`, `splot.net_bootstrap`, `splot.boot_glasso`) ARE properly registered as `S3method()`.
@@ -200,7 +207,7 @@ Helpers in `aaa-globals.R`.
 
 ## Test Conventions
 
-133 test files with ~13,400+ tests. Coverage tests follow `test-coverage-{module}-{round}.R` (rounds: 40, 41, 42, ...). Target: 100% line coverage (achieved). Use `# nocov` only for genuinely unreachable defensive guards.
+133 test files, ~13,700 expectations. Coverage tests follow `test-coverage-{module}-{round}.R` (rounds: 40, 41, 42, ...). Target: 100% line coverage (achieved). Use `# nocov` only for genuinely unreachable defensive guards.
 
 Two test helper files load before every test:
 - `tests/testthat/helper-cograph.R` — exposes internal functions via `cograph:::` for testing
@@ -211,6 +218,16 @@ Never put `devtools::load_all()` inside test files — it breaks covr.
 ## Optional Dependencies
 
 All suggested packages must be guarded with `requireNamespace("pkg", quietly = TRUE)`. Use `# nocov` on fallback branches unreachable in the test environment.
+
+## Session Artifacts
+
+- `docs/LEARNINGS.md` — Accumulated pitfalls/discoveries (e.g., CRAN timing behavior, Windows check quirks)
+- `docs/CHANGES.md` — Human-readable changelog (newest first)
+- `HANDOFF.md` — Session state for continuity across conversations
+
+## pkgdown Site
+
+`_pkgdown.yml` configures the documentation site (Bootstrap 5, Yeti theme). CI deploys to `gh-pages` on push to main. Uses `quarto-dev/quarto-actions/setup@v2` because some articles are `.qmd` (Quarto) rather than `.Rmd`.
 
 ## CRAN Submission
 

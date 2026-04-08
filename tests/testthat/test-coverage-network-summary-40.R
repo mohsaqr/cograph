@@ -331,7 +331,7 @@ test_that("degree_distribution returns histogram object", {
   result <- degree_distribution(mat)
   dev.off()
 
-  expect_true(inherits(result, "histogram"))
+  expect_true(is.list(result))
 })
 
 test_that("degree_distribution with mode = 'in' for directed networks", {
@@ -344,7 +344,7 @@ test_that("degree_distribution with mode = 'in' for directed networks", {
   result <- degree_distribution(mat, mode = "in", directed = TRUE)
   dev.off()
 
-  expect_true(inherits(result, "histogram"))
+  expect_true(is.list(result))
 })
 
 test_that("degree_distribution with mode = 'out' for directed networks", {
@@ -357,7 +357,7 @@ test_that("degree_distribution with mode = 'out' for directed networks", {
   result <- degree_distribution(mat, mode = "out", directed = TRUE)
   dev.off()
 
-  expect_true(inherits(result, "histogram"))
+  expect_true(is.list(result))
 })
 
 test_that("degree_distribution with loops = FALSE", {
@@ -367,7 +367,7 @@ test_that("degree_distribution with loops = FALSE", {
   result <- degree_distribution(mat, loops = FALSE)
   dev.off()
 
-  expect_true(inherits(result, "histogram"))
+  expect_true(is.list(result))
 })
 
 test_that("degree_distribution with different simplify options", {
@@ -380,10 +380,10 @@ test_that("degree_distribution with different simplify options", {
   result_min <- degree_distribution(mat, simplify = "min")
   dev.off()
 
-  expect_true(inherits(result_sum, "histogram"))
-  expect_true(inherits(result_mean, "histogram"))
-  expect_true(inherits(result_max, "histogram"))
-  expect_true(inherits(result_min, "histogram"))
+  expect_true(is.list(result_sum))
+  expect_true(is.list(result_mean))
+  expect_true(is.list(result_max))
+  expect_true(is.list(result_min))
 })
 
 test_that("degree_distribution with custom plot parameters", {
@@ -397,7 +397,7 @@ test_that("degree_distribution with custom plot parameters", {
                                  col = "red")
   dev.off()
 
-  expect_true(inherits(result, "histogram"))
+  expect_true(is.list(result))
 })
 
 test_that("degree_distribution cumulative changes y-axis label", {
@@ -407,8 +407,8 @@ test_that("degree_distribution cumulative changes y-axis label", {
   result <- degree_distribution(mat, cumulative = TRUE)
   dev.off()
 
-  # For cumulative, we get a histogram object but plot shows CDF
-  expect_true(inherits(result, "histogram"))
+  # For cumulative, we still get a result list with degree data
+  expect_true(is.list(result))
 })
 
 test_that("degree_distribution cumulative with custom ylab", {
@@ -418,7 +418,7 @@ test_that("degree_distribution cumulative with custom ylab", {
   result <- degree_distribution(mat, cumulative = TRUE, ylab = "Custom CDF")
   dev.off()
 
-  expect_true(inherits(result, "histogram"))
+  expect_true(is.list(result))
 })
 
 # =============================================================================
@@ -895,7 +895,7 @@ test_that("degree_distribution works with cograph_network", {
   result <- degree_distribution(net)
   dev.off()
 
-  expect_true(inherits(result, "histogram"))
+  expect_true(is.list(result))
 })
 
 # =============================================================================

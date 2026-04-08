@@ -11,60 +11,104 @@ degree_distribution(
   loops = TRUE,
   simplify = "sum",
   cumulative = FALSE,
+  breaks = NULL,
+  bins = NULL,
+  bin_width = NULL,
+  normalize = FALSE,
+  log = "",
   main = "Degree Distribution",
   xlab = "Degree",
-  ylab = "Frequency",
+  ylab = NULL,
   col = "steelblue",
+  border = "white",
   ...
 )
 }
 \arguments{
-\item{x}{Network input: matrix, igraph, network, cograph_network, or tna object}
+\item{x}{Network input: matrix, igraph, network, cograph_network, or tna
+object.}
 
 \item{mode}{For directed networks: "all", "in", or "out". Default "all".}
 
 \item{directed}{Logical or NULL. If NULL (default), auto-detect from matrix
 symmetry. Set TRUE to force directed, FALSE to force undirected.}
 
-\item{loops}{Logical. If TRUE (default), keep self-loops. Set FALSE to remove them.}
+\item{loops}{Logical. If TRUE (default), keep self-loops. Set FALSE to
+remove them.}
 
 \item{simplify}{How to combine multiple edges between the same node pair.
 Options: "sum" (default), "mean", "max", "min", or FALSE/"none" to keep
 multiple edges.}
 
-\item{cumulative}{Logical. If TRUE, show cumulative distribution instead of
-frequency distribution. Default FALSE.}
+\item{cumulative}{Logical. If TRUE, show CCDF (complementary cumulative
+distribution: P(degree >= k)) instead of frequency. Default FALSE.}
+
+\item{breaks}{Bin specification passed to \code{\link[graphics]{hist}}. Can
+be a numeric vector of breakpoints, a single number giving the number of
+bins, or a character string naming an algorithm (e.g. "Sturges", "FD",
+"scott"). Overrides \code{bins} and \code{bin_width}. Default NULL
+(auto-detect).}
+
+\item{bins}{Integer. Approximate number of bins. Overrides \code{bin_width}.
+Default NULL.}
+
+\item{bin_width}{Numeric. Width of each bin. Default NULL (auto: 1 when the
+degree range is \eqn{\le 50}{<= 50}, otherwise Freedman-Diaconis).}
+
+\item{normalize}{Logical. If TRUE, the y-axis shows proportions (bars sum
+to 1) instead of counts. Default FALSE.}
+
+\item{log}{Character. Axis log-scaling: "" (none, default), "x", "y", or
+"xy". For cumulative plots, "xy" produces log-log CCDF (standard for
+power-law inspection).}
 
 \item{main}{Character. Plot title. Default "Degree Distribution".}
 
 \item{xlab}{Character. X-axis label. Default "Degree".}
 
-\item{ylab}{Character. Y-axis label. Default "Frequency" (or "Cumulative
-Frequency" if cumulative = TRUE).}
+\item{ylab}{Character. Y-axis label. Default auto-chosen based on
+\code{normalize} and \code{cumulative}.}
 
-\item{col}{Character. Bar fill color. Default "steelblue".}
+\item{col}{Character. Bar/line fill color. Default "steelblue".}
 
-\item{...}{Additional arguments passed to \code{\link[graphics]{hist}}.}
+\item{border}{Character. Bar border color. Default "white".}
+
+\item{...}{Additional graphical arguments passed to
+\code{\link[graphics]{barplot}} (histogram) or
+\code{\link[graphics]{plot}} (cumulative).}
 }
 \value{
-Invisibly returns the histogram object from \code{graphics::hist()}.
+Invisibly returns a list with components:
+\describe{
+\item{degree}{Named integer vector of per-node degrees.}
+\item{table}{Table of degree frequencies.}
+\item{breaks}{Breakpoints used for the histogram (non-cumulative only).}
+\item{counts}{Bin counts (non-cumulative only).}
+\item{proportions}{Bin proportions (non-cumulative only).}
+}
 }
 \description{
-Creates a histogram showing the degree distribution of a network.
-Useful for understanding the connectivity patterns and identifying
-whether a network follows particular degree distributions (e.g.,
-power-law, normal).
+Creates a histogram or cumulative distribution plot of node degrees. By
+default, bins are integer-aligned (one bar per degree value) so each bar
+maps to an exact degree.
 }
 \examples{
-# Basic usage
+# Basic usage — integer-aligned bins by default
 adj <- matrix(c(0, 1, 1, 0,
                 1, 0, 1, 1,
                 1, 1, 0, 1,
                 0, 1, 1, 0), 4, 4, byrow = TRUE)
 cograph::degree_distribution(adj)
 
-# Cumulative distribution
+# Cumulative (CCDF)
 cograph::degree_distribution(adj, cumulative = TRUE)
+
+# Control bins
+\dontrun{
+cograph::degree_distribution(large_net, bins = 15)
+cograph::degree_distribution(large_net, bin_width = 5)
+cograph::degree_distribution(large_net, breaks = c(0, 5, 10, 20, 50, 100))
+}
 
 # For directed networks
 directed_adj <- matrix(c(0, 1, 0, 0,

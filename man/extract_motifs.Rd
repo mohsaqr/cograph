@@ -167,7 +167,7 @@ m <- extract_motifs(Mod, pattern = "triangle", exclude_types = "300")
 
 }
 \seealso{
-\code{\link[=motifs]{motifs()}}, \code{\link[=subgraphs]{subgraphs()}}, \code{\link[=extract_triads]{extract_triads()}}, \code{\link[=motif_census]{motif_census()}}
+\code{\link[igraph:motifs]{igraph::motifs()}}, \code{\link[=subgraphs]{subgraphs()}}, \code{\link[=extract_triads]{extract_triads()}}, \code{\link[=motif_census]{motif_census()}}
 
 Other motifs: 
 \code{\link{extract_triads}()},

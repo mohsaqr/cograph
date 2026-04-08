@@ -2,6 +2,44 @@
 
 ## Completed
 
+### CRAN 2.0.1 readiness (this session)
+
+Cleared every WARNING and NOTE raised by `rcmdcheck --as-cran` on the 2.0.0 tree, so the package is now submission-ready. Commit: `3639ed2` on `main`, pushed to all three remotes (see next section).
+
+**Check results under the strict CRAN incoming profile** (`_R_CHECK_CRAN_INCOMING_=TRUE _R_CHECK_CRAN_INCOMING_REMOTE_=TRUE _R_CHECK_DONTTEST_EXAMPLES_=TRUE`):
+
+- 0 errors
+- 0 warnings
+- 1 NOTE: `Availability using Additional_repositories specification: ? ? https://mohsaqr.r-universe.dev` — transient universe availability row, a non-failure for an `Additional_repositories` entry. CRAN reviewers can verify independently.
+
+**Findings and fixes:**
+
+1. **Version bump.** DESCRIPTION was at 2.0.0 but CRAN already has 2.0.0 — bumped to **2.0.1**. NEWS.md heading promoted from `(development version)` to `cograph 2.0.1`. cran-comments.md is a new file with submission notes covering Batches 3+4+5+6 and the three documented reference divergences.
+
+2. **Vignette rename (file name policy).** `vignettes/0_introduction.Rmd` → `vignettes/introduction.Rmd` via `git mv`. CRAN rejects file names beginning with a digit under `inst/doc/`.
+
+3. **core_periphery.Rd parse error with silent cascade.** `R/core-periphery.R` had `\code{cc'}` in `@details`; the apostrophe triggered a "newline within quoted string" Rd parser error on line 53. This parse failure was silently corrupting roxygen's cross-reference index, causing every `[motifs()]` / `[subgraphs()]` / `[extract_motifs()]` markdown link in `motifs.R` and `motifs-api.R` to fall back to a misleading `igraph::motifs()` resolution instead of cograph's own `motifs()`. Fixing `core_periphery.R` (replaced the apostrophe with plain prose) restored the index, and seven motif-related Rd files now correctly link to cograph's own functions. Silent improvement to the rendered help pages.
+
+4. **Missing `@param dmnc_epsilon`.** `centrality_dmnc()` uses `@inheritParams centrality_degree`, which never inherited `dmnc_epsilon`. Added an explicit `@param` block.
+
+5. **Broken cross-reference in trophic_incoherence.Rd.** `R/network-summary.R` had `\code{\link{centrality_trophic_level}}` in `@seealso` — but `centrality_trophic_level` is a column name in `centrality()`'s output, not an exported function. Changed to `\code{\link{centrality}}` with a parenthetical note.
+
+6. **Unstated test dependencies.** `dplyr`, `influenceR`, `tidygraph`, and `tnet` were referenced via `::` in equivalence tests (gated via `skip_if_not_installed()`) but not listed in Suggests. R CMD check's rule is that any package referenced via `::` must be declared regardless of skip gating. Added all four to Suggests.
+
+7. **Bracketed notation mis-parsed as links.** `centrality_pairwisedis` and `centralization` had `@return ... in [0, 1]` — the `[0, 1]` was parsed as a broken markdown link. Changed to `\eqn{[0, 1]}`. Inside `@noRd` internal docstrings, wrapped bracketed code fragments (`cc[v]`, `gamma[u, v]`, `p[is.nan(p)]`) in backticks to suppress link interpretation and clear `devtools::document()` warning noise.
+
+8. **Moved URLs flagged by CRAN incoming.** `codecov.io/github/sonsoleslp/cograph` → `app.codecov.io/github/sonsoleslp/cograph` in README.md and README.Rmd; `saqr.me/cograph` → `saqr.me/cograph/` (trailing slash) in the renamed introduction vignette.
+
+### Files modified in this session (CRAN prep)
+
+- `DESCRIPTION` — version + 4 Suggests added
+- `NEWS.md` — heading
+- `cran-comments.md` — **new file**
+- `R/core-periphery.R`, `R/centrality.R`, `R/centrality-extended.R`, `R/network-summary.R` — roxygen fixes
+- `README.md`, `README.Rmd`, `vignettes/introduction.Rmd` — URL fixes + rename
+- `man/*.Rd` — 10 regenerated, 7 of them silent improvements
+- `docs/CHANGES.md`, `HANDOFF.md` — session docs
+
 ### scripts/validate_centrality.R (consolidation session)
 
 Bundled the three `/tmp/*_validation.R` scratch scripts from the Batch 3+4+5+6 expansion into a single reproducible runner at `scripts/validate_centrality.R`, with an expected-output snapshot at `scripts/validate_centrality_snapshot.txt`.
@@ -181,8 +219,8 @@ None blocking. The following are deferred but not urgent:
 
 Priority order if the next session picks up centrality work:
 
-1. **CRAN readiness check** — run `rcmdcheck::rcmdcheck(".", args = c("--as-cran", "--no-manual"))` and fix any NOTEs/WARNINGs introduced by the 12 new functions and their examples.
-2. ~~**Full validation stress script**~~ — **DONE** in this session. See `scripts/validate_centrality.R` + `scripts/validate_centrality_snapshot.txt`.
+1. ~~**CRAN readiness check**~~ — **DONE** in this session. 0 errors / 0 warnings / 1 NOTE (universe availability). Commit `3639ed2`. Ready for `devtools::release()` or `devtools::submit_cran()` when the maintainer gives the word.
+2. ~~**Full validation stress script**~~ — **DONE** in the prior session. See `scripts/validate_centrality.R` + `scripts/validate_centrality_snapshot.txt`.
 3. **Split `test-centrality-batch3.R`** into 4 files by batch for readability.
 4. **File NetworkX bug report** for `group_betweenness_centrality` vs the Puzis algorithm divergence, with the 12-node reproducing case from this session.
 5. **Future Zoo additions** (deferred — all require new APIs or license verification): DomiRank (no license), ViralRank (no code found), Expected Force (non-commercial license), Shapley value centrality (no reference impl), EigenTrust (specialized), brainGraph hubness (niche composite).

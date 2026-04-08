@@ -1065,3 +1065,67 @@ estrada_index <- function(x) {
   ev <- eigen(A, only.values = TRUE, symmetric = isSymmetric(A))$values
   sum(exp(Re(ev)))
 }
+
+
+#' Trophic Incoherence Parameter
+#'
+#' The trophic incoherence parameter \eqn{q} is a measure of how "vertically
+#' ordered" a directed network is (Johnson et al. 2014). For each edge
+#' \eqn{(u, v)}, the trophic difference is \eqn{x_{uv} = s_v - s_u} where
+#' \eqn{s_i} is the trophic level of node \eqn{i}. The trophic incoherence
+#' parameter is the (population) standard deviation of these differences:
+#' \deqn{q = \sqrt{\frac{1}{|E|} \sum_{(u,v) \in E} (x_{uv} - \bar{x})^2}}
+#'
+#' Low values (\eqn{q \approx 0}) indicate a perfectly coherent network
+#' (e.g., a pure food web where every edge goes up one level). High values
+#' indicate an incoherent network with many level-skipping or downward
+#' edges. Johnson et al. 2014 showed that low-\eqn{q} food webs are
+#' dynamically more stable.
+#'
+#' Matches \code{networkx.trophic_incoherence_parameter} at machine epsilon.
+#' Directed-only; requires at least one basal node (node with no incoming
+#' edges) for trophic levels to be well-defined.
+#'
+#' @param x Directed network input.
+#' @param cannibalism Logical. If \code{FALSE}, self-loops are removed before
+#'   computing trophic differences. Default \code{TRUE}.
+#'
+#' @return A single numeric value (\code{NA_real_} for empty edge sets or
+#'   undirected input).
+#'
+#' @seealso \code{\link{centrality_trophic_level}} for the per-node levels.
+#' @references
+#' Johnson, S., Dominguez-Garcia, V., Donetti, L., & Munoz, M. A. (2014).
+#' Trophic coherence determines food-web stability. \emph{PNAS}, 111(50),
+#' 17923-17928.
+#'
+#' @export
+#' @examples
+#' # Small directed 3-node chain: 1 -> 2 -> 3 (perfectly coherent, q = 0)
+#' adj <- matrix(c(0,1,0, 0,0,1, 0,0,0), 3, 3, byrow = TRUE)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+#' trophic_incoherence(adj)
+trophic_incoherence <- function(x, cannibalism = TRUE) {
+  g <- to_igraph(x)
+  if (!igraph::is_directed(g)) {
+    warning("trophic_incoherence requires a directed graph; returning NA",
+            call. = FALSE)
+    return(NA_real_)
+  }
+  if (!isTRUE(cannibalism)) {
+    # Remove self-loops (matching NetworkX's convention when cannibalism=FALSE)
+    g <- igraph::simplify(g, remove.multiple = FALSE, remove.loops = TRUE)
+  }
+  if (igraph::ecount(g) == 0) return(NA_real_)
+
+  # Compute trophic levels via the existing native calculator
+  levels <- calculate_trophic_level(g)
+  if (all(is.na(levels))) return(NA_real_)
+
+  el <- igraph::as_edgelist(g, names = FALSE)
+  diffs <- levels[el[, 2]] - levels[el[, 1]]
+
+  # NetworkX uses numpy.std with default ddof=0 (population std); R's sd()
+  # uses ddof=1 (sample std) and would diverge.
+  sqrt(mean((diffs - mean(diffs))^2))
+}

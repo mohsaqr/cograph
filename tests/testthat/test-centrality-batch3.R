@@ -482,6 +482,50 @@ test_that("estrada_index matches NetworkX at machine epsilon", {
   }
 })
 
+test_that("trophic_incoherence: q = 0 for a perfect chain", {
+  # 1 -> 2 -> 3 -> 4: trophic levels = (1, 2, 3, 4), all diffs = 1
+  adj <- matrix(0, 4, 4)
+  adj[1, 2] <- adj[2, 3] <- adj[3, 4] <- 1
+  q <- trophic_incoherence(adj)
+  expect_equal(q, 0, tolerance = 1e-12)
+})
+
+test_that("trophic_incoherence warns + NA on undirected input", {
+  k3 <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+  expect_warning(q <- trophic_incoherence(k3), "directed")
+  expect_true(is.na(q))
+})
+
+test_that("trophic_incoherence matches NetworkX BIT-EXACT", {
+  skip_if_not(has_nx(), "NetworkX not available")
+  nx <- reticulate::import("networkx")
+  set.seed(6201)
+  passes <- 0
+  for (i in 1:10) {
+    n <- sample(10:20, 1)
+    g_r <- igraph::sample_gnp(n, 0.15, directed = TRUE)
+    # Need at least one basal node (in-degree 0) for trophic levels
+    if (all(igraph::degree(g_r, mode = "in") > 0)) next
+    if (igraph::ecount(g_r) < 2) next
+
+    el <- igraph::as_edgelist(g_r)
+    g_nx <- nx$DiGraph()
+    g_nx$add_nodes_from(as.integer(0:(n - 1)))
+    for (j in seq_len(nrow(el))) {
+      g_nx$add_edge(as.integer(el[j, 1] - 1), as.integer(el[j, 2] - 1))
+    }
+    cog <- tryCatch(trophic_incoherence(g_r), warning = function(w) NA, error = function(e) NA)
+    nxv <- tryCatch(nx$trophic_incoherence_parameter(g_nx),
+                    error = function(e) NA)
+    if (is.na(cog) || is.na(nxv)) next
+
+    expect_equal(cog, nxv, tolerance = 1e-13,
+                 info = sprintf("graph %d, n=%d", i, n))
+    passes <- passes + 1
+  }
+  expect_gte(passes, 3)
+})
+
 test_that("brokerage on small deterministic graph gives exact roles", {
   # Adjacency (4 nodes, 2 groups):
   #   A(1) -> B(1), A(1) -> C(2), B(1) -> C(2), B(1) -> D(2),

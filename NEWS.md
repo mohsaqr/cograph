@@ -7,6 +7,7 @@
 These measures don't fit the per-node `centrality()` data frame, so they live as standalone functions:
 
 - `estrada_index()` — graph-level spectral invariant: \eqn{EE(G) = \sum_i e^{\lambda_i}}, equal to the trace of the matrix exponential of the adjacency. Equivalently, the sum of `subgraph_centrality()` across all nodes. Matches `networkx.estrada_index` at machine epsilon (max relative diff ~5e-15 across random test graphs).
+- `trophic_incoherence()` — graph-level food-web stability measure (Johnson et al. 2014). Defined as the population standard deviation of per-edge trophic differences \eqn{s_v - s_u} where \eqn{s_i} is the trophic level of node \eqn{i}. Zero for perfectly coherent DAGs (e.g., a pure chain). Matches `networkx.trophic_incoherence_parameter` at machine epsilon. Directed-only; reuses the existing `trophic_level` calculator.
 
 ### Centrality Batch 5 — Gould-Fernandez brokerage (5 roles)
 

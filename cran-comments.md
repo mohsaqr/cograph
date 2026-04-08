@@ -1,6 +1,7 @@
-## Submission notes — cograph 2.0.1
+## Submission notes — cograph 2.1.0
 
-This is a feature + fix release following 2.0.0.
+This is a minor feature release following 2.0.0, bundling the
+Batch 3–6 centrality expansion and a set of CRAN-readiness fixes.
 
 ### New functionality
 

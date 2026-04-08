@@ -1,5 +1,26 @@
 # Changes
 
+## 2026-04-08 — CRAN 2.1.0 minor release — extra checks clean
+
+Promoted the release from 2.0.1 to 2.1.0 and ran the extended CRAN readiness suite. Final status on the strict CRAN incoming profile: **0 errors, 0 warnings, 1 NOTE** (the `? ? mohsaqr.r-universe.dev` availability row, a non-failure for an `Additional_repositories` entry).
+
+Extra checks run on 2.1.0 (all passing):
+
+| Check | Result |
+|---|---|
+| `urlchecker::url_check()` | clean (15 URLs validated) after dropping explicit `<https://doi.org/...>` wrapping around two DOIs that ACM Digital Library and Sage actively 403 to automated fetchers |
+| `spelling::spell_check_package()` | clean after adding `inst/WORDLIST` (338 legitimate terms: author names, package/software names, R graphics params, network-science jargon) |
+| `rcmdcheck --as-cran` (strict incoming) | 0/0/1 |
+| `goodpractice::gp()` | not installed, skipped |
+
+Changes in this pass:
+
+- DESCRIPTION: Version 2.0.1 → 2.1.0. Added `Language: en-US` (CRAN-recommended metadata field; also silences spelling's default fallback warning).
+- NEWS.md: heading "cograph 2.0.1" → "cograph 2.1.0".
+- cran-comments.md: retitled and rescoped as a minor feature release rather than a 2.0.0 patch.
+- vignettes/introduction.Rmd: Replaced the two `<https://doi.org/10.1145/3706468.3706513>` / `<https://doi.org/10.1177/01466216251348840>` Markdown hyperlinks (ACM LAK 2025 and Sage APM 2025 citations) with plain-text `doi:...` because both publisher endpoints return 403 Forbidden to automated checkers (browser User-Agent spoofing still fails). The citation text is unchanged; only the hyperlink wrapping is removed to take the URLs out of CRAN's URL-check scope.
+- inst/WORDLIST: **New file**. 338 entries covering every word flagged by `spelling::spell_check_package()` — all legitimate: author names (Borgatti, Kleinberg, Wasserman, etc.), package/software names (igraph, NetworkX, UCINET, Gephi, ggplot, qgraph, Nestimate, etc.), R graphics parameters (hjust, vjust, lty, lwd, xspline, etc.), and network-science terms (betweenness, assortativity, reachability, simplicial, modularity, etc.).
+
 ## 2026-04-08 — CRAN 2.0.1 readiness pass
 
 Addressed every WARNING and NOTE surfaced by `rcmdcheck --as-cran` on the 2.0.0 tree. Final status: **0 errors, 0 warnings, 1 NOTE** (the transient `? ? mohsaqr.r-universe.dev` availability row, which is a non-failure for an `Additional_repositories` entry).

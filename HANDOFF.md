@@ -2,6 +2,23 @@
 
 ## Completed
 
+### Batch 6 — new-API measures (graph-level / set-level / pair-level)
+
+These measures don't fit the per-node `centrality()` contract and live as standalone top-level functions. All bit-exact against their reference implementations.
+
+| Function | Scope | Reference | Status |
+|---|---|---|---|
+| `estrada_index(g)` | graph → scalar | `nx.estrada_index` | machine epsilon (~5e-15 rel) |
+| `trophic_incoherence(g)` | graph → scalar | `nx.trophic_incoherence_parameter` | machine epsilon, chain = 0 exact |
+| `group_centrality(g, nodes, "closeness")` | set → scalar | `nx.group_closeness_centrality` | **BIT-EXACT** (6 graphs) |
+| `group_centrality(g, nodes, "degree")` | set → scalar | `nx.group_*_degree_centrality` | **BIT-EXACT** (undirected + in/out) |
+| `group_centrality(g, nodes, "betweenness")` | set → scalar | textbook Everett-Borgatti 1999 | **textbook-exact** (diverges from NX Puzis) |
+| `dispersion(g, u, v)` | pair → scalar / vector / df | `nx.dispersion` | **BIT-EXACT** (all 156 karate edges) |
+
+**Independent Python brute-force** verified the Everett-Borgatti / Puzis 2008 textbook "at least one node in C" definition of group betweenness. NetworkX's `group_betweenness_centrality` uses the Puzis-Yahalom-Elovici iterative algorithm which produces values inconsistent with the textbook on graphs with overlapping shortest paths. cograph matches the textbook; the divergence is documented.
+
+Committed as per-feature commits (`6544531` estrada, `c7a1cd6` trophic, `83d16c7` group_centrality, `9040d12` dispersion).
+
 ### Batch 5 — Gould-Fernandez Brokerage (5 roles)
 
 Added the five Gould-Fernandez (1989) brokerage roles as per-node measures in `centrality()`, bringing the total to **87 measures**. Classical SNA reference (~1500 citations). All 5 roles implemented natively (no runtime dependency on sna) with bit-exact validation against `sna::brokerage$raw.nli`:

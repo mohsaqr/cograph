@@ -271,7 +271,10 @@ centrality <- function(x, measures = "all", mode = "all",
                      "closeness_vitality",
                      "integration", "expected", "gilschmidt",
                      # Community-aware mode measures
-                     "participation", "within_module_z", "gateway")
+                     "participation", "within_module_z", "gateway",
+                     # Zoo batch 2 — mode measures
+                     "gravity", "collective_influence", "local_hindex",
+                     "hindex_strength", "onion")
   no_mode_measures <- c("betweenness", "eigenvector", "pagerank",
                         "authority", "hub", "constraint", "transitivity",
                         "subgraph", "laplacian", "load",
@@ -285,7 +288,10 @@ centrality <- function(x, measures = "all", mode = "all",
                         "local_bridging", "effective_size",
                         "diversity", "cross_clique", "markov",
                         # Directed-only measures
-                        "salsa", "leaderrank")
+                        "salsa", "leaderrank", "trophic_level",
+                        # Zoo batch 2 — no-mode measures
+                        "second_order", "infection", "nonbacktracking",
+                        "spanning_tree")
   all_measures <- c(mode_measures, no_mode_measures)
 
   # Resolve measures
@@ -1100,9 +1106,23 @@ calculate_measure <- function(g, measure, mode, weights, normalized,
     "expected" = calculate_expected(g, mode = mode),
     "gilschmidt" = calculate_gilschmidt(g, mode = mode),
 
+    # Zoo batch 2 — mode measures
+    "gravity" = calculate_gravity(g, mode = mode),
+    "collective_influence" = calculate_collective_influence(g, mode = mode),
+    "local_hindex" = as.numeric(calculate_local_hindex(g, mode = mode)),
+    "hindex_strength" = as.numeric(calculate_hindex_strength(g, mode = mode)),
+    "onion" = as.numeric(calculate_onion(g)),
+
+    # Zoo batch 2 — no-mode measures
+    "second_order" = calculate_second_order(g),
+    "infection" = calculate_infection(g),
+    "nonbacktracking" = calculate_nonbacktracking(g),
+    "spanning_tree" = calculate_spanning_tree(g),
+
     # Directed-only measures
     "salsa" = calculate_salsa(g),
     "leaderrank" = calculate_leaderrank(g),
+    "trophic_level" = calculate_trophic_level(g),
 
     # Community-aware measures (require membership parameter)
     "participation" = calculate_participation(g, membership = membership,

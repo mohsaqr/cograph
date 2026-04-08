@@ -4,7 +4,7 @@
 \alias{centrality_gateway}
 \title{Gateway Coefficient}
 \usage{
-centrality_gateway(x, membership, mode = "all", ...)
+centrality_gateway(x, membership = NULL, mode = "all", ...)
 }
 \arguments{
 \item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}

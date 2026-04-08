@@ -120,7 +120,7 @@ cograph::degree_distribution(directed_adj, mode = "in",
 
 # With igraph
 if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::erdos.renyi.game(100, 0.1)
+  g <- igraph::sample_gnp(100, 0.1)
   cograph::degree_distribution(g, col = "coral")
 }
 }

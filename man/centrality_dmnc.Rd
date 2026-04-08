@@ -4,7 +4,7 @@
 \alias{centrality_dmnc}
 \title{Density of Maximum Neighborhood Component (DMNC)}
 \usage{
-centrality_dmnc(x, mode = "all", ...)
+centrality_dmnc(x, mode = "all", dmnc_epsilon = 1.7, ...)
 }
 \arguments{
 \item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}

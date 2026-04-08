@@ -1232,6 +1232,405 @@ centralization <- function(x, measure = c("degree", "betweenness",
 
 
 # =============================================================================
+# Batch 2: Zoo of Centralities measures
+# =============================================================================
+
+#' Onion decomposition (Hébert-Dufresne et al. 2016)
+#'
+#' Refined k-shell that assigns nodes to layers within each shell.
+#' Layer 1 = outermost (removed first), higher = more central.
+#' @keywords internal
+#' @noRd
+calculate_onion <- function(g) {
+  n <- igraph::vcount(g)
+  if (n == 0) return(integer(0))
+  if (n == 1) return(1L)
+
+  # Use integer IDs for tracking through deletions
+  orig_names <- igraph::V(g)$name
+  igraph::V(g)$name <- as.character(seq_len(n))
+
+  layer <- integer(n)
+  current_layer <- 1L
+  g_work <- g
+
+  while (igraph::vcount(g_work) > 0) {
+    deg <- igraph::degree(g_work, mode = "all")
+    k <- min(deg)
+
+    # Onion peeling: within each k-shell, iteratively remove nodes
+    # whose degree equals k. After removal, degrees drop and more
+    # nodes may reach k — those form the next layer within the shell.
+    repeat {
+      deg <- igraph::degree(g_work, mode = "all")
+      to_remove_idx <- which(deg <= k)
+      if (length(to_remove_idx) == 0) break
+
+      orig_ids <- as.integer(igraph::V(g_work)$name[to_remove_idx])
+      layer[orig_ids] <- current_layer
+      current_layer <- current_layer + 1L
+
+      g_work <- igraph::delete_vertices(g_work, to_remove_idx)
+      if (igraph::vcount(g_work) == 0) break
+    }
+  }
+
+  layer
+}
+
+
+#' Second-order centrality (Kermarrec et al. 2011)
+#'
+#' Standard deviation of return times in a random walk. Low values indicate
+#' central nodes with regular return times; high values indicate peripheral.
+#' Requires a connected graph.
+#' @keywords internal
+#' @noRd
+calculate_second_order <- function(g) {
+  n <- igraph::vcount(g)
+  if (n <= 1) return(rep(NA_real_, n))
+
+  if (!igraph::is_connected(g, mode = "weak")) {
+    warning("second_order requires a connected graph; returning NA", call. = FALSE)
+    return(rep(NA_real_, n))
+  }
+
+  # Transition matrix
+  A <- as.matrix(igraph::as_adjacency_matrix(g, sparse = FALSE))
+  deg <- rowSums(A)
+  deg[deg == 0] <- 1
+  P <- A / deg
+
+  # Stationary distribution
+  if (!igraph::is_directed(g)) {
+    pi_stat <- deg / sum(deg)
+  } else {
+    eig <- eigen(t(P))
+    idx <- which.min(abs(Re(eig$values) - 1))
+    pi_stat <- abs(Re(eig$vectors[, idx]))
+    pi_stat <- pi_stat / sum(pi_stat)
+  }
+
+  # Fundamental matrix Z = (I - P + W)^-1
+  W <- matrix(pi_stat, n, n, byrow = TRUE)
+  Z <- tryCatch(solve(diag(n) - P + W), error = function(e) NULL)
+  if (is.null(Z)) return(rep(NA_real_, n))
+
+  # Mean first passage time m_ij = (Z_jj - Z_ij) / pi_j
+  mfpt <- matrix(0, n, n)
+  for (i in seq_len(n)) {
+    for (j in seq_len(n)) {
+      if (i != j && pi_stat[j] > 1e-15) {
+        mfpt[i, j] <- (Z[j, j] - Z[i, j]) / pi_stat[j]
+      }
+    }
+  }
+
+  # Mean return time for node j = m_jj = 1/pi_j
+  # Second-order centrality = SD of return times from all other nodes
+  # Following Kermarrec: for each node j, compute SD of {m_ij} over all i != j
+  vapply(seq_len(n), function(j) {
+    times <- mfpt[-j, j]
+    times <- times[times > 0]
+    if (length(times) < 2) return(NA_real_)
+    stats::sd(times)
+  }, numeric(1))
+}
+
+
+#' Gravity centrality (Li et al. 2019)
+#'
+#' Degree * k-shell / distance^2 summed over all reachable nodes.
+#' Combines local (degree), mesoscale (k-shell), and global (distance) info.
+#' @keywords internal
+#' @noRd
+calculate_gravity <- function(g, mode = "all") {
+  n <- igraph::vcount(g)
+  if (n == 0) return(numeric(0))
+  if (n == 1) return(0)
+
+  deg <- igraph::degree(g, mode = mode)
+  ks <- igraph::coreness(g, mode = mode)
+  sp <- igraph::distances(g, mode = mode, weights = NA)
+
+  vapply(seq_len(n), function(i) {
+    total <- 0
+    for (j in seq_len(n)) {
+      if (i != j && is.finite(sp[i, j]) && sp[i, j] > 0) {
+        total <- total + (deg[j] * ks[j]) / (sp[i, j]^2)
+      }
+    }
+    total
+  }, numeric(1))
+}
+
+
+#' Collective influence (Morone & Makse 2015)
+#'
+#' Product of (degree - 1) and sum of (degree - 1) on the boundary
+#' of the ball of radius l around the node. Identifies optimal percolation nodes.
+#' @keywords internal
+#' @noRd
+calculate_collective_influence <- function(g, mode = "all", l = 2L) {
+  n <- igraph::vcount(g)
+  if (n == 0) return(numeric(0))
+
+  deg <- igraph::degree(g, mode = mode)
+  sp <- igraph::distances(g, mode = mode, weights = NA)
+
+  vapply(seq_len(n), function(i) {
+    # Boundary of ball: nodes at exact distance l
+    boundary <- which(sp[i, ] == l)
+    if (length(boundary) == 0) return(0)
+    (deg[i] - 1) * sum(deg[boundary] - 1)
+  }, numeric(1))
+}
+
+
+#' Local H-index (Lü et al. 2016)
+#'
+#' Recursive h-index: h-index computed from the h-indices of neighbors
+#' rather than from degrees. Iterates until convergence.
+#' @keywords internal
+#' @noRd
+calculate_local_hindex <- function(g, mode = "all", max_iter = 100L) {
+  n <- igraph::vcount(g)
+  if (n == 0) return(integer(0))
+
+  adj_list <- igraph::as_adj_list(g, mode = mode)
+
+  # Initialize with degree (h^(0) = degree)
+  h <- igraph::degree(g, mode = mode)
+
+  for (iter in seq_len(max_iter)) {
+    h_new <- integer(n)
+    for (v in seq_len(n)) {
+      nbs <- as.integer(adj_list[[v]])
+      if (length(nbs) == 0) { h_new[v] <- 0L; next }
+      # h-index of the multiset of neighbor h-values
+      nb_h <- sort(h[nbs], decreasing = TRUE)
+      hi <- 0L
+      for (k in seq_along(nb_h)) {
+        if (nb_h[k] >= k) hi <- as.integer(k) else break
+      }
+      h_new[v] <- hi
+    }
+    if (identical(h_new, h)) break
+    h <- h_new
+  }
+
+  h
+}
+
+
+#' Infection number (Bauer & Lizier 2012)
+#'
+#' Expected number of infections from a node as source, approximated using
+#' self-avoiding walks (SAWs). Uses SIR model with infection probability beta
+#' and removal probability mu.
+#' @keywords internal
+#' @noRd
+calculate_infection <- function(g, beta = 0.8, mu = 0, max_length = 6L) {
+  n <- igraph::vcount(g)
+  if (n == 0) return(numeric(0))
+
+  adj_list <- igraph::as_adj_list(g, mode = "all")
+
+  # Count self-avoiding walks of each length from each source
+  # SAW(v, j, k) = number of SAWs of length k from v to j
+  # Infection number = sum_j sum_{k=1}^{L} SAW(v,j,k) * beta^k * (1-mu)^{k-1}
+
+  vapply(seq_len(n), function(src) {
+    total <- 0
+    # BFS-like enumeration of SAWs up to max_length
+    # Stack: (current_node, visited_set, length)
+    # Use recursive DFS with backtracking
+    .count_saws <- function(current, visited, depth) {
+      if (depth >= max_length) return(0)
+      nbs <- as.integer(adj_list[[current]])
+      count <- 0
+      for (nb in nbs) {
+        if (!nb %in% visited) {
+          # Found a SAW of length depth+1 reaching nb
+          weight <- beta^(depth + 1) * (1 - mu)^depth
+          count <- count + weight
+          # Continue extending
+          count <- count + .count_saws(nb, c(visited, nb), depth + 1L)
+        }
+      }
+      count
+    }
+
+    .count_saws(src, src, 0L)
+  }, numeric(1))
+}
+
+
+#' Non-backtracking centrality (Martin et al. 2014)
+#'
+#' Based on the leading eigenvector of the non-backtracking (Hashimoto) matrix.
+#' Avoids localization issues of eigenvector centrality on sparse networks.
+#' @keywords internal
+#' @noRd
+calculate_nonbacktracking <- function(g) {
+  n <- igraph::vcount(g)
+  if (n == 0) return(numeric(0))
+  if (n == 1) return(1)
+
+  el <- igraph::as_edgelist(g, names = FALSE)
+  m <- nrow(el)
+
+  # For undirected: each edge becomes 2 directed edges
+  if (!igraph::is_directed(g)) {
+    el <- rbind(el, el[, 2:1])
+    m <- nrow(el)
+  }
+
+  # Non-backtracking matrix B: B[(i->j), (k->l)] = 1 if j==k and i!=l
+  # This is a 2m x 2m matrix for undirected graphs
+  # For efficiency, use the Ihara determinant relationship:
+  # Leading eigenvalue of B relates to adjacency spectrum
+  # Node centrality = sum of eigenvector components over edges leaving node
+
+  # Build B matrix (sparse would be better for large graphs)
+  if (m > 5000) {
+    # For large graphs, use the reduced 2n x 2n matrix formulation
+    A <- as.matrix(igraph::as_adjacency_matrix(g, sparse = FALSE))
+    D <- diag(igraph::degree(g, mode = "all"))
+    I_n <- diag(n)
+
+    # Block matrix: [[A, I-D], [I, 0]]
+    top <- cbind(A, I_n - D)
+    bot <- cbind(I_n, matrix(0, n, n))
+    B_red <- rbind(top, bot)
+
+    eig <- eigen(B_red)
+    # Leading eigenvalue
+    idx <- which.max(Re(eig$values))
+    v <- Re(eig$vectors[, idx])
+    # Node centrality from first n components
+    result <- abs(v[seq_len(n)])
+  } else {
+    # Direct B matrix construction
+    B <- matrix(0, m, m)
+    for (a in seq_len(m)) {
+      for (b in seq_len(m)) {
+        # Edge a = (i->j), edge b = (k->l)
+        # B[a,b] = 1 if j==k and i!=l
+        if (el[a, 2] == el[b, 1] && el[a, 1] != el[b, 2]) {
+          B[a, b] <- 1
+        }
+      }
+    }
+
+    eig <- eigen(B)
+    idx <- which.max(Re(eig$values))
+    v <- Re(eig$vectors[, idx])
+
+    # Aggregate edge centrality to node centrality
+    # Node v = sum of eigenvector components for edges leaving v
+    result <- numeric(n)
+    for (e in seq_len(m)) {
+      result[el[e, 1]] <- result[el[e, 1]] + abs(v[e])
+    }
+  }
+
+  # Normalize
+  max_val <- max(result)
+  if (max_val > 0) result <- result / max_val
+  result
+}
+
+
+#' Trophic level centrality
+#'
+#' Trophic level of each node in a directed network, measuring position
+#' in the flow hierarchy. Basal nodes (sources) have level 1.
+#' Requires a directed graph.
+#' @keywords internal
+#' @noRd
+calculate_trophic_level <- function(g) {
+  n <- igraph::vcount(g)
+  if (n == 0) return(numeric(0))
+  if (!igraph::is_directed(g)) {
+    warning("trophic_level requires a directed graph; returning NA", call. = FALSE)
+    return(rep(NA_real_, n))
+  }
+
+  # Trophic level s_j = 1 + (1/k_j^in) * sum_{i->j} s_i
+  # Solve: (I - W) s = 1, where W_ji = A_ij / k_j^in
+  A <- as.matrix(igraph::as_adjacency_matrix(g, sparse = FALSE))
+  in_deg <- colSums(A)
+  in_deg[in_deg == 0] <- 1  # basal nodes
+
+  W <- t(t(A) / in_deg)  # W_ji = A_ij / in_deg_j
+  I_n <- diag(n)
+
+  s <- tryCatch(
+    solve(I_n - t(W), rep(1, n)),
+    error = function(e) rep(NA_real_, n)
+  )
+
+  s
+}
+
+
+#' H-index strength (extended h-index with weighted edges)
+#'
+#' Like the lobby index but uses strength (weighted degree) of closed
+#' neighborhood members instead of unweighted degree.
+#' @keywords internal
+#' @noRd
+calculate_hindex_strength <- function(g, mode = "all") {
+  n <- igraph::vcount(g)
+  if (n == 0) return(numeric(0))
+
+  str <- igraph::strength(g, mode = mode)
+
+  vapply(seq_len(n), function(i) {
+    nbs <- c(i, as.integer(igraph::neighbors(g, i, mode = mode)))
+    nb_str <- sort(str[nbs], decreasing = TRUE)
+    h <- 0L
+    for (k in seq_along(nb_str)) {
+      if (nb_str[k] >= k) h <- as.integer(k) else break
+    }
+    h
+  }, integer(1))
+}
+
+
+#' Spanning tree centrality
+#'
+#' Based on the number of spanning trees that include each node.
+#' Uses the matrix tree theorem (Kirchhoff). For connected graphs,
+#' related to the diagonal of the Laplacian pseudoinverse.
+#' @keywords internal
+#' @noRd
+calculate_spanning_tree <- function(g) {
+  n <- igraph::vcount(g)
+  if (n <= 1) return(rep(1, n))
+
+  if (!igraph::is_connected(g, mode = "weak")) {
+    warning("spanning_tree requires a connected graph; returning NA", call. = FALSE)
+    return(rep(NA_real_, n))
+  }
+
+  L <- igraph::laplacian_matrix(g, sparse = FALSE)
+
+  # Moore-Penrose pseudoinverse of Laplacian: L+ = (L + J/n)^{-1} - J/n
+  J <- matrix(1, n, n)
+  L_inv <- tryCatch(solve(L + J / n), error = function(e) NULL)
+  if (is.null(L_inv)) return(rep(NA_real_, n))
+  L_pinv <- L_inv - J / n
+
+  # Node spanning tree centrality = 1 / L+_ii
+  # Lower L+_ii = more central (less effective resistance)
+  diag_vals <- diag(L_pinv)
+  ifelse(diag_vals > 1e-15, 1 / diag_vals, 0)
+}
+
+
+# =============================================================================
 # Shared helper
 # =============================================================================
 

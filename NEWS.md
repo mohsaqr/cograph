@@ -5,6 +5,7 @@
 ### Centrality Batch 4 — directed prestige family (Wasserman-Faust / sna)
 
 - `centrality_prestige_domain()` — directed-graph prestige measure: for each node \eqn{v}, the number of other nodes that can reach \eqn{v} via a directed path. Classical Wasserman-Faust (1994) measure from `sna::prestige(cmode = "domain")`. Bit-exact match against sna, implemented natively via `igraph::distances(mode = "out")` + `colSums(is.finite(D)) - 1` (no runtime dependency on sna). Directed-only; returns NA with a warning on undirected input.
+- `centrality_prestige_domain_proximity()` — distance-weighted variant: `R_v^2 / (D_v * (n - 1))` where `R_v` is the number of reachers and `D_v` is the sum of their geodesic distances to `v`. Bit-exact match against `sna::prestige(cmode = "domain.proximity")` on strongly connected directed graphs. On graphs with any unreachable pair, sna has a known bug (`FALSE * Inf = NaN` collapses the denominator, producing all-zero output); cograph's `is.finite()`-masked formula produces mathematically correct values on any directed graph. Directed-only.
 
 ### Centrality Batch 3 — classical measures with reference-package validation
 

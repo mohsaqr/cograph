@@ -312,7 +312,7 @@ centrality <- function(x, measures = "all", mode = "all",
                         # Batch 3 — classical measures with reference validation
                         "katz", "hubbell", "information", "pairwisedis",
                         # Batch 4 — directed prestige family (Wasserman-Faust / sna)
-                        "prestige_domain")
+                        "prestige_domain", "prestige_domain_proximity")
   all_measures <- c(mode_measures, no_mode_measures)
 
   # Resolve measures
@@ -1165,6 +1165,7 @@ calculate_measure <- function(g, measure, mode, weights, normalized,
 
     # Batch 4 — directed prestige family (Wasserman-Faust / sna)
     "prestige_domain" = calculate_prestige_domain(g),
+    "prestige_domain_proximity" = calculate_prestige_domain_proximity(g),
 
     stop("Unknown measure: ", measure, call. = FALSE)
   )
@@ -3057,6 +3058,54 @@ reaching_global <- function(x, mode = "all", ...) {
 centrality_prestige_domain <- function(x, ...) {
   df <- centrality(x, measures = "prestige_domain", ...)
   stats::setNames(df$prestige_domain, df$node)
+}
+
+
+#' Domain Proximity Prestige
+#'
+#' Distance-weighted variant of domain prestige. For each directed node
+#' \eqn{v}:
+#' \deqn{PD(v) = R_v^2 / (D_v \cdot (n - 1))}
+#' where \eqn{R_v} is the number of other nodes that reach \eqn{v}, and
+#' \eqn{D_v} is the sum of geodesic distances from those reachers to
+#' \eqn{v}. A node that is reachable quickly from many others scores high;
+#' unreachable nodes score 0.
+#'
+#' Bit-exact match against \code{sna::prestige(cmode = "domain.proximity")}
+#' on strongly connected directed graphs. Directed-only; returns \code{NA}
+#' with a warning on undirected input.
+#'
+#' @section Divergence from sna on disconnected graphs:
+#' sna's formula computes \code{(counts > 0) * gdist} element-wise and then
+#' sums to get the denominator. For any pair where \code{gdist = Inf}
+#' (unreachable), R evaluates \code{FALSE * Inf = NaN}, so the entire
+#' denominator becomes \code{NaN} and sna zeros every node via
+#' \code{p[is.nan(p)] <- 0}. cograph masks with \code{is.finite()} before
+#' summing, producing mathematically correct values on any directed graph,
+#' including those with disconnected components.
+#'
+#' @param x Directed network input (matrix, igraph, cograph_network, tna object).
+#' @param ... Additional arguments passed to \code{\link{centrality}}.
+#'
+#' @return Named numeric vector of domain proximity prestige values in
+#'   \eqn{[0, 1]}.
+#'
+#' @seealso \code{\link{centrality}}, \code{\link{centrality_prestige_domain}}
+#'   for the unweighted count, \code{\link{centrality_reaching_local}}
+#'   for the dual out-reachability measure.
+#' @references
+#' Wasserman, S., & Faust, K. (1994). \emph{Social Network Analysis: Methods
+#' and Applications}. Cambridge University Press.
+#'
+#' @export
+#' @examples
+#' # Directed 3-cycle: each node is reached by both others at distance 1 and 2
+#' adj <- matrix(c(0,1,0, 0,0,1, 1,0,0), 3, 3, byrow = TRUE)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+#' centrality_prestige_domain_proximity(adj)
+centrality_prestige_domain_proximity <- function(x, ...) {
+  df <- centrality(x, measures = "prestige_domain_proximity", ...)
+  stats::setNames(df$prestige_domain_proximity, df$node)
 }
 
 

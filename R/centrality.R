@@ -5,7 +5,7 @@
 #'
 #' @param x Network input (matrix, igraph, network, cograph_network, tna object)
 #' @param measures Which measures to calculate. Default "all" calculates all
-#'   available measures (82 total). Can be a character vector of measure names.
+#'   available measures (87 total). Can be a character vector of measure names.
 #'   **Core** (igraph-backed): "degree", "strength", "betweenness", "closeness",
 #'   "eigenvector", "pagerank", "authority", "hub", "eccentricity", "coreness",
 #'   "constraint", "transitivity", "harmonic", "alpha", "power", "subgraph".
@@ -26,7 +26,10 @@
 #'   **Directed-only**: "salsa", "leaderrank", "trophic_level", "pairwisedis",
 #'   "prestige_domain", "prestige_domain_proximity".
 #'   **Community-aware** (require \code{membership}): "participation",
-#'   "within_module_z", "gateway".
+#'   "within_module_z", "gateway", "brokerage_coordinator",
+#'   "brokerage_itinerant", "brokerage_representative",
+#'   "brokerage_gatekeeper", "brokerage_liaison" (the last 5 also require
+#'   a directed graph; see \code{\link{centrality_brokerage_coordinator}}).
 #'   **Zoo (batch 2)**: "gravity", "collective_influence", "local_hindex",
 #'   "hindex_strength", "onion", "second_order", "infection", "nonbacktracking",
 #'   "spanning_tree".
@@ -313,7 +316,11 @@ centrality <- function(x, measures = "all", mode = "all",
                         # Batch 3 — classical measures with reference validation
                         "katz", "hubbell", "information", "pairwisedis",
                         # Batch 4 — directed prestige family (Wasserman-Faust / sna)
-                        "prestige_domain", "prestige_domain_proximity")
+                        "prestige_domain", "prestige_domain_proximity",
+                        # Batch 5 — Gould-Fernandez brokerage (5 roles)
+                        "brokerage_coordinator", "brokerage_itinerant",
+                        "brokerage_representative", "brokerage_gatekeeper",
+                        "brokerage_liaison")
   all_measures <- c(mode_measures, no_mode_measures)
 
   # Resolve measures
@@ -1167,6 +1174,13 @@ calculate_measure <- function(g, measure, mode, weights, normalized,
     # Batch 4 — directed prestige family (Wasserman-Faust / sna)
     "prestige_domain" = calculate_prestige_domain(g),
     "prestige_domain_proximity" = calculate_prestige_domain_proximity(g),
+
+    # Batch 5 — Gould-Fernandez brokerage (5 roles)
+    "brokerage_coordinator"    = calculate_brokerage(g, membership, "coordinator"),
+    "brokerage_itinerant"      = calculate_brokerage(g, membership, "itinerant"),
+    "brokerage_representative" = calculate_brokerage(g, membership, "representative"),
+    "brokerage_gatekeeper"     = calculate_brokerage(g, membership, "gatekeeper"),
+    "brokerage_liaison"        = calculate_brokerage(g, membership, "liaison"),
 
     stop("Unknown measure: ", measure, call. = FALSE)
   )
@@ -3107,6 +3121,149 @@ centrality_prestige_domain <- function(x, ...) {
 centrality_prestige_domain_proximity <- function(x, ...) {
   df <- centrality(x, measures = "prestige_domain_proximity", ...)
   stats::setNames(df$prestige_domain_proximity, df$node)
+}
+
+
+# ---------------------------------------------------------------------------
+# Batch 5 wrappers: Gould-Fernandez brokerage (5 roles).
+# ---------------------------------------------------------------------------
+
+#' Gould-Fernandez Brokerage — Coordinator Role
+#'
+#' Coordinator brokerage (w_I): count of open directed 2-paths
+#' \eqn{A \to V \to A} passing through node \eqn{V}, where all three nodes
+#' belong to \eqn{V}'s group. The broker mediates contact between two
+#' in-group members.
+#'
+#' Bit-exact match against \code{sna::brokerage$raw.nli[, "w_I"]}. Counts
+#' OPEN 2-paths only — those where no direct edge from \code{a} to \code{c}
+#' exists. Directed-only; returns \code{NA} with a warning on undirected input.
+#'
+#' @param x Directed network input (matrix, igraph, cograph_network, tna object).
+#' @param membership Integer or character vector of group assignments, length
+#'   equal to the number of nodes. Required.
+#' @param ... Additional arguments passed to \code{\link{centrality}}.
+#'
+#' @return Named integer vector of coordinator role counts.
+#'
+#' @seealso \code{\link{centrality}},
+#'   \code{\link{centrality_brokerage_itinerant}},
+#'   \code{\link{centrality_brokerage_representative}},
+#'   \code{\link{centrality_brokerage_gatekeeper}},
+#'   \code{\link{centrality_brokerage_liaison}}.
+#' @references
+#' Gould, R. V., & Fernandez, R. M. (1989). Structures of mediation: A
+#' formal approach to brokerage in transaction networks.
+#' \emph{Sociological Methodology}, 19, 89-126.
+#'
+#' @export
+#' @examples
+#' adj <- matrix(c(0,1,1,0, 0,0,1,1, 0,0,0,1, 1,0,0,0), 4, 4, byrow = TRUE)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
+#' centrality_brokerage_coordinator(adj, membership = c(1, 1, 2, 2))
+centrality_brokerage_coordinator <- function(x, membership = NULL, ...) {
+  df <- centrality(x, measures = "brokerage_coordinator",
+                   membership = membership, ...)
+  stats::setNames(df$brokerage_coordinator, df$node)
+}
+
+#' Gould-Fernandez Brokerage — Itinerant (Consultant) Role
+#'
+#' Itinerant brokerage (w_O): count of open directed 2-paths
+#' \eqn{A \to V \to A} where the two endpoints are in the same group but
+#' the broker \eqn{V} is in a different group. The broker mediates within
+#' another group as an outsider.
+#'
+#' Bit-exact match against \code{sna::brokerage$raw.nli[, "w_O"]}.
+#' Directed-only.
+#'
+#' @inheritParams centrality_brokerage_coordinator
+#' @return Named integer vector of itinerant role counts.
+#' @seealso \code{\link{centrality_brokerage_coordinator}}.
+#' @references Gould & Fernandez (1989).
+#' @export
+#' @examples
+#' adj <- matrix(c(0,1,1,0, 0,0,1,1, 0,0,0,1, 1,0,0,0), 4, 4, byrow = TRUE)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
+#' centrality_brokerage_itinerant(adj, membership = c(1, 1, 2, 2))
+centrality_brokerage_itinerant <- function(x, membership = NULL, ...) {
+  df <- centrality(x, measures = "brokerage_itinerant",
+                   membership = membership, ...)
+  stats::setNames(df$brokerage_itinerant, df$node)
+}
+
+#' Gould-Fernandez Brokerage — Representative Role
+#'
+#' Representative brokerage (b_IO): count of open directed 2-paths
+#' \eqn{A \to V \to B} where \eqn{A} and \eqn{V} are in the same group
+#' and \eqn{B} is in a different group. The broker represents their group
+#' outward.
+#'
+#' Bit-exact match against \code{sna::brokerage$raw.nli[, "b_IO"]}.
+#' Directed-only.
+#'
+#' @inheritParams centrality_brokerage_coordinator
+#' @return Named integer vector of representative role counts.
+#' @seealso \code{\link{centrality_brokerage_coordinator}}.
+#' @references Gould & Fernandez (1989).
+#' @export
+#' @examples
+#' adj <- matrix(c(0,1,1,0, 0,0,1,1, 0,0,0,1, 1,0,0,0), 4, 4, byrow = TRUE)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
+#' centrality_brokerage_representative(adj, membership = c(1, 1, 2, 2))
+centrality_brokerage_representative <- function(x, membership = NULL, ...) {
+  df <- centrality(x, measures = "brokerage_representative",
+                   membership = membership, ...)
+  stats::setNames(df$brokerage_representative, df$node)
+}
+
+#' Gould-Fernandez Brokerage — Gatekeeper Role
+#'
+#' Gatekeeper brokerage (b_OI): count of open directed 2-paths
+#' \eqn{A \to V \to B} where \eqn{V} and \eqn{B} are in the same group
+#' and \eqn{A} is in a different group. The broker acts as a gate letting
+#' in-group members receive contact from outside.
+#'
+#' Bit-exact match against \code{sna::brokerage$raw.nli[, "b_OI"]}.
+#' Directed-only.
+#'
+#' @inheritParams centrality_brokerage_coordinator
+#' @return Named integer vector of gatekeeper role counts.
+#' @seealso \code{\link{centrality_brokerage_coordinator}}.
+#' @references Gould & Fernandez (1989).
+#' @export
+#' @examples
+#' adj <- matrix(c(0,1,1,0, 0,0,1,1, 0,0,0,1, 1,0,0,0), 4, 4, byrow = TRUE)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
+#' centrality_brokerage_gatekeeper(adj, membership = c(1, 1, 2, 2))
+centrality_brokerage_gatekeeper <- function(x, membership = NULL, ...) {
+  df <- centrality(x, measures = "brokerage_gatekeeper",
+                   membership = membership, ...)
+  stats::setNames(df$brokerage_gatekeeper, df$node)
+}
+
+#' Gould-Fernandez Brokerage — Liaison Role
+#'
+#' Liaison brokerage (b_O): count of open directed 2-paths
+#' \eqn{A \to V \to B} where all three nodes belong to different groups.
+#' The broker mediates between two groups to neither of which they belong.
+#'
+#' Bit-exact match against \code{sna::brokerage$raw.nli[, "b_O"]}.
+#' Directed-only.
+#'
+#' @inheritParams centrality_brokerage_coordinator
+#' @return Named integer vector of liaison role counts.
+#' @seealso \code{\link{centrality_brokerage_coordinator}}.
+#' @references Gould & Fernandez (1989).
+#' @export
+#' @examples
+#' adj <- matrix(c(0,1,1,0, 0,0,1,1, 0,0,0,1, 1,0,0,0), 4, 4, byrow = TRUE)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
+#' centrality_brokerage_liaison(adj, membership = c(1, 1, 2, 2))
+centrality_brokerage_liaison <- function(x, membership = NULL, ...) {
+  df <- centrality(x, measures = "brokerage_liaison",
+                   membership = membership, ...)
+  stats::setNames(df$brokerage_liaison, df$node)
 }
 
 

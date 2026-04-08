@@ -2,6 +2,24 @@
 
 ## Completed
 
+### Batch 5 — Gould-Fernandez Brokerage (5 roles)
+
+Added the five Gould-Fernandez (1989) brokerage roles as per-node measures in `centrality()`, bringing the total to **87 measures**. Classical SNA reference (~1500 citations). All 5 roles implemented natively (no runtime dependency on sna) with bit-exact validation against `sna::brokerage$raw.nli`:
+
+| Role | sna label | Meaning | Status |
+|---|---|---|---|
+| `brokerage_coordinator` | w_I | A → A → A (all in broker's group) | **BIT-EXACT** (20 random graphs) |
+| `brokerage_itinerant` | w_O | A → B → A (broker outside, endpoints inside) | **BIT-EXACT** |
+| `brokerage_representative` | b_IO | A → A → B (ingroup broker mediating outward) | **BIT-EXACT** |
+| `brokerage_gatekeeper` | b_OI | A → B → B (broker on in-group receiving from outside) | **BIT-EXACT** |
+| `brokerage_liaison` | b_O | A → B → C (all three in different groups) | **BIT-EXACT** |
+
+**Key implementation finding**: sna's `.C("brokerage_R", ...)` C code has no R-level source. By working backward from sna's outputs on small test graphs, I derived the counting rule: **open 2-paths only** — triads where a direct edge `a -> c` already exists are excluded from the count. This matches the Gould-Fernandez convention (a broker mediates a relationship that doesn't exist directly). Verified across 20 random directed graphs.
+
+Test file at 237 tests, all passing with `expect_identical` on all 5 roles.
+
+Follows the same pattern as existing community-aware measures (`participation`, `within_module_z`, `gateway`): requires `membership` argument, warns and returns NA if missing.
+
 ### Batch 4 — Directed Prestige Family (Wasserman-Faust / sna)
 
 Added 2 classical directed-graph prestige measures from the `sna::prestige` family, bringing the total to **82 measures**. Both implemented natively (no sna runtime dependency) and matched bit-exact against sna where sna's formula is well-defined:
@@ -37,7 +55,7 @@ Committed as 5 per-measure commits (`bf3a929`, `736a593`, `c14733c`, `4cf8459`, 
 
 Implemented 75 node centrality measures callable via `centrality(g)` — tidy data frame output, mode suffixes, consistent parameters, 40+ convenience wrappers.
 
-**Reference: [Zoo of Centralities](https://centralityzoo.github.io/comparison/) catalogs 409 measures. Batch 1+2+3+4 cover 82 (~20%), including all foundational ones plus recent high-impact measures.**
+**Reference: [Zoo of Centralities](https://centralityzoo.github.io/comparison/) catalogs 409 measures. Batch 1+2+3+4+5 cover 87 (~21%), including all foundational ones plus recent high-impact measures.**
 
 ### Validation Summary (4,000+ graph comparisons)
 

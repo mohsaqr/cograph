@@ -1990,6 +1990,93 @@ calculate_prestige_domain_proximity <- function(g) {
 
 
 # =============================================================================
+# Gould-Fernandez brokerage (Gould & Fernandez 1989)
+# =============================================================================
+#
+# For a directed graph partitioned into groups, each node v is counted as a
+# "broker" for every OPEN 2-path a -> v -> c (a != c, no direct edge a -> c).
+# The path is classified into one of 5 roles based on the group memberships
+# of a, v, c:
+#
+#   w_I  Coordinator   : all three in v's group           (A -> A -> A)
+#   w_O  Itinerant     : a, c same group, v different     (A -> B -> A)
+#   b_IO Representative: a, v same group, c different     (A -> A -> B)
+#   b_OI Gatekeeper    : v, c same group, a different     (A -> B -> B)
+#   b_O  Liaison       : all three in different groups    (A -> B -> C)
+#
+# Matches sna::brokerage$raw.nli bit-exact (verified across 20 random
+# directed graphs). sna's actual counting happens in C via .C("brokerage_R");
+# the rule "open 2-paths only" (exclude closed triangles where a -> c exists)
+# was derived empirically by working backward from sna's output.
+
+
+#' Gould-Fernandez brokerage (single role count)
+#'
+#' Counts open directed 2-paths a -> v -> c where v is the broker, the path
+#' is classified by the group memberships of (a, v, c), and only the role
+#' matching the requested type is counted. Bit-exact match against
+#' sna::brokerage$raw.nli for the corresponding column.
+#'
+#' @param g A directed igraph.
+#' @param membership Integer or character vector of group assignments, length
+#'   equal to vcount(g).
+#' @param role One of "coordinator" (w_I), "itinerant" (w_O),
+#'   "representative" (b_IO), "gatekeeper" (b_OI), "liaison" (b_O).
+#' @return Integer vector of length vcount(g).
+#' @keywords internal
+#' @noRd
+calculate_brokerage <- function(g, membership, role) {
+  n <- igraph::vcount(g)
+  if (n == 0) return(integer(0))
+  if (is.null(membership)) {
+    warning("brokerage requires membership; returning NA", call. = FALSE)
+    return(rep(NA_integer_, n))
+  }
+  if (length(membership) != n) {
+    stop(sprintf("membership length (%d) must equal number of nodes (%d)",
+                 length(membership), n), call. = FALSE)
+  }
+  if (!igraph::is_directed(g)) {
+    warning("brokerage requires a directed graph; returning NA",
+            call. = FALSE)
+    return(rep(NA_integer_, n))
+  }
+
+  # Adjacency with weight attribute stripped; we only care about presence
+  A <- as.matrix(igraph::as_adjacency_matrix(g, sparse = FALSE))
+  storage.mode(A) <- "integer"
+  A[A > 1L] <- 1L                    # treat multi-edges as single edges
+  cl <- as.integer(as.factor(membership))
+
+  result <- integer(n)
+  target_role <- role
+
+  for (v in seq_len(n)) {
+    ins  <- which(A[, v] > 0L); ins  <- ins[ins != v]
+    outs <- which(A[v, ] > 0L); outs <- outs[outs != v]
+    if (length(ins) == 0L || length(outs) == 0L) next
+    g_v <- cl[v]
+
+    for (a in ins) {
+      g_a <- cl[a]
+      for (c in outs) {
+        if (a == c) next              # exclude a == c (a <-> v mutual ties)
+        if (A[a, c] > 0L) next        # exclude closed 2-paths
+        g_c <- cl[c]
+        this_role <- if (g_a == g_v && g_v == g_c) "coordinator"
+        else if (g_a == g_c && g_a != g_v) "itinerant"
+        else if (g_a == g_v && g_c != g_v) "representative"
+        else if (g_v == g_c && g_a != g_v) "gatekeeper"
+        else "liaison"
+        if (this_role == target_role) result[v] <- result[v] + 1L
+      }
+    }
+  }
+  result
+}
+
+
+# =============================================================================
 # Shared helper
 # =============================================================================
 

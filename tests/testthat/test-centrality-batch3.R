@@ -79,3 +79,46 @@ test_that("katz matches NetworkX katz_centrality_numpy on karate (ULP)", {
   # 1-2 ULPs of difference are unavoidable across R and Python LAPACK builds.
   expect_equal(cog, nxv, tolerance = 1e-13)
 })
+
+# ===========================================================================
+# Hubbell centrality (Hubbell 1965)
+# ===========================================================================
+
+test_that("hubbell returns NA with warning when not solvable", {
+  # K3 spectral radius = 2; default weightfactor 0.5 gives 0.5*2 = 1 (boundary
+  # - numerical instability -> NA with warning)
+  expect_warning(res <- centrality_hubbell(k3), "not solvable")
+  expect_true(all(is.na(res)))
+})
+
+test_that("hubbell works with appropriate weightfactor", {
+  v <- centrality_hubbell(k3, hubbell_weight = 0.3)
+  expect_length(v, 3)
+  expect_true(all(is.finite(v)))
+  expect_true(all(v > 0))
+})
+
+test_that("hubbell matches centiserve::hubbell BIT-EXACT (weighted)", {
+  skip_if_not_installed("centiserve")
+  skip_if_not_installed("igraph")
+  set.seed(2001)
+  for (i in 1:8) {
+    n <- sample(5:12, 1)
+    repeat {
+      g <- igraph::sample_gnp(n, 0.5, directed = FALSE)
+      if (igraph::is_connected(g) && igraph::ecount(g) >= 2) break
+    }
+    igraph::E(g)$weight <- runif(igraph::ecount(g), 0.1, 0.5)
+    A <- as.matrix(igraph::as_adjacency_matrix(g, attr = "weight"))
+    sr <- max(Re(eigen(A)$values))
+    wf <- 0.8 / sr
+    cog <- centrality(g, measures = "hubbell", hubbell_weight = wf)$hubbell
+    # IMPORTANT: centiserve::hubbell(weights = NULL) silently uses uniform
+    # weights of 1. To reproduce cograph's behavior (respecting E(g)$weight),
+    # we must pass the weights argument explicitly.
+    cs  <- centiserve::hubbell(g, weightfactor = wf,
+                               weights = igraph::E(g)$weight)
+    expect_identical(cog, cs,
+                     info = sprintf("graph %d, n=%d, wf=%.4f", i, n, wf))
+  }
+})

@@ -1680,6 +1680,65 @@ calculate_katz <- function(g, weights = NULL, alpha = 0.1) {
 }
 
 
+#' Hubbell centrality (Hubbell 1965)
+#'
+#' C_Hubbell = (I - w * W)^{-1} * 1
+#'
+#' where W is the (weighted) adjacency matrix and w is an attenuation factor.
+#' Requires all eigenvalues of (w * W) to be < 1 for solvability. Matches
+#' centiserve::hubbell exactly when the same weightfactor is used.
+#'
+#' @keywords internal
+#' @noRd
+calculate_hubbell <- function(g, weights = NULL, weightfactor = 0.5) {
+  n <- igraph::vcount(g)
+  if (n == 0) return(numeric(0))
+  if (!is.numeric(weightfactor) || length(weightfactor) != 1L || weightfactor <= 0) {
+    stop("hubbell: weightfactor must be a positive scalar", call. = FALSE)
+  }
+
+  # Use explicit weights if given, else edge attribute, else unweighted.
+  if (is.null(weights)) {
+    if ("weight" %in% igraph::edge_attr_names(g)) {
+      W <- as.matrix(igraph::as_adjacency_matrix(g, attr = "weight", sparse = FALSE))
+    } else {
+      W <- as.matrix(igraph::as_adjacency_matrix(g, sparse = FALSE))
+    }
+  } else {
+    g2 <- igraph::set_edge_attr(g, "weight", value = as.numeric(weights))
+    W <- as.matrix(igraph::as_adjacency_matrix(g2, attr = "weight", sparse = FALSE))
+  }
+
+  scaledW <- W * weightfactor
+  # Solvability: largest eigenvalue of scaledW must be strictly < 1 for
+  # (I - scaledW) to be nonsingular. We use a small buffer to catch
+  # eigenvalues that land exactly on the unit boundary (e.g. K3 at wf=0.5).
+  ev <- tryCatch(eigen(scaledW, only.values = TRUE)$values,
+                 error = function(e) NULL)
+  if (is.null(ev) || any(Re(ev) >= 1 - 1e-10)) {
+    warning("hubbell: not solvable for this graph at weightfactor=",
+            format(weightfactor, digits = 4),
+            " (spectral radius >= 1); returning NA",
+            call. = FALSE)
+    return(rep(NA_real_, n))
+  }
+
+  # Match centiserve::hubbell's exact LAPACK call path so the result is
+  # bit-exact identical: compute the full matrix inverse, then multiply by
+  # the all-ones vector. (solve(M, b) is faster but routes through a
+  # different LAPACK call and produces ULP-level rounding differences.)
+  res <- tryCatch(
+    solve(diag(x = 1, nrow = n) - scaledW) %*% matrix(1, nrow = n, ncol = 1),
+    error = function(e) {
+      warning("hubbell: linear solve failed (", conditionMessage(e),
+              "); returning NA", call. = FALSE)
+      matrix(NA_real_, n, 1)
+    }
+  )
+  as.numeric(res[, 1])
+}
+
+
 # =============================================================================
 # Shared helper
 # =============================================================================

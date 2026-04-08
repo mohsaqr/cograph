@@ -29,6 +29,7 @@ centrality(
   dmnc_epsilon = 1.7,
   membership = NULL,
   katz_alpha = 0.1,
+  hubbell_weight = 0.5,
   ...
 )
 }
@@ -130,6 +131,10 @@ Default NULL. Required when requesting these measures.}
 \item{katz_alpha}{Attenuation factor for Katz centrality. Must satisfy
 \eqn{\alpha < 1 / \rho(A)}. Default 0.1 (matches centiserve and NetworkX
 conventions). Only used when \code{"katz"} is in \code{measures}.}
+
+\item{hubbell_weight}{Weight factor \eqn{w} for Hubbell centrality. Must
+satisfy \eqn{w \cdot \rho(W) \le 1} for solvability. Default 0.5. Only
+used when \code{"hubbell"} is in \code{measures}.}
 
 \item{...}{Additional arguments (currently unused)}
 }

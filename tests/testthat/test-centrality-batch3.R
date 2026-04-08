@@ -280,3 +280,35 @@ test_that("reaching_global matches NetworkX global_reaching_centrality on karate
   nxv <- nx$global_reaching_centrality(g_nx)
   expect_equal(cog, nxv, tolerance = 1e-13)
 })
+
+# ===========================================================================
+# Batch 4 — Directed Prestige Family (Wasserman-Faust / sna)
+# ===========================================================================
+
+test_that("prestige_domain warns and returns NA on undirected input", {
+  expect_warning(v <- centrality_prestige_domain(k3), "directed")
+  expect_true(all(is.na(v)))
+})
+
+test_that("prestige_domain on directed 3-cycle", {
+  # Every node can reach every other node -> domain = 2 for each
+  v <- centrality_prestige_domain(d3)
+  expect_equal(unname(v), c(2, 2, 2))
+})
+
+test_that("prestige_domain matches sna::prestige(cmode='domain') BIT-EXACT", {
+  skip_if_not_installed("sna")
+  skip_if_not_installed("igraph")
+  set.seed(7001)
+  for (i in 1:12) {
+    n <- sample(6:20, 1)
+    g <- igraph::sample_gnp(n, runif(1, 0.15, 0.4), directed = TRUE)
+    if (igraph::ecount(g) < 2) next
+    A  <- as.matrix(igraph::as_adjacency_matrix(g))
+    cog <- centrality(g, measures = "prestige_domain")$prestige_domain
+    sn  <- sna::prestige(A, cmode = "domain")
+    expect_identical(cog, as.numeric(sn),
+                     info = sprintf("graph %d, n=%d, m=%d",
+                                    i, n, igraph::ecount(g)))
+  }
+})

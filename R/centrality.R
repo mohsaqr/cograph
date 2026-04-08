@@ -310,7 +310,9 @@ centrality <- function(x, measures = "all", mode = "all",
                         "second_order", "infection", "nonbacktracking",
                         "spanning_tree",
                         # Batch 3 — classical measures with reference validation
-                        "katz", "hubbell", "information", "pairwisedis")
+                        "katz", "hubbell", "information", "pairwisedis",
+                        # Batch 4 — directed prestige family (Wasserman-Faust / sna)
+                        "prestige_domain")
   all_measures <- c(mode_measures, no_mode_measures)
 
   # Resolve measures
@@ -1160,6 +1162,9 @@ calculate_measure <- function(g, measure, mode, weights, normalized,
     "pairwisedis" = calculate_pairwisedis(g),
     "reaching_local" = calculate_reaching_local(g, mode = mode,
                                                 weights = weights),
+
+    # Batch 4 — directed prestige family (Wasserman-Faust / sna)
+    "prestige_domain" = calculate_prestige_domain(g),
 
     stop("Unknown measure: ", measure, call. = FALSE)
   )
@@ -3014,6 +3019,44 @@ reaching_global <- function(x, mode = "all", ...) {
   if (n <= 1) return(0)
   max_lrc <- max(lrc, na.rm = TRUE)
   sum(max_lrc - lrc, na.rm = TRUE) / (n - 1)
+}
+
+
+# ---------------------------------------------------------------------------
+# Batch 4 wrappers: directed prestige family (Wasserman-Faust / sna lineage).
+# ---------------------------------------------------------------------------
+
+#' Domain Prestige
+#'
+#' Directed-graph prestige measure: for each node \eqn{v}, the number of
+#' other nodes that can reach \eqn{v} via a directed path.
+#' \deqn{\mathrm{domain}(v) = |\{u \ne v : u \to^* v\}|}
+#'
+#' Bit-exact match against \code{sna::prestige(cmode = "domain")}.
+#' Directed-only; returns \code{NA} with a warning on undirected input.
+#'
+#' @param x Directed network input (matrix, igraph, cograph_network, tna object).
+#' @param ... Additional arguments passed to \code{\link{centrality}}.
+#'
+#' @return Named numeric vector of domain prestige values in
+#'   \eqn{\{0, 1, \ldots, N - 1\}}.
+#'
+#' @seealso \code{\link{centrality}}, \code{\link{centrality_reaching_local}}
+#'   for the dual "out-reachability" measure, \code{\link{centrality_pairwisedis}}
+#'   for a related reachability-based directed measure.
+#' @references
+#' Wasserman, S., & Faust, K. (1994). \emph{Social Network Analysis: Methods
+#' and Applications}. Cambridge University Press.
+#'
+#' @export
+#' @examples
+#' # Directed 3-cycle: every node reaches every other node
+#' adj <- matrix(c(0,1,0, 0,0,1, 1,0,0), 3, 3, byrow = TRUE)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
+#' centrality_prestige_domain(adj)
+centrality_prestige_domain <- function(x, ...) {
+  df <- centrality(x, measures = "prestige_domain", ...)
+  stats::setNames(df$prestige_domain, df$node)
 }
 
 

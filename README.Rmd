@@ -93,7 +93,7 @@ devtools::install_github("sonsoleslp/cograph")
 
 | Function | Description |
 |---|---|
-| `centrality()` | 23+ centrality measures with individual wrappers |
+| `centrality()` | 80 centrality measures, validated against centiserve/sna/igraph/NetworkX |
 | `motifs()` / `subgraphs()` | Motif/triad census with per-actor windowing |
 | `robustness()` | Network robustness analysis |
 | `disparity_filter()` | Backbone extraction (Serrano et al. 2009) |

@@ -52,7 +52,7 @@ Rscript -e 'pkgdown::build_site()'
 
 GitHub Actions (`R-CMD-check.yaml`) tests on: macOS-latest (release), Windows-latest (release), Ubuntu-latest (devel, release, oldrel-1). The workflow registers `mohsaqr.r-universe.dev` via `~/.Rprofile` for Nestimate resolution.
 
-**Test split**: Coverage tests (`test-coverage-*.R`, 92 files) are expensive and only run on Ubuntu release via `COGRAPH_COVERAGE_TESTS=true` env var. Feature tests (37 files) run on all 5 platforms. Locally, `devtools::test()` runs everything (env var defaults to `"true"` when unset). The `skip_coverage_tests()` helper in `helper-test-utils.R` gates this.
+**Test split**: Coverage tests (`test-coverage-*.R`, 92 files) are expensive and only run on Ubuntu release via `COGRAPH_COVERAGE_TESTS=true` env var. Feature tests (~45 files) run on all 5 platforms. Locally, `devtools::test()` runs everything (env var defaults to `"true"` when unset). The `skip_coverage_tests()` helper in `helper-test-utils.R` gates this.
 
 ## Project Overview
 
@@ -74,11 +74,12 @@ cograph is an R package for analysis and visualization of complex networks. Key 
 - `plot_mlna()` — Multilayer 3D perspective networks
 - `plot_simplicial()` — Higher-order pathway (simplicial complex) visualization
 - `robustness()` / `plot_robustness()` — Network robustness under node/edge removal attacks
-- `centrality()` — 23+ centrality measures
+- `centrality()` — 80 node centrality measures (`R/centrality.R` + `R/centrality-extended.R`), equivalence-validated against centiserve, sna, brainGraph, influenceR, igraph, tidygraph, and NetworkX. **Batch 3 additions (Katz, Hubbell, Information, Pairwise Disconnectivity, Local Reaching)** are bit-exact (`expect_identical`) against their primary reference — see `tests/testthat/test-centrality-batch3.R` and the Batch 3 section of `NEWS.md`. `edge_centrality()` + wrappers in `R/edge-metrics.R` provide the edge-level equivalents. `reaching_global()` adds a graph-level hierarchy statistic derived from local reaching.
 - `motifs()` / `subgraphs()` — Triad census and motif analysis
 - `detect_communities()` — 11 community detection algorithms
 - `disparity_filter()` — Backbone extraction via disparity filter (S3: matrix, igraph, tna, cograph_network)
 - `cluster_quality()` / `cluster_significance()` — Cluster evaluation metrics
+- **Tier 2 network features** (one module per file): `assortativity.R` (degree/attribute assortativity), `bipartite.R` (two-mode projection + bipartite metrics), `core-periphery.R` (Borgatti-Everett continuous + discrete), `rich-club.R` (Opsahl weighted rich-club), `vulnerability.R` (node vulnerability via efficiency drop), `paths.R` (shortest-path queries), `fit-distribution.R` (MLE degree-distribution fitting with AIC ranking). These are standalone analytics — no rendering dependency.
 
 ## Architecture
 
@@ -207,7 +208,9 @@ Helpers in `aaa-globals.R`.
 
 ## Test Conventions
 
-133 test files, ~13,700 expectations. Coverage tests follow `test-coverage-{module}-{round}.R` (rounds: 40, 41, 42, ...). Target: 100% line coverage (achieved). Use `# nocov` only for genuinely unreachable defensive guards.
+~137 test files (45 feature + 92 coverage), ~13,700+ expectations. Coverage tests follow `test-coverage-{module}-{round}.R` (rounds: 40, 41, 42, ...). Target: 100% line coverage (achieved). Use `# nocov` only for genuinely unreachable defensive guards.
+
+**Centrality equivalence tests**: The 75 centrality measures are validated against external reference implementations (centiserve, sna, brainGraph, influenceR, igraph, tidygraph, NetworkX via reticulate). Equivalence tests live alongside coverage tests and use `tolerance` arguments per measure — see `HANDOFF.md` for the full validation matrix (exact-match vs. formula-verified vs. rank-correlation tiers).
 
 Two test helper files load before every test:
 - `tests/testthat/helper-cograph.R` — exposes internal functions via `cograph:::` for testing

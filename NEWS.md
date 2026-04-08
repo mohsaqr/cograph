@@ -1,3 +1,11 @@
+# cograph (development version)
+
+## New Features
+
+### Centrality Batch 3 — classical measures with reference-package validation
+
+- `centrality_katz()` — Katz (1953) status index. Bit-exact match against `centiserve::katzcent` (cograph mirrors centiserve's exact LAPACK call sequence). Also matches `igraph::alpha_centrality(exo = 1)` and `networkx.katz_centrality_numpy` at machine epsilon. New `katz_alpha` parameter (default 0.1).
+
 # cograph 1.8.2
 
 ## New Features

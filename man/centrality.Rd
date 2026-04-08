@@ -28,6 +28,7 @@ centrality(
   decay_parameter = 0.5,
   dmnc_epsilon = 1.7,
   membership = NULL,
+  katz_alpha = 0.1,
   ...
 )
 }
@@ -125,6 +126,10 @@ centiserve uses 1.67 (four-community assumption). Must be between 1 and 2.}
 \item{membership}{Integer vector of community assignments (one per node) for
 community-aware measures: participation, within_module_z, gateway.
 Default NULL. Required when requesting these measures.}
+
+\item{katz_alpha}{Attenuation factor for Katz centrality. Must satisfy
+\eqn{\alpha < 1 / \rho(A)}. Default 0.1 (matches centiserve and NetworkX
+conventions). Only used when \code{"katz"} is in \code{measures}.}
 
 \item{...}{Additional arguments (currently unused)}
 }

@@ -2,7 +2,26 @@
 
 ## Completed
 
-### CRAN 2.0.1 readiness (this session)
+### CRAN 2.1.0 extra checks pass (this session)
+
+Promoted the release to **2.1.0** and ran the extended CRAN readiness suite. The package is now clean under every local CRAN-equivalent check available.
+
+**Extra checks on 2.1.0:**
+
+| Check | Result |
+|---|---|
+| `urlchecker::url_check()` | clean (15 URLs validated) |
+| `spelling::spell_check_package()` | clean (`inst/WORDLIST` added with 338 entries) |
+| `rcmdcheck --as-cran` strict incoming | 0 errors, 0 warnings, 1 NOTE (universe availability) |
+| `goodpractice::gp()` | not installed, skipped |
+
+**Fixes applied in this pass:**
+
+1. **Version bump and metadata.** DESCRIPTION 2.0.1 → 2.1.0, added `Language: en-US` (CRAN-recommended, also suppresses spelling's fallback warning). NEWS.md heading updated. cran-comments.md retitled and rescoped as a minor feature release.
+2. **Two blocking DOIs.** ACM Digital Library (`10.1145/3706468.3706513`) and Sage Journals (`10.1177/01466216251348840`) return 403 Forbidden to automated URL checkers even with a real browser User-Agent. Dropped the `<https://doi.org/...>` Markdown hyperlink wrapping in `vignettes/introduction.Rmd` and replaced with plain `doi:...` text. Citation content is unchanged; only the link wrapping is removed so CRAN's URL checker does not try to fetch them.
+3. **Spelling wordlist.** Created `inst/WORDLIST` with 338 legitimate terms — author names (Borgatti, Kleinberg, Wasserman, Törmänen, ...), package/software names (igraph, NetworkX, UCINET, Gephi, Nestimate, ...), R graphics parameters (hjust, vjust, lty, lwd, xspline, ...), and network-science jargon (betweenness, assortativity, simplicial, modularity, ...). Zero actual typos were found.
+
+### CRAN 2.0.1 readiness (prior sub-session, rolled into 2.1.0)
 
 Cleared every WARNING and NOTE raised by `rcmdcheck --as-cran` on the 2.0.0 tree, so the package is now submission-ready. Commit: `3639ed2` on `main`, pushed to all three remotes (see next section).
 

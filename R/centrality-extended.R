@@ -1916,6 +1916,36 @@ calculate_reaching_local <- function(g, mode = "all", weights = NULL) {
 }
 
 
+#' Domain Prestige (sna::prestige, cmode = "domain")
+#'
+#' For each node v, the number of OTHER nodes that can reach v via a directed
+#' path:
+#'   domain(v) = |{u != v : u ->* v}|
+#'
+#' Classical directed-graph prestige measure (Wasserman & Faust 1994;
+#' sna::prestige). Matches sna::prestige(cmode = "domain") bit-exact.
+#' Directed-only; returns NA with a warning on undirected input.
+#'
+#' @keywords internal
+#' @noRd
+calculate_prestige_domain <- function(g) {
+  n <- igraph::vcount(g)
+  if (n == 0) return(numeric(0))
+  if (!igraph::is_directed(g)) {
+    warning("prestige_domain requires a directed graph; returning NA",
+            call. = FALSE)
+    return(rep(NA_real_, n))
+  }
+  if (n == 1) return(0)
+
+  # distances(g, mode = "out")[i, j] = length of directed path from i to j.
+  # Column j contains distances from every source to j; a finite entry means
+  # the source reaches j. Subtract 1 to exclude the self-entry on the diagonal.
+  D <- igraph::distances(g, mode = "out", weights = NA)
+  as.numeric(colSums(is.finite(D)) - 1)
+}
+
+
 # =============================================================================
 # Shared helper
 # =============================================================================

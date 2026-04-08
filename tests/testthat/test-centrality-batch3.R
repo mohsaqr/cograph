@@ -437,6 +437,51 @@ test_that("brokerage all 5 roles match sna BIT-EXACT (20 random graphs)", {
   }
 })
 
+# ===========================================================================
+# Batch 6 — new-API measures (graph-level / set-level / pair-level)
+# ===========================================================================
+
+test_that("estrada_index returns a positive scalar", {
+  g <- igraph::make_graph("Zachary")
+  ei <- estrada_index(g)
+  expect_length(ei, 1)
+  expect_true(is.numeric(ei))
+  expect_true(ei > 0)
+})
+
+test_that("estrada_index equals sum of subgraph_centrality", {
+  # Mathematical identity: EE(G) = sum_i exp(lambda_i) = trace(exp(A))
+  # subgraph_centrality_i = (exp(A))_ii, so sum_i SC_i = trace(exp(A))
+  g <- igraph::make_graph("Zachary")
+  ei <- estrada_index(g)
+  sc_sum <- sum(centrality(g, measures = "subgraph")$subgraph)
+  expect_equal(ei, sc_sum, tolerance = 1e-10)
+})
+
+test_that("estrada_index matches NetworkX at machine epsilon", {
+  skip_if_not(has_nx(), "NetworkX not available")
+  nx <- reticulate::import("networkx")
+  set.seed(6101)
+  for (i in 1:5) {
+    n <- sample(8:20, 1)
+    g_r <- igraph::sample_gnp(n, runif(1, 0.2, 0.5), directed = FALSE)
+    if (igraph::ecount(g_r) < 2) next
+    g_nx <- nx$Graph()
+    g_nx$add_nodes_from(as.integer(0:(n - 1)))
+    el <- igraph::as_edgelist(g_r)
+    if (nrow(el) > 0) {
+      for (j in seq_len(nrow(el))) {
+        g_nx$add_edge(as.integer(el[j, 1] - 1), as.integer(el[j, 2] - 1))
+      }
+    }
+    cog <- estrada_index(g_r)
+    nxv <- nx$estrada_index(g_nx)
+    rel <- abs(cog - nxv) / abs(nxv)
+    expect_lt(rel, 1e-13,
+              label = sprintf("estrada graph %d (n=%d)", i, n))
+  }
+})
+
 test_that("brokerage on small deterministic graph gives exact roles", {
   # Adjacency (4 nodes, 2 groups):
   #   A(1) -> B(1), A(1) -> C(2), B(1) -> C(2), B(1) -> D(2),

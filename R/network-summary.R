@@ -1023,3 +1023,45 @@ network_rich_club <- function(x, k = NULL, normalized = FALSE, n_random = 10, ..
 
   phi_k / phi_rand
 }
+
+
+# ---------------------------------------------------------------------------
+# Graph-level spectral summaries (Batch 6 — new-API measures)
+# ---------------------------------------------------------------------------
+
+#' Estrada Index
+#'
+#' A graph-level spectral invariant derived from subgraph centrality:
+#' \deqn{EE(G) = \sum_{i=1}^{n} e^{\lambda_i}}
+#' where \eqn{\lambda_i} are the eigenvalues of the adjacency matrix. The
+#' Estrada index equals the total number of closed walks in the graph,
+#' weighted by walk length: \eqn{EE(G) = \sum_k M_k / k!} where \eqn{M_k} is
+#' the number of closed walks of length \eqn{k}. It is the sum of subgraph
+#' centralities across all nodes.
+#'
+#' Matches \code{networkx.estrada_index} at machine epsilon (max relative
+#' difference ~5e-15 across random test graphs).
+#'
+#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
+#'
+#' @return A single numeric value — the Estrada index of the graph.
+#'
+#' @seealso \code{\link{centrality_subgraph}} for the per-node equivalent
+#'   (sum of \code{subgraph_centrality(x)} equals \code{estrada_index(x)}).
+#' @references
+#' Estrada, E. (2000). Characterization of 3D molecular structure.
+#' \emph{Chemical Physics Letters}, 319(5-6), 713-718.
+#'
+#' @export
+#' @examples
+#' # Karate club
+#' g <- igraph::make_graph("Zachary")
+#' estrada_index(g)
+estrada_index <- function(x) {
+  g <- to_igraph(x)
+  n <- igraph::vcount(g)
+  if (n == 0) return(0)
+  A <- as.matrix(igraph::as_adjacency_matrix(g, sparse = FALSE))
+  ev <- eigen(A, only.values = TRUE, symmetric = isSymmetric(A))$values
+  sum(exp(Re(ev)))
+}

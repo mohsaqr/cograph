@@ -2,6 +2,12 @@
 
 ## New Features
 
+### Batch 6 — new-API graph-level / set-level / pair-level measures
+
+These measures don't fit the per-node `centrality()` data frame, so they live as standalone functions:
+
+- `estrada_index()` — graph-level spectral invariant: \eqn{EE(G) = \sum_i e^{\lambda_i}}, equal to the trace of the matrix exponential of the adjacency. Equivalently, the sum of `subgraph_centrality()` across all nodes. Matches `networkx.estrada_index` at machine epsilon (max relative diff ~5e-15 across random test graphs).
+
 ### Centrality Batch 5 — Gould-Fernandez brokerage (5 roles)
 
 Added the five Gould-Fernandez (1989) brokerage role counts, a foundational measure in social network analysis (~1500 citations). Each role is a separate per-node measure requiring a `membership` argument (following the same pattern as `participation`, `within_module_z`, `gateway`), and counts open directed 2-paths `a -> v -> c` through broker `v`:

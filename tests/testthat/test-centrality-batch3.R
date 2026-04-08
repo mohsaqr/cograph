@@ -630,6 +630,83 @@ test_that("group_centrality: unknown node name errors", {
   )
 })
 
+# ===========================================================================
+# dispersion (Backstrom-Kleinberg 2014)
+# ===========================================================================
+
+test_that("dispersion returns scalar for single pair", {
+  g <- igraph::make_graph("Zachary")
+  v <- dispersion(g, u = 1, v = 2)
+  expect_length(v, 1)
+  expect_true(is.numeric(v))
+})
+
+test_that("dispersion returns named vector for single source", {
+  g <- igraph::make_graph("Zachary")
+  v <- dispersion(g, u = 1)
+  expect_true(is.numeric(v))
+  expect_true(length(v) == igraph::degree(g, v = 1))
+  expect_false(is.null(names(v)))
+})
+
+test_that("dispersion returns data frame for full graph", {
+  g <- igraph::make_graph("Zachary")
+  df <- dispersion(g)
+  expect_s3_class(df, "data.frame")
+  expect_named(df, c("from", "to", "dispersion"))
+  expect_equal(nrow(df), 2 * igraph::ecount(g))  # undirected: each edge counted in both directions
+})
+
+test_that("dispersion matches NetworkX BIT-EXACT on karate (all edges)", {
+  skip_if_not(has_nx(), "NetworkX not available")
+  nx <- reticulate::import("networkx")
+  g_r  <- igraph::make_graph("Zachary")
+  g_nx <- nx$karate_club_graph()
+
+  nx_full <- nx$dispersion(g_nx, normalized = TRUE)
+  cog_full <- dispersion(g_r, normalized = TRUE)
+
+  for (row_i in seq_len(nrow(cog_full))) {
+    u_R <- cog_full$from[row_i]
+    v_R <- cog_full$to[row_i]
+    cog_val <- cog_full$dispersion[row_i]
+    nx_val <- nx_full[[as.character(u_R - 1L)]][[as.character(v_R - 1L)]]
+    expect_equal(cog_val, nx_val, tolerance = 1e-12,
+                 info = sprintf("edge (%d, %d)", u_R, v_R))
+  }
+})
+
+test_that("dispersion unnormalized matches NetworkX BIT-EXACT", {
+  skip_if_not(has_nx(), "NetworkX not available")
+  nx <- reticulate::import("networkx")
+  g_r  <- igraph::make_graph("Zachary")
+  g_nx <- nx$karate_club_graph()
+
+  # Test single-pair unnormalized on a few specific edges
+  pairs <- list(c(1L, 34L), c(1L, 2L), c(3L, 4L), c(9L, 14L))
+  for (p in pairs) {
+    cog <- dispersion(g_r, u = p[1], v = p[2], normalized = FALSE)
+    nxv <- nx$dispersion(g_nx, as.integer(p[1] - 1L), as.integer(p[2] - 1L),
+                         normalized = FALSE)
+    expect_equal(cog, nxv, tolerance = 0,
+                 info = sprintf("pair %d,%d unnormalized", p[1], p[2]))
+  }
+})
+
+test_that("dispersion accepts node names", {
+  adj <- matrix(c(0,1,1,1, 1,0,1,0, 1,1,0,1, 1,0,1,0), 4, 4)
+  rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
+  v <- dispersion(adj, u = "A", v = "B")
+  expect_length(v, 1)
+  expect_true(is.numeric(v))
+})
+
+test_that("dispersion: unknown node name errors", {
+  adj <- matrix(c(0,1,1,0, 1,0,1,1, 1,1,0,1, 0,1,1,0), 4, 4)
+  rownames(adj) <- colnames(adj) <- LETTERS[1:4]
+  expect_error(dispersion(adj, u = "Z"), "unknown node")
+})
+
 test_that("trophic_incoherence matches NetworkX BIT-EXACT", {
   skip_if_not(has_nx(), "NetworkX not available")
   nx <- reticulate::import("networkx")

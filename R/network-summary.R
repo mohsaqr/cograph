@@ -1302,3 +1302,171 @@ group_centrality <- function(x, nodes,
   if (k == 0L) return(0)
   length(nbrs_outside) / k
 }
+
+
+# ---------------------------------------------------------------------------
+# Dispersion (Backstrom-Kleinberg 2014)
+# ---------------------------------------------------------------------------
+
+#' Dispersion (Backstrom-Kleinberg 2014)
+#'
+#' Per-pair measure of tie strength from the Facebook relationship-inference
+#' paper. For each pair \eqn{(u, v)} where \eqn{v} is a neighbor of \eqn{u}:
+#'
+#' \enumerate{
+#'   \item Let \eqn{S_T = N(u) \cap N(v)} be their mutual friends (embeddedness).
+#'   \item Count pairs \eqn{(s, t) \subset S_T} such that:
+#'     \itemize{
+#'       \item \eqn{s} and \eqn{t} are not directly connected, AND
+#'       \item \eqn{s} and \eqn{t} share no common neighbor inside \eqn{N(u)}
+#'         other than \eqn{u} and \eqn{v}.
+#'     }
+#'   \item The raw dispersion is this count. When \code{normalized = TRUE},
+#'     the result is \eqn{(\mathrm{dispersion} + b)^{\alpha} /
+#'     (\mathrm{embeddedness} + c)} (normalization is skipped when
+#'     \code{embeddedness + c == 0}).
+#' }
+#'
+#' Matches \code{networkx.dispersion} bit-exact for all three call modes
+#' (single pair, single source, full matrix).
+#'
+#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
+#' @param u Optional source node (1-based index or node name). If \code{NULL}
+#'   (default), compute for all sources.
+#' @param v Optional target node. If \code{NULL}, compute for all neighbors
+#'   of \code{u}.
+#' @param normalized Logical. If \code{TRUE} (default), return the normalized
+#'   form; otherwise the raw count.
+#' @param alpha Numeric normalization exponent. Default 1.
+#' @param b Numeric bias added to dispersion before exponentiation. Default 0.
+#' @param c Numeric bias added to embeddedness in the denominator. Default 0.
+#'
+#' @return
+#' \itemize{
+#'   \item Scalar if both \code{u} and \code{v} are specified.
+#'   \item Named numeric vector if exactly one of \code{u}, \code{v} is given
+#'     (names are the other endpoints).
+#'   \item A data frame with columns \code{from}, \code{to}, \code{dispersion}
+#'     when neither \code{u} nor \code{v} is given (one row per ordered edge).
+#' }
+#'
+#' @references
+#' Backstrom, L., & Kleinberg, J. (2014). Romantic partnerships and the
+#' dispersion of social ties: A network analysis of relationship status on
+#' Facebook. In \emph{Proceedings of CSCW} (pp. 831-841). ACM.
+#' \url{https://arxiv.org/pdf/1310.6753v1.pdf}
+#'
+#' @export
+#' @examples
+#' g <- igraph::make_graph("Zachary")
+#' # Node 0 (R index 1) to node 33 (R index 34)
+#' dispersion(g, u = 1, v = 34)
+#' # All pairs from node 1
+#' head(dispersion(g, u = 1))
+dispersion <- function(x, u = NULL, v = NULL,
+                       normalized = TRUE,
+                       alpha = 1, b = 0, c = 0) {
+  g <- to_igraph(x)
+  n <- igraph::vcount(g)
+  if (n == 0) return(numeric(0))
+
+  # Resolve node labels to 1-based indices
+  resolve_node <- function(node) {
+    if (is.null(node)) return(NULL)
+    if (is.character(node)) {
+      vnames <- igraph::V(g)$name
+      if (is.null(vnames)) {
+        stop("dispersion: node names not available on graph", call. = FALSE)
+      }
+      idx <- match(node, vnames)
+      if (anyNA(idx)) {
+        stop("dispersion: unknown node(s): ",
+             paste(node[is.na(idx)], collapse = ", "), call. = FALSE)
+      }
+      return(as.integer(idx))
+    }
+    as.integer(node)
+  }
+  u <- resolve_node(u)
+  v <- resolve_node(v)
+
+  # Adjacency list (undirected treatment — dispersion is defined on the
+  # undirected ego network in Backstrom-Kleinberg). For a directed graph,
+  # NetworkX treats G[u] as OUT-neighbors, which we match.
+  nbrs_of <- function(node) {
+    as.integer(igraph::neighbors(g, node, mode = "out"))
+  }
+
+  # Single-pair inner computation
+  disp_pair <- function(u_i, v_i) {
+    u_nbrs <- nbrs_of(u_i)
+    v_nbrs <- nbrs_of(v_i)
+    ST <- intersect(v_nbrs, u_nbrs)
+    set_uv <- c(u_i, v_i)
+    total <- 0L
+    if (length(ST) >= 2L) {
+      # All unordered pairs from ST
+      k <- length(ST)
+      for (i in seq_len(k - 1L)) {
+        for (j in seq(i + 1L, k)) {
+          s <- ST[i]
+          t <- ST[j]
+          # nbrs_s = u's neighbors intersected with s's neighbors, minus {u, v}
+          s_nbrs <- nbrs_of(s)
+          nbrs_s <- setdiff(intersect(u_nbrs, s_nbrs), set_uv)
+          # s and t not directly connected?
+          if (!(t %in% nbrs_s)) {
+            t_nbrs <- nbrs_of(t)
+            # s and t don't share a common neighbor in u's ego net
+            if (length(intersect(nbrs_s, t_nbrs)) == 0L) {
+              total <- total + 1L
+            }
+          }
+        }
+      }
+    }
+    embeddedness <- length(ST)
+    if (normalized) {
+      val <- (total + b)^alpha
+      if (embeddedness + c != 0) val <- val / (embeddedness + c)
+      val
+    } else {
+      as.numeric(total)
+    }
+  }
+
+  # Dispatch on u / v modes
+  if (!is.null(u) && !is.null(v)) {
+    return(disp_pair(u, v))
+  }
+  if (!is.null(u) && is.null(v)) {
+    u_nbrs <- nbrs_of(u)
+    out <- vapply(u_nbrs, function(v_i) disp_pair(u, v_i), numeric(1))
+    names(out) <- as.character(u_nbrs)
+    return(out)
+  }
+  if (is.null(u) && !is.null(v)) {
+    v_nbrs <- nbrs_of(v)
+    out <- vapply(v_nbrs, function(u_i) disp_pair(v, u_i), numeric(1))
+    names(out) <- as.character(v_nbrs)
+    return(out)
+  }
+
+  # Both NULL: compute for every (u, v) where v is a neighbor of u
+  rows <- list()
+  for (uu in seq_len(n)) {
+    u_nbrs <- nbrs_of(uu)
+    for (vv in u_nbrs) {
+      rows[[length(rows) + 1L]] <- data.frame(
+        from = uu, to = vv,
+        dispersion = disp_pair(uu, vv),
+        stringsAsFactors = FALSE
+      )
+    }
+  }
+  if (length(rows) == 0L) {
+    return(data.frame(from = integer(0), to = integer(0),
+                      dispersion = numeric(0)))
+  }
+  do.call(rbind, rows)
+}

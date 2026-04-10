@@ -107,7 +107,6 @@ splot.boot_glasso <- function(x,
   weights       <- if (use_thresholded) x$thresholded_pcor else x$original_pcor
   eff_threshold <- inclusion_threshold %||% (1 - (x$alpha %||% 0.05))
   weights       <- weights * (inclusion_matrix >= eff_threshold)
-  diag(weights) <- 0
 
   args    <- list(...)
   n_nodes <- nrow(weights)

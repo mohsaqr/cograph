@@ -783,7 +783,6 @@ plot_htna <- function(
 
     # Max weight for scaling line widths
     intra_w <- weights[g_idx, g_idx, drop = FALSE]
-    diag(intra_w) <- 0
     max_w <- max(abs(intra_w), na.rm = TRUE)
     if (max_w == 0) next # nocov
 

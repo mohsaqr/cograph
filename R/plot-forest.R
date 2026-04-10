@@ -48,7 +48,6 @@ utils::globalVariables(c(
 
   if (is_dir) {
     keep <- which(mean_mat != 0, arr.ind = TRUE)
-    keep <- keep[keep[, 1] != keep[, 2], , drop = FALSE]
     sep  <- " \u2192 "
   } else {
     keep <- which(upper.tri(mean_mat) & mean_mat != 0, arr.ind = TRUE)
@@ -93,7 +92,6 @@ utils::globalVariables(c(
          as.character(seq_len(nrow(mean_mat)))
 
   keep <- which(mean_mat != 0, arr.ind = TRUE)
-  keep <- keep[keep[, 1] != keep[, 2], , drop = FALSE]
   sep  <- " \u2192 "
 
   if (nrow(keep) == 0) {

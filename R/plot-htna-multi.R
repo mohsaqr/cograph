@@ -535,9 +535,23 @@ plot_mtna <- function(
     edge_radius <- shell_radius * 0.98
 
     # STEP 1: Draw summary edges FIRST (behind everything)
+    max_weight <- max(cluster_weights, na.rm = TRUE)
     for (i in seq_len(n_clusters)) {
       for (j in seq_len(n_clusters)) {
-        if (i != j && cluster_weights[i, j] > 0) {
+        if (cluster_weights[i, j] > 0) {
+          weight <- cluster_weights[i, j]
+          lwd <- (1 + 5 * (weight / max_weight)) * edge_scale * edge_lwd_mult
+
+          if (i == j) {
+            draw_self_loop_base(
+              x = cluster_centers[i, 1], y = cluster_centers[i, 2],
+              node_size = shell_radius,
+              col = edge_colors[i], lwd = lwd,
+              arrow = TRUE, asize = 0.1
+            )
+            next
+          }
+
           # Get edge start point on shell i border (facing cluster j)
           start_pt <- get_shell_edge_point(
             cluster_centers[i, 1], cluster_centers[i, 2],
@@ -555,11 +569,6 @@ plot_mtna <- function(
           )
           x1 <- end_pt[1]
           y1 <- end_pt[2]
-
-          # Edge weight determines line width
-          weight <- cluster_weights[i, j]
-          max_weight <- max(cluster_weights, na.rm = TRUE)
-          lwd <- (1 + 5 * (weight / max_weight)) * edge_scale * edge_lwd_mult
 
           # Draw curved line using xspline
           mid_x <- (x0 + x1) / 2
@@ -687,28 +696,34 @@ plot_mtna <- function(
           inner_y <- center_y + inner_radius * sin(node_angles)
 
           # Draw edges within this cluster
+          edge_col <- grDevices::adjustcolor(shell_color, red.f = 0.7, green.f = 0.7, blue.f = 0.7)
+          max_within <- max(weights[idx, idx], na.rm = TRUE)
           for (j in seq_len(n_nodes)) {
             for (k in seq_len(n_nodes)) {
-              if (j != k) {
-                src_idx <- idx[j]
-                tgt_idx <- idx[k]
-                weight <- weights[src_idx, tgt_idx]
+              src_idx <- idx[j]
+              tgt_idx <- idx[k]
+              weight <- weights[src_idx, tgt_idx]
 
-                if (!is.na(weight) && weight > min_weight) {
+              if (!is.na(weight) && weight > min_weight) {
+                if (max_within > 0) {
+                  lwd <- (0.5 + 2 * (weight / max_within)) * edge_scale * edge_lwd_mult
+                } else { # nocov start (weight > 0 implies max_within > 0)
+                  lwd <- 1 * edge_scale * edge_lwd_mult
+                } # nocov end
+
+                if (j == k) {
+                  draw_self_loop_base(
+                    x = inner_x[j], y = inner_y[j],
+                    node_size = node_size * 0.03,
+                    col = edge_col, lwd = lwd,
+                    arrow = TRUE, asize = 0.04
+                  )
+                } else {
                   x0 <- inner_x[j]
                   y0 <- inner_y[j]
                   x1 <- inner_x[k]
                   y1 <- inner_y[k]
 
-                  # Edge width based on weight
-                  max_within <- max(weights[idx, idx], na.rm = TRUE)
-                  if (max_within > 0) {
-                    lwd <- (0.5 + 2 * (weight / max_within)) * edge_scale * edge_lwd_mult
-                  } else { # nocov start (weight > 0 implies max_within > 0)
-                    lwd <- 1 * edge_scale * edge_lwd_mult
-                  } # nocov end
-
-                  # Curved edge
                   mid_x <- (x0 + x1) / 2
                   mid_y <- (y0 + y1) / 2
                   dx <- x1 - x0
@@ -719,9 +734,6 @@ plot_mtna <- function(
                     off_x <- -dy / len * curvature * len * 0.4
                     off_y <- dx / len * curvature * len * 0.4
 
-                    # Darker shade of cluster color for edges
-                    edge_col <- grDevices::adjustcolor(shell_color, red.f = 0.7, green.f = 0.7, blue.f = 0.7)
-
                     graphics::xspline(
                       x = c(x0, mid_x + off_x, x1),
                       y = c(y0, mid_y + off_y, y1),
@@ -731,7 +743,6 @@ plot_mtna <- function(
                       lwd = lwd
                     )
 
-                    # Small arrowhead
                     angle <- atan2(y1 - (mid_y + off_y), x1 - (mid_x + off_x))
                     arrow_len <- 0.06
                     graphics::polygon(

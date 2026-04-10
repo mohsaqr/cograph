@@ -240,10 +240,7 @@ plot_chord <- function(
   # Apply threshold
   mat[abs(mat) < threshold] <- 0
 
-  # Remove self-loops if requested
-  if (!self_loop) {
-    diag(mat) <- 0
-  }
+  # Self-loops are always preserved
 
   list(mat = mat, directed = directed)
 }

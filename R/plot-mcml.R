@@ -894,25 +894,30 @@ plot_mcml <- function(
       if (!is.null(cs$clusters) && cl_name %in% names(cs$clusters)) {
         within_w <- cs$clusters[[cl_name]]$weights
       } else if (!is.null(weights)) { # nocov start
-        within_w <- weights[idx, idx]
-        diag(within_w) <- 0 # nocov end
+        within_w <- weights[idx, idx] # nocov end
       }
 
       if (!is.null(within_w)) {
         # Node visual radius and arrow size
         node_vis_r <- node_size * 0.04
         arrow_size <- 0.06
+        edge_col <- grDevices::adjustcolor(colors[i], edge_alpha)
 
         for (j in seq_len(n_nodes)) {
           for (k in seq_len(n_nodes)) {
-            if (j != k) {
-              w <- within_w[j, k]
-              w_r <- round(w, edge_label_digits)
-              if (!is.na(w) && w > minimum && w_r != 0) {
-                lwd <- edge_width_range[1] +
-                  (edge_width_range[2] - edge_width_range[1]) * w / max_w
-                edge_col <- grDevices::adjustcolor(colors[i], edge_alpha)
+            w <- within_w[j, k]
+            w_r <- round(w, edge_label_digits)
+            if (!is.na(w) && w > minimum && w_r != 0) {
+              lwd <- edge_width_range[1] +
+                (edge_width_range[2] - edge_width_range[1]) * w / max_w
 
+              if (j == k) {
+                draw_self_loop_base(
+                  x = nx[j], y = ny[j], node_size = node_vis_r,
+                  col = edge_col, lwd = lwd,
+                  arrow = TRUE, asize = arrow_size
+                )
+              } else {
                 # Calculate edge angle
                 angle <- atan2(ny[k] - ny[j], nx[k] - nx[j])
 
@@ -931,18 +936,23 @@ plot_mcml <- function(
                 # Draw filled arrow using splot style
                 draw_arrow_base(tip_x, tip_y, angle, arrow_size,
                                 col = edge_col, border = edge_col, lwd = lwd)
+              }
 
-                # Edge label - position at 1/3 along edge (closer to source)
-                if (edge_labels) {
-                  lbl_txt <- fmt_lbl(w_r)
-                  if (!is.null(lbl_txt)) {
+              # Edge label
+              if (edge_labels) {
+                lbl_txt <- fmt_lbl(w_r)
+                if (!is.null(lbl_txt)) {
+                  if (j == k) {
+                    lbl_x <- nx[j]
+                    lbl_y <- ny[j] + node_vis_r * 2.5
+                  } else {
                     lbl_x <- nx[j] + (nx[k] - nx[j]) * 0.35
                     lbl_y <- ny[j] + (ny[k] - ny[j]) * 0.35
-                    graphics::text(lbl_x, lbl_y,
-                                   labels = lbl_txt,
-                                   cex = edge_label_size,
-                                   col = edge_label_color)
                   }
+                  graphics::text(lbl_x, lbl_y,
+                                 labels = lbl_txt,
+                                 cex = edge_label_size,
+                                 col = edge_label_color)
                 }
               }
             }

@@ -134,11 +134,9 @@ splot.tna_bootstrap <- function(x,
 
   # Ensure consistent edge count between bootstrap and splot:
   # 1. Disable weight rounding (splot default weight_digits=2 can round tiny weights to 0)
-  # 2. Zero diagonal (cograph() excludes self-loops from edges)
-  # 3. Force directed=TRUE (TNA is always directed; undirected merges reciprocal edges)
+  # 2. Force directed=TRUE (TNA is always directed; undirected merges reciprocal edges)
   if (!"weight_digits" %in% names(args)) args["weight_digits"] <- list(NULL)
   if (!"directed" %in% names(args)) args$directed <- TRUE
-  diag(weights) <- 0
 
   # Compute edge indices
   edge_idx <- which(weights != 0, arr.ind = TRUE)
@@ -357,7 +355,6 @@ splot.net_bootstrap <- function(x,
 
   # Round weights to match splot's default (weight_digits = 2) so near-zero
   # edges (displaying as "0.00") are filtered out before computing edge_idx.
-  diag(weights) <- 0
   wd <- args$weight_digits %||% 2
   if (!is.null(wd)) weights <- round(weights, wd)
 

@@ -208,17 +208,25 @@ plot_temporal <- function(x,
     node_positions[[li]] <- node_screen
 
     # Edges
+    e_col <- grDevices::adjustcolor(edge_color[li], edge_alpha)
     for (i in seq_len(nn)) {
       for (j in seq_len(nn)) {
         w <- mat[i, j]
-        if (!is.na(w) && w > minimum && i != j) {
+        if (!is.na(w) && w > minimum) {
           lwd <- 0.3 + edge_width * abs(w) / max_w
-          graphics::segments(
-            node_screen[i, 1], node_screen[i, 2],
-            node_screen[j, 1], node_screen[j, 2],
-            col = grDevices::adjustcolor(edge_color[li], edge_alpha),
-            lwd = lwd
-          )
+          if (i == j) {
+            draw_self_loop_base(
+              x = node_screen[i, 1], y = node_screen[i, 2],
+              node_size = node_size * 0.02,
+              col = e_col, lwd = lwd, arrow = FALSE
+            )
+          } else {
+            graphics::segments(
+              node_screen[i, 1], node_screen[i, 2],
+              node_screen[j, 1], node_screen[j, 2],
+              col = e_col, lwd = lwd
+            )
+          }
         }
       }
     }

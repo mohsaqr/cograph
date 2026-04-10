@@ -43,16 +43,19 @@ splot.netobject <- function(x, ...) {
       args$donut_fill  <- as.numeric(x$initial)
       args$donut_empty <- args$donut_empty %||% FALSE
     }
-    do.call(splot, c(list(x = x$weights, tna_styling = TRUE), args))
+    # Default to tna_styling = TRUE unless user explicitly set it
+    if (is.null(args$tna_styling)) args$tna_styling <- TRUE
+    do.call(splot, c(list(x = x$weights), args))
   } else {
-    # Undirected: same node/edge styling but spring layout, no arrows, solid edges.
-    # Set these in args so match.call() in splot sees them as explicit and
-    # tna_styling's layout guard does not override them.
-    if (is.null(args$layout))            args$layout      <- "spring"
-    if (!"directed"    %in% names(args)) args$directed    <- FALSE
-    if (!"show_arrows" %in% names(args)) args$show_arrows <- FALSE
-    if (is.null(args$edge_style))        args$edge_style  <- 1
-    do.call(splot, c(list(x = x$weights, tna_styling = TRUE), args))
+    # Undirected: psych_styling = TRUE applies psych network defaults
+    # (spring layout, Okabe-Ito palette, no arrows, predictability donuts).
+    if (!is.null(x$predictability) && is.null(args$donut_fill)) {
+      args$donut_fill  <- as.numeric(x$predictability)
+      args$donut_empty <- args$donut_empty %||% FALSE
+    }
+    # Default to psych_styling = TRUE unless user explicitly set it
+    if (is.null(args$psych_styling)) args$psych_styling <- TRUE
+    do.call(splot, c(list(x = x$weights), args))
   }
 }
 
@@ -308,3 +311,144 @@ plot_netobject_ml <- function(x,
 #' @rdname plot_netobject_ml
 #' @export
 plot.netobject_ml <- function(x, ...) plot_netobject_ml(x, ...)
+
+
+#' Plot a Group Bootstrap Result
+#'
+#' Plots each cluster's bootstrap result (\code{net_bootstrap}) in a grid.
+#' Each panel shows the original network from that cluster's bootstrap.
+#'
+#' @param x A \code{net_bootstrap_group} object (list of \code{net_bootstrap}).
+#' @param what What to display per panel: \code{"original"} (default) shows the
+#'   original network, \code{"significant"} shows only significant edges.
+#' @param nrow,ncol Grid dimensions. Defaults to auto-computed square layout.
+#' @param common_scale Logical: use the same maximum weight across panels? Default TRUE.
+#' @param ... Additional arguments passed to \code{splot()}.
+#'
+#' @return Invisibly returns \code{x}.
+#' @export
+#' @examples
+#' \dontrun{
+#' grp <- Nestimate::cluster_network(data, k = 2)
+#' gbs <- Nestimate::bootstrap_network(grp, iter = 100)
+#' plot_net_bootstrap_group(gbs)
+#' }
+plot_net_bootstrap_group <- function(x,
+                                     what         = c("original", "significant"),
+                                     nrow         = NULL,
+                                     ncol         = NULL,
+                                     common_scale = TRUE,
+                                     ...) {
+  what <- match.arg(what)
+  n_groups    <- length(x)
+  group_names <- names(x) %||% paste0("Group ", seq_len(n_groups))
+
+  if (n_groups == 0) {
+    message("No groups to display")
+    return(invisible(NULL))
+  }
+
+  # Extract the network to plot from each bootstrap
+  nets <- lapply(x, function(bs) {
+    if (what == "significant" && !is.null(bs$significant)) {
+      bs$significant
+    } else {
+      bs$original
+    }
+  })
+
+  max_abs <- NULL
+  if (common_scale) {
+    all_w   <- unlist(lapply(nets, function(e) abs(e$weights)))
+    max_abs <- max(all_w, na.rm = TRUE)
+    if (!is.finite(max_abs) || max_abs == 0) max_abs <- NULL # nocov
+  }
+
+  if (n_groups == 1) {
+    args <- list(...)
+    if (is.null(args$title)) args$title <- group_names[1]
+    if (!is.null(max_abs))   args$maximum <- max_abs
+    return(do.call(splot, c(list(x = nets[[1]]), args)))
+  }
+
+  if (is.null(ncol)) ncol <- ceiling(sqrt(n_groups))
+  if (is.null(nrow)) nrow <- ceiling(n_groups / ncol)
+
+  old_par <- graphics::par(mfrow = c(nrow, ncol), mar = c(2, 2, 3, 1))
+  on.exit(graphics::par(old_par), add = TRUE)
+
+  for (k in seq_len(n_groups)) {
+    args <- list(...)
+    if (is.null(args$title)) args$title <- group_names[k]
+    if (!is.null(max_abs))   args$maximum <- max_abs
+    do.call(splot, c(list(x = nets[[k]]), args))
+  }
+
+  invisible(x)
+}
+
+#' @rdname plot_net_bootstrap_group
+#' @export
+plot.net_bootstrap_group <- function(x, ...) plot_net_bootstrap_group(x, ...)
+
+
+#' Plot Centrality Stability Results
+#'
+#' Visualizes the centrality stability analysis from a \code{net_stability}
+#' object. Shows how centrality correlations drop as cases are removed.
+#'
+#' @param x A \code{net_stability} object (from \code{Nestimate::centrality_stability}).
+#' @param ... Additional graphical arguments.
+#'
+#' @return Invisibly returns \code{x}.
+#' @export
+#' @examples
+#' \dontrun{
+#' net <- Nestimate::build_network(data, method = "tna")
+#' cs <- Nestimate::centrality_stability(net, iter = 100)
+#' plot_net_stability(cs)
+#' }
+plot_net_stability <- function(x, ...) {
+  measures   <- x$measures
+  drop_prop  <- x$drop_prop
+  threshold  <- x$threshold %||% 0.7
+  n_measures <- length(measures)
+
+  # Set up colors
+  cols <- if (n_measures <= 8) {
+    grDevices::palette.colors(n_measures, "R4")
+  } else {
+    grDevices::rainbow(n_measures)
+  }
+
+  # Compute mean correlation at each drop proportion
+  plot(NULL, xlim = range(drop_prop), ylim = c(0, 1),
+       xlab = "Proportion of cases dropped",
+       ylab = "Mean correlation with original",
+       main = "Centrality Stability", ...)
+
+  for (i in seq_along(measures)) {
+    corr_mat <- x$correlations[[measures[i]]]
+    # corr_mat is iter x length(drop_prop) matrix
+    mean_corrs <- colMeans(corr_mat, na.rm = TRUE)
+    graphics::lines(drop_prop, mean_corrs, col = cols[i], lwd = 2)
+    graphics::points(drop_prop, mean_corrs, col = cols[i], pch = 16, cex = 0.8)
+  }
+
+  # Threshold line
+  graphics::abline(h = threshold, lty = 2, col = "gray50")
+  graphics::text(max(drop_prop), threshold, paste("threshold =", threshold),
+                 adj = c(1, -0.5), cex = 0.8, col = "gray50")
+
+  # CS-coefficient labels
+  cs_vals <- x$cs
+  cs_text <- paste0(names(cs_vals), " CS=", round(cs_vals, 2))
+  graphics::legend("bottomleft", legend = cs_text, col = cols, lwd = 2,
+                   bty = "n", cex = 0.8)
+
+  invisible(x)
+}
+
+#' @rdname plot_net_stability
+#' @export
+plot.net_stability <- function(x, ...) plot_net_stability(x, ...)

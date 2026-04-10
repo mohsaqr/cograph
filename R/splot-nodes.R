@@ -217,6 +217,8 @@ draw_polygon_donut_node_base <- function(x, y, size, values, colors = NULL,
                                          donut_shape = "square",
                                          border.col = "black", border.width = 1,
                                          donut_border.width = NULL,
+                                         inner_border.col = NULL,
+                                         inner_border.width = NULL,
                                          outer_border.col = NULL,
                                          border.lty = 1,
                                          show_value = TRUE, value_cex = 0.8,
@@ -307,8 +309,10 @@ draw_polygon_donut_node_base <- function(x, y, size, values, colors = NULL,
                     lwd = ring_border_width, lty = border.lty)
 
   # Inner border and fill (center of donut)
-  graphics::polygon(inner$x, inner$y, col = center_color, border = border.col,
-                    lwd = ring_border_width, lty = border.lty)
+  ib_col <- inner_border.col %||% border.col
+  ib_lwd <- inner_border.width %||% ring_border_width
+  graphics::polygon(inner$x, inner$y, col = center_color, border = ib_col,
+                    lwd = ib_lwd, lty = border.lty)
 
   # Show value in center
   if (show_value && !is.null(center_value)) {
@@ -361,6 +365,8 @@ draw_donut_node_base <- function(x, y, size, values, colors = NULL,
                                  center_color = "white",
                                  border.col = "black", border.width = 1,
                                  donut_border.width = NULL,
+                                 inner_border.col = NULL,
+                                 inner_border.width = NULL,
                                  outer_border.col = NULL,
                                  border.lty = 1,
                                  show_value = TRUE, value_cex = 0.8,
@@ -480,11 +486,13 @@ draw_donut_node_base <- function(x, y, size, values, colors = NULL,
     lty = border.lty
   )
   # Donut ring inner border (inner hole)
+  ib_col <- inner_border.col %||% border.col
+  ib_lwd <- inner_border.width %||% ring_border_width
   graphics::lines(
     x = x + inner_r * cos(seq(0, 2*pi, length.out = n_points)),
     y = y + inner_r * sin(seq(0, 2*pi, length.out = n_points)),
-    col = border.col,
-    lwd = ring_border_width,
+    col = ib_col,
+    lwd = ib_lwd,
     lty = border.lty
   )
 

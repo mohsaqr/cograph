@@ -41,6 +41,40 @@ tna_color_palette <- function(n_states) {
   )
 }
 
+#' Psych Network Visual Style Defaults
+#'
+#' Returns the standard psych network visual defaults. Used by
+#' \code{splot(psych_styling = TRUE)} for undirected association networks.
+#'
+#' @param n_nodes Number of nodes (for palette selection).
+#' @return A named list of default parameters.
+#' @keywords internal
+.psych_style_defaults <- function(n_nodes = NULL) {
+  defaults <- list(
+    layout                  = "spring",
+    directed                = FALSE,
+    show_arrows             = FALSE,
+    edge_style              = 1,
+    edge_label_style        = "estimate",
+    edge_label_leading_zero = FALSE,
+    edge_label_size         = 0.6,
+    edge_label_position     = 0.5,
+    node_size               = 7,
+    minimum                 = 0.01,
+    donut_bg_color          = "white",
+    donut_border_width      = 0.5,
+    donut_inner_border_color = "white",
+    donut_inner_border_width = 0.5
+  )
+  if (!is.null(n_nodes)) {
+    # Skip the first color (black) in Okabe-Ito
+    oi <- grDevices::palette.colors(9, palette = "Okabe-Ito")[-1]
+    defaults$node_fill <- rep_len(oi, n_nodes)
+  }
+  defaults
+}
+
+
 #' TNA Visual Style Defaults
 #'
 #' Returns the standard TNA visual defaults as a named list. Used by

@@ -383,6 +383,8 @@ splot <- function(
     donut_colors = NULL,  # Deprecated: use donut_color
     donut_border_color = NULL,
     donut_border_width = NULL,
+    donut_inner_border_color = NULL,
+    donut_inner_border_width = NULL,
     donut_outer_border_color = NULL,
     donut_line_type = "solid",
     donut_border_lty = NULL,  # Deprecated: use donut_line_type
@@ -499,6 +501,8 @@ splot <- function(
 
     # TNA styling
     tna_styling = NULL,
+    # Psych network styling
+    psych_styling = NULL,
 
     # Group selection (for group_tna)
     i = NULL,
@@ -637,14 +641,29 @@ splot <- function(
     return(do.call(splot.net_bootstrap, c(list(x = x), .collect_dispatch_args(.user_args, .dots))))
   }
 
+  # Nestimate: group permutation test object
+  if (inherits(x, "net_permutation_group")) {
+    return(do.call(splot.net_permutation_group, c(list(x = x), .collect_dispatch_args(.user_args, .dots))))
+  }
+
   # Nestimate: permutation test object
   if (inherits(x, "net_permutation")) {
     return(do.call(splot.net_permutation, c(list(x = x), .collect_dispatch_args(.user_args, .dots))))
   }
 
+  # Nestimate: group bootstrap object
+  if (inherits(x, "net_bootstrap_group")) {
+    return(do.call(plot_net_bootstrap_group, c(list(x = x), .collect_dispatch_args(.user_args, .dots))))
+  }
+
   # Nestimate: glasso bootstrap object
   if (inherits(x, "boot_glasso")) {
     return(do.call(splot.boot_glasso, c(list(x = x), .collect_dispatch_args(.user_args, .dots))))
+  }
+
+  # Nestimate: centrality stability object
+  if (inherits(x, "net_stability")) {
+    return(do.call(plot_net_stability, c(list(x = x), .collect_dispatch_args(.user_args, .dots))))
   }
 
   # Nestimate: group of netobjects
@@ -746,6 +765,45 @@ splot <- function(
       if (!"edge_start_style" %in% explicit_args && !is.null(.tna_defs$edge_start_style))
         edge_start_style <- .tna_defs$edge_start_style
     }
+  }
+
+  # ============================================
+  # APPLY PSYCH STYLING DEFAULTS
+  # ============================================
+  if (isTRUE(psych_styling)) {
+    .psych_n <- if (is.matrix(x)) nrow(x) else NULL
+    .psych_defs <- .psych_style_defaults(.psych_n)
+
+    if (is.null(node_fill) && !is.null(.psych_defs$node_fill))
+      node_fill <- .psych_defs$node_fill
+    if (is.null(node_size))
+      node_size <- .psych_defs$node_size
+    if (!"layout" %in% explicit_args)
+      layout <- .psych_defs$layout
+    if (!"directed" %in% explicit_args)
+      directed <- .psych_defs$directed
+    if (!"show_arrows" %in% explicit_args)
+      show_arrows <- .psych_defs$show_arrows
+    if (!"edge_style" %in% explicit_args)
+      edge_style <- .psych_defs$edge_style
+    if (!"edge_label_style" %in% explicit_args)
+      edge_label_style <- .psych_defs$edge_label_style
+    if (!"edge_label_leading_zero" %in% explicit_args)
+      edge_label_leading_zero <- .psych_defs$edge_label_leading_zero
+    if (!"edge_label_size" %in% explicit_args)
+      edge_label_size <- .psych_defs$edge_label_size
+    if (!"edge_label_position" %in% explicit_args)
+      edge_label_position <- .psych_defs$edge_label_position
+    if (!"minimum" %in% explicit_args)
+      minimum <- .psych_defs$minimum
+    if (is.null(donut_bg_color) || donut_bg_color == "gray90")
+      donut_bg_color <- .psych_defs$donut_bg_color
+    if (is.null(donut_border_width))
+      donut_border_width <- .psych_defs$donut_border_width
+    if (is.null(donut_inner_border_color))
+      donut_inner_border_color <- .psych_defs$donut_inner_border_color
+    if (is.null(donut_inner_border_width))
+      donut_inner_border_width <- .psych_defs$donut_inner_border_width
   }
 
   # Round matrix weights to filter near-zero edges globally
@@ -1229,6 +1287,8 @@ splot <- function(
     donut_colors = dp$donut_colors,
     donut_border_color = dp$donut_border_color,
     donut_border_width = donut_border_width,
+    donut_inner_border_color = donut_inner_border_color,
+    donut_inner_border_width = donut_inner_border_width,
     donut_outer_border_color = dp$donut_outer_border_color,
     donut_line_type = dp$donut_line_type,
     donut_inner_ratio = donut_inner_ratio,
@@ -1629,6 +1689,7 @@ render_nodes_splot <- function(layout, node_size, node_size2, node_shape, node_f
                                node_border_color, node_border_width, pie_values, pie_colors,
                                pie_border_width, donut_values, donut_colors,
                                donut_border_color, donut_border_width,
+                               donut_inner_border_color = NULL, donut_inner_border_width = NULL,
                                donut_outer_border_color = NULL, donut_line_type = "solid",
                                donut_inner_ratio, donut_bg_color, donut_shape,
                                donut_show_value, donut_value_size, donut_value_color,
@@ -1788,6 +1849,8 @@ render_nodes_splot <- function(layout, node_size, node_size2, node_shape, node_f
           border.col = effective_donut_border_col,
           border.width = node_border_width[i],
           donut_border.width = donut_border_width,
+          inner_border.col = donut_inner_border_color,
+          inner_border.width = donut_inner_border_width,
           outer_border.col = effective_outer_border_col,
           border.lty = effective_border_lty,
           show_value = donut_show_values[i],
@@ -1812,6 +1875,8 @@ render_nodes_splot <- function(layout, node_size, node_size2, node_shape, node_f
           border.col = effective_donut_border_col,
           border.width = node_border_width[i],
           donut_border.width = donut_border_width,
+          inner_border.col = donut_inner_border_color,
+          inner_border.width = donut_inner_border_width,
           outer_border.col = effective_outer_border_col,
           border.lty = effective_border_lty,
           show_value = donut_show_values[i],

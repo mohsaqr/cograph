@@ -144,9 +144,11 @@ overlay_communities <- function(x,
 
 #' Plot a tna_communities object
 #'
-#' Plots the original tna model with nodes colored by walktrap community
-#' membership. The original model is retrieved from \code{attr(x, "tna")},
-#' which \code{tna::communities()} sets automatically.
+#' Plots the original tna model with nodes colored by community membership.
+#' The original model is retrieved from \code{attr(x, "tna")}, which
+#' \code{tna::communities()} sets automatically. Uses \code{walktrap} if
+#' present in \code{x$assignments}; otherwise falls back to the first
+#' available algorithm column.
 #'
 #' @param x A \code{tna_communities} object from \code{tna::communities()}.
 #' @param ... Additional arguments forwarded to \code{\link{splot}}.
@@ -155,8 +157,13 @@ overlay_communities <- function(x,
 #' @export
 splot.tna_communities <- function(x, ...) {
   model <- attr(x, "tna")
-  membership <- x$assignments$walktrap
-  splot(model, node_fill = membership, ...)
+  algos <- setdiff(colnames(x$assignments), "state")
+  if (length(algos) == 0L) {
+    stop("splot.tna_communities: no algorithm columns in x$assignments",
+         call. = FALSE)
+  }
+  algo <- if ("walktrap" %in% algos) "walktrap" else algos[[1L]]
+  splot(model, node_fill = x$assignments[[algo]], ...)
 }
 
 

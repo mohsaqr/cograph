@@ -39,8 +39,8 @@ test_that("communities() works with default method (louvain)", {
 
   comm <- communities(mat_community)
   expect_s3_class(comm, "cograph_communities")
-  expect_true("membership" %in% names(comm))
-  expect_equal(length(comm$membership), 12)
+  expect_true("community" %in% names(comm))
+  expect_equal(nrow(comm), 12)
 })
 
 test_that("communities() respects method argument", {
@@ -51,8 +51,8 @@ test_that("communities() respects method argument", {
 
   expect_s3_class(comm_louvain, "cograph_communities")
   expect_s3_class(comm_walktrap, "cograph_communities")
-  expect_equal(comm_louvain$algorithm, "louvain")
-  expect_equal(comm_walktrap$algorithm, "walktrap")
+  expect_equal(attr(comm_louvain, "algorithm"), "louvain")
+  expect_equal(attr(comm_walktrap, "algorithm"), "walktrap")
 })
 
 test_that("communities() works with resolution parameter", {
@@ -62,8 +62,8 @@ test_that("communities() works with resolution parameter", {
   comm_high <- communities(mat_community, method = "louvain", resolution = 2)
 
   # Higher resolution should give same or more communities
-  n_default <- length(unique(comm_default$membership))
-  n_high <- length(unique(comm_high$membership))
+  n_default <- length(unique(comm_default$community))
+  n_high <- length(unique(comm_high$community))
   expect_true(n_high >= n_default)
 })
 
@@ -73,7 +73,7 @@ test_that("communities() works with seed for reproducibility", {
   comm1 <- communities(mat_community, method = "louvain", seed = 123)
   comm2 <- communities(mat_community, method = "louvain", seed = 123)
 
-  expect_equal(comm1$membership, comm2$membership)
+  expect_equal(comm1$community, comm2$community)
 })
 
 test_that("communities() dispatches to all methods correctly", {
@@ -83,7 +83,7 @@ test_that("communities() dispatches to all methods correctly", {
   for (method in methods) {
     comm <- communities(mat_community, method = method)
     expect_s3_class(comm, "cograph_communities")
-    expect_equal(comm$algorithm, method)
+    expect_equal(attr(comm, "algorithm"), method)
   }
 })
 
@@ -96,8 +96,8 @@ test_that("community_louvain works with matrix input", {
 
   comm <- community_louvain(mat_community)
   expect_s3_class(comm, "cograph_communities")
-  expect_equal(comm$algorithm, "louvain")
-  expect_equal(length(comm$membership), 12)
+  expect_equal(attr(comm, "algorithm"), "louvain")
+  expect_equal(nrow(comm), 12)
 })
 
 test_that("community_louvain works with igraph input", {
@@ -106,7 +106,7 @@ test_that("community_louvain works with igraph input", {
   g <- igraph::make_graph("Zachary")
   comm <- community_louvain(g)
   expect_s3_class(comm, "cograph_communities")
-  expect_equal(length(comm$membership), igraph::vcount(g))
+  expect_equal(nrow(comm), igraph::vcount(g))
 })
 
 test_that("community_louvain respects resolution parameter", {
@@ -115,8 +115,8 @@ test_that("community_louvain respects resolution parameter", {
   comm_low <- community_louvain(mat_community, resolution = 0.5)
   comm_high <- community_louvain(mat_community, resolution = 2)
 
-  n_low <- length(unique(comm_low$membership))
-  n_high <- length(unique(comm_high$membership))
+  n_low <- length(unique(comm_low$community))
+  n_high <- length(unique(comm_high$community))
   expect_true(n_high >= n_low)
 })
 
@@ -125,7 +125,7 @@ test_that("com_lv alias works", {
 
   comm <- com_lv(mat_community)
   expect_s3_class(comm, "cograph_communities")
-  expect_equal(comm$algorithm, "louvain")
+  expect_equal(attr(comm, "algorithm"), "louvain")
 })
 
 # ==============================================================================
@@ -137,7 +137,7 @@ test_that("community_leiden works with CPM objective", {
 
   comm <- community_leiden(mat_community, objective_function = "CPM")
   expect_s3_class(comm, "cograph_communities")
-  expect_equal(comm$algorithm, "leiden")
+  expect_equal(attr(comm, "algorithm"), "leiden")
 })
 
 test_that("community_leiden works with modularity objective", {
@@ -169,7 +169,7 @@ test_that("com_ld alias works", {
 
   comm <- com_ld(mat_community)
   expect_s3_class(comm, "cograph_communities")
-  expect_equal(comm$algorithm, "leiden")
+  expect_equal(attr(comm, "algorithm"), "leiden")
 })
 
 # ==============================================================================
@@ -181,7 +181,7 @@ test_that("community_fast_greedy works with matrix input", {
 
   comm <- community_fast_greedy(mat_community)
   expect_s3_class(comm, "cograph_communities")
-  expect_equal(comm$algorithm, "fast_greedy")
+  expect_equal(attr(comm, "algorithm"), "fast_greedy")
 })
 
 test_that("community_fast_greedy converts directed to undirected", {
@@ -206,7 +206,7 @@ test_that("com_fg alias works", {
 
   comm <- com_fg(mat_community)
   expect_s3_class(comm, "cograph_communities")
-  expect_equal(comm$algorithm, "fast_greedy")
+  expect_equal(attr(comm, "algorithm"), "fast_greedy")
 })
 
 # ==============================================================================
@@ -218,7 +218,7 @@ test_that("community_walktrap works with default steps", {
 
   comm <- community_walktrap(mat_community)
   expect_s3_class(comm, "cograph_communities")
-  expect_equal(comm$algorithm, "walktrap")
+  expect_equal(attr(comm, "algorithm"), "walktrap")
 })
 
 test_that("community_walktrap respects steps parameter", {
@@ -236,7 +236,7 @@ test_that("com_wt alias works", {
 
   comm <- com_wt(mat_community)
   expect_s3_class(comm, "cograph_communities")
-  expect_equal(comm$algorithm, "walktrap")
+  expect_equal(attr(comm, "algorithm"), "walktrap")
 })
 
 # ==============================================================================
@@ -248,7 +248,7 @@ test_that("community_infomap works with default parameters", {
 
   comm <- community_infomap(mat_community)
   expect_s3_class(comm, "cograph_communities")
-  expect_equal(comm$algorithm, "infomap")
+  expect_equal(attr(comm, "algorithm"), "infomap")
 })
 
 test_that("community_infomap respects nb.trials parameter", {
@@ -263,7 +263,7 @@ test_that("com_im alias works", {
 
   comm <- com_im(mat_community)
   expect_s3_class(comm, "cograph_communities")
-  expect_equal(comm$algorithm, "infomap")
+  expect_equal(attr(comm, "algorithm"), "infomap")
 })
 
 # ==============================================================================
@@ -275,7 +275,7 @@ test_that("community_label_propagation works with default parameters", {
 
   comm <- community_label_propagation(mat_community)
   expect_s3_class(comm, "cograph_communities")
-  expect_equal(comm$algorithm, "label_propagation")
+  expect_equal(attr(comm, "algorithm"), "label_propagation")
 })
 
 test_that("community_label_propagation respects mode parameter", {
@@ -290,7 +290,7 @@ test_that("com_lp alias works", {
 
   comm <- com_lp(mat_community)
   expect_s3_class(comm, "cograph_communities")
-  expect_equal(comm$algorithm, "label_propagation")
+  expect_equal(attr(comm, "algorithm"), "label_propagation")
 })
 
 # ==============================================================================
@@ -302,7 +302,7 @@ test_that("community_edge_betweenness works with default parameters", {
 
   comm <- community_edge_betweenness(mat_small)
   expect_s3_class(comm, "cograph_communities")
-  expect_equal(comm$algorithm, "edge_betweenness")
+  expect_equal(attr(comm, "algorithm"), "edge_betweenness")
 })
 
 test_that("community_edge_betweenness respects directed parameter", {
@@ -320,7 +320,7 @@ test_that("com_eb alias works", {
 
   comm <- com_eb(mat_small)
   expect_s3_class(comm, "cograph_communities")
-  expect_equal(comm$algorithm, "edge_betweenness")
+  expect_equal(attr(comm, "algorithm"), "edge_betweenness")
 })
 
 # ==============================================================================
@@ -332,7 +332,7 @@ test_that("community_leading_eigenvector works with default parameters", {
 
   comm <- community_leading_eigenvector(mat_community)
   expect_s3_class(comm, "cograph_communities")
-  expect_equal(comm$algorithm, "leading_eigenvector")
+  expect_equal(attr(comm, "algorithm"), "leading_eigenvector")
 })
 
 test_that("community_leading_eigenvector converts directed to undirected", {
@@ -355,7 +355,7 @@ test_that("com_le alias works", {
 
   comm <- com_le(mat_community)
   expect_s3_class(comm, "cograph_communities")
-  expect_equal(comm$algorithm, "leading_eigenvector")
+  expect_equal(attr(comm, "algorithm"), "leading_eigenvector")
 })
 
 # ==============================================================================
@@ -369,7 +369,7 @@ test_that("community_spinglass works with connected graph", {
   g <- igraph::make_full_graph(10)
   comm <- community_spinglass(g, seed = 42)
   expect_s3_class(comm, "cograph_communities")
-  expect_equal(comm$algorithm, "spinglass")
+  expect_equal(attr(comm, "algorithm"), "spinglass")
 })
 
 test_that("community_spinglass respects spins parameter", {
@@ -402,7 +402,7 @@ test_that("com_sg alias works", {
   g <- igraph::make_full_graph(10)
   comm <- com_sg(g, seed = 42)
   expect_s3_class(comm, "cograph_communities")
-  expect_equal(comm$algorithm, "spinglass")
+  expect_equal(attr(comm, "algorithm"), "spinglass")
 })
 
 # ==============================================================================
@@ -416,7 +416,7 @@ test_that("community_optimal works with small network", {
   mat_tiny <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
   comm <- community_optimal(mat_tiny)
   expect_s3_class(comm, "cograph_communities")
-  expect_equal(comm$algorithm, "optimal")
+  expect_equal(attr(comm, "algorithm"), "optimal")
 })
 
 test_that("community_optimal warns on large network", {
@@ -434,7 +434,7 @@ test_that("com_op alias works", {
   mat_tiny <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
   comm <- com_op(mat_tiny)
   expect_s3_class(comm, "cograph_communities")
-  expect_equal(comm$algorithm, "optimal")
+  expect_equal(attr(comm, "algorithm"), "optimal")
 })
 
 # ==============================================================================
@@ -447,7 +447,7 @@ test_that("community_fluid works with specified communities", {
   g <- igraph::make_full_graph(10)
   comm <- community_fluid(g, no.of.communities = 2)
   expect_s3_class(comm, "cograph_communities")
-  expect_equal(comm$algorithm, "fluid")
+  expect_equal(attr(comm, "algorithm"), "fluid")
 })
 
 test_that("community_fluid requires no.of.communities", {
@@ -478,7 +478,7 @@ test_that("com_fl alias works", {
   g <- igraph::make_full_graph(10)
   comm <- com_fl(g, no.of.communities = 2)
   expect_s3_class(comm, "cograph_communities")
-  expect_equal(comm$algorithm, "fluid")
+  expect_equal(attr(comm, "algorithm"), "fluid")
 })
 
 # ==============================================================================
@@ -490,7 +490,7 @@ test_that("community_consensus works with default parameters", {
 
   comm <- community_consensus(mat_community, n_runs = 10)
   expect_s3_class(comm, "cograph_communities")
-  expect_true(grepl("consensus", comm$algorithm))
+  expect_true(grepl("consensus", attr(comm, "algorithm")))
 })
 
 test_that("community_consensus works with different methods", {
@@ -520,7 +520,7 @@ test_that("community_consensus is reproducible with seed", {
   comm2 <- community_consensus(mat_community, n_runs = 10, seed = 123)
 
   # Consensus should be deterministic with same seed
-  expect_equal(comm1$membership, comm2$membership)
+  expect_equal(comm1$community, comm2$community)
 })
 
 test_that("com_consensus alias works", {
@@ -575,7 +575,7 @@ test_that(".wrap_communities adds algorithm info", {
   result <- igraph::cluster_louvain(g)
   wrapped <- cograph:::.wrap_communities(result, "test_algo", g)
 
-  expect_equal(wrapped$algorithm, "test_algo")
+  expect_equal(attr(wrapped, "algorithm"), "test_algo")
   expect_s3_class(wrapped, "cograph_communities")
 })
 
@@ -588,10 +588,9 @@ test_that(".wrap_communities adds node names if available", {
   result <- igraph::cluster_louvain(g)
   wrapped <- cograph:::.wrap_communities(result, "test_algo", g)
 
-  # Named graph should have names
-
-  expect_true(!is.null(wrapped$names))
-  expect_equal(wrapped$names, c("A", "B", "C", "D", "E"))
+  # Named graph should have node column with names
+  expect_true("node" %in% names(wrapped))
+  expect_equal(wrapped$node, c("A", "B", "C", "D", "E"))
 })
 
 # ==============================================================================
@@ -605,14 +604,14 @@ test_that("print.cograph_communities displays correctly", {
   output <- capture.output(print(comm))
 
   expect_true(any(grepl("louvain", output)))
-  expect_true(any(grepl("communities", output)))
+  expect_true(any(grepl("[Cc]ommunit", output)))
 })
 
 test_that("membership.cograph_communities returns named vector", {
   skip_if_not_installed("igraph")
 
   comm <- community_louvain(mat_community)
-  mem <- igraph::membership(comm)
+  mem <- membership(comm)
 
   expect_true(is.numeric(mem))
   expect_equal(length(mem), 12)
@@ -699,11 +698,19 @@ test_that("compare_communities works with adjusted.rand method", {
 # Test plot.cograph_communities
 # ==============================================================================
 
-test_that("plot.cograph_communities requires network argument", {
+test_that("plot.cograph_communities uses stored network or requires network argument", {
   skip_if_not_installed("igraph")
 
   comm <- community_louvain(mat_community)
-  expect_error(plot(comm), "network argument required")
+  # community_louvain stores the network as an attribute, so plot should work
+  # without explicitly passing the network argument
+  expect_true(!is.null(attr(comm, "network")))
+
+  # Build a bare cograph_communities without stored network to test error
+  bare <- data.frame(node = paste0("N", 1:3), community = c(1L, 1L, 2L),
+                     stringsAsFactors = FALSE)
+  class(bare) <- c("cograph_communities", "data.frame")
+  expect_error(plot(bare), "No network found")
 })
 
 test_that("plot.cograph_communities works with network", {
@@ -725,7 +732,7 @@ test_that("communities work with cograph_network input", {
   comm <- community_louvain(net)
 
   expect_s3_class(comm, "cograph_communities")
-  expect_equal(length(comm$membership), 12)
+  expect_equal(nrow(comm), 12)
 })
 
 test_that("communities work with weights = NA (unweighted)", {

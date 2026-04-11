@@ -1945,7 +1945,7 @@ cluster_significance <- function(x,
   # Get membership vector
   if (inherits(communities, "communities") ||
       inherits(communities, "cograph_communities")) {
-    mem <- igraph::membership(communities)
+    mem <- membership(communities)
   } else if (is.numeric(communities) || is.integer(communities)) {
     mem <- as.integer(communities)
   } else {

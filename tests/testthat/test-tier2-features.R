@@ -105,31 +105,31 @@ test_that("vulnerability: star hub has max vulnerability", {
   rownames(star) <- colnames(star) <- c("hub", "a", "b", "c")
   v <- vulnerability(star)
   expect_s3_class(v, "cograph_vulnerability")
-  expect_equal(names(v$scores)[1], "hub")
-  expect_equal(unname(v$scores["hub"]), 1.0)
+  expect_equal(v$node[1], "hub")
+  expect_equal(v$vulnerability[v$node == "hub"], 1.0)
 })
 
 test_that("vulnerability: K4 all nodes equal", {
   k4 <- matrix(1, 4, 4); diag(k4) <- 0
   rownames(k4) <- colnames(k4) <- LETTERS[1:4]
   v <- vulnerability(k4)
-  expect_equal(length(unique(round(v$scores, 10))), 1L)
+  expect_equal(length(unique(round(v$vulnerability, 10))), 1L)
 })
 
 test_that("vulnerability: normalized vs raw", {
   adj <- create_test_matrix(10, density = 0.3)
   v_norm <- vulnerability(adj, normalized = TRUE)
   v_raw <- vulnerability(adj, normalized = FALSE)
-  expect_true(all(is.numeric(v_norm$scores)))
-  expect_true(all(is.numeric(v_raw$scores)))
-  expect_equal(length(v_norm$scores), 10L)
+  expect_true(all(is.numeric(v_norm$vulnerability)))
+  expect_true(all(is.numeric(v_raw$vulnerability)))
+  expect_equal(nrow(v_norm), 10L)
 })
 
 test_that("vulnerability: single node returns NA", {
   adj <- matrix(0, 1, 1)
   rownames(adj) <- colnames(adj) <- "A"
   v <- vulnerability(adj)
-  expect_true(is.na(v$scores["A"]))
+  expect_true(is.na(v$vulnerability[v$node == "A"]))
 })
 
 test_that("vulnerability: plot method works", {
@@ -165,10 +165,10 @@ test_that("core_periphery: continuous returns correct structure", {
   rownames(adj) <- colnames(adj) <- LETTERS[1:5]
   cp <- core_periphery(adj)
   expect_s3_class(cp, "cograph_core_periphery")
-  expect_true(all(cp$scores >= 0 & cp$scores <= 1))
-  expect_true(all(cp$assignment %in% c("core", "periphery")))
-  expect_true(is.numeric(cp$fitness))
-  expect_true(cp$core_density >= 0)
+  expect_true(all(cp$coreness >= 0 & cp$coreness <= 1))
+  expect_true(all(cp$role %in% c("core", "periphery")))
+  expect_true(is.numeric(attr(cp, "fitness")))
+  expect_true(attr(cp, "core_density") >= 0)
 })
 
 test_that("core_periphery: discrete refines assignment", {
@@ -182,8 +182,8 @@ test_that("core_periphery: discrete refines assignment", {
   ), 6, 6)
   rownames(adj) <- colnames(adj) <- LETTERS[1:6]
   cp <- core_periphery(adj, method = "discrete")
-  expect_true(sum(cp$assignment == "core") > 0)
-  expect_true(sum(cp$assignment == "periphery") > 0)
+  expect_true(sum(cp$role == "core") > 0)
+  expect_true(sum(cp$role == "periphery") > 0)
 })
 
 test_that("core_periphery: print method works", {

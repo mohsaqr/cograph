@@ -314,15 +314,18 @@ plot.netobject_ml <- function(x, ...) plot_netobject_ml(x, ...)
 
 #' Plot a Group Bootstrap Result
 #'
-#' Plots each cluster's bootstrap result (\code{net_bootstrap}) in a grid.
-#' Each panel shows the original network from that cluster's bootstrap.
+#' Plots each cluster's \code{net_bootstrap} in a grid, routing every panel
+#' through \code{splot.net_bootstrap} so significance styling (solid vs
+#' dashed edges) is preserved. Earlier versions extracted \code{bs$original}
+#' per cluster and handed plain netobjects to \code{splot()}, which
+#' dispatches to \code{splot.netobject} — that path has no concept of
+#' significance, so every edge rendered identically.
 #'
 #' @param x A \code{net_bootstrap_group} object (list of \code{net_bootstrap}).
-#' @param what What to display per panel: \code{"original"} (default) shows the
-#'   original network, \code{"significant"} shows only significant edges.
 #' @param nrow,ncol Grid dimensions. Defaults to auto-computed square layout.
 #' @param common_scale Logical: use the same maximum weight across panels? Default TRUE.
-#' @param ... Additional arguments passed to \code{splot()}.
+#' @param ... Additional arguments passed to \code{splot.net_bootstrap}
+#'   (e.g. \code{display = "significant"}, \code{show_stars = FALSE}).
 #'
 #' @return Invisibly returns \code{x}.
 #' @export
@@ -333,12 +336,10 @@ plot.netobject_ml <- function(x, ...) plot_netobject_ml(x, ...)
 #' plot_net_bootstrap_group(gbs)
 #' }
 plot_net_bootstrap_group <- function(x,
-                                     what         = c("original", "significant"),
                                      nrow         = NULL,
                                      ncol         = NULL,
                                      common_scale = TRUE,
                                      ...) {
-  what <- match.arg(what)
   n_groups    <- length(x)
   group_names <- names(x) %||% paste0("Group ", seq_len(n_groups))
 
@@ -347,18 +348,9 @@ plot_net_bootstrap_group <- function(x,
     return(invisible(NULL))
   }
 
-  # Extract the network to plot from each bootstrap
-  nets <- lapply(x, function(bs) {
-    if (what == "significant" && !is.null(bs$significant)) {
-      bs$significant
-    } else {
-      bs$original
-    }
-  })
-
   max_abs <- NULL
   if (common_scale) {
-    all_w   <- unlist(lapply(nets, function(e) abs(e$weights)))
+    all_w <- unlist(lapply(x, function(bs) abs(bs$original$weights)))
     max_abs <- max(all_w, na.rm = TRUE)
     if (!is.finite(max_abs) || max_abs == 0) max_abs <- NULL # nocov
   }
@@ -367,7 +359,7 @@ plot_net_bootstrap_group <- function(x,
     args <- list(...)
     if (is.null(args$title)) args$title <- group_names[1]
     if (!is.null(max_abs))   args$maximum <- max_abs
-    return(do.call(splot, c(list(x = nets[[1]]), args)))
+    return(do.call(splot, c(list(x = x[[1]]), args)))
   }
 
   if (is.null(ncol)) ncol <- ceiling(sqrt(n_groups))
@@ -380,7 +372,7 @@ plot_net_bootstrap_group <- function(x,
     args <- list(...)
     if (is.null(args$title)) args$title <- group_names[k]
     if (!is.null(max_abs))   args$maximum <- max_abs
-    do.call(splot, c(list(x = nets[[k]]), args))
+    do.call(splot, c(list(x = x[[k]]), args))
   }
 
   invisible(x)

@@ -9,6 +9,7 @@ communities(
   method = c("louvain", "leiden", "fast_greedy", "walktrap", "infomap",
     "label_propagation", "edge_betweenness", "leading_eigenvector", "spinglass",
     "optimal", "fluid"),
+  community = NULL,
   weights = NULL,
   resolution = 1,
   directed = NULL,
@@ -50,15 +51,13 @@ algorithms (louvain, leiden, infomap, label_propagation, spinglass).}
 See individual functions for details.}
 }
 \value{
-A \code{cograph_communities} object (extends igraph's communities class)
-with components:
+A tidy \code{cograph_communities} data frame with columns:
 \describe{
-\item{membership}{Integer vector of community assignments}
-\item{modularity}{Modularity score of the partition}
-\item{algorithm}{Name of the algorithm used}
-\item{names}{Node names if available}
-\item{vcount}{Number of nodes}
+\item{node}{Node label (character)}
+\item{community}{Community assignment (integer)}
 }
+Metadata stored as attributes: \code{"algorithm"}, \code{"modularity"},
+\code{"network"} (original input), \code{"igraph_result"}.
 }
 \description{
 Detects communities/clusters in networks using various algorithms.

@@ -316,18 +316,19 @@ test_that("membership with named nodes", {
   mat <- matrix(c(0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0), 4, 4,
                 dimnames = list(LETTERS[1:4], LETTERS[1:4]))
   comm <- community_fast_greedy(mat)
-  m <- membership.cograph_communities(comm)
+  m <- membership(comm)
   expect_true(!is.null(names(m)))
 })
 
 test_that("modularity fallback returns NA on error", {
-  # Create a communities object with no igraph backing
-  fake_comm <- list(
-    membership = c(1, 1, 2, 2),
-    algorithm = "fake",
-    names = LETTERS[1:4]
+  # Create a bare communities data frame with no igraph backing
+  fake_comm <- data.frame(
+    node = LETTERS[1:4],
+    community = c(1L, 1L, 2L, 2L),
+    stringsAsFactors = FALSE
   )
-  class(fake_comm) <- "cograph_communities"
+  attr(fake_comm, "algorithm") <- "fake"
+  class(fake_comm) <- c("cograph_communities", "data.frame")
   result <- tryCatch(
     modularity.cograph_communities(fake_comm),
     error = function(e) NA_real_

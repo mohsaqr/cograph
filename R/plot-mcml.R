@@ -460,6 +460,12 @@ plot_mcml <- function(
   # Get or compute cluster_summary
   # ============================================================================
 
+  # Convert communities object to named list
+  if (inherits(cluster_list, "cograph_communities")) {
+    cluster_list <- split(cluster_list$node, cluster_list$community)
+    names(cluster_list) <- paste0("C", names(cluster_list))
+  }
+
   if (inherits(x, c("cluster_summary", "mcml"))) {
     cs <- x
   } else {

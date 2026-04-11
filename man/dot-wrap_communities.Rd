@@ -4,7 +4,7 @@
 \alias{.wrap_communities}
 \title{Wrap igraph communities result}
 \usage{
-.wrap_communities(result, algorithm, g)
+.wrap_communities(result, algorithm, g, network = NULL)
 }
 \description{
 Wrap igraph communities result

@@ -197,19 +197,10 @@ detect_communities <- function(x, method = "louvain", directed = NULL,
     }
   )
 
-  # Get node labels
-  labels <- if (!is.null(igraph::V(g)$name)) {
-    igraph::V(g)$name
-  } else {
-    as.character(seq_len(igraph::vcount(g)))
-  }
-
-  # Create result data frame
-  data.frame(
-    node = labels,
-    community = as.integer(igraph::membership(communities)),
-    stringsAsFactors = FALSE
-  )
+  # Return a classed cograph_communities object (inherits from data.frame)
+  # with $igraph_result, $algorithm, $modularity, $network attributes so the
+  # existing plot/print/modularity S3 methods actually fire.
+  .wrap_communities(communities, method, g, network = x)
 }
 
 #' Color Nodes by Community

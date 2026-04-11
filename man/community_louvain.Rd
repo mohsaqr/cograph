@@ -34,12 +34,12 @@ Fast and widely used for large networks.
 if (requireNamespace("igraph", quietly = TRUE)) {
   g <- igraph::make_graph("Zachary")
   comm <- community_louvain(g)
-  igraph::membership(comm)
+  membership(comm)
 
   # Reproducible result with seed
   comm1 <- community_louvain(g, seed = 42)
   comm2 <- community_louvain(g, seed = 42)
-  identical(igraph::membership(comm1), igraph::membership(comm2))
+  identical(membership(comm1), membership(comm2))
 }
 }
 \references{

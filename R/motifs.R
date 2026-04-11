@@ -104,22 +104,34 @@ motif_census <- function(x, size = 3, n_random = 100,
   p_values <- 2 * pnorm(-abs(z_scores))
 
   motif_names <- .get_motif_names(size, directed)
+  n_obs <- length(observed)
 
-  result <- list(
-    counts = stats::setNames(observed, motif_names),
-    null_mean = stats::setNames(null_mean, motif_names),
-    null_sd = stats::setNames(null_sd, motif_names),
-    z_scores = stats::setNames(z_scores, motif_names),
-    p_values = stats::setNames(p_values, motif_names),
-    significant = stats::setNames(abs(z_scores) > 2, motif_names),
-    size = size,
-    directed = directed,
-    n_random = n_random,
-    method = method
+  # igraph may return more motif slots than we have names for (e.g., size=4)
+  if (length(motif_names) < n_obs) {
+    extra <- seq(length(motif_names) + 1L, n_obs)
+    motif_names <- c(motif_names, paste0("motif_", extra))
+  } else if (length(motif_names) > n_obs) {
+    motif_names <- motif_names[seq_len(n_obs)] # nocov
+  }
+
+  df <- data.frame(
+    motif = motif_names,
+    count = observed,
+    null_mean = null_mean,
+    null_sd = null_sd,
+    z_score = z_scores,
+    p_value = p_values,
+    significant = abs(z_scores) > 2,
+    row.names = NULL,
+    stringsAsFactors = FALSE
   )
 
-  class(result) <- "cograph_motifs"
-  result
+  attr(df, "size") <- size
+  attr(df, "directed") <- directed
+  attr(df, "n_random") <- n_random
+  attr(df, "method") <- method
+  class(df) <- c("cograph_motifs", "data.frame")
+  df
 }
 
 #' @noRd
@@ -132,7 +144,6 @@ motif_census <- function(x, size = 3, n_random = 100,
 
   n <- igraph::vcount(g)
 
-  n_edges <- igraph::ecount(g)
   n_triangles <- sum(igraph::count_triangles(g)) / 3
 
   total_triads <- choose(n, 3)
@@ -161,21 +172,24 @@ motif_census <- function(x, size = 3, n_random = 100,
   z_scores <- ifelse(null_sd > 0, (observed - null_mean) / null_sd, 0)
   p_values <- 2 * pnorm(-abs(z_scores))
 
-  result <- list(
-    counts = observed,
-    null_mean = null_mean,
-    null_sd = null_sd,
-    z_scores = z_scores,
-    p_values = p_values,
-    significant = abs(z_scores) > 2,
-    size = 3,
-    directed = FALSE,
-    n_random = n_random,
-    method = method
+  df <- data.frame(
+    motif = names(observed),
+    count = unname(observed),
+    null_mean = unname(null_mean),
+    null_sd = unname(null_sd),
+    z_score = unname(z_scores),
+    p_value = unname(p_values),
+    significant = unname(abs(z_scores) > 2),
+    row.names = NULL,
+    stringsAsFactors = FALSE
   )
 
-  class(result) <- "cograph_motifs"
-  result
+  attr(df, "size") <- 3L
+  attr(df, "directed") <- FALSE
+  attr(df, "n_random") <- n_random
+  attr(df, "method") <- method
+  class(df) <- c("cograph_motifs", "data.frame")
+  df
 }
 
 #' @noRd
@@ -204,31 +218,17 @@ motif_census <- function(x, size = 3, n_random = 100,
 #' @method print cograph_motifs
 #' @export
 print.cograph_motifs <- function(x, ...) {
+  sz <- attr(x, "size") %||% 3
+  dir <- attr(x, "directed") %||% TRUE
+  meth <- attr(x, "method") %||% "unknown"
+  nr <- attr(x, "n_random") %||% 0
   cat("Network Motif Analysis\n")
-  cat(sprintf("Size: %d-node motifs (%s)\n",
-              x$size, if (x$directed) "directed" else "undirected"))
-  cat(sprintf("Null model: %s (n=%d)\n\n", x$method, x$n_random))
-
-  sig_idx <- which(x$significant & x$counts > 0)
-
-  if (length(sig_idx) > 0) {
-    cat("Significant motifs:\n")
-    df <- data.frame(
-      motif = names(x$counts)[sig_idx],
-      count = x$counts[sig_idx],
-      expected = round(x$null_mean[sig_idx], 1),
-      z = round(x$z_scores[sig_idx], 2),
-      p = format.pval(x$p_values[sig_idx], digits = 2)
-    )
-    print(df, row.names = FALSE)
-  } else {
-    cat("No significantly over/under-represented motifs found.\n")
-  }
-
-  n_over <- sum(x$z_scores > 2 & x$counts > 0, na.rm = TRUE)
-  n_under <- sum(x$z_scores < -2 & x$counts > 0, na.rm = TRUE)
+  cat(sprintf("Size: %d-node motifs (%s) | Null: %s (n=%d)\n\n",
+              sz, if (dir) "directed" else "undirected", meth, nr))
+  print.data.frame(x, row.names = FALSE, ...)
+  n_over <- sum(x$z_score > 2 & x$count > 0, na.rm = TRUE)
+  n_under <- sum(x$z_score < -2 & x$count > 0, na.rm = TRUE)
   cat(sprintf("\nOver-represented: %d | Under-represented: %d\n", n_over, n_under))
-
   invisible(x)
 }
 
@@ -275,12 +275,15 @@ plot.cograph_motifs <- function(x, type = c("bar", "heatmap", "network"),
     stop("ggplot2 is required for plotting motifs") # nocov
   }
 
+  dir <- attr(x, "directed") %||% TRUE
+  sz <- attr(x, "size") %||% 3
+
   df <- data.frame(
-    motif = names(x$counts),
-    count = as.numeric(x$counts),
+    motif = x$motif,
+    count = x$count,
     expected = x$null_mean,
-    z = x$z_scores,
-    p = x$p_values,
+    z = x$z_score,
+    p = x$p_value,
     significant = x$significant,
     stringsAsFactors = FALSE
   )
@@ -303,11 +306,11 @@ plot.cograph_motifs <- function(x, type = c("bar", "heatmap", "network"),
   df$motif <- factor(df$motif, levels = df$motif[order(df$z)])
 
   if (type == "bar") {
-    .plot_motifs_bar(df, colors, x$directed, x$size)
+    .plot_motifs_bar(df, colors, dir, sz)
   } else if (type == "heatmap") {
     .plot_motifs_heatmap(df, colors)
   } else if (type == "network") {
-    .plot_motifs_network(df, x$directed, x$size, colors)
+    .plot_motifs_network(df, dir, sz, colors)
   }
 }
 

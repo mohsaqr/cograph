@@ -1,0 +1,64 @@
+#' @title Plot Nestimate mlVAR Networks
+#' @description Plot the three networks from \code{Nestimate::build_mlvar()}:
+#'   temporal (directed), contemporaneous (undirected), between (undirected).
+#' @name plot-mlvar
+#' @keywords internal
+NULL
+
+#' Plot a Nestimate net_mlvar object
+#'
+#' @param x A \code{net_mlvar} object from Nestimate.
+#' @param type Which network: \code{"temporal"} / \code{"t"} (default),
+#'   \code{"contemporaneous"} / \code{"c"}, \code{"between"} / \code{"b"},
+#'   or \code{"all"} (1x3 panel).
+#' @param ... Additional arguments passed to \code{splot()}. Individual
+#'   args (e.g. \code{layout}, \code{node_size}, \code{edge_color})
+#'   override the default styling preset.
+#'
+#' @return Invisibly returns \code{x}.
+#' @keywords internal
+#' @export
+splot.net_mlvar <- function(x, type = "temporal", ...) {
+  type <- .resolve_mlvar_type(type)
+
+  if (type == "all") {
+    op <- graphics::par(mfrow = c(1, 3), mar = c(2, 2, 3, 2))
+    on.exit(graphics::par(op), add = TRUE)
+    splot.net_mlvar(x, type = "temporal",        ...)
+    splot.net_mlvar(x, type = "contemporaneous", ...)
+    splot.net_mlvar(x, type = "between",         ...)
+    return(invisible(x))
+  }
+
+  net <- x[[type]]
+  if (is.null(net)) {
+    stop(sprintf("Network '%s' not found in net_mlvar object", type),
+         call. = FALSE)
+  }
+
+  args <- list(...)
+  if (is.null(args$title)) {
+    args$title <- switch(type,
+      temporal        = "Temporal",
+      contemporaneous = "Contemporaneous",
+      between         = "Between-Subjects"
+    )
+  }
+
+  do.call(splot, c(list(x = net), args))
+  invisible(x)
+}
+
+#' Resolve mlvar type aliases
+#' @noRd
+.resolve_mlvar_type <- function(type) {
+  type <- tolower(type[[1L]])
+  switch(type,
+    t = , temporal        = "temporal",
+    c = , contemporaneous = "contemporaneous",
+    b = , between         = "between",
+    a = , all             = "all",
+    stop("type must be one of: temporal (t), contemporaneous (c), between (b), all (a)",
+         call. = FALSE)
+  )
+}

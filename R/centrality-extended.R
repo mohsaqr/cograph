@@ -26,8 +26,8 @@ calculate_stress <- function(g, weights = NULL, directed = TRUE) {
 
   # For each source, find ALL shortest paths and count intermediate nodes
   for (s in seq_len(n)) {
-    asp <- igraph::get.all.shortest.paths(g, from = s, to = igraph::V(g),
-                                          mode = mode, weights = NA)
+    asp <- igraph::all_shortest_paths(g, from = s, to = igraph::V(g),
+                                      mode = mode, weights = NA)
     for (path in asp$res) {
       path_v <- as.integer(path)
       if (length(path_v) > 2) {
@@ -543,8 +543,8 @@ calculate_bottleneck <- function(g, mode = "all") {
   bn <- integer(n)
   for (s in seq_len(n)) {
     # Get all shortest paths from s
-    asp <- igraph::get.all.shortest.paths(g, from = s, to = igraph::V(g),
-                                          mode = mode, weights = NA)
+    asp <- igraph::all_shortest_paths(g, from = s, to = igraph::V(g),
+                                      mode = mode, weights = NA)
     # Count how often each node appears across all paths
     node_counts <- tabulate(unlist(asp$res), nbins = n)
     total_nodes <- length(node_counts)

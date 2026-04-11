@@ -47,11 +47,11 @@ test_that("motif_census works with directed matrix input", {
   result <- motif_census(mat, n_random = 10, seed = 42)
 
   expect_s3_class(result, "cograph_motifs")
-  expect_true("counts" %in% names(result))
-  expect_true("z_scores" %in% names(result))
-  expect_true("p_values" %in% names(result))
-  expect_equal(result$size, 3)
-  expect_true(result$directed)
+  expect_true("count" %in% names(result))
+  expect_true("z_score" %in% names(result))
+  expect_true("p_value" %in% names(result))
+  expect_equal(attr(result, "size"), 3)
+  expect_true(attr(result, "directed"))
 })
 
 test_that("motif_census works with undirected matrix", {
@@ -61,8 +61,8 @@ test_that("motif_census works with undirected matrix", {
   result <- motif_census(mat, n_random = 10, seed = 42)
 
   expect_s3_class(result, "cograph_motifs")
-  expect_false(result$directed)
-  expect_true(all(c("empty", "wedge", "triangle") %in% names(result$counts)))
+  expect_false(attr(result, "directed"))
+  expect_true(all(c("empty", "wedge", "triangle") %in% result$motif))
 })
 
 test_that("motif_census works with igraph input", {
@@ -73,7 +73,7 @@ test_that("motif_census works with igraph input", {
 
   result <- motif_census(g, n_random = 10, seed = 42)
   expect_s3_class(result, "cograph_motifs")
-  expect_true(result$directed)
+  expect_true(attr(result, "directed"))
 })
 
 test_that("motif_census works with cograph_network input", {
@@ -92,10 +92,10 @@ test_that("motif_census handles size parameter", {
   mat <- create_directed_matrix(6, seed = 123)
 
   result3 <- motif_census(mat, size = 3, n_random = 10, seed = 42)
-  expect_equal(result3$size, 3)
+  expect_equal(attr(result3, "size"), 3)
 
   result4 <- motif_census(mat, size = 4, n_random = 10, seed = 42)
-  expect_equal(result4$size, 4)
+  expect_equal(attr(result4, "size"), 4)
 })
 
 test_that("motif_census errors on invalid size", {
@@ -112,7 +112,7 @@ test_that("motif_census handles configuration method", {
   mat <- create_directed_matrix(6, seed = 123)
 
   result <- motif_census(mat, method = "configuration", n_random = 10, seed = 42)
-  expect_equal(result$method, "configuration")
+  expect_equal(attr(result, "method"), "configuration")
 })
 
 test_that("motif_census handles gnm method", {
@@ -121,7 +121,7 @@ test_that("motif_census handles gnm method", {
   mat <- create_directed_matrix(6, seed = 123)
 
   result <- motif_census(mat, method = "gnm", n_random = 10, seed = 42)
-  expect_equal(result$method, "gnm")
+  expect_equal(attr(result, "method"), "gnm")
 })
 
 test_that("motif_census respects seed parameter", {
@@ -132,7 +132,7 @@ test_that("motif_census respects seed parameter", {
   result1 <- motif_census(mat, n_random = 10, seed = 42)
   result2 <- motif_census(mat, n_random = 10, seed = 42)
 
-  expect_equal(result1$z_scores, result2$z_scores)
+  expect_equal(result1$z_score, result2$z_score)
 })
 
 test_that("motif_census errors on invalid input", {
@@ -154,7 +154,7 @@ test_that("print.cograph_motifs works", {
 
   output <- capture.output(print(result))
   expect_true(any(grepl("Network Motif Analysis", output)))
-  expect_true(any(grepl("Null model", output)))
+  expect_true(any(grepl("Null", output)))
 })
 
 test_that("print.cograph_motifs handles no significant motifs", {

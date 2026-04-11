@@ -76,13 +76,12 @@ test_that("plot_chord handles self-loops", {
   result_with <- plot_chord(mat, self_loop = TRUE)
   dev.off()
 
+  # self_loop parameter is deprecated; self-loops are always preserved
   png(tempfile(fileext = ".png"))
   result_without <- plot_chord(mat, self_loop = FALSE)
   dev.off()
 
-  # With self-loops should have more chords
-
-  expect_true(nrow(result_with$chords) > nrow(result_without$chords))
+  expect_equal(nrow(result_with$chords), nrow(result_without$chords))
 })
 
 test_that("plot_chord respects threshold", {

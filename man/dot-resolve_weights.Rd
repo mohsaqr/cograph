@@ -4,7 +4,7 @@
 \alias{.resolve_weights}
 \title{Resolve edge weights}
 \usage{
-.resolve_weights(g, weights)
+.resolve_weights(g, weights, abs_if_negative = FALSE)
 }
 \description{
 Resolve edge weights

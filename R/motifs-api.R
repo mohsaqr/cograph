@@ -301,13 +301,15 @@ motifs <- function(x,
         results$p <- NA_real_
         results$sig <- NA
 
+        mc_idx <- stats::setNames(seq_len(nrow(mc)), mc$motif)
         for (ri in seq_len(nrow(results))) {
           tp <- results$type[ri]
-          if (tp %in% names(mc$z_scores)) {
-            results$expected[ri] <- round(mc$null_mean[tp], 1)
-            results$z[ri] <- round(mc$z_scores[tp], 2)
-            results$p[ri] <- round(mc$p_values[tp], 4)
-            results$sig[ri] <- abs(mc$z_scores[tp]) > 1.96
+          mc_row <- mc_idx[tp]
+          if (!is.na(mc_row)) {
+            results$expected[ri] <- round(mc$null_mean[mc_row], 1)
+            results$z[ri] <- round(mc$z_score[mc_row], 2)
+            results$p[ri] <- round(mc$p_value[mc_row], 4)
+            results$sig[ri] <- abs(mc$z_score[mc_row]) > 1.96
           }
         }
         results <- results[order(abs(results$z), decreasing = TRUE), ]

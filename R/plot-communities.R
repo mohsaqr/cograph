@@ -91,7 +91,7 @@ overlay_communities <- function(x,
     communities <- split(asgn$state, asgn[[method_col[1L]]])
     names(communities) <- paste0("Community ", names(communities))
   } else if (inherits(communities, c("cograph_communities", "communities"))) {
-    mem <- igraph::membership(communities)
+    mem <- membership(communities)
     comm_list <- split(names(mem), mem)
     names(comm_list) <- paste0("Community ", names(comm_list))
     communities <- comm_list
@@ -139,4 +139,41 @@ overlay_communities <- function(x,
   }
 
   invisible(result)
+}
+
+
+#' Plot a tna_communities object
+#'
+#' Plots the original tna model with nodes colored by walktrap community
+#' membership. The original model is retrieved from \code{attr(x, "tna")},
+#' which \code{tna::communities()} sets automatically.
+#'
+#' @param x A \code{tna_communities} object from \code{tna::communities()}.
+#' @param ... Additional arguments forwarded to \code{\link{splot}}.
+#'
+#' @return Invisibly, the splot result.
+#' @export
+splot.tna_communities <- function(x, ...) {
+  model <- attr(x, "tna")
+  membership <- x$assignments$walktrap
+  splot(model, node_fill = membership, ...)
+}
+
+
+#' Plot a cograph_communities object
+#'
+#' Plots the original network with nodes colored by community membership.
+#' The network is retrieved from \code{attr(x, "network")}, which
+#' \code{detect_communities()} / \code{.wrap_communities()} sets automatically.
+#'
+#' @param x A \code{cograph_communities} object from
+#'   \code{detect_communities()} or one of the
+#'   \code{community_<algorithm>()} helpers.
+#' @param ... Additional arguments forwarded to \code{\link{splot}}.
+#'
+#' @return Invisibly, the splot result.
+#' @export
+splot.cograph_communities <- function(x, ...) {
+  network <- attr(x, "network")
+  splot(network, node_fill = x$community, ...)
 }

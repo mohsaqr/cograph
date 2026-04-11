@@ -32,7 +32,7 @@ This is an NP-hard problem. Use only for tiny networks.
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 g <- igraph::make_ring(10)
 comm <- community_optimal(g)
-igraph::membership(comm)
+membership(comm)
 \dontshow{\}) # examplesIf}
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 net <- as_cograph(matrix(runif(25), 5, 5))

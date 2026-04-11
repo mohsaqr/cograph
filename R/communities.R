@@ -1,5 +1,7 @@
 # Community Detection Functions
 # Wrapper functions for igraph community detection algorithms with full parameter exposure
+#' @importFrom igraph modularity
+NULL
 
 # ==============================================================================
 # Main Function
@@ -38,15 +40,13 @@
 #' @param ... Additional parameters passed to the specific algorithm.
 #'   See individual functions for details.
 #'
-#' @return A \code{cograph_communities} object (extends igraph's communities class)
-#'   with components:
+#' @return A tidy \code{cograph_communities} data frame with columns:
 #'   \describe{
-#'     \item{membership}{Integer vector of community assignments}
-#'     \item{modularity}{Modularity score of the partition}
-#'     \item{algorithm}{Name of the algorithm used}
-#'     \item{names}{Node names if available}
-#'     \item{vcount}{Number of nodes}
+#'     \item{node}{Node label (character)}
+#'     \item{community}{Community assignment (integer)}
 #'   }
+#'   Metadata stored as attributes: \code{"algorithm"}, \code{"modularity"},
+#'   \code{"network"} (original input), \code{"igraph_result"}.
 #'
 #' @details
 #' \strong{Algorithm Selection Guide:}
@@ -93,6 +93,7 @@ communities <- function(x,
                                    "walktrap", "infomap", "label_propagation",
                                    "edge_betweenness", "leading_eigenvector",
                                    "spinglass", "optimal", "fluid"),
+                        community = NULL,
                         weights = NULL,
                         resolution = 1,
                         directed = NULL,
@@ -112,7 +113,7 @@ communities <- function(x,
   }
 
   # Dispatch to specific function
-  switch(method,
+  result <- switch(method,
     "louvain" = community_louvain(x, weights = weights, resolution = resolution,
                                   seed = seed, ...),
     "leiden" = community_leiden(x, weights = weights, resolution = resolution,
@@ -129,6 +130,13 @@ communities <- function(x,
     "optimal" = community_optimal(x, weights = weights, ...),
     "fluid" = community_fluid(x, ...)
   )
+
+  # Filter to specific community if requested
+  if (!is.null(community)) {
+    result <- result[result$community %in% community, , drop = FALSE]
+  }
+
+  result
 }
 
 
@@ -160,12 +168,12 @@ communities <- function(x,
 #' if (requireNamespace("igraph", quietly = TRUE)) {
 #'   g <- igraph::make_graph("Zachary")
 #'   comm <- community_louvain(g)
-#'   igraph::membership(comm)
+#'   membership(comm)
 #'
 #'   # Reproducible result with seed
 #'   comm1 <- community_louvain(g, seed = 42)
 #'   comm2 <- community_louvain(g, seed = 42)
-#'   identical(igraph::membership(comm1), igraph::membership(comm2))
+#'   identical(membership(comm1), membership(comm2))
 #' }
 community_louvain <- function(x, weights = NULL, resolution = 1, seed = NULL, ...) {
   if (!is.null(seed)) {
@@ -174,10 +182,10 @@ community_louvain <- function(x, weights = NULL, resolution = 1, seed = NULL, ..
     set.seed(seed)
   }
   g <- to_igraph(x, ...)
-  w <- .resolve_weights(g, weights)
+  w <- .resolve_weights(g, weights, abs_if_negative = TRUE)
 
   result <- igraph::cluster_louvain(g, weights = w, resolution = resolution)
-  .wrap_communities(result, "louvain", g)
+  .wrap_communities(result, "louvain", g, network = x)
 }
 
 
@@ -237,7 +245,7 @@ community_leiden <- function(x,
   }
   objective_function <- match.arg(objective_function)
   g <- to_igraph(x, ...)
-  w <- .resolve_weights(g, weights)
+  w <- .resolve_weights(g, weights, abs_if_negative = TRUE)
 
   result <- igraph::cluster_leiden(
     g,
@@ -249,7 +257,7 @@ community_leiden <- function(x,
     n_iterations = n_iterations,
     vertex_weights = vertex_weights
   )
-  .wrap_communities(result, "leiden", g)
+  .wrap_communities(result, "leiden", g, network = x)
 }
 
 
@@ -276,7 +284,7 @@ community_leiden <- function(x,
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' g <- igraph::make_graph("Zachary")
 #' comm <- community_fast_greedy(g)
-#' igraph::membership(comm)
+#' membership(comm)
 community_fast_greedy <- function(x,
                                   weights = NULL,
                                   merges = TRUE,
@@ -293,7 +301,7 @@ community_fast_greedy <- function(x,
                                edge.attr.comb = list(weight = "sum"))
   }
 
-  w <- .resolve_weights(g, weights)
+  w <- .resolve_weights(g, weights, abs_if_negative = TRUE)
 
   result <- igraph::cluster_fast_greedy(
     g,
@@ -302,7 +310,7 @@ community_fast_greedy <- function(x,
     modularity = modularity,
     membership = membership
   )
-  .wrap_communities(result, "fast_greedy", g)
+  .wrap_communities(result, "fast_greedy", g, network = x)
 }
 
 
@@ -346,7 +354,7 @@ community_walktrap <- function(x,
                                ...) {
 
   g <- to_igraph(x, ...)
-  w <- .resolve_weights(g, weights)
+  w <- .resolve_weights(g, weights, abs_if_negative = TRUE)
 
   result <- igraph::cluster_walktrap(
     g,
@@ -356,7 +364,7 @@ community_walktrap <- function(x,
     modularity = modularity,
     membership = membership
   )
-  .wrap_communities(result, "walktrap", g)
+  .wrap_communities(result, "walktrap", g, network = x)
 }
 
 
@@ -400,7 +408,7 @@ community_infomap <- function(x,
     set.seed(seed)
   }
   g <- to_igraph(x, ...)
-  w <- .resolve_weights(g, weights)
+  w <- .resolve_weights(g, weights, abs_if_negative = TRUE)
 
   result <- igraph::cluster_infomap(
     g,
@@ -409,7 +417,7 @@ community_infomap <- function(x,
     nb.trials = nb.trials,
     modularity = modularity
   )
-  .wrap_communities(result, "infomap", g)
+  .wrap_communities(result, "infomap", g, network = x)
 }
 
 
@@ -464,7 +472,7 @@ community_label_propagation <- function(x,
   }
   mode <- match.arg(mode)
   g <- to_igraph(x, ...)
-  w <- .resolve_weights(g, weights)
+  w <- .resolve_weights(g, weights, abs_if_negative = TRUE)
 
   result <- igraph::cluster_label_prop(
     g,
@@ -473,7 +481,7 @@ community_label_propagation <- function(x,
     initial = initial,
     fixed = fixed
   )
-  .wrap_communities(result, "label_propagation", g)
+  .wrap_communities(result, "label_propagation", g, network = x)
 }
 
 
@@ -503,7 +511,7 @@ community_label_propagation <- function(x,
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' g <- igraph::make_graph("Zachary")
 #' comm <- community_edge_betweenness(g)
-#' igraph::membership(comm)
+#' membership(comm)
 community_edge_betweenness <- function(x,
                                        weights = NULL,
                                        directed = TRUE,
@@ -515,7 +523,7 @@ community_edge_betweenness <- function(x,
                                        ...) {
 
   g <- to_igraph(x, ...)
-  w <- .resolve_weights(g, weights)
+  w <- .resolve_weights(g, weights, abs_if_negative = TRUE)
 
   if (is.null(directed)) {
     directed <- igraph::is_directed(g)
@@ -531,7 +539,7 @@ community_edge_betweenness <- function(x,
     modularity = modularity,
     membership = membership
   )
-  .wrap_communities(result, "edge_betweenness", g)
+  .wrap_communities(result, "edge_betweenness", g, network = x)
 }
 
 
@@ -561,7 +569,7 @@ community_edge_betweenness <- function(x,
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' g <- igraph::make_graph("Zachary")
 #' comm <- community_leading_eigenvector(g)
-#' igraph::membership(comm)
+#' membership(comm)
 community_leading_eigenvector <- function(x,
                                     weights = NULL,
                                     steps = -1,
@@ -580,7 +588,7 @@ community_leading_eigenvector <- function(x,
                                edge.attr.comb = list(weight = "sum"))
   }
 
-  w <- .resolve_weights(g, weights)
+  w <- .resolve_weights(g, weights, abs_if_negative = TRUE)
 
   result <- igraph::cluster_leading_eigen(
     g,
@@ -592,7 +600,7 @@ community_leading_eigenvector <- function(x,
     extra = extra,
     env = env
   )
-  .wrap_communities(result, "leading_eigenvector", g)
+  .wrap_communities(result, "leading_eigenvector", g, network = x)
 }
 
 
@@ -628,7 +636,7 @@ community_leading_eigenvector <- function(x,
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' g <- igraph::make_graph("Zachary")
 #' comm <- community_spinglass(g)
-#' igraph::membership(comm)
+#' membership(comm)
 community_spinglass <- function(x,
                                 weights = NULL,
                                 vertex = NULL,
@@ -678,7 +686,7 @@ community_spinglass <- function(x,
     implementation = implementation,
     gamma.minus = gamma.minus
   )
-  .wrap_communities(result, "spinglass", g)
+  .wrap_communities(result, "spinglass", g, network = x)
 }
 
 
@@ -705,7 +713,7 @@ community_spinglass <- function(x,
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' g <- igraph::make_ring(10)
 #' comm <- community_optimal(g)
-#' igraph::membership(comm)
+#' membership(comm)
 community_optimal <- function(x, weights = NULL, ...) {
 
   g <- to_igraph(x, ...)
@@ -718,7 +726,7 @@ community_optimal <- function(x, weights = NULL, ...) {
   w <- .resolve_weights(g, weights)
 
   result <- igraph::cluster_optimal(g, weights = w)
-  .wrap_communities(result, "optimal", g)
+  .wrap_communities(result, "optimal", g, network = x)
 }
 
 
@@ -768,7 +776,7 @@ community_fluid <- function(x, no.of.communities, ...) {
   }
 
   result <- igraph::cluster_fluid_communities(g, no.of.communities = no.of.communities)
-  .wrap_communities(result, "fluid", g)
+  .wrap_communities(result, "fluid", g, network = x)
 }
 
 
@@ -851,9 +859,20 @@ community_consensus <- function(x,
   cooccur <- matrix(0, n, n)
 
   # Run algorithm n_runs times (no seed per run - want variation)
+  comm_fn <- switch(method,
+    "louvain" = function(...) igraph::cluster_louvain(g, ...),
+    "leiden" = function(...) igraph::cluster_leiden(g, ...),
+    "fast_greedy" = function(...) igraph::cluster_fast_greedy(g, ...),
+    "walktrap" = function(...) igraph::cluster_walktrap(g, ...),
+    "infomap" = function(...) igraph::cluster_infomap(g, ...),
+    "label_propagation" = function(...) igraph::cluster_label_prop(g, ...),
+    "edge_betweenness" = function(...) igraph::cluster_edge_betweenness(g, ...),
+    "leading_eigenvector" = function(...) igraph::cluster_leading_eigen(g, ...),
+    function(...) igraph::cluster_louvain(g, ...)
+  )
   for (i in seq_len(n_runs)) {
-    comm <- communities(g, method = method, seed = NULL, ...)
-    mem <- igraph::membership(comm)
+    raw <- comm_fn()
+    mem <- igraph::membership(raw)
 
     # Update co-occurrence for nodes in same community
     for (c in unique(mem)) {
@@ -887,7 +906,7 @@ community_consensus <- function(x,
 
   result <- igraph::cluster_walktrap(consensus_g)
 
-  .wrap_communities(result, paste0("consensus_", method), g)
+  .wrap_communities(result, paste0("consensus_", method), g, network = x)
 }
 
 #' @rdname community_consensus
@@ -980,11 +999,13 @@ com_fl <- community_fluid
 
 #' Resolve edge weights
 #' @keywords internal
-.resolve_weights <- function(g, weights) {
+.resolve_weights <- function(g, weights, abs_if_negative = FALSE) {
   if (is.null(weights)) {
     # Use network weights if available
     if ("weight" %in% igraph::edge_attr_names(g)) {
-      return(igraph::E(g)$weight)
+      w <- igraph::E(g)$weight
+      if (abs_if_negative && any(w < 0, na.rm = TRUE)) return(abs(w))
+      return(w)
     }
     return(NULL)
   }
@@ -992,24 +1013,48 @@ com_fl <- community_fluid
     # Explicitly unweighted
     return(NULL)
   }
+  if (abs_if_negative && any(weights < 0, na.rm = TRUE)) return(abs(weights))
   weights
 }
 
 
 #' Wrap igraph communities result
 #' @keywords internal
-.wrap_communities <- function(result, algorithm, g) {
-  # Add algorithm info
-  result$algorithm <- algorithm
-
-  # Add node names if available
-  if (igraph::is_named(g)) {
-    result$names <- igraph::V(g)$name
+.wrap_communities <- function(result, algorithm, g, network = NULL) {
+  # Node labels
+  node_labels <- if (igraph::is_named(g)) {
+    igraph::V(g)$name
+  } else {
+    as.character(seq_len(igraph::vcount(g)))
   }
 
-  # Add class
-  class(result) <- c("cograph_communities", class(result))
-  result
+  # Extract membership (may be NULL if membership = FALSE was passed)
+  mem <- result$membership
+  if (is.null(mem) || length(mem) == 0L) {
+    mem <- tryCatch(
+      igraph::membership(result),
+      error = function(e) rep(NA_integer_, length(node_labels))
+    )
+  }
+
+  # Build tidy data frame
+  df <- data.frame(
+    node = node_labels,
+    community = mem,
+    stringsAsFactors = FALSE
+  )
+
+  # Attach full igraph result and metadata as attributes
+  attr(df, "igraph_result") <- result
+  attr(df, "algorithm") <- algorithm
+  attr(df, "modularity") <- tryCatch(
+    igraph::modularity(result),
+    error = function(e) NA_real_
+  )
+  attr(df, "network") <- network
+
+  class(df) <- c("cograph_communities", "data.frame")
+  df
 }
 
 
@@ -1028,36 +1073,39 @@ com_fl <- community_fluid
 #' comm <- community_louvain(g)
 #' print(comm)
 print.cograph_communities <- function(x, ...) {
-  cat("Community structure (", x$algorithm, ")\n", sep = "")
-  cat("  Number of communities:", length(unique(x$membership)), "\n")
-  cat("  Modularity:", round(igraph::modularity(x), 4), "\n")
-
-  sizes <- table(x$membership)
-  cat("  Community sizes:", paste(sizes, collapse = ", "), "\n")
-
-  if (!is.null(x$names)) {
-    cat("  Nodes:", length(x$names), "\n")
-  }
-
+  alg <- attr(x, "algorithm") %||% "unknown"
+  mod <- attr(x, "modularity") %||% NA
+  cat("Community structure (", alg, ")\n", sep = "")
+  cat("  Nodes:", nrow(x), " | Communities:",
+      length(unique(x$community)), " | Modularity:",
+      round(mod, 4), "\n")
+  sizes <- table(x$community)
+  cat("  Sizes:", paste(sizes, collapse = ", "), "\n\n")
+  print.data.frame(x, row.names = FALSE, ...)
   invisible(x)
 }
 
 
 #' Get Community Membership
 #'
-#' @param x A cograph_communities object
-#' @return Named integer vector of community assignments
+#' Extracts a named membership vector from a communities result.
+#' Works with both \code{cograph_communities} data frames and
+#' igraph communities objects.
+#'
+#' @param x A cograph_communities or igraph communities object.
+#' @return Named integer vector of community assignments.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' g <- igraph::make_graph("Zachary")
 #' comm <- community_louvain(g)
-#' igraph::membership(comm)
-membership.cograph_communities <- function(x) {
-  m <- x$membership
-  if (!is.null(x$names)) {
-    names(m) <- x$names
+#' membership(comm)
+membership <- function(x) {
+  if (inherits(x, "cograph_communities")) {
+    m <- x$community
+    names(m) <- x$node
+    return(m)
   }
-  m
+  igraph::membership(x)
 }
 
 
@@ -1071,7 +1119,7 @@ membership.cograph_communities <- function(x) {
 #' comm <- community_louvain(g)
 #' n_communities(comm)
 n_communities <- function(x) {
-  length(unique(x$membership))
+  length(unique(x$community))
 }
 
 
@@ -1085,7 +1133,7 @@ n_communities <- function(x) {
 #' comm <- community_louvain(g)
 #' community_sizes(comm)
 community_sizes <- function(x) {
-  as.integer(table(x$membership))
+  as.integer(table(x$community))
 }
 
 
@@ -1095,25 +1143,21 @@ community_sizes <- function(x) {
 #' @param graph Optional igraph object for recalculation
 #' @param ... Additional arguments
 #' @return Numeric modularity value
+#' @method modularity cograph_communities
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' g <- igraph::make_graph("Zachary")
 #' comm <- community_louvain(g)
 #' igraph::modularity(comm)
 modularity.cograph_communities <- function(x, graph = NULL, ...) {
-  # Try stored modularity first
-  if (!is.null(x$modularity)) {
-    if (is.numeric(x$modularity) && length(x$modularity) > 0) {
-      return(max(x$modularity))
-    }
+  mod <- attr(x, "modularity")
+  if (!is.null(mod) && is.numeric(mod)) return(mod)
+  # Fallback: use igraph result
+  ig <- attr(x, "igraph_result")
+  if (!is.null(ig)) {
+    return(tryCatch(igraph::modularity(ig), error = function(e) NA_real_))
   }
-
- # Fallback: calculate from membership if we have algorithm info
-  tryCatch({
-    NextMethod()
-  }, error = function(e) {
-    NA_real_
-  })
+  NA_real_
 }
 
 
@@ -1143,15 +1187,14 @@ compare_communities <- function(comm1, comm2,
   # Convert to 0-indexed communities objects for igraph's C code
   # igraph's C code expects membership indices in [0, n-1] range
   .to_zero_indexed <- function(comm) {
-    if (inherits(comm, "communities")) {
-      # Modify membership in place
-      comm$membership <- comm$membership - 1L
-      comm
+    if (inherits(comm, "cograph_communities")) {
+      ig <- attr(comm, "igraph_result")
+      mem <- if (!is.null(ig)) ig$membership else as.integer(as.factor(comm$community))
+      structure(list(membership = mem - 1L), class = "communities")
+    } else if (inherits(comm, "communities")) {
+      structure(list(membership = comm$membership - 1L), class = "communities")
     } else {
-      # Convert membership vector to a communities-like object
-      # This avoids igraph's as.factor conversion in i_compare
-      mem <- as.integer(as.factor(comm)) - 1L
-      structure(list(membership = mem), class = "communities")
+      structure(list(membership = as.integer(as.factor(comm)) - 1L), class = "communities")
     }
   }
 
@@ -1177,13 +1220,12 @@ compare_communities <- function(comm1, comm2,
 #' mat <- igraph::as_adjacency_matrix(g, sparse = FALSE)
 #' plot(comm, network = mat)
 plot.cograph_communities <- function(x, network = NULL, ...) {
+  network <- network %||% attr(x, "network")
   if (is.null(network)) {
-    stop("network argument required for plotting", call. = FALSE)
+    stop("No network found. Pass one via: plot(comm, network = m)", call. = FALSE)
   }
 
-  # Get membership as groups
-  membership <- x$membership
-
-  # Call splot with community coloring
-  splot(network, node_group = membership, ...)
+  mem <- x$community
+  names(mem) <- x$node
+  splot(network, node_group = mem, ...)
 }

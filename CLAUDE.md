@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Environment
 
 - **Platform**: macOS (Darwin), R 4.1+ (currently R 4.5+)
-- **Version**: 2.0.0
+- **Version**: 2.1.1 (DESCRIPTION is the source of truth — check there first)
 - **Rscript**: Available on PATH
 - **Additional repo**: `https://mohsaqr.r-universe.dev` registered for Nestimate dependency resolution (see `Additional_repositories` in DESCRIPTION)
 
@@ -74,7 +74,7 @@ cograph is an R package for analysis and visualization of complex networks. Key 
 - `plot_mlna()` — Multilayer 3D perspective networks
 - `plot_simplicial()` — Higher-order pathway (simplicial complex) visualization
 - `robustness()` / `plot_robustness()` — Network robustness under node/edge removal attacks
-- `centrality()` — 87 node centrality measures (`R/centrality.R` + `R/centrality-extended.R`), equivalence-validated against centiserve, sna, brainGraph, influenceR, igraph, tidygraph, and NetworkX. **Batch 3 (Katz, Hubbell, Information, Pairwise Disconnectivity, Local Reaching)**, **Batch 4 (Domain Prestige, Domain Proximity Prestige)**, and **Batch 5 (5 Gould-Fernandez brokerage roles)** are bit-exact against their primary reference. **Batch 6 (new-API standalone functions)** adds `estrada_index()`, `trophic_incoherence()`, `group_centrality()` (set-level), `dispersion()` (pair-level) — all bit-exact vs NetworkX with two documented divergences: `prestige_domain_proximity` vs sna's `FALSE * Inf = NaN` bug, and `group_centrality(measure = "betweenness")` vs NX's Puzis iterative algorithm (cograph matches the textbook Everett-Borgatti definition, verified via independent Python brute-force). Test file at **467 tests**, all passing.
+- `centrality()` — 87 node centrality measures (`R/centrality.R` + `R/centrality-extended.R`), equivalence-validated against centiserve, sna, brainGraph, influenceR, igraph, tidygraph, and NetworkX. Standalone graph/set/pair-level measures (Batch 6): `estrada_index()`, `trophic_incoherence()`, `group_centrality()`, `dispersion()`. Two documented divergences from reference implementations: `prestige_domain_proximity` vs sna's `FALSE * Inf = NaN` bug, and `group_centrality(measure = "betweenness")` vs NetworkX's Puzis iterative algorithm (cograph matches the textbook Everett-Borgatti definition). See `NEWS.md` for the full per-batch changelog and validation status.
 - `motifs()` / `subgraphs()` — Triad census and motif analysis
 - `detect_communities()` — 11 community detection algorithms
 - `disparity_filter()` — Backbone extraction via disparity filter (S3: matrix, igraph, tna, cograph_network)
@@ -108,25 +108,26 @@ Conversion utilities: `to_igraph()`, `to_matrix()`, `to_network()`, `to_df()`, `
 
 `splot()` has a large signature. Named parameters like `minimum`, `threshold`, `layout`, `title` are consumed by the function signature and do NOT appear in `...`. You cannot forward them via `handler(x, ...)`.
 
-The correct dispatch pattern (used in splot.R ~lines 610-652):
+The correct dispatch pattern (search `.user_explicit` in `R/splot.R`):
 
 ```r
 # WRONG -- named params are lost
 return(splot.tna_bootstrap(x, ...))
 
 # CORRECT -- capture user args, then forward via do.call
-.user_explicit <- match.call(expand.dots = FALSE)
+.user_explicit <- as.list(match.call(expand.dots = FALSE))[-1]
+.user_explicit$x <- NULL
 .user_args <- mget(setdiff(names(.user_explicit), "..."), envir = environment())
 return(do.call(splot.tna_bootstrap, c(list(x = x), .collect_dispatch_args(.user_args, .dots))))
 ```
 
-`.collect_dispatch_args()` (splot.R ~line 2077) merges user args + dots, with optional `base` defaults and `skip` exclusions. User-explicit args always win over base defaults.
+`.collect_dispatch_args()` (defined near the bottom of `R/splot.R`) merges user args + dots, with optional `base` defaults and `skip` exclusions. User-explicit args always win over base defaults. Use grep by symbol name, not line numbers — the file churns.
 
 Dispatches to:
 - **TNA objects**: `plot_mcml`, `splot.tna_bootstrap`, `splot.tna_permutation`, `splot.group_tna_permutation`, `splot.tna_disparity`, `splot.wtna_mixed`
 - **Nestimate objects**: `splot.netobject`, `splot.net_bootstrap`, `splot.net_permutation`, `splot.boot_glasso`, `plot_netobject_group`, `plot_netobject_ml`
 
-**Known registration bug**: `splot.tna_disparity`, `splot.tna_bootstrap`, `splot.tna_permutation`, `splot.group_tna_permutation` are registered as `export()` in NAMESPACE instead of `S3method()`. This means `splot(obj)` does NOT dispatch via S3 for these classes — the explicit `inherits()` checks in splot.R handle them instead. The nestimate S3 methods (`splot.netobject`, `splot.net_bootstrap`, `splot.boot_glasso`) ARE properly registered as `S3method()`.
+**`splot.*` methods don't dispatch via S3 — the `inherits()` cascade is the only path.** `splot()` (R/splot.R) is a regular function with a large explicit signature; it never calls `UseMethod`. Every `splot.*` S3 method in NAMESPACE is also registered as `export(splot.foo)` instead of `S3method(splot, foo)` — verify with `grep 'S3method(splot' NAMESPACE` (zero hits). This applies to all of them: tna (`splot.tna_disparity`, `splot.tna_bootstrap`, `splot.tna_permutation`, `splot.group_tna_permutation`, `splot.wtna_mixed`) and nestimate/mlvar (`splot.netobject`, `splot.net_bootstrap`, `splot.net_permutation`, `splot.boot_glasso`, `splot.net_mlvar`). Because `splot()` has no `UseMethod` call, fixing the roxygen to emit `S3method(splot, foo)` would change nothing at runtime — it's pure NAMESPACE hygiene. **Rule for adding a new class**: add an `inherits()` branch to the cascade in the body of `splot()`. That is the only way the method gets reached.
 
 ### Nestimate Integration
 
@@ -137,16 +138,93 @@ Nestimate also provides three higher-order network methods relevant to `plot_sim
 - **HYPA** (`hypa`): Hypothesis testing for path anomalies using multi-hypergeometric null model on De Bruijn graphs (LaRock et al. 2020)
 - **HONEM** (`honem`): Higher-Order Network Embedding via matrix factorization of HON neighborhood matrices (Saebi et al. 2020)
 
+### Nestimate `net_mlvar` (Multilevel VAR)
+
+**Added 2026-04-11, refactored same day.** `Nestimate::build_mlvar()`
+(alias `mlvar()`) returns a dual-class `c("net_mlvar",
+"netobject_group")` — a **named list of three full
+`c("netobject", "cograph_network")` objects** built via Nestimate's
+package-wide `.wrap_netobject()` constructor:
+
+```
+fit  class = c("net_mlvar", "netobject_group")
+├── $temporal         c("netobject","cograph_network")  directed = TRUE   method = "mlvar_temporal"
+├── $contemporaneous  c("netobject","cograph_network")  directed = FALSE  method = "mlvar_contemporaneous"
+└── $between          c("netobject","cograph_network")  directed = FALSE  method = "mlvar_between"
+```
+
+Model-level metadata (tidy `coefs` data.frame, `n_obs`, `n_subjects`,
+`lag`, `standardize`) lives in attributes, retrieved via `coefs(fit)` or
+`attr(fit, ...)`. The container itself is a pure `netobject_group` so
+iteration-based dispatch (`centrality.netobject_group`, etc.) works
+without surprises.
+
+#### Plotting — `splot.net_mlvar` lives in `R/plot-mlvar.R`
+
+Each constituent is already a standard `cograph_network`, so direct
+indexing works:
+
+```r
+cograph::splot(fit$temporal)         # directed, existing splot.netobject path
+cograph::splot(fit$contemporaneous)  # undirected
+cograph::splot(fit$between)          # undirected
+```
+
+The package also ships `splot.net_mlvar(x, type = ...)` in
+`R/plot-mlvar.R`, which routes `type = "temporal" / "contemporaneous" /
+"between"` (or their single-letter aliases `"t" / "c" / "b"`) to the
+right constituent, and `type = "all"` to a 1x3 panel layout via
+`graphics::par(mfrow = c(1, 3))`. Because of the NAMESPACE registration
+bug described above, dispatch from `splot(fit)` goes through the
+`inherits()` cascade in `R/splot.R`, not via `UseMethod`. Nestimate
+itself does not define `plot.net_mlvar` and never imports cograph.
+
+#### Per-type styling convention
+
+If/when cograph adds special styling for mlvar networks, use the
+`$method` slot on each constituent netobject — not a `type` argument —
+to branch. The canonical mapping:
+
+| `method` value           | recommended styling preset                           |
+|--------------------------|------------------------------------------------------|
+| `"mlvar_temporal"`       | `tna_styling = TRUE` (directed transition look)     |
+| `"mlvar_contemporaneous"`| `psych_styling = TRUE` (undirected Okabe-Ito look)  |
+| `"mlvar_between"`        | `psych_styling = TRUE` (undirected Okabe-Ito look)  |
+
+Users override by passing `tna_styling = FALSE` / `psych_styling = FALSE`
+via `...`.
+
+#### Agent note — things to not break
+
+1. **Class is `c("net_mlvar", "netobject_group")`**, not
+   `c("net_mlvar", "cograph_network")`. The *group* is NOT itself a
+   cograph_network; only its three constituents are. Don't try to
+   `splot(fit)` directly — call `splot(fit$temporal)` etc.
+2. **Metadata is in attributes, not list elements.** `fit$coefs` is
+   NULL; use `attr(fit, "coefs")` or `Nestimate::coefs(fit)`. Similarly
+   for `n_obs`, `n_subjects`, `lag`, `standardize`. The list stays pure
+   so `lapply(fit, ...)` over the three networks is safe.
+3. **Do not mutate constituent matrices in place.** Nestimate pins
+   those to bit-for-bit equivalence with `mlVAR::mlVAR()` across 25 real
+   ESM datasets and 20 simulated seeds. If you need to threshold or
+   rescale, clone first.
+4. **Nestimate never imports or calls cograph.** Any plot-level logic
+   (titles, `type` selectors, panel layouts) belongs in cograph, not in
+   Nestimate. The rendering layer depends on the data layer, not the
+   other way around.
+
 ### TNA Styling and qgraph Translation
 
 `from-qgraph.R` has two key roles:
 
 1. **`.translate_qgraph_dots()`** — renames qgraph-style params (`vsize` -> `node_size`, `asize` -> `arrow_size`, `edge.color` -> `edge_color`, etc.) with value transforms (e.g., `asize * 0.20`). Called early in splot before dispatch, gated by `inherits(x, c("tna", ...))`. When both cograph name and qgraph alias are present, cograph name wins.
 
-2. **`.tna_style_defaults()`** — `tna_styling = TRUE` (used by `plot_tna()` and `splot.netobject`) applies TNA visual defaults:
+2. **`.tna_style_defaults()`** — `tna_styling = TRUE` (used by `plot_tna()` and `splot.netobject` for directed nets) applies TNA visual defaults:
    - NULL-default params: filled if user didn't set them
    - Non-NULL-default params: only overridden if user didn't explicitly pass them (checked via `"param_name" %in% explicit_args`)
    - User-explicit args always win
+
+3. **`.psych_style_defaults()`** — the undirected counterpart, enabled via `psych_styling = TRUE`. Defined in `R/from-qgraph.R` and applied in `R/splot.R` and `R/plot-nestimate.R`. Produces an Okabe-Ito-palette, psych-network-style look for association/correlation networks. This is the default for `splot.netobject` on undirected input (e.g. `net_mlvar` contemporaneous/between networks). Uses the same "NULL-default fill, explicit-arg wins" precedence rules as `.tna_style_defaults()`.
 
 ### MCML / Cluster Summary Pipeline
 
@@ -202,15 +280,15 @@ Helpers in `aaa-globals.R`.
 - **namespace masking**: When `tna` or `igraph` are loaded, they mask `plot_compare()`, `communities()`, `degree_distribution()`, `is_directed()`. Use `cograph::` prefix in examples and tests.
 - **`%||%`**: Defined locally in `aaa-globals.R` (not imported from rlang) for R 4.1 compatibility.
 - **detect_communities()** returns a data.frame with columns `node` + `community`, not `$membership`. Use `setNames(comm$community, comm$node)` for named membership vectors.
-- **S3method vs export in NAMESPACE**: `@export` on `splot.foo` emits `export(splot.foo)`. Use `@method splot foo` + `@export` to emit `S3method(splot,foo)`. The former breaks `UseMethod` dispatch (which is why the `inherits()` cascade exists).
+- **S3method vs export in NAMESPACE**: `@export` on `splot.foo` emits `export(splot.foo)`. Use `@method splot foo` + `@export` to emit `S3method(splot, foo)`. For `splot` specifically, neither form dispatches at runtime because `splot()` has no `UseMethod` call (see the `splot() Dispatch` section) — the `inherits()` cascade is authoritative. Still, prefer the `S3method` form for NAMESPACE hygiene on any *other* generic where `UseMethod` **is** used.
 - **`dontrun` vs `donttest`**: Do NOT blindly convert `\dontrun` to `\donttest`. Many examples use undefined variables or depend on optional packages that mask cograph functions. Only convert fully self-contained, runnable examples.
 - **Nestimate field differences from tna**: `net_bootstrap$original$weights` (not `$weights`), `$ci_level` (not `$level`). `net_permutation` p_values/effect_size are already matrices. `boot_glasso` edge names use `" -- "` separator.
 
 ## Test Conventions
 
-~137 test files (45 feature + 92 coverage), ~13,700+ expectations. Coverage tests follow `test-coverage-{module}-{round}.R` (rounds: 40, 41, 42, ...). Target: 100% line coverage (achieved). Use `# nocov` only for genuinely unreachable defensive guards.
+~139 test files (~47 feature + 92 coverage), ~13,700+ expectations. Coverage tests follow `test-coverage-{module}-{round}.R` (rounds: 40, 41, 42, ...). Target: 100% line coverage (achieved). Use `# nocov` only for genuinely unreachable defensive guards.
 
-**Centrality equivalence tests**: The 75 centrality measures are validated against external reference implementations (centiserve, sna, brainGraph, influenceR, igraph, tidygraph, NetworkX via reticulate). Equivalence tests live alongside coverage tests and use `tolerance` arguments per measure — see `HANDOFF.md` for the full validation matrix (exact-match vs. formula-verified vs. rank-correlation tiers).
+**Centrality equivalence tests**: The centrality measures (see Project Overview for count) are validated against external reference implementations (centiserve, sna, brainGraph, influenceR, igraph, tidygraph, NetworkX via reticulate). Equivalence tests live alongside coverage tests and use `tolerance` arguments per measure — see `HANDOFF.md` for the full validation matrix (exact-match vs. formula-verified vs. rank-correlation tiers).
 
 Two test helper files load before every test:
 - `tests/testthat/helper-cograph.R` — exposes internal functions via `cograph:::` for testing
@@ -224,9 +302,10 @@ All suggested packages must be guarded with `requireNamespace("pkg", quietly = T
 
 ## Session Artifacts
 
-- `docs/LEARNINGS.md` — Accumulated pitfalls/discoveries (e.g., CRAN timing behavior, Windows check quirks)
-- `docs/CHANGES.md` — Human-readable changelog (newest first)
-- `HANDOFF.md` — Session state for continuity across conversations
+- `NEWS.md` — Per-release CRAN changelog. Newest version at the top. This is what CRAN / `utils::news(package = "cograph")` reads. Add user-visible changes here on bumps.
+- `docs/LEARNINGS.md` — Accumulated pitfalls/discoveries (e.g., CRAN timing behavior, Windows check quirks). Append-only.
+- `docs/CHANGES.md` — Dev-facing human changelog (newest first) — richer / more exploratory than `NEWS.md`.
+- `HANDOFF.md` (repo root) — Session state for continuity across conversations. Overwritten each session.
 
 ## pkgdown Site
 

@@ -61,7 +61,7 @@ Hierarchical divisive algorithm.
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 g <- igraph::make_graph("Zachary")
 comm <- community_leading_eigenvector(g)
-igraph::membership(comm)
+membership(comm)
 \dontshow{\}) # examplesIf}
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 net <- as_cograph(matrix(runif(25), 5, 5))

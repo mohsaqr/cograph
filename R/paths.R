@@ -479,7 +479,7 @@ k_shortest_paths <- function(x,
 #' @keywords internal
 #' @noRd
 .get_edge_id <- function(g, from_v, to_v, directed) {
-  eid <- igraph::get.edge.ids(g, c(from_v, to_v), directed = directed)
+  eid <- igraph::get_edge_ids(g, c(from_v, to_v), directed = directed)
   if (length(eid) == 0L) return(0L)
   eid[1]
 }

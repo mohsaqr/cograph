@@ -122,7 +122,7 @@ test_that("triad_census total equals choose(n, 3)", {
 })
 
 # =============================================================================
-# 2. motif_census()$counts vs igraph::motifs()
+# 2. motif_census()$count vs igraph::motifs()
 # =============================================================================
 
 test_that("motif_census observed counts match igraph::motifs — mat4", {
@@ -131,7 +131,7 @@ test_that("motif_census observed counts match igraph::motifs — mat4", {
   igraph_m[is.na(igraph_m)] <- 0
 
   mc <- motif_census(mat4, size = 3, n_random = 10, seed = 1)
-  cograph_m <- as.integer(mc$counts)
+  cograph_m <- as.integer(mc$count)
 
   expect_identical(cograph_m, as.integer(igraph_m))
 })
@@ -142,7 +142,7 @@ test_that("motif_census observed counts match igraph::motifs — mat5", {
   igraph_m[is.na(igraph_m)] <- 0
 
   mc <- motif_census(mat5, size = 3, n_random = 10, seed = 1)
-  cograph_m <- as.integer(mc$counts)
+  cograph_m <- as.integer(mc$count)
 
   expect_identical(cograph_m, as.integer(igraph_m))
 })
@@ -153,7 +153,7 @@ test_that("motif_census observed counts match igraph::motifs — mat8", {
   igraph_m[is.na(igraph_m)] <- 0
 
   mc <- motif_census(mat8, size = 3, n_random = 10, seed = 1)
-  cograph_m <- as.integer(mc$counts)
+  cograph_m <- as.integer(mc$count)
 
   expect_identical(cograph_m, as.integer(igraph_m))
 })
@@ -164,7 +164,7 @@ test_that("motif_census observed counts match igraph::motifs — weighted matrix
   igraph_m[is.na(igraph_m)] <- 0
 
   mc <- motif_census(mat6w, size = 3, n_random = 10, seed = 1)
-  cograph_m <- as.integer(mc$counts)
+  cograph_m <- as.integer(mc$count)
 
   expect_identical(cograph_m, as.integer(igraph_m))
 })
@@ -178,14 +178,14 @@ test_that("motif_census undirected triangle count matches igraph — mat5u", {
   igraph_triangles <- sum(igraph::count_triangles(g)) / 3
 
   mc <- motif_census(mat5u, directed = FALSE, n_random = 10, seed = 1)
-  cograph_triangles <- mc$counts[["triangle"]]
+  cograph_triangles <- mc$count[mc$motif == "triangle"]
 
   expect_equal(cograph_triangles, igraph_triangles)
 })
 
 test_that("motif_census undirected wedge + triangle + empty = choose(n, 3)", {
   mc <- motif_census(mat5u, directed = FALSE, n_random = 10, seed = 1)
-  total <- sum(mc$counts)
+  total <- sum(mc$count)
   expect_equal(total, choose(5, 3))
 })
 
@@ -193,18 +193,18 @@ test_that("motif_census undirected triangle count — complete graph", {
   full_u <- matrix(1, 5, 5)
   diag(full_u) <- 0
   mc <- motif_census(full_u, directed = FALSE, n_random = 10, seed = 1)
-  expect_equal(mc$counts[["triangle"]], choose(5, 3))
-  expect_equal(mc$counts[["empty"]], 0)
-  expect_equal(mc$counts[["wedge"]], 0)
+  expect_equal(mc$count[mc$motif == "triangle"], choose(5, 3))
+  expect_equal(mc$count[mc$motif == "empty"], 0)
+  expect_equal(mc$count[mc$motif == "wedge"], 0)
 })
 
 test_that("motif_census undirected triangle count — star graph (no triangles)", {
   star <- matrix(0, 5, 5)
   star[1, ] <- 1; star[, 1] <- 1; diag(star) <- 0
   mc <- motif_census(star, directed = FALSE, n_random = 10, seed = 1)
-  expect_equal(mc$counts[["triangle"]], 0)
+  expect_equal(mc$count[mc$motif == "triangle"], 0)
   # Wedges: each pair of leaves forms a wedge through center = C(4,2) = 6
-  expect_equal(mc$counts[["wedge"]], choose(4, 2))
+  expect_equal(mc$count[mc$motif == "wedge"], choose(4, 2))
 })
 
 # =============================================================================
@@ -348,11 +348,11 @@ test_that("motif_census is reproducible with same seed", {
   mc1 <- motif_census(mat8, n_random = 50, seed = 99)
   mc2 <- motif_census(mat8, n_random = 50, seed = 99)
 
-  expect_identical(mc1$counts, mc2$counts)
+  expect_identical(mc1$count, mc2$count)
   expect_identical(mc1$null_mean, mc2$null_mean)
   expect_identical(mc1$null_sd, mc2$null_sd)
-  expect_identical(mc1$z_scores, mc2$z_scores)
-  expect_identical(mc1$p_values, mc2$p_values)
+  expect_identical(mc1$z_score, mc2$z_score)
+  expect_identical(mc1$p_value, mc2$p_value)
 })
 
 test_that("motif_census different seeds give different null distributions", {
@@ -360,7 +360,7 @@ test_that("motif_census different seeds give different null distributions", {
   mc2 <- motif_census(mat8, n_random = 50, seed = 2)
 
   # Observed counts are the same (deterministic)
-  expect_identical(mc1$counts, mc2$counts)
+  expect_identical(mc1$count, mc2$count)
   # But null distributions differ
   expect_false(identical(mc1$null_mean, mc2$null_mean))
 })
@@ -389,7 +389,7 @@ test_that("motif_census(igraph) counts match motif_census(matrix)", {
   g <- igraph::graph_from_adjacency_matrix(mat4, mode = "directed", weighted = TRUE)
   mc_mat <- motif_census(mat4, n_random = 10, seed = 1)
   mc_ig <- motif_census(g, n_random = 10, seed = 1)
-  expect_identical(as.integer(mc_mat$counts), as.integer(mc_ig$counts))
+  expect_identical(as.integer(mc_mat$count), as.integer(mc_ig$count))
 })
 
 # =============================================================================
@@ -420,7 +420,7 @@ test_that("motif_census on group_regulation counts match igraph", {
   igraph_m[is.na(igraph_m)] <- 0
 
   mc <- motif_census(w, size = 3, n_random = 10, seed = 1)
-  expect_identical(as.integer(mc$counts), as.integer(igraph_m))
+  expect_identical(as.integer(mc$count), as.integer(igraph_m))
 })
 
 test_that("extract_triads on group_regulation consistent with triad_census", {

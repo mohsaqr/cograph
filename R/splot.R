@@ -527,7 +527,7 @@ splot <- function(
   .dots <- list(...)
 
   # Translate qgraph-style args for tna-family objects (early, before any dispatch)
-  if (inherits(x, c("tna", "group_tna", "tna_bootstrap",
+  if (inherits(x, c("tna", "group_tna", "tna_bootstrap", "group_tna_bootstrap",
                      "tna_permutation", "group_tna_permutation"))) {
     .dots <- .translate_qgraph_dots(.dots)
   }
@@ -551,8 +551,14 @@ splot <- function(
     return(do.call(splot, call_args))
   }
 
-  # Handle group_tna objects (list of tna objects from tna package)
-  if (inherits(x, "group_tna")) {
+  # Handle list-of-plottables: any named list of first-class plottables.
+  # Covers group_tna (list of tna), group_tna_bootstrap (list of tna_bootstrap),
+  # group_tna_permutation (list of tna_permutation), and net_permutation_group
+  # (list of net_permutation). Lay out in a grid (or plot a single one via
+  # `i = "GroupName"` / `i = index`) and recurse into splot() per element,
+  # which routes to the right renderer based on the element's class.
+  if (inherits(x, c("group_tna", "group_tna_bootstrap",
+                    "group_tna_permutation", "net_permutation_group"))) {
     n_groups <- length(x)
     group_names <- names(x)
     if (is.null(group_names)) group_names <- paste0("Group ", seq_len(n_groups))
@@ -621,14 +627,23 @@ splot <- function(
     return(do.call(splot.tna_permutation, c(list(x = x), .collect_dispatch_args(.user_args, .dots))))
   }
 
-  # Dispatch for group permutation tests
-  if (inherits(x, "group_tna_permutation")) {
-    return(do.call(splot.group_tna_permutation, c(list(x = x), .collect_dispatch_args(.user_args, .dots))))
-  }
+  # (group_tna_permutation is handled earlier by the generic list-of-plottables
+  # branch; splot.group_tna_permutation / plot_group_permutation remain
+  # exported for direct calls.)
 
   # Dispatch for tna disparity filter results
   if (inherits(x, "tna_disparity")) {
     return(do.call(splot.tna_disparity, c(list(x = x), .collect_dispatch_args(.user_args, .dots))))
+  }
+
+  # Dispatch for tna::communities() results — plot base model with community colors
+  if (inherits(x, "tna_communities")) {
+    return(do.call(splot.tna_communities, c(list(x = x), .collect_dispatch_args(.user_args, .dots))))
+  }
+
+  # Dispatch for cograph detect_communities() results
+  if (inherits(x, "cograph_communities")) {
+    return(do.call(splot.cograph_communities, c(list(x = x), .collect_dispatch_args(.user_args, .dots))))
   }
 
   # Nestimate: base netobject — apply directed/undirected styling defaults
@@ -641,10 +656,8 @@ splot <- function(
     return(do.call(splot.net_bootstrap, c(list(x = x), .collect_dispatch_args(.user_args, .dots))))
   }
 
-  # Nestimate: group permutation test object
-  if (inherits(x, "net_permutation_group")) {
-    return(do.call(splot.net_permutation_group, c(list(x = x), .collect_dispatch_args(.user_args, .dots))))
-  }
+  # (net_permutation_group is handled earlier by the generic list-of-plottables
+  # branch — no dedicated splot.net_permutation_group function exists.)
 
   # Nestimate: permutation test object
   if (inherits(x, "net_permutation")) {
@@ -664,6 +677,12 @@ splot <- function(
   # Nestimate: centrality stability object
   if (inherits(x, "net_stability")) {
     return(do.call(plot_net_stability, c(list(x = x), .collect_dispatch_args(.user_args, .dots))))
+  }
+
+  # Nestimate: multilevel VAR (temporal / contemporaneous / between)
+  # Must come before netobject_group — net_mlvar inherits from it
+  if (inherits(x, "net_mlvar")) {
+    return(do.call(splot.net_mlvar, c(list(x = x), .collect_dispatch_args(.user_args, .dots))))
   }
 
   # Nestimate: group of netobjects

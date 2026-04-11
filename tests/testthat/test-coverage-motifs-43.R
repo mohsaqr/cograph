@@ -203,7 +203,7 @@ test_that("motif_census handles undirected configuration method", {
 
   result <- motif_census(mat, n_random = 5, method = "configuration", seed = 42)
   expect_s3_class(result, "cograph_motifs")
-  expect_false(result$directed)
+  expect_false(attr(result, "directed"))
 })
 
 test_that("motif_census handles gnm method with undirected network", {
@@ -216,7 +216,7 @@ test_that("motif_census handles gnm method with undirected network", {
 
   result <- motif_census(mat, n_random = 5, method = "gnm", seed = 42)
   expect_s3_class(result, "cograph_motifs")
-  expect_equal(result$method, "gnm")
+  expect_equal(attr(result, "method"), "gnm")
 })
 
 test_that("motif_census handles tetradic motifs (size = 4)", {
@@ -226,7 +226,7 @@ test_that("motif_census handles tetradic motifs (size = 4)", {
 
   result <- motif_census(mat, size = 4, n_random = 5, seed = 42)
   expect_s3_class(result, "cograph_motifs")
-  expect_equal(result$size, 4)
+  expect_equal(attr(result, "size"), 4)
 })
 
 test_that("motif_census auto-detects directed from asymmetric matrix", {
@@ -239,7 +239,7 @@ test_that("motif_census auto-detects directed from asymmetric matrix", {
   rownames(mat) <- colnames(mat) <- c("A", "B", "C")
 
   result <- motif_census(mat, n_random = 5, seed = 42)
-  expect_true(result$directed)
+  expect_true(attr(result, "directed"))
 })
 
 # =============================================================================
@@ -305,20 +305,22 @@ test_that("plot.cograph_motifs handles motifs not in standard triads", {
   skip_if_not_installed("igraph")
   skip_if_not_installed("ggplot2")
 
-  # Create mock result with non-standard motif names
-  mock_result <- list(
-    counts = c(custom1 = 5, custom2 = 3),
-    null_mean = c(custom1 = 2.5, custom2 = 1.5),
-    null_sd = c(custom1 = 1.0, custom2 = 0.5),
-    z_scores = c(custom1 = 2.5, custom2 = 3.0),
-    p_values = c(custom1 = 0.01, custom2 = 0.002),
-    significant = c(custom1 = TRUE, custom2 = TRUE),
-    size = 3,
-    directed = TRUE,
-    n_random = 10,
-    method = "configuration"
+  # Create mock result with non-standard motif names (tidy data frame format)
+  mock_result <- data.frame(
+    motif = c("custom1", "custom2"),
+    count = c(5L, 3L),
+    null_mean = c(2.5, 1.5),
+    null_sd = c(1.0, 0.5),
+    z_score = c(2.5, 3.0),
+    p_value = c(0.01, 0.002),
+    significant = c(TRUE, TRUE),
+    stringsAsFactors = FALSE
   )
-  class(mock_result) <- "cograph_motifs"
+  attr(mock_result, "size") <- 3
+  attr(mock_result, "directed") <- TRUE
+  attr(mock_result, "n_random") <- 10
+  attr(mock_result, "method") <- "configuration"
+  class(mock_result) <- c("cograph_motifs", "data.frame")
 
   tmp <- tempfile(fileext = ".png")
   on.exit(unlink(tmp), add = TRUE)

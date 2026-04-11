@@ -272,8 +272,10 @@ test_that("vulnerability: 100 networks, every node", {
     }, numeric(1))
     names(ref_raw) <- nms
 
-    co_norm <- vulnerability(mat, normalized = TRUE)$scores
-    co_raw <- vulnerability(mat, normalized = FALSE)$scores
+    v_norm <- vulnerability(mat, normalized = TRUE)
+    v_raw <- vulnerability(mat, normalized = FALSE)
+    co_norm <- setNames(v_norm$vulnerability, v_norm$node)
+    co_raw <- setNames(v_raw$vulnerability, v_raw$node)
 
     # Check every node
     errs_norm <- vapply(nms, function(nm) abs(co_norm[nm] - ref_norm[nm]),
@@ -303,18 +305,20 @@ test_that("core_periphery fitness: cor(A, cc') on 100 networks", {
     lt <- lower.tri(adj)
 
     cp <- core_periphery(mat)
-    ideal <- outer(cp$scores, cp$scores)
+    scores <- setNames(cp$coreness, cp$node)
+    ideal <- outer(scores, scores)
     ref_fitness <- stats::cor(adj[lt], ideal[lt])
 
-    err <- abs(cp$fitness - ref_fitness)
+    cp_fitness <- attr(cp, "fitness")
+    err <- abs(cp_fitness - ref_fitness)
     .log_result("core_periphery", cfg, 1, as.integer(err <= TOL),
                 as.integer(err > TOL), err, "fitness check")
-    expect_equal(cp$fitness, ref_fitness, tolerance = TOL,
+    expect_equal(cp_fitness, ref_fitness, tolerance = TOL,
       info = sprintf("n=%d seed=%d", cfg$n, cfg$seed))
 
     # Structural checks
-    expect_true(all(cp$scores >= 0 & cp$scores <= 1))
-    expect_true(all(cp$assignment %in% c("core", "periphery")))
+    expect_true(all(cp$coreness >= 0 & cp$coreness <= 1))
+    expect_true(all(cp$role %in% c("core", "periphery")))
   })
 })
 

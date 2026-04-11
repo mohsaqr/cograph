@@ -48,7 +48,7 @@ test_that("communities() dispatches to infomap correctly", {
 
   comm <- communities(mat_small, method = "infomap")
   expect_s3_class(comm, "cograph_communities")
-  expect_equal(comm$algorithm, "infomap")
+  expect_equal(attr(comm, "algorithm"), "infomap")
 })
 
 test_that("communities() dispatches to label_propagation correctly", {
@@ -56,7 +56,7 @@ test_that("communities() dispatches to label_propagation correctly", {
 
   comm <- communities(mat_small, method = "label_propagation", seed = 42)
   expect_s3_class(comm, "cograph_communities")
-  expect_equal(comm$algorithm, "label_propagation")
+  expect_equal(attr(comm, "algorithm"), "label_propagation")
 })
 
 test_that("communities() dispatches to edge_betweenness correctly", {
@@ -64,7 +64,7 @@ test_that("communities() dispatches to edge_betweenness correctly", {
 
   comm <- communities(mat_small, method = "edge_betweenness")
   expect_s3_class(comm, "cograph_communities")
-  expect_equal(comm$algorithm, "edge_betweenness")
+  expect_equal(attr(comm, "algorithm"), "edge_betweenness")
 })
 
 test_that("communities() dispatches to leading_eigenvector correctly", {
@@ -72,7 +72,7 @@ test_that("communities() dispatches to leading_eigenvector correctly", {
 
   comm <- communities(mat_small, method = "leading_eigenvector")
   expect_s3_class(comm, "cograph_communities")
-  expect_equal(comm$algorithm, "leading_eigenvector")
+  expect_equal(attr(comm, "algorithm"), "leading_eigenvector")
 })
 
 test_that("communities() dispatches to spinglass correctly", {
@@ -82,7 +82,7 @@ test_that("communities() dispatches to spinglass correctly", {
   g <- igraph::make_full_graph(8)
   comm <- communities(g, method = "spinglass", seed = 42)
   expect_s3_class(comm, "cograph_communities")
-  expect_equal(comm$algorithm, "spinglass")
+  expect_equal(attr(comm, "algorithm"), "spinglass")
 })
 
 test_that("communities() dispatches to optimal correctly", {
@@ -91,7 +91,7 @@ test_that("communities() dispatches to optimal correctly", {
   mat_tiny <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
   comm <- communities(mat_tiny, method = "optimal")
   expect_s3_class(comm, "cograph_communities")
-  expect_equal(comm$algorithm, "optimal")
+  expect_equal(attr(comm, "algorithm"), "optimal")
 })
 
 test_that("communities() dispatches to fluid correctly", {
@@ -100,7 +100,7 @@ test_that("communities() dispatches to fluid correctly", {
   g <- igraph::make_full_graph(10)
   comm <- communities(g, method = "fluid", no.of.communities = 2)
   expect_s3_class(comm, "cograph_communities")
-  expect_equal(comm$algorithm, "fluid")
+  expect_equal(attr(comm, "algorithm"), "fluid")
 })
 
 # ==============================================================================
@@ -333,7 +333,7 @@ test_that("community_consensus works with infomap", {
 
   comm <- community_consensus(mat_community, method = "infomap", n_runs = 2, seed = 42)
   expect_s3_class(comm, "cograph_communities")
-  expect_true(grepl("consensus_infomap", comm$algorithm))
+  expect_true(grepl("consensus_infomap", attr(comm, "algorithm")))
 })
 
 test_that("community_consensus works with label_propagation", {
@@ -341,7 +341,7 @@ test_that("community_consensus works with label_propagation", {
 
   comm <- community_consensus(mat_community, method = "label_propagation", n_runs = 2, seed = 42)
   expect_s3_class(comm, "cograph_communities")
-  expect_true(grepl("consensus_label_propagation", comm$algorithm))
+  expect_true(grepl("consensus_label_propagation", attr(comm, "algorithm")))
 })
 
 test_that("community_consensus works with spinglass on connected graph", {
@@ -351,7 +351,7 @@ test_that("community_consensus works with spinglass on connected graph", {
   g <- igraph::make_full_graph(10)
   comm <- community_consensus(g, method = "spinglass", n_runs = 2, seed = 42)
   expect_s3_class(comm, "cograph_communities")
-  expect_true(grepl("consensus_spinglass", comm$algorithm))
+  expect_true(grepl("consensus_spinglass", attr(comm, "algorithm")))
 })
 
 test_that("community_consensus preserves node names", {
@@ -401,15 +401,17 @@ test_that("print returns invisible object", {
 # Test membership.cograph_communities edge cases
 # ==============================================================================
 
-test_that("membership.cograph_communities returns unnamed vector when no names", {
+test_that("membership returns named vector with auto-generated labels for unnamed graph", {
   skip_if_not_installed("igraph")
 
   mat_unnamed <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
   comm <- community_louvain(mat_unnamed)
-  mem <- membership.cograph_communities(comm)
+  mem <- membership(comm)
 
   expect_true(is.numeric(mem))
-  expect_null(names(mem))
+  # Auto-generated labels are assigned even for unnamed graphs
+  expect_true(!is.null(names(mem)))
+  expect_equal(length(mem), 3)
 })
 
 # ==============================================================================
@@ -620,7 +622,8 @@ test_that(".wrap_communities handles unnamed graph", {
   wrapped <- cograph:::.wrap_communities(result, "test", g)
 
   expect_s3_class(wrapped, "cograph_communities")
-  expect_null(wrapped$names)
+  # Unnamed graph gets auto-generated node labels as character strings
+  expect_true("node" %in% names(wrapped))
 })
 
 test_that(".wrap_communities adds class correctly", {
@@ -631,7 +634,7 @@ test_that(".wrap_communities adds class correctly", {
   wrapped <- cograph:::.wrap_communities(result, "louvain", g)
 
   expect_true("cograph_communities" %in% class(wrapped))
-  expect_true("communities" %in% class(wrapped))
+  expect_true("data.frame" %in% class(wrapped))
 })
 
 # ==============================================================================
@@ -712,11 +715,14 @@ test_that("community_fluid requires no.of.communities", {
   expect_error(community_fluid(g), "no.of.communities is required")
 })
 
-test_that("plot.cograph_communities requires network argument", {
+test_that("plot.cograph_communities requires network argument when not stored", {
   skip_if_not_installed("igraph")
 
-  comm <- community_louvain(mat_small)
-  expect_error(plot(comm), "network argument required")
+  # Build a bare cograph_communities without stored network
+  bare <- data.frame(node = paste0("N", 1:3), community = c(1L, 1L, 2L),
+                     stringsAsFactors = FALSE)
+  class(bare) <- c("cograph_communities", "data.frame")
+  expect_error(plot(bare), "No network found")
 })
 
 # ==============================================================================
@@ -774,7 +780,7 @@ test_that("louvain is reproducible with seed", {
   comm1 <- community_louvain(mat_community, seed = 42)
   comm2 <- community_louvain(mat_community, seed = 42)
 
-  expect_equal(comm1$membership, comm2$membership)
+  expect_equal(comm1$community, comm2$community)
 })
 
 test_that("leiden is reproducible with seed", {
@@ -783,7 +789,7 @@ test_that("leiden is reproducible with seed", {
   comm1 <- community_leiden(mat_community, seed = 42)
   comm2 <- community_leiden(mat_community, seed = 42)
 
-  expect_equal(comm1$membership, comm2$membership)
+  expect_equal(comm1$community, comm2$community)
 })
 
 test_that("infomap is reproducible with seed", {
@@ -792,7 +798,7 @@ test_that("infomap is reproducible with seed", {
   comm1 <- community_infomap(mat_community, seed = 42)
   comm2 <- community_infomap(mat_community, seed = 42)
 
-  expect_equal(comm1$membership, comm2$membership)
+  expect_equal(comm1$community, comm2$community)
 })
 
 test_that("label_propagation is reproducible with seed", {
@@ -801,7 +807,7 @@ test_that("label_propagation is reproducible with seed", {
   comm1 <- community_label_propagation(mat_community, seed = 42)
   comm2 <- community_label_propagation(mat_community, seed = 42)
 
-  expect_equal(comm1$membership, comm2$membership)
+  expect_equal(comm1$community, comm2$community)
 })
 
 test_that("spinglass is reproducible with seed", {
@@ -811,7 +817,7 @@ test_that("spinglass is reproducible with seed", {
   comm1 <- community_spinglass(g, seed = 42)
   comm2 <- community_spinglass(g, seed = 42)
 
-  expect_equal(comm1$membership, comm2$membership)
+  expect_equal(comm1$community, comm2$community)
 })
 
 # ==============================================================================
@@ -824,18 +830,18 @@ test_that("all com_* aliases produce correct algorithm", {
   g <- igraph::make_full_graph(10)
   mat_tiny <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
 
-  expect_equal(com_lv(mat_small)$algorithm, "louvain")
-  expect_equal(com_ld(mat_small)$algorithm, "leiden")
-  expect_equal(com_fg(mat_small)$algorithm, "fast_greedy")
-  expect_equal(com_wt(mat_small)$algorithm, "walktrap")
-  expect_equal(com_im(mat_small)$algorithm, "infomap")
-  expect_equal(com_lp(mat_small)$algorithm, "label_propagation")
-  expect_equal(com_eb(mat_small)$algorithm, "edge_betweenness")
-  expect_equal(com_le(mat_small)$algorithm, "leading_eigenvector")
-  expect_equal(com_sg(g, seed = 42)$algorithm, "spinglass")
-  expect_equal(com_op(mat_tiny)$algorithm, "optimal")
-  expect_equal(com_fl(g, no.of.communities = 2)$algorithm, "fluid")
-  expect_true(grepl("consensus", com_consensus(mat_small, n_runs = 2)$algorithm))
+  expect_equal(attr(com_lv(mat_small), "algorithm"), "louvain")
+  expect_equal(attr(com_ld(mat_small), "algorithm"), "leiden")
+  expect_equal(attr(com_fg(mat_small), "algorithm"), "fast_greedy")
+  expect_equal(attr(com_wt(mat_small), "algorithm"), "walktrap")
+  expect_equal(attr(com_im(mat_small), "algorithm"), "infomap")
+  expect_equal(attr(com_lp(mat_small), "algorithm"), "label_propagation")
+  expect_equal(attr(com_eb(mat_small), "algorithm"), "edge_betweenness")
+  expect_equal(attr(com_le(mat_small), "algorithm"), "leading_eigenvector")
+  expect_equal(attr(com_sg(g, seed = 42), "algorithm"), "spinglass")
+  expect_equal(attr(com_op(mat_tiny), "algorithm"), "optimal")
+  expect_equal(attr(com_fl(g, no.of.communities = 2), "algorithm"), "fluid")
+  expect_true(grepl("consensus", attr(com_consensus(mat_small, n_runs = 2), "algorithm")))
 })
 
 # ==============================================================================

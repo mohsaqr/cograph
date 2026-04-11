@@ -49,7 +49,7 @@ Produces a dendrogram of community merges.
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 g <- igraph::make_graph("Zachary")
 comm <- community_fast_greedy(g)
-igraph::membership(comm)
+membership(comm)
 \dontshow{\}) # examplesIf}
 }
 \references{

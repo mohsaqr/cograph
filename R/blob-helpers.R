@@ -274,7 +274,9 @@
 #' @return Character vector of pathway strings.
 #' @noRd
 .extract_hon_pathways <- function(x, label_map = NULL) {
-  edges <- x$edges
+  # Nestimate net_hon stores higher-order edges in $ho_edges with a
+  # $from_order column; $edges is the flattened first-order projection.
+  edges <- x$ho_edges %||% x$edges
   ho <- edges[edges$from_order > 1L, , drop = FALSE]
   if (nrow(ho) == 0L) return(character(0))
   ho <- ho[order(-ho$count), , drop = FALSE]
@@ -340,9 +342,15 @@
   rules <- x$rules
   if (nrow(rules) == 0L) return(character(0))
   rules <- rules[order(-rules$lift, -rules$confidence), , drop = FALSE]
+  # Handle both shapes Nestimate has used: list columns (character vectors
+  # per row) and character columns ("A, B" strings per row). Splitting on
+  # ", " then paste-joining normalises both to space-separated itemsets.
+  join_items <- function(v) {
+    paste(unlist(strsplit(v, ",\\s*")), collapse = " ")
+  }
   vapply(seq_len(nrow(rules)), function(i) {
-    ante <- paste(rules$antecedent[[i]], collapse = " ")
-    cons <- paste(rules$consequent[[i]], collapse = " ")
+    ante <- join_items(rules$antecedent[[i]])
+    cons <- join_items(rules$consequent[[i]])
     paste0(ante, " -> ", cons)
   }, character(1), USE.NAMES = FALSE)
 }
@@ -452,7 +460,9 @@
     Nestimate::build_hon(seq_data, ...)
   } else if (method == "hypa") {
     Nestimate::build_hypa(seq_data, ...)
+  } else if (method == "rules") {
+    Nestimate::association_rules(seq_data, ...)
   } else {
-    stop("method must be 'hon' or 'hypa'.", call. = FALSE)
+    stop("method must be 'hon', 'hypa', or 'rules'.", call. = FALSE)
   }
 }

@@ -21,9 +21,12 @@
 #'   \code{"A - B - C"}, \code{"A B C"}. Last state is the target.
 #'   When \code{NULL} and \code{x} is a model with sequence data,
 #'   pathways are built automatically.
-#' @param method Higher-order method when auto-building from a
-#'   \code{tna}/\code{netobject}: \code{"hon"} (default) or
-#'   \code{"hypa"}.
+#' @param method Pathway source when auto-building from a
+#'   \code{tna}/\code{netobject}: \code{"hon"} (default, higher-order
+#'   network), \code{"hypa"} (anomalous paths via hypergeometric null),
+#'   or \code{"rules"} (association-rule itemsets via
+#'   \code{Nestimate::association_rules}; rules are rendered as
+#'   single-colored blobs because itemsets are undirected).
 #' @param max_pathways Maximum number of pathways to display. HON
 #'   pathways are ranked by count, HYPA by anomaly ratio.
 #'   \code{NULL} shows all. Default \code{10}.
@@ -116,6 +119,9 @@ plot_simplicial <- function(x = NULL,
       message("No association rules to plot.")
       return(invisible(NULL))
     }
+    # Association rules are undirected itemsets — every node in a blob is
+    # co-equal (no source/target split). Collapse the two-tone coloring.
+    target_color <- node_color
   } else if (inherits(pathways, "net_link_prediction")) {
     pathways <- .extract_link_prediction_pathways(pathways)
     if (length(pathways) == 0L) {
@@ -140,8 +146,24 @@ plot_simplicial <- function(x = NULL,
         return(invisible(NULL))
       }
       x <- NULL
+    } else if (inherits(x, "net_association_rules")) {
+      pathways <- .extract_association_pathways(x)
+      if (length(pathways) == 0L) {
+        message("No association rules to plot.")
+        return(invisible(NULL))
+      }
+      # Association rules are undirected itemsets — collapse two-tone coloring.
+      target_color <- node_color
+      x <- NULL
+    } else if (inherits(x, "net_link_prediction")) {
+      pathways <- .extract_link_prediction_pathways(x)
+      if (length(pathways) == 0L) {
+        message("No link predictions to plot.")
+        return(invisible(NULL))
+      }
+      x <- NULL
     } else if (inherits(x, c("tna", "netobject"))) {
-      # Auto-build HON/HYPA from the model's sequence data
+      # Auto-build pathways from the model's sequence data
       ho_obj <- .build_higher_order(x, method = method, ...)
       if (method == "hon") {
         pathways <- .extract_hon_pathways(ho_obj)
@@ -149,16 +171,25 @@ plot_simplicial <- function(x = NULL,
           message("No higher-order pathways found.")
           return(invisible(NULL))
         }
-      } else {
+      } else if (method == "hypa") {
         pathways <- .extract_hypa_pathways(ho_obj)
         if (length(pathways) == 0L) {
           message("No anomalous pathways found.")
           return(invisible(NULL))
         }
+      } else if (method == "rules") {
+        pathways <- .extract_association_pathways(ho_obj)
+        if (length(pathways) == 0L) {
+          message("No association rules to plot.")
+          return(invisible(NULL))
+        }
+        # Association rules are undirected itemsets — collapse two-tone.
+        target_color <- node_color
       }
     } else {
       stop("'pathways' must be provided unless 'x' is a tna, netobject, ",
-           "net_hon, or net_hypa object.", call. = FALSE)
+           "net_hon, net_hypa, net_association_rules, or net_link_prediction ",
+           "object.", call. = FALSE)
     }
   }
 
@@ -383,8 +414,11 @@ plot_simplicial <- function(x = NULL,
   p <- .add_pathway_nodes(p, pos, is_target, node_color, target_color,
                            ring_color, ring_border, node_size, label_size)
 
+  # Suppress the source/target legend when the caller has collapsed the
+  # two-tone (e.g., net_association_rules, which has no source/target).
+  two_tone <- !identical(target_color, node_color)
   p + labs(
     title = title %||% "Higher-Order Pathways (Simplicial Complex)",
-    subtitle = "Blue = source  |  Red = target"
+    subtitle = if (two_tone) "Blue = source  |  Red = target" else NULL
   )
 }

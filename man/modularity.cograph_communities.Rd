@@ -4,7 +4,7 @@
 \alias{modularity.cograph_communities}
 \title{Get Modularity Score}
 \usage{
-modularity.cograph_communities(x, graph = NULL, ...)
+\method{modularity}{cograph_communities}(x, graph = NULL, ...)
 }
 \arguments{
 \item{x}{A cograph_communities object}

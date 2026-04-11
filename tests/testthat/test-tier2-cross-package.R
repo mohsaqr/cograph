@@ -88,7 +88,10 @@ test_that("edge reciprocity fraction matches igraph::reciprocity: 100 directed",
 
     co <- edge_centrality(mat, measures = "reciprocity", directed = TRUE)
     co_frac <- mean(co$reciprocated)
-    ig_frac <- igraph::reciprocity(g, mode = "ratio")
+    # Use mode="default": |reciprocal_edges|/|total_edges| — same as
+    # mean(reciprocated). mode="ratio" uses the Garlaschelli-Loffredo formula
+    # on dyads, which is a different metric.
+    ig_frac <- igraph::reciprocity(g, mode = "default")
 
     expect_equal(co_frac, ig_frac, tolerance = TOL,
       info = sprintf("i=%d n=%d seed=%d", i, nodes[i], seeds[i]))
@@ -125,7 +128,7 @@ test_that("vulnerability matches brainGraph::vulnerability: 100 networks", {
 
     vapply(seq_len(nn), function(j) {
       bg_val <- bg$vulnerability[j]
-      co_val <- co$scores[nms[j]]
+      co_val <- co$vulnerability[co$node == nms[j]]
       expect_equal(co_val, bg_val, tolerance = 1e-8,
         info = sprintf("i=%d node=%s", i, nms[j]))
       TRUE
@@ -158,9 +161,10 @@ test_that("global efficiency matches igraph: 100 networks", {
 # 6. global efficiency vs sna::efficiency — 100 networks
 # =============================================================================
 
-test_that("global efficiency matches sna::efficiency: 100 networks", {
-  skip_if_not_installed("sna")
-
+test_that("global efficiency matches Latora-Marchiori formula: 100 networks", {
+  # NOTE: sna::efficiency computes Krackhardt's graph efficiency,
+  # a different metric from Latora-Marchiori global efficiency that
+  # cograph implements. Verify against the canonical formula directly.
   lapply(seq_len(N), function(i) {
     mat <- .make(i)
     g <- to_igraph(mat)
@@ -171,12 +175,15 @@ test_that("global efficiency matches sna::efficiency: 100 networks", {
 
     co <- cograph:::.compute_global_efficiency(g, FALSE)
 
-    # sna uses adjacency matrix, binary
-    adj <- as.matrix(igraph::as_adjacency_matrix(g, sparse = FALSE))
-    adj[adj > 0] <- 1
-    sna_eff <- sna::efficiency(adj)
+    # Reference: Latora-Marchiori formula = mean(1/d(i,j)) over all i != j
+    nn <- igraph::vcount(g)
+    if (nn <= 1) return(invisible(NULL))
+    d <- igraph::distances(g, weights = NA)
+    diag(d) <- NA
+    valid <- is.finite(d) & d > 0
+    ref <- sum(1 / d[valid]) / (nn * (nn - 1))
 
-    expect_equal(co, sna_eff, tolerance = 1e-8,
+    expect_equal(co, ref, tolerance = 1e-8,
       info = sprintf("i=%d n=%d seed=%d", i, nodes[i], seeds[i]))
   })
 })
@@ -207,8 +214,11 @@ test_that("rich club phi matches brainGraph::rich_club_coeff: 100 networks", {
       k <- co$threshold[j]
       bg <- tryCatch(brainGraph::rich_club_coeff(g, k), error = function(e) NULL)
       if (is.null(bg)) return(TRUE)
+      # brainGraph::rich_club_coeff returns a list(phi, graph, Nk, Ek)
+      bg_phi <- if (is.list(bg)) bg$phi else bg
+      if (is.null(bg_phi) || !is.finite(bg_phi)) return(TRUE)
 
-      expect_equal(co$phi[j], bg, tolerance = TOL,
+      expect_equal(co$phi[j], bg_phi, tolerance = TOL,
         info = sprintf("i=%d k=%d", i, k))
       TRUE
     }, logical(1))
@@ -258,7 +268,8 @@ test_that("rich_club_local matches tnet: 100 networks", {
 
     vapply(seq_len(nrow(tnet_res)), function(j) {
       node_id <- tnet_res[j, "node"]
-      expect_equal(co[nms[node_id]], tnet_res[j, "ratio"], tolerance = TOL,
+      expect_equal(unname(co[nms[node_id]]), unname(tnet_res[j, "ratio"]),
+        tolerance = TOL,
         info = sprintf("i=%d node=%d", i, node_id))
       TRUE
     }, logical(1))

@@ -137,16 +137,19 @@ core_periphery <- function(x,
     periphery_density <- round(periphery_density, digits)
   }
 
-  result <- list(
-    scores = scores,
-    assignment = assignment,
-    fitness = fitness,
-    core_density = core_density,
-    periphery_density = periphery_density,
-    network = x
+  df <- data.frame(
+    node = node_names,
+    role = assignment,
+    coreness = unname(scores),
+    stringsAsFactors = FALSE
   )
-  class(result) <- "cograph_core_periphery"
-  result
+
+  attr(df, "fitness") <- fitness
+  attr(df, "core_density") <- core_density
+  attr(df, "periphery_density") <- periphery_density
+  attr(df, "network") <- x
+  class(df) <- c("cograph_core_periphery", "data.frame")
+  df
 }
 
 
@@ -297,16 +300,19 @@ plot.cograph_core_periphery <- function(x,
                                         core_size = 12,
                                         periphery_size = 6,
                                         ...) {
-  is_core <- x$assignment == "core"
+  is_core <- x$role == "core"
   node_cols <- ifelse(is_core, core_color, periphery_color)
   node_sizes <- ifelse(is_core, core_size, periphery_size)
 
   n_core <- sum(is_core)
   n_peri <- sum(!is_core)
+  fitness <- attr(x, "fitness") %||% 0
   title <- sprintf("Core-Periphery (core: %d, periphery: %d, fitness: %.2f)",
-                   n_core, n_peri, x$fitness)
+                   n_core, n_peri, fitness)
 
-  splot(x$network, node_color = node_cols, node_size = node_sizes,
+  network <- attr(x, "network")
+  if (is.null(network)) stop("No network stored", call. = FALSE)
+  splot(network, node_color = node_cols, node_size = node_sizes,
         title = title, ...)
   invisible(x)
 }
@@ -319,23 +325,15 @@ plot.cograph_core_periphery <- function(x,
 #' @export
 #' @noRd
 print.cograph_core_periphery <- function(x, ...) {
-  cat("Core-Periphery Structure\n")
-  cat("========================\n")
-
-  n_core <- sum(x$assignment == "core")
-  n_peri <- sum(x$assignment == "periphery")
-  cat("  Core nodes:", n_core, "\n")
-  cat("  Periphery nodes:", n_peri, "\n")
-  cat("  Fitness:", round(x$fitness, 4), "\n")
-  cat("  Core density:", round(x$core_density, 4), "\n")
-  cat("  Periphery density:", round(x$periphery_density, 4), "\n")
-
-  # Show top core nodes by score
-  top_n <- min(5L, length(x$scores))
-  top_scores <- sort(x$scores, decreasing = TRUE)[seq_len(top_n)]
-  cat("  Top core nodes:",
-      paste(sprintf("%s (%.3f)", names(top_scores), top_scores),
-            collapse = ", "), "\n")
-
+  fitness <- attr(x, "fitness") %||% 0
+  cd <- attr(x, "core_density") %||% 0
+  pd <- attr(x, "periphery_density") %||% 0
+  n_core <- sum(x$role == "core")
+  n_peri <- sum(x$role == "periphery")
+  cat(sprintf("Core-Periphery | Core: %d  Periphery: %d  Fitness: %.3f\n",
+              n_core, n_peri, fitness))
+  cat(sprintf("Core density: %.3f | Periphery density: %.3f\n\n",
+              cd, pd))
+  print.data.frame(x, row.names = FALSE, ...)
   invisible(x)
 }

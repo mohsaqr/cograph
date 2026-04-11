@@ -342,17 +342,14 @@
   rules <- x$rules
   if (nrow(rules) == 0L) return(character(0))
   rules <- rules[order(-rules$lift, -rules$confidence), , drop = FALSE]
-  # Handle both shapes Nestimate has used: list columns (character vectors
-  # per row) and character columns ("A, B" strings per row). Splitting on
-  # ", " then paste-joining normalises both to space-separated itemsets.
-  join_items <- function(v) {
-    paste(unlist(strsplit(v, ",\\s*")), collapse = " ")
+  # Normalise antecedent/consequent columns to space-separated itemset strings.
+  # Works on both Nestimate shapes: list-column (character vectors per row) and
+  # character-column ("A, B" per row). Vectorized per column — no per-row split.
+  norm_col <- function(col) {
+    if (is.list(col)) vapply(col, paste, character(1), collapse = " ")
+    else              gsub(",\\s*", " ", col)
   }
-  vapply(seq_len(nrow(rules)), function(i) {
-    ante <- join_items(rules$antecedent[[i]])
-    cons <- join_items(rules$consequent[[i]])
-    paste0(ante, " -> ", cons)
-  }, character(1), USE.NAMES = FALSE)
+  paste(norm_col(rules$antecedent), "->", norm_col(rules$consequent))
 }
 
 #' Extract pathways from link predictions (net_link_prediction)

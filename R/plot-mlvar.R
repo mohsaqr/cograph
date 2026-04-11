@@ -24,9 +24,21 @@ splot.net_mlvar <- function(x, type = "temporal", ...) {
   if (type == "all") {
     op <- graphics::par(mfrow = c(1, 3), mar = c(2, 2, 3, 2))
     on.exit(graphics::par(op), add = TRUE)
-    splot.net_mlvar(x, type = "temporal",        ...)
-    splot.net_mlvar(x, type = "contemporaneous", ...)
-    splot.net_mlvar(x, type = "between",         ...)
+    # Strip user `title` out of ... and compose it with each panel label,
+    # otherwise a user-supplied title would appear on all three panels and
+    # lose the per-network identification.
+    dots <- list(...)
+    user_title <- dots$title
+    dots$title <- NULL
+    compose <- function(panel_label) {
+      if (is.null(user_title)) panel_label else paste(user_title, "-", panel_label)
+    }
+    do.call(splot.net_mlvar,
+            c(list(x, type = "temporal",        title = compose("Temporal")),        dots))
+    do.call(splot.net_mlvar,
+            c(list(x, type = "contemporaneous", title = compose("Contemporaneous")), dots))
+    do.call(splot.net_mlvar,
+            c(list(x, type = "between",         title = compose("Between-Subjects")), dots))
     return(invisible(x))
   }
 

@@ -41,3 +41,15 @@ tmp/
 slow_animation.gif
 tna_animation.gif
 *.log
+
+# Agent / session artifacts — kept locally, not on upstream
+.claude/
+CLAUDE.md
+HANDOFF.md
+docs/LEARNINGS.md
+docs/CHANGES.md
+
+# Dev-only directories already in .Rbuildignore — keep out of git too
+data-raw/
+scripts/
+tutorials/

@@ -19,10 +19,11 @@ BugReports: https://github.com/sonsoleslp/cograph/issues
 Depends:
     R (>= 4.1.0)
 Imports:
-    R6,
-    grid,
-    grDevices,
     ggplot2,
+    grDevices,
+    grid,
+    Matrix,
+    R6,
     stats,
     utils
 Suggests:
@@ -39,7 +40,6 @@ Suggests:
     influenceR,
     jsonlite,
     knitr,
-    Matrix,
     Nestimate,
     network,
     qgraph,

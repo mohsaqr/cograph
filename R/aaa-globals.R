@@ -8,6 +8,18 @@ NULL
 .cograph_env <- new.env(parent = emptyenv())
 
 # ============================================================================
+# Edge Key Helper
+# ============================================================================
+
+#' Canonical edge keys for grouping/deduplication.
+#' Undirected: sorts endpoints so A-B == B-A. Directed: preserves order.
+#' @keywords internal
+.edge_keys <- function(from, to, directed = FALSE) {
+  if (directed) paste(from, to, sep = "-")
+  else paste(pmin(from, to), pmax(from, to), sep = "-")
+}
+
+# ============================================================================
 # RNG State Helpers (CRAN requirement: set.seed must not alter caller's RNG)
 # ============================================================================
 

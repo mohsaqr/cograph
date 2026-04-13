@@ -897,9 +897,10 @@ network_small_world <- function(x, n_random = 10, ...) {
   if (is.na(C_obs) || is.na(L_obs) || is.nan(C_obs) || is.nan(L_obs)) {
     return(NA_real_)
   }
-  if (C_obs == 0 || L_obs == 0 || is.infinite(L_obs)) {
+  if (L_obs == 0 || is.infinite(L_obs)) {
     return(NA_real_)
   }
+  # C_obs == 0 is valid (no triangles → sigma = 0, definitively not small-world)
 
   # Generate random graphs and compute averages
   C_rand_vals <- numeric(n_random)

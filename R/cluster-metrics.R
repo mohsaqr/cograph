@@ -1819,29 +1819,22 @@ cqual <- cluster_quality
 #' Compute modularity
 #' @keywords internal
 .compute_modularity <- function(A, membership, directed = TRUE) {
-  n <- nrow(A)
-  m <- sum(A)
-  if (!directed) m <- m / 2
-  if (m == 0) return(NA_real_)
+  # Both directed and undirected use m_total = sum(A). For symmetric A the
+  # double-sum counts each edge twice, making this algebraically equivalent
+  # to the standard Newman-Girvan 1/(2m) formulation.
+  m_total <- sum(A)
+  if (m_total == 0) return(NA_real_)
 
-  if (directed) {
-    k_out <- rowSums(A)
-    k_in <- colSums(A)
-  } else {
-    k <- rowSums(A)
-    k_out <- k_in <- k
-  }
+  k_out <- rowSums(A)
+  k_in <- if (directed) colSums(A) else k_out
 
-  Q <- 0
-  for (i in seq_len(n)) {
-    for (j in seq_len(n)) {
-      if (membership[i] == membership[j]) {
-        expected <- k_out[i] * k_in[j] / m
-        Q <- Q + (A[i, j] - expected)
-      }
-    }
-  }
-  Q / m
+  # Cluster-wise sum: O(sum of cluster_size^2), no n*n matrix allocation
+  Q <- sum(vapply(unique(membership), function(c) {
+    idx <- which(membership == c)
+    sum(A[idx, idx]) - sum(k_out[idx]) * sum(k_in[idx]) / m_total
+  }, numeric(1)))
+
+  Q / m_total
 }
 
 # ==============================================================================

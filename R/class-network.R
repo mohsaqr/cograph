@@ -1165,6 +1165,9 @@ nodes <- function(x) {
 #' net2 <- as_cograph(mat2)
 #' cograph::is_directed(net2)  # TRUE
 is_directed <- function(x) {
+  if (inherits(x, "CographNetwork")) {
+    return(x$is_directed)
+  }
   if (inherits(x, "cograph_network")) {
     # Unified format: directed stored as list element
     if (!is.null(x$directed)) {

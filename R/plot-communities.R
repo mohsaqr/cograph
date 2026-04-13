@@ -154,6 +154,7 @@ overlay_communities <- function(x,
 #' @param ... Additional arguments forwarded to \code{\link{splot}}.
 #'
 #' @return Invisibly, the splot result.
+#' @rdname splot
 #' @export
 splot.tna_communities <- function(x, ...) {
   model <- attr(x, "tna")
@@ -179,6 +180,7 @@ splot.tna_communities <- function(x, ...) {
 #' @param ... Additional arguments forwarded to \code{\link{splot}}.
 #'
 #' @return Invisibly, the splot result.
+#' @rdname splot
 #' @export
 splot.cograph_communities <- function(x, ...) {
   network <- attr(x, "network")

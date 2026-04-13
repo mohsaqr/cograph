@@ -17,8 +17,6 @@ authors:
     href: https://saqr.me
   Sonsoles López-Pernas:
     href: https://sonsoles.me
-  Santtu Tikka:
-    href: http://users.jyu.fi/~santikka/
 navbar:
   structure:
     left:  [intro, reference, articles, news]

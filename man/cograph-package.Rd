@@ -61,7 +61,6 @@ Useful links:
 Authors:
 \itemize{
   \item Mohammed Saqr [copyright holder]
-  \item Santtu Tikka
 }
 
 }

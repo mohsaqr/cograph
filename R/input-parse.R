@@ -128,13 +128,12 @@ create_edges_df <- function(from, to, weight = NULL, directed = FALSE) {
 #'   single edges
 #'
 #' @keywords internal
-detect_duplicate_edges <- function(edges) {
+detect_duplicate_edges <- function(edges, directed = FALSE) {
   if (is.null(edges) || nrow(edges) == 0) {
     return(list(has_duplicates = FALSE, info = NULL))
   }
 
-  # Create canonical keys (lower index first)
-  keys <- paste(pmin(edges$from, edges$to), pmax(edges$from, edges$to), sep = "-")
+  keys <- .edge_keys(edges$from, edges$to, directed)
   dup_keys <- keys[duplicated(keys)]
 
   if (length(dup_keys) == 0) {
@@ -190,12 +189,12 @@ detect_duplicate_edges <- function(edges) {
 #'   aggregation
 #'
 #' @keywords internal
-aggregate_duplicate_edges <- function(edges, method = "mean") {
+aggregate_duplicate_edges <- function(edges, method = "mean", directed = FALSE) {
   if (is.null(edges) || nrow(edges) == 0) {
     return(edges)
   }
 
-  keys <- paste(pmin(edges$from, edges$to), pmax(edges$from, edges$to), sep = "-")
+  keys <- .edge_keys(edges$from, edges$to, directed)
 
   agg_fn <- if (is.function(method)) {
     method
@@ -217,9 +216,11 @@ aggregate_duplicate_edges <- function(edges, method = "mean") {
   result <- do.call(rbind, lapply(unique_keys, function(k) {
     idx <- which(keys == k)
     row <- edges[idx[1], , drop = FALSE]
-    # Ensure canonical order (lower index first)
-    row$from <- min(edges$from[idx[1]], edges$to[idx[1]])
-    row$to <- max(edges$from[idx[1]], edges$to[idx[1]])
+    if (!directed) {
+      # Ensure canonical order (lower index first) for undirected
+      row$from <- min(edges$from[idx[1]], edges$to[idx[1]])
+      row$to <- max(edges$from[idx[1]], edges$to[idx[1]])
+    }
     if ("weight" %in% names(row)) {
       row$weight <- agg_fn(edges$weight[idx])
     }

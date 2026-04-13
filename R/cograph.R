@@ -106,7 +106,7 @@ compute_layout_for_cograph <- function(net, layout = "spring", seed = 42, ...) {
   layout_name <- if (is.function(layout)) {
     "custom_function"
   } else if (inherits(layout, "CographLayout")) {
-    layout$name %||% "custom"
+    layout$get_type() %||% "custom"
   } else if (is.character(layout)) {
     layout
   } else {

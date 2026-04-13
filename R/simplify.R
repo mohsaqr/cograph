@@ -47,13 +47,15 @@ simplify.cograph_network <- function(x, remove_loops = TRUE,
                                      remove_multiple = TRUE,
                                      edge_attr_comb = "mean", ...) {
   edges <- get_edges(x)
+  directed <- isTRUE(x$directed)
 
   if (!is.null(edges) && nrow(edges) > 0) {
     if (remove_loops) {
       edges <- edges[edges$from != edges$to, , drop = FALSE]
     }
     if (remove_multiple) {
-      edges <- aggregate_duplicate_edges(edges, method = edge_attr_comb)
+      edges <- aggregate_duplicate_edges(edges, method = edge_attr_comb,
+                                         directed = directed)
     }
     x$edges <- edges
   }

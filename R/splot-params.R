@@ -506,7 +506,7 @@ get_node_order <- function(sizes) {
 check_duplicate_edges <- function(edges, directed, edge_duplicates) {
   if (directed || is.null(edges) || nrow(edges) == 0) return(edges)
 
-  dup_check <- detect_duplicate_edges(edges)
+  dup_check <- detect_duplicate_edges(edges, directed = directed)
   if (!dup_check$has_duplicates) return(edges)
 
   if (is.null(edge_duplicates)) {
@@ -526,7 +526,7 @@ check_duplicate_edges <- function(edges, directed, edge_duplicates) {
          call. = FALSE)
   }
 
-  aggregate_duplicate_edges(edges, edge_duplicates)
+  aggregate_duplicate_edges(edges, edge_duplicates, directed = directed)
 }
 
 #' Compute Plot Limits

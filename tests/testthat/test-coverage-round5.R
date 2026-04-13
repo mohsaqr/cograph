@@ -195,13 +195,13 @@ test_that("network_summary hub/authority on undirected graph", {
 # R/network-summary.R — line 786: small_world with zero clustering
 # ============================================================================
 
-test_that("small_world returns NA when C_obs is 0", {
+test_that("small_world returns 0 when C_obs is 0", {
   skip_if_not_installed("igraph")
-  # Tree has 0 clustering coefficient
+  # Tree has 0 clustering coefficient → sigma = 0 (not small-world)
   g <- igraph::make_tree(8, children = 2, mode = "undirected")
   small_world_fn <- cograph:::network_small_world
   sw <- small_world_fn(g, n_random = 5)
-  expect_true(is.na(sw))
+  expect_equal(sw, 0)
 })
 
 # ============================================================================

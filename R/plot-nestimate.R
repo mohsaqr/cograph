@@ -17,7 +17,7 @@ NULL
 #' @param ... Additional arguments passed to \code{splot()}.
 #'
 #' @return Invisibly returns the plot.
-#' @keywords internal
+#' @rdname splot
 #' @export
 splot.netobject <- function(x, ...) {
   args <- list(...)
@@ -81,7 +81,7 @@ splot.netobject <- function(x, ...) {
 #' @param ... Additional arguments passed to \code{splot()}.
 #'
 #' @return Invisibly returns the plot.
-#' @keywords internal
+#' @rdname splot
 #' @export
 splot.boot_glasso <- function(x,
                               use_thresholded     = TRUE,
@@ -158,7 +158,7 @@ splot.boot_glasso <- function(x,
 #'   (\code{type = "overlay"}) or \code{\link{splot}} (\code{type = "group"}).
 #'
 #' @return Invisibly returns \code{x}.
-#' @keywords internal
+#' @rdname splot
 #' @export
 splot.wtna_mixed <- function(x, type = c("overlay", "group"), ...) {
   type <- match.arg(type)

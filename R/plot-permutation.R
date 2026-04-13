@@ -375,7 +375,7 @@ plot_group_permutation <- function(x, i = NULL, ...) {
 #' @param ... Additional arguments passed to \code{splot()}.
 #'
 #' @return Invisibly returns the plot.
-#' @keywords internal
+#' @rdname splot
 #' @export
 splot.net_permutation <- function(x,
                                   show_nonsig         = FALSE,

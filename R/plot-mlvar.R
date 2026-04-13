@@ -16,7 +16,7 @@ NULL
 #'   override the default styling preset.
 #'
 #' @return Invisibly returns \code{x}.
-#' @keywords internal
+#' @rdname splot
 #' @export
 splot.net_mlvar <- function(x, type = "temporal", ...) {
   type <- .resolve_mlvar_type(type)

@@ -837,6 +837,15 @@ utils::globalVariables(c(
 #' @param ... Currently unused.
 #'
 #' @return A \code{ggplot} object.
+#' @examplesIf requireNamespace("tna", quietly = TRUE)
+#' # Bootstrap a TNA built from sequence data (required by tna::bootstrap)
+#' d    <- tna::prepare_data(
+#'   tna::group_regulation_long,
+#'   actor = "Actor", time = "Time", action = "Action"
+#' )
+#' Mod  <- tna::tna(d)
+#' boot <- tna::bootstrap(Mod, iter = 50)
+#' plot_bootstrap_forest(boot, n_top = 8)
 #' @export
 plot_bootstrap_forest <- function(x, ...) UseMethod("plot_bootstrap_forest")
 

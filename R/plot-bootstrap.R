@@ -321,7 +321,7 @@ splot.tna_bootstrap <- function(x,
 #' @param ... Additional arguments passed to \code{splot()}.
 #'
 #' @return Invisibly returns the plot.
-#' @keywords internal
+#' @rdname splot
 #' @export
 splot.net_bootstrap <- function(x,
                                 display       = c("styled", "significant", "full"),

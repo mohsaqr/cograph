@@ -1403,17 +1403,22 @@ build_mcml <- function(x,
 #' tna_models$G1$weights      # 2x2 matrix (A, B)
 #'
 #' # -----------------------------------------------------
-#' # Use with tna package (requires tna)
+#' # Plot via cograph's own renderer — avoids tna's plot dispatch,
+#' # which pulls in `cluster` for layout and breaks
+#' # `_R_CHECK_DEPENDS_ONLY_=TRUE` CRAN checks.
 #' # -----------------------------------------------------
-#' if (requireNamespace("tna", quietly = TRUE)) {
-#'   # Plot
-#'   plot(tna_models$macro)
-#'   plot(tna_models$G1)
+#' splot(tna_models$macro)
+#' splot(tna_models$G1)
 #'
-#'   # Centrality analysis
+#' # -----------------------------------------------------
+#' # Centrality analysis via tna (optional dependency)
+#' # -----------------------------------------------------
+#' \donttest{
+#' if (requireNamespace("tna", quietly = TRUE)) {
 #'   tna::centralities(tna_models$macro)
 #'   tna::centralities(tna_models$G1)
 #'   tna::centralities(tna_models$G2)
+#' }
 #' }
 #'
 #' \dontrun{

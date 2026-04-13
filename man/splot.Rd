@@ -259,6 +259,13 @@ Default: "maroon" fill, "gray90" background when node_shape="donut".}
 
 \item{donut_border_width}{Border width for donut rings. NULL uses node_border_width.}
 
+\item{donut_inner_border_color}{Color for the inner boundary (where the
+donut meets its hole). NULL (default) uses \code{donut_border_color}.
+Can be scalar or per-node vector.}
+
+\item{donut_inner_border_width}{Width for the inner boundary border.
+NULL (default) uses \code{donut_border_width}. Can be scalar or per-node vector.}
+
 \item{donut_outer_border_color}{Color for outer boundary border (enables double border).
 NULL (default) shows single border. Set to a color for double border effect.
 Can be scalar or per-node vector.}
@@ -497,6 +504,13 @@ etc.) as a base layer. Any explicitly provided argument overrides the TNA defaul
 If \code{FALSE}, no TNA styling is applied. If \code{NULL} (default),
 automatically set to \code{TRUE} when \code{x} is a tna object, \code{FALSE}
 otherwise. Can be used with any input type (matrix, igraph, cograph_network).}
+
+\item{psych_styling}{Logical or NULL. Undirected counterpart of \code{tna_styling}.
+If \code{TRUE}, applies psychometric-network defaults (spring layout,
+Okabe-Ito palette, no arrows, thin edges) as a base layer. If \code{NULL}
+(default), \code{splot.netobject} auto-enables it on correlation-family input
+(glasso, cor, pcor, ising) and on the undirected constituents of
+\code{net_mlvar}. Explicit user args always win.}
 
 \item{i}{Group index or name when x is a group_tna object. If NULL (default),
 plots all groups in a grid. If specified (e.g., i = 1 or i = "Treatment"),

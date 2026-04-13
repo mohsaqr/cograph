@@ -1,3 +1,74 @@
+# cograph 2.1.1
+
+## Plotting
+
+- `splot.netobject` now routes on the Nestimate `$method` slot rather than
+  just direction. Undirected sequence-based networks from `build_cna()` and
+  `wtna(method = "cooccurrence")` get oval TNA-family styling (layout,
+  palette, donuts) with arrows and dotted edge starts automatically dropped
+  because the matrix is symmetric. Glasso / cor / pcor / ising networks
+  still get `psych_styling = TRUE` (spring layout, Okabe-Ito palette).
+- `from_tna()` auto-detects integer-valued weight matrices (ftna, ctna, raw
+  counts) and sets `weight_digits = edge_label_digits = 0` so edge labels
+  render as `2304` rather than `2304.00`. Fractional weights still format
+  to two decimals. Explicit user-supplied `weight_digits` still wins.
+- `psych_styling = TRUE` is now exported as a first-class styling preset
+  (undirected counterpart of `tna_styling`) — Okabe-Ito palette, spring
+  layout, no arrows — applied by default to `splot.netobject` on
+  correlation-family input and to the `$contemporaneous` / `$between`
+  constituents of `net_mlvar`.
+- Expanded `splot()` dispatch coverage across the tna and Nestimate class
+  hierarchies, ensuring `tna`, `ftna`, `ctna`, `group_tna`, `tna_bootstrap`,
+  `group_tna_bootstrap`, `tna_permutation`, `group_tna_permutation`,
+  `netobject`, `netobject_group`, `netobject_ml`, `net_mlvar`, `wtna_mixed`,
+  `net_bootstrap`, `net_permutation`, `boot_glasso`, `mcml`, `net_hon`,
+  `net_hypa`, and `simplicial_complex` all reach the correct renderer.
+- Self-loops are now preserved in every plot function.
+
+## Correctness fixes (audit-driven)
+
+- `detect_duplicate_edges()`, `aggregate_duplicate_edges()`,
+  `simplify.cograph_network()`, and the internal `check_duplicate_edges()`
+  helper now respect directed vs undirected semantics. Previously the
+  canonical (min/max) endpoint key collapsed `A -> B` and `B -> A` into one
+  edge even on directed graphs, matching `igraph::simplify()` ground truth.
+- `.compute_modularity()` replaces a nested for loop with cluster-wise
+  vectorization (`sum(A[idx, idx]) - sum(k_out[idx]) * sum(k_in[idx]) / m`),
+  per the project "no for loops" rule. Results verified bit-exact against
+  `igraph::modularity()`.
+- `is_directed()` now recognises `CographNetwork` R6 objects — previously
+  only the `cograph_network` list format dispatched correctly.
+- `compute_layout_for_cograph()` uses `layout$get_type()` instead of the
+  removed `$name` field on `CographLayout`.
+- `network_small_world()` returns `0` (valid: no triangles means
+  definitively not small-world) instead of `NA_real_` when the observed
+  clustering coefficient is zero but path length is finite.
+- `simplify.cograph_network()` threads the directed flag through to edge
+  aggregation so directed multigraphs collapse correctly.
+
+## Performance & documentation
+
+- `simplify()` performance refactor for large networks plus a cleaner
+  title-composition path.
+- `motifs()`, `extract_motifs()`, and `plot.cograph_motif_analysis`
+  examples reworked to use `n_perm = 10L` (or `significance = FALSE`) and
+  promoted from `\dontrun` to CRAN-runnable (optional tna branches stay in
+  `\donttest`). Retires 320 seconds of latent CRAN timing risk — every
+  example now runs in under 4 seconds.
+
+## New tests
+
+- `test-audit-fixes.R` — ground-truth regressions for the directed edge
+  semantics, modularity vectorization, and small-world behaviour changes.
+- `test-integer-weight-labels.R` — locks `from_tna()` integer-weight
+  auto-detect behaviour and precedence of explicit `weight_digits`.
+- `test-equiv-{assortativity, cluster-quality, communities, disparity,
+  edge-centrality, network-summary, robustness, standalone-measures}.R` —
+  numerical equivalence against igraph, sna, centiserve, brainGraph,
+  influenceR, tidygraph, and NetworkX. Gated by
+  `skip_coverage_tests() + skip_on_cran()`, so they do not run on the
+  CRAN pipeline.
+
 # cograph 2.1.0
 
 ## New Features

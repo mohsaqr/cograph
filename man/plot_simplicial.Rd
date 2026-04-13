@@ -43,9 +43,12 @@ String separators: \code{"A B -> C"}, \code{"A, B, C"},
 When \code{NULL} and \code{x} is a model with sequence data,
 pathways are built automatically.}
 
-\item{method}{Higher-order method when auto-building from a
-\code{tna}/\code{netobject}: \code{"hon"} (default) or
-\code{"hypa"}.}
+\item{method}{Pathway source when auto-building from a
+\code{tna}/\code{netobject}: \code{"hon"} (default, higher-order
+network), \code{"hypa"} (anomalous paths via hypergeometric null),
+or \code{"rules"} (association-rule itemsets via
+\code{Nestimate::association_rules}; rules are rendered as
+single-colored blobs because itemsets are undirected).}
 
 \item{max_pathways}{Maximum number of pathways to display. HON
 pathways are ranked by count, HYPA by anomaly ratio.

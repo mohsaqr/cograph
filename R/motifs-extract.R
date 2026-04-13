@@ -95,31 +95,23 @@
 #' }
 #'
 #' @examples
-#' \dontrun{
-#' Mod <- tna::tna(tna::group_regulation)
-#'
-#' # Basic: triangles only (default) - individual level for tna
-#' m <- extract_motifs(Mod)
+#' # Small aggregate example — no significance test for speed
+#' mat <- matrix(c(0,3,2,0, 0,0,5,1, 0,0,0,4, 2,0,0,0), 4, 4, byrow = TRUE)
+#' rownames(mat) <- colnames(mat) <- c("Plan","Execute","Monitor","Adapt")
+#' m <- extract_motifs(mat, significance = FALSE)
 #' print(m)
 #'
-#' # Top 20 with significance testing
-#' m <- extract_motifs(Mod, top = 20, significance = TRUE, n_perm = 100)
-#' plot(m)
+#' \donttest{
+#' if (requireNamespace("tna", quietly = TRUE)) {
+#'   Mod <- tna::tna(tna::group_regulation)
 #'
-#' # From a matrix (aggregate level)
-#' mat <- Mod$weights
-#' m <- extract_motifs(mat)
+#'   # Individual-level from tna — keep n_perm tiny for example speed
+#'   m <- extract_motifs(Mod, top = 10, significance = TRUE,
+#'                       n_perm = 10L, seed = 1)
 #'
-#' # Only feed-forward loops
-#' m <- extract_motifs(Mod, include_types = "030T")
-#'
-#' # Triangles but exclude cliques
-#' m <- extract_motifs(Mod, pattern = "triangle", exclude_types = "300")
-#'
-#' # From data.frame with ID column (individual level)
-#' # df has columns: id, from, to (and optionally weight)
-#' # m <- extract_motifs(data = df, id = "id")
-#' # m <- extract_motifs(data = df, id = c("group", "person"))
+#'   # Filter to feed-forward loops only
+#'   m <- extract_motifs(Mod, include_types = "030T", significance = FALSE)
+#' }
 #' }
 #'
 #' @seealso [motifs()], [subgraphs()], [extract_triads()], [motif_census()]
@@ -525,22 +517,12 @@ print.cograph_motif_analysis <- function(x, n = 20, ...) {
 #'   types/significance/patterns plots.
 #'
 #' @examples
-#' \dontrun{
-#' Mod <- tna::tna(tna::group_regulation)
-#' m <- extract_motifs(Mod, significance = TRUE)
-#'
-#' # Default network diagram
+#' mat <- matrix(c(0,3,2,0, 0,0,5,1, 0,0,0,4, 2,0,0,0), 4, 4, byrow = TRUE)
+#' rownames(mat) <- colnames(mat) <- c("Plan","Execute","Monitor","Adapt")
+#' m <- extract_motifs(mat, significance = FALSE)
 #' plot(m)
-#'
-#' # Customize appearance
-#' plot(m, node_size = 0.15, label_size = 6, title_size = 9)
-#'
-#' # Change layout
-#' plot(m, ncol = 4, n = 12)
-#'
-#' # Other plot types
-#' plot(m, type = "types")
-#' plot(m, type = "significance")
+#' \donttest{
+#'   plot(m, type = "types")
 #' }
 #'
 #' @seealso [extract_motifs()] for the analysis that produces this object,

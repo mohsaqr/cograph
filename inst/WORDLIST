@@ -3,6 +3,7 @@ al
 analytics
 Analytics
 Anonymized
+args
 arpack
 ARPACK
 assortativity
@@ -15,6 +16,7 @@ Barabasi
 barrat
 barycenter
 Barycenter
+behaviour
 Bd
 Bergstrom
 betweenness
@@ -68,11 +70,13 @@ CPM
 cr
 CSCW
 csi
+ctna
 DAGs
 dangalchev
 Dangalchev
 de
 deduplicated
+deduplication
 Delling
 dev
 df
@@ -110,6 +114,7 @@ fontface
 Fontface
 fontfamily
 ForceAtlas
+ftna
 Fortunato
 Fruchterman
 Gaertler
@@ -158,12 +163,15 @@ indegree
 ineccentricity
 infomap
 Infomap
+influenceR
 inharmonic
 instrength
 interoperable
 intra
 Intra
+ising
 iter
+itemsets
 jaccard
 Jaccard
 Jeong
@@ -210,6 +218,8 @@ MCML
 mds
 Misiejuk
 mlna
+mlvar
+mlVAR
 mnc
 MNC
 modularity
@@ -217,6 +227,7 @@ Modularity
 Mones
 mtna
 multigraph
+multigraphs
 multilayer
 Multilayer
 MULTIPLICATOR
@@ -241,6 +252,7 @@ npc
 NPC
 nullGrob
 NX
+Okabe
 Opsahl
 outcloseness
 outdegree
@@ -254,6 +266,7 @@ pairwisedis
 Pajek
 Panzarasa
 params
+pcor
 pearson
 Pernas
 personalization
@@ -280,6 +293,7 @@ Ramasco
 rasterization
 reachability
 reachers
+recognises
 recomputation
 rect
 regularised
@@ -290,6 +304,7 @@ Renyi
 Rosvall
 rowSums
 roxygen
+runnable
 Sankey
 Sasse
 scalable

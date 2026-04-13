@@ -1,7 +1,7 @@
 # Community Detection Functions
 # Wrapper functions for igraph community detection algorithms with full parameter exposure
-#' @importFrom igraph modularity
-NULL
+# igraph is Suggests — every call site uses `igraph::` with a
+# `requireNamespace("igraph", quietly = TRUE)` guard, so no @importFrom here.
 
 # ==============================================================================
 # Main Function
@@ -29,6 +29,9 @@ NULL
 #'     \item \code{"optimal"} - Exact modularity optimization (slow)
 #'     \item \code{"fluid"} - Fluid communities algorithm
 #'   }
+#' @param community Optional integer or character vector. If supplied, the
+#'   returned data frame is filtered to rows whose `community` column
+#'   matches one of the given values. Default `NULL` (keep all communities).
 #' @param weights Edge weights. If NULL, uses edge weights from the network
 #'   if available, otherwise unweighted. Set to NA for explicitly unweighted.
 #' @param resolution Resolution parameter for modularity-based methods
@@ -1139,16 +1142,17 @@ community_sizes <- function(x) {
 
 #' Get Modularity Score
 #'
+#' S3 method for `igraph::modularity()` on cograph_communities objects.
+#' Registered dynamically in `.onLoad()` when igraph is available, because
+#' igraph is a Suggests — not an Imports — and its generic must not be
+#' referenced at build time.
+#'
 #' @param x A cograph_communities object
 #' @param graph Optional igraph object for recalculation
 #' @param ... Additional arguments
 #' @return Numeric modularity value
-#' @method modularity cograph_communities
-#' @export
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' g <- igraph::make_graph("Zachary")
-#' comm <- community_louvain(g)
-#' igraph::modularity(comm)
+#' @keywords internal
+#' @noRd
 modularity.cograph_communities <- function(x, graph = NULL, ...) {
   mod <- attr(x, "modularity")
   if (!is.null(mod) && is.numeric(mod)) return(mod)

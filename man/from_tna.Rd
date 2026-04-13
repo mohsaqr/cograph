@@ -8,7 +8,7 @@ from_tna(
   tna_object,
   engine = c("splot", "soplot"),
   plot = TRUE,
-  weight_digits = 2,
+  weight_digits = NULL,
   show_zero_edges = FALSE,
   ...
 )

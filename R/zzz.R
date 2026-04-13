@@ -13,5 +13,15 @@ NULL
   register_builtin_layouts()
   register_builtin_themes()
   register_builtin_palettes()
+
+  # igraph is a Suggests — register S3 methods against its generics
+  # dynamically so cograph loads even when igraph isn't installed.
+  if (requireNamespace("igraph", quietly = TRUE)) {
+    registerS3method(
+      "modularity", "cograph_communities",
+      modularity.cograph_communities,
+      envir = asNamespace("igraph")
+    )
+  }
 } # nocov end
 

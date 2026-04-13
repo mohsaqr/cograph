@@ -4,7 +4,7 @@
 \alias{detect_duplicate_edges}
 \title{Detect Duplicate Edges in Undirected Network}
 \usage{
-detect_duplicate_edges(edges)
+detect_duplicate_edges(edges, directed = FALSE)
 }
 \arguments{
 \item{edges}{Data frame with \code{from} and \code{to} columns (and optionally

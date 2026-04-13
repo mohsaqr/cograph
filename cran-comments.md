@@ -1,4 +1,35 @@
-## Submission notes — cograph 2.1.0
+## Submission notes — cograph 2.1.1
+
+This is a patch release on top of 2.1.0, bundling plotting-dispatch
+improvements, audit-driven correctness fixes, and a cleanup of
+example timing. 2.1.0 itself was not submitted to CRAN; this tarball
+therefore carries everything since 2.0.0.
+
+### New in 2.1.1 (on top of 2.1.0)
+
+- `splot.netobject` now routes on Nestimate's `$method` slot rather than
+  just direction, so sequence-based undirected networks from `build_cna()`
+  and `wtna(method = "cooccurrence")` get oval TNA-family styling while
+  glasso / cor / pcor / ising networks keep the psych-style spring look.
+- `from_tna()` auto-detects integer-valued weight matrices (ftna, ctna,
+  raw counts) and renders edge labels as `2304` rather than `2304.00`.
+- `psych_styling = TRUE` is now a first-class styling preset (undirected
+  counterpart of `tna_styling`).
+- `splot()` dispatch expanded to cover every current tna and Nestimate
+  class; self-loops preserved in all plotting paths.
+- Audit fixes: directed vs undirected semantics in `detect_duplicate_edges`
+  / `aggregate_duplicate_edges` / `simplify.cograph_network`, vectorised
+  modularity, `CographNetwork` R6 dispatch in `is_directed()`,
+  `compute_layout_for_cograph` uses `layout$get_type()`, and
+  `network_small_world()` returns 0 (not NA) when observed clustering is
+  zero. Each fix is pinned by `test-audit-fixes.R`.
+- `motifs()`, `extract_motifs()`, and `plot.cograph_motif_analysis`
+  examples reworked to use `n_perm = 10L` (or `significance = FALSE`) and
+  promoted from `\dontrun` to CRAN-runnable. Every example now runs in
+  under 4 seconds (total 13.6 s across 281 running examples; slowest
+  single example `extract_motifs` at 3.8 s).
+
+### Carried over from 2.1.0 (never submitted)
 
 This is a minor feature release following 2.0.0, bundling the
 Batch 3–6 centrality expansion and a set of CRAN-readiness fixes.

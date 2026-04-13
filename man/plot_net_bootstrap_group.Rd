@@ -5,35 +5,30 @@
 \alias{plot.net_bootstrap_group}
 \title{Plot a Group Bootstrap Result}
 \usage{
-plot_net_bootstrap_group(
-  x,
-  what = c("original", "significant"),
-  nrow = NULL,
-  ncol = NULL,
-  common_scale = TRUE,
-  ...
-)
+plot_net_bootstrap_group(x, nrow = NULL, ncol = NULL, common_scale = TRUE, ...)
 
 \method{plot}{net_bootstrap_group}(x, ...)
 }
 \arguments{
 \item{x}{A \code{net_bootstrap_group} object (list of \code{net_bootstrap}).}
 
-\item{what}{What to display per panel: \code{"original"} (default) shows the
-original network, \code{"significant"} shows only significant edges.}
-
 \item{nrow, ncol}{Grid dimensions. Defaults to auto-computed square layout.}
 
 \item{common_scale}{Logical: use the same maximum weight across panels? Default TRUE.}
 
-\item{...}{Additional arguments passed to \code{splot()}.}
+\item{...}{Additional arguments passed to \code{splot.net_bootstrap}
+(e.g. \code{display = "significant"}, \code{show_stars = FALSE}).}
 }
 \value{
 Invisibly returns \code{x}.
 }
 \description{
-Plots each cluster's bootstrap result (\code{net_bootstrap}) in a grid.
-Each panel shows the original network from that cluster's bootstrap.
+Plots each cluster's \code{net_bootstrap} in a grid, routing every panel
+through \code{splot.net_bootstrap} so significance styling (solid vs
+dashed edges) is preserved. Earlier versions extracted \code{bs$original}
+per cluster and handed plain netobjects to \code{splot()}, which
+dispatches to \code{splot.netobject} — that path has no concept of
+significance, so every edge rendered identically.
 }
 \examples{
 \dontrun{

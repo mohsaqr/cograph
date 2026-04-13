@@ -4,7 +4,7 @@
 \alias{aggregate_duplicate_edges}
 \title{Aggregate Duplicate Edges}
 \usage{
-aggregate_duplicate_edges(edges, method = "mean")
+aggregate_duplicate_edges(edges, method = "mean", directed = FALSE)
 }
 \arguments{
 \item{edges}{Data frame with \code{from}, \code{to}, and \code{weight} columns.}

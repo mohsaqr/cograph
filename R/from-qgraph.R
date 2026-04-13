@@ -185,7 +185,7 @@ tna_color_palette <- function(n_states) {
 #'
 #' @export
 from_tna <- function(tna_object, engine = c("splot", "soplot"), plot = TRUE,
-                     weight_digits = 2, show_zero_edges = FALSE, ...) {
+                     weight_digits = NULL, show_zero_edges = FALSE, ...) {
   engine <- match.arg(engine)
 
   if (!inherits(tna_object, "tna")) {
@@ -196,6 +196,12 @@ from_tna <- function(tna_object, engine = c("splot", "soplot"), plot = TRUE,
 
   # --- Weights matrix ---
   x <- tna_object$weights
+
+  # Drop ".00" tails on count-valued matrices (ftna, ctna, raw frequencies).
+  if (is.null(weight_digits)) {
+    nz <- x[x != 0]
+    weight_digits <- if (length(nz) > 0 && all(nz == floor(nz))) 0L else 2L
+  }
 
   # --- Determine directedness ---
   # Read from tna object's $directed field if present, otherwise auto-detect
@@ -216,6 +222,7 @@ from_tna <- function(tna_object, engine = c("splot", "soplot"), plot = TRUE,
     labels     = tna_object$labels,
     directed   = is_directed,
     weight_digits     = weight_digits,
+    edge_label_digits = weight_digits,
     donut_fill = as.numeric(tna_object$inits),
     donut_inner_ratio = 0.8,
     donut_empty       = FALSE

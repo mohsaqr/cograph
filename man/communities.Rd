@@ -35,6 +35,10 @@ communities(
 \item \code{"fluid"} - Fluid communities algorithm
 }}
 
+\item{community}{Optional integer or character vector. If supplied, the
+returned data frame is filtered to rows whose \code{community} column
+matches one of the given values. Default \code{NULL} (keep all communities).}
+
 \item{weights}{Edge weights. If NULL, uses edge weights from the network
 if available, otherwise unweighted. Set to NA for explicitly unweighted.}
 

@@ -20,43 +20,47 @@ NULL
 #' @keywords internal
 #' @export
 splot.netobject <- function(x, ...) {
-  args   <- list(...)
-  is_dir <- isTRUE(x$directed)
-  labels <- x$nodes$label %||% rownames(x$weights)
+  args <- list(...)
+  if (is.null(args$labels)) args$labels <- x$nodes$label %||% rownames(x$weights)
 
-  if (is.null(args$labels)) args$labels <- labels
-
-  # Auto-detect integer weights → suppress decimal places on matrix and labels
+  # Auto-suppress ".00" tails on integer-valued matrices (counts/frequencies).
   if (is.null(args$weight_digits)) {
     nz <- x$weights[x$weights != 0]
     if (length(nz) > 0 && all(nz == floor(nz))) {
-      args$weight_digits      <- 0L
+      args$weight_digits <- 0L
       if (is.null(args$edge_label_digits)) args$edge_label_digits <- 0L
     }
   }
 
-  if (is_dir) {
-    # Directed: tna_styling = TRUE applies all TNA defaults (oval layout,
-    # node palette, arrow sizing, dotted edge starts, minimum = 0.01, etc.)
-    # If the netobject carries initial probabilities (tna/ftna/atna), show donuts.
+  # Sequence-based TNA family uses TNA styling (oval layout, palette, etc.);
+  # correlation-family (glasso/cor/pcor/ising) uses psych styling. Direction
+  # alone isn't the right signal — build_cna and wtna cooccurrence are
+  # undirected TNA-family networks and still belong in oval layout with no
+  # arrows. When $method is missing (legacy mocks, hand-built netobjects),
+  # fall back to direction: directed -> TNA, undirected -> psych.
+  tna_methods <- c("relative", "frequency", "attention",
+                   "co_occurrence", "wtna", "wtna_cooccurrence")
+  use_tna <- if (!is.null(x$method)) {
+    x$method %in% tna_methods
+  } else {
+    isTRUE(x$directed)
+  }
+
+  if (use_tna) {
     if (!is.null(x$initial) && is.null(args$donut_fill)) {
       args$donut_fill  <- as.numeric(x$initial)
       args$donut_empty <- args$donut_empty %||% FALSE
     }
-    # Default to tna_styling = TRUE unless user explicitly set it
     if (is.null(args$tna_styling)) args$tna_styling <- TRUE
-    do.call(splot, c(list(x = x$weights), args))
   } else {
-    # Undirected: psych_styling = TRUE applies psych network defaults
-    # (spring layout, Okabe-Ito palette, no arrows, predictability donuts).
     if (!is.null(x$predictability) && is.null(args$donut_fill)) {
       args$donut_fill  <- as.numeric(x$predictability)
       args$donut_empty <- args$donut_empty %||% FALSE
     }
-    # Default to psych_styling = TRUE unless user explicitly set it
     if (is.null(args$psych_styling)) args$psych_styling <- TRUE
-    do.call(splot, c(list(x = x$weights), args))
   }
+
+  do.call(splot, c(list(x = x$weights), args))
 }
 
 #' Plot Nestimate GLASSO Bootstrap Results

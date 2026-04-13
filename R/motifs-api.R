@@ -69,19 +69,19 @@
 #'   }
 #'
 #' @examples
-#' \dontrun{
-#' # Census from a matrix
+#' # Census from a matrix (no significance test — fastest path)
 #' mat <- matrix(c(0,3,2,0, 0,0,5,1, 0,0,0,4, 2,0,0,0), 4, 4, byrow = TRUE)
 #' rownames(mat) <- colnames(mat) <- c("Plan","Execute","Monitor","Adapt")
 #' motifs(mat, significance = FALSE)
 #'
+#' # With a minimal significance test (set n_perm >= 500 in practice)
+#' motifs(mat, n_perm = 10L, seed = 1)
+#' \donttest{
 #' if (requireNamespace("tna", quietly = TRUE)) {
-#'   # Census from tna object
+#'   # tna object input — keep n_perm small for example speed
 #'   Mod <- tna::tna(tna::group_regulation)
-#'   motifs(Mod)
-#'
-#'   # Instances: specific node triples
-#'   subgraphs(Mod)
+#'   motifs(Mod, n_perm = 10L, seed = 1)
+#'   subgraphs(Mod, n_perm = 10L, seed = 1)
 #' }
 #' }
 #'

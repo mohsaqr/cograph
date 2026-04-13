@@ -71,22 +71,12 @@ Create visualizations for motif analysis results including network diagrams
 of triads, bar plots of type distributions, and significance plots.
 }
 \examples{
-\dontrun{
-Mod <- tna::tna(tna::group_regulation)
-m <- extract_motifs(Mod, significance = TRUE)
-
-# Default network diagram
+mat <- matrix(c(0,3,2,0, 0,0,5,1, 0,0,0,4, 2,0,0,0), 4, 4, byrow = TRUE)
+rownames(mat) <- colnames(mat) <- c("Plan","Execute","Monitor","Adapt")
+m <- extract_motifs(mat, significance = FALSE)
 plot(m)
-
-# Customize appearance
-plot(m, node_size = 0.15, label_size = 6, title_size = 9)
-
-# Change layout
-plot(m, ncol = 4, n = 12)
-
-# Other plot types
-plot(m, type = "types")
-plot(m, type = "significance")
+\donttest{
+  plot(m, type = "types")
 }
 
 }

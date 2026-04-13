@@ -251,6 +251,13 @@ plot_compare <- function(x, y = NULL,
 
   # Merge donut args with user args (user args take precedence)
   extra_args <- list(...)
+
+  # Translate qgraph-style vsize to node_size
+  if (!is.null(extra_args$vsize) && is.null(extra_args$node_size)) {
+    extra_args$node_size <- extra_args$vsize
+    extra_args$vsize <- NULL
+  }
+
   plot_args <- c(
     list(
       x = diff_mat,

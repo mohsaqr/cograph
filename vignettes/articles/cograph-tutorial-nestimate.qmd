@@ -226,13 +226,13 @@ mot <- cograph::motifs(net, significance = TRUE, n_perm = 100, seed = 42)
 mot
 ```
 
-```{r}
+```{r,fig.width=4, fig.height=2}
 #| label: fig-motifs-types
 #| fig-cap: "Triad type distribution"
 plot(mot, type = "types")
 ```
 
-```{r}
+```{r,fig.width=4, fig.height=2}
 #| label: fig-motifs-sig
 #| fig-cap: "Over- and under-represented triad types"
 plot(mot, type = "significance")

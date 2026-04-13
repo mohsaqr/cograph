@@ -107,6 +107,13 @@ plot_permutation <- function(x,
 
   # Build args list
   args <- list(...)
+
+  # Translate qgraph-style vsize to node_size
+  if (!is.null(args$vsize) && is.null(args$node_size)) {
+    args$node_size <- args$vsize
+    args$vsize <- NULL
+  }
+
   n_nodes <- nrow(weights)
 
   # Apply same rounding as splot to match edge counts
@@ -391,6 +398,13 @@ splot.net_permutation <- function(x,
 
   weights_display <- if (show_nonsig) diffs_true else diffs_sig
   args            <- list(...)
+
+  # Translate qgraph-style vsize to node_size
+  if (!is.null(args$vsize) && is.null(args$node_size)) {
+    args$node_size <- args$vsize
+    args$vsize <- NULL
+  }
+
   n_nodes         <- nrow(weights_display)
 
   # Round to match splot's internal weight_digits (default 2), so edge_idx

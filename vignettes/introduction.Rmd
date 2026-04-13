@@ -461,8 +461,8 @@ p <- mat |> cograph() |> sn_ggplot()
 
 - Saqr, M., López-Pernas, S., Conde, M. A., & Hernández-García, A. (2024). Social Network Analysis: A Primer, a Guide and a Tutorial in R. In *Learning Analytics Methods and Tutorials*. Springer. <https://doi.org/10.1007/978-3-031-54464-4_15>
 
-- Saqr, M., López-Pernas, S., Conde, M. A., & Hernández-García, A. (2024). Community Detection: A Practical Guide to Unraveling Learning Communities. In *Learning Analytics Methods and Tutorials*. Springer. <https://doi.org/10.1007/978-3-031-54464-4_16>
+- Hernández-García, Á., Cuenca-Enrique, C., Traxler, A., López-Pernas, S., Conde-González, M. Á., & Saqr, M. (2024). Community detection in learning networks using R. In *Learning Analytics Methods and Tutorials* (pp. 519–540). Springer. <https://doi.org/10.1007/978-3-031-54464-4_16>
 
-- Saqr, M., López-Pernas, S., Törmänen, T., Kaliisa, R., Misiejuk, K., & Tikka, S. (2025). Transition Network Analysis: A Novel Framework for Modeling, Visualizing, and Identifying the Temporal Patterns of Learners and Learning Processes. In *Proceedings of the 15th LAK Conference* (pp. 351–361). ACM. doi:10.1145/3706468.3706513
+- Saqr, M., López-Pernas, S., Törmänen, T., Kaliisa, R., Misiejuk, K., & Tikka, S. (2025). Transition Network Analysis: A Novel Framework for Modeling, Visualizing, and Identifying the Temporal Patterns of Learners and Learning Processes. In *Proceedings of the 15th LAK Conference* (pp. 351–361). ACM.  <https://doi.org/10.1145/3706468.3706513>
 
-- Tikka, S., López-Pernas, S., & Saqr, M. (2025). tna: An R Package for Transition Network Analysis. *Applied Psychological Measurement*. doi:10.1177/01466216251348840
+- Tikka, S., López-Pernas, S., & Saqr, M. (2025). tna: An R Package for Transition Network Analysis. *Applied Psychological Measurement*. <https://doi.org/10.1177/01466216251348840>

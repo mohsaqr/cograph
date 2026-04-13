@@ -39,6 +39,7 @@
 ^temporal_motifs_demo\.html$
 ^triad_persistence_showcase\.html$
 ^validation$
+^vignettes/\.quarto$
 ^vignettes/.*_cache/*
 ^vignettes/comparison-plots-demo\.Rmd$
 ^vignettes/comparison-plots-demo\.html$

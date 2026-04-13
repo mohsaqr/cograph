@@ -6,6 +6,13 @@
 #' @keywords internal
 NULL
 
+#' @rdname splot.tna_bootstrap
+#' @method plot tna_bootstrap
+#' @export
+plot.tna_bootstrap <- function(x, ...) {
+  splot.tna_bootstrap(x, ...)
+}
+
 #' Plot Bootstrap Results
 #'
 #' Visualizes bootstrap analysis results with styling to distinguish

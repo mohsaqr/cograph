@@ -43,7 +43,7 @@ boot_tna <- bootstrap_network(net_tna, iter = 200, seed = 42)
 ```
 
 ### Linear
-```{r tna-linear, fig.height=8}
+```{r tna-linear, fig.height=10}
 plot_bootstrap_forest(boot_tna,
   title    = "Human-AI Interaction Network",
   subtitle = "95% bootstrap CI  |  200 iterations")
@@ -71,7 +71,7 @@ boot_srl <- boot_glasso(net_srl, iter = 200, seed = 42)
 ```
 
 ### Linear
-```{r srl-linear, fig.height=7}
+```{r srl-linear, fig.height=10}
 plot_bootstrap_forest(boot_srl,
   title = "SRL Strategies — Partial Correlation Network")
 ```
@@ -89,7 +89,7 @@ plot_edge_diff_forest(boot_srl, layout = "tile",
 ```
 
 ### Linear Forest
-```{r ediff-linear, fig.height=8}
+```{r ediff-linear, fig.height=10}
 plot_edge_diff_forest(boot_srl, layout = "linear", n_top = 25,
   title = "Edge Differences — Linear")
 ```
@@ -118,7 +118,7 @@ nets_grp  <- build_network(group_regulation_long,
 boots_grp <- bootstrap_network(nets_grp, iter = 200, seed = 42)
 ```
 
-```{r group-forest, fig.height=8}
+```{r group-forest, fig.height=10}
 plot_bootstrap_forest(boots_grp,
   title    = "Group Regulation — High vs Low Achievers",
   subtitle = "95% bootstrap CI  |  200 iterations per group")

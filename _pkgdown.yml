@@ -1,4 +1,4 @@
-url: http://sonsoles.me/cograph/
+url: https://sonsoles.me/cograph/
 template:
   bootstrap: 5
   bootswatch: yeti
@@ -153,8 +153,7 @@ reference:
     - is_directed
     - is_tna_network
     - lagg
-    - membership.cograph_communities
-    - modularity.cograph_communities
+    - membership
     - mcml
     - n_communities
     - nodes

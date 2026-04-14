@@ -38,21 +38,21 @@ skip_if_not_installed("igraph")
 .write_report <- function() {
   if (length(.equiv_log$rows) == 0L) return(invisible(NULL))
   df <- do.call(rbind, .equiv_log$rows)
-  dir.create("../../tmp", showWarnings = FALSE, recursive = TRUE)
-  utils::write.csv(df, "../../tmp/robustness_equivalence_report.csv",
+  utils::write.csv(df, file.path(tempdir(), "robustness_equivalence_report.csv"),
                    row.names = FALSE)
   cat(sprintf(
     paste0("\n=== ROBUSTNESS EQUIVALENCE REPORT ===\n",
            "Functions: %d | Configs: %d | Checked: %s | Passed: %s | Failed: %s\n",
            "Max delta: %.2e | Mean delta: %.2e | Median delta: %.2e\n",
-           "Report: tmp/robustness_equivalence_report.csv\n"),
+           "Report: %s\n"),
     length(unique(df$function_name)), nrow(df),
     format(sum(df$values_checked), big.mark = ","),
     format(sum(df$values_passed), big.mark = ","),
     format(sum(df$values_failed), big.mark = ","),
     max(df$max_abs_error, na.rm = TRUE),
     mean(df$mean_abs_error, na.rm = TRUE),
-    stats::median(df$median_abs_error, na.rm = TRUE)
+    stats::median(df$median_abs_error, na.rm = TRUE),
+    file.path(tempdir(), "robustness_equivalence_report.csv")
   ))
   invisible(df)
 }

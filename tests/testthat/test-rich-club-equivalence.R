@@ -24,8 +24,7 @@ skip_if_not_installed("igraph")
 .write_rc_report <- function() {
   if (length(.rc_log$rows) == 0L) return(invisible(NULL))
   df <- do.call(rbind, .rc_log$rows)
-  dir.create("../../tmp", showWarnings = FALSE, recursive = TRUE)
-  utils::write.csv(df, "../../tmp/rich_club_equivalence_report.csv",
+  utils::write.csv(df, file.path(tempdir(), "rich_club_equivalence_report.csv"),
                    row.names = FALSE)
   cat(sprintf(
     "\n=== RICH CLUB EQUIVALENCE REPORT ===\nFunctions: %d\nConfigs: %d\nValues checked: %s\nPassed: %s\nFailed: %s\nMax error: %.2e\n",

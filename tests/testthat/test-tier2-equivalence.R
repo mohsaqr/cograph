@@ -36,16 +36,16 @@ skip_if_not_installed("igraph")
 .write_report <- function() {
   if (length(.equiv_log$rows) == 0L) return(invisible(NULL))
   df <- do.call(rbind, .equiv_log$rows)
-  dir.create("../../tmp", showWarnings = FALSE, recursive = TRUE)
-  utils::write.csv(df, "../../tmp/equivalence_report.csv", row.names = FALSE)
+  utils::write.csv(df, file.path(tempdir(), "equivalence_report.csv"), row.names = FALSE)
   cat(sprintf(
-    "\n=== EQUIVALENCE REPORT ===\nFunctions tested: %d\nConfigurations: %d\nTotal values checked: %s\nTotal passed: %s\nTotal failed: %s\nMax absolute error: %.2e\nReport: tmp/equivalence_report.csv\n",
+    "\n=== EQUIVALENCE REPORT ===\nFunctions tested: %d\nConfigurations: %d\nTotal values checked: %s\nTotal passed: %s\nTotal failed: %s\nMax absolute error: %.2e\nReport: %s\n",
     length(unique(df$function_name)),
     nrow(df),
     format(sum(df$values_checked), big.mark = ","),
     format(sum(df$values_passed), big.mark = ","),
     format(sum(df$values_failed), big.mark = ","),
-    max(df$max_abs_error, na.rm = TRUE)
+    max(df$max_abs_error, na.rm = TRUE),
+    file.path(tempdir(), "equivalence_report.csv")
   ))
   invisible(df)
 }

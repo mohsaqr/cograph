@@ -1908,7 +1908,7 @@ calculate_reaching_local <- function(g, mode = "all", weights = NULL) {
       p <- as.integer(p)
       plen <- length(p) - 1L
       if (plen <= 0L) return(0)  # unreachable or self
-      eids <- igraph::get_edge_ids(g, vp = cbind(p[-length(p)], p[-1L]))
+      eids <- igraph::get_edge_ids(g, vp = as.vector(rbind(p[-length(p)], p[-1L])))
       sum(w[eids]) / plen
     }, numeric(1))
 

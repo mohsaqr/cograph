@@ -139,7 +139,7 @@ splot(tna_models$G1)
 # -----------------------------------------------------
 # Centrality analysis via tna (optional dependency)
 # -----------------------------------------------------
-\donttest{
+\dontrun{
 if (requireNamespace("tna", quietly = TRUE)) {
   tna::centralities(tna_models$macro)
   tna::centralities(tna_models$G1)

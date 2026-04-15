@@ -272,7 +272,9 @@ test_that("parse_tna handles single-element sessions", {
 test_that("simplify with real tna data produces correct totals", {
   skip_on_cran()
   skip_if_not_installed("tna")
+  skip_if_not_installed("Nestimate")
   library(tna)
+  library(Nestimate)
   mod <- tna(human_wide)
 
   parsed_raw <- parse_tna(mod, simplify = FALSE)

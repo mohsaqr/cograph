@@ -357,39 +357,6 @@ Detect sequential dependencies beyond first-order Markov models. Requires the **
 | `q_analysis()` | Multi-level structural connectivity |
 | `verify_simplicial()` | Cross-validate via Euler-Poincare theorem |
 
-## Nestimate integration
-
-**Nestimate** estimates networks from sequence data. Its objects dispatch through `splot()` automatically.
-
-```{r eval=FALSE}
-library(Nestimate)
-net <- build_network(data, method = "relative")
-splot(net)
-
-boot <- bootstrap_network(net, iter = 1000)
-splot(boot)
-plot_bootstrap_forest(boot)
-plot_bootstrap_forest(boot, layout = "circular")
-plot_bootstrap_forest(boot, layout = "grouped")
-
-grp <- build_network(data, method = "relative", group = "condition")
-splot(grp)
-
-perm <- permutation_test(grp$A, grp$B, iter = 1000)
-splot(perm)
-```
-
-Estimation methods: `"relative"`, `"frequency"`, `"attention"`, `"glasso"`, `"pcor"`, `"co_occurrence"`.
-
-| Object | splot() produces |
-|--------|-----------------|
-| `netobject` | Network plot (TNA styling) |
-| `net_bootstrap` | Stability-styled (solid = stable, dashed = unstable) |
-| `netobject_group` | Multi-panel grid (one per group) |
-| `net_permutation` | Colored difference network |
-| `boot_glasso` | GLASSO bootstrap stability |
-| `wtna_mixed` | Mixed window TNA |
-
 ## TNA integration
 
 Direct support for all tna package objects:

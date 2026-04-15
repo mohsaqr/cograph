@@ -23,7 +23,7 @@ network_small_world(x, n_random = 10, ...)
 - ...:
 
   Additional arguments passed to
-  [`to_igraph`](http://sonsoles.me/cograph/reference/to_igraph.md)
+  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
 
 ## Value
 
@@ -42,5 +42,5 @@ if (requireNamespace("igraph", quietly = TRUE)) {
   g <- igraph::sample_smallworld(1, 20, 3, 0.1)
   network_small_world(g)  # Should be > 1
 }
-#> [1] 1.311374
+#> [1] 1.240705
 ```

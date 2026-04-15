@@ -4,7 +4,7 @@
 
 cograph accepts network data in all common formats used in R. Pass any
 supported object directly to
-[`splot()`](http://sonsoles.me/cograph/reference/splot.md) and it will
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md) and it will
 be automatically parsed.
 
 ## Supported Formats
@@ -544,11 +544,11 @@ Requires the `network` package. Preserves edge weights and vertex names.
 
 | Function | Output | Use Case |
 |----|----|----|
-| [`as_cograph()`](http://sonsoles.me/cograph/reference/as_cograph.md) / [`to_cograph()`](http://sonsoles.me/cograph/reference/as_cograph.md) | `cograph_network` | Import for visualization with splot |
-| [`to_igraph()`](http://sonsoles.me/cograph/reference/to_igraph.md) | `igraph` | Use igraph’s analysis functions |
-| [`to_df()`](http://sonsoles.me/cograph/reference/to_data_frame.md) | `data.frame` | Export to CSV, database, or other tools |
-| [`to_matrix()`](http://sonsoles.me/cograph/reference/to_matrix.md) | `matrix` | Export to adjacency matrix for other packages |
-| [`to_network()`](http://sonsoles.me/cograph/reference/to_network.md) | `network` | Use with statnet/ergm ecosystem |
+| [`as_cograph()`](https://sonsoles.me/cograph/reference/as_cograph.md) / [`to_cograph()`](https://sonsoles.me/cograph/reference/as_cograph.md) | `cograph_network` | Import for visualization with splot |
+| [`to_igraph()`](https://sonsoles.me/cograph/reference/to_igraph.md) | `igraph` | Use igraph’s analysis functions |
+| [`to_df()`](https://sonsoles.me/cograph/reference/to_data_frame.md) | `data.frame` | Export to CSV, database, or other tools |
+| [`to_matrix()`](https://sonsoles.me/cograph/reference/to_matrix.md) | `matrix` | Export to adjacency matrix for other packages |
+| [`to_network()`](https://sonsoles.me/cograph/reference/to_network.md) | `network` | Use with statnet/ergm ecosystem |
 
 ## Format Summary
 
@@ -556,7 +556,7 @@ Requires the `network` package. Preserves edge weights and vertex names.
 |----|----|----|----|----|
 | Matrix | `matrix` | Symmetry check | Cell values | dimnames |
 | Edge list | `data.frame` | Reciprocal check | weight column | Unique nodes |
-| igraph | `igraph` | [`is_directed()`](http://sonsoles.me/cograph/reference/is_directed.md) | weight attr | name attr |
+| igraph | `igraph` | [`is_directed()`](https://sonsoles.me/cograph/reference/is_directed.md) | weight attr | name attr |
 | network | `network` | `is.directed()` | weight attr | vertex.names |
 | qgraph | `qgraph` | Edgelist | Edgelist | Node names |
 | tna | `tna` | Always TRUE | `$weights` | `$labels` |

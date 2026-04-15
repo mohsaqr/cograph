@@ -2,13 +2,10 @@
 
 ## Overview
 
-[`plot_bootstrap_forest()`](http://sonsoles.me/cograph/reference/plot_bootstrap_forest.md)
+[`plot_bootstrap_forest()`](https://sonsoles.me/cograph/reference/plot_bootstrap_forest.md)
 visualises bootstrapped edge weights and confidence intervals for any
-network estimated with
-[`bootstrap_network()`](https://rdrr.io/pkg/Nestimate/man/bootstrap_network.html)
-or
-[`boot_glasso()`](https://rdrr.io/pkg/Nestimate/man/boot_glasso.html).
-Three layouts are available:
+network estimated with `bootstrap_network()` or `boot_glasso()`. Three
+layouts are available:
 
 | Layout       | Best for                                  |
 |--------------|-------------------------------------------|
@@ -16,7 +13,7 @@ Three layouts are available:
 | `"circular"` | Medium networks, publication figures      |
 | `"grouped"`  | Source-node grouping, colour by community |
 
-[`plot_edge_diff_forest()`](http://sonsoles.me/cograph/reference/plot_edge_diff_forest.md)
+[`plot_edge_diff_forest()`](https://sonsoles.me/cograph/reference/plot_edge_diff_forest.md)
 visualises **pairwise edge weight differences** from a `boot_glasso`
 object. Four layouts: `"linear"`, `"circular"`, `"chord"`, `"tile"`.
 

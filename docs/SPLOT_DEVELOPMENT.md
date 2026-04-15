@@ -2,12 +2,12 @@
 
 ## Overview
 
-[`splot()`](http://sonsoles.me/cograph/reference/splot.md) is a base R
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md) is a base R
 graphics network visualization function, designed as an alternative to
-[`soplot()`](http://sonsoles.me/cograph/reference/soplot.md) which uses
+[`soplot()`](https://sonsoles.me/cograph/reference/soplot.md) which uses
 grid graphics. The goal is to replicate qgraph-style visualizations with
 better performance while maintaining API consistency with
-[`soplot()`](http://sonsoles.me/cograph/reference/soplot.md).
+[`soplot()`](https://sonsoles.me/cograph/reference/soplot.md).
 
 ## Philosophy
 
@@ -20,7 +20,7 @@ better performance while maintaining API consistency with
     [`symbols()`](https://rdrr.io/r/graphics/symbols.html)) are faster
     than grid grobs for large networks
 2.  **Consistency**: Parameters use snake_case naming matching
-    [`soplot()`](http://sonsoles.me/cograph/reference/soplot.md) for
+    [`soplot()`](https://sonsoles.me/cograph/reference/soplot.md) for
     unified API
 3.  **Simplicity**: Direct coordinate system without NPC unit
     conversions
@@ -63,7 +63,7 @@ better performance while maintaining API consistency with
 | `R/splot-edges.R` | Edge rendering (straight, curved, self-loops) |
 | `R/splot-nodes.R` | Node rendering with pie/donut support |
 | `R/splot-arrows.R` | Arrow head drawing |
-| `R/splot-geometry.R` | Coordinate transforms, [`cent_to_edge()`](http://sonsoles.me/cograph/reference/cent_to_edge.md) |
+| `R/splot-geometry.R` | Coordinate transforms, [`cent_to_edge()`](https://sonsoles.me/cograph/reference/cent_to_edge.md) |
 | `R/splot-params.R` | Parameter vectorization helpers |
 | `R/splot-polygons.R` | Shape vertex definitions |
 | `R/splot-labels.R` | Edge label template formatting helpers |
@@ -120,11 +120,11 @@ edges should curve inward toward the network center. Previously, the
 direction was inconsistent.
 
 **Solution**: The issue was that
-[`render_edges_splot()`](http://sonsoles.me/cograph/reference/render_edges_splot.md)
+[`render_edges_splot()`](https://sonsoles.me/cograph/reference/render_edges_splot.md)
 in `splot.R` was not applying the inward curve logic that existed in
-[`render_edges_base()`](http://sonsoles.me/cograph/reference/render_edges_base.md).
+[`render_edges_base()`](https://sonsoles.me/cograph/reference/render_edges_base.md).
 Fixed by adding the same logic to
-[`render_edges_splot()`](http://sonsoles.me/cograph/reference/render_edges_splot.md): 1.
+[`render_edges_splot()`](https://sonsoles.me/cograph/reference/render_edges_splot.md): 1.
 Calculate network center as mean of all node positions 2. For each edge
 with positive curve value, use cross product to determine which side of
 the edge the center is on 3. Adjust curve sign: positive (bend left) if
@@ -150,7 +150,7 @@ output. The parameter is passed to
 curve, causing overlap with the edge line.
 
 **Solution**: Added perpendicular offset to
-[`get_edge_label_position()`](http://sonsoles.me/cograph/reference/get_edge_label_position.md)
+[`get_edge_label_position()`](https://sonsoles.me/cograph/reference/get_edge_label_position.md)
 in `splot-edges.R`. Labels are now offset away from the edge line: - For
 curved edges: offset in the direction of the curve bulge (convex side) -
 For straight edges: offset perpendicular to the edge - Default offset of
@@ -162,7 +162,7 @@ For straight edges: offset perpendicular to the edge - Default offset of
 node sizes.
 
 **Solution**: Enhanced
-[`render_legend_splot()`](http://sonsoles.me/cograph/reference/render_legend_splot.md)
+[`render_legend_splot()`](https://sonsoles.me/cograph/reference/render_legend_splot.md)
 to support three legend components: 1. **Node groups**: Filled squares
 showing group colors with labels 2. **Edge colors**: Lines showing
 positive/negative weight colors (controlled by `legend.edge.colors`
@@ -171,24 +171,24 @@ small/medium/large scale (controlled by `legend.node.sizes` parameter,
 default FALSE)
 
 New parameters added to
-[`splot()`](http://sonsoles.me/cograph/reference/splot.md): -
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md): -
 `legend.edge.colors`: Show positive/negative edge color legend (default
 TRUE) - `legend.node.sizes`: Show node size scale legend (default FALSE)
 
 ### 5. ~~HIGH PRIORITY: Unified API with soplot()~~ DONE
 
-**Problem**: [`splot()`](http://sonsoles.me/cograph/reference/splot.md)
+**Problem**: [`splot()`](https://sonsoles.me/cograph/reference/splot.md)
 used qgraph-style parameter names (e.g., `vsize`, `edge.color`,
 `posCol`) while
-[`soplot()`](http://sonsoles.me/cograph/reference/soplot.md) used
+[`soplot()`](https://sonsoles.me/cograph/reference/soplot.md) used
 snake_case (e.g., `node_size`, `edge_color`, `positive_color`). This
 inconsistency made it harder for users to switch between the two
 functions.
 
 **Solution**: Updated
-[`splot()`](http://sonsoles.me/cograph/reference/splot.md) to use the
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md) to use the
 same snake_case parameter names as
-[`soplot()`](http://sonsoles.me/cograph/reference/soplot.md). The full
+[`soplot()`](https://sonsoles.me/cograph/reference/soplot.md). The full
 mapping:
 
 | Old (qgraph-style)    | New (snake_case)      |
@@ -253,9 +253,9 @@ representing uncertainty 2. **Main edge (second pass)**: normal
 rendering on top
 
 New parameters for
-[`splot()`](http://sonsoles.me/cograph/reference/splot.md): \| Parameter
-\| Type \| Default \| Description \| \|———–\|——\|———\|————-\| \|
-`edge_ci` \| numeric \| NULL \| CI width values (0-1 scale, bigger =
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md): \|
+Parameter \| Type \| Default \| Description \| \|———–\|——\|———\|————-\|
+\| `edge_ci` \| numeric \| NULL \| CI width values (0-1 scale, bigger =
 more uncertainty) \| \| `edge_ci_scale` \| numeric \| 2.0 \| Width
 multiplier for underlay thickness \| \| `edge_ci_alpha` \| numeric \|
 0.15 \| Transparency for underlay (0-1) \| \| `edge_ci_color` \|
@@ -264,9 +264,9 @@ character \| NA \| Underlay color (NA = use main edge color) \| \|
 3=dotted \| \| `edge_ci_arrows` \| logical \| FALSE \| Show arrows on
 underlay? \|
 
-For [`soplot()`](http://sonsoles.me/cograph/reference/soplot.md), these
+For [`soplot()`](https://sonsoles.me/cograph/reference/soplot.md), these
 are available via
-[`sn_edges()`](http://sonsoles.me/cograph/reference/sn_edges.md) as:
+[`sn_edges()`](https://sonsoles.me/cograph/reference/sn_edges.md) as:
 `ci`, `ci_scale`, `ci_alpha`, `ci_color`, `ci_style`, `ci_arrows`.
 
 Example:
@@ -308,16 +308,16 @@ custom templates.
 significance stars \| `**` \|
 
 New parameters for
-[`splot()`](http://sonsoles.me/cograph/reference/splot.md): \| Parameter
-\| Type \| Default \| Description \| \|———–\|——\|———\|————-\| \|
-`edge_label_style` \| character \| “none” \| Preset: “none”, “estimate”,
-“full”, “range”, “stars” \| \| `edge_label_template` \| character \|
-NULL \| Custom template (overrides style) \| \| `edge_label_digits` \|
-numeric \| 2 \| Decimal places for estimates \| \| `edge_label_oneline`
-\| logical \| TRUE \| Single line format \| \| `edge_label_ci_format` \|
-character \| “bracket” \| CI format: “bracket” or “dash” \| \|
-`edge_ci_lower` \| numeric \| NULL \| Lower CI bounds \| \|
-`edge_ci_upper` \| numeric \| NULL \| Upper CI bounds \| \|
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md): \|
+Parameter \| Type \| Default \| Description \| \|———–\|——\|———\|————-\|
+\| `edge_label_style` \| character \| “none” \| Preset: “none”,
+“estimate”, “full”, “range”, “stars” \| \| `edge_label_template` \|
+character \| NULL \| Custom template (overrides style) \| \|
+`edge_label_digits` \| numeric \| 2 \| Decimal places for estimates \|
+\| `edge_label_oneline` \| logical \| TRUE \| Single line format \| \|
+`edge_label_ci_format` \| character \| “bracket” \| CI format: “bracket”
+or “dash” \| \| `edge_ci_lower` \| numeric \| NULL \| Lower CI bounds \|
+\| `edge_ci_upper` \| numeric \| NULL \| Upper CI bounds \| \|
 `edge_label_p` \| numeric \| NULL \| P-values \| \|
 `edge_label_p_digits` \| numeric \| 3 \| Decimal places for p-values \|
 \| `edge_label_p_prefix` \| character \| “p=” \| Prefix for p-values \|
@@ -327,9 +327,9 @@ numeric p-values \|
 Stars conversion from p-values: - p \< 0.001 → `***` - p \< 0.01 →
 `**` - p \< 0.05 → `*` - otherwise → (empty)
 
-For [`soplot()`](http://sonsoles.me/cograph/reference/soplot.md), these
+For [`soplot()`](https://sonsoles.me/cograph/reference/soplot.md), these
 are available via
-[`sn_edges()`](http://sonsoles.me/cograph/reference/sn_edges.md) as:
+[`sn_edges()`](https://sonsoles.me/cograph/reference/sn_edges.md) as:
 `label_style`, `label_template`, `label_digits`, `label_ci_format`,
 `ci_lower`, `ci_upper`, `label_p`, `label_p_digits`, `label_p_prefix`,
 `label_stars`.

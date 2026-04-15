@@ -32,7 +32,7 @@ network_rich_club(x, k = NULL, normalized = FALSE, n_random = 10, ...)
 - ...:
 
   Additional arguments passed to
-  [`to_igraph`](http://sonsoles.me/cograph/reference/to_igraph.md)
+  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
 
 ## Value
 
@@ -49,5 +49,5 @@ if (requireNamespace("igraph", quietly = TRUE)) {
 }
 #> Warning: `barabasi.game()` was deprecated in igraph 2.0.0.
 #> ℹ Please use `sample_pa()` instead.
-#> [1] 0.3555556
+#> [1] 0.2666667
 ```

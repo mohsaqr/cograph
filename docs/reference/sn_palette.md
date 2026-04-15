@@ -36,7 +36,7 @@ Modified cograph_network object.
 ### Available Palettes
 
 Use
-[`list_palettes()`](http://sonsoles.me/cograph/reference/list_palettes.md)
+[`list_palettes()`](https://sonsoles.me/cograph/reference/list_palettes.md)
 to see all available palettes. Common options:
 
 - **viridis**:
@@ -64,15 +64,16 @@ You can also pass a custom palette function that takes `n` and returns
 
 ## See also
 
-[`cograph`](http://sonsoles.me/cograph/reference/cograph.md) for network
-creation, [`sn_theme`](http://sonsoles.me/cograph/reference/sn_theme.md)
-for visual themes,
-[`sn_nodes`](http://sonsoles.me/cograph/reference/sn_nodes.md) for node
+[`cograph`](https://sonsoles.me/cograph/reference/cograph.md) for
+network creation,
+[`sn_theme`](https://sonsoles.me/cograph/reference/sn_theme.md) for
+visual themes,
+[`sn_nodes`](https://sonsoles.me/cograph/reference/sn_nodes.md) for node
 customization,
-[`list_palettes`](http://sonsoles.me/cograph/reference/list_palettes.md)
+[`list_palettes`](https://sonsoles.me/cograph/reference/list_palettes.md)
 to see available palettes,
-[`splot`](http://sonsoles.me/cograph/reference/splot.md) and
-[`soplot`](http://sonsoles.me/cograph/reference/soplot.md) for plotting
+[`splot`](https://sonsoles.me/cograph/reference/splot.md) and
+[`soplot`](https://sonsoles.me/cograph/reference/soplot.md) for plotting
 
 ## Examples
 

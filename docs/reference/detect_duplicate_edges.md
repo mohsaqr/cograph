@@ -8,7 +8,7 @@ duplicates.
 ## Usage
 
 ``` r
-detect_duplicate_edges(edges)
+detect_duplicate_edges(edges, directed = FALSE)
 ```
 
 ## Arguments
@@ -50,5 +50,5 @@ undirected mode.
 
 ## See also
 
-[`aggregate_duplicate_edges`](http://sonsoles.me/cograph/reference/aggregate_duplicate_edges.md)
+[`aggregate_duplicate_edges`](https://sonsoles.me/cograph/reference/aggregate_duplicate_edges.md)
 for combining duplicates into single edges

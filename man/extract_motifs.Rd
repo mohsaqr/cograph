@@ -144,7 +144,7 @@ rownames(mat) <- colnames(mat) <- c("Plan","Execute","Monitor","Adapt")
 m <- extract_motifs(mat, significance = FALSE)
 print(m)
 
-\donttest{
+\dontrun{
 if (requireNamespace("tna", quietly = TRUE)) {
   Mod <- tna::tna(tna::group_regulation)
 

@@ -27,7 +27,7 @@ centrality_outstrength(x, ...)
 - ...:
 
   Additional arguments passed to
-  [`centrality`](http://sonsoles.me/cograph/reference/centrality.md)
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md)
   (e.g., `normalized`, `weighted`, `directed`).
 
 ## Value
@@ -36,9 +36,9 @@ Named numeric vector of strength values.
 
 ## See also
 
-[`centrality`](http://sonsoles.me/cograph/reference/centrality.md) for
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
 computing multiple measures at once,
-[`centrality_degree`](http://sonsoles.me/cograph/reference/centrality_degree.md)
+[`centrality_degree`](https://sonsoles.me/cograph/reference/centrality_degree.md)
 for the unweighted version.
 
 ## Examples

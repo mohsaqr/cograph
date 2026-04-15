@@ -1413,7 +1413,7 @@ build_mcml <- function(x,
 #' # -----------------------------------------------------
 #' # Centrality analysis via tna (optional dependency)
 #' # -----------------------------------------------------
-#' \donttest{
+#' \dontrun{
 #' if (requireNamespace("tna", quietly = TRUE)) {
 #'   tna::centralities(tna_models$macro)
 #'   tna::centralities(tna_models$G1)

@@ -18,7 +18,7 @@ centrality_betweenness(x, ...)
 - ...:
 
   Additional arguments passed to
-  [`centrality`](http://sonsoles.me/cograph/reference/centrality.md)
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md)
   (e.g., `normalized`, `weighted`, `directed`, `cutoff`,
   `invert_weights`).
 
@@ -28,9 +28,9 @@ Named numeric vector of betweenness values.
 
 ## See also
 
-[`centrality`](http://sonsoles.me/cograph/reference/centrality.md) for
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
 computing multiple measures at once,
-[`centrality_load`](http://sonsoles.me/cograph/reference/centrality_load.md)
+[`centrality_load`](https://sonsoles.me/cograph/reference/centrality_load.md)
 for a related measure.
 
 ## Examples

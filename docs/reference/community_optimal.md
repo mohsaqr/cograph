@@ -24,14 +24,14 @@ com_op(x, weights = NULL, ...)
 - ...:
 
   Additional arguments passed to
-  [`to_igraph`](http://sonsoles.me/cograph/reference/to_igraph.md)
+  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
 
 ## Value
 
 A `cograph_communities` object
 
 A `cograph_communities` object. See
-[`detect_communities`](http://sonsoles.me/cograph/reference/detect_communities.md).
+[`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md).
 
 ## Note
 
@@ -48,13 +48,19 @@ Transactions on Knowledge and Data Engineering*, 20(2), 172-188.
 ``` r
 g <- igraph::make_ring(10)
 comm <- community_optimal(g)
-igraph::membership(comm)
-#>  [1] 1 1 2 2 2 3 3 3 3 1
+membership(comm)
+#>  1  2  3  4  5  6  7  8  9 10 
+#>  1  1  2  2  2  3  3  3  3  1 
 net <- as_cograph(matrix(runif(25), 5, 5))
 com_op(net)
 #> Community structure (optimal)
-#>   Number of communities: 2 
-#>   Modularity: 0.2432 
-#>   Community sizes: 4, 1 
-#>   Nodes: 5 
+#>   Nodes: 5  | Communities: 2  | Modularity: 0.2432 
+#>   Sizes: 4, 1 
+#> 
+#>  node community
+#>     1         1
+#>     2         2
+#>     3         1
+#>     4         1
+#>     5         1
 ```

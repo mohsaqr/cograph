@@ -32,7 +32,7 @@ csig(
 - communities:
 
   A communities object (from
-  [`communities`](http://sonsoles.me/cograph/reference/communities.md)
+  [`communities`](https://sonsoles.me/cograph/reference/communities.md)
   or igraph) or a membership vector (integer vector where
   `communities[i]` is the community of node i).
 
@@ -121,8 +121,8 @@ community detection. *Physical Review E*, 74, 016110.
 
 ## See also
 
-[`communities`](http://sonsoles.me/cograph/reference/communities.md),
-[`cluster_quality`](http://sonsoles.me/cograph/reference/cluster_quality.md)
+[`communities`](https://sonsoles.me/cograph/reference/communities.md),
+[`cluster_quality`](https://sonsoles.me/cograph/reference/cluster_quality.md)
 
 ## Examples
 

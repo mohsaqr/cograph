@@ -27,7 +27,7 @@ centrality_outcloseness(x, ...)
 - ...:
 
   Additional arguments passed to
-  [`centrality`](http://sonsoles.me/cograph/reference/centrality.md)
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md)
   (e.g., `normalized`, `weighted`, `directed`).
 
 ## Value
@@ -36,9 +36,9 @@ Named numeric vector of closeness values.
 
 ## See also
 
-[`centrality`](http://sonsoles.me/cograph/reference/centrality.md) for
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
 computing multiple measures at once,
-[`centrality_harmonic`](http://sonsoles.me/cograph/reference/centrality_harmonic.md)
+[`centrality_harmonic`](https://sonsoles.me/cograph/reference/centrality_harmonic.md)
 for a variant that handles disconnected graphs.
 
 ## Examples

@@ -20,9 +20,9 @@ A data frame with columns: id, label, name, x, y (and possibly others).
 
 ## See also
 
-[`as_cograph`](http://sonsoles.me/cograph/reference/as_cograph.md),
-[`n_nodes`](http://sonsoles.me/cograph/reference/n_nodes.md),
-[`get_edges`](http://sonsoles.me/cograph/reference/get_edges.md)
+[`as_cograph`](https://sonsoles.me/cograph/reference/as_cograph.md),
+[`n_nodes`](https://sonsoles.me/cograph/reference/n_nodes.md),
+[`get_edges`](https://sonsoles.me/cograph/reference/get_edges.md)
 
 ## Examples
 

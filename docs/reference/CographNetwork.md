@@ -134,7 +134,7 @@ A new CographNetwork object.
 
 ------------------------------------------------------------------------
 
-### Method [`set_nodes()`](http://sonsoles.me/cograph/reference/set_nodes.md)
+### Method [`set_nodes()`](https://sonsoles.me/cograph/reference/set_nodes.md)
 
 Set nodes data frame.
 
@@ -150,7 +150,7 @@ Set nodes data frame.
 
 ------------------------------------------------------------------------
 
-### Method [`set_edges()`](http://sonsoles.me/cograph/reference/set_edges.md)
+### Method [`set_edges()`](https://sonsoles.me/cograph/reference/set_edges.md)
 
 Set edges data frame.
 
@@ -262,7 +262,7 @@ Set theme.
 
 ------------------------------------------------------------------------
 
-### Method [`get_nodes()`](http://sonsoles.me/cograph/reference/get_nodes.md)
+### Method [`get_nodes()`](https://sonsoles.me/cograph/reference/get_nodes.md)
 
 Get nodes data frame.
 
@@ -276,7 +276,7 @@ Data frame with node information.
 
 ------------------------------------------------------------------------
 
-### Method [`get_edges()`](http://sonsoles.me/cograph/reference/get_edges.md)
+### Method [`get_edges()`](https://sonsoles.me/cograph/reference/get_edges.md)
 
 Get edges data frame.
 
@@ -290,7 +290,7 @@ Data frame with edge information.
 
 ------------------------------------------------------------------------
 
-### Method [`get_layout()`](http://sonsoles.me/cograph/reference/get_layout.md)
+### Method [`get_layout()`](https://sonsoles.me/cograph/reference/get_layout.md)
 
 Get layout coordinates.
 
@@ -332,7 +332,7 @@ List of edge aesthetic parameters.
 
 ------------------------------------------------------------------------
 
-### Method [`get_theme()`](http://sonsoles.me/cograph/reference/get_theme.md)
+### Method [`get_theme()`](https://sonsoles.me/cograph/reference/get_theme.md)
 
 Get theme.
 

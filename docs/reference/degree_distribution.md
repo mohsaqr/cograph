@@ -1,9 +1,8 @@
 # Degree Distribution Visualization
 
-Creates a histogram showing the degree distribution of a network. Useful
-for understanding the connectivity patterns and identifying whether a
-network follows particular degree distributions (e.g., power-law,
-normal).
+Creates a histogram or cumulative distribution plot of node degrees. By
+default, bins are integer-aligned (one bar per degree value) so each bar
+maps to an exact degree.
 
 ## Usage
 
@@ -15,10 +14,16 @@ degree_distribution(
   loops = TRUE,
   simplify = "sum",
   cumulative = FALSE,
+  breaks = NULL,
+  bins = NULL,
+  bin_width = NULL,
+  normalize = FALSE,
+  log = "",
   main = "Degree Distribution",
   xlab = "Degree",
-  ylab = "Frequency",
+  ylab = NULL,
   col = "steelblue",
+  border = "white",
   ...
 )
 ```
@@ -27,7 +32,8 @@ degree_distribution(
 
 - x:
 
-  Network input: matrix, igraph, network, cograph_network, or tna object
+  Network input: matrix, igraph, network, cograph_network, or tna
+  object.
 
 - mode:
 
@@ -50,8 +56,37 @@ degree_distribution(
 
 - cumulative:
 
-  Logical. If TRUE, show cumulative distribution instead of frequency
-  distribution. Default FALSE.
+  Logical. If TRUE, show CCDF (complementary cumulative distribution:
+  P(degree \>= k)) instead of frequency. Default FALSE.
+
+- breaks:
+
+  Bin specification passed to
+  [`hist`](https://rdrr.io/r/graphics/hist.html). Can be a numeric
+  vector of breakpoints, a single number giving the number of bins, or a
+  character string naming an algorithm (e.g. "Sturges", "FD", "scott").
+  Overrides `bins` and `bin_width`. Default NULL (auto-detect).
+
+- bins:
+
+  Integer. Approximate number of bins. Overrides `bin_width`. Default
+  NULL.
+
+- bin_width:
+
+  Numeric. Width of each bin. Default NULL (auto: 1 when the degree
+  range is \\\le 50\\, otherwise Freedman-Diaconis).
+
+- normalize:
+
+  Logical. If TRUE, the y-axis shows proportions (bars sum to 1) instead
+  of counts. Default FALSE.
+
+- log:
+
+  Character. Axis log-scaling: "" (none, default), "x", "y", or "xy".
+  For cumulative plots, "xy" produces log-log CCDF (standard for
+  power-law inspection).
 
 - main:
 
@@ -63,27 +98,51 @@ degree_distribution(
 
 - ylab:
 
-  Character. Y-axis label. Default "Frequency" (or "Cumulative
-  Frequency" if cumulative = TRUE).
+  Character. Y-axis label. Default auto-chosen based on `normalize` and
+  `cumulative`.
 
 - col:
 
-  Character. Bar fill color. Default "steelblue".
+  Character. Bar/line fill color. Default "steelblue".
+
+- border:
+
+  Character. Bar border color. Default "white".
 
 - ...:
 
-  Additional arguments passed to
-  [`hist`](https://rdrr.io/r/graphics/hist.html).
+  Additional graphical arguments passed to
+  [`barplot`](https://rdrr.io/r/graphics/barplot.html) (histogram) or
+  [`plot`](https://rdrr.io/r/graphics/plot.default.html) (cumulative).
 
 ## Value
 
-Invisibly returns the histogram object from
-[`graphics::hist()`](https://rdrr.io/r/graphics/hist.html).
+Invisibly returns a list with components:
+
+- degree:
+
+  Named integer vector of per-node degrees.
+
+- table:
+
+  Table of degree frequencies.
+
+- breaks:
+
+  Breakpoints used for the histogram (non-cumulative only).
+
+- counts:
+
+  Bin counts (non-cumulative only).
+
+- proportions:
+
+  Bin proportions (non-cumulative only).
 
 ## Examples
 
 ``` r
-# Basic usage
+# Basic usage — integer-aligned bins by default
 adj <- matrix(c(0, 1, 1, 0,
                 1, 0, 1, 1,
                 1, 1, 0, 1,
@@ -91,9 +150,16 @@ adj <- matrix(c(0, 1, 1, 0,
 cograph::degree_distribution(adj)
 
 
-# Cumulative distribution
+# Cumulative (CCDF)
 cograph::degree_distribution(adj, cumulative = TRUE)
 
+
+# Control bins
+if (FALSE) { # \dontrun{
+cograph::degree_distribution(large_net, bins = 15)
+cograph::degree_distribution(large_net, bin_width = 5)
+cograph::degree_distribution(large_net, breaks = c(0, 5, 10, 20, 50, 100))
+} # }
 
 # For directed networks
 directed_adj <- matrix(c(0, 1, 0, 0,
@@ -106,9 +172,7 @@ cograph::degree_distribution(directed_adj, mode = "in",
 
 # With igraph
 if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::erdos.renyi.game(100, 0.1)
+  g <- igraph::sample_gnp(100, 0.1)
   cograph::degree_distribution(g, col = "coral")
 }
-#> Warning: `erdos.renyi.game()` was deprecated in igraph 0.8.0.
-#> ℹ Please use `sample_gnp()` instead.
 ```

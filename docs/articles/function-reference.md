@@ -68,8 +68,8 @@ The core plotting functions for network visualization.
 
 | Function | Description |
 |----|----|
-| [`splot()`](http://sonsoles.me/cograph/reference/splot.md) | Main plotting function using base R graphics |
-| [`soplot()`](http://sonsoles.me/cograph/reference/soplot.md) | Grid/ggplot2-style network plotting |
+| [`splot()`](https://sonsoles.me/cograph/reference/splot.md) | Main plotting function using base R graphics |
+| [`soplot()`](https://sonsoles.me/cograph/reference/soplot.md) | Grid/ggplot2-style network plotting |
 
 ``` r
 
@@ -97,10 +97,10 @@ For multi-group, bipartite, and multilevel network structures.
 
 | Function | Description |
 |----|----|
-| [`plot_htna()`](http://sonsoles.me/cograph/reference/plot_htna.md) | Heterogeneous/bipartite networks (two distinct groups) |
-| [`plot_mtna()`](http://sonsoles.me/cograph/reference/plot_mtna.md) | Multi-cluster networks (3+ groups) |
-| [`plot_mlna()`](http://sonsoles.me/cograph/reference/plot_mlna.md) | Multilevel 3D perspective view |
-| [`plot_mcml()`](http://sonsoles.me/cograph/reference/plot_mcml.md) | Multi-cluster multilevel (combines mtna + mlna) |
+| [`plot_htna()`](https://sonsoles.me/cograph/reference/plot_htna.md) | Heterogeneous/bipartite networks (two distinct groups) |
+| [`plot_mtna()`](https://sonsoles.me/cograph/reference/plot_mtna.md) | Multi-cluster networks (3+ groups) |
+| [`plot_mlna()`](https://sonsoles.me/cograph/reference/plot_mlna.md) | Multilevel 3D perspective view |
+| [`plot_mcml()`](https://sonsoles.me/cograph/reference/plot_mcml.md) | Multi-cluster multilevel (combines mtna + mlna) |
 
 ``` r
 
@@ -131,8 +131,8 @@ Visualize network differences and weight matrices.
 
 | Function | Description |
 |----|----|
-| [`plot_compare()`](http://sonsoles.me/cograph/reference/plot_compare.md) | Difference network (x - y) with pos/neg coloring |
-| [`plot_heatmap()`](http://sonsoles.me/cograph/reference/plot_heatmap.md) | Weight matrix heatmap |
+| [`plot_compare()`](https://sonsoles.me/cograph/reference/plot_compare.md) | Difference network (x - y) with pos/neg coloring |
+| [`plot_heatmap()`](https://sonsoles.me/cograph/reference/plot_heatmap.md) | Weight matrix heatmap |
 
 ``` r
 
@@ -173,8 +173,8 @@ plot_heatmap(net1, title = "Network Heatmap")
 
 | Function | Description |
 |----|----|
-| [`as_cograph()`](http://sonsoles.me/cograph/reference/as_cograph.md) / [`to_cograph()`](http://sonsoles.me/cograph/reference/as_cograph.md) | Convert any format to cograph_network |
-| [`cograph()`](http://sonsoles.me/cograph/reference/cograph.md) | Create a cograph_network object |
+| [`as_cograph()`](https://sonsoles.me/cograph/reference/as_cograph.md) / [`to_cograph()`](https://sonsoles.me/cograph/reference/as_cograph.md) | Convert any format to cograph_network |
+| [`cograph()`](https://sonsoles.me/cograph/reference/cograph.md) | Create a cograph_network object |
 
 Supported input formats: - Adjacency matrices - Edge lists (data.frame
 with from/to columns) - igraph objects - TNA models (tna, group_tna)
@@ -223,9 +223,9 @@ splot(net_from_igraph, title = "From igraph Ring")
 
 | Function | Output | Description |
 |----|----|----|
-| [`to_igraph()`](http://sonsoles.me/cograph/reference/to_igraph.md) | `igraph` | Export to igraph object |
-| [`to_data_frame()`](http://sonsoles.me/cograph/reference/to_data_frame.md) / [`to_df()`](http://sonsoles.me/cograph/reference/to_data_frame.md) | `data.frame` | Export to edge list |
-| [`to_matrix()`](http://sonsoles.me/cograph/reference/to_matrix.md) | `matrix` | Export to adjacency matrix |
+| [`to_igraph()`](https://sonsoles.me/cograph/reference/to_igraph.md) | `igraph` | Export to igraph object |
+| [`to_data_frame()`](https://sonsoles.me/cograph/reference/to_data_frame.md) / [`to_df()`](https://sonsoles.me/cograph/reference/to_data_frame.md) | `data.frame` | Export to edge list |
+| [`to_matrix()`](https://sonsoles.me/cograph/reference/to_matrix.md) | `matrix` | Export to adjacency matrix |
 
 ``` r
 
@@ -272,10 +272,10 @@ print(adj)
 
 | Function | Description |
 |----|----|
-| [`communities()`](http://sonsoles.me/cograph/reference/communities.md) | Detect communities using various algorithms |
-| [`community_louvain()`](http://sonsoles.me/cograph/reference/community_louvain.md) | Louvain algorithm |
-| [`community_walktrap()`](http://sonsoles.me/cograph/reference/community_walktrap.md) | Walktrap algorithm |
-| [`compare_communities()`](http://sonsoles.me/cograph/reference/compare_communities.md) | Compare two community structures |
+| [`communities()`](https://sonsoles.me/cograph/reference/communities.md) | Detect communities using various algorithms |
+| [`community_louvain()`](https://sonsoles.me/cograph/reference/community_louvain.md) | Louvain algorithm |
+| [`community_walktrap()`](https://sonsoles.me/cograph/reference/community_walktrap.md) | Walktrap algorithm |
+| [`compare_communities()`](https://sonsoles.me/cograph/reference/compare_communities.md) | Compare two community structures |
 
 ``` r
 
@@ -309,7 +309,7 @@ splot(mat,
 
 | Function | Description |
 |----|----|
-| [`filter_edges()`](http://sonsoles.me/cograph/reference/filter_edges.md) | Filter edges by weight expression |
+| [`filter_edges()`](https://sonsoles.me/cograph/reference/filter_edges.md) | Filter edges by weight expression |
 
 ``` r
 
@@ -345,12 +345,12 @@ Transform networks using pipe-friendly functions.
 
 | Function | Description |
 |----|----|
-| [`cograph()`](http://sonsoles.me/cograph/reference/cograph.md) | Create network object |
-| [`sn_layout()`](http://sonsoles.me/cograph/reference/sn_layout.md) | Apply layout algorithm |
-| [`sn_theme()`](http://sonsoles.me/cograph/reference/sn_theme.md) | Apply visual theme |
-| [`sn_nodes()`](http://sonsoles.me/cograph/reference/sn_nodes.md) | Set node aesthetics |
-| [`sn_edges()`](http://sonsoles.me/cograph/reference/sn_edges.md) | Set edge aesthetics |
-| [`sn_render()`](http://sonsoles.me/cograph/reference/soplot.md) | Render to plot |
+| [`cograph()`](https://sonsoles.me/cograph/reference/cograph.md) | Create network object |
+| [`sn_layout()`](https://sonsoles.me/cograph/reference/sn_layout.md) | Apply layout algorithm |
+| [`sn_theme()`](https://sonsoles.me/cograph/reference/sn_theme.md) | Apply visual theme |
+| [`sn_nodes()`](https://sonsoles.me/cograph/reference/sn_nodes.md) | Set node aesthetics |
+| [`sn_edges()`](https://sonsoles.me/cograph/reference/sn_edges.md) | Set edge aesthetics |
+| [`sn_render()`](https://sonsoles.me/cograph/reference/soplot.md) | Render to plot |
 
 ``` r
 
@@ -373,10 +373,10 @@ Functions for working with Transition Network Analysis models from the
 
 | Function | Description |
 |----|----|
-| [`as_cograph()`](http://sonsoles.me/cograph/reference/as_cograph.md) | Convert TNA model to cograph (use with tna/group_tna) |
-| [`is_tna_network()`](http://sonsoles.me/cograph/reference/is_tna_network.md) | Check if network is from TNA |
+| [`as_cograph()`](https://sonsoles.me/cograph/reference/as_cograph.md) | Convert TNA model to cograph (use with tna/group_tna) |
+| [`is_tna_network()`](https://sonsoles.me/cograph/reference/is_tna_network.md) | Check if network is from TNA |
 | `get_tna_model()` | Retrieve original TNA model |
-| [`plot_tna()`](http://sonsoles.me/cograph/reference/plot_tna.md) | Plot TNA model directly |
+| [`plot_tna()`](https://sonsoles.me/cograph/reference/plot_tna.md) | Plot TNA model directly |
 
 ``` r
 
@@ -444,8 +444,8 @@ plot_compare(
 
 | Function | Description |
 |----|----|
-| [`supra_adjacency()`](http://sonsoles.me/cograph/reference/supra_adjacency.md) / [`supra()`](http://sonsoles.me/cograph/reference/supra_adjacency.md) | Build supra-adjacency matrix |
-| [`supra_layer()`](http://sonsoles.me/cograph/reference/supra_layer.md) | Extract single layer |
+| [`supra_adjacency()`](https://sonsoles.me/cograph/reference/supra_adjacency.md) / [`supra()`](https://sonsoles.me/cograph/reference/supra_adjacency.md) | Build supra-adjacency matrix |
+| [`supra_layer()`](https://sonsoles.me/cograph/reference/supra_layer.md) | Extract single layer |
 
 ``` r
 
@@ -475,8 +475,8 @@ print(social_layer)
 
 | Function | Description |
 |----|----|
-| [`aggregate_layers()`](http://sonsoles.me/cograph/reference/aggregate_layers.md) / [`lagg()`](http://sonsoles.me/cograph/reference/aggregate_layers.md) | Aggregate across layers |
-| [`layer_similarity()`](http://sonsoles.me/cograph/reference/layer_similarity.md) / [`lsim()`](http://sonsoles.me/cograph/reference/layer_similarity.md) | Similarity between two layers |
+| [`aggregate_layers()`](https://sonsoles.me/cograph/reference/aggregate_layers.md) / [`lagg()`](https://sonsoles.me/cograph/reference/aggregate_layers.md) | Aggregate across layers |
+| [`layer_similarity()`](https://sonsoles.me/cograph/reference/layer_similarity.md) / [`lsim()`](https://sonsoles.me/cograph/reference/layer_similarity.md) | Similarity between two layers |
 
 ``` r
 
@@ -506,7 +506,7 @@ cat("\nCosine similarity between layers:", round(sim, 3), "\n")
 ### Themes
 
 Use themes with `splot(net, theme = "dark")` or via piping with
-[`sn_theme()`](http://sonsoles.me/cograph/reference/sn_theme.md).
+[`sn_theme()`](https://sonsoles.me/cograph/reference/sn_theme.md).
 
 | Theme     | Description                            |
 |-----------|----------------------------------------|
@@ -557,13 +557,13 @@ par(mfrow = c(1, 1))
 
 | Category | Key Functions |
 |----|----|
-| **Plotting** | [`splot()`](http://sonsoles.me/cograph/reference/splot.md), [`soplot()`](http://sonsoles.me/cograph/reference/soplot.md), [`plot_tna()`](http://sonsoles.me/cograph/reference/plot_tna.md) |
-| **Specialized Plots** | [`plot_htna()`](http://sonsoles.me/cograph/reference/plot_htna.md), [`plot_mtna()`](http://sonsoles.me/cograph/reference/plot_mtna.md), [`plot_mlna()`](http://sonsoles.me/cograph/reference/plot_mlna.md), [`plot_mcml()`](http://sonsoles.me/cograph/reference/plot_mcml.md) |
-| **Comparison** | [`plot_compare()`](http://sonsoles.me/cograph/reference/plot_compare.md), [`plot_heatmap()`](http://sonsoles.me/cograph/reference/plot_heatmap.md) |
-| **Import** | [`as_cograph()`](http://sonsoles.me/cograph/reference/as_cograph.md), [`to_cograph()`](http://sonsoles.me/cograph/reference/as_cograph.md), [`cograph()`](http://sonsoles.me/cograph/reference/cograph.md) |
-| **Export** | [`to_igraph()`](http://sonsoles.me/cograph/reference/to_igraph.md), [`to_df()`](http://sonsoles.me/cograph/reference/to_data_frame.md), [`to_matrix()`](http://sonsoles.me/cograph/reference/to_matrix.md) |
-| **Communities** | [`communities()`](http://sonsoles.me/cograph/reference/communities.md), [`community_louvain()`](http://sonsoles.me/cograph/reference/community_louvain.md), [`compare_communities()`](http://sonsoles.me/cograph/reference/compare_communities.md) |
-| **Utilities** | [`filter_edges()`](http://sonsoles.me/cograph/reference/filter_edges.md), [`n_nodes()`](http://sonsoles.me/cograph/reference/n_nodes.md), [`n_edges()`](http://sonsoles.me/cograph/reference/n_edges.md) |
-| **Piping** | [`sn_layout()`](http://sonsoles.me/cograph/reference/sn_layout.md), [`sn_theme()`](http://sonsoles.me/cograph/reference/sn_theme.md), [`sn_nodes()`](http://sonsoles.me/cograph/reference/sn_nodes.md), [`sn_edges()`](http://sonsoles.me/cograph/reference/sn_edges.md), [`sn_render()`](http://sonsoles.me/cograph/reference/soplot.md) |
-| **TNA** | [`plot_tna()`](http://sonsoles.me/cograph/reference/plot_tna.md), [`is_tna_network()`](http://sonsoles.me/cograph/reference/is_tna_network.md), `get_tna_model()` |
-| **Multilayer** | [`supra_adjacency()`](http://sonsoles.me/cograph/reference/supra_adjacency.md), [`aggregate_layers()`](http://sonsoles.me/cograph/reference/aggregate_layers.md), [`layer_similarity()`](http://sonsoles.me/cograph/reference/layer_similarity.md) |
+| **Plotting** | [`splot()`](https://sonsoles.me/cograph/reference/splot.md), [`soplot()`](https://sonsoles.me/cograph/reference/soplot.md), [`plot_tna()`](https://sonsoles.me/cograph/reference/plot_tna.md) |
+| **Specialized Plots** | [`plot_htna()`](https://sonsoles.me/cograph/reference/plot_htna.md), [`plot_mtna()`](https://sonsoles.me/cograph/reference/plot_mtna.md), [`plot_mlna()`](https://sonsoles.me/cograph/reference/plot_mlna.md), [`plot_mcml()`](https://sonsoles.me/cograph/reference/plot_mcml.md) |
+| **Comparison** | [`plot_compare()`](https://sonsoles.me/cograph/reference/plot_compare.md), [`plot_heatmap()`](https://sonsoles.me/cograph/reference/plot_heatmap.md) |
+| **Import** | [`as_cograph()`](https://sonsoles.me/cograph/reference/as_cograph.md), [`to_cograph()`](https://sonsoles.me/cograph/reference/as_cograph.md), [`cograph()`](https://sonsoles.me/cograph/reference/cograph.md) |
+| **Export** | [`to_igraph()`](https://sonsoles.me/cograph/reference/to_igraph.md), [`to_df()`](https://sonsoles.me/cograph/reference/to_data_frame.md), [`to_matrix()`](https://sonsoles.me/cograph/reference/to_matrix.md) |
+| **Communities** | [`communities()`](https://sonsoles.me/cograph/reference/communities.md), [`community_louvain()`](https://sonsoles.me/cograph/reference/community_louvain.md), [`compare_communities()`](https://sonsoles.me/cograph/reference/compare_communities.md) |
+| **Utilities** | [`filter_edges()`](https://sonsoles.me/cograph/reference/filter_edges.md), [`n_nodes()`](https://sonsoles.me/cograph/reference/n_nodes.md), [`n_edges()`](https://sonsoles.me/cograph/reference/n_edges.md) |
+| **Piping** | [`sn_layout()`](https://sonsoles.me/cograph/reference/sn_layout.md), [`sn_theme()`](https://sonsoles.me/cograph/reference/sn_theme.md), [`sn_nodes()`](https://sonsoles.me/cograph/reference/sn_nodes.md), [`sn_edges()`](https://sonsoles.me/cograph/reference/sn_edges.md), [`sn_render()`](https://sonsoles.me/cograph/reference/soplot.md) |
+| **TNA** | [`plot_tna()`](https://sonsoles.me/cograph/reference/plot_tna.md), [`is_tna_network()`](https://sonsoles.me/cograph/reference/is_tna_network.md), `get_tna_model()` |
+| **Multilayer** | [`supra_adjacency()`](https://sonsoles.me/cograph/reference/supra_adjacency.md), [`aggregate_layers()`](https://sonsoles.me/cograph/reference/aggregate_layers.md), [`layer_similarity()`](https://sonsoles.me/cograph/reference/layer_similarity.md) |

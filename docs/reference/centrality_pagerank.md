@@ -28,7 +28,7 @@ centrality_pagerank(x, damping = 0.85, personalized = NULL, ...)
 - ...:
 
   Additional arguments passed to
-  [`centrality`](http://sonsoles.me/cograph/reference/centrality.md)
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md)
   (e.g., `weighted`, `directed`).
 
 ## Value
@@ -37,9 +37,9 @@ Named numeric vector of PageRank values.
 
 ## See also
 
-[`centrality`](http://sonsoles.me/cograph/reference/centrality.md) for
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
 computing multiple measures at once,
-[`centrality_eigenvector`](http://sonsoles.me/cograph/reference/centrality_eigenvector.md)
+[`centrality_eigenvector`](https://sonsoles.me/cograph/reference/centrality_eigenvector.md)
 for a related measure.
 
 ## Examples

@@ -63,7 +63,7 @@ robustness(
 - ...:
 
   Additional arguments passed to
-  [`to_igraph`](http://sonsoles.me/cograph/reference/to_igraph.md)
+  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
 
 ## Value
 
@@ -127,8 +127,8 @@ tolerance of complex networks. *Nature*, 406, 378-381.
 
 ## See also
 
-[`plot_robustness`](http://sonsoles.me/cograph/reference/plot_robustness.md),
-[`robustness_auc`](http://sonsoles.me/cograph/reference/robustness_auc.md)
+[`plot_robustness`](https://sonsoles.me/cograph/reference/plot_robustness.md),
+[`robustness_auc`](https://sonsoles.me/cograph/reference/robustness_auc.md)
 
 ## Examples
 

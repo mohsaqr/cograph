@@ -22,8 +22,8 @@ A character string indicating the input type (e.g., "matrix", "tna",
 
 ## See also
 
-[`as_cograph`](http://sonsoles.me/cograph/reference/as_cograph.md),
-[`get_meta`](http://sonsoles.me/cograph/reference/get_meta.md)
+[`as_cograph`](https://sonsoles.me/cograph/reference/as_cograph.md),
+[`get_meta`](https://sonsoles.me/cograph/reference/get_meta.md)
 
 ## Examples
 

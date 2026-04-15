@@ -5,5 +5,5 @@ Resolve edge weights
 ## Usage
 
 ``` r
-.resolve_weights(g, weights)
+.resolve_weights(g, weights, abs_if_negative = FALSE)
 ```

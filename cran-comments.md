@@ -84,8 +84,3 @@ on the CI workers.
 cograph is a leaf package (no strong reverse dependencies). No revdep
 checks required.
 
-### Additional_repositories
-
-`https://mohsaqr.r-universe.dev` is registered for the optional
-`Nestimate` Suggest, matching the existing CRAN policy for packages
-that depend on r-universe-hosted sources.

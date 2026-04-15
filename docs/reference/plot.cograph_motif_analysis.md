@@ -31,7 +31,7 @@ plot(
 - x:
 
   A `cograph_motif_analysis` object from
-  [`extract_motifs()`](http://sonsoles.me/cograph/reference/extract_motifs.md)
+  [`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md)
 
 - type:
 
@@ -50,7 +50,7 @@ plot(
 
   :   Z-score plot showing over- and under-represented types. Requires
       `significance = TRUE` in
-      [`extract_motifs()`](http://sonsoles.me/cograph/reference/extract_motifs.md).
+      [`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md).
 
   `"patterns"`
 
@@ -115,39 +115,31 @@ types/significance/patterns plots.
 
 ## See also
 
-[`extract_motifs()`](http://sonsoles.me/cograph/reference/extract_motifs.md)
+[`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md)
 for the analysis that produces this object,
-[`motif_census()`](http://sonsoles.me/cograph/reference/motif_census.md)
+[`motif_census()`](https://sonsoles.me/cograph/reference/motif_census.md)
 for statistical motif analysis
 
 Other motifs:
-[`extract_motifs()`](http://sonsoles.me/cograph/reference/extract_motifs.md),
-[`extract_triads()`](http://sonsoles.me/cograph/reference/extract_triads.md),
-[`get_edge_list()`](http://sonsoles.me/cograph/reference/get_edge_list.md),
-[`motif_census()`](http://sonsoles.me/cograph/reference/motif_census.md),
-[`motifs()`](http://sonsoles.me/cograph/reference/motifs.md),
-[`plot.cograph_motifs()`](http://sonsoles.me/cograph/reference/plot.cograph_motifs.md),
-[`subgraphs()`](http://sonsoles.me/cograph/reference/subgraphs.md),
-[`triad_census()`](http://sonsoles.me/cograph/reference/triad_census.md)
+[`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md),
+[`extract_triads()`](https://sonsoles.me/cograph/reference/extract_triads.md),
+[`get_edge_list()`](https://sonsoles.me/cograph/reference/get_edge_list.md),
+[`motif_census()`](https://sonsoles.me/cograph/reference/motif_census.md),
+[`motifs()`](https://sonsoles.me/cograph/reference/motifs.md),
+[`plot.cograph_motifs()`](https://sonsoles.me/cograph/reference/plot.cograph_motifs.md),
+[`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md),
+[`triad_census()`](https://sonsoles.me/cograph/reference/triad_census.md)
 
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-Mod <- tna::tna(tna::group_regulation)
-m <- extract_motifs(Mod, significance = TRUE)
-
-# Default network diagram
+mat <- matrix(c(0,3,2,0, 0,0,5,1, 0,0,0,4, 2,0,0,0), 4, 4, byrow = TRUE)
+rownames(mat) <- colnames(mat) <- c("Plan","Execute","Monitor","Adapt")
+m <- extract_motifs(mat, significance = FALSE)
 plot(m)
 
-# Customize appearance
-plot(m, node_size = 0.15, label_size = 6, title_size = 9)
+# \donttest{
+  plot(m, type = "types")
 
-# Change layout
-plot(m, ncol = 4, n = 12)
-
-# Other plot types
-plot(m, type = "types")
-plot(m, type = "significance")
-} # }
+# }
 ```

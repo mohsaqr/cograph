@@ -6,7 +6,7 @@ This tutorial covers:
 
 1.  The `cograph_network` data structure
 2.  Setting node groups with
-    [`set_groups()`](http://sonsoles.me/cograph/reference/set_groups.md)
+    [`set_groups()`](https://sonsoles.me/cograph/reference/set_groups.md)
 3.  Auto-dispatch to specialized plot functions
 
 ``` r
@@ -17,8 +17,8 @@ library(cograph)
 ## The cograph_network Structure
 
 When you call
-[`as_cograph()`](http://sonsoles.me/cograph/reference/as_cograph.md), it
-creates a lightweight S3 object that stores all network data as
+[`as_cograph()`](https://sonsoles.me/cograph/reference/as_cograph.md),
+it creates a lightweight S3 object that stores all network data as
 accessible list elements.
 
 ``` r
@@ -95,16 +95,17 @@ is_directed(net)  # Directedness
 
 ## Setting Node Groups
 
-The [`set_groups()`](http://sonsoles.me/cograph/reference/set_groups.md)
+The
+[`set_groups()`](https://sonsoles.me/cograph/reference/set_groups.md)
 function assigns nodes to groups. The **type of group** determines which
 specialized plot function
-[`splot()`](http://sonsoles.me/cograph/reference/splot.md) will use:
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md) will use:
 
 | Group Type | Column Name | Plot Function | Visualization |
 |----|----|----|----|
-| `"layer"` | `layer` | [`plot_mlna()`](http://sonsoles.me/cograph/reference/plot_mlna.md) | Stacked 3D layers |
-| `"cluster"` | `cluster` | [`plot_mtna()`](http://sonsoles.me/cograph/reference/plot_mtna.md) | Clustered shapes |
-| `"group"` | `group` | [`plot_htna()`](http://sonsoles.me/cograph/reference/plot_htna.md) | Bipartite/polygon |
+| `"layer"` | `layer` | [`plot_mlna()`](https://sonsoles.me/cograph/reference/plot_mlna.md) | Stacked 3D layers |
+| `"cluster"` | `cluster` | [`plot_mtna()`](https://sonsoles.me/cograph/reference/plot_mtna.md) | Clustered shapes |
+| `"group"` | `group` | [`plot_htna()`](https://sonsoles.me/cograph/reference/plot_htna.md) | Bipartite/polygon |
 
 ### Method 1: Vector Arguments (Recommended)
 
@@ -280,7 +281,7 @@ Available algorithms: `"louvain"`, `"walktrap"`, `"fast_greedy"`,
 
 ## Validation
 
-[`set_groups()`](http://sonsoles.me/cograph/reference/set_groups.md)
+[`set_groups()`](https://sonsoles.me/cograph/reference/set_groups.md)
 validates your input:
 
 ``` r
@@ -308,9 +309,10 @@ try(set_groups(net, nodes = paste0("N", 1:15),
 
 ## Auto-Dispatch in splot()
 
-When you call [`splot()`](http://sonsoles.me/cograph/reference/splot.md)
-on a network with groups, it automatically dispatches to the appropriate
-specialized function:
+When you call
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md) on a network
+with groups, it automatically dispatches to the appropriate specialized
+function:
 
 ``` r
 
@@ -351,10 +353,10 @@ Complete pipe workflow
 
 | Function | Purpose |
 |----|----|
-| [`as_cograph()`](http://sonsoles.me/cograph/reference/as_cograph.md) | Convert matrix/igraph/etc to cograph_network |
-| [`set_groups()`](http://sonsoles.me/cograph/reference/set_groups.md) | Assign node groupings |
-| [`get_groups()`](http://sonsoles.me/cograph/reference/get_groups.md) | Retrieve current groupings |
-| [`splot()`](http://sonsoles.me/cograph/reference/splot.md) | Plot (auto-dispatches based on group type) |
+| [`as_cograph()`](https://sonsoles.me/cograph/reference/as_cograph.md) | Convert matrix/igraph/etc to cograph_network |
+| [`set_groups()`](https://sonsoles.me/cograph/reference/set_groups.md) | Assign node groupings |
+| [`get_groups()`](https://sonsoles.me/cograph/reference/get_groups.md) | Retrieve current groupings |
+| [`splot()`](https://sonsoles.me/cograph/reference/splot.md) | Plot (auto-dispatches based on group type) |
 
 | Group Type | Argument         | Plot Style               |
 |------------|------------------|--------------------------|

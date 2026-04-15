@@ -102,36 +102,36 @@ centrality(x, measures = "all", mode = "all", normalized = FALSE,
 
 **Convenience Functions:** \| Function \| Description \| \|———-\|————-\|
 \|
-[`centrality_degree()`](http://sonsoles.me/cograph/reference/centrality.md)
+[`centrality_degree()`](https://sonsoles.me/cograph/reference/centrality.md)
 \| Node degree (in/out/all) \| \|
-[`centrality_strength()`](http://sonsoles.me/cograph/reference/centrality.md)
+[`centrality_strength()`](https://sonsoles.me/cograph/reference/centrality.md)
 \| Weighted degree \| \|
-[`centrality_betweenness()`](http://sonsoles.me/cograph/reference/centrality.md)
+[`centrality_betweenness()`](https://sonsoles.me/cograph/reference/centrality.md)
 \| Shortest path centrality \| \|
-[`centrality_closeness()`](http://sonsoles.me/cograph/reference/centrality.md)
+[`centrality_closeness()`](https://sonsoles.me/cograph/reference/centrality.md)
 \| Inverse distance centrality \| \|
-[`centrality_eigenvector()`](http://sonsoles.me/cograph/reference/centrality.md)
+[`centrality_eigenvector()`](https://sonsoles.me/cograph/reference/centrality.md)
 \| Influence-based centrality \| \|
-[`centrality_pagerank()`](http://sonsoles.me/cograph/reference/centrality.md)
+[`centrality_pagerank()`](https://sonsoles.me/cograph/reference/centrality.md)
 \| Random walk centrality \| \|
-[`centrality_authority()`](http://sonsoles.me/cograph/reference/centrality.md)
+[`centrality_authority()`](https://sonsoles.me/cograph/reference/centrality.md)
 \| HITS authority score \| \|
-[`centrality_hub()`](http://sonsoles.me/cograph/reference/centrality.md)
+[`centrality_hub()`](https://sonsoles.me/cograph/reference/centrality.md)
 \| HITS hub score \| \|
-[`centrality_eccentricity()`](http://sonsoles.me/cograph/reference/centrality.md)
+[`centrality_eccentricity()`](https://sonsoles.me/cograph/reference/centrality.md)
 \| Maximum distance to others \| \|
-[`centrality_coreness()`](http://sonsoles.me/cograph/reference/centrality.md)
+[`centrality_coreness()`](https://sonsoles.me/cograph/reference/centrality.md)
 \| K-core membership \| \|
-[`centrality_constraint()`](http://sonsoles.me/cograph/reference/centrality.md)
+[`centrality_constraint()`](https://sonsoles.me/cograph/reference/centrality.md)
 \| Burt’s structural holes \| \|
-[`centrality_transitivity()`](http://sonsoles.me/cograph/reference/centrality.md)
+[`centrality_transitivity()`](https://sonsoles.me/cograph/reference/centrality.md)
 \| Local clustering coefficient \|
 
 **Input Support:** - Adjacency matrices - igraph objects - network
 objects (statnet) - cograph_network objects - tna objects
 
 **Important Edit:** Removed duplicate
-[`to_igraph()`](http://sonsoles.me/cograph/reference/to_igraph.md)
+[`to_igraph()`](https://sonsoles.me/cograph/reference/to_igraph.md)
 function (lines 161-278) that conflicted with the existing
 implementation in `R/network-utils.R`.
 
@@ -151,7 +151,7 @@ degree_distribution(x, mode = "all", directed = NULL, loops = TRUE,
 ```
 
 **Metrics Computed by
-[`network_summary()`](http://sonsoles.me/cograph/reference/network_summary.md):**
+[`network_summary()`](https://sonsoles.me/cograph/reference/network_summary.md):**
 
 | Metric                       | Description                |
 |------------------------------|----------------------------|

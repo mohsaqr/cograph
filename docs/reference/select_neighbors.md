@@ -52,8 +52,8 @@ A cograph_network with nodes in the neighborhood.
 
 ## See also
 
-[`select_nodes`](http://sonsoles.me/cograph/reference/select_nodes.md),
-[`select_component`](http://sonsoles.me/cograph/reference/select_component.md)
+[`select_nodes`](https://sonsoles.me/cograph/reference/select_nodes.md),
+[`select_component`](https://sonsoles.me/cograph/reference/select_component.md)
 
 ## Examples
 

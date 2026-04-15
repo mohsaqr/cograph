@@ -73,22 +73,22 @@ A cograph_network object that can be further customized and rendered.
 
 ## See also
 
-[`splot`](http://sonsoles.me/cograph/reference/splot.md) for base R
+[`splot`](https://sonsoles.me/cograph/reference/splot.md) for base R
 graphics rendering,
-[`soplot`](http://sonsoles.me/cograph/reference/soplot.md) for grid
+[`soplot`](https://sonsoles.me/cograph/reference/soplot.md) for grid
 graphics rendering,
-[`sn_nodes`](http://sonsoles.me/cograph/reference/sn_nodes.md) for node
+[`sn_nodes`](https://sonsoles.me/cograph/reference/sn_nodes.md) for node
 customization,
-[`sn_edges`](http://sonsoles.me/cograph/reference/sn_edges.md) for edge
+[`sn_edges`](https://sonsoles.me/cograph/reference/sn_edges.md) for edge
 customization,
-[`sn_layout`](http://sonsoles.me/cograph/reference/sn_layout.md) for
+[`sn_layout`](https://sonsoles.me/cograph/reference/sn_layout.md) for
 changing layouts,
-[`sn_theme`](http://sonsoles.me/cograph/reference/sn_theme.md) for
+[`sn_theme`](https://sonsoles.me/cograph/reference/sn_theme.md) for
 visual themes,
-[`sn_palette`](http://sonsoles.me/cograph/reference/sn_palette.md) for
+[`sn_palette`](https://sonsoles.me/cograph/reference/sn_palette.md) for
 color palettes,
-[`from_qgraph`](http://sonsoles.me/cograph/reference/from_qgraph.md) and
-[`from_tna`](http://sonsoles.me/cograph/reference/from_tna.md) for
+[`from_qgraph`](https://sonsoles.me/cograph/reference/from_qgraph.md)
+and [`from_tna`](https://sonsoles.me/cograph/reference/from_tna.md) for
 converting external objects
 
 ## Examples

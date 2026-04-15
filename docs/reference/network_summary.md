@@ -285,15 +285,15 @@ network_summary(adj, detailed = TRUE, extended = TRUE)
 
 # From igraph object
 if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::erdos.renyi.game(20, 0.3)
+  g <- igraph::sample_gnp(20, 0.3)
   network_summary(g)
 }
 #>   node_count edge_count density component_count diameter mean_distance min_cut
-#> 1         20         52   0.274               2        3         1.801       0
+#> 1         20         63   0.332               1        3         1.737       3
 #>   centralization_degree centralization_in_degree centralization_out_degree
-#> 1                 0.147                       NA                        NA
+#> 1                 0.142                       NA                        NA
 #>   centralization_betweenness centralization_closeness centralization_eigen
-#> 1                      0.076                      NaN                 0.36
+#> 1                       0.05                    0.162                0.338
 #>   transitivity reciprocity assortativity_degree hub_score authority_score
-#> 1        0.297          NA               -0.257        NA              NA
+#> 1        0.335          NA               -0.141        NA              NA
 ```

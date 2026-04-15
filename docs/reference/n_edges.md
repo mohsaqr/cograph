@@ -20,8 +20,8 @@ Integer: number of edges.
 
 ## See also
 
-[`as_cograph`](http://sonsoles.me/cograph/reference/as_cograph.md),
-[`n_nodes`](http://sonsoles.me/cograph/reference/n_nodes.md)
+[`as_cograph`](https://sonsoles.me/cograph/reference/as_cograph.md),
+[`n_nodes`](https://sonsoles.me/cograph/reference/n_nodes.md)
 
 ## Examples
 

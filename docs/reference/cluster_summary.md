@@ -42,7 +42,7 @@ csum(
 
   :   A cograph network object. The function extracts the weight matrix
       from `x$weights` or converts via
-      [`to_matrix()`](http://sonsoles.me/cograph/reference/to_matrix.md).
+      [`to_matrix()`](https://sonsoles.me/cograph/reference/to_matrix.md).
       Clusters can be auto-detected from node attributes.
 
   tna
@@ -241,7 +241,7 @@ See `cluster_summary`.
 ## Details
 
 This is the core function for Multi-Cluster Multi-Level (MCML) analysis.
-Use [`as_tna`](http://sonsoles.me/cograph/reference/as_tna.md) to
+Use [`as_tna`](https://sonsoles.me/cograph/reference/as_tna.md) to
 convert results to tna objects for further analysis with the tna
 package.
 
@@ -289,11 +289,11 @@ When `type = "tna"`, rows sum to 1 and diagonal values represent
 
 ## See also
 
-[`as_tna`](http://sonsoles.me/cograph/reference/as_tna.md) to convert
+[`as_tna`](https://sonsoles.me/cograph/reference/as_tna.md) to convert
 results to tna objects,
-[`plot_mcml`](http://sonsoles.me/cograph/reference/plot_mcml.md) for
+[`plot_mcml`](https://sonsoles.me/cograph/reference/plot_mcml.md) for
 two-layer visualization,
-[`plot_mtna`](http://sonsoles.me/cograph/reference/plot_mtna.md) for
+[`plot_mtna`](https://sonsoles.me/cograph/reference/plot_mtna.md) for
 flat cluster visualization
 
 ## Examples

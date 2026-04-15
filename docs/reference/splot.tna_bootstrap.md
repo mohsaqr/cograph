@@ -7,6 +7,9 @@ from the tna package.
 ## Usage
 
 ``` r
+# S3 method for class 'tna_bootstrap'
+plot(x, ...)
+
 splot.tna_bootstrap(
   x,
   display = c("styled", "significant", "full", "ci"),
@@ -26,6 +29,10 @@ splot.tna_bootstrap(
 - x:
 
   A tna_bootstrap object (from tna::bootstrap).
+
+- ...:
+
+  Additional arguments passed to splot().
 
 - display:
 
@@ -69,10 +76,6 @@ splot.tna_bootstrap(
 - inherit_style:
 
   Logical: inherit colors/layout from original TNA model? Default TRUE.
-
-- ...:
-
-  Additional arguments passed to splot().
 
 ## Value
 

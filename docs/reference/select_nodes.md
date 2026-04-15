@@ -1,7 +1,7 @@
 # Select Nodes with Lazy Centrality Computation
 
 A more nuanced node selection function that improves upon
-[`filter_nodes()`](http://sonsoles.me/cograph/reference/filter_nodes.md)
+[`filter_nodes()`](https://sonsoles.me/cograph/reference/filter_nodes.md)
 with lazy centrality computation (only computes measures actually
 referenced), multiple selection modes, and global context variables for
 structural awareness.
@@ -135,7 +135,7 @@ Selection modes are combined with AND logic (like tidygraph/dplyr):
 Centrality measures are computed lazily - only measures actually
 referenced in expressions or the `by` parameter are computed. This makes
 `select_nodes()` faster than
-[`filter_nodes()`](http://sonsoles.me/cograph/reference/filter_nodes.md)
+[`filter_nodes()`](https://sonsoles.me/cograph/reference/filter_nodes.md)
 for large networks.
 
 For networks with negative edge weights, `betweenness` and `closeness`
@@ -144,10 +144,10 @@ weights).
 
 ## See also
 
-[`filter_nodes`](http://sonsoles.me/cograph/reference/filter_nodes.md),
-[`select_neighbors`](http://sonsoles.me/cograph/reference/select_neighbors.md),
-[`select_component`](http://sonsoles.me/cograph/reference/select_component.md),
-[`select_top`](http://sonsoles.me/cograph/reference/select_top.md)
+[`filter_nodes`](https://sonsoles.me/cograph/reference/filter_nodes.md),
+[`select_neighbors`](https://sonsoles.me/cograph/reference/select_neighbors.md),
+[`select_component`](https://sonsoles.me/cograph/reference/select_component.md),
+[`select_top`](https://sonsoles.me/cograph/reference/select_top.md)
 
 ## Examples
 

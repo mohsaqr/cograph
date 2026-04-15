@@ -90,7 +90,7 @@ mlna(
 
   Community detection method to use for auto-layering. If specified,
   overrides `layer_list`. See
-  [`detect_communities`](http://sonsoles.me/cograph/reference/detect_communities.md)
+  [`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md)
   for available methods: "louvain", "walktrap", "fast_greedy",
   "label_prop", "infomap", "leiden".
 

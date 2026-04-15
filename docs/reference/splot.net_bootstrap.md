@@ -43,7 +43,7 @@ splot.net_bootstrap(
 - ...:
 
   Additional arguments passed to
-  [`splot()`](http://sonsoles.me/cograph/reference/splot.md).
+  [`splot()`](https://sonsoles.me/cograph/reference/splot.md).
 
 ## Value
 

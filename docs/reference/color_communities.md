@@ -2,7 +2,7 @@
 
 Generate colors for nodes based on community membership. Designed for
 direct use with
-[`splot()`](http://sonsoles.me/cograph/reference/splot.md) node.color
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md) node.color
 parameter.
 
 ## Usage
@@ -21,7 +21,7 @@ color_communities(x, method = "louvain", palette = NULL, ...)
 - method:
 
   Community detection algorithm. See
-  [`detect_communities`](http://sonsoles.me/cograph/reference/detect_communities.md)
+  [`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md)
   for available methods. Default `"louvain"`.
 
 - palette:
@@ -39,18 +39,18 @@ color_communities(x, method = "louvain", palette = NULL, ...)
 - ...:
 
   Additional arguments passed to
-  [`detect_communities`](http://sonsoles.me/cograph/reference/detect_communities.md).
+  [`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md).
 
 ## Value
 
 A named character vector of colors (one per node), suitable for use with
-[`splot()`](http://sonsoles.me/cograph/reference/splot.md) node.color
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md) node.color
 parameter.
 
 ## See also
 
-[`detect_communities`](http://sonsoles.me/cograph/reference/detect_communities.md),
-[`splot`](http://sonsoles.me/cograph/reference/splot.md)
+[`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md),
+[`splot`](https://sonsoles.me/cograph/reference/splot.md)
 
 ## Examples
 

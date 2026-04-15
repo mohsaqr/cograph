@@ -1,4 +1,4 @@
 # License
 
-    YEAR: 2024-2026
-    COPYRIGHT HOLDER: Sonsoles López-Pernas, Mohammed Saqr
+    YEAR: 2026
+    COPYRIGHT HOLDER: Mohammed Saqr, Sonsoles López-Pernas

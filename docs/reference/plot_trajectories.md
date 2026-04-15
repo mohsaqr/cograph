@@ -2,7 +2,7 @@
 
 Creates an alluvial-style diagram where each individual's trajectory is
 shown as a separate line. This is an alias for
-[`plot_transitions()`](http://sonsoles.me/cograph/reference/plot_transitions.md)
+[`plot_transitions()`](https://sonsoles.me/cograph/reference/plot_transitions.md)
 with `track_individuals = TRUE`.
 
 ## Usage
@@ -272,8 +272,8 @@ A ggplot2 object.
 
 ## See also
 
-[`plot_transitions`](http://sonsoles.me/cograph/reference/plot_transitions.md),
-[`plot_alluvial`](http://sonsoles.me/cograph/reference/plot_alluvial.md)
+[`plot_transitions`](https://sonsoles.me/cograph/reference/plot_transitions.md),
+[`plot_alluvial`](https://sonsoles.me/cograph/reference/plot_alluvial.md)
 
 ## Examples
 

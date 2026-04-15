@@ -1,23 +1,250 @@
 # Changelog
 
+## cograph 2.1.1
+
+### Plotting
+
+- `splot.netobject` now routes on the Nestimate `$method` slot rather
+  than just direction. Undirected sequence-based networks from
+  `build_cna()` and `wtna(method = "cooccurrence")` get oval TNA-family
+  styling (layout, palette, donuts) with arrows and dotted edge starts
+  automatically dropped because the matrix is symmetric. Glasso / cor /
+  pcor / ising networks still get `psych_styling = TRUE` (spring layout,
+  Okabe-Ito palette).
+- [`from_tna()`](https://sonsoles.me/cograph/reference/from_tna.md)
+  auto-detects integer-valued weight matrices (ftna, ctna, raw counts)
+  and sets `weight_digits = edge_label_digits = 0` so edge labels render
+  as `2304` rather than `2304.00`. Fractional weights still format to
+  two decimals. Explicit user-supplied `weight_digits` still wins.
+- `psych_styling = TRUE` is now exported as a first-class styling preset
+  (undirected counterpart of `tna_styling`) — Okabe-Ito palette, spring
+  layout, no arrows — applied by default to `splot.netobject` on
+  correlation-family input and to the `$contemporaneous` / `$between`
+  constituents of `net_mlvar`.
+- Expanded [`splot()`](https://sonsoles.me/cograph/reference/splot.md)
+  dispatch coverage across the tna and Nestimate class hierarchies,
+  ensuring `tna`, `ftna`, `ctna`, `group_tna`, `tna_bootstrap`,
+  `group_tna_bootstrap`, `tna_permutation`, `group_tna_permutation`,
+  `netobject`, `netobject_group`, `netobject_ml`, `net_mlvar`,
+  `wtna_mixed`, `net_bootstrap`, `net_permutation`, `boot_glasso`,
+  `mcml`, `net_hon`, `net_hypa`, and `simplicial_complex` all reach the
+  correct renderer.
+- Self-loops are now preserved in every plot function.
+
+### Correctness fixes (audit-driven)
+
+- [`detect_duplicate_edges()`](https://sonsoles.me/cograph/reference/detect_duplicate_edges.md),
+  [`aggregate_duplicate_edges()`](https://sonsoles.me/cograph/reference/aggregate_duplicate_edges.md),
+  [`simplify.cograph_network()`](https://sonsoles.me/cograph/reference/simplify.md),
+  and the internal
+  [`check_duplicate_edges()`](https://sonsoles.me/cograph/reference/check_duplicate_edges.md)
+  helper now respect directed vs undirected semantics. Previously the
+  canonical (min/max) endpoint key collapsed `A -> B` and `B -> A` into
+  one edge even on directed graphs, matching
+  [`igraph::simplify()`](https://r.igraph.org/reference/simplify.html)
+  ground truth.
+- [`.compute_modularity()`](https://sonsoles.me/cograph/reference/dot-compute_modularity.md)
+  replaces a nested for loop with cluster-wise vectorization
+  (`sum(A[idx, idx]) - sum(k_out[idx]) * sum(k_in[idx]) / m`), per the
+  project “no for loops” rule. Results verified bit-exact against
+  [`igraph::modularity()`](https://r.igraph.org/reference/modularity.igraph.html).
+- [`is_directed()`](https://sonsoles.me/cograph/reference/is_directed.md)
+  now recognises `CographNetwork` R6 objects — previously only the
+  `cograph_network` list format dispatched correctly.
+- `compute_layout_for_cograph()` uses `layout$get_type()` instead of the
+  removed `$name` field on `CographLayout`.
+- [`network_small_world()`](https://sonsoles.me/cograph/reference/network_small_world.md)
+  returns `0` (valid: no triangles means definitively not small-world)
+  instead of `NA_real_` when the observed clustering coefficient is zero
+  but path length is finite.
+- [`simplify.cograph_network()`](https://sonsoles.me/cograph/reference/simplify.md)
+  threads the directed flag through to edge aggregation so directed
+  multigraphs collapse correctly.
+
+### Performance & documentation
+
+- [`simplify()`](https://sonsoles.me/cograph/reference/simplify.md)
+  performance refactor for large networks plus a cleaner
+  title-composition path.
+- [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md),
+  [`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md),
+  and `plot.cograph_motif_analysis` examples reworked to use
+  `n_perm = 10L` (or `significance = FALSE`) and promoted from
+  `\dontrun` to CRAN-runnable (optional tna branches stay in
+  `\donttest`). Retires 320 seconds of latent CRAN timing risk — every
+  example now runs in under 4 seconds.
+
+### New tests
+
+- `test-audit-fixes.R` — ground-truth regressions for the directed edge
+  semantics, modularity vectorization, and small-world behaviour
+  changes.
+- `test-integer-weight-labels.R` — locks
+  [`from_tna()`](https://sonsoles.me/cograph/reference/from_tna.md)
+  integer-weight auto-detect behaviour and precedence of explicit
+  `weight_digits`.
+- `test-equiv-{assortativity, cluster-quality, communities, disparity, edge-centrality, network-summary, robustness, standalone-measures}.R`
+  — numerical equivalence against igraph, sna, centiserve, brainGraph,
+  influenceR, tidygraph, and NetworkX. Gated by
+  `skip_coverage_tests() + skip_on_cran()`, so they do not run on the
+  CRAN pipeline.
+
+## cograph 2.1.0
+
+### New Features
+
+#### Batch 6 — new-API graph-level / set-level / pair-level measures
+
+These measures don’t fit the per-node
+[`centrality()`](https://sonsoles.me/cograph/reference/centrality.md)
+data frame, so they live as standalone functions:
+
+- [`estrada_index()`](https://sonsoles.me/cograph/reference/estrada_index.md)
+  — graph-level spectral invariant: , equal to the trace of the matrix
+  exponential of the adjacency. Equivalently, the sum of
+  `subgraph_centrality()` across all nodes. Matches
+  `networkx.estrada_index` at machine epsilon (max relative diff ~5e-15
+  across random test graphs).
+- [`trophic_incoherence()`](https://sonsoles.me/cograph/reference/trophic_incoherence.md)
+  — graph-level food-web stability measure (Johnson et al. 2014).
+  Defined as the population standard deviation of per-edge trophic
+  differences where is the trophic level of node . Zero for perfectly
+  coherent DAGs (e.g., a pure chain). Matches
+  `networkx.trophic_incoherence_parameter` at machine epsilon.
+  Directed-only; reuses the existing `trophic_level` calculator.
+- `group_centrality(x, nodes, measure = c("betweenness", "closeness", "degree"))`
+  — Everett-Borgatti (1999) group centrality for a *set* of nodes.
+  Returns a scalar. Supports `mode = "in"/"out"` for directed-degree
+  variants. **Group closeness and group degree** match
+  `networkx.group_*_centrality` bit-exact. **Group betweenness**
+  implements the textbook Everett-Borgatti / Puzis 2008 definition
+  (fraction of shortest paths passing through at least one node in the
+  group), which diverges from `networkx.group_betweenness_centrality` on
+  some graphs due to a known quirk in NetworkX’s Puzis-Yahalom-Elovici
+  iterative algorithm. Verified via an independent Python brute-force:
+  cograph matches the textbook definition; NX produces larger values on
+  graphs with many overlapping shortest paths. Documented in the roxygen
+  “Divergence from NetworkX” section.
+- `dispersion(x, u = NULL, v = NULL, normalized = TRUE, alpha = 1, b = 0, c = 0)`
+  — Backstrom-Kleinberg (2014 Facebook) pair-level measure of tie
+  strength. Counts the number of “well-dispersed” mutual friends of `u`
+  and `v` (pairs of common neighbors that are not directly connected and
+  share no common neighbor inside `u`’s ego network other than `u` and
+  `v`). Matches `networkx.dispersion` bit-exact across all 156 edges on
+  the karate club graph. Returns a scalar, named vector, or data frame
+  depending on which of `u`, `v` are specified.
+
+#### Centrality Batch 5 — Gould-Fernandez brokerage (5 roles)
+
+Added the five Gould-Fernandez (1989) brokerage role counts, a
+foundational measure in social network analysis (~1500 citations). Each
+role is a separate per-node measure requiring a `membership` argument
+(following the same pattern as `participation`, `within_module_z`,
+`gateway`), and counts open directed 2-paths `a -> v -> c` through
+broker `v`:
+
+- [`centrality_brokerage_coordinator()`](https://sonsoles.me/cograph/reference/centrality_brokerage_coordinator.md)
+  — all three in broker’s group (w_I)
+- [`centrality_brokerage_itinerant()`](https://sonsoles.me/cograph/reference/centrality_brokerage_itinerant.md)
+  — endpoints same group, broker different (w_O, “consultant”)
+- [`centrality_brokerage_representative()`](https://sonsoles.me/cograph/reference/centrality_brokerage_representative.md)
+  — broker + source same, target different (b_IO)
+- [`centrality_brokerage_gatekeeper()`](https://sonsoles.me/cograph/reference/centrality_brokerage_gatekeeper.md)
+  — broker + target same, source different (b_OI)
+- [`centrality_brokerage_liaison()`](https://sonsoles.me/cograph/reference/centrality_brokerage_liaison.md)
+  — all three in different groups (b_O)
+
+Bit-exact match against `sna::brokerage$raw.nli` for all five roles
+across 20 random directed graphs. Implemented natively (no runtime
+dependency on sna). Key implementation detail: the Gould-Fernandez
+counting rule requires **open 2-paths only** — triads where a direct
+edge `a -> c` already exists are excluded. This matches sna’s C
+implementation exactly and was derived empirically (sna’s
+`.C("brokerage_R", ...)` has no R-level source).
+
+Directed-only; warns and returns `NA` on undirected input.
+
+#### Centrality Batch 4 — directed prestige family (Wasserman-Faust / sna)
+
+- [`centrality_prestige_domain()`](https://sonsoles.me/cograph/reference/centrality_prestige_domain.md)
+  — directed-graph prestige measure: for each node , the number of other
+  nodes that can reach via a directed path. Classical
+  Wasserman-Faust (1994) measure from `sna::prestige(cmode = "domain")`.
+  Bit-exact match against sna, implemented natively via
+  `igraph::distances(mode = "out")` + `colSums(is.finite(D)) - 1` (no
+  runtime dependency on sna). Directed-only; returns NA with a warning
+  on undirected input.
+- [`centrality_prestige_domain_proximity()`](https://sonsoles.me/cograph/reference/centrality_prestige_domain_proximity.md)
+  — distance-weighted variant: `R_v^2 / (D_v * (n - 1))` where `R_v` is
+  the number of reachers and `D_v` is the sum of their geodesic
+  distances to `v`. Bit-exact match against
+  `sna::prestige(cmode = "domain.proximity")` on strongly connected
+  directed graphs. On graphs with any unreachable pair, sna has a known
+  bug (`FALSE * Inf = NaN` collapses the denominator, producing all-zero
+  output); cograph’s
+  [`is.finite()`](https://rdrr.io/r/base/is.finite.html)-masked formula
+  produces mathematically correct values on any directed graph.
+  Directed-only.
+
+#### Centrality Batch 3 — classical measures with reference-package validation
+
+- [`centrality_katz()`](https://sonsoles.me/cograph/reference/centrality_katz.md)
+  — Katz (1953) status index. Bit-exact match against
+  [`centiserve::katzcent`](https://rdrr.io/pkg/centiserve/man/katzcent.html)
+  (cograph mirrors centiserve’s exact LAPACK call sequence). Also
+  matches `igraph::alpha_centrality(exo = 1)` and
+  `networkx.katz_centrality_numpy` at machine epsilon. New `katz_alpha`
+  parameter (default 0.1).
+- [`centrality_hubbell()`](https://sonsoles.me/cograph/reference/centrality_hubbell.md)
+  — Hubbell (1965) input-output centrality. Bit-exact match against
+  [`centiserve::hubbell`](https://rdrr.io/pkg/centiserve/man/hubbell.html)
+  (cograph mirrors centiserve’s full-inverse LAPACK call path). Note:
+  centiserve’s default (`weights = NULL`) silently ignores
+  `E(g)$weight`; to reproduce cograph’s behavior with centiserve on
+  weighted graphs, pass `weights = igraph::E(g)$weight` explicitly. New
+  `hubbell_weight` parameter (default 0.5).
+- [`centrality_information()`](https://sonsoles.me/cograph/reference/centrality_information.md)
+  — Stephenson-Zelen (1989) information centrality. Bit-exact match
+  against [`sna::infocent`](https://rdrr.io/pkg/sna/man/infocent.html)
+  on connected undirected graphs (cograph mirrors sna’s exact
+  construction and [`solve()`](https://rdrr.io/r/base/solve.html) call
+  sequence).
+- [`centrality_pairwisedis()`](https://sonsoles.me/cograph/reference/centrality_pairwisedis.md)
+  — Pairwise disconnectivity (Potapov et al. 2008). Directed-only;
+  fraction of reachable ordered pairs that become unreachable when each
+  node is removed. Bit-exact match against
+  [`centiserve::pairwisedis`](https://rdrr.io/pkg/centiserve/man/pairwisedis.html).
+  Warns and returns `NA` on undirected input, matching the convention
+  used by `salsa`, `leaderrank`, and `trophic_level`.
+- [`centrality_reaching_local()`](https://sonsoles.me/cograph/reference/centrality_reaching_local.md)
+  /
+  [`reaching_global()`](https://sonsoles.me/cograph/reference/reaching_global.md)
+  — Local and global reaching centrality (Mones, Vicsek & Vicsek 2012).
+  Bit-exact match against `networkx.local_reaching_centrality` across
+  the directed unweighted, undirected unweighted, and weighted branches.
+  Undirected unweighted LRC coincides with
+  `igraph::harmonic_centrality(normalized = TRUE)` (documented).
+  [`reaching_global()`](https://sonsoles.me/cograph/reference/reaching_global.md)
+  is a graph-level hierarchy statistic in \[0, 1\].
+
 ## cograph 1.8.2
 
 ### New Features
 
-- [`plot_simplicial()`](http://sonsoles.me/cograph/reference/plot_simplicial.md)
+- [`plot_simplicial()`](https://sonsoles.me/cograph/reference/plot_simplicial.md)
   now accepts `tna`, `netobject`, `net_hon`, and `net_hypa` objects
   directly — higher-order pathways are auto-built and visualized with
   proper state labels, no manual extraction needed. New parameters:
   `method` (`"hon"` / `"hypa"`), `max_pathways`, `ncol`. Dismantled mode
   uses `gridExtra` grid layout with scaled nodes
-- [`print.cograph_network()`](http://sonsoles.me/cograph/reference/print.cograph_network.md)
+- [`print.cograph_network()`](https://sonsoles.me/cograph/reference/print.cograph_network.md)
   now shows a structured summary: node/edge counts, density,
   reciprocity, weight range, and top-degree nodes — replacing the
   minimal R6 default output
 - Added `mcml` S3 class with
-  [`as_mcml()`](http://sonsoles.me/cograph/reference/as_mcml.md) generic
-  for type-safe handling of Markov Chain Multi-Level models — enables
-  [`print()`](https://rdrr.io/r/base/print.html),
+  [`as_mcml()`](https://sonsoles.me/cograph/reference/as_mcml.md)
+  generic for type-safe handling of Markov Chain Multi-Level models —
+  enables [`print()`](https://rdrr.io/r/base/print.html),
   [`plot()`](https://rdrr.io/r/graphics/plot.default.html), and method
   dispatch on MCML objects
 - Added local `%||%` operator for R 4.1 compatibility (no longer
@@ -27,17 +254,17 @@
 
 - MCML field names renamed for clarity: `$between` → `$macro`, `$within`
   → `$clusters`
-- [`as_tna()`](http://sonsoles.me/cograph/reference/as_tna.md) on MCML
+- [`as_tna()`](https://sonsoles.me/cograph/reference/as_tna.md) on MCML
   objects now returns a flat `group_tna` list instead of a nested
   structure
 
 ### Bug Fixes
 
-- [`plot_mcml()`](http://sonsoles.me/cograph/reference/plot_mcml.md) now
-  suppresses zero-weight edges instead of drawing invisible lines, and
-  strips leading zeros from edge labels (`.32` instead of `0.32`)
+- [`plot_mcml()`](https://sonsoles.me/cograph/reference/plot_mcml.md)
+  now suppresses zero-weight edges instead of drawing invisible lines,
+  and strips leading zeros from edge labels (`.32` instead of `0.32`)
 - Self-loops in
-  [`cluster_summary()`](http://sonsoles.me/cograph/reference/cluster_summary.md)
+  [`cluster_summary()`](https://sonsoles.me/cograph/reference/cluster_summary.md)
   are now preserved in the macro diagonal, reflecting intra-cluster
   retention rates
 - Sequence data is properly propagated through the full tna → macro →
@@ -49,25 +276,25 @@
 ### New Features
 
 - Added
-  [`overlay_communities()`](http://sonsoles.me/cograph/reference/overlay_communities.md)
+  [`overlay_communities()`](https://sonsoles.me/cograph/reference/overlay_communities.md)
   for drawing community blob overlays on any network plot — accepts
   method names, membership vectors, or pre-computed community objects
 - Added
-  [`plot_simplicial()`](http://sonsoles.me/cograph/reference/plot_simplicial.md)
+  [`plot_simplicial()`](https://sonsoles.me/cograph/reference/plot_simplicial.md)
   for higher-order pathway visualization, rendering simplicial complexes
   as smooth blobs with flexible separators and a dismantled view option
 - Added `value_nudge` parameter to
-  [`plot_transitions()`](http://sonsoles.me/cograph/reference/plot_transitions.md)
+  [`plot_transitions()`](https://sonsoles.me/cograph/reference/plot_transitions.md)
   for controlling the distance between flow labels and nodes
 - Added bundle legend label controls: `bundle_legend_size`,
   `bundle_legend_color`, `bundle_legend_fontface`,
   `bundle_legend_position`
 - Added per-function label controls (`label_size`, `label_color`,
   `label_fontface`, `label_hjust`) to
-  [`plot_transitions()`](http://sonsoles.me/cograph/reference/plot_transitions.md),
-  [`plot_trajectories()`](http://sonsoles.me/cograph/reference/plot_trajectories.md),
+  [`plot_transitions()`](https://sonsoles.me/cograph/reference/plot_transitions.md),
+  [`plot_trajectories()`](https://sonsoles.me/cograph/reference/plot_trajectories.md),
   and
-  [`plot_alluvial()`](http://sonsoles.me/cograph/reference/plot_alluvial.md)
+  [`plot_alluvial()`](https://sonsoles.me/cograph/reference/plot_alluvial.md)
 
 ### Bug Fixes
 
@@ -82,65 +309,66 @@
 #### Cluster Analysis
 
 - Added
-  [`cluster_summary()`](http://sonsoles.me/cograph/reference/cluster_summary.md)
+  [`cluster_summary()`](https://sonsoles.me/cograph/reference/cluster_summary.md)
   for aggregating network weights at the cluster level, producing
   between-cluster and within-cluster matrices from raw transition data
 - Added
-  [`build_mcml()`](http://sonsoles.me/cograph/reference/build_mcml.md)
+  [`build_mcml()`](https://sonsoles.me/cograph/reference/build_mcml.md)
   for constructing Markov Chain Multi-Level models from edge lists or
   sequence data with automatic cluster detection
 - Added
-  [`cluster_quality()`](http://sonsoles.me/cograph/reference/cluster_quality.md)
+  [`cluster_quality()`](https://sonsoles.me/cograph/reference/cluster_quality.md)
   for modularity-based cluster quality metrics and
-  [`cluster_significance()`](http://sonsoles.me/cograph/reference/cluster_significance.md)
+  [`cluster_significance()`](https://sonsoles.me/cograph/reference/cluster_significance.md)
   for permutation-based significance testing
-- Added [`as_tna()`](http://sonsoles.me/cograph/reference/as_tna.md) to
+- Added [`as_tna()`](https://sonsoles.me/cograph/reference/as_tna.md) to
   convert cluster summaries to TNA objects for bootstrapping,
   permutation testing, and plotting with
-  [`splot()`](http://sonsoles.me/cograph/reference/splot.md)
+  [`splot()`](https://sonsoles.me/cograph/reference/splot.md)
 
 #### Network Operations
 
-- Added [`simplify()`](http://sonsoles.me/cograph/reference/simplify.md)
-  for pruning weak edges from networks, with configurable weight
-  threshold and aggregation method
 - Added
-  [`disparity_filter()`](http://sonsoles.me/cograph/reference/disparity_filter.md)
+  [`simplify()`](https://sonsoles.me/cograph/reference/simplify.md) for
+  pruning weak edges from networks, with configurable weight threshold
+  and aggregation method
+- Added
+  [`disparity_filter()`](https://sonsoles.me/cograph/reference/disparity_filter.md)
   for backbone extraction (Serrano et al. 2009), with methods for
   matrices, tna, igraph, and cograph_network objects
 - Added
-  [`robustness()`](http://sonsoles.me/cograph/reference/robustness.md)
+  [`robustness()`](https://sonsoles.me/cograph/reference/robustness.md)
   for network robustness analysis with targeted (betweenness, degree)
   and random attack strategies, plus
-  [`ggplot_robustness()`](http://sonsoles.me/cograph/reference/ggplot_robustness.md)
+  [`ggplot_robustness()`](https://sonsoles.me/cograph/reference/ggplot_robustness.md)
   for faceted ggplot2 output
 - Added `temporal_edge_list()` for converting sequence data to
   timestamped edge lists
 - Added
-  [`supra_adjacency()`](http://sonsoles.me/cograph/reference/supra_adjacency.md),
-  [`supra_layer()`](http://sonsoles.me/cograph/reference/supra_layer.md),
-  [`supra_interlayer()`](http://sonsoles.me/cograph/reference/supra_interlayer.md)
+  [`supra_adjacency()`](https://sonsoles.me/cograph/reference/supra_adjacency.md),
+  [`supra_layer()`](https://sonsoles.me/cograph/reference/supra_layer.md),
+  [`supra_interlayer()`](https://sonsoles.me/cograph/reference/supra_interlayer.md)
   for multilayer supra-adjacency matrix construction
 - Added
-  [`layer_similarity()`](http://sonsoles.me/cograph/reference/layer_similarity.md),
-  [`layer_similarity_matrix()`](http://sonsoles.me/cograph/reference/layer_similarity_matrix.md),
+  [`layer_similarity()`](https://sonsoles.me/cograph/reference/layer_similarity.md),
+  [`layer_similarity_matrix()`](https://sonsoles.me/cograph/reference/layer_similarity_matrix.md),
   and
-  [`layer_degree_correlation()`](http://sonsoles.me/cograph/reference/layer_degree_correlation.md)
+  [`layer_degree_correlation()`](https://sonsoles.me/cograph/reference/layer_degree_correlation.md)
   for comparing layers in multilayer networks
 - Added
-  [`aggregate_weights()`](http://sonsoles.me/cograph/reference/aggregate_weights.md)
+  [`aggregate_weights()`](https://sonsoles.me/cograph/reference/aggregate_weights.md)
   and
-  [`aggregate_layers()`](http://sonsoles.me/cograph/reference/aggregate_layers.md)
+  [`aggregate_layers()`](https://sonsoles.me/cograph/reference/aggregate_layers.md)
   for weight aggregation across layers
 - Added
-  [`verify_with_igraph()`](http://sonsoles.me/cograph/reference/verify_with_igraph.md)
+  [`verify_with_igraph()`](https://sonsoles.me/cograph/reference/verify_with_igraph.md)
   for cross-validating cograph centrality and network metrics against
   igraph
 
 #### Motif Analysis
 
-- Added [`motifs()`](http://sonsoles.me/cograph/reference/motifs.md) /
-  [`subgraphs()`](http://sonsoles.me/cograph/reference/subgraphs.md) as
+- Added [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md) /
+  [`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md) as
   a unified API for triad census (node-exchangeable counts) and instance
   extraction (named node triples), with auto-detection of actor/session
   columns, rolling/tumbling window support, and exact configuration
@@ -149,16 +377,16 @@
 #### Visualization
 
 - Added
-  [`plot_mcml()`](http://sonsoles.me/cograph/reference/plot_mcml.md) for
-  Markov Chain Multi-Level visualization showing between-cluster summary
-  edges alongside within-cluster detail, with pie charts, self-loops,
-  and 22 customization parameters
+  [`plot_mcml()`](https://sonsoles.me/cograph/reference/plot_mcml.md)
+  for Markov Chain Multi-Level visualization showing between-cluster
+  summary edges alongside within-cluster detail, with pie charts,
+  self-loops, and 22 customization parameters
 - Added
-  [`plot_chord()`](http://sonsoles.me/cograph/reference/plot_chord.md)
+  [`plot_chord()`](https://sonsoles.me/cograph/reference/plot_chord.md)
   for native chord diagrams with automatic weight-based arc sizing
 - Added `plot_time_line()` for cluster membership timeline visualization
 - Added
-  [`plot_htna()`](http://sonsoles.me/cograph/reference/plot_htna.md)
+  [`plot_htna()`](https://sonsoles.me/cograph/reference/plot_htna.md)
   orientations: `"facing"` (tip-to-tip columns) and `"circular"` (two
   semicircles), plus `intra_curvature` for drawing intra-group edges as
   dotted bezier arcs
@@ -166,18 +394,18 @@
   edges/cells below a minimum absolute weight
 - Added `value_fontface`, `value_fontfamily`, and `value_halo`
   parameters to
-  [`plot_heatmap()`](http://sonsoles.me/cograph/reference/plot_heatmap.md)
+  [`plot_heatmap()`](https://sonsoles.me/cograph/reference/plot_heatmap.md)
   for text styling control
 - Added directional shorthands for `scale_nodes_by`: `indegree`,
   `outdegree`, `instrength`, `outstrength`, `incloseness`,
   `outcloseness`, `inharmonic`, `outharmonic`, `ineccentricity`,
   `outeccentricity`
 - Added `scale_nodes_scale` parameter to
-  [`splot()`](http://sonsoles.me/cograph/reference/splot.md) for
+  [`splot()`](https://sonsoles.me/cograph/reference/splot.md) for
   dampening (\< 1) or exaggerating (\> 1) centrality-based node sizing
   differences
 - Added qgraph argument translation in
-  [`splot()`](http://sonsoles.me/cograph/reference/splot.md): when
+  [`splot()`](https://sonsoles.me/cograph/reference/splot.md): when
   plotting tna objects, qgraph-style parameters (`vsize`, `asize`,
   `edge.color`, `lty`, `shape`) are automatically mapped to cograph
   equivalents
@@ -201,7 +429,7 @@
 - Consolidated cograph_network metadata under `$meta` with getter/setter
   functions
 - Added `group_tna` support to
-  [`splot()`](http://sonsoles.me/cograph/reference/splot.md) for direct
+  [`splot()`](https://sonsoles.me/cograph/reference/splot.md) for direct
   plotting of grouped TNA models
 - Gave each `centrality_*` wrapper its own focused help page
 
@@ -212,21 +440,21 @@
   graphs now transpose correctly (matching sna convention); disconnected
   nodes no longer contribute spurious centrality
 - Fixed self-loop and edge clipping in
-  [`splot()`](http://sonsoles.me/cograph/reference/splot.md) viewport
+  [`splot()`](https://sonsoles.me/cograph/reference/splot.md) viewport
   calculation
 - Fixed argument forwarding in splot dispatch for bootstrap/permutation
   objects — named parameters (minimum, threshold, layout, title) were
   consumed by
-  [`splot()`](http://sonsoles.me/cograph/reference/splot.md)’s signature
-  and silently dropped when dispatching
+  [`splot()`](https://sonsoles.me/cograph/reference/splot.md)’s
+  signature and silently dropped when dispatching
 - Fixed overlapping flow value labels in multi-step alluvial plots
 - Fixed alluvial label halo rendering producing spike artifacts (8 → 16
   offset directions)
 - Fixed viridis palette direction in
-  [`plot_heatmap()`](http://sonsoles.me/cograph/reference/plot_heatmap.md)
+  [`plot_heatmap()`](https://sonsoles.me/cograph/reference/plot_heatmap.md)
   so high values get dark colors
 - Fixed
-  [`build_mcml()`](http://sonsoles.me/cograph/reference/build_mcml.md)
+  [`build_mcml()`](https://sonsoles.me/cograph/reference/build_mcml.md)
   density method crash when weight vector had no names
 - Fixed display label priority resolution (labels \> label \>
   identifier)
@@ -248,14 +476,14 @@
 #### Centrality
 
 - Added
-  [`centrality()`](http://sonsoles.me/cograph/reference/centrality.md)
+  [`centrality()`](https://sonsoles.me/cograph/reference/centrality.md)
   with 23 measures and individual wrappers: degree, strength,
   betweenness, closeness, eigenvector, pagerank, harmonic, authority,
   hub, alpha, power, kreach, diffusion, percolation, eccentricity,
   transitivity, constraint, coreness, load, subgraph, leverage,
   laplacian, current-flow betweenness, current-flow closeness, voterank
 - Added
-  [`edge_betweenness()`](http://sonsoles.me/cograph/reference/edge_centrality.md)
+  [`edge_betweenness()`](https://sonsoles.me/cograph/reference/edge_centrality.md)
   for edge-level centrality
 - Added automatic weight inversion for path-based measures when working
   with tna transition matrices (where higher weight = stronger
@@ -264,78 +492,78 @@
 #### Community Detection
 
 - Added
-  [`detect_communities()`](http://sonsoles.me/cograph/reference/detect_communities.md)
+  [`detect_communities()`](https://sonsoles.me/cograph/reference/detect_communities.md)
   with 11 algorithms: louvain, walktrap, fast_greedy, label_propagation,
   leading_eigenvector, infomap, spinglass, leiden, optimal,
   edge_betweenness, multilevel — plus `com_*` shorthand aliases
 - Added consensus clustering and
-  [`cluster_significance()`](http://sonsoles.me/cograph/reference/cluster_significance.md)
+  [`cluster_significance()`](https://sonsoles.me/cograph/reference/cluster_significance.md)
   for permutation-based validation
 
 #### Network Metrics
 
 - Added
-  [`network_summary()`](http://sonsoles.me/cograph/reference/network_summary.md)
+  [`network_summary()`](https://sonsoles.me/cograph/reference/network_summary.md)
   and
-  [`summarize_network()`](http://sonsoles.me/cograph/reference/summarize_network.md)
+  [`summarize_network()`](https://sonsoles.me/cograph/reference/summarize_network.md)
   for computing comprehensive network-level statistics (density,
   reciprocity, transitivity, diameter, components, degree distribution)
 
 #### Visualization
 
 - Added
-  [`plot_transitions()`](http://sonsoles.me/cograph/reference/plot_transitions.md)
+  [`plot_transitions()`](https://sonsoles.me/cograph/reference/plot_transitions.md)
   for alluvial/Sankey flow diagrams, with
-  [`plot_alluvial()`](http://sonsoles.me/cograph/reference/plot_alluvial.md)
+  [`plot_alluvial()`](https://sonsoles.me/cograph/reference/plot_alluvial.md)
   and
-  [`plot_trajectories()`](http://sonsoles.me/cograph/reference/plot_trajectories.md)
+  [`plot_trajectories()`](https://sonsoles.me/cograph/reference/plot_trajectories.md)
   wrappers
 - Added `plot_bootstrap()` and
-  [`plot_permutation()`](http://sonsoles.me/cograph/reference/plot_permutation.md)
+  [`plot_permutation()`](https://sonsoles.me/cograph/reference/plot_permutation.md)
   for significance-styled visualization of bootstrap and permutation
   test results — significant edges rendered solid on top,
   non-significant edges dashed behind
 - Added
-  [`plot_mixed_network()`](http://sonsoles.me/cograph/reference/plot_mixed_network.md)
+  [`plot_mixed_network()`](https://sonsoles.me/cograph/reference/plot_mixed_network.md)
   for overlaying symmetric (undirected, straight) and asymmetric
   (directed, curved) edges on the same network
 - Added
-  [`plot_heatmap()`](http://sonsoles.me/cograph/reference/plot_heatmap.md)
+  [`plot_heatmap()`](https://sonsoles.me/cograph/reference/plot_heatmap.md)
   for adjacency matrix heatmaps with optional hierarchical clustering
   and
-  [`plot_ml_heatmap()`](http://sonsoles.me/cograph/reference/plot_ml_heatmap.md)
+  [`plot_ml_heatmap()`](https://sonsoles.me/cograph/reference/plot_ml_heatmap.md)
   for multilayer 3D perspective heatmaps
 - Added
-  [`plot_compare()`](http://sonsoles.me/cograph/reference/plot_compare.md)
+  [`plot_compare()`](https://sonsoles.me/cograph/reference/plot_compare.md)
   for difference network visualization showing edge-weight changes
   between two networks
-- Added [`splot()`](http://sonsoles.me/cograph/reference/splot.md) S3
+- Added [`splot()`](https://sonsoles.me/cograph/reference/splot.md) S3
   methods for `tna_bootstrap` and `tna_permutation` objects
 
 #### Motif Analysis
 
 - Added
-  [`motif_census()`](http://sonsoles.me/cograph/reference/motif_census.md),
-  [`triad_census()`](http://sonsoles.me/cograph/reference/triad_census.md),
+  [`motif_census()`](https://sonsoles.me/cograph/reference/motif_census.md),
+  [`triad_census()`](https://sonsoles.me/cograph/reference/triad_census.md),
   and
-  [`extract_motifs()`](http://sonsoles.me/cograph/reference/extract_motifs.md)
+  [`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md)
   for triad motif analysis with pattern filtering, significance testing,
   and network diagram visualization
 
 #### Network Utilities
 
 - Added
-  [`filter_edges()`](http://sonsoles.me/cograph/reference/filter_edges.md),
-  [`subset_edges()`](http://sonsoles.me/cograph/reference/filter_edges.md),
-  [`select_nodes()`](http://sonsoles.me/cograph/reference/select_nodes.md),
-  [`select_edges()`](http://sonsoles.me/cograph/reference/select_edges.md)
+  [`filter_edges()`](https://sonsoles.me/cograph/reference/filter_edges.md),
+  [`subset_edges()`](https://sonsoles.me/cograph/reference/filter_edges.md),
+  [`select_nodes()`](https://sonsoles.me/cograph/reference/select_nodes.md),
+  [`select_edges()`](https://sonsoles.me/cograph/reference/select_edges.md)
   for flexible network subsetting
 - Added
-  [`set_groups()`](http://sonsoles.me/cograph/reference/set_groups.md)
+  [`set_groups()`](https://sonsoles.me/cograph/reference/set_groups.md)
   for storing cluster assignments on cograph_network objects with
   automatic dispatch to
-  [`plot_htna()`](http://sonsoles.me/cograph/reference/plot_htna.md) /
-  [`plot_mtna()`](http://sonsoles.me/cograph/reference/plot_mtna.md)
+  [`plot_htna()`](https://sonsoles.me/cograph/reference/plot_htna.md) /
+  [`plot_mtna()`](https://sonsoles.me/cograph/reference/plot_mtna.md)
 
 #### Infrastructure
 
@@ -360,20 +588,20 @@ CRAN release: 2026-03-02
 
 - Standardized first parameter name to `x` across all plotting
   functions:
-  - [`plot_tna()`](http://sonsoles.me/cograph/reference/plot_tna.md):
+  - [`plot_tna()`](https://sonsoles.me/cograph/reference/plot_tna.md):
     `input` → `x`
-  - [`plot_htna()`](http://sonsoles.me/cograph/reference/plot_htna.md):
+  - [`plot_htna()`](https://sonsoles.me/cograph/reference/plot_htna.md):
     `input` → `x` (was `model`)
-  - [`plot_mtna()`](http://sonsoles.me/cograph/reference/plot_mtna.md):
+  - [`plot_mtna()`](https://sonsoles.me/cograph/reference/plot_mtna.md):
     `input` → `x` (was `model`)
-  - [`splot()`](http://sonsoles.me/cograph/reference/splot.md) already
+  - [`splot()`](https://sonsoles.me/cograph/reference/splot.md) already
     used `x`
 
 ### Bug Fixes
 
-- Fixed [`tplot()`](http://sonsoles.me/cograph/reference/plot_tna.md)
+- Fixed [`tplot()`](https://sonsoles.me/cograph/reference/plot_tna.md)
   default margins causing tiny plots compared to
-  [`splot()`](http://sonsoles.me/cograph/reference/splot.md)
+  [`splot()`](https://sonsoles.me/cograph/reference/splot.md)
 
 ### Documentation
 
@@ -404,17 +632,17 @@ names still work but emit deprecation warnings:
 
 ### New Features
 
-- Added [`mlna()`](http://sonsoles.me/cograph/reference/plot_mlna.md)
+- Added [`mlna()`](https://sonsoles.me/cograph/reference/plot_mlna.md)
   for multilevel network visualization with 3D perspective
-- Added [`mtna()`](http://sonsoles.me/cograph/reference/plot_mtna.md)
+- Added [`mtna()`](https://sonsoles.me/cograph/reference/plot_mtna.md)
   for multi-cluster network visualization with shape-based cluster
   containers
 - Added
-  [`plot_htna()`](http://sonsoles.me/cograph/reference/plot_htna.md) for
-  hierarchical multi-group network layouts with polygon and circular
+  [`plot_htna()`](https://sonsoles.me/cograph/reference/plot_htna.md)
+  for hierarchical multi-group network layouts with polygon and circular
   arrangements
-- Added [`tplot()`](http://sonsoles.me/cograph/reference/plot_tna.md) as
-  a qgraph drop-in replacement with automatic parameter translation
+- Added [`tplot()`](https://sonsoles.me/cograph/reference/plot_tna.md)
+  as a qgraph drop-in replacement with automatic parameter translation
 - Added `arrow_angle` parameter for customizable arrowhead geometry
 
 ### Bug Fixes
@@ -429,7 +657,7 @@ names still work but emit deprecation warnings:
 - Added `edge_start_dot_density` parameter for TNA-style dotted edge
   starts indicating direction
 - Added direct support for tna objects via
-  [`from_tna()`](http://sonsoles.me/cograph/reference/from_tna.md) — no
+  [`from_tna()`](https://sonsoles.me/cograph/reference/from_tna.md) — no
   manual matrix extraction needed
 - Added direct support for statnet `network` and `qgraph` objects as
   input
@@ -439,7 +667,7 @@ names still work but emit deprecation warnings:
 ### Bug Fixes
 
 - Fixed TNA visual defaults being silently overwritten in
-  [`splot()`](http://sonsoles.me/cograph/reference/splot.md) when other
+  [`splot()`](https://sonsoles.me/cograph/reference/splot.md) when other
   parameters were specified
 - Fixed self-loop edge labels overlapping the loop arc
 - Fixed `donut_shape` validation rejecting custom SVG shapes
@@ -452,12 +680,12 @@ names still work but emit deprecation warnings:
 ### Bug Fixes
 
 - Fixed oversized nodes in
-  [`from_qgraph()`](http://sonsoles.me/cograph/reference/from_qgraph.md)
+  [`from_qgraph()`](https://sonsoles.me/cograph/reference/from_qgraph.md)
   when a layout override was provided
 - Fixed oval layout using independent axis scaling, which distorted
   aspect ratios — now uses uniform scaling via `normalize_coords()`
 - Fixed edge label alignment in
-  [`from_qgraph()`](http://sonsoles.me/cograph/reference/from_qgraph.md)
+  [`from_qgraph()`](https://sonsoles.me/cograph/reference/from_qgraph.md)
   by using a matrix intermediary for per-edge vector reordering
 - Fixed `nrow(el)` crash: qgraph’s Edgelist is a list, not a data.frame
 - Fixed oval layout node distortion and donut fill values when
@@ -469,7 +697,7 @@ names still work but emit deprecation warnings:
 
 - Added `donut_empty` parameter for rendering unfilled donut nodes
 - Added
-  [`from_qgraph()`](http://sonsoles.me/cograph/reference/from_qgraph.md)
+  [`from_qgraph()`](https://sonsoles.me/cograph/reference/from_qgraph.md)
   for converting qgraph objects to cograph format, reading resolved
   `graphAttributes` for accurate parameter extraction
 
@@ -483,12 +711,12 @@ names still work but emit deprecation warnings:
 
 ### New Features
 
-- Added [`soplot()`](http://sonsoles.me/cograph/reference/soplot.md) for
-  grid/ggplot2-based network plotting — full feature parity with
-  [`splot()`](http://sonsoles.me/cograph/reference/splot.md) using a
+- Added [`soplot()`](https://sonsoles.me/cograph/reference/soplot.md)
+  for grid/ggplot2-based network plotting — full feature parity with
+  [`splot()`](https://sonsoles.me/cograph/reference/splot.md) using a
   different rendering backend
 - Added
-  [`layout_oval()`](http://sonsoles.me/cograph/reference/layout_oval.md)
+  [`layout_oval()`](https://sonsoles.me/cograph/reference/layout_oval.md)
   for oval/elliptical node arrangements
 - Added `layout_scale` parameter to expand or contract the network
   layout, with `"auto"` mode for node-count-based scaling
@@ -498,9 +726,9 @@ names still work but emit deprecation warnings:
 
 ### Bug Fixes
 
-- Fixed [`soplot()`](http://sonsoles.me/cograph/reference/soplot.md)
+- Fixed [`soplot()`](https://sonsoles.me/cograph/reference/soplot.md)
   curve direction and edge defaults diverging from
-  [`splot()`](http://sonsoles.me/cograph/reference/splot.md) behavior
+  [`splot()`](https://sonsoles.me/cograph/reference/splot.md) behavior
 - Fixed `rescale_layout` distorting oval aspect ratios by switching to
   uniform scaling
 - Fixed edge scaling producing abnormally thick edges on small networks
@@ -510,7 +738,7 @@ names still work but emit deprecation warnings:
 
 ### New Features
 
-- Added [`splot()`](http://sonsoles.me/cograph/reference/splot.md) — a
+- Added [`splot()`](https://sonsoles.me/cograph/reference/splot.md) — a
   base R graphics engine for network visualization using
   [`polygon()`](https://rdrr.io/r/graphics/polygon.html),
   [`lines()`](https://rdrr.io/r/graphics/lines.html), and
@@ -526,7 +754,7 @@ names still work but emit deprecation warnings:
 - Added comprehensive legend support: groups, edge color scales, and
   node size scales
 - Added high-resolution output via
-  [`sn_save()`](http://sonsoles.me/cograph/reference/sn_save.md) with
+  [`sn_save()`](https://sonsoles.me/cograph/reference/sn_save.md) with
   configurable DPI
 - Added edge curve modes, bidirectional arrows, self-loop rotation, and
   per-edge curve control

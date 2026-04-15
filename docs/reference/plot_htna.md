@@ -109,7 +109,7 @@ htna(
 
   Community detection method to use for auto-grouping. If specified,
   overrides `node_list`. See
-  [`detect_communities`](http://sonsoles.me/cograph/reference/detect_communities.md)
+  [`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md)
   for available methods: "louvain", "walktrap", "fast_greedy",
   "label_prop", "infomap", "leiden".
 

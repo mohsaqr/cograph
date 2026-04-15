@@ -94,28 +94,29 @@ The cograph_network format is designed to be:
 - Compatible: Works seamlessly with splot() and other cograph functions
 
 Use getter functions for programmatic access:
-[`get_nodes`](http://sonsoles.me/cograph/reference/get_nodes.md),
-[`get_edges`](http://sonsoles.me/cograph/reference/get_edges.md),
-[`get_labels`](http://sonsoles.me/cograph/reference/get_labels.md),
-[`n_nodes`](http://sonsoles.me/cograph/reference/n_nodes.md),
-[`n_edges`](http://sonsoles.me/cograph/reference/n_edges.md)
+[`get_nodes`](https://sonsoles.me/cograph/reference/get_nodes.md),
+[`get_edges`](https://sonsoles.me/cograph/reference/get_edges.md),
+[`get_labels`](https://sonsoles.me/cograph/reference/get_labels.md),
+[`n_nodes`](https://sonsoles.me/cograph/reference/n_nodes.md),
+[`n_edges`](https://sonsoles.me/cograph/reference/n_edges.md)
 
 Use setter functions to modify:
-[`set_nodes`](http://sonsoles.me/cograph/reference/set_nodes.md),
-[`set_edges`](http://sonsoles.me/cograph/reference/set_edges.md),
-[`set_layout`](http://sonsoles.me/cograph/reference/set_layout.md)
+[`set_nodes`](https://sonsoles.me/cograph/reference/set_nodes.md),
+[`set_edges`](https://sonsoles.me/cograph/reference/set_edges.md),
+[`set_layout`](https://sonsoles.me/cograph/reference/set_layout.md)
 
 ## See also
 
-[`get_nodes`](http://sonsoles.me/cograph/reference/get_nodes.md) to
+[`get_nodes`](https://sonsoles.me/cograph/reference/get_nodes.md) to
 extract the nodes data frame,
-[`get_edges`](http://sonsoles.me/cograph/reference/get_edges.md) to
+[`get_edges`](https://sonsoles.me/cograph/reference/get_edges.md) to
 extract edges as a data frame,
-[`n_nodes`](http://sonsoles.me/cograph/reference/n_nodes.md) and
-[`n_edges`](http://sonsoles.me/cograph/reference/n_edges.md) for counts,
-[`is_directed`](http://sonsoles.me/cograph/reference/is_directed.md) to
+[`n_nodes`](https://sonsoles.me/cograph/reference/n_nodes.md) and
+[`n_edges`](https://sonsoles.me/cograph/reference/n_edges.md) for
+counts,
+[`is_directed`](https://sonsoles.me/cograph/reference/is_directed.md) to
 check directedness,
-[`splot`](http://sonsoles.me/cograph/reference/splot.md) for plotting
+[`splot`](https://sonsoles.me/cograph/reference/splot.md) for plotting
 
 ## Examples
 

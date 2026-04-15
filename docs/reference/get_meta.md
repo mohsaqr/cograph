@@ -33,8 +33,8 @@ A list with components:
 
 ## See also
 
-[`as_cograph`](http://sonsoles.me/cograph/reference/as_cograph.md),
-[`get_source`](http://sonsoles.me/cograph/reference/get_source.md)
+[`as_cograph`](https://sonsoles.me/cograph/reference/as_cograph.md),
+[`get_source`](https://sonsoles.me/cograph/reference/get_source.md)
 
 ## Examples
 

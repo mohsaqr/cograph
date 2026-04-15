@@ -47,18 +47,18 @@ A data frame with columns:
 
 ## See also
 
-[`extract_motifs()`](http://sonsoles.me/cograph/reference/extract_motifs.md)
+[`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md)
 for motif analysis using edge lists
 
 Other motifs:
-[`extract_motifs()`](http://sonsoles.me/cograph/reference/extract_motifs.md),
-[`extract_triads()`](http://sonsoles.me/cograph/reference/extract_triads.md),
-[`motif_census()`](http://sonsoles.me/cograph/reference/motif_census.md),
-[`motifs()`](http://sonsoles.me/cograph/reference/motifs.md),
-[`plot.cograph_motif_analysis()`](http://sonsoles.me/cograph/reference/plot.cograph_motif_analysis.md),
-[`plot.cograph_motifs()`](http://sonsoles.me/cograph/reference/plot.cograph_motifs.md),
-[`subgraphs()`](http://sonsoles.me/cograph/reference/subgraphs.md),
-[`triad_census()`](http://sonsoles.me/cograph/reference/triad_census.md)
+[`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md),
+[`extract_triads()`](https://sonsoles.me/cograph/reference/extract_triads.md),
+[`motif_census()`](https://sonsoles.me/cograph/reference/motif_census.md),
+[`motifs()`](https://sonsoles.me/cograph/reference/motifs.md),
+[`plot.cograph_motif_analysis()`](https://sonsoles.me/cograph/reference/plot.cograph_motif_analysis.md),
+[`plot.cograph_motifs()`](https://sonsoles.me/cograph/reference/plot.cograph_motifs.md),
+[`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md),
+[`triad_census()`](https://sonsoles.me/cograph/reference/triad_census.md)
 
 ## Examples
 

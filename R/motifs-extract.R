@@ -101,7 +101,7 @@
 #' m <- extract_motifs(mat, significance = FALSE)
 #' print(m)
 #'
-#' \donttest{
+#' \dontrun{
 #' if (requireNamespace("tna", quietly = TRUE)) {
 #'   Mod <- tna::tna(tna::group_regulation)
 #'
@@ -521,7 +521,7 @@ print.cograph_motif_analysis <- function(x, n = 20, ...) {
 #' rownames(mat) <- colnames(mat) <- c("Plan","Execute","Monitor","Adapt")
 #' m <- extract_motifs(mat, significance = FALSE)
 #' plot(m)
-#' \donttest{
+#' \dontrun{
 #'   plot(m, type = "types")
 #' }
 #'

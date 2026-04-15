@@ -75,7 +75,7 @@ get_nodes(hubs)
 
 ### Structural selections
 
-[`select_nodes()`](http://sonsoles.me/cograph/reference/select_nodes.md)
+[`select_nodes()`](https://sonsoles.me/cograph/reference/select_nodes.md)
 goes further. It knows about components, neighborhoods, articulation
 points, and k-cores — and it computes them lazily (only what your
 expression actually references):
@@ -582,7 +582,7 @@ splot(perm)
 ![](why-cograph_files/figure-html/unnamed-chunk-31-1.png)
 
 Group comparisons with
-[`plot_compare()`](http://sonsoles.me/cograph/reference/plot_compare.md)
+[`plot_compare()`](https://sonsoles.me/cograph/reference/plot_compare.md)
 show element-wise probability differences, with donuts on nodes for
 initial state shifts.
 
@@ -595,7 +595,7 @@ present, the cograph name wins.
 
 ### Nestimate integration
 
-cograph also plots [Nestimate](https://mohsaqr.r-universe.dev/Nestimate)
+cograph also plots [Nestimate](https://cran.r-project.org/web/packages/Nestimate/index.html)
 objects (bootstrap forests, permutation results, glasso networks)
 without importing the package — dispatch is by class name only.
 

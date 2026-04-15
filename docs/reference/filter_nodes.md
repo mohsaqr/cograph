@@ -82,8 +82,9 @@ returns the same type as input (matrix, igraph, network, etc.).
 
 ## See also
 
-[`filter_edges`](http://sonsoles.me/cograph/reference/filter_edges.md),
-[`splot`](http://sonsoles.me/cograph/reference/splot.md), `subset_nodes`
+[`filter_edges`](https://sonsoles.me/cograph/reference/filter_edges.md),
+[`splot`](https://sonsoles.me/cograph/reference/splot.md),
+`subset_nodes`
 
 ## Examples
 
@@ -132,8 +133,8 @@ if (requireNamespace("igraph", quietly = TRUE)) {
   g <- igraph::make_ring(5)
   filter_nodes(g, degree >= 2, keep_format = TRUE)  # Returns igraph
 }
-#> IGRAPH 567c09d UNW- 5 5 -- 
+#> IGRAPH fedda41 UNW- 5 5 -- 
 #> + attr: name (v/c), weight (e/n)
-#> + edges from 567c09d (vertex names):
+#> + edges from fedda41 (vertex names):
 #> [1] 1--2 2--3 3--4 4--5 1--5
 ```

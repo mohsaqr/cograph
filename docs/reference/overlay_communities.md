@@ -1,7 +1,7 @@
 # Overlay Community Blobs on a Network Plot
 
 Render a network with
-[`splot`](http://sonsoles.me/cograph/reference/splot.md) and overlay
+[`splot`](https://sonsoles.me/cograph/reference/splot.md) and overlay
 smooth blob shapes highlighting node communities.
 
 ## Usage
@@ -23,7 +23,7 @@ overlay_communities(
 - x:
 
   A network object passed to
-  [`splot`](http://sonsoles.me/cograph/reference/splot.md): `tna`,
+  [`splot`](https://sonsoles.me/cograph/reference/splot.md): `tna`,
   matrix, `igraph`, or `cograph_network`.
 
 - communities:
@@ -53,7 +53,7 @@ overlay_communities(
 - ...:
 
   Additional arguments passed to
-  [`splot`](http://sonsoles.me/cograph/reference/splot.md).
+  [`splot`](https://sonsoles.me/cograph/reference/splot.md).
 
 ## Value
 

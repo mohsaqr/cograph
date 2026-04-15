@@ -22,8 +22,8 @@ frame, not a list of separate calls. Community detection is one function
 with 11 algorithms behind it. Statistical annotations (confidence
 intervals, p-values, significance stars) render directly on the figure.
 And when you need igraph or statnet for something cograph does not do,
-[`to_igraph()`](http://sonsoles.me/cograph/reference/to_igraph.md) and
-[`to_network()`](http://sonsoles.me/cograph/reference/to_network.md)
+[`to_igraph()`](https://sonsoles.me/cograph/reference/to_igraph.md) and
+[`to_network()`](https://sonsoles.me/cograph/reference/to_network.md)
 convert back without data loss.
 
 Beyond standard network analysis, cograph visualizes higher-order
@@ -50,7 +50,7 @@ mat[edges] <- round(runif(30, 0.05, 0.5), 2)
 
 ## Plotting
 
-[`splot()`](http://sonsoles.me/cograph/reference/splot.md) is the main
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md) is the main
 plotting function. One call, publication-ready output.
 
 ``` r
@@ -82,33 +82,33 @@ Themes: `"default"`, `"dark"`, `"minimal"`, `"gray"`, `"nature"`,
 Node shapes: `"circle"`, `"square"`, `"triangle"`, `"diamond"`,
 `"pentagon"`, `"hexagon"`, `"star"`, `"heart"`, `"ellipse"`, `"cross"`,
 `"rectangle"`, `"pie"`, `"donut"`, or custom SVG via
-[`register_svg_shape()`](http://sonsoles.me/cograph/reference/register_svg_shape.md).
+[`register_svg_shape()`](https://sonsoles.me/cograph/reference/register_svg_shape.md).
 
 ## Specialized plots
 
 | Function | Purpose |
 |----|----|
-| [`splot()`](http://sonsoles.me/cograph/reference/splot.md) | Network graph (base R) |
-| [`soplot()`](http://sonsoles.me/cograph/reference/soplot.md) | Grid/ggplot2 network |
-| [`plot_tna()`](http://sonsoles.me/cograph/reference/plot_tna.md) / [`tplot()`](http://sonsoles.me/cograph/reference/plot_tna.md) | TNA-style wrappers with qgraph-compatible parameters |
-| [`plot_chord()`](http://sonsoles.me/cograph/reference/plot_chord.md) | Chord diagram (directed/undirected ribbons) |
-| [`plot_heatmap()`](http://sonsoles.me/cograph/reference/plot_heatmap.md) | Adjacency heatmap with clustering |
-| [`plot_ml_heatmap()`](http://sonsoles.me/cograph/reference/plot_ml_heatmap.md) | Multi-layer comparison heatmap |
-| [`plot_transitions()`](http://sonsoles.me/cograph/reference/plot_transitions.md) / [`plot_alluvial()`](http://sonsoles.me/cograph/reference/plot_alluvial.md) | Alluvial / Sankey flow diagrams |
-| [`plot_trajectories()`](http://sonsoles.me/cograph/reference/plot_trajectories.md) | Individual trajectory tracking |
-| [`plot_compare()`](http://sonsoles.me/cograph/reference/plot_compare.md) | Difference network between two matrices |
-| [`plot_comparison_heatmap()`](http://sonsoles.me/cograph/reference/plot_comparison_heatmap.md) | Side-by-side heatmap comparison |
-| [`plot_mixed_network()`](http://sonsoles.me/cograph/reference/plot_mixed_network.md) | Directed + undirected edges combined |
-| [`plot_bootstrap_forest()`](http://sonsoles.me/cograph/reference/plot_bootstrap_forest.md) | Bootstrap CI forest plots (linear, circular, grouped) |
-| [`plot_edge_diff_forest()`](http://sonsoles.me/cograph/reference/plot_edge_diff_forest.md) | Edge difference plots (linear, circular, chord, tile) |
-| [`plot_simplicial()`](http://sonsoles.me/cograph/reference/plot_simplicial.md) | Higher-order pathway blob overlays |
-| [`overlay_communities()`](http://sonsoles.me/cograph/reference/overlay_communities.md) | Community blob overlays on network |
-| [`plot_mcml()`](http://sonsoles.me/cograph/reference/plot_mcml.md) | Two-layer hierarchical cluster visualization |
-| [`plot_mtna()`](http://sonsoles.me/cograph/reference/plot_mtna.md) | Flat multi-cluster layout |
-| [`plot_mlna()`](http://sonsoles.me/cograph/reference/plot_mlna.md) | Stacked multilayer 3D perspective |
-| [`plot_htna()`](http://sonsoles.me/cograph/reference/plot_htna.md) | Multi-group heterogeneous TNA layout |
-| [`plot_robustness()`](http://sonsoles.me/cograph/reference/plot_robustness.md) | Robustness degradation curves |
-| [`plot_permutation()`](http://sonsoles.me/cograph/reference/plot_permutation.md) / [`plot_group_permutation()`](http://sonsoles.me/cograph/reference/plot_group_permutation.md) | Permutation test results |
+| [`splot()`](https://sonsoles.me/cograph/reference/splot.md) | Network graph (base R) |
+| [`soplot()`](https://sonsoles.me/cograph/reference/soplot.md) | Grid/ggplot2 network |
+| [`plot_tna()`](https://sonsoles.me/cograph/reference/plot_tna.md) / [`tplot()`](https://sonsoles.me/cograph/reference/plot_tna.md) | TNA-style wrappers with qgraph-compatible parameters |
+| [`plot_chord()`](https://sonsoles.me/cograph/reference/plot_chord.md) | Chord diagram (directed/undirected ribbons) |
+| [`plot_heatmap()`](https://sonsoles.me/cograph/reference/plot_heatmap.md) | Adjacency heatmap with clustering |
+| [`plot_ml_heatmap()`](https://sonsoles.me/cograph/reference/plot_ml_heatmap.md) | Multi-layer comparison heatmap |
+| [`plot_transitions()`](https://sonsoles.me/cograph/reference/plot_transitions.md) / [`plot_alluvial()`](https://sonsoles.me/cograph/reference/plot_alluvial.md) | Alluvial / Sankey flow diagrams |
+| [`plot_trajectories()`](https://sonsoles.me/cograph/reference/plot_trajectories.md) | Individual trajectory tracking |
+| [`plot_compare()`](https://sonsoles.me/cograph/reference/plot_compare.md) | Difference network between two matrices |
+| [`plot_comparison_heatmap()`](https://sonsoles.me/cograph/reference/plot_comparison_heatmap.md) | Side-by-side heatmap comparison |
+| [`plot_mixed_network()`](https://sonsoles.me/cograph/reference/plot_mixed_network.md) | Directed + undirected edges combined |
+| [`plot_bootstrap_forest()`](https://sonsoles.me/cograph/reference/plot_bootstrap_forest.md) | Bootstrap CI forest plots (linear, circular, grouped) |
+| [`plot_edge_diff_forest()`](https://sonsoles.me/cograph/reference/plot_edge_diff_forest.md) | Edge difference plots (linear, circular, chord, tile) |
+| [`plot_simplicial()`](https://sonsoles.me/cograph/reference/plot_simplicial.md) | Higher-order pathway blob overlays |
+| [`overlay_communities()`](https://sonsoles.me/cograph/reference/overlay_communities.md) | Community blob overlays on network |
+| [`plot_mcml()`](https://sonsoles.me/cograph/reference/plot_mcml.md) | Two-layer hierarchical cluster visualization |
+| [`plot_mtna()`](https://sonsoles.me/cograph/reference/plot_mtna.md) | Flat multi-cluster layout |
+| [`plot_mlna()`](https://sonsoles.me/cograph/reference/plot_mlna.md) | Stacked multilayer 3D perspective |
+| [`plot_htna()`](https://sonsoles.me/cograph/reference/plot_htna.md) | Multi-group heterogeneous TNA layout |
+| [`plot_robustness()`](https://sonsoles.me/cograph/reference/plot_robustness.md) | Robustness degradation curves |
+| [`plot_permutation()`](https://sonsoles.me/cograph/reference/plot_permutation.md) / [`plot_group_permutation()`](https://sonsoles.me/cograph/reference/plot_group_permutation.md) | Permutation test results |
 
 ``` r
 
@@ -151,7 +151,7 @@ Conversion utilities:
 
 Filter edges and nodes with expressions. Centrality measures are
 lazy-computed inside
-[`filter_nodes()`](http://sonsoles.me/cograph/reference/filter_nodes.md).
+[`filter_nodes()`](https://sonsoles.me/cograph/reference/filter_nodes.md).
 
 ``` r
 
@@ -211,7 +211,7 @@ Getters and setters:
 
 ## Centrality
 
-[`centrality()`](http://sonsoles.me/cograph/reference/centrality.md)
+[`centrality()`](https://sonsoles.me/cograph/reference/centrality.md)
 computes up to 25 measures and returns a data frame.
 
 ``` r
@@ -250,20 +250,20 @@ All 25 measures:
 
 | Category | Functions |
 |----|----|
-| Degree | [`centrality_degree()`](http://sonsoles.me/cograph/reference/centrality_degree.md), [`centrality_strength()`](http://sonsoles.me/cograph/reference/centrality_strength.md), [`centrality_indegree()`](http://sonsoles.me/cograph/reference/centrality_degree.md), [`centrality_outdegree()`](http://sonsoles.me/cograph/reference/centrality_degree.md), [`centrality_instrength()`](http://sonsoles.me/cograph/reference/centrality_strength.md), [`centrality_outstrength()`](http://sonsoles.me/cograph/reference/centrality_strength.md) |
-| Path | [`centrality_betweenness()`](http://sonsoles.me/cograph/reference/centrality_betweenness.md), [`centrality_closeness()`](http://sonsoles.me/cograph/reference/centrality_closeness.md), [`centrality_harmonic()`](http://sonsoles.me/cograph/reference/centrality_harmonic.md), [`centrality_eccentricity()`](http://sonsoles.me/cograph/reference/centrality_eccentricity.md) (each with in/out variants) |
-| Spectral | [`centrality_eigenvector()`](http://sonsoles.me/cograph/reference/centrality_eigenvector.md), [`centrality_pagerank()`](http://sonsoles.me/cograph/reference/centrality_pagerank.md), [`centrality_authority()`](http://sonsoles.me/cograph/reference/centrality_authority.md), [`centrality_hub()`](http://sonsoles.me/cograph/reference/centrality_authority.md), [`centrality_alpha()`](http://sonsoles.me/cograph/reference/centrality_alpha.md), [`centrality_power()`](http://sonsoles.me/cograph/reference/centrality_power.md), [`centrality_subgraph()`](http://sonsoles.me/cograph/reference/centrality_subgraph.md) |
-| Structural | [`centrality_coreness()`](http://sonsoles.me/cograph/reference/centrality_coreness.md), [`centrality_constraint()`](http://sonsoles.me/cograph/reference/centrality_constraint.md), [`centrality_transitivity()`](http://sonsoles.me/cograph/reference/centrality_transitivity.md), [`centrality_laplacian()`](http://sonsoles.me/cograph/reference/centrality_laplacian.md) |
-| Flow | [`centrality_current_flow_closeness()`](http://sonsoles.me/cograph/reference/centrality_current_flow_closeness.md), [`centrality_current_flow_betweenness()`](http://sonsoles.me/cograph/reference/centrality_current_flow_betweenness.md), [`centrality_load()`](http://sonsoles.me/cograph/reference/centrality_load.md) |
-| Spreading | [`centrality_diffusion()`](http://sonsoles.me/cograph/reference/centrality_diffusion.md), [`centrality_leverage()`](http://sonsoles.me/cograph/reference/centrality_leverage.md), [`centrality_kreach()`](http://sonsoles.me/cograph/reference/centrality_kreach.md), [`centrality_voterank()`](http://sonsoles.me/cograph/reference/centrality_voterank.md), [`centrality_percolation()`](http://sonsoles.me/cograph/reference/centrality_percolation.md) |
+| Degree | [`centrality_degree()`](https://sonsoles.me/cograph/reference/centrality_degree.md), [`centrality_strength()`](https://sonsoles.me/cograph/reference/centrality_strength.md), [`centrality_indegree()`](https://sonsoles.me/cograph/reference/centrality_degree.md), [`centrality_outdegree()`](https://sonsoles.me/cograph/reference/centrality_degree.md), [`centrality_instrength()`](https://sonsoles.me/cograph/reference/centrality_strength.md), [`centrality_outstrength()`](https://sonsoles.me/cograph/reference/centrality_strength.md) |
+| Path | [`centrality_betweenness()`](https://sonsoles.me/cograph/reference/centrality_betweenness.md), [`centrality_closeness()`](https://sonsoles.me/cograph/reference/centrality_closeness.md), [`centrality_harmonic()`](https://sonsoles.me/cograph/reference/centrality_harmonic.md), [`centrality_eccentricity()`](https://sonsoles.me/cograph/reference/centrality_eccentricity.md) (each with in/out variants) |
+| Spectral | [`centrality_eigenvector()`](https://sonsoles.me/cograph/reference/centrality_eigenvector.md), [`centrality_pagerank()`](https://sonsoles.me/cograph/reference/centrality_pagerank.md), [`centrality_authority()`](https://sonsoles.me/cograph/reference/centrality_authority.md), [`centrality_hub()`](https://sonsoles.me/cograph/reference/centrality_authority.md), [`centrality_alpha()`](https://sonsoles.me/cograph/reference/centrality_alpha.md), [`centrality_power()`](https://sonsoles.me/cograph/reference/centrality_power.md), [`centrality_subgraph()`](https://sonsoles.me/cograph/reference/centrality_subgraph.md) |
+| Structural | [`centrality_coreness()`](https://sonsoles.me/cograph/reference/centrality_coreness.md), [`centrality_constraint()`](https://sonsoles.me/cograph/reference/centrality_constraint.md), [`centrality_transitivity()`](https://sonsoles.me/cograph/reference/centrality_transitivity.md), [`centrality_laplacian()`](https://sonsoles.me/cograph/reference/centrality_laplacian.md) |
+| Flow | [`centrality_current_flow_closeness()`](https://sonsoles.me/cograph/reference/centrality_current_flow_closeness.md), [`centrality_current_flow_betweenness()`](https://sonsoles.me/cograph/reference/centrality_current_flow_betweenness.md), [`centrality_load()`](https://sonsoles.me/cograph/reference/centrality_load.md) |
+| Spreading | [`centrality_diffusion()`](https://sonsoles.me/cograph/reference/centrality_diffusion.md), [`centrality_leverage()`](https://sonsoles.me/cograph/reference/centrality_leverage.md), [`centrality_kreach()`](https://sonsoles.me/cograph/reference/centrality_kreach.md), [`centrality_voterank()`](https://sonsoles.me/cograph/reference/centrality_voterank.md), [`centrality_percolation()`](https://sonsoles.me/cograph/reference/centrality_percolation.md) |
 
 Edge centrality:
-[`edge_centrality()`](http://sonsoles.me/cograph/reference/edge_centrality.md),
-[`edge_betweenness()`](http://sonsoles.me/cograph/reference/edge_centrality.md).
+[`edge_centrality()`](https://sonsoles.me/cograph/reference/edge_centrality.md),
+[`edge_betweenness()`](https://sonsoles.me/cograph/reference/edge_centrality.md).
 
 ## Network properties
 
-[`network_summary()`](http://sonsoles.me/cograph/reference/network_summary.md)
+[`network_summary()`](https://sonsoles.me/cograph/reference/network_summary.md)
 computes up to 37 network-level metrics.
 
 ``` r
@@ -281,18 +281,18 @@ network_summary(mat)
 
 | Function | Purpose |
 |----|----|
-| [`network_summary()`](http://sonsoles.me/cograph/reference/network_summary.md) | 37 metrics (density, diameter, clustering, etc.) |
-| [`network_small_world()`](http://sonsoles.me/cograph/reference/network_small_world.md) | Small-world coefficient |
-| [`network_rich_club()`](http://sonsoles.me/cograph/reference/network_rich_club.md) | Rich-club coefficient |
-| [`network_global_efficiency()`](http://sonsoles.me/cograph/reference/network_global_efficiency.md) | Global efficiency |
-| [`network_local_efficiency()`](http://sonsoles.me/cograph/reference/network_local_efficiency.md) | Local efficiency |
-| [`degree_distribution()`](http://sonsoles.me/cograph/reference/degree_distribution.md) | Degree histogram |
-| [`network_girth()`](http://sonsoles.me/cograph/reference/network_girth.md) | Shortest cycle |
-| [`network_radius()`](http://sonsoles.me/cograph/reference/network_radius.md) | Minimum eccentricity |
-| [`network_bridges()`](http://sonsoles.me/cograph/reference/network_bridges.md) | Bridge edges |
-| [`network_cut_vertices()`](http://sonsoles.me/cograph/reference/network_cut_vertices.md) | Articulation points |
-| [`network_vertex_connectivity()`](http://sonsoles.me/cograph/reference/network_vertex_connectivity.md) | Minimum vertices to disconnect |
-| [`network_clique_size()`](http://sonsoles.me/cograph/reference/network_clique_size.md) | Largest complete subgraph |
+| [`network_summary()`](https://sonsoles.me/cograph/reference/network_summary.md) | 37 metrics (density, diameter, clustering, etc.) |
+| [`network_small_world()`](https://sonsoles.me/cograph/reference/network_small_world.md) | Small-world coefficient |
+| [`network_rich_club()`](https://sonsoles.me/cograph/reference/network_rich_club.md) | Rich-club coefficient |
+| [`network_global_efficiency()`](https://sonsoles.me/cograph/reference/network_global_efficiency.md) | Global efficiency |
+| [`network_local_efficiency()`](https://sonsoles.me/cograph/reference/network_local_efficiency.md) | Local efficiency |
+| [`degree_distribution()`](https://sonsoles.me/cograph/reference/degree_distribution.md) | Degree histogram |
+| [`network_girth()`](https://sonsoles.me/cograph/reference/network_girth.md) | Shortest cycle |
+| [`network_radius()`](https://sonsoles.me/cograph/reference/network_radius.md) | Minimum eccentricity |
+| [`network_bridges()`](https://sonsoles.me/cograph/reference/network_bridges.md) | Bridge edges |
+| [`network_cut_vertices()`](https://sonsoles.me/cograph/reference/network_cut_vertices.md) | Articulation points |
+| [`network_vertex_connectivity()`](https://sonsoles.me/cograph/reference/network_vertex_connectivity.md) | Minimum vertices to disconnect |
+| [`network_clique_size()`](https://sonsoles.me/cograph/reference/network_clique_size.md) | Largest complete subgraph |
 
 ## Community detection
 
@@ -303,40 +303,50 @@ network_summary(mat)
 comms <- communities(mat, method = "walktrap")
 comms
 #> Community structure (walktrap)
-#>   Number of communities: 2 
-#>   Modularity: 0.1976 
-#>   Community sizes: 5, 5 
-#>   Nodes: 10
+#>   Nodes: 10  | Communities: 2  | Modularity: 0.1976 
+#>   Sizes: 5, 5 
+#> 
+#>        node community
+#>     Explore         1
+#>        Plan         2
+#>     Monitor         2
+#>       Adapt         1
+#>     Reflect         1
+#>     Discuss         1
+#>  Synthesize         1
+#>    Evaluate         2
+#>      Create         2
+#>       Share         2
 community_sizes(comms)
 #> [1] 5 5
 ```
 
 | Function | Algorithm | Alias |
 |----|----|----|
-| [`community_louvain()`](http://sonsoles.me/cograph/reference/community_louvain.md) | Louvain modularity | [`com_lv()`](http://sonsoles.me/cograph/reference/community_louvain.md) |
-| [`community_leiden()`](http://sonsoles.me/cograph/reference/community_leiden.md) | Leiden (improved Louvain) | [`com_ld()`](http://sonsoles.me/cograph/reference/community_leiden.md) |
-| [`community_fast_greedy()`](http://sonsoles.me/cograph/reference/community_fast_greedy.md) | Fast greedy | [`com_fg()`](http://sonsoles.me/cograph/reference/community_fast_greedy.md) |
-| [`community_walktrap()`](http://sonsoles.me/cograph/reference/community_walktrap.md) | Random walk | [`com_wt()`](http://sonsoles.me/cograph/reference/community_walktrap.md) |
-| [`community_infomap()`](http://sonsoles.me/cograph/reference/community_infomap.md) | Information flow | [`com_im()`](http://sonsoles.me/cograph/reference/community_infomap.md) |
-| [`community_label_propagation()`](http://sonsoles.me/cograph/reference/community_label_propagation.md) | Label propagation | [`com_lp()`](http://sonsoles.me/cograph/reference/community_label_propagation.md) |
-| [`community_edge_betweenness()`](http://sonsoles.me/cograph/reference/community_edge_betweenness.md) | Edge betweenness | [`com_eb()`](http://sonsoles.me/cograph/reference/community_edge_betweenness.md) |
-| [`community_leading_eigenvector()`](http://sonsoles.me/cograph/reference/community_leading_eigenvector.md) | Leading eigenvector | [`com_le()`](http://sonsoles.me/cograph/reference/community_leading_eigenvector.md) |
-| [`community_spinglass()`](http://sonsoles.me/cograph/reference/community_spinglass.md) | Spin glass | [`com_sg()`](http://sonsoles.me/cograph/reference/community_spinglass.md) |
-| [`community_optimal()`](http://sonsoles.me/cograph/reference/community_optimal.md) | Exact optimization | [`com_op()`](http://sonsoles.me/cograph/reference/community_optimal.md) |
-| [`community_fluid()`](http://sonsoles.me/cograph/reference/community_fluid.md) | Fluid communities | [`com_fl()`](http://sonsoles.me/cograph/reference/community_fluid.md) |
+| [`community_louvain()`](https://sonsoles.me/cograph/reference/community_louvain.md) | Louvain modularity | [`com_lv()`](https://sonsoles.me/cograph/reference/community_louvain.md) |
+| [`community_leiden()`](https://sonsoles.me/cograph/reference/community_leiden.md) | Leiden (improved Louvain) | [`com_ld()`](https://sonsoles.me/cograph/reference/community_leiden.md) |
+| [`community_fast_greedy()`](https://sonsoles.me/cograph/reference/community_fast_greedy.md) | Fast greedy | [`com_fg()`](https://sonsoles.me/cograph/reference/community_fast_greedy.md) |
+| [`community_walktrap()`](https://sonsoles.me/cograph/reference/community_walktrap.md) | Random walk | [`com_wt()`](https://sonsoles.me/cograph/reference/community_walktrap.md) |
+| [`community_infomap()`](https://sonsoles.me/cograph/reference/community_infomap.md) | Information flow | [`com_im()`](https://sonsoles.me/cograph/reference/community_infomap.md) |
+| [`community_label_propagation()`](https://sonsoles.me/cograph/reference/community_label_propagation.md) | Label propagation | [`com_lp()`](https://sonsoles.me/cograph/reference/community_label_propagation.md) |
+| [`community_edge_betweenness()`](https://sonsoles.me/cograph/reference/community_edge_betweenness.md) | Edge betweenness | [`com_eb()`](https://sonsoles.me/cograph/reference/community_edge_betweenness.md) |
+| [`community_leading_eigenvector()`](https://sonsoles.me/cograph/reference/community_leading_eigenvector.md) | Leading eigenvector | [`com_le()`](https://sonsoles.me/cograph/reference/community_leading_eigenvector.md) |
+| [`community_spinglass()`](https://sonsoles.me/cograph/reference/community_spinglass.md) | Spin glass | [`com_sg()`](https://sonsoles.me/cograph/reference/community_spinglass.md) |
+| [`community_optimal()`](https://sonsoles.me/cograph/reference/community_optimal.md) | Exact optimization | [`com_op()`](https://sonsoles.me/cograph/reference/community_optimal.md) |
+| [`community_fluid()`](https://sonsoles.me/cograph/reference/community_fluid.md) | Fluid communities | [`com_fl()`](https://sonsoles.me/cograph/reference/community_fluid.md) |
 
 Additional community functions:
 
 | Function | Purpose |
 |----|----|
-| [`community_consensus()`](http://sonsoles.me/cograph/reference/community_consensus.md) | Run algorithm N times, keep stable assignments |
-| [`compare_communities()`](http://sonsoles.me/cograph/reference/compare_communities.md) | Compare partitions (NMI, VI, Rand, adjusted Rand) |
+| [`community_consensus()`](https://sonsoles.me/cograph/reference/community_consensus.md) | Run algorithm N times, keep stable assignments |
+| [`compare_communities()`](https://sonsoles.me/cograph/reference/compare_communities.md) | Compare partitions (NMI, VI, Rand, adjusted Rand) |
 | `modularity()` | Modularity score |
-| [`community_sizes()`](http://sonsoles.me/cograph/reference/community_sizes.md) | Size of each community |
-| [`color_communities()`](http://sonsoles.me/cograph/reference/color_communities.md) | Color vector from community membership |
-| [`cluster_quality()`](http://sonsoles.me/cograph/reference/cluster_quality.md) | Quality metrics (silhouette, Dunn index) |
-| [`cluster_significance()`](http://sonsoles.me/cograph/reference/cluster_significance.md) | Permutation-based significance testing |
-| [`detect_communities()`](http://sonsoles.me/cograph/reference/detect_communities.md) | Alternative interface (returns data frame) |
+| [`community_sizes()`](https://sonsoles.me/cograph/reference/community_sizes.md) | Size of each community |
+| [`color_communities()`](https://sonsoles.me/cograph/reference/color_communities.md) | Color vector from community membership |
+| [`cluster_quality()`](https://sonsoles.me/cograph/reference/cluster_quality.md) | Quality metrics (silhouette, Dunn index) |
+| [`cluster_significance()`](https://sonsoles.me/cograph/reference/cluster_significance.md) | Permutation-based significance testing |
+| [`detect_communities()`](https://sonsoles.me/cograph/reference/detect_communities.md) | Alternative interface (returns data frame) |
 
 ## Motifs
 
@@ -366,13 +376,13 @@ mot
 
 | Function | Purpose |
 |----|----|
-| [`motifs()`](http://sonsoles.me/cograph/reference/motifs.md) | MAN type census with significance testing |
-| [`subgraphs()`](http://sonsoles.me/cograph/reference/subgraphs.md) | Named node triples forming each pattern |
-| [`motif_census()`](http://sonsoles.me/cograph/reference/motif_census.md) | Low-level triad census |
-| [`extract_motifs()`](http://sonsoles.me/cograph/reference/extract_motifs.md) | Per-individual motif extraction |
-| [`extract_triads()`](http://sonsoles.me/cograph/reference/extract_triads.md) | Extract specific triad types |
-| [`triad_census()`](http://sonsoles.me/cograph/reference/triad_census.md) | Raw 16-type triad count |
-| [`get_edge_list()`](http://sonsoles.me/cograph/reference/get_edge_list.md) | Edge list from tna for motif input |
+| [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md) | MAN type census with significance testing |
+| [`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md) | Named node triples forming each pattern |
+| [`motif_census()`](https://sonsoles.me/cograph/reference/motif_census.md) | Low-level triad census |
+| [`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md) | Per-individual motif extraction |
+| [`extract_triads()`](https://sonsoles.me/cograph/reference/extract_triads.md) | Extract specific triad types |
+| [`triad_census()`](https://sonsoles.me/cograph/reference/triad_census.md) | Raw 16-type triad count |
+| [`get_edge_list()`](https://sonsoles.me/cograph/reference/get_edge_list.md) | Edge list from tna for motif input |
 
 Plot types: `plot(mot, type = "types")`, `"significance"`, `"triads"`,
 `"patterns"`.
@@ -389,10 +399,10 @@ plot_robustness(x = mat, measures = c("betweenness", "degree", "random"))
 
 | Function | Purpose |
 |----|----|
-| [`robustness()`](http://sonsoles.me/cograph/reference/robustness.md) | Simulate removal attacks (vertex or edge) |
-| [`plot_robustness()`](http://sonsoles.me/cograph/reference/plot_robustness.md) | Plot robustness curves for multiple strategies |
-| [`robustness_summary()`](http://sonsoles.me/cograph/reference/robustness_summary.md) | AUC and summary statistics |
-| [`robustness_auc()`](http://sonsoles.me/cograph/reference/robustness_auc.md) | Area under the robustness curve |
+| [`robustness()`](https://sonsoles.me/cograph/reference/robustness.md) | Simulate removal attacks (vertex or edge) |
+| [`plot_robustness()`](https://sonsoles.me/cograph/reference/plot_robustness.md) | Plot robustness curves for multiple strategies |
+| [`robustness_summary()`](https://sonsoles.me/cograph/reference/robustness_summary.md) | AUC and summary statistics |
+| [`robustness_auc()`](https://sonsoles.me/cograph/reference/robustness_auc.md) | Area under the robustness curve |
 
 ## Disparity filter
 
@@ -419,13 +429,13 @@ plot_mtna(mat, clusters)
 
 | Function | Architecture |
 |----|----|
-| [`plot_mcml()`](http://sonsoles.me/cograph/reference/plot_mcml.md) | Two-layer: detail nodes + summary pies |
-| [`plot_mtna()`](http://sonsoles.me/cograph/reference/plot_mtna.md) | Flat cluster layout |
-| [`plot_mlna()`](http://sonsoles.me/cograph/reference/plot_mlna.md) | Stacked 3D multilayer |
-| [`plot_htna()`](http://sonsoles.me/cograph/reference/plot_htna.md) | Multi-group heterogeneous TNA |
-| [`cluster_summary()`](http://sonsoles.me/cograph/reference/cluster_summary.md) / [`build_mcml()`](http://sonsoles.me/cograph/reference/build_mcml.md) | Pre-compute cluster aggregation |
-| [`as_tna()`](http://sonsoles.me/cograph/reference/as_tna.md) / [`as_mcml()`](http://sonsoles.me/cograph/reference/as_mcml.md) | Convert cluster summaries to tna objects |
-| [`cluster_network()`](http://sonsoles.me/cograph/reference/summarize_network.md) | Extract cluster-level network |
+| [`plot_mcml()`](https://sonsoles.me/cograph/reference/plot_mcml.md) | Two-layer: detail nodes + summary pies |
+| [`plot_mtna()`](https://sonsoles.me/cograph/reference/plot_mtna.md) | Flat cluster layout |
+| [`plot_mlna()`](https://sonsoles.me/cograph/reference/plot_mlna.md) | Stacked 3D multilayer |
+| [`plot_htna()`](https://sonsoles.me/cograph/reference/plot_htna.md) | Multi-group heterogeneous TNA |
+| [`cluster_summary()`](https://sonsoles.me/cograph/reference/cluster_summary.md) / [`build_mcml()`](https://sonsoles.me/cograph/reference/build_mcml.md) | Pre-compute cluster aggregation |
+| [`as_tna()`](https://sonsoles.me/cograph/reference/as_tna.md) / [`as_mcml()`](https://sonsoles.me/cograph/reference/as_mcml.md) | Convert cluster summaries to tna objects |
+| [`cluster_network()`](https://sonsoles.me/cograph/reference/summarize_network.md) | Extract cluster-level network |
 
 ## Multilayer networks
 
@@ -434,11 +444,11 @@ networks.
 
 | Function | Purpose |
 |----|----|
-| [`mlna()`](http://sonsoles.me/cograph/reference/plot_mlna.md) / [`supra_adjacency()`](http://sonsoles.me/cograph/reference/supra_adjacency.md) | Build supra-adjacency matrix |
-| [`supra_layer()`](http://sonsoles.me/cograph/reference/supra_layer.md) / [`supra_interlayer()`](http://sonsoles.me/cograph/reference/supra_interlayer.md) | Extract individual layers |
-| [`aggregate_layers()`](http://sonsoles.me/cograph/reference/aggregate_layers.md) / [`aggregate_weights()`](http://sonsoles.me/cograph/reference/aggregate_weights.md) | Combine layers |
-| [`plot_mlna()`](http://sonsoles.me/cograph/reference/plot_mlna.md) | 3D perspective visualization |
-| [`plot_ml_heatmap()`](http://sonsoles.me/cograph/reference/plot_ml_heatmap.md) | Multi-layer heatmap comparison |
+| [`mlna()`](https://sonsoles.me/cograph/reference/plot_mlna.md) / [`supra_adjacency()`](https://sonsoles.me/cograph/reference/supra_adjacency.md) | Build supra-adjacency matrix |
+| [`supra_layer()`](https://sonsoles.me/cograph/reference/supra_layer.md) / [`supra_interlayer()`](https://sonsoles.me/cograph/reference/supra_interlayer.md) | Extract individual layers |
+| [`aggregate_layers()`](https://sonsoles.me/cograph/reference/aggregate_layers.md) / [`aggregate_weights()`](https://sonsoles.me/cograph/reference/aggregate_weights.md) | Combine layers |
+| [`plot_mlna()`](https://sonsoles.me/cograph/reference/plot_mlna.md) | 3D perspective visualization |
+| [`plot_ml_heatmap()`](https://sonsoles.me/cograph/reference/plot_ml_heatmap.md) | Multi-layer heatmap comparison |
 
 ## Higher-order networks
 
@@ -451,7 +461,7 @@ Requires the **Nestimate** package.
 | [`build_hypa()`](https://rdrr.io/pkg/Nestimate/man/build_hypa.html) | Path anomaly detection (hypergeometric null) |
 | [`build_mogen()`](https://rdrr.io/pkg/Nestimate/man/build_mogen.html) | Multi-order model selection (AIC/BIC) |
 | [`path_counts()`](https://rdrr.io/pkg/Nestimate/man/path_counts.html) | k-step path frequencies |
-| [`plot_simplicial()`](http://sonsoles.me/cograph/reference/plot_simplicial.md) | Visualize pathways as blob overlays |
+| [`plot_simplicial()`](https://sonsoles.me/cograph/reference/plot_simplicial.md) | Visualize pathways as blob overlays |
 | [`build_simplicial()`](https://rdrr.io/pkg/Nestimate/man/build_simplicial.html) | Simplicial complex from cliques |
 | [`persistent_homology()`](https://rdrr.io/pkg/Nestimate/man/persistent_homology.html) | Topological persistence across thresholds |
 | [`q_analysis()`](https://rdrr.io/pkg/Nestimate/man/q_analysis.html) | Multi-level structural connectivity |
@@ -461,7 +471,7 @@ Requires the **Nestimate** package.
 
 **Nestimate** estimates networks from sequence data. Its objects
 dispatch through
-[`splot()`](http://sonsoles.me/cograph/reference/splot.md)
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md)
 automatically.
 
 ``` r
@@ -541,22 +551,22 @@ p <- mat |> cograph() |> sn_ggplot()
 
 | Function | Purpose |
 |----|----|
-| [`cograph()`](http://sonsoles.me/cograph/reference/cograph.md) / [`as_cograph()`](http://sonsoles.me/cograph/reference/as_cograph.md) | Create network object |
-| [`sn_nodes()`](http://sonsoles.me/cograph/reference/sn_nodes.md) | Node aesthetics |
-| [`sn_edges()`](http://sonsoles.me/cograph/reference/sn_edges.md) | Edge aesthetics |
-| [`sn_layout()`](http://sonsoles.me/cograph/reference/sn_layout.md) | Layout algorithm |
-| [`sn_theme()`](http://sonsoles.me/cograph/reference/sn_theme.md) | Visual theme |
-| [`sn_palette()`](http://sonsoles.me/cograph/reference/sn_palette.md) | Color palette |
-| [`sn_render()`](http://sonsoles.me/cograph/reference/soplot.md) | Render to screen |
-| [`sn_save()`](http://sonsoles.me/cograph/reference/sn_save.md) / [`sn_save_ggplot()`](http://sonsoles.me/cograph/reference/sn_save_ggplot.md) | Save to file |
-| [`sn_ggplot()`](http://sonsoles.me/cograph/reference/sn_ggplot.md) | Convert to ggplot2 object |
-| [`register_theme()`](http://sonsoles.me/cograph/reference/register_theme.md) / [`register_layout()`](http://sonsoles.me/cograph/reference/register_layout.md) / [`register_shape()`](http://sonsoles.me/cograph/reference/register_shape.md) | Register custom themes, layouts, shapes |
+| [`cograph()`](https://sonsoles.me/cograph/reference/cograph.md) / [`as_cograph()`](https://sonsoles.me/cograph/reference/as_cograph.md) | Create network object |
+| [`sn_nodes()`](https://sonsoles.me/cograph/reference/sn_nodes.md) | Node aesthetics |
+| [`sn_edges()`](https://sonsoles.me/cograph/reference/sn_edges.md) | Edge aesthetics |
+| [`sn_layout()`](https://sonsoles.me/cograph/reference/sn_layout.md) | Layout algorithm |
+| [`sn_theme()`](https://sonsoles.me/cograph/reference/sn_theme.md) | Visual theme |
+| [`sn_palette()`](https://sonsoles.me/cograph/reference/sn_palette.md) | Color palette |
+| [`sn_render()`](https://sonsoles.me/cograph/reference/soplot.md) | Render to screen |
+| [`sn_save()`](https://sonsoles.me/cograph/reference/sn_save.md) / [`sn_save_ggplot()`](https://sonsoles.me/cograph/reference/sn_save_ggplot.md) | Save to file |
+| [`sn_ggplot()`](https://sonsoles.me/cograph/reference/sn_ggplot.md) | Convert to ggplot2 object |
+| [`register_theme()`](https://sonsoles.me/cograph/reference/register_theme.md) / [`register_layout()`](https://sonsoles.me/cograph/reference/register_layout.md) / [`register_shape()`](https://sonsoles.me/cograph/reference/register_shape.md) | Register custom themes, layouts, shapes |
 
 ## Further reading
 
 **Package resources:**
 
-- [cograph function reference](https://saqr.me/cograph) — complete list
+- [cograph function reference](https://saqr.me/cograph/) — complete list
   of all functions with examples
 - [cograph pkgdown site](https://sonsoles.me/cograph/) — full
   documentation and articles
@@ -577,9 +587,10 @@ p <- mat |> cograph() |> sn_ggplot()
   in R. In *Learning Analytics Methods and Tutorials*. Springer.
   <https://doi.org/10.1007/978-3-031-54464-4_15>
 
-- Saqr, M., López-Pernas, S., Conde, M. A., & Hernández-García, A.
-  (2024). Community Detection: A Practical Guide to Unraveling Learning
-  Communities. In *Learning Analytics Methods and Tutorials*. Springer.
+- Hernández-García, Á., Cuenca-Enrique, C., Traxler, A., López-Pernas,
+  S., Conde-González, M. Á., & Saqr, M. (2024). Community detection in
+  learning networks using R. In *Learning Analytics Methods and
+  Tutorials* (pp. 519–540). Springer.
   <https://doi.org/10.1007/978-3-031-54464-4_16>
 
 - Saqr, M., López-Pernas, S., Törmänen, T., Kaliisa, R., Misiejuk, K., &

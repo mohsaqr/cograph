@@ -52,8 +52,8 @@ A cograph_network with edges between the two node sets.
 
 ## See also
 
-[`select_edges`](http://sonsoles.me/cograph/reference/select_edges.md),
-[`select_edges_involving`](http://sonsoles.me/cograph/reference/select_edges_involving.md)
+[`select_edges`](https://sonsoles.me/cograph/reference/select_edges.md),
+[`select_edges_involving`](https://sonsoles.me/cograph/reference/select_edges_involving.md)
 
 ## Examples
 

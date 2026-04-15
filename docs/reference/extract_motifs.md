@@ -206,48 +206,55 @@ The 16 triad types use MAN (Mutual-Asymmetric-Null) notation where:
 
 ## See also
 
-[`motifs()`](http://sonsoles.me/cograph/reference/motifs.md),
-[`subgraphs()`](http://sonsoles.me/cograph/reference/subgraphs.md),
-[`extract_triads()`](http://sonsoles.me/cograph/reference/extract_triads.md),
-[`motif_census()`](http://sonsoles.me/cograph/reference/motif_census.md)
+[`motifs()`](https://sonsoles.me/cograph/reference/motifs.md),
+[`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md),
+[`extract_triads()`](https://sonsoles.me/cograph/reference/extract_triads.md),
+[`motif_census()`](https://sonsoles.me/cograph/reference/motif_census.md)
 
 Other motifs:
-[`extract_triads()`](http://sonsoles.me/cograph/reference/extract_triads.md),
-[`get_edge_list()`](http://sonsoles.me/cograph/reference/get_edge_list.md),
-[`motif_census()`](http://sonsoles.me/cograph/reference/motif_census.md),
-[`motifs()`](http://sonsoles.me/cograph/reference/motifs.md),
-[`plot.cograph_motif_analysis()`](http://sonsoles.me/cograph/reference/plot.cograph_motif_analysis.md),
-[`plot.cograph_motifs()`](http://sonsoles.me/cograph/reference/plot.cograph_motifs.md),
-[`subgraphs()`](http://sonsoles.me/cograph/reference/subgraphs.md),
-[`triad_census()`](http://sonsoles.me/cograph/reference/triad_census.md)
+[`extract_triads()`](https://sonsoles.me/cograph/reference/extract_triads.md),
+[`get_edge_list()`](https://sonsoles.me/cograph/reference/get_edge_list.md),
+[`motif_census()`](https://sonsoles.me/cograph/reference/motif_census.md),
+[`motifs()`](https://sonsoles.me/cograph/reference/motifs.md),
+[`plot.cograph_motif_analysis()`](https://sonsoles.me/cograph/reference/plot.cograph_motif_analysis.md),
+[`plot.cograph_motifs()`](https://sonsoles.me/cograph/reference/plot.cograph_motifs.md),
+[`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md),
+[`triad_census()`](https://sonsoles.me/cograph/reference/triad_census.md)
 
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-Mod <- tna::tna(tna::group_regulation)
-
-# Basic: triangles only (default) - individual level for tna
-m <- extract_motifs(Mod)
+# Small aggregate example — no significance test for speed
+mat <- matrix(c(0,3,2,0, 0,0,5,1, 0,0,0,4, 2,0,0,0), 4, 4, byrow = TRUE)
+rownames(mat) <- colnames(mat) <- c("Plan","Execute","Monitor","Adapt")
+m <- extract_motifs(mat, significance = FALSE)
 print(m)
+#> Motif Analysis
+#> Pattern: triangle | Edge method: any
+#> Individuals: 1 | States: 4 | Total triads: 4
+#> 
+#> Type distribution:
+#> 
+#> 030C 030T 
+#>    2    2 
+#> 
+#> Top 4 triads:
+#>                       triad type observed
+#> 1 Execute - Monitor - Adapt 030T        1
+#> 2    Plan - Execute - Adapt 030C        1
+#> 3  Plan - Execute - Monitor 030T        1
+#> 4    Plan - Monitor - Adapt 030C        1
 
-# Top 20 with significance testing
-m <- extract_motifs(Mod, top = 20, significance = TRUE, n_perm = 100)
-plot(m)
+# \donttest{
+if (requireNamespace("tna", quietly = TRUE)) {
+  Mod <- tna::tna(tna::group_regulation)
 
-# From a matrix (aggregate level)
-mat <- Mod$weights
-m <- extract_motifs(mat)
+  # Individual-level from tna — keep n_perm tiny for example speed
+  m <- extract_motifs(Mod, top = 10, significance = TRUE,
+                      n_perm = 10L, seed = 1)
 
-# Only feed-forward loops
-m <- extract_motifs(Mod, include_types = "030T")
-
-# Triangles but exclude cliques
-m <- extract_motifs(Mod, pattern = "triangle", exclude_types = "300")
-
-# From data.frame with ID column (individual level)
-# df has columns: id, from, to (and optionally weight)
-# m <- extract_motifs(data = df, id = "id")
-# m <- extract_motifs(data = df, id = c("group", "person"))
-} # }
+  # Filter to feed-forward loops only
+  m <- extract_motifs(Mod, include_types = "030T", significance = FALSE)
+}
+# }
 ```

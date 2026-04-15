@@ -19,7 +19,7 @@ centrality_constraint(x, ...)
 - ...:
 
   Additional arguments passed to
-  [`centrality`](http://sonsoles.me/cograph/reference/centrality.md)
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md)
   (e.g., `weighted`, `directed`).
 
 ## Value
@@ -28,7 +28,7 @@ Named numeric vector of constraint values.
 
 ## See also
 
-[`centrality`](http://sonsoles.me/cograph/reference/centrality.md) for
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
 computing multiple measures at once.
 
 ## Examples

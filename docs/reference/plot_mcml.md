@@ -80,7 +80,7 @@ plot_mcml(
 
   A weight matrix, `tna` object, `cograph_network`, or `cluster_summary`
   object. When a `cluster_summary` is provided (e.g., from
-  [`cluster_summary`](http://sonsoles.me/cograph/reference/cluster_summary.md)),
+  [`cluster_summary`](https://sonsoles.me/cograph/reference/cluster_summary.md)),
   all aggregation has already been performed and the `cluster_list`,
   `aggregation`, and `nodes` parameters are ignored. See the **Input
   Formats** section for details.
@@ -420,7 +420,7 @@ plot_mcml(
 Invisibly returns the `cluster_summary` object used for plotting. This
 object can be passed back to `plot_mcml()` to avoid recomputation,
 inspected with [`print()`](https://rdrr.io/r/base/print.html), or fed to
-[`as_tna`](http://sonsoles.me/cograph/reference/as_tna.md) for further
+[`as_tna`](https://sonsoles.me/cograph/reference/as_tna.md) for further
 analysis.
 
 ## Details
@@ -429,19 +429,19 @@ Use `plot_mcml` when you need a simultaneous micro/macro view of cluster
 structure — the bottom layer reveals internal cluster dynamics while the
 top layer provides a bird's-eye summary. For a flat multi-cluster plot
 without the summary layer, see
-[`plot_mtna`](http://sonsoles.me/cograph/reference/plot_mtna.md). For
+[`plot_mtna`](https://sonsoles.me/cograph/reference/plot_mtna.md). For
 stacked multilevel/multiplex layers, see
-[`plot_mlna`](http://sonsoles.me/cograph/reference/plot_mlna.md).
+[`plot_mlna`](https://sonsoles.me/cograph/reference/plot_mlna.md).
 
 **Two workflows:**
 
 1.  **Direct**: pass a weight matrix (or tna / cograph_network object)
     together with `cluster_list`. The function calls
-    [`cluster_summary`](http://sonsoles.me/cograph/reference/cluster_summary.md)
+    [`cluster_summary`](https://sonsoles.me/cograph/reference/cluster_summary.md)
     internally to compute aggregated weights.
 
 2.  **Pre-computed**: call
-    [`cluster_summary`](http://sonsoles.me/cograph/reference/cluster_summary.md)
+    [`cluster_summary`](https://sonsoles.me/cograph/reference/cluster_summary.md)
     yourself, inspect or modify the result, then pass the
     `cluster_summary` object as `x`. This avoids redundant computation
     when you plot the same clustering repeatedly with different visual
@@ -480,13 +480,14 @@ on an oval above the bottom layer whose proportions are controlled by
 - **cograph_network**:
 
   A cograph network object. Weights are extracted via
-  [`to_matrix()`](http://sonsoles.me/cograph/reference/to_matrix.md) and
-  node metadata (display labels) is read from the `$nodes` data frame.
+  [`to_matrix()`](https://sonsoles.me/cograph/reference/to_matrix.md)
+  and node metadata (display labels) is read from the `$nodes` data
+  frame.
 
 - **cluster_summary**:
 
   A pre-computed summary from
-  [`cluster_summary`](http://sonsoles.me/cograph/reference/cluster_summary.md).
+  [`cluster_summary`](https://sonsoles.me/cograph/reference/cluster_summary.md).
   When this type is passed, the `cluster_list`, `aggregation`, and
   `nodes` parameters are ignored because the summary already contains
   everything needed.
@@ -539,15 +540,15 @@ of visual parameters:
 
 ## See also
 
-[`cluster_summary`](http://sonsoles.me/cograph/reference/cluster_summary.md)
+[`cluster_summary`](https://sonsoles.me/cograph/reference/cluster_summary.md)
 for pre-computing aggregated cluster data,
-[`plot_mtna`](http://sonsoles.me/cograph/reference/plot_mtna.md) for
+[`plot_mtna`](https://sonsoles.me/cograph/reference/plot_mtna.md) for
 flat multi-cluster visualization (no summary layer),
-[`plot_mlna`](http://sonsoles.me/cograph/reference/plot_mlna.md) for
+[`plot_mlna`](https://sonsoles.me/cograph/reference/plot_mlna.md) for
 stacked multilevel/multiplex layer visualization,
-[`aggregate_weights`](http://sonsoles.me/cograph/reference/aggregate_weights.md)
+[`aggregate_weights`](https://sonsoles.me/cograph/reference/aggregate_weights.md)
 for the low-level weight aggregation used internally,
-[`detect_communities`](http://sonsoles.me/cograph/reference/detect_communities.md)
+[`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md)
 for algorithmic cluster detection
 
 ## Examples

@@ -28,8 +28,8 @@ plot_robustness(
 - ...:
 
   One or more robustness results from
-  [`robustness`](http://sonsoles.me/cograph/reference/robustness.md), or
-  named arguments to pass networks for on-the-fly computation.
+  [`robustness`](https://sonsoles.me/cograph/reference/robustness.md),
+  or named arguments to pass networks for on-the-fly computation.
 
 - x:
 

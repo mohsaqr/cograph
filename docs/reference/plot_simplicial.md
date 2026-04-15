@@ -50,8 +50,12 @@ plot_simplicial(
 
 - method:
 
-  Higher-order method when auto-building from a `tna`/`netobject`:
-  `"hon"` (default) or `"hypa"`.
+  Pathway source when auto-building from a `tna`/`netobject`: `"hon"`
+  (default, higher-order network), `"hypa"` (anomalous paths via
+  hypergeometric null), or `"rules"` (association-rule itemsets via
+  [`Nestimate::association_rules`](https://rdrr.io/pkg/Nestimate/man/association_rules.html);
+  rules are rendered as single-colored blobs because itemsets are
+  undirected).
 
 - max_pathways:
 

@@ -24,14 +24,14 @@ com_fl(x, no.of.communities, ...)
 - ...:
 
   Additional arguments passed to
-  [`to_igraph`](http://sonsoles.me/cograph/reference/to_igraph.md)
+  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
 
 ## Value
 
 A `cograph_communities` object
 
 A `cograph_communities` object. See
-[`detect_communities`](http://sonsoles.me/cograph/reference/detect_communities.md).
+[`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md).
 
 ## References
 
@@ -53,8 +53,13 @@ m <- matrix(runif(25), 5, 5); diag(m) <- 0
 net <- as_cograph(m)
 com_fl(net, no.of.communities = 2)
 #> Community structure (fluid)
-#>   Number of communities: 2 
-#>   Modularity: NA 
-#>   Community sizes: 1, 4 
-#>   Nodes: 5 
+#>   Nodes: 5  | Communities: 2  | Modularity: NA 
+#>   Sizes: 1, 4 
+#> 
+#>  node community
+#>     1         2
+#>     2         2
+#>     3         2
+#>     4         2
+#>     5         1
 ```

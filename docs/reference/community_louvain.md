@@ -33,14 +33,14 @@ com_lv(x, weights = NULL, resolution = 1, seed = NULL, ...)
 - ...:
 
   Additional arguments passed to
-  [`to_igraph`](http://sonsoles.me/cograph/reference/to_igraph.md)
+  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
 
 ## Value
 
 A `cograph_communities` object
 
 A `cograph_communities` object. See
-[`detect_communities`](http://sonsoles.me/cograph/reference/detect_communities.md).
+[`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md).
 
 ## References
 
@@ -54,12 +54,12 @@ Mechanics*, P10008.
 if (requireNamespace("igraph", quietly = TRUE)) {
   g <- igraph::make_graph("Zachary")
   comm <- community_louvain(g)
-  igraph::membership(comm)
+  membership(comm)
 
   # Reproducible result with seed
   comm1 <- community_louvain(g, seed = 42)
   comm2 <- community_louvain(g, seed = 42)
-  identical(igraph::membership(comm1), igraph::membership(comm2))
+  identical(membership(comm1), membership(comm2))
 }
 #> [1] TRUE
 ```

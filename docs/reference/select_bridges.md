@@ -42,8 +42,8 @@ A cograph_network with bridge edges only.
 
 ## See also
 
-[`select_edges`](http://sonsoles.me/cograph/reference/select_edges.md),
-[`select_nodes`](http://sonsoles.me/cograph/reference/select_nodes.md)
+[`select_edges`](https://sonsoles.me/cograph/reference/select_edges.md),
+[`select_nodes`](https://sonsoles.me/cograph/reference/select_nodes.md)
 
 ## Examples
 

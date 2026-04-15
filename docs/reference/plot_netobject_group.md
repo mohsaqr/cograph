@@ -2,7 +2,7 @@
 
 Creates a multi-panel plot for a `netobject_group` list, one panel per
 group. Mirrors
-[`plot_group_permutation()`](http://sonsoles.me/cograph/reference/plot_group_permutation.md)
+[`plot_group_permutation()`](https://sonsoles.me/cograph/reference/plot_group_permutation.md)
 in structure.
 
 ## Usage
@@ -47,7 +47,7 @@ plot(x, ...)
 - ...:
 
   Additional arguments passed to
-  [`splot()`](http://sonsoles.me/cograph/reference/splot.md).
+  [`splot()`](https://sonsoles.me/cograph/reference/splot.md).
 
 ## Value
 

@@ -7,25 +7,25 @@ customizable layouts, node shapes, edge styles, and themes.
 
 ## Main Functions
 
-- [`cograph`](http://sonsoles.me/cograph/reference/cograph.md): Main
+- [`cograph`](https://sonsoles.me/cograph/reference/cograph.md): Main
   entry point for creating network visualizations
 
-- [`sn_layout`](http://sonsoles.me/cograph/reference/sn_layout.md):
+- [`sn_layout`](https://sonsoles.me/cograph/reference/sn_layout.md):
   Apply layout algorithms
 
-- [`sn_nodes`](http://sonsoles.me/cograph/reference/sn_nodes.md):
+- [`sn_nodes`](https://sonsoles.me/cograph/reference/sn_nodes.md):
   Customize node aesthetics
 
-- [`sn_edges`](http://sonsoles.me/cograph/reference/sn_edges.md):
+- [`sn_edges`](https://sonsoles.me/cograph/reference/sn_edges.md):
   Customize edge aesthetics
 
-- [`sn_theme`](http://sonsoles.me/cograph/reference/sn_theme.md): Apply
+- [`sn_theme`](https://sonsoles.me/cograph/reference/sn_theme.md): Apply
   visual themes
 
-- [`sn_render`](http://sonsoles.me/cograph/reference/soplot.md): Render
+- [`sn_render`](https://sonsoles.me/cograph/reference/soplot.md): Render
   to device
 
-- [`sn_ggplot`](http://sonsoles.me/cograph/reference/sn_ggplot.md):
+- [`sn_ggplot`](https://sonsoles.me/cograph/reference/sn_ggplot.md):
   Convert to ggplot2 object
 
 ## Layouts
@@ -72,5 +72,3 @@ Useful links:
 Authors:
 
 - Mohammed Saqr \[copyright holder\]
-
-- Santtu Tikka

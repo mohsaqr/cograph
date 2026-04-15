@@ -112,10 +112,10 @@ expressions or required by selection modes are computed.
 
 ## See also
 
-[`filter_edges`](http://sonsoles.me/cograph/reference/filter_edges.md),
-[`select_nodes`](http://sonsoles.me/cograph/reference/select_nodes.md),
-[`select_bridges`](http://sonsoles.me/cograph/reference/select_bridges.md),
-[`select_top_edges`](http://sonsoles.me/cograph/reference/select_top_edges.md)
+[`filter_edges`](https://sonsoles.me/cograph/reference/filter_edges.md),
+[`select_nodes`](https://sonsoles.me/cograph/reference/select_nodes.md),
+[`select_bridges`](https://sonsoles.me/cograph/reference/select_bridges.md),
+[`select_top_edges`](https://sonsoles.me/cograph/reference/select_top_edges.md)
 
 ## Examples
 

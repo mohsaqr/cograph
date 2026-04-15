@@ -51,8 +51,8 @@ from_qgraph(
 ## Value
 
 Invisibly, a named list of cograph parameters that can be passed to
-[`splot()`](http://sonsoles.me/cograph/reference/splot.md) or
-[`soplot()`](http://sonsoles.me/cograph/reference/soplot.md).
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md) or
+[`soplot()`](https://sonsoles.me/cograph/reference/soplot.md).
 
 ## Details
 
@@ -124,11 +124,11 @@ to cograph equivalents:
 
 ## See also
 
-[`cograph`](http://sonsoles.me/cograph/reference/cograph.md) for
+[`cograph`](https://sonsoles.me/cograph/reference/cograph.md) for
 creating networks from scratch,
-[`splot`](http://sonsoles.me/cograph/reference/splot.md) and
-[`soplot`](http://sonsoles.me/cograph/reference/soplot.md) for plotting
-engines, [`from_tna`](http://sonsoles.me/cograph/reference/from_tna.md)
+[`splot`](https://sonsoles.me/cograph/reference/splot.md) and
+[`soplot`](https://sonsoles.me/cograph/reference/soplot.md) for plotting
+engines, [`from_tna`](https://sonsoles.me/cograph/reference/from_tna.md)
 for tna object conversion
 
 ## Examples

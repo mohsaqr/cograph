@@ -5,12 +5,12 @@
 This vignette demonstrates network comparison and visualization
 functions:
 
-- [`plot_compare()`](http://sonsoles.me/cograph/reference/plot_compare.md) -
+- [`plot_compare()`](https://sonsoles.me/cograph/reference/plot_compare.md) -
   Plotting difference networks (x - y)
-- [`plot_permutation()`](http://sonsoles.me/cograph/reference/plot_permutation.md) -
+- [`plot_permutation()`](https://sonsoles.me/cograph/reference/plot_permutation.md) -
   Plotting statistical comparison between networks computed through
   permutation testing
-- [`plot_heatmap()`](http://sonsoles.me/cograph/reference/plot_heatmap.md) -
+- [`plot_heatmap()`](https://sonsoles.me/cograph/reference/plot_heatmap.md) -
   Adjacency matrix heatmaps
 - Advanced node shapes with donut + pie combinations
 

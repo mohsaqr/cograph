@@ -15,7 +15,7 @@ robustness_auc(x)
 - x:
 
   A robustness result from
-  [`robustness`](http://sonsoles.me/cograph/reference/robustness.md).
+  [`robustness`](https://sonsoles.me/cograph/reference/robustness.md).
 
 ## Value
 

@@ -4,8 +4,25 @@
 #' data frame. Accepts matrices, igraph objects, cograph_network, or tna objects.
 #'
 #' @param x Network input (matrix, igraph, network, cograph_network, tna object)
-#' @param measures Which measures to calculate. Default "all" calculates all
-#'   available measures (87 total). Can be a character vector of measure names.
+#' @param type Character scalar selecting a curated tier of measures when
+#'   \code{measures} is not supplied. One of:
+#'   \describe{
+#'     \item{\code{"basic"}}{(default) 6 canonical measures: \code{degree},
+#'       \code{strength}, \code{closeness}, \code{betweenness},
+#'       \code{eigenvector}, \code{pagerank}.}
+#'     \item{\code{"extended"}}{Basic plus commonly-reported second-tier
+#'       measures (~28 total): harmonic, coreness, eccentricity, radiality,
+#'       lin, decay, load, stress, katz, alpha, power, authority, leverage,
+#'       constraint, effective_size, bridging, transitivity, subgraph,
+#'       diffusion, laplacian, kreach, current_flow_betweenness,
+#'       current_flow_closeness.}
+#'     \item{\code{"all"}}{Every available measure (87).}
+#'   }
+#'   Passing \code{measures} explicitly overrides \code{type}.
+#' @param measures Character vector of specific measure names to compute.
+#'   When \code{NULL} (default) the tier selected by \code{type} is used.
+#'   Accepts \code{"all"} as a shortcut for every measure. Any custom vector
+#'   of valid measure names is also accepted.
 #'   **Core** (igraph-backed): "degree", "strength", "betweenness", "closeness",
 #'   "eigenvector", "pagerank", "authority", "hub", "eccentricity", "coreness",
 #'   "constraint", "transitivity", "harmonic", "alpha", "power", "subgraph".
@@ -226,7 +243,8 @@
 #'
 #' # Global transitivity
 #' centrality(adj, measures = "transitivity", transitivity_type = "global")
-centrality <- function(x, measures = "all", mode = "all",
+centrality <- function(x, type = c("basic", "extended", "all"),
+                       measures = NULL, mode = "all",
                        normalized = FALSE, weighted = TRUE,
                        directed = NULL, loops = TRUE, simplify = "sum",
                        digits = NULL, sort_by = NULL,
@@ -238,6 +256,8 @@ centrality <- function(x, measures = "all", mode = "all",
                        membership = NULL,
                        katz_alpha = 0.1, hubbell_weight = 0.5,
                        ...) {
+
+  type <- match.arg(type)
 
   # Auto-detect invert_weights based on input type
 
@@ -323,8 +343,27 @@ centrality <- function(x, measures = "all", mode = "all",
                         "brokerage_liaison")
   all_measures <- c(mode_measures, no_mode_measures)
 
-  # Resolve measures
-  if (identical(measures, "all")) {
+  # Curated tiers. basic = canonical measures every paper reports;
+  # extended = basic plus the commonly-reported second tier; all = everything.
+  basic_measures <- c("degree", "strength", "closeness", "betweenness",
+                      "eigenvector", "pagerank")
+  extended_measures <- c(basic_measures,
+                         "harmonic", "coreness", "eccentricity",
+                         "radiality", "lin", "decay",
+                         "load", "stress",
+                         "katz", "alpha", "power", "authority", "leverage",
+                         "constraint", "effective_size", "bridging",
+                         "transitivity", "subgraph",
+                         "diffusion", "laplacian", "kreach",
+                         "current_flow_betweenness", "current_flow_closeness")
+
+  # Resolve measures: explicit `measures =` wins; otherwise use the tier.
+  if (is.null(measures)) {
+    measures <- switch(type,
+                       basic = basic_measures,
+                       extended = extended_measures,
+                       all = all_measures)
+  } else if (identical(measures, "all")) {
     measures <- all_measures
   } else {
     invalid <- setdiff(measures, all_measures)

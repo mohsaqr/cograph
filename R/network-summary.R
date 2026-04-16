@@ -945,7 +945,7 @@ network_small_world <- function(x, n_random = 10, ...) {
 #' @examples
 #' # Scale-free networks often show rich-club effect
 #' if (requireNamespace("igraph", quietly = TRUE)) {
-#'   g <- igraph::barabasi.game(50, m = 2)
+#'   g <- igraph::sample_pa(50, m = 2, directed = FALSE)
 #'   network_rich_club(g, k = 5)
 #' }
 network_rich_club <- function(x, k = NULL, normalized = FALSE, n_random = 10, ...) {

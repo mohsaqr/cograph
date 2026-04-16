@@ -29,7 +29,7 @@ A normalized version compares to random graphs.
 \examples{
 # Scale-free networks often show rich-club effect
 if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::barabasi.game(50, m = 2)
+  g <- igraph::sample_pa(50, m = 2, directed = FALSE)
   network_rich_club(g, k = 5)
 }
 }

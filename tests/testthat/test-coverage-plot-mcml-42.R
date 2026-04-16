@@ -320,3 +320,38 @@ test_that("mcml stores nodes_df when called with nodes parameter", {
   expect_true(!is.null(result$nodes_df))
   expect_equal(result$nodes_df$labels, paste0("Node_", LETTERS[1:6]))
 })
+
+# ============================================
+# summary_pie argument
+# ============================================
+
+test_that("plot_mcml summary_pie = 'inits' is the default and runs", {
+  weights <- create_mcml_weights()
+  clusters <- create_mcml_clusters()
+
+  expect_no_error(with_temp_png(
+    plot_mcml(weights, clusters)
+  ))
+  expect_no_error(with_temp_png(
+    plot_mcml(weights, clusters, summary_pie = "inits")
+  ))
+})
+
+test_that("plot_mcml summary_pie = 'self' preserves legacy self-retention pie", {
+  weights <- create_mcml_weights()
+  clusters <- create_mcml_clusters()
+
+  expect_no_error(with_temp_png(
+    plot_mcml(weights, clusters, summary_pie = "self")
+  ))
+})
+
+test_that("plot_mcml summary_pie rejects invalid values via match.arg", {
+  weights <- create_mcml_weights()
+  clusters <- create_mcml_clusters()
+
+  expect_error(
+    with_temp_png(plot_mcml(weights, clusters, summary_pie = "bogus")),
+    "should be one of"
+  )
+})

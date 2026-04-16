@@ -48,7 +48,7 @@ comm_membership <- c(1, 1, 1, 2, 2, 2)
 # ===========================================================================
 
 test_that("centrality() returns 64 measures for undirected graph", {
-  suppressWarnings(df <- centrality(k3, membership = c(1, 1, 2)))
+  suppressWarnings(df <- centrality(k3, type = "all", membership = c(1, 1, 2)))
   # node column + measures
 
   expect_equal(nrow(df), 3)

@@ -6,7 +6,8 @@
 \usage{
 centrality(
   x,
-  measures = "all",
+  type = c("basic", "extended", "all"),
+  measures = NULL,
   mode = "all",
   normalized = FALSE,
   weighted = TRUE,
@@ -36,8 +37,26 @@ centrality(
 \arguments{
 \item{x}{Network input (matrix, igraph, network, cograph_network, tna object)}
 
-\item{measures}{Which measures to calculate. Default "all" calculates all
-available measures (87 total). Can be a character vector of measure names.
+\item{type}{Character scalar selecting a curated tier of measures when
+\code{measures} is not supplied. One of:
+\describe{
+\item{\code{"basic"}}{(default) 6 canonical measures: \code{degree},
+\code{strength}, \code{closeness}, \code{betweenness},
+\code{eigenvector}, \code{pagerank}.}
+\item{\code{"extended"}}{Basic plus commonly-reported second-tier
+measures (~28 total): harmonic, coreness, eccentricity, radiality,
+lin, decay, load, stress, katz, alpha, power, authority, leverage,
+constraint, effective_size, bridging, transitivity, subgraph,
+diffusion, laplacian, kreach, current_flow_betweenness,
+current_flow_closeness.}
+\item{\code{"all"}}{Every available measure (87).}
+}
+Passing \code{measures} explicitly overrides \code{type}.}
+
+\item{measures}{Character vector of specific measure names to compute.
+When \code{NULL} (default) the tier selected by \code{type} is used.
+Accepts \code{"all"} as a shortcut for every measure. Any custom vector
+of valid measure names is also accepted.
 \strong{Core} (igraph-backed): "degree", "strength", "betweenness", "closeness",
 "eigenvector", "pagerank", "authority", "hub", "eccentricity", "coreness",
 "constraint", "transitivity", "harmonic", "alpha", "power", "subgraph".

@@ -37,6 +37,7 @@ plot_mcml(
   summary_label_color = "gray20",
   summary_arrows = TRUE,
   summary_arrow_size = 0.1,
+  summary_pie = c("inits", "self"),
   between_arrows = FALSE,
   edge_width_range = c(0.3, 1.3),
   between_edge_width_range = c(0.5, 2),
@@ -214,6 +215,19 @@ edges. Set to \code{FALSE} for undirected networks. Default \code{TRUE}.}
 \item{summary_arrow_size}{Size of arrowheads on summary edges. Default
 0.10.}
 
+\item{summary_pie}{Character scalar controlling what the colored slice
+of the top-layer pie chart represents. One of:
+\describe{
+\item{\code{"inits"}}{(default) The cluster's share of the initial
+state distribution (\code{cs$macro$inits[i]}). Answers "how often
+do sequences start in this cluster?" Summed across clusters the
+colored slices equal 1.}
+\item{\code{"self"}}{The cluster's self-retention share of
+out-strength (\code{bw[i, i] / rowSums(bw)[i]}). Answers "how
+sticky is this cluster — how much of its outgoing flow loops
+back to itself?" Each pie is normalized independently.}
+}}
+
 \item{between_arrows}{Logical. Draw arrowheads on between-cluster edges
 in the bottom layer. Default \code{FALSE}.}
 
@@ -312,10 +326,12 @@ Produces a two-layer hierarchical visualization of a clustered network.
 The \strong{bottom layer} shows every node arranged inside elliptical cluster
 shells with full within-cluster and between-cluster edges drawn at the
 individual-node level. The \strong{top layer} collapses each cluster into a
-single summary pie-chart node whose colored slice represents the proportion
-of within-cluster flow, with edges carrying the aggregated between-cluster
-weights. Dashed inter-layer lines connect each detail node to its
-corresponding summary node, making the hierarchical mapping explicit.
+single summary pie-chart node whose colored slice represents, by default,
+the cluster's share of the initial state distribution (see
+\code{summary_pie} for the alternative self-retention interpretation),
+with edges carrying the aggregated between-cluster weights. Dashed
+inter-layer lines connect each detail node to its corresponding summary
+node, making the hierarchical mapping explicit.
 }
 \details{
 Use \code{plot_mcml} when you need a simultaneous micro/macro view of

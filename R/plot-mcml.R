@@ -4,10 +4,12 @@
 #' The **bottom layer** shows every node arranged inside elliptical cluster
 #' shells with full within-cluster and between-cluster edges drawn at the
 #' individual-node level. The **top layer** collapses each cluster into a
-#' single summary pie-chart node whose colored slice represents the proportion
-#' of within-cluster flow, with edges carrying the aggregated between-cluster
-#' weights. Dashed inter-layer lines connect each detail node to its
-#' corresponding summary node, making the hierarchical mapping explicit.
+#' single summary pie-chart node whose colored slice represents, by default,
+#' the cluster's share of the initial state distribution (see
+#' \code{summary_pie} for the alternative self-retention interpretation),
+#' with edges carrying the aggregated between-cluster weights. Dashed
+#' inter-layer lines connect each detail node to its corresponding summary
+#' node, making the hierarchical mapping explicit.
 #'
 #' Use \code{plot_mcml} when you need a simultaneous micro/macro view of
 #' cluster structure — the bottom layer reveals internal cluster dynamics while
@@ -215,6 +217,18 @@
 #'   edges. Set to \code{FALSE} for undirected networks. Default \code{TRUE}.
 #' @param summary_arrow_size Size of arrowheads on summary edges. Default
 #'   0.10.
+#' @param summary_pie Character scalar controlling what the colored slice
+#'   of the top-layer pie chart represents. One of:
+#'   \describe{
+#'     \item{\code{"inits"}}{(default) The cluster's share of the initial
+#'       state distribution (\code{cs$macro$inits[i]}). Answers "how often
+#'       do sequences start in this cluster?" Summed across clusters the
+#'       colored slices equal 1.}
+#'     \item{\code{"self"}}{The cluster's self-retention share of
+#'       out-strength (\code{bw[i, i] / rowSums(bw)[i]}). Answers "how
+#'       sticky is this cluster — how much of its outgoing flow loops
+#'       back to itself?" Each pie is normalized independently.}
+#'   }
 #' @param between_arrows Logical. Draw arrowheads on between-cluster edges
 #'   in the bottom layer. Default \code{FALSE}.
 #' @param edge_width_range Numeric vector \code{c(min, max)} controlling the
@@ -409,6 +423,8 @@ plot_mcml <- function(
     # Summary arrows
     summary_arrows = TRUE,
     summary_arrow_size = 0.10,
+    # Summary pie semantics
+    summary_pie = c("inits", "self"),
     # Edge control
     between_arrows = FALSE,
     edge_width_range = c(0.3, 1.3),
@@ -443,6 +459,7 @@ plot_mcml <- function(
 ) {
   aggregation <- match.arg(aggregation)
   mode <- match.arg(mode)
+  summary_pie <- match.arg(summary_pie)
 
   # For mode = "tna", show edge labels by default (like tplot/splot with tna)
   # Check if user explicitly set these parameters
@@ -672,18 +689,25 @@ plot_mcml <- function(
   summary_arrow_sz <- summary_arrow_size
   pie_radius <- 0.35  # Pie chart radius in plot units
 
+  # Pre-compute pie proportions for each cluster based on summary_pie mode.
+  # "inits": colored slice = cluster's share of the initial distribution
+  #          (cs$macro$inits[i]), gray = 1 - that value. Sums to 1 across
+  #          clusters, so slice answers "how often do sequences start here?".
+  # "self":  colored slice = cluster's self-retention share of out-strength
+  #          (bw[i, i] / rowSums(bw)[i]), a per-cluster stickiness.
+  pie_props <- if (summary_pie == "inits") {
+    inits <- cs$macro$inits
+    if (is.null(inits)) rep(0, n_clusters) else as.numeric(inits)
+  } else {
+    row_tot <- rowSums(bw)
+    ifelse(row_tot > 0, diag(bw) / row_tot, 0)
+  }
+
   # 1. Draw summary nodes as PIE CHARTS first (so edges draw on top)
   for (i in seq_len(n_clusters)) {
-    # Self-loop proportion (within-cluster) vs between-cluster
-    self_val <- bw[i, i]
-    other_val <- sum(bw[i, -i])
-    total <- self_val + other_val
-
-    if (total > 0) {
-      self_prop <- self_val / total
-    } else {
-      self_prop <- 0
-    }
+    self_prop <- pie_props[i]
+    if (is.na(self_prop) || self_prop < 0) self_prop <- 0
+    if (self_prop > 1) self_prop <- 1
 
     # Draw "other" slice first (light gray background)
     if (self_prop < 1) {

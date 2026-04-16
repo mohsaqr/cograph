@@ -103,8 +103,8 @@
 
     coords <- matrix(c(-1, 0, 1, 0.5, 0.5, -0.8), ncol = 2, byrow = TRUE)
 
-    igraph::plot.igraph(g, layout = coords, vertex.label = NA,
-                        main = sprintf("%s\nn=%d, z=%.1f", motif_name, count, z))
+    plot(g, layout = coords, vertex.label = NA,
+         main = sprintf("%s\nn=%d, z=%.1f", motif_name, count, z))
   }
 
   invisible(NULL)

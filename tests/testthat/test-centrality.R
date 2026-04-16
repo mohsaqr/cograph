@@ -437,3 +437,65 @@ test_that("voterank returns valid scores", {
   # All values should be in [0, 1]
   expect_true(all(vr >= 0 & vr <= 1))
 })
+
+# ============================================
+# Tiered centrality via `type` argument
+# ============================================
+
+test_that("centrality default tier is 'basic' with 6 canonical measures", {
+  mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+  rownames(mat) <- colnames(mat) <- c("A", "B", "C")
+
+  result <- centrality(mat)
+  cols <- setdiff(names(result), "node")
+  # basic resolves to 6 measure names; each measure expands to 1+ columns
+  # (e.g. degree -> degree_all), so we check that each measure has a column.
+  expect_true(any(grepl("^degree", cols)))
+  expect_true(any(grepl("^strength", cols)))
+  expect_true(any(grepl("^closeness", cols)))
+  expect_true("betweenness" %in% cols)
+  expect_true("eigenvector" %in% cols)
+  expect_true("pagerank" %in% cols)
+  # And confirms the trimming: no extended-only measure like katz/coreness
+  expect_false("katz" %in% cols)
+  expect_false(any(grepl("^coreness", cols)))
+})
+
+test_that("centrality type='extended' is a strict superset of basic", {
+  mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+  rownames(mat) <- colnames(mat) <- c("A", "B", "C")
+
+  basic_cols <- setdiff(names(centrality(mat, type = "basic")), "node")
+  ext_cols <- setdiff(names(centrality(mat, type = "extended")), "node")
+
+  expect_true(all(basic_cols %in% ext_cols))
+  expect_gt(length(ext_cols), length(basic_cols))
+  expect_true(any(grepl("^coreness", ext_cols)))
+  expect_true("katz" %in% ext_cols)
+})
+
+test_that("centrality type='all' returns every measure", {
+  mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+  rownames(mat) <- colnames(mat) <- c("A", "B", "C")
+
+  all_cols <- setdiff(names(centrality(mat, type = "all")), "node")
+  ext_cols <- setdiff(names(centrality(mat, type = "extended")), "node")
+  # "all" must include everything in "extended" plus more
+  expect_true(all(ext_cols %in% all_cols))
+  expect_gt(length(all_cols), length(ext_cols))
+})
+
+test_that("centrality explicit measures= overrides type", {
+  mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+  rownames(mat) <- colnames(mat) <- c("A", "B", "C")
+
+  # Asking for only pagerank should trump the "extended" tier
+  result <- centrality(mat, type = "extended", measures = "pagerank")
+  cols <- setdiff(names(result), "node")
+  expect_equal(cols, "pagerank")
+})
+
+test_that("centrality type argument rejects invalid values", {
+  mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
+  expect_error(centrality(mat, type = "bogus"), "should be one of")
+})

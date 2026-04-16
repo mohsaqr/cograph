@@ -256,3 +256,34 @@ For `net_bootstrap` objects from stability inference, both a bootstrap
 confidence interval (`ci_lower`/`ci_upper`) and a consistency range
 (`cr_lower`/`cr_upper`) are available. Use `interval = "both"` to
 overlay both on the same plot.
+
+## Examples
+
+``` r
+# Bootstrap a TNA built from sequence data (required by tna::bootstrap)
+d    <- tna::prepare_data(
+  tna::group_regulation_long,
+  actor = "Actor", time = "Time", action = "Action"
+)
+#> ── Preparing Data ──────────────────────────────────────────────────────────────
+#> ℹ Input data dimensions: 27533 rows, 6 columns
+#> ℹ First few time values: 2025-01-01 08:27:07.712698, 2025-01-01
+#>   08:35:20.712698, and 2025-01-01 08:42:18.712698
+#> ℹ Number of values to parse: 27533
+#> ℹ Sample values: 2025-01-01 08:27:07.712698, 2025-01-01 08:35:20.712698, and
+#>   2025-01-01 08:42:18.712698
+#> ℹ Sample of parsed times: 2025-01-01 08:27:07.712698, 2025-01-01
+#>   08:35:20.712698, and 2025-01-01 08:42:18.712698
+#> ℹ Time threshold for new session: 900 seconds
+#> ℹ Total number of sessions: 2000
+#> ℹ Number of unique users: 2000
+#> ℹ Total number of actions: 27533
+#> ℹ Maximum sequence length: 26 actions
+#> ℹ Time range: 2025-01-01 08:01:16.009382 to 2025-01-01 13:03:20.238288
+Mod  <- tna::tna(d)
+boot <- tna::bootstrap(Mod, iter = 50)
+plot_bootstrap_forest(boot, n_top = 8)
+#> `height` was translated to `width`.
+#> Warning: Removed 1 row containing missing values or values outside the scale range
+#> (`geom_vline()`).
+```

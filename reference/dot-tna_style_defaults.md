@@ -2,8 +2,8 @@
 
 Returns the standard TNA visual defaults as a named list. Used by
 `splot(tna_styling = TRUE)`,
-[`from_tna()`](http://sonsoles.me/cograph/reference/from_tna.md), and
-[`plot_tna()`](http://sonsoles.me/cograph/reference/plot_tna.md).
+[`from_tna()`](https://sonsoles.me/cograph/reference/from_tna.md), and
+[`plot_tna()`](https://sonsoles.me/cograph/reference/plot_tna.md).
 
 ## Usage
 

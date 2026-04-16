@@ -1,4 +1,39 @@
-# Base R Graphics Network Plotting
+# Plot Nestimate Bootstrap Results
+
+Visualizes `net_bootstrap` objects from the Nestimate package. Mirrors
+`splot.tna_bootstrap` but adapts to Nestimate's field layout: weights
+live under `$original$weights`, directed is not always TRUE, and there
+are no donut/inits.
+
+Plots the original tna model with nodes colored by community membership.
+The original model is retrieved from `attr(x, "tna")`, which
+[`tna::communities()`](http://sonsoles.me/tna/reference/communities.md)
+sets automatically. Uses `walktrap` if present in `x$assignments`;
+otherwise falls back to the first available algorithm column.
+
+Plots the original network with nodes colored by community membership.
+The network is retrieved from `attr(x, "network")`, which
+[`detect_communities()`](https://sonsoles.me/cograph/reference/detect_communities.md)
+/
+[`.wrap_communities()`](https://sonsoles.me/cograph/reference/dot-wrap_communities.md)
+sets automatically.
+
+Applies TNA-compatible styling defaults before delegating to `splot()`:
+directed networks get oval layout, coloured nodes, and sized arrows;
+undirected networks get spring layout with no arrows or dashes. All
+parameters can be overridden by the caller.
+
+Visualizes `boot_glasso` objects from the Nestimate package. Plots a
+partial-correlation network with edge inclusion probabilities mapped to
+edge transparency.
+
+Plot a `wtna_mixed` object either as a single overlaid network or as two
+separate group panels.
+
+Visualizes `net_permutation` objects from the Nestimate package. Differs
+from `plot_permutation`: p_values and effect_size are already p×p
+matrices (no edge-name parsing needed), and `directed` comes from
+`x$x$directed`.
 
 Network visualization using base R graphics (similar to qgraph).
 
@@ -10,6 +45,47 @@ parameter names as soplot() for consistency.
 ## Usage
 
 ``` r
+splot.net_bootstrap(
+  x,
+  display = c("styled", "significant", "full"),
+  show_ci = FALSE,
+  show_stars = TRUE,
+  inherit_style = TRUE,
+  ...
+)
+
+splot.tna_communities(x, ...)
+
+splot.cograph_communities(x, ...)
+
+splot.net_mlvar(x, type = "temporal", ...)
+
+splot.netobject(x, ...)
+
+splot.boot_glasso(
+  x,
+  use_thresholded = TRUE,
+  show_inclusion = TRUE,
+  inclusion_threshold = NULL,
+  edge_positive_color = "#2E7D32",
+  edge_negative_color = "#C62828",
+  ...
+)
+
+splot.wtna_mixed(x, type = c("overlay", "group"), ...)
+
+splot.net_permutation(
+  x,
+  show_nonsig = FALSE,
+  show_effect = FALSE,
+  edge_positive_color = "#009900",
+  edge_negative_color = "#C62828",
+  edge_nonsig_color = "#888888",
+  edge_nonsig_style = 2L,
+  show_stars = TRUE,
+  ...
+)
+
 splot(
   x,
   layout = "oval",
@@ -46,6 +122,8 @@ splot(
   donut_colors = NULL,
   donut_border_color = NULL,
   donut_border_width = NULL,
+  donut_inner_border_color = NULL,
+  donut_inner_border_width = NULL,
   donut_outer_border_color = NULL,
   donut_line_type = "solid",
   donut_border_lty = NULL,
@@ -146,6 +224,7 @@ splot(
   groups = NULL,
   node_names = NULL,
   tna_styling = NULL,
+  psych_styling = NULL,
   i = NULL,
   filetype = "default",
   filename = file.path(tempdir(), "splot"),
@@ -175,6 +254,72 @@ splot(
   - A group_tna object (list of tna objects from tna package). Use
     parameter `i` to select a specific group, or omit to plot all
     groups.
+
+- display:
+
+  Display mode: `"styled"` (default), `"significant"`, or `"full"`.
+
+- show_ci:
+
+  Logical: overlay CI bounds on edge labels? Default FALSE.
+
+- show_stars:
+
+  Logical: show significance stars? Default TRUE.
+
+- inherit_style:
+
+  Logical: inherit labels/layout/colors from network? Default TRUE.
+
+- ...:
+
+  Additional arguments passed to layout functions.
+
+- type:
+
+  Character. `"overlay"` (default) renders both networks on a single
+  canvas via
+  [`plot_mixed_network`](https://sonsoles.me/cograph/reference/plot_mixed_network.md)
+  — co-occurrence as straight undirected edges, transitions as curved
+  directed arrows. `"group"` plots each component as a separate panel.
+
+- use_thresholded:
+
+  Logical: use `$thresholded_pcor`? If FALSE, uses `$original_pcor`.
+  Default TRUE.
+
+- show_inclusion:
+
+  Logical: scale edge alpha by inclusion probability? Default TRUE.
+
+- inclusion_threshold:
+
+  Numeric: minimum inclusion probability to show an edge. Default
+  `1 - x$alpha` (i.e. the complement of the alpha level).
+
+- edge_positive_color:
+
+  Color for positive weights.
+
+- edge_negative_color:
+
+  Color for negative weights.
+
+- show_nonsig:
+
+  Logical: show non-significant edges? Default FALSE.
+
+- show_effect:
+
+  Logical: show effect size in parentheses? Default FALSE.
+
+- edge_nonsig_color:
+
+  Color for non-significant edges. Default `"#888888"`.
+
+- edge_nonsig_style:
+
+  Line style for non-significant edges. Default 2L.
 
 - layout:
 
@@ -340,6 +485,16 @@ splot(
 - donut_border_width:
 
   Border width for donut rings. NULL uses node_border_width.
+
+- donut_inner_border_color:
+
+  Color for the inner boundary (where the donut meets its hole). NULL
+  (default) uses `donut_border_color`. Can be scalar or per-node vector.
+
+- donut_inner_border_width:
+
+  Width for the inner boundary border. NULL (default) uses
+  `donut_border_width`. Can be scalar or per-node vector.
 
 - donut_outer_border_color:
 
@@ -681,17 +836,9 @@ splot(
 
   Maximum weight for scaling. NULL for auto.
 
-- edge_positive_color:
-
-  Color for positive weights.
-
 - positive_color:
 
   Deprecated. Use `edge_positive_color` instead.
-
-- edge_negative_color:
-
-  Color for negative weights.
 
 - negative_color:
 
@@ -791,6 +938,15 @@ splot(
   otherwise. Can be used with any input type (matrix, igraph,
   cograph_network).
 
+- psych_styling:
+
+  Logical or NULL. Undirected counterpart of `tna_styling`. If `TRUE`,
+  applies psychometric-network defaults (spring layout, Okabe-Ito
+  palette, no arrows, thin edges) as a base layer. If `NULL` (default),
+  `splot.netobject` auto-enables it on correlation-family input (glasso,
+  cor, pcor, ising) and on the undirected constituents of `net_mlvar`.
+  Explicit user args always win.
+
 - i:
 
   Group index or name when x is a group_tna object. If NULL (default),
@@ -818,11 +974,23 @@ splot(
 
   Resolution in DPI for raster outputs (PNG, JPEG, TIFF). Default 600.
 
-- ...:
-
-  Additional arguments passed to layout functions.
-
 ## Value
+
+Invisibly returns the plot.
+
+Invisibly, the splot result.
+
+Invisibly, the splot result.
+
+Invisibly returns `x`.
+
+Invisibly returns the plot.
+
+Invisibly returns the plot.
+
+Invisibly returns `x`.
+
+Invisibly returns the plot.
 
 Invisibly returns the cograph_network object.
 
@@ -937,20 +1105,20 @@ For statistical output, use templates to format complex labels:
 
 ## See also
 
-[`soplot`](http://sonsoles.me/cograph/reference/soplot.md) for grid
+[`soplot`](https://sonsoles.me/cograph/reference/soplot.md) for grid
 graphics rendering (alternative engine),
-[`cograph`](http://sonsoles.me/cograph/reference/cograph.md) for
+[`cograph`](https://sonsoles.me/cograph/reference/cograph.md) for
 creating network objects,
-[`sn_nodes`](http://sonsoles.me/cograph/reference/sn_nodes.md) for node
+[`sn_nodes`](https://sonsoles.me/cograph/reference/sn_nodes.md) for node
 customization,
-[`sn_edges`](http://sonsoles.me/cograph/reference/sn_edges.md) for edge
+[`sn_edges`](https://sonsoles.me/cograph/reference/sn_edges.md) for edge
 customization,
-[`sn_layout`](http://sonsoles.me/cograph/reference/sn_layout.md) for
+[`sn_layout`](https://sonsoles.me/cograph/reference/sn_layout.md) for
 layout algorithms,
-[`sn_theme`](http://sonsoles.me/cograph/reference/sn_theme.md) for
+[`sn_theme`](https://sonsoles.me/cograph/reference/sn_theme.md) for
 visual themes,
-[`from_qgraph`](http://sonsoles.me/cograph/reference/from_qgraph.md) and
-[`from_tna`](http://sonsoles.me/cograph/reference/from_tna.md) for
+[`from_qgraph`](https://sonsoles.me/cograph/reference/from_qgraph.md)
+and [`from_tna`](https://sonsoles.me/cograph/reference/from_tna.md) for
 converting external objects
 
 ## Examples

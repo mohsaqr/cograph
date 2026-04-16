@@ -70,22 +70,22 @@ A `cograph_motifs` object containing:
 
 ## See also
 
-[`motifs()`](http://sonsoles.me/cograph/reference/motifs.md) for the
+[`motifs()`](https://sonsoles.me/cograph/reference/motifs.md) for the
 unified API,
-[`extract_motifs()`](http://sonsoles.me/cograph/reference/extract_motifs.md)
+[`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md)
 for detailed triad extraction,
-[`plot.cograph_motifs()`](http://sonsoles.me/cograph/reference/plot.cograph_motifs.md)
+[`plot.cograph_motifs()`](https://sonsoles.me/cograph/reference/plot.cograph_motifs.md)
 for plotting
 
 Other motifs:
-[`extract_motifs()`](http://sonsoles.me/cograph/reference/extract_motifs.md),
-[`extract_triads()`](http://sonsoles.me/cograph/reference/extract_triads.md),
-[`get_edge_list()`](http://sonsoles.me/cograph/reference/get_edge_list.md),
-[`motifs()`](http://sonsoles.me/cograph/reference/motifs.md),
-[`plot.cograph_motif_analysis()`](http://sonsoles.me/cograph/reference/plot.cograph_motif_analysis.md),
-[`plot.cograph_motifs()`](http://sonsoles.me/cograph/reference/plot.cograph_motifs.md),
-[`subgraphs()`](http://sonsoles.me/cograph/reference/subgraphs.md),
-[`triad_census()`](http://sonsoles.me/cograph/reference/triad_census.md)
+[`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md),
+[`extract_triads()`](https://sonsoles.me/cograph/reference/extract_triads.md),
+[`get_edge_list()`](https://sonsoles.me/cograph/reference/get_edge_list.md),
+[`motifs()`](https://sonsoles.me/cograph/reference/motifs.md),
+[`plot.cograph_motif_analysis()`](https://sonsoles.me/cograph/reference/plot.cograph_motif_analysis.md),
+[`plot.cograph_motifs()`](https://sonsoles.me/cograph/reference/plot.cograph_motifs.md),
+[`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md),
+[`triad_census()`](https://sonsoles.me/cograph/reference/triad_census.md)
 
 ## Examples
 
@@ -102,13 +102,25 @@ mat <- matrix(c(
 m <- motif_census(mat)
 print(m)
 #> Network Motif Analysis
-#> Size: 3-node motifs (directed)
-#> Null model: configuration (n=100)
+#> Size: 3-node motifs (directed) | Null: configuration (n=100)
 #> 
-#> Significant motifs:
-#>  motif count expected    z      p
-#>   111U     2      0.2 3.16 0.0016
-#>   120D     2      0.2 2.95 0.0032
+#>  motif count null_mean   null_sd    z_score     p_value significant
+#>    003     0      0.00 0.0000000  0.0000000 1.000000000       FALSE
+#>    012     0      0.00 0.0000000  0.0000000 1.000000000       FALSE
+#>    102     0      0.18 0.3861229 -0.4661728 0.641091822       FALSE
+#>   021D     0      0.00 0.0000000  0.0000000 1.000000000       FALSE
+#>   021U     0      0.79 0.8795660 -0.8981702 0.369094805       FALSE
+#>   021C     0      0.36 0.6744994 -0.5337291 0.593528952       FALSE
+#>   111D     0      0.10 0.3015113 -0.3316625 0.740144136       FALSE
+#>   111U     2      0.22 0.6289321  2.8301943 0.004651974        TRUE
+#>   030T     0      0.11 0.3144660 -0.3497993 0.726489324       FALSE
+#>   030C     0      0.30 0.6113406 -0.4907248 0.623621117       FALSE
+#>    201     0      0.00 0.0000000  0.0000000 1.000000000       FALSE
+#>   120D     2      0.31 0.6620293  2.5527570 0.010687403        TRUE
+#>   120U     0      0.10 0.3015113 -0.3316625 0.740144136       FALSE
+#>   120C     0      0.06 0.2386833 -0.2513792 0.801520967       FALSE
+#>    210     0      0.00 0.0000000  0.0000000 1.000000000       FALSE
+#>    300     0      0.00 0.0000000  0.0000000 1.000000000       FALSE
 #> 
 #> Over-represented: 2 | Under-represented: 0
 plot(m)

@@ -71,8 +71,8 @@ See `summarize_network`.
 
 ## See also
 
-[`cluster_summary`](http://sonsoles.me/cograph/reference/cluster_summary.md),
-[`plot_mcml`](http://sonsoles.me/cograph/reference/plot_mcml.md)
+[`cluster_summary`](https://sonsoles.me/cograph/reference/cluster_summary.md),
+[`plot_mcml`](https://sonsoles.me/cograph/reference/plot_mcml.md)
 
 ## Examples
 

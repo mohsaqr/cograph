@@ -1,13 +1,13 @@
 # Migrating from qgraph to splot
 
 This guide introduces
-[`splot()`](http://sonsoles.me/cograph/reference/splot.md), the main
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md), the main
 plotting function in `cograph`, and helps `qgraph` users transition to
 it.
 
 ## About splot
 
-[`splot()`](http://sonsoles.me/cograph/reference/splot.md) is the
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md) is the
 primary plotting engine of `cograph`. It renders network graphs using
 base R graphics and is designed to work across a wide range of use
 cases: transition networks from learning analytics, correlation networks
@@ -29,7 +29,7 @@ manuscript figure.
 ### Naming conventions
 
 One of the deliberate choices in
-[`splot()`](http://sonsoles.me/cograph/reference/splot.md) is a
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md) is a
 consistent, predictable parameter naming system. Every parameter is
 prefixed by the element it controls – `node_`, `edge_`, `label_`,
 `donut_`, `pie_`, `edge_label_`, `edge_ci_` – followed by the property:
@@ -47,7 +47,7 @@ individually.
 
 Network plots in research often need to communicate uncertainty and
 significance alongside the graph structure itself.
-[`splot()`](http://sonsoles.me/cograph/reference/splot.md) treats this
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md) treats this
 as a first-class concern rather than an afterthought. Edges can carry
 confidence interval underlays (`edge_ci`) – semi-transparent bands
 behind each edge whose width reflects the uncertainty of the estimate.
@@ -57,21 +57,21 @@ placeholders like `{est}`, [stars](https://r-spatial.github.io/stars/),
 of CI bounds and p-values that you supply. Significance stars are
 computed automatically from p-values when `edge_label_stars = TRUE`.
 These features mean that a single
-[`splot()`](http://sonsoles.me/cograph/reference/splot.md) call can
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md) call can
 produce a network where every edge shows its weight, its significance
 level, and its confidence interval – information that would otherwise
 require post-processing or manual annotation.
 
 ### Inputs and compatibility
 
-[`splot()`](http://sonsoles.me/cograph/reference/splot.md) accepts
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md) accepts
 square adjacency matrices, data frames with edge lists (from, to, weight
 columns), igraph objects, cograph network objects, tna objects, and
 qgraph objects. For users migrating from `qgraph`, the
-[`from_qgraph()`](http://sonsoles.me/cograph/reference/from_qgraph.md)
+[`from_qgraph()`](https://sonsoles.me/cograph/reference/from_qgraph.md)
 function converts a fitted qgraph object into splot parameters, and
-[`tplot()`](http://sonsoles.me/cograph/reference/plot_tna.md) provides a
-wrapper that accepts qgraph-style parameter names (`vsize`,
+[`tplot()`](https://sonsoles.me/cograph/reference/plot_tna.md) provides
+a wrapper that accepts qgraph-style parameter names (`vsize`,
 `edge.labels`, `posCol`) for a smoother transition.
 
 ``` r
@@ -238,7 +238,7 @@ splot(mat, node_size = 9, donut_fill = fills, donut_color = "steelblue", title =
 
 ## Example 7: Using qgraph’s layout in splot
 
-[`splot()`](http://sonsoles.me/cograph/reference/splot.md) accepts a
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md) accepts a
 qgraph object’s layout matrix directly.
 
 ``` r
@@ -256,7 +256,7 @@ splot(mat, layout = q$layout, node_size = 9, title = "splot using qgraph layout"
 ## Example 8: Converting existing qgraph objects
 
 Use
-[`from_qgraph()`](http://sonsoles.me/cograph/reference/from_qgraph.md)
+[`from_qgraph()`](https://sonsoles.me/cograph/reference/from_qgraph.md)
 to convert a qgraph object directly.
 
 ``` r
@@ -284,7 +284,7 @@ do.call(splot, params)
 
 ## Example 10: tplot for qgraph-style parameter names
 
-[`tplot()`](http://sonsoles.me/cograph/reference/plot_tna.md) accepts
+[`tplot()`](https://sonsoles.me/cograph/reference/plot_tna.md) accepts
 qgraph-style parameter names like `vsize`, `edge.labels`, and `posCol`.
 
 ``` r

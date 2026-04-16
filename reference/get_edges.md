@@ -20,9 +20,9 @@ A data frame with columns: from, to, weight.
 
 ## See also
 
-[`as_cograph`](http://sonsoles.me/cograph/reference/as_cograph.md),
-[`n_edges`](http://sonsoles.me/cograph/reference/n_edges.md),
-[`get_nodes`](http://sonsoles.me/cograph/reference/get_nodes.md)
+[`as_cograph`](https://sonsoles.me/cograph/reference/as_cograph.md),
+[`n_edges`](https://sonsoles.me/cograph/reference/n_edges.md),
+[`get_nodes`](https://sonsoles.me/cograph/reference/get_nodes.md)
 
 ## Examples
 

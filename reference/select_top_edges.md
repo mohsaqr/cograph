@@ -53,8 +53,8 @@ A cograph_network with the top N edges.
 
 ## See also
 
-[`select_edges`](http://sonsoles.me/cograph/reference/select_edges.md),
-[`select_top`](http://sonsoles.me/cograph/reference/select_top.md)
+[`select_edges`](https://sonsoles.me/cograph/reference/select_edges.md),
+[`select_top`](https://sonsoles.me/cograph/reference/select_top.md)
 
 ## Examples
 

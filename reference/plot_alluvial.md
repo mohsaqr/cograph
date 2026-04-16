@@ -2,7 +2,7 @@
 
 Creates an alluvial (Sankey) diagram showing aggregated flows between
 states. This is an alias for
-[`plot_transitions()`](http://sonsoles.me/cograph/reference/plot_transitions.md)
+[`plot_transitions()`](https://sonsoles.me/cograph/reference/plot_transitions.md)
 with aggregated flows (default).
 
 ## Usage
@@ -254,8 +254,8 @@ A ggplot2 object.
 
 ## See also
 
-[`plot_transitions`](http://sonsoles.me/cograph/reference/plot_transitions.md),
-[`plot_trajectories`](http://sonsoles.me/cograph/reference/plot_trajectories.md)
+[`plot_transitions`](https://sonsoles.me/cograph/reference/plot_transitions.md),
+[`plot_trajectories`](https://sonsoles.me/cograph/reference/plot_trajectories.md)
 
 ## Examples
 

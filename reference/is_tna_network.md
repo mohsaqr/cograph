@@ -22,7 +22,7 @@ otherwise.
 
 ## See also
 
-[`as_cograph`](http://sonsoles.me/cograph/reference/as_cograph.md)
+[`as_cograph`](https://sonsoles.me/cograph/reference/as_cograph.md)
 
 ## Examples
 

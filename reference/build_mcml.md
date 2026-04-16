@@ -3,7 +3,7 @@
 Builds a Multi-Cluster Multi-Level (MCML) model from raw transition data
 (edge lists or sequences) by recoding node labels to cluster labels and
 counting actual transitions. Unlike
-[`cluster_summary`](http://sonsoles.me/cograph/reference/cluster_summary.md)
+[`cluster_summary`](https://sonsoles.me/cograph/reference/cluster_summary.md)
 which aggregates a pre-computed weight matrix, this function works from
 the original transition data to produce the TRUE Markov chain over
 cluster states.
@@ -42,13 +42,13 @@ build_mcml(
 
   :   If `x$data` is non-NULL, uses sequence path on the raw data.
       Otherwise falls back to
-      [`cluster_summary`](http://sonsoles.me/cograph/reference/cluster_summary.md).
+      [`cluster_summary`](https://sonsoles.me/cograph/reference/cluster_summary.md).
 
   cograph_network
 
   :   If `x$data` is non-NULL, detects edge list vs sequence data.
       Otherwise falls back to
-      [`cluster_summary`](http://sonsoles.me/cograph/reference/cluster_summary.md).
+      [`cluster_summary`](https://sonsoles.me/cograph/reference/cluster_summary.md).
 
   cluster_summary
 
@@ -57,7 +57,7 @@ build_mcml(
   square numeric matrix
 
   :   Falls back to
-      [`cluster_summary`](http://sonsoles.me/cograph/reference/cluster_summary.md).
+      [`cluster_summary`](https://sonsoles.me/cograph/reference/cluster_summary.md).
 
   non-square or character matrix
 
@@ -94,7 +94,7 @@ build_mcml(
 
   :   Auto-detect from `cograph_network$nodes` or `$node_groups` (same
       logic as
-      [`cluster_summary`](http://sonsoles.me/cograph/reference/cluster_summary.md)).
+      [`cluster_summary`](https://sonsoles.me/cograph/reference/cluster_summary.md)).
 
 - method:
 
@@ -118,17 +118,17 @@ build_mcml(
 
 A `cluster_summary` object with `meta$source = "transitions"`, fully
 compatible with
-[`plot_mcml`](http://sonsoles.me/cograph/reference/plot_mcml.md),
-[`as_tna`](http://sonsoles.me/cograph/reference/as_tna.md), and
-[`splot`](http://sonsoles.me/cograph/reference/splot.md).
+[`plot_mcml`](https://sonsoles.me/cograph/reference/plot_mcml.md),
+[`as_tna`](https://sonsoles.me/cograph/reference/as_tna.md), and
+[`splot`](https://sonsoles.me/cograph/reference/splot.md).
 
 ## See also
 
-[`cluster_summary`](http://sonsoles.me/cograph/reference/cluster_summary.md)
+[`cluster_summary`](https://sonsoles.me/cograph/reference/cluster_summary.md)
 for matrix-based aggregation,
-[`as_tna`](http://sonsoles.me/cograph/reference/as_tna.md) to convert to
-tna objects,
-[`plot_mcml`](http://sonsoles.me/cograph/reference/plot_mcml.md) for
+[`as_tna`](https://sonsoles.me/cograph/reference/as_tna.md) to convert
+to tna objects,
+[`plot_mcml`](https://sonsoles.me/cograph/reference/plot_mcml.md) for
 visualization
 
 ## Examples

@@ -5,11 +5,11 @@
 cograph provides two functions for visualizing community structure and
 higher-order relationships in networks:
 
-- **[`overlay_communities()`](http://sonsoles.me/cograph/reference/overlay_communities.md)**
+- **[`overlay_communities()`](https://sonsoles.me/cograph/reference/overlay_communities.md)**
   — renders a network with
-  [`splot()`](http://sonsoles.me/cograph/reference/splot.md) and
+  [`splot()`](https://sonsoles.me/cograph/reference/splot.md) and
   overlays smooth blob shapes highlighting communities
-- **[`plot_simplicial()`](http://sonsoles.me/cograph/reference/plot_simplicial.md)**
+- **[`plot_simplicial()`](https://sonsoles.me/cograph/reference/plot_simplicial.md)**
   — visualizes higher-order pathways (simplicial complexes) as blobs on
   a ggplot2 canvas
 
@@ -97,7 +97,7 @@ overlay_communities(model, list(
 
 ## 3 plot_simplicial()
 
-[`plot_simplicial()`](http://sonsoles.me/cograph/reference/plot_simplicial.md)
+[`plot_simplicial()`](https://sonsoles.me/cograph/reference/plot_simplicial.md)
 visualizes higher-order pathways as smooth blob shapes over a network
 layout. Source nodes appear in blue, target nodes in red.
 
@@ -118,7 +118,7 @@ plot_simplicial(model, c(
 ### 3.2 Auto-Built from HON
 
 When given a `netobject` (from Nestimate),
-[`plot_simplicial()`](http://sonsoles.me/cograph/reference/plot_simplicial.md)
+[`plot_simplicial()`](https://sonsoles.me/cograph/reference/plot_simplicial.md)
 automatically builds a Higher-Order Network and extracts the most
 frequent pathways where sequential context changes the transition
 distribution:

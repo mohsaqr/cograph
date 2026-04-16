@@ -64,8 +64,8 @@ The input `mcml` object unchanged.
 
 ## See also
 
-[`build_mcml`](http://sonsoles.me/cograph/reference/build_mcml.md),
-[`as_tna`](http://sonsoles.me/cograph/reference/as_tna.md)
+[`build_mcml`](https://sonsoles.me/cograph/reference/build_mcml.md),
+[`as_tna`](https://sonsoles.me/cograph/reference/as_tna.md)
 
 ## Examples
 

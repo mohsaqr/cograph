@@ -91,7 +91,7 @@ mtna(
 
   Community detection method to use for auto-clustering. If specified,
   overrides `cluster_list`. See
-  [`detect_communities`](http://sonsoles.me/cograph/reference/detect_communities.md)
+  [`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md)
   for available methods: "louvain", "walktrap", "fast_greedy",
   "label_prop", "infomap", "leiden".
 
@@ -224,8 +224,8 @@ See `plot_mtna`.
 
 ## See also
 
-[`cluster_summary`](http://sonsoles.me/cograph/reference/cluster_summary.md),
-[`plot_mcml`](http://sonsoles.me/cograph/reference/plot_mcml.md)
+[`cluster_summary`](https://sonsoles.me/cograph/reference/cluster_summary.md),
+[`plot_mcml`](https://sonsoles.me/cograph/reference/plot_mcml.md)
 
 ## Examples
 

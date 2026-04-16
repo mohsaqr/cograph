@@ -67,9 +67,9 @@ The modified cograph_network object with `node_groups` set.
 
 ## See also
 
-[`get_groups`](http://sonsoles.me/cograph/reference/get_groups.md),
-[`splot`](http://sonsoles.me/cograph/reference/splot.md),
-[`detect_communities`](http://sonsoles.me/cograph/reference/detect_communities.md)
+[`get_groups`](https://sonsoles.me/cograph/reference/get_groups.md),
+[`splot`](https://sonsoles.me/cograph/reference/splot.md),
+[`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md)
 
 ## Examples
 

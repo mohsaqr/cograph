@@ -42,7 +42,7 @@ csum(
 
   :   A cograph network object. The function extracts the weight matrix
       from `x$weights` or converts via
-      [`to_matrix()`](http://sonsoles.me/cograph/reference/to_matrix.md).
+      [`to_matrix()`](https://sonsoles.me/cograph/reference/to_matrix.md).
       Clusters can be auto-detected from node attributes.
 
   tna
@@ -241,7 +241,7 @@ See `cluster_summary`.
 ## Details
 
 This is the core function for Multi-Cluster Multi-Level (MCML) analysis.
-Use [`as_tna`](http://sonsoles.me/cograph/reference/as_tna.md) to
+Use [`as_tna`](https://sonsoles.me/cograph/reference/as_tna.md) to
 convert results to tna objects for further analysis with the tna
 package.
 
@@ -288,11 +288,11 @@ When `type = "tna"`, rows sum to 1 and diagonal values represent
 
 ## See also
 
-[`as_tna`](http://sonsoles.me/cograph/reference/as_tna.md) to convert
+[`as_tna`](https://sonsoles.me/cograph/reference/as_tna.md) to convert
 results to tna objects,
-[`plot_mcml`](http://sonsoles.me/cograph/reference/plot_mcml.md) for
+[`plot_mcml`](https://sonsoles.me/cograph/reference/plot_mcml.md) for
 two-layer visualization,
-[`plot_mtna`](http://sonsoles.me/cograph/reference/plot_mtna.md) for
+[`plot_mtna`](https://sonsoles.me/cograph/reference/plot_mtna.md) for
 flat cluster visualization
 
 ## Examples
@@ -311,17 +311,17 @@ cs <- cluster_summary(mat, clusters)
 # Access results
 cs$macro$weights      # 3x3 cluster transition matrix
 #>           1         2         3
-#> 1 0.3366383 0.2347985 0.4285632
-#> 2 0.3655099 0.2411429 0.3933472
-#> 3 0.3660335 0.3509782 0.2829883
+#> 1 0.1964181 0.3279387 0.4756432
+#> 2 0.3528529 0.2071632 0.4399840
+#> 3 0.4007112 0.2852755 0.3140132
 cs$macro$inits        # Initial distribution
 #>         1         2         3 
-#> 0.3568830 0.2818811 0.3612360 
+#> 0.3292234 0.2722620 0.3985146 
 cs$clusters$`1`$weights # Per-cluster 1 transitions
 #>           A         B         C
-#> A 0.0000000 0.7121904 0.2878096
-#> B 0.4894592 0.0000000 0.5105408
-#> C 0.3801790 0.6198210 0.0000000
+#> A 0.0000000 0.6112796 0.3887204
+#> B 0.1373268 0.0000000 0.8626732
+#> C 0.5593251 0.4406749 0.0000000
 cs$meta               # Metadata
 #> $type
 #> [1] "tna"
@@ -354,9 +354,9 @@ clusters <- list(
 cs <- cluster_summary(mat, clusters, type = "tna")
 cs$macro$weights      # Rows/cols named Alpha, Beta, Gamma
 #>           Alpha      Beta     Gamma
-#> Alpha 0.3366383 0.2347985 0.4285632
-#> Beta  0.3655099 0.2411429 0.3933472
-#> Gamma 0.3660335 0.3509782 0.2829883
+#> Alpha 0.1964181 0.3279387 0.4756432
+#> Beta  0.3528529 0.2071632 0.4399840
+#> Gamma 0.4007112 0.2852755 0.3140132
 cs$clusters$Alpha     # Per-cluster Alpha network
 #> State Labels : 
 #> 
@@ -365,14 +365,14 @@ cs$clusters$Alpha     # Per-cluster Alpha network
 #> Transition Probability Matrix :
 #> 
 #>           A         B         C
-#> A 0.0000000 0.7121904 0.2878096
-#> B 0.4894592 0.0000000 0.5105408
-#> C 0.3801790 0.6198210 0.0000000
+#> A 0.0000000 0.6112796 0.3887204
+#> B 0.1373268 0.0000000 0.8626732
+#> C 0.5593251 0.4406749 0.0000000
 #> 
 #> Initial Probabilities : 
 #> 
 #>         A         B         C 
-#> 0.3104710 0.4060737 0.2834553 
+#> 0.1924703 0.4937726 0.3137572 
 
 # -----------------------------------------------------
 # Auto-detect clusters from cograph_network
@@ -396,7 +396,7 @@ cs_tna <- cluster_summary(mat, clusters, type = "tna")
 
 rowSums(cs_raw$macro$weights)  # Various sums
 #>    Alpha     Beta    Gamma 
-#> 13.35885 13.34710 16.97183 
+#> 12.52907 14.41604 18.51063 
 rowSums(cs_tna$macro$weights)  # All equal to 1
 #> Alpha  Beta Gamma 
 #>     1     1     1 

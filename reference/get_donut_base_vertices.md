@@ -1,6 +1,7 @@
 # Get Polygon Vertices by Shape Name
 
-Returns outer polygon vertices for donut ring shapes.
+Returns outer polygon vertices for donut ring shapes. Non-circle shapes
+are subdivided so that fill proportions are accurate.
 
 ## Usage
 

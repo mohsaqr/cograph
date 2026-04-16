@@ -77,14 +77,15 @@ like "layout_with_kk".
 
 ## See also
 
-[`cograph`](http://sonsoles.me/cograph/reference/cograph.md) for network
-creation, [`sn_nodes`](http://sonsoles.me/cograph/reference/sn_nodes.md)
-for node customization,
-[`sn_edges`](http://sonsoles.me/cograph/reference/sn_edges.md) for edge
+[`cograph`](https://sonsoles.me/cograph/reference/cograph.md) for
+network creation,
+[`sn_nodes`](https://sonsoles.me/cograph/reference/sn_nodes.md) for node
 customization,
-[`sn_theme`](http://sonsoles.me/cograph/reference/sn_theme.md) for
-visual themes, [`splot`](http://sonsoles.me/cograph/reference/splot.md)
-and [`soplot`](http://sonsoles.me/cograph/reference/soplot.md) for
+[`sn_edges`](https://sonsoles.me/cograph/reference/sn_edges.md) for edge
+customization,
+[`sn_theme`](https://sonsoles.me/cograph/reference/sn_theme.md) for
+visual themes, [`splot`](https://sonsoles.me/cograph/reference/splot.md)
+and [`soplot`](https://sonsoles.me/cograph/reference/soplot.md) for
 plotting
 
 ## Examples

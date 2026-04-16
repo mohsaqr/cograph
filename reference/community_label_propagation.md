@@ -56,14 +56,14 @@ com_lp(
 - ...:
 
   Additional arguments passed to
-  [`to_igraph`](http://sonsoles.me/cograph/reference/to_igraph.md)
+  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
 
 ## Value
 
 A `cograph_communities` object
 
 A `cograph_communities` object. See
-[`detect_communities`](http://sonsoles.me/cograph/reference/detect_communities.md).
+[`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md).
 
 ## References
 
@@ -91,8 +91,13 @@ if (requireNamespace("igraph", quietly = TRUE)) {
 net <- as_cograph(matrix(runif(25), 5, 5))
 com_lp(net)
 #> Community structure (label_propagation)
-#>   Number of communities: 1 
-#>   Modularity: 0 
-#>   Community sizes: 5 
-#>   Nodes: 5 
+#>   Nodes: 5  | Communities: 1  | Modularity: 0 
+#>   Sizes: 5 
+#> 
+#>  node community
+#>     1         1
+#>     2         1
+#>     3         1
+#>     4         1
+#>     5         1
 ```

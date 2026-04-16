@@ -5,5 +5,5 @@ Wrap igraph communities result
 ## Usage
 
 ``` r
-.wrap_communities(result, algorithm, g)
+.wrap_communities(result, algorithm, g, network = NULL)
 ```

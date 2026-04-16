@@ -84,10 +84,10 @@ The simplified network in the same format as the input.
 
 ## See also
 
-[`filter_edges`](http://sonsoles.me/cograph/reference/filter_edges.md)
+[`filter_edges`](https://sonsoles.me/cograph/reference/filter_edges.md)
 for conditional edge removal,
-[`centrality`](http://sonsoles.me/cograph/reference/centrality.md) which
-has its own `simplify` parameter
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md)
+which has its own `simplify` parameter
 
 ## Examples
 

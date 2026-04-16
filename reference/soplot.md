@@ -563,7 +563,7 @@ Invisible NULL. Called for side effect of drawing.
 ### soplot vs splot
 
 `soplot()` uses grid graphics while
-[`splot()`](http://sonsoles.me/cograph/reference/splot.md) uses base R
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md) uses base R
 graphics. Both accept the same parameters and produce visually similar
 output. Choose based on:
 
@@ -633,20 +633,20 @@ nodes:
 
 ## See also
 
-[`splot`](http://sonsoles.me/cograph/reference/splot.md) for base R
+[`splot`](https://sonsoles.me/cograph/reference/splot.md) for base R
 graphics rendering (alternative engine),
-[`cograph`](http://sonsoles.me/cograph/reference/cograph.md) for
+[`cograph`](https://sonsoles.me/cograph/reference/cograph.md) for
 creating network objects,
-[`sn_nodes`](http://sonsoles.me/cograph/reference/sn_nodes.md) for node
+[`sn_nodes`](https://sonsoles.me/cograph/reference/sn_nodes.md) for node
 customization,
-[`sn_edges`](http://sonsoles.me/cograph/reference/sn_edges.md) for edge
+[`sn_edges`](https://sonsoles.me/cograph/reference/sn_edges.md) for edge
 customization,
-[`sn_layout`](http://sonsoles.me/cograph/reference/sn_layout.md) for
+[`sn_layout`](https://sonsoles.me/cograph/reference/sn_layout.md) for
 layout algorithms,
-[`sn_theme`](http://sonsoles.me/cograph/reference/sn_theme.md) for
+[`sn_theme`](https://sonsoles.me/cograph/reference/sn_theme.md) for
 visual themes,
-[`from_qgraph`](http://sonsoles.me/cograph/reference/from_qgraph.md) and
-[`from_tna`](http://sonsoles.me/cograph/reference/from_tna.md) for
+[`from_qgraph`](https://sonsoles.me/cograph/reference/from_qgraph.md)
+and [`from_tna`](https://sonsoles.me/cograph/reference/from_tna.md) for
 converting external objects
 
 ## Examples

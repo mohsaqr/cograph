@@ -2,7 +2,7 @@
 
 Extracts the nodes data frame from a cograph_network object.
 **Deprecated**: Use
-[`get_nodes`](http://sonsoles.me/cograph/reference/get_nodes.md)
+[`get_nodes`](https://sonsoles.me/cograph/reference/get_nodes.md)
 instead.
 
 ## Usage
@@ -23,9 +23,9 @@ A data frame with columns: id, label, name, x, y (and possibly others).
 
 ## See also
 
-[`get_nodes`](http://sonsoles.me/cograph/reference/get_nodes.md),
-[`as_cograph`](http://sonsoles.me/cograph/reference/as_cograph.md),
-[`n_nodes`](http://sonsoles.me/cograph/reference/n_nodes.md)
+[`get_nodes`](https://sonsoles.me/cograph/reference/get_nodes.md),
+[`as_cograph`](https://sonsoles.me/cograph/reference/as_cograph.md),
+[`n_nodes`](https://sonsoles.me/cograph/reference/n_nodes.md)
 
 ## Examples
 

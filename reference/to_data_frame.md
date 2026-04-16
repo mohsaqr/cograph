@@ -36,8 +36,8 @@ A data frame with columns:
 ## See also
 
 `to_df`,
-[`to_igraph`](http://sonsoles.me/cograph/reference/to_igraph.md),
-[`as_cograph`](http://sonsoles.me/cograph/reference/as_cograph.md)
+[`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md),
+[`as_cograph`](https://sonsoles.me/cograph/reference/as_cograph.md)
 
 ## Examples
 

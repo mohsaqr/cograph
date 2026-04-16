@@ -24,10 +24,10 @@ A square numeric adjacency matrix with row/column names.
 
 ## See also
 
-[`to_igraph`](http://sonsoles.me/cograph/reference/to_igraph.md),
-[`to_df`](http://sonsoles.me/cograph/reference/to_data_frame.md),
-[`as_cograph`](http://sonsoles.me/cograph/reference/as_cograph.md),
-[`to_network`](http://sonsoles.me/cograph/reference/to_network.md)
+[`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md),
+[`to_df`](https://sonsoles.me/cograph/reference/to_data_frame.md),
+[`as_cograph`](https://sonsoles.me/cograph/reference/as_cograph.md),
+[`to_network`](https://sonsoles.me/cograph/reference/to_network.md)
 
 ## Examples
 

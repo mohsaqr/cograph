@@ -19,7 +19,7 @@ centrality_current_flow_closeness(x, ...)
 - ...:
 
   Additional arguments passed to
-  [`centrality`](http://sonsoles.me/cograph/reference/centrality.md)
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md)
   (e.g., `weighted`, `directed`).
 
 ## Value
@@ -28,9 +28,9 @@ Named numeric vector of current flow closeness values.
 
 ## See also
 
-[`centrality`](http://sonsoles.me/cograph/reference/centrality.md) for
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
 computing multiple measures at once,
-[`centrality_closeness`](http://sonsoles.me/cograph/reference/centrality_closeness.md)
+[`centrality_closeness`](https://sonsoles.me/cograph/reference/centrality_closeness.md)
 for the shortest-path variant.
 
 ## Examples

@@ -1,4 +1,4 @@
-# Examples
+# Advanced examples
 
 ## Group Regulation Network
 

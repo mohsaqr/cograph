@@ -69,12 +69,12 @@ A data frame with columns:
 ## Details
 
 This function complements
-[`motif_census()`](http://sonsoles.me/cograph/reference/motif_census.md)
+[`motif_census()`](https://sonsoles.me/cograph/reference/motif_census.md)
 by showing the actual node combinations that form each motif pattern. A
 typical workflow is:
 
 1.  Use
-    [`motif_census()`](http://sonsoles.me/cograph/reference/motif_census.md)
+    [`motif_census()`](https://sonsoles.me/cograph/reference/motif_census.md)
     to identify over/under-represented patterns
 
 2.  Use `extract_triads()` with `type` filter to see which nodes form
@@ -91,20 +91,20 @@ typical workflow is:
 
 ## See also
 
-[`motifs()`](http://sonsoles.me/cograph/reference/motifs.md),
-[`subgraphs()`](http://sonsoles.me/cograph/reference/subgraphs.md),
-[`motif_census()`](http://sonsoles.me/cograph/reference/motif_census.md),
-[`extract_motifs()`](http://sonsoles.me/cograph/reference/extract_motifs.md)
+[`motifs()`](https://sonsoles.me/cograph/reference/motifs.md),
+[`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md),
+[`motif_census()`](https://sonsoles.me/cograph/reference/motif_census.md),
+[`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md)
 
 Other motifs:
-[`extract_motifs()`](http://sonsoles.me/cograph/reference/extract_motifs.md),
-[`get_edge_list()`](http://sonsoles.me/cograph/reference/get_edge_list.md),
-[`motif_census()`](http://sonsoles.me/cograph/reference/motif_census.md),
-[`motifs()`](http://sonsoles.me/cograph/reference/motifs.md),
-[`plot.cograph_motif_analysis()`](http://sonsoles.me/cograph/reference/plot.cograph_motif_analysis.md),
-[`plot.cograph_motifs()`](http://sonsoles.me/cograph/reference/plot.cograph_motifs.md),
-[`subgraphs()`](http://sonsoles.me/cograph/reference/subgraphs.md),
-[`triad_census()`](http://sonsoles.me/cograph/reference/triad_census.md)
+[`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md),
+[`get_edge_list()`](https://sonsoles.me/cograph/reference/get_edge_list.md),
+[`motif_census()`](https://sonsoles.me/cograph/reference/motif_census.md),
+[`motifs()`](https://sonsoles.me/cograph/reference/motifs.md),
+[`plot.cograph_motif_analysis()`](https://sonsoles.me/cograph/reference/plot.cograph_motif_analysis.md),
+[`plot.cograph_motifs()`](https://sonsoles.me/cograph/reference/plot.cograph_motifs.md),
+[`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md),
+[`triad_census()`](https://sonsoles.me/cograph/reference/triad_census.md)
 
 ## Examples
 

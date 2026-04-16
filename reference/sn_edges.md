@@ -367,14 +367,16 @@ Visualize uncertainty by drawing a wider, semi-transparent edge behind:
 
 ## See also
 
-[`sn_nodes`](http://sonsoles.me/cograph/reference/sn_nodes.md) for node
+[`sn_nodes`](https://sonsoles.me/cograph/reference/sn_nodes.md) for node
 customization,
-[`cograph`](http://sonsoles.me/cograph/reference/cograph.md) for network
-creation, [`splot`](http://sonsoles.me/cograph/reference/splot.md) and
-[`soplot`](http://sonsoles.me/cograph/reference/soplot.md) for plotting,
-[`sn_layout`](http://sonsoles.me/cograph/reference/sn_layout.md) for
+[`cograph`](https://sonsoles.me/cograph/reference/cograph.md) for
+network creation,
+[`splot`](https://sonsoles.me/cograph/reference/splot.md) and
+[`soplot`](https://sonsoles.me/cograph/reference/soplot.md) for
+plotting,
+[`sn_layout`](https://sonsoles.me/cograph/reference/sn_layout.md) for
 layout algorithms,
-[`sn_theme`](http://sonsoles.me/cograph/reference/sn_theme.md) for
+[`sn_theme`](https://sonsoles.me/cograph/reference/sn_theme.md) for
 visual themes
 
 ## Examples

@@ -25,8 +25,8 @@ columns:
 
 ## See also
 
-[`set_groups`](http://sonsoles.me/cograph/reference/set_groups.md),
-[`splot`](http://sonsoles.me/cograph/reference/splot.md)
+[`set_groups`](https://sonsoles.me/cograph/reference/set_groups.md),
+[`splot`](https://sonsoles.me/cograph/reference/splot.md)
 
 ## Examples
 

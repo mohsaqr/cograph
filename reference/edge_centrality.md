@@ -32,7 +32,8 @@ edge_betweenness(x, ...)
 - measures:
 
   Which measures to calculate. Default "all" calculates all available
-  edge measures. Options: "betweenness", "weight".
+  edge measures. Options: "betweenness", "weight", "overlap",
+  "simmelian", "reciprocity".
 
 - weighted:
 
@@ -67,34 +68,39 @@ edge_betweenness(x, ...)
 - ...:
 
   Additional arguments passed to
-  [`to_igraph`](http://sonsoles.me/cograph/reference/to_igraph.md)
+  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
 
 ## Value
 
-A data frame with columns:
-
-- `from`: Source node label
-
-- `to`: Target node label
-
-- `weight`: Edge weight (if weighted)
-
-- `betweenness`: Edge betweenness centrality
+A data frame with columns `from`, `to`, and one column per requested
+measure.
 
 Named numeric vector of edge betweenness values (named by `"from->to"`).
 
 ## Details
 
-Edge centrality measures available:
+Edge measures available:
 
 - betweenness:
 
-  Number of shortest paths passing through the edge. Edges with high
-  betweenness are bridges connecting different parts of the network.
+  Number of shortest paths passing through the edge.
 
 - weight:
 
-  Original edge weight (included for reference)
+  Original edge weight.
+
+- overlap:
+
+  Jaccard neighborhood overlap of edge endpoints.
+
+- simmelian:
+
+  Number of triangles the edge participates in.
+
+- reciprocity:
+
+  Whether the reverse edge exists (directed only). Adds columns:
+  `reciprocated`, `reverse_weight`, `weight_ratio`.
 
 ## Examples
 
@@ -105,11 +111,11 @@ rownames(mat) <- colnames(mat) <- c("A", "B", "C", "D")
 
 # All edge measures
 edge_centrality(mat)
-#>   from to weight betweenness
-#> 1    A  B      1           2
-#> 2    A  C      1           1
-#> 3    B  C      1           2
-#> 4    B  D      1           3
+#>   from to weight betweenness overlap shared_neighbors triangles
+#> 1    A  B      1           2     0.5                1         1
+#> 2    A  C      1           1     1.0                1         1
+#> 3    B  C      1           2     0.5                1         1
+#> 4    B  D      1           3     0.0                0         0
 
 # Just betweenness
 edge_centrality(mat, measures = "betweenness")
@@ -121,11 +127,11 @@ edge_centrality(mat, measures = "betweenness")
 
 # Sort by betweenness to find bridge edges
 edge_centrality(mat, sort_by = "betweenness")
-#>   from to weight betweenness
-#> 1    B  D      1           3
-#> 2    A  B      1           2
-#> 3    B  C      1           2
-#> 4    A  C      1           1
+#>   from to weight betweenness overlap shared_neighbors triangles
+#> 1    B  D      1           3     0.0                0         0
+#> 2    A  B      1           2     0.5                1         1
+#> 3    B  C      1           2     0.5                1         1
+#> 4    A  C      1           1     1.0                1         1
 mat <- matrix(c(0,1,1,0, 1,0,1,1, 1,1,0,0, 0,1,0,0), 4, 4)
 rownames(mat) <- colnames(mat) <- c("A", "B", "C", "D")
 edge_betweenness(mat)

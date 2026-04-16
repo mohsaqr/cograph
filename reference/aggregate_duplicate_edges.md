@@ -6,7 +6,7 @@ function (sum, mean, max, min, or first).
 ## Usage
 
 ``` r
-aggregate_duplicate_edges(edges, method = "mean")
+aggregate_duplicate_edges(edges, method = "mean", directed = FALSE)
 ```
 
 ## Arguments
@@ -60,5 +60,5 @@ undirected networks), ensuring consistent from/to assignment.
 
 ## See also
 
-[`detect_duplicate_edges`](http://sonsoles.me/cograph/reference/detect_duplicate_edges.md)
+[`detect_duplicate_edges`](https://sonsoles.me/cograph/reference/detect_duplicate_edges.md)
 for identifying duplicates before aggregation

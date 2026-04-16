@@ -3,7 +3,7 @@
 **\[deprecated\]**
 
 Use
-[`cluster_summary`](http://sonsoles.me/cograph/reference/cluster_summary.md)
+[`cluster_summary`](https://sonsoles.me/cograph/reference/cluster_summary.md)
 instead. This function is provided for backward compatibility only.
 
 ## Usage

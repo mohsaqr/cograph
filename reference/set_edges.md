@@ -25,9 +25,9 @@ The modified cograph_network object.
 
 ## See also
 
-[`as_cograph`](http://sonsoles.me/cograph/reference/as_cograph.md),
-[`get_edges`](http://sonsoles.me/cograph/reference/get_edges.md),
-[`set_nodes`](http://sonsoles.me/cograph/reference/set_nodes.md)
+[`as_cograph`](https://sonsoles.me/cograph/reference/as_cograph.md),
+[`get_edges`](https://sonsoles.me/cograph/reference/get_edges.md),
+[`set_nodes`](https://sonsoles.me/cograph/reference/set_nodes.md)
 
 ## Examples
 

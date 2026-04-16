@@ -25,7 +25,7 @@ as_tna(x)
 - x:
 
   A `cluster_summary` object created by
-  [`cluster_summary`](http://sonsoles.me/cograph/reference/cluster_summary.md).
+  [`cluster_summary`](https://sonsoles.me/cograph/reference/cluster_summary.md).
   The cluster_summary should typically be created with `type = "tna"` to
   ensure row-normalized transition probabilities. If created with
   `type = "raw"`, the raw counts will be passed to
@@ -101,9 +101,9 @@ still includes all clusters.
 
 ## See also
 
-[`cluster_summary`](http://sonsoles.me/cograph/reference/cluster_summary.md)
+[`cluster_summary`](https://sonsoles.me/cograph/reference/cluster_summary.md)
 to create the input object,
-[`plot_mcml`](http://sonsoles.me/cograph/reference/plot_mcml.md) for
+[`plot_mcml`](https://sonsoles.me/cograph/reference/plot_mcml.md) for
 visualization without conversion,
 [`tna::tna`](http://sonsoles.me/tna/reference/build_model.md) for the
 underlying tna constructor
@@ -250,26 +250,25 @@ tna_models$G1$weights      # 2x2 matrix (A, B)
 #> B 1 0
 
 # -----------------------------------------------------
-# Use with tna package (requires tna)
+# Plot via cograph's own renderer — avoids tna's plot dispatch,
+# which pulls in `cluster` for layout and breaks
+# `_R_CHECK_DEPENDS_ONLY_=TRUE` CRAN checks.
 # -----------------------------------------------------
-if (requireNamespace("tna", quietly = TRUE)) {
-  # Plot
-  plot(tna_models$macro)
-  plot(tna_models$G1)
+splot(tna_models$macro)
 
-  # Centrality analysis
+splot(tna_models$G1)
+
+
+# -----------------------------------------------------
+# Centrality analysis via tna (optional dependency)
+# -----------------------------------------------------
+if (FALSE) { # \dontrun{
+if (requireNamespace("tna", quietly = TRUE)) {
   tna::centralities(tna_models$macro)
   tna::centralities(tna_models$G1)
   tna::centralities(tna_models$G2)
 }
-
-
-#> # A tibble: 2 × 10
-#>   state OutStrength InStrength ClosenessIn ClosenessOut Closeness Betweenness
-#> * <fct>       <dbl>      <dbl>       <dbl>        <dbl>     <dbl>       <dbl>
-#> 1 C               1          1           1            1         1           0
-#> 2 D               1          1           1            1         1           0
-#> # ℹ 3 more variables: BetweennessRSP <dbl>, Diffusion <dbl>, Clustering <dbl>
+} # }
 
 if (FALSE) { # \dontrun{
 # Bootstrap requires a tna object built from raw sequence data (has $data)

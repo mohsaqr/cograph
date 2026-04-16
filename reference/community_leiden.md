@@ -75,14 +75,14 @@ com_ld(
 - ...:
 
   Additional arguments passed to
-  [`to_igraph`](http://sonsoles.me/cograph/reference/to_igraph.md)
+  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
 
 ## Value
 
 A `cograph_communities` object
 
 A `cograph_communities` object. See
-[`detect_communities`](http://sonsoles.me/cograph/reference/detect_communities.md).
+[`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md).
 
 ## References
 

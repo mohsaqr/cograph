@@ -11,7 +11,7 @@ from_tna(
   tna_object,
   engine = c("splot", "soplot"),
   plot = TRUE,
-  weight_digits = 2,
+  weight_digits = NULL,
   show_zero_edges = FALSE,
   ...
 )
@@ -51,8 +51,8 @@ from_tna(
 ## Value
 
 Invisibly, a named list of cograph parameters that can be passed to
-[`splot()`](http://sonsoles.me/cograph/reference/splot.md) or
-[`soplot()`](http://sonsoles.me/cograph/reference/soplot.md).
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md) or
+[`soplot()`](https://sonsoles.me/cograph/reference/soplot.md).
 
 ## Details
 
@@ -106,13 +106,13 @@ overridden via `...`):
 
 ## See also
 
-[`cograph`](http://sonsoles.me/cograph/reference/cograph.md) for
+[`cograph`](https://sonsoles.me/cograph/reference/cograph.md) for
 creating networks from scratch,
-[`splot`](http://sonsoles.me/cograph/reference/splot.md) and
-[`soplot`](http://sonsoles.me/cograph/reference/soplot.md) for plotting
+[`splot`](https://sonsoles.me/cograph/reference/splot.md) and
+[`soplot`](https://sonsoles.me/cograph/reference/soplot.md) for plotting
 engines,
-[`from_qgraph`](http://sonsoles.me/cograph/reference/from_qgraph.md) for
-qgraph object conversion
+[`from_qgraph`](https://sonsoles.me/cograph/reference/from_qgraph.md)
+for qgraph object conversion
 
 ## Examples
 

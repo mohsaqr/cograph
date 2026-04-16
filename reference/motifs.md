@@ -6,7 +6,7 @@ Two modes of motif analysis for networks:
   frequencies with significance testing. Nodes are exchangeable.
 
 - **Instances** (`named_nodes = TRUE`, or use
-  [`subgraphs()`](http://sonsoles.me/cograph/reference/subgraphs.md)):
+  [`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md)):
   Lists specific node triples forming each pattern. Nodes are NOT
   exchangeable.
 
@@ -57,7 +57,7 @@ plot(
 
   Logical. If FALSE (default), performs census (type-level counts). If
   TRUE, extracts specific node triples (instance-level).
-  [`subgraphs()`](http://sonsoles.me/cograph/reference/subgraphs.md) is
+  [`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md) is
   a convenience wrapper that sets this to TRUE.
 
 - actor:
@@ -228,36 +228,61 @@ with metadata), performs per-group analysis. For aggregate inputs
 
 ## See also
 
-[`subgraphs()`](http://sonsoles.me/cograph/reference/subgraphs.md),
-[`motif_census()`](http://sonsoles.me/cograph/reference/motif_census.md),
-[`extract_motifs()`](http://sonsoles.me/cograph/reference/extract_motifs.md)
+[`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md),
+[`motif_census()`](https://sonsoles.me/cograph/reference/motif_census.md),
+[`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md)
 
 Other motifs:
-[`extract_motifs()`](http://sonsoles.me/cograph/reference/extract_motifs.md),
-[`extract_triads()`](http://sonsoles.me/cograph/reference/extract_triads.md),
-[`get_edge_list()`](http://sonsoles.me/cograph/reference/get_edge_list.md),
-[`motif_census()`](http://sonsoles.me/cograph/reference/motif_census.md),
-[`plot.cograph_motif_analysis()`](http://sonsoles.me/cograph/reference/plot.cograph_motif_analysis.md),
-[`plot.cograph_motifs()`](http://sonsoles.me/cograph/reference/plot.cograph_motifs.md),
-[`subgraphs()`](http://sonsoles.me/cograph/reference/subgraphs.md),
-[`triad_census()`](http://sonsoles.me/cograph/reference/triad_census.md)
+[`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md),
+[`extract_triads()`](https://sonsoles.me/cograph/reference/extract_triads.md),
+[`get_edge_list()`](https://sonsoles.me/cograph/reference/get_edge_list.md),
+[`motif_census()`](https://sonsoles.me/cograph/reference/motif_census.md),
+[`plot.cograph_motif_analysis()`](https://sonsoles.me/cograph/reference/plot.cograph_motif_analysis.md),
+[`plot.cograph_motifs()`](https://sonsoles.me/cograph/reference/plot.cograph_motifs.md),
+[`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md),
+[`triad_census()`](https://sonsoles.me/cograph/reference/triad_census.md)
 
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Census from a matrix
+# Census from a matrix (no significance test — fastest path)
 mat <- matrix(c(0,3,2,0, 0,0,5,1, 0,0,0,4, 2,0,0,0), 4, 4, byrow = TRUE)
 rownames(mat) <- colnames(mat) <- c("Plan","Execute","Monitor","Adapt")
 motifs(mat, significance = FALSE)
+#> Motif Census 
+#> Level: aggregate | States: 4 | Pattern: triangle 
+#> 
+#> Type distribution:
+#> 
+#> 030C 030T 
+#>    1    1 
+#> 
+#> Top 2 results:
+#>  type count
+#>  030C     2
+#>  030T     2
 
+# With a minimal significance test (set n_perm >= 500 in practice)
+motifs(mat, n_perm = 10L, seed = 1)
+#> Motif Census 
+#> Level: aggregate | States: 4 | Pattern: triangle 
+#> Significance: permutation (n_perm=10)
+#> 
+#> Type distribution:
+#> 
+#> 030C 030T 
+#>    1    1 
+#> 
+#> Top 2 results:
+#>  type count expected     z      p   sig
+#>  030C     2      0.2 -0.47 0.6353 FALSE
+#>  030T     2      0.0  0.00 1.0000 FALSE
+if (FALSE) { # \dontrun{
 if (requireNamespace("tna", quietly = TRUE)) {
-  # Census from tna object
+  # tna object input — keep n_perm small for example speed
   Mod <- tna::tna(tna::group_regulation)
-  motifs(Mod)
-
-  # Instances: specific node triples
-  subgraphs(Mod)
+  motifs(Mod, n_perm = 10L, seed = 1)
+  subgraphs(Mod, n_perm = 10L, seed = 1)
 }
 } # }
 ```

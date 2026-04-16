@@ -20,8 +20,8 @@ A character vector of node labels.
 
 ## See also
 
-[`as_cograph`](http://sonsoles.me/cograph/reference/as_cograph.md),
-[`get_nodes`](http://sonsoles.me/cograph/reference/get_nodes.md)
+[`as_cograph`](https://sonsoles.me/cograph/reference/as_cograph.md),
+[`get_nodes`](https://sonsoles.me/cograph/reference/get_nodes.md)
 
 ## Examples
 

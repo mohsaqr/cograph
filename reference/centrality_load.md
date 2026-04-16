@@ -18,7 +18,7 @@ centrality_load(x, ...)
 - ...:
 
   Additional arguments passed to
-  [`centrality`](http://sonsoles.me/cograph/reference/centrality.md)
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md)
   (e.g., `weighted`, `directed`).
 
 ## Value
@@ -27,9 +27,9 @@ Named numeric vector of load centrality values.
 
 ## See also
 
-[`centrality`](http://sonsoles.me/cograph/reference/centrality.md) for
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
 computing multiple measures at once,
-[`centrality_betweenness`](http://sonsoles.me/cograph/reference/centrality_betweenness.md)
+[`centrality_betweenness`](https://sonsoles.me/cograph/reference/centrality_betweenness.md)
 for the standard variant.
 
 ## Examples

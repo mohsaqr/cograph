@@ -37,8 +37,8 @@ An igraph object.
 
 ## See also
 
-[`to_data_frame`](http://sonsoles.me/cograph/reference/to_data_frame.md),
-[`as_cograph`](http://sonsoles.me/cograph/reference/as_cograph.md)
+[`to_data_frame`](https://sonsoles.me/cograph/reference/to_data_frame.md),
+[`as_cograph`](https://sonsoles.me/cograph/reference/as_cograph.md)
 
 ## Examples
 

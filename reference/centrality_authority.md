@@ -21,7 +21,7 @@ centrality_hub(x, ...)
 - ...:
 
   Additional arguments passed to
-  [`centrality`](http://sonsoles.me/cograph/reference/centrality.md)
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md)
   (e.g., `weighted`, `directed`).
 
 ## Value
@@ -30,7 +30,7 @@ Named numeric vector of authority or hub scores.
 
 ## See also
 
-[`centrality`](http://sonsoles.me/cograph/reference/centrality.md) for
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
 computing multiple measures at once.
 
 ## Examples
@@ -39,8 +39,8 @@ computing multiple measures at once.
 adj <- matrix(c(0, 1, 0, 0, 0, 1, 1, 1, 0), 3, 3)
 rownames(adj) <- colnames(adj) <- c("A", "B", "C")
 centrality_authority(adj)
-#>            A            B            C 
-#> 6.180340e-01 1.613248e-16 1.000000e+00 
+#>        A        B        C 
+#> 0.618034 0.000000 1.000000 
 centrality_hub(adj)
 #>        A        B        C 
 #> 0.618034 1.000000 0.000000 

@@ -86,8 +86,8 @@ complex networks. *Scientific Reports*, 2, 336.
 
 ## See also
 
-[`communities`](http://sonsoles.me/cograph/reference/communities.md),
-[`community_louvain`](http://sonsoles.me/cograph/reference/community_louvain.md)
+[`communities`](https://sonsoles.me/cograph/reference/communities.md),
+[`community_louvain`](https://sonsoles.me/cograph/reference/community_louvain.md)
 
 ## Examples
 
@@ -103,7 +103,42 @@ if (requireNamespace("igraph", quietly = TRUE)) {
   cc2 <- community_consensus(g, threshold = 0.7, n_runs = 100)
 }
 #> Community structure (consensus_louvain)
-#>   Number of communities: 4 
-#>   Modularity: 0.6385 
-#>   Community sizes: 6, 5, 12, 11 
+#>   Nodes: 34  | Communities: 4  | Modularity: 0.6409 
+#>   Sizes: 12, 11, 5, 6 
+#> 
+#>  node community
+#>     1         1
+#>     2         1
+#>     3         1
+#>     4         1
+#>     5         3
+#>     6         3
+#>     7         3
+#>     8         1
+#>     9         2
+#>    10         1
+#>    11         3
+#>    12         1
+#>    13         1
+#>    14         1
+#>    15         2
+#>    16         2
+#>    17         3
+#>    18         1
+#>    19         2
+#>    20         1
+#>    21         2
+#>    22         1
+#>    23         2
+#>    24         4
+#>    25         4
+#>    26         4
+#>    27         2
+#>    28         4
+#>    29         4
+#>    30         2
+#>    31         2
+#>    32         4
+#>    33         2
+#>    34         2
 ```

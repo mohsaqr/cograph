@@ -1562,6 +1562,23 @@ render_edges_splot <- function(edges, layout, node_sizes, shapes,
     start <- cent_to_edge(x1, y1, angle_to, node_sizes[from_idx], NULL, shapes[from_idx])
     end <- cent_to_edge(x2, y2, angle_from, node_sizes[to_idx], NULL, shapes[to_idx])
 
+    # For reciprocal edges, shift snap points perpendicular to the edge
+    if (!is.null(is_reciprocal) && is_reciprocal[i]) {
+      dx <- x2 - x1
+      dy <- y2 - y1
+      len <- sqrt(dx^2 + dy^2)
+      if (len > 1e-10) {
+        px <- -dy / len
+        py <- dx / len
+        shift <- node_sizes[from_idx] * 0.12 * sign(curvature[i])
+        start$x <- start$x + px * shift
+        start$y <- start$y + py * shift
+        shift_end <- node_sizes[to_idx] * 0.12 * sign(curvature[i])
+        end$x <- end$x + px * shift_end
+        end$y <- end$y + py * shift_end
+      }
+    }
+
     # Determine curve direction
     # For reciprocal edges, use pre-computed curvature directly (preserves opposite directions)
     # For non-reciprocal edges, apply inward curve direction adjustment

@@ -555,17 +555,33 @@ compute_plot_limits <- function(layout_mat, vsize_usr, layout_margin,
   y_lo <- min(layout_mat[, 2] - vsize_usr, na.rm = TRUE)
   y_hi <- max(layout_mat[, 2] + vsize_usr, na.rm = TRUE)
 
-  # Expand for self-loops
+  # Always reserve space for self-loops on all nodes so that networks
+  # with and without self-loops have consistent sizing when shown side by side
+  loop_extent <- 1.3
+  lr_factor <- 1.5
+  center_x <- mean(layout_mat[, 1])
+  center_y <- mean(layout_mat[, 2])
+  # Default rotation: pointing away from network center
+  all_rot <- atan2(layout_mat[, 2] - center_y, layout_mat[, 1] - center_x)
+  all_r <- vsize_usr * loop_extent
+  all_lx <- layout_mat[, 1] + all_r * cos(all_rot)
+  all_ly <- layout_mat[, 2] + all_r * sin(all_rot)
+  all_lr <- vsize_usr * lr_factor
+  x_lo <- min(x_lo, all_lx - all_lr)
+  x_hi <- max(x_hi, all_lx + all_lr)
+  y_lo <- min(y_lo, all_ly - all_lr)
+  y_hi <- max(y_hi, all_ly + all_lr)
+
+  # Also expand for actual self-loops whose resolved rotation may differ
   if (n_edges > 0) {
     self_loop_idx <- which(edges$from == edges$to)
     if (length(self_loop_idx) > 0) {
-      loop_extent <- 2.52
       ni <- edges$from[self_loop_idx]
       r <- vsize_usr[ni] * loop_extent
       rot <- loop_rotations[self_loop_idx]
       lx <- layout_mat[ni, 1] + r * cos(rot)
       ly <- layout_mat[ni, 2] + r * sin(rot)
-      lr <- vsize_usr[ni] * 0.8
+      lr <- vsize_usr[ni] * lr_factor
       x_lo <- min(x_lo, lx - lr)
       x_hi <- max(x_hi, lx + lr)
       y_lo <- min(y_lo, ly - lr)

@@ -1737,6 +1737,17 @@ cqual <- cluster_quality
 #'     \item{"gnm"}{Erdos-Renyi model with same number of edges. Tests against
 #'       random baseline.}
 #'   }
+#' @param null Which null question to answer. Default \code{"detect"}:
+#'   \describe{
+#'     \item{"detect"}{Null is the modularity of the \emph{best partition
+#'       found by community detection} on each null graph. Answers "is the
+#'       observed partition stronger than what community detection would
+#'       recover on similar random graphs?" — the historical behavior.}
+#'     \item{"fixed"}{Null is the modularity of the supplied
+#'       \code{communities} membership \emph{evaluated on each null graph}.
+#'       Answers "does the supplied partition itself explain more structure
+#'       than it would on similar random graphs?" — the conservative test.}
+#'   }
 #' @param seed Random seed for reproducibility. Default NULL.
 #'
 #' @return A \code{cograph_cluster_significance} object with:
@@ -1749,18 +1760,20 @@ cqual <- cluster_quality
 #'       higher modularity by chance)}
 #'     \item{null_values}{Vector of modularity values from null distribution}
 #'     \item{method}{Null model method used}
+#'     \item{null}{Which null question was asked ("detect" or "fixed")}
 #'     \item{n_random}{Number of random networks generated}
 #'   }
 #'
 #' @details
-#' The test works by:
-#' \enumerate{
-#'   \item Computing the modularity of the provided community structure
-#'   \item Generating \code{n_random} random networks using the specified null model
-#'   \item For each random network, detecting communities with Louvain and
-#'     computing modularity
-#'   \item Comparing the observed modularity to this null distribution
-#' }
+#' Two null models are supported. The default, \code{null = "detect"},
+#' generates \code{n_random} random networks, runs community detection
+#' (Louvain, with fast-greedy fallback) on each, and records the resulting
+#' modularity. Low p-value means the observed partition beats what
+#' detection would return on similar random graphs. \code{null = "fixed"}
+#' instead evaluates the user-supplied membership on each null graph, so
+#' low p-value means the partition itself is stronger than it would be on
+#' similar random graphs — a tighter question that isolates the
+#' partition's quality from any detector's behavior.
 #'
 #' A significant result (low p-value) indicates that the community structure
 #' is stronger than expected by chance for networks with similar properties.
@@ -1782,9 +1795,11 @@ cluster_significance <- function(x,
                                   communities,
                                   n_random = 100,
                                   method = c("configuration", "gnm"),
+                                  null = c("detect", "fixed"),
                                   seed = NULL) {
 
   method <- match.arg(method)
+  null <- match.arg(null)
   if (!is.null(seed)) {
     saved_rng <- .save_rng()
     on.exit(.restore_rng(saved_rng), add = TRUE)
@@ -1837,15 +1852,25 @@ cluster_significance <- function(x,
       g_null <- igraph::sample_gnm(n_nodes, n_edges, directed = igraph::is_directed(g))
     }
 
-    # Detect communities on null graph (use Louvain for speed)
-    comm_null <- tryCatch(
-      igraph::cluster_louvain(g_null),
-      error = function(e) { # nocov start
-        # If Louvain fails, use fast_greedy
-        igraph::cluster_fast_greedy(igraph::as_undirected(g_null))
-      } # nocov end
-    )
-    null_mods[i] <- igraph::modularity(comm_null)
+    if (null == "detect") {
+      # Historical default: re-run detection on the null graph and record the
+      # best-partition modularity. Compares observed structure to what
+      # detection would recover on similar random graphs.
+      comm_null <- tryCatch(
+        igraph::cluster_louvain(g_null),
+        error = function(e) { # nocov start
+          igraph::cluster_fast_greedy(igraph::as_undirected(g_null))
+        } # nocov end
+      )
+      null_mods[i] <- igraph::modularity(comm_null)
+    } else {
+      # null == "fixed": evaluate the SUPPLIED partition on the null graph.
+      # Isolates the partition's quality from detector behavior.
+      null_mods[i] <- tryCatch(
+        igraph::modularity(g_null, mem),
+        error = function(e) NA_real_
+      )
+    }
   }
 
   # Statistics
@@ -1862,6 +1887,7 @@ cluster_significance <- function(x,
     p_value = p_value,
     null_values = null_mods,
     method = method,
+    null = null,
     n_random = n_random
   )
   class(result) <- "cograph_cluster_significance"
@@ -2114,7 +2140,21 @@ ldegcor <- layer_degree_correlation
 #' @param layers List of adjacency matrices (same dimensions)
 #' @param omega Inter-layer coupling coefficient (scalar or L x L matrix)
 #' @param coupling Coupling type: "diagonal", "full", or "custom"
-#' @param interlayer_matrices For coupling="custom", list of inter-layer matrices
+#' @param interlayer_matrices For \code{coupling = "custom"}, a list of
+#'   inter-layer matrices. Accepted shapes:
+#'   \itemize{
+#'     \item Named list with keys \code{"a_b"} (integer layer indices) or
+#'       \code{"<layer_name_a>_<layer_name_b>"}; either order works.
+#'     \item Unnamed list of length \code{choose(L, 2)} giving every pair
+#'       in upper-triangle row-major order: \code{(1,2), (1,3), ..., (1,L),
+#'       (2,3), ..., (L-1,L)}.
+#'     \item Unnamed list of length \code{L-1} giving adjacent pairs only
+#'       (legacy chain layout): entry \code{i} is the coupling for
+#'       \code{(i, i+1)}. Non-adjacent pairs use \code{omega[a,b] * I}.
+#'   }
+#'   If no entry matches a pair and no legacy chain layout applies, a
+#'   warning is emitted and the diagonal default \code{omega[a,b] * I}
+#'   is used (previously this happened silently).
 #' @return Supra-adjacency matrix of dimension (N*L) x (N*L)
 #' @export
 #' @examples
@@ -2168,6 +2208,34 @@ supra_adjacency <- function(layers,
       matrix(omega, L, L)
     }
 
+    # Pre-compute an upper-triangle → list-position lookup once per call so
+    # the hot inner loop just does table reads (formerly ran a full which()
+    # per pair and silently returned the diagonal default for non-adjacent
+    # (a, b) — see docs for the accepted interlayer_matrices shapes).
+    n_pairs_full <- L * (L - 1L) / 2L
+    lookup_pair <- function(a, b) {
+      if (is.null(interlayer_matrices)) return(NULL)
+      nms <- names(interlayer_matrices)
+      if (!is.null(nms)) {
+        keys <- c(paste0(a, "_", b), paste0(b, "_", a),
+                  paste0(layer_names[a], "_", layer_names[b]),
+                  paste0(layer_names[b], "_", layer_names[a]))
+        for (k in keys) {
+          if (k %in% nms) return(interlayer_matrices[[k]])
+        }
+      }
+      if (length(interlayer_matrices) == n_pairs_full) {
+        # upper-tri row-major index
+        pos <- (a - 1L) * (L - a / 2L) + (b - a)
+        return(interlayer_matrices[[as.integer(pos)]])
+      }
+      if (length(interlayer_matrices) == L - 1L && b == a + 1L) {
+        # legacy adjacent-chain layout
+        return(interlayer_matrices[[a]])
+      }
+      NULL
+    }
+
     for (a in seq_len(L - 1)) {
       for (b in (a + 1):L) {
         idx_a <- ((a - 1) * n + 1):(a * n)
@@ -2181,12 +2249,14 @@ supra_adjacency <- function(layers,
               stop("interlayer_matrices required for custom coupling",
                    call. = FALSE)
             }
-            idx_pair <- which(a == seq_len(L - 1) & b == (a + 1))
-            if (length(idx_pair) == 1) {
-              interlayer_matrices[[idx_pair]]
-            } else {
-              omega_matrix[a, b] * I
+            mat_ab <- lookup_pair(a, b)
+            if (is.null(mat_ab)) {
+              warning(sprintf(
+                "supra_adjacency: no custom interlayer matrix for pair (%d, %d); using omega diagonal fallback",
+                a, b), call. = FALSE)
+              mat_ab <- omega_matrix[a, b] * I
             }
+            mat_ab
           }
         )
 

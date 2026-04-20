@@ -88,9 +88,14 @@ render_nodes_grid <- function(network) {
     # Additional arguments for special shapes
     extra_args <- list()
 
-    # Check if this node should render as a donut (based on donut_values)
-    has_donut_value <- !is.null(aes$donut_values) && length(aes$donut_values) >= i &&
-                       !is.null(aes$donut_values[[i]]) && !is.na(aes$donut_values[[i]])
+    # Check if this node should render as a donut (based on donut_values).
+    # Use anyNA() because aes$donut_values[[i]] may be a length>1 vector for
+    # multi-segment donut shapes (double_donut_pie, etc.); !is.na() on a
+    # vector produces a length>1 logical which breaks `&&`.
+    has_donut_value <- !is.null(aes$donut_values) &&
+                       length(aes$donut_values) >= i &&
+                       !is.null(aes$donut_values[[i]]) &&
+                       !anyNA(aes$donut_values[[i]])
 
     # If donut_values is set for this node, render as donut (override shape)
     if (has_donut_value && !shapes[i] %in% c("donut", "polygon_donut", "pie", "donut_pie", "double_donut_pie")) {
@@ -154,9 +159,10 @@ render_nodes_grid <- function(network) {
     }
     # Donut-specific parameters
     if (shapes[i] == "donut" || shapes[i] == "polygon_donut") {
-      # Pass donut_values as values (for explicit donut shapes)
+      # Pass donut_values as values (for explicit donut shapes). anyNA()
+      # tolerates length>1 values used by multi-segment donut shapes.
       if (!is.null(aes$donut_values) && length(aes$donut_values) >= i &&
-          !is.null(aes$donut_values[[i]]) && !is.na(aes$donut_values[[i]])) {
+          !is.null(aes$donut_values[[i]]) && !anyNA(aes$donut_values[[i]])) {
         extra_args$values <- aes$donut_values[[i]]
       } else {
         # Default to 1.0 (fully filled) for explicit donut shapes without values
@@ -204,10 +210,16 @@ render_nodes_grid <- function(network) {
     }
     # Donut+Pie combined shape parameters
     if (shapes[i] == "donut_pie") {
-      # Donut value (outer ring proportion)
+      # Donut value (outer ring proportion). Use [[i]] when it's a list so
+      # we unwrap to the scalar; [i] on a list would leave a length-1 list,
+      # which later breaks min(1, donut_value) in the draw helper.
       if (!is.null(aes$donut_values)) {
         if (length(aes$donut_values) >= i) {
-          extra_args$donut_value <- aes$donut_values[i]
+          extra_args$donut_value <- if (is.list(aes$donut_values)) {
+            aes$donut_values[[i]]
+          } else {
+            aes$donut_values[i]
+          }
         }
       }
       # Pie values (inner segments)

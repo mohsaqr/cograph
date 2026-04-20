@@ -30,13 +30,11 @@ test_that("validate_network accepts cograph_network S3 objects", {
   adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
   net <- cograph(adj)
 
-  # validate_network extracts x$network which is NULL for plain cograph_network
-
-  # The function passes validation (doesn't error) for cograph_network class
-  # Result may be NULL due to extraction step
+  # S3 cograph_network stores nodes/edges/meta at top level (no $network slot).
+  # validate_network should return the object unchanged.
   result <- validate_network(net)
-  # The key test is that no error was thrown for valid cograph_network
-  expect_true(inherits(net, "cograph_network"))
+  expect_identical(result, net)
+  expect_true(inherits(result, "cograph_network"))
 })
 
 test_that("validate_network rejects non-network objects", {
@@ -68,16 +66,15 @@ test_that("validate_network uses custom arg_name in error messages", {
   )
 })
 
-test_that("validate_network extracts network from cograph_network wrapper", {
+test_that("validate_network returns cograph_network unchanged (no $network unwrap)", {
   adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), nrow = 3)
   net <- cograph(adj)
 
-  # validate_network extracts x$network for cograph_network
-  # This may be NULL for plain cograph_network (no wrapper)
-  # The key test is that it doesn't error for valid cograph_network class
   result <- validate_network(net)
-  # Just verify the function completed without error
-  expect_true(TRUE)
+  expect_identical(result, net)
+  # Regression guard: historical code tried x$network and silently returned
+  # NULL. Any future refactor that reinstates that path will fail here.
+  expect_false(is.null(result))
 })
 
 # ============================================

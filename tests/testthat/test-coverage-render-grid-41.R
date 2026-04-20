@@ -1116,7 +1116,8 @@ test_that("Test 97: soplot() handles donut2_values for double donut", {
                               donut2_colors = list(c("pink", "yellow"), c("gray", "white"), c("black", "brown")),
                               donut2_inner_ratio = 0.3,
                               pie_values = list(c(0.5, 0.5), c(0.6, 0.4), c(0.7, 0.3)),
-                              pie_colors = c("coral", "teal")))
+                              # was "teal"; not a valid R color name
+                              pie_colors = c("coral", "turquoise")))
   expect_true(result$success, info = result$error)
 })
 

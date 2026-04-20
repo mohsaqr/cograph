@@ -464,14 +464,47 @@ test_that("cluster_significance else branch for tna input", {
 
 test_that("supra_adjacency custom coupling with fallback to omega", {
   layers <- list(L1 = mat, L2 = mat * 2, L3 = mat * 3)
-  # Custom coupling with 2 interlayer matrices for consecutive pairs (1-2, 2-3).
-  # Non-consecutive pair (1,3) falls back to omega * I (line 1425).
+  # Legacy chain layout: 2 interlayer matrices for adjacent pairs (1,2) and
+  # (2,3). Non-adjacent pair (1,3) now emits a warning before falling back
+  # to the omega diagonal (previously silent).
   custom_mat1 <- diag(10) * 0.5
   custom_mat2 <- diag(10) * 0.3
-  result <- supra_adjacency(layers, omega = 0.1, coupling = "custom",
-                            interlayer_matrices = list(custom_mat1, custom_mat2))
+  expect_warning(
+    supra_adjacency(layers, omega = 0.1, coupling = "custom",
+                    interlayer_matrices = list(custom_mat1, custom_mat2)),
+    "no custom interlayer matrix for pair \\(1, 3\\)"
+  )
+  result <- suppressWarnings(
+    supra_adjacency(layers, omega = 0.1, coupling = "custom",
+                    interlayer_matrices = list(custom_mat1, custom_mat2))
+  )
   expect_s3_class(result, "supra_adjacency")
   expect_equal(dim(result), c(30, 30))
+})
+
+test_that("supra_adjacency custom coupling accepts named a_b keys", {
+  layers <- list(L1 = mat, L2 = mat * 2, L3 = mat * 3)
+  M12 <- diag(10) * 0.5
+  M13 <- diag(10) * 0.4
+  M23 <- diag(10) * 0.3
+  result <- supra_adjacency(layers, coupling = "custom",
+                            interlayer_matrices = list("1_2" = M12,
+                                                       "1_3" = M13,
+                                                       "2_3" = M23))
+  # Block (1,3) is rows 1..10, cols 21..30
+  expect_equal(diag(result[1:10, 21:30]), rep(0.4, 10))
+  expect_equal(diag(result[1:10, 11:20]), rep(0.5, 10))
+  expect_equal(diag(result[11:20, 21:30]), rep(0.3, 10))
+})
+
+test_that("supra_adjacency custom coupling accepts upper-tri row-major list", {
+  layers <- list(L1 = mat, L2 = mat * 2, L3 = mat * 3)
+  M12 <- diag(10) * 0.5
+  M13 <- diag(10) * 0.4
+  M23 <- diag(10) * 0.3
+  result <- supra_adjacency(layers, coupling = "custom",
+                            interlayer_matrices = list(M12, M13, M23))
+  expect_equal(diag(result[1:10, 21:30]), rep(0.4, 10))
 })
 
 # ==============================================================================

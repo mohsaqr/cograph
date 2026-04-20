@@ -286,10 +286,19 @@ list_svg_shapes <- function() {
 #' # Attempt to unregister a non-existent shape (returns FALSE)
 #' unregister_svg_shape("nonexistent")
 unregister_svg_shape <- function(name) {
+  removed <- FALSE
   if (exists(name, envir = svg_shape_registry)) {
     rm(list = name, envir = svg_shape_registry)
-    invisible(TRUE)
-  } else {
-    invisible(FALSE)
+    removed <- TRUE
   }
+  # register_svg_shape() also registers into the main shape registry via
+  # register_shape(); unregister has to clear that entry too or the shape
+  # name keeps resolving to a draw function whose captured svg_data is
+  # stale (or whose entry in svg_shape_registry is gone).
+  if (!is.null(.cograph_env$shapes) &&
+      !is.null(.cograph_env$shapes[[name]])) {
+    .cograph_env$shapes[[name]] <- NULL
+    removed <- TRUE
+  }
+  invisible(removed)
 }

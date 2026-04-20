@@ -739,7 +739,7 @@ without importing the package — dispatch is by class name only.
 
 ## Summary
 
-cograph is not trying to replace igraph’s graph algorithms or
+`cograph` is not trying to replace igraph’s graph algorithms or
 tidygraph’s data manipulation. It fills a different gap: going from data
 to a filtered, annotated, publication-ready network figure with minimal
 code, while staying interoperable with everything else in the R network

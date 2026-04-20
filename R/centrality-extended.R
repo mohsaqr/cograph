@@ -385,32 +385,46 @@ calculate_communicability_betweenness <- function(g) {
   if (n <= 2) return(rep(0, n))
 
   A <- as.matrix(igraph::as_adjacency_matrix(g, sparse = FALSE))
-  is_sym <- isSymmetric(unname(A))
+  unname_A <- unname(A)
+  is_sym <- isSymmetric(unname_A)
 
-  .expm_from_adj <- function(M) {
-    eig <- eigen(M, symmetric = isSymmetric(unname(M)))
+  # Pre-computed expm: G = V exp(D) V^{-1}; for symmetric A, V^{-1} = V^T.
+  # Zeroing row/col r preserves symmetry, so we can reuse symmetric-eigen
+  # on A_red too. Caching is_sym saves one isSymmetric() per vertex.
+  .expm_sym <- function(M, symmetric) {
+    eig <- eigen(M, symmetric = symmetric)
     v <- Re(eig$vectors)
-    v %*% diag(exp(Re(eig$values)), nrow = nrow(M)) %*% t(v)
+    if (symmetric) {
+      v %*% (exp(Re(eig$values)) * t(v))  # tcrossprod-style scaling
+    } else {
+      v %*% diag(exp(Re(eig$values)), nrow = nrow(M)) %*% solve(v)
+    }
   }
 
-  G <- .expm_from_adj(A)
+  G <- .expm_sym(unname_A, is_sym)
+
+  # Pre-compute 1/G with a zero-tolerance guard; the per-vertex loop below
+  # collapses to a single mask+sum instead of an O(n^2) double loop per r.
+  inv_G <- G
+  valid_G <- G > 1e-15
+  inv_G[valid_G] <- 1 / G[valid_G]
+  inv_G[!valid_G] <- 0
+  diag_mask <- diag(n) == 1  # rows where s == t
+
   cb <- numeric(n)
-
   for (r in seq_len(n)) {
-    A_red <- A; A_red[r, ] <- 0; A_red[, r] <- 0
-    G_red <- .expm_from_adj(A_red)
+    A_red <- unname_A
+    A_red[r, ] <- 0
+    A_red[, r] <- 0
+    G_red <- .expm_sym(A_red, is_sym)
 
-    total <- 0
-    for (s in seq_len(n)) {
-      if (s == r) next
-      for (t_node in seq_len(n)) {
-        if (t_node == r || t_node == s) next
-        if (G[s, t_node] > 1e-15) {
-          total <- total + (G[s, t_node] - G_red[s, t_node]) / G[s, t_node]
-        }
-      }
-    }
-    cb[r] <- total
+    # ratio[s, t] = (G[s,t] - G_red[s,t]) / G[s,t], with 0 where G[s,t]=0
+    ratio <- (G - G_red) * inv_G
+    # Exclude diagonal (s == t), row r, col r
+    ratio[diag_mask] <- 0
+    ratio[r, ] <- 0
+    ratio[, r] <- 0
+    cb[r] <- sum(ratio)
   }
 
   denom <- (n - 1) * (n - 2)

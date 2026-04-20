@@ -445,7 +445,7 @@ draw_self_loop <- function(x, y, node_size, color, width, lty, rotation = pi/2) 
   y_scale <- min_dim / vp_height
 
   # Loop parameters
-  loop_angle <- pi/8  # Angle spread for loop attachment points
+  loop_angle <- pi/5  # Angle spread for loop attachment points
   # rotation is now a parameter (default: pi/2 = top of node)
 
   # Points where loop attaches to node edge

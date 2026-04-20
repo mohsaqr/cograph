@@ -79,31 +79,9 @@ to see available palettes,
 
 ``` r
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-
-# Apply palette to nodes
 cograph(adj) |> sn_palette("viridis") |> splot()
 
 
 # Apply to edges
 cograph(adj) |> sn_palette("colorblind", target = "edges") |> splot()
-
-# Apply to both
-cograph(adj) |> sn_palette("pastel", target = "both") |> splot()
-
-# Custom palette function
-my_pal <- function(n) rainbow(n, s = 0.7)
-cograph(adj) |> sn_palette(my_pal) |> splot()
-
-# Direct matrix input
-adj |> sn_palette("viridis")
-#> Cograph network: 3 nodes, 3 edges ( undirected )
-#> Source: matrix 
-#>   Nodes (3): 1, 2, 3
-#>   Edges: 3 / 3 (density: 100.0%)
-#>   Weights: [1.000, 1.000]  |  mean: 1.000
-#>   Strongest edges:
-#>     1 -- 2  1.000
-#>     1 -- 3  1.000
-#>     2 -- 3  1.000
-#> Layout: set 
 ```

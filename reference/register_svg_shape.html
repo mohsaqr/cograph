@@ -72,19 +72,16 @@
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># Register from file</span></span></span>
-<span class="r-in"><span><span class="fu">register_svg_shape</span><span class="op">(</span><span class="st">"custom_icon"</span>, <span class="st">"path/to/icon.svg"</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Register from inline SVG</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Register an inline SVG shape</span></span></span>
 <span class="r-in"><span><span class="fu">register_svg_shape</span><span class="op">(</span><span class="st">"simple_star"</span>,</span></span>
 <span class="r-in"><span>  <span class="st">'&lt;svg viewBox="0 0 100 100"&gt;</span></span></span>
 <span class="r-in"><span><span class="st">    &lt;polygon points="50,5 20,99 95,39 5,39 80,99" fill="currentColor"/&gt;</span></span></span>
 <span class="r-in"><span><span class="st">  &lt;/svg&gt;'</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Use in network</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="sn_nodes.html">sn_nodes</a></span><span class="op">(</span>shape <span class="op">=</span> <span class="st">"custom_icon"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="co"># Use it in a network</span></span></span>
+<span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="sn_nodes.html">sn_nodes</a></span><span class="op">(</span>shape <span class="op">=</span> <span class="st">"simple_star"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="register_svg_shape-1.png" alt="" width="1080" height="1080"></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

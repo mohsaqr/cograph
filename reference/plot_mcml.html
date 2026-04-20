@@ -621,85 +621,16 @@ used internally,
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># --- Setup: create a test matrix ---</span></span></span>
-<span class="r-in"><span><span class="va">mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">36</span><span class="op">)</span>, <span class="fl">6</span>, <span class="fl">6</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fl">0</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">36</span><span class="op">)</span>, <span class="fl">6</span>, <span class="fl">6</span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fl">0</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">LETTERS</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">clusters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  Cluster1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  Cluster2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C"</span>, <span class="st">"D"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  Cluster3 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"E"</span>, <span class="st">"F"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># 1. Basic usage — pass matrix + clusters directly</span></span></span>
+<span class="r-in"><span><span class="va">clusters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>C1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>,<span class="st">"B"</span><span class="op">)</span>, C2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C"</span>,<span class="st">"D"</span><span class="op">)</span>, C3 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"E"</span>,<span class="st">"F"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">plot_mcml</span><span class="op">(</span><span class="va">mat</span>, <span class="va">clusters</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plot_mcml-1.png" alt="" width="1080" height="1080"></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># 2. Pre-compute with cluster_summary for reuse</span></span></span>
+<span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="va">cs</span> <span class="op">&lt;-</span> <span class="fu"><a href="cluster_summary.html">cluster_summary</a></span><span class="op">(</span><span class="va">mat</span>, <span class="va">clusters</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">plot_mcml</span><span class="op">(</span><span class="va">cs</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">plot_mcml</span><span class="op">(</span><span class="va">cs</span>, mode <span class="op">=</span> <span class="st">"tna"</span>, edge_labels <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plot_mcml-2.png" alt="" width="1080" height="1080"></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># 3. TNA mode — transition probabilities with edge labels</span></span></span>
-<span class="r-in"><span><span class="fu">plot_mcml</span><span class="op">(</span><span class="va">mat</span>, <span class="va">clusters</span>, mode <span class="op">=</span> <span class="st">"tna"</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># 4. Custom shapes — different shape per cluster</span></span></span>
-<span class="r-in"><span><span class="fu">plot_mcml</span><span class="op">(</span><span class="va">mat</span>, <span class="va">clusters</span>,</span></span>
-<span class="r-in"><span>  node_shape <span class="op">=</span> <span class="st">"diamond"</span>,</span></span>
-<span class="r-in"><span>  cluster_shape <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"circle"</span>, <span class="st">"square"</span>, <span class="st">"triangle"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># 5. Styling — custom colors, transparency, edge widths</span></span></span>
-<span class="r-in"><span><span class="fu">plot_mcml</span><span class="op">(</span><span class="va">mat</span>, <span class="va">clusters</span>,</span></span>
-<span class="r-in"><span>  colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#1b9e77"</span>, <span class="st">"#d95f02"</span>, <span class="st">"#7570b3"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  edge_alpha <span class="op">=</span> <span class="fl">0.5</span>,</span></span>
-<span class="r-in"><span>  between_edge_alpha <span class="op">=</span> <span class="fl">0.8</span>,</span></span>
-<span class="r-in"><span>  shell_alpha <span class="op">=</span> <span class="fl">0.25</span>,</span></span>
-<span class="r-in"><span>  edge_width_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">2.0</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># 6. Edge labels on both layers</span></span></span>
-<span class="r-in"><span><span class="fu">plot_mcml</span><span class="op">(</span><span class="va">mat</span>, <span class="va">clusters</span>,</span></span>
-<span class="r-in"><span>  edge_labels <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
-<span class="r-in"><span>  summary_edge_labels <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
-<span class="r-in"><span>  edge_label_digits <span class="op">=</span> <span class="fl">1</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># 7. Layout tuning — adjust spacing, perspective, and layer gap</span></span></span>
-<span class="r-in"><span><span class="fu">plot_mcml</span><span class="op">(</span><span class="va">mat</span>, <span class="va">clusters</span>,</span></span>
-<span class="r-in"><span>  spacing <span class="op">=</span> <span class="fl">4</span>,</span></span>
-<span class="r-in"><span>  skew_angle <span class="op">=</span> <span class="fl">45</span>,</span></span>
-<span class="r-in"><span>  top_layer_scale <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.0</span>, <span class="fl">0.3</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  inter_layer_gap <span class="op">=</span> <span class="fl">0.8</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># 8. With mean aggregation for size-normalized comparison</span></span></span>
-<span class="r-in"><span><span class="fu">plot_mcml</span><span class="op">(</span><span class="va">mat</span>, <span class="va">clusters</span>,</span></span>
-<span class="r-in"><span>  aggregation <span class="op">=</span> <span class="st">"mean"</span>,</span></span>
-<span class="r-in"><span>  title <span class="op">=</span> <span class="st">"Mean-aggregated cluster network"</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># 9. Label abbreviation for dense networks</span></span></span>
-<span class="r-in"><span><span class="va">big_mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">400</span><span class="op">)</span>, <span class="fl">20</span>, <span class="fl">20</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">big_mat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fl">0</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">big_mat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">big_mat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Node_"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">20</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">big_clusters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  Alpha <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Node_"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">7</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  Beta  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Node_"</span>, <span class="fl">8</span><span class="op">:</span><span class="fl">14</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  Gamma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Node_"</span>, <span class="fl">15</span><span class="op">:</span><span class="fl">20</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">plot_mcml</span><span class="op">(</span><span class="va">big_mat</span>, <span class="va">big_clusters</span>, label_abbrev <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># 10. Minimal clean plot — no legend, no labels, no arrows</span></span></span>
-<span class="r-in"><span><span class="fu">plot_mcml</span><span class="op">(</span><span class="va">mat</span>, <span class="va">clusters</span>,</span></span>
-<span class="r-in"><span>  legend <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
-<span class="r-in"><span>  show_labels <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
-<span class="r-in"><span>  summary_labels <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
-<span class="r-in"><span>  summary_arrows <span class="op">=</span> <span class="cn">FALSE</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

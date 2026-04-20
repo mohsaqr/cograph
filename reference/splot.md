@@ -174,6 +174,7 @@ splot(
   show_arrows = TRUE,
   bidirectional = FALSE,
   loop_rotation = NULL,
+  show = NULL,
   edge_start_style = "solid",
   edge_start_length = 0.15,
   edge_start_dot_density = "12",
@@ -1124,30 +1125,15 @@ converting external objects
 ## Examples
 
 ``` r
-# Basic network from adjacency matrix
-adj <- matrix(c(0, 1, 1, 0,
-                0, 0, 1, 1,
-                0, 0, 0, 1,
-                0, 0, 0, 0), 4, 4, byrow = TRUE)
-splot(adj)
-
-
-# With curved edges
-splot(adj, curvature = 0.2)
-
-# Weighted network with colors
-w_adj <- matrix(c(0, 0.5, -0.3, 0,
-                  0.8, 0, 0.4, -0.2,
-                  0, 0, 0, 0.6,
-                  0, 0, 0, 0), 4, 4, byrow = TRUE)
-splot(w_adj, edge_positive_color = "darkgreen", edge_negative_color = "red")
-
-
-# Pie chart nodes
-splot(adj, pie_values = list(c(1,2,3), c(2,2), c(1,1,1,1), c(3,1)))
-
-
-# Circle layout with labels
+# Basic directed network
+adj <- matrix(c(0, 1, 1, 0, 0, 0, 1, 1,
+                0, 0, 0, 1, 0, 0, 0, 0), 4, 4, byrow = TRUE)
 splot(adj, layout = "circle", labels = c("A", "B", "C", "D"))
+
+
+# Weighted network with signed edges
+w_adj <- matrix(c(0, .5, -.3, 0, .8, 0, .4, -.2,
+                  0, 0, 0, .6, 0, 0, 0, 0), 4, 4, byrow = TRUE)
+splot(w_adj, edge_positive_color = "darkgreen", edge_negative_color = "red")
 
 ```

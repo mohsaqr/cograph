@@ -289,11 +289,11 @@ if (requireNamespace("igraph", quietly = TRUE)) {
   network_summary(g)
 }
 #>   node_count edge_count density component_count diameter mean_distance min_cut
-#> 1         20         52   0.274               2        3         1.766       0
+#> 1         20         60   0.316               1        3         1.753       3
 #>   centralization_degree centralization_in_degree centralization_out_degree
-#> 1                   0.2                       NA                        NA
+#> 1                 0.211                       NA                        NA
 #>   centralization_betweenness centralization_closeness centralization_eigen
-#> 1                       0.08                      NaN                0.448
+#> 1                      0.069                    0.176                 0.45
 #>   transitivity reciprocity assortativity_degree hub_score authority_score
-#> 1        0.221          NA               -0.265        NA              NA
+#> 1        0.301          NA               -0.142        NA              NA
 ```

@@ -266,6 +266,7 @@ as soplot() for consistency.</p>
 <span>  show_arrows <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  bidirectional <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  loop_rotation <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  show <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  edge_start_style <span class="op">=</span> <span class="st">"solid"</span>,</span>
 <span>  edge_start_length <span class="op">=</span> <span class="fl">0.15</span>,</span>
 <span>  edge_start_dot_density <span class="op">=</span> <span class="st">"12"</span>,</span>
@@ -1181,32 +1182,17 @@ for significance stars.</p></dd>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Basic network from adjacency matrix</span></span></span>
-<span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>                <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>,</span></span>
-<span class="r-in"><span>                <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>,</span></span>
-<span class="r-in"><span>                <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fl">4</span>, <span class="fl">4</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">splot</span><span class="op">(</span><span class="va">adj</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Basic directed network</span></span></span>
+<span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>,</span></span>
+<span class="r-in"><span>                <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fl">4</span>, <span class="fl">4</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">splot</span><span class="op">(</span><span class="va">adj</span>, layout <span class="op">=</span> <span class="st">"circle"</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="splot-1.png" alt="" width="1080" height="1080"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># With curved edges</span></span></span>
-<span class="r-in"><span><span class="fu">splot</span><span class="op">(</span><span class="va">adj</span>, curvature <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Weighted network with colors</span></span></span>
-<span class="r-in"><span><span class="va">w_adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.5</span>, <span class="op">-</span><span class="fl">0.3</span>, <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>                  <span class="fl">0.8</span>, <span class="fl">0</span>, <span class="fl">0.4</span>, <span class="op">-</span><span class="fl">0.2</span>,</span></span>
-<span class="r-in"><span>                  <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0.6</span>,</span></span>
-<span class="r-in"><span>                  <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fl">4</span>, <span class="fl">4</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Weighted network with signed edges</span></span></span>
+<span class="r-in"><span><span class="va">w_adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">.5</span>, <span class="op">-</span><span class="fl">.3</span>, <span class="fl">0</span>, <span class="fl">.8</span>, <span class="fl">0</span>, <span class="fl">.4</span>, <span class="op">-</span><span class="fl">.2</span>,</span></span>
+<span class="r-in"><span>                  <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">.6</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fl">4</span>, <span class="fl">4</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">splot</span><span class="op">(</span><span class="va">w_adj</span>, edge_positive_color <span class="op">=</span> <span class="st">"darkgreen"</span>, edge_negative_color <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="splot-2.png" alt="" width="1080" height="1080"></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Pie chart nodes</span></span></span>
-<span class="r-in"><span><span class="fu">splot</span><span class="op">(</span><span class="va">adj</span>, pie_values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">3</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="splot-3.png" alt="" width="1080" height="1080"></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Circle layout with labels</span></span></span>
-<span class="r-in"><span><span class="fu">splot</span><span class="op">(</span><span class="va">adj</span>, layout <span class="op">=</span> <span class="st">"circle"</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="splot-4.png" alt="" width="1080" height="1080"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

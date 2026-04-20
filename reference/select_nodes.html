@@ -186,13 +186,10 @@ will return NA with a warning (igraph cannot compute these with negative weights
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">.5</span>, <span class="fl">.8</span>, <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>                <span class="fl">.5</span>, <span class="fl">0</span>, <span class="fl">.3</span>, <span class="fl">.6</span>,</span></span>
-<span class="r-in"><span>                <span class="fl">.8</span>, <span class="fl">.3</span>, <span class="fl">0</span>, <span class="fl">.4</span>,</span></span>
-<span class="r-in"><span>                 <span class="fl">0</span>, <span class="fl">.6</span>, <span class="fl">.4</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fl">4</span>, <span class="fl">4</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">.5</span>, <span class="fl">.8</span>, <span class="fl">0</span>, <span class="fl">.5</span>, <span class="fl">0</span>, <span class="fl">.3</span>, <span class="fl">.6</span>,</span></span>
+<span class="r-in"><span>                <span class="fl">.8</span>, <span class="fl">.3</span>, <span class="fl">0</span>, <span class="fl">.4</span>, <span class="fl">0</span>, <span class="fl">.6</span>, <span class="fl">.4</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fl">4</span>, <span class="fl">4</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Lazy - only computes degree</span></span></span>
 <span class="r-in"><span><span class="fu">select_nodes</span><span class="op">(</span><span class="va">adj</span>, <span class="va">degree</span> <span class="op">&gt;=</span> <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 2 nodes, 1 edges ( undirected )</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Source: filtered </span>
@@ -202,36 +199,6 @@ will return NA with a warning (igraph cannot compute these with negative weights
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Strongest edges:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     B -- C  0.300</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Global context - computes component info</span></span></span>
-<span class="r-in"><span><span class="fu">select_nodes</span><span class="op">(</span><span class="va">adj</span>, <span class="va">is_largest_component</span> <span class="op">&amp;</span> <span class="va">degree</span> <span class="op">&gt;=</span> <span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 4 nodes, 5 edges ( undirected )</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Source: filtered </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (4): A, B, C, D</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 5 / 6 (density: 83.3%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [0.300, 0.800]  |  mean: 0.520</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Strongest edges:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     A -- C  0.800</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     B -- D  0.600</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     A -- B  0.500</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     C -- D  0.400</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     B -- C  0.300</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># By name</span></span></span>
-<span class="r-in"><span><span class="fu">select_nodes</span><span class="op">(</span><span class="va">adj</span>, name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 3 nodes, 3 edges ( undirected )</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Source: filtered </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (3): A, B, C</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 3 / 3 (density: 100.0%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [0.300, 0.800]  |  mean: 0.533</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Strongest edges:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     A -- C  0.800</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     A -- B  0.500</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     B -- C  0.300</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Top 2 by PageRank</span></span></span>
 <span class="r-in"><span><span class="fu">select_nodes</span><span class="op">(</span><span class="va">adj</span>, top <span class="op">=</span> <span class="fl">2</span>, by <span class="op">=</span> <span class="st">"pagerank"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 2 nodes, 1 edges ( undirected )</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Source: filtered </span>
@@ -241,8 +208,6 @@ will return NA with a warning (igraph cannot compute these with negative weights
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Strongest edges:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     B -- C  0.300</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Neighborhood of "A" up to 2 hops</span></span></span>
 <span class="r-in"><span><span class="fu">select_nodes</span><span class="op">(</span><span class="va">adj</span>, neighbors_of <span class="op">=</span> <span class="st">"A"</span>, order <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 4 nodes, 5 edges ( undirected )</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Source: filtered </span>
@@ -256,8 +221,6 @@ will return NA with a warning (igraph cannot compute these with negative weights
 <span class="r-out co"><span class="r-pr">#&gt;</span>     C -- D  0.400</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     B -- C  0.300</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Largest connected component</span></span></span>
 <span class="r-in"><span><span class="fu">select_nodes</span><span class="op">(</span><span class="va">adj</span>, component <span class="op">=</span> <span class="st">"largest"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 4 nodes, 5 edges ( undirected )</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Source: filtered </span>
@@ -271,20 +234,6 @@ will return NA with a warning (igraph cannot compute these with negative weights
 <span class="r-out co"><span class="r-pr">#&gt;</span>     C -- D  0.400</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     B -- C  0.300</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Combined: top 2 in largest component</span></span></span>
-<span class="r-in"><span><span class="fu">select_nodes</span><span class="op">(</span><span class="va">adj</span>, component <span class="op">=</span> <span class="st">"largest"</span>, top <span class="op">=</span> <span class="fl">2</span>, by <span class="op">=</span> <span class="st">"degree"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 2 nodes, 1 edges ( undirected )</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Source: filtered </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (2): B, C</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 1 / 1 (density: 100.0%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [0.300, 0.300]  |  mean: 0.300</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Strongest edges:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     B -- C  0.300</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Articulation points with high degree</span></span></span>
-<span class="r-in"><span><span class="co"># select_nodes(adj, is_articulation &amp; degree &gt;= 2)</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

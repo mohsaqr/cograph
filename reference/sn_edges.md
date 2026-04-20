@@ -383,66 +383,16 @@ visual themes
 
 ``` r
 adj <- matrix(c(0, 1, -0.5, 1, 0, 1, -0.5, 1, 0), nrow = 3)
-
-# Basic: auto-style by weight
 cograph(adj) |>
-  sn_edges(width = "weight", color = "weight")
-#> Cograph network: 3 nodes, 3 edges ( undirected )
-#> Source: matrix 
-#>   Nodes (3): 1, 2, 3
-#>   Edges: 3 / 3 (density: 100.0%)
-#>   Weights: [-0.500, 1.000]  |  +2 / -1 edges
-#>   Strongest edges:
-#>     1 -- 2  1.000
-#>     2 -- 3  1.000
-#>     1 -- 3  -0.500
-#> Layout: set 
-
-# Direct matrix input (auto-converted)
-adj |> sn_edges(width = 2, color = "gray50")
-#> Cograph network: 3 nodes, 3 edges ( undirected )
-#> Source: matrix 
-#>   Nodes (3): 1, 2, 3
-#>   Edges: 3 / 3 (density: 100.0%)
-#>   Weights: [-0.500, 1.000]  |  +2 / -1 edges
-#>   Strongest edges:
-#>     1 -- 2  1.000
-#>     2 -- 3  1.000
-#>     1 -- 3  -0.500
-#> Layout: set 
-
-# Custom positive/negative colors
-cograph(adj) |>
-  sn_edges(
-    color = "weight",
-    edge_positive_color = "darkblue",
-    edge_negative_color = "darkred"
-  ) |>
+  sn_edges(width = "weight", color = "weight") |>
   splot()
 
 
-# Edge labels showing weights
+# Custom positive/negative colors with labels
 cograph(adj) |>
-  sn_edges(labels = TRUE, label_size = 0.8) |>
-  splot()
-
-# Statistical output with CI template
-# Suppose we have estimates, lower/upper CI bounds
-estimates <- c(0.5, -0.3, 0.8)
-ci_lo <- c(0.2, -0.6, 0.5)
-ci_hi <- c(0.8, -0.1, 1.1)
-
-cograph(adj) |>
-  sn_edges(
-    label_template = "{est} [{low}, {up}]",
-    ci_lower = ci_lo,
-    ci_upper = ci_hi,
-    label_digits = 2
-  ) |>
-  splot()
-
-# Curved edges for reciprocal pairs
-cograph(adj) |>
-  sn_edges(curves = "mutual", curvature = 0.3) |>
+  sn_edges(color = "weight",
+           edge_positive_color = "darkblue",
+           edge_negative_color = "darkred",
+           labels = TRUE) |>
   splot()
 ```

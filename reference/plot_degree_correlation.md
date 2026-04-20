@@ -59,10 +59,6 @@ Invisibly returns a data frame with columns `node`, `degree`,
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::sample_pa(100, m = 3, directed = FALSE)
-  cograph::plot_degree_correlation(g)
-}
-} # }
+g <- igraph::sample_pa(100, m = 3, directed = FALSE)
+cograph::plot_degree_correlation(g)
 ```

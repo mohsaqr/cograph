@@ -43,9 +43,10 @@ Invisibly returns `x`.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-grp <- Nestimate::cluster_network(data, k = 2)
-gbs <- Nestimate::bootstrap_network(grp, iter = 100)
+set.seed(1)
+seqs <- data.frame(T1 = sample(c("A","B","C"), 30, replace = TRUE),
+                   T2 = sample(c("A","B","C"), 30, replace = TRUE))
+grp <- Nestimate::cluster_network(seqs, k = 2)
+gbs <- Nestimate::bootstrap_network(grp, iter = 10)
 plot_net_bootstrap_group(gbs)
-} # }
 ```

@@ -109,20 +109,12 @@ Other motifs:
 ## Examples
 
 ``` r
-# Create a frequency matrix
-mat <- matrix(c(
-  0, 3, 2, 0,
-  0, 0, 5, 1,
-  0, 0, 0, 4,
-  2, 0, 0, 0
-), 4, 4, byrow = TRUE)
+mat <- matrix(c(0,3,2,0, 0,0,5,1, 0,0,0,4, 2,0,0,0), 4, 4, byrow = TRUE)
 rownames(mat) <- colnames(mat) <- c("Plan", "Execute", "Monitor", "Adapt")
-
 net <- as_cograph(mat)
 
-# Extract all triads
-triads <- extract_triads(net)
-head(triads)
+# All triads, feed-forward loops, triads involving "Plan"
+head(extract_triads(net))
 #>         A       B       C type weight_AB weight_BA weight_AC weight_CA
 #> 1    Plan Execute Monitor 030T         3         0         2         0
 #> 2    Plan Execute   Adapt 030C         3         0         0         2
@@ -133,14 +125,20 @@ head(triads)
 #> 2         1         0            6
 #> 3         4         0            8
 #> 4         4         0           10
-
-# Filter by motif type (feed-forward loops only)
-ff_loops <- extract_triads(net, type = "030T")
-
-# Filter by node involvement
-plan_triads <- extract_triads(net, involving = "Plan")
-
-# Find strongest triads
-triads <- extract_triads(net)
-strongest <- triads[order(triads$total_weight, decreasing = TRUE), ]
+extract_triads(net, type = "030T")
+#>         A       B       C type weight_AB weight_BA weight_AC weight_CA
+#> 1    Plan Execute Monitor 030T         3         0         2         0
+#> 2 Execute Monitor   Adapt 030T         5         0         1         0
+#>   weight_BC weight_CB total_weight
+#> 1         5         0           10
+#> 2         4         0           10
+extract_triads(net, involving = "Plan")
+#>      A       B       C type weight_AB weight_BA weight_AC weight_CA weight_BC
+#> 1 Plan Execute Monitor 030T         3         0         2         0         5
+#> 2 Plan Execute   Adapt 030C         3         0         0         2         1
+#> 3 Plan Monitor   Adapt 030C         2         0         0         2         4
+#>   weight_CB total_weight
+#> 1         0           10
+#> 2         0            6
+#> 3         0            8
 ```

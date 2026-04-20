@@ -163,13 +163,10 @@ expressions or required by selection modes are computed.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">.5</span>, <span class="fl">.8</span>, <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>                <span class="fl">.5</span>, <span class="fl">0</span>, <span class="fl">.3</span>, <span class="fl">.6</span>,</span></span>
-<span class="r-in"><span>                <span class="fl">.8</span>, <span class="fl">.3</span>, <span class="fl">0</span>, <span class="fl">.4</span>,</span></span>
-<span class="r-in"><span>                 <span class="fl">0</span>, <span class="fl">.6</span>, <span class="fl">.4</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fl">4</span>, <span class="fl">4</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">.5</span>, <span class="fl">.8</span>, <span class="fl">0</span>, <span class="fl">.5</span>, <span class="fl">0</span>, <span class="fl">.3</span>, <span class="fl">.6</span>,</span></span>
+<span class="r-in"><span>                <span class="fl">.8</span>, <span class="fl">.3</span>, <span class="fl">0</span>, <span class="fl">.4</span>, <span class="fl">0</span>, <span class="fl">.6</span>, <span class="fl">.4</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fl">4</span>, <span class="fl">4</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Expression-based (lazy - only computes what's needed)</span></span></span>
 <span class="r-in"><span><span class="fu">select_edges</span><span class="op">(</span><span class="va">adj</span>, <span class="va">weight</span> <span class="op">&gt;</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 4 nodes, 2 edges ( undirected )</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Source: filtered </span>
@@ -180,19 +177,6 @@ expressions or required by selection modes are computed.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     A -- C  0.800</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     B -- D  0.600</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
-<span class="r-in"><span><span class="fu">select_edges</span><span class="op">(</span><span class="va">adj</span>, <span class="va">abs_weight</span> <span class="op">&gt;</span> <span class="fl">0.4</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 4 nodes, 3 edges ( undirected )</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Source: filtered </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (4): A, B, C, D</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 3 / 6 (density: 50.0%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [0.500, 0.800]  |  mean: 0.633</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Strongest edges:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     A -- C  0.800</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     B -- D  0.600</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     A -- B  0.500</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Top N edges by weight</span></span></span>
 <span class="r-in"><span><span class="fu">select_edges</span><span class="op">(</span><span class="va">adj</span>, top <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 4 nodes, 3 edges ( undirected )</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Source: filtered </span>
@@ -204,19 +188,6 @@ expressions or required by selection modes are computed.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     B -- D  0.600</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     A -- B  0.500</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
-<span class="r-in"><span><span class="fu">select_edges</span><span class="op">(</span><span class="va">adj</span>, top <span class="op">=</span> <span class="fl">3</span>, by <span class="op">=</span> <span class="st">"edge_betweenness"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 4 nodes, 3 edges ( undirected )</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Source: filtered </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (4): A, B, C, D</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 3 / 6 (density: 50.0%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [0.300, 0.600]  |  mean: 0.467</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Strongest edges:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     B -- D  0.600</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     A -- B  0.500</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     B -- C  0.300</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Edges involving specific nodes</span></span></span>
 <span class="r-in"><span><span class="fu">select_edges</span><span class="op">(</span><span class="va">adj</span>, involving <span class="op">=</span> <span class="st">"A"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 3 nodes, 2 edges ( undirected )</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Source: filtered </span>
@@ -227,20 +198,6 @@ expressions or required by selection modes are computed.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     A -- C  0.800</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     A -- B  0.500</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
-<span class="r-in"><span><span class="fu">select_edges</span><span class="op">(</span><span class="va">adj</span>, involving <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 4 nodes, 4 edges ( undirected )</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Source: filtered </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (4): A, B, C, D</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 4 / 6 (density: 66.7%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [0.300, 0.800]  |  mean: 0.550</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Strongest edges:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     A -- C  0.800</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     B -- D  0.600</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     A -- B  0.500</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     B -- C  0.300</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Edges between two node sets</span></span></span>
 <span class="r-in"><span><span class="fu">select_edges</span><span class="op">(</span><span class="va">adj</span>, between <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C"</span>, <span class="st">"D"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 4 nodes, 3 edges ( undirected )</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Source: filtered </span>
@@ -251,53 +208,6 @@ expressions or required by selection modes are computed.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     A -- C  0.800</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     B -- D  0.600</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     B -- C  0.300</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Bridge edges only</span></span></span>
-<span class="r-in"><span><span class="fu">select_edges</span><span class="op">(</span><span class="va">adj</span>, bridges_only <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>No edges match the selection criteria.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 0 nodes, 0 edges ( undirected )</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Source: filtered </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (0): </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Combined: top 3 edges involving A</span></span></span>
-<span class="r-in"><span><span class="fu">select_edges</span><span class="op">(</span><span class="va">adj</span>, involving <span class="op">=</span> <span class="st">"A"</span>, top <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 3 nodes, 2 edges ( undirected )</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Source: filtered </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (3): A, B, C</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 2 / 3 (density: 66.7%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [0.500, 0.800]  |  mean: 0.650</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Strongest edges:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     A -- C  0.800</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     A -- B  0.500</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Using endpoint degrees</span></span></span>
-<span class="r-in"><span><span class="fu">select_edges</span><span class="op">(</span><span class="va">adj</span>, <span class="va">from_degree</span> <span class="op">&gt;=</span> <span class="fl">3</span> <span class="op">|</span> <span class="va">to_degree</span> <span class="op">&gt;=</span> <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 4 nodes, 5 edges ( undirected )</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Source: filtered </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (4): A, B, C, D</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 5 / 6 (density: 83.3%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [0.300, 0.800]  |  mean: 0.520</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Strongest edges:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     A -- C  0.800</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     B -- D  0.600</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     A -- B  0.500</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     C -- D  0.400</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     B -- C  0.300</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Within-community edges</span></span></span>
-<span class="r-in"><span><span class="fu">select_edges</span><span class="op">(</span><span class="va">adj</span>, <span class="va">same_community</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 4 nodes, 2 edges ( undirected )</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Source: filtered </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (4): A, B, C, D</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 2 / 6 (density: 33.3%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [0.600, 0.800]  |  mean: 0.700</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Strongest edges:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     A -- C  0.800</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     B -- D  0.600</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
 </code></pre></div>
     </div>

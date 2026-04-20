@@ -136,20 +136,12 @@ combinations that form each motif pattern. A typical workflow is:</p><ol><li><p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Create a frequency matrix</span></span></span>
-<span class="r-in"><span><span class="va">mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="fl">0</span>, <span class="fl">3</span>, <span class="fl">2</span>, <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>  <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">5</span>, <span class="fl">1</span>,</span></span>
-<span class="r-in"><span>  <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">4</span>,</span></span>
-<span class="r-in"><span>  <span class="fl">2</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span></span></span>
-<span class="r-in"><span><span class="op">)</span>, <span class="fl">4</span>, <span class="fl">4</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">3</span>,<span class="fl">2</span>,<span class="fl">0</span>, <span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">5</span>,<span class="fl">1</span>, <span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">4</span>, <span class="fl">2</span>,<span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">0</span><span class="op">)</span>, <span class="fl">4</span>, <span class="fl">4</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Plan"</span>, <span class="st">"Execute"</span>, <span class="st">"Monitor"</span>, <span class="st">"Adapt"</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="as_cograph.html">as_cograph</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Extract all triads</span></span></span>
-<span class="r-in"><span><span class="va">triads</span> <span class="op">&lt;-</span> <span class="fu">extract_triads</span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">triads</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># All triads, feed-forward loops, triads involving "Plan"</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu">extract_triads</span><span class="op">(</span><span class="va">net</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         A       B       C type weight_AB weight_BA weight_AC weight_CA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1    Plan Execute Monitor 030T         3         0         2         0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2    Plan Execute   Adapt 030C         3         0         0         2</span>
@@ -160,16 +152,22 @@ combinations that form each motif pattern. A typical workflow is:</p><ol><li><p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2         1         0            6</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3         4         0            8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4         4         0           10</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Filter by motif type (feed-forward loops only)</span></span></span>
-<span class="r-in"><span><span class="va">ff_loops</span> <span class="op">&lt;-</span> <span class="fu">extract_triads</span><span class="op">(</span><span class="va">net</span>, type <span class="op">=</span> <span class="st">"030T"</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Filter by node involvement</span></span></span>
-<span class="r-in"><span><span class="va">plan_triads</span> <span class="op">&lt;-</span> <span class="fu">extract_triads</span><span class="op">(</span><span class="va">net</span>, involving <span class="op">=</span> <span class="st">"Plan"</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Find strongest triads</span></span></span>
-<span class="r-in"><span><span class="va">triads</span> <span class="op">&lt;-</span> <span class="fu">extract_triads</span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">strongest</span> <span class="op">&lt;-</span> <span class="va">triads</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">triads</span><span class="op">$</span><span class="va">total_weight</span>, decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span><span class="fu">extract_triads</span><span class="op">(</span><span class="va">net</span>, type <span class="op">=</span> <span class="st">"030T"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         A       B       C type weight_AB weight_BA weight_AC weight_CA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    Plan Execute Monitor 030T         3         0         2         0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 Execute Monitor   Adapt 030T         5         0         1         0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   weight_BC weight_CB total_weight</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1         5         0           10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2         4         0           10</span>
+<span class="r-in"><span><span class="fu">extract_triads</span><span class="op">(</span><span class="va">net</span>, involving <span class="op">=</span> <span class="st">"Plan"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      A       B       C type weight_AB weight_BA weight_AC weight_CA weight_BC</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Plan Execute Monitor 030T         3         0         2         0         5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 Plan Execute   Adapt 030C         3         0         0         2         1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 Plan Monitor   Adapt 030C         2         0         0         2         4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   weight_CB total_weight</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1         0           10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2         0            6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3         0            8</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

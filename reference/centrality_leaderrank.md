@@ -35,9 +35,9 @@ for standard PageRank.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
 adj <- matrix(c(0, 1, 0, 0, 0, 1, 1, 1, 0), 3, 3)
 rownames(adj) <- colnames(adj) <- c("A", "B", "C")
 centrality_leaderrank(adj)
-} # }
+#>         A         B         C 
+#> 0.8522725 1.0227230 1.1250045 
 ```

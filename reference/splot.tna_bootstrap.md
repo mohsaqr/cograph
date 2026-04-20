@@ -107,22 +107,16 @@ Edge styling in "styled" mode:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Create a mock tna_bootstrap object with synthetic data
-set.seed(42)
-w <- matrix(c(0, 0.3, 0.1, 0.2, 0, 0.4, 0.3, 0.1, 0), 3, 3)
+# Mock a tna_bootstrap object with synthetic data
+w <- matrix(c(0, .3, .1, .2, 0, .4, .3, .1, 0), 3, 3)
 rownames(w) <- colnames(w) <- c("A", "B", "C")
-p <- matrix(c(1, 0.01, 0.5, 0.03, 1, 0.001, 0.2, 0.8, 1), 3, 3)
-boot <- list(
-  weights = w,
-  p_values = p,
-  ci_lower = w - 0.05,
-  ci_upper = w + 0.05,
-  level = 0.05,
-  model = list(weights = w, labels = c("A", "B", "C"))
-)
+p <- matrix(c(1, .01, .5, .03, 1, .001, .2, .8, 1), 3, 3)
+boot <- list(weights = w, p_values = p,
+             ci_lower = w - 0.05, ci_upper = w + 0.05, level = 0.05,
+             model = list(weights = w, labels = c("A", "B", "C")))
 class(boot) <- c("tna_bootstrap", "list")
 splot(boot)
+
 splot(boot, display = "significant")
-} # }
+
 ```

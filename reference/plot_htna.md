@@ -320,11 +320,9 @@ plot_htna(mat, groups)
 groups3 <- list(X = c("A", "B"), Y = c("C", "D"), Z = c("E", "F"))
 plot_htna(mat, groups3)
 
-if (FALSE) { # \dontrun{
-mat <- matrix(runif(36, 0, 0.3), 6, 6)
-diag(mat) <- 0
-colnames(mat) <- rownames(mat) <- c("A", "B", "C", "D", "E", "F")
-groups <- list(Group1 = c("A", "B", "C"), Group2 = c("D", "E", "F"))
+set.seed(1)
+mat <- matrix(runif(36, 0, 0.3), 6, 6); diag(mat) <- 0
+colnames(mat) <- rownames(mat) <- LETTERS[1:6]
+groups <- list(G1 = LETTERS[1:3], G2 = LETTERS[4:6])
 htna(mat, groups)
-} # }
 ```

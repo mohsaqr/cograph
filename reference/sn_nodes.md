@@ -291,59 +291,15 @@ visual themes
 
 ``` r
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-
-# Basic usage with cograph()
 cograph(adj) |>
-  sn_nodes(size = 0.08, fill = "steelblue", shape = "circle")
-#> Cograph network: 3 nodes, 3 edges ( undirected )
-#> Source: matrix 
-#>   Nodes (3): 1, 2, 3
-#>   Edges: 3 / 3 (density: 100.0%)
-#>   Weights: [1.000, 1.000]  |  mean: 1.000
-#>   Strongest edges:
-#>     1 -- 2  1.000
-#>     1 -- 3  1.000
-#>     2 -- 3  1.000
-#> Layout: set 
-
-# Direct matrix input (auto-converted)
-adj |> sn_nodes(fill = "coral", size = 0.1)
-#> Cograph network: 3 nodes, 3 edges ( undirected )
-#> Source: matrix 
-#>   Nodes (3): 1, 2, 3
-#>   Edges: 3 / 3 (density: 100.0%)
-#>   Weights: [1.000, 1.000]  |  mean: 1.000
-#>   Strongest edges:
-#>     1 -- 2  1.000
-#>     1 -- 3  1.000
-#>     2 -- 3  1.000
-#> Layout: set 
-
-# Per-node customization with vectors
-cograph(adj) |>
-  sn_nodes(
-    size = c(0.08, 0.06, 0.1),
-    fill = c("red", "blue", "green"),
-    label_position = c("above", "below", "center")
-  ) |>
+  sn_nodes(size = 0.08, fill = "steelblue", shape = "circle") |>
   splot()
 
 
-# Donut chart nodes showing proportions
+# Per-node customization: vectors of length n
 cograph(adj) |>
-  sn_nodes(
-    donut_fill = c(0.25, 0.75, 0.5),
-    donut_color = "steelblue",
-    donut_show_value = TRUE,
-    donut_value_suffix = "%"
-  ) |>
-  splot()
-
-# Mixed shapes per node
-cograph(adj) |>
-  sn_nodes(
-    shape = c("circle", "square", "triangle"),
-    fill = c("#E41A1C", "#377EB8", "#4DAF4A")
-  ) |>
+  sn_nodes(size = c(0.08, 0.06, 0.1),
+           fill = c("#E41A1C", "#377EB8", "#4DAF4A"),
+           shape = c("circle", "square", "triangle")) |>
   splot()
 ```

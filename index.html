@@ -88,14 +88,14 @@
 <h2 id="how-to-use-it">How to use it?<a class="anchor" aria-label="anchor" href="#how-to-use-it"></a>
 </h2>
 <ul>
-<li><a href="https://sonsoles.me/cograph/articles/1_cograph-tutorial-plotting.html">Network Visualization with cograph: A Complete Plotting Guide</a></li>
-<li><a href="https://sonsoles.me/cograph/articles/2_why-cograph.html">Why cograph?</a></li>
-<li><a href="https://sonsoles.me/cograph/articles/3_plotting-tna-models.html">Plotting TNA Models with splot</a></li>
-<li><a href="https://sonsoles.me/cograph/articles/cograph-tutorial-communities.html">Visualization of communities and hyper order networks</a></li>
-<li><a href="https://sonsoles.me/cograph/articles/cograph-tutorial-nestimate.html">Network Estimation and Visualization with Nestimate + cograph</a></li>
-<li><a href="https://sonsoles.me/cograph/articles/mcml-examples.html">Advanced examples</a></li>
-<li><a href="https://sonsoles.me/cograph/articles/bootstrap-forest.html">Bootstrap Forest Plots</a></li>
-<li><a href="https://sonsoles.me/cograph/articles/qgraph-to-splot.html">Migrating from qgraph to splot</a></li>
+<li><a href="articles/1_cograph-tutorial-plotting.html">Network Visualization with cograph: A Complete Plotting Guide</a></li>
+<li><a href="articles/2_why-cograph.html">Why cograph?</a></li>
+<li><a href="articles/3_plotting-tna-models.html">Plotting TNA Models with splot</a></li>
+<li><a href="articles/cograph-tutorial-communities.html">Visualization of communities and hyper order networks</a></li>
+<li><a href="articles/cograph-tutorial-nestimate.html">Network Estimation and Visualization with Nestimate + cograph</a></li>
+<li><a href="articles/mcml-examples.html">Advanced examples</a></li>
+<li><a href="articles/bootstrap-forest.html">Bootstrap Forest Plots</a></li>
+<li><a href="articles/qgraph-to-splot.html">Migrating from qgraph to splot</a></li>
 </ul>
 </div>
 <div class="section level2">
@@ -323,109 +323,10 @@
 <p><img src="reference/figures/README-tna-plot-1.jpeg" alt="" width="100%"></p>
 </div>
 <div class="section level3">
-<h3 id="simple-network">Simple Network<a class="anchor" aria-label="anchor" href="#simple-network"></a>
-</h3>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sonsoles.me/cograph/">cograph</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Create a transition matrix</span></span>
-<span><span class="va">states</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Explore"</span>, <span class="st">"Plan"</span>, <span class="st">"Monitor"</span>, <span class="st">"Adapt"</span>, <span class="st">"Reflect"</span><span class="op">)</span></span>
-<span><span class="va">mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.0</span>, <span class="fl">0.4</span>, <span class="fl">0.2</span>, <span class="fl">0.1</span>, <span class="fl">0.3</span>,</span>
-<span>    <span class="fl">0.3</span>, <span class="fl">0.0</span>, <span class="fl">0.3</span>, <span class="fl">0.2</span>, <span class="fl">0.2</span>,</span>
-<span>    <span class="fl">0.2</span>, <span class="fl">0.3</span>, <span class="fl">0.0</span>, <span class="fl">0.3</span>, <span class="fl">0.2</span>,</span>
-<span>    <span class="fl">0.1</span>, <span class="fl">0.2</span>, <span class="fl">0.4</span>, <span class="fl">0.0</span>, <span class="fl">0.3</span>,</span>
-<span>    <span class="fl">0.2</span>, <span class="fl">0.2</span>, <span class="fl">0.2</span>, <span class="fl">0.4</span>, <span class="fl">0.0</span><span class="op">)</span>,</span>
-<span>  nrow <span class="op">=</span> <span class="fl">5</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">states</span>, <span class="va">states</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="reference/splot.html">splot</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-simple-network-1.jpeg" alt="" width="100%"></p>
-</div>
-<div class="section level3">
-<h3 id="layouts">Layouts<a class="anchor" aria-label="anchor" href="#layouts"></a>
-</h3>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/splot.html">splot</a></span><span class="op">(</span><span class="va">mat</span>, layout <span class="op">=</span> <span class="st">"oval"</span>,   title <span class="op">=</span> <span class="st">"oval"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/splot.html">splot</a></span><span class="op">(</span><span class="va">mat</span>, layout <span class="op">=</span> <span class="st">"circle"</span>, title <span class="op">=</span> <span class="st">"circle"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/splot.html">splot</a></span><span class="op">(</span><span class="va">mat</span>, layout <span class="op">=</span> <span class="st">"kk"</span>,     title <span class="op">=</span> <span class="st">"kk"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/splot.html">splot</a></span><span class="op">(</span><span class="va">mat</span>, layout <span class="op">=</span> <span class="st">"fr"</span>,     title <span class="op">=</span> <span class="st">"fr"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-layouts-1.jpeg" alt="" width="100%"></p>
-</div>
-<div class="section level3">
-<h3 id="edge-styling">Edge Styling<a class="anchor" aria-label="anchor" href="#edge-styling"></a>
-</h3>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/splot.html">splot</a></span><span class="op">(</span><span class="va">mat</span>,</span>
-<span>  curvature <span class="op">=</span> <span class="fl">0.3</span>,</span>
-<span>  arrow_size <span class="op">=</span> <span class="fl">0.02</span>,</span>
-<span>  edge_width <span class="op">=</span> <span class="fl">3</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-edge-styling-1.jpeg" alt="" width="100%"></p>
-</div>
-<div class="section level3">
-<h3 id="node-shapes">Node Shapes<a class="anchor" aria-label="anchor" href="#node-shapes"></a>
-</h3>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">shapes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"circle"</span>, <span class="st">"square"</span>, <span class="st">"hexagon"</span>, <span class="st">"diamond"</span>, <span class="st">"triangle"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="reference/splot.html">splot</a></span><span class="op">(</span><span class="va">mat</span>,</span>
-<span>  node_shape <span class="op">=</span> <span class="va">shapes</span>,</span>
-<span>  node_fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#E63946"</span>, <span class="st">"#457B9D"</span>, <span class="st">"#2A9D8F"</span>, <span class="st">"#E9C46A"</span>, <span class="st">"#F4A261"</span><span class="op">)</span>,</span>
-<span>  layout <span class="op">=</span> <span class="st">"circle"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-node-shapes-1.jpeg" alt="" width="100%"></p>
-</div>
-<div class="section level3">
-<h3 id="donuts">Donuts<a class="anchor" aria-label="anchor" href="#donuts"></a>
-</h3>
-<p>Donut nodes show proportional fill with optional polygon shapes.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">fills</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.9</span>, <span class="fl">0.7</span>, <span class="fl">0.5</span>, <span class="fl">0.3</span>, <span class="fl">0.8</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="reference/splot.html">splot</a></span><span class="op">(</span><span class="va">mat</span>,</span>
-<span>  donut_fill <span class="op">=</span> <span class="va">fills</span>,</span>
-<span>  donut_color <span class="op">=</span> <span class="st">"steelblue"</span>,</span>
-<span>  donut_shape <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"circle"</span>, <span class="st">"hexagon"</span>, <span class="st">"square"</span>, <span class="st">"diamond"</span>, <span class="st">"triangle"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-donuts-1.jpeg" alt="" width="100%"></p>
-</div>
-<div class="section level3">
-<h3 id="pies">Pies<a class="anchor" aria-label="anchor" href="#pies"></a>
-</h3>
-<p>Pie chart nodes with per-node color palettes.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">pie_vals</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.3</span>, <span class="fl">0.2</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.4</span>, <span class="fl">0.4</span>, <span class="fl">0.2</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.3</span>, <span class="fl">0.3</span>, <span class="fl">0.4</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.6</span>, <span class="fl">0.2</span>, <span class="fl">0.2</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">0.5</span>, <span class="fl">0.3</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">pie_cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#E63946"</span>, <span class="st">"#457B9D"</span>, <span class="st">"#2A9D8F"</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#264653"</span>, <span class="st">"#E9C46A"</span>, <span class="st">"#F4A261"</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#F72585"</span>, <span class="st">"#7209B7"</span>, <span class="st">"#3A0CA3"</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#003049"</span>, <span class="st">"#D62828"</span>, <span class="st">"#F77F00"</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#606C38"</span>, <span class="st">"#283618"</span>, <span class="st">"#DDA15E"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="reference/splot.html">splot</a></span><span class="op">(</span><span class="va">mat</span>,</span>
-<span>  node_shape <span class="op">=</span> <span class="st">"pie"</span>,</span>
-<span>  pie_values <span class="op">=</span> <span class="va">pie_vals</span>,</span>
-<span>  pie_colors <span class="op">=</span> <span class="va">pie_cols</span>,</span>
-<span>  layout <span class="op">=</span> <span class="st">"circle"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-pies-1.jpeg" alt="" width="100%"></p>
-</div>
-<div class="section level3">
-<h3 id="donut--pie-combo">Donut + Pie Combo<a class="anchor" aria-label="anchor" href="#donut--pie-combo"></a>
+<h3 id="donut--pie">Donut + Pie<a class="anchor" aria-label="anchor" href="#donut--pie"></a>
 </h3>
 <p>Combine outer donut ring with inner pie segments.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/splot.html">splot</a></span><span class="op">(</span><span class="va">mat</span>,</span>
 <span>  donut_fill <span class="op">=</span> <span class="va">fills</span>,</span>
 <span>  donut_color <span class="op">=</span> <span class="st">"steelblue"</span>,</span>
@@ -437,25 +338,17 @@
 <div class="section level3">
 <h3 id="chord-diagram">Chord Diagram<a class="anchor" aria-label="anchor" href="#chord-diagram"></a>
 </h3>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/plot_chord.html">plot_chord</a></span><span class="op">(</span><span class="va">mat</span>, title <span class="op">=</span> <span class="st">"Transition Chord Diagram"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-chord-1.jpeg" alt="" width="100%"></p>
 </div>
 <div class="section level3">
 <h3 id="heatmap">Heatmap<a class="anchor" aria-label="anchor" href="#heatmap"></a>
 </h3>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/plot_heatmap.html">plot_heatmap</a></span><span class="op">(</span><span class="va">mat</span>, show_values <span class="op">=</span> <span class="cn">TRUE</span>, colors <span class="op">=</span> <span class="st">"viridis"</span>,</span>
 <span>             value_fontface <span class="op">=</span> <span class="st">"bold"</span>, title <span class="op">=</span> <span class="st">"Transition Heatmap"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-heatmap-1.jpeg" alt="" width="100%"></p>
-</div>
-<div class="section level3">
-<h3 id="alluvial-flow">Alluvial Flow<a class="anchor" aria-label="anchor" href="#alluvial-flow"></a>
-</h3>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/plot_transitions.html">plot_transitions</a></span><span class="op">(</span><span class="va">mat</span>, flow_color_by <span class="op">=</span> <span class="st">"from"</span>, flow_alpha <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>                 from_title <span class="op">=</span> <span class="st">"Source"</span>, to_title <span class="op">=</span> <span class="st">"Target"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-alluvial-1.jpeg" alt="" width="100%"></p>
 </div>
 </div>
 <div class="section level2">

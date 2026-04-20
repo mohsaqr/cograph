@@ -128,49 +128,22 @@ from tna sequence data is a separate edge. If TRUE or a string
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># From adjacency matrix (no layout computed yet - fast!)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># From adjacency matrix (layout computed lazily on first plot)</span></span></span>
 <span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu">cograph</span><span class="op">(</span><span class="va">adj</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Layout computed automatically when plotting</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span><span class="va">net</span><span class="op">)</span>  <span class="co"># Uses spring layout by default</span></span></span>
+<span class="r-in"><span><span class="fu">cograph</span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="cograph-1.png" alt="" width="1080" height="1080"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># From edge list</span></span></span>
 <span class="r-in"><span><span class="va">edges</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, to <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">cograph</span><span class="op">(</span><span class="va">edges</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 3 nodes, 3 edges ( undirected )</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Source: edgelist </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Data: data.frame (3 x 2) </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (3): 1, 2, 3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Weights: 1 (all equal)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Compute layout immediately if needed</span></span></span>
-<span class="r-in"><span><span class="fu">cograph</span><span class="op">(</span><span class="va">adj</span>, layout <span class="op">=</span> <span class="st">"circle"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">cograph</span><span class="op">(</span><span class="va">edges</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span>layout <span class="op">=</span> <span class="st">"circle"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="cograph-2.png" alt="" width="1080" height="1080"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># With customization (pipe-friendly workflow)</span></span></span>
-<span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Pipe-friendly customization</span></span></span>
 <span class="r-in"><span><span class="fu">cograph</span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="sn_nodes.html">sn_nodes</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"steelblue"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="sn_edges.html">sn_edges</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"gray50"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span>layout <span class="op">=</span> <span class="st">"circle"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="cograph-3.png" alt="" width="1080" height="1080"></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Weighted network with automatic styling</span></span></span>
-<span class="r-in"><span><span class="va">w_adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.5</span>, <span class="op">-</span><span class="fl">0.3</span>, <span class="fl">0.5</span>, <span class="fl">0</span>, <span class="fl">0.4</span>, <span class="op">-</span><span class="fl">0.3</span>, <span class="fl">0.4</span>, <span class="fl">0</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">cograph</span><span class="op">(</span><span class="va">w_adj</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="sn_edges.html">sn_edges</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"weight"</span>, width <span class="op">=</span> <span class="st">"weight"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="cograph-4.png" alt="" width="1080" height="1080"></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># With igraph (if installed)</span></span></span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"igraph"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>  <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">igraph</span><span class="fu">::</span><span class="fu"><a href="https://r.igraph.org/reference/make_ring.html" class="external-link">make_ring</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="fu">cograph</span><span class="op">(</span><span class="va">g</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
-<span class="r-plt img"><img src="cograph-5.png" alt="" width="1080" height="1080"></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -134,38 +134,13 @@ or when structure is less important.</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Built-in layouts</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">sn_layout</span><span class="op">(</span><span class="st">"circle"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="sn_layout-1.png" alt="" width="1080" height="1080"></span>
-<span class="r-in"><span><span class="fu"><a href="cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">sn_layout</span><span class="op">(</span><span class="st">"spring"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="sn_layout-2.png" alt="" width="1080" height="1080"></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># igraph layouts (if igraph installed)</span></span></span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"igraph"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">sn_layout</span><span class="op">(</span><span class="st">"kk"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">sn_layout</span><span class="op">(</span><span class="st">"fr"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
-<span class="r-plt img"><img src="sn_layout-3.png" alt="" width="1080" height="1080"></span>
-<span class="r-plt img"><img src="sn_layout-4.png" alt="" width="1080" height="1080"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Custom coordinates</span></span></span>
 <span class="r-in"><span><span class="va">coords</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0.5</span>, <span class="fl">1</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">2</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">sn_layout</span><span class="op">(</span><span class="va">coords</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="sn_layout-5.png" alt="" width="1080" height="1080"></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Direct matrix input (auto-converts)</span></span></span>
-<span class="r-in"><span><span class="va">adj</span> <span class="op">|&gt;</span> <span class="fu">sn_layout</span><span class="op">(</span><span class="st">"circle"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 3 nodes, 3 edges ( undirected )</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Source: matrix </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (3): 1, 2, 3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 3 / 3 (density: 100.0%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [1.000, 1.000]  |  mean: 1.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Strongest edges:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     1 -- 2  1.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     1 -- 3  1.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     2 -- 3  1.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Layout: set </span>
+<span class="r-plt img"><img src="sn_layout-2.png" alt="" width="1080" height="1080"></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

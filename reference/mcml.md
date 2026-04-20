@@ -52,11 +52,26 @@ A cluster_summary object (or tna if as_tna = TRUE)
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-mat <- matrix(runif(100, 0, 0.3), 10, 10)
-diag(mat) <- 0
+set.seed(1)
+mat <- matrix(runif(100, 0, 0.3), 10, 10); diag(mat) <- 0
 colnames(mat) <- rownames(mat) <- paste0("N", 1:10)
 clusters <- list(C1 = paste0("N", 1:5), C2 = paste0("N", 6:10))
 mcml(mat, clusters)
-} # }
+#> Cluster Summary
+#> ---------------
+#> Type: tna 
+#> Method: sum 
+#> Clusters: 2 
+#> Nodes: 10 
+#> Cluster sizes: 5, 5 
+#> 
+#> Macro (cluster-level) weights (2x2):
+#>   Inits: 0.515, 0.485 
+#>       C1    C2
+#> C1 0.469 0.531
+#> C2 0.559 0.441
+#> 
+#> Per-cluster weights:
+#>   C1 (5 nodes)
+#>   C2 (5 nodes)
 ```

@@ -133,23 +133,13 @@ A ggplot2 object.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# List of matrices
+set.seed(1)
 layers <- list(
-  Layer1 = matrix(runif(16), 4, 4),
-  Layer2 = matrix(runif(16), 4, 4),
-  Layer3 = matrix(runif(16), 4, 4)
-)
+  L1 = matrix(runif(16), 4, 4),
+  L2 = matrix(runif(16), 4, 4),
+  L3 = matrix(runif(16), 4, 4))
 plot_ml_heatmap(layers)
 
-# With connections
-plot_ml_heatmap(layers, show_connections = TRUE)
+plot_ml_heatmap(layers, show_connections = TRUE, colors = "plasma")
 
-# Custom styling
-plot_ml_heatmap(layers,
-  colors = "plasma",
-  layer_spacing = 3,
-  skew = 0.5
-)
-} # }
 ```

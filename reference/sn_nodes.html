@@ -322,60 +322,16 @@ other than 1 or n_nodes will produce a warning about recycling.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Basic usage with cograph()</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>  <span class="fu">sn_nodes</span><span class="op">(</span>size <span class="op">=</span> <span class="fl">0.08</span>, fill <span class="op">=</span> <span class="st">"steelblue"</span>, shape <span class="op">=</span> <span class="st">"circle"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 3 nodes, 3 edges ( undirected )</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Source: matrix </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (3): 1, 2, 3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 3 / 3 (density: 100.0%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [1.000, 1.000]  |  mean: 1.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Strongest edges:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     1 -- 2  1.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     1 -- 3  1.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     2 -- 3  1.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Layout: set </span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Direct matrix input (auto-converted)</span></span></span>
-<span class="r-in"><span><span class="va">adj</span> <span class="op">|&gt;</span> <span class="fu">sn_nodes</span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"coral"</span>, size <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 3 nodes, 3 edges ( undirected )</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Source: matrix </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (3): 1, 2, 3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 3 / 3 (density: 100.0%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [1.000, 1.000]  |  mean: 1.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Strongest edges:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     1 -- 2  1.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     1 -- 3  1.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     2 -- 3  1.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Layout: set </span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Per-node customization with vectors</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>  <span class="fu">sn_nodes</span><span class="op">(</span></span></span>
-<span class="r-in"><span>    size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.08</span>, <span class="fl">0.06</span>, <span class="fl">0.1</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"blue"</span>, <span class="st">"green"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    label_position <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"above"</span>, <span class="st">"below"</span>, <span class="st">"center"</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">sn_nodes</span><span class="op">(</span>size <span class="op">=</span> <span class="fl">0.08</span>, fill <span class="op">=</span> <span class="st">"steelblue"</span>, shape <span class="op">=</span> <span class="st">"circle"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="sn_nodes-1.png" alt="" width="1080" height="1080"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Donut chart nodes showing proportions</span></span></span>
+<span class="r-in"><span><span class="co"># Per-node customization: vectors of length n</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>  <span class="fu">sn_nodes</span><span class="op">(</span></span></span>
-<span class="r-in"><span>    donut_fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="fl">0.75</span>, <span class="fl">0.5</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    donut_color <span class="op">=</span> <span class="st">"steelblue"</span>,</span></span>
-<span class="r-in"><span>    donut_show_value <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
-<span class="r-in"><span>    donut_value_suffix <span class="op">=</span> <span class="st">"%"</span></span></span>
-<span class="r-in"><span>  <span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Mixed shapes per node</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>  <span class="fu">sn_nodes</span><span class="op">(</span></span></span>
-<span class="r-in"><span>    shape <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"circle"</span>, <span class="st">"square"</span>, <span class="st">"triangle"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#E41A1C"</span>, <span class="st">"#377EB8"</span>, <span class="st">"#4DAF4A"</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">sn_nodes</span><span class="op">(</span>size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.08</span>, <span class="fl">0.06</span>, <span class="fl">0.1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>           fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#E41A1C"</span>, <span class="st">"#377EB8"</span>, <span class="st">"#4DAF4A"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>           shape <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"circle"</span>, <span class="st">"square"</span>, <span class="st">"triangle"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>

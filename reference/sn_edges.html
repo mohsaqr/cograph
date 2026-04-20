@@ -412,67 +412,17 @@ respecting the <code>maximum</code> parameter if set.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Basic: auto-style by weight</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>  <span class="fu">sn_edges</span><span class="op">(</span>width <span class="op">=</span> <span class="st">"weight"</span>, color <span class="op">=</span> <span class="st">"weight"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 3 nodes, 3 edges ( undirected )</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Source: matrix </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (3): 1, 2, 3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 3 / 3 (density: 100.0%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [-0.500, 1.000]  |  +2 / -1 edges</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Strongest edges:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     1 -- 2  1.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     2 -- 3  1.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     1 -- 3  -0.500</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Layout: set </span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Direct matrix input (auto-converted)</span></span></span>
-<span class="r-in"><span><span class="va">adj</span> <span class="op">|&gt;</span> <span class="fu">sn_edges</span><span class="op">(</span>width <span class="op">=</span> <span class="fl">2</span>, color <span class="op">=</span> <span class="st">"gray50"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 3 nodes, 3 edges ( undirected )</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Source: matrix </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (3): 1, 2, 3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 3 / 3 (density: 100.0%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [-0.500, 1.000]  |  +2 / -1 edges</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Strongest edges:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     1 -- 2  1.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     2 -- 3  1.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     1 -- 3  -0.500</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Layout: set </span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Custom positive/negative colors</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>  <span class="fu">sn_edges</span><span class="op">(</span></span></span>
-<span class="r-in"><span>    color <span class="op">=</span> <span class="st">"weight"</span>,</span></span>
-<span class="r-in"><span>    edge_positive_color <span class="op">=</span> <span class="st">"darkblue"</span>,</span></span>
-<span class="r-in"><span>    edge_negative_color <span class="op">=</span> <span class="st">"darkred"</span></span></span>
-<span class="r-in"><span>  <span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">sn_edges</span><span class="op">(</span>width <span class="op">=</span> <span class="st">"weight"</span>, color <span class="op">=</span> <span class="st">"weight"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="sn_edges-1.png" alt="" width="1080" height="1080"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Edge labels showing weights</span></span></span>
+<span class="r-in"><span><span class="co"># Custom positive/negative colors with labels</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>  <span class="fu">sn_edges</span><span class="op">(</span>labels <span class="op">=</span> <span class="cn">TRUE</span>, label_size <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Statistical output with CI template</span></span></span>
-<span class="r-in"><span><span class="co"># Suppose we have estimates, lower/upper CI bounds</span></span></span>
-<span class="r-in"><span><span class="va">estimates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="op">-</span><span class="fl">0.3</span>, <span class="fl">0.8</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">ci_lo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="op">-</span><span class="fl">0.6</span>, <span class="fl">0.5</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">ci_hi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.8</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="fl">1.1</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>  <span class="fu">sn_edges</span><span class="op">(</span></span></span>
-<span class="r-in"><span>    label_template <span class="op">=</span> <span class="st">"{est} [{low}, {up}]"</span>,</span></span>
-<span class="r-in"><span>    ci_lower <span class="op">=</span> <span class="va">ci_lo</span>,</span></span>
-<span class="r-in"><span>    ci_upper <span class="op">=</span> <span class="va">ci_hi</span>,</span></span>
-<span class="r-in"><span>    label_digits <span class="op">=</span> <span class="fl">2</span></span></span>
-<span class="r-in"><span>  <span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Curved edges for reciprocal pairs</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>  <span class="fu">sn_edges</span><span class="op">(</span>curves <span class="op">=</span> <span class="st">"mutual"</span>, curvature <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">sn_edges</span><span class="op">(</span>color <span class="op">=</span> <span class="st">"weight"</span>,</span></span>
+<span class="r-in"><span>           edge_positive_color <span class="op">=</span> <span class="st">"darkblue"</span>,</span></span>
+<span class="r-in"><span>           edge_negative_color <span class="op">=</span> <span class="st">"darkred"</span>,</span></span>
+<span class="r-in"><span>           labels <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>

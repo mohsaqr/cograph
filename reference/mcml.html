@@ -101,13 +101,28 @@ backward compatibility only.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="va">mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">0</span>, <span class="fl">0.3</span><span class="op">)</span>, <span class="fl">10</span>, <span class="fl">10</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fl">0</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">0</span>, <span class="fl">0.3</span><span class="op">)</span>, <span class="fl">10</span>, <span class="fl">10</span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fl">0</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"N"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">clusters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>C1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"N"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span>, C2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"N"</span>, <span class="fl">6</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">mcml</span><span class="op">(</span><span class="va">mat</span>, <span class="va">clusters</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Cluster Summary</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ---------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Type: tna </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Method: sum </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Clusters: 2 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Nodes: 10 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Cluster sizes: 5, 5 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Macro (cluster-level) weights (2x2):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Inits: 0.515, 0.485 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       C1    C2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> C1 0.469 0.531</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> C2 0.559 0.441</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Per-cluster weights:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   C1 (5 nodes)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   C2 (5 nodes)</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

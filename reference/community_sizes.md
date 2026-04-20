@@ -24,5 +24,5 @@ Named integer vector of community sizes
 g <- igraph::make_graph("Zachary")
 comm <- community_louvain(g)
 community_sizes(comm)
-#> [1] 11  5 14  4
+#> [1] 12  5 13  4
 ```

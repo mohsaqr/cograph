@@ -127,19 +127,21 @@ community detection. *Physical Review E*, 74, 016110.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::make_graph("Zachary")
-  comm <- community_louvain(g)
-
-  # Test significance
-  sig <- cluster_significance(g, comm, n_random = 100, seed = 123)
-  print(sig)
-
-  # Configuration model (stricter test)
-  sig2 <- cluster_significance(g, comm, method = "configuration")
-}
-} # }
+g <- igraph::make_graph("Zachary")
+comm <- community_louvain(g)
+sig <- cluster_significance(g, comm, n_random = 20, seed = 123)
+print(sig)
+#> Cluster Significance Test
+#> =========================
+#> 
+#>   Null model:           configuration (n = 20 )
+#>   Observed modularity:  0.4156 
+#>   Null mean:            0.3776 
+#>   Null SD:              0.031 
+#>   Z-score:              1.23 
+#>   P-value:              0.10984 
+#> 
+#>   Conclusion: No significant community structure (p >= 0.05)
 if (requireNamespace("igraph", quietly = TRUE)) {
   g <- igraph::make_graph("Zachary")
   comm <- community_louvain(g)
@@ -149,11 +151,11 @@ if (requireNamespace("igraph", quietly = TRUE)) {
 #> =========================
 #> 
 #>   Null model:           configuration (n = 20 )
-#>   Observed modularity:  0.4156 
+#>   Observed modularity:  0.4151 
 #>   Null mean:            0.3866 
 #>   Null SD:              0.0189 
-#>   Z-score:              1.54 
-#>   P-value:              0.062349 
+#>   Z-score:              1.51 
+#>   P-value:              0.065619 
 #> 
 #>   Conclusion: No significant community structure (p >= 0.05)
 ```

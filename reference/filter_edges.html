@@ -115,13 +115,11 @@ returns the same type as input (matrix, igraph, network, etc.).</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">.5</span>, <span class="fl">.8</span>, <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>                <span class="fl">.5</span>, <span class="fl">0</span>, <span class="fl">.3</span>, <span class="fl">.6</span>,</span></span>
-<span class="r-in"><span>                <span class="fl">.8</span>, <span class="fl">.3</span>, <span class="fl">0</span>, <span class="fl">.4</span>,</span></span>
-<span class="r-in"><span>                 <span class="fl">0</span>, <span class="fl">.6</span>, <span class="fl">.4</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fl">4</span>, <span class="fl">4</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">.5</span>, <span class="fl">.8</span>, <span class="fl">0</span>, <span class="fl">.5</span>, <span class="fl">0</span>, <span class="fl">.3</span>, <span class="fl">.6</span>,</span></span>
+<span class="r-in"><span>                <span class="fl">.8</span>, <span class="fl">.3</span>, <span class="fl">0</span>, <span class="fl">.4</span>, <span class="fl">0</span>, <span class="fl">.6</span>, <span class="fl">.4</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fl">4</span>, <span class="fl">4</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Keep only strong edges (returns cograph_network)</span></span></span>
+<span class="r-in"><span><span class="co"># Keep only strong edges</span></span></span>
 <span class="r-in"><span><span class="fu">filter_edges</span><span class="op">(</span><span class="va">adj</span>, <span class="va">weight</span> <span class="op">&gt;</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 4 nodes, 2 edges ( undirected )</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Source: filtered </span>
@@ -133,7 +131,7 @@ returns the same type as input (matrix, igraph, network, etc.).</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     B -- D  0.600</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Keep format: matrix in, matrix out</span></span></span>
+<span class="r-in"><span><span class="co"># Matrix in, matrix out</span></span></span>
 <span class="r-in"><span><span class="fu">filter_edges</span><span class="op">(</span><span class="va">adj</span>, <span class="va">weight</span> <span class="op">&gt;</span> <span class="fl">0.5</span>, keep_format <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   A B   C   D</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> A 0 0 0.8 0.0</span>
@@ -141,38 +139,12 @@ returns the same type as input (matrix, igraph, network, etc.).</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> C 0 0 0.0 0.0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> D 0 0 0.0 0.0</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Keep edges above mean weight</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span><span class="fu">filter_edges</span><span class="op">(</span><span class="va">adj</span>, <span class="va">weight</span> <span class="op">&gt;=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">weight</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="filter_edges-1.png" alt="" width="1080" height="1080"></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># With cograph_network (pipe-friendly)</span></span></span>
-<span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="as_cograph.html">as_cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">net</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span><span class="co"># Pipe-friendly with cograph_network</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="as_cograph.html">as_cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu">filter_edges</span><span class="op">(</span><span class="va">weight</span> <span class="op">&gt;</span> <span class="fl">0.3</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="filter_nodes.html">filter_nodes</a></span><span class="op">(</span><span class="va">degree</span> <span class="op">&gt;=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="filter_edges-2.png" alt="" width="1080" height="1080"></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Keep isolated nodes</span></span></span>
-<span class="r-in"><span><span class="fu">filter_edges</span><span class="op">(</span><span class="va">net</span>, <span class="va">weight</span> <span class="op">&gt;</span> <span class="fl">0.7</span>, .keep_isolates <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 4 nodes, 1 edges ( undirected )</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Source: filtered </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (4): A, B, C, D</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 1 / 6 (density: 16.7%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [0.800, 0.800]  |  mean: 0.800</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Strongest edges:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     A -- C  0.800</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># With igraph (keep_format = TRUE returns igraph)</span></span></span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"igraph"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>  <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">igraph</span><span class="fu">::</span><span class="fu"><a href="https://r.igraph.org/reference/make_ring.html" class="external-link">make_ring</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="fu">filter_edges</span><span class="op">(</span><span class="va">g</span>, <span class="va">weight</span> <span class="op">&gt;</span> <span class="fl">0</span>, keep_format <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>  <span class="co"># Returns igraph</span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> IGRAPH 693edcc UNW- 5 5 -- </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> + attr: name (v/c), weight (e/n)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> + edges from 693edcc (vertex names):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1--2 2--3 3--4 4--5 1--5</span>
+<span class="r-plt img"><img src="filter_edges-1.png" alt="" width="1080" height="1080"></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

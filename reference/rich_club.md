@@ -101,11 +101,7 @@ Detecting rich-club ordering in complex networks. *Nature Physics*, 2,
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::sample_pa(100, m = 3, directed = FALSE)
-  rc <- cograph::rich_club(g)
-  plot(rc)
-}
-} # }
+g <- igraph::sample_pa(50, m = 2, directed = FALSE)
+rc <- cograph::rich_club(g, n_random = 20)
+plot(rc)
 ```

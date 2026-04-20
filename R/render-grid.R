@@ -9,6 +9,32 @@
 #' soplot(adj)
 NULL
 
+# Copy aesthetic/theme state from an S3 cograph_network or R6 CographNetwork
+# onto a fresh R6 target. render_*_grid() reads aes/theme via R6 getters, so
+# without this copy anything set via sn_nodes / sn_edges / sn_theme /
+# sn_palette on an S3 source is lost at draw time.
+.copy_aes_to_r6 <- function(source, target) {
+  node_aes <- if (inherits(source, "CographNetwork")) {
+    source$get_node_aes()
+  } else {
+    source$node_aes
+  }
+  edge_aes <- if (inherits(source, "CographNetwork")) {
+    source$get_edge_aes()
+  } else {
+    source$edge_aes
+  }
+  theme <- if (inherits(source, "CographNetwork")) {
+    source$get_theme()
+  } else {
+    source$theme
+  }
+  if (!is.null(node_aes) && length(node_aes) > 0) target$set_node_aes(node_aes)
+  if (!is.null(edge_aes) && length(edge_aes) > 0) target$set_edge_aes(edge_aes)
+  if (!is.null(theme)) target$set_theme(theme)
+  invisible(target)
+}
+
 #' Plot Cograph Network
 #'
 #' Main plotting function for Cograph networks. Renders the network visualization
@@ -619,11 +645,15 @@ soplot <- function(network, title = NULL, title_size = 14,
     network$nodes <- nodes
   }
 
-  # Create temporary R6 network for grid rendering functions
+  # Create temporary R6 network for grid rendering functions. Copy
+  # aesthetics/theme as well — otherwise sn_nodes/sn_edges/sn_theme/
+  # sn_palette state set on the S3 object never reaches render_*_grid(),
+  # which reads network$get_node_aes() / get_edge_aes() / get_theme().
   net <- CographNetwork$new()
   net$set_nodes(get_nodes(network))
   net$set_edges(get_edges(network))
   net$set_directed(is_directed(network))
+  .copy_aes_to_r6(network, net)
 
   if (newpage) {
     grid::grid.newpage()
@@ -743,11 +773,13 @@ create_grid_grob <- function(network, title = NULL, background = "white") {
     stop("network must be a cograph_network object", call. = FALSE)
   }
 
-  # Create temporary R6 network for grid rendering functions
+  # Create temporary R6 network for grid rendering functions (see note in
+  # the soplot() path above about aesthetic/theme propagation).
   net <- CographNetwork$new()
   net$set_nodes(get_nodes(network))
   net$set_edges(get_edges(network))
   net$set_directed(is_directed(network))
+  .copy_aes_to_r6(network, net)
 
   # Background
   bg_color <- background

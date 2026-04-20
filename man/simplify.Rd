@@ -56,11 +56,12 @@ simplify(x, remove_loops, remove_multiple, edge_attr_comb, ...)
 
 \item{remove_loops}{Logical. Remove self-loops (diagonal entries)?}
 
-\item{remove_multiple}{Logical. Merge duplicate edges?}
+\item{remove_multiple}{Logical. Merge duplicate edges?
+No-op for matrix/tna inputs (see Details).}
 
 \item{edge_attr_comb}{How to combine weights of duplicate edges:
 \code{"sum"}, \code{"mean"}, \code{"max"}, \code{"min"},
-\code{"first"}, or a custom function.}
+\code{"first"}, or a custom function. Ignored for matrix/tna inputs.}
 
 \item{...}{Additional arguments (currently unused).}
 }
@@ -68,9 +69,23 @@ simplify(x, remove_loops, remove_multiple, edge_attr_comb, ...)
 The simplified network in the same format as the input.
 }
 \description{
-Removes self-loops and merges duplicate (multi-)edges, similar to
-\code{igraph::simplify()}. Works on matrices, cograph_network, igraph,
-and tna objects.
+Removes self-loops and (where representable) merges duplicate
+(multi-)edges, similar to \code{igraph::simplify()}.
+}
+\details{
+The extent of simplification depends on the input representation:
+\itemize{
+\item \code{matrix} and \code{tna}: edges are stored as an n x n weight
+matrix. Each cell (i, j) is unique by construction, so duplicate-edge
+merging is a no-op regardless of \code{remove_multiple} /
+\code{edge_attr_comb}; only self-loops (the diagonal) can be removed.
+Convert to \code{cograph_network} or \code{igraph} first if you need
+true duplicate aggregation.
+\item \code{cograph_network}: duplicate edges in the edge-list are
+merged via \code{aggregate_duplicate_edges()} using
+\code{edge_attr_comb}.
+\item \code{igraph}: delegates to \code{igraph::simplify()}.
+}
 }
 \examples{
 # Matrix with self-loops

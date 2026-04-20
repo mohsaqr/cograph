@@ -14,11 +14,12 @@ validate_network <- function(x, arg_name = "network") {
     stop(arg_name, " must be a CographNetwork object", call. = FALSE)
   }
 
-  # Extract R6 object if wrapped
-  if (inherits(x, "cograph_network")) {
-    x <- x$network
-  }
-
+  # Historical note: this previously unwrapped via `x <- x$network` for the
+  # cograph_network branch, but S3 cograph_network is a flat list (nodes/edges/
+  # meta stored directly, not inside a `$network` slot). That branch returned
+  # NULL silently. Both representations are now returned as-is; callers decide
+  # whether they want the R6 or S3 flavor and use the accessor helpers
+  # (get_nodes / get_edges / is_directed / ...) which cover both.
   x
 }
 

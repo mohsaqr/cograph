@@ -26,7 +26,21 @@ supra(
 
 \item{coupling}{Coupling type: "diagonal", "full", or "custom"}
 
-\item{interlayer_matrices}{For coupling="custom", list of inter-layer matrices}
+\item{interlayer_matrices}{For \code{coupling = "custom"}, a list of
+inter-layer matrices. Accepted shapes:
+\itemize{
+\item Named list with keys \code{"a_b"} (integer layer indices) or
+\code{"<layer_name_a>_<layer_name_b>"}; either order works.
+\item Unnamed list of length \code{choose(L, 2)} giving every pair
+in upper-triangle row-major order: \code{(1,2), (1,3), ..., (1,L),
+      (2,3), ..., (L-1,L)}.
+\item Unnamed list of length \code{L-1} giving adjacent pairs only
+(legacy chain layout): entry \code{i} is the coupling for
+\code{(i, i+1)}. Non-adjacent pairs use \code{omega[a,b] * I}.
+}
+If no entry matches a pair and no legacy chain layout applies, a
+warning is emitted and the diagonal default \code{omega[a,b] * I}
+is used (previously this happened silently).}
 }
 \value{
 Supra-adjacency matrix of dimension (N\emph{L) x (N}L)

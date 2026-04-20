@@ -10,6 +10,7 @@ cluster_significance(
   communities,
   n_random = 100,
   method = c("configuration", "gnm"),
+  null = c("detect", "fixed"),
   seed = NULL
 )
 
@@ -18,6 +19,7 @@ csig(
   communities,
   n_random = 100,
   method = c("configuration", "gnm"),
+  null = c("detect", "fixed"),
   seed = NULL
 )
 }
@@ -39,6 +41,18 @@ stringent test.}
 random baseline.}
 }}
 
+\item{null}{Which null question to answer. Default \code{"detect"}:
+\describe{
+\item{"detect"}{Null is the modularity of the \emph{best partition
+found by community detection} on each null graph. Answers "is the
+observed partition stronger than what community detection would
+recover on similar random graphs?" — the historical behavior.}
+\item{"fixed"}{Null is the modularity of the supplied
+\code{communities} membership \emph{evaluated on each null graph}.
+Answers "does the supplied partition itself explain more structure
+than it would on similar random graphs?" — the conservative test.}
+}}
+
 \item{seed}{Random seed for reproducibility. Default NULL.}
 }
 \value{
@@ -52,6 +66,7 @@ A \code{cograph_cluster_significance} object with:
 higher modularity by chance)}
 \item{null_values}{Vector of modularity values from null distribution}
 \item{method}{Null model method used}
+\item{null}{Which null question was asked ("detect" or "fixed")}
 \item{n_random}{Number of random networks generated}
 }
 
@@ -62,14 +77,15 @@ Compares observed modularity against a null model distribution to assess
 whether the detected community structure is statistically significant.
 }
 \details{
-The test works by:
-\enumerate{
-\item Computing the modularity of the provided community structure
-\item Generating \code{n_random} random networks using the specified null model
-\item For each random network, detecting communities with Louvain and
-computing modularity
-\item Comparing the observed modularity to this null distribution
-}
+Two null models are supported. The default, \code{null = "detect"},
+generates \code{n_random} random networks, runs community detection
+(Louvain, with fast-greedy fallback) on each, and records the resulting
+modularity. Low p-value means the observed partition beats what
+detection would return on similar random graphs. \code{null = "fixed"}
+instead evaluates the user-supplied membership on each null graph, so
+low p-value means the partition itself is stronger than it would be on
+similar random graphs — a tighter question that isolates the
+partition's quality from any detector's behavior.
 
 A significant result (low p-value) indicates that the community structure
 is stronger than expected by chance for networks with similar properties.

@@ -45,8 +45,6 @@ NULL
 #' using i and j parameters.
 #'
 #' @examples
-#' \dontrun{
-#' # Compare two adjacency matrices
 #' set.seed(42)
 #' m1 <- matrix(runif(25), 5, 5)
 #' m2 <- matrix(runif(25), 5, 5)
@@ -55,10 +53,9 @@ NULL
 #' plot_compare(m1, m2)
 #'
 #' # With node-level differences
-#' inits1 <- c(0.3, 0.2, 0.2, 0.15, 0.15)
-#' inits2 <- c(0.1, 0.4, 0.2, 0.2, 0.1)
-#' plot_compare(m1, m2, inits_x = inits1, inits_y = inits2)
-#' }
+#' plot_compare(m1, m2,
+#'              inits_x = c(.3, .2, .2, .15, .15),
+#'              inits_y = c(.1, .4, .2, .2, .1))
 #'
 #' @export
 plot_compare <- function(x, y = NULL,
@@ -326,19 +323,13 @@ plot_compare <- function(x, y = NULL,
 #' @return A ggplot2 object.
 #'
 #' @examples
-#' \dontrun{
 #' set.seed(42)
 #' m1 <- matrix(runif(25), 5, 5)
 #' m2 <- matrix(runif(25), 5, 5)
 #' rownames(m1) <- colnames(m1) <- LETTERS[1:5]
 #' rownames(m2) <- colnames(m2) <- LETTERS[1:5]
-#'
-#' # Difference heatmap
 #' plot_comparison_heatmap(m1, m2)
-#'
-#' # Show just one network
 #' plot_comparison_heatmap(m1, type = "x")
-#' }
 #'
 #' @export
 plot_comparison_heatmap <- function(x, y = NULL,

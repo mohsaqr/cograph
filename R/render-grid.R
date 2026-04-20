@@ -5,10 +5,8 @@
 #'   \code{cograph_network} object invisibly; \code{\link{sn_ggplot}} returns a
 #'   ggplot2 object.
 #' @examples
-#' \dontrun{
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 #' soplot(adj)
-#' }
 NULL
 
 #' Plot Cograph Network
@@ -538,7 +536,7 @@ soplot <- function(network, title = NULL, title_size = 14,
     donut2_inner_ratio = donut2_inner_ratio,
     node_names = node_names
   )
-  node_aes <- node_aes[!sapply(node_aes, is.null)]
+  node_aes <- node_aes[!vapply(node_aes, is.null, logical(1))]
   if (length(node_aes) > 0) {
     network <- do.call(sn_nodes, c(list(network = network), node_aes))
   }
@@ -583,7 +581,7 @@ soplot <- function(network, title = NULL, title_size = 14,
     curve_pivot = curve_pivot,
     curves = curves
   )
-  edge_aes <- edge_aes[!sapply(edge_aes, is.null)]
+  edge_aes <- edge_aes[!vapply(edge_aes, is.null, logical(1))]
   if (length(edge_aes) > 0) {
     network <- do.call(sn_edges, c(list(network = network), edge_aes))
   }
@@ -720,7 +718,7 @@ soplot <- function(network, title = NULL, title_size = 14,
     node_names = node_names, legend = legend, legend_position = legend_position
   )
   # Remove NULL values
-  plot_params <- plot_params[!sapply(plot_params, is.null)]
+  plot_params <- plot_params[!vapply(plot_params, is.null, logical(1))]
 
   # Update the original unified network with layout info
   network$meta$layout <- list(
@@ -905,8 +903,6 @@ render_legend_grid <- function(network, position = "topright") {
 #' @return Invisible NULL. Called for side effect of drawing.
 #' @export
 #' @examples
-#' \dontrun{
 #' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 #' sn_render(mat)
-#' }
 sn_render <- soplot

@@ -176,15 +176,11 @@ as a separate line. This is an alias for \code{plot_transitions()} with
 \code{track_individuals = TRUE}.
 }
 \examples{
-\dontrun{
-# Track individual trajectories across time points
 df <- data.frame(
   Baseline = c("Light", "Light", "Intense", "Resource"),
-  Week4 = c("Light", "Intense", "Intense", "Light"),
-  Week8 = c("Resource", "Intense", "Light", "Light")
-)
+  Week4    = c("Light", "Intense", "Intense", "Light"),
+  Week8    = c("Resource", "Intense", "Light", "Light"))
 plot_trajectories(df, flow_color_by = "first")
-}
 
 }
 \seealso{

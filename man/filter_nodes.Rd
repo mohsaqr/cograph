@@ -60,36 +60,15 @@ measure. Returns a cograph_network object by default (universal format), or
 optionally the same format as input when \code{keep_format = TRUE}.
 }
 \examples{
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
+adj <- matrix(c(0, .5, .8, 0, .5, 0, .3, .6,
+                .8, .3, 0, .4, 0, .6, .4, 0), 4, 4, byrow = TRUE)
 rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
 
-# Keep only high-degree nodes (returns cograph_network)
+# Keep only high-degree nodes
 filter_nodes(adj, degree >= 3)
 
-# Keep format: matrix in, matrix out
-filter_nodes(adj, degree >= 3, keep_format = TRUE)
-
-# Filter by node label
-splot(filter_nodes(adj, label \%in\% c("A", "C")))
-
-# Combine centrality and metadata filters
-splot(filter_nodes(adj, degree >= 2 & label != "D"))
-
-# With cograph_network (pipe-friendly)
-net <- as_cograph(adj)
-net |>
-  filter_edges(weight > 0.3) |>
-  filter_nodes(degree >= 2) |>
-  splot()
-
-# With igraph (keep_format = TRUE returns igraph)
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::make_ring(5)
-  filter_nodes(g, degree >= 2, keep_format = TRUE)  # Returns igraph
-}
+# Filter by label, combined with degree
+filter_nodes(adj, degree >= 2 & label != "D")
 }
 \seealso{
 \code{\link{filter_edges}}, \code{\link{splot}}, \code{\link{subset_nodes}}

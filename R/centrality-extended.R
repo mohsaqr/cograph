@@ -122,12 +122,16 @@ calculate_lobby <- function(g, mode = "all") {
 #' divided by (n - 1).
 #' @keywords internal
 #' @noRd
-calculate_radiality <- function(g, mode = "all", weights = NULL) {
+calculate_radiality <- function(g, mode = "all", weights = NULL,
+                                dist_mat = NULL) {
   n <- igraph::vcount(g)
   if (n <= 1) return(rep(NA_real_, n))
 
-  dist_weights <- if (is.null(weights)) NA else weights
-  sp <- igraph::distances(g, mode = mode, weights = dist_weights)
+  if (is.null(dist_mat)) {
+    dist_weights <- if (is.null(weights)) NA else weights
+    dist_mat <- igraph::distances(g, mode = mode, weights = dist_weights)
+  }
+  sp <- dist_mat
   diam <- igraph::diameter(g, directed = igraph::is_directed(g),
                            weights = if (is.null(weights)) NA else NULL)
 
@@ -142,12 +146,16 @@ calculate_radiality <- function(g, mode = "all", weights = NULL) {
 #' Lin centrality (centiserve-compatible)
 #' @keywords internal
 #' @noRd
-calculate_lin <- function(g, mode = "all", weights = NULL) {
+calculate_lin <- function(g, mode = "all", weights = NULL,
+                          dist_mat = NULL) {
   n <- igraph::vcount(g)
   if (n <= 1) return(rep(NA_real_, n))
 
-  dist_weights <- if (is.null(weights)) NA else weights
-  sp <- igraph::distances(g, mode = mode, weights = dist_weights)
+  if (is.null(dist_mat)) {
+    dist_weights <- if (is.null(weights)) NA else weights
+    dist_mat <- igraph::distances(g, mode = mode, weights = dist_weights)
+  }
+  sp <- dist_mat
 
   vapply(seq_len(n), function(i) {
     dists <- sp[i, -i]
@@ -165,14 +173,16 @@ calculate_lin <- function(g, mode = "all", weights = NULL) {
 #' @keywords internal
 #' @noRd
 calculate_decay <- function(g, mode = "all", weights = NULL,
-                            decay_parameter = 0.5) {
+                            decay_parameter = 0.5, dist_mat = NULL) {
   n <- igraph::vcount(g)
   if (n <= 1) return(rep(1, n))
 
-  dist_weights <- if (is.null(weights)) NA else weights
-  sp <- igraph::distances(g, mode = mode, weights = dist_weights)
+  if (is.null(dist_mat)) {
+    dist_weights <- if (is.null(weights)) NA else weights
+    dist_mat <- igraph::distances(g, mode = mode, weights = dist_weights)
+  }
   # Include self (diagonal = 0, so delta^0 = 1)
-  rowSums(decay_parameter ^ sp)
+  rowSums(decay_parameter ^ dist_mat)
 }
 
 
@@ -181,12 +191,16 @@ calculate_decay <- function(g, mode = "all", weights = NULL,
 #' sum(1/2^d) including self = sum(2^(-d)). Self contributes 1.
 #' @keywords internal
 #' @noRd
-calculate_residual_closeness <- function(g, mode = "all", weights = NULL) {
+calculate_residual_closeness <- function(g, mode = "all", weights = NULL,
+                                         dist_mat = NULL) {
   n <- igraph::vcount(g)
   if (n <= 1) return(rep(1, n))
 
-  dist_weights <- if (is.null(weights)) NA else weights
-  sp <- igraph::distances(g, mode = mode, weights = dist_weights)
+  if (is.null(dist_mat)) {
+    dist_weights <- if (is.null(weights)) NA else weights
+    dist_mat <- igraph::distances(g, mode = mode, weights = dist_weights)
+  }
+  sp <- dist_mat
   # 1/2^sp including self; Inf distances contribute 0
   sp[!is.finite(sp)] <- Inf
   rowSums(1 / (2^sp))
@@ -196,8 +210,10 @@ calculate_residual_closeness <- function(g, mode = "all", weights = NULL) {
 #' Dangalchev closeness (same as residual closeness)
 #' @keywords internal
 #' @noRd
-calculate_dangalchev <- function(g, mode = "all", weights = NULL) {
-  calculate_residual_closeness(g, mode = mode, weights = weights)
+calculate_dangalchev <- function(g, mode = "all", weights = NULL,
+                                 dist_mat = NULL) {
+  calculate_residual_closeness(g, mode = mode, weights = weights,
+                               dist_mat = dist_mat)
 }
 
 
@@ -207,8 +223,9 @@ calculate_dangalchev <- function(g, mode = "all", weights = NULL) {
 #' @keywords internal
 #' @noRd
 calculate_generalized_closeness <- function(g, mode = "all", weights = NULL,
-                                            alpha = 0.5) {
-  calculate_decay(g, mode = mode, weights = weights, decay_parameter = alpha)
+                                            alpha = 0.5, dist_mat = NULL) {
+  calculate_decay(g, mode = mode, weights = weights, decay_parameter = alpha,
+                  dist_mat = dist_mat)
 }
 
 
@@ -217,12 +234,16 @@ calculate_generalized_closeness <- function(g, mode = "all", weights = NULL,
 #' sum(1/d(i,j)^2) over all j != i.
 #' @keywords internal
 #' @noRd
-calculate_harary <- function(g, mode = "all", weights = NULL) {
+calculate_harary <- function(g, mode = "all", weights = NULL,
+                             dist_mat = NULL) {
   n <- igraph::vcount(g)
   if (n <= 1) return(rep(0, n))
 
-  dist_weights <- if (is.null(weights)) NA else weights
-  sp <- igraph::distances(g, mode = mode, weights = dist_weights)
+  if (is.null(dist_mat)) {
+    dist_weights <- if (is.null(weights)) NA else weights
+    dist_mat <- igraph::distances(g, mode = mode, weights = dist_weights)
+  }
+  sp <- dist_mat
   diag(sp) <- NA
 
   vapply(seq_len(n), function(i) {
@@ -238,15 +259,18 @@ calculate_harary <- function(g, mode = "all", weights = NULL) {
 #' sum(d(v,w)) / (n + 1). Note: centiserve divides by vcount+1.
 #' @keywords internal
 #' @noRd
-calculate_average_distance <- function(g, mode = "all", weights = NULL) {
+calculate_average_distance <- function(g, mode = "all", weights = NULL,
+                                       dist_mat = NULL) {
   n <- igraph::vcount(g)
   if (n <= 1) return(rep(NA_real_, n))
 
-  dist_weights <- if (is.null(weights)) NA else weights
-  sp <- igraph::distances(g, mode = mode, weights = dist_weights)
+  if (is.null(dist_mat)) {
+    dist_weights <- if (is.null(weights)) NA else weights
+    dist_mat <- igraph::distances(g, mode = mode, weights = dist_weights)
+  }
 
   # centiserve divides by n+1 (including self which has dist 0)
-  rowSums(sp) / (n + 1)
+  rowSums(dist_mat) / (n + 1)
 }
 
 
@@ -255,12 +279,16 @@ calculate_average_distance <- function(g, mode = "all", weights = NULL) {
 #' 1 / sum(distances) for reachable nodes.
 #' @keywords internal
 #' @noRd
-calculate_barycenter <- function(g, mode = "all", weights = NULL) {
+calculate_barycenter <- function(g, mode = "all", weights = NULL,
+                                 dist_mat = NULL) {
   n <- igraph::vcount(g)
   if (n <= 1) return(rep(NA_real_, n))
 
-  dist_weights <- if (is.null(weights)) NA else weights
-  sp <- igraph::distances(g, mode = mode, weights = dist_weights)
+  if (is.null(dist_mat)) {
+    dist_weights <- if (is.null(weights)) NA else weights
+    dist_mat <- igraph::distances(g, mode = mode, weights = dist_weights)
+  }
+  sp <- dist_mat
   diag(sp) <- NA
 
   vapply(seq_len(n), function(i) {
@@ -302,12 +330,16 @@ calculate_closeness_vitality <- function(g, mode = "all", weights = NULL) {
 #' Sum of all shortest path distances from node i.
 #' @keywords internal
 #' @noRd
-calculate_wiener <- function(g, mode = "all", weights = NULL) {
+calculate_wiener <- function(g, mode = "all", weights = NULL,
+                             dist_mat = NULL) {
   n <- igraph::vcount(g)
   if (n <= 1) return(rep(0, n))
 
-  dist_weights <- if (is.null(weights)) NA else weights
-  sp <- igraph::distances(g, mode = mode, weights = dist_weights)
+  if (is.null(dist_mat)) {
+    dist_weights <- if (is.null(weights)) NA else weights
+    dist_mat <- igraph::distances(g, mode = mode, weights = dist_weights)
+  }
+  sp <- dist_mat
   diag(sp) <- 0
   sp[!is.finite(sp)] <- 0
   rowSums(sp)
@@ -565,12 +597,16 @@ calculate_bottleneck <- function(g, mode = "all") {
 #' `Centroid(v) = min f[v, i]` over all `i`.
 #' @keywords internal
 #' @noRd
-calculate_centroid <- function(g, mode = "all", weights = NULL) {
+calculate_centroid <- function(g, mode = "all", weights = NULL,
+                               dist_mat = NULL) {
   n <- igraph::vcount(g)
   if (n <= 1) return(rep(0, n))
 
-  dist_weights <- if (is.null(weights)) NA else weights
-  sp <- igraph::distances(g, mode = mode, weights = dist_weights)
+  if (is.null(dist_mat)) {
+    dist_weights <- if (is.null(weights)) NA else weights
+    dist_mat <- igraph::distances(g, mode = mode, weights = dist_weights)
+  }
+  sp <- dist_mat
 
   # Compute gamma matrix
   gamma <- matrix(0L, n, n)
@@ -1435,34 +1471,37 @@ calculate_infection <- function(g, beta = 0.8, mu = 0, max_length = 6L) {
   n <- igraph::vcount(g)
   if (n == 0) return(numeric(0))
 
-  adj_list <- igraph::as_adj_list(g, mode = "all")
+  # Pre-convert adjacency list to integer vectors once (avoids per-call coercion)
+  adj_list <- lapply(igraph::as_adj_list(g, mode = "all"), as.integer)
 
-  # Count self-avoiding walks of each length from each source
-  # SAW(v, j, k) = number of SAWs of length k from v to j
-  # Infection number = sum_j sum_{k=1}^{L} SAW(v,j,k) * beta^k * (1-mu)^{k-1}
+  # Pre-compute per-depth weights: beta^(d+1) * (1-mu)^d for d = 0..max_length-1
+  depths <- seq_len(max_length) - 1L
+  depth_weights <- beta^(depths + 1) * (1 - mu)^depths
+
+  # Mutable logical visited vector; backtracking via <<- in the enclosing frame
+  # is O(1) per node vs the original O(depth) `%in%` scan + vector copy.
+  visited_flag <- logical(n)
+
+  .count_saws <- function(current, depth) {
+    if (depth >= max_length) return(0)
+    w <- depth_weights[depth + 1L]
+    count <- 0
+    for (nb in adj_list[[current]]) {
+      if (!visited_flag[nb]) {
+        count <- count + w
+        visited_flag[nb] <<- TRUE
+        count <- count + .count_saws(nb, depth + 1L)
+        visited_flag[nb] <<- FALSE
+      }
+    }
+    count
+  }
 
   vapply(seq_len(n), function(src) {
-    total <- 0
-    # BFS-like enumeration of SAWs up to max_length
-    # Stack: (current_node, visited_set, length)
-    # Use recursive DFS with backtracking
-    .count_saws <- function(current, visited, depth) {
-      if (depth >= max_length) return(0)
-      nbs <- as.integer(adj_list[[current]])
-      count <- 0
-      for (nb in nbs) {
-        if (!nb %in% visited) {
-          # Found a SAW of length depth+1 reaching nb
-          weight <- beta^(depth + 1) * (1 - mu)^depth
-          count <- count + weight
-          # Continue extending
-          count <- count + .count_saws(nb, c(visited, nb), depth + 1L)
-        }
-      }
-      count
-    }
-
-    .count_saws(src, src, 0L)
+    visited_flag[src] <<- TRUE
+    out <- .count_saws(src, 0L)
+    visited_flag[src] <<- FALSE
+    out
   }, numeric(1))
 }
 
@@ -1782,13 +1821,13 @@ calculate_information <- function(g, weights = NULL) {
   m_sub <- m[ix, ix, drop = FALSE]
   A <- 1 - m_sub
   A[m_sub == 0] <- 1
-  diag(A) <- 1 + apply(m_sub, 1, sum, na.rm = TRUE)
+  diag(A) <- 1 + rowSums(m_sub, na.rm = TRUE)
 
   Cn <- tryCatch(solve(A, tol = 1e-20), error = function(e) NULL)
   if (is.null(Cn)) return(rep(NA_real_, n))
 
   Tr <- sum(diag(Cn))
-  R  <- apply(Cn, 1, sum)
+  R  <- rowSums(Cn)
   k  <- length(ix)
   IC <- 1 / (diag(Cn) + (Tr - 2 * R) / k)
 
@@ -2082,14 +2121,30 @@ calculate_brokerage <- function(g, membership, role) {
 # =============================================================================
 
 #' Build incoming edge list for Brandes-style algorithms
+#'
+#' Returns a length-n list where element w is NULL or a matrix with columns
+#' (predecessor, edge_weight). Uses split() to group by target in one pass
+#' rather than growing each matrix with rbind inside a loop (O(m) vs O(m^2)).
 #' @keywords internal
 #' @noRd
 .build_incoming <- function(el, edge_w, n, directed) {
+  if (directed) {
+    target <- el[, 2]
+    source <- el[, 1]
+    weight <- edge_w
+  } else {
+    target <- c(el[, 2], el[, 1])
+    source <- c(el[, 1], el[, 2])
+    weight <- c(edge_w, edge_w)
+  }
+  idx_by_target <- split(seq_along(target),
+                         factor(target, levels = seq_len(n)))
   incoming <- vector("list", n)
-  for (i in seq_len(nrow(el))) {
-    incoming[[el[i, 2]]] <- rbind(incoming[[el[i, 2]]], c(el[i, 1], edge_w[i]))
-    if (!directed) {
-      incoming[[el[i, 1]]] <- rbind(incoming[[el[i, 1]]], c(el[i, 2], edge_w[i]))
+  for (w in seq_len(n)) {
+    idx <- idx_by_target[[w]]
+    if (length(idx) > 0) {
+      incoming[[w]] <- matrix(c(source[idx], weight[idx]),
+                              ncol = 2, nrow = length(idx))
     }
   }
   incoming

@@ -37,12 +37,10 @@ neighbors. Reveals assortative (positive slope) or disassortative
 (negative slope) mixing patterns.
 }
 \examples{
-\dontrun{
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::sample_pa(100, m = 3, directed = FALSE)
-  cograph::plot_degree_correlation(g)
-}
-}
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+g <- igraph::sample_pa(100, m = 3, directed = FALSE)
+cograph::plot_degree_correlation(g)
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link{centrality}}, \code{\link{degree_distribution}},

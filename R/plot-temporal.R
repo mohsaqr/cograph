@@ -51,16 +51,12 @@
 #' @seealso \code{\link{plot_network_evolution}}, \code{\link{plot_mlna}}
 #' @export
 #' @examples
-#' \dontrun{
-#' edges$week <- sample(1:3, nrow(edges), replace = TRUE)
+#' set.seed(1)
+#' edges <- data.frame(
+#'   from = sample(LETTERS[1:5], 30, replace = TRUE),
+#'   to   = sample(LETTERS[1:5], 30, replace = TRUE),
+#'   week = sample(1:3, 30, replace = TRUE))
 #' cograph::plot_temporal(edges, time = "week")
-#'
-#' # Customized
-#' cograph::plot_temporal(edges, time = "week",
-#'   node_color = "coral", edge_color = "gray30",
-#'   node_size = 3, edge_width = 2, plane_lty = 3,
-#'   angle = c(1.2, 0.8), title = "Classroom Evolution")
-#' }
 plot_temporal <- function(x,
                           time = NULL,
                           slices = NULL,

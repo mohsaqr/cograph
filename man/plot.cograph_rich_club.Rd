@@ -28,3 +28,10 @@ Two plot types: \code{"curve"} (default) shows the rich club coefficient
 across thresholds with null model bands. \code{"network"} highlights rich
 club members on the network at a given threshold.
 }
+\examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+g <- igraph::sample_pa(50, m = 2, directed = FALSE)
+rc <- cograph::rich_club(g)
+plot(rc)
+\dontshow{\}) # examplesIf}
+}

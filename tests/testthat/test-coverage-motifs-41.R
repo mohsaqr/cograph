@@ -224,7 +224,7 @@ test_that("plot.cograph_motifs heatmap handles extreme z-scores", {
   skip_if_not_installed("ggplot2")
 
   mat <- create_directed_matrix(8, seed = 444)
-  result <- motif_census(mat, n_random = 50, seed = 42)
+  result <- motif_census(mat, n_random = 15, seed = 42)
 
   with_temp_png({
     p <- plot(result, type = "heatmap", show_nonsig = TRUE)

@@ -31,9 +31,12 @@ dispatches to \code{splot.netobject} — that path has no concept of
 significance, so every edge rendered identically.
 }
 \examples{
-\dontrun{
-grp <- Nestimate::cluster_network(data, k = 2)
-gbs <- Nestimate::bootstrap_network(grp, iter = 100)
+\dontshow{if (requireNamespace("Nestimate", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+set.seed(1)
+seqs <- data.frame(T1 = sample(c("A","B","C"), 30, replace = TRUE),
+                   T2 = sample(c("A","B","C"), 30, replace = TRUE))
+grp <- Nestimate::cluster_network(seqs, k = 2)
+gbs <- Nestimate::bootstrap_network(grp, iter = 10)
 plot_net_bootstrap_group(gbs)
-}
+\dontshow{\}) # examplesIf}
 }

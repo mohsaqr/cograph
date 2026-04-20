@@ -50,39 +50,18 @@ metadata with a type column ("layer", "cluster", or "group") for use by
 specialized plot functions.
 }
 \examples{
-# Create network (symmetric for community detection)
+set.seed(1)
 mat <- matrix(runif(100), 10, 10)
-mat <- (mat + t(mat)) / 2  # Make symmetric (undirected)
-diag(mat) <- 0
+mat <- (mat + t(mat)) / 2; diag(mat) <- 0
 rownames(mat) <- colnames(mat) <- paste0("N", 1:10)
 net <- as_cograph(mat)
-
-# Using vectors (recommended)
-net <- set_groups(net,
-  nodes = paste0("N", 1:10),
-  layers = c(rep("Macro", 3), rep("Meso", 4), rep("Micro", 3))
-)
 
 # Named list -> layers
 net <- set_groups(net, list(
   Macro = paste0("N", 1:3),
-  Meso = paste0("N", 4:7),
+  Meso  = paste0("N", 4:7),
   Micro = paste0("N", 8:10)
 ), type = "layer")
-
-# Vector -> clusters
-net <- set_groups(net, c("A", "A", "A", "B", "B", "B", "C", "C", "C", "C"),
-                  type = "cluster")
-
-# Community detection -> groups
-net <- set_groups(net, "louvain", type = "group")
-
-# Data frame with explicit columns
-df <- data.frame(nodes = paste0("N", 1:10),
-                 layers = rep(c("Top", "Bottom"), each = 5))
-net <- set_groups(net, df)
-
-# Check groups
 get_groups(net)
 }
 \seealso{

@@ -43,9 +43,8 @@ in_to_usr_x <- function(x) {
 #' @return Value in user coordinates.
 #' @keywords internal
 in_to_usr_y <- function(y) {
- usr <- graphics::par("usr")
-  pin <- graphics::par("pin")
-  y / pin[2] * (usr[4] - usr[3]) + usr[3]
+  p <- graphics::par(c("usr", "pin"))
+  y / p$pin[2] * (p$usr[4] - p$usr[3]) + p$usr[3]
 }
 
 #' Get X-axis Scale Factor (inches per user unit)
@@ -53,9 +52,8 @@ in_to_usr_y <- function(y) {
 #' @return Scale factor.
 #' @keywords internal
 get_x_scale <- function() {
-  usr <- graphics::par("usr")
-  pin <- graphics::par("pin")
-  pin[1] / (usr[2] - usr[1])
+  p <- graphics::par(c("usr", "pin"))
+  p$pin[1] / (p$usr[2] - p$usr[1])
 }
 
 #' Get Y-axis Scale Factor (inches per user unit)
@@ -63,9 +61,8 @@ get_x_scale <- function() {
 #' @return Scale factor.
 #' @keywords internal
 get_y_scale <- function() {
-  usr <- graphics::par("usr")
-  pin <- graphics::par("pin")
-  pin[2] / (usr[4] - usr[3])
+  p <- graphics::par(c("usr", "pin"))
+  p$pin[2] / (p$usr[4] - p$usr[3])
 }
 
 #' Aspect-Corrected atan2
@@ -77,9 +74,10 @@ get_y_scale <- function() {
 #' @return Angle in radians.
 #' @keywords internal
 atan2_usr <- function(dy, dx) {
-  # Convert to inches to get visually correct angle
-  dy_in <- dy * get_y_scale()
-  dx_in <- dx * get_x_scale()
+  # Convert to inches to get visually correct angle (one par() call, not two)
+  p <- graphics::par(c("usr", "pin"))
+  dy_in <- dy * p$pin[2] / (p$usr[4] - p$usr[3])
+  dx_in <- dx * p$pin[1] / (p$usr[2] - p$usr[1])
   atan2(dy_in, dx_in)
 }
 
@@ -106,9 +104,11 @@ cent_to_edge <- function(x, y, angle, cex, cex2 = NULL, shape = "circle") {
     return(list(x = NA_real_, y = NA_real_))
   }
 
-  # Get aspect correction
-  x_scale <- get_x_scale()
-  y_scale <- get_y_scale()
+  # Get aspect correction (one par() query for both scales — cent_to_edge is
+  # called once per edge, so halving the par() calls here is ~10% of splot())
+  p <- graphics::par(c("usr", "pin"))
+  x_scale <- p$pin[1] / (p$usr[2] - p$usr[1])
+  y_scale <- p$pin[2] / (p$usr[4] - p$usr[3])
   asp <- y_scale / x_scale
 
   if (is.null(cex2)) cex2 <- cex

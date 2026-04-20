@@ -62,13 +62,11 @@ value > 1 indicates rich club ordering beyond what the degree sequence
 alone explains.
 }
 \examples{
-\dontrun{
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::sample_pa(100, m = 3, directed = FALSE)
-  rc <- cograph::rich_club(g)
-  plot(rc)
-}
-}
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+g <- igraph::sample_pa(50, m = 2, directed = FALSE)
+rc <- cograph::rich_club(g, n_random = 20)
+plot(rc)
+\dontshow{\}) # examplesIf}
 }
 \references{
 Opsahl, T., Colizza, V., Panzarasa, P. & Ramasco, J.J. (2008).

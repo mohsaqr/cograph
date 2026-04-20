@@ -21,27 +21,16 @@
 #' @return The \code{splot} result (invisibly).
 #'
 #' @examples
-#' \dontrun{
+#' set.seed(1)
 #' mat <- matrix(runif(25), 5, 5,
 #'               dimnames = list(LETTERS[1:5], LETTERS[1:5]))
 #' diag(mat) <- 0
-#' overlay_communities(mat, list(g1 = c("A", "B"), g2 = c("C", "D", "E")))
-#' }
+#' overlay_communities(mat, list(g1 = c("A","B"), g2 = c("C","D","E")))
 #'
-#' if (requireNamespace("tna", quietly = TRUE)) {
-#'   model <- tna::tna(tna::group_regulation)
-#'
-#'   # With a named list
-#'   overlay_communities(model, list(
-#'     Regulatory = c("plan", "monitor", "adapt"),
-#'     Social     = c("cohesion", "emotion", "consensus"),
-#'     Task       = c("discuss", "synthesis", "coregulate")
-#'   ))
-#'
-#'   # With a cograph_communities object (infomap supports directed graphs)
-#'   comm <- cograph::communities(model$weights, method = "infomap")
-#'   overlay_communities(model, comm)
-#' }
+#' @examplesIf requireNamespace("tna", quietly = TRUE)
+#' model <- tna::tna(tna::group_regulation)
+#' comm <- cograph::communities(model$weights, method = "infomap")
+#' overlay_communities(model, comm)
 #'
 #' @export
 overlay_communities <- function(x,

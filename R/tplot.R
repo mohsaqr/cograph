@@ -128,8 +128,6 @@ plot_tna <- function(
 #' @return Invisibly returns the cograph_network object from splot().
 #' @export
 #' @examples
-#' \dontrun{
 #' m <- matrix(runif(25), 5, 5)
 #' tplot(m)
-#' }
 tplot <- plot_tna

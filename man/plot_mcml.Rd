@@ -429,82 +429,13 @@ Title / legend                 \tab \code{title}, \code{subtitle}, \code{legend}
 }
 
 \examples{
-# --- Setup: create a test matrix ---
-mat <- matrix(runif(36), 6, 6)
-diag(mat) <- 0
+mat <- matrix(runif(36), 6, 6); diag(mat) <- 0
 colnames(mat) <- rownames(mat) <- LETTERS[1:6]
-
-clusters <- list(
-  Cluster1 = c("A", "B"),
-  Cluster2 = c("C", "D"),
-  Cluster3 = c("E", "F")
-)
-
-# 1. Basic usage — pass matrix + clusters directly
+clusters <- list(C1 = c("A","B"), C2 = c("C","D"), C3 = c("E","F"))
 plot_mcml(mat, clusters)
-
-# 2. Pre-compute with cluster_summary for reuse
+\donttest{
 cs <- cluster_summary(mat, clusters)
-plot_mcml(cs)
-
-\dontrun{
-# 3. TNA mode — transition probabilities with edge labels
-plot_mcml(mat, clusters, mode = "tna")
-
-# 4. Custom shapes — different shape per cluster
-plot_mcml(mat, clusters,
-  node_shape = "diamond",
-  cluster_shape = c("circle", "square", "triangle")
-)
-
-# 5. Styling — custom colors, transparency, edge widths
-plot_mcml(mat, clusters,
-  colors = c("#1b9e77", "#d95f02", "#7570b3"),
-  edge_alpha = 0.5,
-  between_edge_alpha = 0.8,
-  shell_alpha = 0.25,
-  edge_width_range = c(0.5, 2.0)
-)
-
-# 6. Edge labels on both layers
-plot_mcml(mat, clusters,
-  edge_labels = TRUE,
-  summary_edge_labels = TRUE,
-  edge_label_digits = 1
-)
-
-# 7. Layout tuning — adjust spacing, perspective, and layer gap
-plot_mcml(mat, clusters,
-  spacing = 4,
-  skew_angle = 45,
-  top_layer_scale = c(1.0, 0.3),
-  inter_layer_gap = 0.8
-)
-
-# 8. With mean aggregation for size-normalized comparison
-plot_mcml(mat, clusters,
-  aggregation = "mean",
-  title = "Mean-aggregated cluster network"
-)
-
-# 9. Label abbreviation for dense networks
-big_mat <- matrix(runif(400), 20, 20)
-diag(big_mat) <- 0
-colnames(big_mat) <- rownames(big_mat) <- paste0("Node_", 1:20)
-big_clusters <- list(
-  Alpha = paste0("Node_", 1:7),
-  Beta  = paste0("Node_", 8:14),
-  Gamma = paste0("Node_", 15:20)
-)
-plot_mcml(big_mat, big_clusters, label_abbrev = "auto")
-
-# 10. Minimal clean plot — no legend, no labels, no arrows
-plot_mcml(mat, clusters,
-  legend = FALSE,
-  show_labels = FALSE,
-  summary_labels = FALSE,
-  summary_arrows = FALSE
-)
+plot_mcml(cs, mode = "tna", edge_labels = TRUE)
 }
 }
 \seealso{

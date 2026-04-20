@@ -65,29 +65,20 @@ Edge styling:
 }
 }
 \examples{
-\dontrun{
-# Create a mock tna_permutation object with synthetic data
-set.seed(42)
-diffs <- matrix(c(0, 0.15, -0.1, -0.2, 0, 0.05, 0.1, -0.05, 0), 3, 3)
+# Mock a tna_permutation object with synthetic data
+diffs <- matrix(c(0, .15, -.1, -.2, 0, .05, .1, -.05, 0), 3, 3)
 rownames(diffs) <- colnames(diffs) <- c("A", "B", "C")
-diffs_sig <- diffs
-diffs_sig[abs(diffs) < 0.1] <- 0
-perm <- list(
-  edges = list(
-    diffs_true = diffs,
-    diffs_sig = diffs_sig,
-    stats = data.frame(
-      edge_name = c("A -> B", "A -> C", "B -> A", "B -> C", "C -> A", "C -> B"),
-      diff_true = c(0.15, -0.1, -0.2, 0.05, 0.1, -0.05),
-      effect_size = c(2.1, -1.5, -2.8, 0.4, 1.2, -0.3),
-      p_value = c(0.01, 0.04, 0.001, 0.3, 0.02, 0.5)
-    )
-  )
-)
-attr(perm, "level") <- 0.05
+diffs_sig <- diffs; diffs_sig[abs(diffs) < 0.1] <- 0
+perm <- list(edges = list(
+  diffs_true = diffs, diffs_sig = diffs_sig,
+  stats = data.frame(
+    edge_name   = c("A -> B","A -> C","B -> A","B -> C","C -> A","C -> B"),
+    diff_true   = c(.15,-.1,-.2,.05,.1,-.05),
+    effect_size = c(2.1,-1.5,-2.8,.4,1.2,-.3),
+    p_value     = c(.01,.04,.001,.3,.02,.5))))
+attr(perm, "level")  <- 0.05
 attr(perm, "labels") <- c("A", "B", "C")
 class(perm) <- c("tna_permutation", "list")
 plot_permutation(perm)
-}
 
 }

@@ -66,37 +66,11 @@ Use setter functions to modify:
 \code{\link{set_nodes}}, \code{\link{set_edges}}, \code{\link{set_layout}}
 }
 \examples{
-# From adjacency matrix
 mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 net <- as_cograph(mat)
-
-# Direct $ access to core data
-net$nodes      # nodes data frame
-net$edges      # edges data frame
-net$directed   # TRUE/FALSE
-
-# Getter functions (recommended for programmatic use)
-get_nodes(net)   # nodes data frame
-get_edges(net)   # edges data frame (from, to, weight)
-get_labels(net)  # character vector of labels
-n_nodes(net)     # 3
-n_edges(net)     # 3
-cograph::is_directed(net) # FALSE (symmetric matrix)
-
-# Setter functions
-net <- set_nodes(net, data.frame(id = 1:3, label = c("A", "B", "C")))
-net <- set_edges(net, data.frame(from = c(1,2), to = c(2,3), weight = c(0.5, 0.8)))
-net <- set_layout(net, data.frame(x = c(0, 1, 0.5), y = c(0, 0, 1)))
-
-# Plot it
+get_nodes(net)
+get_edges(net)
 splot(net)
-
-# From igraph (if installed)
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::make_ring(10)
-  net <- as_cograph(g)
-  splot(net)
-}
 mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 net <- to_cograph(mat)
 }

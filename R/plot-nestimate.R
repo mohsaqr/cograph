@@ -333,12 +333,13 @@ plot.netobject_ml <- function(x, ...) plot_netobject_ml(x, ...)
 #'
 #' @return Invisibly returns \code{x}.
 #' @export
-#' @examples
-#' \dontrun{
-#' grp <- Nestimate::cluster_network(data, k = 2)
-#' gbs <- Nestimate::bootstrap_network(grp, iter = 100)
+#' @examplesIf requireNamespace("Nestimate", quietly = TRUE)
+#' set.seed(1)
+#' seqs <- data.frame(T1 = sample(c("A","B","C"), 30, replace = TRUE),
+#'                    T2 = sample(c("A","B","C"), 30, replace = TRUE))
+#' grp <- Nestimate::cluster_network(seqs, k = 2)
+#' gbs <- Nestimate::bootstrap_network(grp, iter = 10)
 #' plot_net_bootstrap_group(gbs)
-#' }
 plot_net_bootstrap_group <- function(x,
                                      nrow         = NULL,
                                      ncol         = NULL,
@@ -397,12 +398,13 @@ plot.net_bootstrap_group <- function(x, ...) plot_net_bootstrap_group(x, ...)
 #'
 #' @return Invisibly returns \code{x}.
 #' @export
-#' @examples
-#' \dontrun{
-#' net <- Nestimate::build_network(data, method = "tna")
-#' cs <- Nestimate::centrality_stability(net, iter = 100)
+#' @examplesIf requireNamespace("Nestimate", quietly = TRUE)
+#' set.seed(1)
+#' seqs <- data.frame(T1 = sample(c("A","B","C"), 30, replace = TRUE),
+#'                    T2 = sample(c("A","B","C"), 30, replace = TRUE))
+#' net <- Nestimate::build_network(seqs, method = "tna")
+#' cs <- Nestimate::centrality_stability(net, iter = 10)
 #' plot_net_stability(cs)
-#' }
 plot_net_stability <- function(x, ...) {
   measures   <- x$measures
   drop_prop  <- x$drop_prop

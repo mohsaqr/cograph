@@ -18,12 +18,10 @@ Invisibly returns x
 Creates a histogram of the null distribution with the observed value marked.
 }
 \examples{
-\dontrun{
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::make_graph("Zachary")
-  comm <- community_louvain(g)
-  sig <- cluster_significance(g, comm, n_random = 20, seed = 42)
-  plot(sig)
-}
-}
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+g <- igraph::make_graph("Zachary")
+comm <- community_louvain(g)
+sig <- cluster_significance(g, comm, n_random = 20, seed = 42)
+plot(sig)
+\dontshow{\}) # examplesIf}
 }

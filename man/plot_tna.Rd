@@ -120,8 +120,6 @@ plot_tna(m, vsize = 15, edge.label.cex = 2, layout = "circle")
 # With custom colors
 plot_tna(m, color = rainbow(5), vsize = 10)
 
-\dontrun{
 m <- matrix(runif(25), 5, 5)
 tplot(m)
-}
 }

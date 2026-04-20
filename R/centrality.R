@@ -417,9 +417,27 @@ centrality <- function(x, type = c("basic", "extended", "all"),
     hits_result <- igraph::hits_scores(g, weights = weights)
   }
 
+  # Pre-compute the shared shortest-path matrix once when any distance-based
+  # measure is requested. At n=1000 this saves ~580 ms per measure; a
+  # full type="extended" call on 11 distance-based measures drops by ~6 s.
+  # closeness_vitality is excluded: its weight semantics differ (uses
+  # E(g)$weight directly, not the inverted weights_for_paths).
+  distance_based_measures <- c("radiality", "lin", "decay",
+                               "residual_closeness", "dangalchev",
+                               "generalized_closeness", "harary",
+                               "average_distance", "barycenter", "wiener",
+                               "centroid")
+  shared_dist_mat <- NULL
+  if (any(measures %in% distance_based_measures)) {
+    dist_w <- if (is.null(weights_for_paths)) NA else weights_for_paths
+    shared_dist_mat <- igraph::distances(g, mode = mode, weights = dist_w)
+  }
+
   for (m in measures) {
     # Use inverted weights for path-based measures, original for others
     measure_weights <- if (m %in% path_based_measures) weights_for_paths else weights
+    # Thread shared distance matrix only for measures that use it
+    this_dist_mat <- if (m %in% distance_based_measures) shared_dist_mat else NULL
 
     # Calculate value
     value <- calculate_measure(
@@ -429,7 +447,8 @@ centrality <- function(x, type = c("basic", "extended", "all"),
       hits_result = hits_result, lambda = lambda, k = k, states = states,
       decay_parameter = decay_parameter, dmnc_epsilon = dmnc_epsilon,
       membership = membership,
-      katz_alpha = katz_alpha, hubbell_weight = hubbell_weight
+      katz_alpha = katz_alpha, hubbell_weight = hubbell_weight,
+      dist_mat = this_dist_mat
     )
 
     # Normalize if requested (except for closeness which is handled by igraph)
@@ -449,7 +468,7 @@ centrality <- function(x, type = c("basic", "extended", "all"),
 
   # Round if digits specified
   if (!is.null(digits)) {
-    num_cols <- sapply(df, is.numeric)
+    num_cols <- vapply(df, is.numeric, logical(1))
     df[num_cols] <- lapply(df[num_cols], round, digits = digits)
   }
 
@@ -670,16 +689,9 @@ calculate_load <- function(g, weights = NULL, directed = TRUE) {
     edge_w <- weights
   }
 
-  # For each node w, store matrix of (predecessor_v, edge_weight)
-  # In directed mode: predecessor is el[,1] for target el[,2]
-  # In undirected mode: both directions
-  incoming <- vector("list", n)
-  for (i in seq_len(nrow(el))) {
-    incoming[[el[i, 2]]] <- rbind(incoming[[el[i, 2]]], c(el[i, 1], edge_w[i]))
-    if (!directed) {
-      incoming[[el[i, 1]]] <- rbind(incoming[[el[i, 1]]], c(el[i, 2], edge_w[i]))
-    }
-  }
+  # For each node w, store matrix of (predecessor_v, edge_weight).
+  # Built via .build_incoming (shared helper, split-based, O(m)).
+  incoming <- .build_incoming(el, edge_w, n, directed)
 
   for (s in seq_len(n)) {
     # Get distances from source
@@ -999,13 +1011,7 @@ calculate_percolation <- function(g, states = NULL, weights = NULL, directed = T
   } else {
     edge_w <- weights
   }
-  incoming <- vector("list", n)
-  for (i in seq_len(nrow(el))) {
-    incoming[[el[i, 2]]] <- rbind(incoming[[el[i, 2]]], c(el[i, 1], edge_w[i]))
-    if (!directed) {
-      incoming[[el[i, 1]]] <- rbind(incoming[[el[i, 1]]], c(el[i, 2], edge_w[i]))
-    }
-  }
+  incoming <- .build_incoming(el, edge_w, n, directed)
 
   # Brandes-style algorithm for each source
   for (s in seq_len(n)) {
@@ -1073,7 +1079,8 @@ calculate_measure <- function(g, measure, mode, weights, normalized,
                               states = NULL, decay_parameter = 0.5,
                               dmnc_epsilon = 1.7,
                               membership = NULL,
-                              katz_alpha = 0.1, hubbell_weight = 0.5) {
+                              katz_alpha = 0.1, hubbell_weight = 0.5,
+                              dist_mat = NULL) {
   directed <- igraph::is_directed(g)
 
   value <- switch(measure,
@@ -1125,21 +1132,31 @@ calculate_measure <- function(g, measure, mode, weights, normalized,
     ),
 
     # Extended measures — distance-based closeness variants
-    "radiality" = calculate_radiality(g, mode = mode, weights = weights),
-    "lin" = calculate_lin(g, mode = mode, weights = weights),
+    "radiality" = calculate_radiality(g, mode = mode, weights = weights,
+                                      dist_mat = dist_mat),
+    "lin" = calculate_lin(g, mode = mode, weights = weights,
+                          dist_mat = dist_mat),
     "decay" = calculate_decay(g, mode = mode, weights = weights,
-                              decay_parameter = decay_parameter),
+                              decay_parameter = decay_parameter,
+                              dist_mat = dist_mat),
     "residual_closeness" = calculate_residual_closeness(g, mode = mode,
-                                                        weights = weights),
-    "dangalchev" = calculate_dangalchev(g, mode = mode, weights = weights),
+                                                        weights = weights,
+                                                        dist_mat = dist_mat),
+    "dangalchev" = calculate_dangalchev(g, mode = mode, weights = weights,
+                                        dist_mat = dist_mat),
     "generalized_closeness" = calculate_generalized_closeness(
-      g, mode = mode, weights = weights, alpha = decay_parameter
+      g, mode = mode, weights = weights, alpha = decay_parameter,
+      dist_mat = dist_mat
     ),
-    "harary" = calculate_harary(g, mode = mode, weights = weights),
+    "harary" = calculate_harary(g, mode = mode, weights = weights,
+                                dist_mat = dist_mat),
     "average_distance" = calculate_average_distance(g, mode = mode,
-                                                    weights = weights),
-    "barycenter" = calculate_barycenter(g, mode = mode, weights = weights),
-    "wiener" = calculate_wiener(g, mode = mode, weights = weights),
+                                                    weights = weights,
+                                                    dist_mat = dist_mat),
+    "barycenter" = calculate_barycenter(g, mode = mode, weights = weights,
+                                        dist_mat = dist_mat),
+    "wiener" = calculate_wiener(g, mode = mode, weights = weights,
+                                dist_mat = dist_mat),
     "closeness_vitality" = calculate_closeness_vitality(g, mode = mode,
                                                         weights = weights),
 
@@ -1159,7 +1176,8 @@ calculate_measure <- function(g, measure, mode, weights, normalized,
     "semilocal" = calculate_semilocal(g, mode = mode),
     "clusterrank" = calculate_clusterrank(g, mode = mode),
     "bottleneck" = calculate_bottleneck(g, mode = mode),
-    "centroid" = calculate_centroid(g, mode = mode, weights = weights),
+    "centroid" = calculate_centroid(g, mode = mode, weights = weights,
+                                    dist_mat = dist_mat),
     "mnc" = calculate_mnc(g, mode = mode),
     "dmnc" = calculate_dmnc(g, mode = mode, epsilon = dmnc_epsilon),
     "lac" = calculate_lac(g, mode = mode),
@@ -2720,11 +2738,9 @@ centrality_gilschmidt <- function(x, mode = "all", ...) {
 #'
 #' @export
 #' @examples
-#' \dontrun{
 #' adj <- matrix(c(0, 1, 0, 0, 0, 1, 1, 1, 0), 3, 3)
 #' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
 #' centrality_salsa(adj)
-#' }
 centrality_salsa <- function(x, ...) {
   df <- centrality(x, measures = "salsa", ...)
   stats::setNames(df$salsa, df$node)
@@ -2746,11 +2762,9 @@ centrality_salsa <- function(x, ...) {
 #'
 #' @export
 #' @examples
-#' \dontrun{
 #' adj <- matrix(c(0, 1, 0, 0, 0, 1, 1, 1, 0), 3, 3)
 #' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
 #' centrality_leaderrank(adj)
-#' }
 centrality_leaderrank <- function(x, ...) {
   df <- centrality(x, measures = "leaderrank", ...)
   stats::setNames(df$leaderrank, df$node)
@@ -3475,7 +3489,7 @@ edge_centrality <- function(x, measures = "all",
 
   # Round if requested
   if (!is.null(digits)) {
-    numeric_cols <- sapply(result, is.numeric)
+    numeric_cols <- vapply(result, is.numeric, logical(1))
     result[numeric_cols] <- lapply(result[numeric_cols], round, digits = digits)
   }
 

@@ -139,26 +139,13 @@ diagonal block. Off-diagonal blocks are empty (no inter-layer edges) unless
 the networks share nodes.
 }
 \examples{
-\dontrun{
-# Single network
+set.seed(1)
 m <- matrix(runif(25), 5, 5)
 rownames(m) <- colnames(m) <- LETTERS[1:5]
 plot_heatmap(m)
 
-# With clusters
-clusters <- list(Group1 = c("A", "B"), Group2 = c("C", "D", "E"))
-plot_heatmap(m, cluster_list = clusters)
-
-# Custom colors and legend
-plot_heatmap(m, colors = "heat", limits = c(0, 1), show_values = TRUE)
-}
-
-\dontrun{
-# Multi-layer (group_tna) — requires tna package and sequence data
-if (requireNamespace("tna", quietly = TRUE)) {
-  mod <- tna::tna(tna::group_regulation)
-  plot_heatmap(mod)
-}
-}
+# With clusters, values, and a different colour scale
+clusters <- list(G1 = c("A","B"), G2 = c("C","D","E"))
+plot_heatmap(m, cluster_list = clusters, colors = "heat", show_values = TRUE)
 
 }

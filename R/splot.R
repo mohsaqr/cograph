@@ -330,28 +330,15 @@ NULL
 #' @export
 #'
 #' @examples
-#' # Basic network from adjacency matrix
-#' adj <- matrix(c(0, 1, 1, 0,
-#'                 0, 0, 1, 1,
-#'                 0, 0, 0, 1,
-#'                 0, 0, 0, 0), 4, 4, byrow = TRUE)
-#' splot(adj)
-#'
-#' # With curved edges
-#' splot(adj, curvature = 0.2)
-#'
-#' # Weighted network with colors
-#' w_adj <- matrix(c(0, 0.5, -0.3, 0,
-#'                   0.8, 0, 0.4, -0.2,
-#'                   0, 0, 0, 0.6,
-#'                   0, 0, 0, 0), 4, 4, byrow = TRUE)
-#' splot(w_adj, edge_positive_color = "darkgreen", edge_negative_color = "red")
-#'
-#' # Pie chart nodes
-#' splot(adj, pie_values = list(c(1,2,3), c(2,2), c(1,1,1,1), c(3,1)))
-#'
-#' # Circle layout with labels
+#' # Basic directed network
+#' adj <- matrix(c(0, 1, 1, 0, 0, 0, 1, 1,
+#'                 0, 0, 0, 1, 0, 0, 0, 0), 4, 4, byrow = TRUE)
 #' splot(adj, layout = "circle", labels = c("A", "B", "C", "D"))
+#'
+#' # Weighted network with signed edges
+#' w_adj <- matrix(c(0, .5, -.3, 0, .8, 0, .4, -.2,
+#'                   0, 0, 0, .6, 0, 0, 0, 0), 4, 4, byrow = TRUE)
+#' splot(w_adj, edge_positive_color = "darkgreen", edge_negative_color = "red")
 #'
 #' @export
 splot <- function(
@@ -448,6 +435,12 @@ splot <- function(
     show_arrows = TRUE,
     bidirectional = FALSE,
     loop_rotation = NULL,
+
+    # Dispatch-only placeholder: prevents R's partial-argument matching from
+    # binding a caller's `show = ...` (intended for splot.tna_disparity) to
+    # `show_arrows`. Defaults to NULL here; actual handling lives in
+    # splot.tna_disparity, which receives `show` via .collect_dispatch_args.
+    show = NULL,
 
     # Edge Start Style (for direction clarity)
     edge_start_style = "solid",
@@ -2045,16 +2038,16 @@ render_legend_splot <- function(groups, node_names, nodes, node_colors,
     unique_groups <- unique(groups)
 
     # Get color for each group (first node of that group)
-    group_colors <- sapply(unique_groups, function(g) {
+    group_colors <- vapply(unique_groups, function(g) {
       idx <- which(groups == g)[1]
       node_colors[idx]
-    })
+    }, character(1))
 
     group_labels <- if (!is.null(node_names)) {
-      sapply(unique_groups, function(g) {
+      vapply(unique_groups, function(g) {
         idx <- which(groups == g)[1]
         if (length(node_names) >= idx) node_names[idx] else as.character(g)
-      })
+      }, character(1))
     } else {
       as.character(unique_groups)
     }

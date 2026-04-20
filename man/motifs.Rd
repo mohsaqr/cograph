@@ -152,15 +152,12 @@ motifs(mat, significance = FALSE)
 
 # With a minimal significance test (set n_perm >= 500 in practice)
 motifs(mat, n_perm = 10L, seed = 1)
-\dontrun{
-if (requireNamespace("tna", quietly = TRUE)) {
-  # tna object input — keep n_perm small for example speed
-  Mod <- tna::tna(tna::group_regulation)
-  motifs(Mod, n_perm = 10L, seed = 1)
-  subgraphs(Mod, n_perm = 10L, seed = 1)
-}
-}
 
+\dontshow{if (requireNamespace("tna", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+Mod <- tna::tna(tna::group_regulation)
+motifs(Mod, n_perm = 10L, seed = 1)
+subgraphs(Mod, n_perm = 10L, seed = 1)
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link[=subgraphs]{subgraphs()}}, \code{\link[=motif_census]{motif_census()}}, \code{\link[=extract_motifs]{extract_motifs()}}

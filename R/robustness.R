@@ -345,9 +345,9 @@ plot_robustness <- function(...,
 
   dots <- list(...)
 
-  if (length(dots) > 0 && all(sapply(dots, function(d) {
+  if (length(dots) > 0 && all(vapply(dots, function(d) {
     inherits(d, "cograph_robustness") || is.data.frame(d)
-  }))) {
+  }, logical(1)))) {
     # Combine provided results
     all_data <- do.call(rbind, dots)
   } else if (!is.null(x)) {
@@ -394,9 +394,9 @@ plot_robustness <- function(...,
   legend_labels <- gsub("degree", "Degree", legend_labels)
   legend_labels <- gsub("random", "Random", legend_labels)
 
-  legend_colors <- sapply(unique_measures, function(m) {
-    if (m %in% names(colors)) colors[m] else "gray50"
-  })
+  legend_colors <- vapply(unique_measures, function(m) {
+    if (m %in% names(colors)) colors[[m]] else "gray50"
+  }, character(1))
 
   legend(legend_pos,
          legend = legend_labels,
@@ -601,13 +601,9 @@ robustness_auc <- function(x) {
 #'
 #' @return Data frame with AUC and critical points for each measure.
 #'
-#' @examples
-#' \dontrun{
-#' if (requireNamespace("igraph", quietly = TRUE)) {
-#'   g <- igraph::sample_pa(30, m = 2, directed = FALSE)
-#'   robustness_summary(x = g, measures = c("degree", "random"), n_iter = 10)
-#' }
-#' }
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' g <- igraph::sample_pa(30, m = 2, directed = FALSE)
+#' robustness_summary(x = g, measures = c("degree", "random"), n_iter = 10)
 #' @export
 robustness_summary <- function(..., x = NULL, measures = NULL, n_iter = 1000) {
 

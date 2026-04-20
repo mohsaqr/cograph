@@ -40,14 +40,9 @@ Invisible \code{NULL}.
 Overlays fitted distribution curves on a histogram of observed degrees.
 }
 \examples{
-\dontrun{
-adj <- matrix(c(0, 1, 1, 0, 0,
-                1, 0, 1, 1, 0,
-                1, 1, 0, 1, 1,
-                0, 1, 1, 0, 1,
+adj <- matrix(c(0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
+                1, 1, 0, 1, 1, 0, 1, 1, 0, 1,
                 0, 0, 1, 1, 0), 5, 5, byrow = TRUE)
 fit <- cograph::fit_degree_distribution(adj)
 plot(fit)
-plot(fit, which = c("exponential", "poisson"), log = "y")
-}
 }

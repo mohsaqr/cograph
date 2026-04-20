@@ -80,38 +80,14 @@ Edge metrics are computed lazily - only those actually referenced in
 expressions or required by selection modes are computed.
 }
 \examples{
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
+adj <- matrix(c(0, .5, .8, 0, .5, 0, .3, .6,
+                .8, .3, 0, .4, 0, .6, .4, 0), 4, 4, byrow = TRUE)
 rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
 
-# Expression-based (lazy - only computes what's needed)
 select_edges(adj, weight > 0.5)
-select_edges(adj, abs_weight > 0.4)
-
-# Top N edges by weight
 select_edges(adj, top = 3)
-select_edges(adj, top = 3, by = "edge_betweenness")
-
-# Edges involving specific nodes
 select_edges(adj, involving = "A")
-select_edges(adj, involving = c("A", "B"))
-
-# Edges between two node sets
 select_edges(adj, between = list(c("A", "B"), c("C", "D")))
-
-# Bridge edges only
-select_edges(adj, bridges_only = TRUE)
-
-# Combined: top 3 edges involving A
-select_edges(adj, involving = "A", top = 3)
-
-# Using endpoint degrees
-select_edges(adj, from_degree >= 3 | to_degree >= 3)
-
-# Within-community edges
-select_edges(adj, same_community)
 }
 \seealso{
 \code{\link{filter_edges}}, \code{\link{select_nodes}},

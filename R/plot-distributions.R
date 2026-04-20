@@ -190,13 +190,9 @@ plot_edge_weights <- function(x,
 #' @seealso \code{\link{centrality}}, \code{\link{degree_distribution}},
 #'   \code{\link{network_summary}}
 #' @export
-#' @examples
-#' \dontrun{
-#' if (requireNamespace("igraph", quietly = TRUE)) {
-#'   g <- igraph::sample_pa(100, m = 3, directed = FALSE)
-#'   cograph::plot_degree_correlation(g)
-#' }
-#' }
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' g <- igraph::sample_pa(100, m = 3, directed = FALSE)
+#' cograph::plot_degree_correlation(g)
 plot_degree_correlation <- function(x,
                                     mode = "all",
                                     directed = NULL,
@@ -273,14 +269,13 @@ plot_degree_correlation <- function(x,
 #' @return Invisible list of edge-list data frames (one per panel).
 #' @export
 #' @examples
-#' \dontrun{
-#' # Edge list with time column
-#' edges$week <- sample(1:4, nrow(edges), replace = TRUE)
+#' set.seed(1)
+#' edges <- data.frame(
+#'   from = sample(LETTERS[1:5], 30, replace = TRUE),
+#'   to   = sample(LETTERS[1:5], 30, replace = TRUE),
+#'   week = sample(1:4, 30, replace = TRUE))
 #' cograph::plot_network_evolution(edges, time = "week")
-#'
-#' # Cumulative: edges accumulate over time
 #' cograph::plot_network_evolution(edges, time = "week", cumulative = TRUE)
-#' }
 plot_network_evolution <- function(x,
                                    time = NULL,
                                    slices = NULL,

@@ -75,19 +75,12 @@ A significant result (low p-value) indicates that the community structure
 is stronger than expected by chance for networks with similar properties.
 }
 \examples{
-\dontrun{
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::make_graph("Zachary")
-  comm <- community_louvain(g)
-
-  # Test significance
-  sig <- cluster_significance(g, comm, n_random = 100, seed = 123)
-  print(sig)
-
-  # Configuration model (stricter test)
-  sig2 <- cluster_significance(g, comm, method = "configuration")
-}
-}
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+g <- igraph::make_graph("Zachary")
+comm <- community_louvain(g)
+sig <- cluster_significance(g, comm, n_random = 20, seed = 123)
+print(sig)
+\dontshow{\}) # examplesIf}
 if (requireNamespace("igraph", quietly = TRUE)) {
   g <- igraph::make_graph("Zachary")
   comm <- community_louvain(g)

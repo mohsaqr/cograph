@@ -121,7 +121,7 @@ draw_pie <- function(x, y, size, fill, border_color, border_width,
       colors <- grDevices::rainbow(length(values), alpha = alpha)
     }
   } else {
-    colors <- sapply(colors, adjust_alpha, alpha = alpha)
+    colors <- vapply(colors, adjust_alpha, character(1), alpha = alpha)
   }
 
   # Create pie slices
@@ -455,7 +455,7 @@ draw_donut <- function(x, y, size, fill, border_color, border_width,
     if (is.null(colors)) {
       colors <- grDevices::rainbow(length(values), alpha = alpha)
     } else {
-      colors <- sapply(colors, adjust_alpha, alpha = alpha)
+      colors <- vapply(colors, adjust_alpha, character(1), alpha = alpha)
     }
 
     # Inset factor to keep fill inside border
@@ -629,7 +629,7 @@ draw_donut_pie <- function(x, y, size, fill, border_color, border_width,
     if (is.null(pie_colors)) {
       pie_colors <- grDevices::rainbow(length(pie_values), alpha = alpha)
     } else {
-      pie_colors <- sapply(pie_colors, adjust_alpha, alpha = alpha)
+      pie_colors <- vapply(pie_colors, adjust_alpha, character(1), alpha = alpha)
       pie_colors <- rep(pie_colors, length.out = length(pie_values))
     }
 
@@ -769,7 +769,7 @@ draw_double_donut_pie <- function(x, y, size, fill, border_color, border_width,
       if (is.null(colors)) {
         colors <- grDevices::rainbow(length(values), alpha = alpha)
       } else {
-        colors <- sapply(colors, adjust_alpha, alpha = alpha)
+        colors <- vapply(colors, adjust_alpha, character(1), alpha = alpha)
         colors <- rep(colors, length.out = length(values))
       }
 
@@ -804,7 +804,7 @@ draw_double_donut_pie <- function(x, y, size, fill, border_color, border_width,
     if (is.null(pie_colors)) {
       pie_colors <- grDevices::rainbow(length(pie_values), alpha = alpha)
     } else {
-      pie_colors <- sapply(pie_colors, adjust_alpha, alpha = alpha)
+      pie_colors <- vapply(pie_colors, adjust_alpha, character(1), alpha = alpha)
       pie_colors <- rep(pie_colors, length.out = length(pie_values))
     }
 

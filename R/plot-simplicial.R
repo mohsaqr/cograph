@@ -56,21 +56,11 @@
 #'   invisibly.
 #'
 #' @examples
-#' \dontrun{
+#' set.seed(1)
 #' mat <- matrix(runif(16), 4, 4,
 #'               dimnames = list(LETTERS[1:4], LETTERS[1:4]))
 #' diag(mat) <- 0
 #' plot_simplicial(mat, c("A B -> C", "B C -> D"))
-#'
-#' # Direct from tna model (requires Nestimate):
-#' # model <- tna::tna(tna::group_regulation)
-#' # plot_simplicial(model, dismantled = TRUE)
-#' # plot_simplicial(model, method = "hypa")
-#'
-#' # With pre-built HON + tna for label translation:
-#' # hon <- Nestimate::build_hon(as.data.frame(model$data))
-#' # plot_simplicial(model, hon, dismantled = TRUE)
-#' }
 #'
 #' @import ggplot2
 #' @export

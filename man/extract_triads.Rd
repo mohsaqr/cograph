@@ -60,30 +60,14 @@ combinations that form each motif pattern. A typical workflow is:
 }
 }
 \examples{
-# Create a frequency matrix
-mat <- matrix(c(
-  0, 3, 2, 0,
-  0, 0, 5, 1,
-  0, 0, 0, 4,
-  2, 0, 0, 0
-), 4, 4, byrow = TRUE)
+mat <- matrix(c(0,3,2,0, 0,0,5,1, 0,0,0,4, 2,0,0,0), 4, 4, byrow = TRUE)
 rownames(mat) <- colnames(mat) <- c("Plan", "Execute", "Monitor", "Adapt")
-
 net <- as_cograph(mat)
 
-# Extract all triads
-triads <- extract_triads(net)
-head(triads)
-
-# Filter by motif type (feed-forward loops only)
-ff_loops <- extract_triads(net, type = "030T")
-
-# Filter by node involvement
-plan_triads <- extract_triads(net, involving = "Plan")
-
-# Find strongest triads
-triads <- extract_triads(net)
-strongest <- triads[order(triads$total_weight, decreasing = TRUE), ]
+# All triads, feed-forward loops, triads involving "Plan"
+head(extract_triads(net))
+extract_triads(net, type = "030T")
+extract_triads(net, involving = "Plan")
 
 }
 \seealso{

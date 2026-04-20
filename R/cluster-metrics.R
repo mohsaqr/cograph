@@ -225,70 +225,17 @@ wagg <- aggregate_weights
 #'   \code{\link{plot_mtna}} for flat cluster visualization
 #'
 #' @examples
-#' # -----------------------------------------------------
-#' # Basic usage with matrix and cluster vector
-#' # -----------------------------------------------------
-#' mat <- matrix(runif(100), 10, 10)
-#' diag(mat) <- 0
+#' mat <- matrix(runif(100), 10, 10); diag(mat) <- 0
 #' rownames(mat) <- colnames(mat) <- LETTERS[1:10]
 #'
-#' clusters <- c(1, 1, 1, 2, 2, 2, 3, 3, 3, 3)
-#' cs <- cluster_summary(mat, clusters)
-#'
-#' # Access results
+#' # Membership vector
+#' cs <- cluster_summary(mat, c(1,1,1,2,2,2,3,3,3,3))
 #' cs$macro$weights      # 3x3 cluster transition matrix
-#' cs$macro$inits        # Initial distribution
-#' cs$clusters$`1`$weights # Per-cluster 1 transitions
-#' cs$meta               # Metadata
 #'
-#' # -----------------------------------------------------
-#' # Named list clusters (more readable)
-#' # -----------------------------------------------------
-#' clusters <- list(
-#'   Alpha = c("A", "B", "C"),
-#'   Beta = c("D", "E", "F"),
-#'   Gamma = c("G", "H", "I", "J")
-#' )
+#' # Named list of clusters, TNA-normalized
+#' clusters <- list(Alpha = LETTERS[1:3], Beta = LETTERS[4:6], Gamma = LETTERS[7:10])
 #' cs <- cluster_summary(mat, clusters, type = "tna")
-#' cs$macro$weights      # Rows/cols named Alpha, Beta, Gamma
-#' cs$clusters$Alpha     # Per-cluster Alpha network
-#'
-#' # -----------------------------------------------------
-#' # Auto-detect clusters from cograph_network
-#' # -----------------------------------------------------
-#' net <- as_cograph(mat)
-#' net$nodes$clusters <- c(1, 1, 1, 2, 2, 2, 3, 3, 3, 3)
-#' cs <- cluster_summary(net)  # No clusters argument needed
-#'
-#' # -----------------------------------------------------
-#' # Different aggregation methods
-#' # -----------------------------------------------------
-#' cs_sum <- cluster_summary(mat, clusters, method = "sum")   # Total flow
-#' cs_mean <- cluster_summary(mat, clusters, method = "mean") # Average
-#' cs_max <- cluster_summary(mat, clusters, method = "max")   # Strongest
-#'
-#' # -----------------------------------------------------
-#' # Raw counts vs TNA probabilities
-#' # -----------------------------------------------------
-#' cs_raw <- cluster_summary(mat, clusters, type = "raw")
-#' cs_tna <- cluster_summary(mat, clusters, type = "tna")
-#'
-#' rowSums(cs_raw$macro$weights)  # Various sums
-#' rowSums(cs_tna$macro$weights)  # All equal to 1
-#'
-#' # -----------------------------------------------------
-#' # Skip within-cluster computation for speed
-#' # -----------------------------------------------------
-#' cs_fast <- cluster_summary(mat, clusters, compute_within = FALSE)
-#' cs_fast$clusters  # NULL
-#'
-#' # -----------------------------------------------------
-#' # Convert to tna objects for tna package
-#' # -----------------------------------------------------
-#' cs <- cluster_summary(mat, clusters, type = "tna")
-#' tna_models <- as_tna(cs)
-#' # tna_models$macro         # tna object
-#' # tna_models$Alpha         # tna object (cluster network)
+#' rowSums(cs$macro$weights)  # all 1 (TNA probabilities)
 cluster_summary <- function(x,
                             clusters = NULL,
                             method = c("sum", "mean", "median", "max",
@@ -1368,82 +1315,14 @@ build_mcml <- function(x,
 #'   \code{\link{plot_mcml}} for visualization without conversion,
 #'   \code{tna::tna} for the underlying tna constructor
 #'
-#' @examples
-#' # -----------------------------------------------------
-#' # Basic usage
-#' # -----------------------------------------------------
-#' mat <- matrix(runif(36), 6, 6)
-#' diag(mat) <- 0
+#' @examplesIf requireNamespace("tna", quietly = TRUE)
+#' mat <- matrix(runif(36), 6, 6); diag(mat) <- 0
 #' rownames(mat) <- colnames(mat) <- LETTERS[1:6]
-#'
-#' clusters <- list(
-#'   G1 = c("A", "B"),
-#'   G2 = c("C", "D"),
-#'   G3 = c("E", "F")
-#' )
-#'
+#' clusters <- list(G1 = c("A","B"), G2 = c("C","D"), G3 = c("E","F"))
 #' cs <- cluster_summary(mat, clusters, type = "tna")
 #' tna_models <- as_tna(cs)
-#'
-#' # Print summary
-#' tna_models
-#'
-#' # -----------------------------------------------------
-#' # Access components
-#' # -----------------------------------------------------
-#' # Macro (cluster-level) tna
-#' tna_models$macro
-#' tna_models$macro$weights  # 3x3 transition matrix
-#' tna_models$macro$inits    # Initial distribution
-#' tna_models$macro$labels   # c("G1", "G2", "G3")
-#'
-#' # Per-cluster tnas
 #' names(tna_models)          # "macro", "G1", "G2", "G3"
-#' tna_models$G1              # tna for cluster G1
-#' tna_models$G1$weights      # 2x2 matrix (A, B)
-#'
-#' # -----------------------------------------------------
-#' # Plot via cograph's own renderer — avoids tna's plot dispatch,
-#' # which pulls in `cluster` for layout and breaks
-#' # `_R_CHECK_DEPENDS_ONLY_=TRUE` CRAN checks.
-#' # -----------------------------------------------------
-#' splot(tna_models$macro)
-#' splot(tna_models$G1)
-#'
-#' # -----------------------------------------------------
-#' # Centrality analysis via tna (optional dependency)
-#' # -----------------------------------------------------
-#' \dontrun{
-#' if (requireNamespace("tna", quietly = TRUE)) {
-#'   tna::centralities(tna_models$macro)
-#'   tna::centralities(tna_models$G1)
-#'   tna::centralities(tna_models$G2)
-#' }
-#' }
-#'
-#' \dontrun{
-#' # Bootstrap requires a tna object built from raw sequence data (has $data)
-#' # as_tna() returns weight-matrix-based tnas which don't satisfy that requirement
-#' if (requireNamespace("tna", quietly = TRUE)) {
-#'   boot <- tna::bootstrap(tna_models$macro, iter = 1000)
-#'   summary(boot)
-#' }
-#' }
-#'
-#' # -----------------------------------------------------
-#' # Check which within-cluster models were created
-#' # -----------------------------------------------------
-#' cs <- cluster_summary(mat, clusters, type = "tna")
-#' tna_models <- as_tna(cs)
-#'
-#' # All cluster names
-#' names(cs$cluster_members)
-#'
-#' # Clusters with valid per-cluster models
-#' setdiff(names(tna_models), "macro")
-#'
-#' # Clusters excluded (single node or zero rows)
-#' setdiff(names(cs$cluster_members), names(tna_models))
+#' splot(tna_models$macro)    # cograph renderer avoids tna's plot deps
 as_tna <- function(x) {
   UseMethod("as_tna")
 }
@@ -1562,14 +1441,6 @@ as_tna.default <- function(x) {
 #' m <- as_mcml(cs)
 #' m$macro$weights
 #'
-#' \dontrun{
-#' # From group_tna with cluster assignments (requires tna + Nestimate)
-#' seqs <- data.frame(T1 = c("A", "B", "A"), T2 = c("B", "A", "B"))
-#' mod <- tna::tna(seqs)
-#' cl <- Nestimate::cluster_data(mod, k = 2)
-#' gt <- tna::group_model(cl)
-#' m <- as_mcml(gt, clusters = cl$assignments)
-#' }
 as_mcml <- function(x, ...) {
   UseMethod("as_mcml")
 }
@@ -1902,20 +1773,11 @@ cqual <- cluster_quality
 #' @export
 #' @seealso \code{\link{communities}}, \code{\link{cluster_quality}}
 #'
-#' @examples
-#' \dontrun{
-#' if (requireNamespace("igraph", quietly = TRUE)) {
-#'   g <- igraph::make_graph("Zachary")
-#'   comm <- community_louvain(g)
-#'
-#'   # Test significance
-#'   sig <- cluster_significance(g, comm, n_random = 100, seed = 123)
-#'   print(sig)
-#'
-#'   # Configuration model (stricter test)
-#'   sig2 <- cluster_significance(g, comm, method = "configuration")
-#' }
-#' }
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' g <- igraph::make_graph("Zachary")
+#' comm <- community_louvain(g)
+#' sig <- cluster_significance(g, comm, n_random = 20, seed = 123)
+#' print(sig)
 cluster_significance <- function(x,
                                   communities,
                                   n_random = 100,
@@ -2051,15 +1913,11 @@ print.cograph_cluster_significance <- function(x, ...) {
 #' @param x A \code{cograph_cluster_significance} object
 #' @param ... Additional arguments passed to \code{hist}
 #' @return Invisibly returns x
-#' @examples
-#' \dontrun{
-#' if (requireNamespace("igraph", quietly = TRUE)) {
-#'   g <- igraph::make_graph("Zachary")
-#'   comm <- community_louvain(g)
-#'   sig <- cluster_significance(g, comm, n_random = 20, seed = 42)
-#'   plot(sig)
-#' }
-#' }
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' g <- igraph::make_graph("Zachary")
+#' comm <- community_louvain(g)
+#' sig <- cluster_significance(g, comm, n_random = 20, seed = 42)
+#' plot(sig)
 #' @export
 plot.cograph_cluster_significance <- function(x, ...) {
   # Create histogram of null distribution
@@ -2470,10 +2328,10 @@ aggregate_layers <- function(layers,
         }
         Reduce(`+`, Map(`*`, layers, weights))
       } else {
-        apply(arr, c(1, 2), sum)
+        rowSums(arr, dims = 2)
       }
     },
-    "mean" = apply(arr, c(1, 2), mean),
+    "mean" = rowMeans(arr, dims = 2),
     "max" = apply(arr, c(1, 2), max),
     "min" = apply(arr, c(1, 2), min),
     "union" = {

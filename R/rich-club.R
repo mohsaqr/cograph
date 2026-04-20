@@ -56,14 +56,10 @@
 #'   \code{\link{centrality}}
 #'
 #' @export
-#' @examples
-#' \dontrun{
-#' if (requireNamespace("igraph", quietly = TRUE)) {
-#'   g <- igraph::sample_pa(100, m = 3, directed = FALSE)
-#'   rc <- cograph::rich_club(g)
-#'   plot(rc)
-#' }
-#' }
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' g <- igraph::sample_pa(50, m = 2, directed = FALSE)
+#' rc <- cograph::rich_club(g, n_random = 20)
+#' plot(rc)
 rich_club <- function(x,
                       rich = c("k", "s"),
                       weighted = TRUE,
@@ -384,6 +380,10 @@ print.cograph_rich_club <- function(x, ...) {
 #' @return Invisible \code{x}.
 #' @method plot cograph_rich_club
 #' @export
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' g <- igraph::sample_pa(50, m = 2, directed = FALSE)
+#' rc <- cograph::rich_club(g)
+#' plot(rc)
 plot.cograph_rich_club <- function(x, type = c("curve", "network"),
                                    k = NULL, col = "#E41A1C", ...) {
   type <- match.arg(type)

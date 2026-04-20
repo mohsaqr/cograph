@@ -294,6 +294,12 @@ core_periphery <- function(x,
 #' @return Invisible \code{x}.
 #' @method plot cograph_core_periphery
 #' @export
+#' @examples
+#' adj <- matrix(c(0,1,1,1,0, 1,0,1,1,0, 1,1,0,1,1,
+#'                 1,1,1,0,1, 0,0,1,1,0), 5, 5)
+#' rownames(adj) <- colnames(adj) <- LETTERS[1:5]
+#' cp <- cograph::core_periphery(adj)
+#' plot(cp)
 plot.cograph_core_periphery <- function(x,
                                         core_color = "#E41A1C",
                                         periphery_color = "#377EB8",

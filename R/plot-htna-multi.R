@@ -67,29 +67,13 @@
 #' @seealso \code{\link{cluster_summary}}, \code{\link{plot_mcml}}
 #'
 #' @examples
-#' \dontrun{
-#' # Create network with 4 clusters
+#' set.seed(42)
 #' nodes <- paste0("N", 1:20)
-#' m <- matrix(runif(400, 0, 0.3), 20, 20)
-#' diag(m) <- 0
+#' m <- matrix(runif(400, 0, 0.3), 20, 20); diag(m) <- 0
 #' colnames(m) <- rownames(m) <- nodes
-#'
-#' clusters <- list(
-#'   North = paste0("N", 1:5),
-#'   East = paste0("N", 6:10),
-#'   South = paste0("N", 11:15),
-#'   West = paste0("N", 16:20)
-#' )
-#'
-#' # Summary edges between clusters + individual edges within
+#' clusters <- list(N = nodes[1:5], E = nodes[6:10],
+#'                  S = nodes[11:15], W = nodes[16:20])
 #' plot_mtna(m, clusters, summary_edges = TRUE)
-#'
-#' # With node labels
-#' plot_mtna(m, clusters, show_labels = TRUE, label_abbrev = 3)
-#'
-#' # Control spacing and sizes
-#' plot_mtna(m, clusters, spacing = 4, shape_size = 1.5, node_spacing = 0.6)
-#' }
 plot_mtna <- function(
     x,
     cluster_list = NULL,
@@ -868,9 +852,9 @@ plot_mtna <- function(
       "circle" = 21, "square" = 22, "diamond" = 23, "triangle" = 24,
       "pentagon" = 21, "hexagon" = 21, "star" = 8, "cross" = 3
     )
-    pch_values <- sapply(cluster_shapes, function(s) {
-      if (s %in% names(shape_to_pch)) shape_to_pch[s] else 21
-    })
+    pch_values <- vapply(cluster_shapes, function(s) {
+      if (s %in% names(shape_to_pch)) shape_to_pch[[s]] else 21
+    }, numeric(1))
 
     graphics::legend(
       legend_position,
@@ -892,12 +876,10 @@ plot_mtna <- function(
 #' @return See \code{\link{plot_mtna}}.
 #' @export
 #' @examples
-#' \dontrun{
+#' set.seed(1)
 #' nodes <- paste0("N", 1:12)
-#' m <- matrix(runif(144, 0, 0.3), 12, 12)
-#' diag(m) <- 0
+#' m <- matrix(runif(144, 0, 0.3), 12, 12); diag(m) <- 0
 #' colnames(m) <- rownames(m) <- nodes
 #' clusters <- list(C1 = nodes[1:4], C2 = nodes[5:8], C3 = nodes[9:12])
 #' mtna(m, clusters)
-#' }
 mtna <- plot_mtna

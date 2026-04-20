@@ -67,27 +67,14 @@ NULL
 #' the networks share nodes.
 #'
 #' @examples
-#' \dontrun{
-#' # Single network
+#' set.seed(1)
 #' m <- matrix(runif(25), 5, 5)
 #' rownames(m) <- colnames(m) <- LETTERS[1:5]
 #' plot_heatmap(m)
 #'
-#' # With clusters
-#' clusters <- list(Group1 = c("A", "B"), Group2 = c("C", "D", "E"))
-#' plot_heatmap(m, cluster_list = clusters)
-#'
-#' # Custom colors and legend
-#' plot_heatmap(m, colors = "heat", limits = c(0, 1), show_values = TRUE)
-#' }
-#'
-#' \dontrun{
-#' # Multi-layer (group_tna) — requires tna package and sequence data
-#' if (requireNamespace("tna", quietly = TRUE)) {
-#'   mod <- tna::tna(tna::group_regulation)
-#'   plot_heatmap(mod)
-#' }
-#' }
+#' # With clusters, values, and a different colour scale
+#' clusters <- list(G1 = c("A","B"), G2 = c("C","D","E"))
+#' plot_heatmap(m, cluster_list = clusters, colors = "heat", show_values = TRUE)
 #'
 #' @export
 plot_heatmap <- function(x,
@@ -249,7 +236,7 @@ plot_heatmap <- function(x,
   }
 
   # Calculate cluster positions with spacing
-  cluster_sizes <- sapply(cluster_list, length)
+  cluster_sizes <- vapply(cluster_list, length, integer(1))
   cluster_starts <- c(0, cumsum(cluster_sizes[-n_clusters]))
   cluster_offsets <- seq_along(cluster_list) - 1  # Gap multiplier
 

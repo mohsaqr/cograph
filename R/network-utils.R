@@ -313,36 +313,21 @@ color_communities <- function(x, method = "louvain", palette = NULL, ...) {
 #'
 #' @export
 #' @examples
-#' adj <- matrix(c(0, .5, .8, 0,
-#'                 .5, 0, .3, .6,
-#'                 .8, .3, 0, .4,
-#'                  0, .6, .4, 0), 4, 4, byrow = TRUE)
+#' adj <- matrix(c(0, .5, .8, 0, .5, 0, .3, .6,
+#'                 .8, .3, 0, .4, 0, .6, .4, 0), 4, 4, byrow = TRUE)
 #' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
 #'
-#' # Keep only strong edges (returns cograph_network)
+#' # Keep only strong edges
 #' filter_edges(adj, weight > 0.5)
 #'
-#' # Keep format: matrix in, matrix out
+#' # Matrix in, matrix out
 #' filter_edges(adj, weight > 0.5, keep_format = TRUE)
 #'
-#' # Keep edges above mean weight
-#' splot(filter_edges(adj, weight >= mean(weight)))
-#'
-#' # With cograph_network (pipe-friendly)
-#' net <- as_cograph(adj)
-#' net |>
+#' # Pipe-friendly with cograph_network
+#' as_cograph(adj) |>
 #'   filter_edges(weight > 0.3) |>
 #'   filter_nodes(degree >= 2) |>
 #'   splot()
-#'
-#' # Keep isolated nodes
-#' filter_edges(net, weight > 0.7, .keep_isolates = TRUE)
-#'
-#' # With igraph (keep_format = TRUE returns igraph)
-#' if (requireNamespace("igraph", quietly = TRUE)) {
-#'   g <- igraph::make_ring(5)
-#'   filter_edges(g, weight > 0, keep_format = TRUE)  # Returns igraph
-#' }
 filter_edges <- function(x, ..., .keep_isolates = FALSE, keep_format = FALSE,
                          directed = NULL) {
   # Detect input format for keep_format option
@@ -434,36 +419,15 @@ filter_edges <- function(x, ..., .keep_isolates = FALSE, keep_format = FALSE,
 #'
 #' @export
 #' @examples
-#' adj <- matrix(c(0, .5, .8, 0,
-#'                 .5, 0, .3, .6,
-#'                 .8, .3, 0, .4,
-#'                  0, .6, .4, 0), 4, 4, byrow = TRUE)
+#' adj <- matrix(c(0, .5, .8, 0, .5, 0, .3, .6,
+#'                 .8, .3, 0, .4, 0, .6, .4, 0), 4, 4, byrow = TRUE)
 #' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
 #'
-#' # Keep only high-degree nodes (returns cograph_network)
+#' # Keep only high-degree nodes
 #' filter_nodes(adj, degree >= 3)
 #'
-#' # Keep format: matrix in, matrix out
-#' filter_nodes(adj, degree >= 3, keep_format = TRUE)
-#'
-#' # Filter by node label
-#' splot(filter_nodes(adj, label %in% c("A", "C")))
-#'
-#' # Combine centrality and metadata filters
-#' splot(filter_nodes(adj, degree >= 2 & label != "D"))
-#'
-#' # With cograph_network (pipe-friendly)
-#' net <- as_cograph(adj)
-#' net |>
-#'   filter_edges(weight > 0.3) |>
-#'   filter_nodes(degree >= 2) |>
-#'   splot()
-#'
-#' # With igraph (keep_format = TRUE returns igraph)
-#' if (requireNamespace("igraph", quietly = TRUE)) {
-#'   g <- igraph::make_ring(5)
-#'   filter_nodes(g, degree >= 2, keep_format = TRUE)  # Returns igraph
-#' }
+#' # Filter by label, combined with degree
+#' filter_nodes(adj, degree >= 2 & label != "D")
 filter_nodes <- function(x, ..., .keep_edges = c("internal", "none"),
                          keep_format = FALSE, directed = NULL) {
   .keep_edges <- match.arg(.keep_edges)
@@ -1031,35 +995,14 @@ to_network <- function(x, directed = NULL) {
 #'
 #' @export
 #' @examples
-#' adj <- matrix(c(0, .5, .8, 0,
-#'                 .5, 0, .3, .6,
-#'                 .8, .3, 0, .4,
-#'                  0, .6, .4, 0), 4, 4, byrow = TRUE)
+#' adj <- matrix(c(0, .5, .8, 0, .5, 0, .3, .6,
+#'                 .8, .3, 0, .4, 0, .6, .4, 0), 4, 4, byrow = TRUE)
 #' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
 #'
-#' # Lazy - only computes degree
 #' select_nodes(adj, degree >= 3)
-#'
-#' # Global context - computes component info
-#' select_nodes(adj, is_largest_component & degree >= 2)
-#'
-#' # By name
-#' select_nodes(adj, name = c("A", "B", "C"))
-#'
-#' # Top 2 by PageRank
 #' select_nodes(adj, top = 2, by = "pagerank")
-#'
-#' # Neighborhood of "A" up to 2 hops
 #' select_nodes(adj, neighbors_of = "A", order = 2)
-#'
-#' # Largest connected component
 #' select_nodes(adj, component = "largest")
-#'
-#' # Combined: top 2 in largest component
-#' select_nodes(adj, component = "largest", top = 2, by = "degree")
-#'
-#' # Articulation points with high degree
-#' # select_nodes(adj, is_articulation & degree >= 2)
 select_nodes <- function(x, ...,
                          name = NULL,
                          index = NULL,
@@ -1636,38 +1579,14 @@ select_top <- function(x, n, by = "degree", ...,
 #'
 #' @export
 #' @examples
-#' adj <- matrix(c(0, .5, .8, 0,
-#'                 .5, 0, .3, .6,
-#'                 .8, .3, 0, .4,
-#'                  0, .6, .4, 0), 4, 4, byrow = TRUE)
+#' adj <- matrix(c(0, .5, .8, 0, .5, 0, .3, .6,
+#'                 .8, .3, 0, .4, 0, .6, .4, 0), 4, 4, byrow = TRUE)
 #' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
 #'
-#' # Expression-based (lazy - only computes what's needed)
 #' select_edges(adj, weight > 0.5)
-#' select_edges(adj, abs_weight > 0.4)
-#'
-#' # Top N edges by weight
 #' select_edges(adj, top = 3)
-#' select_edges(adj, top = 3, by = "edge_betweenness")
-#'
-#' # Edges involving specific nodes
 #' select_edges(adj, involving = "A")
-#' select_edges(adj, involving = c("A", "B"))
-#'
-#' # Edges between two node sets
 #' select_edges(adj, between = list(c("A", "B"), c("C", "D")))
-#'
-#' # Bridge edges only
-#' select_edges(adj, bridges_only = TRUE)
-#'
-#' # Combined: top 3 edges involving A
-#' select_edges(adj, involving = "A", top = 3)
-#'
-#' # Using endpoint degrees
-#' select_edges(adj, from_degree >= 3 | to_degree >= 3)
-#'
-#' # Within-community edges
-#' select_edges(adj, same_community)
 select_edges <- function(x, ...,
                          top = NULL,
                          by = "weight",

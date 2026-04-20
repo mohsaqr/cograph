@@ -22,10 +22,8 @@ Data frame with AUC and critical points for each measure.
 Provides a summary comparing robustness metrics across attack strategies.
 }
 \examples{
-\dontrun{
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::sample_pa(30, m = 2, directed = FALSE)
-  robustness_summary(x = g, measures = c("degree", "random"), n_iter = 10)
-}
-}
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+g <- igraph::sample_pa(30, m = 2, directed = FALSE)
+robustness_summary(x = g, measures = c("degree", "random"), n_iter = 10)
+\dontshow{\}) # examplesIf}
 }

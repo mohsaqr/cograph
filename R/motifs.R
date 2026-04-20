@@ -405,30 +405,14 @@ triad_census <- function(x) {
 #' - **Weights** are the actual frequency counts, useful for ranking triads by strength
 #'
 #' @examples
-#' # Create a frequency matrix
-#' mat <- matrix(c(
-#'   0, 3, 2, 0,
-#'   0, 0, 5, 1,
-#'   0, 0, 0, 4,
-#'   2, 0, 0, 0
-#' ), 4, 4, byrow = TRUE)
+#' mat <- matrix(c(0,3,2,0, 0,0,5,1, 0,0,0,4, 2,0,0,0), 4, 4, byrow = TRUE)
 #' rownames(mat) <- colnames(mat) <- c("Plan", "Execute", "Monitor", "Adapt")
-#'
 #' net <- as_cograph(mat)
 #'
-#' # Extract all triads
-#' triads <- extract_triads(net)
-#' head(triads)
-#'
-#' # Filter by motif type (feed-forward loops only)
-#' ff_loops <- extract_triads(net, type = "030T")
-#'
-#' # Filter by node involvement
-#' plan_triads <- extract_triads(net, involving = "Plan")
-#'
-#' # Find strongest triads
-#' triads <- extract_triads(net)
-#' strongest <- triads[order(triads$total_weight, decreasing = TRUE), ]
+#' # All triads, feed-forward loops, triads involving "Plan"
+#' head(extract_triads(net))
+#' extract_triads(net, type = "030T")
+#' extract_triads(net, involving = "Plan")
 #'
 #' @seealso [motifs()], [subgraphs()], [motif_census()], [extract_motifs()]
 #' @family motifs
@@ -778,7 +762,7 @@ get_edge_list <- function(x, by_individual = TRUE, drop_zeros = TRUE) {
       )) # nocov end
     }
   } else {
-    agg <- apply(trans, c(2, 3), sum)
+    agg <- colSums(trans, dims = 1)
 
     idx <- if (drop_zeros) which(agg > 0, arr.ind = TRUE) else
            expand.grid(from = seq_len(s), to = seq_len(s))

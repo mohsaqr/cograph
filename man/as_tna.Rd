@@ -95,81 +95,15 @@ model still includes all clusters.
 }
 }
 \examples{
-# -----------------------------------------------------
-# Basic usage
-# -----------------------------------------------------
-mat <- matrix(runif(36), 6, 6)
-diag(mat) <- 0
+\dontshow{if (requireNamespace("tna", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+mat <- matrix(runif(36), 6, 6); diag(mat) <- 0
 rownames(mat) <- colnames(mat) <- LETTERS[1:6]
-
-clusters <- list(
-  G1 = c("A", "B"),
-  G2 = c("C", "D"),
-  G3 = c("E", "F")
-)
-
+clusters <- list(G1 = c("A","B"), G2 = c("C","D"), G3 = c("E","F"))
 cs <- cluster_summary(mat, clusters, type = "tna")
 tna_models <- as_tna(cs)
-
-# Print summary
-tna_models
-
-# -----------------------------------------------------
-# Access components
-# -----------------------------------------------------
-# Macro (cluster-level) tna
-tna_models$macro
-tna_models$macro$weights  # 3x3 transition matrix
-tna_models$macro$inits    # Initial distribution
-tna_models$macro$labels   # c("G1", "G2", "G3")
-
-# Per-cluster tnas
 names(tna_models)          # "macro", "G1", "G2", "G3"
-tna_models$G1              # tna for cluster G1
-tna_models$G1$weights      # 2x2 matrix (A, B)
-
-# -----------------------------------------------------
-# Plot via cograph's own renderer — avoids tna's plot dispatch,
-# which pulls in `cluster` for layout and breaks
-# `_R_CHECK_DEPENDS_ONLY_=TRUE` CRAN checks.
-# -----------------------------------------------------
-splot(tna_models$macro)
-splot(tna_models$G1)
-
-# -----------------------------------------------------
-# Centrality analysis via tna (optional dependency)
-# -----------------------------------------------------
-\dontrun{
-if (requireNamespace("tna", quietly = TRUE)) {
-  tna::centralities(tna_models$macro)
-  tna::centralities(tna_models$G1)
-  tna::centralities(tna_models$G2)
-}
-}
-
-\dontrun{
-# Bootstrap requires a tna object built from raw sequence data (has $data)
-# as_tna() returns weight-matrix-based tnas which don't satisfy that requirement
-if (requireNamespace("tna", quietly = TRUE)) {
-  boot <- tna::bootstrap(tna_models$macro, iter = 1000)
-  summary(boot)
-}
-}
-
-# -----------------------------------------------------
-# Check which within-cluster models were created
-# -----------------------------------------------------
-cs <- cluster_summary(mat, clusters, type = "tna")
-tna_models <- as_tna(cs)
-
-# All cluster names
-names(cs$cluster_members)
-
-# Clusters with valid per-cluster models
-setdiff(names(tna_models), "macro")
-
-# Clusters excluded (single node or zero rows)
-setdiff(names(cs$cluster_members), names(tna_models))
+splot(tna_models$macro)    # cograph renderer avoids tna's plot deps
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link{cluster_summary}} to create the input object,

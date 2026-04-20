@@ -588,7 +588,7 @@ render_edge_labels_grid <- function(network) {
     if (!is.null(aes$label_fontface)) aes$label_fontface else "plain",
     m, "edge_label_fontface"
   )
-  label_fontfaces <- sapply(label_fontface_raw, function(ff) {
+  label_fontfaces <- vapply(label_fontface_raw, function(ff) {
     if (is.character(ff)) {
       switch(ff,
         "plain" = 1,
@@ -598,9 +598,9 @@ render_edge_labels_grid <- function(network) {
         1  # default
       )
     } else {
-      ff
+      as.numeric(ff)
     }
-  })
+  }, numeric(1))
   label_border <- aes$label_border  # NULL, "rect", "rounded", "circle"
   label_border_color <- if (!is.null(aes$label_border_color)) aes$label_border_color else "gray50"
   label_underline <- if (!is.null(aes$label_underline)) aes$label_underline else FALSE

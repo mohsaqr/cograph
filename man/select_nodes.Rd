@@ -94,35 +94,14 @@ For networks with negative edge weights, \code{betweenness} and \code{closeness}
 will return NA with a warning (igraph cannot compute these with negative weights).
 }
 \examples{
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
+adj <- matrix(c(0, .5, .8, 0, .5, 0, .3, .6,
+                .8, .3, 0, .4, 0, .6, .4, 0), 4, 4, byrow = TRUE)
 rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
 
-# Lazy - only computes degree
 select_nodes(adj, degree >= 3)
-
-# Global context - computes component info
-select_nodes(adj, is_largest_component & degree >= 2)
-
-# By name
-select_nodes(adj, name = c("A", "B", "C"))
-
-# Top 2 by PageRank
 select_nodes(adj, top = 2, by = "pagerank")
-
-# Neighborhood of "A" up to 2 hops
 select_nodes(adj, neighbors_of = "A", order = 2)
-
-# Largest connected component
 select_nodes(adj, component = "largest")
-
-# Combined: top 2 in largest component
-select_nodes(adj, component = "largest", top = 2, by = "degree")
-
-# Articulation points with high degree
-# select_nodes(adj, is_articulation & degree >= 2)
 }
 \seealso{
 \code{\link{filter_nodes}}, \code{\link{select_neighbors}},

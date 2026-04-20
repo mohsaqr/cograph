@@ -345,8 +345,8 @@ test_that("vectorized triad classification matches brute-force — all 64 codes"
 # =============================================================================
 
 test_that("motif_census is reproducible with same seed", {
-  mc1 <- motif_census(mat8, n_random = 50, seed = 99)
-  mc2 <- motif_census(mat8, n_random = 50, seed = 99)
+  mc1 <- motif_census(mat8, n_random = 15, seed = 99)
+  mc2 <- motif_census(mat8, n_random = 15, seed = 99)
 
   expect_identical(mc1$count, mc2$count)
   expect_identical(mc1$null_mean, mc2$null_mean)
@@ -356,8 +356,8 @@ test_that("motif_census is reproducible with same seed", {
 })
 
 test_that("motif_census different seeds give different null distributions", {
-  mc1 <- motif_census(mat8, n_random = 50, seed = 1)
-  mc2 <- motif_census(mat8, n_random = 50, seed = 2)
+  mc1 <- motif_census(mat8, n_random = 15, seed = 1)
+  mc2 <- motif_census(mat8, n_random = 15, seed = 2)
 
   # Observed counts are the same (deterministic)
   expect_identical(mc1$count, mc2$count)

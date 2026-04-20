@@ -101,18 +101,12 @@
 #' m <- extract_motifs(mat, significance = FALSE)
 #' print(m)
 #'
-#' \dontrun{
-#' if (requireNamespace("tna", quietly = TRUE)) {
-#'   Mod <- tna::tna(tna::group_regulation)
-#'
-#'   # Individual-level from tna — keep n_perm tiny for example speed
-#'   m <- extract_motifs(Mod, top = 10, significance = TRUE,
-#'                       n_perm = 10L, seed = 1)
-#'
-#'   # Filter to feed-forward loops only
-#'   m <- extract_motifs(Mod, include_types = "030T", significance = FALSE)
-#' }
-#' }
+#' @examplesIf requireNamespace("tna", quietly = TRUE)
+#' Mod <- tna::tna(tna::group_regulation)
+#' # Individual-level from tna — keep n_perm tiny for example speed
+#' extract_motifs(Mod, top = 10, significance = TRUE, n_perm = 10L, seed = 1)
+#' # Filter to feed-forward loops only
+#' extract_motifs(Mod, include_types = "030T", significance = FALSE)
 #'
 #' @seealso [motifs()], [subgraphs()], [extract_triads()], [motif_census()]
 #' @family motifs
@@ -521,9 +515,7 @@ print.cograph_motif_analysis <- function(x, n = 20, ...) {
 #' rownames(mat) <- colnames(mat) <- c("Plan","Execute","Monitor","Adapt")
 #' m <- extract_motifs(mat, significance = FALSE)
 #' plot(m)
-#' \dontrun{
-#'   plot(m, type = "types")
-#' }
+#' plot(m, type = "types")
 #'
 #' @seealso [extract_motifs()] for the analysis that produces this object,
 #'   [motif_census()] for statistical motif analysis

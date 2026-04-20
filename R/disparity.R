@@ -232,18 +232,11 @@ print.tna_disparity <- function(x, ...) {
 #' @return Invisibly returns \code{NULL}. Called for the side effect of producing a plot.
 #'
 #' @examples
-#' \dontrun{
-#' mat <- matrix(c(
-#'   0.0, 0.5, 0.1, 0.0,
-#'   0.3, 0.0, 0.4, 0.1,
-#'   0.1, 0.2, 0.0, 0.5,
-#'   0.0, 0.1, 0.3, 0.0
-#' ), nrow = 4, byrow = TRUE)
+#' mat <- matrix(c(0.0, 0.5, 0.1, 0.0, 0.3, 0.0, 0.4, 0.1,
+#'                 0.1, 0.2, 0.0, 0.5, 0.0, 0.1, 0.3, 0.0), 4, 4, byrow = TRUE)
 #' rownames(mat) <- colnames(mat) <- c("A", "B", "C", "D")
 #' disp <- disparity_filter(cograph(mat), level = 0.05)
 #' plot(disp)
-#' plot(disp, type = "comparison")
-#' }
 #'
 #' @export
 plot.tna_disparity <- function(x, type = c("backbone", "comparison"), ...) {
@@ -277,19 +270,13 @@ plot.tna_disparity <- function(x, type = c("backbone", "comparison"), ...) {
 #'
 #' @return Invisibly returns \code{NULL}. Called for the side effect of producing a plot.
 #'
-#' @examplesIf requireNamespace("tna", quietly = TRUE)
-#' \dontrun{
-#' mat <- matrix(c(
-#'   0.0, 0.5, 0.1, 0.0,
-#'   0.3, 0.0, 0.4, 0.1,
-#'   0.1, 0.2, 0.0, 0.5,
-#'   0.0, 0.1, 0.3, 0.0
-#' ), nrow = 4, byrow = TRUE)
+#' @examples
+#' mat <- matrix(c(0.0, 0.5, 0.1, 0.0, 0.3, 0.0, 0.4, 0.1,
+#'                 0.1, 0.2, 0.0, 0.5, 0.0, 0.1, 0.3, 0.0), 4, 4, byrow = TRUE)
 #' rownames(mat) <- colnames(mat) <- c("A", "B", "C", "D")
 #' disp <- disparity_filter(cograph(mat), level = 0.05)
-#' splot.tna_disparity(disp)
-#' splot.tna_disparity(disp, show = "backbone")
-#' }
+#' splot(disp)
+#' splot(disp, show = "backbone")
 #'
 #' @export
 splot.tna_disparity <- function(x, show = c("styled", "backbone", "full"),

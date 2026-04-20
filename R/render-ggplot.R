@@ -3,10 +3,8 @@
 #' @name render-ggplot
 #' @return A ggplot2 object representing the network.
 #' @examples
-#' \dontrun{
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 #' p <- sn_ggplot(adj)
-#' }
 NULL
 
 #' Convert Network to ggplot2
@@ -59,9 +57,9 @@ sn_ggplot <- function(network, title = NULL) {
     pentagon = 21, hexagon = 21, ellipse = 21, star = 8,
     cross = 3, plus = 3
   )
-  gg_shapes <- sapply(node_shapes, function(s) {
+  gg_shapes <- vapply(node_shapes, function(s) {
     if (s %in% names(shape_map)) shape_map[[s]] else 21 # nocov
-  })
+  }, numeric(1))
 
   # Build node data frame
   node_df <- data.frame(

@@ -20,11 +20,9 @@ PageRank variant with a ground node connected to all nodes.
 Requires a directed graph.
 }
 \examples{
-\dontrun{
 adj <- matrix(c(0, 1, 0, 0, 0, 1, 1, 1, 0), 3, 3)
 rownames(adj) <- colnames(adj) <- c("A", "B", "C")
 centrality_leaderrank(adj)
-}
 }
 \seealso{
 \code{\link{centrality}} for computing multiple measures at once,

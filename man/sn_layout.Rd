@@ -49,23 +49,11 @@ You can also pass igraph layout functions directly or use full names like
 }
 \examples{
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-
-# Built-in layouts
 cograph(adj) |> sn_layout("circle") |> splot()
-cograph(adj) |> sn_layout("spring") |> splot()
-
-# igraph layouts (if igraph installed)
-if (requireNamespace("igraph", quietly = TRUE)) {
-  cograph(adj) |> sn_layout("kk") |> splot()
-  cograph(adj) |> sn_layout("fr") |> splot()
-}
 
 # Custom coordinates
 coords <- matrix(c(0, 0, 1, 0, 0.5, 1), ncol = 2, byrow = TRUE)
 cograph(adj) |> sn_layout(coords) |> splot()
-
-# Direct matrix input (auto-converts)
-adj |> sn_layout("circle")
 }
 \seealso{
 \code{\link{cograph}} for network creation,

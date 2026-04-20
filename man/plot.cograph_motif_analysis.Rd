@@ -75,9 +75,7 @@ mat <- matrix(c(0,3,2,0, 0,0,5,1, 0,0,0,4, 2,0,0,0), 4, 4, byrow = TRUE)
 rownames(mat) <- colnames(mat) <- c("Plan","Execute","Monitor","Adapt")
 m <- extract_motifs(mat, significance = FALSE)
 plot(m)
-\dontrun{
-  plot(m, type = "types")
-}
+plot(m, type = "types")
 
 }
 \seealso{

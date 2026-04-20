@@ -656,9 +656,9 @@ plot_htna <- function(
       "circle" = 21, "square" = 22, "diamond" = 23, "triangle" = 24,
       "pentagon" = 21, "hexagon" = 21, "star" = 8, "cross" = 3
     )
-    pch_values <- sapply(group_shapes, function(s) {
-      if (s %in% names(shape_to_pch)) shape_to_pch[s] else 21
-    })
+    pch_values <- vapply(group_shapes, function(s) {
+      if (s %in% names(shape_to_pch)) shape_to_pch[[s]] else 21
+    }, numeric(1))
 
     # Draw legend
     graphics::legend(
@@ -1111,11 +1111,9 @@ compute_circular_layout <- function(node_list, lab, group_indices, n_groups, ang
 #' @rdname plot_htna
 #' @export
 #' @examples
-#' \dontrun{
-#' mat <- matrix(runif(36, 0, 0.3), 6, 6)
-#' diag(mat) <- 0
-#' colnames(mat) <- rownames(mat) <- c("A", "B", "C", "D", "E", "F")
-#' groups <- list(Group1 = c("A", "B", "C"), Group2 = c("D", "E", "F"))
+#' set.seed(1)
+#' mat <- matrix(runif(36, 0, 0.3), 6, 6); diag(mat) <- 0
+#' colnames(mat) <- rownames(mat) <- LETTERS[1:6]
+#' groups <- list(G1 = LETTERS[1:3], G2 = LETTERS[4:6])
 #' htna(mat, groups)
-#' }
 htna <- plot_htna

@@ -60,14 +60,6 @@ cs <- cluster_summary(mat, clusters, type = "tna")
 m <- as_mcml(cs)
 m$macro$weights
 
-\dontrun{
-# From group_tna with cluster assignments (requires tna + Nestimate)
-seqs <- data.frame(T1 = c("A", "B", "A"), T2 = c("B", "A", "B"))
-mod <- tna::tna(seqs)
-cl <- Nestimate::cluster_data(mod, k = 2)
-gt <- tna::group_model(cl)
-m <- as_mcml(gt, clusters = cl$assignments)
-}
 }
 \seealso{
 \code{\link{build_mcml}}, \code{\link{as_tna}}

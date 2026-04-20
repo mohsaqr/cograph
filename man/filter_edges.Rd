@@ -49,36 +49,21 @@ cograph_network object by default (universal format), or optionally the
 same format as input when \code{keep_format = TRUE}.
 }
 \examples{
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
+adj <- matrix(c(0, .5, .8, 0, .5, 0, .3, .6,
+                .8, .3, 0, .4, 0, .6, .4, 0), 4, 4, byrow = TRUE)
 rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
 
-# Keep only strong edges (returns cograph_network)
+# Keep only strong edges
 filter_edges(adj, weight > 0.5)
 
-# Keep format: matrix in, matrix out
+# Matrix in, matrix out
 filter_edges(adj, weight > 0.5, keep_format = TRUE)
 
-# Keep edges above mean weight
-splot(filter_edges(adj, weight >= mean(weight)))
-
-# With cograph_network (pipe-friendly)
-net <- as_cograph(adj)
-net |>
+# Pipe-friendly with cograph_network
+as_cograph(adj) |>
   filter_edges(weight > 0.3) |>
   filter_nodes(degree >= 2) |>
   splot()
-
-# Keep isolated nodes
-filter_edges(net, weight > 0.7, .keep_isolates = TRUE)
-
-# With igraph (keep_format = TRUE returns igraph)
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::make_ring(5)
-  filter_edges(g, weight > 0, keep_format = TRUE)  # Returns igraph
-}
 }
 \seealso{
 \code{\link{filter_nodes}}, \code{\link{splot}}, \code{\link{subset_edges}}

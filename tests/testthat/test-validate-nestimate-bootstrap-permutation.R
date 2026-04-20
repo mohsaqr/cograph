@@ -155,7 +155,7 @@ test_that("net_permutation directed: renders all modes", {
   skip_if_no_nestimate()
   nobj1 <- make_directed_netobject(seed = 42)
   nobj2 <- make_directed_netobject(seed = 99)
-  nperm <- Nestimate::permutation_test(nobj1, nobj2, iter = 100)
+  nperm <- Nestimate::permutation(nobj1, nobj2, iter = 100)
 
   expect_no_error(with_temp_png(splot(nperm)))
   expect_no_error(with_temp_png(splot(nperm, show_nonsig = TRUE)))
@@ -169,7 +169,7 @@ test_that("net_permutation directed: sig_mask matches p_values < alpha", {
   skip_if_no_nestimate()
   nobj1 <- make_directed_netobject(seed = 42)
   nobj2 <- make_directed_netobject(seed = 99)
-  nperm <- Nestimate::permutation_test(nobj1, nobj2, iter = 100)
+  nperm <- Nestimate::permutation(nobj1, nobj2, iter = 100)
 
   sig_from_diff <- nperm$diff_sig != 0
   sig_from_pval <- nperm$p_values < nperm$alpha
@@ -180,7 +180,7 @@ test_that("net_permutation directed: positive diffs get green, negative get red"
   skip_if_no_nestimate()
   nobj1 <- make_directed_netobject(seed = 42)
   nobj2 <- make_directed_netobject(seed = 99)
-  nperm <- Nestimate::permutation_test(nobj1, nobj2, iter = 100)
+  nperm <- Nestimate::permutation(nobj1, nobj2, iter = 100)
 
   weights_display <- round(nperm$diff_sig, 2)
   edge_idx <- which(weights_display != 0, arr.ind = TRUE)
@@ -202,7 +202,7 @@ test_that("net_permutation directed: edge labels format correctly", {
   skip_if_no_nestimate()
   nobj1 <- make_directed_netobject(seed = 42)
   nobj2 <- make_directed_netobject(seed = 99)
-  nperm <- Nestimate::permutation_test(nobj1, nobj2, iter = 100)
+  nperm <- Nestimate::permutation(nobj1, nobj2, iter = 100)
 
   get_significance_stars <- cograph:::get_significance_stars
 
@@ -233,7 +233,7 @@ test_that("net_permutation undirected: renders all modes", {
   skip_if_no_nestimate()
   nobj1 <- make_undirected_netobject(seed = 42)
   nobj2 <- make_undirected_netobject(seed = 99)
-  nperm <- Nestimate::permutation_test(nobj1, nobj2, iter = 50)
+  nperm <- Nestimate::permutation(nobj1, nobj2, iter = 50)
 
   expect_no_error(with_temp_png(splot(nperm)))
   expect_no_error(with_temp_png(splot(nperm, show_nonsig = TRUE)))
@@ -246,7 +246,7 @@ test_that("net_permutation undirected: uses upper-triangle edge indexing", {
   skip_if_no_nestimate()
   nobj1 <- make_undirected_netobject(seed = 42)
   nobj2 <- make_undirected_netobject(seed = 99)
-  nperm <- Nestimate::permutation_test(nobj1, nobj2, iter = 50)
+  nperm <- Nestimate::permutation(nobj1, nobj2, iter = 50)
 
   is_directed <- isTRUE(nperm$x$directed)
   expect_false(is_directed)
@@ -285,7 +285,7 @@ test_that("net_permutation: cograph reads correct fields from Nestimate", {
   skip_if_no_nestimate()
   nobj1 <- make_directed_netobject(seed = 42)
   nobj2 <- make_directed_netobject(seed = 99)
-  nperm <- Nestimate::permutation_test(nobj1, nobj2, iter = 50)
+  nperm <- Nestimate::permutation(nobj1, nobj2, iter = 50)
 
   # These are the exact fields splot.net_permutation reads
   expect_true(!is.null(nperm$alpha))

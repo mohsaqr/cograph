@@ -34,3 +34,10 @@ Invisible \code{x}.
 Visualizes the network with core nodes highlighted (larger, red) and
 periphery nodes de-emphasized (smaller, blue).
 }
+\examples{
+adj <- matrix(c(0,1,1,1,0, 1,0,1,1,0, 1,1,0,1,1,
+                1,1,1,0,1, 0,0,1,1,0), 5, 5)
+rownames(adj) <- colnames(adj) <- LETTERS[1:5]
+cp <- cograph::core_periphery(adj)
+plot(cp)
+}

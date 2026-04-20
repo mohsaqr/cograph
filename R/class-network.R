@@ -771,37 +771,11 @@ set_layout <- function(x, layout_df) {
 #' @export
 #'
 #' @examples
-#' # From adjacency matrix
 #' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 #' net <- as_cograph(mat)
-#'
-#' # Direct $ access to core data
-#' net$nodes      # nodes data frame
-#' net$edges      # edges data frame
-#' net$directed   # TRUE/FALSE
-#'
-#' # Getter functions (recommended for programmatic use)
-#' get_nodes(net)   # nodes data frame
-#' get_edges(net)   # edges data frame (from, to, weight)
-#' get_labels(net)  # character vector of labels
-#' n_nodes(net)     # 3
-#' n_edges(net)     # 3
-#' cograph::is_directed(net) # FALSE (symmetric matrix)
-#'
-#' # Setter functions
-#' net <- set_nodes(net, data.frame(id = 1:3, label = c("A", "B", "C")))
-#' net <- set_edges(net, data.frame(from = c(1,2), to = c(2,3), weight = c(0.5, 0.8)))
-#' net <- set_layout(net, data.frame(x = c(0, 1, 0.5), y = c(0, 0, 1)))
-#'
-#' # Plot it
+#' get_nodes(net)
+#' get_edges(net)
 #' splot(net)
-#'
-#' # From igraph (if installed)
-#' if (requireNamespace("igraph", quietly = TRUE)) {
-#'   g <- igraph::make_ring(10)
-#'   net <- as_cograph(g)
-#'   splot(net)
-#' }
 as_cograph <- function(x, directed = NULL, simplify = FALSE, ...) {
   # Return as-is if already a cograph_network
 
@@ -914,39 +888,18 @@ to_cograph <- function(x, directed = NULL, ...) {
 #' @export
 #'
 #' @examples
-#' # Create network (symmetric for community detection)
+#' set.seed(1)
 #' mat <- matrix(runif(100), 10, 10)
-#' mat <- (mat + t(mat)) / 2  # Make symmetric (undirected)
-#' diag(mat) <- 0
+#' mat <- (mat + t(mat)) / 2; diag(mat) <- 0
 #' rownames(mat) <- colnames(mat) <- paste0("N", 1:10)
 #' net <- as_cograph(mat)
-#'
-#' # Using vectors (recommended)
-#' net <- set_groups(net,
-#'   nodes = paste0("N", 1:10),
-#'   layers = c(rep("Macro", 3), rep("Meso", 4), rep("Micro", 3))
-#' )
 #'
 #' # Named list -> layers
 #' net <- set_groups(net, list(
 #'   Macro = paste0("N", 1:3),
-#'   Meso = paste0("N", 4:7),
+#'   Meso  = paste0("N", 4:7),
 #'   Micro = paste0("N", 8:10)
 #' ), type = "layer")
-#'
-#' # Vector -> clusters
-#' net <- set_groups(net, c("A", "A", "A", "B", "B", "B", "C", "C", "C", "C"),
-#'                   type = "cluster")
-#'
-#' # Community detection -> groups
-#' net <- set_groups(net, "louvain", type = "group")
-#'
-#' # Data frame with explicit columns
-#' df <- data.frame(nodes = paste0("N", 1:10),
-#'                  layers = rep(c("Top", "Bottom"), each = 5))
-#' net <- set_groups(net, df)
-#'
-#' # Check groups
 #' get_groups(net)
 set_groups <- function(x, groups = NULL, type = c("group", "cluster", "layer"),
                        nodes = NULL, layers = NULL, clusters = NULL) {

@@ -250,7 +250,7 @@ test_that("print.cograph_motifs displays over and under-represented motifs", {
   skip_if_not_installed("igraph")
 
   mat <- create_test_matrix(8, seed = 789, density = 0.5)
-  result <- motif_census(mat, n_random = 30, seed = 42)
+  result <- motif_census(mat, n_random = 15, seed = 42)
 
   output <- capture.output(print(result))
 

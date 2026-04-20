@@ -180,39 +180,15 @@ Donut charts are ideal for showing a single proportion (0-1) per node:
 }
 \examples{
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-
-# Basic usage with cograph()
 cograph(adj) |>
-  sn_nodes(size = 0.08, fill = "steelblue", shape = "circle")
-
-# Direct matrix input (auto-converted)
-adj |> sn_nodes(fill = "coral", size = 0.1)
-
-# Per-node customization with vectors
-cograph(adj) |>
-  sn_nodes(
-    size = c(0.08, 0.06, 0.1),
-    fill = c("red", "blue", "green"),
-    label_position = c("above", "below", "center")
-  ) |>
+  sn_nodes(size = 0.08, fill = "steelblue", shape = "circle") |>
   splot()
 
-# Donut chart nodes showing proportions
+# Per-node customization: vectors of length n
 cograph(adj) |>
-  sn_nodes(
-    donut_fill = c(0.25, 0.75, 0.5),
-    donut_color = "steelblue",
-    donut_show_value = TRUE,
-    donut_value_suffix = "\%"
-  ) |>
-  splot()
-
-# Mixed shapes per node
-cograph(adj) |>
-  sn_nodes(
-    shape = c("circle", "square", "triangle"),
-    fill = c("#E41A1C", "#377EB8", "#4DAF4A")
-  ) |>
+  sn_nodes(size = c(0.08, 0.06, 0.1),
+           fill = c("#E41A1C", "#377EB8", "#4DAF4A"),
+           shape = c("circle", "square", "triangle")) |>
   splot()
 }
 \seealso{

@@ -22,9 +22,12 @@ Visualizes the centrality stability analysis from a \code{net_stability}
 object. Shows how centrality correlations drop as cases are removed.
 }
 \examples{
-\dontrun{
-net <- Nestimate::build_network(data, method = "tna")
-cs <- Nestimate::centrality_stability(net, iter = 100)
+\dontshow{if (requireNamespace("Nestimate", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+set.seed(1)
+seqs <- data.frame(T1 = sample(c("A","B","C"), 30, replace = TRUE),
+                   T2 = sample(c("A","B","C"), 30, replace = TRUE))
+net <- Nestimate::build_network(seqs, method = "tna")
+cs <- Nestimate::centrality_stability(net, iter = 10)
 plot_net_stability(cs)
-}
+\dontshow{\}) # examplesIf}
 }

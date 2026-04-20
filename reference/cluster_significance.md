@@ -11,6 +11,7 @@ cluster_significance(
   communities,
   n_random = 100,
   method = c("configuration", "gnm"),
+  null = c("detect", "fixed"),
   seed = NULL
 )
 
@@ -19,6 +20,7 @@ csig(
   communities,
   n_random = 100,
   method = c("configuration", "gnm"),
+  null = c("detect", "fixed"),
   seed = NULL
 )
 ```
@@ -53,6 +55,24 @@ csig(
 
   :   Erdos-Renyi model with same number of edges. Tests against random
       baseline.
+
+- null:
+
+  Which null question to answer. Default `"detect"`:
+
+  "detect"
+
+  :   Null is the modularity of the *best partition found by community
+      detection* on each null graph. Answers "is the observed partition
+      stronger than what community detection would recover on similar
+      random graphs?" — the historical behavior.
+
+  "fixed"
+
+  :   Null is the modularity of the supplied `communities` membership
+      *evaluated on each null graph*. Answers "does the supplied
+      partition itself explain more structure than it would on similar
+      random graphs?" — the conservative test.
 
 - seed:
 
@@ -91,6 +111,10 @@ A `cograph_cluster_significance` object with:
 
   Null model method used
 
+- null:
+
+  Which null question was asked ("detect" or "fixed")
+
 - n_random:
 
   Number of random networks generated
@@ -99,16 +123,15 @@ See `cluster_significance`.
 
 ## Details
 
-The test works by:
-
-1.  Computing the modularity of the provided community structure
-
-2.  Generating `n_random` random networks using the specified null model
-
-3.  For each random network, detecting communities with Louvain and
-    computing modularity
-
-4.  Comparing the observed modularity to this null distribution
+Two null models are supported. The default, `null = "detect"`, generates
+`n_random` random networks, runs community detection (Louvain, with
+fast-greedy fallback) on each, and records the resulting modularity. Low
+p-value means the observed partition beats what detection would return
+on similar random graphs. `null = "fixed"` instead evaluates the
+user-supplied membership on each null graph, so low p-value means the
+partition itself is stronger than it would be on similar random graphs —
+a tighter question that isolates the partition's quality from any
+detector's behavior.
 
 A significant result (low p-value) indicates that the community
 structure is stronger than expected by chance for networks with similar

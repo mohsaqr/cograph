@@ -1,8 +1,8 @@
 # Simplify a Network
 
-Removes self-loops and merges duplicate (multi-)edges, similar to
+Removes self-loops and (where representable) merges duplicate
+(multi-)edges, similar to
 [`igraph::simplify()`](https://r.igraph.org/reference/simplify.html).
-Works on matrices, cograph_network, igraph, and tna objects.
 
 ## Usage
 
@@ -67,12 +67,14 @@ simplify(
 
 - remove_multiple:
 
-  Logical. Merge duplicate edges?
+  Logical. Merge duplicate edges? No-op for matrix/tna inputs (see
+  Details).
 
 - edge_attr_comb:
 
   How to combine weights of duplicate edges: `"sum"`, `"mean"`, `"max"`,
-  `"min"`, `"first"`, or a custom function.
+  `"min"`, `"first"`, or a custom function. Ignored for matrix/tna
+  inputs.
 
 - ...:
 
@@ -81,6 +83,23 @@ simplify(
 ## Value
 
 The simplified network in the same format as the input.
+
+## Details
+
+The extent of simplification depends on the input representation:
+
+- `matrix` and `tna`: edges are stored as an n x n weight matrix. Each
+  cell (i, j) is unique by construction, so duplicate-edge merging is a
+  no-op regardless of `remove_multiple` / `edge_attr_comb`; only
+  self-loops (the diagonal) can be removed. Convert to `cograph_network`
+  or `igraph` first if you need true duplicate aggregation.
+
+- `cograph_network`: duplicate edges in the edge-list are merged via
+  [`aggregate_duplicate_edges()`](https://sonsoles.me/cograph/reference/aggregate_duplicate_edges.md)
+  using `edge_attr_comb`.
+
+- `igraph`: delegates to
+  [`igraph::simplify()`](https://r.igraph.org/reference/simplify.html).
 
 ## See also
 

@@ -85,7 +85,18 @@ Diagonal blocks = intra-layer, off-diagonal = inter-layer.</p>
 
 
 <dt id="arg-interlayer-matrices">interlayer_matrices<a class="anchor" aria-label="anchor" href="#arg-interlayer-matrices"></a></dt>
-<dd><p>For coupling="custom", list of inter-layer matrices</p></dd>
+<dd><p>For <code>coupling = "custom"</code>, a list of
+inter-layer matrices. Accepted shapes:</p><ul><li><p>Named list with keys <code>"a_b"</code> (integer layer indices) or
+<code>"&lt;layer_name_a&gt;_&lt;layer_name_b&gt;"</code>; either order works.</p></li>
+<li><p>Unnamed list of length <code>choose(L, 2)</code> giving every pair
+in upper-triangle row-major order: <code>(1,2), (1,3), ..., (1,L),
+      (2,3), ..., (L-1,L)</code>.</p></li>
+<li><p>Unnamed list of length <code>L-1</code> giving adjacent pairs only
+(legacy chain layout): entry <code>i</code> is the coupling for
+<code>(i, i+1)</code>. Non-adjacent pairs use <code>omega[a,b] * I</code>.</p></li>
+</ul><p>If no entry matches a pair and no legacy chain layout applies, a
+warning is emitted and the diagonal default <code>omega[a,b] * I</code>
+is used (previously this happened silently).</p></dd>
 
 </dl></div>
     <div class="section level2">

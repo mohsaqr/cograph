@@ -58,6 +58,7 @@ whether the detected community structure is statistically significant.</p>
 <span>  <span class="va">communities</span>,</span>
 <span>  n_random <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"configuration"</span>, <span class="st">"gnm"</span><span class="op">)</span>,</span>
+<span>  null <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"detect"</span>, <span class="st">"fixed"</span><span class="op">)</span>,</span>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -66,6 +67,7 @@ whether the detected community structure is statistically significant.</p>
 <span>  <span class="va">communities</span>,</span>
 <span>  n_random <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"configuration"</span>, <span class="st">"gnm"</span><span class="op">)</span>,</span>
+<span>  null <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"detect"</span>, <span class="st">"fixed"</span><span class="op">)</span>,</span>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -102,6 +104,23 @@ random baseline.</p></dd>
 </dl></dd>
 
 
+<dt id="arg-null">null<a class="anchor" aria-label="anchor" href="#arg-null"></a></dt>
+<dd><p>Which null question to answer. Default <code>"detect"</code>:</p><dl><dt>"detect"</dt>
+<dd><p>Null is the modularity of the <em>best partition
+found by community detection</em> on each null graph. Answers "is the
+observed partition stronger than what community detection would
+recover on similar random graphs?" — the historical behavior.</p></dd>
+
+<dt>"fixed"</dt>
+<dd><p>Null is the modularity of the supplied
+<code>communities</code> membership <em>evaluated on each null graph</em>.
+Answers "does the supplied partition itself explain more structure
+than it would on similar random graphs?" — the conservative test.</p></dd>
+
+
+</dl></dd>
+
+
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
 <dd><p>Random seed for reproducibility. Default NULL.</p></dd>
 
@@ -130,6 +149,9 @@ higher modularity by chance)</p></dd>
 <dt>method</dt>
 <dd><p>Null model method used</p></dd>
 
+<dt>null</dt>
+<dd><p>Which null question was asked ("detect" or "fixed")</p></dd>
+
 <dt>n_random</dt>
 <dd><p>Number of random networks generated</p></dd>
 
@@ -138,12 +160,16 @@ higher modularity by chance)</p></dd>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The test works by:</p><ol><li><p>Computing the modularity of the provided community structure</p></li>
-<li><p>Generating <code>n_random</code> random networks using the specified null model</p></li>
-<li><p>For each random network, detecting communities with Louvain and
-computing modularity</p></li>
-<li><p>Comparing the observed modularity to this null distribution</p></li>
-</ol><p>A significant result (low p-value) indicates that the community structure
+    <p>Two null models are supported. The default, <code>null = "detect"</code>,
+generates <code>n_random</code> random networks, runs community detection
+(Louvain, with fast-greedy fallback) on each, and records the resulting
+modularity. Low p-value means the observed partition beats what
+detection would return on similar random graphs. <code>null = "fixed"</code>
+instead evaluates the user-supplied membership on each null graph, so
+low p-value means the partition itself is stronger than it would be on
+similar random graphs — a tighter question that isolates the
+partition's quality from any detector's behavior.</p>
+<p>A significant result (low p-value) indicates that the community structure
 is stronger than expected by chance for networks with similar properties.</p>
     </div>
     <div class="section level2">

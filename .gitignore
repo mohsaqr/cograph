@@ -53,3 +53,7 @@ docs/CHANGES.md
 data-raw/
 scripts/
 tutorials/
+
+# Stale local artifacts (kept locally, not tracked)
+docs/plotting-tna-models.html
+vignettes/old_vignettes/

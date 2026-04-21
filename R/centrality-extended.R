@@ -306,19 +306,42 @@ calculate_barycenter <- function(g, mode = "all", weights = NULL,
 #' Wiener_full - Wiener_reduced. Wiener = sum of ALL sp values (not /2).
 #' @keywords internal
 #' @noRd
-calculate_closeness_vitality <- function(g, mode = "all", weights = NULL) {
+calculate_closeness_vitality <- function(g, mode = "all", weights = NULL,
+                                         dist_mat = NULL) {
   n <- igraph::vcount(g)
   if (n <= 1) return(rep(NA_real_, n))
 
-  use_weights <- if (is.null(weights)) NA else NULL
+  # Historical note: the old code used `if (is.null(weights)) NA else NULL`,
+  # which fell back to E(g)$weight when the caller supplied a weights vector.
+  # That silently ignored centrality()'s inverted weights (path-based
+  # convention: higher weight = shorter path) and returned numbers computed
+  # against the raw E(g)$weight instead. Matches the rest of the
+  # distance-based family now: NA forces unweighted, a numeric vector is
+  # honored as-is.
+  dist_weights <- if (is.null(weights)) NA else weights
 
-  sp_full <- igraph::distances(g, mode = mode, weights = use_weights)
+  if (is.null(dist_mat)) {
+    sp_full <- igraph::distances(g, mode = mode, weights = dist_weights)
+  } else {
+    sp_full <- dist_mat
+  }
   sp_full[!is.finite(sp_full)] <- 0
   wiener_full <- sum(sp_full)  # full sum, NOT /2
 
+  # For the reduced-graph call we cannot reuse dist_mat (different topology).
+  # Align the caller's weights vector to surviving edges by filtering the
+  # edgelist — delete_vertices() preserves relative edge order among survivors,
+  # so a boolean mask on the original weights gives the right vector.
+  el <- if (is.numeric(dist_weights)) igraph::as_edgelist(g, names = FALSE) else NULL
   vapply(seq_len(n), function(i) {
     g_red <- igraph::delete_vertices(g, i)
-    sp_red <- igraph::distances(g_red, mode = mode, weights = use_weights)
+    red_weights <- if (is.numeric(dist_weights)) {
+      surviving <- el[, 1] != i & el[, 2] != i
+      dist_weights[surviving]
+    } else {
+      NA
+    }
+    sp_red <- igraph::distances(g_red, mode = mode, weights = red_weights)
     sp_red[!is.finite(sp_red)] <- 0
     wiener_full - sum(sp_red)
   }, numeric(1))

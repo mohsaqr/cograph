@@ -420,13 +420,11 @@ centrality <- function(x, type = c("basic", "extended", "all"),
   # Pre-compute the shared shortest-path matrix once when any distance-based
   # measure is requested. At n=1000 this saves ~580 ms per measure; a
   # full type="extended" call on 11 distance-based measures drops by ~6 s.
-  # closeness_vitality is excluded: its weight semantics differ (uses
-  # E(g)$weight directly, not the inverted weights_for_paths).
   distance_based_measures <- c("radiality", "lin", "decay",
                                "residual_closeness", "dangalchev",
                                "generalized_closeness", "harary",
                                "average_distance", "barycenter", "wiener",
-                               "centroid")
+                               "centroid", "closeness_vitality")
   shared_dist_mat <- NULL
   if (any(measures %in% distance_based_measures)) {
     dist_w <- if (is.null(weights_for_paths)) NA else weights_for_paths
@@ -1159,7 +1157,8 @@ calculate_measure <- function(g, measure, mode, weights, normalized,
     "wiener" = calculate_wiener(g, mode = mode, weights = weights,
                                 dist_mat = dist_mat),
     "closeness_vitality" = calculate_closeness_vitality(g, mode = mode,
-                                                        weights = weights),
+                                                        weights = weights,
+                                                        dist_mat = dist_mat),
 
     # Extended measures — spectral/walk-based
     "communicability" = calculate_communicability(g),

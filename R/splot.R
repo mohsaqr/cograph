@@ -1374,6 +1374,17 @@ splot <- function(
   # 9. RETURN
   # ============================================
 
+  # Attach the actual plot-space coordinates (post-rescale, post-layout_scale)
+  # so downstream helpers like overlay_communities() can place annotations at
+  # true node positions without reconstructing splot's internal transform.
+  # network$nodes$x / $y remain in the original layout-coord space (used by
+  # tests and non-rendering callers); plot_x / plot_y are the coords that
+  # actually appeared on the device.
+  if (!is.null(network$nodes) && nrow(network$nodes) == nrow(layout_mat)) {
+    network$nodes$plot_x <- layout_mat[, 1]
+    network$nodes$plot_y <- layout_mat[, 2]
+  }
+
   invisible(network)
 }
 

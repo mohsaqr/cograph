@@ -104,10 +104,20 @@ overlay_communities <- function(x,
   # Render network
   result <- splot(x, ...)
 
-  # Node positions: splot returns 0-1, plot coords are (v - 0.5) * 1.8
+  # Prefer splot()'s exported plot-space coords (plot_x / plot_y), which
+  # track rescale + layout_scale accurately. Fall back to the legacy
+  # hard-coded transform if plot_x isn't present (older code paths or
+  # non-splot renderers returning a compatible $nodes structure).
   nodes <- result$nodes
-  px <- setNames((nodes$x - 0.5) * 1.8, nodes$label)
-  py <- setNames((nodes$y - 0.5) * 1.8, nodes$label)
+  if (!is.null(nodes$plot_x) && !is.null(nodes$plot_y)) {
+    px <- setNames(nodes$plot_x, nodes$label)
+    py <- setNames(nodes$plot_y, nodes$label)
+  } else {
+    # nocov start
+    px <- setNames((nodes$x - 0.5) * 1.8, nodes$label)
+    py <- setNames((nodes$y - 0.5) * 1.8, nodes$label)
+    # nocov end
+  }
 
   # Blob styling
   n_comm <- length(communities)

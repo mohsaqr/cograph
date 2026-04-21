@@ -88,7 +88,12 @@ a directed graph; see \code{\link{centrality_brokerage_coordinator}}).
 "hubbell" (Hubbell 1965), "information" (Stephenson-Zelen 1989),
 "reaching_local" (Mones et al. 2012). See \code{\link{centrality_katz}},
 \code{\link{centrality_hubbell}}, \code{\link{centrality_information}},
-\code{\link{centrality_pairwisedis}}, \code{\link{centrality_reaching_local}}.}
+\code{\link{centrality_pairwisedis}}, \code{\link{centrality_reaching_local}}.
+\strong{Psychometric (signed-weight)}: "expected_influence_1",
+"expected_influence_2" (Robinaugh, Millner & McNally 2016). Unlike
+strength (which takes |w|), expected influence keeps the sign — the
+appropriate measure when edges can be negative (partial-correlation,
+glasso, signed correlation networks).}
 
 \item{mode}{For directed networks: "all", "in", or "out". Affects degree,
 strength, closeness, eccentricity, coreness, and harmonic centrality.}

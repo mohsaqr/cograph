@@ -647,6 +647,70 @@ test_that("weighted stress honors edge weight ordering (shorter path wins)", {
   expect_equal(s2[2], 0)  # A-C direct is shortest, B is on no shortest path
 })
 
+# ---------- Expected influence (Robinaugh, Millner & McNally 2016) ----------
+
+test_that("expected_influence_1 matches qgraph on signed graphs", {
+  skip_if_not_installed("qgraph")
+
+  set.seed(42)
+  failures <- 0L
+  max_diff <- 0
+  for (i in seq_len(20)) {
+    n <- sample(5:12, 1)
+    W <- matrix(runif(n * n, -0.8, 0.8), n, n)
+    W <- (W + t(W)) / 2
+    diag(W) <- 0
+    rownames(W) <- colnames(W) <- paste0("n", seq_len(n))
+
+    qg <- suppressMessages(qgraph::centrality(W))
+    ref <- qg$OutExpectedInfluence
+    names(ref) <- rownames(W)
+    co <- centrality_expected_influence_1(W)
+    co <- co[names(ref)]
+
+    if (!isTRUE(all.equal(unname(co), unname(ref), tolerance = 1e-8))) {
+      failures <- failures + 1L
+    }
+    max_diff <- max(max_diff, max(abs(co - ref)))
+  }
+  cat(sprintf("qgraph expected_influence equivalence: 20 tests, %d failures (max diff %.2e)\n",
+              failures, max_diff))
+  expect_equal(failures, 0L)
+})
+
+test_that("expected_influence_2 matches Robinaugh 2016 formula", {
+  set.seed(7)
+  for (i in seq_len(10)) {
+    n <- sample(5:10, 1)
+    W <- matrix(runif(n * n, -0.6, 0.6), n, n)
+    W <- (W + t(W)) / 2
+    diag(W) <- 0
+    rownames(W) <- colnames(W) <- paste0("n", seq_len(n))
+
+    ei1 <- centrality_expected_influence_1(W)
+    ei2 <- centrality_expected_influence_2(W)
+    ei2_formula <- ei1 + as.numeric(W %*% ei1)
+    expect_equal(unname(ei2), unname(ei2_formula), tolerance = 1e-10)
+  }
+})
+
+test_that("expected influence respects mode on directed graphs", {
+  skip_if_not_installed("qgraph")
+  set.seed(99)
+  W <- matrix(runif(64, -0.6, 0.6), 8, 8)
+  diag(W) <- 0
+  rownames(W) <- colnames(W) <- paste0("n", 1:8)
+
+  qg <- suppressMessages(qgraph::centrality(W))
+  out_ref <- qg$OutExpectedInfluence; names(out_ref) <- rownames(W)
+  in_ref  <- qg$InExpectedInfluence;  names(in_ref)  <- rownames(W)
+
+  out_co <- centrality_expected_influence_1(W, mode = "out")
+  in_co  <- centrality_expected_influence_1(W, mode = "in")
+  expect_equal(unname(out_co[names(out_ref)]), unname(out_ref), tolerance = 1e-8)
+  expect_equal(unname(in_co[names(in_ref)]),   unname(in_ref),  tolerance = 1e-8)
+})
+
 test_that("gilschmidt matches sna on random graphs", {
   skip_if_not_installed("sna")
 

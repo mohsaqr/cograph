@@ -538,6 +538,115 @@ test_that("stress matches sna on random graphs", {
   expect_equal(failures, 0L)
 })
 
+# ---------- Weighted stress ----------
+# Reference: reconstruct stress from igraph::all_shortest_paths() enumeration.
+# Slow but transparent — enumerates every shortest path and counts which ones
+# pass through each interior node.
+stress_from_all_paths <- function(g, weights = NULL, directed = TRUE) {
+  n <- igraph::vcount(g)
+  is_dir <- igraph::is_directed(g) && directed
+  mode <- if (is_dir) "out" else "all"
+  stress <- numeric(n)
+  w_use <- if (is.null(weights)) NA else weights
+  pairs <- if (is_dir) {
+    expand.grid(s = seq_len(n), t = seq_len(n))
+    } else {
+      do.call(rbind, lapply(seq_len(n - 1), function(s) {
+        data.frame(s = s, t = seq.int(s + 1L, n))
+      }))
+    }
+  pairs <- pairs[pairs$s != pairs$t, , drop = FALSE]
+
+  for (row in seq_len(nrow(pairs))) {
+    s <- pairs$s[row]; t <- pairs$t[row]
+    paths <- suppressWarnings(
+      igraph::all_shortest_paths(g, from = s, to = t,
+                                 mode = mode, weights = w_use)$vpaths
+    )
+    for (p in paths) {
+      p_int <- as.integer(p)
+      if (length(p_int) <= 2L) next
+      interior <- p_int[-c(1L, length(p_int))]
+      stress[interior] <- stress[interior] + 1
+    }
+  }
+  stress
+}
+
+test_that("weighted stress matches all_shortest_paths enumeration (undirected)", {
+  set.seed(2026)
+  failures <- 0L
+  diffs <- numeric(0)
+  for (i in seq_len(15)) {
+    g <- igraph::sample_gnp(6, 0.5, directed = FALSE)
+    while (!igraph::is_connected(g)) g <- igraph::sample_gnp(6, 0.5)
+    w <- runif(igraph::ecount(g), 0.1, 3.0)
+    igraph::E(g)$weight <- w
+
+    co <- cograph:::calculate_stress(g, weights = w, directed = FALSE)
+    ref <- stress_from_all_paths(g, weights = w, directed = FALSE)
+    if (!isTRUE(all.equal(co, ref, tolerance = 1e-8))) {
+      failures <- failures + 1L
+      diffs <- c(diffs, max(abs(co - ref)))
+    }
+  }
+  cat(sprintf("weighted undirected stress: 15 tests, %d failures\n", failures))
+  expect_equal(failures, 0L)
+})
+
+test_that("weighted stress matches all_shortest_paths enumeration (directed)", {
+  set.seed(2027)
+  failures <- 0L
+  for (i in seq_len(15)) {
+    g <- igraph::sample_gnp(6, 0.5, directed = TRUE)
+    w <- runif(igraph::ecount(g), 0.1, 3.0)
+    igraph::E(g)$weight <- w
+
+    co <- cograph:::calculate_stress(g, weights = w, directed = TRUE)
+    ref <- stress_from_all_paths(g, weights = w, directed = TRUE)
+    if (!isTRUE(all.equal(co, ref, tolerance = 1e-8))) {
+      failures <- failures + 1L
+    }
+  }
+  cat(sprintf("weighted directed stress: 15 tests, %d failures\n", failures))
+  expect_equal(failures, 0L)
+})
+
+test_that("weighted stress with constant-1 weights matches unweighted stress", {
+  # Equivalence check: uniform weights should reproduce hop-count (BFS) result.
+  set.seed(2028)
+  g <- igraph::sample_gnp(10, 0.35, directed = FALSE)
+  while (!igraph::is_connected(g)) g <- igraph::sample_gnp(10, 0.35)
+  w1 <- rep(1, igraph::ecount(g))
+
+  unw <- cograph:::calculate_stress(g, weights = NULL, directed = FALSE)
+  w <- cograph:::calculate_stress(g, weights = w1, directed = FALSE)
+  expect_equal(w, unw, tolerance = 1e-8)
+})
+
+test_that("weighted stress honors edge weight ordering (shorter path wins)", {
+  # Triangle A-B-C with edges A-B=1, B-C=1, A-C=10. Shortest A<->C path is
+  # A-B-C, so B should accrue stress from that pair. With A-C=0.5 instead,
+  # the direct edge wins and B's stress drops to 0.
+  mk <- function(wAC) {
+    g <- igraph::make_graph(c(1, 2, 2, 3, 1, 3), directed = FALSE)
+    igraph::E(g)$weight <- c(1, 1, wAC)
+    g
+  }
+
+  g_long_ac <- mk(10)
+  s1 <- cograph:::calculate_stress(g_long_ac,
+                                   weights = igraph::E(g_long_ac)$weight,
+                                   directed = FALSE)
+  expect_equal(s1[2], 1)  # B is the midpoint of A-B-C
+
+  g_short_ac <- mk(0.5)
+  s2 <- cograph:::calculate_stress(g_short_ac,
+                                   weights = igraph::E(g_short_ac)$weight,
+                                   directed = FALSE)
+  expect_equal(s2[2], 0)  # A-C direct is shortest, B is on no shortest path
+})
+
 test_that("gilschmidt matches sna on random graphs", {
   skip_if_not_installed("sna")
 

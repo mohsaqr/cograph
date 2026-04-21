@@ -574,7 +574,11 @@ plot_mcml <- function(
   xlim <- range(c(bx, tx)) + c(-shape_size - pad, shape_size + pad)
   ylim <- range(c(by, ty)) + c(-shape_size * compress - pad, shape_size + pad)
 
-  old_par <- graphics::par(mar = c(0.2, 0.2, 0.2, 0.2))
+  # Reserve top/bottom margin only when titles/subtitles are set — otherwise
+  # graphics::title() clips against the tight 0.2-line edge.
+  top_mar <- if (!is.null(title)) max(2.5, title_size * 2) else 0.2
+  bot_mar <- if (!is.null(subtitle)) max(1.8, subtitle_size * 2) else 0.2
+  old_par <- graphics::par(mar = c(bot_mar, 0.2, top_mar, 0.2))
   on.exit(graphics::par(old_par), add = TRUE)
 
   graphics::plot.new()
@@ -618,7 +622,8 @@ plot_mcml <- function(
   # ============================================================================
 
   summary_arrow_sz <- summary_arrow_size
-  pie_radius <- 0.35  # Pie chart radius in plot units
+  # Pie chart radius: summary_size default 4 -> radius 0.35 (backwards compat)
+  pie_radius <- summary_size * 0.0875
 
   # Pre-compute pie proportions for each cluster based on summary_pie mode.
   # "inits": colored slice = cluster's share of the initial distribution
@@ -922,52 +927,70 @@ plot_mcml <- function(
       }
     }
 
-    # Nodes as PIE CHARTS showing self-transition proportion
-    node_pie_r <- node_size * 0.035  # Pie radius in plot units
+    # Detail node rendering. When node_shape is "circle" (default), draw a
+    # pie chart encoding self-transition proportion. For any other shape,
+    # draw a solid shape in cluster color — the pie semantics only make
+    # sense on a circle.
+    node_pie_r <- node_size * 0.035  # Radius in plot units
 
     for (ni in seq_along(nx)) {
-      # Get self-transition proportion for this node
-      self_val <- 0
-      other_val <- 1
-      if (!is.null(within_w)) {
-        node_row <- within_w[ni, ]
-        self_val <- within_w[ni, ni]  # Diagonal = self-transition
-        other_val <- sum(node_row) - self_val
-        total <- self_val + other_val
-        if (total > 0) {
-          self_prop <- self_val / total
+      # Global node index (into node_shape vector)
+      gi <- idx[ni]
+      this_shape <- node_shape[gi]
+
+      if (this_shape == "circle") {
+        # Get self-transition proportion for this node
+        self_val <- 0
+        other_val <- 1
+        if (!is.null(within_w)) {
+          node_row <- within_w[ni, ]
+          self_val <- within_w[ni, ni]  # Diagonal = self-transition
+          other_val <- sum(node_row) - self_val
+          total <- self_val + other_val
+          if (total > 0) {
+            self_prop <- self_val / total
+          } else {
+            self_prop <- 0
+          }
         } else {
           self_prop <- 0
         }
-      } else {
-        self_prop <- 0
-      }
 
-      # Draw "other" slice (light version of cluster color)
-      if (self_prop < 1) {
+        # Draw "other" slice (light version of cluster color)
+        if (self_prop < 1) {
+          theta <- seq(0, 2 * pi, length.out = 40)
+          graphics::polygon(nx[ni] + node_pie_r * cos(theta),
+                            ny[ni] + node_pie_r * sin(theta),
+                            col = grDevices::adjustcolor(colors[i], 0.3),
+                            border = NA)
+        }
+
+        # Draw "self" slice (full cluster color)
+        if (self_prop > 0.001) { # nocov start
+          start_angle <- pi / 2
+          end_angle <- start_angle - self_prop * 2 * pi
+          n_pts <- max(10, round(40 * self_prop))
+          angles <- seq(start_angle, end_angle, length.out = n_pts)
+          slice_x <- c(nx[ni], nx[ni] + node_pie_r * cos(angles), nx[ni])
+          slice_y <- c(ny[ni], ny[ni] + node_pie_r * sin(angles), ny[ni])
+          graphics::polygon(slice_x, slice_y, col = colors[i], border = NA)
+        } # nocov end
+
+        # Border
         theta <- seq(0, 2 * pi, length.out = 40)
-        graphics::polygon(nx[ni] + node_pie_r * cos(theta),
-                          ny[ni] + node_pie_r * sin(theta),
-                          col = grDevices::adjustcolor(colors[i], 0.3),
-                          border = NA)
+        graphics::lines(nx[ni] + node_pie_r * cos(theta),
+                        ny[ni] + node_pie_r * sin(theta),
+                        col = node_border_color, lwd = 1.5)
+      } else {
+        draw_node_base(
+          x = nx[ni], y = ny[ni],
+          size = node_pie_r,
+          shape = this_shape,
+          col = colors[i],
+          border.col = node_border_color,
+          border.width = 1.5
+        )
       }
-
-      # Draw "self" slice (full cluster color)
-      if (self_prop > 0.001) { # nocov start
-        start_angle <- pi / 2
-        end_angle <- start_angle - self_prop * 2 * pi
-        n_pts <- max(10, round(40 * self_prop))
-        angles <- seq(start_angle, end_angle, length.out = n_pts)
-        slice_x <- c(nx[ni], nx[ni] + node_pie_r * cos(angles), nx[ni])
-        slice_y <- c(ny[ni], ny[ni] + node_pie_r * sin(angles), ny[ni])
-        graphics::polygon(slice_x, slice_y, col = colors[i], border = NA)
-      } # nocov end
-
-      # Border
-      theta <- seq(0, 2 * pi, length.out = 40)
-      graphics::lines(nx[ni] + node_pie_r * cos(theta),
-                      ny[ni] + node_pie_r * sin(theta),
-                      col = node_border_color, lwd = 1.5)
     }
 
     # Node labels - position on side (left or right only)
@@ -999,7 +1022,7 @@ plot_mcml <- function(
     graphics::title(main = title, cex.main = title_size)
   }
   if (!is.null(subtitle)) {
-    graphics::title(sub = subtitle, cex.sub = subtitle_size, line = -0.5)
+    graphics::title(sub = subtitle, cex.sub = subtitle_size, line = bot_mar - 1)
   }
 
   # Legend (positioned based on legend_position)

@@ -1216,18 +1216,27 @@ plot_transitions <- function(x,
     n_individuals <- length(trajectories)
   }
 
+  # Build a single n_individuals x n_columns matrix of trajectory states.
+  # Each element of `trajectories` has length n_columns by construction, so
+  # rbind produces a regular matrix and column indexing replaces the
+  # 4 * (n_columns - 1) sapply calls the segment loop used to run.
+  traj_mat <- do.call(rbind, trajectories)
+  first_states <- traj_mat[, 1L]
+  last_states <- traj_mat[, n_columns]
+
   # For each segment, compute proper alluvial ordering
   for (seg in seq_len(n_columns - 1)) {
     from_nodes <- column_nodes[[seg]]
     to_nodes <- column_nodes[[seg + 1]]
 
-    # Get from/to states for all individuals in this segment
+    # Get from/to states for all individuals in this segment (matrix column
+    # access, not list-per-element sapply).
     seg_data <- data.frame(
       individual = seq_len(n_individuals),
-      from_state = sapply(trajectories, `[`, seg),
-      to_state = sapply(trajectories, `[`, seg + 1),
-      first_state = sapply(trajectories, `[`, 1),
-      last_state = sapply(trajectories, `[`, n_columns),
+      from_state = traj_mat[, seg],
+      to_state = traj_mat[, seg + 1L],
+      first_state = first_states,
+      last_state = last_states,
       stringsAsFactors = FALSE
     )
 

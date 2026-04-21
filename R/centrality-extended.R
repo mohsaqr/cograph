@@ -22,86 +22,152 @@ calculate_stress <- function(g, weights = NULL, directed = TRUE) {
   if (n <= 1) return(rep(0, n))
 
   mode <- if (directed && igraph::is_directed(g)) "out" else "all"
+  is_dir <- igraph::is_directed(g) && directed
 
-  # Brandes (2008) single-source O(V+E) accumulation replaces the previous
-  # all_shortest_paths() enumeration. For each source s we do BFS, record
-  # the shortest-path count sigma(v) and BFS order, then accumulate
-  # delta(v) += sigma(v) * (1 + delta(w)/sigma(w)) over shortest-path
-  # predecessor edges (v, w) in reverse BFS order — a known recurrence
-  # for total stress as defined by sna::stresscent.
-  #
-  # Matches the previous unweighted behavior exactly (both always pass
-  # weights = NA under the hood). A separate pass would be needed to
-  # honor weighted paths — not in scope here since the old impl also
-  # ignored the weights argument.
-  adj_list <- lapply(igraph::as_adj_list(g, mode = mode), as.integer)
+  weights_provided <- !is.null(weights) && !all(is.na(weights))
+
+  if (!weights_provided) {
+    # --- Unweighted path: Brandes (2008) BFS accumulation ---
+    # For each source s we do BFS, record the shortest-path count sigma(v)
+    # and BFS order, then accumulate delta in reverse BFS order with the
+    # stress recurrence
+    #   delta(v) += sigma(v) * (sigma(w) + delta(w)) / sigma(w).
+    # This differs from Brandes' *betweenness* recurrence (uses
+    # (1 + delta(w))) — stress counts integer paths, not fractions.
+    adj_list <- lapply(igraph::as_adj_list(g, mode = mode), as.integer)
+
+    stress <- numeric(n)
+    sigma <- numeric(n)
+    dist <- rep(Inf, n)
+    order_bfs <- integer(n)
+    delta <- numeric(n)
+
+    for (s in seq_len(n)) {
+      sigma[] <- 0
+      dist[] <- Inf
+      delta[] <- 0
+      pred_list <- vector("list", n)
+      sigma[s] <- 1
+      dist[s] <- 0
+
+      order_bfs[1] <- s
+      head_ <- 1L
+      tail_ <- 2L
+      while (head_ < tail_) {
+        v <- order_bfs[head_]
+        head_ <- head_ + 1L
+        dv_next <- dist[v] + 1
+        for (w in adj_list[[v]]) {
+          dw <- dist[w]
+          if (dw == Inf) {
+            dist[w] <- dv_next
+            order_bfs[tail_] <- w
+            tail_ <- tail_ + 1L
+            dw <- dv_next
+          }
+          if (dw == dv_next) {
+            sigma[w] <- sigma[w] + sigma[v]
+            pred_list[[w]] <- c(pred_list[[w]], v)
+          }
+        }
+      }
+
+      n_visited <- tail_ - 1L
+      if (n_visited > 1L) {
+        for (i in seq.int(n_visited, 2L)) {
+          w <- order_bfs[i]
+          preds <- pred_list[[w]]
+          if (length(preds) == 0L) next
+          factor_w <- (sigma[w] + delta[w]) / sigma[w]
+          delta[preds] <- delta[preds] + sigma[preds] * factor_w
+        }
+      }
+
+      delta[s] <- 0
+      stress <- stress + delta
+    }
+
+    if (!is_dir) stress <- stress / 2
+    return(stress)
+  }
+
+  # --- Weighted path: igraph::distances() + edge-scan predecessor DAG ---
+  # Per-source, igraph::distances() runs Dijkstra in C — this is the hot
+  # inner loop we can't beat in R. Then a single vectorized edge scan
+  # identifies tight edges (d[u] + w(u,v) == d[v]), which form the
+  # shortest-path predecessor DAG. From there the Brandes accumulation
+  # runs the same as the unweighted case, just indexed by ascending
+  # distance instead of BFS order.
+  el <- igraph::as_edgelist(g, names = FALSE)
+  u_all <- as.integer(el[, 1])
+  v_all <- as.integer(el[, 2])
+  w_all <- as.numeric(weights)
+
+  # For undirected, symmetrize edges so the scan catches predecessors in
+  # either orientation. For directed, each arc is scanned once in its
+  # canonical direction.
+  if (is_dir) {
+    u_sym <- u_all
+    v_sym <- v_all
+    w_sym <- w_all
+  } else {
+    u_sym <- c(u_all, v_all)
+    v_sym <- c(v_all, u_all)
+    w_sym <- c(w_all, w_all)
+  }
+
+  # Tolerance floor of 1 guards against false negatives when distances are
+  # tiny (multiplying by 0 would always reject); scale by magnitude for
+  # large distances so we don't accept spurious tight edges.
+  tol_rel <- sqrt(.Machine$double.eps)
+  n_seq <- seq_len(n)
 
   stress <- numeric(n)
-  # Reusable working buffers to avoid per-source re-allocation
-  sigma <- numeric(n)
-  dist <- rep(Inf, n)
-  order_bfs <- integer(n)
-  delta <- numeric(n)
 
-  for (s in seq_len(n)) {
-    # Reset buffers
-    sigma[] <- 0
-    dist[] <- Inf
-    delta[] <- 0
-    # Predecessor DAG: pred_list[[w]] holds each node v with a shortest s->v->w
-    # path. Built during BFS; iterated in reverse order during accumulation.
-    pred_list <- vector("list", n)
+  for (s in n_seq) {
+    d <- as.numeric(igraph::distances(g, v = s, to = igraph::V(g),
+                                      mode = mode, weights = w_all))
+    reachable <- is.finite(d)
+
+    d_u <- d[u_sym]
+    d_v <- d[v_sym]
+    lhs <- d_u + w_sym
+    tight <- is.finite(d_u) & is.finite(d_v) &
+      abs(lhs - d_v) <= tol_rel * pmax(abs(lhs), abs(d_v), 1)
+
+    # Predecessor DAG: pred_list[[w]] holds all nodes v on some s->v->w
+    # shortest path. split() on a full-level factor gives an entry for
+    # every node, including integer(0) for sources with no predecessors.
+    pred_list <- split(u_sym[tight], factor(v_sym[tight], levels = n_seq))
+
+    # Ascending-distance order for sigma (path counts): for non-source w,
+    # sigma(w) = sum(sigma(preds[[w]])). The source has sigma = 1.
+    ord <- order(d)
+    sigma <- numeric(n)
     sigma[s] <- 1
-    dist[s] <- 0
-
-    # BFS
-    order_bfs[1] <- s
-    head_ <- 1L
-    tail_ <- 2L
-    while (head_ < tail_) {
-      v <- order_bfs[head_]
-      head_ <- head_ + 1L
-      dv_next <- dist[v] + 1
-      for (w in adj_list[[v]]) {
-        dw <- dist[w]
-        if (dw == Inf) {
-          dist[w] <- dv_next
-          order_bfs[tail_] <- w
-          tail_ <- tail_ + 1L
-          dw <- dv_next
-        }
-        if (dw == dv_next) {
-          sigma[w] <- sigma[w] + sigma[v]
-          pred_list[[w]] <- c(pred_list[[w]], v)
-        }
-      }
+    for (i in n_seq) {
+      w <- ord[i]
+      if (!reachable[w] || w == s) next
+      p <- pred_list[[w]]
+      if (length(p)) sigma[w] <- sum(sigma[p])
     }
 
-    # Reverse-BFS accumulation. Stress (integer path counts) recurrence:
-    #   delta(v) += sigma(v) * (sigma(w) + delta(w)) / sigma(w)
-    # distinct from Brandes' betweenness (uses (1 + delta(w))).
-    n_visited <- tail_ - 1L
-    if (n_visited > 1L) {
-      for (i in seq.int(n_visited, 2L)) {
-        w <- order_bfs[i]
-        preds <- pred_list[[w]]
-        if (length(preds) == 0L) next
-        factor_w <- (sigma[w] + delta[w]) / sigma[w]
-        delta[preds] <- delta[preds] + sigma[preds] * factor_w
-      }
+    # Descending-distance order for delta accumulation (stress recurrence).
+    delta <- numeric(n)
+    for (i in seq.int(n, 1L)) {
+      w <- ord[i]
+      if (!reachable[w] || w == s || sigma[w] == 0) next
+      p <- pred_list[[w]]
+      if (!length(p)) next
+      factor_w <- (sigma[w] + delta[w]) / sigma[w]
+      delta[p] <- delta[p] + sigma[p] * factor_w
     }
 
-    # Source itself is never an intermediate of its own source; the
-    # recurrence leaves a non-zero delta[s] that must not be accumulated.
     delta[s] <- 0
     stress <- stress + delta
   }
 
-  # For undirected, each s-t pair counted from both ends; divide by 2
-  if (!igraph::is_directed(g)) {
-    stress <- stress / 2
-  }
-
+  if (!is_dir) stress <- stress / 2
   stress
 }
 
@@ -1599,6 +1665,77 @@ calculate_infection <- function(g, beta = 0.8, mu = 0, max_length = 6L) {
     visited_flag[src] <<- FALSE
     out
   }, numeric(1))
+}
+
+
+#' Expected influence (Robinaugh, Millner & McNally 2016)
+#'
+#' Signed-sum centrality for networks with positive *and* negative edges.
+#' Strength takes `|w|` and conflates a node with strong offsetting edges
+#' with a genuinely central node; expected influence keeps the sign.
+#'
+#' Formulas (Robinaugh et al. 2016):
+#'   EI1(i) = sum_j W[i, j]
+#'   EI2(i) = EI1(i) + sum_j W[i, j] * EI1(j)
+#'
+#' `mode` follows the rest of the centrality family: "out" (default) uses
+#' row sums (outgoing weights from i), "in" uses column sums, "all" sums
+#' both for directed graphs. Undirected graphs ignore `mode` since W is
+#' symmetric.
+#'
+#' @param g An igraph graph.
+#' @param weights Optional numeric vector of edge weights (positive or
+#'   negative). If `NULL`, uses `E(g)$weight` when present, else falls
+#'   back to unweighted (edges weighted 1), in which case EI1 reduces to
+#'   signed degree.
+#' @param step Integer, 1 or 2. Whether to return EI1 or EI2. Default 1.
+#' @param mode One of "out", "in", "all". Default "out" (ignored for
+#'   undirected graphs).
+#' @keywords internal
+#' @noRd
+calculate_expected_influence <- function(g, weights = NULL, step = 1L,
+                                         mode = c("out", "in", "all")) {
+  mode <- match.arg(mode)
+  n <- igraph::vcount(g)
+  if (n == 0) return(numeric(0))
+  if (n == 1) return(0)
+
+  if (is.null(weights)) {
+    weights <- if (!is.null(igraph::E(g)$weight)) igraph::E(g)$weight
+               else rep(1, igraph::ecount(g))
+  }
+
+  # Build the signed weight matrix; keep negative edges intact (unlike
+  # as_adjacency_matrix's default, which would sum them into absolute
+  # weight). Iterate the edge list directly so we preserve signs.
+  W <- matrix(0, n, n)
+  if (igraph::ecount(g) > 0) {
+    el <- igraph::as_edgelist(g, names = FALSE)
+    # Directed: W[u, v] = weight; undirected: also W[v, u] = weight
+    for (k in seq_len(nrow(el))) {
+      W[el[k, 1], el[k, 2]] <- W[el[k, 1], el[k, 2]] + weights[k]
+    }
+    if (!igraph::is_directed(g)) {
+      # Reflect to the other side unless it was already placed (in case
+      # igraph returned the canonical upper-triangle orientation).
+      W <- W + t(W) - diag(diag(W))
+    }
+  }
+
+  ei1 <- switch(mode,
+                "out" = rowSums(W),
+                "in"  = colSums(W),
+                "all" = rowSums(W) + colSums(W) - diag(W))
+
+  if (step == 1L) return(ei1)
+
+  # EI2: add the weighted sum of neighbors' EI1
+  ei2 <- ei1 + switch(mode,
+                     "out" = as.numeric(W %*% ei1),
+                     "in"  = as.numeric(t(W) %*% ei1),
+                     "all" = as.numeric(W %*% ei1) +
+                             as.numeric(t(W) %*% ei1) - diag(W) * ei1)
+  ei2
 }
 
 

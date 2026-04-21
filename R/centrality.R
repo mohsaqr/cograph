@@ -55,6 +55,11 @@
 #'   "reaching_local" (Mones et al. 2012). See \code{\link{centrality_katz}},
 #'   \code{\link{centrality_hubbell}}, \code{\link{centrality_information}},
 #'   \code{\link{centrality_pairwisedis}}, \code{\link{centrality_reaching_local}}.
+#'   **Psychometric (signed-weight)**: "expected_influence_1",
+#'   "expected_influence_2" (Robinaugh, Millner & McNally 2016). Unlike
+#'   strength (which takes |w|), expected influence keeps the sign — the
+#'   appropriate measure when edges can be negative (partial-correlation,
+#'   glasso, signed correlation networks).
 #' @param mode For directed networks: "all", "in", or "out". Affects degree,
 #'   strength, closeness, eccentricity, coreness, and harmonic centrality.
 #' @param normalized Logical. Normalize values to 0-1 range by dividing by max.
@@ -315,7 +320,9 @@ centrality <- function(x, type = c("basic", "extended", "all"),
                      "gravity", "collective_influence", "local_hindex",
                      "hindex_strength", "onion",
                      # Batch 3 — mode measures
-                     "reaching_local")
+                     "reaching_local",
+                     # Psychometric family — signed-weight sums
+                     "expected_influence_1", "expected_influence_2")
   no_mode_measures <- c("betweenness", "eigenvector", "pagerank",
                         "authority", "hub", "constraint", "transitivity",
                         "subgraph", "laplacian", "load",
@@ -1206,6 +1213,10 @@ calculate_measure <- function(g, measure, mode, weights, normalized,
     "infection" = calculate_infection(g),
     "nonbacktracking" = calculate_nonbacktracking(g),
     "spanning_tree" = calculate_spanning_tree(g),
+    "expected_influence_1" = calculate_expected_influence(
+      g, weights = weights, step = 1L, mode = mode),
+    "expected_influence_2" = calculate_expected_influence(
+      g, weights = weights, step = 2L, mode = mode),
 
     # Directed-only measures
     "salsa" = calculate_salsa(g),
@@ -2498,6 +2509,72 @@ centrality_stress <- function(x, ...) {
 centrality_flow_betweenness <- function(x, ...) {
   df <- centrality(x, measures = "flow_betweenness", ...)
   stats::setNames(df$flow_betweenness, df$node)
+}
+
+#' Expected Influence (one-step)
+#'
+#' Signed-weight sum of a node's edges (Robinaugh, Millner & McNally 2016).
+#' The appropriate centrality for networks with positive *and* negative
+#' edges (partial-correlation, glasso, signed correlation networks) where
+#' strength — which takes absolute values — can be misleading.
+#'
+#' @param x Network input (matrix, igraph, network, cograph_network, tna
+#'   object).
+#' @param mode One of "all", "in", "out" for directed graphs. Default "out".
+#' @param ... Additional arguments passed to \code{\link{centrality}}.
+#'
+#' @return Named numeric vector of expected-influence values (signed).
+#'
+#' @references Robinaugh DJ, Millner AJ, McNally RJ (2016). Identifying
+#'   highly influential nodes in the complicated grief network.
+#'   \emph{Journal of Abnormal Psychology}, 125(6), 747-757.
+#'
+#' @seealso \code{\link{centrality_expected_influence_2}} for the two-step
+#'   variant, \code{\link{centrality_strength}} for the unsigned analogue.
+#'
+#' @export
+#' @examples
+#' # Signed weight matrix (partial correlations, for example)
+#' W <- matrix(c( 0.0,  0.5, -0.3,  0.2,
+#'                0.5,  0.0,  0.4, -0.1,
+#'               -0.3,  0.4,  0.0,  0.6,
+#'                0.2, -0.1,  0.6,  0.0), 4, 4, byrow = TRUE)
+#' rownames(W) <- colnames(W) <- c("A", "B", "C", "D")
+#' centrality_expected_influence_1(W)
+centrality_expected_influence_1 <- function(x, mode = "out", ...) {
+  df <- centrality(x, measures = "expected_influence_1", mode = mode, ...)
+  stats::setNames(df$expected_influence_1, df$node)
+}
+
+#' Expected Influence (two-step)
+#'
+#' Two-step signed-weight sum: a node's own expected influence (EI1) plus
+#' the weighted sum of its neighbors' EI1 (Robinaugh, Millner & McNally
+#' 2016). Captures both the node's direct influence and the influence it
+#' exerts indirectly via highly-connected neighbors.
+#'
+#' @inheritParams centrality_expected_influence_1
+#'
+#' @return Named numeric vector of two-step expected-influence values.
+#'
+#' @references Robinaugh DJ, Millner AJ, McNally RJ (2016). Identifying
+#'   highly influential nodes in the complicated grief network.
+#'   \emph{Journal of Abnormal Psychology}, 125(6), 747-757.
+#'
+#' @seealso \code{\link{centrality_expected_influence_1}} for the one-step
+#'   variant.
+#'
+#' @export
+#' @examples
+#' W <- matrix(c( 0.0,  0.5, -0.3,  0.2,
+#'                0.5,  0.0,  0.4, -0.1,
+#'               -0.3,  0.4,  0.0,  0.6,
+#'                0.2, -0.1,  0.6,  0.0), 4, 4, byrow = TRUE)
+#' rownames(W) <- colnames(W) <- c("A", "B", "C", "D")
+#' centrality_expected_influence_2(W)
+centrality_expected_influence_2 <- function(x, mode = "out", ...) {
+  df <- centrality(x, measures = "expected_influence_2", mode = mode, ...)
+  stats::setNames(df$expected_influence_2, df$node)
 }
 
 #' Topological Coefficient

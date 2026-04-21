@@ -527,11 +527,15 @@ plot_mtna <- function(
           lwd <- (1 + 5 * (weight / max_weight)) * edge_scale * edge_lwd_mult
 
           if (i == j) {
+            # Cluster self-loop: scale to node_size (not shell_radius) so the
+            # loop doesn't balloon out to the full shell. Larger than the
+            # within-cluster self-loops (node_size * 0.03) to signal the
+            # cluster-level aggregation at the shell center.
             draw_self_loop_base(
               x = cluster_centers[i, 1], y = cluster_centers[i, 2],
-              node_size = shell_radius,
+              node_size = node_size * 0.15,
               col = edge_colors[i], lwd = lwd,
-              arrow = TRUE, asize = 0.1
+              arrow = TRUE, asize = 0.08
             )
             next
           }

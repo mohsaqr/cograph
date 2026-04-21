@@ -545,29 +545,35 @@ check_duplicate_edges <- function(edges, directed, edge_duplicates) {
 compute_plot_limits <- function(layout_mat, vsize_usr, layout_margin,
                                 edges, n_edges, loop_rotations,
                                 fixed_bounds = NULL) {
+  loop_extent <- 1.3
+  lr_factor <- 1.5
+
+  # Fixed-bounds path: when splot() anchors the layout to a canonical box
+  # (rescale = TRUE), return symmetric bounds padded by a per-graph-independent
+  # amount so a 2-node network and an N-node network end up with identical
+  # xlim/ylim. This keeps node pixel sizes stable in par(mfrow=...) grids.
+  if (is.numeric(fixed_bounds) && length(fixed_bounds) == 4L) {
+    max_v <- max(vsize_usr, na.rm = TRUE)
+    pad <- max_v * (loop_extent + lr_factor)
+    return(list(
+      xlim = c(fixed_bounds[1] - pad, fixed_bounds[2] + pad),
+      ylim = c(fixed_bounds[3] - pad, fixed_bounds[4] + pad)
+    ))
+  }
+
   x_range <- range(layout_mat[, 1], na.rm = TRUE)
   y_range <- range(layout_mat[, 2], na.rm = TRUE)
   x_margin <- diff(x_range) * layout_margin
   y_margin <- diff(y_range) * layout_margin
 
-  # Expand to encompass node radii at boundary nodes. When `fixed_bounds`
-  # is supplied, the plot area is anchored there so node pixel sizes stay
-  # stable across layouts of differing aspect ratios.
+  # Expand to encompass node radii at boundary nodes.
   x_lo <- min(layout_mat[, 1] - vsize_usr, na.rm = TRUE)
   x_hi <- max(layout_mat[, 1] + vsize_usr, na.rm = TRUE)
   y_lo <- min(layout_mat[, 2] - vsize_usr, na.rm = TRUE)
   y_hi <- max(layout_mat[, 2] + vsize_usr, na.rm = TRUE)
-  if (is.numeric(fixed_bounds) && length(fixed_bounds) == 4L) {
-    x_lo <- min(fixed_bounds[1], x_lo)
-    x_hi <- max(fixed_bounds[2], x_hi)
-    y_lo <- min(fixed_bounds[3], y_lo)
-    y_hi <- max(fixed_bounds[4], y_hi)
-  }
 
   # Always reserve space for self-loops on all nodes so that networks
   # with and without self-loops have consistent sizing when shown side by side
-  loop_extent <- 1.3
-  lr_factor <- 1.5
   center_x <- mean(layout_mat[, 1])
   center_y <- mean(layout_mat[, 2])
   # Default rotation: pointing away from network center

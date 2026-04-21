@@ -843,30 +843,31 @@ calculate_current_flow_betweenness <- function(g, weights = NULL) {
     diag(1 / svd_result$d[positive], nrow = sum(positive)) %*%
     t(svd_result$u[, positive, drop = FALSE])
 
-  # Calculate throughput for each node using Brandes & Fleischer algorithm
-  # For each source-target pair, compute current through each node
-  # Throughput = (1/2) * sum of |current| on incident edges
+  # Brandes & Fleischer algorithm. Vectorized per (s, t) pair: build the
+  # potential-difference matrix P where P[v, u] = p[v] - p[u], then the
+  # per-node throughput is rowSums(A * abs(P)) / 2. The inner v/u loops
+  # were the hot spot (O(n^2) R-interpreted iterations per pair); one
+  # matrix op per pair replaces n^2 iterations with a single BLAS-backed
+  # computation. At n=200 this alone accounts for ~150 s of the extended
+  # suite — see the pre-fix profile.
   betweenness <- numeric(n)
-
-  for (s in seq_len(n)) {
-    for (t in seq_len(n)) {
-      if (s >= t) next  # Only consider each pair once
-
+  A_mat <- as.matrix(A)
+  # Pre-compute the skip indices: for each (s, t) pair we must zero out the
+  # throughput contributions from v == s and v == t before accumulating.
+  for (s in seq_len(n - 1)) {
+    for (t in (s + 1):n) {
       # Potential at each node: p_v = L+_vs - L+_vt
       potential <- L_pinv[, s] - L_pinv[, t]
 
-      # For each node v, compute throughput = (1/2) * sum |w_vu * (p_v - p_u)|
-      for (v in seq_len(n)) {
-        if (v == s || v == t) next
-        throughput <- 0
-        for (u in seq_len(n)) {
-          if (A[v, u] > 0) {  # Edge exists
-            edge_current <- A[v, u] * (potential[v] - potential[u])
-            throughput <- throughput + abs(edge_current)
-          }
-        }
-        betweenness[v] <- betweenness[v] + throughput / 2
-      }
+      # Throughput per node v: 0.5 * sum_u A[v, u] * |p[v] - p[u]|
+      # outer(potential, potential, "-")[v, u] = p[v] - p[u]
+      P_diff <- outer(potential, potential, `-`)
+      throughput <- rowSums(A_mat * abs(P_diff)) * 0.5
+
+      # Exclude throughput at endpoints of the (s, t) pair
+      throughput[s] <- 0
+      throughput[t] <- 0
+      betweenness <- betweenness + throughput
     }
   }
 

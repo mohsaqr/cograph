@@ -551,22 +551,17 @@ compute_plot_limits <- function(layout_mat, vsize_usr, layout_margin,
   y_margin <- diff(y_range) * layout_margin
 
   # Expand to encompass node radii at boundary nodes. When `fixed_bounds`
-  # is supplied, start from those anchor bounds so the plot area stays
-  # constant across layouts of differing aspect ratios (the historical
-  # behavior was to fit the plot tightly to the layout range, which made
-  # node pixel-sizes visibly change whenever the layout's bounding box
-  # shape changed — different seeds, different algorithms, imported
-  # qgraph networks, etc).
+  # is supplied, the plot area is anchored there so node pixel sizes stay
+  # stable across layouts of differing aspect ratios.
+  x_lo <- min(layout_mat[, 1] - vsize_usr, na.rm = TRUE)
+  x_hi <- max(layout_mat[, 1] + vsize_usr, na.rm = TRUE)
+  y_lo <- min(layout_mat[, 2] - vsize_usr, na.rm = TRUE)
+  y_hi <- max(layout_mat[, 2] + vsize_usr, na.rm = TRUE)
   if (is.numeric(fixed_bounds) && length(fixed_bounds) == 4L) {
-    x_lo <- min(fixed_bounds[1], min(layout_mat[, 1] - vsize_usr, na.rm = TRUE))
-    x_hi <- max(fixed_bounds[2], max(layout_mat[, 1] + vsize_usr, na.rm = TRUE))
-    y_lo <- min(fixed_bounds[3], min(layout_mat[, 2] - vsize_usr, na.rm = TRUE))
-    y_hi <- max(fixed_bounds[4], max(layout_mat[, 2] + vsize_usr, na.rm = TRUE))
-  } else {
-    x_lo <- min(layout_mat[, 1] - vsize_usr, na.rm = TRUE)
-    x_hi <- max(layout_mat[, 1] + vsize_usr, na.rm = TRUE)
-    y_lo <- min(layout_mat[, 2] - vsize_usr, na.rm = TRUE)
-    y_hi <- max(layout_mat[, 2] + vsize_usr, na.rm = TRUE)
+    x_lo <- min(fixed_bounds[1], x_lo)
+    x_hi <- max(fixed_bounds[2], x_hi)
+    y_lo <- min(fixed_bounds[3], y_lo)
+    y_hi <- max(fixed_bounds[4], y_hi)
   }
 
   # Always reserve space for self-loops on all nodes so that networks

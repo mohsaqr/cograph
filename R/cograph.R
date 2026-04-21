@@ -90,12 +90,7 @@ compute_layout_for_cograph <- function(net, layout = "spring", seed = 42, ...) {
   temp_net$set_edges(edges)
   temp_net$set_directed(net_directed)
 
-  # A saved layout list (from splot's $meta$layout) carries the coord matrix
-  # under $coords — unwrap it so the matrix branch handles it.
-  if (is.list(layout) && !is.null(layout$coords) &&
-      (is.matrix(layout$coords) || is.data.frame(layout$coords))) {
-    layout <- layout$coords
-  }
+  layout <- .unwrap_saved_layout(layout)
 
   # Compute layout
   if (is.function(layout)) {

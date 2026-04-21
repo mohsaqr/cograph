@@ -10,6 +10,7 @@ from_qgraph(
   plot = TRUE,
   weight_digits = 2,
   show_zero_edges = FALSE,
+  preserve_node_size = FALSE,
   ...
 )
 }

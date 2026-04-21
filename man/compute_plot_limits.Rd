@@ -10,7 +10,8 @@ compute_plot_limits(
   layout_margin,
   edges,
   n_edges,
-  loop_rotations
+  loop_rotations,
+  fixed_bounds = NULL
 )
 }
 \arguments{

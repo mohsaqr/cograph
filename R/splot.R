@@ -1201,8 +1201,19 @@ splot <- function(
   graphics::par(mar = c(margins[1], margins[2], margins[3] + title_space, margins[4]))
 
   # Calculate plot limits accounting for node radii, self-loops, and margins
+  # When the layout was auto-rescaled (rescale = TRUE, the default),
+  # rescale_layout fits it inside [-0.9, 0.9] with aspect preserved, so
+  # the plot area should anchor to a consistent [-1, 1] box regardless
+  # of layout shape. This keeps node pixel sizes stable across different
+  # seeds / algorithms / imported qgraph layouts, fixing the long-standing
+  # "different layout -> different apparent node size" surprise.
+  fixed_bounds <- if (isTRUE(rescale)) {
+    b <- layout_scale %||% 1
+    c(-b, b, -b, b)
+  } else NULL
   lims <- compute_plot_limits(layout_mat, vsize_usr, layout_margin,
-                              edges, n_edges, loop_rotations)
+                              edges, n_edges, loop_rotations,
+                              fixed_bounds = fixed_bounds)
   xlim <- lims$xlim
   ylim <- lims$ylim
 
@@ -1383,6 +1394,45 @@ splot <- function(
   if (!is.null(network$nodes) && nrow(network$nodes) == nrow(layout_mat)) {
     network$nodes$plot_x <- layout_mat[, 1]
     network$nodes$plot_y <- layout_mat[, 2]
+
+    # Port the layout across plots: stash the rendered coord matrix on
+    # $meta$layout so a caller can do
+    #   p2 <- splot(other_graph, layout = p$meta$layout)
+    # and get identical positions without manually reassembling plot_x/y.
+    rendered_coords <- layout_mat
+    rownames(rendered_coords) <- network$nodes$name
+    colnames(rendered_coords) <- c("x", "y")
+    existing <- network$meta$layout %||% list()
+    network$meta$layout <- modifyList(
+      if (is.list(existing)) existing else list(name = existing),
+      list(coords = rendered_coords,
+           rescale = FALSE,
+           layout_scale = 1)
+    )
+
+    # Stash resolved per-node render params so the returned object is
+    # self-sufficient for replot. Column names deliberately mirror splot
+    # argument names (node_size, node_fill, node_shape, ...).
+    if (exists("vsize_usr", inherits = FALSE))
+      network$nodes$node_size  <- vsize_usr
+    if (exists("node_colors", inherits = FALSE))
+      network$nodes$node_fill  <- node_colors
+    if (exists("shapes", inherits = FALSE) && length(shapes) == nrow(network$nodes))
+      network$nodes$node_shape <- shapes
+    if (exists("label_cex", inherits = FALSE))
+      network$nodes$label_size <- label_cex
+  }
+
+  # Same for edges — stash resolved widths, colors, styles.
+  if (!is.null(network$edges) && nrow(network$edges) == n_edges && n_edges > 0) {
+    if (exists("edge_widths", inherits = FALSE))
+      network$edges$edge_size  <- edge_widths
+    if (exists("edge_colors", inherits = FALSE))
+      network$edges$edge_color <- edge_colors
+    if (exists("ltys", inherits = FALSE))
+      network$edges$edge_style <- ltys
+    if (exists("curves_vec", inherits = FALSE))
+      network$edges$curve      <- curves_vec
   }
 
   invisible(network)

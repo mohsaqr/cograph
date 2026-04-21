@@ -4,6 +4,17 @@
 #' @keywords internal
 NULL
 
+# Unwrap a saved layout list (from splot's $meta$layout) back to its coord
+# matrix so downstream dispatches treat it as user-supplied coordinates.
+.unwrap_saved_layout <- function(layout) {
+  if (is.list(layout) && !inherits(layout, "CographLayout") &&
+      !is.null(layout$coords) &&
+      (is.matrix(layout$coords) || is.data.frame(layout$coords))) {
+    return(layout$coords)
+  }
+  layout
+}
+
 #' Auto-convert input to cograph_network
 #'
 #' Internal helper that converts matrices, data frames, igraph, network,
@@ -18,6 +29,7 @@ NULL
 #' @return A cograph_network object (unified format).
 #' @noRd
 ensure_cograph_network <- function(x, layout = "spring", seed = 42, directed = NULL, ...) {
+  layout <- .unwrap_saved_layout(layout)
 
   if (inherits(x, "cograph_network")) {
     # Check if layout needs to be computed
@@ -77,6 +89,13 @@ compute_layout_for_cograph <- function(net, layout = "spring", seed = 42, ...) {
   temp_net$set_nodes(nodes)
   temp_net$set_edges(edges)
   temp_net$set_directed(net_directed)
+
+  # A saved layout list (from splot's $meta$layout) carries the coord matrix
+  # under $coords — unwrap it so the matrix branch handles it.
+  if (is.list(layout) && !is.null(layout$coords) &&
+      (is.matrix(layout$coords) || is.data.frame(layout$coords))) {
+    layout <- layout$coords
+  }
 
   # Compute layout
   if (is.function(layout)) {
@@ -172,6 +191,11 @@ compute_layout_for_cograph <- function(net, layout = "spring", seed = 42, ...) {
 #'   splot(layout = "circle")
 cograph <- function(input, layout = NULL, directed = NULL,
                    nodes = NULL, seed = 42, simplify = FALSE, ...) {
+
+  # Accept a saved-layout list (from another splot's $meta$layout) as
+  # layout =; unwrap to the raw coord matrix so downstream branches treat
+  # it as user-supplied coordinates.
+  layout <- .unwrap_saved_layout(layout)
 
   # Parse input first to get TNA metadata if applicable
   parsed <- parse_input(input, directed = directed, simplify = simplify)

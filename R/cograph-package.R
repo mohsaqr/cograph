@@ -36,6 +36,30 @@
 #'   \item \code{minimal}: Clean, minimal style
 #' }
 #'
+#' @section Weight conventions:
+#' cograph's analytic functions follow a single convention for edge weights:
+#' \itemize{
+#'   \item \strong{Semantics.} A weight is a \emph{strength}: higher weight
+#'     means a stronger connection (larger transition probability, thicker
+#'     correlation, stronger tie). This matches the qgraph / \pkg{tna}
+#'     convention and the intuition of most user-facing inputs.
+#'   \item \strong{Path-based measures} (betweenness, closeness, harmonic,
+#'     eccentricity, stress, load, radiality, etc.) invert weights to
+#'     \emph{distances} via \code{1 / weight ^ alpha}. The \code{alpha}
+#'     argument (default 1) tunes how strongly weight differences compress
+#'     paths. Controlled by the \code{invert_weights} argument, which
+#'     auto-detects to \code{TRUE} for tna objects and \code{FALSE} for
+#'     matrices/igraph (matching native igraph / \pkg{sna} defaults).
+#'   \item \strong{Non-path measures} (degree, strength, eigenvector,
+#'     PageRank, transitivity, modularity, ...) use the raw weights as-is
+#'     without inversion.
+#'   \item \strong{Unweighted override.} Passing \code{weights = NA} to any
+#'     analytic function forces unweighted behavior regardless of what is
+#'     attached to the graph.
+#' }
+#' Individual functions may document exceptions in their own help pages.
+#' Any deviation from this convention is a bug — please report.
+#'
 #' @docType package
 #' @name cograph-package
 #' @keywords internal

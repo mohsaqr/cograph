@@ -354,7 +354,8 @@ from_tna <- function(tna_object, engine = c("splot", "soplot"), plot = TRUE,
 #'
 #' @export
 from_qgraph <- function(qgraph_object, engine = c("splot", "soplot"), plot = TRUE,
-                         weight_digits = 2, show_zero_edges = FALSE, ...) {
+                         weight_digits = 2, show_zero_edges = FALSE,
+                         preserve_node_size = FALSE, ...) {
   engine <- match.arg(engine)
 
   if (!inherits(qgraph_object, "qgraph") && is.null(qgraph_object$Arguments)) {
@@ -394,7 +395,16 @@ from_qgraph <- function(qgraph_object, engine = c("splot", "soplot"), plot = TRU
   if (!is.null(ga_nodes$labels))       params$labels            <- ga_nodes$labels
   else if (!is.null(ga_nodes$names))   params$labels            <- ga_nodes$names # nocov
   if (!is.null(ga_nodes$color))        params$node_fill         <- ga_nodes$color
-  if (!is.null(ga_nodes$width))        params$node_size         <- ga_nodes$width * 1.3
+  # qgraph's per-node `width` values are only ported over when the caller
+  # explicitly opts in. Historically this override wrote the translated
+  # qgraph width into `node_size` unconditionally, which made identical
+  # data plotted through splot vs. from_qgraph render at visibly
+  # different sizes. With preserve_node_size = FALSE (new default),
+  # imported networks use cograph's standard default node size — for
+  # cross-package visual consistency.
+  if (isTRUE(preserve_node_size) && !is.null(ga_nodes$width)) {
+    params$node_size <- ga_nodes$width * 1.3
+  }
   if (!is.null(ga_nodes$shape))        params$node_shape        <- map_qgraph_shape(ga_nodes$shape)
   if (!is.null(ga_nodes$border.color)) params$node_border_color <- ga_nodes$border.color
   if (!is.null(ga_nodes$border.width)) params$node_border_width <- ga_nodes$border.width

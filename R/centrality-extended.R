@@ -22,20 +22,79 @@ calculate_stress <- function(g, weights = NULL, directed = TRUE) {
   if (n <= 1) return(rep(0, n))
 
   mode <- if (directed && igraph::is_directed(g)) "out" else "all"
-  stress <- numeric(n)
 
-  # For each source, find ALL shortest paths and count intermediate nodes
+  # Brandes (2008) single-source O(V+E) accumulation replaces the previous
+  # all_shortest_paths() enumeration. For each source s we do BFS, record
+  # the shortest-path count sigma(v) and BFS order, then accumulate
+  # delta(v) += sigma(v) * (1 + delta(w)/sigma(w)) over shortest-path
+  # predecessor edges (v, w) in reverse BFS order — a known recurrence
+  # for total stress as defined by sna::stresscent.
+  #
+  # Matches the previous unweighted behavior exactly (both always pass
+  # weights = NA under the hood). A separate pass would be needed to
+  # honor weighted paths — not in scope here since the old impl also
+  # ignored the weights argument.
+  adj_list <- lapply(igraph::as_adj_list(g, mode = mode), as.integer)
+
+  stress <- numeric(n)
+  # Reusable working buffers to avoid per-source re-allocation
+  sigma <- numeric(n)
+  dist <- rep(Inf, n)
+  order_bfs <- integer(n)
+  delta <- numeric(n)
+
   for (s in seq_len(n)) {
-    asp <- igraph::all_shortest_paths(g, from = s, to = igraph::V(g),
-                                      mode = mode, weights = NA)
-    for (path in asp$res) {
-      path_v <- as.integer(path)
-      if (length(path_v) > 2) {
-        # Count intermediate nodes (exclude source and target)
-        intermediates <- path_v[2:(length(path_v) - 1)]
-        stress[intermediates] <- stress[intermediates] + 1
+    # Reset buffers
+    sigma[] <- 0
+    dist[] <- Inf
+    delta[] <- 0
+    # Predecessor DAG: pred_list[[w]] holds each node v with a shortest s->v->w
+    # path. Built during BFS; iterated in reverse order during accumulation.
+    pred_list <- vector("list", n)
+    sigma[s] <- 1
+    dist[s] <- 0
+
+    # BFS
+    order_bfs[1] <- s
+    head_ <- 1L
+    tail_ <- 2L
+    while (head_ < tail_) {
+      v <- order_bfs[head_]
+      head_ <- head_ + 1L
+      dv_next <- dist[v] + 1
+      for (w in adj_list[[v]]) {
+        dw <- dist[w]
+        if (dw == Inf) {
+          dist[w] <- dv_next
+          order_bfs[tail_] <- w
+          tail_ <- tail_ + 1L
+          dw <- dv_next
+        }
+        if (dw == dv_next) {
+          sigma[w] <- sigma[w] + sigma[v]
+          pred_list[[w]] <- c(pred_list[[w]], v)
+        }
       }
     }
+
+    # Reverse-BFS accumulation. Stress (integer path counts) recurrence:
+    #   delta(v) += sigma(v) * (sigma(w) + delta(w)) / sigma(w)
+    # distinct from Brandes' betweenness (uses (1 + delta(w))).
+    n_visited <- tail_ - 1L
+    if (n_visited > 1L) {
+      for (i in seq.int(n_visited, 2L)) {
+        w <- order_bfs[i]
+        preds <- pred_list[[w]]
+        if (length(preds) == 0L) next
+        factor_w <- (sigma[w] + delta[w]) / sigma[w]
+        delta[preds] <- delta[preds] + sigma[preds] * factor_w
+      }
+    }
+
+    # Source itself is never an intermediate of its own source; the
+    # recurrence leaves a non-zero delta[s] that must not be accumulated.
+    delta[s] <- 0
+    stress <- stress + delta
   }
 
   # For undirected, each s-t pair counted from both ends; divide by 2

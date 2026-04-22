@@ -21,6 +21,7 @@ navbar:
   structure:
     left:  [intro, reference, articles, news]
     right: [search, github]
+
 reference:
   - title: Base R plotting
     contents:
@@ -180,3 +181,22 @@ reference:
     - starts_with("summary.")
     - starts_with("splot.")
     - matches(".*")
+articles:
+- title: Articles
+  navbar: ~
+  contents:
+  - starts_with("introduction")
+  - starts_with("articles/why")
+  - starts_with("articles/plotting")
+  - starts_with("articles/mcml")
+  - starts_with("articles/qgraph")
+  - starts_with("articles/bootstrap")
+
+- title: Tutorials
+  desc: Full tutorials
+  contents:
+  - starts_with("articles/cograph-tutorial-plotting")
+  - starts_with("articles/cograph-tutorial-mcml")
+  - starts_with("articles/cograph-tutorial-communities")
+  - starts_with("articles/cograph-tutorial-nestimate")
+  - starts_with("articles/cograph-tutorial-simplicial")

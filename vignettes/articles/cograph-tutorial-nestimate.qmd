@@ -2,8 +2,15 @@
 title: "Network Estimation and Visualization with Nestimate + cograph"
 description: |
     From raw sequence data to publication-ready statistical network plots ---
-    build, bootstrap, compare, and visualize using Nestimate and cograph together.
-date: "2026-04-01"
+    build, bootstrap, compare, cluster, and visualize using Nestimate and cograph together.
+date: "2026-04-09"
+author:
+  - name: Mohammed Saqr
+    url: https://saqr.me
+    affiliation: University of Eastern Finland
+  - name: Sonsoles López-Pernas
+    url: https://sonsoles.me
+    affiliation: University of Eastern Finland
 categories:
   - tutorial
   - R
@@ -28,71 +35,112 @@ knitr:
   opts_chunk:
     fig.width: 8
     fig.height: 7
-    dpi: 150
-    comment: ""
+    dpi: 300
 ---
 
 ```{r}
 #| label: setup
 #| include: false
 library(Nestimate)
-library(tna)
 library(cograph)
 ```
 
 # Introduction
 
-**Nestimate** is a general-purpose network estimation package. It provides a unified `build_network()` interface that accepts raw sequence data and constructs networks using multiple methods: transition probabilities, partial correlations, regularized networks (GLASSO), co-occurrence, and more. The result is a `netobject` that works directly with cograph's `splot()` — no conversion needed.
+**Nestimate** is a unified network estimation package for R. It provides a single entry point --- `build_network()` --- that accepts sequence data, wide-format behavioral data, or numeric matrices and estimates networks using any of 10 built-in methods. The result is a `netobject` that inherits `cograph_network`, so every object produced by Nestimate can be plotted with `splot()` directly.
 
-Beyond estimation, Nestimate provides bootstrap stability analysis, permutation-based group comparisons, higher-order network construction (HON, HYPA), and motif analysis. All output objects dispatch through `splot()` automatically.
+The core design principle is that **estimation and visualization are separate concerns**: Nestimate handles all computation (network construction, bootstrapping, permutation testing, clustering, multi-cluster analysis), while cograph handles all rendering. This separation means the analyst writes estimation code once and gets publication-ready figures without adapter code or manual class conversion.
 
+Beyond single-network estimation, Nestimate provides a complete statistical toolkit:
+
+- **Bootstrap stability analysis** (`bootstrap_network`) --- identifies which edges survive resampling and which are sampling artifacts.
+- **Permutation-based group comparison** (`permutation_test`) --- tests whether edges differ significantly between conditions.
+- **Multi-cluster multi-level analysis** (`cluster_summary`, `build_mcml`) --- aggregates node-level networks into cluster-level summaries for hierarchical visualization.
+- **Centrality stability** (`centrality_stability`) --- assesses whether centrality rankings are robust to case dropping.
+- **Group-level operations** --- bootstrapping, permutation testing, and plotting work on grouped networks with no additional code.
+
+This tutorial walks through the full pipeline with the `group_regulation_long` dataset shipped with Nestimate.
+
+---
 
 # Data
 
-We use `group_regulation_long` — a long-format dataset of 9 collaborative regulation behaviors coded across student groups, with achievement group labels (High vs Low).
+`group_regulation_long` is a long-format dataset of collaborative regulation behaviors coded across student groups. Each row is one coded action in a session, with columns identifying the actor, the group, achievement level, course, timestamp, and the regulation behavior.
 
 ```{r}
 #| label: data
-data("group_regulation_long")
+data("group_regulation_long", package = "Nestimate")
 head(group_regulation_long)
 ```
 
+The nine regulation behaviors are: `adapt`, `cohesion`, `consensus`, `coregulate`, `discuss`, `emotion`, `monitor`, `plan`, and `synthesis`. These form the nodes of the networks we estimate below.
+
+---
 
 # Estimating Networks
 
-`build_network()` estimates a network from raw data. The `method` argument selects the estimator.
+## A single network
+
+`build_network()` estimates a network from raw data. The `method` argument selects the estimation algorithm. Here we use `"relative"`, which computes row-normalized transition probabilities --- the standard approach in transition network analysis (TNA). Unlike constructing a TNA model manually (preparing wide-format data, computing the transition matrix, normalizing), `build_network()` handles all data preparation internally.
 
 ```{r}
 #| label: build-network
-net <- build_network(group_regulation_long,
-  action = "Action", actor = "Actor", method = "relative")
+net <- build_network(
+  group_regulation_long,
+  action = "Action", actor = "Actor",
+  method = "relative"
+)
 net
 ```
 
-`splot()` renders the `netobject` directly:
+The returned `net` is a `netobject` (which inherits `cograph_network`), so `splot()` renders it directly:
 
 ```{r}
 #| label: fig-base
-#| fig-cap: "Collaborative regulation — relative transition probabilities"
+#| fig-cap: "Collaborative regulation network --- row-normalized transitions (relative method)"
 splot(net)
 ```
 
-One line builds different network types:
+## Available estimators
+
+Nestimate ships with 10 built-in estimators. Each is selected via the `method` argument to `build_network()`:
 
 ```{r}
-#| label: estimators
-#| eval: false
-build_network(group_regulation_long, action = "Action", actor = "Actor", method = "frequency")
-build_network(group_regulation_long, action = "Action", actor = "Actor", method = "attention")
-build_network(group_regulation_long, action = "Action", actor = "Actor", method = "co_occurrence")
-build_network(group_regulation_long, action = "Action", actor = "Actor", method = "glasso")
-build_network(group_regulation, method = "pcor")
+#| label: estimators-table
+list_estimators()
 ```
 
+Different estimators answer different research questions. Directed methods (relative, frequency, attention) model sequential transitions --- which behavior follows which. Undirected methods (glasso, pcor, cor, co_occurrence, ising) model co-occurrence or partial correlation structures --- which behaviors tend to appear together. The choice of method should be driven by the theoretical question, not by convenience.
+
+```{r}
+#| label: build-variants
+frequency_net    <- build_network(group_regulation_long, action = "Action",
+                                  actor = "Actor", method = "frequency")
+attention_net    <- build_network(group_regulation_long, action = "Action",
+                                  actor = "Actor", method = "attention")
+co_occurrence_net <- build_network(group_regulation_long, action = "Action",
+                                   actor = "Actor", method = "co_occurrence")
+```
+
+Each of these is a `netobject` that works with `splot()`:
+
+```{r}
+#| label: fig-frequency
+#| fig-cap: "Frequency-based transition network (raw counts)"
+splot(frequency_net)
+```
+
+```{r}
+#| label: fig-co-occurrence
+#| fig-cap: "Co-occurrence network (undirected)"
+splot(co_occurrence_net, layout = "spring")
+```
+
+---
 
 # Bootstrap Stability
 
-`bootstrap_network()` resamples the data and refits the model at each iteration, identifying which edges are stable and which are sampling artifacts.
+To ensure that the patterns we observe reflect genuine structure rather than sampling noise, we need bootstrap resampling. `bootstrap_network()` resamples the data, refits the model at each iteration, and identifies which edges are stable. The result is a `net_bootstrap` object.
 
 ```{r}
 #| label: run-bootstrap
@@ -102,229 +150,362 @@ boot <- bootstrap_network(net, iter = 1000)
 boot
 ```
 
-## Network plots
+## Styled mode (default)
 
-Significant edges appear solid; non-significant edges appear dashed grey.
+Significant edges (p < 0.05) appear **solid dark blue**; non-significant edges appear **dashed grey**. This immediately separates the stable network structure from noise.
 
 ```{r}
 #| label: fig-boot-styled
-#| fig-cap: "Solid = stable edges, dashed = unstable"
+#| fig-cap: "Bootstrapped network --- solid = stable edges, dashed = sampling artifacts"
 splot(boot)
 ```
 
+## Significant edges only
+
 ```{r}
 #| label: fig-boot-sig
-#| fig-cap: "Significant edges only"
+#| fig-cap: "Only statistically stable edges retained"
 splot(boot, display = "significant")
 ```
 
+## Full network (no styling)
+
+```{r}
+#| label: fig-boot-full
+#| fig-cap: "All edges shown with uniform styling (bootstrap weights)"
+splot(boot, display = "full")
+```
+
+## Significance stars on edge labels
+
 ```{r}
 #| label: fig-boot-stars
-#| fig-cap: "With significance stars"
+#| fig-cap: "Bootstrap network with significance stars (\\*, \\*\\*, \\*\\*\\*)"
 splot(boot, show_stars = TRUE)
 ```
 
+## Confidence interval labels
+
 ```{r}
 #| label: fig-boot-ci
-#| fig-cap: "With 95% confidence intervals"
+#| fig-cap: "Bootstrap weights with 95% CI bounds on each edge label"
 splot(boot, show_ci = TRUE)
 ```
 
+::: {.callout-tip collapse="true"}
+## `splot()` display modes for `net_bootstrap`
+
+| `display` | Description |
+|---|---|
+| `"styled"` (default) | Significant = solid blue, non-significant = dashed grey |
+| `"significant"` | Only significant edges |
+| `"full"` | All edges, uniform styling |
+
+Additional parameters: `show_stars`, `show_ci`, `inherit_style`.
+:::
+
 ## Forest plots
 
-Forest plots show edge weights and confidence intervals in a compact format. Three layouts are available:
+Forest plots provide a complementary view of bootstrap results, showing the point estimate and confidence interval for every edge. Three layouts are available:
 
 ```{r}
-#| label: fig-forest-linear
-#| fig-cap: "Linear forest plot"
+#| label: fig-forest-default
 #| fig-height: 11
 #| fig-width: 6
-plot_bootstrap_forest(boot)
+#| fig-cap: "Bootstrap forest plot --- default linear layout"
+plot_bootstrap_forest(boot, show_ci = TRUE)
 ```
 
 ```{r}
 #| label: fig-forest-circular
-#| fig-cap: "Circular forest plot"
-plot_bootstrap_forest(boot, layout = "circular")
+#| fig-cap: "Bootstrap forest plot --- circular layout"
+plot_bootstrap_forest(boot, show_ci = TRUE, layout = "circular")
 ```
 
 ```{r}
 #| label: fig-forest-grouped
-#| fig-cap: "Grouped by source node"
-plot_bootstrap_forest(boot, layout = "grouped")
+#| fig-cap: "Bootstrap forest plot --- grouped by source node"
+plot_bootstrap_forest(boot, show_ci = TRUE, layout = "grouped", scale = 0.55)
 ```
 
+---
+
+# Centrality Stability
+
+Bootstrap alone tells us which edges are stable. To assess whether centrality rankings are robust, we need the case-dropping procedure from Epskamp et al. (2018): progressively remove increasing fractions of cases, recompute centrality, and correlate with the original ranking. The CS-coefficient is the maximum proportion of cases that can be dropped while maintaining a correlation above 0.7 in at least 95% of bootstrap samples.
+
+```{r}
+#| label: run-stability
+#| cache: true
+set.seed(265)
+cs <- centrality_stability(net, iter = 500)
+cs
+```
+
+```{r}
+#| label: fig-stability
+#| fig-cap: "Centrality stability --- correlation with original ranking as cases are dropped"
+#splot(cs)
+```
+
+A CS-coefficient above 0.5 is generally considered acceptable; above 0.7 is good (Epskamp et al., 2018). The horizontal dashed line marks the 0.7 threshold.
+
+---
 
 # Group Networks
 
-Pass `group =` to `build_network()` to estimate a separate network per group. `splot()` renders all groups in an automatic grid.
+## Building group networks
+
+Pass `group =` to `build_network()` and it estimates a separate network per group level, returning a `netobject_group`. `splot()` dispatches to `plot_netobject_group()` and renders all groups in an automatic grid.
 
 ```{r}
 #| label: build-group
-grp_net <- build_network(group_regulation_long, method = "relative",
-  action = "Action", actor = "Actor", time = "Time", group = "Achiever")
+grp_net <- build_network(
+  group_regulation_long, method = "relative",
+  action = "Action", actor = "Actor", time = "Time",
+  group = "Achiever"
+)
 names(grp_net)
 ```
 
 ```{r}
 #| label: fig-group-default
-#| fig-cap: "High vs Low achievers on a common weight scale"
+#| fig-cap: "High vs. Low achievers --- side-by-side on a common weight scale"
 #| fig-width: 12
 #| fig-height: 6
 splot(grp_net)
 ```
 
-`common_scale = TRUE` (default) makes edge widths directly comparable across panels:
+`common_scale = TRUE` (default) ensures both panels use the same maximum weight, so edge widths are directly comparable. Turn it off when you want each panel to use its own scale:
 
 ```{r}
 #| label: fig-group-noscale
-#| fig-cap: "Each group on its own scale"
+#| fig-cap: "Each group on its own weight scale --- emphasises internal structure"
 #| fig-width: 12
 #| fig-height: 6
-splot(grp_net, common_scale = FALSE)
+splot(grp_net, common_scale = FALSE, title_prefix = "Achievers: ")
 ```
 
+## Group bootstrap
+
+Bootstrapping works on grouped networks. `bootstrap_network()` applied to a `netobject_group` returns a `net_bootstrap_group` --- one bootstrap result per group, rendered in a multi-panel grid.
+
+```{r}
+#| label: run-group-bootstrap
+#| cache: true
+set.seed(265)
+gboot <- bootstrap_network(grp_net, iter = 500)
+```
+
+```{r}
+#| label: fig-group-bootstrap
+#| fig-cap: "Group-level bootstrap --- original networks per cluster"
+#| fig-width: 12
+#| fig-height: 6
+#splot(gboot)
+```
+
+---
 
 # Permutation Testing
 
-`permutation_test()` tests whether each edge differs significantly between two groups.
+## Pairwise comparison
+
+`permutation_test()` tests whether each edge differs significantly between two networks by comparing the observed difference to a permutation null distribution. Green edges indicate the first group is stronger; red edges indicate the second group is stronger.
 
 ```{r}
 #| label: run-perm
 #| cache: true
 set.seed(265)
-perm <- Nestimate::permutation_test(grp_net$High, grp_net$Low, iter = 1000)
+perm <- permutation_test(grp_net$High, grp_net$Low, iter = 1000)
 perm
 ```
 
 ```{r}
 #| label: fig-perm-sig
-#| fig-cap: "Green = High > Low, red = Low > High (p < 0.05)"
+#| fig-cap: "Permutation test --- green = High > Low, red = Low > High (p < 0.05)"
 splot(perm)
 ```
 
+## Show non-significant edges
+
 ```{r}
 #| label: fig-perm-nonsig
-#| fig-cap: "All edges — significant solid, non-significant dashed"
+#| fig-cap: "All edges --- coloured solid = significant, dashed grey = non-significant"
 splot(perm, show_nonsig = TRUE)
 ```
 
+## With significance stars and effect sizes
+
 ```{r}
-#| label: fig-perm-effect
-#| fig-cap: "With significance stars and effect sizes"
+#| label: fig-perm-stars-effect
+#| fig-cap: "Permutation test with stars and effect sizes (Cohen's d in parentheses)"
 splot(perm, show_stars = TRUE, show_effect = TRUE)
 ```
 
+::: {.callout-tip collapse="true"}
+## `splot()` parameters for `net_permutation`
 
-# Motifs
+| Parameter | Default | Description |
+|---|---|---|
+| `show_nonsig` | `FALSE` | Show non-significant edges |
+| `edge_positive_color` | `"#009900"` | Color when group 1 > group 2 |
+| `edge_negative_color` | `"#C62828"` | Color when group 2 > group 1 |
+| `show_stars` | `TRUE` | Significance stars (\*, \*\*, \*\*\*) |
+| `show_effect` | `FALSE` | Effect size in parentheses |
+:::
 
-Nestimate objects work directly with cograph's motif analysis. `motifs()` counts MAN triad types; `subgraphs()` identifies specific node triples.
+## Group-level permutation
 
-```{r}
-#| label: motifs-census
-mot <- cograph::motifs(net, significance = TRUE, n_perm = 100, seed = 42)
-mot
-```
-
-```{r,fig.width=4, fig.height=2}
-#| label: fig-motifs-types
-#| fig-cap: "Triad type distribution"
-plot(mot, type = "types")
-```
-
-```{r,fig.width=4, fig.height=2}
-#| label: fig-motifs-sig
-#| fig-cap: "Over- and under-represented triad types"
-plot(mot, type = "significance")
-```
-
-Named subgraphs — which states form which patterns:
+When applied to a `netobject_group`, `permutation_test()` runs all pairwise comparisons and returns a `net_permutation_group`. `splot()` renders each comparison in a grid.
 
 ```{r}
-#| label: subgraphs
-sg <- cograph::subgraphs(net, significance = FALSE, top = 10)
-sg
+#| label: run-group-perm
+#| cache: true
+set.seed(265)
+gperm <- permutation_test(grp_net, iter = 1000)
 ```
 
 ```{r}
-#| label: fig-motifs-patterns
-#| fig-cap: "MAN triad pattern diagrams"
-#| fig-width: 10
-#| fig-height: 6
-plot(mot, type = "patterns")
+#| label: fig-group-perm
+#| fig-cap: "Group-level permutation test --- all pairwise comparisons"
+#splot(gperm)
 ```
 
+---
 
-# Higher-Order Networks
+# Multi-Cluster Multi-Level Analysis (MCML)
 
-When first-order Markov models are insufficient, Nestimate detects higher-order sequential dependencies.
+A common analytical question is: given a network of individual states (nodes), can we group them into meaningful clusters and study how these clusters interact? The MCML (Multi-Cluster Multi-Level) pipeline does exactly this. It aggregates a node-level network into a cluster-level summary, producing both a macro-level view (cluster-to-cluster transitions) and per-cluster detail networks (within-cluster structure).
 
-## HON
+There are several ways to build an MCML analysis, depending on whether you start from a pre-built network or from raw data, and whether you define clusters manually or discover them algorithmically.
 
-`build_hon()` identifies transitions where prior context changes the outgoing distribution:
+## Approach 1: Theory-driven clusters from a network
+
+When domain knowledge dictates the grouping, define clusters as a named list of node labels and pass them to `cluster_summary()`. For collaborative regulation, we can distinguish regulatory behaviors (monitoring, planning, coregulating, adapting) from social-communicative behaviors (cohesion, consensus, discussion, emotion, synthesis):
 
 ```{r}
-#| label: hon
-hon <- build_hon(net)
-hon
+#| label: mcml-theory
+clusters <- list(
+  Regulatory = c("monitor", "plan", "coregulate", "adapt"),
+  Social     = c("cohesion", "consensus", "discuss", "emotion", "synthesis")
+)
+
+mcml_theory <- cluster_summary(net, clusters, type = "tna")
+mcml_theory
 ```
 
-## HYPA
-
-`build_hypa()` detects paths that occur significantly more or less often than expected:
+`splot()` dispatches the `mcml` object to `plot_mcml()`, rendering a two-layer visualization: the bottom layer shows within-cluster detail networks, the top layer shows the macro (cluster-to-cluster) summary.
 
 ```{r}
-#| label: hypa
-hypa <- build_hypa(net)
-table(hypa$scores$anomaly)
+#| label: fig-mcml-theory
+#| fig-cap: "MCML --- theory-driven two-cluster partition (Regulatory vs. Social)"
+splot(mcml_theory)
+```
+
+## Approach 2: Theory-driven clusters from a network object
+
+`build_mcml()` provides the same result through a slightly different interface. When given a `netobject`, it uses the pre-computed weight matrix:
+
+```{r}
+#| label: mcml-build
+mcml_built <- build_mcml(net, clusters, type = "tna")
+splot(mcml_built)
+```
+
+## Approach 3: Data-driven clusters
+
+When no strong theoretical grouping exists, `cluster_network()` discovers clusters algorithmically. It clusters the raw sequence data (using PAM by default) and builds a separate network per cluster, returning a `netobject_group`:
+
+```{r}
+#| label: mcml-datadriven
+#grp_clustered <- cluster_network(group_regulation_long, k = 3)
+#names(grp_clustered)
 ```
 
 ```{r}
-#| label: hypa-over
-over <- hypa$scores[hypa$scores$anomaly == "over", ]
-head(over[order(-over$ratio), c("path", "ratio", "observed", "expected")], 8)
-```
-
-## Simplicial visualization
-
-```{r}
-#| label: fig-simplicial
-#| fig-cap: "Top higher-order pathways"
-#| fig-width: 10
-#| fig-height: 10
-plot_simplicial(net, max_pathways = 6, title = "Higher-Order Pathways")
-```
-
-```{r}
-#| label: fig-simplicial-dismantled
-#| fig-cap: "Individual pathway panels"
+#| label: fig-cluster-group
+#| fig-cap: "Data-driven 3-cluster partition --- separate network per cluster"
 #| fig-width: 12
-#| fig-height: 12
-plot_simplicial(net, max_pathways = 9, dismantled = TRUE, ncol = 3)
+#| fig-height: 5
+#splot(grp_clustered)
 ```
 
+## Converting MCML to individual network objects
 
-# The Dispatch Chain
-
-Every Nestimate object routes through `splot()`:
+`as_tna()` converts an MCML result into a `netobject_group` --- a named list containing the macro network and each per-cluster network as individual `netobject` objects. This is useful when you want to analyze each cluster's network independently (e.g., compute centrality, run bootstrap) or pass them to other functions.
 
 ```{r}
-#| label: dispatch
-#| eval: false
-splot(net)      # netobject       → network plot
-splot(boot)     # net_bootstrap   → stability-styled
-splot(grp_net)  # netobject_group → multi-panel grid
-splot(perm)     # net_permutation → difference network
+#| label: mcml-as-tna
+tna_models <- as_tna(mcml_theory)
+names(tna_models)
 ```
 
-All standard `splot()` arguments (`layout`, `node_fill`, `edge_color`, `title`, etc.) work with every object type.
+```{r}
+#| label: fig-mcml-as-tna
+#| fig-cap: "MCML converted to individual networks --- macro + per-cluster panels"
+#| fig-width: 12
+#| fig-height: 5
+splot(tna_models)
+```
 
+## Summarize to a cluster-level network
 
-# References {.unnumbered}
+`summarize_network()` from cograph takes a different approach: instead of a two-layer MCML visualization, it collapses the node-level network into a single cluster-level `cograph_network` where each cluster becomes one node. This is useful when you only need the macro view.
 
-- Saqr, M., López-Pernas, S., Törmänen, T., Kaliisa, R., Misiejuk, K., & Tikka, S. (2025). Transition Network Analysis: A Novel Framework for Modeling, Visualizing, and Identifying the Temporal Patterns of Learners and Learning Processes. In *Proceedings of the 15th International Learning Analytics and Knowledge Conference (LAK '25)* (pp. 351--361). ACM. <https://doi.org/10.1145/3706468.3706513>
+```{r}
+#| label: summarize-net
+summary_net <- summarize_network(net, clusters)
+summary_net
+```
 
-- Tikka, S., López-Pernas, S., & Saqr, M. (2025). tna: An R Package for Transition Network Analysis. *Applied Psychological Measurement*. <https://doi.org/10.1177/01466216251348840>
+```{r}
+#| label: fig-summarize
+#| fig-cap: "Cluster-level summary network --- one node per cluster, aggregated edge weights"
+splot(summary_net, node_size = 15, edge_labels = TRUE)
+```
 
-- cograph: <https://github.com/sonsoleslp/cograph>
-- Nestimate: <https://github.com/mohsaqr/Nestimate>
+::: {.callout-tip collapse="true"}
+## MCML approaches summary
+
+| Approach | Function | Input | Output | Use when |
+|---|---|---|---|---|
+| Theory-driven | `cluster_summary(net, clusters)` | netobject + named list | `mcml` | You know the grouping |
+| Theory-driven | `build_mcml(net, clusters)` | netobject + named list | `mcml` | Same, alternative API |
+| Data-driven | `cluster_network(data, k)` | raw data + k | `netobject_group` | Exploratory clustering |
+| Convert | `as_tna(mcml)` | mcml object | `netobject_group` | Per-cluster analysis |
+| Collapse | `summarize_network(net, clusters)` | netobject + clusters | `cograph_network` | Macro-only view |
+:::
+
+---
+
+# The Complete Dispatch Chain
+
+Every Nestimate object routes through `splot()` automatically. The following table summarizes all supported object classes:
+
+| Nestimate class | Producer | `splot()` renders |
+|---|---|---|
+| `netobject` | `build_network()` | Standard network plot |
+| `net_bootstrap` | `bootstrap_network()` | Stability-styled network |
+| `net_permutation` | `permutation_test(x, y)` | Coloured difference network |
+| `boot_glasso` | `boot_glasso()` | Regularized network with stability |
+| `netobject_group` | `build_network(group=)` | Multi-panel grid |
+| `net_bootstrap_group` | `bootstrap_network(group)` | Multi-panel bootstrap |
+| `net_permutation_group` | `permutation_test(group)` | Multi-panel comparisons |
+| `mcml` | `cluster_summary()` / `build_mcml()` | Two-layer MCML plot |
+| `net_stability` | `centrality_stability()` | Stability drop-off curve |
+
+Each dispatcher respects all standard `splot()` arguments (`layout`, `node_fill`, `edge_color`, `title`, `minimum`, `threshold`, etc.), so the same customization API works everywhere.
+
+---
+
+# References
+
+Epskamp, S., Borsboom, D., & Fried, E. I. (2018). Estimating psychological networks and their accuracy: A tutorial paper. *Behavior Research Methods*, 50(1), 195--212.
+
+---
+
+```{r}
+#| label: session
+sessionInfo()
+```

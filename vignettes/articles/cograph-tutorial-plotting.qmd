@@ -519,7 +519,7 @@ Permutation testing evaluates whether between-group differences are statisticall
 #| label: permutation
 #| cache: true
 set.seed(265)
-perm <- permutation_test(group_model, iter = 1000)
+perm <- tna::permutation_test(group_model, iter = 1000)
 ```
 
 ```{r}

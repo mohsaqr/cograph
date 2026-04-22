@@ -1,0 +1,1037 @@
+---
+title: "Multi-Cluster Multi-Level Visualization with plot_mcml: A Complete Guide"
+date: "2026-04-09"
+author:
+  - name: Mohammed Saqr
+    url: https://saqr.me
+    affiliation: University of Eastern Finland
+  - name: Sonsoles López-Pernas
+    url: https://sonsoles.me
+    affiliation: University of Eastern Finland
+citation:
+  type: article
+  author:
+    - family: "Saqr"
+      given: "Mohammed"
+    - family: "López-Pernas"
+      given: "Sonsoles"
+categories:
+  - tutorial
+  - R
+  - visualization
+warning: false
+message: false
+fig.align: center
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: false
+    code-tools: false
+    theme: cosmo
+    self-contained: true
+execute:
+  warning: false
+  message: false
+knitr:
+  opts_chunk:
+    fig.width: 9
+    fig.height: 9
+    dpi: 150
+    comment: ""
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+library(cograph)
+library(Nestimate)
+```
+
+# Introduction
+
+Large networks with many nodes and multiple constructs, components, or factors have a fundamental problem of being hard to work with. Consider a network with 20 nodes, each representing a construct: motivation, engagement, emotions, and collaboration. This network has 400 possible connections and in no way one can make sense of it. The common solution is to concatenate these nodes and lose their internal relations, or plot 400 edges and get lost in the details. **Multi-Cluster Multi-Level network** (MCML, despite the long name) is designed to solve this problem. It works by creating **a network within each cluster** showing its connections and summarizing all of the inter-cluster connections into **a macro-level network**. In this way, we preserve the data integrity and the value of the fine-grained details. Think of MCML as a **network of networks**.
+
+The MCML workflow has a critical analytical advantage: once built, the macro network and each cluster network are **full TNA networks** in their own right. This means you can compute centrality, run bootstrap stability analysis, permutation tests, and even **higher-order pathway analysis** (**HYPA**) on each cluster independently. The MCML is not just a visualization --- it is a decomposition of a complex network into interpretable, analyzable sub-networks.
+
+::: {.callout-note}
+## Installation
+
+Both `cograph` and `Nestimate` are on CRAN. Nestimate handles the MCML computation (`build_mcml`, `as_tna`); cograph handles the visualization (`plot_mcml`, `splot`).
+
+```{r}
+#| label: install
+#| eval: false
+#install.packages("cograph")
+#install.packages("Nestimate")
+```
+:::
+
+
+# Building the MCML
+
+We use the `human_cat` dataset bundled with `Nestimate` --- 10,796 coded human actions from 429 human-AI programming sessions. The coding scheme has 9 **categories** grouped into 3 **superclasses** --- categories become nodes, superclasses become clusters.
+
+`plot_mcml()` models both levels simultaneously in a single figure. A *bottom layer* shows every node inside its cluster with full edges drawn at the cluster level. A *top layer* collapses each cluster into a single macro-level node, with edges carrying the aggregated inter-cluster flow. *Dashed inter-layer* lines connect each node to its cluster's macro node, making the hierarchical mapping explicit.
+
+```{r}
+#| label: build
+data("human_cat", package = "Nestimate")
+
+net <- build_network(
+  human_cat,
+  actor = "session_id", action = "category", time = "timestamp",
+  method = "relative"
+)
+
+clusters <- list(
+  Directive     = c("Specify", "Command", "Request"),
+  Evaluative    = c("Verify", "Frustrate", "Correct", "Refine"),
+  Metacognitive = c("Interrupt", "Inquire")
+)
+
+mcml_obj <- Nestimate::build_mcml(net, clusters, type = "tna")
+mcml_obj
+```
+
+- **Directive** --- the human telling the AI what to do (commanding, specifying requirements, requesting)
+- **Evaluative** --- the human judging AI output (correcting, expressing frustration, refining, verifying)
+- **Metacognitive** --- the human stepping back to think or redirect (inquiring, interrupting)
+
+```{r}
+#| label: fig-basic
+#| fig-cap: "MCML: cluster networks below, macro network above"
+splot(mcml_obj)
+```
+
+## Cluster definitions
+
+Clusters can be defined in three ways. All produce the same result:
+
+**Named list** (most common):
+
+```{r}
+#| label: define-clusters-list
+#| eval: false
+clusters <- list(
+  Directive     = c("Specify", "Command", "Request"),
+  Evaluative    = c("Verify", "Frustrate", "Correct", "Refine"),
+  Metacognitive = c("Interrupt", "Inquire")
+)
+```
+
+**Data frame** with node and group columns:
+
+```{r}
+#| label: define-clusters-df
+#| eval: false
+clusters_df <- data.frame(
+  node  = c("Specify", "Command", "Request",
+            "Verify", "Frustrate", "Correct", "Refine",
+            "Interrupt", "Inquire"),
+  group = c(rep("Directive", 3), rep("Evaluative", 4), rep("Metacognitive", 2))
+)
+```
+
+**Extracted from the data** when the grouping variable already exists:
+
+```{r}
+#| label: define-clusters-auto
+#| eval: false
+clusters_auto <- split(human_cat$category, human_cat$superclass) |> lapply(unique)
+```
+
+::: {.callout-tip}
+## Where Do Clusters Come From?
+
+1. **Theory**: Define groups based on domain knowledge, as above.
+2. **Community detection**: Use `detect_communities()` in cograph to discover structure algorithmically.
+3. **External grouping variables**: If your nodes have metadata (e.g., department, brain region, country), use that.
+:::
+
+## Decomposing into individual networks
+
+`as_tna()` converts the MCML into individual networks --- a macro network and one network per cluster:
+
+```{r}
+#| label: decompose
+grp <- Nestimate::as_tna(mcml_obj)
+names(grp)
+```
+
+Each element is a full TNA network that can be plotted, analyzed, and bootstrapped independently:
+
+```{r}
+#| label: fig-decomposed
+#| fig-cap: "MCML decomposed into individual networks: macro + each cluster"
+#| fig-width: 12
+#| fig-height: 5
+splot(grp)
+```
+
+
+# The Two-Layer Architecture {#sec-architecture}
+
+The plot reads from bottom to top:
+
+## Bottom Layer: The Cluster Networks
+
+The bottom layer shows every node arranged inside its cluster's elliptical shell. Two types of edges are drawn:
+
+**Cluster edges** connect nodes inside the same shell. These are the original pairwise transition probabilities --- no aggregation. If `mat["Command", "Specify"] = 0.303`, that exact edge appears inside the Directive shell. Cluster edges are drawn with low opacity (`edge_alpha = 0.35`) and thin widths by default.
+
+**Inter-cluster edges** connect one cluster shell to another. These are **aggregated** from all pairwise edges between the two clusters. The aggregation method (`"sum"`, `"mean"`, or `"max"`) controls how individual edges collapse into one value.
+
+The bottom layer layout is controlled by:
+
+- `spacing`: distance from the center to each cluster's position
+- `skew_angle`: perspective tilt in degrees (0 = top-down, 60 = table-top, 90 = flat line)
+- `shape_size`: radius of each cluster's elliptical shell
+- `node_radius_scale`: how far from the shell center nodes are placed (0 = center, 1 = edge)
+
+## Top Layer: The Macro Network
+
+The top layer collapses each cluster to a single **pie-chart node**:
+
+- **Colored slice** = proportion of total outgoing flow that stays inside the cluster.
+- **Gray slice** = proportion that flows to other clusters.
+
+A mostly-colored pie means the cluster retains most of its flow internally. A mostly-gray pie is an exporter --- its nodes transition frequently to other clusters.
+
+**Macro edges** between pies carry the aggregated inter-cluster weights. **Self-loops** appear as small arcs when flow remaining inside the cluster exceeds the `minimum` threshold.
+
+**Dashed inter-layer lines** connect each node in the bottom layer to its cluster's pie in the top layer, making the hierarchical mapping explicit.
+
+
+# Edge Types {#sec-edges}
+
+## Cluster Edges
+
+Cluster edges are directed edges connecting nodes inside the same shell. They carry the original pairwise weights --- no aggregation takes place. For example, if the transition probability from "Command" to "Specify" is 0.303, that exact value appears as an edge inside the Directive shell.
+
+By default, cluster edges are drawn subtly (`edge_alpha = 0.35`, thin widths) so they do not overwhelm the between-cluster structure. Increase `edge_alpha` and widen `edge_width_range` when the within-cluster dynamics are the focus of your analysis; decrease them when the macro-level flow matters more.
+
+| Parameter | Default | Controls |
+|---|---|---|
+| `edge_width_range` | `c(0.3, 1.3)` | Line width range |
+| `edge_alpha` | `0.35` | Transparency |
+| `edge_labels` | `FALSE` | Show weight labels |
+
+The left panel below uses the defaults. The right panel increases both width and opacity, making within-cluster transitions the visual focus:
+
+```{r}
+#| label: fig-cluster-edges
+#| fig-cap: "Left: default subtle cluster edges; Right: emphasized"
+#| fig-width: 12
+#| fig-height: 7
+par(mfrow = c(1, 2))
+
+plot_mcml(net, clusters, title = "Default cluster edges")
+
+plot_mcml(net, clusters,
+  edge_width_range = c(0.5, 2.5),
+  edge_alpha = 0.6,
+  title = "Emphasized cluster edges"
+)
+```
+
+## Inter-Cluster Edges
+
+Inter-cluster edges are directed edges connecting one cluster shell to another. Unlike cluster edges, these carry **aggregated** weights --- the individual node-to-node transitions between two clusters are collapsed into a single value using the `aggregation` method (see @sec-architecture).
+
+By default, arrowheads are hidden (`between_arrows = FALSE`) because the density of arrows between shells can create visual clutter. Enable them when the directionality of inter-cluster flow is important to communicate. A useful pattern is to dim the within-cluster edges while bolding the between-cluster ones, which shifts the reader's attention to the macro-level flow structure:
+
+| Parameter | Default | Controls |
+|---|---|---|
+| `between_edge_width_range` | `c(0.5, 2.0)` | Line width range |
+| `between_edge_alpha` | `0.6` | Transparency |
+| `between_arrows` | `FALSE` | Show arrowheads |
+
+```{r}
+#| label: fig-intercluster-edges
+#| fig-cap: "Left: default; Right: bold inter-cluster edges with arrows"
+#| fig-width: 12
+#| fig-height: 7
+par(mfrow = c(1, 2))
+
+plot_mcml(net, clusters, title = "Default inter-cluster")
+
+plot_mcml(net, clusters,
+  edge_width_range = c(0.2, 0.8), edge_alpha = 0.2,
+  between_edge_width_range = c(1, 4), between_edge_alpha = 0.8,
+  between_arrows = TRUE,
+  title = "Bold inter-cluster + arrows"
+)
+```
+
+## Macro Edges
+
+Macro edges are directed edges between the pie-chart summary nodes in the top layer. They represent the total aggregated flow between clusters. Because the top layer is a bird's-eye summary, these edges are drawn with higher default opacity (`summary_edge_alpha = 0.7`) and arrowheads enabled by default (`summary_arrows = TRUE`).
+
+Adding `summary_edge_labels = TRUE` prints the numeric weight on each edge, which is particularly useful in `mode = "tna"` where the values are transition probabilities. The `summary_arrow_size` parameter controls how large the arrowheads are --- increase it for presentation slides, decrease it for dense networks where arrows overlap:
+
+| Parameter | Default | Controls |
+|---|---|---|
+| `summary_edge_width_range` | `c(0.5, 2.0)` | Line width range |
+| `summary_edge_alpha` | `0.7` | Transparency |
+| `summary_arrows` | `TRUE` | Arrowheads |
+| `summary_edge_labels` | `FALSE` | Show weight labels |
+
+```{r}
+#| label: fig-macro-edges
+#| fig-cap: "Macro edges with labels and bold arrowheads"
+plot_mcml(net, clusters,
+  summary_edge_width_range = c(1, 5), summary_edge_alpha = 0.9,
+  summary_edge_labels = TRUE, summary_edge_label_size = 0.8,
+  summary_arrows = TRUE, summary_arrow_size = 0.15,
+  title = "Bold macro edges"
+)
+```
+
+## Inter-Layer Lines
+
+Dashed inter-layer lines connect each detail node in the bottom layer to its cluster's pie-chart node in the top layer. They serve as visual scaffolding, making the hierarchical mapping explicit --- the reader can trace which nodes belong to which cluster.
+
+These lines are purely structural and carry no data. Set `inter_layer_alpha` low (e.g., 0.15) when the scaffolding should recede into the background, or high (e.g., 0.8) when the cluster membership itself is the point of the figure:
+
+```{r}
+#| label: fig-interlayer
+#| fig-cap: "Left: subtle scaffolding; Right: prominent scaffolding"
+#| fig-width: 12
+#| fig-height: 7
+par(mfrow = c(1, 2))
+
+plot_mcml(net, clusters, inter_layer_alpha = 0.15, title = "Subtle (0.15)")
+plot_mcml(net, clusters, inter_layer_alpha = 0.8, title = "Prominent (0.8)")
+```
+
+
+# Edge Labels and Thresholding
+
+## Edge Labels
+
+Edge labels print the numeric weight directly on each edge. There are two independent switches: `edge_labels` controls within-cluster edges in the bottom layer, and `summary_edge_labels` controls macro edges in the top layer. You can enable one, both, or neither.
+
+Label appearance is controlled by `edge_label_size` (bottom layer), `summary_edge_label_size` (top layer), `edge_label_color`, and `edge_label_digits` (decimal places, shared by both layers). For dense networks, keep labels on the macro layer only --- within-cluster labels can quickly become unreadable when edges overlap:
+
+```{r}
+#| label: fig-edge-labels
+#| fig-cap: "Edge labels on both layers"
+plot_mcml(net, clusters,
+  edge_labels = TRUE, edge_label_size = 0.45,
+  summary_edge_labels = TRUE, summary_edge_label_size = 0.7,
+  edge_label_digits = 2,
+  title = "Labels on all edges"
+)
+```
+
+When `mode = "tna"` is set, the weight matrix is row-normalized to transition probabilities (each row sums to 1) and edge labels are automatically enabled on both layers --- you do not need to set `edge_labels` or `summary_edge_labels` manually. This is the recommended mode when the research question is about sequential transition patterns rather than raw co-occurrence counts:
+
+```{r}
+#| label: fig-tna-mode
+#| fig-cap: "TNA mode --- row-normalized transition probabilities"
+plot_mcml(net, clusters,
+  mode = "tna",
+  title = "TNA mode"
+)
+```
+
+## Thresholding
+
+The `minimum` parameter sets an absolute weight threshold: any edge with a weight below this value is hidden from the plot. This is especially useful for dense networks where many near-zero edges create visual noise. The threshold applies to all edge types --- within-cluster, between-cluster, and macro --- so raising it progressively strips the plot down to its structural backbone.
+
+A good strategy is to start with `minimum = 0` to see the full picture, then raise it incrementally (e.g., 0.02, 0.05, 0.10) until only the substantively meaningful transitions remain. In the example below, raising the threshold from 0 to 0.05 removes the weakest transitions and reveals the dominant flow patterns:
+
+```{r}
+#| label: fig-threshold
+#| fig-cap: "Thresholding removes weak edges"
+#| fig-width: 12
+#| fig-height: 7
+par(mfrow = c(1, 2))
+
+plot_mcml(net, clusters, minimum = 0, title = "All edges")
+plot_mcml(net, clusters, minimum = 0.05, title = "Filtered (>= 0.05)")
+```
+
+
+# Node and Shell Styling
+
+## Colors
+
+Each cluster is assigned one color that propagates consistently across every visual element: the shell fill, node fill, within-cluster edges, the pie-chart slice in the top layer, and the legend entry. When `colors` is `NULL` (the default), a colorblind-safe palette is generated automatically. To override it, pass a character vector with one color per cluster, in the same order as the cluster list.
+
+Choose colors with sufficient contrast between clusters --- avoid hues that are too similar. Muted, low-saturation palettes work well for publication figures, while saturated palettes are more effective for slides and posters:
+
+```{r}
+#| label: fig-colors
+#| fig-cap: "Custom cluster colors"
+plot_mcml(net, clusters,
+  colors = c("#E63946", "#457B9D", "#2A9D8F"),
+  title = "Custom color palette"
+)
+```
+
+## Node Shapes
+
+Both layers support four shapes: `"circle"` (default), `"square"`, `"diamond"`, and `"triangle"`. The `node_shape` parameter controls detail nodes in the bottom layer, while `cluster_shape` controls the summary pie-chart nodes in the top layer. Each can be a single value (applied uniformly) or a vector of the same length as the number of nodes or clusters, allowing per-element customization.
+
+Mixing shapes between layers helps the reader distinguish the two levels at a glance. In the example below, detail nodes use diamonds while each cluster's summary node gets a different shape:
+
+```{r}
+#| label: fig-node-shapes
+#| fig-cap: "Diamond nodes with mixed macro shapes"
+plot_mcml(net, clusters,
+  node_shape = "diamond",
+  cluster_shape = c("circle", "square", "triangle"),
+  title = "Custom shapes"
+)
+```
+
+## Sizes
+
+Three size parameters control the main visual elements independently. `shape_size` sets the radius of each cluster's elliptical shell in the bottom layer --- increase it when nodes feel cramped inside a shell. `node_size` controls individual detail nodes. `summary_size` controls the pie-chart summary nodes in the top layer.
+
+Balancing these three sizes determines the visual hierarchy: a large `summary_size` relative to `node_size` draws the reader's eye to the macro level first, while equalizing them gives both levels comparable visual weight:
+
+```{r}
+#| label: fig-sizes
+#| fig-cap: "Larger shells and nodes"
+plot_mcml(net, clusters,
+  shape_size = 1.6, node_size = 2.5, summary_size = 5,
+  title = "Larger elements"
+)
+```
+
+## Shell Styling
+
+Cluster shells are the semi-transparent ellipses in the bottom layer that visually group nodes. Two parameters control their appearance: `shell_alpha` (fill transparency, 0--1) and `shell_border_width` (border line width). Higher `shell_alpha` values create stronger visual grouping but may obscure the edges underneath; lower values keep the shells subtle, letting the network structure dominate. Increasing `shell_border_width` makes the cluster boundaries more prominent, which helps when shells overlap slightly:
+
+```{r}
+#| label: fig-shell-style
+#| fig-cap: "Thick borders, more opaque shells"
+plot_mcml(net, clusters,
+  shell_alpha = 0.3, shell_border_width = 4,
+  title = "Bold shells"
+)
+```
+
+## Node Borders
+
+Fine-tune borders on both layers independently. Detail nodes accept `node_border_color`; summary pie-chart nodes accept `summary_border_color` and `summary_border_width`:
+
+```{r}
+#| label: fig-node-borders
+#| fig-cap: "Left: dark heavy borders; Right: colored borders matching clusters"
+#| fig-width: 12
+#| fig-height: 7
+par(mfrow = c(1, 2))
+
+plot_mcml(net, clusters,
+  node_border_color = "black",
+  summary_border_color = "black", summary_border_width = 4,
+  title = "Heavy dark borders"
+)
+
+plot_mcml(net, clusters,
+  colors = c("#E63946", "#457B9D", "#2A9D8F"),
+  node_border_color = "gray60",
+  summary_border_color = "gray10", summary_border_width = 3,
+  title = "Subtle node + bold summary borders"
+)
+```
+
+## Summary Pie Interpretation
+
+The colored slice of each summary pie chart can represent two different quantities, controlled by `summary_pie`:
+
+- **`"inits"`** (default) --- the cluster's share of the initial state distribution. Answers: *"how often do sequences start in this cluster?"*
+- **`"self"`** --- the cluster's self-retention ratio (self-loop weight / total out-strength). Answers: *"how sticky is this cluster --- how much flow stays inside?"*
+
+```{r}
+#| label: fig-summary-pie
+#| fig-cap: "Left: initial state distribution; Right: self-retention ratio"
+#| fig-width: 12
+#| fig-height: 7
+par(mfrow = c(1, 2))
+
+plot_mcml(net, clusters,
+  summary_pie = "inits",
+  summary_labels = TRUE, summary_label_size = 0.9,
+  title = "summary_pie = \"inits\""
+)
+
+plot_mcml(net, clusters,
+  summary_pie = "self",
+  summary_labels = TRUE, summary_label_size = 0.9,
+  title = "summary_pie = \"self\""
+)
+```
+
+A mostly-colored pie under `"inits"` means the cluster is a common starting point. Under `"self"`, it means the cluster retains most of its outgoing flow internally --- transitions loop back rather than escaping to other clusters.
+
+## Aggregation Method
+
+When building the macro network from individual edges, the `aggregation` parameter controls how pairwise weights collapse into cluster-to-cluster values:
+
+- **`"sum"`** (default) --- total flow volume. Larger clusters naturally produce higher values.
+- **`"mean"`** --- average flow per node pair. Normalizes for cluster size differences.
+- **`"max"`** --- strongest single edge. Highlights the dominant connection.
+
+```{r}
+#| label: fig-aggregation
+#| fig-cap: "Sum emphasizes volume; mean normalizes for size; max finds the dominant link"
+#| fig-width: 14
+#| fig-height: 6
+par(mfrow = c(1, 3), mar = c(1, 1, 2, 1))
+
+plot_mcml(net, clusters, aggregation = "sum",
+  summary_edge_labels = TRUE, summary_edge_label_size = 0.7,
+  title = "aggregation = \"sum\""
+)
+plot_mcml(net, clusters, aggregation = "mean",
+  summary_edge_labels = TRUE, summary_edge_label_size = 0.7,
+  title = "aggregation = \"mean\""
+)
+plot_mcml(net, clusters, aggregation = "max",
+  summary_edge_labels = TRUE, summary_edge_label_size = 0.7,
+  title = "aggregation = \"max\""
+)
+```
+
+
+# Layout Tuning
+
+## Spacing and Perspective
+
+Two parameters control the overall geometry of the bottom layer. `spacing` sets the distance from the center to each cluster's position --- larger values spread clusters apart, reducing shell overlap at the cost of a wider figure. `skew_angle` tilts the bottom layer to create a perspective effect: 0 degrees is a top-down view (fully circular), 60 degrees (default) gives a natural table-top perspective, and 90 degrees flattens everything to a horizontal line.
+
+As a rule of thumb, fewer clusters tolerate tighter spacing and steeper tilt, while networks with many clusters need wider spacing and milder tilt to avoid overlap:
+
+```{r}
+#| label: fig-spacing
+#| fig-cap: "Left: wide, mild tilt; Right: tight, steep tilt"
+#| fig-width: 12
+#| fig-height: 7
+par(mfrow = c(1, 2))
+
+plot_mcml(net, clusters, spacing = 4.5, skew_angle = 40,
+          title = "Wide, mild tilt (40 deg)")
+plot_mcml(net, clusters, spacing = 2.5, skew_angle = 75,
+          title = "Tight, steep tilt (75 deg)")
+```
+
+## Top-Layer Shape
+
+The summary pie-chart nodes in the top layer are arranged on an oval whose proportions are set by `top_layer_scale = c(x_scale, y_scale)`, expressed as multiples of `spacing`. The first value controls the horizontal spread; the second controls the vertical spread. A wide, flat oval (e.g., `c(1.2, 0.15)`) spreads the summary nodes horizontally, which works well when there are many clusters. A tall, narrow oval (e.g., `c(0.5, 0.4)`) stacks them more vertically, which can be useful when the bottom layer is already wide:
+
+```{r}
+#| label: fig-top-layer
+#| fig-cap: "Left: wide oval; Right: tall narrow oval"
+#| fig-width: 12
+#| fig-height: 7
+par(mfrow = c(1, 2))
+
+plot_mcml(net, clusters, top_layer_scale = c(1.2, 0.15), title = "Wide macro oval")
+plot_mcml(net, clusters, top_layer_scale = c(0.5, 0.4), title = "Tall macro oval")
+```
+
+## Inter-Layer Gap
+
+The `inter_layer_gap` parameter controls the vertical distance between the top of the bottom layer and the bottom of the top layer, expressed as a multiple of `spacing`. A smaller gap (e.g., 0.3) creates a compact, integrated figure where the two layers feel like parts of one visualization. A larger gap (e.g., 1.2) separates them visually, which can help when edges cross between layers and create clutter. Adjust this together with `top_layer_scale` to find the right balance:
+
+```{r}
+#| label: fig-gap
+#| fig-cap: "Left: compressed; Right: expanded gap"
+#| fig-width: 12
+#| fig-height: 7
+par(mfrow = c(1, 2))
+
+plot_mcml(net, clusters, inter_layer_gap = 0.3, title = "Compact (0.3)")
+plot_mcml(net, clusters, inter_layer_gap = 1.2, title = "Spacious (1.2)")
+```
+
+## Node Radius Scale
+
+Inside each cluster shell, nodes are arranged on a circle whose radius is `shape_size * node_radius_scale`. The `node_radius_scale` parameter (0--1) controls how far from the center nodes sit: a low value (e.g., 0.3) packs nodes tightly near the center, while a high value (e.g., 0.75) pushes them outward toward the shell border.
+
+Tight placement keeps nodes compact but may cause label overlap. Spread placement uses the shell space more fully but can place nodes close to the shell edge, where they may interfere with between-cluster edges. A value around 0.5--0.6 works well for most networks:
+
+```{r}
+#| label: fig-node-radius
+#| fig-cap: "Left: nodes near center; Right: nodes near shell border"
+#| fig-width: 12
+#| fig-height: 7
+par(mfrow = c(1, 2))
+
+plot_mcml(net, clusters, node_radius_scale = 0.3, title = "Tight (0.3)")
+plot_mcml(net, clusters, node_radius_scale = 0.75, title = "Spread (0.75)")
+```
+
+
+# Labels and Legend
+
+## Node Labels
+
+Node labels identify each detail node in the bottom layer. They are enabled by default (`show_labels = TRUE`). Three parameters control their appearance: `label_size` adjusts the text size (default auto-scales to 0.6), `label_color` sets the text color, and `label_position` controls placement relative to the node (see the next section). For publication figures, switching `label_color` to black gives sharper contrast against light shells:
+
+```{r}
+#| label: fig-labels
+#| fig-cap: "Custom label styling"
+plot_mcml(net, clusters,
+  show_labels = TRUE, label_size = 0.55, label_color = "black",
+  title = "Styled labels"
+)
+```
+
+## Label Positioning
+
+By default, node labels appear above each node (`label_position = 3`). The position follows R's convention: 1 = below, 2 = left, 3 = above, 4 = right. The same applies to summary labels via `summary_label_position`:
+
+```{r}
+#| label: fig-label-position
+#| fig-cap: "Left: labels below nodes; Right: labels to the right"
+#| fig-width: 12
+#| fig-height: 7
+par(mfrow = c(1, 2))
+
+plot_mcml(net, clusters,
+  label_position = 1, summary_label_position = 1,
+  title = "Labels below (position = 1)"
+)
+
+plot_mcml(net, clusters,
+  label_position = 4, summary_label_position = 4,
+  title = "Labels right (position = 4)"
+)
+```
+
+## Label Abbreviation
+
+When node names are long or clusters contain many nodes, labels will overlap and become unreadable. The `label_abbrev` parameter offers three modes: `NULL` (default, no abbreviation), an integer (truncate all labels to that many characters), or `"auto"` (adaptively abbreviate based on the total number of nodes --- more nodes triggers shorter labels). Truncation adds an ellipsis when a label is shortened. This is often preferable to turning labels off entirely, as it preserves at least partial identification:
+
+```{r}
+#| label: fig-abbrev
+#| fig-cap: "Left: full labels; Right: truncated to 4 characters"
+#| fig-width: 12
+#| fig-height: 7
+par(mfrow = c(1, 2))
+
+plot_mcml(net, clusters, show_labels = TRUE, title = "Full labels")
+plot_mcml(net, clusters, show_labels = TRUE, label_abbrev = 4,
+          title = "Truncated to 4 chars")
+```
+
+## Summary Label Styling
+
+Summary labels (cluster names on pie-chart nodes) have their own color and size controls independent from node labels:
+
+```{r}
+#| label: fig-summary-label-style
+#| fig-cap: "Left: large dark labels above; Right: smaller colored labels below"
+#| fig-width: 12
+#| fig-height: 7
+par(mfrow = c(1, 2))
+
+plot_mcml(net, clusters,
+  summary_labels = TRUE,
+  summary_label_size = 1.2, summary_label_color = "black",
+  summary_label_position = 3,
+  title = "Large labels above"
+)
+
+plot_mcml(net, clusters,
+  summary_labels = TRUE,
+  summary_label_size = 0.7, summary_label_color = "gray50",
+  summary_label_position = 1,
+  title = "Small gray labels below"
+)
+```
+
+## Legend Styling
+
+The legend maps cluster names to colors. Beyond `legend_position`, you can control `legend_size` (text size) and `legend_pt_size` (symbol size):
+
+```{r}
+#| label: fig-legend-style
+#| fig-cap: "Left: large legend at bottom; Right: compact legend at left"
+#| fig-width: 12
+#| fig-height: 7
+par(mfrow = c(1, 2))
+
+plot_mcml(net, clusters,
+  legend = TRUE, legend_position = "bottom",
+  legend_size = 1.0, legend_pt_size = 2.0,
+  title = "Large bottom legend"
+)
+
+plot_mcml(net, clusters,
+  legend = TRUE, legend_position = "left",
+  legend_size = 0.6, legend_pt_size = 0.8,
+  title = "Compact left legend"
+)
+```
+
+## Title and Subtitle Styling
+
+Title and subtitle sizes are controlled by `title_size` and `subtitle_size`:
+
+```{r}
+#| label: fig-title-style
+#| fig-cap: "Title and subtitle with custom sizing"
+plot_mcml(net, clusters,
+  title = "Human-AI Interaction Clusters",
+  title_size = 1.5,
+  subtitle = "Transition probabilities across coding categories",
+  subtitle_size = 0.8,
+  legend = TRUE, legend_position = "bottom"
+)
+```
+
+## Macro Labels and Legend
+
+Combining `summary_labels` with `legend` provides two complementary ways for the reader to map visual elements to cluster identities. Summary labels annotate each pie-chart node directly, while the legend provides a standalone color key. For presentation slides, using both together ensures that the audience can decode the figure regardless of whether they are reading it up close or from the back of a room:
+
+```{r}
+#| label: fig-macro-labels
+#| fig-cap: "Macro labels with legend"
+plot_mcml(net, clusters,
+  summary_labels = TRUE, summary_label_size = 1.0,
+  legend = TRUE, legend_position = "bottom",
+  title = "Vibe Coding: Human Interaction Clusters"
+)
+```
+
+
+# Minimal and Maximal Plots
+
+## Minimal: Clean Presentation
+
+A minimal plot strips away all annotation --- labels, legends, and arrows --- leaving only the network structure itself. This style is useful for graphical abstracts, figure thumbnails, or situations where the plot is accompanied by a separate caption that provides context. Lowering `inter_layer_alpha` and `edge_alpha` further softens the scaffolding:
+
+```{r}
+#| label: fig-minimal
+#| fig-cap: "Minimal --- no labels, no legend, no arrows"
+plot_mcml(net, clusters,
+  show_labels = FALSE, summary_labels = FALSE, legend = FALSE,
+  summary_arrows = FALSE, inter_layer_alpha = 0.2, edge_alpha = 0.2,
+  title = "Minimal"
+)
+```
+
+## Maximal: Full Annotation
+
+At the other extreme, a maximally annotated plot enables every available label and visual cue. This is useful during exploratory analysis when you want to read exact transition values without consulting the underlying data. Combining `mode = "tna"` (which auto-enables edge labels) with explicit label sizing, a visible legend, and slightly higher `shell_alpha` and `inter_layer_alpha` creates a figure that is fully self-contained:
+
+```{r}
+#| label: fig-maximal
+#| fig-cap: "Maximally annotated"
+plot_mcml(net, clusters,
+  mode = "tna",
+  edge_labels = TRUE, edge_label_size = 0.4,
+  summary_edge_labels = TRUE, summary_edge_label_size = 0.7,
+  edge_label_digits = 2,
+  show_labels = TRUE, label_size = 0.5,
+  summary_labels = TRUE, summary_label_size = 0.9,
+  inter_layer_alpha = 0.6, shell_alpha = 0.25,
+  legend = TRUE, legend_position = "right",
+  title = "Human-AI Interaction: Full Annotation",
+  subtitle = "TNA mode with all labels"
+)
+```
+
+
+## Publication-Ready Example
+
+A publication-ready figure coordinates all styling parameters into a coherent visual design. The example below demonstrates several key choices: a muted three-color palette with good contrast, `mode = "tna"` for interpretable transition probabilities, `summary_pie = "self"` to highlight cluster stickiness, subtle inter-layer lines (`inter_layer_alpha = 0.25`) that do not compete with the data, and balanced sizing across both layers. The inline comments in the code mark each group of parameters so you can adapt them to your own network:
+
+```{r}
+#| label: fig-publication
+#| fig-cap: "Publication-ready MCML with coordinated styling"
+#| fig-width: 10
+#| fig-height: 10
+plot_mcml(net, clusters,
+  mode = "tna",
+  colors = c("#264653", "#E76F51", "#2A9D8F"),
+  # Layout
+  spacing = 3.5, skew_angle = 55,
+  shape_size = 1.4, inter_layer_gap = 0.7,
+  # Shells
+  shell_alpha = 0.12, shell_border_width = 2.5,
+  # Detail nodes
+  node_size = 2.2, node_border_color = "gray40",
+  # Summary nodes
+  summary_size = 4.5, summary_pie = "self",
+  summary_border_color = "gray20", summary_border_width = 3,
+  # Edges
+  edge_width_range = c(0.3, 1.5), edge_alpha = 0.3,
+  between_edge_width_range = c(0.5, 2.5), between_edge_alpha = 0.5,
+  summary_edge_width_range = c(0.8, 3), summary_edge_alpha = 0.8,
+  summary_arrows = TRUE, summary_arrow_size = 0.12,
+  # Labels
+  show_labels = TRUE, label_size = 0.5, label_color = "gray15",
+  summary_labels = TRUE, summary_label_size = 0.9,
+  summary_label_color = "gray10",
+  edge_labels = TRUE, edge_label_size = 0.4,
+  summary_edge_labels = TRUE, summary_edge_label_size = 0.65,
+  edge_label_digits = 2,
+  # Inter-layer
+  inter_layer_alpha = 0.25,
+  # Title & legend
+  title = "Human-AI Interaction: Cluster Flow Structure",
+  title_size = 1.3,
+  subtitle = "TNA mode — self-retention pies, mean aggregation",
+  subtitle_size = 0.85,
+  legend = TRUE, legend_position = "right",
+  legend_size = 0.75
+)
+```
+
+
+# Scaling to Larger Networks
+
+The `human_cat` dataset contains 15 fine-grained **codes** in addition to the 9 categories. We can build the network at the code level for a denser 15-node, 3-cluster MCML:
+
+```{r}
+#| label: big-network
+net_fine <- build_network(
+  human_cat, method = "relative",
+  actor = "session_id", action = "code", time = "timestamp"
+)
+
+fine_clusters <- list(
+  Directive = c("Command", "Direct", "Request", "Context", "Specification"),
+  Evaluative = c("Correction", "Reject", "Arguing", "Frustration",
+                  "Refinement", "Verification"),
+  Metacognitive = c("Ask", "Thinking", "Accept", "Interrupt")
+)
+```
+
+```{r}
+#| label: fig-big
+#| fig-cap: "15-node network with 3 superclass clusters"
+#| fig-width: 10
+#| fig-height: 10
+plot_mcml(net_fine, fine_clusters,
+  label_abbrev = "auto",
+  spacing = 4,
+  shape_size = 1.5,
+  minimum = 0.02,
+  colors = c("#E63946", "#457B9D", "#2A9D8F"),
+  title = "Fine-Grained Codes by Superclass"
+)
+```
+
+For dense networks, suppress labels and raise the threshold to reveal the backbone:
+
+```{r}
+#| label: fig-big-clean
+#| fig-cap: "Dense network --- labels off, threshold raised, TNA mode"
+#| fig-width: 10
+#| fig-height: 10
+plot_mcml(net_fine, fine_clusters,
+  show_labels = FALSE,
+  minimum = 0.05,
+  edge_alpha = 0.25,
+  summary_edge_labels = TRUE,
+  mode = "tna",
+  colors = c("#E63946", "#457B9D", "#2A9D8F"),
+  title = "Clean 3-Cluster Macro"
+)
+```
+
+
+# Downstream Analysis {#sec-downstream}
+
+The key insight of MCML is that **both levels are full TNA networks**. The macro network and each cluster network carry their own weight matrices, initial probabilities, and sequence data. This means every Nestimate analysis function --- centrality, bootstrap, permutation, and higher-order pathway analysis --- works on them directly.
+
+## Decomposing to individual networks
+
+`as_tna()` converts the MCML into a `netobject_group`:
+
+```{r}
+#| label: decompose-analysis
+mcml_obj <- Nestimate::build_mcml(net, clusters, type = "tna")
+grp <- Nestimate::as_tna(mcml_obj)
+names(grp)
+```
+
+## Centrality at each level
+
+`centrality()` reveals which nodes drive transitions at each level. At the macro level, it identifies which cluster is most central in the inter-cluster flow. At the cluster level, it identifies the categories that drive transitions inside each cluster:
+
+```{r}
+#| label: centrality-macro
+cograph::centrality(grp$macro, measures = c("strength", "betweenness", "closeness", "pagerank"))
+```
+
+```{r}
+#| label: centrality-directive
+cograph::centrality(grp$Directive, measures = c("strength", "betweenness", "closeness", "pagerank"))
+```
+
+```{r}
+#| label: centrality-evaluative
+cograph::centrality(grp$Evaluative, measures = c("strength", "betweenness", "closeness", "pagerank"))
+```
+
+## Bootstrap stability per cluster
+
+Bootstrap each cluster network independently to assess which transitions are stable:
+
+```{r}
+#| label: bootstrap-clusters
+#| cache: true
+boot_macro <- Nestimate::bootstrap_network(grp$macro, iter = 500)
+boot_dir   <- Nestimate::bootstrap_network(grp$Directive, iter = 500)
+boot_eval  <- Nestimate::bootstrap_network(grp$Evaluative, iter = 500)
+boot_meta  <- Nestimate::bootstrap_network(grp$Metacognitive, iter = 500)
+```
+
+```{r}
+#| label: fig-boot-macro
+#| fig-cap: "Bootstrap stability: macro network"
+splot(boot_macro, title = "Macro (inter-cluster)")
+```
+
+```{r}
+#| label: fig-boot-clusters
+#| fig-cap: "Bootstrap stability per cluster"
+#| fig-width: 12
+#| fig-height: 5
+par(mfrow = c(1, 3))
+splot(boot_dir, title = "Directive")
+splot(boot_eval, title = "Evaluative")
+splot(boot_meta, title = "Metacognitive")
+```
+
+## Higher-order pathway analysis (HYPA)
+
+Standard TNA models first-order transitions: which state follows the current state. But real behavioral sequences often have memory --- the transition from state B depends not just on B but on the path that led to B. HYPA (Hypothesis testing for Path Anomalies) detects these higher-order dependencies by comparing observed pathway frequencies against a multi-hypergeometric null model (LaRock et al., 2020).
+
+`build_hypa()` identifies pathways that are significantly over-represented (occurring more often than expected under the first-order model) or under-represented:
+
+```{r}
+#| label: hypa
+hypa <- Nestimate::build_hypa(net, k = 3)
+
+plot_simplicial(hypa, dismantled = TRUE)
+
+```
+
+
+
+## Plotting individual clusters
+
+Since each cluster is a `netobject`, all `splot()` styling works:
+
+```{r}
+#| label: fig-splot-levels
+#| fig-cap: "Left: macro-level inter-cluster network; Right: Evaluative cluster network"
+#| fig-width: 12
+#| fig-height: 6
+par(mfrow = c(1, 2))
+
+splot(grp$macro, title = "Macro (Inter-Cluster)")
+splot(grp$Evaluative, title = "Evaluative Cluster")
+```
+
+
+# Comparison: plot_mcml vs. plot_mtna vs. plot_mlna
+
+```{r}
+#| label: fig-comparison
+#| fig-cap: "Three cluster visualization approaches side by side"
+#| fig-width: 14
+#| fig-height: 7
+par(mfrow = c(1, 3), mar = c(1, 1, 2, 1))
+
+plot_mcml(net, clusters, title = "plot_mcml\n(hierarchical)")
+plot_mtna(net, clusters, show_labels = TRUE, label_abbrev = 4,
+          title = "plot_mtna\n(flat clusters)")
+plot_mlna(net, clusters, title = "plot_mlna\n(stacked layers)")
+```
+
+**`plot_mcml()`**: Two-layer hierarchical view. Bottom layer reveals individual dynamics; top layer shows macro structure. Best when you need both levels in a single figure.
+
+**`plot_mtna()`**: Single flat layout with nodes inside cluster shapes. No vertical layering. Best for clean cluster maps.
+
+**`plot_mlna()`**: Stacked layers in pseudo-3D. Each layer is an independent network level with inter-layer edges. Best for multilevel or multiplex data.
+
+
+# Parameter Quick Reference
+
+| Category | Parameter | Default | Description |
+|---|---|---|---|
+| **Input** | `x` | --- | Matrix, netobject, or mcml object |
+| | `cluster_list` | `NULL` | Named list of node vectors |
+| | `mode` | `"weights"` | `"weights"` or `"tna"` |
+| | `aggregation` | `"sum"` | `"sum"`, `"mean"`, `"max"` |
+| | `minimum` | `0` | Edge threshold |
+| **Layout** | `spacing` | `3` | Cluster distance from center |
+| | `skew_angle` | `60` | Perspective tilt (0--90) |
+| | `shape_size` | `1.2` | Cluster shell radius |
+| | `top_layer_scale` | `c(0.8, 0.25)` | Macro oval `c(x, y)` |
+| | `inter_layer_gap` | `0.6` | Vertical gap multiplier |
+| | `node_radius_scale` | `0.55` | Node spread inside shell (0--1) |
+| **Cluster nodes** | `node_size` | `1.8` | Node size |
+| | `node_shape` | `"circle"` | `"circle"`, `"square"`, `"diamond"`, `"triangle"` |
+| | `node_border_color` | `"gray30"` | Border color |
+| **Macro nodes** | `summary_size` | `4` | Pie chart size |
+| | `cluster_shape` | `"circle"` | Macro node shape |
+| | `summary_pie` | `"inits"` | Pie meaning: `"inits"` or `"self"` |
+| | `summary_border_color` | `"gray20"` | Border color |
+| | `summary_border_width` | `2` | Border line width |
+| | `colors` | auto | Cluster colors |
+| **Shells** | `shell_alpha` | `0.15` | Fill transparency |
+| | `shell_border_width` | `2` | Border width |
+| **Cluster edges** | `edge_width_range` | `c(0.3, 1.3)` | Width range |
+| | `edge_alpha` | `0.35` | Transparency |
+| | `edge_labels` | `FALSE` | Show weight labels |
+| | `edge_label_size` | `0.5` | Label text size |
+| | `edge_label_color` | `"gray40"` | Label color |
+| | `edge_label_digits` | `2` | Decimal places |
+| **Inter-cluster edges** | `between_edge_width_range` | `c(0.5, 2.0)` | Width range |
+| | `between_edge_alpha` | `0.6` | Transparency |
+| | `between_arrows` | `FALSE` | Arrowheads |
+| **Macro edges** | `summary_edge_width_range` | `c(0.5, 2.0)` | Width range |
+| | `summary_edge_alpha` | `0.7` | Transparency |
+| | `summary_edge_labels` | `FALSE` | Show weight labels |
+| | `summary_edge_label_size` | `0.6` | Label text size |
+| | `summary_arrows` | `TRUE` | Arrowheads |
+| | `summary_arrow_size` | `0.10` | Arrowhead size |
+| **Inter-layer** | `inter_layer_alpha` | `0.5` | Dashed line transparency |
+| **Labels** | `show_labels` | `TRUE` | Show node labels |
+| | `label_size` | `0.6` | Node label text size |
+| | `label_color` | `"gray20"` | Node label color |
+| | `label_position` | `3` | 1=below, 2=left, 3=above, 4=right |
+| | `label_abbrev` | `NULL` | `NULL`, integer, or `"auto"` |
+| | `summary_labels` | `TRUE` | Show cluster labels |
+| | `summary_label_size` | `0.8` | Cluster label text size |
+| | `summary_label_color` | `"gray20"` | Cluster label color |
+| | `summary_label_position` | `3` | 1=below, 2=left, 3=above, 4=right |
+| **Title/Legend** | `title` | `NULL` | Title text |
+| | `title_size` | `1.2` | Title text size |
+| | `subtitle` | `NULL` | Subtitle text |
+| | `subtitle_size` | `0.9` | Subtitle text size |
+| | `legend` | `TRUE` | Show legend |
+| | `legend_position` | `"right"` | `"right"`, `"left"`, `"top"`, `"bottom"` |
+| | `legend_size` | `0.7` | Legend text size |
+| | `legend_pt_size` | `1.2` | Legend symbol size |
+
+
+# References {.unnumbered}
+
+- LaRock, T., Scholtes, I., & Eliassi-Rad, T. (2020). HYPA: Efficient Detection of Path Anomalies in Time Series Data on Networks. In *Proceedings of the 2020 SIAM International Conference on Data Mining (SDM)* (pp. 460--468). SIAM.
+
+- Saqr, M., López-Pernas, S., Törmänen, T., Kaliisa, R., Misiejuk, K., & Tikka, S. (2025). Transition Network Analysis: A Novel Framework for Modeling, Visualizing, and Identifying the Temporal Patterns of Learners and Learning Processes. In *Proceedings of the 15th International Learning Analytics and Knowledge Conference (LAK '25)* (pp. 351--361). ACM. doi:10.1145/3706468.3706513
+
+- Tikka, S., López-Pernas, S., & Saqr, M. (2025). tna: An R Package for Transition Network Analysis. *Applied Psychological Measurement*. doi:10.1177/01466216251348840
+
+---
+
+```{r}
+#| label: session
+sessionInfo()
+```

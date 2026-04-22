@@ -1,0 +1,356 @@
+---
+title: "Higher-Order Network Analysis with Simplicial Complexes"
+subtitle: "From Transition Networks to Topological Analysis"
+author: "Mohammed Saqr & Sonsoles López-Pernas"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: false
+    code-tools: true
+    theme: cosmo
+    fig-width: 10
+    fig-height: 7
+execute:
+  warning: false
+  message: false
+---
+
+## Introduction
+
+When we analyze sequential data as a network --- who follows whom, which state leads to which --- we typically build a **first-order Markov model**: the probability of the next state depends only on the current state. This is the foundation of Transition Network Analysis (TNA).
+
+But human behavior is not always memoryless. Consider two programmers working with an AI coding assistant:
+
+- Programmer A: *Specify → Request → Specify → Request* (a steady back-and-forth)
+- Programmer B: *Frustrate → Specify → Request → Command* (escalating from frustration to direct commands)
+
+In a first-order model, both sequences contribute equally to the *Specify → Request* transition. But the **context** --- what came before --- matters. The sequence *Frustrate → Specify* may lead to very different next actions than *Request → Specify*. These are **higher-order dependencies**: cases where the past two (or more) states jointly predict the future better than the current state alone.
+
+This tutorial introduces a complete pipeline for detecting, quantifying, and visualizing higher-order structure in sequential data. We progress from standard transition networks through statistical order detection, pathway analysis, and into the topology of higher-order interactions using simplicial complexes.
+
+### What you will learn
+
+1. Test whether your data has higher-order dependencies (and at what order)
+2. Identify which specific pathways deviate from first-order expectations
+3. Detect anomalously frequent or rare behavioral sequences
+4. Compute topological invariants (Betti numbers, Euler characteristic)
+5. Track how network topology changes across thresholds (persistent homology)
+6. Visualize higher-order pathways as simplicial blob diagrams
+7. Compare higher-order structure across groups
+
+### Packages
+
+```{r setup}
+library(Nestimate)
+library(cograph)
+```
+
+**cograph** provides the simplicial visualization (`plot_simplicial()`). **Nestimate** provides the higher-order network construction (`build_hon`, `build_hypa`, `build_mogen`) and simplicial complex analysis (`build_simplicial`, `betti_numbers`, `persistent_homology`, `q_analysis`).
+
+## Building the Network
+
+We use a dataset of human--AI pair programming sessions where a researcher coded each human action into 9 behavioral categories: Request, Specify, Command, Correct, Refine, Verify, Inquire, Interrupt, and Frustrate.
+
+```{r build-network}
+data("human_cat", package = "Nestimate")
+
+net <- build_network(human_cat, method = "relative",
+                     action = "category", actor = "session_id",
+                     time = "timestamp")
+net
+```
+
+```{r plot-network, fig.width=9, fig.height=9}
+splot(net, minimum = 0.05, title = "Human Actions in AI-Assisted Coding")
+```
+
+Several patterns stand out: **Specify** is the hub --- most actions lead to and from it. Self-loops on Specify and Command indicate persistence. The **Request → Specify → Command** backbone reflects the natural workflow. But this first-order view might be hiding important patterns. Does it matter *how* someone arrived at Specify?
+
+## Is First-Order Enough? Multi-Order Model Selection
+
+Before investing in higher-order analysis, we should answer: **does sequential memory actually matter?** The Multi-Order Generative Model (MOGen; Scholtes 2017) fits Markov models at increasing orders and compares them using information criteria. Higher-order models fit better but have exponentially more parameters --- AIC and BIC find the best tradeoff.
+
+```{r mogen}
+mg <- build_mogen(net, max_order = 4)
+summary(mg)
+```
+
+```{r plot-mogen, fig.width=8, fig.height=5}
+plot(mg)
+```
+
+### Interpreting the results
+
+- **Order 0**: Actions are independent --- no sequential structure.
+- **Order 1**: The standard Markov model is sufficient.
+- **Order 2+**: Higher-order dependencies exist. A first-order TNA would miss them.
+
+Even when order 1 is globally optimal (by BIC), *specific pathways* may still exhibit higher-order behavior --- the global model averages over all states. The HON analysis below detects these local patterns.
+
+### Second-order transition matrix
+
+`mogen_transitions()` extracts the transitions at a given order, showing which two-step contexts lead to different outcomes:
+
+```{r mogen-transitions}
+mt <- mogen_transitions(mg, order = 2)
+mt[1:8, ]
+```
+
+Each row is a second-order pathway: the `from` column shows the two-state context, `to` is the predicted next state, and `probability` is the conditional probability given that context.
+
+## Higher-Order Networks (HON)
+
+While MOGen tells us *whether* higher-order dependencies exist on average, the **Higher-Order Network** (HON; Xu et al. 2016) tells us *where*. HON tests, for each state, whether adding context significantly changes the outgoing transition distribution using KL-divergence. If the distribution after *Request → Specify* differs from *Frustrate → Specify*, HON creates separate nodes for these contexts.
+
+```{r hon}
+hon <- build_hon(net)
+hon
+```
+
+```{r hon-detail}
+ho_edges <- hon$edges[hon$edges$from_order > 1, ]
+ho_top <- ho_edges[order(-ho_edges$count), ]
+ho_top[1:10, ]
+```
+
+Out of `r nrow(hon$edges)` total edges, **`r nrow(ho_edges)`** (`r round(100 * nrow(ho_edges) / nrow(hon$edges))`%) are higher-order --- transitions where the preceding context changes the outcome. Look for pathways where the higher-order probability differs substantially from the first-order probability --- these represent genuine contextual effects.
+
+### Raw path frequencies
+
+The most common 3-step sequences regardless of statistical significance:
+
+```{r paths}
+path_counts(net, k = 3, top = 15)
+```
+
+## Path Anomaly Detection (HYPA)
+
+HON detects *where* higher-order structure exists. **HYPA** (LaRock et al. 2020) takes a complementary approach: it detects which specific paths occur *significantly more or less often than expected* under a null model.
+
+HYPA constructs a De Bruijn graph and computes expected path frequencies using a multi-hypergeometric null model. Paths that deviate significantly are flagged:
+
+- **Over-represented** paths: These sequences occur far more often than chance predicts. They represent **learned behavioral routines**.
+- **Under-represented** paths: Systematically avoided combinations --- sequences that are socially inappropriate, cognitively difficult, or practically ineffective.
+
+```{r hypa}
+#| fig-height: 9
+#| fig-width: 15
+hypa <- build_hypa(net)
+
+
+plot_simplicial(hypa, dismantled = TRUE)
+
+```
+
+### Over-represented pathways
+
+Learned routines --- sequences that occur far more than expected. `plot_simplicial()` accepts HYPA objects directly with the `anomaly` parameter to filter:
+
+```{r hypa-over, fig.width=14, fig.height=14}
+plot_simplicial(hypa, anomaly = "over", max_pathways = 9,
+                dismantled = TRUE, ncol = 3)
+```
+
+### Under-represented pathways
+
+Avoided sequences:
+
+```{r hypa-under, fig.width=14, fig.height=7}
+plot_simplicial(hypa, anomaly = "under", max_pathways = 6,
+                dismantled = TRUE, ncol = 3)
+```
+
+### Combined overlay
+
+Multiple pathways on a single plot --- overlapping regions indicate states that participate in many higher-order patterns:
+
+```{r simplicial-combined, fig.width=10, fig.height=10}
+plot_simplicial(net, max_pathways = 6,
+                title = "Top 6 Higher-Order Pathways")
+```
+
+## Higher-Order Analysis Across Groups
+
+A powerful application is comparing higher-order structure across conditions. We build grouped networks by superclass (Directive, Evaluative, Metacognitive) and run HYPA on each:
+
+```{r group-hypa}
+grp_net <- build_network(human_cat, method = "relative",
+                         action = "category", actor = "session_id",
+                         time = "timestamp", group = "superclass")
+
+hypa_results <- lapply(names(grp_net), function(nm) {
+  h <- build_hypa(grp_net[[nm]])
+  data.frame(
+    group = nm,
+    total_edges = h$n_edges,
+    anomalous = h$n_anomalous,
+    over = h$n_over,
+    under = h$n_under,
+    pct_anomalous = round(100 * h$n_anomalous / h$n_edges, 1)
+  )
+})
+do.call(rbind, hypa_results)
+```
+
+Groups with a higher percentage of anomalous pathways have more higher-order structure --- their sequential dynamics are less predictable from first-order transitions alone.
+
+```{r group-simplicial, fig.width=14, fig.height=7}
+par(mfrow = c(1, 2))
+plot_simplicial(grp_net$Directive, max_pathways = 4,
+                title = "Directive: Higher-Order Pathways")
+plot_simplicial(grp_net$Evaluative, max_pathways = 4,
+                title = "Evaluative: Higher-Order Pathways")
+```
+
+## Comparing Datasets
+
+Higher-order analysis is particularly informative when applied to different datasets. Here we compare the human-AI coding data with a collaborative regulation dataset:
+
+```{r compare-datasets}
+data("group_regulation_long", package = "Nestimate")
+net_reg <- build_network(group_regulation_long, method = "relative",
+                         action = "Action", actor = "Actor")
+
+hypa_coding <- build_hypa(net)
+hypa_reg <- build_hypa(net_reg)
+
+comparison <- data.frame(
+  dataset = c("Human-AI Coding", "Collaborative Regulation"),
+  nodes = c(net$n_nodes, net_reg$n_nodes),
+  total_paths = c(hypa_coding$n_edges, hypa_reg$n_edges),
+  anomalous = c(hypa_coding$n_anomalous, hypa_reg$n_anomalous),
+  over = c(hypa_coding$n_over, hypa_reg$n_over),
+  under = c(hypa_coding$n_under, hypa_reg$n_under)
+)
+comparison
+```
+
+```{r compare-simplicial, fig.width=14, fig.height=7}
+par(mfrow = c(1, 2))
+plot_simplicial(net, max_pathways = 4,
+                title = "Human-AI Coding")
+plot_simplicial(net_reg, max_pathways = 4,
+                title = "Collaborative Regulation")
+```
+
+Different domains produce different higher-order signatures. Comparing these reveals whether sequential memory is a universal property of the behavioral system or specific to particular tasks.
+
+## Simplicial Complex Analysis
+
+All the methods above analyze sequential pathways. **Simplicial complex analysis** takes a different perspective: it examines the **topological structure** of the network itself.
+
+### What is a simplicial complex?
+
+A standard network captures pairwise relationships: node A connects to node B. But many interactions involve **groups**: states A, B, and C may all be densely interconnected, forming a triangle. A simplicial complex formalizes this:
+
+- A **0-simplex** is a single node
+- A **1-simplex** is an edge (two connected nodes)
+- A **2-simplex** is a filled triangle (three mutually connected nodes)
+- A **$k$-simplex** is a group of $k+1$ mutually connected nodes
+
+The **clique complex** turns every clique into a simplex, lifting a flat graph into a multi-dimensional topological object.
+
+### Building the complex
+
+```{r simplicial-build}
+sc <- build_simplicial(net, threshold = 0.05)
+sc
+```
+
+### Topological descriptors
+
+- **f-vector** $(f_0, f_1, f_2, \ldots)$: counts simplices at each dimension.
+- **Betti numbers** $(\beta_0, \beta_1, \beta_2, \ldots)$: the central invariants. $\beta_0$ = connected components, $\beta_1$ = independent loops, $\beta_2$ = enclosed voids.
+- **Euler characteristic** $\chi = \sum (-1)^k f_k = \sum (-1)^k \beta_k$. For a contractible complex, $\chi = 1$.
+- **Simplicial degree**: how many higher-dimensional simplices each node participates in.
+
+```{r simplicial-degree}
+simplicial_degree(sc)
+```
+
+```{r plot-sc, fig.width=13, fig.height=9}
+plot(sc)
+```
+
+Nodes with high simplicial degree are topological hubs --- they participate in many group interactions. This captures group-level importance that pairwise degree misses.
+
+### Persistent Homology
+
+A single complex at one threshold gives a static snapshot. **Persistent homology** reveals how topology evolves as we vary the threshold. Start with only the strongest edges and progressively add weaker ones. Features that persist across a wide range are **topologically robust**.
+
+```{r persistent, fig.width=13, fig.height=6}
+ph <- persistent_homology(net, n_steps = 25)
+ph
+plot(ph)
+```
+
+**Betti curve** (left): At high threshold, the network is sparse (many components). As threshold decreases, components merge ($\beta_0$ drops) and loops may form ($\beta_1$ rises) then get filled.
+
+**Persistence diagram** (right): Points far from the diagonal have long lifetimes --- structurally important features. Points near the diagonal are noise.
+
+### Q-Analysis
+
+Q-analysis (Atkin 1974) measures connectivity at multiple levels of structural sharing. Two maximal simplices are **q-connected** if they share a face of dimension $\geq q$:
+
+- **q = 0**: share at least one node
+- **q = 1**: share at least one edge
+- **q = 2**: share at least one triangle
+
+```{r q-analysis, fig.width=13, fig.height=6}
+qa <- q_analysis(sc)
+qa
+plot(qa)
+```
+
+The **fragmentation point** (first q where components > 1) is critical. Below it, the network is fully connected through shared sub-structures. Above it, parts become structurally isolated.
+
+### Pathway Complex from HON
+
+An alternative to the clique complex: build a simplicial complex from the **pathways** discovered by HON --- topology derived from sequential dynamics rather than network structure:
+
+```{r pathway-complex, fig.width=13, fig.height=9}
+sc_hon <- build_simplicial(hon, type = "pathway", max_pathways = 30)
+sc_hon
+plot(sc_hon)
+```
+
+In the pathway complex, each higher-order pathway becomes a simplex. $\beta_0 > 1$ means some states are sequentially disconnected. $\beta_1 > 0$ means there are cyclic pathway structures.
+
+### Verification
+
+All simplicial computations are cross-validated against igraph's clique-finding and verified via the Euler-Poincaré theorem:
+
+```{r verify}
+verify_simplicial(net$weights, threshold = 0.05)
+```
+
+## Summary
+
+| Step | Method | Function | What it reveals |
+|------|--------|----------|-----------------|
+| 1 | **TNA** | `build_network()` | First-order transition structure |
+| 2 | **MOGen** | `build_mogen()` | Whether higher-order is needed |
+| 3 | **HON** | `build_hon()` | Where sequential context changes transitions |
+| 4 | **HYPA** | `build_hypa()` | Which paths are anomalously frequent or rare |
+| 5 | **Visualization** | `plot_simplicial()` | Blob diagrams of pathways |
+| 6 | **Simplicial** | `build_simplicial()` | Topological structure |
+| 7 | **Persistence** | `persistent_homology()` | Robustness across scales |
+| 8 | **Q-analysis** | `q_analysis()` | Multi-level connectivity |
+
+The key progression:
+
+- **TNA** answers: *what transitions exist?*
+- **MOGen** answers: *is first-order enough?*
+- **HON** answers: *where does context matter?*
+- **HYPA** answers: *which sequences are surprising?*
+- **Simplicial analysis** answers: *what is the shape of the interaction space?*
+
+## References
+
+- Atkin, R. H. (1974). *Mathematical Structure in Human Affairs*. Heinemann Educational.
+- Battiston, F., et al. (2020). Networks beyond pairwise interactions: Structure and dynamics. *Physics Reports*, 874, 1--92.
+- LaRock, T., Scholtes, I., & Eliassi-Rad, T. (2020). HYPA: Efficient detection of path anomalies in time series data on networks. *EPJ Data Science*, 9(1), 15.
+- Scholtes, I. (2017). When is a network a network? Multi-order graphical model selection in pathways and temporal networks. *Proceedings of the 23rd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining*, 1037--1046.
+- Xu, J., Wickramarathne, T. L., & Chawla, N. V. (2016). Representing higher-order dependencies in networks. *Science Advances*, 2(5), e1600028.

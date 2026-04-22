@@ -8,6 +8,9 @@ with code in this repository.
 - **Platform**: macOS (Darwin), R 4.1+ (currently R 4.5+)
 - **Version**: 1.8.9 (CRAN has 1.5.2)
 - **Rscript**: Available on PATH
+- **Additional repo**: `https://mohsaqr.r-universe.dev` registered for
+  Nestimate dependency resolution (see `Additional_repositories` in
+  DESCRIPTION)
 
 ## Common Commands
 
@@ -49,7 +52,8 @@ Rscript -e 'devtools::install(".", upgrade = "never")'
 
 GitHub Actions (`R-CMD-check.yaml`) tests on: macOS-latest (release),
 Windows-latest (release), Ubuntu-latest (devel, release, oldrel-1). The
-
+workflow registers `mohsaqr.r-universe.dev` via `~/.Rprofile` for
+Nestimate resolution.
 
 ## Project Overview
 
@@ -390,4 +394,6 @@ Use `# nocov` on fallback branches unreachable in the test environment.
 ## CRAN Submission
 
 `cran-comments.md` tracks submission notes. Before submitting: run the
-strict CRAN incoming check (see Commands above), ensure zero NOTEs.
+strict CRAN incoming check (see Commands above), ensure zero NOTEs, and
+verify `Additional_repositories` points to
+`https://mohsaqr.r-universe.dev` for Nestimate.

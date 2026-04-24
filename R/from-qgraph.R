@@ -57,7 +57,11 @@ tna_color_palette <- function(n_states) {
     edge_style              = 1,
     edge_label_style        = "estimate",
     edge_label_leading_zero = FALSE,
-    edge_label_size         = 0.6,
+    # Baseline calibrated against large canvases (10"+): 0.6 produced edge
+    # weight labels that looked outsized after device-scale multiplication.
+    # 0.4 scales down to readable-small at the reference and stays
+    # proportional after multiplication at posters.
+    edge_label_size         = 0.4,
     edge_label_position     = 0.5,
     node_size               = 7,
     minimum                 = 0.01,
@@ -89,7 +93,9 @@ tna_color_palette <- function(n_states) {
     layout                 = "oval",
     edge_label_style       = "estimate",
     edge_label_leading_zero = FALSE,
-    edge_label_size        = 0.6,
+    # See note on psych edge_label_size above — same calibration: 0.6 was
+    # too large after device-scale multiplication at larger canvases.
+    edge_label_size        = 0.4,
     edge_color             = COGRAPH_SCALE$tna_edge_color,
     edge_label_position    = 0.7,
     node_size              = 7,

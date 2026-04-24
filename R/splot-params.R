@@ -71,7 +71,8 @@ resolve_edge_widths <- function(edges,
                                 edge_scale_mode = NULL,
                                 scaling = "default",
                                 base_width = NULL,
-                                scale_factor = NULL) {
+                                scale_factor = NULL,
+                                visual_scale = NULL) {
   m <- nrow(edges)
   if (m == 0) return(numeric(0))
 
@@ -80,9 +81,17 @@ resolve_edge_widths <- function(edges,
     edge.width <- NULL
   }
 
-  # If explicit widths provided, use them directly
+  vs_mult <- if (!is.null(visual_scale) && is.finite(visual_scale$line %||% NA_real_)) {
+    visual_scale$line
+  } else {
+    1
+  }
+
+  # If explicit widths provided, use them directly (precedence rule — user wins
+  # on *mapping*), but still compensate for device so absolute lwd tracks the
+  # output canvas.
   if (!is.null(edge.width) && is.numeric(edge.width)) {
-    return(recycle_to_length(edge.width, m))
+    return(recycle_to_length(edge.width, m) * vs_mult)
   }
 
   # Get scale constants
@@ -96,7 +105,8 @@ resolve_edge_widths <- function(edges,
     edge_scale_mode <- scale$edge_scale_mode
   }
 
-  # Scale by weight if available
+  # Scale by weight if available — scale_edge_widths handles device compensation
+  # internally via its own `visual_scale` arg.
   if ("weight" %in% names(edges)) {
     return(scale_edge_widths(
       weights = edges$weight,
@@ -107,12 +117,13 @@ resolve_edge_widths <- function(edges,
       maximum = maximum,
       minimum = minimum,
       cut = cut,
-      range = edge_width_range
+      range = edge_width_range,
+      visual_scale = visual_scale
     ))
   }
 
   # Default width when no weights - use scale constants
-  rep(scale$edge_width_default, m)
+  rep(scale$edge_width_default * vs_mult, m)
 }
 
 #' Resolve Node Sizes
@@ -262,30 +273,57 @@ resolve_centrality_sizes <- function(x, scale_by, size_range = c(2, 8), n = NULL
 
 #' Resolve Label Sizes
 #'
-#' Determines label sizes, either independent (new default) or coupled to node size (legacy).
+#' Determines label sizes. Default links label cex to node size (qgraph
+#' invariant: label.cex is a function of vsize so the node-to-label ratio is
+#' locked by construction, and device compensation applied uniformly to both
+#' keeps the ratio stable across canvases).
 #'
 #' @param label_size User-specified label size(s) or NULL.
+#' @param node_size Raw user-supplied node_size (pre-scale-factor). When
+#'   default (7), yields label cex 1.0 — backward-compatible. When the user
+#'   doubles node_size, labels double too; when they halve node_size, labels
+#'   halve. Falls back to the scale constant's `node_default` when NULL.
 #' @param node_size_usr Node sizes in user coordinates (for legacy coupled mode).
 #' @param n Number of nodes.
 #' @param scaling Scaling mode: "default" or "legacy".
+#' @param visual_scale Optional visual-scale list (from compute_visual_scale).
+#'   When non-NULL and the caller did not pass `label_size`, the default label
+#'   cex is multiplied by `visual_scale$scale` so label pixel size tracks the
+#'   output canvas. User-explicit `label_size` always wins and is returned
+#'   verbatim — the precedence rule.
 #' @return Vector of label sizes (cex values).
 #' @keywords internal
-resolve_label_sizes <- function(label_size, node_size_usr, n, scaling = "default") {
+resolve_label_sizes <- function(label_size, node_size_usr, n, scaling = "default",
+                                visual_scale = NULL, node_size = NULL) {
   scale <- get_scale_constants(scaling)
 
   if (!is.null(label_size)) {
-    # User explicitly specified - use as-is
+    # User explicitly specified - use as-is (precedence rule)
     return(recycle_to_length(label_size, n))
+  }
+
+  vs_mult <- if (!is.null(visual_scale) && is.finite(visual_scale$scale %||% visual_scale$text %||% NA_real_)) {
+    visual_scale$scale %||% visual_scale$text
+  } else {
+    1
   }
 
   if (scale$label_coupled) {
     # Legacy mode: couple to node size (original behavior)
-    # vsize_usr * 8, capped at 1
-    return(pmin(1, node_size_usr * 8))
+    # vsize_usr * 8, capped at 1. Device compensation multiplies the post-cap
+    # value so very high-DPI canvases can still read the label.
+    return(pmin(1, node_size_usr * 8) * vs_mult)
   }
 
- # New default: independent label size
-  rep(scale$label_default, n)
+  # qgraph-style invariant: label cex tracks node_size so their ratio is
+  # locked. At the defaults (node_size = 7, node_default = 7) this evaluates
+  # to 1.0 — backward-compatible with pre-fix behaviour. When a user doubles
+  # node_size, labels double too; when they shrink nodes, labels shrink.
+  ns <- if (is.null(node_size)) scale$node_default else node_size[1]
+  if (!is.numeric(ns) || !is.finite(ns) || ns <= 0) ns <- scale$node_default
+  node_factor <- ns / scale$node_default
+
+  rep(scale$label_default * node_factor * vs_mult, n)
 }
 
 #' Resolve Node Colors

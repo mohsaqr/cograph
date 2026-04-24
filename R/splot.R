@@ -1005,8 +1005,19 @@ splot <- function(
   # Labels
   node_labels <- resolve_labels(labels, nodes, n_nodes)
 
-  # Label sizes (using new decoupled system)
-  label_cex <- resolve_label_sizes(label_size, vsize_usr, n_nodes, scaling = scaling)
+  # Device-dependent visual scale: reserve the per-draw env now so inner
+  # helpers can retrieve it. The actual scale computation is DEFERRED until
+  # after `graphics::plot()` is called further down, because before plot.new
+  # `par("pin")` is still reflecting the previous plot (or default margins)
+  # rather than the real plot region about to be drawn. Setting an identity
+  # placeholder here keeps `.get_current_visual_scale()` safe to call from
+  # any code path that runs between now and the post-plot refresh.
+  visual_scale <- .identity_visual_scale()
+  .set_current_visual_scale(visual_scale)
+  on.exit(.clear_current_visual_scale(), add = TRUE)
+
+  # Per-node label colours (vectorised). Actual label cex is resolved after
+  # plot.new so par("pin") is accurate.
   label_colors <- recycle_to_length(label_color, n_nodes)
 
   # ============================================
@@ -1082,25 +1093,8 @@ splot <- function(
       }
     }
 
-    # Edge widths
-    edge_widths <- resolve_edge_widths(
-      edges = edges,
-      edge.width = edge_width,
-      esize = edge_size,
-      n_nodes = n_nodes,
-      directed = directed,
-      maximum = maximum,
-      minimum = threshold,
-      cut = edge_cutoff,
-      edge_width_range = edge_width_range,
-      edge_scale_mode = edge_scale_mode,
-      scaling = scaling
-    )
-
-    # Line types and dotted-width adjustment
-    es <- resolve_edge_styles(edge_style, edge_widths, n_edges)
-    ltys <- es$ltys
-    edge_widths <- es$edge_widths
+    # Edge widths are resolved post-plot (below) so par("pin") is valid.
+    # We still compute curvatures here because they don't depend on device.
 
     # Compute per-edge curvatures (reciprocal detection + direction)
     curve_result <- compute_edge_curvatures(curvature, curves, edges, layout_mat)
@@ -1200,7 +1194,8 @@ splot <- function(
   # Default margins[3] (top) is 0.1 which is too small for titles
   # Add extra space proportional to title_size when title is provided
   title_space <- if (!is.null(title)) max(1.5, title_size * 1.2) else 0
-  graphics::par(mar = c(margins[1], margins[2], margins[3] + title_space, margins[4]))
+  graphics::par(mar = c(margins[1], margins[2],
+                        margins[3] + title_space, margins[4]))
 
   # Calculate plot limits accounting for node radii, self-loops, and margins
   # When the layout was auto-rescaled (rescale = TRUE, the default),
@@ -1219,6 +1214,28 @@ splot <- function(
   xlim <- lims$xlim
   ylim <- lims$ylim
 
+  # Reserve native whitespace for the legend by expanding `xlim` on the
+  # appropriate side (qgraph's GLratio idiom). Doing it in user-coordinates
+  # rather than via `par("mar")` keeps the legend-band expansion in the
+  # same units as `inset`, so a small positive inset places the legend
+  # cleanly inside the expanded region rather than pushing it off the PNG.
+  # With `asp = 1`, R preserves visual circularity by widening the physical
+  # plot box and compensating `ylim` — nodes stay round.
+  legend_xlim_expansion <- 0
+  if (isTRUE(legend)) {
+    x_span <- xlim[2] - xlim[1]
+    pos <- legend_position
+    if (identical(pos, "topright") || identical(pos, "bottomright") ||
+        identical(pos, "right")) {
+      xlim[2] <- xlim[2] + x_span * 0.25
+      legend_xlim_expansion <- x_span * 0.25
+    } else if (identical(pos, "topleft") || identical(pos, "bottomleft") ||
+               identical(pos, "left")) {
+      xlim[1] <- xlim[1] - x_span * 0.25
+      legend_xlim_expansion <- x_span * 0.25
+    }
+  }
+
   # Create plot
   graphics::plot(
     1, type = "n",
@@ -1230,6 +1247,43 @@ splot <- function(
     xaxs = "i", yaxs = "i"
   )
 
+  # Compute visual_scale NOW — par("pin") is accurate for the freshly-opened
+  # plot region. Labels and edges are resolved from this scale below so
+  # they share the same pin-based anchor as the node user-coordinates.
+  visual_scale <- .resolve_visual_scale(scaling)
+  .set_current_visual_scale(visual_scale)
+
+  # Label sizes (qgraph-style invariant: label cex tracks node_size so the
+  # node-to-label ratio is locked by construction). Device compensation
+  # is applied uniformly via visual_scale so label pixel size tracks pin.
+  label_cex <- resolve_label_sizes(label_size, vsize_usr, n_nodes,
+                                   scaling = scaling,
+                                   visual_scale = visual_scale,
+                                   node_size = node_size)
+
+  # Edge widths (visual_scale multiplies the mapped lwd so absolute widths
+  # track the canvas; weight-to-width rank mapping is preserved). Line
+  # types / dotted-width adjustment applied after.
+  if (n_edges > 0) {
+    edge_widths <- resolve_edge_widths(
+      edges = edges,
+      edge.width = edge_width,
+      esize = edge_size,
+      n_nodes = n_nodes,
+      directed = directed,
+      maximum = maximum,
+      minimum = threshold,
+      cut = edge_cutoff,
+      edge_width_range = edge_width_range,
+      edge_scale_mode = edge_scale_mode,
+      scaling = scaling,
+      visual_scale = visual_scale
+    )
+    es <- resolve_edge_styles(edge_style, edge_widths, n_edges)
+    ltys <- es$ltys
+    edge_widths <- es$edge_widths
+  }
+
   # Background
   if (!is.null(background) && background != "transparent") {
     graphics::rect(
@@ -1239,9 +1293,12 @@ splot <- function(
     )
   }
 
-  # Title
+  # Title — scaled by the same uniform visual_scale multiplier as labels and
+  # legend so title-to-plot ratio is stable across canvases.
   if (!is.null(title)) {
-    graphics::title(main = title, cex.main = title_size)
+    graphics::title(main = title,
+                    cex.main = title_size *
+                      (visual_scale$scale %||% visual_scale$text %||% 1))
   }
 
   # ============================================
@@ -1379,7 +1436,8 @@ splot <- function(
       has_pos_edges = has_pos_edges,
       has_neg_edges = has_neg_edges,
       show_node_sizes = legend_node_sizes,
-      node_size = vsize_usr
+      node_size = vsize_usr,
+      visual_scale = visual_scale
     )
   }
 
@@ -1435,6 +1493,21 @@ splot <- function(
       network$edges$edge_style <- ltys
     if (exists("curves_vec", inherits = FALSE))
       network$edges$curve      <- curves_vec
+  }
+
+  # Attach device geometry so the visual-sweep harness (and external callers)
+  # can compute label/node pixel ratios without re-running the plot. Captured
+  # while the device is still open — both scales require live par("pin").
+  attr(network, "cograph.visual_scale") <- visual_scale
+  if (exists("vsize_usr", inherits = FALSE)) {
+    ux <- tryCatch(get_x_scale(), error = function(e) NA_real_)
+    uy <- tryCatch(get_y_scale(), error = function(e) NA_real_)
+    if (is.finite(ux) && is.finite(uy)) {
+      # Representative diameter: 2 * median node radius, in inches (mean of
+      # x- and y-inch scales so it is rotation-independent).
+      attr(network, "cograph.node_diam_in") <-
+        2 * stats::median(vsize_usr, na.rm = TRUE) * mean(c(ux, uy))
+    }
   }
 
   invisible(network)
@@ -1721,6 +1794,25 @@ render_edges_splot <- function(edges, layout, node_sizes, shapes,
   if (!is.null(edge_labels)) {
     # Vectorize edge label parameters (strict: length 1 or m)
     edge_label_sizes <- expand_param(edge_label_size, m, "edge_label_size")
+
+    # Apply device-dependent visual scale so edge labels track canvas size
+    # in lockstep with node labels and the legend. Without this, edge
+    # labels render at a fixed point size regardless of canvas — which at
+    # small canvases (1" thumbnail at high DPI) blows them up relative to
+    # both nodes and the plot.
+    #
+    # The multiplier is clamped to a tighter `EDGE_LABEL_SCALE_CAP` than the
+    # main visual-scale cap. Edge labels are annotations, not primary
+    # content; at poster-sized canvases the main cap (2.3) made them visually
+    # compete with node labels. The tighter ceiling (1.6) preserves
+    # readability at reference while preventing poster blow-up.
+    .vs <- .get_current_visual_scale()
+    .vs_mult <- .vs$scale %||% .vs$text %||% 1
+    if (is.finite(.vs_mult) && .vs_mult > 0) {
+      .edge_vs <- pmin(pmax(.vs_mult, EDGE_LABEL_SCALE_CAP[1]),
+                       EDGE_LABEL_SCALE_CAP[2])
+      edge_label_sizes <- edge_label_sizes * .edge_vs
+    }
     edge_label_colors <- expand_param(edge_label_color, m, "edge_label_color")
     edge_label_bgs <- expand_param(edge_label_bg, m, "edge_label_bg")
     edge_label_positions_vec <- expand_param(edge_label_position, m, "edge_label_position")
@@ -2099,7 +2191,8 @@ render_legend_splot <- function(groups, node_names, nodes, node_colors,
                                 show_edge_colors = FALSE,
                                 positive_color = "#2E7D32", negative_color = "#C62828",
                                 has_pos_edges = FALSE, has_neg_edges = FALSE,
-                                show_node_sizes = FALSE, node_size = NULL) {
+                                show_node_sizes = FALSE, node_size = NULL,
+                                visual_scale = NULL) {
 
   n <- length(node_colors)
 
@@ -2197,8 +2290,9 @@ render_legend_splot <- function(groups, node_names, nodes, node_colors,
       paste0("Large (", round(size_range[2], 1), ")")
     )
 
-    # Scale for legend display
-    scale_factor <- 15  # Adjust for visual appearance
+    # Semantic point-size multiplier for the node-size legend swatches. Device
+    # compensation is applied inside .render_legend_base via visual_scale$point.
+    scale_factor <- 15
     size_cex <- size_vals * scale_factor
 
     legend_labels <- c(legend_labels, size_labels)
@@ -2223,9 +2317,17 @@ render_legend_splot <- function(groups, node_names, nodes, node_colors,
   has_points <- any(!is.na(legend_pch) & legend_pch > 0)
   has_lines <- any(!is.na(legend_lty) & legend_lty > 0)
 
-  # Build legend
-  graphics::legend(
-    position,
+  # The legend lands in the native whitespace we reserved via xlim
+  # expansion (see splot.R where xlim[2] is widened for right-positioned
+  # legends). A small positive inset keeps the legend a comfortable
+  # distance from the inner plot edge. xpd = FALSE because the legend
+  # now sits inside the plot box, not in the margin.
+  inset_val <- c(0.02, 0.02)
+
+  # Delegate to the shared helper so cex/pt.cex/lwd pick up device compensation
+  # via visual_scale. Preserves the pt.bg = legend_colors pairing and the
+  # has_points / has_lines gates.
+  .render_legend_base(
     legend = legend_labels,
     col = legend_colors,
     pch = if (has_points) legend_pch else NULL,
@@ -2233,10 +2335,14 @@ render_legend_splot <- function(groups, node_names, nodes, node_colors,
     lwd = if (has_lines) legend_lwd else NULL,
     pt.cex = if (has_points) legend_pt_cex else NULL,
     pt.bg = if (has_points) legend_colors else NULL,
+    position = position,
+    cex = cex,
     bty = "o",
     bg = "white",
-    cex = cex,
-    seg.len = 1.5
+    seg.len = 1.5,
+    inset = inset_val,
+    xpd = FALSE,
+    visual_scale = visual_scale
   )
 }
 

@@ -227,10 +227,23 @@ VISUAL_SCALE_CAP <- c(0.35, 2.3)
 #' is visually competing with node labels rather than supporting them.
 #' Ceiling 1.6 caps edge-label scaling roughly at the halfway point of
 #' node-label growth; floor 0.35 matches the main cap so tiny canvases
-#' aren't doubly-clamped.
+#' aren't doubly-clamped. Only applied when the user passes
+#' `edge_label_size` explicitly; the auto-default path uses
+#' `EDGE_LABEL_NODE_CEX_FRACTION` coupling instead.
 #' @keywords internal
 #' @noRd
 EDGE_LABEL_SCALE_CAP <- c(0.35, 1.6)
+
+#' Fraction of the node label cex used for the auto-default edge label cex.
+#'
+#' When the user does not pass `edge_label_size` explicitly, the default
+#' is `mean(label_cex) * EDGE_LABEL_NODE_CEX_FRACTION`. A fixed fraction
+#' locks the node-to-edge-label cex ratio at `1 / fraction` on every
+#' canvas (with 0.55 that is ~1.82x, calibrated to keep edge labels
+#' readable without competing with node labels).
+#' @keywords internal
+#' @noRd
+EDGE_LABEL_NODE_CEX_FRACTION <- 0.55
 
 #' Compute Adaptive Base Edge Size
 #'

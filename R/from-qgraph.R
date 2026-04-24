@@ -269,6 +269,8 @@ from_tna <- function(tna_object, engine = c("splot", "soplot"), plot = TRUE,
 #'   Edges that round to zero are removed unless \code{show_zero_edges = TRUE}.
 #' @param show_zero_edges Logical. If TRUE, keep edges even if their weight rounds to
 #'   zero. Default: FALSE.
+#' @param preserve_node_size Logical. If TRUE, use the node sizes extracted
+#'   from the qgraph object. Default FALSE uses cograph's standard sizing.
 #' @param ... Override any extracted parameter. Use qgraph-style names (e.g.,
 #'   \code{minimum}) or cograph names (e.g., \code{threshold}).
 #'

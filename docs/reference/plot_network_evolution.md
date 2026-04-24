@@ -77,12 +77,12 @@ Invisible list of edge-list data frames (one per panel).
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Edge list with time column
-edges$week <- sample(1:4, nrow(edges), replace = TRUE)
+set.seed(1)
+edges <- data.frame(
+  from = sample(LETTERS[1:5], 30, replace = TRUE),
+  to   = sample(LETTERS[1:5], 30, replace = TRUE),
+  week = sample(1:4, 30, replace = TRUE))
 cograph::plot_network_evolution(edges, time = "week")
 
-# Cumulative: edges accumulate over time
 cograph::plot_network_evolution(edges, time = "week", cumulative = TRUE)
-} # }
 ```

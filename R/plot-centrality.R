@@ -1,11 +1,13 @@
 # =============================================================================
-# Centrality visualization — line, bar, lollipop, pyramid, heatmap
+# Centrality visualization -- line, bar, lollipop, pyramid, heatmap
 # =============================================================================
 
 utils::globalVariables(c(
   "node", "measure", "value", "z_value", "rank", "cluster",
   "side", "group_label", "freq", "val_label", "highlight",
-  "xmin", "xmax", "ymin", "ymax", "pval", "pval_label"
+  "xmin", "xmax", "ymin", "ymax", "pval", "pval_label",
+  "plot_value", "x1", "x2", "x_key", "y_key", "text_x",
+  "yidx", "text_label"
 ))
 
 
@@ -217,7 +219,7 @@ utils::globalVariables(c(
 
 
 # ============================================================================
-# plot_centrality — single-network visualization
+# plot_centrality -- single-network visualization
 # ============================================================================
 
 #' Plot Centrality
@@ -244,9 +246,11 @@ utils::globalVariables(c(
 #'   when \code{x} is a network; default \code{NULL} keeps all columns
 #'   when \code{x} is already a centrality data frame.
 #' @param style Character: "line" (default), "bar", "lollipop".
+#' @param orientation Character: "horizontal" (default, nodes on y-axis) or
+#'   "vertical" (nodes on x-axis).
 #' @param scale Character: "raw" (default, native units; in the "line"
-#'   style this forces free y-axis per measure via faceting), "normalized"
-#'   ([0, 1] within measure), "z" (standardized within measure), or "rank"
+#'   style this forces free y-axis per measure via faceting), "normalized" (\[0, 1\] 
+#'   within measure), "z" (standardized within measure), or "rank"
 #'   (1..n, highest value = 1).
 #' @param order_by Character. For "bar"/"lollipop": which measure sorts
 #'   nodes. Defaults to the first measure. Use \code{"alpha"} for
@@ -331,7 +335,7 @@ plot_centrality <- function(x,
     long$plot_value <- long$norm_value
     value_label <- "normalized"
   } else if (scale == "rank") {
-    long$plot_value <- ave(-long$value, long$measure,
+    long$plot_value <- stats::ave(-long$value, long$measure,
                            FUN = function(v) rank(v, ties.method = "min"))
     value_label <- "rank"
   } else {
@@ -553,14 +557,14 @@ plot_centrality <- function(x,
     ncol <- if (n_meas <= 3) n_meas else if (n_meas <= 8) 3 else 4
   }
 
-  # Free scales when scale = "raw" — free the value axis, not the node axis
-  facet_scales <- if (scale == "raw") {
-    if (horiz) "free_x" else "free_y"
-  } else "fixed"
-
   # Build plot. orientation "horizontal" puts nodes on y-axis (the classic
   # Cleveland layout); "vertical" puts nodes on x-axis (qgraph-style).
   horiz <- identical(orientation, "horizontal")
+
+  # Free scales when scale = "raw" -- free the value axis, not the node axis
+  facet_scales <- if (scale == "raw") {
+    if (horiz) "free_x" else "free_y"
+  } else "fixed"
 
   if (style == "bar") {
     base_aes <- if (horiz) ggplot2::aes(x = plot_value, y = node)
@@ -662,42 +666,54 @@ plot_centrality <- function(x,
 
 
 # ============================================================================
-# plot_centrality_compare — back-to-back pyramid for two networks
+# plot_centrality_compare -- back-to-back pyramid for two networks
 # ============================================================================
 
 #' Plot Centrality Comparison (Pyramid)
 #'
 #' Back-to-back horizontal bar chart comparing a centrality measure across
 #' two groups. Each row is a node; left bar is group 1, right bar is
-#' group 2. Bar fill is per-node (identity) — either inherited from the
+#' group 2. Bar fill is per-node (identity) -- either inherited from the
 #' network's node colors or supplied via \code{node_colors}. Visual delta
 #' is communicated by bar length alone.
 #'
-#' @param x First group's centrality data frame (from
-#'   \code{\link{centrality}}) or a network input.
-#' @param y Second group's centrality data frame or network input.
+#' @param ... Two or more centrality data frames (from
+#'   \code{\link{centrality}}) or network inputs. Names are used as
+#'   group labels when \code{group_labels} is NULL.
 #' @param measure Character, a single centrality measure to compare. If
 #'   NULL, the first shared measure is used.
-#' @param group_labels Character vector of length 2. Default
-#'   \code{c("Group 1", "Group 2")}.
-#' @param sort_by \code{"delta"} (default) ranks nodes by absolute
-#'   difference between the two groups; \code{"left"} / \code{"right"}
-#'   by the side's value; \code{"alpha"} alphabetically.
-#' @param top_n Show top N nodes (by \code{sort_by}). Default: all.
-#' @param scale \code{"raw"} (default, native values on each side) or
-#'   \code{"normalized"} ([0, 1] within each side before plotting).
-#' @param show_values Logical. Print the value inside each bar.
-#'   Default TRUE.
+#' @param style Character: \code{"stacked"} (default), \code{"facet"},
+#'   \code{"grouped"}, \code{"dumbbell"}, \code{"line"}, or
+#'   \code{"pyramid"} (2 groups only).
+#' @param group_labels Character vector with one label per group. Default
+#'   \code{c("Group 1", "Group 2", ...)}.
+#' @param group_colors Character vector of colors, one per group.
+#'   Default cycles through the cograph palette.
 #' @param node_colors Optional. Either a named character vector mapping
 #'   node name to color, an unnamed vector of colors applied in node
 #'   order, or the name of a palette (\code{"cograph"}, \code{"okabe"},
-#'   \code{"viridis"}). When NULL (default), colors are extracted from
-#'   \code{x} when it is an igraph/CographNetwork with node colors;
-#'   otherwise the cograph palette cycles through the nodes.
+#'   \code{"viridis"}). Used by \code{style = "facet"}.
+#' @param sort_by \code{"max"} (default) ranks nodes by highest value
+#'   across groups; \code{"delta"} by range; \code{"first"} by first
+#'   group; \code{"alpha"} alphabetically.
+#' @param top_n Show top N nodes (by \code{sort_by}). Default: all.
+#' @param scale \code{"raw"} (default, native values on each side) or
+#'   \code{"normalized"} (\[0, 1\] within each side before plotting).
+#' @param show_values Logical. Print the value inside each bar.
+#'   Default TRUE.
+#' @param size_by_value Logical. For \code{"dumbbell"} style, scale dot
+#'   size by centrality value. Default FALSE.
+#' @param size_range Numeric vector of length 2 giving the min and max
+#'   dot size (mm) when \code{size_by_value = TRUE}. Default
+#'   \code{c(2, 9)}.
+#' @param orientation Character: \code{"horizontal"} (default, nodes on
+#'   y-axis) or \code{"vertical"} (nodes on x-axis).
+#' @param ncol Number of facet columns for \code{style = "facet"}.
+#'   Default NULL chooses automatically.
 #' @param title Plot title.
 #' @param subtitle Plot subtitle. Auto-generated when NULL.
-#' @param ... Additional arguments passed to \code{\link{centrality}}
-#'   when \code{x} or \code{y} is a network.
+#' @param centrality_args Named list of additional arguments passed to
+#'   \code{\link{centrality}} when inputs are networks.
 #'
 #' @return A ggplot object.
 #' @export
@@ -732,7 +748,7 @@ plot_centrality_compare <- function(...,
   sort_by <- match.arg(sort_by)
   orientation <- match.arg(orientation)
 
-  # Collect networks from ... — each unnamed arg is a network; names (if any)
+  # Collect networks from ... -- each unnamed arg is a network; names (if any)
   # become the group labels.
   nets <- list(...)
   if (length(nets) < 2L) {
@@ -797,10 +813,10 @@ plot_centrality_compare <- function(...,
   # Align on shared node names (intersection across all groups)
   shared_nodes <- Reduce(intersect, lapply(dfs, function(d) d$node))
   if (length(shared_nodes) == 0L) {
-    stop("Inputs share no node names — cannot align.", call. = FALSE)
+    stop("Inputs share no node names -- cannot align.", call. = FALSE)
   }
 
-  # Build long-form data: node × group × value
+  # Build long-form data: node x group x value
   long_list <- lapply(seq_along(dfs), function(i) {
     d <- dfs[[i]]
     d <- d[match(shared_nodes, d$node), , drop = FALSE]
@@ -821,7 +837,7 @@ plot_centrality_compare <- function(...,
     }))
   }
 
-  # Node ordering — computed on the long data so it applies across groups
+  # Node ordering -- computed on the long data so it applies across groups
   wide_vals <- stats::reshape(
     long, direction = "wide", idvar = "node", timevar = "group",
     v.names = "value"
@@ -854,7 +870,7 @@ plot_centrality_compare <- function(...,
                                                       .pretty_measure(measure)),
                               .pretty_measure(measure))
 
-  # Resolve per-node colors for the facet style — colors encode node
+  # Resolve per-node colors for the facet style -- colors encode node
   # identity and are consistent across panels.
   resolved_node_colors <- NULL
   if (style == "facet") {
@@ -896,7 +912,7 @@ plot_centrality_compare <- function(...,
   # Per-facet node ordering: within each group, rank nodes high-to-low so
   # the highest-value node appears at the TOP of the panel (reference-image
   # convention). ggplot2 maps the first factor level to the BOTTOM of a
-  # discrete axis, so we sort ASCENDING here — then the factor level at
+  # discrete axis, so we sort ASCENDING here -- then the factor level at
   # the top is the highest-value node. An axis label formatter strips
   # the "___group" suffix at render time.
   long <- long[order(long$group, long$value), , drop = FALSE]
@@ -909,8 +925,8 @@ plot_centrality_compare <- function(...,
 
   strip_group <- function(x) sub("___.*$", "", x)
 
-  # Fallback node colors if auto-resolve returned NULL (shouldn't happen —
-  # .resolve_node_colors always returns something — but defensive).
+  # Fallback node colors if auto-resolve returned NULL (shouldn't happen --
+  # .resolve_node_colors always returns something -- but defensive).
   if (is.null(node_colors)) {
     uniq <- unique(as.character(long$node))
     node_colors <- stats::setNames(.pick_palette(length(uniq)), uniq)
@@ -1011,7 +1027,7 @@ plot_centrality_compare <- function(...,
 # ---- compare style: stacked ------------------------------------------------
 # One horizontal bar per node, split into two adjacent colored segments
 # for the two groups. Segments are drawn adjacent (not mirrored), so the
-# total bar length is the sum of both group values — common when both
+# total bar length is the sum of both group values -- common when both
 # values are non-negative centralities.
 .cc_stacked <- function(long, group_colors, axis_title, orientation,
                         show_values, title, subtitle) {
@@ -1388,7 +1404,7 @@ plot_centrality_compare <- function(...,
   }
 
   if (is.null(subtitle)) {
-    subtitle <- sprintf("%s  ←←    →→  %s",
+    subtitle <- sprintf("%s  \u2190\u2190    \u2192\u2192  %s",
                         group_labels[1], group_labels[2])
   }
 
@@ -1415,7 +1431,7 @@ plot_centrality_compare <- function(...,
 
 
 # Pick a legible text color (black or white) given a background hex string.
-# Uses WCAG relative-luminance (sRGB gamma ≈ 2.2 approximation).
+# Uses WCAG relative-luminance (sRGB gamma ~2.2 approximation).
 .contrast_text_color <- function(hex) {
   if (is.na(hex) || !nzchar(hex)) return("grey20")
   rgb_vals <- tryCatch(grDevices::col2rgb(hex)[, 1] / 255,
@@ -1426,7 +1442,7 @@ plot_centrality_compare <- function(...,
 
 
 # ============================================================================
-# plot_centrality_heatmap — nodes x measures
+# plot_centrality_heatmap -- nodes x measures
 # ============================================================================
 
 #' Plot Centrality Heatmap
@@ -1445,7 +1461,7 @@ plot_centrality_compare <- function(...,
 #' @param show_values Logical. Print z-scores in cells. Default FALSE.
 #' @param value_digits Decimal places for cell values. Default 1.
 #' @param low,mid,high Color stops for the diverging scale. Defaults to
-#'   blue → white → red.
+#'   blue -> white -> red.
 #' @param limits Numeric c(min, max) z-score range. Values outside are
 #'   squished to the endpoints. Default c(-2.5, 2.5).
 #' @param title,subtitle Plot title and subtitle.

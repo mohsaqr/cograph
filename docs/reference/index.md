@@ -270,6 +270,10 @@
   : Entropy Centrality
 - [`centrality_expected()`](https://sonsoles.me/cograph/reference/centrality_expected.md)
   : Expected Centrality
+- [`centrality_expected_influence_1()`](https://sonsoles.me/cograph/reference/centrality_expected_influence_1.md)
+  : Expected Influence (one-step)
+- [`centrality_expected_influence_2()`](https://sonsoles.me/cograph/reference/centrality_expected_influence_2.md)
+  : Expected Influence (two-step)
 - [`centrality_flow_betweenness()`](https://sonsoles.me/cograph/reference/centrality_flow_betweenness.md)
   : Flow Betweenness Centrality
 - [`centrality_gateway()`](https://sonsoles.me/cograph/reference/centrality_gateway.md)
@@ -456,8 +460,14 @@
   : Convert Network to statnet network Object
 - [`plot_alluvial()`](https://sonsoles.me/cograph/reference/plot_alluvial.md)
   : Plot Alluvial Diagram
+- [`plot_centrality()`](https://sonsoles.me/cograph/reference/plot_centrality.md)
+  : Plot Centrality
+- [`plot_centrality_compare()`](https://sonsoles.me/cograph/reference/plot_centrality_compare.md)
+  : Plot Centrality Comparison (Pyramid)
 - [`plot_centrality_distribution()`](https://sonsoles.me/cograph/reference/plot_centrality_distribution.md)
   : Plot Centrality Distribution
+- [`plot_centrality_heatmap()`](https://sonsoles.me/cograph/reference/plot_centrality_heatmap.md)
+  : Plot Centrality Heatmap
 - [`plot_chord()`](https://sonsoles.me/cograph/reference/plot_chord.md)
   : Chord Diagram
 - [`plot_compare()`](https://sonsoles.me/cograph/reference/plot_compare.md)

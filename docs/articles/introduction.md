@@ -457,53 +457,15 @@ Requires the **Nestimate** package.
 
 | Function | Purpose |
 |----|----|
-| [`build_hon()`](https://rdrr.io/pkg/Nestimate/man/build_hon.html) | Higher-Order Network construction |
-| [`build_hypa()`](https://rdrr.io/pkg/Nestimate/man/build_hypa.html) | Path anomaly detection (hypergeometric null) |
-| [`build_mogen()`](https://rdrr.io/pkg/Nestimate/man/build_mogen.html) | Multi-order model selection (AIC/BIC) |
-| [`path_counts()`](https://rdrr.io/pkg/Nestimate/man/path_counts.html) | k-step path frequencies |
+| `build_hon()` | Higher-Order Network construction |
+| `build_hypa()` | Path anomaly detection (hypergeometric null) |
+| `build_mogen()` | Multi-order model selection (AIC/BIC) |
+| `path_counts()` | k-step path frequencies |
 | [`plot_simplicial()`](https://sonsoles.me/cograph/reference/plot_simplicial.md) | Visualize pathways as blob overlays |
-| [`build_simplicial()`](https://rdrr.io/pkg/Nestimate/man/build_simplicial.html) | Simplicial complex from cliques |
-| [`persistent_homology()`](https://rdrr.io/pkg/Nestimate/man/persistent_homology.html) | Topological persistence across thresholds |
-| [`q_analysis()`](https://rdrr.io/pkg/Nestimate/man/q_analysis.html) | Multi-level structural connectivity |
-| [`verify_simplicial()`](https://rdrr.io/pkg/Nestimate/man/verify_simplicial.html) | Cross-validate via Euler-Poincare theorem |
-
-## Nestimate integration
-
-**Nestimate** estimates networks from sequence data. Its objects
-dispatch through
-[`splot()`](https://sonsoles.me/cograph/reference/splot.md)
-automatically.
-
-``` r
-
-library(Nestimate)
-net <- build_network(data, method = "relative")
-splot(net)
-
-boot <- bootstrap_network(net, iter = 1000)
-splot(boot)
-plot_bootstrap_forest(boot)
-plot_bootstrap_forest(boot, layout = "circular")
-plot_bootstrap_forest(boot, layout = "grouped")
-
-grp <- build_network(data, method = "relative", group = "condition")
-splot(grp)
-
-perm <- permutation_test(grp$A, grp$B, iter = 1000)
-splot(perm)
-```
-
-Estimation methods: `"relative"`, `"frequency"`, `"attention"`,
-`"glasso"`, `"pcor"`, `"co_occurrence"`.
-
-| Object            | splot() produces                                     |
-|-------------------|------------------------------------------------------|
-| `netobject`       | Network plot (TNA styling)                           |
-| `net_bootstrap`   | Stability-styled (solid = stable, dashed = unstable) |
-| `netobject_group` | Multi-panel grid (one per group)                     |
-| `net_permutation` | Colored difference network                           |
-| `boot_glasso`     | GLASSO bootstrap stability                           |
-| `wtna_mixed`      | Mixed window TNA                                     |
+| `build_simplicial()` | Simplicial complex from cliques |
+| `persistent_homology()` | Topological persistence across thresholds |
+| `q_analysis()` | Multi-level structural connectivity |
+| `verify_simplicial()` | Cross-validate via Euler-Poincare theorem |
 
 ## TNA integration
 

@@ -78,25 +78,9 @@ see available themes,
 
 ``` r
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-
-# Apply different themes
 cograph(adj) |> sn_theme("dark") |> splot()
 
-cograph(adj) |> sn_theme("minimal") |> splot()
 
-# Override specific theme properties
+# Override a theme property
 cograph(adj) |> sn_theme("classic", background = "lightgray") |> splot()
-
-# Direct matrix input
-adj |> sn_theme("dark")
-#> Cograph network: 3 nodes, 3 edges ( undirected )
-#> Source: matrix 
-#>   Nodes (3): 1, 2, 3
-#>   Edges: 3 / 3 (density: 100.0%)
-#>   Weights: [1.000, 1.000]  |  mean: 1.000
-#>   Strongest edges:
-#>     1 -- 2  1.000
-#>     1 -- 3  1.000
-#>     2 -- 3  1.000
-#> Layout: set 
 ```

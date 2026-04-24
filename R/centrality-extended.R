@@ -1675,8 +1675,8 @@ calculate_infection <- function(g, beta = 0.8, mu = 0, max_length = 6L) {
 #' with a genuinely central node; expected influence keeps the sign.
 #'
 #' Formulas (Robinaugh et al. 2016):
-#'   EI1(i) = sum_j W[i, j]
-#'   EI2(i) = EI1(i) + sum_j W[i, j] * EI1(j)
+#'   EI1(i) = sum_j W\[i, j\]
+#'   EI2(i) = EI1(i) + sum_j W\[i, j\] * EI1(j)
 #'
 #' `mode` follows the rest of the centrality family: "out" (default) uses
 #' row sums (outgoing weights from i), "in" uses column sums, "all" sums

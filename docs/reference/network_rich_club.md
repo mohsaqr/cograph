@@ -44,10 +44,8 @@ normalized)
 ``` r
 # Scale-free networks often show rich-club effect
 if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::barabasi.game(50, m = 2)
+  g <- igraph::sample_pa(50, m = 2, directed = FALSE)
   network_rich_club(g, k = 5)
 }
-#> Warning: `barabasi.game()` was deprecated in igraph 2.0.0.
-#> ℹ Please use `sample_pa()` instead.
-#> [1] 0.2666667
+#> [1] 0.3090909
 ```

@@ -13,6 +13,7 @@ from_qgraph(
   plot = TRUE,
   weight_digits = 2,
   show_zero_edges = FALSE,
+  preserve_node_size = FALSE,
   ...
 )
 ```
@@ -42,6 +43,11 @@ from_qgraph(
 
   Logical. If TRUE, keep edges even if their weight rounds to zero.
   Default: FALSE.
+
+- preserve_node_size:
+
+  Logical. If TRUE, use the node sizes extracted from the qgraph object.
+  Default FALSE uses cograph's standard sizing.
 
 - ...:
 
@@ -154,11 +160,11 @@ params <- from_qgraph(q, plot = FALSE)
 names(params)  # See what was extracted
 #>  [1] "x"                   "weight_digits"       "layout"             
 #>  [4] "rescale"             "labels"              "node_fill"          
-#>  [7] "node_size"           "node_shape"          "node_border_color"  
-#> [10] "node_border_width"   "label_size"          "label_color"        
-#> [13] "edge_labels"         "edge_label_size"     "edge_style"         
-#> [16] "arrow_size"          "edge_label_position" "threshold"          
-#> [19] "maximum"             "groups"              "directed"           
+#>  [7] "node_shape"          "node_border_color"   "node_border_width"  
+#> [10] "label_size"          "label_color"         "edge_labels"        
+#> [13] "edge_label_size"     "edge_style"          "arrow_size"         
+#> [16] "edge_label_position" "threshold"           "maximum"            
+#> [19] "groups"              "directed"           
 
 # Works with themed qgraph objects
 q_themed <- qgraph::qgraph(adj, theme = "colorblind", posCol = "blue")

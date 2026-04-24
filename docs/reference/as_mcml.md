@@ -82,13 +82,4 @@ m$macro$weights
 #>     G1  G2
 #> G1 0.7 0.3
 #> G2 0.5 0.5
-
-if (FALSE) { # \dontrun{
-# From group_tna with cluster assignments (requires tna + Nestimate)
-seqs <- data.frame(T1 = c("A", "B", "A"), T2 = c("B", "A", "B"))
-mod <- tna::tna(seqs)
-cl <- Nestimate::cluster_data(mod, k = 2)
-gt <- tna::group_model(cl)
-m <- as_mcml(gt, clusters = cl$assignments)
-} # }
 ```

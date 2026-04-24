@@ -334,37 +334,16 @@ count. Nodes are sized proportionally to their total flow.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
 # From a transition matrix
-mat <- matrix(c(50, 10, 5, 15, 40, 10, 5, 20, 30), 3, 3, byrow = TRUE)
-rownames(mat) <- c("Light", "Resource", "Intense")
-colnames(mat) <- c("Light", "PBL", "Resource")
+mat <- matrix(c(50, 10, 5, 15, 40, 10, 5, 20, 30), 3, 3, byrow = TRUE,
+              dimnames = list(c("Light","Resource","Intense"),
+                              c("Light","PBL","Resource")))
 plot_transitions(mat, from_title = "Time 1", to_title = "Time 2")
 
-# From a 2-column data frame - auto-computes contingency table
-before <- c("A", "A", "B", "B", "A", "C", "B", "C")
-after <- c("X", "Y", "X", "Z", "X", "Y", "Z", "X")
-df <- data.frame(time1 = before, time2 = after)
-plot_transitions(df, from_title = "Time 1", to_title = "Time 2")
 
-# Custom colors
-plot_transitions(mat,
-  from_colors = c("#FFD166", "#06D6A0", "#9D4EDD"),
-  to_colors = c("#FFD166", "#EF476F", "#06D6A0")
-)
-} # }
+# From a 2-column data frame (auto-contingency)
+df <- data.frame(time1 = c("A","A","B","B","C"),
+                 time2 = c("X","Y","X","Z","Y"))
+plot_transitions(df)
 
-if (FALSE) { # \dontrun{
-# Multi-step transitions (list of matrices)
-mat1 <- matrix(c(40, 10, 5, 15, 35, 5, 5, 15, 25), 3, 3, byrow = TRUE,
-               dimnames = list(c("A","B","C"), c("A","B","C")))
-mat2 <- matrix(c(35, 15, 5, 10, 30, 10, 10, 10, 30), 3, 3, byrow = TRUE,
-               dimnames = list(c("A","B","C"), c("A","B","C")))
-mat3 <- matrix(c(30, 20, 5, 5, 25, 15, 15, 5, 35), 3, 3, byrow = TRUE,
-               dimnames = list(c("A","B","C"), c("A","B","C")))
-plot_transitions(list(mat1, mat2, mat3),
-  from_title = c("T1", "T2", "T3", "T4"),
-  show_totals = TRUE
-)
-} # }
 ```

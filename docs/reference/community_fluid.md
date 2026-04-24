@@ -57,9 +57,9 @@ com_fl(net, no.of.communities = 2)
 #>   Sizes: 1, 4 
 #> 
 #>  node community
-#>     1         2
+#>     1         1
 #>     2         2
 #>     3         2
 #>     4         2
-#>     5         1
+#>     5         2
 ```

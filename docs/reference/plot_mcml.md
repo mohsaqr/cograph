@@ -4,11 +4,12 @@ Produces a two-layer hierarchical visualization of a clustered network.
 The **bottom layer** shows every node arranged inside elliptical cluster
 shells with full within-cluster and between-cluster edges drawn at the
 individual-node level. The **top layer** collapses each cluster into a
-single summary pie-chart node whose colored slice represents the
-proportion of within-cluster flow, with edges carrying the aggregated
-between-cluster weights. Dashed inter-layer lines connect each detail
-node to its corresponding summary node, making the hierarchical mapping
-explicit.
+single summary pie-chart node whose colored slice represents, by
+default, the cluster's share of the initial state distribution (see
+`summary_pie` for the alternative self-retention interpretation), with
+edges carrying the aggregated between-cluster weights. Dashed
+inter-layer lines connect each detail node to its corresponding summary
+node, making the hierarchical mapping explicit.
 
 ## Usage
 
@@ -46,6 +47,7 @@ plot_mcml(
   summary_label_color = "gray20",
   summary_arrows = TRUE,
   summary_arrow_size = 0.1,
+  summary_pie = c("inits", "self"),
   between_arrows = FALSE,
   edge_width_range = c(0.3, 1.3),
   between_edge_width_range = c(0.5, 2),
@@ -291,6 +293,24 @@ plot_mcml(
 - summary_arrow_size:
 
   Size of arrowheads on summary edges. Default 0.10.
+
+- summary_pie:
+
+  Character scalar controlling what the colored slice of the top-layer
+  pie chart represents. One of:
+
+  `"inits"`
+
+  :   (default) The cluster's share of the initial state distribution
+      (`cs$macro$inits[i]`). Answers "how often do sequences start in
+      this cluster?" Summed across clusters the colored slices equal 1.
+
+  `"self"`
+
+  :   The cluster's self-retention share of out-strength
+      (`bw[i, i] / rowSums(bw)[i]`). Answers "how sticky is this cluster
+      — how much of its outgoing flow loops back to itself?" Each pie is
+      normalized independently.
 
 - between_arrows:
 
@@ -554,83 +574,14 @@ for algorithmic cluster detection
 ## Examples
 
 ``` r
-# --- Setup: create a test matrix ---
-mat <- matrix(runif(36), 6, 6)
-diag(mat) <- 0
+mat <- matrix(runif(36), 6, 6); diag(mat) <- 0
 colnames(mat) <- rownames(mat) <- LETTERS[1:6]
-
-clusters <- list(
-  Cluster1 = c("A", "B"),
-  Cluster2 = c("C", "D"),
-  Cluster3 = c("E", "F")
-)
-
-# 1. Basic usage — pass matrix + clusters directly
+clusters <- list(C1 = c("A","B"), C2 = c("C","D"), C3 = c("E","F"))
 plot_mcml(mat, clusters)
 
-
-# 2. Pre-compute with cluster_summary for reuse
+# \donttest{
 cs <- cluster_summary(mat, clusters)
-plot_mcml(cs)
+plot_mcml(cs, mode = "tna", edge_labels = TRUE)
 
-
-if (FALSE) { # \dontrun{
-# 3. TNA mode — transition probabilities with edge labels
-plot_mcml(mat, clusters, mode = "tna")
-
-# 4. Custom shapes — different shape per cluster
-plot_mcml(mat, clusters,
-  node_shape = "diamond",
-  cluster_shape = c("circle", "square", "triangle")
-)
-
-# 5. Styling — custom colors, transparency, edge widths
-plot_mcml(mat, clusters,
-  colors = c("#1b9e77", "#d95f02", "#7570b3"),
-  edge_alpha = 0.5,
-  between_edge_alpha = 0.8,
-  shell_alpha = 0.25,
-  edge_width_range = c(0.5, 2.0)
-)
-
-# 6. Edge labels on both layers
-plot_mcml(mat, clusters,
-  edge_labels = TRUE,
-  summary_edge_labels = TRUE,
-  edge_label_digits = 1
-)
-
-# 7. Layout tuning — adjust spacing, perspective, and layer gap
-plot_mcml(mat, clusters,
-  spacing = 4,
-  skew_angle = 45,
-  top_layer_scale = c(1.0, 0.3),
-  inter_layer_gap = 0.8
-)
-
-# 8. With mean aggregation for size-normalized comparison
-plot_mcml(mat, clusters,
-  aggregation = "mean",
-  title = "Mean-aggregated cluster network"
-)
-
-# 9. Label abbreviation for dense networks
-big_mat <- matrix(runif(400), 20, 20)
-diag(big_mat) <- 0
-colnames(big_mat) <- rownames(big_mat) <- paste0("Node_", 1:20)
-big_clusters <- list(
-  Alpha = paste0("Node_", 1:7),
-  Beta  = paste0("Node_", 8:14),
-  Gamma = paste0("Node_", 15:20)
-)
-plot_mcml(big_mat, big_clusters, label_abbrev = "auto")
-
-# 10. Minimal clean plot — no legend, no labels, no arrows
-plot_mcml(mat, clusters,
-  legend = FALSE,
-  show_labels = FALSE,
-  summary_labels = FALSE,
-  summary_arrows = FALSE
-)
-} # }
+# }
 ```

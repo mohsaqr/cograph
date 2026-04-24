@@ -120,19 +120,19 @@ g <- igraph::make_graph("Zachary")
 comm <- community_spinglass(g)
 membership(comm)
 #>  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 
-#>  4  4  4  4  1  1  1  4  3  4  1  4  4  4  3  3  1  4  3  4  3  4  3  3  2  2 
+#>  4  4  4  4  3  3  3  4  1  4  3  4  4  4  1  1  3  4  1  4  1  4  1  2  2  2 
 #> 27 28 29 30 31 32 33 34 
-#>  3  3  2  3  3  2  3  3 
+#>  1  2  2  1  1  2  1  1 
 net <- as_cograph(matrix(runif(25), 5, 5))
 com_sg(net)
 #> Community structure (spinglass)
-#>   Nodes: 5  | Communities: 2  | Modularity: 0.0362 
-#>   Sizes: 2, 3 
+#>   Nodes: 5  | Communities: 2  | Modularity: 0.0164 
+#>   Sizes: 3, 2 
 #> 
 #>  node community
 #>     1         2
 #>     2         2
-#>     3         2
+#>     3         1
 #>     4         1
 #>     5         1
 ```

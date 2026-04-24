@@ -26,9 +26,8 @@ The input object `x`, invisibly.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 net <- cograph(adj)
 plot(net)
-} # }
+
 ```

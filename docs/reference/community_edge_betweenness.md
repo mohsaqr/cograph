@@ -96,13 +96,13 @@ net <- as_cograph(matrix(runif(25), 5, 5))
 com_eb(net)
 #> Warning: At vendor/cigraph/src/community/edge_betweenness.c:504 : Membership vector will be selected based on the highest modularity score.
 #> Community structure (edge_betweenness)
-#>   Nodes: 5  | Communities: 2  | Modularity: 0.0167 
-#>   Sizes: 1, 4 
+#>   Nodes: 5  | Communities: 5  | Modularity: 0.0244 
+#>   Sizes: 1, 1, 1, 1, 1 
 #> 
 #>  node community
 #>     1         1
 #>     2         2
-#>     3         2
-#>     4         2
-#>     5         2
+#>     3         3
+#>     4         4
+#>     5         5
 ```

@@ -74,49 +74,28 @@ The modified cograph_network object with `node_groups` set.
 ## Examples
 
 ``` r
-# Create network (symmetric for community detection)
+set.seed(1)
 mat <- matrix(runif(100), 10, 10)
-mat <- (mat + t(mat)) / 2  # Make symmetric (undirected)
-diag(mat) <- 0
+mat <- (mat + t(mat)) / 2; diag(mat) <- 0
 rownames(mat) <- colnames(mat) <- paste0("N", 1:10)
 net <- as_cograph(mat)
-
-# Using vectors (recommended)
-net <- set_groups(net,
-  nodes = paste0("N", 1:10),
-  layers = c(rep("Macro", 3), rep("Meso", 4), rep("Micro", 3))
-)
 
 # Named list -> layers
 net <- set_groups(net, list(
   Macro = paste0("N", 1:3),
-  Meso = paste0("N", 4:7),
+  Meso  = paste0("N", 4:7),
   Micro = paste0("N", 8:10)
 ), type = "layer")
-
-# Vector -> clusters
-net <- set_groups(net, c("A", "A", "A", "B", "B", "B", "C", "C", "C", "C"),
-                  type = "cluster")
-
-# Community detection -> groups
-net <- set_groups(net, "louvain", type = "group")
-
-# Data frame with explicit columns
-df <- data.frame(nodes = paste0("N", 1:10),
-                 layers = rep(c("Top", "Bottom"), each = 5))
-net <- set_groups(net, df)
-
-# Check groups
 get_groups(net)
-#>    node  layer
-#> 1    N1    Top
-#> 2    N2    Top
-#> 3    N3    Top
-#> 4    N4    Top
-#> 5    N5    Top
-#> 6    N6 Bottom
-#> 7    N7 Bottom
-#> 8    N8 Bottom
-#> 9    N9 Bottom
-#> 10  N10 Bottom
+#>    node layer
+#> 1    N1 Macro
+#> 2    N2 Macro
+#> 3    N3 Macro
+#> 4    N4  Meso
+#> 5    N5  Meso
+#> 6    N6  Meso
+#> 7    N7  Meso
+#> 8    N8 Micro
+#> 9    N9 Micro
+#> 10  N10 Micro
 ```

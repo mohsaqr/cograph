@@ -170,8 +170,6 @@ plot_tna(m, vsize = 15, edge.label.cex = 2, layout = "circle")
 plot_tna(m, color = rainbow(5), vsize = 10)
 
 
-if (FALSE) { # \dontrun{
 m <- matrix(runif(25), 5, 5)
 tplot(m)
-} # }
 ```

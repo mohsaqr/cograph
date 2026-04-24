@@ -30,9 +30,10 @@ Invisibly returns `x`.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-net <- Nestimate::build_network(data, method = "tna")
-cs <- Nestimate::centrality_stability(net, iter = 100)
+set.seed(1)
+seqs <- data.frame(T1 = sample(c("A","B","C"), 30, replace = TRUE),
+                   T2 = sample(c("A","B","C"), 30, replace = TRUE))
+net <- Nestimate::build_network(seqs, method = "tna")
+cs <- Nestimate::centrality_stability(net, iter = 10)
 plot_net_stability(cs)
-} # }
 ```

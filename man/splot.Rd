@@ -470,6 +470,9 @@ curve as ellipse (two opposing curves); FALSE = all straight; "force" = all curv
 
 \item{loop_rotation}{Angle(s) in radians for self-loop direction.}
 
+\item{show}{Dispatch-only placeholder used by method dispatch (e.g.,
+\code{splot.tna_disparity}). Not intended for direct use.}
+
 \item{edge_start_style}{Style for the start segment of edges: "solid" (default),
 "dashed", or "dotted". Use dashed/dotted to indicate edge direction (source node).}
 

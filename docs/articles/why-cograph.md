@@ -181,36 +181,12 @@ data frame:
 ``` r
 
 centrality(net, digits = 3)
-#>    node degree_all strength_all closeness_all eccentricity_all coreness_all
-#> 1  Read          6          2.5          1.25              0.3            6
-#> 2 Write          8          2.8          1.00              0.3            6
-#> 3  Plan          8          3.4          1.00              0.4            6
-#> 4  Code          7          3.3          1.25              0.3            6
-#> 5  Test          7          3.6          1.00              0.4            6
-#>   harmonic_all diffusion_all leverage_all kreach_all alpha_all power_all
-#> 1       26.667            36       -0.110          4    -0.835    -0.885
-#> 2       20.000            36        0.069          4    -1.195    -1.046
-#> 3       20.833            36        0.069          4    -1.772    -1.046
-#> 4       23.333            36       -0.014          4    -2.225    -0.966
-#> 5       20.833            36       -0.014          4    -2.366    -1.046
-#>   betweenness eigenvector pagerank authority   hub constraint transitivity
-#> 1         3.0       0.582    0.151     0.540 0.736      0.761        0.400
-#> 2         3.5       0.674    0.172     0.666 0.800      0.773        0.214
-#> 3         5.0       0.882    0.216     0.956 0.725      0.658        0.214
-#> 4         4.0       0.966    0.222     1.000 0.763      0.761        0.286
-#> 5         0.0       1.000    0.240     0.872 1.000      0.711        0.286
-#>   subgraph laplacian load current_flow_closeness current_flow_betweenness
-#> 1  212.537        88 12.0                  0.765                    0.221
-#> 2  329.433       128 12.5                  0.861                    0.270
-#> 3  329.433       128 14.0                  0.917                    0.312
-#> 4  274.892       102 13.0                  0.898                    0.201
-#> 5  274.892       114  9.0                  0.960                    0.313
-#>   voterank percolation
-#> 1      0.4       0.250
-#> 2      1.0       0.292
-#> 3      0.8       0.417
-#> 4      0.6       0.333
-#> 5      0.2       0.000
+#>    node degree_all strength_all closeness_all betweenness eigenvector pagerank
+#> 1  Read          6          2.5          1.25         3.0       0.582    0.151
+#> 2 Write          8          2.8          1.00         3.5       0.674    0.172
+#> 3  Plan          8          3.4          1.00         5.0       0.882    0.216
+#> 4  Code          7          3.3          1.25         4.0       0.966    0.222
+#> 5  Test          7          3.6          1.00         0.0       1.000    0.240
 ```
 
 That includes degree, strength, betweenness, closeness, PageRank,
@@ -266,25 +242,44 @@ centrality(net, measures = c("degree", "betweenness", "pagerank"),
 ``` r
 
 edge_centrality(net, sort_by = "betweenness", digits = 3)
-#>     from    to weight betweenness
-#> 1   Code  Plan    0.2         8.0
-#> 2   Read  Code    0.1         7.0
-#> 3   Plan Write    0.1         6.5
-#> 4  Write  Read    0.3         4.0
-#> 5   Test  Read    0.1         3.0
-#> 6  Write  Test    0.4         2.5
-#> 7   Plan  Test    0.5         1.5
-#> 8   Test Write    0.3         1.0
-#> 9  Write  Plan    0.2         1.0
-#> 10  Plan  Code    0.3         1.0
-#> 11  Plan  Read    0.7         0.0
-#> 12  Read Write    0.5         0.0
-#> 13  Code Write    0.4         0.0
-#> 14  Read  Plan    0.8         0.0
-#> 15  Test  Plan    0.6         0.0
-#> 16 Write  Code    0.6         0.0
-#> 17  Test  Code    0.8         0.0
-#> 18  Code  Test    0.9         0.0
+#>     from    to weight betweenness overlap shared_neighbors triangles
+#> 1   Code  Plan    0.2         8.0       1                3         3
+#> 2   Read  Code    0.1         7.0       1                3         3
+#> 3   Plan Write    0.1         6.5       1                3         3
+#> 4  Write  Read    0.3         4.0       1                3         3
+#> 5   Test  Read    0.1         3.0       1                3         3
+#> 6  Write  Test    0.4         2.5       1                3         3
+#> 7   Plan  Test    0.5         1.5       1                3         3
+#> 8   Test Write    0.3         1.0       1                3         3
+#> 9  Write  Plan    0.2         1.0       1                3         3
+#> 10  Plan  Code    0.3         1.0       1                3         3
+#> 11  Plan  Read    0.7         0.0       1                3         3
+#> 12  Read Write    0.5         0.0       1                3         3
+#> 13  Code Write    0.4         0.0       1                3         3
+#> 14  Read  Plan    0.8         0.0       1                3         3
+#> 15  Test  Plan    0.6         0.0       1                3         3
+#> 16 Write  Code    0.6         0.0       1                3         3
+#> 17  Test  Code    0.8         0.0       1                3         3
+#> 18  Code  Test    0.9         0.0       1                3         3
+#>    reciprocated reverse_weight weight_ratio
+#> 1          TRUE            0.3        1.500
+#> 2         FALSE             NA           NA
+#> 3          TRUE            0.2        2.000
+#> 4          TRUE            0.5        1.667
+#> 5         FALSE             NA           NA
+#> 6          TRUE            0.3        0.750
+#> 7          TRUE            0.6        1.200
+#> 8          TRUE            0.4        1.333
+#> 9          TRUE            0.1        0.500
+#> 10         TRUE            0.2        0.667
+#> 11         TRUE            0.8        1.143
+#> 12         TRUE            0.3        0.600
+#> 13         TRUE            0.6        1.500
+#> 14         TRUE            0.7        0.875
+#> 15         TRUE            0.5        0.833
+#> 16         TRUE            0.4        0.667
+#> 17         TRUE            0.9        1.125
+#> 18         TRUE            0.8        0.889
 ```
 
 ### Network-level summary
@@ -321,10 +316,15 @@ sym <- (mat + t(mat)) / 2
 diag(sym) <- 0
 cograph::communities(sym)
 #> Community structure (louvain)
-#>   Number of communities: 2 
-#>   Modularity: 0.0985 
-#>   Community sizes: 2, 3 
-#>   Nodes: 5
+#>   Nodes: 5  | Communities: 2  | Modularity: 0.0985 
+#>   Sizes: 2, 3 
+#> 
+#>   node community
+#>   Read         1
+#>  Write         2
+#>   Plan         1
+#>   Code         2
+#>   Test         2
 ```
 
 Pick a different algorithm by name, or use two-letter shorthands:
@@ -333,22 +333,37 @@ Pick a different algorithm by name, or use two-letter shorthands:
 
 cograph::communities(sym, method = "walktrap")
 #> Community structure (walktrap)
-#>   Number of communities: 2 
-#>   Modularity: 0.0985 
-#>   Community sizes: 2, 3 
-#>   Nodes: 5
+#>   Nodes: 5  | Communities: 2  | Modularity: 0.0985 
+#>   Sizes: 2, 3 
+#> 
+#>   node community
+#>   Read         1
+#>  Write         2
+#>   Plan         1
+#>   Code         2
+#>   Test         2
 com_fg(sym)   # fast greedy
 #> Community structure (fast_greedy)
-#>   Number of communities: 2 
-#>   Modularity: 0.0985 
-#>   Community sizes: 3, 2 
-#>   Nodes: 5
+#>   Nodes: 5  | Communities: 2  | Modularity: 0.0985 
+#>   Sizes: 3, 2 
+#> 
+#>   node community
+#>   Read         2
+#>  Write         1
+#>   Plan         2
+#>   Code         1
+#>   Test         1
 com_im(mat)   # infomap (works on directed too)
 #> Community structure (infomap)
-#>   Number of communities: 1 
-#>   Modularity: 0 
-#>   Community sizes: 5 
-#>   Nodes: 5
+#>   Nodes: 5  | Communities: 1  | Modularity: 0 
+#>   Sizes: 5 
+#> 
+#>   node community
+#>   Read         1
+#>  Write         1
+#>   Plan         1
+#>   Code         1
+#>   Test         1
 ```
 
 If you just want a node-to-community data frame:
@@ -356,12 +371,16 @@ If you just want a node-to-community data frame:
 ``` r
 
 detect_communities(sym, method = "walktrap")
-#>    node community
-#> 1  Read         1
-#> 2 Write         2
-#> 3  Plan         1
-#> 4  Code         2
-#> 5  Test         2
+#> Community structure (walktrap)
+#>   Nodes: 5  | Communities: 2  | Modularity: 0.0985 
+#>   Sizes: 2, 3 
+#> 
+#>   node community
+#>   Read         1
+#>  Write         2
+#>   Plan         1
+#>   Code         2
+#>   Test         2
 ```
 
 ### Quality and significance
@@ -426,10 +445,15 @@ matrix:
 
 com_consensus(mat, method = "infomap", n_runs = 50, seed = 1)
 #> Community structure (consensus_infomap)
-#>   Number of communities: 1 
-#>   Modularity: 0 
-#>   Community sizes: 5 
-#>   Nodes: 5
+#>   Nodes: 5  | Communities: 1  | Modularity: 0 
+#>   Sizes: 5 
+#> 
+#>   node community
+#>   Read         1
+#>  Write         1
+#>   Plan         1
+#>   Code         1
+#>   Test         1
 ```
 
 ## Format interoperability
@@ -514,13 +538,25 @@ model:
 
 motif_census(mat, n_random = 100)
 #> Network Motif Analysis
-#> Size: 3-node motifs (directed)
-#> Null model: configuration (n=100)
+#> Size: 3-node motifs (directed) | Null: configuration (n=100)
 #> 
-#> Significant motifs:
-#>  motif count expected     z      p
-#>    210     4      1.4  2.02  0.044
-#>    300     5      0.1 12.57 <2e-16
+#>  motif count null_mean   null_sd    z_score      p_value significant
+#>    003     0      0.00 0.0000000  0.0000000 1.000000e+00       FALSE
+#>    012     0      0.00 0.0000000  0.0000000 1.000000e+00       FALSE
+#>    102     0      0.16 0.3684529 -0.4342481 6.641083e-01       FALSE
+#>   021D     0      0.00 0.0000000  0.0000000 1.000000e+00       FALSE
+#>   021U     0      0.76 0.8775540 -0.8660436 3.864663e-01       FALSE
+#>   021C     0      1.22 0.8358145 -1.4596540 1.443852e-01       FALSE
+#>   111D     0      0.17 0.4033947 -0.4214235 6.734459e-01       FALSE
+#>   111U     0      0.32 0.6798693 -0.4706787 6.378702e-01       FALSE
+#>   030T     0      0.42 0.5160064 -0.8139434 4.156774e-01       FALSE
+#>   030C     0      1.21 0.9774736 -1.2378852 2.157586e-01       FALSE
+#>    201     0      0.70 1.0396192 -0.6733235 5.007415e-01       FALSE
+#>   120D     0      0.73 0.8147008 -0.8960345 3.702343e-01       FALSE
+#>   120U     1      1.63 1.3755073 -0.4580129 6.469432e-01       FALSE
+#>   120C     0      0.36 0.5599423 -0.6429234 5.202738e-01       FALSE
+#>    210     4      1.16 1.1696499  2.4280771 1.517912e-02        TRUE
+#>    300     5      0.25 0.5000000  9.5000000 2.098903e-21        TRUE
 #> 
 #> Over-represented: 2 | Under-represented: 0
 ```
@@ -595,7 +631,8 @@ present, the cograph name wins.
 
 ### Nestimate integration
 
-cograph also plots [Nestimate](https://cran.r-project.org/web/packages/Nestimate/index.html)
+cograph also plots
+[Nestimate](https://cran.r-project.org/web/packages/Nestimate/index.html)
 objects (bootstrap forests, permutation results, glasso networks)
 without importing the package — dispatch is by class name only.
 

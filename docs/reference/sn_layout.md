@@ -92,36 +92,10 @@ plotting
 
 ``` r
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-
-# Built-in layouts
 cograph(adj) |> sn_layout("circle") |> splot()
-
-cograph(adj) |> sn_layout("spring") |> splot()
-
-
-# igraph layouts (if igraph installed)
-if (requireNamespace("igraph", quietly = TRUE)) {
-  cograph(adj) |> sn_layout("kk") |> splot()
-  cograph(adj) |> sn_layout("fr") |> splot()
-}
-
 
 
 # Custom coordinates
 coords <- matrix(c(0, 0, 1, 0, 0.5, 1), ncol = 2, byrow = TRUE)
 cograph(adj) |> sn_layout(coords) |> splot()
-
-
-# Direct matrix input (auto-converts)
-adj |> sn_layout("circle")
-#> Cograph network: 3 nodes, 3 edges ( undirected )
-#> Source: matrix 
-#>   Nodes (3): 1, 2, 3
-#>   Edges: 3 / 3 (density: 100.0%)
-#>   Weights: [1.000, 1.000]  |  mean: 1.000
-#>   Strongest edges:
-#>     1 -- 2  1.000
-#>     1 -- 3  1.000
-#>     2 -- 3  1.000
-#> Layout: set 
 ```

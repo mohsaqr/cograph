@@ -181,114 +181,12 @@ data frame:
 ``` r
 
 centrality(net, digits = 3)
-#>    node degree_all strength_all closeness_all eccentricity_all coreness_all
-#> 1  Read          6          2.5          1.25              0.3            6
-#> 2 Write          8          2.8          1.00              0.3            6
-#> 3  Plan          8          3.4          1.00              0.4            6
-#> 4  Code          7          3.3          1.25              0.3            6
-#> 5  Test          7          3.6          1.00              0.4            6
-#>   harmonic_all diffusion_all leverage_all kreach_all alpha_all power_all
-#> 1       26.667            36       -0.110          4    -0.835    -0.885
-#> 2       20.000            36        0.069          4    -1.195    -1.046
-#> 3       20.833            36        0.069          4    -1.772    -1.046
-#> 4       23.333            36       -0.014          4    -2.225    -0.966
-#> 5       20.833            36       -0.014          4    -2.366    -1.046
-#>   radiality_all lin_all decay_all residual_closeness_all dangalchev_all
-#> 1          2.05      20     4.491                  4.491          4.491
-#> 2          2.00      16     4.370                  4.370          4.370
-#> 3          2.00      16     4.374                  4.374          4.374
-#> 4          2.05      20     4.486                  4.486          4.486
-#> 5          2.00      16     4.374                  4.374          4.374
-#>   generalized_closeness_all harary_all average_distance_all barycenter_all
-#> 1                     4.491    222.222                0.133           1.25
-#> 2                     4.370    133.333                0.167           1.00
-#> 3                     4.374    142.361                0.167           1.00
-#> 4                     4.486    161.111                0.133           1.25
-#> 5                     4.374    142.361                0.167           1.00
-#>   wiener_all lobby_all entropy_all semilocal_all clusterrank_all bottleneck_all
-#> 1        0.8         6           2           184          20.800              2
-#> 2        1.0         7           2           224          13.714              4
-#> 3        1.0         7           2           224          13.714              4
-#> 4        0.8         7           2           208          16.857              3
-#> 5        1.0         7           2           208          16.857              3
-#>   centroid_all mnc_all dmnc_all lac_all closeness_vitality_all integration_all
-#> 1            0       4    0.189   4.000                    0.8               6
-#> 2           -1       4    0.189   2.500                    2.0               6
-#> 3           -1       4    0.189   2.500                    1.8               6
-#> 4           -1       4    0.568   3.143                    1.4               6
-#> 5           -2       4    0.568   3.143                    2.0               6
-#>   expected_all gilschmidt_all participation_all within_module_z_all gateway_all
-#> 1           30              1                NA                  NA          NA
-#> 2           28              1                NA                  NA          NA
-#> 3           28              1                NA                  NA          NA
-#> 4           29              1                NA                  NA          NA
-#> 5           29              1                NA                  NA          NA
-#>   gravity_all collective_influence_all local_hindex_all hindex_strength_all
-#> 1         180                        0                6                   3
-#> 2         168                        0                6                   3
-#> 3         168                        0                6                   3
-#> 4         174                        0                6                   3
-#> 5         174                        0                6                   3
-#>   onion_all reaching_local_all betweenness eigenvector pagerank authority   hub
-#> 1         1              0.625         3.0       0.582    0.151     0.540 0.736
-#> 2         2              0.462         3.5       0.674    0.172     0.666 0.800
-#> 3         2              0.612         5.0       0.882    0.216     0.956 0.725
-#> 4         2              0.600         4.0       0.966    0.222     1.000 0.763
-#> 5         2              0.587         0.0       1.000    0.240     0.872 1.000
-#>   constraint transitivity subgraph laplacian load current_flow_closeness
-#> 1      0.761        0.400  212.537        88 12.0                  0.765
-#> 2      0.773        0.214  329.433       128 12.5                  0.861
-#> 3      0.658        0.214  329.433       128 14.0                  0.917
-#> 4      0.761        0.286  274.892       102 13.0                  0.898
-#> 5      0.711        0.286  274.892       114  9.0                  0.960
-#>   current_flow_betweenness voterank percolation stress flow_betweenness
-#> 1                    0.221      0.4       0.250      0              5.0
-#> 2                    0.270      1.0       0.292      2              5.9
-#> 3                    0.312      0.8       0.417      2              7.3
-#> 4                    0.201      0.6       0.333      1              5.4
-#> 5                    0.313      0.2       0.000      1              6.2
-#>   communicability communicability_betweenness random_walk
-#> 1          31.171                       0.358       0.055
-#> 2          39.790                       0.585       0.066
-#> 3          39.790                       0.582       0.066
-#> 4          32.960                       0.530       0.064
-#> 5          39.790                       0.466       0.059
-#>   topological_coefficient bridging local_bridging effective_size diversity
-#> 1                   1.667    0.636          0.035              3     0.868
-#> 2                   1.375    0.379          0.014              5     0.952
-#> 3                   1.375    0.541          0.014              5     0.916
-#> 4                   1.536    0.600          0.021              4     0.903
-#> 5                   1.536    0.000          0.021              4     0.927
-#>   cross_clique markov salsa leaderrank trophic_level second_order infection
-#> 1           16  0.238  0.75      0.869            NA        0.500   219.533
-#> 2           16  0.362  1.00      1.078            NA        0.129   184.781
-#> 3           16  0.362  1.00      1.078            NA        0.129   184.781
-#> 4           16  0.339  1.00      1.042            NA        0.125   203.821
-#> 5           16  0.279  0.75      0.934            NA        0.545   203.821
-#>   nonbacktracking spanning_tree  katz hubbell information pairwisedis
-#> 1           0.846         1.973 1.132   4.280       0.945         0.4
-#> 2           0.948         2.382 1.154   4.582       1.072         0.4
-#> 3           0.948         2.273 1.211   4.743       1.143         0.4
-#> 4           0.836         1.961 1.214   4.740       1.093         0.4
-#> 5           1.000         2.443 1.216   5.220       1.152         0.4
-#>   prestige_domain prestige_domain_proximity brokerage_coordinator
-#> 1               4                       0.8                    NA
-#> 2               4                       1.0                    NA
-#> 3               4                       1.0                    NA
-#> 4               4                       1.0                    NA
-#> 5               4                       0.8                    NA
-#>   brokerage_itinerant brokerage_representative brokerage_gatekeeper
-#> 1                  NA                       NA                   NA
-#> 2                  NA                       NA                   NA
-#> 3                  NA                       NA                   NA
-#> 4                  NA                       NA                   NA
-#> 5                  NA                       NA                   NA
-#>   brokerage_liaison
-#> 1                NA
-#> 2                NA
-#> 3                NA
-#> 4                NA
-#> 5                NA
+#>    node degree_all strength_all closeness_all betweenness eigenvector pagerank
+#> 1  Read          6          2.5          1.25         3.0       0.582    0.151
+#> 2 Write          8          2.8          1.00         3.5       0.674    0.172
+#> 3  Plan          8          3.4          1.00         5.0       0.882    0.216
+#> 4  Code          7          3.3          1.25         4.0       0.966    0.222
+#> 5  Test          7          3.6          1.00         0.0       1.000    0.240
 ```
 
 That includes degree, strength, betweenness, closeness, PageRank,
@@ -647,18 +545,18 @@ motif_census(mat, n_random = 100)
 #>    012     0      0.00 0.0000000  0.0000000 1.000000e+00       FALSE
 #>    102     0      0.16 0.3684529 -0.4342481 6.641083e-01       FALSE
 #>   021D     0      0.00 0.0000000  0.0000000 1.000000e+00       FALSE
-#>   021U     0      0.77 0.8973024 -0.8581277 3.908220e-01       FALSE
-#>   021C     0      1.26 1.0112499 -1.2459829 2.127707e-01       FALSE
-#>   111D     0      0.13 0.3666667 -0.3545455 7.229301e-01       FALSE
-#>   111U     0      0.35 0.5751592 -0.6085272 5.428379e-01       FALSE
-#>   030T     0      0.38 0.6159496 -0.6169336 5.372785e-01       FALSE
-#>   030C     0      1.14 0.8647999 -1.3182241 1.874286e-01       FALSE
-#>    201     0      0.84 1.1434486 -0.7346198 4.625711e-01       FALSE
-#>   120D     0      0.64 0.7722458 -0.8287516 4.072450e-01       FALSE
-#>   120U     1      1.58 1.2405603 -0.4675307 6.401203e-01       FALSE
-#>   120C     0      0.29 0.5373899 -0.5396454 5.894416e-01       FALSE
-#>    210     4      1.39 1.2940813  2.0168748 4.370858e-02        TRUE
-#>    300     5      0.15 0.3859921 12.5650241 3.287749e-36        TRUE
+#>   021U     0      0.76 0.8775540 -0.8660436 3.864663e-01       FALSE
+#>   021C     0      1.22 0.8358145 -1.4596540 1.443852e-01       FALSE
+#>   111D     0      0.17 0.4033947 -0.4214235 6.734459e-01       FALSE
+#>   111U     0      0.32 0.6798693 -0.4706787 6.378702e-01       FALSE
+#>   030T     0      0.42 0.5160064 -0.8139434 4.156774e-01       FALSE
+#>   030C     0      1.21 0.9774736 -1.2378852 2.157586e-01       FALSE
+#>    201     0      0.70 1.0396192 -0.6733235 5.007415e-01       FALSE
+#>   120D     0      0.73 0.8147008 -0.8960345 3.702343e-01       FALSE
+#>   120U     1      1.63 1.3755073 -0.4580129 6.469432e-01       FALSE
+#>   120C     0      0.36 0.5599423 -0.6429234 5.202738e-01       FALSE
+#>    210     4      1.16 1.1696499  2.4280771 1.517912e-02        TRUE
+#>    300     5      0.25 0.5000000  9.5000000 2.098903e-21        TRUE
 #> 
 #> Over-represented: 2 | Under-represented: 0
 ```
@@ -733,13 +631,14 @@ present, the cograph name wins.
 
 ### Nestimate integration
 
-cograph also plots [Nestimate](https://cran.r-project.org/web/packages/Nestimate/index.html)
+cograph also plots
+[Nestimate](https://cran.r-project.org/web/packages/Nestimate/index.html)
 objects (bootstrap forests, permutation results, glasso networks)
 without importing the package — dispatch is by class name only.
 
 ## Summary
 
-`cograph` is not trying to replace igraph’s graph algorithms or
+cograph is not trying to replace igraph’s graph algorithms or
 tidygraph’s data manipulation. It fills a different gap: going from data
 to a filtered, annotated, publication-ready network figure with minimal
 code, while staying interoperable with everything else in the R network

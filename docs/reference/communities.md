@@ -148,32 +148,32 @@ if (requireNamespace("igraph", quietly = TRUE)) {
   print(comm2)
 }
 #> Community structure (louvain)
-#>   Nodes: 34  | Communities: 4  | Modularity: 0.4188 
-#>   Sizes: 12, 5, 11, 6 
+#>   Nodes: 34  | Communities: 4  | Modularity: 0.3969 
+#>   Sizes: 8, 9, 11, 6 
 #> 
 #>  node community
 #>     1         1
-#>     2         1
-#>     3         1
-#>     4         1
-#>     5         2
-#>     6         2
-#>     7         2
-#>     8         1
+#>     2         2
+#>     3         2
+#>     4         2
+#>     5         1
+#>     6         1
+#>     7         1
+#>     8         2
 #>     9         3
-#>    10         1
-#>    11         2
+#>    10         2
+#>    11         1
 #>    12         1
 #>    13         1
-#>    14         1
+#>    14         2
 #>    15         3
 #>    16         3
-#>    17         2
-#>    18         1
+#>    17         1
+#>    18         2
 #>    19         3
-#>    20         1
+#>    20         2
 #>    21         3
-#>    22         1
+#>    22         2
 #>    23         3
 #>    24         4
 #>    25         4

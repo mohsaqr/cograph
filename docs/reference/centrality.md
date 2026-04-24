@@ -9,7 +9,8 @@ objects.
 ``` r
 centrality(
   x,
-  measures = "all",
+  type = c("basic", "extended", "all"),
+  measures = NULL,
   mode = "all",
   normalized = FALSE,
   weighted = TRUE,
@@ -43,15 +44,41 @@ centrality(
 
   Network input (matrix, igraph, network, cograph_network, tna object)
 
+- type:
+
+  Character scalar selecting a curated tier of measures when `measures`
+  is not supplied. One of:
+
+  `"basic"`
+
+  :   (default) 6 canonical measures: `degree`, `strength`, `closeness`,
+      `betweenness`, `eigenvector`, `pagerank`.
+
+  `"extended"`
+
+  :   Basic plus commonly-reported second-tier measures (~28 total):
+      harmonic, coreness, eccentricity, radiality, lin, decay, load,
+      stress, katz, alpha, power, authority, leverage, constraint,
+      effective_size, bridging, transitivity, subgraph, diffusion,
+      laplacian, kreach, current_flow_betweenness,
+      current_flow_closeness.
+
+  `"all"`
+
+  :   Every available measure (87).
+
+  Passing `measures` explicitly overrides `type`.
+
 - measures:
 
-  Which measures to calculate. Default "all" calculates all available
-  measures (87 total). Can be a character vector of measure names.
-  **Core** (igraph-backed): "degree", "strength", "betweenness",
-  "closeness", "eigenvector", "pagerank", "authority", "hub",
-  "eccentricity", "coreness", "constraint", "transitivity", "harmonic",
-  "alpha", "power", "subgraph". **Native**: "diffusion", "leverage",
-  "kreach", "laplacian", "load", "current_flow_closeness",
+  Character vector of specific measure names to compute. When `NULL`
+  (default) the tier selected by `type` is used. Accepts `"all"` as a
+  shortcut for every measure. Any custom vector of valid measure names
+  is also accepted. **Core** (igraph-backed): "degree", "strength",
+  "betweenness", "closeness", "eigenvector", "pagerank", "authority",
+  "hub", "eccentricity", "coreness", "constraint", "transitivity",
+  "harmonic", "alpha", "power", "subgraph". **Native**: "diffusion",
+  "leverage", "kreach", "laplacian", "load", "current_flow_closeness",
   "current_flow_betweenness", "voterank", "percolation".
   **Distance-based**: "radiality", "lin", "decay", "residual_closeness",
   "dangalchev", "generalized_closeness", "harary", "average_distance",
@@ -81,6 +108,11 @@ centrality(
   [`centrality_information`](https://sonsoles.me/cograph/reference/centrality_information.md),
   [`centrality_pairwisedis`](https://sonsoles.me/cograph/reference/centrality_pairwisedis.md),
   [`centrality_reaching_local`](https://sonsoles.me/cograph/reference/centrality_reaching_local.md).
+  **Psychometric (signed-weight)**: "expected_influence_1",
+  "expected_influence_2" (Robinaugh, Millner & McNally 2016). Unlike
+  strength (which takes \|w\|), expected influence keeps the sign — the
+  appropriate measure when edges can be negative (partial-correlation,
+  glasso, signed correlation networks).
 
 - mode:
 
@@ -509,93 +541,10 @@ The following centrality measures are available:
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
 rownames(adj) <- colnames(adj) <- c("A", "B", "C")
 centrality(adj)
-#> Warning: participation requires membership; returning NA
-#> Warning: within_module_z requires membership; returning NA
-#> Warning: gateway requires membership; returning NA
-#> Warning: SALSA requires a directed graph; returning NA
-#> Warning: LeaderRank requires a directed graph; returning NA
-#> Warning: trophic_level requires a directed graph; returning NA
-#> Warning: hubbell: not solvable for this graph at weightfactor=0.5 (spectral radius >= 1); returning NA
-#> Warning: pairwisedis requires a directed graph; returning NA
-#> Warning: prestige_domain requires a directed graph; returning NA
-#> Warning: prestige_domain_proximity requires a directed graph; returning NA
-#> Warning: brokerage requires membership; returning NA
-#> Warning: brokerage requires membership; returning NA
-#> Warning: brokerage requires membership; returning NA
-#> Warning: brokerage requires membership; returning NA
-#> Warning: brokerage requires membership; returning NA
-#>   node degree_all strength_all closeness_all eccentricity_all coreness_all
-#> 1    A          2            2           0.5                1            2
-#> 2    B          2            2           0.5                1            2
-#> 3    C          2            2           0.5                1            2
-#>   harmonic_all diffusion_all leverage_all kreach_all alpha_all power_all
-#> 1            2             6            0          2        -1        -1
-#> 2            2             6            0          2        -1        -1
-#> 3            2             6            0          2        -1        -1
-#>   radiality_all lin_all decay_all residual_closeness_all dangalchev_all
-#> 1             2       2         2                      2              2
-#> 2             2       2         2                      2              2
-#> 3             2       2         2                      2              2
-#>   generalized_closeness_all harary_all average_distance_all barycenter_all
-#> 1                         2          2                  0.5            0.5
-#> 2                         2          2                  0.5            0.5
-#> 3                         2          2                  0.5            0.5
-#>   wiener_all lobby_all entropy_all semilocal_all clusterrank_all bottleneck_all
-#> 1          2         2           0             8               6              2
-#> 2          2         2           0             8               6              2
-#> 3          2         2           0             8               6              2
-#>   centroid_all mnc_all  dmnc_all lac_all closeness_vitality_all integration_all
-#> 1            0       2 0.3077861       1                      4               4
-#> 2            0       2 0.3077861       1                      4               4
-#> 3            0       2 0.3077861       1                      4               4
-#>   expected_all gilschmidt_all participation_all within_module_z_all gateway_all
-#> 1            4              1                NA                  NA          NA
-#> 2            4              1                NA                  NA          NA
-#> 3            4              1                NA                  NA          NA
-#>   gravity_all collective_influence_all local_hindex_all hindex_strength_all
-#> 1           8                        0                2                   2
-#> 2           8                        0                2                   2
-#> 3           8                        0                2                   2
-#>   onion_all reaching_local_all betweenness eigenvector  pagerank authority hub
-#> 1         1                  1           0           1 0.3333333         1   1
-#> 2         1                  1           0           1 0.3333333         1   1
-#> 3         1                  1           0           1 0.3333333         1   1
-#>   constraint transitivity subgraph laplacian load current_flow_closeness
-#> 1      1.125            1 2.708272        14    5                    1.5
-#> 2      1.125            1 2.708272        14    5                    1.5
-#> 3      1.125            1 2.708272        14    5                    1.5
-#>   current_flow_betweenness  voterank percolation stress flow_betweenness
-#> 1                0.3333333 1.0000000           0      0                1
-#> 2                0.3333333 0.6666667           0      0                1
-#> 3                0.3333333 0.3333333           0      0                1
-#>   communicability communicability_betweenness random_walk
-#> 1        7.389056                   0.4978614        0.25
-#> 2        7.389056                   0.4978614        0.25
-#> 3        7.389056                   0.4978614        0.25
-#>   topological_coefficient bridging local_bridging effective_size diversity
-#> 1                       1        0           0.25              1         1
-#> 2                       1        0           0.25              1         1
-#> 3                       1        0           0.25              1         1
-#>   cross_clique markov salsa leaderrank trophic_level second_order infection
-#> 1            4   0.75    NA         NA            NA 3.140185e-16      2.88
-#> 2            4   0.75    NA         NA            NA 0.000000e+00      2.88
-#> 3            4   0.75    NA         NA            NA 0.000000e+00      2.88
-#>   nonbacktracking spanning_tree katz hubbell information pairwisedis
-#> 1               1           4.5 1.25      NA        2.25          NA
-#> 2               1           4.5 1.25      NA        2.25          NA
-#> 3               1           4.5 1.25      NA        2.25          NA
-#>   prestige_domain prestige_domain_proximity brokerage_coordinator
-#> 1              NA                        NA                    NA
-#> 2              NA                        NA                    NA
-#> 3              NA                        NA                    NA
-#>   brokerage_itinerant brokerage_representative brokerage_gatekeeper
-#> 1                  NA                       NA                   NA
-#> 2                  NA                       NA                   NA
-#> 3                  NA                       NA                   NA
-#>   brokerage_liaison
-#> 1                NA
-#> 2                NA
-#> 3                NA
+#>   node degree_all strength_all closeness_all betweenness eigenvector  pagerank
+#> 1    A          2            2           0.5           0           1 0.3333333
+#> 2    B          2            2           0.5           0           1 0.3333333
+#> 3    C          2            2           0.5           0           1 0.3333333
 
 # Specific measures
 centrality(adj, measures = c("degree", "betweenness"))
@@ -606,198 +555,17 @@ centrality(adj, measures = c("degree", "betweenness"))
 
 # Directed network with normalization
 centrality(adj, mode = "in", normalized = TRUE)
-#> Warning: participation requires membership; returning NA
-#> Warning: no non-missing arguments to max; returning -Inf
-#> Warning: within_module_z requires membership; returning NA
-#> Warning: no non-missing arguments to max; returning -Inf
-#> Warning: gateway requires membership; returning NA
-#> Warning: no non-missing arguments to max; returning -Inf
-#> Warning: SALSA requires a directed graph; returning NA
-#> Warning: no non-missing arguments to max; returning -Inf
-#> Warning: LeaderRank requires a directed graph; returning NA
-#> Warning: no non-missing arguments to max; returning -Inf
-#> Warning: trophic_level requires a directed graph; returning NA
-#> Warning: no non-missing arguments to max; returning -Inf
-#> Warning: hubbell: not solvable for this graph at weightfactor=0.5 (spectral radius >= 1); returning NA
-#> Warning: no non-missing arguments to max; returning -Inf
-#> Warning: pairwisedis requires a directed graph; returning NA
-#> Warning: no non-missing arguments to max; returning -Inf
-#> Warning: prestige_domain requires a directed graph; returning NA
-#> Warning: no non-missing arguments to max; returning -Inf
-#> Warning: prestige_domain_proximity requires a directed graph; returning NA
-#> Warning: no non-missing arguments to max; returning -Inf
-#> Warning: brokerage requires membership; returning NA
-#> Warning: no non-missing arguments to max; returning -Inf
-#> Warning: brokerage requires membership; returning NA
-#> Warning: no non-missing arguments to max; returning -Inf
-#> Warning: brokerage requires membership; returning NA
-#> Warning: no non-missing arguments to max; returning -Inf
-#> Warning: brokerage requires membership; returning NA
-#> Warning: no non-missing arguments to max; returning -Inf
-#> Warning: brokerage requires membership; returning NA
-#> Warning: no non-missing arguments to max; returning -Inf
-#>   node degree_in strength_in closeness_in eccentricity_in coreness_in
-#> 1    A         1           1            1               1           1
-#> 2    B         1           1            1               1           1
-#> 3    C         1           1            1               1           1
-#>   harmonic_in diffusion_in leverage_in kreach_in alpha_in power_in radiality_in
-#> 1           1            1           0         1       -1       -1            1
-#> 2           1            1           0         1       -1       -1            1
-#> 3           1            1           0         1       -1       -1            1
-#>   lin_in decay_in residual_closeness_in dangalchev_in generalized_closeness_in
-#> 1      1        1                     1             1                        1
-#> 2      1        1                     1             1                        1
-#> 3      1        1                     1             1                        1
-#>   harary_in average_distance_in barycenter_in wiener_in lobby_in entropy_in
-#> 1         1                   1             1         1        1          0
-#> 2         1                   1             1         1        1          0
-#> 3         1                   1             1         1        1          0
-#>   semilocal_in clusterrank_in bottleneck_in centroid_in mnc_in dmnc_in lac_in
-#> 1            1              1             1           0      1       1      1
-#> 2            1              1             1           0      1       1      1
-#> 3            1              1             1           0      1       1      1
-#>   closeness_vitality_in integration_in expected_in gilschmidt_in
-#> 1                     1              1           1             1
-#> 2                     1              1           1             1
-#> 3                     1              1           1             1
-#>   participation_in within_module_z_in gateway_in gravity_in
-#> 1               NA                 NA         NA          1
-#> 2               NA                 NA         NA          1
-#> 3               NA                 NA         NA          1
-#>   collective_influence_in local_hindex_in hindex_strength_in onion_in
-#> 1                       0               1                  1        1
-#> 2                       0               1                  1        1
-#> 3                       0               1                  1        1
-#>   reaching_local_in betweenness eigenvector pagerank authority hub constraint
-#> 1                 1           0           1        1         1   1          1
-#> 2                 1           0           1        1         1   1          1
-#> 3                 1           0           1        1         1   1          1
-#>   transitivity subgraph laplacian load current_flow_closeness
-#> 1            1        1         1    1                      1
-#> 2            1        1         1    1                      1
-#> 3            1        1         1    1                      1
-#>   current_flow_betweenness  voterank percolation stress flow_betweenness
-#> 1                        1 1.0000000           0      0                1
-#> 2                        1 0.6666667           0      0                1
-#> 3                        1 0.3333333           0      0                1
-#>   communicability communicability_betweenness random_walk
-#> 1               1                           1           1
-#> 2               1                           1           1
-#> 3               1                           1           1
-#>   topological_coefficient bridging local_bridging effective_size diversity
-#> 1                       1        0              1              1         1
-#> 2                       1        0              1              1         1
-#> 3                       1        0              1              1         1
-#>   cross_clique markov salsa leaderrank trophic_level second_order infection
-#> 1            1      1    NA         NA            NA            1         1
-#> 2            1      1    NA         NA            NA            0         1
-#> 3            1      1    NA         NA            NA            0         1
-#>   nonbacktracking spanning_tree katz hubbell information pairwisedis
-#> 1               1             1    1      NA           1          NA
-#> 2               1             1    1      NA           1          NA
-#> 3               1             1    1      NA           1          NA
-#>   prestige_domain prestige_domain_proximity brokerage_coordinator
-#> 1              NA                        NA                    NA
-#> 2              NA                        NA                    NA
-#> 3              NA                        NA                    NA
-#>   brokerage_itinerant brokerage_representative brokerage_gatekeeper
-#> 1                  NA                       NA                   NA
-#> 2                  NA                       NA                   NA
-#> 3                  NA                       NA                   NA
-#>   brokerage_liaison
-#> 1                NA
-#> 2                NA
-#> 3                NA
+#>   node degree_in strength_in closeness_in betweenness eigenvector pagerank
+#> 1    A         1           1            1           0           1        1
+#> 2    B         1           1            1           0           1        1
+#> 3    C         1           1            1           0           1        1
 
 # Sort by pagerank
 centrality(adj, sort_by = "pagerank", digits = 3)
-#> Warning: participation requires membership; returning NA
-#> Warning: within_module_z requires membership; returning NA
-#> Warning: gateway requires membership; returning NA
-#> Warning: SALSA requires a directed graph; returning NA
-#> Warning: LeaderRank requires a directed graph; returning NA
-#> Warning: trophic_level requires a directed graph; returning NA
-#> Warning: hubbell: not solvable for this graph at weightfactor=0.5 (spectral radius >= 1); returning NA
-#> Warning: pairwisedis requires a directed graph; returning NA
-#> Warning: prestige_domain requires a directed graph; returning NA
-#> Warning: prestige_domain_proximity requires a directed graph; returning NA
-#> Warning: brokerage requires membership; returning NA
-#> Warning: brokerage requires membership; returning NA
-#> Warning: brokerage requires membership; returning NA
-#> Warning: brokerage requires membership; returning NA
-#> Warning: brokerage requires membership; returning NA
-#>   node degree_all strength_all closeness_all eccentricity_all coreness_all
-#> 1    A          2            2           0.5                1            2
-#> 2    B          2            2           0.5                1            2
-#> 3    C          2            2           0.5                1            2
-#>   harmonic_all diffusion_all leverage_all kreach_all alpha_all power_all
-#> 1            2             6            0          2        -1        -1
-#> 2            2             6            0          2        -1        -1
-#> 3            2             6            0          2        -1        -1
-#>   radiality_all lin_all decay_all residual_closeness_all dangalchev_all
-#> 1             2       2         2                      2              2
-#> 2             2       2         2                      2              2
-#> 3             2       2         2                      2              2
-#>   generalized_closeness_all harary_all average_distance_all barycenter_all
-#> 1                         2          2                  0.5            0.5
-#> 2                         2          2                  0.5            0.5
-#> 3                         2          2                  0.5            0.5
-#>   wiener_all lobby_all entropy_all semilocal_all clusterrank_all bottleneck_all
-#> 1          2         2           0             8               6              2
-#> 2          2         2           0             8               6              2
-#> 3          2         2           0             8               6              2
-#>   centroid_all mnc_all dmnc_all lac_all closeness_vitality_all integration_all
-#> 1            0       2    0.308       1                      4               4
-#> 2            0       2    0.308       1                      4               4
-#> 3            0       2    0.308       1                      4               4
-#>   expected_all gilschmidt_all participation_all within_module_z_all gateway_all
-#> 1            4              1                NA                  NA          NA
-#> 2            4              1                NA                  NA          NA
-#> 3            4              1                NA                  NA          NA
-#>   gravity_all collective_influence_all local_hindex_all hindex_strength_all
-#> 1           8                        0                2                   2
-#> 2           8                        0                2                   2
-#> 3           8                        0                2                   2
-#>   onion_all reaching_local_all betweenness eigenvector pagerank authority hub
-#> 1         1                  1           0           1    0.333         1   1
-#> 2         1                  1           0           1    0.333         1   1
-#> 3         1                  1           0           1    0.333         1   1
-#>   constraint transitivity subgraph laplacian load current_flow_closeness
-#> 1      1.125            1    2.708        14    5                    1.5
-#> 2      1.125            1    2.708        14    5                    1.5
-#> 3      1.125            1    2.708        14    5                    1.5
-#>   current_flow_betweenness voterank percolation stress flow_betweenness
-#> 1                    0.333    1.000           0      0                1
-#> 2                    0.333    0.667           0      0                1
-#> 3                    0.333    0.333           0      0                1
-#>   communicability communicability_betweenness random_walk
-#> 1           7.389                       0.498        0.25
-#> 2           7.389                       0.498        0.25
-#> 3           7.389                       0.498        0.25
-#>   topological_coefficient bridging local_bridging effective_size diversity
-#> 1                       1        0           0.25              1         1
-#> 2                       1        0           0.25              1         1
-#> 3                       1        0           0.25              1         1
-#>   cross_clique markov salsa leaderrank trophic_level second_order infection
-#> 1            4   0.75    NA         NA            NA            0      2.88
-#> 2            4   0.75    NA         NA            NA            0      2.88
-#> 3            4   0.75    NA         NA            NA            0      2.88
-#>   nonbacktracking spanning_tree katz hubbell information pairwisedis
-#> 1               1           4.5 1.25      NA        2.25          NA
-#> 2               1           4.5 1.25      NA        2.25          NA
-#> 3               1           4.5 1.25      NA        2.25          NA
-#>   prestige_domain prestige_domain_proximity brokerage_coordinator
-#> 1              NA                        NA                    NA
-#> 2              NA                        NA                    NA
-#> 3              NA                        NA                    NA
-#>   brokerage_itinerant brokerage_representative brokerage_gatekeeper
-#> 1                  NA                       NA                   NA
-#> 2                  NA                       NA                   NA
-#> 3                  NA                       NA                   NA
-#>   brokerage_liaison
-#> 1                NA
-#> 2                NA
-#> 3                NA
+#>   node degree_all strength_all closeness_all betweenness eigenvector pagerank
+#> 1    A          2            2           0.5           0           1    0.333
+#> 2    B          2            2           0.5           0           1    0.333
+#> 3    C          2            2           0.5           0           1    0.333
 
 # PageRank with custom damping
 centrality(adj, measures = "pagerank", damping = 0.9)

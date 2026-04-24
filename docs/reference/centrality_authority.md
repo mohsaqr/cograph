@@ -39,9 +39,9 @@ computing multiple measures at once.
 adj <- matrix(c(0, 1, 0, 0, 0, 1, 1, 1, 0), 3, 3)
 rownames(adj) <- colnames(adj) <- c("A", "B", "C")
 centrality_authority(adj)
-#>            A            B            C 
-#> 6.180340e-01 8.295623e-17 1.000000e+00 
+#>        A        B        C 
+#> 0.618034 0.000000 1.000000 
 centrality_hub(adj)
-#>            A            B            C 
-#> 6.180340e-01 1.000000e+00 3.880395e-17 
+#>        A        B        C 
+#> 0.618034 1.000000 0.000000 
 ```

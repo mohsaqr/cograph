@@ -40,3 +40,11 @@ plot(x, type = c("curve", "network"), k = NULL, col = "#E41A1C", ...)
 ## Value
 
 Invisible `x`.
+
+## Examples
+
+``` r
+g <- igraph::sample_pa(50, m = 2, directed = FALSE)
+rc <- cograph::rich_club(g)
+plot(rc)
+```

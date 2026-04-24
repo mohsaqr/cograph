@@ -299,123 +299,23 @@ flat cluster visualization
 ## Examples
 
 ``` r
-# -----------------------------------------------------
-# Basic usage with matrix and cluster vector
-# -----------------------------------------------------
-mat <- matrix(runif(100), 10, 10)
-diag(mat) <- 0
+mat <- matrix(runif(100), 10, 10); diag(mat) <- 0
 rownames(mat) <- colnames(mat) <- LETTERS[1:10]
 
-clusters <- c(1, 1, 1, 2, 2, 2, 3, 3, 3, 3)
-cs <- cluster_summary(mat, clusters)
-
-# Access results
+# Membership vector
+cs <- cluster_summary(mat, c(1,1,1,2,2,2,3,3,3,3))
 cs$macro$weights      # 3x3 cluster transition matrix
 #>           1         2         3
-#> 1 0.3366383 0.2347985 0.4285632
-#> 2 0.3655099 0.2411429 0.3933472
-#> 3 0.3660335 0.3509782 0.2829883
-cs$macro$inits        # Initial distribution
-#>         1         2         3 
-#> 0.3568830 0.2818811 0.3612360 
-cs$clusters$`1`$weights # Per-cluster 1 transitions
-#>           A         B         C
-#> A 0.0000000 0.7121904 0.2878096
-#> B 0.4894592 0.0000000 0.5105408
-#> C 0.3801790 0.6198210 0.0000000
-cs$meta               # Metadata
-#> $type
-#> [1] "tna"
-#> 
-#> $method
-#> [1] "sum"
-#> 
-#> $directed
-#> [1] TRUE
-#> 
-#> $n_nodes
-#> [1] 10
-#> 
-#> $n_clusters
-#> [1] 3
-#> 
-#> $cluster_sizes
-#> 1 2 3 
-#> 3 3 4 
-#> 
+#> 1 0.2469609 0.3005706 0.4524685
+#> 2 0.3480177 0.1137586 0.5382237
+#> 3 0.3351169 0.3005628 0.3643203
 
-# -----------------------------------------------------
-# Named list clusters (more readable)
-# -----------------------------------------------------
-clusters <- list(
-  Alpha = c("A", "B", "C"),
-  Beta = c("D", "E", "F"),
-  Gamma = c("G", "H", "I", "J")
-)
+# Named list of clusters, TNA-normalized
+clusters <- list(Alpha = LETTERS[1:3], Beta = LETTERS[4:6], Gamma = LETTERS[7:10])
 cs <- cluster_summary(mat, clusters, type = "tna")
-cs$macro$weights      # Rows/cols named Alpha, Beta, Gamma
-#>           Alpha      Beta     Gamma
-#> Alpha 0.3366383 0.2347985 0.4285632
-#> Beta  0.3655099 0.2411429 0.3933472
-#> Gamma 0.3660335 0.3509782 0.2829883
-cs$clusters$Alpha     # Per-cluster Alpha network
-#> State Labels : 
-#> 
-#>    A, B, C 
-#> 
-#> Transition Probability Matrix :
-#> 
-#>           A         B         C
-#> A 0.0000000 0.7121904 0.2878096
-#> B 0.4894592 0.0000000 0.5105408
-#> C 0.3801790 0.6198210 0.0000000
-#> 
-#> Initial Probabilities : 
-#> 
-#>         A         B         C 
-#> 0.3104710 0.4060737 0.2834553 
-
-# -----------------------------------------------------
-# Auto-detect clusters from cograph_network
-# -----------------------------------------------------
-net <- as_cograph(mat)
-net$nodes$clusters <- c(1, 1, 1, 2, 2, 2, 3, 3, 3, 3)
-cs <- cluster_summary(net)  # No clusters argument needed
-
-# -----------------------------------------------------
-# Different aggregation methods
-# -----------------------------------------------------
-cs_sum <- cluster_summary(mat, clusters, method = "sum")   # Total flow
-cs_mean <- cluster_summary(mat, clusters, method = "mean") # Average
-cs_max <- cluster_summary(mat, clusters, method = "max")   # Strongest
-
-# -----------------------------------------------------
-# Raw counts vs TNA probabilities
-# -----------------------------------------------------
-cs_raw <- cluster_summary(mat, clusters, type = "raw")
-cs_tna <- cluster_summary(mat, clusters, type = "tna")
-
-rowSums(cs_raw$macro$weights)  # Various sums
-#>    Alpha     Beta    Gamma 
-#> 13.35885 13.34710 16.97183 
-rowSums(cs_tna$macro$weights)  # All equal to 1
+rowSums(cs$macro$weights)  # all 1 (TNA probabilities)
 #> Alpha  Beta Gamma 
 #>     1     1     1 
-
-# -----------------------------------------------------
-# Skip within-cluster computation for speed
-# -----------------------------------------------------
-cs_fast <- cluster_summary(mat, clusters, compute_within = FALSE)
-cs_fast$clusters  # NULL
-#> NULL
-
-# -----------------------------------------------------
-# Convert to tna objects for tna package
-# -----------------------------------------------------
-cs <- cluster_summary(mat, clusters, type = "tna")
-tna_models <- as_tna(cs)
-# tna_models$macro         # tna object
-# tna_models$Alpha         # tna object (cluster network)
 mat <- matrix(c(0.5, 0.2, 0.3, 0.1, 0.6, 0.3, 0.4, 0.1, 0.5), 3, 3,
               byrow = TRUE,
               dimnames = list(c("A", "B", "C"), c("A", "B", "C")))

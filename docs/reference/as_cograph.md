@@ -121,59 +121,19 @@ check directedness,
 ## Examples
 
 ``` r
-# From adjacency matrix
 mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 net <- as_cograph(mat)
-
-# Direct $ access to core data
-net$nodes      # nodes data frame
+get_nodes(net)
 #>   id label name  x  y
 #> 1  1     1    1 NA NA
 #> 2  2     2    2 NA NA
 #> 3  3     3    3 NA NA
-net$edges      # edges data frame
+get_edges(net)
 #>   from to weight
 #> 1    1  2      1
 #> 2    1  3      1
 #> 3    2  3      1
-net$directed   # TRUE/FALSE
-#> [1] FALSE
-
-# Getter functions (recommended for programmatic use)
-get_nodes(net)   # nodes data frame
-#>   id label name  x  y
-#> 1  1     1    1 NA NA
-#> 2  2     2    2 NA NA
-#> 3  3     3    3 NA NA
-get_edges(net)   # edges data frame (from, to, weight)
-#>   from to weight
-#> 1    1  2      1
-#> 2    1  3      1
-#> 3    2  3      1
-get_labels(net)  # character vector of labels
-#> [1] "1" "2" "3"
-n_nodes(net)     # 3
-#> [1] 3
-n_edges(net)     # 3
-#> [1] 3
-cograph::is_directed(net) # FALSE (symmetric matrix)
-#> [1] FALSE
-
-# Setter functions
-net <- set_nodes(net, data.frame(id = 1:3, label = c("A", "B", "C")))
-net <- set_edges(net, data.frame(from = c(1,2), to = c(2,3), weight = c(0.5, 0.8)))
-net <- set_layout(net, data.frame(x = c(0, 1, 0.5), y = c(0, 0, 1)))
-
-# Plot it
 splot(net)
-
-
-# From igraph (if installed)
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::make_ring(10)
-  net <- as_cograph(g)
-  splot(net)
-}
 
 mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 net <- to_cograph(mat)

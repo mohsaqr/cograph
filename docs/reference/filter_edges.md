@@ -68,13 +68,11 @@ See `filter_edges`.
 ## Examples
 
 ``` r
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
+adj <- matrix(c(0, .5, .8, 0, .5, 0, .3, .6,
+                .8, .3, 0, .4, 0, .6, .4, 0), 4, 4, byrow = TRUE)
 rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
 
-# Keep only strong edges (returns cograph_network)
+# Keep only strong edges
 filter_edges(adj, weight > 0.5)
 #> Cograph network: 4 nodes, 2 edges ( undirected )
 #> Source: filtered 
@@ -86,7 +84,7 @@ filter_edges(adj, weight > 0.5)
 #>     B -- D  0.600
 #> Layout: none 
 
-# Keep format: matrix in, matrix out
+# Matrix in, matrix out
 filter_edges(adj, weight > 0.5, keep_format = TRUE)
 #>   A B   C   D
 #> A 0 0 0.8 0.0
@@ -94,36 +92,9 @@ filter_edges(adj, weight > 0.5, keep_format = TRUE)
 #> C 0 0 0.0 0.0
 #> D 0 0 0.0 0.0
 
-# Keep edges above mean weight
-splot(filter_edges(adj, weight >= mean(weight)))
-
-
-# With cograph_network (pipe-friendly)
-net <- as_cograph(adj)
-net |>
+# Pipe-friendly with cograph_network
+as_cograph(adj) |>
   filter_edges(weight > 0.3) |>
   filter_nodes(degree >= 2) |>
   splot()
-
-
-# Keep isolated nodes
-filter_edges(net, weight > 0.7, .keep_isolates = TRUE)
-#> Cograph network: 4 nodes, 1 edges ( undirected )
-#> Source: filtered 
-#>   Nodes (4): A, B, C, D
-#>   Edges: 1 / 6 (density: 16.7%)
-#>   Weights: [0.800, 0.800]  |  mean: 0.800
-#>   Strongest edges:
-#>     A -- C  0.800
-#> Layout: none 
-
-# With igraph (keep_format = TRUE returns igraph)
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::make_ring(5)
-  filter_edges(g, weight > 0, keep_format = TRUE)  # Returns igraph
-}
-#> IGRAPH bff6657 UNW- 5 5 -- 
-#> + attr: name (v/c), weight (e/n)
-#> + edges from bff6657 (vertex names):
-#> [1] 1--2 2--3 3--4 4--5 1--5
 ```

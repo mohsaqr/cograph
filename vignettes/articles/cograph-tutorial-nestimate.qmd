@@ -54,7 +54,7 @@ The core design principle is that **estimation and visualization are separate co
 Beyond single-network estimation, Nestimate provides a complete statistical toolkit:
 
 - **Bootstrap stability analysis** (`bootstrap_network`) --- identifies which edges survive resampling and which are sampling artifacts.
-- **Permutation-based group comparison** (`permutation_test`) --- tests whether edges differ significantly between conditions.
+- **Permutation-based group comparison** (`permutation`) --- tests whether edges differ significantly between conditions.
 - **Multi-cluster multi-level analysis** (`cluster_summary`, `build_mcml`) --- aggregates node-level networks into cluster-level summaries for hierarchical visualization.
 - **Centrality stability** (`centrality_stability`) --- assesses whether centrality rankings are robust to case dropping.
 - **Group-level operations** --- bootstrapping, permutation testing, and plotting work on grouped networks with no additional code.
@@ -311,13 +311,13 @@ gboot <- bootstrap_network(grp_net, iter = 500)
 
 ## Pairwise comparison
 
-`permutation_test()` tests whether each edge differs significantly between two networks by comparing the observed difference to a permutation null distribution. Green edges indicate the first group is stronger; red edges indicate the second group is stronger.
+`permutation()` tests whether each edge differs significantly between two networks by comparing the observed difference to a permutation null distribution. Green edges indicate the first group is stronger; red edges indicate the second group is stronger.
 
 ```{r}
 #| label: run-perm
 #| cache: true
 set.seed(265)
-perm <- permutation_test(grp_net$High, grp_net$Low, iter = 1000)
+perm <- permutation(grp_net$High, grp_net$Low, iter = 1000)
 perm
 ```
 
@@ -357,13 +357,13 @@ splot(perm, show_stars = TRUE, show_effect = TRUE)
 
 ## Group-level permutation
 
-When applied to a `netobject_group`, `permutation_test()` runs all pairwise comparisons and returns a `net_permutation_group`. `splot()` renders each comparison in a grid.
+When applied to a `netobject_group`, `permutation()` runs all pairwise comparisons and returns a `net_permutation_group`. `splot()` renders each comparison in a grid.
 
 ```{r}
 #| label: run-group-perm
 #| cache: true
 set.seed(265)
-gperm <- permutation_test(grp_net, iter = 1000)
+gperm <- permutation(grp_net, iter = 1000)
 ```
 
 ```{r}
@@ -487,11 +487,11 @@ Every Nestimate object routes through `splot()` automatically. The following tab
 |---|---|---|
 | `netobject` | `build_network()` | Standard network plot |
 | `net_bootstrap` | `bootstrap_network()` | Stability-styled network |
-| `net_permutation` | `permutation_test(x, y)` | Coloured difference network |
+| `net_permutation` | `permutation(x, y)` | Coloured difference network |
 | `boot_glasso` | `boot_glasso()` | Regularized network with stability |
 | `netobject_group` | `build_network(group=)` | Multi-panel grid |
 | `net_bootstrap_group` | `bootstrap_network(group)` | Multi-panel bootstrap |
-| `net_permutation_group` | `permutation_test(group)` | Multi-panel comparisons |
+| `net_permutation_group` | `permutation(group)` | Multi-panel comparisons |
 | `mcml` | `cluster_summary()` / `build_mcml()` | Two-layer MCML plot |
 | `net_stability` | `centrality_stability()` | Stability drop-off curve |
 

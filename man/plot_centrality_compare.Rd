@@ -25,42 +25,59 @@ plot_centrality_compare(
 )
 }
 \arguments{
-\item{...}{Additional arguments passed to \code{\link{centrality}}
-when \code{x} or \code{y} is a network.}
+\item{...}{Two or more centrality data frames (from
+\code{\link{centrality}}) or network inputs. Names are used as
+group labels when \code{group_labels} is NULL.}
 
 \item{measure}{Character, a single centrality measure to compare. If
 NULL, the first shared measure is used.}
 
-\item{group_labels}{Character vector of length 2. Default
-\code{c("Group 1", "Group 2")}.}
+\item{style}{Character: \code{"stacked"} (default), \code{"facet"},
+\code{"grouped"}, \code{"dumbbell"}, \code{"line"}, or
+\code{"pyramid"} (2 groups only).}
+
+\item{group_labels}{Character vector with one label per group. Default
+\code{c("Group 1", "Group 2", ...)}.}
+
+\item{group_colors}{Character vector of colors, one per group.
+Default cycles through the cograph palette.}
 
 \item{node_colors}{Optional. Either a named character vector mapping
 node name to color, an unnamed vector of colors applied in node
 order, or the name of a palette (\code{"cograph"}, \code{"okabe"},
-\code{"viridis"}). When NULL (default), colors are extracted from
-\code{x} when it is an igraph/CographNetwork with node colors;
-otherwise the cograph palette cycles through the nodes.}
+\code{"viridis"}). Used by \code{style = "facet"}.}
 
-\item{sort_by}{\code{"delta"} (default) ranks nodes by absolute
-difference between the two groups; \code{"left"} / \code{"right"}
-by the side's value; \code{"alpha"} alphabetically.}
+\item{sort_by}{\code{"max"} (default) ranks nodes by highest value
+across groups; \code{"delta"} by range; \code{"first"} by first
+group; \code{"alpha"} alphabetically.}
 
 \item{top_n}{Show top N nodes (by \code{sort_by}). Default: all.}
 
 \item{scale}{\code{"raw"} (default, native values on each side) or
-\code{"normalized"} (\link{0, 1} within each side before plotting).}
+\code{"normalized"} ([0, 1] within each side before plotting).}
 
 \item{show_values}{Logical. Print the value inside each bar.
 Default TRUE.}
+
+\item{size_by_value}{Logical. For \code{"dumbbell"} style, scale dot
+size by centrality value. Default FALSE.}
+
+\item{size_range}{Numeric vector of length 2 giving the min and max
+dot size (mm) when \code{size_by_value = TRUE}. Default
+\code{c(2, 9)}.}
+
+\item{orientation}{Character: \code{"horizontal"} (default, nodes on
+y-axis) or \code{"vertical"} (nodes on x-axis).}
+
+\item{ncol}{Number of facet columns for \code{style = "facet"}.
+Default NULL chooses automatically.}
 
 \item{title}{Plot title.}
 
 \item{subtitle}{Plot subtitle. Auto-generated when NULL.}
 
-\item{x}{First group's centrality data frame (from
-\code{\link{centrality}}) or a network input.}
-
-\item{y}{Second group's centrality data frame or network input.}
+\item{centrality_args}{Named list of additional arguments passed to
+\code{\link{centrality}} when inputs are networks.}
 }
 \value{
 A ggplot object.
@@ -68,7 +85,7 @@ A ggplot object.
 \description{
 Back-to-back horizontal bar chart comparing a centrality measure across
 two groups. Each row is a node; left bar is group 1, right bar is
-group 2. Bar fill is per-node (identity) — either inherited from the
+group 2. Bar fill is per-node (identity) -- either inherited from the
 network's node colors or supplied via \code{node_colors}. Visual delta
 is communicated by bar length alone.
 }

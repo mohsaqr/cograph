@@ -89,13 +89,11 @@ returns the same type as input (matrix, igraph, network, etc.).
 ## Examples
 
 ``` r
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
+adj <- matrix(c(0, .5, .8, 0, .5, 0, .3, .6,
+                .8, .3, 0, .4, 0, .6, .4, 0), 4, 4, byrow = TRUE)
 rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
 
-# Keep only high-degree nodes (returns cograph_network)
+# Keep only high-degree nodes
 filter_nodes(adj, degree >= 3)
 #> Cograph network: 2 nodes, 1 edges ( undirected )
 #> Source: filtered 
@@ -106,35 +104,16 @@ filter_nodes(adj, degree >= 3)
 #>     B -- C  0.300
 #> Layout: none 
 
-# Keep format: matrix in, matrix out
-filter_nodes(adj, degree >= 3, keep_format = TRUE)
-#>   B   C
-#> B 0 0.3
-#> C 0 0.0
-
-# Filter by node label
-splot(filter_nodes(adj, label %in% c("A", "C")))
-
-
-# Combine centrality and metadata filters
-splot(filter_nodes(adj, degree >= 2 & label != "D"))
-
-
-# With cograph_network (pipe-friendly)
-net <- as_cograph(adj)
-net |>
-  filter_edges(weight > 0.3) |>
-  filter_nodes(degree >= 2) |>
-  splot()
-
-
-# With igraph (keep_format = TRUE returns igraph)
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::make_ring(5)
-  filter_nodes(g, degree >= 2, keep_format = TRUE)  # Returns igraph
-}
-#> IGRAPH fedda41 UNW- 5 5 -- 
-#> + attr: name (v/c), weight (e/n)
-#> + edges from fedda41 (vertex names):
-#> [1] 1--2 2--3 3--4 4--5 1--5
+# Filter by label, combined with degree
+filter_nodes(adj, degree >= 2 & label != "D")
+#> Cograph network: 3 nodes, 3 edges ( undirected )
+#> Source: filtered 
+#>   Nodes (3): A, B, C
+#>   Edges: 3 / 3 (density: 100.0%)
+#>   Weights: [0.300, 0.800]  |  mean: 0.533
+#>   Strongest edges:
+#>     A -- C  0.800
+#>     A -- B  0.500
+#>     B -- C  0.300
+#> Layout: none 
 ```

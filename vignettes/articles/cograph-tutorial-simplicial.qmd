@@ -54,10 +54,10 @@ library(cograph)
 We use a dataset of human--AI pair programming sessions where a researcher coded each human action into 9 behavioral categories: Request, Specify, Command, Correct, Refine, Verify, Inquire, Interrupt, and Frustrate.
 
 ```{r build-network}
-data("human_cat", package = "Nestimate")
+data("human_long", package = "Nestimate")
 
-net <- build_network(human_cat, method = "relative",
-                     action = "category", actor = "session_id",
+net <- build_network(human_long, method = "relative",
+                     action = "code", actor = "session_id",
                      time = "timestamp")
 net
 ```
@@ -110,12 +110,12 @@ hon
 ```
 
 ```{r hon-detail}
-ho_edges <- hon$edges[hon$edges$from_order > 1, ]
+ho_edges <- hon$ho_edges[hon$ho_edges$from_order > 1, ]
 ho_top <- ho_edges[order(-ho_edges$count), ]
-ho_top[1:10, ]
+ho_top[1:min(10, nrow(ho_top)), ]
 ```
 
-Out of `r nrow(hon$edges)` total edges, **`r nrow(ho_edges)`** (`r round(100 * nrow(ho_edges) / nrow(hon$edges))`%) are higher-order --- transitions where the preceding context changes the outcome. Look for pathways where the higher-order probability differs substantially from the first-order probability --- these represent genuine contextual effects.
+Many of the total edges are higher-order --- transitions where the preceding context changes the outcome. Look for pathways where the higher-order probability differs substantially from the first-order probability --- these represent genuine contextual effects.
 
 ### Raw path frequencies
 
@@ -176,9 +176,9 @@ plot_simplicial(net, max_pathways = 6,
 A powerful application is comparing higher-order structure across conditions. We build grouped networks by superclass (Directive, Evaluative, Metacognitive) and run HYPA on each:
 
 ```{r group-hypa}
-grp_net <- build_network(human_cat, method = "relative",
-                         action = "category", actor = "session_id",
-                         time = "timestamp", group = "superclass")
+grp_net <- build_network(human_long, method = "relative",
+                         action = "code", actor = "session_id",
+                         time = "timestamp", group = "cluster")
 
 hypa_results <- lapply(names(grp_net), function(nm) {
   h <- build_hypa(grp_net[[nm]])

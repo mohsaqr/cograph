@@ -10,7 +10,6 @@
 #' @param theme Plot theme ("colorblind", "gray", etc.)
 #' @param mar Plot margins (numeric vector of length 4)
 #' @param cut Edge emphasis threshold
-#' @param edge.labels Show edge weight labels
 #' @param edge.label.position Position of edge labels along edge (0-1)
 #' @param edge.label.cex Edge label size multiplier
 #' @param edge.color Edge colors
@@ -49,7 +48,6 @@ plot_tna <- function(
     theme = "colorblind",
     mar = c(0.1, 0.1, 0.1, 0.1),
     cut = NULL,
-    edge.labels = TRUE,
     edge.label.position = 0.7,
     edge.label.cex = 0.6,
     edge.color = COGRAPH_SCALE$tna_edge_color,
@@ -87,8 +85,10 @@ plot_tna <- function(
   if (!is.null(pie)) splot_args$donut_fill <- pie
   if (!is.null(pieColor)) splot_args$donut_color <- pieColor
 
-  # Edge parameters
-  splot_args$edge_labels <- edge.labels
+  # Edge parameters. edge_labels = TRUE comes from .tna_style_defaults()
+  # when tna_styling = TRUE (set above), not from a hard-coded signature
+  # default here. Users can override via edge.labels = FALSE or
+  # edge_labels = FALSE in `...` — both routes are translated by splot().
   splot_args$edge_label_position <- edge.label.position
   splot_args$edge_label_size <- edge.label.cex
   if (!is.null(edge.color)) splot_args$edge_color <- edge.color
@@ -120,8 +120,15 @@ plot_tna <- function(
   # Arrow angle
   if (!is.null(arrowAngle)) splot_args$arrow_angle <- arrowAngle
 
-  # Call splot
-  do.call(splot, c(splot_args, list(...)))
+  # Call splot. Merge user-supplied `...` over the translated qgraph-style
+  # args so that if the caller passes cograph-native names (e.g.
+  # `edge_labels = TRUE`, `edge_color = "red"`), those win over the
+  # qgraph-alias translations assembled above — matches the "cograph name
+  # wins" rule for duplicate aliases. Plain `c(splot_args, list(...))`
+  # would error on "matched by multiple actual arguments".
+  .dots <- list(...)
+  if (length(.dots)) splot_args[names(.dots)] <- .dots
+  do.call(splot, splot_args)
 }
 
 #' @rdname plot_tna

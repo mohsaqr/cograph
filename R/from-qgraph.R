@@ -91,6 +91,7 @@ tna_color_palette <- function(n_states) {
 .tna_style_defaults <- function(n_nodes = NULL, directed = TRUE) {
   defaults <- list(
     layout                 = "oval",
+    edge_labels            = TRUE,
     edge_label_style       = "estimate",
     edge_label_leading_zero = FALSE,
     # See note on psych edge_label_size above — same calibration: 0.6 was

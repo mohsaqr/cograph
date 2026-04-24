@@ -1261,21 +1261,15 @@ splot <- function(
                                    visual_scale = visual_scale,
                                    node_size = node_size)
 
-  # Couple edge_label_size to node label cex (harmony invariant). A fixed
-  # 0.55 fraction of the node label cex, so the node-to-edge-label ratio
-  # stays stable at ~1.82x on every canvas. This replaces the separate
-  # EDGE_LABEL_SCALE_CAP compensation path that used to let the ratio
-  # drift from 2.5x at reference to 3.6x at poster sizes.
-  #
-  # Only applies when the user didn't set edge_label_size explicitly;
-  # user-explicit values keep the old (capped) visual_scale compensation,
-  # just produced here in splot.R instead of inside render_edges_splot so
-  # the final cex is computed in a single place.
+  # Default edge_label_size is a fixed fraction of node label cex so the
+  # node-to-edge-label ratio stays constant across canvases. User-explicit
+  # values skip the coupling and receive the (capped) visual_scale
+  # compensation instead — that logic lives here rather than in
+  # render_edges_splot so the final cex is produced in one place.
   if (!("edge_label_size" %in% explicit_args)) {
-    .label_cex_effective <- if (length(label_cex) > 0) mean(label_cex) else 1
-    edge_label_size <- .label_cex_effective * 0.55
+    edge_label_size <- mean(label_cex) * EDGE_LABEL_NODE_CEX_FRACTION
   } else {
-    .vs_mult_edge <- visual_scale$scale %||% visual_scale$text %||% 1
+    .vs_mult_edge <- visual_scale$scale %||% 1
     if (is.finite(.vs_mult_edge) && .vs_mult_edge > 0) {
       .vs_mult_edge <- pmin(pmax(.vs_mult_edge, EDGE_LABEL_SCALE_CAP[1]),
                             EDGE_LABEL_SCALE_CAP[2])

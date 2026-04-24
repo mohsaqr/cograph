@@ -30,7 +30,7 @@ test_that("plot_bootstrap_forest.tna_bootstrap grouped works", {
 test_that("plot_bootstrap_forest.net_bootstrap circular works", {
   skip_if_not_installed("Nestimate")
   library(Nestimate)
-  net  <- build_network(human_wide, method = "relative")
+  net  <- build_network(as.data.frame(trajectories), method = "relative")
   boot <- bootstrap_network(net, iter = 50, seed = 1)
   p <- plot_bootstrap_forest(boot, layout = "circular")
   expect_true(inherits(p, "ggplot"))
@@ -39,7 +39,7 @@ test_that("plot_bootstrap_forest.net_bootstrap circular works", {
 test_that("plot_bootstrap_forest.net_bootstrap grouped works", {
   skip_if_not_installed("Nestimate")
   library(Nestimate)
-  net  <- build_network(human_wide, method = "relative")
+  net  <- build_network(as.data.frame(trajectories), method = "relative")
   boot <- bootstrap_network(net, iter = 50, seed = 1)
   p <- plot_bootstrap_forest(boot, layout = "grouped")
   expect_true(inherits(p, "ggplot"))

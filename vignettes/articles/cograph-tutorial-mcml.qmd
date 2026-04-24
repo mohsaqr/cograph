@@ -72,17 +72,17 @@ Both `cograph` and `Nestimate` are on CRAN. Nestimate handles the MCML computati
 
 # Building the MCML
 
-We use the `human_cat` dataset bundled with `Nestimate` --- 10,796 coded human actions from 429 human-AI programming sessions. The coding scheme has 9 **categories** grouped into 3 **superclasses** --- categories become nodes, superclasses become clusters.
+We use the `human_long` dataset bundled with `Nestimate` --- 10,796 coded human actions from 429 human-AI programming sessions. The coding scheme has 9 **codes** grouped into 3 **clusters** --- codes become nodes, clusters become groups.
 
 `plot_mcml()` models both levels simultaneously in a single figure. A *bottom layer* shows every node inside its cluster with full edges drawn at the cluster level. A *top layer* collapses each cluster into a single macro-level node, with edges carrying the aggregated inter-cluster flow. *Dashed inter-layer* lines connect each node to its cluster's macro node, making the hierarchical mapping explicit.
 
 ```{r}
 #| label: build
-data("human_cat", package = "Nestimate")
+data("human_long", package = "Nestimate")
 
 net <- build_network(
-  human_cat,
-  actor = "session_id", action = "category", time = "timestamp",
+  human_long,
+  actor = "session_id", action = "code", time = "timestamp",
   method = "relative"
 )
 
@@ -140,7 +140,7 @@ clusters_df <- data.frame(
 ```{r}
 #| label: define-clusters-auto
 #| eval: false
-clusters_auto <- split(human_cat$category, human_cat$superclass) |> lapply(unique)
+clusters_auto <- split(human_long$code, human_long$cluster) |> lapply(unique)
 ```
 
 ::: {.callout-tip}
@@ -791,46 +791,14 @@ plot_mcml(net, clusters,
 
 # Scaling to Larger Networks
 
-The `human_cat` dataset contains 15 fine-grained **codes** in addition to the 9 categories. We can build the network at the code level for a denser 15-node, 3-cluster MCML:
-
-```{r}
-#| label: big-network
-net_fine <- build_network(
-  human_cat, method = "relative",
-  actor = "session_id", action = "code", time = "timestamp"
-)
-
-fine_clusters <- list(
-  Directive = c("Command", "Direct", "Request", "Context", "Specification"),
-  Evaluative = c("Correction", "Reject", "Arguing", "Frustration",
-                  "Refinement", "Verification"),
-  Metacognitive = c("Ask", "Thinking", "Accept", "Interrupt")
-)
-```
-
-```{r}
-#| label: fig-big
-#| fig-cap: "15-node network with 3 superclass clusters"
-#| fig-width: 10
-#| fig-height: 10
-plot_mcml(net_fine, fine_clusters,
-  label_abbrev = "auto",
-  spacing = 4,
-  shape_size = 1.5,
-  minimum = 0.02,
-  colors = c("#E63946", "#457B9D", "#2A9D8F"),
-  title = "Fine-Grained Codes by Superclass"
-)
-```
-
-For dense networks, suppress labels and raise the threshold to reveal the backbone:
+For dense or cluttered networks, suppress labels and raise the threshold to reveal the backbone:
 
 ```{r}
 #| label: fig-big-clean
 #| fig-cap: "Dense network --- labels off, threshold raised, TNA mode"
 #| fig-width: 10
 #| fig-height: 10
-plot_mcml(net_fine, fine_clusters,
+plot_mcml(net, clusters,
   show_labels = FALSE,
   minimum = 0.05,
   edge_alpha = 0.25,

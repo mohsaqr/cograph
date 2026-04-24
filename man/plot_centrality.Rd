@@ -32,9 +32,12 @@ when \code{x} is already a centrality data frame.}
 
 \item{style}{Character: "line" (default), "bar", "lollipop".}
 
+\item{orientation}{Character: "horizontal" (default, nodes on y-axis) or
+"vertical" (nodes on x-axis).}
+
 \item{scale}{Character: "raw" (default, native units; in the "line"
-style this forces free y-axis per measure via faceting), "normalized"
-(\link{0, 1} within measure), "z" (standardized within measure), or "rank"
+style this forces free y-axis per measure via faceting), "normalized" ([0, 1]
+within measure), "z" (standardized within measure), or "rank"
 (1..n, highest value = 1).}
 
 \item{order_by}{Character. For "bar"/"lollipop": which measure sorts

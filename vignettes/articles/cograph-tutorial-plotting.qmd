@@ -711,9 +711,9 @@ Standard TNA assumes first-order Markov dynamics: the next state depends only on
 
 ```{r}
 #| label: hon-setup
-data("human_cat", package = "Nestimate")
-hon_net <- build_network(human_cat, method = "tna",
-  action = "category", time = "timestamp", session = "session_id")
+data("human_long", package = "Nestimate")
+hon_net <- build_network(human_long, method = "tna",
+  action = "code", time = "timestamp", session = "session_id")
 ```
 
 ```{r}

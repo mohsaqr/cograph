@@ -37,7 +37,7 @@ a measure to sort rows by (descending). Default: first measure.}
 \item{value_digits}{Decimal places for cell values. Default 1.}
 
 \item{low, mid, high}{Color stops for the diverging scale. Defaults to
-blue → white → red.}
+blue -> white -> red.}
 
 \item{limits}{Numeric c(min, max) z-score range. Values outside are
 squished to the endpoints. Default c(-2.5, 2.5).}

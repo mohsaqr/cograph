@@ -28,6 +28,9 @@ Edges that round to zero are removed unless \code{show_zero_edges = TRUE}.}
 \item{show_zero_edges}{Logical. If TRUE, keep edges even if their weight rounds to
 zero. Default: FALSE.}
 
+\item{preserve_node_size}{Logical. If TRUE, use the node sizes extracted
+from the qgraph object. Default FALSE uses cograph's standard sizing.}
+
 \item{...}{Override any extracted parameter. Use qgraph-style names (e.g.,
 \code{minimum}) or cograph names (e.g., \code{threshold}).}
 }

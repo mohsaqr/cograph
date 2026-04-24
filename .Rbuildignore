@@ -56,4 +56,7 @@
 ^scripts$
 ^data-raw$
 ^CRAN_TIMING_SUMMARY\.md$
-.DS_Store
+\.DS_Store
+^articles$
+^vignettes/articles$
+

@@ -152,6 +152,8 @@ NULL
 #' @param arrow_size Arrow head size.
 #' @param arrow_angle Arrow head angle in radians. Default pi/6 (30 degrees).
 #' @param show_arrows Logical or vector: show arrows on directed edges?
+#' @param show Dispatch-only placeholder used by method dispatch (e.g.,
+#'   \code{splot.tna_disparity}). Not intended for direct use.
 #' @param bidirectional Logical or vector: show arrows at both ends?
 #' @param loop_rotation Angle(s) in radians for self-loop direction.
 #' @param edge_start_style Style for the start segment of edges: "solid" (default),

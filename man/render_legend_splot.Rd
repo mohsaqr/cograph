@@ -17,7 +17,8 @@ render_legend_splot(
   has_pos_edges = FALSE,
   has_neg_edges = FALSE,
   show_node_sizes = FALSE,
-  node_size = NULL
+  node_size = NULL,
+  visual_scale = NULL
 )
 }
 \arguments{

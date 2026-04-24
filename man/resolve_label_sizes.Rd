@@ -4,7 +4,14 @@
 \alias{resolve_label_sizes}
 \title{Resolve Label Sizes}
 \usage{
-resolve_label_sizes(label_size, node_size_usr, n, scaling = "default")
+resolve_label_sizes(
+  label_size,
+  node_size_usr,
+  n,
+  scaling = "default",
+  visual_scale = NULL,
+  node_size = NULL
+)
 }
 \arguments{
 \item{label_size}{User-specified label size(s) or NULL.}
@@ -14,11 +21,25 @@ resolve_label_sizes(label_size, node_size_usr, n, scaling = "default")
 \item{n}{Number of nodes.}
 
 \item{scaling}{Scaling mode: "default" or "legacy".}
+
+\item{visual_scale}{Optional visual-scale list (from compute_visual_scale).
+When non-NULL and the caller did not pass \code{label_size}, the default label
+cex is multiplied by \code{visual_scale$scale} so label pixel size tracks the
+output canvas. User-explicit \code{label_size} always wins and is returned
+verbatim — the precedence rule.}
+
+\item{node_size}{Raw user-supplied node_size (pre-scale-factor). When
+default (7), yields label cex 1.0 — backward-compatible. When the user
+doubles node_size, labels double too; when they halve node_size, labels
+halve. Falls back to the scale constant's \code{node_default} when NULL.}
 }
 \value{
 Vector of label sizes (cex values).
 }
 \description{
-Determines label sizes, either independent (new default) or coupled to node size (legacy).
+Determines label sizes. Default links label cex to node size (qgraph
+invariant: label.cex is a function of vsize so the node-to-label ratio is
+locked by construction, and device compensation applied uniformly to both
+keeps the ratio stable across canvases).
 }
 \keyword{internal}

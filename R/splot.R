@@ -1261,6 +1261,28 @@ splot <- function(
                                    visual_scale = visual_scale,
                                    node_size = node_size)
 
+  # Couple edge_label_size to node label cex (harmony invariant). A fixed
+  # 0.55 fraction of the node label cex, so the node-to-edge-label ratio
+  # stays stable at ~1.82x on every canvas. This replaces the separate
+  # EDGE_LABEL_SCALE_CAP compensation path that used to let the ratio
+  # drift from 2.5x at reference to 3.6x at poster sizes.
+  #
+  # Only applies when the user didn't set edge_label_size explicitly;
+  # user-explicit values keep the old (capped) visual_scale compensation,
+  # just produced here in splot.R instead of inside render_edges_splot so
+  # the final cex is computed in a single place.
+  if (!("edge_label_size" %in% explicit_args)) {
+    .label_cex_effective <- if (length(label_cex) > 0) mean(label_cex) else 1
+    edge_label_size <- .label_cex_effective * 0.55
+  } else {
+    .vs_mult_edge <- visual_scale$scale %||% visual_scale$text %||% 1
+    if (is.finite(.vs_mult_edge) && .vs_mult_edge > 0) {
+      .vs_mult_edge <- pmin(pmax(.vs_mult_edge, EDGE_LABEL_SCALE_CAP[1]),
+                            EDGE_LABEL_SCALE_CAP[2])
+      edge_label_size <- edge_label_size * .vs_mult_edge
+    }
+  }
+
   # Edge widths (visual_scale multiplies the mapped lwd so absolute widths
   # track the canvas; weight-to-width rank mapping is preserved). Line
   # types / dotted-width adjustment applied after.
@@ -1792,27 +1814,11 @@ render_edges_splot <- function(edges, layout, node_sizes, shapes,
 
   # Draw edge labels
   if (!is.null(edge_labels)) {
-    # Vectorize edge label parameters (strict: length 1 or m)
+    # Vectorize edge label parameters (strict: length 1 or m). The caller
+    # (splot.R) has already applied the harmony coupling (fraction of node
+    # label cex for auto-defaults, or visual_scale with EDGE_LABEL_SCALE_CAP
+    # for user-explicit values), so `edge_label_size` arrives as final cex.
     edge_label_sizes <- expand_param(edge_label_size, m, "edge_label_size")
-
-    # Apply device-dependent visual scale so edge labels track canvas size
-    # in lockstep with node labels and the legend. Without this, edge
-    # labels render at a fixed point size regardless of canvas — which at
-    # small canvases (1" thumbnail at high DPI) blows them up relative to
-    # both nodes and the plot.
-    #
-    # The multiplier is clamped to a tighter `EDGE_LABEL_SCALE_CAP` than the
-    # main visual-scale cap. Edge labels are annotations, not primary
-    # content; at poster-sized canvases the main cap (2.3) made them visually
-    # compete with node labels. The tighter ceiling (1.6) preserves
-    # readability at reference while preventing poster blow-up.
-    .vs <- .get_current_visual_scale()
-    .vs_mult <- .vs$scale %||% .vs$text %||% 1
-    if (is.finite(.vs_mult) && .vs_mult > 0) {
-      .edge_vs <- pmin(pmax(.vs_mult, EDGE_LABEL_SCALE_CAP[1]),
-                       EDGE_LABEL_SCALE_CAP[2])
-      edge_label_sizes <- edge_label_sizes * .edge_vs
-    }
     edge_label_colors <- expand_param(edge_label_color, m, "edge_label_color")
     edge_label_bgs <- expand_param(edge_label_bg, m, "edge_label_bg")
     edge_label_positions_vec <- expand_param(edge_label_position, m, "edge_label_position")

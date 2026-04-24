@@ -24,15 +24,14 @@ analysis (with matrices or networks)."><meta property="og:image" content="https:
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/1_cograph-tutorial-plotting.html">Network Visualization with cograph: A Complete Plotting Guide</a></li>
-    <li><a class="dropdown-item" href="../articles/2_why-cograph.html">Why cograph?</a></li>
-    <li><a class="dropdown-item" href="../articles/3_plotting-tna-models.html">Plotting TNA Models with splot</a></li>
-    <li><a class="dropdown-item" href="../articles/bootstrap-forest.html">Bootstrap Forest Plots</a></li>
-    <li><a class="dropdown-item" href="../articles/cograph-tutorial-communities.html">Visualization of communities and hyper order networks</a></li>
-    <li><a class="dropdown-item" href="../articles/cograph-tutorial-nestimate.html">Network Estimation and Visualization with Nestimate + cograph</a></li>
-    <li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
+    <li><a class="dropdown-item" href="../articles/why-cograph.html">Why cograph?</a></li>
+    <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">Plotting TNA Models with splot</a></li>
     <li><a class="dropdown-item" href="../articles/mcml-examples.html">Advanced examples</a></li>
     <li><a class="dropdown-item" href="../articles/qgraph-to-splot.html">Migrating from qgraph to splot</a></li>
+    <li><a class="dropdown-item" href="../articles/bootstrap-forest.html">Bootstrap Forest Plots</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -255,7 +254,7 @@ plus all triangle patterns</p></dd>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Small aggregate example — no significance test for speed</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Small aggregate example -- no significance test for speed</span></span></span>
 <span class="r-in"><span><span class="va">mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">3</span>,<span class="fl">2</span>,<span class="fl">0</span>, <span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">5</span>,<span class="fl">1</span>, <span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">4</span>, <span class="fl">2</span>,<span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">0</span><span class="op">)</span>, <span class="fl">4</span>, <span class="fl">4</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Plan"</span>,<span class="st">"Execute"</span>,<span class="st">"Monitor"</span>,<span class="st">"Adapt"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu">extract_motifs</span><span class="op">(</span><span class="va">mat</span>, significance <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
@@ -276,62 +275,13 @@ plus all triangle patterns</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3  Plan - Execute - Monitor 030T        1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4    Plan - Monitor - Adapt 030C        1</span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="va">Mod</span> <span class="op">&lt;-</span> <span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="http://sonsoles.me/tna/reference/build_model.html" class="external-link">tna</a></span><span class="op">(</span><span class="fu">tna</span><span class="fu">::</span><span class="va"><a href="http://sonsoles.me/tna/reference/group_regulation.html" class="external-link">group_regulation</a></span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="co"># Individual-level from tna — keep n_perm tiny for example speed</span></span></span>
+<span class="r-in"><span><span class="co"># Individual-level from tna -- keep n_perm tiny for example speed</span></span></span>
 <span class="r-in"><span><span class="fu">extract_motifs</span><span class="op">(</span><span class="va">Mod</span>, top <span class="op">=</span> <span class="fl">10</span>, significance <span class="op">=</span> <span class="cn">TRUE</span>, n_perm <span class="op">=</span> <span class="fl">10L</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Motif Analysis</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Pattern: triangle | Edge method: any</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Individuals: 2000 | States: 9 | Total triads: 10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Type distribution:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 120C 030C 030T  210 120U 120D  300 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1482 1054  620  581  190  178   79 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Top 10 triads:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                               triad type observed expected     z sig</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   consensus - discuss - synthesis 120C      176     55.0 22.78 ***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2       adapt - discuss - synthesis 030T       24      5.4 15.85 ***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3    cohesion - consensus - emotion 120C      261    108.3 14.11 ***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  consensus - coregulate - discuss 120C      330    171.5 13.25 ***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5        consensus - emotion - plan 120C      436    343.3 11.57 ***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6       adapt - consensus - discuss 120C       88     40.8  9.11 ***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7  consensus - coregulate - emotion 030C      165    117.1  6.99 ***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8     consensus - coregulate - plan 120C      301    237.8  5.89 ***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9         cohesion - emotion - plan 030C      122     87.5  5.76 ***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10  cohesion - coregulate - emotion 030C       52     26.3  5.27 ***</span>
 <span class="r-in"><span><span class="co"># Filter to feed-forward loops only</span></span></span>
 <span class="r-in"><span><span class="fu">extract_motifs</span><span class="op">(</span><span class="va">Mod</span>, include_types <span class="op">=</span> <span class="st">"030T"</span>, significance <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Motif Analysis</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Pattern: triangle | Edge method: any</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Individuals: 2000 | States: 9 | Total triads: 59</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Type distribution:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 030T </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  620 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Top 20 triads:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                triad type observed</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1     cohesion - consensus - emotion 030T       57</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2           discuss - emotion - plan 030T       33</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3   consensus - coregulate - discuss 030T       32</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4        coregulate - emotion - plan 030T       27</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  cohesion - consensus - coregulate 030T       26</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6    consensus - discuss - synthesis 030T       26</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7      consensus - coregulate - plan 030T       23</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8     cohesion - consensus - discuss 030T       22</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9      consensus - discuss - emotion 030T       22</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10        consensus - emotion - plan 030T       22</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11          discuss - monitor - plan 030T       21</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12  consensus - coregulate - monitor 030T       20</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13      cohesion - discuss - emotion 030T       19</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14    coregulate - discuss - emotion 030T       18</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15       adapt - consensus - discuss 030T       17</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16         cohesion - emotion - plan 030T       17</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17       coregulate - discuss - plan 030T       17</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18     consensus - discuss - monitor 030T       14</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19        consensus - monitor - plan 030T       13</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20  consensus - coregulate - emotion 030T       12</span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

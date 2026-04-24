@@ -54,6 +54,35 @@ Built-in themes include:
 
 - `minimal`: Clean, minimal style
 
+## Weight conventions
+
+cograph's analytic functions follow a single convention for edge
+weights:
+
+- **Semantics.** A weight is a *strength*: higher weight means a
+  stronger connection (larger transition probability, thicker
+  correlation, stronger tie). This matches the qgraph / tna convention
+  and the intuition of most user-facing inputs.
+
+- **Path-based measures** (betweenness, closeness, harmonic,
+  eccentricity, stress, load, radiality, etc.) invert weights to
+  *distances* via `1 / weight ^ alpha`. The `alpha` argument (default 1)
+  tunes how strongly weight differences compress paths. Controlled by
+  the `invert_weights` argument, which auto-detects to `TRUE` for tna
+  objects and `FALSE` for matrices/igraph (matching native igraph / sna
+  defaults).
+
+- **Non-path measures** (degree, strength, eigenvector, PageRank,
+  transitivity, modularity, ...) use the raw weights as-is without
+  inversion.
+
+- **Unweighted override.** Passing `weights = NA` to any analytic
+  function forces unweighted behavior regardless of what is attached to
+  the graph.
+
+Individual functions may document exceptions in their own help pages.
+Any deviation from this convention is a bug — please report.
+
 ## See also
 
 Useful links:

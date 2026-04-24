@@ -18,15 +18,14 @@
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/1_cograph-tutorial-plotting.html">Network Visualization with cograph: A Complete Plotting Guide</a></li>
-    <li><a class="dropdown-item" href="../articles/2_why-cograph.html">Why cograph?</a></li>
-    <li><a class="dropdown-item" href="../articles/3_plotting-tna-models.html">Plotting TNA Models with splot</a></li>
-    <li><a class="dropdown-item" href="../articles/bootstrap-forest.html">Bootstrap Forest Plots</a></li>
-    <li><a class="dropdown-item" href="../articles/cograph-tutorial-communities.html">Visualization of communities and hyper order networks</a></li>
-    <li><a class="dropdown-item" href="../articles/cograph-tutorial-nestimate.html">Network Estimation and Visualization with Nestimate + cograph</a></li>
-    <li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
+    <li><a class="dropdown-item" href="../articles/why-cograph.html">Why cograph?</a></li>
+    <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">Plotting TNA Models with splot</a></li>
     <li><a class="dropdown-item" href="../articles/mcml-examples.html">Advanced examples</a></li>
     <li><a class="dropdown-item" href="../articles/qgraph-to-splot.html">Migrating from qgraph to splot</a></li>
+    <li><a class="dropdown-item" href="../articles/bootstrap-forest.html">Bootstrap Forest Plots</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -48,7 +47,7 @@
 <div class="section level3">
 <h3 id="plotting-2-1-1">Plotting<a class="anchor" aria-label="anchor" href="#plotting-2-1-1"></a></h3>
 <ul><li>
-<code>splot.netobject</code> now routes on the Nestimate <code>$method</code> slot rather than just direction. Undirected sequence-based networks from <code>build_cna()</code> and <code>wtna(method = "cooccurrence")</code> get oval TNA-family styling (layout, palette, donuts) with arrows and dotted edge starts automatically dropped because the matrix is symmetric. Glasso / cor / pcor / ising networks still get <code>psych_styling = TRUE</code> (spring layout, Okabe-Ito palette).</li>
+<code>splot.netobject</code> now routes on the Nestimate <code>$method</code> slot rather than just direction. Undirected sequence-based networks from <code><a href="https://rdrr.io/pkg/Nestimate/man/build_cna.html" class="external-link">build_cna()</a></code> and <code>wtna(method = "cooccurrence")</code> get oval TNA-family styling (layout, palette, donuts) with arrows and dotted edge starts automatically dropped because the matrix is symmetric. Glasso / cor / pcor / ising networks still get <code>psych_styling = TRUE</code> (spring layout, Okabe-Ito palette).</li>
 <li>
 <code><a href="../reference/from_tna.html">from_tna()</a></code> auto-detects integer-valued weight matrices (ftna, ctna, raw counts) and sets <code>weight_digits = edge_label_digits = 0</code> so edge labels render as <code>2304</code> rather than <code>2304.00</code>. Fractional weights still format to two decimals. Explicit user-supplied <code>weight_digits</code> still wins.</li>
 <li>

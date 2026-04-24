@@ -18,21 +18,30 @@ devtools::install_github("sonsoleslp/cograph")
 
 ## How to use it?
 
-- [Network Visualization with cograph: A Complete Plotting
-  Guide](https://sonsoles.me/cograph/articles/1_cograph-tutorial-plotting.md)
-- [Why cograph?](https://sonsoles.me/cograph/articles/2_why-cograph.md)
-- [Plotting TNA Models with
-  splot](https://sonsoles.me/cograph/articles/3_plotting-tna-models.md)
+### Full tutorials
+
+- [Network Visualization with
+  `cograph`](https://sonsoles.me/cograph/articles/cograph-tutorial-plotting.html)
 - [Visualization of communities and hyper order
-  networks](https://sonsoles.me/cograph/articles/cograph-tutorial-communities.md)
-- [Network Estimation and Visualization with Nestimate +
-  cograph](https://sonsoles.me/cograph/articles/cograph-tutorial-nestimate.md)
+  networks](https://sonsoles.me/cograph/articles/cograph-tutorial-communities.html)
+- [Network Estimation and Visualization with `Nestimate` +
+  cograph](https://sonsoles.me/cograph/articles/cograph-tutorial-nestimate.html)
+- [Multi-Cluster Multi-Level Visualization with
+  `plot_mcml`](https://sonsoles.me/cograph/articles/cograph-tutorial-mcml.html)
+- [Higher-Order Network Analysis with Simplicial
+  Complexes](https://sonsoles.me/cograph/articles/cograph-tutorial-simplicial.html)
+
+### Quick guides
+
+- [Why cograph?](https://sonsoles.me/cograph/articles/why-cograph.html)
+- [Plotting TNA Models with
+  `splot`](https://sonsoles.me/cograph/articles/plotting-tna-models.html)
 - [Advanced
-  examples](https://sonsoles.me/cograph/articles/mcml-examples.md)
+  examples](https://sonsoles.me/cograph/articles/mcml-examples.html)
 - [Bootstrap Forest
-  Plots](https://sonsoles.me/cograph/articles/bootstrap-forest.md)
-- [Migrating from qgraph to
-  splot](https://sonsoles.me/cograph/articles/qgraph-to-splot.md)
+  Plots](https://sonsoles.me/cograph/articles/bootstrap-forest.html)
+- [Migrating from `qgraph` to
+  `splot`](https://sonsoles.me/cograph/articles/qgraph-to-splot.html)
 
 ## Features
 
@@ -422,6 +431,10 @@ MIT License.
   : Entropy Centrality
 - [`centrality_expected()`](https://sonsoles.me/cograph/reference/centrality_expected.md)
   : Expected Centrality
+- [`centrality_expected_influence_1()`](https://sonsoles.me/cograph/reference/centrality_expected_influence_1.md)
+  : Expected Influence (one-step)
+- [`centrality_expected_influence_2()`](https://sonsoles.me/cograph/reference/centrality_expected_influence_2.md)
+  : Expected Influence (two-step)
 - [`centrality_flow_betweenness()`](https://sonsoles.me/cograph/reference/centrality_flow_betweenness.md)
   : Flow Betweenness Centrality
 - [`centrality_gateway()`](https://sonsoles.me/cograph/reference/centrality_gateway.md)
@@ -608,8 +621,14 @@ MIT License.
   : Convert Network to statnet network Object
 - [`plot_alluvial()`](https://sonsoles.me/cograph/reference/plot_alluvial.md)
   : Plot Alluvial Diagram
+- [`plot_centrality()`](https://sonsoles.me/cograph/reference/plot_centrality.md)
+  : Plot Centrality
+- [`plot_centrality_compare()`](https://sonsoles.me/cograph/reference/plot_centrality_compare.md)
+  : Plot Centrality Comparison (Pyramid)
 - [`plot_centrality_distribution()`](https://sonsoles.me/cograph/reference/plot_centrality_distribution.md)
   : Plot Centrality Distribution
+- [`plot_centrality_heatmap()`](https://sonsoles.me/cograph/reference/plot_centrality_heatmap.md)
+  : Plot Centrality Heatmap
 - [`plot_chord()`](https://sonsoles.me/cograph/reference/plot_chord.md)
   : Chord Diagram
 - [`plot_compare()`](https://sonsoles.me/cograph/reference/plot_compare.md)
@@ -995,21 +1014,32 @@ MIT License.
 
 # Articles
 
-### All vignettes
+### Articles
+
+- [Introduction to
+  cograph](https://sonsoles.me/cograph/articles/introduction.md):
+- [Why cograph?](https://sonsoles.me/cograph/articles/why-cograph.md):
+- [Plotting TNA Models with
+  splot](https://sonsoles.me/cograph/articles/plotting-tna-models.md):
+- [Advanced
+  examples](https://sonsoles.me/cograph/articles/mcml-examples.md):
+- [Migrating from qgraph to
+  splot](https://sonsoles.me/cograph/articles/qgraph-to-splot.md):
+- [Bootstrap Forest
+  Plots](https://sonsoles.me/cograph/articles/bootstrap-forest.md):
+
+### Tutorials
+
+Full tutorials
 
 - [Network Visualization with cograph: A Complete Plotting
-  Guide](https://sonsoles.me/cograph/articles/1_cograph-tutorial-plotting.md):
+  Guide](https://sonsoles.me/cograph/articles/cograph-tutorial-plotting.md):
 
   Publication-ready network plots with one function call — from basic
   graphs to donut-pie composites
 
-- [Why cograph?](https://sonsoles.me/cograph/articles/2_why-cograph.md):
-
-- [Plotting TNA Models with
-  splot](https://sonsoles.me/cograph/articles/3_plotting-tna-models.md):
-
-- [Bootstrap Forest
-  Plots](https://sonsoles.me/cograph/articles/bootstrap-forest.md):
+- [Multi-Cluster Multi-Level Visualization with plot_mcml: A Complete
+  Guide](https://sonsoles.me/cograph/articles/cograph-tutorial-mcml.md):
 
 - [Visualization of communities and hyper order
   networks](https://sonsoles.me/cograph/articles/cograph-tutorial-communities.md):
@@ -1021,14 +1051,8 @@ MIT License.
   cograph](https://sonsoles.me/cograph/articles/cograph-tutorial-nestimate.md):
 
   From raw sequence data to publication-ready statistical network plots
-  — build, bootstrap, compare, and visualize using Nestimate and cograph
-  together.
+  — build, bootstrap, compare, cluster, and visualize using Nestimate
+  and cograph together.
 
-- [Introduction to
-  cograph](https://sonsoles.me/cograph/articles/introduction.md):
-
-- [Advanced
-  examples](https://sonsoles.me/cograph/articles/mcml-examples.md):
-
-- [Migrating from qgraph to
-  splot](https://sonsoles.me/cograph/articles/qgraph-to-splot.md):
+- [Higher-Order Network Analysis with Simplicial
+  Complexes](https://sonsoles.me/cograph/articles/cograph-tutorial-simplicial.md):

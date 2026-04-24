@@ -24,15 +24,14 @@ edge styles, and themes."><meta property="og:image" content="https://sonsoles.me
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/1_cograph-tutorial-plotting.html">Network Visualization with cograph: A Complete Plotting Guide</a></li>
-    <li><a class="dropdown-item" href="../articles/2_why-cograph.html">Why cograph?</a></li>
-    <li><a class="dropdown-item" href="../articles/3_plotting-tna-models.html">Plotting TNA Models with splot</a></li>
-    <li><a class="dropdown-item" href="../articles/bootstrap-forest.html">Bootstrap Forest Plots</a></li>
-    <li><a class="dropdown-item" href="../articles/cograph-tutorial-communities.html">Visualization of communities and hyper order networks</a></li>
-    <li><a class="dropdown-item" href="../articles/cograph-tutorial-nestimate.html">Network Estimation and Visualization with Nestimate + cograph</a></li>
-    <li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
+    <li><a class="dropdown-item" href="../articles/why-cograph.html">Why cograph?</a></li>
+    <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">Plotting TNA Models with splot</a></li>
     <li><a class="dropdown-item" href="../articles/mcml-examples.html">Advanced examples</a></li>
     <li><a class="dropdown-item" href="../articles/qgraph-to-splot.html">Migrating from qgraph to splot</a></li>
+    <li><a class="dropdown-item" href="../articles/bootstrap-forest.html">Bootstrap Forest Plots</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -89,6 +88,30 @@ edge styles, and themes.</p>
 <li><p><code>dark</code>: Dark background theme</p></li>
 <li><p><code>minimal</code>: Clean, minimal style</p></li>
 </ul></div>
+    <div class="section level2">
+    <h2 id="weight-conventions">Weight conventions<a class="anchor" aria-label="anchor" href="#weight-conventions"></a></h2>
+
+
+<p>cograph's analytic functions follow a single convention for edge weights:</p><ul><li><p><strong>Semantics.</strong> A weight is a <em>strength</em>: higher weight
+means a stronger connection (larger transition probability, thicker
+correlation, stronger tie). This matches the qgraph / <span class="pkg">tna</span>
+convention and the intuition of most user-facing inputs.</p></li>
+<li><p><strong>Path-based measures</strong> (betweenness, closeness, harmonic,
+eccentricity, stress, load, radiality, etc.) invert weights to
+<em>distances</em> via <code>1 / weight ^ alpha</code>. The <code>alpha</code>
+argument (default 1) tunes how strongly weight differences compress
+paths. Controlled by the <code>invert_weights</code> argument, which
+auto-detects to <code>TRUE</code> for tna objects and <code>FALSE</code> for
+matrices/igraph (matching native igraph / <span class="pkg">sna</span> defaults).</p></li>
+<li><p><strong>Non-path measures</strong> (degree, strength, eigenvector,
+PageRank, transitivity, modularity, ...) use the raw weights as-is
+without inversion.</p></li>
+<li><p><strong>Unweighted override.</strong> Passing <code>weights = NA</code> to any
+analytic function forces unweighted behavior regardless of what is
+attached to the graph.</p></li>
+</ul><p>Individual functions may document exceptions in their own help pages.
+Any deviation from this convention is a bug — please report.</p>
+    </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Useful links:</p><ul><li><p><a href="https://sonsoles.me/cograph/">https://sonsoles.me/cograph/</a></p></li>

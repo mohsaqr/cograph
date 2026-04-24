@@ -22,7 +22,7 @@ object. Four layouts: `"linear"`, `"circular"`, `"chord"`, `"tile"`.
 ## 1. TNA Network (relative transitions)
 
 ``` r
-net_tna  <- build_network(human_wide, method = "relative")
+net_tna  <- build_network(ai_coding, method = "relative")
 boot_tna <- bootstrap_network(net_tna, iter = 200, seed = 42)
 ```
 
@@ -30,7 +30,7 @@ boot_tna <- bootstrap_network(net_tna, iter = 200, seed = 42)
 
 ``` r
 plot_bootstrap_forest(boot_tna,
-  title    = "Human-AI Interaction Network",
+  title    = "Human-AI interaction in coding",
   subtitle = "95% bootstrap CI  |  200 iterations")
 ```
 

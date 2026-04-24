@@ -108,6 +108,11 @@ centrality(
   [`centrality_information`](https://sonsoles.me/cograph/reference/centrality_information.md),
   [`centrality_pairwisedis`](https://sonsoles.me/cograph/reference/centrality_pairwisedis.md),
   [`centrality_reaching_local`](https://sonsoles.me/cograph/reference/centrality_reaching_local.md).
+  **Psychometric (signed-weight)**: "expected_influence_1",
+  "expected_influence_2" (Robinaugh, Millner & McNally 2016). Unlike
+  strength (which takes \|w\|), expected influence keeps the sign — the
+  appropriate measure when edges can be negative (partial-correlation,
+  glasso, signed correlation networks).
 
 - mode:
 

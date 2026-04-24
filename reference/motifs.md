@@ -245,7 +245,7 @@ Other motifs:
 ## Examples
 
 ``` r
-# Census from a matrix (no significance test — fastest path)
+# Census from a matrix (no significance test -- fastest path)
 mat <- matrix(c(0,3,2,0, 0,0,5,1, 0,0,0,4, 2,0,0,0), 4, 4, byrow = TRUE)
 rownames(mat) <- colnames(mat) <- c("Plan","Execute","Monitor","Adapt")
 motifs(mat, significance = FALSE)
@@ -262,74 +262,14 @@ motifs(mat, significance = FALSE)
 #>  030C     2
 #>  030T     2
 
+if (FALSE) { # \dontrun{
 # With a minimal significance test (set n_perm >= 500 in practice)
 motifs(mat, n_perm = 10L, seed = 1)
-#> Motif Census 
-#> Level: aggregate | States: 4 | Pattern: triangle 
-#> Significance: permutation (n_perm=10)
-#> 
-#> Type distribution:
-#> 
-#> 030C 030T 
-#>    1    1 
-#> 
-#> Top 2 results:
-#>  type count expected     z      p   sig
-#>  030C     2      0.2 -0.47 0.6353 FALSE
-#>  030T     2      0.0  0.00 1.0000 FALSE
+} # }
 
+if (FALSE) { # \dontrun{
 Mod <- tna::tna(tna::group_regulation)
 motifs(Mod, n_perm = 10L, seed = 1)
-#> Motif Census 
-#> Level: individual | 2000 units | States: 9 | Pattern: triangle 
-#> Significance: permutation (n_perm=10)
-#> 
-#> Type distribution:
-#> 
-#> 030C 030T 120C 120D 120U  210  300 
-#>    1    1    1    1    1    1    1 
-#> 
-#> Top 7 results:
-#>  type count expected     z      p   sig
-#>   210   581    766.2 -9.78 0.0000  TRUE
-#>  030T   620    436.3  7.49 0.0000  TRUE
-#>   300    79    166.2 -5.81 0.0000  TRUE
-#>  120C  1482   1343.0  3.26 0.0011  TRUE
-#>  030C  1054   1073.1 -0.90 0.3681 FALSE
-#>  120U   190    180.3  0.90 0.3681 FALSE
-#>  120D   178    171.8  0.52 0.6031 FALSE
 subgraphs(Mod, n_perm = 10L, seed = 1)
-#> Showing triangle patterns (count > 5). For all MAN types use pattern = 'all'.
-#> Motif Subgraphs 
-#> Level: individual | 2000 units | States: 9 | Pattern: triangle 
-#> Significance: permutation (n_perm=10)
-#> Min count: > 5 
-#> 
-#> Type distribution:
-#> 
-#> 030C 120C 030T  210 
-#>   30   14    6    1 
-#> 
-#> Top 20 results:
-#>                             triad observed type expected       z p  sig
-#>       cohesion - consensus - plan      151 120C   1384.0 -255.26 0 TRUE
-#>        consensus - discuss - plan      278  210   1496.7 -224.13 0 TRUE
-#>       coregulate - discuss - plan       61 030C   1218.6 -182.93 0 TRUE
-#>          discuss - emotion - plan       76 030T   1313.3 -159.13 0 TRUE
-#>        consensus - emotion - plan      436 120C   1439.8 -141.08 0 TRUE
-#>        consensus - monitor - plan      187 120C   1334.9 -130.45 0 TRUE
-#>      consensus - plan - synthesis       13 120C   1269.1 -127.84 0 TRUE
-#>        discuss - plan - synthesis        9 030C   1004.6 -120.50 0 TRUE
-#>     consensus - discuss - emotion      238 120C   1350.9 -120.09 0 TRUE
-#>    cohesion - consensus - discuss      125 120C   1238.4 -109.62 0 TRUE
-#>     consensus - coregulate - plan      301 120C   1391.6 -106.69 0 TRUE
-#>       coregulate - emotion - plan       64 030T   1126.1  -90.82 0 TRUE
-#>      cohesion - emotion - monitor       17 030C    552.4  -90.01 0 TRUE
-#>    adapt - consensus - coregulate       16 030C    763.5  -87.52 0 TRUE
-#>     consensus - discuss - monitor      127 120C   1184.0  -85.99 0 TRUE
-#>         cohesion - discuss - plan       18 030C   1201.9  -85.92 0 TRUE
-#>          discuss - monitor - plan       62 030T   1123.2  -84.44 0 TRUE
-#>  consensus - coregulate - emotion      165 030C   1165.5  -83.42 0 TRUE
-#>  consensus - coregulate - discuss      330 120C   1246.1  -83.29 0 TRUE
-#>    cohesion - consensus - emotion      261 120C   1109.7  -75.94 0 TRUE
+} # }
 ```

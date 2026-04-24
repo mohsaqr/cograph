@@ -719,6 +719,11 @@ splot(
 
   Angle(s) in radians for self-loop direction.
 
+- show:
+
+  Dispatch-only placeholder used by method dispatch (e.g.,
+  `splot.tna_disparity`). Not intended for direct use.
+
 - edge_start_style:
 
   Style for the start segment of edges: "solid" (default), "dashed", or

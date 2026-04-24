@@ -22,15 +22,14 @@ from graphAttributes rather than raw Arguments."><meta property="og:image" conte
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/1_cograph-tutorial-plotting.html">Network Visualization with cograph: A Complete Plotting Guide</a></li>
-    <li><a class="dropdown-item" href="../articles/2_why-cograph.html">Why cograph?</a></li>
-    <li><a class="dropdown-item" href="../articles/3_plotting-tna-models.html">Plotting TNA Models with splot</a></li>
-    <li><a class="dropdown-item" href="../articles/bootstrap-forest.html">Bootstrap Forest Plots</a></li>
-    <li><a class="dropdown-item" href="../articles/cograph-tutorial-communities.html">Visualization of communities and hyper order networks</a></li>
-    <li><a class="dropdown-item" href="../articles/cograph-tutorial-nestimate.html">Network Estimation and Visualization with Nestimate + cograph</a></li>
-    <li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
+    <li><a class="dropdown-item" href="../articles/why-cograph.html">Why cograph?</a></li>
+    <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">Plotting TNA Models with splot</a></li>
     <li><a class="dropdown-item" href="../articles/mcml-examples.html">Advanced examples</a></li>
     <li><a class="dropdown-item" href="../articles/qgraph-to-splot.html">Migrating from qgraph to splot</a></li>
+    <li><a class="dropdown-item" href="../articles/bootstrap-forest.html">Bootstrap Forest Plots</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -62,6 +61,7 @@ from <code>graphAttributes</code> rather than raw <code>Arguments</code>.</p>
 <span>  plot <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  weight_digits <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  show_zero_edges <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  preserve_node_size <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -91,6 +91,11 @@ Edges that round to zero are removed unless <code>show_zero_edges = TRUE</code>.
 <dt id="arg-show-zero-edges">show_zero_edges<a class="anchor" aria-label="anchor" href="#arg-show-zero-edges"></a></dt>
 <dd><p>Logical. If TRUE, keep edges even if their weight rounds to
 zero. Default: FALSE.</p></dd>
+
+
+<dt id="arg-preserve-node-size">preserve_node_size<a class="anchor" aria-label="anchor" href="#arg-preserve-node-size"></a></dt>
+<dd><p>Logical. If TRUE, use the node sizes extracted
+from the qgraph object. Default FALSE uses cograph's standard sizing.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -177,11 +182,11 @@ with hanging labels.</p></li>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>  <span class="co"># See what was extracted</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "x"                   "weight_digits"       "layout"             </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [4] "rescale"             "labels"              "node_fill"          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "node_size"           "node_shape"          "node_border_color"  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [10] "node_border_width"   "label_size"          "label_color"        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "edge_labels"         "edge_label_size"     "edge_style"         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [16] "arrow_size"          "edge_label_position" "threshold"          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [19] "maximum"             "groups"              "directed"           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "node_shape"          "node_border_color"   "node_border_width"  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10] "label_size"          "label_color"         "edge_labels"        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "edge_label_size"     "edge_style"          "arrow_size"         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [16] "edge_label_position" "threshold"           "maximum"            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] "groups"              "directed"           </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Works with themed qgraph objects</span></span></span>
 <span class="r-in"><span><span class="va">q_themed</span> <span class="op">&lt;-</span> <span class="fu">qgraph</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/qgraph/man/qgraph.html" class="external-link">qgraph</a></span><span class="op">(</span><span class="va">adj</span>, theme <span class="op">=</span> <span class="st">"colorblind"</span>, posCol <span class="op">=</span> <span class="st">"blue"</span><span class="op">)</span></span></span>

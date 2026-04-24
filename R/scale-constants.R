@@ -182,6 +182,56 @@ get_scale_constants <- function(scaling = "default") {
   }
 }
 
+# ============================================================================
+# Visual-scale (device-dependent) constants
+# ============================================================================
+
+#' Reference plot region for visual-scale computation (inches, geometric
+#' mean of `par("pin")`). 5.6 matches `par("pin")` at an RStudio 7x5" pane
+#' with splot's tight default margins (`margins = c(0.1, 0.1, 0.1, 0.1)`):
+#' pin ~ 6.96 x 4.96, geomean ~5.88. Recalibrated from the previous 5.9
+#' (canvas geomean) to 5.6 (pin geomean) after diagnosis showed the
+#' multiplier must track pin to stay in lockstep with user-coord nodes.
+#' At the default device this produces `scale = 1.0` and existing plots
+#' render unchanged.
+#' @keywords internal
+#' @noRd
+VISUAL_SCALE_REFERENCE <- 5.6
+
+#' Hard bounds on every visual-scale multiplier.
+#'
+#' Widened to `[0.35, 2.3]` after research into qgraph/ggraph/igraph showed
+#' the prior `[0.55, 1.9]` was over-conservative:
+#'
+#' - Floor 0.35: at 800x800@300dpi (2.67" canvas) raw is 0.45, which now
+#'   passes through unclamped — so labels/edges shrink to the *actual*
+#'   ratio their canvas demands instead of being held artificially large.
+#'   At extreme thumbnails (< 1" canvas) the floor still engages.
+#' - Ceiling 2.3: at 1200x1200@96dpi (12.5" canvas) raw is 2.12, which now
+#'   passes through — so labels grow proportionally at poster-size canvases
+#'   instead of being artificially suppressed.
+#'
+#' Below ~0.8" canvas the layout is infeasible regardless of cex — users
+#' should suppress labels/legend/title rather than rely on further scaling.
+#' @keywords internal
+#' @noRd
+VISUAL_SCALE_CAP <- c(0.35, 2.3)
+
+#' Edge-label-specific scale cap.
+#'
+#' Tighter ceiling than the main `VISUAL_SCALE_CAP` because edge labels are
+#' *annotations* (weight values like ".19"), not primary content. They
+#' should shrink with the canvas (to avoid overwhelming small plots) but
+#' grow less aggressively than node labels at poster sizes — otherwise at
+#' a 14"+ canvas with `vs$scale = 2.3`, edge-label cex reaches ~0.9 which
+#' is visually competing with node labels rather than supporting them.
+#' Ceiling 1.6 caps edge-label scaling roughly at the halfway point of
+#' node-label growth; floor 0.35 matches the main cap so tiny canvases
+#' aren't doubly-clamped.
+#' @keywords internal
+#' @noRd
+EDGE_LABEL_SCALE_CAP <- c(0.35, 1.6)
+
 #' Compute Adaptive Base Edge Size
 #'
 #' Calculates the maximum edge width that decreases with more nodes.
@@ -256,7 +306,8 @@ scale_edge_widths <- function(weights,
                                maximum = NULL,
                                minimum = 0,
                                cut = NULL,
-                               range = c(0.5, 4)) {
+                               range = c(0.5, 4),
+                               visual_scale = NULL) {
   if (length(weights) == 0) return(numeric(0))
 
   # Validate scale mode
@@ -319,6 +370,14 @@ scale_edge_widths <- function(weights,
 
   # Apply minimum threshold (set to min width)
   widths[abs_weights < minimum | is.na(abs_weights)] <- effective_range[1]
+
+  # Device-dependent compensation: scale the mapped output (not the range),
+  # so the "thinnest to thickest" rank mapping is preserved while absolute
+  # lwd tracks the output canvas.
+  if (!is.null(visual_scale) && !is.null(visual_scale$line) &&
+      is.finite(visual_scale$line)) {
+    widths <- widths * visual_scale$line
+  }
 
   widths
 }

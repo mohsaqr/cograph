@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>cograph visual sweep</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --panel: #161a22;
+    --border: #242a35;
+    --text: #e8ecf2;
+    --muted: #8b95a5;
+    --ok: #2faf6a;
+    --warn: #d8b24c;
+    --err: #d85050;
+    --accent: #5ea0ff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  header {
+    position: sticky; top: 0; z-index: 10;
+    padding: 1rem 1.5rem;
+    background: rgba(15, 17, 23, 0.95);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(6px);
+  }
+  h1 { margin: 0 0 .3rem; font-size: 1.15rem; font-weight: 600; }
+  .meta {
+    font-size: 0.78rem; color: var(--muted);
+    display: flex; gap: 1rem; flex-wrap: wrap;
+  }
+  .controls {
+    margin-top: 0.6rem;
+    display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;
+    font-size: 0.8rem;
+  }
+  .controls label { display: flex; gap: 0.3rem; align-items: center; cursor: pointer; }
+  select, input[type="text"] {
+    background: var(--panel); color: var(--text);
+    border: 1px solid var(--border); border-radius: 4px;
+    padding: 0.25rem 0.5rem; font-size: 0.8rem;
+  }
+  main { padding: 1rem 1.5rem 3rem; }
+  section.plot-fn {
+    margin: 1.2rem 0 2rem;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  section.plot-fn > h2 {
+    margin: 0;
+    padding: 0.7rem 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .grid {
+    padding: 1rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+  figure.cell {
+    margin: 0; position: relative;
+    background: #fff; border: 1px solid var(--border); border-radius: 6px;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  figure.cell.err { background: #28110f; border-color: var(--err); }
+  figure.cell.hidden { display: none; }
+  figure.cell img {
+    display: block; width: 100%; height: auto; max-height: 280px;
+    object-fit: contain; background: #fff;
+  }
+  figure.cell .diff-row { display: flex; }
+  figure.cell .diff-row img { width: 50%; }
+  figcaption {
+    padding: 0.4rem 0.5rem;
+    font-size: 0.72rem;
+    color: var(--muted);
+    background: var(--bg);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .badge {
+    position: absolute; top: 6px; right: 6px;
+    padding: 2px 6px; border-radius: 3px;
+    font-size: 0.68rem; font-weight: 600;
+    color: #fff;
+    font-family: ui-monospace, monospace;
+  }
+  .badge.ok { background: var(--ok); }
+  .badge.warn { background: var(--warn); color: #1a1a1a; }
+  .badge.err { background: var(--err); }
+  .badge.na { background: #555; color: #eee; }
+  .err-msg {
+    padding: 0.5rem 0.6rem; font-size: 0.72rem;
+    color: #ff9a8d; white-space: pre-wrap; word-break: break-word;
+  }
+  .row-count { color: var(--muted); font-size: 0.78rem; font-weight: normal; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<header>
+  <h1>cograph visual sweep</h1>
+  <div class="meta" id="meta">loading…</div>
+  <div class="controls">
+    <label><input type="checkbox" id="only-failing"> only show |Δ| > 5%</label>
+    <label><input type="checkbox" id="only-ok"> only show passes</label>
+    <label>plot_fn filter:
+      <select id="filter-plot-fn"><option value="">(all)</option></select>
+    </label>
+    <label>renderer:
+      <select id="filter-renderer"><option value="">(all)</option></select>
+    </label>
+    <span class="row-count" id="row-count"></span>
+    <span class="row-count">|
+      <a href="#" id="sweep-link">direct manifest</a>
+    </span>
+  </div>
+</header>
+<main id="main">loading…</main>
+
+<script>
+(async function () {
+  const params = new URLSearchParams(location.search);
+  const beforeUrl = params.get('before');
+  const afterUrl = params.get('after') || './manifest.json';
+  const diffMode = Boolean(beforeUrl);
+
+  document.getElementById('sweep-link').href = afterUrl;
+
+  const after = await fetch(afterUrl).then(r => r.json());
+  const before = beforeUrl ? await fetch(beforeUrl).then(r => r.json()) : null;
+
+  // Normalise rows
+  const rows = after.rows || [];
+  const beforeRows = before ? (before.rows || []) : null;
+
+  // Build meta
+  const meta = document.getElementById('meta');
+  meta.innerHTML = [
+    `<span>timestamp: ${after.timestamp}</span>`,
+    `<span>git: ${after.git_sha ? after.git_sha.slice(0, 10) : '(none)'}</span>`,
+    `<span>mode: ${after.mode}</span>`,
+    `<span>rows: ${after.n_rows}</span>`,
+    diffMode ? `<span style="color:var(--accent)">DIFF MODE: before ${before.timestamp} → after ${after.timestamp}</span>` : ''
+  ].filter(Boolean).join('');
+
+  // Build filter dropdowns
+  const byFn = {};
+  const renderers = new Set();
+  for (const r of rows) {
+    (byFn[r.plot_fn] = byFn[r.plot_fn] || []).push(r);
+    if (r.renderer) renderers.add(r.renderer);
+  }
+  const selPf = document.getElementById('filter-plot-fn');
+  Object.keys(byFn).sort().forEach(k => {
+    const o = document.createElement('option');
+    o.value = k; o.textContent = k;
+    selPf.appendChild(o);
+  });
+  const selR = document.getElementById('filter-renderer');
+  [...renderers].sort().forEach(k => {
+    const o = document.createElement('option');
+    o.value = k; o.textContent = k;
+    selR.appendChild(o);
+  });
+
+  // Render sections
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+
+  Object.keys(byFn).sort().forEach(pf => {
+    const section = document.createElement('section');
+    section.className = 'plot-fn';
+    section.dataset.pf = pf;
+
+    const h2 = document.createElement('h2');
+    h2.textContent = pf;
+    const count = document.createElement('span');
+    count.className = 'row-count';
+    count.textContent = `${byFn[pf].length} cells`;
+    h2.appendChild(count);
+    section.appendChild(h2);
+
+    const grid = document.createElement('div');
+    grid.className = 'grid';
+    byFn[pf].forEach(r => {
+      let beforeRow = null;
+      if (diffMode && beforeRows) {
+        beforeRow = beforeRows.find(b =>
+          b.plot_fn === r.plot_fn && b.width === r.width &&
+          b.height === r.height && b.res === r.res &&
+          b.pointsize === r.pointsize && b.renderer === r.renderer &&
+          b.units === r.units);
+      }
+      grid.appendChild(buildCell(r, beforeRow, after, before));
+    });
+    section.appendChild(grid);
+    main.appendChild(section);
+  });
+
+  // Filter wiring
+  const applyFilter = () => {
+    const onlyFail = document.getElementById('only-failing').checked;
+    const onlyOk = document.getElementById('only-ok').checked;
+    const pfWant = selPf.value;
+    const rWant = selR.value;
+
+    let visible = 0, total = 0;
+    document.querySelectorAll('figure.cell').forEach(el => {
+      total++;
+      const delta = parseFloat(el.dataset.delta);
+      const ok = el.dataset.ratioOk === 'true';
+      const pf = el.dataset.pf;
+      const renderer = el.dataset.renderer;
+      let show = true;
+      if (onlyFail && (!Number.isFinite(delta) || Math.abs(delta) <= 5)) show = false;
+      if (onlyOk && !ok) show = false;
+      if (pfWant && pf !== pfWant) show = false;
+      if (rWant && renderer !== rWant) show = false;
+      el.classList.toggle('hidden', !show);
+      if (show) visible++;
+    });
+    document.querySelectorAll('section.plot-fn').forEach(sec => {
+      const anyVisible = sec.querySelectorAll('figure.cell:not(.hidden)').length > 0;
+      sec.style.display = anyVisible ? '' : 'none';
+    });
+    document.getElementById('row-count').textContent = `${visible} / ${total} cells shown`;
+  };
+  ['only-failing','only-ok','filter-plot-fn','filter-renderer'].forEach(id =>
+    document.getElementById(id).addEventListener('change', applyFilter));
+  applyFilter();
+
+  // Signal Playwright that we're done rendering.
+  window.__sweepReady = true;
+
+  // --- helpers ---
+  function buildCell(row, beforeRow, afterManifest, beforeManifest) {
+    const fig = document.createElement('figure');
+    fig.className = 'cell';
+    fig.dataset.pf = row.plot_fn;
+    fig.dataset.renderer = row.renderer || '';
+    fig.dataset.delta = Number.isFinite(row.ratio_delta_pct) ? row.ratio_delta_pct : NaN;
+    fig.dataset.ratioOk = String(Boolean(row.ratio_ok));
+
+    if (row.status === 'error') {
+      fig.classList.add('err');
+      const msg = document.createElement('div');
+      msg.className = 'err-msg';
+      msg.textContent = `ERROR: ${row.message}`;
+      fig.appendChild(msg);
+    } else {
+      if (beforeRow && beforeRow.status === 'ok') {
+        const row2 = document.createElement('div');
+        row2.className = 'diff-row';
+        const imgB = document.createElement('img');
+        imgB.src = relativise(beforeRow.file, beforeManifest, afterManifest, beforeUrl);
+        imgB.alt = `${row.plot_fn} before`;
+        imgB.loading = 'lazy';
+        const imgA = document.createElement('img');
+        imgA.src = row.file;
+        imgA.alt = `${row.plot_fn} after`;
+        imgA.loading = 'lazy';
+        row2.appendChild(imgB);
+        row2.appendChild(imgA);
+        fig.appendChild(row2);
+      } else {
+        const img = document.createElement('img');
+        img.src = row.file;
+        img.alt = row.plot_fn;
+        img.loading = 'lazy';
+        fig.appendChild(img);
+      }
+    }
+
+    const badge = document.createElement('span');
+    const delta = row.ratio_delta_pct;
+    if (!Number.isFinite(delta)) {
+      badge.className = 'badge na';
+      badge.textContent = 'n/a';
+    } else if (Math.abs(delta) <= 5) {
+      badge.className = 'badge ok';
+      badge.textContent = `${delta >= 0 ? '+' : ''}${delta.toFixed(1)}%`;
+    } else if (Math.abs(delta) <= 15) {
+      badge.className = 'badge warn';
+      badge.textContent = `${delta >= 0 ? '+' : ''}${delta.toFixed(1)}%`;
+    } else {
+      badge.className = 'badge err';
+      badge.textContent = `${delta >= 0 ? '+' : ''}${delta.toFixed(0)}%`;
+    }
+    fig.appendChild(badge);
+
+    const cap = document.createElement('figcaption');
+    cap.textContent =
+      `${row.width}×${row.height} @${row.res}dpi  ps=${row.pointsize}  ${row.units}  ${row.renderer}` +
+      (Number.isFinite(row.vs_text) ? `   vs.text=${row.vs_text.toFixed(2)}` : '') +
+      (Number.isFinite(row.canvas_in_geomean) ? `   canvas=${row.canvas_in_geomean.toFixed(2)}"` : '');
+    fig.appendChild(cap);
+    return fig;
+  }
+  function relativise(beforeFile, beforeM, afterM, beforeUrl) {
+    // Files under before/ are relative to beforeUrl's dir; files under after/
+    // are relative to afterUrl's dir (same dir as this HTML).
+    if (!beforeFile || !beforeUrl) return beforeFile;
+    const base = beforeUrl.replace(/\/[^/]*$/, '/');
+    return base + beforeFile;
+  }
+})().catch(err => {
+  document.body.innerHTML =
+    '<pre style="color:#d85050;padding:2rem">Failed to load manifest:\n' +
+    (err && err.stack ? err.stack : err) + '</pre>';
+});
+</script>
+</body>
+</html>

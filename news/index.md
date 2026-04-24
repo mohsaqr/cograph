@@ -1,8 +1,39 @@
 # Changelog
 
-## cograph 2.1.1
+## cograph 2.1.2 (development)
 
-CRAN release: 2026-04-15
+### Plotting — device-aware visual scaling
+
+- [`splot()`](https://sonsoles.me/cograph/reference/splot.md) now
+  applies device-dependent compensation to text, line, and point sizes
+  so visual ratios (label-to-node, legend-to-plot, edge thickness) stay
+  consistent when the output device changes. This fixes the
+  long-standing “labels too big at high DPI” and “legend desynchronised
+  from the plot” issues when saving PNGs at `res = 300` or `res = 600`
+  with pixel-default `width`/`height`, and when resizing the RStudio
+  plot pane. Implementation: a single `compute_visual_scale()` reads the
+  active device’s canvas size (`dev.size("in")`) and returns multipliers
+  keyed off a 5.9-inch reference (matching the default RStudio 7×5” pane
+  so backward-compatible behaviour at the default canvas is preserved).
+  Multipliers are clamped to `[0.55, 1.9]` to keep thumbnails and
+  posters legible. See the new `R/visual-scale.R`.
+- New `scaling = "fixed"` mode on
+  [`splot()`](https://sonsoles.me/cograph/reference/splot.md) — and
+  corresponding global option `options(cograph.visual_scaling = FALSE)`
+  — disables device compensation for reproducibility-sensitive workflows
+  that calibrated against the previous behaviour.
+- [`splot()`](https://sonsoles.me/cograph/reference/splot.md) return
+  value now carries two attributes for downstream tooling:
+  `cograph.visual_scale` (the multiplier list) and
+  `cograph.node_diam_in` (the representative node diameter in inches at
+  the rendered device).
+- The splot-internal
+  [`render_legend_splot()`](https://sonsoles.me/cograph/reference/render_legend_splot.md)
+  plus the new shared `.render_legend_base()`
+  (`R/render-legend-shared.R`) replace the ad-hoc legend cex/pt.cex
+  handling with a single compensated path. `plot_htna`, `plot_mtna`,
+  `plot_mlna`, `plot_mcml` still use their historical scale multiplier
+  arguments; Phase 2 will migrate them to the shared helper.
 
 ### Plotting
 

@@ -43,9 +43,18 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="2.1.1" id="cograph-211">cograph 2.1.1<a class="anchor" aria-label="anchor" href="#cograph-211"></a></h2><p class="text-muted">CRAN release: 2026-04-15</p>
+<h2 class="pkg-version" data-toc-text="2.1.2" id="cograph-212-development">cograph 2.1.2 (development)<a class="anchor" aria-label="anchor" href="#cograph-212-development"></a></h2>
 <div class="section level3">
-<h3 id="plotting-2-1-1">Plotting<a class="anchor" aria-label="anchor" href="#plotting-2-1-1"></a></h3>
+<h3 id="plotting--device-aware-visual-scaling-2-1-2">Plotting — device-aware visual scaling<a class="anchor" aria-label="anchor" href="#plotting--device-aware-visual-scaling-2-1-2"></a></h3>
+<ul><li>
+<code><a href="../reference/splot.html">splot()</a></code> now applies device-dependent compensation to text, line, and point sizes so visual ratios (label-to-node, legend-to-plot, edge thickness) stay consistent when the output device changes. This fixes the long-standing “labels too big at high DPI” and “legend desynchronised from the plot” issues when saving PNGs at <code>res = 300</code> or <code>res = 600</code> with pixel-default <code>width</code>/<code>height</code>, and when resizing the RStudio plot pane. Implementation: a single <code>compute_visual_scale()</code> reads the active device’s canvas size (<code>dev.size("in")</code>) and returns multipliers keyed off a 5.9-inch reference (matching the default RStudio 7×5” pane so backward-compatible behaviour at the default canvas is preserved). Multipliers are clamped to <code>[0.55, 1.9]</code> to keep thumbnails and posters legible. See the new <code>R/visual-scale.R</code>.</li>
+<li>New <code>scaling = "fixed"</code> mode on <code><a href="../reference/splot.html">splot()</a></code> — and corresponding global option <code>options(cograph.visual_scaling = FALSE)</code> — disables device compensation for reproducibility-sensitive workflows that calibrated against the previous behaviour.</li>
+<li>
+<code><a href="../reference/splot.html">splot()</a></code> return value now carries two attributes for downstream tooling: <code>cograph.visual_scale</code> (the multiplier list) and <code>cograph.node_diam_in</code> (the representative node diameter in inches at the rendered device).</li>
+<li>The splot-internal <code><a href="../reference/render_legend_splot.html">render_legend_splot()</a></code> plus the new shared <code>.render_legend_base()</code> (<code>R/render-legend-shared.R</code>) replace the ad-hoc legend cex/pt.cex handling with a single compensated path. <code>plot_htna</code>, <code>plot_mtna</code>, <code>plot_mlna</code>, <code>plot_mcml</code> still use their historical scale multiplier arguments; Phase 2 will migrate them to the shared helper.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="plotting-2-1-2">Plotting<a class="anchor" aria-label="anchor" href="#plotting-2-1-2"></a></h3>
 <ul><li>
 <code>splot.netobject</code> now routes on the Nestimate <code>$method</code> slot rather than just direction. Undirected sequence-based networks from <code><a href="https://rdrr.io/pkg/Nestimate/man/build_cna.html" class="external-link">build_cna()</a></code> and <code>wtna(method = "cooccurrence")</code> get oval TNA-family styling (layout, palette, donuts) with arrows and dotted edge starts automatically dropped because the matrix is symmetric. Glasso / cor / pcor / ising networks still get <code>psych_styling = TRUE</code> (spring layout, Okabe-Ito palette).</li>
 <li>
@@ -56,7 +65,7 @@
 <li>Self-loops are now preserved in every plot function.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="correctness-fixes-audit-driven-2-1-1">Correctness fixes (audit-driven)<a class="anchor" aria-label="anchor" href="#correctness-fixes-audit-driven-2-1-1"></a></h3>
+<h3 id="correctness-fixes-audit-driven-2-1-2">Correctness fixes (audit-driven)<a class="anchor" aria-label="anchor" href="#correctness-fixes-audit-driven-2-1-2"></a></h3>
 <ul><li>
 <code><a href="../reference/detect_duplicate_edges.html">detect_duplicate_edges()</a></code>, <code><a href="../reference/aggregate_duplicate_edges.html">aggregate_duplicate_edges()</a></code>, <code><a href="../reference/simplify.html">simplify.cograph_network()</a></code>, and the internal <code><a href="../reference/check_duplicate_edges.html">check_duplicate_edges()</a></code> helper now respect directed vs undirected semantics. Previously the canonical (min/max) endpoint key collapsed <code>A -&gt; B</code> and <code>B -&gt; A</code> into one edge even on directed graphs, matching <code><a href="https://r.igraph.org/reference/simplify.html" class="external-link">igraph::simplify()</a></code> ground truth.</li>
 <li>
@@ -71,14 +80,14 @@
 <code><a href="../reference/simplify.html">simplify.cograph_network()</a></code> threads the directed flag through to edge aggregation so directed multigraphs collapse correctly.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="performance--documentation-2-1-1">Performance &amp; documentation<a class="anchor" aria-label="anchor" href="#performance--documentation-2-1-1"></a></h3>
+<h3 id="performance--documentation-2-1-2">Performance &amp; documentation<a class="anchor" aria-label="anchor" href="#performance--documentation-2-1-2"></a></h3>
 <ul><li>
 <code><a href="../reference/simplify.html">simplify()</a></code> performance refactor for large networks plus a cleaner title-composition path.</li>
 <li>
 <code><a href="../reference/motifs.html">motifs()</a></code>, <code><a href="../reference/extract_motifs.html">extract_motifs()</a></code>, and <code>plot.cograph_motif_analysis</code> examples reworked to use <code>n_perm = 10L</code> (or <code>significance = FALSE</code>) and promoted from <code>\dontrun</code> to CRAN-runnable (optional tna branches stay in <code>\donttest</code>). Retires 320 seconds of latent CRAN timing risk — every example now runs in under 4 seconds.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="new-tests-2-1-1">New tests<a class="anchor" aria-label="anchor" href="#new-tests-2-1-1"></a></h3>
+<h3 id="new-tests-2-1-2">New tests<a class="anchor" aria-label="anchor" href="#new-tests-2-1-2"></a></h3>
 <ul><li>
 <code>test-audit-fixes.R</code> — ground-truth regressions for the directed edge semantics, modularity vectorization, and small-world behaviour changes.</li>
 <li>

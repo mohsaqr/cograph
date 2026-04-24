@@ -13,7 +13,6 @@ plot_tna(
   theme = "colorblind",
   mar = c(0.1, 0.1, 0.1, 0.1),
   cut = NULL,
-  edge.labels = TRUE,
   edge.label.position = 0.7,
   edge.label.cex = 0.6,
   edge.color = COGRAPH_SCALE$tna_edge_color,
@@ -38,7 +37,6 @@ tplot(
   theme = "colorblind",
   mar = c(0.1, 0.1, 0.1, 0.1),
   cut = NULL,
-  edge.labels = TRUE,
   edge.label.position = 0.7,
   edge.label.cex = 0.6,
   edge.color = COGRAPH_SCALE$tna_edge_color,
@@ -69,8 +67,6 @@ tplot(
 \item{mar}{Plot margins (numeric vector of length 4)}
 
 \item{cut}{Edge emphasis threshold}
-
-\item{edge.labels}{Show edge weight labels}
 
 \item{edge.label.position}{Position of edge labels along edge (0-1)}
 

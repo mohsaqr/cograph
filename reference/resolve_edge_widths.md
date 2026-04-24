@@ -19,7 +19,8 @@ resolve_edge_widths(
   edge_scale_mode = NULL,
   scaling = "default",
   base_width = NULL,
-  scale_factor = NULL
+  scale_factor = NULL,
+  visual_scale = NULL
 )
 ```
 

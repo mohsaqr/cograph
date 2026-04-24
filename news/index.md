@@ -2,6 +2,23 @@
 
 ## cograph 2.1.2 (development)
 
+### Plotting — edge-label cex coupling (Phase 2)
+
+- Default `edge_label_size` is now coupled to the node label cex at a
+  fixed 0.55 fraction (`edge_cex = 0.55 * mean(node_label_cex)`) so the
+  node-to-edge-label ratio stays a stable ~1.82x across canvases. This
+  replaces the previous `EDGE_LABEL_SCALE_CAP`-based compensation, which
+  let the ratio drift from 2.5x at reference to 3.6x at poster canvases
+  because edge labels were clamped to a tighter 1.6 ceiling while node
+  labels scaled freely to 2.3. The visible effect: edge weight
+  annotations are now readable at poster sizes instead of shrinking
+  relative to node labels. User-explicit `edge_label_size` still wins
+  and receives the same (capped) visual-scale compensation as before;
+  only the default path changed.
+- Edge-label visual_scale resolution moved from
+  [`render_edges_splot()`](https://sonsoles.me/cograph/reference/render_edges_splot.md)
+  into `splot.R` so the final cex is produced in a single place.
+
 ### Plotting — device-aware visual scaling
 
 - [`splot()`](https://sonsoles.me/cograph/reference/splot.md) now

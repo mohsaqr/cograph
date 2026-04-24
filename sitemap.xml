@@ -471,6 +471,7 @@
 <url><loc>https://sonsoles.me/cograph/reference/render-edges.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/render-ggplot.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/render-grid.html</loc></url>
+<url><loc>https://sonsoles.me/cograph/reference/render-legend-shared.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/render-nodes.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/render_edge_labels_grid.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/render_edges_base.html</loc></url>
@@ -596,6 +597,7 @@
 <url><loc>https://sonsoles.me/cograph/reference/validate_network.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/validate_range.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/verify_with_igraph.html</loc></url>
+<url><loc>https://sonsoles.me/cograph/reference/visual-scale.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/vulnerability.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/zzz.html</loc></url>
 </urlset>

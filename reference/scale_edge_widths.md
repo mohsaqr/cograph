@@ -16,7 +16,8 @@ scale_edge_widths(
   maximum = NULL,
   minimum = 0,
   cut = NULL,
-  range = c(0.5, 4)
+  range = c(0.5, 4),
+  visual_scale = NULL
 )
 ```
 

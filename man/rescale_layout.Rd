@@ -4,7 +4,7 @@
 \alias{rescale_layout}
 \title{Rescale Layout to -1 to 1 Range}
 \usage{
-rescale_layout(layout, mar = 0.1)
+rescale_layout(layout, mar = 0.1, keep_aspect = TRUE)
 }
 \arguments{
 \item{layout}{Matrix or data frame with x, y columns.}

@@ -251,7 +251,7 @@ splot_angle <- function(x1, y1, x2, y2) {
 #' @param mar Margin to leave (as proportion of range).
 #' @return Rescaled layout.
 #' @keywords internal
-rescale_layout <- function(layout, mar = 0.1) {
+rescale_layout <- function(layout, mar = 0.1, keep_aspect = TRUE) {
   layout <- as.data.frame(layout)
 
   if (ncol(layout) < 2) {
@@ -276,12 +276,19 @@ rescale_layout <- function(layout, mar = 0.1) {
   # Target range with margins
   target <- 1 - mar
 
-  # Rescale using uniform scaling to preserve aspect ratio
-  max_range <- max(diff(x_range), diff(y_range))
   x_center <- mean(x_range)
   y_center <- mean(y_range)
-  layout[[1]] <- (x - x_center) / max_range * 2 * target
-  layout[[2]] <- (y - y_center) / max_range * 2 * target
+
+  if (keep_aspect) {
+    # Uniform scaling to preserve aspect ratio
+    max_range <- max(diff(x_range), diff(y_range))
+    layout[[1]] <- (x - x_center) / max_range * 2 * target
+    layout[[2]] <- (y - y_center) / max_range * 2 * target
+  } else {
+    # Independent per-axis scaling — fills [-target, target] on both axes
+    layout[[1]] <- (x - x_center) / diff(x_range) * 2 * target
+    layout[[2]] <- (y - y_center) / diff(y_range) * 2 * target
+  }
 
   layout
 }

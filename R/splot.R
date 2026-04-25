@@ -900,7 +900,8 @@ splot <- function(
 
   # Rescale to [-1, 1]
   if (rescale) {
-    layout_mat <- as.matrix(rescale_layout(layout_mat, mar = 0.1))
+    layout_mat <- as.matrix(rescale_layout(layout_mat, mar = 0.1,
+                                            keep_aspect = aspect))
   }
 
   # Apply layout scale (expand/contract around center)

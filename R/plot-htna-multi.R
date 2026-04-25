@@ -394,15 +394,24 @@ plot_mtna <- function(
     dots <- list(...)
     edge_lwd_mult <- if (!is.null(dots$edge.lwd)) dots$edge.lwd else 1
 
+    # Self-loop sizing: fraction of shape_size (user-coord, device-independent).
+    # anchor_ratio < 0.5 gives a full-circle loop; 0.5-1.0 gives a partial
+    # arc. 0.6 produces a ~320 deg arc starting close to the node center.
+    loop_r_cluster <- shape_size * 0.15
+    loop_r_node    <- shape_size * 0.18
+    loop_anchor    <- 0.6
+
     # For summary view, we need to draw manually after setting up the plot
     # First create empty plot with correct dimensions
     all_x <- cluster_centers[, 1]
     all_y <- cluster_centers[, 2]
-    # Compute margin: use layout_margin fraction of range, but ensure at least shape_size*1.2
+    # Compute margin: ensure enough room for the shell + any self-loop
+    # that extends beyond the border.
     x_base <- range(all_x)
     y_base <- range(all_y)
-    x_margin <- max(diff(x_base) * layout_margin * 0.5, shape_size * 0.8)
-    y_margin <- max(diff(y_base) * layout_margin * 0.5, shape_size * 0.8)
+    loop_extent <- shape_size + loop_r_cluster * 2.5
+    x_margin <- max(diff(x_base) * layout_margin * 0.5, loop_extent)
+    y_margin <- max(diff(y_base) * layout_margin * 0.5, loop_extent)
     x_range <- c(x_base[1] - x_margin, x_base[2] + x_margin)
     y_range <- c(y_base[1] - y_margin, y_base[2] + y_margin)
 
@@ -527,15 +536,30 @@ plot_mtna <- function(
           lwd <- (1 + 5 * (weight / max_weight)) * edge_scale * edge_lwd_mult
 
           if (i == j) {
-            # Cluster self-loop: scale to node_size (not shell_radius) so the
-            # loop doesn't balloon out to the full shell. Larger than the
-            # within-cluster self-loops (node_size * 0.03) to signal the
-            # cluster-level aggregation at the shell center.
+            # Cluster self-loop: placed on the shell border, pointing
+            # outward from the layout center (away from other clusters).
+            cl_cx <- mean(cluster_centers[, 1])
+            cl_cy <- mean(cluster_centers[, 2])
+            cl_rot <- atan2(cluster_centers[i, 2] - cl_cy,
+                            cluster_centers[i, 1] - cl_cx)
+            # Use get_shell_edge_point so the loop sits on the actual
+            # shape border (matters for triangle/diamond where the border
+            # is closer than shell_radius in some directions).
+            far_x <- cluster_centers[i, 1] + 100 * cos(cl_rot)
+            far_y <- cluster_centers[i, 2] + 100 * sin(cl_rot)
+            border_pt <- get_shell_edge_point(
+              cluster_centers[i, 1], cluster_centers[i, 2],
+              far_x, far_y, shell_radius, cluster_shapes[i]
+            )
+            border_x <- border_pt[1]
+            border_y <- border_pt[2]
             draw_self_loop_base(
-              x = cluster_centers[i, 1], y = cluster_centers[i, 2],
-              node_size = node_size * 0.15,
+              x = border_x, y = border_y,
+              node_size = loop_r_cluster,
               col = edge_colors[i], lwd = lwd,
-              arrow = TRUE, asize = 0.08
+              rotation = cl_rot,
+              arrow = TRUE, asize = loop_r_cluster * 0.3,
+              anchor_radius = loop_r_cluster * loop_anchor
             )
             next
           }
@@ -700,11 +724,16 @@ plot_mtna <- function(
                 } # nocov end
 
                 if (j == k) {
+                  # Loop pointing outward from cluster center.
+                  loop_rot <- atan2(inner_y[j] - center_y,
+                                    inner_x[j] - center_x)
                   draw_self_loop_base(
                     x = inner_x[j], y = inner_y[j],
-                    node_size = node_size * 0.03,
+                    node_size = loop_r_node,
                     col = edge_col, lwd = lwd,
-                    arrow = TRUE, asize = 0.04
+                    rotation = loop_rot,
+                    arrow = TRUE, asize = loop_r_node * 0.3,
+                    anchor_radius = loop_r_node * loop_anchor
                   )
                 } else {
                   x0 <- inner_x[j]

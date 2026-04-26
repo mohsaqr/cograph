@@ -33,7 +33,9 @@ plot_htna(
   edge_colors = NULL,
   intra_curvature = NULL,
   legend = TRUE,
-  legend_position = "bottomright",
+  legend_position = "bottom",
+  legend_horiz = NULL,
+  legend_ncol = NULL,
   extend_lines = FALSE,
   scale = 1,
   nodes = NULL,
@@ -69,7 +71,9 @@ htna(
   edge_colors = NULL,
   intra_curvature = NULL,
   legend = TRUE,
-  legend_position = "bottomright",
+  legend_position = "bottom",
+  legend_horiz = NULL,
+  legend_ncol = NULL,
   extend_lines = FALSE,
   scale = 1,
   nodes = NULL,
@@ -175,10 +179,18 @@ between nodes in the same group). When set, intra-group edges are drawn
 separately with curves that arc away from the opposing group. Default NULL
 (intra-group edges drawn normally by splot). Typical values: 0.3 to 1.0.}
 
-\item{legend}{Logical. Whether to show a legend. Default TRUE for polygon layouts.}
+\item{legend}{Logical. Whether to show a legend. Default TRUE.}
 
 \item{legend_position}{Position for legend: "topright", "topleft", "bottomright",
-"bottomleft", "right", "left", "top", "bottom". Default "bottomright".}
+"bottomleft", "right", "left", "top", "bottom". Default "bottom".}
+
+\item{legend_horiz}{Logical. Force horizontal (TRUE) or vertical (FALSE)
+legend. NULL (default) auto-selects: horizontal for "top"/"bottom"
+positions, vertical otherwise.}
+
+\item{legend_ncol}{Integer. Number of columns when the legend is vertical.
+NULL (default) lets \code{graphics::legend} pick. Ignored when the legend
+is horizontal.}
 
 \item{extend_lines}{Logical or numeric. Draw extension lines from nodes.
 Only applies to bipartite layout.

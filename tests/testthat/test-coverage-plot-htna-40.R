@@ -213,21 +213,21 @@ test_that("plot_htna auto-selects bipartite for 2 groups", {
   on.exit(unlink(tmp), add = TRUE)
 
   png(tmp, width = 400, height = 400)
-  # layout = "auto" should select bipartite for 2 groups
+  # layout = "auto" -> circular for any group count
   expect_no_error(
     plot_htna(mat, node_list = list(G1 = c("A", "B", "C"), G2 = c("D", "E", "F")), layout = "auto")
   )
   dev.off()
 })
 
-test_that("plot_htna auto-selects polygon for 3+ groups", {
+test_that("plot_htna auto-selects circular for 3+ groups", {
   mat <- create_test_htna_matrix(9, labels = LETTERS[1:9])
 
   tmp <- tempfile(fileext = ".png")
   on.exit(unlink(tmp), add = TRUE)
 
   png(tmp, width = 400, height = 400)
-  # layout = "auto" should select polygon for 3 groups
+  # layout = "auto" -> circular for any group count
   expect_no_error(
     plot_htna(mat,
               node_list = list(G1 = c("A", "B", "C"), G2 = c("D", "E", "F"), G3 = c("G", "H", "I")),

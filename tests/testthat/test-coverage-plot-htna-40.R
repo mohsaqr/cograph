@@ -1303,3 +1303,38 @@ test_that("plot_htna returns result invisibly", {
   # Result should be returned (from tplot)
   expect_false(is.null(result))
 })
+
+test_that("plot_htna respects legend_horiz override and legend_ncol", {
+  mat <- create_test_htna_matrix(6)
+  groups <- list(G1 = c("A", "B", "C"), G2 = c("D", "E", "F"))
+
+  tmp <- tempfile(fileext = ".png")
+  on.exit(unlink(tmp), add = TRUE)
+  png(tmp, width = 400, height = 400)
+
+  expect_no_error(plot_htna(mat, node_list = groups, legend_horiz = TRUE,
+                            legend_position = "topright"))
+  expect_no_error(plot_htna(mat, node_list = groups, legend_horiz = FALSE,
+                            legend_position = "bottom", legend_ncol = 2))
+
+  dev.off()
+})
+
+test_that("plot_htna circular default uses bumped angle_spacing only when not user-set", {
+  # The bump (0.15 -> 0.35) only fires when user doesn't pass angle_spacing.
+  # No direct way to inspect the resolved value, so just confirm both
+  # branches draw without error.
+  mat <- create_test_htna_matrix(9, labels = LETTERS[1:9])
+  groups <- list(G1 = LETTERS[1:3], G2 = LETTERS[4:6], G3 = LETTERS[7:9])
+
+  tmp <- tempfile(fileext = ".png")
+  on.exit(unlink(tmp), add = TRUE)
+  png(tmp, width = 400, height = 400)
+
+  # Implicit -> 0.35
+  expect_no_error(plot_htna(mat, node_list = groups))
+  # Explicit user value (0.05) is honored
+  expect_no_error(plot_htna(mat, node_list = groups, angle_spacing = 0.05))
+
+  dev.off()
+})

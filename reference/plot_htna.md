@@ -41,7 +41,9 @@ plot_htna(
   edge_colors = NULL,
   intra_curvature = NULL,
   legend = TRUE,
-  legend_position = "bottomright",
+  legend_position = "bottom",
+  legend_horiz = NULL,
+  legend_ncol = NULL,
   extend_lines = FALSE,
   scale = 1,
   nodes = NULL,
@@ -77,7 +79,9 @@ htna(
   edge_colors = NULL,
   intra_curvature = NULL,
   legend = TRUE,
-  legend_position = "bottomright",
+  legend_position = "bottom",
+  legend_horiz = NULL,
+  legend_ncol = NULL,
   extend_lines = FALSE,
   scale = 1,
   nodes = NULL,
@@ -253,12 +257,24 @@ htna(
 
 - legend:
 
-  Logical. Whether to show a legend. Default TRUE for polygon layouts.
+  Logical. Whether to show a legend. Default TRUE.
 
 - legend_position:
 
   Position for legend: "topright", "topleft", "bottomright",
-  "bottomleft", "right", "left", "top", "bottom". Default "bottomright".
+  "bottomleft", "right", "left", "top", "bottom". Default "bottom".
+
+- legend_horiz:
+
+  Logical. Force horizontal (TRUE) or vertical (FALSE) legend. NULL
+  (default) auto-selects: horizontal for "top"/"bottom" positions,
+  vertical otherwise.
+
+- legend_ncol:
+
+  Integer. Number of columns when the legend is vertical. NULL (default)
+  lets [`graphics::legend`](https://rdrr.io/r/graphics/legend.html)
+  pick. Ignored when the legend is horizontal.
 
 - extend_lines:
 

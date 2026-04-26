@@ -85,7 +85,9 @@ Supports triangle (3), rectangle (4), pentagon (5), hexagon (6), and beyond."><m
 <span>  edge_colors <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  intra_curvature <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  legend <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  legend_position <span class="op">=</span> <span class="st">"bottomright"</span>,</span>
+<span>  legend_position <span class="op">=</span> <span class="st">"bottom"</span>,</span>
+<span>  legend_horiz <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  legend_ncol <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  extend_lines <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  scale <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  nodes <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -121,7 +123,9 @@ Supports triangle (3), rectangle (4), pentagon (5), hexagon (6), and beyond."><m
 <span>  edge_colors <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  intra_curvature <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  legend <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  legend_position <span class="op">=</span> <span class="st">"bottomright"</span>,</span>
+<span>  legend_position <span class="op">=</span> <span class="st">"bottom"</span>,</span>
+<span>  legend_horiz <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  legend_ncol <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  extend_lines <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  scale <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  nodes <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -279,12 +283,24 @@ separately with curves that arc away from the opposing group. Default NULL
 
 
 <dt id="arg-legend">legend<a class="anchor" aria-label="anchor" href="#arg-legend"></a></dt>
-<dd><p>Logical. Whether to show a legend. Default TRUE for polygon layouts.</p></dd>
+<dd><p>Logical. Whether to show a legend. Default TRUE.</p></dd>
 
 
 <dt id="arg-legend-position">legend_position<a class="anchor" aria-label="anchor" href="#arg-legend-position"></a></dt>
 <dd><p>Position for legend: "topright", "topleft", "bottomright",
-"bottomleft", "right", "left", "top", "bottom". Default "bottomright".</p></dd>
+"bottomleft", "right", "left", "top", "bottom". Default "bottom".</p></dd>
+
+
+<dt id="arg-legend-horiz">legend_horiz<a class="anchor" aria-label="anchor" href="#arg-legend-horiz"></a></dt>
+<dd><p>Logical. Force horizontal (TRUE) or vertical (FALSE)
+legend. NULL (default) auto-selects: horizontal for "top"/"bottom"
+positions, vertical otherwise.</p></dd>
+
+
+<dt id="arg-legend-ncol">legend_ncol<a class="anchor" aria-label="anchor" href="#arg-legend-ncol"></a></dt>
+<dd><p>Integer. Number of columns when the legend is vertical.
+NULL (default) lets <code><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">graphics::legend</a></code> pick. Ignored when the legend
+is horizontal.</p></dd>
 
 
 <dt id="arg-extend-lines">extend_lines<a class="anchor" aria-label="anchor" href="#arg-extend-lines"></a></dt>

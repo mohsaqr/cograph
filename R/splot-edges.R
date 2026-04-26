@@ -362,19 +362,28 @@ draw_curved_edge_base <- function(x1, y1, x2, y2, curve = 0.2, curvePivot = 0.5,
 #' @keywords internal
 draw_self_loop_base <- function(x, y, node_size, col = "gray50", lwd = 1,
                                 lty = 1, rotation = pi/2, arrow = TRUE,
-                                asize = 0.02, arrow_angle = pi/6) {
+                                asize = 0.02, arrow_angle = pi/6,
+                                anchor_radius = NULL) {
 
   # Open circle: loop circle overlaps node so arc visibly intersects
   loop_radius <- node_size * 0.8
-  loop_dist <- node_size * 1.3  # Close enough that circles clearly overlap
+  loop_dist <- node_size * 1.0  # Tight to the node
+
+  # anchor_radius controls where the arc starts/ends (the visual node
+
+  # boundary). Defaults to node_size (splot nodes where node_size IS the
+  # user-coordinate radius). For contexts where the visible node is
+  # smaller (e.g. graphics::points), pass a smaller value so the arc
+  # hugs the dot.
+  if (is.null(anchor_radius)) anchor_radius <- node_size
 
   # Center of the loop circle
   loop_cx <- x + loop_dist * cos(rotation)
   loop_cy <- y + loop_dist * sin(rotation)
 
-  # Find the arc angles where the loop circle intersects the node circle
+  # Find the arc angles where the loop circle intersects the anchor circle
   # Using law of cosines: cos(alpha) = (d^2 + r^2 - R^2) / (2*d*r)
-  cos_alpha <- (loop_dist^2 + loop_radius^2 - node_size^2) /
+  cos_alpha <- (loop_dist^2 + loop_radius^2 - anchor_radius^2) /
                (2 * loop_dist * loop_radius)
   cos_alpha <- max(-1, min(1, cos_alpha))
   alpha <- acos(cos_alpha)

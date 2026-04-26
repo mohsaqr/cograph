@@ -517,33 +517,14 @@ plot_htna <- function(
 
   layout_mat <- cbind(x = x_pos, y = y_pos)
 
-  # Normalize layout to [-1, 1] per axis, then scale to match the device
-  # aspect ratio so the layout fills the figure while asp = 1 keeps nodes
-  # circular. Bipartite / multi-group layouts have very different x and y
-  # spans; uniform scaling wastes most of the canvas.
+  # Normalize layout to [-1, 1] using uniform scale (preserves aspect ratio)
+  # This ensures node sizes render correctly and intra-edge coordinates match
   x_range <- range(layout_mat[, 1])
   y_range <- range(layout_mat[, 2])
-  x_span <- diff(x_range)
-  y_span <- diff(y_range)
-  if (x_span > 1e-10) {
-    layout_mat[, 1] <- (layout_mat[, 1] - mean(x_range)) / (x_span / 2)
-  }
-  if (y_span > 1e-10) {
-    layout_mat[, 2] <- (layout_mat[, 2] - mean(y_range)) / (y_span / 2)
-  }
-
-  # With asp = 1, the plot uses equal x/y scales. Stretch the layout along
-  # the device's longer dimension so nodes stay circular but the layout
-  # fills the figure. Shrink slightly to leave room for the legend.
-  dev_dim <- grDevices::dev.size("in")
-  dev_ratio <- dev_dim[1] / dev_dim[2]
-  legend_pad <- if (isTRUE(legend) && n_groups >= 2) 0.85 else 1
-  if (dev_ratio < 1) {
-    layout_mat[, 2] <- layout_mat[, 2] / dev_ratio * legend_pad
-  } else if (dev_ratio > 1) {
-    layout_mat[, 1] <- layout_mat[, 1] * dev_ratio * legend_pad
-  } else {
-    layout_mat <- layout_mat * legend_pad
+  max_span <- max(diff(x_range), diff(y_range))
+  if (max_span > 0) {
+    layout_mat[, 1] <- (layout_mat[, 1] - mean(x_range)) / (max_span / 2)
+    layout_mat[, 2] <- (layout_mat[, 2] - mean(y_range)) / (max_span / 2)
   }
 
   # Compute edge colors based on source group
@@ -645,7 +626,7 @@ plot_htna <- function(
     curvature = curvature,
     layout_margin = layout_margin
   )
-  # We normalize layout ourselves — disable splot's rescaling.
+  # We normalize layout ourselves — disable splot's rescaling
   tplot_base$rescale <- FALSE
   tplot_base$layout_scale <- 1
   tplot_args <- c(tplot_base, dots)

@@ -78,9 +78,15 @@
 #'   between nodes in the same group). When set, intra-group edges are drawn
 #'   separately with curves that arc away from the opposing group. Default NULL
 #'   (intra-group edges drawn normally by splot). Typical values: 0.3 to 1.0.
-#' @param legend Logical. Whether to show a legend. Default TRUE for polygon layouts.
+#' @param legend Logical. Whether to show a legend. Default TRUE.
+#' @param legend_horiz Logical. Force horizontal (TRUE) or vertical (FALSE)
+#'   legend. NULL (default) auto-selects: horizontal for "top"/"bottom"
+#'   positions, vertical otherwise.
+#' @param legend_ncol Integer. Number of columns when the legend is vertical.
+#'   NULL (default) lets \code{graphics::legend} pick. Ignored when the legend
+#'   is horizontal.
 #' @param legend_position Position for legend: "topright", "topleft", "bottomright",
-#'   "bottomleft", "right", "left", "top", "bottom". Default "bottomright".
+#'   "bottomleft", "right", "left", "top", "bottom". Default "bottom".
 #' @param extend_lines Logical or numeric. Draw extension lines from nodes.
 #'   Only applies to bipartite layout.
 #'   \itemize{
@@ -148,13 +154,17 @@ plot_htna <- function(
     edge_colors = NULL,
     intra_curvature = NULL,
     legend = TRUE,
-    legend_position = "bottomright",
+    legend_position = "bottom",
+    legend_horiz = NULL,
+    legend_ncol = NULL,
     extend_lines = FALSE,
     scale = 1,
     nodes = NULL,
     label_abbrev = NULL,
     ...
 ) {
+  explicit_args <- names(as.list(match.call())[-1])
+
   # Apply scale: use sqrt(scale) for gentler compensation at high-resolution
   size_scale <- sqrt(scale)
 
@@ -253,9 +263,17 @@ plot_htna <- function(
     idx
   })
 
-  # Determine layout type
+  # Default layout is circular for any group count: actor types / clusters
+  # read as peers around a ring. Use layout = "bipartite" explicitly for the
+  # older 2-group default, or layout = "polygon" for vertex-on-edge geometry.
   if (layout == "auto") {
-    layout <- if (n_groups == 2) "bipartite" else "polygon"
+    layout <- "circular"
+  }
+
+  # Circular layout reads better with a clearly visible inter-group gap than
+  # the polygon default. Bump angle_spacing only when user didn't pass it.
+  if (layout == "circular" && !"angle_spacing" %in% explicit_args) {
+    angle_spacing <- 0.35
   }
 
 
@@ -660,18 +678,29 @@ plot_htna <- function(
       if (s %in% names(shape_to_pch)) shape_to_pch[[s]] else 21
     }, numeric(1))
 
-    # Draw legend
-    graphics::legend(
-      legend_position,
-      legend = group_names,
-      pch = pch_values,
-      pt.bg = group_colors,
-      col = if (!is.null(edge_colors)) edge_colors else "black",
-      pt.cex = 2.5 / size_scale,
-      cex = 1.4 / size_scale,
-      bty = "n",
-      title = "Groups"
+    # Horizontal layout by default for top/bottom positions, vertical
+    # otherwise. User can force either way via legend_horiz; legend_ncol
+    # lets them request a multi-row vertical legend.
+    horiz_legend <- if (!is.null(legend_horiz)) {
+      isTRUE(legend_horiz)
+    } else {
+      legend_position %in% c("top", "bottom")
+    }
+    legend_args <- list(
+      x       = legend_position,
+      legend  = group_names,
+      pch     = pch_values,
+      pt.bg   = group_colors,
+      col     = if (!is.null(edge_colors)) edge_colors else "black",
+      pt.cex  = 2.5 / size_scale,
+      cex     = 1.4 / size_scale,
+      bty     = "n",
+      title   = "Groups",
+      horiz   = horiz_legend
     )
+    # graphics::legend forbids passing ncol when horiz = TRUE
+    if (!horiz_legend && !is.null(legend_ncol)) legend_args$ncol <- legend_ncol
+    do.call(graphics::legend, legend_args)
   }
 
   # Draw extension lines if requested (bipartite only)

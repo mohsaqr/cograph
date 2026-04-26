@@ -16,7 +16,8 @@ draw_self_loop_base(
   rotation = pi/2,
   arrow = TRUE,
   asize = 0.02,
-  arrow_angle = pi/6
+  arrow_angle = pi/6,
+  anchor_radius = NULL
 )
 ```
 

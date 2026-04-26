@@ -5,7 +5,7 @@ Rescale Layout to -1 to 1 Range
 ## Usage
 
 ``` r
-rescale_layout(layout, mar = 0.1)
+rescale_layout(layout, mar = 0.1, keep_aspect = TRUE)
 ```
 
 ## Arguments

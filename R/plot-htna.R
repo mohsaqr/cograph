@@ -669,38 +669,28 @@ plot_htna <- function(
       group_names <- paste0("Group ", seq_len(n_groups))
     }
 
-    # Map shape names to pch values
-    shape_to_pch <- c(
-      "circle" = 21, "square" = 22, "diamond" = 23, "triangle" = 24,
-      "pentagon" = 21, "hexagon" = 21, "star" = 8, "cross" = 3
-    )
-    pch_values <- vapply(group_shapes, function(s) {
-      if (s %in% names(shape_to_pch)) shape_to_pch[[s]] else 21
-    }, numeric(1))
+    pch_values <- .shape_to_pch(group_shapes)
 
-    # Horizontal layout by default for top/bottom positions, vertical
-    # otherwise. User can force either way via legend_horiz; legend_ncol
-    # lets them request a multi-row vertical legend.
     horiz_legend <- if (!is.null(legend_horiz)) {
       isTRUE(legend_horiz)
     } else {
       legend_position %in% c("top", "bottom")
     }
-    legend_args <- list(
-      x       = legend_position,
-      legend  = group_names,
-      pch     = pch_values,
-      pt.bg   = group_colors,
-      col     = if (!is.null(edge_colors)) edge_colors else "black",
-      pt.cex  = 2.5 / size_scale,
-      cex     = 1.4 / size_scale,
-      bty     = "n",
-      title   = "Groups",
-      horiz   = horiz_legend
+    .render_legend_base(
+      legend   = group_names,
+      pch      = pch_values,
+      pt.bg    = group_colors,
+      col      = if (!is.null(edge_colors)) edge_colors else "black",
+      pt.cex   = 2.5 / size_scale,
+      cex      = 1.4 / size_scale,
+      bty      = "n",
+      title    = "Groups",
+      position = legend_position,
+      horiz    = horiz_legend,
+      # graphics::legend ignores ncol when horiz = TRUE; pass it anyway only
+      # when meaningful so callers get the expected layout.
+      ncol     = if (!horiz_legend && !is.null(legend_ncol)) legend_ncol else 1
     )
-    # graphics::legend forbids passing ncol when horiz = TRUE
-    if (!horiz_legend && !is.null(legend_ncol)) legend_args$ncol <- legend_ncol
-    do.call(graphics::legend, legend_args)
   }
 
   # Draw extension lines if requested (bipartite only)

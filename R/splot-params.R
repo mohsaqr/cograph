@@ -21,7 +21,13 @@ resolve_edge_colors <- function(edges, edge.color = NULL, posCol = "#2E7D32",
   if (m == 0) return(character(0))
 
   if (!is.null(edge.color)) {
-    # User-specified colors
+    # Matrix input: look up color per edge using from/to indices
+    if (is.matrix(edge.color) && "from" %in% names(edges) && "to" %in% names(edges)) {
+      return(vapply(seq_len(m), function(i) {
+        edge.color[edges$from[i], edges$to[i]]
+      }, character(1)))
+    }
+    # User-specified colors (vector or scalar)
     return(recycle_to_length(edge.color, m))
   }
 

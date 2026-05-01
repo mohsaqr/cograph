@@ -554,11 +554,8 @@ plot_htna <- function(
 
   # Determine edge colors
   if (is.null(edge_colors)) {
-    # Use darker/more saturated versions of group colors for edges
-    edge_color_palette <- c("#0288D1", "#E09800", "#4a90b8", "#5cb85c",
-                            "#d9534f", "#5bc0de", "#9b59b6", "#8bc34a",
-                            "#ff7043", "#78909c", "#ab47bc", "#aed581")
-    edge_colors <- rep_len(edge_color_palette, n_groups)
+    # Derive from group_colors so user-supplied palettes flow through to edges.
+    edge_colors <- .darken_colors(group_colors, amount = 0.25)
   } else if (isFALSE(edge_colors)) {
     edge_colors <- NULL
   }
@@ -632,8 +629,24 @@ plot_htna <- function(
     }
   }
 
-  # Set minimal margins for tighter layout
-  old_par <- graphics::par(mar = c(0.5, 0.5, 0.5, 0.5))
+  # Reserve extra margin on the side where the legend will land so it sits as
+  # a clear band outside the plot region rather than flush against it. Corner
+  # positions (e.g. "topright", "bottomleft") draw inside the plot box and
+  # don't need extra margin.
+  legend_outside_side <- if (isTRUE(legend) && n_groups >= 2 &&
+                             legend_position %in%
+                               c("top", "bottom", "left", "right")) {
+    legend_position
+  } else {
+    NA_character_
+  }
+  mar_vals <- c(0.5, 0.5, 0.5, 0.5)
+  if (!is.na(legend_outside_side)) {
+    side_idx <- switch(legend_outside_side,
+                       bottom = 1L, left = 2L, top = 3L, right = 4L)
+    mar_vals[side_idx] <- 6.5
+  }
+  old_par <- graphics::par(mar = mar_vals)
   on.exit(graphics::par(old_par), add = TRUE)
 
   tplot_base <- list(
@@ -676,6 +689,16 @@ plot_htna <- function(
     } else {
       legend_position %in% c("top", "bottom")
     }
+    # Push the legend out of the plot region for single-side positions so it
+    # reads as a separate band; corner positions stay inside with a small inset.
+    # Inset is a fraction of the plot region — keep it within the reserved
+    # margin (mar_vals above) so xpd = TRUE doesn't clip it.
+    legend_inset <- switch(legend_position,
+                           bottom = c(0, -0.05),
+                           top    = c(0, -0.05),
+                           left   = c(-0.05, 0),
+                           right  = c(-0.05, 0),
+                           c(0.02, 0.02))
     .render_legend_base(
       legend   = group_names,
       pch      = pch_values,
@@ -687,6 +710,8 @@ plot_htna <- function(
       title    = "Groups",
       position = legend_position,
       horiz    = horiz_legend,
+      inset    = legend_inset,
+      xpd      = TRUE,
       # graphics::legend ignores ncol when horiz = TRUE; pass it anyway only
       # when meaningful so callers get the expected layout.
       ncol     = if (!horiz_legend && !is.null(legend_ncol)) legend_ncol else 1

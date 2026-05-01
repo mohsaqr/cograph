@@ -767,6 +767,39 @@ test_that("plot_htna works with custom edge_colors", {
   dev.off()
 })
 
+test_that("plot_htna derives edge_colors from group_colors when not given", {
+  # Regression: passing group_colors used to leave edges on a hardcoded
+  # palette (#0288D1/#E09800), ignoring user intent. Edges should darken
+  # group_colors instead.
+  mat <- create_test_htna_matrix(6)
+  groups <- list(G1 = c("A", "B", "C"), G2 = c("D", "E", "F"))
+
+  captured <- NULL
+  unlockBinding("tplot", asNamespace("cograph"))
+  orig_tplot <- get("tplot", envir = asNamespace("cograph"))
+  assign("tplot",
+         function(...) { captured <<- list(...); invisible(NULL) },
+         envir = asNamespace("cograph"))
+  lockBinding("tplot", asNamespace("cograph"))
+  on.exit({
+    unlockBinding("tplot", asNamespace("cograph"))
+    assign("tplot", orig_tplot, envir = asNamespace("cograph"))
+    lockBinding("tplot", asNamespace("cograph"))
+  }, add = TRUE)
+
+  tmp <- tempfile(fileext = ".png")
+  on.exit(unlink(tmp), add = TRUE)
+  png(tmp, width = 400, height = 400)
+  plot_htna(mat, node_list = groups,
+            group_colors = c("red", "yellow"), legend = FALSE)
+  dev.off()
+
+  ec <- captured$edge.color
+  expect_true(is.matrix(ec))
+  expect_setequal(unique(stats::na.omit(as.vector(ec))),
+                  cograph:::.darken_colors(c("red", "yellow"), 0.25))
+})
+
 # ============================================
 # LEGEND
 # ============================================

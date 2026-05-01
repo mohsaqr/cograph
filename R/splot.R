@@ -92,7 +92,7 @@ NULL
 #' @param donut_line_type Line type for donut borders: "solid", "dashed", "dotted", or
 #'   numeric (1=solid, 2=dashed, 3=dotted). Can be scalar or per-node vector.
 #' @param donut_border_lty Deprecated. Use `donut_line_type` instead.
-#' @param donut_inner_ratio Inner radius ratio for donut (0-1). Default 0.5.
+#' @param donut_inner_ratio Inner radius ratio for donut (0-1). Default 0.8.
 #' @param donut_bg_color Background color for unfilled donut portion.
 #' @param donut_shape Base shape for donut: "circle", "square", "hexagon", "triangle",
 #'   "diamond", "pentagon". Can be a single value or per-node vector.
@@ -141,7 +141,7 @@ NULL
 #' @param edge_label_shadow_offset Offset distance for shadow in points. Default 0.5.
 #' @param edge_label_shadow_alpha Transparency for shadow (0-1). Default 0.5.
 #' @param edge_label_halo Logical: enable white halo/outline around edge labels for
-#'   readability over dark edges? Default FALSE. When TRUE, overrides shadow settings.
+#'   readability over dark edges? Default TRUE. When TRUE, overrides shadow settings.
 #' @param edge_style Line type(s): 1=solid, 2=dashed, 3=dotted, etc.
 #' @param curvature Edge curvature. 0 for straight, positive/negative for curves.
 #' @param curve_scale Logical: auto-curve reciprocal edges?
@@ -821,7 +821,7 @@ splot <- function(
       edge_label_position <- .psych_defs$edge_label_position
     if (!"minimum" %in% explicit_args)
       minimum <- .psych_defs$minimum
-    if (is.null(donut_bg_color) || donut_bg_color == "gray90")
+    if (!"donut_bg_color" %in% explicit_args)
       donut_bg_color <- .psych_defs$donut_bg_color
     if (is.null(donut_border_width))
       donut_border_width <- .psych_defs$donut_border_width
@@ -854,9 +854,13 @@ splot <- function(
       if (is.null(node_fill)) node_fill <- th$get("node_fill")
       if (is.null(node_border_color)) node_border_color <- th$get("node_border_color")
       if (is.null(background)) background <- th$get("background")
-      if (length(label_color) == 1 && label_color == "black") label_color <- th$get("label_color")
-      if (length(edge_positive_color) == 1 && edge_positive_color == "#2E7D32") edge_positive_color <- th$get("edge_positive_color")
-      if (length(edge_negative_color) == 1 && edge_negative_color == "#C62828") edge_negative_color <- th$get("edge_negative_color")
+      # Use explicit_args (built earlier from match.call) to detect "user did
+      # not pass this", rather than value-equality against the signature
+      # default — value-equality silently overrides users who pass the default
+      # literal explicitly together with a theme.
+      if (!"label_color" %in% explicit_args) label_color <- th$get("label_color")
+      if (!"edge_positive_color" %in% explicit_args) edge_positive_color <- th$get("edge_positive_color")
+      if (!"edge_negative_color" %in% explicit_args) edge_negative_color <- th$get("edge_negative_color")
     }
   }
 

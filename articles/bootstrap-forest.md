@@ -22,6 +22,7 @@ object. Four layouts: `"linear"`, `"circular"`, `"chord"`, `"tile"`.
 ## 1. TNA Network (relative transitions)
 
 ``` r
+
 net_tna  <- build_network(ai_coding, method = "relative")
 boot_tna <- bootstrap_network(net_tna, iter = 200, seed = 42)
 ```
@@ -29,6 +30,7 @@ boot_tna <- bootstrap_network(net_tna, iter = 200, seed = 42)
 ### Linear
 
 ``` r
+
 plot_bootstrap_forest(boot_tna,
   title    = "Human-AI interaction in coding",
   subtitle = "95% bootstrap CI  |  200 iterations")
@@ -39,6 +41,7 @@ plot_bootstrap_forest(boot_tna,
 ### Circular
 
 ``` r
+
 plot_bootstrap_forest(boot_tna, layout = "circular",
   title = "Human-AI Interaction Network — Circular")
 ```
@@ -48,6 +51,7 @@ plot_bootstrap_forest(boot_tna, layout = "circular",
 ### Grouped Radial
 
 ``` r
+
 plot_bootstrap_forest(boot_tna, layout = "grouped",
   title = "Human-AI Interaction — Grouped by Source Node")
 ```
@@ -59,6 +63,7 @@ plot_bootstrap_forest(boot_tna, layout = "grouped",
 ## 2. Glasso Network (partial correlations)
 
 ``` r
+
 net_srl  <- build_network(srl_strategies, method = "glasso")
 boot_srl <- boot_glasso(net_srl, iter = 200, seed = 42)
 ```
@@ -66,6 +71,7 @@ boot_srl <- boot_glasso(net_srl, iter = 200, seed = 42)
 ### Linear
 
 ``` r
+
 plot_bootstrap_forest(boot_srl,
   title = "SRL Strategies — Partial Correlation Network")
 ```
@@ -81,6 +87,7 @@ Compare whether pairs of edges have significantly different weights.
 ### Tile Heatmap
 
 ``` r
+
 plot_edge_diff_forest(boot_srl, layout = "tile",
   title = "Edge Differences — Tile")
 ```
@@ -90,6 +97,7 @@ plot_edge_diff_forest(boot_srl, layout = "tile",
 ### Linear Forest
 
 ``` r
+
 plot_edge_diff_forest(boot_srl, layout = "linear", n_top = 25,
   title = "Edge Differences — Linear")
 ```
@@ -99,6 +107,7 @@ plot_edge_diff_forest(boot_srl, layout = "linear", n_top = 25,
 ### Chord Diagram
 
 ``` r
+
 plot_edge_diff_forest(boot_srl,
   layout       = "chord",
   nonzero_only = TRUE,
@@ -116,6 +125,7 @@ plot_edge_diff_forest(boot_srl,
 Compare bootstrap CIs across groups in one plot.
 
 ``` r
+
 nets_grp  <- build_network(group_regulation_long,
   method = "relative", actor = "Actor",
   action = "Action",  time  = "Time",
@@ -124,6 +134,7 @@ boots_grp <- bootstrap_network(nets_grp, iter = 200, seed = 42)
 ```
 
 ``` r
+
 plot_bootstrap_forest(boots_grp,
   title    = "Group Regulation — High vs Low Achievers",
   subtitle = "95% bootstrap CI  |  200 iterations per group")

@@ -75,6 +75,7 @@ a wrapper that accepts qgraph-style parameter names (`vsize`,
 `edge.labels`, `posCol`) for a smoother transition.
 
 ``` r
+
 library(cograph)
 library(qgraph)
 ```
@@ -82,6 +83,7 @@ library(qgraph)
 ## Create a transition matrix
 
 ``` r
+
 states <- c("Read", "Watch", "Try", "Ask", "Discuss",
             "Review", "Search", "Reflect", "Submit")
 
@@ -150,12 +152,14 @@ mat <- matrix(c(
 ## Example 1: Default plot
 
 ``` r
+
 qgraph(mat, layout = "circle", vsize = 9, title = "qgraph")
 ```
 
 ![](qgraph-to-splot_files/figure-html/unnamed-chunk-4-1.png)
 
 ``` r
+
 splot(mat, node_size = 9, title = "splot")
 ```
 
@@ -164,12 +168,14 @@ splot(mat, node_size = 9, title = "splot")
 ## Example 2: Edge labels
 
 ``` r
+
 qgraph(mat, layout = "circle", vsize = 9, edge.labels = TRUE, title = "qgraph")
 ```
 
 ![](qgraph-to-splot_files/figure-html/unnamed-chunk-5-1.png)
 
 ``` r
+
 splot(mat, node_size = 9, edge_labels = TRUE, title = "splot")
 ```
 
@@ -178,12 +184,14 @@ splot(mat, node_size = 9, edge_labels = TRUE, title = "splot")
 ## Example 3: Custom edge colors
 
 ``` r
+
 qgraph(mat, layout = "circle", vsize = 9, posCol = "maroon", negCol = "red", title = "qgraph")
 ```
 
 ![](qgraph-to-splot_files/figure-html/unnamed-chunk-6-1.png)
 
 ``` r
+
 splot(mat, node_size = 9, edge_positive_color = "maroon",
       edge_negative_color = "red", title = "splot")
 ```
@@ -193,6 +201,7 @@ splot(mat, node_size = 9, edge_positive_color = "maroon",
 ## Example 4: Node shapes and colors
 
 ``` r
+
 cols <- palette_pastel(9)
 
 qgraph(mat, layout = "circle", vsize = 9, shape = "square", color = cols, title = "qgraph")
@@ -201,6 +210,7 @@ qgraph(mat, layout = "circle", vsize = 9, shape = "square", color = cols, title 
 ![](qgraph-to-splot_files/figure-html/unnamed-chunk-7-1.png)
 
 ``` r
+
 splot(mat, node_size = 9, node_shape = "square", node_fill = cols, title = "splot")
 ```
 
@@ -209,12 +219,14 @@ splot(mat, node_size = 9, node_shape = "square", node_fill = cols, title = "splo
 ## Example 5: Curved edges
 
 ``` r
+
 qgraph(mat, layout = "circle", vsize = 9, curve = 0.3, curveAll = TRUE, title = "qgraph")
 ```
 
 ![](qgraph-to-splot_files/figure-html/unnamed-chunk-8-1.png)
 
 ``` r
+
 splot(mat, node_size = 9, curvature = 0.3, curves = "force", title = "splot")
 ```
 
@@ -223,6 +235,7 @@ splot(mat, node_size = 9, curvature = 0.3, curves = "force", title = "splot")
 ## Example 6: Donut nodes
 
 ``` r
+
 fills <- c(0.9, 0.7, 0.5, 0.8, 0.6, 0.95, 0.3, 0.75, 0.4)
 
 qgraph(mat, layout = "circle", vsize = 9, pie = fills, pieColor = "steelblue", title = "qgraph")
@@ -231,6 +244,7 @@ qgraph(mat, layout = "circle", vsize = 9, pie = fills, pieColor = "steelblue", t
 ![](qgraph-to-splot_files/figure-html/unnamed-chunk-9-1.png)
 
 ``` r
+
 splot(mat, node_size = 9, donut_fill = fills, donut_color = "steelblue", title = "splot")
 ```
 
@@ -242,12 +256,14 @@ splot(mat, node_size = 9, donut_fill = fills, donut_color = "steelblue", title =
 qgraph object’s layout matrix directly.
 
 ``` r
+
 q <- qgraph(mat, layout = "spring", vsize = 9, title = "qgraph spring layout")
 ```
 
 ![](qgraph-to-splot_files/figure-html/unnamed-chunk-10-1.png)
 
 ``` r
+
 splot(mat, layout = q$layout, node_size = 9, title = "splot using qgraph layout")
 ```
 
@@ -260,12 +276,14 @@ Use
 to convert a qgraph object directly.
 
 ``` r
+
 q <- qgraph(mat, layout = "circle", vsize = 9, theme = "colorblind", title = "Original qgraph")
 ```
 
 ![](qgraph-to-splot_files/figure-html/unnamed-chunk-11-1.png)
 
 ``` r
+
 from_qgraph(q)
 ```
 
@@ -274,6 +292,7 @@ from_qgraph(q)
 ## Example 9: Extracting and tweaking qgraph parameters
 
 ``` r
+
 params <- from_qgraph(q, plot = FALSE)
 params$node_fill <- palette_rainbow(9)
 params$title <- "Tweaked from qgraph"
@@ -288,6 +307,7 @@ do.call(splot, params)
 qgraph-style parameter names like `vsize`, `edge.labels`, and `posCol`.
 
 ``` r
+
 tplot(mat, vsize = 9, edge.labels = TRUE)
 ```
 
@@ -298,6 +318,7 @@ tplot(mat, vsize = 9, edge.labels = TRUE)
 ### CI underlays
 
 ``` r
+
 net <- cograph(mat)
 ne <- nrow(get_edges(net))
 
@@ -315,6 +336,7 @@ splot(mat, node_size = 9,
 ### CI range labels
 
 ``` r
+
 ci_lower <- runif(ne, 0.01, 0.10)
 ci_upper <- runif(ne, 0.20, 0.50)
 
@@ -330,6 +352,7 @@ splot(mat, node_size = 9,
 ### Edge label templates with significance stars
 
 ``` r
+
 p_values <- round(runif(ne, 0.0001, 0.08), 4)
 
 splot(mat, node_size = 9,
@@ -343,6 +366,7 @@ splot(mat, node_size = 9,
 ### Pie chart nodes
 
 ``` r
+
 set.seed(42)
 pie_vals <- lapply(1:9, function(i) {
   v <- runif(3)
@@ -359,6 +383,7 @@ splot(mat, node_size = 9,
 ### Polygon donut shapes
 
 ``` r
+
 splot(mat, node_size = 9,
       donut_fill = fills,
       donut_color = palette_rainbow(9),
@@ -370,6 +395,7 @@ splot(mat, node_size = 9,
 ### Double donuts
 
 ``` r
+
 splot(mat, node_size = 9,
       donut_fill = fills,
       donut_color = palette_rainbow(9),

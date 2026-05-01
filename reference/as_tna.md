@@ -73,6 +73,7 @@ an error with installation instructions.
 
 ### Workflow
 
+
     # Full MCML workflow
     net <- cograph(edges, nodes = nodes)
     net$nodes$clusters <- group_assignments

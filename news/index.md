@@ -665,14 +665,14 @@ CRAN release: 2026-03-02
 The following parameters have been renamed for consistency. The old
 names still work but emit deprecation warnings:
 
-| Old Name           | New Name              | Reason                                     |
-|--------------------|-----------------------|--------------------------------------------|
-| `esize`            | `edge_size`           | Add `edge_` prefix, expand abbreviation    |
-| `cut`              | `edge_cutoff`         | Add `edge_` prefix, clarify meaning        |
-| `usePCH`           | `use_pch`             | Fix camelCase to snake_case                |
-| `positive_color`   | `edge_positive_color` | Add `edge_` prefix (matches theme storage) |
-| `negative_color`   | `edge_negative_color` | Add `edge_` prefix (matches theme storage) |
-| `donut_border_lty` | `donut_line_type`     | Expand `lty` abbreviation                  |
+| Old Name | New Name | Reason |
+|----|----|----|
+| `esize` | `edge_size` | Add `edge_` prefix, expand abbreviation |
+| `cut` | `edge_cutoff` | Add `edge_` prefix, clarify meaning |
+| `usePCH` | `use_pch` | Fix camelCase to snake_case |
+| `positive_color` | `edge_positive_color` | Add `edge_` prefix (matches theme storage) |
+| `negative_color` | `edge_negative_color` | Add `edge_` prefix (matches theme storage) |
+| `donut_border_lty` | `donut_line_type` | Expand `lty` abbreviation |
 
 ### Improvements
 

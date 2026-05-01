@@ -1,6 +1,7 @@
 # Why cograph?
 
 ``` r
+
 library(tna)
 library(cograph)
 ```
@@ -30,6 +31,7 @@ cograph lets you filter nodes and edges with expressions that look like
 [`subset()`](https://rdrr.io/r/base/subset.html):
 
 ``` r
+
 mat <- matrix(c(
   0.0, 0.5, 0.8, 0.1, 0.0,
   0.3, 0.0, 0.2, 0.6, 0.4,
@@ -44,6 +46,7 @@ net <- as_cograph(mat)
 Keep only edges above a threshold:
 
 ``` r
+
 strong <- filter_edges(net, weight > 0.5)
 get_edges(strong)
 #>   from to weight
@@ -59,6 +62,7 @@ Keep nodes that have high degree *and* high PageRank — the centrality
 measures are computed on the fly:
 
 ``` r
+
 hubs <- filter_nodes(net, degree >= 3 & pagerank > 0.15)
 get_nodes(hubs)
 #>   id label  name  x  y
@@ -77,6 +81,7 @@ points, and k-cores — and it computes them lazily (only what your
 expression actually references):
 
 ``` r
+
 # Top 3 nodes by betweenness
 top3 <- select_top(net, n = 3, by = "betweenness")
 get_nodes(top3)
@@ -87,6 +92,7 @@ get_nodes(top3)
 ```
 
 ``` r
+
 # Ego network: everything within 1 hop of "Code"
 ego <- select_neighbors(net, of = "Code", order = 1)
 get_nodes(ego)
@@ -101,6 +107,7 @@ get_nodes(ego)
 For edges, you can select by structure too:
 
 ``` r
+
 # Edges involving "Code"
 code_edges <- select_edges_involving(net, nodes = "Code")
 get_edges(code_edges)
@@ -115,6 +122,7 @@ get_edges(code_edges)
 ```
 
 ``` r
+
 # Top 5 edges by weight
 top5 <- select_top_edges(net, n = 5)
 get_edges(top5)
@@ -127,6 +135,7 @@ get_edges(top5)
 ```
 
 ``` r
+
 # Edges between two node sets
 between <- select_edges_between(net,
   set1 = c("Read", "Write"),
@@ -147,6 +156,7 @@ get_edges(between)
 If you pass a matrix, you can get a matrix back:
 
 ``` r
+
 filter_edges(mat, weight > 0.5, keep_format = TRUE)
 #>       Read Write Plan Code Test
 #> Read   0.0     0  0.8  0.0  0.0
@@ -169,6 +179,7 @@ In cograph, one call with no arguments returns all 34 measures as a tidy
 data frame:
 
 ``` r
+
 centrality(net, digits = 3)
 #>    node degree_all strength_all closeness_all betweenness eigenvector pagerank
 #> 1  Read          6          2.5          1.25         3.0       0.582    0.151
@@ -186,6 +197,7 @@ computed natively, without extra packages.
 If you only need a subset:
 
 ``` r
+
 centrality(net, measures = c("degree", "betweenness", "pagerank"), digits = 3)
 #>    node degree_all betweenness pagerank
 #> 1  Read          6         3.0    0.151
@@ -198,12 +210,14 @@ centrality(net, measures = c("degree", "betweenness", "pagerank"), digits = 3)
 Need just one measure as a named vector? Use the wrapper:
 
 ``` r
+
 centrality_pagerank(net)
 #>      Read     Write      Plan      Code      Test 
 #> 0.1507079 0.1715631 0.2157373 0.2223834 0.2396084
 ```
 
 ``` r
+
 centrality_betweenness(net)
 #>  Read Write  Plan  Code  Test 
 #>   3.0   3.5   5.0   4.0   0.0
@@ -212,6 +226,7 @@ centrality_betweenness(net)
 You can normalize, sort, and round in the same call:
 
 ``` r
+
 centrality(net, measures = c("degree", "betweenness", "pagerank"),
            normalized = TRUE, sort_by = "pagerank", digits = 3)
 #>    node degree_all betweenness pagerank
@@ -225,6 +240,7 @@ centrality(net, measures = c("degree", "betweenness", "pagerank"),
 ### Edge-level centrality
 
 ``` r
+
 edge_centrality(net, sort_by = "betweenness", digits = 3)
 #>     from    to weight betweenness overlap shared_neighbors triangles
 #> 1   Code  Plan    0.2         8.0       1                3         3
@@ -272,6 +288,7 @@ One-row data frame with density, diameter, transitivity, centralization,
 reciprocity, and more:
 
 ``` r
+
 network_summary(net, digits = 3)
 #>   node_count edge_count density component_count diameter mean_distance min_cut
 #> 1          5         18     0.9               1      0.8          0.35       3
@@ -293,6 +310,7 @@ function per algorithm, inconsistent parameter names. cograph wraps all
 of them behind one function with a default:
 
 ``` r
+
 # Undirected network for community detection
 sym <- (mat + t(mat)) / 2
 diag(sym) <- 0
@@ -312,6 +330,7 @@ cograph::communities(sym)
 Pick a different algorithm by name, or use two-letter shorthands:
 
 ``` r
+
 cograph::communities(sym, method = "walktrap")
 #> Community structure (walktrap)
 #>   Nodes: 5  | Communities: 2  | Modularity: 0.0985 
@@ -350,6 +369,7 @@ com_im(mat)   # infomap (works on directed too)
 If you just want a node-to-community data frame:
 
 ``` r
+
 detect_communities(sym, method = "walktrap")
 #> Community structure (walktrap)
 #>   Nodes: 5  | Communities: 2  | Modularity: 0.0985 
@@ -368,6 +388,7 @@ detect_communities(sym, method = "walktrap")
 How good is the partition?
 
 ``` r
+
 comm <- com_wt(mat)
 det <- detect_communities(mat, method = "walktrap")
 cluster_list <- split(det$node, det$community)
@@ -391,6 +412,7 @@ Is the modularity significantly higher than chance? Permutation test
 against a null model:
 
 ``` r
+
 csig(mat, comm, n_random = 200, seed = 1)
 #> Cluster Significance Test
 #> =========================
@@ -408,6 +430,7 @@ csig(mat, comm, n_random = 200, seed = 1)
 ### Compare two solutions
 
 ``` r
+
 comm2 <- com_fg(mat)
 compare_communities(comm, comm2, method = "nmi")
 #> [1] 0
@@ -419,6 +442,7 @@ Run a stochastic algorithm many times and threshold the co-occurrence
 matrix:
 
 ``` r
+
 com_consensus(mat, method = "infomap", n_runs = 50, seed = 1)
 #> Community structure (consensus_infomap)
 #>   Nodes: 5  | Communities: 1  | Modularity: 0 
@@ -438,6 +462,7 @@ cograph accepts matrices, edge lists, igraph, statnet, qgraph, and tna
 objects natively. And it converts back:
 
 ``` r
+
 net <- as_cograph(mat)
 
 # To igraph
@@ -477,6 +502,7 @@ How does the network hold up when you remove nodes by betweenness
 (targeted attack) vs. random failure?
 
 ``` r
+
 rob <- robustness(mat, measure = "betweenness", strategy = "sequential", seed = 1)
 rob_rand <- robustness(mat, measure = "random", n_iter = 50, seed = 1)
 
@@ -492,6 +518,7 @@ robustness_auc(rob_rand)
 Keep only edges that carry a disproportionate share of a node’s weight:
 
 ``` r
+
 backbone <- disparity_filter(mat, level = 0.5)
 backbone
 #>       Read Write Plan Code Test
@@ -508,6 +535,7 @@ Count triad types with significance testing against a configuration
 model:
 
 ``` r
+
 motif_census(mat, n_random = 100)
 #> Network Motif Analysis
 #> Size: 3-node motifs (directed) | Null: configuration (n=100)
@@ -558,6 +586,7 @@ If you use the [tna](https://cran.r-project.org/package=tna) package for
 Transition Network Analysis, cograph understands its objects directly:
 
 ``` r
+
 model <- tna(group_regulation)
 splot(model)
 ```
@@ -568,6 +597,7 @@ Bootstrap results render automatically — significant transitions as
 solid edges, non-significant as dashed:
 
 ``` r
+
 boot <- bootstrap(model, iter = 1000)
 splot(boot)
 ```
@@ -577,6 +607,7 @@ splot(boot)
 Permutation test results get color-coded by group effect:
 
 ``` r
+
 model1 <- tna(group_regulation[1:1000,])
 model2 <- tna(group_regulation[1001:2000,])
 

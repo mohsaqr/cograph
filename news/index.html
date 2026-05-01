@@ -98,7 +98,7 @@
 <li>
 <code>test-integer-weight-labels.R</code> — locks <code><a href="../reference/from_tna.html">from_tna()</a></code> integer-weight auto-detect behaviour and precedence of explicit <code>weight_digits</code>.</li>
 <li>
-<code>test-equiv-{assortativity, cluster-quality, communities, disparity,   edge-centrality, network-summary, robustness, standalone-measures}.R</code> — numerical equivalence against igraph, sna, centiserve, brainGraph, influenceR, tidygraph, and NetworkX. Gated by <code>skip_coverage_tests() + skip_on_cran()</code>, so they do not run on the CRAN pipeline.</li>
+<code>test-equiv-{assortativity, cluster-quality, communities, disparity, edge-centrality, network-summary, robustness, standalone-measures}.R</code> — numerical equivalence against igraph, sna, centiserve, brainGraph, influenceR, tidygraph, and NetworkX. Gated by <code>skip_coverage_tests() + skip_on_cran()</code>, so they do not run on the CRAN pipeline.</li>
 </ul></div>
 </div>
     <div class="section level2">
@@ -356,25 +356,25 @@
 <div class="section level3">
 <h3 id="breaking-changes-with-backwards-compatibility-1-5-1">Breaking Changes (with backwards compatibility)<a class="anchor" aria-label="anchor" href="#breaking-changes-with-backwards-compatibility-1-5-1"></a></h3>
 <p>The following parameters have been renamed for consistency. The old names still work but emit deprecation warnings:</p>
-<table class="table"><colgroup><col width="35%"><col width="35%"><col width="28%"></colgroup><thead><tr class="header"><th>Old Name</th>
+<table class="table"><colgroup><col width="35%"><col width="35%"><col width="28%"></colgroup><thead><tr><th>Old Name</th>
 <th>New Name</th>
 <th>Reason</th>
-</tr></thead><tbody><tr class="odd"><td><code>esize</code></td>
+</tr></thead><tbody><tr><td><code>esize</code></td>
 <td><code>edge_size</code></td>
 <td>Add <code>edge_</code> prefix, expand abbreviation</td>
-</tr><tr class="even"><td><code>cut</code></td>
+</tr><tr><td><code>cut</code></td>
 <td><code>edge_cutoff</code></td>
 <td>Add <code>edge_</code> prefix, clarify meaning</td>
-</tr><tr class="odd"><td><code>usePCH</code></td>
+</tr><tr><td><code>usePCH</code></td>
 <td><code>use_pch</code></td>
 <td>Fix camelCase to snake_case</td>
-</tr><tr class="even"><td><code>positive_color</code></td>
+</tr><tr><td><code>positive_color</code></td>
 <td><code>edge_positive_color</code></td>
 <td>Add <code>edge_</code> prefix (matches theme storage)</td>
-</tr><tr class="odd"><td><code>negative_color</code></td>
+</tr><tr><td><code>negative_color</code></td>
 <td><code>edge_negative_color</code></td>
 <td>Add <code>edge_</code> prefix (matches theme storage)</td>
-</tr><tr class="even"><td><code>donut_border_lty</code></td>
+</tr><tr><td><code>donut_border_lty</code></td>
 <td><code>donut_line_type</code></td>
 <td>Expand <code>lty</code> abbreviation</td>
 </tr></tbody></table></div>

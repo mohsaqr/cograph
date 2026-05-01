@@ -249,6 +249,7 @@ package.
 
 Typical MCML analysis workflow:
 
+
     # 1. Create network
     net <- cograph(edges, nodes = nodes)
     net$nodes$clusters <- group_assignments
@@ -278,13 +279,13 @@ When `type = "tna"`, rows sum to 1 and diagonal values represent
 
 ### Choosing method and type
 
-|                    |                           |                                                   |
-|--------------------|---------------------------|---------------------------------------------------|
-| **Input data**     | **Recommended**           | **Reason**                                        |
-| Edge counts        | method="sum", type="tna"  | Preserves total flow, normalizes to probabilities |
-| Transition matrix  | method="mean", type="tna" | Avoids cluster size bias                          |
-| Frequencies        | method="sum", type="raw"  | Keep raw counts for analysis                      |
-| Correlation matrix | method="mean", type="raw" | Average correlations                              |
+|  |  |  |
+|----|----|----|
+| **Input data** | **Recommended** | **Reason** |
+| Edge counts | method="sum", type="tna" | Preserves total flow, normalizes to probabilities |
+| Transition matrix | method="mean", type="tna" | Avoids cluster size bias |
+| Frequencies | method="sum", type="raw" | Keep raw counts for analysis |
+| Correlation matrix | method="mean", type="raw" | Average correlations |
 
 ## See also
 

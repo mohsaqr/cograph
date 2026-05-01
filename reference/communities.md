@@ -103,20 +103,20 @@ Metadata stored as attributes: `"algorithm"`, `"modularity"`,
 
 **Algorithm Selection Guide:**
 
-|                     |                                             |                 |
-|---------------------|---------------------------------------------|-----------------|
-| Algorithm           | Best For                                    | Time Complexity |
-| louvain             | Large networks, general use                 | O(n log n)      |
-| leiden              | Large networks, better quality than louvain | O(n log n)      |
-| fast_greedy         | Medium networks                             | O(n² log n)     |
-| walktrap            | Networks with clear community structure     | O(n² log n)     |
-| infomap             | Directed networks, flow-based               | O(E)            |
-| label_propagation   | Very large networks, speed critical         | O(E)            |
-| edge_betweenness    | Small networks, hierarchical                | O(E² n)         |
-| leading_eigenvector | Networks with dominant structure            | O(n²)           |
-| spinglass           | Small networks, allows negative weights     | O(n³)           |
-| optimal             | Tiny networks only (\<50 nodes)             | NP-hard         |
-| fluid               | When k is known                             | O(E k)          |
+|  |  |  |
+|----|----|----|
+| Algorithm | Best For | Time Complexity |
+| louvain | Large networks, general use | O(n log n) |
+| leiden | Large networks, better quality than louvain | O(n log n) |
+| fast_greedy | Medium networks | O(n² log n) |
+| walktrap | Networks with clear community structure | O(n² log n) |
+| infomap | Directed networks, flow-based | O(E) |
+| label_propagation | Very large networks, speed critical | O(E) |
+| edge_betweenness | Small networks, hierarchical | O(E² n) |
+| leading_eigenvector | Networks with dominant structure | O(n²) |
+| spinglass | Small networks, allows negative weights | O(n³) |
+| optimal | Tiny networks only (\<50 nodes) | NP-hard |
+| fluid | When k is known | O(E k) |
 
 ## See also
 

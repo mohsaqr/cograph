@@ -542,21 +542,21 @@ of visual parameters:
 
 ## Customization Quick Reference
 
-|                               |                                                                                           |
-|-------------------------------|-------------------------------------------------------------------------------------------|
-| **Visual element**            | **Key parameters**                                                                        |
-| Cluster spacing / perspective | `spacing`, `skew_angle`                                                                   |
-| Cluster shell appearance      | `shape_size`, `shell_alpha`, `shell_border_width`, `colors`                               |
-| Detail nodes                  | `node_size`, `node_shape`, `node_border_color`                                            |
-| Detail labels                 | `show_labels`, `label_size`, `label_abbrev`, `label_color`, `label_position`              |
-| Summary nodes                 | `summary_size`, `cluster_shape`, `summary_border_color`, `summary_border_width`           |
-| Summary labels                | `summary_labels`, `summary_label_size`, `summary_label_color`, `summary_label_position`   |
-| Within-cluster edges          | `edge_width_range`, `edge_alpha`, `edge_labels`                                           |
-| Between-cluster edges         | `between_edge_width_range`, `between_edge_alpha`                                          |
-| Summary edges                 | `summary_edge_width_range`, `summary_edge_alpha`, `summary_edge_labels`, `summary_arrows` |
-| Inter-layer lines             | `inter_layer_alpha`                                                                       |
-| Top-layer layout              | `top_layer_scale`, `inter_layer_gap`                                                      |
-| Title / legend                | `title`, `subtitle`, `legend`, `legend_position`                                          |
+|  |  |
+|----|----|
+| **Visual element** | **Key parameters** |
+| Cluster spacing / perspective | `spacing`, `skew_angle` |
+| Cluster shell appearance | `shape_size`, `shell_alpha`, `shell_border_width`, `colors` |
+| Detail nodes | `node_size`, `node_shape`, `node_border_color` |
+| Detail labels | `show_labels`, `label_size`, `label_abbrev`, `label_color`, `label_position` |
+| Summary nodes | `summary_size`, `cluster_shape`, `summary_border_color`, `summary_border_width` |
+| Summary labels | `summary_labels`, `summary_label_size`, `summary_label_color`, `summary_label_position` |
+| Within-cluster edges | `edge_width_range`, `edge_alpha`, `edge_labels` |
+| Between-cluster edges | `between_edge_width_range`, `between_edge_alpha` |
+| Summary edges | `summary_edge_width_range`, `summary_edge_alpha`, `summary_edge_labels`, `summary_arrows` |
+| Inter-layer lines | `inter_layer_alpha` |
+| Top-layer layout | `top_layer_scale`, `inter_layer_gap` |
+| Title / legend | `title`, `subtitle`, `legend`, `legend_position` |
 
 ## See also
 

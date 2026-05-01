@@ -6,6 +6,7 @@ Build a TNA model from the `group_regulation` dataset (2000 sequences, 9
 states).
 
 ``` r
+
 data(group_regulation)
 model <- tna(group_regulation)
 ```
@@ -13,6 +14,7 @@ model <- tna(group_regulation)
 ### Basic Network Plot
 
 ``` r
+
 splot(model,
       title = "Group Regulation TNA",
       minimum = 0.05)
@@ -26,11 +28,13 @@ Run bootstrap resampling (1000 iterations) to assess edge significance
 and confidence intervals.
 
 ``` r
+
 set.seed(42)
 boot <- bootstrap(model, iter = 1000)
 ```
 
 ``` r
+
 sig_edges <- boot$summary[boot$summary$sig, ]
 cat(sprintf("Significant edges: %d / %d\n", nrow(sig_edges), nrow(boot$summary)))
 #> Significant edges: 51 / 78
@@ -62,6 +66,7 @@ head(sig_edges[order(sig_edges$p_value), ], 10)
 ### Bootstrap — Significant Edges Only
 
 ``` r
+
 splot(boot,
       display = "significant",
       title = "Bootstrap — Significant Edges",
@@ -75,6 +80,7 @@ splot(boot,
 Non-significant edges shown as dashed gray lines.
 
 ``` r
+
 splot(boot,
       display = "styled",
       title = "Bootstrap — Styled (sig=solid, nonsig=dashed)",
@@ -87,6 +93,7 @@ splot(boot,
 ### Bootstrap — Confidence Intervals
 
 ``` r
+
 splot(boot,
       display = "ci",
       title = "Bootstrap — With Confidence Intervals",
@@ -97,6 +104,7 @@ splot(boot,
 ![](plotting-tna-models_files/figure-html/plot-boot-ci-1.png)
 
 ``` r
+
 plot_bootstrap_forest(boot, layout = "grouped",
   title = "Human-AI Interaction — Grouped by Source Node")
 ```
@@ -108,6 +116,7 @@ plot_bootstrap_forest(boot, layout = "grouped",
 Generate two group TNA networks then compare with permutation testing.
 
 ``` r
+
 set.seed(123)
 group_models <- group_tna(group_regulation, 
                           group = c(rep("H", 1000), rep("L", 1000)))
@@ -116,6 +125,7 @@ group_models <- group_tna(group_regulation,
 ### Plot Each Group
 
 ``` r
+
 par(mfrow = c(1, 2))
 splot(group_models[[1]], title = "Group 1", minimum = 0.05)
 splot(group_models[[2]], title = "Group 2", minimum = 0.05)
@@ -126,6 +136,7 @@ splot(group_models[[2]], title = "Group 2", minimum = 0.05)
 ### Difference Network
 
 ``` r
+
 cograph::plot_compare(
   group_models[[1]], group_models[[2]],
   title = "Group 1 vs Group 2 — Difference Network")
@@ -136,11 +147,13 @@ cograph::plot_compare(
 ### Permutation Test
 
 ``` r
+
 set.seed(42)
 perm <- tna::permutation_test(group_models[[1]], group_models[[2]], iter = 1000)
 ```
 
 ``` r
+
 perm
 #> # A tibble: 81 × 4
 #>    edge_name           diff_true effect_size  p_value
@@ -161,6 +174,7 @@ perm
 ### Permutation Test — Network
 
 ``` r
+
 cograph::plot_permutation(perm,
       title = "Permutation Test — Significant Differences",
       show_nonsig = TRUE)

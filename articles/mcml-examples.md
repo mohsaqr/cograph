@@ -5,6 +5,7 @@
 TNA model of group regulation processes.
 
 ``` r
+
 model <- tna(group_regulation)
 splot(model)
 ```
@@ -16,6 +17,7 @@ splot(model)
 Sophisticated edge labels showing confidence intervals and significance.
 
 ``` r
+
 # 9 named nodes
 nodes9 <- c("Explore", "Plan", "Execute", "Monitor",
             "Adapt", "Reflect", "Regulate", "Review", "Learn")
@@ -61,6 +63,7 @@ splot(mat9,
 Clean edge labels showing just weight and significance stars.
 
 ``` r
+
 splot(mat9,
   layout = "circle",
   node_size = 8,
@@ -86,6 +89,7 @@ splot(mat9,
 Nested progress rings showing two metrics per node.
 
 ``` r
+
 # Create a simple network
 mat10 <- matrix(runif(100, 0, 0.3), 10, 10)
 diag(mat10) <- 0
@@ -114,6 +118,7 @@ splot(mat10,
 Combining progress ring with categorical pie chart.
 
 ``` r
+
 set.seed(5)
 fills <- runif(10, 0.5, 0.9)
 pie_vals <- lapply(1:10, function(i) runif(3))
@@ -138,6 +143,7 @@ splot(mat10,
 All available node shapes with edge labels.
 
 ``` r
+
 shapes <- c("circle", "square", "triangle", "diamond", "pentagon",
             "hexagon", "ellipse", "heart", "star", "cross")
 
@@ -160,6 +166,7 @@ splot(mat10,
 For matrices with positive and negative values.
 
 ``` r
+
 states <- c("Explore", "Plan", "Monitor", "Adapt", "Reflect")
 mat <- matrix(
   c(0.0, 0.4, 0.2, 0.1, 0.3,
@@ -190,6 +197,7 @@ plot_heatmap(mat_div,
 Stacked network layers with 3D perspective view.
 
 ``` r
+
 set.seed(42)
 nodes <- paste0("N", 1:15)
 ml_mat <- matrix(runif(225, 0, 0.3), 15, 15)
@@ -223,6 +231,7 @@ plot_mlna(ml_mat, layers,
 3D perspective heatmaps with inter-layer connections.
 
 ``` r
+
 set.seed(123)
 nodes <- c("A", "B", "C", "D")
 layers <- list(
@@ -250,6 +259,7 @@ Two-layer visualization with detailed clusters below and summary network
 above.
 
 ``` r
+
 set.seed(42)
 m <- matrix(runif(900, 0, 0.3), 30, 30)
 diag(m) <- 0
@@ -274,6 +284,7 @@ plot_mcml(m, clusters)
 Clustered network with summary edges between clusters.
 
 ``` r
+
 # Create network with 6 clusters
 set.seed(42)
 nodes <- paste0("N", 1:30)

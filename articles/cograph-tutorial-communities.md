@@ -19,6 +19,7 @@ Both accept any network type: `tna`, matrix, `igraph`, or
 We use a TNA model of collaborative group regulation throughout:
 
 ``` r
+
 model <- tna(group_regulation)
 ```
 
@@ -30,6 +31,7 @@ The simplest way: pass an igraph community detection method name.
 Partial matching and flexible naming are supported.
 
 ``` r
+
 overlay_communities(model, "fast_greedy")
 ```
 
@@ -44,6 +46,7 @@ match (`"leading_eige"`). Directed graphs are automatically converted to
 undirected for detection.
 
 ``` r
+
 overlay_communities(model, "louvain")
 ```
 
@@ -54,6 +57,7 @@ overlay_communities(model, "louvain")
 Define communities manually with a named list:
 
 ``` r
+
 overlay_communities(model, list(
   Regulatory = c("plan", "monitor", "adapt"),
   Social     = c("cohesion", "emotion", "consensus"),
@@ -68,6 +72,7 @@ overlay_communities(model, list(
 A numeric vector or factor where each position maps to a node:
 
 ``` r
+
 overlay_communities(model, c(1, 1, 1, 2, 2, 2, 3, 3, 3))
 ```
 
@@ -76,6 +81,7 @@ overlay_communities(model, c(1, 1, 1, 2, 2, 2, 3, 3, 3))
 ### 2.4 Custom Colors
 
 ``` r
+
 overlay_communities(model, "louvain", blob_colors = c("#E5B000", "#B4D7E0", "#C5E8A4"))
 ```
 
@@ -86,6 +92,7 @@ overlay_communities(model, "louvain", blob_colors = c("#E5B000", "#B4D7E0", "#C5
 Communities can share nodes:
 
 ``` r
+
 overlay_communities(model, list(
   "Self-Regulation" = c("plan", "monitor", "adapt", "emotion"),
   Collaboration     = c("cohesion", "consensus", "discuss",
@@ -106,6 +113,7 @@ layout. Source nodes appear in blue, target nodes in red.
 You can specify pathways directly as strings:
 
 ``` r
+
 plot_simplicial(model, c(
   "plan monitor -> adapt",
   "cohesion emotion -> consensus",
@@ -124,11 +132,13 @@ frequent pathways where sequential context changes the transition
 distribution:
 
 ``` r
+
 library(Nestimate)
 net <- build_network(group_regulation, method = "relative")
 ```
 
 ``` r
+
 plot_simplicial(net, max_pathways = 6,
   title = "Top 6 HON Pathways")
 ```
@@ -140,6 +150,7 @@ plot_simplicial(net, max_pathways = 6,
 One panel per pathway — easier to read individual pathways:
 
 ``` r
+
 plot_simplicial(net, max_pathways = 6,
   dismantled = TRUE, ncol = 3)
 ```
@@ -152,6 +163,7 @@ Switch to `method = "hypa"` to show paths that occur significantly more
 or less often than expected under a null model:
 
 ``` r
+
 plot_simplicial(net, method = "hypa", max_pathways = 6,
   dismantled = TRUE, ncol = 3)
 ```
@@ -161,6 +173,7 @@ plot_simplicial(net, method = "hypa", max_pathways = 6,
 ### 3.5 Custom Styling
 
 ``` r
+
 plot_simplicial(model,
   c("plan monitor -> adapt",
     "adapt monitor -> plan",

@@ -44,6 +44,7 @@ using simplicial complexes.
 ### Packages
 
 ``` r
+
 library(Nestimate)
 library(cograph)
 ```
@@ -63,6 +64,7 @@ Request, Specify, Command, Correct, Refine, Verify, Inquire, Interrupt,
 and Frustrate.
 
 ``` r
+
 data("human_long", package = "Nestimate")
 
 net <- build_network(human_long, method = "relative",
@@ -108,6 +110,7 @@ net
       Verify        0.002  
 
 ``` r
+
 splot(net, minimum = 0.05, title = "Human Actions in AI-Assisted Coding")
 ```
 
@@ -129,6 +132,7 @@ but have exponentially more parameters — AIC and BIC find the best
 tradeoff.
 
 ``` r
+
 mg <- build_mogen(net, max_order = 4)
 summary(mg)
 ```
@@ -148,6 +152,7 @@ summary(mg)
       Optimal order: 4 (by aic)
 
 ``` r
+
 plot(mg)
 ```
 
@@ -171,6 +176,7 @@ extracts the transitions at a given order, showing which two-step
 contexts lead to different outcomes:
 
 ``` r
+
 mt <- mogen_transitions(mg, order = 2)
 mt[1:8, ]
 ```
@@ -208,6 +214,7 @@ distribution after *Request → Specify* differs from *Frustrate →
 Specify*, HON creates separate nodes for these contexts.
 
 ``` r
+
 hon <- build_hon(net)
 hon
 ```
@@ -220,6 +227,7 @@ hon
       Trajectories: 508
 
 ``` r
+
 ho_edges <- hon$ho_edges[hon$ho_edges$from_order > 1, ]
 ho_top <- ho_edges[order(-ho_edges$count), ]
 ho_top[1:min(10, nrow(ho_top)), ]
@@ -258,6 +266,7 @@ probability — these represent genuine contextual effects.
 The most common 3-step sequences regardless of statistical significance:
 
 ``` r
+
 path_counts(net, k = 3, top = 15)
 ```
 
@@ -296,6 +305,7 @@ significantly are flagged:
   practically ineffective.
 
 ``` r
+
 hypa <- build_hypa(net)
 
 
@@ -311,6 +321,7 @@ Learned routines — sequences that occur far more than expected.
 accepts HYPA objects directly with the `anomaly` parameter to filter:
 
 ``` r
+
 plot_simplicial(hypa, anomaly = "over", max_pathways = 9,
                 dismantled = TRUE, ncol = 3)
 ```
@@ -322,6 +333,7 @@ plot_simplicial(hypa, anomaly = "over", max_pathways = 9,
 Avoided sequences:
 
 ``` r
+
 plot_simplicial(hypa, anomaly = "under", max_pathways = 6,
                 dismantled = TRUE, ncol = 3)
 ```
@@ -334,6 +346,7 @@ Multiple pathways on a single plot — overlapping regions indicate states
 that participate in many higher-order patterns:
 
 ``` r
+
 plot_simplicial(net, max_pathways = 6,
                 title = "Top 6 Higher-Order Pathways")
 ```
@@ -347,6 +360,7 @@ conditions. We build grouped networks by superclass (Directive,
 Evaluative, Metacognitive) and run HYPA on each:
 
 ``` r
+
 grp_net <- build_network(human_long, method = "relative",
                          action = "code", actor = "session_id",
                          time = "timestamp", group = "cluster")
@@ -375,6 +389,7 @@ higher-order structure — their sequential dynamics are less predictable
 from first-order transitions alone.
 
 ``` r
+
 par(mfrow = c(1, 2))
 plot_simplicial(grp_net$Directive, max_pathways = 4,
                 title = "Directive: Higher-Order Pathways")
@@ -383,6 +398,7 @@ plot_simplicial(grp_net$Directive, max_pathways = 4,
 ![](cograph-tutorial-simplicial_files/figure-html/group-simplicial-1.png)
 
 ``` r
+
 plot_simplicial(grp_net$Evaluative, max_pathways = 4,
                 title = "Evaluative: Higher-Order Pathways")
 ```
@@ -396,6 +412,7 @@ different datasets. Here we compare the human-AI coding data with a
 collaborative regulation dataset:
 
 ``` r
+
 data("group_regulation_long", package = "Nestimate")
 net_reg <- build_network(group_regulation_long, method = "relative",
                          action = "Action", actor = "Actor")
@@ -419,6 +436,7 @@ comparison
     2 Collaborative Regulation     9        2584       600  524    76
 
 ``` r
+
 par(mfrow = c(1, 2))
 plot_simplicial(net, max_pathways = 4,
                 title = "Human-AI Coding")
@@ -427,6 +445,7 @@ plot_simplicial(net, max_pathways = 4,
 ![](cograph-tutorial-simplicial_files/figure-html/compare-simplicial-1.png)
 
 ``` r
+
 plot_simplicial(net_reg, max_pathways = 4,
                 title = "Collaborative Regulation")
 ```
@@ -453,7 +472,7 @@ formalizes this:
 - A **0-simplex** is a single node
 - A **1-simplex** is an edge (two connected nodes)
 - A **2-simplex** is a filled triangle (three mutually connected nodes)
-- A **$k$-simplex** is a group of $k + 1$ mutually connected nodes
+- A **$`k`$-simplex** is a group of $`k+1`$ mutually connected nodes
 
 The **clique complex** turns every clique into a simplex, lifting a flat
 graph into a multi-dimensional topological object.
@@ -461,6 +480,7 @@ graph into a multi-dimensional topological object.
 ### Building the complex
 
 ``` r
+
 sc <- build_simplicial(net, threshold = 0.05)
 sc
 ```
@@ -474,18 +494,19 @@ sc
 
 ### Topological descriptors
 
-- **f-vector** $(f_{0},f_{1},f_{2},\ldots)$: counts simplices at each
+- **f-vector** $`(f_0, f_1, f_2, \ldots)`$: counts simplices at each
   dimension.
-- **Betti numbers** $(\beta_{0},\beta_{1},\beta_{2},\ldots)$: the
-  central invariants. $\beta_{0}$ = connected components, $\beta_{1}$ =
-  independent loops, $\beta_{2}$ = enclosed voids.
+- **Betti numbers** $`(\beta_0, \beta_1, \beta_2, \ldots)`$: the central
+  invariants. $`\beta_0`$ = connected components, $`\beta_1`$ =
+  independent loops, $`\beta_2`$ = enclosed voids.
 - **Euler characteristic**
-  $\chi = \sum(-1)^{k}f_{k} = \sum(-1)^{k}\beta_{k}$. For a contractible
-  complex, $\chi = 1$.
+  $`\chi = \sum (-1)^k f_k = \sum (-1)^k \beta_k`$. For a contractible
+  complex, $`\chi = 1`$.
 - **Simplicial degree**: how many higher-dimensional simplices each node
   participates in.
 
 ``` r
+
 simplicial_degree(sc)
 ```
 
@@ -501,6 +522,7 @@ simplicial_degree(sc)
     9    Verify  1  8 28 56 70 56 28  8  1   255
 
 ``` r
+
 plot(sc)
 ```
 
@@ -518,6 +540,7 @@ with only the strongest edges and progressively add weaker ones.
 Features that persist across a wide range are **topologically robust**.
 
 ``` r
+
 ph <- persistent_homology(net, n_steps = 25)
 ph
 ```
@@ -531,14 +554,15 @@ ph
         b0: 0.6197 → 0.1851 (life: 0.4346)
 
 ``` r
+
 plot(ph)
 ```
 
 ![](cograph-tutorial-simplicial_files/figure-html/persistent-1.png)
 
 **Betti curve** (left): At high threshold, the network is sparse (many
-components). As threshold decreases, components merge ($\beta_{0}$
-drops) and loops may form ($\beta_{1}$ rises) then get filled.
+components). As threshold decreases, components merge ($`\beta_0`$
+drops) and loops may form ($`\beta_1`$ rises) then get filled.
 
 **Persistence diagram** (right): Points far from the diagonal have long
 lifetimes — structurally important features. Points near the diagonal
@@ -548,13 +572,14 @@ are noise.
 
 Q-analysis (Atkin 1974) measures connectivity at multiple levels of
 structural sharing. Two maximal simplices are **q-connected** if they
-share a face of dimension $\geq q$:
+share a face of dimension $`\geq q`$:
 
 - **q = 0**: share at least one node
 - **q = 1**: share at least one edge
 - **q = 2**: share at least one triangle
 
 ``` r
+
 qa <- q_analysis(sc)
 qa
 ```
@@ -565,6 +590,7 @@ qa
       Structure: Command:8 Correct:8 Frustrate:8 Inquire:8 Interrupt:8 Refine:8 Request:8 Specify:8 Verify:8
 
 ``` r
+
 plot(qa)
 ```
 
@@ -581,6 +607,7 @@ the **pathways** discovered by HON — topology derived from sequential
 dynamics rather than network structure:
 
 ``` r
+
 sc_hon <- build_simplicial(hon, type = "pathway", max_pathways = 30)
 sc_hon
 ```
@@ -593,14 +620,15 @@ sc_hon
       Nodes: Command, Correct, Frustrate, Inquire, Interrupt, Refine, Request, Specify, Verify 
 
 ``` r
+
 plot(sc_hon)
 ```
 
 ![](cograph-tutorial-simplicial_files/figure-html/pathway-complex-1.png)
 
 In the pathway complex, each higher-order pathway becomes a simplex.
-$\beta_{0} > 1$ means some states are sequentially disconnected.
-$\beta_{1} > 0$ means there are cyclic pathway structures.
+$`\beta_0 > 1`$ means some states are sequentially disconnected.
+$`\beta_1 > 0`$ means there are cyclic pathway structures.
 
 ### Verification
 
@@ -608,6 +636,7 @@ All simplicial computations are cross-validated against igraph’s
 clique-finding and verified via the Euler-Poincaré theorem:
 
 ``` r
+
 verify_simplicial(net$weights, threshold = 0.05)
 ```
 
@@ -617,16 +646,16 @@ verify_simplicial(net$weights, threshold = 0.05)
 
 ## Summary
 
-| Step | Method            | Function                                                                              | What it reveals                              |
-|------|-------------------|---------------------------------------------------------------------------------------|----------------------------------------------|
-| 1    | **TNA**           | [`build_network()`](https://rdrr.io/pkg/Nestimate/man/build_network.html)             | First-order transition structure             |
-| 2    | **MOGen**         | [`build_mogen()`](https://rdrr.io/pkg/Nestimate/man/build_mogen.html)                 | Whether higher-order is needed               |
-| 3    | **HON**           | [`build_hon()`](https://rdrr.io/pkg/Nestimate/man/build_hon.html)                     | Where sequential context changes transitions |
-| 4    | **HYPA**          | [`build_hypa()`](https://rdrr.io/pkg/Nestimate/man/build_hypa.html)                   | Which paths are anomalously frequent or rare |
-| 5    | **Visualization** | [`plot_simplicial()`](https://sonsoles.me/cograph/reference/plot_simplicial.md)       | Blob diagrams of pathways                    |
-| 6    | **Simplicial**    | [`build_simplicial()`](https://rdrr.io/pkg/Nestimate/man/build_simplicial.html)       | Topological structure                        |
-| 7    | **Persistence**   | [`persistent_homology()`](https://rdrr.io/pkg/Nestimate/man/persistent_homology.html) | Robustness across scales                     |
-| 8    | **Q-analysis**    | [`q_analysis()`](https://rdrr.io/pkg/Nestimate/man/q_analysis.html)                   | Multi-level connectivity                     |
+| Step | Method | Function | What it reveals |
+|----|----|----|----|
+| 1 | **TNA** | [`build_network()`](https://rdrr.io/pkg/Nestimate/man/build_network.html) | First-order transition structure |
+| 2 | **MOGen** | [`build_mogen()`](https://rdrr.io/pkg/Nestimate/man/build_mogen.html) | Whether higher-order is needed |
+| 3 | **HON** | [`build_hon()`](https://rdrr.io/pkg/Nestimate/man/build_hon.html) | Where sequential context changes transitions |
+| 4 | **HYPA** | [`build_hypa()`](https://rdrr.io/pkg/Nestimate/man/build_hypa.html) | Which paths are anomalously frequent or rare |
+| 5 | **Visualization** | [`plot_simplicial()`](https://sonsoles.me/cograph/reference/plot_simplicial.md) | Blob diagrams of pathways |
+| 6 | **Simplicial** | [`build_simplicial()`](https://rdrr.io/pkg/Nestimate/man/build_simplicial.html) | Topological structure |
+| 7 | **Persistence** | [`persistent_homology()`](https://rdrr.io/pkg/Nestimate/man/persistent_homology.html) | Robustness across scales |
+| 8 | **Q-analysis** | [`q_analysis()`](https://rdrr.io/pkg/Nestimate/man/q_analysis.html) | Multi-level connectivity |
 
 The key progression:
 

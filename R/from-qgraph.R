@@ -159,7 +159,7 @@ tna_color_palette <- function(n_states) {
 #'   \item \code{arrow_size = 0.61}: Prominent directional arrows
 #'   \item \code{edge_color = "#003355"}: Dark blue edges
 #'   \item \code{edge_labels = TRUE}: Show transition weights on edges
-#'   \item \code{edge_label_size = 0.6}: Readable edge labels
+#'   \item \code{edge_label_size = 0.4}: Readable edge labels
 #'   \item \code{edge_label_position = 0.7}: Labels positioned toward target
 #'   \item \code{edge_start_style = "dotted"}: Dotted line at edge source
 #'   \item \code{edge_start_length = 0.2}: 20% of edge is dotted
@@ -240,8 +240,11 @@ from_tna <- function(tna_object, engine = c("splot", "soplot"), plot = TRUE,
   params <- c(params, tna_defaults)
 
   # --- Apply overrides ---
+  # Use single-bracket assignment with list() so a user passing
+  # `from_tna(model, donut_fill = NULL)` actually stores NULL instead of
+  # deleting the key (R list NULL trap; see CLAUDE.md).
   for (nm in names(overrides)) {
-    params[[nm]] <- overrides[[nm]]
+    params[nm] <- list(overrides[[nm]])
   }
 
   # --- Plot ---
@@ -493,9 +496,11 @@ from_qgraph <- function(qgraph_object, engine = c("splot", "soplot"), plot = TRU
   # --- Apply overrides (user can override anything) ---
   # Map qgraph-style parameter names to cograph equivalents
   qgraph_to_cograph <- c(minimum = "threshold", cut = "edge_cutoff")
+  # Single-bracket assignment with list() so explicit NULL overrides actually
+  # land as NULL instead of deleting the key (R list NULL trap; see CLAUDE.md).
   for (nm in names(overrides)) {
     cograph_nm <- if (nm %in% names(qgraph_to_cograph)) qgraph_to_cograph[[nm]] else nm
-    params[[cograph_nm]] <- overrides[[nm]]
+    params[cograph_nm] <- list(overrides[[nm]])
   }
   # If user overrides layout, remove rescale=FALSE so cograph rescales properly
   if ("layout" %in% names(overrides)) {

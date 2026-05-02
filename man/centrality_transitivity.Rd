@@ -11,7 +11,12 @@ centrality_transitivity(x, transitivity_type = "local", isolates = "nan", ...)
 
 \item{transitivity_type}{Type of transitivity: \code{"local"} (default),
 \code{"global"}, \code{"undirected"}, \code{"localundirected"},
-\code{"barrat"} (weighted), or \code{"weighted"}.}
+\code{"barrat"} (weighted), \code{"weighted"}, or \code{"onnela"}.
+\code{"onnela"} computes the Onnela / Holme weighted clustering
+coefficient on the symmetrized matrix and matches
+\code{tna::centralities(., "Clustering")} byte-for-byte. Auto-set
+to \code{"onnela"} when \code{tna_network = TRUE} (passed via
+\code{...}) and the user did not pass an explicit value.}
 
 \item{isolates}{How to handle isolate nodes: \code{"nan"} (default) or
 \code{"zero"}.}

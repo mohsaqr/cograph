@@ -1688,7 +1688,12 @@ centrality_constraint <- function(x, ...) {
 #' @param x Network input (matrix, igraph, network, cograph_network, tna object).
 #' @param transitivity_type Type of transitivity: \code{"local"} (default),
 #'   \code{"global"}, \code{"undirected"}, \code{"localundirected"},
-#'   \code{"barrat"} (weighted), or \code{"weighted"}.
+#'   \code{"barrat"} (weighted), \code{"weighted"}, or \code{"onnela"}.
+#'   \code{"onnela"} computes the Onnela / Holme weighted clustering
+#'   coefficient on the symmetrized matrix and matches
+#'   \code{tna::centralities(., "Clustering")} byte-for-byte. Auto-set
+#'   to \code{"onnela"} when \code{tna_network = TRUE} (passed via
+#'   \code{...}) and the user did not pass an explicit value.
 #' @param isolates How to handle isolate nodes: \code{"nan"} (default) or
 #'   \code{"zero"}.
 #' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,

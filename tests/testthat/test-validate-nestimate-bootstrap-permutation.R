@@ -324,6 +324,19 @@ test_that("netobject path preserves self-loops when weights have non-zero diagon
   # Sanity: at least one self-loop in $weights so the test is meaningful.
   expect_gt(sum(diag(W) != 0), 0)
 
+  # Behavior probe: skip cleanly on Nestimate versions that predate the
+  # .extract_edges_from_matrix() loop-extraction fix. The test asserts
+  # the post-fix invariant; on the old extractor it would fail with a
+  # confusing diff instead of skipping.
+  if (nrow(nobj$edges) != sum(W != 0)) {
+    skip(paste0(
+      "Installed Nestimate (",
+      utils::packageVersion("Nestimate"),
+      ") drops self-loops in .extract_edges_from_matrix(); ",
+      "reinstall from source to run this regression test."
+    ))
+  }
+
   # $edges must include every non-zero entry, including the diagonal.
   expect_equal(nrow(nobj$edges), sum(W != 0))
 

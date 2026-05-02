@@ -10,12 +10,15 @@ centrality_diffusion(x, mode = "all", lambda = 1, ...)
 \item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
 
 \item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\code{"out"}. Only used when \code{diffusion_method = "kandhway_kuri"}
+(the default for non-tna inputs); ignored under \code{"power_series"},
+which always treats the matrix as the row transition operator.}
 
-\item{lambda}{Scaling factor for neighbor contributions. Default 1.}
+\item{lambda}{Scaling factor for neighbor contributions. Default 1. Only
+used when \code{diffusion_method = "kandhway_kuri"}.}
 
 \item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{weighted}, \code{directed}).}
+\code{diffusion_method}, \code{loops}, \code{weighted}, \code{directed}).}
 }
 \value{
 Named numeric vector of diffusion centrality values.
@@ -23,6 +26,18 @@ Named numeric vector of diffusion centrality values.
 \description{
 Sum of scaled degrees of a node and its neighbors, measuring the node's
 potential for spreading information through the network.
+}
+\details{
+Two methods are supported. \code{"kandhway_kuri"} (Kandhway & Kuri, 2014)
+computes the 1-hop binary-degree neighborhood sum and is the default for
+raw matrices, igraph objects, and other non-tna inputs.
+\code{"power_series"} computes
+\eqn{\mathrm{rowSums}(P + P^2 + \ldots + P^n)} on the weighted matrix
+(with \code{diag(P) := 0} when \code{loops = FALSE}) and matches
+\code{tna::centralities(., measures = "Diffusion")} byte-for-byte.
+For tna inputs, the default switches to \code{"power_series"} to match
+user expectation; pass \code{diffusion_method = "kandhway_kuri"} to
+force the binary-degree formula.
 }
 \examples{
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)

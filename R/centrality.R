@@ -92,10 +92,27 @@
 #' @param personalized Named numeric vector for personalized PageRank.
 #'   Default NULL (standard PageRank). Values should sum to 1.
 #' @param transitivity_type Type of transitivity to calculate: "local" (default),
-#'   "global", "undirected", "localundirected", "barrat" (weighted), or "weighted".
+#'   "global", "undirected", "localundirected", "barrat" (weighted),
+#'   "weighted", or "onnela". The first six dispatch to
+#'   \code{igraph::transitivity()}; \code{"onnela"} computes the Onnela /
+#'   Holme weighted clustering coefficient on the symmetrized matrix
+#'   (\code{wcc(x + t(x))}) and matches \code{tna::centralities(., "Clustering")}
+#'   byte-for-byte. Auto-set to \code{"onnela"} when \code{tna_network = TRUE}
+#'   and the user did not pass an explicit value.
 #' @param isolates How to handle isolate nodes in transitivity calculation:
 #'   "nan" (default) returns NaN, "zero" returns 0.
 #' @param lambda Diffusion scaling factor for diffusion centrality. Default 1.
+#'   Only used when \code{diffusion_method = "kandhway_kuri"}.
+#' @param diffusion_method Character or NULL. Selects the diffusion-centrality
+#'   formula. \code{"kandhway_kuri"} (Kandhway & Kuri, 2014) computes the
+#'   1-hop binary-degree neighborhood sum
+#'   \eqn{\lambda d_v + \lambda \sum_{u \in N(v)} d_u}. \code{"power_series"}
+#'   computes the matrix power series \eqn{\mathrm{rowSums}(P + P^2 + \ldots + P^n)}
+#'   on the (optionally diagonal-zeroed) weighted matrix and matches
+#'   \code{tna::centralities(., measures = "Diffusion")} when
+#'   \code{loops = FALSE}. Default NULL auto-detects: \code{"power_series"}
+#'   for tna objects (transition probabilities), \code{"kandhway_kuri"}
+#'   otherwise.
 #' @param k Path length parameter for geodesic k-path centrality. Default 3.
 #' @param states Named numeric vector of percolation states (0-1) for percolation
 #'   centrality. Each value represents how "activated" or "infected" a node is.
@@ -111,6 +128,15 @@
 #' @param katz_alpha Attenuation factor for Katz centrality. Must satisfy
 #'   \eqn{\alpha < 1 / \rho(A)}. Default 0.1 (matches centiserve and NetworkX
 #'   conventions). Only used when \code{"katz"} is in \code{measures}.
+#' @param tna_network Logical or NULL. Umbrella switch that forces tna-style
+#'   conventions across all measures. \code{NULL} (default) auto-detects
+#'   from the input class — TRUE iff \code{x} is a \code{tna} or related
+#'   sequence-network object. \code{TRUE} forces tna conventions even on
+#'   raw matrices: \code{invert_weights = TRUE}, \code{loops = FALSE},
+#'   \code{diffusion_method = "power_series"}, \code{transitivity_type
+#'   = "onnela"}. \code{FALSE} suppresses all tna defaults even for tna
+#'   inputs, giving the cograph defaults verbatim. Precedence: any arg
+#'   the user passes explicitly always wins over \code{tna_network}.
 #' @param hubbell_weight Weight factor \eqn{w} for Hubbell centrality. Must
 #'   satisfy \eqn{w \cdot \rho(W) \le 1} for solvability. Default 0.5. Only
 #'   used when \code{"hubbell"} is in \code{measures}.
@@ -256,30 +282,65 @@ centrality <- function(x, type = c("basic", "extended", "all"),
                        cutoff = -1, invert_weights = NULL, alpha = 1,
                        damping = 0.85, personalized = NULL,
                        transitivity_type = "local", isolates = "nan",
-                       lambda = 1, k = 3, states = NULL,
+                       lambda = 1, diffusion_method = NULL,
+                       k = 3, states = NULL,
                        decay_parameter = 0.5, dmnc_epsilon = 1.7,
                        membership = NULL,
                        katz_alpha = 0.1, hubbell_weight = 0.5,
+                       tna_network = NULL,
                        ...) {
 
   type <- match.arg(type)
 
-  # Auto-detect invert_weights based on input type
-
-  # tna objects have transition probabilities (strengths), so invert for path-based measures
+  # Detect tna-class input. Group/conditional/factorial tna objects all carry
+  # transition probabilities so the same conventions apply.
   is_tna_input <- inherits(x, c("tna", "group_tna", "ctna", "ftna", "atna",
                                  "group_ctna", "group_ftna", "group_atna"))
+
+  # Resolve tna_network. NULL auto-detects from class so existing tna users get
+  # tna conventions for free; TRUE/FALSE force the umbrella on/off regardless
+  # of class. Precedence: user-explicit per-arg > tna_network > cograph default.
+  if (is.null(tna_network)) {
+    tna_network <- is_tna_input
+  }
+  stopifnot(is.logical(tna_network), length(tna_network) == 1L, !is.na(tna_network))
+
+  # Capture which args the caller explicitly passed so tna_network only fills
+  # in the gaps. NULL-default args are also "unset" if the caller passed NULL.
+  .explicit <- names(match.call())[-1L]
+
+  # invert_weights: NULL default, auto under tna_network.
   if (is.null(invert_weights)) {
-    invert_weights <- is_tna_input
+    invert_weights <- isTRUE(tna_network)
+  }
+
+  # loops: hard default TRUE in cograph; under tna_network flip to FALSE only
+  # if the user did not explicitly pass it.
+  if (isTRUE(tna_network) && !"loops" %in% .explicit) {
+    loops <- FALSE
+  }
+
+  # diffusion_method: NULL default, auto under tna_network.
+  if (is.null(diffusion_method)) {
+    diffusion_method <- if (isTRUE(tna_network)) "power_series" else "kandhway_kuri"
+  }
+  diffusion_method <- match.arg(diffusion_method,
+                                c("kandhway_kuri", "power_series"))
+
+  # transitivity_type: hard default "local"; under tna_network switch to
+  # "onnela" only if the user did not explicitly pass it.
+  if (isTRUE(tna_network) && !"transitivity_type" %in% .explicit) {
+    transitivity_type <- "onnela"
   }
 
   # Validate mode
   mode <- match.arg(mode, c("all", "in", "out"))
 
-  # Validate new parameters
+  # Validate transitivity_type and isolates
   transitivity_type <- match.arg(
     transitivity_type,
-    c("local", "global", "undirected", "localundirected", "barrat", "weighted")
+    c("local", "global", "undirected", "localundirected",
+      "barrat", "weighted", "onnela")
   )
   isolates <- match.arg(isolates, c("nan", "zero"))
 
@@ -449,7 +510,9 @@ centrality <- function(x, type = c("basic", "extended", "all"),
       g, m, mode, measure_weights, normalized,
       cutoff = cutoff, damping = damping, personalized = personalized,
       transitivity_type = transitivity_type, isolates = isolates,
-      hits_result = hits_result, lambda = lambda, k = k, states = states,
+      hits_result = hits_result, lambda = lambda,
+      diffusion_method = diffusion_method, loops = loops,
+      k = k, states = states,
       decay_parameter = decay_parameter, dmnc_epsilon = dmnc_epsilon,
       membership = membership,
       katz_alpha = katz_alpha, hubbell_weight = hubbell_weight,
@@ -499,6 +562,43 @@ centrality <- function(x, type = c("basic", "extended", "all"),
 #' @param lambda Scaling factor applied to degrees. Default 1.
 #' @return Numeric vector of diffusion centrality values
 #' @noRd
+#' Calculate Onnela-style weighted clustering coefficient (matches tna)
+#'
+#' Implements `wcc(x + t(x))` per the formula used by `tna::centralities(.,
+#' "Clustering")`: symmetrize the directed weight matrix, zero the diagonal,
+#' then for each node compute `diag(M^3)_v / ((sum_j M_vj)^2 - sum_j M_vj^2)`.
+#' Returns a numeric vector of length n.
+#'
+#' @param g igraph object (directed or undirected). Weights are taken from
+#'   `E(g)$weight` via `as_adjacency_matrix(attr = "weight")`; binary
+#'   adjacency is used if no weights.
+#' @return Numeric vector of clustering values, one per vertex.
+#' @noRd
+calculate_clustering_onnela <- function(g) {
+  n <- igraph::vcount(g)
+  if (n == 0) return(numeric(0))
+  W <- as.matrix(igraph::as_adjacency_matrix(g, attr = "weight", sparse = FALSE))
+  M <- W + t(W)
+  diag(M) <- 0
+  num <- diag(M %*% M %*% M)
+  den <- .colSums(M, n, n)^2 - .colSums(M^2, n, n)
+  num / den
+}
+
+calculate_diffusion_power_series <- function(g, loops = TRUE) {
+  n <- igraph::vcount(g)
+  if (n == 0) return(numeric(0))
+  W <- as.matrix(igraph::as_adjacency_matrix(g, attr = "weight", sparse = FALSE))
+  if (!isTRUE(loops)) diag(W) <- 0
+  s <- matrix(0, n, n)
+  p <- diag(1, n, n)
+  for (i in seq_len(n)) {
+    p <- p %*% W
+    s <- s + p
+  }
+  .rowSums(s, n, n)
+}
+
 calculate_diffusion <- function(g, mode = "all", lambda = 1) {
   n <- igraph::vcount(g)
   if (n == 0) return(numeric(0))
@@ -1081,7 +1181,10 @@ calculate_percolation <- function(g, states = NULL, weights = NULL, directed = T
 calculate_measure <- function(g, measure, mode, weights, normalized,
                               cutoff, damping, personalized,
                               transitivity_type, isolates,
-                              hits_result = NULL, lambda = 1, k = 3,
+                              hits_result = NULL, lambda = 1,
+                              diffusion_method = "kandhway_kuri",
+                              loops = TRUE,
+                              k = 3,
                               states = NULL, decay_parameter = 0.5,
                               dmnc_epsilon = 1.7,
                               membership = NULL,
@@ -1101,7 +1204,11 @@ calculate_measure <- function(g, measure, mode, weights, normalized,
     "harmonic" = igraph::harmonic_centrality(
       g, mode = mode, weights = weights, normalized = normalized, cutoff = cutoff
     ),
-    "diffusion" = calculate_diffusion(g, mode = mode, lambda = lambda),
+    "diffusion" = if (identical(diffusion_method, "power_series")) {
+      calculate_diffusion_power_series(g, loops = loops)
+    } else {
+      calculate_diffusion(g, mode = mode, lambda = lambda)
+    },
     "leverage" = calculate_leverage(g, mode = mode),
     "kreach" = calculate_kreach(g, mode = mode, weights = weights, k = k),
     "alpha" = igraph::alpha_centrality(
@@ -1133,9 +1240,11 @@ calculate_measure <- function(g, measure, mode, weights, normalized,
     "authority" = hits_result$authority,
     "hub" = hits_result$hub,
     "constraint" = igraph::constraint(g, weights = weights),
-    "transitivity" = igraph::transitivity(
-      g, type = transitivity_type, isolates = isolates
-    ),
+    "transitivity" = if (identical(transitivity_type, "onnela")) {
+      calculate_clustering_onnela(g)
+    } else {
+      igraph::transitivity(g, type = transitivity_type, isolates = isolates)
+    },
 
     # Extended measures — distance-based closeness variants
     "radiality" = calculate_radiality(g, mode = mode, weights = weights,
@@ -1646,12 +1755,27 @@ centrality_outharmonic <- function(x, ...) {
 #'
 #' @param x Network input (matrix, igraph, network, cograph_network, tna object).
 #' @param mode For directed networks: \code{"all"} (default), \code{"in"}, or
-#'   \code{"out"}.
-#' @param lambda Scaling factor for neighbor contributions. Default 1.
+#'   \code{"out"}. Only used when \code{diffusion_method = "kandhway_kuri"}
+#'   (the default for non-tna inputs); ignored under \code{"power_series"},
+#'   which always treats the matrix as the row transition operator.
+#' @param lambda Scaling factor for neighbor contributions. Default 1. Only
+#'   used when \code{diffusion_method = "kandhway_kuri"}.
 #' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
-#'   \code{weighted}, \code{directed}).
+#'   \code{diffusion_method}, \code{loops}, \code{weighted}, \code{directed}).
 #'
 #' @return Named numeric vector of diffusion centrality values.
+#'
+#' @details
+#' Two methods are supported. \code{"kandhway_kuri"} (Kandhway & Kuri, 2014)
+#' computes the 1-hop binary-degree neighborhood sum and is the default for
+#' raw matrices, igraph objects, and other non-tna inputs.
+#' \code{"power_series"} computes
+#' \eqn{\mathrm{rowSums}(P + P^2 + \ldots + P^n)} on the weighted matrix
+#' (with \code{diag(P) := 0} when \code{loops = FALSE}) and matches
+#' \code{tna::centralities(., measures = "Diffusion")} byte-for-byte.
+#' For tna inputs, the default switches to \code{"power_series"} to match
+#' user expectation; pass \code{diffusion_method = "kandhway_kuri"} to
+#' force the binary-degree formula.
 #'
 #' @seealso \code{\link{centrality}} for computing multiple measures at once.
 #'

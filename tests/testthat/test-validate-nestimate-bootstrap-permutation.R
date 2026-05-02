@@ -300,3 +300,46 @@ test_that("net_permutation: cograph reads correct fields from Nestimate", {
   expect_true(is.matrix(nperm$p_values))
   expect_true(is.matrix(nperm$effect_size))
 })
+
+# ============================================
+# Regression: self-loops survive netobject -> centrality round-trip
+# ============================================
+# Nestimate's .extract_edges_from_matrix() previously dropped the diagonal
+# when constructing a netobject's $edges, so $weights kept self-loops but
+# $edges did not. cograph::centrality() routes netobjects through
+# network_to_igraph() which builds from $edges, so loops were silently
+# missing for any netobject path while the matrix path kept them.
+# Symptom: centrality_degree(MCMLL_tna$macro) and
+#          centrality_degree(MCMLL_tna$macro$weights) disagreed by 2 per node.
+
+test_that("netobject path preserves self-loops when weights have non-zero diagonal", {
+  skip_if_no_nestimate()
+
+  # build_network() on sequence data produces a netobject whose weight
+  # matrix has a non-zero diagonal (transitions where the same code
+  # follows itself), so it exercises the loop-extraction path.
+  nobj <- make_directed_netobject(n = 400, seed = 7)
+  W <- nobj$weights
+
+  # Sanity: at least one self-loop in $weights so the test is meaningful.
+  expect_gt(sum(diag(W) != 0), 0)
+
+  # $edges must include every non-zero entry, including the diagonal.
+  expect_equal(nrow(nobj$edges), sum(W != 0))
+
+  # Centrality through the netobject (uses $edges via network_to_igraph)
+  # must agree with centrality through the raw weight matrix on
+  # loop-sensitive measures.
+  by_object <- cograph::centrality(
+    nobj,
+    measures = c("degree", "strength"),
+    invert_weights = FALSE
+  )
+  by_matrix <- cograph::centrality(
+    W,
+    measures = c("degree", "strength"),
+    invert_weights = FALSE
+  )
+  expect_equal(by_object$degree_all, by_matrix$degree_all)
+  expect_equal(by_object$strength_all, by_matrix$strength_all)
+})

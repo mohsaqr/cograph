@@ -72,6 +72,7 @@ data frame. Accepts matrices, igraph objects, cograph_network, or tna objects.</
 <span>  transitivity_type <span class="op">=</span> <span class="st">"local"</span>,</span>
 <span>  isolates <span class="op">=</span> <span class="st">"nan"</span>,</span>
 <span>  lambda <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  diffusion_method <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  k <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>  states <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  decay_parameter <span class="op">=</span> <span class="fl">0.5</span>,</span>
@@ -79,6 +80,7 @@ data frame. Accepts matrices, igraph objects, cograph_network, or tna objects.</
 <span>  membership <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  katz_alpha <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>  hubbell_weight <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  tna_network <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -229,7 +231,13 @@ Default NULL (standard PageRank). Values should sum to 1.</p></dd>
 
 <dt id="arg-transitivity-type">transitivity_type<a class="anchor" aria-label="anchor" href="#arg-transitivity-type"></a></dt>
 <dd><p>Type of transitivity to calculate: "local" (default),
-"global", "undirected", "localundirected", "barrat" (weighted), or "weighted".</p></dd>
+"global", "undirected", "localundirected", "barrat" (weighted),
+"weighted", or "onnela". The first six dispatch to
+<code><a href="https://r.igraph.org/reference/transitivity.html" class="external-link">igraph::transitivity()</a></code>; <code>"onnela"</code> computes the Onnela /
+Holme weighted clustering coefficient on the symmetrized matrix
+(<code>wcc(x + t(x))</code>) and matches <code>tna::centralities(., "Clustering")</code>
+byte-for-byte. Auto-set to <code>"onnela"</code> when <code>tna_network = TRUE</code>
+and the user did not pass an explicit value.</p></dd>
 
 
 <dt id="arg-isolates">isolates<a class="anchor" aria-label="anchor" href="#arg-isolates"></a></dt>
@@ -238,7 +246,21 @@ Default NULL (standard PageRank). Values should sum to 1.</p></dd>
 
 
 <dt id="arg-lambda">lambda<a class="anchor" aria-label="anchor" href="#arg-lambda"></a></dt>
-<dd><p>Diffusion scaling factor for diffusion centrality. Default 1.</p></dd>
+<dd><p>Diffusion scaling factor for diffusion centrality. Default 1.
+Only used when <code>diffusion_method = "kandhway_kuri"</code>.</p></dd>
+
+
+<dt id="arg-diffusion-method">diffusion_method<a class="anchor" aria-label="anchor" href="#arg-diffusion-method"></a></dt>
+<dd><p>Character or NULL. Selects the diffusion-centrality
+formula. <code>"kandhway_kuri"</code> (Kandhway &amp; Kuri, 2014) computes the
+1-hop binary-degree neighborhood sum
+\(\lambda d_v + \lambda \sum_{u \in N(v)} d_u\). <code>"power_series"</code>
+computes the matrix power series \(\mathrm{rowSums}(P + P^2 + \ldots + P^n)\)
+on the (optionally diagonal-zeroed) weighted matrix and matches
+<code>tna::centralities(., measures = "Diffusion")</code> when
+<code>loops = FALSE</code>. Default NULL auto-detects: <code>"power_series"</code>
+for tna objects (transition probabilities), <code>"kandhway_kuri"</code>
+otherwise.</p></dd>
 
 
 <dt id="arg-k">k<a class="anchor" aria-label="anchor" href="#arg-k"></a></dt>
@@ -278,6 +300,18 @@ conventions). Only used when <code>"katz"</code> is in <code>measures</code>.</p
 <dd><p>Weight factor \(w\) for Hubbell centrality. Must
 satisfy \(w \cdot \rho(W) \le 1\) for solvability. Default 0.5. Only
 used when <code>"hubbell"</code> is in <code>measures</code>.</p></dd>
+
+
+<dt id="arg-tna-network">tna_network<a class="anchor" aria-label="anchor" href="#arg-tna-network"></a></dt>
+<dd><p>Logical or NULL. Umbrella switch that forces tna-style
+conventions across all measures. <code>NULL</code> (default) auto-detects
+from the input class — TRUE iff <code>x</code> is a <code>tna</code> or related
+sequence-network object. <code>TRUE</code> forces tna conventions even on
+raw matrices: <code>invert_weights = TRUE</code>, <code>loops = FALSE</code>,
+<code>diffusion_method = "power_series"</code>, <code>transitivity_type
+  = "onnela"</code>. <code>FALSE</code> suppresses all tna defaults even for tna
+inputs, giving the cograph defaults verbatim. Precedence: any arg
+the user passes explicitly always wins over <code>tna_network</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

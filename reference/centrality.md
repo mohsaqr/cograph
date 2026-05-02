@@ -27,6 +27,7 @@ centrality(
   transitivity_type = "local",
   isolates = "nan",
   lambda = 1,
+  diffusion_method = NULL,
   k = 3,
   states = NULL,
   decay_parameter = 0.5,
@@ -34,6 +35,7 @@ centrality(
   membership = NULL,
   katz_alpha = 0.1,
   hubbell_weight = 0.5,
+  tna_network = NULL,
   ...
 )
 ```
@@ -188,7 +190,14 @@ centrality(
 - transitivity_type:
 
   Type of transitivity to calculate: "local" (default), "global",
-  "undirected", "localundirected", "barrat" (weighted), or "weighted".
+  "undirected", "localundirected", "barrat" (weighted), "weighted", or
+  "onnela". The first six dispatch to
+  [`igraph::transitivity()`](https://r.igraph.org/reference/transitivity.html);
+  `"onnela"` computes the Onnela / Holme weighted clustering coefficient
+  on the symmetrized matrix (`wcc(x + t(x))`) and matches
+  `tna::centralities(., "Clustering")` byte-for-byte. Auto-set to
+  `"onnela"` when `tna_network = TRUE` and the user did not pass an
+  explicit value.
 
 - isolates:
 
@@ -197,7 +206,20 @@ centrality(
 
 - lambda:
 
-  Diffusion scaling factor for diffusion centrality. Default 1.
+  Diffusion scaling factor for diffusion centrality. Default 1. Only
+  used when `diffusion_method = "kandhway_kuri"`.
+
+- diffusion_method:
+
+  Character or NULL. Selects the diffusion-centrality formula.
+  `"kandhway_kuri"` (Kandhway & Kuri, 2014) computes the 1-hop
+  binary-degree neighborhood sum \\\lambda d_v + \lambda \sum\_{u \in
+  N(v)} d_u\\. `"power_series"` computes the matrix power series
+  \\\mathrm{rowSums}(P + P^2 + \ldots + P^n)\\ on the (optionally
+  diagonal-zeroed) weighted matrix and matches
+  `tna::centralities(., measures = "Diffusion")` when `loops = FALSE`.
+  Default NULL auto-detects: `"power_series"` for tna objects
+  (transition probabilities), `"kandhway_kuri"` otherwise.
 
 - k:
 
@@ -238,6 +260,18 @@ centrality(
   Weight factor \\w\\ for Hubbell centrality. Must satisfy \\w \cdot
   \rho(W) \le 1\\ for solvability. Default 0.5. Only used when
   `"hubbell"` is in `measures`.
+
+- tna_network:
+
+  Logical or NULL. Umbrella switch that forces tna-style conventions
+  across all measures. `NULL` (default) auto-detects from the input
+  class — TRUE iff `x` is a `tna` or related sequence-network object.
+  `TRUE` forces tna conventions even on raw matrices:
+  `invert_weights = TRUE`, `loops = FALSE`,
+  `diffusion_method = "power_series"`, `transitivity_type = "onnela"`.
+  `FALSE` suppresses all tna defaults even for tna inputs, giving the
+  cograph defaults verbatim. Precedence: any arg the user passes
+  explicitly always wins over `tna_network`.
 
 - ...:
 

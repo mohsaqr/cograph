@@ -514,7 +514,7 @@ splot(
 
 - donut_inner_ratio:
 
-  Inner radius ratio for donut (0-1). Default 0.5.
+  Inner radius ratio for donut (0-1). Default 0.8.
 
 - donut_bg_color:
 
@@ -671,7 +671,7 @@ splot(
 - edge_label_halo:
 
   Logical: enable white halo/outline around edge labels for readability
-  over dark edges? Default FALSE. When TRUE, overrides shadow settings.
+  over dark edges? Default TRUE. When TRUE, overrides shadow settings.
 
 - edge_style:
 

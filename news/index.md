@@ -2,6 +2,48 @@
 
 ## cograph 2.1.2 (development)
 
+### Centrality
+
+- [`centrality()`](https://sonsoles.me/cograph/reference/centrality.md)
+  gains an umbrella argument `tna_network` (logical or NULL). When
+  `TRUE` (or auto-detected from a `tna`/`group_tna`/`ctna`/
+  `ftna`/`atna` input), all measures shared with
+  [`tna::centralities()`](http://sonsoles.me/tna/reference/centralities.md)
+  match byte-for-byte: `loops = FALSE`, `invert_weights = TRUE`,
+  `diffusion_method = "power_series"`, `transitivity_type = "onnela"`.
+  Side-by-side audit confirms zero divergence on `OutStrength`,
+  `InStrength`, `ClosenessIn/Out/All`, `Betweenness`, `Diffusion`,
+  `Clustering` (`max|diff| = 0`). Any per-argument override the user
+  passes explicitly always wins over the umbrella.
+- [`centrality()`](https://sonsoles.me/cograph/reference/centrality.md)
+  (and
+  [`centrality_diffusion()`](https://sonsoles.me/cograph/reference/centrality_diffusion.md))
+  gain a `diffusion_method = c("kandhway_kuri", "power_series")`
+  argument. The default `NULL` auto-detects: `"power_series"` for tna
+  inputs (matches `tna::centralities(., measures = "Diffusion")`
+  byte-for-byte when `loops = FALSE`), `"kandhway_kuri"` (the existing
+  1-hop binary-degree formula, Kandhway & Kuri 2014) for everything
+  else. Previously cograph’s diffusion silently disagreed with tna’s
+  because cograph used an unweighted neighborhood-degree sum while tna
+  uses `rowSums(P + P^2 + ... + P^n)` on the diagonal-zeroed weighted
+  matrix — the same name covered two different statistics. Set
+  explicitly to override the auto-detect.
+
+### Tests
+
+- Added a regression test in
+  `tests/testthat/test-validate-nestimate-bootstrap-permutation.R`
+  asserting that
+  [`centrality()`](https://sonsoles.me/cograph/reference/centrality.md)
+  on a Nestimate `netobject` agrees with
+  [`centrality()`](https://sonsoles.me/cograph/reference/centrality.md)
+  on its `$weights` matrix when the diagonal is non-zero. Locks in the
+  upstream Nestimate fix to `.extract_edges_from_matrix()` (Nestimate
+  \>= 2026-05-02) which now preserves self-loops in `$edges`. Without
+  that fix, loop-bearing netobjects
+  (e.g. `Nestimate::build_mcml() |> Nestimate::as_tna()`) silently
+  under-counted node degree by 2.
+
 ### Plotting — edge-label cex coupling (Phase 2)
 
 - Default `edge_label_size` is now coupled to the node label cex at a

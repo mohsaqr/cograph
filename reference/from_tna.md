@@ -96,7 +96,7 @@ overridden via `...`):
 
 - `edge_labels = TRUE`: Show transition weights on edges
 
-- `edge_label_size = 0.6`: Readable edge labels
+- `edge_label_size = 0.4`: Readable edge labels
 
 - `edge_label_position = 0.7`: Labels positioned toward target
 

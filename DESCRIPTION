@@ -1,6 +1,6 @@
 Package: cograph
 Title: Analysis and Visualization of Complex Networks
-Version: 2.1.1
+Version: 2.1.9
 Authors@R: c(
     person("Mohammed", "Saqr", role = c("aut", "cph")),
     person("Sonsoles", "L\u00f3pez-Pernas",

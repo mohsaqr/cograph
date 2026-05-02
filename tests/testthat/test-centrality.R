@@ -355,17 +355,20 @@ test_that("tna_network respects user-explicit overrides", {
   expect_equal(unique(out$diffusion_all), ncol(W))
 
   # User explicitly sets transitivity_type = "local" — onnela should NOT
-  # silently take over even with tna_network = TRUE. We don't pin to a
-  # specific igraph::transitivity() reference here because cograph's
-  # pipeline strips self-loops first (tna_network -> loops = FALSE), and
-  # the resulting graph object carries internal igraph state that makes
-  # an external `igraph::transitivity()` call diverge from the
-  # in-pipeline call on a freshly-built copy. Assert instead that the
-  # explicit "local" choice produces a value distinct from the onnela
-  # value the umbrella would have picked, which is what user-explicit
-  # precedence is supposed to guarantee.
+  # silently take over even with tna_network = TRUE. Positive assertion:
+  # the explicit-override result equals the baseline obtained by manually
+  # mirroring the umbrella's other defaults (loops = FALSE,
+  # invert_weights = TRUE) under tna_network = FALSE. If the override
+  # works, the umbrella adds nothing on top.
   out_explicit_local <- cograph::centrality(t1, measures = "transitivity",
                               tna_network = TRUE, transitivity_type = "local")
+  out_baseline_local <- cograph::centrality(t1, measures = "transitivity",
+                              tna_network = FALSE, transitivity_type = "local",
+                              loops = FALSE, invert_weights = TRUE)
+  expect_equal(out_explicit_local$transitivity,
+               out_baseline_local$transitivity, tolerance = 1e-12)
+
+  # And it must NOT equal the onnela value the umbrella would have picked.
   out_default_onnela <- cograph::centrality(t1, measures = "transitivity",
                               tna_network = TRUE)
   expect_false(isTRUE(all.equal(out_explicit_local$transitivity,

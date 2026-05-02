@@ -24,6 +24,7 @@ centrality(
   transitivity_type = "local",
   isolates = "nan",
   lambda = 1,
+  diffusion_method = NULL,
   k = 3,
   states = NULL,
   decay_parameter = 0.5,
@@ -31,6 +32,7 @@ centrality(
   membership = NULL,
   katz_alpha = 0.1,
   hubbell_weight = 0.5,
+  tna_network = NULL,
   ...
 )
 }
@@ -140,12 +142,30 @@ increase the influence of weight differences on path lengths.}
 Default NULL (standard PageRank). Values should sum to 1.}
 
 \item{transitivity_type}{Type of transitivity to calculate: "local" (default),
-"global", "undirected", "localundirected", "barrat" (weighted), or "weighted".}
+"global", "undirected", "localundirected", "barrat" (weighted),
+"weighted", or "onnela". The first six dispatch to
+\code{igraph::transitivity()}; \code{"onnela"} computes the Onnela /
+Holme weighted clustering coefficient on the symmetrized matrix
+(\code{wcc(x + t(x))}) and matches \code{tna::centralities(., "Clustering")}
+byte-for-byte. Auto-set to \code{"onnela"} when \code{tna_network = TRUE}
+and the user did not pass an explicit value.}
 
 \item{isolates}{How to handle isolate nodes in transitivity calculation:
 "nan" (default) returns NaN, "zero" returns 0.}
 
-\item{lambda}{Diffusion scaling factor for diffusion centrality. Default 1.}
+\item{lambda}{Diffusion scaling factor for diffusion centrality. Default 1.
+Only used when \code{diffusion_method = "kandhway_kuri"}.}
+
+\item{diffusion_method}{Character or NULL. Selects the diffusion-centrality
+formula. \code{"kandhway_kuri"} (Kandhway & Kuri, 2014) computes the
+1-hop binary-degree neighborhood sum
+\eqn{\lambda d_v + \lambda \sum_{u \in N(v)} d_u}. \code{"power_series"}
+computes the matrix power series \eqn{\mathrm{rowSums}(P + P^2 + \ldots + P^n)}
+on the (optionally diagonal-zeroed) weighted matrix and matches
+\code{tna::centralities(., measures = "Diffusion")} when
+\code{loops = FALSE}. Default NULL auto-detects: \code{"power_series"}
+for tna objects (transition probabilities), \code{"kandhway_kuri"}
+otherwise.}
 
 \item{k}{Path length parameter for geodesic k-path centrality. Default 3.}
 
@@ -171,6 +191,16 @@ conventions). Only used when \code{"katz"} is in \code{measures}.}
 \item{hubbell_weight}{Weight factor \eqn{w} for Hubbell centrality. Must
 satisfy \eqn{w \cdot \rho(W) \le 1} for solvability. Default 0.5. Only
 used when \code{"hubbell"} is in \code{measures}.}
+
+\item{tna_network}{Logical or NULL. Umbrella switch that forces tna-style
+conventions across all measures. \code{NULL} (default) auto-detects
+from the input class — TRUE iff \code{x} is a \code{tna} or related
+sequence-network object. \code{TRUE} forces tna conventions even on
+raw matrices: \code{invert_weights = TRUE}, \code{loops = FALSE},
+\code{diffusion_method = "power_series"}, \code{transitivity_type
+  = "onnela"}. \code{FALSE} suppresses all tna defaults even for tna
+inputs, giving the cograph defaults verbatim. Precedence: any arg
+the user passes explicitly always wins over \code{tna_network}.}
 
 \item{...}{Additional arguments (currently unused)}
 }

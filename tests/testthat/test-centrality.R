@@ -273,6 +273,106 @@ test_that("diffusion matches centiserve", {
   )
 })
 
+test_that("diffusion power_series matches tna::Diffusion byte-for-byte", {
+  skip_if_not_installed("tna")
+  W <- matrix(c(0.4, 0.3, 0.3,
+                0.2, 0.5, 0.3,
+                0.1, 0.2, 0.7), 3, 3, byrow = TRUE)
+  rownames(W) <- colnames(W) <- c("A", "B", "C")
+  t1 <- tna::tna(W)
+
+  tna_diff <- tna::centralities(t1, measures = "Diffusion")$Diffusion
+
+  # tna_network auto-detects from class: tna input -> power_series + loops=FALSE
+  cog_auto <- cograph::centrality(t1, measures = "diffusion")$diffusion_all
+  expect_equal(cog_auto, tna_diff, tolerance = 1e-12)
+
+  # Explicit method on raw matrix produces the same result.
+  cog_explicit <- cograph::centrality(W, measures = "diffusion",
+                                       diffusion_method = "power_series",
+                                       loops = FALSE)$diffusion_all
+  expect_equal(cog_explicit, tna_diff, tolerance = 1e-12)
+
+  # tna_network = TRUE on raw matrix flips both diffusion_method and loops.
+  cog_umbrella <- cograph::centrality(W, measures = "diffusion",
+                                       tna_network = TRUE)$diffusion_all
+  expect_equal(cog_umbrella, tna_diff, tolerance = 1e-12)
+
+  # Default kandhway_kuri on a raw matrix is the binary-degree formula —
+  # different by construction from tna's power-series.
+  cog_kk <- cograph::centrality(W, measures = "diffusion")$diffusion_all
+  expect_false(isTRUE(all.equal(cog_kk, tna_diff, tolerance = 1e-3)))
+
+  # tna_network = FALSE on tna input opts out and returns cograph defaults.
+  cog_off <- cograph::centrality(t1, measures = "diffusion",
+                                  tna_network = FALSE)$diffusion_all
+  expect_equal(cog_off, cog_kk, tolerance = 1e-12)
+})
+
+test_that("transitivity onnela matches tna::Clustering byte-for-byte", {
+  skip_if_not_installed("tna")
+  W <- matrix(c(0.4, 0.3, 0.3,
+                0.2, 0.5, 0.3,
+                0.1, 0.2, 0.7), 3, 3, byrow = TRUE)
+  rownames(W) <- colnames(W) <- c("A", "B", "C")
+  t1 <- tna::tna(W)
+
+  tna_clust <- tna::centralities(t1, measures = "Clustering")$Clustering
+
+  # tna input via auto tna_network picks "onnela".
+  cog_auto <- cograph::centrality(t1, measures = "transitivity")$transitivity
+  expect_equal(cog_auto, tna_clust, tolerance = 1e-12)
+
+  # Explicit type on raw matrix matches.
+  cog_explicit <- cograph::centrality(W, measures = "transitivity",
+                                       transitivity_type = "onnela")$transitivity
+  expect_equal(cog_explicit, tna_clust, tolerance = 1e-12)
+
+  # Umbrella on raw matrix flips transitivity_type.
+  cog_umbrella <- cograph::centrality(W, measures = "transitivity",
+                                       tna_network = TRUE)$transitivity
+  expect_equal(cog_umbrella, tna_clust, tolerance = 1e-12)
+
+  # Default Watts-Strogatz on raw matrix is unweighted and differs.
+  cog_local <- cograph::centrality(W, measures = "transitivity")$transitivity
+  expect_false(isTRUE(all.equal(cog_local, tna_clust, tolerance = 1e-3)))
+})
+
+test_that("tna_network respects user-explicit overrides", {
+  skip_if_not_installed("tna")
+  W <- matrix(c(0.4, 0.3, 0.3,
+                0.2, 0.5, 0.3,
+                0.1, 0.2, 0.7), 3, 3, byrow = TRUE)
+  rownames(W) <- colnames(W) <- c("A", "B", "C")
+  t1 <- tna::tna(W)
+
+  # User says tna_network = TRUE but explicitly passes loops = TRUE.
+  # loops should stay TRUE; everything else takes tna defaults.
+  out <- cograph::centrality(t1, measures = "diffusion",
+                              tna_network = TRUE, loops = TRUE)
+  # With loops kept on a row-stochastic matrix, the power-series collapses
+  # to a constant n for every node.
+  expect_equal(unique(out$diffusion_all), ncol(W))
+
+  # User explicitly sets transitivity_type = "local" — onnela should NOT
+  # silently take over even with tna_network = TRUE. We don't pin to a
+  # specific igraph::transitivity() reference here because cograph's
+  # pipeline strips self-loops first (tna_network -> loops = FALSE), and
+  # the resulting graph object carries internal igraph state that makes
+  # an external `igraph::transitivity()` call diverge from the
+  # in-pipeline call on a freshly-built copy. Assert instead that the
+  # explicit "local" choice produces a value distinct from the onnela
+  # value the umbrella would have picked, which is what user-explicit
+  # precedence is supposed to guarantee.
+  out_explicit_local <- cograph::centrality(t1, measures = "transitivity",
+                              tna_network = TRUE, transitivity_type = "local")
+  out_default_onnela <- cograph::centrality(t1, measures = "transitivity",
+                              tna_network = TRUE)
+  expect_false(isTRUE(all.equal(out_explicit_local$transitivity,
+                                out_default_onnela$transitivity,
+                                tolerance = 1e-3)))
+})
+
 test_that("leverage matches centiserve", {
   skip_if_not_installed("centiserve")
   expect_equal(

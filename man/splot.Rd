@@ -362,7 +362,7 @@ numeric (1=solid, 2=dashed, 3=dotted). Can be scalar or per-node vector.}
 
 \item{donut_border_lty}{Deprecated. Use \code{donut_line_type} instead.}
 
-\item{donut_inner_ratio}{Inner radius ratio for donut (0-1). Default 0.5.}
+\item{donut_inner_ratio}{Inner radius ratio for donut (0-1). Default 0.8.}
 
 \item{donut_bg_color}{Background color for unfilled donut portion.}
 
@@ -445,7 +445,7 @@ or character vector.}
 \item{edge_label_shadow_alpha}{Transparency for shadow (0-1). Default 0.5.}
 
 \item{edge_label_halo}{Logical: enable white halo/outline around edge labels for
-readability over dark edges? Default FALSE. When TRUE, overrides shadow settings.}
+readability over dark edges? Default TRUE. When TRUE, overrides shadow settings.}
 
 \item{edge_style}{Line type(s): 1=solid, 2=dashed, 3=dotted, etc.}
 

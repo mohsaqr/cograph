@@ -1219,11 +1219,6 @@ splot <- function(
                               fixed_bounds = fixed_bounds)
   xlim <- lims$xlim
   ylim <- lims$ylim
-  if (!isTRUE(multi_panel) && n_edges > 0L && any(edges$from == edges$to)) {
-    loop_compat_pad <- max(vsize_usr, na.rm = TRUE) * 0.52
-    xlim <- xlim + c(-loop_compat_pad, loop_compat_pad)
-    ylim <- ylim + c(-loop_compat_pad, loop_compat_pad)
-  }
 
   # Reserve native whitespace for the legend by expanding `xlim` on the
   # appropriate side (qgraph's GLratio idiom). Doing it in user-coordinates

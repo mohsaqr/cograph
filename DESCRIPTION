@@ -6,6 +6,9 @@ Authors@R: c(
     person("Sonsoles", "L\u00f3pez-Pernas",
            email = "sonsoles.lopez@uef.fi", role = c("aut", "cre", "cph"))
   )
+Author: Mohammed Saqr [aut, cph],
+  Sonsoles López-Pernas [aut, cre, cph]
+Maintainer: Sonsoles López-Pernas <sonsoles.lopez@uef.fi>
 Description: Provides tools for the analysis, visualization, and manipulation
   of dynamical, social (Saqr et al. (2024) <doi:10.1007/978-3-031-54464-4_10>) and 
   complex networks (Saqr et al. (2025) <doi:10.1145/3706468.3706513>). The package 

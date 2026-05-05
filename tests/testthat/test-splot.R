@@ -839,7 +839,10 @@ test_that("splot() handles all-positive curvature vector", {
 })
 
 test_that("splot() curvature vector works with edge list input", {
-  edges <- create_test_edgelist(n_edges = 5, n_nodes = 4)
+  edges <- data.frame(
+    from = c(1, 1, 1, 2, 3),
+    to = c(2, 3, 4, 3, 4)
+  )
 
   # Per-edge curvatures matching edge count
   curvatures <- c(0, 0.2, 0.4, 0.1, 0.3)

@@ -10,7 +10,8 @@ NULL
 #'
 #' @param df A data frame with columns for source (from) and target (to) nodes.
 #'   Optional weight column. Column names are auto-detected.
-#' @param directed Logical. Is the network directed? Default TRUE.
+#' @param directed Logical. Is the network directed? If NULL, directedness is
+#'   auto-detected from reverse-direction edge pairs.
 #' @return List with nodes, edges, directed, and weights components.
 #' @noRd
 parse_edgelist <- function(df, directed = NULL) {
@@ -58,17 +59,12 @@ parse_edgelist <- function(df, directed = NULL) {
   from_idx <- as.integer(node_map[as.character(from_vals)])
   to_idx <- as.integer(node_map[as.character(to_vals)])
 
-  # Auto-detect directed if not specified
+  # Auto-detect directed if not specified. Only actual reverse-direction pairs
+  # imply directedness; duplicate same-direction rows do not.
   if (is.null(directed)) {
-    # Check for bidirectional edges
-    edge_pairs <- paste(pmin(from_idx, to_idx), pmax(from_idx, to_idx), sep = "-")
-    directed <- length(edge_pairs) != length(unique(edge_pairs))
-    if (!directed) {
-      # Also check if same edge appears twice with different directions
-      edge_dir <- paste(from_idx, to_idx, sep = "->")
-      edge_rev <- paste(to_idx, from_idx, sep = "->")
-      directed <- any(edge_dir %in% edge_rev)
-    }
+    edge_dir <- paste(from_idx, to_idx, sep = "->")
+    edge_rev <- paste(to_idx, from_idx, sep = "->")
+    directed <- any(from_idx != to_idx & edge_rev %in% edge_dir)
   }
 
   # Create data structures

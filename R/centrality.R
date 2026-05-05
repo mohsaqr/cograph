@@ -137,6 +137,12 @@
 #'   = "onnela"}. \code{FALSE} suppresses all tna defaults even for tna
 #'   inputs, giving the cograph defaults verbatim. Precedence: any arg
 #'   the user passes explicitly always wins over \code{tna_network}.
+#' @param psych_network Logical or NULL. Switch for signed psychometric
+#'   network conventions. \code{NULL} (default) auto-detects TRUE when a
+#'   signed weighted network is evaluated with expected-influence measures.
+#'   When \code{TRUE}, normalized expected influence is divided by
+#'   \code{max(abs(x))}, preserving sign and bounding the result to [-1, 1].
+#'   \code{FALSE} keeps the generic cograph normalization convention.
 #' @param hubbell_weight Weight factor \eqn{w} for Hubbell centrality. Must
 #'   satisfy \eqn{w \cdot \rho(W) \le 1} for solvability. Default 0.5. Only
 #'   used when \code{"hubbell"} is in \code{measures}.
@@ -288,6 +294,7 @@ centrality <- function(x, type = c("basic", "extended", "all"),
                        membership = NULL,
                        katz_alpha = 0.1, hubbell_weight = 0.5,
                        tna_network = NULL,
+                       psych_network = NULL,
                        ...) {
 
   type <- match.arg(type)
@@ -304,6 +311,9 @@ centrality <- function(x, type = c("basic", "extended", "all"),
     tna_network <- is_tna_input
   }
   stopifnot(is.logical(tna_network), length(tna_network) == 1L, !is.na(tna_network))
+  if (!is.null(psych_network)) {
+    stopifnot(is.logical(psych_network), length(psych_network) == 1L, !is.na(psych_network))
+  }
 
   # Capture which args the caller explicitly passed so tna_network only fills
   # in the gaps. NULL-default args are also "unset" if the caller passed NULL.
@@ -455,6 +465,12 @@ centrality <- function(x, type = c("basic", "extended", "all"),
   } else {
     NULL
   }
+  psychometric_measures <- c("expected_influence_1", "expected_influence_2")
+  if (is.null(psych_network)) {
+    psych_network <- any(measures %in% psychometric_measures) &&
+      !is.null(weights) &&
+      any(weights < 0, na.rm = TRUE)
+  }
 
   # Path-based measures need inverted weights (higher weight = shorter path)
   # Following qgraph's approach: distance = 1 / weight^alpha
@@ -521,7 +537,11 @@ centrality <- function(x, type = c("basic", "extended", "all"),
 
     # Normalize if requested (except for closeness which is handled by igraph)
     if (normalized && m != "closeness") {
-      max_val <- max(value, na.rm = TRUE)
+      max_val <- if (isTRUE(psych_network) && m %in% psychometric_measures) {
+        max(abs(value), na.rm = TRUE)
+      } else {
+        max(value, na.rm = TRUE)
+      }
       if (!is.na(max_val) && max_val > 0) {
         value <- value / max_val
       }

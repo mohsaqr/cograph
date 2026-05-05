@@ -15,6 +15,20 @@ NULL
   layout
 }
 
+.validate_layout_coords <- function(coords, n_nodes, arg = "layout") {
+  if (!is.data.frame(coords)) coords <- as.data.frame(coords)
+  if (ncol(coords) < 2) {
+    stop(arg, " must have at least two columns for x and y coordinates",
+         call. = FALSE)
+  }
+  names(coords)[1:2] <- c("x", "y")
+  if (nrow(coords) != n_nodes) {
+    stop(arg, " must have one row per node (expected ", n_nodes,
+         ", got ", nrow(coords), ")", call. = FALSE)
+  }
+  coords
+}
+
 #' Auto-convert input to cograph_network
 #'
 #' Internal helper that converts matrices, data frames, igraph, network,
@@ -100,10 +114,7 @@ compute_layout_for_cograph <- function(net, layout = "spring", seed = 42, ...) {
   )) {
     coords <- apply_igraph_layout_by_name(temp_net, layout, seed = seed, ...)
   } else if (is.matrix(layout) || is.data.frame(layout)) {
-    coords <- as.data.frame(layout)
-    if (ncol(coords) >= 2) {
-      names(coords)[1:2] <- c("x", "y")
-    }
+    coords <- .validate_layout_coords(layout, nrow(nodes), "layout")
   } else if (inherits(layout, "CographLayout")) {
     coords <- layout$compute(temp_net, ...)
   } else {
@@ -259,10 +270,7 @@ cograph <- function(input, layout = NULL, directed = NULL,
       coords <- apply_igraph_layout_by_name(network, layout, seed = seed, ...)
     } else if (is.matrix(layout) || is.data.frame(layout)) {
       # Custom coordinates passed directly
-      coords <- as.data.frame(layout)
-      if (ncol(coords) >= 2) {
-        names(coords)[1:2] <- c("x", "y")
-      }
+      coords <- .validate_layout_coords(layout, nrow(network$get_nodes()), "layout")
     } else {
       # Built-in cograph layout
       layout_obj <- CographLayout$new(layout, ...)
@@ -397,10 +405,7 @@ sn_layout <- function(network, layout, seed = 42, ...) {
     coords <- layout$compute(temp_net, ...)
     layout_info <- list(name = "custom", seed = seed, coords = coords)
   } else if (is.matrix(layout) || is.data.frame(layout)) {
-    coords <- as.data.frame(layout)
-    if (ncol(coords) >= 2) {
-      names(coords)[1:2] <- c("x", "y")
-    }
+    coords <- .validate_layout_coords(layout, nrow(get_nodes(network)), "layout")
     layout_info <- list(name = "custom", seed = seed, coords = coords)
   } else {
     stop("layout must be a string, CographLayout object, igraph layout function, or coordinate matrix",

@@ -33,6 +33,7 @@ centrality(
   katz_alpha = 0.1,
   hubbell_weight = 0.5,
   tna_network = NULL,
+  psych_network = NULL,
   ...
 )
 }
@@ -201,6 +202,13 @@ raw matrices: \code{invert_weights = TRUE}, \code{loops = FALSE},
   = "onnela"}. \code{FALSE} suppresses all tna defaults even for tna
 inputs, giving the cograph defaults verbatim. Precedence: any arg
 the user passes explicitly always wins over \code{tna_network}.}
+
+\item{psych_network}{Logical or NULL. Switch for signed psychometric
+network conventions. \code{NULL} (default) auto-detects TRUE when a
+signed weighted network is evaluated with expected-influence measures.
+When \code{TRUE}, normalized expected influence is divided by
+\code{max(abs(x))}, preserving sign and bounding the result to [-1, 1].
+\code{FALSE} keeps the generic cograph normalization convention.}
 
 \item{...}{Additional arguments (currently unused)}
 }

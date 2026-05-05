@@ -42,11 +42,15 @@ plot_simplicial(
 
 - pathways:
 
-  Character vector of pathway strings, a list of character vectors, or a
-  `net_hon` / `net_hypa` object. String separators: `"A B -> C"`,
-  `"A, B, C"`, `"A - B - C"`, `"A B C"`. Last state is the target. When
-  `NULL` and `x` is a model with sequence data, pathways are built
-  automatically.
+  Character vector of pathway strings, a list of character vectors, a
+  `net_hon` / `net_hypa` object, or any data.frame with a `path` column
+  (e.g., the output of
+  [`Nestimate::mogen_transitions()`](https://rdrr.io/pkg/Nestimate/man/mogen_transitions.html)).
+  String separators: `"A B -> C"`, `"A -> B -> C"`, `"A, B, C"`,
+  `"A - B - C"`, `"A B C"`. Last state is the target. When a data.frame
+  is passed and a `count` column is present, rows are sorted by count
+  descending before `max_pathways` is applied. When `NULL` and `x` is a
+  model with sequence data, pathways are built automatically.
 
 - method:
 

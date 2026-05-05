@@ -31,6 +31,6 @@ get_shape("circle")
 #>         "npc"), r = grid::unit(size, "npc"), gp = grid::gpar(fill = fill_col, 
 #>         col = border_col, lwd = border_width))
 #> }
-#> <bytecode: 0x55f61c8153e8>
+#> <bytecode: 0x557699f4c158>
 #> <environment: namespace:cograph>
 ```

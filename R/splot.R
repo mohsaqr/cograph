@@ -219,20 +219,6 @@ NULL
 #' @param usePCH Deprecated. Use `use_pch` instead.
 #' @param scaling Scaling mode: "default" for qgraph-matched scaling where node_size=6
 #'   looks similar to qgraph vsize=6, or "legacy" to preserve pre-v2.0 behavior.
-#' @param use_max_space Logical or NULL. If \code{TRUE}, raises
-#'   \code{layout_scale} so the network fills roughly 85\% of the canvas
-#'   instead of the default ~77\%. Intended for single-network plots; for
-#'   grid panels (\code{par(mfrow)}) leave at the default so loop
-#'   reservation keeps panels aligned. \code{NULL} (default) consults
-#'   \code{getOption("cograph.use_max_space", FALSE)}, so the behaviour
-#'   can also be enabled globally via \code{options()}. Per-call
-#'   \code{TRUE}/\code{FALSE} always wins over the option. Only adjusts
-#'   \code{layout_scale} when it is at its default of 1; explicit values
-#'   are respected. Note that the wider layout makes nodes appear smaller
-#'   relative to inter-node distance — pass a larger \code{node_size}
-#'   manually if that bothers you (this flag deliberately leaves
-#'   \code{node_size} alone because bumping it raises the loop-reservation
-#'   pad, which cancels the fill gain).
 #'
 #' @param legend Logical: show legend?
 #' @param legend_position Position: "topright", "topleft", "bottomright", "bottomleft".
@@ -509,7 +495,6 @@ splot <- function(
     use_pch = FALSE,
     usePCH = NULL,  # Deprecated: use use_pch
     scaling = "default",
-    use_max_space = NULL,
 
     # Legend
     legend = FALSE,
@@ -754,24 +739,6 @@ splot <- function(
 
   # Convert edge_label_fontface to numeric if string (for backwards compat with renderers)
   edge_label_fontface_num <- fontface_to_numeric(edge_label_fontface)
-
-  # ============================================
-  # RESOLVE use_max_space (per-call arg overrides global option)
-  # ============================================
-  # `use_max_space = TRUE` widens the layout and bumps node size so the
-  # network fills ~85% of the canvas without shrinking apparent node size.
-  # Runs BEFORE styling defaults so the styling layer sees the resolved
-  # values and applies its existing precedence rules unchanged.
-  if (is.null(use_max_space)) {
-    use_max_space <- isTRUE(getOption("cograph.use_max_space", FALSE))
-  }
-  if (isTRUE(use_max_space)) {
-    # Only bump layout_scale. Bumping node_size raises `pad` proportionally
-    # (pad = vsize_usr * 2.8) and the larger pad cancels out the fill gain
-    # — the formula is self-defeating. Users who want bigger apparent nodes
-    # should pass `node_size` explicitly; this flag only governs canvas fill.
-    if (identical(layout_scale, 1)) layout_scale <- 1.67
-  }
 
   # ============================================
   # APPLY TNA STYLING DEFAULTS

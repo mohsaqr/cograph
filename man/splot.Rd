@@ -185,6 +185,7 @@ splot(
   use_pch = FALSE,
   usePCH = NULL,
   scaling = "default",
+  use_max_space = NULL,
   legend = FALSE,
   legend_position = "topright",
   legend_size = 0.8,
@@ -569,6 +570,21 @@ Set to 0 for no extra margin (tighter fit). Affects white space around nodes.}
 
 \item{scaling}{Scaling mode: "default" for qgraph-matched scaling where node_size=6
 looks similar to qgraph vsize=6, or "legacy" to preserve pre-v2.0 behavior.}
+
+\item{use_max_space}{Logical or NULL. If \code{TRUE}, raises
+\code{layout_scale} so the network fills roughly 85\\% of the canvas
+instead of the default ~77\\%. Intended for single-network plots; for
+grid panels (\code{par(mfrow)}) leave at the default so loop
+reservation keeps panels aligned. \code{NULL} (default) consults
+\code{getOption("cograph.use_max_space", FALSE)}, so the behaviour
+can also be enabled globally via \code{options()}. Per-call
+\code{TRUE}/\code{FALSE} always wins over the option. Only adjusts
+\code{layout_scale} when it is at its default of 1; explicit values
+are respected. Note that the wider layout makes nodes appear smaller
+relative to inter-node distance — pass a larger \code{node_size}
+manually if that bothers you (this flag deliberately leaves
+\code{node_size} alone because bumping it raises the loop-reservation
+pad, which cancels the fill gain).}
 
 \item{legend}{Logical: show legend?}
 

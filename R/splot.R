@@ -219,6 +219,17 @@ NULL
 #' @param usePCH Deprecated. Use `use_pch` instead.
 #' @param scaling Scaling mode: "default" for qgraph-matched scaling where node_size=6
 #'   looks similar to qgraph vsize=6, or "legacy" to preserve pre-v2.0 behavior.
+#' @param align_panels Logical. If \code{TRUE}, forces a uniform symmetric
+#'   plot box (\code{c(-layout_scale, layout_scale)} on each axis) so two
+#'   networks plotted side-by-side in a \code{par(mfrow)} grid render at
+#'   identical absolute scales — useful for bootstrap panels, comparison
+#'   grids with networks of different node counts, or any case where
+#'   visual-size parity across panels matters more than canvas fill.
+#'   Default \code{FALSE} uses dynamic, layout-driven bounds (the
+#'   pre-2.1.x behaviour) which renders tighter on the canvas. The
+#'   per-node loop-reservation pad in \code{compute_plot_limits} runs
+#'   regardless, so networks with different self-loop patterns stay
+#'   centered consistently in either mode.
 #'
 #' @param legend Logical: show legend?
 #' @param legend_position Position: "topright", "topleft", "bottomright", "bottomleft".
@@ -495,6 +506,7 @@ splot <- function(
     use_pch = FALSE,
     usePCH = NULL,  # Deprecated: use use_pch
     scaling = "default",
+    align_panels = FALSE,
 
     # Legend
     legend = FALSE,
@@ -1209,8 +1221,13 @@ splot <- function(
   # of layout shape. This keeps node pixel sizes stable across different
   # seeds / algorithms / imported qgraph layouts, fixing the long-standing
   # "different layout -> different apparent node size" surprise.
-  multi_panel <- prod(graphics::par("mfrow")) > 1L || prod(graphics::par("mfcol")) > 1L
-  fixed_bounds <- if (isTRUE(rescale) && isTRUE(multi_panel)) {
+  # `align_panels = TRUE` opts into cf525b30's fixed-bounds box, which
+  # forces consistent xlim/ylim across panels regardless of layout
+  # extremity. Default FALSE = dynamic bounds (pre-cf525b30) for tighter
+  # rendering. The all-nodes loop-reservation in compute_plot_limits
+  # (lines ~619-632) runs regardless and keeps loop-presence-driven
+  # centering consistent across panels even on the dynamic path.
+  fixed_bounds <- if (isTRUE(rescale) && isTRUE(align_panels)) {
     b <- layout_scale %||% 1
     c(-b, b, -b, b)
   } else NULL

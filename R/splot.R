@@ -1209,7 +1209,8 @@ splot <- function(
   # of layout shape. This keeps node pixel sizes stable across different
   # seeds / algorithms / imported qgraph layouts, fixing the long-standing
   # "different layout -> different apparent node size" surprise.
-  fixed_bounds <- if (isTRUE(rescale)) {
+  multi_panel <- prod(graphics::par("mfrow")) > 1L || prod(graphics::par("mfcol")) > 1L
+  fixed_bounds <- if (isTRUE(rescale) && isTRUE(multi_panel)) {
     b <- layout_scale %||% 1
     c(-b, b, -b, b)
   } else NULL
@@ -1218,6 +1219,11 @@ splot <- function(
                               fixed_bounds = fixed_bounds)
   xlim <- lims$xlim
   ylim <- lims$ylim
+  if (!isTRUE(multi_panel) && n_edges > 0L && any(edges$from == edges$to)) {
+    loop_compat_pad <- max(vsize_usr, na.rm = TRUE) * 0.52
+    xlim <- xlim + c(-loop_compat_pad, loop_compat_pad)
+    ylim <- ylim + c(-loop_compat_pad, loop_compat_pad)
+  }
 
   # Reserve native whitespace for the legend by expanding `xlim` on the
   # appropriate side (qgraph's GLratio idiom). Doing it in user-coordinates

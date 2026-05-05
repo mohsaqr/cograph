@@ -1,6 +1,6 @@
 # Changelog
 
-## cograph 2.1.2 (development)
+## cograph 2.1.9
 
 ### Centrality
 

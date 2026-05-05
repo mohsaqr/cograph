@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,25 +43,25 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="2.1.2" id="cograph-212-development">cograph 2.1.2 (development)<a class="anchor" aria-label="anchor" href="#cograph-212-development"></a></h2>
+<h2 class="pkg-version" data-toc-text="2.1.9" id="cograph-219">cograph 2.1.9<a class="anchor" aria-label="anchor" href="#cograph-219"></a></h2>
 <div class="section level3">
-<h3 id="centrality-2-1-2">Centrality<a class="anchor" aria-label="anchor" href="#centrality-2-1-2"></a></h3>
+<h3 id="centrality-2-1-9">Centrality<a class="anchor" aria-label="anchor" href="#centrality-2-1-9"></a></h3>
 <ul><li>
 <code><a href="../reference/centrality.html">centrality()</a></code> gains an umbrella argument <code>tna_network</code> (logical or NULL). When <code>TRUE</code> (or auto-detected from a <code>tna</code>/<code>group_tna</code>/<code>ctna</code>/ <code>ftna</code>/<code>atna</code> input), all measures shared with <code><a href="http://sonsoles.me/tna/reference/centralities.html" class="external-link">tna::centralities()</a></code> match byte-for-byte: <code>loops = FALSE</code>, <code>invert_weights = TRUE</code>, <code>diffusion_method = "power_series"</code>, <code>transitivity_type = "onnela"</code>. Side-by-side audit confirms zero divergence on <code>OutStrength</code>, <code>InStrength</code>, <code>ClosenessIn/Out/All</code>, <code>Betweenness</code>, <code>Diffusion</code>, <code>Clustering</code> (<code>max|diff| = 0</code>). Any per-argument override the user passes explicitly always wins over the umbrella.</li>
 <li>
 <code><a href="../reference/centrality.html">centrality()</a></code> (and <code><a href="../reference/centrality_diffusion.html">centrality_diffusion()</a></code>) gain a <code>diffusion_method = c("kandhway_kuri", "power_series")</code> argument. The default <code>NULL</code> auto-detects: <code>"power_series"</code> for tna inputs (matches <code>tna::centralities(., measures = "Diffusion")</code> byte-for-byte when <code>loops = FALSE</code>), <code>"kandhway_kuri"</code> (the existing 1-hop binary-degree formula, Kandhway &amp; Kuri 2014) for everything else. Previously cograph’s diffusion silently disagreed with tna’s because cograph used an unweighted neighborhood-degree sum while tna uses <code>rowSums(P + P^2 + ... + P^n)</code> on the diagonal-zeroed weighted matrix — the same name covered two different statistics. Set explicitly to override the auto-detect.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="tests-2-1-2">Tests<a class="anchor" aria-label="anchor" href="#tests-2-1-2"></a></h3>
+<h3 id="tests-2-1-9">Tests<a class="anchor" aria-label="anchor" href="#tests-2-1-9"></a></h3>
 <ul><li>Added a regression test in <code>tests/testthat/test-validate-nestimate-bootstrap-permutation.R</code> asserting that <code><a href="../reference/centrality.html">centrality()</a></code> on a Nestimate <code>netobject</code> agrees with <code><a href="../reference/centrality.html">centrality()</a></code> on its <code>$weights</code> matrix when the diagonal is non-zero. Locks in the upstream Nestimate fix to <code>.extract_edges_from_matrix()</code> (Nestimate &gt;= 2026-05-02) which now preserves self-loops in <code>$edges</code>. Without that fix, loop-bearing netobjects (e.g. <code>Nestimate::build_mcml() |&gt; Nestimate::as_tna()</code>) silently under-counted node degree by 2.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="plotting--edge-label-cex-coupling-phase-2-1-2">Plotting — edge-label cex coupling (Phase 2)<a class="anchor" aria-label="anchor" href="#plotting--edge-label-cex-coupling-phase-2-1-2"></a></h3>
+<h3 id="plotting--edge-label-cex-coupling-phase-2-1-9">Plotting — edge-label cex coupling (Phase 2)<a class="anchor" aria-label="anchor" href="#plotting--edge-label-cex-coupling-phase-2-1-9"></a></h3>
 <ul><li>Default <code>edge_label_size</code> is now coupled to the node label cex at a fixed 0.55 fraction (<code>edge_cex = 0.55 * mean(node_label_cex)</code>) so the node-to-edge-label ratio stays a stable ~1.82x across canvases. This replaces the previous <code>EDGE_LABEL_SCALE_CAP</code>-based compensation, which let the ratio drift from 2.5x at reference to 3.6x at poster canvases because edge labels were clamped to a tighter 1.6 ceiling while node labels scaled freely to 2.3. The visible effect: edge weight annotations are now readable at poster sizes instead of shrinking relative to node labels. User-explicit <code>edge_label_size</code> still wins and receives the same (capped) visual-scale compensation as before; only the default path changed.</li>
 <li>Edge-label visual_scale resolution moved from <code><a href="../reference/render_edges_splot.html">render_edges_splot()</a></code> into <code>splot.R</code> so the final cex is produced in a single place.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="plotting--device-aware-visual-scaling-2-1-2">Plotting — device-aware visual scaling<a class="anchor" aria-label="anchor" href="#plotting--device-aware-visual-scaling-2-1-2"></a></h3>
+<h3 id="plotting--device-aware-visual-scaling-2-1-9">Plotting — device-aware visual scaling<a class="anchor" aria-label="anchor" href="#plotting--device-aware-visual-scaling-2-1-9"></a></h3>
 <ul><li>
 <code><a href="../reference/splot.html">splot()</a></code> now applies device-dependent compensation to text, line, and point sizes so visual ratios (label-to-node, legend-to-plot, edge thickness) stay consistent when the output device changes. This fixes the long-standing “labels too big at high DPI” and “legend desynchronised from the plot” issues when saving PNGs at <code>res = 300</code> or <code>res = 600</code> with pixel-default <code>width</code>/<code>height</code>, and when resizing the RStudio plot pane. Implementation: a single <code>compute_visual_scale()</code> reads the active device’s canvas size (<code>dev.size("in")</code>) and returns multipliers keyed off a 5.9-inch reference (matching the default RStudio 7×5” pane so backward-compatible behaviour at the default canvas is preserved). Multipliers are clamped to <code>[0.55, 1.9]</code> to keep thumbnails and posters legible. See the new <code>R/visual-scale.R</code>.</li>
 <li>New <code>scaling = "fixed"</code> mode on <code><a href="../reference/splot.html">splot()</a></code> — and corresponding global option <code>options(cograph.visual_scaling = FALSE)</code> — disables device compensation for reproducibility-sensitive workflows that calibrated against the previous behaviour.</li>
@@ -70,7 +70,7 @@
 <li>The splot-internal <code><a href="../reference/render_legend_splot.html">render_legend_splot()</a></code> plus the new shared <code>.render_legend_base()</code> (<code>R/render-legend-shared.R</code>) replace the ad-hoc legend cex/pt.cex handling with a single compensated path. <code>plot_htna</code>, <code>plot_mtna</code>, <code>plot_mlna</code>, <code>plot_mcml</code> still use their historical scale multiplier arguments; Phase 2 will migrate them to the shared helper.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="plotting-2-1-2">Plotting<a class="anchor" aria-label="anchor" href="#plotting-2-1-2"></a></h3>
+<h3 id="plotting-2-1-9">Plotting<a class="anchor" aria-label="anchor" href="#plotting-2-1-9"></a></h3>
 <ul><li>
 <code>splot.netobject</code> now routes on the Nestimate <code>$method</code> slot rather than just direction. Undirected sequence-based networks from <code><a href="https://rdrr.io/pkg/Nestimate/man/build_cna.html" class="external-link">build_cna()</a></code> and <code>wtna(method = "cooccurrence")</code> get oval TNA-family styling (layout, palette, donuts) with arrows and dotted edge starts automatically dropped because the matrix is symmetric. Glasso / cor / pcor / ising networks still get <code>psych_styling = TRUE</code> (spring layout, Okabe-Ito palette).</li>
 <li>
@@ -81,7 +81,7 @@
 <li>Self-loops are now preserved in every plot function.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="correctness-fixes-audit-driven-2-1-2">Correctness fixes (audit-driven)<a class="anchor" aria-label="anchor" href="#correctness-fixes-audit-driven-2-1-2"></a></h3>
+<h3 id="correctness-fixes-audit-driven-2-1-9">Correctness fixes (audit-driven)<a class="anchor" aria-label="anchor" href="#correctness-fixes-audit-driven-2-1-9"></a></h3>
 <ul><li>
 <code><a href="../reference/detect_duplicate_edges.html">detect_duplicate_edges()</a></code>, <code><a href="../reference/aggregate_duplicate_edges.html">aggregate_duplicate_edges()</a></code>, <code><a href="../reference/simplify.html">simplify.cograph_network()</a></code>, and the internal <code><a href="../reference/check_duplicate_edges.html">check_duplicate_edges()</a></code> helper now respect directed vs undirected semantics. Previously the canonical (min/max) endpoint key collapsed <code>A -&gt; B</code> and <code>B -&gt; A</code> into one edge even on directed graphs, matching <code><a href="https://r.igraph.org/reference/simplify.html" class="external-link">igraph::simplify()</a></code> ground truth.</li>
 <li>
@@ -96,14 +96,14 @@
 <code><a href="../reference/simplify.html">simplify.cograph_network()</a></code> threads the directed flag through to edge aggregation so directed multigraphs collapse correctly.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="performance--documentation-2-1-2">Performance &amp; documentation<a class="anchor" aria-label="anchor" href="#performance--documentation-2-1-2"></a></h3>
+<h3 id="performance--documentation-2-1-9">Performance &amp; documentation<a class="anchor" aria-label="anchor" href="#performance--documentation-2-1-9"></a></h3>
 <ul><li>
 <code><a href="../reference/simplify.html">simplify()</a></code> performance refactor for large networks plus a cleaner title-composition path.</li>
 <li>
 <code><a href="../reference/motifs.html">motifs()</a></code>, <code><a href="../reference/extract_motifs.html">extract_motifs()</a></code>, and <code>plot.cograph_motif_analysis</code> examples reworked to use <code>n_perm = 10L</code> (or <code>significance = FALSE</code>) and promoted from <code>\dontrun</code> to CRAN-runnable (optional tna branches stay in <code>\donttest</code>). Retires 320 seconds of latent CRAN timing risk — every example now runs in under 4 seconds.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="new-tests-2-1-2">New tests<a class="anchor" aria-label="anchor" href="#new-tests-2-1-2"></a></h3>
+<h3 id="new-tests-2-1-9">New tests<a class="anchor" aria-label="anchor" href="#new-tests-2-1-9"></a></h3>
 <ul><li>
 <code>test-audit-fixes.R</code> — ground-truth regressions for the directed edge semantics, modularity vectorization, and small-world behaviour changes.</li>
 <li>

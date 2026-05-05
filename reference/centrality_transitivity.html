@@ -9,7 +9,7 @@ possible triangles. Measures how tightly clustered a node's neighborhood is."><m
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,7 +66,12 @@ possible triangles. Measures how tightly clustered a node's neighborhood is.</p>
 <dt id="arg-transitivity-type">transitivity_type<a class="anchor" aria-label="anchor" href="#arg-transitivity-type"></a></dt>
 <dd><p>Type of transitivity: <code>"local"</code> (default),
 <code>"global"</code>, <code>"undirected"</code>, <code>"localundirected"</code>,
-<code>"barrat"</code> (weighted), or <code>"weighted"</code>.</p></dd>
+<code>"barrat"</code> (weighted), <code>"weighted"</code>, or <code>"onnela"</code>.
+<code>"onnela"</code> computes the Onnela / Holme weighted clustering
+coefficient on the symmetrized matrix and matches
+<code>tna::centralities(., "Clustering")</code> byte-for-byte. Auto-set
+to <code>"onnela"</code> when <code>tna_network = TRUE</code> (passed via
+<code>...</code>) and the user did not pass an explicit value.</p></dd>
 
 
 <dt id="arg-isolates">isolates<a class="anchor" aria-label="anchor" href="#arg-isolates"></a></dt>

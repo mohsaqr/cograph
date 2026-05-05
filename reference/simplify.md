@@ -124,14 +124,14 @@ simplify(mat)
 edges <- data.frame(from = c(1, 1, 2), to = c(2, 2, 3), weight = c(0.3, 0.7, 0.5))
 net <- cograph(edges, layout = NULL)
 simplify(net)
-#> Cograph network: 3 nodes, 2 edges ( directed )
+#> Cograph network: 3 nodes, 2 edges ( undirected )
 #> Source: edgelist 
 #> Data: data.frame (3 x 3) 
 #>   Nodes (3): 1, 2, 3
 #> Weights: 0.5 (all equal)
 #> Layout: none 
 simplify(net, edge_attr_comb = "sum")
-#> Cograph network: 3 nodes, 2 edges ( directed )
+#> Cograph network: 3 nodes, 2 edges ( undirected )
 #> Source: edgelist 
 #> Data: data.frame (3 x 3) 
 #>   Nodes (3): 1, 2, 3

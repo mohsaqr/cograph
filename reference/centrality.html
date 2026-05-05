@@ -9,7 +9,7 @@ data frame. Accepts matrices, igraph objects, cograph_network, or tna objects.">
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -81,6 +81,7 @@ data frame. Accepts matrices, igraph objects, cograph_network, or tna objects.</
 <span>  katz_alpha <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>  hubbell_weight <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  tna_network <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  psych_network <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -312,6 +313,15 @@ raw matrices: <code>invert_weights = TRUE</code>, <code>loops = FALSE</code>,
   = "onnela"</code>. <code>FALSE</code> suppresses all tna defaults even for tna
 inputs, giving the cograph defaults verbatim. Precedence: any arg
 the user passes explicitly always wins over <code>tna_network</code>.</p></dd>
+
+
+<dt id="arg-psych-network">psych_network<a class="anchor" aria-label="anchor" href="#arg-psych-network"></a></dt>
+<dd><p>Logical or NULL. Switch for signed psychometric
+network conventions. <code>NULL</code> (default) auto-detects TRUE when a
+signed weighted network is evaluated with expected-influence measures.
+When <code>TRUE</code>, normalized expected influence is divided by
+<code>max(abs(x))</code>, preserving sign and bounding the result to [-1, 1].
+<code>FALSE</code> keeps the generic cograph normalization convention.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

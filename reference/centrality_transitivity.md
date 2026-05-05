@@ -19,7 +19,12 @@ centrality_transitivity(x, transitivity_type = "local", isolates = "nan", ...)
 - transitivity_type:
 
   Type of transitivity: `"local"` (default), `"global"`, `"undirected"`,
-  `"localundirected"`, `"barrat"` (weighted), or `"weighted"`.
+  `"localundirected"`, `"barrat"` (weighted), `"weighted"`, or
+  `"onnela"`. `"onnela"` computes the Onnela / Holme weighted clustering
+  coefficient on the symmetrized matrix and matches
+  `tna::centralities(., "Clustering")` byte-for-byte. Auto-set to
+  `"onnela"` when `tna_network = TRUE` (passed via `...`) and the user
+  did not pass an explicit value.
 
 - isolates:
 

@@ -329,6 +329,38 @@
   }, character(1), USE.NAMES = FALSE)
 }
 
+#' Extract pathways from a data.frame with a \code{$path} column
+#'
+#' Converts rows of the form \code{"A -> B -> C"} into the simplicial
+#' pathway string format (\code{"A B -> C"}). When a \code{$count}
+#' column is present, rows are sorted by count descending. Designed to
+#' accept \code{Nestimate::mogen_transitions()} output without depending
+#' on its class.
+#'
+#' @param x A data.frame with a \code{path} column (and optionally a
+#'   \code{count} column).
+#' @param label_map Named character vector mapping numeric IDs to labels
+#'   (accepted for signature consistency with the other extractors;
+#'   ignored when paths are already in label space).
+#' @return Character vector of pathway strings.
+#' @noRd
+.extract_mogen_transitions_pathways <- function(x, label_map = NULL) {
+  if (nrow(x) == 0L) return(character(0))
+  d <- if ("count" %in% names(x)) x[order(-x$count), , drop = FALSE] else x
+  vapply(d$path, function(p) {
+    parts <- trimws(strsplit(p, "->", fixed = TRUE)[[1]])
+    if (length(parts) < 2L) return(p)
+    if (!is.null(label_map)) {
+      parts <- vapply(parts, function(s) {
+        if (s %in% names(label_map)) unname(label_map[s]) else s
+      }, character(1), USE.NAMES = FALSE)
+    }
+    src <- parts[-length(parts)]
+    tgt <- parts[length(parts)]
+    paste0(paste(src, collapse = " "), " -> ", tgt)
+  }, character(1), USE.NAMES = FALSE)
+}
+
 #' Extract pathways from association rules (net_association_rules)
 #'
 #' Converts rules \code{{A, B} => {C}} into simplicial pathway strings

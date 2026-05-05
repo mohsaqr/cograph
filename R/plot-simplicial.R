@@ -16,11 +16,15 @@
 #'   \code{NULL}, higher-order pathways are built automatically
 #'   using the \code{method} parameter.
 #' @param pathways Character vector of pathway strings, a list of
-#'   character vectors, or a \code{net_hon} / \code{net_hypa} object.
-#'   String separators: \code{"A B -> C"}, \code{"A, B, C"},
+#'   character vectors, a \code{net_hon} / \code{net_hypa} object, or
+#'   any data.frame with a \code{path} column (e.g., the output of
+#'   \code{Nestimate::mogen_transitions()}). String separators:
+#'   \code{"A B -> C"}, \code{"A -> B -> C"}, \code{"A, B, C"},
 #'   \code{"A - B - C"}, \code{"A B C"}. Last state is the target.
-#'   When \code{NULL} and \code{x} is a model with sequence data,
-#'   pathways are built automatically.
+#'   When a data.frame is passed and a \code{count} column is present,
+#'   rows are sorted by count descending before \code{max_pathways} is
+#'   applied. When \code{NULL} and \code{x} is a model with sequence
+#'   data, pathways are built automatically.
 #' @param method Pathway source when auto-building from a
 #'   \code{tna}/\code{netobject}: \code{"hon"} (default, higher-order
 #'   network), \code{"hypa"} (anomalous paths via hypergeometric null),
@@ -116,6 +120,13 @@ plot_simplicial <- function(x = NULL,
     pathways <- .extract_link_prediction_pathways(pathways)
     if (length(pathways) == 0L) {
       message("No link predictions to plot.")
+      return(invisible(NULL))
+    }
+  } else if (is.data.frame(pathways) && "path" %in% names(pathways)) {
+    pathways <- .extract_mogen_transitions_pathways(pathways,
+                                                    label_map = label_map)
+    if (length(pathways) == 0L) {
+      message("No pathways to plot.")
       return(invisible(NULL))
     }
   }

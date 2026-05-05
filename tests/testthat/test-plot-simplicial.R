@@ -482,3 +482,52 @@ test_that("plot_simplicial custom labels with repeated states", {
     )
   ))
 })
+
+# ---------------------------------------------------------------------------
+# pathways accepts any data.frame with a $path column (shape-based dispatch,
+# so Nestimate::mogen_transitions() output works without a special class).
+# ---------------------------------------------------------------------------
+
+test_that("plot_simplicial accepts a data.frame with a $path column", {
+  mat <- matrix(0.1, 3, 3, dimnames = list(c("A", "B", "C"), c("A", "B", "C")))
+  pw_df <- data.frame(
+    path = c("A -> B -> C", "B -> C -> A", "A -> C -> B"),
+    count = c(10L, 5L, 3L),
+    stringsAsFactors = FALSE
+  )
+  expect_no_error(with_temp_png(
+    plot_simplicial(mat, pathways = pw_df, shadow = FALSE)
+  ))
+})
+
+test_that("plot_simplicial sorts data.frame pathways by count when present", {
+  pw_df <- data.frame(
+    path = c("A -> B -> C", "B -> C -> A"),
+    count = c(2L, 99L),
+    stringsAsFactors = FALSE
+  )
+  extracted <- cograph:::.extract_mogen_transitions_pathways(pw_df)
+  expect_match(extracted[1L], "B C -> A", fixed = TRUE)
+})
+
+test_that("plot_simplicial handles a data.frame with no count column", {
+  mat <- matrix(0.1, 3, 3, dimnames = list(c("A", "B", "C"), c("A", "B", "C")))
+  pw_df <- data.frame(
+    path = c("A -> B -> C", "B -> C -> A"),
+    stringsAsFactors = FALSE
+  )
+  expect_no_error(with_temp_png(
+    plot_simplicial(mat, pathways = pw_df, shadow = FALSE)
+  ))
+})
+
+test_that("plot_simplicial returns NULL on an empty data.frame", {
+  mat <- matrix(0.1, 3, 3, dimnames = list(c("A", "B", "C"), c("A", "B", "C")))
+  pw_empty <- data.frame(path = character(0), count = integer(0),
+                         stringsAsFactors = FALSE)
+  expect_message(
+    res <- plot_simplicial(mat, pathways = pw_empty),
+    "No pathways to plot."
+  )
+  expect_null(res)
+})

@@ -37,11 +37,15 @@ plot_simplicial(
 using the \code{method} parameter.}
 
 \item{pathways}{Character vector of pathway strings, a list of
-character vectors, or a \code{net_hon} / \code{net_hypa} object.
-String separators: \code{"A B -> C"}, \code{"A, B, C"},
+character vectors, a \code{net_hon} / \code{net_hypa} object, or
+any data.frame with a \code{path} column (e.g., the output of
+\code{Nestimate::mogen_transitions()}). String separators:
+\code{"A B -> C"}, \code{"A -> B -> C"}, \code{"A, B, C"},
 \code{"A - B - C"}, \code{"A B C"}. Last state is the target.
-When \code{NULL} and \code{x} is a model with sequence data,
-pathways are built automatically.}
+When a data.frame is passed and a \code{count} column is present,
+rows are sorted by count descending before \code{max_pathways} is
+applied. When \code{NULL} and \code{x} is a model with sequence
+data, pathways are built automatically.}
 
 \item{method}{Pathway source when auto-building from a
 \code{tna}/\code{netobject}: \code{"hon"} (default, higher-order

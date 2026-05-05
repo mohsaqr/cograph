@@ -272,3 +272,169 @@ test_that("aggregate_duplicate_edges default (directed=FALSE) preserves old beha
   expect_equal(nrow(agg), 1)
   expect_equal(agg$weight, 0.65)
 })
+
+
+# ---------------------------------------------------------------------------
+# Bug 4: fast_greedy must recompute weights after directed -> undirected collapse
+# ---------------------------------------------------------------------------
+
+test_that("detect_communities fast_greedy handles collapsed directed weights", {
+  mat <- matrix(c(
+    0, 1, 2, 0,
+    3, 0, 4, 0,
+    0, 0, 0, 5,
+    6, 0, 0, 0
+  ), 4, 4, byrow = TRUE)
+
+  result <- detect_communities(mat, method = "fast_greedy", directed = TRUE)
+  expect_s3_class(result, "cograph_communities")
+  expect_equal(nrow(result), 4)
+})
+
+
+# ---------------------------------------------------------------------------
+# Bug 5: parse_edgelist auto-detect should not treat duplicate same-direction
+# rows as directed
+# ---------------------------------------------------------------------------
+
+test_that("parse_edgelist duplicate same-direction rows remain undirected", {
+  df <- data.frame(from = c("A", "A"), to = c("B", "B"))
+  result <- parse_edgelist(df)
+  expect_false(result$directed)
+})
+
+test_that("parse_edgelist reciprocal rows are directed", {
+  df <- data.frame(from = c("A", "B"), to = c("B", "A"))
+  result <- parse_edgelist(df)
+  expect_true(result$directed)
+})
+
+
+# ---------------------------------------------------------------------------
+# Bug 6: custom layout coordinates must have exactly one row per node
+# ---------------------------------------------------------------------------
+
+test_that("cograph rejects custom layout row-count mismatch", {
+  mat <- matrix(c(0, 1, 1, 0), 2, 2)
+  expect_error(
+    cograph(mat, layout = data.frame(x = 0, y = 0)),
+    "one row per node"
+  )
+})
+
+test_that("sn_layout rejects custom layout row-count mismatch", {
+  mat <- matrix(c(0, 1, 1, 0), 2, 2)
+  net <- cograph(mat)
+  expect_error(
+    sn_layout(net, data.frame(x = 0, y = 0)),
+    "one row per node"
+  )
+})
+
+test_that("CographNetwork rejects custom layout row-count mismatch", {
+  mat <- matrix(c(0, 1, 1, 0), 2, 2)
+  net <- CographNetwork$new(mat)
+  expect_error(
+    net$set_layout_coords(data.frame(x = 0, y = 0)),
+    "one row per node"
+  )
+})
+
+
+# ---------------------------------------------------------------------------
+# Bug 7: filter predicates must be logical and length 1 or n
+# ---------------------------------------------------------------------------
+
+test_that("filter_nodes rejects wrong-length logical predicates", {
+  mat <- matrix(c(0, 1, 1, 0), 2, 2)
+  expect_error(
+    filter_nodes(as_cograph(mat), c(TRUE, FALSE, TRUE)),
+    "length 1 or 2"
+  )
+})
+
+test_that("filter_edges rejects wrong-length logical predicates", {
+  mat <- matrix(c(0, 1, 1, 0), 2, 2)
+  expect_error(
+    filter_edges(as_cograph(mat), c(TRUE, FALSE, TRUE)),
+    "length 1 or 1"
+  )
+})
+
+test_that("filter_nodes rejects non-logical predicates", {
+  mat <- matrix(c(0, 1, 1, 0), 2, 2)
+  expect_error(
+    filter_nodes(as_cograph(mat), c(1, 0)),
+    "logical vectors"
+  )
+})
+
+
+# ---------------------------------------------------------------------------
+# Bug 8: signed psychometric expected influence should normalize by max abs
+# ---------------------------------------------------------------------------
+
+test_that("psych_network normalizes signed expected influence by max abs", {
+  w <- matrix(
+    c(
+      0, -0.8, 0.2,
+      -0.8, 0, 0.1,
+      0.2, 0.1, 0
+    ),
+    nrow = 3,
+    byrow = TRUE,
+    dimnames = list(c("A", "B", "C"), c("A", "B", "C"))
+  )
+
+  raw <- centrality(
+    w,
+    measures = "expected_influence_1",
+    normalized = FALSE
+  )[["expected_influence_1_all"]]
+  expected <- raw / max(abs(raw))
+
+  explicit <- centrality(
+    w,
+    measures = "expected_influence_1",
+    normalized = TRUE,
+    psych_network = TRUE
+  )[["expected_influence_1_all"]]
+  auto <- centrality(
+    w,
+    measures = "expected_influence_1",
+    normalized = TRUE,
+    psych_network = NULL
+  )[["expected_influence_1_all"]]
+
+  expect_equal(explicit, expected)
+  expect_equal(auto, expected)
+  expect_lte(max(abs(explicit)), 1)
+})
+
+test_that("psych_network can be disabled to preserve generic normalization", {
+  w <- matrix(
+    c(
+      0, -0.8, 0.2,
+      -0.8, 0, 0.1,
+      0.2, 0.1, 0
+    ),
+    nrow = 3,
+    byrow = TRUE,
+    dimnames = list(c("A", "B", "C"), c("A", "B", "C"))
+  )
+
+  raw <- centrality(
+    w,
+    measures = "expected_influence_1",
+    normalized = FALSE
+  )[["expected_influence_1_all"]]
+  legacy <- centrality(
+    w,
+    measures = "expected_influence_1",
+    normalized = TRUE,
+    psych_network = FALSE
+  )[["expected_influence_1_all"]]
+
+  expect_equal(legacy, raw / max(raw))
+  expect_gt(max(abs(legacy)), 1)
+})

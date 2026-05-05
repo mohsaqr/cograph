@@ -184,7 +184,12 @@ detect_communities <- function(x, method = "louvain", directed = NULL,
       # fast_greedy requires undirected graph
       g_undirected <- igraph::as_undirected(g, mode = "collapse",
                                              edge.attr.comb = "mean")
-      igraph::cluster_fast_greedy(g_undirected, weights = edge_weights)
+      fg_weights <- if (weights && !is.null(igraph::E(g_undirected)$weight)) {
+        igraph::E(g_undirected)$weight
+      } else {
+        NULL
+      }
+      igraph::cluster_fast_greedy(g_undirected, weights = fg_weights)
     },
     "label_prop" = igraph::cluster_label_prop(g, weights = edge_weights),
     "infomap" = igraph::cluster_infomap(g, e.weights = edge_weights),
@@ -559,6 +564,15 @@ subset_edges <- filter_edges
   # Evaluate each condition and combine with AND
   masks <- lapply(dots, function(expr) {
     result <- eval(expr, envir = env)
+    if (!is.logical(result)) {
+      stop("Filter expressions must evaluate to logical vectors", call. = FALSE)
+    }
+    if (length(result) == 1L) {
+      result <- rep(result, n)
+    } else if (length(result) != n) {
+      stop("Filter expressions must return length 1 or ", n,
+           ", not ", length(result), call. = FALSE)
+    }
     result[is.na(result)] <- FALSE
     result
   })

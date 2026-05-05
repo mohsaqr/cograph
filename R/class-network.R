@@ -168,13 +168,20 @@ CographNetwork <- R6::R6Class(
       if (!is.null(coords)) {
         if (is.matrix(coords)) {
           coords <- as.data.frame(coords)
-          if (is.null(names(coords))) { # nocov
-            names(coords) <- c("x", "y") # nocov
-          } # nocov
+        }
+        if (!is.data.frame(coords) || ncol(coords) < 2) {
+          stop("coords must be a data frame or matrix with at least two columns",
+               call. = FALSE)
+        }
+        names(coords)[1:2] <- c("x", "y")
+        if (!is.null(private$.nodes) && nrow(private$.nodes) != nrow(coords)) {
+          stop("coords must have one row per node (expected ",
+               nrow(private$.nodes), ", got ", nrow(coords), ")",
+               call. = FALSE)
         }
         private$.layout <- coords
         # Update node positions
-        if (!is.null(private$.nodes) && nrow(private$.nodes) == nrow(coords)) {
+        if (!is.null(private$.nodes)) {
           private$.nodes$x <- coords$x
           private$.nodes$y <- coords$y
         }
@@ -1184,4 +1191,3 @@ n_edges <- function(x) {
   }
   stop("Cannot count edges for this object", call. = FALSE)
 }
-

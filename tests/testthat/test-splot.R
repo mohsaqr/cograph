@@ -904,3 +904,62 @@ test_that("splot() curvature vector with large values", {
   result <- safe_plot(splot(edges, directed = TRUE, curvature = curvatures))
   expect_true(result$success, info = result$error)
 })
+
+# ---------------------------------------------------------------------------
+# use_max_space — opt-in canvas-fill flag
+# Verified by rendering to a fixed-size PNG and comparing byte signatures.
+# Different layout_scale → different image; same settings → identical bytes.
+# ---------------------------------------------------------------------------
+
+.splot_to_png <- function(...) {
+  p <- tempfile(fileext = ".png")
+  grDevices::png(p, width = 400, height = 400)
+  on.exit(if (!is.null(grDevices::dev.list())) grDevices::dev.off(), add = TRUE)
+  splot(...)
+  grDevices::dev.off()
+  digest::digest(readBin(p, "raw", file.info(p)$size))
+}
+
+test_that("use_max_space defaults to FALSE: image identical to omitted arg", {
+  skip_if_not_installed("digest")
+  m <- create_test_matrix(5, density = 0.5)
+  expect_identical(.splot_to_png(m), .splot_to_png(m, use_max_space = FALSE))
+})
+
+test_that("use_max_space = TRUE produces a different image than default", {
+  skip_if_not_installed("digest")
+  m <- create_test_matrix(5, density = 0.5)
+  expect_false(identical(.splot_to_png(m), .splot_to_png(m, use_max_space = TRUE)))
+})
+
+test_that("use_max_space = TRUE matches an equivalent explicit layout_scale", {
+  skip_if_not_installed("digest")
+  m <- create_test_matrix(5, density = 0.5)
+  expect_identical(
+    .splot_to_png(m, use_max_space = TRUE),
+    .splot_to_png(m, layout_scale = 1.67)
+  )
+})
+
+test_that("explicit layout_scale wins over use_max_space auto-fill", {
+  skip_if_not_installed("digest")
+  m <- create_test_matrix(5, density = 0.5)
+  # If use_max_space tried to override an explicit layout_scale, this would
+  # produce a different image from `layout_scale = 1.2` alone.
+  expect_identical(
+    .splot_to_png(m, use_max_space = TRUE, layout_scale = 1.2),
+    .splot_to_png(m, layout_scale = 1.2)
+  )
+})
+
+test_that("getOption('cograph.use_max_space') triggers the same behaviour", {
+  skip_if_not_installed("digest")
+  m <- create_test_matrix(5, density = 0.5)
+  on.exit(options(cograph.use_max_space = NULL), add = TRUE)
+
+  default_hash <- .splot_to_png(m)
+  options(cograph.use_max_space = TRUE)
+  expect_identical(.splot_to_png(m), .splot_to_png(m, use_max_space = TRUE))
+  # Per-call FALSE overrides the global option
+  expect_identical(.splot_to_png(m, use_max_space = FALSE), default_hash)
+})

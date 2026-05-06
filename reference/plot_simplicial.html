@@ -64,8 +64,12 @@ network layout. Source nodes are blue, target nodes are red.</p>
 <span>  ring_color <span class="op">=</span> <span class="st">"#F5A623"</span>,</span>
 <span>  node_size <span class="op">=</span> <span class="fl">22</span>,</span>
 <span>  label_size <span class="op">=</span> <span class="fl">5</span>,</span>
-<span>  label_color <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  label_color <span class="op">=</span> <span class="st">"white"</span>,</span>
 <span>  target_label_color <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  label_halo <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  label_halo_color <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  label_halo_width <span class="op">=</span> <span class="fl">0.035</span>,</span>
+<span>  label_halo_alpha <span class="op">=</span> <span class="fl">0.6</span>,</span>
 <span>  blob_alpha <span class="op">=</span> <span class="fl">0.25</span>,</span>
 <span>  blob_colors <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  blob_linetype <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -149,14 +153,42 @@ pathways are ranked by count, HYPA by anomaly ratio.
 
 
 <dt id="arg-label-color">label_color<a class="anchor" aria-label="anchor" href="#arg-label-color"></a></dt>
-<dd><p>Source-node label color. <code>NULL</code> (default)
-picks black or white automatically based on the luminance of
-<code>node_color</code> so labels stay readable on any fill.</p></dd>
+<dd><p>Label text color (default <code>"white"</code>).
+Applied to both source and target labels unless
+<code>target_label_color</code> overrides for targets.</p></dd>
 
 
 <dt id="arg-target-label-color">target_label_color<a class="anchor" aria-label="anchor" href="#arg-target-label-color"></a></dt>
 <dd><p>Target-node label color. <code>NULL</code>
-(default) auto-contrasts against <code>target_color</code>.</p></dd>
+(default) reuses <code>label_color</code>.</p></dd>
+
+
+<dt id="arg-label-halo">label_halo<a class="anchor" aria-label="anchor" href="#arg-label-halo"></a></dt>
+<dd><p>Logical. Draw a contrasting halo behind each
+label so it stays readable on any fill — node disc, blob, or
+the white canvas. Default <code>TRUE</code>. The halo is the only
+reliable way to keep, e.g., white labels legible when
+<code>node_color</code> is also light.</p></dd>
+
+
+<dt id="arg-label-halo-color">label_halo_color<a class="anchor" aria-label="anchor" href="#arg-label-halo-color"></a></dt>
+<dd><p>Halo color. <code>NULL</code> (default)
+auto-picks black or white based on the luminance of
+<code>label_color</code>, so a white label gets a dark halo and vice
+versa.</p></dd>
+
+
+<dt id="arg-label-halo-width">label_halo_width<a class="anchor" aria-label="anchor" href="#arg-label-halo-width"></a></dt>
+<dd><p>Halo thickness in plot units. Default
+<code>0.035</code>; raise for chunkier outlines, lower for subtler
+ones, or set to <code>0</code> to disable without touching
+<code>label_halo</code>.</p></dd>
+
+
+<dt id="arg-label-halo-alpha">label_halo_alpha<a class="anchor" aria-label="anchor" href="#arg-label-halo-alpha"></a></dt>
+<dd><p>Halo opacity (0–1). Default <code>0.6</code>
+reads as a soft glow rather than a hard outline; raise toward
+<code>1</code> for sharper contrast on very busy backgrounds.</p></dd>
 
 
 <dt id="arg-blob-alpha">blob_alpha<a class="anchor" aria-label="anchor" href="#arg-blob-alpha"></a></dt>

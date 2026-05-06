@@ -18,8 +18,12 @@ plot_simplicial(
   ring_color = "#F5A623",
   node_size = 22,
   label_size = 5,
-  label_color = NULL,
+  label_color = "white",
   target_label_color = NULL,
+  label_halo = TRUE,
+  label_halo_color = NULL,
+  label_halo_width = 0.035,
+  label_halo_alpha = 0.6,
   blob_alpha = 0.25,
   blob_colors = NULL,
   blob_linetype = NULL,
@@ -98,14 +102,37 @@ plot_simplicial(
 
 - label_color:
 
-  Source-node label color. `NULL` (default) picks black or white
-  automatically based on the luminance of `node_color` so labels stay
-  readable on any fill.
+  Label text color (default `"white"`). Applied to both source and
+  target labels unless `target_label_color` overrides for targets.
 
 - target_label_color:
 
-  Target-node label color. `NULL` (default) auto-contrasts against
-  `target_color`.
+  Target-node label color. `NULL` (default) reuses `label_color`.
+
+- label_halo:
+
+  Logical. Draw a contrasting halo behind each label so it stays
+  readable on any fill — node disc, blob, or the white canvas. Default
+  `TRUE`. The halo is the only reliable way to keep, e.g., white labels
+  legible when `node_color` is also light.
+
+- label_halo_color:
+
+  Halo color. `NULL` (default) auto-picks black or white based on the
+  luminance of `label_color`, so a white label gets a dark halo and vice
+  versa.
+
+- label_halo_width:
+
+  Halo thickness in plot units. Default `0.035`; raise for chunkier
+  outlines, lower for subtler ones, or set to `0` to disable without
+  touching `label_halo`.
+
+- label_halo_alpha:
+
+  Halo opacity (0–1). Default `0.6` reads as a soft glow rather than a
+  hard outline; raise toward `1` for sharper contrast on very busy
+  backgrounds.
 
 - blob_alpha:
 

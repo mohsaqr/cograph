@@ -185,6 +185,7 @@ splot(
   use_pch = FALSE,
   usePCH = NULL,
   scaling = "default",
+  align_panels = FALSE,
   legend = FALSE,
   legend_position = "topright",
   legend_size = 0.8,
@@ -569,6 +570,18 @@ Set to 0 for no extra margin (tighter fit). Affects white space around nodes.}
 
 \item{scaling}{Scaling mode: "default" for qgraph-matched scaling where node_size=6
 looks similar to qgraph vsize=6, or "legacy" to preserve pre-v2.0 behavior.}
+
+\item{align_panels}{Logical. If \code{TRUE}, forces a uniform symmetric
+plot box (\code{c(-layout_scale, layout_scale)} on each axis) so two
+networks plotted side-by-side in a \code{par(mfrow)} grid render at
+identical absolute scales — useful for bootstrap panels, comparison
+grids with networks of different node counts, or any case where
+visual-size parity across panels matters more than canvas fill.
+Default \code{FALSE} uses dynamic, layout-driven bounds (the
+pre-2.1.x behaviour) which renders tighter on the canvas. The
+per-node loop-reservation pad in \code{compute_plot_limits} runs
+regardless, so networks with different self-loop patterns stay
+centered consistently in either mode.}
 
 \item{legend}{Logical: show legend?}
 

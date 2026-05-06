@@ -162,6 +162,17 @@
   }, character(1), USE.NAMES = FALSE)
 }
 
+#' Pick black or white text for readability over a fill color
+#' @noRd
+.contrasting_text_color <- function(fill, light = "white", dark = "#1a1a1a",
+                                     threshold = 0.6) {
+  vapply(fill, function(col) {
+    rgb <- grDevices::col2rgb(col)[, 1] / 255
+    lum <- 0.2126 * rgb[1] + 0.7152 * rgb[2] + 0.0722 * rgb[3]
+    if (lum > threshold) dark else light
+  }, character(1), USE.NAMES = FALSE)
+}
+
 # =========================================================================
 # Default palettes
 # =========================================================================
@@ -223,7 +234,12 @@
 #' @noRd
 .add_pathway_nodes <- function(p, ndf, is_target, node_color, target_color,
                                 ring_color, ring_border, node_size,
-                                label_size) {
+                                label_size,
+                                label_color = NULL,
+                                target_label_color = NULL) {
+  src_text_color <- label_color %||% .contrasting_text_color(node_color)
+  tgt_text_color <- target_label_color %||% .contrasting_text_color(target_color)
+
   ring_size <- node_size * 1.27
   p <- p + ggplot2::geom_point(
     data = ndf, ggplot2::aes(x = x, y = y),
@@ -240,7 +256,7 @@
     )
     p <- p + ggplot2::geom_text(
       data = src_df, ggplot2::aes(x = x, y = y, label = label),
-      color = "white", fontface = "bold", size = label_size
+      color = src_text_color, fontface = "bold", size = label_size
     )
   }
 
@@ -253,7 +269,7 @@
     )
     p <- p + ggplot2::geom_text(
       data = tgt_df, ggplot2::aes(x = x, y = y, label = label),
-      color = "white", fontface = "bold", size = label_size
+      color = tgt_text_color, fontface = "bold", size = label_size
     )
   }
   p

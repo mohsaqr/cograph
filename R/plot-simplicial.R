@@ -41,6 +41,11 @@
 #' @param ring_color Donut ring color.
 #' @param node_size Node point size.
 #' @param label_size Label text size.
+#' @param label_color Source-node label color. \code{NULL} (default)
+#'   picks black or white automatically based on the luminance of
+#'   \code{node_color} so labels stay readable on any fill.
+#' @param target_label_color Target-node label color. \code{NULL}
+#'   (default) auto-contrasts against \code{target_color}.
 #' @param blob_alpha Blob fill transparency.
 #' @param blob_colors Blob fill colors (recycled).
 #' @param blob_linetype Blob border line styles (recycled).
@@ -79,6 +84,8 @@ plot_simplicial <- function(x = NULL,
                             ring_color = "#F5A623",
                             node_size = 22,
                             label_size = 5,
+                            label_color = NULL,
+                            target_label_color = NULL,
                             blob_alpha = 0.25,
                             blob_colors = NULL,
                             blob_linetype = NULL,
@@ -253,6 +260,8 @@ plot_simplicial <- function(x = NULL,
         blob_colors[k], blob_borders[k], blob_linetype[k], blob_alpha,
         blob_linewidth, blob_line_alpha, shadow,
         grid_node_size, grid_label_size,
+        label_color = label_color,
+        target_label_color = target_label_color,
         show_title = FALSE
       )
       p + ggplot2::theme(plot.margin = ggplot2::margin(2, 2, 2, 2))
@@ -274,7 +283,9 @@ plot_simplicial <- function(x = NULL,
     pw_list, pos, states, label_map,
     node_color, target_color, ring_color, ring_border,
     blob_colors, blob_borders, blob_linetype, blob_alpha,
-    blob_linewidth, blob_line_alpha, shadow, node_size, label_size, title
+    blob_linewidth, blob_line_alpha, shadow, node_size, label_size, title,
+    label_color = label_color,
+    target_label_color = target_label_color
   )
   print(p)
   invisible(p)
@@ -352,6 +363,8 @@ plot_simplicial <- function(x = NULL,
                                   blob_color, blob_border, blob_lty, blob_alpha,
                                   blob_linewidth, blob_line_alpha,
                                   shadow, node_size, label_size,
+                                  label_color = NULL,
+                                  target_label_color = NULL,
                                   show_title = TRUE) {
   name_to_idx <- setNames(seq_along(states), states)
   all_st <- unique(c(pw$source, pw$target))
@@ -370,7 +383,9 @@ plot_simplicial <- function(x = NULL,
                          linetype = blob_lty, linewidth = blob_linewidth,
                          alpha = blob_alpha)
   p <- .add_pathway_nodes(p, ndf, is_target, node_color, target_color,
-                           ring_color, ring_border, node_size, label_size)
+                           ring_color, ring_border, node_size, label_size,
+                           label_color = label_color,
+                           target_label_color = target_label_color)
   if (show_title) {
     src_lab <- vapply(pw$source, function(s) label_map[s], character(1),
                        USE.NAMES = FALSE)
@@ -389,7 +404,9 @@ plot_simplicial <- function(x = NULL,
                                      blob_colors, blob_borders,
                                      blob_linetypes, blob_alpha,
                                      blob_linewidth, blob_line_alpha,
-                                     shadow, node_size, label_size, title) {
+                                     shadow, node_size, label_size, title,
+                                     label_color = NULL,
+                                     target_label_color = NULL) {
   name_to_idx <- setNames(seq_along(states), states)
   p <- .blob_base_plot()
 
@@ -413,7 +430,9 @@ plot_simplicial <- function(x = NULL,
   all_targets <- unique(vapply(pw_list, `[[`, character(1), "target"))
   is_target <- pos$state %in% all_targets
   p <- .add_pathway_nodes(p, pos, is_target, node_color, target_color,
-                           ring_color, ring_border, node_size, label_size)
+                           ring_color, ring_border, node_size, label_size,
+                           label_color = label_color,
+                           target_label_color = target_label_color)
 
   # Suppress the source/target legend when the caller has collapsed the
   # two-tone (e.g., net_association_rules, which has no source/target).

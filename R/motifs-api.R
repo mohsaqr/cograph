@@ -750,3 +750,37 @@ plot.cograph_motif_result <- function(x, type = c("triads", "types",
 
   invisible(x) # nocov — all type branches return above
 }
+
+
+#' Plot a motif/subgraph result
+#'
+#' Tab-completion-friendly wrapper around the
+#' \code{plot.cograph_motif_result} S3 method. Functionally identical
+#' to \code{plot(x, ...)} on a \code{cograph_motif_result} object,
+#' but exposes the \code{type / n / ncol / colors} arguments to
+#' editor autocompletion.
+#'
+#' @inheritParams plot.cograph_motif_result
+#' @return Invisibly returns the input \code{x} (or the underlying
+#'   \code{ggplot} for the \code{"types"} and \code{"significance"}
+#'   types, matching the S3 method).
+#' @seealso \code{\link{motifs}}, \code{\link{subgraphs}}
+#' @examples
+#' \dontrun{
+#' g <- igraph::sample_gnp(20, 0.2, directed = TRUE)
+#' m <- motifs(g)
+#' plot_motifs(m)
+#' plot_motifs(m, type = "types")
+#' }
+#' @export
+plot_motifs <- function(x, type = c("triads", "types",
+                                     "significance", "patterns"),
+                         n = 15, ncol = 5,
+                         colors = c("#2166AC", "#B2182B"),
+                         ...) {
+  if (!inherits(x, "cograph_motif_result")) {
+    stop("'x' must be a cograph_motif_result (from motifs() or subgraphs()).",
+         call. = FALSE)
+  }
+  plot(x, type = match.arg(type), n = n, ncol = ncol, colors = colors, ...)
+}

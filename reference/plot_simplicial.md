@@ -18,7 +18,7 @@ plot_simplicial(
   ring_color = "#F5A623",
   node_size = 22,
   label_size = 5,
-  label_color = "white",
+  label_color = "#e8e8e8",
   target_label_color = NULL,
   label_halo = TRUE,
   label_halo_color = NULL,
@@ -102,8 +102,10 @@ plot_simplicial(
 
 - label_color:
 
-  Label text color (default `"white"`). Applied to both source and
-  target labels unless `target_label_color` overrides for targets.
+  Label text color (default `"#e8e8e8"`, very light grey). Light grey
+  reads on both white and dark fills when the auto-contrast halo is
+  enabled (it is by default). Applied to both source and target labels
+  unless `target_label_color` overrides for targets.
 
 - target_label_color:
 

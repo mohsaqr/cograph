@@ -67,6 +67,15 @@ editor autocompletion.</p>
 <span>  n <span class="op">=</span> <span class="fl">15</span>,</span>
 <span>  ncol <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#2166AC"</span>, <span class="st">"#B2182B"</span><span class="op">)</span>,</span>
+<span>  node_size <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  label_size <span class="op">=</span> <span class="fl">11</span>,</span>
+<span>  title_size <span class="op">=</span> <span class="fl">12</span>,</span>
+<span>  stats_size <span class="op">=</span> <span class="fl">13</span>,</span>
+<span>  legend_size <span class="op">=</span> <span class="fl">13</span>,</span>
+<span>  legend <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  motif_color <span class="op">=</span> <span class="st">"#800020"</span>,</span>
+<span>  spacing <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  base_size <span class="op">=</span> <span class="fl">12</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -113,6 +122,49 @@ structure of each triad type.</p></dd>
 <dd><p>Two-element color vector: first color for over-represented or
 positive values, second for under-represented or negative values.
 Default <code>c("#2166AC", "#B2182B")</code> (blue/red).</p></dd>
+
+
+<dt id="arg-node-size">node_size<a class="anchor" aria-label="anchor" href="#arg-node-size"></a></dt>
+<dd><p>Triad node radius (relative). Default 5.
+(<code>type = "triads"</code> only.)</p></dd>
+
+
+<dt id="arg-label-size">label_size<a class="anchor" aria-label="anchor" href="#arg-label-size"></a></dt>
+<dd><p>Triad node-label font size in points. Default 11.</p></dd>
+
+
+<dt id="arg-title-size">title_size<a class="anchor" aria-label="anchor" href="#arg-title-size"></a></dt>
+<dd><p>Per-panel title font size in points. Default 12.</p></dd>
+
+
+<dt id="arg-stats-size">stats_size<a class="anchor" aria-label="anchor" href="#arg-stats-size"></a></dt>
+<dd><p>Per-panel statistics caption font size in points
+(e.g., <code>n=34 z=-55.3 p&lt;.001</code>). Default 13.</p></dd>
+
+
+<dt id="arg-legend-size">legend_size<a class="anchor" aria-label="anchor" href="#arg-legend-size"></a></dt>
+<dd><p>Bottom legend font size in points. Default 13.</p></dd>
+
+
+<dt id="arg-legend">legend<a class="anchor" aria-label="anchor" href="#arg-legend"></a></dt>
+<dd><p>Logical. Show the abbreviation legend strip below the
+triad grid. Default <code>TRUE</code>. (<code>type = "triads"</code> only.)</p></dd>
+
+
+<dt id="arg-motif-color">motif_color<a class="anchor" aria-label="anchor" href="#arg-motif-color"></a></dt>
+<dd><p>Color of triad nodes/edges/labels. Default
+<code>"#800020"</code> (deep burgundy). (<code>type = "triads"</code> only.)</p></dd>
+
+
+<dt id="arg-spacing">spacing<a class="anchor" aria-label="anchor" href="#arg-spacing"></a></dt>
+<dd><p>Triangle spread inside each panel; <code>&gt; 1</code> pulls
+nodes inward, <code>&lt; 1</code> pushes them apart. Default 1.</p></dd>
+
+
+<dt id="arg-base-size">base_size<a class="anchor" aria-label="anchor" href="#arg-base-size"></a></dt>
+<dd><p>Base font size for the <code>ggplot2</code> themes used
+by <code>type = "types"</code> and <code>type = "significance"</code>.
+Default 12.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

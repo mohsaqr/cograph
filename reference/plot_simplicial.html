@@ -64,7 +64,7 @@ network layout. Source nodes are blue, target nodes are red.</p>
 <span>  ring_color <span class="op">=</span> <span class="st">"#F5A623"</span>,</span>
 <span>  node_size <span class="op">=</span> <span class="fl">22</span>,</span>
 <span>  label_size <span class="op">=</span> <span class="fl">5</span>,</span>
-<span>  label_color <span class="op">=</span> <span class="st">"white"</span>,</span>
+<span>  label_color <span class="op">=</span> <span class="st">"#e8e8e8"</span>,</span>
 <span>  target_label_color <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  label_halo <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  label_halo_color <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -153,7 +153,9 @@ pathways are ranked by count, HYPA by anomaly ratio.
 
 
 <dt id="arg-label-color">label_color<a class="anchor" aria-label="anchor" href="#arg-label-color"></a></dt>
-<dd><p>Label text color (default <code>"white"</code>).
+<dd><p>Label text color (default <code>"#e8e8e8"</code>,
+very light grey). Light grey reads on both white and dark fills
+when the auto-contrast halo is enabled (it is by default).
 Applied to both source and target labels unless
 <code>target_label_color</code> overrides for targets.</p></dd>
 

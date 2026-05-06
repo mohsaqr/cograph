@@ -42,6 +42,15 @@ plot(
   n = 15,
   ncol = 5,
   colors = c("#2166AC", "#B2182B"),
+  node_size = 5,
+  label_size = 11,
+  title_size = 12,
+  stats_size = 13,
+  legend_size = 13,
+  legend = TRUE,
+  motif_color = "#800020",
+  spacing = 1,
+  base_size = 12,
   ...
 )
 ```
@@ -187,6 +196,47 @@ plot(
   Two-element color vector: first color for over-represented or positive
   values, second for under-represented or negative values. Default
   `c("#2166AC", "#B2182B")` (blue/red).
+
+- node_size:
+
+  Triad node radius (relative). Default 5. (`type = "triads"` only.)
+
+- label_size:
+
+  Triad node-label font size in points. Default 11.
+
+- title_size:
+
+  Per-panel title font size in points. Default 12.
+
+- stats_size:
+
+  Per-panel statistics caption font size in points (e.g.,
+  `n=34 z=-55.3 p<.001`). Default 13.
+
+- legend_size:
+
+  Bottom legend font size in points. Default 13.
+
+- legend:
+
+  Logical. Show the abbreviation legend strip below the triad grid.
+  Default `TRUE`. (`type = "triads"` only.)
+
+- motif_color:
+
+  Color of triad nodes/edges/labels. Default `"#800020"` (deep
+  burgundy). (`type = "triads"` only.)
+
+- spacing:
+
+  Triangle spread inside each panel; `> 1` pulls nodes inward, `< 1`
+  pushes them apart. Default 1.
+
+- base_size:
+
+  Base font size for the `ggplot2` themes used by `type = "types"` and
+  `type = "significance"`. Default 12.
 
 ## Value
 

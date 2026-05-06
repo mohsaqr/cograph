@@ -10,6 +10,15 @@ plot_motifs(
   n = 15,
   ncol = 5,
   colors = c("#2166AC", "#B2182B"),
+  node_size = 5,
+  label_size = 11,
+  title_size = 12,
+  stats_size = 13,
+  legend_size = 13,
+  legend = TRUE,
+  motif_color = "#800020",
+  spacing = 1,
+  base_size = 12,
   ...
 )
 }
@@ -36,6 +45,31 @@ structure of each triad type.}
 \item{colors}{Two-element color vector: first color for over-represented or
 positive values, second for under-represented or negative values.
 Default \code{c("#2166AC", "#B2182B")} (blue/red).}
+
+\item{node_size}{Triad node radius (relative). Default 5.
+(\code{type = "triads"} only.)}
+
+\item{label_size}{Triad node-label font size in points. Default 11.}
+
+\item{title_size}{Per-panel title font size in points. Default 12.}
+
+\item{stats_size}{Per-panel statistics caption font size in points
+(e.g., \code{n=34 z=-55.3 p<.001}). Default 13.}
+
+\item{legend_size}{Bottom legend font size in points. Default 13.}
+
+\item{legend}{Logical. Show the abbreviation legend strip below the
+triad grid. Default \code{TRUE}. (\code{type = "triads"} only.)}
+
+\item{motif_color}{Color of triad nodes/edges/labels. Default
+\code{"#800020"} (deep burgundy). (\code{type = "triads"} only.)}
+
+\item{spacing}{Triangle spread inside each panel; \code{> 1} pulls
+nodes inward, \code{< 1} pushes them apart. Default 1.}
+
+\item{base_size}{Base font size for the \code{ggplot2} themes used
+by \code{type = "types"} and \code{type = "significance"}.
+Default 12.}
 
 \item{...}{Additional arguments passed to internal plot helpers.}
 }

@@ -669,6 +669,22 @@ print.cograph_motif_result <- function(x, ...) {
 #' @param colors Two-element color vector: first color for over-represented or
 #'   positive values, second for under-represented or negative values.
 #'   Default \code{c("#2166AC", "#B2182B")} (blue/red).
+#' @param node_size Triad node radius (relative). Default 5.
+#'   (\code{type = "triads"} only.)
+#' @param label_size Triad node-label font size in points. Default 11.
+#' @param title_size Per-panel title font size in points. Default 12.
+#' @param stats_size Per-panel statistics caption font size in points
+#'   (e.g., \code{n=34 z=-55.3 p<.001}). Default 13.
+#' @param legend_size Bottom legend font size in points. Default 13.
+#' @param legend Logical. Show the abbreviation legend strip below the
+#'   triad grid. Default \code{TRUE}. (\code{type = "triads"} only.)
+#' @param motif_color Color of triad nodes/edges/labels. Default
+#'   \code{"#800020"} (deep burgundy). (\code{type = "triads"} only.)
+#' @param spacing Triangle spread inside each panel; \code{> 1} pulls
+#'   nodes inward, \code{< 1} pushes them apart. Default 1.
+#' @param base_size Base font size for the \code{ggplot2} themes used
+#'   by \code{type = "types"} and \code{type = "significance"}.
+#'   Default 12.
 #' @param ... Additional arguments passed to internal plot helpers.
 #' @return Invisibly returns the input \code{x}.
 #' @rdname motifs
@@ -678,6 +694,15 @@ plot.cograph_motif_result <- function(x, type = c("triads", "types",
                                                     "significance", "patterns"),
                                        n = 15, ncol = 5,
                                        colors = c("#2166AC", "#B2182B"),
+                                       node_size = 5,
+                                       label_size = 11,
+                                       title_size = 12,
+                                       stats_size = 13,
+                                       legend_size = 13,
+                                       legend = TRUE,
+                                       motif_color = "#800020",
+                                       spacing = 1,
+                                       base_size = 12,
                                        ...) {
   type <- match.arg(type)
 
@@ -688,11 +713,12 @@ plot.cograph_motif_result <- function(x, type = c("triads", "types",
 
   if (type == "triads") {
     if (x$named_nodes) {
-      # Instance mode: delegate to existing helper
-      .plot_triad_networks(x, n = n, ncol = ncol,
-                           colors = colors, ...)
+      .plot_triad_networks(x, n = n, ncol = ncol, colors = colors,
+                           node_size = node_size, label_size = label_size,
+                           title_size = title_size, stats_size = stats_size,
+                           legend_size = legend_size, legend = legend,
+                           color = motif_color, spacing = spacing, ...)
     } else {
-      # Census mode: no named triads, plot patterns instead
       .plot_motif_patterns(x, n = n, colors = colors, ...)
     }
     return(invisible(x))
@@ -711,7 +737,7 @@ plot.cograph_motif_result <- function(x, type = c("triads", "types",
       ggplot2::coord_flip() +
       ggplot2::labs(x = "MAN Type", y = "Count",
                     title = "Motif Type Distribution") +
-      .motifs_ggplot_theme()
+      .motifs_ggplot_theme(base_size = base_size)
     print(p)
     return(invisible(p))
 
@@ -723,7 +749,6 @@ plot.cograph_motif_result <- function(x, type = c("triads", "types",
     sig_df <- sig_df[order(abs(sig_df$z), decreasing = TRUE), ]
     sig_df <- utils::head(sig_df, n)
 
-    # Create label column (use triad if available, else type)
     sig_df$label <- if ("triad" %in% names(sig_df)) sig_df$triad else sig_df$type
 
     p <- ggplot2::ggplot(sig_df, ggplot2::aes(
@@ -739,7 +764,7 @@ plot.cograph_motif_result <- function(x, type = c("triads", "types",
                            color = "grey50") +
       ggplot2::labs(x = NULL, y = "Z-score",
                     title = "Motif Significance") +
-      .motifs_ggplot_theme()
+      .motifs_ggplot_theme(base_size = base_size)
     print(p)
     return(invisible(p))
 
@@ -777,10 +802,24 @@ plot_motifs <- function(x, type = c("triads", "types",
                                      "significance", "patterns"),
                          n = 15, ncol = 5,
                          colors = c("#2166AC", "#B2182B"),
+                         node_size = 5,
+                         label_size = 11,
+                         title_size = 12,
+                         stats_size = 13,
+                         legend_size = 13,
+                         legend = TRUE,
+                         motif_color = "#800020",
+                         spacing = 1,
+                         base_size = 12,
                          ...) {
   if (!inherits(x, "cograph_motif_result")) {
     stop("'x' must be a cograph_motif_result (from motifs() or subgraphs()).",
          call. = FALSE)
   }
-  plot(x, type = match.arg(type), n = n, ncol = ncol, colors = colors, ...)
+  plot(x, type = match.arg(type), n = n, ncol = ncol, colors = colors,
+       node_size = node_size, label_size = label_size,
+       title_size = title_size, stats_size = stats_size,
+       legend_size = legend_size, legend = legend,
+       motif_color = motif_color, spacing = spacing,
+       base_size = base_size, ...)
 }

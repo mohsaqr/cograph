@@ -41,7 +41,9 @@
 #' @param ring_color Donut ring color.
 #' @param node_size Node point size.
 #' @param label_size Label text size.
-#' @param label_color Label text color (default \code{"white"}).
+#' @param label_color Label text color (default \code{"#e8e8e8"},
+#'   very light grey). Light grey reads on both white and dark fills
+#'   when the auto-contrast halo is enabled (it is by default).
 #'   Applied to both source and target labels unless
 #'   \code{target_label_color} overrides for targets.
 #' @param target_label_color Target-node label color. \code{NULL}
@@ -100,7 +102,7 @@ plot_simplicial <- function(x = NULL,
                             ring_color = "#F5A623",
                             node_size = 22,
                             label_size = 5,
-                            label_color = "white",
+                            label_color = "#e8e8e8",
                             target_label_color = NULL,
                             label_halo = TRUE,
                             label_halo_color = NULL,
@@ -286,15 +288,17 @@ plot_simplicial <- function(x = NULL,
         label_halo_color = label_halo_color,
         label_halo_width = label_halo_width,
         label_halo_alpha = label_halo_alpha,
+        panel_pad = 1.5,
         show_title = FALSE
       )
-      p + ggplot2::theme(plot.margin = ggplot2::margin(2, 2, 2, 2))
+      p + ggplot2::theme(plot.margin = ggplot2::margin(0, 0, 0, 0))
     })
     nc <- ncol %||% ceiling(sqrt(length(plots)))
     if (requireNamespace("gridExtra", quietly = TRUE)) {
       combined <- do.call(gridExtra::arrangeGrob,
                           c(plots, list(ncol = nc,
-                                        padding = grid::unit(0, "line"))))
+                                        padding = grid::unit(0, "line"),
+                                        respect = TRUE)))
       grid::grid.newpage()
       grid::grid.draw(combined)
       return(invisible(combined))
@@ -391,12 +395,13 @@ plot_simplicial <- function(x = NULL,
                                   blob_color, blob_border, blob_lty, blob_alpha,
                                   blob_linewidth, blob_line_alpha,
                                   shadow, node_size, label_size,
-                                  label_color = "white",
+                                  label_color = "#e8e8e8",
                                   target_label_color = NULL,
                                   label_halo = TRUE,
                                   label_halo_color = NULL,
                                   label_halo_width = 0.035,
                                   label_halo_alpha = 0.6,
+                                  panel_pad = 3.5,
                                   show_title = TRUE) {
   name_to_idx <- setNames(seq_along(states), states)
   all_st <- unique(c(pw$source, pw$target))
@@ -405,7 +410,7 @@ plot_simplicial <- function(x = NULL,
   blob <- .smooth_blob(ndf$x, ndf$y)
 
   cx <- mean(ndf$x); cy <- mean(ndf$y)
-  half <- max(max(ndf$x) - min(ndf$x), max(ndf$y) - min(ndf$y)) / 2 + 3.5
+  half <- max(max(ndf$x) - min(ndf$x), max(ndf$y) - min(ndf$y)) / 2 + panel_pad
 
   p <- .blob_base_plot(c(cx - half, cx + half), c(cy - half, cy + half))
   if (shadow) p <- .add_shadow(p, blob)
@@ -441,7 +446,7 @@ plot_simplicial <- function(x = NULL,
                                      blob_linetypes, blob_alpha,
                                      blob_linewidth, blob_line_alpha,
                                      shadow, node_size, label_size, title,
-                                     label_color = "white",
+                                     label_color = "#e8e8e8",
                                      target_label_color = NULL,
                                      label_halo = TRUE,
                                      label_halo_color = NULL,

@@ -235,7 +235,7 @@
 .add_pathway_nodes <- function(p, ndf, is_target, node_color, target_color,
                                 ring_color, ring_border, node_size,
                                 label_size,
-                                label_color = "white",
+                                label_color = "#e8e8e8",
                                 target_label_color = NULL,
                                 label_halo = TRUE,
                                 label_halo_color = NULL,

@@ -180,9 +180,11 @@
 #' Plot individual triads as network diagrams using grid graphics
 #' @noRd
 .plot_triad_networks <- function(x, n = 12, colors = c("#2166AC", "#B2182B"),
-                                  res = 72, node_size = 5, label_size = 7,
-                                  title_size = 7, stats_size = 5, ncol = 5,
-                                  legend = TRUE, color = "#800020", spacing = 1, ...) {
+                                  res = 72, node_size = 5, label_size = 11,
+                                  title_size = 12, stats_size = 13,
+                                  legend_size = 13, ncol = 5,
+                                  legend = TRUE, color = "#800020",
+                                  spacing = 1, ...) {
   df <- utils::head(x$results, n)
 
   if (nrow(df) == 0) {
@@ -199,7 +201,7 @@
 
   grid::grid.newpage()
 
-  legend_height <- grid::unit(2, "lines")
+  legend_height <- grid::unit(legend_size * 0.35, "lines")
 
   grid::pushViewport(grid::viewport(
     layout = grid::grid.layout(
@@ -313,10 +315,10 @@
       row2 <- if (mid < n_items) paste(abbrev_map[(mid + 1):n_items], collapse = "  ") else ""
 
       grid::grid.text(row1, x = 0.5, y = 0.65,
-                     gp = grid::gpar(fontsize = 7, col = "#64748b"))
+                     gp = grid::gpar(fontsize = legend_size, col = "#64748b"))
       if (nzchar(row2)) {
         grid::grid.text(row2, x = 0.5, y = 0.35,
-                       gp = grid::gpar(fontsize = 7, col = "#64748b"))
+                       gp = grid::gpar(fontsize = legend_size, col = "#64748b"))
       }
       grid::popViewport()
     }

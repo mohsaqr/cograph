@@ -18,6 +18,8 @@ plot_simplicial(
   ring_color = "#F5A623",
   node_size = 22,
   label_size = 5,
+  label_color = NULL,
+  target_label_color = NULL,
   blob_alpha = 0.25,
   blob_colors = NULL,
   blob_linetype = NULL,
@@ -93,6 +95,17 @@ plot_simplicial(
 - label_size:
 
   Label text size.
+
+- label_color:
+
+  Source-node label color. `NULL` (default) picks black or white
+  automatically based on the luminance of `node_color` so labels stay
+  readable on any fill.
+
+- target_label_color:
+
+  Target-node label color. `NULL` (default) auto-contrasts against
+  `target_color`.
 
 - blob_alpha:
 

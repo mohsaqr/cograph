@@ -497,6 +497,8 @@
 - [`plot_mlna()`](https://sonsoles.me/cograph/reference/plot_mlna.md)
   [`mlna()`](https://sonsoles.me/cograph/reference/plot_mlna.md) :
   Multilevel Network Visualization
+- [`plot_motifs()`](https://sonsoles.me/cograph/reference/plot_motifs.md)
+  : Plot a motif/subgraph result
 - [`plot_mtna()`](https://sonsoles.me/cograph/reference/plot_mtna.md)
   [`mtna()`](https://sonsoles.me/cograph/reference/plot_mtna.md) :
   Multi-Cluster TNA Network Plot

@@ -308,6 +308,7 @@ as soplot() for consistency.</p>
 <span>  use_pch <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  usePCH <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  scaling <span class="op">=</span> <span class="st">"default"</span>,</span>
+<span>  align_panels <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  legend <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  legend_position <span class="op">=</span> <span class="st">"topright"</span>,</span>
 <span>  legend_size <span class="op">=</span> <span class="fl">0.8</span>,</span>
@@ -976,6 +977,20 @@ Set to 0 for no extra margin (tighter fit). Affects white space around nodes.</p
 <dt id="arg-scaling">scaling<a class="anchor" aria-label="anchor" href="#arg-scaling"></a></dt>
 <dd><p>Scaling mode: "default" for qgraph-matched scaling where node_size=6
 looks similar to qgraph vsize=6, or "legacy" to preserve pre-v2.0 behavior.</p></dd>
+
+
+<dt id="arg-align-panels">align_panels<a class="anchor" aria-label="anchor" href="#arg-align-panels"></a></dt>
+<dd><p>Logical. If <code>TRUE</code>, forces a uniform symmetric
+plot box (<code>c(-layout_scale, layout_scale)</code> on each axis) so two
+networks plotted side-by-side in a <code>par(mfrow)</code> grid render at
+identical absolute scales — useful for bootstrap panels, comparison
+grids with networks of different node counts, or any case where
+visual-size parity across panels matters more than canvas fill.
+Default <code>FALSE</code> uses dynamic, layout-driven bounds (the
+pre-2.1.x behaviour) which renders tighter on the canvas. The
+per-node loop-reservation pad in <code>compute_plot_limits</code> runs
+regardless, so networks with different self-loop patterns stay
+centered consistently in either mode.</p></dd>
 
 
 <dt id="arg-legend">legend<a class="anchor" aria-label="anchor" href="#arg-legend"></a></dt>

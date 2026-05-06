@@ -64,6 +64,8 @@ network layout. Source nodes are blue, target nodes are red.</p>
 <span>  ring_color <span class="op">=</span> <span class="st">"#F5A623"</span>,</span>
 <span>  node_size <span class="op">=</span> <span class="fl">22</span>,</span>
 <span>  label_size <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  label_color <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  target_label_color <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  blob_alpha <span class="op">=</span> <span class="fl">0.25</span>,</span>
 <span>  blob_colors <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  blob_linetype <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -144,6 +146,17 @@ pathways are ranked by count, HYPA by anomaly ratio.
 
 <dt id="arg-label-size">label_size<a class="anchor" aria-label="anchor" href="#arg-label-size"></a></dt>
 <dd><p>Label text size.</p></dd>
+
+
+<dt id="arg-label-color">label_color<a class="anchor" aria-label="anchor" href="#arg-label-color"></a></dt>
+<dd><p>Source-node label color. <code>NULL</code> (default)
+picks black or white automatically based on the luminance of
+<code>node_color</code> so labels stay readable on any fill.</p></dd>
+
+
+<dt id="arg-target-label-color">target_label_color<a class="anchor" aria-label="anchor" href="#arg-target-label-color"></a></dt>
+<dd><p>Target-node label color. <code>NULL</code>
+(default) auto-contrasts against <code>target_color</code>.</p></dd>
 
 
 <dt id="arg-blob-alpha">blob_alpha<a class="anchor" aria-label="anchor" href="#arg-blob-alpha"></a></dt>

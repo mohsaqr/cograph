@@ -41,11 +41,27 @@
 #' @param ring_color Donut ring color.
 #' @param node_size Node point size.
 #' @param label_size Label text size.
-#' @param label_color Source-node label color. \code{NULL} (default)
-#'   picks black or white automatically based on the luminance of
-#'   \code{node_color} so labels stay readable on any fill.
+#' @param label_color Label text color (default \code{"white"}).
+#'   Applied to both source and target labels unless
+#'   \code{target_label_color} overrides for targets.
 #' @param target_label_color Target-node label color. \code{NULL}
-#'   (default) auto-contrasts against \code{target_color}.
+#'   (default) reuses \code{label_color}.
+#' @param label_halo Logical. Draw a contrasting halo behind each
+#'   label so it stays readable on any fill — node disc, blob, or
+#'   the white canvas. Default \code{TRUE}. The halo is the only
+#'   reliable way to keep, e.g., white labels legible when
+#'   \code{node_color} is also light.
+#' @param label_halo_color Halo color. \code{NULL} (default)
+#'   auto-picks black or white based on the luminance of
+#'   \code{label_color}, so a white label gets a dark halo and vice
+#'   versa.
+#' @param label_halo_width Halo thickness in plot units. Default
+#'   \code{0.035}; raise for chunkier outlines, lower for subtler
+#'   ones, or set to \code{0} to disable without touching
+#'   \code{label_halo}.
+#' @param label_halo_alpha Halo opacity (0–1). Default \code{0.6}
+#'   reads as a soft glow rather than a hard outline; raise toward
+#'   \code{1} for sharper contrast on very busy backgrounds.
 #' @param blob_alpha Blob fill transparency.
 #' @param blob_colors Blob fill colors (recycled).
 #' @param blob_linetype Blob border line styles (recycled).
@@ -84,8 +100,12 @@ plot_simplicial <- function(x = NULL,
                             ring_color = "#F5A623",
                             node_size = 22,
                             label_size = 5,
-                            label_color = NULL,
+                            label_color = "white",
                             target_label_color = NULL,
+                            label_halo = TRUE,
+                            label_halo_color = NULL,
+                            label_halo_width = 0.035,
+                            label_halo_alpha = 0.6,
                             blob_alpha = 0.25,
                             blob_colors = NULL,
                             blob_linetype = NULL,
@@ -262,6 +282,10 @@ plot_simplicial <- function(x = NULL,
         grid_node_size, grid_label_size,
         label_color = label_color,
         target_label_color = target_label_color,
+        label_halo = label_halo,
+        label_halo_color = label_halo_color,
+        label_halo_width = label_halo_width,
+        label_halo_alpha = label_halo_alpha,
         show_title = FALSE
       )
       p + ggplot2::theme(plot.margin = ggplot2::margin(2, 2, 2, 2))
@@ -285,7 +309,11 @@ plot_simplicial <- function(x = NULL,
     blob_colors, blob_borders, blob_linetype, blob_alpha,
     blob_linewidth, blob_line_alpha, shadow, node_size, label_size, title,
     label_color = label_color,
-    target_label_color = target_label_color
+    target_label_color = target_label_color,
+    label_halo = label_halo,
+    label_halo_color = label_halo_color,
+    label_halo_width = label_halo_width,
+    label_halo_alpha = label_halo_alpha
   )
   print(p)
   invisible(p)
@@ -363,8 +391,12 @@ plot_simplicial <- function(x = NULL,
                                   blob_color, blob_border, blob_lty, blob_alpha,
                                   blob_linewidth, blob_line_alpha,
                                   shadow, node_size, label_size,
-                                  label_color = NULL,
+                                  label_color = "white",
                                   target_label_color = NULL,
+                                  label_halo = TRUE,
+                                  label_halo_color = NULL,
+                                  label_halo_width = 0.035,
+                                  label_halo_alpha = 0.6,
                                   show_title = TRUE) {
   name_to_idx <- setNames(seq_along(states), states)
   all_st <- unique(c(pw$source, pw$target))
@@ -385,7 +417,11 @@ plot_simplicial <- function(x = NULL,
   p <- .add_pathway_nodes(p, ndf, is_target, node_color, target_color,
                            ring_color, ring_border, node_size, label_size,
                            label_color = label_color,
-                           target_label_color = target_label_color)
+                           target_label_color = target_label_color,
+                           label_halo = label_halo,
+                           label_halo_color = label_halo_color,
+                           label_halo_width = label_halo_width,
+                           label_halo_alpha = label_halo_alpha)
   if (show_title) {
     src_lab <- vapply(pw$source, function(s) label_map[s], character(1),
                        USE.NAMES = FALSE)
@@ -405,8 +441,12 @@ plot_simplicial <- function(x = NULL,
                                      blob_linetypes, blob_alpha,
                                      blob_linewidth, blob_line_alpha,
                                      shadow, node_size, label_size, title,
-                                     label_color = NULL,
-                                     target_label_color = NULL) {
+                                     label_color = "white",
+                                     target_label_color = NULL,
+                                     label_halo = TRUE,
+                                     label_halo_color = NULL,
+                                     label_halo_width = 0.035,
+                                     label_halo_alpha = 0.6) {
   name_to_idx <- setNames(seq_along(states), states)
   p <- .blob_base_plot()
 
@@ -432,7 +472,11 @@ plot_simplicial <- function(x = NULL,
   p <- .add_pathway_nodes(p, pos, is_target, node_color, target_color,
                            ring_color, ring_border, node_size, label_size,
                            label_color = label_color,
-                           target_label_color = target_label_color)
+                           target_label_color = target_label_color,
+                           label_halo = label_halo,
+                           label_halo_color = label_halo_color,
+                           label_halo_width = label_halo_width,
+                           label_halo_alpha = label_halo_alpha)
 
   # Suppress the source/target legend when the caller has collapsed the
   # two-tone (e.g., net_association_rules, which has no source/target).

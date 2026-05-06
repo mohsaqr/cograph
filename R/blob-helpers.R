@@ -235,10 +235,16 @@
 .add_pathway_nodes <- function(p, ndf, is_target, node_color, target_color,
                                 ring_color, ring_border, node_size,
                                 label_size,
-                                label_color = NULL,
-                                target_label_color = NULL) {
-  src_text_color <- label_color %||% .contrasting_text_color(node_color)
-  tgt_text_color <- target_label_color %||% .contrasting_text_color(target_color)
+                                label_color = "white",
+                                target_label_color = NULL,
+                                label_halo = TRUE,
+                                label_halo_color = NULL,
+                                label_halo_width = 0.035,
+                                label_halo_alpha = 0.6) {
+  src_text_color <- label_color
+  tgt_text_color <- target_label_color %||% label_color
+  src_halo_color <- label_halo_color %||% .contrasting_text_color(src_text_color)
+  tgt_halo_color <- label_halo_color %||% .contrasting_text_color(tgt_text_color)
 
   ring_size <- node_size * 1.27
   p <- p + ggplot2::geom_point(
@@ -254,10 +260,9 @@
       fill = node_color, color = node_color,
       size = node_size, shape = 21, stroke = 0.5
     )
-    p <- p + ggplot2::geom_text(
-      data = src_df, ggplot2::aes(x = x, y = y, label = label),
-      color = src_text_color, fontface = "bold", size = label_size
-    )
+    p <- .add_text_with_halo(p, src_df, src_text_color, src_halo_color,
+                              label_size, label_halo, label_halo_width,
+                              label_halo_alpha)
   }
 
   tgt_df <- ndf[is_target, , drop = FALSE]
@@ -267,12 +272,41 @@
       fill = target_color, color = target_color,
       size = node_size, shape = 21, stroke = 0.5
     )
-    p <- p + ggplot2::geom_text(
-      data = tgt_df, ggplot2::aes(x = x, y = y, label = label),
-      color = tgt_text_color, fontface = "bold", size = label_size
-    )
+    p <- .add_text_with_halo(p, tgt_df, tgt_text_color, tgt_halo_color,
+                              label_size, label_halo, label_halo_width,
+                              label_halo_alpha)
   }
   p
+}
+
+#' Draw bold text with an optional contrasting halo for readability
+#'
+#' Stamps the text 8x at small offsets in \code{halo_color}, then the
+#' real text once on top in \code{color}. Eight directions is the
+#' minimum that reads as smooth at typical print sizes; four is
+#' visibly blocky.
+#' @noRd
+.add_text_with_halo <- function(p, data, color, halo_color,
+                                 size, halo = TRUE, halo_width = 0.035,
+                                 halo_alpha = 0.6) {
+  if (isTRUE(halo) && halo_width > 0 && halo_alpha > 0) {
+    angles <- seq(0, 2 * pi, length.out = 9L)[-9L]
+    halo_layers <- lapply(angles, function(a) {
+      d <- data
+      d$x <- d$x + halo_width * cos(a)
+      d$y <- d$y + halo_width * sin(a)
+      ggplot2::geom_text(
+        data = d, ggplot2::aes(x = x, y = y, label = label),
+        color = halo_color, fontface = "bold", size = size,
+        alpha = halo_alpha
+      )
+    })
+    p <- Reduce(`+`, halo_layers, init = p)
+  }
+  p + ggplot2::geom_text(
+    data = data, ggplot2::aes(x = x, y = y, label = label),
+    color = color, fontface = "bold", size = size
+  )
 }
 
 # =========================================================================

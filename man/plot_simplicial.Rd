@@ -16,6 +16,8 @@ plot_simplicial(
   ring_color = "#F5A623",
   node_size = 22,
   label_size = 5,
+  label_color = NULL,
+  target_label_color = NULL,
   blob_alpha = 0.25,
   blob_colors = NULL,
   blob_linetype = NULL,
@@ -71,6 +73,13 @@ pathways are ranked by count, HYPA by anomaly ratio.
 \item{node_size}{Node point size.}
 
 \item{label_size}{Label text size.}
+
+\item{label_color}{Source-node label color. \code{NULL} (default)
+picks black or white automatically based on the luminance of
+\code{node_color} so labels stay readable on any fill.}
+
+\item{target_label_color}{Target-node label color. \code{NULL}
+(default) auto-contrasts against \code{target_color}.}
 
 \item{blob_alpha}{Blob fill transparency.}
 

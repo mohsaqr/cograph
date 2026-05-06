@@ -16,8 +16,12 @@ plot_simplicial(
   ring_color = "#F5A623",
   node_size = 22,
   label_size = 5,
-  label_color = NULL,
+  label_color = "white",
   target_label_color = NULL,
+  label_halo = TRUE,
+  label_halo_color = NULL,
+  label_halo_width = 0.035,
+  label_halo_alpha = 0.6,
   blob_alpha = 0.25,
   blob_colors = NULL,
   blob_linetype = NULL,
@@ -74,12 +78,32 @@ pathways are ranked by count, HYPA by anomaly ratio.
 
 \item{label_size}{Label text size.}
 
-\item{label_color}{Source-node label color. \code{NULL} (default)
-picks black or white automatically based on the luminance of
-\code{node_color} so labels stay readable on any fill.}
+\item{label_color}{Label text color (default \code{"white"}).
+Applied to both source and target labels unless
+\code{target_label_color} overrides for targets.}
 
 \item{target_label_color}{Target-node label color. \code{NULL}
-(default) auto-contrasts against \code{target_color}.}
+(default) reuses \code{label_color}.}
+
+\item{label_halo}{Logical. Draw a contrasting halo behind each
+label so it stays readable on any fill — node disc, blob, or
+the white canvas. Default \code{TRUE}. The halo is the only
+reliable way to keep, e.g., white labels legible when
+\code{node_color} is also light.}
+
+\item{label_halo_color}{Halo color. \code{NULL} (default)
+auto-picks black or white based on the luminance of
+\code{label_color}, so a white label gets a dark halo and vice
+versa.}
+
+\item{label_halo_width}{Halo thickness in plot units. Default
+\code{0.035}; raise for chunkier outlines, lower for subtler
+ones, or set to \code{0} to disable without touching
+\code{label_halo}.}
+
+\item{label_halo_alpha}{Halo opacity (0–1). Default \code{0.6}
+reads as a soft glow rather than a hard outline; raise toward
+\code{1} for sharper contrast on very busy backgrounds.}
 
 \item{blob_alpha}{Blob fill transparency.}
 

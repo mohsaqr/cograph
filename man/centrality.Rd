@@ -207,7 +207,8 @@ the user passes explicitly always wins over \code{tna_network}.}
 network conventions. \code{NULL} (default) auto-detects TRUE when a
 signed weighted network is evaluated with expected-influence measures.
 When \code{TRUE}, normalized expected influence is divided by
-\code{max(abs(x))}, preserving sign and bounding the result to [-1, 1].
+\code{max(abs(x))}, preserving sign and bounding the result from
+-1 to 1.
 \code{FALSE} keeps the generic cograph normalization convention.}
 
 \item{...}{Additional arguments (currently unused)}

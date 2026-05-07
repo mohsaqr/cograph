@@ -34,6 +34,18 @@
 #' @param max_pathways Maximum number of pathways to display. HON
 #'   pathways are ranked by count, HYPA by anomaly ratio.
 #'   \code{NULL} shows all. Default \code{10}.
+#' @param pathway_index Optional positive integer vector selecting
+#'   ranked pathways after extraction and ranking, before
+#'   \code{max_pathways} is applied. For example, \code{2} plots the
+#'   second-ranked pathway and \code{2:4} plots pathways ranked second
+#'   through fourth.
+#' @param anomaly HYPA anomaly type to display when plotting a
+#'   \code{net_hypa} object or auto-building HYPA pathways via
+#'   \code{method = "hypa"}. One of \code{"all"}, \code{"over"}, or
+#'   \code{"under"}. Default \code{"all"}. Ignored (with a warning) for
+#'   non-HYPA inputs such as \code{net_hon}, \code{net_association_rules},
+#'   \code{net_link_prediction}, character pathway vectors, or
+#'   \code{method = "hon"} / \code{"rules"}, which have no anomaly concept.
 #' @param layout \code{"circle"} (default) or a coordinate matrix.
 #' @param labels Display labels. \code{NULL} uses state names.
 #' @param node_color Source node fill color.
@@ -95,6 +107,8 @@ plot_simplicial <- function(x = NULL,
                             pathways = NULL,
                             method = "hon",
                             max_pathways = 10L,
+                            pathway_index = NULL,
+                            anomaly = c("all", "over", "under"),
                             layout = "circle",
                             labels = NULL,
                             node_color = "#4A7FB5",
@@ -118,6 +132,9 @@ plot_simplicial <- function(x = NULL,
                             dismantled = FALSE,
                             ncol = NULL,
                             ...) {
+  anomaly_explicit <- !missing(anomaly)
+  anomaly <- match.arg(anomaly)
+  hypa_used <- FALSE
 
   # Build label map for numeric ID -> label translation
   label_map <- .build_hon_label_map(x)
@@ -131,7 +148,9 @@ plot_simplicial <- function(x = NULL,
       return(invisible(NULL))
     }
   } else if (inherits(pathways, "net_hypa")) {
-    pathways <- .extract_hypa_pathways(pathways, label_map = label_map)
+    hypa_used <- TRUE
+    pathways <- .extract_hypa_pathways(pathways, type = anomaly,
+                                       label_map = label_map)
     if (length(pathways) == 0L) {
       message("No anomalous pathways found in HYPA object.")
       return(invisible(NULL))
@@ -170,7 +189,9 @@ plot_simplicial <- function(x = NULL,
       }
       x <- NULL
     } else if (inherits(x, "net_hypa")) {
-      pathways <- .extract_hypa_pathways(x, label_map = label_map)
+      hypa_used <- TRUE
+      pathways <- .extract_hypa_pathways(x, type = anomaly,
+                                         label_map = label_map)
       if (length(pathways) == 0L) {
         message("No anomalous pathways found in HYPA object.")
         return(invisible(NULL))
@@ -202,7 +223,8 @@ plot_simplicial <- function(x = NULL,
           return(invisible(NULL))
         }
       } else if (method == "hypa") {
-        pathways <- .extract_hypa_pathways(ho_obj)
+        hypa_used <- TRUE
+        pathways <- .extract_hypa_pathways(ho_obj, type = anomaly)
         if (length(pathways) == 0L) {
           message("No anomalous pathways found.")
           return(invisible(NULL))
@@ -221,6 +243,27 @@ plot_simplicial <- function(x = NULL,
            "net_hon, net_hypa, net_association_rules, or net_link_prediction ",
            "object.", call. = FALSE)
     }
+  }
+
+  if (anomaly_explicit && !hypa_used) {
+    warning("'anomaly' only applies to HYPA pathways; ignored for this input.",
+            call. = FALSE)
+  }
+
+  if (!is.null(pathway_index) && is.character(pathways)) {
+    if (!is.numeric(pathway_index) || anyNA(pathway_index) ||
+        any(pathway_index < 1L) ||
+        any(pathway_index != as.integer(pathway_index))) {
+      stop("'pathway_index' must be a positive integer vector.", call. = FALSE)
+    }
+    if (max(pathway_index) > length(pathways)) {
+      stop(sprintf(
+        "'pathway_index' requested rank %d, but only %d pathway%s available.",
+        max(pathway_index), length(pathways),
+        if (length(pathways) == 1L) "" else "s"
+      ), call. = FALSE)
+    }
+    pathways <- pathways[as.integer(pathway_index)]
   }
 
   # Limit number of pathways

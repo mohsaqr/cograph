@@ -285,6 +285,50 @@ test_that("plot_simplicial(hypa) auto-extracts anomalous paths", {
   expect_s3_class(p, "ggplot")
 })
 
+test_that("plot_simplicial(hypa) forwards anomaly filter", {
+  hypa <- create_mock_net_hypa()
+  old_seen <- getOption("cograph_seen_hypa_type")
+  on.exit(options(cograph_seen_hypa_type = old_seen), add = TRUE)
+  trace(cograph:::.extract_hypa_pathways,
+        tracer = quote(options(cograph_seen_hypa_type = type)),
+        print = FALSE)
+  on.exit(untrace(cograph:::.extract_hypa_pathways), add = TRUE)
+
+  expect_no_error(
+    p <- with_temp_png(plot_simplicial(hypa, anomaly = "under"))
+  )
+  expect_s3_class(p, "ggplot")
+  expect_equal(getOption("cograph_seen_hypa_type"), "under")
+})
+
+test_that("plot_simplicial warns when 'anomaly' is set on non-HYPA input", {
+  hon <- create_mock_net_hon()
+  expect_warning(
+    p_over <- with_temp_png(plot_simplicial(hon, anomaly = "over")),
+    "anomaly.*only applies to HYPA"
+  )
+  expect_warning(
+    p_under <- with_temp_png(plot_simplicial(hon, anomaly = "under")),
+    "anomaly.*only applies to HYPA"
+  )
+  expect_s3_class(p_over, "ggplot")
+  expect_s3_class(p_under, "ggplot")
+
+  # No warning when anomaly is left at default
+  expect_no_warning(
+    p_default <- with_temp_png(plot_simplicial(hon))
+  )
+  expect_s3_class(p_default, "ggplot")
+})
+
+test_that("plot_simplicial does not warn when 'anomaly' is set on HYPA input", {
+  hypa <- create_mock_net_hypa()
+  expect_no_warning(
+    p <- with_temp_png(plot_simplicial(hypa, anomaly = "over"))
+  )
+  expect_s3_class(p, "ggplot")
+})
+
 test_that("plot_simplicial returns NULL for HYPA without anomalies", {
   hypa <- create_mock_net_hypa(has_anomalies = FALSE)
   expect_message(

@@ -141,7 +141,8 @@
 #'   network conventions. \code{NULL} (default) auto-detects TRUE when a
 #'   signed weighted network is evaluated with expected-influence measures.
 #'   When \code{TRUE}, normalized expected influence is divided by
-#'   \code{max(abs(x))}, preserving sign and bounding the result to [-1, 1].
+#'   \code{max(abs(x))}, preserving sign and bounding the result from
+#'   -1 to 1.
 #'   \code{FALSE} keeps the generic cograph normalization convention.
 #' @param hubbell_weight Weight factor \eqn{w} for Hubbell centrality. Must
 #'   satisfy \eqn{w \cdot \rho(W) \le 1} for solvability. Default 0.5. Only
@@ -572,16 +573,9 @@ centrality <- function(x, type = c("basic", "extended", "all"),
   df
 }
 
-#' Calculate diffusion centrality (vectorized)
-#'
-#' Fast vectorized implementation of diffusion degree centrality.
-#' For each node, sums the scaled degrees of itself and its neighbors.
-#'
-#' @param g igraph object
-#' @param mode "all", "in", or "out" for directed graphs
-#' @param lambda Scaling factor applied to degrees. Default 1.
-#' @return Numeric vector of diffusion centrality values
-#' @noRd
+# Calculate diffusion centrality (vectorized). For each node, sums the
+# scaled degrees of itself and its neighbors.
+
 #' Calculate Onnela-style weighted clustering coefficient (matches tna)
 #'
 #' Implements `wcc(x + t(x))` per the formula used by `tna::centralities(.,

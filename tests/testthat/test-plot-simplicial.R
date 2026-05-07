@@ -510,6 +510,65 @@ test_that("plot_simplicial sorts data.frame pathways by count when present", {
   expect_match(extracted[1L], "B C -> A", fixed = TRUE)
 })
 
+test_that("plot_simplicial pathway_index selects explicit pathway ranks", {
+  mat <- matrix(0.1, 4, 4, dimnames = list(LETTERS[1:4], LETTERS[1:4]))
+  expect_no_error(with_temp_png(
+    plot_simplicial(
+      mat,
+      pathways = c("A -> B -> C", "B -> C -> D", "A -> C -> D"),
+      pathway_index = 2L,
+      max_pathways = 1,
+      shadow = FALSE
+    )
+  ))
+})
+
+test_that("plot_simplicial pathway_index accepts ranges", {
+  mat <- matrix(0.1, 4, 4, dimnames = list(LETTERS[1:4], LETTERS[1:4]))
+  expect_no_error(with_temp_png(
+    plot_simplicial(
+      mat,
+      pathways = c("A -> B -> C", "B -> C -> D", "A -> C -> D"),
+      pathway_index = 2:3,
+      max_pathways = NULL,
+      dismantled = TRUE,
+      shadow = FALSE
+    )
+  ))
+})
+
+test_that("plot_simplicial pathway_index applies after data.frame ranking", {
+  mat <- matrix(0.1, 4, 4, dimnames = list(LETTERS[1:4], LETTERS[1:4]))
+  pw_df <- data.frame(
+    path = c("A -> B -> C", "B -> C -> D", "A -> C -> D"),
+    count = c(5L, 100L, 10L),
+    stringsAsFactors = FALSE
+  )
+  expect_no_error(with_temp_png(
+    plot_simplicial(
+      mat,
+      pathways = pw_df,
+      pathway_index = 2L,
+      max_pathways = 1,
+      shadow = FALSE
+    )
+  ))
+})
+
+test_that("plot_simplicial pathway_index validates bounds and integers", {
+  mat <- matrix(0.1, 3, 3, dimnames = list(c("A", "B", "C"), c("A", "B", "C")))
+  expect_error(
+    plot_simplicial(mat, pathways = c("A -> B -> C"), pathway_index = 2L),
+    "only 1 pathway available",
+    fixed = TRUE
+  )
+  expect_error(
+    plot_simplicial(mat, pathways = c("A -> B -> C"), pathway_index = 1.5),
+    "positive integer vector",
+    fixed = TRUE
+  )
+})
+
 test_that("plot_simplicial handles a data.frame with no count column", {
   mat <- matrix(0.1, 3, 3, dimnames = list(c("A", "B", "C"), c("A", "B", "C")))
   pw_df <- data.frame(

@@ -356,6 +356,7 @@
 #' @return Character vector of pathway strings.
 #' @noRd
 .extract_hypa_pathways <- function(x, type = "all", label_map = NULL) {
+  type <- match.arg(type, c("all", "over", "under"))
   scores <- x$scores
   if (type == "all") {
     anom <- scores[scores$anomaly != "normal", , drop = FALSE]
@@ -364,7 +365,11 @@
   }
   if (nrow(anom) == 0L) return(character(0))
   if ("ratio" %in% names(anom)) {
-    anom <- anom[order(-anom$ratio), , drop = FALSE]
+    if (type == "under") {
+      anom <- anom[order(anom$ratio), , drop = FALSE]
+    } else {
+      anom <- anom[order(-anom$ratio), , drop = FALSE]
+    }
   }
   vapply(anom$path, function(p) {
     parts <- trimws(strsplit(p, "->", fixed = TRUE)[[1]])

@@ -11,6 +11,8 @@ plot_simplicial(
   pathways = NULL,
   method = "hon",
   max_pathways = 10L,
+  pathway_index = NULL,
+  anomaly = c("all", "over", "under"),
   layout = "circle",
   labels = NULL,
   node_color = "#4A7FB5",
@@ -71,6 +73,22 @@ plot_simplicial(
 
   Maximum number of pathways to display. HON pathways are ranked by
   count, HYPA by anomaly ratio. `NULL` shows all. Default `10`.
+
+- pathway_index:
+
+  Optional positive integer vector selecting ranked pathways after
+  extraction and ranking, before `max_pathways` is applied. For example,
+  `2` plots the second-ranked pathway and `2:4` plots pathways ranked
+  second through fourth.
+
+- anomaly:
+
+  HYPA anomaly type to display when plotting a `net_hypa` object or
+  auto-building HYPA pathways via `method = "hypa"`. One of `"all"`,
+  `"over"`, or `"under"`. Default `"all"`. Ignored (with a warning) for
+  non-HYPA inputs such as `net_hon`, `net_association_rules`,
+  `net_link_prediction`, character pathway vectors, or `method = "hon"`
+  / `"rules"`, which have no anomaly concept.
 
 - layout:
 

@@ -45,6 +45,11 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.1.9" id="cograph-219">cograph 2.1.9<a class="anchor" aria-label="anchor" href="#cograph-219"></a></h2>
 <div class="section level3">
+<h3 id="bug-fixes-2-1-9">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-1-9"></a></h3>
+<ul><li>
+<code><a href="../reference/plot_simplicial.html">plot_simplicial()</a></code> now warns when <code>anomaly</code> is set on an input that has no anomaly concept (HON, association rules, link prediction, character pathways, <code>method = "hon"</code> / <code>"rules"</code>). Previously the argument was silently dropped, so calls like <code>plot_simplicial(hon, anomaly = "over")</code> and <code>plot_simplicial(hon, anomaly = "under")</code> produced byte-identical plots. <code>anomaly</code> is honored only for <code>net_hypa</code> inputs and <code>method = "hypa"</code> auto-builds.</li>
+</ul></div>
+<div class="section level3">
 <h3 id="centrality-2-1-9">Centrality<a class="anchor" aria-label="anchor" href="#centrality-2-1-9"></a></h3>
 <ul><li>
 <code><a href="../reference/centrality.html">centrality()</a></code> gains an umbrella argument <code>tna_network</code> (logical or NULL). When <code>TRUE</code> (or auto-detected from a <code>tna</code>/<code>group_tna</code>/<code>ctna</code>/ <code>ftna</code>/<code>atna</code> input), all measures shared with <code><a href="http://sonsoles.me/tna/reference/centralities.html" class="external-link">tna::centralities()</a></code> match byte-for-byte: <code>loops = FALSE</code>, <code>invert_weights = TRUE</code>, <code>diffusion_method = "power_series"</code>, <code>transitivity_type = "onnela"</code>. Side-by-side audit confirms zero divergence on <code>OutStrength</code>, <code>InStrength</code>, <code>ClosenessIn/Out/All</code>, <code>Betweenness</code>, <code>Diffusion</code>, <code>Clustering</code> (<code>max|diff| = 0</code>). Any per-argument override the user passes explicitly always wins over the umbrella.</li>

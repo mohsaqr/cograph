@@ -280,7 +280,7 @@ centrality(
   `NULL` (default) auto-detects TRUE when a signed weighted network is
   evaluated with expected-influence measures. When `TRUE`, normalized
   expected influence is divided by `max(abs(x))`, preserving sign and
-  bounding the result to \[-1, 1\]. `FALSE` keeps the generic cograph
+  bounding the result from -1 to 1. `FALSE` keeps the generic cograph
   normalization convention.
 
 - ...:

@@ -57,6 +57,8 @@ network layout. Source nodes are blue, target nodes are red.</p>
 <span>  pathways <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  method <span class="op">=</span> <span class="st">"hon"</span>,</span>
 <span>  max_pathways <span class="op">=</span> <span class="fl">10L</span>,</span>
+<span>  pathway_index <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  anomaly <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"all"</span>, <span class="st">"over"</span>, <span class="st">"under"</span><span class="op">)</span>,</span>
 <span>  layout <span class="op">=</span> <span class="st">"circle"</span>,</span>
 <span>  labels <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  node_color <span class="op">=</span> <span class="st">"#4A7FB5"</span>,</span>
@@ -122,6 +124,24 @@ single-colored blobs because itemsets are undirected).</p></dd>
 <dd><p>Maximum number of pathways to display. HON
 pathways are ranked by count, HYPA by anomaly ratio.
 <code>NULL</code> shows all. Default <code>10</code>.</p></dd>
+
+
+<dt id="arg-pathway-index">pathway_index<a class="anchor" aria-label="anchor" href="#arg-pathway-index"></a></dt>
+<dd><p>Optional positive integer vector selecting
+ranked pathways after extraction and ranking, before
+<code>max_pathways</code> is applied. For example, <code>2</code> plots the
+second-ranked pathway and <code>2:4</code> plots pathways ranked second
+through fourth.</p></dd>
+
+
+<dt id="arg-anomaly">anomaly<a class="anchor" aria-label="anchor" href="#arg-anomaly"></a></dt>
+<dd><p>HYPA anomaly type to display when plotting a
+<code>net_hypa</code> object or auto-building HYPA pathways via
+<code>method = "hypa"</code>. One of <code>"all"</code>, <code>"over"</code>, or
+<code>"under"</code>. Default <code>"all"</code>. Ignored (with a warning) for
+non-HYPA inputs such as <code>net_hon</code>, <code>net_association_rules</code>,
+<code>net_link_prediction</code>, character pathway vectors, or
+<code>method = "hon"</code> / <code>"rules"</code>, which have no anomaly concept.</p></dd>
 
 
 <dt id="arg-layout">layout<a class="anchor" aria-label="anchor" href="#arg-layout"></a></dt>

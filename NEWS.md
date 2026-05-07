@@ -1,5 +1,16 @@
 # cograph 2.1.9
 
+## Bug fixes
+
+- `plot_simplicial()` now warns when `anomaly` is set on an input that
+  has no anomaly concept (HON, association rules, link prediction,
+  character pathways, `method = "hon"` / `"rules"`). Previously the
+  argument was silently dropped, so calls like
+  `plot_simplicial(hon, anomaly = "over")` and
+  `plot_simplicial(hon, anomaly = "under")` produced byte-identical
+  plots. `anomaly` is honored only for `net_hypa` inputs and
+  `method = "hypa"` auto-builds.
+
 ## Centrality
 
 - `centrality()` gains an umbrella argument `tna_network` (logical or

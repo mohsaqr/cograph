@@ -9,6 +9,8 @@ plot_simplicial(
   pathways = NULL,
   method = "hon",
   max_pathways = 10L,
+  pathway_index = NULL,
+  anomaly = c("all", "over", "under"),
   layout = "circle",
   labels = NULL,
   node_color = "#4A7FB5",
@@ -63,6 +65,20 @@ single-colored blobs because itemsets are undirected).}
 \item{max_pathways}{Maximum number of pathways to display. HON
 pathways are ranked by count, HYPA by anomaly ratio.
 \code{NULL} shows all. Default \code{10}.}
+
+\item{pathway_index}{Optional positive integer vector selecting
+ranked pathways after extraction and ranking, before
+\code{max_pathways} is applied. For example, \code{2} plots the
+second-ranked pathway and \code{2:4} plots pathways ranked second
+through fourth.}
+
+\item{anomaly}{HYPA anomaly type to display when plotting a
+\code{net_hypa} object or auto-building HYPA pathways via
+\code{method = "hypa"}. One of \code{"all"}, \code{"over"}, or
+\code{"under"}. Default \code{"all"}. Ignored (with a warning) for
+non-HYPA inputs such as \code{net_hon}, \code{net_association_rules},
+\code{net_link_prediction}, character pathway vectors, or
+\code{method = "hon"} / \code{"rules"}, which have no anomaly concept.}
 
 \item{layout}{\code{"circle"} (default) or a coordinate matrix.}
 

@@ -173,10 +173,9 @@ values: \code{"circle"}, \code{"square"}, \code{"diamond"},
 character vector of length equal to the number of nodes (one shape
 per node). Default \code{"circle"}.}
 
-\item{cluster_shape}{Shape for summary nodes in the top layer. Same
-supported values as \code{node_shape}. Can be a single value or a
-vector of length equal to the number of clusters. Default
-\code{"circle"}.}
+\item{cluster_shape}{Accepted for backward compatibility. Summary nodes
+are currently drawn as pie charts, so this parameter does not change
+their shape.}
 
 \item{title}{Main plot title displayed above the figure. Default
 \code{NULL} (no title).}
@@ -310,8 +309,8 @@ Default 2.}
 \item{label_color}{Text color for detail node labels. Default
 \code{"gray20"}.}
 
-\item{label_position}{Position of detail node labels: 1 = below,
-2 = left, 3 = above, 4 = right. Default 3.}
+\item{label_position}{Accepted for backward compatibility. Detail labels
+are currently positioned automatically to the left or right of each node.}
 
 \item{...}{Additional arguments (currently unused).}
 }
@@ -417,7 +416,7 @@ Cluster spacing / perspective  \tab \code{spacing}, \code{skew_angle} \cr
 Cluster shell appearance       \tab \code{shape_size}, \code{shell_alpha}, \code{shell_border_width}, \code{colors} \cr
 Detail nodes                   \tab \code{node_size}, \code{node_shape}, \code{node_border_color} \cr
 Detail labels                  \tab \code{show_labels}, \code{label_size}, \code{label_abbrev}, \code{label_color}, \code{label_position} \cr
-Summary nodes                  \tab \code{summary_size}, \code{cluster_shape}, \code{summary_border_color}, \code{summary_border_width} \cr
+Summary nodes                  \tab \code{summary_size}, \code{summary_border_color}, \code{summary_border_width} \cr
 Summary labels                 \tab \code{summary_labels}, \code{summary_label_size}, \code{summary_label_color}, \code{summary_label_position} \cr
 Within-cluster edges           \tab \code{edge_width_range}, \code{edge_alpha}, \code{edge_labels} \cr
 Between-cluster edges          \tab \code{between_edge_width_range}, \code{between_edge_alpha} \cr

@@ -63,8 +63,8 @@ Default \code{"#800020"} (maroon).}
 \item{...}{Additional arguments (unused).}
 }
 \value{
-Invisibly returns NULL for triad plots, or a ggplot2 object for
-types/significance/patterns plots.
+Invisibly returns NULL for triad and pattern plots, or a ggplot2
+object for types and significance plots.
 }
 \description{
 Create visualizations for motif analysis results including network diagrams

@@ -30,7 +30,8 @@ Default 1.}
 \item{...}{Additional arguments passed to \code{\link{to_igraph}}}
 }
 \value{
-Numeric in [0, 1]: global efficiency
+Numeric global efficiency. For unweighted simple graphs this is in
+\eqn{[0, 1]}; weighted graphs can exceed 1 when edge distances are below 1.
 }
 \description{
 Computes the global efficiency of a network - the average of the inverse

@@ -51,7 +51,7 @@ draw_donut(
 
 \item{bg_color}{Background color for unfilled portion. Default "gray90".}
 
-\item{show_value}{Logical: show value in center? Default FALSE.}
+\item{show_value}{Logical: show value in center? Default TRUE.}
 
 \item{value_size}{Font size for center value.}
 

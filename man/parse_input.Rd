@@ -7,12 +7,18 @@
 parse_input(input, directed = NULL, simplify = FALSE)
 }
 \arguments{
-\item{input}{Network input: matrix, data.frame (edge list), or igraph object.}
+\item{input}{Network input: matrix, data.frame (edge list), igraph, statnet
+network, qgraph, tna, or an already-parsed list with an \code{edges}
+component.}
 
 \item{directed}{Logical. Force directed interpretation. NULL for auto-detect.}
+
+\item{simplify}{Logical or character. Passed to \code{parse_tna()} for tna
+inputs.}
 }
 \value{
-List with nodes, edges, directed, and weights components.
+List with parsed network components, usually including nodes, edges,
+directed, and weight information.
 }
 \description{
 Automatically detects input type and converts to internal format.

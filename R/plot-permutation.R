@@ -98,6 +98,10 @@ plot_permutation <- function(x,
 
   # Build args list
   args <- list(...)
+  edge_labels_user <- "edge_labels" %in% names(args)
+  labels_enabled <- !identical(args$edge_labels, FALSE)
+  template_labels <- !is.null(args$edge_label_template) ||
+    (!is.null(args$edge_label_style) && !identical(args$edge_label_style, "none"))
 
   # Translate qgraph-style vsize to node_size
   if (!is.null(args$vsize) && is.null(args$node_size)) {
@@ -215,8 +219,18 @@ plot_permutation <- function(x,
     args$edge_label_fontface <- 2  # bold
   }
 
-  # Build custom edge labels with optional effect size
-  if (n_edges > 0 && (show_stars || show_effect)) {
+  if (labels_enabled && n_edges > 0 && !is.null(p_matrix)) {
+    args$edge_label_p <- p_matrix[edge_idx]
+    if (template_labels && show_stars) {
+      args$edge_label_stars <- TRUE
+    }
+  }
+
+  # Build custom edge labels with optional effect size. Leave explicit label
+  # vectors/templates alone so users can show p-values or suppress labels.
+  if (labels_enabled && !template_labels && n_edges > 0 &&
+      (show_stars || show_effect) &&
+      (!edge_labels_user || isTRUE(args$edge_labels))) {
     edge_labels_custom <- character(n_edges)
 
     for (k in seq_len(n_edges)) {
@@ -280,7 +294,8 @@ plot_permutation <- function(x,
 #' @param i Index or name of specific comparison to plot. NULL for all.
 #' @param ... Additional arguments passed to plot_permutation().
 #'
-#' @return Invisibly returns NULL.
+#' @return When \code{i} is supplied, returns the selected permutation plot.
+#'   Otherwise invisibly returns \code{NULL} after drawing all panels.
 #'
 #' @examples
 #' # Mock a group_tna_permutation object
@@ -385,6 +400,10 @@ splot.net_permutation <- function(x,
 
   weights_display <- if (show_nonsig) diffs_true else diffs_sig
   args            <- list(...)
+  edge_labels_user <- "edge_labels" %in% names(args)
+  labels_enabled <- !identical(args$edge_labels, FALSE)
+  template_labels <- !is.null(args$edge_label_template) ||
+    (!is.null(args$edge_label_style) && !identical(args$edge_label_style, "none"))
 
   # Translate qgraph-style vsize to node_size
   if (!is.null(args$vsize) && is.null(args$node_size)) {
@@ -460,7 +479,16 @@ splot.net_permutation <- function(x,
     args$edge_label_fontface <- 2
   }
 
-  if (n_edges > 0 && (show_stars || show_effect)) {
+  if (labels_enabled && n_edges > 0 && !is.null(p_matrix)) {
+    args$edge_label_p <- p_matrix[edge_idx]
+    if (template_labels && show_stars) {
+      args$edge_label_stars <- TRUE
+    }
+  }
+
+  if (labels_enabled && !template_labels && n_edges > 0 &&
+      (show_stars || show_effect) &&
+      (!edge_labels_user || isTRUE(args$edge_labels))) {
     edge_labels_custom <- character(n_edges)
     for (k in seq_len(n_edges)) {
       i  <- edge_idx[k, 1]; j <- edge_idx[k, 2]

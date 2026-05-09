@@ -136,8 +136,9 @@ tna_color_palette <- function(n_states) {
 #' node labels, and initial state probabilities (\code{inits}) are mapped to
 #' \code{donut_fill} values to visualize starting state distributions.
 #'
-#' TNA networks are always treated as directed because transition matrices
-#' represent directional state changes.
+#' Directedness is read from the tna object when available; otherwise it is
+#' inferred from matrix symmetry. Transition matrices are usually directed,
+#' while symmetric co-occurrence matrices are treated as undirected.
 #'
 #' The default \code{donut_inner_ratio} of 0.8 creates thin rings that
 #' effectively visualize probability values without obscuring node labels.
@@ -156,13 +157,15 @@ tna_color_palette <- function(n_states) {
 #'   \item \code{layout = "oval"}: Oval/elliptical node arrangement
 #'   \item \code{node_fill}: Colors from TNA palette (Accent/Set3 based on state count)
 #'   \item \code{node_size = 7}: Larger nodes for readability
-#'   \item \code{arrow_size = 0.61}: Prominent directional arrows
+#'   \item \code{arrow_size = 0.61}: Prominent directional arrows for directed
+#'     networks
 #'   \item \code{edge_color = "#003355"}: Dark blue edges
 #'   \item \code{edge_labels = TRUE}: Show transition weights on edges
 #'   \item \code{edge_label_size = 0.4}: Readable edge labels
 #'   \item \code{edge_label_position = 0.7}: Labels positioned toward target
-#'   \item \code{edge_start_style = "dotted"}: Dotted line at edge source
-#'   \item \code{edge_start_length = 0.2}: 20% of edge is dotted
+#'   \item \code{edge_start_style = "dotted"}: Dotted line at edge source for
+#'     directed networks
+#'   \item \code{edge_start_length = 0.2}: 20% of directed edges are dotted
 #' }
 #'
 #' @return Invisibly, a named list of cograph parameters that can be passed to
@@ -293,7 +296,8 @@ from_tna <- function(tna_object, engine = c("splot", "soplot"), plot = TRUE,
 #' \itemize{
 #'   \item \code{labels}/\code{names} \code{->} \code{labels}
 #'   \item \code{color} \code{->} \code{node_fill}
-#'   \item \code{width} \code{->} \code{node_size} (scaled by 1.3x)
+#'   \item \code{width} \code{->} \code{node_size} (scaled by 1.3x) when
+#'     \code{preserve_node_size = TRUE}
 #'   \item \code{shape} \code{->} \code{node_shape} (mapped to cograph equivalents)
 #'   \item \code{border.color} \code{->} \code{node_border_color}
 #'   \item \code{border.width} \code{->} \code{node_border_width}

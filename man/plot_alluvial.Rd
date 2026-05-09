@@ -71,11 +71,16 @@ use a vector of titles (e.g., c("T1", "T2", "T3", "T4")).}
 
 \item{to_colors}{Colors for right-side nodes. Default uses palette.}
 
-\item{flow_fill}{Fill color for flows. Default "#888888" (grey). Ignored if flow_color_by is set.}
+\item{flow_fill}{Fill color for flows. Default "#888888" (grey). In
+multi-step and individual-tracking plots, ignored when \code{flow_color_by}
+is set; simple two-column aggregate plots use \code{flow_fill}.}
 
 \item{flow_alpha}{Alpha transparency for flows. Default 0.4.}
 
-\item{flow_color_by}{Color flows by "source", "destination", or NULL (use flow_fill). Default NULL.}
+\item{flow_color_by}{Color flows by state. For multi-step aggregate flows,
+use \code{"source"} or \code{"destination"}; for individual trajectories,
+\code{"first"} and \code{"last"} are also supported. Default NULL uses
+\code{flow_fill}; simple two-column aggregate plots ignore this argument.}
 
 \item{flow_border}{Border color for flows. Default NA (no border).}
 
@@ -89,24 +94,31 @@ use a vector of titles (e.g., c("T1", "T2", "T3", "T4")).}
 
 \item{label_size}{Size of node labels. Default 3.5.}
 
-\item{label_position}{Position of node labels: "beside" (default), "inside", "above", "below", "outside".
-Applied to first and last columns. See \code{mid_label_position} for middle columns.}
+\item{label_position}{Position of node labels: "beside" (default),
+"inside", "above", "below", or "outside".}
 
 \item{label_halo}{Logical: add white halo around labels for readability? Default TRUE.}
 
-\item{label_color}{Color of state name labels. Default "black".}
+\item{label_color}{Color of state name labels. Default "black". Applied to
+multi-step and individual-tracking plots; simple two-column aggregate plots
+use black external labels and white inside labels.}
 
 \item{label_fontface}{Font face of state name labels ("plain", "bold", "italic",
-"bold.italic"). Default "plain".}
+"bold.italic"). Default "plain". Applied to multi-step and
+individual-tracking plots; simple two-column aggregate plots use fixed
+label font faces.}
 
 \item{label_nudge}{Distance between node edge and label (in plot units).
-Default 0.02. Increase for more spacing.}
+Default 0.02. Used by multi-step and individual-tracking plots.}
 
 \item{title_size}{Size of column titles. Default 5.}
 
-\item{title_color}{Color of column title text. Default "black".}
+\item{title_color}{Color of column title text. Default "black". Applied to
+multi-step and individual-tracking plots; simple two-column aggregate plots
+use black titles.}
 
-\item{title_fontface}{Font face of column titles. Default "bold".}
+\item{title_fontface}{Font face of column titles. Default "bold". Applied to
+multi-step and individual-tracking plots.}
 
 \item{curve_strength}{Controls bezier curve shape (0-1). Default 0.6.}
 
@@ -120,15 +132,18 @@ Default 0.02. Increase for more spacing.}
 \item{value_color}{Color of value labels. Default "black".}
 
 \item{value_halo}{Logical: add halo around flow value labels? Default NULL
-(inherits from \code{label_halo}).}
+(inherits from \code{label_halo}). Applied to multi-step and
+individual-tracking plots.}
 
-\item{value_fontface}{Font face of flow value labels. Default "bold".}
+\item{value_fontface}{Font face of flow value labels. Default "bold".
+Applied to multi-step and individual-tracking plots.}
 
 \item{value_nudge}{Distance of value labels from node edge when using
 "origin" or "destination" positions. Default 0.03.}
 
-\item{value_min}{Minimum count to show a flow value label. Default 0 (show all).
-Use to hide small flows (e.g., \code{value_min = 100}).}
+\item{value_min}{Minimum count to show a flow value label in multi-step and
+individual-tracking plots. Default 0 (show all). Simple two-column
+aggregate plots show all nonzero value labels when \code{show_values = TRUE}.}
 
 \item{show_totals}{Logical: show total counts on nodes? Default FALSE.}
 
@@ -150,8 +165,9 @@ removed. Combined with \code{min_flow}: effective minimum is
 \item{value_digits}{Number of decimal places for flow value labels and node
 totals. Default 2.}
 
-\item{column_gap}{Horizontal spread of columns (0-1). Default 1 uses full width.
-Use smaller values (e.g., 0.6) to bring columns closer together.}
+\item{column_gap}{Horizontal spread of columns (0-1) for multi-step and
+individual-tracking plots. Default 1 uses full width. Use smaller values
+(e.g., 0.6) to bring columns closer together.}
 }
 \value{
 A ggplot2 object.

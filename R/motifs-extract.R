@@ -68,7 +68,6 @@
 #'       (if significance=TRUE) expected, z-score, p-value}
 #'     \item{type_summary}{Summary counts by motif type}
 #'     \item{params}{List of parameters used}
-#'     \item{level}{Analysis level used}
 #'   }
 #'
 #' @section MAN Notation:
@@ -509,8 +508,8 @@ print.cograph_motif_analysis <- function(x, n = 20, ...) {
 #' @param spacing Spacing multiplier between grid cells (0.5-2). Default 1.
 #' @param ... Additional arguments (unused).
 #'
-#' @return Invisibly returns NULL for triad plots, or a ggplot2 object for
-#'   types/significance/patterns plots.
+#' @return Invisibly returns NULL for triad and pattern plots, or a ggplot2
+#'   object for types and significance plots.
 #'
 #' @examples
 #' mat <- matrix(c(0,3,2,0, 0,0,5,1, 0,0,0,4, 2,0,0,0), 4, 4, byrow = TRUE)

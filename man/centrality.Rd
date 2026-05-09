@@ -47,12 +47,12 @@ centrality(
 \code{strength}, \code{closeness}, \code{betweenness},
 \code{eigenvector}, \code{pagerank}.}
 \item{\code{"extended"}}{Basic plus commonly-reported second-tier
-measures (~28 total): harmonic, coreness, eccentricity, radiality,
+measures: harmonic, coreness, eccentricity, radiality,
 lin, decay, load, stress, katz, alpha, power, authority, leverage,
 constraint, effective_size, bridging, transitivity, subgraph,
 diffusion, laplacian, kreach, current_flow_betweenness,
 current_flow_closeness.}
-\item{\code{"all"}}{Every available measure (87).}
+\item{\code{"all"}}{Every available measure.}
 }
 Passing \code{measures} explicitly overrides \code{type}.}
 
@@ -93,16 +93,19 @@ a directed graph; see \code{\link{centrality_brokerage_coordinator}}).
 \code{\link{centrality_hubbell}}, \code{\link{centrality_information}},
 \code{\link{centrality_pairwisedis}}, \code{\link{centrality_reaching_local}}.
 \strong{Psychometric (signed-weight)}: "expected_influence_1",
-"expected_influence_2" (Robinaugh, Millner & McNally 2016). Unlike
-strength (which takes |w|), expected influence keeps the sign — the
-appropriate measure when edges can be negative (partial-correlation,
-glasso, signed correlation networks).}
+"expected_influence_2" (Robinaugh, Millner & McNally 2016). Expected
+influence keeps signed edge contributions, which is important when edges
+can be negative (partial-correlation, glasso, signed correlation networks).}
 
-\item{mode}{For directed networks: "all", "in", or "out". Affects degree,
-strength, closeness, eccentricity, coreness, and harmonic centrality.}
+\item{mode}{For directed networks: "all", "in", or "out". Affects measures
+whose output columns carry a mode suffix, including degree, strength,
+closeness, eccentricity, coreness, harmonic, diffusion, leverage, k-reach,
+distance-based measures, community-aware measures, and expected influence.}
 
-\item{normalized}{Logical. Normalize values to 0-1 range by dividing by max.
-For closeness, this is passed directly to igraph (proper normalization).}
+\item{normalized}{Logical. Normalize values by dividing by max. Most measures
+are scaled to 0-1; signed expected-influence measures can retain negative
+values under psychometric normalization. For closeness, this is passed
+directly to igraph.}
 
 \item{weighted}{Logical. Use edge weights if available. Default TRUE.}
 
@@ -122,16 +125,19 @@ decimal places. Default NULL (no rounding).}
 \item{sort_by}{Character or NULL. Column name to sort results by
 (descending order). Default NULL (original node order).}
 
-\item{cutoff}{Maximum path length to consider for betweenness and closeness.
+\item{cutoff}{Maximum path length to consider for betweenness, closeness,
+and harmonic centrality.
 Default -1 (no limit). Set to a positive value for faster computation
 on large networks at the cost of accuracy.}
 
-\item{invert_weights}{Logical or NULL. For path-based measures (betweenness,
-closeness, harmonic, eccentricity, kreach), should weights be inverted so
-that higher weights mean shorter paths? Default NULL which auto-detects:
-TRUE for tna objects (transition probabilities), FALSE otherwise (matching
-igraph/sna). Set explicitly to TRUE for strength/frequency weights (qgraph
-style) or FALSE for distance/cost weights.}
+\item{invert_weights}{Logical or NULL. For path- and distance-based measures
+(for example betweenness, closeness, harmonic, eccentricity, k-reach,
+radiality, decay, stress, flow betweenness, and related variants), should
+weights be inverted so that higher weights mean shorter paths? Default
+NULL auto-detects: TRUE for tna objects (transition probabilities), FALSE
+otherwise (matching igraph/sna). Set explicitly to TRUE for
+strength/frequency weights (qgraph style) or FALSE for distance/cost
+weights.}
 
 \item{alpha}{Numeric. Exponent for weight transformation when \code{invert_weights = TRUE}.
 Distance is computed as \code{1 / weight^alpha}. Default 1. Higher values
@@ -182,8 +188,9 @@ Neighborhood Component). Default 1.7 as recommended by Lin et al. (2008).
 centiserve uses 1.67 (four-community assumption). Must be between 1 and 2.}
 
 \item{membership}{Integer vector of community assignments (one per node) for
-community-aware measures: participation, within_module_z, gateway.
-Default NULL. Required when requesting these measures.}
+community-aware measures: participation, within_module_z, gateway, and the
+Gould-Fernandez brokerage roles. Default NULL. Required when requesting
+these measures.}
 
 \item{katz_alpha}{Attenuation factor for Katz centrality. Must satisfy
 \eqn{\alpha < 1 / \rho(A)}. Default 0.1 (matches centiserve and NetworkX
@@ -206,8 +213,8 @@ the user passes explicitly always wins over \code{tna_network}.}
 \item{psych_network}{Logical or NULL. Switch for signed psychometric
 network conventions. \code{NULL} (default) auto-detects TRUE when a
 signed weighted network is evaluated with expected-influence measures.
-When \code{TRUE}, normalized expected influence is divided by
-\code{max(abs(x))}, preserving sign and bounding the result from
+When \code{TRUE}, normalized expected influence is divided by the maximum
+absolute expected-influence value, preserving sign and bounding the result from
 -1 to 1.
 \code{FALSE} keeps the generic cograph normalization convention.}
 

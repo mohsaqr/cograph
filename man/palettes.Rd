@@ -3,9 +3,6 @@
 \name{palettes}
 \alias{palettes}
 \title{Color Palettes}
-\value{
-A character vector of hex color codes.
-}
 \description{
 Built-in color palettes for network visualization.
 }

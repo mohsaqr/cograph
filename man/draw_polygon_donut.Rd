@@ -54,7 +54,7 @@ draw_polygon_donut(
 
 \item{donut_shape}{Base polygon shape: "circle", "square", "hexagon", "triangle", "diamond", "pentagon".}
 
-\item{show_value}{Logical: show value in center? Default FALSE.}
+\item{show_value}{Logical: show value in center? Default TRUE.}
 
 \item{value_size}{Font size for center value.}
 

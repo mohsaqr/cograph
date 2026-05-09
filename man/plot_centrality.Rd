@@ -30,7 +30,7 @@ classical five (degree, strength, betweenness, closeness, eigenvector)
 when \code{x} is a network; default \code{NULL} keeps all columns
 when \code{x} is already a centrality data frame.}
 
-\item{style}{Character: "line" (default), "bar", "lollipop".}
+\item{style}{Character: "line" (default), "bar", "lollipop", or "dot".}
 
 \item{orientation}{Character: "horizontal" (default, nodes on y-axis) or
 "vertical" (nodes on x-axis).}
@@ -42,8 +42,8 @@ within measure), "z" (standardized within measure), or "rank"
 
 \item{order_by}{Character. For "bar"/"lollipop": which measure sorts
 nodes. Defaults to the first measure. Use \code{"alpha"} for
-alphabetical. For "line", the x-axis always sorts nodes alphabetically
-so the parallel-coordinates paths are stable across plots.}
+alphabetical. For "line", this also controls node ordering unless
+\code{"alpha"} is requested.}
 
 \item{top_n}{Optional integer to keep only the top-N nodes (by
 \code{order_by}). Useful for large graphs.}
@@ -76,15 +76,16 @@ Accepts the data frame from \code{\link{centrality}} directly or any
 network input.
 }
 \details{
-Three styles are available:
+Four styles are available:
 \describe{
-\item{\code{"line"}}{Parallel-coordinates view. Nodes on the x-axis,
-z-score on the y-axis, one polyline per measure. Best for spotting
-nodes with atypical centrality profiles.}
+\item{\code{"line"}}{Faceted line view with one panel per measure.
+Nodes are ordered along the requested orientation and connected within
+each measure.}
 \item{\code{"bar"}}{Horizontal bars, one facet per measure. Best for
 reading individual measure values.}
 \item{\code{"lollipop"}}{Like \code{"bar"} but with a dot at the tip.
 Softer visual weight; useful on dense grids.}
+\item{\code{"dot"}}{Dot-only variant of the lollipop style.}
 }
 }
 \examples{

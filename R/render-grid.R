@@ -189,7 +189,8 @@ NULL
 #'   \item{\strong{donut_show_value}}{Show numeric value in center.}
 #' }
 #'
-#' @return Invisible NULL. Called for side effect of drawing.
+#' @return The updated \code{cograph_network} object, invisibly. Called
+#'   primarily for the side effect of drawing.
 #'
 #' @seealso
 #' \code{\link{splot}} for base R graphics rendering (alternative engine),
@@ -932,7 +933,8 @@ render_legend_grid <- function(network, position = "topright") {
 }
 
 #' @rdname soplot
-#' @return Invisible NULL. Called for side effect of drawing.
+#' @return The updated \code{cograph_network} object, invisibly. Called
+#'   primarily for the side effect of drawing.
 #' @export
 #' @examples
 #' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)

@@ -19,7 +19,7 @@ columns \code{type1}, \code{type2}, and optionally \code{weight}.}
 \describe{
 \item{\code{"sum"}}{Weighted projection: \code{A \%*\% t(A)} (rows) or
 \code{t(A) \%*\% A} (columns). Edge weight equals sum of shared
-connection weights.}
+connection-weight products.}
 \item{\code{"binary"}}{Co-occurrence count: binarize A first, then
 compute overlap. Edge weight equals number of shared connections.}
 \item{\code{"jaccard"}}{Jaccard similarity: shared / (total_i + total_j

@@ -517,14 +517,16 @@ csum <- cluster_summary
 #'
 #' @param method Aggregation method for combining edge weights: "sum", "mean",
 #'   "median", "max", "min", "density", "geomean". Default "sum".
-#' @param type Post-processing: "tna" (row-normalize), "cooccurrence"
-#'   (symmetrize), "semi_markov", or "raw". Default "tna".
+#' @param type Post-processing: "tna" (row-normalize), "frequency" or "raw"
+#'   (no normalization), "cooccurrence" (symmetrize), or "semi_markov".
+#'   Default "tna".
 #' @param directed Logical. Treat as directed network? Default TRUE.
 #' @param compute_within Logical. Compute within-cluster matrices? Default TRUE.
 #'
-#' @return A \code{cluster_summary} object with \code{meta$source = "transitions"},
-#'   fully compatible with \code{\link{plot_mcml}}, \code{\link{as_tna}}, and
-#'   \code{\link{splot}}.
+#' @return Usually an \code{mcml} object. Existing \code{mcml} or
+#'   \code{cluster_summary} inputs are returned unchanged. Transition-data
+#'   results include \code{meta$source = "transitions"} and are compatible with
+#'   \code{\link{plot_mcml}}, \code{\link{as_tna}}, and \code{\link{splot}}.
 #'
 #' @export
 #' @seealso \code{\link{cluster_summary}} for matrix-based aggregation,

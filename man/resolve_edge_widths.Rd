@@ -26,9 +26,10 @@ resolve_edge_widths(
 
 \item{edge.width}{User-specified width(s) or NULL.}
 
-\item{esize}{Base edge size. NULL uses adaptive sizing based on n_nodes.}
+\item{esize}{Optional maximum edge size. NULL uses \code{edge_width_range}.}
 
-\item{n_nodes}{Number of nodes (for adaptive esize calculation).}
+\item{n_nodes}{Number of nodes, passed through to the scaler for
+compatibility.}
 
 \item{directed}{Whether network is directed.}
 
@@ -36,7 +37,8 @@ resolve_edge_widths(
 
 \item{minimum}{Minimum weight threshold.}
 
-\item{cut}{Two-tier cutoff. NULL = auto (75th pct), 0 = disabled.}
+\item{cut}{Accepted for compatibility. Current width scaling is continuous;
+cutoff effects are handled by callers for other aesthetics.}
 
 \item{edge_width_range}{Output width range c(min, max).}
 
@@ -53,6 +55,6 @@ Vector of widths for each edge.
 }
 \description{
 Determines edge widths based on weights or explicit values.
-Supports multiple scaling modes, two-tier cutoff, and output range specification.
+Supports multiple scaling modes and output range specification.
 }
 \keyword{internal}

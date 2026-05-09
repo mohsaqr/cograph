@@ -16,7 +16,8 @@ NULL
 #'   These edges will be drawn curved with arrows. Reciprocal edges curve in
 #'   opposite directions.
 #' @param layout Layout algorithm or coordinate matrix. Default "oval".
-#' @param sym_color Color for symmetric/undirected edges. Default "#457B9D" (steel blue).
+#' @param sym_color Color for symmetric/undirected edges. Default
+#'   \code{"ivory4"}.
 #' @param asym_color Color for asymmetric/directed edges. Can be a single color
 #'   or a vector of two colors for positive/negative directions. Default
 #'   "#003355" (dark blue, matching TNA style).
@@ -37,7 +38,8 @@ NULL
 #'   the fill proportion equal to the initial probability. Default NULL.
 #' @param ... Additional arguments passed to splot().
 #'
-#' @return Invisibly returns the combined cograph_network object.
+#' @return Invisibly returns a list with the combined edge data and filtered
+#'   symmetric/asymmetric matrices.
 #'
 #' @examples
 #' # Create symmetric matrix (undirected)

@@ -201,7 +201,7 @@ draw_pie_node_base <- function(x, y, size, values, colors = NULL,
 #' @param border.col Border color.
 #' @param border.width Border line width.
 #' @param donut_border.width Border width for donut ring (NULL = use border.width).
-#' @param show_value Logical: show value in center? Default FALSE.
+#' @param show_value Logical: show value in center? Default TRUE.
 #' @param value_cex Text size for center value.
 #' @param value_col Text color for center value.
 #' @param value_fontface Font face for center value.
@@ -350,7 +350,7 @@ draw_polygon_donut_node_base <- function(x, y, size, values, colors = NULL,
 #' @param border.col Border color.
 #' @param border.width Border line width.
 #' @param donut_border.width Border width for donut ring (NULL = use border.width).
-#' @param show_value Logical: show value in center? Default FALSE.
+#' @param show_value Logical: show value in center? Default TRUE.
 #' @param value_cex Text size for center value.
 #' @param value_col Text color for center value.
 #' @param value_fontface Font face for center value ("plain", "bold", "italic", "bold.italic").

@@ -12,8 +12,9 @@
 #'   NULL uses unique time values.
 #' @param cumulative Logical. If TRUE, edges accumulate. Default FALSE.
 #' @param labels Character vector of layer labels. Default auto.
-#' @param layout Character or matrix. Shared node layout. Default
-#'   \code{"spring"}.
+#' @param layout Character or matrix. Character values currently use a shared
+#'   Fruchterman-Reingold/spring layout; a matrix supplies shared coordinates.
+#'   Default \code{"spring"}.
 #' @param node_size Numeric. Node size. Default 2.5.
 #' @param node_color Character or vector. Node fill color. A single color
 #'   applies to all layers, or a vector of length \code{n_layers} for

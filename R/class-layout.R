@@ -28,7 +28,7 @@ CographLayout <- R6::R6Class(
     },
 
     #' @description Compute layout coordinates for a network.
-    #' @param network A CographNetwork object.
+    #' @param network A CographNetwork or cograph_network object.
     #' @param ... Additional parameters passed to the layout function.
     #' @return Data frame with x, y coordinates.
     compute = function(network, ...) {

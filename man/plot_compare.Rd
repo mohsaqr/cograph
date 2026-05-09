@@ -22,11 +22,14 @@ plot_compare(
 )
 }
 \arguments{
-\item{x}{First network: matrix, CographNetwork, tna, igraph object,
-OR a group_tna object. For group_tna with 2 groups, compares them directly.
-For more groups, plots all pairwise comparisons (or specify i, j).}
+\item{x}{First network: matrix, \code{cograph_network},
+\code{CographNetwork}, \code{tna}, \code{igraph}, list-like object with
+\code{$weights}, plain list of networks, or \code{group_tna}. For
+\code{group_tna} with 2 groups, compares them directly. For more groups,
+plots all pairwise comparisons (or specify i, j).}
 
-\item{y}{Second network: same type as x. Ignored if x is group_tna.}
+\item{y}{Second network: same type as x. Ignored if x is a list or
+\code{group_tna}.}
 
 \item{i}{Index/name of first group when x is group_tna. NULL for all pairs.}
 

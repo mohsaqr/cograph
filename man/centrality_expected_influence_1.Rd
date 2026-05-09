@@ -21,7 +21,7 @@ Named numeric vector of expected-influence values (signed).
 Signed-weight sum of a node's edges (Robinaugh, Millner & McNally 2016).
 The appropriate centrality for networks with positive \emph{and} negative
 edges (partial-correlation, glasso, signed correlation networks) where
-strength — which takes absolute values — can be misleading.
+treating negative edges as positive magnitudes can be misleading.
 }
 \examples{
 # Signed weight matrix (partial correlations, for example)
@@ -39,5 +39,5 @@ highly influential nodes in the complicated grief network.
 }
 \seealso{
 \code{\link{centrality_expected_influence_2}} for the two-step
-variant, \code{\link{centrality_strength}} for the unsigned analogue.
+variant, \code{\link{centrality_strength}} for the weighted-degree analogue.
 }

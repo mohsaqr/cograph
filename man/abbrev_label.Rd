@@ -35,7 +35,7 @@ labels <- c("VeryLongStateName", "Short", "AnotherLongName")
 abbrev_label(labels, NULL)
 
 # Fixed max length
-abbrev_label(labels, 5)  # "Very...", "Short", "Anot..."
+abbrev_label(labels, 5)  # "Very…", "Short", "Anot…"
 
 # Auto-adaptive
 abbrev_label(labels, "auto")

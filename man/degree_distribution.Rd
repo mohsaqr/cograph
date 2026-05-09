@@ -59,8 +59,9 @@ degree range is \eqn{\le 50}{<= 50}, otherwise Freedman-Diaconis).}
 to 1) instead of counts. Default FALSE.}
 
 \item{log}{Character. Axis log-scaling: "" (none, default), "x", "y", or
-"xy". For cumulative plots, "xy" produces log-log CCDF (standard for
-power-law inspection).}
+"xy". Histogram plots apply y-axis log scaling for "y" or "xy";
+cumulative plots support x, y, and xy scaling, with "xy" producing a
+log-log CCDF (standard for power-law inspection).}
 
 \item{main}{Character. Plot title. Default "Degree Distribution".}
 
@@ -80,7 +81,7 @@ power-law inspection).}
 \value{
 Invisibly returns a list with components:
 \describe{
-\item{degree}{Named integer vector of per-node degrees.}
+\item{degree}{Named numeric vector of per-node degrees.}
 \item{table}{Table of degree frequencies.}
 \item{breaks}{Breakpoints used for the histogram (non-cumulative only).}
 \item{counts}{Bin counts (non-cumulative only).}

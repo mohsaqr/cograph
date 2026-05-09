@@ -7,7 +7,7 @@
 layout_circle(network, order = NULL, start_angle = pi/2, clockwise = TRUE, ...)
 }
 \arguments{
-\item{network}{A CographNetwork object.}
+\item{network}{A \code{CographNetwork} or \code{cograph_network} object.}
 
 \item{order}{Optional vector specifying node order (indices or labels).}
 

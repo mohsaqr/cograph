@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot-centrality.R
 \name{plot_centrality_compare}
 \alias{plot_centrality_compare}
-\title{Plot Centrality Comparison (Pyramid)}
+\title{Plot Centrality Comparison}
 \usage{
 plot_centrality_compare(
   ...,
@@ -83,11 +83,10 @@ Default NULL chooses automatically.}
 A ggplot object.
 }
 \description{
-Back-to-back horizontal bar chart comparing a centrality measure across
-two groups. Each row is a node; left bar is group 1, right bar is
-group 2. Bar fill is per-node (identity) -- either inherited from the
-network's node colors or supplied via \code{node_colors}. Visual delta
-is communicated by bar length alone.
+Compare a centrality measure across two or more groups using stacked,
+faceted, grouped, dumbbell, line, or two-group pyramid layouts. The
+\code{"pyramid"} style is a back-to-back horizontal bar chart for exactly
+two groups.
 }
 \examples{
 set.seed(1)

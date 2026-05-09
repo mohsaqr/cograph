@@ -64,14 +64,14 @@ of neighbors, etc.). Default 1.}
 \item{\code{"none"}}{Remove all edges}
 }}
 
-\item{keep_format}{Logical. If TRUE, return the same format as input.
-Default FALSE returns cograph_network.}
+\item{keep_format}{Logical. If TRUE, matrix, igraph, and statnet network
+inputs are returned in that format. Default FALSE returns cograph_network.}
 
 \item{directed}{Logical or NULL. If NULL (default), auto-detect.}
 }
 \value{
 A cograph_network object with selected nodes. If \code{keep_format = TRUE},
-returns the same type as input.
+matrix, igraph, and statnet network inputs are converted back to that type.
 }
 \description{
 A more nuanced node selection function that improves upon \code{filter_nodes()}

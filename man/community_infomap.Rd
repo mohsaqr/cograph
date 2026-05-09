@@ -28,7 +28,8 @@ com_im(
 \arguments{
 \item{x}{Network input}
 
-\item{weights}{Edge weights for transitions. NULL uses network weights.}
+\item{weights}{Edge weights for transitions. NULL uses network weights,
+NA for unweighted.}
 
 \item{v.weights}{Vertex weights (teleportation weights).}
 

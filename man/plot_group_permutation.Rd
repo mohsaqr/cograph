@@ -17,7 +17,8 @@ plot_group_permutation(x, i = NULL, ...)
 \item{i}{Index or name of specific comparison to plot. NULL for all.}
 }
 \value{
-Invisibly returns NULL.
+When \code{i} is supplied, returns the selected permutation plot.
+Otherwise invisibly returns \code{NULL} after drawing all panels.
 }
 \description{
 Visualizes all pairwise permutation test results from a group_tna object.

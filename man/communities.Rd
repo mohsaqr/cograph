@@ -18,7 +18,8 @@ communities(
 )
 }
 \arguments{
-\item{x}{Network input: matrix, igraph, network, cograph_network, or tna object}
+\item{x}{Network input: matrix, igraph, network, CographNetwork,
+cograph_network, or tna object}
 
 \item{method}{Community detection algorithm. One of:
 \itemize{
@@ -45,8 +46,9 @@ if available, otherwise unweighted. Set to NA for explicitly unweighted.}
 \item{resolution}{Resolution parameter for modularity-based methods
 (louvain, leiden). Higher values yield more communities. Default 1.}
 
-\item{directed}{Logical; whether to treat the network as directed.
-Default NULL (auto-detect).}
+\item{directed}{Logical; whether edge-betweenness should treat the network
+as directed. Default NULL (auto-detect for edge-betweenness). Other methods
+use their own directed/undirected handling.}
 
 \item{seed}{Random seed for reproducibility. Only applies to stochastic
 algorithms (louvain, leiden, infomap, label_propagation, spinglass).}
@@ -65,10 +67,14 @@ Metadata stored as attributes: \code{"algorithm"}, \code{"modularity"},
 }
 \description{
 Detects communities/clusters in networks using various algorithms.
-Provides a unified interface to igraph's community detection functions
-with full parameter exposure.
+Provides a unified interface to igraph's community detection functions.
 }
 \details{
+When called through this wrapper, methods that require undirected graphs
+(\code{"louvain"}, \code{"leiden"}, \code{"fast_greedy"},
+\code{"leading_eigenvector"}, and \code{"fluid"}) fall back to
+\code{"walktrap"} if the input graph is directed.
+
 \strong{Algorithm Selection Guide:}
 
 \tabular{lll}{

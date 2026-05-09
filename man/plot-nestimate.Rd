@@ -4,8 +4,10 @@
 \alias{plot-nestimate}
 \title{Nestimate Plotting Methods}
 \description{
-Plot methods for Nestimate network objects:
-\code{netobject}, \code{boot_glasso}, \code{netobject_group}, and \code{netobject_ml}.
+Plot methods for Nestimate network objects, including
+\code{netobject}, \code{boot_glasso}, \code{wtna_mixed},
+\code{netobject_group}, \code{netobject_ml},
+\code{net_bootstrap_group}, and \code{net_stability}.
 No Nestimate import is needed — dispatch is via \code{inherits()} class-name checking only.
 }
 \keyword{internal}

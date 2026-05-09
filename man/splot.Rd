@@ -210,7 +210,7 @@ splot(
 \item A square numeric matrix (adjacency/weight matrix)
 \item A data frame with edge list (from, to, optional weight columns)
 \item An igraph object
-\item A cograph_network object
+\item A CographNetwork or cograph_network object
 \item A tna object (from tna package)
 \item A group_tna object (list of tna objects from tna package).
 Use parameter \code{i} to select a specific group, or omit to plot all groups.
@@ -252,9 +252,10 @@ Default \code{1 - x$alpha} (i.e. the complement of the alpha level).}
 
 \item{edge_nonsig_style}{Line style for non-significant edges. Default 2L.}
 
-\item{layout}{Layout algorithm: "circle", "spring", "groups", or a matrix
-of x,y coordinates, or an igraph layout function. Also supports igraph
-two-letter codes: "kk", "fr", "drl", "mds", "ni", etc.}
+\item{layout}{Layout algorithm: "oval" (default), "circle", "spring",
+"groups", or a matrix of x,y coordinates, or an igraph layout function.
+Also supports igraph two-letter codes: "kk", "fr", "drl", "mds", "ni",
+etc.}
 
 \item{directed}{Logical. Force directed interpretation. NULL for auto-detect.}
 
@@ -262,7 +263,8 @@ two-letter codes: "kk", "fr", "drl", "mds", "ni", etc.}
 
 \item{theme}{Theme name: "classic", "dark", "minimal", "colorblind", etc.}
 
-\item{node_size}{Node size(s). Single value or vector. Default 3.}
+\item{node_size}{Node size(s). Single value or vector. Default NULL, which
+resolves to 7 with default scaling.}
 
 \item{node_size2}{Secondary node size for ellipse/rectangle height.}
 
@@ -401,22 +403,23 @@ on all nodes regardless of node_shape).}
 
 \item{edge_width}{Edge width(s). If NULL, scales by weight using edge_size and edge_width_range.}
 
-\item{edge_size}{Base edge size for weight scaling. NULL (default) uses adaptive sizing
-based on network size: \code{15 * exp(-n_nodes/90) + 1}. For directed networks, this
-is halved. Larger values = thicker edges overall.}
+\item{edge_size}{Maximum edge size for weight scaling. NULL (default) uses
+the upper bound of \code{edge_width_range}. Larger values = thicker edges
+overall.}
 
 \item{esize}{Deprecated. Use \code{edge_size} instead.}
 
 \item{edge_width_range}{Output width range as c(min, max) for weight-based scaling.
-Default c(0.5, 4). Edges are scaled to fit within this range.}
+Default c(0.1, 4). Edges are scaled to fit within this range unless
+\code{edge_size} supplies the maximum.}
 
 \item{edge_scale_mode}{Scaling mode for edge weights: "linear" (default, qgraph-style),
 "log" (logarithmic for wide weight ranges), "sqrt" (moderate compression),
 or "rank" (equal visual spacing regardless of weight distribution).}
 
-\item{edge_cutoff}{Two-tier cutoff for edge width scaling. NULL (default) = auto-calculate
-as 75th percentile of weights (qgraph behavior). 0 = disabled (continuous scaling).
-Positive number = manual threshold. Edges below cutoff get minimal width variation.}
+\item{edge_cutoff}{Optional cutoff for edge emphasis. NULL (default) or 0
+disables cutoff fading. Positive values fade edges whose absolute weights
+are below the cutoff; width scaling remains continuous.}
 
 \item{cut}{Deprecated. Use \code{edge_cutoff} instead.}
 
@@ -452,7 +455,7 @@ readability over dark edges? Default TRUE. When TRUE, overrides shadow settings.
 
 \item{curvature}{Edge curvature. 0 for straight, positive/negative for curves.}
 
-\item{curve_scale}{Logical: auto-curve reciprocal edges?}
+\item{curve_scale}{Reserved for future curve scaling; currently not used.}
 
 \item{curve_shape}{Spline tension (-1 to 1). Default 0.}
 

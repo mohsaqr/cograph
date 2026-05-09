@@ -10,7 +10,7 @@ NULL
 #' circular arrangement around the center, with nodes within each group
 #' also arranged in a circle.
 #'
-#' @param network A CographNetwork object.
+#' @param network A \code{CographNetwork} or \code{cograph_network} object.
 #' @param groups Vector specifying group membership for each node.
 #'   Can be numeric, character, or factor.
 #' @param group_positions Optional list or data frame with x, y coordinates

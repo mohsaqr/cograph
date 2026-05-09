@@ -53,7 +53,8 @@ cograph equivalents:
 \itemize{
 \item \code{labels}/\code{names} \code{->} \code{labels}
 \item \code{color} \code{->} \code{node_fill}
-\item \code{width} \code{->} \code{node_size} (scaled by 1.3x)
+\item \code{width} \code{->} \code{node_size} (scaled by 1.3x) when
+\code{preserve_node_size = TRUE}
 \item \code{shape} \code{->} \code{node_shape} (mapped to cograph equivalents)
 \item \code{border.color} \code{->} \code{node_border_color}
 \item \code{border.width} \code{->} \code{node_border_width}

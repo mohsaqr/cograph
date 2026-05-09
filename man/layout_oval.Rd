@@ -15,7 +15,7 @@ layout_oval(
 )
 }
 \arguments{
-\item{network}{A CographNetwork object.}
+\item{network}{A CographNetwork or cograph_network object.}
 
 \item{ratio}{Aspect ratio (width/height). Values > 1 create horizontal ovals,
 values < 1 create vertical ovals. Default 1.5.}

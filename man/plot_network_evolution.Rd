@@ -45,7 +45,7 @@ time values).}
 \item{...}{Additional arguments passed to \code{\link{splot}}.}
 }
 \value{
-Invisible list of edge-list data frames (one per panel).
+Invisible list of per-panel networks or edge-list data frames.
 }
 \description{
 Displays a network at different time points side by side. Accepts an edge

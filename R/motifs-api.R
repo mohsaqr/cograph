@@ -607,6 +607,7 @@ motifs <- function(x,
 #'   Contains \code{$results} (data frame with columns \code{triad}, \code{type},
 #'   \code{observed}, and optionally \code{z}, \code{p}, \code{sig}),
 #'   \code{$type_summary}, \code{$level}, \code{$n_units}, and \code{$params}.
+#' @param ... Arguments passed to \code{motifs()}.
 #' @examples
 #' mat <- matrix(c(0,3,2,0, 0,0,5,1, 0,0,0,4, 2,0,0,0), 4, 4, byrow = TRUE)
 #' rownames(mat) <- colnames(mat) <- c("Plan","Execute","Monitor","Adapt")
@@ -686,7 +687,9 @@ print.cograph_motif_result <- function(x, ...) {
 #'   by \code{type = "types"} and \code{type = "significance"}.
 #'   Default 12.
 #' @param ... Additional arguments passed to internal plot helpers.
-#' @return Invisibly returns the input \code{x}.
+#' @return Invisibly returns the input \code{x} for \code{"triads"} and
+#'   \code{"patterns"}, or the underlying \code{ggplot} for \code{"types"} and
+#'   \code{"significance"}.
 #' @rdname motifs
 #' @method plot cograph_motif_result
 #' @export
@@ -786,6 +789,8 @@ plot.cograph_motif_result <- function(x, type = c("triads", "types",
 #' editor autocompletion.
 #'
 #' @inheritParams plot.cograph_motif_result
+#' @param x A \code{cograph_motif_result} object from \code{motifs()} or
+#'   \code{subgraphs()}.
 #' @return Invisibly returns the input \code{x} (or the underlying
 #'   \code{ggplot} for the \code{"types"} and \code{"significance"}
 #'   types, matching the S3 method).

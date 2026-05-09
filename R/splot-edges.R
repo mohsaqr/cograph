@@ -175,8 +175,8 @@ draw_straight_edge_base <- function(x1, y1, x2, y2, col = "gray50", lwd = 1,
 #'
 #' Renders a curved edge using xspline() with optional arrow.
 #' Uses qgraph-style curve calculation for smooth, natural-looking curves.
-#' Curve direction is normalized so positive curve always bends the same
-#' visual direction regardless of edge orientation.
+#' Uses the supplied signed curve value; reciprocal-edge direction should be
+#' resolved by the caller.
 #'
 #' @param x1,y1 Start point coordinates.
 #' @param x2,y2 End point coordinates.
@@ -359,6 +359,8 @@ draw_curved_edge_base <- function(x1, y1, x2, y2, curve = 0.2, curvePivot = 0.5,
 #' @param arrow Logical: draw arrow?
 #' @param asize Arrow size.
 #' @param arrow_angle Arrow head angle in radians. Default pi/6 (30 degrees).
+#' @param anchor_radius Radius used for the loop's node-boundary anchor. NULL
+#'   defaults to \code{node_size}.
 #' @keywords internal
 draw_self_loop_base <- function(x, y, node_size, col = "gray50", lwd = 1,
                                 lty = 1, rotation = pi/2, arrow = TRUE,
@@ -519,7 +521,7 @@ draw_edge_label_base <- function(x, y, label, cex = 0.8, col = "gray30",
 #' @param curvePivot Curve pivot position.
 #' @param label_offset Additional perpendicular offset for the label (in user coords).
 #'   Positive values offset in the same direction as the curve bulge.
-#'   Default 0.03 provides good separation from the edge line.
+#'   Default 0 keeps the label on the computed edge position.
 #' @return List with x, y coordinates.
 #' @keywords internal
 get_edge_label_position <- function(x1, y1, x2, y2, position = 0.5,

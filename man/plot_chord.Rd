@@ -36,8 +36,9 @@ plot_chord(
 )
 }
 \arguments{
-\item{x}{A weight matrix, \code{cograph_network}, \code{tna}, or
-\code{igraph} object.}
+\item{x}{A weight matrix, \code{cograph_network}, \code{CographNetwork},
+\code{tna}, \code{igraph}, or list-like object with a matrix
+\code{weights} component.}
 
 \item{directed}{Logical. If \code{NULL} (default), auto-detected from
 matrix symmetry.}
@@ -62,7 +63,8 @@ non-zero edges.}
 
 \item{chord_border}{Border color for chords. \code{NA} for no border.}
 
-\item{self_loop}{Logical. Show self-loop chords?}
+\item{self_loop}{Logical. Currently accepted for API compatibility; the
+current matrix preparation preserves self-loop chords.}
 
 \item{labels}{Node labels. \code{NULL} uses row names, \code{FALSE}
 suppresses labels.}

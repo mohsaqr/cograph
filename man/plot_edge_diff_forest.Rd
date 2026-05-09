@@ -37,10 +37,11 @@ plot_edge_diff_forest(x, ...)
 
 \item{alpha}{Significance threshold. Default: inherits from object.}
 
-\item{layout}{\code{"linear"} (default), \code{"circular"}, or
-\code{"chord"}.  The chord layout places all edge names on a unit circle
+\item{layout}{\code{"linear"} (default), \code{"circular"}, \code{"chord"},
+or \code{"tile"}. The chord layout places all edge names on a unit circle
 and connects significant pairs with bezier arcs; arc width and colour
-encode the mean bootstrap difference.}
+encode the mean bootstrap difference. The tile layout draws the
+pairwise-difference matrix.}
 
 \item{show_nonsig}{Include non-significant pairs? Default \code{FALSE}.}
 

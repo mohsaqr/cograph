@@ -4,8 +4,9 @@
 #' curved ribbons (chords) connecting them. Arc size is proportional to total
 #' flow through each node and chord width is proportional to edge weight.
 #'
-#' @param x A weight matrix, \code{cograph_network}, \code{tna}, or
-#'   \code{igraph} object.
+#' @param x A weight matrix, \code{cograph_network}, \code{CographNetwork},
+#'   \code{tna}, \code{igraph}, or list-like object with a matrix
+#'   \code{weights} component.
 #' @param directed Logical. If \code{NULL} (default), auto-detected from
 #'   matrix symmetry.
 #' @param segment_colors Colors for the outer ring segments. \code{NULL} uses
@@ -20,7 +21,8 @@
 #'   non-zero edges.
 #' @param chord_alpha Alpha transparency for chords.
 #' @param chord_border Border color for chords. \code{NA} for no border.
-#' @param self_loop Logical. Show self-loop chords?
+#' @param self_loop Logical. Currently accepted for API compatibility; the
+#'   current matrix preparation preserves self-loop chords.
 #' @param labels Node labels. \code{NULL} uses row names, \code{FALSE}
 #'   suppresses labels.
 #' @param label_size Text size multiplier for labels.

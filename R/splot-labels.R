@@ -128,7 +128,8 @@ resolve_stars <- function(stars_input, p_values = NULL, n) {
 #' @param p_digits Decimal places for p-values.
 #' @param p_prefix Prefix for p-values.
 #' @param ci_format CI format: "bracket" or "dash".
-#' @param oneline Logical: single line format (space-separated) or multiline.
+#' @param oneline Logical. Accepted for compatibility; labels are currently
+#'   normalized to single-line whitespace.
 #' @param leading_zero Logical: include leading zero for values < 1? Default TRUE.
 #' @return Formatted label string.
 #' @keywords internal
@@ -254,7 +255,8 @@ get_template_from_style <- function(style) {
 #' @param p_digits Decimal places for p-values.
 #' @param p_prefix Prefix for p-values.
 #' @param ci_format CI format: "bracket" or "dash".
-#' @param oneline Logical: single line format.
+#' @param oneline Logical. Accepted for compatibility; labels are currently
+#'   normalized to single-line whitespace.
 #' @param leading_zero Logical: include leading zero for values < 1? Default TRUE.
 #' @param n Number of edges.
 #' @return Character vector of formatted labels.

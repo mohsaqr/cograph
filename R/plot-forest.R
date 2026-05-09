@@ -1,6 +1,7 @@
 #' @title Forest Plot for Bootstrap Network Results
 #' @description
-#' A ggplot2-based forest plot for \code{net_bootstrap} and \code{boot_glasso}
+#' A ggplot2-based forest plot for \code{net_bootstrap},
+#' \code{net_bootstrap_group}, \code{tna_bootstrap}, and \code{boot_glasso}
 #' objects. Each row is one network edge; horizontal bars span the confidence
 #' interval and a filled square marks the point estimate. A dashed reference
 #' line runs through zero.
@@ -795,7 +796,8 @@ utils::globalVariables(c(
 #' \code{interval = "both"} to overlay both on the same plot.
 #'
 #' @param x A \code{tna_bootstrap} (from \code{tna::bootstrap}),
-#'   \code{net_bootstrap}, or \code{boot_glasso} object.
+#'   \code{net_bootstrap}, \code{net_bootstrap_group}, or
+#'   \code{boot_glasso} object.
 #' @param alpha Significance threshold. Default: inherits from the object
 #'   (\code{$ci_level} or \code{$alpha}), falling back to \code{0.05}.
 #' @param interval Which interval to display: \code{"ci"} (bootstrap confidence
@@ -803,7 +805,8 @@ utils::globalVariables(c(
 #'   only), or \code{"both"} (CI as outer bar, CR as inner bar).
 #' @param layout \code{"linear"} (default) draws the classic tall forest plot;
 #'   \code{"circular"} arranges each edge as a spoke around a circle, with the
-#'   inner ring at the data minimum and the outer ring at the data maximum.
+#'   inner ring at the data minimum and the outer ring at the data maximum;
+#'   \code{"grouped"} arranges edges in sectors by source node where supported.
 #' @param show_nonsig Logical: include non-significant edges (greyed out)?
 #'   Default \code{TRUE}.
 #' @param sort_by How to order edges on the y-axis (linear layout) or
@@ -813,12 +816,15 @@ utils::globalVariables(c(
 #' @param n_top Integer: restrict to the \code{n_top} edges with the largest
 #'   absolute estimate. Applied after significance filtering. Default \code{NULL}.
 #' @param sig_color Colour for significant CI bars and points. Default \code{"#2C6E8A"} (teal-blue).
+#' @param node_colors Optional node-colour vector for grouped radial layouts.
 #' @param cr_color Colour for the consistency range bar (\code{interval = "cr"} or \code{"both"}).
-#'   Default \code{"#D4820A"} (amber).
+#'   Default \code{"#D4829A"}.
 #' @param nonsig_color Colour for non-significant edges. Default \code{"#CCCCCC"}.
 #' @param ring_color Colour for the reference rings (radial layout only). Default \code{"#C8C8C8"}.
 #' @param median_color Colour for the dashed median ring (radial layout only). Default \code{"#AAAAAA"}.
-#' @param label_size Text size for edge labels (radial layout only). Default \code{2.3}.
+#' @param label_size Text size for edge labels (radial and grouped layouts).
+#'   Default \code{NULL} for automatic sizing in the main methods, or
+#'   \code{2.8} for \code{net_bootstrap_group}.
 #' @param label_color Fixed colour for edge labels (radial layout only). \code{NULL} (default)
 #'   inherits the edge colour (teal for significant, grey for non-significant).
 #' @param point_size Size of the estimate square. Default \code{3} (linear) or \code{2} (radial).
@@ -832,6 +838,9 @@ utils::globalVariables(c(
 #'   Default \code{c(0.1, 0.1, 0.1, 0.1)}.
 #' @param scale Scaling factor applied to all text and point sizes (grouped layout).
 #'   Default \code{1}. Use values > 1 for high-DPI output, < 1 for small devices.
+#' @param all_edges For \code{net_bootstrap_group}, show the union of group
+#'   edges instead of only edges common to all groups. Default \code{FALSE}.
+#' @param pos_color Currently unused by the \code{net_bootstrap_group} method.
 #' @param title Plot title. Default \code{NULL}.
 #' @param subtitle Plot subtitle. Default \code{NULL}.
 #' @param ... Currently unused.
@@ -1638,10 +1647,11 @@ plot_bootstrap_forest.net_bootstrap_group <- function(
 #' @param x A \code{boot_glasso} object with \code{$boot_edges} and
 #'   \code{$edge_diff_p}.
 #' @param alpha Significance threshold. Default: inherits from object.
-#' @param layout \code{"linear"} (default), \code{"circular"}, or
-#'   \code{"chord"}.  The chord layout places all edge names on a unit circle
+#' @param layout \code{"linear"} (default), \code{"circular"}, \code{"chord"},
+#'   or \code{"tile"}. The chord layout places all edge names on a unit circle
 #'   and connects significant pairs with bezier arcs; arc width and colour
-#'   encode the mean bootstrap difference.
+#'   encode the mean bootstrap difference. The tile layout draws the
+#'   pairwise-difference matrix.
 #' @param show_nonsig Include non-significant pairs? Default \code{FALSE}.
 #' @param nonzero_only If \code{TRUE}, restrict to edges that are non-zero in
 #'   the original network (identified via \code{$original_pcor}). Useful for

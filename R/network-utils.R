@@ -211,7 +211,7 @@ detect_communities <- function(x, method = "louvain", directed = NULL,
 #' Color Nodes by Community
 #'
 #' Generate colors for nodes based on community membership. Designed for
-#' direct use with \code{splot()} node.color parameter.
+#' direct use with \code{splot()} \code{node_fill} parameter.
 #'
 #' @param x Network input: matrix, igraph, network, cograph_network, or tna object.
 #' @param method Community detection algorithm. See \code{\link{detect_communities}}
@@ -226,7 +226,7 @@ detect_communities <- function(x, method = "louvain", directed = NULL,
 #' @param ... Additional arguments passed to \code{\link{detect_communities}}.
 #'
 #' @return A named character vector of colors (one per node), suitable for
-#'   use with \code{splot()} node.color parameter.
+#'   use with \code{splot()} \code{node_fill} parameter.
 #'
 #' @seealso \code{\link{detect_communities}}, \code{\link{splot}}
 #'
@@ -297,22 +297,23 @@ color_communities <- function(x, method = "louvain", palette = NULL, ...) {
 #' Filter Edges by Metadata
 #'
 #' Filter edges using dplyr-style expressions on any edge column. Returns a
-#' cograph_network object by default (universal format), or optionally the
-#' same format as input when \code{keep_format = TRUE}.
+#' cograph_network object by default (universal format), or optionally a
+#' matrix, igraph, or statnet network object when \code{keep_format = TRUE}
+#' and the input used one of those formats.
 #'
 #' @param x Network input: cograph_network, matrix, igraph, network, or tna object.
 #' @param ... Filter expressions using any edge column (e.g., \code{weight > 0.5},
 #'   \code{weight > mean(weight)}, \code{abs(weight) > 0.3}).
 #' @param .keep_isolates Logical. Keep nodes with no remaining edges? Default FALSE.
-#' @param keep_format Logical. If TRUE, return the same format as input
-#'   (matrix returns matrix, igraph returns igraph, etc.). Default FALSE
+#' @param keep_format Logical. If TRUE, matrix, igraph, and statnet network
+#'   inputs are returned in that format. Default FALSE
 #'   returns cograph_network (universal format).
 #' @param directed Logical or NULL. If NULL (default), auto-detect from matrix
 #'   symmetry. Set TRUE to force directed, FALSE to force undirected.
 #'   Only used for non-cograph_network inputs.
 #'
 #' @return A cograph_network object with filtered edges. If \code{keep_format = TRUE},
-#'   returns the same type as input (matrix, igraph, network, etc.).
+#'   matrix, igraph, and statnet network inputs are converted back to that type.
 #'
 #' @seealso \code{\link{filter_nodes}}, \code{\link{splot}}, \code{\link{subset_edges}}
 #'
@@ -391,7 +392,8 @@ filter_edges <- function(x, ..., .keep_isolates = FALSE, keep_format = FALSE,
 #'
 #' Filter nodes using dplyr-style expressions on any node column or centrality
 #' measure. Returns a cograph_network object by default (universal format), or
-#' optionally the same format as input when \code{keep_format = TRUE}.
+#' optionally a matrix, igraph, or statnet network object when
+#' \code{keep_format = TRUE} and the input used one of those formats.
 #'
 #' @param x Network input: cograph_network, matrix, igraph, network, or tna object.
 #' @param ... Filter expressions using any node column or centrality measure.
@@ -410,15 +412,15 @@ filter_edges <- function(x, ..., .keep_isolates = FALSE, keep_format = FALSE,
 #'     \item{\code{"internal"}}{(default) Keep only edges between remaining nodes}
 #'     \item{\code{"none"}}{Remove all edges}
 #'   }
-#' @param keep_format Logical. If TRUE, return the same format as input
-#'   (matrix returns matrix, igraph returns igraph, etc.). Default FALSE
+#' @param keep_format Logical. If TRUE, matrix, igraph, and statnet network
+#'   inputs are returned in that format. Default FALSE
 #'   returns cograph_network (universal format).
 #' @param directed Logical or NULL. If NULL (default), auto-detect from matrix
 #'   symmetry. Set TRUE to force directed, FALSE to force undirected.
 #'   Only used for non-cograph_network inputs.
 #'
 #' @return A cograph_network object with filtered nodes. If \code{keep_format = TRUE},
-#'   returns the same type as input (matrix, igraph, network, etc.).
+#'   matrix, igraph, and statnet network inputs are converted back to that type.
 #'
 #' @seealso \code{\link{filter_edges}}, \code{\link{splot}}, \code{\link{subset_nodes}}
 #'
@@ -825,7 +827,8 @@ to_df <- function(x, directed = NULL) {
 #' @param x Network input: matrix, cograph_network, igraph, network, tna, etc.
 #' @param directed Logical or NULL. If NULL (default), auto-detect from input.
 #'
-#' @return A square numeric adjacency matrix with row/column names.
+#' @return A square numeric adjacency matrix, preserving row/column names when
+#'   available.
 #'
 #' @seealso \code{\link{to_igraph}}, \code{\link{to_df}}, \code{\link{as_cograph}},
 #'   \code{\link{to_network}}
@@ -981,8 +984,8 @@ to_network <- function(x, directed = NULL) {
 #'     \item{\code{"internal"}}{(default) Keep only edges between remaining nodes}
 #'     \item{\code{"none"}}{Remove all edges}
 #'   }
-#' @param keep_format Logical. If TRUE, return the same format as input.
-#'   Default FALSE returns cograph_network.
+#' @param keep_format Logical. If TRUE, matrix, igraph, and statnet network
+#'   inputs are returned in that format. Default FALSE returns cograph_network.
 #' @param directed Logical or NULL. If NULL (default), auto-detect.
 #'
 #' @details
@@ -1002,7 +1005,7 @@ to_network <- function(x, directed = NULL) {
 #' will return NA with a warning (igraph cannot compute these with negative weights).
 #'
 #' @return A cograph_network object with selected nodes. If \code{keep_format = TRUE},
-#'   returns the same type as input.
+#'   matrix, igraph, and statnet network inputs are converted back to that type.
 #'
 #' @seealso \code{\link{filter_nodes}}, \code{\link{select_neighbors}},
 #'   \code{\link{select_component}}, \code{\link{select_top}}
@@ -1553,7 +1556,8 @@ select_top <- function(x, n, by = "degree", ...,
 #'     \item{Edge columns}{\code{from}, \code{to}, \code{weight}, plus any custom}
 #'     \item{Computed metrics}{\code{abs_weight}, \code{from_degree}, \code{to_degree},
 #'       \code{from_strength}, \code{to_strength}, \code{edge_betweenness},
-#'       \code{is_bridge}, \code{is_mutual}, \code{same_community}}
+#'       \code{is_bridge}, \code{is_mutual}, \code{same_community},
+#'       \code{from_label}, \code{to_label}}
 #'   }
 #' @param top Integer. Select top N edges by a metric.
 #' @param by Character. Metric for top selection. Default \code{"weight"}.
@@ -1570,8 +1574,8 @@ select_top <- function(x, n, by = "degree", ...,
 #'   variable. One of \code{"louvain"}, \code{"walktrap"}, \code{"fast_greedy"},
 #'   \code{"label_prop"}, \code{"infomap"}, \code{"leiden"}. Default \code{"louvain"}.
 #' @param .keep_isolates Logical. Keep nodes with no remaining edges? Default FALSE.
-#' @param keep_format Logical. If TRUE, return the same format as input.
-#'   Default FALSE returns cograph_network.
+#' @param keep_format Logical. If TRUE, matrix, igraph, and statnet network
+#'   inputs are returned in that format. Default FALSE returns cograph_network.
 #' @param directed Logical or NULL. If NULL (default), auto-detect.
 #'
 #' @details
@@ -1586,7 +1590,7 @@ select_top <- function(x, n, by = "degree", ...,
 #' expressions or required by selection modes are computed.
 #'
 #' @return A cograph_network object with selected edges. If \code{keep_format = TRUE},
-#'   returns the same type as input.
+#'   matrix, igraph, and statnet network inputs are converted back to that type.
 #'
 #' @seealso \code{\link{filter_edges}}, \code{\link{select_nodes}},
 #'   \code{\link{select_bridges}}, \code{\link{select_top_edges}}

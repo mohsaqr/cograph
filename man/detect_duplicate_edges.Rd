@@ -9,6 +9,9 @@ detect_duplicate_edges(edges, directed = FALSE)
 \arguments{
 \item{edges}{Data frame with \code{from} and \code{to} columns (and optionally
 \code{weight}).}
+
+\item{directed}{Logical. If FALSE, reverse-direction edges are considered
+duplicates of each other.}
 }
 \value{
 A list with two components:

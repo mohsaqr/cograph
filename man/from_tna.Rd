@@ -46,8 +46,9 @@ The tna object's transition matrix becomes edge weights, labels become
 node labels, and initial state probabilities (\code{inits}) are mapped to
 \code{donut_fill} values to visualize starting state distributions.
 
-TNA networks are always treated as directed because transition matrices
-represent directional state changes.
+Directedness is read from the tna object when available; otherwise it is
+inferred from matrix symmetry. Transition matrices are usually directed,
+while symmetric co-occurrence matrices are treated as undirected.
 
 The default \code{donut_inner_ratio} of 0.8 creates thin rings that
 effectively visualize probability values without obscuring node labels.
@@ -70,13 +71,15 @@ The following visual defaults are applied for TNA plots (all can be overridden v
 \item \code{layout = "oval"}: Oval/elliptical node arrangement
 \item \code{node_fill}: Colors from TNA palette (Accent/Set3 based on state count)
 \item \code{node_size = 7}: Larger nodes for readability
-\item \code{arrow_size = 0.61}: Prominent directional arrows
+\item \code{arrow_size = 0.61}: Prominent directional arrows for directed
+networks
 \item \code{edge_color = "#003355"}: Dark blue edges
 \item \code{edge_labels = TRUE}: Show transition weights on edges
 \item \code{edge_label_size = 0.4}: Readable edge labels
 \item \code{edge_label_position = 0.7}: Labels positioned toward target
-\item \code{edge_start_style = "dotted"}: Dotted line at edge source
-\item \code{edge_start_length = 0.2}: 20\% of edge is dotted
+\item \code{edge_start_style = "dotted"}: Dotted line at edge source for
+directed networks
+\item \code{edge_start_length = 0.2}: 20\% of directed edges are dotted
 }
 }
 }

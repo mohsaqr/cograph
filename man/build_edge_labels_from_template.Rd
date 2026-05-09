@@ -44,7 +44,8 @@ build_edge_labels_from_template(
 
 \item{ci_format}{CI format: "bracket" or "dash".}
 
-\item{oneline}{Logical: single line format.}
+\item{oneline}{Logical. Accepted for compatibility; labels are currently
+normalized to single-line whitespace.}
 
 \item{leading_zero}{Logical: include leading zero for values < 1? Default TRUE.}
 

@@ -37,9 +37,11 @@ splot.tna_bootstrap(
 
 \item{edge_style_nonsig}{Line style for non-significant edges (2=dashed). Default 2.}
 
-\item{color_nonsig}{Color for non-significant edges. Default "#888888" (grey).}
+\item{color_nonsig}{Accepted for compatibility; styled mode currently uses a
+fixed pink color for non-significant edges.}
 
-\item{show_ci}{Logical: overlay CI bands on edges? Default FALSE.}
+\item{show_ci}{Logical: include CI bounds in edge labels? Default FALSE.
+Use \code{display = "ci"} for CI underlays on edges.}
 
 \item{show_stars}{Logical: show significance stars (*, **, ***) on edges? Default TRUE.}
 

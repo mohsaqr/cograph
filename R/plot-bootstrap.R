@@ -29,8 +29,10 @@ plot.tna_bootstrap <- function(x, ...) {
 #'   }
 #' @param edge_style_sig Line style for significant edges (1=solid). Default 1.
 #' @param edge_style_nonsig Line style for non-significant edges (2=dashed). Default 2.
-#' @param color_nonsig Color for non-significant edges. Default "#888888" (grey).
-#' @param show_ci Logical: overlay CI bands on edges? Default FALSE.
+#' @param color_nonsig Accepted for compatibility; styled mode currently uses a
+#'   fixed pink color for non-significant edges.
+#' @param show_ci Logical: include CI bounds in edge labels? Default FALSE.
+#'   Use \code{display = "ci"} for CI underlays on edges.
 #' @param show_stars Logical: show significance stars (*, **, ***) on edges? Default TRUE.
 #' @param width_by Optional: "cr_lower" to scale edge width by lower consistency range bound.
 #' @param inherit_style Logical: inherit colors/layout from original TNA model? Default TRUE.
@@ -104,6 +106,8 @@ splot.tna_bootstrap <- function(x,
 
   # Build args list
   args <- list(...)
+  labels_enabled <- !identical(args$edge_labels, FALSE)
+  template_user <- !is.null(args$edge_label_template)
   n_nodes <- nrow(weights)
 
   # TNA edge color
@@ -216,18 +220,30 @@ splot.tna_bootstrap <- function(x,
   }
 
   # Stars for significance
-  if (show_stars && n_edges > 0 && !is.null(x$p_values)) {
+  if (labels_enabled && n_edges > 0 && !is.null(x$p_values)) {
     args$edge_label_p <- x$p_values[edge_idx]
-    args$edge_label_stars <- TRUE
-    args$edge_label_template <- "{est}{stars}"
+    if (show_stars) {
+      args$edge_label_stars <- TRUE
+      if (!template_user && is.null(args$edge_label_template)) {
+        args$edge_label_template <- "{est}{stars}"
+      }
+    }
   }
 
   # CI labels (add CI bounds to label template)
   if ((show_ci || display == "ci") && n_edges > 0 &&
       !is.null(x$ci_lower) && !is.null(x$ci_upper)) {
-    args$edge_ci_lower <- x$ci_lower[edge_idx]
-    args$edge_ci_upper <- x$ci_upper[edge_idx]
-    args$edge_label_template <- "{est}{stars} [{low}, {up}]"
+    if (labels_enabled) {
+      args$edge_ci_lower <- x$ci_lower[edge_idx]
+      args$edge_ci_upper <- x$ci_upper[edge_idx]
+      if (!template_user) {
+        args$edge_label_template <- if (show_stars) {
+          "{est}{stars} [{low}, {up}]"
+        } else {
+          "{est} [{low}, {up}]"
+        }
+      }
+    }
 
     # For CI mode: thickness reflects relative uncertainty
     if (display == "ci" && !is.null(x$p_values)) {
@@ -308,7 +324,7 @@ splot.tna_bootstrap <- function(x,
 #' @param x A \code{net_bootstrap} object (from Nestimate).
 #' @param display Display mode: \code{"styled"} (default), \code{"significant"}, or \code{"full"}.
 #' @param show_ci Logical: overlay CI bounds on edge labels? Default FALSE.
-#' @param show_stars Logical: show significance stars on edge labels? Default FALSE.
+#' @param show_stars Logical: show significance stars on edge labels? Default TRUE.
 #' @param inherit_style Logical: inherit labels/layout/colors from network? Default TRUE.
 #' @param ... Additional arguments passed to \code{splot()}.
 #'
@@ -337,6 +353,8 @@ splot.net_bootstrap <- function(x,
   )
 
   args        <- list(...)
+  labels_enabled <- !identical(args$edge_labels, FALSE)
+  template_user <- !is.null(args$edge_label_template)
   n_nodes     <- nrow(weights)
   is_directed <- isTRUE(x$original$directed)
   labels      <- x$original$nodes$label %||% rownames(weights_orig)
@@ -426,17 +444,28 @@ splot.net_bootstrap <- function(x,
     args$edge_ci_style       <- 1
   }
 
-  if (show_stars && n_edges > 0 && !is.null(p_values)) {
+  if (labels_enabled && n_edges > 0 && !is.null(p_values)) {
     args$edge_label_p        <- p_values[edge_idx]
-    args$edge_label_stars    <- TRUE
-    args$edge_label_template <- "{est}{stars}"
+    if (show_stars) {
+      args$edge_label_stars <- TRUE
+      if (!template_user && is.null(args$edge_label_template)) {
+        args$edge_label_template <- "{est}{stars}"
+      }
+    }
   }
 
   if (show_ci && n_edges > 0 && !is.null(x$ci_lower) && !is.null(x$ci_upper)) {
-    args$edge_ci_lower <- x$ci_lower[edge_idx]
-    args$edge_ci_upper <- x$ci_upper[edge_idx]
-    if (is.null(args$edge_label_template))
-      args$edge_label_template <- "{est}{stars} [{low}, {up}]"
+    if (labels_enabled) {
+      args$edge_ci_lower <- x$ci_lower[edge_idx]
+      args$edge_ci_upper <- x$ci_upper[edge_idx]
+      if (!template_user) {
+        args$edge_label_template <- if (show_stars) {
+          "{est}{stars} [{low}, {up}]"
+        } else {
+          "{est} [{low}, {up}]"
+        }
+      }
+    }
   }
 
   do.call(splot, c(list(x = weights), args))

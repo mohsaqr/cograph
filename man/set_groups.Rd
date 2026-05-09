@@ -26,16 +26,15 @@ set_groups(
 \item Data frame: Must have "node"/"nodes" column plus one of
 "layer"/"layers", "cluster"/"clusters", or "group"/"groups"
 (plural forms are automatically normalized to singular)
-\item NULL: Use \code{nodes} + one of \code{layers}/\code{clusters}/\code{groups} vectors
+\item NULL: Use \code{nodes} + one of \code{layers}/\code{clusters} vectors
 }}
 
 \item{type}{Group type. One of \code{"group"} (default), \code{"cluster"},
-or \code{"layer"}. Ignored when using vector arguments (\code{layers},
-\code{clusters}, \code{groups}) since the type is inferred from which
-argument is provided.}
+or \code{"layer"}. Ignored when using \code{layers} or \code{clusters}
+vector arguments since the type is inferred from which argument is provided.}
 
 \item{nodes}{Character vector of node labels. Use with \code{layers}, \code{clusters},
-or \code{groups} to specify groupings via vectors instead of a data frame.}
+to specify groupings via vectors instead of a data frame.}
 
 \item{layers}{Character/factor vector of layer assignments (same length as \code{nodes}).}
 

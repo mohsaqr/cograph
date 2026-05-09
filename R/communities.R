@@ -11,10 +11,10 @@
 #'
 #' @description
 #' Detects communities/clusters in networks using various algorithms.
-#' Provides a unified interface to igraph's community detection functions
-#' with full parameter exposure.
+#' Provides a unified interface to igraph's community detection functions.
 #'
-#' @param x Network input: matrix, igraph, network, cograph_network, or tna object
+#' @param x Network input: matrix, igraph, network, CographNetwork,
+#'   cograph_network, or tna object
 #' @param method Community detection algorithm. One of:
 #'   \itemize{
 #'     \item \code{"louvain"} - Louvain modularity optimization (default, fast)
@@ -36,8 +36,9 @@
 #'   if available, otherwise unweighted. Set to NA for explicitly unweighted.
 #' @param resolution Resolution parameter for modularity-based methods
 #'   (louvain, leiden). Higher values yield more communities. Default 1.
-#' @param directed Logical; whether to treat the network as directed.
-#'   Default NULL (auto-detect).
+#' @param directed Logical; whether edge-betweenness should treat the network
+#'   as directed. Default NULL (auto-detect for edge-betweenness). Other methods
+#'   use their own directed/undirected handling.
 #' @param seed Random seed for reproducibility. Only applies to stochastic
 #'   algorithms (louvain, leiden, infomap, label_propagation, spinglass).
 #' @param ... Additional parameters passed to the specific algorithm.
@@ -52,6 +53,11 @@
 #'   \code{"network"} (original input), \code{"igraph_result"}.
 #'
 #' @details
+#' When called through this wrapper, methods that require undirected graphs
+#' (\code{"louvain"}, \code{"leiden"}, \code{"fast_greedy"},
+#' \code{"leading_eigenvector"}, and \code{"fluid"}) fall back to
+#' \code{"walktrap"} if the input graph is directed.
+#'
 #' \strong{Algorithm Selection Guide:}
 #'
 #' \tabular{lll}{
@@ -377,7 +383,8 @@ community_walktrap <- function(x,
 #' Minimizes the map equation (description length of random walks).
 #'
 #' @param x Network input
-#' @param weights Edge weights for transitions. NULL uses network weights.
+#' @param weights Edge weights for transitions. NULL uses network weights,
+#'   NA for unweighted.
 #' @param v.weights Vertex weights (teleportation weights).
 #' @param nb.trials Number of optimization trials. Default 10.
 #' @param modularity Logical; calculate modularity? Default TRUE.
@@ -801,9 +808,8 @@ community_fluid <- function(x, no.of.communities, ...) {
 #' @param threshold Co-occurrence threshold for consensus. Default 0.5.
 #'   Nodes that appear together in >= threshold proportion of runs are
 #'   placed in the same community.
-#' @param seed Optional seed for reproducibility. If provided, seeds for
-
-#'   individual runs are derived from this seed.
+#' @param seed Optional seed for reproducibility. If provided, the RNG state is
+#'   initialized once before repeated runs.
 #' @param ... Additional arguments passed to the community detection method.
 #'
 #' @return A \code{cograph_communities} object with consensus membership.
@@ -811,8 +817,8 @@ community_fluid <- function(x, no.of.communities, ...) {
 #' @details
 #' The algorithm works as follows:
 #' \enumerate{
-#'   \item Run the specified algorithm \code{n_runs} times (without seeds to
-#'     allow variation)
+#'   \item Run the specified algorithm \code{n_runs} times using the current RNG
+#'     stream
 #'   \item Build a co-occurrence matrix counting how often each pair of nodes
 #'     appears in the same community
 #'   \item Normalize to proportions (0-1)
@@ -1129,7 +1135,7 @@ n_communities <- function(x) {
 #' Get Community Sizes
 #'
 #' @param x A cograph_communities object
-#' @return Named integer vector of community sizes
+#' @return Integer vector of community sizes
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' g <- igraph::make_graph("Zachary")

@@ -13,7 +13,7 @@ layout_groups(
 )
 }
 \arguments{
-\item{network}{A CographNetwork object.}
+\item{network}{A \code{CographNetwork} or \code{cograph_network} object.}
 
 \item{groups}{Vector specifying group membership for each node.
 Can be numeric, character, or factor.}

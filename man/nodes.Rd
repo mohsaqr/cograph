@@ -10,7 +10,8 @@ nodes(x)
 \item{x}{A cograph_network object.}
 }
 \value{
-A data frame with columns: id, label, name, x, y (and possibly others).
+A node metadata data frame, usually with \code{id} and \code{label}
+columns, plus layout or other metadata columns when present.
 }
 \description{
 Extracts the nodes data frame from a cograph_network object.

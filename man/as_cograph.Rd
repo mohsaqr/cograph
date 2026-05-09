@@ -32,10 +32,10 @@ from tna sequence data is a separate edge. If TRUE or a string
 \value{
 A cograph_network object: a named list with components:
 \describe{
-\item{\code{nodes}}{Data frame with id, label, (x, y if layout applied)}
+\item{\code{nodes}}{Data frame with id, label, and optional layout or metadata columns}
 \item{\code{edges}}{Data frame with from, to, weight columns}
 \item{\code{directed}}{Logical indicating if network is directed}
-\item{\code{weights}}{Full n×n weight matrix (for to_matrix round-trip)}
+\item{\code{weights}}{Full n×n weight matrix when available for matrix/TNA round-trips, or NULL}
 \item{\code{data}}{Original estimation data (sequence matrix, edge list, etc.), or NULL}
 \item{\code{meta}}{Consolidated metadata list with sub-fields:
 \code{source} (input type string),

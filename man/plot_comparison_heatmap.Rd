@@ -23,7 +23,9 @@ plot_comparison_heatmap(
 )
 }
 \arguments{
-\item{x}{First network: matrix, CographNetwork, tna, or igraph object.}
+\item{x}{First network: matrix, \code{cograph_network},
+\code{CographNetwork}, \code{tna}, \code{igraph}, or list-like object
+with \code{$weights}.}
 
 \item{y}{Second network: same type as x. NULL to plot just x.}
 

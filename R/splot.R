@@ -14,18 +14,20 @@ NULL
 #'   - A square numeric matrix (adjacency/weight matrix)
 #'   - A data frame with edge list (from, to, optional weight columns)
 #'   - An igraph object
-#'   - A cograph_network object
+#'   - A CographNetwork or cograph_network object
 #'   - A tna object (from tna package)
 #'   - A group_tna object (list of tna objects from tna package).
 #'     Use parameter `i` to select a specific group, or omit to plot all groups.
-#' @param layout Layout algorithm: "circle", "spring", "groups", or a matrix
-#'   of x,y coordinates, or an igraph layout function. Also supports igraph
-#'   two-letter codes: "kk", "fr", "drl", "mds", "ni", etc.
+#' @param layout Layout algorithm: "oval" (default), "circle", "spring",
+#'   "groups", or a matrix of x,y coordinates, or an igraph layout function.
+#'   Also supports igraph two-letter codes: "kk", "fr", "drl", "mds", "ni",
+#'   etc.
 #' @param directed Logical. Force directed interpretation. NULL for auto-detect.
 #' @param seed Random seed for deterministic layouts. Default 42.
 #' @param theme Theme name: "classic", "dark", "minimal", "colorblind", etc.
 #'
-#' @param node_size Node size(s). Single value or vector. Default 3.
+#' @param node_size Node size(s). Single value or vector. Default NULL, which
+#'   resolves to 7 with default scaling.
 #' @param node_size2 Secondary node size for ellipse/rectangle height.
 #' @param scale_nodes_by Scale node sizes by a centrality measure. Can be:
 #'   \itemize{
@@ -114,18 +116,19 @@ NULL
 #'
 #' @param edge_color Edge color(s). If NULL, uses edge_positive_color/edge_negative_color based on weight.
 #' @param edge_width Edge width(s). If NULL, scales by weight using edge_size and edge_width_range.
-#' @param edge_size Base edge size for weight scaling. NULL (default) uses adaptive sizing
-#'   based on network size: `15 * exp(-n_nodes/90) + 1`. For directed networks, this
-#'   is halved. Larger values = thicker edges overall.
+#' @param edge_size Maximum edge size for weight scaling. NULL (default) uses
+#'   the upper bound of \code{edge_width_range}. Larger values = thicker edges
+#'   overall.
 #' @param esize Deprecated. Use `edge_size` instead.
 #' @param edge_width_range Output width range as c(min, max) for weight-based scaling.
-#'   Default c(0.5, 4). Edges are scaled to fit within this range.
+#'   Default c(0.1, 4). Edges are scaled to fit within this range unless
+#'   \code{edge_size} supplies the maximum.
 #' @param edge_scale_mode Scaling mode for edge weights: "linear" (default, qgraph-style),
 #'   "log" (logarithmic for wide weight ranges), "sqrt" (moderate compression),
 #'   or "rank" (equal visual spacing regardless of weight distribution).
-#' @param edge_cutoff Two-tier cutoff for edge width scaling. NULL (default) = auto-calculate
-#'   as 75th percentile of weights (qgraph behavior). 0 = disabled (continuous scaling).
-#'   Positive number = manual threshold. Edges below cutoff get minimal width variation.
+#' @param edge_cutoff Optional cutoff for edge emphasis. NULL (default) or 0
+#'   disables cutoff fading. Positive values fade edges whose absolute weights
+#'   are below the cutoff; width scaling remains continuous.
 #' @param cut Deprecated. Use `edge_cutoff` instead.
 #' @param edge_alpha Edge transparency (0-1). Default 0.8.
 #' @param edge_labels Edge labels: TRUE (show weights), FALSE (none),
@@ -144,7 +147,7 @@ NULL
 #'   readability over dark edges? Default TRUE. When TRUE, overrides shadow settings.
 #' @param edge_style Line type(s): 1=solid, 2=dashed, 3=dotted, etc.
 #' @param curvature Edge curvature. 0 for straight, positive/negative for curves.
-#' @param curve_scale Logical: auto-curve reciprocal edges?
+#' @param curve_scale Reserved for future curve scaling; currently not used.
 #' @param curve_shape Spline tension (-1 to 1). Default 0.
 #' @param curve_pivot Position along edge for curve control point (0-1).
 #' @param curves Curve mode: TRUE (default) = single edges straight, reciprocal edges

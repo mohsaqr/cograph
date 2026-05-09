@@ -12,7 +12,8 @@ to_matrix(x, directed = NULL)
 \item{directed}{Logical or NULL. If NULL (default), auto-detect from input.}
 }
 \value{
-A square numeric adjacency matrix with row/column names.
+A square numeric adjacency matrix, preserving row/column names when
+available.
 }
 \description{
 Converts any supported network format to an adjacency matrix.

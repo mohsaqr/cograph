@@ -31,18 +31,10 @@ motif_census(
 \item{seed}{Random seed for reproducibility}
 }
 \value{
-A \code{cograph_motifs} object containing:
-\itemize{
-\item \code{counts}: Motif counts in observed network
-\item \code{null_mean}: Mean counts in random networks
-\item \code{null_sd}: Standard deviation in random networks
-\item \code{z_scores}: Z-scores (observed - mean) / sd
-\item \code{p_values}: Two-tailed p-values
-\item \code{significant}: Logical vector (|z| > 2)
-\item \code{size}: Motif size (3 or 4)
-\item \code{directed}: Whether network is directed
-\item \code{n_random}: Number of random networks used
-}
+A \code{cograph_motifs} data frame with motif count, null-model mean,
+null-model standard deviation, z-score, p-value, and significance columns.
+The motif size, directed flag, null-model method, and number of random
+networks are stored as attributes.
 }
 \description{
 Analyze recurring subgraph patterns (motifs) in networks and test their

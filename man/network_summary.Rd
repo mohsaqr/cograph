@@ -23,7 +23,8 @@ network_summary(
 \item{directed}{Logical or NULL. If NULL (default), auto-detect from matrix
 symmetry. Set TRUE to force directed, FALSE to force undirected.}
 
-\item{weighted}{Logical. Use edge weights for strength/centrality calculations.
+\item{weighted}{Logical. Use edge weights for strength, shortest-path, and
+centrality calculations where the underlying igraph routine accepts them.
 Default TRUE.}
 
 \item{mode}{For directed networks: "all", "in", or "out". Affects degree-based

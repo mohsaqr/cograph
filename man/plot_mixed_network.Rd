@@ -33,7 +33,8 @@ opposite directions.}
 
 \item{layout}{Layout algorithm or coordinate matrix. Default "oval".}
 
-\item{sym_color}{Color for symmetric/undirected edges. Default "#457B9D" (steel blue).}
+\item{sym_color}{Color for symmetric/undirected edges. Default
+\code{"ivory4"}.}
 
 \item{asym_color}{Color for asymmetric/directed edges. Can be a single color
 or a vector of two colors for positive/negative directions. Default
@@ -67,7 +68,8 @@ the fill proportion equal to the initial probability. Default NULL.}
 \item{...}{Additional arguments passed to splot().}
 }
 \value{
-Invisibly returns the combined cograph_network object.
+Invisibly returns a list with the combined edge data and filtered
+symmetric/asymmetric matrices.
 }
 \description{
 Plot a network combining symmetric (undirected) and asymmetric

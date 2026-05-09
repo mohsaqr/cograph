@@ -8,19 +8,22 @@ NULL
 #'
 #' Customize the visual appearance of edges in a network plot.
 #'
-#' @param network A cograph_network object, matrix, data.frame, or igraph object.
-#'   Matrices and other inputs are auto-converted.
+#' @param network A CographNetwork, cograph_network object, matrix,
+#'   data.frame, or igraph object. Matrices and other inputs are auto-converted.
 #' @param width Edge width. Can be a single value, vector (per-edge), or "weight".
-#' @param edge_size Base edge size for weight scaling. NULL (default) uses adaptive sizing
-#'   based on network size: `15 * exp(-n_nodes/90) + 1`. Larger values = thicker edges.
+#' @param edge_size Maximum edge size for renderer weight scaling. NULL
+#'   (default) uses the renderer's edge-width range. Larger values = thicker
+#'   edges overall.
 #' @param esize Deprecated. Use `edge_size` instead.
 #' @param edge_width_range Output width range as c(min, max) for weight-based scaling.
-#'   Default c(0.5, 4). Edges are scaled to fit within this range.
+#'   If NULL (default), the plotting renderer's default range is used.
 #' @param edge_scale_mode Scaling mode for edge weights: "linear" (default),
 #'   "log" (for wide weight ranges), "sqrt" (moderate compression),
 #'   or "rank" (equal visual spacing).
-#' @param edge_cutoff Two-tier cutoff for edge width scaling. NULL (default) = auto 75th percentile.
-#'   0 = disabled. Positive number = manual threshold.
+#' @param edge_cutoff Optional cutoff for edge emphasis. NULL (default) or 0
+#'   disables cutoff handling. Positive values are passed to renderers; in
+#'   \code{splot()}, edges below the cutoff are faded while width scaling remains
+#'   continuous.
 #' @param cut Deprecated. Use `edge_cutoff` instead.
 #' @param color Edge color. Can be a single color, vector, or "weight" for
 #'   automatic coloring based on edge weights.
@@ -57,7 +60,7 @@ NULL
 #' @param curve_shape Spline tension for curved edges (-1 to 1, default: 0).
 #' @param curve_pivot Pivot position along edge for curve control point (0-1, default: 0.5).
 #' @param curves Curve mode: FALSE (straight edges), "mutual" (only curve reciprocal pairs),
-#'   or "force" (curve all edges). Default FALSE.
+#'   or "force" (curve all edges). If NULL, the plotting renderer's default is used.
 #' @param ci Numeric vector of CI widths (0-1 scale). Larger values = more uncertainty.
 #' @param ci_scale Width multiplier for CI underlay thickness. Default 2.
 #' @param ci_alpha Transparency for CI underlay (0-1). Default 0.15.

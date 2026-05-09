@@ -7,7 +7,8 @@
 validate_network(x, arg_name = "network")
 }
 \arguments{
-\item{x}{Object to validate.}
+\item{x}{Object to validate. Must inherit from \code{CographNetwork} or
+\code{cograph_network}.}
 
 \item{arg_name}{Argument name for error messages.}
 }

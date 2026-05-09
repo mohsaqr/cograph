@@ -31,8 +31,9 @@ plot_centrality_distribution(
 
 \item{bins}{Integer or NULL. Number of bins. Default NULL (auto).}
 
-\item{log}{Character. Log scaling: \code{""}, \code{"x"}, \code{"y"}, or
-\code{"xy"}. Default \code{""}.}
+\item{log}{Character. Log scaling: \code{""}, \code{"y"}, or \code{"xy"}.
+Values containing \code{"x"} are accepted for compatibility but only the
+y-axis is log-scaled by this plotting implementation. Default \code{""}.}
 
 \item{col}{Fill color. Default \code{"steelblue"}.}
 

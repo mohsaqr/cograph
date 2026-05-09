@@ -20,7 +20,7 @@ matrix, \code{igraph}, or \code{cograph_network}.}
 
 \item{communities}{Community assignments in any format:
 a method name (e.g., \code{"walktrap"}, \code{"louvain"}),
-a numeric membership vector (e.g., \code{c(1, 1, 2, 2, 3)}),
+a numeric or factor membership vector (e.g., \code{c(1, 1, 2, 2, 3)}),
 a named list of character vectors,
 a \code{cograph_communities} object, or
 a \code{tna_communities} object.}

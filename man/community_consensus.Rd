@@ -36,8 +36,8 @@ spinglass).}
 Nodes that appear together in >= threshold proportion of runs are
 placed in the same community.}
 
-\item{seed}{Optional seed for reproducibility. If provided, seeds for
-individual runs are derived from this seed.}
+\item{seed}{Optional seed for reproducibility. If provided, the RNG state is
+initialized once before repeated runs.}
 
 \item{...}{Additional arguments passed to the community detection method.}
 }
@@ -52,8 +52,8 @@ produces more robust and stable community assignments than single runs.
 \details{
 The algorithm works as follows:
 \enumerate{
-\item Run the specified algorithm \code{n_runs} times (without seeds to
-allow variation)
+\item Run the specified algorithm \code{n_runs} times using the current RNG
+stream
 \item Build a co-occurrence matrix counting how often each pair of nodes
 appears in the same community
 \item Normalize to proportions (0-1)

@@ -6,7 +6,8 @@ NULL
 
 #' Validate Network Object
 #'
-#' @param x Object to validate.
+#' @param x Object to validate. Must inherit from \code{CographNetwork} or
+#'   \code{cograph_network}.
 #' @param arg_name Argument name for error messages.
 #' @keywords internal
 validate_network <- function(x, arg_name = "network") {
@@ -202,7 +203,7 @@ resolve_aesthetic <- function(value, data = NULL, n = NULL, default = NULL) {
 #' abbrev_label(labels, NULL)
 #'
 #' # Fixed max length
-#' abbrev_label(labels, 5)  # "Very...", "Short", "Anot..."
+#' abbrev_label(labels, 5)  # "Very…", "Short", "Anot…"
 #'
 #' # Auto-adaptive
 #' abbrev_label(labels, "auto")

@@ -372,9 +372,11 @@ plotting. Edges that round to zero are automatically removed. Default 2.
 Set NULL to disable rounding.}
 }
 \value{
-Invisible NULL. Called for side effect of drawing.
+The updated \code{cograph_network} object, invisibly. Called
+primarily for the side effect of drawing.
 
-Invisible NULL. Called for side effect of drawing.
+The updated \code{cograph_network} object, invisibly. Called
+primarily for the side effect of drawing.
 }
 \description{
 Main plotting function for Cograph networks. Renders the network visualization

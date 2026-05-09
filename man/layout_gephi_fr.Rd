@@ -53,15 +53,16 @@ or "linear" (linear decrease over iterations).}
 A matrix with x,y coordinates for each node.
 }
 \description{
-Force-directed layout that replicates Gephi's Fruchterman-Reingold algorithm.
-This is a strict port of the Java implementation from Gephi's source code,
-with additional improvements for reproducibility and flexibility.
+Force-directed layout adapted from Gephi's Fruchterman-Reingold algorithm.
+This implementation follows the Java algorithm structure with changes for
+static plotting, reproducibility, and flexibility.
 }
 \details{
-This layout is a direct port of Gephi's ForceAtlas algorithm variant of
+This layout is adapted from Gephi's ForceAtlas-style implementation of
 Fruchterman-Reingold. Key differences from igraph's layout_with_fr:
 \itemize{
-\item Uses Gephi's specific constants (SPEED_DIVISOR=800, AREA_MULTIPLICATOR=10000)
+\item Uses Gephi-style constants with \code{SPEED_DIVISOR=10} for static
+plotting and \code{AREA_MULTIPLICATOR=10000}
 \item Includes configurable gravity toward center
 \item Different cooling/speed mechanism
 \item Supports multiple gravity modes for different layout styles

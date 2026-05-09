@@ -21,9 +21,9 @@
 #' @param layout Node layout within layers: "horizontal" (default) spreads nodes
 #'   horizontally, "circle" arranges nodes in an ellipse, "spring" uses
 #'   force-directed placement based on within-layer connections.
-#' @param layer_spacing Vertical distance between layer centers. Default 2.5.
-#' @param layer_width Horizontal width of each layer shell. Default 5.
-#' @param layer_depth Depth of each layer (for 3D effect). Default 2.5.
+#' @param layer_spacing Vertical distance between layer centers. Default 4.
+#' @param layer_width Horizontal width of each layer shell. Default 8.
+#' @param layer_depth Depth of each layer (for 3D effect). Default 4.
 #' @param skew_angle Angle of perspective skew in degrees. Default 25.
 #' @param node_spacing Node placement ratio within layer (0-1). Default 0.7.
 #'   Higher values spread nodes closer to the layer edges.
@@ -41,7 +41,7 @@
 #' @param legend Logical. Whether to show legend. Default TRUE.
 #' @param legend_position Position for legend. Default "topright".
 #' @param curvature Edge curvature for within-layer edges. Default 0.15.
-#' @param node_size Size of nodes. Default 2.5.
+#' @param node_size Size of nodes. Default 3.
 #' @param minimum Minimum edge weight threshold. Edges below this are hidden.
 #'   Default 0.
 #' @param scale Scaling factor for spacing parameters. Use scale > 1 for

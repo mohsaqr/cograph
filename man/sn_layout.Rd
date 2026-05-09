@@ -28,6 +28,7 @@ Apply a layout algorithm to compute node positions.
 \describe{
 \item{\strong{spring}}{Force-directed layout (Fruchterman-Reingold style).
 Good general-purpose layout. Default.}
+\item{\strong{oval}/\strong{ellipse}}{Nodes arranged around an ellipse.}
 \item{\strong{circle}}{Nodes arranged in a circle. Good for small networks
 or when structure is less important.}
 \item{\strong{groups}}{Circular layout with grouped nodes clustered together.}
@@ -35,6 +36,7 @@ or when structure is less important.}
 \item{\strong{random}}{Random positions. Useful as starting point.}
 \item{\strong{star}}{Central node with others arranged around it.}
 \item{\strong{bipartite}}{Two-column layout for bipartite networks.}
+\item{\strong{gephi}/\strong{gephi_fr}}{Gephi-style force-directed layout.}
 }
 }
 

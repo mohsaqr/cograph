@@ -11,8 +11,8 @@ NULL
 #' networks, multi-cluster networks (block diagonal), and multi-layer networks
 #' (group_tna).
 #'
-#' @param x Network input: matrix, CographNetwork, tna, igraph, group_tna,
-#'   or any object cograph accepts.
+#' @param x Network input: matrix, CographNetwork, cograph_network, tna,
+#'   igraph, group_tna, or a list-like object with a \code{$weights} matrix.
 #' @param cluster_list Optional list of character vectors defining node clusters.
 #'   Creates a block-structured heatmap with clusters along diagonal.
 #' @param cluster_spacing Gap size between clusters (in cell units). Default 0.
@@ -20,7 +20,8 @@ NULL
 #' @param legend_position Position: "right" (default), "left", "top", "bottom", "none".
 #' @param legend_title Title for legend. Default "Weight".
 #' @param colors Color palette: vector of colors for gradient, or a palette name
-#'   ("viridis", "heat", "blues", "reds", "diverging"). Default "viridis".
+#'   ("viridis", "heat", "blues", "reds", "greens", "diverging").
+#'   Default "viridis".
 #' @param limits Numeric vector c(min, max) for color scale. NULL for auto.
 #' @param midpoint Midpoint for diverging scales. NULL for auto (0 if data spans neg/pos).
 #' @param na_color Color for NA values. Default "grey90".
@@ -36,7 +37,8 @@ NULL
 #'   disable.
 #' @param value_digits Decimal places for values. Default 2.
 #' @param show_diagonal Logical: show diagonal values? Default TRUE.
-#' @param diagonal_color Optional color for diagonal cells. NULL uses scale.
+#' @param diagonal_color Accepted for API compatibility; diagonal cells currently
+#'   use the active fill scale unless hidden with \code{show_diagonal = FALSE}.
 #' @param cluster_labels Logical: show cluster/layer labels? Default TRUE.
 #' @param cluster_borders Logical: draw borders around clusters? Default TRUE.
 #' @param border_color Color for cluster borders. Default "black".
@@ -63,8 +65,7 @@ NULL
 #' will be reordered to show clusters as blocks along the diagonal.
 #'
 #' For group_tna objects (multiple separate networks), each network becomes a
-#' diagonal block. Off-diagonal blocks are empty (no inter-layer edges) unless
-#' the networks share nodes.
+#' diagonal block. Off-diagonal blocks are empty (no inter-layer edges).
 #'
 #' @examples
 #' set.seed(1)
@@ -669,5 +670,4 @@ plot_heatmap <- function(x,
   # Return list with theme and coord (coord must be added separately)
   list(theme = th, aspect_ratio = aspect_ratio)
 }
-
 

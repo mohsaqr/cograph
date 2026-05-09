@@ -56,7 +56,7 @@ draw_polygon_donut_node_base(
 
 \item{donut_border.width}{Border width for donut ring (NULL = use border.width).}
 
-\item{show_value}{Logical: show value in center? Default FALSE.}
+\item{show_value}{Logical: show value in center? Default TRUE.}
 
 \item{value_cex}{Text size for center value.}
 

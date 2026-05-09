@@ -7,7 +7,7 @@
 subgraphs(...)
 }
 \arguments{
-\item{...}{Additional arguments passed to internal plot helpers.}
+\item{...}{Arguments passed to \code{motifs()}.}
 }
 \value{
 A \code{cograph_motif_result} object with \code{named_nodes = TRUE}.

@@ -113,7 +113,8 @@ plot_bootstrap_forest(x, ...)
 }
 \arguments{
 \item{x}{A \code{tna_bootstrap} (from \code{tna::bootstrap}),
-\code{net_bootstrap}, or \code{boot_glasso} object.}
+\code{net_bootstrap}, \code{net_bootstrap_group}, or
+\code{boot_glasso} object.}
 
 \item{...}{Currently unused.}
 
@@ -122,7 +123,8 @@ plot_bootstrap_forest(x, ...)
 
 \item{layout}{\code{"linear"} (default) draws the classic tall forest plot;
 \code{"circular"} arranges each edge as a spoke around a circle, with the
-inner ring at the data minimum and the outer ring at the data maximum.}
+inner ring at the data minimum and the outer ring at the data maximum;
+\code{"grouped"} arranges edges in sectors by source node where supported.}
 
 \item{interval}{Which interval to display: \code{"ci"} (bootstrap confidence
 interval, default), \code{"cr"} (consistency range, stability inference
@@ -139,10 +141,12 @@ significant at top), or \code{"name"} (alphabetical).}
 \item{n_top}{Integer: restrict to the \code{n_top} edges with the largest
 absolute estimate. Applied after significance filtering. Default \code{NULL}.}
 
+\item{node_colors}{Optional node-colour vector for grouped radial layouts.}
+
 \item{sig_color}{Colour for significant CI bars and points. Default \code{"#2C6E8A"} (teal-blue).}
 
 \item{cr_color}{Colour for the consistency range bar (\code{interval = "cr"} or \code{"both"}).
-Default \code{"#D4820A"} (amber).}
+Default \code{"#D4829A"}.}
 
 \item{nonsig_color}{Colour for non-significant edges. Default \code{"#CCCCCC"}.}
 
@@ -150,7 +154,9 @@ Default \code{"#D4820A"} (amber).}
 
 \item{median_color}{Colour for the dashed median ring (radial layout only). Default \code{"#AAAAAA"}.}
 
-\item{label_size}{Text size for edge labels (radial layout only). Default \code{2.3}.}
+\item{label_size}{Text size for edge labels (radial and grouped layouts).
+Default \code{NULL} for automatic sizing in the main methods, or
+\code{2.8} for \code{net_bootstrap_group}.}
 
 \item{label_color}{Fixed colour for edge labels (radial layout only). \code{NULL} (default)
 inherits the edge colour (teal for significant, grey for non-significant).}
@@ -177,12 +183,18 @@ Default \code{1}. Use values > 1 for high-DPI output, < 1 for small devices.}
 \item{title}{Plot title. Default \code{NULL}.}
 
 \item{subtitle}{Plot subtitle. Default \code{NULL}.}
+
+\item{all_edges}{For \code{net_bootstrap_group}, show the union of group
+edges instead of only edges common to all groups. Default \code{FALSE}.}
+
+\item{pos_color}{Currently unused by the \code{net_bootstrap_group} method.}
 }
 \value{
 A \code{ggplot} object.
 }
 \description{
-A ggplot2-based forest plot for \code{net_bootstrap} and \code{boot_glasso}
+A ggplot2-based forest plot for \code{net_bootstrap},
+\code{net_bootstrap_group}, \code{tna_bootstrap}, and \code{boot_glasso}
 objects. Each row is one network edge; horizontal bars span the confidence
 interval and a filled square marks the point estimate. A dashed reference
 line runs through zero.

@@ -42,8 +42,8 @@ Examples: \code{degree >= 3}, \code{label \%in\% c("A", "B")},
 \item{\code{"none"}}{Remove all edges}
 }}
 
-\item{keep_format}{Logical. If TRUE, return the same format as input
-(matrix returns matrix, igraph returns igraph, etc.). Default FALSE
+\item{keep_format}{Logical. If TRUE, matrix, igraph, and statnet network
+inputs are returned in that format. Default FALSE
 returns cograph_network (universal format).}
 
 \item{directed}{Logical or NULL. If NULL (default), auto-detect from matrix
@@ -52,12 +52,13 @@ Only used for non-cograph_network inputs.}
 }
 \value{
 A cograph_network object with filtered nodes. If \code{keep_format = TRUE},
-returns the same type as input (matrix, igraph, network, etc.).
+matrix, igraph, and statnet network inputs are converted back to that type.
 }
 \description{
 Filter nodes using dplyr-style expressions on any node column or centrality
 measure. Returns a cograph_network object by default (universal format), or
-optionally the same format as input when \code{keep_format = TRUE}.
+optionally a matrix, igraph, or statnet network object when
+\code{keep_format = TRUE} and the input used one of those formats.
 }
 \examples{
 adj <- matrix(c(0, .5, .8, 0, .5, 0, .3, .6,

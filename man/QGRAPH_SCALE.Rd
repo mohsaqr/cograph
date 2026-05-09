@@ -10,11 +10,12 @@ A list with the following elements:
 \item{vsize_base}{Base multiplier in vsize formula: 8}
 \item{vsize_decay}{Decay constant in vsize formula: 80}
 \item{vsize_min}{Minimum added to vsize: 1}
-\item{vsize_factor}{Scale factor to convert vsize to user coordinates: 0.015}
+\item{vsize_factor}{Scale factor to convert vsize to user coordinates: 0.012}
 \item{esize_base}{Base multiplier in esize formula: 15}
 \item{esize_decay}{Decay constant in esize formula: 90}
 \item{esize_min}{Minimum added to esize: 1}
 \item{esize_unweighted}{Default edge width for unweighted networks: 2}
+\item{esize_scale}{Scale factor converting qgraph esize to line width: 0.27}
 \item{cent2edge_divisor}{Divisor in cent2edge formula: 17.5}
 \item{cent2edge_reference}{Reference value in cent2edge: 2.16}
 \item{cent2edge_plot_ref}{Plot reference size: 7}

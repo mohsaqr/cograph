@@ -83,11 +83,11 @@ for available methods: "louvain", "walktrap", "fast_greedy", "label_prop",
 horizontally, "circle" arranges nodes in an ellipse, "spring" uses
 force-directed placement based on within-layer connections.}
 
-\item{layer_spacing}{Vertical distance between layer centers. Default 2.5.}
+\item{layer_spacing}{Vertical distance between layer centers. Default 4.}
 
-\item{layer_width}{Horizontal width of each layer shell. Default 5.}
+\item{layer_width}{Horizontal width of each layer shell. Default 8.}
 
-\item{layer_depth}{Depth of each layer (for 3D effect). Default 2.5.}
+\item{layer_depth}{Depth of each layer (for 3D effect). Default 4.}
 
 \item{skew_angle}{Angle of perspective skew in degrees. Default 25.}
 
@@ -118,7 +118,7 @@ Use 1 for solid, 3 for dotted.}
 
 \item{curvature}{Edge curvature for within-layer edges. Default 0.15.}
 
-\item{node_size}{Size of nodes. Default 2.5.}
+\item{node_size}{Size of nodes. Default 3.}
 
 \item{minimum}{Minimum edge weight threshold. Edges below this are hidden.
 Default 0.}

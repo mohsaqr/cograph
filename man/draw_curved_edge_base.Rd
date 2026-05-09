@@ -53,7 +53,7 @@ when looking from source to target).}
 \description{
 Renders a curved edge using xspline() with optional arrow.
 Uses qgraph-style curve calculation for smooth, natural-looking curves.
-Curve direction is normalized so positive curve always bends the same
-visual direction regardless of edge orientation.
+Uses the supplied signed curve value; reciprocal-edge direction should be
+resolved by the caller.
 }
 \keyword{internal}

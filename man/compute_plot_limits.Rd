@@ -26,6 +26,9 @@ compute_plot_limits(
 \item{n_edges}{Number of edges.}
 
 \item{loop_rotations}{Per-edge loop rotation angles.}
+
+\item{fixed_bounds}{Optional numeric vector \code{c(xmin, xmax, ymin, ymax)}
+for fixed plot bounds before node/loop padding.}
 }
 \value{
 List with \code{xlim} and \code{ylim}.

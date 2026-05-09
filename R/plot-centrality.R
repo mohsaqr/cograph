@@ -228,15 +228,16 @@ utils::globalVariables(c(
 #' Accepts the data frame from \code{\link{centrality}} directly or any
 #' network input.
 #'
-#' Three styles are available:
+#' Four styles are available:
 #' \describe{
-#'   \item{\code{"line"}}{Parallel-coordinates view. Nodes on the x-axis,
-#'     z-score on the y-axis, one polyline per measure. Best for spotting
-#'     nodes with atypical centrality profiles.}
+#'   \item{\code{"line"}}{Faceted line view with one panel per measure.
+#'     Nodes are ordered along the requested orientation and connected within
+#'     each measure.}
 #'   \item{\code{"bar"}}{Horizontal bars, one facet per measure. Best for
 #'     reading individual measure values.}
 #'   \item{\code{"lollipop"}}{Like \code{"bar"} but with a dot at the tip.
 #'     Softer visual weight; useful on dense grids.}
+#'   \item{\code{"dot"}}{Dot-only variant of the lollipop style.}
 #' }
 #'
 #' @param x Output of \code{\link{centrality}}, or any network input
@@ -245,7 +246,7 @@ utils::globalVariables(c(
 #'   classical five (degree, strength, betweenness, closeness, eigenvector)
 #'   when \code{x} is a network; default \code{NULL} keeps all columns
 #'   when \code{x} is already a centrality data frame.
-#' @param style Character: "line" (default), "bar", "lollipop".
+#' @param style Character: "line" (default), "bar", "lollipop", or "dot".
 #' @param orientation Character: "horizontal" (default, nodes on y-axis) or
 #'   "vertical" (nodes on x-axis).
 #' @param scale Character: "raw" (default, native units; in the "line"
@@ -254,8 +255,8 @@ utils::globalVariables(c(
 #'   (1..n, highest value = 1).
 #' @param order_by Character. For "bar"/"lollipop": which measure sorts
 #'   nodes. Defaults to the first measure. Use \code{"alpha"} for
-#'   alphabetical. For "line", the x-axis always sorts nodes alphabetically
-#'   so the parallel-coordinates paths are stable across plots.
+#'   alphabetical. For "line", this also controls node ordering unless
+#'   \code{"alpha"} is requested.
 #' @param top_n Optional integer to keep only the top-N nodes (by
 #'   \code{order_by}). Useful for large graphs.
 #' @param highlight Optional integer: highlight the top-N bars/lines per
@@ -669,13 +670,12 @@ plot_centrality <- function(x,
 # plot_centrality_compare -- back-to-back pyramid for two networks
 # ============================================================================
 
-#' Plot Centrality Comparison (Pyramid)
+#' Plot Centrality Comparison
 #'
-#' Back-to-back horizontal bar chart comparing a centrality measure across
-#' two groups. Each row is a node; left bar is group 1, right bar is
-#' group 2. Bar fill is per-node (identity) -- either inherited from the
-#' network's node colors or supplied via \code{node_colors}. Visual delta
-#' is communicated by bar length alone.
+#' Compare a centrality measure across two or more groups using stacked,
+#' faceted, grouped, dumbbell, line, or two-group pyramid layouts. The
+#' \code{"pyramid"} style is a back-to-back horizontal bar chart for exactly
+#' two groups.
 #'
 #' @param ... Two or more centrality data frames (from
 #'   \code{\link{centrality}}) or network inputs. Names are used as

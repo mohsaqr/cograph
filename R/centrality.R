@@ -11,12 +11,12 @@
 #'       \code{strength}, \code{closeness}, \code{betweenness},
 #'       \code{eigenvector}, \code{pagerank}.}
 #'     \item{\code{"extended"}}{Basic plus commonly-reported second-tier
-#'       measures (~28 total): harmonic, coreness, eccentricity, radiality,
+#'       measures: harmonic, coreness, eccentricity, radiality,
 #'       lin, decay, load, stress, katz, alpha, power, authority, leverage,
 #'       constraint, effective_size, bridging, transitivity, subgraph,
 #'       diffusion, laplacian, kreach, current_flow_betweenness,
 #'       current_flow_closeness.}
-#'     \item{\code{"all"}}{Every available measure (87).}
+#'     \item{\code{"all"}}{Every available measure.}
 #'   }
 #'   Passing \code{measures} explicitly overrides \code{type}.
 #' @param measures Character vector of specific measure names to compute.
@@ -56,14 +56,17 @@
 #'   \code{\link{centrality_hubbell}}, \code{\link{centrality_information}},
 #'   \code{\link{centrality_pairwisedis}}, \code{\link{centrality_reaching_local}}.
 #'   **Psychometric (signed-weight)**: "expected_influence_1",
-#'   "expected_influence_2" (Robinaugh, Millner & McNally 2016). Unlike
-#'   strength (which takes |w|), expected influence keeps the sign — the
-#'   appropriate measure when edges can be negative (partial-correlation,
-#'   glasso, signed correlation networks).
-#' @param mode For directed networks: "all", "in", or "out". Affects degree,
-#'   strength, closeness, eccentricity, coreness, and harmonic centrality.
-#' @param normalized Logical. Normalize values to 0-1 range by dividing by max.
-#'   For closeness, this is passed directly to igraph (proper normalization).
+#'   "expected_influence_2" (Robinaugh, Millner & McNally 2016). Expected
+#'   influence keeps signed edge contributions, which is important when edges
+#'   can be negative (partial-correlation, glasso, signed correlation networks).
+#' @param mode For directed networks: "all", "in", or "out". Affects measures
+#'   whose output columns carry a mode suffix, including degree, strength,
+#'   closeness, eccentricity, coreness, harmonic, diffusion, leverage, k-reach,
+#'   distance-based measures, community-aware measures, and expected influence.
+#' @param normalized Logical. Normalize values by dividing by max. Most measures
+#'   are scaled to 0-1; signed expected-influence measures can retain negative
+#'   values under psychometric normalization. For closeness, this is passed
+#'   directly to igraph.
 #' @param weighted Logical. Use edge weights if available. Default TRUE.
 #' @param directed Logical or NULL. If NULL (default), auto-detect from matrix
 #'   symmetry. Set TRUE to force directed, FALSE to force undirected.
@@ -76,15 +79,18 @@
 #'   decimal places. Default NULL (no rounding).
 #' @param sort_by Character or NULL. Column name to sort results by
 #'   (descending order). Default NULL (original node order).
-#' @param cutoff Maximum path length to consider for betweenness and closeness.
+#' @param cutoff Maximum path length to consider for betweenness, closeness,
+#'   and harmonic centrality.
 #'   Default -1 (no limit). Set to a positive value for faster computation
 #'   on large networks at the cost of accuracy.
-#' @param invert_weights Logical or NULL. For path-based measures (betweenness,
-#'   closeness, harmonic, eccentricity, kreach), should weights be inverted so
-#'   that higher weights mean shorter paths? Default NULL which auto-detects:
-#'   TRUE for tna objects (transition probabilities), FALSE otherwise (matching
-#'   igraph/sna). Set explicitly to TRUE for strength/frequency weights (qgraph
-#'   style) or FALSE for distance/cost weights.
+#' @param invert_weights Logical or NULL. For path- and distance-based measures
+#'   (for example betweenness, closeness, harmonic, eccentricity, k-reach,
+#'   radiality, decay, stress, flow betweenness, and related variants), should
+#'   weights be inverted so that higher weights mean shorter paths? Default
+#'   NULL auto-detects: TRUE for tna objects (transition probabilities), FALSE
+#'   otherwise (matching igraph/sna). Set explicitly to TRUE for
+#'   strength/frequency weights (qgraph style) or FALSE for distance/cost
+#'   weights.
 #' @param alpha Numeric. Exponent for weight transformation when \code{invert_weights = TRUE}.
 #'   Distance is computed as \code{1 / weight^alpha}. Default 1. Higher values
 #'   increase the influence of weight differences on path lengths.
@@ -123,8 +129,9 @@
 #'   Neighborhood Component). Default 1.7 as recommended by Lin et al. (2008).
 #'   centiserve uses 1.67 (four-community assumption). Must be between 1 and 2.
 #' @param membership Integer vector of community assignments (one per node) for
-#'   community-aware measures: participation, within_module_z, gateway.
-#'   Default NULL. Required when requesting these measures.
+#'   community-aware measures: participation, within_module_z, gateway, and the
+#'   Gould-Fernandez brokerage roles. Default NULL. Required when requesting
+#'   these measures.
 #' @param katz_alpha Attenuation factor for Katz centrality. Must satisfy
 #'   \eqn{\alpha < 1 / \rho(A)}. Default 0.1 (matches centiserve and NetworkX
 #'   conventions). Only used when \code{"katz"} is in \code{measures}.
@@ -140,8 +147,8 @@
 #' @param psych_network Logical or NULL. Switch for signed psychometric
 #'   network conventions. \code{NULL} (default) auto-detects TRUE when a
 #'   signed weighted network is evaluated with expected-influence measures.
-#'   When \code{TRUE}, normalized expected influence is divided by
-#'   \code{max(abs(x))}, preserving sign and bounding the result from
+#'   When \code{TRUE}, normalized expected influence is divided by the maximum
+#'   absolute expected-influence value, preserving sign and bounding the result from
 #'   -1 to 1.
 #'   \code{FALSE} keeps the generic cograph normalization convention.
 #' @param hubbell_weight Weight factor \eqn{w} for Hubbell centrality. Must
@@ -2659,7 +2666,7 @@ centrality_flow_betweenness <- function(x, ...) {
 #' Signed-weight sum of a node's edges (Robinaugh, Millner & McNally 2016).
 #' The appropriate centrality for networks with positive *and* negative
 #' edges (partial-correlation, glasso, signed correlation networks) where
-#' strength — which takes absolute values — can be misleading.
+#' treating negative edges as positive magnitudes can be misleading.
 #'
 #' @param x Network input (matrix, igraph, network, cograph_network, tna
 #'   object).
@@ -2673,7 +2680,7 @@ centrality_flow_betweenness <- function(x, ...) {
 #'   \emph{Journal of Abnormal Psychology}, 125(6), 747-757.
 #'
 #' @seealso \code{\link{centrality_expected_influence_2}} for the two-step
-#'   variant, \code{\link{centrality_strength}} for the unsigned analogue.
+#'   variant, \code{\link{centrality_strength}} for the weighted-degree analogue.
 #'
 #' @export
 #' @examples

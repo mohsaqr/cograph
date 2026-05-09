@@ -30,8 +30,9 @@ Use \code{list_palettes()} to see all available palettes. Common options:
 \item{\strong{viridis}}{Perceptually uniform, colorblind-friendly.}
 \item{\strong{colorblind}}{Optimized for color vision deficiency.}
 \item{\strong{pastel}}{Soft, muted colors.}
-\item{\strong{bright}}{Saturated, vivid colors.}
-\item{\strong{grayscale}}{Shades of gray.}
+\item{\strong{blues}}{Blue sequential palette.}
+\item{\strong{reds}}{Red sequential palette.}
+\item{\strong{diverging}}{Blue-white-red diverging palette.}
 }
 
 You can also pass a custom palette function that takes \code{n} and returns

@@ -23,8 +23,8 @@ plot_motifs(
 )
 }
 \arguments{
-\item{x}{Input data: a tna object, cograph_network, matrix, igraph, or
-data.frame (edge list).}
+\item{x}{A \code{cograph_motif_result} object from \code{motifs()} or
+\code{subgraphs()}.}
 
 \item{type}{Plot type:
 \describe{

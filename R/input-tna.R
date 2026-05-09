@@ -12,8 +12,9 @@ NULL
 #' multigraph). Use simplify to aggregate into a weighted simple graph.
 #'
 #' @param tna_obj A tna object (list with weights matrix).
-#' @param directed Logical. Force directed interpretation. NULL uses TRUE
-#'   (tna networks are directed).
+#' @param directed Logical. Force directed interpretation. NULL reads
+#'   directedness from the tna object when available, otherwise infers it from
+#'   matrix symmetry.
 #' @param simplify Logical or character. If FALSE (default), every transition
 #'   from $data is a separate edge. If TRUE or a string ("sum", "mean", "max",
 #'   "min"), duplicate edges are aggregated. When $data is NULL, falls back
@@ -219,7 +220,8 @@ parse_tna <- function(tna_obj, directed = NULL, simplify = FALSE) {
 #'
 #' @param group_tna_obj A group_tna object (named list of tna objects).
 #' @param i Index of the group to extract.
-#' @param directed Logical. Force directed interpretation. NULL uses TRUE.
+#' @param directed Logical. Force directed interpretation. NULL uses
+#'   \code{parse_tna()} directedness detection.
 #' @param simplify Logical or character. Passed to parse_tna.
 #' @return List with nodes, edges, directed, weights_matrix, and tna components.
 #' @noRd
@@ -257,7 +259,7 @@ parse_group_tna <- function(group_tna_obj, i = 1, directed = NULL,
 #'
 #' Checks whether a cograph_network was created from a tna or group_tna object.
 #'
-#' @param x A cograph_network object.
+#' @param x A CographNetwork or cograph_network object.
 #' @return Logical: TRUE if the network was created from a TNA object, FALSE otherwise.
 #'
 #' @seealso \code{\link{as_cograph}}

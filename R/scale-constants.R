@@ -14,11 +14,12 @@ NULL
 #'   \item{vsize_base}{Base multiplier in vsize formula: 8}
 #'   \item{vsize_decay}{Decay constant in vsize formula: 80}
 #'   \item{vsize_min}{Minimum added to vsize: 1}
-#'   \item{vsize_factor}{Scale factor to convert vsize to user coordinates: 0.015}
+#'   \item{vsize_factor}{Scale factor to convert vsize to user coordinates: 0.012}
 #'   \item{esize_base}{Base multiplier in esize formula: 15}
 #'   \item{esize_decay}{Decay constant in esize formula: 90}
 #'   \item{esize_min}{Minimum added to esize: 1}
 #'   \item{esize_unweighted}{Default edge width for unweighted networks: 2}
+#'   \item{esize_scale}{Scale factor converting qgraph esize to line width: 0.27}
 #'   \item{cent2edge_divisor}{Divisor in cent2edge formula: 17.5}
 #'   \item{cent2edge_reference}{Reference value in cent2edge: 2.16}
 #'   \item{cent2edge_plot_ref}{Plot reference size: 7}
@@ -82,8 +83,14 @@ QGRAPH_SCALE <- list(
 #'   \item{edge_base}{Base edge width}
 #'   \item{edge_scale}{Edge width scale factor}
 #'   \item{edge_default}{Default edge width}
+#'   \item{edge_width_range}{Default output range for scaled edge widths}
+#'   \item{edge_scale_mode}{Default edge scaling mode}
+#'   \item{edge_cut_quantile}{Default cut quantile used by callers}
+#'   \item{edge_width_default}{Default edge width when weights are unavailable}
 #'   \item{arrow_factor}{Scale factor for arrow sizes}
 #'   \item{arrow_default}{Default arrow size}
+#'   \item{soplot_node_factor}{Node-size factor for soplot NPC coordinates}
+#'   \item{tna_edge_color}{Default TNA edge color}
 #' }
 #'
 #' @keywords internal
@@ -279,18 +286,21 @@ compute_adaptive_esize <- function(n_nodes, directed = FALSE) {
 
 #' Scale Edge Widths Based on Weights
 #'
-#' Unified edge width scaling function that supports multiple scaling modes,
-#' two-tier cutoff system (like qgraph), and output range specification.
+#' Unified edge width scaling function that supports multiple scaling modes
+#' and output range specification.
 #'
 #' @param weights Numeric vector of edge weights.
-#' @param esize Base edge size. NULL uses adaptive sizing based on n_nodes.
-#' @param n_nodes Number of nodes (for adaptive esize calculation).
-#' @param directed Whether network is directed (affects adaptive esize).
+#' @param esize Maximum edge size. If NULL, \code{range[2]} is used.
+#' @param n_nodes Number of nodes. Accepted for caller compatibility; not used
+#'   by this scaler.
+#' @param directed Whether network is directed. Accepted for caller
+#'   compatibility; not used by this scaler.
 #' @param mode Scaling mode: "linear", "log", "sqrt", or "rank".
 #' @param maximum Max weight for normalization. NULL for auto-detect.
 #' @param minimum Min weight threshold. Edges below this get minimum width.
-#' @param cut Two-tier cutoff threshold. NULL = auto (75th percentile),
-#'   0 = disabled (continuous scaling), positive number = manual threshold.
+#' @param cut Accepted for caller compatibility. Width scaling is continuous
+#'   in the current implementation; cutoff handling is performed by callers
+#'   for other aesthetics such as transparency.
 #' @param range Output width range as c(min_width, max_width).
 #' @return Numeric vector of scaled edge widths.
 #'
@@ -301,14 +311,6 @@ compute_adaptive_esize <- function(n_nodes, directed = FALSE) {
 #' - **log**: Logarithmic scaling for wide weight ranges. Uses log1p for stability.
 #' - **sqrt**: Square root scaling for moderate compression.
 #' - **rank**: Rank-based scaling for equal visual spacing regardless of weight distribution.
-#'
-#' ## Two-Tier System (cut parameter)
-#'
-#' When cut > 0, edges are divided into two tiers:
-#' - Below cut: Minimal width variation (20% of range)
-#' - Above cut: Full width scaling (80% of range)
-#'
-#' This matches qgraph's behavior where weak edges are visually de-emphasized.
 #'
 #' @keywords internal
 scale_edge_widths <- function(weights,

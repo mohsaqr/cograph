@@ -36,6 +36,9 @@ draw_self_loop_base(
 \item{asize}{Arrow size.}
 
 \item{arrow_angle}{Arrow head angle in radians. Default pi/6 (30 degrees).}
+
+\item{anchor_radius}{Radius used for the loop's node-boundary anchor. NULL
+defaults to \code{node_size}.}
 }
 \description{
 Renders a self-loop (edge from node to itself) using a teardrop/circular

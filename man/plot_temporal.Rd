@@ -50,8 +50,9 @@ NULL uses unique time values.}
 
 \item{labels}{Character vector of layer labels. Default auto.}
 
-\item{layout}{Character or matrix. Shared node layout. Default
-\code{"spring"}.}
+\item{layout}{Character or matrix. Character values currently use a shared
+Fruchterman-Reingold/spring layout; a matrix supplies shared coordinates.
+Default \code{"spring"}.}
 
 \item{node_size}{Numeric. Node size. Default 2.5.}
 

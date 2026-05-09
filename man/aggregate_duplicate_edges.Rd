@@ -9,7 +9,7 @@ aggregate_duplicate_edges(edges, method = "mean", directed = FALSE)
 \arguments{
 \item{edges}{Data frame with \code{from}, \code{to}, and \code{weight} columns.}
 
-\item{method}{Aggregation method: \code{"sum"} (default), \code{"mean"},
+\item{method}{Aggregation method: \code{"mean"} (default), \code{"sum"},
 \code{"max"}, \code{"min"}, \code{"first"}, or a custom function that
 takes a numeric vector and returns a single value.}
 }

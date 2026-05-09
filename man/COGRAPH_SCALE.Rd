@@ -14,8 +14,14 @@ A list with the following elements:
 \item{edge_base}{Base edge width}
 \item{edge_scale}{Edge width scale factor}
 \item{edge_default}{Default edge width}
+\item{edge_width_range}{Default output range for scaled edge widths}
+\item{edge_scale_mode}{Default edge scaling mode}
+\item{edge_cut_quantile}{Default cut quantile used by callers}
+\item{edge_width_default}{Default edge width when weights are unavailable}
 \item{arrow_factor}{Scale factor for arrow sizes}
 \item{arrow_default}{Default arrow size}
+\item{soplot_node_factor}{Node-size factor for soplot NPC coordinates}
+\item{tna_edge_color}{Default TNA edge color}
 }
 }
 \usage{

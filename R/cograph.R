@@ -155,9 +155,11 @@ compute_layout_for_cograph <- function(net, layout = "spring", seed = 42, ...) {
 #'   - A statnet network object
 #'   - A qgraph object
 #'   - A tna object
-#' @param layout Layout algorithm: "circle", "spring", "groups", "grid",
-#'   "random", "star", "bipartite", or "custom". Default NULL (no layout computed).
-#'   Set to a layout name to compute immediately, or use sn_layout() later.
+#' @param layout Layout algorithm name such as "circle", "oval", "spring",
+#'   "groups", "grid", "random", "star", "bipartite", "gephi", or "custom";
+#'   a coordinate matrix/data frame; a CographLayout; or an igraph layout
+#'   function/name. Default NULL (no layout computed). Set to a layout to
+#'   compute immediately, or use sn_layout() later.
 #' @param directed Logical. Force directed interpretation. NULL for auto-detect.
 #' @param nodes Node metadata. Can be NULL or a data frame with node attributes.
 #'   If data frame has a `label` or `labels` column, those are used for display.
@@ -333,6 +335,7 @@ cograph <- function(input, layout = NULL, directed = NULL,
 #' \describe{
 #'   \item{\strong{spring}}{Force-directed layout (Fruchterman-Reingold style).
 #'     Good general-purpose layout. Default.}
+#'   \item{\strong{oval}/\strong{ellipse}}{Nodes arranged around an ellipse.}
 #'   \item{\strong{circle}}{Nodes arranged in a circle. Good for small networks
 #'     or when structure is less important.}
 #'   \item{\strong{groups}}{Circular layout with grouped nodes clustered together.}
@@ -340,6 +343,7 @@ cograph <- function(input, layout = NULL, directed = NULL,
 #'   \item{\strong{random}}{Random positions. Useful as starting point.}
 #'   \item{\strong{star}}{Central node with others arranged around it.}
 #'   \item{\strong{bipartite}}{Two-column layout for bipartite networks.}
+#'   \item{\strong{gephi}/\strong{gephi_fr}}{Gephi-style force-directed layout.}
 #' }
 #'
 #' ## igraph Layouts
@@ -440,8 +444,9 @@ sn_layout <- function(network, layout, seed = 42, ...) {
 #'   \item{\strong{dark}}{Dark background with light nodes. Good for presentations.}
 #'   \item{\strong{minimal}}{Subtle styling with thin edges and muted colors.}
 #'   \item{\strong{colorblind}}{Optimized for color vision deficiency.}
-#'   \item{\strong{grayscale}}{Black and white only.}
-#'   \item{\strong{vibrant}}{Bold, saturated colors.}
+#'   \item{\strong{gray}/\strong{grey}}{Black and white theme suitable for print.}
+#'   \item{\strong{viridis}}{Perceptually uniform colors.}
+#'   \item{\strong{nature}}{Nature-inspired colors.}
 #' }
 #'
 #' Use \code{list_themes()} to see all available themes.
@@ -510,8 +515,9 @@ sn_theme <- function(network, theme, ...) {
 #'   \item{\strong{viridis}}{Perceptually uniform, colorblind-friendly.}
 #'   \item{\strong{colorblind}}{Optimized for color vision deficiency.}
 #'   \item{\strong{pastel}}{Soft, muted colors.}
-#'   \item{\strong{bright}}{Saturated, vivid colors.}
-#'   \item{\strong{grayscale}}{Shades of gray.}
+#'   \item{\strong{blues}}{Blue sequential palette.}
+#'   \item{\strong{reds}}{Red sequential palette.}
+#'   \item{\strong{diverging}}{Blue-white-red diverging palette.}
 #' }
 #'
 #' You can also pass a custom palette function that takes \code{n} and returns

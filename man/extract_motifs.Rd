@@ -101,7 +101,6 @@ A \code{cograph_motif_analysis} object (list) containing:
 (if significance=TRUE) expected, z-score, p-value}
 \item{type_summary}{Summary counts by motif type}
 \item{params}{List of parameters used}
-\item{level}{Analysis level used}
 }
 }
 \description{

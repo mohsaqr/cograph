@@ -14,7 +14,7 @@
 #'   \describe{
 #'     \item{\code{"sum"}}{Weighted projection: \code{A \%*\% t(A)} (rows) or
 #'       \code{t(A) \%*\% A} (columns). Edge weight equals sum of shared
-#'       connection weights.}
+#'       connection-weight products.}
 #'     \item{\code{"binary"}}{Co-occurrence count: binarize A first, then
 #'       compute overlap. Edge weight equals number of shared connections.}
 #'     \item{\code{"jaccard"}}{Jaccard similarity: shared / (total_i + total_j
@@ -225,7 +225,7 @@ project_bipartite <- function(x,
 #'
 #' For square matrices, the function checks whether the corresponding
 #' undirected graph is bipartite by attempting a two-coloring via
-#' \code{igraph::is_bipartite()} when igraph is available. Without igraph,
+#' \code{igraph::bipartite_mapping()} when igraph is available. Without igraph,
 #' it uses a BFS-based two-coloring algorithm.
 #'
 #' @export

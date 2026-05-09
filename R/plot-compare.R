@@ -11,10 +11,13 @@ NULL
 #' Optionally displays node-level differences (e.g., initial probabilities)
 #' as donut charts.
 #'
-#' @param x First network: matrix, CographNetwork, tna, igraph object,
-#'   OR a group_tna object. For group_tna with 2 groups, compares them directly.
-#'   For more groups, plots all pairwise comparisons (or specify i, j).
-#' @param y Second network: same type as x. Ignored if x is group_tna.
+#' @param x First network: matrix, \code{cograph_network},
+#'   \code{CographNetwork}, \code{tna}, \code{igraph}, list-like object with
+#'   \code{$weights}, plain list of networks, or \code{group_tna}. For
+#'   \code{group_tna} with 2 groups, compares them directly. For more groups,
+#'   plots all pairwise comparisons (or specify i, j).
+#' @param y Second network: same type as x. Ignored if x is a list or
+#'   \code{group_tna}.
 #' @param i Index/name of first group when x is group_tna. NULL for all pairs.
 #' @param j Index/name of second group when x is group_tna. NULL for all pairs.
 #' @param pos_color Color for positive differences (x > y). Default "#009900" (green).
@@ -304,7 +307,9 @@ plot_compare <- function(x, y = NULL,
 #'
 #' Creates a heatmap visualization comparing two networks.
 #'
-#' @param x First network: matrix, CographNetwork, tna, or igraph object.
+#' @param x First network: matrix, \code{cograph_network},
+#'   \code{CographNetwork}, \code{tna}, \code{igraph}, or list-like object
+#'   with \code{$weights}.
 #' @param y Second network: same type as x. NULL to plot just x.
 #' @param type What to display: "difference" (x - y), "x", or "y".
 #' @param name_x Label for first network in title. Default "x".

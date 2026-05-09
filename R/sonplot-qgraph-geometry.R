@@ -36,7 +36,8 @@ qgraph_default_vsize <- function(n_nodes) {
 #' qgraph Default Edge Size
 #'
 #' Calculates the default maximum edge width using qgraph's exact formula.
-#' Formula: 15 * exp(-n/90) + 1 (halved for directed networks, minimum 1)
+#' For weighted networks, uses `15 * exp(-n/90) + 1` (halved for directed
+#' networks, minimum 1). For unweighted networks, returns 2.
 #'
 #' @param n_nodes Number of nodes in the network.
 #' @param weighted Logical: is the network weighted?
@@ -58,7 +59,7 @@ qgraph_default_esize <- function(n_nodes, weighted = TRUE, directed = FALSE) {
 #' qgraph Edge Width Scaling (EXACT)
 #'
 #' Scales edge weights to widths using qgraph's exact formula.
-#' Output range is 1 to esize for continuous scaling (cut = 0).
+#' Output range is 0.1 to esize for continuous scaling (cut = 0).
 #'
 #' @param weights Numeric vector of edge weights.
 #' @param minimum Minimum weight threshold.

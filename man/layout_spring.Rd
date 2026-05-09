@@ -22,7 +22,7 @@ layout_spring(
 )
 }
 \arguments{
-\item{network}{A CographNetwork object.}
+\item{network}{A \code{CographNetwork} or \code{cograph_network} object.}
 
 \item{iterations}{Number of iterations (default: 200).}
 

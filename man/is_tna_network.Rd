@@ -7,7 +7,7 @@
 is_tna_network(x)
 }
 \arguments{
-\item{x}{A cograph_network object.}
+\item{x}{A CographNetwork or cograph_network object.}
 }
 \value{
 Logical: TRUE if the network was created from a TNA object, FALSE otherwise.

@@ -24,11 +24,13 @@
 
 \item{meta}{List with consolidated metadata: source, layout, tna sub-fields.}
 
-\item{weights}{Full n×n weight matrix for TNA compatibility, or NULL.}
+\item{weights}{Full n×n weight matrix when available, or NULL.}
 
 \item{data}{Original estimation data (sequence matrix, edge list, etc.), or NULL.}
 
 \item{node_groups}{Optional node groupings data frame.}
+
+\item{type}{Optional source/type string stored in \code{meta$type}.}
 }
 \value{
 A cograph_network object (named list with class).

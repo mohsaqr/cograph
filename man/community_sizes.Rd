@@ -10,7 +10,7 @@ community_sizes(x)
 \item{x}{A cograph_communities object}
 }
 \value{
-Named integer vector of community sizes
+Integer vector of community sizes
 }
 \description{
 Get Community Sizes

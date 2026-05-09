@@ -8,9 +8,14 @@ NULL
 #'
 #' Automatically detects input type and converts to internal format.
 #'
-#' @param input Network input: matrix, data.frame (edge list), or igraph object.
+#' @param input Network input: matrix, data.frame (edge list), igraph, statnet
+#'   network, qgraph, tna, or an already-parsed list with an \code{edges}
+#'   component.
 #' @param directed Logical. Force directed interpretation. NULL for auto-detect.
-#' @return List with nodes, edges, directed, and weights components.
+#' @param simplify Logical or character. Passed to \code{parse_tna()} for tna
+#'   inputs.
+#' @return List with parsed network components, usually including nodes, edges,
+#'   directed, and weight information.
 #' @keywords internal
 parse_input <- function(input, directed = NULL, simplify = FALSE) {
   # Detect input type
@@ -102,6 +107,8 @@ create_edges_df <- function(from, to, weight = NULL, directed = FALSE) {
 #'
 #' @param edges Data frame with \code{from} and \code{to} columns (and optionally
 #'   \code{weight}).
+#' @param directed Logical. If FALSE, reverse-direction edges are considered
+#'   duplicates of each other.
 #'
 #' @details
 #' This function is useful for cleaning network data before visualization.
@@ -159,7 +166,7 @@ detect_duplicate_edges <- function(edges, directed = FALSE) {
 #' function (sum, mean, max, min, or first).
 #'
 #' @param edges Data frame with \code{from}, \code{to}, and \code{weight} columns.
-#' @param method Aggregation method: \code{"sum"} (default), \code{"mean"},
+#' @param method Aggregation method: \code{"mean"} (default), \code{"sum"},
 #'   \code{"max"}, \code{"min"}, \code{"first"}, or a custom function that
 #'   takes a numeric vector and returns a single value.
 #'

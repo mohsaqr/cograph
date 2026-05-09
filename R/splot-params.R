@@ -48,16 +48,18 @@ resolve_edge_colors <- function(edges, edge.color = NULL, posCol = "#2E7D32",
 #' Resolve Edge Widths
 #'
 #' Determines edge widths based on weights or explicit values.
-#' Supports multiple scaling modes, two-tier cutoff, and output range specification.
+#' Supports multiple scaling modes and output range specification.
 #'
 #' @param edges Edge data frame.
 #' @param edge.width User-specified width(s) or NULL.
-#' @param esize Base edge size. NULL uses adaptive sizing based on n_nodes.
-#' @param n_nodes Number of nodes (for adaptive esize calculation).
+#' @param esize Optional maximum edge size. NULL uses \code{edge_width_range}.
+#' @param n_nodes Number of nodes, passed through to the scaler for
+#'   compatibility.
 #' @param directed Whether network is directed.
 #' @param maximum Maximum weight for scaling (NULL for auto).
 #' @param minimum Minimum weight threshold.
-#' @param cut Two-tier cutoff. NULL = auto (75th pct), 0 = disabled.
+#' @param cut Accepted for compatibility. Current width scaling is continuous;
+#'   cutoff effects are handled by callers for other aesthetics.
 #' @param edge_width_range Output width range c(min, max).
 #' @param edge_scale_mode Scaling mode: "linear", "log", "sqrt", "rank".
 #' @param scaling Scaling mode for constants: "default" or "legacy".
@@ -173,7 +175,8 @@ resolve_node_sizes <- function(vsize, n, default_size = NULL, scale_factor = NUL
 #' @param scale_by Centrality measure name or list with measure and parameters.
 #'   Valid measures: "degree", "strength", "betweenness", "closeness",
 #'   "eigenvector", "pagerank", "authority", "hub", "eccentricity",
-#'   "coreness", "constraint", "harmonic". Also accepts directional shorthands:
+#'   "coreness", "constraint", "transitivity", "harmonic", "diffusion",
+#'   "leverage", "kreach", and "resilience". Also accepts directional shorthands:
 #'   "indegree", "outdegree", "instrength", "outstrength", "incloseness",
 #'   "outcloseness", "inharmonic", "outharmonic", "ineccentricity",
 #'   "outeccentricity".
@@ -183,7 +186,8 @@ resolve_node_sizes <- function(vsize, n, default_size = NULL, scale_factor = NUL
 #' @param scaling Scaling mode: "default" or "legacy".
 #' @param scale_exp Dampening exponent applied to normalized centrality values
 #'   before mapping to size range. Default 1 (linear).
-#' @return Named list with 'sizes' (vector of node sizes) and 'values' (raw centrality values).
+#' @return Named list with \code{sizes} (vector of node sizes), \code{values}
+#'   (raw centrality values), \code{measure}, and \code{labels}.
 #' @keywords internal
 resolve_centrality_sizes <- function(x, scale_by, size_range = c(2, 8), n = NULL,
                                      scaling = "default", scale_exp = 1) {
@@ -584,6 +588,8 @@ check_duplicate_edges <- function(edges, directed, edge_duplicates) {
 #' @param edges Edge data frame.
 #' @param n_edges Number of edges.
 #' @param loop_rotations Per-edge loop rotation angles.
+#' @param fixed_bounds Optional numeric vector \code{c(xmin, xmax, ymin, ymax)}
+#'   for fixed plot bounds before node/loop padding.
 #' @return List with \code{xlim} and \code{ylim}.
 #' @keywords internal
 compute_plot_limits <- function(layout_mat, vsize_usr, layout_margin,

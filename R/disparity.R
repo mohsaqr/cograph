@@ -15,7 +15,7 @@ NULL
 #' fraction of a node's total weight, based on a null model where weights
 #' are distributed uniformly at random.
 #'
-#' @param x A weight matrix, tna object, or cograph_network.
+#' @param x A weight matrix, tna object, cograph_network, or igraph object.
 #' @param level Significance level (default 0.05). Lower values result in
 #'   a sparser backbone (fewer edges retained).
 #' @param ... Additional arguments (currently unused).
@@ -229,7 +229,8 @@ print.tna_disparity <- function(x, ...) {
 #' @param type Plot type: "backbone" (default) or "comparison".
 #' @param ... Additional arguments passed to splot.
 #'
-#' @return Invisibly returns \code{NULL}. Called for the side effect of producing a plot.
+#' @return Invisibly returns the value from the underlying \code{\link{splot}}
+#'   call. Called primarily for the side effect of producing a plot.
 #'
 #' @examples
 #' mat <- matrix(c(0.0, 0.5, 0.1, 0.0, 0.3, 0.0, 0.4, 0.1,
@@ -268,7 +269,8 @@ plot.tna_disparity <- function(x, type = c("backbone", "comparison"), ...) {
 #' @param alpha_nonsig Alpha for non-backbone edges. Default 0.3.
 #' @param ... Additional arguments passed to splot.
 #'
-#' @return Invisibly returns \code{NULL}. Called for the side effect of producing a plot.
+#' @return Invisibly returns the value from the underlying \code{\link{splot}}
+#'   call. Called primarily for the side effect of producing a plot.
 #'
 #' @examples
 #' mat <- matrix(c(0.0, 0.5, 0.1, 0.0, 0.3, 0.0, 0.4, 0.1,

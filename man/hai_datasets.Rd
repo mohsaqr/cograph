@@ -26,9 +26,9 @@ Repair, Report).}
 code (18 states: Acknowledge, Apologize, Ask, Comply, Delegate,
 Diagnose, Escape, Execute, Explain, Hedge, Investigate, Plan,
 Refuse, Report, Retry, Scaffold, Suggest, Warn).}
-\item{human_ai}{429 x 302 data.frame. Both actors combined, by
+\item{human_ai}{429 x 287 data.frame. Both actors combined, by
 category (17 states).}
-\item{human_ai_detailed}{429 x 302 data.frame. Both actors combined,
+\item{human_ai_detailed}{429 x 287 data.frame. Both actors combined,
 by fine-grained code (32 states).}
 }
 

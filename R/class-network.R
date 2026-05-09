@@ -19,7 +19,8 @@ CographNetwork <- R6::R6Class(
   "CographNetwork",
   public = list(
     #' @description Create a new CographNetwork object.
-    #' @param input Network input (matrix, edge list, or igraph object).
+    #' @param input Network input supported by \code{\link{parse_input}},
+    #'   such as a matrix, edge list, igraph, statnet network, qgraph, or tna object.
     #' @param directed Logical. Force directed interpretation. NULL for auto-detect.
     #' @param nodes Node metadata. Can be NULL or a data frame with node attributes.
     #'   If data frame has a `label` or `labels` column, those are used for display.
@@ -352,9 +353,10 @@ is_cograph_network <- function(x) {
 #' @param edges Data frame with edge information (from, to, weight).
 #' @param directed Logical. Is the network directed?
 #' @param meta List with consolidated metadata: source, layout, tna sub-fields.
-#' @param weights Full n×n weight matrix for TNA compatibility, or NULL.
+#' @param weights Full n×n weight matrix when available, or NULL.
 #' @param data Original estimation data (sequence matrix, edge list, etc.), or NULL.
 #' @param node_groups Optional node groupings data frame.
+#' @param type Optional source/type string stored in \code{meta$type}.
 #' @return A cograph_network object (named list with class).
 #' @keywords internal
 .create_cograph_network <- function(
@@ -426,7 +428,8 @@ is_cograph_network <- function(x) {
 #' Extracts the nodes data frame from a cograph_network object.
 #'
 #' @param x A cograph_network object.
-#' @return A data frame with columns: id, label, name, x, y (and possibly others).
+#' @return A node metadata data frame, usually with \code{id} and \code{label}
+#'   columns, plus layout or other metadata columns when present.
 #'
 #' @seealso \code{\link{as_cograph}}, \code{\link{n_nodes}}, \code{\link{get_edges}}
 #'
@@ -743,10 +746,10 @@ set_layout <- function(x, layout_df) {
 #'
 #' @return A cograph_network object: a named list with components:
 #'   \describe{
-#'     \item{\code{nodes}}{Data frame with id, label, (x, y if layout applied)}
+#'     \item{\code{nodes}}{Data frame with id, label, and optional layout or metadata columns}
 #'     \item{\code{edges}}{Data frame with from, to, weight columns}
 #'     \item{\code{directed}}{Logical indicating if network is directed}
-#'     \item{\code{weights}}{Full n×n weight matrix (for to_matrix round-trip)}
+#'     \item{\code{weights}}{Full n×n weight matrix when available for matrix/TNA round-trips, or NULL}
 #'     \item{\code{data}}{Original estimation data (sequence matrix, edge list, etc.), or NULL}
 #'     \item{\code{meta}}{Consolidated metadata list with sub-fields:
 #'       \code{source} (input type string),
@@ -877,14 +880,13 @@ to_cograph <- function(x, directed = NULL, ...) {
 #'     \item Data frame: Must have "node"/"nodes" column plus one of
 #'       "layer"/"layers", "cluster"/"clusters", or "group"/"groups"
 #'       (plural forms are automatically normalized to singular)
-#'     \item NULL: Use \code{nodes} + one of \code{layers}/\code{clusters}/\code{groups} vectors
+#'     \item NULL: Use \code{nodes} + one of \code{layers}/\code{clusters} vectors
 #'   }
 #' @param type Group type. One of \code{"group"} (default), \code{"cluster"},
-#'   or \code{"layer"}. Ignored when using vector arguments (\code{layers},
-#'   \code{clusters}, \code{groups}) since the type is inferred from which
-#'   argument is provided.
+#'   or \code{"layer"}. Ignored when using \code{layers} or \code{clusters}
+#'   vector arguments since the type is inferred from which argument is provided.
 #' @param nodes Character vector of node labels. Use with \code{layers}, \code{clusters},
-#'   or \code{groups} to specify groupings via vectors instead of a data frame.
+#'   to specify groupings via vectors instead of a data frame.
 #' @param layers Character/factor vector of layer assignments (same length as \code{nodes}).
 #' @param clusters Character/factor vector of cluster assignments (same length as \code{nodes}).
 #'
@@ -1087,7 +1089,8 @@ get_groups <- function(x) {
 #' \strong{Deprecated}: Use \code{\link{get_nodes}} instead.
 #'
 #' @param x A cograph_network object.
-#' @return A data frame with columns: id, label, name, x, y (and possibly others).
+#' @return A node metadata data frame, usually with \code{id} and \code{label}
+#'   columns, plus layout or other metadata columns when present.
 #'
 #' @seealso \code{\link{get_nodes}}, \code{\link{as_cograph}}, \code{\link{n_nodes}}
 #'

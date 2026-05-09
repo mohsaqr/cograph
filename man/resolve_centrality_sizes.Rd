@@ -19,7 +19,8 @@ resolve_centrality_sizes(
 \item{scale_by}{Centrality measure name or list with measure and parameters.
 Valid measures: "degree", "strength", "betweenness", "closeness",
 "eigenvector", "pagerank", "authority", "hub", "eccentricity",
-"coreness", "constraint", "harmonic". Also accepts directional shorthands:
+"coreness", "constraint", "transitivity", "harmonic", "diffusion",
+"leverage", "kreach", and "resilience". Also accepts directional shorthands:
 "indegree", "outdegree", "instrength", "outstrength", "incloseness",
 "outcloseness", "inharmonic", "outharmonic", "ineccentricity",
 "outeccentricity".}
@@ -35,7 +36,8 @@ Default c(2, 8).}
 before mapping to size range. Default 1 (linear).}
 }
 \value{
-Named list with 'sizes' (vector of node sizes) and 'values' (raw centrality values).
+Named list with \code{sizes} (vector of node sizes), \code{values}
+(raw centrality values), \code{measure}, and \code{labels}.
 }
 \description{
 Calculates node sizes based on centrality measures.

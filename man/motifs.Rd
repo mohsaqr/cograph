@@ -160,7 +160,9 @@ Instances: triad, type, observed, (z, p, sig).}
 \item{params}{List of parameters used}
 }
 
-Invisibly returns the input \code{x}.
+Invisibly returns the input \code{x} for \code{"triads"} and
+\code{"patterns"}, or the underlying \code{ggplot} for \code{"types"} and
+\code{"significance"}.
 }
 \description{
 Two modes of motif analysis for networks:

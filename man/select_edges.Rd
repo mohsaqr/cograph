@@ -28,7 +28,8 @@ Available variables:
 \item{Edge columns}{\code{from}, \code{to}, \code{weight}, plus any custom}
 \item{Computed metrics}{\code{abs_weight}, \code{from_degree}, \code{to_degree},
 \code{from_strength}, \code{to_strength}, \code{edge_betweenness},
-\code{is_bridge}, \code{is_mutual}, \code{same_community}}
+\code{is_bridge}, \code{is_mutual}, \code{same_community},
+\code{from_label}, \code{to_label}}
 }}
 
 \item{top}{Integer. Select top N edges by a metric.}
@@ -54,14 +55,14 @@ variable. One of \code{"louvain"}, \code{"walktrap"}, \code{"fast_greedy"},
 
 \item{.keep_isolates}{Logical. Keep nodes with no remaining edges? Default FALSE.}
 
-\item{keep_format}{Logical. If TRUE, return the same format as input.
-Default FALSE returns cograph_network.}
+\item{keep_format}{Logical. If TRUE, matrix, igraph, and statnet network
+inputs are returned in that format. Default FALSE returns cograph_network.}
 
 \item{directed}{Logical or NULL. If NULL (default), auto-detect.}
 }
 \value{
 A cograph_network object with selected edges. If \code{keep_format = TRUE},
-returns the same type as input.
+matrix, igraph, and statnet network inputs are converted back to that type.
 }
 \description{
 A powerful edge selection function with lazy computation (only computes

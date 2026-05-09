@@ -1,9 +1,8 @@
 #' @title Shared Legend Renderer
-#' @description Single internal entry point for every base-R legend in the
-#'   cograph package so that device-scale compensation (`visual_scale`) is
-#'   applied uniformly. Replaces five divergent compensation schemes (splot
-#'   literal, plot_mcml literal, plot_htna/mtna/mlna `1/sqrt(scale)`,
-#'   render-grid hardcoded 8pt, ggplot absolute cm).
+#' @description Shared internal helper for base-R legends that opt into
+#'   device-scale compensation (`visual_scale`). Used by core base-R plotters
+#'   to avoid per-plotter size drift; some legacy direct `graphics::legend()`
+#'   calls remain in older helpers.
 #' @name render-legend-shared
 #' @keywords internal
 NULL

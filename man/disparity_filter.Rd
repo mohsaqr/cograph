@@ -22,7 +22,7 @@ disparity_filter(x, level = 0.05, ...)
 \method{disparity_filter}{igraph}(x, level = 0.05, ...)
 }
 \arguments{
-\item{x}{A weight matrix, tna object, or cograph_network.}
+\item{x}{A weight matrix, tna object, cograph_network, or igraph object.}
 
 \item{level}{Significance level (default 0.05). Lower values result in
 a sparser backbone (fewer edges retained).}

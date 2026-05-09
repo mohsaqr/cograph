@@ -27,7 +27,8 @@ splot.tna_disparity(
 \item{...}{Additional arguments passed to splot.}
 }
 \value{
-Invisibly returns \code{NULL}. Called for the side effect of producing a plot.
+Invisibly returns the value from the underlying \code{\link{splot}}
+call. Called primarily for the side effect of producing a plot.
 }
 \description{
 Plot Disparity Results with splot

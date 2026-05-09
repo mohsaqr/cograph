@@ -22,7 +22,8 @@
 \code{NULL} shows all fitted distributions.}
 
 \item{log}{Character string for log-scale axes: \code{""} (default),
-\code{"x"}, \code{"y"}, or \code{"xy"}.}
+\code{"y"}, or \code{"xy"}. Values containing \code{"x"} are accepted
+for compatibility but only filter non-positive fitted curve values.}
 
 \item{cols}{Named or unnamed character vector of colors for distribution
 curves. Default uses a built-in palette.}

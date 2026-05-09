@@ -10,7 +10,7 @@ NULL
 #' algorithm. Nodes connected by edges are attracted to each other while
 #' all nodes repel each other.
 #'
-#' @param network A CographNetwork object.
+#' @param network A \code{CographNetwork} or \code{cograph_network} object.
 #' @param iterations Number of iterations (default: 200).
 #' @param cooling Rate of temperature decrease for exponential cooling (default: 0.95).
 #' @param repulsion Repulsion constant (default: 1.5).

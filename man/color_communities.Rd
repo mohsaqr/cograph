@@ -24,11 +24,11 @@ for available methods. Default \code{"louvain"}.}
 }
 \value{
 A named character vector of colors (one per node), suitable for
-use with \code{splot()} node.color parameter.
+use with \code{splot()} \code{node_fill} parameter.
 }
 \description{
 Generate colors for nodes based on community membership. Designed for
-direct use with \code{splot()} node.color parameter.
+direct use with \code{splot()} \code{node_fill} parameter.
 }
 \examples{
 adj <- matrix(c(0, .5, .8, 0,

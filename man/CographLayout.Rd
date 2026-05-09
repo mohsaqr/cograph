@@ -64,7 +64,7 @@ Compute layout coordinates for a network.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{network}}{A CographNetwork object.}
+\item{\code{network}}{A CographNetwork or cograph_network object.}
 
 \item{\code{...}}{Additional parameters passed to the layout function.}
 }

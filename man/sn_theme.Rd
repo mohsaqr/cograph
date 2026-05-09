@@ -28,8 +28,9 @@ Apply a visual theme to the network.
 \item{\strong{dark}}{Dark background with light nodes. Good for presentations.}
 \item{\strong{minimal}}{Subtle styling with thin edges and muted colors.}
 \item{\strong{colorblind}}{Optimized for color vision deficiency.}
-\item{\strong{grayscale}}{Black and white only.}
-\item{\strong{vibrant}}{Bold, saturated colors.}
+\item{\strong{gray}/\strong{grey}}{Black and white theme suitable for print.}
+\item{\strong{viridis}}{Perceptually uniform colors.}
+\item{\strong{nature}}{Nature-inspired colors.}
 }
 
 Use \code{list_themes()} to see all available themes.

@@ -11,16 +11,10 @@
 #' @param directed Logical. Treat as directed? Default auto-detected.
 #' @param seed Random seed for reproducibility
 #'
-#' @return A `cograph_motifs` object containing:
-#'   - `counts`: Motif counts in observed network
-#'   - `null_mean`: Mean counts in random networks
-#'   - `null_sd`: Standard deviation in random networks
-#'   - `z_scores`: Z-scores (observed - mean) / sd
-#'   - `p_values`: Two-tailed p-values
-#'   - `significant`: Logical vector (|z| > 2)
-#'   - `size`: Motif size (3 or 4)
-#'   - `directed`: Whether network is directed
-#'   - `n_random`: Number of random networks used
+#' @return A `cograph_motifs` data frame with motif count, null-model mean,
+#'   null-model standard deviation, z-score, p-value, and significance columns.
+#'   The motif size, directed flag, null-model method, and number of random
+#'   networks are stored as attributes.
 #'
 #' @examples
 #' # Create a directed network
@@ -323,8 +317,8 @@ plot.cograph_motifs <- function(x, type = c("bar", "heatmap", "network"),
 #' @return Named vector of triad counts
 #'
 #' @details
-#' Triad census is defined only for directed networks. The input is always
-#' treated as directed.
+#' Triad census is defined only for directed networks. Matrix input is built
+#' as directed; existing igraph and cograph inputs must already be directed.
 #'
 #' MAN notation describes triads by:
 #' - M: number of Mutual (reciprocal) edges

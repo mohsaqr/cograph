@@ -2,19 +2,19 @@
 #'
 #' Visualizes multiple network clusters with summary edges between clusters
 #' and individual edges within clusters. Each cluster is displayed as a
-#' shape (circle, square, diamond, triangle) containing its nodes.
+#' shell shape containing its nodes.
 #'
-#' @param x A tna object, weight matrix, cograph_network, or cluster_summary object.
+#' @param x A tna object, weight matrix, or cograph_network.
 #' @param cluster_list Clusters can be specified as:
 #'   \itemize{
 #'     \item A list of character vectors (node names per cluster)
 #'     \item A string column name from nodes data (e.g., "groups")
 #'     \item NULL with \code{community} specified for auto-detection
+#'     \item NULL with a cograph_network that has a common cluster/group column
 #'   }
 #' @param community Community detection method to use for auto-clustering.
 #'   If specified, overrides \code{cluster_list}. See \code{\link{detect_communities}}
-#'   for available methods: "louvain", "walktrap", "fast_greedy", "label_prop",
-#'   "infomap", "leiden".
+#'   for available methods.
 #' @param layout How to arrange the clusters: "circle" (default),
 #'   "grid", "horizontal", "vertical".
 #' @param spacing Distance between cluster centers. Default 4.
@@ -22,8 +22,10 @@
 #' @param node_spacing Radius for node placement within shapes (0-1 relative
 #'   to shape_size). Default 0.5.
 #' @param colors Vector of colors for each cluster. Default auto-generated.
-#' @param shapes Vector of shapes for each cluster: "circle", "square",
-#'   "diamond", "triangle". Default cycles through these.
+#' @param shapes Vector of shapes for each cluster. Defaults cycle through
+#'   "circle", "square", "diamond", "triangle", "pentagon", "hexagon",
+#'   "star", and "cross"; summary shells draw non-shell shapes with the
+#'   circular fallback.
 #' @param edge_colors Vector of edge colors by source cluster. Default auto-generated.
 #' @param bundle_edges Logical. Bundle inter-cluster edges through channels. Default TRUE.
 #' @param bundle_strength How tightly to bundle edges (0-1). Default 0.8.
@@ -41,10 +43,9 @@
 #' @param curvature Edge curvature. Default 0.3.
 #' @param node_size Size of nodes inside shapes. Default 3.
 #' @param layout_margin Margin around the layout as fraction of range. Default 0.15.
-#' @param scale Scaling factor for spacing parameters. Use scale > 1 for
-#'   high-resolution output (e.g., scale = 4 for 300 dpi). This multiplies
-#'   spacing and shape_size to maintain proper proportions at higher resolutions.
-#'   Default 1.
+#' @param scale Scaling factor for high-resolution output. Values greater than
+#'   1 reduce node, edge, label, and legend sizes by \code{sqrt(scale)} while
+#'   leaving cluster spacing and shape_size unchanged. Default 1.
 #' @param show_labels Logical. Show node labels inside clusters. Default FALSE.
 #' @param nodes Node metadata. Can be:
 #'   \itemize{
@@ -56,8 +57,8 @@
 #' @param label_size Label text size. Default NULL (auto-scaled).
 #' @param label_abbrev Label abbreviation: NULL (none), integer (max chars),
 #'   or "auto" (adaptive based on node count).
-#' @param cluster_shape Shape for cluster summary nodes when using summary view.
-#'   Can be single value or vector. Overrides \code{shapes}. Default NULL (use shapes).
+#' @param cluster_shape Accepted for compatibility; currently unused. Use
+#'   \code{shapes} to control cluster shell shapes.
 #' @param ... Additional parameters passed to plot_tna().
 #'
 #' @return Invisibly returns a cluster_summary object for summary mode, or the

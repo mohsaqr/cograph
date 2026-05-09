@@ -15,8 +15,9 @@
 #' @param type Character. \code{"histogram"} (default) or \code{"density"}.
 #' @param normalize Logical. Show proportions instead of counts. Default FALSE.
 #' @param bins Integer or NULL. Number of bins. Default NULL (auto).
-#' @param log Character. Log scaling: \code{""}, \code{"x"}, \code{"y"}, or
-#'   \code{"xy"}. Default \code{""}.
+#' @param log Character. Log scaling: \code{""}, \code{"y"}, or \code{"xy"}.
+#'   Values containing \code{"x"} are accepted for compatibility but only the
+#'   y-axis is log-scaled by this plotting implementation. Default \code{""}.
 #' @param col Fill color. Default \code{"steelblue"}.
 #' @param border Border color. Default \code{"white"}.
 #' @param main Plot title. Default auto-generated from measure name.
@@ -266,7 +267,7 @@ plot_degree_correlation <- function(x,
 #' @param seed Integer or NULL. Default 42.
 #' @param ... Additional arguments passed to \code{\link{splot}}.
 #'
-#' @return Invisible list of edge-list data frames (one per panel).
+#' @return Invisible list of per-panel networks or edge-list data frames.
 #' @export
 #' @examples
 #' set.seed(1)

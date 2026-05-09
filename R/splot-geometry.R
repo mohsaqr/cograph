@@ -249,6 +249,8 @@ splot_angle <- function(x1, y1, x2, y2) {
 #'
 #' @param layout Matrix or data frame with x, y columns.
 #' @param mar Margin to leave (as proportion of range).
+#' @param keep_aspect Logical. If TRUE, use one scale factor for both axes to
+#'   preserve aspect ratio; if FALSE, scale axes independently.
 #' @return Rescaled layout.
 #' @keywords internal
 rescale_layout <- function(layout, mar = 0.1, keep_aspect = TRUE) {

@@ -33,7 +33,8 @@ NULL
 #' @param cap Numeric length-2 vector `c(min, max)` bounding every multiplier.
 #'   Default `c(0.55, 1.9)`.
 #' @return A list with named numeric multipliers and diagnostic fields:
-#'   `text`, `point`, `line`, `box`, `raw`, `pin`, `cra`, `ref`.
+#'   `text`, `point`, `line`, `box`, `scale`, `raw`, `canvas`, `pin`, `cra`,
+#'   `ref`.
 #' @keywords internal
 #' @noRd
 compute_visual_scale <- function(reference = NULL, cap = NULL) {

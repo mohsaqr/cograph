@@ -20,11 +20,13 @@ scale_edge_widths(
 \arguments{
 \item{weights}{Numeric vector of edge weights.}
 
-\item{esize}{Base edge size. NULL uses adaptive sizing based on n_nodes.}
+\item{esize}{Maximum edge size. If NULL, \code{range[2]} is used.}
 
-\item{n_nodes}{Number of nodes (for adaptive esize calculation).}
+\item{n_nodes}{Number of nodes. Accepted for caller compatibility; not used
+by this scaler.}
 
-\item{directed}{Whether network is directed (affects adaptive esize).}
+\item{directed}{Whether network is directed. Accepted for caller
+compatibility; not used by this scaler.}
 
 \item{mode}{Scaling mode: "linear", "log", "sqrt", or "rank".}
 
@@ -32,8 +34,9 @@ scale_edge_widths(
 
 \item{minimum}{Min weight threshold. Edges below this get minimum width.}
 
-\item{cut}{Two-tier cutoff threshold. NULL = auto (75th percentile),
-0 = disabled (continuous scaling), positive number = manual threshold.}
+\item{cut}{Accepted for caller compatibility. Width scaling is continuous
+in the current implementation; cutoff handling is performed by callers
+for other aesthetics such as transparency.}
 
 \item{range}{Output width range as c(min_width, max_width).}
 }
@@ -41,8 +44,8 @@ scale_edge_widths(
 Numeric vector of scaled edge widths.
 }
 \description{
-Unified edge width scaling function that supports multiple scaling modes,
-two-tier cutoff system (like qgraph), and output range specification.
+Unified edge width scaling function that supports multiple scaling modes
+and output range specification.
 }
 \details{
 \subsection{Scaling Modes}{
@@ -52,17 +55,6 @@ two-tier cutoff system (like qgraph), and output range specification.
 \item \strong{sqrt}: Square root scaling for moderate compression.
 \item \strong{rank}: Rank-based scaling for equal visual spacing regardless of weight distribution.
 }
-}
-
-\subsection{Two-Tier System (cut parameter)}{
-
-When cut > 0, edges are divided into two tiers:
-\itemize{
-\item Below cut: Minimal width variation (20\% of range)
-\item Above cut: Full width scaling (80\% of range)
-}
-
-This matches qgraph's behavior where weak edges are visually de-emphasized.
 }
 }
 \keyword{internal}

@@ -8,7 +8,7 @@ NULL
 #'
 #' Arrange nodes evenly spaced around a circle.
 #'
-#' @param network A CographNetwork object.
+#' @param network A \code{CographNetwork} or \code{cograph_network} object.
 #' @param order Optional vector specifying node order (indices or labels).
 #' @param start_angle Starting angle in radians (default: pi/2 for top).
 #' @param clockwise Logical. Arrange nodes clockwise? Default TRUE.

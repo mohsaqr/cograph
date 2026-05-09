@@ -64,25 +64,28 @@ sn_edges(
 )
 }
 \arguments{
-\item{network}{A cograph_network object, matrix, data.frame, or igraph object.
-Matrices and other inputs are auto-converted.}
+\item{network}{A CographNetwork, cograph_network object, matrix,
+data.frame, or igraph object. Matrices and other inputs are auto-converted.}
 
 \item{width}{Edge width. Can be a single value, vector (per-edge), or "weight".}
 
-\item{edge_size}{Base edge size for weight scaling. NULL (default) uses adaptive sizing
-based on network size: \code{15 * exp(-n_nodes/90) + 1}. Larger values = thicker edges.}
+\item{edge_size}{Maximum edge size for renderer weight scaling. NULL
+(default) uses the renderer's edge-width range. Larger values = thicker
+edges overall.}
 
 \item{esize}{Deprecated. Use \code{edge_size} instead.}
 
 \item{edge_width_range}{Output width range as c(min, max) for weight-based scaling.
-Default c(0.5, 4). Edges are scaled to fit within this range.}
+If NULL (default), the plotting renderer's default range is used.}
 
 \item{edge_scale_mode}{Scaling mode for edge weights: "linear" (default),
 "log" (for wide weight ranges), "sqrt" (moderate compression),
 or "rank" (equal visual spacing).}
 
-\item{edge_cutoff}{Two-tier cutoff for edge width scaling. NULL (default) = auto 75th percentile.
-0 = disabled. Positive number = manual threshold.}
+\item{edge_cutoff}{Optional cutoff for edge emphasis. NULL (default) or 0
+disables cutoff handling. Positive values are passed to renderers; in
+\code{splot()}, edges below the cutoff are faded while width scaling remains
+continuous.}
 
 \item{cut}{Deprecated. Use \code{edge_cutoff} instead.}
 
@@ -152,7 +155,7 @@ values < 1 make them thinner. Applied after all other width calculations.}
 \item{curve_pivot}{Pivot position along edge for curve control point (0-1, default: 0.5).}
 
 \item{curves}{Curve mode: FALSE (straight edges), "mutual" (only curve reciprocal pairs),
-or "force" (curve all edges). Default FALSE.}
+or "force" (curve all edges). If NULL, the plotting renderer's default is used.}
 
 \item{ci}{Numeric vector of CI widths (0-1 scale). Larger values = more uncertainty.}
 

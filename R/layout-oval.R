@@ -9,7 +9,7 @@ NULL
 #' Arrange nodes evenly spaced around an ellipse. This creates an oval-shaped
 #' network layout that is wider than it is tall (or vice versa depending on ratio).
 #'
-#' @param network A CographNetwork object.
+#' @param network A CographNetwork or cograph_network object.
 #' @param ratio Aspect ratio (width/height). Values > 1 create horizontal ovals,
 #'   values < 1 create vertical ovals. Default 1.5.
 #' @param order Optional vector specifying node order (indices or labels).

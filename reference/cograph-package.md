@@ -1,8 +1,8 @@
 # cograph: Modern Network Visualization for R
 
 A modern, extensible network visualization package that provides
-high-quality static and interactive network plots. cograph accepts
-adjacency matrices, edge lists, or igraph objects and offers
+high-quality static network plots and ggplot2 conversions. cograph
+accepts adjacency matrices, edge lists, or igraph objects and offers
 customizable layouts, node shapes, edge styles, and themes.
 
 ## Main Functions
@@ -53,6 +53,10 @@ Built-in themes include:
 - `dark`: Dark background theme
 
 - `minimal`: Clean, minimal style
+
+- `viridis`: Viridis-based colour theme
+
+- `nature`: Nature-inspired colour theme
 
 ## Weight conventions
 

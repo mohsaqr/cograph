@@ -249,7 +249,7 @@ splot(
 
   - An igraph object
 
-  - A cograph_network object
+  - A CographNetwork or cograph_network object
 
   - A tna object (from tna package)
 
@@ -325,9 +325,9 @@ splot(
 
 - layout:
 
-  Layout algorithm: "circle", "spring", "groups", or a matrix of x,y
-  coordinates, or an igraph layout function. Also supports igraph
-  two-letter codes: "kk", "fr", "drl", "mds", "ni", etc.
+  Layout algorithm: "oval" (default), "circle", "spring", "groups", or a
+  matrix of x,y coordinates, or an igraph layout function. Also supports
+  igraph two-letter codes: "kk", "fr", "drl", "mds", "ni", etc.
 
 - directed:
 
@@ -343,7 +343,8 @@ splot(
 
 - node_size:
 
-  Node size(s). Single value or vector. Default 3.
+  Node size(s). Single value or vector. Default NULL, which resolves to
+  7 with default scaling.
 
 - node_size2:
 
@@ -591,9 +592,8 @@ splot(
 
 - edge_size:
 
-  Base edge size for weight scaling. NULL (default) uses adaptive sizing
-  based on network size: `15 * exp(-n_nodes/90) + 1`. For directed
-  networks, this is halved. Larger values = thicker edges overall.
+  Maximum edge size for weight scaling. NULL (default) uses the upper
+  bound of `edge_width_range`. Larger values = thicker edges overall.
 
 - esize:
 
@@ -602,7 +602,8 @@ splot(
 - edge_width_range:
 
   Output width range as c(min, max) for weight-based scaling. Default
-  c(0.5, 4). Edges are scaled to fit within this range.
+  c(0.1, 4). Edges are scaled to fit within this range unless
+  `edge_size` supplies the maximum.
 
 - edge_scale_mode:
 
@@ -612,10 +613,9 @@ splot(
 
 - edge_cutoff:
 
-  Two-tier cutoff for edge width scaling. NULL (default) =
-  auto-calculate as 75th percentile of weights (qgraph behavior). 0 =
-  disabled (continuous scaling). Positive number = manual threshold.
-  Edges below cutoff get minimal width variation.
+  Optional cutoff for edge emphasis. NULL (default) or 0 disables cutoff
+  fading. Positive values fade edges whose absolute weights are below
+  the cutoff; width scaling remains continuous.
 
 - cut:
 
@@ -684,7 +684,7 @@ splot(
 
 - curve_scale:
 
-  Logical: auto-curve reciprocal edges?
+  Reserved for future curve scaling; currently not used.
 
 - curve_shape:
 

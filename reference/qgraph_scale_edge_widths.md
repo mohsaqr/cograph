@@ -1,7 +1,7 @@
 # qgraph Edge Width Scaling (EXACT)
 
 Scales edge weights to widths using qgraph's exact formula. Output range
-is 1 to esize for continuous scaling (cut = 0).
+is 0.1 to esize for continuous scaling (cut = 0).
 
 ## Usage
 

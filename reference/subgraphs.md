@@ -13,7 +13,8 @@ subgraphs(...)
 
 - ...:
 
-  Additional arguments passed to internal plot helpers.
+  Arguments passed to
+  [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md).
 
 ## Value
 

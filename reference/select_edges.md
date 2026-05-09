@@ -43,7 +43,7 @@ select_edges(
 
   :   `abs_weight`, `from_degree`, `to_degree`, `from_strength`,
       `to_strength`, `edge_betweenness`, `is_bridge`, `is_mutual`,
-      `same_community`
+      `same_community`, `from_label`, `to_label`
 
 - top:
 
@@ -86,8 +86,8 @@ select_edges(
 
 - keep_format:
 
-  Logical. If TRUE, return the same format as input. Default FALSE
-  returns cograph_network.
+  Logical. If TRUE, matrix, igraph, and statnet network inputs are
+  returned in that format. Default FALSE returns cograph_network.
 
 - directed:
 
@@ -96,7 +96,8 @@ select_edges(
 ## Value
 
 A cograph_network object with selected edges. If `keep_format = TRUE`,
-returns the same type as input.
+matrix, igraph, and statnet network inputs are converted back to that
+type.
 
 ## Details
 

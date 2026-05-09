@@ -1,10 +1,9 @@
-# Plot Centrality Comparison (Pyramid)
+# Plot Centrality Comparison
 
-Back-to-back horizontal bar chart comparing a centrality measure across
-two groups. Each row is a node; left bar is group 1, right bar is group
-2. Bar fill is per-node (identity) – either inherited from the network's
-node colors or supplied via `node_colors`. Visual delta is communicated
-by bar length alone.
+Compare a centrality measure across two or more groups using stacked,
+faceted, grouped, dumbbell, line, or two-group pyramid layouts. The
+`"pyramid"` style is a back-to-back horizontal bar chart for exactly two
+groups.
 
 ## Usage
 

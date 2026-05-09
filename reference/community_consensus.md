@@ -51,8 +51,8 @@ com_consensus(
 
 - seed:
 
-  Optional seed for reproducibility. If provided, seeds for individual
-  runs are derived from this seed.
+  Optional seed for reproducibility. If provided, the RNG state is
+  initialized once before repeated runs.
 
 - ...:
 
@@ -66,8 +66,8 @@ A `cograph_communities` object with consensus membership.
 
 The algorithm works as follows:
 
-1.  Run the specified algorithm `n_runs` times (without seeds to allow
-    variation)
+1.  Run the specified algorithm `n_runs` times using the current RNG
+    stream
 
 2.  Build a co-occurrence matrix counting how often each pair of nodes
     appears in the same community

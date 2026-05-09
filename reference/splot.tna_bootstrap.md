@@ -57,11 +57,13 @@ splot.tna_bootstrap(
 
 - color_nonsig:
 
-  Color for non-significant edges. Default "#888888" (grey).
+  Accepted for compatibility; styled mode currently uses a fixed pink
+  color for non-significant edges.
 
 - show_ci:
 
-  Logical: overlay CI bands on edges? Default FALSE.
+  Logical: include CI bounds in edge labels? Default FALSE. Use
+  `display = "ci"` for CI underlays on edges.
 
 - show_stars:
 

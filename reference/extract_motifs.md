@@ -167,10 +167,6 @@ A `cograph_motif_analysis` object (list) containing:
 
   List of parameters used
 
-- level:
-
-  Analysis level used
-
 ## MAN Notation
 
 The 16 triad types use MAN (Mutual-Asymmetric-Null) notation where:

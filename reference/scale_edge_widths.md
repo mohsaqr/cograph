@@ -1,8 +1,7 @@
 # Scale Edge Widths Based on Weights
 
-Unified edge width scaling function that supports multiple scaling
-modes, two-tier cutoff system (like qgraph), and output range
-specification.
+Unified edge width scaling function that supports multiple scaling modes
+and output range specification.
 
 ## Usage
 
@@ -29,15 +28,17 @@ scale_edge_widths(
 
 - esize:
 
-  Base edge size. NULL uses adaptive sizing based on n_nodes.
+  Maximum edge size. If NULL, `range[2]` is used.
 
 - n_nodes:
 
-  Number of nodes (for adaptive esize calculation).
+  Number of nodes. Accepted for caller compatibility; not used by this
+  scaler.
 
 - directed:
 
-  Whether network is directed (affects adaptive esize).
+  Whether network is directed. Accepted for caller compatibility; not
+  used by this scaler.
 
 - mode:
 
@@ -53,8 +54,9 @@ scale_edge_widths(
 
 - cut:
 
-  Two-tier cutoff threshold. NULL = auto (75th percentile), 0 = disabled
-  (continuous scaling), positive number = manual threshold.
+  Accepted for caller compatibility. Width scaling is continuous in the
+  current implementation; cutoff handling is performed by callers for
+  other aesthetics such as transparency.
 
 - range:
 
@@ -78,14 +80,3 @@ Numeric vector of scaled edge widths.
 
 - **rank**: Rank-based scaling for equal visual spacing regardless of
   weight distribution.
-
-### Two-Tier System (cut parameter)
-
-When cut \> 0, edges are divided into two tiers:
-
-- Below cut: Minimal width variation (20% of range)
-
-- Above cut: Full width scaling (80% of range)
-
-This matches qgraph's behavior where weak edges are visually
-de-emphasized.

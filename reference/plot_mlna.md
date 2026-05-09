@@ -102,15 +102,15 @@ mlna(
 
 - layer_spacing:
 
-  Vertical distance between layer centers. Default 2.5.
+  Vertical distance between layer centers. Default 4.
 
 - layer_width:
 
-  Horizontal width of each layer shell. Default 5.
+  Horizontal width of each layer shell. Default 8.
 
 - layer_depth:
 
-  Depth of each layer (for 3D effect). Default 2.5.
+  Depth of each layer (for 3D effect). Default 4.
 
 - skew_angle:
 
@@ -167,7 +167,7 @@ mlna(
 
 - node_size:
 
-  Size of nodes. Default 2.5.
+  Size of nodes. Default 3.
 
 - minimum:
 

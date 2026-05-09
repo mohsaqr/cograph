@@ -20,7 +20,7 @@ layout_groups(
 
 - network:
 
-  A CographNetwork object.
+  A `CographNetwork` or `cograph_network` object.
 
 - groups:
 

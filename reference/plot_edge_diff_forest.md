@@ -50,10 +50,10 @@ plot_edge_diff_forest(
 
 - layout:
 
-  `"linear"` (default), `"circular"`, or `"chord"`. The chord layout
-  places all edge names on a unit circle and connects significant pairs
-  with bezier arcs; arc width and colour encode the mean bootstrap
-  difference.
+  `"linear"` (default), `"circular"`, `"chord"`, or `"tile"`. The chord
+  layout places all edge names on a unit circle and connects significant
+  pairs with bezier arcs; arc width and colour encode the mean bootstrap
+  difference. The tile layout draws the pairwise-difference matrix.
 
 - show_nonsig:
 

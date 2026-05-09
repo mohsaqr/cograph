@@ -26,7 +26,8 @@ resolve_centrality_sizes(
   Centrality measure name or list with measure and parameters. Valid
   measures: "degree", "strength", "betweenness", "closeness",
   "eigenvector", "pagerank", "authority", "hub", "eccentricity",
-  "coreness", "constraint", "harmonic". Also accepts directional
+  "coreness", "constraint", "transitivity", "harmonic", "diffusion",
+  "leverage", "kreach", and "resilience". Also accepts directional
   shorthands: "indegree", "outdegree", "instrength", "outstrength",
   "incloseness", "outcloseness", "inharmonic", "outharmonic",
   "ineccentricity", "outeccentricity".
@@ -50,5 +51,5 @@ resolve_centrality_sizes(
 
 ## Value
 
-Named list with 'sizes' (vector of node sizes) and 'values' (raw
-centrality values).
+Named list with `sizes` (vector of node sizes), `values` (raw centrality
+values), `measure`, and `labels`.

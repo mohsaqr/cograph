@@ -69,8 +69,8 @@ sn_edges(
 
 - network:
 
-  A cograph_network object, matrix, data.frame, or igraph object.
-  Matrices and other inputs are auto-converted.
+  A CographNetwork, cograph_network object, matrix, data.frame, or
+  igraph object. Matrices and other inputs are auto-converted.
 
 - width:
 
@@ -78,9 +78,8 @@ sn_edges(
 
 - edge_size:
 
-  Base edge size for weight scaling. NULL (default) uses adaptive sizing
-  based on network size: `15 * exp(-n_nodes/90) + 1`. Larger values =
-  thicker edges.
+  Maximum edge size for renderer weight scaling. NULL (default) uses the
+  renderer's edge-width range. Larger values = thicker edges overall.
 
 - esize:
 
@@ -88,8 +87,8 @@ sn_edges(
 
 - edge_width_range:
 
-  Output width range as c(min, max) for weight-based scaling. Default
-  c(0.5, 4). Edges are scaled to fit within this range.
+  Output width range as c(min, max) for weight-based scaling. If NULL
+  (default), the plotting renderer's default range is used.
 
 - edge_scale_mode:
 
@@ -99,8 +98,10 @@ sn_edges(
 
 - edge_cutoff:
 
-  Two-tier cutoff for edge width scaling. NULL (default) = auto 75th
-  percentile. 0 = disabled. Positive number = manual threshold.
+  Optional cutoff for edge emphasis. NULL (default) or 0 disables cutoff
+  handling. Positive values are passed to renderers; in
+  [`splot()`](https://sonsoles.me/cograph/reference/splot.md), edges
+  below the cutoff are faded while width scaling remains continuous.
 
 - cut:
 
@@ -237,7 +238,8 @@ sn_edges(
 - curves:
 
   Curve mode: FALSE (straight edges), "mutual" (only curve reciprocal
-  pairs), or "force" (curve all edges). Default FALSE.
+  pairs), or "force" (curve all edges). If NULL, the plotting renderer's
+  default is used.
 
 - ci:
 

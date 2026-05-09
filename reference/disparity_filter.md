@@ -28,7 +28,7 @@ disparity_filter(x, level = 0.05, ...)
 
 - x:
 
-  A weight matrix, tna object, or cograph_network.
+  A weight matrix, tna object, cograph_network, or igraph object.
 
 - level:
 

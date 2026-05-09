@@ -11,7 +11,7 @@ maps to an exact degree."><meta property="og:image" content="https://sonsoles.me
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -135,8 +135,9 @@ to 1) instead of counts. Default FALSE.</p></dd>
 
 <dt id="arg-log">log<a class="anchor" aria-label="anchor" href="#arg-log"></a></dt>
 <dd><p>Character. Axis log-scaling: "" (none, default), "x", "y", or
-"xy". For cumulative plots, "xy" produces log-log CCDF (standard for
-power-law inspection).</p></dd>
+"xy". Histogram plots apply y-axis log scaling for "y" or "xy";
+cumulative plots support x, y, and xy scaling, with "xy" producing a
+log-log CCDF (standard for power-law inspection).</p></dd>
 
 
 <dt id="arg-main">main<a class="anchor" aria-label="anchor" href="#arg-main"></a></dt>
@@ -169,7 +170,7 @@ power-law inspection).</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>Invisibly returns a list with components:</p><dl><dt>degree</dt>
-<dd><p>Named integer vector of per-node degrees.</p></dd>
+<dd><p>Named numeric vector of per-node degrees.</p></dd>
 
 <dt>table</dt>
 <dd><p>Table of degree frequencies.</p></dd>

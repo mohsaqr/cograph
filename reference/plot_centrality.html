@@ -11,7 +11,7 @@ network input."><meta property="og:image" content="https://sonsoles.me/cograph/l
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,7 +90,7 @@ when <code>x</code> is already a centrality data frame.</p></dd>
 
 
 <dt id="arg-style">style<a class="anchor" aria-label="anchor" href="#arg-style"></a></dt>
-<dd><p>Character: "line" (default), "bar", "lollipop".</p></dd>
+<dd><p>Character: "line" (default), "bar", "lollipop", or "dot".</p></dd>
 
 
 <dt id="arg-orientation">orientation<a class="anchor" aria-label="anchor" href="#arg-orientation"></a></dt>
@@ -108,8 +108,8 @@ within measure), "z" (standardized within measure), or "rank"
 <dt id="arg-order-by">order_by<a class="anchor" aria-label="anchor" href="#arg-order-by"></a></dt>
 <dd><p>Character. For "bar"/"lollipop": which measure sorts
 nodes. Defaults to the first measure. Use <code>"alpha"</code> for
-alphabetical. For "line", the x-axis always sorts nodes alphabetically
-so the parallel-coordinates paths are stable across plots.</p></dd>
+alphabetical. For "line", this also controls node ordering unless
+<code>"alpha"</code> is requested.</p></dd>
 
 
 <dt id="arg-top-n">top_n<a class="anchor" aria-label="anchor" href="#arg-top-n"></a></dt>
@@ -156,10 +156,10 @@ Default <code>NULL</code> chooses sensibly based on measure count.</p></dd>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Three styles are available:</p><dl><dt><code>"line"</code></dt>
-<dd><p>Parallel-coordinates view. Nodes on the x-axis,
-z-score on the y-axis, one polyline per measure. Best for spotting
-nodes with atypical centrality profiles.</p></dd>
+    <p>Four styles are available:</p><dl><dt><code>"line"</code></dt>
+<dd><p>Faceted line view with one panel per measure.
+Nodes are ordered along the requested orientation and connected within
+each measure.</p></dd>
 
 <dt><code>"bar"</code></dt>
 <dd><p>Horizontal bars, one facet per measure. Best for
@@ -168,6 +168,9 @@ reading individual measure values.</p></dd>
 <dt><code>"lollipop"</code></dt>
 <dd><p>Like <code>"bar"</code> but with a dot at the tip.
 Softer visual weight; useful on dense grids.</p></dd>
+
+<dt><code>"dot"</code></dt>
+<dd><p>Dot-only variant of the lollipop style.</p></dd>
 
 
 </dl></div>

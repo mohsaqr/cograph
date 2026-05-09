@@ -50,8 +50,8 @@ plot_heatmap(
 
 - x:
 
-  Network input: matrix, CographNetwork, tna, igraph, group_tna, or any
-  object cograph accepts.
+  Network input: matrix, CographNetwork, cograph_network, tna, igraph,
+  group_tna, or a list-like object with a `$weights` matrix.
 
 - cluster_list:
 
@@ -77,7 +77,8 @@ plot_heatmap(
 - colors:
 
   Color palette: vector of colors for gradient, or a palette name
-  ("viridis", "heat", "blues", "reds", "diverging"). Default "viridis".
+  ("viridis", "heat", "blues", "reds", "greens", "diverging"). Default
+  "viridis".
 
 - limits:
 
@@ -128,7 +129,8 @@ plot_heatmap(
 
 - diagonal_color:
 
-  Optional color for diagonal cells. NULL uses scale.
+  Accepted for API compatibility; diagonal cells currently use the
+  active fill scale unless hidden with `show_diagonal = FALSE`.
 
 - cluster_labels:
 
@@ -206,8 +208,7 @@ each element is a vector of node names belonging to that cluster. The
 heatmap will be reordered to show clusters as blocks along the diagonal.
 
 For group_tna objects (multiple separate networks), each network becomes
-a diagonal block. Off-diagonal blocks are empty (no inter-layer edges)
-unless the networks share nodes.
+a diagonal block. Off-diagonal blocks are empty (no inter-layer edges).
 
 ## Examples
 

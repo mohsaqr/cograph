@@ -1,7 +1,7 @@
 # Resolve Edge Widths
 
 Determines edge widths based on weights or explicit values. Supports
-multiple scaling modes, two-tier cutoff, and output range specification.
+multiple scaling modes and output range specification.
 
 ## Usage
 
@@ -36,11 +36,11 @@ resolve_edge_widths(
 
 - esize:
 
-  Base edge size. NULL uses adaptive sizing based on n_nodes.
+  Optional maximum edge size. NULL uses `edge_width_range`.
 
 - n_nodes:
 
-  Number of nodes (for adaptive esize calculation).
+  Number of nodes, passed through to the scaler for compatibility.
 
 - directed:
 
@@ -56,7 +56,8 @@ resolve_edge_widths(
 
 - cut:
 
-  Two-tier cutoff. NULL = auto (75th pct), 0 = disabled.
+  Accepted for compatibility. Current width scaling is continuous;
+  cutoff effects are handled by callers for other aesthetics.
 
 - edge_width_range:
 

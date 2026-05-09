@@ -12,7 +12,7 @@ layout_circle(network, order = NULL, start_angle = pi/2, clockwise = TRUE, ...)
 
 - network:
 
-  A CographNetwork object.
+  A `CographNetwork` or `cograph_network` object.
 
 - order:
 

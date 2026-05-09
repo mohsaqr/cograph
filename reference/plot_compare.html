@@ -13,7 +13,7 @@ as donut charts."><meta property="og:image" content="https://sonsoles.me/cograph
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -81,13 +81,16 @@ as donut charts.</p>
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>First network: matrix, CographNetwork, tna, igraph object,
-OR a group_tna object. For group_tna with 2 groups, compares them directly.
-For more groups, plots all pairwise comparisons (or specify i, j).</p></dd>
+<dd><p>First network: matrix, <code>cograph_network</code>,
+<code>CographNetwork</code>, <code>tna</code>, <code>igraph</code>, list-like object with
+<code>$weights</code>, plain list of networks, or <code>group_tna</code>. For
+<code>group_tna</code> with 2 groups, compares them directly. For more groups,
+plots all pairwise comparisons (or specify i, j).</p></dd>
 
 
 <dt id="arg-y">y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
-<dd><p>Second network: same type as x. Ignored if x is group_tna.</p></dd>
+<dd><p>Second network: same type as x. Ignored if x is a list or
+<code>group_tna</code>.</p></dd>
 
 
 <dt id="arg-i">i<a class="anchor" aria-label="anchor" href="#arg-i"></a></dt>

@@ -554,9 +554,11 @@ sn_render(
 
 ## Value
 
-Invisible NULL. Called for side effect of drawing.
+The updated `cograph_network` object, invisibly. Called primarily for
+the side effect of drawing.
 
-Invisible NULL. Called for side effect of drawing.
+The updated `cograph_network` object, invisibly. Called primarily for
+the side effect of drawing.
 
 ## Details
 

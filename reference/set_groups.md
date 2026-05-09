@@ -39,18 +39,18 @@ set_groups(
     "layer"/"layers", "cluster"/"clusters", or "group"/"groups" (plural
     forms are automatically normalized to singular)
 
-  - NULL: Use `nodes` + one of `layers`/`clusters`/`groups` vectors
+  - NULL: Use `nodes` + one of `layers`/`clusters` vectors
 
 - type:
 
   Group type. One of `"group"` (default), `"cluster"`, or `"layer"`.
-  Ignored when using vector arguments (`layers`, `clusters`, `groups`)
-  since the type is inferred from which argument is provided.
+  Ignored when using `layers` or `clusters` vector arguments since the
+  type is inferred from which argument is provided.
 
 - nodes:
 
-  Character vector of node labels. Use with `layers`, `clusters`, or
-  `groups` to specify groupings via vectors instead of a data frame.
+  Character vector of node labels. Use with `layers`, `clusters`, to
+  specify groupings via vectors instead of a data frame.
 
 - layers:
 

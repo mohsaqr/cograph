@@ -267,7 +267,8 @@ A `cograph_motif_result` object with:
 
   List of parameters used
 
-Invisibly returns the input `x`.
+Invisibly returns the input `x` for `"triads"` and `"patterns"`, or the
+underlying `ggplot` for `"types"` and `"significance"`.
 
 ## Details
 

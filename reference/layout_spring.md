@@ -29,7 +29,7 @@ layout_spring(
 
 - network:
 
-  A CographNetwork object.
+  A `CographNetwork` or `cograph_network` object.
 
 - iterations:
 

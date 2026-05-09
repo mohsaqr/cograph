@@ -11,7 +11,7 @@ flow through each node and chord width is proportional to edge weight."><meta pr
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -92,8 +92,9 @@ flow through each node and chord width is proportional to edge weight.</p>
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>A weight matrix, <code>cograph_network</code>, <code>tna</code>, or
-<code>igraph</code> object.</p></dd>
+<dd><p>A weight matrix, <code>cograph_network</code>, <code>CographNetwork</code>,
+<code>tna</code>, <code>igraph</code>, or list-like object with a matrix
+<code>weights</code> component.</p></dd>
 
 
 <dt id="arg-directed">directed<a class="anchor" aria-label="anchor" href="#arg-directed"></a></dt>
@@ -138,7 +139,8 @@ non-zero edges.</p></dd>
 
 
 <dt id="arg-self-loop">self_loop<a class="anchor" aria-label="anchor" href="#arg-self-loop"></a></dt>
-<dd><p>Logical. Show self-loop chords?</p></dd>
+<dd><p>Logical. Currently accepted for API compatibility; the
+current matrix preparation preserves self-loop chords.</p></dd>
 
 
 <dt id="arg-labels">labels<a class="anchor" aria-label="anchor" href="#arg-labels"></a></dt>

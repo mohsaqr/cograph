@@ -28,7 +28,8 @@ plot_comparison_heatmap(
 
 - x:
 
-  First network: matrix, CographNetwork, tna, or igraph object.
+  First network: matrix, `cograph_network`, `CographNetwork`, `tna`,
+  `igraph`, or list-like object with `$weights`.
 
 - y:
 

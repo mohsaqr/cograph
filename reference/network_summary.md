@@ -34,8 +34,9 @@ network_summary(
 
 - weighted:
 
-  Logical. Use edge weights for strength/centrality calculations.
-  Default TRUE.
+  Logical. Use edge weights for strength, shortest-path, and centrality
+  calculations where the underlying igraph routine accepts them. Default
+  TRUE.
 
 - mode:
 

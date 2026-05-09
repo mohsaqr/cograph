@@ -42,6 +42,22 @@ A list with the following elements:
 
   Default edge width
 
+- edge_width_range:
+
+  Default output range for scaled edge widths
+
+- edge_scale_mode:
+
+  Default edge scaling mode
+
+- edge_cut_quantile:
+
+  Default cut quantile used by callers
+
+- edge_width_default:
+
+  Default edge width when weights are unavailable
+
 - arrow_factor:
 
   Scale factor for arrow sizes
@@ -49,6 +65,14 @@ A list with the following elements:
 - arrow_default:
 
   Default arrow size
+
+- soplot_node_factor:
+
+  Node-size factor for soplot NPC coordinates
+
+- tna_edge_color:
+
+  Default TNA edge color
 
 ## Details
 

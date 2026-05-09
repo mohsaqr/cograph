@@ -25,8 +25,9 @@ plot(x, type = c("backbone", "comparison"), ...)
 
 ## Value
 
-Invisibly returns `NULL`. Called for the side effect of producing a
-plot.
+Invisibly returns the value from the underlying
+[`splot`](https://sonsoles.me/cograph/reference/splot.md) call. Called
+primarily for the side effect of producing a plot.
 
 ## Examples
 

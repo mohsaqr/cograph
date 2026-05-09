@@ -111,8 +111,8 @@ select_nodes(
 
 - keep_format:
 
-  Logical. If TRUE, return the same format as input. Default FALSE
-  returns cograph_network.
+  Logical. If TRUE, matrix, igraph, and statnet network inputs are
+  returned in that format. Default FALSE returns cograph_network.
 
 - directed:
 
@@ -121,7 +121,8 @@ select_nodes(
 ## Value
 
 A cograph_network object with selected nodes. If `keep_format = TRUE`,
-returns the same type as input.
+matrix, igraph, and statnet network inputs are converted back to that
+type.
 
 ## Details
 

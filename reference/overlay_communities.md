@@ -29,8 +29,8 @@ overlay_communities(
 - communities:
 
   Community assignments in any format: a method name (e.g.,
-  `"walktrap"`, `"louvain"`), a numeric membership vector (e.g.,
-  `c(1, 1, 2, 2, 3)`), a named list of character vectors, a
+  `"walktrap"`, `"louvain"`), a numeric or factor membership vector
+  (e.g., `c(1, 1, 2, 2, 3)`), a named list of character vectors, a
   `cograph_communities` object, or a `tna_communities` object.
 
 - blob_colors:

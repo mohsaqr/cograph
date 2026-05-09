@@ -103,8 +103,9 @@ build_mcml(
 
 - type:
 
-  Post-processing: "tna" (row-normalize), "cooccurrence" (symmetrize),
-  "semi_markov", or "raw". Default "tna".
+  Post-processing: "tna" (row-normalize), "frequency" or "raw" (no
+  normalization), "cooccurrence" (symmetrize), or "semi_markov". Default
+  "tna".
 
 - directed:
 
@@ -116,8 +117,9 @@ build_mcml(
 
 ## Value
 
-A `cluster_summary` object with `meta$source = "transitions"`, fully
-compatible with
+Usually an `mcml` object. Existing `mcml` or `cluster_summary` inputs
+are returned unchanged. Transition-data results include
+`meta$source = "transitions"` and are compatible with
 [`plot_mcml`](https://sonsoles.me/cograph/reference/plot_mcml.md),
 [`as_tna`](https://sonsoles.me/cograph/reference/as_tna.md), and
 [`splot`](https://sonsoles.me/cograph/reference/splot.md).

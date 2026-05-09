@@ -35,7 +35,8 @@ com_im(
 
 - weights:
 
-  Edge weights for transitions. NULL uses network weights.
+  Edge weights for transitions. NULL uses network weights, NA for
+  unweighted.
 
 - v.weights:
 

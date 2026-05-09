@@ -39,7 +39,7 @@ identical output.
 
 - weights:
 
-  Full n×n weight matrix for TNA compatibility, or NULL.
+  Full n×n weight matrix when available, or NULL.
 
 - data:
 
@@ -48,6 +48,10 @@ identical output.
 - node_groups:
 
   Optional node groupings data frame.
+
+- type:
+
+  Optional source/type string stored in `meta$type`.
 
 ## Value
 

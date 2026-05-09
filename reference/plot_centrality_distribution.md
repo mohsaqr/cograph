@@ -49,7 +49,9 @@ plot_centrality_distribution(
 
 - log:
 
-  Character. Log scaling: `""`, `"x"`, `"y"`, or `"xy"`. Default `""`.
+  Character. Log scaling: `""`, `"y"`, or `"xy"`. Values containing
+  `"x"` are accepted for compatibility but only the y-axis is log-scaled
+  by this plotting implementation. Default `""`.
 
 - col:
 

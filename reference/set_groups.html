@@ -11,7 +11,7 @@ specialized plot functions.'><meta property="og:image" content="https://sonsoles
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,20 +82,19 @@ specialized plot functions.</p>
 <li><p>Data frame: Must have "node"/"nodes" column plus one of
 "layer"/"layers", "cluster"/"clusters", or "group"/"groups"
 (plural forms are automatically normalized to singular)</p></li>
-<li><p>NULL: Use <code>nodes</code> + one of <code>layers</code>/<code>clusters</code>/<code>groups</code> vectors</p></li>
+<li><p>NULL: Use <code>nodes</code> + one of <code>layers</code>/<code>clusters</code> vectors</p></li>
 </ul></dd>
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
 <dd><p>Group type. One of <code>"group"</code> (default), <code>"cluster"</code>,
-or <code>"layer"</code>. Ignored when using vector arguments (<code>layers</code>,
-<code>clusters</code>, <code>groups</code>) since the type is inferred from which
-argument is provided.</p></dd>
+or <code>"layer"</code>. Ignored when using <code>layers</code> or <code>clusters</code>
+vector arguments since the type is inferred from which argument is provided.</p></dd>
 
 
 <dt id="arg-nodes">nodes<a class="anchor" aria-label="anchor" href="#arg-nodes"></a></dt>
 <dd><p>Character vector of node labels. Use with <code>layers</code>, <code>clusters</code>,
-or <code>groups</code> to specify groupings via vectors instead of a data frame.</p></dd>
+to specify groupings via vectors instead of a data frame.</p></dd>
 
 
 <dt id="arg-layers">layers<a class="anchor" aria-label="anchor" href="#arg-layers"></a></dt>

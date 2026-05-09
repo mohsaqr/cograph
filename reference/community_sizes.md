@@ -16,7 +16,7 @@ community_sizes(x)
 
 ## Value
 
-Named integer vector of community sizes
+Integer vector of community sizes
 
 ## Examples
 

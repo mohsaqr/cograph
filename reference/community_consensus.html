@@ -11,7 +11,7 @@ produces more robust and stable community assignments than single runs."><meta p
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -99,8 +99,8 @@ placed in the same community.</p></dd>
 
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
-<dd><p>Optional seed for reproducibility. If provided, seeds for
-individual runs are derived from this seed.</p></dd>
+<dd><p>Optional seed for reproducibility. If provided, the RNG state is
+initialized once before repeated runs.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -113,8 +113,8 @@ individual runs are derived from this seed.</p></dd>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The algorithm works as follows:</p><ol><li><p>Run the specified algorithm <code>n_runs</code> times (without seeds to
-allow variation)</p></li>
+    <p>The algorithm works as follows:</p><ol><li><p>Run the specified algorithm <code>n_runs</code> times using the current RNG
+stream</p></li>
 <li><p>Build a co-occurrence matrix counting how often each pair of nodes
 appears in the same community</p></li>
 <li><p>Normalize to proportions (0-1)</p></li>

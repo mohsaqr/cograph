@@ -41,6 +41,10 @@ Modified cograph_network object.
   Force-directed layout (Fruchterman-Reingold style). Good
   general-purpose layout. Default.
 
+- **oval**/**ellipse**:
+
+  Nodes arranged around an ellipse.
+
 - **circle**:
 
   Nodes arranged in a circle. Good for small networks or when structure
@@ -65,6 +69,10 @@ Modified cograph_network object.
 - **bipartite**:
 
   Two-column layout for bipartite networks.
+
+- **gephi**/**gephi_fr**:
+
+  Gephi-style force-directed layout.
 
 ### igraph Layouts
 

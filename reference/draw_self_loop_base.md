@@ -58,3 +58,8 @@ draw_self_loop_base(
 - arrow_angle:
 
   Arrow head angle in radians. Default pi/6 (30 degrees).
+
+- anchor_radius:
+
+  Radius used for the loop's node-boundary anchor. NULL defaults to
+  `node_size`.

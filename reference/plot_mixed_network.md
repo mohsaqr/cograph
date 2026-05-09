@@ -49,7 +49,7 @@ plot_mixed_network(
 
 - sym_color:
 
-  Color for symmetric/undirected edges. Default "#457B9D" (steel blue).
+  Color for symmetric/undirected edges. Default `"ivory4"`.
 
 - asym_color:
 
@@ -108,7 +108,8 @@ plot_mixed_network(
 
 ## Value
 
-Invisibly returns the combined cograph_network object.
+Invisibly returns a list with the combined edge data and filtered
+symmetric/asymmetric matrices.
 
 ## Examples
 

@@ -44,7 +44,7 @@ abbrev_label(labels, NULL)
 #> [1] "VeryLongStateName" "Short"             "AnotherLongName"  
 
 # Fixed max length
-abbrev_label(labels, 5)  # "Very...", "Short", "Anot..."
+abbrev_label(labels, 5)  # "Very…", "Short", "Anot…"
 #> [1] "Very…" "Short" "Anot…"
 
 # Auto-adaptive

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,16 +57,24 @@
 
 
 <dl><dt id="arg-input">input<a class="anchor" aria-label="anchor" href="#arg-input"></a></dt>
-<dd><p>Network input: matrix, data.frame (edge list), or igraph object.</p></dd>
+<dd><p>Network input: matrix, data.frame (edge list), igraph, statnet
+network, qgraph, tna, or an already-parsed list with an <code>edges</code>
+component.</p></dd>
 
 
 <dt id="arg-directed">directed<a class="anchor" aria-label="anchor" href="#arg-directed"></a></dt>
 <dd><p>Logical. Force directed interpretation. NULL for auto-detect.</p></dd>
 
+
+<dt id="arg-simplify">simplify<a class="anchor" aria-label="anchor" href="#arg-simplify"></a></dt>
+<dd><p>Logical or character. Passed to <code>parse_tna()</code> for tna
+inputs.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>List with nodes, edges, directed, and weights components.</p>
+    <p>List with parsed network components, usually including nodes, edges,
+directed, and weight information.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

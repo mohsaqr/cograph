@@ -31,8 +31,9 @@ plot_motifs(
 
 - x:
 
-  Input data: a tna object, cograph_network, matrix, igraph, or
-  data.frame (edge list).
+  A `cograph_motif_result` object from
+  [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md) or
+  [`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md).
 
 - type:
 

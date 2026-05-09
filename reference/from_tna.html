@@ -11,7 +11,7 @@ are mapped to donut fills."><meta property="og:image" content="https://sonsoles.
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -112,8 +112,9 @@ zero. Default: FALSE.</p></dd>
 <p>The tna object's transition matrix becomes edge weights, labels become
 node labels, and initial state probabilities (<code>inits</code>) are mapped to
 <code>donut_fill</code> values to visualize starting state distributions.</p>
-<p>TNA networks are always treated as directed because transition matrices
-represent directional state changes.</p>
+<p>Directedness is read from the tna object when available; otherwise it is
+inferred from matrix symmetry. Transition matrices are usually directed,
+while symmetric co-occurrence matrices are treated as undirected.</p>
 <p>The default <code>donut_inner_ratio</code> of 0.8 creates thin rings that
 effectively visualize probability values without obscuring node labels.</p>
 </div>
@@ -134,13 +135,15 @@ effectively visualize probability values without obscuring node labels.</p>
 <p>The following visual defaults are applied for TNA plots (all can be overridden via <code>...</code>):</p><ul><li><p><code>layout = "oval"</code>: Oval/elliptical node arrangement</p></li>
 <li><p><code>node_fill</code>: Colors from TNA palette (Accent/Set3 based on state count)</p></li>
 <li><p><code>node_size = 7</code>: Larger nodes for readability</p></li>
-<li><p><code>arrow_size = 0.61</code>: Prominent directional arrows</p></li>
+<li><p><code>arrow_size = 0.61</code>: Prominent directional arrows for directed
+networks</p></li>
 <li><p><code>edge_color = "#003355"</code>: Dark blue edges</p></li>
 <li><p><code>edge_labels = TRUE</code>: Show transition weights on edges</p></li>
 <li><p><code>edge_label_size = 0.4</code>: Readable edge labels</p></li>
 <li><p><code>edge_label_position = 0.7</code>: Labels positioned toward target</p></li>
-<li><p><code>edge_start_style = "dotted"</code>: Dotted line at edge source</p></li>
-<li><p><code>edge_start_length = 0.2</code>: 20% of edge is dotted</p></li>
+<li><p><code>edge_start_style = "dotted"</code>: Dotted line at edge source for
+directed networks</p></li>
+<li><p><code>edge_start_length = 0.2</code>: 20% of directed edges are dotted</p></li>
 </ul></div>
 
     </div>

@@ -65,7 +65,7 @@ as soplot() for consistency."><meta property="og:image" content="https://sonsole
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -336,7 +336,7 @@ as soplot() for consistency.</p>
 <dd><p>Network input. Can be:</p><ul><li><p>A square numeric matrix (adjacency/weight matrix)</p></li>
 <li><p>A data frame with edge list (from, to, optional weight columns)</p></li>
 <li><p>An igraph object</p></li>
-<li><p>A cograph_network object</p></li>
+<li><p>A CographNetwork or cograph_network object</p></li>
 <li><p>A tna object (from tna package)</p></li>
 <li><p>A group_tna object (list of tna objects from tna package).
 Use parameter <code>i</code> to select a specific group, or omit to plot all groups.</p></li>
@@ -410,9 +410,10 @@ Default <code>1 - x$alpha</code> (i.e. the complement of the alpha level).</p></
 
 
 <dt id="arg-layout">layout<a class="anchor" aria-label="anchor" href="#arg-layout"></a></dt>
-<dd><p>Layout algorithm: "circle", "spring", "groups", or a matrix
-of x,y coordinates, or an igraph layout function. Also supports igraph
-two-letter codes: "kk", "fr", "drl", "mds", "ni", etc.</p></dd>
+<dd><p>Layout algorithm: "oval" (default), "circle", "spring",
+"groups", or a matrix of x,y coordinates, or an igraph layout function.
+Also supports igraph two-letter codes: "kk", "fr", "drl", "mds", "ni",
+etc.</p></dd>
 
 
 <dt id="arg-directed">directed<a class="anchor" aria-label="anchor" href="#arg-directed"></a></dt>
@@ -428,7 +429,8 @@ two-letter codes: "kk", "fr", "drl", "mds", "ni", etc.</p></dd>
 
 
 <dt id="arg-node-size">node_size<a class="anchor" aria-label="anchor" href="#arg-node-size"></a></dt>
-<dd><p>Node size(s). Single value or vector. Default 3.</p></dd>
+<dd><p>Node size(s). Single value or vector. Default NULL, which
+resolves to 7 with default scaling.</p></dd>
 
 
 <dt id="arg-node-size-">node_size2<a class="anchor" aria-label="anchor" href="#arg-node-size-"></a></dt>
@@ -668,9 +670,9 @@ on all nodes regardless of node_shape).</p></dd>
 
 
 <dt id="arg-edge-size">edge_size<a class="anchor" aria-label="anchor" href="#arg-edge-size"></a></dt>
-<dd><p>Base edge size for weight scaling. NULL (default) uses adaptive sizing
-based on network size: <code>15 * exp(-n_nodes/90) + 1</code>. For directed networks, this
-is halved. Larger values = thicker edges overall.</p></dd>
+<dd><p>Maximum edge size for weight scaling. NULL (default) uses
+the upper bound of <code>edge_width_range</code>. Larger values = thicker edges
+overall.</p></dd>
 
 
 <dt id="arg-esize">esize<a class="anchor" aria-label="anchor" href="#arg-esize"></a></dt>
@@ -679,7 +681,8 @@ is halved. Larger values = thicker edges overall.</p></dd>
 
 <dt id="arg-edge-width-range">edge_width_range<a class="anchor" aria-label="anchor" href="#arg-edge-width-range"></a></dt>
 <dd><p>Output width range as c(min, max) for weight-based scaling.
-Default c(0.5, 4). Edges are scaled to fit within this range.</p></dd>
+Default c(0.1, 4). Edges are scaled to fit within this range unless
+<code>edge_size</code> supplies the maximum.</p></dd>
 
 
 <dt id="arg-edge-scale-mode">edge_scale_mode<a class="anchor" aria-label="anchor" href="#arg-edge-scale-mode"></a></dt>
@@ -689,9 +692,9 @@ or "rank" (equal visual spacing regardless of weight distribution).</p></dd>
 
 
 <dt id="arg-edge-cutoff">edge_cutoff<a class="anchor" aria-label="anchor" href="#arg-edge-cutoff"></a></dt>
-<dd><p>Two-tier cutoff for edge width scaling. NULL (default) = auto-calculate
-as 75th percentile of weights (qgraph behavior). 0 = disabled (continuous scaling).
-Positive number = manual threshold. Edges below cutoff get minimal width variation.</p></dd>
+<dd><p>Optional cutoff for edge emphasis. NULL (default) or 0
+disables cutoff fading. Positive values fade edges whose absolute weights
+are below the cutoff; width scaling remains continuous.</p></dd>
 
 
 <dt id="arg-cut">cut<a class="anchor" aria-label="anchor" href="#arg-cut"></a></dt>
@@ -761,7 +764,7 @@ readability over dark edges? Default TRUE. When TRUE, overrides shadow settings.
 
 
 <dt id="arg-curve-scale">curve_scale<a class="anchor" aria-label="anchor" href="#arg-curve-scale"></a></dt>
-<dd><p>Logical: auto-curve reciprocal edges?</p></dd>
+<dd><p>Reserved for future curve scaling; currently not used.</p></dd>
 
 
 <dt id="arg-curve-shape">curve_shape<a class="anchor" aria-label="anchor" href="#arg-curve-shape"></a></dt>

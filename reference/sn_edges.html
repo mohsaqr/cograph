@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -114,8 +114,8 @@
 
 
 <dl><dt id="arg-network">network<a class="anchor" aria-label="anchor" href="#arg-network"></a></dt>
-<dd><p>A cograph_network object, matrix, data.frame, or igraph object.
-Matrices and other inputs are auto-converted.</p></dd>
+<dd><p>A CographNetwork, cograph_network object, matrix,
+data.frame, or igraph object. Matrices and other inputs are auto-converted.</p></dd>
 
 
 <dt id="arg-width">width<a class="anchor" aria-label="anchor" href="#arg-width"></a></dt>
@@ -123,8 +123,9 @@ Matrices and other inputs are auto-converted.</p></dd>
 
 
 <dt id="arg-edge-size">edge_size<a class="anchor" aria-label="anchor" href="#arg-edge-size"></a></dt>
-<dd><p>Base edge size for weight scaling. NULL (default) uses adaptive sizing
-based on network size: <code>15 * exp(-n_nodes/90) + 1</code>. Larger values = thicker edges.</p></dd>
+<dd><p>Maximum edge size for renderer weight scaling. NULL
+(default) uses the renderer's edge-width range. Larger values = thicker
+edges overall.</p></dd>
 
 
 <dt id="arg-esize">esize<a class="anchor" aria-label="anchor" href="#arg-esize"></a></dt>
@@ -133,7 +134,7 @@ based on network size: <code>15 * exp(-n_nodes/90) + 1</code>. Larger values = t
 
 <dt id="arg-edge-width-range">edge_width_range<a class="anchor" aria-label="anchor" href="#arg-edge-width-range"></a></dt>
 <dd><p>Output width range as c(min, max) for weight-based scaling.
-Default c(0.5, 4). Edges are scaled to fit within this range.</p></dd>
+If NULL (default), the plotting renderer's default range is used.</p></dd>
 
 
 <dt id="arg-edge-scale-mode">edge_scale_mode<a class="anchor" aria-label="anchor" href="#arg-edge-scale-mode"></a></dt>
@@ -143,8 +144,10 @@ or "rank" (equal visual spacing).</p></dd>
 
 
 <dt id="arg-edge-cutoff">edge_cutoff<a class="anchor" aria-label="anchor" href="#arg-edge-cutoff"></a></dt>
-<dd><p>Two-tier cutoff for edge width scaling. NULL (default) = auto 75th percentile.
-0 = disabled. Positive number = manual threshold.</p></dd>
+<dd><p>Optional cutoff for edge emphasis. NULL (default) or 0
+disables cutoff handling. Positive values are passed to renderers; in
+<code><a href="splot.html">splot()</a></code>, edges below the cutoff are faded while width scaling remains
+continuous.</p></dd>
 
 
 <dt id="arg-cut">cut<a class="anchor" aria-label="anchor" href="#arg-cut"></a></dt>
@@ -280,7 +283,7 @@ values &lt; 1 make them thinner. Applied after all other width calculations.</p>
 
 <dt id="arg-curves">curves<a class="anchor" aria-label="anchor" href="#arg-curves"></a></dt>
 <dd><p>Curve mode: FALSE (straight edges), "mutual" (only curve reciprocal pairs),
-or "force" (curve all edges). Default FALSE.</p></dd>
+or "force" (curve all edges). If NULL, the plotting renderer's default is used.</p></dd>
 
 
 <dt id="arg-ci">ci<a class="anchor" aria-label="anchor" href="#arg-ci"></a></dt>

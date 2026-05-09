@@ -95,8 +95,9 @@ plot_alluvial(
 
 - flow_fill:
 
-  Fill color for flows. Default "#888888" (grey). Ignored if
-  flow_color_by is set.
+  Fill color for flows. Default "#888888" (grey). In multi-step and
+  individual-tracking plots, ignored when `flow_color_by` is set; simple
+  two-column aggregate plots use `flow_fill`.
 
 - flow_alpha:
 
@@ -104,8 +105,10 @@ plot_alluvial(
 
 - flow_color_by:
 
-  Color flows by "source", "destination", or NULL (use flow_fill).
-  Default NULL.
+  Color flows by state. For multi-step aggregate flows, use `"source"`
+  or `"destination"`; for individual trajectories, `"first"` and
+  `"last"` are also supported. Default NULL uses `flow_fill`; simple
+  two-column aggregate plots ignore this argument.
 
 - flow_border:
 
@@ -134,8 +137,7 @@ plot_alluvial(
 - label_position:
 
   Position of node labels: "beside" (default), "inside", "above",
-  "below", "outside". Applied to first and last columns. See
-  `mid_label_position` for middle columns.
+  "below", or "outside".
 
 - label_halo:
 
@@ -143,17 +145,21 @@ plot_alluvial(
 
 - label_color:
 
-  Color of state name labels. Default "black".
+  Color of state name labels. Default "black". Applied to multi-step and
+  individual-tracking plots; simple two-column aggregate plots use black
+  external labels and white inside labels.
 
 - label_fontface:
 
   Font face of state name labels ("plain", "bold", "italic",
-  "bold.italic"). Default "plain".
+  "bold.italic"). Default "plain". Applied to multi-step and
+  individual-tracking plots; simple two-column aggregate plots use fixed
+  label font faces.
 
 - label_nudge:
 
   Distance between node edge and label (in plot units). Default 0.02.
-  Increase for more spacing.
+  Used by multi-step and individual-tracking plots.
 
 - title_size:
 
@@ -161,11 +167,14 @@ plot_alluvial(
 
 - title_color:
 
-  Color of column title text. Default "black".
+  Color of column title text. Default "black". Applied to multi-step and
+  individual-tracking plots; simple two-column aggregate plots use black
+  titles.
 
 - title_fontface:
 
-  Font face of column titles. Default "bold".
+  Font face of column titles. Default "bold". Applied to multi-step and
+  individual-tracking plots.
 
 - curve_strength:
 
@@ -191,11 +200,13 @@ plot_alluvial(
 - value_halo:
 
   Logical: add halo around flow value labels? Default NULL (inherits
-  from `label_halo`).
+  from `label_halo`). Applied to multi-step and individual-tracking
+  plots.
 
 - value_fontface:
 
-  Font face of flow value labels. Default "bold".
+  Font face of flow value labels. Default "bold". Applied to multi-step
+  and individual-tracking plots.
 
 - value_nudge:
 
@@ -204,8 +215,10 @@ plot_alluvial(
 
 - value_min:
 
-  Minimum count to show a flow value label. Default 0 (show all). Use to
-  hide small flows (e.g., `value_min = 100`).
+  Minimum count to show a flow value label in multi-step and
+  individual-tracking plots. Default 0 (show all). Simple two-column
+  aggregate plots show all nonzero value labels when
+  `show_values = TRUE`.
 
 - show_totals:
 
@@ -245,8 +258,9 @@ plot_alluvial(
 
 - column_gap:
 
-  Horizontal spread of columns (0-1). Default 1 uses full width. Use
-  smaller values (e.g., 0.6) to bring columns closer together.
+  Horizontal spread of columns (0-1) for multi-step and
+  individual-tracking plots. Default 1 uses full width. Use smaller
+  values (e.g., 0.6) to bring columns closer together.
 
 ## Value
 

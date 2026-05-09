@@ -27,7 +27,7 @@ A list with the following elements:
 
 - vsize_factor:
 
-  Scale factor to convert vsize to user coordinates: 0.015
+  Scale factor to convert vsize to user coordinates: 0.012
 
 - esize_base:
 
@@ -44,6 +44,10 @@ A list with the following elements:
 - esize_unweighted:
 
   Default edge width for unweighted networks: 2
+
+- esize_scale:
+
+  Scale factor converting qgraph esize to line width: 0.27
 
 - cent2edge_divisor:
 

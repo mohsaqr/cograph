@@ -3,7 +3,7 @@
 Signed-weight sum of a node's edges (Robinaugh, Millner & McNally 2016).
 The appropriate centrality for networks with positive *and* negative
 edges (partial-correlation, glasso, signed correlation networks) where
-strength — which takes absolute values — can be misleading.
+treating negative edges as positive magnitudes can be misleading.
 
 ## Usage
 
@@ -41,7 +41,7 @@ Psychology*, 125(6), 747-757.
 [`centrality_expected_influence_2`](https://sonsoles.me/cograph/reference/centrality_expected_influence_2.md)
 for the two-step variant,
 [`centrality_strength`](https://sonsoles.me/cograph/reference/centrality_strength.md)
-for the unsigned analogue.
+for the weighted-degree analogue.
 
 ## Examples
 

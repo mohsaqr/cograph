@@ -12,7 +12,8 @@ validate_network(x, arg_name = "network")
 
 - x:
 
-  Object to validate.
+  Object to validate. Must inherit from `CographNetwork` or
+  `cograph_network`.
 
 - arg_name:
 

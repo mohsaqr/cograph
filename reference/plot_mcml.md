@@ -234,9 +234,8 @@ plot_mcml(
 
 - cluster_shape:
 
-  Shape for summary nodes in the top layer. Same supported values as
-  `node_shape`. Can be a single value or a vector of length equal to the
-  number of clusters. Default `"circle"`.
+  Accepted for backward compatibility. Summary nodes are currently drawn
+  as pie charts, so this parameter does not change their shape.
 
 - title:
 
@@ -428,8 +427,8 @@ plot_mcml(
 
 - label_position:
 
-  Position of detail node labels: 1 = below, 2 = left, 3 = above, 4 =
-  right. Default 3.
+  Accepted for backward compatibility. Detail labels are currently
+  positioned automatically to the left or right of each node.
 
 - ...:
 
@@ -549,7 +548,7 @@ of visual parameters:
 | Cluster shell appearance | `shape_size`, `shell_alpha`, `shell_border_width`, `colors` |
 | Detail nodes | `node_size`, `node_shape`, `node_border_color` |
 | Detail labels | `show_labels`, `label_size`, `label_abbrev`, `label_color`, `label_position` |
-| Summary nodes | `summary_size`, `cluster_shape`, `summary_border_color`, `summary_border_width` |
+| Summary nodes | `summary_size`, `summary_border_color`, `summary_border_width` |
 | Summary labels | `summary_labels`, `summary_label_size`, `summary_label_color`, `summary_label_position` |
 | Within-cluster edges | `edge_width_range`, `edge_alpha`, `edge_labels` |
 | Between-cluster edges | `between_edge_width_range`, `between_edge_alpha` |

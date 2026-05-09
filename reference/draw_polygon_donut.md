@@ -84,7 +84,7 @@ draw_polygon_donut(
 
 - show_value:
 
-  Logical: show value in center? Default FALSE.
+  Logical: show value in center? Default TRUE.
 
 - value_size:
 

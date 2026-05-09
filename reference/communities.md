@@ -1,8 +1,7 @@
 # Community Detection
 
 Detects communities/clusters in networks using various algorithms.
-Provides a unified interface to igraph's community detection functions
-with full parameter exposure.
+Provides a unified interface to igraph's community detection functions.
 
 ## Usage
 
@@ -25,7 +24,8 @@ communities(
 
 - x:
 
-  Network input: matrix, igraph, network, cograph_network, or tna object
+  Network input: matrix, igraph, network, CographNetwork,
+  cograph_network, or tna object
 
 - method:
 
@@ -71,8 +71,9 @@ communities(
 
 - directed:
 
-  Logical; whether to treat the network as directed. Default NULL
-  (auto-detect).
+  Logical; whether edge-betweenness should treat the network as
+  directed. Default NULL (auto-detect for edge-betweenness). Other
+  methods use their own directed/undirected handling.
 
 - seed:
 
@@ -100,6 +101,10 @@ Metadata stored as attributes: `"algorithm"`, `"modularity"`,
 `"network"` (original input), `"igraph_result"`.
 
 ## Details
+
+When called through this wrapper, methods that require undirected graphs
+(`"louvain"`, `"leiden"`, `"fast_greedy"`, `"leading_eigenvector"`, and
+`"fluid"`) fall back to `"walktrap"` if the input graph is directed.
 
 **Algorithm Selection Guide:**
 

@@ -22,7 +22,7 @@ layout_oval(
 
 - network:
 
-  A CographNetwork object.
+  A CographNetwork or cograph_network object.
 
 - ratio:
 

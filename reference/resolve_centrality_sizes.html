@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -71,7 +71,8 @@
 <dd><p>Centrality measure name or list with measure and parameters.
 Valid measures: "degree", "strength", "betweenness", "closeness",
 "eigenvector", "pagerank", "authority", "hub", "eccentricity",
-"coreness", "constraint", "harmonic". Also accepts directional shorthands:
+"coreness", "constraint", "transitivity", "harmonic", "diffusion",
+"leverage", "kreach", and "resilience". Also accepts directional shorthands:
 "indegree", "outdegree", "instrength", "outstrength", "incloseness",
 "outcloseness", "inharmonic", "outharmonic", "ineccentricity",
 "outeccentricity".</p></dd>
@@ -97,7 +98,8 @@ before mapping to size range. Default 1 (linear).</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Named list with 'sizes' (vector of node sizes) and 'values' (raw centrality values).</p>
+    <p>Named list with <code>sizes</code> (vector of node sizes), <code>values</code>
+(raw centrality values), <code>measure</code>, and <code>labels</code>.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

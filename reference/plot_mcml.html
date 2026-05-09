@@ -25,7 +25,7 @@ node, making the hierarchical mapping explicit."><meta property="og:image" conte
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -288,10 +288,9 @@ per node). Default <code>"circle"</code>.</p></dd>
 
 
 <dt id="arg-cluster-shape">cluster_shape<a class="anchor" aria-label="anchor" href="#arg-cluster-shape"></a></dt>
-<dd><p>Shape for summary nodes in the top layer. Same
-supported values as <code>node_shape</code>. Can be a single value or a
-vector of length equal to the number of clusters. Default
-<code>"circle"</code>.</p></dd>
+<dd><p>Accepted for backward compatibility. Summary nodes
+are currently drawn as pie charts, so this parameter does not change
+their shape.</p></dd>
 
 
 <dt id="arg-title">title<a class="anchor" aria-label="anchor" href="#arg-title"></a></dt>
@@ -504,8 +503,8 @@ Default 2.</p></dd>
 
 
 <dt id="arg-label-position">label_position<a class="anchor" aria-label="anchor" href="#arg-label-position"></a></dt>
-<dd><p>Position of detail node labels: 1 = below,
-2 = left, 3 = above, 4 = right. Default 3.</p></dd>
+<dd><p>Accepted for backward compatibility. Detail labels
+are currently positioned automatically to the left or right of each node.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -605,7 +604,7 @@ detail node to its cluster's summary node. Controlled by
     <h2 id="customization-quick-reference">Customization Quick Reference<a class="anchor" aria-label="anchor" href="#customization-quick-reference"></a></h2>
 
 
-<table class="table table"><tr><td><strong>Visual element</strong></td><td><strong>Key parameters</strong></td></tr><tr><td>Cluster spacing / perspective</td><td><code>spacing</code>, <code>skew_angle</code></td></tr><tr><td>Cluster shell appearance</td><td><code>shape_size</code>, <code>shell_alpha</code>, <code>shell_border_width</code>, <code>colors</code></td></tr><tr><td>Detail nodes</td><td><code>node_size</code>, <code>node_shape</code>, <code>node_border_color</code></td></tr><tr><td>Detail labels</td><td><code>show_labels</code>, <code>label_size</code>, <code>label_abbrev</code>, <code>label_color</code>, <code>label_position</code></td></tr><tr><td>Summary nodes</td><td><code>summary_size</code>, <code>cluster_shape</code>, <code>summary_border_color</code>, <code>summary_border_width</code></td></tr><tr><td>Summary labels</td><td><code>summary_labels</code>, <code>summary_label_size</code>, <code>summary_label_color</code>, <code>summary_label_position</code></td></tr><tr><td>Within-cluster edges</td><td><code>edge_width_range</code>, <code>edge_alpha</code>, <code>edge_labels</code></td></tr><tr><td>Between-cluster edges</td><td><code>between_edge_width_range</code>, <code>between_edge_alpha</code></td></tr><tr><td>Summary edges</td><td><code>summary_edge_width_range</code>, <code>summary_edge_alpha</code>, <code>summary_edge_labels</code>, <code>summary_arrows</code></td></tr><tr><td>Inter-layer lines</td><td><code>inter_layer_alpha</code></td></tr><tr><td>Top-layer layout</td><td><code>top_layer_scale</code>, <code>inter_layer_gap</code></td></tr><tr><td>Title / legend</td><td><code>title</code>, <code>subtitle</code>, <code>legend</code>, <code>legend_position</code></td></tr></table></div>
+<table class="table table"><tr><td><strong>Visual element</strong></td><td><strong>Key parameters</strong></td></tr><tr><td>Cluster spacing / perspective</td><td><code>spacing</code>, <code>skew_angle</code></td></tr><tr><td>Cluster shell appearance</td><td><code>shape_size</code>, <code>shell_alpha</code>, <code>shell_border_width</code>, <code>colors</code></td></tr><tr><td>Detail nodes</td><td><code>node_size</code>, <code>node_shape</code>, <code>node_border_color</code></td></tr><tr><td>Detail labels</td><td><code>show_labels</code>, <code>label_size</code>, <code>label_abbrev</code>, <code>label_color</code>, <code>label_position</code></td></tr><tr><td>Summary nodes</td><td><code>summary_size</code>, <code>summary_border_color</code>, <code>summary_border_width</code></td></tr><tr><td>Summary labels</td><td><code>summary_labels</code>, <code>summary_label_size</code>, <code>summary_label_color</code>, <code>summary_label_position</code></td></tr><tr><td>Within-cluster edges</td><td><code>edge_width_range</code>, <code>edge_alpha</code>, <code>edge_labels</code></td></tr><tr><td>Between-cluster edges</td><td><code>between_edge_width_range</code>, <code>between_edge_alpha</code></td></tr><tr><td>Summary edges</td><td><code>summary_edge_width_range</code>, <code>summary_edge_alpha</code>, <code>summary_edge_labels</code>, <code>summary_arrows</code></td></tr><tr><td>Inter-layer lines</td><td><code>inter_layer_alpha</code></td></tr><tr><td>Top-layer layout</td><td><code>top_layer_scale</code>, <code>inter_layer_gap</code></td></tr><tr><td>Title / legend</td><td><code>title</code>, <code>subtitle</code>, <code>legend</code>, <code>legend_position</code></td></tr></table></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="cluster_summary.html">cluster_summary</a></code> for pre-computing aggregated cluster data,

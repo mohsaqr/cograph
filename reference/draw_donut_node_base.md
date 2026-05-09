@@ -79,7 +79,7 @@ draw_donut_node_base(
 
 - show_value:
 
-  Logical: show value in center? Default FALSE.
+  Logical: show value in center? Default TRUE.
 
 - value_cex:
 

@@ -11,7 +11,7 @@ awareness (bridges, communities, reciprocity)."><meta property="og:image" conten
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -87,7 +87,8 @@ Available variables:</p><dl><dt>Edge columns</dt>
 <dt>Computed metrics</dt>
 <dd><p><code>abs_weight</code>, <code>from_degree</code>, <code>to_degree</code>,
 <code>from_strength</code>, <code>to_strength</code>, <code>edge_betweenness</code>,
-<code>is_bridge</code>, <code>is_mutual</code>, <code>same_community</code></p></dd>
+<code>is_bridge</code>, <code>is_mutual</code>, <code>same_community</code>,
+<code>from_label</code>, <code>to_label</code></p></dd>
 
 
 </dl></dd>
@@ -133,8 +134,8 @@ variable. One of <code>"louvain"</code>, <code>"walktrap"</code>, <code>"fast_gr
 
 
 <dt id="arg-keep-format">keep_format<a class="anchor" aria-label="anchor" href="#arg-keep-format"></a></dt>
-<dd><p>Logical. If TRUE, return the same format as input.
-Default FALSE returns cograph_network.</p></dd>
+<dd><p>Logical. If TRUE, matrix, igraph, and statnet network
+inputs are returned in that format. Default FALSE returns cograph_network.</p></dd>
 
 
 <dt id="arg-directed">directed<a class="anchor" aria-label="anchor" href="#arg-directed"></a></dt>
@@ -144,7 +145,7 @@ Default FALSE returns cograph_network.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A cograph_network object with selected edges. If <code>keep_format = TRUE</code>,
-returns the same type as input.</p>
+matrix, igraph, and statnet network inputs are converted back to that type.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

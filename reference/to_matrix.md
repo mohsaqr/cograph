@@ -20,7 +20,8 @@ to_matrix(x, directed = NULL)
 
 ## Value
 
-A square numeric adjacency matrix with row/column names.
+A square numeric adjacency matrix, preserving row/column names when
+available.
 
 ## See also
 

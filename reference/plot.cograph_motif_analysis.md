@@ -110,8 +110,8 @@ plot(
 
 ## Value
 
-Invisibly returns NULL for triad plots, or a ggplot2 object for
-types/significance/patterns plots.
+Invisibly returns NULL for triad and pattern plots, or a ggplot2 object
+for types and significance plots.
 
 ## See also
 

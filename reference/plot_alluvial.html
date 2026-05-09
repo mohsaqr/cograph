@@ -9,7 +9,7 @@ This is an alias for plot_transitions() with aggregated flows (default)."><meta 
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -134,7 +134,9 @@ use a vector of titles (e.g., c("T1", "T2", "T3", "T4")).</p></dd>
 
 
 <dt id="arg-flow-fill">flow_fill<a class="anchor" aria-label="anchor" href="#arg-flow-fill"></a></dt>
-<dd><p>Fill color for flows. Default "#888888" (grey). Ignored if flow_color_by is set.</p></dd>
+<dd><p>Fill color for flows. Default "#888888" (grey). In
+multi-step and individual-tracking plots, ignored when <code>flow_color_by</code>
+is set; simple two-column aggregate plots use <code>flow_fill</code>.</p></dd>
 
 
 <dt id="arg-flow-alpha">flow_alpha<a class="anchor" aria-label="anchor" href="#arg-flow-alpha"></a></dt>
@@ -142,7 +144,10 @@ use a vector of titles (e.g., c("T1", "T2", "T3", "T4")).</p></dd>
 
 
 <dt id="arg-flow-color-by">flow_color_by<a class="anchor" aria-label="anchor" href="#arg-flow-color-by"></a></dt>
-<dd><p>Color flows by "source", "destination", or NULL (use flow_fill). Default NULL.</p></dd>
+<dd><p>Color flows by state. For multi-step aggregate flows,
+use <code>"source"</code> or <code>"destination"</code>; for individual trajectories,
+<code>"first"</code> and <code>"last"</code> are also supported. Default NULL uses
+<code>flow_fill</code>; simple two-column aggregate plots ignore this argument.</p></dd>
 
 
 <dt id="arg-flow-border">flow_border<a class="anchor" aria-label="anchor" href="#arg-flow-border"></a></dt>
@@ -170,8 +175,8 @@ use a vector of titles (e.g., c("T1", "T2", "T3", "T4")).</p></dd>
 
 
 <dt id="arg-label-position">label_position<a class="anchor" aria-label="anchor" href="#arg-label-position"></a></dt>
-<dd><p>Position of node labels: "beside" (default), "inside", "above", "below", "outside".
-Applied to first and last columns. See <code>mid_label_position</code> for middle columns.</p></dd>
+<dd><p>Position of node labels: "beside" (default),
+"inside", "above", "below", or "outside".</p></dd>
 
 
 <dt id="arg-label-halo">label_halo<a class="anchor" aria-label="anchor" href="#arg-label-halo"></a></dt>
@@ -179,17 +184,21 @@ Applied to first and last columns. See <code>mid_label_position</code> for middl
 
 
 <dt id="arg-label-color">label_color<a class="anchor" aria-label="anchor" href="#arg-label-color"></a></dt>
-<dd><p>Color of state name labels. Default "black".</p></dd>
+<dd><p>Color of state name labels. Default "black". Applied to
+multi-step and individual-tracking plots; simple two-column aggregate plots
+use black external labels and white inside labels.</p></dd>
 
 
 <dt id="arg-label-fontface">label_fontface<a class="anchor" aria-label="anchor" href="#arg-label-fontface"></a></dt>
 <dd><p>Font face of state name labels ("plain", "bold", "italic",
-"bold.italic"). Default "plain".</p></dd>
+"bold.italic"). Default "plain". Applied to multi-step and
+individual-tracking plots; simple two-column aggregate plots use fixed
+label font faces.</p></dd>
 
 
 <dt id="arg-label-nudge">label_nudge<a class="anchor" aria-label="anchor" href="#arg-label-nudge"></a></dt>
 <dd><p>Distance between node edge and label (in plot units).
-Default 0.02. Increase for more spacing.</p></dd>
+Default 0.02. Used by multi-step and individual-tracking plots.</p></dd>
 
 
 <dt id="arg-title-size">title_size<a class="anchor" aria-label="anchor" href="#arg-title-size"></a></dt>
@@ -197,11 +206,14 @@ Default 0.02. Increase for more spacing.</p></dd>
 
 
 <dt id="arg-title-color">title_color<a class="anchor" aria-label="anchor" href="#arg-title-color"></a></dt>
-<dd><p>Color of column title text. Default "black".</p></dd>
+<dd><p>Color of column title text. Default "black". Applied to
+multi-step and individual-tracking plots; simple two-column aggregate plots
+use black titles.</p></dd>
 
 
 <dt id="arg-title-fontface">title_fontface<a class="anchor" aria-label="anchor" href="#arg-title-fontface"></a></dt>
-<dd><p>Font face of column titles. Default "bold".</p></dd>
+<dd><p>Font face of column titles. Default "bold". Applied to
+multi-step and individual-tracking plots.</p></dd>
 
 
 <dt id="arg-curve-strength">curve_strength<a class="anchor" aria-label="anchor" href="#arg-curve-strength"></a></dt>
@@ -227,11 +239,13 @@ Default 0.02. Increase for more spacing.</p></dd>
 
 <dt id="arg-value-halo">value_halo<a class="anchor" aria-label="anchor" href="#arg-value-halo"></a></dt>
 <dd><p>Logical: add halo around flow value labels? Default NULL
-(inherits from <code>label_halo</code>).</p></dd>
+(inherits from <code>label_halo</code>). Applied to multi-step and
+individual-tracking plots.</p></dd>
 
 
 <dt id="arg-value-fontface">value_fontface<a class="anchor" aria-label="anchor" href="#arg-value-fontface"></a></dt>
-<dd><p>Font face of flow value labels. Default "bold".</p></dd>
+<dd><p>Font face of flow value labels. Default "bold".
+Applied to multi-step and individual-tracking plots.</p></dd>
 
 
 <dt id="arg-value-nudge">value_nudge<a class="anchor" aria-label="anchor" href="#arg-value-nudge"></a></dt>
@@ -240,8 +254,9 @@ Default 0.02. Increase for more spacing.</p></dd>
 
 
 <dt id="arg-value-min">value_min<a class="anchor" aria-label="anchor" href="#arg-value-min"></a></dt>
-<dd><p>Minimum count to show a flow value label. Default 0 (show all).
-Use to hide small flows (e.g., <code>value_min = 100</code>).</p></dd>
+<dd><p>Minimum count to show a flow value label in multi-step and
+individual-tracking plots. Default 0 (show all). Simple two-column
+aggregate plots show all nonzero value labels when <code>show_values = TRUE</code>.</p></dd>
 
 
 <dt id="arg-show-totals">show_totals<a class="anchor" aria-label="anchor" href="#arg-show-totals"></a></dt>
@@ -281,8 +296,9 @@ totals. Default 2.</p></dd>
 
 
 <dt id="arg-column-gap">column_gap<a class="anchor" aria-label="anchor" href="#arg-column-gap"></a></dt>
-<dd><p>Horizontal spread of columns (0-1). Default 1 uses full width.
-Use smaller values (e.g., 0.6) to bring columns closer together.</p></dd>
+<dd><p>Horizontal spread of columns (0-1) for multi-step and
+individual-tracking plots. Default 1 uses full width. Use smaller values
+(e.g., 0.6) to bring columns closer together.</p></dd>
 
 </dl></div>
     <div class="section level2">

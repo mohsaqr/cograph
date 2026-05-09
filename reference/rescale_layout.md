@@ -18,6 +18,11 @@ rescale_layout(layout, mar = 0.1, keep_aspect = TRUE)
 
   Margin to leave (as proportion of range).
 
+- keep_aspect:
+
+  Logical. If TRUE, use one scale factor for both axes to preserve
+  aspect ratio; if FALSE, scale axes independently.
+
 ## Value
 
 Rescaled layout.

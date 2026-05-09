@@ -31,8 +31,9 @@ plot(
 
 - log:
 
-  Character string for log-scale axes: `""` (default), `"x"`, `"y"`, or
-  `"xy"`.
+  Character string for log-scale axes: `""` (default), `"y"`, or `"xy"`.
+  Values containing `"x"` are accepted for compatibility but only filter
+  non-positive fitted curve values.
 
 - cols:
 

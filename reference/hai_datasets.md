@@ -52,11 +52,11 @@ human_ai_detailed
 
 - human_ai:
 
-  429 x 302 data.frame. Both actors combined, by category (17 states).
+  429 x 287 data.frame. Both actors combined, by category (17 states).
 
 - human_ai_detailed:
 
-  429 x 302 data.frame. Both actors combined, by fine-grained code (32
+  429 x 287 data.frame. Both actors combined, by fine-grained code (32
   states).
 
 An object of class `data.frame` with 429 rows and 164 columns.

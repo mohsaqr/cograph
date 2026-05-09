@@ -43,6 +43,11 @@ compute_plot_limits(
 
   Per-edge loop rotation angles.
 
+- fixed_bounds:
+
+  Optional numeric vector `c(xmin, xmax, ymin, ymax)` for fixed plot
+  bounds before node/loop padding.
+
 ## Value
 
 List with `xlim` and `ylim`.

@@ -44,7 +44,7 @@ plot_centrality(
 
 - style:
 
-  Character: "line" (default), "bar", "lollipop".
+  Character: "line" (default), "bar", "lollipop", or "dot".
 
 - orientation:
 
@@ -61,9 +61,8 @@ plot_centrality(
 - order_by:
 
   Character. For "bar"/"lollipop": which measure sorts nodes. Defaults
-  to the first measure. Use `"alpha"` for alphabetical. For "line", the
-  x-axis always sorts nodes alphabetically so the parallel-coordinates
-  paths are stable across plots.
+  to the first measure. Use `"alpha"` for alphabetical. For "line", this
+  also controls node ordering unless `"alpha"` is requested.
 
 - top_n:
 
@@ -111,13 +110,12 @@ A ggplot object.
 
 ## Details
 
-Three styles are available:
+Four styles are available:
 
 - `"line"`:
 
-  Parallel-coordinates view. Nodes on the x-axis, z-score on the y-axis,
-  one polyline per measure. Best for spotting nodes with atypical
-  centrality profiles.
+  Faceted line view with one panel per measure. Nodes are ordered along
+  the requested orientation and connected within each measure.
 
 - `"bar"`:
 
@@ -128,6 +126,10 @@ Three styles are available:
 
   Like `"bar"` but with a dot at the tip. Softer visual weight; useful
   on dense grids.
+
+- `"dot"`:
+
+  Dot-only variant of the lollipop style.
 
 ## Examples
 

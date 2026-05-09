@@ -9,7 +9,7 @@ The resulting object is a named list with all data accessible via $."><meta prop
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -89,7 +89,7 @@ from tna sequence data is a separate edge. If TRUE or a string
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A cograph_network object: a named list with components:</p><dl><dt><code>nodes</code></dt>
-<dd><p>Data frame with id, label, (x, y if layout applied)</p></dd>
+<dd><p>Data frame with id, label, and optional layout or metadata columns</p></dd>
 
 <dt><code>edges</code></dt>
 <dd><p>Data frame with from, to, weight columns</p></dd>
@@ -98,7 +98,7 @@ from tna sequence data is a separate edge. If TRUE or a string
 <dd><p>Logical indicating if network is directed</p></dd>
 
 <dt><code>weights</code></dt>
-<dd><p>Full n×n weight matrix (for to_matrix round-trip)</p></dd>
+<dd><p>Full n×n weight matrix when available for matrix/TNA round-trips, or NULL</p></dd>
 
 <dt><code>data</code></dt>
 <dd><p>Original estimation data (sequence matrix, edge list, etc.), or NULL</p></dd>

@@ -66,7 +66,8 @@ format_edge_label_template(
 
 - oneline:
 
-  Logical: single line format (space-separated) or multiline.
+  Logical. Accepted for compatibility; labels are currently normalized
+  to single-line whitespace.
 
 - leading_zero:
 

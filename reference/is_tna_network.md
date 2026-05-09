@@ -13,7 +13,7 @@ is_tna_network(x)
 
 - x:
 
-  A cograph_network object.
+  A CographNetwork or cograph_network object.
 
 ## Value
 

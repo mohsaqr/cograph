@@ -17,7 +17,7 @@ aggregate_duplicate_edges(edges, method = "mean", directed = FALSE)
 
 - method:
 
-  Aggregation method: `"sum"` (default), `"mean"`, `"max"`, `"min"`,
+  Aggregation method: `"mean"` (default), `"sum"`, `"max"`, `"min"`,
   `"first"`, or a custom function that takes a numeric vector and
   returns a single value.
 

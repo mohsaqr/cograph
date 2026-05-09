@@ -31,7 +31,8 @@ project_bipartite(x, mode = "rows", method = "sum", ...)
   `"sum"`
 
   :   Weighted projection: `A %*% t(A)` (rows) or `t(A) %*% A`
-      (columns). Edge weight equals sum of shared connection weights.
+      (columns). Edge weight equals sum of shared connection-weight
+      products.
 
   `"binary"`
 

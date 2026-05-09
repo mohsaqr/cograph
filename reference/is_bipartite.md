@@ -30,7 +30,7 @@ two-mode data (rows and columns are distinct node types).
 
 For square matrices, the function checks whether the corresponding
 undirected graph is bipartite by attempting a two-coloring via
-[`igraph::is_bipartite()`](https://r.igraph.org/reference/is_bipartite.html)
+[`igraph::bipartite_mapping()`](https://r.igraph.org/reference/bipartite_mapping.html)
 when igraph is available. Without igraph, it uses a BFS-based
 two-coloring algorithm.
 

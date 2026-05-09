@@ -45,7 +45,7 @@ get_edge_label_position(
 
   Additional perpendicular offset for the label (in user coords).
   Positive values offset in the same direction as the curve bulge.
-  Default 0.03 provides good separation from the edge line.
+  Default 0 keeps the label on the computed edge position.
 
 ## Value
 

@@ -1,8 +1,9 @@
 # Filter Edges by Metadata
 
 Filter edges using dplyr-style expressions on any edge column. Returns a
-cograph_network object by default (universal format), or optionally the
-same format as input when `keep_format = TRUE`.
+cograph_network object by default (universal format), or optionally a
+matrix, igraph, or statnet network object when `keep_format = TRUE` and
+the input used one of those formats.
 
 ## Usage
 
@@ -42,9 +43,9 @@ subset_edges(
 
 - keep_format:
 
-  Logical. If TRUE, return the same format as input (matrix returns
-  matrix, igraph returns igraph, etc.). Default FALSE returns
-  cograph_network (universal format).
+  Logical. If TRUE, matrix, igraph, and statnet network inputs are
+  returned in that format. Default FALSE returns cograph_network
+  (universal format).
 
 - directed:
 
@@ -55,7 +56,8 @@ subset_edges(
 ## Value
 
 A cograph_network object with filtered edges. If `keep_format = TRUE`,
-returns the same type as input (matrix, igraph, network, etc.).
+matrix, igraph, and statnet network inputs are converted back to that
+type.
 
 See `filter_edges`.
 

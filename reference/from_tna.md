@@ -62,8 +62,9 @@ The tna object's transition matrix becomes edge weights, labels become
 node labels, and initial state probabilities (`inits`) are mapped to
 `donut_fill` values to visualize starting state distributions.
 
-TNA networks are always treated as directed because transition matrices
-represent directional state changes.
+Directedness is read from the tna object when available; otherwise it is
+inferred from matrix symmetry. Transition matrices are usually directed,
+while symmetric co-occurrence matrices are treated as undirected.
 
 The default `donut_inner_ratio` of 0.8 creates thin rings that
 effectively visualize probability values without obscuring node labels.
@@ -90,7 +91,8 @@ overridden via `...`):
 
 - `node_size = 7`: Larger nodes for readability
 
-- `arrow_size = 0.61`: Prominent directional arrows
+- `arrow_size = 0.61`: Prominent directional arrows for directed
+  networks
 
 - `edge_color = "#003355"`: Dark blue edges
 
@@ -100,9 +102,10 @@ overridden via `...`):
 
 - `edge_label_position = 0.7`: Labels positioned toward target
 
-- `edge_start_style = "dotted"`: Dotted line at edge source
+- `edge_start_style = "dotted"`: Dotted line at edge source for directed
+  networks
 
-- `edge_start_length = 0.2`: 20% of edge is dotted
+- `edge_start_length = 0.2`: 20% of directed edges are dotted
 
 ## See also
 

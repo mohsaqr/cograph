@@ -44,7 +44,8 @@ plot_chord(
 
 - x:
 
-  A weight matrix, `cograph_network`, `tna`, or `igraph` object.
+  A weight matrix, `cograph_network`, `CographNetwork`, `tna`, `igraph`,
+  or list-like object with a matrix `weights` component.
 
 - directed:
 
@@ -86,7 +87,8 @@ plot_chord(
 
 - self_loop:
 
-  Logical. Show self-loop chords?
+  Logical. Currently accepted for API compatibility; the current matrix
+  preparation preserves self-loop chords.
 
 - labels:
 

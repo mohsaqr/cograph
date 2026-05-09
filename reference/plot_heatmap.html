@@ -11,7 +11,7 @@ networks, multi-cluster networks (block diagonal), and multi-layer networks
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -99,8 +99,8 @@ networks, multi-cluster networks (block diagonal), and multi-layer networks
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>Network input: matrix, CographNetwork, tna, igraph, group_tna,
-or any object cograph accepts.</p></dd>
+<dd><p>Network input: matrix, CographNetwork, cograph_network, tna,
+igraph, group_tna, or a list-like object with a <code>$weights</code> matrix.</p></dd>
 
 
 <dt id="arg-cluster-list">cluster_list<a class="anchor" aria-label="anchor" href="#arg-cluster-list"></a></dt>
@@ -126,7 +126,8 @@ Creates a block-structured heatmap with clusters along diagonal.</p></dd>
 
 <dt id="arg-colors">colors<a class="anchor" aria-label="anchor" href="#arg-colors"></a></dt>
 <dd><p>Color palette: vector of colors for gradient, or a palette name
-("viridis", "heat", "blues", "reds", "diverging"). Default "viridis".</p></dd>
+("viridis", "heat", "blues", "reds", "greens", "diverging").
+Default "viridis".</p></dd>
 
 
 <dt id="arg-limits">limits<a class="anchor" aria-label="anchor" href="#arg-limits"></a></dt>
@@ -178,7 +179,8 @@ disable.</p></dd>
 
 
 <dt id="arg-diagonal-color">diagonal_color<a class="anchor" aria-label="anchor" href="#arg-diagonal-color"></a></dt>
-<dd><p>Optional color for diagonal cells. NULL uses scale.</p></dd>
+<dd><p>Accepted for API compatibility; diagonal cells currently
+use the active fill scale unless hidden with <code>show_diagonal = FALSE</code>.</p></dd>
 
 
 <dt id="arg-cluster-labels">cluster_labels<a class="anchor" aria-label="anchor" href="#arg-cluster-labels"></a></dt>
@@ -256,8 +258,7 @@ disable.</p></dd>
 each element is a vector of node names belonging to that cluster. The heatmap
 will be reordered to show clusters as blocks along the diagonal.</p>
 <p>For group_tna objects (multiple separate networks), each network becomes a
-diagonal block. Off-diagonal blocks are empty (no inter-layer edges) unless
-the networks share nodes.</p>
+diagonal block. Off-diagonal blocks are empty (no inter-layer edges).</p>
     </div>
 
     <div class="section level2">

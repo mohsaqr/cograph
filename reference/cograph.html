@@ -11,7 +11,7 @@ network object."><meta property="og:image" content="https://sonsoles.me/cograph/
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -81,9 +81,11 @@ network object.</p>
 
 
 <dt id="arg-layout">layout<a class="anchor" aria-label="anchor" href="#arg-layout"></a></dt>
-<dd><p>Layout algorithm: "circle", "spring", "groups", "grid",
-"random", "star", "bipartite", or "custom". Default NULL (no layout computed).
-Set to a layout name to compute immediately, or use sn_layout() later.</p></dd>
+<dd><p>Layout algorithm name such as "circle", "oval", "spring",
+"groups", "grid", "random", "star", "bipartite", "gephi", or "custom";
+a coordinate matrix/data frame; a CographLayout; or an igraph layout
+function/name. Default NULL (no layout computed). Set to a layout to
+compute immediately, or use sn_layout() later.</p></dd>
 
 
 <dt id="arg-directed">directed<a class="anchor" aria-label="anchor" href="#arg-directed"></a></dt>

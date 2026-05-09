@@ -67,7 +67,9 @@ plot_temporal(
 
 - layout:
 
-  Character or matrix. Shared node layout. Default `"spring"`.
+  Character or matrix. Character values currently use a shared
+  Fruchterman-Reingold/spring layout; a matrix supplies shared
+  coordinates. Default `"spring"`.
 
 - node_size:
 

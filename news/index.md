@@ -1,6 +1,22 @@
 # Changelog
 
-## cograph 2.1.9
+## cograph 2.3.0
+
+### Documentation
+
+- Audited every R/\*.R function file for roxygen/Rd accuracy. Corrected
+  stale defaults (`cr_color` `#D4820A` -\> `#D4829A` in `plot-forest.R`;
+  `show_value` default `FALSE` -\> `TRUE` in `splot-nodes.R`), corrected
+  dataset dimensions in `data-hai.R` (`302` -\> `429 x 287`), corrected
+  a reference to the nonexistent
+  [`igraph::is_bipartite()`](https://r.igraph.org/reference/is_bipartite.html)
+  (now `bipartite_mapping()`), expanded
+  [`centrality()`](https://sonsoles.me/cograph/reference/centrality.md)
+  `@param` measure lists for `mode`, `cutoff`, `invert_weights`, and
+  `membership` to match the implementation, dropped baked-in measure
+  counts that rot on each addition, and removed nonexistent themes from
+  `sn_theme` documentation. No runtime behavior changes from the
+  documentation pass itself.
 
 ### Bug fixes
 

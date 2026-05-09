@@ -629,7 +629,7 @@ MIT License.
 - [`plot_centrality()`](https://sonsoles.me/cograph/reference/plot_centrality.md)
   : Plot Centrality
 - [`plot_centrality_compare()`](https://sonsoles.me/cograph/reference/plot_centrality_compare.md)
-  : Plot Centrality Comparison (Pyramid)
+  : Plot Centrality Comparison
 - [`plot_centrality_distribution()`](https://sonsoles.me/cograph/reference/plot_centrality_distribution.md)
   : Plot Centrality Distribution
 - [`plot_centrality_heatmap()`](https://sonsoles.me/cograph/reference/plot_centrality_heatmap.md)

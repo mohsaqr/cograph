@@ -11,7 +11,7 @@ track_individuals = TRUE."><meta property="og:image" content="https://sonsoles.m
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -108,13 +108,8 @@ as a separate line. This is an alias for <code><a href="plot_transitions.html">p
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>Input data in one of several formats:</p><ul><li><p>A transition matrix (rows = from, cols = to, values = counts)</p></li>
-<li><p>Two vectors: pass <code>before</code> as x and <code>after</code> as second argument
-(contingency table computed automatically, like chi-square)</p></li>
-<li><p>A 2-column data frame (raw observations; table computed automatically)</p></li>
-<li><p>A data frame with columns: from, to, count</p></li>
-<li><p>A list of matrices for multi-step transitions</p></li>
-</ul></dd>
+<dd><p>Data frame with one column per time point and one row per
+individual trajectory.</p></dd>
 
 
 <dt id="arg-from-title">from_title<a class="anchor" aria-label="anchor" href="#arg-from-title"></a></dt>
@@ -131,7 +126,9 @@ use a vector of titles (e.g., c("T1", "T2", "T3", "T4")).</p></dd>
 
 
 <dt id="arg-flow-color-by">flow_color_by<a class="anchor" aria-label="anchor" href="#arg-flow-color-by"></a></dt>
-<dd><p>Color flows by "source", "destination", or NULL (use flow_fill). Default NULL.</p></dd>
+<dd><p>Color trajectory lines by state. Supports
+<code>"source"</code>, <code>"destination"</code>, <code>"first"</code>, <code>"last"</code>, or
+NULL. Default <code>"first"</code>.</p></dd>
 
 
 <dt id="arg-node-width">node_width<a class="anchor" aria-label="anchor" href="#arg-node-width"></a></dt>
@@ -156,8 +153,9 @@ Applied to first and last columns. See <code>mid_label_position</code> for middl
 
 
 <dt id="arg-mid-label-position">mid_label_position<a class="anchor" aria-label="anchor" href="#arg-mid-label-position"></a></dt>
-<dd><p>Position of labels for intermediate (middle) columns.
-Same options as <code>label_position</code>. Default NULL uses <code>label_position</code> value.</p></dd>
+<dd><p>Position of labels for intermediate (middle)
+columns in individual-tracking plots. Same options as
+<code>label_position</code>. Default NULL uses <code>label_position</code> value.</p></dd>
 
 
 <dt id="arg-label-halo">label_halo<a class="anchor" aria-label="anchor" href="#arg-label-halo"></a></dt>
@@ -165,17 +163,21 @@ Same options as <code>label_position</code>. Default NULL uses <code>label_posit
 
 
 <dt id="arg-label-color">label_color<a class="anchor" aria-label="anchor" href="#arg-label-color"></a></dt>
-<dd><p>Color of state name labels. Default "black".</p></dd>
+<dd><p>Color of state name labels. Default "black". Applied to
+multi-step and individual-tracking plots; simple two-column aggregate plots
+use black external labels and white inside labels.</p></dd>
 
 
 <dt id="arg-label-fontface">label_fontface<a class="anchor" aria-label="anchor" href="#arg-label-fontface"></a></dt>
 <dd><p>Font face of state name labels ("plain", "bold", "italic",
-"bold.italic"). Default "plain".</p></dd>
+"bold.italic"). Default "plain". Applied to multi-step and
+individual-tracking plots; simple two-column aggregate plots use fixed
+label font faces.</p></dd>
 
 
 <dt id="arg-label-nudge">label_nudge<a class="anchor" aria-label="anchor" href="#arg-label-nudge"></a></dt>
 <dd><p>Distance between node edge and label (in plot units).
-Default 0.02. Increase for more spacing.</p></dd>
+Default 0.02. Used by multi-step and individual-tracking plots.</p></dd>
 
 
 <dt id="arg-title-size">title_size<a class="anchor" aria-label="anchor" href="#arg-title-size"></a></dt>
@@ -183,11 +185,14 @@ Default 0.02. Increase for more spacing.</p></dd>
 
 
 <dt id="arg-title-color">title_color<a class="anchor" aria-label="anchor" href="#arg-title-color"></a></dt>
-<dd><p>Color of column title text. Default "black".</p></dd>
+<dd><p>Color of column title text. Default "black". Applied to
+multi-step and individual-tracking plots; simple two-column aggregate plots
+use black titles.</p></dd>
 
 
 <dt id="arg-title-fontface">title_fontface<a class="anchor" aria-label="anchor" href="#arg-title-fontface"></a></dt>
-<dd><p>Font face of column titles. Default "bold".</p></dd>
+<dd><p>Font face of column titles. Default "bold". Applied to
+multi-step and individual-tracking plots.</p></dd>
 
 
 <dt id="arg-curve-strength">curve_strength<a class="anchor" aria-label="anchor" href="#arg-curve-strength"></a></dt>
@@ -227,8 +232,8 @@ Default 0.02. Increase for more spacing.</p></dd>
 
 
 <dt id="arg-value-position">value_position<a class="anchor" aria-label="anchor" href="#arg-value-position"></a></dt>
-<dd><p>Position of flow values: "center", "origin", "destination",
-"outside_origin", "outside_destination". Default "center".</p></dd>
+<dd><p>Position of trajectory value labels: <code>"center"</code>,
+<code>"origin"</code>, or <code>"destination"</code>. Default <code>"center"</code>.</p></dd>
 
 
 <dt id="arg-value-size">value_size<a class="anchor" aria-label="anchor" href="#arg-value-size"></a></dt>
@@ -241,11 +246,13 @@ Default 0.02. Increase for more spacing.</p></dd>
 
 <dt id="arg-value-halo">value_halo<a class="anchor" aria-label="anchor" href="#arg-value-halo"></a></dt>
 <dd><p>Logical: add halo around flow value labels? Default NULL
-(inherits from <code>label_halo</code>).</p></dd>
+(inherits from <code>label_halo</code>). Applied to multi-step and
+individual-tracking plots.</p></dd>
 
 
 <dt id="arg-value-fontface">value_fontface<a class="anchor" aria-label="anchor" href="#arg-value-fontface"></a></dt>
-<dd><p>Font face of flow value labels. Default "bold".</p></dd>
+<dd><p>Font face of flow value labels. Default "bold".
+Applied to multi-step and individual-tracking plots.</p></dd>
 
 
 <dt id="arg-value-nudge">value_nudge<a class="anchor" aria-label="anchor" href="#arg-value-nudge"></a></dt>
@@ -254,8 +261,9 @@ Default 0.02. Increase for more spacing.</p></dd>
 
 
 <dt id="arg-value-min">value_min<a class="anchor" aria-label="anchor" href="#arg-value-min"></a></dt>
-<dd><p>Minimum count to show a flow value label. Default 0 (show all).
-Use to hide small flows (e.g., <code>value_min = 100</code>).</p></dd>
+<dd><p>Minimum count to show a flow value label in multi-step and
+individual-tracking plots. Default 0 (show all). Simple two-column
+aggregate plots show all nonzero value labels when <code>show_values = TRUE</code>.</p></dd>
 
 
 <dt id="arg-value-digits">value_digits<a class="anchor" aria-label="anchor" href="#arg-value-digits"></a></dt>
@@ -264,17 +272,20 @@ totals. Default 2.</p></dd>
 
 
 <dt id="arg-column-gap">column_gap<a class="anchor" aria-label="anchor" href="#arg-column-gap"></a></dt>
-<dd><p>Horizontal spread of columns (0-1). Default 1 uses full width.
-Use smaller values (e.g., 0.6) to bring columns closer together.</p></dd>
+<dd><p>Horizontal spread of columns (0-1) for multi-step and
+individual-tracking plots. Default 1 uses full width. Use smaller values
+(e.g., 0.6) to bring columns closer together.</p></dd>
 
 
 <dt id="arg-proportional-nodes">proportional_nodes<a class="anchor" aria-label="anchor" href="#arg-proportional-nodes"></a></dt>
-<dd><p>Logical: size nodes proportionally to counts? Default TRUE.</p></dd>
+<dd><p>Logical: size nodes proportionally to counts in
+individual-tracking plots? Default TRUE.</p></dd>
 
 
 <dt id="arg-node-label-format">node_label_format<a class="anchor" aria-label="anchor" href="#arg-node-label-format"></a></dt>
 <dd><p>Format string for node labels with <code>{state}</code> and
-<code>{count}</code> placeholders. Default NULL (plain state name).
+<code>{count}</code> placeholders in individual-tracking plots. Default NULL
+(plain state name).
 Example: <code>"{state} (n={count})"</code>.</p></dd>
 
 

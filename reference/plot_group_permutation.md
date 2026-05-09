@@ -28,7 +28,8 @@ plot_group_permutation(x, i = NULL, ...)
 
 ## Value
 
-Invisibly returns NULL.
+When `i` is supplied, returns the selected permutation plot. Otherwise
+invisibly returns `NULL` after drawing all panels.
 
 ## Examples
 

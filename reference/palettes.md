@@ -2,10 +2,6 @@
 
 Built-in color palettes for network visualization.
 
-## Value
-
-A character vector of hex color codes.
-
 ## Examples
 
 ``` r

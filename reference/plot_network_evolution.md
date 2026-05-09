@@ -72,7 +72,7 @@ plot_network_evolution(
 
 ## Value
 
-Invisible list of edge-list data frames (one per panel).
+Invisible list of per-panel networks or edge-list data frames.
 
 ## Examples
 

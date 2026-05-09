@@ -73,7 +73,8 @@ to cograph equivalents:
 
 - `color` `->` `node_fill`
 
-- `width` `->` `node_size` (scaled by 1.3x)
+- `width` `->` `node_size` (scaled by 1.3x) when
+  `preserve_node_size = TRUE`
 
 - `shape` `->` `node_shape` (mapped to cograph equivalents)
 

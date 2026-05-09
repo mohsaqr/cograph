@@ -9,7 +9,7 @@ data frame. Accepts matrices, igraph objects, cograph_network, or tna objects.">
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -103,14 +103,14 @@ data frame. Accepts matrices, igraph objects, cograph_network, or tna objects.</
 
 <dt><code>"extended"</code></dt>
 <dd><p>Basic plus commonly-reported second-tier
-measures (~28 total): harmonic, coreness, eccentricity, radiality,
+measures: harmonic, coreness, eccentricity, radiality,
 lin, decay, load, stress, katz, alpha, power, authority, leverage,
 constraint, effective_size, bridging, transitivity, subgraph,
 diffusion, laplacian, kreach, current_flow_betweenness,
 current_flow_closeness.</p></dd>
 
 <dt><code>"all"</code></dt>
-<dd><p>Every available measure (87).</p></dd>
+<dd><p>Every available measure.</p></dd>
 
 
 </dl><p>Passing <code>measures</code> explicitly overrides <code>type</code>.</p></dd>
@@ -154,20 +154,23 @@ a directed graph; see <code><a href="centrality_brokerage_coordinator.html">cent
 <code><a href="centrality_hubbell.html">centrality_hubbell</a></code>, <code><a href="centrality_information.html">centrality_information</a></code>,
 <code><a href="centrality_pairwisedis.html">centrality_pairwisedis</a></code>, <code><a href="centrality_reaching_local.html">centrality_reaching_local</a></code>.
 <strong>Psychometric (signed-weight)</strong>: "expected_influence_1",
-"expected_influence_2" (Robinaugh, Millner &amp; McNally 2016). Unlike
-strength (which takes |w|), expected influence keeps the sign — the
-appropriate measure when edges can be negative (partial-correlation,
-glasso, signed correlation networks).</p></dd>
+"expected_influence_2" (Robinaugh, Millner &amp; McNally 2016). Expected
+influence keeps signed edge contributions, which is important when edges
+can be negative (partial-correlation, glasso, signed correlation networks).</p></dd>
 
 
 <dt id="arg-mode">mode<a class="anchor" aria-label="anchor" href="#arg-mode"></a></dt>
-<dd><p>For directed networks: "all", "in", or "out". Affects degree,
-strength, closeness, eccentricity, coreness, and harmonic centrality.</p></dd>
+<dd><p>For directed networks: "all", "in", or "out". Affects measures
+whose output columns carry a mode suffix, including degree, strength,
+closeness, eccentricity, coreness, harmonic, diffusion, leverage, k-reach,
+distance-based measures, community-aware measures, and expected influence.</p></dd>
 
 
 <dt id="arg-normalized">normalized<a class="anchor" aria-label="anchor" href="#arg-normalized"></a></dt>
-<dd><p>Logical. Normalize values to 0-1 range by dividing by max.
-For closeness, this is passed directly to igraph (proper normalization).</p></dd>
+<dd><p>Logical. Normalize values by dividing by max. Most measures
+are scaled to 0-1; signed expected-influence measures can retain negative
+values under psychometric normalization. For closeness, this is passed
+directly to igraph.</p></dd>
 
 
 <dt id="arg-weighted">weighted<a class="anchor" aria-label="anchor" href="#arg-weighted"></a></dt>
@@ -201,18 +204,21 @@ decimal places. Default NULL (no rounding).</p></dd>
 
 
 <dt id="arg-cutoff">cutoff<a class="anchor" aria-label="anchor" href="#arg-cutoff"></a></dt>
-<dd><p>Maximum path length to consider for betweenness and closeness.
+<dd><p>Maximum path length to consider for betweenness, closeness,
+and harmonic centrality.
 Default -1 (no limit). Set to a positive value for faster computation
 on large networks at the cost of accuracy.</p></dd>
 
 
 <dt id="arg-invert-weights">invert_weights<a class="anchor" aria-label="anchor" href="#arg-invert-weights"></a></dt>
-<dd><p>Logical or NULL. For path-based measures (betweenness,
-closeness, harmonic, eccentricity, kreach), should weights be inverted so
-that higher weights mean shorter paths? Default NULL which auto-detects:
-TRUE for tna objects (transition probabilities), FALSE otherwise (matching
-igraph/sna). Set explicitly to TRUE for strength/frequency weights (qgraph
-style) or FALSE for distance/cost weights.</p></dd>
+<dd><p>Logical or NULL. For path- and distance-based measures
+(for example betweenness, closeness, harmonic, eccentricity, k-reach,
+radiality, decay, stress, flow betweenness, and related variants), should
+weights be inverted so that higher weights mean shorter paths? Default
+NULL auto-detects: TRUE for tna objects (transition probabilities), FALSE
+otherwise (matching igraph/sna). Set explicitly to TRUE for
+strength/frequency weights (qgraph style) or FALSE for distance/cost
+weights.</p></dd>
 
 
 <dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>
@@ -287,8 +293,9 @@ centiserve uses 1.67 (four-community assumption). Must be between 1 and 2.</p></
 
 <dt id="arg-membership">membership<a class="anchor" aria-label="anchor" href="#arg-membership"></a></dt>
 <dd><p>Integer vector of community assignments (one per node) for
-community-aware measures: participation, within_module_z, gateway.
-Default NULL. Required when requesting these measures.</p></dd>
+community-aware measures: participation, within_module_z, gateway, and the
+Gould-Fernandez brokerage roles. Default NULL. Required when requesting
+these measures.</p></dd>
 
 
 <dt id="arg-katz-alpha">katz_alpha<a class="anchor" aria-label="anchor" href="#arg-katz-alpha"></a></dt>
@@ -319,8 +326,8 @@ the user passes explicitly always wins over <code>tna_network</code>.</p></dd>
 <dd><p>Logical or NULL. Switch for signed psychometric
 network conventions. <code>NULL</code> (default) auto-detects TRUE when a
 signed weighted network is evaluated with expected-influence measures.
-When <code>TRUE</code>, normalized expected influence is divided by
-<code>max(abs(x))</code>, preserving sign and bounding the result from
+When <code>TRUE</code>, normalized expected influence is divided by the maximum
+absolute expected-influence value, preserving sign and bounding the result from
 -1 to 1.
 <code>FALSE</code> keeps the generic cograph normalization convention.</p></dd>
 

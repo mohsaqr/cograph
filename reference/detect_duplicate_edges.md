@@ -17,6 +17,11 @@ detect_duplicate_edges(edges, directed = FALSE)
 
   Data frame with `from` and `to` columns (and optionally `weight`).
 
+- directed:
+
+  Logical. If FALSE, reverse-direction edges are considered duplicates
+  of each other.
+
 ## Value
 
 A list with two components:

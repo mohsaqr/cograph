@@ -71,7 +71,8 @@ build_edge_labels_from_template(
 
 - oneline:
 
-  Logical: single line format.
+  Logical. Accepted for compatibility; labels are currently normalized
+  to single-line whitespace.
 
 - leading_zero:
 

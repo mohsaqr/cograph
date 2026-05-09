@@ -30,13 +30,14 @@ plot_compare(
 
 - x:
 
-  First network: matrix, CographNetwork, tna, igraph object, OR a
-  group_tna object. For group_tna with 2 groups, compares them directly.
+  First network: matrix, `cograph_network`, `CographNetwork`, `tna`,
+  `igraph`, list-like object with `$weights`, plain list of networks, or
+  `group_tna`. For `group_tna` with 2 groups, compares them directly.
   For more groups, plots all pairwise comparisons (or specify i, j).
 
 - y:
 
-  Second network: same type as x. Ignored if x is group_tna.
+  Second network: same type as x. Ignored if x is a list or `group_tna`.
 
 - i:
 

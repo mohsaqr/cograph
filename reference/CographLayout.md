@@ -62,7 +62,7 @@ Compute layout coordinates for a network.
 
 - `network`:
 
-  A CographNetwork object.
+  A CographNetwork or cograph_network object.
 
 - `...`:
 

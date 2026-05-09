@@ -50,28 +50,9 @@ core_periphery(
 
 ## Value
 
-A list with class "cograph_core_periphery" containing:
-
-- scores:
-
-  Named numeric vector of continuous coreness scores (0 = periphery, 1 =
-  core)
-
-- assignment:
-
-  Named character vector of "core" or "periphery" labels
-
-- fitness:
-
-  Correlation between adjacency matrix and ideal core-periphery pattern
-
-- core_density:
-
-  Edge density within the core subgraph
-
-- periphery_density:
-
-  Edge density within the periphery subgraph
+A data frame with class `"cograph_core_periphery"` and columns `node`,
+`role`, and `coreness`. Fitness, core density, periphery density, and
+the original network are stored as attributes.
 
 ## Details
 

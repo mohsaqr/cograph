@@ -51,13 +51,17 @@ to see all available palettes. Common options:
 
   Soft, muted colors.
 
-- **bright**:
+- **blues**:
 
-  Saturated, vivid colors.
+  Blue sequential palette.
 
-- **grayscale**:
+- **reds**:
 
-  Shades of gray.
+  Red sequential palette.
+
+- **diverging**:
+
+  Blue-white-red diverging palette.
 
 You can also pass a custom palette function that takes `n` and returns
 `n` colors.

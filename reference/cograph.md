@@ -38,9 +38,11 @@ cograph(
 
 - layout:
 
-  Layout algorithm: "circle", "spring", "groups", "grid", "random",
-  "star", "bipartite", or "custom". Default NULL (no layout computed).
-  Set to a layout name to compute immediately, or use sn_layout() later.
+  Layout algorithm name such as "circle", "oval", "spring", "groups",
+  "grid", "random", "star", "bipartite", "gephi", or "custom"; a
+  coordinate matrix/data frame; a CographLayout; or an igraph layout
+  function/name. Default NULL (no layout computed). Set to a layout to
+  compute immediately, or use sn_layout() later.
 
 - directed:
 

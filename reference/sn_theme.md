@@ -47,13 +47,17 @@ Modified cograph_network object.
 
   Optimized for color vision deficiency.
 
-- **grayscale**:
+- **gray**/**grey**:
 
-  Black and white only.
+  Black and white theme suitable for print.
 
-- **vibrant**:
+- **viridis**:
 
-  Bold, saturated colors.
+  Perceptually uniform colors.
+
+- **nature**:
+
+  Nature-inspired colors.
 
 Use
 [`list_themes()`](https://sonsoles.me/cograph/reference/list_themes.md)

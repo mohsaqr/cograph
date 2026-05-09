@@ -19,7 +19,8 @@ nodes(x)
 
 ## Value
 
-A data frame with columns: id, label, name, x, y (and possibly others).
+A node metadata data frame, usually with `id` and `label` columns, plus
+layout or other metadata columns when present.
 
 ## See also
 

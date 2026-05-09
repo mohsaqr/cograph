@@ -15,7 +15,7 @@ original transition data to produce the TRUE Markov chain over cluster states.">
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -142,8 +142,9 @@ column containing cluster labels. The mapping is built from unique
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
-<dd><p>Post-processing: "tna" (row-normalize), "cooccurrence"
-(symmetrize), "semi_markov", or "raw". Default "tna".</p></dd>
+<dd><p>Post-processing: "tna" (row-normalize), "frequency" or "raw"
+(no normalization), "cooccurrence" (symmetrize), or "semi_markov".
+Default "tna".</p></dd>
 
 
 <dt id="arg-directed">directed<a class="anchor" aria-label="anchor" href="#arg-directed"></a></dt>
@@ -156,9 +157,10 @@ column containing cluster labels. The mapping is built from unique
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code>cluster_summary</code> object with <code>meta$source = "transitions"</code>,
-fully compatible with <code><a href="plot_mcml.html">plot_mcml</a></code>, <code><a href="as_tna.html">as_tna</a></code>, and
-<code><a href="splot.html">splot</a></code>.</p>
+    <p>Usually an <code>mcml</code> object. Existing <code>mcml</code> or
+<code>cluster_summary</code> inputs are returned unchanged. Transition-data
+results include <code>meta$source = "transitions"</code> and are compatible with
+<code><a href="plot_mcml.html">plot_mcml</a></code>, <code><a href="as_tna.html">as_tna</a></code>, and <code><a href="splot.html">splot</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

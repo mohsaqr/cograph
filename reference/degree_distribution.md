@@ -85,8 +85,9 @@ degree_distribution(
 - log:
 
   Character. Axis log-scaling: "" (none, default), "x", "y", or "xy".
-  For cumulative plots, "xy" produces log-log CCDF (standard for
-  power-law inspection).
+  Histogram plots apply y-axis log scaling for "y" or "xy"; cumulative
+  plots support x, y, and xy scaling, with "xy" producing a log-log CCDF
+  (standard for power-law inspection).
 
 - main:
 
@@ -121,7 +122,7 @@ Invisibly returns a list with components:
 
 - degree:
 
-  Named integer vector of per-node degrees.
+  Named numeric vector of per-node degrees.
 
 - table:
 

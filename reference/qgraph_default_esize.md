@@ -1,7 +1,8 @@
 # qgraph Default Edge Size
 
 Calculates the default maximum edge width using qgraph's exact formula.
-Formula: 15 \* exp(-n/90) + 1 (halved for directed networks, minimum 1)
+For weighted networks, uses `15 * exp(-n/90) + 1` (halved for directed
+networks, minimum 1). For unweighted networks, returns 2.
 
 ## Usage
 

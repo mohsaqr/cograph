@@ -20,8 +20,9 @@ Named vector of triad counts
 
 ## Details
 
-Triad census is defined only for directed networks. The input is always
-treated as directed.
+Triad census is defined only for directed networks. Matrix input is
+built as directed; existing igraph and cograph inputs must already be
+directed.
 
 MAN notation describes triads by:
 

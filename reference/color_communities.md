@@ -2,7 +2,7 @@
 
 Generate colors for nodes based on community membership. Designed for
 direct use with
-[`splot()`](https://sonsoles.me/cograph/reference/splot.md) node.color
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md) `node_fill`
 parameter.
 
 ## Usage
@@ -44,7 +44,7 @@ color_communities(x, method = "louvain", palette = NULL, ...)
 ## Value
 
 A named character vector of colors (one per node), suitable for use with
-[`splot()`](https://sonsoles.me/cograph/reference/splot.md) node.color
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md) `node_fill`
 parameter.
 
 ## See also

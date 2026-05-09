@@ -52,7 +52,9 @@ network_global_efficiency(
 
 ## Value
 
-Numeric in \[0, 1\]: global efficiency
+Numeric global efficiency. For unweighted simple graphs this is in
+\\\[0, 1\]\\; weighted graphs can exceed 1 when edge distances are below
+1.
 
 ## Examples
 

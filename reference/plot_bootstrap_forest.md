@@ -1,9 +1,9 @@
 # Forest Plot for Bootstrap Network Results
 
-A ggplot2-based forest plot for `net_bootstrap` and `boot_glasso`
-objects. Each row is one network edge; horizontal bars span the
-confidence interval and a filled square marks the point estimate. A
-dashed reference line runs through zero.
+A ggplot2-based forest plot for `net_bootstrap`, `net_bootstrap_group`,
+`tna_bootstrap`, and `boot_glasso` objects. Each row is one network
+edge; horizontal bars span the confidence interval and a filled square
+marks the point estimate. A dashed reference line runs through zero.
 
 Produces a ggplot2 forest plot where each row is one network edge, the
 square marks the bootstrap mean estimate, and the horizontal bar spans
@@ -128,7 +128,7 @@ plot_bootstrap_forest(
 
   A `tna_bootstrap` (from
   [`tna::bootstrap`](http://sonsoles.me/tna/reference/bootstrap.md)),
-  `net_bootstrap`, or `boot_glasso` object.
+  `net_bootstrap`, `net_bootstrap_group`, or `boot_glasso` object.
 
 - ...:
 
@@ -143,7 +143,8 @@ plot_bootstrap_forest(
 
   `"linear"` (default) draws the classic tall forest plot; `"circular"`
   arranges each edge as a spoke around a circle, with the inner ring at
-  the data minimum and the outer ring at the data maximum.
+  the data minimum and the outer ring at the data maximum; `"grouped"`
+  arranges edges in sectors by source node where supported.
 
 - interval:
 
@@ -166,6 +167,10 @@ plot_bootstrap_forest(
   Integer: restrict to the `n_top` edges with the largest absolute
   estimate. Applied after significance filtering. Default `NULL`.
 
+- node_colors:
+
+  Optional node-colour vector for grouped radial layouts.
+
 - sig_color:
 
   Colour for significant CI bars and points. Default `"#2C6E8A"`
@@ -174,7 +179,7 @@ plot_bootstrap_forest(
 - cr_color:
 
   Colour for the consistency range bar (`interval = "cr"` or `"both"`).
-  Default `"#D4820A"` (amber).
+  Default `"#D4829A"`.
 
 - nonsig_color:
 
@@ -192,7 +197,9 @@ plot_bootstrap_forest(
 
 - label_size:
 
-  Text size for edge labels (radial layout only). Default `2.3`.
+  Text size for edge labels (radial and grouped layouts). Default `NULL`
+  for automatic sizing in the main methods, or `2.8` for
+  `net_bootstrap_group`.
 
 - label_color:
 
@@ -245,6 +252,15 @@ plot_bootstrap_forest(
 - subtitle:
 
   Plot subtitle. Default `NULL`.
+
+- all_edges:
+
+  For `net_bootstrap_group`, show the union of group edges instead of
+  only edges common to all groups. Default `FALSE`.
+
+- pos_color:
+
+  Currently unused by the `net_bootstrap_group` method.
 
 ## Value
 

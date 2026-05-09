@@ -2,7 +2,7 @@
 
 Visualizes multiple network clusters with summary edges between clusters
 and individual edges within clusters. Each cluster is displayed as a
-shape (circle, square, diamond, triangle) containing its nodes.
+shell shape containing its nodes.
 
 ## Usage
 
@@ -74,8 +74,7 @@ mtna(
 
 - x:
 
-  A tna object, weight matrix, cograph_network, or cluster_summary
-  object.
+  A tna object, weight matrix, or cograph_network.
 
 - cluster_list:
 
@@ -87,13 +86,14 @@ mtna(
 
   - NULL with `community` specified for auto-detection
 
+  - NULL with a cograph_network that has a common cluster/group column
+
 - community:
 
   Community detection method to use for auto-clustering. If specified,
   overrides `cluster_list`. See
   [`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md)
-  for available methods: "louvain", "walktrap", "fast_greedy",
-  "label_prop", "infomap", "leiden".
+  for available methods.
 
 - layout:
 
@@ -119,8 +119,10 @@ mtna(
 
 - shapes:
 
-  Vector of shapes for each cluster: "circle", "square", "diamond",
-  "triangle". Default cycles through these.
+  Vector of shapes for each cluster. Defaults cycle through "circle",
+  "square", "diamond", "triangle", "pentagon", "hexagon", "star", and
+  "cross"; summary shells draw non-shell shapes with the circular
+  fallback.
 
 - edge_colors:
 
@@ -177,10 +179,9 @@ mtna(
 
 - scale:
 
-  Scaling factor for spacing parameters. Use scale \> 1 for
-  high-resolution output (e.g., scale = 4 for 300 dpi). This multiplies
-  spacing and shape_size to maintain proper proportions at higher
-  resolutions. Default 1.
+  Scaling factor for high-resolution output. Values greater than 1
+  reduce node, edge, label, and legend sizes by `sqrt(scale)` while
+  leaving cluster spacing and shape_size unchanged. Default 1.
 
 - show_labels:
 
@@ -208,8 +209,8 @@ mtna(
 
 - cluster_shape:
 
-  Shape for cluster summary nodes when using summary view. Can be single
-  value or vector. Overrides `shapes`. Default NULL (use shapes).
+  Accepted for compatibility; currently unused. Use `shapes` to control
+  cluster shell shapes.
 
 - ...:
 

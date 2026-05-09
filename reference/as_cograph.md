@@ -52,7 +52,7 @@ A cograph_network object: a named list with components:
 
 - `nodes`:
 
-  Data frame with id, label, (x, y if layout applied)
+  Data frame with id, label, and optional layout or metadata columns
 
 - `edges`:
 
@@ -64,7 +64,8 @@ A cograph_network object: a named list with components:
 
 - `weights`:
 
-  Full n×n weight matrix (for to_matrix round-trip)
+  Full n×n weight matrix when available for matrix/TNA round-trips, or
+  NULL
 
 - `data`:
 

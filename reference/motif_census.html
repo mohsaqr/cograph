@@ -9,7 +9,7 @@ statistical significance against null models."><meta property="og:image" content
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -96,16 +96,11 @@ statistical significance against null models.</p>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code>cograph_motifs</code> object containing:</p><ul><li><p><code>counts</code>: Motif counts in observed network</p></li>
-<li><p><code>null_mean</code>: Mean counts in random networks</p></li>
-<li><p><code>null_sd</code>: Standard deviation in random networks</p></li>
-<li><p><code>z_scores</code>: Z-scores (observed - mean) / sd</p></li>
-<li><p><code>p_values</code>: Two-tailed p-values</p></li>
-<li><p><code>significant</code>: Logical vector (|z| &gt; 2)</p></li>
-<li><p><code>size</code>: Motif size (3 or 4)</p></li>
-<li><p><code>directed</code>: Whether network is directed</p></li>
-<li><p><code>n_random</code>: Number of random networks used</p></li>
-</ul></div>
+    <p>A <code>cograph_motifs</code> data frame with motif count, null-model mean,
+null-model standard deviation, z-score, p-value, and significance columns.
+The motif size, directed flag, null-model method, and number of random
+networks are stored as attributes.</p>
+    </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="motifs.html">motifs()</a></code> for the unified API, <code><a href="extract_motifs.html">extract_motifs()</a></code> for detailed

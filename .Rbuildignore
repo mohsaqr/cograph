@@ -21,6 +21,8 @@
 ^donut_segments_example\.png$
 ^showcase$
 ^\.DS_Store$
+^audit$
+^audit\.zip$
 ^\.\.Rcheck$
 ^doc$
 ^Meta$

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,6 +42,23 @@
       <small>Source: <a href="https://github.com/sonsoleslp/cograph/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.3.1" id="cograph-231">cograph 2.3.1<a class="anchor" aria-label="anchor" href="#cograph-231"></a></h2>
+<div class="section level3">
+<h3 id="multi-panel-layout-control-2-3-1">Multi-panel layout control<a class="anchor" aria-label="anchor" href="#multi-panel-layout-control-2-3-1"></a></h3>
+<ul><li>New <code>combined</code> argument (default <code>TRUE</code>) on every multi-panel plot function: <code><a href="../reference/splot.html">splot()</a></code> group-cascade, <code><a href="../reference/plot_netobject_group.html">plot_netobject_group()</a></code>, <code><a href="../reference/plot_netobject_ml.html">plot_netobject_ml()</a></code>, <code><a href="../reference/plot_net_bootstrap_group.html">plot_net_bootstrap_group()</a></code>, <code><a href="../reference/plot_group_permutation.html">plot_group_permutation()</a></code>, <code><a href="../reference/plot_compare.html">plot_compare()</a></code>, <code><a href="../reference/splot.html">splot.net_mlvar()</a></code>, <code><a href="../reference/plot_network_evolution.html">plot_network_evolution()</a></code>, <code><a href="../reference/plot.cograph_motifs.html">plot.cograph_motifs()</a></code>, <code><a href="../reference/motifs.html">plot.cograph_motif_result()</a></code>, <code><a href="../reference/plot.cograph_motif_analysis.html">plot.cograph_motif_analysis()</a></code>, and <code><a href="../reference/plot.tna_disparity.html">plot.tna_disparity()</a></code>. With <code>combined = FALSE</code> these functions draw panels into the active device without calling <code>graphics::par(mfrow=...)</code>, so callers can drive their own layout (e.g. <code><a href="https://rdrr.io/r/graphics/layout.html" class="external-link">graphics::layout()</a></code> or the new <code><a href="../reference/panel_layout.html">panel_layout()</a></code> helper). Default <code>TRUE</code> preserves prior behavior — every existing call site renders identically.</li>
+<li>New <code><a href="../reference/panel_layout.html">panel_layout()</a></code> helper sets up a custom multi-panel device layout for use with <code>combined = FALSE</code>. Accepts either a uniform-grid <code>c(nrow, ncol)</code> or a <code><a href="https://rdrr.io/r/graphics/layout.html" class="external-link">graphics::layout()</a></code> matrix for non-uniform layouts (e.g. one wide panel + two narrow ones). Returns a <code><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par()</a></code> snapshot for restoration via <code><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit()</a></code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="test-suite-hygiene-2-3-1">Test suite hygiene<a class="anchor" aria-label="anchor" href="#test-suite-hygiene-2-3-1"></a></h3>
+<ul><li>
+<code>test-coverage-splot-{41,42}.R</code>: bumped <code>n_nodes</code> from 4 to 10 in seven per-edge attribute tests so the seed=42 sampler does not produce duplicate (1,2) pairs that trip cograph’s undirected-duplicate-edge detector.</li>
+<li>
+<code>test-coverage-class-network-41.R</code>: aligned the <code>set_layout_coords()</code> mismatched-row-count test with the strict input validation already enforced by <code>R/class-network.R</code>.</li>
+<li>
+<code>test-overlay-communities.R</code>: prefixed two <code><a href="../reference/communities.html">communities()</a></code> calls with <code>cograph::</code> to avoid <code>tna</code> masking when both packages are loaded in the suite (per CLAUDE.md “namespace masking” gotcha).</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.3.0" id="cograph-230">cograph 2.3.0<a class="anchor" aria-label="anchor" href="#cograph-230"></a></h2>
 <div class="section level3">

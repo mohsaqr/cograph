@@ -1,5 +1,55 @@
 # Changelog
 
+## cograph 2.3.1
+
+### Multi-panel layout control
+
+- New `combined` argument (default `TRUE`) on every multi-panel plot
+  function: [`splot()`](https://sonsoles.me/cograph/reference/splot.md)
+  group-cascade,
+  [`plot_netobject_group()`](https://sonsoles.me/cograph/reference/plot_netobject_group.md),
+  [`plot_netobject_ml()`](https://sonsoles.me/cograph/reference/plot_netobject_ml.md),
+  [`plot_net_bootstrap_group()`](https://sonsoles.me/cograph/reference/plot_net_bootstrap_group.md),
+  [`plot_group_permutation()`](https://sonsoles.me/cograph/reference/plot_group_permutation.md),
+  [`plot_compare()`](https://sonsoles.me/cograph/reference/plot_compare.md),
+  [`splot.net_mlvar()`](https://sonsoles.me/cograph/reference/splot.md),
+  [`plot_network_evolution()`](https://sonsoles.me/cograph/reference/plot_network_evolution.md),
+  [`plot.cograph_motifs()`](https://sonsoles.me/cograph/reference/plot.cograph_motifs.md),
+  [`plot.cograph_motif_result()`](https://sonsoles.me/cograph/reference/motifs.md),
+  [`plot.cograph_motif_analysis()`](https://sonsoles.me/cograph/reference/plot.cograph_motif_analysis.md),
+  and
+  [`plot.tna_disparity()`](https://sonsoles.me/cograph/reference/plot.tna_disparity.md).
+  With `combined = FALSE` these functions draw panels into the active
+  device without calling `graphics::par(mfrow=...)`, so callers can
+  drive their own layout
+  (e.g. [`graphics::layout()`](https://rdrr.io/r/graphics/layout.html)
+  or the new
+  [`panel_layout()`](https://sonsoles.me/cograph/reference/panel_layout.md)
+  helper). Default `TRUE` preserves prior behavior — every existing call
+  site renders identically.
+- New
+  [`panel_layout()`](https://sonsoles.me/cograph/reference/panel_layout.md)
+  helper sets up a custom multi-panel device layout for use with
+  `combined = FALSE`. Accepts either a uniform-grid `c(nrow, ncol)` or a
+  [`graphics::layout()`](https://rdrr.io/r/graphics/layout.html) matrix
+  for non-uniform layouts (e.g. one wide panel + two narrow ones).
+  Returns a [`par()`](https://rdrr.io/r/graphics/par.html) snapshot for
+  restoration via [`on.exit()`](https://rdrr.io/r/base/on.exit.html).
+
+### Test suite hygiene
+
+- `test-coverage-splot-{41,42}.R`: bumped `n_nodes` from 4 to 10 in
+  seven per-edge attribute tests so the seed=42 sampler does not produce
+  duplicate (1,2) pairs that trip cograph’s undirected-duplicate-edge
+  detector.
+- `test-coverage-class-network-41.R`: aligned the `set_layout_coords()`
+  mismatched-row-count test with the strict input validation already
+  enforced by `R/class-network.R`.
+- `test-overlay-communities.R`: prefixed two
+  [`communities()`](https://sonsoles.me/cograph/reference/communities.md)
+  calls with `cograph::` to avoid `tna` masking when both packages are
+  loaded in the suite (per CLAUDE.md “namespace masking” gotcha).
+
 ## cograph 2.3.0
 
 ### Documentation

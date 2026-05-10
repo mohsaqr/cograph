@@ -22,6 +22,7 @@ plot_compare(
   show_inits = NULL,
   donut_inner_ratio = 0.8,
   force = FALSE,
+  combined = TRUE,
   ...
 )
 ```
@@ -85,6 +86,15 @@ plot_compare(
 
   Logical: force plotting when more than 4 groups (many comparisons).
   Default FALSE.
+
+- combined:
+
+  Logical: when TRUE (default) and `x` is a multi-group input that
+  triggers all-pairs plotting, lay panels out in an internal grid via
+  `graphics::par(mfrow=...)`. Set to FALSE to draw into a layout the
+  caller has already configured (e.g. via
+  [`panel_layout()`](https://sonsoles.me/cograph/reference/panel_layout.md)).
+  Has no effect for the single-pair path.
 
 - ...:
 

@@ -6,7 +6,7 @@ Plot Disparity Filter Result
 
 ``` r
 # S3 method for class 'tna_disparity'
-plot(x, type = c("backbone", "comparison"), ...)
+plot(x, type = c("backbone", "comparison"), combined = TRUE, ...)
 ```
 
 ## Arguments
@@ -18,6 +18,15 @@ plot(x, type = c("backbone", "comparison"), ...)
 - type:
 
   Plot type: "backbone" (default) or "comparison".
+
+- combined:
+
+  Logical: when `type = "comparison"`, controls whether the original vs.
+  backbone panels are arranged in an internal 1 x 2 grid (TRUE, default)
+  or drawn into a layout the caller has already configured (FALSE — pair
+  with
+  [`panel_layout()`](https://sonsoles.me/cograph/reference/panel_layout.md)).
+  Ignored for `type = "backbone"`.
 
 - ...:
 

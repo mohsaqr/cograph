@@ -17,6 +17,7 @@ plot_network_evolution(
   ncol = NULL,
   node_size = 5,
   seed = 42,
+  combined = TRUE,
   ...
 )
 ```
@@ -64,6 +65,13 @@ plot_network_evolution(
 - seed:
 
   Integer or NULL. Default 42.
+
+- combined:
+
+  Logical: when TRUE (default), arrange period panels in an internal
+  grid via `graphics::par(mfrow=...)`. Set to FALSE to draw into a
+  layout the caller has already configured (e.g. via
+  [`panel_layout()`](https://sonsoles.me/cograph/reference/panel_layout.md)).
 
 - ...:
 

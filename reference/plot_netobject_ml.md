@@ -11,6 +11,7 @@ plot_netobject_ml(
   layout = NULL,
   common_scale = TRUE,
   titles = c("Between-person", "Within-person"),
+  combined = TRUE,
   ...
 )
 
@@ -36,6 +37,13 @@ plot(x, ...)
 
   Character vector of length 2: panel titles. Default
   `c("Between-person", "Within-person")`.
+
+- combined:
+
+  Logical: when TRUE (default), draws both panels in an internal 1 x 2
+  grid. Set to FALSE to render into a layout the caller already
+  configured (e.g. via
+  [`panel_layout()`](https://sonsoles.me/cograph/reference/panel_layout.md)).
 
 - ...:
 

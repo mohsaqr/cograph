@@ -12,6 +12,7 @@ plot(
   show_nonsig = FALSE,
   top_n = NULL,
   colors = c("#2166AC", "#F7F7F7", "#B2182B"),
+  combined = TRUE,
   ...
 )
 ```
@@ -53,6 +54,15 @@ plot(
   Three-element color vector for under-represented, neutral, and
   over-represented motifs. Default `c("#2166AC", "#999999", "#B2182B")`
   (blue/gray/red).
+
+- combined:
+
+  Logical: when TRUE (default) and `type = "network"`, arrange the
+  per-motif panels in an internal grid via `graphics::par(mfrow=...)`.
+  Set to FALSE to draw into a layout the caller has already configured
+  (e.g. via
+  [`panel_layout()`](https://sonsoles.me/cograph/reference/panel_layout.md)).
+  Has no effect for `type = "bar"` or `type = "heatmap"`.
 
 - ...:
 

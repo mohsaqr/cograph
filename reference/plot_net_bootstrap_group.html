@@ -17,7 +17,7 @@ significance, so every edge rendered identically."><meta property="og:image" con
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,7 +64,14 @@ significance, so every edge rendered identically.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plot_net_bootstrap_group</span><span class="op">(</span><span class="va">x</span>, nrow <span class="op">=</span> <span class="cn">NULL</span>, ncol <span class="op">=</span> <span class="cn">NULL</span>, common_scale <span class="op">=</span> <span class="cn">TRUE</span>, <span class="va">...</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plot_net_bootstrap_group</span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  nrow <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ncol <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  common_scale <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  combined <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'net_bootstrap_group'</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
@@ -84,6 +91,12 @@ significance, so every edge rendered identically.</p>
 
 <dt id="arg-common-scale">common_scale<a class="anchor" aria-label="anchor" href="#arg-common-scale"></a></dt>
 <dd><p>Logical: use the same maximum weight across panels? Default TRUE.</p></dd>
+
+
+<dt id="arg-combined">combined<a class="anchor" aria-label="anchor" href="#arg-combined"></a></dt>
+<dd><p>Logical: when TRUE (default), arrange panels in an internal
+grid via <code>graphics::par(mfrow=...)</code>. Set to FALSE to draw into a
+layout the caller already configured (e.g. via <code><a href="panel_layout.html">panel_layout()</a></code>).</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

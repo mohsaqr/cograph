@@ -11,7 +11,14 @@ significance, so every edge rendered identically.
 ## Usage
 
 ``` r
-plot_net_bootstrap_group(x, nrow = NULL, ncol = NULL, common_scale = TRUE, ...)
+plot_net_bootstrap_group(
+  x,
+  nrow = NULL,
+  ncol = NULL,
+  common_scale = TRUE,
+  combined = TRUE,
+  ...
+)
 
 # S3 method for class 'net_bootstrap_group'
 plot(x, ...)
@@ -30,6 +37,13 @@ plot(x, ...)
 - common_scale:
 
   Logical: use the same maximum weight across panels? Default TRUE.
+
+- combined:
+
+  Logical: when TRUE (default), arrange panels in an internal grid via
+  `graphics::par(mfrow=...)`. Set to FALSE to draw into a layout the
+  caller already configured (e.g. via
+  [`panel_layout()`](https://sonsoles.me/cograph/reference/panel_layout.md)).
 
 - ...:
 

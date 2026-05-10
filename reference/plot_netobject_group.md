@@ -14,6 +14,7 @@ plot_netobject_group(
   ncol = NULL,
   common_scale = TRUE,
   title_prefix = NULL,
+  combined = TRUE,
   ...
 )
 
@@ -43,6 +44,15 @@ plot(x, ...)
 
   Character: optional prefix added before each group name in panel
   titles.
+
+- combined:
+
+  Logical: when TRUE (default), arrange the panels in an internal grid
+  via `graphics::par(mfrow=...)`. Set to FALSE to draw each panel into
+  the active device without altering
+  [`par()`](https://rdrr.io/r/graphics/par.html), e.g. when laying
+  panels out yourself with
+  [`panel_layout()`](https://sonsoles.me/cograph/reference/panel_layout.md).
 
 - ...:
 

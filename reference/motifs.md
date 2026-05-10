@@ -51,6 +51,7 @@ plot(
   motif_color = "#800020",
   spacing = 1,
   base_size = 12,
+  combined = TRUE,
   ...
 )
 ```
@@ -237,6 +238,15 @@ plot(
 
   Base font size for the `ggplot2` themes used by `type = "types"` and
   `type = "significance"`. Default 12.
+
+- combined:
+
+  Logical: when TRUE (default) and `type = "patterns"` (or
+  `type = "triads"` on unnamed-node input that falls back to pattern
+  plotting), arrange the per-motif panels in an internal grid via
+  `graphics::par(mfrow=...)`. Set to FALSE to draw into a layout the
+  caller has already configured (e.g. via
+  [`panel_layout()`](https://sonsoles.me/cograph/reference/panel_layout.md)).
 
 ## Value
 

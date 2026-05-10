@@ -58,7 +58,7 @@ splot.tna_communities(x, ...)
 
 splot.cograph_communities(x, ...)
 
-splot.net_mlvar(x, type = "temporal", ...)
+splot.net_mlvar(x, type = "temporal", combined = TRUE, ...)
 
 splot.netobject(x, ...)
 
@@ -284,6 +284,14 @@ splot(
   [`plot_mixed_network`](https://sonsoles.me/cograph/reference/plot_mixed_network.md)
   — co-occurrence as straight undirected edges, transitions as curved
   directed arrows. `"group"` plots each component as a separate panel.
+
+- combined:
+
+  Logical: when `type = "all"`, controls whether the three panels are
+  arranged in an internal 1 x 3 grid (TRUE, default) or drawn into a
+  layout the caller has already configured (FALSE — pair with
+  [`panel_layout()`](https://sonsoles.me/cograph/reference/panel_layout.md)).
+  Ignored for single-network types.
 
 - use_thresholded:
 

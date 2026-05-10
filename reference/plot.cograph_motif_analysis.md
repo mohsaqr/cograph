@@ -22,6 +22,7 @@ plot(
   legend = TRUE,
   color = "#800020",
   spacing = 1,
+  combined = TRUE,
   ...
 )
 ```
@@ -103,6 +104,14 @@ plot(
 - spacing:
 
   Spacing multiplier between grid cells (0.5-2). Default 1.
+
+- combined:
+
+  Logical: when TRUE (default) and `type = "patterns"`, arrange the
+  per-motif panels in an internal grid via `graphics::par(mfrow=...)`.
+  Set to FALSE to draw into a layout the caller has already configured
+  (e.g. via
+  [`panel_layout()`](https://sonsoles.me/cograph/reference/panel_layout.md)).
 
 - ...:
 

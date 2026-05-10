@@ -939,6 +939,8 @@ MIT License.
   : Viridis Palette
 - [`palettes`](https://sonsoles.me/cograph/reference/palettes.md) :
   Color Palettes
+- [`panel_layout()`](https://sonsoles.me/cograph/reference/panel_layout.md)
+  : Configure a custom multi-panel layout
 - [`project_bipartite()`](https://sonsoles.me/cograph/reference/project_bipartite.md)
   : Project Bipartite Network to One-Mode
 - [`reaching_global()`](https://sonsoles.me/cograph/reference/reaching_global.md)

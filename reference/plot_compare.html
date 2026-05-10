@@ -13,7 +13,7 @@ as donut charts."><meta property="og:image" content="https://sonsoles.me/cograph
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,6 +72,7 @@ as donut charts.</p>
 <span>  show_inits <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  donut_inner_ratio <span class="op">=</span> <span class="fl">0.8</span>,</span>
 <span>  force <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  combined <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -135,6 +136,14 @@ plots all pairwise comparisons (or specify i, j).</p></dd>
 
 <dt id="arg-force">force<a class="anchor" aria-label="anchor" href="#arg-force"></a></dt>
 <dd><p>Logical: force plotting when more than 4 groups (many comparisons). Default FALSE.</p></dd>
+
+
+<dt id="arg-combined">combined<a class="anchor" aria-label="anchor" href="#arg-combined"></a></dt>
+<dd><p>Logical: when TRUE (default) and <code>x</code> is a multi-group
+input that triggers all-pairs plotting, lay panels out in an internal
+grid via <code>graphics::par(mfrow=...)</code>. Set to FALSE to draw into a
+layout the caller has already configured (e.g. via
+<code><a href="panel_layout.html">panel_layout()</a></code>). Has no effect for the single-pair path.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

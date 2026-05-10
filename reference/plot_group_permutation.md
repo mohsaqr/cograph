@@ -8,7 +8,7 @@ object. Creates a multi-panel plot with one panel per comparison.
 ``` r
 splot.group_tna_permutation(x, ...)
 
-plot_group_permutation(x, i = NULL, ...)
+plot_group_permutation(x, i = NULL, combined = TRUE, ...)
 ```
 
 ## Arguments
@@ -25,6 +25,14 @@ plot_group_permutation(x, i = NULL, ...)
 - i:
 
   Index or name of specific comparison to plot. NULL for all.
+
+- combined:
+
+  Logical: when TRUE (default), lay out panels in an internal grid via
+  `graphics::par(mfrow=...)`. Set to FALSE to draw each panel into a
+  layout the caller has already configured (e.g. via
+  [`panel_layout()`](https://sonsoles.me/cograph/reference/panel_layout.md)).
+  Ignored when `i` selects a single panel.
 
 ## Value
 

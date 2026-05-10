@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -56,6 +56,7 @@
 <span>  show_nonsig <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  top_n <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#2166AC"</span>, <span class="st">"#F7F7F7"</span>, <span class="st">"#B2182B"</span><span class="op">)</span>,</span>
+<span>  combined <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -95,6 +96,14 @@ significance direction (over/under-represented).</p></dd>
 <dd><p>Three-element color vector for under-represented, neutral, and
 over-represented motifs. Default <code>c("#2166AC", "#999999", "#B2182B")</code>
 (blue/gray/red).</p></dd>
+
+
+<dt id="arg-combined">combined<a class="anchor" aria-label="anchor" href="#arg-combined"></a></dt>
+<dd><p>Logical: when TRUE (default) and <code>type = "network"</code>,
+arrange the per-motif panels in an internal grid via
+<code>graphics::par(mfrow=...)</code>. Set to FALSE to draw into a layout the
+caller has already configured (e.g. via <code><a href="panel_layout.html">panel_layout()</a></code>).
+Has no effect for <code>type = "bar"</code> or <code>type = "heatmap"</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

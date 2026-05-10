@@ -9,7 +9,7 @@ Mirrors plot_group_permutation() in structure."><meta property="og:image" conten
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,6 +58,7 @@ Mirrors <code><a href="plot_group_permutation.html">plot_group_permutation()</a>
 <span>  ncol <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  common_scale <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  title_prefix <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  combined <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -87,6 +88,13 @@ Mirrors <code><a href="plot_group_permutation.html">plot_group_permutation()</a>
 
 <dt id="arg-title-prefix">title_prefix<a class="anchor" aria-label="anchor" href="#arg-title-prefix"></a></dt>
 <dd><p>Character: optional prefix added before each group name in panel titles.</p></dd>
+
+
+<dt id="arg-combined">combined<a class="anchor" aria-label="anchor" href="#arg-combined"></a></dt>
+<dd><p>Logical: when TRUE (default), arrange the panels in an
+internal grid via <code>graphics::par(mfrow=...)</code>. Set to FALSE to draw
+each panel into the active device without altering <code><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par()</a></code>, e.g.
+when laying panels out yourself with <code><a href="panel_layout.html">panel_layout()</a></code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

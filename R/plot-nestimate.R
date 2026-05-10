@@ -195,6 +195,10 @@ splot.wtna_mixed <- function(x, type = c("overlay", "group"), ...) {
 #' @param ncol Integer: number of columns in the panel grid. Auto-computed if NULL.
 #' @param common_scale Logical: use the same maximum weight across all panels? Default TRUE.
 #' @param title_prefix Character: optional prefix added before each group name in panel titles.
+#' @param combined Logical: when TRUE (default), arrange the panels in an
+#'   internal grid via \code{graphics::par(mfrow=...)}. Set to FALSE to draw
+#'   each panel into the active device without altering \code{par()}, e.g.
+#'   when laying panels out yourself with \code{\link{panel_layout}()}.
 #' @param ... Additional arguments passed to \code{splot()}.
 #'
 #' @return Invisibly returns \code{x}.
@@ -211,6 +215,7 @@ plot_netobject_group <- function(x,
                                  ncol         = NULL,
                                  common_scale = TRUE,
                                  title_prefix = NULL,
+                                 combined     = TRUE,
                                  ...) {
   n_groups    <- length(x)
   group_names <- names(x) %||% paste0("Group ", seq_len(n_groups))
@@ -238,11 +243,12 @@ plot_netobject_group <- function(x,
     return(do.call(splot, c(list(x = x[[1]]), args)))
   }
 
-  if (is.null(ncol)) ncol <- ceiling(sqrt(n_groups))
-  if (is.null(nrow)) nrow <- ceiling(n_groups / ncol)
-
-  old_par <- graphics::par(mfrow = c(nrow, ncol), mar = c(2, 2, 3, 1))
-  on.exit(graphics::par(old_par), add = TRUE)
+  if (combined) {
+    if (is.null(ncol)) ncol <- ceiling(sqrt(n_groups))
+    if (is.null(nrow)) nrow <- ceiling(n_groups / ncol)
+    old_par <- graphics::par(mfrow = c(nrow, ncol), mar = c(2, 2, 3, 1))
+    on.exit(graphics::par(old_par), add = TRUE)
+  }
 
   for (k in seq_len(n_groups)) {
     panel_title <- if (!is.null(title_prefix)) paste0(title_prefix, group_names[k]) else group_names[k]
@@ -270,6 +276,9 @@ plot.netobject_group <- function(x, ...) plot_netobject_group(x, ...)
 #' @param common_scale Logical: use the same maximum weight for both panels? Default TRUE.
 #' @param titles Character vector of length 2: panel titles. Default
 #'   \code{c("Between-person", "Within-person")}.
+#' @param combined Logical: when TRUE (default), draws both panels in an
+#'   internal 1 x 2 grid. Set to FALSE to render into a layout the caller
+#'   already configured (e.g. via \code{\link{panel_layout}()}).
 #' @param ... Additional arguments passed to \code{splot()}.
 #'
 #' @return Invisibly returns \code{x}.
@@ -285,6 +294,7 @@ plot_netobject_ml <- function(x,
                               layout       = NULL,
                               common_scale = TRUE,
                               titles       = c("Between-person", "Within-person"),
+                              combined     = TRUE,
                               ...) {
   if (is.null(x$between)) stop("net_ml object missing $between", call. = FALSE)
   if (is.null(x$within))  stop("net_ml object missing $within",  call. = FALSE)
@@ -296,16 +306,18 @@ plot_netobject_ml <- function(x,
     if (!is.finite(max_abs) || max_abs == 0) max_abs <- NULL # nocov
   }
 
-  panel_layout <- layout %||% "oval"
+  layout_alg <- layout %||% "oval"
 
-  old_par <- graphics::par(mfrow = c(1, 2), mar = c(2, 2, 3, 1))
-  on.exit(graphics::par(old_par), add = TRUE)
+  if (combined) {
+    old_par <- graphics::par(mfrow = c(1, 2), mar = c(2, 2, 3, 1))
+    on.exit(graphics::par(old_par), add = TRUE)
+  }
 
   for (side in 1:2) {
     net  <- if (side == 1) x$between else x$within
     args <- list(...)
     args$title  <- titles[side]
-    args$layout <- panel_layout
+    args$layout <- layout_alg
     if (!is.null(max_abs)) args$maximum <- max_abs
     do.call(splot, c(list(x = net), args))
   }
@@ -330,6 +342,9 @@ plot.netobject_ml <- function(x, ...) plot_netobject_ml(x, ...)
 #' @param x A \code{net_bootstrap_group} object (list of \code{net_bootstrap}).
 #' @param nrow,ncol Grid dimensions. Defaults to auto-computed square layout.
 #' @param common_scale Logical: use the same maximum weight across panels? Default TRUE.
+#' @param combined Logical: when TRUE (default), arrange panels in an internal
+#'   grid via \code{graphics::par(mfrow=...)}. Set to FALSE to draw into a
+#'   layout the caller already configured (e.g. via \code{\link{panel_layout}()}).
 #' @param ... Additional arguments passed to \code{splot.net_bootstrap}
 #'   (e.g. \code{display = "significant"}, \code{show_stars = FALSE}).
 #'
@@ -346,6 +361,7 @@ plot_net_bootstrap_group <- function(x,
                                      nrow         = NULL,
                                      ncol         = NULL,
                                      common_scale = TRUE,
+                                     combined     = TRUE,
                                      ...) {
   n_groups    <- length(x)
   group_names <- names(x) %||% paste0("Group ", seq_len(n_groups))
@@ -369,11 +385,12 @@ plot_net_bootstrap_group <- function(x,
     return(do.call(splot, c(list(x = x[[1]]), args)))
   }
 
-  if (is.null(ncol)) ncol <- ceiling(sqrt(n_groups))
-  if (is.null(nrow)) nrow <- ceiling(n_groups / ncol)
-
-  old_par <- graphics::par(mfrow = c(nrow, ncol), mar = c(2, 2, 3, 1))
-  on.exit(graphics::par(old_par), add = TRUE)
+  if (combined) {
+    if (is.null(ncol)) ncol <- ceiling(sqrt(n_groups))
+    if (is.null(nrow)) nrow <- ceiling(n_groups / ncol)
+    old_par <- graphics::par(mfrow = c(nrow, ncol), mar = c(2, 2, 3, 1))
+    on.exit(graphics::par(old_par), add = TRUE)
+  }
 
   for (k in seq_len(n_groups)) {
     args <- list(...)

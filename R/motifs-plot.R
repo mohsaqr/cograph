@@ -61,7 +61,7 @@
 }
 
 #' @noRd
-.plot_motifs_network <- function(df, directed, size, colors) {
+.plot_motifs_network <- function(df, directed, size, colors, combined = TRUE) {
   if (!directed || size != 3) {
     message("Network visualization only available for directed 3-node motifs")
     return(.plot_motifs_bar(df, colors, directed, size))
@@ -77,13 +77,16 @@
   }
 
   n_plots <- length(motifs_to_plot)
-  n_cols <- min(4, n_plots)
-  n_rows <- ceiling(n_plots / n_cols)
 
-  old_par <- graphics::par(no.readonly = TRUE)
-  on.exit(graphics::par(old_par), add = TRUE)
+  if (combined) {
+    n_cols <- min(4, n_plots)
+    n_rows <- ceiling(n_plots / n_cols)
 
-  graphics::par(mfrow = c(n_rows, n_cols), mar = c(1, 1, 3, 1))
+    old_par <- graphics::par(no.readonly = TRUE)
+    on.exit(graphics::par(old_par), add = TRUE)
+
+    graphics::par(mfrow = c(n_rows, n_cols), mar = c(1, 1, 3, 1))
+  }
 
   for (motif_name in motifs_to_plot) {
     mat <- triad_patterns[[motif_name]]
@@ -330,7 +333,8 @@
 
 #' Plot abstract MAN pattern diagrams
 #' @noRd
-.plot_motif_patterns <- function(x, n = 12, colors = c("#2166AC", "#B2182B"), ...) {
+.plot_motif_patterns <- function(x, n = 12, colors = c("#2166AC", "#B2182B"),
+                                 combined = TRUE, ...) {
   type_counts <- x$type_summary
   type_counts <- type_counts[type_counts > 0]
   type_counts <- sort(type_counts, decreasing = TRUE)
@@ -350,13 +354,15 @@
     return(invisible(NULL))
   }
 
-  n_cols <- min(4, n_plots)
-  n_rows <- ceiling(n_plots / n_cols)
+  if (combined) {
+    n_cols <- min(4, n_plots)
+    n_rows <- ceiling(n_plots / n_cols)
 
-  old_par <- graphics::par(no.readonly = TRUE)
-  on.exit(graphics::par(old_par), add = TRUE)
+    old_par <- graphics::par(no.readonly = TRUE)
+    on.exit(graphics::par(old_par), add = TRUE)
 
-  graphics::par(mfrow = c(n_rows, n_cols), mar = c(1, 1, 4, 1), bg = "white")
+    graphics::par(mfrow = c(n_rows, n_cols), mar = c(1, 1, 4, 1), bg = "white")
+  }
 
   # Node positions (triangle layout)
   coords <- matrix(c(

@@ -686,6 +686,11 @@ print.cograph_motif_result <- function(x, ...) {
 #' @param base_size Base font size for the \code{ggplot2} themes used
 #'   by \code{type = "types"} and \code{type = "significance"}.
 #'   Default 12.
+#' @param combined Logical: when TRUE (default) and \code{type = "patterns"}
+#'   (or \code{type = "triads"} on unnamed-node input that falls back to
+#'   pattern plotting), arrange the per-motif panels in an internal grid via
+#'   \code{graphics::par(mfrow=...)}. Set to FALSE to draw into a layout the
+#'   caller has already configured (e.g. via \code{\link{panel_layout}()}).
 #' @param ... Additional arguments passed to internal plot helpers.
 #' @return Invisibly returns the input \code{x} for \code{"triads"} and
 #'   \code{"patterns"}, or the underlying \code{ggplot} for \code{"types"} and
@@ -706,6 +711,7 @@ plot.cograph_motif_result <- function(x, type = c("triads", "types",
                                        motif_color = "#800020",
                                        spacing = 1,
                                        base_size = 12,
+                                       combined = TRUE,
                                        ...) {
   type <- match.arg(type)
 
@@ -722,7 +728,8 @@ plot.cograph_motif_result <- function(x, type = c("triads", "types",
                            legend_size = legend_size, legend = legend,
                            color = motif_color, spacing = spacing, ...)
     } else {
-      .plot_motif_patterns(x, n = n, colors = colors, ...)
+      .plot_motif_patterns(x, n = n, colors = colors,
+                           combined = combined, ...)
     }
     return(invisible(x))
 
@@ -772,7 +779,8 @@ plot.cograph_motif_result <- function(x, type = c("triads", "types",
     return(invisible(p))
 
   } else if (type == "patterns") {
-    .plot_motif_patterns(x, n = n, colors = colors, ...)
+    .plot_motif_patterns(x, n = n, colors = colors,
+                         combined = combined, ...)
     return(invisible(x))
   }
 

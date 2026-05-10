@@ -265,6 +265,10 @@ plot_degree_correlation <- function(x,
 #' @param ncol Integer. Grid columns. Default auto.
 #' @param node_size Numeric. Default 5.
 #' @param seed Integer or NULL. Default 42.
+#' @param combined Logical: when TRUE (default), arrange period panels in an
+#'   internal grid via \code{graphics::par(mfrow=...)}. Set to FALSE to draw
+#'   into a layout the caller has already configured (e.g. via
+#'   \code{\link{panel_layout}()}).
 #' @param ... Additional arguments passed to \code{\link{splot}}.
 #'
 #' @return Invisible list of per-panel networks or edge-list data frames.
@@ -286,6 +290,7 @@ plot_network_evolution <- function(x,
                                    ncol = NULL,
                                    node_size = 5,
                                    seed = 42,
+                                   combined = TRUE,
                                    ...) {
 
   # Determine mode: cograph_network, edge list data frame, or pre-built list
@@ -363,8 +368,10 @@ plot_network_evolution <- function(x,
     shared_layout <- layout
   }
 
-  old_par <- graphics::par(mfrow = c(n_row, ncol), mar = c(1, 1, 2, 1))
-  on.exit(graphics::par(old_par), add = TRUE)
+  if (combined) {
+    old_par <- graphics::par(mfrow = c(n_row, ncol), mar = c(1, 1, 2, 1))
+    on.exit(graphics::par(old_par), add = TRUE)
+  }
 
   # Build adjacency matrices with ALL nodes (shared across panels)
   all_nodes <- node_names

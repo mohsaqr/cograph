@@ -18,6 +18,7 @@
   legend = TRUE,
   color = "#800020",
   spacing = 1,
+  combined = TRUE,
   ...
 )
 }
@@ -59,6 +60,11 @@ Default \code{c("#2166AC", "#B2182B")} (blue/red).}
 Default \code{"#800020"} (maroon).}
 
 \item{spacing}{Spacing multiplier between grid cells (0.5-2). Default 1.}
+
+\item{combined}{Logical: when TRUE (default) and \code{type = "patterns"},
+arrange the per-motif panels in an internal grid via
+\code{graphics::par(mfrow=...)}. Set to FALSE to draw into a layout the
+caller has already configured (e.g. via \code{\link{panel_layout}()}).}
 
 \item{...}{Additional arguments (unused).}
 }

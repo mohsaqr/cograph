@@ -47,7 +47,9 @@ test_that("overlay_communities works with tna object", {
 
 test_that("overlay_communities works with cograph_communities object", {
   mat <- .test_mat(6)
-  comm_obj <- communities(mat, method = "louvain")
+  # cograph:: prefix because `tna` (loaded by an earlier test file in the
+  # suite) masks `communities`. See CLAUDE.md "Key Gotchas: namespace masking".
+  comm_obj <- cograph::communities(mat, method = "louvain")
   expect_no_error(with_temp_png(
     overlay_communities(mat, comm_obj), width = 800, height = 800
   ))
@@ -58,7 +60,7 @@ test_that("overlay_communities works with tna + cograph_communities", {
   model <- tna::tna(tna::group_regulation)
   mat_sym <- (model$weights + t(model$weights)) / 2
   rownames(mat_sym) <- colnames(mat_sym) <- model$labels
-  comm_obj <- communities(mat_sym, method = "louvain")
+  comm_obj <- cograph::communities(mat_sym, method = "louvain")
   expect_no_error(with_temp_png(
     overlay_communities(model, comm_obj), width = 800, height = 800
   ))

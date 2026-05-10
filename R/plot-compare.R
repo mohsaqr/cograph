@@ -29,6 +29,11 @@ NULL
 #' @param show_inits Logical: show node differences as donuts? Default TRUE if inits available.
 #' @param donut_inner_ratio Inner radius ratio for donut (0-1). Default 0.8.
 #' @param force Logical: force plotting when more than 4 groups (many comparisons). Default FALSE.
+#' @param combined Logical: when TRUE (default) and \code{x} is a multi-group
+#'   input that triggers all-pairs plotting, lay panels out in an internal
+#'   grid via \code{graphics::par(mfrow=...)}. Set to FALSE to draw into a
+#'   layout the caller has already configured (e.g. via
+#'   \code{\link{panel_layout}()}). Has no effect for the single-pair path.
 #' @param ... Additional arguments passed to splot().
 #'
 #' @return Invisibly returns a list with difference matrix and inits difference.
@@ -73,6 +78,7 @@ plot_compare <- function(x, y = NULL,
                          show_inits = NULL,
                          donut_inner_ratio = 0.8,
                          force = FALSE,
+                         combined = TRUE,
                          ...) {
 
   # Handle group_tna object (tna package integration)
@@ -100,7 +106,8 @@ plot_compare <- function(x, y = NULL,
 
         # Plot all pairs
         return(.plot_compare_all_pairs(x, pos_color, neg_color, labels,
-                                       show_inits, donut_inner_ratio, ...))
+                                       show_inits, donut_inner_ratio,
+                                       combined = combined, ...))
       }
     }
 
@@ -527,7 +534,8 @@ plot_comparison_heatmap <- function(x, y = NULL,
 #' @return Invisibly returns list of comparison results.
 #' @keywords internal
 .plot_compare_all_pairs <- function(x, pos_color, neg_color, labels,
-                                    show_inits, donut_inner_ratio, ...) {
+                                    show_inits, donut_inner_ratio,
+                                    combined = TRUE, ...) {
   n_groups <- length(x)
   nm <- names(x)
   if (is.null(nm)) nm <- seq_len(n_groups)
@@ -536,13 +544,15 @@ plot_comparison_heatmap <- function(x, y = NULL,
   pairs <- utils::combn(n_groups, 2)
   n_pairs <- ncol(pairs)
 
-  # Calculate grid layout
-  ncol <- ceiling(sqrt(n_pairs))
-  nrow <- ceiling(n_pairs / ncol)
+  if (combined) {
+    # Calculate grid layout
+    ncol <- ceiling(sqrt(n_pairs))
+    nrow <- ceiling(n_pairs / ncol)
 
-  # Set up multi-panel plot
-  old_par <- graphics::par(mfrow = c(nrow, ncol), mar = c(2, 2, 3, 1))
-  on.exit(graphics::par(old_par), add = TRUE)
+    # Set up multi-panel plot
+    old_par <- graphics::par(mfrow = c(nrow, ncol), mar = c(2, 2, 3, 1))
+    on.exit(graphics::par(old_par), add = TRUE)
+  }
 
   results <- list()
 

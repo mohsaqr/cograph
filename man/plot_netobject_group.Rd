@@ -11,6 +11,7 @@ plot_netobject_group(
   ncol = NULL,
   common_scale = TRUE,
   title_prefix = NULL,
+  combined = TRUE,
   ...
 )
 
@@ -26,6 +27,11 @@ plot_netobject_group(
 \item{common_scale}{Logical: use the same maximum weight across all panels? Default TRUE.}
 
 \item{title_prefix}{Character: optional prefix added before each group name in panel titles.}
+
+\item{combined}{Logical: when TRUE (default), arrange the panels in an
+internal grid via \code{graphics::par(mfrow=...)}. Set to FALSE to draw
+each panel into the active device without altering \code{par()}, e.g.
+when laying panels out yourself with \code{\link{panel_layout}()}.}
 
 \item{...}{Additional arguments passed to \code{splot()}.}
 }

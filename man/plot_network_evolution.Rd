@@ -14,6 +14,7 @@ plot_network_evolution(
   ncol = NULL,
   node_size = 5,
   seed = 42,
+  combined = TRUE,
   ...
 )
 }
@@ -41,6 +42,11 @@ time values).}
 \item{node_size}{Numeric. Default 5.}
 
 \item{seed}{Integer or NULL. Default 42.}
+
+\item{combined}{Logical: when TRUE (default), arrange period panels in an
+internal grid via \code{graphics::par(mfrow=...)}. Set to FALSE to draw
+into a layout the caller has already configured (e.g. via
+\code{\link{panel_layout}()}).}
 
 \item{...}{Additional arguments passed to \code{\link{splot}}.}
 }

@@ -7,7 +7,7 @@
 \usage{
 splot.group_tna_permutation(x, ...)
 
-plot_group_permutation(x, i = NULL, ...)
+plot_group_permutation(x, i = NULL, combined = TRUE, ...)
 }
 \arguments{
 \item{x}{A group_tna_permutation object (from tna::permutation_test on group_tna).}
@@ -15,6 +15,11 @@ plot_group_permutation(x, i = NULL, ...)
 \item{...}{Additional arguments passed to plot_permutation().}
 
 \item{i}{Index or name of specific comparison to plot. NULL for all.}
+
+\item{combined}{Logical: when TRUE (default), lay out panels in an internal
+grid via \code{graphics::par(mfrow=...)}. Set to FALSE to draw each panel
+into a layout the caller has already configured (e.g. via
+\code{\link{panel_layout}()}). Ignored when \code{i} selects a single panel.}
 }
 \value{
 When \code{i} is supplied, returns the selected permutation plot.

@@ -11,6 +11,7 @@
   labels,
   show_inits,
   donut_inner_ratio,
+  combined = TRUE,
   ...
 )
 }

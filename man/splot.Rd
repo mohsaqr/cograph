@@ -26,7 +26,7 @@ splot.tna_communities(x, ...)
 
 splot.cograph_communities(x, ...)
 
-splot.net_mlvar(x, type = "temporal", ...)
+splot.net_mlvar(x, type = "temporal", combined = TRUE, ...)
 
 splot.netobject(x, ...)
 
@@ -230,6 +230,11 @@ Use parameter \code{i} to select a specific group, or omit to plot all groups.
 single canvas via \code{\link{plot_mixed_network}} — co-occurrence as straight
 undirected edges, transitions as curved directed arrows.
 \code{"group"} plots each component as a separate panel.}
+
+\item{combined}{Logical: when \code{type = "all"}, controls whether the
+three panels are arranged in an internal 1 x 3 grid (TRUE, default) or
+drawn into a layout the caller has already configured (FALSE — pair
+with \code{\link{panel_layout}()}). Ignored for single-network types.}
 
 \item{use_thresholded}{Logical: use \code{$thresholded_pcor}? If FALSE, uses
 \code{$original_pcor}. Default TRUE.}

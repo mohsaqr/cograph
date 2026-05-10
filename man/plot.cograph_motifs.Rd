@@ -10,6 +10,7 @@
   show_nonsig = FALSE,
   top_n = NULL,
   colors = c("#2166AC", "#F7F7F7", "#B2182B"),
+  combined = TRUE,
   ...
 )
 }
@@ -31,6 +32,12 @@ significance direction (over/under-represented).}
 \item{colors}{Three-element color vector for under-represented, neutral, and
 over-represented motifs. Default \code{c("#2166AC", "#999999", "#B2182B")}
 (blue/gray/red).}
+
+\item{combined}{Logical: when TRUE (default) and \code{type = "network"},
+arrange the per-motif panels in an internal grid via
+\code{graphics::par(mfrow=...)}. Set to FALSE to draw into a layout the
+caller has already configured (e.g. via \code{\link{panel_layout}()}).
+Has no effect for \code{type = "bar"} or \code{type = "heatmap"}.}
 
 \item{...}{Additional arguments passed to plotting functions}
 }

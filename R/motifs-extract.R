@@ -506,6 +506,10 @@ print.cograph_motif_analysis <- function(x, n = 20, ...) {
 #' @param color Color for nodes, edges, and labels in triad diagrams.
 #'   Default \code{"#800020"} (maroon).
 #' @param spacing Spacing multiplier between grid cells (0.5-2). Default 1.
+#' @param combined Logical: when TRUE (default) and \code{type = "patterns"},
+#'   arrange the per-motif panels in an internal grid via
+#'   \code{graphics::par(mfrow=...)}. Set to FALSE to draw into a layout the
+#'   caller has already configured (e.g. via \code{\link{panel_layout}()}).
 #' @param ... Additional arguments (unused).
 #'
 #' @return Invisibly returns NULL for triad and pattern plots, or a ggplot2
@@ -528,7 +532,7 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
                                          res = 72, node_size = 5, label_size = 7,
                                          title_size = 7, stats_size = 5, ncol = 5,
                                          legend = TRUE, color = "#800020",
-                                         spacing = 1, ...) {
+                                         spacing = 1, combined = TRUE, ...) {
 
   type <- match.arg(type)
 
@@ -598,7 +602,7 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
       )
 
   } else if (type == "patterns") {
-    .plot_motif_patterns(x, n, colors, ...)
+    .plot_motif_patterns(x, n, colors, combined = combined, ...)
     return(invisible(NULL))
 
   } else {

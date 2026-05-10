@@ -78,15 +78,19 @@ uniform grid, or a numeric matrix of panel positions to pass to
 
 <dt id="arg-widths-heights">widths, heights<a class="anchor" aria-label="anchor" href="#arg-widths-heights"></a></dt>
 <dd><p>Optional numeric vectors of column widths and row
-heights. Only used when <code>spec</code> is a matrix; passed straight to
-<code><a href="https://rdrr.io/r/graphics/layout.html" class="external-link">graphics::layout()</a></code>.</p></dd>
+heights. Only valid when <code>spec</code> is a matrix; passed straight to
+<code><a href="https://rdrr.io/r/graphics/layout.html" class="external-link">graphics::layout()</a></code>. Supplying them with a uniform-grid
+<code>spec</code> is an error, since <code>par(mfrow=...)</code> has no
+widths/heights concept.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>Invisibly returns a list of previous <code><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par()</a></code> settings that
 can be passed back to <code><a href="https://rdrr.io/r/graphics/par.html" class="external-link">graphics::par()</a></code> to restore the prior
-device state.</p>
+device state. For both spec shapes the snapshot includes
+<code>mfrow</code>, so <code>par(old_par)</code> also resets any
+<code><a href="https://rdrr.io/r/graphics/layout.html" class="external-link">graphics::layout()</a></code> partitioning that this call introduced.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -95,6 +99,24 @@ device state.</p>
 non-uniform layout (delegates to <code><a href="https://rdrr.io/r/graphics/layout.html" class="external-link">graphics::layout()</a></code>); the matrix
 values name panel cells, so <code>matrix(c(1, 1, 2, 3), 2, 2)</code> produces
 one wide cell on top and two cells on the bottom row.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="combined-flag-scope">Combined-flag scope<a class="anchor" aria-label="anchor" href="#combined-flag-scope"></a></h2>
+
+
+<p><code>panel_layout()</code> composes with the <code>combined = FALSE</code> opt-out
+on cograph's multi-panel plot functions. Single-network calls like
+<code>splot(some_tna_object)</code> do not honor <code>combined</code> — there is
+nothing for it to gate. Pass <code>combined = FALSE</code> only to the
+multi-panel hosts: <code><a href="plot_netobject_group.html">plot_netobject_group()</a></code>,
+<code><a href="plot_netobject_ml.html">plot_netobject_ml()</a></code>, <code><a href="plot_net_bootstrap_group.html">plot_net_bootstrap_group()</a></code>,
+<code><a href="plot_group_permutation.html">plot_group_permutation()</a></code>, <code><a href="plot_compare.html">plot_compare()</a></code>,
+<code>splot.net_mlvar(type = "all")</code>, <code><a href="plot_network_evolution.html">plot_network_evolution()</a></code>,
+<code>plot.cograph_motifs(type = "network")</code>,
+<code>plot.cograph_motif_result(type = "patterns")</code>,
+<code>plot.cograph_motif_analysis(type = "patterns")</code>,
+<code>plot.tna_disparity(type = "comparison")</code>, and <code><a href="splot.html">splot()</a></code> on
+<code>group_tna</code> / similar list-of-plottables inputs.</p>
     </div>
 
     <div class="section level2">

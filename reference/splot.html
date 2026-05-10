@@ -360,7 +360,19 @@ Use parameter <code>i</code> to select a specific group, or omit to plot all gro
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments passed to layout functions.</p></dd>
+<dd><p>Additional arguments passed to layout functions.
+One ride-along worth calling out: <code>combined</code> (default
+<code>TRUE</code>). When <code>x</code> is a multi-panel input (a
+<code>group_tna</code>, <code>group_tna_bootstrap</code>,
+<code>group_tna_permutation</code>, <code>net_permutation_group</code>, or any
+class routed to a <code>splot.*</code> method that draws multiple panels
+such as <code>splot.net_mlvar</code> with <code>type = "all"</code>),
+<code>combined = FALSE</code> skips the internal
+<code>graphics::par(mfrow = ...)</code> grid so the caller can drive
+layout explicitly via <code><a href="panel_layout.html">panel_layout()</a></code> or
+<code><a href="https://rdrr.io/r/graphics/layout.html" class="external-link">graphics::layout()</a></code>. For single-network inputs (a single
+<code>tna</code>, <code>netobject</code>, matrix, etc.) <code>combined</code> has no
+effect — there is no panel grid to gate.</p></dd>
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>

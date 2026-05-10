@@ -275,7 +275,18 @@ splot(
 
 - ...:
 
-  Additional arguments passed to layout functions.
+  Additional arguments passed to layout functions. One ride-along worth
+  calling out: `combined` (default `TRUE`). When `x` is a multi-panel
+  input (a `group_tna`, `group_tna_bootstrap`, `group_tna_permutation`,
+  `net_permutation_group`, or any class routed to a `splot.*` method
+  that draws multiple panels such as `splot.net_mlvar` with
+  `type = "all"`), `combined = FALSE` skips the internal
+  `graphics::par(mfrow = ...)` grid so the caller can drive layout
+  explicitly via
+  [`panel_layout()`](https://sonsoles.me/cograph/reference/panel_layout.md)
+  or [`graphics::layout()`](https://rdrr.io/r/graphics/layout.html). For
+  single-network inputs (a single `tna`, `netobject`, matrix, etc.)
+  `combined` has no effect — there is no panel grid to gate.
 
 - type:
 

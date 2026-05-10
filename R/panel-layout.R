@@ -17,12 +17,31 @@
 #' @param mar Numeric vector of length 4 giving panel margins. Default
 #'   \code{c(2, 2, 3, 1)} matches cograph's multi-panel margin convention.
 #' @param widths,heights Optional numeric vectors of column widths and row
-#'   heights. Only used when \code{spec} is a matrix; passed straight to
-#'   \code{graphics::layout()}.
+#'   heights. Only valid when \code{spec} is a matrix; passed straight to
+#'   \code{graphics::layout()}. Supplying them with a uniform-grid
+#'   \code{spec} is an error, since \code{par(mfrow=...)} has no
+#'   widths/heights concept.
 #'
 #' @return Invisibly returns a list of previous \code{par()} settings that
 #'   can be passed back to \code{graphics::par()} to restore the prior
-#'   device state.
+#'   device state. For both spec shapes the snapshot includes
+#'   \code{mfrow}, so \code{par(old_par)} also resets any
+#'   \code{graphics::layout()} partitioning that this call introduced.
+#'
+#' @section Combined-flag scope:
+#' \code{panel_layout()} composes with the \code{combined = FALSE} opt-out
+#' on cograph's multi-panel plot functions. Single-network calls like
+#' \code{splot(some_tna_object)} do not honor \code{combined} — there is
+#' nothing for it to gate. Pass \code{combined = FALSE} only to the
+#' multi-panel hosts: \code{plot_netobject_group()},
+#' \code{plot_netobject_ml()}, \code{plot_net_bootstrap_group()},
+#' \code{plot_group_permutation()}, \code{plot_compare()},
+#' \code{splot.net_mlvar(type = "all")}, \code{plot_network_evolution()},
+#' \code{plot.cograph_motifs(type = "network")},
+#' \code{plot.cograph_motif_result(type = "patterns")},
+#' \code{plot.cograph_motif_analysis(type = "patterns")},
+#' \code{plot.tna_disparity(type = "comparison")}, and \code{splot()} on
+#' \code{group_tna} / similar list-of-plottables inputs.
 #'
 #' @examples
 #' mat <- matrix(c(0, .5, .3, .5, 0, .4, .3, .4, 0), 3, 3)
@@ -50,19 +69,38 @@ panel_layout <- function(spec,
     if (!is.numeric(spec)) {
       stop("panel_layout(): matrix `spec` must be numeric", call. = FALSE)
     }
+    if (any(spec < 0, na.rm = TRUE) || all(spec == 0, na.rm = TRUE)) {
+      stop("panel_layout(): matrix `spec` must contain non-negative ",
+           "integers and at least one positive cell", call. = FALSE)
+    }
     layout_args <- list(mat = spec)
     if (!is.null(widths))  layout_args$widths  <- widths
     if (!is.null(heights)) layout_args$heights <- heights
+
+    # Capture mfrow before installing the layout(). graphics::layout() has
+    # no inverse, so the returned `old_par` carries the prior mfrow; when
+    # the caller does graphics::par(old_par), R clears the layout() state
+    # as a side effect of restoring mfrow.
+    prior_mfrow <- graphics::par("mfrow")
     do.call(graphics::layout, layout_args)
     old_par <- graphics::par(mar = mar)
+    old_par$mfrow <- prior_mfrow
   } else if (is.numeric(spec) && length(spec) == 2L) {
-    nr <- as.integer(spec[1L])
-    nc <- as.integer(spec[2L])
-    if (is.na(nr) || is.na(nc) || nr < 1L || nc < 1L) {
-      stop("panel_layout(): `spec` of form c(nrow, ncol) must have ",
-           "positive integer entries", call. = FALSE)
+    if (!is.null(widths) || !is.null(heights)) {
+      stop("panel_layout(): `widths` and `heights` are only valid when ",
+           "`spec` is a matrix (graphics::par(mfrow=...) has no concept ",
+           "of variable widths/heights)", call. = FALSE)
     }
-    old_par <- graphics::par(mfrow = c(nr, nc), mar = mar)
+    nr <- spec[1L]
+    nc <- spec[2L]
+    if (anyNA(c(nr, nc)) || nr < 1 || nc < 1 ||
+        nr != as.integer(nr) || nc != as.integer(nc)) {
+      stop("panel_layout(): `spec` of form c(nrow, ncol) must have ",
+           "positive integer entries (got nrow=", nr, ", ncol=", nc, ")",
+           call. = FALSE)
+    }
+    old_par <- graphics::par(mfrow = c(as.integer(nr), as.integer(nc)),
+                             mar = mar)
   } else {
     stop("panel_layout(): `spec` must be c(nrow, ncol) or a numeric matrix",
          call. = FALSE)

@@ -224,7 +224,19 @@ Use parameter \code{i} to select a specific group, or omit to plot all groups.
 
 \item{inherit_style}{Logical: inherit labels/layout/colors from network? Default TRUE.}
 
-\item{...}{Additional arguments passed to layout functions.}
+\item{...}{Additional arguments passed to layout functions.
+One ride-along worth calling out: \code{combined} (default
+\code{TRUE}). When \code{x} is a multi-panel input (a
+\code{group_tna}, \code{group_tna_bootstrap},
+\code{group_tna_permutation}, \code{net_permutation_group}, or any
+class routed to a \code{splot.*} method that draws multiple panels
+such as \code{splot.net_mlvar} with \code{type = "all"}),
+\code{combined = FALSE} skips the internal
+\code{graphics::par(mfrow = ...)} grid so the caller can drive
+layout explicitly via \code{\link{panel_layout}()} or
+\code{graphics::layout()}. For single-network inputs (a single
+\code{tna}, \code{netobject}, matrix, etc.) \code{combined} has no
+effect — there is no panel grid to gate.}
 
 \item{type}{Character. \code{"overlay"} (default) renders both networks on a
 single canvas via \code{\link{plot_mixed_network}} — co-occurrence as straight

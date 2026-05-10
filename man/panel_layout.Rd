@@ -15,13 +15,17 @@ uniform grid, or a numeric matrix of panel positions to pass to
 \code{c(2, 2, 3, 1)} matches cograph's multi-panel margin convention.}
 
 \item{widths, heights}{Optional numeric vectors of column widths and row
-heights. Only used when \code{spec} is a matrix; passed straight to
-\code{graphics::layout()}.}
+heights. Only valid when \code{spec} is a matrix; passed straight to
+\code{graphics::layout()}. Supplying them with a uniform-grid
+\code{spec} is an error, since \code{par(mfrow=...)} has no
+widths/heights concept.}
 }
 \value{
 Invisibly returns a list of previous \code{par()} settings that
 can be passed back to \code{graphics::par()} to restore the prior
-device state.
+device state. For both spec shapes the snapshot includes
+\code{mfrow}, so \code{par(old_par)} also resets any
+\code{graphics::layout()} partitioning that this call introduced.
 }
 \description{
 Sets up a multi-panel device layout for use with cograph plotting
@@ -36,6 +40,23 @@ non-uniform layout (delegates to \code{graphics::layout()}); the matrix
 values name panel cells, so \code{matrix(c(1, 1, 2, 3), 2, 2)} produces
 one wide cell on top and two cells on the bottom row.
 }
+\section{Combined-flag scope}{
+
+\code{panel_layout()} composes with the \code{combined = FALSE} opt-out
+on cograph's multi-panel plot functions. Single-network calls like
+\code{splot(some_tna_object)} do not honor \code{combined} — there is
+nothing for it to gate. Pass \code{combined = FALSE} only to the
+multi-panel hosts: \code{plot_netobject_group()},
+\code{plot_netobject_ml()}, \code{plot_net_bootstrap_group()},
+\code{plot_group_permutation()}, \code{plot_compare()},
+\code{splot.net_mlvar(type = "all")}, \code{plot_network_evolution()},
+\code{plot.cograph_motifs(type = "network")},
+\code{plot.cograph_motif_result(type = "patterns")},
+\code{plot.cograph_motif_analysis(type = "patterns")},
+\code{plot.tna_disparity(type = "comparison")}, and \code{splot()} on
+\code{group_tna} / similar list-of-plottables inputs.
+}
+
 \examples{
 mat <- matrix(c(0, .5, .3, .5, 0, .4, .3, .4, 0), 3, 3)
 colnames(mat) <- rownames(mat) <- c("A", "B", "C")

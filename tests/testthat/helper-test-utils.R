@@ -64,6 +64,15 @@ create_test_matrix <- function(n = 5, density = 0.5, weighted = FALSE,
 }
 
 #' Create a test edge list data frame
+#'
+#' Note: this helper samples (from, to) with replacement and only removes
+#' self-loops; it does not deduplicate (from, to) pairs. With small
+#' \code{n_nodes} relative to \code{n_edges}, the same pair can appear
+#' multiple times, which trips cograph's undirected-duplicate-edge
+#' detector in \code{R/splot-params.R}. If your test feeds the result
+#' directly to \code{splot()} as an undirected network, prefer
+#' \code{n_nodes >= 2 * n_edges} or build the edge list inline.
+#'
 #' @param n_edges Number of edges
 #' @param n_nodes Number of unique nodes
 #' @param weighted Include weight column?
@@ -77,7 +86,8 @@ create_test_edgelist <- function(n_edges = 10, n_nodes = 5, weighted = FALSE,
   from <- sample(1:n_nodes, n_edges, replace = TRUE)
   to <- sample(1:n_nodes, n_edges, replace = TRUE)
 
-  # Remove self-loops
+  # Remove self-loops by rotating `to` to the next node. Note this can
+  # still leave duplicate (from, to) pairs intact — see the docstring.
   self_loops <- from == to
   if (any(self_loops)) {
     to[self_loops] <- ((to[self_loops]) %% n_nodes) + 1

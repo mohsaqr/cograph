@@ -609,12 +609,18 @@ splot <- function(
       return(do.call(splot, c(list(x = x[[idx]]), fwd_args)))
     }
 
-    # No i specified: plot all groups in a grid
-    n_cols <- ceiling(sqrt(n_groups))
-    n_rows <- ceiling(n_groups / n_cols)
+    # No i specified: plot all groups in a grid.
+    # `combined` rides in via ...; pull it out before recursing so splot()'s
+    # main signature doesn't see an unknown argument.
+    combined <- if (is.null(fwd_args$combined)) TRUE else isTRUE(fwd_args$combined)
+    fwd_args$combined <- NULL
 
-    old_par <- graphics::par(mfrow = c(n_rows, n_cols), mar = c(1, 1, 2, 1))
-    on.exit(graphics::par(old_par), add = TRUE)
+    if (combined) {
+      n_cols <- ceiling(sqrt(n_groups))
+      n_rows <- ceiling(n_groups / n_cols)
+      old_par <- graphics::par(mfrow = c(n_rows, n_cols), mar = c(1, 1, 2, 1))
+      on.exit(graphics::par(old_par), add = TRUE)
+    }
 
     for (idx in seq_len(n_groups)) {
       grp_fwd <- fwd_args

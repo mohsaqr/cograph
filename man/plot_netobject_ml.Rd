@@ -10,6 +10,7 @@ plot_netobject_ml(
   layout = NULL,
   common_scale = TRUE,
   titles = c("Between-person", "Within-person"),
+  combined = TRUE,
   ...
 )
 
@@ -24,6 +25,10 @@ plot_netobject_ml(
 
 \item{titles}{Character vector of length 2: panel titles. Default
 \code{c("Between-person", "Within-person")}.}
+
+\item{combined}{Logical: when TRUE (default), draws both panels in an
+internal 1 x 2 grid. Set to FALSE to render into a layout the caller
+already configured (e.g. via \code{\link{panel_layout}()}).}
 
 \item{...}{Additional arguments passed to \code{splot()}.}
 }

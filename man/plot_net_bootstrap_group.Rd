@@ -5,7 +5,14 @@
 \alias{plot.net_bootstrap_group}
 \title{Plot a Group Bootstrap Result}
 \usage{
-plot_net_bootstrap_group(x, nrow = NULL, ncol = NULL, common_scale = TRUE, ...)
+plot_net_bootstrap_group(
+  x,
+  nrow = NULL,
+  ncol = NULL,
+  common_scale = TRUE,
+  combined = TRUE,
+  ...
+)
 
 \method{plot}{net_bootstrap_group}(x, ...)
 }
@@ -15,6 +22,10 @@ plot_net_bootstrap_group(x, nrow = NULL, ncol = NULL, common_scale = TRUE, ...)
 \item{nrow, ncol}{Grid dimensions. Defaults to auto-computed square layout.}
 
 \item{common_scale}{Logical: use the same maximum weight across panels? Default TRUE.}
+
+\item{combined}{Logical: when TRUE (default), arrange panels in an internal
+grid via \code{graphics::par(mfrow=...)}. Set to FALSE to draw into a
+layout the caller already configured (e.g. via \code{\link{panel_layout}()}).}
 
 \item{...}{Additional arguments passed to \code{splot.net_bootstrap}
 (e.g. \code{display = "significant"}, \code{show_stars = FALSE}).}

@@ -292,6 +292,10 @@ plot_permutation <- function(x,
 #'
 #' @param x A group_tna_permutation object (from tna::permutation_test on group_tna).
 #' @param i Index or name of specific comparison to plot. NULL for all.
+#' @param combined Logical: when TRUE (default), lay out panels in an internal
+#'   grid via \code{graphics::par(mfrow=...)}. Set to FALSE to draw each panel
+#'   into a layout the caller has already configured (e.g. via
+#'   \code{\link{panel_layout}()}). Ignored when \code{i} selects a single panel.
 #' @param ... Additional arguments passed to plot_permutation().
 #'
 #' @return When \code{i} is supplied, returns the selected permutation plot.
@@ -310,7 +314,7 @@ plot_permutation <- function(x,
 #' plot_group_permutation(gperm)
 #'
 #' @export
-plot_group_permutation <- function(x, i = NULL, ...) {
+plot_group_permutation <- function(x, i = NULL, combined = TRUE, ...) {
   # Strip `title` from `...` so we can re-inject a per-panel title without
   # R's argument matcher seeing `title` twice. If the user supplied one,
   # compose it as `"user_title - pair_name"` so both pieces of information
@@ -340,13 +344,15 @@ plot_group_permutation <- function(x, i = NULL, ...) {
     return(invisible(NULL))
   }
 
-  # Calculate grid layout
-  ncol <- ceiling(sqrt(n_pairs))
-  nrow <- ceiling(n_pairs / ncol)
+  if (combined) {
+    # Calculate grid layout
+    ncol <- ceiling(sqrt(n_pairs))
+    nrow <- ceiling(n_pairs / ncol)
 
-  # Set up multi-panel plot
-  old_par <- graphics::par(mfrow = c(nrow, ncol), mar = c(2, 2, 3, 1))
-  on.exit(graphics::par(old_par), add = TRUE)
+    # Set up multi-panel plot
+    old_par <- graphics::par(mfrow = c(nrow, ncol), mar = c(2, 2, 3, 1))
+    on.exit(graphics::par(old_par), add = TRUE)
+  }
 
   pair_names <- names(x)
   for (k in seq_len(n_pairs)) {

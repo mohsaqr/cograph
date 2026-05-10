@@ -11,6 +11,10 @@ NULL
 #' @param type Which network: \code{"temporal"} / \code{"t"} (default),
 #'   \code{"contemporaneous"} / \code{"c"}, \code{"between"} / \code{"b"},
 #'   or \code{"all"} (1x3 panel).
+#' @param combined Logical: when \code{type = "all"}, controls whether the
+#'   three panels are arranged in an internal 1 x 3 grid (TRUE, default) or
+#'   drawn into a layout the caller has already configured (FALSE — pair
+#'   with \code{\link{panel_layout}()}). Ignored for single-network types.
 #' @param ... Additional arguments passed to \code{splot()}. Individual
 #'   args (e.g. \code{layout}, \code{node_size}, \code{edge_color})
 #'   override the default styling preset.
@@ -18,12 +22,14 @@ NULL
 #' @return Invisibly returns \code{x}.
 #' @rdname splot
 #' @export
-splot.net_mlvar <- function(x, type = "temporal", ...) {
+splot.net_mlvar <- function(x, type = "temporal", combined = TRUE, ...) {
   type <- .resolve_mlvar_type(type)
 
   if (type == "all") {
-    op <- graphics::par(mfrow = c(1, 3), mar = c(2, 2, 3, 2))
-    on.exit(graphics::par(op), add = TRUE)
+    if (combined) {
+      op <- graphics::par(mfrow = c(1, 3), mar = c(2, 2, 3, 2))
+      on.exit(graphics::par(op), add = TRUE)
+    }
     # Strip user `title` out of ... and compose it with each panel label,
     # otherwise a user-supplied title would appear on all three panels and
     # lose the per-network identification.

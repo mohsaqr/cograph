@@ -164,20 +164,19 @@ test_that("CographNetwork set_layout_coords() with mismatched row count", {
   mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
   net <- CographNetwork$new(mat)
 
-  # Coords with wrong row count
-  coords <- data.frame(x = c(0, 1), y = c(0, 0))  # Only 2 rows, network has 3
+  # Coords with wrong row count: 2 rows, network has 3 nodes.
+  coords <- data.frame(x = c(0, 1), y = c(0, 0))
 
-  # Should set layout but NOT update nodes (row count mismatch)
-  net$set_layout_coords(coords)
+  # Strict input validation: set_layout_coords() refuses mismatched coords
+  # rather than silently truncating. Asserts the public contract documented
+  # in R/class-network.R.
+  expect_error(
+    net$set_layout_coords(coords),
+    "coords must have one row per node"
+  )
 
-  layout <- net$get_layout()
-  expect_equal(nrow(layout), 2)
-
-  # Nodes should NOT have been updated (row count mismatch prevented update)
-  nodes <- net$get_nodes()
-  # Node x/y from original parsing should remain (not overwritten with mismatched coords)
-  # Just verify node x values are NOT c(0, 1) truncated
-  expect_false(identical(nodes$x[1:2], c(0, 1)))
+  # State must remain unchanged after the rejected call.
+  expect_null(net$get_layout())
 })
 
 # =============================================================================

@@ -18,6 +18,7 @@ plot_compare(
   show_inits = NULL,
   donut_inner_ratio = 0.8,
   force = FALSE,
+  combined = TRUE,
   ...
 )
 }
@@ -52,6 +53,12 @@ plots all pairwise comparisons (or specify i, j).}
 \item{donut_inner_ratio}{Inner radius ratio for donut (0-1). Default 0.8.}
 
 \item{force}{Logical: force plotting when more than 4 groups (many comparisons). Default FALSE.}
+
+\item{combined}{Logical: when TRUE (default) and \code{x} is a multi-group
+input that triggers all-pairs plotting, lay panels out in an internal
+grid via \code{graphics::par(mfrow=...)}. Set to FALSE to draw into a
+layout the caller has already configured (e.g. via
+\code{\link{panel_layout}()}). Has no effect for the single-pair path.}
 
 \item{...}{Additional arguments passed to splot().}
 }

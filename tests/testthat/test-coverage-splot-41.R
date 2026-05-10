@@ -589,7 +589,10 @@ test_that("splot() handles edge_start_style on straight edges", {
 # ============================================
 
 test_that("splot() handles per-edge edge_label_bg", {
-  edges <- create_test_edgelist(n_edges = 4, n_nodes = 4, weighted = TRUE)
+  # n_nodes = 10 (not 4) so seed=42 sampling does not collide on (1,2)x3,
+  # which would trigger cograph's undirected-duplicate-edge detector and
+  # short-circuit the per-edge styling path under test.
+  edges <- create_test_edgelist(n_edges = 4, n_nodes = 10, weighted = TRUE)
 
   result <- safe_plot(splot(edges,
     edge_labels = TRUE,
@@ -916,7 +919,9 @@ test_that("splot() handles edge_scale_mode = 'rank'", {
 })
 
 test_that("splot() handles explicit edge_width vector", {
-  edges <- create_test_edgelist(n_edges = 4, n_nodes = 4)
+  # n_nodes = 10 to avoid seed=42 (1,2) duplicate collision (see comment above
+  # in "splot() handles per-edge edge_label_bg").
+  edges <- create_test_edgelist(n_edges = 4, n_nodes = 10)
 
   result <- safe_plot(splot(edges, edge_width = c(1, 2, 3, 4)))
   expect_true(result$success, info = result$error)

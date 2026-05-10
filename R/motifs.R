@@ -243,6 +243,11 @@ print.cograph_motifs <- function(x, ...) {
 #' @param colors Three-element color vector for under-represented, neutral, and
 #'   over-represented motifs. Default \code{c("#2166AC", "#999999", "#B2182B")}
 #'   (blue/gray/red).
+#' @param combined Logical: when TRUE (default) and \code{type = "network"},
+#'   arrange the per-motif panels in an internal grid via
+#'   \code{graphics::par(mfrow=...)}. Set to FALSE to draw into a layout the
+#'   caller has already configured (e.g. via \code{\link{panel_layout}()}).
+#'   Has no effect for \code{type = "bar"} or \code{type = "heatmap"}.
 #' @param ... Additional arguments passed to plotting functions
 #'
 #' @return A ggplot2 object (invisibly)
@@ -261,6 +266,7 @@ print.cograph_motifs <- function(x, ...) {
 plot.cograph_motifs <- function(x, type = c("bar", "heatmap", "network"),
                                  show_nonsig = FALSE, top_n = NULL,
                                  colors = c("#2166AC", "#F7F7F7", "#B2182B"),
+                                 combined = TRUE,
                                  ...) {
 
   type <- match.arg(type)
@@ -304,7 +310,7 @@ plot.cograph_motifs <- function(x, type = c("bar", "heatmap", "network"),
   } else if (type == "heatmap") {
     .plot_motifs_heatmap(df, colors)
   } else if (type == "network") {
-    .plot_motifs_network(df, dir, sz, colors)
+    .plot_motifs_network(df, dir, sz, colors, combined = combined)
   }
 }
 

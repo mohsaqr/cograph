@@ -4,12 +4,18 @@
 \alias{plot.tna_disparity}
 \title{Plot Disparity Filter Result}
 \usage{
-\method{plot}{tna_disparity}(x, type = c("backbone", "comparison"), ...)
+\method{plot}{tna_disparity}(x, type = c("backbone", "comparison"), combined = TRUE, ...)
 }
 \arguments{
 \item{x}{A tna_disparity object.}
 
 \item{type}{Plot type: "backbone" (default) or "comparison".}
+
+\item{combined}{Logical: when \code{type = "comparison"}, controls whether
+the original vs. backbone panels are arranged in an internal 1 x 2 grid
+(TRUE, default) or drawn into a layout the caller has already
+configured (FALSE — pair with \code{\link{panel_layout}()}). Ignored
+for \code{type = "backbone"}.}
 
 \item{...}{Additional arguments passed to splot.}
 }

@@ -494,7 +494,9 @@ test_that("splot() handles edge_label_halo = TRUE", {
 })
 
 test_that("splot() handles per-edge edge_label_size", {
-  edges <- create_test_edgelist(n_edges = 5, n_nodes = 4, weighted = TRUE)
+  # n_nodes = 10 (not 4) so seed=42 sampling does not collide on (1,2)x3,
+  # which would trigger cograph's undirected-duplicate-edge detector.
+  edges <- create_test_edgelist(n_edges = 5, n_nodes = 10, weighted = TRUE)
 
   result <- safe_plot(splot(edges,
     edge_labels = TRUE,
@@ -504,7 +506,7 @@ test_that("splot() handles per-edge edge_label_size", {
 })
 
 test_that("splot() handles per-edge edge_label_color", {
-  edges <- create_test_edgelist(n_edges = 5, n_nodes = 4, weighted = TRUE)
+  edges <- create_test_edgelist(n_edges = 5, n_nodes = 10, weighted = TRUE)
 
   result <- safe_plot(splot(edges,
     edge_labels = TRUE,
@@ -616,7 +618,7 @@ test_that("splot() handles numeric edge_style 4-6", {
 })
 
 test_that("splot() handles per-edge edge_style", {
-  edges <- create_test_edgelist(n_edges = 5, n_nodes = 4)
+  edges <- create_test_edgelist(n_edges = 5, n_nodes = 10)
 
   result <- safe_plot(splot(edges,
     edge_style = c(1, 2, 3, 1, 2)
@@ -639,7 +641,7 @@ test_that("splot() handles edge_cutoff = 0 (disabled)", {
 })
 
 test_that("splot() handles edge_priority for render order", {
-  edges <- create_test_edgelist(n_edges = 5, n_nodes = 4, weighted = TRUE)
+  edges <- create_test_edgelist(n_edges = 5, n_nodes = 10, weighted = TRUE)
 
   result <- safe_plot(splot(edges,
     edge_priority = c(1, 5, 3, 2, 4)
@@ -888,7 +890,7 @@ test_that("splot() handles per-node node_alpha", {
 })
 
 test_that("splot() handles per-edge edge_alpha", {
-  edges <- create_test_edgelist(n_edges = 5, n_nodes = 4)
+  edges <- create_test_edgelist(n_edges = 5, n_nodes = 10)
 
   result <- safe_plot(splot(edges,
     edge_alpha = c(0.3, 0.5, 0.7, 0.9, 1.0)

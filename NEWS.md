@@ -1,3 +1,37 @@
+# cograph 2.3.1
+
+## Multi-panel layout control
+
+- New `combined` argument (default `TRUE`) on every multi-panel plot
+  function: `splot()` group-cascade, `plot_netobject_group()`,
+  `plot_netobject_ml()`, `plot_net_bootstrap_group()`,
+  `plot_group_permutation()`, `plot_compare()`, `splot.net_mlvar()`,
+  `plot_network_evolution()`, `plot.cograph_motifs()`,
+  `plot.cograph_motif_result()`, `plot.cograph_motif_analysis()`, and
+  `plot.tna_disparity()`. With `combined = FALSE` these functions draw
+  panels into the active device without calling `graphics::par(mfrow=...)`,
+  so callers can drive their own layout (e.g. `graphics::layout()` or
+  the new `panel_layout()` helper). Default `TRUE` preserves prior
+  behavior — every existing call site renders identically.
+- New `panel_layout()` helper sets up a custom multi-panel device layout
+  for use with `combined = FALSE`. Accepts either a uniform-grid
+  `c(nrow, ncol)` or a `graphics::layout()` matrix for non-uniform
+  layouts (e.g. one wide panel + two narrow ones). Returns a `par()`
+  snapshot for restoration via `on.exit()`.
+
+## Test suite hygiene
+
+- `test-coverage-splot-{41,42}.R`: bumped `n_nodes` from 4 to 10 in
+  seven per-edge attribute tests so the seed=42 sampler does not
+  produce duplicate (1,2) pairs that trip cograph's
+  undirected-duplicate-edge detector.
+- `test-coverage-class-network-41.R`: aligned the
+  `set_layout_coords()` mismatched-row-count test with the strict
+  input validation already enforced by `R/class-network.R`.
+- `test-overlay-communities.R`: prefixed two `communities()` calls
+  with `cograph::` to avoid `tna` masking when both packages are
+  loaded in the suite (per CLAUDE.md "namespace masking" gotcha).
+
 # cograph 2.3.0
 
 ## Documentation

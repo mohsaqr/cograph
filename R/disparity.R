@@ -227,6 +227,11 @@ print.tna_disparity <- function(x, ...) {
 #'
 #' @param x A tna_disparity object.
 #' @param type Plot type: "backbone" (default) or "comparison".
+#' @param combined Logical: when \code{type = "comparison"}, controls whether
+#'   the original vs. backbone panels are arranged in an internal 1 x 2 grid
+#'   (TRUE, default) or drawn into a layout the caller has already
+#'   configured (FALSE — pair with \code{\link{panel_layout}()}). Ignored
+#'   for \code{type = "backbone"}.
 #' @param ... Additional arguments passed to splot.
 #'
 #' @return Invisibly returns the value from the underlying \code{\link{splot}}
@@ -240,7 +245,8 @@ print.tna_disparity <- function(x, ...) {
 #' plot(disp)
 #'
 #' @export
-plot.tna_disparity <- function(x, type = c("backbone", "comparison"), ...) {
+plot.tna_disparity <- function(x, type = c("backbone", "comparison"),
+                               combined = TRUE, ...) {
   type <- match.arg(type)
 
   if (type == "backbone") {
@@ -248,8 +254,10 @@ plot.tna_disparity <- function(x, type = c("backbone", "comparison"), ...) {
     splot(x$weights_filtered, ...)
   } else {
     # Side-by-side comparison
-    oldpar <- par(mfrow = c(1, 2))
-    on.exit(par(oldpar))
+    if (combined) {
+      oldpar <- par(mfrow = c(1, 2))
+      on.exit(par(oldpar))
+    }
 
     splot(x$weights_orig, title = "Original", ...)
     splot(x$weights_filtered, title = "Backbone", ...)

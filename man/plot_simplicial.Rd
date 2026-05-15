@@ -47,7 +47,11 @@ using the \code{method} parameter.}
 \item{pathways}{Character vector of pathway strings, a list of
 character vectors, a \code{net_hon} / \code{net_hypa} object, or
 any data.frame with a \code{path} column (e.g., the output of
-\code{Nestimate::mogen_transitions()}). String separators:
+\code{Nestimate::mogen_transitions()}). If a data.frame with a
+\code{path} column is passed as \code{x} and \code{pathways} is
+\code{NULL}, it is auto-promoted to \code{pathways} and the state
+set is derived from the path strings — \code{plot_simplicial(mgt)}
+works directly. String separators:
 \code{"A B -> C"}, \code{"A -> B -> C"}, \code{"A, B, C"},
 \code{"A - B - C"}, \code{"A B C"}. Last state is the target.
 When a data.frame is passed and a \code{count} column is present,

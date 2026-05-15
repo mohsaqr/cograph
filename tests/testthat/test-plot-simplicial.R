@@ -590,3 +590,19 @@ test_that("plot_simplicial returns NULL on an empty data.frame", {
   )
   expect_null(res)
 })
+
+# Regression: passing a mogen_transitions()-style data.frame as `x` alone
+# (no `pathways`, no model) should "just work" — the path strings carry
+# every state we need, so x is auto-promoted to pathways and the state
+# set is derived from the parsed pathways.
+test_that("plot_simplicial auto-promotes a data.frame in `x` to pathways", {
+  mgt_like <- data.frame(
+    path = c("A -> B -> C", "B -> C -> A", "A -> C -> B"),
+    count = c(10L, 7L, 4L),
+    stringsAsFactors = FALSE
+  )
+  expect_no_error(with_temp_png(
+    p <- plot_simplicial(mgt_like, shadow = FALSE)
+  ))
+  expect_s3_class(p, "ggplot")
+})

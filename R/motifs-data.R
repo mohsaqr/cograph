@@ -116,6 +116,27 @@
   get("initialize_model", envir = asNamespace("tna"))
 }
 
+#' Detect whether x$data on a cograph_network looks like tna sequence data
+#'
+#' Returns TRUE if `raw_data` is a data.frame or matrix whose cell values are a
+#' subset of the network's node labels (the canonical tna stslist shape: rows =
+#' subjects, columns = time steps). Used to route Nestimate `build_tna` and
+#' similar objects through the individual-level tna path in `motifs()`.
+#' @noRd
+.is_tna_sequence_data <- function(raw_data, labels) {
+  if (is.null(raw_data) || is.null(labels)) return(FALSE)
+  if (!(is.data.frame(raw_data) || is.matrix(raw_data))) return(FALSE)
+  if (is.data.frame(raw_data) &&
+      all(c("from", "to") %in% tolower(names(raw_data)))) {
+    return(FALSE)
+  }
+  if (NROW(raw_data) < 1L || NCOL(raw_data) < 2L) return(FALSE)
+  vals <- unique(as.character(unlist(raw_data, use.names = FALSE)))
+  vals <- vals[!is.na(vals) & nzchar(vals)]
+  if (length(vals) == 0L) return(FALSE)
+  all(vals %in% as.character(labels))
+}
+
 #' Shared base ggplot2 theme for motif plots
 #' @param base_size Base font size. Default 12.
 #' @noRd

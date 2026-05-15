@@ -47,8 +47,12 @@
 #'   \code{pattern} filter.
 #' @param significance Logical. Run permutation significance test? Default TRUE.
 #' @param n_perm Number of permutations for significance. Default 1000.
-#' @param min_count Minimum observed count to include a triad (instance mode
-#'   only). Default 5 for instances, NULL for census.
+#' @param min_count Minimum observed strength to include a triad (instance
+#'   mode only). At individual level this is the number of subjects exhibiting
+#'   the triad. At aggregate level a single matrix can only contain a triad
+#'   once, so this is instead the triad's weighted edge mass (sum of its 6
+#'   directed edge weights). Triads with \code{observed > min_count} are kept.
+#'   Default 5 for instances, NULL for census.
 #' @param edge_method Method for determining edge presence: "any" (default),
 #'   "expected", or "percent".
 #' @param edge_threshold Threshold for "expected" or "percent" methods. Default 1.5.
@@ -153,9 +157,10 @@ motifs <- function(x,
     level <- "individual"
     n_units <- dim(trans)[1]
 
-  # --- Case 2: cograph_network ---
+  # --- Case 2: cograph_network (includes Nestimate netobject) ---
   } else if (inherits(x, "cograph_network")) {
     raw_data <- x$data
+    net_labels <- get_labels(x)
 
     if (is.data.frame(raw_data) &&
         all(c("from", "to") %in% tolower(names(raw_data)))) {
@@ -184,6 +189,22 @@ motifs <- function(x,
         labels <- get_labels(x)
         trans <- array(mat, dim = c(1, nrow(mat), ncol(mat)))
       }
+
+    } else if (.is_tna_sequence_data(raw_data, net_labels) &&
+               requireNamespace("tna", quietly = TRUE)) {
+      # Nestimate::build_tna() (and similar) stores raw sequence data in $data
+      # — structurally identical to what tna::tna() consumes. Route through
+      # the individual-level tna path so motifs sees per-subject transitions.
+      tna_obj <- tna::tna(raw_data)
+      init_fn <- .get_tna_initialize_model()
+      model <- init_fn(tna_obj$data, attr(tna_obj, "type"),
+                       attr(tna_obj, "scaling"), attr(tna_obj, "params"),
+                       transitions = TRUE)
+      trans <- model$trans
+      labels <- tna_obj$labels
+      level <- "individual"
+      n_units <- dim(trans)[1]
+
     } else {
       mat <- to_matrix(x)
       labels <- get_labels(x)
@@ -417,6 +438,7 @@ motifs <- function(x,
       }, character(1))
 
       data.frame(unit = ind, triad = triads, type = counted$type,
+                 weight = counted$weight,
                  stringsAsFactors = FALSE)
     })
 
@@ -438,12 +460,18 @@ motifs <- function(x,
       results <- merge(obs, type_map, by = "triad")
       results <- results[order(results$observed, decreasing = TRUE), ]
     } else {
+      # Aggregate level: a single matrix contains each triad at most once, so a
+      # frequency-style "observed" is structurally always 1. Use the weighted
+      # edge mass of the triad (sum of its 6 directed edge weights) instead, so
+      # min_count becomes a meaningful strength filter at aggregate level.
+      first_idx <- !duplicated(combined$triad)
       results <- data.frame(
-        triad = unique(combined$triad),
-        type = combined$type[!duplicated(combined$triad)],
-        observed = 1L,
+        triad = combined$triad[first_idx],
+        type = combined$type[first_idx],
+        observed = combined$weight[first_idx],
         stringsAsFactors = FALSE
       )
+      results <- results[order(results$observed, decreasing = TRUE), ]
     }
     rownames(results) <- NULL
 
@@ -547,8 +575,11 @@ motifs <- function(x,
     }
   }
 
-  # Min count filter (instance mode without significance)
-  if (!is.null(min_count) && named_nodes && !significance) {
+  # Min count filter (instance mode). Applied here for every path EXCEPT the
+  # significance + level=="individual" branch above, which already filters
+  # before computing the null distribution.
+  if (!is.null(min_count) && named_nodes &&
+      !(significance && level == "individual")) {
     results <- results[results$observed > min_count, ]
     if (nrow(results) == 0) {
       message("No motifs with count > ", min_count, ".")

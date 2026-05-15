@@ -87,8 +87,12 @@ Overrides \code{pattern}.}
 
 \item{n_perm}{Number of permutations for significance. Default 1000.}
 
-\item{min_count}{Minimum observed count to include a triad (instance mode
-only). Default 5 for instances, NULL for census.}
+\item{min_count}{Minimum observed strength to include a triad (instance
+mode only). At individual level this is the number of subjects exhibiting
+the triad. At aggregate level a single matrix can only contain a triad
+once, so this is instead the triad's weighted edge mass (sum of its 6
+directed edge weights). Triads with \code{observed > min_count} are kept.
+Default 5 for instances, NULL for census.}
 
 \item{edge_method}{Method for determining edge presence: "any" (default),
 "expected", or "percent".}

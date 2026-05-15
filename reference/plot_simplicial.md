@@ -54,6 +54,9 @@ plot_simplicial(
   `net_hon` / `net_hypa` object, or any data.frame with a `path` column
   (e.g., the output of
   [`Nestimate::mogen_transitions()`](https://rdrr.io/pkg/Nestimate/man/mogen_transitions.html)).
+  If a data.frame with a `path` column is passed as `x` and `pathways`
+  is `NULL`, it is auto-promoted to `pathways` and the state set is
+  derived from the path strings — `plot_simplicial(mgt)` works directly.
   String separators: `"A B -> C"`, `"A -> B -> C"`, `"A, B, C"`,
   `"A - B - C"`, `"A B C"`. Last state is the target. When a data.frame
   is passed and a `count` column is present, rows are sorted by count

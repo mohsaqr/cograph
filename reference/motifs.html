@@ -182,8 +182,12 @@ Overrides <code>pattern</code>.</p></dd>
 
 
 <dt id="arg-min-count">min_count<a class="anchor" aria-label="anchor" href="#arg-min-count"></a></dt>
-<dd><p>Minimum observed count to include a triad (instance mode
-only). Default 5 for instances, NULL for census.</p></dd>
+<dd><p>Minimum observed strength to include a triad (instance
+mode only). At individual level this is the number of subjects exhibiting
+the triad. At aggregate level a single matrix can only contain a triad
+once, so this is instead the triad's weighted edge mass (sum of its 6
+directed edge weights). Triads with <code>observed &gt; min_count</code> are kept.
+Default 5 for instances, NULL for census.</p></dd>
 
 
 <dt id="arg-edge-method">edge_method<a class="anchor" aria-label="anchor" href="#arg-edge-method"></a></dt>

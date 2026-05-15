@@ -132,8 +132,12 @@ plot(
 
 - min_count:
 
-  Minimum observed count to include a triad (instance mode only).
-  Default 5 for instances, NULL for census.
+  Minimum observed strength to include a triad (instance mode only). At
+  individual level this is the number of subjects exhibiting the triad.
+  At aggregate level a single matrix can only contain a triad once, so
+  this is instead the triad's weighted edge mass (sum of its 6 directed
+  edge weights). Triads with `observed > min_count` are kept. Default 5
+  for instances, NULL for census.
 
 - edge_method:
 

@@ -199,9 +199,12 @@ plot(
 
 - colors:
 
-  Two-element color vector: first color for over-represented or positive
-  values, second for under-represented or negative values. Default
-  `c("#2166AC", "#B2182B")` (blue/red).
+  Two-element color vector for `type = "significance"`: `colors[1]`
+  fills bars with `z <= 0` (under-represented motifs) and `colors[2]`
+  fills bars with `z > 0` (over-represented motifs). For
+  `type = "types"` only `colors[1]` is used as the single fill color.
+  Default `c("#2166AC", "#B2182B")` (blue for under-represented, red for
+  over-represented).
 
 - node_size:
 

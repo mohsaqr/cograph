@@ -248,9 +248,12 @@ structure of each triad type.</p></dd>
 
 
 <dt id="arg-colors">colors<a class="anchor" aria-label="anchor" href="#arg-colors"></a></dt>
-<dd><p>Two-element color vector: first color for over-represented or
-positive values, second for under-represented or negative values.
-Default <code>c("#2166AC", "#B2182B")</code> (blue/red).</p></dd>
+<dd><p>Two-element color vector for <code>type = "significance"</code>:
+<code>colors[1]</code> fills bars with <code>z &lt;= 0</code> (under-represented motifs)
+and <code>colors[2]</code> fills bars with <code>z &gt; 0</code> (over-represented
+motifs). For <code>type = "types"</code> only <code>colors[1]</code> is used as the
+single fill color. Default <code>c("#2166AC", "#B2182B")</code> (blue for
+under-represented, red for over-represented).</p></dd>
 
 
 <dt id="arg-node-size">node_size<a class="anchor" aria-label="anchor" href="#arg-node-size"></a></dt>

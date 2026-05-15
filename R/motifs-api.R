@@ -47,12 +47,14 @@
 #'   \code{pattern} filter.
 #' @param significance Logical. Run permutation significance test? Default TRUE.
 #' @param n_perm Number of permutations for significance. Default 1000.
-#' @param min_count Minimum observed strength to include a triad (instance
-#'   mode only). At individual level this is the number of subjects exhibiting
-#'   the triad. At aggregate level a single matrix can only contain a triad
-#'   once, so this is instead the triad's weighted edge mass (sum of its 6
-#'   directed edge weights). Triads with \code{observed > min_count} are kept.
-#'   Default 5 for instances, NULL for census.
+#' @param min_count Minimum count to keep a row. In instance mode
+#'   (\code{named_nodes = TRUE}) this filters the \code{observed} column:
+#'   at individual level the number of subjects exhibiting the triad, at
+#'   aggregate level the triad's weighted edge mass (sum of its 6 directed
+#'   edge weights). In census mode (\code{named_nodes = FALSE}) this filters
+#'   the \code{count} column — the number of times each MAN type appears.
+#'   Rows with \code{count > min_count} are kept. Default 5 for instances,
+#'   NULL for census (no filter).
 #' @param edge_method Method for determining edge presence: "any" (default),
 #'   "expected", or "percent".
 #' @param edge_threshold Threshold for "expected" or "percent" methods. Default 1.5.
@@ -575,15 +577,23 @@ motifs <- function(x,
     }
   }
 
-  # Min count filter (instance mode). Applied here for every path EXCEPT the
+  # Min count filter. In instance mode, applied for every path EXCEPT the
   # significance + level=="individual" branch above, which already filters
-  # before computing the null distribution.
-  if (!is.null(min_count) && named_nodes &&
-      !(significance && level == "individual")) {
-    results <- results[results$observed > min_count, ]
-    if (nrow(results) == 0) {
-      message("No motifs with count > ", min_count, ".")
-      return(NULL)
+  # before computing the null distribution. In census mode (named_nodes=FALSE),
+  # filters MAN types by the `count` column.
+  if (!is.null(min_count)) {
+    if (named_nodes && !(significance && level == "individual")) {
+      results <- results[results$observed > min_count, ]
+      if (nrow(results) == 0) {
+        message("No motifs with count > ", min_count, ".")
+        return(NULL)
+      }
+    } else if (!named_nodes && "count" %in% names(results)) {
+      results <- results[results$count > min_count, ]
+      if (nrow(results) == 0) {
+        message("No motif types with count > ", min_count, ".")
+        return(NULL)
+      }
     }
   }
 

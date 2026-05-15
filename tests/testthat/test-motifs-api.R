@@ -640,6 +640,28 @@ test_that(".is_tna_sequence_data distinguishes sequences from numeric data", {
   ))
 })
 
+# Regression: min_count must filter census-mode results too. Pre-fix the
+# filter only ran in instance mode (named_nodes = TRUE), so a user calling
+# motifs(model, min_count = 20) on the default census output got an
+# unfiltered table — the parameter was silently ignored despite there
+# being a count column right there to filter on.
+test_that("min_count filters MAN-type counts in census mode", {
+  skip_if_not_installed("tna")
+  Mod <- tna::tna(coding)
+
+  full <- motifs(Mod, n_perm = 5, seed = 42)
+  expect_true(any(full$results$count <= 5))
+
+  filtered <- motifs(Mod, n_perm = 5, seed = 42, min_count = 5)
+  expect_true(all(filtered$results$count > 5))
+  expect_true(nrow(filtered$results) < nrow(full$results))
+
+  expect_message(
+    motifs(Mod, n_perm = 5, seed = 42, min_count = 99999),
+    "No motif types with count"
+  )
+})
+
 # Regression: min_count must be honored at aggregate level even when
 # significance = TRUE (default). Pre-fix, the filter was gated on
 # !significance and the aggregate observed was hardcoded to 1L, so

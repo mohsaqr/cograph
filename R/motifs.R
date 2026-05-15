@@ -589,6 +589,7 @@ extract_triads <- function(x, type = NULL, involving = NULL,
   obs_kj <- mat[cbind(k, j)]
 
   total <- obs_ij + obs_ji + obs_ik + obs_ki + obs_jk + obs_kj
+  weight <- total
 
   has_edges <- total > 0
   if (!any(has_edges)) return(NULL)
@@ -637,6 +638,7 @@ extract_triads <- function(x, type = NULL, involving = NULL,
   i <- i[keep]
   j <- j[keep]
   k <- k[keep]
+  weight <- weight[keep]
   e_ij <- e_ij[keep]
   e_ji <- e_ji[keep]
   e_ik <- e_ik[keep]
@@ -652,6 +654,7 @@ extract_triads <- function(x, type = NULL, involving = NULL,
     i <- i[keep_include]
     j <- j[keep_include]
     k <- k[keep_include]
+    weight <- weight[keep_include]
     triad_types <- triad_types[keep_include]
   }
 
@@ -661,6 +664,7 @@ extract_triads <- function(x, type = NULL, involving = NULL,
     i <- i[keep_exclude]
     j <- j[keep_exclude]
     k <- k[keep_exclude]
+    weight <- weight[keep_exclude]
     triad_types <- triad_types[keep_exclude]
   }
 
@@ -671,6 +675,7 @@ extract_triads <- function(x, type = NULL, involving = NULL,
     j = j,
     k = k,
     type = triad_types,
+    weight = as.numeric(weight),
     stringsAsFactors = FALSE
   )
 }

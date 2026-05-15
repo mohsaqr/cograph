@@ -18,7 +18,11 @@
 #' @param pathways Character vector of pathway strings, a list of
 #'   character vectors, a \code{net_hon} / \code{net_hypa} object, or
 #'   any data.frame with a \code{path} column (e.g., the output of
-#'   \code{Nestimate::mogen_transitions()}). String separators:
+#'   \code{Nestimate::mogen_transitions()}). If a data.frame with a
+#'   \code{path} column is passed as \code{x} and \code{pathways} is
+#'   \code{NULL}, it is auto-promoted to \code{pathways} and the state
+#'   set is derived from the path strings — \code{plot_simplicial(mgt)}
+#'   works directly. String separators:
 #'   \code{"A B -> C"}, \code{"A -> B -> C"}, \code{"A, B, C"},
 #'   \code{"A - B - C"}, \code{"A B C"}. Last state is the target.
 #'   When a data.frame is passed and a \code{count} column is present,
@@ -135,6 +139,14 @@ plot_simplicial <- function(x = NULL,
   anomaly_explicit <- !missing(anomaly)
   anomaly <- match.arg(anomaly)
   hypa_used <- FALSE
+
+  # If x is a pathways data.frame (e.g. Nestimate::mogen_transitions() output),
+  # promote it to `pathways`. The path strings carry every state we need, so x
+  # is not required for layout — states are derived from the parsed pathways.
+  if (is.null(pathways) && is.data.frame(x) && "path" %in% names(x)) {
+    pathways <- x
+    x <- NULL
+  }
 
   # Build label map for numeric ID -> label translation
   label_map <- .build_hon_label_map(x)

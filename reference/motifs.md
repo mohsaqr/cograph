@@ -132,12 +132,13 @@ plot(
 
 - min_count:
 
-  Minimum observed strength to include a triad (instance mode only). At
-  individual level this is the number of subjects exhibiting the triad.
-  At aggregate level a single matrix can only contain a triad once, so
-  this is instead the triad's weighted edge mass (sum of its 6 directed
-  edge weights). Triads with `observed > min_count` are kept. Default 5
-  for instances, NULL for census.
+  Minimum count to keep a row. In instance mode (`named_nodes = TRUE`)
+  this filters the `observed` column: at individual level the number of
+  subjects exhibiting the triad, at aggregate level the triad's weighted
+  edge mass (sum of its 6 directed edge weights). In census mode
+  (`named_nodes = FALSE`) this filters the `count` column — the number
+  of times each MAN type appears. Rows with `count > min_count` are
+  kept. Default 5 for instances, NULL for census (no filter).
 
 - edge_method:
 

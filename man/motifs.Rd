@@ -87,14 +87,14 @@ Overrides \code{pattern}.}
 
 \item{n_perm}{Number of permutations for significance. Default 1000.}
 
-\item{min_count}{Minimum count to keep a row. In instance mode
+\item{min_count}{Inclusive minimum count to keep a row — rows with
+\code{count >= min_count} are retained. In instance mode
 (\code{named_nodes = TRUE}) this filters the \code{observed} column:
 at individual level the number of subjects exhibiting the triad, at
 aggregate level the triad's weighted edge mass (sum of its 6 directed
 edge weights). In census mode (\code{named_nodes = FALSE}) this filters
 the \code{count} column — the number of times each MAN type appears.
-Rows with \code{count > min_count} are kept. Default 5 for instances,
-NULL for census (no filter).}
+Default 5 for instances, NULL for census (no filter).}
 
 \item{edge_method}{Method for determining edge presence: "any" (default),
 "expected", or "percent".}

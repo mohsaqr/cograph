@@ -47,14 +47,14 @@
 #'   \code{pattern} filter.
 #' @param significance Logical. Run permutation significance test? Default TRUE.
 #' @param n_perm Number of permutations for significance. Default 1000.
-#' @param min_count Minimum count to keep a row. In instance mode
+#' @param min_count Inclusive minimum count to keep a row — rows with
+#'   \code{count >= min_count} are retained. In instance mode
 #'   (\code{named_nodes = TRUE}) this filters the \code{observed} column:
 #'   at individual level the number of subjects exhibiting the triad, at
 #'   aggregate level the triad's weighted edge mass (sum of its 6 directed
 #'   edge weights). In census mode (\code{named_nodes = FALSE}) this filters
 #'   the \code{count} column — the number of times each MAN type appears.
-#'   Rows with \code{count > min_count} are kept. Default 5 for instances,
-#'   NULL for census (no filter).
+#'   Default 5 for instances, NULL for census (no filter).
 #' @param edge_method Method for determining edge presence: "any" (default),
 #'   "expected", or "percent".
 #' @param edge_threshold Threshold for "expected" or "percent" methods. Default 1.5.
@@ -480,7 +480,7 @@ motifs <- function(x,
     # ---- INSTANCE SIGNIFICANCE (exact configuration model) ----
     if (significance && level == "individual") {
       if (!is.null(min_count)) {
-        candidates <- results[results$observed > min_count, ]
+        candidates <- results[results$observed >= min_count, ]
       } else {
         candidates <- results
       }
@@ -577,21 +577,21 @@ motifs <- function(x,
     }
   }
 
-  # Min count filter. In instance mode, applied for every path EXCEPT the
-  # significance + level=="individual" branch above, which already filters
-  # before computing the null distribution. In census mode (named_nodes=FALSE),
-  # filters MAN types by the `count` column.
+  # Min count filter (inclusive). In instance mode, applied for every path
+  # EXCEPT the significance + level=="individual" branch above, which already
+  # filters before computing the null distribution. In census mode
+  # (named_nodes=FALSE), filters MAN types by the `count` column.
   if (!is.null(min_count)) {
     if (named_nodes && !(significance && level == "individual")) {
-      results <- results[results$observed > min_count, ]
+      results <- results[results$observed >= min_count, ]
       if (nrow(results) == 0) {
-        message("No motifs with count > ", min_count, ".")
+        message("No motifs with count >= ", min_count, ".")
         return(NULL)
       }
     } else if (!named_nodes && "count" %in% names(results)) {
-      results <- results[results$count > min_count, ]
+      results <- results[results$count >= min_count, ]
       if (nrow(results) == 0) {
-        message("No motif types with count > ", min_count, ".")
+        message("No motif types with count >= ", min_count, ".")
         return(NULL)
       }
     }
@@ -606,9 +606,11 @@ motifs <- function(x,
   # table(results$type) gives all 1s — use results$count directly. In
   # instance mode `results` has one row per node-triple, so table() counts
   # how many instances belong to each MAN type, which is what we want.
+  # We always return a `table` so as.data.frame(type_summary) yields a
+  # tidy two-column frame (consumers downstream rely on this shape).
   if (!named_nodes && "count" %in% names(results)) {
-    type_summary <- stats::setNames(as.integer(results$count),
-                                    as.character(results$type))
+    type_summary <- as.table(stats::setNames(as.integer(results$count),
+                                             as.character(results$type)))
     type_summary <- sort(type_summary, decreasing = TRUE)
   } else {
     type_summary <- sort(table(results$type), decreasing = TRUE)
@@ -616,8 +618,8 @@ motifs <- function(x,
 
   # Informative message (instance mode with defaults)
   if (named_nodes && !.user_set_pattern) {
-    mc_label <- if (!is.null(min_count)) min_count else 0
-    message("Showing triangle patterns (count > ", mc_label, "). ",
+    mc_label <- if (!is.null(min_count)) min_count else 1L
+    message("Showing triangle patterns (count >= ", mc_label, "). ",
             "For all MAN types use pattern = 'all'.")
   }
 
@@ -689,8 +691,8 @@ print.cograph_motif_result <- function(x, ...) {
     cat("Significance: permutation (n_perm=", x$params$n_perm, ")\n", sep = "")
   }
 
-  if (!is.null(x$params$min_count) && x$named_nodes) {
-    cat("Min count: >", x$params$min_count, "\n")
+  if (!is.null(x$params$min_count)) {
+    cat("Min count: >=", x$params$min_count, "\n")
   }
 
   cat("\nType distribution:\n")
@@ -794,13 +796,51 @@ plot.cograph_motif_result <- function(x, type = c("triads", "types",
     names(df) <- c("type", "count")
     df <- df[order(df$count, decreasing = TRUE), ]
 
-    p <- ggplot2::ggplot(df, ggplot2::aes(
-      x = stats::reorder(.data$type, .data$count), y = .data$count)) +
-      ggplot2::geom_col(fill = colors[1]) +
-      ggplot2::coord_flip() +
-      ggplot2::labs(x = "MAN Type", y = "Count",
-                    title = "Motif Type Distribution") +
-      .motifs_ggplot_theme(base_size = base_size)
+    # Color bars by significance direction — only safe in census mode.
+    # In instance mode (named_nodes = TRUE) `results` has one row per
+    # node-triple, so the same MAN type appears in many rows with
+    # potentially conflicting z/p values; there's no single type-level
+    # statistic without an aggregation rule that's documented and tested.
+    # Skip the coloring there and fall back to a single fill color.
+    has_sig <- !isTRUE(x$named_nodes) &&
+               isTRUE(x$params$significance) &&
+               is.data.frame(x$results) &&
+               "z" %in% names(x$results) &&
+               "p" %in% names(x$results) &&
+               "type" %in% names(x$results)
+    if (has_sig) {
+      type_z <- stats::setNames(x$results$z, x$results$type)
+      type_p <- stats::setNames(x$results$p, x$results$type)
+      df$direction <- ifelse(
+        !is.na(type_p[df$type]) & type_p[df$type] < 0.05 &
+          type_z[df$type] > 0, "over",
+        ifelse(!is.na(type_p[df$type]) & type_p[df$type] < 0.05 &
+                 type_z[df$type] < 0, "under", "ns")
+      )
+      p <- ggplot2::ggplot(df, ggplot2::aes(
+        x = stats::reorder(.data$type, .data$count), y = .data$count,
+        fill = .data$direction)) +
+        ggplot2::geom_col() +
+        ggplot2::scale_fill_manual(
+          values = c(over = colors[2], under = colors[1], ns = "#9E9E9E"),
+          labels = c(over = "Over-represented (p<.05)",
+                     under = "Under-represented (p<.05)",
+                     ns = "Not significant"),
+          name = NULL) +
+        ggplot2::coord_flip() +
+        ggplot2::labs(x = "MAN Type", y = "Count",
+                      title = "Motif Type Distribution") +
+        .motifs_ggplot_theme(base_size = base_size) +
+        ggplot2::theme(legend.position = "bottom")
+    } else {
+      p <- ggplot2::ggplot(df, ggplot2::aes(
+        x = stats::reorder(.data$type, .data$count), y = .data$count)) +
+        ggplot2::geom_col(fill = colors[1]) +
+        ggplot2::coord_flip() +
+        ggplot2::labs(x = "MAN Type", y = "Count",
+                      title = "Motif Type Distribution") +
+        .motifs_ggplot_theme(base_size = base_size)
+    }
     print(p)
     return(invisible(p))
 
@@ -812,22 +852,52 @@ plot.cograph_motif_result <- function(x, type = c("triads", "types",
     sig_df <- sig_df[order(abs(sig_df$z), decreasing = TRUE), ]
     sig_df <- utils::head(sig_df, n)
 
-    sig_df$label <- if ("triad" %in% names(sig_df)) sig_df$triad else sig_df$type
+    # In instance mode, label each bar with the node triple AND the MAN-type
+    # description so "Context - Critique - Instruct" reads as
+    # "Context - Critique - Instruct [030T: Feed-forward]" — much easier to
+    # scan than the bare code.
+    if ("triad" %in% names(sig_df)) {
+      type_desc <- .get_man_descriptions()
+      desc_vec <- type_desc[sig_df$type]
+      desc_vec[is.na(desc_vec)] <- ""
+      tag <- ifelse(nzchar(desc_vec),
+                    sprintf("  [%s: %s]", sig_df$type, desc_vec),
+                    sprintf("  [%s]", sig_df$type))
+      sig_df$label <- paste0(sig_df$triad, tag)
+    } else {
+      type_desc <- .get_man_descriptions()
+      desc_vec <- type_desc[sig_df$type]
+      desc_vec[is.na(desc_vec)] <- ""
+      sig_df$label <- ifelse(nzchar(desc_vec),
+                             sprintf("%s: %s", sig_df$type, desc_vec),
+                             sig_df$type)
+    }
 
+    # Unified 3-tone coding: red = sig over, blue = sig under, grey = ns.
+    # Same rule as the types bar plot and the patterns node fills.
+    sig_df$direction <- ifelse(
+      !is.na(sig_df$p) & sig_df$p < 0.05 & sig_df$z > 0, "over",
+      ifelse(!is.na(sig_df$p) & sig_df$p < 0.05 & sig_df$z < 0,
+             "under", "ns")
+    )
     p <- ggplot2::ggplot(sig_df, ggplot2::aes(
       x = stats::reorder(.data$label, abs(.data$z)),
       y = .data$z,
-      fill = .data$z > 0)) +
+      fill = .data$direction)) +
       ggplot2::geom_col() +
       ggplot2::coord_flip() +
       ggplot2::scale_fill_manual(
-        values = c("TRUE" = colors[2], "FALSE" = colors[1]),
-        guide = "none") +
+        values = c(over = colors[2], under = colors[1], ns = "#9E9E9E"),
+        labels = c(over = "Over-represented (p<.05)",
+                   under = "Under-represented (p<.05)",
+                   ns = "Not significant"),
+        name = NULL) +
       ggplot2::geom_hline(yintercept = c(-1.96, 1.96), linetype = "dashed",
                            color = "grey50") +
       ggplot2::labs(x = NULL, y = "Z-score",
                     title = "Motif Significance") +
-      .motifs_ggplot_theme(base_size = base_size)
+      .motifs_ggplot_theme(base_size = base_size) +
+      ggplot2::theme(legend.position = "bottom")
     print(p)
     return(invisible(p))
 

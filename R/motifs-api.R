@@ -602,8 +602,17 @@ motifs <- function(x,
     results <- results[seq_len(top), ]
   }
 
-  # Type summary
-  type_summary <- sort(table(results$type), decreasing = TRUE)
+  # Type summary. In census mode each MAN type collapses to one row, so
+  # table(results$type) gives all 1s — use results$count directly. In
+  # instance mode `results` has one row per node-triple, so table() counts
+  # how many instances belong to each MAN type, which is what we want.
+  if (!named_nodes && "count" %in% names(results)) {
+    type_summary <- stats::setNames(as.integer(results$count),
+                                    as.character(results$type))
+    type_summary <- sort(type_summary, decreasing = TRUE)
+  } else {
+    type_summary <- sort(table(results$type), decreasing = TRUE)
+  }
 
   # Informative message (instance mode with defaults)
   if (named_nodes && !.user_set_pattern) {

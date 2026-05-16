@@ -640,6 +640,23 @@ test_that(".is_tna_sequence_data distinguishes sequences from numeric data", {
   ))
 })
 
+# Regression: $type_summary must hold the real MAN-type counts in census
+# mode. Pre-fix it was built via table(results$type), which counts rows
+# in `results` — and in census mode each type collapses to one row, so
+# every entry came out as 1. That broke the printed "Type distribution"
+# block and the per-panel "n = N" labels in plot(., type = "patterns")
+# and plot(., type = "types"), all of which uniformly showed 1.
+test_that("type_summary holds true counts in census mode", {
+  skip_if_not_installed("tna")
+  Mod <- tna::tna(coding)
+  res <- motifs(Mod, significance = FALSE)
+  expect_true(all(res$type_summary >= 1L))
+  expect_true(any(res$type_summary > 1L))
+  expect_equal(as.integer(res$type_summary),
+               as.integer(res$results$count[match(names(res$type_summary),
+                                                  res$results$type)]))
+})
+
 # Regression: min_count must filter census-mode results too. Pre-fix the
 # filter only ran in instance mode (named_nodes = TRUE), so a user calling
 # motifs(model, min_count = 20) on the default census output got an

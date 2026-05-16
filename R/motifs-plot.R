@@ -200,6 +200,7 @@
   n_rows <- ceiling(n_plots / n_cols)
 
   triad_patterns <- .get_triad_patterns_visual()
+  type_desc <- .get_man_descriptions()
   motif_color <- color
 
   grid::grid.newpage()
@@ -237,17 +238,24 @@
 
     grid::pushViewport(grid::viewport(layout.pos.row = row, layout.pos.col = col, clip = "on"))
 
-    # Title and stats
+    # Title: "<MAN code>: <description>" so users can read the shape at a
+    # glance instead of decoding e.g. 030T -> Feed-forward in their head.
+    desc <- type_desc[triad_type]
+    title_text <- if (!is.na(desc) && nzchar(desc)) {
+      sprintf("%s: %s", triad_type, desc)
+    } else {
+      triad_type
+    }
     if (x$params$significance && "z" %in% names(df)) {
       p_val <- df$p[i]
       p_str <- if (p_val < 0.001) "p<.001" else sprintf("p=%.2f", p_val)
-      grid::grid.text(triad_type, x = 0.5, y = 0.94,
+      grid::grid.text(title_text, x = 0.5, y = 0.94,
                      gp = grid::gpar(fontsize = title_size, fontface = "bold", col = motif_color))
       grid::grid.text(sprintf("n=%d z=%.1f %s", count, df$z[i], p_str),
                      x = 0.5, y = 0.08,
                      gp = grid::gpar(fontsize = stats_size, col = "#64748b"))
     } else {
-      grid::grid.text(triad_type, x = 0.5, y = 0.94,
+      grid::grid.text(title_text, x = 0.5, y = 0.94,
                      gp = grid::gpar(fontsize = title_size, fontface = "bold", col = motif_color))
       grid::grid.text(sprintf("n=%d", count), x = 0.5, y = 0.08,
                      gp = grid::gpar(fontsize = stats_size, col = "#64748b"))
@@ -346,6 +354,25 @@
   triad_patterns <- .get_triad_patterns_visual()
   type_desc <- .get_man_descriptions()
 
+  # Per-type significance lookup. Only meaningful when `results` has exactly
+  # one row per MAN type — i.e. census mode. In instance mode (named_nodes =
+  # TRUE) the same type spans many node-triple rows with potentially
+  # conflicting z/p; there is no single type-level statistic without an
+  # aggregation rule, so per-panel decoration stays count-only. Treat NULL
+  # named_nodes as "not instance mode" (covers extract_motifs() output,
+  # which is a census-style summary without that slot).
+  z_lookup <- NULL
+  p_lookup <- NULL
+  if (!isTRUE(x$named_nodes) &&
+      isTRUE(x$params$significance) &&
+      is.data.frame(x$results) &&
+      "z" %in% names(x$results) &&
+      "p" %in% names(x$results) &&
+      "type" %in% names(x$results)) {
+    z_lookup <- stats::setNames(x$results$z, x$results$type)
+    p_lookup <- stats::setNames(x$results$p, x$results$type)
+  }
+
   motifs_to_plot <- names(type_counts)
   n_plots <- length(motifs_to_plot)
 
@@ -394,7 +421,12 @@
           dx <- x1 - x0
           dy <- y1 - y0
           len <- sqrt(dx^2 + dy^2)
-          shrink <- 0.25 / len
+          # Nodes are drawn with cex = 6.4 (a 20% reduction from the cex=8
+          # trial, which fully covered the arrows). The arrow endpoints
+          # must clear the disc — shrink is the per-end clearance in user
+          # units, tuned to leave a small visible gap between disc edge
+          # and arrowhead.
+          shrink <- 0.45 / len
 
           x0_adj <- x0 + dx * shrink
           y0_adj <- y0 + dy * shrink
@@ -423,20 +455,43 @@
       }
     }
 
-    # Draw nodes
-    node_col <- colors[1]
-    graphics::points(coords[, 1], coords[, 2], pch = 21, cex = 4,
-                    bg = node_col, col = "white", lwd = 2)
+    # Draw nodes — 3-tone fill (census mode only, gated above):
+    # colors[2] (red) = sig over, colors[1] (blue) = sig under,
+    # grey = not significant. Same coding as the types/significance plots.
+    z_val <- if (!is.null(z_lookup)) z_lookup[motif_name] else NA_real_
+    p_val <- if (!is.null(p_lookup)) p_lookup[motif_name] else NA_real_
+    node_col <- if (is.null(z_lookup)) {
+      # No significance data — fall back to the original single fill.
+      colors[1]
+    } else if (!is.na(p_val) && p_val < 0.05 && !is.na(z_val) && z_val > 0) {
+      colors[2]
+    } else if (!is.na(p_val) && p_val < 0.05 && !is.na(z_val) && z_val < 0) {
+      colors[1]
+    } else {
+      "#9E9E9E"
+    }
+    graphics::points(coords[, 1], coords[, 2], pch = 21, cex = 6.4,
+                    bg = node_col, col = "white", lwd = 2.5)
 
-    # Node labels
+    # Node labels — scaled with the enlarged disc
     graphics::text(coords[, 1], coords[, 2], c("A", "B", "C"),
-                  col = "white", font = 2, cex = 1.1)
+                  col = "white", font = 2, cex = 1.4)
 
-    # Title with count
-    graphics::title(main = sprintf("%s: %s\nn = %s",
-                                   motif_name, desc,
-                                   format(count, big.mark = ",")),
-                   cex.main = 1.1, line = 1)
+    # Title: count plus z and significance star when census-mode sig data
+    # is available. p_val and z_val drawn from the same lookup row so the
+    # star and the displayed z always agree.
+    main_lines <- sprintf("%s: %s\nn = %s",
+                          motif_name, desc,
+                          format(count, big.mark = ","))
+    if (!is.null(z_val) && !is.na(z_val)) {
+      stars <- if (!is.null(p_val) && !is.na(p_val) && p_val < 0.001) "***"
+               else if (!is.null(p_val) && !is.na(p_val) && p_val < 0.01)  "**"
+               else if (!is.null(p_val) && !is.na(p_val) && p_val < 0.05)  "*"
+               else ""
+      main_lines <- sprintf("%s   z = %.2f%s",
+                            main_lines, z_val, stars)
+    }
+    graphics::title(main = main_lines, cex.main = 1.1, line = 1)
   }
 
   invisible(NULL)

@@ -567,7 +567,7 @@ test_that("subgraphs min_count too high yields no results", {
   Mod <- tna::tna(coding)
   expect_message(
     subgraphs(Mod, significance = FALSE, min_count = 99999, pattern = "all"),
-    "No motifs with count"
+    "No motifs with count >= 99999"
   )
 })
 
@@ -662,20 +662,26 @@ test_that("type_summary holds true counts in census mode", {
 # motifs(model, min_count = 20) on the default census output got an
 # unfiltered table — the parameter was silently ignored despite there
 # being a count column right there to filter on.
-test_that("min_count filters MAN-type counts in census mode", {
+test_that("min_count filters MAN-type counts in census mode (inclusive >=)", {
   skip_if_not_installed("tna")
   Mod <- tna::tna(coding)
 
   full <- motifs(Mod, n_perm = 5, seed = 42)
-  expect_true(any(full$results$count <= 5))
+  threshold <- stats::median(full$results$count)
+  expect_true(any(full$results$count < threshold))
 
-  filtered <- motifs(Mod, n_perm = 5, seed = 42, min_count = 5)
-  expect_true(all(filtered$results$count > 5))
+  filtered <- motifs(Mod, n_perm = 5, seed = 42, min_count = threshold)
+  expect_true(all(filtered$results$count >= threshold))
   expect_true(nrow(filtered$results) < nrow(full$results))
+
+  # Equality at the boundary is kept (inclusive)
+  boundary <- min(full$results$count)
+  kept <- motifs(Mod, n_perm = 5, seed = 42, min_count = boundary)
+  expect_equal(nrow(kept$results), nrow(full$results))
 
   expect_message(
     motifs(Mod, n_perm = 5, seed = 42, min_count = 99999),
-    "No motif types with count"
+    "No motif types with count >= 99999"
   )
 })
 
@@ -683,24 +689,24 @@ test_that("min_count filters MAN-type counts in census mode", {
 # significance = TRUE (default). Pre-fix, the filter was gated on
 # !significance and the aggregate observed was hardcoded to 1L, so
 # min_count was silently ignored for matrix / cograph_network input.
-test_that("min_count filters at aggregate level with default significance", {
+test_that("min_count filters at aggregate level (inclusive >=) with default sig", {
   set.seed(1)
   mat <- matrix(sample(0:5, 49, replace = TRUE), 7, 7)
   rownames(mat) <- colnames(mat) <- LETTERS[1:7]
 
-  unfiltered <- motifs(mat, named_nodes = TRUE, min_count = 0,
+  unfiltered <- motifs(mat, named_nodes = TRUE, min_count = 1,
                        significance = FALSE, pattern = "all")
   expect_true(nrow(unfiltered$results) > 0)
   expect_true(any(unfiltered$results$observed > 1))
 
   filtered <- motifs(mat, named_nodes = TRUE, min_count = 10,
                      pattern = "all")
-  expect_true(all(filtered$results$observed > 10))
+  expect_true(all(filtered$results$observed >= 10))
   expect_true(nrow(filtered$results) < nrow(unfiltered$results))
 
   expect_message(
     motifs(mat, named_nodes = TRUE, min_count = 99999, pattern = "all"),
-    "No motifs with count"
+    "No motifs with count >= 99999"
   )
 })
 

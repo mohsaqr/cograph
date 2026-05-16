@@ -361,9 +361,8 @@ mot
 #> Level: aggregate | States: 10 | Pattern: triangle 
 #> 
 #> Type distribution:
-#> 
-#> 030C 030T 120C 120D 120U 
-#>    1    1    1    1    1 
+#> 030T 120C 030C 120D 120U 
+#>   11    3    2    2    1 
 #> 
 #> Top 5 results:
 #>  type count

@@ -322,9 +322,8 @@ motifs(mat, significance = FALSE)
 #> Level: aggregate | States: 4 | Pattern: triangle 
 #> 
 #> Type distribution:
-#> 
 #> 030C 030T 
-#>    1    1 
+#>    2    2 
 #> 
 #> Top 2 results:
 #>  type count

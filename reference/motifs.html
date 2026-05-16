@@ -182,14 +182,14 @@ Overrides <code>pattern</code>.</p></dd>
 
 
 <dt id="arg-min-count">min_count<a class="anchor" aria-label="anchor" href="#arg-min-count"></a></dt>
-<dd><p>Minimum count to keep a row. In instance mode
+<dd><p>Inclusive minimum count to keep a row — rows with
+<code>count &gt;= min_count</code> are retained. In instance mode
 (<code>named_nodes = TRUE</code>) this filters the <code>observed</code> column:
 at individual level the number of subjects exhibiting the triad, at
 aggregate level the triad's weighted edge mass (sum of its 6 directed
 edge weights). In census mode (<code>named_nodes = FALSE</code>) this filters
 the <code>count</code> column — the number of times each MAN type appears.
-Rows with <code>count &gt; min_count</code> are kept. Default 5 for instances,
-NULL for census (no filter).</p></dd>
+Default 5 for instances, NULL for census (no filter).</p></dd>
 
 
 <dt id="arg-edge-method">edge_method<a class="anchor" aria-label="anchor" href="#arg-edge-method"></a></dt>

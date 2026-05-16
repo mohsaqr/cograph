@@ -132,13 +132,14 @@ plot(
 
 - min_count:
 
-  Minimum count to keep a row. In instance mode (`named_nodes = TRUE`)
-  this filters the `observed` column: at individual level the number of
-  subjects exhibiting the triad, at aggregate level the triad's weighted
-  edge mass (sum of its 6 directed edge weights). In census mode
+  Inclusive minimum count to keep a row — rows with `count >= min_count`
+  are retained. In instance mode (`named_nodes = TRUE`) this filters the
+  `observed` column: at individual level the number of subjects
+  exhibiting the triad, at aggregate level the triad's weighted edge
+  mass (sum of its 6 directed edge weights). In census mode
   (`named_nodes = FALSE`) this filters the `count` column — the number
-  of times each MAN type appears. Rows with `count > min_count` are
-  kept. Default 5 for instances, NULL for census (no filter).
+  of times each MAN type appears. Default 5 for instances, NULL for
+  census (no filter).
 
 - edge_method:
 

@@ -43,10 +43,10 @@ Other motifs:
 mat <- matrix(c(0,3,2,0, 0,0,5,1, 0,0,0,4, 2,0,0,0), 4, 4, byrow = TRUE)
 rownames(mat) <- colnames(mat) <- c("Plan","Execute","Monitor","Adapt")
 subgraphs(mat, significance = FALSE)
-#> Showing triangle patterns (count > 5). For all MAN types use pattern = 'all'.
+#> Showing triangle patterns (count >= 5). For all MAN types use pattern = 'all'.
 #> Motif Subgraphs 
 #> Level: aggregate | States: 4 | Pattern: triangle 
-#> Min count: > 5 
+#> Min count: >= 5 
 #> 
 #> Type distribution:
 #> 

@@ -42,9 +42,12 @@ structure of each triad type.}
 
 \item{ncol}{Number of columns in the triad/pattern grid. Default 5.}
 
-\item{colors}{Two-element color vector: first color for over-represented or
-positive values, second for under-represented or negative values.
-Default \code{c("#2166AC", "#B2182B")} (blue/red).}
+\item{colors}{Two-element color vector for \code{type = "significance"}:
+\code{colors[1]} fills bars with \code{z <= 0} (under-represented motifs)
+and \code{colors[2]} fills bars with \code{z > 0} (over-represented
+motifs). For \code{type = "types"} only \code{colors[1]} is used as the
+single fill color. Default \code{c("#2166AC", "#B2182B")} (blue for
+under-represented, red for over-represented).}
 
 \item{node_size}{Triad node radius (relative). Default 5.
 (\code{type = "triads"} only.)}

@@ -1,7 +1,13 @@
 # Extract Specific Motif Instances (Subgraphs)
 
 Convenience wrapper for `motifs(x, named_nodes = TRUE, ...)`. Returns
-specific node triples forming each MAN pattern.
+one row per concrete node-triple instantiating each MAN pattern, so the
+same MAN type can appear in many rows with its own `z` / `p` per triple.
+For per-triple significance use `plot(., type = "significance")` or
+`plot(., type = "triads")`; the per-type plots (`"types"`, `"patterns"`)
+deliberately drop the significance decoration here, because aggregating
+per type requires a rule (median? max-\|z\|?) that isn't pinned and
+would be misleading by default.
 
 ## Usage
 
@@ -13,15 +19,21 @@ subgraphs(...)
 
 - ...:
 
-  Arguments passed to
-  [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md).
+  Arguments forwarded to
+  [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md). See
+  [`?motifs`](https://sonsoles.me/cograph/reference/motifs.md) for the
+  full parameter list (`x`, `actor`, `window`, `pattern`, `include`,
+  `exclude`, `significance`, `n_perm`, `min_count`, `edge_method`,
+  `edge_threshold`, `min_transitions`, `top`, `seed`).
 
 ## Value
 
 A `cograph_motif_result` object with `named_nodes = TRUE`. Contains
 `$results` (data frame with columns `triad`, `type`, `observed`, and
 optionally `z`, `p`, `sig`), `$type_summary`, `$level`, `$n_units`, and
-`$params`.
+`$params`. In instance mode, `$type_summary` is built via
+`table(results$type)` so it counts how many node-triples fall under each
+MAN type.
 
 ## See also
 

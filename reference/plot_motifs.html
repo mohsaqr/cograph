@@ -15,7 +15,7 @@ editor autocompletion."><meta property="og:image" content="https://sonsoles.me/c
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,20 +91,34 @@ editor autocompletion.</p>
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
 <dd><p>Plot type:</p><dl><dt><code>"triads"</code></dt>
-<dd><p>Network diagrams of specific node triples (instance
-mode) or falls back to patterns (census mode). Arranged in a grid.</p></dd>
+<dd><p>Network diagrams of specific node triples
+(instance mode) or falls back to patterns (census mode). Each panel
+title reads <code>"&lt;MAN code&gt;: &lt;description&gt;"</code> (e.g. <code>"030T:
+      Feed-forward"</code>) and, in census mode, appends the z-score and a
+significance star (<code>*</code> p&lt;.05, <code>**</code> p&lt;.01, <code>***</code>
+p&lt;.001). Arranged in a grid.</p></dd>
 
 <dt><code>"types"</code></dt>
-<dd><p>Bar chart of MAN type frequencies.</p></dd>
+<dd><p>Bar chart of MAN type frequencies. In census
+mode bars are colored by significance direction (see <code>colors</code>);
+in instance mode bars use a single fill because per-type
+significance would need an aggregation rule across multiple
+node-triple rows of the same type.</p></dd>
 
 <dt><code>"significance"</code></dt>
-<dd><p>Z-score plot showing over- and
-under-represented types relative to a null model. Requires
+<dd><p>Z-score bars per row of
+<code>x$results</code>. In census mode each bar is one MAN type; in
+instance mode each bar is one concrete node-triple, labeled
+<code>"&lt;triple&gt; [&lt;MAN code&gt;: &lt;description&gt;]"</code>. Bars are colored
+with the same three-tone rule (see <code>colors</code>). Requires
 <code>significance = TRUE</code> in the <code><a href="motifs.html">motifs()</a></code> call.</p></dd>
 
 <dt><code>"patterns"</code></dt>
-<dd><p>Abstract MAN pattern diagrams showing the edge
-structure of each triad type.</p></dd>
+<dd><p>Abstract MAN pattern diagrams showing the
+edge structure of each triad type. In census mode panel nodes are
+filled by significance direction (red sig over / blue sig under /
+grey ns); in instance mode panels use a single fill, same reason
+as <code>"types"</code>.</p></dd>
 
 
 </dl></dd>
@@ -119,12 +133,16 @@ structure of each triad type.</p></dd>
 
 
 <dt id="arg-colors">colors<a class="anchor" aria-label="anchor" href="#arg-colors"></a></dt>
-<dd><p>Two-element color vector for <code>type = "significance"</code>:
-<code>colors[1]</code> fills bars with <code>z &lt;= 0</code> (under-represented motifs)
-and <code>colors[2]</code> fills bars with <code>z &gt; 0</code> (over-represented
-motifs). For <code>type = "types"</code> only <code>colors[1]</code> is used as the
-single fill color. Default <code>c("#2166AC", "#B2182B")</code> (blue for
-under-represented, red for over-represented).</p></dd>
+<dd><p>Two-element color vector mapped to a three-tone
+significance scale (used by <code>type = "significance"</code>, plus
+<code>type = "types"</code> and <code>type = "patterns"</code> in census mode):
+<code>colors[1]</code> fills items that are significantly under-represented
+(<code>p &lt; .05</code> and <code>z &lt; 0</code>); <code>colors[2]</code> fills items that
+are significantly over-represented (<code>p &lt; .05</code> and <code>z &gt; 0</code>);
+everything else is filled neutral grey (<code>"#9E9E9E"</code>). Default
+<code>c("#2166AC", "#B2182B")</code> (blue for under, red for over).
+When significance was not run, <code>type = "types"</code> falls back to a
+single <code>colors[1]</code> fill and patterns nodes use <code>colors[1]</code>.</p></dd>
 
 
 <dt id="arg-node-size">node_size<a class="anchor" aria-label="anchor" href="#arg-node-size"></a></dt>

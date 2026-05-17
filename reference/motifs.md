@@ -173,22 +173,33 @@ plot(
   `"triads"`
 
   :   Network diagrams of specific node triples (instance mode) or falls
-      back to patterns (census mode). Arranged in a grid.
+      back to patterns (census mode). Each panel title reads
+      `"<MAN code>: <description>"` (e.g. `"030T: Feed-forward"`) and,
+      in census mode, appends the z-score and a significance star (`*`
+      p\<.05, `**` p\<.01, `***` p\<.001). Arranged in a grid.
 
   `"types"`
 
-  :   Bar chart of MAN type frequencies.
+  :   Bar chart of MAN type frequencies. In census mode bars are colored
+      by significance direction (see `colors`); in instance mode bars
+      use a single fill because per-type significance would need an
+      aggregation rule across multiple node-triple rows of the same
+      type.
 
   `"significance"`
 
-  :   Z-score plot showing over- and under-represented types relative to
-      a null model. Requires `significance = TRUE` in the `motifs()`
-      call.
+  :   Z-score bars per row of `x$results`. In census mode each bar is
+      one MAN type; in instance mode each bar is one concrete
+      node-triple, labeled `"<triple> [<MAN code>: <description>]"`.
+      Bars are colored with the same three-tone rule (see `colors`).
+      Requires `significance = TRUE` in the `motifs()` call.
 
   `"patterns"`
 
   :   Abstract MAN pattern diagrams showing the edge structure of each
-      triad type.
+      triad type. In census mode panel nodes are filled by significance
+      direction (red sig over / blue sig under / grey ns); in instance
+      mode panels use a single fill, same reason as `"types"`.
 
 - n:
 
@@ -200,12 +211,15 @@ plot(
 
 - colors:
 
-  Two-element color vector for `type = "significance"`: `colors[1]`
-  fills bars with `z <= 0` (under-represented motifs) and `colors[2]`
-  fills bars with `z > 0` (over-represented motifs). For
-  `type = "types"` only `colors[1]` is used as the single fill color.
-  Default `c("#2166AC", "#B2182B")` (blue for under-represented, red for
-  over-represented).
+  Two-element color vector mapped to a three-tone significance scale
+  (used by `type = "significance"`, plus `type = "types"` and
+  `type = "patterns"` in census mode): `colors[1]` fills items that are
+  significantly under-represented (`p < .05` and `z < 0`); `colors[2]`
+  fills items that are significantly over-represented (`p < .05` and
+  `z > 0`); everything else is filled neutral grey (`"#9E9E9E"`).
+  Default `c("#2166AC", "#B2182B")` (blue for under, red for over). When
+  significance was not run, `type = "types"` falls back to a single
+  `colors[1]` fill and patterns nodes use `colors[1]`.
 
 - node_size:
 
@@ -259,32 +273,50 @@ plot(
 
 ## Value
 
-A `cograph_motif_result` object with:
+A `cograph_motif_result` object (a list) with:
 
 - results:
 
-  Data frame of results. Census: type, count, (z, p, sig). Instances:
-  triad, type, observed, (z, p, sig).
+  Data frame of results. Census mode (`named_nodes = FALSE`): one row
+  per MAN type with columns `type`, `count`, and when
+  `significance = TRUE` also `expected`, `z`, `p`, `sig`. Instance mode
+  (`named_nodes = TRUE`): one row per concrete node triple with columns
+  `triad`, `type`, `observed`, and when `significance = TRUE` also
+  `expected`, `z`, `p`, `sig`.
 
 - type_summary:
 
-  Named counts by MAN type
+  Named `table` of MAN-type counts. In census mode the values come from
+  the `count` column; in instance mode they come from
+  `table(results$type)` and describe how many concrete node-triples fall
+  under each MAN type. Sorted descending so `plot(., type = "patterns")`
+  draws the most frequent types first.
 
 - level:
 
-  Analysis level: "individual" or "aggregate"
+  Analysis level: `"individual"` when the input carried per-subject
+  sequence data (`tna` with `$data`, edge list with an actor column,
+  Nestimate `netobject` built from `build_tna()`/similar), otherwise
+  `"aggregate"` (a single transition matrix).
 
 - named_nodes:
 
-  Whether nodes are identified (TRUE) or exchangeable (FALSE)
+  Logical mirror of the `named_nodes` argument. Plot helpers gate
+  per-type significance decoration on this so the instance-mode case
+  (multiple triples per MAN type) doesn't get silently aggregated.
 
 - n_units:
 
-  Number of units analyzed
+  Number of subjects/units. 1 at aggregate level, `nrow` of the input
+  sequence data at individual level.
 
 - params:
 
-  List of parameters used
+  List of the call's parameters (`pattern`, `edge_method`,
+  `edge_threshold`, `significance`, `n_perm`, `min_count`, `labels`,
+  `n_states`, and the window settings if any). Read by
+  [`print()`](https://rdrr.io/r/base/print.html) and the
+  [`plot()`](https://rdrr.io/r/graphics/plot.default.html) dispatcher.
 
 Invisibly returns the input `x` for `"triads"` and `"patterns"`, or the
 underlying `ggplot` for `"types"` and `"significance"`.

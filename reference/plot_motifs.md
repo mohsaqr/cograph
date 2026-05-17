@@ -42,23 +42,35 @@ plot_motifs(
   `"triads"`
 
   :   Network diagrams of specific node triples (instance mode) or falls
-      back to patterns (census mode). Arranged in a grid.
+      back to patterns (census mode). Each panel title reads
+      `"<MAN code>: <description>"` (e.g. `"030T: Feed-forward"`) and,
+      in census mode, appends the z-score and a significance star (`*`
+      p\<.05, `**` p\<.01, `***` p\<.001). Arranged in a grid.
 
   `"types"`
 
-  :   Bar chart of MAN type frequencies.
+  :   Bar chart of MAN type frequencies. In census mode bars are colored
+      by significance direction (see `colors`); in instance mode bars
+      use a single fill because per-type significance would need an
+      aggregation rule across multiple node-triple rows of the same
+      type.
 
   `"significance"`
 
-  :   Z-score plot showing over- and under-represented types relative to
-      a null model. Requires `significance = TRUE` in the
+  :   Z-score bars per row of `x$results`. In census mode each bar is
+      one MAN type; in instance mode each bar is one concrete
+      node-triple, labeled `"<triple> [<MAN code>: <description>]"`.
+      Bars are colored with the same three-tone rule (see `colors`).
+      Requires `significance = TRUE` in the
       [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md)
       call.
 
   `"patterns"`
 
   :   Abstract MAN pattern diagrams showing the edge structure of each
-      triad type.
+      triad type. In census mode panel nodes are filled by significance
+      direction (red sig over / blue sig under / grey ns); in instance
+      mode panels use a single fill, same reason as `"types"`.
 
 - n:
 
@@ -70,12 +82,15 @@ plot_motifs(
 
 - colors:
 
-  Two-element color vector for `type = "significance"`: `colors[1]`
-  fills bars with `z <= 0` (under-represented motifs) and `colors[2]`
-  fills bars with `z > 0` (over-represented motifs). For
-  `type = "types"` only `colors[1]` is used as the single fill color.
-  Default `c("#2166AC", "#B2182B")` (blue for under-represented, red for
-  over-represented).
+  Two-element color vector mapped to a three-tone significance scale
+  (used by `type = "significance"`, plus `type = "types"` and
+  `type = "patterns"` in census mode): `colors[1]` fills items that are
+  significantly under-represented (`p < .05` and `z < 0`); `colors[2]`
+  fills items that are significantly over-represented (`p < .05` and
+  `z > 0`); everything else is filled neutral grey (`"#9E9E9E"`).
+  Default `c("#2166AC", "#B2182B")` (blue for under, red for over). When
+  significance was not run, `type = "types"` falls back to a single
+  `colors[1]` fill and patterns nodes use `colors[1]`.
 
 - node_size:
 

@@ -64,9 +64,15 @@ plot(
 
 - colors:
 
-  Two-element color vector for the types/significance plots: first color
-  for over-represented, second for under-represented. Default
-  `c("#2166AC", "#B2182B")` (blue/red).
+  Two-element color vector mapped to a three-tone significance scale
+  (used by `type = "significance"` and by `type = "patterns"` node
+  fills): `colors[1]` fills items that are significantly
+  under-represented (`p < .05` and `z < 0`); `colors[2]` fills items
+  that are significantly over-represented (`p < .05` and `z > 0`);
+  everything else is filled neutral grey (`"#9E9E9E"`). When
+  significance was not run, patterns nodes use `colors[1]` as a single
+  fill. Default `c("#2166AC", "#B2182B")` (blue for under, red for
+  over).
 
 - res:
 

@@ -9,7 +9,7 @@ of triads, bar plots of type distributions, and significance plots."><meta prope
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -105,9 +105,15 @@ structure of each triad type without specific node labels.</p></dd>
 
 
 <dt id="arg-colors">colors<a class="anchor" aria-label="anchor" href="#arg-colors"></a></dt>
-<dd><p>Two-element color vector for the types/significance plots:
-first color for over-represented, second for under-represented.
-Default <code>c("#2166AC", "#B2182B")</code> (blue/red).</p></dd>
+<dd><p>Two-element color vector mapped to a three-tone significance
+scale (used by <code>type = "significance"</code> and by <code>type = "patterns"</code>
+node fills): <code>colors[1]</code> fills items that are significantly
+under-represented (<code>p &lt; .05</code> and <code>z &lt; 0</code>); <code>colors[2]</code>
+fills items that are significantly over-represented (<code>p &lt; .05</code> and
+<code>z &gt; 0</code>); everything else is filled neutral grey (<code>"#9E9E9E"</code>).
+When significance was not run, patterns nodes use <code>colors[1]</code> as a
+single fill. Default <code>c("#2166AC", "#B2182B")</code> (blue for under, red
+for over).</p></dd>
 
 
 <dt id="arg-res">res<a class="anchor" aria-label="anchor" href="#arg-res"></a></dt>

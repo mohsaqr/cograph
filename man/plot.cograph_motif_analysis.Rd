@@ -38,9 +38,15 @@ structure of each triad type without specific node labels.}
 
 \item{n}{Number of triads/patterns to show. Default 20.}
 
-\item{colors}{Two-element color vector for the types/significance plots:
-first color for over-represented, second for under-represented.
-Default \code{c("#2166AC", "#B2182B")} (blue/red).}
+\item{colors}{Two-element color vector mapped to a three-tone significance
+scale (used by \code{type = "significance"} and by \code{type = "patterns"}
+node fills): \code{colors[1]} fills items that are significantly
+under-represented (\code{p < .05} and \code{z < 0}); \code{colors[2]}
+fills items that are significantly over-represented (\code{p < .05} and
+\code{z > 0}); everything else is filled neutral grey (\code{"#9E9E9E"}).
+When significance was not run, patterns nodes use \code{colors[1]} as a
+single fill. Default \code{c("#2166AC", "#B2182B")} (blue for under, red
+for over).}
 
 \item{res}{Resolution for scaling (kept for backwards compatibility). Default 72.}
 

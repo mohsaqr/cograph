@@ -28,26 +28,44 @@ plot_motifs(
 
 \item{type}{Plot type:
 \describe{
-\item{\code{"triads"}}{Network diagrams of specific node triples (instance
-mode) or falls back to patterns (census mode). Arranged in a grid.}
-\item{\code{"types"}}{Bar chart of MAN type frequencies.}
-\item{\code{"significance"}}{Z-score plot showing over- and
-under-represented types relative to a null model. Requires
+\item{\code{"triads"}}{Network diagrams of specific node triples
+(instance mode) or falls back to patterns (census mode). Each panel
+title reads \code{"<MAN code>: <description>"} (e.g. \code{"030T:
+      Feed-forward"}) and, in census mode, appends the z-score and a
+significance star (\code{*} p<.05, \code{**} p<.01, \code{***}
+p<.001). Arranged in a grid.}
+\item{\code{"types"}}{Bar chart of MAN type frequencies. In census
+mode bars are colored by significance direction (see \code{colors});
+in instance mode bars use a single fill because per-type
+significance would need an aggregation rule across multiple
+node-triple rows of the same type.}
+\item{\code{"significance"}}{Z-score bars per row of
+\code{x$results}. In census mode each bar is one MAN type; in
+instance mode each bar is one concrete node-triple, labeled
+\code{"<triple> [<MAN code>: <description>]"}. Bars are colored
+with the same three-tone rule (see \code{colors}). Requires
 \code{significance = TRUE} in the \code{motifs()} call.}
-\item{\code{"patterns"}}{Abstract MAN pattern diagrams showing the edge
-structure of each triad type.}
+\item{\code{"patterns"}}{Abstract MAN pattern diagrams showing the
+edge structure of each triad type. In census mode panel nodes are
+filled by significance direction (red sig over / blue sig under /
+grey ns); in instance mode panels use a single fill, same reason
+as \code{"types"}.}
 }}
 
 \item{n}{Maximum number of items to plot. Default 15.}
 
 \item{ncol}{Number of columns in the triad/pattern grid. Default 5.}
 
-\item{colors}{Two-element color vector for \code{type = "significance"}:
-\code{colors[1]} fills bars with \code{z <= 0} (under-represented motifs)
-and \code{colors[2]} fills bars with \code{z > 0} (over-represented
-motifs). For \code{type = "types"} only \code{colors[1]} is used as the
-single fill color. Default \code{c("#2166AC", "#B2182B")} (blue for
-under-represented, red for over-represented).}
+\item{colors}{Two-element color vector mapped to a three-tone
+significance scale (used by \code{type = "significance"}, plus
+\code{type = "types"} and \code{type = "patterns"} in census mode):
+\code{colors[1]} fills items that are significantly under-represented
+(\code{p < .05} and \code{z < 0}); \code{colors[2]} fills items that
+are significantly over-represented (\code{p < .05} and \code{z > 0});
+everything else is filled neutral grey (\code{"#9E9E9E"}). Default
+\code{c("#2166AC", "#B2182B")} (blue for under, red for over).
+When significance was not run, \code{type = "types"} falls back to a
+single \code{colors[1]} fill and patterns nodes use \code{colors[1]}.}
 
 \item{node_size}{Triad node radius (relative). Default 5.
 (\code{type = "triads"} only.)}

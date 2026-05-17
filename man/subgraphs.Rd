@@ -7,17 +7,31 @@
 subgraphs(...)
 }
 \arguments{
-\item{...}{Arguments passed to \code{motifs()}.}
+\item{...}{Arguments forwarded to \code{\link{motifs}()}. See \code{?motifs}
+for the full parameter list (\code{x}, \code{actor}, \code{window},
+\code{pattern}, \code{include}, \code{exclude}, \code{significance},
+\code{n_perm}, \code{min_count}, \code{edge_method}, \code{edge_threshold},
+\code{min_transitions}, \code{top}, \code{seed}).}
 }
 \value{
 A \code{cograph_motif_result} object with \code{named_nodes = TRUE}.
 Contains \code{$results} (data frame with columns \code{triad}, \code{type},
 \code{observed}, and optionally \code{z}, \code{p}, \code{sig}),
 \code{$type_summary}, \code{$level}, \code{$n_units}, and \code{$params}.
+In instance mode, \code{$type_summary} is built via
+\code{table(results$type)} so it counts how many node-triples fall under
+each MAN type.
 }
 \description{
 Convenience wrapper for \code{motifs(x, named_nodes = TRUE, ...)}. Returns
-specific node triples forming each MAN pattern.
+one row per concrete node-triple instantiating each MAN pattern, so the
+same MAN type can appear in many rows with its own \code{z} / \code{p}
+per triple. For per-triple significance use
+\code{plot(., type = "significance")} or \code{plot(., type = "triads")};
+the per-type plots (\code{"types"}, \code{"patterns"}) deliberately drop
+the significance decoration here, because aggregating per type requires a
+rule (median? max-|z|?) that isn't pinned and would be misleading by
+default.
 }
 \examples{
 mat <- matrix(c(0,3,2,0, 0,0,5,1, 0,0,0,4, 2,0,0,0), 4, 4, byrow = TRUE)

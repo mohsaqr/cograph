@@ -63,15 +63,38 @@
 #' @param top Return only the top N results. NULL returns all.
 #' @param seed Random seed for reproducibility.
 #'
-#' @return A \code{cograph_motif_result} object with:
+#' @return A \code{cograph_motif_result} object (a list) with:
 #'   \describe{
-#'     \item{results}{Data frame of results. Census: type, count, (z, p, sig).
-#'       Instances: triad, type, observed, (z, p, sig).}
-#'     \item{type_summary}{Named counts by MAN type}
-#'     \item{level}{Analysis level: "individual" or "aggregate"}
-#'     \item{named_nodes}{Whether nodes are identified (TRUE) or exchangeable (FALSE)}
-#'     \item{n_units}{Number of units analyzed}
-#'     \item{params}{List of parameters used}
+#'     \item{results}{Data frame of results. Census mode
+#'       (\code{named_nodes = FALSE}): one row per MAN type with columns
+#'       \code{type}, \code{count}, and when \code{significance = TRUE} also
+#'       \code{expected}, \code{z}, \code{p}, \code{sig}. Instance mode
+#'       (\code{named_nodes = TRUE}): one row per concrete node triple with
+#'       columns \code{triad}, \code{type}, \code{observed}, and when
+#'       \code{significance = TRUE} also \code{expected}, \code{z}, \code{p},
+#'       \code{sig}.}
+#'     \item{type_summary}{Named \code{table} of MAN-type counts. In census
+#'       mode the values come from the \code{count} column; in instance
+#'       mode they come from \code{table(results$type)} and describe how
+#'       many concrete node-triples fall under each MAN type. Sorted
+#'       descending so \code{plot(., type = "patterns")} draws the most
+#'       frequent types first.}
+#'     \item{level}{Analysis level: \code{"individual"} when the input
+#'       carried per-subject sequence data (\code{tna} with \code{$data},
+#'       edge list with an actor column, Nestimate \code{netobject} built
+#'       from \code{build_tna()}/similar), otherwise \code{"aggregate"}
+#'       (a single transition matrix).}
+#'     \item{named_nodes}{Logical mirror of the \code{named_nodes} argument.
+#'       Plot helpers gate per-type significance decoration on this so the
+#'       instance-mode case (multiple triples per MAN type) doesn't get
+#'       silently aggregated.}
+#'     \item{n_units}{Number of subjects/units. 1 at aggregate level,
+#'       \code{nrow} of the input sequence data at individual level.}
+#'     \item{params}{List of the call's parameters (\code{pattern},
+#'       \code{edge_method}, \code{edge_threshold}, \code{significance},
+#'       \code{n_perm}, \code{min_count}, \code{labels}, \code{n_states},
+#'       and the window settings if any). Read by \code{print()} and the
+#'       \code{plot()} dispatcher.}
 #'   }
 #'
 #' @examples
@@ -652,14 +675,27 @@ motifs <- function(x,
 #' Extract Specific Motif Instances (Subgraphs)
 #'
 #' Convenience wrapper for \code{motifs(x, named_nodes = TRUE, ...)}. Returns
-#' specific node triples forming each MAN pattern.
+#' one row per concrete node-triple instantiating each MAN pattern, so the
+#' same MAN type can appear in many rows with its own \code{z} / \code{p}
+#' per triple. For per-triple significance use
+#' \code{plot(., type = "significance")} or \code{plot(., type = "triads")};
+#' the per-type plots (\code{"types"}, \code{"patterns"}) deliberately drop
+#' the significance decoration here, because aggregating per type requires a
+#' rule (median? max-|z|?) that isn't pinned and would be misleading by
+#' default.
 #'
-#' @inheritParams motifs
+#' @param ... Arguments forwarded to \code{\link{motifs}()}. See \code{?motifs}
+#'   for the full parameter list (\code{x}, \code{actor}, \code{window},
+#'   \code{pattern}, \code{include}, \code{exclude}, \code{significance},
+#'   \code{n_perm}, \code{min_count}, \code{edge_method}, \code{edge_threshold},
+#'   \code{min_transitions}, \code{top}, \code{seed}).
 #' @return A \code{cograph_motif_result} object with \code{named_nodes = TRUE}.
 #'   Contains \code{$results} (data frame with columns \code{triad}, \code{type},
 #'   \code{observed}, and optionally \code{z}, \code{p}, \code{sig}),
 #'   \code{$type_summary}, \code{$level}, \code{$n_units}, and \code{$params}.
-#' @param ... Arguments passed to \code{motifs()}.
+#'   In instance mode, \code{$type_summary} is built via
+#'   \code{table(results$type)} so it counts how many node-triples fall under
+#'   each MAN type.
 #' @examples
 #' mat <- matrix(c(0,3,2,0, 0,0,5,1, 0,0,0,4, 2,0,0,0), 4, 4, byrow = TRUE)
 #' rownames(mat) <- colnames(mat) <- c("Plan","Execute","Monitor","Adapt")
@@ -708,23 +744,41 @@ print.cograph_motif_result <- function(x, ...) {
 
 #' @param type Plot type:
 #'   \describe{
-#'     \item{\code{"triads"}}{Network diagrams of specific node triples (instance
-#'       mode) or falls back to patterns (census mode). Arranged in a grid.}
-#'     \item{\code{"types"}}{Bar chart of MAN type frequencies.}
-#'     \item{\code{"significance"}}{Z-score plot showing over- and
-#'       under-represented types relative to a null model. Requires
+#'     \item{\code{"triads"}}{Network diagrams of specific node triples
+#'       (instance mode) or falls back to patterns (census mode). Each panel
+#'       title reads \code{"<MAN code>: <description>"} (e.g. \code{"030T:
+#'       Feed-forward"}) and, in census mode, appends the z-score and a
+#'       significance star (\code{*} p<.05, \code{**} p<.01, \code{***}
+#'       p<.001). Arranged in a grid.}
+#'     \item{\code{"types"}}{Bar chart of MAN type frequencies. In census
+#'       mode bars are colored by significance direction (see \code{colors});
+#'       in instance mode bars use a single fill because per-type
+#'       significance would need an aggregation rule across multiple
+#'       node-triple rows of the same type.}
+#'     \item{\code{"significance"}}{Z-score bars per row of
+#'       \code{x$results}. In census mode each bar is one MAN type; in
+#'       instance mode each bar is one concrete node-triple, labeled
+#'       \code{"<triple> [<MAN code>: <description>]"}. Bars are colored
+#'       with the same three-tone rule (see \code{colors}). Requires
 #'       \code{significance = TRUE} in the \code{motifs()} call.}
-#'     \item{\code{"patterns"}}{Abstract MAN pattern diagrams showing the edge
-#'       structure of each triad type.}
+#'     \item{\code{"patterns"}}{Abstract MAN pattern diagrams showing the
+#'       edge structure of each triad type. In census mode panel nodes are
+#'       filled by significance direction (red sig over / blue sig under /
+#'       grey ns); in instance mode panels use a single fill, same reason
+#'       as \code{"types"}.}
 #'   }
 #' @param n Maximum number of items to plot. Default 15.
 #' @param ncol Number of columns in the triad/pattern grid. Default 5.
-#' @param colors Two-element color vector for \code{type = "significance"}:
-#'   \code{colors[1]} fills bars with \code{z <= 0} (under-represented motifs)
-#'   and \code{colors[2]} fills bars with \code{z > 0} (over-represented
-#'   motifs). For \code{type = "types"} only \code{colors[1]} is used as the
-#'   single fill color. Default \code{c("#2166AC", "#B2182B")} (blue for
-#'   under-represented, red for over-represented).
+#' @param colors Two-element color vector mapped to a three-tone
+#'   significance scale (used by \code{type = "significance"}, plus
+#'   \code{type = "types"} and \code{type = "patterns"} in census mode):
+#'   \code{colors[1]} fills items that are significantly under-represented
+#'   (\code{p < .05} and \code{z < 0}); \code{colors[2]} fills items that
+#'   are significantly over-represented (\code{p < .05} and \code{z > 0});
+#'   everything else is filled neutral grey (\code{"#9E9E9E"}). Default
+#'   \code{c("#2166AC", "#B2182B")} (blue for under, red for over).
+#'   When significance was not run, \code{type = "types"} falls back to a
+#'   single \code{colors[1]} fill and patterns nodes use \code{colors[1]}.
 #' @param node_size Triad node radius (relative). Default 5.
 #'   (\code{type = "triads"} only.)
 #' @param label_size Triad node-label font size in points. Default 11.

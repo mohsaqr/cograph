@@ -175,8 +175,8 @@ each returns a different format. `page_rank(g)` gives you a list with
 `$vector`. `betweenness(g)` gives a named numeric. Building a comparison
 table takes 10+ lines.
 
-In cograph, one call with no arguments returns all 34 measures as a tidy
-data frame:
+In cograph, one call with no arguments returns the available centrality
+measures as a tidy data frame:
 
 ``` r
 

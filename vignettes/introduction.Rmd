@@ -175,7 +175,7 @@ Getters and setters:
 
 ## Centrality
 
-`centrality()` computes up to 25 measures and returns a data frame.
+`centrality()` computes a broad set of node centrality measures and returns a data frame.
 
 ```{r}
 centrality(mat, measures = c("degree", "betweenness", "pagerank"))
@@ -188,7 +188,7 @@ centrality_degree(mat)
 centrality_pagerank(mat)
 ```
 
-All 25 measures:
+Selected measures:
 
 | Category | Functions |
 |----------|-----------|

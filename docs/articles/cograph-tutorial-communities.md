@@ -1,4 +1,4 @@
-# Visualization of communities and hyper order networks
+# Visualization of communities and higher-order networks
 
 ## 1 Introduction
 

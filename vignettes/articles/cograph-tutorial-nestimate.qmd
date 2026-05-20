@@ -479,9 +479,9 @@ splot(summary_net, node_size = 15, edge_labels = TRUE)
 
 ---
 
-# The Complete Dispatch Chain
+# Supported Dispatch Chain
 
-Every Nestimate object routes through `splot()` automatically. The following table summarizes all supported object classes:
+Several Nestimate object types route through `splot()` automatically. The following table summarizes the supported classes covered in this tutorial:
 
 | Nestimate class | Producer | `splot()` renders |
 |---|---|---|

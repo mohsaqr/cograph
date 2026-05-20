@@ -18,8 +18,9 @@ library(cograph)
 
 When you call
 [`as_cograph()`](https://sonsoles.me/cograph/reference/as_cograph.md),
-it creates a lightweight S3 object that stores all network data as
-accessible list elements.
+it creates a lightweight `cograph_network` object. Use the getter
+functions below for stable access to nodes, edges, labels, counts, and
+directedness.
 
 ``` r
 
@@ -36,35 +37,6 @@ net <- as_cograph(mat)
 ```
 
 ### Accessing Network Data
-
-All data is accessible via `$`:
-
-``` r
-
-# Edge data
-net$from      # Source node indices
-#> NULL
-net$to        # Target node indices
-#> NULL
-net$weight    # Edge weights
-#>     A   B   C   D
-#> A 0.0 0.5 0.3 0.0
-#> B 0.5 0.0 0.8 0.2
-#> C 0.3 0.8 0.0 0.6
-#> D 0.0 0.2 0.6 0.0
-
-# Network properties
-net$n_nodes   # Number of nodes
-#> NULL
-net$n_edges   # Number of edges
-#> NULL
-net$directed  # Is directed?
-#> [1] FALSE
-net$labels    # Node labels
-#> NULL
-```
-
-### Using Getter Functions
 
 For programmatic access, use the getter functions:
 

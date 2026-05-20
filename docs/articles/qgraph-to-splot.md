@@ -106,7 +106,7 @@ mat <- matrix(c(
 
 | qgraph         | splot               | Notes                                |
 |----------------|---------------------|--------------------------------------|
-| `vsize`        | `node_size`         | Same scale                           |
+| `vsize`        | `node_size`         | Calibrated visual mapping            |
 | `shape`        | `node_shape`        | “circle”, “square”, “triangle”, etc. |
 | `color`        | `node_fill`         | Node fill color                      |
 | `border.color` | `node_border_color` |                                      |

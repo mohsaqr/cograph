@@ -106,7 +106,7 @@ splot(boot,
 ``` r
 
 plot_bootstrap_forest(boot, layout = "grouped",
-  title = "Human-AI Interaction — Grouped by Source Node")
+  title = "Group Regulation — Grouped by Source Node")
 ```
 
 ![](plotting-tna-models_files/figure-html/tna-grouped-1.png)

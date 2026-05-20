@@ -118,9 +118,21 @@
 # =========================================================================
 
 #' Smooth blob polygon via padded convex hull + Laplacian smoothing
+#'
+#' Filters non-finite anchor points before calling `grDevices::chull()` —
+#' callers that pass NA coordinates (e.g. when a pathway references a
+#' state missing from the layout) would otherwise abort with "finite
+#' coordinates are needed". Returns an empty polygon (zero-row data.frame
+#' on the caller's expected shape) when no finite anchors remain, so the
+#' caller can skip the geom without erroring.
 #' @noRd
 .smooth_blob <- function(px, py, pad = 1.0, n_circle = 60L,
                          n_upsample = 800L, n_smooth_iter = 80L) {
+  ok <- is.finite(px) & is.finite(py)
+  px <- px[ok]; py <- py[ok]
+  if (length(px) == 0L) {
+    return(data.frame(x = numeric(0), y = numeric(0)))
+  }
   all_x <- all_y <- numeric(0)
   for (i in seq_along(px)) {
     a <- seq(0, 2 * pi, length.out = n_circle + 1L)[-(n_circle + 1L)]

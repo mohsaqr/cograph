@@ -852,10 +852,10 @@ ggplot2::ggsave("network.pdf", p, width = 8, height = 8)
 ```
 
 
-# Complete Parameter Reference
+# Selected Parameter Reference
 
 ::: {.callout-tip collapse="true"}
-## splot() --- All Parameters
+## splot() --- Selected Parameters
 
 **Input & Layout:**
 `x`, `layout`, `directed`, `seed`, `theme`, `title`, `background`, `groups`

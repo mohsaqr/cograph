@@ -80,7 +80,7 @@ splot(boot,
 ```
 ```{r tna-grouped, fig.width=5, fig.asp=1,out.width="50%",fig.pos="center",fig.align = 'center' }
 plot_bootstrap_forest(boot, layout = "grouped",
-  title = "Human-AI Interaction — Grouped by Source Node")
+  title = "Group Regulation — Grouped by Source Node")
 ```
 
 # 3. Simulated Group TNA + Permutation Test

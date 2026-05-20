@@ -1,5 +1,5 @@
 ---
-title: "Visualization of communities and hyper order networks"
+title: "Visualization of communities and higher-order networks"
 description: |
     Overlay community blobs on networks and visualize higher-order simplicial pathways
 date: "2026-03-14"

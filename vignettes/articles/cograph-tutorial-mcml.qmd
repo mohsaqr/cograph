@@ -52,7 +52,7 @@ library(Nestimate)
 
 # Introduction
 
-Large networks with many nodes and multiple constructs, components, or factors have a fundamental problem of being hard to work with. Consider a network with 20 nodes, each representing a construct: motivation, engagement, emotions, and collaboration. This network has 400 possible connections and in no way one can make sense of it. The common solution is to concatenate these nodes and lose their internal relations, or plot 400 edges and get lost in the details. **Multi-Cluster Multi-Level network** (MCML, despite the long name) is designed to solve this problem. It works by creating **a network within each cluster** showing its connections and summarizing all of the inter-cluster connections into **a macro-level network**. In this way, we preserve the data integrity and the value of the fine-grained details. Think of MCML as a **network of networks**.
+Large networks with many nodes and multiple constructs, components, or factors have a fundamental problem of being hard to work with. Consider a network with 20 nodes, each representing a construct: motivation, engagement, emotions, and collaboration. This network has 400 possible connections, making it difficult to interpret directly. The common solution is to concatenate these nodes and lose their internal relations, or plot 400 edges and get lost in the details. **Multi-Cluster Multi-Level network** (MCML, despite the long name) is designed to solve this problem. It works by creating **a network within each cluster** showing its connections and summarizing all of the inter-cluster connections into **a macro-level network**. In this way, we preserve the data integrity and the value of the fine-grained details. Think of MCML as a **network of networks**.
 
 The MCML workflow has a critical analytical advantage: once built, the macro network and each cluster network are **full TNA networks** in their own right. This means you can compute centrality, run bootstrap stability analysis, permutation tests, and even **higher-order pathway analysis** (**HYPA**) on each cluster independently. The MCML is not just a visualization --- it is a decomposition of a complex network into interpretable, analyzable sub-networks.
 
@@ -812,7 +812,7 @@ plot_mcml(net, clusters,
 
 # Downstream Analysis {#sec-downstream}
 
-The key insight of MCML is that **both levels are full TNA networks**. The macro network and each cluster network carry their own weight matrices, initial probabilities, and sequence data. This means every Nestimate analysis function --- centrality, bootstrap, permutation, and higher-order pathway analysis --- works on them directly.
+The key insight of MCML is that **both levels are full TNA networks**. The macro network and each cluster network carry their own weight matrices, initial probabilities, and sequence data. This means many Nestimate analysis workflows --- centrality, bootstrap, permutation, and higher-order pathway analysis --- work on them directly.
 
 ## Decomposing to individual networks
 

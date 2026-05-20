@@ -135,7 +135,7 @@ splot(mat10,
 
 ## Node Shapes Gallery
 
-All available node shapes with edge labels.
+Selected node shapes with edge labels.
 
 ```{r shapes-gallery, fig.width = 9, fig.height = 9}
 shapes <- c("circle", "square", "triangle", "diamond", "pentagon",

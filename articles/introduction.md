@@ -212,7 +212,8 @@ Getters and setters:
 ## Centrality
 
 [`centrality()`](https://sonsoles.me/cograph/reference/centrality.md)
-computes up to 25 measures and returns a data frame.
+computes a broad set of node centrality measures and returns a data
+frame.
 
 ``` r
 
@@ -246,7 +247,7 @@ centrality_pagerank(mat)
 #> 0.07386400 0.13821279 0.09495573
 ```
 
-All 25 measures:
+Selected measures:
 
 | Category | Functions |
 |----|----|

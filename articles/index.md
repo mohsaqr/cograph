@@ -27,7 +27,7 @@ Full tutorials
 - [Multi-Cluster Multi-Level Visualization with plot_mcml: A Complete
   Guide](https://sonsoles.me/cograph/articles/cograph-tutorial-mcml.md):
 
-- [Visualization of communities and hyper order
+- [Visualization of communities and higher-order
   networks](https://sonsoles.me/cograph/articles/cograph-tutorial-communities.md):
 
   Overlay community blobs on networks and visualize higher-order

@@ -140,7 +140,7 @@ splot(mat10,
 
 ## Node Shapes Gallery
 
-All available node shapes with edge labels.
+Selected node shapes with edge labels.
 
 ``` r
 

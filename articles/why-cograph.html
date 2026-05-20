@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -218,8 +218,8 @@ lazily (only what your expression actually references):</p>
 each returns a different format. <code>page_rank(g)</code> gives you a
 list with <code>$vector</code>. <code>betweenness(g)</code> gives a
 named numeric. Building a comparison table takes 10+ lines.</p>
-<p>In cograph, one call with no arguments returns all 34 measures as a
-tidy data frame:</p>
+<p>In cograph, one call with no arguments returns the available
+centrality measures as a tidy data frame:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/centrality.html">centrality</a></span><span class="op">(</span><span class="va">net</span>, digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    node degree_all strength_all closeness_all betweenness eigenvector pagerank</span></span>

@@ -3,8 +3,9 @@
 **cograph** is a modern R package for the analysis, visualization, and
 manipulation of complex networks. It provides publication-ready plotting
 with customizable layouts, node shapes, edge styles, and themes through
-an intuitive, pipe-friendly API. First-class support for Transition
-Network Analysis (TNA), multilayer networks, and community detection.
+an intuitive, pipe-friendly API. It includes first-class support for
+Transition Network Analysis (TNA), multilayer networks, and community
+detection.
 
 ## Installation
 
@@ -23,7 +24,7 @@ devtools::install_github("sonsoleslp/cograph")
 
 - [Network Visualization with
   `cograph`](https://sonsoles.me/cograph/articles/cograph-tutorial-plotting.html)
-- [Visualization of communities and hyper order
+- [Visualization of communities and higher-order
   networks](https://sonsoles.me/cograph/articles/cograph-tutorial-communities.html)
 - [Network Estimation and Visualization with `Nestimate` +
   cograph](https://sonsoles.me/cograph/articles/cograph-tutorial-nestimate.html)

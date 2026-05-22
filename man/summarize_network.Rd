@@ -2,18 +2,10 @@
 % Please edit documentation in R/cluster-metrics.R
 \name{summarize_network}
 \alias{summarize_network}
-\alias{cluster_network}
 \alias{cnet}
 \title{Summarize Network by Clusters}
 \usage{
 summarize_network(
-  x,
-  cluster_list = NULL,
-  method = c("sum", "mean", "max", "min", "median", "density", "geomean"),
-  directed = TRUE
-)
-
-cluster_network(
   x,
   cluster_list = NULL,
   method = c("sum", "mean", "max", "min", "median", "density", "geomean"),
@@ -49,8 +41,6 @@ A cograph_network object with:
 \item Edge weights = aggregated between-cluster weights
 \item nodes$size = cluster sizes (number of original nodes)
 }
-
-See \code{\link{summarize_network}}.
 
 See \code{\link{summarize_network}}.
 }

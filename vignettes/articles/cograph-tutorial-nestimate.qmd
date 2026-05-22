@@ -415,11 +415,11 @@ splot(mcml_built)
 
 ## Approach 3: Data-driven clusters
 
-When no strong theoretical grouping exists, `cluster_network()` discovers clusters algorithmically. It clusters the raw sequence data (using PAM by default) and builds a separate network per cluster, returning a `netobject_group`:
+When no strong theoretical grouping exists, `Nestimate::cluster_network()` discovers clusters algorithmically. It clusters the raw sequence data (using PAM by default) and builds a separate network per cluster, returning a `netobject_group`:
 
 ```{r}
 #| label: mcml-datadriven
-#grp_clustered <- cluster_network(group_regulation_long, k = 3)
+#grp_clustered <- Nestimate::cluster_network(group_regulation_long, k = 3)
 #names(grp_clustered)
 ```
 
@@ -472,7 +472,7 @@ splot(summary_net, node_size = 15, edge_labels = TRUE)
 |---|---|---|---|---|
 | Theory-driven | `cluster_summary(net, clusters)` | netobject + named list | `mcml` | You know the grouping |
 | Theory-driven | `build_mcml(net, clusters)` | netobject + named list | `mcml` | Same, alternative API |
-| Data-driven | `cluster_network(data, k)` | raw data + k | `netobject_group` | Exploratory clustering |
+| Data-driven | `Nestimate::cluster_network(data, k)` | raw data + k | `netobject_group` | Exploratory clustering |
 | Convert | `as_tna(mcml)` | mcml object | `netobject_group` | Per-cluster analysis |
 | Collapse | `summarize_network(net, clusters)` | netobject + clusters | `cograph_network` | Macro-only view |
 :::

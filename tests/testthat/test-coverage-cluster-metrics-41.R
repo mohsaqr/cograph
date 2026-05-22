@@ -575,14 +575,12 @@ test_that("summarize_network with different methods", {
   expect_s3_class(result_geomean, "cograph_network")
 })
 
-test_that("cluster_network and cnet are aliases for summarize_network", {
+test_that("cnet is an alias for summarize_network", {
   result1 <- summarize_network(mat8, clusters_list)
-  result2 <- cluster_network(mat8, clusters_list)
-  result3 <- cnet(mat8, clusters_list)
+  result2 <- cnet(mat8, clusters_list)
 
   # Same structure
   expect_equal(n_nodes(result1), n_nodes(result2))
-  expect_equal(n_nodes(result1), n_nodes(result3))
 })
 
 test_that("summarize_network works with unnamed matrix", {

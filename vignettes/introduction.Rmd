@@ -327,7 +327,7 @@ plot_mtna(mat, clusters)
 | `plot_htna()` | Multi-group heterogeneous TNA |
 | `cluster_summary()` / `build_mcml()` | Pre-compute cluster aggregation |
 | `as_tna()` / `as_mcml()` | Convert cluster summaries to tna objects |
-| `cluster_network()` | Extract cluster-level network |
+| `summarize_network()` / `cnet()` | Extract cluster-level network (matrix aggregation) |
 
 ## Multilayer networks
 

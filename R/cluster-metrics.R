@@ -2728,9 +2728,4 @@ summarize_network <- function(x,
 #' @rdname summarize_network
 #' @return See \code{\link{summarize_network}}.
 #' @export
-cluster_network <- summarize_network
-
-#' @rdname summarize_network
-#' @return See \code{\link{summarize_network}}.
-#' @export
 cnet <- summarize_network

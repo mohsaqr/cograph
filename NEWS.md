@@ -1,3 +1,56 @@
+# cograph 2.3.6
+
+## Bug fixes
+
+- Removed the `cluster_network()` alias for `summarize_network()`. It
+  collided with `Nestimate::cluster_network()` — a completely different
+  function (PAM clustering on sequence data, one network per cluster) —
+  and the two silently masked each other depending on package attach
+  order, producing confusing `unused arguments (k = ..., cluster_by =
+  ...)` errors. Use `summarize_network()` (or its remaining short form
+  `cnet()`) for matrix-to-cluster aggregation in cograph.
+
+# cograph 2.3.5
+
+## Documentation
+
+- Added Sonsoles López-Pernas as co-copyright holder in `LICENSE`.
+- README / docs wording fixes (e.g. "hyper order" → "higher-order").
+- Introduction vignette no longer asserts a fixed centrality-measure
+  count, which kept drifting as the measure set grew.
+
+# cograph 2.3.4
+
+## Bug fixes
+
+- `.smooth_blob()` (used by `plot_simplicial()` and
+  `overlay_communities()`) now guards `grDevices::chull()` against
+  non-finite anchor coordinates. Previously a node lacking layout
+  coordinates (NA/Inf) aborted the blob with "finite coordinates are
+  needed"; such anchors are now dropped before the convex-hull step.
+
+# cograph 2.3.3
+
+## Documentation
+
+- Aligned the `motifs()` / `subgraphs()` roxygen documentation with the
+  post-audit behavior shipped in 2.3.2 (census `type_summary` counts,
+  `min_count` handling, and corrected plot legend descriptions).
+
+# cograph 2.3.2
+
+## Bug fixes
+
+- Full audit pass over the motifs subsystem: `type_summary` now holds
+  real MAN-type counts in census mode, `min_count` is honored in census
+  mode, and the swapped source/target color description in
+  `plot.cograph_motif_result()` is corrected.
+- Unbroke `motifs()` and `plot_simplicial()` on Nestimate-backed
+  workflows (HON / HYPA sequence inputs).
+- `panel_layout()`: tightened dimension validation and made the
+  restoration claim honest — it now restores only the `par()` settings
+  it actually changed.
+
 # cograph 2.3.1
 
 ## Multi-panel layout control

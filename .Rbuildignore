@@ -48,6 +48,7 @@
 ^vignettes/mcml-examples\.Rmd$
 ^vignettes/mcml-examples\.html$
 ^vignettes/heatmaps-demo\.html$
+^vignettes/old_vignettes$
 ^LEARNINGS\.md$
 ^HANDOFF\.md$
 ^CHANGES\.md$

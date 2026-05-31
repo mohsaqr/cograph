@@ -435,7 +435,7 @@ plot_mtna(mat, clusters)
 | [`plot_htna()`](https://sonsoles.me/cograph/reference/plot_htna.md) | Multi-group heterogeneous TNA |
 | [`cluster_summary()`](https://sonsoles.me/cograph/reference/cluster_summary.md) / [`build_mcml()`](https://sonsoles.me/cograph/reference/build_mcml.md) | Pre-compute cluster aggregation |
 | [`as_tna()`](https://sonsoles.me/cograph/reference/as_tna.md) / [`as_mcml()`](https://sonsoles.me/cograph/reference/as_mcml.md) | Convert cluster summaries to tna objects |
-| [`cluster_network()`](https://sonsoles.me/cograph/reference/summarize_network.md) | Extract cluster-level network |
+| [`summarize_network()`](https://sonsoles.me/cograph/reference/summarize_network.md) / [`cnet()`](https://sonsoles.me/cograph/reference/summarize_network.md) | Extract cluster-level network (matrix aggregation) |
 
 ## Multilayer networks
 

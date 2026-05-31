@@ -1,5 +1,77 @@
 # Changelog
 
+## cograph 2.3.6
+
+### Bug fixes
+
+- Removed the
+  [`cluster_network()`](https://rdrr.io/pkg/Nestimate/man/cluster_network.html)
+  alias for
+  [`summarize_network()`](https://sonsoles.me/cograph/reference/summarize_network.md).
+  It collided with
+  [`Nestimate::cluster_network()`](https://rdrr.io/pkg/Nestimate/man/cluster_network.html)
+  — a completely different function (PAM clustering on sequence data,
+  one network per cluster) — and the two silently masked each other
+  depending on package attach order, producing confusing
+  `unused arguments (k = ..., cluster_by = ...)` errors. Use
+  [`summarize_network()`](https://sonsoles.me/cograph/reference/summarize_network.md)
+  (or its remaining short form
+  [`cnet()`](https://sonsoles.me/cograph/reference/summarize_network.md))
+  for matrix-to-cluster aggregation in cograph.
+
+## cograph 2.3.5
+
+### Documentation
+
+- Added Sonsoles López-Pernas as co-copyright holder in `LICENSE`.
+- README / docs wording fixes (e.g. “hyper order” → “higher-order”).
+- Introduction vignette no longer asserts a fixed centrality-measure
+  count, which kept drifting as the measure set grew.
+
+## cograph 2.3.4
+
+### Bug fixes
+
+- `.smooth_blob()` (used by
+  [`plot_simplicial()`](https://sonsoles.me/cograph/reference/plot_simplicial.md)
+  and
+  [`overlay_communities()`](https://sonsoles.me/cograph/reference/overlay_communities.md))
+  now guards
+  [`grDevices::chull()`](https://rdrr.io/r/grDevices/chull.html) against
+  non-finite anchor coordinates. Previously a node lacking layout
+  coordinates (NA/Inf) aborted the blob with “finite coordinates are
+  needed”; such anchors are now dropped before the convex-hull step.
+
+## cograph 2.3.3
+
+### Documentation
+
+- Aligned the
+  [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md) /
+  [`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md)
+  roxygen documentation with the post-audit behavior shipped in 2.3.2
+  (census `type_summary` counts, `min_count` handling, and corrected
+  plot legend descriptions).
+
+## cograph 2.3.2
+
+### Bug fixes
+
+- Full audit pass over the motifs subsystem: `type_summary` now holds
+  real MAN-type counts in census mode, `min_count` is honored in census
+  mode, and the swapped source/target color description in
+  [`plot.cograph_motif_result()`](https://sonsoles.me/cograph/reference/motifs.md)
+  is corrected.
+- Unbroke [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md)
+  and
+  [`plot_simplicial()`](https://sonsoles.me/cograph/reference/plot_simplicial.md)
+  on Nestimate-backed workflows (HON / HYPA sequence inputs).
+- [`panel_layout()`](https://sonsoles.me/cograph/reference/panel_layout.md):
+  tightened dimension validation and made the restoration claim honest —
+  it now restores only the
+  [`par()`](https://rdrr.io/r/graphics/par.html) settings it actually
+  changed.
+
 ## cograph 2.3.1
 
 ### Multi-panel layout control

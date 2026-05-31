@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,6 +42,47 @@
       <small>Source: <a href="https://github.com/sonsoleslp/cograph/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.3.6" id="cograph-236">cograph 2.3.6<a class="anchor" aria-label="anchor" href="#cograph-236"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-2-3-6">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-3-6"></a></h3>
+<ul><li>Removed the <code><a href="https://rdrr.io/pkg/Nestimate/man/cluster_network.html" class="external-link">cluster_network()</a></code> alias for <code><a href="../reference/summarize_network.html">summarize_network()</a></code>. It collided with <code><a href="https://rdrr.io/pkg/Nestimate/man/cluster_network.html" class="external-link">Nestimate::cluster_network()</a></code> — a completely different function (PAM clustering on sequence data, one network per cluster) — and the two silently masked each other depending on package attach order, producing confusing <code>unused arguments (k = ..., cluster_by = ...)</code> errors. Use <code><a href="../reference/summarize_network.html">summarize_network()</a></code> (or its remaining short form <code><a href="../reference/summarize_network.html">cnet()</a></code>) for matrix-to-cluster aggregation in cograph.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.3.5" id="cograph-235">cograph 2.3.5<a class="anchor" aria-label="anchor" href="#cograph-235"></a></h2>
+<div class="section level3">
+<h3 id="documentation-2-3-5">Documentation<a class="anchor" aria-label="anchor" href="#documentation-2-3-5"></a></h3>
+<ul><li>Added Sonsoles López-Pernas as co-copyright holder in <code>LICENSE</code>.</li>
+<li>README / docs wording fixes (e.g. “hyper order” → “higher-order”).</li>
+<li>Introduction vignette no longer asserts a fixed centrality-measure count, which kept drifting as the measure set grew.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.3.4" id="cograph-234">cograph 2.3.4<a class="anchor" aria-label="anchor" href="#cograph-234"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-2-3-4">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-3-4"></a></h3>
+<ul><li>
+<code>.smooth_blob()</code> (used by <code><a href="../reference/plot_simplicial.html">plot_simplicial()</a></code> and <code><a href="../reference/overlay_communities.html">overlay_communities()</a></code>) now guards <code><a href="https://rdrr.io/r/grDevices/chull.html" class="external-link">grDevices::chull()</a></code> against non-finite anchor coordinates. Previously a node lacking layout coordinates (NA/Inf) aborted the blob with “finite coordinates are needed”; such anchors are now dropped before the convex-hull step.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.3.3" id="cograph-233">cograph 2.3.3<a class="anchor" aria-label="anchor" href="#cograph-233"></a></h2>
+<div class="section level3">
+<h3 id="documentation-2-3-3">Documentation<a class="anchor" aria-label="anchor" href="#documentation-2-3-3"></a></h3>
+<ul><li>Aligned the <code><a href="../reference/motifs.html">motifs()</a></code> / <code><a href="../reference/subgraphs.html">subgraphs()</a></code> roxygen documentation with the post-audit behavior shipped in 2.3.2 (census <code>type_summary</code> counts, <code>min_count</code> handling, and corrected plot legend descriptions).</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.3.2" id="cograph-232">cograph 2.3.2<a class="anchor" aria-label="anchor" href="#cograph-232"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-2-3-2">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-3-2"></a></h3>
+<ul><li>Full audit pass over the motifs subsystem: <code>type_summary</code> now holds real MAN-type counts in census mode, <code>min_count</code> is honored in census mode, and the swapped source/target color description in <code><a href="../reference/motifs.html">plot.cograph_motif_result()</a></code> is corrected.</li>
+<li>Unbroke <code><a href="../reference/motifs.html">motifs()</a></code> and <code><a href="../reference/plot_simplicial.html">plot_simplicial()</a></code> on Nestimate-backed workflows (HON / HYPA sequence inputs).</li>
+<li>
+<code><a href="../reference/panel_layout.html">panel_layout()</a></code>: tightened dimension validation and made the restoration claim honest — it now restores only the <code><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par()</a></code> settings it actually changed.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.3.1" id="cograph-231">cograph 2.3.1<a class="anchor" aria-label="anchor" href="#cograph-231"></a></h2>
 <div class="section level3">

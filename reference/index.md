@@ -831,7 +831,6 @@
 - [`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md) :
   Extract Specific Motif Instances (Subgraphs)
 - [`summarize_network()`](https://sonsoles.me/cograph/reference/summarize_network.md)
-  [`cluster_network()`](https://sonsoles.me/cograph/reference/summarize_network.md)
   [`cnet()`](https://sonsoles.me/cograph/reference/summarize_network.md)
   : Summarize Network by Clusters
 - [`theme_cograph_classic()`](https://sonsoles.me/cograph/reference/theme_cograph_classic.md)

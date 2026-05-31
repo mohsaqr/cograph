@@ -14,13 +14,6 @@ summarize_network(
   directed = TRUE
 )
 
-cluster_network(
-  x,
-  cluster_list = NULL,
-  method = c("sum", "mean", "max", "min", "median", "density", "geomean"),
-  directed = TRUE
-)
-
 cnet(
   x,
   cluster_list = NULL,
@@ -64,8 +57,6 @@ A cograph_network object with:
 - Edge weights = aggregated between-cluster weights
 
 - nodes\$size = cluster sizes (number of original nodes)
-
-See `summarize_network`.
 
 See `summarize_network`.
 

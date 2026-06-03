@@ -465,6 +465,9 @@ plot_net_stability <- function(x, ...) {
   invisible(x)
 }
 
-#' @rdname plot_net_stability
-#' @export
-plot.net_stability <- function(x, ...) plot_net_stability(x, ...)
+# NOTE: cograph deliberately does NOT register an S3 `plot.net_stability`
+# method. Nestimate (the data layer that produces `net_stability` objects)
+# ships its own ggplot `plot.net_stability` with confidence-interval ribbons,
+# which is the canonical rendering. Registering one here too created an
+# S3 dispatch clash (last-loaded wins). The base-graphics rendering remains
+# available on demand via `plot_net_stability()`.

@@ -7,9 +7,6 @@ object. Shows how centrality correlations drop as cases are removed.
 
 ``` r
 plot_net_stability(x, ...)
-
-# S3 method for class 'net_stability'
-plot(x, ...)
 ```
 
 ## Arguments
@@ -17,7 +14,7 @@ plot(x, ...)
 - x:
 
   A `net_stability` object (from
-  [`Nestimate::centrality_stability`](https://rdrr.io/pkg/Nestimate/man/centrality_stability.html)).
+  [`Nestimate::centrality_stability`](https://saqr.me/Nestimate/reference/centrality_stability.html)).
 
 - ...:
 

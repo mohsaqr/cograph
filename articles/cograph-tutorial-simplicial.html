@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,7 +69,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Higher-Order Network Analysis with Simplicial Complexes</h1>
       <p class="subtitle">From Transition Networks to Topological Analysis</p>
       <p class="author">Mohammed Saqr &amp; Sonsoles López-Pernas</p>
-      <p class="date">2026-05-31</p>
+      <p class="date">2026-06-03</p>
 
       <small class="dont-index">Source: <a href="https://github.com/sonsoleslp/cograph/blob/main/vignettes/articles/cograph-tutorial-simplicial.qmd" class="external-link"><code>vignettes/articles/cograph-tutorial-simplicial.qmd</code></a></small>
       <div class="d-none name"><code></code></div>
@@ -115,13 +115,13 @@
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"human_long"</span>, package <span class="op">=</span> <span class="st">"Nestimate"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Nestimate/man/build_network.html" class="external-link">build_network</a></span><span class="op">(</span><span class="va">human_long</span>, method <span class="op">=</span> <span class="st">"relative"</span>,</span>
+<span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://saqr.me/Nestimate/reference/build_network.html" class="external-link">build_network</a></span><span class="op">(</span><span class="va">human_long</span>, method <span class="op">=</span> <span class="st">"relative"</span>,</span>
 <span>                     action <span class="op">=</span> <span class="st">"code"</span>, actor <span class="op">=</span> <span class="st">"session_id"</span>,</span>
 <span>                     time <span class="op">=</span> <span class="st">"timestamp"</span><span class="op">)</span></span>
 <span><span class="va">net</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Transition Network (relative probabilities) [directed]
-  Weights: [0.018, 0.620]  |  mean: 0.109
+  Weights: [0.018, 0.620]  |  mean: 0.111
 
   Weight matrix:
             Command Correct Frustrate Inquire Interrupt Refine Request Specify
@@ -173,26 +173,27 @@
 <p>Before investing in higher-order analysis, we should answer: <strong>does sequential memory actually matter?</strong> The Multi-Order Generative Model (MOGen; Scholtes 2017) fits Markov models at increasing orders and compares them using information criteria. Higher-order models fit better but have exponentially more parameters — AIC and BIC find the best tradeoff.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Nestimate/man/build_mogen.html" class="external-link">build_mogen</a></span><span class="op">(</span><span class="va">net</span>, max_order <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">mg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://saqr.me/Nestimate/reference/build_mogen.html" class="external-link">build_mogen</a></span><span class="op">(</span><span class="va">net</span>, max_order <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">mg</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Multi-Order Generative Model (MOGen) Summary
 
   States: Command, Correct, Frustrate, Inquire, Interrupt, Refine, Request, Specify, Verify
   Paths: 508 | Observations: 10778
-
- order layer_dof cum_dof    loglik      aic      bic selected
-     0         8       8 -22001.20 44018.40 44076.68
-     1        72      80 -20805.61 41771.23 42354.05
-     2       621     701 -19819.55 41041.10 46148.07
-     3      2445    3146 -17152.10 40596.20 63515.63
-     4      2990    6136 -11469.73 35211.46 79913.83      &lt;--
-
-  Optimal order: 4 (by aic)</code></pre>
+  Best by AIC: order 4  |  Best by BIC: order 1
+  Selected:    order 4 (by aic)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        order layer_dof cum_dof    loglik      aic      bic best selected
+order_0     0         8       8 -22001.20 44018.40 44076.68
+order_1     1        72      80 -20805.61 41771.23 42354.05  BIC
+order_2     2       621     701 -19819.55 41041.10 46148.07
+order_3     3      2445    3146 -17152.10 40596.20 63515.63
+order_4     4      2990    6136 -11469.73 35211.46 79913.83  AIC      &lt;--</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mg</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
 <div>
@@ -214,10 +215,10 @@
 <p>Even when order 1 is globally optimal (by BIC), <em>specific pathways</em> may still exhibit higher-order behavior — the global model averages over all states. The HON analysis below detects these local patterns.</p>
 </section><section class="level3"><h3 id="second-order-transition-matrix">Second-order transition matrix<a class="anchor" aria-label="anchor" href="#second-order-transition-matrix"></a>
 </h3>
-<p><code><a href="https://rdrr.io/pkg/Nestimate/man/mogen_transitions.html" class="external-link">mogen_transitions()</a></code> extracts the transitions at a given order, showing which two-step contexts lead to different outcomes:</p>
+<p><code><a href="https://saqr.me/Nestimate/reference/mogen_transitions.html" class="external-link">mogen_transitions()</a></code> extracts the transitions at a given order, showing which two-step contexts lead to different outcomes:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Nestimate/man/mogen_transitions.html" class="external-link">mogen_transitions</a></span><span class="op">(</span><span class="va">mg</span>, order <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://saqr.me/Nestimate/reference/mogen_transitions.html" class="external-link">mogen_transitions</a></span><span class="op">(</span><span class="va">mg</span>, order <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">mt</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span>, <span class="op">]</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                             path count probability               from
@@ -245,8 +246,8 @@
 </h2>
 <p>While MOGen tells us <em>whether</em> higher-order dependencies exist on average, the <strong>Higher-Order Network</strong> (HON; Xu et al. 2016) tells us <em>where</em>. HON tests, for each state, whether adding context significantly changes the outgoing transition distribution using KL-divergence. If the distribution after <em>Request → Specify</em> differs from <em>Frustrate → Specify</em>, HON creates separate nodes for these contexts.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">hon</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Nestimate/man/build_hon.html" class="external-link">build_hon</a></span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span>
+<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">hon</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://saqr.me/Nestimate/reference/build_hon.html" class="external-link">build_hon</a></span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span>
 <span><span class="va">hon</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Higher-Order Network (HON)
@@ -258,7 +259,7 @@
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ho_edges</span> <span class="op">&lt;-</span> <span class="va">hon</span><span class="op">$</span><span class="va">ho_edges</span><span class="op">[</span><span class="va">hon</span><span class="op">$</span><span class="va">ho_edges</span><span class="op">$</span><span class="va">from_order</span> <span class="op">&gt;</span> <span class="fl">1</span>, <span class="op">]</span></span>
 <span><span class="va">ho_top</span> <span class="op">&lt;-</span> <span class="va">ho_edges</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="va">ho_edges</span><span class="op">$</span><span class="va">count</span><span class="op">)</span>, <span class="op">]</span></span>
 <span><span class="va">ho_top</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">ho_top</span><span class="op">)</span><span class="op">)</span>, <span class="op">]</span></span></code></pre></div>
@@ -292,8 +293,8 @@
 </h3>
 <p>The most common 3-step sequences regardless of statistical significance:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/Nestimate/man/path_counts.html" class="external-link">path_counts</a></span><span class="op">(</span><span class="va">net</span>, k <span class="op">=</span> <span class="fl">3</span>, top <span class="op">=</span> <span class="fl">15</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://saqr.me/Nestimate/reference/path_counts.html" class="external-link">path_counts</a></span><span class="op">(</span><span class="va">net</span>, k <span class="op">=</span> <span class="fl">3</span>, top <span class="op">=</span> <span class="fl">15</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                              path count proportion
 1    Specify -&gt; Command -&gt; Specify   281     0.0288
@@ -324,8 +325,8 @@
 <strong>Under-represented</strong> paths: Systematically avoided combinations — sequences that are socially inappropriate, cognitively difficult, or practically ineffective.</li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">hypa</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Nestimate/man/build_hypa.html" class="external-link">build_hypa</a></span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span>
+<div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">hypa</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://saqr.me/Nestimate/reference/build_hypa.html" class="external-link">build_hypa</a></span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span>
 <span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/plot_simplicial.html">plot_simplicial</a></span><span class="op">(</span><span class="va">hypa</span>, dismantled <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
@@ -340,7 +341,7 @@
 </h3>
 <p>Learned routines — sequences that occur far more than expected. <code><a href="../reference/plot_simplicial.html">plot_simplicial()</a></code> accepts HYPA objects directly with the <code>anomaly</code> parameter to filter:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_simplicial.html">plot_simplicial</a></span><span class="op">(</span><span class="va">hypa</span>, anomaly <span class="op">=</span> <span class="st">"over"</span>, max_pathways <span class="op">=</span> <span class="fl">9</span>,</span>
 <span>                dismantled <span class="op">=</span> <span class="cn">TRUE</span>, ncol <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
@@ -354,7 +355,7 @@
 </h3>
 <p>Avoided sequences:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_simplicial.html">plot_simplicial</a></span><span class="op">(</span><span class="va">hypa</span>, anomaly <span class="op">=</span> <span class="st">"under"</span>, max_pathways <span class="op">=</span> <span class="fl">6</span>,</span>
 <span>                dismantled <span class="op">=</span> <span class="cn">TRUE</span>, ncol <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
@@ -368,7 +369,7 @@
 </h3>
 <p>Multiple pathways on a single plot — overlapping regions indicate states that participate in many higher-order patterns:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_simplicial.html">plot_simplicial</a></span><span class="op">(</span><span class="va">net</span>, max_pathways <span class="op">=</span> <span class="fl">6</span>,</span>
 <span>                title <span class="op">=</span> <span class="st">"Top 6 Higher-Order Pathways"</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
@@ -382,13 +383,13 @@
 </h2>
 <p>A powerful application is comparing higher-order structure across conditions. We build grouped networks by superclass (Directive, Evaluative, Metacognitive) and run HYPA on each:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">grp_net</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Nestimate/man/build_network.html" class="external-link">build_network</a></span><span class="op">(</span><span class="va">human_long</span>, method <span class="op">=</span> <span class="st">"relative"</span>,</span>
+<div class="sourceCode cell-code" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">grp_net</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://saqr.me/Nestimate/reference/build_network.html" class="external-link">build_network</a></span><span class="op">(</span><span class="va">human_long</span>, method <span class="op">=</span> <span class="st">"relative"</span>,</span>
 <span>                         action <span class="op">=</span> <span class="st">"code"</span>, actor <span class="op">=</span> <span class="st">"session_id"</span>,</span>
 <span>                         time <span class="op">=</span> <span class="st">"timestamp"</span>, group <span class="op">=</span> <span class="st">"cluster"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">hypa_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">grp_net</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">nm</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">h</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Nestimate/man/build_hypa.html" class="external-link">build_hypa</a></span><span class="op">(</span><span class="va">grp_net</span><span class="op">[[</span><span class="va">nm</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="va">h</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://saqr.me/Nestimate/reference/build_hypa.html" class="external-link">build_hypa</a></span><span class="op">(</span><span class="va">grp_net</span><span class="op">[[</span><span class="va">nm</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>    group <span class="op">=</span> <span class="va">nm</span>,</span>
 <span>    total_edges <span class="op">=</span> <span class="va">h</span><span class="op">$</span><span class="va">n_edges</span>,</span>
@@ -401,14 +402,14 @@
 <span><span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="va">hypa_results</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>          group total_edges anomalous over under pct_anomalous
-1     Directive          80        39   31     8          48.8
-2 Metacognitive          16        12    9     3          75.0
-3    Evaluative         256        21   19     2           8.2</code></pre>
+1     Directive          27        22   11    11          81.5
+2 Metacognitive           8         7    4     3          87.5
+3    Evaluative          64        13    9     4          20.3</code></pre>
 </div>
 </div>
 <p>Groups with a higher percentage of anomalous pathways have more higher-order structure — their sequential dynamics are less predictable from first-order transitions alone.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plot_simplicial.html">plot_simplicial</a></span><span class="op">(</span><span class="va">grp_net</span><span class="op">$</span><span class="va">Directive</span>, max_pathways <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>                title <span class="op">=</span> <span class="st">"Directive: Higher-Order Pathways"</span><span class="op">)</span></span></code></pre></div>
@@ -418,7 +419,7 @@
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_simplicial.html">plot_simplicial</a></span><span class="op">(</span><span class="va">grp_net</span><span class="op">$</span><span class="va">Evaluative</span>, max_pathways <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>                title <span class="op">=</span> <span class="st">"Evaluative: Higher-Order Pathways"</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
@@ -432,13 +433,13 @@
 </h2>
 <p>Higher-order analysis is particularly informative when applied to different datasets. Here we compare the human-AI coding data with a collaborative regulation dataset:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"group_regulation_long"</span>, package <span class="op">=</span> <span class="st">"Nestimate"</span><span class="op">)</span></span>
-<span><span class="va">net_reg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Nestimate/man/build_network.html" class="external-link">build_network</a></span><span class="op">(</span><span class="va">group_regulation_long</span>, method <span class="op">=</span> <span class="st">"relative"</span>,</span>
+<span><span class="va">net_reg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://saqr.me/Nestimate/reference/build_network.html" class="external-link">build_network</a></span><span class="op">(</span><span class="va">group_regulation_long</span>, method <span class="op">=</span> <span class="st">"relative"</span>,</span>
 <span>                         action <span class="op">=</span> <span class="st">"Action"</span>, actor <span class="op">=</span> <span class="st">"Actor"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">hypa_coding</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Nestimate/man/build_hypa.html" class="external-link">build_hypa</a></span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span>
-<span><span class="va">hypa_reg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Nestimate/man/build_hypa.html" class="external-link">build_hypa</a></span><span class="op">(</span><span class="va">net_reg</span><span class="op">)</span></span>
+<span><span class="va">hypa_coding</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://saqr.me/Nestimate/reference/build_hypa.html" class="external-link">build_hypa</a></span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span>
+<span><span class="va">hypa_reg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://saqr.me/Nestimate/reference/build_hypa.html" class="external-link">build_hypa</a></span><span class="op">(</span><span class="va">net_reg</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">comparison</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  dataset <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Human-AI Coding"</span>, <span class="st">"Collaborative Regulation"</span><span class="op">)</span>,</span>
@@ -451,12 +452,12 @@
 <span><span class="va">comparison</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                   dataset nodes total_paths anomalous over under
-1          Human-AI Coding     9        3138       181  139    42
-2 Collaborative Regulation     9        2584       600  524    76</code></pre>
+1          Human-AI Coding     9         702       177  133    44
+2 Collaborative Regulation     9         574       229  174    55</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plot_simplicial.html">plot_simplicial</a></span><span class="op">(</span><span class="va">net</span>, max_pathways <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>                title <span class="op">=</span> <span class="st">"Human-AI Coding"</span><span class="op">)</span></span></code></pre></div>
@@ -466,7 +467,7 @@
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_simplicial.html">plot_simplicial</a></span><span class="op">(</span><span class="va">net_reg</span>, max_pathways <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>                title <span class="op">=</span> <span class="st">"Collaborative Regulation"</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
@@ -493,8 +494,8 @@
 </section><section class="level3"><h3 id="building-the-complex">Building the complex<a class="anchor" aria-label="anchor" href="#building-the-complex"></a>
 </h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Nestimate/man/build_simplicial.html" class="external-link">build_simplicial</a></span><span class="op">(</span><span class="va">net</span>, threshold <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span>
+<div class="sourceCode cell-code" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://saqr.me/Nestimate/reference/build_simplicial.html" class="external-link">build_simplicial</a></span><span class="op">(</span><span class="va">net</span>, threshold <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span>
 <span><span class="va">sc</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Clique Complex
@@ -518,8 +519,8 @@
 <strong>Simplicial degree</strong>: how many higher-dimensional simplices each node participates in.</li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb30"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/Nestimate/man/simplicial_degree.html" class="external-link">simplicial_degree</a></span><span class="op">(</span><span class="va">sc</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://saqr.me/Nestimate/reference/simplicial_degree.html" class="external-link">simplicial_degree</a></span><span class="op">(</span><span class="va">sc</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       node d0 d1 d2 d3 d4 d5 d6 d7 d8 total
 1   Command  1  8 28 56 70 56 28  8  1   255
@@ -534,7 +535,7 @@
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sc</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
 <div>
@@ -548,19 +549,19 @@
 </h3>
 <p>A single complex at one threshold gives a static snapshot. <strong>Persistent homology</strong> reveals how topology evolves as we vary the threshold. Start with only the strongest edges and progressively add weaker ones. Features that persist across a wide range are <strong>topologically robust</strong>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb33"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ph</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Nestimate/man/persistent_homology.html" class="external-link">persistent_homology</a></span><span class="op">(</span><span class="va">net</span>, n_steps <span class="op">=</span> <span class="fl">25</span><span class="op">)</span></span>
+<div class="sourceCode cell-code" id="cb34"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ph</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://saqr.me/Nestimate/reference/persistent_homology.html" class="external-link">persistent_homology</a></span><span class="op">(</span><span class="va">net</span>, n_steps <span class="op">=</span> <span class="fl">25</span><span class="op">)</span></span>
 <span><span class="va">ph</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Persistent Homology
   25 filtration steps [0.6197 → 0.0062]
-  Features: b0: 9 (1 persistent)  |  b1: 2 (0 persistent)  |  b3: 70 (70 persistent)
+  Features: b0: 8 (1 persistent)  |  b1: 3 (0 persistent)  |  b3: 70 (70 persistent)
   Longest-lived:
     b0: 0.6197 → 0.0000 (life: 0.6197)
-    b0: 0.6197 → 0.1596 (life: 0.4601)
-    b0: 0.6197 → 0.1851 (life: 0.4346)</code></pre>
+    b0: 0.6197 → 0.1707 (life: 0.4491)
+    b0: 0.6197 → 0.1958 (life: 0.4239)</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ph</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
 <div>
@@ -583,8 +584,8 @@
 <strong>q = 2</strong>: share at least one triangle</li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb36"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">qa</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Nestimate/man/q_analysis.html" class="external-link">q_analysis</a></span><span class="op">(</span><span class="va">sc</span><span class="op">)</span></span>
+<div class="sourceCode cell-code" id="cb37"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">qa</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://saqr.me/Nestimate/reference/q_analysis.html" class="external-link">q_analysis</a></span><span class="op">(</span><span class="va">sc</span><span class="op">)</span></span>
 <span><span class="va">qa</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Q-Analysis (max q = 8)
@@ -592,7 +593,7 @@
   Fully connected at all q levels
   Structure: Command:8 Correct:8 Frustrate:8 Inquire:8 Interrupt:8 Refine:8 Request:8 Specify:8 Verify:8</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">qa</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
 <div>
@@ -606,8 +607,8 @@
 </h3>
 <p>An alternative to the clique complex: build a simplicial complex from the <strong>pathways</strong> discovered by HON — topology derived from sequential dynamics rather than network structure:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb39"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sc_hon</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Nestimate/man/build_simplicial.html" class="external-link">build_simplicial</a></span><span class="op">(</span><span class="va">hon</span>, type <span class="op">=</span> <span class="st">"pathway"</span>, max_pathways <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span>
+<div class="sourceCode cell-code" id="cb40"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sc_hon</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://saqr.me/Nestimate/reference/build_simplicial.html" class="external-link">build_simplicial</a></span><span class="op">(</span><span class="va">hon</span>, type <span class="op">=</span> <span class="st">"pathway"</span>, max_pathways <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span>
 <span><span class="va">sc_hon</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Pathway Complex
@@ -617,7 +618,7 @@
   Betti: b0=2 b1=1
   Nodes: Command, Correct, Frustrate, Inquire, Interrupt, Refine, Request, Specify, Verify </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb41"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sc_hon</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
 <div>
@@ -631,8 +632,8 @@
 </h3>
 <p>All simplicial computations are cross-validated against igraph’s clique-finding and verified via the Euler-Poincaré theorem:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb42"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/Nestimate/man/verify_simplicial.html" class="external-link">verify_simplicial</a></span><span class="op">(</span><span class="va">net</span><span class="op">$</span><span class="va">weights</span>, threshold <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode cell-code" id="cb43"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://saqr.me/Nestimate/reference/verify_simplicial.html" class="external-link">verify_simplicial</a></span><span class="op">(</span><span class="va">net</span><span class="op">$</span><span class="va">weights</span>, threshold <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  Cliques:  MATCH (511 simplices)
   Betti:    b0=1 b1=0 b2=0 b3=0 b4=0 b5=0 b6=0 b7=0 b8=0
@@ -658,25 +659,25 @@
 <tr class="odd">
 <td>1</td>
 <td><strong>TNA</strong></td>
-<td><code><a href="https://rdrr.io/pkg/Nestimate/man/build_network.html" class="external-link">build_network()</a></code></td>
+<td><code><a href="https://saqr.me/Nestimate/reference/build_network.html" class="external-link">build_network()</a></code></td>
 <td>First-order transition structure</td>
 </tr>
 <tr class="even">
 <td>2</td>
 <td><strong>MOGen</strong></td>
-<td><code><a href="https://rdrr.io/pkg/Nestimate/man/build_mogen.html" class="external-link">build_mogen()</a></code></td>
+<td><code><a href="https://saqr.me/Nestimate/reference/build_mogen.html" class="external-link">build_mogen()</a></code></td>
 <td>Whether higher-order is needed</td>
 </tr>
 <tr class="odd">
 <td>3</td>
 <td><strong>HON</strong></td>
-<td><code><a href="https://rdrr.io/pkg/Nestimate/man/build_hon.html" class="external-link">build_hon()</a></code></td>
+<td><code><a href="https://saqr.me/Nestimate/reference/build_hon.html" class="external-link">build_hon()</a></code></td>
 <td>Where sequential context changes transitions</td>
 </tr>
 <tr class="even">
 <td>4</td>
 <td><strong>HYPA</strong></td>
-<td><code><a href="https://rdrr.io/pkg/Nestimate/man/build_hypa.html" class="external-link">build_hypa()</a></code></td>
+<td><code><a href="https://saqr.me/Nestimate/reference/build_hypa.html" class="external-link">build_hypa()</a></code></td>
 <td>Which paths are anomalously frequent or rare</td>
 </tr>
 <tr class="odd">
@@ -688,19 +689,19 @@
 <tr class="even">
 <td>6</td>
 <td><strong>Simplicial</strong></td>
-<td><code><a href="https://rdrr.io/pkg/Nestimate/man/build_simplicial.html" class="external-link">build_simplicial()</a></code></td>
+<td><code><a href="https://saqr.me/Nestimate/reference/build_simplicial.html" class="external-link">build_simplicial()</a></code></td>
 <td>Topological structure</td>
 </tr>
 <tr class="odd">
 <td>7</td>
 <td><strong>Persistence</strong></td>
-<td><code><a href="https://rdrr.io/pkg/Nestimate/man/persistent_homology.html" class="external-link">persistent_homology()</a></code></td>
+<td><code><a href="https://saqr.me/Nestimate/reference/persistent_homology.html" class="external-link">persistent_homology()</a></code></td>
 <td>Robustness across scales</td>
 </tr>
 <tr class="even">
 <td>8</td>
 <td><strong>Q-analysis</strong></td>
-<td><code><a href="https://rdrr.io/pkg/Nestimate/man/q_analysis.html" class="external-link">q_analysis()</a></code></td>
+<td><code><a href="https://saqr.me/Nestimate/reference/q_analysis.html" class="external-link">q_analysis()</a></code></td>
 <td>Multi-level connectivity</td>
 </tr>
 </tbody>

@@ -53,7 +53,7 @@ plot_simplicial(
   Character vector of pathway strings, a list of character vectors, a
   `net_hon` / `net_hypa` object, or any data.frame with a `path` column
   (e.g., the output of
-  [`Nestimate::mogen_transitions()`](https://rdrr.io/pkg/Nestimate/man/mogen_transitions.html)).
+  [`Nestimate::mogen_transitions()`](https://saqr.me/Nestimate/reference/mogen_transitions.html)).
   If a data.frame with a `path` column is passed as `x` and `pathways`
   is `NULL`, it is auto-promoted to `pathways` and the state set is
   derived from the path strings — `plot_simplicial(mgt)` works directly.
@@ -68,7 +68,7 @@ plot_simplicial(
   Pathway source when auto-building from a `tna`/`netobject`: `"hon"`
   (default, higher-order network), `"hypa"` (anomalous paths via
   hypergeometric null), or `"rules"` (association-rule itemsets via
-  [`Nestimate::association_rules`](https://rdrr.io/pkg/Nestimate/man/association_rules.html);
+  [`Nestimate::association_rules`](https://saqr.me/Nestimate/reference/association_rules.html);
   rules are rendered as single-colored blobs because itemsets are
   undirected).
 
@@ -197,9 +197,9 @@ plot_simplicial(
 - ...:
 
   Additional arguments passed to
-  [`Nestimate::build_hon()`](https://rdrr.io/pkg/Nestimate/man/build_hon.html)
+  [`Nestimate::build_hon()`](https://saqr.me/Nestimate/reference/build_hon.html)
   or
-  [`Nestimate::build_hypa()`](https://rdrr.io/pkg/Nestimate/man/build_hypa.html)
+  [`Nestimate::build_hypa()`](https://saqr.me/Nestimate/reference/build_hypa.html)
   when auto-building.
 
 ## Value

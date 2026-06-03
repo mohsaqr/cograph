@@ -2,14 +2,16 @@
 
 ## cograph 2.3.6
 
+CRAN release: 2026-05-31
+
 ### Bug fixes
 
 - Removed the
-  [`cluster_network()`](https://rdrr.io/pkg/Nestimate/man/cluster_network.html)
+  [`cluster_network()`](https://saqr.me/Nestimate/reference/cluster_network.html)
   alias for
   [`summarize_network()`](https://sonsoles.me/cograph/reference/summarize_network.md).
   It collided with
-  [`Nestimate::cluster_network()`](https://rdrr.io/pkg/Nestimate/man/cluster_network.html)
+  [`Nestimate::cluster_network()`](https://saqr.me/Nestimate/reference/cluster_network.html)
   — a completely different function (PAM clustering on sequence data,
   one network per cluster) — and the two silently masked each other
   depending on package attach order, producing confusing
@@ -247,12 +249,12 @@
 
 - `splot.netobject` now routes on the Nestimate `$method` slot rather
   than just direction. Undirected sequence-based networks from
-  [`build_cna()`](https://rdrr.io/pkg/Nestimate/man/build_cna.html) and
-  `wtna(method = "cooccurrence")` get oval TNA-family styling (layout,
-  palette, donuts) with arrows and dotted edge starts automatically
-  dropped because the matrix is symmetric. Glasso / cor / pcor / ising
-  networks still get `psych_styling = TRUE` (spring layout, Okabe-Ito
-  palette).
+  [`build_cna()`](https://saqr.me/Nestimate/reference/build_cna.html)
+  and `wtna(method = "cooccurrence")` get oval TNA-family styling
+  (layout, palette, donuts) with arrows and dotted edge starts
+  automatically dropped because the matrix is symmetric. Glasso / cor /
+  pcor / ising networks still get `psych_styling = TRUE` (spring layout,
+  Okabe-Ito palette).
 - [`from_tna()`](https://sonsoles.me/cograph/reference/from_tna.md)
   auto-detects integer-valued weight matrices (ftna, ctna, raw counts)
   and sets `weight_digits = edge_label_digits = 0` so edge labels render

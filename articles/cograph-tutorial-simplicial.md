@@ -74,7 +74,7 @@ net
 ```
 
     Transition Network (relative probabilities) [directed]
-      Weights: [0.018, 0.620]  |  mean: 0.109
+      Weights: [0.018, 0.620]  |  mean: 0.111
 
       Weight matrix:
                 Command Correct Frustrate Inquire Interrupt Refine Request Specify
@@ -141,15 +141,15 @@ summary(mg)
 
       States: Command, Correct, Frustrate, Inquire, Interrupt, Refine, Request, Specify, Verify
       Paths: 508 | Observations: 10778
+      Best by AIC: order 4  |  Best by BIC: order 1
+      Selected:    order 4 (by aic)
 
-     order layer_dof cum_dof    loglik      aic      bic selected
-         0         8       8 -22001.20 44018.40 44076.68
-         1        72      80 -20805.61 41771.23 42354.05
-         2       621     701 -19819.55 41041.10 46148.07
-         3      2445    3146 -17152.10 40596.20 63515.63
-         4      2990    6136 -11469.73 35211.46 79913.83      <--
-
-      Optimal order: 4 (by aic)
+            order layer_dof cum_dof    loglik      aic      bic best selected
+    order_0     0         8       8 -22001.20 44018.40 44076.68
+    order_1     1        72      80 -20805.61 41771.23 42354.05  BIC
+    order_2     2       621     701 -19819.55 41041.10 46148.07
+    order_3     3      2445    3146 -17152.10 40596.20 63515.63
+    order_4     4      2990    6136 -11469.73 35211.46 79913.83  AIC      <--
 
 ``` r
 
@@ -171,7 +171,7 @@ states. The HON analysis below detects these local patterns.
 
 ### Second-order transition matrix
 
-[`mogen_transitions()`](https://rdrr.io/pkg/Nestimate/man/mogen_transitions.html)
+[`mogen_transitions()`](https://saqr.me/Nestimate/reference/mogen_transitions.html)
 extracts the transitions at a given order, showing which two-step
 contexts lead to different outcomes:
 
@@ -380,9 +380,9 @@ do.call(rbind, hypa_results)
 ```
 
               group total_edges anomalous over under pct_anomalous
-    1     Directive          80        39   31     8          48.8
-    2 Metacognitive          16        12    9     3          75.0
-    3    Evaluative         256        21   19     2           8.2
+    1     Directive          27        22   11    11          81.5
+    2 Metacognitive           8         7    4     3          87.5
+    3    Evaluative          64        13    9     4          20.3
 
 Groups with a higher percentage of anomalous pathways have more
 higher-order structure — their sequential dynamics are less predictable
@@ -432,8 +432,8 @@ comparison
 ```
 
                        dataset nodes total_paths anomalous over under
-    1          Human-AI Coding     9        3138       181  139    42
-    2 Collaborative Regulation     9        2584       600  524    76
+    1          Human-AI Coding     9         702       177  133    44
+    2 Collaborative Regulation     9         574       229  174    55
 
 ``` r
 
@@ -547,11 +547,11 @@ ph
 
     Persistent Homology
       25 filtration steps [0.6197 → 0.0062]
-      Features: b0: 9 (1 persistent)  |  b1: 2 (0 persistent)  |  b3: 70 (70 persistent)
+      Features: b0: 8 (1 persistent)  |  b1: 3 (0 persistent)  |  b3: 70 (70 persistent)
       Longest-lived:
         b0: 0.6197 → 0.0000 (life: 0.6197)
-        b0: 0.6197 → 0.1596 (life: 0.4601)
-        b0: 0.6197 → 0.1851 (life: 0.4346)
+        b0: 0.6197 → 0.1707 (life: 0.4491)
+        b0: 0.6197 → 0.1958 (life: 0.4239)
 
 ``` r
 
@@ -648,14 +648,14 @@ verify_simplicial(net$weights, threshold = 0.05)
 
 | Step | Method | Function | What it reveals |
 |----|----|----|----|
-| 1 | **TNA** | [`build_network()`](https://rdrr.io/pkg/Nestimate/man/build_network.html) | First-order transition structure |
-| 2 | **MOGen** | [`build_mogen()`](https://rdrr.io/pkg/Nestimate/man/build_mogen.html) | Whether higher-order is needed |
-| 3 | **HON** | [`build_hon()`](https://rdrr.io/pkg/Nestimate/man/build_hon.html) | Where sequential context changes transitions |
-| 4 | **HYPA** | [`build_hypa()`](https://rdrr.io/pkg/Nestimate/man/build_hypa.html) | Which paths are anomalously frequent or rare |
+| 1 | **TNA** | [`build_network()`](https://saqr.me/Nestimate/reference/build_network.html) | First-order transition structure |
+| 2 | **MOGen** | [`build_mogen()`](https://saqr.me/Nestimate/reference/build_mogen.html) | Whether higher-order is needed |
+| 3 | **HON** | [`build_hon()`](https://saqr.me/Nestimate/reference/build_hon.html) | Where sequential context changes transitions |
+| 4 | **HYPA** | [`build_hypa()`](https://saqr.me/Nestimate/reference/build_hypa.html) | Which paths are anomalously frequent or rare |
 | 5 | **Visualization** | [`plot_simplicial()`](https://sonsoles.me/cograph/reference/plot_simplicial.md) | Blob diagrams of pathways |
-| 6 | **Simplicial** | [`build_simplicial()`](https://rdrr.io/pkg/Nestimate/man/build_simplicial.html) | Topological structure |
-| 7 | **Persistence** | [`persistent_homology()`](https://rdrr.io/pkg/Nestimate/man/persistent_homology.html) | Robustness across scales |
-| 8 | **Q-analysis** | [`q_analysis()`](https://rdrr.io/pkg/Nestimate/man/q_analysis.html) | Multi-level connectivity |
+| 6 | **Simplicial** | [`build_simplicial()`](https://saqr.me/Nestimate/reference/build_simplicial.html) | Topological structure |
+| 7 | **Persistence** | [`persistent_homology()`](https://saqr.me/Nestimate/reference/persistent_homology.html) | Robustness across scales |
+| 8 | **Q-analysis** | [`q_analysis()`](https://saqr.me/Nestimate/reference/q_analysis.html) | Multi-level connectivity |
 
 The key progression:
 

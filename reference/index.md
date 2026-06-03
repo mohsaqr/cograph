@@ -506,7 +506,6 @@
   [`plot(`*`<net_bootstrap_group>`*`)`](https://sonsoles.me/cograph/reference/plot_net_bootstrap_group.md)
   : Plot a Group Bootstrap Result
 - [`plot_net_stability()`](https://sonsoles.me/cograph/reference/plot_net_stability.md)
-  [`plot(`*`<net_stability>`*`)`](https://sonsoles.me/cograph/reference/plot_net_stability.md)
   : Plot Centrality Stability Results
 - [`plot_netobject_group()`](https://sonsoles.me/cograph/reference/plot_netobject_group.md)
   [`plot(`*`<netobject_group>`*`)`](https://sonsoles.me/cograph/reference/plot_netobject_group.md)

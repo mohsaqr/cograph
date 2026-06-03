@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,10 +43,10 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="2.3.6" id="cograph-236">cograph 2.3.6<a class="anchor" aria-label="anchor" href="#cograph-236"></a></h2>
+<h2 class="pkg-version" data-toc-text="2.3.6" id="cograph-236">cograph 2.3.6<a class="anchor" aria-label="anchor" href="#cograph-236"></a></h2><p class="text-muted">CRAN release: 2026-05-31</p>
 <div class="section level3">
 <h3 id="bug-fixes-2-3-6">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-3-6"></a></h3>
-<ul><li>Removed the <code><a href="https://rdrr.io/pkg/Nestimate/man/cluster_network.html" class="external-link">cluster_network()</a></code> alias for <code><a href="../reference/summarize_network.html">summarize_network()</a></code>. It collided with <code><a href="https://rdrr.io/pkg/Nestimate/man/cluster_network.html" class="external-link">Nestimate::cluster_network()</a></code> — a completely different function (PAM clustering on sequence data, one network per cluster) — and the two silently masked each other depending on package attach order, producing confusing <code>unused arguments (k = ..., cluster_by = ...)</code> errors. Use <code><a href="../reference/summarize_network.html">summarize_network()</a></code> (or its remaining short form <code><a href="../reference/summarize_network.html">cnet()</a></code>) for matrix-to-cluster aggregation in cograph.</li>
+<ul><li>Removed the <code><a href="https://saqr.me/Nestimate/reference/cluster_network.html" class="external-link">cluster_network()</a></code> alias for <code><a href="../reference/summarize_network.html">summarize_network()</a></code>. It collided with <code><a href="https://saqr.me/Nestimate/reference/cluster_network.html" class="external-link">Nestimate::cluster_network()</a></code> — a completely different function (PAM clustering on sequence data, one network per cluster) — and the two silently masked each other depending on package attach order, producing confusing <code>unused arguments (k = ..., cluster_by = ...)</code> errors. Use <code><a href="../reference/summarize_network.html">summarize_network()</a></code> (or its remaining short form <code><a href="../reference/summarize_network.html">cnet()</a></code>) for matrix-to-cluster aggregation in cograph.</li>
 </ul></div>
 </div>
     <div class="section level2">
@@ -139,7 +139,7 @@
 <div class="section level3">
 <h3 id="plotting-2-3-0">Plotting<a class="anchor" aria-label="anchor" href="#plotting-2-3-0"></a></h3>
 <ul><li>
-<code>splot.netobject</code> now routes on the Nestimate <code>$method</code> slot rather than just direction. Undirected sequence-based networks from <code><a href="https://rdrr.io/pkg/Nestimate/man/build_cna.html" class="external-link">build_cna()</a></code> and <code>wtna(method = "cooccurrence")</code> get oval TNA-family styling (layout, palette, donuts) with arrows and dotted edge starts automatically dropped because the matrix is symmetric. Glasso / cor / pcor / ising networks still get <code>psych_styling = TRUE</code> (spring layout, Okabe-Ito palette).</li>
+<code>splot.netobject</code> now routes on the Nestimate <code>$method</code> slot rather than just direction. Undirected sequence-based networks from <code><a href="https://saqr.me/Nestimate/reference/build_cna.html" class="external-link">build_cna()</a></code> and <code>wtna(method = "cooccurrence")</code> get oval TNA-family styling (layout, palette, donuts) with arrows and dotted edge starts automatically dropped because the matrix is symmetric. Glasso / cor / pcor / ising networks still get <code>psych_styling = TRUE</code> (spring layout, Okabe-Ito palette).</li>
 <li>
 <code><a href="../reference/from_tna.html">from_tna()</a></code> auto-detects integer-valued weight matrices (ftna, ctna, raw counts) and sets <code>weight_digits = edge_label_digits = 0</code> so edge labels render as <code>2304</code> rather than <code>2304.00</code>. Fractional weights still format to two decimals. Explicit user-supplied <code>weight_digits</code> still wins.</li>
 <li>

@@ -2567,11 +2567,16 @@ print.mcml <- function(x, ...) {
   cat("============\n")
   cat("Type:", x$meta$type, " | Method:", x$meta$method, "\n")
   cat("Nodes:", n_nodes, " | Clusters:", n_clusters, "\n")
-  cat("Transitions:", nrow(x$edges), "\n")
 
-  n_between <- sum(x$edges$type == "between")
-  n_within <- sum(x$edges$type == "within")
-  cat("  Macro:", n_between, " | Per-cluster:", n_within, "\n\n")
+  # Edge-less mcml objects (e.g. aggregate / matrix-derived) carry no $edges
+  # slot; nrow(NULL)/sum(NULL == "between") would otherwise print a blank
+  # `Transitions:` line and a misleading `Macro: 0 | Per-cluster: 0`.
+  if (!is.null(x$edges)) {
+    cat("Transitions:", nrow(x$edges), "\n")
+    cat("  Macro:", sum(x$edges$type == "between"),
+        " | Per-cluster:", sum(x$edges$type == "within"), "\n")
+  }
+  cat("\n")
 
   cat("Clusters:\n")
   for (cl in names(x$cluster_members)) {

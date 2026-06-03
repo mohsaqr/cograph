@@ -2,12 +2,9 @@
 % Please edit documentation in R/plot-nestimate.R
 \name{plot_net_stability}
 \alias{plot_net_stability}
-\alias{plot.net_stability}
 \title{Plot Centrality Stability Results}
 \usage{
 plot_net_stability(x, ...)
-
-\method{plot}{net_stability}(x, ...)
 }
 \arguments{
 \item{x}{A \code{net_stability} object (from \code{Nestimate::centrality_stability}).}

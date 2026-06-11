@@ -47,7 +47,7 @@ test_that("cluster_summary detects clusters from node_groups", {
   net$nodes$groups <- NULL
   net$nodes$group <- NULL
 
-  result <- cluster_summary(net)
+  result <- csum(net)
 
   expect_s3_class(result, "cluster_summary")
   expect_equal(result$meta$n_clusters, 3)
@@ -68,7 +68,7 @@ test_that("cluster_summary detects clusters from node_groups with 'group' column
   net$nodes$groups <- NULL
   net$nodes$group <- NULL
 
-  result <- cluster_summary(net)
+  result <- csum(net)
 
   expect_s3_class(result, "cluster_summary")
 })
@@ -88,7 +88,7 @@ test_that("cluster_summary detects clusters from node_groups with 'layer' column
   net$nodes$groups <- NULL
   net$nodes$group <- NULL
 
-  result <- cluster_summary(net)
+  result <- csum(net)
 
   expect_s3_class(result, "cluster_summary")
 })
@@ -104,7 +104,7 @@ test_that("cluster_summary errors when no clusters found in cograph_network", {
   net$node_groups <- NULL
 
   expect_error(
-    cluster_summary(net),
+    csum(net),
     "No clusters found"
   )
 })
@@ -122,7 +122,7 @@ test_that("cluster_summary works with tna object input", {
     class = "tna"
   )
 
-  result <- cluster_summary(tna_obj, clusters_list, type = "raw")
+  result <- csum(tna_obj, clusters_list, type = "raw")
 
   expect_s3_class(result, "cluster_summary")
   expect_equal(result$meta$n_nodes, 8)
@@ -130,10 +130,10 @@ test_that("cluster_summary works with tna object input", {
 
 test_that("cluster_summary returns cluster_summary unchanged if already cluster_summary", {
   # Create a cluster_summary first
-  cs <- cluster_summary(mat8, clusters_list)
+  cs <- csum(mat8, clusters_list)
 
   # Pass it back to cluster_summary
-  result <- cluster_summary(cs)
+  result <- csum(cs)
 
   expect_identical(result, cs)
 })
@@ -174,7 +174,7 @@ test_that("as_tna.cluster_summary handles zero-row exclusion", {
   sparse_mat <- mat8
   sparse_mat[1:2, 1:2] <- 0  # Group1 has no internal edges
 
-  cs <- cluster_summary(sparse_mat, clusters_list, type = "tna")
+  cs <- csum(sparse_mat, clusters_list, type = "tna")
   tna_obj <- as_tna(cs)
 
   expect_s3_class(tna_obj, "group_tna")
@@ -200,7 +200,7 @@ test_that("as_tna.cluster_summary excludes clusters with zero rowSums", {
     C = c("N5", "N6")
   )
 
-  cs <- cluster_summary(test_mat, clusters, type = "tna")
+  cs <- csum(test_mat, clusters, type = "tna")
   tna_obj <- as_tna(cs)
 
   expect_s3_class(tna_obj, "group_tna")
@@ -215,7 +215,7 @@ test_that("as_tna.cluster_summary excludes clusters with zero rowSums", {
 test_that("print.group_tna works with valid group_tna object from as_tna", {
   skip_if_not_installed("tna")
 
-  cs <- cluster_summary(mat8, clusters_list, type = "tna")
+  cs <- csum(mat8, clusters_list, type = "tna")
   tna_obj <- as_tna(cs)
 
   expect_output(print(tna_obj), "macro")
@@ -374,7 +374,7 @@ test_that("print.cluster_summary truncates large between-cluster matrix", {
   })
   names(large_clusters) <- paste0("Cluster", 1:8)
 
-  cs <- cluster_summary(large_mat,
+  cs <- csum(large_mat,
                         clusters = c(1, 1, 2, 2, 3, 3, 4, 4, 5, 5),
                         type = "raw")
 
@@ -392,7 +392,7 @@ test_that("print.cluster_summary handles many within clusters", {
     C5 = c("I", "J")
   )
 
-  cs <- cluster_summary(large_mat, clusters_5)
+  cs <- csum(large_mat, clusters_5)
 
   expect_output(print(cs), "more clusters")
 })
@@ -618,7 +618,7 @@ test_that("cluster_summary uses $weights when available in cograph_network", {
   net$weights <- mat8 * 2
 
   # cluster_summary should use $weights if available
-  result <- cluster_summary(net, clusters_list)
+  result <- csum(net, clusters_list)
 
   expect_s3_class(result, "cluster_summary")
 })
@@ -629,7 +629,7 @@ test_that("cluster_summary handles cograph_network without $weights", {
   # Remove weights to force to_matrix path
   net$weights <- NULL
 
-  result <- cluster_summary(net, clusters_list)
+  result <- csum(net, clusters_list)
 
   expect_s3_class(result, "cluster_summary")
 })
@@ -638,7 +638,7 @@ test_that("cluster_summary integer clusters work", {
   # Integer vector clusters
   int_clusters <- as.integer(c(1, 1, 2, 2, 2, 3, 3, 3))
 
-  result <- cluster_summary(mat8, int_clusters)
+  result <- csum(mat8, int_clusters)
 
   expect_s3_class(result, "cluster_summary")
   expect_equal(result$meta$n_clusters, 3)
@@ -682,7 +682,7 @@ test_that("aggregate_layers with single layer list", {
 })
 
 test_that("cluster_summary type semi_markov works", {
-  result <- cluster_summary(mat8, clusters_list, type = "semi_markov")
+  result <- csum(mat8, clusters_list, type = "semi_markov")
 
   expect_s3_class(result, "cluster_summary")
   expect_equal(result$meta$type, "semi_markov")
@@ -699,7 +699,7 @@ test_that("cluster_summary handles matrix without names", {
 
   clusters <- c(1, 1, 2, 2, 2, 3, 3, 3)
 
-  result <- cluster_summary(unnamed, clusters)
+  result <- csum(unnamed, clusters)
 
   expect_s3_class(result, "cluster_summary")
   # Node names should be auto-generated
@@ -713,7 +713,7 @@ test_that("cluster_summary handles unnamed cluster list", {
     c("N6", "N7", "N8")
   )
 
-  result <- cluster_summary(mat8, unnamed_clusters)
+  result <- csum(mat8, unnamed_clusters)
 
   expect_s3_class(result, "cluster_summary")
   # Cluster names should be auto-generated
@@ -742,7 +742,7 @@ test_that("cluster_summary produces valid between$inits with dense matrix", {
   diag(dense) <- 0
   rownames(dense) <- colnames(dense) <- paste0("N", 1:8)
 
-  result <- cluster_summary(dense, clusters_list)
+  result <- csum(dense, clusters_list)
 
   # Inits should sum to 1
   expect_equal(sum(result$macro$inits), 1, tolerance = 1e-10)
@@ -752,7 +752,7 @@ test_that("cluster_summary produces uniform inits for zero-weight matrix", {
   zero_mat <- matrix(0, 8, 8)
   rownames(zero_mat) <- colnames(zero_mat) <- paste0("N", 1:8)
 
-  result <- cluster_summary(zero_mat, clusters_list)
+  result <- csum(zero_mat, clusters_list)
 
   # With no edges, inits should be uniform
   expect_equal(result$macro$inits, c(Group1 = 1 / 3, Group2 = 1 / 3, Group3 = 1 / 3),
@@ -774,7 +774,7 @@ test_that("print.cluster_summary with > 6 clusters shows truncation", {
     C5 = "N5", C6 = "N6", C7 = "N7"
   )
 
-  cs <- cluster_summary(mat7, clusters7)
+  cs <- csum(mat7, clusters7)
 
   expect_output(print(cs), "showing first 6x6 corner")
 })
@@ -789,7 +789,7 @@ test_that("print.cluster_summary with exactly 6 clusters shows full matrix", {
     C4 = "N4", C5 = "N5", C6 = "N6"
   )
 
-  cs <- cluster_summary(mat6, clusters6)
+  cs <- csum(mat6, clusters6)
 
   # Should NOT show truncation message
   output <- capture.output(print(cs))

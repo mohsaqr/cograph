@@ -65,7 +65,7 @@
 #'   plot_tna result otherwise.
 #'
 #' @export
-#' @seealso \code{\link{cluster_summary}}, \code{\link{plot_mcml}}
+#' @seealso \code{\link{csum}}, \code{\link{plot_mcml}}
 #'
 #' @examples
 #' set.seed(42)

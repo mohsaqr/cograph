@@ -72,5 +72,5 @@ Net$nodes$clusters <- rep(c("A", "B", "C"), c(3, 3, 4))
 summary_net <- summarize_network(Net)  # Auto-detects 'clusters'
 }
 \seealso{
-\code{\link{cluster_summary}}, \code{\link{plot_mcml}}
+\code{\link{csum}}, \code{\link{plot_mcml}}
 }

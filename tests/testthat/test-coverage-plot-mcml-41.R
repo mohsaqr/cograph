@@ -185,7 +185,7 @@ test_that("cluster_summary clusters has group_tna class", {
   weights <- create_test_weights()
   clusters <- create_test_clusters()
 
-  cs <- cluster_summary(weights, clusters, type = "tna", compute_within = TRUE)
+  cs <- csum(weights, clusters, type = "tna", compute_within = TRUE)
 
   expect_s3_class(cs$clusters, "group_tna")
 })
@@ -194,7 +194,7 @@ test_that("cluster_summary clusters elements have tna class", {
   weights <- create_test_weights()
   clusters <- create_test_clusters()
 
-  cs <- cluster_summary(weights, clusters, type = "tna", compute_within = TRUE)
+  cs <- csum(weights, clusters, type = "tna", compute_within = TRUE)
 
   for (w in cs$clusters) {
     expect_s3_class(w, "tna")
@@ -208,7 +208,7 @@ test_that("splot works with cluster_summary$clusters", {
   weights <- create_test_weights()
   clusters <- create_test_clusters()
 
-  cs <- cluster_summary(weights, clusters, type = "tna", compute_within = TRUE)
+  cs <- csum(weights, clusters, type = "tna", compute_within = TRUE)
 
   expect_no_error(with_temp_png(
     splot(cs$clusters)
@@ -220,7 +220,7 @@ test_that("splot works with cluster_summary$clusters using i parameter", {
   weights <- create_test_weights()
   clusters <- create_test_clusters()
 
-  cs <- cluster_summary(weights, clusters, type = "tna", compute_within = TRUE)
+  cs <- csum(weights, clusters, type = "tna", compute_within = TRUE)
 
   # By index
   expect_no_error(with_temp_png(
@@ -386,7 +386,7 @@ test_that("plot_mcml works with cluster_summary input", {
   weights <- create_test_weights()
   clusters <- create_test_clusters()
 
-  cs <- cluster_summary(weights, clusters, type = "tna", compute_within = TRUE)
+  cs <- csum(weights, clusters, type = "tna", compute_within = TRUE)
 
   expect_no_error(with_temp_png(
     plot_mcml(cs)

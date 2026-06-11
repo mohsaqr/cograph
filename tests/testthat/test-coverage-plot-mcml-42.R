@@ -140,7 +140,7 @@ test_that("plot_mcml uses raw weights for within when cs$within is NULL", {
   clusters <- create_mcml_clusters()
 
   # Create cluster_summary with compute_within=FALSE
-  cs <- cluster_summary(weights, clusters, compute_within = FALSE)
+  cs <- csum(weights, clusters, compute_within = FALSE)
   expect_null(cs$within)
 
   expect_no_error(with_temp_png(
@@ -196,7 +196,7 @@ test_that("plot_mcml pie with zero self-loop", {
   colnames(mat) <- rownames(mat) <- LETTERS[1:n]
 
   clusters <- create_mcml_clusters()
-  cs <- cluster_summary(mat, clusters, type = "tna")
+  cs <- csum(mat, clusters, type = "tna")
   # Zero diagonal → self_prop = 0
 
   expect_no_error(with_temp_png(
@@ -251,7 +251,7 @@ test_that("plot_mcml handles NA/zero within-cluster weights (max_w fallback)", {
   mat[4, 1] <- 0.3
 
   clusters <- create_mcml_clusters()
-  cs <- cluster_summary(mat, clusters, type = "tna")
+  cs <- csum(mat, clusters, type = "tna")
   # Within matrices exist but are all zeros
 
   expect_no_error(with_temp_png(
@@ -267,7 +267,7 @@ test_that("plot_mcml extracts within from raw weights when cs$within is missing"
   weights <- create_mcml_weights()
   clusters <- create_mcml_clusters()
 
-  cs <- cluster_summary(weights, clusters, compute_within = FALSE)
+  cs <- csum(weights, clusters, compute_within = FALSE)
 
   # Pass original weights so the fallback path extracts submatrices
   expect_no_error(with_temp_png(
@@ -353,5 +353,171 @@ test_that("plot_mcml summary_pie rejects invalid values via match.arg", {
   expect_error(
     with_temp_png(plot_mcml(weights, clusters, summary_pie = "bogus")),
     "should be one of"
+  )
+})
+
+# ============================================
+# directed = FALSE (undirected rendering)
+# ============================================
+
+create_mcml_symmetric_weights <- function(n = 6, seed = 42) {
+  mat <- create_mcml_weights(n, seed)
+  (mat + t(mat)) / 2
+}
+
+test_that("plot_mcml directed = FALSE runs on a symmetric matrix", {
+  weights <- create_mcml_symmetric_weights()
+  clusters <- create_mcml_clusters()
+
+  result <- with_temp_png(
+    plot_mcml(weights, clusters, directed = FALSE)
+  )
+  expect_s3_class(result, "cluster_summary")
+})
+
+test_that("plot_mcml directed = FALSE works with edge labels on both layers", {
+  weights <- create_mcml_symmetric_weights()
+  clusters <- create_mcml_clusters()
+
+  expect_no_error(with_temp_png(
+    plot_mcml(weights, clusters, directed = FALSE,
+              edge_labels = TRUE, summary_edge_labels = TRUE)
+  ))
+})
+
+test_that("plot_mcml directed = FALSE overrides arrow toggles", {
+  weights <- create_mcml_symmetric_weights()
+  clusters <- create_mcml_clusters()
+
+  expect_no_error(with_temp_png(
+    plot_mcml(weights, clusters, directed = FALSE,
+              summary_arrows = TRUE, between_arrows = TRUE)
+  ))
+})
+
+test_that("plot_mcml directed = FALSE works on a precomputed cluster_summary", {
+  weights <- create_mcml_symmetric_weights()
+  clusters <- create_mcml_clusters()
+  cs <- csum(weights, clusters, type = "cooccurrence")
+
+  expect_no_error(with_temp_png(
+    plot_mcml(cs, directed = FALSE)
+  ))
+})
+
+test_that("plot_mcml directed = FALSE forwards through splot dispatch", {
+  weights <- create_mcml_symmetric_weights()
+  clusters <- create_mcml_clusters()
+  cs <- csum(weights, clusters, type = "cooccurrence")
+
+  expect_no_error(with_temp_png(
+    splot(cs, directed = FALSE)
+  ))
+})
+
+test_that("plot_mcml validates the directed argument", {
+  weights <- create_mcml_symmetric_weights()
+  clusters <- create_mcml_clusters()
+
+  expect_error(
+    with_temp_png(plot_mcml(weights, clusters, directed = c(TRUE, FALSE))),
+    "must be TRUE, FALSE, or NULL"
+  )
+  expect_error(
+    with_temp_png(plot_mcml(weights, clusters, directed = NA)),
+    "must be TRUE, FALSE, or NULL"
+  )
+})
+
+test_that("plot_mcml directed = TRUE on an asymmetric matrix is unchanged", {
+  weights <- create_mcml_weights()
+  clusters <- create_mcml_clusters()
+
+  result <- with_temp_png(plot_mcml(weights, clusters, directed = TRUE))
+  expect_s3_class(result, "cluster_summary")
+})
+
+# Counts every arrowhead drawn during expr: all arrow rendering
+# (straight edges, self-loops, summary/between layers) funnels through
+# draw_arrow_base().
+count_arrowheads <- function(expr) {
+  n_arrows <- 0L
+  testthat::local_mocked_bindings(
+    draw_arrow_base = function(...) n_arrows <<- n_arrows + 1L,
+    .package = "cograph"
+  )
+  with_temp_png(expr)
+  n_arrows
+}
+
+test_that("plot_mcml directed = FALSE draws no arrowheads at all", {
+  weights <- create_mcml_symmetric_weights()
+  clusters <- create_mcml_clusters()
+
+  n_undirected <- count_arrowheads(
+    plot_mcml(weights, clusters, directed = FALSE)
+  )
+  n_directed <- count_arrowheads(
+    plot_mcml(weights, clusters, directed = TRUE)
+  )
+  expect_identical(n_undirected, 0L)
+  expect_gt(n_directed, 0L)
+})
+
+test_that("plot_mcml directed = FALSE overrides explicit arrow toggles", {
+  weights <- create_mcml_symmetric_weights()
+  clusters <- create_mcml_clusters()
+
+  n_arrows <- count_arrowheads(
+    plot_mcml(weights, clusters, directed = FALSE,
+              summary_arrows = TRUE, between_arrows = TRUE)
+  )
+  expect_identical(n_arrows, 0L)
+})
+
+test_that("plot_mcml directed = NULL auto-detects from cluster_summary meta", {
+  weights <- create_mcml_symmetric_weights()
+  clusters <- create_mcml_clusters()
+
+  cs_undir <- csum(weights, clusters, type = "cooccurrence")
+  expect_false(cs_undir$meta$directed)
+  expect_identical(count_arrowheads(plot_mcml(cs_undir)), 0L)
+
+  cs_dir <- csum(weights, clusters, type = "tna")
+  expect_true(cs_dir$meta$directed)
+  expect_gt(count_arrowheads(plot_mcml(cs_dir)), 0L)
+})
+
+test_that("plot_mcml directed = NULL auto-detects from matrix symmetry", {
+  clusters <- create_mcml_clusters()
+
+  expect_identical(
+    count_arrowheads(plot_mcml(create_mcml_symmetric_weights(), clusters)),
+    0L
+  )
+  expect_gt(
+    count_arrowheads(plot_mcml(create_mcml_weights(), clusters)),
+    0L
+  )
+})
+
+test_that("plot_mcml undirected matrix input aggregates with cooccurrence", {
+  weights <- create_mcml_symmetric_weights()
+  clusters <- create_mcml_clusters()
+
+  cs <- with_temp_png(plot_mcml(weights, clusters, directed = FALSE))
+  expect_identical(cs$meta$type, "cooccurrence")
+  expect_false(cs$meta$directed)
+  expect_true(isSymmetric(unname(cs$macro$weights)))
+})
+
+test_that("plot_mcml warns when directed = FALSE meets asymmetric weights", {
+  weights <- create_mcml_weights()  # asymmetric
+  clusters <- create_mcml_clusters()
+  cs <- csum(weights, clusters, type = "raw")
+
+  expect_warning(
+    with_temp_png(plot_mcml(cs, directed = FALSE)),
+    "not symmetric"
   )
 })

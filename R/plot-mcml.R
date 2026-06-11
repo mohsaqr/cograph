@@ -22,8 +22,8 @@
 #' \enumerate{
 #'   \item \strong{Direct}: pass a weight matrix (or tna / cograph_network
 #'     object) together with \code{cluster_list}. The function calls
-#'     \code{\link{cluster_summary}} internally to compute aggregated weights.
-#'   \item \strong{Pre-computed}: call \code{\link{cluster_summary}} yourself,
+#'     \code{\link{csum}} internally to compute aggregated weights.
+#'   \item \strong{Pre-computed}: call \code{\link{csum}} yourself,
 #'     inspect or modify the result, then pass the \code{cluster_summary}
 #'     object as \code{x}. This avoids redundant computation when you plot
 #'     the same clustering repeatedly with different visual settings.
@@ -38,6 +38,15 @@
 #'     on both layers (unless you explicitly set \code{edge_labels} or
 #'     \code{summary_edge_labels} to \code{FALSE}).
 #' }
+#'
+#' \strong{Directionality:}
+#' \code{directed = NULL} (default) auto-detects directedness from the
+#' input: \code{cluster_summary}/\code{mcml} objects carry it in
+#' \code{$meta$directed}, and plain matrices are treated as undirected when
+#' symmetric. Directed edges get arrowheads; undirected weights (e.g.,
+#' co-occurrence aggregations) are drawn as a single plain line per
+#' symmetric pair on every layer, with no arrowheads. Pass
+#' \code{directed = TRUE}/\code{FALSE} to override the detection.
 #'
 #' \strong{Layout logic:}
 #' Bottom-layer clusters are arranged on a circle of radius \code{spacing},
@@ -57,7 +66,7 @@
 #'     extracted via \code{to_matrix()} and node metadata (display labels)
 #'     is read from the \code{$nodes} data frame.}
 #'   \item{\strong{cluster_summary}}{A pre-computed summary from
-#'     \code{\link{cluster_summary}}. When this type is passed, the
+#'     \code{\link{csum}}. When this type is passed, the
 #'     \code{cluster_list}, \code{aggregation}, and \code{nodes} parameters
 #'     are ignored because the summary already contains everything needed.}
 #' }
@@ -95,6 +104,7 @@
 #'   Within-cluster edges           \tab \code{edge_width_range}, \code{edge_alpha}, \code{edge_labels} \cr
 #'   Between-cluster edges          \tab \code{between_edge_width_range}, \code{between_edge_alpha} \cr
 #'   Summary edges                  \tab \code{summary_edge_width_range}, \code{summary_edge_alpha}, \code{summary_edge_labels}, \code{summary_arrows} \cr
+#'   Directed vs undirected         \tab \code{directed} \cr
 #'   Inter-layer lines              \tab \code{inter_layer_alpha} \cr
 #'   Top-layer layout               \tab \code{top_layer_scale}, \code{inter_layer_gap} \cr
 #'   Title / legend                 \tab \code{title}, \code{subtitle}, \code{legend}, \code{legend_position} \cr
@@ -102,7 +112,7 @@
 #'
 #' @param x A weight matrix, \code{tna} object, \code{cograph_network}, or
 #'   \code{cluster_summary} object. When a \code{cluster_summary} is provided
-#'   (e.g., from \code{\link{cluster_summary}}), all aggregation has already
+#'   (e.g., from \code{\link{csum}}), all aggregation has already
 #'   been performed and the \code{cluster_list}, \code{aggregation}, and
 #'   \code{nodes} parameters are ignored. See the \strong{Input Formats}
 #'   section for details.
@@ -213,7 +223,9 @@
 #' @param summary_label_color Color for summary labels. Default
 #'   \code{"gray20"}.
 #' @param summary_arrows Logical. Draw arrowheads on summary-layer directed
-#'   edges. Set to \code{FALSE} for undirected networks. Default \code{TRUE}.
+#'   edges. Default \code{TRUE}. For fully undirected networks prefer
+#'   \code{directed = FALSE}, which also suppresses these arrowheads and
+#'   draws each symmetric edge pair only once.
 #' @param summary_arrow_size Size of arrowheads on summary edges. Default
 #'   0.10.
 #' @param summary_pie Character scalar controlling what the colored slice
@@ -289,6 +301,21 @@
 #'   \code{"gray20"}.
 #' @param label_position Accepted for backward compatibility. Detail labels
 #'   are currently positioned automatically to the left or right of each node.
+#' @param directed Logical or \code{NULL}. \code{NULL} (default)
+#'   auto-detects: a \code{cluster_summary}/\code{mcml} input uses its own
+#'   \code{$meta$directed} flag; other objects use their \code{$directed}
+#'   field when present; a plain matrix is undirected when symmetric (the
+#'   same contract as \code{\link{splot}}). When \code{TRUE}, every
+#'   non-zero cell of the weight matrices is drawn as a directed edge with
+#'   an arrowhead. When \code{FALSE} (undirected, e.g. co-occurrence
+#'   weights): arrowheads are suppressed on all three edge layers
+#'   (within-cluster, between-cluster, and summary), each symmetric pair is
+#'   drawn once instead of twice (the upper triangle is used; a warning is
+#'   issued if the weights are not symmetric), edge labels move to the edge
+#'   midpoint, and matrix input is aggregated with
+#'   \code{type = "cooccurrence"} (symmetrized counts) instead of the
+#'   row-normalized \code{type = "tna"}. Overrides \code{summary_arrows}
+#'   and \code{between_arrows}.
 #' @param ... Additional arguments (currently unused).
 #'
 #' @return Invisibly returns the \code{cluster_summary} object used for
@@ -299,7 +326,7 @@
 #' @export
 #'
 #' @seealso
-#' \code{\link{cluster_summary}} for pre-computing aggregated cluster data,
+#' \code{\link{csum}} for pre-computing aggregated cluster data,
 #' \code{\link{plot_mtna}} for flat multi-cluster visualization (no summary
 #'   layer),
 #' \code{\link{plot_mlna}} for stacked multilevel/multiplex layer
@@ -314,7 +341,7 @@
 #' clusters <- list(C1 = c("A","B"), C2 = c("C","D"), C3 = c("E","F"))
 #' plot_mcml(mat, clusters)
 #' \donttest{
-#' cs <- cluster_summary(mat, clusters)
+#' cs <- csum(mat, clusters)
 #' plot_mcml(cs, mode = "tna", edge_labels = TRUE)
 #' }
 plot_mcml <- function(
@@ -385,11 +412,18 @@ plot_mcml <- function(
     # Label styling
     label_color = "gray20",
     label_position = 3,
+    directed = NULL,
     ...
 ) {
   aggregation <- match.arg(aggregation)
   mode <- match.arg(mode)
   summary_pie <- match.arg(summary_pie)
+  if (!(is.null(directed) ||
+        (is.logical(directed) && length(directed) == 1L &&
+         !is.na(directed)))) {
+    stop("'directed' must be TRUE, FALSE, or NULL (auto-detect).",
+         call. = FALSE)
+  }
 
   # For mode = "tna", show edge labels by default (like tplot/splot with tna)
   # Check if user explicitly set these parameters
@@ -415,6 +449,10 @@ plot_mcml <- function(
 
   if (inherits(x, c("cluster_summary", "mcml"))) {
     cs <- x
+    # directed = NULL: auto-detect from the summary's own metadata
+    if (is.null(directed)) {
+      directed <- !isFALSE(cs$meta$directed)
+    }
   } else {
     # Extract nodes_df for display labels
     nodes_df <- NULL
@@ -425,13 +463,42 @@ plot_mcml <- function(
       nodes_df <- nodes
     }
 
-    # Map aggregation to method
-    cs <- cluster_summary(x, cluster_list, method = aggregation, type = "tna",
+    # directed = NULL: prefer the object's own directedness flag, else
+    # fall back to matrix symmetry (same contract as splot()).
+    if (is.null(directed)) {
+      obj_directed <- if (!is.matrix(x)) x$directed else NULL
+      directed <- if (is.logical(obj_directed) &&
+                      length(obj_directed) == 1L && !is.na(obj_directed)) {
+        obj_directed
+      } else {
+        wm <- if (is.matrix(x)) x else x$weights
+        !(is.matrix(wm) && is_symmetric_matrix(wm))
+      }
+    }
+
+    # Map aggregation to method. Undirected input aggregates with
+    # type = "cooccurrence" (symmetrized counts): the "tna"
+    # row-normalization would make even symmetric weights asymmetric,
+    # which upper-triangle (undirected) drawing cannot represent.
+    cs <- cluster_summary(x, cluster_list, method = aggregation,
+                          type = if (directed) "tna" else "cooccurrence",
                           compute_within = TRUE)
 
     # Store nodes_df and display_labels for visualization
     cs$nodes_df <- nodes_df
   }
+
+  # Undirected rendering: no arrowheads anywhere, and each symmetric pair
+  # is drawn once (upper triangle) so edges are not overplotted twice.
+  if (!directed) {
+    summary_arrows <- FALSE
+    between_arrows <- FALSE
+  }
+  # Edge-label position along the edge (loop-invariant). Directed labels
+  # sit off-center so reciprocal labels don't collide; undirected edges
+  # are single, so the label sits at the midpoint.
+  summary_lbl_frac <- if (directed) 0.7 else 0.5
+  within_lbl_frac <- if (directed) 0.35 else 0.5
 
   # ============================================================================
   # Extract data from cluster_summary
@@ -483,6 +550,19 @@ plot_mcml <- function(
 
   # Macro weights (diagonal already contains intra-cluster retention)
   bw <- cs$macro$weights
+
+  # Undirected drawing reads only the upper triangle, so asymmetric
+  # weights would be silently misrepresented — warn instead.
+  if (!directed) {
+    within_symmetric <- vapply(cs$clusters, function(cl) {
+      !is.matrix(cl$weights) || is_symmetric_matrix(cl$weights)
+    }, logical(1))
+    if (!is_symmetric_matrix(bw) || !all(within_symmetric)) {
+      warning("directed = FALSE but the aggregated weights are not ",
+              "symmetric; only the upper triangle is drawn. Symmetrize ",
+              "the weights or use directed = TRUE.", call. = FALSE)
+    }
+  }
 
   # Pre-compute rounded weights for edge visibility and labels
   bw_r <- round(bw, edge_label_digits)
@@ -674,7 +754,8 @@ plot_mcml <- function(
   if (max_sw > 0) {
     for (i in seq_len(n_clusters)) {
       for (j in seq_len(n_clusters)) {
-        if (i != j && bw[i, j] > minimum && bw_r[i, j] != 0) {
+        if (i != j && (directed || i < j) &&
+            bw[i, j] > minimum && bw_r[i, j] != 0) {
           lwd <- summary_edge_width_range[1] +
             (summary_edge_width_range[2] - summary_edge_width_range[1]) *
             bw[i, j] / max_sw
@@ -703,9 +784,8 @@ plot_mcml <- function(
           if (summary_edge_labels) {
             lbl_txt <- fmt_lbl(bw_r[i, j])
             if (!is.null(lbl_txt)) {
-              # Place label at 70% along edge (near target, avoids overlap)
-              lbl_x <- src_x + (tip_x - src_x) * 0.7
-              lbl_y <- src_y + (tip_y - src_y) * 0.7
+              lbl_x <- src_x + (tip_x - src_x) * summary_lbl_frac
+              lbl_y <- src_y + (tip_y - src_y) * summary_lbl_frac
               # Offset slightly perpendicular to edge
               perp <- angle + pi / 2
               lbl_x <- lbl_x + 0.08 * cos(perp)
@@ -804,7 +884,8 @@ plot_mcml <- function(
   if (max_sw > 0) {
     for (i in seq_len(n_clusters)) {
       for (j in seq_len(n_clusters)) {
-        if (i != j && bw[i, j] > minimum && bw_r[i, j] != 0) {
+        if (i != j && (directed || i < j) &&
+            bw[i, j] > minimum && bw_r[i, j] != 0) {
           p1 <- shell_edge(bx[i], by[i], bx[j], by[j], shell_rx, shell_ry)
           p2 <- shell_edge(bx[j], by[j], bx[i], by[i], shell_rx, shell_ry)
           lwd <- between_edge_width_range[1] +
@@ -870,6 +951,8 @@ plot_mcml <- function(
 
         for (j in seq_len(n_nodes)) {
           for (k in seq_len(n_nodes)) {
+            # Undirected: draw each symmetric pair once (upper triangle)
+            if (!directed && k < j) next
             w <- within_w[j, k]
             w_r <- round(w, edge_label_digits)
             if (!is.na(w) && w > minimum && w_r != 0) {
@@ -880,7 +963,7 @@ plot_mcml <- function(
                 draw_self_loop_base(
                   x = nx[j], y = ny[j], node_size = node_vis_r,
                   col = edge_col, lwd = lwd,
-                  arrow = TRUE, asize = arrow_size
+                  arrow = directed, asize = arrow_size
                 )
               } else {
                 # Calculate edge angle
@@ -890,17 +973,25 @@ plot_mcml <- function(
                 tip_x <- nx[k] - node_vis_r * cos(angle)
                 tip_y <- ny[k] - node_vis_r * sin(angle)
 
-                # Line ends at arrow base
-                line_end_x <- tip_x - arrow_size * cos(angle)
-                line_end_y <- tip_y - arrow_size * sin(angle)
+                if (directed) {
+                  # Line ends at arrow base
+                  line_end_x <- tip_x - arrow_size * cos(angle)
+                  line_end_y <- tip_y - arrow_size * sin(angle)
 
-                # Draw edge line
-                graphics::segments(nx[j], ny[j], line_end_x, line_end_y,
-                                   col = edge_col, lwd = lwd)
+                  # Draw edge line
+                  graphics::segments(nx[j], ny[j], line_end_x, line_end_y,
+                                     col = edge_col, lwd = lwd)
 
-                # Draw filled arrow using splot style
-                draw_arrow_base(tip_x, tip_y, angle, arrow_size,
-                                col = edge_col, border = edge_col, lwd = lwd)
+                  # Draw filled arrow using splot style
+                  draw_arrow_base(tip_x, tip_y, angle, arrow_size,
+                                  col = edge_col, border = edge_col, lwd = lwd)
+                } else {
+                  # Plain segment from node edge to node edge, no arrowhead
+                  src_x <- nx[j] + node_vis_r * cos(angle)
+                  src_y <- ny[j] + node_vis_r * sin(angle)
+                  graphics::segments(src_x, src_y, tip_x, tip_y,
+                                     col = edge_col, lwd = lwd)
+                }
               }
 
               # Edge label
@@ -911,8 +1002,8 @@ plot_mcml <- function(
                     lbl_x <- nx[j]
                     lbl_y <- ny[j] + node_vis_r * 2.5
                   } else {
-                    lbl_x <- nx[j] + (nx[k] - nx[j]) * 0.35
-                    lbl_y <- ny[j] + (ny[k] - ny[j]) * 0.35
+                    lbl_x <- nx[j] + (nx[k] - nx[j]) * within_lbl_frac
+                    lbl_y <- ny[j] + (ny[k] - ny[j]) * within_lbl_frac
                   }
                   graphics::text(lbl_x, lbl_y,
                                  labels = lbl_txt,
@@ -1068,12 +1159,12 @@ plot_mcml <- function(
   invisible(cs)
 }
 
-#' mcml - Deprecated alias for cluster_summary
+#' mcml - Deprecated alias for csum
 #'
 #' @description
 #' `r lifecycle::badge("deprecated")`
 #'
-#' Use \code{\link{cluster_summary}} instead. This function is provided for
+#' Use \code{\link{csum}} instead. This function is provided for
 #' backward compatibility only.
 #'
 #' @param x Weight matrix, tna object, cograph_network, or cluster_summary object

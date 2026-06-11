@@ -170,12 +170,12 @@ test_that(".normalize_clusters errors on invalid type", {
 
 test_that("cluster_summary validates input is numeric matrix", {
   expect_error(
-    cluster_summary("not a matrix", clusters_list),
+    csum("not a matrix", clusters_list),
     "must be a cograph_network, tna object, or numeric matrix"
   )
 
   expect_error(
-    cluster_summary(data.frame(a = 1:5), clusters_list),
+    csum(data.frame(a = 1:5), clusters_list),
     "must be a cograph_network, tna object, or numeric matrix"
   )
 })
@@ -183,7 +183,7 @@ test_that("cluster_summary validates input is numeric matrix", {
 test_that("cluster_summary validates square matrix", {
   rect_mat <- matrix(1:12, 3, 4)
   expect_error(
-    cluster_summary(rect_mat, list(A = 1:2, B = 3)),
+    csum(rect_mat, list(A = 1:2, B = 3)),
     "must be a square matrix"
   )
 })
@@ -193,50 +193,50 @@ test_that("cluster_summary works with unnamed matrix", {
   diag(unnamed_mat) <- 0
   clusters <- c(1, 1, 2, 2, 3)
 
-  result <- cluster_summary(unnamed_mat, clusters)
+  result <- csum(unnamed_mat, clusters)
   expect_s3_class(result, "cluster_summary")
 })
 
 test_that("cluster_summary works with factor clusters", {
-  result <- cluster_summary(mat, clusters_factor)
+  result <- csum(mat, clusters_factor)
   expect_s3_class(result, "cluster_summary")
   expect_equal(dim(result$macro$weights), c(3, 3))
 })
 
 test_that("cluster_summary directed = FALSE", {
-  result <- cluster_summary(mat, clusters_list, directed = FALSE)
+  result <- csum(mat, clusters_list, directed = FALSE)
   expect_s3_class(result, "cluster_summary")
   expect_false(result$meta$directed)
 })
 
 test_that("cluster_summary method median", {
-  result <- cluster_summary(mat, clusters_list, method = "median")
+  result <- csum(mat, clusters_list, method = "median")
   expect_equal(result$meta$method, "median")
 })
 
 test_that("cluster_summary method min", {
-  result <- cluster_summary(mat, clusters_list, method = "min")
+  result <- csum(mat, clusters_list, method = "min")
   expect_equal(result$meta$method, "min")
 })
 
 test_that("cluster_summary method density", {
-  result <- cluster_summary(mat, clusters_list, method = "density")
+  result <- csum(mat, clusters_list, method = "density")
   expect_equal(result$meta$method, "density")
 })
 
 test_that("cluster_summary method geomean", {
-  result <- cluster_summary(mat, clusters_list, method = "geomean")
+  result <- csum(mat, clusters_list, method = "geomean")
   expect_equal(result$meta$method, "geomean")
 })
 
 test_that("cluster_summary with unnamed clusters list", {
   unnamed_clusters <- list(c("N1", "N2"), c("N3", "N4"), c("N5", "N6", "N7", "N8"))
-  result <- cluster_summary(mat, unnamed_clusters)
+  result <- csum(mat, unnamed_clusters)
   expect_s3_class(result, "cluster_summary")
 })
 
 test_that("csum is an alias for cluster_summary", {
-  result1 <- cluster_summary(mat, clusters_list, method = "sum")
+  result1 <- csum(mat, clusters_list, method = "sum")
   result2 <- csum(mat, clusters_list, method = "sum")
   expect_equal(result1$macro$weights, result2$macro$weights)
 })
@@ -246,8 +246,8 @@ test_that("cluster_summary works with cograph_network input", {
   net <- as_cograph(mat)
 
   # Should produce same results as with matrix directly
-  result_mat <- cluster_summary(mat, clusters_list, method = "sum")
-  result_net <- cluster_summary(net, clusters_list, method = "sum")
+  result_mat <- csum(mat, clusters_list, method = "sum")
+  result_net <- csum(net, clusters_list, method = "sum")
 
   expect_s3_class(result_net, "cluster_summary")
   expect_equal(result_mat$macro$weights, result_net$macro$weights)
@@ -258,7 +258,7 @@ test_that("cluster_summary works with cograph_network input", {
 # ==============================================================================
 
 test_that("cluster_summary returns new structure with macro/clusters/meta", {
-  result <- cluster_summary(mat, clusters_list)
+  result <- csum(mat, clusters_list)
 
   # Check top-level structure
   expect_true("macro" %in% names(result))
@@ -291,7 +291,7 @@ test_that("cluster_summary returns new structure with macro/clusters/meta", {
 })
 
 test_that("cluster_summary macro$weights rows sum to 1 (type = 'tna')", {
-  result <- cluster_summary(mat, clusters_list, type = "tna")
+  result <- csum(mat, clusters_list, type = "tna")
 
   # Each row should sum to 1 (row-normalized)
   row_sums <- rowSums(result$macro$weights)
@@ -299,13 +299,13 @@ test_that("cluster_summary macro$weights rows sum to 1 (type = 'tna')", {
 })
 
 test_that("cluster_summary macro$inits sums to 1", {
-  result <- cluster_summary(mat, clusters_list)
+  result <- csum(mat, clusters_list)
 
   expect_equal(sum(result$macro$inits), 1, tolerance = 1e-10)
 })
 
 test_that("cluster_summary clusters contain correct cluster subsets", {
-  result <- cluster_summary(mat, clusters_list)
+  result <- csum(mat, clusters_list)
 
   # Group1 = N1, N2; Group2 = N3, N4, N5; Group3 = N6, N7, N8
   expect_equal(rownames(result$clusters$Group1$weights), c("N1", "N2"))
@@ -318,7 +318,7 @@ test_that("cluster_summary clusters contain correct cluster subsets", {
 })
 
 test_that("cluster_summary clusters weights rows sum to 1 or 0 (type = 'tna')", {
-  result <- cluster_summary(mat, clusters_list, type = "tna")
+  result <- csum(mat, clusters_list, type = "tna")
 
   # Each row should sum to 1 (for nodes with outgoing edges) or 0 (isolated)
   for (cl_name in names(result$clusters)) {
@@ -330,7 +330,7 @@ test_that("cluster_summary clusters weights rows sum to 1 or 0 (type = 'tna')", 
 })
 
 test_that("cluster_summary clusters inits sums to 1 per cluster", {
-  result <- cluster_summary(mat, clusters_list)
+  result <- csum(mat, clusters_list)
 
   # Each cluster's inits should sum to 1
   for (cl_name in names(result$clusters)) {
@@ -340,7 +340,7 @@ test_that("cluster_summary clusters inits sums to 1 per cluster", {
 })
 
 test_that("cluster_summary type = 'raw' does not row-normalize", {
-  result <- cluster_summary(mat, clusters_list, type = "raw")
+  result <- csum(mat, clusters_list, type = "raw")
 
   # Rows should NOT necessarily sum to 1
   row_sums <- rowSums(result$macro$weights)
@@ -349,14 +349,14 @@ test_that("cluster_summary type = 'raw' does not row-normalize", {
 })
 
 test_that("cluster_summary type = 'cooccurrence' symmetrizes", {
-  result <- cluster_summary(mat, clusters_list, type = "cooccurrence")
+  result <- csum(mat, clusters_list, type = "cooccurrence")
 
   # Matrix should be symmetric
   expect_equal(result$macro$weights, t(result$macro$weights))
 })
 
 test_that("cluster_summary compute_within = FALSE skips clusters computation", {
-  result <- cluster_summary(mat, clusters_list, compute_within = FALSE)
+  result <- csum(mat, clusters_list, compute_within = FALSE)
 
   expect_null(result$clusters)
   # macro should still exist
@@ -370,7 +370,7 @@ test_that("cluster_summary compute_within = FALSE skips clusters computation", {
 
 test_that("as_tna.cluster_summary works", {
   skip_if_not_installed("tna")
-  cs <- cluster_summary(mat, clusters_list, type = "tna")
+  cs <- csum(mat, clusters_list, type = "tna")
   tna_obj <- as_tna(cs)
 
   # Returns group_tna with $macro and cluster elements
@@ -1041,7 +1041,7 @@ test_that("verify_igraph is an alias", {
 # ==============================================================================
 
 test_that("print.cluster_summary works", {
-  result <- cluster_summary(mat, clusters_list)
+  result <- csum(mat, clusters_list)
 
   expect_output(print(result), "Cluster Summary")
   expect_output(print(result), "Clusters:")
@@ -1052,7 +1052,7 @@ test_that("print.cluster_summary works", {
 })
 
 test_that("print.cluster_summary handles compute_within = FALSE", {
-  result <- cluster_summary(mat, clusters_list, compute_within = FALSE)
+  result <- csum(mat, clusters_list, compute_within = FALSE)
 
   expect_output(print(result), "not computed")
 })
@@ -1080,7 +1080,7 @@ test_that("cluster_summary with all zeros in one cluster pair", {
   special_mat[1:2, 6:8] <- 0
   special_mat[6:8, 1:2] <- 0
 
-  result <- cluster_summary(special_mat, clusters_list, method = "sum")
+  result <- csum(special_mat, clusters_list, method = "sum")
   expect_equal(result$macro$weights["Group1", "Group3"], 0, tolerance = 1e-10)
 })
 
@@ -1184,7 +1184,7 @@ test_that("cluster_summary handles single-node clusters", {
     C = c("N5", "N6", "N7", "N8")
   )
 
-  result <- cluster_summary(mat, single_clusters)
+  result <- csum(mat, single_clusters)
 
   # Single-node cluster should have 1x1 zero matrix
   expect_equal(dim(result$clusters$A$weights), c(1, 1))
@@ -1202,7 +1202,7 @@ test_that("cluster_summary handles zero-edge clusters in within", {
   zero_cluster_mat <- mat
   zero_cluster_mat[1:2, 1:2] <- 0  # Group1 has no internal edges
 
-  result <- cluster_summary(zero_cluster_mat, clusters_list)
+  result <- csum(zero_cluster_mat, clusters_list)
 
   # Group1 should have zero weights
   expect_equal(sum(result$clusters$Group1$weights), 0)
@@ -1216,7 +1216,7 @@ test_that("cluster_summary handles zero edge matrix for inits", {
   rownames(zero_mat) <- colnames(zero_mat) <- paste0("N", 1:6)
   clusters <- list(A = c("N1", "N2"), B = c("N3", "N4"), C = c("N5", "N6"))
 
-  result <- cluster_summary(zero_mat, clusters)
+  result <- csum(zero_mat, clusters)
 
   # With no edges, inits should be uniform
   expect_equal(result$macro$inits, c(A = 1/3, B = 1/3, C = 1/3), tolerance = 1e-10)
@@ -1233,7 +1233,7 @@ test_that("cluster_summary handles sparse matrix", {
   rownames(sparse) <- colnames(sparse) <- paste0("S", 1:5)
 
   clusters <- list(A = c("S1", "S2"), B = c("S3", "S4", "S5"))
-  result <- cluster_summary(sparse, clusters)
+  result <- csum(sparse, clusters)
 
   expect_type(result$clusters, "list")
   expect_equal(names(result$clusters), c("A", "B"))
@@ -1248,7 +1248,7 @@ test_that("cluster_summary handles NAs in matrix", {
   mat_na[1, 2] <- NA
   mat_na[3, 4] <- NA
 
-  result <- cluster_summary(mat_na, clusters_list)
+  result <- csum(mat_na, clusters_list)
 
   # Should not error, NAs handled
   expect_true("clusters" %in% names(result))

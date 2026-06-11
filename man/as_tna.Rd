@@ -16,7 +16,7 @@ as_tna(x)
 \method{as_tna}{default}(x)
 }
 \arguments{
-\item{x}{A \code{cluster_summary} object created by \code{\link{cluster_summary}}.
+\item{x}{A \code{cluster_summary} object created by \code{\link{csum}}.
 The cluster_summary should typically be created with \code{type = "tna"} to
 ensure row-normalized transition probabilities. If created with
 \code{type = "raw"}, the raw counts will be passed to \code{tna::tna()}
@@ -68,7 +68,7 @@ an error with installation instructions.
 # Full MCML workflow
 net <- cograph(edges, nodes = nodes)
 net$nodes$clusters <- group_assignments
-cs <- cluster_summary(net, type = "tna")
+cs <- csum(net, type = "tna")
 tna_models <- as_tna(cs)
 
 # Now use tna package functions
@@ -99,14 +99,14 @@ model still includes all clusters.
 mat <- matrix(runif(36), 6, 6); diag(mat) <- 0
 rownames(mat) <- colnames(mat) <- LETTERS[1:6]
 clusters <- list(G1 = c("A","B"), G2 = c("C","D"), G3 = c("E","F"))
-cs <- cluster_summary(mat, clusters, type = "tna")
+cs <- csum(mat, clusters, type = "tna")
 tna_models <- as_tna(cs)
 names(tna_models)          # "macro", "G1", "G2", "G3"
 splot(tna_models$macro)    # cograph renderer avoids tna's plot deps
 \dontshow{\}) # examplesIf}
 }
 \seealso{
-\code{\link{cluster_summary}} to create the input object,
+\code{\link{csum}} to create the input object,
 \code{\link{plot_mcml}} for visualization without conversion,
 \code{tna::tna} for the underlying tna constructor
 }

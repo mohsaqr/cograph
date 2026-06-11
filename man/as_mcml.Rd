@@ -56,11 +56,11 @@ mat <- matrix(c(0.5, 0.2, 0.3,
                 0.4, 0.1, 0.5), 3, 3, byrow = TRUE,
               dimnames = list(c("A", "B", "C"), c("A", "B", "C")))
 clusters <- list(G1 = c("A", "B"), G2 = c("C"))
-cs <- cluster_summary(mat, clusters, type = "tna")
+cs <- csum(mat, clusters, type = "tna")
 m <- as_mcml(cs)
 m$macro$weights
 
 }
 \seealso{
-\code{\link{build_mcml}}, \code{\link{as_tna}}
+\code{\link{summarize_clusters}}, \code{\link{as_tna}}
 }

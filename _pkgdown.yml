@@ -136,7 +136,8 @@ reference:
     - aggregate_layers
     - aggregate_weights
     - cluster_quality
-    - cluster_summary
+    - csum
+    - summarize_clusters
     - cograph-main
     - cograph-package
     - color_communities

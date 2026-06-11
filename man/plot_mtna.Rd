@@ -179,5 +179,5 @@ clusters <- list(C1 = nodes[1:4], C2 = nodes[5:8], C3 = nodes[9:12])
 mtna(m, clusters)
 }
 \seealso{
-\code{\link{cluster_summary}}, \code{\link{plot_mcml}}
+\code{\link{csum}}, \code{\link{plot_mcml}}
 }

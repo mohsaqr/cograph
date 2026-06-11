@@ -2,11 +2,11 @@
 % Please edit documentation in R/cluster-metrics.R
 \name{.detect_mcml_input}
 \alias{.detect_mcml_input}
-\title{Detect input type for build_mcml}
+\title{Detect input type for summarize_clusters}
 \usage{
 .detect_mcml_input(x)
 }
 \description{
-Detect input type for build_mcml
+Detect input type for summarize_clusters
 }
 \keyword{internal}

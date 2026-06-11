@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot-mcml.R
 \name{mcml}
 \alias{mcml}
-\title{mcml - Deprecated alias for cluster_summary}
+\title{mcml - Deprecated alias for csum}
 \usage{
 mcml(
   x,
@@ -32,7 +32,7 @@ A cluster_summary object (or tna if as_tna = TRUE)
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 
-Use \code{\link{cluster_summary}} instead. This function is provided for
+Use \code{\link{csum}} instead. This function is provided for
 backward compatibility only.
 }
 \examples{

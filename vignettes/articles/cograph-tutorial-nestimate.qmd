@@ -55,7 +55,7 @@ Beyond single-network estimation, Nestimate provides a complete statistical tool
 
 - **Bootstrap stability analysis** (`bootstrap_network`) --- identifies which edges survive resampling and which are sampling artifacts.
 - **Permutation-based group comparison** (`permutation`) --- tests whether edges differ significantly between conditions.
-- **Multi-cluster multi-level analysis** (`cluster_summary`, `build_mcml`) --- aggregates node-level networks into cluster-level summaries for hierarchical visualization.
+- **Multi-cluster multi-level analysis** (`csum`, `summarize_clusters`) --- aggregates node-level networks into cluster-level summaries for hierarchical visualization.
 - **Centrality stability** (`centrality_stability`) --- assesses whether centrality rankings are robust to case dropping.
 - **Group-level operations** --- bootstrapping, permutation testing, and plotting work on grouped networks with no additional code.
 
@@ -382,7 +382,7 @@ There are several ways to build an MCML analysis, depending on whether you start
 
 ## Approach 1: Theory-driven clusters from a network
 
-When domain knowledge dictates the grouping, define clusters as a named list of node labels and pass them to `cluster_summary()`. For collaborative regulation, we can distinguish regulatory behaviors (monitoring, planning, coregulating, adapting) from social-communicative behaviors (cohesion, consensus, discussion, emotion, synthesis):
+When domain knowledge dictates the grouping, define clusters as a named list of node labels and pass them to `csum()`. For collaborative regulation, we can distinguish regulatory behaviors (monitoring, planning, coregulating, adapting) from social-communicative behaviors (cohesion, consensus, discussion, emotion, synthesis):
 
 ```{r}
 #| label: mcml-theory
@@ -391,7 +391,7 @@ clusters <- list(
   Social     = c("cohesion", "consensus", "discuss", "emotion", "synthesis")
 )
 
-mcml_theory <- cluster_summary(net, clusters, type = "tna")
+mcml_theory <- csum(net, clusters, type = "tna")
 mcml_theory
 ```
 
@@ -405,11 +405,11 @@ splot(mcml_theory)
 
 ## Approach 2: Theory-driven clusters from a network object
 
-`build_mcml()` provides the same result through a slightly different interface. When given a `netobject`, it uses the pre-computed weight matrix:
+`summarize_clusters()` provides the same result through a slightly different interface. When given a `netobject`, it uses the pre-computed weight matrix:
 
 ```{r}
 #| label: mcml-build
-mcml_built <- build_mcml(net, clusters, type = "tna")
+mcml_built <- summarize_clusters(net, clusters, type = "tna")
 splot(mcml_built)
 ```
 
@@ -470,8 +470,8 @@ splot(summary_net, node_size = 15, edge_labels = TRUE)
 
 | Approach | Function | Input | Output | Use when |
 |---|---|---|---|---|
-| Theory-driven | `cluster_summary(net, clusters)` | netobject + named list | `mcml` | You know the grouping |
-| Theory-driven | `build_mcml(net, clusters)` | netobject + named list | `mcml` | Same, alternative API |
+| Theory-driven | `csum(net, clusters)` | netobject + named list | `mcml` | You know the grouping |
+| Theory-driven | `summarize_clusters(net, clusters)` | netobject + named list | `mcml` | Same, alternative API |
 | Data-driven | `Nestimate::cluster_network(data, k)` | raw data + k | `netobject_group` | Exploratory clustering |
 | Convert | `as_tna(mcml)` | mcml object | `netobject_group` | Per-cluster analysis |
 | Collapse | `summarize_network(net, clusters)` | netobject + clusters | `cograph_network` | Macro-only view |
@@ -492,7 +492,7 @@ Several Nestimate object types route through `splot()` automatically. The follow
 | `netobject_group` | `build_network(group=)` | Multi-panel grid |
 | `net_bootstrap_group` | `bootstrap_network(group)` | Multi-panel bootstrap |
 | `net_permutation_group` | `permutation(group)` | Multi-panel comparisons |
-| `mcml` | `cluster_summary()` / `build_mcml()` | Two-layer MCML plot |
+| `mcml` | `csum()` / `summarize_clusters()` | Two-layer MCML plot |
 | `net_stability` | `centrality_stability()` | Stability drop-off curve |
 
 Each dispatcher respects all standard `splot()` arguments (`layout`, `node_fill`, `edge_color`, `title`, `minimum`, `threshold`, etc.), so the same customization API works everywhere.

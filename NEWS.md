@@ -1,3 +1,54 @@
+# cograph 2.3.7
+
+## Breaking changes
+
+- The exported names `cluster_summary()` and `build_mcml()` are removed
+  to end, permanently, the collision with `Nestimate::cluster_summary()`
+  and `Nestimate::build_mcml()` — different functions that silently
+  masked each other depending on package attach order (the same disease
+  as the `cluster_network()` alias removed in 2.3.6, where load order
+  silently flipped results between raw counts and row-normalized
+  probabilities). Migration is name-for-name with identical behavior:
+  - `cluster_summary(...)` → `csum(...)` (the existing short alias is
+    now the canonical exported name; same arguments, same
+    `cluster_summary` return object).
+  - `build_mcml(...)` → `summarize_clusters(...)` (same arguments, same
+    `mcml` return object).
+  In sessions where both packages are attached, the bare names
+  `cluster_summary()` / `build_mcml()` now always refer to Nestimate's
+  data-layer verbs, regardless of attach order. The `as_tna()` generic
+  is intentionally exported by both packages: the definitions are
+  identical (`function(x) UseMethod("as_tna")`), so masking is harmless
+  and S3 methods from both packages dispatch correctly.
+
+## New features
+
+- `plot_mcml()` gains a `directed` argument (default `NULL` =
+  auto-detect). Undirected rendering suppresses arrowheads on all three
+  edge layers (within-cluster, between-cluster, summary), draws each
+  symmetric edge pair once instead of twice (previously a symmetric
+  matrix produced overplotted reciprocal arrows), and moves edge labels
+  to the edge midpoint. Auto-detection reads `$meta$directed` from
+  `cluster_summary`/`mcml` input (e.g., co-occurrence aggregations such
+  as `Nestimate::build_mcml(type = "cooccurrence")` now render
+  undirected with no extra flag), the `$directed` field of network
+  objects, or matrix symmetry for plain matrices — the same contract as
+  `splot()`, which forwards `directed` when dispatching
+  `mcml`/`cluster_summary` objects.
+- `plot_mcml()` undirected matrix input is aggregated with
+  `cluster_summary(type = "cooccurrence")` (symmetrized counts) instead
+  of the row-normalized `type = "tna"`, whose output is asymmetric even
+  for symmetric input and cannot be represented by undirected drawing.
+  When `directed = FALSE` is forced on weights that are not symmetric,
+  `plot_mcml()` now warns that only the upper triangle is drawn.
+
+## Bug fixes
+
+- `cluster_summary()` and the sequence path of `build_mcml()` now record
+  the *effective* directedness in `$meta$directed`: `FALSE` when
+  `type = "cooccurrence"` (which symmetrizes the weights), instead of
+  echoing the `directed` argument unchanged.
+
 # cograph 2.3.6
 
 ## Bug fixes

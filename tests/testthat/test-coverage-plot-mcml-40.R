@@ -68,7 +68,7 @@ test_that("plot_mcml accepts cluster_summary object", {
   clusters <- create_test_clusters()
 
   # First extract data
-  data <- cluster_summary(weights, clusters)
+  data <- csum(weights, clusters)
 
   # Then plot from pre-extracted data
   expect_no_error(with_temp_png(
@@ -1013,7 +1013,7 @@ test_that("mcml returns itself when given cluster_summary", {
   weights <- create_test_weights()
   clusters <- create_test_clusters()
 
-  data <- cluster_summary(weights, clusters)
+  data <- csum(weights, clusters)
   result <- mcml(data)
 
   expect_identical(data, result)
@@ -1210,7 +1210,7 @@ test_that("plot_mcml mode parameter works with cluster_summary input", {
   clusters <- create_test_clusters()
 
   # First extract data
-  data <- cluster_summary(weights, clusters)
+  data <- csum(weights, clusters)
 
   # Then plot with mode = "tna"
   expect_no_error(with_temp_png(
@@ -1249,7 +1249,7 @@ test_that("plot_mcml backward compat: cluster_summary input", {
   clusters <- create_test_clusters()
 
   # Old workflow: extract then plot
-  data <- cluster_summary(weights, clusters)
+  data <- csum(weights, clusters)
   expect_no_error(with_temp_png(
     result <- plot_mcml(data)
   ))

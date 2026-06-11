@@ -62,13 +62,14 @@ plot_mcml(
   summary_border_width = 2,
   label_color = "gray20",
   label_position = 3,
+  directed = NULL,
   ...
 )
 }
 \arguments{
 \item{x}{A weight matrix, \code{tna} object, \code{cograph_network}, or
 \code{cluster_summary} object. When a \code{cluster_summary} is provided
-(e.g., from \code{\link{cluster_summary}}), all aggregation has already
+(e.g., from \code{\link{csum}}), all aggregation has already
 been performed and the \code{cluster_list}, \code{aggregation}, and
 \code{nodes} parameters are ignored. See the \strong{Input Formats}
 section for details.}
@@ -209,7 +210,9 @@ nodes: 1 = below, 2 = left, 3 = above, 4 = right. Default 3 (above).}
 \code{"gray20"}.}
 
 \item{summary_arrows}{Logical. Draw arrowheads on summary-layer directed
-edges. Set to \code{FALSE} for undirected networks. Default \code{TRUE}.}
+edges. Default \code{TRUE}. For fully undirected networks prefer
+\code{directed = FALSE}, which also suppresses these arrowheads and
+draws each symmetric edge pair only once.}
 
 \item{summary_arrow_size}{Size of arrowheads on summary edges. Default
 0.10.}
@@ -312,6 +315,22 @@ Default 2.}
 \item{label_position}{Accepted for backward compatibility. Detail labels
 are currently positioned automatically to the left or right of each node.}
 
+\item{directed}{Logical or \code{NULL}. \code{NULL} (default)
+auto-detects: a \code{cluster_summary}/\code{mcml} input uses its own
+\code{$meta$directed} flag; other objects use their \code{$directed}
+field when present; a plain matrix is undirected when symmetric (the
+same contract as \code{\link{splot}}). When \code{TRUE}, every
+non-zero cell of the weight matrices is drawn as a directed edge with
+an arrowhead. When \code{FALSE} (undirected, e.g. co-occurrence
+weights): arrowheads are suppressed on all three edge layers
+(within-cluster, between-cluster, and summary), each symmetric pair is
+drawn once instead of twice (the upper triangle is used; a warning is
+issued if the weights are not symmetric), edge labels move to the edge
+midpoint, and matrix input is aggregated with
+\code{type = "cooccurrence"} (symmetrized counts) instead of the
+row-normalized \code{type = "tna"}. Overrides \code{summary_arrows}
+and \code{between_arrows}.}
+
 \item{...}{Additional arguments (currently unused).}
 }
 \value{
@@ -343,8 +362,8 @@ multilevel/multiplex layers, see \code{\link{plot_mlna}}.
 \enumerate{
 \item \strong{Direct}: pass a weight matrix (or tna / cograph_network
 object) together with \code{cluster_list}. The function calls
-\code{\link{cluster_summary}} internally to compute aggregated weights.
-\item \strong{Pre-computed}: call \code{\link{cluster_summary}} yourself,
+\code{\link{csum}} internally to compute aggregated weights.
+\item \strong{Pre-computed}: call \code{\link{csum}} yourself,
 inspect or modify the result, then pass the \code{cluster_summary}
 object as \code{x}. This avoids redundant computation when you plot
 the same clustering repeatedly with different visual settings.
@@ -359,6 +378,15 @@ probabilities (rows sum to 1) and automatically enables edge labels
 on both layers (unless you explicitly set \code{edge_labels} or
 \code{summary_edge_labels} to \code{FALSE}).
 }
+
+\strong{Directionality:}
+\code{directed = NULL} (default) auto-detects directedness from the
+input: \code{cluster_summary}/\code{mcml} objects carry it in
+\code{$meta$directed}, and plain matrices are treated as undirected when
+symmetric. Directed edges get arrowheads; undirected weights (e.g.,
+co-occurrence aggregations) are drawn as a single plain line per
+symmetric pair on every layer, with no arrowheads. Pass
+\code{directed = TRUE}/\code{FALSE} to override the detection.
 
 \strong{Layout logic:}
 Bottom-layer clusters are arranged on a circle of radius \code{spacing},
@@ -379,7 +407,7 @@ extracted automatically.}
 extracted via \code{to_matrix()} and node metadata (display labels)
 is read from the \code{$nodes} data frame.}
 \item{\strong{cluster_summary}}{A pre-computed summary from
-\code{\link{cluster_summary}}. When this type is passed, the
+\code{\link{csum}}. When this type is passed, the
 \code{cluster_list}, \code{aggregation}, and \code{nodes} parameters
 are ignored because the summary already contains everything needed.}
 }
@@ -421,6 +449,7 @@ Summary labels                 \tab \code{summary_labels}, \code{summary_label_s
 Within-cluster edges           \tab \code{edge_width_range}, \code{edge_alpha}, \code{edge_labels} \cr
 Between-cluster edges          \tab \code{between_edge_width_range}, \code{between_edge_alpha} \cr
 Summary edges                  \tab \code{summary_edge_width_range}, \code{summary_edge_alpha}, \code{summary_edge_labels}, \code{summary_arrows} \cr
+Directed vs undirected         \tab \code{directed} \cr
 Inter-layer lines              \tab \code{inter_layer_alpha} \cr
 Top-layer layout               \tab \code{top_layer_scale}, \code{inter_layer_gap} \cr
 Title / legend                 \tab \code{title}, \code{subtitle}, \code{legend}, \code{legend_position} \cr
@@ -433,12 +462,12 @@ colnames(mat) <- rownames(mat) <- LETTERS[1:6]
 clusters <- list(C1 = c("A","B"), C2 = c("C","D"), C3 = c("E","F"))
 plot_mcml(mat, clusters)
 \donttest{
-cs <- cluster_summary(mat, clusters)
+cs <- csum(mat, clusters)
 plot_mcml(cs, mode = "tna", edge_labels = TRUE)
 }
 }
 \seealso{
-\code{\link{cluster_summary}} for pre-computing aggregated cluster data,
+\code{\link{csum}} for pre-computing aggregated cluster data,
 \code{\link{plot_mtna}} for flat multi-cluster visualization (no summary
 layer),
 \code{\link{plot_mlna}} for stacked multilevel/multiplex layer

@@ -225,7 +225,7 @@ See `plot_mtna`.
 
 ## See also
 
-[`cluster_summary`](https://sonsoles.me/cograph/reference/cluster_summary.md),
+[`csum`](https://sonsoles.me/cograph/reference/csum.md),
 [`plot_mcml`](https://sonsoles.me/cograph/reference/plot_mcml.md)
 
 ## Examples

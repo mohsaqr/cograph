@@ -1,5 +1,72 @@
 # Changelog
 
+## cograph 2.3.7
+
+### Breaking changes
+
+- The exported names
+  [`cluster_summary()`](https://saqr.me/Nestimate/reference/cluster_summary.html)
+  and
+  [`build_mcml()`](https://saqr.me/Nestimate/reference/build_mcml.html)
+  are removed to end, permanently, the collision with
+  [`Nestimate::cluster_summary()`](https://saqr.me/Nestimate/reference/cluster_summary.html)
+  and
+  [`Nestimate::build_mcml()`](https://saqr.me/Nestimate/reference/build_mcml.html)
+  — different functions that silently masked each other depending on
+  package attach order (the same disease as the
+  [`cluster_network()`](https://saqr.me/Nestimate/reference/cluster_network.html)
+  alias removed in 2.3.6, where load order silently flipped results
+  between raw counts and row-normalized probabilities). Migration is
+  name-for-name with identical behavior:
+  - `cluster_summary(...)` → `csum(...)` (the existing short alias is
+    now the canonical exported name; same arguments, same
+    `cluster_summary` return object).
+  - `build_mcml(...)` → `summarize_clusters(...)` (same arguments, same
+    `mcml` return object). In sessions where both packages are attached,
+    the bare names
+    [`cluster_summary()`](https://saqr.me/Nestimate/reference/cluster_summary.html)
+    /
+    [`build_mcml()`](https://saqr.me/Nestimate/reference/build_mcml.html)
+    now always refer to Nestimate’s data-layer verbs, regardless of
+    attach order. The
+    [`as_tna()`](https://sonsoles.me/cograph/reference/as_tna.md)
+    generic is intentionally exported by both packages: the definitions
+    are identical (`function(x) UseMethod("as_tna")`), so masking is
+    harmless and S3 methods from both packages dispatch correctly.
+
+### New features
+
+- [`plot_mcml()`](https://sonsoles.me/cograph/reference/plot_mcml.md)
+  gains a `directed` argument (default `NULL` = auto-detect). Undirected
+  rendering suppresses arrowheads on all three edge layers
+  (within-cluster, between-cluster, summary), draws each symmetric edge
+  pair once instead of twice (previously a symmetric matrix produced
+  overplotted reciprocal arrows), and moves edge labels to the edge
+  midpoint. Auto-detection reads `$meta$directed` from
+  `cluster_summary`/`mcml` input (e.g., co-occurrence aggregations such
+  as `Nestimate::build_mcml(type = "cooccurrence")` now render
+  undirected with no extra flag), the `$directed` field of network
+  objects, or matrix symmetry for plain matrices — the same contract as
+  [`splot()`](https://sonsoles.me/cograph/reference/splot.md), which
+  forwards `directed` when dispatching `mcml`/`cluster_summary` objects.
+- [`plot_mcml()`](https://sonsoles.me/cograph/reference/plot_mcml.md)
+  undirected matrix input is aggregated with
+  `cluster_summary(type = "cooccurrence")` (symmetrized counts) instead
+  of the row-normalized `type = "tna"`, whose output is asymmetric even
+  for symmetric input and cannot be represented by undirected drawing.
+  When `directed = FALSE` is forced on weights that are not symmetric,
+  [`plot_mcml()`](https://sonsoles.me/cograph/reference/plot_mcml.md)
+  now warns that only the upper triangle is drawn.
+
+### Bug fixes
+
+- [`cluster_summary()`](https://saqr.me/Nestimate/reference/cluster_summary.html)
+  and the sequence path of
+  [`build_mcml()`](https://saqr.me/Nestimate/reference/build_mcml.html)
+  now record the *effective* directedness in `$meta$directed`: `FALSE`
+  when `type = "cooccurrence"` (which symmetrizes the weights), instead
+  of echoing the `directed` argument unchanged.
+
 ## cograph 2.3.6
 
 CRAN release: 2026-05-31
@@ -508,7 +575,7 @@ Directed-only; warns and returns `NA` on undirected input.
   now suppresses zero-weight edges instead of drawing invisible lines,
   and strips leading zeros from edge labels (`.32` instead of `0.32`)
 - Self-loops in
-  [`cluster_summary()`](https://sonsoles.me/cograph/reference/cluster_summary.md)
+  [`cluster_summary()`](https://saqr.me/Nestimate/reference/cluster_summary.html)
   are now preserved in the macro diagonal, reflecting intra-cluster
   retention rates
 - Sequence data is properly propagated through the full tna → macro →
@@ -553,11 +620,11 @@ Directed-only; warns and returns `NA` on undirected input.
 #### Cluster Analysis
 
 - Added
-  [`cluster_summary()`](https://sonsoles.me/cograph/reference/cluster_summary.md)
+  [`cluster_summary()`](https://saqr.me/Nestimate/reference/cluster_summary.html)
   for aggregating network weights at the cluster level, producing
   between-cluster and within-cluster matrices from raw transition data
 - Added
-  [`build_mcml()`](https://sonsoles.me/cograph/reference/build_mcml.md)
+  [`build_mcml()`](https://saqr.me/Nestimate/reference/build_mcml.html)
   for constructing Markov Chain Multi-Level models from edge lists or
   sequence data with automatic cluster detection
 - Added
@@ -698,7 +765,7 @@ Directed-only; warns and returns `NA` on undirected input.
   [`plot_heatmap()`](https://sonsoles.me/cograph/reference/plot_heatmap.md)
   so high values get dark colors
 - Fixed
-  [`build_mcml()`](https://sonsoles.me/cograph/reference/build_mcml.md)
+  [`build_mcml()`](https://saqr.me/Nestimate/reference/build_mcml.html)
   density method crash when weight vector had no names
 - Fixed display label priority resolution (labels \> label \>
   identifier)

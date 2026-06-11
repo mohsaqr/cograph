@@ -1,10 +1,9 @@
-# mcml - Deprecated alias for cluster_summary
+# mcml - Deprecated alias for csum
 
 **\[deprecated\]**
 
-Use
-[`cluster_summary`](https://sonsoles.me/cograph/reference/cluster_summary.md)
-instead. This function is provided for backward compatibility only.
+Use [`csum`](https://sonsoles.me/cograph/reference/csum.md) instead.
+This function is provided for backward compatibility only.
 
 ## Usage
 

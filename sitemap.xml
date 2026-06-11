@@ -43,7 +43,6 @@
 <url><loc>https://sonsoles.me/cograph/reference/bezier_points.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/brain_vertices.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/build_edge_labels_from_template.html</loc></url>
-<url><loc>https://sonsoles.me/cograph/reference/build_mcml.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/cent_to_edge.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/centrality.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/centrality_alpha.html</loc></url>
@@ -130,7 +129,6 @@
 <url><loc>https://sonsoles.me/cograph/reference/cloud_vertices.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/cluster_quality.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/cluster_significance.html</loc></url>
-<url><loc>https://sonsoles.me/cograph/reference/cluster_summary.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/cograph-main.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/cograph-package.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/cograph.html</loc></url>
@@ -163,6 +161,7 @@
 <url><loc>https://sonsoles.me/cograph/reference/create_grid_grob.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/create_nodes_df.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/cross_vertices.html</loc></url>
+<url><loc>https://sonsoles.me/cograph/reference/csum.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/curve_control_point.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/degree_distribution.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/detect_communities.html</loc></url>
@@ -563,6 +562,7 @@
 <url><loc>https://sonsoles.me/cograph/reference/student_interactions.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/subdivide_polygon.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/subgraphs.html</loc></url>
+<url><loc>https://sonsoles.me/cograph/reference/summarize_clusters.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/summarize_network.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/summary.cograph_network.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/supra_adjacency.html</loc></url>

@@ -433,7 +433,7 @@ plot_mtna(mat, clusters)
 | [`plot_mtna()`](https://sonsoles.me/cograph/reference/plot_mtna.md) | Flat cluster layout |
 | [`plot_mlna()`](https://sonsoles.me/cograph/reference/plot_mlna.md) | Stacked 3D multilayer |
 | [`plot_htna()`](https://sonsoles.me/cograph/reference/plot_htna.md) | Multi-group heterogeneous TNA |
-| [`cluster_summary()`](https://sonsoles.me/cograph/reference/cluster_summary.md) / [`build_mcml()`](https://sonsoles.me/cograph/reference/build_mcml.md) | Pre-compute cluster aggregation |
+| [`csum()`](https://sonsoles.me/cograph/reference/csum.md) / [`summarize_clusters()`](https://sonsoles.me/cograph/reference/summarize_clusters.md) | Pre-compute cluster aggregation |
 | [`as_tna()`](https://sonsoles.me/cograph/reference/as_tna.md) / [`as_mcml()`](https://sonsoles.me/cograph/reference/as_mcml.md) | Convert cluster summaries to tna objects |
 | [`summarize_network()`](https://sonsoles.me/cograph/reference/summarize_network.md) / [`cnet()`](https://sonsoles.me/cograph/reference/summarize_network.md) | Extract cluster-level network (matrix aggregation) |
 

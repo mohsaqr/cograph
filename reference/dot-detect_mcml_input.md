@@ -1,6 +1,6 @@
-# Detect input type for build_mcml
+# Detect input type for summarize_clusters
 
-Detect input type for build_mcml
+Detect input type for summarize_clusters
 
 ## Usage
 

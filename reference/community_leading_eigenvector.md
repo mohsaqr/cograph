@@ -95,13 +95,13 @@ membership(comm)
 net <- as_cograph(matrix(runif(25), 5, 5))
 com_le(net)
 #> Community structure (leading_eigenvector)
-#>   Nodes: 5  | Communities: 3  | Modularity: 0.0682 
-#>   Sizes: 2, 2, 1 
+#>   Nodes: 5  | Communities: 2  | Modularity: 0.0993 
+#>   Sizes: 2, 3 
 #> 
 #>  node community
 #>     1         1
-#>     2         2
+#>     2         1
 #>     3         2
-#>     4         1
-#>     5         3
+#>     4         2
+#>     5         2
 ```

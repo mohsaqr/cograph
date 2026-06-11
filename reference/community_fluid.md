@@ -54,12 +54,12 @@ net <- as_cograph(m)
 com_fl(net, no.of.communities = 2)
 #> Community structure (fluid)
 #>   Nodes: 5  | Communities: 2  | Modularity: NA 
-#>   Sizes: 1, 4 
+#>   Sizes: 3, 2 
 #> 
 #>  node community
 #>     1         1
 #>     2         2
-#>     3         2
-#>     4         2
+#>     3         1
+#>     4         1
 #>     5         2
 ```

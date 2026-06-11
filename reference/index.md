@@ -546,9 +546,10 @@
 - [`cluster_quality()`](https://sonsoles.me/cograph/reference/cluster_quality.md)
   [`cqual()`](https://sonsoles.me/cograph/reference/cluster_quality.md)
   : Cluster Quality Metrics
-- [`cluster_summary()`](https://sonsoles.me/cograph/reference/cluster_summary.md)
-  [`csum()`](https://sonsoles.me/cograph/reference/cluster_summary.md) :
-  Cluster Summary Statistics
+- [`csum()`](https://sonsoles.me/cograph/reference/csum.md) : Cluster
+  Summary Statistics
+- [`summarize_clusters()`](https://sonsoles.me/cograph/reference/summarize_clusters.md)
+  : Build MCML from Raw Transition Data
 - [`cograph-main`](https://sonsoles.me/cograph/reference/cograph-main.md)
   : Main Entry Point
 - [`cograph-package`](https://sonsoles.me/cograph/reference/cograph-package.md)
@@ -581,7 +582,7 @@
 - [`membership()`](https://sonsoles.me/cograph/reference/membership.md)
   : Get Community Membership
 - [`mcml()`](https://sonsoles.me/cograph/reference/mcml.md)
-  **\[deprecated\]** : mcml - Deprecated alias for cluster_summary
+  **\[deprecated\]** : mcml - Deprecated alias for csum
 - [`n_communities()`](https://sonsoles.me/cograph/reference/n_communities.md)
   : Get Number of Communities
 - [`nodes()`](https://sonsoles.me/cograph/reference/nodes.md) : Get
@@ -676,8 +677,6 @@
 - [`assortativity_attribute()`](https://sonsoles.me/cograph/reference/assortativity_attribute.md)
   [`homophily()`](https://sonsoles.me/cograph/reference/assortativity_attribute.md)
   : Attribute Assortativity (Homophily)
-- [`build_mcml()`](https://sonsoles.me/cograph/reference/build_mcml.md)
-  : Build MCML from Raw Transition Data
 - [`centralization()`](https://sonsoles.me/cograph/reference/centralization.md)
   : Centralization index
 - [`cluster_significance()`](https://sonsoles.me/cograph/reference/cluster_significance.md)

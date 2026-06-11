@@ -134,6 +134,7 @@ node, making the hierarchical mapping explicit.</p>
 <span>  summary_border_width <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  label_color <span class="op">=</span> <span class="st">"gray20"</span>,</span>
 <span>  label_position <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  directed <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -145,7 +146,7 @@ node, making the hierarchical mapping explicit.</p>
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>A weight matrix, <code>tna</code> object, <code>cograph_network</code>, or
 <code>cluster_summary</code> object. When a <code>cluster_summary</code> is provided
-(e.g., from <code><a href="cluster_summary.html">cluster_summary</a></code>), all aggregation has already
+(e.g., from <code><a href="csum.html">csum</a></code>), all aggregation has already
 been performed and the <code>cluster_list</code>, <code>aggregation</code>, and
 <code>nodes</code> parameters are ignored. See the <strong>Input Formats</strong>
 section for details.</p></dd>
@@ -348,7 +349,9 @@ nodes: 1 = below, 2 = left, 3 = above, 4 = right. Default 3 (above).</p></dd>
 
 <dt id="arg-summary-arrows">summary_arrows<a class="anchor" aria-label="anchor" href="#arg-summary-arrows"></a></dt>
 <dd><p>Logical. Draw arrowheads on summary-layer directed
-edges. Set to <code>FALSE</code> for undirected networks. Default <code>TRUE</code>.</p></dd>
+edges. Default <code>TRUE</code>. For fully undirected networks prefer
+<code>directed = FALSE</code>, which also suppresses these arrowheads and
+draws each symmetric edge pair only once.</p></dd>
 
 
 <dt id="arg-summary-arrow-size">summary_arrow_size<a class="anchor" aria-label="anchor" href="#arg-summary-arrow-size"></a></dt>
@@ -507,6 +510,24 @@ Default 2.</p></dd>
 are currently positioned automatically to the left or right of each node.</p></dd>
 
 
+<dt id="arg-directed">directed<a class="anchor" aria-label="anchor" href="#arg-directed"></a></dt>
+<dd><p>Logical or <code>NULL</code>. <code>NULL</code> (default)
+auto-detects: a <code>cluster_summary</code>/<code>mcml</code> input uses its own
+<code>$meta$directed</code> flag; other objects use their <code>$directed</code>
+field when present; a plain matrix is undirected when symmetric (the
+same contract as <code><a href="splot.html">splot</a></code>). When <code>TRUE</code>, every
+non-zero cell of the weight matrices is drawn as a directed edge with
+an arrowhead. When <code>FALSE</code> (undirected, e.g. co-occurrence
+weights): arrowheads are suppressed on all three edge layers
+(within-cluster, between-cluster, and summary), each symmetric pair is
+drawn once instead of twice (the upper triangle is used; a warning is
+issued if the weights are not symmetric), edge labels move to the edge
+midpoint, and matrix input is aggregated with
+<code>type = "cooccurrence"</code> (symmetrized counts) instead of the
+row-normalized <code>type = "tna"</code>. Overrides <code>summary_arrows</code>
+and <code>between_arrows</code>.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Additional arguments (currently unused).</p></dd>
 
@@ -527,8 +548,8 @@ without the summary layer, see <code><a href="plot_mtna.html">plot_mtna</a></cod
 multilevel/multiplex layers, see <code><a href="plot_mlna.html">plot_mlna</a></code>.</p>
 <p><strong>Two workflows:</strong></p><ol><li><p><strong>Direct</strong>: pass a weight matrix (or tna / cograph_network
 object) together with <code>cluster_list</code>. The function calls
-<code><a href="cluster_summary.html">cluster_summary</a></code> internally to compute aggregated weights.</p></li>
-<li><p><strong>Pre-computed</strong>: call <code><a href="cluster_summary.html">cluster_summary</a></code> yourself,
+<code><a href="csum.html">csum</a></code> internally to compute aggregated weights.</p></li>
+<li><p><strong>Pre-computed</strong>: call <code><a href="csum.html">csum</a></code> yourself,
 inspect or modify the result, then pass the <code>cluster_summary</code>
 object as <code>x</code>. This avoids redundant computation when you plot
 the same clustering repeatedly with different visual settings.</p></li>
@@ -538,7 +559,15 @@ Use this when the absolute magnitude of transitions matters.</p></li>
 probabilities (rows sum to 1) and automatically enables edge labels
 on both layers (unless you explicitly set <code>edge_labels</code> or
 <code>summary_edge_labels</code> to <code>FALSE</code>).</p></li>
-</ul><p><strong>Layout logic:</strong>
+</ul><p><strong>Directionality:</strong>
+<code>directed = NULL</code> (default) auto-detects directedness from the
+input: <code>cluster_summary</code>/<code>mcml</code> objects carry it in
+<code>$meta$directed</code>, and plain matrices are treated as undirected when
+symmetric. Directed edges get arrowheads; undirected weights (e.g.,
+co-occurrence aggregations) are drawn as a single plain line per
+symmetric pair on every layer, with no arrowheads. Pass
+<code>directed = TRUE</code>/<code>FALSE</code> to override the detection.</p>
+<p><strong>Layout logic:</strong>
 Bottom-layer clusters are arranged on a circle of radius <code>spacing</code>,
 flattened by the perspective <code>skew_angle</code>. Nodes inside each cluster
 sit on a smaller circle of radius <code>shape_size * node_radius_scale</code>.
@@ -564,7 +593,7 @@ is read from the <code>$nodes</code> data frame.</p></dd>
 
 <dt><strong>cluster_summary</strong></dt>
 <dd><p>A pre-computed summary from
-<code><a href="cluster_summary.html">cluster_summary</a></code>. When this type is passed, the
+<code><a href="csum.html">csum</a></code>. When this type is passed, the
 <code>cluster_list</code>, <code>aggregation</code>, and <code>nodes</code> parameters
 are ignored because the summary already contains everything needed.</p></dd>
 
@@ -604,10 +633,10 @@ detail node to its cluster's summary node. Controlled by
     <h2 id="customization-quick-reference">Customization Quick Reference<a class="anchor" aria-label="anchor" href="#customization-quick-reference"></a></h2>
 
 
-<table class="table table"><tr><td><strong>Visual element</strong></td><td><strong>Key parameters</strong></td></tr><tr><td>Cluster spacing / perspective</td><td><code>spacing</code>, <code>skew_angle</code></td></tr><tr><td>Cluster shell appearance</td><td><code>shape_size</code>, <code>shell_alpha</code>, <code>shell_border_width</code>, <code>colors</code></td></tr><tr><td>Detail nodes</td><td><code>node_size</code>, <code>node_shape</code>, <code>node_border_color</code></td></tr><tr><td>Detail labels</td><td><code>show_labels</code>, <code>label_size</code>, <code>label_abbrev</code>, <code>label_color</code>, <code>label_position</code></td></tr><tr><td>Summary nodes</td><td><code>summary_size</code>, <code>summary_border_color</code>, <code>summary_border_width</code></td></tr><tr><td>Summary labels</td><td><code>summary_labels</code>, <code>summary_label_size</code>, <code>summary_label_color</code>, <code>summary_label_position</code></td></tr><tr><td>Within-cluster edges</td><td><code>edge_width_range</code>, <code>edge_alpha</code>, <code>edge_labels</code></td></tr><tr><td>Between-cluster edges</td><td><code>between_edge_width_range</code>, <code>between_edge_alpha</code></td></tr><tr><td>Summary edges</td><td><code>summary_edge_width_range</code>, <code>summary_edge_alpha</code>, <code>summary_edge_labels</code>, <code>summary_arrows</code></td></tr><tr><td>Inter-layer lines</td><td><code>inter_layer_alpha</code></td></tr><tr><td>Top-layer layout</td><td><code>top_layer_scale</code>, <code>inter_layer_gap</code></td></tr><tr><td>Title / legend</td><td><code>title</code>, <code>subtitle</code>, <code>legend</code>, <code>legend_position</code></td></tr></table></div>
+<table class="table table"><tr><td><strong>Visual element</strong></td><td><strong>Key parameters</strong></td></tr><tr><td>Cluster spacing / perspective</td><td><code>spacing</code>, <code>skew_angle</code></td></tr><tr><td>Cluster shell appearance</td><td><code>shape_size</code>, <code>shell_alpha</code>, <code>shell_border_width</code>, <code>colors</code></td></tr><tr><td>Detail nodes</td><td><code>node_size</code>, <code>node_shape</code>, <code>node_border_color</code></td></tr><tr><td>Detail labels</td><td><code>show_labels</code>, <code>label_size</code>, <code>label_abbrev</code>, <code>label_color</code>, <code>label_position</code></td></tr><tr><td>Summary nodes</td><td><code>summary_size</code>, <code>summary_border_color</code>, <code>summary_border_width</code></td></tr><tr><td>Summary labels</td><td><code>summary_labels</code>, <code>summary_label_size</code>, <code>summary_label_color</code>, <code>summary_label_position</code></td></tr><tr><td>Within-cluster edges</td><td><code>edge_width_range</code>, <code>edge_alpha</code>, <code>edge_labels</code></td></tr><tr><td>Between-cluster edges</td><td><code>between_edge_width_range</code>, <code>between_edge_alpha</code></td></tr><tr><td>Summary edges</td><td><code>summary_edge_width_range</code>, <code>summary_edge_alpha</code>, <code>summary_edge_labels</code>, <code>summary_arrows</code></td></tr><tr><td>Directed vs undirected</td><td><code>directed</code></td></tr><tr><td>Inter-layer lines</td><td><code>inter_layer_alpha</code></td></tr><tr><td>Top-layer layout</td><td><code>top_layer_scale</code>, <code>inter_layer_gap</code></td></tr><tr><td>Title / legend</td><td><code>title</code>, <code>subtitle</code>, <code>legend</code>, <code>legend_position</code></td></tr></table></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="cluster_summary.html">cluster_summary</a></code> for pre-computing aggregated cluster data,
+    <div class="dont-index"><p><code><a href="csum.html">csum</a></code> for pre-computing aggregated cluster data,
 <code><a href="plot_mtna.html">plot_mtna</a></code> for flat multi-cluster visualization (no summary
 layer),
 <code><a href="plot_mlna.html">plot_mlna</a></code> for stacked multilevel/multiplex layer
@@ -625,7 +654,7 @@ used internally,
 <span class="r-in"><span><span class="fu">plot_mcml</span><span class="op">(</span><span class="va">mat</span>, <span class="va">clusters</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plot_mcml-1.png" alt="" width="1080" height="1080"></span>
 <span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="va">cs</span> <span class="op">&lt;-</span> <span class="fu"><a href="cluster_summary.html">cluster_summary</a></span><span class="op">(</span><span class="va">mat</span>, <span class="va">clusters</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">cs</span> <span class="op">&lt;-</span> <span class="fu"><a href="csum.html">csum</a></span><span class="op">(</span><span class="va">mat</span>, <span class="va">clusters</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">plot_mcml</span><span class="op">(</span><span class="va">cs</span>, mode <span class="op">=</span> <span class="st">"tna"</span>, edge_labels <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plot_mcml-2.png" alt="" width="1080" height="1080"></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>

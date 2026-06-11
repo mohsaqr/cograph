@@ -90,8 +90,8 @@ devtools::install_github("sonsoleslp/cograph")
 | [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md) / [`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md) | Motif/triad census with per-actor windowing |
 | [`robustness()`](https://sonsoles.me/cograph/reference/robustness.md) | Network robustness analysis |
 | [`disparity_filter()`](https://sonsoles.me/cograph/reference/disparity_filter.md) | Backbone extraction (Serrano et al. 2009) |
-| [`cluster_summary()`](https://sonsoles.me/cograph/reference/cluster_summary.md) | Between/within cluster weight aggregation |
-| [`build_mcml()`](https://sonsoles.me/cograph/reference/build_mcml.md) | Markov Chain Multi-Level model construction |
+| `cluster_summary()` | Between/within cluster weight aggregation |
+| `build_mcml()` | Markov Chain Multi-Level model construction |
 | [`summarize_network()`](https://sonsoles.me/cograph/reference/summarize_network.md) | Comprehensive network-level statistics |
 | [`verify_with_igraph()`](https://sonsoles.me/cograph/reference/verify_with_igraph.md) | Cross-validation against igraph |
 | [`simplify()`](https://sonsoles.me/cograph/reference/simplify.md) | Prune weak edges |

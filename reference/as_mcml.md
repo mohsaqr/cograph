@@ -64,7 +64,7 @@ The input `mcml` object unchanged.
 
 ## See also
 
-[`build_mcml`](https://sonsoles.me/cograph/reference/build_mcml.md),
+[`summarize_clusters`](https://sonsoles.me/cograph/reference/summarize_clusters.md),
 [`as_tna`](https://sonsoles.me/cograph/reference/as_tna.md)
 
 ## Examples
@@ -76,7 +76,7 @@ mat <- matrix(c(0.5, 0.2, 0.3,
                 0.4, 0.1, 0.5), 3, 3, byrow = TRUE,
               dimnames = list(c("A", "B", "C"), c("A", "B", "C")))
 clusters <- list(G1 = c("A", "B"), G2 = c("C"))
-cs <- cluster_summary(mat, clusters, type = "tna")
+cs <- csum(mat, clusters, type = "tna")
 m <- as_mcml(cs)
 m$macro$weights
 #>     G1  G2

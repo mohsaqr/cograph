@@ -25,8 +25,8 @@ as_tna(x)
 - x:
 
   A `cluster_summary` object created by
-  [`cluster_summary`](https://sonsoles.me/cograph/reference/cluster_summary.md).
-  The cluster_summary should typically be created with `type = "tna"` to
+  [`csum`](https://sonsoles.me/cograph/reference/csum.md). The
+  cluster_summary should typically be created with `type = "tna"` to
   ensure row-normalized transition probabilities. If created with
   `type = "raw"`, the raw counts will be passed to
   [`tna::tna()`](http://sonsoles.me/tna/reference/build_model.md) which
@@ -77,7 +77,7 @@ an error with installation instructions.
     # Full MCML workflow
     net <- cograph(edges, nodes = nodes)
     net$nodes$clusters <- group_assignments
-    cs <- cluster_summary(net, type = "tna")
+    cs <- csum(net, type = "tna")
     tna_models <- as_tna(cs)
 
     # Now use tna package functions
@@ -102,8 +102,8 @@ still includes all clusters.
 
 ## See also
 
-[`cluster_summary`](https://sonsoles.me/cograph/reference/cluster_summary.md)
-to create the input object,
+[`csum`](https://sonsoles.me/cograph/reference/csum.md) to create the
+input object,
 [`plot_mcml`](https://sonsoles.me/cograph/reference/plot_mcml.md) for
 visualization without conversion,
 [`tna::tna`](http://sonsoles.me/tna/reference/build_model.md) for the
@@ -115,7 +115,7 @@ underlying tna constructor
 mat <- matrix(runif(36), 6, 6); diag(mat) <- 0
 rownames(mat) <- colnames(mat) <- LETTERS[1:6]
 clusters <- list(G1 = c("A","B"), G2 = c("C","D"), G3 = c("E","F"))
-cs <- cluster_summary(mat, clusters, type = "tna")
+cs <- csum(mat, clusters, type = "tna")
 tna_models <- as_tna(cs)
 names(tna_models)          # "macro", "G1", "G2", "G3"
 #> [1] "macro" "G1"    "G2"    "G3"   

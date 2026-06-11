@@ -72,6 +72,7 @@ plot_mcml(
   summary_border_width = 2,
   label_color = "gray20",
   label_position = 3,
+  directed = NULL,
   ...
 )
 ```
@@ -82,8 +83,8 @@ plot_mcml(
 
   A weight matrix, `tna` object, `cograph_network`, or `cluster_summary`
   object. When a `cluster_summary` is provided (e.g., from
-  [`cluster_summary`](https://sonsoles.me/cograph/reference/cluster_summary.md)),
-  all aggregation has already been performed and the `cluster_list`,
+  [`csum`](https://sonsoles.me/cograph/reference/csum.md)), all
+  aggregation has already been performed and the `cluster_list`,
   `aggregation`, and `nodes` parameters are ignored. See the **Input
   Formats** section for details.
 
@@ -286,8 +287,10 @@ plot_mcml(
 
 - summary_arrows:
 
-  Logical. Draw arrowheads on summary-layer directed edges. Set to
-  `FALSE` for undirected networks. Default `TRUE`.
+  Logical. Draw arrowheads on summary-layer directed edges. Default
+  `TRUE`. For fully undirected networks prefer `directed = FALSE`, which
+  also suppresses these arrowheads and draws each symmetric edge pair
+  only once.
 
 - summary_arrow_size:
 
@@ -430,6 +433,24 @@ plot_mcml(
   Accepted for backward compatibility. Detail labels are currently
   positioned automatically to the left or right of each node.
 
+- directed:
+
+  Logical or `NULL`. `NULL` (default) auto-detects: a
+  `cluster_summary`/`mcml` input uses its own `$meta$directed` flag;
+  other objects use their `$directed` field when present; a plain matrix
+  is undirected when symmetric (the same contract as
+  [`splot`](https://sonsoles.me/cograph/reference/splot.md)). When
+  `TRUE`, every non-zero cell of the weight matrices is drawn as a
+  directed edge with an arrowhead. When `FALSE` (undirected, e.g.
+  co-occurrence weights): arrowheads are suppressed on all three edge
+  layers (within-cluster, between-cluster, and summary), each symmetric
+  pair is drawn once instead of twice (the upper triangle is used; a
+  warning is issued if the weights are not symmetric), edge labels move
+  to the edge midpoint, and matrix input is aggregated with
+  `type = "cooccurrence"` (symmetrized counts) instead of the
+  row-normalized `type = "tna"`. Overrides `summary_arrows` and
+  `between_arrows`.
+
 - ...:
 
   Additional arguments (currently unused).
@@ -456,15 +477,14 @@ stacked multilevel/multiplex layers, see
 
 1.  **Direct**: pass a weight matrix (or tna / cograph_network object)
     together with `cluster_list`. The function calls
-    [`cluster_summary`](https://sonsoles.me/cograph/reference/cluster_summary.md)
-    internally to compute aggregated weights.
+    [`csum`](https://sonsoles.me/cograph/reference/csum.md) internally
+    to compute aggregated weights.
 
 2.  **Pre-computed**: call
-    [`cluster_summary`](https://sonsoles.me/cograph/reference/cluster_summary.md)
-    yourself, inspect or modify the result, then pass the
-    `cluster_summary` object as `x`. This avoids redundant computation
-    when you plot the same clustering repeatedly with different visual
-    settings.
+    [`csum`](https://sonsoles.me/cograph/reference/csum.md) yourself,
+    inspect or modify the result, then pass the `cluster_summary` object
+    as `x`. This avoids redundant computation when you plot the same
+    clustering repeatedly with different visual settings.
 
 **Mode:**
 
@@ -475,6 +495,14 @@ stacked multilevel/multiplex layers, see
   probabilities (rows sum to 1) and automatically enables edge labels on
   both layers (unless you explicitly set `edge_labels` or
   `summary_edge_labels` to `FALSE`).
+
+**Directionality:** `directed = NULL` (default) auto-detects
+directedness from the input: `cluster_summary`/`mcml` objects carry it
+in `$meta$directed`, and plain matrices are treated as undirected when
+symmetric. Directed edges get arrowheads; undirected weights (e.g.,
+co-occurrence aggregations) are drawn as a single plain line per
+symmetric pair on every layer, with no arrowheads. Pass
+`directed = TRUE`/`FALSE` to override the detection.
 
 **Layout logic:** Bottom-layer clusters are arranged on a circle of
 radius `spacing`, flattened by the perspective `skew_angle`. Nodes
@@ -506,10 +534,10 @@ on an oval above the bottom layer whose proportions are controlled by
 - **cluster_summary**:
 
   A pre-computed summary from
-  [`cluster_summary`](https://sonsoles.me/cograph/reference/cluster_summary.md).
-  When this type is passed, the `cluster_list`, `aggregation`, and
-  `nodes` parameters are ignored because the summary already contains
-  everything needed.
+  [`csum`](https://sonsoles.me/cograph/reference/csum.md). When this
+  type is passed, the `cluster_list`, `aggregation`, and `nodes`
+  parameters are ignored because the summary already contains everything
+  needed.
 
 ## Edge Types
 
@@ -553,14 +581,15 @@ of visual parameters:
 | Within-cluster edges | `edge_width_range`, `edge_alpha`, `edge_labels` |
 | Between-cluster edges | `between_edge_width_range`, `between_edge_alpha` |
 | Summary edges | `summary_edge_width_range`, `summary_edge_alpha`, `summary_edge_labels`, `summary_arrows` |
+| Directed vs undirected | `directed` |
 | Inter-layer lines | `inter_layer_alpha` |
 | Top-layer layout | `top_layer_scale`, `inter_layer_gap` |
 | Title / legend | `title`, `subtitle`, `legend`, `legend_position` |
 
 ## See also
 
-[`cluster_summary`](https://sonsoles.me/cograph/reference/cluster_summary.md)
-for pre-computing aggregated cluster data,
+[`csum`](https://sonsoles.me/cograph/reference/csum.md) for
+pre-computing aggregated cluster data,
 [`plot_mtna`](https://sonsoles.me/cograph/reference/plot_mtna.md) for
 flat multi-cluster visualization (no summary layer),
 [`plot_mlna`](https://sonsoles.me/cograph/reference/plot_mlna.md) for
@@ -579,7 +608,7 @@ clusters <- list(C1 = c("A","B"), C2 = c("C","D"), C3 = c("E","F"))
 plot_mcml(mat, clusters)
 
 # \donttest{
-cs <- cluster_summary(mat, clusters)
+cs <- csum(mat, clusters)
 plot_mcml(cs, mode = "tna", edge_labels = TRUE)
 
 # }

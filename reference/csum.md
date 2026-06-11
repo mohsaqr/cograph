@@ -7,15 +7,6 @@ transitions (how nodes connect inside each cluster).
 ## Usage
 
 ``` r
-cluster_summary(
-  x,
-  clusters = NULL,
-  method = c("sum", "mean", "median", "max", "min", "density", "geomean"),
-  type = c("tna", "cooccurrence", "semi_markov", "raw"),
-  directed = TRUE,
-  compute_within = TRUE
-)
-
 csum(
   x,
   clusters = NULL,
@@ -222,7 +213,8 @@ A `cluster_summary` object (S3 class) containing:
 
   directed
 
-  :   Logical, whether network was treated as directed
+  :   Logical, effective directedness of the stored weights (`FALSE`
+      when `type = "cooccurrence"`, which symmetrizes them)
 
   n_nodes
 
@@ -235,8 +227,6 @@ A `cluster_summary` object (S3 class) containing:
   cluster_sizes
 
   :   Named vector of cluster sizes
-
-See `cluster_summary`.
 
 ## Details
 
@@ -255,7 +245,7 @@ Typical MCML analysis workflow:
     net$nodes$clusters <- group_assignments
 
     # 2. Compute cluster summary
-    cs <- cluster_summary(net, type = "tna")
+    cs <- csum(net, type = "tna")
 
     # 3. Convert to tna models
     tna_models <- as_tna(cs)
@@ -303,38 +293,17 @@ mat <- matrix(runif(100), 10, 10); diag(mat) <- 0
 rownames(mat) <- colnames(mat) <- LETTERS[1:10]
 
 # Membership vector
-cs <- cluster_summary(mat, c(1,1,1,2,2,2,3,3,3,3))
+cs <- csum(mat, c(1,1,1,2,2,2,3,3,3,3))
 cs$macro$weights      # 3x3 cluster transition matrix
 #>           1         2         3
-#> 1 0.2469609 0.3005706 0.4524685
-#> 2 0.3480177 0.1137586 0.5382237
-#> 3 0.3351169 0.3005628 0.3643203
+#> 1 0.1874619 0.3782801 0.4342581
+#> 2 0.3195861 0.2148733 0.4655406
+#> 3 0.2671789 0.2872350 0.4455861
 
 # Named list of clusters, TNA-normalized
 clusters <- list(Alpha = LETTERS[1:3], Beta = LETTERS[4:6], Gamma = LETTERS[7:10])
-cs <- cluster_summary(mat, clusters, type = "tna")
+cs <- csum(mat, clusters, type = "tna")
 rowSums(cs$macro$weights)  # all 1 (TNA probabilities)
 #> Alpha  Beta Gamma 
 #>     1     1     1 
-mat <- matrix(c(0.5, 0.2, 0.3, 0.1, 0.6, 0.3, 0.4, 0.1, 0.5), 3, 3,
-              byrow = TRUE,
-              dimnames = list(c("A", "B", "C"), c("A", "B", "C")))
-csum(mat, list(G1 = c("A", "B"), G2 = c("C")))
-#> Cluster Summary
-#> ---------------
-#> Type: tna 
-#> Method: sum 
-#> Clusters: 2 
-#> Nodes: 3 
-#> Cluster sizes: 2, 1 
-#> 
-#> Macro (cluster-level) weights (2x2):
-#>   Inits: 0.633, 0.367 
-#>     G1  G2
-#> G1 0.7 0.3
-#> G2 0.5 0.5
-#> 
-#> Per-cluster weights:
-#>   G1 (2 nodes)
-#>   G2 (1 nodes)
 ```

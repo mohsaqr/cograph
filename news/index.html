@@ -43,6 +43,30 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.3.7" id="cograph-237">cograph 2.3.7<a class="anchor" aria-label="anchor" href="#cograph-237"></a></h2>
+<div class="section level3">
+<h3 id="breaking-changes-2-3-7">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-2-3-7"></a></h3>
+<ul><li>The exported names <code><a href="https://saqr.me/Nestimate/reference/cluster_summary.html" class="external-link">cluster_summary()</a></code> and <code><a href="https://saqr.me/Nestimate/reference/build_mcml.html" class="external-link">build_mcml()</a></code> are removed to end, permanently, the collision with <code><a href="https://saqr.me/Nestimate/reference/cluster_summary.html" class="external-link">Nestimate::cluster_summary()</a></code> and <code><a href="https://saqr.me/Nestimate/reference/build_mcml.html" class="external-link">Nestimate::build_mcml()</a></code> — different functions that silently masked each other depending on package attach order (the same disease as the <code><a href="https://saqr.me/Nestimate/reference/cluster_network.html" class="external-link">cluster_network()</a></code> alias removed in 2.3.6, where load order silently flipped results between raw counts and row-normalized probabilities). Migration is name-for-name with identical behavior:
+<ul><li>
+<code>cluster_summary(...)</code> → <code>csum(...)</code> (the existing short alias is now the canonical exported name; same arguments, same <code>cluster_summary</code> return object).</li>
+<li>
+<code>build_mcml(...)</code> → <code>summarize_clusters(...)</code> (same arguments, same <code>mcml</code> return object). In sessions where both packages are attached, the bare names <code><a href="https://saqr.me/Nestimate/reference/cluster_summary.html" class="external-link">cluster_summary()</a></code> / <code><a href="https://saqr.me/Nestimate/reference/build_mcml.html" class="external-link">build_mcml()</a></code> now always refer to Nestimate’s data-layer verbs, regardless of attach order. The <code><a href="../reference/as_tna.html">as_tna()</a></code> generic is intentionally exported by both packages: the definitions are identical (<code>function(x) UseMethod("as_tna")</code>), so masking is harmless and S3 methods from both packages dispatch correctly.</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-features-2-3-7">New features<a class="anchor" aria-label="anchor" href="#new-features-2-3-7"></a></h3>
+<ul><li>
+<code><a href="../reference/plot_mcml.html">plot_mcml()</a></code> gains a <code>directed</code> argument (default <code>NULL</code> = auto-detect). Undirected rendering suppresses arrowheads on all three edge layers (within-cluster, between-cluster, summary), draws each symmetric edge pair once instead of twice (previously a symmetric matrix produced overplotted reciprocal arrows), and moves edge labels to the edge midpoint. Auto-detection reads <code>$meta$directed</code> from <code>cluster_summary</code>/<code>mcml</code> input (e.g., co-occurrence aggregations such as <code>Nestimate::build_mcml(type = "cooccurrence")</code> now render undirected with no extra flag), the <code>$directed</code> field of network objects, or matrix symmetry for plain matrices — the same contract as <code><a href="../reference/splot.html">splot()</a></code>, which forwards <code>directed</code> when dispatching <code>mcml</code>/<code>cluster_summary</code> objects.</li>
+<li>
+<code><a href="../reference/plot_mcml.html">plot_mcml()</a></code> undirected matrix input is aggregated with <code>cluster_summary(type = "cooccurrence")</code> (symmetrized counts) instead of the row-normalized <code>type = "tna"</code>, whose output is asymmetric even for symmetric input and cannot be represented by undirected drawing. When <code>directed = FALSE</code> is forced on weights that are not symmetric, <code><a href="../reference/plot_mcml.html">plot_mcml()</a></code> now warns that only the upper triangle is drawn.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-2-3-7">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-3-7"></a></h3>
+<ul><li>
+<code><a href="https://saqr.me/Nestimate/reference/cluster_summary.html" class="external-link">cluster_summary()</a></code> and the sequence path of <code><a href="https://saqr.me/Nestimate/reference/build_mcml.html" class="external-link">build_mcml()</a></code> now record the <em>effective</em> directedness in <code>$meta$directed</code>: <code>FALSE</code> when <code>type = "cooccurrence"</code> (which symmetrizes the weights), instead of echoing the <code>directed</code> argument unchanged.</li>
+</ul></div>
+</div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.3.6" id="cograph-236">cograph 2.3.6<a class="anchor" aria-label="anchor" href="#cograph-236"></a></h2><p class="text-muted">CRAN release: 2026-05-31</p>
 <div class="section level3">
 <h3 id="bug-fixes-2-3-6">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-3-6"></a></h3>
@@ -255,7 +279,7 @@
 <h3 id="bug-fixes-1-8-2">Bug Fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-8-2"></a></h3>
 <ul><li>
 <code><a href="../reference/plot_mcml.html">plot_mcml()</a></code> now suppresses zero-weight edges instead of drawing invisible lines, and strips leading zeros from edge labels (<code>.32</code> instead of <code>0.32</code>)</li>
-<li>Self-loops in <code><a href="../reference/cluster_summary.html">cluster_summary()</a></code> are now preserved in the macro diagonal, reflecting intra-cluster retention rates</li>
+<li>Self-loops in <code><a href="https://saqr.me/Nestimate/reference/cluster_summary.html" class="external-link">cluster_summary()</a></code> are now preserved in the macro diagonal, reflecting intra-cluster retention rates</li>
 <li>Sequence data is properly propagated through the full tna → macro → cluster pipeline, so downstream models can use bootstrap and permutation tests</li>
 </ul></div>
 </div>
@@ -282,8 +306,8 @@
 <h3 id="new-features-1-7-0">New Features<a class="anchor" aria-label="anchor" href="#new-features-1-7-0"></a></h3>
 <div class="section level4">
 <h4 id="cluster-analysis-1-7-0">Cluster Analysis<a class="anchor" aria-label="anchor" href="#cluster-analysis-1-7-0"></a></h4>
-<ul><li>Added <code><a href="../reference/cluster_summary.html">cluster_summary()</a></code> for aggregating network weights at the cluster level, producing between-cluster and within-cluster matrices from raw transition data</li>
-<li>Added <code><a href="../reference/build_mcml.html">build_mcml()</a></code> for constructing Markov Chain Multi-Level models from edge lists or sequence data with automatic cluster detection</li>
+<ul><li>Added <code><a href="https://saqr.me/Nestimate/reference/cluster_summary.html" class="external-link">cluster_summary()</a></code> for aggregating network weights at the cluster level, producing between-cluster and within-cluster matrices from raw transition data</li>
+<li>Added <code><a href="https://saqr.me/Nestimate/reference/build_mcml.html" class="external-link">build_mcml()</a></code> for constructing Markov Chain Multi-Level models from edge lists or sequence data with automatic cluster detection</li>
 <li>Added <code><a href="../reference/cluster_quality.html">cluster_quality()</a></code> for modularity-based cluster quality metrics and <code><a href="../reference/cluster_significance.html">cluster_significance()</a></code> for permutation-based significance testing</li>
 <li>Added <code><a href="../reference/as_tna.html">as_tna()</a></code> to convert cluster summaries to TNA objects for bootstrapping, permutation testing, and plotting with <code><a href="../reference/splot.html">splot()</a></code>
 </li>
@@ -341,7 +365,7 @@
 <li>Fixed overlapping flow value labels in multi-step alluvial plots</li>
 <li>Fixed alluvial label halo rendering producing spike artifacts (8 → 16 offset directions)</li>
 <li>Fixed viridis palette direction in <code><a href="../reference/plot_heatmap.html">plot_heatmap()</a></code> so high values get dark colors</li>
-<li>Fixed <code><a href="../reference/build_mcml.html">build_mcml()</a></code> density method crash when weight vector had no names</li>
+<li>Fixed <code><a href="https://saqr.me/Nestimate/reference/build_mcml.html" class="external-link">build_mcml()</a></code> density method crash when weight vector had no names</li>
 <li>Fixed display label priority resolution (labels &gt; label &gt; identifier)</li>
 <li>Removed zero-value labels that appeared after rounding in transition plots</li>
 </ul></div>

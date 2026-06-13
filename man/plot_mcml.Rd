@@ -67,8 +67,10 @@ plot_mcml(
 )
 }
 \arguments{
-\item{x}{A weight matrix, \code{tna} object, \code{cograph_network}, or
-\code{cluster_summary} object. When a \code{cluster_summary} is provided
+\item{x}{A weight matrix, \code{tna} object, \code{cograph_network},
+\code{cluster_summary}, or \code{mcml}/\code{mcml_pc} object (the
+latter from \code{Nestimate::build_mcml_pc()}, rendered undirected via
+its \code{meta$directed} flag). When a \code{cluster_summary} is provided
 (e.g., from \code{\link{csum}}), all aggregation has already
 been performed and the \code{cluster_list}, \code{aggregation}, and
 \code{nodes} parameters are ignored. See the \strong{Input Formats}

@@ -521,3 +521,29 @@ test_that("plot_mcml warns when directed = FALSE meets asymmetric weights", {
     "not symmetric"
   )
 })
+
+test_that("plot_mcml accepts mcml_pc-shaped objects and renders undirected", {
+  # Minimal mcml_pc-shaped object (as built by Nestimate::build_mcml_pc):
+  # symmetric macro, per-cluster within nets, meta$directed = FALSE.
+  W <- matrix(c(0, .4, .1, .4, 0, .2, .1, .2, 0), 3, 3,
+              dimnames = list(c("A", "B", "C"), c("A", "B", "C")))
+  wi <- matrix(c(0, .5, .5, 0), 2, 2,
+               dimnames = list(c("x1", "x2"), c("x1", "x2")))
+  fit <- structure(list(
+    macro = list(weights = W),
+    clusters = list(A = list(weights = wi), B = list(weights = wi),
+                    C = list(weights = wi)),
+    cluster_members = list(A = c("x1", "x2"), B = c("x3", "x4"),
+                           C = c("x5", "x6")),
+    meta = list(n_clusters = 3L, n_nodes = 6L, directed = FALSE)
+  ), class = "mcml_pc")
+
+  n_arrows <- 0L
+  testthat::local_mocked_bindings(
+    draw_arrow_base = function(...) n_arrows <<- n_arrows + 1L,
+    .package = "cograph"
+  )
+  expect_no_error(with_temp_png(plot_mcml(fit)))
+  expect_identical(n_arrows, 0L)
+  expect_no_error(with_temp_png(splot(fit)))
+})

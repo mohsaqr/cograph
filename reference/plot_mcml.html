@@ -25,7 +25,7 @@ node, making the hierarchical mapping explicit."><meta property="og:image" conte
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -144,8 +144,10 @@ node, making the hierarchical mapping explicit.</p>
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>A weight matrix, <code>tna</code> object, <code>cograph_network</code>, or
-<code>cluster_summary</code> object. When a <code>cluster_summary</code> is provided
+<dd><p>A weight matrix, <code>tna</code> object, <code>cograph_network</code>,
+<code>cluster_summary</code>, or <code>mcml</code>/<code>mcml_pc</code> object (the
+latter from <code>Nestimate::build_mcml_pc()</code>, rendered undirected via
+its <code>meta$directed</code> flag). When a <code>cluster_summary</code> is provided
 (e.g., from <code><a href="csum.html">csum</a></code>), all aggregation has already
 been performed and the <code>cluster_list</code>, <code>aggregation</code>, and
 <code>nodes</code> parameters are ignored. See the <strong>Input Formats</strong>

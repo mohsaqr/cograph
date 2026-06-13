@@ -652,7 +652,7 @@ splot <- function(
   # ============================================
 
   # Handle cluster_summary / mcml objects -> dispatch to plot_mcml
-  if (inherits(x, c("cluster_summary", "mcml"))) {
+  if (inherits(x, c("cluster_summary", "mcml", "mcml_pc"))) {
     return(do.call(plot_mcml, c(list(x = x), .collect_dispatch_args(.user_args, .dots))))
   }
 

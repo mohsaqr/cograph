@@ -1,3 +1,11 @@
+# cograph 2.3.8
+
+## New features
+
+- `plot_mcml()` and `splot()` accept `mcml_pc` objects
+  (`Nestimate::build_mcml_pc()`, experimental psychometric MCML) and
+  render them undirected via their `meta$directed` flag.
+
 # cograph 2.3.7
 
 ## Breaking changes

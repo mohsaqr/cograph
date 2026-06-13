@@ -110,8 +110,10 @@
 #'   Title / legend                 \tab \code{title}, \code{subtitle}, \code{legend}, \code{legend_position} \cr
 #' }
 #'
-#' @param x A weight matrix, \code{tna} object, \code{cograph_network}, or
-#'   \code{cluster_summary} object. When a \code{cluster_summary} is provided
+#' @param x A weight matrix, \code{tna} object, \code{cograph_network},
+#'   \code{cluster_summary}, or \code{mcml}/\code{mcml_pc} object (the
+#'   latter from \code{Nestimate::build_mcml_pc()}, rendered undirected via
+#'   its \code{meta$directed} flag). When a \code{cluster_summary} is provided
 #'   (e.g., from \code{\link{csum}}), all aggregation has already
 #'   been performed and the \code{cluster_list}, \code{aggregation}, and
 #'   \code{nodes} parameters are ignored. See the \strong{Input Formats}
@@ -447,7 +449,7 @@ plot_mcml <- function(
     names(cluster_list) <- paste0("C", names(cluster_list))
   }
 
-  if (inherits(x, c("cluster_summary", "mcml"))) {
+  if (inherits(x, c("cluster_summary", "mcml", "mcml_pc"))) {
     cs <- x
     # directed = NULL: auto-detect from the summary's own metadata
     if (is.null(directed)) {
@@ -511,7 +513,7 @@ plot_mcml <- function(
 
   # Get original weight matrix for within-cluster visualization
   # We need raw weights, so re-extract if needed
-  if (inherits(x, c("cluster_summary", "mcml"))) {
+  if (inherits(x, c("cluster_summary", "mcml", "mcml_pc"))) {
     # Use clusters$X$weights directly
     weights <- NULL
   } else if (inherits(x, "cograph_network")) {

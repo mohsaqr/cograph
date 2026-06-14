@@ -8,6 +8,7 @@ plot_mcml(
   x,
   cluster_list = NULL,
   mode = c("weights", "tna"),
+  theme = c("classic", "rich", "light"),
   layer_spacing = NULL,
   spacing = 3,
   shape_size = 1.2,
@@ -21,7 +22,7 @@ plot_mcml(
   nodes = NULL,
   label_size = NULL,
   label_abbrev = NULL,
-  node_size = 1.8,
+  node_size = 2.4,
   node_shape = "circle",
   cluster_shape = "circle",
   title = NULL,
@@ -37,7 +38,16 @@ plot_mcml(
   summary_label_color = "gray20",
   summary_arrows = TRUE,
   summary_arrow_size = 0.1,
+  node_donut = NULL,
+  node_donut_inner_ratio = 0.55,
+  summary_donut_inner_ratio = 0.6,
+  summary_donut_show_value = FALSE,
+  curved_edges = NULL,
+  summary_curve = NULL,
   summary_pie = c("inits", "self"),
+  edge_color_by = c("auto", "cluster", "sign"),
+  edge_positive_color = "#2E7D32",
+  edge_negative_color = "#C62828",
   between_arrows = FALSE,
   edge_width_range = c(0.3, 1.3),
   between_edge_width_range = c(0.5, 2),
@@ -56,10 +66,11 @@ plot_mcml(
   inter_layer_gap = 0.6,
   node_radius_scale = 0.55,
   shell_alpha = 0.15,
-  shell_border_width = 2,
+  shell_border_width = 0.75,
   node_border_color = "gray30",
+  node_border_width = 0.4,
   summary_border_color = "gray20",
-  summary_border_width = 2,
+  summary_border_width = 0.6,
   label_color = "gray20",
   label_position = 3,
   directed = NULL,
@@ -98,6 +109,19 @@ sums to 1, producing transition probabilities. Automatically enables
 \code{edge_labels} and \code{summary_edge_labels} unless you
 explicitly set them to \code{FALSE}.}
 }}
+
+\item{theme}{Visual preset controlling node and edge styling. One of:
+\describe{
+\item{\code{"classic"}}{(default) The historical look — pie-chart nodes
+and straight summary edges, with thin borders and slightly larger
+detail nodes.}
+\item{\code{"rich"}}{Donut nodes on both layers plus curved (qgraph-style)
+summary edges and splot self-loops.}
+\item{\code{"light"}}{Like \code{"rich"} but with no cluster-shell
+outline and a softer shell fill.}
+}
+The granular style arguments (\code{node_donut}, \code{curved_edges})
+override the preset when supplied.}
 
 \item{layer_spacing}{Vertical distance between the bottom and top layers.
 \code{NULL} (default) auto-calculates a gap that prevents overlap based
@@ -168,7 +192,7 @@ number of nodes: more nodes triggers shorter abbreviations.
 }}
 
 \item{node_size}{Size of individual detail nodes in the bottom layer.
-This controls the pie-chart radius for each node. Default 1.8.}
+This controls the pie-chart radius for each node. Default 2.4.}
 
 \item{node_shape}{Shape for detail nodes in the bottom layer. Supported
 values: \code{"circle"}, \code{"square"}, \code{"diamond"},
@@ -219,6 +243,26 @@ draws each symmetric edge pair only once.}
 \item{summary_arrow_size}{Size of arrowheads on summary edges. Default
 0.10.}
 
+\item{node_donut}{Logical or \code{NULL}. Force donut node rendering on
+(\code{TRUE}) or off (\code{FALSE}), overriding \code{theme}. \code{NULL}
+(default) follows the preset (donut for \code{"rich"}/\code{"light"}).}
+
+\item{node_donut_inner_ratio}{Hole size (0–1) of the detail-node donut ring.
+Default 0.55.}
+
+\item{summary_donut_inner_ratio}{Hole size (0–1) of the top-layer summary
+donut ring. Default 0.6.}
+
+\item{summary_donut_show_value}{Logical. Print the fill proportion in the
+center of each summary donut. Default \code{FALSE}.}
+
+\item{curved_edges}{Logical or \code{NULL}. Force curved summary edges on or
+off, overriding \code{theme}. \code{NULL} (default) follows the preset.}
+
+\item{summary_curve}{Numeric or \code{NULL}. Curvature of curved summary
+edges (only used when curved). \code{NULL} auto-selects (0.25 for directed,
+straight for undirected).}
+
 \item{summary_pie}{Character scalar controlling what the colored slice
 of the top-layer pie chart represents. One of:
 \describe{
@@ -231,6 +275,26 @@ out-strength (\code{bw[i, i] / rowSums(bw)[i]}). Answers "how
 sticky is this cluster — how much of its outgoing flow loops
 back to itself?" Each pie is normalized independently.}
 }}
+
+\item{edge_color_by}{How to color edges on all layers:
+\describe{
+\item{\code{"auto"}}{(default) Color edges by their cluster when the
+weights are non-negative (transition networks), but switch to
+sign-based coloring automatically when any negative weight is present
+(correlation / association networks).}
+\item{\code{"cluster"}}{Always color edges by the source cluster's color.}
+\item{\code{"sign"}}{Always color edges by weight sign — positive in
+\code{edge_positive_color}, negative in \code{edge_negative_color}.}
+}
+Sign coloring uses each edge's absolute weight for the threshold
+(\code{minimum}) and line-width scaling, so negative edges are drawn
+rather than dropped.}
+
+\item{edge_positive_color}{Color for positive-weight edges when sign
+coloring is active. Default \code{"#2E7D32"} (green).}
+
+\item{edge_negative_color}{Color for negative-weight edges when sign
+coloring is active. Default \code{"#C62828"} (red).}
 
 \item{between_arrows}{Logical. Draw arrowheads on between-cluster edges
 in the bottom layer. Default \code{FALSE}.}
@@ -300,16 +364,20 @@ border; decrease to pack them tighter. Default 0.55.}
 values make shells more opaque, giving stronger visual grouping but
 potentially obscuring edges. Default 0.15.}
 
-\item{shell_border_width}{Line width for cluster shell borders. Default 2.}
+\item{shell_border_width}{Line width for cluster shell borders. Default
+0.75 (thin). \code{theme = "light"} drops the outline entirely.}
 
 \item{node_border_color}{Border color for detail nodes in the bottom
 layer. Default \code{"gray30"}.}
+
+\item{node_border_width}{Line width for detail-node borders in the bottom
+layer. Default 0.4 (thin). Increase for heavier outlines.}
 
 \item{summary_border_color}{Border color for summary pie-chart nodes.
 Default \code{"gray20"}.}
 
 \item{summary_border_width}{Border line width for summary nodes.
-Default 2.}
+Default 0.6 (thin).}
 
 \item{label_color}{Text color for detail node labels. Default
 \code{"gray20"}.}

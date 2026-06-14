@@ -139,6 +139,32 @@
 #'       \code{edge_labels} and \code{summary_edge_labels} unless you
 #'       explicitly set them to \code{FALSE}.}
 #'   }
+#' @param theme Visual preset controlling node and edge styling. One of:
+#'   \describe{
+#'     \item{\code{"classic"}}{(default) The historical look — pie-chart nodes
+#'       and straight summary edges, with thin borders and slightly larger
+#'       detail nodes.}
+#'     \item{\code{"rich"}}{Donut nodes on both layers plus curved (qgraph-style)
+#'       summary edges and splot self-loops.}
+#'     \item{\code{"light"}}{Like \code{"rich"} but with no cluster-shell
+#'       outline and a softer shell fill.}
+#'   }
+#'   The granular style arguments (\code{node_donut}, \code{curved_edges})
+#'   override the preset when supplied.
+#' @param node_donut Logical or \code{NULL}. Force donut node rendering on
+#'   (\code{TRUE}) or off (\code{FALSE}), overriding \code{theme}. \code{NULL}
+#'   (default) follows the preset (donut for \code{"rich"}/\code{"light"}).
+#' @param node_donut_inner_ratio Hole size (0–1) of the detail-node donut ring.
+#'   Default 0.55.
+#' @param summary_donut_inner_ratio Hole size (0–1) of the top-layer summary
+#'   donut ring. Default 0.6.
+#' @param summary_donut_show_value Logical. Print the fill proportion in the
+#'   center of each summary donut. Default \code{FALSE}.
+#' @param curved_edges Logical or \code{NULL}. Force curved summary edges on or
+#'   off, overriding \code{theme}. \code{NULL} (default) follows the preset.
+#' @param summary_curve Numeric or \code{NULL}. Curvature of curved summary
+#'   edges (only used when curved). \code{NULL} auto-selects (0.25 for directed,
+#'   straight for undirected).
 #' @param layer_spacing Vertical distance between the bottom and top layers.
 #'   \code{NULL} (default) auto-calculates a gap that prevents overlap based
 #'   on cluster positions and shell sizes. Increase for more vertical
@@ -195,7 +221,7 @@
 #'       number of nodes: more nodes triggers shorter abbreviations.
 #'   }
 #' @param node_size Size of individual detail nodes in the bottom layer.
-#'   This controls the pie-chart radius for each node. Default 1.8.
+#'   This controls the pie-chart radius for each node. Default 2.4.
 #' @param node_shape Shape for detail nodes in the bottom layer. Supported
 #'   values: \code{"circle"}, \code{"square"}, \code{"diamond"},
 #'   \code{"triangle"}. Can be a single value applied to all nodes or a
@@ -242,6 +268,23 @@
 #'       sticky is this cluster — how much of its outgoing flow loops
 #'       back to itself?" Each pie is normalized independently.}
 #'   }
+#' @param edge_color_by How to color edges on all layers:
+#'   \describe{
+#'     \item{\code{"auto"}}{(default) Color edges by their cluster when the
+#'       weights are non-negative (transition networks), but switch to
+#'       sign-based coloring automatically when any negative weight is present
+#'       (correlation / association networks).}
+#'     \item{\code{"cluster"}}{Always color edges by the source cluster's color.}
+#'     \item{\code{"sign"}}{Always color edges by weight sign — positive in
+#'       \code{edge_positive_color}, negative in \code{edge_negative_color}.}
+#'   }
+#'   Sign coloring uses each edge's absolute weight for the threshold
+#'   (\code{minimum}) and line-width scaling, so negative edges are drawn
+#'   rather than dropped.
+#' @param edge_positive_color Color for positive-weight edges when sign
+#'   coloring is active. Default \code{"#2E7D32"} (green).
+#' @param edge_negative_color Color for negative-weight edges when sign
+#'   coloring is active. Default \code{"#C62828"} (red).
 #' @param between_arrows Logical. Draw arrowheads on between-cluster edges
 #'   in the bottom layer. Default \code{FALSE}.
 #' @param edge_width_range Numeric vector \code{c(min, max)} controlling the
@@ -292,13 +335,16 @@
 #' @param shell_alpha Fill transparency (0–1) for cluster shells. Higher
 #'   values make shells more opaque, giving stronger visual grouping but
 #'   potentially obscuring edges. Default 0.15.
-#' @param shell_border_width Line width for cluster shell borders. Default 2.
+#' @param shell_border_width Line width for cluster shell borders. Default
+#'   0.75 (thin). \code{theme = "light"} drops the outline entirely.
 #' @param node_border_color Border color for detail nodes in the bottom
 #'   layer. Default \code{"gray30"}.
+#' @param node_border_width Line width for detail-node borders in the bottom
+#'   layer. Default 0.4 (thin). Increase for heavier outlines.
 #' @param summary_border_color Border color for summary pie-chart nodes.
 #'   Default \code{"gray20"}.
 #' @param summary_border_width Border line width for summary nodes.
-#'   Default 2.
+#'   Default 0.6 (thin).
 #' @param label_color Text color for detail node labels. Default
 #'   \code{"gray20"}.
 #' @param label_position Accepted for backward compatibility. Detail labels
@@ -350,6 +396,7 @@ plot_mcml <- function(
     x,
     cluster_list = NULL,
     mode = c("weights", "tna"),
+    theme = c("classic", "rich", "light"),
     layer_spacing = NULL,
     spacing = 3,
     shape_size = 1.2,
@@ -363,7 +410,7 @@ plot_mcml <- function(
     nodes = NULL,
     label_size = NULL,
     label_abbrev = NULL,
-    node_size = 1.8,
+    node_size = 2.4,
     node_shape = "circle",
     cluster_shape = "circle",
     # Title & Legend
@@ -382,8 +429,20 @@ plot_mcml <- function(
     # Summary arrows
     summary_arrows = TRUE,
     summary_arrow_size = 0.10,
+    # Style: donut nodes + curved summary edges (driven by `theme`, but each
+    # can be forced on/off here; granular args win over the theme preset).
+    node_donut = NULL,
+    node_donut_inner_ratio = 0.55,
+    summary_donut_inner_ratio = 0.6,
+    summary_donut_show_value = FALSE,
+    curved_edges = NULL,
+    summary_curve = NULL,
     # Summary pie semantics
     summary_pie = c("inits", "self"),
+    # Edge sign coloring (qgraph/psych convention: positive green, negative red)
+    edge_color_by = c("auto", "cluster", "sign"),
+    edge_positive_color = "#2E7D32",
+    edge_negative_color = "#C62828",
     # Edge control
     between_arrows = FALSE,
     edge_width_range = c(0.3, 1.3),
@@ -406,11 +465,12 @@ plot_mcml <- function(
     node_radius_scale = 0.55,
     # Shell styling
     shell_alpha = 0.15,
-    shell_border_width = 2,
+    shell_border_width = 0.75,
     # Node styling
     node_border_color = "gray30",
+    node_border_width = 0.4,
     summary_border_color = "gray20",
-    summary_border_width = 2,
+    summary_border_width = 0.6,
     # Label styling
     label_color = "gray20",
     label_position = 3,
@@ -419,7 +479,9 @@ plot_mcml <- function(
 ) {
   aggregation <- match.arg(aggregation)
   mode <- match.arg(mode)
+  theme <- match.arg(theme)
   summary_pie <- match.arg(summary_pie)
+  edge_color_by <- match.arg(edge_color_by)
   if (!(is.null(directed) ||
         (is.logical(directed) && length(directed) == 1L &&
          !is.na(directed)))) {
@@ -430,6 +492,23 @@ plot_mcml <- function(
   # For mode = "tna", show edge labels by default (like tplot/splot with tna)
   # Check if user explicitly set these parameters
  explicit_args <- names(match.call())
+
+  # ---------------------------------------------------------------------------
+  # Resolve visual style from `theme`, with granular args overriding it.
+  #   "classic" pie nodes + straight summary edges (the historical look,
+  #             now with the thinner borders / larger nodes baked into the
+  #             defaults above).
+  #   "rich"    donut nodes (top + bottom) + curved summary edges.
+  #   "light"   like "rich" but no cluster-shell outline + softer shell fill.
+  # node_donut / curved_edges (if passed) always win over the preset.
+  # ---------------------------------------------------------------------------
+  theme_styled <- theme %in% c("rich", "light")
+  use_node_donut <- if (!is.null(node_donut)) isTRUE(node_donut) else theme_styled
+  use_curved <- if (!is.null(curved_edges)) isTRUE(curved_edges) else theme_styled
+  if (identical(theme, "light")) {
+    if (!"shell_border_width" %in% explicit_args) shell_border_width <- 0
+    if (!"shell_alpha" %in% explicit_args) shell_alpha <- 0.10
+  }
   if (mode == "tna") {
     if (!"edge_labels" %in% explicit_args) {
       edge_labels <- TRUE
@@ -575,6 +654,31 @@ plot_mcml <- function(
     sub("^(-?)0\\.", "\\1.", as.character(v))
   }
 
+  # --------------------------------------------------------------------------
+  # Sign-based edge coloring (qgraph/psych convention: positive green,
+  # negative red). "auto" enables it only when the weights actually contain
+  # negatives (correlation / association networks); transition networks, which
+  # are non-negative, stay cluster-colored. edge_base_col() returns the opaque
+  # color for a given weight; callers apply their own alpha.
+  # --------------------------------------------------------------------------
+  has_neg <- isTRUE(any(bw < 0, na.rm = TRUE))
+  if (!has_neg && !is.null(cs$clusters)) {
+    has_neg <- any(vapply(cs$clusters, function(cl)
+      is.matrix(cl$weights) && isTRUE(any(cl$weights < 0, na.rm = TRUE)),
+      logical(1)))
+  }
+  if (!has_neg && !is.null(weights)) {
+    has_neg <- isTRUE(any(weights < 0, na.rm = TRUE))
+  }
+  use_sign_color <- edge_color_by == "sign" ||
+                    (edge_color_by == "auto" && has_neg)
+  edge_base_col <- function(w, cluster_col) {
+    if (!use_sign_color) return(cluster_col)
+    if (is.na(w) || w == 0) "gray50"
+    else if (w > 0) edge_positive_color
+    else edge_negative_color
+  }
+
   # Expand node_shape to vector if needed
   node_shape <- rep_len(node_shape, n)
 
@@ -620,9 +724,9 @@ plot_mcml <- function(
   tx <- top_radius_x * cos(angles)
   ty <- top_radius_y * sin(angles) + top_base_y
 
-  # Edge weight scaling
-  max_sw <- max(bw)
-  if (max_sw == 0) max_sw <- 1
+  # Edge weight scaling (magnitude, so signed weights scale by absolute value)
+  max_sw <- max(abs(bw))
+  if (!is.finite(max_sw) || max_sw == 0) max_sw <- 1
 
   # For within-cluster edges, need max from raw weights
   if (!is.null(weights)) {
@@ -720,64 +824,91 @@ plot_mcml <- function(
     ifelse(row_tot > 0, diag(bw) / row_tot, 0)
   }
 
-  # 1. Draw summary nodes as PIE CHARTS first (so edges draw on top)
-  for (i in seq_len(n_clusters)) {
-    self_prop <- pie_props[i]
-    if (is.na(self_prop) || self_prop < 0) self_prop <- 0
-    if (self_prop > 1) self_prop <- 1
+  # Top-layer rendering is factored into three local renderers so the two
+  # visual styles can call them in the order each one needs:
+  #   classic  nodes (opaque pies) first, then edges + loops drawn on top so
+  #            arrows are visible landing at the pie boundary.
+  #   styled   (donut / curved) edges + loops first, then donut nodes on top
+  #            so the opaque ring tucks the edge stubs under each node — the
+  #            splot layering. Driven by use_node_donut / use_curved.
 
-    # Draw "other" slice first (light gray background)
-    if (self_prop < 1) {
-      theta <- seq(0, 2 * pi, length.out = 60)
-      graphics::polygon(tx[i] + pie_radius * cos(theta),
+  # (a) summary nodes — donut when use_node_donut, else the classic pie.
+  draw_summary_nodes <- function() {
+    for (i in seq_len(n_clusters)) {
+      self_prop <- pie_props[i]
+      if (is.na(self_prop) || self_prop < 0) self_prop <- 0
+      if (self_prop > 1) self_prop <- 1
+
+      if (use_node_donut) {
+        draw_donut_node_base(
+          x = tx[i], y = ty[i], size = pie_radius,
+          values = self_prop, colors = colors[i],
+          inner_ratio = summary_donut_inner_ratio,
+          bg_color = "gray90", center_color = "white",
+          border.col = summary_border_color,
+          border.width = summary_border_width,
+          show_value = isTRUE(summary_donut_show_value),
+          value_cex = summary_label_size * 0.75,
+          value_col = summary_label_color, value_digits = 2
+        )
+      } else {
+        if (self_prop < 1) {
+          theta <- seq(0, 2 * pi, length.out = 60)
+          graphics::polygon(tx[i] + pie_radius * cos(theta),
+                            ty[i] + pie_radius * sin(theta),
+                            col = "gray90", border = NA)
+        }
+        if (self_prop > 0.001) {
+          start_angle <- pi / 2
+          end_angle <- start_angle - self_prop * 2 * pi
+          n_pts <- max(10, round(50 * self_prop))
+          aa <- seq(start_angle, end_angle, length.out = n_pts)
+          graphics::polygon(c(tx[i], tx[i] + pie_radius * cos(aa), tx[i]),
+                            c(ty[i], ty[i] + pie_radius * sin(aa), ty[i]),
+                            col = colors[i], border = NA)
+        }
+        theta <- seq(0, 2 * pi, length.out = 60)
+        graphics::lines(tx[i] + pie_radius * cos(theta),
                         ty[i] + pie_radius * sin(theta),
-                        col = "gray90", border = NA)
+                        col = summary_border_color, lwd = summary_border_width)
+      }
     }
-
-    # Draw "self" slice (cluster color) - starts from top
-    if (self_prop > 0.001) {
-      start_angle <- pi / 2
-      end_angle <- start_angle - self_prop * 2 * pi
-      n_pts <- max(10, round(50 * self_prop))
-      angles <- seq(start_angle, end_angle, length.out = n_pts)
-      slice_x <- c(tx[i], tx[i] + pie_radius * cos(angles), tx[i])
-      slice_y <- c(ty[i], ty[i] + pie_radius * sin(angles), ty[i])
-      graphics::polygon(slice_x, slice_y, col = colors[i], border = NA)
-    }
-
-    # Draw border circle on top
-    theta <- seq(0, 2 * pi, length.out = 60)
-    graphics::lines(tx[i] + pie_radius * cos(theta),
-                    ty[i] + pie_radius * sin(theta),
-                    col = summary_border_color, lwd = summary_border_width)
   }
 
-  # 2. Draw summary edges ON TOP of pies (arrows visible at pie edge)
-  if (max_sw > 0) {
+  # (b) summary edges — curved (splot) when use_curved, else straight segments.
+  draw_summary_edges <- function() {
+    if (max_sw <= 0) return(invisible())
+    scurve <- if (use_curved) {
+      if (!is.null(summary_curve)) summary_curve
+      else if (directed) 0.25 else 0
+    } else 0
     for (i in seq_len(n_clusters)) {
       for (j in seq_len(n_clusters)) {
         if (i != j && (directed || i < j) &&
-            bw[i, j] > minimum && bw_r[i, j] != 0) {
+            abs(bw[i, j]) > minimum && bw_r[i, j] != 0) {
           lwd <- summary_edge_width_range[1] +
             (summary_edge_width_range[2] - summary_edge_width_range[1]) *
-            bw[i, j] / max_sw
-          edge_col <- grDevices::adjustcolor(colors[i], summary_edge_alpha)
+            abs(bw[i, j]) / max_sw
+          ecol_base <- edge_base_col(bw[i, j], colors[i])
+          edge_col <- grDevices::adjustcolor(ecol_base, summary_edge_alpha)
           angle <- atan2(ty[j] - ty[i], tx[j] - tx[i])
-
-          # Start line at source pie edge, end arrow at target pie edge
           src_x <- tx[i] + pie_radius * cos(angle)
           src_y <- ty[i] + pie_radius * sin(angle)
           tip_x <- tx[j] - pie_radius * cos(angle)
           tip_y <- ty[j] - pie_radius * sin(angle)
 
-          if (summary_arrows) {
+          if (use_curved) {
+            draw_curved_edge_base(src_x, src_y, tip_x, tip_y, curve = scurve,
+                                  col = edge_col, lwd = lwd,
+                                  arrow = summary_arrows, asize = summary_arrow_sz)
+          } else if (summary_arrows) {
             line_end_x <- tip_x - summary_arrow_sz * cos(angle)
             line_end_y <- tip_y - summary_arrow_sz * sin(angle)
             graphics::segments(src_x, src_y, line_end_x, line_end_y,
                                col = edge_col, lwd = lwd)
-            arrow_col <- colors[i]  # opaque arrow so line doesn't bleed through
+            # opaque arrow color so the line doesn't bleed through the head
             draw_arrow_base(tip_x, tip_y, angle, summary_arrow_sz,
-                            col = arrow_col, border = arrow_col, lwd = lwd)
+                            col = ecol_base, border = ecol_base, lwd = lwd)
           } else {
             graphics::segments(src_x, src_y, tip_x, tip_y,
                                col = edge_col, lwd = lwd)
@@ -786,15 +917,78 @@ plot_mcml <- function(
           if (summary_edge_labels) {
             lbl_txt <- fmt_lbl(bw_r[i, j])
             if (!is.null(lbl_txt)) {
-              lbl_x <- src_x + (tip_x - src_x) * summary_lbl_frac
-              lbl_y <- src_y + (tip_y - src_y) * summary_lbl_frac
-              # Offset slightly perpendicular to edge
-              perp <- angle + pi / 2
-              lbl_x <- lbl_x + 0.08 * cos(perp)
-              lbl_y <- lbl_y + 0.08 * sin(perp)
-              graphics::text(lbl_x, lbl_y,
-                             labels = lbl_txt,
-                             cex = summary_edge_label_size,
+              if (use_curved) {
+                mx <- (src_x + tip_x) / 2; my <- (src_y + tip_y) / 2
+                perp <- angle + pi / 2
+                seg_len <- sqrt((tip_x - src_x)^2 + (tip_y - src_y)^2)
+                off <- scurve * seg_len * 0.25 + 0.08
+                graphics::text(mx + off * cos(perp), my + off * sin(perp),
+                               labels = lbl_txt, cex = summary_edge_label_size,
+                               col = edge_label_color)
+              } else {
+                lbl_x <- src_x + (tip_x - src_x) * summary_lbl_frac
+                lbl_y <- src_y + (tip_y - src_y) * summary_lbl_frac
+                perp <- angle + pi / 2
+                graphics::text(lbl_x + 0.08 * cos(perp), lbl_y + 0.08 * sin(perp),
+                               labels = lbl_txt, cex = summary_edge_label_size,
+                               col = edge_label_color)
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  # (c) summary self-loops — splot primitive when use_curved, else classic arc.
+  draw_summary_loops <- function() {
+    if (max_sw <= 0) return(invisible())
+    loop_radius <- 0.15
+    for (i in seq_len(n_clusters)) {
+      if (abs(bw[i, i]) > minimum && bw_r[i, i] != 0) {
+        lwd <- summary_edge_width_range[1] +
+          (summary_edge_width_range[2] - summary_edge_width_range[1]) *
+          abs(bw[i, i]) / max_sw
+        ecol_base <- edge_base_col(bw[i, i], colors[i])
+        edge_col <- grDevices::adjustcolor(ecol_base, summary_edge_alpha)
+        loop_rot <- atan2(ty[i] - mean(ty), tx[i] - mean(tx))
+
+        if (use_curved) {
+          draw_self_loop_base(
+            x = tx[i], y = ty[i], node_size = pie_radius,
+            col = edge_col, lwd = lwd, rotation = loop_rot,
+            arrow = summary_arrows, asize = summary_arrow_sz * 0.8
+          )
+          if (summary_edge_labels) {
+            lbl_txt <- fmt_lbl(bw_r[i, i])
+            if (!is.null(lbl_txt)) {
+              graphics::text(tx[i] + pie_radius * 2.2 * cos(loop_rot),
+                             ty[i] + pie_radius * 2.2 * sin(loop_rot),
+                             labels = lbl_txt, cex = summary_edge_label_size,
+                             col = edge_label_color)
+            }
+          }
+        } else {
+          loop_cx <- tx[i] + (pie_radius + loop_radius) * cos(loop_rot)
+          loop_cy <- ty[i] + (pie_radius + loop_radius) * sin(loop_rot)
+          arc_start <- loop_rot + pi + 0.75
+          arc_end <- loop_rot + pi - 0.25
+          if (arc_end < arc_start) arc_end <- arc_end + 2 * pi
+          aa <- seq(arc_start, arc_end, length.out = 40)
+          loop_x <- loop_cx + loop_radius * cos(aa)
+          loop_y <- loop_cy + loop_radius * sin(aa)
+          graphics::lines(loop_x, loop_y, col = edge_col, lwd = lwd)
+          if (summary_arrows) {
+            arr_angle <- atan2(ty[i] - loop_y[1], tx[i] - loop_x[1])
+            draw_arrow_base(loop_x[1], loop_y[1], arr_angle,
+                            summary_arrow_sz * 0.8, col = ecol_base)
+          }
+          if (summary_edge_labels) {
+            lbl_txt <- fmt_lbl(bw_r[i, i])
+            if (!is.null(lbl_txt)) {
+              graphics::text(loop_cx + loop_radius * 1.3 * cos(loop_rot),
+                             loop_cy + loop_radius * 1.3 * sin(loop_rot),
+                             labels = lbl_txt, cex = summary_edge_label_size,
                              col = edge_label_color)
             }
           }
@@ -803,56 +997,16 @@ plot_mcml <- function(
     }
   }
 
-  # 3. Draw self-loops on summary pies
-  if (max_sw > 0) {
-    loop_radius <- 0.15
-    for (i in seq_len(n_clusters)) {
-      if (bw[i, i] > minimum && bw_r[i, i] != 0) {
-        lwd <- summary_edge_width_range[1] +
-          (summary_edge_width_range[2] - summary_edge_width_range[1]) *
-          bw[i, i] / max_sw
-        edge_col <- grDevices::adjustcolor(colors[i], summary_edge_alpha)
-
-        # Loop rotation pointing outward from pie arrangement center
-        loop_rot <- atan2(ty[i] - mean(ty), tx[i] - mean(tx))
-
-        # Loop center placed outside the pie
-        loop_cx <- tx[i] + (pie_radius + loop_radius) * cos(loop_rot)
-        loop_cy <- ty[i] + (pie_radius + loop_radius) * sin(loop_rot)
-
-        # Draw arc (~270 degrees, open toward the pie)
-        n_pts <- 40
-        arc_start <- loop_rot + pi + 0.75
-        arc_end <- loop_rot + pi - 0.25
-        if (arc_end < arc_start) arc_end <- arc_end + 2 * pi
-        angles <- seq(arc_start, arc_end, length.out = n_pts)
-        loop_x <- loop_cx + loop_radius * cos(angles)
-        loop_y <- loop_cy + loop_radius * sin(angles)
-
-        graphics::lines(loop_x, loop_y, col = edge_col, lwd = lwd)
-
-        # Arrow at start of arc, pointing toward pie center
-        if (summary_arrows) {
-          arr_angle <- atan2(ty[i] - loop_y[1], tx[i] - loop_x[1])
-          arrow_col <- colors[i]
-          draw_arrow_base(loop_x[1], loop_y[1], arr_angle,
-                          summary_arrow_sz * 0.8, col = arrow_col)
-        }
-
-        # Loop label at the outward tip of the loop
-        if (summary_edge_labels) {
-          lbl_txt <- fmt_lbl(bw_r[i, i])
-          if (!is.null(lbl_txt)) {
-            lbl_x <- loop_cx + loop_radius * 1.3 * cos(loop_rot)
-            lbl_y <- loop_cy + loop_radius * 1.3 * sin(loop_rot)
-            graphics::text(lbl_x, lbl_y,
-                           labels = lbl_txt,
-                           cex = summary_edge_label_size,
-                           col = edge_label_color)
-          }
-        }
-      }
-    }
+  # Order: styled draws edges/loops under the donut nodes; classic draws the
+  # opaque pies first so arrowheads stay visible at the pie boundary.
+  if (use_node_donut || use_curved) {
+    draw_summary_edges()
+    draw_summary_loops()
+    draw_summary_nodes()
+  } else {
+    draw_summary_nodes()
+    draw_summary_edges()
+    draw_summary_loops()
   }
 
   # 4. Summary labels - perpendicular to loop direction (solution 5)
@@ -887,13 +1041,14 @@ plot_mcml <- function(
     for (i in seq_len(n_clusters)) {
       for (j in seq_len(n_clusters)) {
         if (i != j && (directed || i < j) &&
-            bw[i, j] > minimum && bw_r[i, j] != 0) {
+            abs(bw[i, j]) > minimum && bw_r[i, j] != 0) {
           p1 <- shell_edge(bx[i], by[i], bx[j], by[j], shell_rx, shell_ry)
           p2 <- shell_edge(bx[j], by[j], bx[i], by[i], shell_rx, shell_ry)
           lwd <- between_edge_width_range[1] +
             (between_edge_width_range[2] - between_edge_width_range[1]) *
-            bw[i, j] / max_sw
-          edge_col <- grDevices::adjustcolor(colors[i], between_edge_alpha)
+            abs(bw[i, j]) / max_sw
+          edge_col <- grDevices::adjustcolor(edge_base_col(bw[i, j], colors[i]),
+                                             between_edge_alpha)
           if (between_arrows) {
             angle <- atan2(p2[2] - p1[2], p2[1] - p1[1])
             tip_x <- p2[1]
@@ -923,12 +1078,14 @@ plot_mcml <- function(
     theta <- seq(0, 2 * pi, length.out = 60)
     shell_x <- shape_size * cos(theta)
     shell_y <- shape_size * sin(theta) * compress
+    # shell_border_width = 0 (e.g. theme = "light") => no outline. polygon()
+    # rejects lwd = 0, so keep a valid lwd and drop the border instead.
     graphics::polygon(
       bx[i] + shell_x,
       by[i] + shell_y,
-      border = colors[i],
+      border = if (shell_border_width > 0) colors[i] else NA,
       col = grDevices::adjustcolor(colors[i], shell_alpha),
-      lwd = shell_border_width
+      lwd = if (shell_border_width > 0) shell_border_width else 1
     )
 
     # Node positions (use pre-computed)
@@ -949,7 +1106,6 @@ plot_mcml <- function(
         # Node visual radius and arrow size
         node_vis_r <- node_size * 0.04
         arrow_size <- 0.06
-        edge_col <- grDevices::adjustcolor(colors[i], edge_alpha)
 
         for (j in seq_len(n_nodes)) {
           for (k in seq_len(n_nodes)) {
@@ -957,9 +1113,12 @@ plot_mcml <- function(
             if (!directed && k < j) next
             w <- within_w[j, k]
             w_r <- round(w, edge_label_digits)
-            if (!is.na(w) && w > minimum && w_r != 0) {
+            if (!is.na(w) && abs(w) > minimum && w_r != 0) {
               lwd <- edge_width_range[1] +
-                (edge_width_range[2] - edge_width_range[1]) * w / max_w
+                (edge_width_range[2] - edge_width_range[1]) * abs(w) / max_w
+              # per-edge color: sign-based (green/red) or cluster color
+              edge_col <- grDevices::adjustcolor(edge_base_col(w, colors[i]),
+                                                 edge_alpha)
 
               if (j == k) {
                 draw_self_loop_base(
@@ -1048,31 +1207,47 @@ plot_mcml <- function(
           self_prop <- 0
         }
 
-        # Draw "other" slice (light version of cluster color)
-        if (self_prop < 1) {
+        if (use_node_donut) {
+          # Donut detail node: same self-transition proportion rendered
+          # through splot's donut primitive so it matches the styled top
+          # layer (light cluster-tint ring, full-color filled arc).
+          draw_donut_node_base(
+            x = nx[ni], y = ny[ni], size = node_pie_r,
+            values = self_prop, colors = colors[i],
+            inner_ratio = node_donut_inner_ratio,
+            bg_color = grDevices::adjustcolor(colors[i], 0.3),
+            center_color = "white",
+            border.col = node_border_color, border.width = node_border_width,
+            show_value = FALSE
+          )
+        } else {
+          # Classic pie detail node.
+          # Draw "other" slice (light version of cluster color)
+          if (self_prop < 1) {
+            theta <- seq(0, 2 * pi, length.out = 40)
+            graphics::polygon(nx[ni] + node_pie_r * cos(theta),
+                              ny[ni] + node_pie_r * sin(theta),
+                              col = grDevices::adjustcolor(colors[i], 0.3),
+                              border = NA)
+          }
+
+          # Draw "self" slice (full cluster color)
+          if (self_prop > 0.001) { # nocov start
+            start_angle <- pi / 2
+            end_angle <- start_angle - self_prop * 2 * pi
+            n_pts <- max(10, round(40 * self_prop))
+            angles <- seq(start_angle, end_angle, length.out = n_pts)
+            slice_x <- c(nx[ni], nx[ni] + node_pie_r * cos(angles), nx[ni])
+            slice_y <- c(ny[ni], ny[ni] + node_pie_r * sin(angles), ny[ni])
+            graphics::polygon(slice_x, slice_y, col = colors[i], border = NA)
+          } # nocov end
+
+          # Border
           theta <- seq(0, 2 * pi, length.out = 40)
-          graphics::polygon(nx[ni] + node_pie_r * cos(theta),
-                            ny[ni] + node_pie_r * sin(theta),
-                            col = grDevices::adjustcolor(colors[i], 0.3),
-                            border = NA)
+          graphics::lines(nx[ni] + node_pie_r * cos(theta),
+                          ny[ni] + node_pie_r * sin(theta),
+                          col = node_border_color, lwd = node_border_width)
         }
-
-        # Draw "self" slice (full cluster color)
-        if (self_prop > 0.001) { # nocov start
-          start_angle <- pi / 2
-          end_angle <- start_angle - self_prop * 2 * pi
-          n_pts <- max(10, round(40 * self_prop))
-          angles <- seq(start_angle, end_angle, length.out = n_pts)
-          slice_x <- c(nx[ni], nx[ni] + node_pie_r * cos(angles), nx[ni])
-          slice_y <- c(ny[ni], ny[ni] + node_pie_r * sin(angles), ny[ni])
-          graphics::polygon(slice_x, slice_y, col = colors[i], border = NA)
-        } # nocov end
-
-        # Border
-        theta <- seq(0, 2 * pi, length.out = 40)
-        graphics::lines(nx[ni] + node_pie_r * cos(theta),
-                        ny[ni] + node_pie_r * sin(theta),
-                        col = node_border_color, lwd = 1.5)
       } else {
         draw_node_base(
           x = nx[ni], y = ny[ni],
@@ -1080,7 +1255,7 @@ plot_mcml <- function(
           shape = this_shape,
           col = colors[i],
           border.col = node_border_color,
-          border.width = 1.5
+          border.width = node_border_width
         )
       }
     }
@@ -1156,6 +1331,19 @@ plot_mcml <- function(
       col = "gray30", pt.cex = legend_pt_size, cex = legend_size, bty = "n",
       xjust = legend_xjust, yjust = legend_yjust, horiz = legend_horiz
     )
+
+    # When edges are colored by sign, add a small positive/negative key just
+    # below the cluster legend so the green/red mapping is readable.
+    if (use_sign_color) {
+      graphics::legend(
+        x = legend_x,
+        y = legend_y - shape_size * (0.35 * n_clusters + 0.4),
+        legend = c("positive", "negative"),
+        lwd = 2, col = c(edge_positive_color, edge_negative_color),
+        cex = legend_size, bty = "n",
+        xjust = legend_xjust, yjust = 1, horiz = legend_horiz
+      )
+    }
   }
 
   invisible(cs)

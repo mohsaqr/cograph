@@ -135,6 +135,16 @@ splot.tna_bootstrap <- function(x,
     }
   }
 
+  # Auto-suppress ".00" tails on integer-valued matrices (co-occurrence
+  # counts, raw frequencies). Mirrors splot.netobject (R/plot-nestimate.R).
+  if (!"weight_digits" %in% names(args)) {
+    nz <- weights_orig[weights_orig != 0]
+    if (length(nz) > 0 && all(nz == floor(nz))) {
+      args$weight_digits <- 0L
+      if (is.null(args$edge_label_digits)) args$edge_label_digits <- 0L
+    }
+  }
+
   # Ensure consistent edge count between bootstrap and splot:
   # 1. Disable weight rounding (splot default weight_digits=2 can round tiny weights to 0)
   # 2. Force directed=TRUE (TNA is always directed; undirected merges reciprocal edges)
@@ -363,8 +373,18 @@ splot.net_bootstrap <- function(x,
 
   if (inherit_style) {
     if (is.null(args$labels))    args$labels    <- labels
-    if (is.null(args$layout))    args$layout    <- if (is_directed) "oval" else "spring"
+    if (is.null(args$layout))    args$layout    <- "oval"
     if (is.null(args$node_fill)) args$node_fill <- tna_color_palette(n_nodes)
+  }
+
+  # Auto-suppress ".00" tails on integer-valued matrices (co-occurrence
+  # counts, raw frequencies). Mirrors splot.netobject (R/plot-nestimate.R).
+  if (is.null(args$weight_digits)) {
+    nz <- weights_orig[weights_orig != 0]
+    if (length(nz) > 0 && all(nz == floor(nz))) {
+      args$weight_digits <- 0L
+      if (is.null(args$edge_label_digits)) args$edge_label_digits <- 0L
+    }
   }
 
   if (!"directed"    %in% names(args)) args$directed    <- is_directed

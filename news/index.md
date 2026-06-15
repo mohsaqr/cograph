@@ -1,5 +1,42 @@
 # Changelog
 
+## cograph 2.3.9
+
+### New features
+
+- [`plot_mcml()`](https://sonsoles.me/cograph/reference/plot_mcml.md)
+  gains a `theme` argument: `"classic"` (default — the established
+  pie-node / straight-edge look, now with thinner node and shell borders
+  and slightly larger detail nodes), `"rich"` (donut nodes on both
+  layers plus curved summary edges and splot self-loops), and `"light"`
+  (`"rich"` with no shell outline and a softer fill). Granular overrides
+  `node_donut`, `node_donut_inner_ratio`, `summary_donut_inner_ratio`,
+  `summary_donut_show_value`, `curved_edges`, and `summary_curve` win
+  over the preset.
+
+- [`plot_mcml()`](https://sonsoles.me/cograph/reference/plot_mcml.md)
+  now colors edges by weight sign on every layer (within-cluster,
+  between-cluster, summary, and self-loops) via `edge_color_by`:
+  `"auto"` (default) keeps cluster coloring for non-negative transition
+  networks but switches to sign coloring when any negative weight is
+  present (correlation / association networks), `"cluster"` and `"sign"`
+  force either mode. Positive edges use `edge_positive_color`
+  (`"#2E7D32"`, green) and negative edges `edge_negative_color`
+  (`"#C62828"`, red), matching
+  [`splot()`](https://sonsoles.me/cograph/reference/splot.md). Edge
+  visibility thresholding and width scaling now use the absolute weight,
+  so negative edges are drawn rather than silently dropped, and a
+  positive/negative key is added to the legend when sign coloring is
+  active.
+
+- [`plot_mcml()`](https://sonsoles.me/cograph/reference/plot_mcml.md)
+  summary-node labels are now placed “on the clock”: each label sits
+  just outside its node in the cardinal direction the node points from
+  the arrangement center (top at 12, bottom at 6, left at 9, right at
+  3), anchored at the node boundary so it always clears the node
+  regardless of `summary_size`. An explicit `summary_label_position`
+  still overrides this.
+
 ## cograph 2.3.8
 
 ### New features

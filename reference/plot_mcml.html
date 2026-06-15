@@ -25,7 +25,7 @@ node, making the hierarchical mapping explicit."><meta property="og:image" conte
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -80,6 +80,7 @@ node, making the hierarchical mapping explicit.</p>
 <span>  <span class="va">x</span>,</span>
 <span>  cluster_list <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"weights"</span>, <span class="st">"tna"</span><span class="op">)</span>,</span>
+<span>  theme <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"classic"</span>, <span class="st">"rich"</span>, <span class="st">"light"</span><span class="op">)</span>,</span>
 <span>  layer_spacing <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  spacing <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>  shape_size <span class="op">=</span> <span class="fl">1.2</span>,</span>
@@ -93,7 +94,7 @@ node, making the hierarchical mapping explicit.</p>
 <span>  nodes <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  label_size <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  label_abbrev <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  node_size <span class="op">=</span> <span class="fl">1.8</span>,</span>
+<span>  node_size <span class="op">=</span> <span class="fl">2.4</span>,</span>
 <span>  node_shape <span class="op">=</span> <span class="st">"circle"</span>,</span>
 <span>  cluster_shape <span class="op">=</span> <span class="st">"circle"</span>,</span>
 <span>  title <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -109,7 +110,16 @@ node, making the hierarchical mapping explicit.</p>
 <span>  summary_label_color <span class="op">=</span> <span class="st">"gray20"</span>,</span>
 <span>  summary_arrows <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  summary_arrow_size <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>  node_donut <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  node_donut_inner_ratio <span class="op">=</span> <span class="fl">0.55</span>,</span>
+<span>  summary_donut_inner_ratio <span class="op">=</span> <span class="fl">0.6</span>,</span>
+<span>  summary_donut_show_value <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  curved_edges <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  summary_curve <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  summary_pie <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"inits"</span>, <span class="st">"self"</span><span class="op">)</span>,</span>
+<span>  edge_color_by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"auto"</span>, <span class="st">"cluster"</span>, <span class="st">"sign"</span><span class="op">)</span>,</span>
+<span>  edge_positive_color <span class="op">=</span> <span class="st">"#2E7D32"</span>,</span>
+<span>  edge_negative_color <span class="op">=</span> <span class="st">"#C62828"</span>,</span>
 <span>  between_arrows <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  edge_width_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.3</span>, <span class="fl">1.3</span><span class="op">)</span>,</span>
 <span>  between_edge_width_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">2</span><span class="op">)</span>,</span>
@@ -128,10 +138,11 @@ node, making the hierarchical mapping explicit.</p>
 <span>  inter_layer_gap <span class="op">=</span> <span class="fl">0.6</span>,</span>
 <span>  node_radius_scale <span class="op">=</span> <span class="fl">0.55</span>,</span>
 <span>  shell_alpha <span class="op">=</span> <span class="fl">0.15</span>,</span>
-<span>  shell_border_width <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  shell_border_width <span class="op">=</span> <span class="fl">0.75</span>,</span>
 <span>  node_border_color <span class="op">=</span> <span class="st">"gray30"</span>,</span>
+<span>  node_border_width <span class="op">=</span> <span class="fl">0.4</span>,</span>
 <span>  summary_border_color <span class="op">=</span> <span class="st">"gray20"</span>,</span>
-<span>  summary_border_width <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  summary_border_width <span class="op">=</span> <span class="fl">0.6</span>,</span>
 <span>  label_color <span class="op">=</span> <span class="st">"gray20"</span>,</span>
 <span>  label_position <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>  directed <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -179,6 +190,25 @@ explicitly set them to <code>FALSE</code>.</p></dd>
 
 
 </dl></dd>
+
+
+<dt id="arg-theme">theme<a class="anchor" aria-label="anchor" href="#arg-theme"></a></dt>
+<dd><p>Visual preset controlling node and edge styling. One of:</p><dl><dt><code>"classic"</code></dt>
+<dd><p>(default) The historical look — pie-chart nodes
+and straight summary edges, with thin borders and slightly larger
+detail nodes.</p></dd>
+
+<dt><code>"rich"</code></dt>
+<dd><p>Donut nodes on both layers plus curved (qgraph-style)
+summary edges and splot self-loops.</p></dd>
+
+<dt><code>"light"</code></dt>
+<dd><p>Like <code>"rich"</code> but with no cluster-shell
+outline and a softer shell fill.</p></dd>
+
+
+</dl><p>The granular style arguments (<code>node_donut</code>, <code>curved_edges</code>)
+override the preset when supplied.</p></dd>
 
 
 <dt id="arg-layer-spacing">layer_spacing<a class="anchor" aria-label="anchor" href="#arg-layer-spacing"></a></dt>
@@ -279,7 +309,7 @@ number of nodes: more nodes triggers shorter abbreviations.</p></li>
 
 <dt id="arg-node-size">node_size<a class="anchor" aria-label="anchor" href="#arg-node-size"></a></dt>
 <dd><p>Size of individual detail nodes in the bottom layer.
-This controls the pie-chart radius for each node. Default 1.8.</p></dd>
+This controls the pie-chart radius for each node. Default 2.4.</p></dd>
 
 
 <dt id="arg-node-shape">node_shape<a class="anchor" aria-label="anchor" href="#arg-node-shape"></a></dt>
@@ -361,6 +391,38 @@ draws each symmetric edge pair only once.</p></dd>
 0.10.</p></dd>
 
 
+<dt id="arg-node-donut">node_donut<a class="anchor" aria-label="anchor" href="#arg-node-donut"></a></dt>
+<dd><p>Logical or <code>NULL</code>. Force donut node rendering on
+(<code>TRUE</code>) or off (<code>FALSE</code>), overriding <code>theme</code>. <code>NULL</code>
+(default) follows the preset (donut for <code>"rich"</code>/<code>"light"</code>).</p></dd>
+
+
+<dt id="arg-node-donut-inner-ratio">node_donut_inner_ratio<a class="anchor" aria-label="anchor" href="#arg-node-donut-inner-ratio"></a></dt>
+<dd><p>Hole size (0–1) of the detail-node donut ring.
+Default 0.55.</p></dd>
+
+
+<dt id="arg-summary-donut-inner-ratio">summary_donut_inner_ratio<a class="anchor" aria-label="anchor" href="#arg-summary-donut-inner-ratio"></a></dt>
+<dd><p>Hole size (0–1) of the top-layer summary
+donut ring. Default 0.6.</p></dd>
+
+
+<dt id="arg-summary-donut-show-value">summary_donut_show_value<a class="anchor" aria-label="anchor" href="#arg-summary-donut-show-value"></a></dt>
+<dd><p>Logical. Print the fill proportion in the
+center of each summary donut. Default <code>FALSE</code>.</p></dd>
+
+
+<dt id="arg-curved-edges">curved_edges<a class="anchor" aria-label="anchor" href="#arg-curved-edges"></a></dt>
+<dd><p>Logical or <code>NULL</code>. Force curved summary edges on or
+off, overriding <code>theme</code>. <code>NULL</code> (default) follows the preset.</p></dd>
+
+
+<dt id="arg-summary-curve">summary_curve<a class="anchor" aria-label="anchor" href="#arg-summary-curve"></a></dt>
+<dd><p>Numeric or <code>NULL</code>. Curvature of curved summary
+edges (only used when curved). <code>NULL</code> auto-selects (0.25 for directed,
+straight for undirected).</p></dd>
+
+
 <dt id="arg-summary-pie">summary_pie<a class="anchor" aria-label="anchor" href="#arg-summary-pie"></a></dt>
 <dd><p>Character scalar controlling what the colored slice
 of the top-layer pie chart represents. One of:</p><dl><dt><code>"inits"</code></dt>
@@ -377,6 +439,36 @@ back to itself?" Each pie is normalized independently.</p></dd>
 
 
 </dl></dd>
+
+
+<dt id="arg-edge-color-by">edge_color_by<a class="anchor" aria-label="anchor" href="#arg-edge-color-by"></a></dt>
+<dd><p>How to color edges on all layers:</p><dl><dt><code>"auto"</code></dt>
+<dd><p>(default) Color edges by their cluster when the
+weights are non-negative (transition networks), but switch to
+sign-based coloring automatically when any negative weight is present
+(correlation / association networks).</p></dd>
+
+<dt><code>"cluster"</code></dt>
+<dd><p>Always color edges by the source cluster's color.</p></dd>
+
+<dt><code>"sign"</code></dt>
+<dd><p>Always color edges by weight sign — positive in
+<code>edge_positive_color</code>, negative in <code>edge_negative_color</code>.</p></dd>
+
+
+</dl><p>Sign coloring uses each edge's absolute weight for the threshold
+(<code>minimum</code>) and line-width scaling, so negative edges are drawn
+rather than dropped.</p></dd>
+
+
+<dt id="arg-edge-positive-color">edge_positive_color<a class="anchor" aria-label="anchor" href="#arg-edge-positive-color"></a></dt>
+<dd><p>Color for positive-weight edges when sign
+coloring is active. Default <code>"#2E7D32"</code> (green).</p></dd>
+
+
+<dt id="arg-edge-negative-color">edge_negative_color<a class="anchor" aria-label="anchor" href="#arg-edge-negative-color"></a></dt>
+<dd><p>Color for negative-weight edges when sign
+coloring is active. Default <code>"#C62828"</code> (red).</p></dd>
 
 
 <dt id="arg-between-arrows">between_arrows<a class="anchor" aria-label="anchor" href="#arg-between-arrows"></a></dt>
@@ -484,12 +576,18 @@ potentially obscuring edges. Default 0.15.</p></dd>
 
 
 <dt id="arg-shell-border-width">shell_border_width<a class="anchor" aria-label="anchor" href="#arg-shell-border-width"></a></dt>
-<dd><p>Line width for cluster shell borders. Default 2.</p></dd>
+<dd><p>Line width for cluster shell borders. Default
+0.75 (thin). <code>theme = "light"</code> drops the outline entirely.</p></dd>
 
 
 <dt id="arg-node-border-color">node_border_color<a class="anchor" aria-label="anchor" href="#arg-node-border-color"></a></dt>
 <dd><p>Border color for detail nodes in the bottom
 layer. Default <code>"gray30"</code>.</p></dd>
+
+
+<dt id="arg-node-border-width">node_border_width<a class="anchor" aria-label="anchor" href="#arg-node-border-width"></a></dt>
+<dd><p>Line width for detail-node borders in the bottom
+layer. Default 0.4 (thin). Increase for heavier outlines.</p></dd>
 
 
 <dt id="arg-summary-border-color">summary_border_color<a class="anchor" aria-label="anchor" href="#arg-summary-border-color"></a></dt>
@@ -499,7 +597,7 @@ Default <code>"gray20"</code>.</p></dd>
 
 <dt id="arg-summary-border-width">summary_border_width<a class="anchor" aria-label="anchor" href="#arg-summary-border-width"></a></dt>
 <dd><p>Border line width for summary nodes.
-Default 2.</p></dd>
+Default 0.6 (thin).</p></dd>
 
 
 <dt id="arg-label-color">label_color<a class="anchor" aria-label="anchor" href="#arg-label-color"></a></dt>

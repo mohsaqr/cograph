@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,6 +42,15 @@
       <small>Source: <a href="https://github.com/sonsoleslp/cograph/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.3.9" id="cograph-239">cograph 2.3.9<a class="anchor" aria-label="anchor" href="#cograph-239"></a></h2>
+<div class="section level3">
+<h3 id="new-features-2-3-9">New features<a class="anchor" aria-label="anchor" href="#new-features-2-3-9"></a></h3>
+<ul><li><p><code><a href="../reference/plot_mcml.html">plot_mcml()</a></code> gains a <code>theme</code> argument: <code>"classic"</code> (default — the established pie-node / straight-edge look, now with thinner node and shell borders and slightly larger detail nodes), <code>"rich"</code> (donut nodes on both layers plus curved summary edges and splot self-loops), and <code>"light"</code> (<code>"rich"</code> with no shell outline and a softer fill). Granular overrides <code>node_donut</code>, <code>node_donut_inner_ratio</code>, <code>summary_donut_inner_ratio</code>, <code>summary_donut_show_value</code>, <code>curved_edges</code>, and <code>summary_curve</code> win over the preset.</p></li>
+<li><p><code><a href="../reference/plot_mcml.html">plot_mcml()</a></code> now colors edges by weight sign on every layer (within-cluster, between-cluster, summary, and self-loops) via <code>edge_color_by</code>: <code>"auto"</code> (default) keeps cluster coloring for non-negative transition networks but switches to sign coloring when any negative weight is present (correlation / association networks), <code>"cluster"</code> and <code>"sign"</code> force either mode. Positive edges use <code>edge_positive_color</code> (<code>"#2E7D32"</code>, green) and negative edges <code>edge_negative_color</code> (<code>"#C62828"</code>, red), matching <code><a href="../reference/splot.html">splot()</a></code>. Edge visibility thresholding and width scaling now use the absolute weight, so negative edges are drawn rather than silently dropped, and a positive/negative key is added to the legend when sign coloring is active.</p></li>
+<li><p><code><a href="../reference/plot_mcml.html">plot_mcml()</a></code> summary-node labels are now placed “on the clock”: each label sits just outside its node in the cardinal direction the node points from the arrangement center (top at 12, bottom at 6, left at 9, right at 3), anchored at the node boundary so it always clears the node regardless of <code>summary_size</code>. An explicit <code>summary_label_position</code> still overrides this.</p></li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.3.8" id="cograph-238">cograph 2.3.8<a class="anchor" aria-label="anchor" href="#cograph-238"></a></h2>
 <div class="section level3">

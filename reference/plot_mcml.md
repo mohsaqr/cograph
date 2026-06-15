@@ -18,6 +18,7 @@ plot_mcml(
   x,
   cluster_list = NULL,
   mode = c("weights", "tna"),
+  theme = c("classic", "rich", "light"),
   layer_spacing = NULL,
   spacing = 3,
   shape_size = 1.2,
@@ -31,7 +32,7 @@ plot_mcml(
   nodes = NULL,
   label_size = NULL,
   label_abbrev = NULL,
-  node_size = 1.8,
+  node_size = 2.4,
   node_shape = "circle",
   cluster_shape = "circle",
   title = NULL,
@@ -47,7 +48,16 @@ plot_mcml(
   summary_label_color = "gray20",
   summary_arrows = TRUE,
   summary_arrow_size = 0.1,
+  node_donut = NULL,
+  node_donut_inner_ratio = 0.55,
+  summary_donut_inner_ratio = 0.6,
+  summary_donut_show_value = FALSE,
+  curved_edges = NULL,
+  summary_curve = NULL,
   summary_pie = c("inits", "self"),
+  edge_color_by = c("auto", "cluster", "sign"),
+  edge_positive_color = "#2E7D32",
+  edge_negative_color = "#C62828",
   between_arrows = FALSE,
   edge_width_range = c(0.3, 1.3),
   between_edge_width_range = c(0.5, 2),
@@ -66,10 +76,11 @@ plot_mcml(
   inter_layer_gap = 0.6,
   node_radius_scale = 0.55,
   shell_alpha = 0.15,
-  shell_border_width = 2,
+  shell_border_width = 0.75,
   node_border_color = "gray30",
+  node_border_width = 0.4,
   summary_border_color = "gray20",
-  summary_border_width = 2,
+  summary_border_width = 0.6,
   label_color = "gray20",
   label_position = 3,
   directed = NULL,
@@ -121,6 +132,28 @@ plot_mcml(
   :   Row-normalizes the summary matrix so each row sums to 1, producing
       transition probabilities. Automatically enables `edge_labels` and
       `summary_edge_labels` unless you explicitly set them to `FALSE`.
+
+- theme:
+
+  Visual preset controlling node and edge styling. One of:
+
+  `"classic"`
+
+  :   (default) The historical look — pie-chart nodes and straight
+      summary edges, with thin borders and slightly larger detail nodes.
+
+  `"rich"`
+
+  :   Donut nodes on both layers plus curved (qgraph-style) summary
+      edges and splot self-loops.
+
+  `"light"`
+
+  :   Like `"rich"` but with no cluster-shell outline and a softer shell
+      fill.
+
+  The granular style arguments (`node_donut`, `curved_edges`) override
+  the preset when supplied.
 
 - layer_spacing:
 
@@ -226,7 +259,7 @@ plot_mcml(
 - node_size:
 
   Size of individual detail nodes in the bottom layer. This controls the
-  pie-chart radius for each node. Default 1.8.
+  pie-chart radius for each node. Default 2.4.
 
 - node_shape:
 
@@ -298,6 +331,36 @@ plot_mcml(
 
   Size of arrowheads on summary edges. Default 0.10.
 
+- node_donut:
+
+  Logical or `NULL`. Force donut node rendering on (`TRUE`) or off
+  (`FALSE`), overriding `theme`. `NULL` (default) follows the preset
+  (donut for `"rich"`/`"light"`).
+
+- node_donut_inner_ratio:
+
+  Hole size (0–1) of the detail-node donut ring. Default 0.55.
+
+- summary_donut_inner_ratio:
+
+  Hole size (0–1) of the top-layer summary donut ring. Default 0.6.
+
+- summary_donut_show_value:
+
+  Logical. Print the fill proportion in the center of each summary
+  donut. Default `FALSE`.
+
+- curved_edges:
+
+  Logical or `NULL`. Force curved summary edges on or off, overriding
+  `theme`. `NULL` (default) follows the preset.
+
+- summary_curve:
+
+  Numeric or `NULL`. Curvature of curved summary edges (only used when
+  curved). `NULL` auto-selects (0.25 for directed, straight for
+  undirected).
+
 - summary_pie:
 
   Character scalar controlling what the colored slice of the top-layer
@@ -315,6 +378,40 @@ plot_mcml(
       (`bw[i, i] / rowSums(bw)[i]`). Answers "how sticky is this cluster
       — how much of its outgoing flow loops back to itself?" Each pie is
       normalized independently.
+
+- edge_color_by:
+
+  How to color edges on all layers:
+
+  `"auto"`
+
+  :   (default) Color edges by their cluster when the weights are
+      non-negative (transition networks), but switch to sign-based
+      coloring automatically when any negative weight is present
+      (correlation / association networks).
+
+  `"cluster"`
+
+  :   Always color edges by the source cluster's color.
+
+  `"sign"`
+
+  :   Always color edges by weight sign — positive in
+      `edge_positive_color`, negative in `edge_negative_color`.
+
+  Sign coloring uses each edge's absolute weight for the threshold
+  (`minimum`) and line-width scaling, so negative edges are drawn rather
+  than dropped.
+
+- edge_positive_color:
+
+  Color for positive-weight edges when sign coloring is active. Default
+  `"#2E7D32"` (green).
+
+- edge_negative_color:
+
+  Color for negative-weight edges when sign coloring is active. Default
+  `"#C62828"` (red).
 
 - between_arrows:
 
@@ -412,11 +509,17 @@ plot_mcml(
 
 - shell_border_width:
 
-  Line width for cluster shell borders. Default 2.
+  Line width for cluster shell borders. Default 0.75 (thin).
+  `theme = "light"` drops the outline entirely.
 
 - node_border_color:
 
   Border color for detail nodes in the bottom layer. Default `"gray30"`.
+
+- node_border_width:
+
+  Line width for detail-node borders in the bottom layer. Default 0.4
+  (thin). Increase for heavier outlines.
 
 - summary_border_color:
 
@@ -424,7 +527,7 @@ plot_mcml(
 
 - summary_border_width:
 
-  Border line width for summary nodes. Default 2.
+  Border line width for summary nodes. Default 0.6 (thin).
 
 - label_color:
 

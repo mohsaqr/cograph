@@ -1009,22 +1009,31 @@ plot_mcml <- function(
     draw_summary_loops()
   }
 
-  # 4. Summary labels - perpendicular to loop direction (solution 5)
+  # 4. Summary labels placed "on the clock": each label sits just outside its
+  #    node in the cardinal direction the node points from the arrangement
+  #    center — top nodes at 12 (above), bottom at 6 (below), left at 9 (left),
+  #    right at 3 (right). An explicit summary_label_position overrides this.
   if (summary_labels) {
-    lbl_offset <- 0.45
+    cx <- mean(tx); cy <- mean(ty)
+    explicit_pos <- "summary_label_position" %in% explicit_args
     for (i in seq_len(n_clusters)) {
-      if (summary_label_position == 1) {
-        lbl_x <- tx[i]; lbl_y <- ty[i] - lbl_offset
-      } else if (summary_label_position == 2) {
-        lbl_x <- tx[i] - lbl_offset; lbl_y <- ty[i]
-      } else if (summary_label_position == 4) {
-        lbl_x <- tx[i] + lbl_offset; lbl_y <- ty[i]
+      if (explicit_pos) {
+        tpos <- summary_label_position
       } else {
-        lbl_x <- tx[i]; lbl_y <- ty[i] + lbl_offset
+        dx <- tx[i] - cx; dy <- ty[i] - cy
+        tpos <- if (abs(dx) >= abs(dy)) {
+          if (dx >= 0) 4L else 2L        # right (3 o'clock) / left (9 o'clock)
+        } else {
+          if (dy >= 0) 3L else 1L        # above (12 o'clock) / below (6 o'clock)
+        }
       }
-      graphics::text(lbl_x, lbl_y,
-                     labels = cluster_names[i],
-                     cex = summary_label_size,
+      ax <- tx[i]; ay <- ty[i]
+      if (tpos == 1) ay <- ty[i] - pie_radius
+      else if (tpos == 2) ax <- tx[i] - pie_radius
+      else if (tpos == 4) ax <- tx[i] + pie_radius
+      else ay <- ty[i] + pie_radius      # tpos == 3
+      graphics::text(ax, ay, labels = cluster_names[i], pos = tpos,
+                     offset = 0.4, cex = summary_label_size,
                      col = summary_label_color)
     }
   }

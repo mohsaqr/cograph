@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.10</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,6 +42,14 @@
       <small>Source: <a href="https://github.com/sonsoleslp/cograph/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.3.10" id="cograph-2310">cograph 2.3.10<a class="anchor" aria-label="anchor" href="#cograph-2310"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes--changes-2-3-10">Bug fixes / changes<a class="anchor" aria-label="anchor" href="#bug-fixes--changes-2-3-10"></a></h3>
+<ul><li><p>Bootstrap plots of undirected co-occurrence networks (<code>splot.net_bootstrap</code>) now default to the <code>"oval"</code> layout instead of the force-directed <code>"spring"</code> layout, matching <code>splot.tna_bootstrap</code>. Pass <code>layout = "spring"</code> to restore the previous behavior.</p></li>
+<li><p>Bootstrap plots now auto-suppress the <code>".00"</code> decimal tail on integer-valued weight matrices (co-occurrence counts, raw frequencies): <code>266.00**</code> renders as <code>266**</code>. Detection mirrors <code>splot.netobject</code> — when every nonzero weight is a whole number and the user has not set <code>weight_digits</code>, both <code>weight_digits</code> and <code>edge_label_digits</code> default to <code>0</code>. Applies to both <code>splot.net_bootstrap</code> and <code>splot.tna_bootstrap</code>. Non-integer (correlation/GLASSO) networks are unaffected, and an explicit <code>weight_digits</code> always wins.</p></li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.3.9" id="cograph-239">cograph 2.3.9<a class="anchor" aria-label="anchor" href="#cograph-239"></a></h2>
 <div class="section level3">

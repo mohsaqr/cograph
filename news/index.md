@@ -1,5 +1,24 @@
 # Changelog
 
+## cograph 2.3.10
+
+### Bug fixes / changes
+
+- Bootstrap plots of undirected co-occurrence networks
+  (`splot.net_bootstrap`) now default to the `"oval"` layout instead of
+  the force-directed `"spring"` layout, matching `splot.tna_bootstrap`.
+  Pass `layout = "spring"` to restore the previous behavior.
+
+- Bootstrap plots now auto-suppress the `".00"` decimal tail on
+  integer-valued weight matrices (co-occurrence counts, raw
+  frequencies): `266.00**` renders as `266**`. Detection mirrors
+  `splot.netobject` — when every nonzero weight is a whole number and
+  the user has not set `weight_digits`, both `weight_digits` and
+  `edge_label_digits` default to `0`. Applies to both
+  `splot.net_bootstrap` and `splot.tna_bootstrap`. Non-integer
+  (correlation/GLASSO) networks are unaffected, and an explicit
+  `weight_digits` always wins.
+
 ## cograph 2.3.9
 
 ### New features

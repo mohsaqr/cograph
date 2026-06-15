@@ -24,6 +24,13 @@
   positive/negative key is added to the legend when sign coloring is
   active.
 
+- `plot_mcml()` summary-node labels are now placed "on the clock": each
+  label sits just outside its node in the cardinal direction the node
+  points from the arrangement center (top at 12, bottom at 6, left at 9,
+  right at 3), anchored at the node boundary so it always clears the node
+  regardless of `summary_size`. An explicit `summary_label_position` still
+  overrides this.
+
 # cograph 2.3.8
 
 ## New features

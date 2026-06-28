@@ -176,6 +176,7 @@ plot_ml_heatmap <- function(
 
 #' Extract layers from various input types
 #' @keywords internal
+#' @noRd
 .extract_ml_layers <- function(x, layer_list) {
   if (is.list(x) && !inherits(x, "group_tna") && all(vapply(x, is.matrix, logical(1)))) {
     # Already a list of matrices
@@ -235,6 +236,7 @@ plot_ml_heatmap <- function(
 
 #' Transform coordinates to perspective plane
 #' @keywords internal
+#' @noRd
 .transform_to_plane <- function(x, y, layer_idx, n_layers, skew, compress, layer_spacing) {
   y_offset <- (n_layers - layer_idx) * layer_spacing
   x_new <- x + y * skew
@@ -245,6 +247,7 @@ plot_ml_heatmap <- function(
 
 #' Build cell polygon data
 #' @keywords internal
+#' @noRd
 .build_ml_cells <- function(layers, skew, compress, layer_spacing) {
   n_layers <- length(layers)
   cell_list <- list()
@@ -284,6 +287,7 @@ plot_ml_heatmap <- function(
 
 #' Build layer shell outlines
 #' @keywords internal
+#' @noRd
 .build_ml_shells <- function(layers, n_rows, n_cols, skew, compress, layer_spacing) {
   n_layers <- length(layers)
 
@@ -307,6 +311,7 @@ plot_ml_heatmap <- function(
 
 #' Build layer label positions
 #' @keywords internal
+#' @noRd
 .build_ml_labels <- function(layers, n_rows, skew, compress, layer_spacing) {
   n_layers <- length(layers)
 
@@ -327,6 +332,7 @@ plot_ml_heatmap <- function(
 
 #' Build inter-layer connection lines
 #' @keywords internal
+#' @noRd
 .build_ml_connections <- function(layers, n_rows, n_cols, skew, compress, layer_spacing) {
   n_layers <- length(layers)
   conn_list <- list()
@@ -360,6 +366,7 @@ plot_ml_heatmap <- function(
 
 #' Resolve color palette
 #' @keywords internal
+#' @noRd
 .resolve_ml_colors <- function(colors) {
   if (length(colors) == 1 && is.character(colors)) {
     switch(colors,

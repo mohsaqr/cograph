@@ -2,6 +2,7 @@
 #' @description Functions for rendering custom SVG shapes as nodes.
 #' @name shapes-svg
 #' @keywords internal
+#' @noRd
 NULL
 
 # Global registry for custom SVG shapes
@@ -66,6 +67,7 @@ register_svg_shape <- function(name, svg_source) {
 #' @param name Shape name.
 #' @return SVG data list or NULL if not found.
 #' @keywords internal
+#' @noRd
 get_svg_shape <- function(name) {
   if (exists(name, envir = svg_shape_registry)) {
     svg_shape_registry[[name]]
@@ -81,6 +83,7 @@ get_svg_shape <- function(name) {
 #' @param svg_data SVG data list from registry.
 #' @return Parsed SVG object (grImport2 Picture or NULL).
 #' @keywords internal
+#' @noRd
 parse_svg <- function(svg_data) {
   if (!is.null(svg_data$parsed)) {
     return(svg_data$parsed)
@@ -129,6 +132,7 @@ parse_svg <- function(svg_data) {
 #' @param preserve_aspect Maintain SVG aspect ratio.
 #' @return Grid grob or nullGrob if SVG unavailable.
 #' @keywords internal
+#' @noRd
 draw_svg_shape <- function(x, y, size, svg_data, fill, border_color, border_width,
                            alpha = 1, preserve_aspect = TRUE) {
 
@@ -214,6 +218,7 @@ draw_svg_shape <- function(x, y, size, svg_data, fill, border_color, border_widt
 #' @param border_color Border color.
 #' @param border_width Border width.
 #' @keywords internal
+#' @noRd
 draw_svg_shape_base <- function(x, y, size, svg_data, fill, border_color, border_width) {
   # For Base R, we attempt to use rsvg to rasterize and rasterImage to draw
   # This requires the 'rsvg' package

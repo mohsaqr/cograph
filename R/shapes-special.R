@@ -2,10 +2,12 @@
 #' @description Special node shape drawing functions (ellipse, heart, star, pie).
 #' @name shapes-special
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Draw Ellipse Node
 #' @keywords internal
+#' @noRd
 draw_ellipse <- function(x, y, size, fill, border_color, border_width,
                          alpha = 1, aspect = 0.6, ...) {
   fill_col <- adjust_alpha(fill, alpha)
@@ -30,6 +32,7 @@ draw_ellipse <- function(x, y, size, fill, border_color, border_width,
 
 #' Draw Heart Node
 #' @keywords internal
+#' @noRd
 draw_heart <- function(x, y, size, fill, border_color, border_width,
                        alpha = 1, ...) {
   fill_col <- adjust_alpha(fill, alpha)
@@ -63,6 +66,7 @@ draw_heart <- function(x, y, size, fill, border_color, border_width,
 
 #' Draw Star Node
 #' @keywords internal
+#' @noRd
 draw_star <- function(x, y, size, fill, border_color, border_width,
                       alpha = 1, n_points = 5, inner_ratio = 0.4, ...) {
   fill_col <- adjust_alpha(fill, alpha)
@@ -94,6 +98,7 @@ draw_star <- function(x, y, size, fill, border_color, border_width,
 #' @param pie_border_width Border width for pie segments (optional, defaults to border_width * 0.5).
 #' @param default_color Fallback color when colors is NULL and there's a single segment.
 #' @keywords internal
+#' @noRd
 draw_pie <- function(x, y, size, fill, border_color, border_width,
                      alpha = 1, values = NULL, colors = NULL,
                      pie_border_width = NULL, default_color = NULL, ...) {
@@ -197,6 +202,7 @@ draw_pie <- function(x, y, size, fill, border_color, border_width,
 #' @param value_format Custom format function.
 #' @param donut_border_width Border width for donut ring (NULL = use border_width).
 #' @keywords internal
+#' @noRd
 draw_polygon_donut <- function(x, y, size, fill, border_color, border_width,
                                alpha = 1, values = NULL, colors = NULL,
                                inner_ratio = 0.5, bg_color = "gray90",
@@ -351,6 +357,7 @@ draw_polygon_donut <- function(x, y, size, fill, border_color, border_width,
 #' @param value_format Custom format function (overrides digits).
 #' @param donut_border_width Border width for donut ring (NULL = use border_width).
 #' @keywords internal
+#' @noRd
 draw_donut <- function(x, y, size, fill, border_color, border_width,
                        alpha = 1, values = NULL, colors = NULL,
                        inner_ratio = 0.5, bg_color = "gray90",
@@ -554,6 +561,7 @@ draw_donut <- function(x, y, size, fill, border_color, border_width,
 #' @param pie_border_width Border width for pie segments (optional).
 #' @param donut_border_width Border width for donut ring (optional).
 #' @keywords internal
+#' @noRd
 draw_donut_pie <- function(x, y, size, fill, border_color, border_width,
                            alpha = 1, donut_value = NULL, pie_values = NULL,
                            pie_colors = NULL, inner_ratio = 0.5,
@@ -677,6 +685,7 @@ draw_donut_pie <- function(x, y, size, fill, border_color, border_width,
 #' @param pie_border_width Border width for pie segments (optional).
 #' @param donut_border_width Border width for donut rings (optional).
 #' @keywords internal
+#' @noRd
 draw_double_donut_pie <- function(x, y, size, fill, border_color, border_width,
                                   alpha = 1, donut_values = NULL, donut_colors = NULL,
                                   donut2_values = NULL, donut2_colors = NULL,
@@ -858,6 +867,7 @@ draw_double_donut_pie <- function(x, y, size, fill, border_color, border_width,
 #'
 #' @param n_connections Number of connection points around perimeter.
 #' @keywords internal
+#' @noRd
 draw_neural <- function(x, y, size, fill, border_color, border_width,
                         alpha = 1, n_connections = 6, ...) {
   fill_col <- adjust_alpha(fill, alpha)
@@ -915,6 +925,7 @@ draw_neural <- function(x, y, size, fill, border_color, border_width,
 #'
 #' @param pins_per_side Number of pins per side.
 #' @keywords internal
+#' @noRd
 draw_chip <- function(x, y, size, fill, border_color, border_width,
                       alpha = 1, pins_per_side = 3, ...) {
   fill_col <- adjust_alpha(fill, alpha)
@@ -992,6 +1003,7 @@ draw_chip <- function(x, y, size, fill, border_color, border_width,
 #' Rounded square with antenna and eyes (robot head).
 #'
 #' @keywords internal
+#' @noRd
 draw_robot <- function(x, y, size, fill, border_color, border_width,
                        alpha = 1, ...) {
   fill_col <- adjust_alpha(fill, alpha)
@@ -1065,6 +1077,7 @@ draw_robot <- function(x, y, size, fill, border_color, border_width,
 #' Simplified brain outline using overlapping curves.
 #'
 #' @keywords internal
+#' @noRd
 draw_brain <- function(x, y, size, fill, border_color, border_width,
                        alpha = 1, ...) {
   fill_col <- adjust_alpha(fill, alpha)
@@ -1105,6 +1118,7 @@ draw_brain <- function(x, y, size, fill, border_color, border_width,
 #' Interconnected nodes pattern (mini network inside).
 #'
 #' @keywords internal
+#' @noRd
 draw_network <- function(x, y, size, fill, border_color, border_width,
                          alpha = 1, ...) {
   fill_col <- adjust_alpha(fill, alpha)
@@ -1169,6 +1183,7 @@ draw_network <- function(x, y, size, fill, border_color, border_width,
 #' Cylinder shape (data storage).
 #'
 #' @keywords internal
+#' @noRd
 draw_database <- function(x, y, size, fill, border_color, border_width,
                           alpha = 1, ...) {
   fill_col <- adjust_alpha(fill, alpha)
@@ -1243,6 +1258,7 @@ draw_database <- function(x, y, size, fill, border_color, border_width,
 #' Cloud shape (cloud computing).
 #'
 #' @keywords internal
+#' @noRd
 draw_cloud <- function(x, y, size, fill, border_color, border_width,
                        alpha = 1, ...) {
   fill_col <- adjust_alpha(fill, alpha)
@@ -1270,6 +1286,7 @@ draw_cloud <- function(x, y, size, fill, border_color, border_width,
 #'
 #' @param n_teeth Number of gear teeth.
 #' @keywords internal
+#' @noRd
 draw_gear <- function(x, y, size, fill, border_color, border_width,
                       alpha = 1, n_teeth = 8, ...) {
   fill_col <- adjust_alpha(fill, alpha)
@@ -1327,6 +1344,7 @@ draw_gear <- function(x, y, size, fill, border_color, border_width,
 
 #' Draw Cross/Plus Node
 #' @keywords internal
+#' @noRd
 draw_cross <- function(x, y, size, fill, border_color, border_width,
                        alpha = 1, thickness = 0.3, ...) {
   fill_col <- adjust_alpha(fill, alpha)

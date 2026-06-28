@@ -2,6 +2,7 @@
 #' @description Utility functions for color manipulation.
 #' @name utils-colors
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Adjust Color Alpha

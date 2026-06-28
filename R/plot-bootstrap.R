@@ -4,6 +4,7 @@
 #'   significant from non-significant edges.
 #' @name plot-bootstrap
 #' @keywords internal
+#' @noRd
 NULL
 
 #' @rdname splot.tna_bootstrap

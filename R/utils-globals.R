@@ -2,6 +2,7 @@
 #' @description Declare global variables to avoid R CMD check NOTEs.
 #' @name utils-globals
 #' @keywords internal
+#' @noRd
 NULL
 
 # Declare global variables used in ggplot2 aes() calls and other NSE contexts

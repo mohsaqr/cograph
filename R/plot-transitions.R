@@ -3,6 +3,7 @@
 #'   two categorical states, such as cluster membership changes.
 #' @name plot-transitions
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Plot Transitions Between States

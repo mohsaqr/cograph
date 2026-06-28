@@ -1008,6 +1008,7 @@ com_fl <- community_fluid
 
 #' Resolve edge weights
 #' @keywords internal
+#' @noRd
 .resolve_weights <- function(g, weights, abs_if_negative = FALSE) {
   if (is.null(weights)) {
     # Use network weights if available
@@ -1029,6 +1030,7 @@ com_fl <- community_fluid
 
 #' Wrap igraph communities result
 #' @keywords internal
+#' @noRd
 .wrap_communities <- function(result, algorithm, g, network = NULL) {
   # Node labels
   node_labels <- if (igraph::is_named(g)) {

@@ -79,7 +79,7 @@ Create a new CographNetwork object.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{input}}{Network input supported by \code{\link{parse_input}},
+\item{\code{input}}{Network input supported by \code{parse_input},
 such as a matrix, edge list, igraph, statnet network, qgraph, or tna object.}
 
 \item{\code{directed}}{Logical. Force directed interpretation. NULL for auto-detect.}

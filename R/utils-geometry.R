@@ -2,6 +2,7 @@
 #' @description Utility functions for geometric calculations.
 #' @name utils-geometry
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Calculate Distance Between Two Points
@@ -10,6 +11,7 @@ NULL
 #' @param x2,y2 Second point coordinates.
 #' @return Euclidean distance.
 #' @keywords internal
+#' @noRd
 point_distance <- function(x1, y1, x2, y2) {
   sqrt((x2 - x1)^2 + (y2 - y1)^2)
 }
@@ -20,6 +22,7 @@ point_distance <- function(x1, y1, x2, y2) {
 #' @param x2,y2 End point coordinates.
 #' @return Angle in radians.
 #' @keywords internal
+#' @noRd
 point_angle <- function(x1, y1, x2, y2) {
   atan2(y2 - y1, x2 - x1)
 }
@@ -31,6 +34,7 @@ point_angle <- function(x1, y1, x2, y2) {
 #' @param angle Angle in radians.
 #' @return List with x, y coordinates.
 #' @keywords internal
+#' @noRd
 point_on_circle <- function(cx, cy, r, angle) {
   list(
     x = cx + r * cos(angle),
@@ -48,6 +52,7 @@ point_on_circle <- function(cx, cy, r, angle) {
 #' @param n Number of points to generate.
 #' @return Data frame with x, y coordinates.
 #' @keywords internal
+#' @noRd
 bezier_points <- function(x0, y0, x1, y1, x2, y2, n = 50) {
   t <- seq(0, 1, length.out = n)
 
@@ -69,6 +74,7 @@ bezier_points <- function(x0, y0, x1, y1, x2, y2, n = 50) {
 #'   Negative = sharper curve, Positive = gentler curve. Default 0.
 #' @return List with x, y coordinates of control point.
 #' @keywords internal
+#' @noRd
 curve_control_point <- function(x1, y1, x2, y2, curvature, pivot = 0.5, shape = 0) {
   # Point along the edge based on pivot (0 = source, 0.5 = midpoint, 1 = target)
   pivot <- max(0, min(1, pivot))  # Clamp to [0, 1]
@@ -111,6 +117,7 @@ curve_control_point <- function(x1, y1, x2, y2, curvature, pivot = 0.5, shape = 
 #' @param x_scale,y_scale Aspect ratio correction factors.
 #' @return List with arrow polygon coordinates and midpoint for line connection.
 #' @keywords internal
+#' @noRd
 arrow_points <- function(x, y, angle, size, width = 0.5, x_scale = 1, y_scale = 1) {
 
   # Arrow points relative to tip
@@ -145,6 +152,7 @@ arrow_points <- function(x, y, angle, size, width = 0.5, x_scale = 1, y_scale = 
 #' @param offset Distance to offset.
 #' @return List with x, y coordinates.
 #' @keywords internal
+#' @noRd
 offset_point <- function(x, y, toward_x, toward_y, offset) {
   angle <- point_angle(x, y, toward_x, toward_y)
   list(
@@ -165,6 +173,7 @@ offset_point <- function(x, y, toward_x, toward_y, offset) {
 #' @param x_scale,y_scale Aspect ratio correction factors.
 #' @return List with x, y coordinates in npc.
 #' @keywords internal
+#' @noRd
 edge_endpoint <- function(node_x, node_y, other_x, other_y, node_size,
                           shape = "circle", x_scale = 1, y_scale = 1) {
   # Calculate angle from node center to other point, accounting for aspect ratio

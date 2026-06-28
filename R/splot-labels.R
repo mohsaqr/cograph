@@ -2,6 +2,7 @@
 #' @description Functions for formatting edge labels using templates with placeholders.
 #' @name splot-labels
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Get Significance Stars from P-values
@@ -11,6 +12,7 @@ NULL
 #' @param p Numeric p-value(s).
 #' @return Character vector of stars.
 #' @keywords internal
+#' @noRd
 get_significance_stars <- function(p) {
   if (is.null(p)) return(NULL)
 
@@ -32,6 +34,7 @@ get_significance_stars <- function(p) {
 #' @param prefix Prefix string (e.g., "p=").
 #' @return Formatted p-value string.
 #' @keywords internal
+#' @noRd
 format_pvalue <- function(p, digits = 3, prefix = "p=") {
   if (is.null(p) || is.na(p)) return("")
 
@@ -53,6 +56,7 @@ format_pvalue <- function(p, digits = 3, prefix = "p=") {
 #' @param leading_zero Logical: include leading zero for values < 1? Default TRUE.
 #' @return Formatted CI range string.
 #' @keywords internal
+#' @noRd
 format_ci_range <- function(lower, upper, digits = 2, format = "bracket", leading_zero = TRUE) {
   if (is.null(lower) || is.null(upper) || is.na(lower) || is.na(upper)) {
     return("")
@@ -83,6 +87,7 @@ format_ci_range <- function(lower, upper, digits = 2, format = "bracket", leadin
 #' @param n Number of edges.
 #' @return Character vector of stars.
 #' @keywords internal
+#' @noRd
 resolve_stars <- function(stars_input, p_values = NULL, n) {
   if (is.null(stars_input)) {
     return(rep("", n))
@@ -133,6 +138,7 @@ resolve_stars <- function(stars_input, p_values = NULL, n) {
 #' @param leading_zero Logical: include leading zero for values < 1? Default TRUE.
 #' @return Formatted label string.
 #' @keywords internal
+#' @noRd
 format_edge_label_template <- function(template,
                                        weight = NA,
                                        ci_lower = NA,
@@ -229,6 +235,7 @@ format_edge_label_template <- function(template,
 #' @param style Style preset: "none", "estimate", "full", "range", "stars".
 #' @return Template string or NULL for "none".
 #' @keywords internal
+#' @noRd
 get_template_from_style <- function(style) {
   switch(style,
     "none" = NULL,
@@ -261,6 +268,7 @@ get_template_from_style <- function(style) {
 #' @param n Number of edges.
 #' @return Character vector of formatted labels.
 #' @keywords internal
+#' @noRd
 build_edge_labels_from_template <- function(template = NULL,
                                             style = "none",
                                             weights = NULL,

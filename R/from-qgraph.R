@@ -6,6 +6,7 @@
 #' @param n_states Number of states (nodes) in the network.
 #' @return Character vector of colors.
 #' @keywords internal
+#' @noRd
 tna_color_palette <- function(n_states) {
   color_group <- 4L -
     1L * (n_states <= 2) -
@@ -49,6 +50,7 @@ tna_color_palette <- function(n_states) {
 #' @param n_nodes Number of nodes (for palette selection).
 #' @return A named list of default parameters.
 #' @keywords internal
+#' @noRd
 .psych_style_defaults <- function(n_nodes = NULL) {
   defaults <- list(
     layout                  = "spring",
@@ -88,6 +90,7 @@ tna_color_palette <- function(n_states) {
 #' @param directed Logical. If TRUE, includes arrow/edge-start defaults.
 #' @return Named list of splot parameters.
 #' @keywords internal
+#' @noRd
 .tna_style_defaults <- function(n_nodes = NULL, directed = TRUE) {
   defaults <- list(
     layout                 = "oval",
@@ -546,6 +549,7 @@ from_qgraph <- function(qgraph_object, engine = c("splot", "soplot"), plot = TRU
 #' @param lty Numeric or character vector of R line types
 #' @return Character vector of cograph style names
 #' @keywords internal
+#' @noRd
 map_qgraph_lty <- function(lty) {
   mapping <- c("1" = "solid", "2" = "dashed", "3" = "dotted",
                "4" = "dotdash", "5" = "longdash", "6" = "twodash",
@@ -560,6 +564,7 @@ map_qgraph_lty <- function(lty) {
 #' @param shapes Character vector of qgraph shape names
 #' @return Character vector of cograph shape names
 #' @keywords internal
+#' @noRd
 map_qgraph_shape <- function(shapes) {
   mapping <- c(
     "rectangle" = "square",
@@ -585,6 +590,7 @@ map_qgraph_shape <- function(shapes) {
 #' @param dots Named list (typically from \code{list(...)}).
 #' @return Named list with qgraph keys renamed to cograph equivalents.
 #' @keywords internal
+#' @noRd
 .translate_qgraph_dots <- function(dots) {
   if (length(dots) == 0L || is.null(names(dots))) return(dots)
 

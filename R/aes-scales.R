@@ -2,6 +2,7 @@
 #' @description Functions for creating aesthetic scales.
 #' @name aes-scales
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Create a Size Scale
@@ -13,6 +14,7 @@ NULL
 #' @param trans Transformation: "linear", "sqrt", "log".
 #' @return Scaled values.
 #' @keywords internal
+#' @noRd
 scale_size <- function(values, range = c(0.03, 0.1), trans = "linear") {
   if (all(is.na(values))) return(rep(mean(range), length(values)))
 
@@ -43,6 +45,7 @@ scale_size <- function(values, range = c(0.03, 0.1), trans = "linear") {
 #' @param limits Optional range limits.
 #' @return Character vector of colors.
 #' @keywords internal
+#' @noRd
 scale_color <- function(values, palette = "viridis", limits = NULL) {
   if (all(is.na(values))) return(rep("gray50", length(values)))
 
@@ -72,6 +75,7 @@ scale_color <- function(values, palette = "viridis", limits = NULL) {
 #' @param palette Color palette.
 #' @return Character vector of colors.
 #' @keywords internal
+#' @noRd
 scale_color_discrete <- function(values, palette = "colorblind") {
   values <- as.factor(values)
   n_levels <- length(levels(values))
@@ -101,6 +105,7 @@ scale_color_discrete <- function(values, palette = "colorblind") {
 #' @param range Output width range.
 #' @return Scaled values.
 #' @keywords internal
+#' @noRd
 scale_width <- function(values, range = c(0.5, 3)) {
   scale_size(values, range, trans = "linear")
 }
@@ -113,6 +118,7 @@ scale_width <- function(values, range = c(0.5, 3)) {
 #' @param range Output alpha range.
 #' @return Scaled values.
 #' @keywords internal
+#' @noRd
 scale_alpha <- function(values, range = c(0.3, 1)) {
   scaled <- scale_size(values, range, trans = "linear")
   pmax(0, pmin(1, scaled))

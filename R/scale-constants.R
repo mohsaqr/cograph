@@ -2,6 +2,7 @@
 #' @description Central scaling constants for parameter alignment between splot/soplot.
 #' @name scale-constants
 #' @keywords internal
+#' @noRd
 NULL
 
 #' qgraph Scaling Constants (Exact Values)
@@ -28,6 +29,7 @@ NULL
 #' }
 #'
 #' @keywords internal
+#' @noRd
 QGRAPH_SCALE <- list(
   # vsize formula: 8 * exp(-n/80) + 1
   vsize_base = 8,
@@ -94,6 +96,7 @@ QGRAPH_SCALE <- list(
 #' }
 #'
 #' @keywords internal
+#' @noRd
 COGRAPH_SCALE <- list(
   # Node sizing: node_size=7 should look like qgraph vsize=7
   # Calibrated: 7 * 0.015 = 0.105 user coords (similar visual size to qgraph)
@@ -143,6 +146,7 @@ COGRAPH_SCALE <- list(
 #'
 #' @format A list with the same structure as \code{COGRAPH_SCALE}
 #' @keywords internal
+#' @noRd
 COGRAPH_SCALE_LEGACY <- list(
   # Original splot values
   node_factor = 0.04,
@@ -181,6 +185,7 @@ COGRAPH_SCALE_LEGACY <- list(
 #'   "legacy" for pre-v2.0 behavior.
 #' @return A list of scaling constants.
 #' @keywords internal
+#' @noRd
 get_scale_constants <- function(scaling = "default") {
   if (identical(scaling, "legacy")) {
     COGRAPH_SCALE_LEGACY
@@ -272,6 +277,7 @@ EDGE_LABEL_NODE_CEX_FRACTION <- 0.55
 #' For directed networks, the size is reduced by 30% (minimum 1).
 #'
 #' @keywords internal
+#' @noRd
 compute_adaptive_esize <- function(n_nodes, directed = FALSE) {
   # Scaled formula for reasonable line widths (0.5 to ~6)
   # Uses gentler decay than qgraph's pixel-based formula
@@ -313,6 +319,7 @@ compute_adaptive_esize <- function(n_nodes, directed = FALSE) {
 #' - **rank**: Rank-based scaling for equal visual spacing regardless of weight distribution.
 #'
 #' @keywords internal
+#' @noRd
 scale_edge_widths <- function(weights,
                                esize = NULL,
                                n_nodes = NULL,

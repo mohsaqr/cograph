@@ -4,6 +4,7 @@
 #'   significant from non-significant edge differences.
 #' @name plot-permutation
 #' @keywords internal
+#' @noRd
 NULL
 
 #' @rdname plot_permutation

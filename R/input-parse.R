@@ -2,6 +2,7 @@
 #' @description Functions for parsing network input into internal format.
 #' @name input-parse
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Parse Network Input
@@ -17,6 +18,7 @@ NULL
 #' @return List with parsed network components, usually including nodes, edges,
 #'   directed, and weight information.
 #' @keywords internal
+#' @noRd
 parse_input <- function(input, directed = NULL, simplify = FALSE) {
   # Detect input type
   if (is.matrix(input)) {
@@ -46,6 +48,7 @@ parse_input <- function(input, directed = NULL, simplify = FALSE) {
 #' @param tol Tolerance for comparison.
 #' @return Logical.
 #' @keywords internal
+#' @noRd
 is_symmetric_matrix <- function(m, tol = .Machine$double.eps^0.5) {
   if (!is.matrix(m)) return(FALSE)
   if (nrow(m) != ncol(m)) return(FALSE)
@@ -59,6 +62,7 @@ is_symmetric_matrix <- function(m, tol = .Machine$double.eps^0.5) {
 #' @param names Optional node names for legend (defaults to labels).
 #' @return Data frame with node information.
 #' @keywords internal
+#' @noRd
 create_nodes_df <- function(n, labels = NULL, names = NULL) {
   if (is.null(labels)) {
     labels <- as.character(seq_len(n))
@@ -86,6 +90,7 @@ create_nodes_df <- function(n, labels = NULL, names = NULL) {
 #' @param directed Logical. Is the network directed?
 #' @return Data frame with edge information.
 #' @keywords internal
+#' @noRd
 create_edges_df <- function(from, to, weight = NULL, directed = FALSE) {
   if (is.null(weight)) {
     weight <- rep(1, length(from))
@@ -135,6 +140,7 @@ create_edges_df <- function(from, to, weight = NULL, directed = FALSE) {
 #'   single edges
 #'
 #' @keywords internal
+#' @noRd
 detect_duplicate_edges <- function(edges, directed = FALSE) {
   if (is.null(edges) || nrow(edges) == 0) {
     return(list(has_duplicates = FALSE, info = NULL))
@@ -196,6 +202,7 @@ detect_duplicate_edges <- function(edges, directed = FALSE) {
 #'   aggregation
 #'
 #' @keywords internal
+#' @noRd
 aggregate_duplicate_edges <- function(edges, method = "mean", directed = FALSE) {
   if (is.null(edges) || nrow(edges) == 0) {
     return(edges)

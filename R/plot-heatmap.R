@@ -3,6 +3,7 @@
 #'   and multi-layer structures.
 #' @name plot-heatmap
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Plot Network as Heatmap
@@ -162,6 +163,7 @@ plot_heatmap <- function(x,
 
 #' Plot Single Network Heatmap
 #' @keywords internal
+#' @noRd
 .plot_heatmap_single <- function(mat, show_legend, legend_position, legend_title,
                                   colors, limits, midpoint, na_color, show_values,
                                   value_size, value_color, value_fontface, value_fontfamily, value_halo, value_digits, show_diagonal,
@@ -206,6 +208,7 @@ plot_heatmap <- function(x,
 
 #' Plot Clustered Heatmap
 #' @keywords internal
+#' @noRd
 .plot_heatmap_clustered <- function(mat, cluster_list, cluster_spacing, show_legend,
                                      legend_position, legend_title, colors, limits,
                                      midpoint, na_color, show_values, value_size,
@@ -385,6 +388,7 @@ plot_heatmap <- function(x,
 
 #' Plot Group TNA as Supra-Adjacency Heatmap
 #' @keywords internal
+#' @noRd
 .plot_heatmap_group_tna <- function(x, show_legend, legend_position, legend_title,
                                      colors, limits, midpoint, na_color, show_values,
                                      value_size, value_color, value_fontface, value_fontfamily, value_halo, value_digits, show_diagonal,
@@ -479,6 +483,7 @@ plot_heatmap <- function(x,
 
 #' Add Value Labels to Heatmap (with optional halo)
 #' @keywords internal
+#' @noRd
 .add_heatmap_values <- function(p, value_size, value_color, value_fontface,
                                  value_fontfamily, value_halo, value_digits) {
   label_aes <- ggplot2::aes(label = ifelse(
@@ -503,6 +508,7 @@ plot_heatmap <- function(x,
 
 #' Convert Matrix to Long Format
 #' @keywords internal
+#' @noRd
 .matrix_to_long <- function(mat, row_labels, col_labels) {
   df <- expand.grid(
     row = row_labels,
@@ -521,6 +527,7 @@ plot_heatmap <- function(x,
 
 #' Build Base Heatmap
 #' @keywords internal
+#' @noRd
 .build_heatmap_base <- function(df, colors, limits, midpoint, na_color,
                                  legend_title, show_legend, legend_position) {
 
@@ -560,6 +567,7 @@ plot_heatmap <- function(x,
 
 #' Resolve Color Palette
 #' @keywords internal
+#' @noRd
 .resolve_colors <- function(colors, values, limits, midpoint) {
   if (is.character(colors) && length(colors) == 1) {
     # Named palette
@@ -581,6 +589,7 @@ plot_heatmap <- function(x,
 
 #' Add Cluster Borders
 #' @keywords internal
+#' @noRd
 .add_cluster_borders <- function(p, cluster_list, node_order, border_color, border_width) {
   n_total <- length(node_order)
 
@@ -612,6 +621,7 @@ plot_heatmap <- function(x,
 
 #' Add Cluster Labels
 #' @keywords internal
+#' @noRd
 .add_cluster_labels <- function(p, cluster_list, node_order) {
   n_total <- length(node_order)
   cluster_names <- names(cluster_list)
@@ -645,6 +655,7 @@ plot_heatmap <- function(x,
 
 #' Heatmap Theme
 #' @keywords internal
+#' @noRd
 .heatmap_theme <- function(show_axis_labels, axis_text_size, axis_text_angle, aspect_ratio) {
   th <- ggplot2::theme_minimal() +
     ggplot2::theme(

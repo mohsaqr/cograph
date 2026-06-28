@@ -138,6 +138,7 @@ CographTheme <- R6::R6Class(
 #' @param x Object to check.
 #' @return Logical.
 #' @keywords internal
+#' @noRd
 is_cograph_theme <- function(x) {
   inherits(x, "CographTheme")
 }

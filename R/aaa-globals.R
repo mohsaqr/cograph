@@ -2,6 +2,7 @@
 #' @description Internal registries for shapes, layouts, and themes.
 #' @name globals
 #' @keywords internal
+#' @noRd
 NULL
 
 # Package environment for storing registries
@@ -14,6 +15,7 @@ NULL
 #' Canonical edge keys for grouping/deduplication.
 #' Undirected: sorts endpoints so A-B == B-A. Directed: preserves order.
 #' @keywords internal
+#' @noRd
 .edge_keys <- function(from, to, directed = FALSE) {
   if (directed) paste(from, to, sep = "-")
   else paste(pmin(from, to), pmax(from, to), sep = "-")
@@ -47,6 +49,7 @@ NULL
 
 #' Initialize Global Registries
 #' @keywords internal
+#' @noRd
 init_registries <- function() {
   .cograph_env$shapes <- list()
   .cograph_env$layouts <- list()
@@ -213,12 +216,14 @@ list_themes <- function() {
 # ============================================================================
 
 #' @keywords internal
+#' @noRd
 register_palette <- function(name, palette) {
   .cograph_env$palettes[[name]] <- palette
   invisible(NULL)
 }
 
 #' @keywords internal
+#' @noRd
 get_palette <- function(name) {
   .cograph_env$palettes[[name]]
 }

@@ -2,6 +2,7 @@
 #' @description Functions called when the package is loaded or unloaded.
 #' @name zzz
 #' @keywords internal
+#' @noRd
 NULL
 
 # Null-coalescing operator (base R 4.4+; defined here for R >= 4.1 compat)

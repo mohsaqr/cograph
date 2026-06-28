@@ -2,6 +2,7 @@
 #' @description Functions for rendering edges using grid graphics.
 #' @name render-edges
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Render All Edges
@@ -11,6 +12,7 @@ NULL
 #' @param network A CographNetwork object.
 #' @return A grid gList of edge grobs.
 #' @keywords internal
+#' @noRd
 render_edges_grid <- function(network) {
   nodes <- network$get_nodes()
   edges <- network$get_edges()
@@ -326,6 +328,7 @@ render_edges_grid <- function(network) {
 
 #' Draw Straight Edge
 #' @keywords internal
+#' @noRd
 draw_straight_edge <- function(x1, y1, x2, y2, color, width, lty,
                                 show_arrow, arrow_size, bidirectional = FALSE,
                                 x_scale = 1, y_scale = 1) {
@@ -375,6 +378,7 @@ draw_straight_edge <- function(x1, y1, x2, y2, color, width, lty,
 
 #' Draw Curved Edge
 #' @keywords internal
+#' @noRd
 draw_curved_edge <- function(x1, y1, x2, y2, curvature, color, width, lty,
                               show_arrow, arrow_size, bidirectional = FALSE,
                               curve_shape = 0, curve_pivot = 0.5,
@@ -436,6 +440,7 @@ draw_curved_edge <- function(x1, y1, x2, y2, curvature, color, width, lty,
 #' @param lty Loop line type.
 #' @param rotation Angle in radians for loop direction (default: pi/2 = top).
 #' @keywords internal
+#' @noRd
 draw_self_loop <- function(x, y, node_size, color, width, lty, rotation = pi/2) {
   # Get aspect ratio correction
   vp_width <- grid::convertWidth(grid::unit(1, "npc"), "inches", valueOnly = TRUE)
@@ -513,6 +518,7 @@ draw_self_loop <- function(x, y, node_size, color, width, lty, rotation = pi/2) 
 #' @param network A CographNetwork object.
 #' @return A grid gList of label grobs.
 #' @keywords internal
+#' @noRd
 render_edge_labels_grid <- function(network) {
   nodes <- network$get_nodes()
   edges <- network$get_edges()

@@ -387,6 +387,7 @@ sn_nodes <- function(network,
 #' @param palette Color palette (function or character vector).
 #' @return Character vector of colors.
 #' @keywords internal
+#' @noRd
 map_node_colors <- function(groups, palette = NULL) {
   groups <- as.factor(groups)
   n_groups <- length(levels(groups))
@@ -410,6 +411,7 @@ map_node_colors <- function(groups, palette = NULL) {
 #' @param range Target size range (min, max).
 #' @return Scaled size values.
 #' @keywords internal
+#' @noRd
 scale_node_sizes <- function(values, range = c(0.03, 0.1)) {
   if (all(is.na(values))) return(rep(mean(range), length(values)))
 

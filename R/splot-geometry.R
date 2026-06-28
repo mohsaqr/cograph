@@ -2,6 +2,7 @@
 #' @description Coordinate transformation and geometry functions for splot().
 #' @name splot-geometry
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Convert User Coordinates to Inches (X-axis)
@@ -9,6 +10,7 @@ NULL
 #' @param x Value in user coordinates.
 #' @return Value in inches.
 #' @keywords internal
+#' @noRd
 usr_to_in_x <- function(x) {
   usr <- graphics::par("usr")
   pin <- graphics::par("pin")
@@ -20,6 +22,7 @@ usr_to_in_x <- function(x) {
 #' @param y Value in user coordinates.
 #' @return Value in inches.
 #' @keywords internal
+#' @noRd
 usr_to_in_y <- function(y) {
   usr <- graphics::par("usr")
   pin <- graphics::par("pin")
@@ -31,6 +34,7 @@ usr_to_in_y <- function(y) {
 #' @param x Value in inches.
 #' @return Value in user coordinates.
 #' @keywords internal
+#' @noRd
 in_to_usr_x <- function(x) {
   usr <- graphics::par("usr")
   pin <- graphics::par("pin")
@@ -42,6 +46,7 @@ in_to_usr_x <- function(x) {
 #' @param y Value in inches.
 #' @return Value in user coordinates.
 #' @keywords internal
+#' @noRd
 in_to_usr_y <- function(y) {
   p <- graphics::par(c("usr", "pin"))
   y / p$pin[2] * (p$usr[4] - p$usr[3]) + p$usr[3]
@@ -51,6 +56,7 @@ in_to_usr_y <- function(y) {
 #'
 #' @return Scale factor.
 #' @keywords internal
+#' @noRd
 get_x_scale <- function() {
   p <- graphics::par(c("usr", "pin"))
   p$pin[1] / (p$usr[2] - p$usr[1])
@@ -60,6 +66,7 @@ get_x_scale <- function() {
 #'
 #' @return Scale factor.
 #' @keywords internal
+#' @noRd
 get_y_scale <- function() {
   p <- graphics::par(c("usr", "pin"))
   p$pin[2] / (p$usr[4] - p$usr[3])
@@ -73,6 +80,7 @@ get_y_scale <- function() {
 #' @param dx Change in x (user coordinates).
 #' @return Angle in radians.
 #' @keywords internal
+#' @noRd
 atan2_usr <- function(dy, dx) {
   # Convert to inches to get visually correct angle (one par() call, not two)
   p <- graphics::par(c("usr", "pin"))
@@ -94,6 +102,7 @@ atan2_usr <- function(dy, dx) {
 #' @param shape Node shape: "circle", "square", "ellipse", or polygon name.
 #' @return List with x, y coordinates on boundary.
 #' @keywords internal
+#' @noRd
 cent_to_edge <- function(x, y, angle, cex, cex2 = NULL, shape = "circle") {
 
   # Defensive checks for invalid inputs
@@ -202,6 +211,7 @@ cent_to_edge <- function(x, y, angle, cex, cex2 = NULL, shape = "circle") {
 #' @param q Position along edge (0 = start, 0.5 = middle, 1 = end).
 #' @return List with x, y coordinates of control point.
 #' @keywords internal
+#' @noRd
 perp_mid <- function(x0, y0, x1, y1, cex, q = 0.5) {
   # Point along the edge
   mx <- x0 + q * (x1 - x0)
@@ -241,6 +251,7 @@ perp_mid <- function(x0, y0, x1, y1, cex, q = 0.5) {
 #' @param x2,y2 End point.
 #' @return Angle in radians.
 #' @keywords internal
+#' @noRd
 splot_angle <- function(x1, y1, x2, y2) {
   atan2(y2 - y1, x2 - x1)
 }
@@ -253,6 +264,7 @@ splot_angle <- function(x1, y1, x2, y2) {
 #'   preserve aspect ratio; if FALSE, scale axes independently.
 #' @return Rescaled layout.
 #' @keywords internal
+#' @noRd
 rescale_layout <- function(layout, mar = 0.1, keep_aspect = TRUE) {
   layout <- as.data.frame(layout)
 

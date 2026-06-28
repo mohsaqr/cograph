@@ -2,6 +2,7 @@
 #' @description Edge drawing functions for splot() using base R graphics.
 #' @name splot-edges
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Find Split Index for Curve Based on Arc Length Fraction
@@ -13,6 +14,7 @@ NULL
 #' @param fraction Desired fraction of total arc length (0-1).
 #' @return Index at which to split the arrays.
 #' @keywords internal
+#' @noRd
 find_curve_split_index <- function(x, y, fraction) {
   n <- length(x)
   if (n < 2 || fraction <= 0) return(1)
@@ -49,6 +51,7 @@ find_curve_split_index <- function(x, y, fraction) {
 #' @param start_lty Line type for start segment.
 #' @param start_fraction Fraction of curve for start segment (0-0.5).
 #' @keywords internal
+#' @noRd
 draw_curve_with_start_segment <- function(x, y, col, lwd, lty,
                                           start_lty = 1, start_fraction = 0) {
   n <- length(x)
@@ -94,6 +97,7 @@ draw_curve_with_start_segment <- function(x, y, col, lwd, lty,
 #' @param start_fraction Fraction of edge length for start segment (0-0.5). Default 0.
 #' @param arrow_angle Arrow head angle in radians. Default pi/6 (30 degrees).
 #' @keywords internal
+#' @noRd
 draw_straight_edge_base <- function(x1, y1, x2, y2, col = "gray50", lwd = 1,
                                     lty = 1, arrow = TRUE, asize = 0.02,
                                     bidirectional = FALSE,
@@ -193,6 +197,7 @@ draw_straight_edge_base <- function(x1, y1, x2, y2, col = "gray50", lwd = 1,
 #' @param start_fraction Fraction of edge length for start segment (0-0.5). Default 0.
 #' @param arrow_angle Arrow head angle in radians. Default pi/6 (30 degrees).
 #' @keywords internal
+#' @noRd
 draw_curved_edge_base <- function(x1, y1, x2, y2, curve = 0.2, curvePivot = 0.5,
                                   col = "gray50", lwd = 1, lty = 1,
                                   arrow = TRUE, asize = 0.02,
@@ -362,6 +367,7 @@ draw_curved_edge_base <- function(x1, y1, x2, y2, curve = 0.2, curvePivot = 0.5,
 #' @param anchor_radius Radius used for the loop's node-boundary anchor. NULL
 #'   defaults to \code{node_size}.
 #' @keywords internal
+#' @noRd
 draw_self_loop_base <- function(x, y, node_size, col = "gray50", lwd = 1,
                                 lty = 1, rotation = pi/2, arrow = TRUE,
                                 asize = 0.02, arrow_angle = pi/6,
@@ -432,6 +438,7 @@ draw_self_loop_base <- function(x, y, node_size, col = "gray50", lwd = 1,
 #' @param shadow_offset Shadow/halo offset distance.
 #' @param shadow_alpha Shadow/halo transparency.
 #' @keywords internal
+#' @noRd
 draw_edge_label_base <- function(x, y, label, cex = 0.8, col = "gray30",
                                  bg = "white", font = 1,
                                  shadow = FALSE, shadow_color = "gray40",
@@ -524,6 +531,7 @@ draw_edge_label_base <- function(x, y, label, cex = 0.8, col = "gray30",
 #'   Default 0 keeps the label on the computed edge position.
 #' @return List with x, y coordinates.
 #' @keywords internal
+#' @noRd
 get_edge_label_position <- function(x1, y1, x2, y2, position = 0.5,
                                     curve = 0, curvePivot = 0.5,
                                     label_offset = 0) {
@@ -614,6 +622,7 @@ get_edge_label_position <- function(x1, y1, x2, y2, position = 0.5,
 #' @param edge.label.bg Label background color.
 #' @param edge.label.position Label position along edge.
 #' @keywords internal
+#' @noRd
 render_edges_base <- function(edges, layout, node_sizes, shapes = "circle",
                               edge.color = "gray50", edge.width = 1, lty = 1,
                               curve = 0, curvePivot = 0.5, arrows = TRUE,

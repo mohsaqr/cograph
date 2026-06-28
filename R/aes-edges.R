@@ -512,6 +512,7 @@ sn_edges <- function(network,
 #'   maps to the max of range, and values above it are capped.
 #' @return Scaled width values.
 #' @keywords internal
+#' @noRd
 scale_edge_widths_simple <- function(values, range = c(0.5, 3), maximum = NULL) {
   if (all(is.na(values))) return(rep(mean(range), length(values)))
 
@@ -545,6 +546,7 @@ scale_edge_widths_simple <- function(values, range = c(0.5, 3), maximum = NULL) 
 #' @param zero_color Color for zero weights.
 #' @return Character vector of colors.
 #' @keywords internal
+#' @noRd
 map_edge_colors <- function(weights, positive_color = "#2E7D32",
                             negative_color = "#C62828",
                             zero_color = "gray50") {

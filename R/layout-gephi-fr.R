@@ -38,6 +38,7 @@
 #' }
 #'
 #' @keywords internal
+#' @noRd
 layout_gephi_fr <- function(g, area = 10000, gravity = 1.0, speed = 1.0,
                             niter = 100, seed = NULL, initial = NULL,
                             normalize = TRUE,
@@ -275,6 +276,7 @@ layout_gephi_fr <- function(g, area = 10000, gravity = 1.0, speed = 1.0,
 #'
 #' @return Data frame with x, y coordinates.
 #' @keywords internal
+#' @noRd
 compute_layout_gephi_fr <- function(network, area = 10000, gravity = 1.0,
                                     speed = 1.0, niter = 100, seed = NULL,
                                     initial = NULL, normalize = TRUE,

@@ -2,10 +2,12 @@
 #' @description Basic node shape drawing functions.
 #' @name shapes-basic
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Draw Circle Node
 #' @keywords internal
+#' @noRd
 draw_circle <- function(x, y, size, fill, border_color, border_width,
                         alpha = 1, ...) {
   # Convert colors with alpha
@@ -26,6 +28,7 @@ draw_circle <- function(x, y, size, fill, border_color, border_width,
 
 #' Draw Square Node
 #' @keywords internal
+#' @noRd
 draw_square <- function(x, y, size, fill, border_color, border_width,
                         alpha = 1, ...) {
   fill_col <- adjust_alpha(fill, alpha)
@@ -46,6 +49,7 @@ draw_square <- function(x, y, size, fill, border_color, border_width,
 
 #' Draw Triangle Node
 #' @keywords internal
+#' @noRd
 draw_triangle <- function(x, y, size, fill, border_color, border_width,
                           alpha = 1, ...) {
   fill_col <- adjust_alpha(fill, alpha)
@@ -69,6 +73,7 @@ draw_triangle <- function(x, y, size, fill, border_color, border_width,
 
 #' Draw Diamond Node
 #' @keywords internal
+#' @noRd
 draw_diamond <- function(x, y, size, fill, border_color, border_width,
                          alpha = 1, ...) {
   fill_col <- adjust_alpha(fill, alpha)
@@ -92,6 +97,7 @@ draw_diamond <- function(x, y, size, fill, border_color, border_width,
 
 #' Draw Pentagon Node
 #' @keywords internal
+#' @noRd
 draw_pentagon <- function(x, y, size, fill, border_color, border_width,
                           alpha = 1, ...) {
   fill_col <- adjust_alpha(fill, alpha)
@@ -114,6 +120,7 @@ draw_pentagon <- function(x, y, size, fill, border_color, border_width,
 
 #' Draw Hexagon Node
 #' @keywords internal
+#' @noRd
 draw_hexagon <- function(x, y, size, fill, border_color, border_width,
                          alpha = 1, ...) {
   fill_col <- adjust_alpha(fill, alpha)

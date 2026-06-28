@@ -2,6 +2,7 @@
 #' @description Functions for handling deprecated parameters with backwards compatibility.
 #' @name utils-deprecation
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Handle Deprecated Parameter
@@ -24,6 +25,7 @@ NULL
 #' @return The effective parameter value.
 #'
 #' @keywords internal
+#' @noRd
 handle_deprecated_param <- function(new_val, old_val, new_name, old_name,
                                      new_val_was_set = NULL) {
   # If old_val is provided, always warn
@@ -58,6 +60,7 @@ handle_deprecated_param <- function(new_val, old_val, new_name, old_name,
 #' @return Numeric fontface value (1=plain, 2=bold, 3=italic, 4=bold.italic).
 #'
 #' @keywords internal
+#' @noRd
 fontface_to_numeric <- function(fontface) {
   if (is.numeric(fontface)) {
     return(fontface)
@@ -81,6 +84,7 @@ fontface_to_numeric <- function(fontface) {
 #' @return Character fontface value ("plain", "bold", "italic", "bold.italic").
 #'
 #' @keywords internal
+#' @noRd
 fontface_to_string <- function(fontface) {
   if (is.character(fontface)) {
     return(fontface)

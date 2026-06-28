@@ -1576,6 +1576,7 @@ splot <- function(
 
 #' Render Edges for splot
 #' @keywords internal
+#' @noRd
 render_edges_splot <- function(edges, layout, node_sizes, shapes,
                                edge_color, edge_width, edge_style, curvature,
                                curve_shape, curve_pivot, show_arrows, arrow_size,
@@ -1924,6 +1925,7 @@ render_edges_splot <- function(edges, layout, node_sizes, shapes,
 #' @param donut_values List of values for donut chart. Each element is a single
 #'   numeric (0-1) representing fill proportion for that node.
 #' @keywords internal
+#' @noRd
 render_nodes_splot <- function(layout, node_size, node_size2, node_shape, node_fill,
                                node_border_color, node_border_width, pie_values, pie_colors,
                                pie_border_width, donut_values, donut_colors,
@@ -2230,6 +2232,7 @@ render_nodes_splot <- function(layout, node_size, node_size2, node_shape, node_f
 #' @param show_node_sizes Logical: show node size legend?
 #' @param node_size Vector of node sizes.
 #' @keywords internal
+#' @noRd
 render_legend_splot <- function(groups, node_names, nodes, node_colors,
                                 position = "topright", cex = 0.8,
                                 show_edge_colors = FALSE,

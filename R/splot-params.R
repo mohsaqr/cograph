@@ -2,6 +2,7 @@
 #' @description Functions for resolving and vectorizing splot() parameters.
 #' @name splot-params
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Resolve Edge Colors
@@ -15,6 +16,7 @@ NULL
 #' @param default_col Default color when no weight.
 #' @return Vector of colors for each edge.
 #' @keywords internal
+#' @noRd
 resolve_edge_colors <- function(edges, edge.color = NULL, posCol = "#2E7D32",
                                 negCol = "#C62828", default_col = "gray50") {
   m <- nrow(edges)
@@ -67,6 +69,7 @@ resolve_edge_colors <- function(edges, edge.color = NULL, posCol = "#2E7D32",
 #' @param scale_factor Legacy: Width scaling factor.
 #' @return Vector of widths for each edge.
 #' @keywords internal
+#' @noRd
 resolve_edge_widths <- function(edges,
                                 edge.width = NULL,
                                 esize = NULL,
@@ -145,6 +148,7 @@ resolve_edge_widths <- function(edges,
 #' @param scaling Scaling mode: "default" or "legacy".
 #' @return Vector of node sizes.
 #' @keywords internal
+#' @noRd
 resolve_node_sizes <- function(vsize, n, default_size = NULL, scale_factor = NULL,
                                scaling = "default") {
   scale <- get_scale_constants(scaling)
@@ -189,6 +193,7 @@ resolve_node_sizes <- function(vsize, n, default_size = NULL, scale_factor = NUL
 #' @return Named list with \code{sizes} (vector of node sizes), \code{values}
 #'   (raw centrality values), \code{measure}, and \code{labels}.
 #' @keywords internal
+#' @noRd
 resolve_centrality_sizes <- function(x, scale_by, size_range = c(2, 8), n = NULL,
                                      scaling = "default", scale_exp = 1) {
   if (is.null(scale_by)) {
@@ -303,6 +308,7 @@ resolve_centrality_sizes <- function(x, scale_by, size_range = c(2, 8), n = NULL
 #'   verbatim — the precedence rule.
 #' @return Vector of label sizes (cex values).
 #' @keywords internal
+#' @noRd
 resolve_label_sizes <- function(label_size, node_size_usr, n, scaling = "default",
                                 visual_scale = NULL, node_size = NULL) {
   scale <- get_scale_constants(scaling)
@@ -347,6 +353,7 @@ resolve_label_sizes <- function(label_size, node_size_usr, n, scaling = "default
 #' @param default_col Default node color.
 #' @return Vector of colors for each node.
 #' @keywords internal
+#' @noRd
 resolve_node_colors <- function(color, n, nodes = NULL, groups = NULL,
                                 default_col = "#4A90D9") {
   if (!is.null(color)) {
@@ -379,6 +386,7 @@ resolve_node_colors <- function(color, n, nodes = NULL, groups = NULL,
 #' @param n Number of nodes.
 #' @return Character vector of labels (or NULL for no labels).
 #' @keywords internal
+#' @noRd
 resolve_labels <- function(labels, nodes, n) {
   if (is.null(labels) || identical(labels, FALSE)) {
     return(NULL)
@@ -409,6 +417,7 @@ resolve_labels <- function(labels, nodes, n) {
 #' @param m Number of edges.
 #' @return Character vector of labels (or NULL for no labels).
 #' @keywords internal
+#' @noRd
 resolve_edge_labels <- function(edge.labels, edges, m) {
   if (is.null(edge.labels) || identical(edge.labels, FALSE)) {
     return(NULL)
@@ -434,6 +443,7 @@ resolve_edge_labels <- function(edge.labels, edges, m) {
 #' @param n Number of nodes.
 #' @return Character vector of shape names.
 #' @keywords internal
+#' @noRd
 resolve_shapes <- function(shape, n) {
   if (is.null(shape)) {
     shape <- "circle"
@@ -451,6 +461,7 @@ resolve_shapes <- function(shape, n) {
 #' @param layout Layout coordinates (to auto-calculate optimal rotation).
 #' @return Vector of rotation angles in radians.
 #' @keywords internal
+#' @noRd
 resolve_loop_rotation <- function(loopRotation, edges, layout = NULL) {
   m <- nrow(edges)
   if (m == 0) return(numeric(0))
@@ -491,6 +502,7 @@ resolve_loop_rotation <- function(loopRotation, edges, layout = NULL) {
 #' @param minimum Minimum absolute weight to include.
 #' @return Filtered edge data frame.
 #' @keywords internal
+#' @noRd
 filter_edges_by_weight <- function(edges, minimum = 0) {
   if (minimum == 0 || !"weight" %in% names(edges)) {
     return(edges)
@@ -507,6 +519,7 @@ filter_edges_by_weight <- function(edges, minimum = 0) {
 #' @param priority Optional numeric vector of edge priorities. Higher = on top.
 #' @return Integer vector of indices.
 #' @keywords internal
+#' @noRd
 get_edge_order <- function(edges, priority = NULL) {
   n <- nrow(edges)
   if (n == 0) return(integer(0))
@@ -537,6 +550,7 @@ get_edge_order <- function(edges, priority = NULL) {
 #' @param sizes Vector of node sizes.
 #' @return Integer vector of indices.
 #' @keywords internal
+#' @noRd
 get_node_order <- function(sizes) {
   order(sizes, decreasing = TRUE)
 }
@@ -551,6 +565,7 @@ get_node_order <- function(sizes) {
 #' @param edge_duplicates Aggregation method (NULL to error, or "sum"/"mean"/etc).
 #' @return Possibly aggregated edge data frame.
 #' @keywords internal
+#' @noRd
 check_duplicate_edges <- function(edges, directed, edge_duplicates) {
   if (directed || is.null(edges) || nrow(edges) == 0) return(edges)
 
@@ -592,6 +607,7 @@ check_duplicate_edges <- function(edges, directed, edge_duplicates) {
 #'   for fixed plot bounds before node/loop padding.
 #' @return List with \code{xlim} and \code{ylim}.
 #' @keywords internal
+#' @noRd
 compute_plot_limits <- function(layout_mat, vsize_usr, layout_margin,
                                 edges, n_edges, loop_rotations,
                                 fixed_bounds = NULL) {
@@ -670,6 +686,7 @@ compute_plot_limits <- function(layout_mat, vsize_usr, layout_margin,
 #' @param n_edges Number of edges.
 #' @return List with \code{ltys} (numeric lty vector) and \code{edge_widths}.
 #' @keywords internal
+#' @noRd
 resolve_edge_styles <- function(edge_style, edge_widths, n_edges) {
   edge_styles_raw <- recycle_to_length(edge_style, n_edges)
   ltys <- vapply(edge_styles_raw, function(s) {
@@ -707,6 +724,7 @@ resolve_edge_styles <- function(edge_style, edge_widths, n_edges) {
 #' @param n_nodes Number of nodes.
 #' @return Named list of effective_* parameters.
 #' @keywords internal
+#' @noRd
 resolve_donut_params <- function(donut_fill, donut_values, donut_color,
                                  donut_colors, donut_bg_color, donut_shape,
                                  donut_border_color, donut_outer_border_color,
@@ -805,6 +823,7 @@ resolve_donut_params <- function(donut_fill, donut_values, donut_color,
 #' @param layout_mat Two-column layout matrix.
 #' @return List with \code{curves_vec}, \code{is_reciprocal}.
 #' @keywords internal
+#' @noRd
 compute_edge_curvatures <- function(curvature, curves, edges, layout_mat) {
   n_edges <- nrow(edges)
   if (n_edges == 0) {

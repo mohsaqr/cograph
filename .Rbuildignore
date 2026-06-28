@@ -62,4 +62,6 @@
 \.DS_Store
 ^articles$
 ^vignettes/articles$
+^AGENT-NOTE-.*\.md$
+^AGENTS\.md$
 

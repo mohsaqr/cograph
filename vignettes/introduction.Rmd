@@ -175,17 +175,22 @@ Getters and setters:
 
 ## Centrality
 
-`centrality()` computes a broad set of node centrality measures and returns a data frame.
+`centrality()` computes node centrality measures and returns one tidy data frame.
+The built-in `student_interactions` edge list works directly: no igraph object,
+no matrix conversion, no setup code.
 
 ```{r}
-centrality(mat, measures = c("degree", "betweenness", "pagerank"))
+data(student_interactions)
+centrality(student_interactions)
 ```
 
-Individual functions return named vectors:
+That one call returns the default centrality table: degree, strength, closeness,
+betweenness, eigenvector centrality, and PageRank. Individual functions return
+named vectors when you want one measure only:
 
 ```{r}
-centrality_degree(mat)
-centrality_pagerank(mat)
+centrality_degree(student_interactions)
+centrality_pagerank(student_interactions)
 ```
 
 Selected measures:

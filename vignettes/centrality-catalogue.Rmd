@@ -1,0 +1,1008 @@
+---
+title: "Centrality catalogue"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 2
+vignette: >
+  %\VignetteIndexEntry{Centrality catalogue}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+```{css, echo = FALSE}
+.cg-fam-index { line-height: 1.7; }
+.cg-fam-index p { margin: 0.15em 0 0.9em 0; }
+h3 code { font-size: 0.92em; }
+table.cg-argtable td, table.cg-argtable th { padding: 4px 8px; }
+```
+
+```{r setup}
+library(cograph)
+data(student_interactions)
+```
+
+A centrality is a **node-level** statistic: it assigns every node a single
+number that summarises some aspect of its position in the network — how many
+ties it has, how short its paths to others are, how often it sits between other
+nodes, or how it participates in the network's global structure. Centralities
+describe **nodes**, not edges or whole graphs, and they are the most widely used
+way to compare the relative prominence of actors within a network.
+
+`cograph` ships the **widest collection of node centrality measures available in
+R — 99 in total** — spanning degree and strength, distance and closeness,
+shortest-path brokerage, spectral and walk-based influence, neighbourhood
+cohesion, directed prestige, and community/group-based roles. Every measure is
+**equivalence-validated**: its output is checked numerically against an
+established reference implementation (`igraph`, `sna`, `centiserve`,
+`brainGraph`, `influenceR`, `tidygraph`, and NetworkX via `reticulate`), so
+values match the canonical definitions to within documented tolerances.
+
+`student_interactions` is a built-in edge-list dataset of observed student
+interactions. It can be passed to `centrality()` directly. The single verb
+`centrality()` is the recommended entry point: it returns a tidy
+one-row-per-node `data.frame` and accepts an argument for every tuning knob
+(see the [argument catalogue](#argument-catalogue) below).
+
+```{r}
+centrality(student_interactions)
+```
+
+Pass `type = "all"` to compute every measure at once, `measures = c(...)` to pick
+a subset, `digits =` to round, and `sort_by =` to order the result.
+
+## How to read this catalogue
+
+Every measure below is documented with four fields:
+
+- **Concept** — what the measure captures, in words.
+- **Definition** — the formula, faithful to what `cograph` actually computes
+  (verified against the package source, which is occasionally normalised
+  differently from a textbook statement).
+- **Meaning** — how to read a high (or low) value.
+- **Example** and **Equivalence reference** — a runnable call and the external
+  implementation it is validated against.
+
+### Notation
+
+Throughout, $G = (V, E)$ is a graph with $n = |V|$ nodes and adjacency matrix
+$A = (a_{ij})$; $w_{ij}$ are edge weights, $N(v)$ is the neighbour set of $v$,
+$k_v = |N(v)|$ its degree, and $s(v) = \sum_u w_{vu}$ its strength. We write
+$d(u, v)$ for the shortest-path distance, $\Delta$ for the graph diameter, and
+$\sigma_{st}$ (resp. $\sigma_{st}(v)$) for the number of shortest $s$–$t$ paths
+(resp. those passing through $v$). $L = D - A$ is the graph Laplacian and
+$\mathbf{1}$ the all-ones vector.
+
+```{r records, echo = FALSE}
+rec <- function(family, title, key, concept, math, args, meaning, reference,
+                grp = FALSE, via_measures = FALSE) {
+  ex <- if (via_measures) {
+    sprintf('centrality(student_interactions, measures = "%s")', key)
+  } else {
+    sprintf("centrality_%s(student_interactions%s)", key,
+            if (grp) ", membership = groups" else "")
+  }
+  list(family = family, title = title, key = key, concept = concept,
+       math = math, args = args, meaning = meaning, reference = reference,
+       example = ex)
+}
+
+records <- list(
+
+  ## ---- Family 1: Degree, strength and local connectivity ----
+  rec("Degree, strength and local connectivity",
+      "Degree Centrality", "degree",
+      "Degree centrality counts the number of direct ties incident on a node. In directed graphs, it can be separated into incoming and outgoing ties.",
+      r"(C_D(v) = \sum_{u \in V} a_{vu} = k_v)",
+      r"(`mode`, `loops`)",
+      "A high degree value indicates many direct observed connections. It is a local connectivity measure and does not imply brokerage or global reach.",
+      r"(Equivalent to `igraph::degree()` under matching `mode` and loop settings.)"),
+
+  rec("Degree, strength and local connectivity",
+      "Indegree Centrality", "indegree",
+      "Indegree counts ties pointing into a node under a directed interpretation.",
+      r"(k_v^{\mathrm{in}} = \sum_{u \in V} a_{uv})",
+      r"(—)",
+      "A high indegree value indicates many incoming observed ties. Its substantive meaning depends on what edge direction represents.",
+      r"(Equivalent to `igraph::degree(mode = "in")`.)"),
+
+  rec("Degree, strength and local connectivity",
+      "Outdegree Centrality", "outdegree",
+      "Outdegree counts ties leaving a node under a directed interpretation.",
+      r"(k_v^{\mathrm{out}} = \sum_{u \in V} a_{vu})",
+      r"(—)",
+      "A high outdegree value indicates many outgoing observed ties. In transition networks, this can mean many possible next states.",
+      r"(Equivalent to `igraph::degree(mode = "out")`.)"),
+
+  rec("Degree, strength and local connectivity",
+      "Strength Centrality", "strength",
+      "Strength centrality is weighted degree: it sums edge weights instead of counting edges.",
+      r"(s(v) = \sum_{u \in V} w_{vu})",
+      r"(`mode`)",
+      "A high strength value indicates high total incident edge weight. This should be interpreted according to how weights were defined.",
+      r"(Equivalent to `igraph::strength()` when weights are supplied.)"),
+
+  rec("Degree, strength and local connectivity",
+      "Instrength Centrality", "instrength",
+      "Instrength sums incoming edge weights.",
+      r"(s^{\mathrm{in}}(v) = \sum_{u \in V} w_{uv})",
+      r"(—)",
+      "A high instrength value indicates high total incoming weight. It is a weighted incoming-connectivity measure.",
+      r"(Equivalent to `igraph::strength(mode = "in")`.)"),
+
+  rec("Degree, strength and local connectivity",
+      "Outstrength Centrality", "outstrength",
+      "Outstrength sums outgoing edge weights.",
+      r"(s^{\mathrm{out}}(v) = \sum_{u \in V} w_{vu})",
+      r"(—)",
+      "A high outstrength value indicates high total outgoing weight. It does not show whether that weight is concentrated or distributed.",
+      r"(Equivalent to `igraph::strength(mode = "out")`.)"),
+
+  rec("Degree, strength and local connectivity",
+      "Expected Centrality", "expected",
+      "Expected centrality sums the degrees of a node's neighbours.",
+      r"(C_{\mathrm{exp}}(v) = \sum_{u \in N(v)} k_u)",
+      r"(`mode`)",
+      "A high value indicates adjacency to well-connected nodes.",
+      r"(Implemented as a native neighbourhood centrality in `cograph`.)"),
+
+  rec("Degree, strength and local connectivity",
+      "Leverage Centrality", "leverage",
+      "Leverage centrality compares a node's degree with the degrees of its neighbours.",
+      r"(\ell(v) = \frac{1}{k_v} \sum_{u \in N(v)} \frac{k_v - k_u}{k_v + k_u})",
+      r"(`mode`)",
+      "A positive high value indicates that the node is more connected than its neighbours under this degree comparison.",
+      r"(Validated against `centiserve::leverage()`.)"),
+
+  rec("Degree, strength and local connectivity",
+      "Lobby Centrality", "lobby",
+      "Lobby centrality is the h-index of neighbour degrees.",
+      r"(h(v) = \max\bigl\{ h : |\{ u \in \{v\} \cup N(v) : k_u \ge h \}| \ge h \bigr\})",
+      r"(`mode`)",
+      "A high value indicates many neighbours that themselves have reasonably high degree.",
+      r"(Validated against `centiserve::lobby()`.)"),
+
+  rec("Degree, strength and local connectivity",
+      "H-Index Strength Centrality", "hindex_strength",
+      "H-index strength is a weighted h-index-style neighbourhood measure.",
+      r"(h_s(v) = \max\bigl\{ h : |\{ u \in \{v\} \cup N(v) : s(u) \ge h \}| \ge h \bigr\})",
+      r"(`mode`)",
+      "A high value indicates strong ties to neighbours meeting a weighted connectivity threshold.",
+      r"(Equivalent to lobby centrality on unweighted graphs in package tests.)",
+      via_measures = TRUE),
+
+  rec("Degree, strength and local connectivity",
+      "Local H-Index Centrality", "local_hindex",
+      "Local h-index centrality iteratively applies h-index logic to local neighbourhoods.",
+      r"(h^{(t+1)}(v) = \mathcal{H}\bigl(\{ h^{(t)}(u) : u \in N(v) \}\bigr), \quad h^{(0)}(v) = k_v)",
+      r"(via `centrality(measures = ...)`)",
+      "A high value indicates a locally robust neighbourhood position under the h-index updating rule.",
+      r"(Implemented following local h-index centrality formulations and checked in package tests.)",
+      via_measures = TRUE),
+
+  rec("Degree, strength and local connectivity",
+      "Semi-Local Centrality", "semilocal",
+      "Semi-local centrality extends degree-like counting beyond immediate neighbours.",
+      r"(C_{SL}(v) = \sum_{u \in N(v)} \sum_{w \in N(u)} \bigl| \{\, x : d(w, x) \le 2 \,\} \bigr|)",
+      r"(`mode`)",
+      "A high value indicates proximity to a locally well-connected neighbourhood.",
+      r"(Validated against `centiserve::semilocal()`.)"),
+
+  rec("Degree, strength and local connectivity",
+      "ClusterRank Centrality", "clusterrank",
+      "ClusterRank combines neighbour degree information with local clustering.",
+      r"(C_{CR}(v) = c(v) \sum_{u \in N(v)} \bigl( k_u + 1 \bigr), \quad c(v) = \text{local clustering coefficient})",
+      r"(`mode`)",
+      "A high value indicates local connectedness adjusted for clustering-related redundancy.",
+      r"(Validated against `centiserve::clusterrank()`.)"),
+
+  rec("Degree, strength and local connectivity",
+      "Collective Influence Centrality", "collective_influence",
+      "Collective influence combines a node's excess degree with excess degree on a local boundary.",
+      r"(\mathrm{CI}_\ell(v) = (k_v - 1) \sum_{u \,\in\, \partial B(v, \ell)} (k_u - 1), \quad \ell = 2)",
+      r"(via `centrality(measures = ...)`)",
+      "A high value indicates potential importance under the collective influence model.",
+      r"(Based on Morone and Makse's collective influence formulation.)",
+      via_measures = TRUE),
+
+  rec("Degree, strength and local connectivity",
+      "MNC Centrality", "mnc",
+      "Maximum neighbourhood component centrality is the size of the largest connected component in a node's neighbourhood.",
+      r"(\mathrm{MNC}(v) = \max_{C \,\in\, \mathcal{C}(G[N(v)])} |C|)",
+      r"(`mode`)",
+      "A high value indicates that many neighbours belong to one connected local component.",
+      r"(Validated against `centiserve::mnc()`.)"),
+
+  rec("Degree, strength and local connectivity",
+      "DMNC Centrality", "dmnc",
+      "DMNC is a density-adjusted version of maximum neighbourhood component centrality.",
+      r"(\mathrm{DMNC}(v) = \frac{E_c}{N_c^{\,\varepsilon}}, \quad \varepsilon = 1.7)",
+      r"(`mode`, `dmnc_epsilon`)",
+      "A high value indicates a large and dense local neighbour component under the chosen density exponent. Here $E_c$ and $N_c$ are the edges and nodes of the largest component of $G[N(v)]$.",
+      r"(Validated against `centiserve::dmnc()`.)"),
+
+  rec("Degree, strength and local connectivity",
+      "LAC Centrality", "lac",
+      "LAC, or local average connectivity, measures connectivity in a node's neighbourhood.",
+      r"(\mathrm{LAC}(v) = \frac{1}{k_v} \sum_{u \in N(v)} \deg_{G[N(v)]}(u))",
+      r"(`mode`)",
+      "A high value indicates that the node's neighbours form a relatively connected local structure.",
+      r"(Corresponds to CytoHubba-style local average connectivity.)"),
+
+  rec("Degree, strength and local connectivity",
+      "Gravity Centrality", "gravity",
+      "Gravity centrality treats node degree or mass as attracting over graph distance.",
+      r"(G(v) = \sum_{u \ne v,\; d(u,v) < \infty} \frac{k_u \cdot ks(u)}{d(u, v)^2}, \quad ks = \text{k-shell})",
+      r"(via `centrality(measures = ...)`)",
+      "A high value indicates proximity to high-degree nodes under the gravity formula.",
+      r"(Formula verified in package tests against the degree-mass-over-distance definition.)",
+      via_measures = TRUE),
+
+  ## ---- Family 2: Distance and closeness ----
+  rec("Distance and closeness",
+      "Closeness Centrality", "closeness",
+      "Closeness centrality summarises how short a node's paths are to other reachable nodes.",
+      r"(C_C(v) = \frac{1}{\sum_{u \ne v} d(v, u)})",
+      r"(`mode`)",
+      "A high value indicates short graph distances to other nodes. In disconnected graphs, harmonic centrality may be easier to interpret.",
+      r"(Equivalent to `igraph::closeness()` under matching `mode` and weight settings.)"),
+
+  rec("Distance and closeness",
+      "Incloseness Centrality", "incloseness",
+      "Incloseness computes closeness over incoming directed paths.",
+      r"(C_C^{\mathrm{in}}(v) = \frac{1}{\sum_{u \ne v} d(u, v)})",
+      r"(—)",
+      "A high value indicates that other nodes can reach the focal node through short directed paths.",
+      r"(Equivalent to `igraph::closeness(mode = "in")`.)"),
+
+  rec("Distance and closeness",
+      "Outcloseness Centrality", "outcloseness",
+      "Outcloseness computes closeness over outgoing directed paths.",
+      r"(C_C^{\mathrm{out}}(v) = \frac{1}{\sum_{u \ne v} d(v, u)})",
+      r"(—)",
+      "A high value indicates that the focal node can reach other nodes through short directed paths.",
+      r"(Equivalent to `igraph::closeness(mode = "out")`.)"),
+
+  rec("Distance and closeness",
+      "Harmonic Centrality", "harmonic",
+      "Harmonic centrality sums reciprocal shortest-path distances. Unreachable nodes contribute zero.",
+      r"(C_H(v) = \sum_{u \ne v} \frac{1}{d(v, u)})",
+      r"(`mode`)",
+      "A high value indicates broad reach through short paths while handling disconnected components more gracefully than classical closeness.",
+      r"(Equivalent to `igraph::harmonic_centrality()` under matching settings.)"),
+
+  rec("Distance and closeness",
+      "Inharmonic Centrality", "inharmonic",
+      "Inharmonic centrality computes harmonic centrality over incoming directed paths.",
+      r"(C_H^{\mathrm{in}}(v) = \sum_{u \ne v} \frac{1}{d(u, v)})",
+      r"(—)",
+      "A high value indicates that the node is reachable from many others through short directed paths.",
+      r"(Equivalent to `igraph::harmonic_centrality(mode = "in")`.)"),
+
+  rec("Distance and closeness",
+      "Outharmonic Centrality", "outharmonic",
+      "Outharmonic centrality computes harmonic centrality over outgoing directed paths.",
+      r"(C_H^{\mathrm{out}}(v) = \sum_{u \ne v} \frac{1}{d(v, u)})",
+      r"(—)",
+      "A high value indicates that many nodes can be reached from the focal node through short directed paths.",
+      r"(Equivalent to `igraph::harmonic_centrality(mode = "out")`.)"),
+
+  rec("Distance and closeness",
+      "Residual Closeness Centrality", "residual_closeness",
+      "Residual closeness sums $1 / 2^d$ over shortest-path distances (the focal node contributes $1$).",
+      r"(C_R(v) = \sum_{u \in V} 2^{-d(v, u)})",
+      r"(`mode`)",
+      "A high value indicates many close reachable nodes with rapid distance decay.",
+      r"(Validated against `centiserve::closeness.residual()`.)"),
+
+  rec("Distance and closeness",
+      "Dangalchev Closeness Centrality", "dangalchev",
+      "Dangalchev closeness is the residual-closeness distance-decay measure.",
+      r"(C_D(v) = \sum_{u \in V} 2^{-d(v, u)})",
+      r"(`mode`)",
+      "A high value indicates short-distance reach with distant nodes down-weighted.",
+      r"(Implemented as the residual closeness equivalent used in `cograph`.)"),
+
+  rec("Distance and closeness",
+      "Generalized Closeness Centrality", "generalized_closeness",
+      "Generalized closeness sums $\\alpha^d$, where $d$ is the shortest-path distance.",
+      r"(C_G(v) = \sum_{u \in V} \alpha^{\,d(v, u)}, \quad \alpha = 0.5)",
+      r"(`mode`, `decay_parameter`)",
+      "A high value indicates reach under the chosen distance-decay parameter.",
+      r"(Corresponds to generalized distance-decay closeness formulations.)"),
+
+  rec("Distance and closeness",
+      "Harary Centrality", "harary",
+      "Harary centrality sums inverse squared shortest-path distances.",
+      r"(C_{\mathrm{Har}}(v) = \sum_{u \ne v} \frac{1}{d(v, u)^2})",
+      r"(`mode`)",
+      "A high value indicates many nearby reachable nodes, with distant nodes strongly down-weighted.",
+      r"(Based on the Harary distance family.)"),
+
+  rec("Distance and closeness",
+      "Average Distance Centrality", "average_distance",
+      "Average distance centrality summarises mean shortest-path distance from a node (the focal node's $d = 0$ term is included; the centiserve convention divides by $n + 1$).",
+      r"(\bar{d}(v) = \frac{\sum_{u \in V} d(v, u)}{n + 1})",
+      r"(`mode`)",
+      "Lower values indicate shorter average graph distance. The direction of interpretation should be checked because it is a distance quantity.",
+      r"(Validated against the corresponding `centiserve` average-distance measure.)"),
+
+  rec("Distance and closeness",
+      "Barycenter Centrality", "barycenter",
+      "Barycenter centrality is the inverse of the sum of shortest-path distances.",
+      r"(C_{\mathrm{Bary}}(v) = \frac{1}{\sum_{u \ne v} d(v, u)})",
+      r"(`mode`)",
+      "A high value indicates a small total distance to other reachable nodes.",
+      r"(Validated against `centiserve::barycenter()`.)"),
+
+  rec("Distance and closeness",
+      "Wiener Centrality", "wiener",
+      "Wiener centrality records total shortest-path distance from a node (unreachable pairs contribute zero).",
+      r"(W(v) = \sum_{u \ne v} d(v, u))",
+      r"(`mode`)",
+      "Lower values indicate shorter total distance. It is better read as distance burden than influence.",
+      r"(Based on the Wiener index distance formulation.)"),
+
+  rec("Distance and closeness",
+      "Lin Centrality", "lin",
+      "Lin centrality combines reachable nodes and total distance to those nodes.",
+      r"(C_{\mathrm{Lin}}(v) = \frac{|R(v)|^2}{\sum_{u \in R(v)} d(v, u)}, \quad R(v) = \{ u \ne v : d(v,u) < \infty \})",
+      r"(`mode`)",
+      "A high value indicates many reachable nodes through relatively short paths.",
+      r"(Validated against `centiserve::lincent()`.)"),
+
+  rec("Distance and closeness",
+      "Decay Centrality", "decay",
+      "Decay centrality sums reach discounted by distance (the focal node contributes $1$).",
+      r"(C_{\delta}(v) = \sum_{u \in V} \delta^{\,d(v, u)}, \quad \delta = 0.5)",
+      r"(`mode`, `decay_parameter`)",
+      "A high value indicates access to many nodes, especially nearby nodes. The value depends on the decay parameter.",
+      r"(Validated against `centiserve::decay()`.)"),
+
+  rec("Distance and closeness",
+      "Radiality Centrality", "radiality",
+      "Radiality compares node distances to the graph diameter.",
+      r"(\mathrm{Rad}(v) = \frac{\sum_{u \ne v} \bigl( \Delta + 1 - d(v, u) \bigr)}{n - 1})",
+      r"(`mode`)",
+      "A high value indicates short distances to others relative to overall graph diameter.",
+      r"(Validated against `centiserve::radiality()`.)"),
+
+  rec("Distance and closeness",
+      "Gil-Schmidt Centrality", "gilschmidt",
+      "Gil-Schmidt centrality sums reciprocal distances and normalises by graph size.",
+      r"(C_{GS}(v) = \frac{1}{n - 1} \sum_{u \ne v} \frac{1}{d(v, u)})",
+      r"(`mode`)",
+      "A high value indicates broad reciprocal-distance access to the network.",
+      r"(Validated against `sna` Gil-Schmidt style centrality.)"),
+
+  rec("Distance and closeness",
+      "Integration Centrality", "integration",
+      "Integration centrality is a distance-based measure of how integrated a node is within the graph.",
+      r"(\mathrm{Int}(v) = \sum_{u \ne v} \left( 1 - \frac{d(v, u) - 1}{d_{\max}} \right), \quad d(v,u) = d_{\max} + 1 \text{ if unreachable})",
+      r"(`mode`)",
+      "A high value indicates broad distance-based access to the network.",
+      r"(Implemented as a native distance-based centrality in `cograph`.)"),
+
+  rec("Distance and closeness",
+      "Eccentricity Centrality", "eccentricity",
+      "Eccentricity is the maximum shortest-path distance from a node to any reachable node.",
+      r"(\varepsilon(v) = \max_{u \in V} d(v, u))",
+      r"(`mode`)",
+      "Lower eccentricity generally indicates smaller worst-case distance. A high value means at least one reachable node is far away.",
+      r"(Equivalent to `igraph::eccentricity()`.)"),
+
+  rec("Distance and closeness",
+      "Ineccentricity Centrality", "ineccentricity",
+      "Ineccentricity computes eccentricity over incoming directed paths.",
+      r"(\varepsilon^{\mathrm{in}}(v) = \max_{u \in V} d(u, v))",
+      r"(—)",
+      "It summarises the largest directed distance from other nodes into the focal node.",
+      r"(Equivalent to `igraph::eccentricity(mode = "in")`.)"),
+
+  rec("Distance and closeness",
+      "Outeccentricity Centrality", "outeccentricity",
+      "Outeccentricity computes eccentricity over outgoing directed paths.",
+      r"(\varepsilon^{\mathrm{out}}(v) = \max_{u \in V} d(v, u))",
+      r"(—)",
+      "It summarises the largest directed distance from the focal node to reachable others.",
+      r"(Equivalent to `igraph::eccentricity(mode = "out")`.)"),
+
+  rec("Distance and closeness",
+      "Closeness Vitality", "closeness_vitality",
+      "Closeness vitality measures how total network distance changes when a node is removed, using the Wiener index $W(G) = \\sum_{s, t} d(s, t)$.",
+      r"(\mathrm{CV}(v) = W(G) - W(G \setminus v))",
+      r"(`mode`)",
+      "A high value indicates that removing the node substantially changes shortest-path structure.",
+      r"(Corresponds to NetworkX closeness vitality conventions.)"),
+
+  rec("Distance and closeness",
+      "Entropy Centrality", "entropy",
+      "Entropy centrality measures the change in graph entropy associated with a node, from the distribution of finite shortest-path distances after the node is removed.",
+      r"(H(v) = -\sum_{w} Y_w \log_2 Y_w, \quad Y_w = \frac{|\{ x : d(w, x) < \infty \}|}{\sum_{w'} |\{ x : d(w', x) < \infty \}|})",
+      r"(`mode`)",
+      "A high value indicates strong contribution under the graph entropy definition being used.",
+      r"(Validated against `centiserve::entropy()`.)"),
+
+  rec("Distance and closeness",
+      "Centroid Centrality", "centroid",
+      "Centroid centrality compares distance dominance between pairs of nodes.",
+      r"(f(v, u) = \gamma(v, u) - \gamma(u, v), \quad \gamma(v, u) = |\{ w : d(v, w) < d(u, w) \}|, \quad C_{\mathrm{cen}}(v) = \min_{u \ne v} f(v, u))",
+      r"(`mode`)",
+      "A high value indicates a favourable position in pairwise distance comparisons.",
+      r"(Implemented natively because some reference implementations have known edge-case issues.)"),
+
+  ## ---- Family 3: Shortest-path brokerage and flow ----
+  rec("Shortest-path brokerage and flow",
+      "Betweenness Centrality", "betweenness",
+      "Betweenness centrality measures how often a node lies on shortest paths between other pairs of nodes.",
+      r"(C_B(v) = \sum_{s \ne v \ne t} \frac{\sigma_{st}(v)}{\sigma_{st}})",
+      r"(—)",
+      "A high value is consistent with a bridge or brokerage position under the shortest-path model. It is not direct evidence of intentional mediation.",
+      r"(Equivalent to `igraph::betweenness()` under matching directedness, weights, and normalization conventions.)"),
+
+  rec("Shortest-path brokerage and flow",
+      "Stress Centrality", "stress",
+      "Stress centrality counts shortest paths passing through a node without fractional normalization across tied paths.",
+      r"(C_S(v) = \sum_{s \ne v \ne t} \sigma_{st}(v))",
+      r"(—)",
+      "A high value indicates that many shortest paths include the node.",
+      r"(Validated against `sna::stresscent()`.)"),
+
+  rec("Shortest-path brokerage and flow",
+      "Load Centrality", "load",
+      "Load centrality distributes shortest-path load across alternative shortest routes: at each branch point a unit packet is split evenly among next hops on shortest paths.",
+      r"(C_L(v) = \sum_{s \ne v \ne t} \mathrm{load}_{st}(v))",
+      r"(—)",
+      "A high value indicates that a node carries a large share of geodesic routing load.",
+      r"(Validated against `sna::loadcent()`.)"),
+
+  rec("Shortest-path brokerage and flow",
+      "Bottleneck Centrality", "bottleneck",
+      "Bottleneck centrality counts cases where a node is critical in shortest-path tree structures.",
+      r"(\mathrm{BN}(v) = \sum_{s \in V} p_s(v), \quad p_s(v) = 1 \text{ if } v \text{ carries} > \tfrac{n}{4} \text{ of the shortest-path tree } T_s)",
+      r"(`mode`)",
+      "A high value indicates frequent bottleneck position in local shortest-path trees.",
+      r"(Validated against `centiserve::bottleneck()`.)"),
+
+  rec("Shortest-path brokerage and flow",
+      "Bridging Centrality", "bridging",
+      "Bridging centrality combines betweenness with a bridging coefficient.",
+      r"(\mathrm{Br}(v) = C_B(v) \cdot \beta(v), \quad \beta(v) = \frac{1/k_v}{\sum_{u \in N(v)} 1/k_u})",
+      r"(—)",
+      "A high value indicates a possible bridge position between locally distinct areas.",
+      r"(Based on bridging centrality formulations by Hwang and colleagues.)"),
+
+  rec("Shortest-path brokerage and flow",
+      "Local Bridging Centrality", "local_bridging",
+      "Local bridging centrality measures bridge-like position using local neighbourhood information.",
+      r"(\mathrm{LBr}(v) = \frac{1}{k_v} \cdot \beta(v), \quad \beta(v) = \frac{1/k_v}{\sum_{u \in N(v)} 1/k_u})",
+      r"(—)",
+      "A high value indicates that the node connects neighbours that are not strongly connected through local alternatives.",
+      r"(Based on local bridging coefficient formulations.)"),
+
+  rec("Shortest-path brokerage and flow",
+      "Percolation Centrality", "percolation",
+      "Percolation centrality weights shortest-path brokerage by node states in a percolation process.",
+      r"(\mathrm{PC}(v) = \frac{1}{n - 2} \sum_{s \ne v \ne t} \frac{\sigma_{st}(v)}{\sigma_{st}} \cdot \frac{x_s}{\sum_{i \ne v} x_i})",
+      r"(`states`)",
+      "A high value indicates state-dependent path importance under the supplied state vector $x$.",
+      r"(Based on Piraveenan, Prokopenko, and Hossain's percolation centrality; equivalent to betweenness-like behavior when states are equal.)"),
+
+  rec("Shortest-path brokerage and flow",
+      "Flow Betweenness Centrality", "flow_betweenness",
+      "Flow betweenness measures brokerage using maximum flow rather than only shortest paths.",
+      r"(C_{FB}(v) = \sum_{s \ne v \ne t} f_{st}(v), \quad f_{st}(v) = \text{flow through } v \text{ in a max } s\text{-}t \text{ flow})",
+      r"(—)",
+      "A high value indicates importance for potential flow capacity between other nodes under the graph model.",
+      r"(Validated against `sna::flowbet()`.)"),
+
+  rec("Shortest-path brokerage and flow",
+      "Current-Flow Betweenness Centrality", "current_flow_betweenness",
+      "Current-flow betweenness measures how much electrical current between node pairs passes through a node.",
+      r"(C_{CFB}(v) = \frac{1}{(n - 1)(n - 2)} \sum_{s \ne t} \tau_{st}(v), \quad \tau_{st}(v) = \text{current through } v)",
+      r"(—)",
+      "A high value indicates an intermediary position under an all-path current-flow model.",
+      r"(Corresponds to NetworkX current-flow betweenness centrality.)"),
+
+  rec("Shortest-path brokerage and flow",
+      "Current-Flow Closeness Centrality", "current_flow_closeness",
+      "Current-flow closeness uses electrical-network (effective-resistance) distances rather than only shortest paths.",
+      r"(C_{CFC}(v) = \frac{n - 1}{\sum_{u \ne v} R_{vu}}, \quad R_{vu} = \text{effective resistance between } v \text{ and } u)",
+      r"(—)",
+      "A high value indicates closeness under an all-path flow model. It generally requires connected graphs.",
+      r"(Corresponds to NetworkX current-flow closeness centrality.)"),
+
+  ## ---- Family 4: Spectral, walk and influence ----
+  rec("Spectral, walk and influence",
+      "Eigenvector Centrality", "eigenvector",
+      "Eigenvector centrality gives high scores to nodes connected to other high-scored nodes.",
+      r"(A\,\mathbf{x} = \lambda_{\max}\,\mathbf{x}, \quad C_E(v) = x_v)",
+      r"(—)",
+      "A high value indicates embeddedness in a central neighbourhood. It should not be interpreted as influence unless the relation supports that interpretation.",
+      r"(Equivalent to `igraph::eigen_centrality()`.)"),
+
+  rec("Spectral, walk and influence",
+      "PageRank Centrality", "pagerank",
+      "PageRank is a damped random-walk centrality. Nodes score highly when a random walker reaches them often.",
+      r"(\mathrm{PR}(v) = \frac{1 - \alpha}{n} + \alpha \sum_{u \,:\, u \to v} \frac{\mathrm{PR}(u)}{k_u^{\mathrm{out}}}, \quad \alpha = 0.85)",
+      r"(`damping`, `personalized`)",
+      "A high value indicates random-walk prominence under the chosen damping, direction, and weight conventions.",
+      r"(Equivalent to `igraph::page_rank()` under matching parameters; original method by Page, Brin, Motwani, and Winograd.)"),
+
+  rec("Spectral, walk and influence",
+      "Authority Centrality", "authority",
+      "Authority centrality is part of HITS. Authorities are nodes pointed to by good hubs.",
+      r"(\mathbf{a} = A^{\top} \mathbf{h}, \quad \mathbf{h} = A\,\mathbf{a} \;\Rightarrow\; \mathbf{a} = \text{principal eigenvector of } A^{\top} A)",
+      r"(—)",
+      "A high value indicates incoming support from nodes that point to good authorities.",
+      r"(Equivalent to `igraph::authority_score()`; based on Kleinberg's HITS algorithm.)"),
+
+  rec("Spectral, walk and influence",
+      "Hub Centrality", "hub",
+      "Hub centrality is the HITS counterpart to authority. Hubs point to good authorities.",
+      r"(\mathbf{h} = \text{principal eigenvector of } A\,A^{\top})",
+      r"(—)",
+      "A high value indicates outgoing ties to high-authority nodes.",
+      r"(Equivalent to `igraph::hub_score()`; based on Kleinberg's HITS algorithm.)"),
+
+  rec("Spectral, walk and influence",
+      "SALSA Centrality", "salsa",
+      "SALSA is a stochastic link-analysis method related to HITS for directed graphs.",
+      r"(\mathbf{a} = \text{principal eigenvector of } A_c^{\top} A_r, \quad A_r, A_c = \text{row- and column-normalised } A)",
+      r"(—)",
+      "A high value indicates directed authority under the SALSA random-walk model.",
+      r"(Validated against `centiserve::salsa()` where applicable.)"),
+
+  rec("Spectral, walk and influence",
+      "LeaderRank Centrality", "leaderrank",
+      "LeaderRank is a PageRank-like directed ranking method that adds a ground node $g$ linked both ways to every node; the stationary random-walk mass on $g$ is then redistributed equally.",
+      r"(\mathbf{s}^{*} = \text{stationary distribution of the walk on } G \cup \{g\}, \quad C(v) = s^{*}_v + \tfrac{1}{n} s^{*}_g)",
+      r"(—)",
+      "A high value indicates directed prestige under the LeaderRank model.",
+      r"(Validated against `centiserve::leaderrank()` where applicable.)"),
+
+  rec("Spectral, walk and influence",
+      "Alpha Centrality", "alpha",
+      "Alpha centrality is an eigenvector-like measure that includes exogenous input.",
+      r"(\mathbf{x} = (I - \alpha A^{\top})^{-1} \mathbf{e})",
+      r"(`mode`)",
+      "A high value indicates recursive prominence under the chosen attenuation and exogenous assumptions.",
+      r"(Equivalent to `igraph::alpha_centrality()` under matching parameters.)"),
+
+  rec("Spectral, walk and influence",
+      "Bonacich Power Centrality", "power",
+      "Bonacich power centrality scores nodes using the centrality of their neighbours and a parameter $\\beta$ controlling dependence.",
+      r"(\mathbf{c}(\alpha, \beta) = \alpha (I - \beta A)^{-1} A\,\mathbf{1})",
+      r"(`mode`)",
+      "A high value indicates a favourable recursive position under the selected Bonacich parameterization.",
+      r"(Equivalent to `igraph::power_centrality()` under matching parameters.)"),
+
+  rec("Spectral, walk and influence",
+      "Katz Centrality", "katz",
+      "Katz centrality counts walks from all nodes to a focal node, attenuating longer walks.",
+      r"(\mathbf{x} = (I - \alpha A^{\top})^{-1} \mathbf{1}, \quad \alpha = 0.1)",
+      r"(`katz_alpha`)",
+      "A high value indicates that many short and longer walks reach the node. The attenuation parameter must be valid for the graph.",
+      r"(Validated against `igraph::alpha_centrality(exo = 1)` and NetworkX Katz centrality conventions.)"),
+
+  rec("Spectral, walk and influence",
+      "Hubbell Centrality", "hubbell",
+      "Hubbell centrality is an input-output centrality where status is recursively reinforced through ties.",
+      r"(\mathbf{x} = (I - w W)^{-1} \mathbf{1}, \quad w = 0.5,\; W = \text{weighted adjacency})",
+      r"(`hubbell_weight`)",
+      "A high value indicates recursive prominence under the chosen weight factor. Some parameter settings are not solvable.",
+      r"(Based on Hubbell's input-output centrality.)"),
+
+  rec("Spectral, walk and influence",
+      "Subgraph Centrality", "subgraph",
+      "Subgraph centrality measures participation in closed walks, with shorter closed walks weighted more strongly.",
+      r"(\mathrm{SC}(v) = \sum_{k=0}^{\infty} \frac{(A^k)_{vv}}{k!} = (e^{A})_{vv})",
+      r"(—)",
+      "A high value indicates embeddedness in many closed walk structures.",
+      r"(Equivalent to `igraph::subgraph_centrality()`; based on Estrada's formulation.)"),
+
+  rec("Spectral, walk and influence",
+      "Laplacian Centrality", "laplacian",
+      "Laplacian centrality measures a node's contribution to the graph's Laplacian energy.",
+      r"(C_L(v) = \frac{E_L(G) - E_L(G \setminus v)}{E_L(G)}, \quad E_L(G) = \sum_i \mu_i^2 \;\; (\mu_i = \text{Laplacian eigenvalues}))",
+      r"(—)",
+      "A high value indicates a large local structural contribution under the Laplacian energy definition.",
+      r"(Matches NetworkX and `centiserve::laplacian()` conventions.)"),
+
+  rec("Spectral, walk and influence",
+      "Communicability Centrality", "communicability",
+      "Communicability centrality uses the matrix exponential to summarise walk-based communication potential.",
+      r"(C_{\mathrm{Comm}}(v) = \sum_{u \in V} (e^{A})_{vu})",
+      r"(—)",
+      "A high value indicates many walk-based routes to other nodes, with shorter walks weighted more strongly.",
+      r"(Based on Estrada communicability.)"),
+
+  rec("Spectral, walk and influence",
+      "Communicability Betweenness Centrality", "communicability_betweenness",
+      "Communicability betweenness measures walk-based communicability between other pairs through a node.",
+      r"(C_{CB}(v) = \frac{1}{(n-1)(n-2)} \sum_{s \ne t \ne v} \frac{G_{st} - G_{st}^{(v)}}{G_{st}}, \quad G = e^{A})",
+      r"(—)",
+      "A high value indicates walk-based intermediary position, not limited to shortest paths. $G^{(v)}$ is computed with $v$ removed.",
+      r"(Based on Estrada, Higham, and Hatano's communicability betweenness.)"),
+
+  rec("Spectral, walk and influence",
+      "Random Walk Centrality", "random_walk",
+      "Random walk centrality uses expected random-walk access times rather than shortest-path distances.",
+      r"(C_{RW}(v) = \frac{1}{\sum_{u \ne v} \tilde{m}_{vu}}, \quad \tilde{m}_{vu} = \tfrac{1}{2}\bigl( m_{vu} + m_{uv} \bigr))",
+      r"(—)",
+      "A high value indicates that the node is reached efficiently under a random-walk process. $m_{uv}$ is the mean first-passage time.",
+      r"(Corresponds to random-walk centrality based on mean first-passage or resistance-distance formulations.)"),
+
+  rec("Spectral, walk and influence",
+      "Markov Centrality", "markov",
+      "Markov centrality is based on mean first-passage times in a Markov process on the graph.",
+      r"(C_{\mathrm{Mk}}(v) = \frac{1}{\frac{1}{n} \sum_{u} m_{uv}}, \quad m_{uv} = \text{mean first-passage time } u \to v)",
+      r"(—)",
+      "A high value indicates that the node is reached quickly on average under the Markov process.",
+      r"(Validated against `centiserve::markovcent()`.)"),
+
+  rec("Spectral, walk and influence",
+      "Second-Order Centrality", "second_order",
+      "Second-order centrality summarises variability in random-walk return times.",
+      r"(\mathrm{SO}(v) = \operatorname{sd}_{u}\bigl( m_{uv} \bigr))",
+      r"(via `centrality(measures = ...)`)",
+      "The statistic describes random-walk regularity rather than direct connectivity (lower is more central).",
+      r"(Rank behavior is checked against NetworkX second-order centrality in package tests.)",
+      via_measures = TRUE),
+
+  rec("Spectral, walk and influence",
+      "Information Centrality", "information",
+      "Information centrality measures centrality through resistance-distance or information-flow ideas (Stephenson and Zelen).",
+      r"(C_I(v) = \left( C_{vv} + \frac{T - 2 R_v}{n} \right)^{-1}, \quad C = (D - A + J)^{-1},\; T = \operatorname{tr} C,\; R_v = \textstyle\sum_j C_{vj})",
+      r"(—)",
+      "A high value indicates a central position under the information-flow model.",
+      r"(Based on Stephenson and Zelen's information centrality.)"),
+
+  rec("Spectral, walk and influence",
+      "Nonbacktracking Centrality", "nonbacktracking",
+      "Nonbacktracking centrality scores nodes using walks that do not immediately return along the edge just traversed (the Hashimoto matrix $B$).",
+      r"(B_{(i \to j),\,(k \to l)} = \delta_{jk}\,(1 - \delta_{il}), \quad C(v) \propto \text{aggregated leading eigenvector of } B)",
+      r"(via `centrality(measures = ...)`)",
+      "A high value indicates walk-based prominence after reducing immediate backtracking inflation.",
+      r"(Validated against NetworkX-style nonbacktracking behavior in package tests.)",
+      via_measures = TRUE),
+
+  rec("Spectral, walk and influence",
+      "Diffusion Centrality", "diffusion",
+      "Diffusion centrality estimates reach through a diffusion process over the graph.",
+      r"(\mathbf{DC} = \sum_{t=1}^{T} (\lambda A)^{t}\,\mathbf{1}, \quad \lambda = 1)",
+      r"(`mode`, `lambda`)",
+      "A high value indicates a structurally favourable position for spreading under the selected diffusion model.",
+      r"(Validated against `centiserve::diffusion()` where applicable and TNA-style diffusion conventions for transition networks.)"),
+
+  rec("Spectral, walk and influence",
+      "Infection Centrality", "infection",
+      "Infection centrality estimates spreading potential through infection-style self-avoiding walks with attenuation.",
+      r"(\mathrm{Inf}(v) = \sum_{d=1}^{L} \beta^{\,d+1} (1 - \mu)^{d}\, w_d(v), \quad \beta = 0.8,\; \mu = 0,\; L = 6)",
+      r"(via `centrality(measures = ...)`)",
+      "A high value indicates a favourable position under the assumed infection process, not observed contagion. $w_d(v)$ counts length-$d$ self-avoiding walks from $v$.",
+      r"(Implemented according to infection centrality formulas used in the network centrality literature.)",
+      via_measures = TRUE),
+
+  rec("Spectral, walk and influence",
+      "VoteRank Centrality", "voterank",
+      "VoteRank is an iterative voting algorithm for ranking spreader candidates: each round the highest-voted node is selected, its voting ability is zeroed, and its neighbours' voting abilities are reduced.",
+      r"()",
+      r"(—)",
+      "A high value indicates early selection by the VoteRank rule. It is a heuristic model result, not observed spread.",
+      r"(Corresponds to NetworkX VoteRank behavior.)"),
+
+  rec("Spectral, walk and influence",
+      "Expected Influence 1-Step", "expected_influence_1",
+      "Expected influence 1-step sums signed edge weights adjacent to a node.",
+      r"(\mathrm{EI}_1(v) = \sum_{u \in V} W_{vu}, \quad W = \text{signed weight matrix})",
+      r"(`mode`)",
+      "A high positive value indicates strong positive immediate signed connectivity. This is mainly meaningful for signed networks.",
+      r"(Based on Robinaugh, Millner, and McNally's expected influence measure.)"),
+
+  rec("Spectral, walk and influence",
+      "Expected Influence 2-Step", "expected_influence_2",
+      "Expected influence 2-step extends signed influence to one- and two-step paths.",
+      r"(\mathrm{EI}_2(v) = \mathrm{EI}_1(v) + \sum_{u \in V} W_{vu}\,\mathrm{EI}_1(u))",
+      r"(`mode`)",
+      "A high positive value indicates positive signed connectivity through direct and indirect paths. Interpretation requires a signed network.",
+      r"(Based on Robinaugh, Millner, and McNally's expected influence measure.)"),
+
+  rec("Spectral, walk and influence",
+      "Spanning Tree Centrality", "spanning_tree",
+      "Spanning tree centrality summarises a node's contribution across spanning-tree structures via the Laplacian pseudoinverse $L^{+}$.",
+      r"(\mathrm{ST}(v) = \frac{1}{L^{+}_{vv}}, \quad L^{+} = \text{Moore-Penrose pseudoinverse of } L)",
+      r"(via `centrality(measures = ...)`)",
+      "A high value indicates structural participation across many tree-like ways of connecting the graph.",
+      r"(Based on matrix-tree theorem centrality formulations.)",
+      via_measures = TRUE),
+
+  ## ---- Family 5: Neighbourhood structure and cohesion ----
+  rec("Neighbourhood structure and cohesion",
+      "Transitivity Centrality", "transitivity",
+      "Transitivity measures local clustering: whether a node's neighbours are connected to each other.",
+      r"(c(v) = \frac{2\, t_v}{k_v (k_v - 1)}, \quad t_v = \text{number of triangles through } v)",
+      r"(`transitivity_type`, `isolates`)",
+      "A high value indicates locally closed neighbourhoods. This can represent cohesion or redundancy, depending on the relation.",
+      r"(Equivalent to `igraph::transitivity()` for standard types; `cograph` also supports weighted variants.)"),
+
+  rec("Neighbourhood structure and cohesion",
+      "Constraint Centrality", "constraint",
+      "Constraint measures how redundant a node's contacts are, following Burt's structural holes framework.",
+      r"(C(v) = \sum_{u \in N(v)} \left( p_{vu} + \sum_{q \ne v, u} p_{vq}\, p_{qu} \right)^2, \quad p_{vu} = \text{proportional tie strength})",
+      r"(—)",
+      "A high value indicates a locally constrained ego network. Lower constraint may indicate structural holes, depending on theory and relation type.",
+      r"(Equivalent to `igraph::constraint()`.)"),
+
+  rec("Neighbourhood structure and cohesion",
+      "Effective Size Centrality", "effective_size",
+      "Effective size estimates the number of nonredundant contacts in a node's ego network (Burt).",
+      r"(\mathrm{ES}(v) = k_v - \frac{1}{k_v} \sum_{u \in N(v)} |N(v) \cap N(u)|)",
+      r"(—)",
+      "A high value indicates relatively nonoverlapping contacts.",
+      r"(Validated against `influenceR::effective_size()`.)"),
+
+  rec("Neighbourhood structure and cohesion",
+      "Topological Coefficient Centrality", "topological_coefficient",
+      "Topological coefficient centrality measures shared-neighbour overlap.",
+      r"(T(v) = \frac{\operatorname{avg}_{u}\, J(v, u)}{k_v}, \quad J(v, u) = \text{number of neighbours shared by } v \text{ and } u)",
+      r"(—)",
+      "A high value indicates neighbourhood overlap or topological similarity.",
+      r"(Validated against `centiserve::topocoefficient()`.)"),
+
+  rec("Neighbourhood structure and cohesion",
+      "Diversity Centrality", "diversity",
+      "Diversity centrality measures entropy in the distribution of edge weights around a node.",
+      r"(\mathrm{Div}(v) = \frac{-\sum_{u \in N(v)} p_{vu} \log_2 p_{vu}}{\log_2 k_v}, \quad p_{vu} = \frac{w_{vu}}{\sum_{u'} w_{vu'}})",
+      r"(—)",
+      "A high value indicates that weighted ties are relatively evenly distributed rather than concentrated.",
+      r"(Validated against `igraph::diversity()`.)"),
+
+  rec("Neighbourhood structure and cohesion",
+      "Cross-Clique Centrality", "cross_clique",
+      "Cross-clique centrality counts how many cliques contain a node.",
+      r"(X(v) = |\{\, Q \in \mathcal{Q}(G) : v \in Q \,\}|, \quad \mathcal{Q}(G) = \text{set of cliques})",
+      r"(—)",
+      "A high value indicates participation in many fully connected local groups.",
+      r"(Validated against `centiserve::crossclique()`.)"),
+
+  rec("Neighbourhood structure and cohesion",
+      "Coreness Centrality", "coreness",
+      "Coreness assigns nodes to k-core shells.",
+      r"(C_{\mathrm{core}}(v) = \max \{\, k : v \in (k\text{-core of } G) \,\})",
+      r"(`mode`)",
+      "A high value indicates membership in a dense core. It does not imply brokerage or short paths to all nodes.",
+      r"(Equivalent to `igraph::coreness()`.)"),
+
+  rec("Neighbourhood structure and cohesion",
+      "Onion Centrality", "onion",
+      "Onion centrality assigns nodes to layers from onion decomposition, a fine-grained extension of k-core decomposition.",
+      r"(\text{layer}(v) = \text{iteration index at which } v \text{ is peeled by the onion decomposition})",
+      r"(via `centrality(measures = ...)`)",
+      "A high layer indicates that the node remains until later stages of the peeling process.",
+      r"(Validated against NetworkX onion layer behavior in package tests.)",
+      via_measures = TRUE),
+
+  rec("Neighbourhood structure and cohesion",
+      "K-Reach Centrality", "kreach",
+      "K-reach centrality counts nodes reachable within path length $k$.",
+      r"(C_{kR}(v) = |\{\, u : 0 < d(v, u) \le k \,\}|, \quad k = 3)",
+      r"(`mode`, `k`)",
+      "A high value indicates broad reach within a fixed local radius. Results depend on the chosen $k$.",
+      r"(Validated against k-path reach conventions.)"),
+
+  ## ---- Family 6: Directed prestige and hierarchy ----
+  rec("Directed prestige and hierarchy",
+      "Prestige Domain Centrality", "prestige_domain",
+      "Prestige domain centrality counts how many nodes can reach a focal node in a directed graph.",
+      r"(P(v) = |\{\, u \ne v : u \rightsquigarrow v \,\}|)",
+      r"(—)",
+      "A high value indicates a large incoming reach domain.",
+      r"(Based on Wasserman-Faust prestige concepts and `sna`-style prestige measures.)"),
+
+  rec("Directed prestige and hierarchy",
+      "Prestige Domain Proximity Centrality", "prestige_domain_proximity",
+      "Prestige domain proximity measures how close nodes in the prestige domain are to the focal node.",
+      r"(C(v) = \frac{|R^{-}(v)|^2}{(n - 1) \sum_{u \in R^{-}(v)} d(u, v)}, \quad R^{-}(v) = \{ u \ne v : u \rightsquigarrow v \})",
+      r"(—)",
+      "A high value indicates that many predecessors can reach the node through short directed paths.",
+      r"(Based on Wasserman-Faust prestige proximity concepts.)"),
+
+  rec("Directed prestige and hierarchy",
+      "Local Reaching Centrality", "reaching_local",
+      "Local reaching centrality measures how much of the network is reachable from a node through directed paths.",
+      r"(\mathrm{LRC}(v) = \frac{|\{\, u : v \rightsquigarrow u \,\}|}{n - 1})",
+      r"(`mode`)",
+      "A high value indicates broad directed reach from the node.",
+      r"(Matches `networkx.local_reaching_centrality` in package equivalence tests.)"),
+
+  rec("Directed prestige and hierarchy",
+      "Pairwise Disconnectivity Centrality", "pairwisedis",
+      "Pairwise disconnectivity measures how directed reachability between pairs changes when a node is removed.",
+      r"(\mathrm{Dis}(v) = \frac{P(G) - P(G \setminus v)}{P(G)}, \quad P(G) = |\{ (s, t) : s \rightsquigarrow t \}|)",
+      r"(—)",
+      "A high value indicates structural importance for preserving directed reachability.",
+      r"(Validated against reference implementations in package tests.)"),
+
+  rec("Directed prestige and hierarchy",
+      "Trophic Level Centrality", "trophic_level",
+      "Trophic level estimates hierarchical position in a directed flow network.",
+      r"((I - W)\,\mathbf{s} = \mathbf{1}, \quad W_{ji} = \frac{a_{ij}}{k_j^{\mathrm{in}}}, \quad \text{basal nodes have level } 1)",
+      r"(via `centrality(measures = ...)`)",
+      "A higher value indicates a higher position in the inferred directed hierarchy. This is appropriate only for flow-like relations.",
+      r"(Checked against NetworkX trophic-level behavior in package tests.)",
+      via_measures = TRUE),
+
+  ## ---- Family 7: Community and group-based ----
+  rec("Community and group-based",
+      "Participation Coefficient", "participation",
+      "Participation coefficient measures how evenly a node's ties are distributed across communities.",
+      r"(P(v) = 1 - \sum_{m} \left( \frac{k_v^{(m)}}{k_v} \right)^2, \quad k_v^{(m)} = \text{ties from } v \text{ to module } m)",
+      r"(`membership`, `mode`)",
+      "A high value indicates ties spread across multiple communities. It requires a meaningful membership vector.",
+      r"(Validated against `brainGraph` participation coefficient conventions.)",
+      grp = TRUE),
+
+  rec("Community and group-based",
+      "Within-Module Z Centrality", "within_module_z",
+      "Within-module z centrality standardises a node's within-community degree against other nodes in the same community.",
+      r"(z(v) = \frac{k_v^{(m_v)} - \mu_{m_v}}{\sigma_{m_v}}, \quad m_v = \text{community of } v)",
+      r"(`membership`, `mode`)",
+      "A high value indicates unusually high within-module connectivity.",
+      r"(Validated against `brainGraph` within-module z-score conventions.)",
+      grp = TRUE),
+
+  rec("Community and group-based",
+      "Gateway Centrality", "gateway",
+      "Gateway centrality measures inter-community brokerage weighted by centrality of communities or nodes involved.",
+      r"(g(v) = 1 - \frac{1}{k_v^2} \sum_{s} k_{vs}^2\, \gamma_{vs}^2, \quad k_{vs} = \text{ties from } v \text{ to module } s)",
+      r"(`membership`, `mode`)",
+      "A high value indicates a structurally prominent position between communities.",
+      r"(Validated against `brainGraph::gateway()` conventions.)",
+      grp = TRUE),
+
+  rec("Community and group-based",
+      "Brokerage Coordinator Centrality", "brokerage_coordinator",
+      "Coordinator brokerage occurs when a node mediates between two nodes in its own group. It counts open directed two-paths $a \\to v \\to c$ (with no direct $a \\to c$).",
+      r"(\mathrm{Coord}(v) = |\{\, a \to v \to c : g(a) = g(v) = g(c) \,\}|)",
+      r"(`membership`)",
+      "A high value indicates within-group mediation under the supplied membership vector.",
+      r"(Based on Gould-Fernandez brokerage roles.)",
+      grp = TRUE),
+
+  rec("Community and group-based",
+      "Brokerage Itinerant Centrality", "brokerage_itinerant",
+      "Itinerant brokerage occurs when a node mediates between two nodes in another group.",
+      r"(\mathrm{Itin}(v) = |\{\, a \to v \to c : g(a) = g(c) \ne g(v) \,\}|)",
+      r"(`membership`)",
+      "A high value indicates brokerage among members outside the node's own group.",
+      r"(Based on Gould-Fernandez brokerage roles.)",
+      grp = TRUE),
+
+  rec("Community and group-based",
+      "Brokerage Representative Centrality", "brokerage_representative",
+      "Representative brokerage occurs when a node mediates from its own group to another group.",
+      r"(\mathrm{Rep}(v) = |\{\, a \to v \to c : g(a) = g(v) \ne g(c) \,\}|)",
+      r"(`membership`)",
+      "A high value indicates outward brokerage from the node's group.",
+      r"(Based on Gould-Fernandez brokerage roles.)",
+      grp = TRUE),
+
+  rec("Community and group-based",
+      "Brokerage Gatekeeper Centrality", "brokerage_gatekeeper",
+      "Gatekeeper brokerage occurs when a node mediates from another group into its own group.",
+      r"(\mathrm{Gate}(v) = |\{\, a \to v \to c : g(a) \ne g(v) = g(c) \,\}|)",
+      r"(`membership`)",
+      "A high value indicates inward brokerage into the node's group.",
+      r"(Based on Gould-Fernandez brokerage roles.)",
+      grp = TRUE),
+
+  rec("Community and group-based",
+      "Brokerage Liaison Centrality", "brokerage_liaison",
+      "Liaison brokerage occurs when a node mediates between two groups, neither of which is its own.",
+      r"(\mathrm{Liai}(v) = |\{\, a \to v \to c : g(a),\, g(v),\, g(c) \text{ all distinct} \,\}|)",
+      r"(`membership`)",
+      "A high value indicates between-group brokerage outside the node's own group.",
+      r"(Based on Gould-Fernandez brokerage roles.)",
+      grp = TRUE)
+)
+
+family_order <- c(
+  "Degree, strength and local connectivity",
+  "Distance and closeness",
+  "Shortest-path brokerage and flow",
+  "Spectral, walk and influence",
+  "Neighbourhood structure and cohesion",
+  "Directed prestige and hierarchy",
+  "Community and group-based"
+)
+
+emit_measure <- function(r) {
+  cat("\n### ", r$title, " {#cent-", r$key, "}\n\n", sep = "")
+  cat(r$concept, "\n\n", sep = "")
+  if (nzchar(r$math)) cat("$$\n", r$math, "\n$$\n\n", sep = "")
+  cat("**Meaning.** ", r$meaning, "\n\n", sep = "")
+  cat("```r\n", r$example, "\n```\n\n", sep = "")
+  cat("**Equivalence reference.** ", r$reference, "\n\n", sep = "")
+}
+
+emit_family <- function(fam) {
+  cat("\n## ", fam, "\n\n", sep = "")
+  for (r in records) if (identical(r$family, fam)) emit_measure(r)
+}
+```
+
+## Catalogue index
+
+```{r index, results = 'asis', echo = FALSE}
+cat("<div class=\"cg-fam-index\">\n\n")
+for (fam in family_order) {
+  cat("**", fam, "**\n\n", sep = "")
+  items <- Filter(function(r) identical(r$family, fam), records)
+  links <- vapply(items, function(r) sprintf("[%s](#cent-%s)", r$title, r$key),
+                  character(1))
+  cat(paste(links, collapse = " · "), "\n\n")
+}
+cat("</div>\n\n")
+```
+
+```{r families_1_6, results = 'asis', echo = FALSE}
+for (fam in family_order[1:6]) emit_family(fam)
+```
+
+The measures below need a **community membership vector**. Build one with
+`detect_communities()` (`walktrap` works on the directed `student_interactions`
+graph), then pass it as `membership =`:
+
+```{r groups}
+comm   <- detect_communities(student_interactions, method = "walktrap")
+groups <- setNames(comm$community, comm$node)
+centrality_participation(student_interactions, membership = groups)
+```
+
+```{r families_7, results = 'asis', echo = FALSE}
+emit_family(family_order[7])
+```
+
+## Argument catalogue {#argument-catalogue}
+
+All measures are reachable through the single `centrality()` verb. These
+arguments control how they are computed. Measure-specific knobs are repeated in
+each measure's **Arguments** line.
+
+| Argument | Default | Affects | What it does |
+|---|---|---|---|
+| `type` | `"basic"` | all | Curated tier of measures: `"basic"`, `"extended"`, or `"all"`. |
+| `measures` | `NULL` | all | Character vector of specific measures to compute (overrides `type`). |
+| `mode` | `"all"` | directed measures | Traversal direction: `"all"`, `"in"`, or `"out"`. |
+| `normalized` | `FALSE` | most | Divide each score by its maximum. |
+| `weighted` | `TRUE` | weighted measures | Use edge weights when present. |
+| `directed` | `NULL` | all | Force directed/undirected; `NULL` auto-detects. |
+| `loops` | `TRUE` | degree, strength | Keep self-loops. |
+| `simplify` | `"sum"` | multigraphs | How to combine parallel edges. |
+| `cutoff` | `-1` | path-based | Cap path length (`-1` = no cap). |
+| `invert_weights` | `NULL` | distance/path | Treat weights as distances vs. strengths. |
+| `alpha` | `1` | weight transform | Exponent applied when `invert_weights = TRUE`. |
+| `damping` | `0.85` | PageRank | Random-walk damping factor. |
+| `personalized` | `NULL` | PageRank | Personalization vector. |
+| `transitivity_type` | `"local"` | transitivity | `"local"`, `"global"`, or weighted variants. |
+| `isolates` | `"nan"` | transitivity | How isolates are scored. |
+| `lambda` | `1` | diffusion | Diffusion scaling factor. |
+| `k` | `3` | k-reach | Path-length radius. |
+| `states` | `NULL` | percolation | Per-node percolation state vector. |
+| `decay_parameter` | `0.5` | decay, generalized closeness | Distance-decay base. |
+| `dmnc_epsilon` | `1.7` | DMNC | Density exponent. |
+| `katz_alpha` | `0.1` | Katz | Attenuation factor. |
+| `hubbell_weight` | `0.5` | Hubbell | Weight factor $w$. |
+| `membership` | `NULL` | group-based | Community assignment vector. |
+| `digits` | `NULL` | all | Round numeric columns. |
+| `sort_by` | `NULL` | all | Order rows by a column name. |

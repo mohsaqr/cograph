@@ -141,6 +141,21 @@ test_that("to_igraph preserves edge weights", {
   expect_true(!is.null(igraph::E(g)$weight))
 })
 
+test_that("to_igraph converts edge-list data frames", {
+  df <- data.frame(
+    from = c("A", "B", "B"),
+    to = c("B", "C", "A"),
+    weight = c(1, 2, 3)
+  )
+
+  g <- to_igraph(df)
+
+  expect_true(inherits(g, "igraph"))
+  expect_equal(sort(igraph::V(g)$name), c("A", "B", "C"))
+  expect_equal(igraph::ecount(g), 3)
+  expect_equal(igraph::E(g)$weight, c(1, 2, 3))
+})
+
 test_that("to_igraph errors on invalid input", {
   expect_error(to_igraph("not a network"))
   expect_error(to_igraph(list(a = 1, b = 2)))

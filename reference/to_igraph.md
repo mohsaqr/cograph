@@ -1,8 +1,8 @@
 # Convert Network to igraph Object
 
 Converts various network representations to an igraph object. Supports
-matrices, igraph objects, network objects, cograph_network, and tna
-objects.
+matrices, edge-list data frames, igraph objects, network objects,
+cograph_network, and tna objects.
 
 ## Usage
 
@@ -17,6 +17,8 @@ to_igraph(x, directed = NULL)
   Network input. Can be:
 
   - A square numeric matrix (adjacency/weight matrix)
+
+  - A data frame edge list with source and target columns
 
   - An igraph object (returned as-is or converted if directed differs)
 

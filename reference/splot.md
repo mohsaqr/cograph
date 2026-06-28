@@ -225,6 +225,7 @@ splot(
   node_names = NULL,
   tna_styling = NULL,
   psych_styling = NULL,
+  predictability = NULL,
   i = NULL,
   filetype = "default",
   filename = file.path(tempdir(), "splot"),
@@ -983,6 +984,17 @@ splot(
   `splot.netobject` auto-enables it on correlation-family input (glasso,
   cor, pcor, ising) and on the undirected constituents of `net_mlvar`.
   Explicit user args always win.
+
+- predictability:
+
+  Logical or NULL. Draws a per-node predictability ring (a donut fill)
+  from a `predictability` column on the network's node table, the way
+  `qgraph`/`bootnet` show node predictability. If `TRUE`, draws it when
+  the column is present; if `FALSE`, never; if `NULL` (default), draws
+  it when the object marks it as its default
+  (`network$meta$predictability_default`, set e.g. by a `psychnet`
+  glasso network). A caller's own `pie_values` / `donut_fill` takes
+  precedence.
 
 - i:
 

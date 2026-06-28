@@ -39,6 +39,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
+    <li><a class="dropdown-item" href="../articles/centrality-catalogue.html">Centrality catalogue</a></li>
     <li><a class="dropdown-item" href="../articles/why-cograph.html">Why cograph?</a></li>
     <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">Plotting TNA Models with splot</a></li>
     <li><a class="dropdown-item" href="../articles/mcml-examples.html">Advanced examples</a></li>
@@ -484,33 +485,105 @@ lazy-computed inside <code><a href="../reference/filter_nodes.html">filter_nodes
 <div class="section level2">
 <h2 id="centrality">Centrality<a class="anchor" aria-label="anchor" href="#centrality"></a>
 </h2>
-<p><code><a href="../reference/centrality.html">centrality()</a></code> computes a broad set of node centrality
-measures and returns a data frame.</p>
+<p><code><a href="../reference/centrality.html">centrality()</a></code> computes node centrality measures and
+returns one tidy data frame. The built-in
+<code>student_interactions</code> edge list works directly: no igraph
+object, no matrix conversion, no setup code.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/centrality.html">centrality</a></span><span class="op">(</span><span class="va">mat</span>, measures <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"degree"</span>, <span class="st">"betweenness"</span>, <span class="st">"pagerank"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;          node degree_all betweenness   pagerank</span></span>
-<span><span class="co">#&gt; 1     Explore          6         5.0 0.11846147</span></span>
-<span><span class="co">#&gt; 2        Plan          7        15.5 0.03640953</span></span>
-<span><span class="co">#&gt; 3     Monitor          8        18.0 0.18376724</span></span>
-<span><span class="co">#&gt; 4       Adapt          6        15.0 0.12356096</span></span>
-<span><span class="co">#&gt; 5     Reflect          6        10.0 0.12513119</span></span>
-<span><span class="co">#&gt; 6     Discuss          5         0.5 0.06803638</span></span>
-<span><span class="co">#&gt; 7  Synthesize          4         6.5 0.03760071</span></span>
-<span><span class="co">#&gt; 8    Evaluate          5         3.0 0.07386400</span></span>
-<span><span class="co">#&gt; 9      Create          7        13.0 0.13821279</span></span>
-<span><span class="co">#&gt; 10      Share          6         9.0 0.09495573</span></span></code></pre></div>
-<p>Individual functions return named vectors:</p>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">student_interactions</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/centrality.html">centrality</a></span><span class="op">(</span><span class="va">student_interactions</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    node degree_all strength_all closeness_all betweenness  eigenvector</span></span>
+<span><span class="co">#&gt; 1    Ac         33          129    0.01754386   26.342857 1.000000e+00</span></span>
+<span><span class="co">#&gt; 2    Ad         20           36    0.01754386   42.541520 1.096110e-01</span></span>
+<span><span class="co">#&gt; 3    Fi         24           51    0.01666667   35.721634 1.789565e-01</span></span>
+<span><span class="co">#&gt; 4    Ik         14           24    0.01666667   25.844874 1.551369e-02</span></span>
+<span><span class="co">#&gt; 5    Vx         26           43    0.01960784   90.717124 7.238902e-02</span></span>
+<span><span class="co">#&gt; 6    Rt         20           37    0.01785714   63.135739 1.159931e-01</span></span>
+<span><span class="co">#&gt; 7    Km         11           16    0.01639344   18.175108 2.804725e-02</span></span>
+<span><span class="co">#&gt; 8    Gj         19           31    0.01818182  114.599049 3.265786e-02</span></span>
+<span><span class="co">#&gt; 9    Bd         12           18    0.01612903   21.769264 9.607736e-03</span></span>
+<span><span class="co">#&gt; 10   Ce         10           13    0.01612903   16.648629 4.473504e-03</span></span>
+<span><span class="co">#&gt; 11   Oq         14           20    0.01754386   34.151726 2.293068e-02</span></span>
+<span><span class="co">#&gt; 12   Ya         13           19    0.01612903   18.216122 1.758656e-02</span></span>
+<span><span class="co">#&gt; 13   Mo         12           17    0.01587302   38.264502 1.003629e-01</span></span>
+<span><span class="co">#&gt; 14   Hj         12           19    0.01754386   85.816522 2.013125e-02</span></span>
+<span><span class="co">#&gt; 15   Tv         10           13    0.01666667   25.916306 1.320877e-02</span></span>
+<span><span class="co">#&gt; 16   Eg         10           12    0.01639344   22.335171 5.783916e-03</span></span>
+<span><span class="co">#&gt; 17   Pr         11           18    0.01666667   23.974060 7.602231e-02</span></span>
+<span><span class="co">#&gt; 18   Qs         15           19    0.01785714   76.910851 1.511764e-02</span></span>
+<span><span class="co">#&gt; 19   Xz         14           18    0.01639344   22.280159 8.533484e-03</span></span>
+<span><span class="co">#&gt; 20   Np          8            8    0.01666667   12.044048 1.549052e-02</span></span>
+<span><span class="co">#&gt; 21   Dg         13           13    0.01886792   29.240901 6.260099e-03</span></span>
+<span><span class="co">#&gt; 22   Hk         16           25    0.01818182   72.176441 1.201845e-01</span></span>
+<span><span class="co">#&gt; 23   Wy         11           16    0.01639344   34.014358 1.054705e-03</span></span>
+<span><span class="co">#&gt; 24   Jl         15           18    0.01818182   67.359085 5.009801e-02</span></span>
+<span><span class="co">#&gt; 25   Fh         21           55    0.01818182   78.588877 2.817489e-01</span></span>
+<span><span class="co">#&gt; 26   Zb          7            8    0.01538462    9.583333 5.429715e-05</span></span>
+<span><span class="co">#&gt; 27   Eh          7           13    0.01428571   34.325000 1.163185e-03</span></span>
+<span><span class="co">#&gt; 28   Be         14           16    0.01851852  105.250898 2.203252e-03</span></span>
+<span><span class="co">#&gt; 29   Df          8           10    0.01562500   11.026190 4.800876e-06</span></span>
+<span><span class="co">#&gt; 30   Cf         12           15    0.01724138  119.109163 1.243207e-02</span></span>
+<span><span class="co">#&gt; 31   Su          6            9    0.01369863   33.154401 1.028472e-04</span></span>
+<span><span class="co">#&gt; 32   Ln          7            8    0.01408451    5.749708 1.376854e-02</span></span>
+<span><span class="co">#&gt; 33   Gi          3            4    0.01351351    0.000000 0.000000e+00</span></span>
+<span><span class="co">#&gt; 34   Uw          4            7    0.01250000    0.000000 5.887502e-20</span></span>
+<span><span class="co">#&gt;       pagerank</span></span>
+<span><span class="co">#&gt; 1  0.285861728</span></span>
+<span><span class="co">#&gt; 2  0.052985644</span></span>
+<span><span class="co">#&gt; 3  0.077591140</span></span>
+<span><span class="co">#&gt; 4  0.024836857</span></span>
+<span><span class="co">#&gt; 5  0.057364714</span></span>
+<span><span class="co">#&gt; 6  0.042552472</span></span>
+<span><span class="co">#&gt; 7  0.016655998</span></span>
+<span><span class="co">#&gt; 8  0.025444498</span></span>
+<span><span class="co">#&gt; 9  0.014321668</span></span>
+<span><span class="co">#&gt; 10 0.010679742</span></span>
+<span><span class="co">#&gt; 11 0.016087378</span></span>
+<span><span class="co">#&gt; 12 0.016588876</span></span>
+<span><span class="co">#&gt; 13 0.031180263</span></span>
+<span><span class="co">#&gt; 14 0.019051413</span></span>
+<span><span class="co">#&gt; 15 0.012644206</span></span>
+<span><span class="co">#&gt; 16 0.010425091</span></span>
+<span><span class="co">#&gt; 17 0.022794289</span></span>
+<span><span class="co">#&gt; 18 0.019784870</span></span>
+<span><span class="co">#&gt; 19 0.013229134</span></span>
+<span><span class="co">#&gt; 20 0.008466679</span></span>
+<span><span class="co">#&gt; 21 0.010345027</span></span>
+<span><span class="co">#&gt; 22 0.040383192</span></span>
+<span><span class="co">#&gt; 23 0.009067435</span></span>
+<span><span class="co">#&gt; 24 0.020529375</span></span>
+<span><span class="co">#&gt; 25 0.070538086</span></span>
+<span><span class="co">#&gt; 26 0.005635780</span></span>
+<span><span class="co">#&gt; 27 0.010080122</span></span>
+<span><span class="co">#&gt; 28 0.009378924</span></span>
+<span><span class="co">#&gt; 29 0.004957518</span></span>
+<span><span class="co">#&gt; 30 0.017877547</span></span>
+<span><span class="co">#&gt; 31 0.005136500</span></span>
+<span><span class="co">#&gt; 32 0.007628879</span></span>
+<span><span class="co">#&gt; 33 0.005483193</span></span>
+<span><span class="co">#&gt; 34 0.004411765</span></span></code></pre></div>
+<p>That one call returns the default centrality table: degree, strength,
+closeness, betweenness, eigenvector centrality, and PageRank. Individual
+functions return named vectors when you want one measure only:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/centrality_degree.html">centrality_degree</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize </span></span>
-<span><span class="co">#&gt;          6          7          8          6          6          5          4 </span></span>
-<span><span class="co">#&gt;   Evaluate     Create      Share </span></span>
-<span><span class="co">#&gt;          5          7          6</span></span>
-<span><span class="fu"><a href="../reference/centrality_pagerank.html">centrality_pagerank</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize </span></span>
-<span><span class="co">#&gt; 0.11846147 0.03640953 0.18376724 0.12356096 0.12513119 0.06803638 0.03760071 </span></span>
-<span><span class="co">#&gt;   Evaluate     Create      Share </span></span>
-<span><span class="co">#&gt; 0.07386400 0.13821279 0.09495573</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/centrality_degree.html">centrality_degree</a></span><span class="op">(</span><span class="va">student_interactions</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Ac Ad Fi Ik Vx Rt Km Gj Bd Ce Oq Ya Mo Hj Tv Eg Pr Qs Xz Np Dg Hk Wy Jl Fh Zb </span></span>
+<span><span class="co">#&gt; 33 20 24 14 26 20 11 19 12 10 14 13 12 12 10 10 11 15 14  8 13 16 11 15 21  7 </span></span>
+<span><span class="co">#&gt; Eh Be Df Cf Su Ln Gi Uw </span></span>
+<span><span class="co">#&gt;  7 14  8 12  6  7  3  4</span></span>
+<span><span class="fu"><a href="../reference/centrality_pagerank.html">centrality_pagerank</a></span><span class="op">(</span><span class="va">student_interactions</span><span class="op">)</span></span>
+<span><span class="co">#&gt;          Ac          Ad          Fi          Ik          Vx          Rt </span></span>
+<span><span class="co">#&gt; 0.285861728 0.052985644 0.077591140 0.024836857 0.057364714 0.042552472 </span></span>
+<span><span class="co">#&gt;          Km          Gj          Bd          Ce          Oq          Ya </span></span>
+<span><span class="co">#&gt; 0.016655998 0.025444498 0.014321668 0.010679742 0.016087378 0.016588876 </span></span>
+<span><span class="co">#&gt;          Mo          Hj          Tv          Eg          Pr          Qs </span></span>
+<span><span class="co">#&gt; 0.031180263 0.019051413 0.012644206 0.010425091 0.022794289 0.019784870 </span></span>
+<span><span class="co">#&gt;          Xz          Np          Dg          Hk          Wy          Jl </span></span>
+<span><span class="co">#&gt; 0.013229134 0.008466679 0.010345027 0.040383192 0.009067435 0.020529375 </span></span>
+<span><span class="co">#&gt;          Fh          Zb          Eh          Be          Df          Cf </span></span>
+<span><span class="co">#&gt; 0.070538086 0.005635780 0.010080122 0.009378924 0.004957518 0.017877547 </span></span>
+<span><span class="co">#&gt;          Su          Ln          Gi          Uw </span></span>
+<span><span class="co">#&gt; 0.005136500 0.007628879 0.005483193 0.004411765</span></span></code></pre></div>
 <p>Selected measures:</p>
 <table class="table">
 <colgroup>

@@ -97,13 +97,13 @@ com_eb(net)
 #> Warning: Membership vector will be selected based on the highest modularity score.
 #> Source: community/edge_betweenness.c:503
 #> Community structure (edge_betweenness)
-#>   Nodes: 5  | Communities: 3  | Modularity: 0.0729 
-#>   Sizes: 1, 1, 3 
+#>   Nodes: 5  | Communities: 2  | Modularity: 0.0167 
+#>   Sizes: 1, 4 
 #> 
 #>  node community
 #>     1         1
 #>     2         2
-#>     3         3
-#>     4         3
-#>     5         3
+#>     3         2
+#>     4         2
+#>     5         2
 ```

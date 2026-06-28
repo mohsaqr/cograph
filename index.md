@@ -36,6 +36,8 @@ devtools::install_github("sonsoleslp/cograph")
 ### Quick guides
 
 - [Why cograph?](https://sonsoles.me/cograph/articles/why-cograph.html)
+- [Centrality
+  catalogue](https://sonsoles.me/cograph/articles/centrality-catalogue.html)
 - [Plotting TNA Models with
   `splot`](https://sonsoles.me/cograph/articles/plotting-tna-models.html)
 - [Advanced
@@ -95,6 +97,12 @@ devtools::install_github("sonsoleslp/cograph")
 | [`summarize_network()`](https://sonsoles.me/cograph/reference/summarize_network.md) | Comprehensive network-level statistics |
 | [`verify_with_igraph()`](https://sonsoles.me/cograph/reference/verify_with_igraph.md) | Cross-validation against igraph |
 | [`simplify()`](https://sonsoles.me/cograph/reference/simplify.md) | Prune weak edges |
+
+``` r
+
+data(student_interactions)
+centrality(student_interactions)
+```
 
 ### Multilayer Networks
 

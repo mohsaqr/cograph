@@ -212,39 +212,110 @@ Getters and setters:
 ## Centrality
 
 [`centrality()`](https://sonsoles.me/cograph/reference/centrality.md)
-computes a broad set of node centrality measures and returns a data
-frame.
+computes node centrality measures and returns one tidy data frame. The
+built-in `student_interactions` edge list works directly: no igraph
+object, no matrix conversion, no setup code.
 
 ``` r
 
-centrality(mat, measures = c("degree", "betweenness", "pagerank"))
-#>          node degree_all betweenness   pagerank
-#> 1     Explore          6         5.0 0.11846147
-#> 2        Plan          7        15.5 0.03640953
-#> 3     Monitor          8        18.0 0.18376724
-#> 4       Adapt          6        15.0 0.12356096
-#> 5     Reflect          6        10.0 0.12513119
-#> 6     Discuss          5         0.5 0.06803638
-#> 7  Synthesize          4         6.5 0.03760071
-#> 8    Evaluate          5         3.0 0.07386400
-#> 9      Create          7        13.0 0.13821279
-#> 10      Share          6         9.0 0.09495573
+data(student_interactions)
+centrality(student_interactions)
+#>    node degree_all strength_all closeness_all betweenness  eigenvector
+#> 1    Ac         33          129    0.01754386   26.342857 1.000000e+00
+#> 2    Ad         20           36    0.01754386   42.541520 1.096110e-01
+#> 3    Fi         24           51    0.01666667   35.721634 1.789565e-01
+#> 4    Ik         14           24    0.01666667   25.844874 1.551369e-02
+#> 5    Vx         26           43    0.01960784   90.717124 7.238902e-02
+#> 6    Rt         20           37    0.01785714   63.135739 1.159931e-01
+#> 7    Km         11           16    0.01639344   18.175108 2.804725e-02
+#> 8    Gj         19           31    0.01818182  114.599049 3.265786e-02
+#> 9    Bd         12           18    0.01612903   21.769264 9.607736e-03
+#> 10   Ce         10           13    0.01612903   16.648629 4.473504e-03
+#> 11   Oq         14           20    0.01754386   34.151726 2.293068e-02
+#> 12   Ya         13           19    0.01612903   18.216122 1.758656e-02
+#> 13   Mo         12           17    0.01587302   38.264502 1.003629e-01
+#> 14   Hj         12           19    0.01754386   85.816522 2.013125e-02
+#> 15   Tv         10           13    0.01666667   25.916306 1.320877e-02
+#> 16   Eg         10           12    0.01639344   22.335171 5.783916e-03
+#> 17   Pr         11           18    0.01666667   23.974060 7.602231e-02
+#> 18   Qs         15           19    0.01785714   76.910851 1.511764e-02
+#> 19   Xz         14           18    0.01639344   22.280159 8.533484e-03
+#> 20   Np          8            8    0.01666667   12.044048 1.549052e-02
+#> 21   Dg         13           13    0.01886792   29.240901 6.260099e-03
+#> 22   Hk         16           25    0.01818182   72.176441 1.201845e-01
+#> 23   Wy         11           16    0.01639344   34.014358 1.054705e-03
+#> 24   Jl         15           18    0.01818182   67.359085 5.009801e-02
+#> 25   Fh         21           55    0.01818182   78.588877 2.817489e-01
+#> 26   Zb          7            8    0.01538462    9.583333 5.429715e-05
+#> 27   Eh          7           13    0.01428571   34.325000 1.163185e-03
+#> 28   Be         14           16    0.01851852  105.250898 2.203252e-03
+#> 29   Df          8           10    0.01562500   11.026190 4.800876e-06
+#> 30   Cf         12           15    0.01724138  119.109163 1.243207e-02
+#> 31   Su          6            9    0.01369863   33.154401 1.028472e-04
+#> 32   Ln          7            8    0.01408451    5.749708 1.376854e-02
+#> 33   Gi          3            4    0.01351351    0.000000 0.000000e+00
+#> 34   Uw          4            7    0.01250000    0.000000 5.887502e-20
+#>       pagerank
+#> 1  0.285861728
+#> 2  0.052985644
+#> 3  0.077591140
+#> 4  0.024836857
+#> 5  0.057364714
+#> 6  0.042552472
+#> 7  0.016655998
+#> 8  0.025444498
+#> 9  0.014321668
+#> 10 0.010679742
+#> 11 0.016087378
+#> 12 0.016588876
+#> 13 0.031180263
+#> 14 0.019051413
+#> 15 0.012644206
+#> 16 0.010425091
+#> 17 0.022794289
+#> 18 0.019784870
+#> 19 0.013229134
+#> 20 0.008466679
+#> 21 0.010345027
+#> 22 0.040383192
+#> 23 0.009067435
+#> 24 0.020529375
+#> 25 0.070538086
+#> 26 0.005635780
+#> 27 0.010080122
+#> 28 0.009378924
+#> 29 0.004957518
+#> 30 0.017877547
+#> 31 0.005136500
+#> 32 0.007628879
+#> 33 0.005483193
+#> 34 0.004411765
 ```
 
-Individual functions return named vectors:
+That one call returns the default centrality table: degree, strength,
+closeness, betweenness, eigenvector centrality, and PageRank. Individual
+functions return named vectors when you want one measure only:
 
 ``` r
 
-centrality_degree(mat)
-#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
-#>          6          7          8          6          6          5          4 
-#>   Evaluate     Create      Share 
-#>          5          7          6
-centrality_pagerank(mat)
-#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
-#> 0.11846147 0.03640953 0.18376724 0.12356096 0.12513119 0.06803638 0.03760071 
-#>   Evaluate     Create      Share 
-#> 0.07386400 0.13821279 0.09495573
+centrality_degree(student_interactions)
+#> Ac Ad Fi Ik Vx Rt Km Gj Bd Ce Oq Ya Mo Hj Tv Eg Pr Qs Xz Np Dg Hk Wy Jl Fh Zb 
+#> 33 20 24 14 26 20 11 19 12 10 14 13 12 12 10 10 11 15 14  8 13 16 11 15 21  7 
+#> Eh Be Df Cf Su Ln Gi Uw 
+#>  7 14  8 12  6  7  3  4
+centrality_pagerank(student_interactions)
+#>          Ac          Ad          Fi          Ik          Vx          Rt 
+#> 0.285861728 0.052985644 0.077591140 0.024836857 0.057364714 0.042552472 
+#>          Km          Gj          Bd          Ce          Oq          Ya 
+#> 0.016655998 0.025444498 0.014321668 0.010679742 0.016087378 0.016588876 
+#>          Mo          Hj          Tv          Eg          Pr          Qs 
+#> 0.031180263 0.019051413 0.012644206 0.010425091 0.022794289 0.019784870 
+#>          Xz          Np          Dg          Hk          Wy          Jl 
+#> 0.013229134 0.008466679 0.010345027 0.040383192 0.009067435 0.020529375 
+#>          Fh          Zb          Eh          Be          Df          Cf 
+#> 0.070538086 0.005635780 0.010080122 0.009378924 0.004957518 0.017877547 
+#>          Su          Ln          Gi          Uw 
+#> 0.005136500 0.007628879 0.005483193 0.004411765
 ```
 
 Selected measures:

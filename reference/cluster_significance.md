@@ -158,11 +158,11 @@ print(sig)
 #> =========================
 #> 
 #>   Null model:           configuration (n = 20 )
-#>   Observed modularity:  0.4156 
+#>   Observed modularity:  0.3937 
 #>   Null mean:            0.3776 
 #>   Null SD:              0.031 
-#>   Z-score:              1.23 
-#>   P-value:              0.10984 
+#>   Z-score:              0.52 
+#>   P-value:              0.30176 
 #> 
 #>   Conclusion: No significant community structure (p >= 0.05)
 if (requireNamespace("igraph", quietly = TRUE)) {
@@ -174,11 +174,11 @@ if (requireNamespace("igraph", quietly = TRUE)) {
 #> =========================
 #> 
 #>   Null model:           configuration (n = 20 )
-#>   Observed modularity:  0.4151 
+#>   Observed modularity:  0.3952 
 #>   Null mean:            0.3866 
 #>   Null SD:              0.0189 
-#>   Z-score:              1.51 
-#>   P-value:              0.065619 
+#>   Z-score:              0.46 
+#>   P-value:              0.32417 
 #> 
 #>   Conclusion: No significant community structure (p >= 0.05)
 ```

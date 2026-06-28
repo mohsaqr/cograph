@@ -4,6 +4,8 @@
 
 - [Introduction to
   cograph](https://sonsoles.me/cograph/articles/introduction.md):
+- [Centrality
+  catalogue](https://sonsoles.me/cograph/articles/centrality-catalogue.md):
 - [Why cograph?](https://sonsoles.me/cograph/articles/why-cograph.md):
 - [Plotting TNA Models with
   splot](https://sonsoles.me/cograph/articles/plotting-tna-models.md):

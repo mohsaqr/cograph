@@ -96,10 +96,8 @@ Create a new CographNetwork object.
 
 - `input`:
 
-  Network input supported by
-  [`parse_input`](https://sonsoles.me/cograph/reference/parse_input.md),
-  such as a matrix, edge list, igraph, statnet network, qgraph, or tna
-  object.
+  Network input supported by `parse_input`, such as a matrix, edge list,
+  igraph, statnet network, qgraph, or tna object.
 
 - `directed`:
 

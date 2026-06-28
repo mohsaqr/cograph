@@ -95,8 +95,7 @@ The extent of simplification depends on the input representation:
   or `igraph` first if you need true duplicate aggregation.
 
 - `cograph_network`: duplicate edges in the edge-list are merged via
-  [`aggregate_duplicate_edges()`](https://sonsoles.me/cograph/reference/aggregate_duplicate_edges.md)
-  using `edge_attr_comb`.
+  `aggregate_duplicate_edges()` using `edge_attr_comb`.
 
 - `igraph`: delegates to
   [`igraph::simplify()`](https://r.igraph.org/reference/simplify.html).

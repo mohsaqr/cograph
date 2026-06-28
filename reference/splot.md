@@ -14,9 +14,7 @@ otherwise falls back to the first available algorithm column.
 Plots the original network with nodes colored by community membership.
 The network is retrieved from `attr(x, "network")`, which
 [`detect_communities()`](https://sonsoles.me/cograph/reference/detect_communities.md)
-/
-[`.wrap_communities()`](https://sonsoles.me/cograph/reference/dot-wrap_communities.md)
-sets automatically.
+/ `.wrap_communities()` sets automatically.
 
 Applies TNA-compatible styling defaults before delegating to `splot()`:
 directed networks get oval layout, coloured nodes, and sized arrows;

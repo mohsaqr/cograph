@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,6 +42,14 @@
       <small>Source: <a href="https://github.com/sonsoleslp/cograph/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.3.11" id="cograph-2311">cograph 2.3.11<a class="anchor" aria-label="anchor" href="#cograph-2311"></a></h2>
+<div class="section level3">
+<h3 id="new-features-2-3-11">New features<a class="anchor" aria-label="anchor" href="#new-features-2-3-11"></a></h3>
+<ul><li><p><code><a href="../reference/dyad_census.html">dyad_census()</a></code> classifies every dyad of a directed network into mutual (M), asymmetric (A), or null (N), returning a tidy one-row-per-type data.frame with counts and proportions and a dyad-based reciprocity (<code>2M / (2M + A)</code>) attribute. It is the dyad-level companion to <code><a href="../reference/triad_census.html">triad_census()</a></code>. Undirected input counts every edge as a mutual dyad.</p></li>
+<li><p><code><a href="../reference/ego_networks.html">ego_networks()</a></code> reports tidy per-ego personal-network metrics — size, ego/alter tie counts and densities, and Burt’s structural-hole measures (<code>effective_size</code>, <code>constraint</code>, <code>order = 1</code> only) — with one row per ego. The structural-hole columns reuse the same implementations as <code><a href="../reference/centrality.html">centrality()</a></code>, so they match <code>centrality(x, measures = c("effective_size", "constraint"))</code> exactly.</p></li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.3.10" id="cograph-2310">cograph 2.3.10<a class="anchor" aria-label="anchor" href="#cograph-2310"></a></h2>
 <div class="section level3">
@@ -174,7 +182,7 @@
 <div class="section level3">
 <h3 id="plotting--edge-label-cex-coupling-phase-2-3-0">Plotting — edge-label cex coupling (Phase 2)<a class="anchor" aria-label="anchor" href="#plotting--edge-label-cex-coupling-phase-2-3-0"></a></h3>
 <ul><li>Default <code>edge_label_size</code> is now coupled to the node label cex at a fixed 0.55 fraction (<code>edge_cex = 0.55 * mean(node_label_cex)</code>) so the node-to-edge-label ratio stays a stable ~1.82x across canvases. This replaces the previous <code>EDGE_LABEL_SCALE_CAP</code>-based compensation, which let the ratio drift from 2.5x at reference to 3.6x at poster canvases because edge labels were clamped to a tighter 1.6 ceiling while node labels scaled freely to 2.3. The visible effect: edge weight annotations are now readable at poster sizes instead of shrinking relative to node labels. User-explicit <code>edge_label_size</code> still wins and receives the same (capped) visual-scale compensation as before; only the default path changed.</li>
-<li>Edge-label visual_scale resolution moved from <code><a href="../reference/render_edges_splot.html">render_edges_splot()</a></code> into <code>splot.R</code> so the final cex is produced in a single place.</li>
+<li>Edge-label visual_scale resolution moved from <code>render_edges_splot()</code> into <code>splot.R</code> so the final cex is produced in a single place.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="plotting--device-aware-visual-scaling-2-3-0">Plotting — device-aware visual scaling<a class="anchor" aria-label="anchor" href="#plotting--device-aware-visual-scaling-2-3-0"></a></h3>
@@ -183,7 +191,7 @@
 <li>New <code>scaling = "fixed"</code> mode on <code><a href="../reference/splot.html">splot()</a></code> — and corresponding global option <code>options(cograph.visual_scaling = FALSE)</code> — disables device compensation for reproducibility-sensitive workflows that calibrated against the previous behaviour.</li>
 <li>
 <code><a href="../reference/splot.html">splot()</a></code> return value now carries two attributes for downstream tooling: <code>cograph.visual_scale</code> (the multiplier list) and <code>cograph.node_diam_in</code> (the representative node diameter in inches at the rendered device).</li>
-<li>The splot-internal <code><a href="../reference/render_legend_splot.html">render_legend_splot()</a></code> plus the new shared <code>.render_legend_base()</code> (<code>R/render-legend-shared.R</code>) replace the ad-hoc legend cex/pt.cex handling with a single compensated path. <code>plot_htna</code>, <code>plot_mtna</code>, <code>plot_mlna</code>, <code>plot_mcml</code> still use their historical scale multiplier arguments; Phase 2 will migrate them to the shared helper.</li>
+<li>The splot-internal <code>render_legend_splot()</code> plus the new shared <code>.render_legend_base()</code> (<code>R/render-legend-shared.R</code>) replace the ad-hoc legend cex/pt.cex handling with a single compensated path. <code>plot_htna</code>, <code>plot_mtna</code>, <code>plot_mlna</code>, <code>plot_mcml</code> still use their historical scale multiplier arguments; Phase 2 will migrate them to the shared helper.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="plotting-2-3-0">Plotting<a class="anchor" aria-label="anchor" href="#plotting-2-3-0"></a></h3>
@@ -199,9 +207,9 @@
 <div class="section level3">
 <h3 id="correctness-fixes-audit-driven-2-3-0">Correctness fixes (audit-driven)<a class="anchor" aria-label="anchor" href="#correctness-fixes-audit-driven-2-3-0"></a></h3>
 <ul><li>
-<code><a href="../reference/detect_duplicate_edges.html">detect_duplicate_edges()</a></code>, <code><a href="../reference/aggregate_duplicate_edges.html">aggregate_duplicate_edges()</a></code>, <code><a href="../reference/simplify.html">simplify.cograph_network()</a></code>, and the internal <code><a href="../reference/check_duplicate_edges.html">check_duplicate_edges()</a></code> helper now respect directed vs undirected semantics. Previously the canonical (min/max) endpoint key collapsed <code>A -&gt; B</code> and <code>B -&gt; A</code> into one edge even on directed graphs, matching <code><a href="https://r.igraph.org/reference/simplify.html" class="external-link">igraph::simplify()</a></code> ground truth.</li>
+<code>detect_duplicate_edges()</code>, <code>aggregate_duplicate_edges()</code>, <code><a href="../reference/simplify.html">simplify.cograph_network()</a></code>, and the internal <code>check_duplicate_edges()</code> helper now respect directed vs undirected semantics. Previously the canonical (min/max) endpoint key collapsed <code>A -&gt; B</code> and <code>B -&gt; A</code> into one edge even on directed graphs, matching <code><a href="https://r.igraph.org/reference/simplify.html" class="external-link">igraph::simplify()</a></code> ground truth.</li>
 <li>
-<code><a href="../reference/dot-compute_modularity.html">.compute_modularity()</a></code> replaces a nested for loop with cluster-wise vectorization (<code>sum(A[idx, idx]) - sum(k_out[idx]) * sum(k_in[idx]) / m</code>), per the project “no for loops” rule. Results verified bit-exact against <code><a href="https://r.igraph.org/reference/modularity.igraph.html" class="external-link">igraph::modularity()</a></code>.</li>
+<code>.compute_modularity()</code> replaces a nested for loop with cluster-wise vectorization (<code>sum(A[idx, idx]) - sum(k_out[idx]) * sum(k_in[idx]) / m</code>), per the project “no for loops” rule. Results verified bit-exact against <code><a href="https://r.igraph.org/reference/modularity.igraph.html" class="external-link">igraph::modularity()</a></code>.</li>
 <li>
 <code><a href="../reference/is_directed.html">is_directed()</a></code> now recognises <code>CographNetwork</code> R6 objects — previously only the <code>cograph_network</code> list format dispatched correctly.</li>
 <li>

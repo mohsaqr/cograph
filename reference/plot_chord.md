@@ -170,9 +170,7 @@ and weights).
 
 The diagram is drawn entirely with base R graphics using
 [`polygon()`](https://rdrr.io/r/graphics/polygon.html) for segments and
-chords, and
-[`bezier_points()`](https://sonsoles.me/cograph/reference/bezier_points.md)
-for the curved ribbons.
+chords, and `bezier_points()` for the curved ribbons.
 
 For directed networks, each segment is split into an outgoing half and
 an incoming half so that chords attach to the correct side. For

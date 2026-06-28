@@ -1,5 +1,26 @@
 # Changelog
 
+## cograph 2.3.11
+
+### New features
+
+- [`dyad_census()`](https://sonsoles.me/cograph/reference/dyad_census.md)
+  classifies every dyad of a directed network into mutual (M),
+  asymmetric (A), or null (N), returning a tidy one-row-per-type
+  data.frame with counts and proportions and a dyad-based reciprocity
+  (`2M / (2M + A)`) attribute. It is the dyad-level companion to
+  [`triad_census()`](https://sonsoles.me/cograph/reference/triad_census.md).
+  Undirected input counts every edge as a mutual dyad.
+
+- [`ego_networks()`](https://sonsoles.me/cograph/reference/ego_networks.md)
+  reports tidy per-ego personal-network metrics — size, ego/alter tie
+  counts and densities, and Burt’s structural-hole measures
+  (`effective_size`, `constraint`, `order = 1` only) — with one row per
+  ego. The structural-hole columns reuse the same implementations as
+  [`centrality()`](https://sonsoles.me/cograph/reference/centrality.md),
+  so they match
+  `centrality(x, measures = c("effective_size", "constraint"))` exactly.
+
 ## cograph 2.3.10
 
 ### Bug fixes / changes
@@ -341,8 +362,7 @@ CRAN release: 2026-05-31
   relative to node labels. User-explicit `edge_label_size` still wins
   and receives the same (capped) visual-scale compensation as before;
   only the default path changed.
-- Edge-label visual_scale resolution moved from
-  [`render_edges_splot()`](https://sonsoles.me/cograph/reference/render_edges_splot.md)
+- Edge-label visual_scale resolution moved from `render_edges_splot()`
   into `splot.R` so the final cex is produced in a single place.
 
 ### Plotting — device-aware visual scaling
@@ -370,13 +390,12 @@ CRAN release: 2026-05-31
   `cograph.visual_scale` (the multiplier list) and
   `cograph.node_diam_in` (the representative node diameter in inches at
   the rendered device).
-- The splot-internal
-  [`render_legend_splot()`](https://sonsoles.me/cograph/reference/render_legend_splot.md)
-  plus the new shared `.render_legend_base()`
-  (`R/render-legend-shared.R`) replace the ad-hoc legend cex/pt.cex
-  handling with a single compensated path. `plot_htna`, `plot_mtna`,
-  `plot_mlna`, `plot_mcml` still use their historical scale multiplier
-  arguments; Phase 2 will migrate them to the shared helper.
+- The splot-internal `render_legend_splot()` plus the new shared
+  `.render_legend_base()` (`R/render-legend-shared.R`) replace the
+  ad-hoc legend cex/pt.cex handling with a single compensated path.
+  `plot_htna`, `plot_mtna`, `plot_mlna`, `plot_mcml` still use their
+  historical scale multiplier arguments; Phase 2 will migrate them to
+  the shared helper.
 
 ### Plotting
 
@@ -410,18 +429,16 @@ CRAN release: 2026-05-31
 
 ### Correctness fixes (audit-driven)
 
-- [`detect_duplicate_edges()`](https://sonsoles.me/cograph/reference/detect_duplicate_edges.md),
-  [`aggregate_duplicate_edges()`](https://sonsoles.me/cograph/reference/aggregate_duplicate_edges.md),
+- `detect_duplicate_edges()`, `aggregate_duplicate_edges()`,
   [`simplify.cograph_network()`](https://sonsoles.me/cograph/reference/simplify.md),
-  and the internal
-  [`check_duplicate_edges()`](https://sonsoles.me/cograph/reference/check_duplicate_edges.md)
-  helper now respect directed vs undirected semantics. Previously the
-  canonical (min/max) endpoint key collapsed `A -> B` and `B -> A` into
-  one edge even on directed graphs, matching
+  and the internal `check_duplicate_edges()` helper now respect directed
+  vs undirected semantics. Previously the canonical (min/max) endpoint
+  key collapsed `A -> B` and `B -> A` into one edge even on directed
+  graphs, matching
   [`igraph::simplify()`](https://r.igraph.org/reference/simplify.html)
   ground truth.
-- [`.compute_modularity()`](https://sonsoles.me/cograph/reference/dot-compute_modularity.md)
-  replaces a nested for loop with cluster-wise vectorization
+- `.compute_modularity()` replaces a nested for loop with cluster-wise
+  vectorization
   (`sum(A[idx, idx]) - sum(k_out[idx]) * sum(k_in[idx]) / m`), per the
   project “no for loops” rule. Results verified bit-exact against
   [`igraph::modularity()`](https://r.igraph.org/reference/modularity.igraph.html).

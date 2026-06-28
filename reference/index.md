@@ -690,8 +690,12 @@
   : Disparity Filter
 - [`dispersion()`](https://sonsoles.me/cograph/reference/dispersion.md)
   : Dispersion (Backstrom-Kleinberg 2014)
+- [`dyad_census()`](https://sonsoles.me/cograph/reference/dyad_census.md)
+  : Dyad Census
 - [`edge_reciprocity()`](https://sonsoles.me/cograph/reference/edge_reciprocity.md)
   : Edge Reciprocity
+- [`ego_networks()`](https://sonsoles.me/cograph/reference/ego_networks.md)
+  : Ego-Network Metrics
 - [`estrada_index()`](https://sonsoles.me/cograph/reference/estrada_index.md)
   : Estrada Index
 - [`fit_degree_distribution()`](https://sonsoles.me/cograph/reference/fit_degree_distribution.md)

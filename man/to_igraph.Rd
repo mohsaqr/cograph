@@ -10,6 +10,7 @@ to_igraph(x, directed = NULL)
 \item{x}{Network input. Can be:
 \itemize{
 \item A square numeric matrix (adjacency/weight matrix)
+\item A data frame edge list with source and target columns
 \item An igraph object (returned as-is or converted if directed differs)
 \item A statnet network object
 \item A cograph_network object
@@ -24,7 +25,8 @@ An igraph object.
 }
 \description{
 Converts various network representations to an igraph object. Supports
-matrices, igraph objects, network objects, cograph_network, and tna objects.
+matrices, edge-list data frames, igraph objects, network objects,
+cograph_network, and tna objects.
 }
 \examples{
 # From matrix

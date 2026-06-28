@@ -5,11 +5,13 @@
 #' Convert Network to igraph Object
 #'
 #' Converts various network representations to an igraph object. Supports
-#' matrices, igraph objects, network objects, cograph_network, and tna objects.
+#' matrices, edge-list data frames, igraph objects, network objects,
+#' cograph_network, and tna objects.
 #'
 #' @param x Network input. Can be:
 #'   \itemize{
 #'     \item A square numeric matrix (adjacency/weight matrix)
+#'     \item A data frame edge list with source and target columns
 #'     \item An igraph object (returned as-is or converted if directed differs)
 #'     \item A statnet network object
 #'     \item A cograph_network object
@@ -55,6 +57,24 @@ to_igraph <- function(x, directed = NULL) {
       }
     }
     return(g)
+  }
+
+  if (is.data.frame(x)) {
+    parsed <- parse_edgelist(x, directed = directed)
+    node_names <- parsed$nodes$name
+    edge_df <- data.frame(
+      from = node_names[parsed$edges$from],
+      to = node_names[parsed$edges$to],
+      weight = parsed$edges$weight,
+      stringsAsFactors = FALSE
+    )
+    vertices <- data.frame(name = node_names, stringsAsFactors = FALSE)
+
+    return(igraph::graph_from_data_frame(
+      edge_df,
+      directed = parsed$directed,
+      vertices = vertices
+    ))
   }
 
   if (inherits(x, "network")) {
@@ -117,7 +137,7 @@ to_igraph <- function(x, directed = NULL) {
     return(g)
   }
 
-  stop("x must be a matrix, igraph, network, cograph_network, or tna object",
+  stop("x must be a matrix, data.frame edge list, igraph, network, cograph_network, or tna object",
        call. = FALSE)
 }
 

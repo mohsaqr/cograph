@@ -115,35 +115,38 @@ Same for igraph objects. No lock-in.
 
 igraph requires a separate function for each centrality measure, and each returns a different format. `page_rank(g)` gives you a list with `$vector`. `betweenness(g)` gives a named numeric. Building a comparison table takes 10+ lines.
 
-In cograph, one call with no arguments returns the available centrality measures as a tidy data frame:
+In cograph, one call with the built-in edge-list data returns a tidy centrality
+table:
 
 ```{r}
-centrality(net, digits = 3)
+data(student_interactions)
+centrality(student_interactions)
 ```
 
-That includes degree, strength, betweenness, closeness, PageRank, eigenvector, but also less common ones like load, current-flow betweenness, voterank, percolation, diffusion, and leverage — all computed natively, without extra packages.
+That includes degree, strength, closeness, betweenness, eigenvector centrality,
+and PageRank. No igraph conversion, no transition-matrix helper, no wrapper.
 
-If you only need a subset:
+Less common measures are available through the same wrapper style:
 
 ```{r}
-centrality(net, measures = c("degree", "betweenness", "pagerank"), digits = 3)
+centrality_harmonic(student_interactions)
 ```
 
 Need just one measure as a named vector? Use the wrapper:
 
 ```{r}
-centrality_pagerank(net)
+centrality_pagerank(student_interactions)
 ```
 
 ```{r}
-centrality_betweenness(net)
+centrality_betweenness(student_interactions)
 ```
 
 You can normalize, sort, and round in the same call:
 
 ```{r}
-centrality(net, measures = c("degree", "betweenness", "pagerank"),
-           normalized = TRUE, sort_by = "pagerank", digits = 3)
+centrality(student_interactions, normalized = TRUE,
+           sort_by = "pagerank", digits = 3)
 ```
 
 ### Edge-level centrality

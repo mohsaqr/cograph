@@ -253,6 +253,14 @@ NULL
 #'   (default), `splot.netobject` auto-enables it on correlation-family input
 #'   (glasso, cor, pcor, ising) and on the undirected constituents of
 #'   `net_mlvar`. Explicit user args always win.
+#' @param predictability Logical or NULL. Draws a per-node predictability ring
+#'   (a donut fill) from a `predictability` column on the network's node table,
+#'   the way `qgraph`/`bootnet` show node predictability. If \code{TRUE}, draws
+#'   it when the column is present; if \code{FALSE}, never; if \code{NULL}
+#'   (default), draws it when the object marks it as its default
+#'   (\code{network$meta$predictability_default}, set e.g. by a `psychnet`
+#'   glasso network). A caller's own \code{pie_values} / \code{donut_fill}
+#'   takes precedence.
 #' @param i Group index or name when x is a group_tna object. If NULL (default),
 #'   plots all groups in a grid. If specified (e.g., i = 1 or i = "Treatment"),
 #'   plots only that group.
@@ -536,6 +544,9 @@ splot <- function(
     tna_styling = NULL,
     # Psych network styling
     psych_styling = NULL,
+
+    # Node predictability ring (draws nodes$predictability as a donut fill)
+    predictability = NULL,
 
     # Group selection (for group_tna)
     i = NULL,
@@ -902,6 +913,19 @@ splot <- function(
   nodes <- get_nodes(network)
   edges <- get_edges(network)
   is_net_directed <- is_directed(network)
+
+  # Predictability ring: a network may carry a per-node `predictability` column
+  # (e.g. a psychnet object stores node R^2 / accuracy at fit time). Draw it as
+  # the node donut fill when `predictability = TRUE`, or when `predictability`
+  # is left NULL and the object marks it as its default (network$meta$
+  # predictability_default). A caller's own pie_values / donut_fill always wins.
+  draw_predictability <- if (is.null(predictability)) {
+    isTRUE(network$meta$predictability_default)
+  } else isTRUE(predictability)
+  if (draw_predictability && is.null(pie_values) && is.null(donut_fill) &&
+      !is.null(nodes$predictability)) {
+    donut_fill <- as.numeric(nodes$predictability)
+  }
 
   # Get layout coordinates from nodes if available
   if ("x" %in% names(nodes) && !all(is.na(nodes$x))) {

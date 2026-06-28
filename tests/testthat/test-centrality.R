@@ -22,6 +22,17 @@ test_that("centrality works with specific measures", {
   expect_true("betweenness" %in% names(result))
 })
 
+test_that("centrality accepts packaged edge-list data directly", {
+  data(student_interactions, package = "cograph")
+
+  result <- centrality(student_interactions)
+
+  expect_true(is.data.frame(result))
+  expect_true(all(c("node", "degree_all", "strength_all", "closeness_all",
+                    "betweenness", "eigenvector", "pagerank") %in% names(result)))
+  expect_equal(nrow(result), length(unique(c(student_interactions$from, student_interactions$to))))
+})
+
 test_that("centrality_degree works", {
   mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
   rownames(mat) <- colnames(mat) <- c("A", "B", "C")

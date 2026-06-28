@@ -38,7 +38,8 @@ centrality(
 )
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object)}
+\item{x}{Network input (matrix, edge-list data frame, igraph, network,
+cograph_network, tna object)}
 
 \item{type}{Character scalar selecting a curated tier of measures when
 \code{measures} is not supplied. One of:
@@ -230,7 +231,8 @@ A data frame with columns:
 }
 \description{
 Computes centrality measures for nodes in a network and returns a tidy
-data frame. Accepts matrices, igraph objects, cograph_network, or tna objects.
+data frame. Accepts matrices, edge-list data frames, igraph objects,
+cograph_network, or tna objects.
 }
 \details{
 The following centrality measures are available:
@@ -334,7 +336,11 @@ centrality (requires \code{membership}).}
 }
 }
 \examples{
-# Basic usage with matrix
+# Built-in edge-list data
+data(student_interactions)
+centrality(student_interactions)
+
+# Matrix input also works
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
 rownames(adj) <- colnames(adj) <- c("A", "B", "C")
 centrality(adj)

@@ -195,6 +195,7 @@ splot(
   node_names = NULL,
   tna_styling = NULL,
   psych_styling = NULL,
+  predictability = NULL,
   i = NULL,
   filetype = "default",
   filename = file.path(tempdir(), "splot"),
@@ -630,6 +631,15 @@ Okabe-Ito palette, no arrows, thin edges) as a base layer. If \code{NULL}
 (default), \code{splot.netobject} auto-enables it on correlation-family input
 (glasso, cor, pcor, ising) and on the undirected constituents of
 \code{net_mlvar}. Explicit user args always win.}
+
+\item{predictability}{Logical or NULL. Draws a per-node predictability ring
+(a donut fill) from a \code{predictability} column on the network's node table,
+the way \code{qgraph}/\code{bootnet} show node predictability. If \code{TRUE}, draws
+it when the column is present; if \code{FALSE}, never; if \code{NULL}
+(default), draws it when the object marks it as its default
+(\code{network$meta$predictability_default}, set e.g. by a \code{psychnet}
+glasso network). A caller's own \code{pie_values} / \code{donut_fill}
+takes precedence.}
 
 \item{i}{Group index or name when x is a group_tna object. If NULL (default),
 plots all groups in a grid. If specified (e.g., i = 1 or i = "Treatment"),

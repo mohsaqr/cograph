@@ -158,6 +158,7 @@ robustness <- function(x,
 
 #' Vertex Attack Analysis
 #' @keywords internal
+#' @noRd
 robustness_vertex_attack <- function(g, measure, mode, n_iter, orig_max, n,
                                      strategy = "sequential") {
 
@@ -224,6 +225,7 @@ robustness_vertex_attack <- function(g, measure, mode, n_iter, orig_max, n,
 
 #' Edge Attack Analysis
 #' @keywords internal
+#' @noRd
 robustness_edge_attack <- function(g, measure, n_iter, orig_max, n,
                                    strategy = "sequential") {
 

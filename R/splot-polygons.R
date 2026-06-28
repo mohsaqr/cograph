@@ -2,6 +2,7 @@
 #' @description Vertex generation functions for polygon-based node shapes.
 #' @name splot-polygons
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Generate Circle Vertices
@@ -12,6 +13,7 @@ NULL
 #' @param n Number of vertices.
 #' @return List with x, y vectors of vertices.
 #' @keywords internal
+#' @noRd
 circle_vertices <- function(x, y, r, n = 50) {
   angles <- seq(0, 2 * pi, length.out = n + 1)[-1]
   list(
@@ -27,6 +29,7 @@ circle_vertices <- function(x, y, r, n = 50) {
 #' @param r Half-width (vertex distance from center).
 #' @return List with x, y vectors of vertices.
 #' @keywords internal
+#' @noRd
 square_vertices <- function(x, y, r) {
   list(
     x = x + r * c(-1, 1, 1, -1),
@@ -42,6 +45,7 @@ square_vertices <- function(x, y, r) {
 #' @param h Half-height.
 #' @return List with x, y vectors of vertices.
 #' @keywords internal
+#' @noRd
 rectangle_vertices <- function(x, y, w, h) {
   list(
     x = x + w * c(-1, 1, 1, -1),
@@ -56,6 +60,7 @@ rectangle_vertices <- function(x, y, w, h) {
 #' @param r Radius (vertex distance from center).
 #' @return List with x, y vectors of vertices.
 #' @keywords internal
+#' @noRd
 triangle_vertices <- function(x, y, r) {
   angles <- c(pi/2, pi/2 + 2*pi/3, pi/2 + 4*pi/3)
   list(
@@ -71,6 +76,7 @@ triangle_vertices <- function(x, y, r) {
 #' @param r Radius (vertex distance from center).
 #' @return List with x, y vectors of vertices.
 #' @keywords internal
+#' @noRd
 diamond_vertices <- function(x, y, r) {
   angles <- c(0, pi/2, pi, 3*pi/2)
   list(
@@ -86,6 +92,7 @@ diamond_vertices <- function(x, y, r) {
 #' @param r Radius.
 #' @return List with x, y vectors of vertices.
 #' @keywords internal
+#' @noRd
 pentagon_vertices <- function(x, y, r) {
   angles <- seq(pi/2, pi/2 + 2*pi * (4/5), length.out = 5)
   list(
@@ -101,6 +108,7 @@ pentagon_vertices <- function(x, y, r) {
 #' @param r Radius.
 #' @return List with x, y vectors of vertices.
 #' @keywords internal
+#' @noRd
 hexagon_vertices <- function(x, y, r) {
   angles <- seq(0, 2*pi * (5/6), length.out = 6)
   list(
@@ -118,6 +126,7 @@ hexagon_vertices <- function(x, y, r) {
 #' @param inner_ratio Ratio of inner to outer radius.
 #' @return List with x, y vectors of vertices.
 #' @keywords internal
+#' @noRd
 star_vertices <- function(x, y, r, n_points = 5, inner_ratio = 0.4) {
   n_vertices <- n_points * 2
   angles <- seq(pi/2, pi/2 + 2*pi * (1 - 1/n_vertices), length.out = n_vertices)
@@ -137,6 +146,7 @@ star_vertices <- function(x, y, r, n_points = 5, inner_ratio = 0.4) {
 #' @param n Number of vertices.
 #' @return List with x, y vectors of vertices.
 #' @keywords internal
+#' @noRd
 heart_vertices <- function(x, y, r, n = 100) {
   t <- seq(0, 2*pi, length.out = n)
 
@@ -164,6 +174,7 @@ heart_vertices <- function(x, y, r, n = 100) {
 #' @param n Number of vertices.
 #' @return List with x, y vectors of vertices.
 #' @keywords internal
+#' @noRd
 ellipse_vertices <- function(x, y, rx, ry, n = 50) {
   angles <- seq(0, 2 * pi, length.out = n + 1)[-1]
   list(
@@ -180,6 +191,7 @@ ellipse_vertices <- function(x, y, rx, ry, n = 50) {
 #' @param thickness Arm thickness as ratio of r.
 #' @return List with x, y vectors of vertices.
 #' @keywords internal
+#' @noRd
 cross_vertices <- function(x, y, r, thickness = 0.3) {
   t <- r * thickness
 
@@ -199,6 +211,7 @@ cross_vertices <- function(x, y, r, thickness = 0.3) {
 #' @param rotation Starting angle in radians (default: first vertex at top).
 #' @return List with x, y vectors of vertices.
 #' @keywords internal
+#' @noRd
 regular_polygon_vertices <- function(x, y, r, n, rotation = pi/2) {
   angles <- seq(rotation, rotation + 2*pi * (1 - 1/n), length.out = n)
   list(
@@ -215,6 +228,7 @@ regular_polygon_vertices <- function(x, y, r, n, rotation = pi/2) {
 #' @param inner_ratio Ratio to scale vertices toward center (0-1).
 #' @return List with x, y vectors of inner polygon vertices.
 #' @keywords internal
+#' @noRd
 inset_polygon_vertices <- function(outer, inner_ratio) {
   # Calculate centroid
   cx <- mean(outer$x)
@@ -236,6 +250,7 @@ inset_polygon_vertices <- function(outer, inner_ratio) {
 #' @param n_per_edge Number of subdivisions per edge.
 #' @return List with \code{x}, \code{y} vectors (n_corners * n_per_edge points).
 #' @keywords internal
+#' @noRd
 subdivide_polygon <- function(verts, n_per_edge = 25) {
   n <- length(verts$x)
   xs <- numeric(n * n_per_edge)
@@ -262,6 +277,7 @@ subdivide_polygon <- function(verts, n_per_edge = 25) {
 #' @param r Radius/size.
 #' @return List with x, y vectors of vertices.
 #' @keywords internal
+#' @noRd
 get_donut_base_vertices <- function(shape, x, y, r) {
   if (shape == "circle") return(circle_vertices(x, y, r, n = 100))
   corners <- switch(shape,
@@ -285,6 +301,7 @@ get_donut_base_vertices <- function(shape, x, y, r) {
 #' @param n_teeth Number of teeth.
 #' @return List with x, y vectors of vertices.
 #' @keywords internal
+#' @noRd
 gear_vertices <- function(x, y, r, n_teeth = 8) {
   inner_r <- r * 0.65
   tooth_height <- r * 0.25
@@ -320,6 +337,7 @@ gear_vertices <- function(x, y, r, n_teeth = 8) {
 #' @param n Number of vertices.
 #' @return List with x, y vectors of vertices.
 #' @keywords internal
+#' @noRd
 cloud_vertices <- function(x, y, r, n = 100) {
   t <- seq(0, 2 * pi, length.out = n)
   rad <- r * (0.65 + 0.2 * sin(4 * t) + 0.1 * sin(6 * t))
@@ -338,6 +356,7 @@ cloud_vertices <- function(x, y, r, n = 100) {
 #' @param n Number of vertices.
 #' @return List with x, y vectors of vertices.
 #' @keywords internal
+#' @noRd
 brain_vertices <- function(x, y, r, n = 80) {
   t <- seq(0, 2 * pi, length.out = n)
   rad <- r * (0.7 + 0.15 * sin(3 * t) + 0.1 * sin(5 * t) + 0.05 * cos(7 * t))
@@ -360,6 +379,7 @@ brain_vertices <- function(x, y, r, n = 80) {
 #' @param ... Additional shape-specific parameters.
 #' @return List with x, y vectors of vertices.
 #' @keywords internal
+#' @noRd
 get_shape_vertices <- function(shape, x, y, r, r2 = NULL, ...) {
   if (is.null(r2)) r2 <- r
 

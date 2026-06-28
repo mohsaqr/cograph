@@ -769,6 +769,7 @@ soplot <- function(network, title = NULL, title_size = 14,
 #' @param title Optional plot title.
 #' @return A grid gTree object.
 #' @keywords internal
+#' @noRd
 create_grid_grob <- function(network, title = NULL, background = "white") {
   if (!inherits(network, "cograph_network")) {
     stop("network must be a cograph_network object", call. = FALSE)
@@ -825,6 +826,7 @@ create_grid_grob <- function(network, title = NULL, background = "white") {
 #' @param position Legend position: "topright", "topleft", "bottomright", "bottomleft".
 #' @return A grid gList of legend grobs.
 #' @keywords internal
+#' @noRd
 render_legend_grid <- function(network, position = "topright") {
   nodes <- network$get_nodes()
   aes <- network$get_node_aes()

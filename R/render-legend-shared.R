@@ -5,6 +5,7 @@
 #'   calls remain in older helpers.
 #' @name render-legend-shared
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Render a base-R legend with device-aware size compensation.

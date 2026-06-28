@@ -5,6 +5,7 @@
 #'   devices (PNG at high DPI, large canvas, RStudio plot pane resizes).
 #' @name visual-scale
 #' @keywords internal
+#' @noRd
 NULL
 
 # ============================================================================

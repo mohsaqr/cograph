@@ -3,6 +3,7 @@
 #' qgraph's visual logic. Used by splot() for qgraph-compatible network visualization.
 #' @name sonplot-qgraph-geometry
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Get Plot Dimension Info
@@ -11,6 +12,7 @@ NULL
 #'
 #' @return List with usr, pin, mai, csi, and dev_name components.
 #' @keywords internal
+#' @noRd
 qgraph_plot_info <- function() {
   list(
     usr = graphics::par("usr"),
@@ -29,6 +31,7 @@ qgraph_plot_info <- function() {
 #' @param n_nodes Number of nodes in the network.
 #' @return Default vsize value (before scale factor conversion).
 #' @keywords internal
+#' @noRd
 qgraph_default_vsize <- function(n_nodes) {
   8 * exp(-n_nodes / 80) + 1
 }
@@ -44,6 +47,7 @@ qgraph_default_vsize <- function(n_nodes) {
 #' @param directed Logical: is the network directed?
 #' @return Default esize value.
 #' @keywords internal
+#' @noRd
 qgraph_default_esize <- function(n_nodes, weighted = TRUE, directed = FALSE) {
   if (weighted) {
     esize <- 15 * exp(-n_nodes / 90) + 1
@@ -68,6 +72,7 @@ qgraph_default_esize <- function(n_nodes, weighted = TRUE, directed = FALSE) {
 #' @param esize Maximum edge width.
 #' @return Numeric vector of scaled edge widths.
 #' @keywords internal
+#' @noRd
 qgraph_scale_edge_widths <- function(weights, minimum = 0, maximum = NULL,
                                       cut = 0, esize = NULL) {
   if (length(weights) == 0) return(numeric(0))
@@ -118,6 +123,7 @@ qgraph_scale_edge_widths <- function(weights, minimum = 0, maximum = NULL,
 #' @param plot_info Plot dimension info from qgraph_plot_info(). NULL to auto-compute.
 #' @return List with x, y coordinates on node boundary.
 #' @keywords internal
+#' @noRd
 qgraph_cent2edge <- function(x, y, cex, offset = 0, angle, plot_info = NULL) {
   if (is.null(plot_info)) {
     plot_info <- qgraph_plot_info()
@@ -154,6 +160,7 @@ qgraph_cent2edge <- function(x, y, cex, offset = 0, angle, plot_info = NULL) {
 #'
 #' @return Numeric normalization factor.
 #' @keywords internal
+#' @noRd
 qgraph_norm_curve <- function() {
   pin <- graphics::par("pin")
   sqrt(sum(pin^2)) / sqrt(7^2 + 7^2)
@@ -167,6 +174,7 @@ qgraph_norm_curve <- function() {
 #' @param plot_info Plot dimension info. NULL to auto-compute.
 #' @return Node radius in user coordinates.
 #' @keywords internal
+#' @noRd
 qgraph_vsize_to_user <- function(vsize, plot_info = NULL) {
   if (is.null(plot_info)) {
     plot_info <- qgraph_plot_info()
@@ -207,6 +215,7 @@ qgraph_vsize_to_user <- function(vsize, plot_info = NULL) {
 #' @param shape Node shape.
 #' @return List with x, y coordinates on boundary.
 #' @keywords internal
+#' @noRd
 qgraph_cent_to_edge_simple <- function(x, y, angle, node_size, shape = "circle") {
   if (shape == "circle") {
     list(
@@ -261,6 +270,7 @@ qgraph_cent_to_edge_simple <- function(x, y, angle, node_size, shape = "circle")
 #' @param base_asize Base arrow size multiplier.
 #' @return Arrow size in user coordinates.
 #' @keywords internal
+#' @noRd
 qgraph_arrow_size <- function(edge_width, base_asize = 1) {
   # qgraph scales arrow size with edge width
   # Base size around 0.02 user coords, scaled by edge width

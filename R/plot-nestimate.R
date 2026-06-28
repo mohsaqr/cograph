@@ -6,6 +6,7 @@
 #'   No Nestimate import is needed — dispatch is via \code{inherits()} class-name checking only.
 #' @name plot-nestimate
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Plot a Nestimate netobject

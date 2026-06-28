@@ -2,6 +2,7 @@
 #' @description Functions for rendering nodes using grid graphics.
 #' @name render-nodes
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Render All Nodes
@@ -11,6 +12,7 @@ NULL
 #' @param network A CographNetwork object.
 #' @return A grid gList of node grobs.
 #' @keywords internal
+#' @noRd
 render_nodes_grid <- function(network) {
   nodes <- network$get_nodes()
   aes <- network$get_node_aes()
@@ -329,6 +331,7 @@ render_nodes_grid <- function(network) {
 #' @param network A CographNetwork object.
 #' @return A grid gList of label grobs.
 #' @keywords internal
+#' @noRd
 render_node_labels_grid <- function(network) {
   nodes <- network$get_nodes()
   aes <- network$get_node_aes()

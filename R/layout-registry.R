@@ -2,6 +2,7 @@
 #' @description Functions for registering built-in layouts.
 #' @name layout-registry
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Register Built-in Layouts
@@ -9,6 +10,7 @@ NULL
 #' Register all built-in layout algorithms.
 #'
 #' @keywords internal
+#' @noRd
 register_builtin_layouts <- function() {
   # Circle layout
   register_layout("circle", layout_circle)

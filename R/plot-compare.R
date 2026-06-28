@@ -2,6 +2,7 @@
 #' @description Visualize differences between two networks.
 #' @name plot-compare
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Plot Network Difference
@@ -464,6 +465,7 @@ plot_comparison_heatmap <- function(x, y = NULL,
 #' @param x Network object (matrix, CographNetwork, tna, igraph, or list with $weights).
 #' @return A numeric matrix.
 #' @keywords internal
+#' @noRd
 .extract_weights <- function(x) {
   if (is.matrix(x)) {
     return(x)
@@ -506,6 +508,7 @@ plot_comparison_heatmap <- function(x, y = NULL,
 #' @param x Network object.
 #' @return A numeric vector of initial probabilities, or NULL if not available.
 #' @keywords internal
+#' @noRd
 .extract_inits <- function(x) {
   if (inherits(x, "tna")) {
     return(x$inits)
@@ -533,6 +536,7 @@ plot_comparison_heatmap <- function(x, y = NULL,
 #' @param ... Additional arguments passed to splot().
 #' @return Invisibly returns list of comparison results.
 #' @keywords internal
+#' @noRd
 .plot_compare_all_pairs <- function(x, pos_color, neg_color, labels,
                                     show_inits, donut_inner_ratio,
                                     combined = TRUE, ...) {

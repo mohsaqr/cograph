@@ -183,6 +183,7 @@ palette_diverging <- function(n, alpha = 1, midpoint = "white") {
 #' Register Built-in Palettes
 #'
 #' @keywords internal
+#' @noRd
 register_builtin_palettes <- function() {
   register_palette("rainbow", palette_rainbow)
   register_palette("colorblind", palette_colorblind)

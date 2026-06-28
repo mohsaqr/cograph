@@ -3,6 +3,7 @@
 #'   temporal (directed), contemporaneous (undirected), between (undirected).
 #' @name plot-mlvar
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Plot a Nestimate net_mlvar object

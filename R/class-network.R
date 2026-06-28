@@ -19,7 +19,7 @@ CographNetwork <- R6::R6Class(
   "CographNetwork",
   public = list(
     #' @description Create a new CographNetwork object.
-    #' @param input Network input supported by \code{\link{parse_input}},
+    #' @param input Network input supported by \code{parse_input},
     #'   such as a matrix, edge list, igraph, statnet network, qgraph, or tna object.
     #' @param directed Logical. Force directed interpretation. NULL for auto-detect.
     #' @param nodes Node metadata. Can be NULL or a data frame with node attributes.
@@ -335,6 +335,7 @@ CographNetwork <- R6::R6Class(
 #' @param x Object to check.
 #' @return Logical.
 #' @keywords internal
+#' @noRd
 is_cograph_network <- function(x) {
 
   inherits(x, "CographNetwork") || inherits(x, "cograph_network")
@@ -359,6 +360,7 @@ is_cograph_network <- function(x) {
 #' @param type Optional source/type string stored in \code{meta$type}.
 #' @return A cograph_network object (named list with class).
 #' @keywords internal
+#' @noRd
 .create_cograph_network <- function(
     nodes,
     edges,

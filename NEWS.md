@@ -1,3 +1,21 @@
+# cograph 2.3.11
+
+## New features
+
+- `dyad_census()` classifies every dyad of a directed network into
+  mutual (M), asymmetric (A), or null (N), returning a tidy
+  one-row-per-type data.frame with counts and proportions and a
+  dyad-based reciprocity (`2M / (2M + A)`) attribute. It is the
+  dyad-level companion to `triad_census()`. Undirected input counts
+  every edge as a mutual dyad.
+
+- `ego_networks()` reports tidy per-ego personal-network metrics — size,
+  ego/alter tie counts and densities, and Burt's structural-hole
+  measures (`effective_size`, `constraint`, `order = 1` only) — with one
+  row per ego. The structural-hole columns reuse the same
+  implementations as `centrality()`, so they match
+  `centrality(x, measures = c("effective_size", "constraint"))` exactly.
+
 # cograph 2.3.10
 
 ## Bug fixes / changes

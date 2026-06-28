@@ -2,6 +2,7 @@
 #' @description Node drawing functions for splot() using base R graphics.
 #' @name splot-nodes
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Draw a Single Node
@@ -17,6 +18,7 @@ NULL
 #' @param border.width Border line width.
 #' @param ... Additional parameters.
 #' @keywords internal
+#' @noRd
 draw_node_base <- function(x, y, size, size2 = NULL, shape = "circle",
                            col = "#4A90D9", border.col = "#2C5AA0",
                            border.width = 1, ...) {
@@ -104,6 +106,7 @@ draw_node_base <- function(x, y, size, size2 = NULL, shape = "circle",
 #' @param border.width Border line width.
 #' @param pie_border.width Border width for pie slice dividers (NULL = use border.width).
 #' @keywords internal
+#' @noRd
 draw_pie_node_base <- function(x, y, size, values, colors = NULL,
                                default_color = NULL,
                                border.col = "black", border.width = 1,
@@ -210,6 +213,7 @@ draw_pie_node_base <- function(x, y, size, values, colors = NULL,
 #' @param value_prefix Text before value (e.g., "$").
 #' @param value_suffix Text after value (e.g., "%").
 #' @keywords internal
+#' @noRd
 draw_polygon_donut_node_base <- function(x, y, size, values, colors = NULL,
                                          default_color = NULL,
                                          inner_ratio = 0.5, bg_color = "gray90",
@@ -359,6 +363,7 @@ draw_polygon_donut_node_base <- function(x, y, size, values, colors = NULL,
 #' @param value_prefix Text before value (e.g., "$").
 #' @param value_suffix Text after value (e.g., "%").
 #' @keywords internal
+#' @noRd
 draw_donut_node_base <- function(x, y, size, values, colors = NULL,
                                  default_color = NULL,
                                  inner_ratio = 0.5, bg_color = "gray90",
@@ -540,6 +545,7 @@ draw_donut_node_base <- function(x, y, size, values, colors = NULL,
 #' @param pie_border.width Border width for pie slice dividers (NULL = use border.width * 0.5).
 #' @param donut_border.width Border width for donut ring (NULL = use border.width).
 #' @keywords internal
+#' @noRd
 draw_donut_pie_node_base <- function(x, y, size, donut_value = 1,
                                      donut_color = "#4A90D9",
                                      pie_values = NULL, pie_colors = NULL,
@@ -682,6 +688,7 @@ draw_donut_pie_node_base <- function(x, y, size, donut_value = 1,
 #' @param pie_border.width Border width for pie slice dividers.
 #' @param donut_border.width Border width for donut ring.
 #' @keywords internal
+#' @noRd
 draw_polygon_donut_pie_node_base <- function(x, y, size, donut_value = 1,
                                               donut_color = "#4A90D9",
                                               donut_shape = "hexagon",
@@ -825,6 +832,7 @@ draw_polygon_donut_pie_node_base <- function(x, y, size, donut_value = 1,
 #' @param pie_border.width Border width for pie slice dividers.
 #' @param donut_border.width Border width for donut rings.
 #' @keywords internal
+#' @noRd
 draw_double_donut_pie_node_base <- function(x, y, size,
                                             donut_values = NULL, donut_colors = NULL,
                                             donut2_values = NULL, donut2_colors = NULL,
@@ -1012,6 +1020,7 @@ draw_double_donut_pie_node_base <- function(x, y, size,
 #' @param pos Position relative to point (NULL=centered, 1=below, 2=left, 3=above, 4=right).
 #' @param offset Offset distance when using pos.
 #' @keywords internal
+#' @noRd
 draw_node_label_base <- function(x, y, label, cex = 1, col = "black",
                                  font = 1, family = "sans",
                                  hjust = 0.5, vjust = 0.5, srt = 0,
@@ -1042,6 +1051,7 @@ draw_node_label_base <- function(x, y, label, cex = 1, col = "black",
 #' Circle with small connection circles around perimeter.
 #'
 #' @keywords internal
+#' @noRd
 draw_neural_node_base <- function(x, y, size, col, border.col, border.width,
                                   n_connections = 6) {
   # Main center circle
@@ -1078,6 +1088,7 @@ draw_neural_node_base <- function(x, y, size, col, border.col, border.width,
 #' Square with pins extending from all edges.
 #'
 #' @keywords internal
+#' @noRd
 draw_chip_node_base <- function(x, y, size, col, border.col, border.width,
                                 pins_per_side = 3) {
   body_size <- size * 0.7
@@ -1127,6 +1138,7 @@ draw_chip_node_base <- function(x, y, size, col, border.col, border.width,
 #' Rounded square with antenna and eyes.
 #'
 #' @keywords internal
+#' @noRd
 draw_robot_node_base <- function(x, y, size, col, border.col, border.width) {
   head_w <- size * 0.8
   head_h <- size * 0.7
@@ -1171,6 +1183,7 @@ draw_robot_node_base <- function(x, y, size, col, border.col, border.width) {
 #' Interconnected nodes pattern.
 #'
 #' @keywords internal
+#' @noRd
 draw_network_node_base <- function(x, y, size, col, border.col, border.width) {
   # Outer boundary
   graphics::symbols(
@@ -1215,6 +1228,7 @@ draw_network_node_base <- function(x, y, size, col, border.col, border.width) {
 #' Cylinder shape.
 #'
 #' @keywords internal
+#' @noRd
 draw_database_node_base <- function(x, y, size, col, border.col, border.width) {
   cyl_width <- size * 0.8
   cyl_height <- size * 1.2
@@ -1267,6 +1281,7 @@ draw_database_node_base <- function(x, y, size, col, border.col, border.width) {
 #' @param label.cex Vector of label sizes.
 #' @param label.color Vector of label colors.
 #' @keywords internal
+#' @noRd
 render_nodes_base <- function(layout, vsize, vsize2 = NULL, shape = "circle",
                               color = "#4A90D9", border.color = "#2C5AA0",
                               border.width = 1, pie = NULL, pieColor = NULL,

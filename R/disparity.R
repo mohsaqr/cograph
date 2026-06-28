@@ -4,6 +4,7 @@
 #' the statistically significant backbone of a weighted network.
 #' @name disparity
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Disparity Filter
@@ -159,6 +160,7 @@ disparity_filter.igraph <- function(x, level = 0.05, ...) {
 #' @return Binary significance matrix.
 #'
 #' @keywords internal
+#' @noRd
 .disparity_filter_matrix <- function(mat, level = 0.05) {
   d <- dim(mat)[2]
 

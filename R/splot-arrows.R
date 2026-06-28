@@ -2,6 +2,7 @@
 #' @description Arrow head drawing functions for splot() edges.
 #' @name splot-arrows
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Calculate Arrow Base Midpoint
@@ -16,6 +17,7 @@ NULL
 #' @param arrow_angle Arrow head angle in radians. Default pi/6 (30 degrees).
 #' @return List with x, y coordinates of the arrow base midpoint.
 #' @keywords internal
+#' @noRd
 arrow_base_midpoint <- function(x, y, angle, size, arrow_angle = pi/6) {
   left_angle <- angle + pi - arrow_angle
   right_angle <- angle + pi + arrow_angle
@@ -38,6 +40,7 @@ arrow_base_midpoint <- function(x, y, angle, size, arrow_angle = pi/6) {
 #' @param arrow_angle Arrow head angle in radians. Default pi/6 (30 degrees).
 #' @return The arrow radius (distance from tip to base).
 #' @keywords internal
+#' @noRd
 arrow_radius <- function(size, arrow_angle = pi/6) {
   size  # The arrow extends 'size' units back from tip
 }
@@ -55,6 +58,7 @@ arrow_radius <- function(size, arrow_angle = pi/6) {
 #' @param border Arrow border color (default same as fill).
 #' @param lwd Border line width.
 #' @keywords internal
+#' @noRd
 draw_arrow_base <- function(x, y, angle, size, arrow_angle = pi/6, col = "black",
                             border = NULL, lwd = 1) {
   if (is.null(border)) border <- col
@@ -90,6 +94,7 @@ draw_arrow_base <- function(x, y, angle, size, arrow_angle = pi/6, col = "black"
 #' @param arrow_angle Arrow head angle in radians. Default pi/6 (30 degrees).
 #' @return List with x, y vectors and midpoint coordinates.
 #' @keywords internal
+#' @noRd
 arrow_head_points <- function(x, y, angle, size, arrow_angle = pi/6) {
   # Arrow points relative to tip
   left_angle <- angle + pi - arrow_angle
@@ -126,6 +131,7 @@ arrow_head_points <- function(x, y, angle, size, arrow_angle = pi/6) {
 #' @param col Arrow fill color.
 #' @param border Arrow border color.
 #' @keywords internal
+#' @noRd
 draw_curved_arrow_base <- function(spline_x, spline_y, size, arrow_angle = pi/6,
                                    col = "black", border = NULL) {
   n <- length(spline_x)
@@ -161,6 +167,7 @@ draw_curved_arrow_base <- function(spline_x, spline_y, size, arrow_angle = pi/6,
 #' @param col Arrow color.
 #' @param lwd Line width.
 #' @keywords internal
+#' @noRd
 draw_open_arrow_base <- function(x, y, angle, size, arrow_angle = pi/6,
                                  col = "black", lwd = 1) {
   # Arrow points
@@ -192,6 +199,7 @@ draw_open_arrow_base <- function(x, y, angle, size, arrow_angle = pi/6,
 #' @param col Fill color.
 #' @param border Border color.
 #' @keywords internal
+#' @noRd
 draw_circle_arrow_base <- function(x, y, size, col = "black", border = NULL) {
   if (is.null(border)) border <- col
 
@@ -217,6 +225,7 @@ draw_circle_arrow_base <- function(x, y, size, col = "black", border = NULL) {
 #' @param arrow_size Arrow size.
 #' @return List with x, y coordinates of shortened endpoint.
 #' @keywords internal
+#' @noRd
 shorten_edge_for_arrow <- function(x1, y1, x2, y2, arrow_size) {
   angle <- splot_angle(x1, y1, x2, y2)
 

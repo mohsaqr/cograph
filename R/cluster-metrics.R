@@ -618,6 +618,7 @@ summarize_clusters <- function(x,
 
 #' Convert a cluster_summary to mcml (strip tna classes)
 #' @keywords internal
+#' @noRd
 .as_mcml <- function(cs) {
   # Strip tna class from macro
   m <- unclass(cs$macro)
@@ -652,6 +653,7 @@ summarize_clusters <- function(x,
 
 #' Decode numeric tna_seq_data back to character labels
 #' @keywords internal
+#' @noRd
 .decode_tna_data <- function(data) {
   if (is.null(data)) return(NULL)
   tna_labels <- attr(data, "labels")
@@ -677,6 +679,7 @@ summarize_clusters <- function(x,
 #'     from each tna's labels. Macro rebuilt from original data.}
 #' }
 #' @keywords internal
+#' @noRd
 .group_tna_to_mcml <- function(x, clusters = NULL, method = "sum",
                                 type = "tna", directed = TRUE,
                                 compute_within = TRUE) {
@@ -803,6 +806,7 @@ summarize_clusters <- function(x,
 
 #' Detect input type for summarize_clusters
 #' @keywords internal
+#' @noRd
 .detect_mcml_input <- function(x) {
   if (inherits(x, "group_tna")) return("group_tna")
 
@@ -836,6 +840,7 @@ summarize_clusters <- function(x,
 
 #' Auto-detect clusters from cograph_network
 #' @keywords internal
+#' @noRd
 .auto_detect_clusters <- function(x) {
   clusters <- NULL
   if (!is.null(x$nodes)) {
@@ -864,6 +869,7 @@ summarize_clusters <- function(x,
 
 #' Build node-to-cluster lookup from cluster specification
 #' @keywords internal
+#' @noRd
 .build_cluster_lookup <- function(clusters, all_nodes) {
   if (is.data.frame(clusters)) { # nocov start
     # Defensive: .normalize_clusters converts df to list before this is called
@@ -917,6 +923,7 @@ summarize_clusters <- function(x,
 
 #' Build cluster_summary from transition vectors
 #' @keywords internal
+#' @noRd
 .build_from_transitions <- function(from_nodes, to_nodes, weights,
                                      cluster_lookup, cluster_list,
                                      method, type, directed,
@@ -1096,6 +1103,7 @@ summarize_clusters <- function(x,
 
 #' Build MCML from edge list data.frame
 #' @keywords internal
+#' @noRd
 .build_mcml_edgelist <- function(df, clusters, method, type,
                                   directed, compute_within) {
 
@@ -1173,6 +1181,7 @@ summarize_clusters <- function(x,
 
 #' Build MCML from sequence data.frame
 #' @keywords internal
+#' @noRd
 .build_mcml_sequence <- function(df, clusters, method, type,
                                   directed, compute_within) {
 
@@ -1222,6 +1231,7 @@ summarize_clusters <- function(x,
 
 #' Process weights based on type
 #' @keywords internal
+#' @noRd
 .process_weights <- function(raw_weights, type, directed = TRUE) {
   if (type == "raw" || type == "frequency") {
     return(raw_weights)
@@ -1492,6 +1502,7 @@ as_mcml.default <- function(x, ...) {
 
 #' Normalize cluster specification to list format
 #' @keywords internal
+#' @noRd
 .normalize_clusters <- function(clusters, node_names) {
   if (is.data.frame(clusters)) {
     # Data frame with node and group columns
@@ -1699,6 +1710,7 @@ cqual <- cluster_quality
 
 #' Compute modularity
 #' @keywords internal
+#' @noRd
 .compute_modularity <- function(A, membership, directed = TRUE) {
   # Both directed and undirected use m_total = sum(A). For symmetric A the
   # double-sum counts each edge twice, making this algebraically equivalent

@@ -798,6 +798,7 @@ plot_htna <- function(
 #' @param directed Logical: draw arrows?
 #'
 #' @keywords internal
+#' @noRd
 .draw_intra_group_edges <- function(layout_mat, weights, group_indices,
                                      edge_colors, intra_curvature, orientation,
                                      layout_type = "bipartite",
@@ -899,6 +900,7 @@ plot_htna <- function(
 #' @param asize Arrow size.
 #'
 #' @keywords internal
+#' @noRd
 .draw_intra_arc <- function(x1, y1, x2, y2, intra_curvature, curve_sign,
                              col, lwd, lty = 1, arrow, asize) {
   dx <- x2 - x1
@@ -948,6 +950,7 @@ plot_htna <- function(
 #' @return Numeric vector of x-offsets for each node.
 #'
 #' @keywords internal
+#' @noRd
 compute_connectivity_jitter_horizontal <- function(weights, g1_idx, g2_idx, amount = 0.8, side = "group1") {
   n <- nrow(weights)
   jitter <- rep(0, n)
@@ -993,6 +996,7 @@ compute_connectivity_jitter_horizontal <- function(weights, g1_idx, g2_idx, amou
 #' @return Numeric vector of y-offsets for each node.
 #'
 #' @keywords internal
+#' @noRd
 compute_connectivity_jitter_vertical <- function(weights, g1_idx, g2_idx, amount = 0.8, side = "group1") {
   n <- nrow(weights)
   jitter <- rep(0, n)
@@ -1040,6 +1044,7 @@ compute_connectivity_jitter_vertical <- function(weights, g1_idx, g2_idx, amount
 #' @return List with x and y position vectors.
 #'
 #' @keywords internal
+#' @noRd
 compute_polygon_layout <- function(node_list, lab, group_indices, n_sides, angle_spacing = 0.15, scale = 1) {
   n <- length(lab)
   x_pos <- rep(0, n)
@@ -1114,6 +1119,7 @@ for (i in seq_len(n_sides)) {
 #' @return List with x and y position vectors.
 #'
 #' @keywords internal
+#' @noRd
 compute_circular_layout <- function(node_list, lab, group_indices, n_groups, angle_spacing = 0.15, scale = 1) {
   n <- length(lab)
   x_pos <- rep(0, n)

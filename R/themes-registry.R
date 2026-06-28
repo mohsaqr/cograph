@@ -10,6 +10,7 @@ NULL
 #' Register all built-in themes.
 #'
 #' @keywords internal
+#' @noRd
 register_builtin_themes <- function() {
   register_theme("classic", theme_cograph_classic())
   register_theme("colorblind", theme_cograph_colorblind())

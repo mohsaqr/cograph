@@ -2,6 +2,7 @@
 #' @description Utility functions for validating inputs.
 #' @name utils-validation
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Validate Network Object
@@ -10,6 +11,7 @@ NULL
 #'   \code{cograph_network}.
 #' @param arg_name Argument name for error messages.
 #' @keywords internal
+#' @noRd
 validate_network <- function(x, arg_name = "network") {
   if (!inherits(x, "CographNetwork") && !inherits(x, "cograph_network")) {
     stop(arg_name, " must be a CographNetwork object", call. = FALSE)
@@ -29,6 +31,7 @@ validate_network <- function(x, arg_name = "network") {
 #' @param x Color to validate.
 #' @param arg_name Argument name for error messages.
 #' @keywords internal
+#' @noRd
 validate_color <- function(x, arg_name = "color") {
   if (is.null(x) || is.na(x)) {
     return(TRUE)
@@ -54,6 +57,7 @@ validate_color <- function(x, arg_name = "color") {
 #' @param max Maximum allowed value.
 #' @param arg_name Argument name for error messages.
 #' @keywords internal
+#' @noRd
 validate_range <- function(x, min = -Inf, max = Inf, arg_name = "value") {
   if (!is.numeric(x)) {
     stop(arg_name, " must be numeric", call. = FALSE)
@@ -76,6 +80,7 @@ validate_range <- function(x, min = -Inf, max = Inf, arg_name = "value") {
 #' @param choices Allowed values.
 #' @param arg_name Argument name for error messages.
 #' @keywords internal
+#' @noRd
 validate_choice <- function(x, choices, arg_name = "value") {
   if (!x %in% choices) {
     stop(arg_name, " must be one of: ", paste(choices, collapse = ", "),
@@ -91,6 +96,7 @@ validate_choice <- function(x, choices, arg_name = "value") {
 #' @param arg_name Argument name for error messages.
 #' @param allow_single Allow single value (will be recycled).
 #' @keywords internal
+#' @noRd
 validate_length <- function(x, expected_length, arg_name = "value",
                             allow_single = TRUE) {
   if (length(x) == expected_length) {
@@ -111,6 +117,7 @@ validate_length <- function(x, expected_length, arg_name = "value",
 #' @param n Target length.
 #' @return Recycled vector.
 #' @keywords internal
+#' @noRd
 recycle_to_length <- function(x, n) {
   if (length(x) == n) {
     return(x)
@@ -134,6 +141,7 @@ recycle_to_length <- function(x, n) {
 #' @param name Parameter name for error message.
 #' @return Vector of length n.
 #' @keywords internal
+#' @noRd
 expand_param <- function(x, n, name = "parameter") {
   if (length(x) == 1) {
     return(rep(x, n))
@@ -154,6 +162,7 @@ expand_param <- function(x, n, name = "parameter") {
 #' @param default Default value if NULL.
 #' @return Resolved vector of values.
 #' @keywords internal
+#' @noRd
 resolve_aesthetic <- function(value, data = NULL, n = NULL, default = NULL) {
   if (is.null(value)) {
     if (is.null(default)) {

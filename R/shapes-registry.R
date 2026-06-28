@@ -2,6 +2,7 @@
 #' @description Functions for registering built-in shapes.
 #' @name shapes-registry
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Register Built-in Shapes
@@ -9,6 +10,7 @@ NULL
 #' Register all built-in node shapes.
 #'
 #' @keywords internal
+#' @noRd
 register_builtin_shapes <- function() {
   # Basic shapes
   register_shape("circle", draw_circle)

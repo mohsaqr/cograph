@@ -1,5 +1,25 @@
 # Changelog
 
+## cograph 2.4.2
+
+### Bug fixes / changes
+
+- [`plot_compare()`](https://sonsoles.me/cograph/reference/plot_compare.md)
+  is **no longer deprecated** — it is a plain alias of
+  [`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md).
+  [`tna::plot_compare()`](http://sonsoles.me/tna/reference/plot_compare.md)
+  delegates to it by name (`cograph::plot_compare(x, y, ...)`), so
+  deprecating it wrongly made every
+  [`tna::plot_compare()`](http://sonsoles.me/tna/reference/plot_compare.md)
+  call emit a warning; the warning is removed. Both names call the same
+  implementation;
+  [`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md)
+  is the preferred spelling for new cograph code.
+
+- [`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md)
+  also auto-detects a Nestimate `netdifference` object (or any object
+  exposing `$difference_matrix`), alongside `tna_comparison`.
+
 ## cograph 2.4.1
 
 ### New features
@@ -42,19 +62,14 @@
   near-invisible), and edges stay coloured by the sign of the
   difference. Explicit `node_*` arguments still override the preset.
 
-- [`plot_compare()`](https://sonsoles.me/cograph/reference/plot_compare.md)
-  has been **renamed to
-  [`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md)**
-  to avoid colliding with
-  [`tna::plot_compare()`](http://sonsoles.me/tna/reference/plot_compare.md)
-  (an S3 generic for comparing tna models); the two masked each other
-  depending on package load order.
+- [`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md)
+  is added as the preferred name for the difference-network plotter.
   [`plot_compare()`](https://sonsoles.me/cograph/reference/plot_compare.md)
-  is kept as a soft-deprecated alias that forwards to
-  [`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md)
-  with a deprecation warning, and will be removed in a future release.
-  Update calls to
-  [`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md).
+  remains a first-class alias of it
+  ([`tna::plot_compare()`](http://sonsoles.me/tna/reference/plot_compare.md)
+  delegates to
+  [`cograph::plot_compare()`](https://sonsoles.me/cograph/reference/plot_compare.md)
+  by name, so the name must keep working).
 
 - [`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md)
   (the renamed difference-network plotter) now treats an S3

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,14 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.4.2" id="cograph-242">cograph 2.4.2<a class="anchor" aria-label="anchor" href="#cograph-242"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes--changes-2-4-2">Bug fixes / changes<a class="anchor" aria-label="anchor" href="#bug-fixes--changes-2-4-2"></a></h3>
+<ul><li><p><code><a href="../reference/plot_compare.html">plot_compare()</a></code> is <strong>no longer deprecated</strong> — it is a plain alias of <code><a href="../reference/plot_difference.html">plot_difference()</a></code>. <code><a href="http://sonsoles.me/tna/reference/plot_compare.html" class="external-link">tna::plot_compare()</a></code> delegates to it by name (<code>cograph::plot_compare(x, y, ...)</code>), so deprecating it wrongly made every <code><a href="http://sonsoles.me/tna/reference/plot_compare.html" class="external-link">tna::plot_compare()</a></code> call emit a warning; the warning is removed. Both names call the same implementation; <code><a href="../reference/plot_difference.html">plot_difference()</a></code> is the preferred spelling for new cograph code.</p></li>
+<li><p><code><a href="../reference/plot_difference.html">plot_difference()</a></code> also auto-detects a Nestimate <code>netdifference</code> object (or any object exposing <code>$difference_matrix</code>), alongside <code>tna_comparison</code>.</p></li>
+</ul></div>
+</div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.4.1" id="cograph-241">cograph 2.4.1<a class="anchor" aria-label="anchor" href="#cograph-241"></a></h2>
 <div class="section level3">
 <h3 id="new-features-2-4-1">New features<a class="anchor" aria-label="anchor" href="#new-features-2-4-1"></a></h3>
@@ -65,7 +73,7 @@
 <div class="section level3">
 <h3 id="bug-fixes--changes-2-4-0">Bug fixes / changes<a class="anchor" aria-label="anchor" href="#bug-fixes--changes-2-4-0"></a></h3>
 <ul><li><p><code><a href="../reference/plot_difference.html">plot_difference()</a></code> now <strong>styles the difference network automatically</strong> instead of drawing bare default-blue nodes: an undirected difference gets the psychometric look (Okabe-Ito node palette, no arrows, thin edges), a directed difference gets the TNA look (TNA palette, arrows). Node size uses the calibrated preset (previously nodes could render near-invisible), and edges stay coloured by the sign of the difference. Explicit <code>node_*</code> arguments still override the preset.</p></li>
-<li><p><code><a href="../reference/plot_compare.html">plot_compare()</a></code> has been <strong>renamed to <code><a href="../reference/plot_difference.html">plot_difference()</a></code></strong> to avoid colliding with <code><a href="http://sonsoles.me/tna/reference/plot_compare.html" class="external-link">tna::plot_compare()</a></code> (an S3 generic for comparing tna models); the two masked each other depending on package load order. <code><a href="../reference/plot_compare.html">plot_compare()</a></code> is kept as a soft-deprecated alias that forwards to <code><a href="../reference/plot_difference.html">plot_difference()</a></code> with a deprecation warning, and will be removed in a future release. Update calls to <code><a href="../reference/plot_difference.html">plot_difference()</a></code>.</p></li>
+<li><p><code><a href="../reference/plot_difference.html">plot_difference()</a></code> is added as the preferred name for the difference-network plotter. <code><a href="../reference/plot_compare.html">plot_compare()</a></code> remains a first-class alias of it (<code><a href="http://sonsoles.me/tna/reference/plot_compare.html" class="external-link">tna::plot_compare()</a></code> delegates to <code><a href="../reference/plot_compare.html">cograph::plot_compare()</a></code> by name, so the name must keep working).</p></li>
 <li><p><code><a href="../reference/plot_difference.html">plot_difference()</a></code> (the renamed difference-network plotter) now treats an S3 <code>cograph_network</code> (which is itself a list — e.g. a <code>psychnet</code> fit, a Nestimate <code>netobject</code>, or any <code><a href="../reference/as_cograph.html">as_cograph()</a></code> result) as a single network. Previously such an object fell into the “plain list of networks” branch and was misread as a list of sub-networks, failing with “x must be a matrix, cograph_network, tna, or igraph object”. Comparing two psychnet/netobject networks with <code>plot_difference(net1, net2)</code> now works.</p></li>
 </ul></div>
 </div>

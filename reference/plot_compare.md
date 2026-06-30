@@ -1,14 +1,14 @@
-# Plot Network Difference (deprecated)
+# Plot Network Difference (alias of plot_difference)
 
-**Deprecated**: use
-[`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md)
-instead. This name collided with
-[`tna::plot_compare()`](http://sonsoles.me/tna/reference/plot_compare.md)
-(an S3 generic for comparing tna models), so the cograph
-difference-network plotter was renamed to
+`plot_compare()` is an alias of
 [`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md).
-`plot_compare()` remains as a thin wrapper for backward compatibility
-and will be removed in a future release.
+It is **not deprecated**:
+[`tna::plot_compare()`](http://sonsoles.me/tna/reference/plot_compare.md)
+delegates to it by name (`cograph::plot_compare(x, y, ...)`), so the
+alias is part of the tna integration and must keep working. New cograph
+code may prefer the
+[`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md)
+name; both call the same implementation.
 
 ## Usage
 
@@ -44,5 +44,5 @@ m1 <- matrix(stats::runif(25), 5, 5)
 m2 <- matrix(stats::runif(25), 5, 5)
 rownames(m1) <- colnames(m1) <- LETTERS[1:5]
 rownames(m2) <- colnames(m2) <- LETTERS[1:5]
-suppressWarnings(plot_compare(m1, m2))  # warns: use plot_difference()
+plot_compare(m1, m2)
 ```

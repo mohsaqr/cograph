@@ -679,3 +679,22 @@ test_that("plot_difference styles directed diffs with the tna palette", {
   expect_equal(captured$node_size, 7)
   expect_null(captured$edge_color)
 })
+
+test_that("plot_difference consumes a pre-computed difference (difference = TRUE)", {
+  d <- matrix(c(0, 0.4, -0.3, 0), 2, 2, dimnames = list(c("A", "B"), c("A", "B")))
+  res <- with_temp_png(cograph::plot_difference(d, difference = TRUE))
+  expect_equal(res$weights, d)            # x treated as the difference itself
+})
+
+test_that("plot_difference consumes a tna_comparison object", {
+  skip_if_no_tna()
+  data(group_regulation, package = "tna")
+  n <- nrow(group_regulation)
+  a <- tna::tna(group_regulation[1:(n / 2), ])
+  b <- tna::tna(group_regulation[(n / 2 + 1):n, ])
+  cmp <- tna::compare(a, b)
+  expect_s3_class(cmp, "tna_comparison")
+
+  res <- with_temp_png(cograph::plot_difference(cmp))
+  expect_equal(res$weights, cmp$difference_matrix, ignore_attr = TRUE)
+})

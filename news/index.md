@@ -1,5 +1,18 @@
 # Changelog
 
+## cograph 2.4.3
+
+### Bug fixes / changes
+
+- [`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md)
+  no longer hides small difference edges: it defaults `minimum = 0` (the
+  style presets otherwise injected `minimum = 0.01`, silently dropping
+  edges with `|x - y| < 0.01`). An explicit `minimum` still wins.
+
+- `plot_difference(x, y, difference = TRUE)` now warns that `y` is
+  ignored and uses `x` as the difference network, instead of silently
+  computing `x - y`.
+
 ## cograph 2.4.2
 
 ### Bug fixes / changes

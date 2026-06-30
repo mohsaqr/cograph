@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,6 +43,14 @@
       <small>Source: <a href="https://github.com/sonsoleslp/cograph/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.4.3" id="cograph-243">cograph 2.4.3<a class="anchor" aria-label="anchor" href="#cograph-243"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes--changes-2-4-3">Bug fixes / changes<a class="anchor" aria-label="anchor" href="#bug-fixes--changes-2-4-3"></a></h3>
+<ul><li><p><code><a href="../reference/plot_difference.html">plot_difference()</a></code> no longer hides small difference edges: it defaults <code>minimum = 0</code> (the style presets otherwise injected <code>minimum = 0.01</code>, silently dropping edges with <code>|x - y| &lt; 0.01</code>). An explicit <code>minimum</code> still wins.</p></li>
+<li><p><code>plot_difference(x, y, difference = TRUE)</code> now warns that <code>y</code> is ignored and uses <code>x</code> as the difference network, instead of silently computing <code>x - y</code>.</p></li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.4.2" id="cograph-242">cograph 2.4.2<a class="anchor" aria-label="anchor" href="#cograph-242"></a></h2>
 <div class="section level3">

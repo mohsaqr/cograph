@@ -246,10 +246,10 @@ test_that("splot: scale_nodes_by with valid measure works (exercises line 201+ p
 # plot-compare.R — list with NULL element (line 152)
 # ============================================================================
 
-test_that("plot_compare: list with NULL element triggers stop (line 152)", {
+test_that("plot_difference: list with NULL element triggers stop (line 152)", {
   mat1 <- matrix(c(0, 1, 1, 0), 2, 2, dimnames = list(c("A","B"), c("A","B")))
   expect_error(
-    plot_compare(list(mat1, NULL)),
+    plot_difference(list(mat1, NULL)),
     "Invalid indices"
   )
 })
@@ -258,11 +258,11 @@ test_that("plot_compare: list with NULL element triggers stop (line 152)", {
 # plot-compare.R — diff_mat without rownames (line 580)
 # ============================================================================
 
-test_that("plot_compare: matrices without rownames uses numeric labels (line 580)", {
+test_that("plot_difference: matrices without rownames uses numeric labels (line 580)", {
   mat1 <- matrix(c(0, 0.5, 0.5, 0), 2, 2)
   mat2 <- matrix(c(0, 0.3, 0.3, 0), 2, 2)
   with_png({
-    plot_compare(list(mat1, mat2))
+    plot_difference(list(mat1, mat2))
   })
   expect_true(TRUE)
 })
@@ -772,19 +772,19 @@ test_that("leverage centrality: directed with mode variants", {
 # plot-compare heatmap with diff_mat that has no rownames (line 580)
 # ============================================================================
 
-test_that("plot_compare heatmap: no rownames triggers numeric labels", {
+test_that("plot_difference heatmap: no rownames triggers numeric labels", {
   mat1 <- matrix(c(0, 0.5, 0.5, 0), 2, 2)
   mat2 <- matrix(c(0, 0.3, 0.3, 0), 2, 2)
   grDevices::pdf(nullfile())
   on.exit(grDevices::dev.off(), add = TRUE)
   tryCatch(
-    plot_compare(list(mat1, mat2), type = "heatmap"),
+    plot_difference(list(mat1, mat2), type = "heatmap"),
     error = function(e) NULL
   )
   expect_true(TRUE)
 })
 
-test_that("plot_compare: 3-group group_tna with no rownames (line 580)", {
+test_that("plot_difference: 3-group group_tna with no rownames (line 580)", {
   # .plot_compare_all_pairs path: 3+ groups, no rownames
   mat1 <- matrix(c(0, 0.5, 0.5, 0), 2, 2)
   mat2 <- matrix(c(0, 0.3, 0.3, 0), 2, 2)
@@ -795,7 +795,7 @@ test_that("plot_compare: 3-group group_tna with no rownames (line 580)", {
   g3 <- structure(list(weights = mat3), class = "tna")
   group_obj <- structure(list(G1 = g1, G2 = g2, G3 = g3), class = "group_tna")
   with_png({
-    tryCatch(plot_compare(group_obj), error = function(e) NULL)
+    tryCatch(plot_difference(group_obj), error = function(e) NULL)
   })
   expect_true(TRUE)
 })

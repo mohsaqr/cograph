@@ -48,7 +48,7 @@ on cograph's multi-panel plot functions. Single-network calls like
 nothing for it to gate. Pass \code{combined = FALSE} only to the
 multi-panel hosts: \code{plot_netobject_group()},
 \code{plot_netobject_ml()}, \code{plot_net_bootstrap_group()},
-\code{plot_group_permutation()}, \code{plot_compare()},
+\code{plot_group_permutation()}, \code{plot_difference()},
 \code{splot.net_mlvar(type = "all")}, \code{plot_network_evolution()},
 \code{plot.cograph_motifs(type = "network")},
 \code{plot.cograph_motif_result(type = "patterns")},

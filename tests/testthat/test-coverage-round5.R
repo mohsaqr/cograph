@@ -464,12 +464,12 @@ test_that("splot: handles group_tna-like list", {
 # R/plot-compare.R — line 152: invalid list indices
 # ============================================================================
 
-test_that("plot_compare: invalid indices error", {
+test_that("plot_difference: invalid indices error", {
   mat1 <- test_mat3
   mat2 <- test_mat3 * 0.5
   net_list <- list(net1 = mat1, net2 = mat2)
   expect_error(
-    plot_compare(net_list, i = 5, j = 6),
+    plot_difference(net_list, i = 5, j = 6),
     regexp = NULL  # Any error about invalid indices
   )
 })
@@ -478,10 +478,10 @@ test_that("plot_compare: invalid indices error", {
 # R/plot-compare.R — line 580: pairwise comparison with NULL rownames
 # ============================================================================
 
-test_that("plot_compare: matrices without rownames get numeric labels", {
+test_that("plot_difference: matrices without rownames get numeric labels", {
   mat1 <- matrix(c(0, 0.5, 0, 0.5, 0, 0, 0, 0, 0), 3, 3)
   mat2 <- matrix(c(0, 0.3, 0, 0.3, 0, 0.2, 0, 0.2, 0), 3, 3)
-  with_png(plot_compare(mat1, mat2))
+  with_png(plot_difference(mat1, mat2))
   expect_true(TRUE)
 })
 
@@ -1489,10 +1489,10 @@ test_that("splot-params: centrality sizing via scale_nodes_by", {
 
 # ---- plot-compare.R line 580: pairwise with unnamed matrices ----
 
-test_that("plot_compare: unnamed matrix gets numeric labels", {
+test_that("plot_difference: unnamed matrix gets numeric labels", {
   mat1 <- matrix(c(0, 0.5, 0, 0.5, 0, 0.3, 0, 0.3, 0), 3, 3)
   mat2 <- matrix(c(0, 0.3, 0.1, 0.3, 0, 0.2, 0.1, 0.2, 0), 3, 3)
-  with_png(plot_compare(mat1, mat2))
+  with_png(plot_difference(mat1, mat2))
   expect_true(TRUE)
 })
 
@@ -1571,11 +1571,11 @@ test_that("community_colors: palette shorter than communities gets recycled", {
 
 # ---- plot-compare.R line 152: invalid list index ----
 
-test_that("plot_compare: out-of-bounds list index errors", {
+test_that("plot_difference: out-of-bounds list index errors", {
   mat1 <- test_mat3
   mat2 <- test_mat3 * 0.5
   nets <- list(A = mat1, B = mat2)
-  expect_error(plot_compare(nets, i = 10, j = 20))
+  expect_error(plot_difference(nets, i = 10, j = 20))
 })
 
 # ============================================================================

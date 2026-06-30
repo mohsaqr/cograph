@@ -19,9 +19,11 @@ NULL
 #'   - A group_tna object (list of tna objects from tna package).
 #'     Use parameter `i` to select a specific group, or omit to plot all groups.
 #' @param layout Layout algorithm: "oval" (default), "circle", "spring",
-#'   "groups", or a matrix of x,y coordinates, or an igraph layout function.
-#'   Also supports igraph two-letter codes: "kk", "fr", "drl", "mds", "ni",
-#'   etc.
+#'   "groups", "target" (qgraph-style focal-node BFS levels; node of interest
+#'   via \code{target}), "saqr" (Start/End transition flow; \code{start}/
+#'   \code{end}/\code{jitter}), or a matrix of x,y coordinates, or an igraph
+#'   layout function. Also supports igraph two-letter codes: "kk", "fr", "drl",
+#'   "mds", "ni", etc.
 #' @param directed Logical. Force directed interpretation. NULL for auto-detect.
 #' @param seed Random seed for deterministic layouts. Default 42.
 #' @param theme Theme name: "classic", "dark", "minimal", "colorblind", etc.

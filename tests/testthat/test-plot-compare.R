@@ -1,54 +1,54 @@
-# Tests for plot_compare() and related comparison functions
+# Tests for plot_difference() and related comparison functions
 # Network difference visualization
 
 # ============================================
-# Basic plot_compare() Tests
+# Basic plot_difference() Tests
 # ============================================
 
-test_that("plot_compare works with basic matrices", {
+test_that("plot_difference works with basic matrices", {
   mat1 <- matrix(c(0, 0.5, 0.5, 0), 2, 2)
   mat2 <- matrix(c(0, 0.3, 0.7, 0), 2, 2)
 
-  expect_no_error(with_temp_png(cograph::plot_compare(mat1, mat2)))
+  expect_no_error(with_temp_png(cograph::plot_difference(mat1, mat2)))
 })
 
-test_that("plot_compare returns invisibly", {
+test_that("plot_difference returns invisibly", {
   mat1 <- matrix(c(0, 0.5, 0.3, 0), 2, 2)
   mat2 <- matrix(c(0, 0.2, 0.4, 0), 2, 2)
 
-  result <- with_temp_png(cograph::plot_compare(mat1, mat2))
+  result <- with_temp_png(cograph::plot_difference(mat1, mat2))
 
   expect_type(result, "list")
   expect_true("weights" %in% names(result))
   expect_true(is.matrix(result$weights))
 })
 
-test_that("plot_compare computes correct difference", {
+test_that("plot_difference computes correct difference", {
   mat1 <- matrix(c(0, 0.6, 0.4, 0), 2, 2)
   mat2 <- matrix(c(0, 0.3, 0.5, 0), 2, 2)
 
-  result <- with_temp_png(cograph::plot_compare(mat1, mat2))
+  result <- with_temp_png(cograph::plot_difference(mat1, mat2))
 
   expected_diff <- mat1 - mat2
   expect_equal(result$weights, expected_diff)
 })
 
-test_that("plot_compare works with labeled matrices", {
+test_that("plot_difference works with labeled matrices", {
   mat1 <- matrix(c(0, 0.5, 0.5, 0), 2, 2,
                  dimnames = list(c("A", "B"), c("A", "B")))
   mat2 <- matrix(c(0, 0.3, 0.7, 0), 2, 2,
                  dimnames = list(c("A", "B"), c("A", "B")))
 
-  expect_no_error(with_temp_png(cograph::plot_compare(mat1, mat2)))
+  expect_no_error(with_temp_png(cograph::plot_difference(mat1, mat2)))
 })
 
-test_that("plot_compare preserves labels in output", {
+test_that("plot_difference preserves labels in output", {
   mat1 <- matrix(0, 3, 3, dimnames = list(LETTERS[1:3], LETTERS[1:3]))
   mat2 <- matrix(0, 3, 3, dimnames = list(LETTERS[1:3], LETTERS[1:3]))
   mat1[1, 2] <- 0.5
   mat2[1, 2] <- 0.3
 
-  result <- with_temp_png(cograph::plot_compare(mat1, mat2))
+  result <- with_temp_png(cograph::plot_difference(mat1, mat2))
 
   expect_equal(rownames(result$weights), LETTERS[1:3])
   expect_equal(colnames(result$weights), LETTERS[1:3])
@@ -58,30 +58,30 @@ test_that("plot_compare preserves labels in output", {
 # Color Parameter Tests
 # ============================================
 
-test_that("plot_compare respects pos_color parameter", {
+test_that("plot_difference respects pos_color parameter", {
   mat1 <- matrix(c(0, 0.6, 0.3, 0), 2, 2)
   mat2 <- matrix(c(0, 0.3, 0.6, 0), 2, 2)
 
   expect_no_error(with_temp_png(
-    cograph::plot_compare(mat1, mat2, pos_color = "#00FF00")
+    cograph::plot_difference(mat1, mat2, pos_color = "#00FF00")
   ))
 })
 
-test_that("plot_compare respects neg_color parameter", {
+test_that("plot_difference respects neg_color parameter", {
   mat1 <- matrix(c(0, 0.3, 0.6, 0), 2, 2)
   mat2 <- matrix(c(0, 0.6, 0.3, 0), 2, 2)
 
   expect_no_error(with_temp_png(
-    cograph::plot_compare(mat1, mat2, neg_color = "#FF0000")
+    cograph::plot_difference(mat1, mat2, neg_color = "#FF0000")
   ))
 })
 
-test_that("plot_compare respects both color parameters", {
+test_that("plot_difference respects both color parameters", {
   mat1 <- matrix(c(0, 0.5, 0.3, 0), 2, 2)
   mat2 <- matrix(c(0, 0.2, 0.6, 0), 2, 2)
 
   expect_no_error(with_temp_png(
-    cograph::plot_compare(mat1, mat2,
+    cograph::plot_difference(mat1, mat2,
                  pos_color = "darkgreen",
                  neg_color = "darkred")
   ))
@@ -91,22 +91,22 @@ test_that("plot_compare respects both color parameters", {
 # Title Parameter Tests
 # ============================================
 
-test_that("plot_compare uses custom title", {
+test_that("plot_difference uses custom title", {
   mat1 <- matrix(c(0, 0.5, 0.5, 0), 2, 2)
   mat2 <- matrix(c(0, 0.3, 0.3, 0), 2, 2)
 
   expect_no_error(with_temp_png(
-    cograph::plot_compare(mat1, mat2, title = "Custom Title")
+    cograph::plot_difference(mat1, mat2, title = "Custom Title")
   ))
 })
 
-test_that("plot_compare auto-generates title", {
+test_that("plot_difference auto-generates title", {
   mat1 <- matrix(c(0, 0.5, 0.5, 0), 2, 2)
   mat2 <- matrix(c(0, 0.3, 0.3, 0), 2, 2)
 
   # Default title should be generated
   expect_no_error(with_temp_png(
-    cograph::plot_compare(mat1, mat2)
+    cograph::plot_difference(mat1, mat2)
   ))
 })
 
@@ -114,12 +114,12 @@ test_that("plot_compare auto-generates title", {
 # Labels Parameter Tests
 # ============================================
 
-test_that("plot_compare respects custom labels", {
+test_that("plot_difference respects custom labels", {
   mat1 <- matrix(c(0, 0.5, 0.5, 0), 2, 2)
   mat2 <- matrix(c(0, 0.3, 0.3, 0), 2, 2)
 
   expect_no_error(with_temp_png(
-    cograph::plot_compare(mat1, mat2, labels = c("Node1", "Node2"))
+    cograph::plot_difference(mat1, mat2, labels = c("Node1", "Node2"))
   ))
 })
 
@@ -127,33 +127,33 @@ test_that("plot_compare respects custom labels", {
 # Input Validation Tests
 # ============================================
 
-test_that("plot_compare errors when y is missing", {
+test_that("plot_difference errors when y is missing", {
   mat1 <- matrix(c(0, 0.5, 0.5, 0), 2, 2)
 
   expect_error(
-    with_temp_png(cograph::plot_compare(mat1)),
+    with_temp_png(cograph::plot_difference(mat1)),
     "y is required"
   )
 })
 
-test_that("plot_compare errors on dimension mismatch", {
+test_that("plot_difference errors on dimension mismatch", {
   mat1 <- matrix(0, 2, 2)
   mat2 <- matrix(0, 3, 3)
 
   expect_error(
-    with_temp_png(cograph::plot_compare(mat1, mat2)),
+    with_temp_png(cograph::plot_difference(mat1, mat2)),
     "same dimensions"
   )
 })
 
-test_that("plot_compare errors on label mismatch", {
+test_that("plot_difference errors on label mismatch", {
   mat1 <- matrix(0, 2, 2, dimnames = list(c("A", "B"), c("A", "B")))
   mat2 <- matrix(0, 2, 2, dimnames = list(c("X", "Y"), c("X", "Y")))
   mat1[1, 2] <- 0.5
   mat2[1, 2] <- 0.3
 
   expect_error(
-    with_temp_png(cograph::plot_compare(mat1, mat2)),
+    with_temp_png(cograph::plot_difference(mat1, mat2)),
     "same node labels"
   )
 })
@@ -162,20 +162,20 @@ test_that("plot_compare errors on label mismatch", {
 # Inits/Donut Display Tests
 # ============================================
 
-test_that("plot_compare works with inits_x and inits_y", {
+test_that("plot_difference works with inits_x and inits_y", {
   mat1 <- matrix(c(0, 0.5, 0.5, 0), 2, 2)
   mat2 <- matrix(c(0, 0.3, 0.3, 0), 2, 2)
   inits1 <- c(0.6, 0.4)
   inits2 <- c(0.4, 0.6)
 
   result <- with_temp_png(
-    cograph::plot_compare(mat1, mat2, inits_x = inits1, inits_y = inits2)
+    cograph::plot_difference(mat1, mat2, inits_x = inits1, inits_y = inits2)
   )
 
   expect_equal(result$inits, inits1 - inits2)
 })
 
-test_that("plot_compare show_inits = FALSE hides donuts", {
+test_that("plot_difference show_inits = FALSE hides donuts", {
   mat1 <- matrix(c(0, 0.5, 0.5, 0), 2, 2)
   mat2 <- matrix(c(0, 0.3, 0.3, 0), 2, 2)
   inits1 <- c(0.6, 0.4)
@@ -183,28 +183,28 @@ test_that("plot_compare show_inits = FALSE hides donuts", {
 
   # Should not error even with inits provided
   expect_no_error(with_temp_png(
-    cograph::plot_compare(mat1, mat2,
+    cograph::plot_difference(mat1, mat2,
                  inits_x = inits1,
                  inits_y = inits2,
                  show_inits = FALSE)
   ))
 })
 
-test_that("plot_compare donut_inner_ratio is respected", {
+test_that("plot_difference donut_inner_ratio is respected", {
   mat1 <- matrix(c(0, 0.5, 0.5, 0), 2, 2)
   mat2 <- matrix(c(0, 0.3, 0.3, 0), 2, 2)
   inits1 <- c(0.6, 0.4)
   inits2 <- c(0.4, 0.6)
 
   expect_no_error(with_temp_png(
-    cograph::plot_compare(mat1, mat2,
+    cograph::plot_difference(mat1, mat2,
                  inits_x = inits1,
                  inits_y = inits2,
                  donut_inner_ratio = 0.5)
   ))
 })
 
-test_that("plot_compare warns on inits length mismatch", {
+test_that("plot_difference warns on inits length mismatch", {
   mat1 <- matrix(c(0, 0.5, 0.5, 0), 2, 2)
   mat2 <- matrix(c(0, 0.3, 0.3, 0), 2, 2)
   inits1 <- c(0.6, 0.4, 0.5)  # Wrong length
@@ -212,7 +212,7 @@ test_that("plot_compare warns on inits length mismatch", {
 
   expect_warning(
     with_temp_png(
-      cograph::plot_compare(mat1, mat2, inits_x = inits1, inits_y = inits2)
+      cograph::plot_difference(mat1, mat2, inits_x = inits1, inits_y = inits2)
     ),
     "length doesn't match"
   )
@@ -222,18 +222,18 @@ test_that("plot_compare warns on inits length mismatch", {
 # List Input Tests
 # ============================================
 
-test_that("plot_compare works with list of matrices", {
+test_that("plot_difference works with list of matrices", {
   mat1 <- matrix(c(0, 0.5, 0.5, 0), 2, 2)
   mat2 <- matrix(c(0, 0.3, 0.3, 0), 2, 2)
 
   net_list <- list(first = mat1, second = mat2)
 
   expect_no_error(with_temp_png(
-    cograph::plot_compare(net_list)
+    cograph::plot_difference(net_list)
   ))
 })
 
-test_that("plot_compare list with i and j parameters", {
+test_that("plot_difference list with i and j parameters", {
   mat1 <- matrix(c(0, 0.5, 0.5, 0), 2, 2)
   mat2 <- matrix(c(0, 0.3, 0.3, 0), 2, 2)
   mat3 <- matrix(c(0, 0.7, 0.7, 0), 2, 2)
@@ -242,20 +242,20 @@ test_that("plot_compare list with i and j parameters", {
 
   # Compare specific elements
   expect_no_error(with_temp_png(
-    cograph::plot_compare(net_list, i = 1, j = 3)
+    cograph::plot_difference(net_list, i = 1, j = 3)
   ))
 
   expect_no_error(with_temp_png(
-    cograph::plot_compare(net_list, i = "A", j = "C")
+    cograph::plot_difference(net_list, i = "A", j = "C")
   ))
 })
 
-test_that("plot_compare errors on single-element list", {
+test_that("plot_difference errors on single-element list", {
   mat1 <- matrix(c(0, 0.5, 0.5, 0), 2, 2)
   net_list <- list(only = mat1)
 
   expect_error(
-    with_temp_png(cograph::plot_compare(net_list)),
+    with_temp_png(cograph::plot_difference(net_list)),
     "at least 2"
   )
 })
@@ -264,7 +264,7 @@ test_that("plot_compare errors on single-element list", {
 # TNA Integration Tests
 # ============================================
 
-test_that("plot_compare works with tna objects", {
+test_that("plot_difference works with tna objects", {
   skip_if_no_tna()
 
   library(tna)
@@ -275,11 +275,11 @@ test_that("plot_compare works with tna objects", {
   model2 <- tna(engagement[101:200, ])
 
   expect_no_error(with_temp_png(
-    cograph::plot_compare(model1, model2)
+    cograph::plot_difference(model1, model2)
   ))
 })
 
-test_that("plot_compare auto-extracts inits from tna objects", {
+test_that("plot_difference auto-extracts inits from tna objects", {
   skip_if_no_tna()
 
   library(tna)
@@ -289,14 +289,14 @@ test_that("plot_compare auto-extracts inits from tna objects", {
   model2 <- tna(engagement[101:200, ])
 
   result <- with_temp_png(
-    cograph::plot_compare(model1, model2)
+    cograph::plot_difference(model1, model2)
   )
 
   # Should have extracted inits difference
   expect_true(!is.null(result$inits))
 })
 
-test_that("plot_compare works with group_tna objects", {
+test_that("plot_difference works with group_tna objects", {
   skip_if_no_tna()
 
   library(tna)
@@ -310,11 +310,11 @@ test_that("plot_compare works with group_tna objects", {
 
   # Should compare the two groups
   expect_no_error(with_temp_png(
-    cograph::plot_compare(group_model)
+    cograph::plot_difference(group_model)
   ))
 })
 
-test_that("plot_compare group_tna with specific i, j", {
+test_that("plot_difference group_tna with specific i, j", {
   skip_if_no_tna()
 
   library(tna)
@@ -327,11 +327,11 @@ test_that("plot_compare group_tna with specific i, j", {
   group_model <- group_tna(engagement, group = groups)
 
   expect_no_error(with_temp_png(
-    cograph::plot_compare(group_model, i = 1, j = 2)
+    cograph::plot_difference(group_model, i = 1, j = 2)
   ))
 })
 
-test_that("plot_compare errors on group_tna with < 2 groups", {
+test_that("plot_difference errors on group_tna with < 2 groups", {
   skip_if_no_tna()
 
   library(tna)
@@ -344,7 +344,7 @@ test_that("plot_compare errors on group_tna with < 2 groups", {
   )
 
   expect_error(
-    with_temp_png(cograph::plot_compare(single_group)),
+    with_temp_png(cograph::plot_difference(single_group)),
     "at least 2 groups"
   )
 })
@@ -353,35 +353,35 @@ test_that("plot_compare errors on group_tna with < 2 groups", {
 # Edge Case Tests
 # ============================================
 
-test_that("plot_compare handles identical matrices", {
+test_that("plot_difference handles identical matrices", {
   mat <- matrix(c(0, 0.5, 0.5, 0), 2, 2)
 
-  result <- with_temp_png(cograph::plot_compare(mat, mat))
+  result <- with_temp_png(cograph::plot_difference(mat, mat))
 
   # All differences should be zero
   expect_true(all(result$weights == 0))
 })
 
-test_that("plot_compare handles zero matrices", {
+test_that("plot_difference handles zero matrices", {
   mat1 <- matrix(0, 3, 3)
   mat2 <- matrix(0, 3, 3)
 
   expect_no_error(with_temp_png(
-    cograph::plot_compare(mat1, mat2)
+    cograph::plot_difference(mat1, mat2)
   ))
 })
 
-test_that("plot_compare handles negative differences", {
+test_that("plot_difference handles negative differences", {
   mat1 <- matrix(c(0, 0.3, 0.3, 0), 2, 2)
   mat2 <- matrix(c(0, 0.7, 0.7, 0), 2, 2)
 
-  result <- with_temp_png(cograph::plot_compare(mat1, mat2))
+  result <- with_temp_png(cograph::plot_difference(mat1, mat2))
 
   # Differences should be negative
   expect_true(all(result$weights[result$weights != 0] < 0))
 })
 
-test_that("plot_compare handles larger networks", {
+test_that("plot_difference handles larger networks", {
   skip_on_cran()
 
   n <- 10
@@ -392,7 +392,7 @@ test_that("plot_compare handles larger networks", {
   diag(mat2) <- 0
 
   expect_no_error(with_temp_png(
-    cograph::plot_compare(mat1, mat2),
+    cograph::plot_difference(mat1, mat2),
     width = 400, height = 400
   ))
 })
@@ -526,18 +526,18 @@ test_that("plot_comparison_heatmap with labeled matrices", {
 # Passthrough Argument Tests
 # ============================================
 
-test_that("plot_compare passes additional arguments to splot", {
+test_that("plot_difference passes additional arguments to splot", {
   mat1 <- matrix(c(0, 0.5, 0.5, 0), 2, 2)
   mat2 <- matrix(c(0, 0.3, 0.3, 0), 2, 2)
 
   # Test layout passthrough
   expect_no_error(with_temp_png(
-    cograph::plot_compare(mat1, mat2, layout = "circle")
+    cograph::plot_difference(mat1, mat2, layout = "circle")
   ))
 
   # Test node_size passthrough
   expect_no_error(with_temp_png(
-    cograph::plot_compare(mat1, mat2, node_size = 10)
+    cograph::plot_difference(mat1, mat2, node_size = 10)
   ))
 })
 
@@ -545,7 +545,7 @@ test_that("plot_compare passes additional arguments to splot", {
 # TNA Styling Defaults Tests
 # ============================================
 
-test_that("plot_compare applies TNA styling when inputs are tna objects", {
+test_that("plot_difference applies TNA styling when inputs are tna objects", {
   skip_if_no_tna()
 
   library(tna)
@@ -557,11 +557,11 @@ test_that("plot_compare applies TNA styling when inputs are tna objects", {
   # Should not error — TNA defaults (edge_labels, node_fill, etc.) applied
 
   expect_no_error(with_temp_png(
-    cograph::plot_compare(model1, model2)
+    cograph::plot_difference(model1, model2)
   ))
 })
 
-test_that("plot_compare TNA styling can be overridden by user args", {
+test_that("plot_difference TNA styling can be overridden by user args", {
   skip_if_no_tna()
 
   library(tna)
@@ -572,24 +572,24 @@ test_that("plot_compare TNA styling can be overridden by user args", {
 
   # Override TNA defaults — should not error
   expect_no_error(with_temp_png(
-    cograph::plot_compare(model1, model2,
+    cograph::plot_difference(model1, model2,
                           edge_labels = FALSE,
                           node_fill = "gray",
                           node_size = 5)
   ))
 })
 
-test_that("plot_compare does not apply TNA styling for plain matrices", {
+test_that("plot_difference does not apply TNA styling for plain matrices", {
   mat1 <- matrix(c(0, 0.5, 0.5, 0), 2, 2)
   mat2 <- matrix(c(0, 0.3, 0.3, 0), 2, 2)
 
   # Plain matrices should work without TNA defaults
   expect_no_error(with_temp_png(
-    cograph::plot_compare(mat1, mat2)
+    cograph::plot_difference(mat1, mat2)
   ))
 })
 
-test_that("plot_compare group_tna applies TNA styling", {
+test_that("plot_difference group_tna applies TNA styling", {
   skip_if_no_tna()
 
   library(tna)
@@ -601,6 +601,81 @@ test_that("plot_compare group_tna applies TNA styling", {
 
   # group_tna elements are tna objects, so TNA styling should apply
   expect_no_error(with_temp_png(
-    cograph::plot_compare(group_model)
+    cograph::plot_difference(group_model)
   ))
+})
+
+test_that("plot_difference treats an S3 cograph_network as one network, not a list", {
+  # Regression: psychnet / Nestimate netobject / as_cograph() results are S3
+  # lists that inherit "cograph_network". They must compare as single networks,
+  # not be misrouted into the "plain list of networks" branch.
+  m1 <- matrix(runif(25), 5, 5)
+  m2 <- matrix(runif(25), 5, 5)
+  rownames(m1) <- colnames(m1) <- LETTERS[1:5]
+  rownames(m2) <- colnames(m2) <- LETTERS[1:5]
+  x <- as_cograph(m1)
+  y <- as_cograph(m2)
+  expect_true(is.list(x) && inherits(x, "cograph_network"))
+
+  res <- with_temp_png(cograph::plot_difference(x, y))
+  expect_true(is.list(res))
+  # The difference matrix (x - y) over the shared 5 nodes is returned in $weights.
+  expect_equal(dim(res$weights), c(5, 5))
+  expect_equal(res$weights, to_matrix(x) - to_matrix(y), ignore_attr = TRUE)
+})
+
+test_that("plot_compare() is a deprecated alias for plot_difference()", {
+  m1 <- matrix(c(0, 0.5, 0.5, 0), 2, 2, dimnames = list(c("A", "B"), c("A", "B")))
+  m2 <- matrix(c(0, 0.3, 0.7, 0), 2, 2, dimnames = list(c("A", "B"), c("A", "B")))
+  # Emits a deprecation warning pointing at plot_difference...
+  expect_warning(
+    res <- with_temp_png(cograph::plot_compare(m1, m2)),
+    "plot_difference"
+  )
+  # ...but still returns the same difference network.
+  expect_equal(res$weights, m1 - m2)
+})
+
+test_that("plot_difference styles undirected diffs with the psych palette", {
+  lab <- c("A", "B", "C", "D")
+  m1 <- matrix(runif(16), 4, 4, dimnames = list(lab, lab)); m1 <- (m1 + t(m1)) / 2
+  m2 <- matrix(runif(16), 4, 4, dimnames = list(lab, lab)); m2 <- (m2 + t(m2)) / 2
+  diag(m1) <- 0; diag(m2) <- 0
+
+  captured <- NULL
+  orig <- get("splot", envir = asNamespace("cograph"))
+  on.exit(assignInNamespace("splot", orig, ns = "cograph"), add = TRUE)
+  assignInNamespace("splot",
+                    function(...) { captured <<- list(...); invisible(NULL) },
+                    ns = "cograph")
+
+  cograph::plot_difference(m1, m2)
+  # Okabe-Ito palette (psych styling), visible node size, sign-based edge colours.
+  expect_equal(captured$node_fill[1:2], c("#E69F00", "#56B4E9"))
+  expect_equal(captured$node_size, 7)
+  expect_null(captured$edge_color)
+  expect_false(is.null(captured$edge_positive_color))
+
+  # User node_fill still overrides the preset.
+  cograph::plot_difference(m1, m2, node_fill = "black")
+  expect_equal(captured$node_fill, "black")
+})
+
+test_that("plot_difference styles directed diffs with the tna palette", {
+  lab <- c("A", "B", "C", "D")
+  m1 <- matrix(runif(16), 4, 4, dimnames = list(lab, lab)); diag(m1) <- 0
+  m2 <- matrix(runif(16), 4, 4, dimnames = list(lab, lab)); diag(m2) <- 0
+
+  captured <- NULL
+  orig <- get("splot", envir = asNamespace("cograph"))
+  on.exit(assignInNamespace("splot", orig, ns = "cograph"), add = TRUE)
+  assignInNamespace("splot",
+                    function(...) { captured <<- list(...); invisible(NULL) },
+                    ns = "cograph")
+
+  cograph::plot_difference(m1, m2)
+  # Asymmetric difference -> directed -> tna palette + arrows, sign-based edges.
+  expect_equal(captured$node_fill, cograph:::tna_color_palette(4))
+  expect_equal(captured$node_size, 7)
+  expect_null(captured$edge_color)
 })

@@ -201,7 +201,7 @@ test_that("draw_pie: single value with default_color (shapes-special line 119)",
 # plot-compare.R: lines 152, 363, 488, 580
 # ============================================================================
 
-test_that("plot_compare: group_tna-like list with invalid index (line 152)", {
+test_that("plot_difference: group_tna-like list with invalid index (line 152)", {
   # Line 152: stop("Invalid indices i=", i, " or j=", j)
   mat1 <- test_mat3
   mat2 <- test_mat3 * 0.8
@@ -209,7 +209,7 @@ test_that("plot_compare: group_tna-like list with invalid index (line 152)", {
   class(obj) <- "group_tna"
   # Test that NULL element triggers the stop
   expect_error(
-    plot_compare(obj, i = 1, j = 2),
+    plot_difference(obj, i = 1, j = 2),
     regexp = "Invalid|NULL|invalid|error"
   )
 })
@@ -241,12 +241,12 @@ test_that(".extract_weights: igraph input (plot-compare line 488)", {
   }
 })
 
-test_that("plot_compare: labels fallback to seq (plot-compare line 580)", {
+test_that("plot_difference: labels fallback to seq (plot-compare line 580)", {
   # Create matrices without dimnames
   mat1 <- matrix(c(0, 0.5, 0.5, 0), 2, 2)
   mat2 <- matrix(c(0, 0.3, 0.3, 0), 2, 2)
   # No dimnames -> should fall back to seq_len
-  with_png(plot_compare(mat1, mat2))
+  with_png(plot_difference(mat1, mat2))
   expect_true(TRUE)
 })
 
@@ -1212,23 +1212,23 @@ test_that("get_shape_vertices: different shapes (sonplot-qgraph-geometry 241-243
 
 # ---- plot-compare.R line 152: NULL element in group_tna ----
 
-test_that("plot_compare: group_tna elements are tna objects (line 152)", {
+test_that("plot_difference: group_tna elements are tna objects (line 152)", {
   skip_if_not_installed("tna")
   tryCatch({
     tna1 <- tna::tna(test_mat3)
     tna2 <- tna::tna(test_mat3 * 0.8)
     obj <- list(g1 = tna1, g2 = tna2)
     class(obj) <- "group_tna"
-    with_png(plot_compare(obj, i = 1, j = 2))
+    with_png(plot_difference(obj, i = 1, j = 2))
   }, error = function(e) NULL)
   expect_true(TRUE)
 })
 
-# ---- plot-compare.R line 580: plot_compare network with no dimnames ----
+# ---- plot-compare.R line 580: plot_difference network with no dimnames ----
 
-test_that("plot_compare: network plot without labels (line 580)", {
+test_that("plot_difference: network plot without labels (line 580)", {
   mat1 <- matrix(c(0, 0.5, 0.5, 0), 2, 2)
   mat2 <- matrix(c(0, 0.3, 0.3, 0), 2, 2)
-  with_png(plot_compare(mat1, mat2))
+  with_png(plot_difference(mat1, mat2))
   expect_true(TRUE)
 })

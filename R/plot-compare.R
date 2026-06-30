@@ -97,7 +97,11 @@ plot_difference <- function(x, y = NULL,
     x <- x$difference_matrix
     difference <- TRUE
   }
-  if (isTRUE(difference) && is.null(y)) {
+  if (isTRUE(difference)) {
+    if (!is.null(y)) {
+      warning("'difference = TRUE': 'y' is ignored; 'x' is used as the ",
+              "difference network.", call. = FALSE)
+    }
     x <- .extract_weights(x)
     y <- matrix(0, nrow(x), ncol(x), dimnames = dimnames(x))
   }
@@ -296,7 +300,11 @@ plot_difference <- function(x, y = NULL,
       edge_positive_color = pos_color,
       edge_negative_color = neg_color,
       labels = labels,
-      title = title
+      title = title,
+      # Show all difference edges: the style presets below default
+      # `minimum = 0.01`, which would silently hide small differences on a
+      # plot whose whole purpose is differences. User `minimum` still wins.
+      minimum = 0
     ),
     donut_args
   )

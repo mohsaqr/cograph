@@ -92,7 +92,8 @@ plot_difference <- function(x, y = NULL,
   # $difference_matrix) or, with difference = TRUE, x is treated as the already
   # subtracted matrix/network. Modelled as x - 0 so the whole downstream
   # pipeline (styling, sign colouring) is reused unchanged.
-  if (inherits(x, "tna_comparison")) {
+  if (inherits(x, c("tna_comparison", "netdifference")) ||
+      (is.list(x) && is.matrix(x$difference_matrix))) {
     x <- x$difference_matrix
     difference <- TRUE
   }
@@ -339,13 +340,13 @@ plot_difference <- function(x, y = NULL,
   ))
 }
 
-#' Plot Network Difference (deprecated)
+#' Plot Network Difference (alias of plot_difference)
 #'
-#' \strong{Deprecated}: use \code{\link{plot_difference}()} instead. This name
-#' collided with \code{tna::plot_compare()} (an S3 generic for comparing tna
-#' models), so the cograph difference-network plotter was renamed to
-#' \code{plot_difference()}. \code{plot_compare()} remains as a thin wrapper for
-#' backward compatibility and will be removed in a future release.
+#' \code{plot_compare()} is an alias of \code{\link{plot_difference}()}. It is
+#' \strong{not deprecated}: \code{tna::plot_compare()} delegates to it by name
+#' (\code{cograph::plot_compare(x, y, ...)}), so the alias is part of the
+#' tna integration and must keep working. New cograph code may prefer the
+#' \code{plot_difference()} name; both call the same implementation.
 #'
 #' @param x First network (see \code{\link{plot_difference}}).
 #' @param ... Arguments passed to \code{\link{plot_difference}}.
@@ -356,10 +357,9 @@ plot_difference <- function(x, y = NULL,
 #' m2 <- matrix(stats::runif(25), 5, 5)
 #' rownames(m1) <- colnames(m1) <- LETTERS[1:5]
 #' rownames(m2) <- colnames(m2) <- LETTERS[1:5]
-#' suppressWarnings(plot_compare(m1, m2))  # warns: use plot_difference()
+#' plot_compare(m1, m2)
 #' @export
 plot_compare <- function(x, ...) {
-  .Deprecated("plot_difference", package = "cograph")
   plot_difference(x, ...)
 }
 

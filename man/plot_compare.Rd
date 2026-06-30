@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot-compare.R
 \name{plot_compare}
 \alias{plot_compare}
-\title{Plot Network Difference (deprecated)}
+\title{Plot Network Difference (alias of plot_difference)}
 \usage{
 plot_compare(x, ...)
 }
@@ -15,18 +15,18 @@ plot_compare(x, ...)
 Invisibly, the value of \code{\link{plot_difference}}.
 }
 \description{
-\strong{Deprecated}: use \code{\link{plot_difference}()} instead. This name
-collided with \code{tna::plot_compare()} (an S3 generic for comparing tna
-models), so the cograph difference-network plotter was renamed to
-\code{plot_difference()}. \code{plot_compare()} remains as a thin wrapper for
-backward compatibility and will be removed in a future release.
+\code{plot_compare()} is an alias of \code{\link{plot_difference}()}. It is
+\strong{not deprecated}: \code{tna::plot_compare()} delegates to it by name
+(\code{cograph::plot_compare(x, y, ...)}), so the alias is part of the
+tna integration and must keep working. New cograph code may prefer the
+\code{plot_difference()} name; both call the same implementation.
 }
 \examples{
 m1 <- matrix(stats::runif(25), 5, 5)
 m2 <- matrix(stats::runif(25), 5, 5)
 rownames(m1) <- colnames(m1) <- LETTERS[1:5]
 rownames(m2) <- colnames(m2) <- LETTERS[1:5]
-suppressWarnings(plot_compare(m1, m2))  # warns: use plot_difference()
+plot_compare(m1, m2)
 }
 \seealso{
 \code{\link{plot_difference}}

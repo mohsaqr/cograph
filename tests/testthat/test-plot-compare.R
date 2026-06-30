@@ -624,15 +624,12 @@ test_that("plot_difference treats an S3 cograph_network as one network, not a li
   expect_equal(res$weights, to_matrix(x) - to_matrix(y), ignore_attr = TRUE)
 })
 
-test_that("plot_compare() is a deprecated alias for plot_difference()", {
+test_that("plot_compare() is a non-deprecated alias for plot_difference()", {
   m1 <- matrix(c(0, 0.5, 0.5, 0), 2, 2, dimnames = list(c("A", "B"), c("A", "B")))
   m2 <- matrix(c(0, 0.3, 0.7, 0), 2, 2, dimnames = list(c("A", "B"), c("A", "B")))
-  # Emits a deprecation warning pointing at plot_difference...
-  expect_warning(
-    res <- with_temp_png(cograph::plot_compare(m1, m2)),
-    "plot_difference"
-  )
-  # ...but still returns the same difference network.
+  # tna::plot_compare() delegates to cograph::plot_compare() by name, so the
+  # alias must NOT warn and must return the same difference network.
+  expect_no_warning(res <- with_temp_png(cograph::plot_compare(m1, m2)))
   expect_equal(res$weights, m1 - m2)
 })
 

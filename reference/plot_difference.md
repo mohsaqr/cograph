@@ -22,6 +22,7 @@ plot_difference(
   show_inits = NULL,
   donut_inner_ratio = 0.8,
   force = FALSE,
+  difference = FALSE,
   combined = TRUE,
   ...
 )
@@ -86,6 +87,13 @@ plot_difference(
 
   Logical: force plotting when more than 4 groups (many comparisons).
   Default FALSE.
+
+- difference:
+
+  Logical. If `TRUE`, `x` is treated as an already-subtracted difference
+  network (no `y` needed). A `tna_comparison` object (from
+  [`tna::compare()`](http://sonsoles.me/tna/reference/compare.md)) is
+  detected automatically and its `$difference_matrix` is used.
 
 - combined:
 

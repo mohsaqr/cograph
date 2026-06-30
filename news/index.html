@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,6 +43,14 @@
       <small>Source: <a href="https://github.com/sonsoleslp/cograph/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.4.1" id="cograph-241">cograph 2.4.1<a class="anchor" aria-label="anchor" href="#cograph-241"></a></h2>
+<div class="section level3">
+<h3 id="new-features-2-4-1">New features<a class="anchor" aria-label="anchor" href="#new-features-2-4-1"></a></h3>
+<ul><li>
+<code><a href="../reference/plot_difference.html">plot_difference()</a></code> can now consume a <strong>pre-computed difference network</strong>: a <code>tna_comparison</code> object (from <code><a href="http://sonsoles.me/tna/reference/compare.html" class="external-link">tna::compare()</a></code>) is detected automatically and its <code>$difference_matrix</code> is plotted, and <code>difference = TRUE</code> treats <code>x</code> as an already-subtracted matrix/network (no <code>y</code> needed). The two-network <code>plot_difference(x, y)</code> path is unchanged.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.4.0" id="cograph-240">cograph 2.4.0<a class="anchor" aria-label="anchor" href="#cograph-240"></a></h2>
 <div class="section level3">

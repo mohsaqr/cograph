@@ -1,6 +1,6 @@
 # Changelog
 
-## cograph 2.3.12
+## cograph 2.4.0
 
 ### New features
 

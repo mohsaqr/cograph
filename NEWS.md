@@ -1,3 +1,13 @@
+# cograph 2.4.1
+
+## New features
+
+- `plot_difference()` can now consume a **pre-computed difference network**:
+  a `tna_comparison` object (from `tna::compare()`) is detected automatically
+  and its `$difference_matrix` is plotted, and `difference = TRUE` treats `x`
+  as an already-subtracted matrix/network (no `y` needed). The two-network
+  `plot_difference(x, y)` path is unchanged.
+
 # cograph 2.4.0
 
 ## New features

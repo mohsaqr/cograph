@@ -29,6 +29,10 @@ NULL
 #' @param inits_y Node values for y. NULL to auto-extract from tna.
 #' @param show_inits Logical: show node differences as donuts? Default TRUE if inits available.
 #' @param donut_inner_ratio Inner radius ratio for donut (0-1). Default 0.8.
+#' @param difference Logical. If \code{TRUE}, \code{x} is treated as an
+#'   already-subtracted difference network (no \code{y} needed). A
+#'   \code{tna_comparison} object (from \code{tna::compare()}) is detected
+#'   automatically and its \code{$difference_matrix} is used.
 #' @param force Logical: force plotting when more than 4 groups (many comparisons). Default FALSE.
 #' @param combined Logical: when TRUE (default) and \code{x} is a multi-group
 #'   input that triggers all-pairs plotting, lay panels out in an internal
@@ -80,8 +84,22 @@ plot_difference <- function(x, y = NULL,
                          show_inits = NULL,
                          donut_inner_ratio = 0.8,
                          force = FALSE,
+                         difference = FALSE,
                          combined = TRUE,
                          ...) {
+
+  # Consume a pre-computed difference: a tna_comparison object (uses its
+  # $difference_matrix) or, with difference = TRUE, x is treated as the already
+  # subtracted matrix/network. Modelled as x - 0 so the whole downstream
+  # pipeline (styling, sign colouring) is reused unchanged.
+  if (inherits(x, "tna_comparison")) {
+    x <- x$difference_matrix
+    difference <- TRUE
+  }
+  if (isTRUE(difference) && is.null(y)) {
+    x <- .extract_weights(x)
+    y <- matrix(0, nrow(x), ncol(x), dimnames = dimnames(x))
+  }
 
   # Handle group_tna object (tna package integration)
   if (inherits(x, "group_tna")) {

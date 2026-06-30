@@ -695,3 +695,29 @@ test_that("plot_difference consumes a tna_comparison object", {
   res <- with_temp_png(cograph::plot_difference(cmp))
   expect_equal(res$weights, cmp$difference_matrix, ignore_attr = TRUE)
 })
+
+test_that("plot_difference shows small difference edges (minimum defaults to 0)", {
+  cap <- NULL
+  orig <- get("splot", envir = asNamespace("cograph"))
+  on.exit(assignInNamespace("splot", orig, ns = "cograph"), add = TRUE)
+  assignInNamespace("splot", function(...) { cap <<- list(...); invisible(NULL) },
+                    ns = "cograph")
+  lab <- c("A", "B")
+  m1 <- matrix(c(0, 0.505, 0.5, 0), 2, 2, dimnames = list(lab, lab))
+  m2 <- matrix(c(0, 0.5, 0.5, 0), 2, 2, dimnames = list(lab, lab))
+  cograph::plot_difference(m1, m2)
+  expect_equal(cap$minimum, 0)                       # tiny diffs not hidden
+  cograph::plot_difference(m1, m2, minimum = 0.02)
+  expect_equal(cap$minimum, 0.02)                    # user value still wins
+})
+
+test_that("plot_difference warns and ignores y when difference = TRUE", {
+  lab <- c("A", "B")
+  d  <- matrix(c(0, 0.4, -0.3, 0), 2, 2, dimnames = list(lab, lab))
+  m2 <- matrix(c(0, 0.5,  0.5,  0), 2, 2, dimnames = list(lab, lab))
+  expect_warning(
+    res <- with_temp_png(cograph::plot_difference(d, m2, difference = TRUE)),
+    "ignored"
+  )
+  expect_equal(res$weights, d)                       # x used as-is, not x - y
+})

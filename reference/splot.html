@@ -65,7 +65,7 @@ as soplot() for consistency."><meta property="og:image" content="https://sonsole
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.11</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.12</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -432,9 +432,11 @@ Default <code>1 - x$alpha</code> (i.e. the complement of the alpha level).</p></
 
 <dt id="arg-layout">layout<a class="anchor" aria-label="anchor" href="#arg-layout"></a></dt>
 <dd><p>Layout algorithm: "oval" (default), "circle", "spring",
-"groups", or a matrix of x,y coordinates, or an igraph layout function.
-Also supports igraph two-letter codes: "kk", "fr", "drl", "mds", "ni",
-etc.</p></dd>
+"groups", "target" (qgraph-style focal-node BFS levels; node of interest
+via <code>target</code>), "saqr" (Start/End transition flow; <code>start</code>/
+<code>end</code>/<code>jitter</code>), or a matrix of x,y coordinates, or an igraph
+layout function. Also supports igraph two-letter codes: "kk", "fr", "drl",
+"mds", "ni", etc.</p></dd>
 
 
 <dt id="arg-directed">directed<a class="anchor" aria-label="anchor" href="#arg-directed"></a></dt>

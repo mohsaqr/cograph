@@ -183,10 +183,13 @@
 <url><loc>https://sonsoles.me/cograph/reference/layout-groups.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/layout-oval.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/layout-spring.html</loc></url>
+<url><loc>https://sonsoles.me/cograph/reference/layout-target-saqr.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/layout_circle.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/layout_groups.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/layout_oval.html</loc></url>
+<url><loc>https://sonsoles.me/cograph/reference/layout_saqr.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/layout_spring.html</loc></url>
+<url><loc>https://sonsoles.me/cograph/reference/layout_target.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/list_layouts.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/list_palettes.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/list_shapes.html</loc></url>
@@ -245,6 +248,7 @@
 <url><loc>https://sonsoles.me/cograph/reference/plot_compare.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/plot_comparison_heatmap.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/plot_degree_correlation.html</loc></url>
+<url><loc>https://sonsoles.me/cograph/reference/plot_difference.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/plot_edge_diff_forest.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/plot_edge_weights.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/plot_group_permutation.html</loc></url>

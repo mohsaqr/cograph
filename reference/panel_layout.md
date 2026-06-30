@@ -62,7 +62,7 @@ it to gate. Pass `combined = FALSE` only to the multi-panel hosts:
 [`plot_netobject_ml()`](https://sonsoles.me/cograph/reference/plot_netobject_ml.md),
 [`plot_net_bootstrap_group()`](https://sonsoles.me/cograph/reference/plot_net_bootstrap_group.md),
 [`plot_group_permutation()`](https://sonsoles.me/cograph/reference/plot_group_permutation.md),
-[`plot_compare()`](https://sonsoles.me/cograph/reference/plot_compare.md),
+[`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md),
 `splot.net_mlvar(type = "all")`,
 [`plot_network_evolution()`](https://sonsoles.me/cograph/reference/plot_network_evolution.md),
 `plot.cograph_motifs(type = "network")`,

@@ -140,6 +140,9 @@ splot(group_models[[2]], title = "Group 2", minimum = 0.05)
 cograph::plot_compare(
   group_models[[1]], group_models[[2]],
   title = "Group 1 vs Group 2 — Difference Network")
+#> Warning in cograph::plot_compare(group_models[[1]], group_models[[2]], title = "Group 1 vs Group 2 — Difference Network"): 'cograph::plot_compare' is deprecated.
+#> Use 'plot_difference' instead.
+#> See help("Deprecated") and help("cograph-deprecated").
 ```
 
 ![](plotting-tna-models_files/figure-html/plot-compare-1.png)

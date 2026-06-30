@@ -18,7 +18,8 @@ Character vector of registered layout names.
 list_layouts()
 #>  [1] "circle"               "oval"                 "ellipse"             
 #>  [4] "spring"               "fr"                   "fruchterman-reingold"
-#>  [7] "groups"               "grid"                 "random"              
-#> [10] "star"                 "bipartite"            "custom"              
-#> [13] "gephi_fr"             "gephi"               
+#>  [7] "target"               "saqr"                 "groups"              
+#> [10] "grid"                 "random"               "star"                
+#> [13] "bipartite"            "custom"               "gephi_fr"            
+#> [16] "gephi"               
 ```

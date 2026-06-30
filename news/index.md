@@ -1,5 +1,59 @@
 # Changelog
 
+## cograph 2.3.12
+
+### New features
+
+- Two focal-node flow layouts, usable anywhere a layout name is accepted
+  (`splot(x, layout = "target")` / `layout = "saqr"`):
+  - [`layout_target()`](https://sonsoles.me/cograph/reference/layout_target.md)
+    ports qgraph’s [`flow()`](https://rdrr.io/pkg/qgraph/man/flow.html)
+    — places one node of interest (`target =`) on the left and every
+    other node in columns by unweighted BFS distance (hops). Unlike
+    qgraph it handles disconnected graphs (isolated nodes go to a
+    trailing column) instead of erroring.
+  - [`layout_saqr()`](https://sonsoles.me/cograph/reference/layout_saqr.md)
+    ports the Dynalytics Desktop “saqr” transition layout (Saqr et al.,
+    LAK25): Start on top, End on bottom, middle nodes ranked by outgoing
+    weight from Start and split into 2–3 sine-enveloped rows with a
+    zig-zag first row (`start =`, `end =`, `jitter =`).
+
+### Bug fixes / changes
+
+- [`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md)
+  now **styles the difference network automatically** instead of drawing
+  bare default-blue nodes: an undirected difference gets the
+  psychometric look (Okabe-Ito node palette, no arrows, thin edges), a
+  directed difference gets the TNA look (TNA palette, arrows). Node size
+  uses the calibrated preset (previously nodes could render
+  near-invisible), and edges stay coloured by the sign of the
+  difference. Explicit `node_*` arguments still override the preset.
+
+- [`plot_compare()`](https://sonsoles.me/cograph/reference/plot_compare.md)
+  has been **renamed to
+  [`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md)**
+  to avoid colliding with
+  [`tna::plot_compare()`](http://sonsoles.me/tna/reference/plot_compare.md)
+  (an S3 generic for comparing tna models); the two masked each other
+  depending on package load order.
+  [`plot_compare()`](https://sonsoles.me/cograph/reference/plot_compare.md)
+  is kept as a soft-deprecated alias that forwards to
+  [`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md)
+  with a deprecation warning, and will be removed in a future release.
+  Update calls to
+  [`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md).
+
+- [`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md)
+  (the renamed difference-network plotter) now treats an S3
+  `cograph_network` (which is itself a list — e.g. a `psychnet` fit, a
+  Nestimate `netobject`, or any
+  [`as_cograph()`](https://sonsoles.me/cograph/reference/as_cograph.md)
+  result) as a single network. Previously such an object fell into the
+  “plain list of networks” branch and was misread as a list of
+  sub-networks, failing with “x must be a matrix, cograph_network, tna,
+  or igraph object”. Comparing two psychnet/netobject networks with
+  `plot_difference(net1, net2)` now works.
+
 ## cograph 2.3.11
 
 ### New features

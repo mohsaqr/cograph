@@ -343,9 +343,12 @@ splot(
 
 - layout:
 
-  Layout algorithm: "oval" (default), "circle", "spring", "groups", or a
-  matrix of x,y coordinates, or an igraph layout function. Also supports
-  igraph two-letter codes: "kk", "fr", "drl", "mds", "ni", etc.
+  Layout algorithm: "oval" (default), "circle", "spring", "groups",
+  "target" (qgraph-style focal-node BFS levels; node of interest via
+  `target`), "saqr" (Start/End transition flow; `start`/
+  `end`/`jitter`), or a matrix of x,y coordinates, or an igraph layout
+  function. Also supports igraph two-letter codes: "kk", "fr", "drl",
+  "mds", "ni", etc.
 
 - directed:
 

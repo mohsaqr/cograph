@@ -2,104 +2,32 @@
 % Please edit documentation in R/plot-compare.R
 \name{plot_compare}
 \alias{plot_compare}
-\title{Plot Network Difference}
+\title{Plot Network Difference (deprecated)}
 \usage{
-plot_compare(
-  x,
-  y = NULL,
-  i = NULL,
-  j = NULL,
-  pos_color = "#009900",
-  neg_color = "#C62828",
-  labels = NULL,
-  title = NULL,
-  inits_x = NULL,
-  inits_y = NULL,
-  show_inits = NULL,
-  donut_inner_ratio = 0.8,
-  force = FALSE,
-  combined = TRUE,
-  ...
-)
+plot_compare(x, ...)
 }
 \arguments{
-\item{x}{First network: matrix, \code{cograph_network},
-\code{CographNetwork}, \code{tna}, \code{igraph}, list-like object with
-\code{$weights}, plain list of networks, or \code{group_tna}. For
-\code{group_tna} with 2 groups, compares them directly. For more groups,
-plots all pairwise comparisons (or specify i, j).}
+\item{x}{First network (see \code{\link{plot_difference}}).}
 
-\item{y}{Second network: same type as x. Ignored if x is a list or
-\code{group_tna}.}
-
-\item{i}{Index/name of first group when x is group_tna. NULL for all pairs.}
-
-\item{j}{Index/name of second group when x is group_tna. NULL for all pairs.}
-
-\item{pos_color}{Color for positive differences (x > y). Default "#009900" (green).}
-
-\item{neg_color}{Color for negative differences (x < y). Default "#C62828" (red).}
-
-\item{labels}{Node labels. NULL uses rownames or defaults.}
-
-\item{title}{Plot title. NULL for auto-generated title.}
-
-\item{inits_x}{Node values for x (e.g., initial probabilities). NULL to auto-extract from tna.}
-
-\item{inits_y}{Node values for y. NULL to auto-extract from tna.}
-
-\item{show_inits}{Logical: show node differences as donuts? Default TRUE if inits available.}
-
-\item{donut_inner_ratio}{Inner radius ratio for donut (0-1). Default 0.8.}
-
-\item{force}{Logical: force plotting when more than 4 groups (many comparisons). Default FALSE.}
-
-\item{combined}{Logical: when TRUE (default) and \code{x} is a multi-group
-input that triggers all-pairs plotting, lay panels out in an internal
-grid via \code{graphics::par(mfrow=...)}. Set to FALSE to draw into a
-layout the caller has already configured (e.g. via
-\code{\link{panel_layout}()}). Has no effect for the single-pair path.}
-
-\item{...}{Additional arguments passed to splot().}
+\item{...}{Arguments passed to \code{\link{plot_difference}}.}
 }
 \value{
-Invisibly returns a list with difference matrix and inits difference.
+Invisibly, the value of \code{\link{plot_difference}}.
 }
 \description{
-Plots the difference between two networks (x - y) using splot.
-Positive differences (x > y) are shown in green, negative (x < y) in red.
-Optionally displays node-level differences (e.g., initial probabilities)
-as donut charts.
-}
-\details{
-The function computes element-wise subtraction of the weight matrices.
-Edge colors indicate direction of difference:
-\itemize{
-\item Green edges: x has higher weight than y
-\item Red edges: y has higher weight than x
-}
-
-When initial probabilities (inits) are provided or extracted from tna objects,
-nodes display donut charts showing the absolute difference, colored by direction:
-\itemize{
-\item Green donut: x has higher initial probability
-\item Red donut: y has higher initial probability
-}
-
-For lists of networks (e.g., group_tna), specify which elements to compare
-using i and j parameters.
+\strong{Deprecated}: use \code{\link{plot_difference}()} instead. This name
+collided with \code{tna::plot_compare()} (an S3 generic for comparing tna
+models), so the cograph difference-network plotter was renamed to
+\code{plot_difference()}. \code{plot_compare()} remains as a thin wrapper for
+backward compatibility and will be removed in a future release.
 }
 \examples{
-set.seed(42)
-m1 <- matrix(runif(25), 5, 5)
-m2 <- matrix(runif(25), 5, 5)
+m1 <- matrix(stats::runif(25), 5, 5)
+m2 <- matrix(stats::runif(25), 5, 5)
 rownames(m1) <- colnames(m1) <- LETTERS[1:5]
 rownames(m2) <- colnames(m2) <- LETTERS[1:5]
-plot_compare(m1, m2)
-
-# With node-level differences
-plot_compare(m1, m2,
-             inits_x = c(.3, .2, .2, .15, .15),
-             inits_y = c(.1, .4, .2, .2, .1))
-
+suppressWarnings(plot_compare(m1, m2))  # warns: use plot_difference()
+}
+\seealso{
+\code{\link{plot_difference}}
 }

@@ -1,3 +1,44 @@
+# cograph 2.3.12
+
+## New features
+
+- Two focal-node flow layouts, usable anywhere a layout name is accepted
+  (`splot(x, layout = "target")` / `layout = "saqr"`):
+  - `layout_target()` ports qgraph's `flow()` — places one node of
+    interest (`target =`) on the left and every other node in columns by
+    unweighted BFS distance (hops). Unlike qgraph it handles disconnected
+    graphs (isolated nodes go to a trailing column) instead of erroring.
+  - `layout_saqr()` ports the Dynalytics Desktop "saqr" transition layout
+    (Saqr et al., LAK25): Start on top, End on bottom, middle nodes ranked
+    by outgoing weight from Start and split into 2–3 sine-enveloped rows
+    with a zig-zag first row (`start =`, `end =`, `jitter =`).
+
+## Bug fixes / changes
+
+- `plot_difference()` now **styles the difference network automatically**
+  instead of drawing bare default-blue nodes: an undirected difference
+  gets the psychometric look (Okabe-Ito node palette, no arrows, thin
+  edges), a directed difference gets the TNA look (TNA palette, arrows).
+  Node size uses the calibrated preset (previously nodes could render
+  near-invisible), and edges stay coloured by the sign of the difference.
+  Explicit `node_*` arguments still override the preset.
+
+- `plot_compare()` has been **renamed to `plot_difference()`** to avoid
+  colliding with `tna::plot_compare()` (an S3 generic for comparing tna
+  models); the two masked each other depending on package load order.
+  `plot_compare()` is kept as a soft-deprecated alias that forwards to
+  `plot_difference()` with a deprecation warning, and will be removed in
+  a future release. Update calls to `plot_difference()`.
+
+- `plot_difference()` (the renamed difference-network plotter) now treats
+  an S3 `cograph_network` (which is itself a list — e.g. a `psychnet`
+  fit, a Nestimate `netobject`, or any `as_cograph()` result) as a single
+  network. Previously such an object fell into the "plain list of
+  networks" branch and was misread as a list of sub-networks, failing
+  with "x must be a matrix, cograph_network, tna, or igraph object".
+  Comparing two psychnet/netobject networks with
+  `plot_difference(net1, net2)` now works.
+
 # cograph 2.3.11
 
 ## New features

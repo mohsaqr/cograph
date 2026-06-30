@@ -271,9 +271,11 @@ Default \code{1 - x$alpha} (i.e. the complement of the alpha level).}
 \item{edge_nonsig_style}{Line style for non-significant edges. Default 2L.}
 
 \item{layout}{Layout algorithm: "oval" (default), "circle", "spring",
-"groups", or a matrix of x,y coordinates, or an igraph layout function.
-Also supports igraph two-letter codes: "kk", "fr", "drl", "mds", "ni",
-etc.}
+"groups", "target" (qgraph-style focal-node BFS levels; node of interest
+via \code{target}), "saqr" (Start/End transition flow; \code{start}/
+\code{end}/\code{jitter}), or a matrix of x,y coordinates, or an igraph
+layout function. Also supports igraph two-letter codes: "kk", "fr", "drl",
+"mds", "ni", etc.}
 
 \item{directed}{Logical. Force directed interpretation. NULL for auto-detect.}
 

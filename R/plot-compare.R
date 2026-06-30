@@ -59,15 +59,16 @@ NULL
 #' m2 <- matrix(runif(25), 5, 5)
 #' rownames(m1) <- colnames(m1) <- LETTERS[1:5]
 #' rownames(m2) <- colnames(m2) <- LETTERS[1:5]
-#' plot_compare(m1, m2)
+#' plot_difference(m1, m2)
 #'
 #' # With node-level differences
-#' plot_compare(m1, m2,
-#'              inits_x = c(.3, .2, .2, .15, .15),
-#'              inits_y = c(.1, .4, .2, .2, .1))
+#' plot_difference(m1, m2,
+#'                 inits_x = c(.3, .2, .2, .15, .15),
+#'                 inits_y = c(.1, .4, .2, .2, .1))
 #'
+#' @seealso \code{\link{plot_compare}}, the deprecated alias of this function.
 #' @export
-plot_compare <- function(x, y = NULL,
+plot_difference <- function(x, y = NULL,
                          i = NULL,
                          j = NULL,
                          pos_color = "#009900",
@@ -140,8 +141,11 @@ plot_compare <- function(x, y = NULL,
     y <- y_elem
   }
 
-  # Handle plain list of networks
-  else if (is.list(x) && !inherits(x, c("tna", "CographNetwork", "igraph"))) {
+  # Handle plain list of networks. Exclude network objects that are themselves
+  # S3 lists (cograph_network covers psychnet, Nestimate netobject, etc.) so a
+  # single such network is not mistaken for a list of networks to compare.
+  else if (is.list(x) &&
+           !inherits(x, c("tna", "CographNetwork", "cograph_network", "igraph"))) {
     if (length(x) < 2) {
       stop("List must contain at least 2 networks to compare")
     }
@@ -278,21 +282,28 @@ plot_compare <- function(x, y = NULL,
     donut_args
   )
 
-  # Apply TNA visual defaults when inputs are TNA objects
-  if (is_tna_input) {
-    n_states <- nrow(diff_mat)
-    tna_colors <- if (!is.null(x$data)) attr(x$data, "colors") else NULL
-    if (is.null(tna_colors)) tna_colors <- tna_color_palette(n_states)
+  # Style the difference like a proper network instead of bare default nodes:
+  # the TNA look for a directed difference, the psychometric (Okabe-Ito) look
+  # for an undirected one. The presets supply the node size (qgraph scale, which
+  # splot transforms) and a per-node palette; edge_color is dropped so the
+  # sign-based positive/negative edge colours are kept.
+  n_states <- nrow(diff_mat)
+  diff_directed <- is_tna_input ||
+    !isTRUE(all.equal(unname(diff_mat), unname(t(diff_mat)), tolerance = 1e-8))
 
-    tna_defaults <- .tna_style_defaults(directed = TRUE)
-    tna_defaults$edge_labels <- TRUE
-    tna_defaults$node_fill <- tna_colors
-    # Remove edge_color from defaults so pos/neg colors are used for sign-based coloring
-    tna_defaults$edge_color <- NULL
-    for (nm in names(tna_defaults)) {
-      if (is.null(plot_args[[nm]])) {
-        plot_args[[nm]] <- tna_defaults[[nm]]
-      }
+  if (diff_directed) {
+    style_defaults <- .tna_style_defaults(n_nodes = n_states, directed = TRUE)
+    # Prefer the tna object's own state colours when available.
+    tna_colors <- if (is_tna_input && !is.null(x$data)) attr(x$data, "colors") else NULL
+    if (!is.null(tna_colors)) style_defaults$node_fill <- tna_colors
+  } else {
+    style_defaults <- .psych_style_defaults(n_nodes = n_states)
+  }
+  style_defaults$edge_color <- NULL  # keep sign-based pos/neg edge colours
+
+  for (nm in names(style_defaults)) {
+    if (is.null(plot_args[[nm]])) {
+      plot_args[[nm]] <- style_defaults[[nm]]
     }
   }
 
@@ -308,6 +319,30 @@ plot_compare <- function(x, y = NULL,
     weights = diff_mat,
     inits = inits_diff
   ))
+}
+
+#' Plot Network Difference (deprecated)
+#'
+#' \strong{Deprecated}: use \code{\link{plot_difference}()} instead. This name
+#' collided with \code{tna::plot_compare()} (an S3 generic for comparing tna
+#' models), so the cograph difference-network plotter was renamed to
+#' \code{plot_difference()}. \code{plot_compare()} remains as a thin wrapper for
+#' backward compatibility and will be removed in a future release.
+#'
+#' @param x First network (see \code{\link{plot_difference}}).
+#' @param ... Arguments passed to \code{\link{plot_difference}}.
+#' @return Invisibly, the value of \code{\link{plot_difference}}.
+#' @seealso \code{\link{plot_difference}}
+#' @examples
+#' m1 <- matrix(stats::runif(25), 5, 5)
+#' m2 <- matrix(stats::runif(25), 5, 5)
+#' rownames(m1) <- colnames(m1) <- LETTERS[1:5]
+#' rownames(m2) <- colnames(m2) <- LETTERS[1:5]
+#' suppressWarnings(plot_compare(m1, m2))  # warns: use plot_difference()
+#' @export
+plot_compare <- function(x, ...) {
+  .Deprecated("plot_difference", package = "cograph")
+  plot_difference(x, ...)
 }
 
 

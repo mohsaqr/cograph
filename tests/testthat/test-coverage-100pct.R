@@ -474,12 +474,12 @@ test_that("plot_bootstrap: very wide CI caps relative uncertainty", {
 
 # ---- plot-compare.R (lines 152, 363, 474, 488, 580) ----
 
-test_that("plot_compare: extract weights from cograph_network", {
+test_that("plot_difference: extract weights from cograph_network", {
   mat1 <- matrix(c(0, 0.5, 0.3, 0.5, 0, 0.4, 0.3, 0.4, 0), 3, 3,
                  dimnames = list(LETTERS[1:3], LETTERS[1:3]))
   mat2 <- matrix(c(0, 0.8, 0.1, 0.8, 0, 0.2, 0.1, 0.2, 0), 3, 3,
                  dimnames = list(LETTERS[1:3], LETTERS[1:3]))
-  result <- safe_plot(plot_compare(mat1, mat2))
+  result <- safe_plot(plot_difference(mat1, mat2))
   expect_true(result$success, info = result$error)
 })
 
@@ -960,7 +960,7 @@ test_that("splot: qgraph with no edges", {
 
 # ---- plot-compare.R: .extract_weights type dispatch ----
 
-test_that("plot_compare: .extract_weights with igraph", {
+test_that("plot_difference: .extract_weights with igraph", {
   skip_if_not_installed("igraph")
   ew <- cograph:::.extract_weights
   g <- igraph::graph_from_adjacency_matrix(
@@ -971,14 +971,14 @@ test_that("plot_compare: .extract_weights with igraph", {
   expect_true(is.matrix(result))
 })
 
-test_that("plot_compare: .extract_weights with list", {
+test_that("plot_difference: .extract_weights with list", {
   ew <- cograph:::.extract_weights
   x <- list(weights = matrix(c(0, 0.3, 0.2, 0), 2, 2))
   result <- ew(x)
   expect_true(is.matrix(result))
 })
 
-test_that("plot_compare: .extract_weights with cograph_network", {
+test_that("plot_difference: .extract_weights with cograph_network", {
   ew <- cograph:::.extract_weights
   mat <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3,
                 dimnames = list(LETTERS[1:3], LETTERS[1:3]))
@@ -989,13 +989,13 @@ test_that("plot_compare: .extract_weights with cograph_network", {
 
 # ---- plot-compare.R: named list auto-title ----
 
-test_that("plot_compare: named list generates auto-title", {
+test_that("plot_difference: named list generates auto-title", {
   m1 <- matrix(c(0, 0.3, 0.2, 0.3, 0, 0.4, 0.2, 0.4, 0), 3, 3,
                dimnames = list(LETTERS[1:3], LETTERS[1:3]))
   m2 <- matrix(c(0, 0.5, 0.1, 0.5, 0, 0.2, 0.1, 0.2, 0), 3, 3,
                dimnames = list(LETTERS[1:3], LETTERS[1:3]))
   lst <- list(GroupA = m1, GroupB = m2)
-  result <- safe_plot(plot_compare(lst))
+  result <- safe_plot(plot_difference(lst))
   expect_true(result$success, info = result$error)
 })
 
@@ -1939,7 +1939,7 @@ test_that("scale_color_discrete: unregistered palette as literal", {
 
 # ---- plot-compare.R: various uncovered paths ----
 
-test_that("plot_compare: heatmap with plot_comparison_heatmap type='x'", {
+test_that("plot_difference: heatmap with plot_comparison_heatmap type='x'", {
   skip_if_not_installed("ggplot2")
   m1 <- matrix(c(0, 0.3, 0.2, 0.3, 0, 0.4, 0.2, 0.4, 0), 3, 3,
                dimnames = list(LETTERS[1:3], LETTERS[1:3]))

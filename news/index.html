@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,6 +43,24 @@
       <small>Source: <a href="https://github.com/sonsoleslp/cograph/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.4.4" id="cograph-244">cograph 2.4.4<a class="anchor" aria-label="anchor" href="#cograph-244"></a></h2>
+<div class="section level3">
+<h3 id="new-features-2-4-4">New features<a class="anchor" aria-label="anchor" href="#new-features-2-4-4"></a></h3>
+<ul><li>
+<strong>Producer-supplied splot metadata</strong> (<code>x$meta$splot</code>): packages that create cograph-plottable objects can now attach a small rendering contract — <code>renderer</code> (resolved through a cograph-maintained whitelist of existing renderers; arbitrary function names are never evaluated), <code>weight</code> (which stored edge quantity to render: an edge column keeps the producer’s edge set, a matrix redefines the drawn network from its nonzero cells, aligned by dimnames), and <code>defaults</code> (renderer arguments). Precedence is always <code>user arguments &gt; meta$splot$defaults &gt; cograph defaults</code>, including deprecated argument aliases: a user-supplied alias (e.g. <code>positive_color</code>) still beats a metadata default for the new name. See <code><a href="../reference/splot.html">?splot</a></code>, section “Producer-Supplied splot Metadata”.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes--changes-2-4-4">Bug fixes / changes<a class="anchor" aria-label="anchor" href="#bug-fixes--changes-2-4-4"></a></h3>
+<ul><li><p><code><a href="../reference/splot.html">splot()</a></code> on a Nestimate <code>netdifference</code> (from <code>subtract_networks()</code> / <code>as_netdifference()</code>) now routes to <code><a href="../reference/plot_difference.html">plot_difference()</a></code>. Previously it fell through to the <code>netobject</code> path, which styles by <code>$method</code> — “difference” is not a TNA-family method, so the asymmetric difference matrix was drawn with undirected psych styling: no arrowheads and one triangle of each asymmetric edge pair silently dropped. <code>splot(d, minimum = 3)</code> is now the straightforward call for a signed difference network.</p></li>
+<li><p>The <code>netdifference</code> routing excludes <code>net_permutation</code>-family objects: <code>net_bayes</code> carries both classes and must keep reaching <code>splot.net_permutation</code>, whose per-edge CI/star arrays are aligned by <code>Nestimate::plot.net_bayes</code> to that renderer’s edge ordering.</p></li>
+<li><p><code><a href="../reference/plot_difference.html">plot_difference()</a></code> on a <code>netdifference</code> now draws the display matrix (<code>$weights</code> — e.g. only the credible differences when coerced with <code>as_netdifference(b, significant_only = TRUE)</code>), falling back to <code>$difference_matrix</code>. For <code>subtract_networks()</code> results the two are identical, so nothing changes there.</p></li>
+<li><p><code><a href="../reference/plot_permutation.html">plot_permutation()</a></code> / <code><a href="../reference/splot.html">splot.net_permutation()</a></code>: the <code>title</code> and <code>layout</code> defaults now use exact <code>[[</code> indexing. <code>args$title</code> on a dots-list holding <code>title_size</code> (but no <code>title</code>) partially matched <code>title_size</code>, so the default title was silently skipped and no title was drawn — this is why <code>Nestimate::plot.net_bayes()</code> output had no title. Same latent hazard fixed for <code>layout</code> / <code>layout_scale</code>.</p></li>
+<li><p>Edge label templates gain a <code>{p_diff}</code> placeholder (probability of the difference, for Bayesian comparisons), fed by the new <code>edge_label_p_diff</code> argument — a per-edge vector or a full node-by-node matrix (the matrix is indexed at each drawn edge, so it survives <code>minimum</code>/<code>threshold</code> filtering, and is aligned by dimnames so it may be supplied in any node order). Filled automatically from <code>$p_difference</code> by <code>splot.net_permutation</code> and by <code><a href="../reference/plot_difference.html">plot_difference()</a></code> on Bayesian <code>netdifference</code> coercions. Template example: <code>edge_label_template = "{est} (P={p_diff})"</code>.</p></li>
+<li><p><code><a href="../reference/splot.html">splot.netobject()</a></code> styling classifier: <code>"edge_betweenness"</code> networks are now styled by their directedness. A directed edge-betweenness network previously fell into psych styling — drawn undirected, silently losing one direction of each asymmetric pair; it now gets the TNA presets with arrows. An undirected one (from a correlation-family source — Nestimate preserves the source’s directedness) keeps the psych look.</p></li>
+<li><p>Nestimate producers now use the <code>meta$splot</code> contract: <code>netdifference</code> objects carry <code>renderer = "difference"</code> and <code>net_bayes</code> carries <code>renderer = "permutation"</code>, so metadata routing (which runs before class dispatch) selects the renderer; the <code>netdifference</code> class branch remains as a fallback for objects built without metadata.</p></li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.4.3" id="cograph-243">cograph 2.4.3<a class="anchor" aria-label="anchor" href="#cograph-243"></a></h2>
 <div class="section level3">

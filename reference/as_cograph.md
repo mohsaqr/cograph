@@ -75,7 +75,8 @@ A cograph_network object: a named list with components:
 
   Consolidated metadata list with sub-fields: `source` (input type
   string), `layout` (layout info list or NULL), `tna` (TNA metadata or
-  NULL)
+  NULL), and optionally `splot` (producer-supplied rendering hints read
+  by [`splot`](https://sonsoles.me/cograph/reference/splot.md))
 
 - `node_groups`:
 
@@ -93,6 +94,13 @@ The cograph_network format is designed to be:
   access
 
 - Compatible: Works seamlessly with splot() and other cograph functions
+
+Producer packages may attach optional plotting hints under `meta$splot`.
+cograph treats these as defaults only; user-supplied arguments to
+[`splot`](https://sonsoles.me/cograph/reference/splot.md) always
+override them. The recognized fields are `renderer` (which cograph
+renderer to use), `weight` (the edge column or matrix to render as
+`weight`), and `defaults` (a named list of renderer arguments).
 
 Use getter functions for programmatic access:
 [`get_nodes`](https://sonsoles.me/cograph/reference/get_nodes.md),

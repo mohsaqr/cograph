@@ -192,6 +192,7 @@ splot(
   edge_ci_lower = NULL,
   edge_ci_upper = NULL,
   edge_label_p = NULL,
+  edge_label_p_diff = NULL,
   edge_label_p_digits = 3,
   edge_label_p_prefix = "p=",
   edge_label_stars = NULL,
@@ -800,8 +801,8 @@ splot(
 
 - edge_label_template:
 
-  Template with placeholders: {est}, {range}, {low}, {up}, {p}, {stars}.
-  Overrides edge_label_style if provided.
+  Template with placeholders: {est}, {range}, {low}, {up}, {p},
+  {p_diff}, {stars}. Overrides edge_label_style if provided.
 
 - edge_label_digits:
 
@@ -831,6 +832,14 @@ splot(
 - edge_label_p:
 
   Numeric vector of p-values for edges.
+
+- edge_label_p_diff:
+
+  Probability-of-difference values for the `{p_diff}` template
+  placeholder: a per-edge numeric vector, or a full node-by-node matrix
+  (indexed at each drawn edge automatically — the safe form when
+  `minimum`/`threshold` filter edges). A matrix with dimnames is aligned
+  to the plot's node names, so it may be supplied in any node order.
 
 - edge_label_p_digits:
 
@@ -1154,6 +1163,69 @@ For statistical output, use templates to format complex labels:
 
   Preset styles: `"estimate"` (weight only), `"full"` (estimate + CI),
   `"range"` (CI only), `"stars"` (significance).
+
+### Producer-Supplied splot Metadata
+
+Packages that create `cograph_network`-compatible objects can attach a
+small plotting contract at `x$meta$splot`. This lets producer packages
+such as Nestimate, lagdynamics, or other modelling packages describe
+their preferred cograph rendering without adding a new cograph-side
+class branch for every object type.
+
+The contract is optional. Objects without `meta$splot` follow the normal
+`splot()` path and all existing class-specific dispatch remains in
+place. When present, the supported fields are:
+
+- `renderer`:
+
+  Character scalar naming the cograph renderer to use. `"network"` (also
+  `"splot"`, `"default"`, or `"base"`) means the object follows the
+  normal `splot()` path — including any class-specific dispatch cograph
+  already performs for it — with the metadata defaults applied. Other
+  values are resolved through a cograph-maintained whitelist of existing
+  renderers, for example `"difference"`, `"bootstrap"`, `"permutation"`,
+  `"stability"`, `"mlvar"`, `"netobject"`, `"netobject_group"`,
+  `"netobject_ml"`, `"boot_glasso"`, and `"wtna_mixed"`. Arbitrary
+  function names are never evaluated.
+
+- `weight`:
+
+  Optional character scalar naming the default edge weight to render. If
+  it names an edge column, that column is copied to `edges$weight` for
+  the plot (the producer's edge set is kept, and the `weights` matrix is
+  rebuilt to match). If it names a matrix stored on the object, that
+  matrix becomes the rendered network: it is copied to `weights` and the
+  drawn edge set is rebuilt from its nonzero cells (aligned to the
+  object's node order via dimnames when present). This is useful when
+  the analytical object stores several edge quantities (for example
+  counts, probabilities, residuals, effects) but has one preferred plot
+  view.
+
+- `defaults`:
+
+  Named list of `splot()` or renderer arguments. These are defaults
+  only: any argument explicitly supplied by the user wins. Defaults can
+  include regular `splot()` arguments such as `layout`, `node_fill`,
+  `edge_labels`, `weight_digits`, or renderer-specific arguments such as
+  `display` for bootstrap renderers.
+
+The precedence rule is always:
+
+
+    user arguments > x$meta$splot$defaults > cograph defaults
+
+Example producer-side metadata:
+
+
+    x$meta$splot <- list(
+      renderer = "network",
+      weight = "adj_res",
+      defaults = list(
+        node_fill = "white",
+        edge_labels = TRUE,
+        weight_digits = 1
+      )
+    )
 
 ## See also
 

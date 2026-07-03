@@ -65,7 +65,7 @@ as soplot() for consistency."><meta property="og:image" content="https://sonsole
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -286,6 +286,7 @@ as soplot() for consistency.</p>
 <span>  edge_ci_lower <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  edge_ci_upper <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  edge_label_p <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  edge_label_p_diff <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  edge_label_p_digits <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>  edge_label_p_prefix <span class="op">=</span> <span class="st">"p="</span>,</span>
 <span>  edge_label_stars <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -879,7 +880,7 @@ Useful for ensuring significant edges appear above non-significant ones.</p></dd
 
 
 <dt id="arg-edge-label-template">edge_label_template<a class="anchor" aria-label="anchor" href="#arg-edge-label-template"></a></dt>
-<dd><p>Template with placeholders: {est}, {range}, {low}, {up}, {p}, {stars}.
+<dd><p>Template with placeholders: {est}, {range}, {low}, {up}, {p}, {p_diff}, {stars}.
 Overrides edge_label_style if provided.</p></dd>
 
 
@@ -910,6 +911,15 @@ Set to FALSE to display ".5" instead of "0.5".</p></dd>
 
 <dt id="arg-edge-label-p">edge_label_p<a class="anchor" aria-label="anchor" href="#arg-edge-label-p"></a></dt>
 <dd><p>Numeric vector of p-values for edges.</p></dd>
+
+
+<dt id="arg-edge-label-p-diff">edge_label_p_diff<a class="anchor" aria-label="anchor" href="#arg-edge-label-p-diff"></a></dt>
+<dd><p>Probability-of-difference values for the
+<code>{p_diff}</code> template placeholder: a per-edge numeric vector, or a
+full node-by-node matrix (indexed at each drawn edge automatically —
+the safe form when <code>minimum</code>/<code>threshold</code> filter edges). A
+matrix with dimnames is aligned to the plot's node names, so it may be
+supplied in any node order.</p></dd>
 
 
 <dt id="arg-edge-label-p-digits">edge_label_p_digits<a class="anchor" aria-label="anchor" href="#arg-edge-label-p-digits"></a></dt>
@@ -1223,6 +1233,67 @@ for significance stars.</p></dd>
 
 
 </dl></div>
+
+<div class="section">
+<h3 id="producer-supplied-splot-metadata">Producer-Supplied splot Metadata<a class="anchor" aria-label="anchor" href="#producer-supplied-splot-metadata"></a></h3>
+
+
+<p>Packages that create <code>cograph_network</code>-compatible objects can attach a
+small plotting contract at <code>x$meta$splot</code>. This lets producer packages
+such as Nestimate, lagdynamics, or other modelling packages describe their
+preferred cograph rendering without adding a new cograph-side class branch for
+every object type.</p>
+<p>The contract is optional. Objects without <code>meta$splot</code> follow the normal
+<code>splot()</code> path and all existing class-specific dispatch remains in place.
+When present, the supported fields are:</p><dl><dt><code>renderer</code></dt>
+<dd><p>Character scalar naming the cograph renderer to use.
+<code>"network"</code> (also <code>"splot"</code>, <code>"default"</code>, or <code>"base"</code>)
+means the object follows the normal <code>splot()</code> path — including any
+class-specific dispatch cograph already performs for it — with the
+metadata defaults applied. Other values are resolved through a
+cograph-maintained whitelist of existing renderers, for example
+<code>"difference"</code>, <code>"bootstrap"</code>, <code>"permutation"</code>,
+<code>"stability"</code>, <code>"mlvar"</code>, <code>"netobject"</code>,
+<code>"netobject_group"</code>, <code>"netobject_ml"</code>, <code>"boot_glasso"</code>,
+and <code>"wtna_mixed"</code>. Arbitrary function names are never evaluated.</p></dd>
+
+<dt><code>weight</code></dt>
+<dd><p>Optional character scalar naming the default edge
+weight to render. If it names an edge column, that column is copied to
+<code>edges$weight</code> for the plot (the producer's edge set is kept, and
+the <code>weights</code> matrix is rebuilt to match). If it names a matrix
+stored on the object, that matrix becomes the rendered network: it is
+copied to <code>weights</code> and the drawn edge set is rebuilt from its
+nonzero cells (aligned to the object's node order via dimnames when
+present). This is useful when the analytical object stores several edge
+quantities (for example counts, probabilities, residuals, effects) but
+has one preferred plot view.</p></dd>
+
+<dt><code>defaults</code></dt>
+<dd><p>Named list of <code>splot()</code> or renderer arguments.
+These are defaults only: any argument explicitly supplied by the user
+wins. Defaults can include regular <code>splot()</code> arguments such as
+<code>layout</code>, <code>node_fill</code>, <code>edge_labels</code>,
+<code>weight_digits</code>, or renderer-specific arguments such as
+<code>display</code> for bootstrap renderers.</p></dd>
+
+
+</dl><p>The precedence rule is always:</p><div class="sourceCode"><pre><code>
+user arguments &gt; x$meta$splot$defaults &gt; cograph defaults
+</code></pre></div>
+
+<p>Example producer-side metadata:</p><div class="sourceCode"><pre><code><span></span>
+<span><span class="va">x</span><span class="op">$</span><span class="va">meta</span><span class="op">$</span><span class="va">splot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  renderer <span class="op">=</span> <span class="st">"network"</span>,</span>
+<span>  weight <span class="op">=</span> <span class="st">"adj_res"</span>,</span>
+<span>  defaults <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    node_fill <span class="op">=</span> <span class="st">"white"</span>,</span>
+<span>    edge_labels <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>    weight_digits <span class="op">=</span> <span class="fl">1</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+
+</div>
 
     </div>
     <div class="section level2">

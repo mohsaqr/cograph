@@ -9,7 +9,7 @@ The resulting object is a named list with all data accessible via $."><meta prop
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -108,7 +108,9 @@ from tna sequence data is a separate edge. If TRUE or a string
 <dd><p>Consolidated metadata list with sub-fields:
 <code>source</code> (input type string),
 <code>layout</code> (layout info list or NULL),
-<code>tna</code> (TNA metadata or NULL)</p></dd>
+<code>tna</code> (TNA metadata or NULL), and optionally
+<code>splot</code> (producer-supplied rendering hints read by
+<code><a href="splot.html">splot</a></code>)</p></dd>
 
 <dt><code>node_groups</code></dt>
 <dd><p>Optional node groupings data frame</p></dd>
@@ -121,7 +123,13 @@ from tna sequence data is a separate edge. If TRUE or a string
     <p>The cograph_network format is designed to be:</p><ul><li><p>Lean: Only essential data stored, computed values derived on demand</p></li>
 <li><p>Modern: Uses named list elements instead of attributes for clean <code>$</code> access</p></li>
 <li><p>Compatible: Works seamlessly with splot() and other cograph functions</p></li>
-</ul><p>Use getter functions for programmatic access:
+</ul><p>Producer packages may attach optional plotting hints under
+<code>meta$splot</code>. cograph treats these as defaults only; user-supplied
+arguments to <code><a href="splot.html">splot</a></code> always override them. The recognized fields
+are <code>renderer</code> (which cograph renderer to use), <code>weight</code> (the
+edge column or matrix to render as <code>weight</code>), and <code>defaults</code>
+(a named list of renderer arguments).</p>
+<p>Use getter functions for programmatic access:
 <code><a href="get_nodes.html">get_nodes</a></code>, <code><a href="get_edges.html">get_edges</a></code>, <code><a href="get_labels.html">get_labels</a></code>,
 <code><a href="n_nodes.html">n_nodes</a></code>, <code><a href="n_edges.html">n_edges</a></code></p>
 <p>Use setter functions to modify:

@@ -92,9 +92,20 @@ plot_difference <- function(x, y = NULL,
   # $difference_matrix) or, with difference = TRUE, x is treated as the already
   # subtracted matrix/network. Modelled as x - 0 so the whole downstream
   # pipeline (styling, sign colouring) is reused unchanged.
+  p_diff_matrix <- NULL
   if (inherits(x, c("tna_comparison", "netdifference")) ||
       (is.list(x) && is.matrix(x$difference_matrix))) {
-    x <- x$difference_matrix
+    # netdifference carries the DISPLAY matrix in $weights (e.g. only the
+    # supported differences when coerced with significant_only = TRUE) and the
+    # full difference in $difference_matrix; prefer the display matrix.
+    # Keep the probability-of-difference matrix (Bayesian coercions) for the
+    # {p_diff} label placeholder before x is reduced to a plain matrix.
+    if (is.list(x) && is.matrix(x$p_difference)) p_diff_matrix <- x$p_difference
+    x <- if (inherits(x, "netdifference") && is.matrix(x$weights)) {
+      x$weights
+    } else {
+      x$difference_matrix
+    }
     difference <- TRUE
   }
   if (isTRUE(difference)) {
@@ -337,6 +348,12 @@ plot_difference <- function(x, y = NULL,
   # User args override defaults
   for (nm in names(extra_args)) {
     plot_args[[nm]] <- extra_args[[nm]]
+  }
+
+  # Bayesian coercions: expose the probability of the difference to the
+  # {p_diff} template placeholder (matrix form — splot indexes it per edge).
+  if (!is.null(p_diff_matrix) && is.null(plot_args[["edge_label_p_diff"]])) {
+    plot_args$edge_label_p_diff <- p_diff_matrix
   }
 
   # Plot with splot

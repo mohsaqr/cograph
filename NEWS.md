@@ -1,3 +1,70 @@
+# cograph 2.4.4
+
+## New features
+
+- **Producer-supplied splot metadata** (`x$meta$splot`): packages that create
+  cograph-plottable objects can now attach a small rendering contract —
+  `renderer` (resolved through a cograph-maintained whitelist of existing
+  renderers; arbitrary function names are never evaluated), `weight` (which
+  stored edge quantity to render: an edge column keeps the producer's edge
+  set, a matrix redefines the drawn network from its nonzero cells, aligned
+  by dimnames), and `defaults` (renderer arguments). Precedence is always
+  `user arguments > meta$splot$defaults > cograph defaults`, including
+  deprecated argument aliases: a user-supplied alias (e.g. `positive_color`)
+  still beats a metadata default for the new name. See `?splot`, section
+  "Producer-Supplied splot Metadata".
+
+## Bug fixes / changes
+
+- `splot()` on a Nestimate `netdifference` (from `subtract_networks()` /
+  `as_netdifference()`) now routes to `plot_difference()`. Previously it fell
+  through to the `netobject` path, which styles by `$method` — "difference"
+  is not a TNA-family method, so the asymmetric difference matrix was drawn
+  with undirected psych styling: no arrowheads and one triangle of each
+  asymmetric edge pair silently dropped. `splot(d, minimum = 3)` is now the
+  straightforward call for a signed difference network.
+
+- The `netdifference` routing excludes `net_permutation`-family objects:
+  `net_bayes` carries both classes and must keep reaching
+  `splot.net_permutation`, whose per-edge CI/star arrays are aligned by
+  `Nestimate::plot.net_bayes` to that renderer's edge ordering.
+
+- `plot_difference()` on a `netdifference` now draws the display matrix
+  (`$weights` — e.g. only the credible differences when coerced with
+  `as_netdifference(b, significant_only = TRUE)`), falling back to
+  `$difference_matrix`. For `subtract_networks()` results the two are
+  identical, so nothing changes there.
+
+- `plot_permutation()` / `splot.net_permutation()`: the `title` and `layout`
+  defaults now use exact `[[` indexing. `args$title` on a dots-list holding
+  `title_size` (but no `title`) partially matched `title_size`, so the
+  default title was silently skipped and no title was drawn — this is why
+  `Nestimate::plot.net_bayes()` output had no title. Same latent hazard
+  fixed for `layout` / `layout_scale`.
+
+- Edge label templates gain a `{p_diff}` placeholder (probability of the
+  difference, for Bayesian comparisons), fed by the new `edge_label_p_diff`
+  argument — a per-edge vector or a full node-by-node matrix (the matrix is
+  indexed at each drawn edge, so it survives `minimum`/`threshold`
+  filtering, and is aligned by dimnames so it may be supplied in any node
+  order). Filled automatically from `$p_difference` by
+  `splot.net_permutation` and by `plot_difference()` on Bayesian
+  `netdifference` coercions. Template example:
+  `edge_label_template = "{est} (P={p_diff})"`.
+
+- `splot.netobject()` styling classifier: `"edge_betweenness"` networks are
+  now styled by their directedness. A directed edge-betweenness network
+  previously fell into psych styling — drawn undirected, silently losing one
+  direction of each asymmetric pair; it now gets the TNA presets with arrows.
+  An undirected one (from a correlation-family source — Nestimate preserves
+  the source's directedness) keeps the psych look.
+
+- Nestimate producers now use the `meta$splot` contract: `netdifference`
+  objects carry `renderer = "difference"` and `net_bayes` carries
+  `renderer = "permutation"`, so metadata routing (which runs before class
+  dispatch) selects the renderer; the `netdifference` class branch remains
+  as a fallback for objects built without metadata.
+
 # cograph 2.4.3
 
 ## Bug fixes / changes

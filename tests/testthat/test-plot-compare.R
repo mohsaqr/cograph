@@ -721,3 +721,233 @@ test_that("plot_difference warns and ignores y when difference = TRUE", {
   )
   expect_equal(res$weights, d)                       # x used as-is, not x - y
 })
+
+test_that("splot routes a netdifference to plot_difference (directed, both triangles)", {
+  lab <- c("A", "B", "C")
+  # asymmetric difference: A->B = 5, B->A = -1 — an undirected rendering
+  # would collapse the pair and drop one of them
+  d <- matrix(0, 3, 3, dimnames = list(lab, lab))
+  d["A", "B"] <- 5; d["B", "A"] <- -1; d["B", "C"] <- 2
+  nd <- structure(
+    list(weights = d, difference_matrix = d, directed = TRUE,
+         nodes = data.frame(id = 1:3, label = lab, name = lab)),
+    class = c("netdifference", "netobject", "cograph_network")
+  )
+
+  res <- with_temp_png(cograph::splot(nd))
+  # plot_difference's return contract: list carrying the difference matrix
+  expect_equal(res$weights, d, ignore_attr = TRUE)
+
+  # user minimum flows through the routing
+  cap <- NULL
+  orig <- get("splot", envir = asNamespace("cograph"))
+  on.exit(assignInNamespace("splot", orig, ns = "cograph"), add = TRUE)
+  assignInNamespace("splot", function(x, ...) {
+    if (inherits(x, "netdifference")) return(orig(x, ...))
+    cap <<- list(...); invisible(NULL)
+  }, ns = "cograph")
+  cograph::splot(nd, minimum = 3)
+  expect_equal(cap$minimum, 3)
+})
+
+test_that("splot does NOT route net_permutation-family netdifference to plot_difference", {
+  # net_bayes carries netdifference + net_permutation; it must reach
+  # splot.net_permutation (whose caller aligns per-edge CI arrays), not the
+  # difference renderer
+  lab <- c("A", "B", "C")
+  d <- matrix(0, 3, 3, dimnames = list(lab, lab))
+  d["A", "B"] <- 0.4; d["B", "C"] <- -0.2
+  nb <- structure(
+    list(diff = d, diff_sig = d,
+         p_values = matrix(0.01, 3, 3, dimnames = list(lab, lab)),
+         effect_size = matrix(1, 3, 3, dimnames = list(lab, lab)),
+         alpha = 0.05,
+         x = list(directed = TRUE, nodes = data.frame(label = lab))),
+    class = c("net_bayes", "netdifference", "net_permutation")
+  )
+
+  cap_diff <- FALSE
+  orig <- get("plot_difference", envir = asNamespace("cograph"))
+  on.exit(assignInNamespace("plot_difference", orig, ns = "cograph"), add = TRUE)
+  assignInNamespace("plot_difference", function(...) { cap_diff <<- TRUE; invisible(NULL) },
+                    ns = "cograph")
+  with_temp_png(cograph::splot(nb))
+  expect_false(cap_diff)
+})
+
+test_that("plot_difference prefers the netdifference display matrix ($weights)", {
+  lab <- c("A", "B")
+  full <- matrix(c(0, 0.4, -0.3, 0), 2, 2, dimnames = list(lab, lab))
+  disp <- matrix(c(0, 0.4,    0, 0), 2, 2, dimnames = list(lab, lab))
+  nd <- structure(list(weights = disp, difference_matrix = full, directed = TRUE),
+                  class = c("netdifference", "netobject", "cograph_network"))
+  res <- with_temp_png(cograph::plot_difference(nd))
+  expect_equal(res$weights, disp, ignore_attr = TRUE)
+})
+
+test_that("splot.net_permutation title survives a title_size-only call ($ partial match)", {
+  # `args$title` on a list holding only title_size partially matches it
+  # (0.82), silently skipping the title default — must use exact indexing
+  lab <- c("A", "B", "C")
+  d <- matrix(0, 3, 3, dimnames = list(lab, lab))
+  d["A", "B"] <- 0.4
+  perm <- structure(
+    list(diff = d, diff_sig = d,
+         p_values = matrix(0.01, 3, 3, dimnames = list(lab, lab)),
+         effect_size = matrix(1, 3, 3, dimnames = list(lab, lab)),
+         alpha = 0.05,
+         x = list(directed = TRUE, nodes = data.frame(label = lab))),
+    class = c("net_permutation")
+  )
+
+  cap <- NULL
+  orig <- get("splot", envir = asNamespace("cograph"))
+  on.exit(assignInNamespace("splot", orig, ns = "cograph"), add = TRUE)
+  assignInNamespace("splot", function(x, ...) {
+    if (inherits(x, "net_permutation")) return(orig(x, ...))
+    cap <<- list(...); invisible(NULL)
+  }, ns = "cograph")
+
+  cograph::splot(perm, title_size = 0.9)
+  expect_identical(cap[["title"]], "Permutation Test: Significant Differences")
+
+  cograph::splot(perm, title = "MY TITLE", title_size = 0.9)
+  expect_identical(cap[["title"]], "MY TITLE")
+})
+
+test_that("{p_diff} placeholder renders the probability of the difference", {
+  lab <- build_edge_labels_from_template(
+    template = "{est} (P={p_diff})",
+    weights = c(0.4, -0.2),
+    p_diff = c(0.998, 0.51),
+    digits = 2, p_digits = 2, n = 2
+  )
+  expect_identical(lab, c("0.40 (P=1.00)", "-0.20 (P=0.51)"))
+
+  # matrix form: splot indexes it at the drawn edges (survives minimum filter)
+  nodes <- c("A", "B", "C")
+  d <- matrix(0, 3, 3, dimnames = list(nodes, nodes))
+  d["A", "B"] <- 5; d["B", "C"] <- 2
+  pd <- matrix(NA_real_, 3, 3, dimnames = list(nodes, nodes))
+  pd["A", "B"] <- 0.99; pd["B", "C"] <- 0.87
+  nd <- structure(
+    list(weights = d, difference_matrix = d, p_difference = pd,
+         directed = TRUE),
+    class = c("netdifference", "netobject", "cograph_network")
+  )
+  expect_silent(with_temp_png(
+    cograph::splot(nd, minimum = 3,
+                   edge_label_template = "{est} (P={p_diff})")
+  ))
+})
+
+test_that("edge_betweenness netobjects get TNA-family styling (directed, not psych)", {
+  lab <- c("A", "B", "C")
+  w <- matrix(0, 3, 3, dimnames = list(lab, lab))
+  w["A", "B"] <- 3; w["B", "C"] <- 3; w["C", "A"] <- 3   # directed cycle
+  eb <- structure(
+    list(weights = w, method = "edge_betweenness", directed = TRUE,
+         nodes = data.frame(id = 1:3, label = lab, name = lab)),
+    class = c("net_edge_betweenness", "netobject", "cograph_network")
+  )
+  cap <- NULL
+  orig <- get("splot", envir = asNamespace("cograph"))
+  on.exit(assignInNamespace("splot", orig, ns = "cograph"), add = TRUE)
+  assignInNamespace("splot", function(x, ...) {
+    if (is.list(x) && !is.matrix(x)) return(orig(x, ...))
+    cap <<- list(...); invisible(NULL)
+  }, ns = "cograph")
+  cograph::splot(eb)
+  expect_true(isTRUE(cap$tna_styling))    # not psych_styling
+  expect_null(cap$psych_styling)
+})
+
+test_that("meta$splot routes netdifference/net_bayes before class dispatch", {
+  lab <- c("A", "B")
+  d <- matrix(c(0, 0.4, -0.2, 0), 2, 2, dimnames = list(lab, lab))
+  nd <- structure(
+    list(weights = d, difference_matrix = d, directed = TRUE,
+         meta = list(splot = list(renderer = "difference",
+                                  defaults = list(minimum = 0)))),
+    class = c("netdifference", "netobject", "cograph_network")
+  )
+  cap_diff <- FALSE
+  orig <- get("plot_difference", envir = asNamespace("cograph"))
+  on.exit(assignInNamespace("plot_difference", orig, ns = "cograph"), add = TRUE)
+  assignInNamespace("plot_difference", function(...) { cap_diff <<- TRUE; invisible(NULL) },
+                    ns = "cograph")
+  cograph::splot(nd)
+  expect_true(cap_diff)
+})
+
+test_that("edge_betweenness netobjects style by direction (undirected stays psych)", {
+  lab <- c("A", "B", "C")
+  sym <- matrix(c(0, 1, 1,
+                  1, 0, 1,
+                  1, 1, 0), 3, 3, dimnames = list(lab, lab))
+  ebu <- structure(
+    list(weights = sym, method = "edge_betweenness", directed = FALSE,
+         nodes = data.frame(id = 1:3, label = lab, name = lab)),
+    class = c("net_edge_betweenness", "netobject", "cograph_network")
+  )
+  cap <- NULL
+  orig <- get("splot", envir = asNamespace("cograph"))
+  on.exit(assignInNamespace("splot", orig, ns = "cograph"), add = TRUE)
+  assignInNamespace("splot", function(x, ...) {
+    if (is.list(x) && !is.matrix(x)) return(orig(x, ...))
+    cap <<- list(...); invisible(NULL)
+  }, ns = "cograph")
+  cograph::splot(ebu)
+  expect_true(isTRUE(cap$psych_styling))
+  expect_null(cap$tna_styling)
+})
+
+test_that("plot_permutation() itself defaults title/layout via exact indexing", {
+  lab <- c("A", "B", "C")
+  d <- matrix(0, 3, 3, dimnames = list(lab, lab))
+  d["A", "B"] <- 0.4
+  perm <- list(
+    diff = d, diff_sig = d,
+    p_values = matrix(0.01, 3, 3, dimnames = list(lab, lab)),
+    effect_size = matrix(1, 3, 3, dimnames = list(lab, lab)),
+    alpha = 0.05,
+    x = list(directed = TRUE, nodes = data.frame(label = lab))
+  )
+
+  cap <- NULL
+  orig <- get("splot", envir = asNamespace("cograph"))
+  on.exit(assignInNamespace("splot", orig, ns = "cograph"), add = TRUE)
+  assignInNamespace("splot", function(x, ...) {
+    cap <<- list(...); invisible(NULL)
+  }, ns = "cograph")
+
+  # title_size alone must not partial-match away the default title
+  plot_permutation(perm, title_size = 0.9)
+  expect_identical(cap[["title"]], "Permutation Test: Significant Differences")
+  # layout_scale alone must not partial-match away the default layout
+  plot_permutation(perm, layout_scale = 0.8)
+  expect_identical(cap[["layout"]], "oval")
+})
+
+test_that("edge_label_p_diff matrix aligns by dimnames in any node order", {
+  lab <- c("A", "B", "C")
+  d <- matrix(0, 3, 3, dimnames = list(lab, lab))
+  d["A", "B"] <- 5; d["B", "C"] <- 2
+  rl <- rev(lab)
+  pd <- matrix(NA_real_, 3, 3, dimnames = list(rl, rl))
+  pd["A", "B"] <- 0.99; pd["B", "C"] <- 0.87
+
+  seen <- NULL
+  orig <- get("build_edge_labels_from_template", envir = asNamespace("cograph"))
+  on.exit(assignInNamespace("build_edge_labels_from_template", orig,
+                            ns = "cograph"), add = TRUE)
+  assignInNamespace("build_edge_labels_from_template", function(...) {
+    a <- list(...); seen <<- a$p_diff; orig(...)
+  }, ns = "cograph")
+
+  with_temp_png(
+    cograph::splot(d, edge_label_template = "{est} (P={p_diff})",
+                   edge_label_p_diff = pd)
+  )
+  expect_equal(sort(seen), c(0.87, 0.99))
+})

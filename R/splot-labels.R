@@ -123,11 +123,13 @@ resolve_stars <- function(stars_input, p_values = NULL, n) {
 #'
 #' Processes a template string with placeholders and substitutes values.
 #'
-#' @param template Template string with placeholders: \{est\}, \{range\}, \{low\}, \{up\}, \{p\}, \{stars\}.
+#' @param template Template string with placeholders: \{est\}, \{range\}, \{low\}, \{up\}, \{p\}, \{p_diff\}, \{stars\}.
 #' @param weight Edge weight (estimate).
 #' @param ci_lower Lower CI bound.
 #' @param ci_upper Upper CI bound.
 #' @param p_value P-value.
+#' @param p_diff Probability of the difference (share of posterior mass on
+#'   the dominant side, between 0.5 and 1) — Bayesian comparisons.
 #' @param stars Significance stars string.
 #' @param digits Decimal places for estimates.
 #' @param p_digits Decimal places for p-values.
@@ -144,6 +146,7 @@ format_edge_label_template <- function(template,
                                        ci_lower = NA,
                                        ci_upper = NA,
                                        p_value = NA,
+                                       p_diff = NA,
                                        stars = "",
                                        digits = 2,
                                        p_digits = 3,
@@ -207,6 +210,22 @@ format_edge_label_template <- function(template,
       ""
     }
     result <- gsub("\\{up\\}", up_str, result)
+  }
+
+  # Replace {p_diff} - probability of the difference (Bayesian comparisons).
+  # Formatted as a plain probability (no "p=" prefix), so templates write
+  # e.g. "{est} (P={p_diff})".
+  if (grepl("\\{p_diff\\}", result)) {
+    pd_str <- if (!is.na(p_diff)) {
+      formatted <- format(round(p_diff, p_digits), nsmall = p_digits)
+      if (!leading_zero && abs(p_diff) < 1) {
+        formatted <- sub("^0\\.", ".", formatted)
+      }
+      formatted
+    } else {
+      ""
+    }
+    result <- gsub("\\{p_diff\\}", pd_str, result)
   }
 
   # Replace {p} - p-value
@@ -275,6 +294,7 @@ build_edge_labels_from_template <- function(template = NULL,
                                             ci_lower = NULL,
                                             ci_upper = NULL,
                                             p_values = NULL,
+                                            p_diff = NULL,
                                             stars = NULL,
                                             digits = 2,
                                             p_digits = 3,
@@ -300,6 +320,7 @@ build_edge_labels_from_template <- function(template = NULL,
   if (!is.null(ci_lower)) ci_lower <- recycle_to_length(ci_lower, n)
   if (!is.null(ci_upper)) ci_upper <- recycle_to_length(ci_upper, n)
   if (!is.null(p_values)) p_values <- recycle_to_length(p_values, n)
+  if (!is.null(p_diff)) p_diff <- recycle_to_length(p_diff, n)
 
   # Generate labels for each edge
   labels <- vapply(seq_len(n), function(i) {
@@ -309,6 +330,7 @@ build_edge_labels_from_template <- function(template = NULL,
       ci_lower = if (!is.null(ci_lower)) ci_lower[i] else NA,
       ci_upper = if (!is.null(ci_upper)) ci_upper[i] else NA,
       p_value = if (!is.null(p_values)) p_values[i] else NA,
+      p_diff = if (!is.null(p_diff)) p_diff[i] else NA,
       stars = stars_vec[i],
       digits = digits,
       p_digits = p_digits,

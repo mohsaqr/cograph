@@ -100,12 +100,12 @@ plot_permutation <- function(x,
   # Build args list
   args <- list(...)
   edge_labels_user <- "edge_labels" %in% names(args)
-  labels_enabled <- !identical(args$edge_labels, FALSE)
-  template_labels <- !is.null(args$edge_label_template) ||
-    (!is.null(args$edge_label_style) && !identical(args$edge_label_style, "none"))
+  labels_enabled <- !identical(args[["edge_labels"]], FALSE)
+  template_labels <- !is.null(args[["edge_label_template"]]) ||
+    (!is.null(args[["edge_label_style"]]) && !identical(args[["edge_label_style"]], "none"))
 
   # Translate qgraph-style vsize to node_size
-  if (!is.null(args$vsize) && is.null(args$node_size)) {
+  if (!is.null(args[["vsize"]]) && is.null(args[["node_size"]])) {
     args$node_size <- args$vsize
     args$vsize <- NULL
   }
@@ -113,28 +113,28 @@ plot_permutation <- function(x,
   n_nodes <- nrow(weights)
 
   # Apply same rounding as splot to match edge counts
-  weight_digits <- args$weight_digits %||% 2
+  weight_digits <- args[["weight_digits"]] %||% 2
   weights       <- round(weights, weight_digits)
 
   # Default layout
-  if (is.null(args$layout)) args$layout <- "oval"
+  if (is.null(args[["layout"]])) args[["layout"]] <- "oval"
 
   # Labels
-  if (is.null(args$labels) && !is.null(labels)) {
+  if (is.null(args[["labels"]]) && !is.null(labels)) {
     args$labels <- labels
   }
-  if (is.null(args$labels)) {
+  if (is.null(args[["labels"]])) {
     args$labels <- rownames(weights)
   }
 
   # Default styling
-  if (is.null(args$edge_labels)) args$edge_labels <- TRUE
-  if (is.null(args$edge_label_size)) args$edge_label_size <- 0.6
-  if (is.null(args$edge_label_position)) args$edge_label_position <- 0.35
-  if (is.null(args$edge_label_halo)) args$edge_label_halo <- TRUE
-  if (is.null(args$node_size)) args$node_size <- 7
-  if (is.null(args$arrow_size)) args$arrow_size <- 0.61
-  if (is.null(args$edge_label_leading_zero)) args$edge_label_leading_zero <- FALSE
+  if (is.null(args[["edge_labels"]])) args$edge_labels <- TRUE
+  if (is.null(args[["edge_label_size"]])) args$edge_label_size <- 0.6
+  if (is.null(args[["edge_label_position"]])) args$edge_label_position <- 0.35
+  if (is.null(args[["edge_label_halo"]])) args$edge_label_halo <- TRUE
+  if (is.null(args[["node_size"]])) args$node_size <- 7
+  if (is.null(args[["arrow_size"]])) args$arrow_size <- 0.61
+  if (is.null(args[["edge_label_leading_zero"]])) args$edge_label_leading_zero <- FALSE
 
   # Compute edge indices for non-zero edges
   edge_idx <- which(weights != 0, arr.ind = TRUE)
@@ -222,6 +222,9 @@ plot_permutation <- function(x,
 
   if (labels_enabled && n_edges > 0 && !is.null(p_matrix)) {
     args$edge_label_p <- p_matrix[edge_idx]
+    if (!is.null(x$p_difference) && is.null(args[["edge_label_p_diff"]])) {
+      args$edge_label_p_diff <- x$p_difference[edge_idx]
+    }
     if (template_labels && show_stars) {
       args$edge_label_stars <- TRUE
     }
@@ -231,7 +234,7 @@ plot_permutation <- function(x,
   # vectors/templates alone so users can show p-values or suppress labels.
   if (labels_enabled && !template_labels && n_edges > 0 &&
       (show_stars || show_effect) &&
-      (!edge_labels_user || isTRUE(args$edge_labels))) {
+      (!edge_labels_user || isTRUE(args[["edge_labels"]]))) {
     edge_labels_custom <- character(n_edges)
 
     for (k in seq_len(n_edges)) {
@@ -268,8 +271,8 @@ plot_permutation <- function(x,
   # No need to set edge_width - let splot handle it
 
   # Title
-  if (is.null(args$title)) {
-    args$title <- if (show_nonsig) {
+  if (is.null(args[["title"]])) {
+    args[["title"]] <- if (show_nonsig) {
       "Permutation Test: All Differences"
     } else {
       "Permutation Test: Significant Differences"
@@ -278,7 +281,7 @@ plot_permutation <- function(x,
 
   # Node colors from tna model
   node_colors <- attr(x, "colors")
-  if (!is.null(node_colors) && is.null(args$node_fill)) {
+  if (!is.null(node_colors) && is.null(args[["node_fill"]])) {
     args$node_fill <- node_colors
   }
 
@@ -408,12 +411,12 @@ splot.net_permutation <- function(x,
   weights_display <- if (show_nonsig) diffs_true else diffs_sig
   args            <- list(...)
   edge_labels_user <- "edge_labels" %in% names(args)
-  labels_enabled <- !identical(args$edge_labels, FALSE)
-  template_labels <- !is.null(args$edge_label_template) ||
-    (!is.null(args$edge_label_style) && !identical(args$edge_label_style, "none"))
+  labels_enabled <- !identical(args[["edge_labels"]], FALSE)
+  template_labels <- !is.null(args[["edge_label_template"]]) ||
+    (!is.null(args[["edge_label_style"]]) && !identical(args[["edge_label_style"]], "none"))
 
   # Translate qgraph-style vsize to node_size
-  if (!is.null(args$vsize) && is.null(args$node_size)) {
+  if (!is.null(args[["vsize"]]) && is.null(args[["node_size"]])) {
     args$node_size <- args$vsize
     args$vsize <- NULL
   }
@@ -422,22 +425,22 @@ splot.net_permutation <- function(x,
 
   # Round to match splot's internal weight_digits (default 2), so edge_idx
   # is consistent with the edge count splot sees when building the plot.
-  weight_digits    <- args$weight_digits %||% 2
+  weight_digits    <- args[["weight_digits"]] %||% 2
   weights_display  <- round(weights_display, weight_digits)
 
-  if (is.null(args$layout))  args$layout  <- if (is_directed) "oval" else "spring"
-  if (is.null(args$labels))  args$labels  <- labels
-  if (is.null(args$directed)) args$directed <- is_directed
-  if (is.null(args$show_arrows)) args$show_arrows <- is_directed
+  if (is.null(args[["layout"]]))  args[["layout"]]  <- if (is_directed) "oval" else "spring"
+  if (is.null(args[["labels"]]))  args$labels  <- labels
+  if (is.null(args[["directed"]])) args$directed <- is_directed
+  if (is.null(args[["show_arrows"]])) args$show_arrows <- is_directed
 
-  if (is.null(args$edge_labels))             args$edge_labels             <- TRUE
-  if (is.null(args$edge_label_size))         args$edge_label_size         <- 0.6
-  if (is.null(args$edge_label_position))     args$edge_label_position     <- 0.35
-  if (is.null(args$edge_label_halo))         args$edge_label_halo         <- TRUE
-  if (is.null(args$node_size))               args$node_size               <- 7
-  if (is.null(args$arrow_size))              args$arrow_size              <- 0.61
-  if (is.null(args$node_fill))               args$node_fill               <- tna_color_palette(n_nodes)
-  if (is.null(args$edge_label_leading_zero)) args$edge_label_leading_zero <- FALSE
+  if (is.null(args[["edge_labels"]]))             args$edge_labels             <- TRUE
+  if (is.null(args[["edge_label_size"]]))         args$edge_label_size         <- 0.6
+  if (is.null(args[["edge_label_position"]]))     args$edge_label_position     <- 0.35
+  if (is.null(args[["edge_label_halo"]]))         args$edge_label_halo         <- TRUE
+  if (is.null(args[["node_size"]]))               args$node_size               <- 7
+  if (is.null(args[["arrow_size"]]))              args$arrow_size              <- 0.61
+  if (is.null(args[["node_fill"]]))               args$node_fill               <- tna_color_palette(n_nodes)
+  if (is.null(args[["edge_label_leading_zero"]])) args$edge_label_leading_zero <- FALSE
 
   # For undirected networks splot only processes upper-triangle edges,
   # so per-edge arrays must use the same index set.
@@ -488,6 +491,9 @@ splot.net_permutation <- function(x,
 
   if (labels_enabled && n_edges > 0 && !is.null(p_matrix)) {
     args$edge_label_p <- p_matrix[edge_idx]
+    if (!is.null(x$p_difference) && is.null(args[["edge_label_p_diff"]])) {
+      args$edge_label_p_diff <- x$p_difference[edge_idx]
+    }
     if (template_labels && show_stars) {
       args$edge_label_stars <- TRUE
     }
@@ -495,7 +501,7 @@ splot.net_permutation <- function(x,
 
   if (labels_enabled && !template_labels && n_edges > 0 &&
       (show_stars || show_effect) &&
-      (!edge_labels_user || isTRUE(args$edge_labels))) {
+      (!edge_labels_user || isTRUE(args[["edge_labels"]]))) {
     edge_labels_custom <- character(n_edges)
     for (k in seq_len(n_edges)) {
       i  <- edge_idx[k, 1]; j <- edge_idx[k, 2]
@@ -519,8 +525,8 @@ splot.net_permutation <- function(x,
     args$edge_labels <- edge_labels_custom
   }
 
-  if (is.null(args$title)) {
-    args$title <- if (show_nonsig) "Permutation Test: All Differences" else "Permutation Test: Significant Differences"
+  if (is.null(args[["title"]])) {
+    args[["title"]] <- if (show_nonsig) "Permutation Test: All Differences" else "Permutation Test: Significant Differences"
   }
 
   do.call(splot, c(list(x = weights_display), args))

@@ -41,9 +41,16 @@ splot.netobject <- function(x, ...) {
   # undirected TNA-family networks and still belong in oval layout with no
   # arrows. When $method is missing (legacy mocks, hand-built netobjects),
   # fall back to direction: directed -> TNA, undirected -> psych.
+  # edge_betweenness: a routing network that inherits its source's
+  # directedness (Nestimate preserves x$directed) — a directed one drawn with
+  # psych styling would lose arrows and one triangle of each asymmetric pair,
+  # while an undirected one (from a correlation-family source) still belongs
+  # in the psych look. Style it by direction, not by method family.
   tna_methods <- c("relative", "frequency", "attention",
                    "co_occurrence", "wtna", "wtna_cooccurrence")
-  use_tna <- if (!is.null(x$method)) {
+  use_tna <- if (identical(x$method, "edge_betweenness")) {
+    isTRUE(x$directed)
+  } else if (!is.null(x$method)) {
     x$method %in% tna_methods
   } else {
     isTRUE(x$directed)

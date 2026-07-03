@@ -40,7 +40,9 @@ A cograph_network object: a named list with components:
 \item{\code{meta}}{Consolidated metadata list with sub-fields:
 \code{source} (input type string),
 \code{layout} (layout info list or NULL),
-\code{tna} (TNA metadata or NULL)}
+\code{tna} (TNA metadata or NULL), and optionally
+\code{splot} (producer-supplied rendering hints read by
+\code{\link{splot}})}
 \item{\code{node_groups}}{Optional node groupings data frame}
 }
 
@@ -57,6 +59,13 @@ The cograph_network format is designed to be:
 \item Modern: Uses named list elements instead of attributes for clean \code{$} access
 \item Compatible: Works seamlessly with splot() and other cograph functions
 }
+
+Producer packages may attach optional plotting hints under
+\code{meta$splot}. cograph treats these as defaults only; user-supplied
+arguments to \code{\link{splot}} always override them. The recognized fields
+are \code{renderer} (which cograph renderer to use), \code{weight} (the
+edge column or matrix to render as \code{weight}), and \code{defaults}
+(a named list of renderer arguments).
 
 Use getter functions for programmatic access:
 \code{\link{get_nodes}}, \code{\link{get_edges}}, \code{\link{get_labels}},

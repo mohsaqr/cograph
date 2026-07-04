@@ -228,6 +228,34 @@ test_that("detect_communities with walktrap method", {
   expect_equal(nrow(result), 4)
 })
 
+test_that("detect_communities louvain/leiden collapse a directed graph (no igraph abort)", {
+  # a genuinely directed, asymmetric matrix — louvain and leiden are
+  # undirected-only in igraph and would abort with
+  # "Multi-level community detection works for undirected graphs only".
+  dir_mat <- matrix(c(0, 1, 2, 0,
+                      0, 0, 1, 3,
+                      2, 0, 0, 1,
+                      1, 2, 0, 0), 4, 4, byrow = TRUE,
+                    dimnames = list(LETTERS[1:4], LETTERS[1:4]))
+
+  expect_message(
+    louvain <- detect_communities(dir_mat, method = "louvain"),
+    "collapsing directed edges"
+  )
+  expect_s3_class(louvain, "data.frame")
+  expect_equal(nrow(louvain), 4)
+
+  expect_message(
+    leiden <- detect_communities(dir_mat, method = "leiden"),
+    "collapsing directed edges"
+  )
+  expect_equal(nrow(leiden), 4)
+
+  # an undirected graph must NOT trigger the collapse message
+  sym_mat <- dir_mat + t(dir_mat)
+  expect_no_message(detect_communities(sym_mat, method = "louvain"))
+})
+
 test_that("detect_communities with fast_greedy method", {
   mat <- create_test_matrix(symmetric = TRUE)
   result <- detect_communities(mat, method = "fast_greedy")

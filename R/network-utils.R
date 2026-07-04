@@ -196,6 +196,22 @@ detect_communities <- function(x, method = "louvain", directed = NULL,
     NULL
   }
 
+  # louvain and leiden are undirected-only in igraph (they error on a directed
+  # graph). tna models — the package's primary input — are always directed,
+  # and louvain is the default method, so collapse directed edges to
+  # undirected (mean) first, exactly as the fast_greedy branch below does,
+  # rather than letting igraph abort.
+  if (method %in% c("louvain", "leiden") && igraph::is_directed(g)) {
+    message("Method '", method, "' requires an undirected graph; ",
+            "collapsing directed edges (mean) for community detection.")
+    g <- igraph::as_undirected(g, mode = "collapse", edge.attr.comb = "mean")
+    edge_weights <- if (weights && !is.null(igraph::E(g)$weight)) {
+      igraph::E(g)$weight
+    } else {
+      NULL
+    }
+  }
+
   # Apply community detection algorithm
   communities <- switch(method,
     "louvain" = igraph::cluster_louvain(g, weights = edge_weights),

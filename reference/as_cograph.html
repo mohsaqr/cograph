@@ -124,11 +124,12 @@ from tna sequence data is a separate edge. If TRUE or a string
 <li><p>Modern: Uses named list elements instead of attributes for clean <code>$</code> access</p></li>
 <li><p>Compatible: Works seamlessly with splot() and other cograph functions</p></li>
 </ul><p>Producer packages may attach optional plotting hints under
-<code>meta$splot</code>. cograph treats these as defaults only; user-supplied
-arguments to <code><a href="splot.html">splot</a></code> always override them. The recognized fields
-are <code>renderer</code> (which cograph renderer to use), <code>weight</code> (the
-edge column or matrix to render as <code>weight</code>), and <code>defaults</code>
-(a named list of renderer arguments).</p>
+<code>meta$splot</code>. The recognized fields are <code>renderer</code> (which cograph
+renderer to use), <code>weight</code> (the edge column or matrix to render as
+<code>weight</code>), and <code>defaults</code> (a named list of renderer arguments).
+Entries in <code>defaults</code> are defaults only — user-supplied arguments to
+<code><a href="splot.html">splot</a></code> always override them. <code>renderer</code> and <code>weight</code>
+define which view is rendered and are not overridden by plot arguments.</p>
 <p>Use getter functions for programmatic access:
 <code><a href="get_nodes.html">get_nodes</a></code>, <code><a href="get_edges.html">get_edges</a></code>, <code><a href="get_labels.html">get_labels</a></code>,
 <code><a href="n_nodes.html">n_nodes</a></code>, <code><a href="n_edges.html">n_edges</a></code></p>

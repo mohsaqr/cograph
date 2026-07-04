@@ -1157,7 +1157,8 @@ For statistical output, use templates to format complex labels:
 
   Template string with placeholders: `{est}` for estimate/weight,
   `{low}`/`{up}` for CI bounds, `{range}` for formatted range, `{p}` for
-  p-value, `{stars}` for significance stars.
+  p-value, `{p_diff}` for the probability of the difference (Bayesian
+  comparisons), `{stars}` for significance stars.
 
 - **edge_label_style**:
 
@@ -1199,7 +1200,8 @@ place. When present, the supported fields are:
   object's node order via dimnames when present). This is useful when
   the analytical object stores several edge quantities (for example
   counts, probabilities, residuals, effects) but has one preferred plot
-  view.
+  view. When the name matches both an edge column and a stored matrix,
+  the matrix form wins.
 
 - `defaults`:
 

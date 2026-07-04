@@ -12,11 +12,12 @@
   the producer’s edge set, a matrix redefines the drawn network from its
   nonzero cells, aligned by dimnames), and `defaults` (renderer
   arguments). Precedence is always
-  `user arguments > meta$splot$defaults > cograph defaults`, including
-  deprecated argument aliases: a user-supplied alias
-  (e.g. `positive_color`) still beats a metadata default for the new
-  name. See [`?splot`](https://sonsoles.me/cograph/reference/splot.md),
-  section “Producer-Supplied splot Metadata”.
+  `user arguments > meta$splot$defaults > cograph defaults`; on the
+  regular network path this includes deprecated argument aliases (a
+  user-supplied `positive_color` still beats a metadata
+  `edge_positive_color` default). See
+  [`?splot`](https://sonsoles.me/cograph/reference/splot.md), section
+  “Producer-Supplied splot Metadata”.
 
 ### Bug fixes / changes
 

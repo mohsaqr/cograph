@@ -96,11 +96,13 @@ The cograph_network format is designed to be:
 - Compatible: Works seamlessly with splot() and other cograph functions
 
 Producer packages may attach optional plotting hints under `meta$splot`.
-cograph treats these as defaults only; user-supplied arguments to
+The recognized fields are `renderer` (which cograph renderer to use),
+`weight` (the edge column or matrix to render as `weight`), and
+`defaults` (a named list of renderer arguments). Entries in `defaults`
+are defaults only — user-supplied arguments to
 [`splot`](https://sonsoles.me/cograph/reference/splot.md) always
-override them. The recognized fields are `renderer` (which cograph
-renderer to use), `weight` (the edge column or matrix to render as
-`weight`), and `defaults` (a named list of renderer arguments).
+override them. `renderer` and `weight` define which view is rendered and
+are not overridden by plot arguments.
 
 Use getter functions for programmatic access:
 [`get_nodes`](https://sonsoles.me/cograph/reference/get_nodes.md),

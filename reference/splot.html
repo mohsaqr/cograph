@@ -1224,8 +1224,9 @@ Default 2 means underlay is twice as wide as main edge at CI=1.</p></dd>
 <p>For statistical output, use templates to format complex labels:</p><dl><dt><strong>edge_label_template</strong></dt>
 <dd><p>Template string with placeholders:
 <code>{est}</code> for estimate/weight, <code>{low}</code>/<code>{up}</code> for CI bounds,
-<code>{range}</code> for formatted range, <code>{p}</code> for p-value, <code>{stars}</code>
-for significance stars.</p></dd>
+<code>{range}</code> for formatted range, <code>{p}</code> for p-value,
+<code>{p_diff}</code> for the probability of the difference (Bayesian
+comparisons), <code>{stars}</code> for significance stars.</p></dd>
 
 <dt><strong>edge_label_style</strong></dt>
 <dd><p>Preset styles: <code>"estimate"</code> (weight only),
@@ -1267,7 +1268,8 @@ copied to <code>weights</code> and the drawn edge set is rebuilt from its
 nonzero cells (aligned to the object's node order via dimnames when
 present). This is useful when the analytical object stores several edge
 quantities (for example counts, probabilities, residuals, effects) but
-has one preferred plot view.</p></dd>
+has one preferred plot view. When the name matches both an edge column
+and a stored matrix, the matrix form wins.</p></dd>
 
 <dt><code>defaults</code></dt>
 <dd><p>Named list of <code>splot()</code> or renderer arguments.

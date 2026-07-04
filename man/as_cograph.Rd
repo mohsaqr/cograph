@@ -61,11 +61,12 @@ The cograph_network format is designed to be:
 }
 
 Producer packages may attach optional plotting hints under
-\code{meta$splot}. cograph treats these as defaults only; user-supplied
-arguments to \code{\link{splot}} always override them. The recognized fields
-are \code{renderer} (which cograph renderer to use), \code{weight} (the
-edge column or matrix to render as \code{weight}), and \code{defaults}
-(a named list of renderer arguments).
+\code{meta$splot}. The recognized fields are \code{renderer} (which cograph
+renderer to use), \code{weight} (the edge column or matrix to render as
+\code{weight}), and \code{defaults} (a named list of renderer arguments).
+Entries in \code{defaults} are defaults only — user-supplied arguments to
+\code{\link{splot}} always override them. \code{renderer} and \code{weight}
+define which view is rendered and are not overridden by plot arguments.
 
 Use getter functions for programmatic access:
 \code{\link{get_nodes}}, \code{\link{get_edges}}, \code{\link{get_labels}},

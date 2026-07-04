@@ -44,12 +44,17 @@ splot.netobject <- function(x, ...) {
   # edge_betweenness: a routing network that inherits its source's
   # directedness (Nestimate preserves x$directed) — a directed one drawn with
   # psych styling would lose arrows and one triangle of each asymmetric pair,
-  # while an undirected one (from a correlation-family source) still belongs
-  # in the psych look. Style it by direction, not by method family.
+  # while one derived from a correlation-family source belongs in the psych
+  # look. Style it like its SOURCE network when Nestimate recorded it
+  # ($edge_betweenness$source_method), falling back to direction: undirected
+  # TNA-family sources (co_occurrence, wtna_cooccurrence) then keep the same
+  # TNA look their source network gets.
   tna_methods <- c("relative", "frequency", "attention",
                    "co_occurrence", "wtna", "wtna_cooccurrence")
   use_tna <- if (identical(x$method, "edge_betweenness")) {
-    isTRUE(x$directed)
+    src <- x[["edge_betweenness"]][["source_method"]]
+    if (!is.null(src)) src %in% tna_methods || isTRUE(x$directed)
+    else isTRUE(x$directed)
   } else if (!is.null(x$method)) {
     x$method %in% tna_methods
   } else {

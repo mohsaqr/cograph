@@ -222,8 +222,9 @@ plot_permutation <- function(x,
 
   if (labels_enabled && n_edges > 0 && !is.null(p_matrix)) {
     args$edge_label_p <- p_matrix[edge_idx]
-    if (!is.null(x$p_difference) && is.null(args[["edge_label_p_diff"]])) {
-      args$edge_label_p_diff <- x$p_difference[edge_idx]
+    p_diff_mat <- .aligned_p_difference(x$p_difference, weights)
+    if (!is.null(p_diff_mat) && is.null(args[["edge_label_p_diff"]])) {
+      args$edge_label_p_diff <- p_diff_mat[edge_idx]
     }
     if (template_labels && show_stars) {
       args$edge_label_stars <- TRUE
@@ -491,8 +492,9 @@ splot.net_permutation <- function(x,
 
   if (labels_enabled && n_edges > 0 && !is.null(p_matrix)) {
     args$edge_label_p <- p_matrix[edge_idx]
-    if (!is.null(x$p_difference) && is.null(args[["edge_label_p_diff"]])) {
-      args$edge_label_p_diff <- x$p_difference[edge_idx]
+    p_diff_mat <- .aligned_p_difference(x$p_difference, weights_display)
+    if (!is.null(p_diff_mat) && is.null(args[["edge_label_p_diff"]])) {
+      args$edge_label_p_diff <- p_diff_mat[edge_idx]
     }
     if (template_labels && show_stars) {
       args$edge_label_stars <- TRUE
@@ -530,4 +532,33 @@ splot.net_permutation <- function(x,
   }
 
   do.call(splot, c(list(x = weights_display), args))
+}
+
+#' Validate and align a p_difference matrix to a reference weights matrix
+#'
+#' Returns a matrix in the reference's node order, or NULL when p_difference
+#' is absent or unusable (not a matrix, wrong dimensions). Positional
+#' edge-index subsetting on the result is then guaranteed valid; when both
+#' matrices carry full dimnames over the same names, the values are
+#' re-ordered by name so a producer may store p_difference in any node order.
+#'
+#' @param p_diff Candidate probability-of-difference matrix (or anything).
+#' @param ref Reference weights matrix whose node order edge_idx follows.
+#' @return A dim-matched matrix or NULL.
+#' @noRd
+.aligned_p_difference <- function(p_diff, ref) {
+  if (!is.matrix(p_diff) || !identical(dim(p_diff), dim(ref))) {
+    return(NULL)
+  }
+
+  rn <- rownames(ref)
+  cn <- colnames(ref)
+  if (!is.null(rn) && !is.null(cn) &&
+      !anyDuplicated(rn) && !anyDuplicated(cn) &&
+      !is.null(rownames(p_diff)) && !is.null(colnames(p_diff)) &&
+      all(rn %in% rownames(p_diff)) && all(cn %in% colnames(p_diff))) {
+    return(p_diff[rn, cn, drop = FALSE])
+  }
+
+  p_diff
 }

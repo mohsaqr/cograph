@@ -16,6 +16,16 @@
 
 ## Bug fixes / changes
 
+- `detect_communities()` with the `"louvain"` (the default) or `"leiden"`
+  method no longer errors on a **directed** graph. These igraph algorithms
+  are undirected-only, so `detect_communities(tna_object)` — a tna model is
+  always directed — aborted with "Multi-level community detection works for
+  undirected graphs only". It now collapses the directed edges to undirected
+  (mean, as the `"fast_greedy"` method already did) with a message, so the
+  package's primary object type works with the default algorithm. This also
+  fixes `plot_htna(x, community = "louvain")` and other internal callers that
+  ran community detection on a directed model.
+
 - `splot()` on a Nestimate `netdifference` (from `subtract_networks()` /
   `as_netdifference()`) now routes to `plot_difference()`. Previously it fell
   through to the `netobject` path, which styles by `$method` — "difference"

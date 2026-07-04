@@ -21,6 +21,18 @@
 
 ### Bug fixes / changes
 
+- [`detect_communities()`](https://sonsoles.me/cograph/reference/detect_communities.md)
+  with the `"louvain"` (the default) or `"leiden"` method no longer
+  errors on a **directed** graph. These igraph algorithms are
+  undirected-only, so `detect_communities(tna_object)` — a tna model is
+  always directed — aborted with “Multi-level community detection works
+  for undirected graphs only”. It now collapses the directed edges to
+  undirected (mean, as the `"fast_greedy"` method already did) with a
+  message, so the package’s primary object type works with the default
+  algorithm. This also fixes `plot_htna(x, community = "louvain")` and
+  other internal callers that ran community detection on a directed
+  model.
+
 - [`splot()`](https://sonsoles.me/cograph/reference/splot.md) on a
   Nestimate `netdifference` (from `subtract_networks()` /
   `as_netdifference()`) now routes to

@@ -352,7 +352,12 @@ plot_difference <- function(x, y = NULL,
 
   # Bayesian coercions: expose the probability of the difference to the
   # {p_diff} template placeholder (matrix form — splot indexes it per edge).
-  if (!is.null(p_diff_matrix) && is.null(plot_args[["edge_label_p_diff"]])) {
+  # Check names(extra_args), not is.null(): an explicit edge_label_p_diff =
+  # NULL from the user must suppress the auto-forward (R list NULL trap —
+  # assigning NULL deleted the element, so is.null() alone can't see it).
+  if (!is.null(p_diff_matrix) &&
+      !("edge_label_p_diff" %in% names(extra_args)) &&
+      is.null(plot_args[["edge_label_p_diff"]])) {
     plot_args$edge_label_p_diff <- p_diff_matrix
   }
 

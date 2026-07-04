@@ -738,15 +738,17 @@ test_that("splot routes a netdifference to plot_difference (directed, both trian
   # plot_difference's return contract: list carrying the difference matrix
   expect_equal(res$weights, d, ignore_attr = TRUE)
 
-  # user minimum flows through the routing
+  # the routing must actually reach plot_difference (falling through to
+  # splot.netobject would also return $weights, so assert the call itself),
+  # and user args like minimum must flow through it
   cap <- NULL
-  orig <- get("splot", envir = asNamespace("cograph"))
-  on.exit(assignInNamespace("splot", orig, ns = "cograph"), add = TRUE)
-  assignInNamespace("splot", function(x, ...) {
-    if (inherits(x, "netdifference")) return(orig(x, ...))
+  orig <- get("plot_difference", envir = asNamespace("cograph"))
+  on.exit(assignInNamespace("plot_difference", orig, ns = "cograph"), add = TRUE)
+  assignInNamespace("plot_difference", function(x, ...) {
     cap <<- list(...); invisible(NULL)
   }, ns = "cograph")
   cograph::splot(nd, minimum = 3)
+  expect_false(is.null(cap))          # plot_difference was invoked
   expect_equal(cap$minimum, 3)
 })
 
@@ -862,14 +864,18 @@ test_that("edge_betweenness netobjects get TNA-family styling (directed, not psy
   expect_null(cap$psych_styling)
 })
 
-test_that("meta$splot routes netdifference/net_bayes before class dispatch", {
+test_that("meta$splot routing works without any recognized class", {
+  # The fixture must NOT carry netdifference/netobject — those classes would
+  # reach plot_difference through the ordinary inherits() cascade anyway, and
+  # the test could never detect a broken metadata contract. A producer-only
+  # class proves the routing came from meta$splot alone.
   lab <- c("A", "B")
   d <- matrix(c(0, 0.4, -0.2, 0), 2, 2, dimnames = list(lab, lab))
   nd <- structure(
     list(weights = d, difference_matrix = d, directed = TRUE,
          meta = list(splot = list(renderer = "difference",
                                   defaults = list(minimum = 0)))),
-    class = c("netdifference", "netobject", "cograph_network")
+    class = "some_producer_difference"
   )
   cap_diff <- FALSE
   orig <- get("plot_difference", envir = asNamespace("cograph"))
@@ -903,16 +909,24 @@ test_that("edge_betweenness netobjects style by direction (undirected stays psyc
 })
 
 test_that("plot_permutation() itself defaults title/layout via exact indexing", {
-  lab <- c("A", "B", "C")
-  d <- matrix(0, 3, 3, dimnames = list(lab, lab))
-  d["A", "B"] <- 0.4
-  perm <- list(
-    diff = d, diff_sig = d,
-    p_values = matrix(0.01, 3, 3, dimnames = list(lab, lab)),
-    effect_size = matrix(1, 3, 3, dimnames = list(lab, lab)),
-    alpha = 0.05,
-    x = list(directed = TRUE, nodes = data.frame(label = lab))
-  )
+  # tna_permutation shape: matrices + stats live under $edges. (The flat
+  # diff/diff_sig shape belongs to splot.net_permutation, not this renderer.)
+  diffs <- matrix(c(0, .15, -.1, -.2, 0, .05, .1, -.05, 0), 3, 3,
+                  dimnames = list(c("A", "B", "C"), c("A", "B", "C")))
+  diffs_sig <- diffs
+  diffs_sig[abs(diffs) < 0.1] <- 0
+  perm <- list(edges = list(
+    diffs_true = diffs, diffs_sig = diffs_sig,
+    stats = data.frame(
+      edge_name   = c("A -> B", "A -> C", "B -> A", "B -> C", "C -> A", "C -> B"),
+      diff_true   = c(.15, -.1, -.2, .05, .1, -.05),
+      effect_size = c(2.1, -1.5, -2.8, .4, 1.2, -.3),
+      p_value     = c(.01, .04, .001, .3, .02, .5)
+    )
+  ))
+  attr(perm, "level") <- 0.05
+  attr(perm, "labels") <- c("A", "B", "C")
+  class(perm) <- c("tna_permutation", "list")
 
   cap <- NULL
   orig <- get("splot", envir = asNamespace("cograph"))
@@ -949,5 +963,9 @@ test_that("edge_label_p_diff matrix aligns by dimnames in any node order", {
     cograph::splot(d, edge_label_template = "{est} (P={p_diff})",
                    edge_label_p_diff = pd)
   )
-  expect_equal(sort(seen), c(0.87, 0.99))
+  # per-edge assignment, not just the value set: the edge weights identify
+  # which edge each p_diff was attached to (A->B = 5 gets .99, B->C = 2 gets .87)
+  expect_equal(length(seen), 2L)
+  expect_identical(seen[[1L]], 0.99)  # first drawn edge is A->B
+  expect_identical(seen[[2L]], 0.87)  # second drawn edge is B->C
 })

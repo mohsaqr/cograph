@@ -33,9 +33,11 @@ test_that("meta$splot weight selects an alternate edge quantity", {
                       -4.25, 0, 0), 3, 3, byrow = TRUE,
                     dimnames = dimnames(mat))
 
+  # matrix form only — when the name matched both a stored matrix and an
+  # edge column, the matrix would win anyway, so an edge column here would
+  # be dead setup masquerading as coverage
   net <- as_cograph(mat, directed = TRUE)
   net$adj_res <- adj_res
-  net$edges$adj_res <- adj_res[cbind(net$edges$from, net$edges$to)]
   net$meta$splot <- list(
     renderer = "network",
     weight = "adj_res",
@@ -109,27 +111,55 @@ test_that("meta$splot weight matrix redefines the drawn edge set", {
   expect_true(any(abs(result$edges$weight + 2.2) < 1e-9))
 })
 
-test_that("meta$splot weight matrix aligns via dimnames for character edges", {
+test_that("meta$splot weight matrix reorders to the object's node order", {
+  # the producer stores the matrix in a DIFFERENT node order than its node
+  # table — dimname alignment must reorder it before edges are rebuilt
   lab <- c("A", "B", "C")
   m <- matrix(c(0, 2, 0,
                 0, 0, 3,
                 0, 0, 0), 3, 3, byrow = TRUE, dimnames = list(lab, lab))
-  adj <- matrix(c(0, 1.5, 0,
-                  0, 0, 0.5,
-                  0, 0, 0), 3, 3, byrow = TRUE, dimnames = list(lab, lab))
+  net <- as_cograph(m, directed = TRUE)
+  rl <- rev(lab)
+  adj <- matrix(0, 3, 3, dimnames = list(rl, rl))
+  adj["A", "B"] <- 1.5
+  adj["B", "C"] <- 0.5
+  net$adj_res <- adj
+  net$meta$splot <- list(renderer = "network", weight = "adj_res")
+
+  result <- with_temp_png(splot(net))
+  # node order is A,B,C: edge A->B (1->2) must carry 1.5, B->C (2->3) 0.5
+  expect_equal(result$weights["A", "B"], 1.5)
+  expect_equal(result$weights["B", "C"], 0.5)
+  got <- result$edges
+  expect_equal(got$weight[got$from == 1 & got$to == 2], 1.5)
+  expect_equal(got$weight[got$from == 2 & got$to == 3], 0.5)
+})
+
+test_that("meta$splot edge-column weight aligns character edge endpoints", {
+  # edge-COLUMN form with character from/to: the rebuilt $weights matrix
+  # must land each value on the dimname-matched cell (this is the
+  # .splot_edges_matrix_index character path; an as.integer() coercion here
+  # once turned every endpoint into NA)
+  lab <- c("A", "B", "C")
+  m <- matrix(c(0, 2, 0,
+                0, 0, 3,
+                0, 0, 0), 3, 3, byrow = TRUE, dimnames = list(lab, lab))
   net <- structure(
     list(
       nodes = data.frame(id = 1:3, label = lab, name = lab,
                          stringsAsFactors = FALSE),
       edges = data.frame(from = c("A", "B"), to = c("B", "C"),
-                         weight = c(2, 3), stringsAsFactors = FALSE),
-      weights = m, directed = TRUE, adj_res = adj,
+                         weight = c(2, 3), adj_res = c(1.5, 0.5),
+                         stringsAsFactors = FALSE),
+      weights = m, directed = TRUE,
       meta = list(splot = list(renderer = "network", weight = "adj_res"))
     ),
     class = "cograph_network"
   )
   result <- with_temp_png(splot(net))
   expect_equal(sort(result$edges$weight), c(0.5, 1.5))
+  expect_equal(result$weights["A", "B"], 1.5)
+  expect_equal(result$weights["B", "C"], 0.5)
 })
 
 test_that("meta$splot edge-column weight keeps $weights consistent (never deletes it)", {
@@ -201,4 +231,21 @@ test_that("meta$splot validation rejects malformed specs exactly", {
   # weight_digits at spec level is NOT the weight field
   net$meta$splot <- list(renderer = "network", weight_digits = 1)
   expect_silent(with_temp_png(splot(net)))
+})
+
+test_that("unrelated meta fields never activate the contract (.subset2 exactness)", {
+  m <- matrix(c(0, 1, 0, 0), 2, 2, dimnames = list(c("A", "B"), c("A", "B")))
+
+  # meta$splot_version alone: $ partial matching would read it as meta$splot
+  # and error on the string spec — exact extraction must ignore it entirely
+  net <- as_cograph(m, directed = TRUE)
+  net$meta$splot_version <- "difference"
+  result <- with_temp_png(splot(net))
+  expect_s3_class(result, "cograph_network")
+
+  # igraph input: [[ dispatches to igraph vertex indexing; metadata probing
+  # must not touch it (this warned "NAs introduced by coercion" once)
+  skip_if_not_installed("igraph")
+  g <- igraph::make_ring(3)
+  expect_no_warning(with_temp_png(splot(g)))
 })

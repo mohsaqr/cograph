@@ -795,8 +795,9 @@ For statistical output, use templates to format complex labels:
 \describe{
 \item{\strong{edge_label_template}}{Template string with placeholders:
 \code{\{est\}} for estimate/weight, \code{\{low\}}/\code{\{up\}} for CI bounds,
-\code{\{range\}} for formatted range, \code{\{p\}} for p-value, \code{\{stars\}}
-for significance stars.}
+\code{\{range\}} for formatted range, \code{\{p\}} for p-value,
+\code{\{p_diff\}} for the probability of the difference (Bayesian
+comparisons), \code{\{stars\}} for significance stars.}
 \item{\strong{edge_label_style}}{Preset styles: \code{"estimate"} (weight only),
 \code{"full"} (estimate + CI), \code{"range"} (CI only), \code{"stars"} (significance).}
 }
@@ -833,7 +834,8 @@ copied to \code{weights} and the drawn edge set is rebuilt from its
 nonzero cells (aligned to the object's node order via dimnames when
 present). This is useful when the analytical object stores several edge
 quantities (for example counts, probabilities, residuals, effects) but
-has one preferred plot view.}
+has one preferred plot view. When the name matches both an edge column
+and a stored matrix, the matrix form wins.}
 \item{\code{defaults}}{Named list of \code{splot()} or renderer arguments.
 These are defaults only: any argument explicitly supplied by the user
 wins. Defaults can include regular \code{splot()} arguments such as

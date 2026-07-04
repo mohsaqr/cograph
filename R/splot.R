@@ -354,8 +354,9 @@ NULL
 #' \describe{
 #'   \item{\strong{edge_label_template}}{Template string with placeholders:
 #'     \code{\{est\}} for estimate/weight, \code{\{low\}}/\code{\{up\}} for CI bounds,
-#'     \code{\{range\}} for formatted range, \code{\{p\}} for p-value, \code{\{stars\}}
-#'     for significance stars.}
+#'     \code{\{range\}} for formatted range, \code{\{p\}} for p-value,
+#'     \code{\{p_diff\}} for the probability of the difference (Bayesian
+#'     comparisons), \code{\{stars\}} for significance stars.}
 #'   \item{\strong{edge_label_style}}{Preset styles: \code{"estimate"} (weight only),
 #'     \code{"full"} (estimate + CI), \code{"range"} (CI only), \code{"stars"} (significance).}
 #' }
@@ -390,7 +391,8 @@ NULL
 #'     nonzero cells (aligned to the object's node order via dimnames when
 #'     present). This is useful when the analytical object stores several edge
 #'     quantities (for example counts, probabilities, residuals, effects) but
-#'     has one preferred plot view.}
+#'     has one preferred plot view. When the name matches both an edge column
+#'     and a stored matrix, the matrix form wins.}
 #'   \item{\code{defaults}}{Named list of \code{splot()} or renderer arguments.
 #'     These are defaults only: any argument explicitly supplied by the user
 #'     wins. Defaults can include regular \code{splot()} arguments such as
@@ -1310,14 +1312,25 @@ splot <- function(
       # edge_label_p_diff accepts a full matrix: index it at this plot's own
       # edge positions so callers never have to replicate edge enumeration.
       # Prefer dimname alignment — a matrix supplied in a different node order
-      # than the plot must still label each edge with its own value.
+      # than the plot must still label each edge with its own value. Character
+      # indexing needs names on BOTH dimensions; otherwise fall back to
+      # positional indexing (dims must match) or drop the matrix with a
+      # warning rather than crash with "subscript out of bounds".
       edge_p_diff_vec <- if (is.matrix(edge_label_p_diff)) {
-        pd_names <- rownames(edge_label_p_diff)
-        if (!is.null(pd_names) && !is.null(nodes$name) &&
-            all(nodes$name %in% pd_names)) {
-          edge_label_p_diff[cbind(nodes$name[edges$from], nodes$name[edges$to])]
+        pd <- edge_label_p_diff
+        node_names <- if (!is.null(nodes$name)) as.character(nodes$name)
+        by_name <- !is.null(node_names) && !anyDuplicated(node_names) &&
+          !is.null(rownames(pd)) && !is.null(colnames(pd)) &&
+          all(node_names %in% rownames(pd)) && all(node_names %in% colnames(pd))
+        if (by_name) {
+          pd[cbind(node_names[edges$from], node_names[edges$to])]
+        } else if (nrow(pd) == n_nodes && ncol(pd) == n_nodes) {
+          pd[cbind(edges$from, edges$to)]
         } else {
-          edge_label_p_diff[cbind(edges$from, edges$to)]
+          warning("edge_label_p_diff matrix does not match the network's ",
+                  "nodes (by dimnames or by dimension); ignoring it",
+                  call. = FALSE)
+          NULL
         }
       } else {
         edge_label_p_diff
@@ -2654,7 +2667,7 @@ render_legend_splot <- function(groups, node_names, nodes, node_colors,
   }
 
   nms <- names(defaults)
-  if (is.null(nms) || any(!nzchar(nms))) {
+  if (is.null(nms) || anyNA(nms) || any(!nzchar(nms))) {
     stop("x$meta$splot$defaults must be a named list", call. = FALSE)
   }
 
@@ -2738,8 +2751,14 @@ render_legend_splot <- function(groups, node_names, nodes, node_colors,
     nm <- if (is.data.frame(x[["nodes"]])) {
       x[["nodes"]][["name"]] %||% x[["nodes"]][["label"]]
     }
-    if (!is.null(dimnames(mat)) && !is.null(nm) &&
-        all(nm %in% rownames(mat))) {
+    # as.character: a factor here would index by its level codes, silently
+    # attaching every weight to the wrong node pair. Alignment needs names on
+    # BOTH dimensions and a duplicate-free node table; otherwise the matrix
+    # is taken as already node-ordered.
+    if (!is.null(nm)) nm <- as.character(nm)
+    if (!is.null(nm) && !anyDuplicated(nm) &&
+        !is.null(rownames(mat)) && !is.null(colnames(mat)) &&
+        all(nm %in% rownames(mat)) && all(nm %in% colnames(mat))) {
       mat <- mat[nm, nm, drop = FALSE]
     }
     x$weights <- mat
@@ -2749,15 +2768,20 @@ render_legend_splot <- function(groups, node_names, nodes, node_colors,
     # The edge-column form keeps the producer's edge set and re-weights it.
     # Rebuild the weights matrix in place (never delete it: class renderers
     # like splot.netobject read x$weights directly).
-    x$edges$weight <- as.numeric(edges[[weight]])
-    if (is.matrix(x[["weights"]]) && nrow(edges) > 0L &&
-        all(c("from", "to") %in% names(edges))) {
+    wcol <- edges[[weight]]
+    if (is.factor(wcol)) wcol <- as.character(wcol)
+    x$edges$weight <- as.numeric(wcol)
+    if (is.matrix(x[["weights"]])) {
       mat <- x[["weights"]]
       mat[] <- 0
-      idx <- .splot_edges_matrix_index(edges, mat, x[["nodes"]])
-      mat[idx] <- x$edges$weight
-      if (isFALSE(x[["directed"]])) {
-        mat[idx[, c(2L, 1L), drop = FALSE]] <- x$edges$weight
+      if (nrow(edges) > 0L && all(c("from", "to") %in% names(edges))) {
+        idx <- .splot_edges_matrix_index(edges, mat, x[["nodes"]])
+        if (isFALSE(x[["directed"]])) {
+          # mirror first: an edge list that spells out both A->B and B->A
+          # keeps each row's own value (the direct write below wins)
+          mat[idx[, c(2L, 1L), drop = FALSE]] <- x$edges$weight
+        }
+        mat[idx] <- x$edges$weight
       }
       x$weights <- mat
     }
@@ -2774,18 +2798,25 @@ render_legend_splot <- function(groups, node_names, nodes, node_colors,
 .splot_edges_matrix_index <- function(edges, mat, nodes = NULL) {
   from <- edges[["from"]]
   to <- edges[["to"]]
+  if (anyNA(from) || anyNA(to)) {
+    stop("edges$from/edges$to contain missing values; ",
+         "cannot align edges to the weight matrix", call. = FALSE)
+  }
   if (is.numeric(from) && is.numeric(to)) {
     return(cbind(as.integer(from), as.integer(to)))
   }
 
+  # character indexing subscripts rows by rownames and columns by colnames —
+  # both must be present and cover the endpoints
   from <- as.character(from)
   to <- as.character(to)
-  if (!is.null(dimnames(mat)) &&
-      all(c(from, to) %in% rownames(mat))) {
+  if (!is.null(rownames(mat)) && !is.null(colnames(mat)) &&
+      all(from %in% rownames(mat)) && all(to %in% colnames(mat))) {
     return(cbind(from, to))
   }
 
   nm <- if (is.data.frame(nodes)) nodes[["name"]] %||% nodes[["label"]]
+  if (!is.null(nm)) nm <- as.character(nm)
   if (is.null(nm) || anyNA(match(c(from, to), nm))) {
     stop(
       "cannot align edges to the weight matrix: character edge endpoints ",

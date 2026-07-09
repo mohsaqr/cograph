@@ -21,7 +21,7 @@ BugReports: https://github.com/sonsoleslp/cograph/issues
 Depends:
     R (>= 4.1.0)
 Imports:
-    ggplot2,
+    ggplot2 (>= 3.4.0),
     grDevices,
     grid,
     Matrix,

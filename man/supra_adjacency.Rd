@@ -50,7 +50,13 @@ Builds the supra-adjacency matrix for multilayer networks.
 Diagonal blocks = intra-layer, off-diagonal = inter-layer.
 }
 \examples{
-# layers <- list(L1 = mat1, L2 = mat2)
-# S <- supra_adjacency(layers, omega = 0.5)
-# dim(S)  # (2*n) x (2*n)
+nodes <- c("A", "B", "C")
+l1 <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3, dimnames = list(nodes, nodes))
+l2 <- matrix(c(0, 1, 1, 1, 0, 0, 1, 0, 0), 3, 3, dimnames = list(nodes, nodes))
+layers <- list(L1 = l1, L2 = l2)
+
+# 3 nodes x 2 layers gives a 6 x 6 supra-adjacency matrix.
+s <- supra_adjacency(layers, omega = 0.5)
+dim(s)
+s
 }

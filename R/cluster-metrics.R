@@ -2074,8 +2074,13 @@ lsim <- layer_similarity
 #' @return Symmetric matrix of pairwise similarities
 #' @export
 #' @examples
-#' # layers <- list(T1 = mat1, T2 = mat2, T3 = mat3)
-#' # layer_similarity_matrix(layers, "cosine")
+#' nodes <- c("A", "B", "C")
+#' t1 <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3, dimnames = list(nodes, nodes))
+#' t2 <- matrix(c(0, 1, 1, 1, 0, 0, 1, 0, 0), 3, 3, dimnames = list(nodes, nodes))
+#' layers <- list(T1 = t1, T2 = t2)
+#'
+#' layer_similarity_matrix(layers, "cosine")
+#' layer_similarity_matrix(layers, "jaccard")
 layer_similarity_matrix <- function(layers,
                                     method = c("jaccard", "overlap", "cosine",
                                                "pearson")) {
@@ -2175,9 +2180,15 @@ ldegcor <- layer_degree_correlation
 #' @return Supra-adjacency matrix of dimension (N*L) x (N*L)
 #' @export
 #' @examples
-#' # layers <- list(L1 = mat1, L2 = mat2)
-#' # S <- supra_adjacency(layers, omega = 0.5)
-#' # dim(S)  # (2*n) x (2*n)
+#' nodes <- c("A", "B", "C")
+#' l1 <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3, dimnames = list(nodes, nodes))
+#' l2 <- matrix(c(0, 1, 1, 1, 0, 0, 1, 0, 0), 3, 3, dimnames = list(nodes, nodes))
+#' layers <- list(L1 = l1, L2 = l2)
+#'
+#' # 3 nodes x 2 layers gives a 6 x 6 supra-adjacency matrix.
+#' s <- supra_adjacency(layers, omega = 0.5)
+#' dim(s)
+#' s
 supra_adjacency <- function(layers,
                             omega = 1,
                             coupling = c("diagonal", "full", "custom"),
@@ -2385,11 +2396,15 @@ extract_interlayer <- supra_interlayer
 #' @return Aggregated adjacency matrix
 #' @export
 #' @examples
-#' # layers <- list(L1 = mat1, L2 = mat2, L3 = mat3)
-#' # aggregate_layers(layers, "sum")           # Total
-#' # aggregate_layers(layers, "mean")          # Average
-#' # aggregate_layers(layers, "union")         # Any edge
-#' # aggregate_layers(layers, "intersection")  # All edges
+#' nodes <- c("A", "B", "C")
+#' l1 <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3, dimnames = list(nodes, nodes))
+#' l2 <- matrix(c(0, 1, 1, 1, 0, 0, 1, 0, 0), 3, 3, dimnames = list(nodes, nodes))
+#' layers <- list(L1 = l1, L2 = l2)
+#'
+#' aggregate_layers(layers, "sum")           # total edge weight
+#' aggregate_layers(layers, "mean")          # average edge weight
+#' aggregate_layers(layers, "union")         # edge present in any layer
+#' aggregate_layers(layers, "intersection")  # edge present in every layer
 aggregate_layers <- function(layers,
                              method = c("sum", "mean", "max", "min",
                                         "union", "intersection"),

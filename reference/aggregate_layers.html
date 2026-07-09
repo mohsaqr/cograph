@@ -86,11 +86,31 @@
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># layers &lt;- list(L1 = mat1, L2 = mat2, L3 = mat3)</span></span></span>
-<span class="r-in"><span><span class="co"># aggregate_layers(layers, "sum")           # Total</span></span></span>
-<span class="r-in"><span><span class="co"># aggregate_layers(layers, "mean")          # Average</span></span></span>
-<span class="r-in"><span><span class="co"># aggregate_layers(layers, "union")         # Any edge</span></span></span>
-<span class="r-in"><span><span class="co"># aggregate_layers(layers, "intersection")  # All edges</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">nodes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">l1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fl">3</span>, <span class="fl">3</span>, dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">nodes</span>, <span class="va">nodes</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">l2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fl">3</span>, <span class="fl">3</span>, dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">nodes</span>, <span class="va">nodes</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">layers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>L1 <span class="op">=</span> <span class="va">l1</span>, L2 <span class="op">=</span> <span class="va">l2</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu">aggregate_layers</span><span class="op">(</span><span class="va">layers</span>, <span class="st">"sum"</span><span class="op">)</span>           <span class="co"># total edge weight</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   A B C</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> A 0 2 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> B 2 0 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> C 1 1 0</span>
+<span class="r-in"><span><span class="fu">aggregate_layers</span><span class="op">(</span><span class="va">layers</span>, <span class="st">"mean"</span><span class="op">)</span>          <span class="co"># average edge weight</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     A   B   C</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> A 0.0 1.0 0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> B 1.0 0.0 0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> C 0.5 0.5 0.0</span>
+<span class="r-in"><span><span class="fu">aggregate_layers</span><span class="op">(</span><span class="va">layers</span>, <span class="st">"union"</span><span class="op">)</span>         <span class="co"># edge present in any layer</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   A B C</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> A 0 1 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> B 1 0 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> C 1 1 0</span>
+<span class="r-in"><span><span class="fu">aggregate_layers</span><span class="op">(</span><span class="va">layers</span>, <span class="st">"intersection"</span><span class="op">)</span>  <span class="co"># edge present in every layer</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   A B C</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> A 0 1 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> B 1 0 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> C 0 0 0</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

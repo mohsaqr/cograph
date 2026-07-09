@@ -21,9 +21,31 @@
 
 ### Bug fixes / changes
 
+- [`plot_bootstrap_forest()`](https://sonsoles.me/cograph/reference/plot_bootstrap_forest.md)
+  and
+  [`plot_edge_diff_forest()`](https://sonsoles.me/cograph/reference/plot_edge_diff_forest.md)
+  no longer emit a `geom_errorbarh()` deprecation warning under ggplot2
+  4.0.0. The four horizontal error-bar layers now use
+  `geom_errorbar(orientation = "y")`; the rendered output is unchanged.
+  `DESCRIPTION` now declares the `ggplot2 (>= 3.4.0)` requirement the
+  package already had (it uses the `linewidth` aesthetic throughout).
+
 - `plot_edge_diff_forest(layout = "chord")` no longer emits a spurious
   “row names were found from a short variable and have been discarded”
   warning for every node arc it draws.
+
+- [`aggregate_layers()`](https://sonsoles.me/cograph/reference/aggregate_layers.md),
+  [`supra_adjacency()`](https://sonsoles.me/cograph/reference/supra_adjacency.md),
+  [`layer_similarity_matrix()`](https://sonsoles.me/cograph/reference/layer_similarity_matrix.md)
+  and
+  [`plot_motifs()`](https://sonsoles.me/cograph/reference/plot_motifs.md)
+  now ship runnable examples. Their `\examples` sections were previously
+  commented out (or entirely `\dontrun`), so they demonstrated nothing
+  and were never checked. The remaining `\dontrun` blocks in
+  [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md) and
+  [`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md)
+  are now `\donttest`, so they are executed under
+  `R CMD check --run-donttest`.
 
 - [`detect_communities()`](https://sonsoles.me/cograph/reference/detect_communities.md)
   with the `"louvain"` (the default) or `"leiden"` method no longer

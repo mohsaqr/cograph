@@ -150,10 +150,9 @@ Invisibly returns the input `x` (or the underlying `ggplot` for the
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
 g <- igraph::sample_gnp(20, 0.2, directed = TRUE)
 m <- motifs(g)
 plot_motifs(m)
+
 plot_motifs(m, type = "types")
-} # }
 ```

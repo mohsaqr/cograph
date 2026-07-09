@@ -30,6 +30,17 @@ Symmetric matrix of pairwise similarities
 ## Examples
 
 ``` r
-# layers <- list(T1 = mat1, T2 = mat2, T3 = mat3)
-# layer_similarity_matrix(layers, "cosine")
+nodes <- c("A", "B", "C")
+t1 <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3, dimnames = list(nodes, nodes))
+t2 <- matrix(c(0, 1, 1, 1, 0, 0, 1, 0, 0), 3, 3, dimnames = list(nodes, nodes))
+layers <- list(T1 = t1, T2 = t2)
+
+layer_similarity_matrix(layers, "cosine")
+#>     T1  T2
+#> T1 1.0 0.5
+#> T2 0.5 1.0
+layer_similarity_matrix(layers, "jaccard")
+#>           T1        T2
+#> T1 1.0000000 0.3333333
+#> T2 0.3333333 1.0000000
 ```

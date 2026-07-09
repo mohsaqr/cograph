@@ -39,9 +39,29 @@ Aggregated adjacency matrix
 ## Examples
 
 ``` r
-# layers <- list(L1 = mat1, L2 = mat2, L3 = mat3)
-# aggregate_layers(layers, "sum")           # Total
-# aggregate_layers(layers, "mean")          # Average
-# aggregate_layers(layers, "union")         # Any edge
-# aggregate_layers(layers, "intersection")  # All edges
+nodes <- c("A", "B", "C")
+l1 <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3, dimnames = list(nodes, nodes))
+l2 <- matrix(c(0, 1, 1, 1, 0, 0, 1, 0, 0), 3, 3, dimnames = list(nodes, nodes))
+layers <- list(L1 = l1, L2 = l2)
+
+aggregate_layers(layers, "sum")           # total edge weight
+#>   A B C
+#> A 0 2 1
+#> B 2 0 1
+#> C 1 1 0
+aggregate_layers(layers, "mean")          # average edge weight
+#>     A   B   C
+#> A 0.0 1.0 0.5
+#> B 1.0 0.0 0.5
+#> C 0.5 0.5 0.0
+aggregate_layers(layers, "union")         # edge present in any layer
+#>   A B C
+#> A 0 1 1
+#> B 1 0 1
+#> C 1 1 0
+aggregate_layers(layers, "intersection")  # edge present in every layer
+#>   A B C
+#> A 0 1 0
+#> B 1 0 0
+#> C 0 0 0
 ```

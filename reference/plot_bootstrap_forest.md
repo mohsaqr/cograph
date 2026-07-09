@@ -299,7 +299,6 @@ d    <- tna::prepare_data(
 Mod  <- tna::tna(d)
 boot <- tna::bootstrap(Mod, iter = 50)
 plot_bootstrap_forest(boot, n_top = 8)
-#> `height` was translated to `width`.
 #> Warning: Removed 1 row containing missing values or values outside the scale range
 #> (`geom_vline()`).
 ```

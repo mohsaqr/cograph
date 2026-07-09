@@ -414,16 +414,76 @@ igraph), analyzes the single network.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  030C     2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  030T     2</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="co"># With a minimal significance test (set n_perm &gt;= 500 in practice)</span></span></span>
 <span class="r-in"><span><span class="fu">motifs</span><span class="op">(</span><span class="va">mat</span>, n_perm <span class="op">=</span> <span class="fl">10L</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Motif Census </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Level: aggregate | States: 4 | Pattern: triangle </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Significance: permutation (n_perm=10)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Type distribution:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 030C 030T </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    2    2 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Top 2 results:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  type count expected     z      p   sig</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  030C     2      0.2 -0.47 0.6353 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  030T     2      0.0  0.00 1.0000 FALSE</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="va">Mod</span> <span class="op">&lt;-</span> <span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="http://sonsoles.me/tna/reference/build_model.html" class="external-link">tna</a></span><span class="op">(</span><span class="fu">tna</span><span class="fu">::</span><span class="va"><a href="http://sonsoles.me/tna/reference/group_regulation.html" class="external-link">group_regulation</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">motifs</span><span class="op">(</span><span class="va">Mod</span>, n_perm <span class="op">=</span> <span class="fl">10L</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Motif Census </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Level: individual | 2000 units | States: 9 | Pattern: triangle </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Significance: permutation (n_perm=10)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Type distribution:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 120C 030C 030T  210 120U 120D  300 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1482 1054  620  581  190  178   79 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Top 7 results:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  type count expected     z      p   sig</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   210   581    766.2 -9.78 0.0000  TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  030T   620    436.3  7.49 0.0000  TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   300    79    166.2 -5.81 0.0000  TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  120C  1482   1343.0  3.26 0.0011  TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  030C  1054   1073.1 -0.90 0.3681 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  120U   190    180.3  0.90 0.3681 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  120D   178    171.8  0.52 0.6031 FALSE</span>
 <span class="r-in"><span><span class="fu"><a href="subgraphs.html">subgraphs</a></span><span class="op">(</span><span class="va">Mod</span>, n_perm <span class="op">=</span> <span class="fl">10L</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Showing triangle patterns (count &gt;= 5). For all MAN types use pattern = 'all'.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Motif Subgraphs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Level: individual | 2000 units | States: 9 | Pattern: triangle </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Significance: permutation (n_perm=10)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Min count: &gt;= 5 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Type distribution:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 030C 120C 030T  210 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   31   15    7    1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Top 20 results:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                             triad observed type expected       z p  sig</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       cohesion - consensus - plan      151 120C   1384.0 -255.26 0 TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        consensus - discuss - plan      278  210   1496.7 -224.13 0 TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       coregulate - discuss - plan       61 030C   1218.6 -182.93 0 TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          discuss - emotion - plan       76 030T   1313.3 -159.13 0 TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        consensus - emotion - plan      436 120C   1439.8 -141.08 0 TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        consensus - monitor - plan      187 120C   1334.9 -130.45 0 TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      consensus - plan - synthesis       13 120C   1269.1 -127.84 0 TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        discuss - plan - synthesis        9 030C   1004.6 -120.50 0 TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     consensus - discuss - emotion      238 120C   1350.9 -120.09 0 TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    cohesion - consensus - discuss      125 120C   1238.4 -109.62 0 TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     consensus - coregulate - plan      301 120C   1391.6 -106.69 0 TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       coregulate - emotion - plan       64 030T   1126.1  -90.82 0 TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      cohesion - emotion - monitor       17 030C    552.4  -90.01 0 TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    adapt - consensus - coregulate       16 030C    763.5  -87.52 0 TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     consensus - discuss - monitor      127 120C   1184.0  -85.99 0 TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         cohesion - discuss - plan       18 030C   1201.9  -85.92 0 TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          discuss - monitor - plan       62 030T   1123.2  -84.44 0 TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  consensus - coregulate - emotion      165 030C   1165.5  -83.42 0 TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  consensus - coregulate - discuss      330 120C   1246.1  -83.29 0 TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    cohesion - consensus - emotion      261 120C   1109.7  -75.94 0 TRUE</span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

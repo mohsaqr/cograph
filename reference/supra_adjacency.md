@@ -62,7 +62,35 @@ Supra-adjacency matrix of dimension (N*L) x (N*L)
 ## Examples
 
 ``` r
-# layers <- list(L1 = mat1, L2 = mat2)
-# S <- supra_adjacency(layers, omega = 0.5)
-# dim(S)  # (2*n) x (2*n)
+nodes <- c("A", "B", "C")
+l1 <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3, dimnames = list(nodes, nodes))
+l2 <- matrix(c(0, 1, 1, 1, 0, 0, 1, 0, 0), 3, 3, dimnames = list(nodes, nodes))
+layers <- list(L1 = l1, L2 = l2)
+
+# 3 nodes x 2 layers gives a 6 x 6 supra-adjacency matrix.
+s <- supra_adjacency(layers, omega = 0.5)
+dim(s)
+#> [1] 6 6
+s
+#>      L1_A L1_B L1_C L2_A L2_B L2_C
+#> L1_A  0.0  1.0  0.0  0.5  0.0  0.0
+#> L1_B  1.0  0.0  1.0  0.0  0.5  0.0
+#> L1_C  0.0  1.0  0.0  0.0  0.0  0.5
+#> L2_A  0.5  0.0  0.0  0.0  1.0  1.0
+#> L2_B  0.0  0.5  0.0  1.0  0.0  0.0
+#> L2_C  0.0  0.0  0.5  1.0  0.0  0.0
+#> attr(,"n_nodes")
+#> [1] 3
+#> attr(,"n_layers")
+#> [1] 2
+#> attr(,"node_names")
+#> [1] "A" "B" "C"
+#> attr(,"layer_names")
+#> [1] "L1" "L2"
+#> attr(,"omega")
+#> [1] 0.5
+#> attr(,"coupling")
+#> [1] "diagonal"
+#> attr(,"class")
+#> [1] "supra_adjacency" "matrix"         
 ```

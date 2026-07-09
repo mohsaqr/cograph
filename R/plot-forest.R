@@ -1677,7 +1677,9 @@ plot_bootstrap_forest.net_bootstrap_group <- function(
 #' @examplesIf requireNamespace("Nestimate", quietly = TRUE)
 #' set.seed(1)
 #' data1 <- as.data.frame(matrix(rnorm(60), 20, 3, dimnames = list(NULL, c("A","B","C"))))
-#' bg <- Nestimate::boot_glasso(data1, iter = 50, centrality = c("strength", "expected_influence"))
+#' # cs_iter only drives case-dropping stability, which this plot does not use.
+#' bg <- Nestimate::boot_glasso(data1, iter = 50, cs_iter = 25,
+#'                              centrality = c("strength", "expected_influence"))
 #' plot_edge_diff_forest(bg)
 #' @export
 plot_edge_diff_forest <- function(x, ...) UseMethod("plot_edge_diff_forest")
@@ -1833,7 +1835,9 @@ plot_edge_diff_forest.boot_glasso <- function(
     theta <- seq(starts[i], ends[i], length.out = n_arc)
     xs    <- c(r_in  * cos(theta), rev(r_out * cos(theta)))
     ys    <- c(r_in  * sin(theta), rev(r_out * sin(theta)))
-    data.frame(x = xs, y = ys, node = i, fill = node_col[i],
+    # [[ drops the name; a named length-1 fill makes data.frame() try to build
+    # row names from it and warn about a short variable.
+    data.frame(x = xs, y = ys, node = i, fill = node_col[[i]],
                stringsAsFactors = FALSE)
   })
   seg_df <- do.call(rbind, seg_list)

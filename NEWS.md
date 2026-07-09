@@ -16,6 +16,10 @@
 
 ## Bug fixes / changes
 
+- `plot_edge_diff_forest(layout = "chord")` no longer emits a spurious
+  "row names were found from a short variable and have been discarded"
+  warning for every node arc it draws.
+
 - `detect_communities()` with the `"louvain"` (the default) or `"leiden"`
   method no longer errors on a **directed** graph. These igraph algorithms
   are undirected-only, so `detect_communities(tna_object)` — a tna model is

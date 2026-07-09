@@ -12,6 +12,8 @@
 ^\.claude$
 ^CLAUDE\.md$
 ^Rplots\.pdf$
+^cograph_.*\.tar\.gz$
+^cograph-manual\.pdf$
 ^SPLOT_DEVELOPMENT\.md$
 ^test_new_features\.R$
 ^test_output$

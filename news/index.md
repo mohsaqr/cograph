@@ -21,6 +21,10 @@
 
 ### Bug fixes / changes
 
+- `plot_edge_diff_forest(layout = "chord")` no longer emits a spurious
+  “row names were found from a short variable and have been discarded”
+  warning for every node arc it draws.
+
 - [`detect_communities()`](https://sonsoles.me/cograph/reference/detect_communities.md)
   with the `"louvain"` (the default) or `"leiden"` method no longer
   errors on a **directed** graph. These igraph algorithms are

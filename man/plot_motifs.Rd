@@ -107,12 +107,12 @@ but exposes the \code{type / n / ncol / colors} arguments to
 editor autocompletion.
 }
 \examples{
-\dontrun{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 g <- igraph::sample_gnp(20, 0.2, directed = TRUE)
 m <- motifs(g)
 plot_motifs(m)
 plot_motifs(m, type = "types")
-}
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link{motifs}}, \code{\link{subgraphs}}

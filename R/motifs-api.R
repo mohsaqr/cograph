@@ -103,13 +103,11 @@
 #' rownames(mat) <- colnames(mat) <- c("Plan","Execute","Monitor","Adapt")
 #' motifs(mat, significance = FALSE)
 #'
-#' \dontrun{
 #' # With a minimal significance test (set n_perm >= 500 in practice)
 #' motifs(mat, n_perm = 10L, seed = 1)
-#' }
 #'
 #' @examplesIf requireNamespace("tna", quietly = TRUE)
-#' \dontrun{
+#' \donttest{
 #' Mod <- tna::tna(tna::group_regulation)
 #' motifs(Mod, n_perm = 10L, seed = 1)
 #' subgraphs(Mod, n_perm = 10L, seed = 1)
@@ -980,13 +978,11 @@ plot.cograph_motif_result <- function(x, type = c("triads", "types",
 #'   \code{ggplot} for the \code{"types"} and \code{"significance"}
 #'   types, matching the S3 method).
 #' @seealso \code{\link{motifs}}, \code{\link{subgraphs}}
-#' @examples
-#' \dontrun{
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' g <- igraph::sample_gnp(20, 0.2, directed = TRUE)
 #' m <- motifs(g)
 #' plot_motifs(m)
 #' plot_motifs(m, type = "types")
-#' }
 #' @export
 plot_motifs <- function(x, type = c("triads", "types",
                                      "significance", "patterns"),

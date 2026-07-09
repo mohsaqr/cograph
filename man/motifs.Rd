@@ -243,13 +243,11 @@ mat <- matrix(c(0,3,2,0, 0,0,5,1, 0,0,0,4, 2,0,0,0), 4, 4, byrow = TRUE)
 rownames(mat) <- colnames(mat) <- c("Plan","Execute","Monitor","Adapt")
 motifs(mat, significance = FALSE)
 
-\dontrun{
 # With a minimal significance test (set n_perm >= 500 in practice)
 motifs(mat, n_perm = 10L, seed = 1)
-}
 
 \dontshow{if (requireNamespace("tna", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-\dontrun{
+\donttest{
 Mod <- tna::tna(tna::group_regulation)
 motifs(Mod, n_perm = 10L, seed = 1)
 subgraphs(Mod, n_perm = 10L, seed = 1)

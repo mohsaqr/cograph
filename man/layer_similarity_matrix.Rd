@@ -24,6 +24,11 @@ Symmetric matrix of pairwise similarities
 Computes similarity matrix for all pairs of layers.
 }
 \examples{
-# layers <- list(T1 = mat1, T2 = mat2, T3 = mat3)
-# layer_similarity_matrix(layers, "cosine")
+nodes <- c("A", "B", "C")
+t1 <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3, dimnames = list(nodes, nodes))
+t2 <- matrix(c(0, 1, 1, 1, 0, 0, 1, 0, 0), 3, 3, dimnames = list(nodes, nodes))
+layers <- list(T1 = t1, T2 = t2)
+
+layer_similarity_matrix(layers, "cosine")
+layer_similarity_matrix(layers, "jaccard")
 }

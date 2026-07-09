@@ -101,7 +101,7 @@
 #' print(m)
 #'
 #' @examplesIf requireNamespace("tna", quietly = TRUE)
-#' \dontrun{
+#' \donttest{
 #' Mod <- tna::tna(tna::group_regulation)
 #' # Individual-level from tna -- keep n_perm tiny for example speed
 #' extract_motifs(Mod, top = 10, significance = TRUE, n_perm = 10L, seed = 1)

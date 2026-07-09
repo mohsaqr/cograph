@@ -16,9 +16,23 @@
 
 ## Bug fixes / changes
 
+- `plot_bootstrap_forest()` and `plot_edge_diff_forest()` no longer emit a
+  `geom_errorbarh()` deprecation warning under ggplot2 4.0.0. The four
+  horizontal error-bar layers now use
+  `geom_errorbar(orientation = "y")`; the rendered output is unchanged.
+  `DESCRIPTION` now declares the `ggplot2 (>= 3.4.0)` requirement the package
+  already had (it uses the `linewidth` aesthetic throughout).
+
 - `plot_edge_diff_forest(layout = "chord")` no longer emits a spurious
   "row names were found from a short variable and have been discarded"
   warning for every node arc it draws.
+
+- `aggregate_layers()`, `supra_adjacency()`, `layer_similarity_matrix()` and
+  `plot_motifs()` now ship runnable examples. Their `\examples` sections were
+  previously commented out (or entirely `\dontrun`), so they demonstrated
+  nothing and were never checked. The remaining `\dontrun` blocks in
+  `motifs()` and `extract_motifs()` are now `\donttest`, so they are executed
+  under `R CMD check --run-donttest`.
 
 - `detect_communities()` with the `"louvain"` (the default) or `"leiden"`
   method no longer errors on a **directed** graph. These igraph algorithms

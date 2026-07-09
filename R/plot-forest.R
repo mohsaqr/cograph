@@ -223,21 +223,23 @@ utils::globalVariables(c(
   # ---- interval layers -------------------------------------------------------
 
   if (interval %in% c("ci", "both")) {
-    p <- p + ggplot2::geom_errorbarh(
+    p <- p + ggplot2::geom_errorbar(
       ggplot2::aes(xmin = .data$ci_lower, xmax = .data$ci_upper,
                    colour = .data$color, alpha = .data$alpha),
-      height    = 0.28,
-      linewidth = 0.65
+      orientation = "y",
+      width       = 0.28,
+      linewidth   = 0.65
     )
   }
 
   if (interval %in% c("cr", "both")) {
-    p <- p + ggplot2::geom_errorbarh(
+    p <- p + ggplot2::geom_errorbar(
       ggplot2::aes(xmin = .data$cr_lower, xmax = .data$cr_upper,
                    colour = .data$cr_col,
                    alpha  = I(.data$alpha * 0.55)),
-      height    = if (interval == "both") 0.10 else 0.22,
-      linewidth = if (interval == "both") 0.90 else 0.55
+      orientation = "y",
+      width       = if (interval == "both") 0.10 else 0.22,
+      linewidth   = if (interval == "both") 0.90 else 0.55
     )
   }
 
@@ -1300,15 +1302,16 @@ plot_bootstrap_forest.net_bootstrap_group <- function(
       xintercept = 0, linetype = "dashed",
       colour = "#555555", linewidth = 0.45, alpha = 0.6
     ) +
-    ggplot2::geom_errorbarh(
+    ggplot2::geom_errorbar(
       ggplot2::aes(
         xmin = .data[[ci_lo_col]],
         xmax = .data[[ci_hi_col]]
       ),
-      height    = 0.28,
-      linewidth = 0.65,
-      position  = ggplot2::position_dodge(0.6),
-      na.rm     = TRUE
+      orientation = "y",
+      width       = 0.28,
+      linewidth   = 0.65,
+      position    = ggplot2::position_dodge(0.6),
+      na.rm       = TRUE
     ) +
     ggplot2::geom_point(
       shape    = 15,
@@ -1469,10 +1472,10 @@ plot_bootstrap_forest.net_bootstrap_group <- function(
       xintercept = 0, linetype = "dashed",
       colour = "#444444", linewidth = 0.55, alpha = 0.7
     ) +
-    ggplot2::geom_errorbarh(
+    ggplot2::geom_errorbar(
       ggplot2::aes(xmin = .data$ci_lower, xmax = .data$ci_upper,
                    colour = .data$color, alpha = .data$alpha),
-      height = 0.28, linewidth = 0.65
+      orientation = "y", width = 0.28, linewidth = 0.65
     ) +
     ggplot2::geom_point(
       ggplot2::aes(colour = .data$color, alpha = .data$alpha),

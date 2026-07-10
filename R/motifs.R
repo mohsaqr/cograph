@@ -33,7 +33,6 @@
 #' @seealso [motifs()] for the unified API, [extract_motifs()] for detailed
 #'   triad extraction, [plot.cograph_motifs()] for plotting
 #' @family motifs
-#' @keywords internal
 #' @export
 motif_census <- function(x, size = 3, n_random = 100,
                          method = c("configuration", "gnm"),
@@ -209,6 +208,7 @@ motif_census <- function(x, size = 3, n_random = 100,
 }
 
 #' @rdname motif_census
+#' @param ... Passed to methods; currently unused.
 #' @method print cograph_motifs
 #' @export
 print.cograph_motifs <- function(x, ...) {
@@ -342,7 +342,6 @@ plot.cograph_motifs <- function(x, type = c("bar", "heatmap", "network"),
 #'
 #' @seealso [motifs()] for the unified API, [motif_census()]
 #' @family motifs
-#' @keywords internal
 #' @export
 triad_census <- function(x) {
   if (inherits(x, "igraph")) {
@@ -416,7 +415,6 @@ triad_census <- function(x) {
 #'
 #' @seealso [motifs()], [subgraphs()], [motif_census()], [extract_motifs()]
 #' @family motifs
-#' @keywords internal
 #' @export
 extract_triads <- function(x, type = NULL, involving = NULL,
                            threshold = 0, min_total = 5, directed = NULL) {

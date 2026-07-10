@@ -29,6 +29,8 @@ motif_census(
 \item{directed}{Logical. Treat as directed? Default auto-detected.}
 
 \item{seed}{Random seed for reproducibility}
+
+\item{...}{Passed to methods; currently unused.}
 }
 \value{
 A \code{cograph_motifs} data frame with motif count, null-model mean,
@@ -70,4 +72,3 @@ Other motifs:
 \code{\link{triad_census}()}
 }
 \concept{motifs}
-\keyword{internal}

@@ -223,4 +223,3 @@ boot <- tna::bootstrap(Mod, iter = 50)
 plot_bootstrap_forest(boot, n_top = 8)
 \dontshow{\}) # examplesIf}
 }
-\keyword{internal}

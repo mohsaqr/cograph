@@ -50,4 +50,3 @@ Other motifs:
 \code{\link{subgraphs}()}
 }
 \concept{motifs}
-\keyword{internal}

@@ -7,7 +7,6 @@
 #' line runs through zero.
 #'
 #' @name plot_bootstrap_forest
-#' @keywords internal
 #' @importFrom stats quantile
 #' @importFrom utils head
 NULL

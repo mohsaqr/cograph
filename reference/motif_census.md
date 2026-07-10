@@ -46,6 +46,10 @@ print(x, ...)
 
   Random seed for reproducibility
 
+- ...:
+
+  Passed to methods; currently unused.
+
 ## Value
 
 A `cograph_motifs` data frame with motif count, null-model mean,

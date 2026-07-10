@@ -150,6 +150,14 @@ print(x, n = 20, ...)
 
   Random seed for reproducibility.
 
+- n:
+
+  Number of motif rows to print.
+
+- ...:
+
+  Passed to methods; currently unused.
+
 ## Value
 
 A `cograph_motif_analysis` object (list) containing:

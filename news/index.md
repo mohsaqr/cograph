@@ -21,6 +21,27 @@
 
 ### Bug fixes / changes
 
+- [`plot_bootstrap_forest()`](https://sonsoles.me/cograph/reference/plot_bootstrap_forest.md),
+  [`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md),
+  [`motif_census()`](https://sonsoles.me/cograph/reference/motif_census.md),
+  [`triad_census()`](https://sonsoles.me/cograph/reference/triad_census.md)
+  and
+  [`extract_triads()`](https://sonsoles.me/cograph/reference/extract_triads.md)
+  are now listed in the package index and the reference site. All five
+  are exported and user-facing, but carried `@keywords internal`, which
+  hid them from
+  [`help(package = "cograph")`](https://sonsoles.me/cograph/reference) —
+  you could only find them if you already knew the name.
+  [`mcml()`](https://sonsoles.me/cograph/reference/mcml.md) remains
+  hidden; it is a deprecated alias of
+  [`csum()`](https://sonsoles.me/cograph/reference/csum.md). The `n` and
+  `...` arguments of
+  [`print.cograph_motif_analysis()`](https://sonsoles.me/cograph/reference/extract_motifs.md)
+  and
+  [`print.cograph_motifs()`](https://sonsoles.me/cograph/reference/motif_census.md)
+  are now documented (previously exempt from checking by the `internal`
+  keyword).
+
 - [`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md)’s
   new `difference` argument moved to the end of the signature, after
   `combined`. It had been inserted *before* `combined`, which shifted

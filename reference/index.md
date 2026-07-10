@@ -460,6 +460,8 @@
   : Convert Network to statnet network Object
 - [`plot_alluvial()`](https://sonsoles.me/cograph/reference/plot_alluvial.md)
   : Plot Alluvial Diagram
+- [`plot_bootstrap_forest()`](https://sonsoles.me/cograph/reference/plot_bootstrap_forest.md)
+  : Forest Plot for Bootstrap Network Results
 - [`plot_centrality()`](https://sonsoles.me/cograph/reference/plot_centrality.md)
   : Plot Centrality
 - [`plot_centrality_compare()`](https://sonsoles.me/cograph/reference/plot_centrality_compare.md)
@@ -620,6 +622,12 @@
   : Pairwise Layer Similarities
 - [`themes-builtin`](https://sonsoles.me/cograph/reference/themes-builtin.md)
   : Built-in Themes
+- [`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md)
+  [`print(`*`<cograph_motif_analysis>`*`)`](https://sonsoles.me/cograph/reference/extract_motifs.md)
+  : Extract Motifs from Network Data
+- [`motif_census()`](https://sonsoles.me/cograph/reference/motif_census.md)
+  [`print(`*`<cograph_motifs>`*`)`](https://sonsoles.me/cograph/reference/motif_census.md)
+  : Network Motif Analysis
 - [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md)
   [`print(`*`<cograph_motif_result>`*`)`](https://sonsoles.me/cograph/reference/motifs.md)
   [`plot(`*`<cograph_motif_result>`*`)`](https://sonsoles.me/cograph/reference/motifs.md)
@@ -700,6 +708,8 @@
   : Ego-Network Metrics
 - [`estrada_index()`](https://sonsoles.me/cograph/reference/estrada_index.md)
   : Estrada Index
+- [`extract_triads()`](https://sonsoles.me/cograph/reference/extract_triads.md)
+  : Extract Triads with Node Labels
 - [`fit_degree_distribution()`](https://sonsoles.me/cograph/reference/fit_degree_distribution.md)
   : Fit Statistical Distributions to Degree Sequence
 - [`from_qgraph()`](https://sonsoles.me/cograph/reference/from_qgraph.md)
@@ -855,6 +865,8 @@
   : Nature Theme
 - [`theme_cograph_viridis()`](https://sonsoles.me/cograph/reference/theme_cograph_viridis.md)
   : Viridis Theme
+- [`triad_census()`](https://sonsoles.me/cograph/reference/triad_census.md)
+  : Triad Census
 - [`trophic_incoherence()`](https://sonsoles.me/cograph/reference/trophic_incoherence.md)
   : Trophic Incoherence Parameter
 - [`unregister_svg_shape()`](https://sonsoles.me/cograph/reference/unregister_svg_shape.md)

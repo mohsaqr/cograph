@@ -84,4 +84,3 @@ Other motifs:
 \code{\link{triad_census}()}
 }
 \concept{motifs}
-\keyword{internal}

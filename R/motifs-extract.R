@@ -111,7 +111,6 @@
 #'
 #' @seealso [motifs()], [subgraphs()], [extract_triads()], [motif_census()]
 #' @family motifs
-#' @keywords internal
 #' @export
 extract_motifs <- function(x = NULL,
                            data = NULL,
@@ -448,6 +447,8 @@ extract_motifs <- function(x = NULL,
 }
 
 #' @rdname extract_motifs
+#' @param n Number of motif rows to print.
+#' @param ... Passed to methods; currently unused.
 #' @method print cograph_motif_analysis
 #' @export
 print.cograph_motif_analysis <- function(x, n = 20, ...) {

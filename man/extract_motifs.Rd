@@ -93,6 +93,10 @@ weight to count as present. Default 5.}
 \item{n_perm}{Number of permutations for significance test. Default 100.}
 
 \item{seed}{Random seed for reproducibility.}
+
+\item{n}{Number of motif rows to print.}
+
+\item{...}{Passed to methods; currently unused.}
 }
 \value{
 A \code{cograph_motif_analysis} object (list) containing:
@@ -167,4 +171,3 @@ Other motifs:
 \code{\link{triad_census}()}
 }
 \concept{motifs}
-\keyword{internal}

@@ -16,6 +16,15 @@
 
 ## Bug fixes / changes
 
+- `plot_bootstrap_forest()`, `extract_motifs()`, `motif_census()`,
+  `triad_census()` and `extract_triads()` are now listed in the package index
+  and the reference site. All five are exported and user-facing, but carried
+  `@keywords internal`, which hid them from `help(package = "cograph")` — you
+  could only find them if you already knew the name. `mcml()` remains hidden;
+  it is a deprecated alias of `csum()`. The `n` and `...` arguments of
+  `print.cograph_motif_analysis()` and `print.cograph_motifs()` are now
+  documented (previously exempt from checking by the `internal` keyword).
+
 - `plot_difference()`'s new `difference` argument moved to the end of the
   signature, after `combined`. It had been inserted *before* `combined`, which
   shifted the positional argument order relative to the released 2.3.6

@@ -16,6 +16,16 @@
 
 ## Bug fixes / changes
 
+- `plot_difference()`'s new `difference` argument moved to the end of the
+  signature, after `combined`. It had been inserted *before* `combined`, which
+  shifted the positional argument order relative to the released 2.3.6
+  signature. Because `plot_compare()` is `function(x, ...)` and forwards to
+  `plot_difference()`, a caller passing 14 positional arguments had their 14th
+  silently rebound from `combined` to `difference` — making the function treat
+  `x` as an already-subtracted matrix, discard `y`, and draw the wrong network
+  with no error. `difference` was introduced after the last CRAN release, so no
+  released behaviour changes. Named calls were never affected.
+
 - `plot_bootstrap_forest()` and `plot_edge_diff_forest()` no longer emit a
   `geom_errorbarh()` deprecation warning under ggplot2 4.0.0. The four
   horizontal error-bar layers now use

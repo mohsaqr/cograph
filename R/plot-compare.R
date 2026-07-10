@@ -84,8 +84,16 @@ plot_difference <- function(x, y = NULL,
                          show_inits = NULL,
                          donut_inner_ratio = 0.8,
                          force = FALSE,
-                         difference = FALSE,
                          combined = TRUE,
+                         # `difference` is new in 2.4.x and must stay AFTER
+                         # `combined`: through the released 2.3.6 signature the
+                         # 14th positional argument is `combined`, and
+                         # plot_compare() forwards positionally via `...`.
+                         # Inserting ahead of it silently rebinds a caller's
+                         # 14th argument to `difference`, which makes the
+                         # function treat `x` as a pre-computed difference and
+                         # discard `y`. Append new arguments; never insert.
+                         difference = FALSE,
                          ...) {
 
   # Consume a pre-computed difference: a tna_comparison object (uses its

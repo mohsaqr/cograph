@@ -969,3 +969,59 @@ test_that("edge_label_p_diff matrix aligns by dimnames in any node order", {
   expect_identical(seen[[1L]], 0.99)  # first drawn edge is A->B
   expect_identical(seen[[2L]], 0.87)  # second drawn edge is B->C
 })
+
+# ============================================
+# Positional-argument contract (ABI)
+# ============================================
+# `plot_compare()` is `function(x, ...)` forwarding to `plot_difference()`, so
+# arguments in `...` bind POSITIONALLY to plot_difference()'s formals. The
+# released CRAN signature (2.3.6) ends `... donut_inner_ratio, force, combined`,
+# with `combined` 14th. Inserting a new formal ahead of `combined` silently
+# rebinds a caller's 14th argument -- `difference = TRUE` makes the function
+# treat `x` as an already-subtracted matrix and discard `y`, drawing the wrong
+# network with no error. New formals must be APPENDED, never inserted.
+
+test_that("plot_difference() keeps the released positional argument order", {
+  released <- c(
+    "x", "y", "i", "j", "pos_color", "neg_color", "labels", "title",
+    "inits_x", "inits_y", "show_inits", "donut_inner_ratio", "force", "combined"
+  )
+  actual <- names(formals(cograph::plot_difference))
+
+  # The first 14 formals must match CRAN 2.3.6 exactly, in order.
+  expect_identical(head(actual, length(released)), released)
+  # Anything new (e.g. `difference`) lives after them, before the dots.
+  expect_true(match("difference", actual) > match("combined", actual))
+  expect_identical(tail(actual, 1L), "...")
+})
+
+test_that("a 14-positional plot_compare() call still draws x - y", {
+  set.seed(1)
+  nodes <- LETTERS[1:4]
+  m1 <- matrix(runif(16), 4, 4, dimnames = list(nodes, nodes))
+  m2 <- matrix(runif(16), 4, 4, dimnames = list(nodes, nodes))
+
+  # 14 positional arguments; the 14th is `combined` in the released signature.
+  positional <- with_temp_png(
+    cograph::plot_compare(
+      m1, m2, NULL, NULL, "#009900", "red", NULL, NULL,
+      NULL, NULL, NULL, 0.8, FALSE, TRUE
+    )
+  )
+  named <- with_temp_png(cograph::plot_compare(m1, m2, combined = TRUE))
+
+  # Must draw the difference, not x alone.
+  expect_equal(positional$weights, named$weights)
+  expect_equal(sum(abs(positional$weights)), sum(abs(m1 - m2)))
+  expect_false(isTRUE(all.equal(sum(abs(positional$weights)), sum(abs(m1)))))
+})
+
+test_that("difference = TRUE still consumes a pre-computed difference", {
+  set.seed(1)
+  nodes <- LETTERS[1:4]
+  m1 <- matrix(runif(16), 4, 4, dimnames = list(nodes, nodes))
+  m2 <- matrix(runif(16), 4, 4, dimnames = list(nodes, nodes))
+
+  pre <- with_temp_png(cograph::plot_difference(m1 - m2, difference = TRUE))
+  expect_equal(sum(abs(pre$weights)), sum(abs(m1 - m2)))
+})

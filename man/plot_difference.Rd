@@ -18,8 +18,8 @@ plot_difference(
   show_inits = NULL,
   donut_inner_ratio = 0.8,
   force = FALSE,
-  difference = FALSE,
   combined = TRUE,
+  difference = FALSE,
   ...
 )
 }
@@ -55,16 +55,16 @@ plots all pairwise comparisons (or specify i, j).}
 
 \item{force}{Logical: force plotting when more than 4 groups (many comparisons). Default FALSE.}
 
-\item{difference}{Logical. If \code{TRUE}, \code{x} is treated as an
-already-subtracted difference network (no \code{y} needed). A
-\code{tna_comparison} object (from \code{tna::compare()}) is detected
-automatically and its \code{$difference_matrix} is used.}
-
 \item{combined}{Logical: when TRUE (default) and \code{x} is a multi-group
 input that triggers all-pairs plotting, lay panels out in an internal
 grid via \code{graphics::par(mfrow=...)}. Set to FALSE to draw into a
 layout the caller has already configured (e.g. via
 \code{\link{panel_layout}()}). Has no effect for the single-pair path.}
+
+\item{difference}{Logical. If \code{TRUE}, \code{x} is treated as an
+already-subtracted difference network (no \code{y} needed). A
+\code{tna_comparison} object (from \code{tna::compare()}) is detected
+automatically and its \code{$difference_matrix} is used.}
 
 \item{...}{Additional arguments passed to splot().}
 }

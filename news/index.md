@@ -21,6 +21,21 @@
 
 ### Bug fixes / changes
 
+- [`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md)’s
+  new `difference` argument moved to the end of the signature, after
+  `combined`. It had been inserted *before* `combined`, which shifted
+  the positional argument order relative to the released 2.3.6
+  signature. Because
+  [`plot_compare()`](https://sonsoles.me/cograph/reference/plot_compare.md)
+  is `function(x, ...)` and forwards to
+  [`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md),
+  a caller passing 14 positional arguments had their 14th silently
+  rebound from `combined` to `difference` — making the function treat
+  `x` as an already-subtracted matrix, discard `y`, and draw the wrong
+  network with no error. `difference` was introduced after the last CRAN
+  release, so no released behaviour changes. Named calls were never
+  affected.
+
 - [`plot_bootstrap_forest()`](https://sonsoles.me/cograph/reference/plot_bootstrap_forest.md)
   and
   [`plot_edge_diff_forest()`](https://sonsoles.me/cograph/reference/plot_edge_diff_forest.md)

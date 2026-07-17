@@ -10,6 +10,15 @@ Rplots.pdf
 showcase/*.html
 inst/examples/*.html
 
+# pkgdown built site — generated, never commit (caused ~9 GB of history bloat)
+# Anchored to repo root so tracked source (pkgdown/favicon/, vignettes/articles/) is safe
+/articles/
+/reference/
+/search.json
+/sitemap.xml
+/llms.txt
+/favicon.svg
+
 # R/RStudio
 .Rproj.user
 .Rhistory

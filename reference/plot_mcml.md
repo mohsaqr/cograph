@@ -94,9 +94,10 @@ plot_mcml(
 
   A weight matrix, `tna` object, `cograph_network`, `cluster_summary`,
   or `mcml`/`mcml_pc` object (the latter from
-  `Nestimate::build_mcml_pc()`, rendered undirected via its
-  `meta$directed` flag). When a `cluster_summary` is provided (e.g.,
-  from [`csum`](https://sonsoles.me/cograph/reference/csum.md)), all
+  [`Nestimate::build_mcml_pc()`](https://saqr.me/Nestimate/reference/build_mcml_pc.html),
+  rendered undirected via its `meta$directed` flag). When a
+  `cluster_summary` is provided (e.g., from
+  [`csum`](https://sonsoles.me/cograph/reference/csum.md)), all
   aggregation has already been performed and the `cluster_list`,
   `aggregation`, and `nodes` parameters are ignored. See the **Input
   Formats** section for details.

@@ -1,8 +1,13 @@
 # Changelog
 
-## cograph 2.4.4
+## cograph 2.4.5
 
 ### New features
+
+- [`splot()`](https://sonsoles.me/cograph/reference/splot.md) now
+  accepts `label_abbrev`, matching `mcml`: use an integer for a fixed
+  maximum label length, `"auto"` for node-count-aware abbreviation, or
+  `NULL` to retain full labels.
 
 - **Producer-supplied splot metadata** (`x$meta$splot`): packages that
   create cograph-plottable objects can now attach a small rendering
@@ -96,8 +101,11 @@
   model.
 
 - [`splot()`](https://sonsoles.me/cograph/reference/splot.md) on a
-  Nestimate `netdifference` (from `subtract_networks()` /
-  `as_netdifference()`) now routes to
+  Nestimate `netdifference` (from
+  [`subtract_networks()`](https://saqr.me/Nestimate/reference/subtract_networks.html)
+  /
+  [`as_netdifference()`](https://saqr.me/Nestimate/reference/as_netdifference.html))
+  now routes to
   [`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md).
   Previously it fell through to the `netobject` path, which styles by
   `$method` — “difference” is not a TNA-family method, so the asymmetric
@@ -109,14 +117,16 @@
 - The `netdifference` routing excludes `net_permutation`-family objects:
   `net_bayes` carries both classes and must keep reaching
   `splot.net_permutation`, whose per-edge CI/star arrays are aligned by
-  `Nestimate::plot.net_bayes` to that renderer’s edge ordering.
+  [`Nestimate::plot.net_bayes`](https://saqr.me/Nestimate/reference/plot.net_bayes.html)
+  to that renderer’s edge ordering.
 
 - [`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md)
   on a `netdifference` now draws the display matrix (`$weights` —
   e.g. only the credible differences when coerced with
   `as_netdifference(b, significant_only = TRUE)`), falling back to
-  `$difference_matrix`. For `subtract_networks()` results the two are
-  identical, so nothing changes there.
+  `$difference_matrix`. For
+  [`subtract_networks()`](https://saqr.me/Nestimate/reference/subtract_networks.html)
+  results the two are identical, so nothing changes there.
 
 - [`plot_permutation()`](https://sonsoles.me/cograph/reference/plot_permutation.md)
   /
@@ -125,8 +135,9 @@
   `args$title` on a dots-list holding `title_size` (but no `title`)
   partially matched `title_size`, so the default title was silently
   skipped and no title was drawn — this is why
-  `Nestimate::plot.net_bayes()` output had no title. Same latent hazard
-  fixed for `layout` / `layout_scale`.
+  [`Nestimate::plot.net_bayes()`](https://saqr.me/Nestimate/reference/plot.net_bayes.html)
+  output had no title. Same latent hazard fixed for `layout` /
+  `layout_scale`.
 
 - Edge label templates gain a `{p_diff}` placeholder (probability of the
   difference, for Bayesian comparisons), fed by the new
@@ -331,8 +342,9 @@
 
 - [`plot_mcml()`](https://sonsoles.me/cograph/reference/plot_mcml.md)
   and [`splot()`](https://sonsoles.me/cograph/reference/splot.md) accept
-  `mcml_pc` objects (`Nestimate::build_mcml_pc()`, experimental
-  psychometric MCML) and render them undirected via their
+  `mcml_pc` objects
+  ([`Nestimate::build_mcml_pc()`](https://saqr.me/Nestimate/reference/build_mcml_pc.html),
+  experimental psychometric MCML) and render them undirected via their
   `meta$directed` flag.
 
 ## cograph 2.3.7

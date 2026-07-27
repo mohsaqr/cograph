@@ -103,6 +103,7 @@ splot(
   node_border_width = 1,
   node_alpha = 1,
   labels = TRUE,
+  label_abbrev = NULL,
   label_size = NULL,
   label_color = "black",
   label_position = "center",
@@ -433,6 +434,14 @@ splot(
 
   Node labels: TRUE (use node names/indices), FALSE (none), or character
   vector.
+
+- label_abbrev:
+
+  Controls label abbreviation in the same way as
+  [`plot_mcml()`](https://sonsoles.me/cograph/reference/plot_mcml.md):
+  `NULL` keeps full labels, an integer truncates labels to that maximum
+  number of characters, and `"auto"` adapts the maximum length to the
+  number of nodes.
 
 - label_size:
 
@@ -1254,6 +1263,12 @@ converting external objects
 adj <- matrix(c(0, 1, 1, 0, 0, 0, 1, 1,
                 0, 0, 0, 1, 0, 0, 0, 0), 4, 4, byrow = TRUE)
 splot(adj, layout = "circle", labels = c("A", "B", "C", "D"))
+
+
+# Abbreviate long labels to a fixed maximum length
+splot(adj, layout = "circle",
+      labels = c("Orientation", "Planning", "Reading", "Submission"),
+      label_abbrev = 4)
 
 
 # Weighted network with signed edges

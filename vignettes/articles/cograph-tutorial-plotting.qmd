@@ -153,6 +153,23 @@ splot(model,
 )
 ```
 
+## Shortening Long Labels
+
+Use `label_abbrev` when full node names crowd the plot. It follows the same
+convention as `plot_mcml()`: `NULL` keeps full labels, an integer sets a fixed
+maximum length, and `"auto"` chooses a maximum from the number of nodes.
+Shortened labels end with an ellipsis, which is included in the maximum length.
+
+```{r}
+#| label: fig-label-abbrev
+#| fig-cap: "Node labels abbreviated to at most four characters"
+long_labels <- c(
+  "Orientation", "Planning", "Reading", "Watching", "Trying",
+  "Reviewing", "Reflection", "Submission", "Revision"
+)
+splot(model, labels = long_labels, label_abbrev = 4)
+```
+
 ## Scaling Nodes by Centrality
 
 `scale_nodes_by` maps a centrality measure to node size --- larger nodes are more central. This is one of the most useful parameters for making network structure immediately visible:
@@ -864,7 +881,7 @@ ggplot2::ggsave("network.pdf", p, width = 8, height = 8)
 `node_size`, `node_size2`, `node_shape`, `node_fill`, `node_border_color`, `node_border_width`, `node_alpha`, `scale_nodes_by`, `node_size_range`
 
 **Labels:**
-`labels`, `label_size`, `label_color`, `label_position`, `label_fontface`, `label_fontfamily`
+`labels`, `label_abbrev`, `label_size`, `label_color`, `label_position`, `label_fontface`, `label_fontfamily`
 
 **Donut:**
 `donut_fill`, `donut_color`, `donut_inner_ratio`, `donut_shape`, `donut_show_value`, `donut_value_suffix`, `donut_value_digits`, `donut2_values`, `donut2_colors`

@@ -192,6 +192,27 @@ test_that("splot() handles labels parameter", {
   expect_true(result$success, info = result$error)
 })
 
+test_that("splot() abbreviates node labels like mcml", {
+  adj <- create_test_matrix(3)
+  captured <- new.env(parent = emptyenv())
+
+  testthat::local_mocked_bindings(
+    render_nodes_splot = function(...) {
+      captured$labels <- list(...)$labels
+    },
+    .package = "cograph"
+  )
+
+  result <- safe_plot(splot(
+    adj,
+    labels = c("Orientation", "Read", "Submission"),
+    label_abbrev = 4
+  ))
+
+  expect_true(result$success, info = result$error)
+  expect_equal(captured$labels, c("Ori\u2026", "Read", "Sub\u2026"))
+})
+
 test_that("splot() handles label positioning options", {
   adj <- create_test_matrix(3)
 

@@ -73,6 +73,7 @@ splot(
   node_border_width = 1,
   node_alpha = 1,
   labels = TRUE,
+  label_abbrev = NULL,
   label_size = NULL,
   label_color = "black",
   label_position = "center",
@@ -326,6 +327,11 @@ SVG shape registered with register_svg_shape().}
 
 \item{labels}{Node labels: TRUE (use node names/indices), FALSE (none),
 or character vector.}
+
+\item{label_abbrev}{Controls label abbreviation in the same way as
+\code{plot_mcml()}: \code{NULL} keeps full labels, an integer truncates
+labels to that maximum number of characters, and \code{"auto"} adapts
+the maximum length to the number of nodes.}
 
 \item{label_size}{Label character expansion factor.}
 
@@ -868,6 +874,11 @@ x$meta$splot <- list(
 adj <- matrix(c(0, 1, 1, 0, 0, 0, 1, 1,
                 0, 0, 0, 1, 0, 0, 0, 0), 4, 4, byrow = TRUE)
 splot(adj, layout = "circle", labels = c("A", "B", "C", "D"))
+
+# Abbreviate long labels to a fixed maximum length
+splot(adj, layout = "circle",
+      labels = c("Orientation", "Planning", "Reading", "Submission"),
+      label_abbrev = 4)
 
 # Weighted network with signed edges
 w_adj <- matrix(c(0, .5, -.3, 0, .8, 0, .4, -.2,

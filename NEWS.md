@@ -1,6 +1,10 @@
-# cograph 2.4.4
+# cograph 2.4.5
 
 ## New features
+
+- `splot()` now accepts `label_abbrev`, matching `mcml`: use an integer for
+  a fixed maximum label length, `"auto"` for node-count-aware abbreviation,
+  or `NULL` to retain full labels.
 
 - **Producer-supplied splot metadata** (`x$meta$splot`): packages that create
   cograph-plottable objects can now attach a small rendering contract —

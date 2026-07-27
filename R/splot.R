@@ -58,6 +58,10 @@ NULL
 #' @param node_alpha Node transparency (0-1). Default 1.
 #' @param labels Node labels: TRUE (use node names/indices), FALSE (none),
 #'   or character vector.
+#' @param label_abbrev Controls label abbreviation in the same way as
+#'   \code{plot_mcml()}: \code{NULL} keeps full labels, an integer truncates
+#'   labels to that maximum number of characters, and \code{"auto"} adapts
+#'   the maximum length to the number of nodes.
 #' @param label_size Label character expansion factor.
 #' @param label_color Label text color.
 #' @param label_position Label position: "center", "above", "below", "left", "right".
@@ -438,6 +442,11 @@ NULL
 #'                 0, 0, 0, 1, 0, 0, 0, 0), 4, 4, byrow = TRUE)
 #' splot(adj, layout = "circle", labels = c("A", "B", "C", "D"))
 #'
+#' # Abbreviate long labels to a fixed maximum length
+#' splot(adj, layout = "circle",
+#'       labels = c("Orientation", "Planning", "Reading", "Submission"),
+#'       label_abbrev = 4)
+#'
 #' # Weighted network with signed edges
 #' w_adj <- matrix(c(0, .5, -.3, 0, .8, 0, .4, -.2,
 #'                   0, 0, 0, .6, 0, 0, 0, 0), 4, 4, byrow = TRUE)
@@ -465,6 +474,7 @@ splot <- function(
     node_border_width = 1,
     node_alpha = 1,
     labels = TRUE,
+    label_abbrev = NULL,
     label_size = NULL,
     label_color = "black",
     label_position = "center",
@@ -1186,6 +1196,9 @@ splot <- function(
 
   # Labels
   node_labels <- resolve_labels(labels, nodes, n_nodes)
+  if (!is.null(node_labels) && !is.null(label_abbrev)) {
+    node_labels <- abbrev_label(node_labels, label_abbrev, n_nodes)
+  }
 
   # Device-dependent visual scale: reserve the per-draw env now so inner
   # helpers can retrieve it. The actual scale computation is DEFERRED until

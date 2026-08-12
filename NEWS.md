@@ -20,6 +20,13 @@
 
 ## Bug fixes / changes
 
+- `plot_transitions()` with a multi-column data frame (the consecutive
+  multi-step branch) no longer silently drops styling arguments: `value_min`,
+  `label_color`, `label_fontface`, `label_nudge`, `title_color`,
+  `title_fontface`, `value_halo`, `value_fontface`, `value_nudge`, and
+  `total_fontface` are now forwarded, so both multi-step input forms (list
+  of matrices, data frame) respond to the same arguments identically.
+
 - `plot_bootstrap_forest()`, `extract_motifs()`, `motif_census()`,
   `triad_census()` and `extract_triads()` are now listed in the package index
   and the reference site. All five are exported and user-facing, but carried

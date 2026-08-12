@@ -33,6 +33,20 @@
   `total_fontface` are now forwarded, so both multi-step input forms (list
   of matrices, data frame) respond to the same arguments identically.
 
+- Motif pattern plots (`plot(motifs(x), type = "network")`, triad glyph
+  panels) drew the wrong structure for five of the sixteen MAN triad classes:
+  the `021D` and `021U` glyphs were swapped (transposed matrices), the `120D`
+  and `120U` glyphs both drew a `120C`-isomorphic triad, and the `210` glyph
+  drew a `120`-class triad — so the `120U` and `210` structures were never
+  drawn at all. Only the drawn glyphs were wrong: motif *counts*,
+  significance tests, and `triad_census()` were always computed from a
+  separate, correct canonical pattern set (verified against
+  `igraph::triad_census()`). All sixteen visual patterns are now verified
+  against igraph by a regression test that also pins the visual and
+  canonical sets to each other. Thanks to Mengli Zhang for reporting
+  (reconstructing the structures from the package source and spotting that
+  three "distinct" glyphs were isomorphic).
+
 - `plot_bootstrap_forest()`, `extract_motifs()`, `motif_census()`,
   `triad_census()` and `extract_triads()` are now listed in the package index
   and the reference site. All five are exported and user-facing, but carried

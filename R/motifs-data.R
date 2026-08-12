@@ -12,18 +12,18 @@
     "003" = matrix(c(0L,0L,0L, 0L,0L,0L, 0L,0L,0L), 3, 3),
     "012" = matrix(c(0L,1L,0L, 0L,0L,0L, 0L,0L,0L), 3, 3),
     "102" = matrix(c(0L,1L,0L, 1L,0L,0L, 0L,0L,0L), 3, 3),
-    "021D" = matrix(c(0L,1L,1L, 0L,0L,0L, 0L,0L,0L), 3, 3),
-    "021U" = matrix(c(0L,0L,0L, 1L,0L,0L, 1L,0L,0L), 3, 3),
+    "021D" = matrix(c(0L,0L,0L, 1L,0L,0L, 1L,0L,0L), 3, 3),
+    "021U" = matrix(c(0L,1L,1L, 0L,0L,0L, 0L,0L,0L), 3, 3),
     "021C" = matrix(c(0L,1L,0L, 0L,0L,1L, 0L,0L,0L), 3, 3),
     "111D" = matrix(c(0L,1L,1L, 1L,0L,0L, 0L,0L,0L), 3, 3),
     "111U" = matrix(c(0L,1L,0L, 1L,0L,0L, 1L,0L,0L), 3, 3),
     "030T" = matrix(c(0L,1L,1L, 0L,0L,1L, 0L,0L,0L), 3, 3),
     "030C" = matrix(c(0L,1L,0L, 0L,0L,1L, 1L,0L,0L), 3, 3),
     "201" = matrix(c(0L,1L,1L, 1L,0L,0L, 1L,0L,0L), 3, 3),
-    "120D" = matrix(c(0L,1L,1L, 1L,0L,0L, 0L,1L,0L), 3, 3),
-    "120U" = matrix(c(0L,1L,0L, 0L,0L,1L, 1L,1L,0L), 3, 3),
+    "120D" = matrix(c(0L,1L,1L, 1L,0L,1L, 0L,0L,0L), 3, 3),
+    "120U" = matrix(c(0L,1L,0L, 1L,0L,0L, 1L,1L,0L), 3, 3),
     "120C" = matrix(c(0L,1L,0L, 1L,0L,1L, 1L,0L,0L), 3, 3),
-    "210" = matrix(c(0L,1L,1L, 1L,0L,1L, 0L,0L,0L), 3, 3),
+    "210" = matrix(c(0L,1L,0L, 1L,0L,1L, 1L,1L,0L), 3, 3),
     "300" = matrix(c(0L,1L,1L, 1L,0L,1L, 1L,1L,0L), 3, 3)
   )
 }

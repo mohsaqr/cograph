@@ -81,6 +81,13 @@
     igraph plots as documented, and pattern-panel significance decoration
     is suppressed for legacy per-triple results where a per-type lookup
     would be ambiguous.
+  - A Monte Carlo equivalence suite now validates the whole subsystem on
+    1000 generated datasets per run — 18 topologies (random, scale-free,
+    small-world, rings, stars, tournaments, DAGs, bipartite blocks,
+    disconnected, isolates, empty), 3-60 nodes, directed / weighted /
+    undirected / multi-actor inputs — against `igraph::triad_census()`,
+    brute-force triple enumeration, and per-actor reference censuses.
+
 - `plot_transitions()` with a multi-column data frame (the consecutive
   multi-step branch) no longer silently drops styling arguments: `value_min`,
   `label_color`, `label_fontface`, `label_nudge`, `title_color`,

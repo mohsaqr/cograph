@@ -2,6 +2,12 @@
 
 ## New features
 
+- `splot()` on a `netobject` with `method = "entropy"` (Nestimate's
+  `entropy_network()`) now receives TNA styling — oval layout, TNA palette,
+  initial-probability donuts — instead of falling through to psych styling,
+  so the entropy re-weighting of a transition network renders comparably
+  with its source.
+
 - `splot()` now accepts `label_abbrev`, matching `mcml`: use an integer for
   a fixed maximum label length, `"auto"` for node-count-aware abbreviation,
   or `NULL` to retain full labels.

@@ -49,8 +49,11 @@ splot.netobject <- function(x, ...) {
   # ($edge_betweenness$source_method), falling back to direction: undirected
   # TNA-family sources (co_occurrence, wtna_cooccurrence) then keep the same
   # TNA look their source network gets.
+  # entropy: Nestimate's entropy_network() — the TNA transition network
+  # re-weighted with per-edge entropy contributions; it inherits the source
+  # network's fields and belongs in the same TNA look for comparability.
   tna_methods <- c("relative", "frequency", "attention",
-                   "co_occurrence", "wtna", "wtna_cooccurrence")
+                   "co_occurrence", "wtna", "wtna_cooccurrence", "entropy")
   use_tna <- if (identical(x$method, "edge_betweenness")) {
     src <- x[["edge_betweenness"]][["source_method"]]
     if (!is.null(src)) src %in% tna_methods || isTRUE(x$directed)

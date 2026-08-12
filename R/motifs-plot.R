@@ -61,7 +61,8 @@
 }
 
 #' @noRd
-.plot_motifs_network <- function(df, directed, size, colors, combined = TRUE) {
+.plot_motifs_network <- function(df, directed, size, colors, combined = TRUE,
+                                 ...) {
   if (!directed || size != 3) {
     message("Network visualization only available for directed 3-node motifs")
     return(.plot_motifs_bar(df, colors, directed, size))
@@ -107,7 +108,7 @@
     coords <- matrix(c(-1, 0, 1, 0.5, 0.5, -0.8), ncol = 2, byrow = TRUE)
 
     plot(g, layout = coords, vertex.label = NA,
-         main = sprintf("%s\nn=%d, z=%.1f", motif_name, count, z))
+         main = sprintf("%s\nn=%d, z=%.1f", motif_name, count, z), ...)
   }
 
   invisible(NULL)
@@ -368,7 +369,11 @@
       is.data.frame(x$results) &&
       "z" %in% names(x$results) &&
       "p" %in% names(x$results) &&
-      "type" %in% names(x$results)) {
+      "type" %in% names(x$results) &&
+      !anyDuplicated(x$results$type)) {
+    # The duplicate guard matters for legacy extract_motifs() output: it has
+    # no named_nodes slot but one row per node-triple, so a per-type lookup
+    # would silently decorate each panel with whichever triple came first.
     z_lookup <- stats::setNames(x$results$z, x$results$type)
     p_lookup <- stats::setNames(x$results$p, x$results$type)
   }

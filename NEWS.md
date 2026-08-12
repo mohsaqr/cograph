@@ -26,6 +26,61 @@
 
 ## Bug fixes / changes
 
+- **Motif subsystem overhaul** following an adversarial review (13 findings,
+  each verified against igraph before fixing):
+  - **`motif_census()` mislabeled 13 of the 16 directed triad classes**: it
+    attached MAN-order names to `igraph::motifs()` output, which is in
+    igraph's isomorphism-class order (a pure 021U triad was reported as
+    `102`). The directed 3-node census now uses `igraph::triad_census()`,
+    whose ordering *is* MAN order. Counts were internally consistent —
+    z-scores compared like with like — but carried the wrong names.
+    `motifs()`, `subgraphs()` and `triad_census()` were never affected.
+  - The undirected census gains the missing one-edge class
+    (`empty`/`edge`/`wedge`/`triangle`), and self-loops are stripped before
+    counting (they are not part of any 3-node class).
+  - The `"configuration"` null model now uses exact degree-preserving edge
+    rewiring. The old stub-matching + `simplify()` silently changed degrees,
+    and the undirected `"vl"` sampler errored on graphs with isolates and
+    restricted the ensemble to connected graphs (two disconnected triangles
+    got `sd = 0, z = 0, p = 1` for an observation the null could never
+    produce).
+  - All motif p-values are now **empirical permutation p-values**
+    (add-one corrected) instead of Gaussian approximations, and a degenerate
+    null (sd = 0) yields `z = NA` when the observation differs from it —
+    never a silent `z = 0`. Zero-variance handling was previously
+    inconsistent across the three engines (forced 0 / sd := 1 / sd := 0.1).
+    `n_random` / `n_perm` below 2 is now an error.
+  - `motifs(pattern = "all")` now actually includes the `003` class; a full
+    census sums to `choose(n, 3)` and matches `igraph::triad_census()`
+    class by class.
+  - Instance-mode significance (`subgraphs()`) now tests the null
+    probability that a triple instantiates **the row's own MAN type**; the
+    old null counted "any of the six edges exists" (for ten subjects each
+    with a 3-cycle, expected was 8.33 instead of the correct 3.33).
+  - Instance mode reports one row per (triple, MAN type) instead of
+    collapsing to a dominant type, so per-type totals now agree with census
+    mode on identical data.
+  - Instance-mode significance on aggregate input (a single matrix) now
+    warns and reports `params$significance = FALSE` instead of silently
+    returning results without the promised `z`/`p` columns.
+  - Census significance on a symmetric directed matrix now runs a directed
+    null (previously the undirected `empty`/`wedge`/`triangle` names never
+    matched a MAN row, yielding all-NA statistics).
+  - `extract_motifs(level = "aggregate")` now actually pools the
+    per-individual transition matrices (previously only metadata changed),
+    and `min_transitions` applies per-triad at aggregate level as
+    documented.
+  - `motif_census(x, directed = ...)` conflicting with an igraph input's
+    own directedness is now an error instead of relabeling without
+    converting.
+  - `edge_method = "percent"` thresholds above 1 are percentages and the
+    comparison is `>=` as documented (the old `> total * 1.5` default could
+    never classify anything); fractional edge weights are rounded, not
+    truncated, when building permutation stubs.
+  - `plot.cograph_motifs(type = "network")` forwards `...` to the per-motif
+    igraph plots as documented, and pattern-panel significance decoration
+    is suppressed for legacy per-triple results where a per-type lookup
+    would be ambiguous.
 - `plot_transitions()` with a multi-column data frame (the consecutive
   multi-step branch) no longer silently drops styling arguments: `value_min`,
   `label_color`, `label_fontface`, `label_nudge`, `title_color`,

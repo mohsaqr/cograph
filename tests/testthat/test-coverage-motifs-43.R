@@ -380,9 +380,18 @@ test_that(".count_triads_matrix_vectorized handles all-zero matrix", {
   count_triads <- cograph:::.count_triads_matrix_vectorized
 
   mat <- matrix(0, 5, 5)
-  result <- count_triads(mat, edge_method = "any", edge_threshold = 0)
 
-  expect_null(result)
+  # With no filters the 003 class is admissible, so every empty triple is
+  # enumerated (this is what makes pattern = "all" complete).
+  result <- count_triads(mat, edge_method = "any", edge_threshold = 0)
+  expect_s3_class(result, "data.frame")
+  expect_identical(nrow(result), as.integer(choose(5, 3)))
+  expect_true(all(result$type == "003"))
+
+  # Excluding 003 restores the fast empty-drop path.
+  result_ex <- count_triads(mat, edge_method = "any", edge_threshold = 0,
+                            exclude = "003")
+  expect_null(result_ex)
 })
 
 test_that(".count_triads_matrix_vectorized expected method without expected_mat errors", {

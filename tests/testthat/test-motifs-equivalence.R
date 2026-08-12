@@ -122,51 +122,49 @@ test_that("triad_census total equals choose(n, 3)", {
 })
 
 # =============================================================================
-# 2. motif_census()$count vs igraph::motifs()
+# 2. motif_census()$count vs igraph::triad_census(), aligned BY NAME
 # =============================================================================
+# The old tests here compared motif_census()$count positionally against
+# igraph::motifs(), whose slots are in isomorphism-class order, not MAN
+# order — they codified a label bug (a pure 021U was reported as "102")
+# instead of catching it. The correct reference is igraph::triad_census(),
+# and the comparison must be joined on the MAN name.
 
-test_that("motif_census observed counts match igraph::motifs — mat4", {
-  g <- igraph::graph_from_adjacency_matrix(mat4, mode = "directed", weighted = TRUE)
-  igraph_m <- igraph::motifs(g, size = 3)
-  igraph_m[is.na(igraph_m)] <- 0
+expect_census_matches_igraph <- function(mat) {
+  g <- igraph::graph_from_adjacency_matrix(mat, mode = "directed",
+                                           weighted = TRUE)
+  igraph_tc <- igraph::triad_census(g)
+  names(igraph_tc) <- c("003", "012", "102", "021D", "021U", "021C",
+                        "111D", "111U", "030T", "030C", "201",
+                        "120D", "120U", "120C", "210", "300")
 
-  mc <- motif_census(mat4, size = 3, n_random = 10, seed = 1)
-  cograph_m <- as.integer(mc$count)
+  mc <- motif_census(mat, size = 3, n_random = 10, seed = 1)
+  cograph_counts <- stats::setNames(as.integer(mc$count), mc$motif)
 
-  expect_identical(cograph_m, as.integer(igraph_m))
+  expect_identical(cograph_counts[names(igraph_tc)],
+                   stats::setNames(as.integer(igraph_tc), names(igraph_tc)))
+}
+
+test_that("motif_census counts match igraph::triad_census by name — mat4", {
+  expect_census_matches_igraph(mat4)
 })
 
-test_that("motif_census observed counts match igraph::motifs — mat5", {
-  g <- igraph::graph_from_adjacency_matrix(mat5, mode = "directed", weighted = TRUE)
-  igraph_m <- igraph::motifs(g, size = 3)
-  igraph_m[is.na(igraph_m)] <- 0
-
-  mc <- motif_census(mat5, size = 3, n_random = 10, seed = 1)
-  cograph_m <- as.integer(mc$count)
-
-  expect_identical(cograph_m, as.integer(igraph_m))
+test_that("motif_census counts match igraph::triad_census by name — mat5", {
+  expect_census_matches_igraph(mat5)
 })
 
-test_that("motif_census observed counts match igraph::motifs — mat8", {
-  g <- igraph::graph_from_adjacency_matrix(mat8, mode = "directed", weighted = TRUE)
-  igraph_m <- igraph::motifs(g, size = 3)
-  igraph_m[is.na(igraph_m)] <- 0
-
-  mc <- motif_census(mat8, size = 3, n_random = 10, seed = 1)
-  cograph_m <- as.integer(mc$count)
-
-  expect_identical(cograph_m, as.integer(igraph_m))
+test_that("motif_census counts match igraph::triad_census by name — mat8", {
+  expect_census_matches_igraph(mat8)
 })
 
-test_that("motif_census observed counts match igraph::motifs — weighted matrix", {
-  g <- igraph::graph_from_adjacency_matrix(mat6w, mode = "directed", weighted = TRUE)
-  igraph_m <- igraph::motifs(g, size = 3)
-  igraph_m[is.na(igraph_m)] <- 0
+test_that("motif_census counts match igraph::triad_census by name — weighted", {
+  expect_census_matches_igraph(mat6w)
+})
 
-  mc <- motif_census(mat6w, size = 3, n_random = 10, seed = 1)
-  cograph_m <- as.integer(mc$count)
-
-  expect_identical(cograph_m, as.integer(igraph_m))
+test_that("motif_census labels a pure 021U triad as 021U (regression)", {
+  m021u <- cograph:::.get_triad_patterns_canonical()[["021U"]]
+  mc <- motif_census(m021u, directed = TRUE, n_random = 2, seed = 1)
+  expect_identical(mc$motif[mc$count == 1], "021U")
 })
 
 # =============================================================================

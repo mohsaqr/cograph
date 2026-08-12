@@ -98,7 +98,7 @@
     c("003", "012", "102", "021D", "021U", "021C", "111D", "111U",
       "030T", "030C", "201", "120D", "120U", "120C", "210", "300")
   } else if (size == 3 && !directed) {
-    c("empty", "edge", "triangle")
+    c("empty", "edge", "wedge", "triangle")
   } else if (size == 4) {
     paste0("M", seq_len(if (directed) 199 else 11))
   } else {

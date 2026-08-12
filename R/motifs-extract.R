@@ -271,6 +271,14 @@ extract_motifs <- function(x = NULL,
     }
   }
 
+  # Aggregate level means one pooled network: sum the per-individual
+  # transition matrices before counting. Without this, "aggregate" ran the
+  # same per-individual loop and only the metadata changed.
+  if (level == "aggregate" && dim(trans)[1] > 1L) {
+    pooled <- apply(trans, c(2, 3), sum)
+    trans <- array(pooled, dim = c(1L, dim(trans)[2], dim(trans)[3]))
+  }
+
   n_ind <- dim(trans)[1]
   s <- dim(trans)[2]
 
@@ -279,7 +287,10 @@ extract_motifs <- function(x = NULL,
                                     min_trans, exclude, include = NULL) {
     all_results <- lapply(seq_len(dim(trans_array)[1]), function(ind) {
       mat <- trans_array[ind, , ]
-      if (sum(mat) < min_trans) return(NULL)
+      # Documented semantics: at individual level min_transitions gates the
+      # person's total activity; at aggregate level it is a per-triad weight
+      # filter (applied below), not a whole-network gate.
+      if (level == "individual" && sum(mat) < min_trans) return(NULL)
 
       expected_mat <- NULL
       if (edge_method == "expected") {
@@ -298,6 +309,10 @@ extract_motifs <- function(x = NULL,
         exclude = exclude,
         include = include
       )
+
+      if (level == "aggregate" && !is.null(triads_df)) {
+        triads_df <- triads_df[triads_df$weight >= min_trans, , drop = FALSE]
+      }
 
       if (!is.null(triads_df) && nrow(triads_df) > 0) {
         data.frame(
@@ -389,13 +404,10 @@ extract_motifs <- function(x = NULL,
       NULL
     })
 
-    null_mean <- rowMeans(null_matrix)
-    null_sd <- apply(null_matrix, 1, stats::sd)
-    null_sd[null_sd == 0] <- 0.1
-
-    obs_freq$expected <- round(null_mean, 1)
-    obs_freq$z <- round((obs_freq$observed - null_mean) / null_sd, 2)
-    obs_freq$p <- round(2 * stats::pnorm(-abs(obs_freq$z)), 4)
+    ns <- .motif_null_stats(obs_freq$observed, t(null_matrix))
+    obs_freq$expected <- round(ns$mean, 1)
+    obs_freq$z <- round(ns$z, 2)
+    obs_freq$p <- round(ns$p, 4)
     obs_freq$sig <- get_significance_stars(obs_freq$p)
   }
 

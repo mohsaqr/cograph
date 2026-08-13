@@ -90,7 +90,9 @@ weight to count as present. Default 5.}
 
 \item{significance}{Logical. Run permutation significance test? Default FALSE.}
 
-\item{n_perm}{Number of permutations for significance test. Default 100.}
+\item{n_perm}{Number of permutations for the significance test. When
+\code{significance = TRUE}, must be a whole number of at least 2.
+Default 100.}
 
 \item{seed}{Random seed for reproducibility.}
 
@@ -101,9 +103,14 @@ weight to count as present. Default 5.}
 \value{
 A \code{cograph_motif_analysis} object (list) containing:
 \describe{
-\item{results}{Data frame with triad, type, observed count, and
-(if significance=TRUE) expected, z-score, p-value}
-\item{type_summary}{Summary counts by motif type}
+\item{results}{Data frame with one row per node-triple and MAN type,
+the display label \code{triad}, unambiguous \code{node1}/\code{node2}/
+\code{node3} columns, its observed count, and (if
+\code{significance = TRUE}) expected
+count, z-score, empirical p-value, and significance marker. A node
+triple that has different types across individuals therefore appears
+in more than one row.}
+\item{type_summary}{Summary counts by motif type across individuals.}
 \item{params}{List of parameters used}
 }
 }
@@ -112,6 +119,14 @@ Extract and analyze triad motifs from network data with flexible filtering,
 pattern selection, and statistical significance testing. Supports both
 individual-level analysis (with tna objects or grouped data) and aggregate
 analysis (with matrices or networks).
+}
+\details{
+Individual significance uses the same directed weighted
+stub-matching null as individual-level \code{\link[=motifs]{motifs()}}: positive weights retain
+at least one integer stub, shuffled targets preserve the integerized in/out
+margins, and generated loops/parallel edges are reduced to a simple
+loopless projection for triad classification. Observed self-loops are
+excluded before activity gating, counting, and null construction.
 }
 \section{MAN Notation}{
 

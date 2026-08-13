@@ -202,6 +202,20 @@ check_motif_mc_dataset <- function(ds) {
         add(sprintf("instance total disagrees with census for %s", nm))
       }
     }
+
+    # The legacy extractor must retain the same per-(triple, type) totals.
+    legacy <- suppressWarnings(
+      extract_motifs(data = ds$el, id = "actor", pattern = "all",
+                     significance = FALSE, min_transitions = 0))
+    if (!is.null(legacy)) {
+      legacy_tot <- tapply(legacy$results$observed,
+                           legacy$results$type, sum)
+      legacy_got <- stats::setNames(numeric(16), .motif_mc_man_names)
+      legacy_got[names(legacy_tot)] <- legacy_tot
+      if (!isTRUE(all.equal(unname(legacy_got), unname(got)))) {
+        add("extract_motifs per-type totals disagree with census")
+      }
+    }
     return(fails)
   }
 

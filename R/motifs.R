@@ -5,7 +5,8 @@
 #'
 #' @param x A matrix, igraph object, or cograph_network
 #' @param size Motif size: 3 (triads) or 4 (tetrads). Default 3.
-#' @param n_random Number of random networks for null model. Default 100.
+#' @param n_random Number of random networks for the null model. Must be a
+#'   whole number of at least 2. Default 100.
 #' @param method Null model method: "configuration" (preserves degree) or
 #'   "gnm" (preserves edge count). Default "configuration".
 #' @param directed Logical. Treat as directed? Default auto-detected.
@@ -43,12 +44,6 @@ motif_census <- function(x, size = 3, n_random = 100,
   # Convert to igraph
   if (inherits(x, "igraph")) {
     g <- x
-    if (!is.null(directed) && directed != igraph::is_directed(g)) {
-      stop("`directed = ", directed, "` conflicts with the igraph object ",
-           "(is_directed = ", igraph::is_directed(g), "). Convert the graph ",
-           "explicitly with igraph::as_directed() or igraph::as_undirected() ",
-           "before calling motif_census().", call. = FALSE)
-    }
   } else if (inherits(x, "cograph_network")) {
     g <- to_igraph(x)
   } else if (is.matrix(x)) {
@@ -61,16 +56,23 @@ motif_census <- function(x, size = 3, n_random = 100,
     stop("x must be a matrix, igraph object, or cograph_network")
   }
 
+  if ((inherits(x, "igraph") || inherits(x, "cograph_network")) &&
+      !is.null(directed) && directed != igraph::is_directed(g)) {
+    stop("`directed = ", directed, "` conflicts with the input network ",
+         "(is_directed = ", igraph::is_directed(g), "). Convert the network ",
+         "explicitly before calling motif_census().", call. = FALSE)
+  }
+
   if (is.null(directed)) {
     directed <- igraph::is_directed(g)
   }
 
-  stopifnot(is.numeric(n_random), length(n_random) == 1L, n_random >= 2)
+  n_random <- .validate_motif_repetitions(n_random, "n_random")
 
   # Triad/motif censuses are defined on simple graphs: self-loops are not part
   # of any 3-node class and corrupt both the counts and the degree sequence
   # the null model preserves.
-  g <- igraph::simplify(g, remove.multiple = FALSE, remove.loops = TRUE)
+  g <- igraph::simplify(g, remove.multiple = TRUE, remove.loops = TRUE)
 
   if (!directed && size == 3) {
     return(.motif_census_undirected(g, n_random, method, seed))
@@ -242,6 +244,110 @@ motif_census <- function(x, size = 3, n_random = 100,
        significant = p < 0.05)
 }
 
+# Validate a requested Monte Carlo sample size. A sample standard deviation
+# needs at least two replicates, and silently truncating a fractional value via
+# seq_len() makes the reported n_random/n_perm disagree with the work done.
+# @noRd
+.validate_motif_repetitions <- function(x, arg) {
+  valid <- is.numeric(x) && length(x) == 1L && !is.na(x) && is.finite(x) &&
+    x >= 2 && x == floor(x) && x <= .Machine$integer.max
+  if (!valid) {
+    stop("`", arg, "` must be one finite whole number greater than or equal to 2.",
+         call. = FALSE)
+  }
+  as.integer(x)
+}
+
+# Convert non-negative weighted transitions to balanced integer stubs. Edge
+# multiplicities are rounded cell-by-cell, with every positive observed edge
+# retaining at least one stub. Deriving both margins from that single integer
+# matrix preserves the observed support (including dense probability matrices)
+# and guarantees equal row/column totals.
+# @noRd
+.motif_configuration_stubs <- function(mat) {
+  if (!is.numeric(mat) || anyNA(mat) || any(!is.finite(mat)) || any(mat < 0)) {
+    stop("Motif permutation weights must be finite and non-negative.",
+         call. = FALSE)
+  }
+
+  diag(mat) <- 0
+
+  integer_mat <- round(mat)
+  integer_mat[mat > 0 & integer_mat == 0] <- 1
+  total_numeric <- sum(integer_mat)
+  if (total_numeric > .Machine$integer.max) {
+    stop("Motif permutation weight total is too large.", call. = FALSE)
+  }
+  total <- as.integer(total_numeric)
+  row_degrees <- as.integer(rowSums(integer_mat))
+  col_degrees <- as.integer(colSums(integer_mat))
+  list(
+    total = total,
+    rows = rep.int(seq_len(nrow(mat)), row_degrees),
+    cols = rep.int(seq_len(ncol(mat)), col_degrees),
+    row_degrees = row_degrees,
+    col_degrees = col_degrees
+  )
+}
+
+# Extract one unit from a 3D transition array without R dropping a 1x1 slice
+# to a scalar.
+# @noRd
+.motif_unit_matrix <- function(trans, ind) {
+  matrix(trans[ind, , , drop = FALSE], nrow = dim(trans)[2],
+         ncol = dim(trans)[3])
+}
+
+# Zero the diagonal of every unit slice of a 3D transition array. Triad
+# analysis is loopless by definition, so loop mass must never reach activity
+# gating, counting, or stub construction. This is the single site enforcing
+# that invariant for unit arrays; keep motifs(), subgraphs(), and
+# extract_motifs() on this helper so they cannot desynchronize.
+# @noRd
+.motif_strip_loops <- function(trans) {
+  n_ind <- dim(trans)[1]
+  s <- dim(trans)[2]
+  idx <- cbind(rep(seq_len(n_ind), times = s),
+               rep(seq_len(s), each = n_ind),
+               rep(seq_len(s), each = n_ind))
+  trans[idx] <- 0
+  trans
+}
+
+# Ranking scores for sorting motif results by extremity. .motif_null_stats
+# emits z = NA (with a valid, smallest-possible empirical p) when the
+# observation lies outside a zero-variance null — those degenerate rows are
+# the strongest findings and must outrank every finite z, not fall to
+# order()'s na.last tail where a top-N cut silently drops them. Rows with no
+# significance information at all (z and p both NA) rank last. Passing
+# `effect` (observed - expected) switches from |z| ranking to signed ranking.
+# @noRd
+.motif_z_rank <- function(z, p, effect = NULL) {
+  if (is.null(effect)) {
+    ifelse(is.na(z) & !is.na(p), Inf, ifelse(is.na(z), -Inf, abs(z)))
+  } else {
+    ifelse(is.na(z) & !is.na(p), sign(effect) * Inf,
+           ifelse(is.na(z), -Inf, z))
+  }
+}
+
+# Z-score bar charts cannot draw degenerate-null rows (z = NA). Those rows
+# are the strongest findings (see .motif_z_rank), so dropping them must be
+# loud: message how many were omitted — and how many of those are
+# significant — then return the drawable rows.
+# @noRd
+.motif_drop_na_z_rows <- function(df) {
+  na_rows <- is.na(df$z)
+  if (any(na_rows)) {
+    n_sig <- sum(!is.na(df$p[na_rows]) & df$p[na_rows] < 0.05)
+    message(sum(na_rows), " motif row(s) with a degenerate null (z = NA",
+            if (n_sig > 0) sprintf("; %d significant at p < .05", n_sig),
+            ") cannot be drawn as z-score bars and were omitted from the ",
+            "plot. See the results table for those rows.")
+  }
+  df[!na_rows, , drop = FALSE]
+}
+
 #' @rdname motif_census
 #' @param ... Passed to methods; currently unused.
 #' @method print cograph_motifs
@@ -255,8 +361,8 @@ print.cograph_motifs <- function(x, ...) {
   cat(sprintf("Size: %d-node motifs (%s) | Null: %s (n=%d)\n\n",
               sz, if (dir) "directed" else "undirected", meth, nr))
   print.data.frame(x, row.names = FALSE, ...)
-  n_over <- sum(x$z_score > 2 & x$count > 0, na.rm = TRUE)
-  n_under <- sum(x$z_score < -2 & x$count > 0, na.rm = TRUE)
+  n_over <- sum(x$significant & x$count > x$null_mean, na.rm = TRUE)
+  n_under <- sum(x$significant & x$count < x$null_mean, na.rm = TRUE)
   cat(sprintf("\nOver-represented: %d | Under-represented: %d\n", n_over, n_under))
   invisible(x)
 }

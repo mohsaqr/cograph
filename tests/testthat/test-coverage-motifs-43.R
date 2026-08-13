@@ -133,9 +133,9 @@ test_that(".get_motif_names handles all size/directed combinations", {
   expect_true("edge" %in% names_3u)
   expect_true("triangle" %in% names_3u)
 
-  # Size 4 directed (199 motifs)
+  # Size 4 directed (218 isomorphism slots; 199 connected classes)
   names_4d <- get_motif_names(4, TRUE)
-  expect_equal(length(names_4d), 199)
+  expect_equal(length(names_4d), 218)
   expect_true(all(grepl("^M", names_4d)))
 
   # Size 4 undirected (11 motifs)

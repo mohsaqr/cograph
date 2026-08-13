@@ -703,7 +703,8 @@ plot(mot, type = "patterns")
 
 ```{r}
 #| label: subgraphs
-sg <- subgraphs(model, significance = TRUE, top = 10, pattern="triangle")
+sg <- subgraphs(model, significance = TRUE, top = 10,
+  pattern = "triangle", seed = 42)
 sg
 
 ```

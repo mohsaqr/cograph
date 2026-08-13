@@ -55,3 +55,19 @@ test_that("120D, 120U, 120C are pairwise non-isomorphic in the visual set", {
   }, logical(1))
   expect_false(any(iso))
 })
+
+test_that("the 64-entry classifier lookup matches igraph exhaustively", {
+  edge_positions <- matrix(c(1L, 2L, 2L, 1L, 1L, 3L,
+                             3L, 1L, 2L, 3L, 3L, 2L),
+                           ncol = 2, byrow = TRUE)
+  lookup <- cograph:::.get_triad_lookup()
+
+  reference <- vapply(0:63, function(code) {
+    m <- matrix(0L, 3, 3)
+    bits <- as.integer(intToBits(code))[1:6]
+    m[edge_positions] <- bits
+    .classify_triad(m)
+  }, character(1))
+
+  expect_identical(unname(lookup), unname(reference))
+})

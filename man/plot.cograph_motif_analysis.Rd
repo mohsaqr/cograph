@@ -30,8 +30,9 @@
 \item{\code{"triads"}}{(default) Network diagrams of specific named triads,
 arranged in a grid. Each cell shows the three nodes and their edges.}
 \item{\code{"types"}}{Bar chart of MAN type frequencies.}
-\item{\code{"significance"}}{Z-score plot showing over- and under-represented
-types. Requires \code{significance = TRUE} in \code{extract_motifs()}.}
+\item{\code{"significance"}}{Z-score plot with one bar per node-triple
+and MAN type. Requires \code{significance = TRUE} in
+\code{extract_motifs()}.}
 \item{\code{"patterns"}}{Abstract MAN pattern diagrams showing edge
 structure of each triad type without specific node labels.}
 }}

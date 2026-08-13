@@ -100,7 +100,10 @@
   } else if (size == 3 && !directed) {
     c("empty", "edge", "wedge", "triangle")
   } else if (size == 4) {
-    paste0("M", seq_len(if (directed) 199 else 11))
+    # igraph returns every isomorphism-class slot, including disconnected
+    # slots represented by NA. Directed four-node graphs have 218 slots (199
+    # are connected), so names must cover the full positional result.
+    paste0("M", seq_len(if (directed) 218 else 11))
   } else {
     paste0("motif_", seq_len(100))
   }

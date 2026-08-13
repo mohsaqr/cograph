@@ -1,4 +1,4 @@
-# cograph 2.4.5
+# cograph 2.4.6
 
 ## New features
 
@@ -87,6 +87,42 @@
     disconnected, isolates, empty), 3-60 nodes, directed / weighted /
     undirected / multi-actor inputs — against `igraph::triad_census()`,
     brute-force triple enumeration, and per-actor reference censuses.
+  - The legacy `extract_motifs()` individual-level path now retains one row
+    per `(node triple, MAN type)` and tests that exact type under the same
+    weighted stub-matching null as individual-level `subgraphs()`. It no longer
+    collapses mixed-type triples to a dominant label or counts any permuted
+    type as a match.
+  - Fractional transition data now produce balanced integer in/out stubs;
+    low-activity units (including one-transition and empty units when allowed)
+    participate correctly in instance nulls, and one-element stub vectors are
+    shuffled without R's `sample(x)` length-one ambiguity.
+    Unit eligibility is frozen from the original loopless weighted activity,
+    and every positive edge retains support during integerization.
+  - `sig`, printing, and motif plot colors now consistently follow the
+    empirical permutation decision (`p < .05`) instead of mixing it with
+    `|z| > 1.96` or `|z| > 2` cutoffs. Parallel edges are simplified before
+    `motif_census()` so observed and null graphs use the same simple-graph
+    projection.
+  - Instance results now include structured `node1` / `node2` / `node3`
+    columns in addition to the existing `triad` display label, so node names
+    containing `" - "` remain unambiguous in statistics and plots.
+  - Directed size-4 motif rows now use one consistent `M1`–`M218` naming
+    sequence covering all igraph isomorphism slots (199 are connected), and
+    `directed=` conflicts are rejected consistently for both igraph and
+    cograph-network inputs.
+  - Degenerate-null rows (`z = NA` with the smallest possible empirical p,
+    emitted when the observation lies outside a zero-variance null) are now
+    treated as the strongest findings everywhere: they rank first in sorted
+    results, survive `top = n` cuts instead of being silently truncated, and
+    the significance plots report them with a message instead of silently
+    dropping them (a z bar cannot be drawn for them).
+  - `plot(x, type = "triads")` no longer errors on fractional weighted
+    counts (e.g. probability matrices at aggregate level); whole numbers
+    keep the plain `n=3` caption.
+  - Weight validation for permutation nulls applies only to null-eligible
+    units, so a malformed cell in a unit excluded by `min_transitions` no
+    longer aborts the whole significance run (malformed cells in eligible
+    units still error loudly).
 
 - `plot_transitions()` with a multi-column data frame (the consecutive
   multi-step branch) no longer silently drops styling arguments: `value_min`,

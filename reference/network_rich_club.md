@@ -47,5 +47,5 @@ if (requireNamespace("igraph", quietly = TRUE)) {
   g <- igraph::sample_pa(50, m = 2, directed = FALSE)
   network_rich_club(g, k = 5)
 }
-#> [1] 0.3090909
+#> [1] 0.4166667
 ```

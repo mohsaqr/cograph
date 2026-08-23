@@ -1058,8 +1058,8 @@ MIT License.
 - [Centrality
   catalogue](https://sonsoles.me/cograph/articles/centrality-catalogue.md):
 - [Why cograph?](https://sonsoles.me/cograph/articles/why-cograph.md):
-- [Plotting TNA Models with
-  splot](https://sonsoles.me/cograph/articles/plotting-tna-models.md):
+- [TNA Plotting Gallery and Visual Smoke
+  Test](https://sonsoles.me/cograph/articles/plotting-tna-models.md):
 - [Advanced
   examples](https://sonsoles.me/cograph/articles/mcml-examples.md):
 - [Migrating from qgraph to

@@ -9,7 +9,7 @@ of triads, bar plots of type distributions, and significance plots."><meta prope
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,7 +23,7 @@ of triads, bar plots of type distributions, and significance plots."><meta prope
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
     <li><a class="dropdown-item" href="../articles/centrality-catalogue.html">Centrality catalogue</a></li>
     <li><a class="dropdown-item" href="../articles/why-cograph.html">Why cograph?</a></li>
-    <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">Plotting TNA Models with splot</a></li>
+    <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">TNA Plotting Gallery and Visual Smoke Test</a></li>
     <li><a class="dropdown-item" href="../articles/mcml-examples.html">Advanced examples</a></li>
     <li><a class="dropdown-item" href="../articles/qgraph-to-splot.html">Migrating from qgraph to splot</a></li>
     <li><a class="dropdown-item" href="../articles/bootstrap-forest.html">Bootstrap Forest Plots</a></li>
@@ -90,8 +90,9 @@ arranged in a grid. Each cell shows the three nodes and their edges.</p></dd>
 <dd><p>Bar chart of MAN type frequencies.</p></dd>
 
 <dt><code>"significance"</code></dt>
-<dd><p>Z-score plot showing over- and under-represented
-types. Requires <code>significance = TRUE</code> in <code><a href="extract_motifs.html">extract_motifs()</a></code>.</p></dd>
+<dd><p>Z-score plot with one bar per node-triple
+and MAN type. Requires <code>significance = TRUE</code> in
+<code><a href="extract_motifs.html">extract_motifs()</a></code>.</p></dd>
 
 <dt><code>"patterns"</code></dt>
 <dd><p>Abstract MAN pattern diagrams showing edge

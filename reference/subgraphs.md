@@ -29,11 +29,11 @@ subgraphs(...)
 ## Value
 
 A `cograph_motif_result` object with `named_nodes = TRUE`. Contains
-`$results` (data frame with columns `triad`, `type`, `observed`, and
-optionally `z`, `p`, `sig`), `$type_summary`, `$level`, `$n_units`, and
-`$params`. In instance mode, `$type_summary` is built via
-`table(results$type)` so it counts how many node-triples fall under each
-MAN type.
+`$results` (data frame with columns `triad`, `node1`, `node2`, `node3`,
+`observed`, `type`, and when `significance = TRUE` also `expected`, `z`,
+`p`, `sig`), `$type_summary`, `$level`, `$n_units`, and `$params`. In
+instance mode, `$type_summary` is built via `table(results$type)` so it
+counts how many node-triples fall under each MAN type.
 
 ## See also
 
@@ -66,9 +66,9 @@ subgraphs(mat, significance = FALSE)
 #>    2    2 
 #> 
 #> Top 4 results:
-#>                      triad type observed
-#>   Plan - Execute - Monitor 030T       10
-#>  Execute - Monitor - Adapt 030T       10
-#>     Plan - Monitor - Adapt 030C        8
-#>     Plan - Execute - Adapt 030C        6
+#>                      triad   node1   node2   node3 type observed
+#>   Plan - Execute - Monitor    Plan Execute Monitor 030T       10
+#>  Execute - Monitor - Adapt Execute Monitor   Adapt 030T       10
+#>     Plan - Monitor - Adapt    Plan Monitor   Adapt 030C        8
+#>     Plan - Execute - Adapt    Plan Execute   Adapt 030C        6
 ```

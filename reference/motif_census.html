@@ -9,7 +9,7 @@ statistical significance against null models."><meta property="og:image" content
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,7 +23,7 @@ statistical significance against null models."><meta property="og:image" content
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
     <li><a class="dropdown-item" href="../articles/centrality-catalogue.html">Centrality catalogue</a></li>
     <li><a class="dropdown-item" href="../articles/why-cograph.html">Why cograph?</a></li>
-    <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">Plotting TNA Models with splot</a></li>
+    <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">TNA Plotting Gallery and Visual Smoke Test</a></li>
     <li><a class="dropdown-item" href="../articles/mcml-examples.html">Advanced examples</a></li>
     <li><a class="dropdown-item" href="../articles/qgraph-to-splot.html">Migrating from qgraph to splot</a></li>
     <li><a class="dropdown-item" href="../articles/bootstrap-forest.html">Bootstrap Forest Plots</a></li>
@@ -79,7 +79,8 @@ statistical significance against null models.</p>
 
 
 <dt id="arg-n-random">n_random<a class="anchor" aria-label="anchor" href="#arg-n-random"></a></dt>
-<dd><p>Number of random networks for null model. Default 100.</p></dd>
+<dd><p>Number of random networks for the null model. Must be a
+whole number of at least 2. Default 100.</p></dd>
 
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
@@ -137,27 +138,27 @@ triad extraction, <code><a href="plot.cograph_motifs.html">plot.cograph_motifs()
 <span class="r-out co"><span class="r-pr">#&gt;</span> Network Motif Analysis</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Size: 3-node motifs (directed) | Null: configuration (n=100)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  motif count null_mean   null_sd    z_score     p_value significant</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    003     0      0.00 0.0000000  0.0000000 1.000000000       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    012     0      0.00 0.0000000  0.0000000 1.000000000       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    102     0      0.19 0.3942772 -0.4818944 0.629880957       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   021D     0      0.00 0.0000000  0.0000000 1.000000000       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   021U     0      0.77 0.8628705 -0.8923703 0.372194475       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   021C     0      0.48 0.7847022 -0.6116970 0.540738243       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   111D     0      0.12 0.3265986 -0.3674235 0.713303174       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   111U     2      0.20 0.6030227  2.9849623 0.002836133        TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   030T     0      0.06 0.2386833 -0.2513792 0.801520967       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   030C     0      0.44 0.7563869 -0.5817128 0.560760120       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    201     0      0.00 0.0000000  0.0000000 1.000000000       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   120D     2      0.23 0.6171783  2.8678907 0.004132182        TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   120U     0      0.18 0.3861229 -0.4661728 0.641091822       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   120C     0      0.03 0.1714466 -0.1749816 0.861094100       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    210     0      0.00 0.0000000  0.0000000 1.000000000       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    300     0      0.00 0.0000000  0.0000000 1.000000000       FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  motif count null_mean  null_sd    z_score p_value significant</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    003     0      0.00 0.000000  0.0000000       1       FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    012     0      0.00 0.000000  0.0000000       1       FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    102     0      0.00 0.000000  0.0000000       1       FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   021D     0      0.00 0.000000  0.0000000       1       FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   021U     0      0.00 0.000000  0.0000000       1       FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   021C     0      0.00 0.000000  0.0000000       1       FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   111D     0      0.98 1.004837 -0.9752828       1       FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   111U     0      0.98 1.004837 -0.9752828       1       FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   030T     2      1.02 1.004837  0.9752828       1       FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   030C     2      1.02 1.004837  0.9752828       1       FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    201     0      0.00 0.000000  0.0000000       1       FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   120D     0      0.00 0.000000  0.0000000       1       FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   120U     0      0.00 0.000000  0.0000000       1       FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   120C     0      0.00 0.000000  0.0000000       1       FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    210     0      0.00 0.000000  0.0000000       1       FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    300     0      0.00 0.000000  0.0000000       1       FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Over-represented: 2 | Under-represented: 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Over-represented: 0 | Under-represented: 0</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="motif_census-1.png" alt="" width="1080" height="1080"></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> No motifs to plot. Try show_nonsig = TRUE</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

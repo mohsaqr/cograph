@@ -31,7 +31,8 @@ print(x, ...)
 
 - n_random:
 
-  Number of random networks for null model. Default 100.
+  Number of random networks for the null model. Must be a whole number
+  of at least 2. Default 100.
 
 - method:
 
@@ -93,25 +94,25 @@ print(m)
 #> Network Motif Analysis
 #> Size: 3-node motifs (directed) | Null: configuration (n=100)
 #> 
-#>  motif count null_mean   null_sd    z_score     p_value significant
-#>    003     0      0.00 0.0000000  0.0000000 1.000000000       FALSE
-#>    012     0      0.00 0.0000000  0.0000000 1.000000000       FALSE
-#>    102     0      0.19 0.3942772 -0.4818944 0.629880957       FALSE
-#>   021D     0      0.00 0.0000000  0.0000000 1.000000000       FALSE
-#>   021U     0      0.77 0.8628705 -0.8923703 0.372194475       FALSE
-#>   021C     0      0.48 0.7847022 -0.6116970 0.540738243       FALSE
-#>   111D     0      0.12 0.3265986 -0.3674235 0.713303174       FALSE
-#>   111U     2      0.20 0.6030227  2.9849623 0.002836133        TRUE
-#>   030T     0      0.06 0.2386833 -0.2513792 0.801520967       FALSE
-#>   030C     0      0.44 0.7563869 -0.5817128 0.560760120       FALSE
-#>    201     0      0.00 0.0000000  0.0000000 1.000000000       FALSE
-#>   120D     2      0.23 0.6171783  2.8678907 0.004132182        TRUE
-#>   120U     0      0.18 0.3861229 -0.4661728 0.641091822       FALSE
-#>   120C     0      0.03 0.1714466 -0.1749816 0.861094100       FALSE
-#>    210     0      0.00 0.0000000  0.0000000 1.000000000       FALSE
-#>    300     0      0.00 0.0000000  0.0000000 1.000000000       FALSE
+#>  motif count null_mean  null_sd    z_score p_value significant
+#>    003     0      0.00 0.000000  0.0000000       1       FALSE
+#>    012     0      0.00 0.000000  0.0000000       1       FALSE
+#>    102     0      0.00 0.000000  0.0000000       1       FALSE
+#>   021D     0      0.00 0.000000  0.0000000       1       FALSE
+#>   021U     0      0.00 0.000000  0.0000000       1       FALSE
+#>   021C     0      0.00 0.000000  0.0000000       1       FALSE
+#>   111D     0      0.98 1.004837 -0.9752828       1       FALSE
+#>   111U     0      0.98 1.004837 -0.9752828       1       FALSE
+#>   030T     2      1.02 1.004837  0.9752828       1       FALSE
+#>   030C     2      1.02 1.004837  0.9752828       1       FALSE
+#>    201     0      0.00 0.000000  0.0000000       1       FALSE
+#>   120D     0      0.00 0.000000  0.0000000       1       FALSE
+#>   120U     0      0.00 0.000000  0.0000000       1       FALSE
+#>   120C     0      0.00 0.000000  0.0000000       1       FALSE
+#>    210     0      0.00 0.000000  0.0000000       1       FALSE
+#>    300     0      0.00 0.000000  0.0000000       1       FALSE
 #> 
-#> Over-represented: 2 | Under-represented: 0
+#> Over-represented: 0 | Under-represented: 0
 plot(m)
-
+#> No motifs to plot. Try show_nonsig = TRUE
 ```

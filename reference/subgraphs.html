@@ -23,7 +23,7 @@ default."><meta property="og:image" content="https://sonsoles.me/cograph/logo.pn
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,7 +37,7 @@ default."><meta property="og:image" content="https://sonsoles.me/cograph/logo.pn
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
     <li><a class="dropdown-item" href="../articles/centrality-catalogue.html">Centrality catalogue</a></li>
     <li><a class="dropdown-item" href="../articles/why-cograph.html">Why cograph?</a></li>
-    <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">Plotting TNA Models with splot</a></li>
+    <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">TNA Plotting Gallery and Visual Smoke Test</a></li>
     <li><a class="dropdown-item" href="../articles/mcml-examples.html">Advanced examples</a></li>
     <li><a class="dropdown-item" href="../articles/qgraph-to-splot.html">Migrating from qgraph to splot</a></li>
     <li><a class="dropdown-item" href="../articles/bootstrap-forest.html">Bootstrap Forest Plots</a></li>
@@ -92,8 +92,10 @@ for the full parameter list (<code>x</code>, <code>actor</code>, <code>window</c
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A <code>cograph_motif_result</code> object with <code>named_nodes = TRUE</code>.
-Contains <code>$results</code> (data frame with columns <code>triad</code>, <code>type</code>,
-<code>observed</code>, and optionally <code>z</code>, <code>p</code>, <code>sig</code>),
+Contains <code>$results</code> (data frame with columns <code>triad</code>,
+<code>node1</code>, <code>node2</code>, <code>node3</code>, <code>observed</code>, <code>type</code>,
+and when <code>significance = TRUE</code> also <code>expected</code>, <code>z</code>,
+<code>p</code>, <code>sig</code>),
 <code>$type_summary</code>, <code>$level</code>, <code>$n_units</code>, and <code>$params</code>.
 In instance mode, <code>$type_summary</code> is built via
 <code>table(results$type)</code> so it counts how many node-triples fall under
@@ -129,11 +131,11 @@ each MAN type.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    2    2 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Top 4 results:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                      triad type observed</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Plan - Execute - Monitor 030T       10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Execute - Monitor - Adapt 030T       10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Plan - Monitor - Adapt 030C        8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Plan - Execute - Adapt 030C        6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                      triad   node1   node2   node3 type observed</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Plan - Execute - Monitor    Plan Execute Monitor 030T       10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Execute - Monitor - Adapt Execute Monitor   Adapt 030T       10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Plan - Monitor - Adapt    Plan Monitor   Adapt 030C        8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Plan - Execute - Adapt    Plan Execute   Adapt 030C        6</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

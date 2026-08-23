@@ -21,7 +21,7 @@ exchangeable.
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,7 +35,7 @@ exchangeable.
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
     <li><a class="dropdown-item" href="../articles/centrality-catalogue.html">Centrality catalogue</a></li>
     <li><a class="dropdown-item" href="../articles/why-cograph.html">Why cograph?</a></li>
-    <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">Plotting TNA Models with splot</a></li>
+    <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">TNA Plotting Gallery and Visual Smoke Test</a></li>
     <li><a class="dropdown-item" href="../articles/mcml-examples.html">Advanced examples</a></li>
     <li><a class="dropdown-item" href="../articles/qgraph-to-splot.html">Migrating from qgraph to splot</a></li>
     <li><a class="dropdown-item" href="../articles/bootstrap-forest.html">Bootstrap Forest Plots</a></li>
@@ -179,7 +179,9 @@ Overrides <code>pattern</code>.</p></dd>
 
 
 <dt id="arg-n-perm">n_perm<a class="anchor" aria-label="anchor" href="#arg-n-perm"></a></dt>
-<dd><p>Number of permutations for significance. Default 1000.</p></dd>
+<dd><p>Number of permutations for significance. When
+<code>significance = TRUE</code>, must be a whole number of at least 2.
+Default 1000.</p></dd>
 
 
 <dt id="arg-min-count">min_count<a class="anchor" aria-label="anchor" href="#arg-min-count"></a></dt>
@@ -334,7 +336,8 @@ caller has already configured (e.g. via <code><a href="panel_layout.html">panel_
 <code>type</code>, <code>count</code>, and when <code>significance = TRUE</code> also
 <code>expected</code>, <code>z</code>, <code>p</code>, <code>sig</code>. Instance mode
 (<code>named_nodes = TRUE</code>): one row per concrete node triple with
-columns <code>triad</code>, <code>type</code>, <code>observed</code>, and when
+columns <code>triad</code>, <code>node1</code>, <code>node2</code>, <code>node3</code>,
+<code>type</code>, <code>observed</code>, and when
 <code>significance = TRUE</code> also <code>expected</code>, <code>z</code>, <code>p</code>,
 <code>sig</code>.</p></dd>
 
@@ -381,6 +384,14 @@ and the window settings if any). Read by <code><a href="https://rdrr.io/r/base/p
 individual/group data (tna objects, cograph networks from edge lists with
 metadata), performs per-group analysis. For aggregate inputs (matrices,
 igraph), analyzes the single network.</p>
+<p>For aggregate inputs, significance delegates to <code><a href="motif_census.html">motif_census()</a></code>
+and its loop-free simple-graph rewiring null. Individual weighted inputs use
+a directed stub-matching null: positive edge weights are converted to at
+least one integer stub, target stubs are shuffled while preserving each
+unit's integerized in/out margins, and the resulting multigraph (which may
+contain loops or parallel edges) is evaluated through its simple loopless
+triad projection. Observed self-loops are excluded before both counting and
+null construction.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -425,9 +436,9 @@ igraph), analyzes the single network.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    2    2 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Top 2 results:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  type count expected     z      p   sig</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  030C     2      0.2 -0.47 0.6353 FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  030T     2      0.0  0.00 1.0000 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  type count expected    z         p   sig</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  030C     2      0.8 1.16 0.4545455 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  030T     2      0.8 1.16 0.4545455 FALSE</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="va">Mod</span> <span class="op">&lt;-</span> <span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="http://sonsoles.me/tna/reference/build_model.html" class="external-link">tna</a></span><span class="op">(</span><span class="fu">tna</span><span class="fu">::</span><span class="va"><a href="http://sonsoles.me/tna/reference/group_regulation.html" class="external-link">group_regulation</a></span><span class="op">)</span></span></span>
@@ -438,17 +449,17 @@ igraph), analyzes the single network.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Type distribution:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 120C 030C 030T  210 120U 120D  300 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1482 1054  620  581  190  178   79 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1481 1044  620  581  190  178   79 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Top 7 results:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  type count expected     z      p   sig</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   210   581    766.2 -9.78 0.0000  TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  030T   620    436.3  7.49 0.0000  TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   300    79    166.2 -5.81 0.0000  TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  120C  1482   1343.0  3.26 0.0011  TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  030C  1054   1073.1 -0.90 0.3681 FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  120U   190    180.3  0.90 0.3681 FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  120D   178    171.8  0.52 0.6031 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  type count expected     z          p   sig</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  120C  1481   1030.4 24.21 0.09090909 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  030T   620    419.1  7.02 0.09090909 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  120U   190    139.4  5.31 0.09090909 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   210   581    473.7  3.67 0.09090909 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  120D   178    140.5  2.41 0.09090909 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  030C  1044   1091.9 -1.47 0.27272727 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   300    79     80.9 -0.38 0.90909091 FALSE</span>
 <span class="r-in"><span><span class="fu"><a href="subgraphs.html">subgraphs</a></span><span class="op">(</span><span class="va">Mod</span>, n_perm <span class="op">=</span> <span class="fl">10L</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Showing triangle patterns (count &gt;= 5). For all MAN types use pattern = 'all'.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Motif Subgraphs </span>
@@ -458,31 +469,52 @@ igraph), analyzes the single network.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Type distribution:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 030C 120C 030T  210 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   31   15    7    1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 030C 030T 120C  210 120D 120U  300 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   42   34   33   18   13    9    6 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Top 20 results:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                             triad observed type expected       z p  sig</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       cohesion - consensus - plan      151 120C   1384.0 -255.26 0 TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        consensus - discuss - plan      278  210   1496.7 -224.13 0 TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       coregulate - discuss - plan       61 030C   1218.6 -182.93 0 TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          discuss - emotion - plan       76 030T   1313.3 -159.13 0 TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        consensus - emotion - plan      436 120C   1439.8 -141.08 0 TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        consensus - monitor - plan      187 120C   1334.9 -130.45 0 TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      consensus - plan - synthesis       13 120C   1269.1 -127.84 0 TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        discuss - plan - synthesis        9 030C   1004.6 -120.50 0 TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     consensus - discuss - emotion      238 120C   1350.9 -120.09 0 TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    cohesion - consensus - discuss      125 120C   1238.4 -109.62 0 TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     consensus - coregulate - plan      301 120C   1391.6 -106.69 0 TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       coregulate - emotion - plan       64 030T   1126.1  -90.82 0 TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      cohesion - emotion - monitor       17 030C    552.4  -90.01 0 TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    adapt - consensus - coregulate       16 030C    763.5  -87.52 0 TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     consensus - discuss - monitor      127 120C   1184.0  -85.99 0 TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         cohesion - discuss - plan       18 030C   1201.9  -85.92 0 TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          discuss - monitor - plan       62 030T   1123.2  -84.44 0 TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  consensus - coregulate - emotion      165 030C   1165.5  -83.42 0 TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  consensus - coregulate - discuss      330 120C   1246.1  -83.29 0 TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    cohesion - consensus - emotion      261 120C   1109.7  -75.94 0 TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                              triad      node1      node2      node3 observed</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      consensus - coregulate - plan  consensus coregulate       plan      172</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     cohesion - consensus - emotion   cohesion  consensus    emotion       57</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    consensus - discuss - synthesis  consensus    discuss  synthesis       82</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        adapt - discuss - synthesis      adapt    discuss  synthesis       11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        cohesion - consensus - plan   cohesion  consensus       plan       31</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    consensus - discuss - synthesis  consensus    discuss  synthesis       26</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  cohesion - consensus - coregulate   cohesion  consensus coregulate       26</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     cohesion - consensus - emotion   cohesion  consensus    emotion       98</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   consensus - coregulate - emotion  consensus coregulate    emotion       74</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         consensus - emotion - plan  consensus    emotion       plan      171</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         consensus - emotion - plan  consensus    emotion       plan      123</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   consensus - coregulate - discuss  consensus coregulate    discuss      129</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        adapt - consensus - discuss      adapt  consensus    discuss       46</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     cohesion - consensus - emotion   cohesion  consensus    emotion       22</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   consensus - coregulate - discuss  consensus coregulate    discuss       70</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    consensus - discuss - synthesis  consensus    discuss  synthesis       59</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    cohesion - coregulate - emotion   cohesion coregulate    emotion       34</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     cohesion - consensus - emotion   cohesion  consensus    emotion       60</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      consensus - discuss - monitor  consensus    discuss    monitor       50</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     coregulate - discuss - emotion coregulate    discuss    emotion       18</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  type expected     z          p   sig</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  120C     71.0 17.55 0.09090909 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  030T     12.7 17.44 0.09090909 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  120C     17.1 16.17 0.09090909 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  030T      0.9 13.69 0.09090909 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  120D      5.5 13.02 0.09090909 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  030T      4.5 11.68 0.09090909 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  030T      8.4 10.28 0.09090909 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  120C     33.8 10.18 0.09090909 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  030C     37.6  9.49 0.09090909 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  120C     95.8  9.24 0.09090909 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   210     67.6  8.37 0.09090909 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  120C     52.5  8.27 0.09090909 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  120C     12.8  8.04 0.09090909 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  120U      5.9  7.37 0.09090909 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   210     30.3  7.27 0.09090909 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  030C     18.3  6.58 0.09090909 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  030C     12.0  6.35 0.09090909 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  030C     33.0  6.11 0.09090909 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  120C     27.9  5.98 0.09090909 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  030T      8.8  5.94 0.09090909 FALSE</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

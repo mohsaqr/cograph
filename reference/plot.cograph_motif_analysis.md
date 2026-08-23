@@ -49,7 +49,7 @@ plot(
 
   `"significance"`
 
-  :   Z-score plot showing over- and under-represented types. Requires
+  :   Z-score plot with one bar per node-triple and MAN type. Requires
       `significance = TRUE` in
       [`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md).
 

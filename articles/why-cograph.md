@@ -655,25 +655,25 @@ motif_census(mat, n_random = 100)
 #> Network Motif Analysis
 #> Size: 3-node motifs (directed) | Null: configuration (n=100)
 #> 
-#>  motif count null_mean   null_sd    z_score      p_value significant
-#>    003     0      0.00 0.0000000  0.0000000 1.000000e+00       FALSE
-#>    012     0      0.00 0.0000000  0.0000000 1.000000e+00       FALSE
-#>    102     0      0.09 0.2876235 -0.3129091 7.543497e-01       FALSE
-#>   021D     0      0.00 0.0000000  0.0000000 1.000000e+00       FALSE
-#>   021U     0      0.65 0.7833495 -0.8297702 4.066687e-01       FALSE
-#>   021C     0      1.15 0.7961397 -1.4444702 1.486068e-01       FALSE
-#>   111D     0      0.17 0.3775252 -0.4503011 6.524933e-01       FALSE
-#>   111U     0      0.37 0.6301355 -0.5871753 5.570860e-01       FALSE
-#>   030T     0      0.32 0.4688262 -0.6825558 4.948876e-01       FALSE
-#>   030C     0      1.12 0.9241977 -1.2118619 2.255652e-01       FALSE
-#>    201     0      0.95 1.2339884 -0.7698614 4.413821e-01       FALSE
-#>   120D     0      0.62 0.7075352 -0.8762815 3.808770e-01       FALSE
-#>   120U     1      1.86 1.4214802 -0.6050031 5.451769e-01       FALSE
-#>   120C     0      0.34 0.4760952 -0.7141428 4.751389e-01       FALSE
-#>    210     4      1.40 1.0636320  2.4444544 1.450714e-02        TRUE
-#>    300     5      0.22 0.4836728  9.8827138 4.947459e-23        TRUE
+#>  motif count null_mean null_sd z_score p_value significant
+#>    003     0         0       0       0       1       FALSE
+#>    012     0         0       0       0       1       FALSE
+#>    102     0         0       0       0       1       FALSE
+#>   021D     0         0       0       0       1       FALSE
+#>   021U     0         0       0       0       1       FALSE
+#>   021C     0         0       0       0       1       FALSE
+#>   111D     0         0       0       0       1       FALSE
+#>   111U     0         0       0       0       1       FALSE
+#>   030T     0         0       0       0       1       FALSE
+#>   030C     0         0       0       0       1       FALSE
+#>    201     0         0       0       0       1       FALSE
+#>   120D     0         0       0       0       1       FALSE
+#>   120U     0         0       0       0       1       FALSE
+#>   120C     1         1       0       0       1       FALSE
+#>    210     4         4       0       0       1       FALSE
+#>    300     5         5       0       0       1       FALSE
 #> 
-#> Over-represented: 2 | Under-represented: 0
+#> Over-represented: 0 | Under-represented: 0
 ```
 
 ## Working with probabilistic networks

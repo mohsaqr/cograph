@@ -42,5 +42,5 @@ if (requireNamespace("igraph", quietly = TRUE)) {
   g <- igraph::sample_smallworld(1, 20, 3, 0.1)
   network_small_world(g)  # Should be > 1
 }
-#> [1] 1.21524
+#> [1] 1.264929
 ```

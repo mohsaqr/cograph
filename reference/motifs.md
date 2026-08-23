@@ -128,7 +128,8 @@ plot(
 
 - n_perm:
 
-  Number of permutations for significance. Default 1000.
+  Number of permutations for significance. When `significance = TRUE`,
+  must be a whole number of at least 2. Default 1000.
 
 - min_count:
 
@@ -281,8 +282,8 @@ A `cograph_motif_result` object (a list) with:
   per MAN type with columns `type`, `count`, and when
   `significance = TRUE` also `expected`, `z`, `p`, `sig`. Instance mode
   (`named_nodes = TRUE`): one row per concrete node triple with columns
-  `triad`, `type`, `observed`, and when `significance = TRUE` also
-  `expected`, `z`, `p`, `sig`.
+  `triad`, `node1`, `node2`, `node3`, `type`, `observed`, and when
+  `significance = TRUE` also `expected`, `z`, `p`, `sig`.
 
 - type_summary:
 
@@ -327,6 +328,16 @@ Detects input type and analysis level automatically. For inputs with
 individual/group data (tna objects, cograph networks from edge lists
 with metadata), performs per-group analysis. For aggregate inputs
 (matrices, igraph), analyzes the single network.
+
+For aggregate inputs, significance delegates to
+[`motif_census()`](https://sonsoles.me/cograph/reference/motif_census.md)
+and its loop-free simple-graph rewiring null. Individual weighted inputs
+use a directed stub-matching null: positive edge weights are converted
+to at least one integer stub, target stubs are shuffled while preserving
+each unit's integerized in/out margins, and the resulting multigraph
+(which may contain loops or parallel edges) is evaluated through its
+simple loopless triad projection. Observed self-loops are excluded
+before both counting and null construction.
 
 ## See also
 
@@ -374,9 +385,9 @@ motifs(mat, n_perm = 10L, seed = 1)
 #>    2    2 
 #> 
 #> Top 2 results:
-#>  type count expected     z      p   sig
-#>  030C     2      0.2 -0.47 0.6353 FALSE
-#>  030T     2      0.0  0.00 1.0000 FALSE
+#>  type count expected    z         p   sig
+#>  030C     2      0.8 1.16 0.4545455 FALSE
+#>  030T     2      0.8 1.16 0.4545455 FALSE
 
 # \donttest{
 Mod <- tna::tna(tna::group_regulation)
@@ -387,17 +398,17 @@ motifs(Mod, n_perm = 10L, seed = 1)
 #> 
 #> Type distribution:
 #> 120C 030C 030T  210 120U 120D  300 
-#> 1482 1054  620  581  190  178   79 
+#> 1481 1044  620  581  190  178   79 
 #> 
 #> Top 7 results:
-#>  type count expected     z      p   sig
-#>   210   581    766.2 -9.78 0.0000  TRUE
-#>  030T   620    436.3  7.49 0.0000  TRUE
-#>   300    79    166.2 -5.81 0.0000  TRUE
-#>  120C  1482   1343.0  3.26 0.0011  TRUE
-#>  030C  1054   1073.1 -0.90 0.3681 FALSE
-#>  120U   190    180.3  0.90 0.3681 FALSE
-#>  120D   178    171.8  0.52 0.6031 FALSE
+#>  type count expected     z          p   sig
+#>  120C  1481   1030.4 24.21 0.09090909 FALSE
+#>  030T   620    419.1  7.02 0.09090909 FALSE
+#>  120U   190    139.4  5.31 0.09090909 FALSE
+#>   210   581    473.7  3.67 0.09090909 FALSE
+#>  120D   178    140.5  2.41 0.09090909 FALSE
+#>  030C  1044   1091.9 -1.47 0.27272727 FALSE
+#>   300    79     80.9 -0.38 0.90909091 FALSE
 subgraphs(Mod, n_perm = 10L, seed = 1)
 #> Showing triangle patterns (count >= 5). For all MAN types use pattern = 'all'.
 #> Motif Subgraphs 
@@ -407,30 +418,51 @@ subgraphs(Mod, n_perm = 10L, seed = 1)
 #> 
 #> Type distribution:
 #> 
-#> 030C 120C 030T  210 
-#>   31   15    7    1 
+#> 030C 030T 120C  210 120D 120U  300 
+#>   42   34   33   18   13    9    6 
 #> 
 #> Top 20 results:
-#>                             triad observed type expected       z p  sig
-#>       cohesion - consensus - plan      151 120C   1384.0 -255.26 0 TRUE
-#>        consensus - discuss - plan      278  210   1496.7 -224.13 0 TRUE
-#>       coregulate - discuss - plan       61 030C   1218.6 -182.93 0 TRUE
-#>          discuss - emotion - plan       76 030T   1313.3 -159.13 0 TRUE
-#>        consensus - emotion - plan      436 120C   1439.8 -141.08 0 TRUE
-#>        consensus - monitor - plan      187 120C   1334.9 -130.45 0 TRUE
-#>      consensus - plan - synthesis       13 120C   1269.1 -127.84 0 TRUE
-#>        discuss - plan - synthesis        9 030C   1004.6 -120.50 0 TRUE
-#>     consensus - discuss - emotion      238 120C   1350.9 -120.09 0 TRUE
-#>    cohesion - consensus - discuss      125 120C   1238.4 -109.62 0 TRUE
-#>     consensus - coregulate - plan      301 120C   1391.6 -106.69 0 TRUE
-#>       coregulate - emotion - plan       64 030T   1126.1  -90.82 0 TRUE
-#>      cohesion - emotion - monitor       17 030C    552.4  -90.01 0 TRUE
-#>    adapt - consensus - coregulate       16 030C    763.5  -87.52 0 TRUE
-#>     consensus - discuss - monitor      127 120C   1184.0  -85.99 0 TRUE
-#>         cohesion - discuss - plan       18 030C   1201.9  -85.92 0 TRUE
-#>          discuss - monitor - plan       62 030T   1123.2  -84.44 0 TRUE
-#>  consensus - coregulate - emotion      165 030C   1165.5  -83.42 0 TRUE
-#>  consensus - coregulate - discuss      330 120C   1246.1  -83.29 0 TRUE
-#>    cohesion - consensus - emotion      261 120C   1109.7  -75.94 0 TRUE
+#>                              triad      node1      node2      node3 observed
+#>      consensus - coregulate - plan  consensus coregulate       plan      172
+#>     cohesion - consensus - emotion   cohesion  consensus    emotion       57
+#>    consensus - discuss - synthesis  consensus    discuss  synthesis       82
+#>        adapt - discuss - synthesis      adapt    discuss  synthesis       11
+#>        cohesion - consensus - plan   cohesion  consensus       plan       31
+#>    consensus - discuss - synthesis  consensus    discuss  synthesis       26
+#>  cohesion - consensus - coregulate   cohesion  consensus coregulate       26
+#>     cohesion - consensus - emotion   cohesion  consensus    emotion       98
+#>   consensus - coregulate - emotion  consensus coregulate    emotion       74
+#>         consensus - emotion - plan  consensus    emotion       plan      171
+#>         consensus - emotion - plan  consensus    emotion       plan      123
+#>   consensus - coregulate - discuss  consensus coregulate    discuss      129
+#>        adapt - consensus - discuss      adapt  consensus    discuss       46
+#>     cohesion - consensus - emotion   cohesion  consensus    emotion       22
+#>   consensus - coregulate - discuss  consensus coregulate    discuss       70
+#>    consensus - discuss - synthesis  consensus    discuss  synthesis       59
+#>    cohesion - coregulate - emotion   cohesion coregulate    emotion       34
+#>     cohesion - consensus - emotion   cohesion  consensus    emotion       60
+#>      consensus - discuss - monitor  consensus    discuss    monitor       50
+#>     coregulate - discuss - emotion coregulate    discuss    emotion       18
+#>  type expected     z          p   sig
+#>  120C     71.0 17.55 0.09090909 FALSE
+#>  030T     12.7 17.44 0.09090909 FALSE
+#>  120C     17.1 16.17 0.09090909 FALSE
+#>  030T      0.9 13.69 0.09090909 FALSE
+#>  120D      5.5 13.02 0.09090909 FALSE
+#>  030T      4.5 11.68 0.09090909 FALSE
+#>  030T      8.4 10.28 0.09090909 FALSE
+#>  120C     33.8 10.18 0.09090909 FALSE
+#>  030C     37.6  9.49 0.09090909 FALSE
+#>  120C     95.8  9.24 0.09090909 FALSE
+#>   210     67.6  8.37 0.09090909 FALSE
+#>  120C     52.5  8.27 0.09090909 FALSE
+#>  120C     12.8  8.04 0.09090909 FALSE
+#>  120U      5.9  7.37 0.09090909 FALSE
+#>   210     30.3  7.27 0.09090909 FALSE
+#>  030C     18.3  6.58 0.09090909 FALSE
+#>  030C     12.0  6.35 0.09090909 FALSE
+#>  030C     33.0  6.11 0.09090909 FALSE
+#>  120C     27.9  5.98 0.09090909 FALSE
+#>  030T      8.8  5.94 0.09090909 FALSE
 # }
 ```

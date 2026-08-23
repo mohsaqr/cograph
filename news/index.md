@@ -1,8 +1,16 @@
 # Changelog
 
-## cograph 2.4.5
+## cograph 2.4.6
 
 ### New features
+
+- [`splot()`](https://sonsoles.me/cograph/reference/splot.md) on a
+  `netobject` with `method = "entropy"` (Nestimate’s
+  [`entropy_network()`](https://saqr.me/Nestimate/reference/entropy_network.html))
+  now receives TNA styling — oval layout, TNA palette,
+  initial-probability donuts — instead of falling through to psych
+  styling, so the entropy re-weighting of a transition network renders
+  comparably with its source.
 
 - [`splot()`](https://sonsoles.me/cograph/reference/splot.md) now
   accepts `label_abbrev`, matching `mcml`: use an integer for a fixed
@@ -25,6 +33,148 @@
   “Producer-Supplied splot Metadata”.
 
 ### Bug fixes / changes
+
+- **Motif subsystem overhaul** following an adversarial review (13
+  findings, each verified against igraph before fixing):
+
+  - **[`motif_census()`](https://sonsoles.me/cograph/reference/motif_census.md)
+    mislabeled 13 of the 16 directed triad classes**: it attached
+    MAN-order names to
+    [`igraph::motifs()`](https://r.igraph.org/reference/motifs.html)
+    output, which is in igraph’s isomorphism-class order (a pure 021U
+    triad was reported as `102`). The directed 3-node census now uses
+    [`igraph::triad_census()`](https://r.igraph.org/reference/triad_census.html),
+    whose ordering *is* MAN order. Counts were internally consistent —
+    z-scores compared like with like — but carried the wrong names.
+    [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md),
+    [`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md)
+    and
+    [`triad_census()`](https://sonsoles.me/cograph/reference/triad_census.md)
+    were never affected.
+  - The undirected census gains the missing one-edge class
+    (`empty`/`edge`/`wedge`/`triangle`), and self-loops are stripped
+    before counting (they are not part of any 3-node class).
+  - The `"configuration"` null model now uses exact degree-preserving
+    edge rewiring. The old stub-matching +
+    [`simplify()`](https://sonsoles.me/cograph/reference/simplify.md)
+    silently changed degrees, and the undirected `"vl"` sampler errored
+    on graphs with isolates and restricted the ensemble to connected
+    graphs (two disconnected triangles got `sd = 0, z = 0, p = 1` for an
+    observation the null could never produce).
+  - All motif p-values are now **empirical permutation p-values**
+    (add-one corrected) instead of Gaussian approximations, and a
+    degenerate null (sd = 0) yields `z = NA` when the observation
+    differs from it — never a silent `z = 0`. Zero-variance handling was
+    previously inconsistent across the three engines (forced 0 / sd := 1
+    / sd := 0.1). `n_random` / `n_perm` below 2 is now an error.
+  - `motifs(pattern = "all")` now actually includes the `003` class; a
+    full census sums to `choose(n, 3)` and matches
+    [`igraph::triad_census()`](https://r.igraph.org/reference/triad_census.html)
+    class by class.
+  - Instance-mode significance
+    ([`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md))
+    now tests the null probability that a triple instantiates **the
+    row’s own MAN type**; the old null counted “any of the six edges
+    exists” (for ten subjects each with a 3-cycle, expected was 8.33
+    instead of the correct 3.33).
+  - Instance mode reports one row per (triple, MAN type) instead of
+    collapsing to a dominant type, so per-type totals now agree with
+    census mode on identical data.
+  - Instance-mode significance on aggregate input (a single matrix) now
+    warns and reports `params$significance = FALSE` instead of silently
+    returning results without the promised `z`/`p` columns.
+  - Census significance on a symmetric directed matrix now runs a
+    directed null (previously the undirected `empty`/`wedge`/`triangle`
+    names never matched a MAN row, yielding all-NA statistics).
+  - `extract_motifs(level = "aggregate")` now actually pools the
+    per-individual transition matrices (previously only metadata
+    changed), and `min_transitions` applies per-triad at aggregate level
+    as documented.
+  - `motif_census(x, directed = ...)` conflicting with an igraph input’s
+    own directedness is now an error instead of relabeling without
+    converting.
+  - `edge_method = "percent"` thresholds above 1 are percentages and the
+    comparison is `>=` as documented (the old `> total * 1.5` default
+    could never classify anything); fractional edge weights are rounded,
+    not truncated, when building permutation stubs.
+  - `plot.cograph_motifs(type = "network")` forwards `...` to the
+    per-motif igraph plots as documented, and pattern-panel significance
+    decoration is suppressed for legacy per-triple results where a
+    per-type lookup would be ambiguous.
+  - A Monte Carlo equivalence suite now validates the whole subsystem on
+    1000 generated datasets per run — 18 topologies (random, scale-free,
+    small-world, rings, stars, tournaments, DAGs, bipartite blocks,
+    disconnected, isolates, empty), 3-60 nodes, directed / weighted /
+    undirected / multi-actor inputs — against
+    [`igraph::triad_census()`](https://r.igraph.org/reference/triad_census.html),
+    brute-force triple enumeration, and per-actor reference censuses.
+  - The legacy
+    [`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md)
+    individual-level path now retains one row per
+    `(node triple, MAN type)` and tests that exact type under the same
+    weighted stub-matching null as individual-level
+    [`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md).
+    It no longer collapses mixed-type triples to a dominant label or
+    counts any permuted type as a match.
+  - Fractional transition data now produce balanced integer in/out
+    stubs; low-activity units (including one-transition and empty units
+    when allowed) participate correctly in instance nulls, and
+    one-element stub vectors are shuffled without R’s `sample(x)`
+    length-one ambiguity. Unit eligibility is frozen from the original
+    loopless weighted activity, and every positive edge retains support
+    during integerization.
+  - `sig`, printing, and motif plot colors now consistently follow the
+    empirical permutation decision (`p < .05`) instead of mixing it with
+    `|z| > 1.96` or `|z| > 2` cutoffs. Parallel edges are simplified
+    before
+    [`motif_census()`](https://sonsoles.me/cograph/reference/motif_census.md)
+    so observed and null graphs use the same simple-graph projection.
+  - Instance results now include structured `node1` / `node2` / `node3`
+    columns in addition to the existing `triad` display label, so node
+    names containing `" - "` remain unambiguous in statistics and plots.
+  - Directed size-4 motif rows now use one consistent `M1`–`M218` naming
+    sequence covering all igraph isomorphism slots (199 are connected),
+    and `directed=` conflicts are rejected consistently for both igraph
+    and cograph-network inputs.
+  - Degenerate-null rows (`z = NA` with the smallest possible empirical
+    p, emitted when the observation lies outside a zero-variance null)
+    are now treated as the strongest findings everywhere: they rank
+    first in sorted results, survive `top = n` cuts instead of being
+    silently truncated, and the significance plots report them with a
+    message instead of silently dropping them (a z bar cannot be drawn
+    for them).
+  - `plot(x, type = "triads")` no longer errors on fractional weighted
+    counts (e.g. probability matrices at aggregate level); whole numbers
+    keep the plain `n=3` caption.
+  - Weight validation for permutation nulls applies only to
+    null-eligible units, so a malformed cell in a unit excluded by
+    `min_transitions` no longer aborts the whole significance run
+    (malformed cells in eligible units still error loudly).
+
+- [`plot_transitions()`](https://sonsoles.me/cograph/reference/plot_transitions.md)
+  with a multi-column data frame (the consecutive multi-step branch) no
+  longer silently drops styling arguments: `value_min`, `label_color`,
+  `label_fontface`, `label_nudge`, `title_color`, `title_fontface`,
+  `value_halo`, `value_fontface`, `value_nudge`, and `total_fontface`
+  are now forwarded, so both multi-step input forms (list of matrices,
+  data frame) respond to the same arguments identically.
+
+- Motif pattern plots (`plot(motifs(x), type = "network")`, triad glyph
+  panels) drew the wrong structure for five of the sixteen MAN triad
+  classes: the `021D` and `021U` glyphs were swapped (transposed
+  matrices), the `120D` and `120U` glyphs both drew a `120C`-isomorphic
+  triad, and the `210` glyph drew a `120`-class triad — so the `120U`
+  and `210` structures were never drawn at all. Only the drawn glyphs
+  were wrong: motif *counts*, significance tests, and
+  [`triad_census()`](https://sonsoles.me/cograph/reference/triad_census.md)
+  were always computed from a separate, correct canonical pattern set
+  (verified against
+  [`igraph::triad_census()`](https://r.igraph.org/reference/triad_census.html)).
+  All sixteen visual patterns are now verified against igraph by a
+  regression test that also pins the visual and canonical sets to each
+  other. Thanks to Mengli Zhang for reporting (reconstructing the
+  structures from the package source and spotting that three “distinct”
+  glyphs were isomorphic).
 
 - [`plot_bootstrap_forest()`](https://sonsoles.me/cograph/reference/plot_bootstrap_forest.md),
   [`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md),

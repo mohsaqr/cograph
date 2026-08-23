@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,7 +41,7 @@
 <li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
     <li><a class="dropdown-item" href="../articles/centrality-catalogue.html">Centrality catalogue</a></li>
     <li><a class="dropdown-item" href="../articles/why-cograph.html">Why cograph?</a></li>
-    <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">Plotting TNA Models with splot</a></li>
+    <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">TNA Plotting Gallery and Visual Smoke Test</a></li>
     <li><a class="dropdown-item" href="../articles/mcml-examples.html">Advanced examples</a></li>
     <li><a class="dropdown-item" href="../articles/qgraph-to-splot.html">Migrating from qgraph to splot</a></li>
     <li><a class="dropdown-item" href="../articles/bootstrap-forest.html">Bootstrap Forest Plots</a></li>
@@ -653,25 +653,25 @@ model:</p>
 <span><span class="co">#&gt; Network Motif Analysis</span></span>
 <span><span class="co">#&gt; Size: 3-node motifs (directed) | Null: configuration (n=100)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;  motif count null_mean   null_sd    z_score      p_value significant</span></span>
-<span><span class="co">#&gt;    003     0      0.00 0.0000000  0.0000000 1.000000e+00       FALSE</span></span>
-<span><span class="co">#&gt;    012     0      0.00 0.0000000  0.0000000 1.000000e+00       FALSE</span></span>
-<span><span class="co">#&gt;    102     0      0.09 0.2876235 -0.3129091 7.543497e-01       FALSE</span></span>
-<span><span class="co">#&gt;   021D     0      0.00 0.0000000  0.0000000 1.000000e+00       FALSE</span></span>
-<span><span class="co">#&gt;   021U     0      0.65 0.7833495 -0.8297702 4.066687e-01       FALSE</span></span>
-<span><span class="co">#&gt;   021C     0      1.15 0.7961397 -1.4444702 1.486068e-01       FALSE</span></span>
-<span><span class="co">#&gt;   111D     0      0.17 0.3775252 -0.4503011 6.524933e-01       FALSE</span></span>
-<span><span class="co">#&gt;   111U     0      0.37 0.6301355 -0.5871753 5.570860e-01       FALSE</span></span>
-<span><span class="co">#&gt;   030T     0      0.32 0.4688262 -0.6825558 4.948876e-01       FALSE</span></span>
-<span><span class="co">#&gt;   030C     0      1.12 0.9241977 -1.2118619 2.255652e-01       FALSE</span></span>
-<span><span class="co">#&gt;    201     0      0.95 1.2339884 -0.7698614 4.413821e-01       FALSE</span></span>
-<span><span class="co">#&gt;   120D     0      0.62 0.7075352 -0.8762815 3.808770e-01       FALSE</span></span>
-<span><span class="co">#&gt;   120U     1      1.86 1.4214802 -0.6050031 5.451769e-01       FALSE</span></span>
-<span><span class="co">#&gt;   120C     0      0.34 0.4760952 -0.7141428 4.751389e-01       FALSE</span></span>
-<span><span class="co">#&gt;    210     4      1.40 1.0636320  2.4444544 1.450714e-02        TRUE</span></span>
-<span><span class="co">#&gt;    300     5      0.22 0.4836728  9.8827138 4.947459e-23        TRUE</span></span>
+<span><span class="co">#&gt;  motif count null_mean null_sd z_score p_value significant</span></span>
+<span><span class="co">#&gt;    003     0         0       0       0       1       FALSE</span></span>
+<span><span class="co">#&gt;    012     0         0       0       0       1       FALSE</span></span>
+<span><span class="co">#&gt;    102     0         0       0       0       1       FALSE</span></span>
+<span><span class="co">#&gt;   021D     0         0       0       0       1       FALSE</span></span>
+<span><span class="co">#&gt;   021U     0         0       0       0       1       FALSE</span></span>
+<span><span class="co">#&gt;   021C     0         0       0       0       1       FALSE</span></span>
+<span><span class="co">#&gt;   111D     0         0       0       0       1       FALSE</span></span>
+<span><span class="co">#&gt;   111U     0         0       0       0       1       FALSE</span></span>
+<span><span class="co">#&gt;   030T     0         0       0       0       1       FALSE</span></span>
+<span><span class="co">#&gt;   030C     0         0       0       0       1       FALSE</span></span>
+<span><span class="co">#&gt;    201     0         0       0       0       1       FALSE</span></span>
+<span><span class="co">#&gt;   120D     0         0       0       0       1       FALSE</span></span>
+<span><span class="co">#&gt;   120U     0         0       0       0       1       FALSE</span></span>
+<span><span class="co">#&gt;   120C     1         1       0       0       1       FALSE</span></span>
+<span><span class="co">#&gt;    210     4         4       0       0       1       FALSE</span></span>
+<span><span class="co">#&gt;    300     5         5       0       0       1       FALSE</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Over-represented: 2 | Under-represented: 0</span></span></code></pre></div>
+<span><span class="co">#&gt; Over-represented: 0 | Under-represented: 0</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">

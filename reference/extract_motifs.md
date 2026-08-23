@@ -144,7 +144,9 @@ print(x, n = 20, ...)
 
 - n_perm:
 
-  Number of permutations for significance test. Default 100.
+  Number of permutations for the significance test. When
+  `significance = TRUE`, must be a whole number of at least 2. Default
+  100.
 
 - seed:
 
@@ -164,16 +166,31 @@ A `cograph_motif_analysis` object (list) containing:
 
 - results:
 
-  Data frame with triad, type, observed count, and (if
-  significance=TRUE) expected, z-score, p-value
+  Data frame with one row per node-triple and MAN type, the display
+  label `triad`, unambiguous `node1`/`node2`/ `node3` columns, its
+  observed count, and (if `significance = TRUE`) expected count,
+  z-score, empirical p-value, and significance marker. A node triple
+  that has different types across individuals therefore appears in more
+  than one row.
 
 - type_summary:
 
-  Summary counts by motif type
+  Summary counts by motif type across individuals.
 
 - params:
 
   List of parameters used
+
+## Details
+
+Individual significance uses the same directed weighted stub-matching
+null as individual-level
+[`motifs()`](https://sonsoles.me/cograph/reference/motifs.md): positive
+weights retain at least one integer stub, shuffled targets preserve the
+integerized in/out margins, and generated loops/parallel edges are
+reduced to a simple loopless projection for triad classification.
+Observed self-loops are excluded before activity gating, counting, and
+null construction.
 
 ## MAN Notation
 
@@ -244,10 +261,10 @@ print(m)
 #> 
 #> Top 4 triads:
 #>                       triad type observed
-#> 1 Execute - Monitor - Adapt 030T        1
-#> 2    Plan - Execute - Adapt 030C        1
-#> 3  Plan - Execute - Monitor 030T        1
-#> 4    Plan - Monitor - Adapt 030C        1
+#> 1    Plan - Execute - Adapt 030C        1
+#> 2    Plan - Monitor - Adapt 030C        1
+#> 3 Execute - Monitor - Adapt 030T        1
+#> 4  Plan - Execute - Monitor 030T        1
 
 # \donttest{
 Mod <- tna::tna(tna::group_regulation)
@@ -260,20 +277,20 @@ extract_motifs(Mod, top = 10, significance = TRUE, n_perm = 10L, seed = 1)
 #> Type distribution:
 #> 
 #> 120C 030C 030T  210 120U 120D  300 
-#> 1482 1054  620  581  190  178   79 
+#> 1481 1044  620  581  190  178   79 
 #> 
 #> Top 10 triads:
 #>                               triad type observed expected     z sig
-#> 1   consensus - discuss - synthesis 120C      176     55.0 22.78 ***
-#> 2       adapt - discuss - synthesis 030T       24      5.4 15.85 ***
-#> 3    cohesion - consensus - emotion 120C      261    108.3 14.11 ***
-#> 4  consensus - coregulate - discuss 120C      330    171.5 13.25 ***
-#> 5        consensus - emotion - plan 120C      436    343.3 11.57 ***
-#> 6       adapt - consensus - discuss 120C       88     40.8  9.11 ***
-#> 7  consensus - coregulate - emotion 030C      165    117.1  6.99 ***
-#> 8     consensus - coregulate - plan 120C      301    237.8  5.89 ***
-#> 9         cohesion - emotion - plan 030C      122     87.5  5.76 ***
-#> 10  cohesion - coregulate - emotion 030C       52     26.3  5.27 ***
+#> 1         adapt - discuss - monitor 120D        2      0.0    NA    
+#> 2       adapt - discuss - synthesis 120U        1      0.0    NA    
+#> 3    cohesion - consensus - emotion 030T       57     11.0 24.40    
+#> 4   consensus - discuss - synthesis 120C       82     19.6 15.69    
+#> 5     consensus - coregulate - plan 120C      172     71.5 15.62    
+#> 6       adapt - discuss - synthesis 030T       11      0.8 12.93    
+#> 7       adapt - discuss - synthesis 120C        7      0.6 12.39    
+#> 8    cohesion - consensus - emotion 120C       98     32.6 12.07    
+#> 9   consensus - discuss - synthesis 030C       59     17.6 10.71    
+#> 10 consensus - coregulate - emotion 030C       74     35.3 10.34    
 # Filter to feed-forward loops only
 extract_motifs(Mod, include_types = "030T", significance = FALSE)
 #> Motif Analysis
@@ -301,8 +318,8 @@ extract_motifs(Mod, include_types = "030T", significance = FALSE)
 #> 13      cohesion - discuss - emotion 030T       19
 #> 14    coregulate - discuss - emotion 030T       18
 #> 15       adapt - consensus - discuss 030T       17
-#> 16         cohesion - emotion - plan 030T       17
-#> 17       coregulate - discuss - plan 030T       17
+#> 16       coregulate - discuss - plan 030T       17
+#> 17         cohesion - emotion - plan 030T       17
 #> 18     consensus - discuss - monitor 030T       14
 #> 19        consensus - monitor - plan 030T       13
 #> 20  consensus - coregulate - emotion 030T       12

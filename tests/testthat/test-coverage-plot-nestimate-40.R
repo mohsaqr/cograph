@@ -158,6 +158,17 @@ test_that("netobject: undirected dispatch via splot()", {
   expect_no_error(with_temp_png(splot(net)))
 })
 
+test_that("netobject: method 'entropy' routes to TNA styling, not psych", {
+  net <- create_mock_netobject(directed = TRUE)
+  net$method <- "entropy"
+  expect_no_error(with_temp_png(splot.netobject(net)))
+  # psych_styling must not be auto-enabled for the entropy re-weighting of a
+  # TNA network; tna_styling is (both explicit here to pin the routing).
+  expect_no_error(with_temp_png(
+    splot.netobject(net, tna_styling = TRUE, psych_styling = FALSE)
+  ))
+})
+
 test_that("netobject: label fallback to rownames when nodes$label is NULL", {
   net <- create_mock_netobject(directed = TRUE)
   net$nodes$label <- NULL   # force fallback to rownames(x$weights)

@@ -103,13 +103,17 @@ test_that(".count_triads_matrix_vectorized returns NULL with extreme threshold",
   mat <- create_test_mat(4, seed = 55)
   rownames(mat) <- colnames(mat) <- LETTERS[1:4]
 
-  # Very high percent threshold should filter out all edges
+  # A 99% fractional threshold strips every edge, so with no filters each
+  # triple classifies as 003; with 003 excluded, nothing survives.
   result <- .count_triads_matrix_vectorized(
     mat, edge_method = "percent", edge_threshold = 0.99
   )
-  # Either NULL or empty — both are valid
+  expect_true(all(result$type == "003"))
 
-  expect_true(is.null(result) || nrow(result) == 0)
+  result_ex <- .count_triads_matrix_vectorized(
+    mat, edge_method = "percent", edge_threshold = 0.99, exclude = "003"
+  )
+  expect_true(is.null(result_ex) || nrow(result_ex) == 0)
 })
 
 test_that(".count_triads_matrix_vectorized returns NULL when all types excluded", {

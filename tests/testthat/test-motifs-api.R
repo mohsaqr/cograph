@@ -699,13 +699,21 @@ test_that("min_count filters at aggregate level (inclusive >=) with default sig"
   expect_true(nrow(unfiltered$results) > 0)
   expect_true(any(unfiltered$results$observed > 1))
 
-  filtered <- motifs(mat, named_nodes = TRUE, min_count = 10,
-                     pattern = "all")
+  # default significance = TRUE on aggregate input now warns (it cannot run
+  # without individual-level units) — that honesty warning is expected here
+  expect_warning(
+    filtered <- motifs(mat, named_nodes = TRUE, min_count = 10,
+                       pattern = "all"),
+    "individual-level"
+  )
   expect_true(all(filtered$results$observed >= 10))
   expect_true(nrow(filtered$results) < nrow(unfiltered$results))
 
   expect_message(
-    motifs(mat, named_nodes = TRUE, min_count = 99999, pattern = "all"),
+    expect_warning(
+      motifs(mat, named_nodes = TRUE, min_count = 99999, pattern = "all"),
+      "individual-level"
+    ),
     "No motifs with count >= 99999"
   )
 })

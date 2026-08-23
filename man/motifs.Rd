@@ -85,7 +85,9 @@ Overrides \code{pattern}.}
 
 \item{significance}{Logical. Run permutation significance test? Default TRUE.}
 
-\item{n_perm}{Number of permutations for significance. Default 1000.}
+\item{n_perm}{Number of permutations for significance. When
+\code{significance = TRUE}, must be a whole number of at least 2.
+Default 1000.}
 
 \item{min_count}{Inclusive minimum count to keep a row — rows with
 \code{count >= min_count} are retained. In instance mode
@@ -190,7 +192,8 @@ A \code{cograph_motif_result} object (a list) with:
 \code{type}, \code{count}, and when \code{significance = TRUE} also
 \code{expected}, \code{z}, \code{p}, \code{sig}. Instance mode
 (\code{named_nodes = TRUE}): one row per concrete node triple with
-columns \code{triad}, \code{type}, \code{observed}, and when
+columns \code{triad}, \code{node1}, \code{node2}, \code{node3},
+\code{type}, \code{observed}, and when
 \code{significance = TRUE} also \code{expected}, \code{z}, \code{p},
 \code{sig}.}
 \item{type_summary}{Named \code{table} of MAN-type counts. In census
@@ -236,6 +239,15 @@ Detects input type and analysis level automatically. For inputs with
 individual/group data (tna objects, cograph networks from edge lists with
 metadata), performs per-group analysis. For aggregate inputs (matrices,
 igraph), analyzes the single network.
+
+For aggregate inputs, significance delegates to \code{\link[=motif_census]{motif_census()}}
+and its loop-free simple-graph rewiring null. Individual weighted inputs use
+a directed stub-matching null: positive edge weights are converted to at
+least one integer stub, target stubs are shuffled while preserving each
+unit's integerized in/out margins, and the resulting multigraph (which may
+contain loops or parallel edges) is evaluated through its simple loopless
+triad projection. Observed self-loops are excluded before both counting and
+null construction.
 }
 \examples{
 # Census from a matrix (no significance test -- fastest path)

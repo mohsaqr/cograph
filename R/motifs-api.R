@@ -17,6 +17,15 @@
 #' metadata), performs per-group analysis. For aggregate inputs (matrices,
 #' igraph), analyzes the single network.
 #'
+#' @details For aggregate inputs, significance delegates to [motif_census()]
+#' and its loop-free simple-graph rewiring null. Individual weighted inputs use
+#' a directed stub-matching null: positive edge weights are converted to at
+#' least one integer stub, target stubs are shuffled while preserving each
+#' unit's integerized in/out margins, and the resulting multigraph (which may
+#' contain loops or parallel edges) is evaluated through its simple loopless
+#' triad projection. Observed self-loops are excluded before both counting and
+#' null construction.
+#'
 #' @param x Input data: a tna object, cograph_network, matrix, igraph, or
 #'   data.frame (edge list).
 #' @param named_nodes Logical. If FALSE (default), performs census (type-level
@@ -46,7 +55,9 @@
 #' @param exclude Character vector of MAN types to exclude. Applied after
 #'   \code{pattern} filter.
 #' @param significance Logical. Run permutation significance test? Default TRUE.
-#' @param n_perm Number of permutations for significance. Default 1000.
+#' @param n_perm Number of permutations for significance. When
+#'   \code{significance = TRUE}, must be a whole number of at least 2.
+#'   Default 1000.
 #' @param min_count Inclusive minimum count to keep a row — rows with
 #'   \code{count >= min_count} are retained. In instance mode
 #'   (\code{named_nodes = TRUE}) this filters the \code{observed} column:
@@ -70,7 +81,8 @@
 #'       \code{type}, \code{count}, and when \code{significance = TRUE} also
 #'       \code{expected}, \code{z}, \code{p}, \code{sig}. Instance mode
 #'       (\code{named_nodes = TRUE}): one row per concrete node triple with
-#'       columns \code{triad}, \code{type}, \code{observed}, and when
+#'       columns \code{triad}, \code{node1}, \code{node2}, \code{node3},
+#'       \code{type}, \code{observed}, and when
 #'       \code{significance = TRUE} also \code{expected}, \code{z}, \code{p},
 #'       \code{sig}.}
 #'     \item{type_summary}{Named \code{table} of MAN-type counts. In census
@@ -138,6 +150,9 @@ motifs <- function(x,
   window_type <- match.arg(window_type)
   pattern <- match.arg(pattern)
   edge_method <- match.arg(edge_method)
+  if (significance) {
+    n_perm <- .validate_motif_repetitions(n_perm, "n_perm")
+  }
 
   if (!is.null(seed)) {
     saved_rng <- .save_rng()
@@ -286,10 +301,15 @@ motifs <- function(x,
 
   s <- length(labels)
 
+  # Self-loops are outside the induced triad universe. Remove them before
+  # activity gating, threshold calculations, and null-model construction so
+  # a loop can never be shuffled into an ordinary motif edge.
+  trans <- .motif_strip_loops(trans)
+
   if (!named_nodes) {
     # ---- CENSUS MODE: count MAN type frequencies per unit ----
     type_counts_per_unit <- lapply(seq_len(dim(trans)[1]), function(ind) {
-      mat <- trans[ind, , ]
+      mat <- .motif_unit_matrix(trans, ind)
       if (sum(mat) < min_transitions) return(NULL)
 
       expected_mat <- NULL
@@ -336,10 +356,19 @@ motifs <- function(x,
     # ---- CENSUS SIGNIFICANCE ----
     if (significance) {
       if (level == "aggregate") {
-        # Delegate to motif_census which uses igraph
+        # Delegate to motif_census which uses igraph. MAN census types are
+        # directed classes, so the null must be directed too — a symmetric
+        # matrix must not fall through to the undirected census, whose
+        # empty/edge/wedge/triangle names would never match a MAN row.
         agg_mat <- trans[1, , ]
         rownames(agg_mat) <- colnames(agg_mat) <- labels
-        mc <- motif_census(agg_mat, n_random = n_perm, seed = seed)
+        if (edge_method != "any") {
+          warning("Census significance tests the unthresholded network; ",
+                  "edge_method = \"", edge_method, "\" affects observed ",
+                  "counts only.", call. = FALSE)
+        }
+        mc <- motif_census(agg_mat, n_random = n_perm, seed = seed,
+                           directed = TRUE)
 
         results$expected <- NA_real_
         results$z <- NA_real_
@@ -353,11 +382,12 @@ motifs <- function(x,
           if (!is.na(mc_row)) {
             results$expected[ri] <- round(mc$null_mean[mc_row], 1)
             results$z[ri] <- round(mc$z_score[mc_row], 2)
-            results$p[ri] <- round(mc$p_value[mc_row], 4)
-            results$sig[ri] <- abs(mc$z_score[mc_row]) > 1.96
+            results$p[ri] <- mc$p_value[mc_row]
+            results$sig[ri] <- mc$significant[mc_row]
           }
         }
-        results <- results[order(abs(results$z), decreasing = TRUE), ]
+        results <- results[order(.motif_z_rank(results$z, results$p),
+                                 decreasing = TRUE), ]
         rownames(results) <- NULL
 
       } else {
@@ -365,18 +395,23 @@ motifs <- function(x,
         null_matrix <- matrix(0, nrow = nrow(results), ncol = n_perm)
 
         n_ind_c <- dim(trans)[1]
-        ind_totals_c <- integer(n_ind_c)
+        # Unit eligibility is defined by the original weighted activity. Do
+        # not recompute it from integerized stubs: rounding could otherwise
+        # admit an observed-excluded fractional unit into the null.
+        observed_activity_c <- vapply(seq_len(n_ind_c), function(ind) {
+          sum(.motif_unit_matrix(trans, ind))
+        }, numeric(1))
+        valid_c <- which(observed_activity_c >= min_transitions)
+        # Stub validation and construction cover only null-eligible units: a
+        # malformed cell in a unit the null never touches must not abort the
+        # whole run.
         rows_stubs_c <- vector("list", n_ind_c)
         cols_stubs_c <- vector("list", n_ind_c)
-        for (ind in seq_len(n_ind_c)) {
-          mat_c <- trans[ind, , ]
-          rs_c <- as.integer(rowSums(mat_c))
-          cs_c <- as.integer(colSums(mat_c))
-          ind_totals_c[ind] <- sum(rs_c)
-          rows_stubs_c[[ind]] <- rep(seq_len(s), times = rs_c)
-          cols_stubs_c[[ind]] <- rep(seq_len(s), times = cs_c)
+        for (ind in valid_c) {
+          stubs_c <- .motif_configuration_stubs(.motif_unit_matrix(trans, ind))
+          rows_stubs_c[[ind]] <- stubs_c$rows
+          cols_stubs_c[[ind]] <- stubs_c$cols
         }
-        valid_c <- which(ind_totals_c >= min_transitions)
         ss_c <- as.integer(s * s)
 
         for (perm in seq_len(n_perm)) {
@@ -385,7 +420,7 @@ motifs <- function(x,
           for (ind in valid_c) {
             rs_c <- rows_stubs_c[[ind]]
             cs_c <- cols_stubs_c[[ind]]
-            cs_shuf <- sample(cs_c)
+            cs_shuf <- cs_c[sample.int(length(cs_c))]
             lin_c <- (cs_shuf - 1L) * s + rs_c
             perm_mat <- matrix(tabulate(lin_c, nbins = ss_c), s, s)
 
@@ -418,16 +453,14 @@ motifs <- function(x,
           null_matrix[, perm] <- perm_totals
         }
 
-        null_mean <- rowMeans(null_matrix)
-        null_sd <- apply(null_matrix, 1, stats::sd)
-        null_sd[null_sd == 0] <- 1
+        ns <- .motif_null_stats(results$count, t(null_matrix))
+        results$expected <- round(ns$mean, 1)
+        results$z <- round(ns$z, 2)
+        results$p <- ns$p
+        results$sig <- ns$significant
 
-        results$expected <- round(null_mean, 1)
-        results$z <- round((results$count - null_mean) / null_sd, 2)
-        results$p <- round(2 * stats::pnorm(-abs(results$z)), 4)
-        results$sig <- results$p < 0.05
-
-        results <- results[order(abs(results$z), decreasing = TRUE), ]
+        results <- results[order(.motif_z_rank(results$z, results$p),
+                                 decreasing = TRUE), ]
         rownames(results) <- NULL
       }
     }
@@ -435,7 +468,7 @@ motifs <- function(x,
   } else {
     # ---- INSTANCE MODE: list specific node triples ----
     all_results <- lapply(seq_len(dim(trans)[1]), function(ind) {
-      mat <- trans[ind, , ]
+      mat <- .motif_unit_matrix(trans, ind)
       if (sum(mat) < min_transitions) return(NULL)
 
       expected_mat <- NULL
@@ -459,8 +492,12 @@ motifs <- function(x,
         paste(labels[counted$i[r]], labels[counted$j[r]],
               labels[counted$k[r]], sep = " - ")
       }, character(1))
+      triad_keys <- paste(counted$i, counted$j, counted$k, sep = "\r")
 
-      data.frame(unit = ind, triad = triads, type = counted$type,
+      data.frame(unit = ind, .triad_key = triad_keys,
+                 triad = triads,
+                 node1 = labels[counted$i], node2 = labels[counted$j],
+                 node3 = labels[counted$k], type = counted$type,
                  weight = counted$weight,
                  stringsAsFactors = FALSE)
     })
@@ -474,22 +511,31 @@ motifs <- function(x,
 
     # Aggregate across units
     if (level == "individual") {
-      obs <- stats::aggregate(unit ~ triad, data = combined, FUN = length)
-      names(obs)[2] <- "observed"
-      type_map <- stats::aggregate(
-        type ~ triad, data = combined,
-        FUN = function(tt) names(sort(table(tt), decreasing = TRUE))[1]
+      # One row per (triple, MAN type): the same three nodes can instantiate
+      # different types in different units, and collapsing to a dominant type
+      # would attribute every unit's observation to it — making the per-type
+      # totals disagree with census mode on identical data.
+      obs <- stats::aggregate(
+        unit ~ .triad_key + triad + node1 + node2 + node3 + type,
+                              data = combined,
+        FUN = length
       )
-      results <- merge(obs, type_map, by = "triad")
-      results <- results[order(results$observed, decreasing = TRUE), ]
+      names(obs)[7] <- "observed"
+      results <- obs[order(obs$observed, decreasing = TRUE),
+                     c(".triad_key", "triad", "node1", "node2", "node3",
+                       "observed", "type")]
     } else {
       # Aggregate level: a single matrix contains each triad at most once, so a
       # frequency-style "observed" is structurally always 1. Use the weighted
       # edge mass of the triad (sum of its 6 directed edge weights) instead, so
       # min_count becomes a meaningful strength filter at aggregate level.
-      first_idx <- !duplicated(combined$triad)
+      first_idx <- !duplicated(combined$.triad_key)
       results <- data.frame(
+        .triad_key = combined$.triad_key[first_idx],
         triad = combined$triad[first_idx],
+        node1 = combined$node1[first_idx],
+        node2 = combined$node2[first_idx],
+        node3 = combined$node3[first_idx],
         type = combined$type[first_idx],
         observed = combined$weight[first_idx],
         stringsAsFactors = FALSE
@@ -498,7 +544,13 @@ motifs <- function(x,
     }
     rownames(results) <- NULL
 
-    # ---- INSTANCE SIGNIFICANCE (exact configuration model) ----
+    # ---- INSTANCE SIGNIFICANCE (directed weighted stub-matching model) ----
+    if (significance && level != "individual") {
+      warning("Instance-mode significance requires individual-level data ",
+              "(an actor/session column with multiple units); skipping the ",
+              "permutation test.", call. = FALSE)
+      significance <- FALSE
+    }
     if (significance && level == "individual") {
       if (!is.null(min_count)) {
         candidates <- results[results$observed >= min_count, ]
@@ -507,10 +559,9 @@ motifs <- function(x,
       }
 
       if (nrow(candidates) > 0) {
-        triad_idx <- do.call(rbind, lapply(
-          strsplit(candidates$triad, " - "),
-          function(nodes) match(nodes, labels)
-        ))
+        triad_idx <- do.call(rbind, strsplit(candidates$.triad_key, "\r",
+                                             fixed = TRUE))
+        storage.mode(triad_idx) <- "integer"
         n_cand <- nrow(triad_idx)
         ss <- as.integer(s * s)
 
@@ -522,25 +573,31 @@ motifs <- function(x,
         lin_jk <- (triad_idx[, 3] - 1L) * s + triad_idx[, 2]
         lin_kj <- (triad_idx[, 2] - 1L) * s + triad_idx[, 3]
 
-        # Pre-compute per-individual stubs
+        # Pre-compute per-individual stubs. Unit eligibility is frozen from
+        # the original weighted activity, and stub validation/construction
+        # cover only null-eligible units: a malformed cell in a unit the
+        # null never touches must not abort the whole run.
         n_ind <- dim(trans)[1]
+        observed_activity <- vapply(seq_len(n_ind), function(ind) {
+          sum(.motif_unit_matrix(trans, ind))
+        }, numeric(1))
+        valid_inds <- which(observed_activity >= min_transitions)
+
         ind_totals <- integer(n_ind)
         rows_stubs <- vector("list", n_ind)
         cols_stubs <- vector("list", n_ind)
         active_row <- matrix(FALSE, n_ind, s)
         active_col <- matrix(FALSE, n_ind, s)
 
-        for (ind in seq_len(n_ind)) {
-          mat_i <- trans[ind, , ]
-          rs <- as.integer(rowSums(mat_i))
-          cs <- as.integer(colSums(mat_i))
-          ind_totals[ind] <- sum(rs)
-          rows_stubs[[ind]] <- rep(seq_len(s), times = rs)
-          cols_stubs[[ind]] <- rep(seq_len(s), times = cs)
-          active_row[ind, ] <- rs > 0L
-          active_col[ind, ] <- cs > 0L
+        for (ind in valid_inds) {
+          mat_i <- .motif_unit_matrix(trans, ind)
+          stubs <- .motif_configuration_stubs(mat_i)
+          ind_totals[ind] <- stubs$total
+          rows_stubs[[ind]] <- stubs$rows
+          cols_stubs[[ind]] <- stubs$cols
+          active_row[ind, ] <- stubs$row_degrees > 0L
+          active_col[ind, ] <- stubs$col_degrees > 0L
         }
-        valid_inds <- which(ind_totals >= max(3L, min_transitions))
 
         # Per-individual candidate mask
         ri <- active_row[, triad_idx[, 1], drop = FALSE]
@@ -553,17 +610,25 @@ motifs <- function(x,
                          (rk & ci) | (rj & ck) | (rk & cj)
 
         null_matrix <- matrix(0L, n_cand, n_perm)
+        is_003_row <- candidates$type == "003"
 
         for (ind in valid_inds) {
           mask <- ind_cand_mask[ind, ]
-          if (!any(mask)) next # nocov — rare: individual has zero overlap with all candidates
+          # Rows this unit can never place an edge into are permuted 003
+          # triads — that IS the event for an 003-type row (pattern = "all"),
+          # so credit those before skipping the edge computation.
+          off <- which(!mask & is_003_row)
+          if (length(off)) {
+            null_matrix[off, ] <- null_matrix[off, ] + 1L
+          }
+          if (!any(mask)) next
           wm <- which(mask)
           total <- ind_totals[ind]
           rs <- rows_stubs[[ind]]
           cs <- cols_stubs[[ind]]
 
           perm_cols <- vapply(seq_len(n_perm),
-                              function(p) sample(cs),
+                              function(p) cs[sample.int(total)],
                               integer(total))
 
           all_lin <- (perm_cols - 1L) * s + rs
@@ -573,25 +638,33 @@ motifs <- function(x,
           presence <- matrix(FALSE, nrow = ss, ncol = n_perm)
           presence[cbind(all_lin, perm_id)] <- TRUE
 
-          has_any <- presence[lin_ij[wm], , drop = FALSE] |
-                     presence[lin_ji[wm], , drop = FALSE] |
-                     presence[lin_ik[wm], , drop = FALSE] |
-                     presence[lin_ki[wm], , drop = FALSE] |
-                     presence[lin_jk[wm], , drop = FALSE] |
-                     presence[lin_kj[wm], , drop = FALSE]
+          # Classify each permuted triple and count it only when it
+          # instantiates the row's own MAN type — the observed statistic is
+          # "units in which this triple exhibits this type", so the null must
+          # measure the same event, not "any of the six edges exists".
+          b_ij <- presence[lin_ij[wm], , drop = FALSE]
+          b_ji <- presence[lin_ji[wm], , drop = FALSE]
+          b_ik <- presence[lin_ik[wm], , drop = FALSE]
+          b_ki <- presence[lin_ki[wm], , drop = FALSE]
+          b_jk <- presence[lin_jk[wm], , drop = FALSE]
+          b_kj <- presence[lin_kj[wm], , drop = FALSE]
+          code <- b_ij + 2L * b_ji + 4L * b_ik + 8L * b_ki +
+            16L * b_jk + 32L * b_kj
+          lookup <- .get_triad_lookup()
+          perm_type <- matrix(lookup[code + 1L], nrow = length(wm))
+          same_type <- perm_type == candidates$type[wm]
 
-          null_matrix[wm, ] <- null_matrix[wm, ] + has_any
+          null_matrix[wm, ] <- null_matrix[wm, ] + same_type
         }
 
-        null_mean <- rowMeans(null_matrix)
-        null_sd <- apply(null_matrix, 1, stats::sd)
-        null_sd[null_sd == 0] <- 1
-
-        candidates$expected <- round(null_mean, 1)
-        candidates$z <- round((candidates$observed - null_mean) / null_sd, 2)
-        candidates$p <- round(2 * stats::pnorm(-abs(candidates$z)), 4)
-        candidates$sig <- candidates$p < 0.05
-        candidates <- candidates[order(abs(candidates$z), decreasing = TRUE), ]
+        ns <- .motif_null_stats(candidates$observed, t(null_matrix))
+        candidates$expected <- round(ns$mean, 1)
+        candidates$z <- round(ns$z, 2)
+        candidates$p <- ns$p
+        candidates$sig <- ns$significant
+        candidates <- candidates[order(.motif_z_rank(candidates$z,
+                                                     candidates$p),
+                                       decreasing = TRUE), ]
         rownames(candidates) <- NULL
       }
       results <- candidates
@@ -635,6 +708,13 @@ motifs <- function(x,
     type_summary <- sort(type_summary, decreasing = TRUE)
   } else {
     type_summary <- sort(table(results$type), decreasing = TRUE)
+  }
+
+  # Internal index keys keep arbitrary node labels unambiguous during
+  # aggregation and significance testing; the public result retains the
+  # established human-readable `triad` column only.
+  if (".triad_key" %in% names(results)) {
+    results$.triad_key <- NULL
   }
 
   # Informative message (instance mode with defaults)
@@ -688,8 +768,10 @@ motifs <- function(x,
 #'   \code{n_perm}, \code{min_count}, \code{edge_method}, \code{edge_threshold},
 #'   \code{min_transitions}, \code{top}, \code{seed}).
 #' @return A \code{cograph_motif_result} object with \code{named_nodes = TRUE}.
-#'   Contains \code{$results} (data frame with columns \code{triad}, \code{type},
-#'   \code{observed}, and optionally \code{z}, \code{p}, \code{sig}),
+#'   Contains \code{$results} (data frame with columns \code{triad},
+#'   \code{node1}, \code{node2}, \code{node3}, \code{observed}, \code{type},
+#'   and when \code{significance = TRUE} also \code{expected}, \code{z},
+#'   \code{p}, \code{sig}),
 #'   \code{$type_summary}, \code{$level}, \code{$n_units}, and \code{$params}.
 #'   In instance mode, \code{$type_summary} is built via
 #'   \code{table(results$type)} so it counts how many node-triples fall under
@@ -900,7 +982,10 @@ plot.cograph_motif_result <- function(x, type = c("triads", "types",
     if (!requireNamespace("ggplot2", quietly = TRUE)) {
       stop("ggplot2 is required for this plot type", call. = FALSE) # nocov
     }
-    sig_df <- x$results[!is.na(x$results$z), ]
+    sig_df <- .motif_drop_na_z_rows(x$results)
+    if (nrow(sig_df) == 0) {
+      stop("No motif rows with a finite z-score to plot.", call. = FALSE)
+    }
     sig_df <- sig_df[order(abs(sig_df$z), decreasing = TRUE), ]
     sig_df <- utils::head(sig_df, n)
 
@@ -915,7 +1000,7 @@ plot.cograph_motif_result <- function(x, type = c("triads", "types",
       tag <- ifelse(nzchar(desc_vec),
                     sprintf("  [%s: %s]", sig_df$type, desc_vec),
                     sprintf("  [%s]", sig_df$type))
-      sig_df$label <- paste0(sig_df$triad, tag)
+      sig_df$label <- make.unique(paste0(sig_df$triad, tag))
     } else {
       type_desc <- .get_man_descriptions()
       desc_vec <- type_desc[sig_df$type]

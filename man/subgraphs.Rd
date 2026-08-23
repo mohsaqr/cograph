@@ -15,8 +15,10 @@ for the full parameter list (\code{x}, \code{actor}, \code{window},
 }
 \value{
 A \code{cograph_motif_result} object with \code{named_nodes = TRUE}.
-Contains \code{$results} (data frame with columns \code{triad}, \code{type},
-\code{observed}, and optionally \code{z}, \code{p}, \code{sig}),
+Contains \code{$results} (data frame with columns \code{triad},
+\code{node1}, \code{node2}, \code{node3}, \code{observed}, \code{type},
+and when \code{significance = TRUE} also \code{expected}, \code{z},
+\code{p}, \code{sig}),
 \code{$type_summary}, \code{$level}, \code{$n_units}, and \code{$params}.
 In instance mode, \code{$type_summary} is built via
 \code{table(results$type)} so it counts how many node-triples fall under

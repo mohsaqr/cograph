@@ -363,12 +363,12 @@ test_that("extract_triads works with basic matrix", {
 test_that("extract_triads handles type filter", {
   skip_if_not_installed("igraph")
 
-  mat <- create_weighted_matrix(6, seed = 123)
+  mat <- cograph:::.get_triad_patterns_canonical()[["030T"]]
+  dimnames(mat) <- list(LETTERS[1:3], LETTERS[1:3])
   result <- extract_triads(mat, type = c("030T", "030C"), min_total = 0)
 
-  if (nrow(result) > 0) {
-    expect_true(all(result$type %in% c("030T", "030C")))
-  }
+  expect_identical(nrow(result), 1L)
+  expect_identical(result$type, "030T")
 })
 
 test_that("extract_triads handles involving filter", {
@@ -545,12 +545,12 @@ test_that("extract_motifs handles edge_method parameter", {
 test_that("extract_motifs handles include_types parameter", {
   skip_if_not_installed("igraph")
 
-  mat <- create_weighted_matrix(6, seed = 123)
+  mat <- cograph:::.get_triad_patterns_canonical()[["030T"]]
+  dimnames(mat) <- list(LETTERS[1:3], LETTERS[1:3])
   result <- extract_motifs(mat, include_types = c("030T"), min_transitions = 0)
 
-  if (!is.null(result) && nrow(result$results) > 0) {
-    expect_true(all(result$results$type == "030T"))
-  }
+  expect_s3_class(result, "cograph_motif_analysis")
+  expect_identical(result$results$type, "030T")
 })
 
 test_that("extract_motifs handles exclude_types parameter", {
@@ -785,4 +785,3 @@ test_that("plot.cograph_motif_analysis custom parameters work", {
     expect_true(file.exists(tmp))
   }
 })
-

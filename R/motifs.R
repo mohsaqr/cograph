@@ -5,7 +5,8 @@
 #'
 #' @param x A matrix, igraph object, or cograph_network
 #' @param size Motif size: 3 (triads) or 4 (tetrads). Default 3.
-#' @param n_random Number of random networks for null model. Default 100.
+#' @param n_random Number of random networks for the null model. Must be a
+#'   whole number of at least 2. Default 100.
 #' @param method Null model method: "configuration" (preserves degree) or
 #'   "gnm" (preserves edge count). Default "configuration".
 #' @param directed Logical. Treat as directed? Default auto-detected.
@@ -55,9 +56,23 @@ motif_census <- function(x, size = 3, n_random = 100,
     stop("x must be a matrix, igraph object, or cograph_network")
   }
 
+  if ((inherits(x, "igraph") || inherits(x, "cograph_network")) &&
+      !is.null(directed) && directed != igraph::is_directed(g)) {
+    stop("`directed = ", directed, "` conflicts with the input network ",
+         "(is_directed = ", igraph::is_directed(g), "). Convert the network ",
+         "explicitly before calling motif_census().", call. = FALSE)
+  }
+
   if (is.null(directed)) {
     directed <- igraph::is_directed(g)
   }
+
+  n_random <- .validate_motif_repetitions(n_random, "n_random")
+
+  # Triad/motif censuses are defined on simple graphs: self-loops are not part
+  # of any 3-node class and corrupt both the counts and the degree sequence
+  # the null model preserves.
+  g <- igraph::simplify(g, remove.multiple = TRUE, remove.loops = TRUE)
 
   if (!directed && size == 3) {
     return(.motif_census_undirected(g, n_random, method, seed))
@@ -73,28 +88,32 @@ motif_census <- function(x, size = 3, n_random = 100,
     set.seed(seed)
   }
 
-  # Count motifs in observed network
-  observed <- igraph::motifs(g, size = size)
-  observed[is.na(observed)] <- 0
+  # Count motifs in observed network. For directed 3-node motifs use
+  # igraph::triad_census(), which returns all 16 MAN classes in MAN order —
+  # igraph::motifs() returns isomorphism-class order (and NA for disconnected
+  # classes), which does NOT line up with the MAN names.
+  count_fun <- if (size == 3) {
+    function(gr) as.numeric(igraph::triad_census(gr))
+  } else {
+    function(gr) {
+      counts <- igraph::motifs(gr, size = size)
+      counts[is.na(counts)] <- 0
+      counts
+    }
+  }
+  observed <- count_fun(g)
 
   # Generate null distribution (vectorized)
   null_list <- lapply(seq_len(n_random), function(i) {
-    g_rand <- .generate_random_graph(g, method)
-    counts <- igraph::motifs(g_rand, size = size)
-    counts[is.na(counts)] <- 0
-    counts
+    count_fun(.generate_random_graph(g, method))
   })
   null_counts <- do.call(rbind, null_list)
 
-  # Calculate statistics
-  null_mean <- colMeans(null_counts)
-  null_sd <- apply(null_counts, 2, sd)
-
-  z_scores <- ifelse(null_sd > 0,
-                     (observed - null_mean) / null_sd,
-                     0)
-
-  p_values <- 2 * pnorm(-abs(z_scores))
+  ns <- .motif_null_stats(observed, null_counts)
+  null_mean <- ns$mean
+  null_sd <- ns$sd
+  z_scores <- ns$z
+  p_values <- ns$p
 
   motif_names <- .get_motif_names(size, directed)
   n_obs <- length(observed)
@@ -114,7 +133,7 @@ motif_census <- function(x, size = 3, n_random = 100,
     null_sd = null_sd,
     z_score = z_scores,
     p_value = p_values,
-    significant = abs(z_scores) > 2,
+    significant = ns$significant,
     row.names = NULL,
     stringsAsFactors = FALSE
   )
@@ -135,44 +154,26 @@ motif_census <- function(x, size = 3, n_random = 100,
     set.seed(seed)
   }
 
-  n <- igraph::vcount(g)
-
-  n_triangles <- sum(igraph::count_triangles(g)) / 3
-
-  total_triads <- choose(n, 3)
-
-  degrees <- igraph::degree(g)
-  n_wedges <- sum(choose(degrees, 2)) - 3 * n_triangles
-
-  n_empty <- total_triads - n_triangles - n_wedges
-
-  observed <- c(empty = n_empty, wedge = n_wedges, triangle = n_triangles)
+  observed <- .count_undirected_triads(g)
+  class_names <- names(observed)
 
   # Null distribution (vectorized)
   null_list <- lapply(seq_len(n_random), function(i) {
-    g_rand <- .generate_random_graph(g, method)
-    deg_rand <- igraph::degree(g_rand)
-    tri_rand <- sum(igraph::count_triangles(g_rand)) / 3
-    wedge_rand <- sum(choose(deg_rand, 2)) - 3 * tri_rand
-    empty_rand <- total_triads - tri_rand - wedge_rand
-    c(empty_rand, wedge_rand, tri_rand)
+    .count_undirected_triads(.generate_random_graph(g, method))
   })
   null_counts <- do.call(rbind, null_list)
-  colnames(null_counts) <- names(observed)
+  colnames(null_counts) <- class_names
 
-  null_mean <- colMeans(null_counts)
-  null_sd <- apply(null_counts, 2, sd)
-  z_scores <- ifelse(null_sd > 0, (observed - null_mean) / null_sd, 0)
-  p_values <- 2 * pnorm(-abs(z_scores))
+  ns <- .motif_null_stats(observed, null_counts)
 
   df <- data.frame(
-    motif = names(observed),
+    motif = class_names,
     count = unname(observed),
-    null_mean = unname(null_mean),
-    null_sd = unname(null_sd),
-    z_score = unname(z_scores),
-    p_value = unname(p_values),
-    significant = unname(abs(z_scores) > 2),
+    null_mean = unname(ns$mean),
+    null_sd = unname(ns$sd),
+    z_score = unname(ns$z),
+    p_value = unname(ns$p),
+    significant = unname(ns$significant),
     row.names = NULL,
     stringsAsFactors = FALSE
   )
@@ -190,14 +191,14 @@ motif_census <- function(x, size = 3, n_random = 100,
   directed <- igraph::is_directed(g)
 
   if (method == "configuration") {
-    if (directed) {
-      in_deg <- igraph::degree(g, mode = "in")
-      out_deg <- igraph::degree(g, mode = "out")
-      g_rand <- igraph::sample_degseq(out_deg, in_deg, method = "configuration")
-    } else {
-      deg <- igraph::degree(g)
-      g_rand <- igraph::sample_degseq(deg, method = "vl")
-    }
+    # Degree-preserving edge swaps on the simple graph. Unlike stub-matching
+    # (sample_degseq "configuration") followed by simplify(), rewiring never
+    # changes the degree sequence; unlike the "vl" sampler it accepts
+    # disconnected graphs and isolated vertices.
+    n_iter <- max(100L, 10L * igraph::ecount(g))
+    g_rand <- igraph::rewire(
+      g, igraph::keeping_degseq(loops = FALSE, niter = n_iter)
+    )
   } else {
     n <- igraph::vcount(g)
     m <- igraph::ecount(g)
@@ -205,6 +206,146 @@ motif_census <- function(x, size = 3, n_random = 100,
   }
 
   igraph::simplify(g_rand)
+}
+
+# Induced 3-node classes of a simple undirected graph: triples with 0, 1, 2,
+# or 3 edges. Counted arithmetically: with m edges, w = sum(choose(deg, 2))
+# two-paths and t triangles, each exactly-one-edge triple contributes 1 to
+# m*(n-2) edge-vertex incidences, each two-edge triple 2, each triangle 3.
+# @noRd
+.count_undirected_triads <- function(g) {
+  n <- igraph::vcount(g)
+  m <- igraph::ecount(g)
+  n_triangles <- sum(igraph::count_triangles(g)) / 3
+  n_wedges <- sum(choose(igraph::degree(g), 2)) - 3 * n_triangles
+  n_edge <- m * (n - 2) - 2 * n_wedges - 3 * n_triangles
+  n_empty <- choose(n, 3) - n_edge - n_wedges - n_triangles
+  c(empty = n_empty, edge = n_edge, wedge = n_wedges, triangle = n_triangles)
+}
+
+# Shared null-distribution statistics for motif censuses. z is the
+# standardized effect: NA when the null is degenerate (sd = 0) but the
+# observation differs from it — never a silent 0. p is the empirical
+# two-sided permutation p-value (absolute deviation from the null mean,
+# add-one corrected), not a Gaussian approximation.
+# @noRd
+.motif_null_stats <- function(observed, null_counts) {
+  n_rand <- nrow(null_counts)
+  null_mean <- colMeans(null_counts)
+  null_sd <- apply(null_counts, 2, stats::sd)
+  z <- ifelse(null_sd > 0,
+              (observed - null_mean) / null_sd,
+              ifelse(observed == null_mean, 0, NA_real_))
+  dev_obs <- abs(observed - null_mean)
+  dev_null <- abs(sweep(null_counts, 2, null_mean))
+  exceed <- colSums(dev_null >= rep(dev_obs, each = n_rand))
+  p <- pmin((1 + exceed) / (n_rand + 1), 1)
+  list(mean = null_mean, sd = null_sd, z = z, p = p,
+       significant = p < 0.05)
+}
+
+# Validate a requested Monte Carlo sample size. A sample standard deviation
+# needs at least two replicates, and silently truncating a fractional value via
+# seq_len() makes the reported n_random/n_perm disagree with the work done.
+# @noRd
+.validate_motif_repetitions <- function(x, arg) {
+  valid <- is.numeric(x) && length(x) == 1L && !is.na(x) && is.finite(x) &&
+    x >= 2 && x == floor(x) && x <= .Machine$integer.max
+  if (!valid) {
+    stop("`", arg, "` must be one finite whole number greater than or equal to 2.",
+         call. = FALSE)
+  }
+  as.integer(x)
+}
+
+# Convert non-negative weighted transitions to balanced integer stubs. Edge
+# multiplicities are rounded cell-by-cell, with every positive observed edge
+# retaining at least one stub. Deriving both margins from that single integer
+# matrix preserves the observed support (including dense probability matrices)
+# and guarantees equal row/column totals.
+# @noRd
+.motif_configuration_stubs <- function(mat) {
+  if (!is.numeric(mat) || anyNA(mat) || any(!is.finite(mat)) || any(mat < 0)) {
+    stop("Motif permutation weights must be finite and non-negative.",
+         call. = FALSE)
+  }
+
+  diag(mat) <- 0
+
+  integer_mat <- round(mat)
+  integer_mat[mat > 0 & integer_mat == 0] <- 1
+  total_numeric <- sum(integer_mat)
+  if (total_numeric > .Machine$integer.max) {
+    stop("Motif permutation weight total is too large.", call. = FALSE)
+  }
+  total <- as.integer(total_numeric)
+  row_degrees <- as.integer(rowSums(integer_mat))
+  col_degrees <- as.integer(colSums(integer_mat))
+  list(
+    total = total,
+    rows = rep.int(seq_len(nrow(mat)), row_degrees),
+    cols = rep.int(seq_len(ncol(mat)), col_degrees),
+    row_degrees = row_degrees,
+    col_degrees = col_degrees
+  )
+}
+
+# Extract one unit from a 3D transition array without R dropping a 1x1 slice
+# to a scalar.
+# @noRd
+.motif_unit_matrix <- function(trans, ind) {
+  matrix(trans[ind, , , drop = FALSE], nrow = dim(trans)[2],
+         ncol = dim(trans)[3])
+}
+
+# Zero the diagonal of every unit slice of a 3D transition array. Triad
+# analysis is loopless by definition, so loop mass must never reach activity
+# gating, counting, or stub construction. This is the single site enforcing
+# that invariant for unit arrays; keep motifs(), subgraphs(), and
+# extract_motifs() on this helper so they cannot desynchronize.
+# @noRd
+.motif_strip_loops <- function(trans) {
+  n_ind <- dim(trans)[1]
+  s <- dim(trans)[2]
+  idx <- cbind(rep(seq_len(n_ind), times = s),
+               rep(seq_len(s), each = n_ind),
+               rep(seq_len(s), each = n_ind))
+  trans[idx] <- 0
+  trans
+}
+
+# Ranking scores for sorting motif results by extremity. .motif_null_stats
+# emits z = NA (with a valid, smallest-possible empirical p) when the
+# observation lies outside a zero-variance null — those degenerate rows are
+# the strongest findings and must outrank every finite z, not fall to
+# order()'s na.last tail where a top-N cut silently drops them. Rows with no
+# significance information at all (z and p both NA) rank last. Passing
+# `effect` (observed - expected) switches from |z| ranking to signed ranking.
+# @noRd
+.motif_z_rank <- function(z, p, effect = NULL) {
+  if (is.null(effect)) {
+    ifelse(is.na(z) & !is.na(p), Inf, ifelse(is.na(z), -Inf, abs(z)))
+  } else {
+    ifelse(is.na(z) & !is.na(p), sign(effect) * Inf,
+           ifelse(is.na(z), -Inf, z))
+  }
+}
+
+# Z-score bar charts cannot draw degenerate-null rows (z = NA). Those rows
+# are the strongest findings (see .motif_z_rank), so dropping them must be
+# loud: message how many were omitted — and how many of those are
+# significant — then return the drawable rows.
+# @noRd
+.motif_drop_na_z_rows <- function(df) {
+  na_rows <- is.na(df$z)
+  if (any(na_rows)) {
+    n_sig <- sum(!is.na(df$p[na_rows]) & df$p[na_rows] < 0.05)
+    message(sum(na_rows), " motif row(s) with a degenerate null (z = NA",
+            if (n_sig > 0) sprintf("; %d significant at p < .05", n_sig),
+            ") cannot be drawn as z-score bars and were omitted from the ",
+            "plot. See the results table for those rows.")
+  }
+  df[!na_rows, , drop = FALSE]
 }
 
 #' @rdname motif_census
@@ -220,8 +361,8 @@ print.cograph_motifs <- function(x, ...) {
   cat(sprintf("Size: %d-node motifs (%s) | Null: %s (n=%d)\n\n",
               sz, if (dir) "directed" else "undirected", meth, nr))
   print.data.frame(x, row.names = FALSE, ...)
-  n_over <- sum(x$z_score > 2 & x$count > 0, na.rm = TRUE)
-  n_under <- sum(x$z_score < -2 & x$count > 0, na.rm = TRUE)
+  n_over <- sum(x$significant & x$count > x$null_mean, na.rm = TRUE)
+  n_under <- sum(x$significant & x$count < x$null_mean, na.rm = TRUE)
   cat(sprintf("\nOver-represented: %d | Under-represented: %d\n", n_over, n_under))
   invisible(x)
 }
@@ -248,7 +389,9 @@ print.cograph_motifs <- function(x, ...) {
 #'   \code{graphics::par(mfrow=...)}. Set to FALSE to draw into a layout the
 #'   caller has already configured (e.g. via \code{\link{panel_layout}()}).
 #'   Has no effect for \code{type = "bar"} or \code{type = "heatmap"}.
-#' @param ... Additional arguments passed to plotting functions
+#' @param ... For \code{type = "network"}, additional arguments passed to the
+#'   per-motif \code{igraph} plot calls. The ggplot-based types (\code{"bar"},
+#'   \code{"heatmap"}) do not consume them.
 #'
 #' @return A ggplot2 object (invisibly)
 #'
@@ -310,7 +453,7 @@ plot.cograph_motifs <- function(x, type = c("bar", "heatmap", "network"),
   } else if (type == "heatmap") {
     .plot_motifs_heatmap(df, colors)
   } else if (type == "network") {
-    .plot_motifs_network(df, dir, sz, colors, combined = combined)
+    .plot_motifs_network(df, dir, sz, colors, combined = combined, ...)
   }
 }
 
@@ -589,8 +732,13 @@ extract_triads <- function(x, type = NULL, involving = NULL,
   total <- obs_ij + obs_ji + obs_ik + obs_ki + obs_jk + obs_kj
   weight <- total
 
+  # Empty triples are only enumerable when the caller admits the 003 class
+  # (pattern = "all"): every other pattern excludes or never includes it, and
+  # dropping empties early keeps those paths cheap.
+  admits_003 <- (is.null(include) || "003" %in% include) &&
+    !("003" %in% exclude)
   has_edges <- total > 0
-  if (!any(has_edges)) return(NULL)
+  if (!admits_003 && !any(has_edges)) return(NULL)
 
   if (edge_method == "any") {
     e_ij <- as.integer(obs_ij > 0)
@@ -601,13 +749,19 @@ extract_triads <- function(x, type = NULL, involving = NULL,
     e_kj <- as.integer(obs_kj > 0)
 
   } else if (edge_method == "percent") {
-    thresh <- total * edge_threshold
-    e_ij <- as.integer(obs_ij > thresh)
-    e_ji <- as.integer(obs_ji > thresh)
-    e_ik <- as.integer(obs_ik > thresh)
-    e_ki <- as.integer(obs_ki > thresh)
-    e_jk <- as.integer(obs_jk > thresh)
-    e_kj <- as.integer(obs_kj > thresh)
+    # Documented semantics: edge weight / triad total >= threshold. A
+    # threshold above 1 is a percentage (1.5 means 1.5% of the triad's
+    # weight); at or below 1 it is a fraction. The old code required
+    # weight > total * threshold, which no edge can satisfy for
+    # threshold > 1 — the default silently classified nothing.
+    frac <- if (edge_threshold > 1) edge_threshold / 100 else edge_threshold
+    thresh <- total * frac
+    e_ij <- as.integer(obs_ij > 0 & obs_ij >= thresh)
+    e_ji <- as.integer(obs_ji > 0 & obs_ji >= thresh)
+    e_ik <- as.integer(obs_ik > 0 & obs_ik >= thresh)
+    e_ki <- as.integer(obs_ki > 0 & obs_ki >= thresh)
+    e_jk <- as.integer(obs_jk > 0 & obs_jk >= thresh)
+    e_kj <- as.integer(obs_kj > 0 & obs_kj >= thresh)
 
   } else {
     if (is.null(expected_mat)) {
@@ -630,8 +784,8 @@ extract_triads <- function(x, type = NULL, involving = NULL,
 
   edge_sum <- e_ij + e_ji + e_ik + e_ki + e_jk + e_kj
 
-  keep <- has_edges & (edge_sum > 0)
-  if (!any(keep)) return(NULL)
+  keep <- if (admits_003) rep(TRUE, nc) else has_edges & (edge_sum > 0)
+  if (!any(keep)) return(NULL) # nocov — admits_003 keeps everything
 
   i <- i[keep]
   j <- j[keep]

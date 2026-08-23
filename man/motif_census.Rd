@@ -21,7 +21,8 @@ motif_census(
 
 \item{size}{Motif size: 3 (triads) or 4 (tetrads). Default 3.}
 
-\item{n_random}{Number of random networks for null model. Default 100.}
+\item{n_random}{Number of random networks for the null model. Must be a
+whole number of at least 2. Default 100.}
 
 \item{method}{Null model method: "configuration" (preserves degree) or
 "gnm" (preserves edge count). Default "configuration".}

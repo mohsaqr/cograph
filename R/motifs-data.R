@@ -12,18 +12,18 @@
     "003" = matrix(c(0L,0L,0L, 0L,0L,0L, 0L,0L,0L), 3, 3),
     "012" = matrix(c(0L,1L,0L, 0L,0L,0L, 0L,0L,0L), 3, 3),
     "102" = matrix(c(0L,1L,0L, 1L,0L,0L, 0L,0L,0L), 3, 3),
-    "021D" = matrix(c(0L,1L,1L, 0L,0L,0L, 0L,0L,0L), 3, 3),
-    "021U" = matrix(c(0L,0L,0L, 1L,0L,0L, 1L,0L,0L), 3, 3),
+    "021D" = matrix(c(0L,0L,0L, 1L,0L,0L, 1L,0L,0L), 3, 3),
+    "021U" = matrix(c(0L,1L,1L, 0L,0L,0L, 0L,0L,0L), 3, 3),
     "021C" = matrix(c(0L,1L,0L, 0L,0L,1L, 0L,0L,0L), 3, 3),
     "111D" = matrix(c(0L,1L,1L, 1L,0L,0L, 0L,0L,0L), 3, 3),
     "111U" = matrix(c(0L,1L,0L, 1L,0L,0L, 1L,0L,0L), 3, 3),
     "030T" = matrix(c(0L,1L,1L, 0L,0L,1L, 0L,0L,0L), 3, 3),
     "030C" = matrix(c(0L,1L,0L, 0L,0L,1L, 1L,0L,0L), 3, 3),
     "201" = matrix(c(0L,1L,1L, 1L,0L,0L, 1L,0L,0L), 3, 3),
-    "120D" = matrix(c(0L,1L,1L, 1L,0L,0L, 0L,1L,0L), 3, 3),
-    "120U" = matrix(c(0L,1L,0L, 0L,0L,1L, 1L,1L,0L), 3, 3),
+    "120D" = matrix(c(0L,1L,1L, 1L,0L,1L, 0L,0L,0L), 3, 3),
+    "120U" = matrix(c(0L,1L,0L, 1L,0L,0L, 1L,1L,0L), 3, 3),
     "120C" = matrix(c(0L,1L,0L, 1L,0L,1L, 1L,0L,0L), 3, 3),
-    "210" = matrix(c(0L,1L,1L, 1L,0L,1L, 0L,0L,0L), 3, 3),
+    "210" = matrix(c(0L,1L,0L, 1L,0L,1L, 1L,1L,0L), 3, 3),
     "300" = matrix(c(0L,1L,1L, 1L,0L,1L, 1L,1L,0L), 3, 3)
   )
 }
@@ -98,9 +98,12 @@
     c("003", "012", "102", "021D", "021U", "021C", "111D", "111U",
       "030T", "030C", "201", "120D", "120U", "120C", "210", "300")
   } else if (size == 3 && !directed) {
-    c("empty", "edge", "triangle")
+    c("empty", "edge", "wedge", "triangle")
   } else if (size == 4) {
-    paste0("M", seq_len(if (directed) 199 else 11))
+    # igraph returns every isomorphism-class slot, including disconnected
+    # slots represented by NA. Directed four-node graphs have 218 slots (199
+    # are connected), so names must cover the full positional result.
+    paste0("M", seq_len(if (directed) 218 else 11))
   } else {
     paste0("motif_", seq_len(100))
   }

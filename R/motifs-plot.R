@@ -4,8 +4,9 @@
 
 #' @noRd
 .plot_motifs_bar <- function(df, colors, directed, size) {
-  df$direction <- ifelse(df$z > 2, "over",
-                         ifelse(df$z < -2, "under", "neutral"))
+  df$direction <- ifelse(df$significant & df$count > df$expected, "over",
+                         ifelse(df$significant & df$count < df$expected,
+                                "under", "neutral"))
 
   p <- ggplot2::ggplot(df, ggplot2::aes(x = .data$motif, y = .data$z, fill = .data$direction)) +
     ggplot2::geom_col(width = 0.7) +
@@ -61,7 +62,8 @@
 }
 
 #' @noRd
-.plot_motifs_network <- function(df, directed, size, colors, combined = TRUE) {
+.plot_motifs_network <- function(df, directed, size, colors, combined = TRUE,
+                                 ...) {
   if (!directed || size != 3) {
     message("Network visualization only available for directed 3-node motifs")
     return(.plot_motifs_bar(df, colors, directed, size))
@@ -93,7 +95,14 @@
     z <- df$z[df$motif == motif_name]
     count <- df$count[df$motif == motif_name]
 
-    node_col <- if (z > 2) colors[3] else if (z < -2) colors[1] else "#999999"
+    row <- df[df$motif == motif_name, , drop = FALSE]
+    node_col <- if (row$significant && row$count > row$expected) {
+      colors[3]
+    } else if (row$significant && row$count < row$expected) {
+      colors[1]
+    } else {
+      "#999999"
+    }
     edge_col <- grDevices::adjustcolor(node_col, alpha.f = 0.7)
 
     g <- igraph::graph_from_adjacency_matrix(mat, mode = "directed")
@@ -107,7 +116,7 @@
     coords <- matrix(c(-1, 0, 1, 0.5, 0.5, -0.8), ncol = 2, byrow = TRUE)
 
     plot(g, layout = coords, vertex.label = NA,
-         main = sprintf("%s\nn=%d, z=%.1f", motif_name, count, z))
+         main = sprintf("%s\nn=%d, z=%.1f", motif_name, count, z), ...)
   }
 
   invisible(NULL)
@@ -229,7 +238,11 @@
     triad_type <- df$type[i]
     count <- df$observed[i]
 
-    nodes <- trimws(strsplit(triad_name, " - ")[[1]])
+    nodes <- if (all(c("node1", "node2", "node3") %in% names(df))) {
+      as.character(df[i, c("node1", "node2", "node3")])
+    } else {
+      trimws(strsplit(triad_name, " - ")[[1]])
+    }
     if (length(nodes) != 3) nodes <- c("A", "B", "C")
     nodes_short <- vapply(nodes, function(nm) substr(toupper(nm), 1, 3), character(1))
 
@@ -246,18 +259,27 @@
     } else {
       triad_type
     }
+    # Aggregate-level instance results store `observed` as weighted edge
+    # mass, which is fractional for probability/rate matrices — "%d" would
+    # error there, so format whole numbers plainly and anything else to two
+    # decimals.
+    count_str <- if (isTRUE(all.equal(count, round(count)))) {
+      sprintf("n=%d", as.integer(round(count)))
+    } else {
+      sprintf("n=%.2f", count)
+    }
     if (x$params$significance && "z" %in% names(df)) {
       p_val <- df$p[i]
       p_str <- if (p_val < 0.001) "p<.001" else sprintf("p=%.2f", p_val)
       grid::grid.text(title_text, x = 0.5, y = 0.94,
                      gp = grid::gpar(fontsize = title_size, fontface = "bold", col = motif_color))
-      grid::grid.text(sprintf("n=%d z=%.1f %s", count, df$z[i], p_str),
+      grid::grid.text(sprintf("%s z=%.1f %s", count_str, df$z[i], p_str),
                      x = 0.5, y = 0.08,
                      gp = grid::gpar(fontsize = stats_size, col = "#64748b"))
     } else {
       grid::grid.text(title_text, x = 0.5, y = 0.94,
                      gp = grid::gpar(fontsize = title_size, fontface = "bold", col = motif_color))
-      grid::grid.text(sprintf("n=%d", count), x = 0.5, y = 0.08,
+      grid::grid.text(count_str, x = 0.5, y = 0.08,
                      gp = grid::gpar(fontsize = stats_size, col = "#64748b"))
     }
 
@@ -309,9 +331,13 @@
 
   # Legend
   if (legend) {
-    all_nodes <- unique(unlist(lapply(df$triad, function(tr) {
-      trimws(strsplit(tr, " - ")[[1]])
-    })))
+    all_nodes <- if (all(c("node1", "node2", "node3") %in% names(df))) {
+      unique(unlist(df[c("node1", "node2", "node3")], use.names = FALSE))
+    } else {
+      unique(unlist(lapply(df$triad, function(tr) {
+        trimws(strsplit(tr, " - ")[[1]])
+      })))
+    }
 
     if (length(all_nodes) <= 20 && length(all_nodes) > 0) {
       grid::pushViewport(grid::viewport(layout.pos.row = n_rows + 1, layout.pos.col = 1:n_cols))
@@ -368,7 +394,11 @@
       is.data.frame(x$results) &&
       "z" %in% names(x$results) &&
       "p" %in% names(x$results) &&
-      "type" %in% names(x$results)) {
+      "type" %in% names(x$results) &&
+      !anyDuplicated(x$results$type)) {
+    # The duplicate guard matters for legacy extract_motifs() output: it has
+    # no named_nodes slot but one row per node-triple, so a per-type lookup
+    # would silently decorate each panel with whichever triple came first.
     z_lookup <- stats::setNames(x$results$z, x$results$type)
     p_lookup <- stats::setNames(x$results$p, x$results$type)
   }

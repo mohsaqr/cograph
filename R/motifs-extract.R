@@ -8,6 +8,13 @@
 #' individual-level analysis (with tna objects or grouped data) and aggregate
 #' analysis (with matrices or networks).
 #'
+#' @details Individual significance uses the same directed weighted
+#' stub-matching null as individual-level [motifs()]: positive weights retain
+#' at least one integer stub, shuffled targets preserve the integerized in/out
+#' margins, and generated loops/parallel edges are reduced to a simple
+#' loopless projection for triad classification. Observed self-loops are
+#' excluded before activity gating, counting, and null construction.
+#'
 #' @param x Input data. Can be:
 #'   \itemize{
 #'     \item A `tna` object (supports individual-level analysis)
@@ -59,14 +66,21 @@
 #'   person to be included in the analysis. At aggregate level: minimum triad
 #'   weight to count as present. Default 5.
 #' @param significance Logical. Run permutation significance test? Default FALSE.
-#' @param n_perm Number of permutations for significance test. Default 100.
+#' @param n_perm Number of permutations for the significance test. When
+#'   \code{significance = TRUE}, must be a whole number of at least 2.
+#'   Default 100.
 #' @param seed Random seed for reproducibility.
 #'
 #' @return A `cograph_motif_analysis` object (list) containing:
 #'   \describe{
-#'     \item{results}{Data frame with triad, type, observed count, and
-#'       (if significance=TRUE) expected, z-score, p-value}
-#'     \item{type_summary}{Summary counts by motif type}
+#'     \item{results}{Data frame with one row per node-triple and MAN type,
+#'       the display label \code{triad}, unambiguous \code{node1}/\code{node2}/
+#'       \code{node3} columns, its observed count, and (if
+#'       \code{significance = TRUE}) expected
+#'       count, z-score, empirical p-value, and significance marker. A node
+#'       triple that has different types across individuals therefore appears
+#'       in more than one row.}
+#'     \item{type_summary}{Summary counts by motif type across individuals.}
 #'     \item{params}{List of parameters used}
 #'   }
 #'
@@ -130,6 +144,9 @@ extract_motifs <- function(x = NULL,
 
   edge_method <- match.arg(edge_method)
   pattern <- match.arg(pattern)
+  if (significance) {
+    n_perm <- .validate_motif_repetitions(n_perm, "n_perm")
+  }
 
   # Use shared pattern filter definitions
   pf <- .get_pattern_filters()
@@ -147,7 +164,11 @@ extract_motifs <- function(x = NULL,
     pattern_exclude <- character(0)
   }
 
-  final_exclude <- unique(c(pattern_exclude, exclude_types))
+  final_exclude <- if (!is.null(include_types)) {
+    character(0)
+  } else {
+    unique(c(pattern_exclude, exclude_types))
+  }
 
   if (!is.null(seed)) {
     saved_rng <- .save_rng()
@@ -271,15 +292,42 @@ extract_motifs <- function(x = NULL,
     }
   }
 
+  # Aggregate level means one pooled network: sum the per-individual
+  # transition matrices before counting. Without this, "aggregate" ran the
+  # same per-individual loop and only the metadata changed.
+  if (level == "aggregate" && dim(trans)[1] > 1L) {
+    pooled <- apply(trans, c(2, 3), sum)
+    trans <- array(pooled, dim = c(1L, dim(trans)[2], dim(trans)[3]))
+  }
+
   n_ind <- dim(trans)[1]
   s <- dim(trans)[2]
+  trans <- .motif_strip_loops(trans)
+  eligible_individuals <- if (level == "individual") {
+    vapply(seq_len(n_ind), function(ind) {
+      sum(.motif_unit_matrix(trans, ind)) >= min_transitions
+    }, logical(1))
+  } else {
+    rep(TRUE, n_ind)
+  }
 
   # Main counting function (vectorized)
   count_triads_internal <- function(trans_array, edge_method, edge_threshold,
-                                    min_trans, exclude, include = NULL) {
+                                    min_trans, exclude, include = NULL,
+                                    eligible = NULL) {
     all_results <- lapply(seq_len(dim(trans_array)[1]), function(ind) {
-      mat <- trans_array[ind, , ]
-      if (sum(mat) < min_trans) return(NULL)
+      mat <- .motif_unit_matrix(trans_array, ind)
+      # Documented semantics: at individual level min_transitions gates the
+      # person's total activity; at aggregate level it is a per-triad weight
+      # filter (applied below), not a whole-network gate.
+      if (level == "individual") {
+        is_eligible <- if (is.null(eligible)) {
+          sum(mat) >= min_trans
+        } else {
+          eligible[ind]
+        }
+        if (!is_eligible) return(NULL)
+      }
 
       expected_mat <- NULL
       if (edge_method == "expected") {
@@ -299,11 +347,19 @@ extract_motifs <- function(x = NULL,
         include = include
       )
 
+      if (level == "aggregate" && !is.null(triads_df)) {
+        triads_df <- triads_df[triads_df$weight >= min_trans, , drop = FALSE]
+      }
+
       if (!is.null(triads_df) && nrow(triads_df) > 0) {
         data.frame(
           person = ind,
+          .triad_key = paste(triads_df$i, triads_df$j, triads_df$k,
+                             sep = "\r"),
           triad = paste(labels[triads_df$i], labels[triads_df$j],
                         labels[triads_df$k], sep = " - "),
+          node1 = labels[triads_df$i], node2 = labels[triads_df$j],
+          node3 = labels[triads_df$k],
           type = triads_df$type,
           stringsAsFactors = FALSE
         )
@@ -320,67 +376,67 @@ extract_motifs <- function(x = NULL,
   # Count observed
   observed_raw <- count_triads_internal(trans, edge_method, edge_threshold,
                                         min_transitions, final_exclude,
-                                        include_types)
+                                        include_types, eligible_individuals)
 
   if (is.null(observed_raw) || nrow(observed_raw) == 0) {
     warning("No triads found with current settings")
     return(NULL)
   }
 
-  # Aggregate by triad
-  obs_freq <- stats::aggregate(person ~ triad, data = observed_raw, FUN = length)
-  names(obs_freq) <- c("triad", "observed")
-
-  # Get dominant type for each triad
-  get_dom_type <- function(tr) {
-    types <- observed_raw$type[observed_raw$triad == tr]
-    names(sort(table(types), decreasing = TRUE))[1]
-  }
-  obs_freq$type <- vapply(obs_freq$triad, get_dom_type, character(1))
+  # Aggregate by (triad, MAN type), not just by node triple. The same nodes can
+  # instantiate different types in different people; collapsing those rows to
+  # a dominant type makes the reported type and observed count disagree.
+  obs_freq <- stats::aggregate(
+    person ~ .triad_key + triad + node1 + node2 + node3 + type,
+    data = observed_raw, FUN = length
+  )
+  names(obs_freq)[7] <- "observed"
+  obs_freq <- obs_freq[, c(".triad_key", "triad", "node1", "node2", "node3",
+                           "observed", "type")]
 
   # Significance testing
   if (significance) {
     null_matrix <- matrix(0, nrow = nrow(obs_freq), ncol = n_perm)
-    rownames(null_matrix) <- obs_freq$triad
+    rownames(null_matrix) <- paste(obs_freq$.triad_key, obs_freq$type,
+                                   sep = "\r")
 
-    # Pre-compute per-individual row/col probabilities
-    ind_probs <- lapply(seq_len(n_ind), function(ind) {
-      mat <- trans[ind, , ]
-      total <- sum(mat)
-      if (total == 0) return(NULL)
-      row_sums <- rowSums(mat)
-      col_sums <- colSums(mat)
-      if (sum(row_sums > 0) == 0 || sum(col_sums > 0) == 0) return(NULL) # nocov
-      list(
-        total = as.integer(total),
-        row_probs = row_sums / sum(row_sums),
-        col_probs = col_sums / sum(col_sums)
-      )
-    })
+    # Pre-compute balanced row/column stubs. Shuffling the column stubs gives
+    # the directed weighted stub-matching null used by individual motifs().
+    # Stub validation and construction cover only null-eligible units: a
+    # malformed cell in a unit the null never touches must not abort the run.
+    ind_stubs <- vector("list", n_ind)
+    ind_stubs[eligible_individuals] <- lapply(
+      which(eligible_individuals),
+      function(ind) .motif_configuration_stubs(.motif_unit_matrix(trans, ind))
+    )
 
     ss <- as.integer(s * s)
 
     lapply(seq_len(n_perm), function(p) {
       trans_perm <- array(0, dim = dim(trans))
 
-      # Vectorized permutation: sample all transitions at once per individual
+      # Shuffle each individual's target stubs while keeping both marginals.
       vapply(seq_len(n_ind), function(ind) {
-        ip <- ind_probs[[ind]]
-        if (is.null(ip)) return(0L)
-        ri <- sample.int(s, ip$total, replace = TRUE, prob = ip$row_probs)
-        ci <- sample.int(s, ip$total, replace = TRUE, prob = ip$col_probs)
-        lin <- (ci - 1L) * s + ri
+        stubs <- ind_stubs[[ind]]
+        if (is.null(stubs) || stubs$total == 0L) return(0L)
+        shuffled_cols <- stubs$cols[sample.int(stubs$total)]
+        lin <- (shuffled_cols - 1L) * s + stubs$rows
         trans_perm[ind, , ] <<- matrix(tabulate(lin, ss), s, s)
         0L
       }, integer(1))
 
       perm_raw <- count_triads_internal(trans_perm, edge_method, edge_threshold,
                                         min_transitions, final_exclude,
-                                        include_types)
+                                        include_types, eligible_individuals)
 
       if (!is.null(perm_raw)) {
-        perm_freq <- stats::aggregate(person ~ triad, data = perm_raw, FUN = length)
-        matched <- match(perm_freq$triad, obs_freq$triad)
+        perm_freq <- stats::aggregate(
+          person ~ .triad_key + triad + node1 + node2 + node3 + type,
+          data = perm_raw, FUN = length
+        )
+        observed_key <- paste(obs_freq$.triad_key, obs_freq$type, sep = "\r")
+        perm_key <- paste(perm_freq$.triad_key, perm_freq$type, sep = "\r")
+        matched <- match(perm_key, observed_key)
         valid_match <- !is.na(matched)
         if (any(valid_match)) {
           null_matrix[matched[valid_match], p] <<- perm_freq$person[valid_match]
@@ -389,19 +445,22 @@ extract_motifs <- function(x = NULL,
       NULL
     })
 
-    null_mean <- rowMeans(null_matrix)
-    null_sd <- apply(null_matrix, 1, stats::sd)
-    null_sd[null_sd == 0] <- 0.1
-
-    obs_freq$expected <- round(null_mean, 1)
-    obs_freq$z <- round((obs_freq$observed - null_mean) / null_sd, 2)
-    obs_freq$p <- round(2 * stats::pnorm(-abs(obs_freq$z)), 4)
+    ns <- .motif_null_stats(obs_freq$observed, t(null_matrix))
+    obs_freq$expected <- round(ns$mean, 1)
+    obs_freq$z <- round(ns$z, 2)
+    obs_freq$p <- ns$p
     obs_freq$sig <- get_significance_stars(obs_freq$p)
   }
 
-  # Sort by observed (or z if significance)
+  obs_freq$.triad_key <- NULL
+
+  # Sort by observed (or z if significance). Degenerate-null rows (z = NA
+  # with the smallest possible empirical p) rank as the most extreme in
+  # their direction so a `top` cut below never silently drops them.
   if (significance) {
-    obs_freq <- obs_freq[order(obs_freq$z, decreasing = TRUE), ]
+    z_rank <- .motif_z_rank(obs_freq$z, obs_freq$p,
+                            effect = obs_freq$observed - obs_freq$expected)
+    obs_freq <- obs_freq[order(z_rank, decreasing = TRUE), ]
   } else {
     obs_freq <- obs_freq[order(obs_freq$observed, decreasing = TRUE), ]
   }
@@ -488,8 +547,9 @@ print.cograph_motif_analysis <- function(x, n = 20, ...) {
 #'     \item{\code{"triads"}}{(default) Network diagrams of specific named triads,
 #'       arranged in a grid. Each cell shows the three nodes and their edges.}
 #'     \item{\code{"types"}}{Bar chart of MAN type frequencies.}
-#'     \item{\code{"significance"}}{Z-score plot showing over- and under-represented
-#'       types. Requires \code{significance = TRUE} in \code{extract_motifs()}.}
+#'     \item{\code{"significance"}}{Z-score plot with one bar per node-triple
+#'       and MAN type. Requires \code{significance = TRUE} in
+#'       \code{extract_motifs()}.}
 #'     \item{\code{"patterns"}}{Abstract MAN pattern diagrams showing edge
 #'       structure of each triad type without specific node labels.}
 #'   }
@@ -575,29 +635,42 @@ plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "signific
       stop("No significance data available. ",
            "Re-run extract_motifs() with significance = TRUE.", call. = FALSE)
     }
-    # Z-score plot
-    df <- utils::head(x$results, n * 2)
+    # Z-score plot. A node triple may legitimately have several MAN types
+    # across individuals, so retain each (triple, type) row and label it
+    # explicitly instead of dropping all but the first rendered triple.
+    # Degenerate-null rows (z = NA) cannot be drawn as bars; drop them with
+    # a message rather than letting them displace real high-z bars.
+    df <- .motif_drop_na_z_rows(x$results)
+    if (nrow(df) == 0) {
+      stop("No motif rows with a finite z-score to plot.", call. = FALSE)
+    }
     df <- df[order(df$z), ]
-    df <- utils::head(rbind(utils::head(df, n), utils::tail(df, n)), n * 2)
-    df <- df[!duplicated(df$triad), ]
+    if (nrow(df) > n * 2) {
+      df <- rbind(utils::head(df, n), utils::tail(df, n))
+    }
+    df$label <- make.unique(paste0(df$triad, " [", df$type, "]"))
+    df$direction <- ifelse(
+      !is.na(df$p) & df$p < 0.05 & df$z > 0, "over",
+      ifelse(!is.na(df$p) & df$p < 0.05 & df$z < 0, "under", "ns")
+    )
+    df$label <- factor(df$label, levels = df$label[order(df$z)])
 
-    df$direction <- ifelse(df$z > 0, "over", "under")
-    df$triad <- factor(df$triad, levels = df$triad[order(df$z)])
-
-    p <- ggplot2::ggplot(df, ggplot2::aes(x = .data$triad, y = .data$z, fill = .data$direction)) +
+    p <- ggplot2::ggplot(df, ggplot2::aes(x = .data$label, y = .data$z, fill = .data$direction)) +
       ggplot2::geom_col(width = 0.7) +
       ggplot2::geom_hline(yintercept = c(-2, 2), linetype = "dashed",
                           color = "#666666", linewidth = 0.5) +
       ggplot2::geom_hline(yintercept = 0, color = "#333333", linewidth = 0.3) +
       ggplot2::scale_fill_manual(
-        values = c(over = colors[2], under = colors[1]),
-        labels = c(over = "Over-represented", under = "Under-represented"),
+        values = c(over = colors[2], under = colors[1], ns = "#9E9E9E"),
+        labels = c(over = "Over-represented (p<.05)",
+                   under = "Under-represented (p<.05)",
+                   ns = "Not significant"),
         name = NULL
       ) +
       ggplot2::coord_flip() +
       ggplot2::labs(
         title = "Motif Significance",
-        subtitle = sprintf("Permutation test (n=%d) | Dashed lines: z = +/-2",
+        subtitle = sprintf("Permutation test (n=%d) | Dashed lines: z = +/-2 reference",
                           x$params$n_perm),
         x = NULL,
         y = "Z-score"

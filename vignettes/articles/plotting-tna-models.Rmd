@@ -1,129 +1,527 @@
 ---
-title: "Plotting TNA Models with splot"
+title: "TNA Plotting Gallery and Visual Smoke Test"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.width = 6,
-  fig.height = 5,
-  fig.dpi = 300,
-  dpi = 300
+  fig.width = 7,
+  fig.height = 5.5,
+  fig.dpi = 120,
+  dpi = 120,
+  warning = FALSE,
+  message = FALSE,
+  error = FALSE
 )
+
 library(cograph)
 library(tna)
+
+set.seed(20260823)
 ```
 
-# 1. Single TNA Model — group_regulation
+This page is an executable visual smoke test for the complete plotting surface
+of **tna** and its integration with **cograph**. Knitting stops on the first
+plotting error. Statistical resampling uses deliberately small iteration counts
+so that the page can be rebuilt during development; the results below are for
+visual and API verification, not inference.
 
-Build a TNA model from the `group_regulation` dataset (2000 sequences, 9 states).
+The gallery covers:
 
-```{r tna-model, results = F}
-data(group_regulation)
-model <- tna(group_regulation)
+- `plot()` for single and grouped TNA models, bootstrap objects, centralities,
+  cliques, communities, comparisons, permutations, reliability, sequence
+  comparisons, and stability objects;
+- `hist()`, `plot_model()`, `plot_compare()`, `plot_frequencies()`,
+  `plot_mosaic()`, `plot_sequences()`, and `plot_associations()`;
+- cograph's enhanced TNA bootstrap, difference, permutation, forest, and
+  heterogeneous-network renderers.
+
+```{r versions}
+data.frame(
+  package = c("tna", "cograph"),
+  version = c(
+    as.character(utils::packageVersion("tna")),
+    as.character(utils::packageVersion("cograph"))
+  )
+)
 ```
 
-## Basic Network Plot
+# Shared fixtures
 
-```{r plot-basic, fig.width=9, fig.height=8}
-splot(model,
-      title = "Group Regulation TNA",
-      minimum = 0.05)
+The fixtures use 400 rows from `group_regulation`, split into two groups. This
+is large enough to exercise real TNA objects while keeping resampling fast.
+
+```{r fixtures, include=FALSE}
+data("group_regulation", package = "tna")
+
+gallery_data <- utils::head(group_regulation, 400)
+gallery_group <- rep(c("First half", "Second half"), each = 200)
+
+model <- tna::tna(gallery_data)
+model_first <- tna::tna(gallery_data[gallery_group == "First half", ])
+model_second <- tna::tna(gallery_data[gallery_group == "Second half", ])
+group_models <- tna::group_tna(gallery_data, group = gallery_group)
+
+frequency_model <- tna::ftna(gallery_data)
+group_frequency_models <- tna::group_ftna(
+  gallery_data,
+  group = gallery_group
+)
+
+# A small long-format fixture ensures the tna_data plotting methods are also
+# exercised, including grouping through retained metadata.
+long_fixture <- data.frame(
+  actor = rep(sprintf("P%02d", 1:24), each = 6),
+  step = rep(1:6, times = 24),
+  cohort = rep(rep(c("A", "B"), each = 12), each = 6),
+  event = sample(c("plan", "monitor", "evaluate", "adapt"), 144, TRUE)
+)
+prepared_data <- tna::prepare_data(
+  long_fixture,
+  actor = "actor",
+  order = "step",
+  action = "event"
+)
 ```
 
-# 2. Bootstrap Analysis
+# Core network plots
 
-Run bootstrap resampling (1000 iterations) to assess edge significance and confidence intervals.
+## Single TNA model
 
-```{r bootstrap, cache=TRUE}
+Exercises `plot.tna()` and its default cograph renderer.
+
+```{r plot-tna, fig.width=8, fig.height=7}
+plot(model, title = "Single TNA model", minimum = 0.05)
+```
+
+## Grouped TNA models
+
+Exercises `plot.group_tna()`.
+
+```{r plot-group-tna, fig.show='hold', out.width='49%', fig.width=7, fig.height=6}
+plot(group_models, minimum = 0.05)
+```
+
+## Heterogeneous TNA model
+
+Passing a complete two-part `node_list` routes `plot.tna()` through cograph's
+heterogeneous TNA renderer.
+
+```{r plot-heterogeneous-tna, fig.width=9, fig.height=6}
+split_at <- ceiling(length(model$labels) / 2)
+node_list <- list(
+  model$labels[seq_len(split_at)],
+  model$labels[seq.int(split_at + 1, length(model$labels))]
+)
+plot(
+  model,
+  node_list = node_list,
+  title = "Heterogeneous TNA model",
+  minimum = 0.05
+)
+```
+
+## Weight matrix
+
+Exercises the exported `plot_model()` entry point.
+
+```{r plot-model-matrix, fig.width=8, fig.height=7}
+tna::plot_model(
+  model$weights,
+  labels = model$labels,
+  title = "TNA weight matrix"
+)
+```
+
+# Edge and state distributions
+
+## Edge-weight histograms
+
+Exercises both `hist.tna()` and `hist.group_tna()`.
+
+```{r hist-tna}
+hist(model, main = "Single-model edge weights")
+```
+
+```{r hist-group-tna, fig.show='hold', out.width='49%'}
+hist(group_models)
+```
+
+## State frequencies
+
+Exercises `plot_frequencies.tna()` and `plot_frequencies.group_tna()`.
+
+```{r plot-frequencies-tna}
+tna::plot_frequencies(model)
+```
+
+```{r plot-frequencies-group}
+tna::plot_frequencies(group_models)
+```
+
+## Mosaic plots
+
+Exercises mosaic methods for frequency TNA, grouped frequency TNA, and
+prepared `tna_data` objects.
+
+```{r plot-mosaic-tna}
+tna::plot_mosaic(frequency_model)
+```
+
+```{r plot-mosaic-group}
+tna::plot_mosaic(group_frequency_models)
+```
+
+```{r plot-mosaic-tna-data}
+tna::plot_mosaic(prepared_data, group = "cohort")
+```
+
+## Association network
+
+Exercises `plot_associations.tna()` using the required integer-valued
+frequency model.
+
+```{r plot-associations, fig.width=8, fig.height=7}
+tna::plot_associations(
+  frequency_model,
+  title = "Association network"
+)
+```
+
+# Sequence plots
+
+## Single-model index and distribution plots
+
+Exercises `plot_sequences.tna()` in both modes.
+
+```{r plot-sequences-tna-index, fig.width=9, fig.height=6}
+tna::plot_sequences(model, type = "index", tick = 1)
+```
+
+```{r plot-sequences-tna-distribution, fig.width=9, fig.height=6}
+tna::plot_sequences(model, type = "distribution", geom = "area", tick = 1)
+```
+
+## Grouped sequences
+
+Exercises `plot_sequences.group_tna()`.
+
+```{r plot-sequences-group, fig.width=10, fig.height=6}
+tna::plot_sequences(group_models, type = "distribution", tick = 1)
+```
+
+## Data-frame sequences
+
+Exercises `plot_sequences.default()` with an explicit grouping vector.
+
+```{r plot-sequences-data-frame, fig.width=10, fig.height=6}
+tna::plot_sequences(
+  gallery_data,
+  group = gallery_group,
+  type = "distribution",
+  tick = 1
+)
+```
+
+## Prepared TNA data
+
+Exercises `plot_sequences.tna_data()` and metadata-based grouping.
+
+```{r plot-sequences-tna-data, fig.width=10, fig.height=6}
+tna::plot_sequences(
+  prepared_data,
+  group = "cohort",
+  type = "index",
+  tick = 1
+)
+```
+
+# Structural analysis plots
+
+```{r structural-objects, include=FALSE}
+centrality_result <- tna::centralities(model)
+group_centrality_result <- tna::centralities(group_models)
+
+community_result <- tna::communities(model, methods = "walktrap")
+group_community_result <- tna::communities(
+  group_models,
+  methods = "walktrap"
+)
+
+clique_result <- tna::cliques(model, size = 2, threshold = 0)
+group_clique_result <- tna::cliques(group_models, size = 2, threshold = 0)
+```
+
+## Centralities
+
+Exercises `plot.tna_centralities()` and `plot.group_tna_centralities()`.
+
+```{r plot-centralities, fig.width=10, fig.height=7}
+plot(centrality_result, ncol = 3)
+```
+
+```{r plot-group-centralities, fig.width=10, fig.height=7}
+plot(group_centrality_result, ncol = 3)
+```
+
+## Communities
+
+Exercises `plot.tna_communities()` and `plot.group_tna_communities()`.
+
+```{r plot-communities, fig.width=8, fig.height=7}
+plot(community_result, title = "Walktrap communities")
+```
+
+```{r plot-group-communities, fig.show='hold', out.width='49%', fig.width=7, fig.height=6}
+plot(group_community_result)
+```
+
+## Cliques
+
+Exercises `plot.tna_cliques()` and `plot.group_tna_cliques()`. Only the first
+dyad is drawn for each object to keep the gallery compact.
+
+```{r plot-cliques, fig.width=7, fig.height=6}
+plot(clique_result, n = 1, ask = FALSE, title = "First dyad")
+```
+
+```{r plot-group-cliques, fig.show='hold', out.width='49%', fig.width=7, fig.height=6}
+plot(group_clique_result, n = 1, ask = FALSE)
+```
+
+# Bootstrap plots
+
+```{r bootstrap-objects, include=FALSE}
 set.seed(42)
-boot <- bootstrap(model, iter = 1000)
+bootstrap_result <- tna::bootstrap(model, iter = 30)
+group_bootstrap_result <- tna::bootstrap(group_models, iter = 20)
 ```
 
-```{r boot-summary}
-sig_edges <- boot$summary[boot$summary$sig, ]
-cat(sprintf("Significant edges: %d / %d\n", nrow(sig_edges), nrow(boot$summary)))
-head(sig_edges[order(sig_edges$p_value), ], 10)
+## TNA bootstrap method
+
+Exercises `plot.tna_bootstrap()`.
+
+```{r plot-bootstrap-tna, fig.width=8, fig.height=7}
+plot(bootstrap_result, title = "TNA bootstrap")
 ```
 
-## Bootstrap — Significant Edges Only
+## Grouped bootstrap method
 
-```{r plot-boot-sig, fig.width=9, fig.height=8}
-splot(boot,
-      display = "significant",
-      title = "Bootstrap — Significant Edges",
-      show_stars = TRUE)
+Exercises `plot.group_tna_bootstrap()`.
+
+```{r plot-bootstrap-group, fig.show='hold', out.width='49%', fig.width=7, fig.height=6}
+plot(group_bootstrap_result)
 ```
 
-## Bootstrap — Full Network with Styling
+## Cograph bootstrap render modes
 
-Non-significant edges shown as dashed gray lines.
+These plots verify all enhanced `splot.tna_bootstrap()` display modes.
 
-```{r plot-boot-styled, fig.width=9, fig.height=8}
-splot(boot,
-      display = "styled",
-      title = "Bootstrap — Styled (sig=solid, nonsig=dashed)",
-      show_stars = TRUE,
-      threshold  = 0.02)
-
+```{r splot-bootstrap-significant, fig.width=8, fig.height=7}
+cograph::splot(
+  bootstrap_result,
+  display = "significant",
+  title = "Bootstrap: significant edges",
+  show_stars = TRUE
+)
 ```
 
-## Bootstrap — Confidence Intervals
-
-```{r plot-boot-ci, fig.width=9, fig.height=8}
-splot(boot,
-      display = "ci",
-      title = "Bootstrap — With Confidence Intervals",
-      show_ci = TRUE,
-      minimum = 0.05)
-```
-```{r tna-grouped, fig.width=5, fig.asp=1,out.width="50%",fig.pos="center",fig.align = 'center' }
-plot_bootstrap_forest(boot, layout = "grouped",
-  title = "Group Regulation — Grouped by Source Node")
+```{r splot-bootstrap-styled, fig.width=8, fig.height=7}
+cograph::splot(
+  bootstrap_result,
+  display = "styled",
+  title = "Bootstrap: styled full network",
+  show_stars = TRUE
+)
 ```
 
-# 3. Simulated Group TNA + Permutation Test
-
-Generate two group TNA networks then compare with permutation testing.
-
-```{r group-tna}
-set.seed(123)
-group_models <- group_tna(group_regulation, 
-                          group = c(rep("H", 1000), rep("L", 1000)))
+```{r splot-bootstrap-ci, fig.width=8, fig.height=7}
+cograph::splot(
+  bootstrap_result,
+  display = "ci",
+  title = "Bootstrap: confidence intervals",
+  show_ci = TRUE
+)
 ```
 
-## Plot Each Group
-
-```{r plot-groups, fig.width=14, fig.height=7}
-par(mfrow = c(1, 2))
-splot(group_models[[1]], title = "Group 1", minimum = 0.05)
-splot(group_models[[2]], title = "Group 2", minimum = 0.05)
+```{r plot-bootstrap-forest, fig.width=8, fig.height=7}
+cograph::plot_bootstrap_forest(
+  bootstrap_result,
+  layout = "grouped",
+  title = "Bootstrap forest grouped by source"
+)
 ```
 
-## Difference Network
+# Permutation plots
 
-```{r plot-compare, fig.width=9, fig.height=8}
-cograph::plot_compare(
-  group_models[[1]], group_models[[2]],
-  title = "Group 1 vs Group 2 — Difference Network")
+```{r permutation-objects, include=FALSE}
+set.seed(43)
+permutation_result <- tna::permutation_test(
+  model_first,
+  model_second,
+  iter = 30
+)
+group_permutation_result <- tna::permutation_test(group_models, iter = 20)
 ```
 
-## Permutation Test
+## TNA permutation method
 
-```{r permutation, cache=TRUE}
-set.seed(42)
-perm <- tna::permutation_test(group_models[[1]], group_models[[2]], iter = 1000)
+Exercises `plot.tna_permutation()`.
+
+```{r plot-permutation-tna, fig.width=8, fig.height=7}
+plot(permutation_result, title = "TNA permutation differences")
 ```
 
-```{r perm-summary}
-perm
+## Grouped permutation method
+
+Exercises `plot.group_tna_permutation()`.
+
+```{r plot-permutation-group, fig.width=8, fig.height=7}
+plot(group_permutation_result)
 ```
 
-## Permutation Test — Network
+## Cograph permutation renderer
 
-```{r plot-perm, fig.width=9, fig.height=8}
-cograph::plot_permutation(perm,
-      title = "Permutation Test — Significant Differences",
-      show_nonsig = TRUE)
+Exercises the richer cograph permutation display directly.
+
+```{r plot-permutation-cograph, fig.width=8, fig.height=7}
+cograph::plot_permutation(
+  permutation_result,
+  title = "Cograph permutation renderer",
+  show_nonsig = TRUE
+)
+```
+
+# Stability and reliability plots
+
+```{r validation-objects, include=FALSE}
+set.seed(44)
+stability_result <- tna::estimate_cs(
+  model,
+  measures = c("InStrength", "OutStrength"),
+  drop_prop = c(0.3, 0.6),
+  iter = 10
+)
+group_stability_result <- tna::estimate_cs(
+  group_models,
+  measures = c("InStrength", "OutStrength"),
+  drop_prop = c(0.3, 0.6),
+  iter = 10
+)
+reliability_result <- tna::reliability(model, iter = 30)
+```
+
+## Centrality stability
+
+Exercises `plot.tna_stability()`.
+
+```{r plot-stability, fig.width=9, fig.height=6}
+plot(stability_result)
+```
+
+## Grouped centrality stability
+
+Exercises `plot.group_tna_stability()`. The method returns its ggplots
+invisibly, so the gallery prints each returned plot explicitly.
+
+```{r plot-group-stability, fig.show='hold', out.width='49%', fig.width=8, fig.height=6}
+group_stability_plots <- plot(group_stability_result)
+invisible(lapply(group_stability_plots, print))
+```
+
+## Reliability distributions
+
+Exercises all three modes of `plot.tna_reliability()`.
+
+```{r plot-reliability-histogram}
+plot(reliability_result, type = "histogram")
+```
+
+```{r plot-reliability-density}
+plot(reliability_result, type = "density")
+```
+
+```{r plot-reliability-boxplot}
+plot(reliability_result, type = "boxplot")
+```
+
+# Comparison plots
+
+```{r comparison-objects, include=FALSE}
+comparison_result <- tna::compare(
+  model_first,
+  model_second,
+  measures = c("InStrength", "OutStrength", "Betweenness")
+)
+sequence_comparison_result <- tna::compare_sequences(
+  group_models,
+  sub = 1:2,
+  min_freq = 1,
+  test = FALSE
+)
+```
+
+## Difference networks
+
+Exercises `plot_compare.tna()` and `plot_compare.group_tna()`, both of which
+delegate to `cograph::plot_compare()`.
+
+```{r plot-compare-tna, fig.width=8, fig.height=7}
+tna::plot_compare(
+  model_first,
+  model_second,
+  title = "First half minus second half"
+)
+```
+
+```{r plot-compare-group, fig.width=8, fig.height=7}
+tna::plot_compare(group_models)
+```
+
+## TNA comparison object
+
+Exercises every mode of `plot.tna_comparison()`.
+
+```{r plot-comparison-heatmap, fig.width=8, fig.height=7}
+plot(comparison_result, type = "heatmap")
+```
+
+```{r plot-comparison-scatterplot}
+plot(comparison_result, type = "scatterplot")
+```
+
+```{r plot-comparison-centrality-heatmap, fig.width=9, fig.height=7}
+plot(comparison_result, type = "centrality_heatmap")
+```
+
+```{r plot-comparison-weight-density}
+plot(comparison_result, type = "weight_density")
+```
+
+## Sequence comparison
+
+Exercises `plot.tna_sequence_comparison()`.
+
+```{r plot-sequence-comparison, fig.width=9, fig.height=6}
+plot(sequence_comparison_result, n = 10, cells = TRUE)
+```
+
+# Build result
+
+If this section is visible, every plotting chunk above completed without an
+error.
+
+```{r build-result}
+data.frame(
+  status = "PASS",
+  tna = as.character(utils::packageVersion("tna")),
+  cograph = as.character(utils::packageVersion("cograph")),
+  rendered_at = format(Sys.time(), tz = "UTC", usetz = TRUE)
+)
 ```

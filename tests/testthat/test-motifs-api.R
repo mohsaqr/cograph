@@ -776,3 +776,200 @@ test_that("subgraphs with edge_method = 'expected' (instance)", {
     expect_s3_class(result, "cograph_motif_result")
   }
 })
+
+# ================================================================
+# Vignette contract regressions
+# ================================================================
+
+test_that("motifs matrix and explicitly directed igraph results match", {
+  skip_if_not_installed("igraph")
+
+  states <- c("Plan", "Execute", "Monitor", "Adapt", "Reflect")
+  mat <- matrix(c(
+    0.00, 0.35, 0.20, 0.15, 0.30,
+    0.25, 0.00, 0.30, 0.20, 0.25,
+    0.15, 0.25, 0.00, 0.35, 0.25,
+    0.10, 0.20, 0.35, 0.00, 0.35,
+    0.20, 0.15, 0.25, 0.40, 0.00
+  ), nrow = 5, byrow = TRUE, dimnames = list(states, states))
+  graph <- igraph::graph_from_adjacency_matrix(
+    mat, mode = "directed", weighted = TRUE
+  )
+
+  from_matrix <- motifs(mat, pattern = "all", n_perm = 20, seed = 42,
+                        min_transitions = 0)
+  from_igraph <- motifs(graph, pattern = "all", n_perm = 20, seed = 42,
+                        min_transitions = 0)
+
+  expect_identical(from_matrix$results, from_igraph$results)
+  expect_identical(from_matrix$type_summary, from_igraph$type_summary)
+})
+
+test_that("grouped transition edge lists survive cograph conversion", {
+  edge_list <- data.frame(
+    from = c("A", "B", "A", "C", "B", "C", "A", "B"),
+    to = c("B", "C", "C", "A", "A", "B", "C", "A"),
+    session = c("s1", "s1", "s1", "s1", "s2", "s2", "s2", "s2"),
+    stringsAsFactors = FALSE
+  )
+
+  raw <- motifs(edge_list, pattern = "all", significance = FALSE,
+                min_transitions = 1)
+  converted <- motifs(as_cograph(edge_list), pattern = "all",
+                      significance = FALSE, min_transitions = 1)
+
+  expect_identical(raw$level, "individual")
+  expect_identical(converted$level, "individual")
+  expect_identical(raw$n_units, 2L)
+  expect_identical(converted$n_units, 2L)
+  expect_identical(raw$results, converted$results)
+})
+
+test_that("public pattern filters and include precedence match the vignette", {
+  mat <- matrix(c(
+    0L, 0L, 0L, 0L, 1L, 0L,
+    1L, 0L, 1L, 0L, 1L, 0L,
+    0L, 1L, 0L, 0L, 1L, 0L,
+    1L, 1L, 1L, 0L, 0L, 0L,
+    0L, 1L, 0L, 1L, 0L, 0L,
+    0L, 1L, 0L, 0L, 0L, 0L
+  ), 6, 6)
+  dimnames(mat) <- list(LETTERS[1:6], LETTERS[1:6])
+
+  count <- function(pattern, include = NULL, exclude = NULL) {
+    motifs(mat, pattern = pattern, include = include, exclude = exclude,
+           significance = FALSE, min_transitions = 0, min_count = NULL)
+  }
+
+  all <- count("all")
+  network <- count("network")
+  closed <- count("closed")
+  triangle <- count("triangle")
+
+  expect_equal(sum(all$results$count), choose(6L, 3L))
+  expect_gt(nrow(network$results), 0L)
+  expect_gt(nrow(closed$results), 0L)
+  expect_gt(nrow(triangle$results), 0L)
+  expect_setequal(network$results$type,
+                  setdiff(all$results$type, c("003", "012", "021C")))
+  expect_setequal(closed$results$type,
+                  setdiff(all$results$type,
+                          c("003", "012", "021C", "120C")))
+  expect_setequal(
+    triangle$results$type,
+    intersect(all$results$type,
+              c("030C", "030T", "120C", "120D", "120U", "210", "300"))
+  )
+
+  included <- count("triangle", include = "012", exclude = "012")
+  excluded <- count("all", exclude = c("012", "030C"))
+  expect_identical(included$results$type, "012")
+  expect_gt(nrow(excluded$results), 0L)
+  expect_setequal(excluded$results$type,
+                  setdiff(all$results$type, c("012", "030C")))
+})
+
+test_that("individual subgraphs count sessions per node-triple and MAN type", {
+  cycle <- data.frame(from = c("A", "B", "C"), to = c("B", "C", "A"))
+  transitive <- data.frame(from = c("A", "A", "B"), to = c("B", "C", "C"))
+  edge_list <- rbind(
+    transform(cycle, session = "cycle-1"),
+    transform(cycle, session = "cycle-2"),
+    transform(transitive, session = "transitive")
+  )
+
+  result <- subgraphs(edge_list, actor = "session", pattern = "all",
+                      significance = FALSE, min_transitions = 0,
+                      min_count = NULL)
+  rows <- result$results[result$results$triad == "A - B - C",
+                         c("type", "observed")]
+  observed <- stats::setNames(rows$observed, rows$type)
+
+  expect_identical(observed[c("030C", "030T")],
+                   c("030C" = 2L, "030T" = 1L))
+})
+
+test_that("percent uses the six-edge triad total at both accepted scales", {
+  mat <- matrix(c(
+    0, 2, 8,
+    0, 0, 90,
+    0, 0, 0
+  ), 3, 3, byrow = TRUE, dimnames = list(LETTERS[1:3], LETTERS[1:3]))
+
+  proportion <- motifs(mat, pattern = "all", edge_method = "percent",
+                       edge_threshold = 0.10, significance = FALSE,
+                       min_transitions = 0)
+  percentage <- motifs(mat, pattern = "all", edge_method = "percent",
+                       edge_threshold = 10, significance = FALSE,
+                       min_transitions = 0)
+
+  # Only B -> C reaches 10% of the six-edge triad total. A per-source
+  # denominator would retain all three edges and incorrectly yield 030T.
+  expect_identical(proportion$results$type, "012")
+  expect_identical(percentage$results, proportion$results)
+})
+
+test_that("aggregate non-any significance keeps its unthresholded null", {
+  mat <- matrix(c(
+    0, 10, 1,
+    1, 0, 10,
+    10, 1, 0
+  ), 3, 3, byrow = TRUE, dimnames = list(LETTERS[1:3], LETTERS[1:3]))
+
+  expect_warning(
+    result <- motifs(mat, pattern = "all", edge_method = "percent",
+                     edge_threshold = 0.2, n_perm = 10, seed = 1,
+                     min_transitions = 0),
+    "unthresholded network"
+  )
+  reference <- motif_census(mat, directed = TRUE, n_random = 10, seed = 1)
+  reference_row <- reference[reference$motif == "030C", ]
+
+  expect_true(result$params$significance)
+  expect_identical(result$results$type, "030C")
+  expect_identical(result$results$count, 1L)
+  expect_identical(result$results$expected, reference_row$null_mean)
+  expect_identical(result$results$p, reference_row$p_value)
+})
+
+test_that("individual non-any null boundaries remain explicit", {
+  edge_list <- data.frame(
+    from = rep(c("A", "B", "C", "B", "C", "A"), 3),
+    to = rep(c("B", "C", "A", "A", "B", "C"), 3),
+    weight = rep(c(10, 10, 10, 1, 1, 1), 3),
+    actor = rep(paste0("s", 1:3), each = 6)
+  )
+
+  census <- motifs(edge_list, pattern = "all", edge_method = "percent",
+                   edge_threshold = 0.2, significance = TRUE, n_perm = 100,
+                   min_transitions = 0, min_count = NULL, seed = 7)
+  instances <- subgraphs(edge_list, pattern = "all",
+                         edge_method = "percent", edge_threshold = 0.2,
+                         significance = TRUE, n_perm = 100,
+                         min_transitions = 0, min_count = NULL, seed = 7)
+
+  expect_identical(census$results$type, "030C")
+  expect_identical(census$results$count, 3L)
+  expect_identical(census$results$expected, 0.3)
+  expect_identical(instances$results$type, "030C")
+  expect_identical(instances$results$observed, 3L)
+  expect_identical(instances$results$expected, 0)
+})
+
+test_that("legacy aggregate extraction retains support-preserving stubs", {
+  fractional <- matrix(0.1, 4, 4,
+                       dimnames = list(LETTERS[1:4], LETTERS[1:4]))
+  diag(fractional) <- 0
+  binary <- (fractional > 0) * 1
+
+  fractional_result <- extract_motifs(
+    fractional, level = "aggregate", pattern = "all", min_transitions = 0,
+    significance = TRUE, n_perm = 20, seed = 1
+  )
+  binary_result <- extract_motifs(
+    binary, level = "aggregate", pattern = "all", min_transitions = 0,
+    significance = TRUE, n_perm = 20, seed = 1
+  )
+
+  expect_identical(fractional_result$results, binary_result$results)
+})

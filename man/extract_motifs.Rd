@@ -118,15 +118,24 @@ in more than one row.}
 Extract and analyze triad motifs from network data with flexible filtering,
 pattern selection, and statistical significance testing. Supports both
 individual-level analysis (with tna objects or grouped data) and aggregate
-analysis (with matrices or networks).
+analysis (with matrices or networks). The supplied adjacency is classified
+as directed dyads using the 16-class MAN system.
 }
 \details{
-Individual significance uses the same directed weighted
-stub-matching null as individual-level \code{\link[=motifs]{motifs()}}: positive weights retain
-at least one integer stub, shuffled targets preserve the integerized in/out
-margins, and generated loops/parallel edges are reduced to a simple
-loopless projection for triad classification. Observed self-loops are
-excluded before activity gating, counting, and null construction.
+Both individual and aggregate significance in this legacy extractor
+use a directed weighted stub-matching null: positive weights retain at least
+one integer stub, shuffled targets preserve the integerized in/out margins,
+and generated loops/parallel edges are reduced to a simple loopless
+projection for triad classification. This differs from aggregate
+\code{\link[=motifs]{motifs()}}, which delegates to
+\code{\link[=motif_census]{motif_census()}} and its simple-graph rewiring null.
+Observed self-loops are excluded before activity gating, counting, and null
+construction.
+The selected \code{edge_method} is reapplied to each null replicate, but
+positive fractional weights retain at least one integer stub. This preserves
+support while potentially changing the mass scale used by
+\code{"percent"}/\code{"expected"} inference. Descriptive results and the
+default \code{edge_method = "any"} are unaffected.
 }
 \section{MAN Notation}{
 

@@ -666,11 +666,11 @@ splot(grp)
 
 # Motifs
 
-Motif analysis identifies recurring local connectivity patterns — the building blocks of network structure. cograph uses the MAN (Mutual, Asymmetric, Null) classification for directed triads: 16 possible patterns from empty (003) to fully connected (300).
+Motif analysis identifies recurring local connectivity patterns — the building blocks of network structure. The unified `motifs()` and `subgraphs()` APIs use the MAN (Mutual, Asymmetric, Null) classification for directed triads: 16 possible patterns from empty (003) to fully connected (300). For the separate four-class undirected census, use `motif_census(..., directed = FALSE)`.
 
 ## Census
 
-`motifs()` counts how often each MAN type appears and tests significance against a configuration model null:
+`motifs()` counts how often each MAN type appears and tests significance against a configuration-model null. The null depends on the analysis level: aggregate matrices use loop-free simple-graph degree-preserving rewiring, whereas individual transition data use target-stub shuffling with integerized in/out margins followed by a loopless simple projection. These are intentionally different reference models.
 
 ```{r}
 #| label: motifs-census
@@ -678,6 +678,10 @@ mot <- motifs(model, significance = TRUE, n_perm = 100, seed = 42)
 mot
 
 ```
+
+The default `edge_method = "any"` is the fully supported inferential path. For aggregate input with `edge_method = "expected"` or `"percent"`, observed counts are thresholded but significance tests the unthresholded network and emits a warning. In individual census mode the threshold is reapplied to each integerized null replicate; positive fractional weights still retain at least one stub, so mass-sensitive inference can differ from the original fractional scale. In individual named-instance mode, the optimized null classifies raw stub presence rather than reapplying the non-`"any"` threshold. Descriptive calls with `significance = FALSE` use the requested edge method directly.
+
+For `edge_method = "percent"`, an edge is compared with the total weight of the six possible directed edges inside its node triple—not with all outgoing transitions from one node. Values at or below 1 are proportions; values above 1 are percentages.
 
 ## Visualization
 
@@ -699,7 +703,7 @@ plot(mot, type = "patterns")
 
 ## Named subgraphs
 
-`subgraphs()` identifies the specific node triples forming each pattern — which states participate in which motifs:
+`subgraphs()` identifies the specific node triples forming each pattern — which states participate in which motifs. At individual level, each row represents a `(node triple, MAN type)` combination and `observed` counts the sessions exhibiting that combination. A triple can therefore appear in more than one row when its MAN type differs across sessions.
 
 ```{r}
 #| label: subgraphs
@@ -717,6 +721,8 @@ sg
 plot(sg, n = 10, ncol = 5)
 
 ```
+
+The network panel uses a canonical representative of each MAN isomorphism class. Its concrete labels identify the participating states; their positions do not encode those states' observed source/sink roles.
 
 
 # Higher-Order Networks

@@ -78,7 +78,7 @@ Only used when \code{window} is set.}
 }}
 
 \item{include}{Character vector of MAN types to include exclusively.
-Overrides \code{pattern}.}
+Overrides \code{pattern} and \code{exclude}.}
 
 \item{exclude}{Character vector of MAN types to exclude. Applied after
 \code{pattern} filter.}
@@ -98,10 +98,14 @@ edge weights). In census mode (\code{named_nodes = FALSE}) this filters
 the \code{count} column — the number of times each MAN type appears.
 Default 5 for instances, NULL for census (no filter).}
 
-\item{edge_method}{Method for determining edge presence: "any" (default),
-"expected", or "percent".}
+\item{edge_method}{Method for determining edge presence: \code{"any"}
+(default; any positive edge), \code{"expected"} (observed/expected ratio),
+or \code{"percent"} (edge weight divided by the six-edge triad total).}
 
-\item{edge_threshold}{Threshold for "expected" or "percent" methods. Default 1.5.}
+\item{edge_threshold}{Threshold for \code{"expected"} or \code{"percent"}
+methods. For \code{"expected"}, 1.5 means 50 percent above expected. For
+\code{"percent"}, values at or below 1 are proportions and values above 1
+are percentages. Default 1.5.}
 
 \item{min_transitions}{Minimum total transitions for a unit to be included.
 Default 5.}
@@ -115,7 +119,10 @@ Default 5.}
 \item{type}{Plot type:
 \describe{
 \item{\code{"triads"}}{Network diagrams of specific node triples
-(instance mode) or falls back to patterns (census mode). Each panel
+(instance mode) or falls back to patterns (census mode). Instance
+panels use a canonical representative of the MAN class: concrete
+labels identify participants, not their observed node-role
+orientation. Each panel
 title reads \code{"<MAN code>: <description>"} (e.g. \code{"030T:
       Feed-forward"}) and, in census mode, appends the z-score and a
 significance star (\code{*} p<.05, \code{**} p<.01, \code{***}
@@ -188,14 +195,18 @@ caller has already configured (e.g. via \code{\link{panel_layout}()}).}
 A \code{cograph_motif_result} object (a list) with:
 \describe{
 \item{results}{Data frame of results. Census mode
-(\code{named_nodes = FALSE}): one row per MAN type with columns
+(\code{named_nodes = FALSE}): one row per retained, observed MAN type
+with columns
 \code{type}, \code{count}, and when \code{significance = TRUE} also
 \code{expected}, \code{z}, \code{p}, \code{sig}. Instance mode
-(\code{named_nodes = TRUE}): one row per concrete node triple with
+(\code{named_nodes = TRUE}): one row per concrete node-triple and MAN
+type with
 columns \code{triad}, \code{node1}, \code{node2}, \code{node3},
 \code{type}, \code{observed}, and when
 \code{significance = TRUE} also \code{expected}, \code{z}, \code{p},
-\code{sig}.}
+\code{sig}. At individual level, \code{observed} is the number of
+sessions/units in which that triple has that MAN type; one triple may
+therefore occupy multiple rows when its type differs across units.}
 \item{type_summary}{Named \code{table} of MAN-type counts. In census
 mode the values come from the \code{count} column; in instance
 mode they come from \code{table(results$type)} and describe how
@@ -225,7 +236,7 @@ Invisibly returns the input \code{x} for \code{"triads"} and
 \code{"significance"}.
 }
 \description{
-Two modes of motif analysis for networks:
+Two modes of directed MAN triad analysis for networks:
 \itemize{
 \item \strong{Census} (\code{named_nodes = FALSE}, default): Counts MAN type
 frequencies with significance testing. Nodes are exchangeable.
@@ -238,7 +249,10 @@ exchangeable.
 Detects input type and analysis level automatically. For inputs with
 individual/group data (tna objects, cograph networks from edge lists with
 metadata), performs per-group analysis. For aggregate inputs (matrices,
-igraph), analyzes the single network.
+igraph), analyzes the single network. The unified \code{motifs()} and
+\code{subgraphs()} APIs classify the supplied adjacency as directed dyads
+in the 16-class MAN system. For the separate four-class undirected census,
+use \code{motif_census(..., directed = FALSE)}.
 
 For aggregate inputs, significance delegates to \code{\link[=motif_census]{motif_census()}}
 and its loop-free simple-graph rewiring null. Individual weighted inputs use
@@ -248,6 +262,24 @@ unit's integerized in/out margins, and the resulting multigraph (which may
 contain loops or parallel edges) is evaluated through its simple loopless
 triad projection. Observed self-loops are excluded before both counting and
 null construction.
+
+With \code{edge_method = "percent"}, edge presence is computed within each
+node triple: an edge's weight is divided by the sum of the six possible
+directed edge weights for that triple. A threshold above 1 is interpreted as
+a percentage (for example, 1.5 means 1.5 percent); a threshold at or below 1
+is interpreted as a proportion.
+
+Non-\code{"any"} significance has three important boundaries. For aggregate
+census input, observed counts use the selected threshold but the delegated
+null tests the unthresholded network; the function emits a warning. For
+individual census input, the threshold is reapplied to each integerized
+stub-null replicate. For individual named-instance input, the optimized null
+classifies raw stub presence and therefore does not reapply
+\code{edge_method}/\code{edge_threshold}. In all weighted individual paths,
+positive fractional weights retain at least one stub, which preserves support
+but can change the mass scale used by \code{"percent"}/\code{"expected"}.
+These limitations do not affect descriptive results with
+\code{significance = FALSE} or the default \code{edge_method = "any"}.
 }
 \examples{
 # Census from a matrix (no significance test -- fastest path)

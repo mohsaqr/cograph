@@ -3,7 +3,8 @@
 Extract and analyze triad motifs from network data with flexible
 filtering, pattern selection, and statistical significance testing.
 Supports both individual-level analysis (with tna objects or grouped
-data) and aggregate analysis (with matrices or networks).
+data) and aggregate analysis (with matrices or networks). The supplied
+adjacency is classified as directed dyads using the 16-class MAN system.
 
 ## Usage
 
@@ -183,14 +184,21 @@ A `cograph_motif_analysis` object (list) containing:
 
 ## Details
 
-Individual significance uses the same directed weighted stub-matching
-null as individual-level
-[`motifs()`](https://sonsoles.me/cograph/reference/motifs.md): positive
-weights retain at least one integer stub, shuffled targets preserve the
-integerized in/out margins, and generated loops/parallel edges are
-reduced to a simple loopless projection for triad classification.
-Observed self-loops are excluded before activity gating, counting, and
-null construction.
+Both individual and aggregate significance in this legacy extractor use
+a directed weighted stub-matching null: positive weights retain at least
+one integer stub, shuffled targets preserve the integerized in/out
+margins, and generated loops/parallel edges are reduced to a simple
+loopless projection for triad classification. This differs from
+aggregate [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md),
+which delegates to
+[`motif_census()`](https://sonsoles.me/cograph/reference/motif_census.md)
+and its simple-graph rewiring null. Observed self-loops are excluded
+before activity gating, counting, and null construction. The selected
+`edge_method` is reapplied to each null replicate, but positive
+fractional weights retain at least one integer stub. This preserves
+support while potentially changing the mass scale used by
+`"percent"`/`"expected"` inference. Descriptive results and the default
+`edge_method = "any"` are unaffected.
 
 ## MAN Notation
 

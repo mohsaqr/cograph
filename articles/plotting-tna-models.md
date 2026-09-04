@@ -557,5 +557,5 @@ data.frame(
   rendered_at = format(Sys.time(), tz = "UTC", usetz = TRUE)
 )
 #>   status   tna cograph             rendered_at
-#> 1   PASS 1.2.3   2.4.6 2026-08-23 16:40:03 UTC
+#> 1   PASS 1.2.3   2.4.6 2026-09-04 10:39:14 UTC
 ```

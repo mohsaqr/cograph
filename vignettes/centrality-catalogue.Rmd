@@ -39,7 +39,7 @@ describe **nodes**, not edges or whole graphs, and they are the most widely used
 way to compare the relative prominence of actors within a network.
 
 `cograph` ships the **widest collection of node centrality measures available in
-R — 99 in total** — spanning degree and strength, distance and closeness,
+R — 117 in total** — spanning degree and strength, distance and closeness,
 shortest-path brokerage, spectral and walk-based influence, neighbourhood
 cohesion, directed prestige, and community/group-based roles. Every measure is
 **equivalence-validated**: its output is checked numerically against an
@@ -247,6 +247,23 @@ records <- list(
       r"(Formula verified in package tests against the degree-mass-over-distance definition.)",
       via_measures = TRUE),
 
+  rec("Degree, strength and local connectivity",
+      "Neighborhood Connectivity", "neighborhood_connectivity",
+      "Neighborhood connectivity is the mean degree of a node's neighbours (average neighbour degree).",
+      r"(C_{NC}(v) = \frac{1}{k_v} \sum_{u \in N(v)} k_u)",
+      r"(`mode`)",
+      "A high value indicates attachment to hubs. Isolates score 0. Direction is respected under `mode`.",
+      r"(Equivalent to `igraph::knn(weights = NA)` (Maslov & Sneppen 2002); isolates return 0 instead of NaN.)"),
+
+  rec("Degree, strength and local connectivity",
+      "Entropy Variation, Degree", "entropy_variation_degree",
+      "Entropy variation is the drop in the Shannon entropy of the degree distribution when the node and its links are removed.",
+      r"(EnV_k(i) = I_k(G) - I_k(G - i), \quad I_k(G) = -\sum_j \frac{k_j}{\sum_l k_l} \ln \frac{k_j}{\sum_l k_l})",
+      r"(`mode`)",
+      "A high value indicates a node whose removal makes the remaining degree distribution more concentrated. Signed; negative values occur.",
+      r"(Ai (2017), eqs. 5-10. Matches the author's R code path and the paper's Table 2 quantiles on its 4234-node network.)",
+      via_measures = TRUE),
+
   ## ---- Family 2: Distance and closeness ----
   rec("Distance and closeness",
       "Closeness Centrality", "closeness",
@@ -440,6 +457,46 @@ records <- list(
       "A high value indicates a favourable position in pairwise distance comparisons.",
       r"(Implemented natively because some reference implementations have known edge-case issues.)"),
 
+  rec("Distance and closeness",
+      "Distance Entropy", "distance_entropy",
+      "Distance entropy is the normalised Shannon entropy of a node's hop-distance profile, so it summarises the spread of distances where closeness summarises their mean.",
+      r"(h(v) = -\frac{1}{\log(M_v - m_v + 1)} \sum_{k = m_v}^{M_v} p_k \log p_k, \quad p_k = \frac{n_k(v)}{R_v})",
+      r"(`mode`)",
+      "A high value (up to 1) indicates reach spread evenly across many network layers; 0 means every reachable node sits at the same distance. Hop counts only; weights are ignored.",
+      r"(Stella & De Domenico (2018). The normaliser uses $M_v - m_v + 1$ distance values so the index is bounded by 1; the printed formula divides by $\log(M_v - m_v)$, which is undefined for two distinct distances.)"),
+
+  rec("Distance and closeness",
+      "Local Dimension", "local_dimension",
+      "Local dimension is the growth exponent of the ball around a node: how fast the number of nodes within $r$ hops grows with $r$.",
+      r"(D_v = \frac{d \ln B_v(r)}{d \ln r}, \quad B_v(r) = 1 + |\{u : d(v, u) \le r\}|, \; r = 1, \ldots, d_{\max}(v))",
+      r"(`mode`)",
+      r"(A low value indicates a node that reaches most of the network within a few hops, so lower is more influential. With a single radius the discretised derivative $r\, n_v(r) / B_v(r)$ is reported.)",
+      r"(Pu et al. (2014). Reproduces the worked example of Wen & Deng (2019), 0.9231 for ring sizes 4, 5, 4, 4.)"),
+
+  rec("Distance and closeness",
+      "Local Information Dimensionality", "local_information_dimension",
+      "Local information dimensionality replaces the ball count of local dimension by its Shannon information and grows the box only to half the node's eccentricity.",
+      r"(D^I_v = -\frac{d I_v(l)}{d \ln l}, \quad I_v(l) = -p_v(l) \ln p_v(l), \; p_v(l) = \frac{B_v(l)}{n}, \; l = 1, \ldots, \lceil d_{\max}(v) / 2 \rceil)",
+      r"(`mode`)",
+      r"(A high value indicates a more influential node. With a single box size the discretised derivative $l (1 + \ln p_v(l))\, n_v(l) / n$ is reported.)",
+      r"(Wen & Deng (2020), formula verified against hand-computed path and star values.)"),
+
+  rec("Distance and closeness",
+      "Access Information", "access_information",
+      "Access information is the mean number of bits a map-less walker needs to reach every other node along shortest paths.",
+      r"(A_i = \frac{1}{N} \sum_j S(i \to j), \quad S(i \to j) = -\log_2 \sum_{p(i, j)} \frac{1}{k_i} \prod_{l \in p,\, l \ne i, j} \frac{1}{k_l - 1})",
+      r"(—)",
+      "A low value indicates a node that reaches the network with few decisions. Hubs score high, because a walker leaving a hub has many links to choose from.",
+      r"(Rosvall et al. (2005); Sneppen et al. (2005). Matches enumeration of all shortest paths and the papers' star and bipartite examples.)"),
+
+  rec("Distance and closeness",
+      "Hide Information", "hide_information",
+      "Hide information is the mean number of bits the rest of the network needs to locate a node.",
+      r"(H_i = \frac{1}{N} \sum_j S(j \to i))",
+      r"(—)",
+      "A high value indicates a hidden, peripheral node; hubs have low hide information.",
+      r"(Rosvall et al. (2005); Sneppen et al. (2005). Matches enumeration of all shortest paths.)"),
+
   ## ---- Family 3: Shortest-path brokerage and flow ----
   rec("Shortest-path brokerage and flow",
       "Betweenness Centrality", "betweenness",
@@ -520,6 +577,15 @@ records <- list(
       r"(—)",
       "A high value indicates closeness under an all-path flow model. It generally requires connected graphs.",
       r"(Corresponds to NetworkX current-flow closeness centrality.)"),
+
+  rec("Shortest-path brokerage and flow",
+      "Entropy Variation, Betweenness", "entropy_variation_betweenness",
+      "Entropy variation of the betweenness distribution: the drop in its Shannon entropy when the node is removed.",
+      r"(EnV_b(i) = I_b(G) - I_b(G - i))",
+      r"(—)",
+      "A high value indicates a node whose removal concentrates shortest-path traffic on fewer nodes. Betweenness is recomputed per removal.",
+      r"(Ai (2017). Matches the author's R code path and the paper's Table 2 betweenness quantiles.)",
+      via_measures = TRUE),
 
   ## ---- Family 4: Spectral, walk and influence ----
   rec("Spectral, walk and influence",
@@ -726,6 +792,62 @@ records <- list(
       r"(Based on matrix-tree theorem centrality formulations.)",
       via_measures = TRUE),
 
+  rec("Spectral, walk and influence",
+      "Shapley Value, Game 1", "shapley_game1",
+      "Shapley value of the node in the coalition game whose worth is the number of nodes a coalition covers within one hop.",
+      r"(SV_1(v) = \sum_{u \in \{v\} \cup N(v)} \frac{1}{1 + k_u})",
+      r"(—)",
+      "A high value indicates a node whose presence adds much one-hop coverage to a typical coalition. Values sum to $n$.",
+      r"(Michalak et al. (2013), game 1. Equal to exact Shapley values from full coalition enumeration in package tests.)"),
+
+  rec("Spectral, walk and influence",
+      "Shapley Value, Game 2", "shapley_game2",
+      "Shapley value in the game where a node is covered once at least $k$ coalition members are adjacent to it.",
+      r"(SV_2(v) = \min\!\left(1, \frac{k}{1 + k_v}\right) + \sum_{u \in N(v)} \max\!\left(0, \frac{k_u - k + 1}{k_u (1 + k_u)}\right))",
+      r"(`shapley_k`)",
+      "A high value indicates a node that helps push many neighbours over the $k$-neighbour threshold. With $k = 1$ this is game 1.",
+      r"(Michalak et al. (2013), game 2. Equal to exact Shapley values from full coalition enumeration in package tests.)"),
+
+  rec("Spectral, walk and influence",
+      "Shapley Value, Game 3", "shapley_game3",
+      "Shapley value in the game where a coalition covers every node within a hop cutoff.",
+      r"(SV_3(v) = \sum_{u \in \{v\} \cup N_d(v)} \frac{1}{1 + |N_d(u)|}, \quad N_d(u) = \{w : d(u, w) \le d_{cut}\})",
+      r"(`shapley_cutoff`)",
+      "A high value indicates a node that reaches many otherwise hard-to-reach nodes within the cutoff. With cutoff 1 this is game 1.",
+      r"(Michalak et al. (2013), game 3. Equal to exact Shapley values from full coalition enumeration in package tests.)"),
+
+  rec("Spectral, walk and influence",
+      "Rumor Centrality", "rumor",
+      "Rumor centrality counts the spreading orders that could have started at a node; on a general graph it is evaluated on the node's breadth-first tree.",
+      r"(\log R(v) = \log N! - \sum_{u} \log T^v_u)",
+      r"(—)",
+      "A high value indicates a plausible origin of a spread, typically a node near the centre. Returned on the log scale.",
+      r"(Shah & Zaman (2011), eq. 24. Reproduces the paper's Fig. 5 values and brute-force spreading-order counts on trees.)"),
+
+  rec("Spectral, walk and influence",
+      "DegreeDiscountIC", "degree_discount",
+      "DegreeDiscountIC is the greedy seed-selection order under degree discounting for the independent-cascade model.",
+      r"(dd_v = d_v - 2 t_v - (d_v - t_v)\, t_v\, p)",
+      r"(`discount_p`)",
+      "A high score indicates an early selection: the first node selected scores 1, the last $1/n$. Ties follow node order.",
+      r"(Chen, Wang & Yang (2009), Algorithm 4. Selection order matches an independent implementation on random graphs and the karate club.)"),
+
+  rec("Spectral, walk and influence",
+      "SingleDiscount", "single_discount",
+      "SingleDiscount is the greedy seed-selection order where each neighbour of a new seed discounts its degree by one.",
+      r"(dd_v = d_v - t_v)",
+      r"(—)",
+      "A high score indicates an early selection. Equivalent to repeatedly removing the highest-degree node.",
+      r"(Chen, Wang & Yang (2009). Selection order matches an independent implementation and the node-removal formulation.)"),
+
+  rec("Spectral, walk and influence",
+      "NCVoteRank", "ncvoterank",
+      "NCVoteRank is VoteRank with each voter's ability weighted by its normalised neighbourhood coreness, and two-hop weakening after each election.",
+      r"(s_u = \sum_{v \in N(u)} va_v \,[\theta + (1 - \theta)\, nc_v])",
+      r"(`ncvote_theta`)",
+      "A high score indicates an early election. With $\theta = 1$ and no two-hop weakening this is VoteRank.",
+      r"(Kumar & Panda (2020), as restated by the Centrality Zoo and three later papers; the original article was not obtainable. VoteRank limit reproduces `networkx.voterank`.)"),
+
   ## ---- Family 5: Neighbourhood structure and cohesion ----
   rec("Neighbourhood structure and cohesion",
       "Transitivity Centrality", "transitivity",
@@ -799,6 +921,14 @@ records <- list(
       r"(`mode`, `k`)",
       "A high value indicates broad reach within a fixed local radius. Results depend on the chosen $k$.",
       r"(Validated against k-path reach conventions.)"),
+
+  rec("Neighbourhood structure and cohesion",
+      "s-shell Index", "s_shell",
+      "The s-shell index peels the graph by node strength built from asymmetric topological link weights, generalising k-shell.",
+      r"(w_{ij} = 1 + (k_i\, k^{out}_j)^a, \quad s_i = \sum_{j \in N(i)} w_{ij})",
+      r"(`s_shell_a`)",
+      "A high shell index indicates a node deep in the strength-based core. With $a = 0$ the shells are the dense ranks of k-core.",
+      r"(Liu, Tang, Do & Hui (2017). Each peeled shell equals the complement of the maximal subgraph with strength above the threshold; $a = 0$ reproduces k-core ranks.)"),
 
   ## ---- Family 6: Directed prestige and hierarchy ----
   rec("Directed prestige and hierarchy",
@@ -913,6 +1043,24 @@ records <- list(
       r"(`membership`)",
       "A high value indicates between-group brokerage outside the node's own group.",
       r"(Based on Gould-Fernandez brokerage roles.)",
+      grp = TRUE),
+
+  rec("Community and group-based",
+      "Modularity Vitality", "modularity_vitality",
+      "Modularity vitality is the drop in Newman modularity when a node is deleted and the remaining nodes keep their communities.",
+      r"(V_Q(v) = Q(G, C) - Q(G - v,\; C \setminus \{v\}))",
+      r"(`membership`)",
+      "A positive value indicates a community hub; a negative value indicates a bridge whose removal sharpens the partition. Weighted and directed graphs use the corresponding modularity.",
+      r"(Magelinski, Bartulovic & Carley (2021). Matches brute-force `igraph::modularity()` after vertex deletion on random directed, undirected and weighted graphs.)",
+      grp = TRUE),
+
+  rec("Community and group-based",
+      "Community Hub-Bridge", "community_hub_bridge",
+      "Community hub-bridge scores nodes that are hubs inside their community and bridges between communities.",
+      r"(CHB(v) = |C_v|\, k^{intra}_v + NNC_v\, k^{inter}_v)",
+      r"(`membership`, `mode`)",
+      "A high value indicates a node with many intra-community links in a large community and links into several other communities.",
+      r"(Ghalmane, El Hassouni & Cherifi (2019), eqs. 2-4, raw form. Matches an independent implementation on random partitions.)",
       grp = TRUE)
 )
 

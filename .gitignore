@@ -66,3 +66,5 @@ tutorials/
 # Stale local artifacts (kept locally, not tracked)
 docs/plotting-tna-models.html
 vignettes/old_vignettes/
+# local-only equivalence scripts (never committed)
+local_testing_and_equivalence/

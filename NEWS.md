@@ -1,3 +1,98 @@
+# cograph 2.4.7
+
+## New features
+
+### Centrality Batch 7 — Centrality Zoo comparison batch
+
+Five measures chosen from the Centrality Zoo correlation study (Shvydun
+2025; 349 measures, 648 ICON networks, average Kendall tau) as the ones
+with the **lowest rank redundancy** against what `centrality()` already
+computed (maximum tau with any existing measure in parentheses). All are
+implemented in base R on matrices (`R/kernels-batch7.R`) with thin igraph
+glue and one exported verb each (`R/centrality-batch7.R`).
+
+- `centrality_distance_entropy()` (tau 0.30) — Stella & De Domenico
+  (2018). Normalised Shannon entropy of a node's hop-distance profile;
+  closeness is the mean of that profile, this is its spread. The
+  normaliser is `log(M - m + 1)` so a uniform profile scores exactly 1
+  (the printed formula's `log(M - m)` is undefined for two distances).
+- `centrality_local_dimension()` (tau 0.50) — Pu et al. (2014). OLS slope
+  of `ln B(r)` on `ln r`, ball including the centre. Reproduces the worked
+  example of Wen & Deng (2019) exactly (0.9231). Lower = more influential.
+- `centrality_local_information_dimension()` (tau 0.38) — Wen & Deng
+  (2020). Entropy-weighted local dimension over boxes up to half the
+  eccentricity. Higher = more influential. Single-box nodes use the
+  paper's discretised derivative.
+- `centrality_modularity_vitality()` (tau 0.40) — Magelinski, Bartulovic &
+  Carley (2021). `Q(G, C) - Q(G - i, C \ i)` under a fixed partition;
+  positive = community hub, negative = bridge. Closed-form vectorised
+  update (one matrix product for all nodes); matches brute-force
+  `igraph::modularity()` after deletion on random directed, undirected and
+  weighted graphs. Requires `membership`; wrong-length input raises
+  `cograph_bad_membership`.
+- `centrality_neighborhood_connectivity()` (tau 0.64) — Maslov & Sneppen
+  (2002). Mean neighbour degree, isolates 0; equals
+  `igraph::knn(weights = NA)`, with `mode` support.
+
+The three distance-scaling measures are hop-count measures and ignore edge
+weights (as `gravity` and `collective_influence` already do); they share one
+unweighted all-pairs matrix per `centrality()` call.
+
+### Centrality Batch 8 — the Zoo's "on the way" measures
+
+The twelve measures the batch 7 lookup listed as "on the way" are now
+implemented (thirteen `centrality()` measures), each verified against an
+exact brute-force definition or the source paper's own numbers, plus an
+independent Python reference written from the paper (kept in
+`local_testing_and_equivalence/batch8/`, not shipped). Base-R kernels in
+`R/kernels-batch8.R`, verbs in `R/centrality-batch8.R`.
+
+- `centrality_shapley_game1()`, `_game2()`, `_game3()` — Michalak et al.
+  (2013) closed-form Shapley values of the one-hop, `shapley_k`-neighbour
+  and `shapley_cutoff`-hop coverage games. Equal to exact Shapley values from
+  full coalition enumeration on random graphs of up to 8 nodes (with
+  isolates, loops, several components), directed extension included.
+- `centrality_access_information()`, `centrality_hide_information()` —
+  Rosvall et al. (2005) / Sneppen et al. (2005) search information, averaged
+  from and to each node; shortest-path DAG accumulation, no path
+  enumeration. Equal to explicit all-shortest-paths enumeration; reproduces
+  the papers' star and complete-bipartite values. Disconnected graphs
+  average over each node's reachable set.
+- `centrality_rumor()` — Shah & Zaman (2011) rumor centrality on each node's
+  BFS tree, log scale. `exp()` of it equals brute-force spreading-order
+  counts on trees; reproduces the paper's Fig. 5 (8, 12, 2, 3, 3).
+- `centrality_community_hub_bridge()` — Ghalmane, El Hassouni & Cherifi
+  (2019) raw hub-bridge score (needs `membership`; `cograph_bad_membership`
+  on bad input).
+- `centrality_entropy_variation(of = "degree" | "betweenness")` — Ai (2017)
+  signed entropy drop on node deletion; degree variant in closed form.
+  Equal to the author's own R code path to 1e-15 and to the paper's Table 2
+  quantiles on its 4234-node network.
+- `centrality_s_shell()` — Liu, Tang, Do & Hui (2017) strength-based shell
+  index with asymmetric topological weights (`s_shell_a`, default 0.5). The
+  Zoo's "s-shell index" is this measure, not the Eidsaa-Almaas s-core.
+  Shells verified against the maximal-subgraph definition; `a = 0` gives
+  k-core dense ranks.
+- `centrality_degree_discount()`, `centrality_single_discount()` — Chen,
+  Wang & Yang (2009) greedy seed-selection orders (`discount_p`), scored
+  like `voterank` (first selected = 1).
+- `centrality_ncvoterank()` — Kumar & Panda (2020) neighbourhood-coreness
+  VoteRank (`ncvote_theta`). The original article could not be obtained;
+  the definition follows the Zoo encyclopedia and three restatements, and
+  the coreness normalisation (by its maximum) is a documented choice. Its
+  VoteRank limit reproduces `networkx.voterank`.
+
+The Centrality Zoo lookup article and coverage document were regenerated:
+82 Zoo measures are now available in cograph and nothing is "on the way".
+
+New pkgdown article **Centrality Zoo lookup** answers "is the Zoo measure I
+want in cograph?": every Zoo measure listed once under Available, Almost
+identical (tau >= 0.99, with the cograph measure to use), Near-duplicate
+(0.90 <= tau < 0.99), On the way, or Not available. `docs/CENTRALITY-ZOO-COVERAGE.md` records the full intersection of
+the Zoo matrix with cograph: which Zoo measures are rank-identical to an existing
+cograph measure (and therefore not worth adding), which are near-duplicates,
+and the remaining ranked candidates.
+
 # cograph 2.4.6
 
 ## New features

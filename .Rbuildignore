@@ -67,3 +67,4 @@
 ^AGENT-NOTE-.*\.md$
 ^AGENTS\.md$
 
+^local_testing_and_equivalence$

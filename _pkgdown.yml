@@ -188,6 +188,7 @@ articles:
   contents:
   - starts_with("introduction")
   - starts_with("centrality-catalogue")
+  - starts_with("articles/centrality-zoo")
   - starts_with("articles/why")
   - starts_with("articles/plotting")
   - starts_with("articles/mcml")

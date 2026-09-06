@@ -61,6 +61,35 @@
 #'   "expected_influence_2" (Robinaugh, Millner & McNally 2016). Expected
 #'   influence keeps signed edge contributions, which is important when edges
 #'   can be negative (partial-correlation, glasso, signed correlation networks).
+#'   **Zoo (batch 7, lowest rank-redundancy with the rest of the package per
+#'   the Centrality Zoo comparison)**: "distance_entropy" (Stella & De
+#'   Domenico 2018), "local_dimension" (Pu et al. 2014),
+#'   "local_information_dimension" (Wen & Deng 2020),
+#'   "neighborhood_connectivity" (Maslov & Sneppen 2002), and
+#'   "modularity_vitality" (Magelinski et al. 2021; requires
+#'   \code{membership}). The first three are hop-count measures and ignore
+#'   edge weights. See \code{\link{centrality_distance_entropy}},
+#'   \code{\link{centrality_local_dimension}},
+#'   \code{\link{centrality_local_information_dimension}},
+#'   \code{\link{centrality_neighborhood_connectivity}},
+#'   \code{\link{centrality_modularity_vitality}}.
+#'   **Zoo (batch 8, the measures the Zoo comparison left "on the way")**:
+#'   "shapley_game1", "shapley_game2", "shapley_game3" (Michalak et al.
+#'   2013), "access_information", "hide_information" (Rosvall et al. 2005),
+#'   "rumor" (Shah & Zaman 2011), "community_hub_bridge" (Ghalmane et al.
+#'   2019; requires \code{membership}), "entropy_variation_degree",
+#'   "entropy_variation_betweenness" (Ai 2017), "s_shell" (Liu et al. 2017),
+#'   "degree_discount", "single_discount" (Chen, Wang & Yang 2009),
+#'   "ncvoterank" (Kumar & Panda 2020). All are hop-count or topology-only
+#'   measures; edge weights are ignored. See the per-measure pages, e.g.
+#'   \code{\link{centrality_shapley_game1}},
+#'   \code{\link{centrality_access_information}},
+#'   \code{\link{centrality_rumor}},
+#'   \code{\link{centrality_community_hub_bridge}},
+#'   \code{\link{centrality_entropy_variation}},
+#'   \code{\link{centrality_s_shell}},
+#'   \code{\link{centrality_degree_discount}},
+#'   \code{\link{centrality_ncvoterank}}.
 #' @param mode For directed networks: "all", "in", or "out". Affects measures
 #'   whose output columns carry a mode suffix, including degree, strength,
 #'   closeness, eccentricity, coreness, harmonic, diffusion, leverage, k-reach,
@@ -131,12 +160,23 @@
 #'   Neighborhood Component). Default 1.7 as recommended by Lin et al. (2008).
 #'   centiserve uses 1.67 (four-community assumption). Must be between 1 and 2.
 #' @param membership Integer vector of community assignments (one per node) for
-#'   community-aware measures: participation, within_module_z, gateway, and the
-#'   Gould-Fernandez brokerage roles. Default NULL. Required when requesting
+#'   community-aware measures: participation, within_module_z, gateway,
+#'   modularity_vitality, and the Gould-Fernandez brokerage roles. Default
+#'   NULL. Required when requesting
 #'   these measures.
 #' @param katz_alpha Attenuation factor for Katz centrality. Must satisfy
 #'   \eqn{\alpha < 1 / \rho(A)}. Default 0.1 (matches centiserve and NetworkX
 #'   conventions). Only used when \code{"katz"} is in \code{measures}.
+#' @param shapley_k Neighbour threshold \eqn{k} for \code{"shapley_game2"}.
+#'   Default 2. See \code{\link{centrality_shapley_game2}}.
+#' @param shapley_cutoff Hop cutoff for \code{"shapley_game3"}. Default 2.
+#'   See \code{\link{centrality_shapley_game3}}.
+#' @param s_shell_a Exponent of the asymmetric link weights for
+#'   \code{"s_shell"}. Default 0.5. See \code{\link{centrality_s_shell}}.
+#' @param discount_p Propagation probability for \code{"degree_discount"}.
+#'   Default 0.01. See \code{\link{centrality_degree_discount}}.
+#' @param ncvote_theta Weight of the plain vote in \code{"ncvoterank"}.
+#'   Default 0.5. See \code{\link{centrality_ncvoterank}}.
 #' @param tna_network Logical or NULL. Umbrella switch that forces tna-style
 #'   conventions across all measures. \code{NULL} (default) auto-detects
 #'   from the input class — TRUE iff \code{x} is a \code{tna} or related
@@ -264,6 +304,44 @@
 #'     connectivity (requires \code{membership}).}
 #'   \item{gateway}{Gateway coefficient. Inter-community brokerage weighted by
 #'     centrality (requires \code{membership}).}
+#'   \item{distance_entropy}{Normalised Shannon entropy of a node's
+#'     hop-distance profile; 1 = distances spread evenly, 0 = all at one
+#'     distance.}
+#'   \item{local_dimension}{Growth exponent of the ball around a node
+#'     (slope of \eqn{\ln B_i(r)} on \eqn{\ln r}); lower = more
+#'     influential.}
+#'   \item{local_information_dimension}{Entropy-weighted local dimension
+#'     over boxes up to half the node's eccentricity; higher = more
+#'     influential.}
+#'   \item{neighborhood_connectivity}{Mean degree of a node's neighbours
+#'     (average neighbour degree); isolates score 0.}
+#'   \item{modularity_vitality}{Drop in modularity when the node is removed
+#'     under a fixed partition; positive = community hub, negative = bridge
+#'     (requires \code{membership}).}
+#'   \item{shapley_game1, shapley_game2, shapley_game3}{Shapley value of the
+#'     node in the coverage games of Michalak et al. (2013): one-hop
+#'     coverage, \code{shapley_k}-neighbour coverage, and coverage within
+#'     \code{shapley_cutoff} hops. Values sum to the node count.}
+#'   \item{access_information}{Mean bits needed to reach every other node
+#'     along shortest paths without a map; low = well connected.}
+#'   \item{hide_information}{Mean bits others need to find the node;
+#'     high = hidden.}
+#'   \item{rumor}{Log rumor centrality on the node's BFS tree: log of the
+#'     number of spreading orders that could start there.}
+#'   \item{community_hub_bridge}{Community size times intra-community
+#'     degree plus number of other communities touched times
+#'     inter-community degree (requires \code{membership}).}
+#'   \item{entropy_variation_degree, entropy_variation_betweenness}{Drop in
+#'     the Shannon entropy of the degree (by \code{mode}) or betweenness
+#'     distribution when the node is deleted; signed, nats.}
+#'   \item{s_shell}{Shell index of the strength-based peeling with
+#'     asymmetric topological link weights, exponent \code{s_shell_a}.}
+#'   \item{degree_discount, single_discount}{Greedy seed-selection order
+#'     under degree discounting (\code{discount_p}) or unit discounting,
+#'     scored 1 for the first selected down to 1/n.}
+#'   \item{ncvoterank}{VoteRank with voters weighted by normalised
+#'     neighbourhood coreness (\code{ncvote_theta}); election order scored
+#'     like \code{voterank}.}
 #' }
 #'
 #' @export
@@ -307,6 +385,8 @@ centrality <- function(x, type = c("basic", "extended", "all"),
                        decay_parameter = 0.5, dmnc_epsilon = 1.7,
                        membership = NULL,
                        katz_alpha = 0.1, hubbell_weight = 0.5,
+                       shapley_k = 2, shapley_cutoff = 2,
+                       s_shell_a = 0.5, discount_p = 0.01, ncvote_theta = 0.5,
                        tna_network = NULL,
                        psych_network = NULL,
                        ...) {
@@ -406,6 +486,12 @@ centrality <- function(x, type = c("basic", "extended", "all"),
                      "hindex_strength", "onion",
                      # Batch 3 — mode measures
                      "reaching_local",
+                     # Batch 7 — Centrality Zoo comparison batch
+                     "distance_entropy", "local_dimension",
+                     "local_information_dimension",
+                     "neighborhood_connectivity",
+                     # Batch 8 — mode measures
+                     "community_hub_bridge", "entropy_variation_degree",
                      # Psychometric family — signed-weight sums
                      "expected_influence_1", "expected_influence_2")
   no_mode_measures <- c("betweenness", "eigenvector", "pagerank",
@@ -432,7 +518,14 @@ centrality <- function(x, type = c("basic", "extended", "all"),
                         # Batch 5 — Gould-Fernandez brokerage (5 roles)
                         "brokerage_coordinator", "brokerage_itinerant",
                         "brokerage_representative", "brokerage_gatekeeper",
-                        "brokerage_liaison")
+                        "brokerage_liaison",
+                        # Batch 7 — Centrality Zoo comparison batch
+                        "modularity_vitality",
+                        # Batch 8 — Centrality Zoo "on the way" batch
+                        "shapley_game1", "shapley_game2", "shapley_game3",
+                        "access_information", "hide_information", "rumor",
+                        "entropy_variation_betweenness", "s_shell",
+                        "degree_discount", "single_discount", "ncvoterank")
   all_measures <- c(mode_measures, no_mode_measures)
 
   # Curated tiers. basic = canonical measures every paper reports;
@@ -525,8 +618,29 @@ centrality <- function(x, type = c("basic", "extended", "all"),
                                "centroid", "closeness_vitality")
   shared_dist_mat <- NULL
   if (any(measures %in% distance_based_measures)) {
-    dist_w <- if (is.null(weights_for_paths)) NA else weights_for_paths
-    shared_dist_mat <- igraph::distances(g, mode = mode, weights = dist_w)
+    # Dependency-free all-pairs shortest paths (see R/kernels-distance.R).
+    # The kernel takes a weight matrix, so the graph's edges and the
+    # path weights actually in force are assembled into one first.
+    shared_dist_mat <- .cg_distances(
+      .cg_path_matrix(g, weights_for_paths), mode, cutoff)
+  }
+
+  # Batch 7 scaling measures are defined on hop counts, not path weights,
+  # so they share one unweighted all-pairs matrix regardless of `weighted`.
+  hop_distance_measures <- c("distance_entropy", "local_dimension",
+                             "local_information_dimension")
+  shared_hop_mat <- NULL
+  if (any(measures %in% hop_distance_measures)) {
+    shared_hop_mat <- .cg_hop_distances(g, mode)
+  }
+
+  # Batch 8 no-mode measures walk along out-edges whatever `mode` says, so
+  # they share one out-direction hop matrix of their own.
+  out_hop_measures <- c("shapley_game3", "access_information",
+                        "hide_information")
+  shared_out_hop_mat <- NULL
+  if (any(measures %in% out_hop_measures)) {
+    shared_out_hop_mat <- .cg_hop_distances(g, "out")
   }
 
   for (m in measures) {
@@ -534,6 +648,8 @@ centrality <- function(x, type = c("basic", "extended", "all"),
     measure_weights <- if (m %in% path_based_measures) weights_for_paths else weights
     # Thread shared distance matrix only for measures that use it
     this_dist_mat <- if (m %in% distance_based_measures) shared_dist_mat else NULL
+    this_hop_mat <- if (m %in% hop_distance_measures) shared_hop_mat else NULL
+    this_out_hop_mat <- if (m %in% out_hop_measures) shared_out_hop_mat else NULL
 
     # Calculate value
     value <- calculate_measure(
@@ -546,7 +662,12 @@ centrality <- function(x, type = c("basic", "extended", "all"),
       decay_parameter = decay_parameter, dmnc_epsilon = dmnc_epsilon,
       membership = membership,
       katz_alpha = katz_alpha, hubbell_weight = hubbell_weight,
-      dist_mat = this_dist_mat
+      dist_mat = this_dist_mat,
+      hop_mat = this_hop_mat,
+      out_hop_mat = this_out_hop_mat,
+      shapley_k = shapley_k, shapley_cutoff = shapley_cutoff,
+      s_shell_a = s_shell_a, discount_p = discount_p,
+      ncvote_theta = ncvote_theta
     )
 
     # Normalize if requested (except for closeness which is handled by igraph)
@@ -1216,7 +1337,11 @@ calculate_measure <- function(g, measure, mode, weights, normalized,
                               dmnc_epsilon = 1.7,
                               membership = NULL,
                               katz_alpha = 0.1, hubbell_weight = 0.5,
-                              dist_mat = NULL) {
+                              dist_mat = NULL, hop_mat = NULL,
+                              out_hop_mat = NULL,
+                              shapley_k = 2, shapley_cutoff = 2,
+                              s_shell_a = 0.5, discount_p = 0.01,
+                              ncvote_theta = 0.5) {
   directed <- igraph::is_directed(g)
 
   value <- switch(measure,
@@ -1385,6 +1510,39 @@ calculate_measure <- function(g, measure, mode, weights, normalized,
     "brokerage_representative" = calculate_brokerage(g, membership, "representative"),
     "brokerage_gatekeeper"     = calculate_brokerage(g, membership, "gatekeeper"),
     "brokerage_liaison"        = calculate_brokerage(g, membership, "liaison"),
+
+    # Batch 7 — Centrality Zoo comparison batch (R/centrality-batch7.R)
+    "distance_entropy" = calculate_distance_entropy(g, mode = mode,
+                                                    hop_mat = hop_mat),
+    "local_dimension" = calculate_local_dimension(g, mode = mode,
+                                                  hop_mat = hop_mat),
+    "local_information_dimension" = calculate_local_information_dimension(
+      g, mode = mode, hop_mat = hop_mat),
+    "neighborhood_connectivity" = calculate_neighborhood_connectivity(
+      g, mode = mode),
+    "modularity_vitality" = calculate_modularity_vitality(
+      g, weights = weights, membership = membership),
+
+    # Batch 8 — Centrality Zoo "on the way" batch (R/centrality-batch8.R)
+    "shapley_game1" = calculate_shapley(g, game = 1L),
+    "shapley_game2" = calculate_shapley(g, game = 2L, k = shapley_k),
+    "shapley_game3" = calculate_shapley(g, game = 3L, cutoff = shapley_cutoff,
+                                        hop_mat = out_hop_mat),
+    "access_information" = calculate_search_information(
+      g, what = "access", hop_mat = out_hop_mat),
+    "hide_information" = calculate_search_information(
+      g, what = "hide", hop_mat = out_hop_mat),
+    "rumor" = calculate_rumor(g),
+    "community_hub_bridge" = calculate_community_hub_bridge(
+      g, membership = membership, mode = mode),
+    "entropy_variation_degree" = calculate_entropy_variation(
+      g, of = "degree", mode = mode),
+    "entropy_variation_betweenness" = calculate_entropy_variation(
+      g, of = "betweenness"),
+    "s_shell" = calculate_s_shell(g, a = s_shell_a),
+    "degree_discount" = calculate_degree_discount(g, p = discount_p),
+    "single_discount" = calculate_degree_discount(g, single = TRUE),
+    "ncvoterank" = calculate_ncvoterank(g, theta = ncvote_theta),
 
     stop("Unknown measure: ", measure, call. = FALSE)
   )

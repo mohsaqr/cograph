@@ -38,7 +38,8 @@ the per-type plots (\code{"types"}, \code{"patterns"}) deliberately drop
 the significance decoration here, because aggregating per type requires a
 rule (median? max-|z|?) that isn't pinned and would be misleading by
 default.
-
+}
+\details{
 The \code{"triads"} diagram uses a canonical representative of the row's
 MAN isomorphism class. Concrete labels identify the participating nodes;
 their positions in that representative diagram do not encode the nodes'

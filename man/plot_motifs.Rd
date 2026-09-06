@@ -29,7 +29,10 @@ plot_motifs(
 \item{type}{Plot type:
 \describe{
 \item{\code{"triads"}}{Network diagrams of specific node triples
-(instance mode) or falls back to patterns (census mode). Each panel
+(instance mode) or falls back to patterns (census mode). Instance
+panels use a canonical representative of the MAN class: concrete
+labels identify participants, not their observed node-role
+orientation. Each panel
 title reads \code{"<MAN code>: <description>"} (e.g. \code{"030T:
       Feed-forward"}) and, in census mode, appends the z-score and a
 significance star (\code{*} p<.05, \code{**} p<.01, \code{***}

@@ -127,10 +127,9 @@ use a directed weighted stub-matching null: positive weights retain at least
 one integer stub, shuffled targets preserve the integerized in/out margins,
 and generated loops/parallel edges are reduced to a simple loopless
 projection for triad classification. This differs from aggregate
-\code{\link[=motifs]{motifs()}}, which delegates to
-\code{\link[=motif_census]{motif_census()}} and its simple-graph rewiring null.
-Observed self-loops are excluded before activity gating, counting, and null
-construction.
+\code{\link[=motifs]{motifs()}}, which delegates to \code{\link[=motif_census]{motif_census()}} and its simple-graph rewiring
+null. Observed self-loops are excluded before activity gating, counting, and
+null construction.
 The selected \code{edge_method} is reapplied to each null replicate, but
 positive fractional weights retain at least one integer stub. This preserves
 support while potentially changing the mass scale used by

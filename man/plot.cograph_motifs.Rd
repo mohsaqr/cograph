@@ -39,7 +39,9 @@ arrange the per-motif panels in an internal grid via
 caller has already configured (e.g. via \code{\link{panel_layout}()}).
 Has no effect for \code{type = "bar"} or \code{type = "heatmap"}.}
 
-\item{...}{Additional arguments passed to plotting functions}
+\item{...}{For \code{type = "network"}, additional arguments passed to the
+per-motif \code{igraph} plot calls. The ggplot-based types (\code{"bar"},
+\code{"heatmap"}) do not consume them.}
 }
 \value{
 A ggplot2 object (invisibly)

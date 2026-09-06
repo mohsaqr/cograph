@@ -32,6 +32,11 @@ centrality(
   membership = NULL,
   katz_alpha = 0.1,
   hubbell_weight = 0.5,
+  shapley_k = 2,
+  shapley_cutoff = 2,
+  s_shell_a = 0.5,
+  discount_p = 0.01,
+  ncvote_theta = 0.5,
   tna_network = NULL,
   psych_network = NULL,
   ...
@@ -96,7 +101,36 @@ a directed graph; see \code{\link{centrality_brokerage_coordinator}}).
 \strong{Psychometric (signed-weight)}: "expected_influence_1",
 "expected_influence_2" (Robinaugh, Millner & McNally 2016). Expected
 influence keeps signed edge contributions, which is important when edges
-can be negative (partial-correlation, glasso, signed correlation networks).}
+can be negative (partial-correlation, glasso, signed correlation networks).
+\strong{Zoo (batch 7, lowest rank-redundancy with the rest of the package per
+the Centrality Zoo comparison)}: "distance_entropy" (Stella & De
+Domenico 2018), "local_dimension" (Pu et al. 2014),
+"local_information_dimension" (Wen & Deng 2020),
+"neighborhood_connectivity" (Maslov & Sneppen 2002), and
+"modularity_vitality" (Magelinski et al. 2021; requires
+\code{membership}). The first three are hop-count measures and ignore
+edge weights. See \code{\link{centrality_distance_entropy}},
+\code{\link{centrality_local_dimension}},
+\code{\link{centrality_local_information_dimension}},
+\code{\link{centrality_neighborhood_connectivity}},
+\code{\link{centrality_modularity_vitality}}.
+\strong{Zoo (batch 8, the measures the Zoo comparison left "on the way")}:
+"shapley_game1", "shapley_game2", "shapley_game3" (Michalak et al.
+2013), "access_information", "hide_information" (Rosvall et al. 2005),
+"rumor" (Shah & Zaman 2011), "community_hub_bridge" (Ghalmane et al.
+2019; requires \code{membership}), "entropy_variation_degree",
+"entropy_variation_betweenness" (Ai 2017), "s_shell" (Liu et al. 2017),
+"degree_discount", "single_discount" (Chen, Wang & Yang 2009),
+"ncvoterank" (Kumar & Panda 2020). All are hop-count or topology-only
+measures; edge weights are ignored. See the per-measure pages, e.g.
+\code{\link{centrality_shapley_game1}},
+\code{\link{centrality_access_information}},
+\code{\link{centrality_rumor}},
+\code{\link{centrality_community_hub_bridge}},
+\code{\link{centrality_entropy_variation}},
+\code{\link{centrality_s_shell}},
+\code{\link{centrality_degree_discount}},
+\code{\link{centrality_ncvoterank}}.}
 
 \item{mode}{For directed networks: "all", "in", or "out". Affects measures
 whose output columns carry a mode suffix, including degree, strength,
@@ -189,8 +223,9 @@ Neighborhood Component). Default 1.7 as recommended by Lin et al. (2008).
 centiserve uses 1.67 (four-community assumption). Must be between 1 and 2.}
 
 \item{membership}{Integer vector of community assignments (one per node) for
-community-aware measures: participation, within_module_z, gateway, and the
-Gould-Fernandez brokerage roles. Default NULL. Required when requesting
+community-aware measures: participation, within_module_z, gateway,
+modularity_vitality, and the Gould-Fernandez brokerage roles. Default
+NULL. Required when requesting
 these measures.}
 
 \item{katz_alpha}{Attenuation factor for Katz centrality. Must satisfy
@@ -200,6 +235,21 @@ conventions). Only used when \code{"katz"} is in \code{measures}.}
 \item{hubbell_weight}{Weight factor \eqn{w} for Hubbell centrality. Must
 satisfy \eqn{w \cdot \rho(W) \le 1} for solvability. Default 0.5. Only
 used when \code{"hubbell"} is in \code{measures}.}
+
+\item{shapley_k}{Neighbour threshold \eqn{k} for \code{"shapley_game2"}.
+Default 2. See \code{\link{centrality_shapley_game2}}.}
+
+\item{shapley_cutoff}{Hop cutoff for \code{"shapley_game3"}. Default 2.
+See \code{\link{centrality_shapley_game3}}.}
+
+\item{s_shell_a}{Exponent of the asymmetric link weights for
+\code{"s_shell"}. Default 0.5. See \code{\link{centrality_s_shell}}.}
+
+\item{discount_p}{Propagation probability for \code{"degree_discount"}.
+Default 0.01. See \code{\link{centrality_degree_discount}}.}
+
+\item{ncvote_theta}{Weight of the plain vote in \code{"ncvoterank"}.
+Default 0.5. See \code{\link{centrality_ncvoterank}}.}
 
 \item{tna_network}{Logical or NULL. Umbrella switch that forces tna-style
 conventions across all measures. \code{NULL} (default) auto-detects
@@ -333,6 +383,44 @@ connections (requires \code{membership}).}
 connectivity (requires \code{membership}).}
 \item{gateway}{Gateway coefficient. Inter-community brokerage weighted by
 centrality (requires \code{membership}).}
+\item{distance_entropy}{Normalised Shannon entropy of a node's
+hop-distance profile; 1 = distances spread evenly, 0 = all at one
+distance.}
+\item{local_dimension}{Growth exponent of the ball around a node
+(slope of \eqn{\ln B_i(r)} on \eqn{\ln r}); lower = more
+influential.}
+\item{local_information_dimension}{Entropy-weighted local dimension
+over boxes up to half the node's eccentricity; higher = more
+influential.}
+\item{neighborhood_connectivity}{Mean degree of a node's neighbours
+(average neighbour degree); isolates score 0.}
+\item{modularity_vitality}{Drop in modularity when the node is removed
+under a fixed partition; positive = community hub, negative = bridge
+(requires \code{membership}).}
+\item{shapley_game1, shapley_game2, shapley_game3}{Shapley value of the
+node in the coverage games of Michalak et al. (2013): one-hop
+coverage, \code{shapley_k}-neighbour coverage, and coverage within
+\code{shapley_cutoff} hops. Values sum to the node count.}
+\item{access_information}{Mean bits needed to reach every other node
+along shortest paths without a map; low = well connected.}
+\item{hide_information}{Mean bits others need to find the node;
+high = hidden.}
+\item{rumor}{Log rumor centrality on the node's BFS tree: log of the
+number of spreading orders that could start there.}
+\item{community_hub_bridge}{Community size times intra-community
+degree plus number of other communities touched times
+inter-community degree (requires \code{membership}).}
+\item{entropy_variation_degree, entropy_variation_betweenness}{Drop in
+the Shannon entropy of the degree (by \code{mode}) or betweenness
+distribution when the node is deleted; signed, nats.}
+\item{s_shell}{Shell index of the strength-based peeling with
+asymmetric topological link weights, exponent \code{s_shell_a}.}
+\item{degree_discount, single_discount}{Greedy seed-selection order
+under degree discounting (\code{discount_p}) or unit discounting,
+scored 1 for the first selected down to 1/n.}
+\item{ncvoterank}{VoteRank with voters weighted by normalised
+neighbourhood coreness (\code{ncvote_theta}); election order scored
+like \code{voterank}.}
 }
 }
 \examples{

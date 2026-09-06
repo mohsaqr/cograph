@@ -1,0 +1,411 @@
+---
+title: "Centrality Zoo lookup"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Centrality Zoo lookup}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+The [Centrality Zoo](https://centralityzoo.github.io/) (Shvydun, 2025,
+*Zoo of Centralities: Encyclopedia of Node Metrics in Complex Networks*,
+[arXiv:2511.05122](https://arxiv.org/abs/2511.05122)) catalogues 349 node
+centrality measures and publishes how similarly they rank nodes. This page
+answers one question: **if you are looking for a measure from the Zoo, what
+does `cograph` offer?**
+
+Every measure in the [Centrality Zoo](https://centralityzoo.github.io/comparison/)
+(349 measures, Shvydun 2025) appears exactly once below. `tau` is the
+average Kendall rank correlation between the Zoo measure and the named
+cograph measure over 648 real networks: how often the two agree on which of
+two nodes ranks higher. 1.00 means always.
+
+| Section | Meaning | Count |
+|---|---|---|
+| Available | cograph implements the measure itself | 82 |
+| Almost identical (tau >= 0.99) | same node ranking on essentially every network; use the cograph measure | 18 |
+| Near-duplicate (0.90 <= tau < 0.99) | nearly the same ranking, a few nodes swap places; a workable substitute | 159 |
+| On the way | planned for a later batch | 0 |
+| Not available | cograph has nothing comparable (best tau below 0.90) | 90 |
+
+Caveat: the Zoo computed tau on undirected, unweighted networks, so
+agreement on a directed or weighted network may be lower. Rank agreement
+says nothing about the raw values, which differ in scale.
+
+## Available in cograph
+
+| Zoo measure | cograph measure | Call |
+|---|---|---|
+| Access information | `access_information` | `centrality(x, measures = "access_information")` |
+| Betweenness | `betweenness` | `centrality(x, measures = "betweenness")` |
+| Borgatti's effective size | `effective_size` | `centrality(x, measures = "effective_size")` |
+| BottleNeck | `bottleneck` | `centrality(x, measures = "bottleneck")` |
+| Bridging centrality | `bridging` | `centrality(x, measures = "bridging")` |
+| Burt's constraint | `constraint` | `centrality(x, measures = "constraint")` |
+| Centroid | `centroid` | `centrality(x, measures = "centroid")` |
+| Closeness | `closeness` | `centrality(x, measures = "closeness")` |
+| Closeness vitality | `closeness_vitality` | `centrality(x, measures = "closeness_vitality")` |
+| ClusterRank | `clusterrank` | `centrality(x, measures = "clusterrank")` |
+| CollInf | `collective_influence` | `centrality(x, measures = "collective_influence")` |
+| Communicability betweenness | `communicability_betweenness` | `centrality(x, measures = "communicability_betweenness")` |
+| Community Hub‑Bridge measure | `community_hub_bridge` | `centrality(x, measures = "community_hub_bridge")` |
+| Cross-Clique Connectivity | `cross_clique` | `centrality(x, measures = "cross_clique")` |
+| Current-flow betweenness | `current_flow_betweenness` | `centrality(x, measures = "current_flow_betweenness")` |
+| Current-flow Closeness | `current_flow_closeness` | `centrality(x, measures = "current_flow_closeness")` |
+| Decay | `decay` | `centrality(x, measures = "decay")` |
+| Degree | `degree` | `centrality(x, measures = "degree")` |
+| DegreeDiscountIC | `degree_discount` | `centrality(x, measures = "degree_discount")` |
+| Diffusion Degree | `diffusion` | `centrality(x, measures = "diffusion")` |
+| Distance entropy | `distance_entropy` | `centrality(x, measures = "distance_entropy")` |
+| Diversity coefficient | `diversity` | `centrality(x, measures = "diversity")` |
+| DMNC | `dmnc` | `centrality(x, measures = "dmnc")` |
+| Eccentricity | `eccentricity` | `centrality(x, measures = "eccentricity")` |
+| Effective size | `effective_size` | `centrality(x, measures = "effective_size")` |
+| Eigenvector | `eigenvector` | `centrality(x, measures = "eigenvector")` |
+| Entropy | `entropy` | `centrality(x, measures = "entropy")` |
+| Entropy variation (betweenness) | `entropy_variation_betweenness` | `centrality(x, measures = "entropy_variation_betweenness")` |
+| Entropy variation (degree) | `entropy_variation_degree` | `centrality(x, measures = "entropy_variation_degree")` |
+| Expected force (ExF) | `expected` | `centrality(x, measures = "expected")` |
+| Flow betweenness | `flow_betweenness` | `centrality(x, measures = "flow_betweenness")` |
+| Gateway coefficient | `gateway` | `centrality(x, measures = "gateway")` |
+| Gil-Schmidt Power Index | `gilschmidt` | `centrality(x, measures = "gilschmidt")` |
+| Gravity centrality | `gravity` | `centrality(x, measures = "gravity")` |
+| h-index strength | `hindex_strength` | `centrality(x, measures = "hindex_strength")` |
+| Harmonic | `harmonic` | `centrality(x, measures = "harmonic")` |
+| Hide information | `hide_information` | `centrality(x, measures = "hide_information")` |
+| Hubbel | `hubbell` | `centrality(x, measures = "hubbell")` |
+| Infection number | `infection` | `centrality(x, measures = "infection")` |
+| Integration | `integration` | `centrality(x, measures = "integration")` |
+| Intra-module degree | `within_module_z` | `centrality(x, measures = "within_module_z")` |
+| k-shell | `coreness` | `centrality(x, measures = "coreness")` |
+| Katz | `katz` | `centrality(x, measures = "katz")` |
+| Laplacian | `laplacian` | `centrality(x, measures = "laplacian")` |
+| LeaderRank | `leaderrank` | `centrality(x, measures = "leaderrank")` |
+| Leverage | `leverage` | `centrality(x, measures = "leverage")` |
+| Lin's index | `lin` | `centrality(x, measures = "lin")` |
+| Load | `load` | `centrality(x, measures = "load")` |
+| Lobby index | `lobby` | `centrality(x, measures = "lobby")` |
+| Local clustering coefficient | `transitivity` | `centrality(x, measures = "transitivity")` |
+| Local dimension (Pu) | `local_dimension` | `centrality(x, measures = "local_dimension")` |
+| Local H-index | `local_hindex` | `centrality(x, measures = "local_hindex")` |
+| Local information dimensionality (LID) | `local_information_dimension` | `centrality(x, measures = "local_information_dimension")` |
+| Localized bridging centrality | `local_bridging` | `centrality(x, measures = "local_bridging")` |
+| m-reach | `kreach` | `centrality(x, measures = "kreach")` |
+| Markov | `markov` | `centrality(x, measures = "markov")` |
+| MNC | `mnc` | `centrality(x, measures = "mnc")` |
+| Modularity vitality | `modularity_vitality` | `centrality(x, measures = "modularity_vitality")` |
+| NCVoteRank | `ncvoterank` | `centrality(x, measures = "ncvoterank")` |
+| Neighborhood connectivity | `neighborhood_connectivity` | `centrality(x, measures = "neighborhood_connectivity")` |
+| Non-backtracking centrality | `nonbacktracking` | `centrality(x, measures = "nonbacktracking")` |
+| PageRank | `pagerank` | `centrality(x, measures = "pagerank")` |
+| Pairwise disconnectivity | `pairwisedis` | `centrality(x, measures = "pairwisedis")` |
+| Participation coefficient | `participation` | `centrality(x, measures = "participation")` |
+| Percolation | `percolation` | `centrality(x, measures = "percolation")` |
+| Random walk centrality | `random_walk` | `centrality(x, measures = "random_walk")` |
+| Residual closeness | `residual_closeness` | `centrality(x, measures = "residual_closeness")` |
+| Rumor centrality | `rumor` | `centrality(x, measures = "rumor")` |
+| s-shell index | `s_shell` | `centrality(x, measures = "s_shell")` |
+| SALSA | `salsa` | `centrality(x, measures = "salsa")` |
+| Second order centrality | `second_order` | `centrality(x, measures = "second_order")` |
+| Semi-local ranking (SLC) | `semilocal` | `centrality(x, measures = "semilocal")` |
+| Shapley value (game 1) | `shapley_game1` | `centrality(x, measures = "shapley_game1")` |
+| Shapley value (game 2) | `shapley_game2` | `centrality(x, measures = "shapley_game2")` |
+| Shapley value (game 3) | `shapley_game3` | `centrality(x, measures = "shapley_game3")` |
+| SingleDiscount | `single_discount` | `centrality(x, measures = "single_discount")` |
+| Spanning tree centrality (STC) | `spanning_tree` | `centrality(x, measures = "spanning_tree")` |
+| Stress | `stress` | `centrality(x, measures = "stress")` |
+| Subgraph | `subgraph` | `centrality(x, measures = "subgraph")` |
+| Topological | `topological_coefficient` | `centrality(x, measures = "topological_coefficient")` |
+| Total communicability | `communicability` | `centrality(x, measures = "communicability")` |
+| VoteRank | `voterank` | `centrality(x, measures = "voterank")` |
+
+## Almost identical to a cograph measure (tau >= 0.99)
+
+The Zoo measure and the cograph measure rank nodes the same way on
+virtually every network. Use the cograph measure.
+
+| Zoo measure | Use instead | Call | tau |
+|---|---|---|---|
+| AIC | `lin` | `centrality(x, measures = "lin")` | 1.00 |
+| Cumulative contact probability (CCP) | `salsa` | `centrality(x, measures = "salsa")` | 1.00 |
+| Degree mass | `diffusion` | `centrality(x, measures = "diffusion")` | 1.00 |
+| DirichletRank | `salsa` | `centrality(x, measures = "salsa")` | 1.00 |
+| Dynamical Influence | `eigenvector` | `centrality(x, measures = "eigenvector")` | 1.00 |
+| Electrical closeness | `current_flow_closeness` | `centrality(x, measures = "current_flow_closeness")` | 1.00 |
+| epsilon-betweenness | `percolation` | `centrality(x, measures = "percolation")` | 1.00 |
+| Hybrid degree centrality | `hubbell` | `centrality(x, measures = "hubbell")` | 0.99 |
+| Immediate Effects Centrality (IEC) | `markov` | `centrality(x, measures = "markov")` | 1.00 |
+| Improved neighbors’ k-core (INK) | `local_hindex` | `centrality(x, measures = "local_hindex")` | 1.00 |
+| Length-scaled betweenness | `percolation` | `centrality(x, measures = "percolation")` | 0.99 |
+| Linearly scaled betweenness | `percolation` | `centrality(x, measures = "percolation")` | 1.00 |
+| Nieminen's closeness | `lin` | `centrality(x, measures = "lin")` | 1.00 |
+| QJSD centrality | `salsa` | `centrality(x, measures = "salsa")` | 1.00 |
+| Routing betweenness | `load` | `centrality(x, measures = "load")` | 1.00 |
+| Total Effects Centrality (TEC) | `salsa` | `centrality(x, measures = "salsa")` | 1.00 |
+| ViralRank | `current_flow_closeness` | `centrality(x, measures = "current_flow_closeness")` | 1.00 |
+| Zeta vector centrality | `second_order` | `centrality(x, measures = "second_order")` | 1.00 |
+
+## Near-duplicate of a cograph measure (0.90 <= tau < 0.99)
+
+Nearly the same ranking; differences are confined to a handful of nodes.
+
+| Zoo measure | Closest cograph measure | Call | tau |
+|---|---|---|---|
+| Adaptive LeaderRank | `infection` | `centrality(x, measures = "infection")` | 0.96 |
+| All cycle betweenness (ACC) | `cross_clique` | `centrality(x, measures = "cross_clique")` | 0.92 |
+| All-around score | `salsa` | `centrality(x, measures = "salsa")` | 0.94 |
+| Analytic Hierarchy Process (AHP) centrality | `harmonic` | `centrality(x, measures = "harmonic")` | 0.93 |
+| ArticleRank | `pagerank` | `centrality(x, measures = "pagerank")` | 0.95 |
+| Average shortest path centrality (AC) | `closeness_vitality` | `centrality(x, measures = "closeness_vitality")` | 0.98 |
+| beta-measure | `leverage` | `centrality(x, measures = "leverage")` | 0.95 |
+| BG-index | `leverage` | `centrality(x, measures = "leverage")` | 0.95 |
+| Biased random walk centrality | `salsa` | `centrality(x, measures = "salsa")` | 0.90 |
+| Bridging capital | `infection` | `centrality(x, measures = "infection")` | 0.97 |
+| Bridging coefficient | `leverage` | `centrality(x, measures = "leverage")` | 0.95 |
+| Classified neighbors centrality | `salsa` | `centrality(x, measures = "salsa")` | 0.95 |
+| Clustering degree algorithm (CDA) | `diffusion` | `centrality(x, measures = "diffusion")` | 0.98 |
+| Coleman-Theil disorder index | `salsa` | `centrality(x, measures = "salsa")` | 0.95 |
+| CON score | `diffusion` | `centrality(x, measures = "diffusion")` | 0.95 |
+| ControlRank | `second_order` | `centrality(x, measures = "second_order")` | 0.99 |
+| Correlation centrality | `infection` | `centrality(x, measures = "infection")` | 0.94 |
+| Counting Betweenness | `salsa` | `centrality(x, measures = "salsa")` | 0.95 |
+| Degree and clustering coefficient (DCC) | `diffusion` | `centrality(x, measures = "diffusion")` | 0.93 |
+| Degree and Importance of Lines (DIL) | `salsa` | `centrality(x, measures = "salsa")` | 0.93 |
+| delta-betweenness | `percolation` | `centrality(x, measures = "percolation")` | 0.99 |
+| delta-closeness | `lin` | `centrality(x, measures = "lin")` | 0.99 |
+| Density centrality | `hubbell` | `centrality(x, measures = "hubbell")` | 0.96 |
+| Diffusion centrality | `infection` | `centrality(x, measures = "infection")` | 0.98 |
+| Distance-weighted fragmentation | `residual_closeness` | `centrality(x, measures = "residual_closeness")` | 0.97 |
+| Diversity-strength centrality (DSC) | `salsa` | `centrality(x, measures = "salsa")` | 0.91 |
+| Diversity-strength ranking (DSR) | `infection` | `centrality(x, measures = "infection")` | 0.93 |
+| DK-based gravity model (DKGM) | `hubbell` | `centrality(x, measures = "hubbell")` | 0.96 |
+| DST | `spanning_tree` | `centrality(x, measures = "spanning_tree")` | 0.91 |
+| Dynamical importance | `eigenvector` | `centrality(x, measures = "eigenvector")` | 0.98 |
+| Dynamics-sensitive (DS) centrality | `infection` | `centrality(x, measures = "infection")` | 0.98 |
+| Edge clustering coefficient centrality (NC) | `cross_clique` | `centrality(x, measures = "cross_clique")` | 0.90 |
+| Edge-disjoint k-path | `markov` | `centrality(x, measures = "markov")` | 0.92 |
+| Effective gravity model (EGM) | `hubbell` | `centrality(x, measures = "hubbell")` | 0.92 |
+| Efficiency centrality (EffC) | `residual_closeness` | `centrality(x, measures = "residual_closeness")` | 0.97 |
+| Egocentric betweenness | `effective_size` | `centrality(x, measures = "effective_size")` | 0.99 |
+| Eigentrust | `salsa` | `centrality(x, measures = "salsa")` | 0.93 |
+| Entropy and mutual information-based centrality (EMI) | `salsa` | `centrality(x, measures = "salsa")` | 0.94 |
+| Entropy-based gravity model | `communicability_betweenness` | `centrality(x, measures = "communicability_betweenness")` | 0.93 |
+| Entropy-Based Ranking Measure (ERM) | `hindex_strength` | `centrality(x, measures = "hindex_strength")` | 0.96 |
+| Exogenous centrality | `residual_closeness` | `centrality(x, measures = "residual_closeness")` | 0.97 |
+| Expected force (ExFm) | `hubbell` | `centrality(x, measures = "hubbell")` | 0.98 |
+| Extended Cluster Coefficient Ranking Measure (ECRM) | `communicability` | `centrality(x, measures = "communicability")` | 0.97 |
+| Extended diversity-strength ranking (EDSR) | `hindex_strength` | `centrality(x, measures = "hindex_strength")` | 0.95 |
+| Extended gravity centrality | `communicability` | `centrality(x, measures = "communicability")` | 0.95 |
+| Extended H-index centrality (EHC) | `hindex_strength` | `centrality(x, measures = "hindex_strength")` | 0.97 |
+| Extended hybrid characteristic centrality (EHCC) | `infection` | `centrality(x, measures = "infection")` | 0.95 |
+| Extended improved k-shell hybrid (EIKH) | `infection` | `centrality(x, measures = "infection")` | 0.98 |
+| Extended k-shell hybrid method | `infection` | `centrality(x, measures = "infection")` | 0.98 |
+| Extended LBC | `bridging` | `centrality(x, measures = "bridging")` | 0.98 |
+| Extended mixed gravitational centrality | `hindex_strength` | `centrality(x, measures = "hindex_strength")` | 0.95 |
+| Extended neighborhood coreness | `communicability` | `centrality(x, measures = "communicability")` | 0.97 |
+| Extended RMD-weighted degree (EWD) | `communicability` | `centrality(x, measures = "communicability")` | 0.96 |
+| Extended weight degree centrality (EWdc) | `communicability` | `centrality(x, measures = "communicability")` | 0.97 |
+| Global and local information (GLI) method | `diffusion` | `centrality(x, measures = "diffusion")` | 0.93 |
+| Global and Local Structure(GLS) | `laplacian` | `centrality(x, measures = "laplacian")` | 0.95 |
+| Global importance of nodes (GIN) | `laplacian` | `centrality(x, measures = "laplacian")` | 0.95 |
+| Global Structure Model (GSM) | `gravity` | `centrality(x, measures = "gravity")` | 0.94 |
+| Godfather index | `effective_size` | `centrality(x, measures = "effective_size")` | 0.99 |
+| Graph regularization centrality (GRC) | `hubbell` | `centrality(x, measures = "hubbell")` | 0.97 |
+| Gravity model | `hubbell` | `centrality(x, measures = "hubbell")` | 0.98 |
+| Hierarchical k-shell (HKS) | `eigenvector` | `centrality(x, measures = "eigenvector")` | 0.95 |
+| Hybrid centrality (HC) | `harmonic` | `centrality(x, measures = "harmonic")` | 0.91 |
+| Hybrid Characteristic Centrality (HCC) | `diffusion` | `centrality(x, measures = "diffusion")` | 0.94 |
+| Hybrid Global Structure Model (H-GSM) | `laplacian` | `centrality(x, measures = "laplacian")` | 0.93 |
+| Icentr | `diffusion` | `centrality(x, measures = "diffusion")` | 0.95 |
+| Improved closeness centrality (ICC) | `lin` | `centrality(x, measures = "lin")` | 0.90 |
+| Improved entropy-based centrality | `collective_influence` | `centrality(x, measures = "collective_influence")` | 0.95 |
+| Improved global structure model (IGSM) | `diffusion` | `centrality(x, measures = "diffusion")` | 0.97 |
+| Improved iterative resource allocation (IIRA) | `random_walk` | `centrality(x, measures = "random_walk")` | 0.97 |
+| Improved K-shell decomposition (IKSD) | `lobby` | `centrality(x, measures = "lobby")` | 0.94 |
+| Improved k-shell hybrid (IKH) | `diffusion` | `centrality(x, measures = "diffusion")` | 0.96 |
+| INF centrality | `leverage` | `centrality(x, measures = "leverage")` | 0.95 |
+| Influence capability (IC) | `hindex_strength` | `centrality(x, measures = "hindex_strength")` | 0.97 |
+| Inward accessibility | `communicability_betweenness` | `centrality(x, measures = "communicability_betweenness")` | 0.90 |
+| Iterative resource allocation (IRA) | `local_hindex` | `centrality(x, measures = "local_hindex")` | 0.93 |
+| k-betweenness | `percolation` | `centrality(x, measures = "percolation")` | 0.98 |
+| k-path | `diffusion` | `centrality(x, measures = "diffusion")` | 0.99 |
+| k-shell based on gravity centrality (KSGC) | `hubbell` | `centrality(x, measures = "hubbell")` | 0.95 |
+| k-shell hybrid method | `laplacian` | `centrality(x, measures = "laplacian")` | 0.95 |
+| k-shell iteration factor(KS-IF) | `communicability` | `centrality(x, measures = "communicability")` | 0.95 |
+| k-truss number | `coreness` | `centrality(x, measures = "coreness")` | 0.92 |
+| KDEC method | `gravity` | `centrality(x, measures = "gravity")` | 0.94 |
+| KED | `collective_influence` | `centrality(x, measures = "collective_influence")` | 0.96 |
+| Laplacian gravity centrality (LGC) | `diffusion` | `centrality(x, measures = "diffusion")` | 0.97 |
+| Lhc method | `infection` | `centrality(x, measures = "infection")` | 0.96 |
+| LineRank | `laplacian` | `centrality(x, measures = "laplacian")` | 0.97 |
+| Local gravity model | `hubbell` | `centrality(x, measures = "hubbell")` | 0.97 |
+| Local neighbor contribution (LNC) | `infection` | `centrality(x, measures = "infection")` | 0.96 |
+| Local structural centrality (LSC) | `markov` | `centrality(x, measures = "markov")` | 0.94 |
+| LocalRank | `diffusion` | `centrality(x, measures = "diffusion")` | 0.96 |
+| LRIC (max) | `salsa` | `centrality(x, measures = "salsa")` | 0.90 |
+| LRIC (PPR) | `salsa` | `centrality(x, measures = "salsa")` | 0.93 |
+| M-centrality | `hubbell` | `centrality(x, measures = "hubbell")` | 0.91 |
+| Malatya centrality | `leverage` | `centrality(x, measures = "leverage")` | 0.92 |
+| Map Equation Centrality (MEC) | `salsa` | `centrality(x, measures = "salsa")` | 0.95 |
+| Mapping entropy (ME) | `hubbell` | `centrality(x, measures = "hubbell")` | 0.98 |
+| Mapping Entropy Betweenness (MEB) | `bridging` | `centrality(x, measures = "bridging")` | 0.96 |
+| MCC | `salsa` | `centrality(x, measures = "salsa")` | 0.94 |
+| Mediative Effects Centrality (MEC) | `communicability_betweenness` | `centrality(x, measures = "communicability_betweenness")` | 0.95 |
+| Meta-centrality | `hubbell` | `centrality(x, measures = "hubbell")` | 0.90 |
+| Mixed core, degree and entropy (MCDE) | `salsa` | `centrality(x, measures = "salsa")` | 0.97 |
+| Mixed core, degree and weighted entropy (MCDWE) | `salsa` | `centrality(x, measures = "salsa")` | 0.97 |
+| Mixed core, semi-local degree and entropy (MCSDE) | `diffusion` | `centrality(x, measures = "diffusion")` | 0.96 |
+| Mixed core, semi-local degree and weighted entropy (MCSDWE) | `diffusion` | `centrality(x, measures = "diffusion")` | 0.96 |
+| Mixed Degree Decomposition (MDD) | `salsa` | `centrality(x, measures = "salsa")` | 0.98 |
+| Mixed gravitational centrality | `gravity` | `centrality(x, measures = "gravity")` | 0.95 |
+| Modified Local Centrality (MLC) | `diffusion` | `centrality(x, measures = "diffusion")` | 0.96 |
+| Multi-characteristics gravity model (MCGM) | `infection` | `centrality(x, measures = "infection")` | 0.96 |
+| Multi-evidence centrality (MeC) | `communicability_betweenness` | `centrality(x, measures = "communicability_betweenness")` | 0.95 |
+| Neighbor distance centrality | `laplacian` | `centrality(x, measures = "laplacian")` | 0.98 |
+| Neighborhood centrality | `gravity` | `centrality(x, measures = "gravity")` | 0.95 |
+| Neighborhood core diversity centrality (Cncd) | `subgraph` | `centrality(x, measures = "subgraph")` | 0.96 |
+| New evidential centrality (NEC) | `salsa` | `centrality(x, measures = "salsa")` | 0.91 |
+| NL centrality | `current_flow_closeness` | `centrality(x, measures = "current_flow_closeness")` | 0.94 |
+| Node and Neighbor Layer Information (NINL) centrality | `communicability` | `centrality(x, measures = "communicability")` | 0.97 |
+| Node importance contribution correlation matrix (NICCM) method | `random_walk` | `centrality(x, measures = "random_walk")` | 0.93 |
+| Node importance evaluation matrix (NIEM) method | `diffusion` | `centrality(x, measures = "diffusion")` | 0.95 |
+| Normalized local centrality (NLC) | `markov` | `centrality(x, measures = "markov")` | 0.93 |
+| NWRank | `communicability_betweenness` | `centrality(x, measures = "communicability_betweenness")` | 0.91 |
+| Path-transfer centrality | `markov` | `centrality(x, measures = "markov")` | 0.91 |
+| PhysarumSpreader | `leverage` | `centrality(x, measures = "leverage")` | 0.95 |
+| Probabilistic-jumping Random Walk (PJRW) | `salsa` | `centrality(x, measures = "salsa")` | 0.91 |
+| ProfitLeader | `mnc` | `centrality(x, measures = "mnc")` | 0.95 |
+| Proximal betwenness | `bridging` | `centrality(x, measures = "bridging")` | 0.98 |
+| Random walk decay | `pagerank` | `centrality(x, measures = "pagerank")` | 0.94 |
+| Random walk-based gravity (DFS-Gravity) | `laplacian` | `centrality(x, measures = "laplacian")` | 0.94 |
+| Randomized shortest paths (RSP) betweenness | `pagerank` | `centrality(x, measures = "pagerank")` | 0.91 |
+| RCFB centrality | `current_flow_betweenness` | `centrality(x, measures = "current_flow_betweenness")` | 0.92 |
+| Relative entropy | `bridging` | `centrality(x, measures = "bridging")` | 0.99 |
+| Resistance curvature | `spanning_tree` | `centrality(x, measures = "spanning_tree")` | 0.95 |
+| RMD-weighted degree (WD) | `local_hindex` | `centrality(x, measures = "local_hindex")` | 0.96 |
+| Seeley’s index | `salsa` | `centrality(x, measures = "salsa")` | 0.93 |
+| Semi-local iterative algorithm (semi-IA) | `diffusion` | `centrality(x, measures = "diffusion")` | 0.92 |
+| Shell clustering coefficient | `hubbell` | `centrality(x, measures = "hubbell")` | 0.97 |
+| SpectralRank | `infection` | `centrality(x, measures = "infection")` | 0.98 |
+| Spreading probability (SP) | `infection` | `centrality(x, measures = "infection")` | 0.93 |
+| Support | `mnc` | `centrality(x, measures = "mnc")` | 0.99 |
+| Synthesize centrality (SC) | `salsa` | `centrality(x, measures = "salsa")` | 0.91 |
+| TOPSIS | `communicability_betweenness` | `centrality(x, measures = "communicability_betweenness")` | 0.91 |
+| TOPSIS-RE | `percolation` | `centrality(x, measures = "percolation")` | 0.94 |
+| Total centrality | `residual_closeness` | `centrality(x, measures = "residual_closeness")` | 0.97 |
+| Trust-PageRank | `salsa` | `centrality(x, measures = "salsa")` | 0.92 |
+| Vertex-disjoint k-path | `random_walk` | `centrality(x, measures = "random_walk")` | 0.91 |
+| VMM algorithm | `salsa` | `centrality(x, measures = "salsa")` | 0.96 |
+| Volume centrality | `kreach` | `centrality(x, measures = "kreach")` | 0.95 |
+| Weight degree centrality (Wdc) | `diffusion` | `centrality(x, measures = "diffusion")` | 0.97 |
+| Weight neighborhood centrality | `hubbell` | `centrality(x, measures = "hubbell")` | 0.96 |
+| Weighted formal concept analysis (WFCA) | `salsa` | `centrality(x, measures = "salsa")` | 0.94 |
+| Weighted gravity model (WGravity) | `infection` | `centrality(x, measures = "infection")` | 0.97 |
+| Weighted k-shell degree neighborhood (Maji) | `hubbell` | `centrality(x, measures = "hubbell")` | 0.97 |
+| Weighted k-shell degree neighborhood (Wksd) | `gravity` | `centrality(x, measures = "gravity")` | 0.96 |
+| Weighted LeaderRank | `hubbell` | `centrality(x, measures = "hubbell")` | 0.96 |
+| Weighted TOPSIS | `harmonic` | `centrality(x, measures = "harmonic")` | 0.94 |
+| wkpath | `infection` | `centrality(x, measures = "infection")` | 0.96 |
+| WVoteRank | `voterank` | `centrality(x, measures = "voterank")` | 0.94 |
+| X-degree centrality | `diffusion` | `centrality(x, measures = "diffusion")` | 0.93 |
+| X-nonbacktracking centrality | `subgraph` | `centrality(x, measures = "subgraph")` | 0.94 |
+| μ-Power Community Index (μ-PCI) | `lobby` | `centrality(x, measures = "lobby")` | 0.94 |
+
+## On the way
+
+None at present.
+
+## Not available
+
+cograph has no measure that ranks nodes like these (best tau below 0.90).
+
+- Absorbing Random-Walk (ARW)
+- Algebraic centrality
+- BridgeRank
+- Cc-Burt
+- Clustered local-degree (CLD)
+- Comm Centrality
+- Community centrality
+- Community-based centrality (CbC)
+- Community-based mediator (CbM)
+- Contribution centrality
+- Curvature index
+- Degree and Clustering coefficient and Location (DCL)
+- DegreeDistance
+- DegreePunishment
+- DSHC method
+- E-Burt
+- Effective distance gravity (EffG)
+- EnRenew
+- Entropy-based influence disseminator (EbID)
+- EPC
+- Expected rank
+- Flow coefficient
+- Fractional Graph Fourier Transform (FrGFTC)
+- Fuzzy local dimension (FLD)
+- Game centrality (GC)
+- Generalized gravity centrality (GGC)
+- Geodesic k-path
+- Graph Fourier Transform Centrality (GFT-C)
+- Graph-theoretic power index (GPI)
+- Graphlet degree centrality (GDC)
+- Gromov centrality
+- Heatmap centrality
+- Hierarchical reduction by betweenness
+- Hybrid (Pozzi)
+- HybridRank
+- Improved coloring method (IIS)
+- Improved IMC
+- Improved k-shell method (IKS)
+- Improved WVoteRank
+- Information distance index
+- Integral k-shell
+- Interdependence
+- IS method
+- Isolating Centrality (ISC)
+- K-shell Physarum centrality
+- Link influence entropy (LInE)
+- Local degree dimension (LDD)
+- Local dimension (LD)
+- Local entropy (LE)
+- Local fuzzy information centrality (LFIC)
+- Local RASP
+- Local volume dimension (LVD)
+- LRIC (maxmin)
+- LRIC-sim
+- MABIE
+- Multi-criteria influence maximization (MCIM)
+- Multi-local dimension (MLD)
+- Multiple local attributes weighted centrality (LWC)
+- Mutual information
+- Neighborhood density
+- Node contraction (IMC)
+- Node importance contribution matrix (NICM) method
+- Node information dimension (NID)
+- Node local centrality (NLC)
+- Outward accessibility
+- Partition-Based Spreaders Identification (PBSI)
+- PathRank
+- Physarum centrality
+- Random walk accessibility (RWA)
+- Redundancy
+- Relative local–global importance (RLGI)
+- Renewed coreness
+- Return Random Walk Gravity (RRWG)
+- Semi-local degree and clustering coefficient
+- Shapley Value based Information Delimiters (SVID)
+- Shortest cycle closeness (SCC)
+- Similarity-based PageRank
+- Spreading strength
+- SRIC
+- theta-centrality
+- Transportation centrality
+- Truncated curvature
+- Two-step framework (IF)
+- Two-way random walk betweenness (2RW)
+- VoteRank++
+- Weighted community betweenness
+- Weighted h-index
+- Weighted k-shell decomposition (Wks)
+- Weighted volume centrality
+- WRank

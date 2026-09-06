@@ -17,6 +17,13 @@
 #'   Default \code{"spring"}.
 #' @param node_size Numeric. Node size. Default 2.5.
 #' @param node_color Character or vector. Node fill color. A single color
+#'   applies everywhere. An unnamed vector is recycled across \emph{layers},
+#'   colouring each plane as a whole. A \strong{named} vector is matched to
+#'   node names instead and colours each \emph{node} the same on every plane,
+#'   which is what makes a node identifiable as it moves through the stack;
+#'   names not present in the network are an error rather than silent. See
+#'   also \code{color_by}. The original text of this parameter continues:
+#'   a single color
 #'   applies to all layers, or a vector of length \code{n_layers} for
 #'   per-layer colors. Default \code{"steelblue"}.
 #' @param node_shape Integer. Point shape (\code{pch}). Default 21 (filled
@@ -45,6 +52,10 @@
 #' @param title Character or NULL. Plot title. Default NULL.
 #' @param angle Numeric vector of length 2: \code{c(dz_x, dz_y)} controlling
 #'   the oblique projection shear. Default \code{c(1.0, 0.7)}.
+#' @param color_by One of \code{"layer"} (the default, and the historical
+#'   behaviour) or \code{"node"}. Chooses what an unnamed \code{node_color}
+#'   vector indexes. A named \code{node_color} always colours by node and
+#'   ignores this argument.
 #' @param seed Integer or NULL. Default 42.
 #' @param ... Additional arguments (currently unused).
 #'
@@ -66,6 +77,7 @@ plot_temporal <- function(x,
                           layout = "spring",
                           node_size = 2.5,
                           node_color = "steelblue",
+                          color_by = c("layer", "node"),
                           node_shape = 21,
                           node_border = "gray30",
                           edge_color = "#E41A1C",
@@ -96,8 +108,11 @@ plot_temporal <- function(x,
   nn <- length(all_nodes)
   n_layers <- length(mats)
 
-  # Recycle per-layer colors
-  node_color <- rep_len(node_color, n_layers)
+  # A colour per layer paints whole planes; a colour per node is what lets a
+  # reader follow one node through the stack. Both are wanted, so resolve
+  # which was meant before recycling.
+  color_by <- match.arg(color_by)
+  node_fill <- .temporal_node_fill(node_color, color_by, all_nodes, n_layers)
   edge_color <- rep_len(edge_color, n_layers)
   plane_color <- rep_len(plane_color, n_layers)
 
@@ -230,11 +245,15 @@ plot_temporal <- function(x,
 
     # Nodes — for non-fillable shapes (pch < 21), use col as the fill
     fillable <- node_shape >= 21 && node_shape <= 25
+    # One colour per node on this plane: a length-nn vector when colouring by
+    # node, the plane's single colour repeated when colouring by layer.
+    fill_here <- grDevices::adjustcolor(
+      if (ncol(node_fill) == 1L) node_fill[, 1L] else node_fill[, li], 0.85)
     graphics::points(node_screen[, 1], node_screen[, 2],
                      pch = node_shape, cex = node_size,
-                     bg = if (fillable) grDevices::adjustcolor(node_color[li], 0.85) else NA,
+                     bg = if (fillable) fill_here else NA,
                      col = if (fillable) grDevices::adjustcolor(node_border, 0.5) else
-                       grDevices::adjustcolor(node_color[li], 0.85),
+                       fill_here,
                      lwd = 0.5)
 
     if (show_labels) {
@@ -271,8 +290,43 @@ plot_temporal <- function(x,
 }
 
 
-#' Resolve temporal input to list of adjacency matrices
+#' Resolve node fill colours for a temporal stack
+#'
+#' `plot_temporal()` historically recycled `node_color` to the number of
+#' layers and indexed it by layer, so every node on a plane shared a colour
+#' and a named per-node vector was silently discarded. Node identity then
+#' rested entirely on shared position and label. This resolves both readings:
+#' a named vector, or `color_by = "node"`, colours each node the same on
+#' every plane; anything else keeps the per-layer behaviour.
+#'
+#' @param node_color The user's colour or vector.
+#' @param color_by `"layer"` or `"node"`.
+#' @param all_nodes Character vector of node names, in draw order.
+#' @param n_layers Number of planes.
+#' @return A character matrix with one row per node. One column when the
+#'   colouring is per node, `n_layers` columns when it is per layer.
+#' @keywords internal
 #' @noRd
+.temporal_node_fill <- function(node_color, color_by, all_nodes, n_layers) {
+  nn <- length(all_nodes)
+  named <- !is.null(names(node_color))
+  if (named) {
+    missing <- setdiff(all_nodes, names(node_color))
+    if (length(missing)) {
+      stop(errorCondition(
+        sprintf("`node_color` is named but has no entry for %s.",
+                paste(sQuote(missing), collapse = ", ")),
+        class = "cograph_node_color_incomplete", call = NULL))
+    }
+    return(matrix(unname(node_color[all_nodes]), nrow = nn, ncol = 1L))
+  }
+  if (identical(color_by, "node")) {
+    return(matrix(rep_len(node_color, nn), nrow = nn, ncol = 1L))
+  }
+  matrix(rep(rep_len(node_color, n_layers), each = nn), nrow = nn,
+         ncol = n_layers)
+}
+
 .resolve_temporal_input <- function(x, time, slices, cumulative, labels) {
   if (inherits(x, "cograph_network")) {
     raw <- x$data
@@ -287,11 +341,23 @@ plot_temporal <- function(x,
               all(c("from", "to") %in% names(x)))
     time_vals <- x[[time]]
     if (!is.null(slices)) {
+      # Ordered, because the cumulative branch below compares periods with
+      # `<=`. On the unordered factor `cut()` returns by default that
+      # comparison comes back NA, so every cumulative plane was drawn empty
+      # while the function reported success.
       time_vals <- cut(as.numeric(time_vals), breaks = slices,
-                       include.lowest = TRUE)
+                       include.lowest = TRUE, ordered_result = TRUE)
       x[[time]] <- time_vals
     }
-    periods <- sort(unique(time_vals))
+    # `cut()` defines every requested bin, but `unique()` keeps only the bins
+    # that happen to hold a contact, so a window with no activity vanished
+    # from the stack and the axis silently jumped over it. An empty window and
+    # an absent window mean opposite things; keep every level.
+    periods <- if (!is.null(slices)) {
+      factor(levels(time_vals), levels = levels(time_vals), ordered = TRUE)
+    } else {
+      sort(unique(time_vals))
+    }
     if (is.null(labels)) labels <- as.character(periods)
     all_nodes <- sort(unique(c(x$from, x$to)))
     nn <- length(all_nodes)

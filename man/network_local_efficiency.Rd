@@ -31,9 +31,15 @@ is in \eqn{[0, 1]}; weighted graphs can exceed 1 when edge distances are
 below 1.
 }
 \description{
-Computes the average local efficiency across all nodes. Local efficiency
-of a node is the global efficiency of its neighborhood subgraph
-(excluding the node itself). Measures fault tolerance and local integration.
+Computes the average local efficiency across all nodes, delegating to
+\code{igraph::average_local_efficiency()}. igraph removes the node and
+measures the distances between its neighbours \emph{through the rest of
+the network}, so the value can exceed the one Latora & Marchiori (2001)
+define, which restricts those distances to the subgraph induced on the
+neighbours. \code{centrality(x, measures = "local_efficiency")} reports
+the induced-subgraph form, matching networkx, brainGraph and the Brain
+Connectivity Toolbox. Both measure fault tolerance and local integration;
+the two agree whenever the neighbours have no detour available.
 }
 \examples{
 # Complete graph: removing any node leaves complete subgraph, so local efficiency = 1
@@ -43,4 +49,7 @@ network_local_efficiency(k5)  # 1
 # Star: neighbors not connected to each other
 star <- matrix(c(0,1,1,1,1, 1,0,0,0,0, 1,0,0,0,0, 1,0,0,0,0, 1,0,0,0,0), 5, 5)
 network_local_efficiency(star)  # 0
+
+# Per-node values under the Latora definition
+centrality(star, measures = "local_efficiency")
 }

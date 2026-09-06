@@ -1,6 +1,6 @@
 Package: cograph
 Title: Analysis and Visualization of Complex Networks
-Version: 2.4.7
+Version: 2.4.8
 Authors@R: c(
     person("Mohammed", "Saqr", role = c("aut", "cph")),
     person("Sonsoles", "L\u00f3pez-Pernas",
@@ -41,6 +41,7 @@ Suggests:
     igraph,
     influenceR,
     jsonlite,
+    keyplayer,
     knitr,
     Nestimate,
     network,

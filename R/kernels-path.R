@@ -13,12 +13,19 @@
 #' @param directed Whether the graph is directed; undirected halves the score.
 #' @param cutoff Longest path to count; `-1` (default) means no limit. A
 #'   vertex only earns credit for pairs it separates within that distance.
+#' @param pair_weight `NULL` for ordinary betweenness, where every separated
+#'   pair counts once. Otherwise a function of the pair distance returning
+#'   the weight that pair carries, which is what turns the same traversal
+#'   into the length-scaled and distance-decayed variants (Brandes 2008,
+#'   Algorithm 5). The weight depends only on the distance between the two
+#'   endpoints, so it is shared by every inner vertex of a geodesic.
 #' @return Numeric vector.
 #' @references Brandes, U. (2001). A faster algorithm for betweenness
 #'   centrality. *Journal of Mathematical Sociology*, 25(2), 163-177.
 #' @keywords internal
 #' @noRd
-.cg_betweenness <- function(w, n, directed, cutoff = -1) {
+.cg_betweenness <- function(w, n, directed, cutoff = -1,
+                            pair_weight = NULL) {
   if (n <= 2L) return(rep(0, n))
   cb <- numeric(n)
   eps <- 1e-15
@@ -51,7 +58,10 @@
     for (wn in rev(order_stack)) {
       if (limited && dist[wn] > cutoff) next
       p <- pred[[wn]]
-      if (length(p) > 0L) delta[p] <- delta[p] + (sigma[p] / sigma[wn]) * (1 + delta[wn])
+      credit <- if (is.null(pair_weight)) 1 else pair_weight(dist[wn])
+      if (length(p) > 0L) {
+        delta[p] <- delta[p] + (sigma[p] / sigma[wn]) * (credit + delta[wn])
+      }
       if (wn != s) cb[wn] <- cb[wn] + delta[wn]
     }
   }

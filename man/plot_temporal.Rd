@@ -13,6 +13,7 @@ plot_temporal(
   layout = "spring",
   node_size = 2.5,
   node_color = "steelblue",
+  color_by = c("layer", "node"),
   node_shape = 21,
   node_border = "gray30",
   edge_color = "#E41A1C",
@@ -57,8 +58,20 @@ Default \code{"spring"}.}
 \item{node_size}{Numeric. Node size. Default 2.5.}
 
 \item{node_color}{Character or vector. Node fill color. A single color
+applies everywhere. An unnamed vector is recycled across \emph{layers},
+colouring each plane as a whole. A \strong{named} vector is matched to
+node names instead and colours each \emph{node} the same on every plane,
+which is what makes a node identifiable as it moves through the stack;
+names not present in the network are an error rather than silent. See
+also \code{color_by}. The original text of this parameter continues:
+a single color
 applies to all layers, or a vector of length \code{n_layers} for
 per-layer colors. Default \code{"steelblue"}.}
+
+\item{color_by}{One of \code{"layer"} (the default, and the historical
+behaviour) or \code{"node"}. Chooses what an unnamed \code{node_color}
+vector indexes. A named \code{node_color} always colours by node and
+ignores this argument.}
 
 \item{node_shape}{Integer. Point shape (\code{pch}). Default 21 (filled
 circle).}

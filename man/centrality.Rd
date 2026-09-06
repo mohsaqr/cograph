@@ -8,6 +8,7 @@ centrality(
   x,
   type = c("basic", "extended", "all"),
   measures = NULL,
+  include = NULL,
   mode = "all",
   normalized = FALSE,
   weighted = TRUE,
@@ -37,6 +38,23 @@ centrality(
   s_shell_a = 0.5,
   discount_p = 0.01,
   ncvote_theta = 0.5,
+  comm_r = "max_intra",
+  ld_radius = 2,
+  enrenew_depth = 2,
+  voterank_lambda = 0.1,
+  contraction_rho = 5,
+  wks_alpha = 1,
+  wks_beta = 1,
+  renewed_threshold = 2,
+  kpath_k = 3,
+  kpath_len = 3,
+  epc_threshold = 0.5,
+  epc_runs = 1000,
+  epc_seed = NULL,
+  betweenness_delta = 1,
+  closeness_delta = 1,
+  gravity_mass = "kshell",
+  gravity_radius = 3,
   tna_network = NULL,
   psych_network = NULL,
   ...
@@ -130,7 +148,51 @@ measures; edge weights are ignored. See the per-measure pages, e.g.
 \code{\link{centrality_entropy_variation}},
 \code{\link{centrality_s_shell}},
 \code{\link{centrality_degree_discount}},
-\code{\link{centrality_ncvoterank}}.}
+\code{\link{centrality_ncvoterank}}.
+\strong{Zoo (batch 9, the remaining measures with a pinned definition)}:
+community-aware "community_based" (Zhao et al. 2015), "comm_centrality"
+(Gupta et al. 2016), "community_mediator" (Tulu et al. 2018), all
+requiring \code{membership}; dimension family "local_dimension_fixed"
+(Silva & Costa 2013), "fuzzy_local_dimension" (Wen & Jiang 2019),
+"local_volume_dimension" (Li & Deng 2021); VoteRank family
+"wvoterank" (Sun et al. 2019), "enrenew" (Guo et al. 2020),
+"voterank_plus" (Liu et al. 2021); "node_contraction",
+"node_contraction_improved" (Tan et al. 2006; Wang et al. 2011);
+"two_way_rw" (Curado et al. 2022); local measures "heatmap"
+(Duron 2020), "flow_coefficient" (Honey et al. 2007), "local_entropy"
+(Nie et al. 2016), "weighted_h_index" (Gao et al. 2019), "redundancy"
+(Burt 1992); "weighted_kshell" (Garas et al. 2012),
+"renewed_coreness" (Liu et al. 2015), "geodesic_kpath" (Borgatti &
+Everett 2006). Only "wvoterank", "two_way_rw" and "weighted_kshell"
+use edge weights. See \code{\link{centrality_community_based}},
+\code{\link{centrality_local_dimension_fixed}},
+\code{\link{centrality_wvoterank}},
+\code{\link{centrality_node_contraction}},
+\code{\link{centrality_two_way_rw}}, \code{\link{centrality_heatmap}},
+\code{\link{centrality_weighted_kshell}}.
+
+Batch 10 closes the gaps other centrality packages had and cograph did
+not: "local_efficiency" (Latora & Marchiori 2001), "s_core" (Eidsaa &
+Almaas 2013), "fragmentation" (Borgatti 2006), "kpath" (Sade 1989) and
+"epc" (Lin et al. 2008). "fragmentation" and "epc" are costly, so
+\code{type = "all"} holds them back. See
+\code{\link{centrality_local_efficiency}}.
+
+Batch 11 tunes families cograph already had: "length_scaled_betweenness"
+(Brandes 2008), "delta_betweenness" and "delta_closeness" (Agneessens
+et al. 2017), "ego_betweenness" (Everett & Borgatti 2005). "gravity"
+gained \code{gravity_mass} and \code{gravity_radius}, and its formula
+was corrected -- see \code{\link{centrality_gravity}}. Bounded-distance
+("k-") betweenness needs no measure of its own: it is
+\code{cutoff = k}. See
+\code{\link{centrality_length_scaled_betweenness}}.}
+
+\item{include}{Character vector of costly measures to add back to a tier,
+or \code{"costly"} for all of them. \code{type = "all"} holds back the
+measures whose cost grows steeply with network size (see
+\code{\link{list_centralities}}), so that one call cannot take minutes
+by accident. Naming a measure in \code{measures} always computes it,
+whatever its cost. Default \code{NULL}.}
 
 \item{mode}{For directed networks: "all", "in", or "out". Affects measures
 whose output columns carry a mode suffix, including degree, strength,
@@ -250,6 +312,55 @@ Default 0.01. See \code{\link{centrality_degree_discount}}.}
 
 \item{ncvote_theta}{Weight of the plain vote in \code{"ncvoterank"}.
 Default 0.5. See \code{\link{centrality_ncvoterank}}.}
+
+\item{comm_r}{Scale \eqn{R} of \code{"comm_centrality"}:
+\code{"max_intra"} (default) or a positive number.}
+
+\item{ld_radius}{Radius for \code{"local_dimension_fixed"}. Default 2.}
+
+\item{enrenew_depth}{Renewal radius for \code{"enrenew"}. Default 2.}
+
+\item{voterank_lambda}{Suppression factor for \code{"voterank_plus"}.
+Default 0.1.}
+
+\item{contraction_rho}{\eqn{\alpha / \beta} for
+\code{"node_contraction_improved"}. Default 5.}
+
+\item{wks_alpha, wks_beta}{Degree and strength exponents for
+\code{"weighted_kshell"}. Default 1 and 1.}
+
+\item{renewed_threshold}{Diffusion-importance threshold for
+\code{"renewed_coreness"}. Default 2.}
+
+\item{kpath_k}{Maximum path length for \code{"geodesic_kpath"}. Default 3.}
+
+\item{kpath_len}{Maximum path length for \code{"kpath"}. Default 3; the
+enumeration is exhaustive, so cost grows with the branching factor to
+this power.}
+
+\item{epc_threshold}{Edge removal probability for \code{"epc"}.
+Default 0.5.}
+
+\item{epc_runs}{Number of percolation realisations for \code{"epc"}.
+Default 1000.}
+
+\item{epc_seed}{Random seed for \code{"epc"}. Default \code{NULL},
+which leaves the caller's stream alone and lets the estimate vary
+between calls.}
+
+\item{betweenness_delta}{Decay exponent for \code{"delta_betweenness"}.
+Default 1; 0 gives ordinary betweenness.}
+
+\item{closeness_delta}{Distance exponent for \code{"delta_closeness"}.
+Default 1, which is \code{harmonic} over \eqn{n - 1}.}
+
+\item{gravity_mass}{Mass in \code{"gravity"}: \code{"kshell"} (default,
+Ma et al. 2016), \code{"degree"} (Li et al. 2019) or \code{"legacy"}
+for cograph's pre-2.4.8 form.}
+
+\item{gravity_radius}{Largest distance \code{"gravity"} reaches: a
+number (default 3), \code{"auto"} for half the mean distance, or
+\code{NULL} for the whole graph.}
 
 \item{tna_network}{Logical or NULL. Umbrella switch that forces tna-style
 conventions across all measures. \code{NULL} (default) auto-detects
@@ -421,6 +532,62 @@ scored 1 for the first selected down to 1/n.}
 \item{ncvoterank}{VoteRank with voters weighted by normalised
 neighbourhood coreness (\code{ncvote_theta}); election order scored
 like \code{voterank}.}
+\item{community_based, comm_centrality, community_mediator}{Links
+weighted by the size of the community they reach; Gupta's scaled
+intra/inter-degree combination (\code{comm_r}); base-2 entropy of the
+link distribution over communities times degree share (all require
+\code{membership}).}
+\item{local_dimension_fixed, fuzzy_local_dimension,
+local_volume_dimension}{Silva-Costa estimator at \code{ld_radius};
+slope of the fuzzy ball (higher = more influential); slope of the
+degree volume (lower = more important).}
+\item{wvoterank, enrenew, voterank_plus}{Election orders of the
+weighted, entropy-based (\code{enrenew_depth}) and degree-weighted
+(\code{voterank_lambda}) VoteRank variants, scored like
+\code{voterank}.}
+\item{node_contraction, node_contraction_improved}{One minus the
+agglomeration ratio after contracting the node with its neighbours;
+the improved form adds the same score of its edges on the line graph
+(\code{contraction_rho}).}
+\item{two_way_rw}{Number of node pairs whose most likely two-way
+random-walk route passes through the node.}
+\item{heatmap}{Farness minus mean neighbour farness; lower = more
+central.}
+\item{flow_coefficient}{Share of neighbour pairs linked through the
+node but not directly.}
+\item{local_entropy}{\eqn{-\sum_{j \in N(i)} k_j \ln k_j}; lower = more
+central.}
+\item{weighted_h_index}{h-index over topological link weights
+\eqn{k_i k_j} repeated \eqn{k_j} times.}
+\item{redundancy}{Mean degree of the neighbours inside the ego
+network; degree minus effective size.}
+\item{weighted_kshell}{k-shell on \eqn{(k^\alpha s^\beta)^{1/(\alpha
+    + \beta)}} after Garas' weight normalisation (\code{wks_alpha},
+\code{wks_beta}).}
+\item{renewed_coreness}{k-core of the graph after removing links whose
+diffusion importance is below \code{renewed_threshold}.}
+\item{geodesic_kpath}{Number of shortest paths of length at most
+\code{kpath_k} starting at the node.}
+\item{local_efficiency}{Global efficiency of the subgraph induced on
+the node's neighbours, the node itself removed. Note that
+\code{igraph::local_efficiency()} instead measures the distances
+between those neighbours through the rest of the network.}
+\item{s_core}{Largest strength threshold whose s-core still contains
+the node; the k-core number when weights are absent.}
+\item{fragmentation}{Distance-weighted fragmentation of the network
+after deleting the node. Higher means a more disruptive removal.}
+\item{kpath}{Number of simple paths of length at most
+\code{kpath_len} that the node lies on, endpoints included.}
+\item{epc}{Edge percolated component: mean size of the node's
+component over \code{epc_runs} bond-percolation realisations, as a
+share of the network. A Monte Carlo estimate.}
+\item{length_scaled_betweenness}{Betweenness with each separated pair
+weighted by \eqn{1 / d(s,t)}.}
+\item{delta_betweenness}{Betweenness with the pair weight
+\eqn{(d(s,t) - 1)^{-\delta}} (\code{betweenness_delta}).}
+\item{ego_betweenness}{Betweenness inside the node's own ego network.}
+\item{delta_closeness}{\eqn{\sum_j d_{ij}^{-\delta} / (n-1)}
+(\code{closeness_delta}).}
 }
 }
 \examples{

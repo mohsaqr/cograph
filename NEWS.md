@@ -1,4 +1,4 @@
-# cograph 2.4.7
+# cograph 2.4.8
 
 ## New features
 
@@ -85,6 +85,95 @@ independent Python reference written from the paper (kept in
 The Centrality Zoo lookup article and coverage document were regenerated:
 82 Zoo measures are now available in cograph and nothing is "on the way".
 
+### `centrality()` tiers, and a catalogue of the measures
+
+- **`type = "all"` no longer runs the measures whose cost grows steeply
+  with network size.** Four are held back: `infection`, `two_way_rw`,
+  `node_contraction_improved` and `entropy_variation_betweenness`. On an
+  81-node graph `infection` alone took 611 seconds while every other
+  measure together took about five, so a single `type = "all"` call could
+  take minutes by accident. `type = "basic"` (the default) and
+  `type = "extended"` are unchanged.
+- **New `include` argument** puts them back: `include = "costly"` for all
+  four, or name the ones you want. Naming a measure in `measures = `
+  always computes it whatever its cost, so nothing became unreachable.
+- **`list_centralities()`** (new export) is a tidy table of every measure
+  with the facts you need before reading a column: `orientation` (which end
+  of the scale marks a prominent node), `mode_aware`, `needs_membership`,
+  `uses_weights` and `costly`. Twelve measures are oriented so that a *low*
+  value marks the more central node, including `eccentricity`,
+  `constraint`, `heatmap` and the local-dimension family; sorting their
+  column the usual way puts the periphery on top.
+  `list_centralities(orientation = "lower")` lists them. The measure lists
+  now live in one place that both `centrality()` and `list_centralities()`
+  read, and a test asserts the two agree.
+
+## Bug fixes
+
+- `katz` now warns with a `cograph_katz_diverged` condition when
+  `katz_alpha` is too large for the graph. Katz converges only for
+  `alpha < 1 / rho(A)`; above it the linear solve still returns numbers,
+  but they are not Katz scores and can be negative. The default 0.1 is
+  invalid on any graph whose spectral radius exceeds 10, which includes
+  many weighted networks. The check costs nothing on the happy path and
+  the warning names the valid bound.
+- `alpha` and `power` now raise a classed `cograph_singular_system` error
+  instead of surfacing a bare LU factorization message from igraph when
+  `I - alpha A` is singular.
+- `?centrality_dmnc` gains a "Divergence from centiserve" section.
+  `centiserve::dmnc()` counts the largest component's edges in the wrong
+  index space: its membership vector indexes the neighbourhood subgraph
+  but is used to subset the original graph. The two disagree on 14 of the
+  34 karate nodes even at a matched epsilon, and reproducing that indexing
+  exactly reproduces centiserve's output. cograph counts the edges of the
+  component it actually found. The catalogue's equivalence claim was
+  corrected.
+
+### Centrality Batch 9 — the remaining Zoo measures with a pinned definition
+
+Twenty more measures (`R/kernels-batch9.R`, `R/centrality-batch9.R`),
+each researched from its source paper by a dedicated agent and verified
+against published tables, brute-force definitions and an independent Python
+reference (kept in `local_testing_and_equivalence/batch9/`, not shipped).
+
+- Community-aware (need `membership`): `centrality_community_based()`
+  (Zhao et al. 2015; reproduces the paper's Table 1 and Tulu et al.'s
+  Table 1), `centrality_comm_centrality()` (Gupta, Singh & Cherifi 2016;
+  `comm_r`), `centrality_community_mediator()` (Tulu, Hou & Younas 2018;
+  base-2 entropy reproduces its Table 1).
+- Dimension family: `centrality_local_dimension_fixed()` (Silva & Costa
+  2013; `ld_radius`), `centrality_fuzzy_local_dimension()` (Wen & Jiang
+  2019; reproduces its kite Table 1 and karate top ten in order),
+  `centrality_local_volume_dimension()` (Li & Deng 2021; definition from the
+  authors' later preprint, flagged).
+- VoteRank family: `centrality_wvoterank()` (Sun et al. 2019; reproduces
+  all sixty numbers of its Figure 1), `centrality_enrenew()` (Guo et al.
+  2020; reproduces its Figure 1; `enrenew_depth`), `centrality_voterank_plus()`
+  (Liu et al. 2021; matches the authors' code; `voterank_lambda`).
+- `centrality_node_contraction()` and `centrality_node_contraction_improved()`
+  (Tan, Wu & Deng 2006; Wang et al. 2011; reproduce Table 1 and the path
+  closed forms; `contraction_rho`). The Zoo entry's "removal" wording is
+  wrong; the sources contract.
+- `centrality_two_way_rw()` (Curado et al. 2022; reproduces the paper's toy
+  example including every fraction; O(n^4)).
+- Local measures: `centrality_heatmap()` (Duron 2020; reproduces Table 1;
+  lower = more central), `centrality_flow_coefficient()` (Honey et al. 2007,
+  BCT form; equals one minus clustering on undirected graphs),
+  `centrality_local_entropy()` (Nie et al. 2016), `centrality_weighted_h_index()`
+  (Gao et al. 2019), `centrality_redundancy()` (Burt 1992; Borgatti's
+  worked example).
+- `centrality_weighted_kshell()` (Garas, Schweitzer & Havlin 2012;
+  `wks_alpha`, `wks_beta`; Figure 1 example and Table 2 core size),
+  `centrality_renewed_coreness()` (Liu, Tang, Zhou & Do 2015; Figure 1 and
+  all twelve percentages of its Table S1; the Zoo's transcription is off by
+  one), `centrality_geodesic_kpath()` (Borgatti & Everett 2006; paths counted
+  with multiplicity; `centiserve::geokpath` counts nodes instead).
+
+Not shipped, with reasons recorded in the coverage document: DegreePunishment,
+improved WVoteRank and local degree dimension (source articles unobtainable,
+definitions rest on the Zoo alone) and multi-local dimension (a rescaling of
+local dimension for every q outside (0, 1)).
+
 New pkgdown article **Centrality Zoo lookup** answers "is the Zoo measure I
 want in cograph?": every Zoo measure listed once under Available, Almost
 identical (tau >= 0.99, with the cograph measure to use), Near-duplicate
@@ -92,6 +181,102 @@ identical (tau >= 0.99, with the cograph measure to use), Near-duplicate
 the Zoo matrix with cograph: which Zoo measures are rank-identical to an existing
 cograph measure (and therefore not worth adding), which are near-duplicates,
 and the remaining ranked candidates.
+
+### Centrality Batch 10 — the gaps against the other centrality packages
+
+`docs/CENTRALITY-CROSS-COVERAGE.md` counted, in both directions, what each
+R and Python centrality package reaches of the Zoo. The five node measures
+that other packages offered and `centrality()` did not are now implemented
+(`R/kernels-batch10.R`, `R/centrality-batch10.R`), each verified against
+the package whose gap it closes:
+
+- `centrality_local_efficiency()` — Latora & Marchiori (2001). Global
+  efficiency of the subgraph induced on a node's neighbours, the node
+  removed. Matches `brainGraph::efficiency(type = "local")` and the
+  networkx induced-subgraph form on 25 random graphs. Note that
+  `igraph::local_efficiency()` measures those distances *through the rest
+  of the network* and so reports larger values; `network_local_efficiency()`
+  keeps its igraph parity and its help page now says so.
+- `centrality_s_core()` — Eidsaa & Almaas (2013). The weighted k-core: the
+  largest strength threshold whose core still contains the node. Matches
+  `igraph::coreness()` on unweighted graphs and a brute-force reading of
+  the definition on weighted ones. `brainGraph::s_core()` returns the
+  peeling round instead, which is documented as a divergence.
+- `centrality_fragmentation()` — Borgatti (2006). Distance-weighted
+  fragmentation after deleting the node; matches `keyplayer::fragment()`.
+  This is the Zoo's "Distance-weighted fragmentation", taking cograph's Zoo
+  coverage to 103 of 349.
+- `centrality_kpath()` — Sade (1989). Simple paths of length at most
+  `kpath_len` that the node lies on; matches the per-vertex counts of
+  `sna::kpath.census()` for k = 2 and 3, directed and undirected.
+- `centrality_epc()` — Lin et al. (2008), the cytoHubba edge percolated
+  component. Recovers the exact bond-percolation mean on small graphs and
+  matches the normalisation of `centiserve::epc()`. Monte Carlo: pass
+  `epc_seed` for a reproducible value; the caller's random stream is
+  restored.
+
+`fragmentation` and `epc` join the costly list, so `type = "all"` holds
+them back (`include = "costly"` or naming them restores them).
+
+Three of the reported gaps turned out not to be gaps at all, and the
+document now says so with the evidence: `centiserve::closeness.latora()` is
+cograph's `harmonic` exactly, `centiserve::communibet()` is
+`communicability_betweenness` exactly, and `brainGraph::efficiency(type =
+"nodal")` is `harmonic` over `n - 1`. Two remain unimplemented and are
+listed with the reason: the link-community centrality of Kalinka &
+Tomancak (its reference package `linkcomm` is archived, so no equivalence
+check is possible) and `keyplayer::kpset()` (a set search, not a node
+measure).
+
+### Centrality Batch 11 — tuning the families cograph already had
+
+160 of the Zoo's measures sit at a rank correlation of 0.90 or better with
+something `centrality()` already computes
+(`docs/zoo/parameter_candidates.csv`), which suggests many are the same
+family at a different setting rather than different ideas. The first five
+investigated bear that out, and four new measures plus two arguments cover
+seven more Zoo labels (coverage 103 -> 110 of 349):
+
+- `centrality_length_scaled_betweenness()` — Borgatti & Everett (2006),
+  Brandes (2008) Algorithm 5. Betweenness with each separated pair weighted
+  by `1 / d(s,t)`.
+- `centrality_delta_betweenness()` — Agneessens, Borgatti & Everett (2017).
+  Betweenness with the pair weight `(d - 1)^-delta`
+  (`betweenness_delta`, default 1); `delta = 0` is ordinary betweenness.
+- `centrality_ego_betweenness()` — Everett & Borgatti (2005). Betweenness
+  inside the node's own ego network. Close to `effective_size`, and a test
+  pins that it is not a function of it.
+- `centrality_delta_closeness()` — Agneessens et al. (2017) eq. 2.
+  `sum_j d_ij^-delta / (n-1)` (`closeness_delta`, default 1). One exponent
+  spans the family: `delta = 1` is `harmonic` over `n-1`, `delta = 2` is
+  `harary` over `n-1`, a large `delta` approaches degree, `delta = 0`
+  counts the reachable set.
+- **Bounded-distance ("k-") betweenness needs no new measure**:
+  `centrality(x, measures = "betweenness", cutoff = k)` already computes
+  it, verified against a brute-force reading of the definition on directed
+  and undirected graphs. It is now mapped as covered.
+
+All four are exact under a brute-force enumeration of weighted geodesic
+pairs (`local_testing_and_equivalence/batch11/run_equivalence.R`, 6 blocks,
+6 PASS).
+
+## Bug fixes
+
+- **`gravity` computed a formula that appears in no paper.** It summed
+  `deg(j) * kshell(j) / d(i,j)^2` over every reachable `j`: the product of
+  two masses on the partner, none on the focal node, and no truncation. Its
+  help page cited Li et al. (2019), whose formula is `k_i k_j / d^2`.
+  Dropping the focal mass changes the ranking, not just the scale. The
+  measure now computes `m_i m_j / d^exponent` and gains two arguments:
+  `gravity_mass` (`"kshell"` default, `"degree"`, or `"legacy"`) and
+  `gravity_radius` (a number, default 3, `"auto"` for half the mean
+  distance, or `NULL`). The default is now Ma, Ma, Zhang & Wang (2016);
+  `gravity_mass = "degree", gravity_radius = NULL` is Li et al.'s gravity
+  model and `gravity_radius = "auto"` their local gravity model, so one
+  measure covers three Zoo labels. **`gravity` returns different values
+  than in 2.4.7 and earlier**; `gravity_mass = "legacy"` with
+  `gravity_radius = NULL` reproduces the old numbers exactly, and a test
+  pins that.
 
 # cograph 2.4.6
 

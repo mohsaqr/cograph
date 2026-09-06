@@ -165,17 +165,6 @@
   vapply(adj, function(js) sum(deg[js]), numeric(1L))
 }
 
-#' Gravity centrality: neighbours' mass over squared distance
-#' @param d Distance matrix. @param deg Degree vector. @param core Coreness vector.
-#' @return Numeric vector.
-#' @keywords internal
-#' @noRd
-.cg_gravity <- function(d, deg, core) {
-  ok <- .cg_offdiag(d) & is.finite(d) & d > 0
-  mass <- deg * core
-  rowSums(ifelse(ok, rep(mass, each = nrow(d)) / d^2, 0))
-}
-
 #' Collective influence at radius two (Morone & Makse 2015)
 #' @param d Distance matrix. @param deg Degree vector.
 #' @return Numeric vector.

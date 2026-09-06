@@ -70,6 +70,35 @@ COVERED = {
     "DegreeDiscountIC": "degree_discount [batch 8]",
     "SingleDiscount": "single_discount [batch 8]",
     "NCVoteRank": "ncvoterank [batch 8]",
+    # Batch 9 (2026-09-06)
+    "Community-based centrality (CbC)": "community_based [batch 9]",
+    "Comm Centrality": "comm_centrality [batch 9]",
+    "Community-based mediator (CbM)": "community_mediator [batch 9]",
+    "Local dimension (LD)": "local_dimension_fixed [batch 9]",
+    "Fuzzy local dimension (FLD)": "fuzzy_local_dimension [batch 9]",
+    "Local volume dimension (LVD)": "local_volume_dimension [batch 9]",
+    "WVoteRank": "wvoterank [batch 9]",
+    "EnRenew": "enrenew [batch 9]",
+    "VoteRank++": "voterank_plus [batch 9]",
+    "Node contraction (IMC)": "node_contraction [batch 9]",
+    "Improved IMC": "node_contraction_improved [batch 9]",
+    "Two-way random walk betweenness (2RW)": "two_way_rw [batch 9]",
+    "Heatmap centrality": "heatmap [batch 9]",
+    "Flow coefficient": "flow_coefficient [batch 9]",
+    "Local entropy (LE)": "local_entropy [batch 9]",
+    "Weighted h-index": "weighted_h_index [batch 9]",
+    "Redundancy": "redundancy [batch 9]",
+    "Weighted k-shell decomposition (Wks)": "weighted_kshell [batch 9]",
+    "Renewed coreness": "renewed_coreness [batch 9]",
+    "Geodesic k-path": "geodesic_kpath [batch 9]",
+    "Distance-weighted fragmentation": "fragmentation [batch 10]",
+    "Length-scaled betweenness": "length_scaled_betweenness [batch 11]",
+    "delta-betweenness": "delta_betweenness [batch 11]",
+    "delta-closeness": "delta_closeness [batch 11]",
+    "Egocentric betweenness": "ego_betweenness [batch 11]",
+    "k-betweenness": "betweenness (with cutoff)",
+    "Gravity model": "gravity (gravity_mass = degree)",
+    "Local gravity model": "gravity (gravity_radius = auto)",
 }
 
 # cograph measures with no Zoo counterpart (for completeness).
@@ -81,6 +110,10 @@ COGRAPH_ONLY = [
     "brokerage_coordinator", "brokerage_itinerant", "brokerage_representative",
     "brokerage_gatekeeper", "brokerage_liaison",
     "expected_influence_1", "expected_influence_2",
+    # Batch 10. The Zoo lists "k-path" and "Efficiency centrality (EffC)",
+    # but neither definition could be pinned to the source, so `kpath` and
+    # `local_efficiency` are counted here rather than as Zoo coverage.
+    "local_efficiency", "s_core", "kpath", "epc",
 ]
 
 # Ranked backlog from the 2026-09-06 review (max tau vs existing measures).
@@ -92,6 +125,10 @@ SKIPPED = [
     ("LRIC family, SRIC, Interdependence", "author's own long-range-influence measures; no closed form"),
     ("Node information dimension (NID)", "box scheme in the encyclopedia is ambiguous; original paper paywalled"),
     ("Game centrality (GC), Algebraic centrality, Community centrality", "definition not pinned"),
+    ("DegreePunishment", "source article (Wang, Su, Zhao & Yi 2016) unobtainable; Zoo entry alone leaves beta_c and the seed rule open"),
+    ("Improved WVoteRank", "source article (Kumar & Panda 2022) unobtainable; Zoo formula has three unresolved switches"),
+    ("Local degree dimension (LDD)", "source article (Zhong, Zhang & Deng 2022) unobtainable; the Zoo formula's bracketing is ambiguous"),
+    ("Multi-local dimension (MLD)", "for every q outside (0, 1) it is q/(q-1) times local_dimension, reversed inside (0, 1), and q = 1 is local_information_dimension over the full range; nothing new to rank"),
 ]
 
 
@@ -130,16 +167,11 @@ def call_for(measure):
 
 def write_lookup(labels, idx, M, cov, rows):
     """Reader-facing lookup: what cograph has for each Zoo measure."""
-    missing = [l for l in ON_THE_WAY if l not in idx]
-    if missing:
-        raise SystemExit(f"ON_THE_WAY labels not in zoo: {missing}")
     nearest = {l: (t, c) for t, l, c in rows}
     by_name = lambda l: l.lower()
-    identical = sorted((l for l in nearest if nearest[l][0] >= 0.99), key=by_name)
-    near = sorted((l for l in nearest if 0.90 <= nearest[l][0] < 0.99), key=by_name)
-    planned = [l for l in sorted(ON_THE_WAY, key=by_name) if l in nearest and nearest[l][0] < 0.90]
-    absent = sorted((l for l in nearest if nearest[l][0] < 0.90 and l not in ON_THE_WAY),
-                    key=by_name)
+    substitute = sorted((l for l in nearest if nearest[l][0] >= 0.90), key=by_name)
+    absent = sorted((l for l in nearest if nearest[l][0] < 0.90), key=by_name)
+    identical = sum(1 for l in substitute if nearest[l][0] >= 0.99)
 
     L = []
     w = L.append
@@ -152,14 +184,18 @@ def write_lookup(labels, idx, M, cov, rows):
     w("| Section | Meaning | Count |")
     w("|---|---|---|")
     w(f"| Available | cograph implements the measure itself | {len(cov)} |")
-    w(f"| Almost identical (tau >= 0.99) | same node ranking on essentially every network; use the cograph measure | {len(identical)} |")
-    w(f"| Near-duplicate (0.90 <= tau < 0.99) | nearly the same ranking, a few nodes swap places; a workable substitute | {len(near)} |")
-    w(f"| On the way | planned for a later batch | {len(planned)} |")
-    w(f"| Not available | cograph has nothing comparable (best tau below 0.90) | {len(absent)} |")
+    w(f"| Covered by a substitute (tau >= 0.90) | not implemented, but a cograph measure ranks nodes almost the same way | {len(substitute)} |")
+    w(f"| Not available (tau < 0.90) | cograph has nothing that ranks nodes like it | {len(absent)} |")
+    w("")
+    w(f"So {len(cov) + len(substitute)} of the {len(labels)} Zoo measures are either implemented or covered")
+    w(f"to within a rank correlation of 0.90, and {identical} of the substitutes agree at")
+    w("0.99 or better, which means the same ranking on essentially every network.")
     w("")
     w("Caveat: the Zoo computed tau on undirected, unweighted networks, so")
     w("agreement on a directed or weighted network may be lower. Rank agreement")
-    w("says nothing about the raw values, which differ in scale.")
+    w("says nothing about the raw values, which differ in scale. Kendall tau is")
+    w("also conservative: for the same data it reads roughly three quarters of a")
+    w("Spearman correlation, so 0.90 here is a closer match than it looks.")
     w("")
     w("## Available in cograph")
     w("")
@@ -169,51 +205,39 @@ def write_lookup(labels, idx, M, cov, rows):
         m = clean_name(COVERED[l])
         w(f"| {l} | `{m}` | {call_for(m)} |")
     w("")
-    w("## Almost identical to a cograph measure (tau >= 0.99)")
+    w("## Covered by a substitute (tau >= 0.90)")
     w("")
-    w("The Zoo measure and the cograph measure rank nodes the same way on")
-    w("virtually every network. Use the cograph measure.")
+    w("Not implemented under this name, but a cograph measure produces almost the")
+    w("same ranking. At 0.99 or above the two are interchangeable in practice; in")
+    w("the 0.90s a handful of nodes swap places.")
     w("")
-    w("| Zoo measure | Use instead | Call | tau |")
-    w("|---|---|---|---|")
-    for l in identical:
+    w("| Zoo measure | Use instead | Call | tau | How close |")
+    w("|---|---|---|---|---|")
+    for l in substitute:
         t, c = nearest[l]; m = clean_name(COVERED[c])
-        w(f"| {l} | `{m}` | {call_for(m)} | {t:.2f} |")
+        how = "same ranking" if t >= 0.99 else "a few nodes differ"
+        w(f"| {l} | `{m}` | {call_for(m)} | {t:.2f} | {how} |")
     w("")
-    w("## Near-duplicate of a cograph measure (0.90 <= tau < 0.99)")
+    w("## Not available (tau < 0.90)")
     w("")
-    w("Nearly the same ranking; differences are confined to a handful of nodes.")
+    w("cograph has no measure that ranks nodes like these. The nearest measure and")
+    w("its tau are given so you can judge how far off the closest option is; below")
+    w("about 0.70 the nearest measure is a different thing altogether.")
     w("")
-    w("| Zoo measure | Closest cograph measure | Call | tau |")
-    w("|---|---|---|---|")
-    for l in near:
-        t, c = nearest[l]; m = clean_name(COVERED[c])
-        w(f"| {l} | `{m}` | {call_for(m)} | {t:.2f} |")
-    w("")
-    w("## On the way")
-    w("")
-    if planned:
-        w("Planned for a later release. Nothing in cograph substitutes for them yet.")
-        w("")
-        for l in planned:
-            w(f"- {l}")
-    else:
-        w("None at present.")
-    w("")
-    w("## Not available")
-    w("")
-    w("cograph has no measure that ranks nodes like these (best tau below 0.90).")
-    w("")
+    w("| Zoo measure | Nearest cograph measure | tau |")
+    w("|---|---|---|")
     for l in absent:
-        w(f"- {l}")
+        t, c = nearest[l]; m = clean_name(COVERED[c])
+        w(f"| {l} | `{m}` | {t:.2f} |")
     w("")
     body = "\n".join(L)
     LOOKUP.write_text(
         "# Looking for a centrality from the Zoo? Here is what cograph has\n\n"
         + body
-        + "Generated by `docs/zoo/zoo_coverage.py`; see `CENTRALITY-ZOO-COVERAGE.md`\n"
-        + "for the same data with nearest-measure detail and the ranked backlog.\n")
+        + "\nGenerated by `docs/zoo/zoo_coverage.py`; see `CENTRALITY-ZOO-COVERAGE.md`\n"
+        + "for the same data with nearest-measure detail and the skipped list.\n")
     ARTICLE.write_text(ARTICLE_HEADER + body)
+
 
 def main():
     with gzip.open(HERE / "correlation.json.gz", "rt", encoding="utf-8") as fh:
@@ -331,7 +355,12 @@ def main():
     w("ranked list: the three Shapley games, access and hide information, rumor")
     w("centrality, community hub-bridge, entropy variation (degree and")
     w("betweenness), the s-shell index, DegreeDiscountIC, SingleDiscount and")
-    w("NCVoteRank. Nothing is queued.")
+    w("NCVoteRank. Batch 9 (same day) shipped twenty more: the community trio")
+    w("(CbC, Comm, CbM), three dimension measures, WVoteRank, EnRenew,")
+    w("VoteRank++, node contraction (plain and improved), two-way random-walk")
+    w("betweenness, heatmap, flow coefficient, local entropy, weighted h-index,")
+    w("redundancy, weighted k-shell, renewed coreness and geodesic k-path.")
+    w("Nothing is queued.")
     if PLANNED:
         w("")
         w("| # | Measure | Source | Note |")

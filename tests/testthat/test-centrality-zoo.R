@@ -139,15 +139,17 @@ test_that("gravity: K3 all equal", {
   expect_equal(grav[1], grav[2])
 })
 
-test_that("gravity: star leaves higher than center", {
+test_that("gravity: the star centre outranks its leaves", {
   g <- igraph::graph_from_adjacency_matrix(star5, mode = "undirected")
   grav <- cograph:::calculate_gravity(g)
-  # Leaves benefit from center's high degree in gravity formula
-  expect_true(grav[2] > grav[1])
+  # Under the published formula both ends carry mass, so the centre -- which
+  # sits one step from everything -- outranks the leaves. Before 2.4.8 the
+  # focal node carried no mass at all and the ranking was the other way up.
+  expect_true(grav[1] > grav[2])
   expect_equal(grav[2], grav[3])  # all leaves equal
 })
 
-test_that("gravity: formula deg*ks/d^2 verified on 100 graphs", {
+test_that("gravity: m_i m_j / d^2 within the radius, on 100 graphs", {
   set.seed(42)
   failures <- 0L
   for (i in 1:100) {
@@ -155,20 +157,37 @@ test_that("gravity: formula deg*ks/d^2 verified on 100 graphs", {
     while (!igraph::is_connected(g)) g <- igraph::sample_gnp(10, 0.35)
     n <- igraph::vcount(g)
     co <- cograph:::calculate_gravity(g)
-    # Manual computation
-    deg <- igraph::degree(g); ks <- igraph::coreness(g)
+    # Ma, Ma, Zhang & Wang (2016): k-shell mass at both ends, radius 3.
+    ks <- igraph::coreness(g)
     sp <- igraph::distances(g, weights = NA)
     manual <- vapply(seq_len(n), function(i) {
-      total <- 0
-      for (j in seq_len(n)) {
-        if (i != j && is.finite(sp[i,j]) && sp[i,j] > 0)
-          total <- total + (deg[j] * ks[j]) / (sp[i,j]^2)
-      }
-      total
+      j <- setdiff(seq_len(n), i)
+      keep <- is.finite(sp[i, j]) & sp[i, j] > 0 & sp[i, j] <= 3
+      sum(ks[i] * ks[j][keep] / sp[i, j][keep]^2)
     }, numeric(1))
     if (!isTRUE(all.equal(co, manual, tolerance = 1e-10))) failures <- failures + 1L
   }
   cat(sprintf("  gravity formula: %d/100 passed\n", 100 - failures))
+  expect_equal(failures, 0L)
+})
+
+test_that("gravity: the legacy mass reproduces the pre-2.4.8 values", {
+  set.seed(42)
+  failures <- 0L
+  for (i in 1:20) {
+    g <- igraph::sample_gnp(10, 0.35)
+    while (!igraph::is_connected(g)) g <- igraph::sample_gnp(10, 0.35)
+    n <- igraph::vcount(g)
+    co <- cograph:::calculate_gravity(g, mass = "legacy", radius = NULL)
+    deg <- igraph::degree(g); ks <- igraph::coreness(g)
+    sp <- igraph::distances(g, weights = NA)
+    old <- vapply(seq_len(n), function(i) {
+      j <- setdiff(seq_len(n), i)
+      keep <- is.finite(sp[i, j]) & sp[i, j] > 0
+      sum((deg[j] * ks[j])[keep] / sp[i, j][keep]^2)
+    }, numeric(1))
+    if (!isTRUE(all.equal(co, old, tolerance = 1e-10))) failures <- failures + 1L
+  }
   expect_equal(failures, 0L)
 })
 

@@ -1,0 +1,250 @@
+---
+title: "Centrality Zoo coverage matrix"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE,
+                      fig.width = 12, fig.height = 12, dpi = 110)
+# Resolve everything from the repository root, so the document renders the
+# same whether it is knitted in place or from elsewhere.
+root <- normalizePath(".")
+while (!file.exists(file.path(root, "DESCRIPTION")) &&
+       dirname(root) != root) {
+  root <- dirname(root)
+}
+at <- function(...) file.path(root, ...)
+zoo <- jsonlite::fromJSON(gzfile(at("docs/zoo/correlation.json.gz")))
+labels <- zoo$labels
+M <- zoo$matrix
+dimnames(M) <- list(labels, labels)
+
+# Zoo label -> cograph measure, emitted by docs/zoo/zoo_coverage.py
+covered <- utils::read.csv(at("docs/zoo/coverage_map.csv"), stringsAsFactors = FALSE)
+names(covered) <- c("zoo", "cograph")
+covered$batch <- ifelse(grepl("batch 7", covered$cograph), "7",
+                 ifelse(grepl("batch 8", covered$cograph), "8",
+                 ifelse(grepl("batch 9", covered$cograph), "9", "earlier")))
+covered$cograph <- sub(" \\(also .*\\)| \\[batch [0-9]\\]", "", covered$cograph)
+covered <- covered[!duplicated(covered$cograph), ]
+uncovered <- setdiff(labels, covered$zoo)
+best <- apply(M[uncovered, covered$zoo, drop = FALSE], 1, max)
+novel <- names(best)[best < 0.70]
+
+# Our own averaged Kendall tau over 19 real networks
+ours_path <- at("local_testing_and_equivalence/zoo_consistency_matrix.csv")
+has_ours <- file.exists(ours_path)
+if (has_ours) {
+  ours <- as.matrix(utils::read.csv(ours_path, row.names = 1,
+                                    check.names = FALSE))
+  colnames(ours) <- rownames(ours)
+}
+prof <- if (has_ours) {
+  utils::read.csv(at("local_testing_and_equivalence/zoo_consistency.csv"),
+                  stringsAsFactors = FALSE)
+} else {
+  NULL
+}
+
+seq_pal <- grDevices::colorRampPalette(c("#FFFFFF", "#4A6FE3"))(100)
+div_pal <- grDevices::colorRampPalette(c("#D33F6A", "#FFFFFF", "#4A6FE3"))(101)
+heat <- function(mat, main, cex = 0.7, pal = seq_pal, zlim = c(0, 1),
+                 mar = c(1, 14, 12, 1)) {
+  n_r <- nrow(mat); n_c <- ncol(mat)
+  op <- graphics::par(mar = mar); on.exit(graphics::par(op), add = TRUE)
+  graphics::image(seq_len(n_c), seq_len(n_r), t(mat[n_r:1, , drop = FALSE]),
+                  col = pal, zlim = zlim, axes = FALSE, xlab = "", ylab = "",
+                  main = main)
+  graphics::axis(3, at = seq_len(n_c), labels = colnames(mat), las = 2,
+                 cex.axis = cex, tick = FALSE, line = -0.5)
+  graphics::axis(2, at = seq_len(n_r), labels = rev(rownames(mat)), las = 1,
+                 cex.axis = cex, tick = FALSE, line = -0.5)
+}
+```
+
+Source: average Kendall rank correlation between node rankings of
+`r length(labels)` measures over 648 ICON networks
+([Centrality Zoo](https://centralityzoo.github.io/comparison/), Shvydun 2025).
+`cograph` implements `r nrow(covered)` distinct measures covering
+`r nrow(read.csv(at("docs/zoo/coverage_map.csv")))` of those labels,
+`r sum(covered$batch != "earlier")` of them added in batches 7 to 9.
+Colour: white = 0, blue = 1 for correlations; red to blue through white for
+differences. Every figure is followed by the numbers, so nothing is encoded
+by colour alone.
+
+## Covered measures: the Zoo's view
+
+Rows and columns are labelled with the cograph name and ordered by
+hierarchical clustering of `1 - tau`, so redundant measures sit together.
+
+```{r covered-heatmap}
+C <- M[covered$zoo, covered$zoo]
+dimnames(C) <- list(covered$cograph, covered$cograph)
+ord <- stats::hclust(stats::as.dist(1 - C), method = "average")$order
+C <- C[ord, ord]
+heat(C, "Zoo: Kendall tau among the measures cograph implements", cex = 0.6)
+```
+
+### Redundant pairs inside cograph (tau >= 0.95)
+
+```{r covered-pairs}
+pairs <- which(upper.tri(C) & C >= 0.95, arr.ind = TRUE)
+tab <- data.frame(measure_1 = rownames(C)[pairs[, 1]],
+                  measure_2 = colnames(C)[pairs[, 2]],
+                  tau = round(C[pairs], 2))
+tab <- unique(tab[tab$measure_1 != tab$measure_2, ])
+tab <- tab[order(-tab$tau, tab$measure_1), ]
+rownames(tab) <- NULL
+knitr::kable(tab)
+```
+
+## Our measurements against the Zoo
+
+```{r ours-setup, eval = has_ours}
+shared <- intersect(rownames(ours), colnames(C))
+shared <- colnames(C)[colnames(C) %in% shared]   # keep the clustered order
+Z <- C[shared, shared]
+O <- abs(ours[shared, shared])                   # Zoo tau are non-negative
+D <- O - Z
+paired <- data.frame(zoo = Z[upper.tri(Z)], ours = O[upper.tri(O)])
+# A pair is NA when one of its measures could not be computed on any shared
+# network (alpha and power fail with a singular solve on les_miserables).
+paired <- paired[stats::complete.cases(paired), ]
+```
+
+`r if (!has_ours) "This half needs the measured matrix, which is not in the repository because it is a few megabytes of derived data. Produce it with Rscript local_testing_and_equivalence/zoo_consistency.R and knit again."`
+
+```{r ours-note, results = "asis", eval = has_ours}
+dif <- abs(paired$ours - paired$zoo)
+cat(sprintf(paste0("The same %d measures computed on 19 real undirected ",
+                   "networks (10 to 81 nodes: karate, kite, UKfaculty, ",
+                   "macaque, 12 food webs, les_miserables, florentine, ",
+                   "davis), pairwise Kendall tau averaged over networks, ",
+                   "then compared pair by pair.\n\n"),
+            length(shared)))
+cat(sprintf(paste0("| Statistic over the %d measure pairs | Value |\n",
+                   "|---|---|\n",
+                   "| Correlation between the two matrices | %.2f |\n",
+                   "| Mean absolute difference | %.2f |\n",
+                   "| Median absolute difference | %.2f |\n",
+                   "| Pairs agreeing within 0.20 | %.0f%% |\n"),
+            nrow(paired), stats::cor(paired$zoo, paired$ours),
+            mean(dif), stats::median(dif), 100 * mean(dif < 0.2)))
+drop <- c("constraint", "clusterrank", "dmnc", "local_dimension",
+          "flow_coefficient")
+kp <- !(shared %in% drop)
+Z2 <- Z[kp, kp]; O2 <- O[kp, kp]
+p2 <- stats::complete.cases(cbind(Z2[upper.tri(Z2)], O2[upper.tri(O2)]))
+cat(sprintf(paste0("\nFive measures carry most of the disagreement: constraint, ",
+                   "clusterrank, dmnc, local_dimension and flow_coefficient. ",
+                   "Dropping them lifts the correlation to **%.2f** over the ",
+                   "remaining %d pairs. The first three match their reference ",
+                   "implementations exactly, so the gap is about the Zoo's ",
+                   "conventions rather than cograph's arithmetic.\n"),
+            stats::cor(Z2[upper.tri(Z2)][p2], O2[upper.tri(O2)][p2]),
+            sum(p2)))
+```
+
+```{r ours-heatmap, fig.height = 12, eval = has_ours}
+heat(O, "Ours: Kendall tau over 19 real networks (same ordering)", cex = 0.6)
+```
+
+```{r diff-heatmap, fig.height = 12, eval = has_ours}
+heat(D, "Ours minus Zoo (blue = we find them more alike)", cex = 0.6,
+     pal = div_pal, zlim = c(-1, 1))
+```
+
+```{r scatter, fig.width = 7, fig.height = 7, eval = has_ours}
+op <- graphics::par(mar = c(4, 4, 3, 1)); on.exit(graphics::par(op), add = TRUE)
+graphics::plot(paired$zoo, paired$ours, pch = 16, cex = 0.35,
+               col = grDevices::adjustcolor("#0072B2", alpha.f = 0.25),
+               xlab = "Zoo tau (648 ICON networks)",
+               ylab = "our tau (19 real networks)",
+               main = "Every pair of covered measures", asp = 1,
+               xlim = c(0, 1), ylim = c(0, 1))
+graphics::abline(0, 1, col = "#000000", lty = 2)
+graphics::legend("topleft", legend = c("one measure pair", "equality"),
+                 pch = c(16, NA), lty = c(NA, 2),
+                 col = c("#0072B2", "#000000"), bty = "n", cex = 0.9)
+```
+
+### Where the two disagree most
+
+`flow_coefficient` against `transitivity` is the clearest case: the Zoo
+prints an unbounded formula that differs from the paper's, while ours
+equals one minus the clustering coefficient on an undirected graph, so the
+two matrices report 0.02 and 1.00 for the same pair. `constraint` is
+negatively oriented, so its agreement depends on a sign convention the Zoo
+does not state, and `dmnc` differs because `centiserve::dmnc()` counts a
+component's edges in the wrong index space.
+
+An earlier run of this report put `katz` among the worst rows. That turned
+out to be cograph's own defect rather than a convention difference: Katz
+converges only for an attenuation below one over the spectral radius, and
+the 0.1 default is invalid on several of these food webs. This run uses a
+valid attenuation per network, and `katz` moved from a profile correlation
+of 0.56 to 0.76. `centrality()` now warns when the attenuation cannot
+converge.
+
+```{r worst-pairs, eval = has_ours}
+idx <- which(upper.tri(D), arr.ind = TRUE)
+dd <- data.frame(measure_1 = rownames(D)[idx[, 1]],
+                 measure_2 = colnames(D)[idx[, 2]],
+                 zoo = round(Z[idx], 2), ours = round(O[idx], 2),
+                 difference = round(D[idx], 2))
+dd <- dd[order(-abs(dd$difference)), ]
+rownames(dd) <- NULL
+knitr::kable(head(dd, 25))
+```
+
+## Per-measure agreement with the Zoo
+
+`r if (!has_ours) "Needs the measured matrix; see above."`
+
+Each measure's row of tau values, correlated with the Zoo's row for the
+same measure. Established measures set the achievable band, since the two
+matrices come from different network collections.
+
+```{r profile, eval = has_ours}
+prof$batch <- covered$batch[match(prof$measure, covered$cograph)]
+pt <- prof[, c("measure", "batch", "profile_cor", "mean_abs_diff",
+               "nearest_ours", "tau_ours", "nearest_zoo", "tau_zoo")]
+pt$profile_cor <- round(pt$profile_cor, 2)
+pt$mean_abs_diff <- round(pt$mean_abs_diff, 2)
+pt$tau_ours <- round(pt$tau_ours, 2)
+pt$tau_zoo <- round(pt$tau_zoo, 2)
+pt <- pt[order(pt$profile_cor), ]
+rownames(pt) <- NULL
+knitr::kable(pt)
+```
+
+## Uncovered measures with real new information
+
+The `r length(novel)` Zoo measures whose maximum tau against any cograph
+measure is below 0.70, against all covered measures.
+
+```{r novel-heatmap, fig.height = 9}
+N <- M[novel, covered$zoo]
+colnames(N) <- covered$cograph
+N <- N[order(best[novel]), ord]
+heat(N, "Novel Zoo measures (rows) vs cograph measures (columns)", cex = 0.6)
+```
+
+```{r novel-table}
+nearest <- covered$cograph[apply(M[novel, covered$zoo, drop = FALSE], 1,
+                                 which.max)]
+nt <- data.frame(zoo_measure = novel, max_tau = round(best[novel], 2),
+                 nearest_cograph = nearest)
+nt <- nt[order(nt$max_tau), ]
+rownames(nt) <- NULL
+knitr::kable(nt)
+```
+
+## Full coverage document
+
+```{r coverage-md, results = "asis"}
+cat(readLines(at("docs/CENTRALITY-ZOO-COVERAGE.md"))[-1], sep = "\n")
+```

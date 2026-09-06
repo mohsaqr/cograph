@@ -8,7 +8,7 @@ plot_ml_heatmap(
   x,
   layer_list = NULL,
   colors = "viridis",
-  layer_spacing = 2.5,
+  layer_spacing = NULL,
   skew = 0.4,
   compress = 0.6,
   show_connections = FALSE,
@@ -20,6 +20,8 @@ plot_ml_heatmap(
   cell_border_color = "white",
   cell_border_width = 0.2,
   show_labels = TRUE,
+  show_node_labels = TRUE,
+  node_label_size = 3,
   label_size = 5,
   show_legend = TRUE,
   legend_title = "Weight",
@@ -39,7 +41,11 @@ or NULL for auto-detection from cograph_network nodes.}
 \item{colors}{Color palette: "viridis", "heat", "blues", "reds", "inferno",
 "plasma", or a vector of colors. Default "viridis".}
 
-\item{layer_spacing}{Vertical spacing between layers. Default 2.5.}
+\item{layer_spacing}{Vertical spacing between layers, in data units. A
+plane is \code{nrow(x) * compress} units tall, so a fixed spacing that
+suits a small network makes a larger one overlap itself. \code{NULL}
+(the default) scales the spacing to the plane so planes never collide;
+pass a number for the older absolute behaviour.}
 
 \item{skew}{Horizontal skew for perspective effect (0-1). Default 0.4.}
 
@@ -62,6 +68,14 @@ or NULL for auto-detection from cograph_network nodes.}
 \item{cell_border_width}{Width of cell borders. Default 0.2.}
 
 \item{show_labels}{Show layer name labels? Default TRUE.}
+
+\item{show_node_labels}{Show the row and column names of the matrix?
+Default TRUE. Without them a plane is an anonymous grid and a reader
+cannot tell which cell is which pair. Every plane shares one node
+ordering, so the names are drawn once, against the front plane: rows down
+its left edge, columns along its lower edge.}
+
+\item{node_label_size}{Size of the row and column names. Default 3.}
 
 \item{label_size}{Size of layer labels. Default 5.}
 

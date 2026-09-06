@@ -21,6 +21,12 @@
 #'     \item{\code{"all"}}{Every available measure.}
 #'   }
 #'   Passing \code{measures} explicitly overrides \code{type}.
+#' @param include Character vector of costly measures to add back to a tier,
+#'   or \code{"costly"} for all of them. \code{type = "all"} holds back the
+#'   measures whose cost grows steeply with network size (see
+#'   \code{\link{list_centralities}}), so that one call cannot take minutes
+#'   by accident. Naming a measure in \code{measures} always computes it,
+#'   whatever its cost. Default \code{NULL}.
 #' @param measures Character vector of specific measure names to compute.
 #'   When \code{NULL} (default) the tier selected by \code{type} is used.
 #'   Accepts \code{"all"} as a shortcut for every measure. Any custom vector
@@ -90,6 +96,43 @@
 #'   \code{\link{centrality_s_shell}},
 #'   \code{\link{centrality_degree_discount}},
 #'   \code{\link{centrality_ncvoterank}}.
+#'   **Zoo (batch 9, the remaining measures with a pinned definition)**:
+#'   community-aware "community_based" (Zhao et al. 2015), "comm_centrality"
+#'   (Gupta et al. 2016), "community_mediator" (Tulu et al. 2018), all
+#'   requiring \code{membership}; dimension family "local_dimension_fixed"
+#'   (Silva & Costa 2013), "fuzzy_local_dimension" (Wen & Jiang 2019),
+#'   "local_volume_dimension" (Li & Deng 2021); VoteRank family
+#'   "wvoterank" (Sun et al. 2019), "enrenew" (Guo et al. 2020),
+#'   "voterank_plus" (Liu et al. 2021); "node_contraction",
+#'   "node_contraction_improved" (Tan et al. 2006; Wang et al. 2011);
+#'   "two_way_rw" (Curado et al. 2022); local measures "heatmap"
+#'   (Duron 2020), "flow_coefficient" (Honey et al. 2007), "local_entropy"
+#'   (Nie et al. 2016), "weighted_h_index" (Gao et al. 2019), "redundancy"
+#'   (Burt 1992); "weighted_kshell" (Garas et al. 2012),
+#'   "renewed_coreness" (Liu et al. 2015), "geodesic_kpath" (Borgatti &
+#'   Everett 2006). Only "wvoterank", "two_way_rw" and "weighted_kshell"
+#'   use edge weights. See \code{\link{centrality_community_based}},
+#'   \code{\link{centrality_local_dimension_fixed}},
+#'   \code{\link{centrality_wvoterank}},
+#'   \code{\link{centrality_node_contraction}},
+#'   \code{\link{centrality_two_way_rw}}, \code{\link{centrality_heatmap}},
+#'   \code{\link{centrality_weighted_kshell}}.
+#'
+#'   Batch 10 closes the gaps other centrality packages had and cograph did
+#'   not: "local_efficiency" (Latora & Marchiori 2001), "s_core" (Eidsaa &
+#'   Almaas 2013), "fragmentation" (Borgatti 2006), "kpath" (Sade 1989) and
+#'   "epc" (Lin et al. 2008). "fragmentation" and "epc" are costly, so
+#'   \code{type = "all"} holds them back. See
+#'   \code{\link{centrality_local_efficiency}}.
+#'
+#'   Batch 11 tunes families cograph already had: "length_scaled_betweenness"
+#'   (Brandes 2008), "delta_betweenness" and "delta_closeness" (Agneessens
+#'   et al. 2017), "ego_betweenness" (Everett & Borgatti 2005). "gravity"
+#'   gained \code{gravity_mass} and \code{gravity_radius}, and its formula
+#'   was corrected -- see \code{\link{centrality_gravity}}. Bounded-distance
+#'   ("k-") betweenness needs no measure of its own: it is
+#'   \code{cutoff = k}. See
+#'   \code{\link{centrality_length_scaled_betweenness}}.
 #' @param mode For directed networks: "all", "in", or "out". Affects measures
 #'   whose output columns carry a mode suffix, including degree, strength,
 #'   closeness, eccentricity, coreness, harmonic, diffusion, leverage, k-reach,
@@ -177,6 +220,39 @@
 #'   Default 0.01. See \code{\link{centrality_degree_discount}}.
 #' @param ncvote_theta Weight of the plain vote in \code{"ncvoterank"}.
 #'   Default 0.5. See \code{\link{centrality_ncvoterank}}.
+#' @param comm_r Scale \eqn{R} of \code{"comm_centrality"}:
+#'   \code{"max_intra"} (default) or a positive number.
+#' @param ld_radius Radius for \code{"local_dimension_fixed"}. Default 2.
+#' @param enrenew_depth Renewal radius for \code{"enrenew"}. Default 2.
+#' @param voterank_lambda Suppression factor for \code{"voterank_plus"}.
+#'   Default 0.1.
+#' @param contraction_rho \eqn{\alpha / \beta} for
+#'   \code{"node_contraction_improved"}. Default 5.
+#' @param wks_alpha,wks_beta Degree and strength exponents for
+#'   \code{"weighted_kshell"}. Default 1 and 1.
+#' @param renewed_threshold Diffusion-importance threshold for
+#'   \code{"renewed_coreness"}. Default 2.
+#' @param kpath_k Maximum path length for \code{"geodesic_kpath"}. Default 3.
+#' @param kpath_len Maximum path length for \code{"kpath"}. Default 3; the
+#'   enumeration is exhaustive, so cost grows with the branching factor to
+#'   this power.
+#' @param epc_threshold Edge removal probability for \code{"epc"}.
+#'   Default 0.5.
+#' @param epc_runs Number of percolation realisations for \code{"epc"}.
+#'   Default 1000.
+#' @param epc_seed Random seed for \code{"epc"}. Default \code{NULL},
+#'   which leaves the caller's stream alone and lets the estimate vary
+#'   between calls.
+#' @param betweenness_delta Decay exponent for \code{"delta_betweenness"}.
+#'   Default 1; 0 gives ordinary betweenness.
+#' @param closeness_delta Distance exponent for \code{"delta_closeness"}.
+#'   Default 1, which is \code{harmonic} over \eqn{n - 1}.
+#' @param gravity_mass Mass in \code{"gravity"}: \code{"kshell"} (default,
+#'   Ma et al. 2016), \code{"degree"} (Li et al. 2019) or \code{"legacy"}
+#'   for cograph's pre-2.4.8 form.
+#' @param gravity_radius Largest distance \code{"gravity"} reaches: a
+#'   number (default 3), \code{"auto"} for half the mean distance, or
+#'   \code{NULL} for the whole graph.
 #' @param tna_network Logical or NULL. Umbrella switch that forces tna-style
 #'   conventions across all measures. \code{NULL} (default) auto-detects
 #'   from the input class — TRUE iff \code{x} is a \code{tna} or related
@@ -342,6 +418,62 @@
 #'   \item{ncvoterank}{VoteRank with voters weighted by normalised
 #'     neighbourhood coreness (\code{ncvote_theta}); election order scored
 #'     like \code{voterank}.}
+#'   \item{community_based, comm_centrality, community_mediator}{Links
+#'     weighted by the size of the community they reach; Gupta's scaled
+#'     intra/inter-degree combination (\code{comm_r}); base-2 entropy of the
+#'     link distribution over communities times degree share (all require
+#'     \code{membership}).}
+#'   \item{local_dimension_fixed, fuzzy_local_dimension,
+#'     local_volume_dimension}{Silva-Costa estimator at \code{ld_radius};
+#'     slope of the fuzzy ball (higher = more influential); slope of the
+#'     degree volume (lower = more important).}
+#'   \item{wvoterank, enrenew, voterank_plus}{Election orders of the
+#'     weighted, entropy-based (\code{enrenew_depth}) and degree-weighted
+#'     (\code{voterank_lambda}) VoteRank variants, scored like
+#'     \code{voterank}.}
+#'   \item{node_contraction, node_contraction_improved}{One minus the
+#'     agglomeration ratio after contracting the node with its neighbours;
+#'     the improved form adds the same score of its edges on the line graph
+#'     (\code{contraction_rho}).}
+#'   \item{two_way_rw}{Number of node pairs whose most likely two-way
+#'     random-walk route passes through the node.}
+#'   \item{heatmap}{Farness minus mean neighbour farness; lower = more
+#'     central.}
+#'   \item{flow_coefficient}{Share of neighbour pairs linked through the
+#'     node but not directly.}
+#'   \item{local_entropy}{\eqn{-\sum_{j \in N(i)} k_j \ln k_j}; lower = more
+#'     central.}
+#'   \item{weighted_h_index}{h-index over topological link weights
+#'     \eqn{k_i k_j} repeated \eqn{k_j} times.}
+#'   \item{redundancy}{Mean degree of the neighbours inside the ego
+#'     network; degree minus effective size.}
+#'   \item{weighted_kshell}{k-shell on \eqn{(k^\alpha s^\beta)^{1/(\alpha
+#'     + \beta)}} after Garas' weight normalisation (\code{wks_alpha},
+#'     \code{wks_beta}).}
+#'   \item{renewed_coreness}{k-core of the graph after removing links whose
+#'     diffusion importance is below \code{renewed_threshold}.}
+#'   \item{geodesic_kpath}{Number of shortest paths of length at most
+#'     \code{kpath_k} starting at the node.}
+#'   \item{local_efficiency}{Global efficiency of the subgraph induced on
+#'     the node's neighbours, the node itself removed. Note that
+#'     \code{igraph::local_efficiency()} instead measures the distances
+#'     between those neighbours through the rest of the network.}
+#'   \item{s_core}{Largest strength threshold whose s-core still contains
+#'     the node; the k-core number when weights are absent.}
+#'   \item{fragmentation}{Distance-weighted fragmentation of the network
+#'     after deleting the node. Higher means a more disruptive removal.}
+#'   \item{kpath}{Number of simple paths of length at most
+#'     \code{kpath_len} that the node lies on, endpoints included.}
+#'   \item{epc}{Edge percolated component: mean size of the node's
+#'     component over \code{epc_runs} bond-percolation realisations, as a
+#'     share of the network. A Monte Carlo estimate.}
+#'   \item{length_scaled_betweenness}{Betweenness with each separated pair
+#'     weighted by \eqn{1 / d(s,t)}.}
+#'   \item{delta_betweenness}{Betweenness with the pair weight
+#'     \eqn{(d(s,t) - 1)^{-\delta}} (\code{betweenness_delta}).}
+#'   \item{ego_betweenness}{Betweenness inside the node's own ego network.}
+#'   \item{delta_closeness}{\eqn{\sum_j d_{ij}^{-\delta} / (n-1)}
+#'     (\code{closeness_delta}).}
 #' }
 #'
 #' @export
@@ -373,7 +505,7 @@
 #' # Global transitivity
 #' centrality(adj, measures = "transitivity", transitivity_type = "global")
 centrality <- function(x, type = c("basic", "extended", "all"),
-                       measures = NULL, mode = "all",
+                       measures = NULL, include = NULL, mode = "all",
                        normalized = FALSE, weighted = TRUE,
                        directed = NULL, loops = TRUE, simplify = "sum",
                        digits = NULL, sort_by = NULL,
@@ -387,6 +519,14 @@ centrality <- function(x, type = c("basic", "extended", "all"),
                        katz_alpha = 0.1, hubbell_weight = 0.5,
                        shapley_k = 2, shapley_cutoff = 2,
                        s_shell_a = 0.5, discount_p = 0.01, ncvote_theta = 0.5,
+                       comm_r = "max_intra", ld_radius = 2, enrenew_depth = 2,
+                       voterank_lambda = 0.1, contraction_rho = 5,
+                       wks_alpha = 1, wks_beta = 1, renewed_threshold = 2,
+                       kpath_k = 3,
+                       kpath_len = 3, epc_threshold = 0.5,
+                       epc_runs = 1000, epc_seed = NULL,
+                       betweenness_delta = 1, closeness_delta = 1,
+                       gravity_mass = "kshell", gravity_radius = 3,
                        tna_network = NULL,
                        psych_network = NULL,
                        ...) {
@@ -468,64 +608,8 @@ centrality <- function(x, type = c("basic", "extended", "all"),
   }
 
   # Define which measures support mode parameter
-  mode_measures <- c("degree", "strength", "closeness", "eccentricity",
-                     "coreness", "harmonic", "diffusion", "leverage", "kreach",
-                     "alpha", "power",
-                     # Extended mode measures
-                     "radiality", "lin", "decay", "residual_closeness",
-                     "dangalchev", "generalized_closeness", "harary",
-                     "average_distance", "barycenter", "wiener",
-                     "lobby", "entropy", "semilocal", "clusterrank",
-                     "bottleneck", "centroid", "mnc", "dmnc", "lac",
-                     "closeness_vitality",
-                     "integration", "expected", "gilschmidt",
-                     # Community-aware mode measures
-                     "participation", "within_module_z", "gateway",
-                     # Zoo batch 2 — mode measures
-                     "gravity", "collective_influence", "local_hindex",
-                     "hindex_strength", "onion",
-                     # Batch 3 — mode measures
-                     "reaching_local",
-                     # Batch 7 — Centrality Zoo comparison batch
-                     "distance_entropy", "local_dimension",
-                     "local_information_dimension",
-                     "neighborhood_connectivity",
-                     # Batch 8 — mode measures
-                     "community_hub_bridge", "entropy_variation_degree",
-                     # Psychometric family — signed-weight sums
-                     "expected_influence_1", "expected_influence_2")
-  no_mode_measures <- c("betweenness", "eigenvector", "pagerank",
-                        "authority", "hub", "constraint", "transitivity",
-                        "subgraph", "laplacian", "load",
-                        "current_flow_closeness", "current_flow_betweenness",
-                        "voterank", "percolation",
-                        # Extended no-mode measures
-                        "stress", "flow_betweenness",
-                        "communicability", "communicability_betweenness",
-                        "random_walk",
-                        "topological_coefficient", "bridging",
-                        "local_bridging", "effective_size",
-                        "diversity", "cross_clique", "markov",
-                        # Directed-only measures
-                        "salsa", "leaderrank", "trophic_level",
-                        # Zoo batch 2 — no-mode measures
-                        "second_order", "infection", "nonbacktracking",
-                        "spanning_tree",
-                        # Batch 3 — classical measures with reference validation
-                        "katz", "hubbell", "information", "pairwisedis",
-                        # Batch 4 — directed prestige family (Wasserman-Faust / sna)
-                        "prestige_domain", "prestige_domain_proximity",
-                        # Batch 5 — Gould-Fernandez brokerage (5 roles)
-                        "brokerage_coordinator", "brokerage_itinerant",
-                        "brokerage_representative", "brokerage_gatekeeper",
-                        "brokerage_liaison",
-                        # Batch 7 — Centrality Zoo comparison batch
-                        "modularity_vitality",
-                        # Batch 8 — Centrality Zoo "on the way" batch
-                        "shapley_game1", "shapley_game2", "shapley_game3",
-                        "access_information", "hide_information", "rumor",
-                        "entropy_variation_betweenness", "s_shell",
-                        "degree_discount", "single_discount", "ncvoterank")
+  mode_measures <- .cg_mode_measures()
+  no_mode_measures <- .cg_no_mode_measures()
   all_measures <- c(mode_measures, no_mode_measures)
 
   # Curated tiers. basic = canonical measures every paper reports;
@@ -542,20 +626,39 @@ centrality <- function(x, type = c("basic", "extended", "all"),
                          "diffusion", "laplacian", "kreach",
                          "current_flow_betweenness", "current_flow_closeness")
 
+  # Measures whose cost grows steeply with network size. They are held back
+  # from `type = "all"` so that one call cannot take minutes by accident;
+  # `include = ` puts them back, and naming one in `measures = ` always
+  # computes it. See .cg_costly_measures() and list_centralities().
+  costly <- .cg_costly_measures()
+
   # Resolve measures: explicit `measures =` wins; otherwise use the tier.
   if (is.null(measures)) {
     measures <- switch(type,
                        basic = basic_measures,
                        extended = extended_measures,
-                       all = all_measures)
+                       all = setdiff(all_measures, costly))
   } else if (identical(measures, "all")) {
-    measures <- all_measures
+    measures <- setdiff(all_measures, costly)
   } else {
     invalid <- setdiff(measures, all_measures)
     if (length(invalid) > 0) {
       stop("Unknown measures: ", paste(invalid, collapse = ", "),
            "\nAvailable: ", paste(all_measures, collapse = ", "), call. = FALSE)
     }
+  }
+
+  # `include = ` adds costly measures back to a tier. "costly" adds them all.
+  if (!is.null(include)) {
+    include <- if (identical(include, "costly")) costly else include
+    unknown <- setdiff(include, all_measures)
+    if (length(unknown) > 0) {
+      stop(errorCondition(
+        sprintf("Unknown measures in `include`: %s",
+                paste(unknown, collapse = ", ")),
+        class = "cograph_unknown_measure", call = NULL))
+    }
+    measures <- union(measures, include)
   }
 
   # Get node labels
@@ -588,7 +691,9 @@ centrality <- function(x, type = c("basic", "extended", "all"),
                            "average_distance", "barycenter", "wiener",
                            "closeness_vitality", "centroid", "stress",
                            "flow_betweenness", "integration", "gilschmidt",
-                           "markov")
+                           "markov", "local_efficiency", "fragmentation",
+                           "length_scaled_betweenness", "delta_betweenness",
+                           "delta_closeness")
   needs_path_weights <- any(measures %in% path_based_measures)
 
   weights_for_paths <- weights
@@ -615,7 +720,8 @@ centrality <- function(x, type = c("basic", "extended", "all"),
                                "residual_closeness", "dangalchev",
                                "generalized_closeness", "harary",
                                "average_distance", "barycenter", "wiener",
-                               "centroid", "closeness_vitality")
+                               "centroid", "closeness_vitality",
+                               "delta_closeness")
   shared_dist_mat <- NULL
   if (any(measures %in% distance_based_measures)) {
     # Dependency-free all-pairs shortest paths (see R/kernels-distance.R).
@@ -628,7 +734,10 @@ centrality <- function(x, type = c("basic", "extended", "all"),
   # Batch 7 scaling measures are defined on hop counts, not path weights,
   # so they share one unweighted all-pairs matrix regardless of `weighted`.
   hop_distance_measures <- c("distance_entropy", "local_dimension",
-                             "local_information_dimension")
+                             "local_information_dimension",
+                             "local_dimension_fixed", "fuzzy_local_dimension",
+                             "local_volume_dimension", "heatmap",
+                             "geodesic_kpath")
   shared_hop_mat <- NULL
   if (any(measures %in% hop_distance_measures)) {
     shared_hop_mat <- .cg_hop_distances(g, mode)
@@ -667,7 +776,16 @@ centrality <- function(x, type = c("basic", "extended", "all"),
       out_hop_mat = this_out_hop_mat,
       shapley_k = shapley_k, shapley_cutoff = shapley_cutoff,
       s_shell_a = s_shell_a, discount_p = discount_p,
-      ncvote_theta = ncvote_theta
+      ncvote_theta = ncvote_theta,
+      comm_r = comm_r, ld_radius = ld_radius, enrenew_depth = enrenew_depth,
+      voterank_lambda = voterank_lambda, contraction_rho = contraction_rho,
+      wks_alpha = wks_alpha, wks_beta = wks_beta,
+      renewed_threshold = renewed_threshold, kpath_k = kpath_k,
+      kpath_len = kpath_len, epc_threshold = epc_threshold,
+      epc_runs = epc_runs, epc_seed = epc_seed,
+      betweenness_delta = betweenness_delta,
+      closeness_delta = closeness_delta, gravity_mass = gravity_mass,
+      gravity_radius = gravity_radius
     )
 
     # Normalize if requested (except for closeness which is handled by igraph)
@@ -1341,7 +1459,16 @@ calculate_measure <- function(g, measure, mode, weights, normalized,
                               out_hop_mat = NULL,
                               shapley_k = 2, shapley_cutoff = 2,
                               s_shell_a = 0.5, discount_p = 0.01,
-                              ncvote_theta = 0.5) {
+                              ncvote_theta = 0.5,
+                              comm_r = "max_intra", ld_radius = 2,
+                              enrenew_depth = 2, voterank_lambda = 0.1,
+                              contraction_rho = 5, wks_alpha = 1,
+                              wks_beta = 1, renewed_threshold = 2,
+                              kpath_k = 3, kpath_len = 3,
+                              epc_threshold = 0.5, epc_runs = 1000,
+                              epc_seed = NULL, betweenness_delta = 1,
+                              closeness_delta = 1, gravity_mass = "kshell",
+                              gravity_radius = 3) {
   directed <- igraph::is_directed(g)
 
   value <- switch(measure,
@@ -1363,13 +1490,16 @@ calculate_measure <- function(g, measure, mode, weights, normalized,
     },
     "leverage" = calculate_leverage(g, mode = mode),
     "kreach" = calculate_kreach(g, mode = mode, weights = weights, k = k),
-    "alpha" = igraph::alpha_centrality(
+    # Both solve (I - alpha A) x = b, which is singular when alpha sits at an
+    # eigenvalue of A; igraph then raises a bare LU error naming neither the
+    # measure nor the cause.
+    "alpha" = .cg_solve_or_stop("alpha", function() igraph::alpha_centrality(
       g, weights = weights, exo = 1,
       tol = 1e-07, loops = FALSE, sparse = TRUE
-    ),
-    "power" = igraph::power_centrality(
+    )),
+    "power" = .cg_solve_or_stop("power", function() igraph::power_centrality(
       g, exponent = 1, rescale = FALSE, tol = 1e-07, loops = FALSE, sparse = TRUE
-    ),
+    )),
 
     # Measures without mode
     "subgraph" = igraph::subgraph_centrality(g, diag = FALSE),
@@ -1463,7 +1593,8 @@ calculate_measure <- function(g, measure, mode, weights, normalized,
     "gilschmidt" = calculate_gilschmidt(g, mode = mode),
 
     # Zoo batch 2 — mode measures
-    "gravity" = calculate_gravity(g, mode = mode),
+    "gravity" = calculate_gravity(g, mode = mode, mass = gravity_mass,
+                                  radius = gravity_radius),
     "collective_influence" = calculate_collective_influence(g, mode = mode),
     "local_hindex" = as.numeric(calculate_local_hindex(g, mode = mode)),
     "hindex_strength" = as.numeric(calculate_hindex_strength(g, mode = mode)),
@@ -1543,6 +1674,58 @@ calculate_measure <- function(g, measure, mode, weights, normalized,
     "degree_discount" = calculate_degree_discount(g, p = discount_p),
     "single_discount" = calculate_degree_discount(g, single = TRUE),
     "ncvoterank" = calculate_ncvoterank(g, theta = ncvote_theta),
+
+    # Batch 9 — remaining Zoo measures (R/centrality-batch9.R)
+    "community_based" = calculate_community_based(
+      g, membership = membership, mode = mode),
+    "comm_centrality" = calculate_comm_centrality(
+      g, membership = membership, mode = mode, r = comm_r),
+    "community_mediator" = calculate_community_mediator(
+      g, membership = membership, mode = mode),
+    "local_dimension_fixed" = calculate_local_dimension_fixed(
+      g, mode = mode, r = ld_radius, hop_mat = hop_mat),
+    "fuzzy_local_dimension" = calculate_fuzzy_local_dimension(
+      g, mode = mode, hop_mat = hop_mat),
+    "local_volume_dimension" = calculate_local_volume_dimension(
+      g, mode = mode, hop_mat = hop_mat),
+    "wvoterank" = calculate_wvoterank(g, weights = weights),
+    "enrenew" = calculate_enrenew(g, depth = enrenew_depth),
+    "voterank_plus" = calculate_voterank_plus(g, lambda = voterank_lambda),
+    "node_contraction" = calculate_node_contraction(g),
+    "node_contraction_improved" = calculate_node_contraction(
+      g, improved = TRUE, rho = contraction_rho),
+    "two_way_rw" = calculate_two_way_rw(g, weights = weights),
+    "heatmap" = calculate_heatmap(g, mode = mode, hop_mat = hop_mat),
+    "flow_coefficient" = calculate_flow_coefficient(g),
+    "local_entropy" = calculate_local_entropy(g, mode = mode),
+    "weighted_h_index" = calculate_weighted_h_index(g, mode = mode),
+    "redundancy" = calculate_redundancy(g),
+    "weighted_kshell" = calculate_weighted_kshell(
+      g, weights = weights, alpha = wks_alpha, beta = wks_beta),
+    "renewed_coreness" = calculate_renewed_coreness(
+      g, threshold = renewed_threshold),
+    "geodesic_kpath" = calculate_geodesic_kpath(
+      g, mode = mode, k = kpath_k, hop_mat = hop_mat),
+
+    # Batch 10 — cross-package gaps (R/centrality-batch10.R)
+    "local_efficiency" = calculate_local_efficiency(
+      g, mode = mode, weights = weights),
+    "s_core" = calculate_s_core(g, weights = weights),
+    "fragmentation" = calculate_fragmentation(
+      g, mode = mode, weights = weights),
+    "kpath" = calculate_kpath(g, mode = mode, k = kpath_len),
+    "epc" = calculate_epc(g, threshold = epc_threshold, runs = epc_runs,
+                          seed = epc_seed),
+
+    # Batch 11 — parameterised family members (R/centrality-batch11.R)
+    "length_scaled_betweenness" = calculate_length_scaled_betweenness(
+      g, weights = weights),
+    "delta_betweenness" = calculate_delta_betweenness(
+      g, weights = weights, delta = betweenness_delta),
+    "ego_betweenness" = calculate_ego_betweenness(g),
+    "delta_closeness" = calculate_delta_closeness(
+      g, mode = mode, delta = closeness_delta, dist_mat = dist_mat,
+      weights = weights),
 
     stop("Unknown measure: ", measure, call. = FALSE)
   )
@@ -2662,7 +2845,9 @@ centrality_mnc <- function(x, mode = "all", ...) {
 
 #' Density of Maximum Neighborhood Component (DMNC)
 #'
-#' Edge count divided by max component size^1.5 in the neighborhood subgraph.
+#' Edges divided by nodes raised to \code{dmnc_epsilon}, both taken from the
+#' largest connected component of the subgraph induced on a node's
+#' neighbours (the focal node excluded).
 #'
 #' @inheritParams centrality_degree
 #' @param dmnc_epsilon Numeric. Epsilon exponent for DMNC. Default 1.7 as
@@ -2670,6 +2855,17 @@ centrality_mnc <- function(x, mode = "all", ...) {
 #'   assumption). Must be between 1 and 2.
 #'
 #' @return Named numeric vector of DMNC values.
+#'
+#' @section Divergence from centiserve:
+#' \code{centiserve::dmnc()} returns different values, and not only because
+#' of its different \code{epsilon} default. Its edge count is taken with
+#' \code{induced.subgraph(graph, which(c$membership \%in\% ...))}, where the
+#' membership vector indexes the neighbourhood subgraph but is used to
+#' subset the original graph. The two index spaces are not the same, so the
+#' edges counted are those of an unrelated vertex set. On the Zachary karate
+#' club the two disagree on 14 of 34 nodes at a matched epsilon, and
+#' reproducing that indexing exactly reproduces centiserve's output.
+#' cograph counts the edges of the component it actually found.
 #'
 #' @seealso \code{\link{centrality}} for computing multiple measures at once,
 #'   \code{\link{centrality_mnc}} for the size-only variant.

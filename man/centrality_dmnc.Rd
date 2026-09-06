@@ -23,8 +23,23 @@ assumption). Must be between 1 and 2.}
 Named numeric vector of DMNC values.
 }
 \description{
-Edge count divided by max component size^1.5 in the neighborhood subgraph.
+Edges divided by nodes raised to \code{dmnc_epsilon}, both taken from the
+largest connected component of the subgraph induced on a node's
+neighbours (the focal node excluded).
 }
+\section{Divergence from centiserve}{
+
+\code{centiserve::dmnc()} returns different values, and not only because
+of its different \code{epsilon} default. Its edge count is taken with
+\code{induced.subgraph(graph, which(c$membership \%in\% ...))}, where the
+membership vector indexes the neighbourhood subgraph but is used to
+subset the original graph. The two index spaces are not the same, so the
+edges counted are those of an unrelated vertex set. On the Zachary karate
+club the two disagree on 14 of 34 nodes at a matched epsilon, and
+reproducing that indexing exactly reproduces centiserve's output.
+cograph counts the edges of the component it actually found.
+}
+
 \examples{
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
 rownames(adj) <- colnames(adj) <- c("A", "B", "C")

@@ -1537,33 +1537,6 @@ calculate_second_order <- function(g) {
 }
 
 
-#' Gravity centrality (Li et al. 2019)
-#'
-#' Degree * k-shell / distance^2 summed over all reachable nodes.
-#' Combines local (degree), mesoscale (k-shell), and global (distance) info.
-#' @keywords internal
-#' @noRd
-calculate_gravity <- function(g, mode = "all") {
-  n <- igraph::vcount(g)
-  if (n == 0) return(numeric(0))
-  if (n == 1) return(0)
-
-  deg <- igraph::degree(g, mode = mode)
-  ks <- igraph::coreness(g, mode = mode)
-  sp <- igraph::distances(g, mode = mode, weights = NA)
-
-  vapply(seq_len(n), function(i) {
-    total <- 0
-    for (j in seq_len(n)) {
-      if (i != j && is.finite(sp[i, j]) && sp[i, j] > 0) {
-        total <- total + (deg[j] * ks[j]) / (sp[i, j]^2)
-      }
-    }
-    total
-  }, numeric(1))
-}
-
-
 #' Collective influence (Morone & Makse 2015)
 #'
 #' Product of (degree - 1) and sum of (degree - 1) on the boundary
@@ -1941,6 +1914,23 @@ calculate_katz <- function(g, weights = NULL, alpha = 0.1) {
                                                 attr = "weight", sparse = FALSE))
   }
 
+  # Katz converges only for alpha < 1 / rho(A). With exo = 1 every term of
+  # the series is non-negative, so a value below 1 is proof that it did not:
+  # a free divergence check. The spectral radius is computed only to name the
+  # valid bound in the warning, never on the happy path.
+  .cg_katz_check <- function(v) {
+    if (!any(is.finite(v)) || !any(v < 1 - 1e-8)) return(invisible(NULL))
+    rho <- tryCatch(max(abs(eigen(A, only.values = TRUE)$values)),
+                    error = function(e) NA_real_)
+    bound <- if (is.finite(rho) && rho > 0) sprintf("%.4g", 1 / rho) else "1 / rho(A)"
+    warning(warningCondition(
+      sprintf(paste0("katz: alpha = %g does not converge on this graph ",
+                     "(needs alpha < %s); the values are not Katz scores. ",
+                     "Lower `katz_alpha`."), alpha, bound),
+      class = "cograph_katz_diverged", call = NULL))
+    invisible(NULL)
+  }
+
   res <- tryCatch(
     solve(diag(x = 1, nrow = n) - (alpha * t(A))) %*% matrix(1, nrow = n, ncol = 1),
     error = function(e) {
@@ -1949,7 +1939,9 @@ calculate_katz <- function(g, weights = NULL, alpha = 0.1) {
       matrix(NA_real_, n, 1)
     }
   )
-  as.numeric(res[, 1])
+  out <- as.numeric(res[, 1])
+  .cg_katz_check(out)
+  out
 }
 
 

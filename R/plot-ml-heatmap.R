@@ -9,7 +9,11 @@
 #'   or NULL for auto-detection from cograph_network nodes.
 #' @param colors Color palette: "viridis", "heat", "blues", "reds", "inferno",
 #'   "plasma", or a vector of colors. Default "viridis".
-#' @param layer_spacing Vertical spacing between layers. Default 2.5.
+#' @param layer_spacing Vertical spacing between layers, in data units. A
+#'   plane is \code{nrow(x) * compress} units tall, so a fixed spacing that
+#'   suits a small network makes a larger one overlap itself. \code{NULL}
+#'   (the default) scales the spacing to the plane so planes never collide;
+#'   pass a number for the older absolute behaviour.
 #' @param skew Horizontal skew for perspective effect (0-1). Default 0.4.
 #' @param compress Vertical compression for perspective (0-1). Default 0.6.
 #' @param show_connections Show inter-layer connection lines? Default FALSE.
@@ -21,6 +25,12 @@
 #' @param cell_border_color Color for cell borders. Default "white".
 #' @param cell_border_width Width of cell borders. Default 0.2.
 #' @param show_labels Show layer name labels? Default TRUE.
+#' @param show_node_labels Show the row and column names of the matrix?
+#'   Default TRUE. Without them a plane is an anonymous grid and a reader
+#'   cannot tell which cell is which pair. Every plane shares one node
+#'   ordering, so the names are drawn once, against the front plane: rows down
+#'   its left edge, columns along its lower edge.
+#' @param node_label_size Size of the row and column names. Default 3.
 #' @param label_size Size of layer labels. Default 5.
 #' @param show_legend Show color legend? Default TRUE.
 #' @param legend_title Title for legend. Default "Weight".
@@ -47,7 +57,7 @@ plot_ml_heatmap <- function(
     x,
     layer_list = NULL,
     colors = "viridis",
-    layer_spacing = 2.5,
+    layer_spacing = NULL,
     skew = 0.4,
     compress = 0.6,
     show_connections = FALSE,
@@ -59,6 +69,8 @@ plot_ml_heatmap <- function(
     cell_border_color = "white",
     cell_border_width = 0.2,
     show_labels = TRUE,
+    show_node_labels = TRUE,
+    node_label_size = 3,
     label_size = 5,
     show_legend = TRUE,
     legend_title = "Weight",
@@ -88,6 +100,7 @@ plot_ml_heatmap <- function(
 
   # Get dimensions
   n_rows <- nrow(layers[[1]])
+  layer_spacing <- .ml_layer_spacing(layer_spacing, n_rows, compress)
   n_cols <- ncol(layers[[1]])
 
   # Build cell polygons
@@ -136,6 +149,19 @@ plot_ml_heatmap <- function(
     )
   }
 
+  # Add the row and column names, against the front plane only
+  if (show_node_labels) {
+    node_labels_df <- .build_ml_node_labels(
+      layers, n_rows, n_cols, skew, compress, layer_spacing)
+    p <- p + ggplot2::geom_text(
+      data = node_labels_df,
+      ggplot2::aes(x = .data$x, y = .data$y, label = .data$label,
+                   hjust = .data$hjust, vjust = .data$vjust,
+                   angle = .data$angle),
+      size = node_label_size, colour = "grey20"
+    )
+  }
+
   # Add layer labels
   if (show_labels) {
     p <- p + ggplot2::geom_text(
@@ -154,12 +180,32 @@ plot_ml_heatmap <- function(
   )
 
   # Theme
+  #
+  # Layer labels are right-aligned text anchored inside the panel, and text
+  # extent takes no part in scale expansion: the room to the left of the
+  # anchor is a fixed fraction of the data span, so a long name or a narrow
+  # panel clipped it ("Layer 1" rendered as "/er 1"). Drawing with clipping
+  # off and reserving the label's own width as a left margin makes the label
+  # legible at any device size, because the margin is in absolute units and
+  # so is the text.
   p <- p +
-    ggplot2::coord_fixed() +
+    ggplot2::coord_fixed(clip = "off") +
     ggplot2::theme_void() +
     ggplot2::theme(
       plot.title = ggplot2::element_text(hjust = 0.5, face = "bold", size = 14),
-      legend.position = if (show_legend) "right" else "none"
+      legend.position = if (show_legend) "right" else "none",
+      plot.margin = ggplot2::margin(
+        t = 5.5, r = 5.5,
+        l = max(
+          if (show_labels) .ml_label_margin(names(layers), label_size) else 5.5,
+          if (show_node_labels)
+            .ml_label_margin(rownames(layers[[1]]), node_label_size) else 5.5
+        ),
+        # Column names run below the front plane and need room of their own.
+        b = if (show_node_labels)
+          .ml_label_margin(colnames(layers[[1]]), node_label_size) else 5.5,
+        unit = "pt"
+      )
     )
 
   if (!is.null(title)) {
@@ -308,6 +354,94 @@ plot_ml_heatmap <- function(
   do.call(rbind, shell_list)
 }
 
+
+#' Row and column names for the front plane
+#'
+#' Every plane in the stack shares one node ordering, so drawing the names on
+#' each would only repeat them and crowd the picture. They go once against the
+#' front plane, which is the last layer: `.transform_to_plane()` gives that
+#' layer a zero offset, so it sits at the bottom of the stack and nothing
+#' overlaps its lower or left edge.
+#'
+#' Row names sit left of column one at the row's mid-height; column names sit
+#' below row one at the column's mid-width, rotated so that long names do not
+#' collide with their neighbours. The `skew` shear is already applied by the
+#' transform, so both sets follow the plane's edges rather than the page.
+#'
+#' @param layers The list of layer matrices.
+#' @param n_rows,n_cols Dimensions of a layer.
+#' @param skew,compress,layer_spacing Projection parameters.
+#' @return A data frame of label positions with text justification and angle.
+#' @keywords internal
+#' @noRd
+.build_ml_node_labels <- function(layers, n_rows, n_cols, skew, compress,
+                                  layer_spacing) {
+  n_layers <- length(layers)
+  front <- n_layers
+  row_names <- rownames(layers[[1]]) %||% as.character(seq_len(n_rows))
+  col_names <- colnames(layers[[1]]) %||% as.character(seq_len(n_cols))
+
+  rows <- .transform_to_plane(-0.25, seq_len(n_rows) - 0.5, front, n_layers,
+                              skew, compress, layer_spacing)
+  cols <- .transform_to_plane(seq_len(n_cols) - 0.5, -0.25, front, n_layers,
+                              skew, compress, layer_spacing)
+
+  rbind(
+    data.frame(x = rows$x, y = rows$y, label = row_names,
+               hjust = 1, vjust = 0.5, angle = 0),
+    data.frame(x = cols$x, y = cols$y, label = col_names,
+               hjust = 1, vjust = 0.5, angle = 45)
+  )
+}
+
+#' Left margin needed to keep layer labels legible
+#'
+#' Layer names are drawn as right-aligned text just inside the panel, and
+#' `ggplot2` does not expand a scale to fit text. The margin reserved here is
+#' the label's own estimated width, so a long name stays readable however
+#' narrow the panel becomes. The 0.5 factor is the mean advance width of a
+#' bold sans glyph relative to its point size; it reproduces the measured
+#' width of "Layer 1" at `label_size = 5` to within a percent.
+#'
+#' @param labels Character vector of layer names.
+#' @param label_size Text size, in the units `ggplot2::geom_text()` uses.
+#' @return A single number: the margin in points, never below the default.
+#' @keywords internal
+#' @noRd
+.ml_label_margin <- function(labels, label_size) {
+  widest <- if (length(labels)) max(nchar(labels), 0L) else 0L
+  if (!is.finite(widest)) widest <- 0L
+  points_per_size <- 72.27 / 25.4
+  # The default 5.5pt margin is kept as padding on top of the estimate, so a
+  # font whose glyphs run slightly wider than the average still fits.
+  max(5.5, widest * 0.5 * label_size * points_per_size + 5.5)
+}
+
+#' Vertical spacing that keeps stacked planes apart
+#'
+#' A plane drawn by [plot_ml_heatmap()] is `n_rows * compress` data units
+#' tall, so an absolute spacing cannot suit both a four-node and a
+#' fourteen-node network: at the old fixed default of 2.5 a fourteen-node
+#' stack overlapped itself by 5.9 units. Scaling the spacing to the plane
+#' leaves a tenth of a plane's height as a visible gap.
+#'
+#' @param layer_spacing The user's value, or `NULL` to derive one.
+#' @param n_rows Rows in a layer matrix.
+#' @param compress Vertical compression of the perspective.
+#' @return A single positive number.
+#' @keywords internal
+#' @noRd
+.ml_layer_spacing <- function(layer_spacing, n_rows, compress) {
+  if (!is.null(layer_spacing)) {
+    stopifnot(
+      "`layer_spacing` must be one positive number or NULL." =
+        length(layer_spacing) == 1L && is.numeric(layer_spacing) &&
+        is.finite(layer_spacing) && layer_spacing > 0
+    )
+    return(layer_spacing)
+  }
+  max(1, n_rows * compress * 1.1)
+}
 
 #' Build layer label positions
 #' @keywords internal

@@ -434,6 +434,21 @@
   ifelse(rank > 0, (m + 1 - rank) / m, 0)
 }
 
+#' Index of the largest admissible score, ties to the lowest index
+#'
+#' Scores within `tol` of the maximum count as tied, so floating-point
+#' noise from summation order cannot decide an election.
+#'
+#' @param score Numeric vector. @param admissible Logical mask.
+#' @param tol Tolerance (1e-9).
+#' @return An index.
+#' @keywords internal
+#' @noRd
+.cg_argmax_tied <- function(score, admissible, tol = 1e-9) {
+  top <- max(score[admissible])
+  which(admissible & score >= top - tol)[1L]
+}
+
 #' Undirected simple neighbour matrix (direction and loops dropped)
 #' @keywords internal
 #' @noRd
@@ -469,7 +484,7 @@
   rank <- integer(n)
   # Each selection changes the discounted degrees that decide the next one.
   for (r in seq_len(n)) {
-    u <- which.max(ifelse(selected, -Inf, dd))
+    u <- .cg_argmax_tied(dd, !selected)
     selected[u] <- TRUE
     rank[u] <- r
     v <- which(nb[u, ] != 0 & !selected)
@@ -493,10 +508,13 @@
 #' @param b Adjacency matrix. @param ks k-core index per node.
 #' @param theta Weight of the plain vote (0.5). @param two_hop Whether
 #'   nodes at distance two are weakened.
+#' @param return_scores Return the n x n matrix of scores before each
+#'   election instead (row = round); for tie diagnostics.
 #' @return Numeric score vector from `.cg_rank_score()`.
 #' @keywords internal
 #' @noRd
-.cg_ncvoterank <- function(b, ks, theta = 0.5, two_hop = TRUE) {
+.cg_ncvoterank <- function(b, ks, theta = 0.5, two_hop = TRUE,
+                           return_scores = FALSE) {
   n <- nrow(b)
   if (is.null(n) || n == 0L) return(numeric(0))
   nb <- .cg_undirected_view(b)
@@ -509,10 +527,12 @@
   va <- rep(1, n)
   selected <- rep(FALSE, n)
   rank <- integer(n)
+  scores <- matrix(NA_real_, n, n)
   # Each election suppresses the abilities that decide the next one.
   for (r in seq_len(n)) {
     score <- as.numeric(nb %*% (va * weight))
-    u <- which.max(ifelse(selected, -Inf, score))
+    scores[r, ] <- ifelse(selected, NA, score)
+    u <- .cg_argmax_tied(score, !selected)
     selected[u] <- TRUE
     rank[u] <- r
     va[u] <- 0
@@ -524,5 +544,6 @@
       va[two] <- pmax(0, va[two] - f2)
     }
   }
+  if (return_scores) return(scores)
   .cg_rank_score(rank)
 }

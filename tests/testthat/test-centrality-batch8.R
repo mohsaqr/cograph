@@ -342,9 +342,16 @@ test_that("centrality(): batch 8 columns and type = 'all'", {
                      "entropy_variation_betweenness", "s_shell",
                      "degree_discount", "single_discount", "ncvoterank"))
   expect_false(anyNA(df[-1]))
+  # type = "all" holds back the costly measures; the rest must all appear,
+  # and include = "costly" restores them.
   all_df <- suppressWarnings(centrality(bridge6, type = "all",
                                         membership = bridge_membership))
-  expect_true(all(names(df)[-1] %in% names(all_df)))
+  costly <- list_centralities(costly = TRUE)$measure
+  expect_true(all(setdiff(names(df)[-1], costly) %in% names(all_df)))
+  everything <- suppressWarnings(centrality(bridge6, type = "all",
+                                            include = "costly",
+                                            membership = bridge_membership))
+  expect_true(all(names(df)[-1] %in% names(everything)))
 })
 
 test_that("batch 8 measures are invariant to node relabelling", {

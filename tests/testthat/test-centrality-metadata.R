@@ -80,6 +80,8 @@ test_that("the uses_weights flag matches whether weights change the result", {
   while (!igraph::is_connected(g)) g <- igraph::sample_gnp(24, 0.28)
   gw <- g
   igraph::E(gw)$weight <- round(stats::runif(igraph::ecount(g), 1, 9))
+  probability_graph <- gw
+  igraph::E(probability_graph)$weight <- igraph::E(gw)$weight / 10
   memb <- igraph::membership(igraph::cluster_louvain(g))
   tab <- list_centralities()
   # The directed-only measures return NA on this graph, so they cannot be
@@ -99,7 +101,10 @@ test_that("the uses_weights flag matches whether weights change the result", {
     out[[2]]
   }
   changed <- vapply(tab$measure, function(m) {
-    !isTRUE(all.equal(value(g, m), value(gw, m)))
+    # Bridging capital consumes transmission probabilities, not arbitrary
+    # strengths; retain a nonuniform perturbation inside its input domain.
+    weighted_graph <- if (m == "bridging_capital") probability_graph else gw
+    !isTRUE(all.equal(value(g, m), value(weighted_graph, m)))
   }, logical(1))
   expect_equal(unname(changed), tab$uses_weights)
 })

@@ -185,7 +185,10 @@ centrality_delta_closeness <- function(x, mode = "all", closeness_delta = 1,
 #'     \code{gravity_mass = "degree"}, \code{gravity_radius = NULL}.}
 #'   \item{Local gravity model (same paper, eq. 2)}{
 #'     \code{gravity_mass = "degree"}, \code{gravity_radius = "auto"},
-#'     which is half the mean distance as their eq. 5 recommends.}
+#'     which uses their empirical half-mean-distance heuristic (eq. 5).
+#'     cograph rounds to the nearest integer (ties to even), with minimum
+#'     1, using finite positive distances on disconnected graphs. These
+#'     rounding and disconnected-graph rules are cograph conventions.}
 #' }
 #'
 #' @section Change in 2.4.8:

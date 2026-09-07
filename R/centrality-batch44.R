@@ -1,0 +1,101 @@
+#' Local neighbor contribution (LNC)
+#' @keywords internal
+#' @noRd
+calculate_lnc <- function(g) {
+  .cg_lnc_terms(.cg_path_matrix(g, NULL))$lnc
+}
+
+#' Local neighbor contribution centrality
+#'
+#' The local neighbor contribution (LNC) of Dai, Wang, Sheng, Sun, Khawaja,
+#' Ullah, Dejene and Duan multiplies what a node contributes on its own by
+#' what its neighbourhood contributes to it:
+#' \eqn{LNC(i)=d_i^{3}\,(1-1/d_i)^{d_i-1}\,
+#' \bigl(\sum_{j\in N(i)}d_j\bigr)/(n-1)}, with \eqn{0^0=1}.
+#' The first two factors are the source's \emph{own contribution}
+#' \eqn{ownCon(i)=d_i(1-1/d_i)^{d_i-1}}, the chance that a node picking one
+#' neighbour uniformly at random reaches a given one and misses the rest,
+#' scaled by its degree; the rest is the \emph{neighbour contribution}
+#' \eqn{neiCon(i)=d_i^{2}\sum_{j\in N(i)}d_j/(n-1)}, the source's cluster
+#' degree weighted by its neighbours' degree centralities.
+#'
+#' The measure takes no parameters. The source calls this out as a feature,
+#' "Parameter-Free: LNC does not rely on prior knowledge and parameter
+#' adjustments", so none is offered.
+#'
+#' \strong{Raw scores are not comparable across graphs of different order.}
+#' The \eqn{1/(n-1)} comes from the degree centrality of equation (1), where
+#' \eqn{n} is the vertex count of the whole network, not of the node's
+#' component. Adding a disconnected component therefore multiplies every
+#' score by \eqn{(n-1)/(n'-1)}, leaving the ranking alone and the raw values
+#' not.
+#'
+#' \strong{The source's printed equations do not literally give its printed
+#' numbers, and cograph follows the numbers.} Equations (4) and (5) both sum
+#' a term over \eqn{j=1,\dots,k}, and \eqn{k} is described three
+#' incompatible ways: the prose calls it the number of nearest and next
+#' nearest neighbours, Algorithm 1 line 12 sets it to the degree, and
+#' equation (5) taken literally carries one factor of \eqn{d_i} too many.
+#' The printed intermediates \eqn{D(v_5)=12}, \eqn{ownCon(v_5)=1.6875} and
+#' \eqn{neiCon(v_5)=19.2}, together with all eleven Table 1 influences, are
+#' reproduced by exactly one pair of factors, the one above: \eqn{k} acts as
+#' \eqn{d_i} in (5) and as \eqn{d_i^2} in (4). The equally literal split that
+#' moves one \eqn{d_i} from the neighbour factor to the own factor gives the
+#' same product, so the measure itself is unambiguous.
+#'
+#' \strong{This is not the Centrality Zoo's formula.} Zoo section 2.238
+#' writes the own contribution as
+#' \eqn{d_i|N^{(\le 2)}(i)|\sum_{j\in N^{(\le 2)}(i)}(1/d_j)
+#' (1-1/d_j)^{|N^{(\le 2)}(i)|-1}}, replacing the focal node's own
+#' contribution probability \eqn{P(v_i)} by each neighbour's \eqn{P(v_j)}
+#' and the binomial count \eqn{d_i} by the size of the two-hop
+#' neighbourhood; its neighbour factor is right in form but uses that same
+#' two-hop size where the printed numbers need \eqn{d_i^2}. On the source's
+#' own Figure 1 the Zoo reading reproduces none of the eleven printed values
+#' and inverts the paper's headline ranking, scoring \eqn{v_8} 32.23 above
+#' \eqn{v_5} 28.90 where the paper prints 32.4 for \eqn{v_5} and 29.7 for
+#' \eqn{v_8}, and lifting the degree-two nodes \eqn{v_6, v_7} above the
+#' degree-three \eqn{v_9}. cograph implements the paper. No Zoo variant is
+#' offered.
+#'
+#' Uses the simple undirected unweighted skeleton, which is the source
+#' domain: either arc creates one edge, parallel edges count once and loops
+#' are removed. Edge weights, mode, cutoff and path-weight inversion are
+#' ignored. Isolates score zero, and so does the single node of a singleton
+#' graph: the source has no value there, since \eqn{P(v_i)=1/0} and the
+#' \eqn{n-1} denominator vanishes, and zero is a cograph extension chosen
+#' because \eqn{d_i^3} and the empty neighbour-degree sum are both zero.
+#' Empty graphs return no scores. The source states no normalization;
+#' \code{normalized = TRUE} max-scales the finished vector as elsewhere in
+#' \code{\link{centrality}}. Nothing overflows: the cubed degree is bounded
+#' by \eqn{n^3}, the neighbour-degree sum by twice the edge count, and the
+#' binomial factor lies in \eqn{[1/4, 1]}. Cost is one sparse
+#' matrix-vector product, O(n + m).
+#'
+#' Numerical verification establishes agreement with the source's printed
+#' Table 1 and printed intermediates, not parity with author software, which
+#' does not exist, and not any claim about spreading performance.
+#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Additional arguments to \code{\link{centrality}}.
+#' @return Named numeric vector in input node order.
+#' @references Dai, J., Wang, B., Sheng, J., Sun, Z., Khawaja, F. R.,
+#'   Ullah, A., Dejene, D. A. and Duan, G. (2019). Identifying influential
+#'   nodes in complex networks based on local neighbor contribution. IEEE
+#'   Access, 7, 131719-131731. Definitions 1-5, equations (1)-(6) and
+#'   Algorithm 1, journal pages 131721-131723, with the Figure 1 graph and
+#'   Table 1 on page 131720. \doi{10.1109/ACCESS.2019.2939804}.
+#' @seealso \code{\link{centrality_semilocal}} and
+#'   \code{\link{centrality_neighbor_distance}} for other neighbourhood
+#'   sums, and \code{\link{list_centralities}} for the catalogue.
+#' @export
+#' @examples
+#' # Every node of a ring has degree two and a neighbour-degree sum of four
+#' centrality_lnc(igraph::make_ring(6))
+#'
+#' # A star: the centre carries the whole neighbourhood
+#' centrality_lnc(igraph::make_star(5, mode = "undirected"))
+centrality_lnc <- function(x, ...) {
+  df <- centrality(x, measures = "lnc", ...)
+  stats::setNames(df$lnc, df$node)
+}

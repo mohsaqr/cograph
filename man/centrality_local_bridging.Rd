@@ -17,6 +17,8 @@ Named numeric vector of local bridging values.
 \description{
 (1/degree) times bridging coefficient. Local measure of inter-community
 connectivity.
+This legacy score differs from Nanda and Kotz's ego-betweenness product;
+use \code{\link{centrality_localized_bridging}} for their LBC definition.
 }
 \examples{
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)

@@ -25,5 +25,5 @@ centrality_bridging(adj)
 }
 \seealso{
 \code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_local_bridging}} for the local variant.
+\code{\link{centrality_localized_bridging}} for the ego-network variant.
 }

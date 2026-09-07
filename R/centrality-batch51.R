@@ -1,0 +1,226 @@
+#' Trust-PageRank (Sheng, Zhu, Wang, Wang and Hou 2020)
+#' @keywords internal
+#' @noRd
+calculate_trust_pagerank <- function(g, alpha = 0.85, mix = 0.85, decay = 1,
+                                     tol = 1e-14, max_iter = 1000L) {
+  finite_scalar <- function(v) {
+    is.numeric(v) && length(v) == 1L && is.finite(v)
+  }
+  stopifnot(
+    "`tpr_alpha` must be a single number strictly between zero and one" =
+      finite_scalar(alpha) && alpha > 0 && alpha < 1,
+    "`tpr_k` must be a single number in [0, 1]" =
+      finite_scalar(mix) && mix >= 0 && mix <= 1,
+    "`tpr_decay` must be a single number in (0, 1]" =
+      finite_scalar(decay) && decay > 0 && decay <= 1,
+    "`tpr_tol` must be a single positive number" =
+      finite_scalar(tol) && tol > 0,
+    "`tpr_max_iter` must be a single whole number of at least one" =
+      finite_scalar(max_iter) && max_iter >= 1 &&
+      isTRUE(all.equal(max_iter, round(max_iter)))
+  )
+
+  terms <- .cg_tpr_terms(.cg_path_matrix(g, NULL), alpha, mix, decay, tol,
+                         as.integer(round(max_iter)))
+  defined <- attr(terms, "defined")
+  converged <- attr(terms, "converged")
+  iterations <- attr(terms, "iterations")
+
+  if (!all(converged)) {
+    stalled <- names(converged)[!converged]
+    warning(warningCondition(
+      sprintf(paste0("`trust_pagerank` did not settle: the %s recursion was ",
+                     "still moving after %d iterations at relative ",
+                     "tolerance %g. The ",
+                     "returned scores depend on that bound; raise ",
+                     "`tpr_max_iter` or relax `tpr_tol`."),
+              paste(stalled, collapse = " and "),
+              max(iterations[!converged]), tol),
+      class = "cograph_no_converge", call = NULL
+    ))
+  }
+  if (any(!defined)) {
+    warning(warningCondition(
+      sprintf(paste0("`trust_pagerank` has no value at %d of %d nodes, so ",
+                     "those entries are NA: their component has lines but no ",
+                     "triangle for the similarity recursion to reach, so the ",
+                     "converged similarity is zero on every line there and ",
+                     "equation (2) divides zero by zero. Every component ",
+                     "that has lines but no triangle is in this class -- a ",
+                     "path, a tree, a star, an even cycle, a complete ",
+                     "bipartite graph. An isolate is not: it is never a ",
+                     "denominator, and it keeps the bare teleport share."),
+              sum(!defined), length(defined)),
+      class = "cograph_undefined_measure", call = NULL
+    ))
+  }
+  terms$trust_pagerank
+}
+
+#' Trust-PageRank
+#'
+#' Sheng, Zhu, Wang, Wang and Hou replace PageRank's uniform split of a
+#' node's score among its neighbors with a \emph{trust-value} that mixes how
+#' similar two nodes are with how large the receiving node's degree is. The
+#' similarity is SimRank restricted to the lines of the graph, the degree
+#' ratio is a node's degree over the total degree of its partner's
+#' neighborhood, and the two are blended and fed to a damped power
+#' iteration:
+#' \deqn{Rs_{ij}=\frac{s(i,j)}{\sum_{k\in N_j}s(j,k)},\qquad
+#'       Rd_{ij}=\frac{d_i}{\sum_{k\in N_j}d_k},}
+#' \deqn{T(i,j)=(1-k)Rs_{ij}+k\,Rd_{ij},\qquad
+#'       TPR_i^{t}=\frac{1-\alpha}{n}+\alpha\sum_{j\in N_i}T(i,j)TPR_j^{t-1},}
+#' with the similarity itself the fixed point of \eqn{s(a,a)=1} and
+#' \eqn{s(a,b)=(C/(|N_a||N_b|))\sum_{l\in N_a}\sum_{m\in N_b}s(l,m)}.
+#'
+#' \strong{The Centrality Zoo cites the wrong paper for this measure.} Its
+#' entry 2.381 attributes Trust-PageRank to Sheng et al.'s \emph{Physica A}
+#' 541:123262, which defines the unrelated global-and-local-structure index.
+#' The measure printed there is equations (2), (4), (5), (6) and (7) of the
+#' \emph{Algorithms} paper cited below, which is fully open access. A reader
+#' following the Zoo's reference will land on a different measure.
+#'
+#' \strong{Both ratios are normalized over the receiving node's
+#' neighborhood, so the trust matrix is column-stochastic and equation (7)
+#' is an ordinary damped PageRank.} Because \eqn{s} is symmetric,
+#' \eqn{\sum_{i\in N_j}Rs_{ij}=1} and \eqn{\sum_{i\in N_j}Rd_{ij}=1}
+#' whatever \eqn{k} is, so \eqn{\sum_{i\in N_j}T(i,j)=1} and the iteration
+#' has a unique fixed point at which the scores sum to one. The source
+#' never fixes an iteration count and does not need to: the count is a
+#' convergence tolerance, exposed here as \code{tpr_tol} and
+#' \code{tpr_max_iter}, and a recursion still moving at the bound raises
+#' \code{cograph_no_converge} rather than returning a silently unconverged
+#' estimate. \strong{Both tests are relative rather than absolute}: the
+#' similarities on one graph span many orders of magnitude, because the mass
+#' reaching a line decays geometrically with its distance from the nearest
+#' triangle, and on a long chain at \eqn{C=0.2} the largest similarity is
+#' \eqn{2.4\times 10^{-2}} while the smallest positive one is
+#' \eqn{2.7\times 10^{-20}}. An absolute test would stop while those small
+#' entries were still an order of magnitude out, and equation (2) divides
+#' two of them by each other. An isolate emits nothing, so on a graph with
+#' isolates the scores sum to less than one.
+#'
+#' \strong{The similarity recursion runs on the lines of the graph only,
+#' and this is what makes it converge.} Algorithm 1's line 4 quantifies
+#' over \emph{connected} pairs and Table 3 marks every non-adjacent cell
+#' with a dash, so the similarity map holds an entry for each line and for
+#' the diagonal, and a non-adjacent pair entering the double sum
+#' contributes zero rather than the \eqn{0.1} that initializes the lines.
+#' The diagonal \eqn{s(l,l)=1} is then the only inhomogeneous term, and it
+#' reaches a line \eqn{(a,b)} exactly through the common neighbors of
+#' \eqn{a} and \eqn{b} -- that is, through the triangles the line carries.
+#' Each row of the linear part sums to at most \eqn{1-p/(d_ad_b)} for a line
+#' on \eqn{p} triangles, so the recursion contracts on any block that
+#' carries a triangle even at the source's \eqn{C=1}. Pinning non-adjacent
+#' pairs at \eqn{0.1} instead reproduces neither published fixture; see the
+#' batch 51 published audit in the package's verification directory.
+#'
+#' \strong{On a component that has lines but no triangle the measure has no
+#' value, and that whole component is returned as \code{NA}.} With no
+#' triangle the recursion is homogeneous, its least nonnegative fixed point
+#' is \eqn{s\equiv 0}, and equation (2) divides zero by zero. An undefined
+#' column makes equation (7) undefined for everything that solves against
+#' it, which is why the \code{NA} covers the component rather than the one
+#' node. The class is not a corner case: every path, tree, star, even cycle
+#' and complete bipartite graph is in it, and so is the Petersen graph. An
+#' isolate is \emph{not}: it is never a denominator in equation (2), and
+#' equation (7) gives it the bare \eqn{(1-\alpha)/n}. cograph refuses to
+#' name a value on the rest. The
+#' obvious fallback, \eqn{Rs_{ij}:=1/d_j}, was considered and rejected: it
+#' is not forced by the vanishing numerators the way the zero of
+#' \code{\link{centrality_dil}} and \code{\link{centrality_lhc}} is, since
+#' the ratios need only sum to one over \eqn{N_j} and nothing in the source
+#' chooses between the ways of doing that; adopting it would silently turn
+#' the measure into a degree-ratio PageRank over the whole triangle-free
+#' class while still calling it Trust-PageRank. This follows
+#' \code{\link{centrality_iec}}, which returns \code{NA} rather than the
+#' finite number its closed form would otherwise print, and deliberately
+#' does not follow \code{\link{centrality_dil}}. A second reading -- start
+#' the recursion at the source's \eqn{0.1} rather than at zero -- would
+#' define the sub-class on which that start is itself a fixed point
+#' (\eqn{K_2}, \eqn{P_3}, stars, \eqn{C_4}, complete bipartite graphs),
+#' where it yields \eqn{Rs_{ij}=1/d_j} independently of the constant's size.
+#' It was rejected because the value is then an artifact of the
+#' initialization being uniform rather than of the graph, because it leaves
+#' the rest of the triangle-free class undefined anyway, and because
+#' separating it from an exponentially decaying zero needs a numerical
+#' threshold where cograph can instead settle the question structurally, by
+#' asking which lines can reach a triangle at all.
+#'
+#' \strong{Direction and weights are dropped, because the source excludes
+#' them.} Page 3 sets the paper in an undirected network with
+#' \eqn{a(i,j)=1}, and every quantity in the five equations is a count or a
+#' ratio of counts. A directed, weighted or multigraph input is projected
+#' onto its simple undirected skeleton -- arcs symmetrized, weights and
+#' parallel edges collapsed to a single line, loops dropped -- as every
+#' other undirected-domain measure in \code{\link{centrality}} does, so
+#' \code{mode}, \code{cutoff} and \code{invert_weights} are ignored. The
+#' source states no normalization, so \code{normalized = TRUE} max-scales
+#' the finished vector as elsewhere.
+#'
+#' \strong{The source's claim that \eqn{C} does not matter is false for the
+#' converged recursion, and \eqn{C} is exposed rather than hidden.} Page 5
+#' argues that "the value of \eqn{C} does not affect the results, since only
+#' the ratio of similarity is calculated". That holds for a homogeneous
+#' recursion, where \eqn{C} is an overall scale, but not for this one: the
+#' diagonal makes it affine, so \eqn{C} enters the resolvent as well as the
+#' scale. Measured on the Zachary karate club this session, moving \eqn{C}
+#' from 1 to 0.5 moves \eqn{Rs} by up to 0.141 and the scores by up to
+#' \eqn{9.1\times 10^{-4}}. \code{tpr_decay} defaults to the source's 1.
+#'
+#' \strong{Both published fixtures are reproduced.} Table 3 on page 6 prints
+#' seven similarities of the five-node network of Fig. 3, and Table 5 on
+#' page 10 prints the Trust-PageRank top ten of the Krackhardt kite and of
+#' the Zachary karate club. All seven similarities round to their printed
+#' two decimals and all ten karate positions are recovered in order; the
+#' kite is recovered up to three exact ties forced by its own automorphism.
+#' See the batch 51 published audit.
+#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Additional arguments to \code{\link{centrality}}, including
+#'   \code{tpr_alpha}, \code{tpr_k}, \code{tpr_decay}, \code{tpr_tol} and
+#'   \code{tpr_max_iter}.
+#' @return Named numeric vector in input node order, one score per node,
+#'   summing to one on a graph with no isolate and no undefined component.
+#'   \code{NA} at every node of a component that has lines but no triangle,
+#'   accompanied by a \code{cograph_undefined_measure} warning. The domain
+#'   does not depend on \code{tpr_k}: the similarity ratio is part of the
+#'   trust-value at every mixing weight, and cograph does not switch a
+#'   measure's domain on the knife-edge value \code{tpr_k = 1}.
+#' @references Sheng, J., Zhu, J., Wang, Y., Wang, B. and Hou, Z. (2020).
+#'   Identifying Influential Nodes of Complex Networks Based on
+#'   Trust-Value. Algorithms, 13(11), 280. Equations (2) and (4) on page 5,
+#'   equations (5) and (6) on page 5, equation (7) and Algorithm 1 on page
+#'   7, Figure 3 and Table 3 on page 6, and Table 5 on page 10.
+#'   \doi{10.3390/a13110280}. The same construction is restated as
+#'   equations (1)-(5) by Hajarathaiah, K., Enduri, M. K., Anamalamudi, S.,
+#'   Subba Reddy, T. and Tokala, S. (2022). Computing Influential Nodes
+#'   Using the Nearest Neighborhood Trust Value and PageRank in Complex
+#'   Networks. Entropy, 24(5), 704. \doi{10.3390/e24050704}.
+#' @seealso \code{\link{centrality_pagerank}} for the uniform split this
+#'   measure replaces, \code{\link{centrality_dil}} and
+#'   \code{\link{centrality_lhc}} for other triangle-aware scores,
+#'   \code{\link{centrality_iec}} for the other measure that returns
+#'   \code{NA} outside its domain, and \code{\link{list_centralities}} for
+#'   the catalogue.
+#' @export
+#' @examples
+#' # The Krackhardt kite, one of the source's two published fixtures. Its
+#' # automorphism forces three exact ties, so the paper's printed order
+#' # 7, 4, 5, 9, 10, 3, 6, 8, 2, 1 is recovered up to those ties.
+#' kite <- igraph::make_graph(
+#'   c(6, 10, 6, 5, 6, 7, 10, 5, 10, 7, 10, 9, 5, 7, 5, 4, 5, 3,
+#'     7, 9, 7, 4, 7, 8, 9, 4, 9, 8, 4, 8, 4, 3, 3, 2, 2, 1),
+#'   directed = FALSE)
+#' centrality_trust_pagerank(kite)
+#'
+#' # A complete graph is vertex-transitive, so every node scores 1 / n.
+#' centrality_trust_pagerank(igraph::make_full_graph(5))
+#'
+#' # The similarity has nothing to work with on a triangle-free graph, so
+#' # the measure declines to score a ring rather than inventing a split.
+#' suppressWarnings(centrality_trust_pagerank(igraph::make_ring(6)))
+centrality_trust_pagerank <- function(x, ...) {
+  df <- centrality(x, measures = "trust_pagerank", ...)
+  stats::setNames(df$trust_pagerank, df$node)
+}

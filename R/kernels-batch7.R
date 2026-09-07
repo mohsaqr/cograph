@@ -81,12 +81,12 @@
 #'
 #' The ball `B_i(r)` around node `i` counts the node itself plus every node
 #' within `r` hops. Its growth exponent, the slope of `ln B_i(r)` on
-#' `ln r` for `r = 1, ..., d_max(i)`, is the local dimension. Calibrated
+#' `ln r` for \code{r = 1, ..., d_max(i)}, is the local dimension. Calibrated
 #' against the worked example in Wen & Deng (2019), which reports 0.9231
 #' for ring sizes 4, 5, 4, 4 only when the centre is counted in the ball.
 #'
 #' With a single radius the regression is undefined, so the discretised
-#' derivative from the same paper, `r * n_i(r) / B_i(r)` at `r = 1`, is
+#' derivative from the same paper, \code{r * n_i(r) / B_i(r)} at \code{r = 1}, is
 #' reported instead.
 #'
 #' @param d Hop-distance matrix.

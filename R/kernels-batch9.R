@@ -118,7 +118,7 @@
 #' `D_i(r) = r n_i(r) / B_i(r)`, with `n_i(r)` the ring at distance `r` and
 #' `B_i(r)` the ball within `r` (centre included). Nodes whose eccentricity
 #' is below `r` have an empty ring and score 0, as the paper states for
-#' `r -> Inf`.
+#' \code{r -> Inf}.
 #'
 #' @param d Hop-distance matrix. @param r Radius (default 2).
 #' @return Numeric vector.
@@ -138,7 +138,7 @@
 #' Fuzzy local dimension (Wen & Jiang 2019)
 #'
 #' Fuzzy ball `N_i(r) = sum_{d_ij <= r} exp(-d_ij^2 / r^2) / |{j : d_ij <= r}|`
-#' (centre included, its term equal to 1), for `r = 1, ..., d_max(i)`;
+#' (centre included, its term equal to 1), for \code{r = 1, ..., d_max(i)};
 #' the measure is the OLS slope of `log N_i(r)` on `log r`. Larger = more
 #' influential. `NaN` when fewer than two radii exist.
 #'

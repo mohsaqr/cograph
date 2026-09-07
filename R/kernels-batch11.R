@@ -125,9 +125,10 @@
   rowSums(pull)
 }
 
-#' Truncation radius recommended by Li et al. (2019), eq. 5
+#' Integer radius inspired by Li et al. (2019), eq. 5
 #'
-#' Half the mean shortest-path length, rounded, and never below 1.
+#' Half the mean finite positive shortest-path length, rounded, and never
+#' below 1. Rounding and disconnected-graph handling are cograph conventions.
 #'
 #' @param d Distance matrix.
 #' @return Integer radius.

@@ -14,7 +14,7 @@
 #' @keywords internal
 #' @noRd
 .cg_mode_measures <- function() {
-  c("degree", "strength", "closeness", "eccentricity",
+  c("degree", "strength", "closeness", "eccentricity", "exogenous",
     "coreness", "harmonic", "diffusion", "leverage", "kreach",
     "alpha", "power",
     # Extended mode measures
@@ -99,7 +99,47 @@
     # Batch 10 — no-mode measures
     "s_core", "epc",
     # Batch 11 — no-mode measures
-    "length_scaled_betweenness", "delta_betweenness", "ego_betweenness")
+    "length_scaled_betweenness", "delta_betweenness", "ego_betweenness",
+    # Batch 12 — topology-only parameter candidates
+    "truss", "mdd", "bridging_coefficient", "godfather", "support",
+    # Batch 13 — topology-only parameter candidates
+    "volume", "mcc",
+    # Batch 14 — outgoing finite-horizon diffusion
+    "diffusion_centrality", "dynamical_importance",
+    # Batch 15 — dynamics-sensitive spreading on the simple skeleton
+    "dynamics_sensitive", "malatya", "resistance_curvature",
+    "extended_coreness", "extended_gravity", "cda", "improved_closeness",
+    "global_structure", "hybrid_global_structure", "improved_global_structure",
+    "weighted_leaderrank", "adaptive_leaderrank", "graph_regularization",
+    "random_walk_decay", "linerank", "x_degree", "coleman_theil",
+    "bridging_capital", "proximal_betweenness", "expected_force",
+    "modified_expected_force", "beta_measure", "localized_bridging",
+    "extended_local_bridging", "ninl", "map_equation", "controlrank",
+    "spectralrank", "mcgm", "mixed_gravity", "extended_mixed_gravity",
+    # Batch 40 — DK-based gravity model
+    "dkgm",
+    # Batch 42 — neighborhood (neighbor distance) centrality
+    "neighbor_distance",
+    # Batch 43 — iterative resource allocation and its improved variant
+    "ira", "iira",
+    # Batch 44 — local neighbor contribution
+    "lnc",
+    # Batch 45 — KED method
+    "ked",
+    # Batch 46 — hybrid characteristic centrality and its extension
+    "hcc", "ehcc",
+    # Batch 47 — randomized shortest paths betweenness
+    "rsp_betweenness",
+    # Batch 48 — Lhc index
+    "lhc",
+    # Batch 49 — immediate effects centrality
+    "iec",
+    # Batch 50 — degree and importance of lines
+    "dil",
+    # Batch 51 — trust-PageRank
+    "trust_pagerank",
+    # Batch 41 — relative-entropy integrated evaluation
+    "relative_entropy")
 }
 
 #' Measures that require a community partition
@@ -144,19 +184,24 @@
 #' @keywords internal
 #' @noRd
 .cg_weighted_measures <- function() {
-  c("alpha", "authority", "average_distance", "barycenter", "betweenness",
+  c("spectralrank", "controlrank", "map_equation", "alpha", "authority", "average_distance", "barycenter", "betweenness", "cda",
     "bridging", "centroid", "closeness", "closeness_vitality", "constraint",
     "current_flow_betweenness", "current_flow_closeness", "dangalchev",
-    "decay", "delta_betweenness", "delta_closeness", "diversity",
+    "decay", "delta_betweenness", "delta_closeness", "diffusion_centrality",
+    "diversity", "dynamical_importance",
     "eccentricity", "eigenvector", "expected_influence_1",
     "expected_influence_2", "flow_betweenness",
-    "fragmentation", "generalized_closeness", "harary", "harmonic",
+    "fragmentation", "generalized_closeness", "graph_regularization",
+    "harary", "harmonic",
     "hindex_strength", "hub", "hubbell", "information", "katz", "kreach",
     "length_scaled_betweenness", "lin", "load", "local_efficiency",
-    "modularity_vitality", "pagerank",
+    "modularity_vitality", "pagerank", "random_walk_decay", "linerank",
+    "coleman_theil",
+    "bridging_capital",
     "percolation", "radiality", "reaching_local", "residual_closeness",
-    "s_core", "spanning_tree", "strength", "stress", "two_way_rw",
-    "weighted_kshell", "wiener", "wvoterank")
+    "resistance_curvature", "s_core", "spanning_tree", "strength", "stress", "two_way_rw",
+    "weighted_kshell", "wiener", "wvoterank",
+    "rsp_betweenness")
 }
 
 #' Catalogue of the Centrality Measures
@@ -258,5 +303,39 @@ list_centralities <- function(orientation = NULL, costly = NULL,
               measure, conditionMessage(e)),
       class = "cograph_singular_system", call = NULL
     ))
+  })
+}
+
+#' Keep a tier request alive when one measure has no value on this input
+#'
+#' A measure the caller named in `measures =` or `include =` raises its own
+#' conditions: the caller asked for that measure, so an undefined result is
+#' an error they must see. A measure a *tier* supplied is different --
+#' `type = "all"` asks for everything, and one measure without a value on
+#' this particular graph must not take the other 178 down with it. Such a
+#' measure warns and returns `NA`, exactly as the community-partition
+#' measures already do when `membership` is missing.
+#'
+#' Only `cograph_undefined_index` is caught, the condition a measure raises
+#' when its own definition has no value on the input. Every other error
+#' propagates.
+#'
+#' @param measure Measure name, for the message.
+#' @param from_tier `TRUE` when a tier supplied the measure rather than the
+#'   caller naming it.
+#' @param n Vertex count, for the `NA` vector.
+#' @param expr Expression computing the measure, evaluated lazily.
+#' @return The measure's value, or a vector of `NA`.
+#' @keywords internal
+#' @noRd
+.cg_tier_guard <- function(measure, from_tier, n, expr) {
+  if (!from_tier) return(expr)
+  tryCatch(expr, cograph_undefined_index = function(e) {
+    warning(warningCondition(
+      sprintf("`%s` has no value on this input, so its column is NA. %s",
+              measure, conditionMessage(e)),
+      class = "cograph_undefined_measure", call = NULL
+    ))
+    rep(NA_real_, n)
   })
 }

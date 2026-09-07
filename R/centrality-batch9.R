@@ -772,6 +772,10 @@ centrality_geodesic_kpath <- function(x, mode = "all", kpath_k = 3, ...) {
 #' @keywords internal
 #' @noRd
 .cg_costly_measures <- function() {
-  c("infection", "two_way_rw", "node_contraction_improved",
-    "entropy_variation_betweenness", "fragmentation", "epc")
+  c("controlrank", "extended_local_bridging", "bridging_capital", "linerank",
+    "random_walk_decay", "infection",
+    "two_way_rw", "node_contraction_improved",
+    "entropy_variation_betweenness", "fragmentation", "epc", "mcc",
+    "dynamical_importance", "resistance_curvature", "exogenous",
+    "rsp_betweenness", "iec", "trust_pagerank")
 }

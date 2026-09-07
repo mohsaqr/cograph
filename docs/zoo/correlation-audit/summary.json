@@ -1,0 +1,124 @@
+{
+  "native_measures": 177,
+  "configurations": 180,
+  "candidate_labels": 48,
+  "networks": 19,
+  "usable_native_measures": 165,
+  "candidate_configurations": 47,
+  "status_counts": {
+    "ok": 3039,
+    "nonfinite": 240,
+    "costly_above_40": 75,
+    "constant": 54,
+    "error": 12
+  },
+  "unavailable_native": [
+    "brokerage_coordinator",
+    "brokerage_gatekeeper",
+    "brokerage_itinerant",
+    "brokerage_liaison",
+    "brokerage_representative",
+    "hubbell",
+    "leaderrank",
+    "pairwisedis",
+    "prestige_domain",
+    "prestige_domain_proximity",
+    "salsa",
+    "trophic_level"
+  ],
+  "native_pairs_abs_mean_tau_ge_099": 68,
+  "mean_correlation_groups": [
+    [
+      "average_distance",
+      "barycenter",
+      "closeness",
+      "integration",
+      "lin",
+      "radiality",
+      "wiener"
+    ],
+    [
+      "authority",
+      "communicability",
+      "eigenvector",
+      "hub"
+    ],
+    [
+      "coreness",
+      "local_hindex",
+      "s_core",
+      "weighted_kshell"
+    ],
+    [
+      "current_flow_closeness",
+      "information",
+      "random_walk",
+      "spanning_tree"
+    ],
+    [
+      "dangalchev",
+      "decay",
+      "generalized_closeness",
+      "residual_closeness"
+    ],
+    [
+      "degree",
+      "expected_influence_1",
+      "map_equation",
+      "strength"
+    ],
+    [
+      "delta_closeness",
+      "gilschmidt",
+      "harmonic",
+      "reaching_local"
+    ],
+    [
+      "betweenness",
+      "load",
+      "percolation"
+    ],
+    [
+      "alpha",
+      "power"
+    ],
+    [
+      "bridging_coefficient",
+      "malatya"
+    ],
+    [
+      "diffusion",
+      "expected_influence_2"
+    ],
+    [
+      "flow_coefficient",
+      "transitivity"
+    ],
+    [
+      "hindex_strength",
+      "lobby"
+    ],
+    [
+      "lac",
+      "redundancy"
+    ],
+    [
+      "mnc",
+      "support"
+    ]
+  ],
+  "zoo_comparable_pairs": 1127,
+  "zoo_matrix_pearson": 0.4464058556603768,
+  "zoo_matrix_spearman": 0.7792858805710876,
+  "zoo_mean_absolute_gap": 0.18200364931350071,
+  "zoo_median_absolute_gap": 0.03835429931346923,
+  "zoo_magnitude_matrix_pearson": 0.7497024102503684,
+  "zoo_magnitude_matrix_spearman": 0.8174073496929324,
+  "zoo_magnitude_mean_absolute_gap": 0.07136282454056575,
+  "zoo_magnitude_median_absolute_gap": 0.035010468015150065,
+  "strong_pairs_abs_tau_ge_099_every_observed_network": 57,
+  "strong_pairs_domain_balanced_ge_099": 61,
+  "strong_pairs_without_kite_ge_099": 66,
+  "min_nodes": 10,
+  "max_nodes": 81
+}

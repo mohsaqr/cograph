@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "browser": "Google Chrome",
+  "version": "152.0.7977.82",
+  "before_error": "SyntaxError: Identifier 'top' has already been declared",
+  "fix": "Wrap generated chart script in a strict function scope",
+  "checks": [
+    "24 scope/statistic/minimum-coverage combinations",
+    "Canvas pixel alpha confirms populated drawing",
+    "Unavailable Zoo statistics reset for native scope",
+    "Search renders and hover details contain shared networks",
+    "Browser screenshot visually inspected"
+  ],
+  "report_sha256": "32d89e702c97973f0e73813d444e6e6e8462627a8b5ce364bcd704ffde3c8a6e"
+}

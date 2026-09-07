@@ -1,0 +1,143 @@
+{
+  "passed": true,
+  "tolerance": 1e-12,
+  "comparisons": 967628,
+  "pair_observations": 241907,
+  "maximum_absolute_error": {
+    "tau_b": 8.881784197001252e-16,
+    "spearman": 9.992007221626409e-16,
+    "pearson": 4.3298697960381105e-15,
+    "tau_b_raw": 8.881784197001252e-16
+  },
+  "failures": [],
+  "network_checks": [
+    {
+      "network": "karate",
+      "nodes": 34,
+      "usable": 166,
+      "pairs": 13695
+    },
+    {
+      "network": "kite",
+      "nodes": 10,
+      "usable": 165,
+      "pairs": 13530
+    },
+    {
+      "network": "UKfaculty",
+      "nodes": 81,
+      "usable": 151,
+      "pairs": 11325
+    },
+    {
+      "network": "macaque",
+      "nodes": 45,
+      "usable": 151,
+      "pairs": 11325
+    },
+    {
+      "network": "foodweb_ChesLower",
+      "nodes": 37,
+      "usable": 165,
+      "pairs": 13530
+    },
+    {
+      "network": "foodweb_ChesMiddle",
+      "nodes": 37,
+      "usable": 163,
+      "pairs": 13203
+    },
+    {
+      "network": "foodweb_ChesUpper",
+      "nodes": 37,
+      "usable": 163,
+      "pairs": 13203
+    },
+    {
+      "network": "foodweb_Chesapeake",
+      "nodes": 39,
+      "usable": 164,
+      "pairs": 13366
+    },
+    {
+      "network": "foodweb_CrystalC",
+      "nodes": 24,
+      "usable": 165,
+      "pairs": 13530
+    },
+    {
+      "network": "foodweb_CrystalD",
+      "nodes": 24,
+      "usable": 165,
+      "pairs": 13530
+    },
+    {
+      "network": "foodweb_Maspalomas",
+      "nodes": 24,
+      "usable": 165,
+      "pairs": 13530
+    },
+    {
+      "network": "foodweb_Michigan",
+      "nodes": 39,
+      "usable": 163,
+      "pairs": 13203
+    },
+    {
+      "network": "foodweb_Mondego",
+      "nodes": 46,
+      "usable": 150,
+      "pairs": 11175
+    },
+    {
+      "network": "foodweb_Narragan",
+      "nodes": 35,
+      "usable": 160,
+      "pairs": 12720
+    },
+    {
+      "network": "foodweb_Rhode",
+      "nodes": 19,
+      "usable": 165,
+      "pairs": 13530
+    },
+    {
+      "network": "foodweb_StMarks",
+      "nodes": 54,
+      "usable": 150,
+      "pairs": 11175
+    },
+    {
+      "network": "les_miserables",
+      "nodes": 77,
+      "usable": 149,
+      "pairs": 11026
+    },
+    {
+      "network": "florentine",
+      "nodes": 15,
+      "usable": 165,
+      "pairs": 13530
+    },
+    {
+      "network": "davis",
+      "nodes": 32,
+      "usable": 154,
+      "pairs": 11781
+    }
+  ],
+  "availability_counts": {
+    "ok": 3039,
+    "nonfinite": 240,
+    "costly_above_40": 75,
+    "constant": 54,
+    "error": 12
+  },
+  "versions": {
+    "python": "3.14.4",
+    "numpy": "2.4.2",
+    "scipy": "1.16.3"
+  },
+  "raw_transfer": "IEEE doubles exported as hexadecimal strings; no decimal near-tie loss",
+  "scope": "Correlation calculation and retained fixture integrity; not centrality function equivalence"
+}

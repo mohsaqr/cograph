@@ -1,0 +1,710 @@
+"network","node","community"
+"karate","1",1
+"karate","2",1
+"karate","3",1
+"karate","4",1
+"karate","5",2
+"karate","6",2
+"karate","7",2
+"karate","8",1
+"karate","9",3
+"karate","10",3
+"karate","11",2
+"karate","12",1
+"karate","13",1
+"karate","14",1
+"karate","15",3
+"karate","16",3
+"karate","17",2
+"karate","18",1
+"karate","19",3
+"karate","20",1
+"karate","21",3
+"karate","22",1
+"karate","23",3
+"karate","24",4
+"karate","25",4
+"karate","26",4
+"karate","27",3
+"karate","28",4
+"karate","29",4
+"karate","30",3
+"karate","31",3
+"karate","32",4
+"karate","33",3
+"karate","34",3
+"kite","A",1
+"kite","B",2
+"kite","C",1
+"kite","D",1
+"kite","E",2
+"kite","F",1
+"kite","G",2
+"kite","H",3
+"kite","I",3
+"kite","J",3
+"UKfaculty","1",1
+"UKfaculty","2",2
+"UKfaculty","3",1
+"UKfaculty","4",1
+"UKfaculty","5",3
+"UKfaculty","6",3
+"UKfaculty","7",3
+"UKfaculty","8",2
+"UKfaculty","9",1
+"UKfaculty","10",3
+"UKfaculty","11",2
+"UKfaculty","12",3
+"UKfaculty","13",3
+"UKfaculty","14",2
+"UKfaculty","15",2
+"UKfaculty","16",3
+"UKfaculty","17",1
+"UKfaculty","18",2
+"UKfaculty","19",2
+"UKfaculty","20",2
+"UKfaculty","21",2
+"UKfaculty","22",3
+"UKfaculty","23",3
+"UKfaculty","24",4
+"UKfaculty","25",2
+"UKfaculty","26",2
+"UKfaculty","27",3
+"UKfaculty","28",3
+"UKfaculty","29",2
+"UKfaculty","30",3
+"UKfaculty","31",2
+"UKfaculty","32",4
+"UKfaculty","33",3
+"UKfaculty","34",2
+"UKfaculty","35",2
+"UKfaculty","36",1
+"UKfaculty","37",4
+"UKfaculty","38",1
+"UKfaculty","39",2
+"UKfaculty","40",3
+"UKfaculty","41",2
+"UKfaculty","42",3
+"UKfaculty","43",2
+"UKfaculty","44",1
+"UKfaculty","45",1
+"UKfaculty","46",2
+"UKfaculty","47",3
+"UKfaculty","48",4
+"UKfaculty","49",3
+"UKfaculty","50",2
+"UKfaculty","51",2
+"UKfaculty","52",4
+"UKfaculty","53",1
+"UKfaculty","54",2
+"UKfaculty","55",4
+"UKfaculty","56",2
+"UKfaculty","57",2
+"UKfaculty","58",2
+"UKfaculty","59",1
+"UKfaculty","60",1
+"UKfaculty","61",1
+"UKfaculty","62",4
+"UKfaculty","63",3
+"UKfaculty","64",4
+"UKfaculty","65",3
+"UKfaculty","66",3
+"UKfaculty","67",4
+"UKfaculty","68",3
+"UKfaculty","69",3
+"UKfaculty","70",4
+"UKfaculty","71",3
+"UKfaculty","72",3
+"UKfaculty","73",1
+"UKfaculty","74",1
+"UKfaculty","75",1
+"UKfaculty","76",3
+"UKfaculty","77",3
+"UKfaculty","78",1
+"UKfaculty","79",2
+"UKfaculty","80",2
+"UKfaculty","81",1
+"macaque","V1",1
+"macaque","V2",1
+"macaque","V3",1
+"macaque","V3A",1
+"macaque","V4",2
+"macaque","V4t",1
+"macaque","VOT",2
+"macaque","VP",1
+"macaque","MT",1
+"macaque","MSTd/p",1
+"macaque","MSTl",1
+"macaque","PO",1
+"macaque","LIP",1
+"macaque","PIP",1
+"macaque","VIP",3
+"macaque","DP",1
+"macaque","7a",1
+"macaque","FST",1
+"macaque","PITd",2
+"macaque","PITv",2
+"macaque","CITd",2
+"macaque","CITv",2
+"macaque","AITd",2
+"macaque","AITv",2
+"macaque","STPp",2
+"macaque","STPa",2
+"macaque","TF",2
+"macaque","TH",2
+"macaque","FEF",1
+"macaque","46",2
+"macaque","3a",3
+"macaque","3b",3
+"macaque","1",3
+"macaque","2",3
+"macaque","5",3
+"macaque","Ri",3
+"macaque","SII",3
+"macaque","7b",3
+"macaque","4",3
+"macaque","6",3
+"macaque","SMA",3
+"macaque","Ig",4
+"macaque","Id",4
+"macaque","35",4
+"macaque","36",4
+"foodweb_ChesLower","Net Phytoplankton",1
+"foodweb_ChesLower","Picoplankton",1
+"foodweb_ChesLower","Free Bacteria",1
+"foodweb_ChesLower","Particle Attached Bacteria",1
+"foodweb_ChesLower","Heteroflagellates",1
+"foodweb_ChesLower","Ciliates",1
+"foodweb_ChesLower","Rotifers",2
+"foodweb_ChesLower","Meroplankton",1
+"foodweb_ChesLower","Mesozooplankton",1
+"foodweb_ChesLower","Ctenophores",1
+"foodweb_ChesLower","Chrysaora",2
+"foodweb_ChesLower","Microphytobenthos",2
+"foodweb_ChesLower","SAV",2
+"foodweb_ChesLower","Benthic Bacteria",2
+"foodweb_ChesLower","Meiofauna",2
+"foodweb_ChesLower","Deposit Feeding Benthos",2
+"foodweb_ChesLower","Suspension Feeding Benthos",3
+"foodweb_ChesLower","Oysters",4
+"foodweb_ChesLower","Blue Crab",2
+"foodweb_ChesLower","Menhaden",1
+"foodweb_ChesLower","Bay anchovy",3
+"foodweb_ChesLower","Herrings and Shads",4
+"foodweb_ChesLower","White Perch",4
+"foodweb_ChesLower","Spot",3
+"foodweb_ChesLower","Croaker",3
+"foodweb_ChesLower","Hogchoker",2
+"foodweb_ChesLower","American eel",4
+"foodweb_ChesLower","Catfish",4
+"foodweb_ChesLower","Striped Bass",3
+"foodweb_ChesLower","Bluefish",3
+"foodweb_ChesLower","Weakfish",3
+"foodweb_ChesLower","DOC",1
+"foodweb_ChesLower","Sediment POC",2
+"foodweb_ChesLower","POC",1
+"foodweb_ChesLower","Input",4
+"foodweb_ChesLower","Output",4
+"foodweb_ChesLower","Respiration",2
+"foodweb_ChesMiddle","Net Phytoplankton",1
+"foodweb_ChesMiddle","Picoplankton",1
+"foodweb_ChesMiddle","Free Bacteria",1
+"foodweb_ChesMiddle","Particle Attached Bacteria",2
+"foodweb_ChesMiddle","Heteroflagellates",1
+"foodweb_ChesMiddle","Ciliates",1
+"foodweb_ChesMiddle","Rotifers",1
+"foodweb_ChesMiddle","Meroplankton",1
+"foodweb_ChesMiddle","Mesozooplankton",1
+"foodweb_ChesMiddle","Ctenophores",1
+"foodweb_ChesMiddle","Chrysaora",1
+"foodweb_ChesMiddle","Microphytobenthos",2
+"foodweb_ChesMiddle","SAV",2
+"foodweb_ChesMiddle","Benthic Bacteria",2
+"foodweb_ChesMiddle","Meiofauna",2
+"foodweb_ChesMiddle","Deposit Feeding Benthos",2
+"foodweb_ChesMiddle","Suspension Feeding Benthos",2
+"foodweb_ChesMiddle","Oysters",2
+"foodweb_ChesMiddle","Blue Crab",2
+"foodweb_ChesMiddle","Menhaden",3
+"foodweb_ChesMiddle","Bay anchovy",1
+"foodweb_ChesMiddle","Herrings and Shads",2
+"foodweb_ChesMiddle","White Perch",1
+"foodweb_ChesMiddle","Spot",2
+"foodweb_ChesMiddle","Croaker",2
+"foodweb_ChesMiddle","Hogchoker",2
+"foodweb_ChesMiddle","American eel",2
+"foodweb_ChesMiddle","Catfish",2
+"foodweb_ChesMiddle","Striped Bass",2
+"foodweb_ChesMiddle","Bluefish",3
+"foodweb_ChesMiddle","Weakfish",3
+"foodweb_ChesMiddle","DOC",1
+"foodweb_ChesMiddle","Sediment POC",2
+"foodweb_ChesMiddle","POC",1
+"foodweb_ChesMiddle","Input",2
+"foodweb_ChesMiddle","Output",2
+"foodweb_ChesMiddle","Respiration",2
+"foodweb_ChesUpper","Net Phytoplankton",1
+"foodweb_ChesUpper","Picoplankton",1
+"foodweb_ChesUpper","Free Bacteria",1
+"foodweb_ChesUpper","Particle Attached Bacteria",2
+"foodweb_ChesUpper","Heteroflagellates",1
+"foodweb_ChesUpper","Ciliates",1
+"foodweb_ChesUpper","Rotifers",1
+"foodweb_ChesUpper","Meroplankton",1
+"foodweb_ChesUpper","Mesozooplankton",1
+"foodweb_ChesUpper","Ctenophores",1
+"foodweb_ChesUpper","Chrysaora",3
+"foodweb_ChesUpper","Microphytobenthos",3
+"foodweb_ChesUpper","SAV",3
+"foodweb_ChesUpper","Benthic Bacteria",3
+"foodweb_ChesUpper","Meiofauna",3
+"foodweb_ChesUpper","Deposit Feeding Benthos",3
+"foodweb_ChesUpper","Suspension Feeding Benthos",2
+"foodweb_ChesUpper","Oysters",3
+"foodweb_ChesUpper","Blue Crab",3
+"foodweb_ChesUpper","Menhaden",2
+"foodweb_ChesUpper","Bay anchovy",2
+"foodweb_ChesUpper","Herrings and Shads",1
+"foodweb_ChesUpper","White Perch",2
+"foodweb_ChesUpper","Spot",2
+"foodweb_ChesUpper","Croaker",3
+"foodweb_ChesUpper","Hogchoker",2
+"foodweb_ChesUpper","American Eel",3
+"foodweb_ChesUpper","Catfish",2
+"foodweb_ChesUpper","Striped Bass",2
+"foodweb_ChesUpper","Bluefish",2
+"foodweb_ChesUpper","Weakfish",2
+"foodweb_ChesUpper","DOC",2
+"foodweb_ChesUpper","Sediment POC",3
+"foodweb_ChesUpper","POC",1
+"foodweb_ChesUpper","Input",3
+"foodweb_ChesUpper","Output",2
+"foodweb_ChesUpper","Respiration",3
+"foodweb_Chesapeake","phytoplankton",1
+"foodweb_Chesapeake","bacteria in suspended poc",1
+"foodweb_Chesapeake","bacteria in sediment poc",2
+"foodweb_Chesapeake","benthic diatoms",2
+"foodweb_Chesapeake","free bacteria",1
+"foodweb_Chesapeake","heterotrophic microflagel",1
+"foodweb_Chesapeake","ciliates",1
+"foodweb_Chesapeake","zooplankton",3
+"foodweb_Chesapeake","ctenophores",3
+"foodweb_Chesapeake","sea nettle",3
+"foodweb_Chesapeake","other suspension feeders",1
+"foodweb_Chesapeake","mya arenaria",1
+"foodweb_Chesapeake","oysters",1
+"foodweb_Chesapeake","other polychaetes",2
+"foodweb_Chesapeake","nereis",2
+"foodweb_Chesapeake","macoma spp.",2
+"foodweb_Chesapeake","meiofauna",2
+"foodweb_Chesapeake","crustacean deposit feeder",2
+"foodweb_Chesapeake","blue crab",2
+"foodweb_Chesapeake","fish larvae",3
+"foodweb_Chesapeake","alewife & blue herring",3
+"foodweb_Chesapeake","bay anchovy",4
+"foodweb_Chesapeake","menhaden",4
+"foodweb_Chesapeake","shad",3
+"foodweb_Chesapeake","croaker",2
+"foodweb_Chesapeake","hogchoker",2
+"foodweb_Chesapeake","spot",2
+"foodweb_Chesapeake","white perch",2
+"foodweb_Chesapeake","catfish",2
+"foodweb_Chesapeake","bluefish",4
+"foodweb_Chesapeake","weakfish",4
+"foodweb_Chesapeake","summer flounder",4
+"foodweb_Chesapeake","striped bass",4
+"foodweb_Chesapeake","dissolved organic carbon",1
+"foodweb_Chesapeake","suspended particulate org",1
+"foodweb_Chesapeake","sediment particulate orga",2
+"foodweb_Chesapeake","Input",1
+"foodweb_Chesapeake","Output",4
+"foodweb_Chesapeake","Respiration",3
+"foodweb_CrystalC","microphytes",1
+"foodweb_CrystalC","macrophytes",1
+"foodweb_CrystalC","zooplankton",2
+"foodweb_CrystalC","benthic invertebrates",3
+"foodweb_CrystalC","blacktip shark",1
+"foodweb_CrystalC","stingray",1
+"foodweb_CrystalC","striped anchovy",2
+"foodweb_CrystalC","bay anchovy",4
+"foodweb_CrystalC","needlefish",4
+"foodweb_CrystalC","sheepshead killifish",1
+"foodweb_CrystalC","goldspotted killifish",3
+"foodweb_CrystalC","gulf killifish",3
+"foodweb_CrystalC","longnosed killifish",3
+"foodweb_CrystalC","silverside",4
+"foodweb_CrystalC","moharra",4
+"foodweb_CrystalC","silver jenny",2
+"foodweb_CrystalC","sheepshead",1
+"foodweb_CrystalC","pinfish",4
+"foodweb_CrystalC","mullet",1
+"foodweb_CrystalC","gulf flounder",4
+"foodweb_CrystalC","detritus",1
+"foodweb_CrystalC","Input",4
+"foodweb_CrystalC","Output",2
+"foodweb_CrystalC","Respiration",1
+"foodweb_CrystalD","microphytes",1
+"foodweb_CrystalD","macrophytes",2
+"foodweb_CrystalD","zooplankton",3
+"foodweb_CrystalD","benthic invertebrates",4
+"foodweb_CrystalD","stingray",3
+"foodweb_CrystalD","bay anchovy",3
+"foodweb_CrystalD","catfish",4
+"foodweb_CrystalD","needlefish",3
+"foodweb_CrystalD","sheepshead killifish",1
+"foodweb_CrystalD","goldspotted killifish",1
+"foodweb_CrystalD","gulf killifish",1
+"foodweb_CrystalD","longnosed killifish",1
+"foodweb_CrystalD","molly",1
+"foodweb_CrystalD","silverside",3
+"foodweb_CrystalD","moharra",3
+"foodweb_CrystalD","pinfish",2
+"foodweb_CrystalD","spot",4
+"foodweb_CrystalD","black drum",4
+"foodweb_CrystalD","red drum",4
+"foodweb_CrystalD","mullet",3
+"foodweb_CrystalD","detritus",1
+"foodweb_CrystalD","Input",2
+"foodweb_CrystalD","Output",4
+"foodweb_CrystalD","Respiration",3
+"foodweb_Maspalomas","Cyanobacteria",1
+"foodweb_Maspalomas","Eukaryotic Phyto",1
+"foodweb_Maspalomas","Chara globularis",2
+"foodweb_Maspalomas","Ruppia Maritima",2
+"foodweb_Maspalomas","Cladophora",2
+"foodweb_Maspalomas","Periphyton",2
+"foodweb_Maspalomas","Pelagic Bacteria",1
+"foodweb_Maspalomas","Microzooplankton",1
+"foodweb_Maspalomas","Mesozooplankton",1
+"foodweb_Maspalomas","Macrozooplankton",3
+"foodweb_Maspalomas","Benthic Microfauna",3
+"foodweb_Maspalomas","Benthic Suspension Feeder",1
+"foodweb_Maspalomas","Benthic Deposit Feeders",3
+"foodweb_Maspalomas","Benthic Invertebrate Car.",3
+"foodweb_Maspalomas","Liza Aurata",2
+"foodweb_Maspalomas","Gallinula chloropus",2
+"foodweb_Maspalomas","Diplodus Sargus",3
+"foodweb_Maspalomas","Dicentratus punctatus",3
+"foodweb_Maspalomas","DOC",1
+"foodweb_Maspalomas","Suspended POC",1
+"foodweb_Maspalomas","Sedimented POC",3
+"foodweb_Maspalomas","Input",2
+"foodweb_Maspalomas","Output",1
+"foodweb_Maspalomas","Respiration",2
+"foodweb_Michigan","Flagellates",1
+"foodweb_Michigan","Blue-greenGree",1
+"foodweb_Michigan","Diatoms",1
+"foodweb_Michigan","Rotifers",1
+"foodweb_Michigan","Cyclopoids",1
+"foodweb_Michigan","Calanoids",1
+"foodweb_Michigan","Cladocerans",1
+"foodweb_Michigan","Leptodora",1
+"foodweb_Michigan","Bythotrephes",2
+"foodweb_Michigan","Diporeia",2
+"foodweb_Michigan","Mysis",1
+"foodweb_Michigan","Oligoch/Chiron",2
+"foodweb_Michigan","Sphae/Gast",1
+"foodweb_Michigan","Zebra mussels",2
+"foodweb_Michigan","Benthic microin",1
+"foodweb_Michigan","Other fish",3
+"foodweb_Michigan","Alewife",3
+"foodweb_Michigan","Bloater",3
+"foodweb_Michigan","Rainbow smelt",3
+"foodweb_Michigan","Slimy sculpin",2
+"foodweb_Michigan","Deepwater sculp",2
+"foodweb_Michigan","Lake Whitefish",2
+"foodweb_Michigan","Yellow perch",1
+"foodweb_Michigan","Juv. Brown trou",3
+"foodweb_Michigan","Juv. Steelhead",3
+"foodweb_Michigan","Juv. Coho",3
+"foodweb_Michigan","Juv. Chinook",3
+"foodweb_Michigan","Juv. Lake Trout",3
+"foodweb_Michigan","Burbot",2
+"foodweb_Michigan","Brown trout",3
+"foodweb_Michigan","Steelhead",3
+"foodweb_Michigan","Coho",3
+"foodweb_Michigan","Chinook",3
+"foodweb_Michigan","Lake trout",2
+"foodweb_Michigan","Sea lamprey",2
+"foodweb_Michigan","Detritus",1
+"foodweb_Michigan","Input",2
+"foodweb_Michigan","Output",2
+"foodweb_Michigan","Respiration",3
+"foodweb_Mondego","Phytoplankton",1
+"foodweb_Mondego","Enteromorpha sp",2
+"foodweb_Mondego","Ulva lactuca",2
+"foodweb_Mondego","Zostera",2
+"foodweb_Mondego","Epiphytes",2
+"foodweb_Mondego","Gracilaria",2
+"foodweb_Mondego","Zooplankton",1
+"foodweb_Mondego","Hydrobia ulvae",3
+"foodweb_Mondego","Melita palmata",3
+"foodweb_Mondego","Ampithoe ferox",3
+"foodweb_Mondego","Gibulla",2
+"foodweb_Mondego","Littorina",2
+"foodweb_Mondego","Cyathura carinata",1
+"foodweb_Mondego","Scrobicularia plana",3
+"foodweb_Mondego","Cerastoderma edule",1
+"foodweb_Mondego","Modiolus",1
+"foodweb_Mondego","Amage adspersa",3
+"foodweb_Mondego","Capitella capitata",1
+"foodweb_Mondego","Heteromastus filifor",3
+"foodweb_Mondego","Oligochaeta",3
+"foodweb_Mondego","Other detrivors",3
+"foodweb_Mondego","Nephtys",3
+"foodweb_Mondego","Other predatory inve",3
+"foodweb_Mondego","Idotea chelipes",2
+"foodweb_Mondego","Sphaeroma hookeri",2
+"foodweb_Mondego","Nereis diversicolor",3
+"foodweb_Mondego","Carcinus maenas",1
+"foodweb_Mondego","Crangon crangon",1
+"foodweb_Mondego","Lumbrineris impatien",3
+"foodweb_Mondego","Diopatra neapolitana",3
+"foodweb_Mondego","Microalgae and detri",1
+"foodweb_Mondego","Zooplankton consumer",1
+"foodweb_Mondego","Endofauna consumers",3
+"foodweb_Mondego","Macrofauna predators",1
+"foodweb_Mondego","Trigla lucerna",1
+"foodweb_Mondego","Pomatoschistus minut",1
+"foodweb_Mondego","Larus ridibundus",1
+"foodweb_Mondego","Larus fuscus",1
+"foodweb_Mondego","Kentish Plover",3
+"foodweb_Mondego","Ringed Plover",3
+"foodweb_Mondego","Grey Plover",3
+"foodweb_Mondego","Dunlin",3
+"foodweb_Mondego","Detritus",2
+"foodweb_Mondego","Input",2
+"foodweb_Mondego","Output",2
+"foodweb_Mondego","Respiration",1
+"foodweb_Narragan","Bluefish",1
+"foodweb_Narragan","Striped Bass",1
+"foodweb_Narragan","Winter Flounder",2
+"foodweb_Narragan","Windowpane",2
+"foodweb_Narragan","Scup",2
+"foodweb_Narragan","Tautog",2
+"foodweb_Narragan","Dogfish",2
+"foodweb_Narragan","Skates",2
+"foodweb_Narragan","Longfin Squid",1
+"foodweb_Narragan","Butterfish",1
+"foodweb_Narragan","Menhaden",1
+"foodweb_Narragan","Bay Anchovy",1
+"foodweb_Narragan","Atl Silversides",1
+"foodweb_Narragan","Mummichog",2
+"foodweb_Narragan","Hard Clam",3
+"foodweb_Narragan","Cancer Crabs",2
+"foodweb_Narragan","Am. Lobster",2
+"foodweb_Narragan","Softshell Clam",3
+"foodweb_Narragan","Ben Macrofauna",2
+"foodweb_Narragan","Ben Meiofauna",2
+"foodweb_Narragan","Shrimp(Pal,Crg)",2
+"foodweb_Narragan","Ctenophores",3
+"foodweb_Narragan","Fish Larvae",3
+"foodweb_Narragan","Mesozooplankton",3
+"foodweb_Narragan","Microzooplankto",3
+"foodweb_Narragan","Hetero Microflag",4
+"foodweb_Narragan","Pelag Bacteria",4
+"foodweb_Narragan","SusPoc Bacteria",4
+"foodweb_Narragan","SedPOC Bacteria",4
+"foodweb_Narragan","Benthic Alage",3
+"foodweb_Narragan","Phytoplankton",3
+"foodweb_Narragan","Detritus",3
+"foodweb_Narragan","Input",3
+"foodweb_Narragan","Output",1
+"foodweb_Narragan","Respiration",4
+"foodweb_Rhode","crop land",1
+"foodweb_Rhode","pasture land",1
+"foodweb_Rhode","upland forest",2
+"foodweb_Rhode","riparian forest adj. crop",1
+"foodweb_Rhode","riparian forest adj. past",1
+"foodweb_Rhode","riparian forest adj. upla",2
+"foodweb_Rhode","flooded swamp forest",3
+"foodweb_Rhode","herbaceous wetland",3
+"foodweb_Rhode","floodplain forest",3
+"foodweb_Rhode","main fork",3
+"foodweb_Rhode","low marsh adj. north fork",2
+"foodweb_Rhode","low marsh adj. main fork",3
+"foodweb_Rhode","north fork",2
+"foodweb_Rhode","muddy creek",2
+"foodweb_Rhode","mud flat",1
+"foodweb_Rhode","high marsh",1
+"foodweb_Rhode","low marsh adj. muddy cree",2
+"foodweb_Rhode","Input",1
+"foodweb_Rhode","Output",1
+"foodweb_StMarks","Phytoplankton",1
+"foodweb_StMarks","Halodule",2
+"foodweb_StMarks","Micro-epiphytes",3
+"foodweb_StMarks","Macro-epiphytes",1
+"foodweb_StMarks","Benthic algae",4
+"foodweb_StMarks","Bacterio plankton",1
+"foodweb_StMarks","Micro protozoa",1
+"foodweb_StMarks","Zooplankton",1
+"foodweb_StMarks","Epiphyte-graz amphipods",3
+"foodweb_StMarks","suspension-feed molluscs",1
+"foodweb_StMarks","Suspension-feed polychts",1
+"foodweb_StMarks","Benthic bact",4
+"foodweb_StMarks","Microfauna",4
+"foodweb_StMarks","Meiofauna",4
+"foodweb_StMarks","Deposit feed amphipods",4
+"foodweb_StMarks","Detritus feed crust.",4
+"foodweb_StMarks","Hermit crab",5
+"foodweb_StMarks","Spider crab",5
+"foodweb_StMarks","Omnivorous crabs",3
+"foodweb_StMarks","Blue crab",5
+"foodweb_StMarks","Isopod",1
+"foodweb_StMarks","Brittle stars",4
+"foodweb_StMarks","Herbivorous shrimp",2
+"foodweb_StMarks","Predatory shrimp",3
+"foodweb_StMarks","Deposit-feed gastropod",3
+"foodweb_StMarks","Deposit-feed polycht",4
+"foodweb_StMarks","Predatory polycht",3
+"foodweb_StMarks","Predatory gastropod",2
+"foodweb_StMarks","Epiphyte-graz gastropod",3
+"foodweb_StMarks","Other gastropods",3
+"foodweb_StMarks","Catfish & stingrays",2
+"foodweb_StMarks","Tongue fish",4
+"foodweb_StMarks","Gulf flound & needle fish",2
+"foodweb_StMarks","Southrn hake & sea robins",2
+"foodweb_StMarks","Atl. silverside & bay anc",2
+"foodweb_StMarks","Gobies & blennies",1
+"foodweb_StMarks","Pinfish",4
+"foodweb_StMarks","Spot",2
+"foodweb_StMarks","Pipefish & seahorses",4
+"foodweb_StMarks","Sheepshead minnow",4
+"foodweb_StMarks","Red Drum",3
+"foodweb_StMarks","Killifish",2
+"foodweb_StMarks","Herbivorous ducks",1
+"foodweb_StMarks","Benthos-eating birds",3
+"foodweb_StMarks","Fish-eating birds",2
+"foodweb_StMarks","Fish & crust. eating bird",2
+"foodweb_StMarks","Gulls",5
+"foodweb_StMarks","Raptors",2
+"foodweb_StMarks","DOC",1
+"foodweb_StMarks","Suspended POC",1
+"foodweb_StMarks","Sediment POC",4
+"foodweb_StMarks","Input",2
+"foodweb_StMarks","Output",1
+"foodweb_StMarks","Respiration",1
+"les_miserables","Napoleon",1
+"les_miserables","Myriel",1
+"les_miserables","MlleBaptistine",1
+"les_miserables","MmeMagloire",1
+"les_miserables","CountessDeLo",1
+"les_miserables","Geborand",1
+"les_miserables","Champtercier",1
+"les_miserables","Cravatte",1
+"les_miserables","Count",1
+"les_miserables","OldMan",1
+"les_miserables","Valjean",1
+"les_miserables","Labarre",1
+"les_miserables","Marguerite",2
+"les_miserables","MmeDeR",1
+"les_miserables","Isabeau",1
+"les_miserables","Gervais",1
+"les_miserables","Listolier",2
+"les_miserables","Tholomyes",2
+"les_miserables","Fameuil",2
+"les_miserables","Blacheville",2
+"les_miserables","Favourite",2
+"les_miserables","Dahlia",2
+"les_miserables","Zephine",2
+"les_miserables","Fantine",2
+"les_miserables","MmeThenardier",3
+"les_miserables","Thenardier",3
+"les_miserables","Cosette",4
+"les_miserables","Javert",3
+"les_miserables","Fauchelevent",1
+"les_miserables","Bamatabois",1
+"les_miserables","Perpetue",2
+"les_miserables","Simplice",2
+"les_miserables","Scaufflaire",1
+"les_miserables","Woman1",1
+"les_miserables","Judge",1
+"les_miserables","Champmathieu",1
+"les_miserables","Brevet",1
+"les_miserables","Chenildieu",1
+"les_miserables","Cochepaille",1
+"les_miserables","Pontmercy",4
+"les_miserables","Boulatruelle",3
+"les_miserables","Eponine",3
+"les_miserables","Anzelma",3
+"les_miserables","Woman2",4
+"les_miserables","MotherInnocent",1
+"les_miserables","Gribier",1
+"les_miserables","MmeBurgon",5
+"les_miserables","Jondrette",5
+"les_miserables","Gavroche",5
+"les_miserables","Gillenormand",4
+"les_miserables","Magnon",4
+"les_miserables","MlleGillenormand",4
+"les_miserables","MmePontmercy",4
+"les_miserables","MlleVaubois",4
+"les_miserables","LtGillenormand",4
+"les_miserables","Marius",4
+"les_miserables","BaronessT",4
+"les_miserables","Mabeuf",5
+"les_miserables","Enjolras",5
+"les_miserables","Combeferre",5
+"les_miserables","Prouvaire",5
+"les_miserables","Feuilly",5
+"les_miserables","Courfeyrac",5
+"les_miserables","Bahorel",5
+"les_miserables","Bossuet",5
+"les_miserables","Joly",5
+"les_miserables","Grantaire",5
+"les_miserables","MotherPlutarch",5
+"les_miserables","Gueulemer",3
+"les_miserables","Babet",3
+"les_miserables","Claquesous",3
+"les_miserables","Montparnasse",3
+"les_miserables","Toussaint",4
+"les_miserables","Child1",5
+"les_miserables","Child2",5
+"les_miserables","Brujon",3
+"les_miserables","MmeHucheloup",5
+"florentine","Acciaiuoli",1
+"florentine","Medici",1
+"florentine","Castellani",2
+"florentine","Peruzzi",2
+"florentine","Strozzi",2
+"florentine","Barbadori",1
+"florentine","Ridolfi",1
+"florentine","Tornabuoni",1
+"florentine","Albizzi",3
+"florentine","Salviati",4
+"florentine","Pazzi",4
+"florentine","Bischeri",2
+"florentine","Guadagni",3
+"florentine","Ginori",3
+"florentine","Lamberteschi",3
+"davis","Evelyn Jefferson",1
+"davis","Laura Mandeville",1
+"davis","Theresa Anderson",1
+"davis","Brenda Rogers",1
+"davis","Charlotte McDowd",1
+"davis","Frances Anderson",1
+"davis","Eleanor Nye",1
+"davis","Pearl Oglethorpe",2
+"davis","Ruth DeSand",1
+"davis","Verne Sanderson",3
+"davis","Myra Liddel",3
+"davis","Katherina Rogers",3
+"davis","Sylvia Avondale",3
+"davis","Nora Fayette",3
+"davis","Helen Lloyd",3
+"davis","Dorothy Murchison",2
+"davis","Olivia Carleton",2
+"davis","Flora Price",2
+"davis","E1",1
+"davis","E2",1
+"davis","E3",1
+"davis","E4",1
+"davis","E5",1
+"davis","E6",1
+"davis","E7",1
+"davis","E8",3
+"davis","E9",2
+"davis","E10",3
+"davis","E11",2
+"davis","E12",3
+"davis","E13",3
+"davis","E14",3

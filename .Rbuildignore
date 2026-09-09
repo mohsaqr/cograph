@@ -69,3 +69,4 @@
 
 ^local_testing_and_equivalence$
 ^MOTIFS-AUDIT-FIXING-PLAN\.md$
+^\.playwright-mcp$

@@ -1,3 +1,83 @@
+# cograph 2.6.0
+
+## Network wrangling
+
+The verbs that reshape a network are now a family with one contract: any
+supported input, options as named arguments, a `cograph_network` back (or the
+input format with `keep_format = TRUE`), and classed conditions. See
+`?network_wrangling`.
+
+### New accessor
+
+`as.data.frame()` on a `cograph_network` returns the tidy edge table, with
+endpoints as labels rather than internal indices, and
+`as.data.frame(what = "nodes")` returns the node table. No caller needs to
+reach into the object with `$` any more.
+
+### New verbs
+
+- Weights: `threshold_edges()`, `binarize()`, `symmetrize()`,
+  `normalize_weights()`, `invert_weights()`.
+- Structure: `to_undirected()`, `to_directed()`, `reverse_edges()`,
+  `remove_isolates()`, `contract_nodes()`, `split_components()`,
+  `select_k_core()`, `spanning_tree()`, `complement_network()`,
+  `reorder_nodes()`, `rename_nodes()`.
+- Editing: `add_nodes()`, `remove_nodes()`, `add_edges()`, `remove_edges()`,
+  `mutate_nodes()`, `mutate_edges()`, `bind_networks()`.
+
+`add_edges()` shares its name with `igraph::add_edges()`; call
+`cograph::add_edges()` when igraph is attached.
+
+### Wider vocabulary inside expressions
+
+Node expressions gain `is_isolated`, `is_source`, `is_sink`, `is_leaf`,
+`is_cut`, `local_transitivity` and `local_triangles`, and any measure
+`centrality()` computes can now be named directly — `select_nodes(x, harmonic
+> 0)` works, as does `select_top(x, n = 5, by = "leverage")`. Edge expressions
+gain `is_loop`, `is_multiple`, `is_reciprocal`, `weight_rank`,
+`from_community` and `to_community`, and `select_edges(by = )` accepts the
+endpoint metrics.
+
+### Bug fixes (all user-visible)
+
+- A network whose last node has no edges no longer crashes `filter_nodes()`,
+  `select_nodes()`, `select_edges()`, `to_df()`, `to_network()` or
+  `to_igraph()`. `network_to_igraph()` built the graph from the edge list, so
+  every node after the last edge endpoint disappeared and the label assignment
+  then failed.
+- An undirected network stays undirected through every verb. The rebuilt
+  weight matrix was upper-triangular, so `as_cograph()` re-detected the result
+  as directed and every downstream consumer saw half the strength.
+- `set_edges()` and `set_nodes()` rebuild the stored weight matrix, so
+  `to_matrix()` can no longer return the pre-edit network, and `set_edges()`
+  keeps extra edge columns.
+- Extra columns of an edge-list input (`session`, `time`, ...) survive
+  `as_cograph()` and are usable in filter expressions, as documented.
+- Node groups, estimation data, layout and the original source type survive
+  every filter.
+- An empty result with `keep_format = TRUE` returns an empty object of the
+  input type instead of erroring with "No such edge attribute".
+- `keep_format = TRUE` on a tna model returns a rebuilt tna model.
+- `to_matrix()` and `to_data_frame()` no longer route through igraph.
+
+### Behaviour changes
+
+- **Filtering edges no longer removes nodes.** `filter_edges()`,
+  `select_edges()` and friends now keep every node, matching
+  `igraph::delete_edges()` and tidygraph, and warn
+  (`cograph_isolates_created`) when the filter left a node without edges. Use
+  `remove_isolates()`, or `keep_isolates = FALSE`, for the old behaviour.
+- `.keep_isolates` and `.keep_edges` are renamed to `keep_isolates` and
+  `keep_edges`. The dotted names still work and warn.
+- Malformed selections are errors of class `cograph_bad_selection` rather than
+  warnings that return something plausible: unknown node names, out-of-range
+  or fractional indices, a `between` that is not two node sets, an unknown
+  measure in `by`.
+- The "Result converted to cograph_network" message is gone; the conversion is
+  documented instead.
+- `filter_nodes()` computes only the measures its expression names. It used to
+  compute all twelve, including HITS, on every call.
+
 # cograph 2.5.0
 
 - `Matrix` is no longer imported (nothing used it after the port); the

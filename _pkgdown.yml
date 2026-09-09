@@ -47,6 +47,48 @@ reference:
     contents:
     - mlna
     - plot_mlna
+  - title: Wrangling
+    desc: >
+      Reshaping a network: selecting, thresholding, restructuring and editing.
+      Every verb takes any supported input and returns a cograph_network.
+    contents:
+    - network_wrangling
+    - as.data.frame.cograph_network
+    - filter_edges
+    - filter_nodes
+    - select_nodes
+    - select_edges
+    - select_neighbors
+    - select_component
+    - select_top
+    - select_bridges
+    - select_top_edges
+    - select_edges_involving
+    - select_edges_between
+    - select_k_core
+    - split_components
+    - threshold_edges
+    - binarize
+    - symmetrize
+    - normalize_weights
+    - invert_weights
+    - to_undirected
+    - to_directed
+    - reverse_edges
+    - remove_isolates
+    - contract_nodes
+    - spanning_tree
+    - complement_network
+    - reorder_nodes
+    - rename_nodes
+    - add_nodes
+    - remove_nodes
+    - add_edges
+    - remove_edges
+    - mutate_nodes
+    - mutate_edges
+    - bind_networks
+    - simplify
   - title: Network functions
     contents:
     - cograph

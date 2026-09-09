@@ -130,40 +130,89 @@ Conversion utilities:
 | `to_network(x)` | statnet network object |
 | `from_qgraph(q)` | Extract qgraph styles into cograph |
 
-## Filtering and selection
+## Wrangling
 
-Filter edges and nodes with expressions. Centrality measures are lazy-computed inside `filter_nodes()`.
+Every wrangling verb takes any supported input, takes its options as named
+arguments, and returns a network. `as.data.frame()` gives the tidy edge table,
+with endpoints as labels; `as.data.frame(what = "nodes")` gives the nodes. See
+`?network_wrangling` for the whole family.
 
 ```{r}
 strong <- filter_edges(mat, weight > 0.3)
-get_edges(strong)
+as.data.frame(strong)
 ```
+
+Centrality measures are computed lazily, and any measure `centrality()` knows
+can be named directly:
 
 ```{r}
 top3 <- select_nodes(mat, top = 3, by = "betweenness")
 get_labels(top3)
 ```
 
+Verbs compose, and the whole vocabulary is available inside expressions:
+
+```{r}
+mat |>
+  threshold_edges(minimum = 0.3) |>
+  remove_isolates() |>
+  mutate_nodes(deg = degree, hub = degree >= 3) |>
+  as.data.frame(what = "nodes")
+```
+
+Filtering edges does not remove nodes, matching igraph and tidygraph; call
+`remove_isolates()` when you want them gone.
+
+### Selecting
+
 | Function | Purpose |
 |----------|---------|
-| `filter_edges(x, ...)` | Filter by weight, from, to |
+| `filter_edges(x, ...)` | Filter by weight, endpoints, any edge column |
 | `filter_nodes(x, ...)` | Filter by degree, centrality, label |
-| `select_nodes(x, ...)` | Top-N by centrality, by name, neighbors |
+| `select_nodes(x, ...)` | Top-N by centrality, by name, neighbors, component |
 | `select_edges(x, ...)` | Top-N, involving, between, bridges, mutual |
 | `select_neighbors(x, of)` | Ego-network extraction (multi-hop) |
 | `select_component(x)` | Largest or named component |
 | `select_top(x, n, by)` | Top-N nodes by any centrality |
+| `select_k_core(x, k)` | The k-core |
+| `split_components(x)` | One network per component |
 | `select_bridges(x)` | Bridge edges only |
 | `select_top_edges(x, n)` | Top-N edges by weight |
 | `select_edges_involving(x, nodes)` | Edges touching specific nodes |
 | `select_edges_between(x, s1, s2)` | Edges between two node sets |
-| `subset_nodes(x, ...)` / `subset_edges(x, ...)` | Base R-style subsetting |
+| `subset_nodes(x, ...)` / `subset_edges(x, ...)` | Aliases of the filters |
+
+### Weights
+
+| Function | Purpose |
+|----------|---------|
+| `threshold_edges(x, ...)` | Keep edges by weight, count, proportion, density |
+| `binarize(x)` | Replace weights with 0/1 |
+| `symmetrize(x, method)` | Combine opposite arcs into one edge |
+| `normalize_weights(x, method)` | Rescale by row, column, max, sum, min-max |
+| `invert_weights(x, method)` | Similarities to distances |
+
+### Structure and editing
+
+| Function | Purpose |
+|----------|---------|
+| `to_undirected(x)` / `to_directed(x)` | Change directedness |
+| `reverse_edges(x)` | Reverse every arc |
+| `remove_isolates(x)` | Drop nodes with no edges |
+| `contract_nodes(x, groups)` | Collapse groups into single nodes |
+| `spanning_tree(x)` | Minimum or maximum spanning tree |
+| `complement_network(x)` | Join the non-adjacent pairs |
+| `reorder_nodes(x, order)` / `rename_nodes(x, from, to)` | Node order and labels |
+| `add_nodes()` / `remove_nodes()` / `add_edges()` / `remove_edges()` | Editing |
+| `mutate_nodes(x, ...)` / `mutate_edges(x, ...)` | Compute and store attributes |
+| `bind_networks(x, y, method)` | Union, intersection, difference |
 | `simplify(x)` | Remove multi-edges and self-loops |
 
 Getters and setters:
 
 | Function | Purpose |
 |----------|---------|
+| `as.data.frame(x)` | Tidy edge table (`what = "nodes"` for nodes) |
 | `get_nodes(x)` / `set_nodes(x, df)` | Node data frame |
 | `get_edges(x)` / `set_edges(x, df)` | Edge data frame |
 | `get_labels(x)` | Node label vector |

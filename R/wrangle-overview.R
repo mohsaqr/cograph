@@ -1,0 +1,109 @@
+#' Network Wrangling Verbs
+#'
+#' cograph's verbs for reshaping a network. Every verb takes any supported
+#' input (matrix, edge list, igraph, statnet network, tna model,
+#' \code{cograph_network}), takes its options as named arguments, and returns a
+#' \code{cograph_network} — or the input format when
+#' \code{keep_format = TRUE}. There is no pipeline state to activate and
+#' nothing to unpack afterwards: use \code{as.data.frame()} for the tidy edge
+#' or node table.
+#'
+#' @section Selecting:
+#' \describe{
+#'   \item{\code{\link{filter_nodes}()}, \code{\link{select_nodes}()}}{Keep
+#'     nodes by expression, name, index, top-N, neighbourhood or component.}
+#'   \item{\code{\link{filter_edges}()}, \code{\link{select_edges}()}}{Keep
+#'     edges by expression, endpoints, bridges, mutuality or top-N.}
+#'   \item{\code{\link{select_neighbors}()}, \code{\link{select_component}()},
+#'     \code{\link{select_top}()}, \code{\link{select_k_core}()}}{Named
+#'     shorthands for the common selections.}
+#'   \item{\code{\link{split_components}()}}{One network per connected
+#'     component.}
+#' }
+#'
+#' @section Weights:
+#' \describe{
+#'   \item{\code{\link{threshold_edges}()}}{Keep edges by weight, count,
+#'     proportion or density.}
+#'   \item{\code{\link{binarize}()}}{Replace weights with 0/1.}
+#'   \item{\code{\link{symmetrize}()}}{Combine opposite arcs into one edge.}
+#'   \item{\code{\link{normalize_weights}()}}{Rescale by row, column, maximum,
+#'     total, or to \[0, 1\].}
+#'   \item{\code{\link{invert_weights}()}}{Turn similarities into distances.}
+#' }
+#'
+#' @section Structure:
+#' \describe{
+#'   \item{\code{\link{to_undirected}()}, \code{\link{to_directed}()},
+#'     \code{\link{reverse_edges}()}}{Change directedness.}
+#'   \item{\code{\link{remove_isolates}()}}{Drop nodes with no edges.}
+#'   \item{\code{\link{contract_nodes}()}}{Collapse groups of nodes into one.}
+#'   \item{\code{\link{spanning_tree}()},
+#'     \code{\link{complement_network}()}}{Derived graphs.}
+#'   \item{\code{\link{reorder_nodes}()}, \code{\link{rename_nodes}()}}{Change
+#'     node order or labels without changing the network.}
+#'   \item{\code{\link{simplify}()}}{Merge duplicate edges and drop loops.}
+#' }
+#'
+#' @section Editing:
+#' \describe{
+#'   \item{\code{\link{add_nodes}()}, \code{\link{remove_nodes}()},
+#'     \code{\link{add_edges}()}, \code{\link{remove_edges}()}}{Add and remove.}
+#'   \item{\code{\link{mutate_nodes}()},
+#'     \code{\link{mutate_edges}()}}{Compute and store attributes.}
+#'   \item{\code{\link{bind_networks}()}}{Union, intersection or difference of
+#'     two networks.}
+#' }
+#'
+#' @section Conversion and access:
+#' \code{\link{as_cograph}()}, \code{\link{to_matrix}()},
+#' \code{\link{to_igraph}()}, \code{\link{to_network}()},
+#' \code{\link{to_df}()}, and \code{as.data.frame()} on a
+#' \code{cograph_network} (see \code{\link{as.data.frame.cograph_network}}).
+#'
+#' @section Semantics worth knowing:
+#' \itemize{
+#'   \item \strong{Filtering edges does not remove nodes.} This matches
+#'     \code{igraph::delete_edges()} and tidygraph. Nodes left without edges
+#'     raise a \code{cograph_isolates_created} warning; call
+#'     \code{\link{remove_isolates}()} to drop them, or pass
+#'     \code{keep_isolates = FALSE}.
+#'   \item \strong{Undirected results stay undirected.} The weight matrix of an
+#'     undirected result is symmetric, so nothing downstream re-detects it as
+#'     directed.
+#'   \item \strong{Metadata survives.} Node groups, estimation data, layout
+#'     coordinates and the original source type are carried through every verb.
+#'   \item \strong{Malformed selections are errors.} Unknown node names, out-of-
+#'     range or fractional indices, unknown measure names and a malformed
+#'     \code{between} raise a \code{cograph_bad_selection} error rather than
+#'     warning and returning something plausible.
+#' }
+#'
+#' @section Related verbs elsewhere:
+#' \code{\link{ego_networks}()}, \code{\link{shortest_paths}()},
+#' \code{\link{disparity_filter}()}, \code{\link{detect_communities}()},
+#' \code{\link{summarize_clusters}()}, \code{\link{aggregate_layers}()}.
+#'
+#' @return Each verb returns a \code{cograph_network}, except
+#'   \code{\link{split_components}()}, which returns a list of them. With
+#'   \code{keep_format = TRUE} a matrix, igraph, statnet network or tna input
+#'   comes back in that format.
+#'
+#' @name network_wrangling
+#' @examples
+#' adj <- matrix(c(0, .5, .8, 0,
+#'                 .5, 0, .3, .6,
+#'                 .8, .3, 0, .4,
+#'                  0, .6, .4, 0), 4, 4, byrow = TRUE)
+#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
+#'
+#' # One call, named arguments, a tidy table out
+#' as.data.frame(threshold_edges(adj, minimum = 0.4))
+#'
+#' # Verbs compose
+#' adj |>
+#'   threshold_edges(minimum = 0.4) |>
+#'   remove_isolates() |>
+#'   mutate_nodes(deg = degree) |>
+#'   as.data.frame(what = "nodes")
+NULL

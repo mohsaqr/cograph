@@ -403,3 +403,78 @@ test by class.
 | 2 | `network-utils.R`, `methods-print.R`, `_pkgdown.yml`, one Rd topic | small |
 | 3 | one new file per group (`wrangle-weights.R`, `wrangle-structure.R`, `wrangle-edit.R`) + tests | large; do group 1 first, ship, then 2 and 3 |
 | 4 | docs | small |
+
+---
+
+## 9. Status (2026-09-09)
+
+All four phases are done. Released as part of 2.6.0.
+
+### Phase 0 — safety net
+
+`tests/testthat/test-wrangling-invariants.R`: 29 property tests written
+against the defects. On the pre-fix tree they produced **31 failures and 6
+errors**; on the fixed tree, 61 expectations pass.
+
+D3 needed no fix: the igraph removal (2.4.9) had already replaced the
+unguarded `igraph::betweenness()` call, so `filter_nodes()` on negative
+weights now warns (`cograph_negative_weights`) and returns NA.
+
+### Phase 1 — root causes
+
+| Defect | Fix |
+|---|---|
+| D1 | `network_to_igraph()` builds `make_empty_graph(n)` then `add_edges()` |
+| D2 | `.network_weight_matrix()` mirrors the entries when undirected |
+| D4 | `.empty_cograph_network()` stores a 0x0 matrix; `.finish_result()` is the single keep_format path |
+| D5 | `set_edges()`/`set_nodes()` rebuild `$weights`; extra columns kept |
+| D6 | `parse_edgelist()` forwards extra columns; the constructor keeps them at 0 rows too |
+| D7 | `.rebuild_network()` carries groups, `$data`, layout and source |
+| D8 | `.rebuild_tna()` copies the model and swaps weights, labels, inits |
+| D9, D10 | `cograph_bad_selection` errors from `.validate_indices()`, `.resolve_node_selection()`, `.validate_measure()`, `.validate_edge_metric()` |
+| D11 | one resolver, `.node_filter_vars()`; `filter_nodes()` is lazy |
+| D12 | `keep_isolates = TRUE` default plus a `cograph_isolates_created` warning (user decision, Q1) |
+
+Code quality: the six `for` loops and three duplicated rebuild blocks are gone,
+replaced by `.rebuild_network()` + `.network_weight_matrix()`; the constructor's
+column loop is a single frame assignment.
+
+### Phase 2 — accessor and consolidation
+
+`as.data.frame.cograph_network(x, what = c("edges", "nodes"))`; the print
+method points at it. Q2 (rebuild tna), Q3 (drop the message) and Q4 (rename
+`.keep_isolates`/`.keep_edges`, dotted names soft-deprecated) applied.
+
+### Phase 3 — new verbs
+
+24 new exports across `R/wrangle-weights.R`, `R/wrangle-structure.R`,
+`R/wrangle-edit.R`, plus `?network_wrangling` in `R/wrangle-overview.R`. Every
+gap in section 4 is closed except the deliberate non-goals and the low-priority
+line graph and BFS/DFS trees.
+
+Vocabulary (section 4.5): node predicates `is_isolated`, `is_source`,
+`is_sink`, `is_leaf`, `is_cut`, `local_transitivity`, `local_triangles`; edge
+predicates `is_loop`, `is_multiple`, `is_reciprocal`, `weight_rank`,
+`from_community`, `to_community`; unknown measure names delegate to
+`centrality()`, so all 191 measures are reachable from an expression and from
+`by =`.
+
+### Phase 4 — evidence
+
+- New tests: 265 expectations across `test-wrangling-invariants.R`,
+  `test-wrangle-weights.R`, `test-wrangle-structure.R`,
+  `test-wrangle-edit.R`, `test-wrangle-vocabulary.R`. All pass.
+- Existing tests updated where they pinned a behaviour this plan changed:
+  `test-coverage-network-utils-40.R` (4 blocks), `-42.R` (10 blocks),
+  `test-coverage-round5.R` (1), `test-port-adjacent.R` (1).
+- `R CMD check --as-cran` on a tree without the previous session's uncommitted
+  plot-mcml files: **0 errors, 0 warnings, 1 note** (the environmental
+  "unable to verify current time").
+
+### Found but not fixed
+
+`parse_matrix()` reads an undirected matrix from the strict upper triangle, so
+a non-zero diagonal never becomes an edge — while `.cg_graph()` keeps the
+diagonal, so `centrality()` counts loops that `as_cograph()` and `splot()`
+never see. Fixing it changes what `splot()` draws for any undirected matrix
+with a diagonal, so it is left as a decision rather than folded into this work.

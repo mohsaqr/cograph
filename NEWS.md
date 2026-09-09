@@ -1,3 +1,57 @@
+# cograph 2.4.9
+
+## Centrality without igraph
+
+The whole centrality surface (`centrality()` and its 191 `centrality_*`
+wrappers, `edge_centrality()`, `centralization()`, `group_centrality()`,
+`dispersion()`, `estrada_index()`, `trophic_incoherence()`, and the
+centrality vocabulary of the wrangling verbs) now computes on cograph's own
+kernels. Every input is turned once into a dense, labelled weight matrix
+(`R/kernels-graph.R`); no igraph object is built. igraph stays in Suggests
+for input conversion of igraph objects and for community detection and
+layouts.
+
+Equivalence was verified measure by measure against the igraph-backed
+implementation on a golden corpus of 62 unsigned networks (30 real, 32
+synthetic edge cases) under every mode and weighting, at relative tolerance
+`sqrt(.Machine$double.eps)`, with the following documented exceptions.
+
+- `flow_betweenness` still needs igraph and raises `cograph_needs_igraph`
+  when it is not installed.
+- Hub, authority and eigenvector scores on graphs whose adjacency (or
+  `A'A`) is not primitive are not unique; igraph returned a random member
+  of the eigenspace and sometimes failed to converge. The native kernels
+  are deterministic and verified by eigen-residual tests instead.
+- Local transitivity and clusterrank on directed graphs with reciprocated
+  dyads now follow igraph's documented semantics (collapse to a simple
+  undirected graph). igraph 2.3.3 returned a different value after
+  `any_multiple()` had been called on the object, which the old
+  `centrality()` always did.
+- `alpha` now computes on weighted graphs with self-loops; igraph 2.3.3
+  errored there.
+- Path-based measures are now scale-invariant: the same graph with all
+  weights multiplied by `1e-18` gives identical betweenness. igraph's
+  absolute epsilon does not.
+- Parallel edges are always combined: a dense weight matrix holds one value
+  per cell, so `simplify = FALSE` or `"none"` now sum them (the old adapters
+  summed them when assembling an adjacency anyway). Only `degree` on a
+  multigraph changes, counting a parallel pair once.
+- Weighted local reaching centrality averages weights along one shortest
+  path per target; among tied shortest paths the kernel's choice is
+  deterministic (lowest predecessor index) where igraph's was
+  implementation-dependent. Values agree exactly whenever no ties exist.
+- Weighted (Barrat) transitivity has a native kernel; like igraph it refuses
+  directed input, with class `cograph_directed_unsupported`.
+
+New internal kernels: edge betweenness, Barrat transitivity, average
+neighbour degree, articulation points, bridges, ego masks, and a
+loop-preserving coreness matching igraph's convention.
+
+Test infrastructure: a versioned corpus of test networks under
+`tests/testthat/networks/` (32 real, 35 degenerate, plus local tiers), a
+golden-file comparison harness, a scale-invariance property test, and a CI
+job that runs the centrality tests with igraph uninstalled.
+
 # cograph 2.4.8
 
 ## New features

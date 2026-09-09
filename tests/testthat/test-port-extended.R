@@ -115,7 +115,8 @@ test_that("centralization matches Freeman's formula on a star and a path", {
 
 test_that("every ported measure runs without reaching igraph", {
   skip_if_not_installed("igraph")
-  withr::local_options(list(cograph.forbid_igraph = TRUE))
+  old_opts <- options(cograph.forbid_igraph = TRUE)
+  on.exit(options(old_opts), add = TRUE)
   m <- nets$strongly_connected_8
   leaked <- Filter(function(mm) {
     r <- tryCatch(suppressWarnings(centrality(m, measures = mm)),
@@ -127,7 +128,8 @@ test_that("every ported measure runs without reaching igraph", {
 
 test_that("flow_betweenness is the one measure that still needs igraph", {
   skip_if_not_installed("igraph")
-  withr::local_options(list(cograph.forbid_igraph = TRUE))
+  old_opts <- options(cograph.forbid_igraph = TRUE)
+  on.exit(options(old_opts), add = TRUE)
   expect_error(centrality(nets$star_10, measures = "flow_betweenness"),
                class = "cograph_igraph_leak")
 })

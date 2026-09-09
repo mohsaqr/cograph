@@ -147,6 +147,7 @@ test_that("subgraph and alpha match igraph across the zoo", {
 })
 
 test_that("communicability is a true matrix exponential", {
+  skip_if_not_installed("Matrix")
   # Nilpotent A: exp(A) terminates at I + A + A^2/2, so no reference needed.
   a <- matrix(0, 3L, 3L); a[1L, 2L] <- 1; a[2L, 3L] <- 1
   expect_equal(as.matrix(Matrix::expm(Matrix::Matrix(a))),
@@ -826,7 +827,10 @@ test_that("shortest-path ties use a scale-relative tolerance", {
 test_that("the kernels are actually reachable from centrality()", {
   # The distance family routes through .cg_distances via .cg_path_matrix.
   # Without this the kernels are dead code and the public path is unchanged.
-  expect_true(any(grepl("\\.cg_distances", readLines("../../R/centrality.R"))))
+  # With igraph forbidden, a distance measure can only compute via the kernels.
+  old_opts <- options(cograph.forbid_igraph = TRUE)
+  on.exit(options(old_opts), add = TRUE)
+  expect_no_error(centrality(diag(3) * 0 + 1 - diag(3), measures = "radiality"))
   set.seed(4); n <- 10L
   m <- matrix(0, n, n)
   idx <- which(row(m) != col(m))
@@ -859,6 +863,7 @@ test_that("communicability kernels stay faithful to their references", {
 })
 
 test_that("expm by eigendecomposition matches a known closed form", {
+  skip_if_not_installed("Matrix")
   # Symmetric route, checked against the terminating series for a nilpotent
   # matrix embedded symmetrically.
   s <- matrix(c(0,1,1, 1,0,1, 1,1,0), 3L, 3L)

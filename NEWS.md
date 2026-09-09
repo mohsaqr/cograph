@@ -1,3 +1,9 @@
+# cograph 2.5.0
+
+- `Matrix` is no longer imported (nothing used it after the port); the
+  committed test-network fixtures are now tracked; two tests no longer
+  need `withr`.
+
 # cograph 2.4.9
 
 ## Centrality without igraph

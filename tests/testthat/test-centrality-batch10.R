@@ -287,6 +287,7 @@ test_that("brainGraph nodal efficiency is harmonic centrality over n - 1", {
 })
 
 test_that("centiserve::communibet is cograph's communicability betweenness", {
+  skip_if_not_installed("Matrix")
   skip_if_not_installed("igraph")
   skip_on_cran()
   # centiserve::communibet transcribed with Matrix::expm, which uses scaling

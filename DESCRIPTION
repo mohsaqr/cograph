@@ -1,6 +1,6 @@
 Package: cograph
 Title: Analysis and Visualization of Complex Networks
-Version: 2.4.9
+Version: 2.5.0
 Authors@R: c(
     person("Mohammed", "Saqr", role = c("aut", "cph")),
     person("Sonsoles", "L\u00f3pez-Pernas",
@@ -24,11 +24,11 @@ Imports:
     ggplot2 (>= 3.4.0),
     grDevices,
     grid,
-    Matrix,
     R6,
     stats,
     utils
 Suggests:
+    Matrix,
     backbone,
     brainGraph,
     centiserve,

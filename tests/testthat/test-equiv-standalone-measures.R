@@ -174,6 +174,7 @@ test_that("estrada_index: 100 networks vs eigenvalue formula", {
 })
 
 test_that("estrada_index: equals sum of subgraph centrality (100 networks)", {
+  skip_if_not_installed("Matrix")
   lapply(seq_len(N), function(i) {
     cfg <- list(n = sizes[i], density = densities[i], seed = seeds[i],
                 directed = FALSE)

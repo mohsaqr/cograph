@@ -555,7 +555,8 @@ test_that("path-based filters on negative weights give NA with a classed warning
 test_that("the ported verbs never reach igraph through the native path", {
   skip_if_not_installed("igraph")  # the verbs' own entry still calls to_igraph() (wrangling plan)
   m <- test_network("karate")
-  withr::local_options(cograph.forbid_igraph = TRUE)
+  old_opts <- options(cograph.forbid_igraph = TRUE)
+  on.exit(options(old_opts), add = TRUE)
   expect_no_error(group_centrality(m, nodes = c("Mr Hi", "John A"), measure = "betweenness"))
   expect_no_error(group_centrality(m, nodes = 1:3, measure = "closeness"))
   expect_no_error(group_centrality(m, nodes = 1:3, measure = "degree"))

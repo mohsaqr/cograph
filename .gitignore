@@ -68,3 +68,7 @@ docs/plotting-tna-models.html
 vignettes/old_vignettes/
 # local-only equivalence scripts (never committed)
 local_testing_and_equivalence/
+
+# committed test-network corpus (docs/test-networks-plan.md)
+!tests/testthat/networks/real_small.rds
+!tests/testthat/networks/degenerate.rds

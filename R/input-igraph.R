@@ -213,23 +213,29 @@ network_to_igraph <- function(network) {
     stop("network must be a CographNetwork or cograph_network object", call. = FALSE)
   }
 
-  if (is.null(edges) || nrow(edges) == 0) {
-    # Empty graph
-    g <- igraph::make_empty_graph(n, directed = is_dir)
-  } else {
-    # Create edge list
-    edge_mat <- as.matrix(edges[, c("from", "to")])
-    g <- igraph::graph_from_edgelist(edge_mat, directed = is_dir)
-
-    # Add weights if present
-    if (!is.null(edges$weight)) {
-      igraph::E(g)$weight <- edges$weight
-    }
-  }
+  # Start from the node table, never from the edge list: a graph built with
+  # graph_from_edgelist() has as many vertices as the largest endpoint index,
+  # so any node after the last one that carries an edge would disappear and
+  # the label assignment below would then fail on a length mismatch.
+  g <- igraph::make_empty_graph(n = n, directed = is_dir)
 
   # Add node labels
   if (!is.null(nodes$label)) {
-    igraph::V(g)$name <- nodes$label
+    g <- igraph::set_vertex_attr(g, "name", value = as.character(nodes$label))
+  }
+
+  if (!is.null(edges) && nrow(edges) > 0) {
+    endpoints <- as.vector(t(as.matrix(edges[, c("from", "to")])))
+    g <- igraph::add_edges(g, as.integer(endpoints))
+
+    # Carry every edge column across as an edge attribute, so extra columns
+    # such as `session` or `time` survive the round trip.
+    edge_attrs <- setdiff(names(edges), c("from", "to"))
+    g <- Reduce(
+      function(graph, attr) igraph::set_edge_attr(graph, attr, value = edges[[attr]]),
+      edge_attrs,
+      init = g
+    )
   }
 
   g

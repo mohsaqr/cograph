@@ -542,7 +542,10 @@ test_that("path-based filters on negative weights give NA with a classed warning
   expect_warning(select_nodes(m, top = 2, by = "betweenness"), class = "cograph_negative_weights")
   expect_warning(select_nodes(m, top = 2, by = "closeness"), class = "cograph_negative_weights")
   expect_warning(select_nodes(m, top = 2, by = "pagerank"), class = "cograph_negative_weights")
-  expect_warning(filter_nodes(m, degree >= 1), class = "cograph_negative_weights")
+  # filter_nodes is lazy now: only a path-based measure it actually names
+  # triggers the negative-weight path.
+  expect_warning(filter_nodes(m, betweenness >= 0), class = "cograph_negative_weights")
+  expect_no_warning(filter_nodes(m, degree >= 1))
   vars <- .pa_muffle_negative(.compute_centrality_vars(.cg_graph(m)))
   expect_true(all(is.na(vars$betweenness)))
   expect_true(all(is.na(vars$closeness)))

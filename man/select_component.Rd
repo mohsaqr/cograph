@@ -8,7 +8,7 @@ select_component(
   x,
   which = "largest",
   ...,
-  .keep_edges = c("internal", "none"),
+  keep_edges = c("internal", "none"),
   keep_format = FALSE,
   directed = NULL
 )
@@ -25,7 +25,7 @@ select_component(
 
 \item{...}{Additional filter expressions to apply after component selection.}
 
-\item{.keep_edges}{How to handle edges. Default "internal".}
+\item{keep_edges}{How to handle edges. Default "internal".}
 
 \item{keep_format}{Logical. Keep input format? Default FALSE.}
 

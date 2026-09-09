@@ -9,7 +9,7 @@ select_neighbors(
   of,
   order = 1L,
   ...,
-  .keep_edges = c("internal", "none"),
+  keep_edges = c("internal", "none"),
   keep_format = FALSE,
   directed = NULL
 )
@@ -23,7 +23,7 @@ select_neighbors(
 
 \item{...}{Additional filter expressions to apply after neighborhood selection.}
 
-\item{.keep_edges}{How to handle edges. Default "internal".}
+\item{keep_edges}{How to handle edges. Default "internal".}
 
 \item{keep_format}{Logical. Keep input format? Default FALSE.}
 

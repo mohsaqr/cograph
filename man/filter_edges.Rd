@@ -8,17 +8,19 @@
 filter_edges(
   x,
   ...,
-  .keep_isolates = FALSE,
+  keep_isolates = TRUE,
   keep_format = FALSE,
-  directed = NULL
+  directed = NULL,
+  .keep_isolates = NULL
 )
 
 subset_edges(
   x,
   ...,
-  .keep_isolates = FALSE,
+  keep_isolates = TRUE,
   keep_format = FALSE,
-  directed = NULL
+  directed = NULL,
+  .keep_isolates = NULL
 )
 }
 \arguments{
@@ -27,7 +29,10 @@ subset_edges(
 \item{...}{Filter expressions using any edge column (e.g., \code{weight > 0.5},
 \code{weight > mean(weight)}, \code{abs(weight) > 0.3}).}
 
-\item{.keep_isolates}{Logical. Keep nodes with no remaining edges? Default FALSE.}
+\item{keep_isolates}{Logical. Keep nodes that end up with no edges?
+Default TRUE, matching \code{igraph::delete_edges()} and tidygraph:
+filtering edges does not remove nodes. Set FALSE to drop them, or call
+\code{\link{remove_isolates}()} afterwards.}
 
 \item{keep_format}{Logical. If TRUE, matrix, igraph, and statnet network
 inputs are returned in that format. Default FALSE
@@ -36,6 +41,8 @@ returns cograph_network (universal format).}
 \item{directed}{Logical or NULL. If NULL (default), auto-detect from matrix
 symmetry. Set TRUE to force directed, FALSE to force undirected.
 Only used for non-cograph_network inputs.}
+
+\item{.keep_isolates}{Deprecated. Use \code{keep_isolates}.}
 }
 \value{
 A cograph_network object with filtered edges. If \code{keep_format = TRUE},

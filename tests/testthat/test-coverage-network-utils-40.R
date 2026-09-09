@@ -710,9 +710,10 @@ test_that("select_nodes combined modes (top + component)", {
   expect_equal(n_nodes(result), 2)
 })
 
-test_that("select_nodes warns on invalid index", {
+test_that("select_nodes rejects an out-of-range index", {
   mat <- create_test_matrix()
-  expect_warning(select_nodes(mat, index = c(1, 100)))
+  expect_error(select_nodes(mat, index = c(1, 100)),
+               class = "cograph_bad_selection")
 })
 
 # =============================================================================
@@ -734,9 +735,10 @@ test_that("select_neighbors with order = 2", {
   expect_true(n_nodes(result) >= 1)
 })
 
-test_that("select_neighbors warns on missing node", {
+test_that("select_neighbors rejects an unknown node name", {
   mat <- create_test_matrix()
-  expect_warning(select_neighbors(mat, of = "Z"))
+  expect_error(select_neighbors(mat, of = "Z"),
+               class = "cograph_bad_selection")
 })
 
 # =============================================================================
@@ -757,9 +759,10 @@ test_that("select_component by ID", {
   expect_true(n_nodes(result) > 0)
 })
 
-test_that("select_component warns on invalid component", {
+test_that("select_component rejects a component that does not exist", {
   mat <- create_disconnected_matrix()
-  expect_warning(select_component(mat, which = 100))
+  expect_error(select_component(mat, which = 100),
+               class = "cograph_bad_selection")
 })
 
 # =============================================================================
@@ -1013,10 +1016,11 @@ test_that("select_nodes with network with no matching nodes", {
   expect_warning(result <- select_nodes(mat, degree > 100))
 })
 
-test_that("select_edges warns on invalid between format", {
+test_that("select_edges rejects a malformed 'between'", {
   mat <- create_test_matrix()
 
-  expect_warning(result <- select_edges(mat, between = c("A", "B")))
+  expect_error(select_edges(mat, between = c("A", "B")),
+               class = "cograph_bad_selection")
 })
 
 test_that("select_edges handles network with all mutual edges", {

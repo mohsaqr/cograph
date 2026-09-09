@@ -71,6 +71,15 @@ parse_edgelist <- function(df, directed = NULL) {
   nodes <- create_nodes_df(n, all_nodes)
   edges <- create_edges_df(from_idx, to_idx, weight_vals, directed)
 
+  # Carry every other column across (session, time, type, ...) so that the
+  # documented ability to filter on any edge column is reachable from a
+  # data frame, not only from an object that already has attributes.
+  used <- unique(c(from_col, to_col, if (has_weight) weight_col))
+  extra_cols <- setdiff(names(df), names(df)[used])
+  if (length(extra_cols) > 0) {
+    edges[extra_cols] <- df[extra_cols]
+  }
+
   list(
     nodes = nodes,
     edges = edges,

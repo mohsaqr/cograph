@@ -340,7 +340,11 @@ color_communities <- function(x, method = "louvain", palette = NULL, ...) {
 #' @param x Network input: cograph_network, matrix, igraph, network, or tna object.
 #' @param ... Filter expressions using any edge column (e.g., \code{weight > 0.5},
 #'   \code{weight > mean(weight)}, \code{abs(weight) > 0.3}).
-#' @param .keep_isolates Logical. Keep nodes with no remaining edges? Default FALSE.
+#' @param keep_isolates Logical. Keep nodes that end up with no edges?
+#'   Default TRUE, matching \code{igraph::delete_edges()} and tidygraph:
+#'   filtering edges does not remove nodes. Set FALSE to drop them, or call
+#'   \code{\link{remove_isolates}()} afterwards.
+#' @param .keep_isolates Deprecated. Use \code{keep_isolates}.
 #' @param keep_format Logical. If TRUE, matrix, igraph, and statnet network
 #'   inputs are returned in that format. Default FALSE
 #'   returns cograph_network (universal format).
@@ -370,58 +374,37 @@ color_communities <- function(x, method = "louvain", palette = NULL, ...) {
 #'   filter_edges(weight > 0.3) |>
 #'   filter_nodes(degree >= 2) |>
 #'   splot()
-filter_edges <- function(x, ..., .keep_isolates = FALSE, keep_format = FALSE,
-                         directed = NULL) {
-  # Detect input format for keep_format option
+filter_edges <- function(x, ..., keep_isolates = TRUE, keep_format = FALSE,
+                         directed = NULL, .keep_isolates = NULL) {
+  keep_isolates <- .resolve_deprecated_arg(keep_isolates, .keep_isolates,
+                                           ".keep_isolates", "keep_isolates")
   input_class <- .detect_input_class(x)
-
-  # Warn if converting complex formats to cograph_network
-  if (!keep_format && input_class %in% c("igraph", "network", "qgraph")) {
-    message("Result converted to cograph_network. Use keep_format = TRUE to return ", input_class, ".")
-  }
-
-  # Convert to cograph_network if needed
   net <- as_cograph(x, directed = directed)
-
-  # Get edges dataframe
   edges <- get_edges(net)
 
   if (nrow(edges) == 0) {
     warning("Network has no edges", call. = FALSE)
-    if (keep_format) {
-      return(.convert_to_format(net, input_class))
-    }
-    return(net)
+    return(.finish_result(net, x, input_class, keep_format))
   }
 
-  # Build evaluation environment with all edge columns
+  # Every edge column is in scope, including columns the caller added.
   eval_env <- list2env(as.list(edges), parent = parent.frame())
-
-  # Capture filter expressions
   dots <- substitute(list(...))[-1]
-
-  # Evaluate filter conditions
   mask <- .evaluate_filter_conditions(dots, eval_env, nrow(edges))
-
-  # Apply filter
   filtered_edges <- edges[mask, , drop = FALSE]
 
-  # Update network
-  result <- .update_cograph_edges(net, filtered_edges, keep_isolates = .keep_isolates)
+  result <- .update_cograph_edges(net, filtered_edges, keep_isolates = keep_isolates)
 
-  # Warn if result is empty
+  if (n_edges(result) == 0) {
+    warning("Filter removed all edges.", call. = FALSE)
+  } else if (isTRUE(keep_isolates)) {
+    .warn_new_isolates(edges, filtered_edges, n_nodes(net))
+  }
   if (n_nodes(result) == 0) {
     warning("Filter removed all nodes. Result may not be usable for plotting.", call. = FALSE)
-  } else if (n_edges(result) == 0) {
-    warning("Filter removed all edges.", call. = FALSE)
   }
 
-  # Return in original format if requested
-  if (keep_format) {
-    return(.convert_to_format(result, input_class))
-  }
-
-  result
+  .finish_result(result, x, input_class, keep_format)
 }
 
 #' Filter Nodes by Metadata or Centrality
@@ -443,7 +426,8 @@ filter_edges <- function(x, ..., .keep_isolates = FALSE, keep_format = FALSE,
 #'   }
 #'   Examples: \code{degree >= 3}, \code{label \%in\% c("A", "B")},
 #'   \code{pagerank > 0.1 & degree >= 2}.
-#' @param .keep_edges How to handle edges. One of:
+#' @param .keep_edges Deprecated. Use \code{keep_edges}.
+#' @param keep_edges How to handle edges. One of:
 #'   \describe{
 #'     \item{\code{"internal"}}{(default) Keep only edges between remaining nodes}
 #'     \item{\code{"none"}}{Remove all edges}
@@ -471,64 +455,38 @@ filter_edges <- function(x, ..., .keep_isolates = FALSE, keep_format = FALSE,
 #'
 #' # Filter by label, combined with degree
 #' filter_nodes(adj, degree >= 2 & label != "D")
-filter_nodes <- function(x, ..., .keep_edges = c("internal", "none"),
-                         keep_format = FALSE, directed = NULL) {
-  .keep_edges <- match.arg(.keep_edges)
+filter_nodes <- function(x, ..., keep_edges = c("internal", "none"),
+                         keep_format = FALSE, directed = NULL,
+                         .keep_edges = NULL) {
+  keep_edges <- .resolve_deprecated_arg(match.arg(keep_edges), .keep_edges,
+                                        ".keep_edges", "keep_edges")
+  keep_edges <- match.arg(keep_edges, c("internal", "none"))
 
-  # Detect input format for keep_format option
   input_class <- .detect_input_class(x)
-
-  # Warn if converting complex formats to cograph_network
-  if (!keep_format && input_class %in% c("igraph", "network", "qgraph")) {
-    message("Result converted to cograph_network. Use keep_format = TRUE to return ", input_class, ".")
-  }
-
-  # Convert to cograph_network if needed
   net <- as_cograph(x, directed = directed)
-
-  # Get nodes dataframe
   nodes <- get_nodes(net)
 
-  # Calculate centrality measures and add to environment
-  g <- to_igraph(net)
-  centrality_vars <- .compute_centrality_vars(g)
-
-  # Build evaluation environment with:
-  # 1. All node columns
-  # 2. All centrality measures
-  # 3. Parent frame for user variables
-  eval_env <- .build_filter_env(nodes, centrality_vars, parent.frame())
-
-  # Capture filter expressions
+  # Only the measures the expressions actually name are computed; the whole
+  # twelve-measure sweep was the main cost of this verb.
+  cg <- .cg_graph(net)
   dots <- substitute(list(...))[-1]
-
-  # Evaluate filter conditions
+  eval_env <- .build_filter_env(
+    nodes,
+    .node_filter_vars(cg, .detect_needed_variables(dots)),
+    parent.frame()
+  )
   mask <- .evaluate_filter_conditions(dots, eval_env, nrow(nodes))
-
-  # Apply filter
   selected_idx <- which(mask)
 
   if (length(selected_idx) == 0) {
-    warning("No nodes match the filter criteria. Result may not be usable for plotting.", call. = FALSE)
-    if (keep_format && input_class == "matrix") {
-      return(matrix(0, nrow = 0, ncol = 0))
-    }
-    empty <- .empty_cograph_network(net$directed)
-    if (keep_format) {
-      return(.convert_to_format(empty, input_class))
-    }
-    return(empty)
+    warning("No nodes match the filter criteria. Result may not be usable for plotting.",
+            call. = FALSE)
+    empty <- .empty_cograph_network(net$directed, meta = net$meta)
+    return(.finish_result(empty, x, input_class, keep_format))
   }
 
-  # Create subgraph
-  result <- .subset_cograph_network(net, nodes = selected_idx, keep_edges = .keep_edges)
-
-  # Return in original format if requested
-  if (keep_format) {
-    return(.convert_to_format(result, input_class))
-  }
-
-  result
+  result <- .subset_cograph_network(net, nodes = selected_idx, keep_edges = keep_edges)
+  .finish_result(result, x, input_class, keep_format)
 }
 
 #' @rdname filter_nodes
@@ -544,36 +502,167 @@ subset_edges <- filter_edges
 # Helper Functions for Filtering
 # =============================================================================
 
-#' Compute Centrality Variables for Filtering
+#' The node vocabulary available inside filter expressions
+#'
+#' Three groups, resolved in this order: measures with a dedicated kernel
+#' (cheap), structural context variables, and boolean predicates. Any other
+#' name is looked up in [centrality()]; anything left over is a variable from
+#' the caller's frame.
+#'
+#' @return A named list of character vectors.
 #' @noRd
-.compute_centrality_vars <- function(g) {
-  cg <- .cg_as_context(g)
-  n <- cg$n
-  path_ok <- !any(cg$w < 0)
+.node_vocabulary <- function() {
+  list(
+    centrality = c("degree", "indegree", "outdegree", "strength",
+                   "instrength", "outstrength", "betweenness",
+                   "closeness", "eigenvector", "pagerank", "hub",
+                   "authority", "coreness"),
+    context = c("component", "component_size", "is_largest_component",
+                "neighborhood_size", "k_core", "is_articulation",
+                "is_bridge_endpoint"),
+    predicate = c("is_isolated", "is_source", "is_sink", "is_leaf", "is_cut",
+                  "local_transitivity", "local_triangles")
+  )
+}
+
+#' Detect needed variables from expressions
+#'
+#' @param exprs List of unevaluated filter expressions.
+#' @return A list with `centrality`, `context`, `predicate` and `measure`
+#'   character vectors. `measure` holds names that only [centrality()] knows.
+#' @noRd
+.detect_needed_variables <- function(exprs) {
+  vocab <- .node_vocabulary()
+  all_vars <- unique(unlist(lapply(exprs, all.vars)))
+
+  known <- unlist(vocab, use.names = FALSE)
+  leftover <- setdiff(all_vars, known)
 
   list(
-    # Degree measures
-    degree = .cg_degree(cg$b, cg$directed, "all"),
-    indegree = .cg_degree(cg$b, cg$directed, "in"),
-    outdegree = .cg_degree(cg$b, cg$directed, "out"),
-
-    # Strength measures
-    strength = .cg_strength(cg$w, cg$directed, "all"),
-    instrength = .cg_strength(cg$w, cg$directed, "in"),
-    outstrength = .cg_strength(cg$w, cg$directed, "out"),
-
-    # Path-based measures are undefined on negative weights: NA plus a
-    # classed warning, never a swallowed error.
-    betweenness = if (path_ok) .cg_betweenness(cg$w, n, cg$directed) else
-      .cg_na_negative(n, "Betweenness"),
-    closeness = if (path_ok) .cg_closeness(.cg_distances(cg$w, "all"), n) else
-      .cg_na_negative(n, "Closeness"),
-    eigenvector = .cg_eigenvector(cg$w, n),
-    pagerank = if (path_ok) .cg_pagerank(cg$w, n) else
-      .cg_na_negative(n, "PageRank"),
-    hub = .cg_hits(cg$w, n)$hub,
-    authority = .cg_hits(cg$w, n)$authority
+    centrality = intersect(all_vars, vocab$centrality),
+    context = intersect(all_vars, vocab$context),
+    predicate = intersect(all_vars, vocab$predicate),
+    measure = intersect(leftover, .cg_delegable_measures())
   )
+}
+
+#' Measure names that can be delegated to centrality()
+#' @noRd
+.cg_delegable_measures <- function() {
+  setdiff(c(.cg_mode_measures(), .cg_no_mode_measures()),
+          .node_vocabulary()$centrality)
+}
+
+#' Compute one node variable by name
+#'
+#' The single resolver behind `filter_nodes()`, `select_nodes()` and the `by =`
+#' argument of `select_top()`. Path-based measures are undefined on negative
+#' weights: they return NA with a classed warning rather than a swallowed
+#' error.
+#'
+#' @param g A `cg_graph`, `cograph_network`, matrix or igraph object.
+#' @param measure Name of the measure.
+#' @return A numeric or logical vector of length `n`.
+#' @noRd
+.compute_single_centrality <- function(g, measure) {
+  cg <- .cg_as_context(g)
+  n <- cg$n
+  has_negative <- any(cg$w < 0)
+
+  switch(measure,
+    "degree" = .cg_degree(cg$b, cg$directed, "all"),
+    "indegree" = .cg_degree(cg$b, cg$directed, "in"),
+    "outdegree" = .cg_degree(cg$b, cg$directed, "out"),
+    "strength" = .cg_strength(cg$w, cg$directed, "all"),
+    "instrength" = .cg_strength(cg$w, cg$directed, "in"),
+    "outstrength" = .cg_strength(cg$w, cg$directed, "out"),
+    "betweenness" = if (has_negative) .cg_na_negative(n, "Betweenness") else
+      .cg_betweenness(cg$w, n, cg$directed),
+    "closeness" = if (has_negative) .cg_na_negative(n, "Closeness") else
+      .cg_closeness(.cg_distances(cg$w, "all"), n),
+    "eigenvector" = .cg_eigenvector(cg$w, n),
+    "pagerank" = if (has_negative) .cg_na_negative(n, "PageRank") else
+      .cg_pagerank(cg$w, n),
+    "hub" = .cg_hits(cg$w, n)$hub,
+    "authority" = .cg_hits(cg$w, n)$authority,
+    "coreness" = .cg_coreness_loops(cg$b, n, cg$directed, "all"),
+    .compute_delegated_centrality(cg, measure)
+  )
+}
+
+#' Compute a measure that only centrality() knows
+#'
+#' @param cg A `cg_graph` context.
+#' @param measure Name of the measure.
+#' @return A numeric vector of length `n`.
+#' @noRd
+.compute_delegated_centrality <- function(cg, measure) {
+  if (!measure %in% .cg_delegable_measures()) {
+    .stop_bad_selection(
+      "Unknown centrality measure '", measure, "'. ",
+      "See list_centralities() for the measures cograph computes."
+    )
+  }
+  tbl <- centrality(cg$w, measures = measure, directed = cg$directed)
+  value_col <- setdiff(names(tbl), "node")[1]
+  as.numeric(tbl[[value_col]])
+}
+
+#' Compute one node predicate by name
+#' @noRd
+.compute_node_predicate <- function(cg, predicate) {
+  n <- cg$n
+  switch(predicate,
+    "is_isolated" = .cg_degree(cg$b, cg$directed, "all") == 0,
+    "is_source" = cg$directed &
+      .cg_degree(cg$b, cg$directed, "in") == 0 &
+      .cg_degree(cg$b, cg$directed, "out") > 0,
+    "is_sink" = cg$directed &
+      .cg_degree(cg$b, cg$directed, "out") == 0 &
+      .cg_degree(cg$b, cg$directed, "in") > 0,
+    "is_leaf" = .cg_degree(cg$b, cg$directed, "all") == 1,
+    "is_cut" = seq_len(n) %in% .cg_articulation_points(cg$b),
+    "local_transitivity" = .cg_local_transitivity(cg$b, n, cg$directed),
+    "local_triangles" = .cg_triangle_counts(.cg_undirected_view(cg$b))
+  )
+}
+
+#' Assemble the variables a node filter expression needs
+#'
+#' @param g A `cg_graph` context or anything `.cg_as_context()` accepts.
+#' @param needed The list returned by `.detect_needed_variables()`.
+#' @return A named list of vectors, each of length `n`.
+#' @noRd
+.node_filter_vars <- function(g, needed) {
+  cg <- .cg_as_context(g)
+
+  named_lapply <- function(names, fn) {
+    if (length(names) == 0L) return(list())
+    stats::setNames(lapply(names, fn), names)
+  }
+
+  c(
+    named_lapply(c(needed$centrality, needed$measure),
+                 function(m) .compute_single_centrality(cg, m)),
+    .compute_lazy_context(cg, needed$context),
+    named_lapply(needed$predicate, function(p) .compute_node_predicate(cg, p))
+  )
+}
+
+#' Compute Centrality Variables for Filtering
+#'
+#' The full documented vocabulary, computed eagerly. Kept for callers that want
+#' every measure at once; the verbs themselves ask for only what they need.
+#'
+#' @noRd
+.compute_centrality_vars <- function(g) {
+  .node_filter_vars(g, list(centrality = .node_vocabulary()$centrality))
+}
+
+#' Compute only needed centrality measures (lazy)
+#' @noRd
+.compute_lazy_centralities <- function(g, needed, has_negative = FALSE) {
+  .node_filter_vars(g, list(centrality = needed))
 }
 
 #' Build Filter Environment
@@ -612,134 +701,194 @@ subset_edges <- filter_edges
 
 #' Create Empty cograph_network
 #' @noRd
-.empty_cograph_network <- function(directed = FALSE) {
+.empty_cograph_network <- function(directed = FALSE, meta = NULL) {
   .create_cograph_network(
     nodes = data.frame(id = integer(0), label = character(0)),
     edges = data.frame(from = integer(0), to = integer(0), weight = numeric(0)),
     directed = directed,
-    meta = list(source = "filtered")
+    meta = meta %||% list(source = "filtered"),
+    weights = matrix(0, 0, 0)
   )
+}
+
+#' Signal a malformed selection argument
+#'
+#' Selection arguments describe a set of nodes or edges. A malformed one is a
+#' broken contract, not a recoverable anomaly, so it raises a classed error
+#' that callers and tests can match on without reading the message text.
+#'
+#' @param ... Parts of the message, pasted together.
+#' @return Never returns; raises a `cograph_bad_selection` error.
+#' @noRd
+.stop_bad_selection <- function(...) {
+  stop(errorCondition(paste0(...), class = "cograph_bad_selection", call = NULL))
+}
+
+#' Build a weight matrix from an edge table
+#'
+#' One vectorised matrix assignment rather than a cell-by-cell loop. For an
+#' undirected network the edge table holds one row per unordered pair, so the
+#' transposed positions are filled as well; without that the rebuilt matrix is
+#' upper-triangular and every downstream consumer reads the network as
+#' directed with half the strength.
+#'
+#' @param labels Character vector of node labels, in node order.
+#' @param edges Edge data frame with `from`, `to`, `weight` in node-index space.
+#' @param directed Logical. Mirror the entries when FALSE.
+#' @return A square numeric matrix with `labels` as dimnames.
+#' @noRd
+.network_weight_matrix <- function(labels, edges, directed) {
+  n <- length(labels)
+  dn <- if (n > 0L) list(labels, labels) else NULL
+  w <- matrix(0, n, n, dimnames = dn)
+  if (n == 0L || is.null(edges) || nrow(edges) == 0L) {
+    return(w)
+  }
+  idx <- cbind(as.integer(edges$from), as.integer(edges$to))
+  weight <- as.numeric(edges$weight)
+  w[idx] <- weight
+  if (!isTRUE(directed)) {
+    w[idx[, c(2L, 1L), drop = FALSE]] <- weight
+  }
+  w
+}
+
+#' Rebuild a cograph_network from a node selection and an edge table
+#'
+#' The single place where a wrangling verb turns "these nodes, these edges"
+#' back into a network. Remaps node indices, rebuilds the weight matrix, and
+#' carries the metadata that the verbs used to drop: node groups, estimation
+#' data, layout, and the original source type.
+#'
+#' @param net A `cograph_network`.
+#' @param nodes_keep Integer indices of nodes to keep, or NULL for all.
+#' @param edges Edge data frame in the *current* node-index space, or NULL to
+#'   reuse the network's own edges.
+#' @param keep_edges `"internal"` keeps edges whose endpoints both survive;
+#'   `"none"` drops every edge.
+#' @return A `cograph_network`.
+#' @noRd
+.rebuild_network <- function(net, nodes_keep = NULL, edges = NULL,
+                             keep_edges = "internal") {
+  node_df <- get_nodes(net)
+  edge_df <- if (is.null(edges)) get_edges(net) else edges
+
+  keep <- if (is.null(nodes_keep)) {
+    seq_len(nrow(node_df))
+  } else {
+    sort(unique(as.integer(nodes_keep)))
+  }
+
+  new_nodes <- node_df[keep, , drop = FALSE]
+  new_nodes$id <- seq_len(nrow(new_nodes))
+  rownames(new_nodes) <- NULL
+
+  if (identical(keep_edges, "none") || nrow(edge_df) == 0L) {
+    new_edges <- edge_df[0L, , drop = FALSE]
+  } else {
+    inside <- edge_df$from %in% keep & edge_df$to %in% keep
+    new_edges <- edge_df[inside, , drop = FALSE]
+    new_edges$from <- match(new_edges$from, keep)
+    new_edges$to <- match(new_edges$to, keep)
+  }
+  rownames(new_edges) <- NULL
+
+  # Group assignments are keyed by label, so they follow the surviving nodes.
+  groups <- net$node_groups
+  if (!is.null(groups) && is.data.frame(groups) && "node" %in% names(groups)) {
+    groups <- groups[groups$node %in% new_nodes$label, , drop = FALSE]
+    rownames(groups) <- NULL
+    if (nrow(groups) == 0L) groups <- NULL
+  }
+
+  .create_cograph_network(
+    nodes = new_nodes,
+    edges = new_edges,
+    directed = net$directed,
+    meta = net$meta,
+    weights = .network_weight_matrix(as.character(new_nodes$label), new_edges,
+                                     isTRUE(net$directed)),
+    data = net$data,
+    node_groups = groups
+  )
+}
+
+#' Rebuild a network around a new weight matrix
+#'
+#' The counterpart of `.rebuild_network()` for verbs that work on the weight
+#' matrix rather than on the edge table: the node table, layout, groups and
+#' estimation data are carried across unchanged and the edge table is derived
+#' from the matrix. Extra edge columns cannot survive an operation that may
+#' create, merge or drop edges, so they are dropped.
+#'
+#' @param net The network the verb was called on.
+#' @param m New square weight matrix, in the same node order.
+#' @param directed Directedness of the result; NULL keeps the network's own.
+#' @return A `cograph_network`.
+#' @noRd
+.network_from_matrix <- function(net, m, directed = NULL) {
+  dir <- if (is.null(directed)) isTRUE(net$directed) else isTRUE(directed)
+  nodes <- get_nodes(net)
+  labels <- as.character(nodes$label)
+  dimnames(m) <- if (nrow(m) > 0L) list(labels, labels) else NULL
+
+  nz <- which(m != 0, arr.ind = TRUE)
+  if (!dir && nrow(nz) > 0L) {
+    # One row per unordered pair: read the upper triangle, diagonal included.
+    nz <- nz[nz[, 1L] <= nz[, 2L], , drop = FALSE]
+  }
+  edges <- data.frame(
+    from = as.integer(nz[, 1L]),
+    to = as.integer(nz[, 2L]),
+    weight = as.numeric(m[nz])
+  )
+
+  .create_cograph_network(
+    nodes = nodes,
+    edges = edges,
+    directed = dir,
+    meta = net$meta,
+    weights = m,
+    data = net$data,
+    node_groups = net$node_groups
+  )
+}
+
+#' Node indices that carry at least one edge
+#' @noRd
+.connected_nodes <- function(edges) {
+  if (is.null(edges) || nrow(edges) == 0L) {
+    return(integer(0))
+  }
+  sort(unique(as.integer(c(edges$from, edges$to))))
 }
 
 #' Subset cograph_network by Node Indices
 #' @noRd
 .subset_cograph_network <- function(net, nodes, keep_edges = "internal") {
-  # Get current data
-  node_df <- get_nodes(net)
-  edge_df <- get_edges(net)
-
-  # Filter nodes
-  new_nodes <- node_df[nodes, , drop = FALSE]
-  new_nodes$id <- seq_len(nrow(new_nodes))
-  rownames(new_nodes) <- NULL
-
-  # Create index mapping (old -> new)
-  node_map <- stats::setNames(seq_along(nodes), nodes)
-
-  # Filter edges
-  if (keep_edges == "internal" && nrow(edge_df) > 0) {
-    # Keep edges where both endpoints are in selection
-    keep_edge <- edge_df$from %in% nodes & edge_df$to %in% nodes
-    new_edges <- edge_df[keep_edge, , drop = FALSE]
-
-    # Remap node indices
-    if (nrow(new_edges) > 0) {
-      new_edges$from <- as.integer(node_map[as.character(new_edges$from)])
-      new_edges$to <- as.integer(node_map[as.character(new_edges$to)])
-      rownames(new_edges) <- NULL
-    }
-  } else {
-    new_edges <- data.frame(from = integer(0), to = integer(0), weight = numeric(0))
-  }
-
-  # Build new weight matrix
-  n <- nrow(new_nodes)
-  new_weights <- matrix(0, n, n, dimnames = list(new_nodes$label, new_nodes$label))
-  if (nrow(new_edges) > 0) {
-    for (i in seq_len(nrow(new_edges))) {
-      new_weights[new_edges$from[i], new_edges$to[i]] <- new_edges$weight[i]
-    }
-  }
-
-  # Create new cograph_network using internal constructor
-  .create_cograph_network(
-    nodes = new_nodes,
-    edges = new_edges,
-    directed = net$directed,
-    meta = list(source = "filtered", tna = net$meta$tna),
-    weights = new_weights
-  )
+  .rebuild_network(net, nodes_keep = nodes, keep_edges = keep_edges)
 }
 
 #' Update Edges in cograph_network
+#'
+#' Replaces the edge table. Filtering edges never removes nodes (igraph's
+#' `delete_edges()` and tidygraph's `filter()` on edges behave the same way);
+#' pass `keep_isolates = FALSE` for the pruning behaviour, or call
+#' [remove_isolates()] afterwards.
+#'
 #' @noRd
-.update_cograph_edges <- function(net, new_edges, keep_isolates = FALSE) {
-  nodes <- get_nodes(net)
+.update_cograph_edges <- function(net, new_edges, keep_isolates = TRUE) {
+  result <- .rebuild_network(net, edges = new_edges)
 
-  # Handle case where all edges are removed and keep_isolates = FALSE
-  if (!keep_isolates && nrow(new_edges) == 0) {
-    return(.empty_cograph_network(net$directed))
-  }
-
-  # Remove isolates if requested - but preserve the filtered edges
-  if (!keep_isolates && nrow(new_edges) > 0) {
-    connected_nodes <- sort(unique(c(new_edges$from, new_edges$to)))
-    if (length(connected_nodes) < nrow(nodes)) {
-      # Subset nodes to only connected ones
-      new_nodes <- nodes[connected_nodes, , drop = FALSE]
-      new_nodes$id <- seq_len(nrow(new_nodes))
-      rownames(new_nodes) <- NULL
-
-      # Create index mapping (old -> new)
-      node_map <- stats::setNames(seq_along(connected_nodes), connected_nodes)
-
-      # Remap edge indices to new node indices
-      remapped_edges <- new_edges
-      remapped_edges$from <- as.integer(node_map[as.character(new_edges$from)])
-      remapped_edges$to <- as.integer(node_map[as.character(new_edges$to)])
-      rownames(remapped_edges) <- NULL
-
-      # Build new weight matrix
-      n <- nrow(new_nodes)
-      new_weights <- matrix(0, n, n, dimnames = list(new_nodes$label, new_nodes$label))
-      for (i in seq_len(nrow(remapped_edges))) {
-        new_weights[remapped_edges$from[i], remapped_edges$to[i]] <- remapped_edges$weight[i]
-      }
-
-      return(.create_cograph_network(
-        nodes = new_nodes,
-        edges = remapped_edges,
-        directed = net$directed,
-        meta = list(source = "filtered", tna = net$meta$tna),
-        weights = new_weights
-      ))
+  if (!isTRUE(keep_isolates)) {
+    connected <- .connected_nodes(new_edges)
+    if (length(connected) == 0L) {
+      return(.empty_cograph_network(net$directed, meta = net$meta))
     }
+    result <- .rebuild_network(net, nodes_keep = connected, edges = new_edges)
   }
 
-  # Reset row names
-  rownames(new_edges) <- NULL
-
-  # Update weights matrix
-  n <- nrow(nodes)
-  new_weights <- matrix(0, n, n, dimnames = list(nodes$label, nodes$label))
-  if (nrow(new_edges) > 0) {
-    for (i in seq_len(nrow(new_edges))) {
-      new_weights[new_edges$from[i], new_edges$to[i]] <- new_edges$weight[i]
-    }
-  }
-
-  # Create updated cograph_network
-  .create_cograph_network(
-    nodes = nodes,
-    edges = new_edges,
-    directed = net$directed,
-    meta = list(
-      source = "filtered",
-      layout = net$meta$layout,
-      tna = net$meta$tna
-    ),
-    weights = new_weights
-  )
+  result
 }
 
 #' Detect Input Class for Format Preservation
@@ -763,15 +912,106 @@ subset_edges <- filter_edges
 }
 
 #' Convert cograph_network to Specified Format
+#'
+#' `original` is the object the verb was called on; a tna model is rebuilt from
+#' it (copy, swap the weight matrix, subset labels and initial probabilities)
+#' rather than silently downgraded to a cograph_network.
+#'
 #' @noRd
-.convert_to_format <- function(net, format) {
-switch(format,
+.convert_to_format <- function(net, format, original = NULL) {
+  switch(format,
     matrix = to_matrix(net),
     igraph = to_igraph(net),
-    network = to_network(net),
-    # For tna/qgraph/unknown, return cograph_network (can't reconstruct original)
-    net
+    network = if (n_nodes(net) == 0L) to_matrix(net) else to_network(net),
+    tna = .rebuild_tna(net, original),
+    {
+      if (format %in% c("qgraph", "unknown") && !is.null(original)) {
+        warning(warningCondition(
+          paste0("Cannot rebuild a '", format, "' object; returning a ",
+                 "cograph_network. Use as_cograph() upstream to make this explicit."),
+          class = "cograph_no_format_roundtrip"))
+      }
+      net
+    }
   )
+}
+
+#' Rebuild a tna model around a filtered network
+#'
+#' A tna object is a list with `weights`, `labels`, `inits` and `data`. Copying
+#' it and swapping those fields keeps the class, the sequence data and any
+#' extra fields the tna package attached.
+#'
+#' @param net The filtered `cograph_network`.
+#' @param original The tna object the verb was called on.
+#' @return A tna object, or `net` when `original` is not a tna model.
+#' @noRd
+.rebuild_tna <- function(net, original) {
+  if (is.null(original) || !inherits(original, "tna")) {
+    return(net)
+  }
+  labels <- get_labels(net)
+  old_labels <- original$labels %||% rownames(original$weights)
+  result <- original
+  result$weights <- to_matrix(net)
+  if (!is.null(original$labels)) {
+    result$labels <- labels
+  }
+  if (!is.null(original$inits) && !is.null(old_labels)) {
+    keep <- match(labels, old_labels)
+    result$inits <- original$inits[keep]
+  }
+  result
+}
+
+#' Apply keep_format to a finished result
+#'
+#' One place where every verb decides what to hand back, so an empty result and
+#' a full one take the same path.
+#'
+#' @noRd
+.finish_result <- function(net, original, input_class, keep_format) {
+  if (!isTRUE(keep_format)) {
+    return(net)
+  }
+  .convert_to_format(net, input_class, original = original)
+}
+
+#' Resolve the deprecated dot-prefixed argument names
+#'
+#' `.keep_isolates` and `.keep_edges` were named with a leading dot to keep
+#' them out of the way of the filter expressions in `...`. Arguments after
+#' `...` are matched exactly, so the dot is unnecessary; the old names still
+#' work and take precedence when supplied.
+#'
+#' @noRd
+.resolve_deprecated_arg <- function(value, deprecated, old_name, new_name) {
+  if (is.null(deprecated)) {
+    return(value)
+  }
+  warning(warningCondition(
+    paste0("`", old_name, "` is deprecated; use `", new_name, "` instead."),
+    class = "cograph_deprecated_arg"))
+  deprecated
+}
+
+#' Warn when a verb left nodes without edges
+#'
+#' Filtering edges does not remove nodes (igraph and tidygraph semantics), so
+#' the caller is told when the result has isolates that the filter created.
+#'
+#' @noRd
+.warn_new_isolates <- function(before_edges, after_edges, n_nodes) {
+  had <- .connected_nodes(before_edges)
+  has <- .connected_nodes(after_edges)
+  created <- setdiff(had, has)
+  if (length(created) > 0L) {
+    warning(warningCondition(
+      paste0(length(created), " node(s) have no edges left. Nodes are kept; ",
+             "call remove_isolates() to drop them."),
+      class = "cograph_isolates_created"))
+  }
+  invisible(length(created))
 }
 
 #' Export Network as Edge List Data Frame
@@ -806,12 +1046,9 @@ switch(format,
 #' # Use alias
 #' to_df(adj)
 to_data_frame <- function(x, directed = NULL) {
-
-  # Convert to igraph
-  g <- to_igraph(x, directed = directed)
-
-  # Get edge list (returns character names if vertices have names)
-  edges <- igraph::as_edgelist(g)
+  net <- as_cograph(x, directed = directed)
+  edges <- get_edges(net)
+  labels <- get_labels(net)
 
   if (nrow(edges) == 0) {
     return(data.frame(
@@ -822,20 +1059,18 @@ to_data_frame <- function(x, directed = NULL) {
     ))
   }
 
-  # Get weights
-  weights <- if (!is.null(igraph::E(g)$weight)) {
-    igraph::E(g)$weight
-  } else {
-    rep(1, nrow(edges))
-  }
-
-  # Build data frame - edges already contains node names/IDs
   df <- data.frame(
-    from = edges[, 1],
-    to = edges[, 2],
-    weight = weights,
+    from = labels[edges$from],
+    to = labels[edges$to],
+    weight = as.numeric(edges$weight),
     stringsAsFactors = FALSE
   )
+
+  # Keep any extra edge columns the network carries (session, time, ...).
+  extra_cols <- setdiff(names(edges), c("from", "to", "weight"))
+  if (length(extra_cols) > 0) {
+    df[extra_cols] <- edges[extra_cols]
+  }
 
   df
 }
@@ -892,20 +1127,11 @@ to_matrix <- function(x, directed = NULL) {
     return(x$weights)
   }
 
-  # Convert to igraph first
-  g <- to_igraph(x, directed = directed)
-
-  # Convert igraph to adjacency matrix
-  adj <- igraph::as_adjacency_matrix(g, type = "both", attr = "weight", sparse = FALSE)
-
-  # Preserve row/column names
-  labels <- igraph::V(g)$name
-  if (!is.null(labels)) {
-    rownames(adj) <- labels
-    colnames(adj) <- labels
-  }
-
-  adj
+  # Otherwise build it from the node and edge tables. Going through igraph
+  # here used to lose trailing isolates and to fail outright on an edgeless
+  # network ("No such edge attribute").
+  net <- as_cograph(x, directed = directed)
+  .network_weight_matrix(get_labels(net), get_edges(net), isTRUE(net$directed))
 }
 
 
@@ -988,10 +1214,15 @@ to_network <- function(x, directed = NULL) {
 #'     \item{Centrality measures}{\code{degree}, \code{indegree}, \code{outdegree},
 #'       \code{strength}, \code{instrength}, \code{outstrength}, \code{betweenness},
 #'       \code{closeness}, \code{eigenvector}, \code{pagerank}, \code{hub},
-#'       \code{authority}, \code{coreness}}
+#'       \code{authority}, \code{coreness}. Any other measure
+#'       \code{\link{centrality}()} computes can be named too; see
+#'       \code{\link{list_centralities}()}.}
 #'     \item{Global context}{\code{component}, \code{component_size},
 #'       \code{is_largest_component}, \code{neighborhood_size}, \code{k_core},
 #'       \code{is_articulation}, \code{is_bridge_endpoint}}
+#'     \item{Predicates}{\code{is_isolated}, \code{is_source}, \code{is_sink},
+#'       \code{is_leaf}, \code{is_cut}, \code{local_transitivity},
+#'       \code{local_triangles}}
 #'   }
 #' @param name Character vector. Select nodes by name/label.
 #' @param index Integer vector. Select nodes by index (1-based).
@@ -1007,7 +1238,8 @@ to_network <- function(x, directed = NULL) {
 #'     \item{Integer}{Select nodes in component with this ID}
 #'     \item{Character}{Select component containing node with this name}
 #'   }
-#' @param .keep_edges How to handle edges. One of:
+#' @param .keep_edges Deprecated. Use \code{keep_edges}.
+#' @param keep_edges How to handle edges. One of:
 #'   \describe{
 #'     \item{\code{"internal"}}{(default) Keep only edges between remaining nodes}
 #'     \item{\code{"none"}}{Remove all edges}
@@ -1056,33 +1288,26 @@ select_nodes <- function(x, ...,
                          neighbors_of = NULL,
                          order = 1L,
                          component = NULL,
-                         .keep_edges = c("internal", "none"),
+                         keep_edges = c("internal", "none"),
                          keep_format = FALSE,
-                         directed = NULL) {
-  .keep_edges <- match.arg(.keep_edges)
+                         directed = NULL,
+                         .keep_edges = NULL) {
+  keep_edges <- .resolve_deprecated_arg(match.arg(keep_edges), .keep_edges,
+                                        ".keep_edges", "keep_edges")
+  keep_edges <- match.arg(keep_edges, c("internal", "none"))
 
-  # Detect input format for keep_format option
   input_class <- .detect_input_class(x)
-
-  # Warn if converting complex formats to cograph_network
-  if (!keep_format && input_class %in% c("igraph", "network", "qgraph")) {
-    message("Result converted to cograph_network. Use keep_format = TRUE to return ", input_class, ".")
-  }
-
-  # Convert to cograph_network if needed
   net <- as_cograph(x, directed = directed)
   n_total <- n_nodes(net)
 
   if (n_total == 0) {
     warning("Network has no nodes", call. = FALSE)
-    if (keep_format) {
-      return(.convert_to_format(net, input_class))
-    }
-    return(net)
+    return(.finish_result(net, x, input_class, keep_format))
   }
 
-  # Get igraph representation for centrality computations
-  g <- to_igraph(net)
+  # The native graph context, not an igraph object: it carries every node,
+  # including trailing isolates that no edge mentions.
+  g <- .cg_graph(net)
 
   # Start with all nodes selected
   selected <- rep(TRUE, n_total)
@@ -1138,25 +1363,12 @@ select_nodes <- function(x, ...,
 
   if (length(selected_idx) == 0) {
     warning("No nodes match the selection criteria.", call. = FALSE)
-    if (keep_format && input_class == "matrix") {
-      return(matrix(0, nrow = 0, ncol = 0))
-    }
-    empty <- .empty_cograph_network(net$directed)
-    if (keep_format) {
-      return(.convert_to_format(empty, input_class))
-    }
-    return(empty)
+    empty <- .empty_cograph_network(net$directed, meta = net$meta)
+    return(.finish_result(empty, x, input_class, keep_format))
   }
 
-  # Create subgraph
-  result <- .subset_cograph_network(net, nodes = selected_idx, keep_edges = .keep_edges)
-
-  # Return in original format if requested
-  if (keep_format) {
-    return(.convert_to_format(result, input_class))
-  }
-
-  result
+  result <- .subset_cograph_network(net, nodes = selected_idx, keep_edges = keep_edges)
+  .finish_result(result, x, input_class, keep_format)
 }
 
 # =============================================================================
@@ -1172,12 +1384,70 @@ select_nodes <- function(x, ...,
 #' Select nodes by index
 #' @noRd
 .select_by_index <- function(n_total, indices) {
-  # Validate indices
-  valid_idx <- indices[indices >= 1 & indices <= n_total]
-  if (length(valid_idx) < length(indices)) {
-    warning("Some indices are out of range and were ignored.", call. = FALSE)
+  .validate_indices(indices, n_total, "index")
+  seq_len(n_total) %in% as.integer(indices)
+}
+
+#' Validate a vector of node or edge indices
+#'
+#' Out-of-range and fractional indices used to be dropped or truncated in
+#' silence, which turns a typo into a different result rather than an error.
+#'
+#' @param indices Numeric vector supplied by the caller.
+#' @param n_total Number of nodes (or edges) available.
+#' @param arg Name of the argument, for the message.
+#' @return The indices as integers, invisibly.
+#' @noRd
+.validate_indices <- function(indices, n_total, arg) {
+  if (!is.numeric(indices)) {
+    .stop_bad_selection("`", arg, "` must be numeric, not ", class(indices)[1], ".")
   }
-  seq_len(n_total) %in% valid_idx
+  if (any(is.na(indices))) {
+    .stop_bad_selection("`", arg, "` contains NA.")
+  }
+  if (any(indices != as.integer(indices))) {
+    .stop_bad_selection("`", arg, "` must be whole numbers; got ",
+                        paste(indices[indices != as.integer(indices)], collapse = ", "), ".")
+  }
+  bad <- indices[indices < 1 | indices > n_total]
+  if (length(bad) > 0) {
+    .stop_bad_selection("`", arg, "` out of range: ",
+                        paste(bad, collapse = ", "), ". The network has ",
+                        n_total, " node(s).")
+  }
+  invisible(as.integer(indices))
+}
+
+#' Validate a single finite number, optionally within bounds
+#' @noRd
+.check_scalar_number <- function(value, arg, lower = -Inf, upper = Inf) {
+  if (!is.numeric(value) || length(value) != 1L || !is.finite(value)) {
+    .stop_bad_selection("`", arg, "` must be a single finite number.")
+  }
+  if (value < lower || value > upper) {
+    .stop_bad_selection("`", arg, "` must be between ", lower, " and ", upper,
+                        "; got ", value, ".")
+  }
+  invisible(value)
+}
+
+#' Resolve node names or indices to node indices
+#'
+#' Named .resolve_node_selection, not .resolve_nodes: paths.R already defines a
+#' .resolve_nodes() with a different signature, and in a flat package namespace
+#' the file that collates last simply wins.
+#' @noRd
+.resolve_node_selection <- function(nodes, selection, arg) {
+  if (is.character(selection)) {
+    unknown <- setdiff(selection, nodes$label)
+    if (length(unknown) > 0) {
+      .stop_bad_selection("`", arg, "` names nodes that are not in the network: ",
+                          paste(unknown, collapse = ", "), ".")
+    }
+    return(which(nodes$label %in% selection))
+  }
+  .validate_indices(selection, nrow(nodes), arg)
+  as.integer(selection)
 }
 
 #' Select nodes by component
@@ -1194,41 +1464,29 @@ select_nodes <- function(x, ...,
   } else if (is.numeric(component)) {
     # Select by component ID
     if (component < 1 || component > comp$no) {
-      warning("Component ID ", component, " does not exist. Network has ",
-              comp$no, " components.", call. = FALSE)
-      return(rep(FALSE, length(membership)))
+      .stop_bad_selection("Component ", component, " does not exist. The network has ",
+                          comp$no, " component(s).")
     }
     return(membership == component)
   } else if (is.character(component)) {
     # Select component containing node with this name
     node_idx <- which(nodes$label == component)
     if (length(node_idx) == 0) {
-      warning("Node '", component, "' not found.", call. = FALSE)
-      return(rep(FALSE, length(membership)))
+      .stop_bad_selection("`component` names a node that is not in the network: ",
+                          component, ".")
     }
     target_comp <- membership[node_idx[1]]
     return(membership == target_comp)
   }
 
-  rep(TRUE, length(membership))
+  .stop_bad_selection("`component` must be \"largest\", a component number, ",
+                      "or a node name.")
 }
 
 #' Select neighbors of specified nodes
 #' @noRd
 .select_by_neighbors <- function(g, nodes, of, order) {
-  # Resolve node IDs
-  if (is.character(of)) {
-    node_idx <- which(nodes$label %in% of)
-    if (length(node_idx) == 0) {
-      warning("No nodes found matching: ", paste(of, collapse = ", "), call. = FALSE)
-      return(rep(FALSE, nrow(nodes)))
-    }
-  } else {
-    node_idx <- of[of >= 1 & of <= nrow(nodes)]
-    if (length(node_idx) < length(of)) {
-      warning("Some indices are out of range.", call. = FALSE)
-    }
-  }
+  node_idx <- .resolve_node_selection(nodes, of, "of")
 
   # Ego network (includes the focal nodes themselves), either direction
   cg <- .cg_as_context(g)
@@ -1240,7 +1498,7 @@ select_nodes <- function(x, ...,
 #' Select top N nodes by centrality
 #' @noRd
 .select_by_top <- function(g, nodes, top, by, current_selection) {
-  # Compute the required centrality measure
+  .validate_measure(by, "by")
   centrality_vals <- .compute_single_centrality(g, by)
 
   if (all(is.na(centrality_vals))) {
@@ -1269,92 +1527,12 @@ select_nodes <- function(x, ...,
 #' Select nodes by expression (lazy centrality)
 #' @noRd
 .select_by_expression <- function(g, nodes, dots, parent_frame) {
-  n <- nrow(nodes)
-
-  # Detect what variables are needed from expressions
-  needed_vars <- .detect_needed_variables(dots)
-
-  # Check for negative weights
-  weights <- igraph::E(g)$weight
-  has_negative <- !is.null(weights) && any(weights < 0, na.rm = TRUE)
-
-  # Compute only needed centrality measures (lazy)
-  centrality_vars <- .compute_lazy_centralities(g, needed_vars$centrality, has_negative)
-
-  # Compute only needed global context variables (lazy)
-  context_vars <- .compute_lazy_context(g, needed_vars$context)
-
-  # Build evaluation environment
-  eval_env <- .build_filter_env(nodes, c(centrality_vars, context_vars), parent_frame)
-
-  # Evaluate filter conditions
-  .evaluate_filter_conditions(dots, eval_env, n)
-}
-
-# =============================================================================
-# Lazy Computation Helpers
-# =============================================================================
-
-#' Detect needed variables from expressions
-#' @noRd
-.detect_needed_variables <- function(exprs) {
-  centrality_names <- c("degree", "indegree", "outdegree", "strength",
-                        "instrength", "outstrength", "betweenness",
-                        "closeness", "eigenvector", "pagerank", "hub",
-                        "authority", "coreness")
-
-  context_names <- c("component", "component_size", "is_largest_component",
-                     "neighborhood_size", "k_core", "is_articulation",
-                     "is_bridge_endpoint")
-
-  # Get all variables referenced in expressions
-  all_vars <- unique(unlist(lapply(exprs, all.vars)))
-
-  list(
-    centrality = intersect(all_vars, centrality_names),
-    context = intersect(all_vars, context_names)
+  eval_env <- .build_filter_env(
+    nodes,
+    .node_filter_vars(g, .detect_needed_variables(dots)),
+    parent_frame
   )
-}
-
-#' Compute single centrality measure
-#' @noRd
-.compute_single_centrality <- function(g, measure) {
-  cg <- .cg_as_context(g)
-  n <- cg$n
-  has_negative <- any(cg$w < 0)
-
-  switch(measure,
-    "degree" = .cg_degree(cg$b, cg$directed, "all"),
-    "indegree" = .cg_degree(cg$b, cg$directed, "in"),
-    "outdegree" = .cg_degree(cg$b, cg$directed, "out"),
-    "strength" = .cg_strength(cg$w, cg$directed, "all"),
-    "instrength" = .cg_strength(cg$w, cg$directed, "in"),
-    "outstrength" = .cg_strength(cg$w, cg$directed, "out"),
-    "betweenness" = if (has_negative) .cg_na_negative(n, "Betweenness") else
-      .cg_betweenness(cg$w, n, cg$directed),
-    "closeness" = if (has_negative) .cg_na_negative(n, "Closeness") else
-      .cg_closeness(.cg_distances(cg$w, "all"), n),
-    "eigenvector" = .cg_eigenvector(cg$w, n),
-    "pagerank" = if (has_negative) .cg_na_negative(n, "PageRank") else
-      .cg_pagerank(cg$w, n),
-    "hub" = .cg_hits(cg$w, n)$hub,
-    "authority" = .cg_hits(cg$w, n)$authority,
-    "coreness" = .cg_coreness_loops(cg$b, n, cg$directed, "all"),
-    # Default: degree
-    .cg_degree(cg$b, cg$directed, "all")
-  )
-}
-
-#' Compute only needed centrality measures (lazy)
-#' @noRd
-.compute_lazy_centralities <- function(g, needed, has_negative) {
-  if (length(needed) == 0) return(list())
-
-  cg <- .cg_as_context(g)
-  stats::setNames(
-    lapply(needed, function(measure) .compute_single_centrality(cg, measure)),
-    needed
-  )
+  .evaluate_filter_conditions(dots, eval_env, nrow(nodes))
 }
 
 #' Compute only needed global context variables (lazy)
@@ -1419,7 +1597,7 @@ select_nodes <- function(x, ...,
 #' @param of Character or integer. Focal node(s) by name or index.
 #' @param order Integer. Neighborhood order (1 = direct neighbors). Default 1.
 #' @param ... Additional filter expressions to apply after neighborhood selection.
-#' @param .keep_edges How to handle edges. Default "internal".
+#' @param keep_edges How to handle edges. Default "internal".
 #' @param keep_format Logical. Keep input format? Default FALSE.
 #' @param directed Logical or NULL. Auto-detect if NULL.
 #'
@@ -1441,10 +1619,10 @@ select_nodes <- function(x, ...,
 #' # Neighbors up to 2 hops
 #' select_neighbors(adj, of = "A", order = 2)
 select_neighbors <- function(x, of, order = 1L, ...,
-                             .keep_edges = c("internal", "none"),
+                             keep_edges = c("internal", "none"),
                              keep_format = FALSE, directed = NULL) {
   select_nodes(x, ..., neighbors_of = of, order = order,
-               .keep_edges = .keep_edges, keep_format = keep_format,
+               keep_edges = keep_edges, keep_format = keep_format,
                directed = directed)
 }
 
@@ -1460,7 +1638,7 @@ select_neighbors <- function(x, of, order = 1L, ...,
 #'     \item{Character}{Component containing the named node}
 #'   }
 #' @param ... Additional filter expressions to apply after component selection.
-#' @param .keep_edges How to handle edges. Default "internal".
+#' @param keep_edges How to handle edges. Default "internal".
 #' @param keep_format Logical. Keep input format? Default FALSE.
 #' @param directed Logical or NULL. Auto-detect if NULL.
 #'
@@ -1485,9 +1663,9 @@ select_neighbors <- function(x, of, order = 1L, ...,
 #' # Component containing node "A"
 #' select_component(adj, which = "A")
 select_component <- function(x, which = "largest", ...,
-                             .keep_edges = c("internal", "none"),
+                             keep_edges = c("internal", "none"),
                              keep_format = FALSE, directed = NULL) {
-  select_nodes(x, ..., component = which, .keep_edges = .keep_edges,
+  select_nodes(x, ..., component = which, keep_edges = keep_edges,
                keep_format = keep_format, directed = directed)
 }
 
@@ -1503,7 +1681,7 @@ select_component <- function(x, which = "largest", ...,
 #'   \code{"closeness"}, \code{"eigenvector"}, \code{"pagerank"},
 #'   \code{"hub"}, \code{"authority"}, \code{"coreness"}. Default \code{"degree"}.
 #' @param ... Additional filter expressions to apply.
-#' @param .keep_edges How to handle edges. Default "internal".
+#' @param keep_edges How to handle edges. Default "internal".
 #' @param keep_format Logical. Keep input format? Default FALSE.
 #' @param directed Logical or NULL. Auto-detect if NULL.
 #'
@@ -1525,9 +1703,9 @@ select_component <- function(x, which = "largest", ...,
 #' # Top 2 by PageRank
 #' select_top(adj, n = 2, by = "pagerank")
 select_top <- function(x, n, by = "degree", ...,
-                       .keep_edges = c("internal", "none"),
+                       keep_edges = c("internal", "none"),
                        keep_format = FALSE, directed = NULL) {
-  select_nodes(x, ..., top = n, by = by, .keep_edges = .keep_edges,
+  select_nodes(x, ..., top = n, by = by, keep_edges = keep_edges,
                keep_format = keep_format, directed = directed)
 }
 
@@ -1549,12 +1727,18 @@ select_top <- function(x, n, by = "degree", ...,
 #'     \item{Edge columns}{\code{from}, \code{to}, \code{weight}, plus any custom}
 #'     \item{Computed metrics}{\code{abs_weight}, \code{from_degree}, \code{to_degree},
 #'       \code{from_strength}, \code{to_strength}, \code{edge_betweenness},
-#'       \code{is_bridge}, \code{is_mutual}, \code{same_community},
-#'       \code{from_label}, \code{to_label}}
+#'       \code{weight_rank}}
+#'     \item{Predicates}{\code{is_bridge}, \code{is_mutual} (alias
+#'       \code{is_reciprocal}), \code{is_loop}, \code{is_multiple},
+#'       \code{same_community}}
+#'     \item{Endpoint labels}{\code{from_label}, \code{to_label},
+#'       \code{from_community}, \code{to_community}}
 #'   }
 #' @param top Integer. Select top N edges by a metric.
 #' @param by Character. Metric for top selection. Default \code{"weight"}.
-#'   Options: \code{"weight"}, \code{"abs_weight"}, \code{"edge_betweenness"}.
+#'   Options: \code{"weight"}, \code{"abs_weight"}, \code{"edge_betweenness"},
+#'   \code{"from_degree"}, \code{"to_degree"}, \code{"from_strength"},
+#'   \code{"to_strength"}, \code{"weight_rank"}.
 #' @param involving Character or integer. Select edges involving these nodes
 #'   (by name or index). An edge is selected if either endpoint matches.
 #' @param between List of two character/integer vectors. Select edges between
@@ -1566,7 +1750,11 @@ select_top <- function(x, n, by = "degree", ...,
 #' @param community Character. Community detection method for \code{same_community}
 #'   variable. One of \code{"louvain"}, \code{"walktrap"}, \code{"fast_greedy"},
 #'   \code{"label_prop"}, \code{"infomap"}, \code{"leiden"}. Default \code{"louvain"}.
-#' @param .keep_isolates Logical. Keep nodes with no remaining edges? Default FALSE.
+#' @param keep_isolates Logical. Keep nodes that end up with no edges?
+#'   Default TRUE, matching \code{igraph::delete_edges()} and tidygraph:
+#'   filtering edges does not remove nodes. Set FALSE to drop them, or call
+#'   \code{\link{remove_isolates}()} afterwards.
+#' @param .keep_isolates Deprecated. Use \code{keep_isolates}.
 #' @param keep_format Logical. If TRUE, matrix, igraph, and statnet network
 #'   inputs are returned in that format. Default FALSE returns cograph_network.
 #' @param directed Logical or NULL. If NULL (default), auto-detect.
@@ -1606,33 +1794,23 @@ select_edges <- function(x, ...,
                          bridges_only = FALSE,
                          mutual_only = FALSE,
                          community = "louvain",
-                         .keep_isolates = FALSE,
+                         keep_isolates = TRUE,
                          keep_format = FALSE,
-                         directed = NULL) {
-
-  # Detect input format for keep_format option
-input_class <- .detect_input_class(x)
-
-  # Warn if converting complex formats
-  if (!keep_format && input_class %in% c("igraph", "network", "qgraph")) {
-    message("Result converted to cograph_network. Use keep_format = TRUE to return ", input_class, ".")
-  }
-
-  # Convert to cograph_network if needed
+                         directed = NULL,
+                         .keep_isolates = NULL) {
+  keep_isolates <- .resolve_deprecated_arg(keep_isolates, .keep_isolates,
+                                           ".keep_isolates", "keep_isolates")
+  input_class <- .detect_input_class(x)
   net <- as_cograph(x, directed = directed)
   edges <- get_edges(net)
   n_total <- nrow(edges)
 
   if (n_total == 0) {
     warning("Network has no edges", call. = FALSE)
-    if (keep_format) {
-      return(.convert_to_format(net, input_class))
-    }
-    return(net)
+    return(.finish_result(net, x, input_class, keep_format))
   }
 
-  # Get igraph representation for metric computations
-  g <- to_igraph(net)
+  g <- .cg_graph(net)
   nodes <- get_nodes(net)
 
   # Start with all edges selected
@@ -1684,27 +1862,20 @@ input_class <- .detect_input_class(x)
   # -------------------------
   if (!any(selected)) {
     warning("No edges match the selection criteria.", call. = FALSE)
-    if (!.keep_isolates) {
-      empty <- .empty_cograph_network(net$directed)
-      if (keep_format) {
-        return(.convert_to_format(empty, input_class))
-      }
-      return(empty)
+    if (!isTRUE(keep_isolates)) {
+      empty <- .empty_cograph_network(net$directed, meta = net$meta)
+      return(.finish_result(empty, x, input_class, keep_format))
     }
   }
 
-  # Filter edges
   filtered_edges <- edges[selected, , drop = FALSE]
+  result <- .update_cograph_edges(net, filtered_edges, keep_isolates = keep_isolates)
 
-  # Update network
-  result <- .update_cograph_edges(net, filtered_edges, keep_isolates = .keep_isolates)
-
-  # Return in original format if requested
-  if (keep_format) {
-    return(.convert_to_format(result, input_class))
+  if (isTRUE(keep_isolates) && any(selected)) {
+    .warn_new_isolates(edges, filtered_edges, n_nodes(net))
   }
 
-  result
+  .finish_result(result, x, input_class, keep_format)
 }
 
 # =============================================================================
@@ -1714,16 +1885,7 @@ input_class <- .detect_input_class(x)
 #' Select edges involving specific nodes
 #' @noRd
 .select_edges_involving <- function(edges, nodes, involving) {
-  # Resolve node indices
-  if (is.character(involving)) {
-    node_idx <- which(nodes$label %in% involving)
-    if (length(node_idx) == 0) {
-      warning("No nodes found matching: ", paste(involving, collapse = ", "), call. = FALSE)
-      return(rep(FALSE, nrow(edges)))
-    }
-  } else {
-    node_idx <- involving[involving >= 1 & involving <= nrow(nodes)]
-  }
+  node_idx <- .resolve_node_selection(nodes, involving, "involving")
 
   # Edge involves node if either endpoint matches
   edges$from %in% node_idx | edges$to %in% node_idx
@@ -1733,29 +1895,16 @@ input_class <- .detect_input_class(x)
 #' @noRd
 .select_edges_between <- function(edges, nodes, between) {
   if (!is.list(between) || length(between) != 2) {
-    warning("'between' must be a list of two node sets", call. = FALSE)
-    return(rep(TRUE, nrow(edges)))
+    .stop_bad_selection("`between` must be a list of exactly two node sets; got ",
+                        if (is.list(between)) paste0("a list of ", length(between))
+                        else class(between)[1], ".")
   }
 
-  # Resolve both node sets
-  set1 <- between[[1]]
-  set2 <- between[[2]]
-
-  if (is.character(set1)) {
-    idx1 <- which(nodes$label %in% set1)
-  } else {
-    idx1 <- set1[set1 >= 1 & set1 <= nrow(nodes)]
-  }
-
-  if (is.character(set2)) {
-    idx2 <- which(nodes$label %in% set2)
-  } else {
-    idx2 <- set2[set2 >= 1 & set2 <= nrow(nodes)]
-  }
+  idx1 <- .resolve_node_selection(nodes, between[[1]], "between[[1]]")
+  idx2 <- .resolve_node_selection(nodes, between[[2]], "between[[2]]")
 
   if (length(idx1) == 0 || length(idx2) == 0) {
-    warning("One or both node sets are empty", call. = FALSE)
-    return(rep(FALSE, nrow(edges)))
+    .stop_bad_selection("`between` node sets must both be non-empty.")
   }
 
   # Edge is between sets if (from in set1 AND to in set2) OR (from in set2 AND to in set1)
@@ -1789,7 +1938,7 @@ input_class <- .detect_input_class(x)
 #' Select top N edges by metric
 #' @noRd
 .select_edges_top <- function(g, edges, top, by, current_selection) {
-  # Compute the required metric
+  .validate_edge_metric(by, "by")
   metric_vals <- .compute_single_edge_metric(g, edges, by)
 
   if (all(is.na(metric_vals))) { # nocov start
@@ -1836,29 +1985,73 @@ input_class <- .detect_input_class(x)
 #' Detect needed edge variables from expressions
 #' @noRd
 .detect_needed_edge_variables <- function(exprs) {
-  computed_names <- c("abs_weight", "from_degree", "to_degree",
-                      "from_strength", "to_strength", "edge_betweenness",
-                      "is_bridge", "is_mutual", "same_community",
-                      "from_label", "to_label")
-
-  # Get all variables referenced in expressions
+  vocab <- .edge_vocabulary()
+  computed_names <- setdiff(unlist(vocab, use.names = FALSE), "weight")
   all_vars <- unique(unlist(lapply(exprs, all.vars)))
-
   intersect(all_vars, computed_names)
 }
 
 #' Compute single edge metric
 #' @noRd
 .compute_single_edge_metric <- function(g, edges, metric) {
-  n <- nrow(edges)
-
+  cg <- .cg_as_context(g)
   switch(metric,
     "weight" = edges$weight,
     "abs_weight" = abs(edges$weight),
-    "edge_betweenness" = .cg_edge_betweenness_rows(.cg_as_context(g), edges),
-    # Default: weight
-    edges$weight
+    "edge_betweenness" = .cg_edge_betweenness_rows(cg, edges),
+    "from_degree" = .cg_degree(cg$b, cg$directed, "all")[edges$from],
+    "to_degree" = .cg_degree(cg$b, cg$directed, "all")[edges$to],
+    "from_strength" = .cg_strength(cg$w, cg$directed, "all")[edges$from],
+    "to_strength" = .cg_strength(cg$w, cg$directed, "all")[edges$to],
+    "weight_rank" = rank(edges$weight, ties.method = "min"),
+    .stop_bad_selection(
+      "Unknown edge metric '", metric, "'. Available: ",
+      paste(.edge_vocabulary()$metric, collapse = ", "), "."
+    )
   )
+}
+
+#' The edge vocabulary available inside edge filter expressions
+#' @noRd
+.edge_vocabulary <- function() {
+  list(
+    metric = c("weight", "abs_weight", "edge_betweenness", "from_degree",
+               "to_degree", "from_strength", "to_strength", "weight_rank"),
+    predicate = c("is_bridge", "is_mutual", "is_reciprocal", "is_loop",
+                  "is_multiple", "same_community"),
+    label = c("from_label", "to_label", "from_community", "to_community")
+  )
+}
+
+#' Validate a node measure name for `by =`
+#' @noRd
+.validate_measure <- function(measure, arg) {
+  if (!is.character(measure) || length(measure) != 1L) {
+    .stop_bad_selection("`", arg, "` must be a single measure name.")
+  }
+  known <- c(.node_vocabulary()$centrality, .cg_delegable_measures())
+  if (!measure %in% known) {
+    .stop_bad_selection(
+      "Unknown centrality measure '", measure, "' for `", arg, "`. ",
+      "See list_centralities() for the measures cograph computes."
+    )
+  }
+  invisible(measure)
+}
+
+#' Validate an edge metric name for `by =`
+#' @noRd
+.validate_edge_metric <- function(metric, arg) {
+  if (!is.character(metric) || length(metric) != 1L) {
+    .stop_bad_selection("`", arg, "` must be a single metric name.")
+  }
+  if (!metric %in% .edge_vocabulary()$metric) {
+    .stop_bad_selection(
+      "Unknown edge metric '", metric, "' for `", arg, "`. Available: ",
+      paste(.edge_vocabulary()$metric, collapse = ", "), "."
+    )
+  }
+  invisible(metric)
 }
 
 #' Compute only needed edge metrics (lazy)
@@ -1900,22 +2093,48 @@ input_class <- .detect_input_class(x)
     result$is_bridge <- .cg_bridges(cg$b, cbind(edges$from, edges$to))
   }
 
-  # Is mutual (reciprocated)
-  if ("is_mutual" %in% needed) {
-    result$is_mutual <- if (!is_dir) rep(TRUE, n) else
+  # Is mutual (reciprocated); `is_reciprocal` is the igraph-flavoured alias.
+  if (any(c("is_mutual", "is_reciprocal") %in% needed)) {
+    mutual <- if (!is_dir) rep(TRUE, n) else
       .cg_reciprocated(edges$from, edges$to, cg$n)
+    if ("is_mutual" %in% needed) result$is_mutual <- mutual
+    if ("is_reciprocal" %in% needed) result$is_reciprocal <- mutual
   }
 
-  # Same community (community detection stays on igraph for now)
-  if ("same_community" %in% needed) {
+  # A loop joins a node to itself.
+  if ("is_loop" %in% needed) {
+    result$is_loop <- edges$from == edges$to
+  }
+
+  # A parallel edge: the same unordered (undirected) or ordered (directed)
+  # pair appears more than once in the edge table.
+  if ("is_multiple" %in% needed) {
+    key <- if (is_dir) {
+      paste(edges$from, edges$to, sep = "->")
+    } else {
+      paste(pmin(edges$from, edges$to), pmax(edges$from, edges$to), sep = "--")
+    }
+    result$is_multiple <- key %in% key[duplicated(key)]
+  }
+
+  # Rank of the edge weight, smallest first, ties sharing the lower rank.
+  if ("weight_rank" %in% needed) {
+    result$weight_rank <- rank(edges$weight, ties.method = "min")
+  }
+
+  # Community membership of the endpoints (community detection stays on igraph)
+  comm_vars <- c("same_community", "from_community", "to_community")
+  if (any(comm_vars %in% needed)) {
     .cg_need_igraph("same_community")
     comm_input <- if (inherits(g, "igraph")) g else cg$w
     comm <- detect_communities(comm_input, method = community_method,
                                directed = is_dir)
     membership <- comm$community
-    from_comm <- membership[edges$from]
-    to_comm <- membership[edges$to]
-    result$same_community <- from_comm == to_comm
+    if ("same_community" %in% needed) {
+      result$same_community <- membership[edges$from] == membership[edges$to]
+    }
+    if ("from_community" %in% needed) result$from_community <- membership[edges$from]
+    if ("to_community" %in% needed) result$to_community <- membership[edges$to]
   }
 
   # Endpoint labels (convenience)
@@ -1939,7 +2158,7 @@ input_class <- .detect_input_class(x)
 #'
 #' @param x Network input.
 #' @param ... Additional filter expressions.
-#' @param .keep_isolates Keep nodes with no edges? Default FALSE.
+#' @param keep_isolates Keep nodes that end up with no edges? Default TRUE.
 #' @param keep_format Keep input format? Default FALSE.
 #' @param directed Auto-detect if NULL.
 #'
@@ -1959,9 +2178,9 @@ input_class <- .detect_input_class(x)
 #' rownames(adj) <- colnames(adj) <- LETTERS[1:5]
 #'
 #' select_bridges(adj)
-select_bridges <- function(x, ..., .keep_isolates = FALSE,
+select_bridges <- function(x, ..., keep_isolates = TRUE,
                            keep_format = FALSE, directed = NULL) {
-  select_edges(x, ..., bridges_only = TRUE, .keep_isolates = .keep_isolates,
+  select_edges(x, ..., bridges_only = TRUE, keep_isolates = keep_isolates,
                keep_format = keep_format, directed = directed)
 }
 
@@ -1975,7 +2194,7 @@ select_bridges <- function(x, ..., .keep_isolates = FALSE,
 #'   \code{"weight"}, \code{"abs_weight"}, \code{"edge_betweenness"}.
 #'   Default \code{"weight"}.
 #' @param ... Additional filter expressions.
-#' @param .keep_isolates Keep nodes with no edges? Default FALSE.
+#' @param keep_isolates Keep nodes that end up with no edges? Default TRUE.
 #' @param keep_format Keep input format? Default FALSE.
 #' @param directed Auto-detect if NULL.
 #'
@@ -1997,9 +2216,9 @@ select_bridges <- function(x, ..., .keep_isolates = FALSE,
 #' # Top 2 by edge betweenness
 #' select_top_edges(adj, n = 2, by = "edge_betweenness")
 select_top_edges <- function(x, n, by = "weight", ...,
-                             .keep_isolates = FALSE,
+                             keep_isolates = TRUE,
                              keep_format = FALSE, directed = NULL) {
-  select_edges(x, ..., top = n, by = by, .keep_isolates = .keep_isolates,
+  select_edges(x, ..., top = n, by = by, keep_isolates = keep_isolates,
                keep_format = keep_format, directed = directed)
 }
 
@@ -2010,7 +2229,7 @@ select_top_edges <- function(x, n, by = "weight", ...,
 #' @param x Network input.
 #' @param nodes Character or integer. Node names or indices.
 #' @param ... Additional filter expressions.
-#' @param .keep_isolates Keep nodes with no edges? Default FALSE.
+#' @param keep_isolates Keep nodes that end up with no edges? Default TRUE.
 #' @param keep_format Keep input format? Default FALSE.
 #' @param directed Auto-detect if NULL.
 #'
@@ -2032,9 +2251,9 @@ select_top_edges <- function(x, n, by = "weight", ...,
 #' # Edges involving A or B
 #' select_edges_involving(adj, nodes = c("A", "B"))
 select_edges_involving <- function(x, nodes, ...,
-                                   .keep_isolates = FALSE,
+                                   keep_isolates = TRUE,
                                    keep_format = FALSE, directed = NULL) {
-  select_edges(x, ..., involving = nodes, .keep_isolates = .keep_isolates,
+  select_edges(x, ..., involving = nodes, keep_isolates = keep_isolates,
                keep_format = keep_format, directed = directed)
 }
 
@@ -2046,7 +2265,7 @@ select_edges_involving <- function(x, nodes, ...,
 #' @param set1 Character or integer. First node set (names or indices).
 #' @param set2 Character or integer. Second node set (names or indices).
 #' @param ... Additional filter expressions.
-#' @param .keep_isolates Keep nodes with no edges? Default FALSE.
+#' @param keep_isolates Keep nodes that end up with no edges? Default TRUE.
 #' @param keep_format Keep input format? Default FALSE.
 #' @param directed Auto-detect if NULL.
 #'
@@ -2065,9 +2284,9 @@ select_edges_involving <- function(x, nodes, ...,
 #' # Edges between {A, B} and {C, D}
 #' select_edges_between(adj, set1 = c("A", "B"), set2 = c("C", "D"))
 select_edges_between <- function(x, set1, set2, ...,
-                                 .keep_isolates = FALSE,
+                                 keep_isolates = TRUE,
                                  keep_format = FALSE, directed = NULL) {
-  select_edges(x, ..., between = list(set1, set2), .keep_isolates = .keep_isolates,
+  select_edges(x, ..., between = list(set1, set2), keep_isolates = keep_isolates,
                keep_format = keep_format, directed = directed)
 }
 

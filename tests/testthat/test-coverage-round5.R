@@ -273,13 +273,11 @@ test_that("select_edges_top warns when metric fails", {
     to = c(2, 3, 4, 1),
     weight = c(1, 1, 1, 1)
   )
-  select_top <- tryCatch(
+  expect_error(
     cograph:::.select_edges_top(g, edges, top = 2, by = "nonexistent_metric",
-                                 current_selection = rep(TRUE, 4)),
-    error = function(e) NULL,
-    warning = function(w) "warned"
+                                current_selection = rep(TRUE, 4)),
+    class = "cograph_bad_selection"
   )
-  expect_true(!is.null(select_top))
 })
 
 # ============================================================================

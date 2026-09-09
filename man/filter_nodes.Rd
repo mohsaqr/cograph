@@ -8,17 +8,19 @@
 filter_nodes(
   x,
   ...,
-  .keep_edges = c("internal", "none"),
+  keep_edges = c("internal", "none"),
   keep_format = FALSE,
-  directed = NULL
+  directed = NULL,
+  .keep_edges = NULL
 )
 
 subset_nodes(
   x,
   ...,
-  .keep_edges = c("internal", "none"),
+  keep_edges = c("internal", "none"),
   keep_format = FALSE,
-  directed = NULL
+  directed = NULL,
+  .keep_edges = NULL
 )
 }
 \arguments{
@@ -36,7 +38,7 @@ Available variables include:
 Examples: \code{degree >= 3}, \code{label \%in\% c("A", "B")},
 \code{pagerank > 0.1 & degree >= 2}.}
 
-\item{.keep_edges}{How to handle edges. One of:
+\item{keep_edges}{How to handle edges. One of:
 \describe{
 \item{\code{"internal"}}{(default) Keep only edges between remaining nodes}
 \item{\code{"none"}}{Remove all edges}
@@ -49,6 +51,8 @@ returns cograph_network (universal format).}
 \item{directed}{Logical or NULL. If NULL (default), auto-detect from matrix
 symmetry. Set TRUE to force directed, FALSE to force undirected.
 Only used for non-cograph_network inputs.}
+
+\item{.keep_edges}{Deprecated. Use \code{keep_edges}.}
 }
 \value{
 A cograph_network object with filtered nodes. If \code{keep_format = TRUE},

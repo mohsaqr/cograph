@@ -14,9 +14,10 @@ select_nodes(
   neighbors_of = NULL,
   order = 1L,
   component = NULL,
-  .keep_edges = c("internal", "none"),
+  keep_edges = c("internal", "none"),
   keep_format = FALSE,
-  directed = NULL
+  directed = NULL,
+  .keep_edges = NULL
 )
 }
 \arguments{
@@ -31,10 +32,15 @@ those actually referenced). Available variables:
 \item{Centrality measures}{\code{degree}, \code{indegree}, \code{outdegree},
 \code{strength}, \code{instrength}, \code{outstrength}, \code{betweenness},
 \code{closeness}, \code{eigenvector}, \code{pagerank}, \code{hub},
-\code{authority}, \code{coreness}}
+\code{authority}, \code{coreness}. Any other measure
+\code{\link{centrality}()} computes can be named too; see
+\code{\link{list_centralities}()}.}
 \item{Global context}{\code{component}, \code{component_size},
 \code{is_largest_component}, \code{neighborhood_size}, \code{k_core},
 \code{is_articulation}, \code{is_bridge_endpoint}}
+\item{Predicates}{\code{is_isolated}, \code{is_source}, \code{is_sink},
+\code{is_leaf}, \code{is_cut}, \code{local_transitivity},
+\code{local_triangles}}
 }}
 
 \item{name}{Character vector. Select nodes by name/label.}
@@ -58,7 +64,7 @@ of neighbors, etc.). Default 1.}
 \item{Character}{Select component containing node with this name}
 }}
 
-\item{.keep_edges}{How to handle edges. One of:
+\item{keep_edges}{How to handle edges. One of:
 \describe{
 \item{\code{"internal"}}{(default) Keep only edges between remaining nodes}
 \item{\code{"none"}}{Remove all edges}
@@ -68,6 +74,8 @@ of neighbors, etc.). Default 1.}
 inputs are returned in that format. Default FALSE returns cograph_network.}
 
 \item{directed}{Logical or NULL. If NULL (default), auto-detect.}
+
+\item{.keep_edges}{Deprecated. Use \code{keep_edges}.}
 }
 \value{
 A cograph_network object with selected nodes. If \code{keep_format = TRUE},

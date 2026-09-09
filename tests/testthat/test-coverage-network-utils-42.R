@@ -413,22 +413,18 @@ test_that("select_nodes keep_format returns igraph on successful selection", {
 # SECTION 12: .select_by_component edge cases (lines 1223-1231)
 # =============================================================================
 
-test_that("select_nodes with non-existent node name for component", {
+test_that("select_nodes rejects a non-existent node name for component", {
   mat <- create_disconnected_matrix()
 
-  expect_warning(
-    result <- select_nodes(mat, component = "Z"),
-    "Node 'Z' not found"
-  )
+  expect_error(select_nodes(mat, component = "Z"),
+               class = "cograph_bad_selection")
 })
 
-test_that("select_nodes with component that is not string, number, or 'largest'", {
+test_that("select_nodes rejects a component that is neither name, number nor 'largest'", {
   mat <- create_test_matrix()
-  # If component doesn't match any condition, it should return all nodes
-  # This tests line 1231
 
-  result <- select_nodes(mat, component = NA)
-  expect_true(n_nodes(result) > 0)
+  expect_error(select_nodes(mat, component = NA),
+               class = "cograph_bad_selection")
 })
 
 # =============================================================================
@@ -443,26 +439,28 @@ test_that("select_nodes with neighbors_of as numeric indices", {
   expect_true(n_nodes(result) >= 2)
 })
 
-test_that("select_nodes with neighbors_of with out-of-range indices warns", {
+test_that("select_nodes rejects out-of-range neighbors_of indices", {
   mat <- create_test_matrix()
 
-  expect_warning(
-    result <- select_nodes(mat, neighbors_of = c(1, 100), order = 1),
-    "out of range"
-  )
+  expect_error(select_nodes(mat, neighbors_of = c(1, 100), order = 1),
+               class = "cograph_bad_selection")
 })
 
 # =============================================================================
 # SECTION 14: .select_by_top with NA centrality (lines 1264-1266)
 # =============================================================================
 
-test_that("select_nodes warns when centrality cannot be computed for top", {
-  # Create a network that might cause centrality issues
-  # Use an invalid centrality measure (should fall back to degree)
+test_that("select_nodes rejects an unknown measure for top", {
   mat <- create_test_matrix()
-  result <- select_nodes(mat, top = 2, by = "unknown_measure")
 
-  # Should still work (falls back to degree)
+  expect_error(select_nodes(mat, top = 2, by = "unknown_measure"),
+               class = "cograph_bad_selection")
+})
+
+test_that("select_nodes accepts any measure centrality() knows for top", {
+  mat <- create_test_matrix()
+  result <- select_nodes(mat, top = 2, by = "harmonic")
+
   expect_equal(n_nodes(result), 2)
 })
 
@@ -615,14 +613,12 @@ test_that("select_edges keep_format on empty network", {
 # SECTION 18: select_edges keep_format paths (lines 1765-1780)
 # =============================================================================
 
-test_that("select_edges keep_format with igraph warning", {
+test_that("select_edges converts igraph input without a chatty message", {
   g <- igraph::make_ring(5)
   igraph::E(g)$weight <- c(0.1, 0.5, 0.3, 0.8, 0.2)
 
-  expect_message(
-    result <- select_edges(g, weight > 0.3),
-    "keep_format"
-  )
+  expect_no_message(result <- suppressWarnings(select_edges(g, weight > 0.3)))
+  expect_true(inherits(result, "cograph_network"))
 })
 
 test_that("select_edges keep_format returns igraph on success", {
@@ -651,13 +647,11 @@ test_that("select_edges keep_format with empty result and keep_isolates", {
 # SECTION 19: .select_edges_involving warnings (lines 1796-1801)
 # =============================================================================
 
-test_that("select_edges involving non-existent node warns", {
+test_that("select_edges rejects a non-existent node in involving", {
   mat <- create_test_matrix()
 
-  expect_warning(
-    result <- select_edges(mat, involving = "Z"),
-    "No nodes found"
-  )
+  expect_error(select_edges(mat, involving = "Z"),
+               class = "cograph_bad_selection")
 })
 
 test_that("select_edges involving with numeric indices", {
@@ -671,24 +665,22 @@ test_that("select_edges involving with numeric indices", {
 # SECTION 20: .select_edges_between edge cases (lines 1832-1834)
 # =============================================================================
 
-test_that("select_edges between with empty node sets warns", {
+test_that("select_edges rejects unknown node names in between", {
   mat <- create_test_matrix()
 
-  expect_warning(
-    result <- select_edges(mat, between = list("Z", "Y")),
-    "empty"
-  )
+  expect_error(select_edges(mat, between = list("Z", "Y")),
+               class = "cograph_bad_selection")
 })
 
 # =============================================================================
 # SECTION 21: .select_edges_top with NA metric (lines 1877-1891)
 # =============================================================================
 
-test_that("select_edges top with unknown metric falls back to weight", {
+test_that("select_edges rejects an unknown top metric", {
   mat <- create_test_matrix()
-  result <- select_edges(mat, top = 3, by = "unknown_metric")
 
-  expect_true(n_edges(result) <= 3)
+  expect_error(select_edges(mat, top = 3, by = "unknown_metric"),
+               class = "cograph_bad_selection")
 })
 
 test_that("select_edges top = 0 returns empty", {
@@ -767,28 +759,24 @@ test_that("to_adjacency_matrix works with cograph_network", {
 # SECTION 25: filter_nodes with igraph format conversion message
 # =============================================================================
 
-test_that("filter_nodes shows message when converting igraph", {
+test_that("filter_nodes converts igraph input without a chatty message", {
   g <- igraph::make_ring(5)
   igraph::V(g)$name <- LETTERS[1:5]
 
-  expect_message(
-    result <- filter_nodes(g, degree >= 2),
-    "keep_format"
-  )
+  expect_no_message(result <- filter_nodes(g, degree >= 2))
+  expect_true(inherits(result, "cograph_network"))
 })
 
 # =============================================================================
 # SECTION 26: select_nodes message when converting igraph
 # =============================================================================
 
-test_that("select_nodes shows message when converting igraph", {
+test_that("select_nodes converts igraph input without a chatty message", {
   g <- igraph::make_ring(5)
   igraph::V(g)$name <- LETTERS[1:5]
 
-  expect_message(
-    result <- select_nodes(g, degree >= 2),
-    "keep_format"
-  )
+  expect_no_message(result <- select_nodes(g, degree >= 2))
+  expect_true(inherits(result, "cograph_network"))
 })
 
 # =============================================================================
@@ -868,18 +856,16 @@ test_that("color_communities extends palette when too short", {
   expect_equal(length(colors), 6)
 })
 
-# Line 362: filter_edges message for network objects
-test_that("filter_edges shows message when converting network object", {
+# filter_edges converts a statnet network quietly
+test_that("filter_edges converts a network object without a chatty message", {
   skip_if_not_installed("network")
 
   mat <- create_test_matrix()
   net_obj <- network::network(mat, directed = FALSE, ignore.eval = FALSE,
                                names.eval = "weight")
 
-  expect_message(
-    result <- filter_edges(net_obj, weight > 0.3),
-    "keep_format"
-  )
+  expect_no_message(result <- suppressWarnings(filter_edges(net_obj, weight > 0.3)))
+  expect_true(inherits(result, "cograph_network"))
 })
 
 # Lines 756-763: .detect_input_class coverage

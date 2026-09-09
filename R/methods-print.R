@@ -145,5 +145,8 @@ print.cograph_network <- function(x, ...) {
     }
   }
 
+  cat("  Use as.data.frame() for the edge table, ",
+      "as.data.frame(what = \"nodes\") for the nodes.\n", sep = "")
+
   invisible(x)
 }

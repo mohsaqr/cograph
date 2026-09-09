@@ -14,9 +14,10 @@ select_edges(
   bridges_only = FALSE,
   mutual_only = FALSE,
   community = "louvain",
-  .keep_isolates = FALSE,
+  keep_isolates = TRUE,
   keep_format = FALSE,
-  directed = NULL
+  directed = NULL,
+  .keep_isolates = NULL
 )
 }
 \arguments{
@@ -28,14 +29,20 @@ Available variables:
 \item{Edge columns}{\code{from}, \code{to}, \code{weight}, plus any custom}
 \item{Computed metrics}{\code{abs_weight}, \code{from_degree}, \code{to_degree},
 \code{from_strength}, \code{to_strength}, \code{edge_betweenness},
-\code{is_bridge}, \code{is_mutual}, \code{same_community},
-\code{from_label}, \code{to_label}}
+\code{weight_rank}}
+\item{Predicates}{\code{is_bridge}, \code{is_mutual} (alias
+\code{is_reciprocal}), \code{is_loop}, \code{is_multiple},
+\code{same_community}}
+\item{Endpoint labels}{\code{from_label}, \code{to_label},
+\code{from_community}, \code{to_community}}
 }}
 
 \item{top}{Integer. Select top N edges by a metric.}
 
 \item{by}{Character. Metric for top selection. Default \code{"weight"}.
-Options: \code{"weight"}, \code{"abs_weight"}, \code{"edge_betweenness"}.}
+Options: \code{"weight"}, \code{"abs_weight"}, \code{"edge_betweenness"},
+\code{"from_degree"}, \code{"to_degree"}, \code{"from_strength"},
+\code{"to_strength"}, \code{"weight_rank"}.}
 
 \item{involving}{Character or integer. Select edges involving these nodes
 (by name or index). An edge is selected if either endpoint matches.}
@@ -53,12 +60,17 @@ disconnects the graph). Default FALSE.}
 variable. One of \code{"louvain"}, \code{"walktrap"}, \code{"fast_greedy"},
 \code{"label_prop"}, \code{"infomap"}, \code{"leiden"}. Default \code{"louvain"}.}
 
-\item{.keep_isolates}{Logical. Keep nodes with no remaining edges? Default FALSE.}
+\item{keep_isolates}{Logical. Keep nodes that end up with no edges?
+Default TRUE, matching \code{igraph::delete_edges()} and tidygraph:
+filtering edges does not remove nodes. Set FALSE to drop them, or call
+\code{\link{remove_isolates}()} afterwards.}
 
 \item{keep_format}{Logical. If TRUE, matrix, igraph, and statnet network
 inputs are returned in that format. Default FALSE returns cograph_network.}
 
 \item{directed}{Logical or NULL. If NULL (default), auto-detect.}
+
+\item{.keep_isolates}{Deprecated. Use \code{keep_isolates}.}
 }
 \value{
 A cograph_network object with selected edges. If \code{keep_format = TRUE},

@@ -6,7 +6,7 @@
 \usage{
 symmetrize(
   x,
-  method = c("max", "min", "mean", "sum", "upper", "lower"),
+  method = c("max", "min", "mean", "sum", "mutual", "upper", "lower"),
   keep_format = FALSE,
   directed = NULL
 )
@@ -16,10 +16,13 @@ symmetrize(
 
 \item{method}{How to combine \code{w[i, j]} and \code{w[j, i]}:
 \describe{
-\item{\code{"max"}}{(default) the larger of the two, sna's "weak" rule}
-\item{\code{"min"}}{the smaller of the two, sna's "strong" rule}
+\item{\code{"max"}}{(default) the larger of the two; on a binary
+network this is sna's "weak" rule}
+\item{\code{"min"}}{the smaller of the two}
 \item{\code{"mean"}}{their average}
 \item{\code{"sum"}}{their total}
+\item{\code{"mutual"}}{keep only reciprocated pairs, taking the smaller
+weight; on a binary network this is sna's "strong" rule}
 \item{\code{"upper"}}{take the upper triangle and mirror it}
 \item{\code{"lower"}}{take the lower triangle and mirror it}
 }}
@@ -39,6 +42,14 @@ Combines each pair of opposite arcs into one undirected edge. The result is
 an undirected network, so measures that branch on directedness see the
 change.
 }
+\details{
+\code{"max"}, \code{"min"}, \code{"mean"} and \code{"sum"} combine two
+values only where both arcs exist; an unreciprocated edge keeps its own
+weight rather than being compared against the zero that stands for the
+missing arc. That distinction matters for signed networks, where comparing
+a negative weight against a structural zero would delete the edge. Use
+\code{"mutual"} when an edge should survive only if it was reciprocated.
+}
 \examples{
 adj <- matrix(c(0, .5, 0,
                 .2, 0, .7,
@@ -47,6 +58,7 @@ rownames(adj) <- colnames(adj) <- c("A", "B", "C")
 
 symmetrize(adj, method = "max")
 symmetrize(adj, method = "mean")
+symmetrize(adj, method = "mutual")
 }
 \references{
 Butts, C. T. (2008). Social network analysis with sna.

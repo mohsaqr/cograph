@@ -670,9 +670,21 @@ set_edges <- function(x, edges_df) {
 
   n <- nrow(get_nodes(x))
   endpoints <- c(edges_df$from, edges_df$to)
-  if (length(endpoints) > 0 && (min(endpoints) < 1 || max(endpoints) > n)) {
+  if (length(endpoints) > 0 && (anyNA(endpoints) ||
+        min(endpoints) < 1 || max(endpoints) > n)) {
     stop(errorCondition(
       paste0("edges_df refers to node indices outside 1:", n, "."),
+      class = "cograph_bad_selection", call = NULL))
+  }
+
+  # For an undirected network A->B and B->A are one edge; storing both would
+  # leave the edge table claiming two edges where the matrix holds one.
+  keys <- .edge_key(edges_df, isTRUE(x$directed))
+  if (anyDuplicated(keys) > 0L) {
+    stop(errorCondition(
+      paste0("edges_df names the same edge more than once: ",
+             paste(unique(keys[duplicated(keys)]), collapse = ", "),
+             ". Supply each edge once."),
       class = "cograph_bad_selection", call = NULL))
   }
 

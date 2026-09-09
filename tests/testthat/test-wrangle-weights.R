@@ -150,7 +150,7 @@ test_that("symmetrize(upper/lower) reads the named triangle", {
 })
 
 test_that("symmetrize always produces a symmetric undirected network", {
-  results <- lapply(c("max", "min", "mean", "sum", "upper", "lower"),
+  results <- lapply(c("max", "min", "mean", "sum", "mutual", "upper", "lower"),
                     function(m) symmetrize(ww_dir(), method = m))
 
   expect_true(all(vapply(results, function(r) isSymmetric(to_matrix(r)), logical(1))))
@@ -164,8 +164,18 @@ test_that("symmetrize agrees with sna::symmetrize on the weak and strong rules",
   weak <- sna::symmetrize(d, rule = "weak")
   strong <- sna::symmetrize(d, rule = "strong")
 
+  # "strong" is the reciprocated-only rule, which is `mutual`. `min` is a
+  # weight combination that keeps an unreciprocated edge at its own weight —
+  # a different operation that happens to coincide on binary reciprocal data.
   expect_equal(unname(to_matrix(symmetrize(d, "max"))), unname(weak))
-  expect_equal(unname(to_matrix(symmetrize(d, "min"))), unname(strong))
+  expect_equal(unname(to_matrix(symmetrize(d, "mutual"))), unname(strong))
+})
+
+test_that("symmetrize('min') keeps an unreciprocated edge, unlike 'mutual'", {
+  d <- ww_dir()
+
+  expect_equal(to_matrix(symmetrize(d, "min"))["B", "C"], 0.7)
+  expect_equal(to_matrix(symmetrize(d, "mutual"))["B", "C"], 0)
 })
 
 test_that("symmetrize does not double self-loops under the sum rule", {

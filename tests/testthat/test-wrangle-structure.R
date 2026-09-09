@@ -276,14 +276,21 @@ test_that("contract_nodes(loops = TRUE) keeps the within-group edges", {
               dimnames = list(LETTERS[1:4], LETTERS[1:4]))
   out <- to_matrix(contract_nodes(m, groups = c("L", "L", "R", "R"), loops = TRUE))
 
-  expect_equal(out["L", "L"], 2)
+  # One A-B edge of weight 1 inside L: the self-loop is 1, not 2. A symmetric
+  # matrix holds that edge twice, which is why aggregating the matrix rather
+  # than the edge table used to double it.
+  expect_equal(out["L", "L"], 1)
 })
 
 test_that("contract_nodes conserves total weight under the sum rule", {
   m <- ws_und()
-  out <- to_matrix(contract_nodes(m, groups = c("L", "L", "R", "R"), loops = TRUE))
+  contracted <- contract_nodes(m, groups = c("L", "L", "R", "R"), loops = TRUE)
 
-  expect_equal(sum(out), sum(m))
+  # Compare edge weights, not matrix sums: a symmetric matrix counts every
+  # undirected edge twice, so sum(matrix) would agree with itself even when
+  # the aggregation double-counts.
+  expect_equal(sum(as.data.frame(contracted)$weight),
+               sum(as.data.frame(as_cograph(m))$weight))
 })
 
 test_that("contract_nodes accepts a named list of groups", {

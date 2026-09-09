@@ -123,7 +123,7 @@ remove_nodes <- function(x, nodes, keep_format = FALSE, directed = NULL) {
 
   if (length(keep) == 0L) {
     warning("Every node was removed.", call. = FALSE)
-    return(.finish_result(.empty_cograph_network(net$directed, meta = net$meta),
+    return(.finish_result(.empty_cograph_network(net$directed, meta = net$meta, data = net$data),
                           x, input_class, keep_format))
   }
 
@@ -191,9 +191,25 @@ add_edges <- function(x, from, to, weight = 1, ..., keep_format = FALSE,
     new_edges[names(attrs)] <- lapply(attrs, .recycle_to, n = nrow(new_edges))
   }
 
+  is_dir <- isTRUE(net$directed)
+  new_keys <- .edge_key(new_edges, is_dir)
+  if (anyDuplicated(new_keys) > 0L) {
+    # For an undirected network A->B and B->A are the same edge, so a call
+    # naming both is ambiguous about which weight should win.
+    .stop_bad_selection(
+      "`from`/`to` name the same edge more than once: ",
+      paste(unique(new_keys[duplicated(new_keys)]), collapse = ", "),
+      ". Supply each edge once."
+    )
+  }
+  new_edges <- .drop_zero_edges(new_edges)
+  if (nrow(new_edges) == 0L) {
+    return(.finish_result(net, x, input_class, keep_format))
+  }
+  new_keys <- .edge_key(new_edges, is_dir)
+
   existing <- get_edges(net)
-  duplicate <- .edge_key(new_edges, isTRUE(net$directed)) %in%
-    .edge_key(existing, isTRUE(net$directed))
+  duplicate <- new_keys %in% .edge_key(existing, isTRUE(net$directed))
   if (any(duplicate)) {
     warning(warningCondition(
       paste0(sum(duplicate), " edge(s) already existed and had their weight replaced."),
@@ -325,6 +341,8 @@ mutate_nodes <- function(x, ..., keep_format = FALSE, directed = NULL) {
 
   dots <- substitute(list(...))[-1]
   .check_named_expressions(dots, "mutate_nodes")
+  .check_not_structural(names(dots), c("id", "label", "name"), "mutate_nodes",
+                        "rename_nodes() and reorder_nodes()")
 
   eval_env <- .build_filter_env(
     nodes,
@@ -375,6 +393,8 @@ mutate_edges <- function(x, ..., community = "louvain", keep_format = FALSE,
 
   dots <- substitute(list(...))[-1]
   .check_named_expressions(dots, "mutate_edges")
+  .check_not_structural(names(dots), c("from", "to"), "mutate_edges",
+                        "add_edges() and remove_edges()")
 
   needed <- .detect_needed_edge_variables(dots)
   metrics <- .compute_lazy_edge_metrics(.cg_graph(net), edges, nodes, needed, community)
@@ -382,9 +402,30 @@ mutate_edges <- function(x, ..., community = "louvain", keep_format = FALSE,
   values <- .evaluate_mutations(dots, eval_env, nrow(edges))
 
   edges[names(values)] <- values
+  # A weight of zero cannot be stored in the matrix, so it cannot stay in the
+  # edge table either without the two disagreeing.
+  edges <- .drop_zero_edges(edges)
   result <- .rebuild_network(net, edges = edges)
 
   .finish_result(result, x, input_class, keep_format)
+}
+
+#' Refuse to mutate a column the network's structure is keyed on
+#'
+#' Overwriting `label` or `from`/`to` through a mutation would leave the node
+#' table, the edge table and the weight matrix describing different networks.
+#' The dedicated verbs rebuild all three together.
+#'
+#' @noRd
+.check_not_structural <- function(names, reserved, fn, instead) {
+  clash <- intersect(names, reserved)
+  if (length(clash) > 0L) {
+    .stop_bad_selection(
+      fn, "() cannot change the structural column(s) ",
+      paste(clash, collapse = ", "), ". Use ", instead, " instead."
+    )
+  }
+  invisible(TRUE)
 }
 
 #' Every mutation must be named, or the new column has no name
@@ -489,32 +530,64 @@ bind_networks <- function(x, y, method = c("union", "intersection", "difference"
   if (is_dir) {
     mx <- .as_directed_matrix(mx, net_x)
     my <- .as_directed_matrix(my, net_y)
+  } else {
+    # An undirected result must be built from symmetric inputs, or the stored
+    # matrix ends up asymmetric while the object claims to be undirected and
+    # the edge table (read from the upper triangle) silently loses arcs.
+    mx <- .combine_arcs(mx, t(mx), "max")
+    my <- .combine_arcs(my, t(my), "max")
   }
 
   combined <- switch(method,
-    union = .combine_weights(mx, my, weight),
-    intersection = .combine_weights(mx, my, weight) * ((mx != 0) & (my != 0)),
+    union = .combine_arcs(mx, my, weight),
+    intersection = .combine_arcs(mx, my, weight) * ((mx != 0) & (my != 0)),
     difference = mx * (my == 0)
   )
+  if (method != "difference") {
+    .warn_cancelled_edges(mx, my, combined)
+  }
 
-  nodes <- data.frame(
-    id = seq_along(labels),
-    label = labels,
-    name = labels,
-    x = NA_real_,
-    y = NA_real_,
-    stringsAsFactors = FALSE
-  )
+  # Node rows come from x where it has them, so layout coordinates and custom
+  # node columns survive; nodes only y contributes are appended.
+  nodes <- .align_node_table(net_x, net_y, labels)
+
   skeleton <- .create_cograph_network(
     nodes = nodes,
     edges = data.frame(from = integer(0), to = integer(0), weight = numeric(0)),
     directed = is_dir,
-    meta = list(source = net_x$meta$source %||% "unknown"),
-    weights = combined
+    meta = net_x$meta,
+    weights = combined,
+    data = net_x$data
   )
 
   .finish_result(.network_from_matrix(skeleton, combined, directed = is_dir),
                  x, input_class, keep_format)
+}
+
+#' Build the node table of a combined network
+#'
+#' Rows are taken from `x` where the label exists there, so node attributes and
+#' layout coordinates survive the combination; the remaining labels take their
+#' rows from `y`, and anything neither has is filled with NA.
+#'
+#' @noRd
+.align_node_table <- function(net_x, net_y, labels) {
+  nx <- get_nodes(net_x)
+  ny <- get_nodes(net_y)
+
+  from_x <- match(labels, nx$label)
+  from_y <- match(labels, ny$label)
+
+  rows_x <- nx[from_x[!is.na(from_x)], , drop = FALSE]
+  rows_y <- ny[from_y[is.na(from_x)], , drop = FALSE]
+
+  nodes <- if (nrow(rows_y) == 0L) rows_x else .rbind_fill(rows_x, rows_y)
+  nodes <- nodes[match(labels, nodes$label), , drop = FALSE]
+  nodes$id <- seq_along(labels)
+  nodes$label <- labels
+  if ("name" %in% names(nodes)) nodes$name <- labels
+  rownames(nodes) <- NULL
+  nodes
 }
 
 #' Place a weight matrix into a larger, label-indexed frame
@@ -535,19 +608,3 @@ bind_networks <- function(x, y, method = c("union", "intersection", "difference"
   if (isTRUE(net$directed)) m else pmax(m, t(m))
 }
 
-#' Combine two aligned weight matrices
-#' @noRd
-.combine_weights <- function(a, b, how) {
-  switch(how,
-    sum = a + b,
-    max = pmax(a, b),
-    min = { both <- (a != 0) & (b != 0); ifelse(both, pmin(a, b), a + b) },
-    first = { a_missing <- a == 0; a * !a_missing + b * a_missing },
-    mean = {
-      counts <- (a != 0) + (b != 0)
-      totals <- a + b
-      counts[counts == 0] <- 1
-      totals / counts
-    }
-  )
-}

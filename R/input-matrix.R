@@ -49,8 +49,11 @@ parse_matrix <- function(m, directed = NULL) {
     to <- idx[, 2]
     weight <- m[idx]
   } else {
-    # For undirected: upper triangle only (avoid duplicates)
-    idx <- which(upper.tri(m) & m != 0, arr.ind = TRUE)
+    # Upper triangle *including* the diagonal: one row per unordered pair, and
+    # a self-loop is a pair too. Excluding it dropped undirected self-loops
+    # from the edge table while $weights kept them, so the two disagreed and a
+    # later matrix-level verb could resurrect the missing loop.
+    idx <- which(upper.tri(m, diag = TRUE) & m != 0, arr.ind = TRUE)
     from <- idx[, 1]
     to <- idx[, 2]
     weight <- m[idx]

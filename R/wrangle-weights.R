@@ -104,7 +104,10 @@ threshold_edges <- function(x, minimum = NULL, maximum = NULL,
 
   if (nrow(kept_edges) == 0L) {
     warning("Threshold removed all edges.", call. = FALSE)
-  } else if (isTRUE(keep_isolates)) {
+  }
+  if (isTRUE(keep_isolates)) {
+    # Also when every edge went: the nodes are kept, so they are newly
+    # isolated and the documented classed warning has to fire.
     .warn_new_isolates(edges, kept_edges, n_nodes(net))
   }
 
@@ -118,16 +121,22 @@ threshold_edges <- function(x, minimum = NULL, maximum = NULL,
 
   if (!is.null(proportion)) {
     .check_scalar_number(proportion, "proportion", lower = 0, upper = 1)
+    if (proportion == 0) {
+      .stop_bad_selection("`proportion` must be greater than 0; 0 would keep no edges.")
+    }
     targets <- c(targets, ceiling(proportion * n_edges_total))
   }
   if (!is.null(density)) {
     .check_scalar_number(density, "density", lower = 0, upper = 1)
+    if (density == 0) {
+      .stop_bad_selection("`density` must be greater than 0; 0 would keep no edges.")
+    }
     n <- n_nodes(net)
     possible <- if (isTRUE(net$directed)) n * (n - 1) else n * (n - 1) / 2
     targets <- c(targets, ceiling(density * possible))
   }
   if (!is.null(top)) {
-    .check_scalar_number(top, "top", lower = 0)
+    .check_count(top, "top", min = 0)
     targets <- c(targets, as.integer(top))
   }
 
@@ -215,7 +224,8 @@ binarize <- function(x, threshold = 0, absolute = TRUE, signed = FALSE,
 
   if (nrow(kept) == 0L) {
     warning("Binarize removed all edges.", call. = FALSE)
-  } else if (isTRUE(keep_isolates)) {
+  }
+  if (isTRUE(keep_isolates)) {
     .warn_new_isolates(edges, kept, n_nodes(net))
   }
 
@@ -235,16 +245,27 @@ binarize <- function(x, threshold = 0, absolute = TRUE, signed = FALSE,
 #' @param x Network input.
 #' @param method How to combine \code{w[i, j]} and \code{w[j, i]}:
 #'   \describe{
-#'     \item{\code{"max"}}{(default) the larger of the two, sna's "weak" rule}
-#'     \item{\code{"min"}}{the smaller of the two, sna's "strong" rule}
+#'     \item{\code{"max"}}{(default) the larger of the two; on a binary
+#'       network this is sna's "weak" rule}
+#'     \item{\code{"min"}}{the smaller of the two}
 #'     \item{\code{"mean"}}{their average}
 #'     \item{\code{"sum"}}{their total}
+#'     \item{\code{"mutual"}}{keep only reciprocated pairs, taking the smaller
+#'       weight; on a binary network this is sna's "strong" rule}
 #'     \item{\code{"upper"}}{take the upper triangle and mirror it}
 #'     \item{\code{"lower"}}{take the lower triangle and mirror it}
 #'   }
 #' @param keep_format Logical. Return the input format when TRUE.
 #' @param directed Logical or NULL. Directedness to read the input with;
 #'   the result is always undirected.
+#'
+#' @details
+#' \code{"max"}, \code{"min"}, \code{"mean"} and \code{"sum"} combine two
+#' values only where both arcs exist; an unreciprocated edge keeps its own
+#' weight rather than being compared against the zero that stands for the
+#' missing arc. That distinction matters for signed networks, where comparing
+#' a negative weight against a structural zero would delete the edge. Use
+#' \code{"mutual"} when an edge should survive only if it was reciprocated.
 #'
 #' @return An undirected \code{cograph_network}, or the input format when
 #'   \code{keep_format = TRUE}. The weight matrix satisfies
@@ -265,7 +286,9 @@ binarize <- function(x, threshold = 0, absolute = TRUE, signed = FALSE,
 #'
 #' symmetrize(adj, method = "max")
 #' symmetrize(adj, method = "mean")
-symmetrize <- function(x, method = c("max", "min", "mean", "sum", "upper", "lower"),
+#' symmetrize(adj, method = "mutual")
+symmetrize <- function(x, method = c("max", "min", "mean", "sum", "mutual",
+                                    "upper", "lower"),
                        keep_format = FALSE, directed = NULL) {
   method <- match.arg(method)
 
@@ -274,18 +297,18 @@ symmetrize <- function(x, method = c("max", "min", "mean", "sum", "upper", "lowe
   m <- to_matrix(net)
 
   sym <- switch(method,
-    max = pmax(m, t(m)),
-    min = pmin(m, t(m)),
-    mean = (m + t(m)) / 2,
-    sum = m + t(m),
     upper = .mirror_triangle(m, "upper"),
-    lower = .mirror_triangle(m, "lower")
+    lower = .mirror_triangle(m, "lower"),
+    mutual = pmin(m, t(m)) * ((m != 0) & (t(m) != 0)),
+    # Presence is carried separately from weight, so an unreciprocated
+    # negative edge is not deleted by comparison with a structural zero.
+    .combine_arcs(m, t(m), method)
   )
 
-  # `sum` doubles the diagonal, which would silently double every self-loop.
-  if (method == "sum") {
-    diag(sym) <- diag(m)
-  }
+  # A self-loop is a single arc and must not be combined with its transpose.
+  diag(sym) <- diag(m)
+
+  .warn_cancelled_edges(m, t(m), sym)
 
   .finish_result(.network_from_matrix(net, sym, directed = FALSE),
                  x, input_class, keep_format)
@@ -330,6 +353,15 @@ symmetrize <- function(x, method = c("max", "min", "mean", "sum", "upper", "lowe
 #' a zero total are reported in a \code{cograph_zero_norm} warning so that the
 #' zeros are a stated result rather than a silent one.
 #'
+#' \code{"minmax"} maps the weakest edge to \code{.Machine$double.eps} rather
+#' than to exactly 0, because 0 is how this representation stores "no edge":
+#' mapping to it would delete the weakest edge instead of rescaling it.
+#'
+#' \code{"max"}, \code{"sum"} and \code{"minmax"} rescale each edge
+#' independently and therefore keep any extra edge columns. \code{"row"} and
+#' \code{"column"} scale an edge by a total that differs at its two endpoints,
+#' so they break symmetry and return a directed network.
+#'
 #' Row and column normalisation are meaningful on directed networks. On an
 #' undirected network they still work but break symmetry, so the result is
 #' returned as directed.
@@ -361,19 +393,27 @@ normalize_weights <- function(x, method = c("row", "column", "max", "sum", "minm
     warning("Network has no nodes", call. = FALSE)
     return(.finish_result(net, x, input_class, keep_format))
   }
+  .check_finite_weights(m, "normalize_weights")
 
-  normalized <- switch(method,
-    row = .scale_margin(m, 1L),
-    column = .scale_margin(m, 2L),
-    max = .scale_by_total(m, max(abs(m)), "the largest absolute weight"),
-    sum = .scale_by_total(m, sum(m), "the total weight"),
-    minmax = .scale_minmax(m)
-  )
+  if (method %in% c("max", "sum", "minmax")) {
+    # These rescale each edge independently of every other, so the edge set is
+    # unchanged and the edge table (with any extra columns) can be kept.
+    edges <- get_edges(net)
+    scaled <- switch(method,
+      max = .scale_by_total(edges$weight, max(abs(m)), "the largest absolute weight"),
+      sum = .scale_by_total(edges$weight, sum(m), "the total weight"),
+      minmax = .rescale_minmax(edges$weight)
+    )
+    edges$weight <- scaled
+    return(.finish_result(.rebuild_network(net, edges = .drop_zero_edges(edges)),
+                          x, input_class, keep_format))
+  }
 
-  # Row and column normalisation are not symmetric operations.
-  result_directed <- if (method %in% c("row", "column")) TRUE else NULL
+  # Row and column normalisation scale an edge by a total that differs at each
+  # endpoint, so they break symmetry and the result is directed.
+  normalized <- .scale_margin(m, if (method == "row") 1L else 2L)
 
-  .finish_result(.network_from_matrix(net, normalized, directed = result_directed),
+  .finish_result(.network_from_matrix(net, normalized, directed = TRUE),
                  x, input_class, keep_format)
 }
 
@@ -409,24 +449,25 @@ normalize_weights <- function(x, method = c("row", "column", "max", "sum", "minm
   m / denominator
 }
 
-#' Rescale the non-zero weights to [0, 1]
+#' Rescale a weight vector to [0, 1]
+#'
+#' The edge at the minimum maps to `.Machine$double.eps` rather than to 0,
+#' because 0 is how this representation stores "no edge" and mapping to it
+#' would delete the weakest edge instead of scaling it. This is documented on
+#' `normalize_weights()`.
+#'
 #' @noRd
-.scale_minmax <- function(m) {
-  nz <- m != 0
-  if (!any(nz)) {
-    return(m)
+.rescale_minmax <- function(w) {
+  if (length(w) == 0L) {
+    return(w)
   }
-  lo <- min(m[nz])
-  hi <- max(m[nz])
+  lo <- min(w)
+  hi <- max(w)
   if (isTRUE(all.equal(lo, hi))) {
-    out <- matrix(0, nrow(m), ncol(m))
-    out[nz] <- 1
-    return(out)
+    return(rep(1, length(w)))
   }
-  out <- matrix(0, nrow(m), ncol(m))
-  out[nz] <- (m[nz] - lo) / (hi - lo)
-  # An edge that lands exactly on the minimum would otherwise be deleted.
-  out[nz & out == 0] <- .Machine$double.eps
+  out <- (w - lo) / (hi - lo)
+  out[out == 0] <- .Machine$double.eps
   out
 }
 

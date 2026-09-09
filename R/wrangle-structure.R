@@ -38,7 +38,7 @@ remove_isolates <- function(x, keep_format = FALSE, directed = NULL) {
   connected <- .connected_nodes(get_edges(net))
 
   if (length(connected) == 0L) {
-    return(.finish_result(.empty_cograph_network(net$directed, meta = net$meta),
+    return(.finish_result(.empty_cograph_network(net$directed, meta = net$meta, data = net$data),
                           x, input_class, keep_format))
   }
 
@@ -85,13 +85,17 @@ to_undirected <- function(x, method = c("max", "sum", "mean", "min", "mutual"),
   net <- as_cograph(x, directed = directed)
   m <- to_matrix(net)
 
-  combined <- switch(method,
-    max = pmax(m, t(m)),
-    min = pmin(m, t(m)),
-    mean = (m + t(m)) / 2,
-    sum = { s <- m + t(m); diag(s) <- diag(m); s },
-    mutual = { both <- (m != 0) & (t(m) != 0); pmin(m, t(m)) * both }
-  )
+  combined <- if (method == "mutual") {
+    both <- (m != 0) & (t(m) != 0)
+    pmin(m, t(m)) * both
+  } else {
+    .combine_arcs(m, t(m), method)
+  }
+  # A self-loop is one arc, not a reciprocated pair: it must not be combined
+  # with its own transpose.
+  diag(combined) <- diag(m)
+
+  .warn_cancelled_edges(m, t(m), combined)
 
   .finish_result(.network_from_matrix(net, combined, directed = FALSE),
                  x, input_class, keep_format)
@@ -175,7 +179,14 @@ reverse_edges <- function(x, keep_format = FALSE, directed = NULL) {
     return(.finish_result(net, x, input_class, keep_format))
   }
 
-  .finish_result(.network_from_matrix(net, t(to_matrix(net))),
+  # Swap the endpoints in the edge table rather than transposing the matrix:
+  # the edge set is unchanged, so extra edge columns have no reason to be lost.
+  edges <- get_edges(net)
+  swapped <- edges
+  swapped$from <- edges$to
+  swapped$to <- edges$from
+
+  .finish_result(.rebuild_network(net, edges = swapped),
                  x, input_class, keep_format)
 }
 
@@ -208,10 +219,16 @@ reverse_edges <- function(x, keep_format = FALSE, directed = NULL) {
 #' length(parts)
 split_components <- function(x, min_size = 1L, keep_format = FALSE,
                              directed = NULL) {
-  .check_scalar_number(min_size, "min_size", lower = 0)
+  .check_count(min_size, "min_size", min = 0)
 
   input_class <- .detect_input_class(x)
   net <- as_cograph(x, directed = directed)
+
+  if (n_nodes(net) == 0L) {
+    warning("Network has no nodes", call. = FALSE)
+    return(list())
+  }
+
   cg <- .cg_graph(net)
   comp <- .cg_components_numbered(cg$b)
 
@@ -255,7 +272,7 @@ split_components <- function(x, min_size = 1L, keep_format = FALSE,
 #'
 #' select_k_core(adj, k = 2)
 select_k_core <- function(x, k, keep_format = FALSE, directed = NULL) {
-  .check_scalar_number(k, "k", lower = 0)
+  .check_count(k, "k", min = 0)
 
   input_class <- .detect_input_class(x)
   net <- as_cograph(x, directed = directed)
@@ -265,7 +282,7 @@ select_k_core <- function(x, k, keep_format = FALSE, directed = NULL) {
 
   if (length(keep) == 0L) {
     warning("No node reaches coreness ", k, ".", call. = FALSE)
-    return(.finish_result(.empty_cograph_network(net$directed, meta = net$meta),
+    return(.finish_result(.empty_cograph_network(net$directed, meta = net$meta, data = net$data),
                           x, input_class, keep_format))
   }
 
@@ -315,7 +332,8 @@ spanning_tree <- function(x, weights = c("weight", "none"), maximum = FALSE,
   input_class <- .detect_input_class(x)
   net <- as_cograph(x, directed = directed)
   m <- to_matrix(net)
-  m <- pmax(m, t(m))
+  .check_finite_weights(m, "spanning_tree")
+  m <- .combine_arcs(m, t(m), "max")
   diag(m) <- 0
 
   cost <- if (weights == "none") (m != 0) * 1 else m
@@ -323,8 +341,13 @@ spanning_tree <- function(x, weights = c("weight", "none"), maximum = FALSE,
 
   tree <- .prim_forest(m != 0, cost)
   chosen <- matrix(0, nrow(m), ncol(m))
-  chosen[tree] <- m[tree]
-  chosen <- pmax(chosen, t(chosen))
+  # Mirror by assignment, not by pmax(): a selected negative weight compared
+  # with the structural zero of the empty transpose would come back as zero,
+  # deleting exactly the edges Prim just chose.
+  if (nrow(tree) > 0L) {
+    chosen[tree] <- m[tree]
+    chosen[tree[, c(2L, 1L), drop = FALSE]] <- m[tree]
+  }
 
   .finish_result(.network_from_matrix(net, chosen, directed = FALSE),
                  x, input_class, keep_format)
@@ -399,6 +422,12 @@ spanning_tree <- function(x, weights = c("weight", "none"), maximum = FALSE,
 complement_network <- function(x, weight = 1, loops = FALSE,
                                keep_format = FALSE, directed = NULL) {
   .check_scalar_number(weight, "weight")
+  if (weight == 0) {
+    # Zero is how this representation stores "no edge", so a complement of
+    # weight zero would contain nothing at all.
+    .stop_bad_selection("`weight` must not be zero: zero means 'no edge', so ",
+                        "the complement would be empty.")
+  }
   stopifnot("`loops` must be TRUE or FALSE" = is.logical(loops) && length(loops) == 1L)
 
   input_class <- .detect_input_class(x)
@@ -456,14 +485,23 @@ contract_nodes <- function(x, groups, weight = c("sum", "mean", "max", "min"),
   input_class <- .detect_input_class(x)
   net <- as_cograph(x, directed = directed)
   labels <- get_labels(net)
+
+  if (length(labels) == 0L) {
+    warning("Network has no nodes", call. = FALSE)
+    return(.finish_result(.empty_cograph_network(net$directed, meta = net$meta, data = net$data),
+                          x, input_class, keep_format))
+  }
+
   membership <- .resolve_group_membership(groups, labels)
 
   group_names <- levels(membership)
   k <- length(group_names)
-  m <- to_matrix(net)
 
-  # Aggregate the n x n matrix down to k x k, one group pair at a time.
-  totals <- .aggregate_by_group(m, membership, k, weight)
+  # Aggregate the *edge table*, not the matrix. An undirected network stores
+  # one row per unordered pair but a symmetric matrix holds each of them
+  # twice, so summing matrix blocks counts every within-group edge twice.
+  totals <- .aggregate_edges_by_group(get_edges(net), as.integer(membership), k,
+                                      weight, isTRUE(net$directed))
   if (!loops) diag(totals) <- 0
 
   nodes <- data.frame(
@@ -523,38 +561,46 @@ contract_nodes <- function(x, groups, weight = c("sum", "mean", "max", "min"),
   factor(groups)
 }
 
-#' Aggregate a weight matrix down to group level
+#' Aggregate an edge table to group level
+#'
+#' One row per group pair. For an undirected network the group pair is
+#' canonicalised (low index first) so that A-B and B-A land in the same cell,
+#' and the result is mirrored once at the end.
+#'
+#' @param edges Edge table with `from`, `to`, `weight` in node-index space.
+#' @param idx Integer group index per node.
+#' @param k Number of groups.
+#' @param how `"sum"`, `"mean"`, `"max"` or `"min"`.
+#' @param directed Logical.
+#' @return A k x k numeric matrix.
 #' @noRd
-.aggregate_by_group <- function(m, membership, k, how) {
-  idx <- as.integer(membership)
-  # rowsum() sums within groups down the rows; doing it twice, with a
-  # transpose between, gives the k x k block sums in two vectorised passes.
-  block_sum <- function(mat) {
-    t(rowsum(t(rowsum(mat, idx, reorder = TRUE)), idx, reorder = TRUE))
-  }
-
-  sums <- block_sum(m)
-  if (how == "sum") {
-    return(sums)
-  }
-  counts <- block_sum((m != 0) * 1)
-
-  if (how == "mean") {
-    out <- sums / counts
-    out[counts == 0] <- 0
+.aggregate_edges_by_group <- function(edges, idx, k, how, directed) {
+  out <- matrix(0, k, k)
+  if (k == 0L || is.null(edges) || nrow(edges) == 0L) {
     return(out)
   }
 
-  # max and min need the extreme over the block, which rowsum cannot give.
-  extreme <- if (how == "max") max else min
-  out <- matrix(0, k, k)
-  cells <- which(counts > 0, arr.ind = TRUE)
-  if (nrow(cells) > 0L) {
-    out[cells] <- vapply(seq_len(nrow(cells)), function(i) {
-      block <- m[idx == cells[i, 1L], idx == cells[i, 2L], drop = FALSE]
-      nz <- block[block != 0]
-      if (length(nz) == 0L) 0 else extreme(nz)
-    }, numeric(1))
+  g_from <- idx[edges$from]
+  g_to <- idx[edges$to]
+  if (!directed) {
+    lo <- pmin(g_from, g_to)
+    hi <- pmax(g_from, g_to)
+    g_from <- lo
+    g_to <- hi
+  }
+
+  cell <- (g_to - 1L) * k + g_from
+  fn <- switch(how, sum = sum, mean = mean, max = max, min = min)
+  agg <- tapply(as.numeric(edges$weight), cell, fn)
+  out[as.integer(names(agg))] <- as.numeric(agg)
+
+  if (!directed) {
+    # Only the canonical (low, high) cells were written; mirror them once.
+    filled <- which(out != 0, arr.ind = TRUE)
+    off <- filled[filled[, 1L] != filled[, 2L], , drop = FALSE]
+    if (nrow(off) > 0L) {
+      out[off[, c(2L, 1L), drop = FALSE]] <- out[off]
+    }
   }
   out
 }
@@ -604,9 +650,14 @@ reorder_nodes <- function(x, order, keep_format = FALSE, directed = NULL) {
     .resolve_node_selection_ordered(nodes, order, "order")
   }
 
-  if (length(new_order) != n) {
-    .stop_bad_selection("`order` must list every node exactly once (", n,
-                        "); got ", length(new_order), ".")
+  if (length(new_order) != n || !identical(sort(as.integer(new_order)), seq_len(n))) {
+    # Length alone is not enough: c("A", "A", "B") on a three-node network is
+    # the right length but duplicates one node and drops another, which
+    # produces duplicate labels or an NA subscript during the rebuild.
+    .stop_bad_selection("`order` must be a permutation naming every node ",
+                        "exactly once (", n, " nodes); got ", length(new_order),
+                        " entr", if (length(new_order) == 1L) "y" else "ies",
+                        " covering ", length(unique(new_order)), " node(s).")
   }
 
   .finish_result(.reindex_network(net, new_order), x, input_class, keep_format)

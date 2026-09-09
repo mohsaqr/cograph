@@ -397,7 +397,9 @@ filter_edges <- function(x, ..., keep_isolates = TRUE, keep_format = FALSE,
 
   if (n_edges(result) == 0) {
     warning("Filter removed all edges.", call. = FALSE)
-  } else if (isTRUE(keep_isolates)) {
+  }
+  if (isTRUE(keep_isolates)) {
+    # Also when every edge went: the nodes stay, so they are newly isolated.
     .warn_new_isolates(edges, filtered_edges, n_nodes(net))
   }
   if (n_nodes(result) == 0) {
@@ -481,7 +483,7 @@ filter_nodes <- function(x, ..., keep_edges = c("internal", "none"),
   if (length(selected_idx) == 0) {
     warning("No nodes match the filter criteria. Result may not be usable for plotting.",
             call. = FALSE)
-    empty <- .empty_cograph_network(net$directed, meta = net$meta)
+    empty <- .empty_cograph_network(net$directed, meta = net$meta, data = net$data)
     return(.finish_result(empty, x, input_class, keep_format))
   }
 
@@ -701,13 +703,14 @@ subset_edges <- filter_edges
 
 #' Create Empty cograph_network
 #' @noRd
-.empty_cograph_network <- function(directed = FALSE, meta = NULL) {
+.empty_cograph_network <- function(directed = FALSE, meta = NULL, data = NULL) {
   .create_cograph_network(
     nodes = data.frame(id = integer(0), label = character(0)),
     edges = data.frame(from = integer(0), to = integer(0), weight = numeric(0)),
     directed = directed,
     meta = meta %||% list(source = "filtered"),
-    weights = matrix(0, 0, 0)
+    weights = matrix(0, 0, 0),
+    data = data
   )
 }
 
@@ -854,6 +857,111 @@ subset_edges <- filter_edges
   )
 }
 
+#' Combine two aligned weight matrices, treating absence as absence
+#'
+#' A weight of zero means "no edge" in this representation, so it must never
+#' be fed to `pmax()`/`pmin()` as if it were a comparable value: a one-way
+#' edge of weight -2 would lose to the missing reverse arc and be deleted, and
+#' a one-way edge of weight 2 would lose under `min`. The presence mask is
+#' therefore carried separately from the weight, and two values are combined
+#' only where both arcs actually exist.
+#'
+#' @param a,b Square numeric matrices of the same shape.
+#' @param how `"max"`, `"min"`, `"mean"`, `"sum"` or `"first"`.
+#' @return A matrix of the same shape.
+#' @noRd
+.combine_arcs <- function(a, b, how) {
+  present_a <- a != 0
+  present_b <- b != 0
+  both <- present_a & present_b
+
+  out <- matrix(0, nrow(a), ncol(a))
+  out[present_a & !present_b] <- a[present_a & !present_b]
+  out[present_b & !present_a] <- b[present_b & !present_a]
+
+  if (any(both)) {
+    out[both] <- switch(how,
+      max = pmax(a[both], b[both]),
+      min = pmin(a[both], b[both]),
+      mean = (a[both] + b[both]) / 2,
+      sum = a[both] + b[both],
+      first = a[both]
+    )
+  }
+  out
+}
+
+#' Warn when combining weights cancelled an edge to exactly zero
+#'
+#' Zero is the absence sentinel, so an edge whose combined weight is zero
+#' disappears. That has to be said out loud rather than silently shrinking the
+#' edge set.
+#'
+#' @noRd
+.warn_cancelled_edges <- function(a, b, combined) {
+  cancelled <- sum((a != 0 | b != 0) & combined == 0)
+  if (cancelled > 0L) {
+    warning(warningCondition(
+      paste0(cancelled, " edge(s) combined to weight zero and were dropped; ",
+             "zero is how this representation stores 'no edge'."),
+      class = "cograph_edges_dropped"))
+  }
+  invisible(cancelled)
+}
+
+#' Reject non-finite edge weights
+#'
+#' The matrix-level verbs have no defensible answer for `NA` or `Inf`, and
+#' letting one through produces a raw internal error several frames later.
+#'
+#' @noRd
+.check_finite_weights <- function(m, fn) {
+  if (any(!is.finite(m))) {
+    .stop_bad_selection(
+      fn, "() needs finite weights; the network has ",
+      sum(!is.finite(m)), " non-finite value(s). Fix or remove them first."
+    )
+  }
+  invisible(TRUE)
+}
+
+#' Validate a whole, non-negative count
+#' @noRd
+.check_count <- function(value, arg, min = 0) {
+  if (!is.numeric(value) || length(value) != 1L || !is.finite(value)) {
+    .stop_bad_selection("`", arg, "` must be a single finite number.")
+  }
+  if (value != as.integer(value)) {
+    .stop_bad_selection("`", arg, "` must be a whole number; got ", value, ".")
+  }
+  if (value < min) {
+    .stop_bad_selection("`", arg, "` must be at least ", min, "; got ", value, ".")
+  }
+  invisible(as.integer(value))
+}
+
+#' Drop edge rows whose weight is exactly zero
+#'
+#' The edge table and the weight matrix must agree: a zero cell is no edge, so
+#' a zero-weight row cannot be kept without the two disagreeing.
+#'
+#' @noRd
+.drop_zero_edges <- function(edges) {
+  if (is.null(edges) || nrow(edges) == 0L) {
+    return(edges)
+  }
+  zero <- edges$weight == 0 | !is.finite(edges$weight)
+  if (any(zero)) {
+    warning(warningCondition(
+      paste0(sum(zero), " edge(s) with zero or non-finite weight were dropped; ",
+             "zero is how this representation stores 'no edge'."),
+      class = "cograph_edges_dropped"))
+    edges <- edges[!zero, , drop = FALSE]
+    rownames(edges) <- NULL
+  }
+  edges
+}
+
 #' Node indices that carry at least one edge
 #' @noRd
 .connected_nodes <- function(edges) {
@@ -883,7 +991,7 @@ subset_edges <- filter_edges
   if (!isTRUE(keep_isolates)) {
     connected <- .connected_nodes(new_edges)
     if (length(connected) == 0L) {
-      return(.empty_cograph_network(net$directed, meta = net$meta))
+      return(.empty_cograph_network(net$directed, meta = net$meta, data = net$data))
     }
     result <- .rebuild_network(net, nodes_keep = connected, edges = new_edges)
   }
@@ -1050,21 +1158,18 @@ to_data_frame <- function(x, directed = NULL) {
   edges <- get_edges(net)
   labels <- get_labels(net)
 
-  if (nrow(edges) == 0) {
-    return(data.frame(
-      from = character(0),
-      to = character(0),
-      weight = numeric(0),
-      stringsAsFactors = FALSE
-    ))
-  }
-
   df <- data.frame(
     from = labels[edges$from],
     to = labels[edges$to],
     weight = as.numeric(edges$weight),
     stringsAsFactors = FALSE
   )
+  if (nrow(edges) == 0) {
+    # Keep the column skeleton so that an empty result still reports the extra
+    # columns the network carries.
+    df$from <- character(0)
+    df$to <- character(0)
+  }
 
   # Keep any extra edge columns the network carries (session, time, ...).
   extra_cols <- setdiff(names(edges), c("from", "to", "weight"))
@@ -1363,7 +1468,7 @@ select_nodes <- function(x, ...,
 
   if (length(selected_idx) == 0) {
     warning("No nodes match the selection criteria.", call. = FALSE)
-    empty <- .empty_cograph_network(net$directed, meta = net$meta)
+    empty <- .empty_cograph_network(net$directed, meta = net$meta, data = net$data)
     return(.finish_result(empty, x, input_class, keep_format))
   }
 
@@ -1863,7 +1968,7 @@ select_edges <- function(x, ...,
   if (!any(selected)) {
     warning("No edges match the selection criteria.", call. = FALSE)
     if (!isTRUE(keep_isolates)) {
-      empty <- .empty_cograph_network(net$directed, meta = net$meta)
+      empty <- .empty_cograph_network(net$directed, meta = net$meta, data = net$data)
       return(.finish_result(empty, x, input_class, keep_format))
     }
   }
@@ -1871,7 +1976,7 @@ select_edges <- function(x, ...,
   filtered_edges <- edges[selected, , drop = FALSE]
   result <- .update_cograph_edges(net, filtered_edges, keep_isolates = keep_isolates)
 
-  if (isTRUE(keep_isolates) && any(selected)) {
+  if (isTRUE(keep_isolates)) {
     .warn_new_isolates(edges, filtered_edges, n_nodes(net))
   }
 

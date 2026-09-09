@@ -41,6 +41,15 @@ rather than producing \code{NaN}: there is nothing to distribute. Rows with
 a zero total are reported in a \code{cograph_zero_norm} warning so that the
 zeros are a stated result rather than a silent one.
 
+\code{"minmax"} maps the weakest edge to \code{.Machine$double.eps} rather
+than to exactly 0, because 0 is how this representation stores "no edge":
+mapping to it would delete the weakest edge instead of rescaling it.
+
+\code{"max"}, \code{"sum"} and \code{"minmax"} rescale each edge
+independently and therefore keep any extra edge columns. \code{"row"} and
+\code{"column"} scale an edge by a total that differs at its two endpoints,
+so they break symmetry and return a directed network.
+
 Row and column normalisation are meaningful on directed networks. On an
 undirected network they still work but break symmetry, so the result is
 returned as directed.

@@ -1,3 +1,77 @@
+# cograph 2.6.1
+
+Fixes for defects an adversarial review found in the 2.6.0 wrangling verbs.
+All of them were introduced in 2.6.0 except the last, which was older.
+
+## Signed weights are no longer deleted
+
+Zero is how cograph stores "no edge", so it must never be compared against a
+real weight. `to_undirected()`, `symmetrize()`, `spanning_tree()` and
+`bind_networks()` did exactly that, which silently deleted edges in networks
+that carry negative weights — correlation and partial-correlation networks
+above all:
+
+- a one-way edge of weight `-2` was deleted by `method = "max"`, because
+  `pmax(-2, 0)` is `0`;
+- a one-way edge of weight `2` was deleted by `method = "min"`;
+- `method = "mean"` halved every unreciprocated edge against a phantom
+  reverse arc;
+- `spanning_tree()` returned an empty network on any all-negative graph: Prim
+  chose the right edges, then the mirroring step compared each against zero
+  and erased it;
+- `bind_networks(weight = "max")` lost an edge only one network had if its
+  weight was negative.
+
+Presence is now carried separately from weight throughout: two values are
+combined only where both arcs exist, and an unreciprocated edge keeps its own
+weight. Combining to exactly zero raises a `cograph_edges_dropped` warning
+rather than shrinking the edge set in silence.
+
+`symmetrize()` gains `method = "mutual"` for the reciprocated-only rule (sna's
+"strong"). `method = "min"` no longer means that: it is a weight combination
+that keeps unreciprocated edges, which is a different operation.
+
+## Other fixes
+
+- `contract_nodes()` counted an undirected within-group edge twice, because a
+  symmetric matrix holds every such edge twice. It now aggregates the edge
+  table, so a single edge of weight 3 becomes a self-loop of 3, not 6.
+- `reorder_nodes()` checked only the length of `order`, so a non-permutation
+  such as `c("A", "A", "B")` produced duplicate labels or an internal
+  subscript error. It now requires an exact permutation.
+- `add_edges()` and `set_edges()` accepted the same undirected edge twice
+  (`A->B` and `B->A`), leaving the edge table and the weight matrix
+  disagreeing about how many edges exist. Both now reject it.
+- `mutate_nodes()` and `mutate_edges()` could overwrite the columns the
+  structure is keyed on (`label`, `id`, `from`, `to`), leaving the node table,
+  edge table and matrix describing different networks. Those columns are now
+  reserved. A weight mutated to zero drops the edge with a classed warning
+  rather than leaving a row the matrix does not have.
+- Removing every edge now also raises `cograph_isolates_created`, as the
+  documented invariant says: the nodes are kept, so they are newly isolated.
+- `split_components()` and `contract_nodes()` no longer fail on a zero-node
+  network, and the matrix-level verbs raise `cograph_bad_selection` on
+  non-finite weights instead of an internal error several frames later.
+- `proportion` and `density` reject 0, and `top`, `k` and `min_size` reject
+  fractional values, as documented. `complement_network()` rejects
+  `weight = 0`, which would have produced an empty complement.
+- `bind_networks(directed = FALSE)` on directed input returned an
+  "undirected" network whose matrix was asymmetric and whose edge table was
+  empty; it now symmetrises the inputs first. It also carries `x`'s metadata,
+  estimation data and node attributes instead of dropping them.
+- Empty results keep the estimation data, and `as.data.frame()` on one keeps
+  the extra edge columns.
+- `reverse_edges()` and `normalize_weights()` (`"max"`, `"sum"`, `"minmax"`)
+  keep extra edge columns; they map edges one-to-one, so there was no reason
+  to lose them. `network_to_igraph()` carries node columns across as vertex
+  attributes, so attributes added with `mutate_nodes()` survive
+  `keep_format = TRUE`.
+- `parse_matrix()` read an undirected matrix from the strict upper triangle,
+  so a self-loop on the diagonal was dropped from the edge table while
+  `$weights` kept it — the two disagreed, and a later matrix-level verb could
+  resurrect the loop. Undirected self-loops are now edges. This predates
+  2.6.0.
+
 # cograph 2.6.0
 
 ## Network wrangling

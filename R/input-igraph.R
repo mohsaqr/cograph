@@ -224,6 +224,15 @@ network_to_igraph <- function(network) {
     g <- igraph::set_vertex_attr(g, "name", value = as.character(nodes$label))
   }
 
+  # Carry the rest of the node table across too, so attributes added with
+  # mutate_nodes() survive keep_format = TRUE.
+  node_attrs <- setdiff(names(nodes), c("id", "label", "name"))
+  g <- Reduce(
+    function(graph, attr) igraph::set_vertex_attr(graph, attr, value = nodes[[attr]]),
+    node_attrs,
+    init = g
+  )
+
   if (!is.null(edges) && nrow(edges) > 0) {
     endpoints <- as.vector(t(as.matrix(edges[, c("from", "to")])))
     g <- igraph::add_edges(g, as.integer(endpoints))

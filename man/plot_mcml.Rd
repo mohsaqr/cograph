@@ -2,11 +2,21 @@
 % Please edit documentation in R/plot-mcml.R
 \name{plot_mcml}
 \alias{plot_mcml}
-\title{Plot Multi-Cluster Multi-Layer Network}
+\title{Produces a two-layer hierarchical visualization of a clustered network.
+The \strong{bottom layer} shows every node arranged inside elliptical cluster
+shells with full within-cluster and between-cluster edges drawn at the
+individual-node level. The \strong{top layer} collapses each cluster into a
+single summary pie-chart node whose colored slice represents, by default,
+the cluster's share of the initial state distribution (see
+\code{summary_pie} for the alternative self-retention interpretation),
+with edges carrying the aggregated between-cluster weights. Dashed
+inter-layer lines connect each detail node to its corresponding summary
+node, making the hierarchical mapping explicit.}
 \usage{
 plot_mcml(
   x,
   cluster_list = NULL,
+  expand = NULL,
   mode = c("weights", "tna"),
   theme = c("classic", "rich", "light"),
   layer_spacing = NULL,
@@ -99,6 +109,21 @@ names become the cluster labels (e.g.,
 (\code{cluster}, \code{group}, etc.) in node metadata.
 }
 Ignored when \code{x} is a \code{cluster_summary}.}
+
+\item{expand}{Names of clusters whose member states are drawn as separate
+nodes in the top (macro) layer; \code{"all"} or \code{TRUE} expands every
+cluster. The bottom layer always shows the partition, so an expanded
+state appears as its own summary node while staying inside its cluster's
+shell below, linked by the dashed line. Default \code{NULL} draws one
+summary node per cluster.
+
+The expanded macro is re-counted from \code{x} with a refined partition
+(an expanded cluster contributes one group per member state), because a
+k x k aggregate cannot be disaggregated after the fact. That needs the
+source, so passing a pre-built \code{cluster_summary} or \code{mcml}
+instead of the data falls back to \code{Nestimate::macro_network()} and
+raises a \code{cograph_expand_unavailable} error when that is not
+available.}
 
 \item{mode}{What values to display on edges:
 \describe{
@@ -410,24 +435,13 @@ avoid recomputation, inspected with \code{print()}, or fed to
 \code{\link{as_tna}} for further analysis.
 }
 \description{
-Produces a two-layer hierarchical visualization of a clustered network.
-The \strong{bottom layer} shows every node arranged inside elliptical cluster
-shells with full within-cluster and between-cluster edges drawn at the
-individual-node level. The \strong{top layer} collapses each cluster into a
-single summary pie-chart node whose colored slice represents, by default,
-the cluster's share of the initial state distribution (see
-\code{summary_pie} for the alternative self-retention interpretation),
-with edges carrying the aggregated between-cluster weights. Dashed
-inter-layer lines connect each detail node to its corresponding summary
-node, making the hierarchical mapping explicit.
-}
-\details{
 Use \code{plot_mcml} when you need a simultaneous micro/macro view of
 cluster structure — the bottom layer reveals internal cluster dynamics while
 the top layer provides a bird's-eye summary. For a flat multi-cluster plot
 without the summary layer, see \code{\link{plot_mtna}}. For stacked
 multilevel/multiplex layers, see \code{\link{plot_mlna}}.
-
+}
+\details{
 \strong{Two workflows:}
 \enumerate{
 \item \strong{Direct}: pass a weight matrix (or tna / cograph_network

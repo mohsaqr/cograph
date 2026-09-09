@@ -1,4 +1,99 @@
-#' Plot Multi-Cluster Multi-Layer Network
+##' Resolve the `expand` argument to cluster names
+#'
+#' @param expand `NULL`, `TRUE`, `"all"`, or cluster names.
+#' @param cluster_names The partition's cluster names.
+#' @return A character vector of cluster names to expand.
+#' @noRd
+.mcml_resolve_expand <- function(expand, cluster_names) {
+  if (isTRUE(expand) || identical(expand, "all")) {
+    return(cluster_names)
+  }
+  if (!is.character(expand)) {
+    stop("`expand` must be a character vector of cluster names, TRUE, ",
+         "\"all\", or NULL.", call. = FALSE)
+  }
+  unknown <- setdiff(expand, cluster_names)
+  if (length(unknown) > 0L) {
+    stop("Unknown cluster(s) in `expand`: ",
+         paste(utils::head(unknown, 5L), collapse = ", "),
+         ". Available: ", paste(cluster_names, collapse = ", "),
+         call. = FALSE)
+  }
+  expand
+}
+
+#' Refine a partition, splitting the expanded clusters into singletons
+#'
+#' The macro at mixed resolution is just the macro of a finer partition: an
+#' expanded cluster contributes one group per member state, every other
+#' cluster stays whole.
+#'
+#' @noRd
+.mcml_refined_partition <- function(cluster_list, expand) {
+  refined <- lapply(names(cluster_list), function(nm) {
+    members <- cluster_list[[nm]]
+    if (nm %in% expand) {
+      stats::setNames(as.list(members), as.character(members))
+    } else {
+      stats::setNames(list(members), nm)
+    }
+  })
+  unlist(refined, recursive = FALSE)
+}
+
+#' The macro layer at a finer resolution than the partition
+#'
+#' A k x k aggregate cannot be disaggregated after the fact, so the expanded
+#' macro is re-counted from the source with a refined partition rather than
+#' split out of `cs$macro`. When the caller handed in a pre-built summary there
+#' is no source to re-count from, and the only way through is
+#' `Nestimate::macro_network()`, which keeps the sequence data an `mcml` was
+#' built from.
+#'
+#' @return A list with `weights` and `inits`.
+#' @noRd
+.mcml_expanded_macro <- function(x, cluster_list, expand, aggregation, directed) {
+  expand <- .mcml_resolve_expand(expand, names(cluster_list))
+
+  if (inherits(x, c("cluster_summary", "mcml", "mcml_pc"))) {
+    return(.mcml_expanded_via_nestimate(x, expand))
+  }
+
+  refined <- .mcml_refined_partition(cluster_list, expand)
+  cs <- cluster_summary(x, refined, method = aggregation,
+                        type = if (directed) "tna" else "cooccurrence",
+                        compute_within = TRUE)
+  list(weights = cs$macro$weights, inits = cs$macro$inits)
+}
+
+#' Expand a pre-built summary through Nestimate
+#'
+#' `getFromNamespace()` rather than `Nestimate::macro_network`: the function
+#' exists only in newer Nestimate, and a static `::` reference to an object an
+#' installed version does not export is an R CMD check WARNING. Checking for it
+#' at run time reports the real problem to the caller instead.
+#'
+#' @noRd
+.mcml_expanded_via_nestimate <- function(x, expand) {
+  has_fn <- requireNamespace("Nestimate", quietly = TRUE) &&
+    exists("macro_network", envir = asNamespace("Nestimate"), inherits = FALSE)
+
+  if (!has_fn) {
+    stop(errorCondition(
+      paste0("`expand` on a pre-built cluster summary needs ",
+             "Nestimate::macro_network(), which this Nestimate does not ",
+             "provide. Either update Nestimate, or call plot_mcml() with the ",
+             "source data and `cluster_list` so cograph can re-count the ",
+             "macro itself."),
+      class = "cograph_expand_unavailable", call = NULL))
+  }
+
+  macro_network <- utils::getFromNamespace("macro_network", "Nestimate")
+  net <- macro_network(x, expand = expand)
+  list(weights = net$weights, inits = net$initial)
+}
+
+' Plot Multi-Cluster Multi-Layer Network
 #'
 #' Produces a two-layer hierarchical visualization of a clustered network.
 #' The **bottom layer** shows every node arranged inside elliptical cluster
@@ -230,6 +325,20 @@
 #' @param cluster_shape Accepted for backward compatibility. Summary nodes
 #'   are currently drawn as pie charts, so this parameter does not change
 #'   their shape.
+#' @param expand Names of clusters whose member states are drawn as separate
+#'   nodes in the top (macro) layer; \code{"all"} or \code{TRUE} expands every
+#'   cluster. The bottom layer always shows the partition, so an expanded
+#'   state appears as its own summary node while staying inside its cluster's
+#'   shell below, linked by the dashed line. Default \code{NULL} draws one
+#'   summary node per cluster.
+#'
+#'   The expanded macro is re-counted from \code{x} with a refined partition
+#'   (an expanded cluster contributes one group per member state), because a
+#'   k x k aggregate cannot be disaggregated after the fact. That needs the
+#'   source, so passing a pre-built \code{cluster_summary} or \code{mcml}
+#'   instead of the data falls back to \code{Nestimate::macro_network()} and
+#'   raises a \code{cograph_expand_unavailable} error when that is not
+#'   available.
 #' @param title Main plot title displayed above the figure. Default
 #'   \code{NULL} (no title).
 #' @param subtitle Subtitle displayed below the title. Default \code{NULL}
@@ -395,6 +504,7 @@
 plot_mcml <- function(
     x,
     cluster_list = NULL,
+    expand = NULL,
     mode = c("weights", "tna"),
     theme = c("classic", "rich", "light"),
     layer_spacing = NULL,
@@ -632,6 +742,53 @@ plot_mcml <- function(
   # Macro weights (diagonal already contains intra-cluster retention)
   bw <- cs$macro$weights
 
+  # ---- top-layer resolution --------------------------------------------------
+  # The top layer draws the macro, and `expand` lets it be drawn at a finer
+  # resolution than the partition: the named clusters appear as their member
+  # states, every other cluster stays a single node. The lower layer is always
+  # the partition, so from here on the two layers may differ in size. Anything
+  # indexing the top layer uses n_top / top_labels / top_colors; anything
+  # indexing the partition keeps n_clusters.
+  #
+  # `bw_cluster` retains the collapsed macro because the shell-level arrows
+  # (`between_arrows`) are cluster-to-cluster by construction and have no
+  # expanded counterpart.
+  #
+  # Note the top layer is matched by NAME below, not by position. It used to be
+  # indexed positionally against n_clusters, so a macro wider than the
+  # partition was silently truncated to its first n_clusters rows and drawn
+  # under the cluster names — a confident, wrong figure with no error.
+  bw_cluster <- bw
+  macro_inits <- cs$macro$inits
+  if (!is.null(expand)) {
+    expanded <- .mcml_expanded_macro(x, cluster_list, expand, aggregation,
+                                     directed)
+    bw <- expanded$weights
+    macro_inits <- expanded$inits
+  }
+  top_labels <- rownames(bw)
+  if (is.null(top_labels)) top_labels <- cluster_names
+  n_top <- length(top_labels)
+
+  # Which cluster owns each top node: itself when the node IS a cluster,
+  # otherwise the cluster holding that state. Drives the node colour and the
+  # dashed link down to the lower layer.
+  top_owner <- vapply(top_labels, function(l) {
+    if (l %in% cluster_names) {
+      return(l)
+    }
+    hit <- vapply(cluster_list, function(v) l %in% v, logical(1))
+    if (any(hit)) names(cluster_list)[which(hit)[1]] else NA_character_
+  }, character(1), USE.NAMES = FALSE)
+
+  # A macro wider than the partition that we did NOT build ourselves is a
+  # caller error, not something to draw around.
+  if (is.null(expand) && n_top != n_clusters) {
+    stop("The macro layer has ", n_top, " nodes but the partition has ",
+         n_clusters, " clusters. Pass `expand` to draw the macro at a finer ",
+         "resolution than the partition.", call. = FALSE)
+  }
+
   # Undirected drawing reads only the upper triangle, so asymmetric
   # weights would be silently misrepresented — warn instead.
   if (!directed) {
@@ -647,6 +804,7 @@ plot_mcml <- function(
 
   # Pre-compute rounded weights for edge visibility and labels
   bw_r <- round(bw, edge_label_digits)
+  bw_r_cluster <- round(bw_cluster, edge_label_digits)
 
   # Format label: drop leading zero (0.35 -> .35, -0.35 -> -.35)
   fmt_lbl <- function(v) {
@@ -687,6 +845,11 @@ plot_mcml <- function(
            "#0072B2", "#D55E00", "#CC79A7", "#999999")
   if (is.null(colors)) colors <- rep_len(pal, n_clusters)
 
+  # An expanded state takes its own cluster's colour, so the top layer still
+  # reads as groups. Identical to `colors` when nothing is expanded.
+  top_colors <- colors[match(top_owner, cluster_names)]
+  top_colors[is.na(top_colors)] <- colors[1L]
+
   # Expand cluster_shape to vector if needed
   cluster_shape <- rep_len(cluster_shape, n_clusters)
 
@@ -721,8 +884,18 @@ plot_mcml <- function(
   top_radius_x <- spacing * top_layer_scale[1]
   top_radius_y <- spacing * top_layer_scale[2]
 
-  tx <- top_radius_x * cos(angles)
-  ty <- top_radius_y * sin(angles) + top_base_y
+  # The top ring is sized by the macro, not the partition: sharing `angles`
+  # with the bottom ring is what made the two layers inseparable.
+  #
+  # `top_layer_scale` is tuned for one node per cluster. An expanded ring holds
+  # more nodes on the same flat oval, where they crowd at the left and right
+  # extremes and the labels collide, so grow the ring with the node count. The
+  # factor is exactly 1 when nothing is expanded, keeping the default geometry
+  # untouched.
+  top_spread <- sqrt(max(n_top, 1L) / max(n_clusters, 1L))
+  top_angles <- pi/2 - (seq_len(n_top) - 1) * 2 * pi / n_top
+  tx <- top_radius_x * top_spread * cos(top_angles)
+  ty <- top_radius_y * top_spread * sin(top_angles) + top_base_y
 
   # Edge weight scaling (magnitude, so signed weights scale by absolute value)
   max_sw <- max(abs(bw))
@@ -791,11 +964,17 @@ plot_mcml <- function(
         angles = na  # Store original angles for label positioning
       )
     }
-    # Draw dashed line from each node to summary node
+    # Draw dashed line from each node to the top node that represents it: its
+    # own macro node when its cluster was expanded, its cluster's node
+    # otherwise. Both are the same node when nothing is expanded.
+    node_top <- match(lab[idx], top_labels)
+    node_top[is.na(node_top)] <- match(cluster_names[i], top_labels)
     for (j in seq_along(node_positions[[i]]$x)) {
+      k <- node_top[j]
+      if (is.na(k)) next
       graphics::segments(
         node_positions[[i]]$x[j], node_positions[[i]]$y[j],
-        tx[i], ty[i],
+        tx[k], ty[k],
         col = grDevices::adjustcolor(colors[i], inter_layer_alpha),
         lty = 2, lwd = 1
       )
@@ -817,8 +996,14 @@ plot_mcml <- function(
   # "self":  colored slice = cluster's self-retention share of out-strength
   #          (bw[i, i] / rowSums(bw)[i]), a per-cluster stickiness.
   pie_props <- if (summary_pie == "inits") {
-    inits <- cs$macro$inits
-    if (is.null(inits)) rep(0, n_clusters) else as.numeric(inits)
+    # On the top layer's own alphabet: a length mismatch would read initial
+    # mass off the wrong node rather than fail.
+    inits <- macro_inits
+    if (is.null(inits) || length(inits) != n_top) {
+      rep(0, n_top)
+    } else {
+      as.numeric(inits)
+    }
   } else {
     row_tot <- rowSums(bw)
     ifelse(row_tot > 0, diag(bw) / row_tot, 0)
@@ -834,7 +1019,7 @@ plot_mcml <- function(
 
   # (a) summary nodes — donut when use_node_donut, else the classic pie.
   draw_summary_nodes <- function() {
-    for (i in seq_len(n_clusters)) {
+    for (i in seq_len(n_top)) {
       self_prop <- pie_props[i]
       if (is.na(self_prop) || self_prop < 0) self_prop <- 0
       if (self_prop > 1) self_prop <- 1
@@ -842,7 +1027,7 @@ plot_mcml <- function(
       if (use_node_donut) {
         draw_donut_node_base(
           x = tx[i], y = ty[i], size = pie_radius,
-          values = self_prop, colors = colors[i],
+          values = self_prop, colors = top_colors[i],
           inner_ratio = summary_donut_inner_ratio,
           bg_color = "gray90", center_color = "white",
           border.col = summary_border_color,
@@ -865,7 +1050,7 @@ plot_mcml <- function(
           aa <- seq(start_angle, end_angle, length.out = n_pts)
           graphics::polygon(c(tx[i], tx[i] + pie_radius * cos(aa), tx[i]),
                             c(ty[i], ty[i] + pie_radius * sin(aa), ty[i]),
-                            col = colors[i], border = NA)
+                            col = top_colors[i], border = NA)
         }
         theta <- seq(0, 2 * pi, length.out = 60)
         graphics::lines(tx[i] + pie_radius * cos(theta),
@@ -882,14 +1067,14 @@ plot_mcml <- function(
       if (!is.null(summary_curve)) summary_curve
       else if (directed) 0.25 else 0
     } else 0
-    for (i in seq_len(n_clusters)) {
-      for (j in seq_len(n_clusters)) {
+    for (i in seq_len(n_top)) {
+      for (j in seq_len(n_top)) {
         if (i != j && (directed || i < j) &&
             abs(bw[i, j]) > minimum && bw_r[i, j] != 0) {
           lwd <- summary_edge_width_range[1] +
             (summary_edge_width_range[2] - summary_edge_width_range[1]) *
             abs(bw[i, j]) / max_sw
-          ecol_base <- edge_base_col(bw[i, j], colors[i])
+          ecol_base <- edge_base_col(bw[i, j], top_colors[i])
           edge_col <- grDevices::adjustcolor(ecol_base, summary_edge_alpha)
           angle <- atan2(ty[j] - ty[i], tx[j] - tx[i])
           src_x <- tx[i] + pie_radius * cos(angle)
@@ -944,12 +1129,12 @@ plot_mcml <- function(
   draw_summary_loops <- function() {
     if (max_sw <= 0) return(invisible())
     loop_radius <- 0.15
-    for (i in seq_len(n_clusters)) {
+    for (i in seq_len(n_top)) {
       if (abs(bw[i, i]) > minimum && bw_r[i, i] != 0) {
         lwd <- summary_edge_width_range[1] +
           (summary_edge_width_range[2] - summary_edge_width_range[1]) *
           abs(bw[i, i]) / max_sw
-        ecol_base <- edge_base_col(bw[i, i], colors[i])
+        ecol_base <- edge_base_col(bw[i, i], top_colors[i])
         edge_col <- grDevices::adjustcolor(ecol_base, summary_edge_alpha)
         loop_rot <- atan2(ty[i] - mean(ty), tx[i] - mean(tx))
 
@@ -1016,7 +1201,7 @@ plot_mcml <- function(
   if (summary_labels) {
     cx <- mean(tx); cy <- mean(ty)
     explicit_pos <- "summary_label_position" %in% explicit_args
-    for (i in seq_len(n_clusters)) {
+    for (i in seq_len(n_top)) {
       if (explicit_pos) {
         tpos <- summary_label_position
       } else {
@@ -1032,7 +1217,7 @@ plot_mcml <- function(
       else if (tpos == 2) ax <- tx[i] - pie_radius
       else if (tpos == 4) ax <- tx[i] + pie_radius
       else ay <- ty[i] + pie_radius      # tpos == 3
-      graphics::text(ax, ay, labels = cluster_names[i], pos = tpos,
+      graphics::text(ax, ay, labels = top_labels[i], pos = tpos,
                      offset = 0.4, cex = summary_label_size,
                      col = summary_label_color)
     }
@@ -1047,17 +1232,19 @@ plot_mcml <- function(
   shell_ry <- shape_size * compress
   between_arrow_sz <- 0.12
   if (max_sw > 0) {
+    # These arrows join the cluster shells, so they read the COLLAPSED macro.
+    # An expanded macro has no cluster-to-cluster cell to draw here.
     for (i in seq_len(n_clusters)) {
       for (j in seq_len(n_clusters)) {
         if (i != j && (directed || i < j) &&
-            abs(bw[i, j]) > minimum && bw_r[i, j] != 0) {
+            abs(bw_cluster[i, j]) > minimum && bw_r_cluster[i, j] != 0) {
           p1 <- shell_edge(bx[i], by[i], bx[j], by[j], shell_rx, shell_ry)
           p2 <- shell_edge(bx[j], by[j], bx[i], by[i], shell_rx, shell_ry)
           lwd <- between_edge_width_range[1] +
             (between_edge_width_range[2] - between_edge_width_range[1]) *
-            abs(bw[i, j]) / max_sw
-          edge_col <- grDevices::adjustcolor(edge_base_col(bw[i, j], colors[i]),
-                                             between_edge_alpha)
+            abs(bw_cluster[i, j]) / max_sw
+          edge_col <- grDevices::adjustcolor(
+            edge_base_col(bw_cluster[i, j], colors[i]), between_edge_alpha)
           if (between_arrows) {
             angle <- atan2(p2[2] - p1[2], p2[1] - p1[1])
             tip_x <- p2[1]

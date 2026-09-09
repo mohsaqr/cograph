@@ -1,3 +1,26 @@
+# cograph 2.6.2
+
+## `plot_mcml(expand = )`
+
+The top layer can now be drawn at a finer resolution than the partition: named
+clusters appear as their member states while every other cluster stays a
+single node, and the bottom layer still shows the partition, so an expanded
+state sits inside its cluster's shell and is linked to its own summary node.
+`expand = "all"` (or `TRUE`) expands every cluster.
+
+The expanded macro is re-counted from the input with a refined partition,
+using cograph's own `cluster_summary()`; a k x k aggregate cannot be
+disaggregated after the fact. Only a pre-built `cluster_summary` or `mcml`,
+which carries no source to re-count from, falls back to
+`Nestimate::macro_network()`, and says so with a
+`cograph_expand_unavailable` error when that is unavailable.
+
+This also fixes a silent defect in the previous layout code: the top layer was
+indexed positionally against the cluster count, so a macro with more nodes than
+the partition was truncated to its first *k* rows and drawn under the cluster
+names — a confident, wrong figure with no error. It is now matched by name, and
+a macro wider than the partition that cograph did not build itself is refused.
+
 # cograph 2.6.1
 
 Fixes for defects an adversarial review found in the 2.6.0 wrangling verbs.

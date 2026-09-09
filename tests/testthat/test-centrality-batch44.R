@@ -1,3 +1,7 @@
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 test_that("lnc has a closed form on stars", {
   # A leaf has degree one, so its own contribution is 0^0 = 1 and its
   # cluster degree is the centre's degree q, against a denominator of

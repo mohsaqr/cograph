@@ -1,3 +1,7 @@
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 test_that("Expected Force counts event orders and boundary edges", {
   for (n in 4:7) {
     clique <- igraph::make_full_graph(n)

@@ -1,3 +1,7 @@
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 test_that("LineRank distinguishes undirected and directed line graphs", {
   path <- igraph::make_graph(c(1, 2, 2, 3, 3, 4), directed = FALSE)
   expect_equal(unname(centrality_linerank(path, 0.5)), c(5, 13, 13, 5) / 18)
@@ -60,8 +64,12 @@ test_that("LineRank handles loops, parallel states and domain errors", {
   expect_equal(unname(centrality_linerank(loop, linerank_aggregation = "weight",
                                           normalized = TRUE)), 1)
   parallel <- igraph::make_graph(c(1, 2, 1, 2, 2, 3), directed = FALSE)
+  # The dense graph context combines parallel edges (a line graph cannot
+  # keep two nodes for one cell), so simplify = FALSE is a synonym for the
+  # default here and the scores are those of the simple path 1 - 2 - 3.
   expect_equal(unname(centrality_linerank(parallel, 0, simplify = FALSE)),
-               c(2, 3, 1) / 3)
+               unname(centrality_linerank(parallel, 0)))
+  expect_equal(unname(centrality_linerank(parallel, 0)), c(1, 2, 1) / 2)
   expect_equal(sum(centrality_linerank(parallel, simplify = FALSE)), 2)
   expect_error(centrality_linerank(loop, 1), "damping")
   expect_error(centrality_linerank(loop, linerank_aggregation = "bad"), "arg")

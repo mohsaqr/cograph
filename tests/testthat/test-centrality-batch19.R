@@ -1,3 +1,7 @@
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 test_that("improved closeness agrees with analytical path multiplicities", {
   ring <- igraph::make_ring(4)
   star <- igraph::make_star(5, mode = "undirected")

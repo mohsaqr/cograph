@@ -1,3 +1,7 @@
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 test_that("X-degree counts nonbacktracking walks through the middle", {
   path <- igraph::make_graph(c(1, 2, 2, 3, 3, 4, 4, 5), directed = FALSE)
   expect_equal(unname(centrality_x_degree(path)), c(0, 0, 2, 0, 0))

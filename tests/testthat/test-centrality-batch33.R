@@ -1,3 +1,7 @@
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 test_that("localized bridging reproduces Macker's complete synthetic table", {
   edges <- c("A", "B", "A", "C", "A", "D", "A", "E", "B", "J",
              "D", "J", "J", "K", "E", "F", "F", "G", "F", "H",

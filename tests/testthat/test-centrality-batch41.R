@@ -1,3 +1,7 @@
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 test_that("relative entropy is the normalised geometric mean on stars", {
   # Leaves carry no shortest path, so equation (4) betweenness is zero and
   # the geometric mean annihilates them: the centre takes the whole share.

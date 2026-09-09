@@ -1,3 +1,7 @@
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 test_that("graph regularization agrees with analytic graph families", {
   score <- function(g, ...) unname(centrality_graph_regularization(g, ...))
   star <- igraph::make_star(5, mode = "undirected")

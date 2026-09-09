@@ -1,3 +1,7 @@
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 test_that("truss convention distinguishes trees, cycles and complete graphs", {
   expect_equal(unname(centrality_truss(igraph::make_ring(4))), rep(2, 4))
   expect_equal(unname(centrality_truss(igraph::make_full_graph(4))), rep(4, 4))

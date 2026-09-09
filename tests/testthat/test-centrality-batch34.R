@@ -1,3 +1,7 @@
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 test_that("NINL reproduces every entry in Zhu and Wang's Table 1", {
   edges <- c(1, 3, 2, 4, 3, 4, 3, 5, 3, 6, 4, 5, 4, 7, 4, 8, 4, 9,
              5, 6, 5, 8, 6, 8, 8, 9, 9, 10, 9, 11, 9, 12,

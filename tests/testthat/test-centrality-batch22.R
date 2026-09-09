@@ -1,3 +1,7 @@
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 test_that("weighted LeaderRank preserves source scale and direction", {
   edge <- igraph::make_graph(c(1, 2), directed = TRUE)
   expect_equal(unname(centrality_weighted_leaderrank(edge)), c(0, 1.5))

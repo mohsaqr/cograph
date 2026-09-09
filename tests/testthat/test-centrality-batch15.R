@@ -1,3 +1,7 @@
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 test_that("DS uses both spreading and recovery, excluding the initial seed", {
   edge <- igraph::make_full_graph(2)
   # On a regular graph d, each term is beta*d*(beta*d+1-mu)^r.

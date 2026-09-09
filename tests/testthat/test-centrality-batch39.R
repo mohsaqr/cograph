@@ -1,3 +1,7 @@
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 test_that("mixed gravity preserves asymmetric masses on stars", {
   for (q in c(2:6, 20)) {
     g <- igraph::make_star(q + 1, mode = "undirected")

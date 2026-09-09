@@ -1,4 +1,8 @@
 # Alias the public wrapper to keep the test expressions readable.
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 rwd <- centrality_random_walk_decay
 
 test_that("random walk decay follows first arrivals and terminal sinks", {
@@ -63,12 +67,14 @@ test_that("random walk decay retains loops, multiplicity and node weights", {
   # Equation 6 and the first-arrival series give these values. The
   # inconsistent printed Example 3 values are retained in the local audit.
   expected <- c(u = 1, v = 13 / 20, w = 6 / 5, t = 12 / 35)
+  # Parallel edges are summed by the dense context, so the paper's parallel
+  # pair is carried as an explicit unit weight per edge (sum = 2).
+  igraph::E(g)$weight <- rep(1, igraph::ecount(g))
   score <- rwd(g,
     rwd_node_weights = mass,
     simplify = FALSE
   )
   expect_equal(score, expected)
-  igraph::E(g)$weight <- rep(1, igraph::ecount(g))
   expect_equal(rwd(g, rwd_node_weights = mass), expected)
   expect_equal(
     rwd(g,

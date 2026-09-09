@@ -1,3 +1,7 @@
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 test_that("BG power reproduces the original diamond and directed variants", {
   g <- igraph::make_graph(c(1, 2, 1, 3, 2, 4, 3, 4), directed = TRUE)
   # Van den Brink and Gilles (1992), Example 2.2, printed pp3-4.

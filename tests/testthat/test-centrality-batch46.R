@@ -1,3 +1,7 @@
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 test_that("hcc is 2 everywhere on a regular graph and ehcc is 2 (1 + k)", {
   # Every node of an r-regular graph has the same extended degree for any
   # delta, so one round removes the whole graph: pos and pos_max are both

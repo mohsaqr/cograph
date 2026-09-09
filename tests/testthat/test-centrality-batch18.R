@@ -1,3 +1,7 @@
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 test_that("CDA agrees with analytical binary and weighted scores", {
   star <- igraph::make_star(5, mode = "undirected")
   expect_equal(unname(centrality_cda(star)), c(4, rep(2.5, 4)))

@@ -1,3 +1,7 @@
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 test_that("neighbor distance follows the source's nested sums, not shells", {
   # Liu, Tang, Zhou & Do arXiv:1511.00441v1 eq. (1): the k-th term sums the
   # benchmark centrality over the endpoints of the non-backtracking walks of

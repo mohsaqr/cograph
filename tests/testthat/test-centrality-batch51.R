@@ -6,6 +6,10 @@
 # Table 3 on page 6 and Table 5 on page 10, and they are named where they
 # are used.
 
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 tpr_from_edges <- function(n, el) {
   a <- matrix(0, n, n)
   a[el] <- 1

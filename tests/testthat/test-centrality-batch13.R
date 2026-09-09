@@ -1,3 +1,7 @@
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 test_that("volume counts full-graph degrees in a closed neighbourhood", {
   path <- igraph::make_tree(5, children = 1, mode = "undirected")
   expect_equal(unname(centrality_volume(path, volume_radius = 0)),

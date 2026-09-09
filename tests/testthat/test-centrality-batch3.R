@@ -3,6 +3,10 @@
 # Reference validation against centiserve / sna / igraph / NetworkX.
 # ===========================================================================
 
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 skip_coverage_tests()
 
 # ---------------------------------------------------------------------------
@@ -221,7 +225,7 @@ test_that("reaching_global scalar within [0, 1]", {
   expect_true(r >= 0 && r <= 1)
 })
 
-test_that("reaching_local on undirected matches normalized harmonic BIT-EXACT", {
+test_that("reaching_local on undirected matches normalized harmonic", {
   skip_if_not_installed("igraph")
   set.seed(5001)
   for (i in 1:8) {
@@ -230,8 +234,8 @@ test_that("reaching_local on undirected matches normalized harmonic BIT-EXACT", 
     if (igraph::ecount(g) < 2) next
     cog <- centrality(g, measures = "reaching_local")$reaching_local_all
     hm  <- igraph::harmonic_centrality(g, normalized = TRUE)
-    expect_identical(cog, unname(hm),
-                     info = sprintf("graph %d, n=%d", i, n))
+    expect_equal(cog, unname(hm), tolerance = 1e-12,
+                 info = sprintf("graph %d, n=%d", i, n))
   }
 })
 

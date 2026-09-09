@@ -12,6 +12,10 @@
 # Test graphs and helpers
 # ---------------------------------------------------------------------------
 
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 star5 <- matrix(0, 5, 5)
 star5[1, 2:5] <- 1
 star5 <- star5 + t(star5)

@@ -1,3 +1,7 @@
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 ira_fig <- function(panel) {
   # Ren et al. 2014 figure 1, transcribed from a page render. Paper labels
   # 0-4 become igraph vertices 1-5.

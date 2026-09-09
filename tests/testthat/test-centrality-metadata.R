@@ -8,6 +8,10 @@
 # against the behaviour rather than against another copy of the same list.
 # ===========================================================================
 
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 adj6 <- matrix(0, 6, 6)
 adj6[cbind(c(1, 1, 2, 4, 4, 5, 3), c(2, 3, 3, 5, 6, 6, 4))] <- 1
 adj6 <- adj6 + t(adj6)

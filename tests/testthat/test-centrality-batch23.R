@@ -1,3 +1,7 @@
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 test_that("adaptive LeaderRank follows original open-neighbor H-indices", {
   path4 <- igraph::make_graph(c(1, 2, 2, 3, 3, 4), directed = FALSE)
   # Every original H-index is one. Including the focal degree in the

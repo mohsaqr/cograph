@@ -1,3 +1,7 @@
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 test_that("dkgm masses combine degree, shell and removal stage on stars", {
   # Leaves leave in stage one and the centre in stage two, so q(1) = 2 and
   # the improved shell denominator is three.

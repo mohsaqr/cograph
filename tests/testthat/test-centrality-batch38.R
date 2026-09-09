@@ -1,3 +1,7 @@
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 test_that("MCGM reproduces the primary paper's complete numerical example", {
   edges <- c(1, 2, 2, 3, 2, 7, 3, 4, 3, 7, 4, 5, 4, 6,
              4, 7, 5, 6, 5, 7, 5, 8, 6, 7, 6, 9)

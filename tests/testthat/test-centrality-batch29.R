@@ -1,3 +1,7 @@
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 test_that("bridging capital removes one entry and counts repeated uses once", {
   pair <- igraph::make_full_graph(2)
   expect_equal(unname(centrality_bridging_capital(pair, 1)), c(1, 1))
@@ -51,8 +55,11 @@ test_that("bridging capital validates probability and numerical domains", {
   igraph::E(g)$weight <- c(0.2, 0.3)
   expect_equal(unname(centrality_bridging_capital(g, simplify = FALSE)),
                c(0.5, 0))
-  expect_error(centrality_bridging_capital(g, weighted = FALSE,
-                                           simplify = FALSE), "probabilities")
+  # Parallel edges are summed by the dense context: two 0.6 transmissions
+  # add to 1.2, which is not a probability.
+  igraph::E(g)$weight <- c(0.6, 0.6)
+  expect_error(centrality_bridging_capital(g, simplify = FALSE), "probabilities")
+  igraph::E(g)$weight <- c(0.2, 0.3)
   for (bad in c(-1, NA_real_, Inf, 1.1)) {
     igraph::E(g)$weight <- c(bad, 0)
     expect_error(centrality_bridging_capital(g, simplify = FALSE),

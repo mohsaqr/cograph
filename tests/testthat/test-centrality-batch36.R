@@ -1,3 +1,7 @@
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 test_that("ControlRank reproduces the published bi-star example", {
   g <- igraph::make_graph(c(1, 2, 1, 7, 2, 3, 2, 4, 2, 5, 2, 6,
                             7, 8, 7, 9, 7, 10, 7, 11), directed = FALSE)

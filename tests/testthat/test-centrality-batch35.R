@@ -1,3 +1,7 @@
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 test_that("map equation keeps the paper and Infomap conventions distinct", {
   edges <- c(1, 2, 1, 3, 1, 4, 2, 4, 3, 4, 4, 5,
              5, 6, 5, 7, 5, 8, 6, 7)

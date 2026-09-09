@@ -1,3 +1,7 @@
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 test_that("Coleman-Theil follows the author's small-network conventions", {
   for (n in 0:3) {
     expect_equal(unname(centrality_coleman_theil(igraph::make_empty_graph(n))),
@@ -34,9 +38,12 @@ test_that("Coleman-Theil uses mutual weighted dyadic constraint", {
   igraph::E(directed)$weight <- c(1, 2)
   expect_equal(unname(centrality_coleman_theil(directed)), unname(expected))
   parallel <- igraph::make_graph(c(1, 2, 1, 2, 1, 3), directed = TRUE)
+  # Parallel edges are summed by the dense context; with unit weights the
+  # doubled edge carries weight 2 and reproduces the weighted expectation.
+  igraph::E(parallel)$weight <- rep(1, 3)
   expect_equal(unname(centrality_coleman_theil(parallel, simplify = FALSE)),
                unname(expected))
-  expect_equal(unname(centrality_coleman_theil(parallel)), c(0, 1, 1))
+  expect_equal(unname(centrality_coleman_theil(parallel, weighted = FALSE)), c(0, 1, 1))
   # Positive scores near uniformity must survive entropy cancellation.
   igraph::E(g)$weight <- c(1, 1 + 1e-8)
   small <- centrality_coleman_theil(g)[1]

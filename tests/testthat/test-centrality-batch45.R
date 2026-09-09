@@ -1,3 +1,7 @@
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 test_that("ked has a closed form on stars", {
   # A q-star has n = q + 1. The centre's q neighbours are all leaves of
   # degree one, so its neighbour-degree distribution is uniform, H = 1 and

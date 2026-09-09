@@ -370,13 +370,18 @@ test_that("simplify parameter handles multiple edges", {
   expect_true(is.data.frame(min_result))
 })
 
-test_that("simplify = FALSE keeps multiple edges", {
+test_that("simplify = FALSE on a multigraph sums parallel edges (dense context)", {
   g <- igraph::make_empty_graph(n = 3, directed = FALSE)
   g <- igraph::add_edges(g, c(1, 2, 1, 2, 2, 3))
   igraph::V(g)$name <- c("A", "B", "C")
 
-  result <- centrality(g, measures = "degree", simplify = FALSE)
+  # A dense weight matrix holds one value per cell, so parallel edges are
+  # combined whatever `simplify` says; the input carries no weights, so an
+  # unweighted reading sees the parallel pair once.
+  result <- centrality(g, measures = c("degree", "strength"), simplify = FALSE)
   expect_true(is.data.frame(result))
+  expect_equal(result$degree_all, c(1, 2, 1))
+  expect_equal(result$strength_all, c(1, 2, 1))
 })
 
 test_that("simplify = 'none' is equivalent to FALSE", {
@@ -384,10 +389,8 @@ test_that("simplify = 'none' is equivalent to FALSE", {
   g <- igraph::add_edges(g, c(1, 2, 1, 2, 2, 3))
   igraph::V(g)$name <- c("A", "B", "C")
 
-  result_false <- centrality(g, measures = "degree", simplify = FALSE)
-  result_none <- centrality(g, measures = "degree", simplify = "none")
-
-  expect_equal(result_false, result_none)
+  expect_equal(centrality(g, measures = "degree", simplify = FALSE),
+               centrality(g, measures = "degree", simplify = "none"))
 })
 
 # ═══════════════════════════════════════════════════════════════════════════════

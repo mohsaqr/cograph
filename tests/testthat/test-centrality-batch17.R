@@ -1,3 +1,7 @@
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 test_that("extended coreness counts walks using original core numbers", {
   # Triangle 1-2-3, leaf 4 attached to 1, and isolate 5.
   # Core=(2,2,2,1,0); neighbor-core sums=(5,4,4,2,0).

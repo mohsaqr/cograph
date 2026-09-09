@@ -1,3 +1,7 @@
+# Inputs or oracles in this file are built with igraph; without it the
+# file is skipped as a whole (the igraph-free proof is the golden and port tests).
+skip_if_not_installed("igraph")
+
 test_that("SpectralRank preserves ground-inclusive normalization", {
   for (n in c(1:5, 16)) {
     g <- igraph::make_empty_graph(n)
@@ -78,7 +82,9 @@ test_that("SpectralRank preprocessing and precision limits are explicit", {
                unname(centrality_spectralrank(a, sr_prior = 1:3)[perm]))
   expect_error(centrality_spectralrank(a, sr_prior = c(1e300, 0, 0)),
                "unresolved")
-  igraph::E(g)$weight <- c(-1, 1, 1, 1)
+  # the parallel pair (edges 1 and 2) is summed by the dense context, so the
+  # negative weight goes on the single 2 -> 3 edge
+  igraph::E(g)$weight <- c(1, 1, -1, 1)
   expect_error(centrality_spectralrank(g, simplify = FALSE), "nonnegative")
   meta <- list_centralities()
   expect_true(meta$uses_weights[meta$measure == "spectralrank"])

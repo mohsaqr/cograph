@@ -931,20 +931,9 @@ centrality <- function(x, type = c("basic", "extended", "all"),
     stop("damping must be between 0 and 1", call. = FALSE)
   }
 
-  # Convert input to igraph (pass directed for override)
-  g <- to_igraph(x, directed = directed)
-
-  # Handle loops (remove if loops = FALSE)
-  if (!loops && igraph::any_loop(g)) {
-    g <- igraph::simplify(g, remove.multiple = FALSE, remove.loops = TRUE)
-  }
-
-  # Handle multiple edges (only call simplify if there are actual multiples)
-  if (!isFALSE(simplify) && !identical(simplify, "none") && igraph::any_multiple(g)) {
-    simplify <- match.arg(simplify, c("sum", "mean", "max", "min"))
-    g <- igraph::simplify(g, remove.multiple = TRUE, remove.loops = FALSE,
-                          edge.attr.comb = list(weight = simplify, "ignore"))
-  }
+  # Native graph context (R/kernels-graph.R): dense weights, canonical edge
+  # order, loops and duplicate edges resolved once, no igraph needed.
+  cg <- .cg_graph(x, directed = directed, loops = loops, simplify = simplify)
 
   # Define which measures support mode parameter
   mode_measures <- .cg_mode_measures()
@@ -1007,19 +996,11 @@ centrality <- function(x, type = c("basic", "extended", "all"),
   }
 
   # Get node labels
-  labels <- if (!is.null(igraph::V(g)$name)) {
-    igraph::V(g)$name
-  } else {
-    as.character(seq_len(igraph::vcount(g)))
-  }
+  labels <- cg$labels
 
   # Calculate each measure
   results <- list(node = labels)
-  weights <- if (weighted && !is.null(igraph::E(g)$weight)) {
-    igraph::E(g)$weight
-  } else {
-    NULL
-  }
+  weights <- if (weighted && !is.null(cg$weights)) cg$weights else NULL
   psychometric_measures <- c("expected_influence_1", "expected_influence_2")
   if (is.null(psych_network)) {
     psych_network <- any(measures %in% psychometric_measures) &&
@@ -1055,7 +1036,7 @@ centrality <- function(x, type = c("basic", "extended", "all"),
   # Pre-calculate HITS scores if needed (avoid computing twice)
   hits_result <- NULL
   if (any(c("authority", "hub") %in% measures)) {
-    hits_result <- igraph::hits_scores(g, weights = weights)
+    hits_result <- .cg_hits(.cg_attr_matrix(cg, weights), cg$n)
   }
 
   # Pre-compute the shared shortest-path matrix once when any distance-based
@@ -1073,7 +1054,7 @@ centrality <- function(x, type = c("basic", "extended", "all"),
     # The kernel takes a weight matrix, so the graph's edges and the
     # path weights actually in force are assembled into one first.
     shared_dist_mat <- .cg_distances(
-      .cg_path_matrix(g, weights_for_paths), mode, cutoff)
+      .cg_path_matrix(cg, weights_for_paths), mode, cutoff)
   }
 
   # Batch 7 scaling measures are defined on hop counts, not path weights,
@@ -1085,7 +1066,7 @@ centrality <- function(x, type = c("basic", "extended", "all"),
                              "geodesic_kpath")
   shared_hop_mat <- NULL
   if (any(measures %in% hop_distance_measures)) {
-    shared_hop_mat <- .cg_hop_distances(g, mode)
+    shared_hop_mat <- .cg_hop_distances(cg, mode)
   }
 
   # Batch 8 no-mode measures walk along out-edges whatever `mode` says, so
@@ -1094,7 +1075,7 @@ centrality <- function(x, type = c("basic", "extended", "all"),
                         "hide_information")
   shared_out_hop_mat <- NULL
   if (any(measures %in% out_hop_measures)) {
-    shared_out_hop_mat <- .cg_hop_distances(g, "out")
+    shared_out_hop_mat <- .cg_hop_distances(cg, "out")
   }
 
   for (m in measures) {
@@ -1107,7 +1088,7 @@ centrality <- function(x, type = c("basic", "extended", "all"),
 
     # Calculate value
     compute <- function() calculate_measure(
-      g, m, mode, measure_weights, normalized,
+      cg, m, mode, measure_weights, normalized,
       cutoff = cutoff, damping = damping, personalized = personalized,
       transitivity_type = transitivity_type, isolates = isolates,
       hits_result = hits_result, lambda = lambda,
@@ -1156,7 +1137,7 @@ centrality <- function(x, type = c("basic", "extended", "all"),
       rsp_beta = rsp_beta, rsp_cost = rsp_cost,
       re_indexes = re_indexes, re_negative = re_negative
     )
-    value <- .cg_tier_guard(m, m %in% tier_measures, igraph::vcount(g),
+    value <- .cg_tier_guard(m, m %in% tier_measures, cg$n,
                             compute())
 
     # Normalize if requested (except for closeness which is handled by igraph)
@@ -1206,30 +1187,30 @@ centrality <- function(x, type = c("basic", "extended", "all"),
 #' then for each node compute `diag(M^3)_v / ((sum_j M_vj)^2 - sum_j M_vj^2)`.
 #' Returns a numeric vector of length n.
 #'
-#' @param g igraph object (directed or undirected). Weights are taken from
-#'   `E(g)$weight` via `as_adjacency_matrix(attr = "weight")`; binary
-#'   adjacency is used if no weights.
+#' @param cg A `cg_graph` context. Weights are read from `cg$w`; an
+#'   unweighted graph carries a binary matrix there.
 #' @return Numeric vector of clustering values, one per vertex.
 #' @noRd
-calculate_clustering_onnela <- function(g) {
-  n <- igraph::vcount(g)
+calculate_clustering_onnela <- function(cg) {
+  cg <- .cg_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
-  W <- as.matrix(igraph::as_adjacency_matrix(g, attr = "weight", sparse = FALSE))
-  M <- W + t(W)
+  M <- cg$w + t(cg$w)
   diag(M) <- 0
   num <- diag(M %*% M %*% M)
   den <- .colSums(M, n, n)^2 - .colSums(M^2, n, n)
   num / den
 }
 
-calculate_diffusion_power_series <- function(g, loops = TRUE) {
-  n <- igraph::vcount(g)
+calculate_diffusion_power_series <- function(cg, loops = TRUE) {
+  cg <- .cg_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
-  attr <- if ("weight" %in% igraph::edge_attr_names(g)) "weight" else NULL
-  W <- as.matrix(igraph::as_adjacency_matrix(g, attr = attr, sparse = FALSE))
+  W <- cg$w
   if (!isTRUE(loops)) diag(W) <- 0
   s <- matrix(0, n, n)
   p <- diag(1, n, n)
+  # Each power depends on the previous one, so the series is sequential.
   for (i in seq_len(n)) {
     p <- p %*% W
     s <- s + p
@@ -1237,42 +1218,10 @@ calculate_diffusion_power_series <- function(g, loops = TRUE) {
   .rowSums(s, n, n)
 }
 
-calculate_diffusion <- function(g, mode = "all", lambda = 1) {
-  n <- igraph::vcount(g)
-  if (n == 0) return(numeric(0))
-
- # Get scaled degrees
-  d <- igraph::degree(g, mode = mode) * lambda
-
-  # Get adjacency matrix (sparse for efficiency)
-  adj <- igraph::as_adjacency_matrix(g, sparse = TRUE)
-
-  # Calculate neighbor sum based on mode
-  # neighborhood() with order=1 includes the node itself plus neighbors
-  # For mode="out": neighbors are nodes this node points TO
-  # For mode="in": neighbors are nodes that point TO this node
-  # For mode="all": all neighbors (both directions)
-
-  if (igraph::is_directed(g)) {
-    if (mode == "out") {
-      # Out-neighbors: nodes I point to (row i, columns with 1s)
-      neighbor_sum <- as.numeric(adj %*% d)
-    } else if (mode == "in") {
-      # In-neighbors: nodes that point to me (column i, rows with 1s)
-      neighbor_sum <- as.numeric(Matrix::t(adj) %*% d)
-    } else {
-      # All neighbors: combine both directions
-      # Use logical OR to avoid double-counting mutual edges
-      adj_undirected <- adj | Matrix::t(adj)
-      neighbor_sum <- as.numeric(adj_undirected %*% d)
-    }
-  } else {
-    # Undirected: adjacency matrix is symmetric
-    neighbor_sum <- as.numeric(adj %*% d)
-  }
-
-  # Result is own degree + sum of neighbor degrees
-  d + neighbor_sum
+calculate_diffusion <- function(cg, mode = "all", lambda = 1) {
+  cg <- .cg_context(cg)
+  if (cg$n == 0) return(numeric(0))
+  .cg_diffusion(cg$b, cg$directed, mode = mode, lambda = lambda)
 }
 
 #' Calculate leverage centrality (vectorized)
@@ -1281,65 +1230,31 @@ calculate_diffusion <- function(g, mode = "all", lambda = 1) {
 #' Measures how much a node influences its neighbors based on relative degrees.
 #' Formula: l_i = (1/k_i) * sum_j((k_i - k_j) / (k_i + k_j)) for neighbors j
 #'
-#' @param g igraph object
+#' @param cg A `cg_graph` context.
 #' @param mode "all", "in", or "out" for directed graphs
 #' @param loops Logical; whether to count loop edges
 #' @return Numeric vector of leverage centrality values
 #' @noRd
-calculate_leverage <- function(g, mode = "all", loops = TRUE) {
-  n <- igraph::vcount(g)
+calculate_leverage <- function(cg, mode = "all", loops = TRUE) {
+  cg <- .cg_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
-
-  # Get degrees
-  k <- igraph::degree(g, mode = mode, loops = loops)
-
-  # Get adjacency matrix
-  adj <- igraph::as_adjacency_matrix(g, sparse = TRUE)
-
-  # For directed graphs with specific mode, use appropriate adjacency
-  if (igraph::is_directed(g)) {
-    if (mode == "in") {
-      adj <- Matrix::t(adj)
-    } else if (mode == "all") {
-      adj <- adj | Matrix::t(adj)
-    }
-  }
-
-  # Vectorized calculation
-  # For each node i, we need: mean over neighbors j of (k_i - k_j)/(k_i + k_j)
-  # Using matrix operations:
-  # - k_i - k_j for all pairs: outer subtraction
-  # - k_i + k_j for all pairs: outer addition
-  # - Select only neighbors using adjacency matrix
-
-  result <- numeric(n)
-
-  for (i in seq_len(n)) {
-    if (k[i] == 0) {
-      result[i] <- NaN
-      next
-    }
-
-    # Get neighbor indices
-    neighbors_i <- which(adj[i, ] != 0)
-
-    if (length(neighbors_i) == 0) { # nocov start
-      result[i] <- NaN
-      next
-    } # nocov end
-
-    k_neighbors <- k[neighbors_i]
-
-    # Calculate leverage: mean of (k_i - k_j) / (k_i + k_j)
-    numerator <- k[i] - k_neighbors
-    denominator <- k[i] + k_neighbors
-
-    # Handle division by zero (when k_i = k_j = 0)
-    ratios <- ifelse(denominator == 0, 0, numerator / denominator)
-    result[i] <- mean(ratios)
-  }
-
-  result
+  b <- cg$b
+  if (!isTRUE(loops)) diag(b) <- 0
+  # Degrees at `mode` (a loop counts as igraph counts it), and the neighbour
+  # set at `mode` -- a vertex with a loop is its own neighbour, as in the
+  # adjacency igraph reported.
+  k <- .cg_degree(b, cg$directed, mode)
+  adj <- if (!cg$directed) b != 0
+         else switch(mode, out = b != 0, `in` = t(b) != 0,
+                     all = (b + t(b)) != 0)
+  vapply(seq_len(n), function(i) {
+    if (k[i] == 0) return(NaN)
+    j_set <- which(adj[i, ])
+    if (length(j_set) == 0L) return(NaN) # nocov
+    denom <- k[i] + k[j_set]
+    mean(ifelse(denom == 0, 0, (k[i] - k[j_set]) / denom))
+  }, numeric(1L))
 }
 
 #' Calculate geodesic k-path centrality (vectorized)
@@ -1353,20 +1268,18 @@ calculate_leverage <- function(g, mode = "all", loops = TRUE) {
 #' @param k Maximum path length. Default 3.
 #' @return Numeric vector of kreach centrality values
 #' @noRd
-calculate_kreach <- function(g, mode = "all", weights = NULL, k = 3) {
-  n <- igraph::vcount(g)
+calculate_kreach <- function(cg, mode = "all", weights = NULL, k = 3) {
+  cg <- .cg_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
 
   if (k <= 0) {
     stop("The k parameter must be greater than 0.", call. = FALSE)
   }
 
-  # Get shortest path matrix
-  sp <- igraph::distances(g, mode = mode, weights = weights)
-
   # Count nodes within distance k (excluding self)
-  # rowSums counts how many entries are <= k, subtract 1 for self
-  as.integer(rowSums(sp <= k, na.rm = TRUE) - 1)
+  sp <- .cg_distances(.cg_attr_matrix(cg, weights), mode)
+  as.integer(.cg_kreach(sp, n, k))
 }
 
 #' Calculate Laplacian centrality
@@ -1379,20 +1292,22 @@ calculate_kreach <- function(g, mode = "all", weights = NULL, k = 3) {
 #' @param normalized Whether to normalize by max value
 #' @return Numeric vector of Laplacian centrality values
 #' @noRd
-calculate_laplacian <- function(g, weights = NULL, normalized = FALSE) {
+calculate_laplacian <- function(cg, weights = NULL, normalized = FALSE) {
+  cg <- .cg_context(cg)
   # Qi et al. (2012) local formula: deg² + deg + 2 * Σ(neighbor_degrees)
   # Matches NetworkX and centiserve::laplacian()
-  n <- igraph::vcount(g)
+  n <- cg$n
   if (n == 0) return(numeric(0))
   if (n == 1) return(0)
 
-  result <- numeric(n)
-  for (v in seq_len(n)) {
-    deg_v <- igraph::degree(g, v)
-    neighbors <- igraph::neighbors(g, v)
-    sum_neighbor_deg <- sum(igraph::degree(g, neighbors))
-    result[v] <- deg_v^2 + deg_v + 2 * sum_neighbor_deg
-  }
+  # Degrees count a loop twice (igraph's convention), and the neighbour
+  # list igraph reported includes the vertex itself for a loop -- once on
+  # a directed graph, twice on an undirected one -- so the neighbour-degree
+  # sum is a count-weighted product rather than a plain adjacency product.
+  deg <- .cg_degree(cg$b, cg$directed, "all")
+  count <- cg$b
+  if (!cg$directed) diag(count) <- 2 * diag(cg$b)
+  result <- unname(deg^2 + deg + 2 * as.numeric(count %*% deg))
 
   if (normalized && max(result) > 0) {
     result <- result / max(result)
@@ -1412,77 +1327,19 @@ calculate_laplacian <- function(g, weights = NULL, normalized = FALSE) {
 #' @param directed Whether to consider edge direction
 #' @return Numeric vector of load centrality values
 #' @noRd
-calculate_load <- function(g, weights = NULL, directed = TRUE) {
-  n <- igraph::vcount(g)
+calculate_load <- function(cg, weights = NULL, directed = TRUE) {
+  cg <- .cg_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
   if (n == 1) return(0)
 
-  # sna convention: transpose directed graphs before computing load
-  if (directed && igraph::is_directed(g)) {
-    g <- igraph::reverse_edges(g)
-  }
-  mode <- if (directed) "out" else "all"
-  load <- numeric(n)
-
-  # Pre-build incoming neighbor list with edge weights for predecessor checks
-  el <- igraph::as_edgelist(g, names = FALSE)
-  if (is.null(weights)) {
-    edge_w <- rep(1, nrow(el))
-  } else {
-    edge_w <- weights
-  }
-
-  # For each node w, store matrix of (predecessor_v, edge_weight).
-  # Built via .build_incoming (shared helper, split-based, O(m)).
-  incoming <- .build_incoming(el, edge_w, n, directed)
-
-  for (s in seq_len(n)) {
-    # Get distances from source
-    # Use NA to force unweighted when weights not provided (NULL = auto-detect)
-    dist_weights <- if (is.null(weights)) NA else weights
-    dist_s <- igraph::distances(g, v = s, mode = mode, weights = dist_weights)[1, ]
-
-    # Find predecessors using actual edge weights (not hardcoded 1)
-    sigma <- numeric(n)
-    sigma[s] <- 1
-    pred <- vector("list", n)
-
-    # Process reachable nodes in distance order
-    reachable <- which(!is.infinite(dist_s) & seq_len(n) != s)
-    ordered_nodes <- reachable[order(dist_s[reachable])]
-
-    for (w in ordered_nodes) {
-      inc <- incoming[[w]]
-      if (is.null(inc)) next # nocov
-      if (is.null(dim(inc))) inc <- matrix(inc, nrow = 1) # nocov
-      for (r in seq_len(nrow(inc))) {
-        v <- inc[r, 1]
-        ew <- inc[r, 2]
-        # Check if edge v->w lies on a shortest path from s
-        if (abs(dist_s[w] - dist_s[v] - ew) < 1e-10) {
-          sigma[w] <- sigma[w] + sigma[v]
-          pred[[w]] <- c(pred[[w]], v)
-        }
-      }
-    }
-
-    # Accumulation phase (reverse distance order, load-style)
-    # Only reachable nodes (+ source) carry unit load
-    delta <- numeric(n)
-    delta[c(s, ordered_nodes)] <- 1
-    for (w in rev(ordered_nodes)) {
-      if (length(pred[[w]]) > 0) {
-        flow_per_pred <- delta[w] / length(pred[[w]])
-        for (v in pred[[w]]) {
-          delta[v] <- delta[v] + flow_per_pred
-        }
-      }
-    }
-
-    load <- load + delta
-  }
-
-  load
+  # Unweighted unless weights are given (NULL never falls back to the
+  # graph's own weights here), and reversed first on a directed graph,
+  # which is sna's convention.
+  m <- .cg_path_matrix(cg, weights)
+  if (directed && cg$directed) m <- t(m)
+  if (!directed) m <- .cg_mode_weights(m, "all")
+  .cg_load(m, n, directed)
 }
 
 #' Calculate current-flow closeness centrality (information centrality)
@@ -1494,52 +1351,51 @@ calculate_load <- function(g, weights = NULL, directed = TRUE) {
 #' @param weights Edge weights (NULL for unweighted)
 #' @return Numeric vector of current-flow closeness values
 #' @noRd
-calculate_current_flow_closeness <- function(g, weights = NULL) {
-  n <- igraph::vcount(g)
+calculate_current_flow_closeness <- function(cg, weights = NULL) {
+  cg <- .cg_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
   if (n <= 1) return(rep(NA_real_, n))
 
   # Must be connected for current flow
-  if (!igraph::is_connected(g, mode = "weak")) {
+  if (.cg_n_components(cg$b) > 1L) {
     warning("Graph is not connected; current-flow closeness undefined for disconnected nodes")
     return(rep(NA_real_, n))
   }
 
-  # Get Laplacian matrix
-  L <- igraph::laplacian_matrix(g, weights = weights, sparse = FALSE)
+  # Effective resistance R_ij = L+_ii + L+_jj - 2 L+_ij from the
+  # pseudo-inverse of the Laplacian; closeness is (n - 1) over their sum.
+  L_pinv <- .cg_laplacian_pinv(cg, weights)
+  if (is.null(L_pinv)) return(rep(NA_real_, n)) # nocov
+  dg <- diag(L_pinv)
+  total <- vapply(seq_len(n), function(i) {
+    j <- seq_len(n)[seq_len(n) != i]
+    sum(dg[i] + dg[j] - 2 * L_pinv[i, j])
+  }, numeric(1L))
+  (n - 1) / total
+}
 
-  # Compute Moore-Penrose pseudoinverse
-  # L+ = (L - J/n)^-1 + J/n where J is all-ones matrix
-  J <- matrix(1, n, n)
-  L_tilde <- L - J / n
-
-  # Use SVD for pseudoinverse (more stable)
-  svd_result <- svd(L_tilde)
-  tol <- max(dim(L_tilde)) * max(svd_result$d) * .Machine$double.eps
-  positive <- svd_result$d > tol
-  if (sum(positive) == 0) return(rep(NA_real_, n)) # nocov
-
-  L_pinv <- svd_result$v[, positive, drop = FALSE] %*%
-    diag(1 / svd_result$d[positive], nrow = sum(positive)) %*%
-    t(svd_result$u[, positive, drop = FALSE])
-
-  # Current-flow closeness for node i is n / sum of effective resistances
-  # Effective resistance R_ij = L+_ii + L+_jj - 2*L+_ij
-  diag_L_pinv <- diag(L_pinv)
-
-  result <- numeric(n)
-  for (i in seq_len(n)) {
-    total_resistance <- 0
-    for (j in seq_len(n)) {
-      if (i != j) {
-        R_ij <- diag_L_pinv[i] + diag_L_pinv[j] - 2 * L_pinv[i, j]
-        total_resistance <- total_resistance + R_ij
-      }
-    }
-    result[i] <- (n - 1) / total_resistance
-  }
-
-  result
+#' Pseudo-inverse of the Laplacian, as the current-flow measures read it
+#'
+#' The Laplacian takes the given weights, else the graph's own (igraph's
+#' `weights = NULL` reading). It is shifted by the all-ones matrix over `n`
+#' and inverted through an SVD with rank filtering, which is well defined
+#' even when the shifted matrix is rank deficient.
+#'
+#' @param cg A `cg_graph` context.
+#' @param weights Edge weights in canonical order, or NULL.
+#' @return An `n x n` matrix, or NULL when every singular value is zero.
+#' @noRd
+.cg_laplacian_pinv <- function(cg, weights = NULL) {
+  n <- cg$n
+  L <- .cg_laplacian_matrix(.cg_attr_matrix(cg, weights), cg$directed)
+  L_tilde <- L - 1 / n
+  s <- svd(L_tilde)
+  positive <- s$d > max(dim(L_tilde)) * max(s$d) * .Machine$double.eps
+  if (!any(positive)) return(NULL) # nocov
+  s$v[, positive, drop = FALSE] %*%
+    diag(1 / s$d[positive], nrow = sum(positive)) %*%
+    t(s$u[, positive, drop = FALSE])
 }
 
 #' Calculate current-flow betweenness centrality
@@ -1551,73 +1407,40 @@ calculate_current_flow_closeness <- function(g, weights = NULL) {
 #' @param weights Edge weights (NULL for unweighted, treated as conductances)
 #' @return Numeric vector of current-flow betweenness values
 #' @noRd
-calculate_current_flow_betweenness <- function(g, weights = NULL) {
-  n <- igraph::vcount(g)
+calculate_current_flow_betweenness <- function(cg, weights = NULL) {
+  cg <- .cg_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
   if (n <= 2) return(rep(0, n))
 
   # Must be connected and undirected
-  if (!igraph::is_connected(g, mode = "weak")) {
+  if (.cg_n_components(cg$b) > 1L) {
     warning("Graph is not connected; current-flow betweenness undefined")
     return(rep(NA_real_, n))
   }
 
-  # Get adjacency matrix (for edge weights)
-  if (is.null(weights)) {
-    A <- igraph::as_adjacency_matrix(g, sparse = FALSE)
-  } else {
-    A <- igraph::as_adjacency_matrix(g, attr = "weight", sparse = FALSE)
-  }
+  L_pinv <- .cg_laplacian_pinv(cg, weights)
+  if (is.null(L_pinv)) return(rep(NA_real_, n)) # nocov
+  # Throughput is read off the graph's own weights when weights are given
+  # and off the binary adjacency otherwise, which is what the igraph-era
+  # code did (the Laplacian above always sees weights).
+  A_mat <- if (is.null(weights)) cg$b else cg$w
 
-  # Get Laplacian
-  L <- igraph::laplacian_matrix(g, weights = weights, sparse = FALSE)
-
-  # Pseudoinverse of Laplacian
-  J <- matrix(1, n, n)
-  L_tilde <- L - J / n
-
-  svd_result <- svd(L_tilde)
-  tol <- max(dim(L_tilde)) * max(svd_result$d) * .Machine$double.eps
-  positive <- svd_result$d > tol
-
-  if (sum(positive) == 0) return(rep(NA_real_, n)) # nocov
-
-  L_pinv <- svd_result$v[, positive, drop = FALSE] %*%
-    diag(1 / svd_result$d[positive], nrow = sum(positive)) %*%
-    t(svd_result$u[, positive, drop = FALSE])
-
-  # Brandes & Fleischer algorithm. Vectorized per (s, t) pair: build the
-  # potential-difference matrix P where P[v, u] = p[v] - p[u], then the
-  # per-node throughput is rowSums(A * abs(P)) / 2. The inner v/u loops
-  # were the hot spot (O(n^2) R-interpreted iterations per pair); one
-  # matrix op per pair replaces n^2 iterations with a single BLAS-backed
-  # computation. At n=200 this alone accounts for ~150 s of the extended
-  # suite — see the pre-fix profile.
-  betweenness <- numeric(n)
-  A_mat <- as.matrix(A)
-  # Pre-compute the skip indices: for each (s, t) pair we must zero out the
-  # throughput contributions from v == s and v == t before accumulating.
-  for (s in seq_len(n - 1)) {
-    for (t in (s + 1):n) {
-      # Potential at each node: p_v = L+_vs - L+_vt
-      potential <- L_pinv[, s] - L_pinv[, t]
-
-      # Throughput per node v: 0.5 * sum_u A[v, u] * |p[v] - p[u]|
-      # outer(potential, potential, "-")[v, u] = p[v] - p[u]
-      P_diff <- outer(potential, potential, `-`)
-      throughput <- rowSums(A_mat * abs(P_diff)) * 0.5
-
-      # Exclude throughput at endpoints of the (s, t) pair
-      throughput[s] <- 0
-      throughput[t] <- 0
-      betweenness <- betweenness + throughput
-    }
-  }
+  # Brandes & Fleischer: one unit of current per (s, t) pair; the pairs
+  # cannot be collapsed because each induces a different potential field.
+  # The per-node throughput is rowSums(A * |p_v - p_u|) / 2.
+  pairs <- which(upper.tri(diag(n)), arr.ind = TRUE)
+  throughputs <- vapply(seq_len(nrow(pairs)), function(k) {
+    s <- pairs[k, 1L]; t <- pairs[k, 2L]
+    potential <- L_pinv[, s] - L_pinv[, t]
+    throughput <- rowSums(A_mat * abs(outer(potential, potential, `-`))) * 0.5
+    throughput[c(s, t)] <- 0
+    throughput
+  }, numeric(n))
+  betweenness <- rowSums(matrix(throughputs, nrow = n))
 
   # Normalize: 2 / ((n-1)(n-2)) matches NetworkX normalized=TRUE
-  betweenness <- betweenness * 2 / ((n - 1) * (n - 2))
-
-  betweenness
+  betweenness * 2 / ((n - 1) * (n - 2))
 }
 
 #' Calculate VoteRank centrality
@@ -1630,72 +1453,13 @@ calculate_current_flow_betweenness <- function(g, weights = NULL) {
 #' @param directed Whether to consider edge direction
 #' @return Numeric vector with rank order (1 = most influential, higher = less)
 #' @noRd
-calculate_voterank <- function(g, directed = TRUE)
+calculate_voterank <- function(cg, directed = TRUE)
 {
-  n <- igraph::vcount(g)
+  cg <- .cg_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
   if (n == 1) return(1)
-
-
-  # Initialize voting ability for all nodes
-  avg_degree <- mean(igraph::degree(g, mode = "all"))
-  if (avg_degree == 0) avg_degree <- 1
-
-  voting_ability <- rep(1, n)
-  selected <- logical(n)
-  rank_order <- rep(NA_integer_, n)
-  rank <- 1
-
-  for (iter in seq_len(n)) {
-    # Calculate votes for each unselected node
-    votes <- numeric(n)
-
-    for (v in which(!selected)) {
-      # Get in-neighbors (nodes that vote for v)
-      if (directed) {
-        voters <- as.integer(igraph::neighbors(g, v, mode = "in"))
-      } else {
-        voters <- as.integer(igraph::neighbors(g, v, mode = "all"))
-      }
-
-      # Sum voting ability of neighbors that haven't been selected
-      votes[v] <- sum(voting_ability[voters[!selected[voters]]])
-    }
-
-    # Select node with maximum votes
-    candidates <- which(!selected)
-    if (length(candidates) == 0) break # nocov
-
-    votes_candidates <- votes[candidates]
-    if (all(votes_candidates == 0)) {
-      # No more votes, assign remaining ranks arbitrarily
-      remaining <- which(!selected)
-      rank_order[remaining] <- seq(rank, length.out = length(remaining))
-      break
-    }
-
-    # Winner is candidate with max votes
-    winner <- candidates[which.max(votes_candidates)]
-    selected[winner] <- TRUE
-    rank_order[winner] <- rank
-    rank <- rank + 1
-
-    # Reduce voting ability of winner's neighbors
-    if (directed) {
-      neighbors_of_winner <- as.integer(igraph::neighbors(g, winner, mode = "out"))
-    } else {
-      neighbors_of_winner <- as.integer(igraph::neighbors(g, winner, mode = "all"))
-    }
-
-    for (nb in neighbors_of_winner) {
-      voting_ability[nb] <- max(0, voting_ability[nb] - 1 / avg_degree)
-    }
-  }
-
-  # Convert rank to centrality (lower rank = higher centrality)
-  # Return inverse rank so higher values = more central
-  max_rank <- max(rank_order, na.rm = TRUE)
-  (max_rank + 1 - rank_order) / max_rank
+  .cg_voterank(cg$b, directed)
 }
 
 #' Calculate percolation centrality
@@ -1714,23 +1478,18 @@ calculate_voterank <- function(g, directed = TRUE)
 #' Piraveenan, M., Prokopenko, M., & Hossain, L. (2013).
 #' Percolation centrality: Quantifying graph-theoretic impact of nodes during percolation in networks.
 #' @noRd
-calculate_percolation <- function(g, states = NULL, weights = NULL, directed = TRUE) {
-  n <- igraph::vcount(g)
+calculate_percolation <- function(cg, states = NULL, weights = NULL, directed = TRUE) {
+  cg <- .cg_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
   if (n <= 2) return(rep(0, n))
-
-  mode <- if (directed) "out" else "all"
-
-  # Get node names/indices
-  node_names <- igraph::V(g)$name
-  if (is.null(node_names)) node_names <- seq_len(n)
 
   # Initialize percolation states (default all 1.0)
   if (is.null(states)) {
     states <- rep(1.0, n)
   } else {
     if (!is.null(names(states))) {
-      states <- states[as.character(node_names)]
+      states <- states[as.character(cg$labels)]
     }
     if (length(states) != n) {
       stop("states vector length must match number of nodes", call. = FALSE)
@@ -1739,84 +1498,77 @@ calculate_percolation <- function(g, states = NULL, weights = NULL, directed = T
     states <- pmax(0, pmin(1, states))
   }
 
-  # Total percolation state
-  p_sigma_x_t <- sum(states)
-  if (p_sigma_x_t == 0) {
-    return(rep(0, n))
+  # Unweighted unless weights are given; direction as the graph has it.
+  m <- .cg_path_matrix(cg, weights)
+  if (!directed) m <- .cg_mode_weights(m, "all")
+  .cg_percolation(m, n, states)
+}
+
+#' Accept an igraph object where a context is expected
+#'
+#' The `calculate_*` helpers take a `cg_graph`; an igraph object handed to
+#' them directly (as the older tests do) is converted once, using igraph
+#' only to read the object the caller already built.
+#'
+#' @param cg A `cg_graph` context or an igraph object.
+#' @return A `cg_graph` context.
+#' @noRd
+.cg_context <- function(cg) {
+  if (inherits(cg, "cg_graph")) return(cg)
+  .cg_graph(cg)
+}
+
+#' Weight matrix igraph would have read for a measure
+#'
+#' igraph's `weights = NULL` means "use the graph's own weight attribute if
+#' it has one", which is what every measure ported from igraph saw when
+#' `centrality()` passed `NULL` (unweighted call, or an unweighted input).
+#' This reproduces that reading: the explicit vector when given, else the
+#' graph's weights, else the binary matrix.
+#'
+#' @param cg A `cg_graph` context.
+#' @param weights Edge weights in canonical order, or NULL.
+#' @return Numeric weight matrix.
+#' @noRd
+.cg_attr_matrix <- function(cg, weights = NULL) {
+  .cg_path_matrix(cg, weights %||% cg$weights)
+}
+
+#' Transitivity in igraph's vocabulary
+#'
+#' `"local"` / `"localundirected"` give the per-vertex clustering
+#' coefficient, `"global"` / `"undirected"` the single graph-level ratio.
+#' The weighted variants (`"barrat"`, `"weighted"`) have no native kernel
+#' yet and still go through igraph.
+#'
+#' @param cg A `cg_graph` context.
+#' @param type One of igraph's transitivity types.
+#' @param isolates `"nan"` or `"zero"` for vertices with fewer than two
+#'   neighbours (local types only).
+#' @return Numeric vector (local) or a single number (global).
+#' @noRd
+calculate_transitivity <- function(cg, type = "local", isolates = "nan") {
+  cg <- .cg_context(cg)
+  if (type %in% c("global", "undirected")) {
+    return(.cg_global_transitivity(cg$b))
   }
-
-  # Initialize centrality
-  percolation <- numeric(n)
-
-  # Pre-build incoming neighbor list with edge weights for predecessor checks
-  el <- igraph::as_edgelist(g, names = FALSE)
-  if (is.null(weights)) {
-    edge_w <- rep(1, nrow(el))
-  } else {
-    edge_w <- weights
+  if (type %in% c("local", "localundirected")) {
+    out <- .cg_local_transitivity(cg$b, cg$n, cg$directed)
+    if (identical(isolates, "zero")) out[is.nan(out)] <- 0
+    return(out)
   }
-  incoming <- .build_incoming(el, edge_w, n, directed)
-
-  # Brandes-style algorithm for each source
-  for (s in seq_len(n)) {
-    if (states[s] == 0) next
-
-    # Distances from source
-    dist_weights <- if (is.null(weights)) NA else weights
-    dist_s <- igraph::distances(g, v = s, mode = mode, weights = dist_weights)[1, ]
-
-    # Find predecessors using actual edge weights
-    sigma <- numeric(n)
-    sigma[s] <- 1
-    pred <- vector("list", n)
-
-    reachable <- which(!is.infinite(dist_s) & seq_len(n) != s)
-    ordered_nodes <- reachable[order(dist_s[reachable])]
-
-    for (w in ordered_nodes) {
-      inc <- incoming[[w]]
-      if (is.null(inc)) next # nocov
-      if (is.null(dim(inc))) inc <- matrix(inc, nrow = 1) # nocov
-      for (r in seq_len(nrow(inc))) {
-        v <- inc[r, 1]
-        ew <- inc[r, 2]
-        if (abs(dist_s[w] - dist_s[v] - ew) < 1e-10) {
-          sigma[w] <- sigma[w] + sigma[v]
-          pred[[w]] <- c(pred[[w]], v)
-        }
-      }
-    }
-
-    # Accumulation phase (Brandes algorithm, reverse distance order)
-    delta <- numeric(n)
-
-    for (w in rev(ordered_nodes)) {
-      if (sigma[w] > 0) {
-        coeff <- (1 + delta[w]) / sigma[w]
-        for (v in pred[[w]]) {
-          delta[v] <- delta[v] + sigma[v] * coeff
-        }
-      }
-      # Percolation weight: states[s] / (total - states[w])
-      denom <- p_sigma_x_t - states[w]
-      if (denom > 0) {
-        pw_s_w <- states[s] / denom
-        percolation[w] <- percolation[w] + delta[w] * pw_s_w
-      }
-    }
+  if (type %in% c("barrat", "weighted")) {
+    out <- .cg_barrat_transitivity(cg$w, cg$directed)
+    if (identical(isolates, "zero")) out[is.nan(out)] <- 0
+    return(out)
   }
-
-  # Normalize by (n-2)
-  if (n > 2) {
-    percolation <- percolation / (n - 2)
-  }
-
-  percolation
+  stop(errorCondition(paste0("unknown transitivity type '", type, "'"),
+                      class = "cograph_bad_input", call = NULL))
 }
 
 #' Calculate a single centrality measure
 #' @noRd
-calculate_measure <- function(g, measure, mode, weights, normalized,
+calculate_measure <- function(cg, measure, mode, weights, normalized,
                               cutoff, damping, personalized,
                               transitivity_type, isolates,
                               hits_result = NULL, lambda = 1,
@@ -1870,335 +1622,330 @@ calculate_measure <- function(g, measure, mode, weights, normalized,
                               re_indexes = c("degree", "closeness",
                                              "betweenness", "constraint"),
                               re_negative = NULL) {
-  directed <- igraph::is_directed(g)
+  cg <- .cg_context(cg)
+  directed <- cg$directed
+  n <- cg$n
 
   value <- switch(measure,
     # Measures that support mode
-    "degree" = igraph::degree(g, mode = mode),
-    "strength" = igraph::strength(g, mode = mode, weights = weights),
-    "closeness" = igraph::closeness(
-      g, mode = mode, weights = weights, normalized = normalized, cutoff = cutoff
-    ),
-    "eccentricity" = igraph::eccentricity(g, mode = mode),
-    "coreness" = igraph::coreness(g, mode = mode),
-    "harmonic" = igraph::harmonic_centrality(
-      g, mode = mode, weights = weights, normalized = normalized, cutoff = cutoff
-    ),
-    "diffusion" = if (identical(diffusion_method, "power_series")) {
-      calculate_diffusion_power_series(g, loops = loops)
-    } else {
-      calculate_diffusion(g, mode = mode, lambda = lambda)
+    "degree" = .cg_degree(cg$b, directed, mode),
+    "strength" = .cg_strength(.cg_attr_matrix(cg, weights), directed, mode),
+    "closeness" = {
+      d <- .cg_distances(.cg_attr_matrix(cg, weights), mode, cutoff)
+      cl <- .cg_closeness(d, n)
+      # igraph's normalisation: multiply by the number of vertices reached.
+      if (normalized) cl * (rowSums(is.finite(d)) - 1) else cl
     },
-    "leverage" = calculate_leverage(g, mode = mode),
-    "kreach" = calculate_kreach(g, mode = mode, weights = weights, k = k),
+    # igraph::eccentricity() reads the graph's own weights whatever
+    # `weights` says, so the path weights in force are not used here.
+    "eccentricity" = .cg_eccentricity(
+      .cg_distances(.cg_path_matrix(cg, cg$weights), mode), n),
+    # igraph keeps a self-loop as a permanent degree offset while peeling;
+    # .cg_loop_coreness() (R/kernels-batch11.R) reproduces that.
+    "coreness" = .cg_loop_coreness(cg$b, n, directed, mode),
+    "harmonic" = {
+      d <- .cg_distances(.cg_attr_matrix(cg, weights), mode, cutoff)
+      h <- .cg_harmonic(d, n)
+      if (normalized && n > 1L) h / (n - 1) else h
+    },
+    "diffusion" = if (identical(diffusion_method, "power_series")) {
+      calculate_diffusion_power_series(cg, loops = loops)
+    } else {
+      calculate_diffusion(cg, mode = mode, lambda = lambda)
+    },
+    "leverage" = calculate_leverage(cg, mode = mode),
+    "kreach" = calculate_kreach(cg, mode = mode, weights = weights, k = k),
     # Both solve (I - alpha A) x = b, which is singular when alpha sits at an
-    # eigenvalue of A; igraph then raises a bare LU error naming neither the
-    # measure nor the cause.
-    "alpha" = .cg_solve_or_stop("alpha", function() igraph::alpha_centrality(
-      g, weights = weights, exo = 1,
-      tol = 1e-07, loops = FALSE, sparse = TRUE
-    )),
-    "power" = .cg_solve_or_stop("power", function() igraph::power_centrality(
-      g, exponent = 1, rescale = FALSE, tol = 1e-07, loops = FALSE, sparse = TRUE
-    )),
+    # eigenvalue of A. The kernels report that as NaN; the caller is told
+    # which measure failed and why through cograph_singular_system.
+    "alpha" = .cg_solve_or_stop("alpha", function() {
+      if (n == 0L) stop("there is no system to solve on an empty graph")
+      a <- .cg_attr_matrix(cg, weights)
+      diag(a) <- 0
+      out <- .cg_alpha(a, n, alpha = 1)
+      if (anyNA(out)) stop("the system (I - alpha A) is singular")
+      out
+    }),
+    "power" = .cg_solve_or_stop("power", function() {
+      b <- cg$b
+      diag(b) <- 0
+      out <- .cg_power(b, n, alpha = 1)
+      # An edgeless graph is NaN by definition (0/0), not a failed solve.
+      if (anyNA(out) && any(b != 0)) stop("the system (I - alpha A) is singular")
+      out
+    }),
 
     # Measures without mode
-    "subgraph" = igraph::subgraph_centrality(g, diag = FALSE),
-    "laplacian" = calculate_laplacian(g, weights = weights, normalized = normalized),
-    "load" = calculate_load(g, weights = weights, directed = directed),
-    "current_flow_closeness" = calculate_current_flow_closeness(g, weights = weights),
-    "current_flow_betweenness" = calculate_current_flow_betweenness(g, weights = weights),
-    "voterank" = calculate_voterank(g, directed = directed),
-    "percolation" = calculate_percolation(g, states = states, weights = weights, directed = directed),
-    "betweenness" = igraph::betweenness(
-      g, weights = weights, directed = directed, cutoff = cutoff
-    ),
-    "eigenvector" = igraph::eigen_centrality(
-      g, weights = weights, directed = directed
-    )$vector,
-    "pagerank" = igraph::page_rank(
-      g, weights = weights, directed = directed,
-      damping = damping, personalized = personalized
-    )$vector,
+    "subgraph" = {
+      if (n == 0L) stop("subgraph centrality is undefined on a 0 x 0 matrix", call. = FALSE)
+      .cg_subgraph(cg$w, n, directed)
+    },
+    "laplacian" = calculate_laplacian(cg, weights = weights, normalized = normalized),
+    "load" = calculate_load(cg, weights = weights, directed = directed),
+    "current_flow_closeness" = calculate_current_flow_closeness(cg, weights = weights),
+    "current_flow_betweenness" = calculate_current_flow_betweenness(cg, weights = weights),
+    "voterank" = calculate_voterank(cg, directed = directed),
+    "percolation" = calculate_percolation(cg, states = states, weights = weights, directed = directed),
+    "betweenness" = .cg_betweenness(.cg_attr_matrix(cg, weights), n, directed,
+                                    cutoff = cutoff),
+    "eigenvector" = .cg_eigenvector(.cg_attr_matrix(cg, weights), n),
+    "pagerank" = .cg_pagerank(.cg_attr_matrix(cg, weights), n,
+                              damping = damping, personalized = personalized),
     "authority" = hits_result$authority,
     "hub" = hits_result$hub,
-    "constraint" = igraph::constraint(g, weights = weights),
+    "constraint" = {
+      cw <- .cg_attr_matrix(cg, weights)
+      out <- .cg_constraint(cw, n)
+      # A vertex whose only tie is a self-loop is not an isolate to igraph:
+      # it has an (empty) ego network and scores 0, not NaN.
+      out[is.nan(out) & diag(cw) != 0] <- 0
+      out
+    },
     "transitivity" = if (identical(transitivity_type, "onnela")) {
-      calculate_clustering_onnela(g)
+      calculate_clustering_onnela(cg)
     } else {
-      igraph::transitivity(g, type = transitivity_type, isolates = isolates)
+      calculate_transitivity(cg, type = transitivity_type, isolates = isolates)
     },
 
     # Extended measures — distance-based closeness variants
-    "radiality" = calculate_radiality(g, mode = mode, weights = weights,
+    "radiality" = calculate_radiality(cg, mode = mode, weights = weights,
                                       dist_mat = dist_mat),
-    "lin" = calculate_lin(g, mode = mode, weights = weights,
+    "lin" = calculate_lin(cg, mode = mode, weights = weights,
                           dist_mat = dist_mat),
-    "decay" = calculate_decay(g, mode = mode, weights = weights,
+    "decay" = calculate_decay(cg, mode = mode, weights = weights,
                               decay_parameter = decay_parameter,
                               dist_mat = dist_mat),
-    "residual_closeness" = calculate_residual_closeness(g, mode = mode,
+    "residual_closeness" = calculate_residual_closeness(cg, mode = mode,
                                                         weights = weights,
                                                         dist_mat = dist_mat),
-    "dangalchev" = calculate_dangalchev(g, mode = mode, weights = weights,
+    "dangalchev" = calculate_dangalchev(cg, mode = mode, weights = weights,
                                         dist_mat = dist_mat),
-    "generalized_closeness" = calculate_generalized_closeness(
-      g, mode = mode, weights = weights, alpha = decay_parameter,
+    "generalized_closeness" = calculate_generalized_closeness(cg, mode = mode, weights = weights, alpha = decay_parameter,
       dist_mat = dist_mat
     ),
-    "harary" = calculate_harary(g, mode = mode, weights = weights,
+    "harary" = calculate_harary(cg, mode = mode, weights = weights,
                                 dist_mat = dist_mat),
-    "average_distance" = calculate_average_distance(g, mode = mode,
+    "average_distance" = calculate_average_distance(cg, mode = mode,
                                                     weights = weights,
                                                     dist_mat = dist_mat),
-    "barycenter" = calculate_barycenter(g, mode = mode, weights = weights,
+    "barycenter" = calculate_barycenter(cg, mode = mode, weights = weights,
                                         dist_mat = dist_mat),
-    "wiener" = calculate_wiener(g, mode = mode, weights = weights,
+    "wiener" = calculate_wiener(cg, mode = mode, weights = weights,
                                 dist_mat = dist_mat),
-    "closeness_vitality" = calculate_closeness_vitality(g, mode = mode,
+    "closeness_vitality" = calculate_closeness_vitality(cg, mode = mode,
                                                         weights = weights,
                                                         dist_mat = dist_mat),
 
     # Extended measures — spectral/walk-based
-    "communicability" = calculate_communicability(g),
-    "communicability_betweenness" = calculate_communicability_betweenness(g),
-    "random_walk" = calculate_random_walk(g),
+    "communicability" = calculate_communicability(cg),
+    "communicability_betweenness" = calculate_communicability_betweenness(cg),
+    "random_walk" = calculate_random_walk(cg),
 
     # Extended measures — path-based
-    "stress" = calculate_stress(g, weights = weights, directed = directed),
-    "flow_betweenness" = calculate_flow_betweenness(g, weights = weights,
-                                                    directed = directed),
+    "stress" = calculate_stress(cg, weights = weights, directed = directed),
+    # Deliberately left on igraph (max-flow); see docs/igraph-removal-contract.md.
+    "flow_betweenness" = {
+      .cg_need_igraph("flow_betweenness")
+      calculate_flow_betweenness(cg, weights = weights, directed = directed)
+    },
 
     # Extended measures — local/neighborhood
-    "lobby" = calculate_lobby(g, mode = mode),
-    "entropy" = calculate_entropy(g, mode = mode),
-    "semilocal" = calculate_semilocal(g, mode = mode),
-    "clusterrank" = calculate_clusterrank(g, mode = mode),
-    "bottleneck" = calculate_bottleneck(g, mode = mode),
-    "centroid" = calculate_centroid(g, mode = mode, weights = weights,
+    "lobby" = calculate_lobby(cg, mode = mode),
+    "entropy" = calculate_entropy(cg, mode = mode),
+    "semilocal" = calculate_semilocal(cg, mode = mode),
+    "clusterrank" = calculate_clusterrank(cg, mode = mode),
+    "bottleneck" = calculate_bottleneck(cg, mode = mode),
+    "centroid" = calculate_centroid(cg, mode = mode, weights = weights,
                                     dist_mat = dist_mat),
-    "mnc" = calculate_mnc(g, mode = mode),
-    "dmnc" = calculate_dmnc(g, mode = mode, epsilon = dmnc_epsilon),
-    "lac" = calculate_lac(g, mode = mode),
-    "topological_coefficient" = calculate_topological_coefficient(g),
-    "bridging" = calculate_bridging(g, weights = weights, directed = directed),
-    "local_bridging" = calculate_local_bridging(g),
-    "effective_size" = calculate_effective_size(g),
-    "diversity" = calculate_diversity(g, weights = weights),
-    "cross_clique" = calculate_cross_clique(g),
-    "markov" = calculate_markov(g),
+    "mnc" = calculate_mnc(cg, mode = mode),
+    "dmnc" = calculate_dmnc(cg, mode = mode, epsilon = dmnc_epsilon),
+    "lac" = calculate_lac(cg, mode = mode),
+    "topological_coefficient" = calculate_topological_coefficient(cg),
+    "bridging" = calculate_bridging(cg, weights = weights, directed = directed),
+    "local_bridging" = calculate_local_bridging(cg),
+    "effective_size" = calculate_effective_size(cg),
+    "diversity" = calculate_diversity(cg, weights = weights),
+    "cross_clique" = calculate_cross_clique(cg),
+    "markov" = calculate_markov(cg),
 
     # Extended measures — with mode support
-    "integration" = calculate_integration(g, mode = mode),
-    "expected" = calculate_expected(g, mode = mode),
-    "gilschmidt" = calculate_gilschmidt(g, mode = mode),
+    "integration" = calculate_integration(cg, mode = mode),
+    "expected" = calculate_expected(cg, mode = mode),
+    "gilschmidt" = calculate_gilschmidt(cg, mode = mode),
 
     # Zoo batch 2 — mode measures
-    "gravity" = calculate_gravity(g, mode = mode, mass = gravity_mass,
+    "gravity" = calculate_gravity(cg, mode = mode, mass = gravity_mass,
                                   radius = gravity_radius),
-    "collective_influence" = calculate_collective_influence(g, mode = mode),
-    "local_hindex" = as.numeric(calculate_local_hindex(g, mode = mode)),
-    "hindex_strength" = as.numeric(calculate_hindex_strength(g, mode = mode)),
-    "onion" = as.numeric(calculate_onion(g)),
+    "collective_influence" = calculate_collective_influence(cg, mode = mode),
+    "local_hindex" = as.numeric(calculate_local_hindex(cg, mode = mode)),
+    "hindex_strength" = as.numeric(calculate_hindex_strength(cg, mode = mode)),
+    "onion" = as.numeric(calculate_onion(cg)),
 
     # Zoo batch 2 — no-mode measures
-    "second_order" = calculate_second_order(g),
-    "infection" = calculate_infection(g),
-    "nonbacktracking" = calculate_nonbacktracking(g),
-    "spanning_tree" = calculate_spanning_tree(g),
-    "expected_influence_1" = calculate_expected_influence(
-      g, weights = weights, step = 1L, mode = mode),
-    "expected_influence_2" = calculate_expected_influence(
-      g, weights = weights, step = 2L, mode = mode),
+    "second_order" = calculate_second_order(cg),
+    "infection" = calculate_infection(cg),
+    "nonbacktracking" = calculate_nonbacktracking(cg),
+    "spanning_tree" = calculate_spanning_tree(cg),
+    "expected_influence_1" = calculate_expected_influence(cg, weights = weights, step = 1L, mode = mode),
+    "expected_influence_2" = calculate_expected_influence(cg, weights = weights, step = 2L, mode = mode),
 
     # Directed-only measures
-    "salsa" = calculate_salsa(g),
-    "leaderrank" = calculate_leaderrank(g),
-    "weighted_leaderrank" = calculate_weighted_leaderrank(g, wlr_alpha),
-    "adaptive_leaderrank" = calculate_adaptive_leaderrank(g, alr_h_mode),
-    "trophic_level" = calculate_trophic_level(g),
+    "salsa" = calculate_salsa(cg),
+    "leaderrank" = calculate_leaderrank(cg),
+    "weighted_leaderrank" = calculate_weighted_leaderrank(cg, wlr_alpha),
+    "adaptive_leaderrank" = calculate_adaptive_leaderrank(cg, alr_h_mode),
+    "trophic_level" = calculate_trophic_level(cg),
 
     # Community-aware measures (require membership parameter)
-    "participation" = calculate_participation(g, membership = membership,
+    "participation" = calculate_participation(cg, membership = membership,
                                               mode = mode),
-    "within_module_z" = calculate_within_module_z(g, membership = membership,
+    "within_module_z" = calculate_within_module_z(cg, membership = membership,
                                                    mode = mode),
-    "gateway" = calculate_gateway(g, membership = membership, mode = mode),
+    "gateway" = calculate_gateway(cg, membership = membership, mode = mode),
 
     # Batch 3 — classical measures with reference-package validation
-    "katz" = calculate_katz(g, weights = weights, alpha = katz_alpha),
-    "hubbell" = calculate_hubbell(g, weights = weights,
+    "katz" = calculate_katz(cg, weights = weights, alpha = katz_alpha),
+    "hubbell" = calculate_hubbell(cg, weights = weights,
                                   weightfactor = hubbell_weight),
-    "information" = calculate_information(g, weights = weights),
-    "pairwisedis" = calculate_pairwisedis(g),
-    "reaching_local" = calculate_reaching_local(g, mode = mode,
+    "information" = calculate_information(cg, weights = weights),
+    "pairwisedis" = calculate_pairwisedis(cg),
+    "reaching_local" = calculate_reaching_local(cg, mode = mode,
                                                 weights = weights),
 
     # Batch 4 — directed prestige family (Wasserman-Faust / sna)
-    "prestige_domain" = calculate_prestige_domain(g),
-    "prestige_domain_proximity" = calculate_prestige_domain_proximity(g),
+    "prestige_domain" = calculate_prestige_domain(cg),
+    "prestige_domain_proximity" = calculate_prestige_domain_proximity(cg),
 
     # Batch 5 — Gould-Fernandez brokerage (5 roles)
-    "brokerage_coordinator"    = calculate_brokerage(g, membership, "coordinator"),
-    "brokerage_itinerant"      = calculate_brokerage(g, membership, "itinerant"),
-    "brokerage_representative" = calculate_brokerage(g, membership, "representative"),
-    "brokerage_gatekeeper"     = calculate_brokerage(g, membership, "gatekeeper"),
-    "brokerage_liaison"        = calculate_brokerage(g, membership, "liaison"),
+    "brokerage_coordinator"    = calculate_brokerage(cg, membership, "coordinator"),
+    "brokerage_itinerant"      = calculate_brokerage(cg, membership, "itinerant"),
+    "brokerage_representative" = calculate_brokerage(cg, membership, "representative"),
+    "brokerage_gatekeeper"     = calculate_brokerage(cg, membership, "gatekeeper"),
+    "brokerage_liaison"        = calculate_brokerage(cg, membership, "liaison"),
 
     # Batch 7 — Centrality Zoo comparison batch (R/centrality-batch7.R)
-    "distance_entropy" = calculate_distance_entropy(g, mode = mode,
+    "distance_entropy" = calculate_distance_entropy(cg, mode = mode,
                                                     hop_mat = hop_mat),
-    "local_dimension" = calculate_local_dimension(g, mode = mode,
+    "local_dimension" = calculate_local_dimension(cg, mode = mode,
                                                   hop_mat = hop_mat),
-    "local_information_dimension" = calculate_local_information_dimension(
-      g, mode = mode, hop_mat = hop_mat),
-    "neighborhood_connectivity" = calculate_neighborhood_connectivity(
-      g, mode = mode),
-    "modularity_vitality" = calculate_modularity_vitality(
-      g, weights = weights, membership = membership),
+    "local_information_dimension" = calculate_local_information_dimension(cg, mode = mode, hop_mat = hop_mat),
+    "neighborhood_connectivity" = calculate_neighborhood_connectivity(cg, mode = mode),
+    "modularity_vitality" = calculate_modularity_vitality(cg, weights = weights, membership = membership),
 
     # Batch 8 — Centrality Zoo "on the way" batch (R/centrality-batch8.R)
-    "shapley_game1" = calculate_shapley(g, game = 1L),
-    "shapley_game2" = calculate_shapley(g, game = 2L, k = shapley_k),
-    "shapley_game3" = calculate_shapley(g, game = 3L, cutoff = shapley_cutoff,
+    "shapley_game1" = calculate_shapley(cg, game = 1L),
+    "shapley_game2" = calculate_shapley(cg, game = 2L, k = shapley_k),
+    "shapley_game3" = calculate_shapley(cg, game = 3L, cutoff = shapley_cutoff,
                                         hop_mat = out_hop_mat),
-    "access_information" = calculate_search_information(
-      g, what = "access", hop_mat = out_hop_mat),
-    "hide_information" = calculate_search_information(
-      g, what = "hide", hop_mat = out_hop_mat),
-    "rumor" = calculate_rumor(g),
-    "community_hub_bridge" = calculate_community_hub_bridge(
-      g, membership = membership, mode = mode),
-    "entropy_variation_degree" = calculate_entropy_variation(
-      g, of = "degree", mode = mode),
-    "entropy_variation_betweenness" = calculate_entropy_variation(
-      g, of = "betweenness"),
-    "s_shell" = calculate_s_shell(g, a = s_shell_a),
-    "degree_discount" = calculate_degree_discount(g, p = discount_p),
-    "single_discount" = calculate_degree_discount(g, single = TRUE),
-    "ncvoterank" = calculate_ncvoterank(g, theta = ncvote_theta),
+    "access_information" = calculate_search_information(cg, what = "access", hop_mat = out_hop_mat),
+    "hide_information" = calculate_search_information(cg, what = "hide", hop_mat = out_hop_mat),
+    "rumor" = calculate_rumor(cg),
+    "community_hub_bridge" = calculate_community_hub_bridge(cg, membership = membership, mode = mode),
+    "entropy_variation_degree" = calculate_entropy_variation(cg, of = "degree", mode = mode),
+    "entropy_variation_betweenness" = calculate_entropy_variation(cg, of = "betweenness"),
+    "s_shell" = calculate_s_shell(cg, a = s_shell_a),
+    "degree_discount" = calculate_degree_discount(cg, p = discount_p),
+    "single_discount" = calculate_degree_discount(cg, single = TRUE),
+    "ncvoterank" = calculate_ncvoterank(cg, theta = ncvote_theta),
 
     # Batch 9 — remaining Zoo measures (R/centrality-batch9.R)
-    "community_based" = calculate_community_based(
-      g, membership = membership, mode = mode),
-    "comm_centrality" = calculate_comm_centrality(
-      g, membership = membership, mode = mode, r = comm_r),
-    "community_mediator" = calculate_community_mediator(
-      g, membership = membership, mode = mode),
-    "local_dimension_fixed" = calculate_local_dimension_fixed(
-      g, mode = mode, r = ld_radius, hop_mat = hop_mat),
-    "fuzzy_local_dimension" = calculate_fuzzy_local_dimension(
-      g, mode = mode, hop_mat = hop_mat),
-    "local_volume_dimension" = calculate_local_volume_dimension(
-      g, mode = mode, hop_mat = hop_mat),
-    "wvoterank" = calculate_wvoterank(g, weights = weights),
-    "enrenew" = calculate_enrenew(g, depth = enrenew_depth),
-    "voterank_plus" = calculate_voterank_plus(g, lambda = voterank_lambda),
-    "node_contraction" = calculate_node_contraction(g),
-    "node_contraction_improved" = calculate_node_contraction(
-      g, improved = TRUE, rho = contraction_rho),
-    "two_way_rw" = calculate_two_way_rw(g, weights = weights),
-    "heatmap" = calculate_heatmap(g, mode = mode, hop_mat = hop_mat),
-    "flow_coefficient" = calculate_flow_coefficient(g),
-    "local_entropy" = calculate_local_entropy(g, mode = mode),
-    "weighted_h_index" = calculate_weighted_h_index(g, mode = mode),
-    "redundancy" = calculate_redundancy(g),
-    "weighted_kshell" = calculate_weighted_kshell(
-      g, weights = weights, alpha = wks_alpha, beta = wks_beta),
-    "renewed_coreness" = calculate_renewed_coreness(
-      g, threshold = renewed_threshold),
-    "geodesic_kpath" = calculate_geodesic_kpath(
-      g, mode = mode, k = kpath_k, hop_mat = hop_mat),
+    "community_based" = calculate_community_based(cg, membership = membership, mode = mode),
+    "comm_centrality" = calculate_comm_centrality(cg, membership = membership, mode = mode, r = comm_r),
+    "community_mediator" = calculate_community_mediator(cg, membership = membership, mode = mode),
+    "local_dimension_fixed" = calculate_local_dimension_fixed(cg, mode = mode, r = ld_radius, hop_mat = hop_mat),
+    "fuzzy_local_dimension" = calculate_fuzzy_local_dimension(cg, mode = mode, hop_mat = hop_mat),
+    "local_volume_dimension" = calculate_local_volume_dimension(cg, mode = mode, hop_mat = hop_mat),
+    "wvoterank" = calculate_wvoterank(cg, weights = weights),
+    "enrenew" = calculate_enrenew(cg, depth = enrenew_depth),
+    "voterank_plus" = calculate_voterank_plus(cg, lambda = voterank_lambda),
+    "node_contraction" = calculate_node_contraction(cg),
+    "node_contraction_improved" = calculate_node_contraction(cg, improved = TRUE, rho = contraction_rho),
+    "two_way_rw" = calculate_two_way_rw(cg, weights = weights),
+    "heatmap" = calculate_heatmap(cg, mode = mode, hop_mat = hop_mat),
+    "flow_coefficient" = calculate_flow_coefficient(cg),
+    "local_entropy" = calculate_local_entropy(cg, mode = mode),
+    "weighted_h_index" = calculate_weighted_h_index(cg, mode = mode),
+    "redundancy" = calculate_redundancy(cg),
+    "weighted_kshell" = calculate_weighted_kshell(cg, weights = weights, alpha = wks_alpha, beta = wks_beta),
+    "renewed_coreness" = calculate_renewed_coreness(cg, threshold = renewed_threshold),
+    "geodesic_kpath" = calculate_geodesic_kpath(cg, mode = mode, k = kpath_k, hop_mat = hop_mat),
 
     # Batch 10 — cross-package gaps (R/centrality-batch10.R)
-    "local_efficiency" = calculate_local_efficiency(
-      g, mode = mode, weights = weights),
-    "s_core" = calculate_s_core(g, weights = weights),
-    "fragmentation" = calculate_fragmentation(
-      g, mode = mode, weights = weights),
-    "kpath" = calculate_kpath(g, mode = mode, k = kpath_len),
-    "epc" = calculate_epc(g, threshold = epc_threshold, runs = epc_runs,
+    "local_efficiency" = calculate_local_efficiency(cg, mode = mode, weights = weights),
+    "s_core" = calculate_s_core(cg, weights = weights),
+    "fragmentation" = calculate_fragmentation(cg, mode = mode, weights = weights),
+    "kpath" = calculate_kpath(cg, mode = mode, k = kpath_len),
+    "epc" = calculate_epc(cg, threshold = epc_threshold, runs = epc_runs,
                           seed = epc_seed),
 
     # Batch 11 — parameterised family members (R/centrality-batch11.R)
-    "length_scaled_betweenness" = calculate_length_scaled_betweenness(
-      g, weights = weights),
-    "delta_betweenness" = calculate_delta_betweenness(
-      g, weights = weights, delta = betweenness_delta),
-    "ego_betweenness" = calculate_ego_betweenness(g),
-    "delta_closeness" = calculate_delta_closeness(
-      g, mode = mode, delta = closeness_delta, dist_mat = dist_mat,
+    "length_scaled_betweenness" = calculate_length_scaled_betweenness(cg, weights = weights),
+    "delta_betweenness" = calculate_delta_betweenness(cg, weights = weights, delta = betweenness_delta),
+    "ego_betweenness" = calculate_ego_betweenness(cg),
+    "delta_closeness" = calculate_delta_closeness(cg, mode = mode, delta = closeness_delta, dist_mat = dist_mat,
       weights = weights),
 
     # Batch 12 — simple undirected topology (R/centrality-batch12.R)
-    "truss" = calculate_candidate_local(g, "truss"),
-    "mdd" = calculate_candidate_local(g, "mdd", mdd_lambda),
-    "bridging_coefficient" = calculate_candidate_local(g, "bridging_coefficient"),
-    "godfather" = calculate_candidate_local(g, "godfather"),
-    "support" = calculate_candidate_local(g, "support"),
+    "truss" = calculate_candidate_local(cg, "truss"),
+    "mdd" = calculate_candidate_local(cg, "mdd", mdd_lambda),
+    "bridging_coefficient" = calculate_candidate_local(cg, "bridging_coefficient"),
+    "godfather" = calculate_candidate_local(cg, "godfather"),
+    "support" = calculate_candidate_local(cg, "support"),
 
     # Batch 13 — volume and maximal clique structure
-    "volume" = calculate_candidate_structure(g, "volume", volume_radius),
-    "mcc" = calculate_candidate_structure(g, "mcc"),
-    "diffusion_centrality" = calculate_finite_diffusion(
-      g, weights, diffusion_q, diffusion_steps),
-    "dynamical_importance" = calculate_dynamical_importance(g, weights),
-    "dynamics_sensitive" = calculate_dynamics_sensitive(
-      g, ds_beta, ds_mu, ds_steps),
-    "malatya" = calculate_malatya(g),
-    "expected_force" = calculate_expected_force(g),
-    "mcgm" = calculate_mcgm(g, mcgm_radius, mcgm_alpha, normalized),
-    "spectralrank" = calculate_spectralrank(g, weights, sr_prior),
-    "controlrank" = calculate_controlrank(g, weights, normalized),
-    "map_equation" = calculate_map_equation(
-      g, weights, membership, damping, map_flow, map_convention),
-    "ninl" = calculate_ninl(g, ninl_order, ninl_radius, normalized),
-    "beta_measure" = calculate_beta_measure(g, beta_direction),
-    "localized_bridging" = calculate_localized_bridging(g, 1L),
-    "extended_local_bridging" = calculate_localized_bridging(g, 2L),
-    "modified_expected_force" = calculate_expected_force(g, TRUE, exf_alpha),
-    "proximal_betweenness" = calculate_proximal_betweenness(g, proximal_variant),
-    "x_degree" = calculate_x_degree(g),
-    "coleman_theil" = calculate_coleman_theil(g, weights),
-    "bridging_capital" = calculate_bridging_capital(
-      g, weights, bridging_steps, bridging_values, normalized),
-    "linerank" = calculate_linerank(
-      g, weights, damping, linerank_aggregation, normalized),
-    "random_walk_decay" = calculate_random_walk_decay(
-      g, weights, rwd_decay, rwd_node_weights, normalized),
-    "graph_regularization" = calculate_graph_regularization(
-      g, weights, grc_gamma),
-    "resistance_curvature" = calculate_resistance_curvature(g, weights),
-    "extended_coreness" = calculate_extended_core(g, "extended_coreness"),
-    "cda" = calculate_cda(g, weights, cda_alpha),
-    "improved_closeness" = calculate_improved_closeness(g, icc_alpha),
-    "exogenous" = calculate_exogenous(g, mode, exogenous_base),
-    "global_structure" = calculate_global_structure(g, "gsm", normalized),
-    "hybrid_global_structure" = calculate_global_structure(g, "hgsm", normalized),
-    "improved_global_structure" = calculate_global_structure(g, "igsm", normalized),
-    "dkgm" = calculate_dkgm(g, dkgm_radius),
-    "neighbor_distance" = calculate_neighbor_distance(g, nd_order, nd_decay,
+    "volume" = calculate_candidate_structure(cg, "volume", volume_radius),
+    "mcc" = calculate_candidate_structure(cg, "mcc"),
+    "diffusion_centrality" = calculate_finite_diffusion(cg, weights, diffusion_q, diffusion_steps),
+    "dynamical_importance" = calculate_dynamical_importance(cg, weights),
+    "dynamics_sensitive" = calculate_dynamics_sensitive(cg, ds_beta, ds_mu, ds_steps),
+    "malatya" = calculate_malatya(cg),
+    "expected_force" = calculate_expected_force(cg),
+    "mcgm" = calculate_mcgm(cg, mcgm_radius, mcgm_alpha, normalized),
+    "spectralrank" = calculate_spectralrank(cg, weights, sr_prior),
+    "controlrank" = calculate_controlrank(cg, weights, normalized),
+    "map_equation" = calculate_map_equation(cg, weights, membership, damping, map_flow, map_convention),
+    "ninl" = calculate_ninl(cg, ninl_order, ninl_radius, normalized),
+    "beta_measure" = calculate_beta_measure(cg, beta_direction),
+    "localized_bridging" = calculate_localized_bridging(cg, 1L),
+    "extended_local_bridging" = calculate_localized_bridging(cg, 2L),
+    "modified_expected_force" = calculate_expected_force(cg, TRUE, exf_alpha),
+    "proximal_betweenness" = calculate_proximal_betweenness(cg, proximal_variant),
+    "x_degree" = calculate_x_degree(cg),
+    "coleman_theil" = calculate_coleman_theil(cg, weights),
+    "bridging_capital" = calculate_bridging_capital(cg, weights, bridging_steps, bridging_values, normalized),
+    "linerank" = calculate_linerank(cg, weights, damping, linerank_aggregation, normalized),
+    "random_walk_decay" = calculate_random_walk_decay(cg, weights, rwd_decay, rwd_node_weights, normalized),
+    "graph_regularization" = calculate_graph_regularization(cg, weights, grc_gamma),
+    "resistance_curvature" = calculate_resistance_curvature(cg, weights),
+    "extended_coreness" = calculate_extended_core(cg, "extended_coreness"),
+    "cda" = calculate_cda(cg, weights, cda_alpha),
+    "improved_closeness" = calculate_improved_closeness(cg, icc_alpha),
+    "exogenous" = calculate_exogenous(cg, mode, exogenous_base),
+    "global_structure" = calculate_global_structure(cg, "gsm", normalized),
+    "hybrid_global_structure" = calculate_global_structure(cg, "hgsm", normalized),
+    "improved_global_structure" = calculate_global_structure(cg, "igsm", normalized),
+    "dkgm" = calculate_dkgm(cg, dkgm_radius),
+    "neighbor_distance" = calculate_neighbor_distance(cg, nd_order, nd_decay,
                                                       nd_mass),
-    "ira" = calculate_ira(g, ira_mass, ira_alpha, ira_tol, ira_max_iter),
-    "iira" = calculate_iira(g, ira_mass, iira_beta, iira_steps),
-    "lnc" = calculate_lnc(g),
-    "ked" = calculate_ked(g),
-    "hcc" = calculate_hcc(g, hcc_delta),
-    "ehcc" = calculate_ehcc(g, hcc_delta),
-    "lhc" = calculate_lhc(g, lhc_radius),
-    "iec" = calculate_iec(g),
-    "dil" = calculate_dil(g),
-    "trust_pagerank" = calculate_trust_pagerank(g, tpr_alpha, tpr_k,
+    "ira" = calculate_ira(cg, ira_mass, ira_alpha, ira_tol, ira_max_iter),
+    "iira" = calculate_iira(cg, ira_mass, iira_beta, iira_steps),
+    "lnc" = calculate_lnc(cg),
+    "ked" = calculate_ked(cg),
+    "hcc" = calculate_hcc(cg, hcc_delta),
+    "ehcc" = calculate_ehcc(cg, hcc_delta),
+    "lhc" = calculate_lhc(cg, lhc_radius),
+    "iec" = calculate_iec(cg),
+    "dil" = calculate_dil(cg),
+    "trust_pagerank" = calculate_trust_pagerank(cg, tpr_alpha, tpr_k,
                                                 tpr_decay, tpr_tol,
                                                 tpr_max_iter),
-    "rsp_betweenness" = calculate_rsp_betweenness(g, weights, rsp_beta,
+    "rsp_betweenness" = calculate_rsp_betweenness(cg, weights, rsp_beta,
                                                   rsp_cost),
-    "relative_entropy" = calculate_relative_entropy(g, re_indexes,
+    "relative_entropy" = calculate_relative_entropy(cg, re_indexes,
                                                    re_negative),
-    "mixed_gravity" = calculate_mixed_gravity(g, gravity_radius),
-    "extended_mixed_gravity" = calculate_mixed_gravity(
-      g, gravity_radius, extended = TRUE),
-    "extended_gravity" = calculate_extended_core(g, "extended_gravity",
+    "mixed_gravity" = calculate_mixed_gravity(cg, gravity_radius),
+    "extended_mixed_gravity" = calculate_mixed_gravity(cg, gravity_radius, extended = TRUE),
+    "extended_gravity" = calculate_extended_core(cg, "extended_gravity",
                                                 gravity_radius),
 
     stop("Unknown measure: ", measure, call. = FALSE)
@@ -4447,19 +4194,21 @@ edge_centrality <- function(x, measures = "all",
     invert_weights <- is_tna_input
   }
 
-  # Convert to igraph
-  g <- to_igraph(x, directed = directed, ...)
-  directed <- igraph::is_directed(g)
+  # Native graph context: canonical (row-major) edge order, the same order
+  # igraph reads an adjacency matrix in.
+  cg <- .cg_graph(x, directed = directed, ...)
+  directed <- cg$directed
+  n <- cg$n
+  from_idx <- cg$edges[, 1L]
+  to_idx <- cg$edges[, 2L]
 
-  # Get edge list
-  edges <- igraph::as_data_frame(g, what = "edges")
-
-  # Build result data frame
-  result <- data.frame(
-    from = edges$from,
-    to = edges$to,
-    stringsAsFactors = FALSE
-  )
+  # Endpoints carry the labels when the input had them, else the indices.
+  result <- if (cg$has_names) {
+    data.frame(from = cg$labels[from_idx], to = cg$labels[to_idx],
+               stringsAsFactors = FALSE)
+  } else {
+    data.frame(from = as.numeric(from_idx), to = as.numeric(to_idx))
+  }
 
   # Available measures
   all_measures <- c("betweenness", "weight", "overlap", "simmelian",
@@ -4479,11 +4228,7 @@ edge_centrality <- function(x, measures = "all",
   }
 
   # Get weights
-  weights <- if (weighted && !is.null(igraph::E(g)$weight)) {
-    igraph::E(g)$weight
-  } else {
-    NULL
-  }
+  weights <- if (weighted && !is.null(cg$weights)) cg$weights else NULL
 
   # Add weight column if requested
   if ("weight" %in% measures) {
@@ -4502,23 +4247,23 @@ edge_centrality <- function(x, measures = "all",
               reason, "). Higher weights = shorter paths.")
     }
 
-    result$betweenness <- igraph::edge_betweenness(
-      g, weights = bet_weights, directed = directed, cutoff = cutoff
+    # NULL weights fall back to the graph's own, as igraph read them.
+    result$betweenness <- .cg_edge_betweenness(
+      .cg_attr_matrix(cg, bet_weights), n, directed, cutoff = cutoff,
+      edges = cg$edges
     )
   }
 
-  # Overlap and simmelian share neighbor computation — do it once
+  # Overlap and simmelian share neighbor computation -- do it once
   needs_neighbors <- any(c("overlap", "simmelian") %in% measures)
   if (needs_neighbors) {
-    adj_list <- igraph::as_adj_list(g, mode = "all")
-    el_idx <- igraph::as_edgelist(g, names = FALSE)
-    ne <- nrow(el_idx)
+    adj_list <- .cg_adjlist(cg$b, directed, "all")
 
     # Compute shared + union neighbor counts per edge (single pass)
-    neighbor_stats <- vapply(seq_len(ne), function(ei) {
-      u <- el_idx[ei, 1]; v <- el_idx[ei, 2]
-      n_u <- setdiff(as.integer(adj_list[[u]]), c(u, v))
-      n_v <- setdiff(as.integer(adj_list[[v]]), c(u, v))
+    neighbor_stats <- vapply(seq_len(nrow(cg$edges)), function(ei) {
+      u <- from_idx[ei]; v <- to_idx[ei]
+      n_u <- setdiff(adj_list[[u]], c(u, v))
+      n_v <- setdiff(adj_list[[v]], c(u, v))
       sh <- length(intersect(n_u, n_v))
       un <- length(union(n_u, n_v))
       c(sh, un)
@@ -4540,12 +4285,12 @@ edge_centrality <- function(x, measures = "all",
             call. = FALSE)
   }
   if ("reciprocity" %in% measures && directed) {
-    edge_keys <- paste(edges$from, edges$to, sep = "\t")
     w_vec <- if (!is.null(weights)) weights else rep(1, nrow(result))
-    wt_map <- stats::setNames(w_vec, edge_keys)
-    rev_keys <- paste(edges$to, edges$from, sep = "\t")
-    rev_wts <- unname(wt_map[rev_keys])
-    result$reciprocated <- !is.na(rev_wts)
+    # The reverse arc's weight, read straight off the weight matrix; 0
+    # there means the arc does not exist.
+    rev_wts <- cg$w[cbind(to_idx, from_idx)]
+    if (is.null(weights)) rev_wts <- (rev_wts != 0) * 1
+    result$reciprocated <- rev_wts != 0
     result$reverse_weight <- ifelse(result$reciprocated, rev_wts, NA_real_)
     result$weight_ratio <- ifelse(result$reciprocated, rev_wts / w_vec, NA_real_)
   }

@@ -19,45 +19,45 @@
 
 #' @keywords internal
 #' @noRd
-calculate_local_efficiency <- function(g, mode = "all", weights = NULL) {
-  if (igraph::vcount(g) == 0L) return(numeric(0))
-  b <- .cg_path_matrix(g, weights)
+calculate_local_efficiency <- function(cg, mode = "all", weights = NULL) {
+  if (cg$n == 0L) return(numeric(0))
+  b <- .cg_path_matrix(cg, weights)
   .cg_local_efficiency(switch(mode, all = .cg_weighted_view(b),
                               out = b, "in" = t(b)))
 }
 
 #' @keywords internal
 #' @noRd
-calculate_s_core <- function(g, weights = NULL) {
-  if (igraph::vcount(g) == 0L) return(numeric(0))
-  .cg_s_core(.cg_weighted_view(.cg_path_matrix(g, weights)))
+calculate_s_core <- function(cg, weights = NULL) {
+  if (cg$n == 0L) return(numeric(0))
+  .cg_s_core(.cg_weighted_view(.cg_path_matrix(cg, weights)))
 }
 
 #' @keywords internal
 #' @noRd
-calculate_fragmentation <- function(g, mode = "all", weights = NULL) {
-  if (igraph::vcount(g) == 0L) return(numeric(0))
-  .cg_fragmentation(.cg_path_matrix(g, weights), mode)
+calculate_fragmentation <- function(cg, mode = "all", weights = NULL) {
+  if (cg$n == 0L) return(numeric(0))
+  .cg_fragmentation(.cg_path_matrix(cg, weights), mode)
 }
 
 #' @keywords internal
 #' @noRd
-calculate_kpath <- function(g, mode = "all", k = 3) {
-  if (igraph::vcount(g) == 0L) return(numeric(0))
-  .cg_kpath_counts(.cg_mode_neighbours(g, mode), k = k,
-                   directed = igraph::is_directed(g) && mode != "all")
+calculate_kpath <- function(cg, mode = "all", k = 3) {
+  if (cg$n == 0L) return(numeric(0))
+  .cg_kpath_counts(.cg_mode_neighbours(cg, mode), k = k,
+                   directed = cg$directed && mode != "all")
 }
 
 #' @keywords internal
 #' @noRd
-calculate_epc <- function(g, threshold = 0.5, runs = 1000, seed = NULL) {
-  if (igraph::vcount(g) == 0L) return(numeric(0))
+calculate_epc <- function(cg, threshold = 0.5, runs = 1000, seed = NULL) {
+  if (cg$n == 0L) return(numeric(0))
   if (!is.null(seed)) {
     saved_rng <- .save_rng()
     on.exit(.restore_rng(saved_rng), add = TRUE)
     set.seed(seed)
   }
-  .cg_epc(.cg_undirected_view(.cg_path_matrix(g, NULL)),
+  .cg_epc(.cg_undirected_view(.cg_path_matrix(cg, NULL)),
           threshold = threshold, runs = runs)
 }
 

@@ -1,8 +1,8 @@
 #' Calculate improved closeness on the simple undirected skeleton
 #' @keywords internal
 #' @noRd
-calculate_improved_closeness <- function(g, alpha = 0.2) {
-  b <- .cg_undirected_view(.cg_path_matrix(g, NULL))
+calculate_improved_closeness <- function(cg, alpha = 0.2) {
+  b <- .cg_undirected_view(.cg_path_matrix(cg, NULL))
   diag(b) <- 0
   .cg_improved_closeness(b, alpha)
 }

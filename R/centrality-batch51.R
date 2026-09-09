@@ -1,7 +1,7 @@
 #' Trust-PageRank (Sheng, Zhu, Wang, Wang and Hou 2020)
 #' @keywords internal
 #' @noRd
-calculate_trust_pagerank <- function(g, alpha = 0.85, mix = 0.85, decay = 1,
+calculate_trust_pagerank <- function(cg, alpha = 0.85, mix = 0.85, decay = 1,
                                      tol = 1e-14, max_iter = 1000L) {
   finite_scalar <- function(v) {
     is.numeric(v) && length(v) == 1L && is.finite(v)
@@ -20,7 +20,7 @@ calculate_trust_pagerank <- function(g, alpha = 0.85, mix = 0.85, decay = 1,
       isTRUE(all.equal(max_iter, round(max_iter)))
   )
 
-  terms <- .cg_tpr_terms(.cg_path_matrix(g, NULL), alpha, mix, decay, tol,
+  terms <- .cg_tpr_terms(.cg_path_matrix(cg, NULL), alpha, mix, decay, tol,
                          as.integer(round(max_iter)))
   defined <- attr(terms, "defined")
   converged <- attr(terms, "converged")

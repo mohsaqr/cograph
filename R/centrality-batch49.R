@@ -1,8 +1,8 @@
 #' Immediate effects centrality (Friedkin 1991)
 #' @keywords internal
 #' @noRd
-calculate_iec <- function(g) {
-  terms <- .cg_iec_terms(.cg_path_matrix(g, NULL))
+calculate_iec <- function(cg) {
+  terms <- .cg_iec_terms(.cg_path_matrix(cg, NULL))
   status <- attr(terms, "status")
   message <- switch(
     status,

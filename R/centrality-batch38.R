@@ -30,7 +30,7 @@
 #' Calculate the multi-characteristics gravity model
 #' @keywords internal
 #' @noRd
-calculate_mcgm <- function(g, mcgm_radius = 2, mcgm_alpha = NULL,
+calculate_mcgm <- function(cg, mcgm_radius = 2, mcgm_alpha = NULL,
                            normalized = FALSE) {
   if (is.null(mcgm_radius)) mcgm_radius <- Inf
   if (!is.numeric(mcgm_radius) || length(mcgm_radius) != 1L ||
@@ -44,7 +44,7 @@ calculate_mcgm <- function(g, mcgm_radius = 2, mcgm_alpha = NULL,
     stop("mcgm_alpha must be NULL or a finite nonnegative number",
          call. = FALSE)
   }
-  a <- .cg_undirected_view(.cg_path_matrix(g, NULL))
+  a <- .cg_undirected_view(.cg_path_matrix(cg, NULL))
   diag(a) <- 0
   n <- nrow(a)
   degree <- rowSums(a)

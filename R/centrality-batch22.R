@@ -1,8 +1,8 @@
 #' Calculate weighted LeaderRank on simple directed topology
 #' @keywords internal
 #' @noRd
-calculate_weighted_leaderrank <- function(g, alpha = 1) {
-  b <- .cg_path_matrix(g, NULL)
+calculate_weighted_leaderrank <- function(cg, alpha = 1) {
+  b <- .cg_path_matrix(cg, NULL)
   diag(b) <- 0
   .cg_weighted_leaderrank(b, alpha)
 }

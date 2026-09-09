@@ -1,8 +1,8 @@
 #' Project inputs and calculate extended core-based measures
 #' @keywords internal
 #' @noRd
-calculate_extended_core <- function(g, measure, radius = 3) {
-  b <- .cg_undirected_view(.cg_path_matrix(g, NULL))
+calculate_extended_core <- function(cg, measure, radius = 3) {
+  b <- .cg_undirected_view(.cg_path_matrix(cg, NULL))
   diag(b) <- 0
   core <- .cg_mdd(b, lambda = 0)
   if (measure == "extended_coreness") return(.cg_extended_coreness(b, core))

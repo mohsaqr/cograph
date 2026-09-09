@@ -4,7 +4,7 @@
 
 #' Distinct neighbour set (no reciprocation multiplicity)
 #'
-#' Distinct from [.cg_adjlist()], which repeats a reciprocated dyad. Measures
+#' Distinct from `.cg_adjlist()`, which repeats a reciprocated dyad. Measures
 #' that aggregate *over vertices* need this one; measures that aggregate over
 #' *edges* need the other.
 #'

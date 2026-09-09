@@ -1,8 +1,8 @@
 #' Calculate topology-only measures from the parameter-candidate list
 #' @keywords internal
 #' @noRd
-calculate_candidate_local <- function(g, measure, mdd_lambda = 0.7) {
-  b <- .cg_undirected_view(.cg_path_matrix(g, NULL))
+calculate_candidate_local <- function(cg, measure, mdd_lambda = 0.7) {
+  b <- .cg_undirected_view(.cg_path_matrix(cg, NULL))
   diag(b) <- 0
   switch(measure,
          truss = .cg_truss(b),

@@ -38,7 +38,9 @@
       nd <- dist[u] + edge[v]
       # An unreached target is always a strict improvement; scaling by an
       # infinite current distance would give Inf - Inf.
-      eps <- if (is.finite(dist[v])) tol * max(abs(nd), abs(dist[v]), 1) else 0
+      # Relative to the path lengths themselves (no absolute floor), so ties
+      # are recognised identically at every weight scale.
+      eps <- if (is.finite(dist[v])) tol * max(abs(nd), abs(dist[v])) else 0
       if (nd < dist[v] - eps) {
         dist[v] <- nd; sigma[v] <- sigma[u]; pred[[v]] <- u
       } else if (abs(nd - dist[v]) <= eps) {
@@ -106,8 +108,9 @@
     ordered_nodes <- reachable[order(dist_s[reachable])]
     pred <- vector("list", n)
     for (wn in ordered_nodes) {
-      v <- which(w[, wn] > 0)
-      on_path <- v[abs(dist_s[wn] - dist_s[v] - w[cbind(v, wn)]) < 1e-10]
+      v <- which(w[, wn] > 0 & is.finite(dist_s))
+      # relative to the path lengths, so ties are recognised at every weight scale
+      on_path <- v[abs(dist_s[wn] - dist_s[v] - w[cbind(v, wn)]) <= 1e-10 * pmax(abs(dist_s[wn]), abs(dist_s[v]))]
       pred[[wn]] <- on_path
     }
     delta <- numeric(n)
@@ -151,8 +154,9 @@
     sigma <- numeric(n); sigma[s] <- 1
     pred <- vector("list", n)
     for (wn in ordered_nodes) {
-      v <- which(w[, wn] > 0)
-      on_path <- v[abs(dist_s[wn] - dist_s[v] - w[cbind(v, wn)]) < 1e-10]
+      v <- which(w[, wn] > 0 & is.finite(dist_s))
+      # relative to the path lengths, so ties are recognised at every weight scale
+      on_path <- v[abs(dist_s[wn] - dist_s[v] - w[cbind(v, wn)]) <= 1e-10 * pmax(abs(dist_s[wn]), abs(dist_s[v]))]
       pred[[wn]] <- on_path
       sigma[wn] <- sigma[wn] + sum(sigma[on_path])
     }

@@ -27,6 +27,10 @@
 .cg_betweenness <- function(w, n, directed, cutoff = -1,
                             pair_weight = NULL) {
   if (n <= 2L) return(rep(0, n))
+  has_edge <- w > 0
+  if (is.null(pair_weight) && all(w[has_edge] == 1)) {
+    return(.cg_betweenness_batched(has_edge, n, directed, cutoff))
+  }
   cb <- numeric(n)
   eps <- 1e-15
   # One accumulation per source, each depending on its own settle order.
@@ -121,4 +125,46 @@
   if (triples == 0) return(NaN)
   triangles <- sum(diag(u %*% u %*% u)) / 6
   3 * triangles / triples
+}
+
+
+#' Brandes betweenness for binary graphs, all sources at once
+#'
+#' Path counts and dependencies are accumulated one hop layer at a time for
+#' every source simultaneously, so the work is a handful of n x n matrix
+#' products per unit of diameter instead of n interpreted searches. Exact
+#' for unit weights (integer path counts); identical to the per-source
+#' kernel, including the `cutoff` rule (nodes beyond the cutoff neither
+#' receive nor propagate credit).
+#'
+#' @param has_edge Logical adjacency, row = from, col = to.
+#' @param n Vertex count.
+#' @param directed Whether directed (undirected scores are halved).
+#' @param cutoff Non-negative path-length cutoff, or negative for none.
+#' @return Numeric vector of betweenness scores.
+#' @keywords internal
+#' @noRd
+.cg_betweenness_batched <- function(has_edge, n, directed, cutoff = -1) {
+  a <- has_edge * 1
+  d <- .cg_hop_matrix(has_edge, n)
+  if (is.numeric(cutoff) && length(cutoff) == 1L && cutoff >= 0) d[d > cutoff] <- Inf
+  finite <- is.finite(d)
+  max_layer <- if (any(finite)) max(d[finite]) else 0
+  if (max_layer < 1) return(numeric(n))
+  sigma <- diag(1, n)
+  # Forward: layer k path counts are sums over layer k-1 predecessors.
+  for (k in seq_len(max_layer)) {
+    sigma <- sigma + ((sigma * (d == k - 1)) %*% a) * (d == k)
+  }
+  safe_sigma <- sigma
+  safe_sigma[safe_sigma == 0] <- 1
+  delta <- matrix(0, n, n)
+  # Backward: dependencies flow from layer k to its layer k-1 predecessors.
+  for (k in rev(seq_len(max_layer))) {
+    term <- ((1 + delta) / safe_sigma) * (d == k)
+    delta <- delta + (term %*% t(a)) * sigma * (d == k - 1)
+  }
+  delta[cbind(seq_len(n), seq_len(n))] <- 0
+  cb <- colSums(delta)
+  if (!directed) cb / 2 else cb
 }

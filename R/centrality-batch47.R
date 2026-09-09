@@ -1,9 +1,9 @@
 #' Simple randomized shortest paths betweenness (Kivimaki et al. 2016)
 #' @keywords internal
 #' @noRd
-calculate_rsp_betweenness <- function(g, weights = NULL, rsp_beta = 0.01,
+calculate_rsp_betweenness <- function(cg, weights = NULL, rsp_beta = 0.01,
                                       rsp_cost = "inverse") {
-  .cg_rsp_terms(.cg_path_matrix(g, weights), rsp_beta, rsp_cost)$score
+  .cg_rsp_terms(.cg_path_matrix(cg, weights), rsp_beta, rsp_cost)$score
 }
 
 #' Randomized Shortest Paths Betweenness Centrality

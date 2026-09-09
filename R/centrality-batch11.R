@@ -6,68 +6,70 @@
 
 #' @keywords internal
 #' @noRd
-calculate_length_scaled_betweenness <- function(g, weights = NULL) {
-  n <- igraph::vcount(g)
+calculate_length_scaled_betweenness <- function(cg, weights = NULL) {
+  n <- cg$n
   if (n == 0L) return(numeric(0))
-  directed <- igraph::is_directed(g)
-  w <- .cg_mode_weights(.cg_path_matrix(g, weights),
+  directed <- cg$directed
+  w <- .cg_mode_weights(.cg_path_matrix(cg, weights),
                         if (directed) "out" else "all")
   .cg_length_scaled_betweenness(w, n, directed)
 }
 
 #' @keywords internal
 #' @noRd
-calculate_delta_betweenness <- function(g, weights = NULL, delta = 1) {
-  n <- igraph::vcount(g)
+calculate_delta_betweenness <- function(cg, weights = NULL, delta = 1) {
+  n <- cg$n
   if (n == 0L) return(numeric(0))
-  directed <- igraph::is_directed(g)
-  w <- .cg_mode_weights(.cg_path_matrix(g, weights),
+  directed <- cg$directed
+  w <- .cg_mode_weights(.cg_path_matrix(cg, weights),
                         if (directed) "out" else "all")
   .cg_delta_betweenness(w, n, directed, delta = delta)
 }
 
 #' @keywords internal
 #' @noRd
-calculate_ego_betweenness <- function(g) {
-  if (igraph::vcount(g) == 0L) return(numeric(0))
-  .cg_ego_betweenness(.cg_edge_indicator(.cg_path_matrix(g, NULL)),
-                      igraph::is_directed(g))
+calculate_ego_betweenness <- function(cg) {
+  if (cg$n == 0L) return(numeric(0))
+  .cg_ego_betweenness(.cg_edge_indicator(.cg_path_matrix(cg, NULL)),
+                      cg$directed)
 }
 
 #' @keywords internal
 #' @noRd
-calculate_delta_closeness <- function(g, mode = "all", delta = 1,
+calculate_delta_closeness <- function(cg, mode = "all", delta = 1,
                                       dist_mat = NULL, weights = NULL) {
-  if (igraph::vcount(g) == 0L) return(numeric(0))
-  d <- dist_mat %||% .cg_distances(.cg_path_matrix(g, weights), mode)
+  if (cg$n == 0L) return(numeric(0))
+  d <- dist_mat %||% .cg_distances(.cg_path_matrix(cg, weights), mode)
   .cg_delta_closeness(d, delta = delta)
 }
 
 #' Mass vectors for the gravity family
 #' @keywords internal
 #' @noRd
-.cg_gravity_mass <- function(g, mass, mode) {
-  deg <- igraph::degree(g, mode = mode)
-  ks <- igraph::coreness(g, mode = mode)
+.cg_gravity_mass <- function(cg, mass, mode) {
+  b <- .cg_path_matrix(cg, NULL)
+  deg <- .cg_degree(b, cg$directed, mode)
+  ks <- .cg_loop_coreness(b, cg$n, cg$directed, mode)
   switch(mass,
          degree = list(i = deg, j = deg),
          kshell = list(i = ks, j = ks),
          # cograph's pre-2.4.8 form: no mass on the focal node, and the
          # product of degree and k-shell on its partners. No published
          # source; kept so earlier results stay reproducible.
-         legacy = list(i = rep(1, igraph::vcount(g)), j = deg * ks))
+         legacy = list(i = rep(1, cg$n), j = deg * ks))
 }
 
 #' @keywords internal
 #' @noRd
-calculate_gravity <- function(g, mode = "all", mass = "kshell",
+calculate_gravity <- function(cg, mode = "all", mass = "kshell",
                               radius = 3, exponent = 2) {
-  n <- igraph::vcount(g)
+  cg <- .cg_context(cg)
+  n <- cg$n
   if (n == 0L) return(numeric(0))
   if (n == 1L) return(0)
-  d <- .cg_hop_distances(g, mode)
+  d <- .cg_hop_distances(cg, mode)
   if (identical(radius, "auto")) radius <- .cg_gravity_auto_radius(d)
-  m <- .cg_gravity_mass(g, mass, mode)
+  m <- .cg_gravity_mass(cg, mass, mode)
   .cg_gravity(d, m$i, m$j, radius = radius, exponent = exponent)
 }
 

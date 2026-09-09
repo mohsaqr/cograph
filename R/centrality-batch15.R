@@ -1,8 +1,8 @@
 #' Calculate dynamics-sensitive centrality on the simple skeleton
 #' @keywords internal
 #' @noRd
-calculate_dynamics_sensitive <- function(g, beta = 0.1, mu = 1, steps = 5) {
-  b <- .cg_undirected_view(.cg_path_matrix(g, NULL))
+calculate_dynamics_sensitive <- function(cg, beta = 0.1, mu = 1, steps = 5) {
+  b <- .cg_undirected_view(.cg_path_matrix(cg, NULL))
   diag(b) <- 0
   .cg_dynamics_sensitive(b, beta, mu, steps)
 }
@@ -10,8 +10,8 @@ calculate_dynamics_sensitive <- function(g, beta = 0.1, mu = 1, steps = 5) {
 #' Calculate Malatya centrality on the simple skeleton
 #' @keywords internal
 #' @noRd
-calculate_malatya <- function(g) {
-  b <- .cg_undirected_view(.cg_path_matrix(g, NULL))
+calculate_malatya <- function(cg) {
+  b <- .cg_undirected_view(.cg_path_matrix(cg, NULL))
   diag(b) <- 0
   .cg_malatya(b)
 }

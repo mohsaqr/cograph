@@ -1,10 +1,10 @@
 #' Assemble weighted transitions and starting masses for random walk decay
 #' @keywords internal
 #' @noRd
-calculate_random_walk_decay <- function(g, weights = NULL, decay = 0.5,
+calculate_random_walk_decay <- function(cg, weights = NULL, decay = 0.5,
                                         node_weights = NULL,
                                         normalized = FALSE) {
-  n <- igraph::vcount(g)
+  n <- cg$n
   mass <- node_weights
   if (is.null(mass)) mass <- rep(1, n)
   if (!is.numeric(mass) || length(mass) != n ||
@@ -13,15 +13,14 @@ calculate_random_walk_decay <- function(g, weights = NULL, decay = 0.5,
          call. = FALSE)
   }
   if (!is.null(names(mass))) {
-    labels <- igraph::V(g)$name
-    if (is.null(labels)) labels <- as.character(seq_len(n))
+    labels <- cg$labels
     if (anyDuplicated(names(mass)) || !setequal(names(mass), labels)) {
       stop("rwd_node_weights names must match node names exactly",
            call. = FALSE)
     }
     mass <- mass[match(labels, names(mass))]
   }
-  a <- .cg_candidate_adjacency(g, weights, "random_walk_decay")
+  a <- .cg_candidate_adjacency(cg, weights, "random_walk_decay")
   .cg_random_walk_decay(a, decay, unname(mass), normalized)
 }
 

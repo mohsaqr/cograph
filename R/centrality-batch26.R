@@ -1,7 +1,7 @@
 #' LineRank from directed or ordinary undirected line-graph walks
 #' @keywords internal
 #' @noRd
-calculate_linerank <- function(g, weights = NULL, damping = 0.85,
+calculate_linerank <- function(cg, weights = NULL, damping = 0.85,
                                aggregation = "probability",
                                normalized = FALSE) {
   aggregation <- match.arg(aggregation, c("probability", "weight"))
@@ -9,19 +9,19 @@ calculate_linerank <- function(g, weights = NULL, damping = 0.85,
         !is.finite(damping) || damping < 0 || damping >= 1) {
     stop("LineRank damping must be finite and in [0,1)", call. = FALSE)
   }
-  w <- if (is.null(weights)) rep(1, igraph::ecount(g)) else weights
+  w <- if (is.null(weights)) rep(1, nrow(cg$edges)) else weights
   if (any(!is.finite(w)) || any(w < 0)) {
     stop("linerank requires finite nonnegative edge weights", call. = FALSE)
   }
-  edges <- igraph::as_edgelist(g, names = FALSE)[w > 0, , drop = FALSE]
+  edges <- cg$edges[w > 0, , drop = FALSE]
   w <- w[w > 0]
-  n <- igraph::vcount(g)
+  n <- cg$n
   m <- length(w)
   out <- numeric(n)
   if (!m) return(out)
   source <- edges[, 1L]
   target <- edges[, 2L]
-  if (igraph::is_directed(g)) {
+  if (cg$directed) {
     adjacent <- outer(target, source, "==")
   } else {
     adjacent <- outer(source, source, "==") | outer(source, target, "==") |

@@ -7,8 +7,8 @@
 #' Undirected simple neighbour matrix by mode, with membership validation
 #' @keywords internal
 #' @noRd
-.cg_community_input <- function(g, membership, mode, what) {
-  n <- igraph::vcount(g)
+.cg_community_input <- function(cg, membership, mode, what) {
+  n <- cg$n
   if (is.null(membership)) {
     warning(what, " requires membership; returning NA", call. = FALSE)
     return(NULL)
@@ -18,7 +18,7 @@
                    n, sprintf("got length %d", length(membership)))
     stop(errorCondition(msg, class = "cograph_bad_membership", call = NULL))
   }
-  b <- .cg_path_matrix(g, NULL)
+  b <- .cg_path_matrix(cg, NULL)
   nb <- switch(mode, all = (b + t(b)) != 0, out = b != 0, "in" = t(b) != 0)
   nb <- nb & (row(nb) != col(nb))
   storage.mode(nb) <- "numeric"
@@ -28,31 +28,31 @@
 #' Community-aware batch 9 calculators
 #' @keywords internal
 #' @noRd
-calculate_community_based <- function(g, membership = NULL, mode = "all") {
-  n <- igraph::vcount(g)
+calculate_community_based <- function(cg, membership = NULL, mode = "all") {
+  n <- cg$n
   if (n == 0L) return(numeric(0))
-  nb <- .cg_community_input(g, membership, mode, "community_based")
+  nb <- .cg_community_input(cg, membership, mode, "community_based")
   if (is.null(nb)) return(rep(NA_real_, n))
   .cg_community_based(nb, membership)
 }
 
 #' @keywords internal
 #' @noRd
-calculate_comm_centrality <- function(g, membership = NULL, mode = "all",
+calculate_comm_centrality <- function(cg, membership = NULL, mode = "all",
                                       r = "max_intra") {
-  n <- igraph::vcount(g)
+  n <- cg$n
   if (n == 0L) return(numeric(0))
-  nb <- .cg_community_input(g, membership, mode, "comm_centrality")
+  nb <- .cg_community_input(cg, membership, mode, "comm_centrality")
   if (is.null(nb)) return(rep(NA_real_, n))
   .cg_comm_centrality(nb, membership, r = r)
 }
 
 #' @keywords internal
 #' @noRd
-calculate_community_mediator <- function(g, membership = NULL, mode = "all") {
-  n <- igraph::vcount(g)
+calculate_community_mediator <- function(cg, membership = NULL, mode = "all") {
+  n <- cg$n
   if (n == 0L) return(numeric(0))
-  nb <- .cg_community_input(g, membership, mode, "community_mediator")
+  nb <- .cg_community_input(cg, membership, mode, "community_mediator")
   if (is.null(nb)) return(rep(NA_real_, n))
   .cg_community_mediator(nb, membership)
 }
@@ -60,29 +60,29 @@ calculate_community_mediator <- function(g, membership = NULL, mode = "all") {
 #' Dimension-family batch 9 calculators
 #' @keywords internal
 #' @noRd
-calculate_local_dimension_fixed <- function(g, mode = "all", r = 2,
+calculate_local_dimension_fixed <- function(cg, mode = "all", r = 2,
                                             hop_mat = NULL) {
-  if (igraph::vcount(g) == 0L) return(numeric(0))
-  .cg_local_dimension_fixed(hop_mat %||% .cg_hop_distances(g, mode), r = r)
+  if (cg$n == 0L) return(numeric(0))
+  .cg_local_dimension_fixed(hop_mat %||% .cg_hop_distances(cg, mode), r = r)
 }
 
 #' @keywords internal
 #' @noRd
-calculate_fuzzy_local_dimension <- function(g, mode = "all", hop_mat = NULL) {
-  if (igraph::vcount(g) == 0L) return(numeric(0))
-  .cg_fuzzy_local_dimension(hop_mat %||% .cg_hop_distances(g, mode))
+calculate_fuzzy_local_dimension <- function(cg, mode = "all", hop_mat = NULL) {
+  if (cg$n == 0L) return(numeric(0))
+  .cg_fuzzy_local_dimension(hop_mat %||% .cg_hop_distances(cg, mode))
 }
 
 #' @keywords internal
 #' @noRd
-calculate_local_volume_dimension <- function(g, mode = "all",
+calculate_local_volume_dimension <- function(cg, mode = "all",
                                              hop_mat = NULL) {
-  if (igraph::vcount(g) == 0L) return(numeric(0))
-  b <- .cg_path_matrix(g, NULL)
+  if (cg$n == 0L) return(numeric(0))
+  b <- .cg_path_matrix(cg, NULL)
   nb <- .cg_edge_indicator(b)
   deg <- switch(mode, all = rowSums(pmax(nb, t(nb))), out = rowSums(nb),
                 "in" = colSums(nb))
-  .cg_local_volume_dimension(hop_mat %||% .cg_hop_distances(g, mode), deg)
+  .cg_local_volume_dimension(hop_mat %||% .cg_hop_distances(cg, mode), deg)
 }
 
 #' Community-Based Centrality, Comm Centrality and Community-Based Mediator
@@ -267,41 +267,41 @@ centrality_local_volume_dimension <- function(x, mode = "all", ...) {
 
 #' @keywords internal
 #' @noRd
-calculate_wvoterank <- function(g, weights = NULL) {
-  if (igraph::vcount(g) == 0L) return(numeric(0))
-  .cg_wvoterank(.cg_path_matrix(g, weights))
+calculate_wvoterank <- function(cg, weights = NULL) {
+  if (cg$n == 0L) return(numeric(0))
+  .cg_wvoterank(.cg_path_matrix(cg, weights))
 }
 
 #' @keywords internal
 #' @noRd
-calculate_enrenew <- function(g, depth = 2L) {
-  if (igraph::vcount(g) == 0L) return(numeric(0))
-  b <- .cg_path_matrix(g, NULL)
+calculate_enrenew <- function(cg, depth = 2L) {
+  if (cg$n == 0L) return(numeric(0))
+  b <- .cg_path_matrix(cg, NULL)
   b <- pmax(b, t(b))
   .cg_enrenew(b, .cg_distances(b, "all"), depth = as.integer(depth))
 }
 
 #' @keywords internal
 #' @noRd
-calculate_voterank_plus <- function(g, lambda = 0.1) {
-  if (igraph::vcount(g) == 0L) return(numeric(0))
-  .cg_voterank_plus(.cg_path_matrix(g, NULL), lambda = lambda)
+calculate_voterank_plus <- function(cg, lambda = 0.1) {
+  if (cg$n == 0L) return(numeric(0))
+  .cg_voterank_plus(.cg_path_matrix(cg, NULL), lambda = lambda)
 }
 
 #' @keywords internal
 #' @noRd
-calculate_node_contraction <- function(g, improved = FALSE, rho = 5) {
-  if (igraph::vcount(g) == 0L) return(numeric(0))
-  nb <- .cg_undirected_view(.cg_path_matrix(g, NULL))
+calculate_node_contraction <- function(cg, improved = FALSE, rho = 5) {
+  if (cg$n == 0L) return(numeric(0))
+  nb <- .cg_undirected_view(.cg_path_matrix(cg, NULL))
   if (improved) .cg_improved_node_contraction(nb, rho = rho)
   else .cg_node_contraction(nb)
 }
 
 #' @keywords internal
 #' @noRd
-calculate_two_way_rw <- function(g, weights = NULL) {
-  if (igraph::vcount(g) == 0L) return(numeric(0))
-  .cg_two_way_rw(.cg_path_matrix(g, weights))
+calculate_two_way_rw <- function(cg, weights = NULL) {
+  if (cg$n == 0L) return(numeric(0))
+  .cg_two_way_rw(.cg_path_matrix(cg, weights))
 }
 
 #' WVoteRank, EnRenew and VoteRank++
@@ -509,69 +509,69 @@ centrality_two_way_rw <- function(x, ...) {
 #' Neighbour matrix by mode with loops dropped
 #' @keywords internal
 #' @noRd
-.cg_mode_neighbours <- function(g, mode) {
-  a <- .cg_edge_indicator(.cg_path_matrix(g, NULL))
+.cg_mode_neighbours <- function(cg, mode) {
+  a <- .cg_edge_indicator(.cg_path_matrix(cg, NULL))
   switch(mode, all = pmax(a, t(a)), out = a, "in" = t(a))
 }
 
 #' @keywords internal
 #' @noRd
-calculate_heatmap <- function(g, mode = "all", hop_mat = NULL) {
-  if (igraph::vcount(g) == 0L) return(numeric(0))
-  .cg_heatmap(.cg_mode_neighbours(g, mode),
-              hop_mat %||% .cg_hop_distances(g, mode))
+calculate_heatmap <- function(cg, mode = "all", hop_mat = NULL) {
+  if (cg$n == 0L) return(numeric(0))
+  .cg_heatmap(.cg_mode_neighbours(cg, mode),
+              hop_mat %||% .cg_hop_distances(cg, mode))
 }
 
 #' @keywords internal
 #' @noRd
-calculate_flow_coefficient <- function(g) {
-  if (igraph::vcount(g) == 0L) return(numeric(0))
-  .cg_flow_coefficient(.cg_path_matrix(g, NULL))
+calculate_flow_coefficient <- function(cg) {
+  if (cg$n == 0L) return(numeric(0))
+  .cg_flow_coefficient(.cg_path_matrix(cg, NULL))
 }
 
 #' @keywords internal
 #' @noRd
-calculate_local_entropy <- function(g, mode = "all") {
-  if (igraph::vcount(g) == 0L) return(numeric(0))
-  nb <- .cg_mode_neighbours(g, mode)
+calculate_local_entropy <- function(cg, mode = "all") {
+  if (cg$n == 0L) return(numeric(0))
+  nb <- .cg_mode_neighbours(cg, mode)
   .cg_local_entropy(nb, rowSums(nb))
 }
 
 #' @keywords internal
 #' @noRd
-calculate_weighted_h_index <- function(g, mode = "all") {
-  if (igraph::vcount(g) == 0L) return(integer(0))
-  nb <- .cg_mode_neighbours(g, mode)
+calculate_weighted_h_index <- function(cg, mode = "all") {
+  if (cg$n == 0L) return(integer(0))
+  nb <- .cg_mode_neighbours(cg, mode)
   .cg_weighted_h_index(nb, rowSums(nb))
 }
 
 #' @keywords internal
 #' @noRd
-calculate_redundancy <- function(g) {
-  if (igraph::vcount(g) == 0L) return(numeric(0))
-  .cg_redundancy(.cg_mode_neighbours(g, "all"))
+calculate_redundancy <- function(cg) {
+  if (cg$n == 0L) return(numeric(0))
+  .cg_redundancy(.cg_mode_neighbours(cg, "all"))
 }
 
 #' @keywords internal
 #' @noRd
-calculate_weighted_kshell <- function(g, weights = NULL, alpha = 1, beta = 1) {
-  if (igraph::vcount(g) == 0L) return(integer(0))
-  .cg_weighted_kshell(.cg_path_matrix(g, weights), alpha = alpha, beta = beta)
+calculate_weighted_kshell <- function(cg, weights = NULL, alpha = 1, beta = 1) {
+  if (cg$n == 0L) return(integer(0))
+  .cg_weighted_kshell(.cg_path_matrix(cg, weights), alpha = alpha, beta = beta)
 }
 
 #' @keywords internal
 #' @noRd
-calculate_renewed_coreness <- function(g, threshold = 2) {
-  if (igraph::vcount(g) == 0L) return(integer(0))
-  .cg_renewed_coreness(.cg_mode_neighbours(g, "all"), threshold = threshold)
+calculate_renewed_coreness <- function(cg, threshold = 2) {
+  if (cg$n == 0L) return(integer(0))
+  .cg_renewed_coreness(.cg_mode_neighbours(cg, "all"), threshold = threshold)
 }
 
 #' @keywords internal
 #' @noRd
-calculate_geodesic_kpath <- function(g, mode = "all", k = 3, hop_mat = NULL) {
-  if (igraph::vcount(g) == 0L) return(numeric(0))
-  .cg_geodesic_kpath(.cg_mode_neighbours(g, mode),
-                     hop_mat %||% .cg_hop_distances(g, mode), k = k)
+calculate_geodesic_kpath <- function(cg, mode = "all", k = 3, hop_mat = NULL) {
+  if (cg$n == 0L) return(numeric(0))
+  .cg_geodesic_kpath(.cg_mode_neighbours(cg, mode),
+                     hop_mat %||% .cg_hop_distances(cg, mode), k = k)
 }
 
 #' Heatmap, Flow Coefficient, Local Entropy, Weighted h-index, Redundancy

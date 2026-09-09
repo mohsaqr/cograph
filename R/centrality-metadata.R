@@ -330,7 +330,16 @@ list_centralities <- function(orientation = NULL, costly = NULL,
 #' @noRd
 .cg_tier_guard <- function(measure, from_tier, n, expr) {
   if (!from_tier) return(expr)
-  tryCatch(expr, cograph_undefined_index = function(e) {
+  na_with_warning <- function(e) {
+    warning(warningCondition(
+      sprintf("`%s` has no value on this input, so its column is NA. %s",
+              measure, conditionMessage(e)),
+      class = "cograph_undefined_measure", call = NULL
+    ))
+    rep(NA_real_, n)
+  }
+  tryCatch(expr, cograph_needs_igraph = na_with_warning,
+           cograph_undefined_index = function(e) {
     warning(warningCondition(
       sprintf("`%s` has no value on this input, so its column is NA. %s",
               measure, conditionMessage(e)),

@@ -547,40 +547,32 @@ subset_edges <- filter_edges
 #' Compute Centrality Variables for Filtering
 #' @noRd
 .compute_centrality_vars <- function(g) {
-  is_dir <- igraph::is_directed(g)
-  weights <- igraph::E(g)$weight
-  n <- igraph::vcount(g)
+  cg <- .cg_as_context(g)
+  n <- cg$n
+  path_ok <- !any(cg$w < 0)
 
   list(
     # Degree measures
-    degree = igraph::degree(g, mode = "all"),
-    indegree = igraph::degree(g, mode = "in"),
-    outdegree = igraph::degree(g, mode = "out"),
+    degree = .cg_degree(cg$b, cg$directed, "all"),
+    indegree = .cg_degree(cg$b, cg$directed, "in"),
+    outdegree = .cg_degree(cg$b, cg$directed, "out"),
 
     # Strength measures
-    strength = igraph::strength(g, mode = "all", weights = weights),
-    instrength = igraph::strength(g, mode = "in", weights = weights),
-    outstrength = igraph::strength(g, mode = "out", weights = weights),
+    strength = .cg_strength(cg$w, cg$directed, "all"),
+    instrength = .cg_strength(cg$w, cg$directed, "in"),
+    outstrength = .cg_strength(cg$w, cg$directed, "out"),
 
-    # Other centrality
-    betweenness = igraph::betweenness(g, weights = weights, directed = is_dir),
-    closeness = tryCatch(
-      igraph::closeness(g, mode = "all", weights = weights),
-      error = function(e) rep(NA_real_, n)
-    ),
-    eigenvector = tryCatch(
-      igraph::eigen_centrality(g, weights = weights, directed = is_dir)$vector,
-      error = function(e) rep(NA_real_, n)
-    ),
-    pagerank = igraph::page_rank(g, weights = weights, directed = is_dir)$vector,
-    hub = tryCatch(
-      igraph::hits_scores(g, weights = weights)$hub,
-      error = function(e) rep(NA_real_, n)
-    ),
-    authority = tryCatch(
-      igraph::hits_scores(g, weights = weights)$authority,
-      error = function(e) rep(NA_real_, n)
-    )
+    # Path-based measures are undefined on negative weights: NA plus a
+    # classed warning, never a swallowed error.
+    betweenness = if (path_ok) .cg_betweenness(cg$w, n, cg$directed) else
+      .cg_na_negative(n, "Betweenness"),
+    closeness = if (path_ok) .cg_closeness(.cg_distances(cg$w, "all"), n) else
+      .cg_na_negative(n, "Closeness"),
+    eigenvector = .cg_eigenvector(cg$w, n),
+    pagerank = if (path_ok) .cg_pagerank(cg$w, n) else
+      .cg_na_negative(n, "PageRank"),
+    hub = .cg_hits(cg$w, n)$hub,
+    authority = .cg_hits(cg$w, n)$authority
   )
 }
 
@@ -1191,8 +1183,8 @@ select_nodes <- function(x, ...,
 #' Select nodes by component
 #' @noRd
 .select_by_component <- function(g, nodes, component) {
-  # Get component membership
-  comp <- igraph::components(g)
+  cg <- .cg_as_context(g)
+  comp <- .cg_components_numbered(cg$b)
   membership <- comp$membership
 
   if (identical(component, "largest")) {
@@ -1238,9 +1230,9 @@ select_nodes <- function(x, ...,
     }
   }
 
-  # Get ego network (includes the focal nodes themselves)
-  ego_verts <- igraph::ego(g, order = order, nodes = node_idx, mode = "all")
-  all_neighbors <- unique(unlist(lapply(ego_verts, as.integer)))
+  # Ego network (includes the focal nodes themselves), either direction
+  cg <- .cg_as_context(g)
+  all_neighbors <- which(.cg_ego_mask(cg$b, node_idx, order, "all"))
 
   seq_len(nrow(nodes)) %in% all_neighbors
 }
@@ -1327,53 +1319,29 @@ select_nodes <- function(x, ...,
 #' Compute single centrality measure
 #' @noRd
 .compute_single_centrality <- function(g, measure) {
-  n <- igraph::vcount(g)
-  is_dir <- igraph::is_directed(g)
-  weights <- igraph::E(g)$weight
-  has_negative <- !is.null(weights) && any(weights < 0, na.rm = TRUE)
+  cg <- .cg_as_context(g)
+  n <- cg$n
+  has_negative <- any(cg$w < 0)
 
   switch(measure,
-    "degree" = igraph::degree(g, mode = "all"),
-    "indegree" = igraph::degree(g, mode = "in"),
-    "outdegree" = igraph::degree(g, mode = "out"),
-    "strength" = igraph::strength(g, mode = "all", weights = weights),
-    "instrength" = igraph::strength(g, mode = "in", weights = weights),
-    "outstrength" = igraph::strength(g, mode = "out", weights = weights),
-    "betweenness" = {
-      if (has_negative) {
-        warning("Betweenness cannot be computed with negative weights. Returning NA.", call. = FALSE)
-        rep(NA_real_, n)
-      } else {
-        igraph::betweenness(g, weights = weights, directed = is_dir)
-      }
-    },
-    "closeness" = {
-      if (has_negative) {
-        warning("Closeness cannot be computed with negative weights. Returning NA.", call. = FALSE)
-        rep(NA_real_, n)
-      } else {
-        tryCatch(
-          igraph::closeness(g, mode = "all", weights = weights),
-          error = function(e) rep(NA_real_, n)
-        )
-      }
-    },
-    "eigenvector" = tryCatch(
-      igraph::eigen_centrality(g, weights = weights, directed = is_dir)$vector,
-      error = function(e) rep(NA_real_, n)
-    ),
-    "pagerank" = igraph::page_rank(g, weights = weights, directed = is_dir)$vector,
-    "hub" = tryCatch(
-      igraph::hits_scores(g, weights = weights)$hub,
-      error = function(e) rep(NA_real_, n)
-    ),
-    "authority" = tryCatch(
-      igraph::hits_scores(g, weights = weights)$authority,
-      error = function(e) rep(NA_real_, n)
-    ),
-    "coreness" = igraph::coreness(g, mode = "all"),
+    "degree" = .cg_degree(cg$b, cg$directed, "all"),
+    "indegree" = .cg_degree(cg$b, cg$directed, "in"),
+    "outdegree" = .cg_degree(cg$b, cg$directed, "out"),
+    "strength" = .cg_strength(cg$w, cg$directed, "all"),
+    "instrength" = .cg_strength(cg$w, cg$directed, "in"),
+    "outstrength" = .cg_strength(cg$w, cg$directed, "out"),
+    "betweenness" = if (has_negative) .cg_na_negative(n, "Betweenness") else
+      .cg_betweenness(cg$w, n, cg$directed),
+    "closeness" = if (has_negative) .cg_na_negative(n, "Closeness") else
+      .cg_closeness(.cg_distances(cg$w, "all"), n),
+    "eigenvector" = .cg_eigenvector(cg$w, n),
+    "pagerank" = if (has_negative) .cg_na_negative(n, "PageRank") else
+      .cg_pagerank(cg$w, n),
+    "hub" = .cg_hits(cg$w, n)$hub,
+    "authority" = .cg_hits(cg$w, n)$authority,
+    "coreness" = .cg_coreness_loops(cg$b, n, cg$directed, "all"),
     # Default: degree
-    igraph::degree(g, mode = "all")
+    .cg_degree(cg$b, cg$directed, "all")
   )
 }
 
@@ -1382,14 +1350,11 @@ select_nodes <- function(x, ...,
 .compute_lazy_centralities <- function(g, needed, has_negative) {
   if (length(needed) == 0) return(list())
 
-  result <- list()
-  n <- igraph::vcount(g)
-
-  for (measure in needed) {
-    result[[measure]] <- .compute_single_centrality(g, measure)
-  }
-
-  result
+  cg <- .cg_as_context(g)
+  stats::setNames(
+    lapply(needed, function(measure) .compute_single_centrality(cg, measure)),
+    needed
+  )
 }
 
 #' Compute only needed global context variables (lazy)
@@ -1398,12 +1363,13 @@ select_nodes <- function(x, ...,
   if (length(needed) == 0) return(list())
 
   result <- list()
-  n <- igraph::vcount(g)
+  cg <- .cg_as_context(g)
+  n <- cg$n
 
   # Component-related variables
   comp_vars <- c("component", "component_size", "is_largest_component")
   if (any(needed %in% comp_vars)) {
-    comp <- igraph::components(g)
+    comp <- .cg_components_numbered(cg$b)
     if ("component" %in% needed) {
       result$component <- comp$membership
     }
@@ -1418,33 +1384,24 @@ select_nodes <- function(x, ...,
 
   # Neighborhood size
   if ("neighborhood_size" %in% needed) {
-    result$neighborhood_size <- igraph::degree(g, mode = "all")
+    result$neighborhood_size <- .cg_degree(cg$b, cg$directed, "all")
   }
 
   # K-core
   if ("k_core" %in% needed) {
-    result$k_core <- igraph::coreness(g, mode = "all")
+    result$k_core <- .cg_coreness_loops(cg$b, n, cg$directed, "all")
   }
 
   # Articulation points
   if ("is_articulation" %in% needed) {
-    # articulation_points returns vertex sequence, convert to logical
-    art_points <- igraph::articulation_points(g)
-    result$is_articulation <- seq_len(n) %in% as.integer(art_points)
+    result$is_articulation <- seq_len(n) %in% .cg_articulation_points(cg$b)
   }
 
   # Bridge endpoints
   if ("is_bridge_endpoint" %in% needed) {
-    # bridges returns edge sequence
-    bridge_edges <- igraph::bridges(g)
-    if (length(bridge_edges) > 0) {
-      # Get endpoints - returns names if graph has names, indices otherwise
-      edge_list <- igraph::ends(g, bridge_edges, names = FALSE)
-      bridge_nodes <- unique(as.vector(edge_list))
-      result$is_bridge_endpoint <- seq_len(n) %in% bridge_nodes
-    } else {
-      result$is_bridge_endpoint <- rep(FALSE, n)
-    }
+    is_bridge <- .cg_bridges(cg$b, cg$edges)
+    bridge_nodes <- unique(as.vector(cg$edges[is_bridge, , drop = FALSE]))
+    result$is_bridge_endpoint <- seq_len(n) %in% bridge_nodes
   }
 
   result
@@ -1809,30 +1766,24 @@ input_class <- .detect_input_class(x)
 #' Select bridge edges
 #' @noRd
 .select_edges_bridges <- function(g, n_edges) {
-  bridge_edges <- igraph::bridges(g)
-  if (length(bridge_edges) == 0) {
+  cg <- .cg_as_context(g)
+  rows <- .cg_edge_rows(g)
+  if (nrow(rows) == 0) {
     return(rep(FALSE, n_edges))
   }
-  seq_len(n_edges) %in% as.integer(bridge_edges)
+  seq_len(n_edges) %in% which(.cg_bridges(cg$b, rows))
 }
 
 #' Select mutual (reciprocated) edges
 #' @noRd
 .select_edges_mutual <- function(g, edges, n_edges) {
-  if (!igraph::is_directed(g)) {
+  cg <- .cg_as_context(g)
+  if (!cg$directed) {
     # All edges are "mutual" in undirected graphs
     return(rep(TRUE, n_edges))
   }
 
-  # Check for reciprocal edges
-  is_mutual <- logical(n_edges)
-  for (i in seq_len(n_edges)) {
-    from_node <- edges$from[i]
-    to_node <- edges$to[i]
-    # Check if reverse edge exists
-    is_mutual[i] <- any(edges$from == to_node & edges$to == from_node)
-  }
-  is_mutual
+  .cg_reciprocated(edges$from, edges$to, cg$n)
 }
 
 #' Select top N edges by metric
@@ -1904,7 +1855,7 @@ input_class <- .detect_input_class(x)
   switch(metric,
     "weight" = edges$weight,
     "abs_weight" = abs(edges$weight),
-    "edge_betweenness" = igraph::edge_betweenness(g, directed = igraph::is_directed(g)),
+    "edge_betweenness" = .cg_edge_betweenness_rows(.cg_as_context(g), edges),
     # Default: weight
     edges$weight
   )
@@ -1917,7 +1868,8 @@ input_class <- .detect_input_class(x)
 
   result <- list()
   n <- nrow(edges)
-  is_dir <- igraph::is_directed(g)
+  cg <- .cg_as_context(g)
+  is_dir <- cg$directed
 
   # Absolute weight
   if ("abs_weight" %in% needed) {
@@ -1925,52 +1877,41 @@ input_class <- .detect_input_class(x)
   }
 
   # Endpoint degrees
-  if ("from_degree" %in% needed) {
-    deg <- igraph::degree(g, mode = "all")
-    result$from_degree <- deg[edges$from]
-  }
-  if ("to_degree" %in% needed) {
-    deg <- if (exists("deg", inherits = FALSE)) deg else igraph::degree(g, mode = "all")
-    result$to_degree <- deg[edges$to]
+  if (any(c("from_degree", "to_degree") %in% needed)) {
+    deg <- .cg_degree(cg$b, is_dir, "all")
+    if ("from_degree" %in% needed) result$from_degree <- deg[edges$from]
+    if ("to_degree" %in% needed) result$to_degree <- deg[edges$to]
   }
 
   # Endpoint strengths
-  if ("from_strength" %in% needed) {
-    str <- igraph::strength(g, mode = "all")
-    result$from_strength <- str[edges$from]
-  }
-  if ("to_strength" %in% needed) {
-    str <- if (exists("str", inherits = FALSE)) str else igraph::strength(g, mode = "all")
-    result$to_strength <- str[edges$to]
+  if (any(c("from_strength", "to_strength") %in% needed)) {
+    str <- .cg_strength(cg$w, is_dir, "all")
+    if ("from_strength" %in% needed) result$from_strength <- str[edges$from]
+    if ("to_strength" %in% needed) result$to_strength <- str[edges$to]
   }
 
   # Edge betweenness
   if ("edge_betweenness" %in% needed) {
-    result$edge_betweenness <- igraph::edge_betweenness(g, directed = is_dir)
+    result$edge_betweenness <- .cg_edge_betweenness_rows(cg, edges)
   }
 
   # Is bridge
   if ("is_bridge" %in% needed) {
-    bridge_edges <- igraph::bridges(g)
-    result$is_bridge <- seq_len(n) %in% as.integer(bridge_edges)
+    result$is_bridge <- .cg_bridges(cg$b, cbind(edges$from, edges$to))
   }
 
   # Is mutual (reciprocated)
   if ("is_mutual" %in% needed) {
-    if (!is_dir) {
-      result$is_mutual <- rep(TRUE, n)
-    } else {
-      is_mutual <- logical(n)
-      for (i in seq_len(n)) {
-        is_mutual[i] <- any(edges$from == edges$to[i] & edges$to == edges$from[i])
-      }
-      result$is_mutual <- is_mutual
-    }
+    result$is_mutual <- if (!is_dir) rep(TRUE, n) else
+      .cg_reciprocated(edges$from, edges$to, cg$n)
   }
 
-  # Same community
+  # Same community (community detection stays on igraph for now)
   if ("same_community" %in% needed) {
-    comm <- detect_communities(g, method = community_method)
+    .cg_need_igraph("same_community")
+    comm_input <- if (inherits(g, "igraph")) g else cg$w
+    comm <- detect_communities(comm_input, method = community_method,
+                               directed = is_dir)
     membership <- comm$community
     from_comm <- membership[edges$from]
     to_comm <- membership[edges$to]

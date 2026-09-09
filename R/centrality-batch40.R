@@ -1,7 +1,7 @@
 #' DK-based gravity model
 #' @keywords internal
 #' @noRd
-calculate_dkgm <- function(g, radius = 2) {
+calculate_dkgm <- function(cg, radius = 2) {
   automatic <- identical(radius, "auto")
   if (is.null(radius)) radius <- Inf
   if (!automatic &&
@@ -10,7 +10,7 @@ calculate_dkgm <- function(g, radius = 2) {
     stop("dkgm_radius must be nonnegative, Inf, NULL, or 'auto'",
          call. = FALSE)
   }
-  a <- .cg_undirected_view(.cg_path_matrix(g, NULL))
+  a <- .cg_undirected_view(.cg_path_matrix(cg, NULL))
   diag(a) <- 0
   if (!nrow(a)) return(numeric())
   mass <- .cg_dk_index(a)

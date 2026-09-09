@@ -1,8 +1,8 @@
 #' Calculate volume or maximal clique centrality
 #' @keywords internal
 #' @noRd
-calculate_candidate_structure <- function(g, measure, volume_radius = 2) {
-  b <- .cg_undirected_view(.cg_path_matrix(g, NULL))
+calculate_candidate_structure <- function(cg, measure, volume_radius = 2) {
+  b <- .cg_undirected_view(.cg_path_matrix(cg, NULL))
   diag(b) <- 0
   switch(measure,
          volume = .cg_volume(b, volume_radius),

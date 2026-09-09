@@ -1,23 +1,23 @@
 #' SpectralRank and its diagonal-prior family
 #' @keywords internal
 #' @noRd
-calculate_spectralrank <- function(g, weights = NULL, sr_prior = 0) {
-  n <- igraph::vcount(g)
+calculate_spectralrank <- function(cg, weights = NULL, sr_prior = 0) {
+  n <- cg$n
   if (!is.numeric(sr_prior) || !(length(sr_prior) %in% c(1L, n)) ||
         any(!is.finite(sr_prior)) || any(sr_prior < 0)) {
     stop("sr_prior must be a finite nonnegative scalar or one value per node",
          call. = FALSE)
   }
   if (length(sr_prior) == n && !is.null(names(sr_prior)) && n > 0) {
-    labels <- igraph::V(g)$name
-    if (is.null(labels) || anyDuplicated(names(sr_prior)) ||
+    labels <- cg$labels
+    if (!cg$has_names || anyDuplicated(names(sr_prior)) ||
           !setequal(names(sr_prior), labels)) {
       stop("sr_prior names must match node names exactly", call. = FALSE)
     }
     sr_prior <- sr_prior[match(labels, names(sr_prior))]
   }
   prior <- rep_len(as.numeric(sr_prior), n)
-  a <- .cg_candidate_adjacency(g, weights, "spectralrank")
+  a <- .cg_candidate_adjacency(cg, weights, "spectralrank")
   diag(a) <- 0
   if (n == 0L) return(numeric())
   if (n == 1L) return(1)

@@ -13,7 +13,7 @@
 #' @return Numeric vector summing to one, one entry per node.
 #' @keywords internal
 #' @noRd
-calculate_relative_entropy <- function(g,
+calculate_relative_entropy <- function(cg,
                                        re_indexes = c("degree", "closeness",
                                                       "betweenness",
                                                       "constraint"),
@@ -45,7 +45,7 @@ calculate_relative_entropy <- function(g,
     stop(errorCondition(text, class = "cograph_unknown_measure", call = NULL))
   }
   negative <- re_negative %||% intersect(re_indexes, .cg_re_negative_default())
-  a <- .cg_undirected_view(.cg_path_matrix(g, NULL))
+  a <- .cg_undirected_view(.cg_path_matrix(cg, NULL))
   diag(a) <- 0
   if (!nrow(a)) return(numeric())
   ctx <- .cg_re_context(a)

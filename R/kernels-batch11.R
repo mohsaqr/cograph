@@ -139,3 +139,55 @@
   if (!any(off)) return(1L)
   max(1L, as.integer(round(mean(d[off]) / 2)))
 }
+
+#' k-core index with igraph's treatment of self-loops
+#'
+#' `.cg_coreness()` reads a zero diagonal. igraph's Batagelj-Zaversnik
+#' implementation instead starts from the loop-inclusive degree (a loop
+#' counts twice on an undirected graph and under directed `"all"`, once
+#' under `"out"` or `"in"`) and, because a loop's only neighbour is the node
+#' being processed, never subtracts it again. The loop therefore acts as a
+#' fixed per-node offset on the degree throughout the peeling, and a node's
+#' core index rises with it. The gravity family inherits this convention
+#' from the years it ran on `igraph::coreness()`, so it is kept exactly.
+#'
+#' @param b Binary adjacency matrix; the diagonal is read.
+#' @param n Vertex count.
+#' @param directed Whether the graph is directed.
+#' @param mode One of `"all"`, `"out"`, `"in"`.
+#' @return Numeric vector, one core index per node.
+#' @references Batagelj, V., & Zaversnik, M. (2003). An O(m) algorithm for
+#'   cores decomposition of networks. arXiv:cs/0310049.
+#' @keywords internal
+#' @noRd
+.cg_loop_coreness <- function(b, n, directed = FALSE,
+                              mode = c("all", "out", "in")) {
+  mode <- match.arg(mode)
+  if (n == 0L) return(numeric(0))
+  bb <- (b != 0) * 1
+  offset <- .cg_degree(bb, directed, mode) -
+    .cg_degree(bb, directed, mode, loops = FALSE)
+  diag(bb) <- 0
+  if (!any(offset > 0)) return(.cg_coreness(bb, n, directed, mode))
+  deg <- .cg_degree(bb, directed, mode) + offset
+  core <- numeric(n)
+  alive <- rep(TRUE, n)
+  # Peeling is inherently sequential: each removal changes the degrees that
+  # decide the next removal. Only the loop-free arcs are ever subtracted.
+  while (any(alive)) {
+    mn <- min(deg[alive])
+    take <- which(alive & deg <= mn)
+    while (length(take) > 0L) {
+      i <- take[1L]
+      alive[i] <- FALSE
+      core[i] <- mn
+      loss <- switch(mode,
+        out = bb[, i],                                   # j -> i disappears
+        `in` = bb[i, ],                                  # i -> j disappears
+        all = if (directed) bb[i, ] + bb[, i] else bb[i, ])
+      deg <- deg - loss * alive
+      take <- which(alive & deg <= mn)
+    }
+  }
+  core
+}

@@ -35,12 +35,19 @@
 
 #' All-pairs shortest paths without igraph
 #'
-#' Dijkstra from every source. Weights are distances, and a non-positive
-#' entry means "no edge". Negative weights are rejected rather than silently
-#' treated as absent, matching igraph, which refuses them outright.
+#' Weights are distances, and a non-positive entry means "no edge". Negative
+#' weights are rejected rather than silently treated as absent, matching
+#' igraph, which refuses them outright. Binary graphs use breadth-first
+#' layering by boolean matrix products (one product per hop); weighted
+#' graphs use Floyd-Warshall with each of the n relaxation sweeps
+#' vectorised, which is far faster in R than n interpreted Dijkstra runs.
+#' Single-source Dijkstra (`.cg_dijkstra`) remains for callers that need
+#' one row or a predecessor structure.
 #'
 #' @param m Numeric adjacency matrix.
 #' @param mode One of \code{"all"}, \code{"out"}, \code{"in"}.
+#' @param cutoff Non-negative number: distances above it become \code{Inf};
+#'   negative (default) means no cutoff.
 #' @return A numeric matrix of distances, \code{Inf} where unreachable and
 #'   \code{0} on the diagonal.
 #' @keywords internal
@@ -55,9 +62,61 @@
   w <- .cg_mode_weights(m, mode)
   n <- nrow(w)
   if (is.null(n) || n == 0L) return(matrix(numeric(0), 0L, 0L))
-  d <- t(vapply(seq_len(n), function(s) .cg_dijkstra(w, s, n), numeric(n)))
+  has_edge <- w > 0
+  d <- if (all(w[has_edge] == 1)) {
+    .cg_hop_matrix(has_edge, n)
+  } else {
+    .cg_floyd_warshall(w, has_edge, n)
+  }
   if (is.numeric(cutoff) && length(cutoff) == 1L && cutoff >= 0) d[d > cutoff] <- Inf
   dimnames(d) <- dimnames(w)
+  d
+}
+
+#' Hop distances of a binary graph by layered boolean products
+#' @param has_edge Logical adjacency (row = from, col = to).
+#' @param n Vertex count.
+#' @return Numeric matrix of hop counts.
+#' @keywords internal
+#' @noRd
+.cg_hop_matrix <- function(has_edge, n) {
+  a <- has_edge * 1
+  diag_idx <- cbind(seq_len(n), seq_len(n))
+  d <- matrix(Inf, n, n)
+  d[diag_idx] <- 0
+  visited <- diag(TRUE, n)
+  frontier <- visited * 1
+  k <- 0L
+  # Each sweep discovers the next hop layer for every source at once; the
+  # loop runs once per unit of the diameter, not once per vertex.
+  repeat {
+    k <- k + 1L
+    nxt <- ((frontier %*% a) > 0) & !visited
+    if (!any(nxt)) break
+    d[nxt] <- k
+    visited <- visited | nxt
+    frontier <- nxt * 1
+  }
+  d
+}
+
+#' Floyd-Warshall with vectorised sweeps
+#' @param w Effective out-edge weight matrix.
+#' @param has_edge Logical adjacency.
+#' @param n Vertex count.
+#' @return Numeric distance matrix.
+#' @keywords internal
+#' @noRd
+.cg_floyd_warshall <- function(w, has_edge, n) {
+  d <- matrix(Inf, n, n)
+  d[has_edge] <- w[has_edge]
+  d[cbind(seq_len(n), seq_len(n))] <- 0
+  # The k-th sweep relaxes every pair through vertex k; the sweeps must run in
+  # order (each builds on the previous), but each one is a single vector op.
+  for (k in seq_len(n)) {
+    via <- d[, k] + rep(d[k, ], each = n)
+    d <- pmin(d, via)
+  }
   d
 }
 
@@ -101,33 +160,3 @@
   max(max(fin), 0)
 }
 
-#' Weight matrix for the shortest-path kernels, taken from an igraph object
-#'
-#' `centrality()` carries path weights as an edge-attribute vector, which may
-#' be the inverted weights used by the path-based measures rather than the
-#' graph's own. This assembles whichever set is actually in force into the
-#' dense matrix the kernels expect.
-#'
-#' @param g An igraph object.
-#' @param weights Edge weight vector, or `NULL` for an unweighted reading.
-#' @return A numeric adjacency matrix.
-#' @keywords internal
-#' @noRd
-.cg_path_matrix <- function(g, weights = NULL) {
-  n <- igraph::vcount(g)
-  m <- matrix(0, n, n)
-  if (n == 0L || igraph::ecount(g) == 0L) return(m)
-  el <- igraph::as_edgelist(g, names = FALSE)
-  w <- if (is.null(weights)) rep(1, nrow(el)) else as.numeric(weights)
-  # A repeated endpoint pair keeps the strongest connection, matching the
-  # simplify step that precedes this in centrality().
-  for (k in seq_len(nrow(el))) {
-    i <- el[k, 1L]; j <- el[k, 2L]
-    if (w[k] > m[i, j]) m[i, j] <- w[k]
-  }
-  if (!igraph::is_directed(g)) {
-    keep <- m > t(m)
-    m[!keep] <- t(m)[!keep]
-  }
-  m
-}

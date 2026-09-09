@@ -1,41 +1,30 @@
 #' Assemble a nonnegative adjacency, summing remaining parallel edges
 #' @keywords internal
 #' @noRd
-.cg_candidate_adjacency <- function(g, weights = NULL, measure) {
-  n <- igraph::vcount(g)
-  w <- if (is.null(weights)) rep(1, igraph::ecount(g)) else weights
+.cg_candidate_adjacency <- function(cg, weights = NULL, measure) {
+  w <- if (is.null(weights)) rep(1, nrow(cg$edges)) else weights
   if (any(!is.finite(w)) || any(w < 0)) {
     stop(measure, " requires finite nonnegative edge weights",
          call. = FALSE)
   }
-  a <- matrix(0, n, n)
-  edges <- igraph::as_edgelist(g, names = FALSE)
-  directed <- igraph::is_directed(g)
-  for (e in seq_len(nrow(edges))) {
-    i <- edges[e, 1L]
-    j <- edges[e, 2L]
-    a[i, j] <- a[i, j] + w[e]
-    if (!directed && i != j) a[j, i] <- a[j, i] + w[e]
-  }
-  if (any(!is.finite(a))) {
-    stop(measure, " adjacency exceeds finite double precision", call. = FALSE)
-  }
-  a
+  # Every canonical edge is a distinct cell, so placing the weights is the
+  # same as accumulating them; the undirected mirror fills the lower triangle.
+  .cg_path_matrix(cg, w)
 }
 
 #' Calculate finite-horizon diffusion
 #' @keywords internal
 #' @noRd
-calculate_finite_diffusion <- function(g, weights = NULL, q = 1, steps = 3) {
-  a <- .cg_candidate_adjacency(g, weights, "diffusion_centrality")
+calculate_finite_diffusion <- function(cg, weights = NULL, q = 1, steps = 3) {
+  a <- .cg_candidate_adjacency(cg, weights, "diffusion_centrality")
   .cg_finite_diffusion(a, q, steps)
 }
 
 #' Calculate exact relative spectral loss on vertex deletion
 #' @keywords internal
 #' @noRd
-calculate_dynamical_importance <- function(g, weights = NULL) {
-  a <- .cg_candidate_adjacency(g, weights, "dynamical_importance")
+calculate_dynamical_importance <- function(cg, weights = NULL) {
+  a <- .cg_candidate_adjacency(cg, weights, "dynamical_importance")
   diag(a) <- 0
   .cg_dynamical_importance(a)
 }

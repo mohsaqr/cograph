@@ -1,8 +1,8 @@
 #' Coleman-Theil hierarchy using Burt's mutual investment weights
 #' @keywords internal
 #' @noRd
-calculate_coleman_theil <- function(g, weights = NULL) {
-  a <- .cg_candidate_adjacency(g, weights, "coleman_theil")
+calculate_coleman_theil <- function(cg, weights = NULL) {
+  a <- .cg_candidate_adjacency(cg, weights, "coleman_theil")
   diag(a) <- 0
   n <- nrow(a)
   if (!n || !any(a > 0)) return(numeric(n))

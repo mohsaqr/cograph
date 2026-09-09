@@ -52,7 +52,7 @@
 #' Map equation centrality for a supplied leaf-module partition
 #' @keywords internal
 #' @noRd
-calculate_map_equation <- function(g, weights = NULL, membership = NULL,
+calculate_map_equation <- function(cg, weights = NULL, membership = NULL,
                                    damping = .85, map_flow = "unrecorded",
                                    map_convention = "paper") {
   if (!is.character(map_flow) || length(map_flow) != 1L ||
@@ -67,7 +67,7 @@ calculate_map_equation <- function(g, weights = NULL, membership = NULL,
         !is.finite(damping) || damping < 0 || damping >= 1) {
     stop("map_equation damping must be finite and in [0, 1)", call. = FALSE)
   }
-  n <- igraph::vcount(g)
+  n <- cg$n
   if (is.null(membership)) membership <- rep(1L, n)
   if (!is.atomic(membership) || !is.null(dim(membership)) ||
         length(membership) != n || anyNA(membership)) {
@@ -75,7 +75,7 @@ calculate_map_equation <- function(g, weights = NULL, membership = NULL,
          call. = FALSE)
   }
   if (!is.null(names(membership))) {
-    labels <- igraph::V(g)$name %||% as.character(seq_len(n))
+    labels <- cg$labels
     if (anyDuplicated(names(membership)) ||
           !setequal(names(membership), labels)) {
       stop("map_equation membership names must match node names exactly",
@@ -83,9 +83,9 @@ calculate_map_equation <- function(g, weights = NULL, membership = NULL,
     }
     membership <- membership[match(labels, names(membership))]
   }
-  a <- .cg_candidate_adjacency(g, weights, "map_equation")
+  a <- .cg_candidate_adjacency(cg, weights, "map_equation")
   diag(a) <- 0
-  flow <- .cg_map_flow(a, map_flow, damping, igraph::is_directed(g))
+  flow <- .cg_map_flow(a, map_flow, damping, cg$directed)
   score <- numeric(n)
   groups <- split(seq_len(n), as.character(membership))
   for (ids in groups) {

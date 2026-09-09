@@ -12,10 +12,10 @@
 #' Shapley game calculator
 #' @keywords internal
 #' @noRd
-calculate_shapley <- function(g, game = 1L, k = 2, cutoff = 2,
+calculate_shapley <- function(cg, game = 1L, k = 2, cutoff = 2,
                               hop_mat = NULL) {
-  if (igraph::vcount(g) == 0L) return(numeric(0))
-  b <- .cg_path_matrix(g, NULL)
+  if (cg$n == 0L) return(numeric(0))
+  b <- .cg_path_matrix(cg, NULL)
   d <- if (game == 3L) hop_mat %||% .cg_distances(b, "out") else NULL
   .cg_shapley(b, game = game, k = k, cutoff = cutoff, d = d)
 }
@@ -105,13 +105,13 @@ centrality_shapley_game3 <- function(x, shapley_cutoff = 2, ...) {
 #' Search information calculators
 #' @keywords internal
 #' @noRd
-calculate_search_information <- function(g, what = c("access", "hide"),
+calculate_search_information <- function(cg, what = c("access", "hide"),
                                          hop_mat = NULL) {
   what <- match.arg(what)
-  if (igraph::vcount(g) == 0L) return(numeric(0))
-  b <- .cg_path_matrix(g, NULL)
+  if (cg$n == 0L) return(numeric(0))
+  b <- .cg_path_matrix(cg, NULL)
   d <- hop_mat %||% .cg_distances(b, "out")
-  s_mat <- .cg_search_information(b, d, directed = igraph::is_directed(g))
+  s_mat <- .cg_search_information(b, d, directed = cg$directed)
   if (what == "access") {
     .cg_access_information(s_mat)
   } else {
@@ -199,9 +199,9 @@ centrality_hide_information <- function(x, ...) {
 #' Rumor centrality calculator
 #' @keywords internal
 #' @noRd
-calculate_rumor <- function(g, hop_mat = NULL) {
-  if (igraph::vcount(g) == 0L) return(numeric(0))
-  b <- .cg_path_matrix(g, NULL)
+calculate_rumor <- function(cg, hop_mat = NULL) {
+  if (cg$n == 0L) return(numeric(0))
+  b <- .cg_path_matrix(cg, NULL)
   # The paper's setting is undirected; a directed input is read ignoring
   # direction, matching igraph's BFS with mode = "all".
   b <- pmax(b, t(b))
@@ -267,9 +267,9 @@ centrality_rumor <- function(x, ...) {
 #' Community hub-bridge calculator
 #' @keywords internal
 #' @noRd
-calculate_community_hub_bridge <- function(g, membership = NULL,
+calculate_community_hub_bridge <- function(cg, membership = NULL,
                                            mode = "all") {
-  n <- igraph::vcount(g)
+  n <- cg$n
   if (n == 0L) return(numeric(0))
   if (is.null(membership)) {
     warning("community_hub_bridge requires membership; returning NA",
@@ -281,7 +281,7 @@ calculate_community_hub_bridge <- function(g, membership = NULL,
                    n, sprintf("got length %d", length(membership)))
     stop(errorCondition(msg, class = "cograph_bad_membership", call = NULL))
   }
-  b <- .cg_path_matrix(g, NULL)
+  b <- .cg_path_matrix(cg, NULL)
   nb <- switch(mode,
                all = (b + t(b)) != 0,
                out = b != 0,
@@ -350,28 +350,25 @@ centrality_community_hub_bridge <- function(x, membership = NULL,
 #' Entropy variation calculators
 #' @keywords internal
 #' @noRd
-calculate_entropy_variation <- function(g, of = c("degree", "betweenness"),
+calculate_entropy_variation <- function(cg, of = c("degree", "betweenness"),
                                         mode = "all") {
   of <- match.arg(of)
-  n <- igraph::vcount(g)
+  n <- cg$n
   if (n == 0L) return(numeric(0))
   if (of == "degree") {
-    b <- .cg_path_matrix(g, NULL)
+    b <- .cg_path_matrix(cg, NULL)
     # An undirected graph has one degree; "all" reads it (as 2k, which the
     # normalisation in the entropy cancels).
-    if (!igraph::is_directed(g)) mode <- "all"
+    if (!cg$directed) mode <- "all"
     return(.cg_entropy_variation_degree(b, mode))
   }
   # Betweenness is recomputed on each deletion graph, as in the author's
   # code; the paper's networks are unweighted, so weights are ignored.
-  h <- if ("weight" %in% igraph::edge_attr_names(g)) {
-    igraph::delete_edge_attr(g, "weight")
-  } else {
-    g
-  }
-  f <- igraph::betweenness(h)
+  b <- .cg_mode_weights(.cg_path_matrix(cg, NULL),
+                        if (cg$directed) "out" else "all")
+  f <- .cg_betweenness(b, n, cg$directed)
   .cg_entropy_variation(f, function(i) {
-    igraph::betweenness(igraph::delete_vertices(h, i))
+    .cg_betweenness(b[-i, -i, drop = FALSE], n - 1L, cg$directed)
   })
 }
 
@@ -437,9 +434,9 @@ centrality_entropy_variation <- function(x, of = c("degree", "betweenness"),
 #' s-shell calculator
 #' @keywords internal
 #' @noRd
-calculate_s_shell <- function(g, a = 0.5) {
-  if (igraph::vcount(g) == 0L) return(integer(0))
-  .cg_s_shell(.cg_path_matrix(g, NULL), a = a)
+calculate_s_shell <- function(cg, a = 0.5) {
+  if (cg$n == 0L) return(integer(0))
+  .cg_s_shell(.cg_path_matrix(cg, NULL), a = a)
 }
 
 #' s-shell Index
@@ -503,18 +500,19 @@ centrality_s_shell <- function(x, s_shell_a = 0.5, ...) {
 #' Greedy seed-selection calculators
 #' @keywords internal
 #' @noRd
-calculate_degree_discount <- function(g, p = 0.01, single = FALSE) {
-  if (igraph::vcount(g) == 0L) return(numeric(0))
-  .cg_degree_discount(.cg_path_matrix(g, NULL), p = p, single = single)
+calculate_degree_discount <- function(cg, p = 0.01, single = FALSE) {
+  if (cg$n == 0L) return(numeric(0))
+  .cg_degree_discount(.cg_path_matrix(cg, NULL), p = p, single = single)
 }
 
 #' @keywords internal
 #' @noRd
-calculate_ncvoterank <- function(g, theta = 0.5) {
-  if (igraph::vcount(g) == 0L) return(numeric(0))
-  h <- igraph::as_undirected(igraph::simplify(g, remove.loops = TRUE),
-                             mode = "collapse")
-  .cg_ncvoterank(.cg_path_matrix(h, NULL), ks = igraph::coreness(h),
+calculate_ncvoterank <- function(cg, theta = 0.5) {
+  if (cg$n == 0L) return(numeric(0))
+  # The paper's setting is an undirected simple graph: direction and loops
+  # are dropped before the k-shell decomposition and the voting.
+  nb <- .cg_undirected_view(.cg_path_matrix(cg, NULL))
+  .cg_ncvoterank(nb, ks = .cg_coreness(nb, cg$n, directed = FALSE),
                  theta = theta)
 }
 

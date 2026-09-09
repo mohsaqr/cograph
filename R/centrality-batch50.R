@@ -1,8 +1,8 @@
 #' Degree and importance of lines (Liu, Xiong, Shi, Shi and Wang 2016)
 #' @keywords internal
 #' @noRd
-calculate_dil <- function(g) {
-  .cg_dil_terms(.cg_path_matrix(g, NULL))$dil
+calculate_dil <- function(cg) {
+  .cg_dil_terms(.cg_path_matrix(cg, NULL))$dil
 }
 
 #' Degree and Importance of Lines

@@ -1,8 +1,8 @@
 #' Calculate adaptive LeaderRank using original graph H-indices
 #' @keywords internal
 #' @noRd
-calculate_adaptive_leaderrank <- function(g, h_mode = "all") {
-  b <- .cg_path_matrix(g, NULL)
+calculate_adaptive_leaderrank <- function(cg, h_mode = "all") {
+  b <- .cg_path_matrix(cg, NULL)
   diag(b) <- 0
   .cg_adaptive_leaderrank(b, h_mode)
 }

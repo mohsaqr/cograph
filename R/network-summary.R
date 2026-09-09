@@ -1053,10 +1053,9 @@ network_rich_club <- function(x, k = NULL, normalized = FALSE, n_random = 10, ..
 #' g <- igraph::make_graph("Zachary")
 #' estrada_index(g)
 estrada_index <- function(x) {
-  g <- to_igraph(x)
-  n <- igraph::vcount(g)
-  if (n == 0) return(0)
-  A <- as.matrix(igraph::as_adjacency_matrix(g, sparse = FALSE))
+  cg <- .cg_graph(x)
+  if (cg$n == 0L) return(0)
+  A <- unname(cg$b)
   ev <- eigen(A, only.values = TRUE, symmetric = isSymmetric(A))$values
   sum(exp(Re(ev)))
 }
@@ -1102,28 +1101,48 @@ estrada_index <- function(x) {
 #' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
 #' trophic_incoherence(adj)
 trophic_incoherence <- function(x, cannibalism = TRUE) {
-  g <- to_igraph(x)
-  if (!igraph::is_directed(g)) {
+  cg <- .cg_graph(x, loops = isTRUE(cannibalism))
+  if (!cg$directed) {
     warning("trophic_incoherence requires a directed graph; returning NA",
             call. = FALSE)
     return(NA_real_)
   }
-  if (!isTRUE(cannibalism)) {
-    # Remove self-loops (matching NetworkX's convention when cannibalism=FALSE)
-    g <- igraph::simplify(g, remove.multiple = FALSE, remove.loops = TRUE)
-  }
-  if (igraph::ecount(g) == 0) return(NA_real_)
+  if (nrow(cg$edges) == 0L) return(NA_real_)
 
-  # Compute trophic levels via the existing native calculator
-  levels <- calculate_trophic_level(g)
+  # Trophic level s_j = 1 + (1/k_j^in) * sum_{i->j} s_i, solved as
+  # (I - W^T) s = 1 with W_ji = A_ij / k_j^in. Self-loops stay in A when
+  # cannibalism = TRUE, so the diagonal is read rather than dropped.
+  levels <- .trophic_levels_from_adjacency(unname(cg$b))
   if (all(is.na(levels))) return(NA_real_)
 
-  el <- igraph::as_edgelist(g, names = FALSE)
-  diffs <- levels[el[, 2]] - levels[el[, 1]]
+  diffs <- levels[cg$edges[, 2L]] - levels[cg$edges[, 1L]]
 
   # NetworkX uses numpy.std with default ddof=0 (population std); R's sd()
   # uses ddof=1 (sample std) and would diverge.
   sqrt(mean((diffs - mean(diffs))^2))
+}
+
+#' Trophic levels of a binary adjacency, NA when the system is singular
+#'
+#' A directed graph without a basal node (every vertex has an in-edge) has a
+#' singular level system; that is the one condition turned into `NA`, any
+#' other solver failure is propagated.
+#' @keywords internal
+#' @noRd
+.trophic_levels_from_adjacency <- function(A) {
+  n <- nrow(A)
+  in_deg <- colSums(A)
+  in_deg[in_deg == 0] <- 1
+  W <- t(t(A) / in_deg)
+  tryCatch(
+    solve(diag(n) - t(W), rep(1, n)),
+    error = function(e) {
+      if (grepl("singular", conditionMessage(e), fixed = TRUE)) {
+        return(rep(NA_real_, n))
+      }
+      stop(e)
+    }
+  )
 }
 
 
@@ -1199,16 +1218,15 @@ group_centrality <- function(x, nodes,
   measure <- match.arg(measure)
   mode <- match.arg(mode)
 
-  g <- to_igraph(x)
-  n <- igraph::vcount(g)
+  cg <- .cg_graph(x)
+  n <- cg$n
 
   # Resolve node names to integer indices
   if (is.character(nodes)) {
-    vnames <- igraph::V(g)$name
-    if (is.null(vnames)) {
+    if (!cg$has_names) {
       stop("group_centrality: node names not available on graph", call. = FALSE)
     }
-    C <- match(nodes, vnames)
+    C <- match(nodes, cg$labels)
     if (anyNA(C)) {
       stop("group_centrality: unknown nodes: ",
            paste(nodes[is.na(C)], collapse = ", "), call. = FALSE)
@@ -1223,9 +1241,9 @@ group_centrality <- function(x, nodes,
   C <- unique(C)
 
   switch(measure,
-    "betweenness" = .group_betweenness(g, C, normalized = normalized),
-    "closeness"   = .group_closeness(g, C),
-    "degree"      = .group_degree(g, C, mode = mode)
+    "betweenness" = .group_betweenness(cg, C, normalized = normalized),
+    "closeness"   = .group_closeness(cg, C),
+    "degree"      = .group_degree(cg, C, mode = mode)
   )
 }
 
@@ -1234,26 +1252,29 @@ group_centrality <- function(x, nodes,
 #' @keywords internal
 #' @noRd
 .group_betweenness <- function(g, C, normalized = TRUE) {
-  n <- igraph::vcount(g)
+  cg <- .cg_as_context(g)
+  n <- cg$n
   V_minus_C <- setdiff(seq_len(n), C)
   if (length(V_minus_C) < 2L) return(0)
 
-  total <- 0
-  for (s in V_minus_C) {
-    for (t in V_minus_C) {
-      if (s == t) next
-      asp <- igraph::all_shortest_paths(g, from = s, to = t, weights = NA)
-      paths <- asp$res
-      if (length(paths) == 0L) next
-      through <- sum(vapply(paths, function(p) {
-        pv <- as.integer(p)
-        if (length(pv) <= 2L) return(FALSE)
-        inner <- pv[-c(1L, length(pv))]
-        any(inner %in% C)
-      }, logical(1)))
-      total <- total + through / length(paths)
-    }
-  }
+  # Unweighted geodesics in the graph's own direction. A geodesic passes
+  # through C exactly when it is not a geodesic of the graph with C removed,
+  # so the through-fraction is 1 - sigma_{G - C}(s, t) / sigma_G(s, t),
+  # counting only paths that are still shortest in G (same distance).
+  a <- unname(cg$b)
+  diag(a) <- 0
+  d <- .cg_distances(a, "out")
+  sigma <- .cg_geodesic_counts(a, d)
+  a_c <- a
+  a_c[C, ] <- 0
+  a_c[, C] <- 0
+  sigma_c <- .cg_geodesic_counts(a_c, d)
+
+  D <- d[V_minus_C, V_minus_C, drop = FALSE]
+  reachable <- is.finite(D) & D > 0
+  S <- sigma[V_minus_C, V_minus_C, drop = FALSE][reachable]
+  S_c <- sigma_c[V_minus_C, V_minus_C, drop = FALSE][reachable]
+  total <- sum(1 - S_c / S)
 
   if (normalized) {
     k <- length(V_minus_C)
@@ -1267,14 +1288,14 @@ group_centrality <- function(x, nodes,
 #' @keywords internal
 #' @noRd
 .group_closeness <- function(g, C) {
-  n <- igraph::vcount(g)
+  cg <- .cg_as_context(g)
+  n <- cg$n
   V_minus_C <- setdiff(seq_len(n), C)
   if (length(V_minus_C) == 0L) return(0)
 
-  # distances(g, v = V-C, to = C): matrix where D[i, j] = dist from V-C[i] to C[j]
-  # min per row = distance from each v in V-C to the closest group member.
-  D <- igraph::distances(g, v = V_minus_C, to = C, mode = "out", weights = NA)
-  d_vec <- apply(D, 1, min)
+  # Hop distance from each v in V - C to its closest group member.
+  D <- .cg_hop_distances(cg, "out")[V_minus_C, C, drop = FALSE]
+  d_vec <- apply(D, 1L, min)
   closeness_sum <- sum(d_vec[is.finite(d_vec)])
   if (closeness_sum == 0) return(0)
   length(V_minus_C) / closeness_sum
@@ -1285,15 +1306,12 @@ group_centrality <- function(x, nodes,
 #' @keywords internal
 #' @noRd
 .group_degree <- function(g, C, mode = "all") {
-  n <- igraph::vcount(g)
-  if (!igraph::is_directed(g)) mode <- "all"
+  cg <- .cg_as_context(g)
+  n <- cg$n
+  if (!cg$directed) mode <- "all"
 
-  nbrs <- integer(0)
-  for (c in C) {
-    nbrs <- c(nbrs, as.integer(igraph::neighbors(g, c, mode = mode)))
-  }
-  nbrs_unique <- unique(nbrs)
-  nbrs_outside <- setdiff(nbrs_unique, C)
+  nbrs <- unique(unlist(.cg_neighbors(cg$b, cg$directed, mode)[C]))
+  nbrs_outside <- setdiff(nbrs, C)
   k <- n - length(C)
   if (k == 0L) return(0)
   length(nbrs_outside) / k
@@ -1362,19 +1380,18 @@ group_centrality <- function(x, nodes,
 dispersion <- function(x, u = NULL, v = NULL,
                        normalized = TRUE,
                        alpha = 1, b = 0, c = 0) {
-  g <- to_igraph(x)
-  n <- igraph::vcount(g)
-  if (n == 0) return(numeric(0))
+  cg <- .cg_graph(x)
+  n <- cg$n
+  if (n == 0L) return(numeric(0))
 
   # Resolve node labels to 1-based indices
   resolve_node <- function(node) {
     if (is.null(node)) return(NULL)
     if (is.character(node)) {
-      vnames <- igraph::V(g)$name
-      if (is.null(vnames)) {
+      if (!cg$has_names) {
         stop("dispersion: node names not available on graph", call. = FALSE)
       }
-      idx <- match(node, vnames)
+      idx <- match(node, cg$labels)
       if (anyNA(idx)) {
         stop("dispersion: unknown node(s): ",
              paste(node[is.na(idx)], collapse = ", "), call. = FALSE)
@@ -1386,11 +1403,15 @@ dispersion <- function(x, u = NULL, v = NULL,
   u <- resolve_node(u)
   v <- resolve_node(v)
 
-  # Adjacency list (undirected treatment — dispersion is defined on the
-  # undirected ego network in Backstrom-Kleinberg). For a directed graph,
-  # NetworkX treats G[u] as OUT-neighbors, which we match.
+  # Out-neighbour lists (NetworkX reads G[u] as out-neighbours on a directed
+  # graph). A self-loop lists the node itself, twice on an undirected graph,
+  # which is what `igraph::neighbors()` and NetworkX both report.
+  adj <- unname(cg$b) != 0
+  loop_twice <- !cg$directed
   nbrs_of <- function(node) {
-    as.integer(igraph::neighbors(g, node, mode = "out"))
+    j <- which(adj[node, ])
+    if (loop_twice && adj[node, node]) j <- sort(c(j, node))
+    j
   }
 
   # Single-pair inner computation
@@ -1401,25 +1422,17 @@ dispersion <- function(x, u = NULL, v = NULL,
     set_uv <- c(u_i, v_i)
     total <- 0L
     if (length(ST) >= 2L) {
-      # All unordered pairs from ST
-      k <- length(ST)
-      for (i in seq_len(k - 1L)) {
-        for (j in seq(i + 1L, k)) {
-          s <- ST[i]
-          t <- ST[j]
-          # nbrs_s = u's neighbors intersected with s's neighbors, minus {u, v}
-          s_nbrs <- nbrs_of(s)
-          nbrs_s <- setdiff(intersect(u_nbrs, s_nbrs), set_uv)
-          # s and t not directly connected?
-          if (!(t %in% nbrs_s)) {
-            t_nbrs <- nbrs_of(t)
-            # s and t don't share a common neighbor in u's ego net
-            if (length(intersect(nbrs_s, t_nbrs)) == 0L) {
-              total <- total + 1L
-            }
-          }
-        }
-      }
+      # Every unordered pair {s, t} of mutual friends is "dispersed" when s
+      # and t are not adjacent and share no common neighbour inside u's ego
+      # network other than u and v.
+      pairs <- utils::combn(ST, 2L)
+      dispersed <- vapply(seq_len(ncol(pairs)), function(p) {
+        s <- pairs[1L, p]
+        t <- pairs[2L, p]
+        nbrs_s <- setdiff(intersect(u_nbrs, nbrs_of(s)), set_uv)
+        !(t %in% nbrs_s) && length(intersect(nbrs_s, nbrs_of(t))) == 0L
+      }, logical(1))
+      total <- sum(dispersed)
     }
     embeddedness <- length(ST)
     if (normalized) {
@@ -1448,21 +1461,17 @@ dispersion <- function(x, u = NULL, v = NULL,
     return(out)
   }
 
-  # Both NULL: compute for every (u, v) where v is a neighbor of u
-  rows <- list()
-  for (uu in seq_len(n)) {
-    u_nbrs <- nbrs_of(uu)
-    for (vv in u_nbrs) {
-      rows[[length(rows) + 1L]] <- data.frame(
-        from = uu, to = vv,
-        dispersion = disp_pair(uu, vv),
-        stringsAsFactors = FALSE
-      )
-    }
-  }
-  if (length(rows) == 0L) {
+  # Both NULL: one row per (u, v) with v a neighbour of u
+  nbr_lists <- lapply(seq_len(n), nbrs_of)
+  from <- rep(seq_len(n), lengths(nbr_lists))
+  to <- as.integer(unlist(nbr_lists))
+  if (length(from) == 0L) {
     return(data.frame(from = integer(0), to = integer(0),
                       dispersion = numeric(0)))
   }
-  do.call(rbind, rows)
+  data.frame(
+    from = from, to = to,
+    dispersion = mapply(disp_pair, from, to),
+    stringsAsFactors = FALSE
+  )
 }

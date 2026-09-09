@@ -1,17 +1,17 @@
 #' Prepare an undirected weighted graph for CDA
 #' @keywords internal
 #' @noRd
-calculate_cda <- function(g, weights = NULL, alpha = 0.5) {
-  loops <- igraph::which_loop(g)
-  if (any(loops)) {
-    g <- igraph::delete_edges(g, which(loops))
-    if (!is.null(weights)) weights <- weights[!loops]
-  }
+calculate_cda <- function(cg, weights = NULL, alpha = 0.5) {
+  # A loop never enters the measure, so its weight is dropped before the
+  # weight check and the diagonal of the matrix stays zero.
+  loops <- cg$edges[, 1L] == cg$edges[, 2L]
   if (is.null(weights)) {
-    w <- .cg_undirected_view(.cg_path_matrix(g, NULL))
+    w <- .cg_undirected_view(.cg_path_matrix(cg, NULL))
+    diag(w) <- 0
   } else {
-    w <- .cg_candidate_adjacency(g, weights, "cda")
-    if (igraph::is_directed(g)) w <- w + t(w)
+    weights[loops] <- 0
+    w <- .cg_candidate_adjacency(cg, weights, "cda")
+    if (cg$directed) w <- w + t(w)
     if (any(!is.finite(w))) {
       stop("cda edge-weight sum exceeds double precision", call. = FALSE)
     }

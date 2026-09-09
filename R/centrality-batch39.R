@@ -1,7 +1,7 @@
 #' Mixed gravitational centrality and its neighbor extension
 #' @keywords internal
 #' @noRd
-calculate_mixed_gravity <- function(g, radius = 3, extended = FALSE) {
+calculate_mixed_gravity <- function(cg, radius = 3, extended = FALSE) {
   automatic <- identical(radius, "auto")
   if (!is.null(radius) && !automatic &&
         (!is.numeric(radius) || length(radius) != 1L || is.na(radius) ||
@@ -9,7 +9,7 @@ calculate_mixed_gravity <- function(g, radius = 3, extended = FALSE) {
     stop("gravity_radius must be nonnegative, NULL, or 'auto'",
          call. = FALSE)
   }
-  a <- .cg_undirected_view(.cg_path_matrix(g, NULL))
+  a <- .cg_undirected_view(.cg_path_matrix(cg, NULL))
   diag(a) <- 0
   if (!nrow(a)) return(numeric())
   degree <- rowSums(a)

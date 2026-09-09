@@ -8,29 +8,29 @@
 #' Distance entropy calculator
 #' @keywords internal
 #' @noRd
-calculate_distance_entropy <- function(g, mode = "all", hop_mat = NULL) {
-  if (igraph::vcount(g) == 0L) return(numeric(0))
-  hop_mat <- hop_mat %||% .cg_hop_distances(g, mode)
+calculate_distance_entropy <- function(cg, mode = "all", hop_mat = NULL) {
+  if (cg$n == 0L) return(numeric(0))
+  hop_mat <- hop_mat %||% .cg_hop_distances(cg, mode)
   .cg_distance_entropy(hop_mat)
 }
 
 #' Local dimension calculator
 #' @keywords internal
 #' @noRd
-calculate_local_dimension <- function(g, mode = "all", hop_mat = NULL) {
-  if (igraph::vcount(g) == 0L) return(numeric(0))
-  hop_mat <- hop_mat %||% .cg_hop_distances(g, mode)
+calculate_local_dimension <- function(cg, mode = "all", hop_mat = NULL) {
+  if (cg$n == 0L) return(numeric(0))
+  hop_mat <- hop_mat %||% .cg_hop_distances(cg, mode)
   .cg_local_dimension(hop_mat)
 }
 
 #' Local information dimensionality calculator
 #' @keywords internal
 #' @noRd
-calculate_local_information_dimension <- function(g, mode = "all",
+calculate_local_information_dimension <- function(cg, mode = "all",
                                                   hop_mat = NULL) {
-  if (igraph::vcount(g) == 0L) return(numeric(0))
-  hop_mat <- hop_mat %||% .cg_hop_distances(g, mode)
-  .cg_local_information_dimension(hop_mat, n_total = igraph::vcount(g))
+  if (cg$n == 0L) return(numeric(0))
+  hop_mat <- hop_mat %||% .cg_hop_distances(cg, mode)
+  .cg_local_information_dimension(hop_mat, n_total = cg$n)
 }
 
 #' Modularity vitality calculator
@@ -39,9 +39,9 @@ calculate_local_information_dimension <- function(g, mode = "all",
 #' returns `NA`; a partition of the wrong length is a contract violation.
 #' @keywords internal
 #' @noRd
-calculate_modularity_vitality <- function(g, weights = NULL,
+calculate_modularity_vitality <- function(cg, weights = NULL,
                                           membership = NULL) {
-  n <- igraph::vcount(g)
+  n <- cg$n
   if (n == 0L) return(numeric(0))
   if (is.null(membership)) {
     warning("modularity_vitality requires membership; returning NA",
@@ -53,15 +53,15 @@ calculate_modularity_vitality <- function(g, weights = NULL,
                    n, sprintf("got length %d", length(membership)))
     stop(errorCondition(msg, class = "cograph_bad_membership", call = NULL))
   }
-  .cg_modularity_vitality(.cg_path_matrix(g, weights), membership)
+  .cg_modularity_vitality(.cg_path_matrix(cg, weights), membership)
 }
 
 #' Neighborhood connectivity calculator
 #' @keywords internal
 #' @noRd
-calculate_neighborhood_connectivity <- function(g, mode = "all") {
-  if (igraph::vcount(g) == 0L) return(numeric(0))
-  .cg_neighborhood_connectivity(.cg_path_matrix(g, NULL), mode)
+calculate_neighborhood_connectivity <- function(cg, mode = "all") {
+  if (cg$n == 0L) return(numeric(0))
+  .cg_neighborhood_connectivity(.cg_path_matrix(cg, NULL), mode)
 }
 
 # ---------------------------------------------------------------------------

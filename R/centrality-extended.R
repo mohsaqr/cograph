@@ -8,154 +8,413 @@
 
 
 # =============================================================================
-# Distance-based closeness variants
+# Context helpers shared by the ported measures
 # =============================================================================
+#
+# These measures were written against igraph objects and validated against
+# centiserve, sna, brainGraph, influenceR and NetworkX. They now read the
+# `cg_graph` context (R/kernels-graph.R). Where the old code leaned on an
+# igraph convention -- a self-loop listed twice in a neighbour list, a
+# `weights = NULL` default that silently used the weight attribute -- the
+# helper below reproduces that convention so the pinned values do not move.
 
-#' Stress centrality (sna-compatible)
+#' Accept an igraph object where a context is expected
 #'
-#' Number of shortest paths passing through each node as intermediate.
-#' Uses sna convention with C-style accumulation.
+#' The measures read a `cg_graph` context. Callers that still hold an igraph
+#' object (the equivalence tests do) get it converted once, here, instead of
+#' each measure re-growing an igraph code path.
 #' @keywords internal
 #' @noRd
-calculate_stress <- function(g, weights = NULL, directed = TRUE) {
-  n <- igraph::vcount(g)
-  if (n <= 1) return(rep(0, n))
+.ext_context <- function(cg) {
+  if (!inherits(cg, "igraph")) return(cg)
+  g <- cg
+  cg <- .cg_graph(g)
+  # igraph keeps edges in insertion order; the context re-canonicalises them
+  # row-major. Remember the permutation so a weights vector the caller built
+  # in igraph's order can be re-aligned by .ext_weights().
+  el <- igraph::as_edgelist(g, names = FALSE)
+  if (nrow(el) == nrow(cg$edges)) {
+    if (!cg$directed) el <- cbind(pmin(el[, 1L], el[, 2L]), pmax(el[, 1L], el[, 2L]))
+    key_igraph <- (el[, 1L] - 1) * cg$n + el[, 2L]
+    key_canon <- (cg$edges[, 1L] - 1) * cg$n + cg$edges[, 2L]
+    if (!anyDuplicated(key_igraph)) cg$cache$igraph_edge_order <- match(key_canon, key_igraph)
+  }
+  cg
+}
 
-  mode <- if (directed && igraph::is_directed(g)) "out" else "all"
-  is_dir <- igraph::is_directed(g) && directed
+#' Weights in canonical edge order
+#'
+#' Identity for a context built from a matrix; for one built from an igraph
+#' object by `.ext_context()`, permutes a caller-supplied vector from
+#' igraph's edge order into the canonical order the kernels expect.
+#' @keywords internal
+#' @noRd
+.ext_weights <- function(cg, weights) {
+  perm <- cg$cache$igraph_edge_order
+  if (is.null(weights) || is.null(perm) || length(weights) != length(perm)) return(weights)
+  weights[perm]
+}
 
-  weights_provided <- !is.null(weights) && !all(is.na(weights))
+#' Path-weight matrix, honouring an igraph-ordered weights vector
+#' @keywords internal
+#' @noRd
+.ext_path_matrix <- function(cg, weights = NULL) {
+  .cg_path_matrix(cg, .ext_weights(cg, weights))
+}
 
-  if (!weights_provided) {
-    # --- Unweighted path: Brandes (2008) BFS accumulation ---
-    # For each source s we do BFS, record the shortest-path count sigma(v)
-    # and BFS order, then accumulate delta in reverse BFS order with the
-    # stress recurrence
-    #   delta(v) += sigma(v) * (sigma(w) + delta(w)) / sigma(w).
-    # This differs from Brandes' *betweenness* recurrence (uses
-    # (1 + delta(w))) — stress counts integer paths, not fractions.
-    adj_list <- lapply(igraph::as_adj_list(g, mode = mode), as.integer)
+#' Neighbour lists with igraph's `as_adj_list()` / `neighbors()` semantics
+#'
+#' Sorted by neighbour id. On a directed graph `mode = "all"` lists a
+#' reciprocated dyad twice. A self-loop is listed once under `"out"` or
+#' `"in"` and twice on an undirected graph. On a directed graph under
+#' `"all"` the two igraph accessors disagree: `neighbors()` lists the loop
+#' twice (`loops = "twice"`), `as_adj_list()` once (`loops = "once"`).
+#' Use `.cg_adjlist()` when loops must be ignored altogether.
+#'
+#' @param cg A `cg_graph` context. @param mode One of `"all"`, `"out"`, `"in"`.
+#' @param loops How a self-loop is listed under directed `"all"`.
+#' @return A list of integer vectors, one per vertex.
+#' @keywords internal
+#' @noRd
+.ext_adjlist <- function(cg, mode = "all", loops = c("twice", "once")) {
+  mode <- match.arg(mode, c("all", "out", "in"))
+  loops <- match.arg(loops)
+  b <- unname(cg$b)
+  lapply(seq_len(cg$n), function(i) {
+    out <- which(b[i, ] != 0)
+    if (!cg$directed) return(sort(c(out, i[b[i, i] != 0])))
+    inn <- which(b[, i] != 0)
+    switch(mode,
+      out = out,
+      `in` = inn,
+      all = sort(c(out, if (identical(loops, "once")) inn[inn != i] else inn)))
+  })
+}
 
-    stress <- numeric(n)
-    sigma <- numeric(n)
-    dist <- rep(Inf, n)
-    order_bfs <- integer(n)
-    delta <- numeric(n)
+#' The weight matrix an igraph `weights = NULL` default would have used
+#'
+#' `igraph::betweenness()`, `strength()`, `diameter()`, `laplacian_matrix()`
+#' and friends fall back to the `weight` attribute when no weights are
+#' passed. The context carries that attribute as `cg$w` whenever the input
+#' was weighted; an unweighted input gives the binary matrix.
+#'
+#' @param cg A `cg_graph` context.
+#' @param weights Explicit weights in canonical edge order, or NULL.
+#' @return A numeric matrix without dimnames.
+#' @keywords internal
+#' @noRd
+.ext_default_weights <- function(cg, weights = NULL) {
+  if (!is.null(weights)) return(.ext_path_matrix(cg, weights))
+  if (cg$weighted) unname(cg$w) else unname(cg$b)
+}
 
-    for (s in seq_len(n)) {
-      sigma[] <- 0
-      dist[] <- Inf
-      delta[] <- 0
-      pred_list <- vector("list", n)
-      sigma[s] <- 1
-      dist[s] <- 0
+#' Edge count of the subgraph induced by a vertex set
+#'
+#' Counts as `igraph::ecount()` does on an induced subgraph: every arc when
+#' directed, each unordered pair once when undirected, a self-loop once.
+#'
+#' @param b Binary adjacency matrix. @param nodes Vertex indices.
+#' @param directed Whether the graph is directed.
+#' @return A single number.
+#' @keywords internal
+#' @noRd
+.ext_edge_count <- function(b, nodes, directed) {
+  sub <- b[nodes, nodes, drop = FALSE]
+  if (directed) sum(sub != 0) else sum(sub[upper.tri(sub, diag = TRUE)] != 0)
+}
 
-      order_bfs[1] <- s
-      head_ <- 1L
-      tail_ <- 2L
-      while (head_ < tail_) {
-        v <- order_bfs[head_]
-        head_ <- head_ + 1L
-        dv_next <- dist[v] + 1
-        for (w in adj_list[[v]]) {
-          dw <- dist[w]
-          if (dw == Inf) {
-            dist[w] <- dv_next
-            order_bfs[tail_] <- w
-            tail_ <- tail_ + 1L
-            dw <- dv_next
-          }
-          if (dw == dv_next) {
-            sigma[w] <- sigma[w] + sigma[v]
-            pred_list[[w]] <- c(pred_list[[w]], v)
-          }
-        }
-      }
+#' Bridging coefficient (Hwang et al. 2008)
+#'
+#' `(1 / deg(v)) / sum_{u in N(v)} 1 / deg(u)` on the undirected degree,
+#' with the neighbour multiset as igraph lists it.
+#'
+#' @param cg A `cg_graph` context.
+#' @return Numeric vector; 0 for an isolate.
+#' @keywords internal
+#' @noRd
+.ext_bridging_coefficient <- function(cg) {
+  deg <- as.numeric(.cg_degree(cg$b, cg$directed, "all"))
+  adj <- .ext_adjlist(cg, "all")
+  vapply(seq_len(cg$n), function(v) {
+    if (deg[v] == 0) return(0)
+    sum_inv_deg_nbs <- sum(1 / deg[adj[[v]]])
+    if (sum_inv_deg_nbs == 0) return(0)
+    (1 / deg[v]) / sum_inv_deg_nbs
+  }, numeric(1))
+}
 
-      n_visited <- tail_ - 1L
-      if (n_visited > 1L) {
-        for (i in seq.int(n_visited, 2L)) {
-          w <- order_bfs[i]
-          preds <- pred_list[[w]]
-          if (length(preds) == 0L) next
-          factor_w <- (sigma[w] + delta[w]) / sigma[w]
-          delta[preds] <- delta[preds] + sigma[preds] * factor_w
-        }
-      }
+#' Mean first-passage-time matrix of the simple random walk
+#'
+#' Shared by markov, random_walk and second_order. The walk steps along the
+#' binary adjacency, a self-loop included once in the row sum, as the
+#' reference implementations do. Returns `NULL` when the fundamental matrix
+#' is singular; callers report that as `NA` and guard connectivity first.
+#'
+#' @param cg A `cg_graph` context.
+#' @return An n x n numeric matrix with a zero diagonal, or `NULL`.
+#' @keywords internal
+#' @noRd
+.ext_mfpt <- function(cg) {
+  n <- cg$n
+  A <- unname(cg$b)
+  deg <- rowSums(A)
+  deg[deg == 0] <- 1
+  P <- A / deg
 
-      delta[s] <- 0
-      stress <- stress + delta
-    }
-
-    if (!is_dir) stress <- stress / 2
-    return(stress)
+  # Stationary distribution
+  pi_stat <- if (!cg$directed) {
+    deg / sum(deg)
+  } else {
+    eig <- eigen(t(P))
+    idx <- which.min(abs(Re(eig$values) - 1))
+    v <- abs(Re(eig$vectors[, idx]))
+    v / sum(v)
   }
 
-  # --- Weighted path: igraph::distances() + edge-scan predecessor DAG ---
-  # Per-source, igraph::distances() runs Dijkstra in C — this is the hot
-  # inner loop we can't beat in R. Then a single vectorized edge scan
-  # identifies tight edges (d[u] + w(u,v) == d[v]), which form the
-  # shortest-path predecessor DAG. From there the Brandes accumulation
-  # runs the same as the unweighted case, just indexed by ascending
-  # distance instead of BFS order.
-  el <- igraph::as_edgelist(g, names = FALSE)
-  u_all <- as.integer(el[, 1])
-  v_all <- as.integer(el[, 2])
-  w_all <- as.numeric(weights)
+  # Fundamental matrix: Z = (I - P + W)^-1
+  W <- matrix(pi_stat, n, n, byrow = TRUE)
+  Z <- tryCatch(solve(diag(n) - P + W), error = function(e) NULL)
+  if (is.null(Z)) return(NULL)
+
+  # Mean first passage time: m_ij = (Z_jj - Z_ij) / pi_j, 0 where pi_j ~ 0
+  pi_row <- matrix(pi_stat, n, n, byrow = TRUE)
+  mfpt <- (matrix(diag(Z), n, n, byrow = TRUE) - Z) / pi_row
+  mfpt[pi_row <= 1e-15] <- 0
+  diag(mfpt) <- 0
+  mfpt
+}
+
+#' Weighted local reaching centrality
+#'
+#' Paths minimise `total / w` (a heavy edge is cheap to cross) and the score
+#' averages the traversed weights along each path.
+#'
+#' @param cg A `cg_graph` context. @param w Weights in canonical edge order.
+#' @param mode Traversal mode already resolved for direction.
+#' @return Numeric vector.
+#' @keywords internal
+#' @noRd
+.ext_reaching_weighted <- function(cg, w, mode) {
+  n <- cg$n
+  # m[a, b] is the weight of arc a -> b (symmetric when undirected). The
+  # weight averaged along a path is looked up in path order, a -> b, the way
+  # get_edge_ids(directed = TRUE) did: under "in" (or "all" across a
+  # one-way dyad) the traversed arc runs the other way and contributes 0.
+  m <- .cg_path_matrix(cg, w)
+  inc <- .ext_incident_costs(m, cg$directed, mode, sum(w))
+  vapply(seq_len(n), function(src) {
+    parent <- .ext_dijkstra_parents(inc, src, n)
+    reached <- which(parent > 0L)
+    if (length(reached) == 0L) return(0)
+    avg_ws <- vapply(reached, function(target) {
+      path <- target
+      # Walk the parent pointers back to the source (sequential by nature).
+      while (path[1L] != src) path <- c(parent[path[1L]], path)
+      steps <- length(path) - 1L
+      sum(m[cbind(path[-length(path)], path[-1L])]) / steps
+    }, numeric(1))
+    sum(avg_ws) / (n - 1)
+  }, numeric(1))
+}
+
+#' Incident arcs with traversal costs, in igraph's incidence-list order
+#'
+#' Neighbours ascending; under directed `"all"` the out-arc precedes the
+#' in-arc to the same neighbour. Self-loops are dropped (they can never
+#' shorten a path).
+#'
+#' @param m Weight matrix. @param directed Whether directed.
+#' @param mode Traversal mode. @param total Sum of all edge weights.
+#' @return A list of `list(to, cost)` per vertex, `cost = total / weight`.
+#' @keywords internal
+#' @noRd
+.ext_incident_costs <- function(m, directed, mode, total) {
+  n <- nrow(m)
+  lapply(seq_len(n), function(i) {
+    j <- seq_len(n)[seq_len(n) != i]
+    if (!directed || identical(mode, "out")) {
+      keep <- m[i, j] > 0
+      return(list(to = j[keep], cost = total / m[i, j[keep]]))
+    }
+    if (identical(mode, "in")) {
+      keep <- m[j, i] > 0
+      return(list(to = j[keep], cost = total / m[j[keep], i]))
+    }
+    out_keep <- m[i, j] > 0
+    in_keep <- m[j, i] > 0
+    to <- c(j[out_keep], j[in_keep])
+    cost <- c(total / m[i, j[out_keep]], total / m[j[in_keep], i])
+    rank <- c(rep(0L, sum(out_keep)), rep(1L, sum(in_keep)))
+    o <- order(to, rank)
+    list(to = to[o], cost = cost[o])
+  })
+}
+
+#' Single-source Dijkstra with igraph's tie-breaking
+#'
+#' Reproduces `igraph_get_shortest_paths_dijkstra()`: a binary max-heap on
+#' `-distance` (igraph's `2wheap`, equal keys sift up), relaxation only on
+#' a strict improvement judged by `igraph_cmp_epsilon()` at 1e-10, and
+#' arcs scanned in incidence-list order. Which parent a tied vertex keeps
+#' depends on all three, so all three are followed exactly.
+#'
+#' @param inc Incidence lists from `.ext_incident_costs()`.
+#' @param src Source index. @param n Vertex count.
+#' @return Integer vector of parents; 0 for the source and for unreached
+#'   vertices.
+#' @keywords internal
+#' @noRd
+.ext_dijkstra_parents <- function(inc, src, n) {
+  dist <- rep(-1, n)
+  parent <- integer(n)
+  hdata <- numeric(0)
+  hidx <- integer(0)
+  hpos <- integer(n)
+  swap <- function(a, b) {
+    if (a == b) return(invisible(NULL))
+    td <- hdata[a]; hdata[a] <<- hdata[b]; hdata[b] <<- td
+    ia <- hidx[a]; ib <- hidx[b]
+    hidx[a] <<- ib; hidx[b] <<- ia
+    hpos[ia] <<- b; hpos[ib] <<- a
+    invisible(NULL)
+  }
+  # Heap maintenance is a walk along one root-to-leaf path; each step
+  # depends on the swap before it.
+  shift_up <- function(e) {
+    while (e > 1L) {
+      p <- e %/% 2L
+      if (hdata[e] < hdata[p]) break
+      swap(e, p)
+      e <- p
+    }
+  }
+  sink <- function(h) {
+    repeat {
+      size <- length(hdata)
+      l <- 2L * h
+      r <- l + 1L
+      if (l > size) break
+      child <- if (r > size || hdata[l] >= hdata[r]) l else r
+      if (!(hdata[h] < hdata[child])) break
+      swap(h, child)
+      h <- child
+    }
+  }
+  push <- function(v, key) {
+    hdata[length(hdata) + 1L] <<- key
+    hidx[length(hidx) + 1L] <<- v
+    hpos[v] <<- length(hdata)
+    shift_up(length(hdata))
+  }
+  pop_max <- function() {
+    v <- hidx[1L]
+    size <- length(hdata)
+    swap(1L, size)
+    hdata <<- hdata[-size]
+    hidx <<- hidx[-size]
+    hpos[v] <<- 0L
+    if (length(hdata)) sink(1L)
+    v
+  }
+  modify <- function(v, key) {
+    p <- hpos[v]
+    hdata[p] <<- key
+    sink(p)
+    shift_up(p)
+  }
+  cmp_eps <- function(a, b) {
+    if (a == b) return(0L)
+    diff <- a - b
+    total <- abs(a) + abs(b)
+    tie <- if (a == 0 || b == 0 || total < .Machine$double.xmin) {
+      abs(diff) < 1e-10 * .Machine$double.xmin
+    } else {
+      abs(diff) / total < 1e-10
+    }
+    if (tie) 0L else if (diff < 0) -1L else 1L
+  }
+
+  dist[src] <- 0
+  push(src, 0)
+  # Settling is sequential: each pop depends on every relaxation before it.
+  while (length(hdata)) {
+    u <- pop_max()
+    mindist <- dist[u]
+    to <- inc[[u]]$to
+    cost <- inc[[u]]$cost
+    for (k in seq_along(to)) {
+      tto <- to[k]
+      altdist <- mindist + cost[k]
+      curdist <- dist[tto]
+      if (curdist < 0) {
+        dist[tto] <- altdist
+        parent[tto] <- u
+        push(tto, -altdist)
+      } else if (hpos[tto] > 0L && cmp_eps(altdist, curdist) < 0L) {
+        dist[tto] <- altdist
+        parent[tto] <- u
+        modify(tto, -altdist)
+      }
+    }
+  }
+  parent
+}
+
+#' Weighted stress by edge scan over the shortest-path DAG
+#'
+#' Per source, the all-pairs distances identify tight edges
+#' (`d[u] + w(u, v) == d[v]` at a scale-relative tolerance floored at 1),
+#' which form the predecessor DAG; the stress recurrence then runs by
+#' ascending and descending distance. Kept in this form, tolerance floor
+#' included, because it is what the pinned values were computed with.
+#'
+#' @param cg A `cg_graph` context. @param weights Path weights, canonical order.
+#' @param mode Distance mode. @param is_dir Whether direction is in force.
+#' @return Numeric vector.
+#' @keywords internal
+#' @noRd
+.ext_stress_weighted <- function(cg, weights, mode, is_dir) {
+  n <- cg$n
+  el <- cg$edges
+  u_all <- el[, 1L]
+  v_all <- el[, 2L]
+  w_all <- as.numeric(.ext_weights(cg, weights))
 
   # For undirected, symmetrize edges so the scan catches predecessors in
-  # either orientation. For directed, each arc is scanned once in its
-  # canonical direction.
+  # either orientation. For directed, each arc is scanned once.
   if (is_dir) {
-    u_sym <- u_all
-    v_sym <- v_all
-    w_sym <- w_all
+    u_sym <- u_all; v_sym <- v_all; w_sym <- w_all
   } else {
-    u_sym <- c(u_all, v_all)
-    v_sym <- c(v_all, u_all)
-    w_sym <- c(w_all, w_all)
+    u_sym <- c(u_all, v_all); v_sym <- c(v_all, u_all); w_sym <- c(w_all, w_all)
   }
 
-  # Tolerance floor of 1 guards against false negatives when distances are
-  # tiny (multiplying by 0 would always reject); scale by magnitude for
-  # large distances so we don't accept spurious tight edges.
+  d_all <- .cg_distances(.ext_path_matrix(cg, weights), mode)
   tol_rel <- sqrt(.Machine$double.eps)
   n_seq <- seq_len(n)
-
   stress <- numeric(n)
 
+  # One DAG per source; the two sweeps below are order-dependent recurrences.
   for (s in n_seq) {
-    d <- as.numeric(igraph::distances(g, v = s, to = igraph::V(g),
-                                      mode = mode, weights = w_all))
+    d <- d_all[s, ]
     reachable <- is.finite(d)
-
     d_u <- d[u_sym]
     d_v <- d[v_sym]
     lhs <- d_u + w_sym
     tight <- is.finite(d_u) & is.finite(d_v) &
-      abs(lhs - d_v) <= tol_rel * pmax(abs(lhs), abs(d_v), 1)
-
-    # Predecessor DAG: pred_list[[w]] holds all nodes v on some s->v->w
-    # shortest path. split() on a full-level factor gives an entry for
-    # every node, including integer(0) for sources with no predecessors.
+      abs(lhs - d_v) <= tol_rel * pmax(abs(lhs), abs(d_v))
     pred_list <- split(u_sym[tight], factor(v_sym[tight], levels = n_seq))
 
-    # Ascending-distance order for sigma (path counts): for non-source w,
-    # sigma(w) = sum(sigma(preds[[w]])). The source has sigma = 1.
     ord <- order(d)
     sigma <- numeric(n)
     sigma[s] <- 1
-    for (i in n_seq) {
-      w <- ord[i]
+    for (w in ord) {
       if (!reachable[w] || w == s) next
       p <- pred_list[[w]]
       if (length(p)) sigma[w] <- sum(sigma[p])
     }
 
-    # Descending-distance order for delta accumulation (stress recurrence).
     delta <- numeric(n)
-    for (i in seq.int(n, 1L)) {
-      w <- ord[i]
+    for (w in rev(ord)) {
       if (!reachable[w] || w == s || sigma[w] == 0) next
       p <- pred_list[[w]]
       if (!length(p)) next
@@ -167,17 +426,47 @@ calculate_stress <- function(g, weights = NULL, directed = TRUE) {
     stress <- stress + delta
   }
 
-  if (!is_dir) stress <- stress / 2
-  stress
+  if (!is_dir) stress / 2 else stress
+}
+
+
+# =============================================================================
+# Distance-based closeness variants
+# =============================================================================
+
+#' Stress centrality (sna-compatible)
+#'
+#' Number of shortest paths passing through each node as intermediate.
+#' Uses sna convention with C-style accumulation.
+#' @keywords internal
+#' @noRd
+calculate_stress <- function(cg, weights = NULL, directed = TRUE) {
+  cg <- .ext_context(cg)
+  n <- cg$n
+  if (n <= 1) return(rep(0, n))
+  is_dir <- cg$directed && directed
+  weights_provided <- !is.null(weights) && !all(is.na(weights))
+
+  mode <- if (is_dir) "out" else "all"
+  if (weights_provided) return(.ext_stress_weighted(cg, weights, mode, is_dir))
+
+  # Unweighted: Brandes (2008) BFS accumulation with the stress recurrence
+  #   delta(v) += sigma(v) * (sigma(w) + delta(w)) / sigma(w)
+  # which counts integer paths rather than the fractions betweenness uses.
+  .cg_stress(.cg_mode_weights(unname(cg$b), mode), n, is_dir, FALSE)
 }
 
 
 #' Flow betweenness (sna-compatible)
 #'
-#' Max-flow based betweenness using igraph::max_flow.
+#' Max-flow based betweenness using igraph::max_flow. Deliberately left on
+#' igraph (see R/kernels-final.R): parity needs igraph's flow decomposition.
 #' @keywords internal
 #' @noRd
-calculate_flow_betweenness <- function(g, weights = NULL, directed = TRUE) {
+calculate_flow_betweenness <- function(cg, weights = NULL, directed = TRUE) {
+  cg <- .ext_context(cg)
+  .cg_need_igraph("flow_betweenness")
+  g <- .cg_igraph(cg)
   n <- igraph::vcount(g)
   if (n <= 2) return(rep(0, n))
 
@@ -222,21 +511,17 @@ calculate_flow_betweenness <- function(g, weights = NULL, directed = TRUE) {
 #' with degree >= k. Uses closed neighborhood (includes node itself).
 #' @keywords internal
 #' @noRd
-calculate_lobby <- function(g, mode = "all") {
-  n <- igraph::vcount(g)
+calculate_lobby <- function(cg, mode = "all") {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n == 0) return(integer(0))
 
-  deg <- igraph::degree(g, mode = mode)
+  deg <- .cg_degree(cg$b, cg$directed, mode)
+  adj <- .ext_adjlist(cg, mode)
 
+  # Closed neighborhood: node + its neighbors
   vapply(seq_len(n), function(i) {
-    # Closed neighborhood: node + its neighbors
-    nbs <- c(i, as.integer(igraph::neighbors(g, i, mode = mode)))
-    nb_degs <- sort(deg[nbs], decreasing = TRUE)
-    h <- 0L
-    for (k in seq_along(nb_degs)) {
-      if (nb_degs[k] >= k) h <- as.integer(k) else break
-    }
-    h
+    as.integer(.cg_hindex(c(deg[i], deg[adj[[i]]])))
   }, integer(1))
 }
 
@@ -247,48 +532,38 @@ calculate_lobby <- function(g, mode = "all") {
 #' divided by (n - 1).
 #' @keywords internal
 #' @noRd
-calculate_radiality <- function(g, mode = "all", weights = NULL,
+calculate_radiality <- function(cg, mode = "all", weights = NULL,
                                 dist_mat = NULL) {
-  n <- igraph::vcount(g)
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n <= 1) return(rep(NA_real_, n))
 
   if (is.null(dist_mat)) {
-    dist_weights <- if (is.null(weights)) NA else weights
-    dist_mat <- igraph::distances(g, mode = mode, weights = dist_weights)
+    dist_mat <- .cg_distances(.ext_path_matrix(cg, weights), mode)
   }
-  sp <- dist_mat
-  diam <- igraph::diameter(g, directed = igraph::is_directed(g),
-                           weights = if (is.null(weights)) NA else NULL)
+  # The diameter follows the graph's own direction, not `mode`, and when
+  # weights are in force it is taken on the raw weight attribute (igraph's
+  # `weights = NULL` default), not on the path weights.
+  diam_m <- if (is.null(weights)) unname(cg$b) else .ext_default_weights(cg)
+  diam <- .cg_diameter(.cg_distances(diam_m, if (cg$directed) "out" else "all"))
 
-  vapply(seq_len(n), function(i) {
-    dists <- sp[i, ]
-    # Include self (d=0) as in centiserve
-    sum(diam + 1 - dists[is.finite(dists)]) / (n - 1)
-  }, numeric(1))
+  .cg_radiality(dist_mat, n, diam)
 }
 
 
 #' Lin centrality (centiserve-compatible)
 #' @keywords internal
 #' @noRd
-calculate_lin <- function(g, mode = "all", weights = NULL,
+calculate_lin <- function(cg, mode = "all", weights = NULL,
                           dist_mat = NULL) {
-  n <- igraph::vcount(g)
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n <= 1) return(rep(NA_real_, n))
 
   if (is.null(dist_mat)) {
-    dist_weights <- if (is.null(weights)) NA else weights
-    dist_mat <- igraph::distances(g, mode = mode, weights = dist_weights)
+    dist_mat <- .cg_distances(.ext_path_matrix(cg, weights), mode)
   }
-  sp <- dist_mat
-
-  vapply(seq_len(n), function(i) {
-    dists <- sp[i, -i]
-    reachable <- dists[is.finite(dists) & dists > 0]
-    nr <- length(reachable)
-    if (nr == 0) return(0)
-    nr^2 / sum(reachable)
-  }, numeric(1))
+  .cg_lin(dist_mat, n)
 }
 
 
@@ -297,14 +572,14 @@ calculate_lin <- function(g, mode = "all", weights = NULL,
 #' rowSums(delta^sp) — INCLUDES self (delta^0 = 1).
 #' @keywords internal
 #' @noRd
-calculate_decay <- function(g, mode = "all", weights = NULL,
+calculate_decay <- function(cg, mode = "all", weights = NULL,
                             decay_parameter = 0.5, dist_mat = NULL) {
-  n <- igraph::vcount(g)
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n <= 1) return(rep(1, n))
 
   if (is.null(dist_mat)) {
-    dist_weights <- if (is.null(weights)) NA else weights
-    dist_mat <- igraph::distances(g, mode = mode, weights = dist_weights)
+    dist_mat <- .cg_distances(.ext_path_matrix(cg, weights), mode)
   }
   # Include self (diagonal = 0, so delta^0 = 1)
   rowSums(decay_parameter ^ dist_mat)
@@ -316,28 +591,27 @@ calculate_decay <- function(g, mode = "all", weights = NULL,
 #' sum(1/2^d) including self = sum(2^(-d)). Self contributes 1.
 #' @keywords internal
 #' @noRd
-calculate_residual_closeness <- function(g, mode = "all", weights = NULL,
+calculate_residual_closeness <- function(cg, mode = "all", weights = NULL,
                                          dist_mat = NULL) {
-  n <- igraph::vcount(g)
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n <= 1) return(rep(1, n))
 
   if (is.null(dist_mat)) {
-    dist_weights <- if (is.null(weights)) NA else weights
-    dist_mat <- igraph::distances(g, mode = mode, weights = dist_weights)
+    dist_mat <- .cg_distances(.ext_path_matrix(cg, weights), mode)
   }
-  sp <- dist_mat
   # 1/2^sp including self; Inf distances contribute 0
-  sp[!is.finite(sp)] <- Inf
-  rowSums(1 / (2^sp))
+  rowSums(1 / (2^dist_mat))
 }
 
 
 #' Dangalchev closeness (same as residual closeness)
 #' @keywords internal
 #' @noRd
-calculate_dangalchev <- function(g, mode = "all", weights = NULL,
+calculate_dangalchev <- function(cg, mode = "all", weights = NULL,
                                  dist_mat = NULL) {
-  calculate_residual_closeness(g, mode = mode, weights = weights,
+  cg <- .ext_context(cg)
+  calculate_residual_closeness(cg, mode = mode, weights = weights,
                                dist_mat = dist_mat)
 }
 
@@ -347,9 +621,10 @@ calculate_dangalchev <- function(g, mode = "all", weights = NULL,
 #' sum(alpha^d) including self.
 #' @keywords internal
 #' @noRd
-calculate_generalized_closeness <- function(g, mode = "all", weights = NULL,
+calculate_generalized_closeness <- function(cg, mode = "all", weights = NULL,
                                             alpha = 0.5, dist_mat = NULL) {
-  calculate_decay(g, mode = mode, weights = weights, decay_parameter = alpha,
+  cg <- .ext_context(cg)
+  calculate_decay(cg, mode = mode, weights = weights, decay_parameter = alpha,
                   dist_mat = dist_mat)
 }
 
@@ -359,23 +634,16 @@ calculate_generalized_closeness <- function(g, mode = "all", weights = NULL,
 #' sum(1/d(i,j)^2) over all j != i.
 #' @keywords internal
 #' @noRd
-calculate_harary <- function(g, mode = "all", weights = NULL,
+calculate_harary <- function(cg, mode = "all", weights = NULL,
                              dist_mat = NULL) {
-  n <- igraph::vcount(g)
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n <= 1) return(rep(0, n))
 
   if (is.null(dist_mat)) {
-    dist_weights <- if (is.null(weights)) NA else weights
-    dist_mat <- igraph::distances(g, mode = mode, weights = dist_weights)
+    dist_mat <- .cg_distances(.ext_path_matrix(cg, weights), mode)
   }
-  sp <- dist_mat
-  diag(sp) <- NA
-
-  vapply(seq_len(n), function(i) {
-    dists <- sp[i, ]
-    valid <- is.finite(dists) & !is.na(dists) & dists > 0
-    sum(1 / dists[valid]^2)
-  }, numeric(1))
+  .cg_harary(dist_mat, n)
 }
 
 
@@ -384,14 +652,14 @@ calculate_harary <- function(g, mode = "all", weights = NULL,
 #' sum(d(v,w)) / (n + 1). Note: centiserve divides by vcount+1.
 #' @keywords internal
 #' @noRd
-calculate_average_distance <- function(g, mode = "all", weights = NULL,
+calculate_average_distance <- function(cg, mode = "all", weights = NULL,
                                        dist_mat = NULL) {
-  n <- igraph::vcount(g)
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n <= 1) return(rep(NA_real_, n))
 
   if (is.null(dist_mat)) {
-    dist_weights <- if (is.null(weights)) NA else weights
-    dist_mat <- igraph::distances(g, mode = mode, weights = dist_weights)
+    dist_mat <- .cg_distances(.ext_path_matrix(cg, weights), mode)
   }
 
   # centiserve divides by n+1 (including self which has dist 0)
@@ -404,25 +672,16 @@ calculate_average_distance <- function(g, mode = "all", weights = NULL,
 #' 1 / sum(distances) for reachable nodes.
 #' @keywords internal
 #' @noRd
-calculate_barycenter <- function(g, mode = "all", weights = NULL,
+calculate_barycenter <- function(cg, mode = "all", weights = NULL,
                                  dist_mat = NULL) {
-  n <- igraph::vcount(g)
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n <= 1) return(rep(NA_real_, n))
 
   if (is.null(dist_mat)) {
-    dist_weights <- if (is.null(weights)) NA else weights
-    dist_mat <- igraph::distances(g, mode = mode, weights = dist_weights)
+    dist_mat <- .cg_distances(.ext_path_matrix(cg, weights), mode)
   }
-  sp <- dist_mat
-  diag(sp) <- NA
-
-  vapply(seq_len(n), function(i) {
-    dists <- sp[i, ]
-    valid <- is.finite(dists) & !is.na(dists)
-    total <- sum(dists[valid])
-    if (total == 0) return(0)
-    1 / total
-  }, numeric(1))
+  .cg_barycenter(dist_mat, n)
 }
 
 
@@ -431,45 +690,18 @@ calculate_barycenter <- function(g, mode = "all", weights = NULL,
 #' Wiener_full - Wiener_reduced. Wiener = sum of ALL sp values (not /2).
 #' @keywords internal
 #' @noRd
-calculate_closeness_vitality <- function(g, mode = "all", weights = NULL,
+calculate_closeness_vitality <- function(cg, mode = "all", weights = NULL,
                                          dist_mat = NULL) {
-  n <- igraph::vcount(g)
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n <= 1) return(rep(NA_real_, n))
 
-  # Historical note: the old code used `if (is.null(weights)) NA else NULL`,
-  # which fell back to E(g)$weight when the caller supplied a weights vector.
-  # That silently ignored centrality()'s inverted weights (path-based
-  # convention: higher weight = shorter path) and returned numbers computed
-  # against the raw E(g)$weight instead. Matches the rest of the
-  # distance-based family now: NA forces unweighted, a numeric vector is
-  # honored as-is.
-  dist_weights <- if (is.null(weights)) NA else weights
-
-  if (is.null(dist_mat)) {
-    sp_full <- igraph::distances(g, mode = mode, weights = dist_weights)
-  } else {
-    sp_full <- dist_mat
-  }
-  sp_full[!is.finite(sp_full)] <- 0
-  wiener_full <- sum(sp_full)  # full sum, NOT /2
-
-  # For the reduced-graph call we cannot reuse dist_mat (different topology).
-  # Align the caller's weights vector to surviving edges by filtering the
-  # edgelist — delete_vertices() preserves relative edge order among survivors,
-  # so a boolean mask on the original weights gives the right vector.
-  el <- if (is.numeric(dist_weights)) igraph::as_edgelist(g, names = FALSE) else NULL
-  vapply(seq_len(n), function(i) {
-    g_red <- igraph::delete_vertices(g, i)
-    red_weights <- if (is.numeric(dist_weights)) {
-      surviving <- el[, 1] != i & el[, 2] != i
-      dist_weights[surviving]
-    } else {
-      NA
-    }
-    sp_red <- igraph::distances(g_red, mode = mode, weights = red_weights)
-    sp_red[!is.finite(sp_red)] <- 0
-    wiener_full - sum(sp_red)
-  }, numeric(1))
+  # The path weights are honoured as-is (NULL forces unweighted); the
+  # reduced graphs cannot reuse dist_mat, so the kernel rebuilds them from
+  # the same weight matrix with one row and column removed.
+  m <- .ext_path_matrix(cg, weights)
+  if (is.null(dist_mat)) dist_mat <- .cg_distances(m, mode)
+  .cg_closeness_vitality(m, mode, dist_mat)
 }
 
 
@@ -478,19 +710,16 @@ calculate_closeness_vitality <- function(g, mode = "all", weights = NULL,
 #' Sum of all shortest path distances from node i.
 #' @keywords internal
 #' @noRd
-calculate_wiener <- function(g, mode = "all", weights = NULL,
+calculate_wiener <- function(cg, mode = "all", weights = NULL,
                              dist_mat = NULL) {
-  n <- igraph::vcount(g)
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n <= 1) return(rep(0, n))
 
   if (is.null(dist_mat)) {
-    dist_weights <- if (is.null(weights)) NA else weights
-    dist_mat <- igraph::distances(g, mode = mode, weights = dist_weights)
+    dist_mat <- .cg_distances(.ext_path_matrix(cg, weights), mode)
   }
-  sp <- dist_mat
-  diag(sp) <- 0
-  sp[!is.finite(sp)] <- 0
-  rowSums(sp)
+  .cg_wiener(dist_mat, n)
 }
 
 
@@ -505,13 +734,14 @@ calculate_wiener <- function(g, mode = "all", weights = NULL,
 #' the diagonal — already available as "subgraph" measure).
 #' @keywords internal
 #' @noRd
-calculate_communicability <- function(g) {
-  n <- igraph::vcount(g)
+calculate_communicability <- function(cg) {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
   if (n == 1) return(1)
 
-  A <- as.matrix(igraph::as_adjacency_matrix(g, sparse = FALSE))
-  eig <- eigen(A, symmetric = isSymmetric(unname(A)))
+  A <- unname(cg$b)
+  eig <- eigen(A, symmetric = isSymmetric(A))
   vals <- Re(eig$values)
   vecs <- Re(eig$vectors)
   exp_vals <- exp(vals)
@@ -528,12 +758,12 @@ calculate_communicability <- function(g) {
 #' Based on the ratio of communicability through node r to total.
 #' @keywords internal
 #' @noRd
-calculate_communicability_betweenness <- function(g) {
-  n <- igraph::vcount(g)
+calculate_communicability_betweenness <- function(cg) {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n <= 2) return(rep(0, n))
 
-  A <- as.matrix(igraph::as_adjacency_matrix(g, sparse = FALSE))
-  unname_A <- unname(A)
+  unname_A <- unname(cg$b)
   is_sym <- isSymmetric(unname_A)
 
   # Pre-computed expm: G = V exp(D) V^{-1}; for symmetric A, V^{-1} = V^T.
@@ -551,7 +781,7 @@ calculate_communicability_betweenness <- function(g) {
 
   G <- .expm_sym(unname_A, is_sym)
 
-  # Pre-compute 1/G with a zero-tolerance guard; the per-vertex loop below
+  # Pre-compute 1/G with a zero-tolerance guard; the per-vertex step below
   # collapses to a single mask+sum instead of an O(n^2) double loop per r.
   inv_G <- G
   valid_G <- G > 1e-15
@@ -559,8 +789,7 @@ calculate_communicability_betweenness <- function(g) {
   inv_G[!valid_G] <- 0
   diag_mask <- diag(n) == 1  # rows where s == t
 
-  cb <- numeric(n)
-  for (r in seq_len(n)) {
+  cb <- vapply(seq_len(n), function(r) {
     A_red <- unname_A
     A_red[r, ] <- 0
     A_red[, r] <- 0
@@ -572,8 +801,8 @@ calculate_communicability_betweenness <- function(g) {
     ratio[diag_mask] <- 0
     ratio[r, ] <- 0
     ratio[, r] <- 0
-    cb[r] <- sum(ratio)
-  }
+    sum(ratio)
+  }, numeric(1))
 
   denom <- (n - 1) * (n - 2)
   if (denom > 0) cb <- cb / denom
@@ -587,46 +816,19 @@ calculate_communicability_betweenness <- function(g) {
 #' Returns 1/sum(d_rw) per node (inverse sum aggregation).
 #' @keywords internal
 #' @noRd
-calculate_random_walk <- function(g) {
-  n <- igraph::vcount(g)
+calculate_random_walk <- function(cg) {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n <= 1) return(rep(NA_real_, n))
 
-  if (!igraph::is_connected(g, mode = "weak")) {
+  if (.cg_n_components(cg$b) > 1L) {
     warning("Random walk centrality undefined for disconnected graphs",
             call. = FALSE)
     return(rep(NA_real_, n))
   }
 
-  # Transition matrix
-  A <- as.matrix(igraph::as_adjacency_matrix(g, sparse = FALSE))
-  deg <- rowSums(A)
-  deg[deg == 0] <- 1
-  P <- A / deg
-
-  # Stationary distribution
-  if (!igraph::is_directed(g)) {
-    pi_stat <- deg / sum(deg)
-  } else {
-    eig <- eigen(t(P))
-    idx <- which.min(abs(Re(eig$values) - 1))
-    pi_stat <- abs(Re(eig$vectors[, idx]))
-    pi_stat <- pi_stat / sum(pi_stat)
-  }
-
-  # Fundamental matrix: Z = (I - P + W)^-1
-  W <- matrix(pi_stat, n, n, byrow = TRUE)
-  Z <- tryCatch(solve(diag(n) - P + W), error = function(e) NULL)
-  if (is.null(Z)) return(rep(NA_real_, n))
-
-  # Mean first passage time: m_ij = (Z_jj - Z_ij) / pi_j
-  mfpt <- matrix(0, n, n)
-  for (i in seq_len(n)) {
-    for (j in seq_len(n)) {
-      if (i != j && pi_stat[j] > 1e-15) {
-        mfpt[i, j] <- (Z[j, j] - Z[i, j]) / pi_stat[j]
-      }
-    }
-  }
+  mfpt <- .ext_mfpt(cg)
+  if (is.null(mfpt)) return(rep(NA_real_, n))
 
   # Random walk distance: d_rw(i,j) = (m_ij + m_ji) / 2 for symmetry
   rw_dist <- (mfpt + t(mfpt)) / 2
@@ -648,28 +850,10 @@ calculate_random_walk <- function(g) {
 #' compute entropy of the path distribution. NOT Shannon entropy of degrees.
 #' @keywords internal
 #' @noRd
-calculate_entropy <- function(g, mode = "all") {
-  n <- igraph::vcount(g)
-  if (n == 0) return(numeric(0))
-
-  vapply(seq_len(n), function(v) {
-    g_red <- igraph::delete_vertices(g, v)
-    n_red <- igraph::vcount(g_red)
-    if (n_red <= 1) return(0)
-
-    sp <- igraph::distances(g_red, mode = mode, weights = NA)
-    # Total number of finite shortest paths (excluding self-pairs)
-    total_paths <- (sum(is.finite(sp)) - n_red) / 2
-    if (total_paths <= 0) return(0)
-
-    H <- 0
-    for (w in seq_len(n_red)) {
-      # Number of finite distances from w (excluding self)
-      Y <- (sum(is.finite(sp[w, ])) - 1) / total_paths
-      if (Y > 0) H <- H + Y * log2(Y)
-    }
-    -H
-  }, numeric(1))
+calculate_entropy <- function(cg, mode = "all") {
+  cg <- .ext_context(cg)
+  if (cg$n == 0) return(numeric(0))
+  .cg_entropy(cg$b, mode)
 }
 
 
@@ -679,26 +863,10 @@ calculate_entropy <- function(g, mode = "all") {
 #' w's 2-neighborhood. Triple-nested computation.
 #' @keywords internal
 #' @noRd
-calculate_semilocal <- function(g, mode = "all") {
-  n <- igraph::vcount(g)
-  if (n == 0) return(numeric(0))
-
-  # Precompute 2-neighborhood sizes (excluding self)
-  nbhood2_size <- vapply(seq_len(n), function(w) {
-    length(igraph::neighborhood(g, order = 2, nodes = w, mode = mode)[[1]]) - 1L
-  }, integer(1))
-
-  vapply(seq_len(n), function(v) {
-    nbs_v <- as.integer(igraph::neighbors(g, v, mode = mode))
-    sl <- 0L
-    for (u in nbs_v) {
-      nbs_u <- as.integer(igraph::neighbors(g, u, mode = mode))
-      for (w in nbs_u) {
-        sl <- sl + nbhood2_size[w]
-      }
-    }
-    as.numeric(sl)
-  }, numeric(1))
+calculate_semilocal <- function(cg, mode = "all") {
+  cg <- .ext_context(cg)
+  if (cg$n == 0) return(numeric(0))
+  .cg_semilocal(.ext_adjlist(cg, mode))
 }
 
 
@@ -708,19 +876,14 @@ calculate_semilocal <- function(g, mode = "all") {
 #' directly, not `10^(-cc)`.
 #' @keywords internal
 #' @noRd
-calculate_clusterrank <- function(g, mode = "all") {
-  n <- igraph::vcount(g)
+calculate_clusterrank <- function(cg, mode = "all") {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
 
-  deg <- igraph::degree(g, mode = mode)
-  cc <- igraph::transitivity(g, type = "local", isolates = "nan")
-
-  vapply(seq_len(n), function(v) {
-    if (is.nan(cc[v])) return(NaN)
-    nbs <- as.integer(igraph::neighbors(g, v, mode = mode))
-    if (length(nbs) == 0) return(0)
-    cc[v] * sum(deg[nbs] + 1)
-  }, numeric(1))
+  deg <- .cg_degree(cg$b, cg$directed, mode)
+  cc <- .cg_local_transitivity(cg$b, n, cg$directed)
+  .cg_clusterrank(cc, .ext_adjlist(cg, mode), deg)
 }
 
 
@@ -730,25 +893,11 @@ calculate_clusterrank <- function(g, mode = "all") {
 #' appears in more than n/4 of those paths.
 #' @keywords internal
 #' @noRd
-calculate_bottleneck <- function(g, mode = "all") {
-  n <- igraph::vcount(g)
+calculate_bottleneck <- function(cg, mode = "all") {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n <= 1) return(rep(1L, n))
-
-  bn <- integer(n)
-  for (s in seq_len(n)) {
-    # Get all shortest paths from s
-    asp <- igraph::all_shortest_paths(g, from = s, to = igraph::V(g),
-                                      mode = mode, weights = NA)
-    # Count how often each node appears across all paths
-    node_counts <- tabulate(unlist(asp$res), nbins = n)
-    total_nodes <- length(node_counts)
-
-    for (v in which(node_counts > total_nodes / 4)) {
-      if (v != s) bn[v] <- bn[v] + 1L
-    }
-  }
-
-  bn
+  as.integer(.cg_bottleneck(cg$b, cg$directed, n, mode))
 }
 
 
@@ -759,48 +908,27 @@ calculate_bottleneck <- function(g, mode = "all") {
 #' `Centroid(v) = min f[v, i]` over all `i`.
 #' @keywords internal
 #' @noRd
-calculate_centroid <- function(g, mode = "all", weights = NULL,
+calculate_centroid <- function(cg, mode = "all", weights = NULL,
                                dist_mat = NULL) {
-  n <- igraph::vcount(g)
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n <= 1) return(rep(0, n))
 
   if (is.null(dist_mat)) {
-    dist_weights <- if (is.null(weights)) NA else weights
-    dist_mat <- igraph::distances(g, mode = mode, weights = dist_weights)
+    dist_mat <- .cg_distances(.ext_path_matrix(cg, weights), mode)
   }
-  sp <- dist_mat
-
-  # Compute gamma matrix
-  gamma <- matrix(0L, n, n)
-  for (u in seq_len(n)) {
-    for (v in seq_len(n)) {
-      gamma[u, v] <- sum(sp[u, ] < sp[v, ])
-    }
-  }
-
-  f_mat <- gamma - t(gamma)
-
   # Include self (f[v,v]=0), matching centiserve convention
-  vapply(seq_len(n), function(v) {
-    min(f_mat[v, ])
-  }, numeric(1))
+  .cg_centroid(dist_mat, n)
 }
 
 
 #' Maximum Neighborhood Component (centiserve-compatible)
 #' @keywords internal
 #' @noRd
-calculate_mnc <- function(g, mode = "all") {
-  n <- igraph::vcount(g)
-  if (n == 0) return(integer(0))
-
-  vapply(seq_len(n), function(v) {
-    nbs <- as.integer(igraph::neighbors(g, v, mode = mode))
-    if (length(nbs) <= 1) return(as.integer(length(nbs)))
-    sub_g <- igraph::induced_subgraph(g, nbs)
-    comps <- igraph::components(sub_g)
-    as.integer(max(comps$csize))
-  }, integer(1))
+calculate_mnc <- function(cg, mode = "all") {
+  cg <- .ext_context(cg)
+  if (cg$n == 0) return(integer(0))
+  as.integer(.cg_mnc(cg$b, .ext_adjlist(cg, mode)))
 }
 
 
@@ -812,27 +940,32 @@ calculate_mnc <- function(g, mode = "all") {
 #' actually the centiserve default is between 1 and 2, let me check).
 #' @keywords internal
 #' @noRd
-calculate_dmnc <- function(g, mode = "all", epsilon = 1.7) {
-  n <- igraph::vcount(g)
+calculate_dmnc <- function(cg, mode = "all", epsilon = 1.7) {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
 
   # DMNC = E / N^epsilon where E = edges, N = nodes in the maximum
-
   # neighborhood component. Lin et al. (2008) recommend epsilon = 1.7
   # (close to 1.67 for four-community assumption). centiserve defaults
   # to 1.67. Both are valid per the original paper.
+  b <- unname(cg$b)
+  adj <- .ext_adjlist(cg, mode)
 
-  vapply(seq_len(n), function(v) {
-    nbs <- as.integer(igraph::neighbors(g, v, mode = mode))
+  vapply(adj, function(nbs) {
     if (length(nbs) == 0) return(0)
-    sub_g <- igraph::induced_subgraph(g, nbs)
-    comps <- igraph::components(sub_g, mode = "strong")
-    if (length(comps$csize) == 0) return(0)
-    largest <- which(comps$csize == max(comps$csize))
-    mc_nodes <- which(comps$membership %in% largest)
-    mc_sub <- igraph::induced_subgraph(g, nbs[mc_nodes])
-    ec <- igraph::ecount(mc_sub)
-    mc_size <- max(comps$csize)
+    # An induced subgraph keeps vertices in id order and drops repeats
+    sub_nodes <- sort(unique(nbs))
+    comps <- .cg_strong_components(b[sub_nodes, sub_nodes, drop = FALSE])
+    if (length(comps) == 0) return(0)
+    sizes <- lengths(comps)
+    mc_size <- max(sizes)
+    # Reference quirk kept on purpose: the positions of the largest
+    # component index the raw neighbour list, repeats included, not the
+    # deduplicated vertex set the components were computed on.
+    positions <- sort(unlist(comps[sizes == mc_size], use.names = FALSE))
+    mc_nodes <- unique(nbs[positions])
+    ec <- .ext_edge_count(b, mc_nodes, cg$directed)
     if (ec == 0 || mc_size == 0) return(0)
     ec / mc_size^epsilon
   }, numeric(1))
@@ -848,37 +981,26 @@ calculate_dmnc <- function(g, mode = "all", epsilon = 1.7) {
 #' tc = total / (|extended_set| * |N(v)|)
 #' @keywords internal
 #' @noRd
-calculate_topological_coefficient <- function(g) {
-  n <- igraph::vcount(g)
+calculate_topological_coefficient <- function(cg) {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
 
-  deg <- igraph::degree(g, mode = "all")
-  adj_list <- igraph::as_adj_list(g, mode = "all")
+  adj <- .ext_adjlist(cg, "all", loops = "once")
 
   vapply(seq_len(n), function(v) {
-    nbs_v <- as.integer(adj_list[[v]])
+    nbs_v <- adj[[v]]
     k_v <- length(nbs_v)
     if (k_v == 0) return(0)
 
-    com_ne_nodes <- integer(0)
-    tc <- 0L
-
-    for (nb in nbs_v) {
-      nbs_nb <- as.integer(adj_list[[nb]])
-      for (nn in nbs_nb) {
-        if (nn != v) {
-          tc <- tc + 1L
-          if (!nn %in% com_ne_nodes) {
-            com_ne_nodes <- c(com_ne_nodes, nn)
-            if (nn %in% nbs_v) {
-              tc <- tc + 1L
-            }
-          }
-        }
-      }
-    }
-
+    # Every neighbour-of-a-neighbour other than v counts once (with
+    # multiplicity); each distinct one that is also a neighbour of v counts
+    # once more.
+    nn <- unlist(adj[nbs_v], use.names = FALSE)
+    nn <- nn[nn != v]
+    com_ne_nodes <- unique(nn)
     if (length(com_ne_nodes) == 0) return(0)
+    tc <- length(nn) + sum(com_ne_nodes %in% nbs_v)
     tc / (length(com_ne_nodes) * k_v)
   }, numeric(1))
 }
@@ -887,23 +1009,19 @@ calculate_topological_coefficient <- function(g) {
 #' Bridging centrality (betweenness * bridging coefficient)
 #' @keywords internal
 #' @noRd
-calculate_bridging <- function(g, weights = NULL, directed = TRUE) {
-  n <- igraph::vcount(g)
+calculate_bridging <- function(cg, weights = NULL, directed = TRUE) {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
 
-  deg <- igraph::degree(g, mode = "all")
-  betw <- igraph::betweenness(g, weights = weights, directed = directed)
+  is_dir <- cg$directed && directed
+  # igraph::betweenness(weights = NULL) fell back to the weight attribute;
+  # .ext_default_weights() reproduces that default.
+  w <- .cg_mode_weights(.ext_default_weights(cg, weights),
+                        if (is_dir) "out" else "all")
+  betw <- .cg_betweenness(w, n, is_dir)
 
-  bc <- vapply(seq_len(n), function(v) {
-    if (deg[v] == 0) return(0)
-    nbs <- as.integer(igraph::neighbors(g, v, mode = "all"))
-    inv_deg_v <- 1 / deg[v]
-    sum_inv_deg_nbs <- sum(1 / deg[nbs])
-    if (sum_inv_deg_nbs == 0) return(0)
-    inv_deg_v / sum_inv_deg_nbs
-  }, numeric(1))
-
-  betw * bc
+  betw * .ext_bridging_coefficient(cg)
 }
 
 
@@ -912,20 +1030,13 @@ calculate_bridging <- function(g, weights = NULL, directed = TRUE) {
 #' (1/degree) * bridging_coefficient
 #' @keywords internal
 #' @noRd
-calculate_local_bridging <- function(g) {
-  n <- igraph::vcount(g)
+calculate_local_bridging <- function(cg) {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
 
-  deg <- igraph::degree(g, mode = "all")
-
-  vapply(seq_len(n), function(v) {
-    if (deg[v] == 0) return(0)
-    nbs <- as.integer(igraph::neighbors(g, v, mode = "all"))
-    inv_deg_v <- 1 / deg[v]
-    sum_inv_deg_nbs <- sum(1 / deg[nbs])
-    if (sum_inv_deg_nbs == 0) return(0)
-    inv_deg_v * (inv_deg_v / sum_inv_deg_nbs)
-  }, numeric(1))
+  deg <- .cg_degree(cg$b, cg$directed, "all")
+  ifelse(deg > 0, 1 / deg, 0) * .ext_bridging_coefficient(cg)
 }
 
 
@@ -934,26 +1045,21 @@ calculate_local_bridging <- function(g) {
 #' Burt's effective size: degree minus redundancy.
 #' @keywords internal
 #' @noRd
-calculate_effective_size <- function(g) {
-  n <- igraph::vcount(g)
+calculate_effective_size <- function(cg) {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
 
-  deg <- igraph::degree(g, mode = "all")
-  adj_list <- igraph::as_adj_list(g, mode = "all")
+  adj <- .ext_adjlist(cg, "all", loops = "once")
 
   vapply(seq_len(n), function(v) {
-    nbs <- as.integer(adj_list[[v]])
+    nbs <- adj[[v]]
     k <- length(nbs)
     if (k == 0) return(0)
 
-    redundancy <- 0
-    for (j in nbs) {
-      nbs_j <- as.integer(adj_list[[j]])
-      shared <- length(intersect(nbs, nbs_j))
-      redundancy <- redundancy + shared / k
-    }
-
-    k - redundancy
+    shared <- vapply(nbs, function(j) length(intersect(nbs, adj[[j]])),
+                     numeric(1))
+    k - sum(shared) / k
   }, numeric(1))
 }
 
@@ -963,18 +1069,19 @@ calculate_effective_size <- function(g) {
 #' Shannon entropy of edge weight distribution per node.
 #' @keywords internal
 #' @noRd
-calculate_diversity <- function(g, weights = NULL) {
-  n <- igraph::vcount(g)
+calculate_diversity <- function(cg, weights = NULL) {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
 
-  w <- if (!is.null(weights)) weights else igraph::E(g)$weight
+  w <- .ext_weights(cg, weights) %||% cg$weights
   if (is.null(w)) {
     # Unweighted: all edges equal weight, so diversity = 1 for deg > 1
-    deg <- igraph::degree(g, mode = "all")
-    return(ifelse(deg > 1, 1, ifelse(deg == 1, 0, 0)))
+    deg <- .cg_degree(cg$b, cg$directed, "all")
+    return(ifelse(deg > 1, 1, 0))
   }
 
-  el <- igraph::as_edgelist(g, names = FALSE)
+  el <- cg$edges
   vapply(seq_len(n), function(v) {
     incident_idx <- which(el[, 1] == v | el[, 2] == v)
     k <- length(incident_idx)
@@ -995,12 +1102,10 @@ calculate_diversity <- function(g, weights = NULL) {
 #' Count of ALL cliques (not just maximal) that each node belongs to.
 #' @keywords internal
 #' @noRd
-calculate_cross_clique <- function(g) {
-  n <- igraph::vcount(g)
-  if (n == 0) return(integer(0))
-
-  cliques <- igraph::cliques(g)  # ALL cliques, not max_cliques
-  as.integer(tabulate(unlist(cliques), nbins = n))
+calculate_cross_clique <- function(cg) {
+  cg <- .ext_context(cg)
+  if (cg$n == 0) return(integer(0))
+  as.integer(.cg_cross_clique(cg$b))  # ALL cliques, not just maximal ones
 }
 
 
@@ -1009,42 +1114,19 @@ calculate_cross_clique <- function(g) {
 #' Inverse of column means of mean first passage time matrix.
 #' @keywords internal
 #' @noRd
-calculate_markov <- function(g) {
-  n <- igraph::vcount(g)
+calculate_markov <- function(cg) {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n <= 1) return(rep(NA_real_, n))
 
-  if (!igraph::is_connected(g, mode = "weak")) {
+  if (.cg_n_components(cg$b) > 1L) {
     warning("Markov centrality undefined for disconnected graphs",
             call. = FALSE)
     return(rep(NA_real_, n))
   }
 
-  A <- as.matrix(igraph::as_adjacency_matrix(g, sparse = FALSE))
-  deg <- rowSums(A)
-  deg[deg == 0] <- 1
-  P <- A / deg
-
-  if (!igraph::is_directed(g)) {
-    pi_stat <- deg / sum(deg)
-  } else {
-    eig <- eigen(t(P))
-    idx <- which.min(abs(Re(eig$values) - 1))
-    pi_stat <- abs(Re(eig$vectors[, idx]))
-    pi_stat <- pi_stat / sum(pi_stat)
-  }
-
-  W <- matrix(pi_stat, n, n, byrow = TRUE)
-  Z <- tryCatch(solve(diag(n) - P + W), error = function(e) NULL)
-  if (is.null(Z)) return(rep(NA_real_, n))
-
-  mfpt <- matrix(0, n, n)
-  for (i in seq_len(n)) {
-    for (j in seq_len(n)) {
-      if (i != j && pi_stat[j] > 1e-15) {
-        mfpt[i, j] <- (Z[j, j] - Z[i, j]) / pi_stat[j]
-      }
-    }
-  }
+  mfpt <- .ext_mfpt(cg)
+  if (is.null(mfpt)) return(rep(NA_real_, n))
 
   # centiserve: 1 / column means
   col_means <- colMeans(mfpt)
@@ -1057,19 +1139,9 @@ calculate_markov <- function(g) {
 #' For each node, compute distances, then 1 - (d-1)/max(d), sum over all j.
 #' @keywords internal
 #' @noRd
-calculate_integration <- function(g, mode = "all") {
-  n <- igraph::vcount(g)
-  if (n <= 1) return(rep(0, n))
-
-  sp <- igraph::distances(g, mode = mode, weights = NA)
-  max_d <- max(sp[is.finite(sp)])
-  if (max_d <= 0) return(rep(n, n))
-
-  vapply(seq_len(n), function(i) {
-    dists <- sp[i, ]
-    dists[!is.finite(dists)] <- max_d + 1
-    sum(1 - (dists - 1) / max_d)
-  }, numeric(1))
+calculate_integration <- function(cg, mode = "all") {
+  cg <- .ext_context(cg)
+  as.numeric(.cg_integration(cg$b, mode))
 }
 
 
@@ -1078,17 +1150,18 @@ calculate_integration <- function(g, mode = "all") {
 #' Sum of neighbor degrees. Simple but effective influence proxy.
 #' @keywords internal
 #' @noRd
-calculate_expected <- function(g, mode = "all") {
-  n <- igraph::vcount(g)
+calculate_expected <- function(cg, mode = "all") {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
 
-  deg <- igraph::degree(g, mode = mode)
-  adj <- igraph::as_adjacency_matrix(g, sparse = TRUE)
+  deg <- .cg_degree(cg$b, cg$directed, mode)
+  adj <- unname(cg$b)
 
-  if (igraph::is_directed(g) && mode == "in") {
-    adj <- Matrix::t(adj)
-  } else if (igraph::is_directed(g) && mode == "all") {
-    adj <- adj | Matrix::t(adj)
+  if (cg$directed && identical(mode, "in")) {
+    adj <- t(adj)
+  } else if (cg$directed && identical(mode, "all")) {
+    adj <- ((adj + t(adj)) != 0) * 1
   }
 
   as.numeric(adj %*% deg)
@@ -1100,47 +1173,34 @@ calculate_expected <- function(g, mode = "all") {
 #' sum(1/d(v,w)) / (n-1) for all reachable w.
 #' @keywords internal
 #' @noRd
-calculate_gilschmidt <- function(g, mode = "all") {
-  n <- igraph::vcount(g)
+calculate_gilschmidt <- function(cg, mode = "all") {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n <= 1) return(rep(0, n))
-
-  sp <- igraph::distances(g, mode = mode, weights = NA)
-  diag(sp) <- NA
-
-  vapply(seq_len(n), function(i) {
-    dists <- sp[i, ]
-    valid <- is.finite(dists) & !is.na(dists) & dists > 0
-    if (sum(valid) == 0) return(0)
-    sum(1 / dists[valid]) / (n - 1)
-  }, numeric(1))
+  .cg_gilschmidt(.cg_hop_distances(cg, mode), n)
 }
 
 
 #' SALSA centrality (directed only)
 #' @keywords internal
 #' @noRd
-calculate_salsa <- function(g) {
-  n <- igraph::vcount(g)
+calculate_salsa <- function(cg) {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
-  if (!igraph::is_directed(g)) {
+  if (!cg$directed) {
     warning("SALSA requires a directed graph; returning NA", call. = FALSE)
     return(rep(NA_real_, n))
   }
 
-  A <- as.matrix(igraph::as_adjacency_matrix(g, sparse = FALSE))
+  A <- unname(cg$b)
   out_deg <- rowSums(A)
   in_deg <- colSums(A)
 
-  A_row <- A
-  for (i in seq_len(n)) {
-    if (out_deg[i] > 0) A_row[i, ] <- A_row[i, ] / out_deg[i]
-  }
-  A_col <- A
-  for (j in seq_len(n)) {
-    if (in_deg[j] > 0) A_col[, j] <- A_col[, j] / in_deg[j]
-  }
+  A_row <- A / ifelse(out_deg > 0, out_deg, 1)
+  A_col <- t(t(A) / ifelse(in_deg > 0, in_deg, 1))
 
-  Auth_mat <- t(A_col) %*% A_row
+  Auth_mat <- crossprod(A_col, A_row)
   eig <- eigen(t(Auth_mat))
   idx <- which.min(abs(Re(eig$values) - 1))
   auth <- abs(Re(eig$vectors[, idx]))
@@ -1151,42 +1211,17 @@ calculate_salsa <- function(g) {
 #' LeaderRank (directed only)
 #' @keywords internal
 #' @noRd
-calculate_leaderrank <- function(g) {
-  n <- igraph::vcount(g)
+calculate_leaderrank <- function(cg) {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
-  if (!igraph::is_directed(g)) {
+  if (!cg$directed) {
     warning("LeaderRank requires a directed graph; returning NA", call. = FALSE)
     return(rep(NA_real_, n))
   }
-
-  # Build extended graph with ground node (n+1) bidirectionally connected
-  el <- igraph::as_edgelist(g, names = FALSE)
-  ground <- n + 1L
-  ground_edges <- rbind(cbind(ground, seq_len(n)), cbind(seq_len(n), ground))
-  new_el <- rbind(el, ground_edges)
-  g_ext <- igraph::graph_from_edgelist(new_el, directed = TRUE)
-
-  # Row-normalized transition matrix (no damping — pure random walk)
-  A <- as.matrix(igraph::as_adjacency_matrix(g_ext, sparse = FALSE))
-  out_deg <- rowSums(A)
-  out_deg[out_deg == 0] <- 1
-  P <- A / out_deg
-
-  # Power iteration on t(P) starting from (1,...,1, 0)
-  n_ext <- n + 1L
-  v <- c(rep(1, n), 0)
-  tol <- 2e-05
-  max_iter <- 1000L
-  Pt <- t(P)
-  for (iter in seq_len(max_iter)) {
-    v_new <- as.numeric(Pt %*% v)
-    err <- mean(abs(v_new - v) / pmax(abs(v), 1e-15))
-    v <- v_new
-    if (err < tol) break
-  }
-
-  # Redistribute ground node score to all nodes
-  v[seq_len(n)] + v[ground] / n
+  # Ground node joined to every vertex in both directions, then a pure
+  # random walk (no damping); the ground score is shared out at the end.
+  .cg_leaderrank(cg$b, directed = TRUE)
 }
 
 
@@ -1200,7 +1235,7 @@ calculate_leaderrank <- function(g) {
 #' subgraph induced by those neighbors. Measures how interconnected a node's
 #' neighborhood is. High LAC means neighbors interact heavily with each other.
 #'
-#' @param g igraph object
+#' @param cg A `cg_graph` context
 #' @param mode "all", "in", or "out" for directed graphs
 #' @return Numeric vector of LAC values
 #' @references
@@ -1209,21 +1244,22 @@ calculate_leaderrank <- function(g) {
 #' level. Computational Biology and Chemistry, 35(3), 143-150.
 #' @keywords internal
 #' @noRd
-calculate_lac <- function(g, mode = "all") {
-  n <- igraph::vcount(g)
+calculate_lac <- function(cg, mode = "all") {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
 
-  adj_list <- igraph::as_adj_list(g, mode = mode)
+  b <- unname(cg$b)
+  adj <- .ext_adjlist(cg, mode, loops = "once")
 
-  vapply(seq_len(n), function(v) {
-    nbs <- as.integer(adj_list[[v]])
+  vapply(adj, function(nbs) {
     k <- length(nbs)
     if (k == 0) return(0)
 
-    # Subgraph C_v induced by neighbors of v
-    sub_g <- igraph::induced_subgraph(g, nbs)
-    # Local connectivity: degree of each neighbor within C_v
-    local_deg <- igraph::degree(sub_g, mode = mode)
+    # Subgraph C_v induced by neighbors of v; local connectivity is each
+    # neighbour's degree within C_v
+    nodes <- unique(nbs)
+    local_deg <- .cg_degree(b[nodes, nodes, drop = FALSE], cg$directed, mode)
 
     # LAC = average local connectivity
     sum(local_deg) / k
@@ -1238,8 +1274,9 @@ calculate_lac <- function(g, mode = "all") {
 #' Participation coefficient (brainGraph-compatible)
 #' @keywords internal
 #' @noRd
-calculate_participation <- function(g, membership = NULL, mode = "all") {
-  n <- igraph::vcount(g)
+calculate_participation <- function(cg, membership = NULL, mode = "all") {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
   if (is.null(membership)) {
     warning("participation requires membership; returning NA", call. = FALSE)
@@ -1247,23 +1284,17 @@ calculate_participation <- function(g, membership = NULL, mode = "all") {
   }
   stopifnot(length(membership) == n)
 
-  deg <- igraph::degree(g, mode = mode)
-
-  vapply(seq_len(n), function(i) {
-    if (deg[i] == 0) return(0)
-    nbs <- as.integer(igraph::neighbors(g, i, mode = mode))
-    nb_modules <- membership[nbs]
-    tab <- tabulate(nb_modules, nbins = max(membership))
-    1 - sum((tab / deg[i])^2)
-  }, numeric(1))
+  .cg_participation(.ext_adjlist(cg, mode),
+                    .cg_degree(cg$b, cg$directed, mode), membership)
 }
 
 
 #' Within-module degree z-score (brainGraph-compatible)
 #' @keywords internal
 #' @noRd
-calculate_within_module_z <- function(g, membership = NULL, mode = "all") {
-  n <- igraph::vcount(g)
+calculate_within_module_z <- function(cg, membership = NULL, mode = "all") {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
   if (is.null(membership)) {
     warning("within_module_z requires membership; returning NA", call. = FALSE)
@@ -1271,33 +1302,17 @@ calculate_within_module_z <- function(g, membership = NULL, mode = "all") {
   }
   stopifnot(length(membership) == n)
 
-  k_within <- vapply(seq_len(n), function(i) {
-    nbs <- as.integer(igraph::neighbors(g, i, mode = mode))
-    sum(membership[nbs] == membership[i])
-  }, numeric(1))
-
-  z <- numeric(n)
-  for (m in unique(membership)) {
-    idx <- which(membership == m)
-    kw <- k_within[idx]
-    mu <- mean(kw)
-    sigma <- stats::sd(kw)
-    if (is.na(sigma) || sigma == 0) {
-      # Match brainGraph: NaN when sd is 0, Inf→0 otherwise
-      z[idx] <- NaN
-    } else {
-      z[idx] <- (kw - mu) / sigma
-    }
-  }
-  z
+  # brainGraph convention: NaN where a module's within-degree has no spread
+  .cg_within_module_z(.ext_adjlist(cg, mode), membership)
 }
 
 
 #' Gateway coefficient (brainGraph-compatible)
 #' @keywords internal
 #' @noRd
-calculate_gateway <- function(g, membership = NULL, mode = "all") {
-  n <- igraph::vcount(g)
+calculate_gateway <- function(cg, membership = NULL, mode = "all") {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
   if (is.null(membership)) {
     warning("gateway requires membership; returning NA", call. = FALSE)
@@ -1305,58 +1320,7 @@ calculate_gateway <- function(g, membership = NULL, mode = "all") {
   }
   stopifnot(length(membership) == n)
 
-  A <- as.matrix(igraph::as_adjacency_matrix(g, sparse = FALSE))
-  Ki <- colSums(A)
-  N <- max(membership)
-  if (N <= 1) return(rep(0, n))
-
-  cent <- Ki  # default centrality = degree
-
-  # Cn = max module centrality sum
-  Cn <- max(vapply(seq_len(N), function(x) sum(cent[membership == x]),
-                   numeric(1)))
-
-  # Kis[i,s] = sum of edges from i to module s
-  Kis <- matrix(0, n, N)
-  for (i in seq_len(n)) {
-    for (s in seq_len(N)) {
-      Kis[i, s] <- sum(A[i, membership == s])
-    }
-  }
-
-  # Kjs[s,t] = sum of Kis[j,t] for j in module s = total edges from module s to module t
-  Kjs <- matrix(0, N, N)
-  for (s in seq_len(N)) {
-    for (t_mod in seq_len(N)) {
-      Kjs[s, t_mod] <- sum(Kis[membership == s, t_mod])
-    }
-  }
-
-  result <- numeric(n)
-  for (i in seq_len(n)) {
-    if (Ki[i] == 0) { result[i] <- 0; next }
-
-    # barKis = Kis[i,s] / Kjs[membership[i], s]
-    barKis <- numeric(N)
-    for (s in seq_len(N)) {
-      if (Kjs[membership[i], s] > 0) {
-        barKis[s] <- Kis[i, s] / Kjs[membership[i], s]
-      }
-    }
-
-    # Cis = sum of centrality of neighbors in module s
-    nbs <- which(A[, i] > 0)
-    Cis <- numeric(N)
-    for (s in seq_len(N)) {
-      Cis[s] <- sum(cent[nbs[membership[nbs] == s]])
-    }
-    barCis <- Cis / Cn
-
-    gis <- 1 - barKis * barCis
-    result[i] <- 1 - (1 / Ki[i]^2) * sum(Kis[i, ]^2 * gis^2)
-  }
-
-  result
+  .cg_gateway(unname(cg$b), membership)
 }
 
 
@@ -1396,33 +1360,41 @@ centralization <- function(x, measure = c("degree", "betweenness",
                                           "closeness", "eigenvector"),
                            directed = NULL, mode = "all", ...) {
   measure <- match.arg(measure)
-  if (!requireNamespace("igraph", quietly = TRUE)) {
-    stop("Package 'igraph' is required for centralization()", call. = FALSE)
-  }
 
-  g <- to_igraph(x, directed = directed, ...)
-  n <- igraph::vcount(g)
-  is_dir <- igraph::is_directed(g)
+  cg <- .cg_graph(x, directed = directed)
+  n <- cg$n
+  is_dir <- cg$directed
   if (n <= 2) return(0)
+
+  # A weighted input carries its weights into betweenness, closeness and
+  # eigenvector centrality (igraph's `weights = NULL` default); degree
+  # ignores them.
+  w <- .ext_default_weights(cg)
 
   switch(measure,
     "degree" = {
-      scores <- igraph::degree(g, mode = mode)
+      scores <- .cg_degree(cg$b, is_dir, mode)
       theo_max <- if (is_dir) (n - 1)^2 else (n - 1) * (n - 2)
       .freeman_centralization(scores, theo_max)
     },
     "betweenness" = {
-      scores <- igraph::betweenness(g, directed = is_dir)
+      scores <- .cg_betweenness(.cg_mode_weights(w, if (is_dir) "out" else "all"),
+                                n, is_dir)
       theo_max <- if (is_dir) (n - 1)^2 * (n - 2) else (n - 1)^2 * (n - 2) / 2
       .freeman_centralization(scores, theo_max)
     },
     "closeness" = {
-      scores <- igraph::closeness(g, mode = mode, normalized = TRUE)
+      # Normalized closeness: reachable vertices over their summed distance
+      d <- .cg_distances(w, mode)
+      ok <- .cg_offdiag(d) & is.finite(d)
+      reach <- rowSums(ok)
+      total <- rowSums(ifelse(ok, d, 0))
+      scores <- ifelse(reach > 0, reach / total, NaN)
       theo_max <- (n - 2) * (n - 1) / (2 * n - 3)
       .freeman_centralization(scores, theo_max)
     },
     "eigenvector" = {
-      scores <- igraph::eigen_centrality(g, directed = is_dir)$vector
+      scores <- .cg_eigenvector(w, n)
       theo_max <- n - 1
       .freeman_centralization(scores, theo_max)
     }
@@ -1440,41 +1412,16 @@ centralization <- function(x, measure = c("degree", "betweenness",
 #' Layer 1 = outermost (removed first), higher = more central.
 #' @keywords internal
 #' @noRd
-calculate_onion <- function(g) {
-  n <- igraph::vcount(g)
+calculate_onion <- function(cg) {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n == 0) return(integer(0))
   if (n == 1) return(1L)
 
-  # Use integer IDs for tracking through deletions
-  orig_names <- igraph::V(g)$name
-  igraph::V(g)$name <- as.character(seq_len(n))
-
-  layer <- integer(n)
-  current_layer <- 1L
-  g_work <- g
-
-  while (igraph::vcount(g_work) > 0) {
-    deg <- igraph::degree(g_work, mode = "all")
-    k <- min(deg)
-
-    # Onion peeling: within each k-shell, iteratively remove nodes
-    # whose degree equals k. After removal, degrees drop and more
-    # nodes may reach k — those form the next layer within the shell.
-    repeat {
-      deg <- igraph::degree(g_work, mode = "all")
-      to_remove_idx <- which(deg <= k)
-      if (length(to_remove_idx) == 0) break
-
-      orig_ids <- as.integer(igraph::V(g_work)$name[to_remove_idx])
-      layer[orig_ids] <- current_layer
-      current_layer <- current_layer + 1L
-
-      g_work <- igraph::delete_vertices(g_work, to_remove_idx)
-      if (igraph::vcount(g_work) == 0) break
-    }
-  }
-
-  layer
+  # Onion peeling: within each k-shell, iteratively remove nodes whose
+  # degree equals k. After removal, degrees drop and more nodes may reach
+  # k -- those form the next layer within the shell.
+  as.integer(.cg_onion(cg$b, cg$directed))
 }
 
 
@@ -1485,45 +1432,18 @@ calculate_onion <- function(g) {
 #' Requires a connected graph.
 #' @keywords internal
 #' @noRd
-calculate_second_order <- function(g) {
-  n <- igraph::vcount(g)
+calculate_second_order <- function(cg) {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n <= 1) return(rep(NA_real_, n))
 
-  if (!igraph::is_connected(g, mode = "weak")) {
+  if (.cg_n_components(cg$b) > 1L) {
     warning("second_order requires a connected graph; returning NA", call. = FALSE)
     return(rep(NA_real_, n))
   }
 
-  # Transition matrix
-  A <- as.matrix(igraph::as_adjacency_matrix(g, sparse = FALSE))
-  deg <- rowSums(A)
-  deg[deg == 0] <- 1
-  P <- A / deg
-
-  # Stationary distribution
-  if (!igraph::is_directed(g)) {
-    pi_stat <- deg / sum(deg)
-  } else {
-    eig <- eigen(t(P))
-    idx <- which.min(abs(Re(eig$values) - 1))
-    pi_stat <- abs(Re(eig$vectors[, idx]))
-    pi_stat <- pi_stat / sum(pi_stat)
-  }
-
-  # Fundamental matrix Z = (I - P + W)^-1
-  W <- matrix(pi_stat, n, n, byrow = TRUE)
-  Z <- tryCatch(solve(diag(n) - P + W), error = function(e) NULL)
-  if (is.null(Z)) return(rep(NA_real_, n))
-
-  # Mean first passage time m_ij = (Z_jj - Z_ij) / pi_j
-  mfpt <- matrix(0, n, n)
-  for (i in seq_len(n)) {
-    for (j in seq_len(n)) {
-      if (i != j && pi_stat[j] > 1e-15) {
-        mfpt[i, j] <- (Z[j, j] - Z[i, j]) / pi_stat[j]
-      }
-    }
-  }
+  mfpt <- .ext_mfpt(cg)
+  if (is.null(mfpt)) return(rep(NA_real_, n))
 
   # Mean return time for node j = m_jj = 1/pi_j
   # Second-order centrality = SD of return times from all other nodes
@@ -1543,19 +1463,17 @@ calculate_second_order <- function(g) {
 #' of the ball of radius l around the node. Identifies optimal percolation nodes.
 #' @keywords internal
 #' @noRd
-calculate_collective_influence <- function(g, mode = "all", l = 2L) {
-  n <- igraph::vcount(g)
+calculate_collective_influence <- function(cg, mode = "all", l = 2L) {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
 
-  deg <- igraph::degree(g, mode = mode)
-  sp <- igraph::distances(g, mode = mode, weights = NA)
+  deg <- .cg_degree(cg$b, cg$directed, mode)
+  sp <- .cg_hop_distances(cg, mode)
 
-  vapply(seq_len(n), function(i) {
-    # Boundary of ball: nodes at exact distance l
-    boundary <- which(sp[i, ] == l)
-    if (length(boundary) == 0) return(0)
-    (deg[i] - 1) * sum(deg[boundary] - 1)
-  }, numeric(1))
+  # Boundary of the ball: nodes at exact distance l
+  boundary <- (sp == l) * 1
+  as.numeric((deg - 1) * (boundary %*% (deg - 1)))
 }
 
 
@@ -1565,33 +1483,26 @@ calculate_collective_influence <- function(g, mode = "all", l = 2L) {
 #' rather than from degrees. Iterates until convergence.
 #' @keywords internal
 #' @noRd
-calculate_local_hindex <- function(g, mode = "all", max_iter = 100L) {
-  n <- igraph::vcount(g)
+calculate_local_hindex <- function(cg, mode = "all", max_iter = 100L) {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n == 0) return(integer(0))
 
-  adj_list <- igraph::as_adj_list(g, mode = mode)
+  adj <- .ext_adjlist(cg, mode, loops = "once")
 
   # Initialize with degree (h^(0) = degree)
-  h <- igraph::degree(g, mode = mode)
+  h <- as.numeric(.cg_degree(cg$b, cg$directed, mode))
 
+  # Fixed-point iteration: each pass is a function of the previous one.
   for (iter in seq_len(max_iter)) {
-    h_new <- integer(n)
-    for (v in seq_len(n)) {
-      nbs <- as.integer(adj_list[[v]])
-      if (length(nbs) == 0) { h_new[v] <- 0L; next }
-      # h-index of the multiset of neighbor h-values
-      nb_h <- sort(h[nbs], decreasing = TRUE)
-      hi <- 0L
-      for (k in seq_along(nb_h)) {
-        if (nb_h[k] >= k) hi <- as.integer(k) else break
-      }
-      h_new[v] <- hi
-    }
+    h_new <- vapply(adj, function(nbs) {
+      if (length(nbs) == 0) 0 else .cg_hindex(h[nbs])
+    }, numeric(1))
     if (identical(h_new, h)) break
     h <- h_new
   }
 
-  h
+  as.integer(h)
 }
 
 
@@ -1602,42 +1513,11 @@ calculate_local_hindex <- function(g, mode = "all", max_iter = 100L) {
 #' and removal probability mu.
 #' @keywords internal
 #' @noRd
-calculate_infection <- function(g, beta = 0.8, mu = 0, max_length = 6L) {
-  n <- igraph::vcount(g)
-  if (n == 0) return(numeric(0))
-
-  # Pre-convert adjacency list to integer vectors once (avoids per-call coercion)
-  adj_list <- lapply(igraph::as_adj_list(g, mode = "all"), as.integer)
-
-  # Pre-compute per-depth weights: beta^(d+1) * (1-mu)^d for d = 0..max_length-1
-  depths <- seq_len(max_length) - 1L
-  depth_weights <- beta^(depths + 1) * (1 - mu)^depths
-
-  # Mutable logical visited vector; backtracking via <<- in the enclosing frame
-  # is O(1) per node vs the original O(depth) `%in%` scan + vector copy.
-  visited_flag <- logical(n)
-
-  .count_saws <- function(current, depth) {
-    if (depth >= max_length) return(0)
-    w <- depth_weights[depth + 1L]
-    count <- 0
-    for (nb in adj_list[[current]]) {
-      if (!visited_flag[nb]) {
-        count <- count + w
-        visited_flag[nb] <<- TRUE
-        count <- count + .count_saws(nb, depth + 1L)
-        visited_flag[nb] <<- FALSE
-      }
-    }
-    count
-  }
-
-  vapply(seq_len(n), function(src) {
-    visited_flag[src] <<- TRUE
-    out <- .count_saws(src, 0L)
-    visited_flag[src] <<- FALSE
-    out
-  }, numeric(1))
+calculate_infection <- function(cg, beta = 0.8, mu = 0, max_length = 6L) {
+  cg <- .ext_context(cg)
+  if (cg$n == 0) return(numeric(0))
+  .cg_infection(cg$b, cg$directed, beta = beta, mu = mu,
+                max_length = max_length)
 }
 
 
@@ -1656,9 +1536,9 @@ calculate_infection <- function(g, beta = 0.8, mu = 0, max_length = 6L) {
 #' both for directed graphs. Undirected graphs ignore `mode` since W is
 #' symmetric.
 #'
-#' @param g An igraph graph.
+#' @param cg A `cg_graph` context.
 #' @param weights Optional numeric vector of edge weights (positive or
-#'   negative). If `NULL`, uses `E(g)$weight` when present, else falls
+#'   negative). If `NULL`, uses the graph's own weights when present, else falls
 #'   back to unweighted (edges weighted 1), in which case EI1 reduces to
 #'   signed degree.
 #' @param step Integer, 1 or 2. Whether to return EI1 or EI2. Default 1.
@@ -1666,49 +1546,18 @@ calculate_infection <- function(g, beta = 0.8, mu = 0, max_length = 6L) {
 #'   undirected graphs).
 #' @keywords internal
 #' @noRd
-calculate_expected_influence <- function(g, weights = NULL, step = 1L,
+calculate_expected_influence <- function(cg, weights = NULL, step = 1L,
                                          mode = c("out", "in", "all")) {
+  cg <- .ext_context(cg)
   mode <- match.arg(mode)
-  n <- igraph::vcount(g)
+  n <- cg$n
   if (n == 0) return(numeric(0))
   if (n == 1) return(0)
 
-  if (is.null(weights)) {
-    weights <- if (!is.null(igraph::E(g)$weight)) igraph::E(g)$weight
-               else rep(1, igraph::ecount(g))
-  }
-
-  # Build the signed weight matrix; keep negative edges intact (unlike
-  # as_adjacency_matrix's default, which would sum them into absolute
-  # weight). Iterate the edge list directly so we preserve signs.
-  W <- matrix(0, n, n)
-  if (igraph::ecount(g) > 0) {
-    el <- igraph::as_edgelist(g, names = FALSE)
-    # Directed: W[u, v] = weight; undirected: also W[v, u] = weight
-    for (k in seq_len(nrow(el))) {
-      W[el[k, 1], el[k, 2]] <- W[el[k, 1], el[k, 2]] + weights[k]
-    }
-    if (!igraph::is_directed(g)) {
-      # Reflect to the other side unless it was already placed (in case
-      # igraph returned the canonical upper-triangle orientation).
-      W <- W + t(W) - diag(diag(W))
-    }
-  }
-
-  ei1 <- switch(mode,
-                "out" = rowSums(W),
-                "in"  = colSums(W),
-                "all" = rowSums(W) + colSums(W) - diag(W))
-
-  if (step == 1L) return(ei1)
-
-  # EI2: add the weighted sum of neighbors' EI1
-  ei2 <- ei1 + switch(mode,
-                     "out" = as.numeric(W %*% ei1),
-                     "in"  = as.numeric(t(W) %*% ei1),
-                     "all" = as.numeric(W %*% ei1) +
-                             as.numeric(t(W) %*% ei1) - diag(W) * ei1)
-  ei2
+  # Signed weight matrix: negative edges stay negative. NULL weights fall
+  # back to the graph's own weights, or to 1 when it has none.
+  W <- .ext_path_matrix(cg, weights %||% cg$weights)
+  .cg_expected_influence(W, mode = mode, step = step)
 }
 
 
@@ -1718,19 +1567,16 @@ calculate_expected_influence <- function(g, weights = NULL, step = 1L,
 #' Avoids localization issues of eigenvector centrality on sparse networks.
 #' @keywords internal
 #' @noRd
-calculate_nonbacktracking <- function(g) {
-  n <- igraph::vcount(g)
+calculate_nonbacktracking <- function(cg) {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
   if (n == 1) return(1)
 
-  el <- igraph::as_edgelist(g, names = FALSE)
-  m <- nrow(el)
-
+  el <- cg$edges
   # For undirected: each edge becomes 2 directed edges
-  if (!igraph::is_directed(g)) {
-    el <- rbind(el, el[, 2:1])
-    m <- nrow(el)
-  }
+  if (!cg$directed) el <- rbind(el, el[, 2:1, drop = FALSE])
+  m <- nrow(el)
 
   # Non-backtracking matrix B: B[(i->j), (k->l)] = 1 if j==k and i!=l
   # This is a 2m x 2m matrix for undirected graphs
@@ -1738,11 +1584,10 @@ calculate_nonbacktracking <- function(g) {
   # Leading eigenvalue of B relates to adjacency spectrum
   # Node centrality = sum of eigenvector components over edges leaving node
 
-  # Build B matrix (sparse would be better for large graphs)
   if (m > 5000) {
     # For large graphs, use the reduced 2n x 2n matrix formulation
-    A <- as.matrix(igraph::as_adjacency_matrix(g, sparse = FALSE))
-    D <- diag(igraph::degree(g, mode = "all"))
+    A <- unname(cg$b)
+    D <- diag(as.numeric(.cg_degree(cg$b, cg$directed, "all")), n, n)
     I_n <- diag(n)
 
     # Block matrix: [[A, I-D], [I, 0]]
@@ -1757,17 +1602,10 @@ calculate_nonbacktracking <- function(g) {
     # Node centrality from first n components
     result <- abs(v[seq_len(n)])
   } else {
-    # Direct B matrix construction
-    B <- matrix(0, m, m)
-    for (a in seq_len(m)) {
-      for (b in seq_len(m)) {
-        # Edge a = (i->j), edge b = (k->l)
-        # B[a,b] = 1 if j==k and i!=l
-        if (el[a, 2] == el[b, 1] && el[a, 1] != el[b, 2]) {
-          B[a, b] <- 1
-        }
-      }
-    }
+    # Direct B matrix construction: edge a = (i->j), edge b = (k->l)
+    B <- outer(seq_len(m), seq_len(m), function(a, b) {
+      as.numeric(el[a, 2] == el[b, 1] & el[a, 1] != el[b, 2])
+    })
 
     eig <- eigen(B)
     idx <- which.max(Re(eig$values))
@@ -1775,10 +1613,8 @@ calculate_nonbacktracking <- function(g) {
 
     # Aggregate edge centrality to node centrality
     # Node v = sum of eigenvector components for edges leaving v
-    result <- numeric(n)
-    for (e in seq_len(m)) {
-      result[el[e, 1]] <- result[el[e, 1]] + abs(v[e])
-    }
+    by_source <- tapply(abs(v), factor(el[, 1], levels = seq_len(n)), sum)
+    result <- as.numeric(ifelse(is.na(by_source), 0, by_source))
   }
 
   # Normalize
@@ -1795,17 +1631,18 @@ calculate_nonbacktracking <- function(g) {
 #' Requires a directed graph.
 #' @keywords internal
 #' @noRd
-calculate_trophic_level <- function(g) {
-  n <- igraph::vcount(g)
+calculate_trophic_level <- function(cg) {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
-  if (!igraph::is_directed(g)) {
+  if (!cg$directed) {
     warning("trophic_level requires a directed graph; returning NA", call. = FALSE)
     return(rep(NA_real_, n))
   }
 
   # Trophic level s_j = 1 + (1/k_j^in) * sum_{i->j} s_i
   # Solve: (I - W) s = 1, where W_ji = A_ij / k_j^in
-  A <- as.matrix(igraph::as_adjacency_matrix(g, sparse = FALSE))
+  A <- unname(cg$b)
   in_deg <- colSums(A)
   in_deg[in_deg == 0] <- 1  # basal nodes
 
@@ -1827,21 +1664,15 @@ calculate_trophic_level <- function(g) {
 #' neighborhood members instead of unweighted degree.
 #' @keywords internal
 #' @noRd
-calculate_hindex_strength <- function(g, mode = "all") {
-  n <- igraph::vcount(g)
+calculate_hindex_strength <- function(cg, mode = "all") {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
 
-  str <- igraph::strength(g, mode = mode)
-
-  vapply(seq_len(n), function(i) {
-    nbs <- c(i, as.integer(igraph::neighbors(g, i, mode = mode)))
-    nb_str <- sort(str[nbs], decreasing = TRUE)
-    h <- 0L
-    for (k in seq_along(nb_str)) {
-      if (nb_str[k] >= k) h <- as.integer(k) else break
-    }
-    h
-  }, integer(1))
+  # Strength on the graph's own weights (igraph's default), degree when the
+  # input carried none
+  str <- .cg_strength(.ext_default_weights(cg), cg$directed, mode)
+  as.integer(.cg_hindex_strength(.ext_adjlist(cg, mode), str))
 }
 
 
@@ -1852,16 +1683,18 @@ calculate_hindex_strength <- function(g, mode = "all") {
 #' related to the diagonal of the Laplacian pseudoinverse.
 #' @keywords internal
 #' @noRd
-calculate_spanning_tree <- function(g) {
-  n <- igraph::vcount(g)
+calculate_spanning_tree <- function(cg) {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n <= 1) return(rep(1, n))
 
-  if (!igraph::is_connected(g, mode = "weak")) {
+  if (.cg_n_components(cg$b) > 1L) {
     warning("spanning_tree requires a connected graph; returning NA", call. = FALSE)
     return(rep(NA_real_, n))
   }
 
-  L <- igraph::laplacian_matrix(g, sparse = FALSE)
+  # Weighted Laplacian when the input carried weights (igraph's default)
+  L <- .cg_laplacian_matrix(.ext_default_weights(cg), cg$directed)
 
   # Moore-Penrose pseudoinverse of Laplacian: L+ = (L + J/n)^{-1} - J/n
   J <- matrix(1, n, n)
@@ -1897,22 +1730,17 @@ calculate_spanning_tree <- function(g) {
 #'
 #' @keywords internal
 #' @noRd
-calculate_katz <- function(g, weights = NULL, alpha = 0.1) {
-  n <- igraph::vcount(g)
+calculate_katz <- function(cg, weights = NULL, alpha = 0.1) {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
   if (n == 1) return(0)
 
   # Match centiserve::katzcent's exact construction so the result is bit-exact
   # identical: take dense adjacency, compute (I - alpha A^T)^{-1}, then
-  # multiply by all-ones.
-  if (is.null(weights) && !("weight" %in% igraph::edge_attr_names(g))) {
-    A <- as.matrix(igraph::as_adjacency_matrix(g, names = FALSE, sparse = FALSE))
-  } else {
-    w <- if (is.null(weights)) igraph::E(g)$weight else as.numeric(weights)
-    g2 <- igraph::set_edge_attr(g, "weight", value = w)
-    A <- as.matrix(igraph::as_adjacency_matrix(g2, names = FALSE,
-                                                attr = "weight", sparse = FALSE))
-  }
+  # multiply by all-ones. NULL weights fall back to the graph's own weights,
+  # or to the binary adjacency when it has none.
+  A <- .ext_path_matrix(cg, weights %||% cg$weights)
 
   # Katz converges only for alpha < 1 / rho(A). With exo = 1 every term of
   # the series is non-negative, so a value below 1 is proof that it did not:
@@ -1955,24 +1783,16 @@ calculate_katz <- function(g, weights = NULL, alpha = 0.1) {
 #'
 #' @keywords internal
 #' @noRd
-calculate_hubbell <- function(g, weights = NULL, weightfactor = 0.5) {
-  n <- igraph::vcount(g)
+calculate_hubbell <- function(cg, weights = NULL, weightfactor = 0.5) {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
   if (!is.numeric(weightfactor) || length(weightfactor) != 1L || weightfactor <= 0) {
     stop("hubbell: weightfactor must be a positive scalar", call. = FALSE)
   }
 
-  # Use explicit weights if given, else edge attribute, else unweighted.
-  if (is.null(weights)) {
-    if ("weight" %in% igraph::edge_attr_names(g)) {
-      W <- as.matrix(igraph::as_adjacency_matrix(g, attr = "weight", sparse = FALSE))
-    } else {
-      W <- as.matrix(igraph::as_adjacency_matrix(g, sparse = FALSE))
-    }
-  } else {
-    g2 <- igraph::set_edge_attr(g, "weight", value = as.numeric(weights))
-    W <- as.matrix(igraph::as_adjacency_matrix(g2, attr = "weight", sparse = FALSE))
-  }
+  # Use explicit weights if given, else the graph's own weights, else unweighted.
+  W <- .ext_path_matrix(cg, weights %||% cg$weights)
 
   scaledW <- W * weightfactor
   # Solvability: largest eigenvalue of scaledW must be strictly < 1 for
@@ -2020,45 +1840,15 @@ calculate_hubbell <- function(g, weights = NULL, weightfactor = 0.5) {
 #'
 #' @keywords internal
 #' @noRd
-calculate_information <- function(g, weights = NULL) {
-  n <- igraph::vcount(g)
+calculate_information <- function(cg, weights = NULL) {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
   if (n == 1) return(0)
 
-  if (is.null(weights)) {
-    m <- as.matrix(igraph::as_adjacency_matrix(g, sparse = FALSE))
-  } else {
-    g2 <- igraph::set_edge_attr(g, "weight", value = as.numeric(weights))
-    m <- as.matrix(igraph::as_adjacency_matrix(g2, attr = "weight", sparse = FALSE))
-  }
-  # Symmetrize (Stephenson-Zelen is defined for undirected networks)
-  m <- (m + t(m)) / 2
-
-  # Match sna::infocent's exact construction and call sequence so the result
-  # is bit-exact identical (no LAPACK reordering, no broadcast tricks).
-  diag(m) <- NA
-  iso <- vapply(seq_len(n),
-                function(i) all(is.na(m[i, ]) | m[i, ] == 0),
-                logical(1))
-  ix <- which(!iso)
-  if (length(ix) == 0) return(rep(0, n))
-
-  m_sub <- m[ix, ix, drop = FALSE]
-  A <- 1 - m_sub
-  A[m_sub == 0] <- 1
-  diag(A) <- 1 + rowSums(m_sub, na.rm = TRUE)
-
-  Cn <- tryCatch(solve(A, tol = 1e-20), error = function(e) NULL)
-  if (is.null(Cn)) return(rep(NA_real_, n))
-
-  Tr <- sum(diag(Cn))
-  R  <- rowSums(Cn)
-  k  <- length(ix)
-  IC <- 1 / (diag(Cn) + (Tr - 2 * R) / k)
-
-  cent <- rep(0, n)
-  cent[ix] <- IC
-  as.numeric(cent)
+  # Symmetrised inside the kernel (Stephenson-Zelen is undirected); the
+  # construction mirrors sna::infocent so the result is bit-exact.
+  .cg_information(.ext_path_matrix(cg, weights), weighted = !is.null(weights))
 }
 
 
@@ -2074,32 +1864,20 @@ calculate_information <- function(g, weights = NULL) {
 #'
 #' @keywords internal
 #' @noRd
-calculate_pairwisedis <- function(g) {
-  n <- igraph::vcount(g)
+calculate_pairwisedis <- function(cg) {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
-  if (!igraph::is_directed(g)) {
+  if (!cg$directed) {
     warning("pairwisedis requires a directed graph; returning NA",
             call. = FALSE)
     return(rep(NA_real_, n))
   }
   if (n == 1) return(0)
 
-  # Count reachable ordered pairs (exclude s == t) using NA weights to force
-  # unweighted distances (matches centiserve, which uses shortest.paths w=NA).
-  sp_full <- igraph::distances(g, v = igraph::V(g),
-                               to = igraph::V(g), mode = "out", weights = NA)
-  all_paths <- sum(is.finite(sp_full)) - n  # subtract self-pairs (diagonal)
-
-  if (all_paths == 0) return(rep(0, n))
-
-  # For each node, delete it and recount
-  vapply(seq_len(n), function(v) {
-    g_minus <- igraph::delete_vertices(g, v)
-    sp <- igraph::distances(g_minus, v = igraph::V(g_minus),
-                            to = igraph::V(g_minus), mode = "out", weights = NA)
-    paths <- sum(is.finite(sp)) - igraph::vcount(g_minus)
-    (all_paths - paths) / all_paths
-  }, numeric(1))
+  # Ordered reachable pairs (s != t) on hop distances, before and after
+  # deleting each vertex (matches centiserve, which uses w = NA).
+  .cg_pairwisedis(cg$b, directed = TRUE)
 }
 
 
@@ -2116,68 +1894,44 @@ calculate_pairwisedis <- function(g) {
 #'
 #' @keywords internal
 #' @noRd
-calculate_reaching_local <- function(g, mode = "all", weights = NULL) {
-  n <- igraph::vcount(g)
+calculate_reaching_local <- function(cg, mode = "all", weights = NULL) {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
   if (n == 1) return(0)
 
-  directed <- igraph::is_directed(g)
+  directed <- cg$directed
   dir_mode <- if (!directed) "all" else mode
 
   # "Effectively unweighted" = no weights arg and either no weight attr
   # or all weights are exactly 1 (cograph parses binary matrices as weighted
   # graphs with w=1, so we must treat those as unweighted).
-  edge_w <- if (!is.null(weights)) as.numeric(weights)
-  else if ("weight" %in% igraph::edge_attr_names(g)) igraph::E(g)$weight
-  else NULL
+  edge_w <- if (!is.null(weights)) as.numeric(.ext_weights(cg, weights)) else cg$weights
   unweighted <- is.null(edge_w) || all(edge_w == 1)
 
   # Directed unweighted: simple proportion of reachable nodes (paper + NetworkX)
   if (directed && unweighted) {
-    d <- igraph::distances(g, v = igraph::V(g), to = igraph::V(g),
-                           mode = dir_mode, weights = NA)
-    return(vapply(seq_len(n), function(v) {
-      reach <- sum(is.finite(d[v, ]) & d[v, ] > 0)
-      reach / (n - 1)
-    }, numeric(1)))
+    d <- .cg_hop_distances(cg, dir_mode)
+    return(rowSums(is.finite(d) & d > 0) / (n - 1))
   }
 
   # Undirected unweighted: normalized harmonic (== NetworkX LRC)
   if (unweighted) {
-    return(as.numeric(igraph::harmonic_centrality(g, mode = dir_mode,
-                                                  normalized = TRUE)))
+    return(.cg_harmonic(.cg_hop_distances(cg, "all"), n) / (n - 1))
   }
 
   # Weighted branch: NetworkX uses "average edge weight on shortest path"
   # where shortest path is computed with distances = total_weight / edge_weight
-  # (higher weight => shorter path). Implemented directly:
+  # (higher weight => shorter path).
   w <- edge_w
   if (any(w < 0)) {
     stop("reaching_local: edge weights must be non-negative", call. = FALSE)
   }
-  total_w <- sum(w)
-  if (total_w <= 0) {
+  if (sum(w) <= 0) {
     return(rep(0, n))
   }
 
-  # Shortest paths computed with "length" = total_w / w_e. We then use the
-  # path's vertex sequence to fetch the ORIGINAL edge weights and average.
-  edge_dist <- total_w / w
-
-  vapply(seq_len(n), function(v) {
-    paths <- igraph::shortest_paths(g, from = v, mode = dir_mode,
-                                    weights = edge_dist,
-                                    output = "vpath")$vpath
-    avg_ws <- vapply(paths, function(p) {
-      p <- as.integer(p)
-      plen <- length(p) - 1L
-      if (plen <= 0L) return(0)  # unreachable or self
-      eids <- igraph::get_edge_ids(g, vp = as.vector(rbind(p[-length(p)], p[-1L])))
-      sum(w[eids]) / plen
-    }, numeric(1))
-
-    sum(avg_ws) / (n - 1)
-  }, numeric(1))
+  .ext_reaching_weighted(cg, w, dir_mode)
 }
 
 
@@ -2193,21 +1947,20 @@ calculate_reaching_local <- function(g, mode = "all", weights = NULL) {
 #'
 #' @keywords internal
 #' @noRd
-calculate_prestige_domain <- function(g) {
-  n <- igraph::vcount(g)
+calculate_prestige_domain <- function(cg) {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
-  if (!igraph::is_directed(g)) {
+  if (!cg$directed) {
     warning("prestige_domain requires a directed graph; returning NA",
             call. = FALSE)
     return(rep(NA_real_, n))
   }
   if (n == 1) return(0)
 
-  # distances(g, mode = "out")[i, j] = length of directed path from i to j.
-  # Column j contains distances from every source to j; a finite entry means
-  # the source reaches j. Subtract 1 to exclude the self-entry on the diagonal.
-  D <- igraph::distances(g, mode = "out", weights = NA)
-  as.numeric(colSums(is.finite(D)) - 1)
+  # Column j of the out-distance matrix holds the distances from every
+  # source to j; a finite entry means the source reaches j, minus self.
+  .cg_prestige_domain(cg$b, proximity = FALSE, directed = TRUE)
 }
 
 
@@ -2228,29 +1981,18 @@ calculate_prestige_domain <- function(g) {
 #'
 #' @keywords internal
 #' @noRd
-calculate_prestige_domain_proximity <- function(g) {
-  n <- igraph::vcount(g)
+calculate_prestige_domain_proximity <- function(cg) {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n == 0) return(numeric(0))
-  if (!igraph::is_directed(g)) {
+  if (!cg$directed) {
     warning("prestige_domain_proximity requires a directed graph; returning NA",
             call. = FALSE)
     return(rep(NA_real_, n))
   }
   if (n == 1) return(0)
 
-  # distances(g, mode = "out")[i, j] = distance from i to j following directed
-  # edges. Column j holds distances from every source (including self = 0) to j.
-  D <- igraph::distances(g, mode = "out", weights = NA)
-
-  vapply(seq_len(n), function(v) {
-    dv <- D[, v]              # distances from every u to v (self = 0)
-    reach <- is.finite(dv)    # includes self
-    R_v <- sum(reach) - 1L    # other reachers (exclude self)
-    if (R_v <= 0) return(0)
-    D_v <- sum(dv[reach])     # self contributes 0
-    if (D_v <= 0) return(0)
-    (R_v * R_v) / (D_v * (n - 1))
-  }, numeric(1))
+  .cg_prestige_domain(cg$b, proximity = TRUE, directed = TRUE)
 }
 
 
@@ -2282,16 +2024,17 @@ calculate_prestige_domain_proximity <- function(g) {
 #' matching the requested type is counted. Bit-exact match against
 #' sna::brokerage$raw.nli for the corresponding column.
 #'
-#' @param g A directed igraph.
+#' @param cg A `cg_graph` context (directed).
 #' @param membership Integer or character vector of group assignments, length
-#'   equal to vcount(g).
+#'   equal to the node count.
 #' @param role One of "coordinator" (w_I), "itinerant" (w_O),
 #'   "representative" (b_IO), "gatekeeper" (b_OI), "liaison" (b_O).
-#' @return Integer vector of length vcount(g).
+#' @return Integer vector, one entry per node.
 #' @keywords internal
 #' @noRd
-calculate_brokerage <- function(g, membership, role) {
-  n <- igraph::vcount(g)
+calculate_brokerage <- function(cg, membership, role) {
+  cg <- .ext_context(cg)
+  n <- cg$n
   if (n == 0) return(integer(0))
   if (is.null(membership)) {
     warning("brokerage requires membership; returning NA", call. = FALSE)
@@ -2301,43 +2044,17 @@ calculate_brokerage <- function(g, membership, role) {
     stop(sprintf("membership length (%d) must equal number of nodes (%d)",
                  length(membership), n), call. = FALSE)
   }
-  if (!igraph::is_directed(g)) {
+  if (!cg$directed) {
     warning("brokerage requires a directed graph; returning NA",
             call. = FALSE)
     return(rep(NA_integer_, n))
   }
 
-  # Adjacency with weight attribute stripped; we only care about presence
-  A <- as.matrix(igraph::as_adjacency_matrix(g, sparse = FALSE))
-  storage.mode(A) <- "integer"
-  A[A > 1L] <- 1L                    # treat multi-edges as single edges
+  # Presence only (multi-edges collapse), and a node is never its own alter
+  b <- unname(cg$b)
+  diag(b) <- 0
   cl <- as.integer(as.factor(membership))
-
-  result <- integer(n)
-  target_role <- role
-
-  for (v in seq_len(n)) {
-    ins  <- which(A[, v] > 0L); ins  <- ins[ins != v]
-    outs <- which(A[v, ] > 0L); outs <- outs[outs != v]
-    if (length(ins) == 0L || length(outs) == 0L) next
-    g_v <- cl[v]
-
-    for (a in ins) {
-      g_a <- cl[a]
-      for (c in outs) {
-        if (a == c) next              # exclude a == c (a <-> v mutual ties)
-        if (A[a, c] > 0L) next        # exclude closed 2-paths
-        g_c <- cl[c]
-        this_role <- if (g_a == g_v && g_v == g_c) "coordinator"
-        else if (g_a == g_c && g_a != g_v) "itinerant"
-        else if (g_a == g_v && g_c != g_v) "representative"
-        else if (g_v == g_c && g_a != g_v) "gatekeeper"
-        else "liaison"
-        if (this_role == target_role) result[v] <- result[v] + 1L
-      }
-    }
-  }
-  result
+  as.integer(.cg_brokerage(b, cl, role, directed = TRUE))
 }
 
 

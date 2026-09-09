@@ -1,12 +1,12 @@
 #' Expected Force from three-vertex cluster multiplicities
 #' @keywords internal
 #' @noRd
-calculate_expected_force <- function(g, modified = FALSE, exf_alpha = 2) {
+calculate_expected_force <- function(cg, modified = FALSE, exf_alpha = 2) {
   if (modified && (!is.numeric(exf_alpha) || length(exf_alpha) != 1L ||
                      !is.finite(exf_alpha) || exf_alpha <= 1)) {
     stop("exf_alpha must be a finite number greater than one.", call. = FALSE)
   }
-  a <- .cg_path_matrix(g, NULL)
+  a <- .cg_path_matrix(cg, NULL)
   diag(a) <- 0
   n <- nrow(a)
   degree <- rowSums(a)

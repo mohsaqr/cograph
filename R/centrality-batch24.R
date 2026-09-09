@@ -1,12 +1,12 @@
 #' Assemble undirected weights for graph regularization
 #' @keywords internal
 #' @noRd
-calculate_graph_regularization <- function(g, weights = NULL, gamma = 1) {
+calculate_graph_regularization <- function(cg, weights = NULL, gamma = 1) {
   if (is.null(weights)) {
-    a <- .cg_undirected_view(.cg_path_matrix(g, NULL))
+    a <- .cg_undirected_view(.cg_path_matrix(cg, NULL))
   } else {
-    a <- .cg_candidate_adjacency(g, weights, "graph_regularization")
-    if (igraph::is_directed(g)) a <- a + t(a)
+    a <- .cg_candidate_adjacency(cg, weights, "graph_regularization")
+    if (cg$directed) a <- a + t(a)
     if (any(!is.finite(a))) {
       stop("graph_regularization weight sum exceeds double precision",
            call. = FALSE)

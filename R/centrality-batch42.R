@@ -1,7 +1,7 @@
 #' Neighborhood (neighbor distance) centrality
 #' @keywords internal
 #' @noRd
-calculate_neighbor_distance <- function(g, order = 2, decay = 0.2,
+calculate_neighbor_distance <- function(cg, order = 2, decay = 0.2,
                                         mass = "degree") {
   if (!is.numeric(order) || length(order) != 1L || !is.finite(order) ||
         order < 0 || order != trunc(order)) {
@@ -11,7 +11,7 @@ calculate_neighbor_distance <- function(g, order = 2, decay = 0.2,
     stop("nd_decay must be a single finite number", call. = FALSE)
   }
   mass <- match.arg(mass, c("degree", "coreness"))
-  a <- .cg_undirected_view(.cg_path_matrix(g, NULL))
+  a <- .cg_undirected_view(.cg_path_matrix(cg, NULL))
   diag(a) <- 0
   n <- nrow(a)
   if (!n) return(numeric())

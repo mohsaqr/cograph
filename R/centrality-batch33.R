@@ -42,8 +42,8 @@
 #' Source-defined one-hop and two-hop localized bridging
 #' @keywords internal
 #' @noRd
-calculate_localized_bridging <- function(g, radius = 1L) {
-  b <- .cg_undirected_view(.cg_path_matrix(g, NULL))
+calculate_localized_bridging <- function(cg, radius = 1L) {
+  b <- .cg_undirected_view(.cg_path_matrix(cg, NULL))
   diag(b) <- 0
   n <- nrow(b)
   result <- numeric(n)

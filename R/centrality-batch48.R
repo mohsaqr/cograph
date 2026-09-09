@@ -1,8 +1,8 @@
 #' Lhc index (Wang, Yang, Liu and Ma 2021)
 #' @keywords internal
 #' @noRd
-calculate_lhc <- function(g, radius = 2) {
-  .cg_lhc_terms(.cg_path_matrix(g, NULL), radius)$lhc
+calculate_lhc <- function(cg, radius = 2) {
+  .cg_lhc_terms(.cg_path_matrix(cg, NULL), radius)$lhc
 }
 
 #' Lhc Index

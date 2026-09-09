@@ -1,7 +1,7 @@
 #' Finite neighbor propagation of closed-neighborhood degree volume
 #' @keywords internal
 #' @noRd
-calculate_ninl <- function(g, ninl_order = 3, ninl_radius = NULL,
+calculate_ninl <- function(cg, ninl_order = 3, ninl_radius = NULL,
                            normalized = FALSE) {
   if (!is.numeric(ninl_order) || length(ninl_order) != 1L ||
         !is.finite(ninl_order) || ninl_order < 0 ||
@@ -16,7 +16,7 @@ calculate_ninl <- function(g, ninl_order = 3, ninl_radius = NULL,
     stop("ninl_radius must be NULL, a nonnegative integer, or Inf.",
          call. = FALSE)
   }
-  a <- .cg_undirected_view(.cg_path_matrix(g, NULL))
+  a <- .cg_undirected_view(.cg_path_matrix(cg, NULL))
   diag(a) <- 0
   degree <- rowSums(a)
   if (!length(degree) || !any(degree > 0)) return(as.numeric(degree))

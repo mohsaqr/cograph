@@ -1,13 +1,13 @@
 #' BG power from column-normalized binary adjacency
 #' @keywords internal
 #' @noRd
-calculate_beta_measure <- function(g, beta_direction = "positive") {
+calculate_beta_measure <- function(cg, beta_direction = "positive") {
   if (!is.character(beta_direction) || length(beta_direction) != 1L ||
         is.na(beta_direction) ||
         !beta_direction %in% c("positive", "negative")) {
     stop("beta_direction must be 'positive' or 'negative'.", call. = FALSE)
   }
-  a <- .cg_path_matrix(g, NULL)
+  a <- .cg_path_matrix(cg, NULL)
   diag(a) <- 0
   if (beta_direction == "negative") a <- t(a)
   incoming <- colSums(a)

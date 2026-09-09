@@ -224,13 +224,60 @@
   ifelse(deg > 0, as.numeric(nb %*% deg) / deg, 0)
 }
 
-#' Hop-distance matrix of an igraph object under a mode
+
+#' Average nearest-neighbour degree (Barrat et al. 2004), igraph semantics
 #'
-#' @param g An igraph object.
-#' @param mode One of `"all"`, `"out"`, `"in"`.
-#' @return Numeric matrix of hop counts, `Inf` where unreachable.
+#' `knn_i = sum_e w_e k_{j(e)} / sum_e w_e` over the edge incidences `e` of
+#' node `i` under `mode`, where `k_j` is the *unweighted* degree of the
+#' neighbour under `neighbor_mode` (what `igraph::knn()` computes with
+#' `weights`; with unit weights it is the plain mean neighbour degree).
+#' Conventions pinned against `igraph::knn()`:
+#'
+#' * A self-loop is an incidence like any other, and it appears twice when
+#'   both of its endpoints are counted -- undirected graphs and directed
+#'   `mode = "all"` -- but once under `"out"` or `"in"`. The neighbour it
+#'   contributes is the node itself.
+#' * An undirected graph ignores `mode` and `neighbor_mode`.
+#' * A node with no incidence at all scores `NaN` (0 / 0), as igraph does.
+#'
+#' Differs from `.cg_neighborhood_connectivity()`, which scores isolates 0
+#' and reads every non-zero entry as an unweighted edge.
+#'
+#' @param b Binary adjacency matrix (any non-zero entry is an edge).
+#' @param w Weight matrix in the same layout; pass `b` for the unweighted
+#'   average.
+#' @param directed Whether the graph is directed.
+#' @param mode Which incidences of `i` define its neighbours: `"all"`,
+#'   `"out"` or `"in"`.
+#' @param neighbor_mode Which degree of the neighbour is averaged; igraph's
+#'   default is `"all"`.
+#' @return Numeric vector, one value per node.
+#' @references Barrat, A., Barthelemy, M., Pastor-Satorras, R., &
+#'   Vespignani, A. (2004). The architecture of complex weighted networks.
+#'   *PNAS*, 101(11), 3747-3752.
 #' @keywords internal
 #' @noRd
-.cg_hop_distances <- function(g, mode = "all") {
-  .cg_distances(.cg_path_matrix(g, NULL), mode)
+.cg_knn <- function(b, w, directed, mode = c("all", "out", "in"),
+                    neighbor_mode = c("all", "out", "in")) {
+  mode <- match.arg(mode)
+  neighbor_mode <- match.arg(neighbor_mode)
+  n <- nrow(b)
+  if (is.null(n) || n == 0L) return(numeric(0))
+  k <- .cg_degree(b, directed, neighbor_mode)
+  loop <- diag(w)
+  if (!directed) {
+    # Symmetric layout: each partner once, the loop a second time.
+    num <- as.numeric(w %*% k) + loop * k
+    den <- rowSums(w) + loop
+  } else {
+    num <- switch(mode,
+      out = as.numeric(w %*% k),
+      `in` = as.numeric(crossprod(w, k)),
+      all = as.numeric(w %*% k) + as.numeric(crossprod(w, k)))
+    den <- switch(mode,
+      out = rowSums(w),
+      `in` = colSums(w),
+      all = rowSums(w) + colSums(w))
+  }
+  num / den
 }

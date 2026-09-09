@@ -1,15 +1,15 @@
 #' Hybrid characteristic centrality (Liu and Zheng 2023)
 #' @keywords internal
 #' @noRd
-calculate_hcc <- function(g, delta = 0.5) {
-  .cg_hcc_terms(.cg_path_matrix(g, NULL), delta)$hcc
+calculate_hcc <- function(cg, delta = 0.5) {
+  .cg_hcc_terms(.cg_path_matrix(cg, NULL), delta)$hcc
 }
 
 #' Extended hybrid characteristic centrality (Liu and Zheng 2023)
 #' @keywords internal
 #' @noRd
-calculate_ehcc <- function(g, delta = 0.5) {
-  .cg_hcc_terms(.cg_path_matrix(g, NULL), delta)$ehcc
+calculate_ehcc <- function(cg, delta = 0.5) {
+  .cg_hcc_terms(.cg_path_matrix(cg, NULL), delta)$ehcc
 }
 
 #' Hybrid characteristic centrality

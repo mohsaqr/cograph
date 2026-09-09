@@ -38,14 +38,17 @@
 #' once so that a six-index request does not rebuild it six times.
 #'
 #' @param a Symmetric binary adjacency matrix with a zero diagonal.
-#' @return List with the matrix `a`, its igraph view `graph` and the node
-#'   count `n`.
+#' @return List with the matrix `a`, its simple undirected unweighted
+#'   skeleton `b` (binary, symmetric, zero diagonal) and the node count `n`.
 #' @keywords internal
 #' @noRd
 .cg_re_context <- function(a) {
-  list(a = a, n = nrow(a),
-       graph = igraph::graph_from_adjacency_matrix(a, mode = "undirected",
-                                                   diag = FALSE))
+  # `b` is the simple undirected reading the path indexes are taken on:
+  # binary, symmetric, no loops.
+  b <- (a != 0) * 1
+  b <- pmax(b, t(b))
+  diag(b) <- 0
+  list(a = a, n = nrow(a), b = b)
 }
 
 #' Network constraint coefficient of Chen, Wang and Luo (2016), equation (6)
@@ -101,10 +104,10 @@
 #' @noRd
 .cg_re_destructiveness <- function(ctx, largest) {
   vapply(seq_len(ctx$n), function(i) {
-    sizes <- igraph::components(
-      igraph::delete_vertices(ctx$graph, i)
-    )$csize
-    if (!length(sizes)) return(0)
+    labels <- .cg_component_labels(ctx$b[-i, -i, drop = FALSE])
+    if (!length(labels)) return(0)
+    sizes <- tabulate(labels)
+    sizes <- sizes[sizes > 0]
     if (largest) max(sizes) else length(sizes)
   }, numeric(1))
 }
@@ -142,7 +145,7 @@
       out[reachable] <- 1 / total[reachable]
       out
     },
-    "betweenness" = 2 * igraph::betweenness(ctx$graph, directed = FALSE),
+    "betweenness" = 2 * .cg_betweenness(ctx$b, ctx$n, directed = FALSE),
     "constraint" = .cg_re_constraint(ctx$a),
     "n_components" = .cg_re_destructiveness(ctx, largest = FALSE),
     "largest_component" = .cg_re_destructiveness(ctx, largest = TRUE)

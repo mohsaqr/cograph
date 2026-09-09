@@ -1,9 +1,9 @@
 #' Proximal betweenness on a simple directed hop graph
 #' @keywords internal
 #' @noRd
-calculate_proximal_betweenness <- function(g, variant = "source") {
+calculate_proximal_betweenness <- function(cg, variant = "source") {
   variant <- match.arg(variant, c("source", "target", "sum", "union"))
-  b <- .cg_path_matrix(g, NULL)
+  b <- .cg_path_matrix(cg, NULL)
   diag(b) <- 0
   n <- nrow(b)
   neighbors <- .cg_adjlist(b, directed = TRUE, mode = "out")

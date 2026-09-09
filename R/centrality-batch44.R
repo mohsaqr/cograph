@@ -1,8 +1,8 @@
 #' Local neighbor contribution (LNC)
 #' @keywords internal
 #' @noRd
-calculate_lnc <- function(g) {
-  .cg_lnc_terms(.cg_path_matrix(g, NULL))$lnc
+calculate_lnc <- function(cg) {
+  .cg_lnc_terms(.cg_path_matrix(cg, NULL))$lnc
 }
 
 #' Local neighbor contribution centrality

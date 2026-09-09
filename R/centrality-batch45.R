@@ -1,8 +1,8 @@
 #' KED method (Chen, Xiao, Zeng and Zhang 2014)
 #' @keywords internal
 #' @noRd
-calculate_ked <- function(g) {
-  .cg_ked_terms(.cg_path_matrix(g, NULL))$ked
+calculate_ked <- function(cg) {
+  .cg_ked_terms(.cg_path_matrix(cg, NULL))$ked
 }
 
 #' KED method centrality

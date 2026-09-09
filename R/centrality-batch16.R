@@ -1,12 +1,12 @@
 #' Assemble undirected conductances for resistance curvature
 #' @keywords internal
 #' @noRd
-calculate_resistance_curvature <- function(g, weights = NULL) {
+calculate_resistance_curvature <- function(cg, weights = NULL) {
   if (is.null(weights)) {
-    a <- .cg_undirected_view(.cg_path_matrix(g, NULL))
+    a <- .cg_undirected_view(.cg_path_matrix(cg, NULL))
   } else {
-    a <- .cg_candidate_adjacency(g, weights, "resistance_curvature")
-    if (igraph::is_directed(g)) a <- a + t(a)
+    a <- .cg_candidate_adjacency(cg, weights, "resistance_curvature")
+    if (cg$directed) a <- a + t(a)
     if (any(!is.finite(a))) {
       stop("resistance_curvature conductance sum exceeds double precision",
            call. = FALSE)

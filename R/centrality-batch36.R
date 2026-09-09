@@ -1,8 +1,8 @@
 #' ControlRank from grounded symmetric Laplacians
 #' @keywords internal
 #' @noRd
-calculate_controlrank <- function(g, weights = NULL, normalized = FALSE) {
-  a <- .cg_candidate_adjacency(g, weights, "controlrank")
+calculate_controlrank <- function(cg, weights = NULL, normalized = FALSE) {
+  a <- .cg_candidate_adjacency(cg, weights, "controlrank")
   diag(a) <- 0
   n <- nrow(a)
   if (n <= 1L || !any(a > 0)) return(numeric(n))

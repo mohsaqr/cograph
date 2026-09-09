@@ -19,11 +19,11 @@
 #' Iterative resource allocation
 #' @keywords internal
 #' @noRd
-calculate_ira <- function(g, mass = "coreness", alpha = 1, tol = 1e-6,
+calculate_ira <- function(cg, mass = "coreness", alpha = 1, tol = 1e-6,
                           max_iter = 1000) {
   mass <- match.arg(mass, c("coreness", "degree"))
   .cg_check_ira_args(alpha, tol, max_iter)
-  a <- .cg_undirected_view(.cg_path_matrix(g, NULL))
+  a <- .cg_undirected_view(.cg_path_matrix(cg, NULL))
   diag(a) <- 0
   n <- nrow(a)
   if (!n) return(numeric())
@@ -37,7 +37,7 @@ calculate_ira <- function(g, mass = "coreness", alpha = 1, tol = 1e-6,
 #' Improved iterative resource allocation
 #' @keywords internal
 #' @noRd
-calculate_iira <- function(g, mass = "coreness", beta = 0.2, steps = 50) {
+calculate_iira <- function(cg, mass = "coreness", beta = 0.2, steps = 50) {
   mass <- match.arg(mass, c("coreness", "degree"))
   if (!is.numeric(beta) || length(beta) != 1L || !is.finite(beta) ||
         beta <= 0 || beta > 1) {
@@ -47,7 +47,7 @@ calculate_iira <- function(g, mass = "coreness", beta = 0.2, steps = 50) {
         steps < 0 || steps != trunc(steps)) {
     stop("iira_steps must be a single nonnegative whole number", call. = FALSE)
   }
-  a <- .cg_undirected_view(.cg_path_matrix(g, NULL))
+  a <- .cg_undirected_view(.cg_path_matrix(cg, NULL))
   diag(a) <- 0
   n <- nrow(a)
   if (!n) return(numeric())

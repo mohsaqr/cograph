@@ -1,8 +1,8 @@
 #' X-degree on the simple undirected skeleton
 #' @keywords internal
 #' @noRd
-calculate_x_degree <- function(g) {
-  b <- .cg_undirected_view(.cg_path_matrix(g, NULL))
+calculate_x_degree <- function(cg) {
+  b <- .cg_undirected_view(.cg_path_matrix(cg, NULL))
   diag(b) <- 0
   neighbors <- .cg_adjlist(b, directed = FALSE)
   excess <- as.numeric(lengths(neighbors)) - 1

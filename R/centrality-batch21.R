@@ -1,8 +1,8 @@
 #' Calculate global structure models on the simple skeleton
 #' @keywords internal
 #' @noRd
-calculate_global_structure <- function(g, model = "gsm", normalized = FALSE) {
-  b <- .cg_undirected_view(.cg_path_matrix(g, NULL))
+calculate_global_structure <- function(cg, model = "gsm", normalized = FALSE) {
+  b <- .cg_undirected_view(.cg_path_matrix(cg, NULL))
   diag(b) <- 0
   core <- if (model == "igsm") numeric(nrow(b)) else .cg_mdd(b, 0)
   .cg_global_structure(b, core, model, normalized)

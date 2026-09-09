@@ -20,13 +20,13 @@
 #' Bridging capital via walks that have used a selected arc
 #' @keywords internal
 #' @noRd
-calculate_bridging_capital <- function(g, weights = NULL, steps = 2,
+calculate_bridging_capital <- function(cg, weights = NULL, steps = 2,
                                        values = NULL, normalized = FALSE) {
   if (!is.numeric(steps) || length(steps) != 1L || !is.finite(steps) ||
         steps < 0 || steps != floor(steps) || steps > .Machine$integer.max) {
     stop("bridging_steps must be a nonnegative integer", call. = FALSE)
   }
-  p <- .cg_candidate_adjacency(g, weights, "bridging_capital")
+  p <- .cg_candidate_adjacency(cg, weights, "bridging_capital")
   if (any(p > 1)) {
     stop("bridging_capital transmission probabilities must be in [0,1]",
          call. = FALSE)
@@ -40,8 +40,7 @@ calculate_bridging_capital <- function(g, weights = NULL, steps = 2,
          call. = FALSE)
   }
   if (!is.null(rownames(values)) || !is.null(colnames(values))) {
-    nodes <- igraph::V(g)$name
-    if (is.null(nodes)) nodes <- as.character(seq_len(n))
+    nodes <- cg$labels
     valid <- function(labels) {
       !is.null(labels) && !anyDuplicated(labels) && setequal(labels, nodes)
     }

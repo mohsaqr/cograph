@@ -1,10 +1,10 @@
 #' Calculate exogenous centrality on a simple binary graph
 #' @keywords internal
 #' @noRd
-calculate_exogenous <- function(g, mode = "all", base = "reverse_closeness") {
-  b <- .cg_mode_weights(.cg_path_matrix(g, NULL), mode)
+calculate_exogenous <- function(cg, mode = "all", base = "reverse_closeness") {
+  b <- .cg_mode_weights(.cg_path_matrix(cg, NULL), mode)
   diag(b) <- 0
-  .cg_exogenous(b, base, igraph::is_directed(g) && mode != "all")
+  .cg_exogenous(b, base, cg$directed && mode != "all")
 }
 
 #' Exogenous centrality

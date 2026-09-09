@@ -149,3 +149,41 @@
     2 * (sum(sub) / 2) / (k[i] * (k[i] - 1))
   }, numeric(1L))
 }
+
+#' Barrat weighted local clustering coefficient
+#'
+#' Barrat et al. (2004): for node i with strength s_i and degree k_i,
+#' C_i = 1 / (s_i (k_i - 1)) * sum over ordered neighbour pairs (j, h) with
+#' a_jh = 1 of (w_ij + w_ih) / 2. Matches igraph::transitivity(type =
+#' "barrat"), which is defined for undirected graphs without multi-edges;
+#' igraph refuses directed input, and so does this kernel.
+#'
+#' @param w Symmetric numeric weight matrix (loops ignored).
+#' @param directed Logical; TRUE raises `cograph_directed_unsupported`.
+#' @return Numeric vector, NaN for nodes with degree below two.
+#' @references Barrat, A., Barthelemy, M., Pastor-Satorras, R. and
+#'   Vespignani, A. (2004). The architecture of complex weighted networks.
+#'   PNAS, 101(11), 3747-3752.
+#' @keywords internal
+#' @noRd
+.cg_barrat_transitivity <- function(w, directed = FALSE) {
+  if (directed) {
+    stop(errorCondition(
+      "Barrat's weighted transitivity is defined for undirected graphs only (igraph refuses directed input as well)",
+      class = "cograph_directed_unsupported", call = NULL))
+  }
+  n <- nrow(w)
+  if (n == 0L) return(numeric(0))
+  w <- w * (w != 0)
+  diag(w) <- 0
+  b <- (w != 0) * 1
+  k <- rowSums(b)
+  s <- rowSums(w)
+  # sum_{j,h} (w_ij + w_ih)/2 * b_ij b_ih b_jh  =  sum_j w_ij b_ij * (B b_i)_j
+  # because the pair (j,h) contributes w_ij/2 and (h,j) contributes w_ih/2.
+  bb <- b %*% b               # bb[i, j] = number of common neighbours of i and j
+  num <- rowSums(w * b * bb)  # w_ij * b_ij * #{h : b_ih b_jh}
+  out <- num / (s * (k - 1))
+  out[k < 2] <- NaN
+  as.numeric(out)
+}

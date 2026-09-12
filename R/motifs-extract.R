@@ -420,6 +420,16 @@ extract_motifs <- function(x = NULL,
 
     ss <- as.integer(s * s)
 
+    # The null scores each observed (triple, class) row by how many units
+    # exhibit that pair in a replicate. Counting the pairs directly is the
+    # same statistic as aggregating a labelled row per triple per unit and
+    # matching on a pasted key, without building the labels the null discards.
+    perm_idx <- .triad_indices(s)
+    perm_units <- which(eligible_individuals)
+    perm_min_weight <- if (level == "aggregate") min_transitions else NULL
+    obs_bins <- .motif_triad_pair_bins(obs_freq$.triad_key, obs_freq$type,
+                                       perm_idx)
+
     lapply(seq_len(n_perm), function(p) {
       trans_perm <- array(0, dim = dim(trans))
 
@@ -433,23 +443,11 @@ extract_motifs <- function(x = NULL,
         0L
       }, integer(1))
 
-      perm_raw <- count_triads_internal(trans_perm, edge_method, edge_threshold,
-                                        min_transitions, final_exclude,
-                                        include_types, eligible_individuals)
-
-      if (!is.null(perm_raw)) {
-        perm_freq <- stats::aggregate(
-          person ~ .triad_key + triad + node1 + node2 + node3 + type,
-          data = perm_raw, FUN = length
-        )
-        observed_key <- paste(obs_freq$.triad_key, obs_freq$type, sep = "\r")
-        perm_key <- paste(perm_freq$.triad_key, perm_freq$type, sep = "\r")
-        matched <- match(perm_key, observed_key)
-        valid_match <- !is.na(matched)
-        if (any(valid_match)) {
-          null_matrix[matched[valid_match], p] <<- perm_freq$person[valid_match]
-        }
-      }
+      bins <- .motif_triad_pair_counts(
+        trans_perm, perm_units, perm_idx, edge_method, edge_threshold,
+        final_exclude, include_types, min_weight = perm_min_weight
+      )
+      null_matrix[, p] <<- bins[obs_bins]
       NULL
     })
 

@@ -36,6 +36,7 @@ Detects communities (clusters) in a network using various community detection
 algorithms. Returns a data frame with node-community assignments.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Basic usage
 adj <- matrix(c(0, .5, .8, 0,
                 .5, 0, .3, .6,
@@ -46,4 +47,5 @@ detect_communities(adj)
 
 # Different algorithm
 detect_communities(adj, method = "walktrap")
+\dontshow{\}) # examplesIf}
 }

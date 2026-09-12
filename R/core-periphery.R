@@ -39,7 +39,7 @@
 #' \doi{10.1016/S0378-8733(99)00019-2}
 #'
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' # Core-periphery in a simple network
 #' adj <- matrix(c(
 #'   0, 1, 1, 1, 0,
@@ -287,7 +287,7 @@ core_periphery <- function(x,
 #' @return Invisible \code{x}.
 #' @method plot cograph_core_periphery
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' adj <- matrix(c(0,1,1,1,0, 1,0,1,1,0, 1,1,0,1,1,
 #'                 1,1,1,0,1, 0,0,1,1,0), 5, 5)
 #' rownames(adj) <- colnames(adj) <- LETTERS[1:5]

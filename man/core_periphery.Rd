@@ -55,6 +55,7 @@ assignments to maximize fitness. Discrete fitness is defined by high density
 within the core and low density within the periphery.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Core-periphery in a simple network
 adj <- matrix(c(
   0, 1, 1, 1, 0,
@@ -70,7 +71,7 @@ cp
 # Discrete assignment
 cp_disc <- cograph::core_periphery(adj, method = "discrete")
 cp_disc$assignment
-
+\dontshow{\}) # examplesIf}
 }
 \references{
 Borgatti, S.P. & Everett, M.G. (2000). Models of core/periphery structures.

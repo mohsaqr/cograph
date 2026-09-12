@@ -56,7 +56,7 @@
 #'   \code{\link{network_summary}}
 #'
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' # Assortative network (high-degree connect to high-degree)
 #' adj <- matrix(c(
 #'   0, 1, 1, 1, 0,

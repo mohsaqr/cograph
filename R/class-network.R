@@ -1184,6 +1184,9 @@ is_directed <- function(x) {
     }
   }
   if (inherits(x, "igraph")) {
+    # An object can carry the igraph class without the package being installed
+    # (for instance after readRDS()), so this branch needs its own guard.
+    .need_igraph("is_directed()")
     return(igraph::is_directed(x))
   }
   stop("Cannot determine directedness for this object", call. = FALSE)

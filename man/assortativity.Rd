@@ -56,6 +56,7 @@ For directed networks, different degree combinations (in/out) at source and
 target ends can be specified via the \code{type} parameter.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Assortative network (high-degree connect to high-degree)
 adj <- matrix(c(
   0, 1, 1, 1, 0,
@@ -66,6 +67,7 @@ adj <- matrix(c(
 ), 5, 5)
 rownames(adj) <- colnames(adj) <- LETTERS[1:5]
 cograph::assortativity(adj)
+\dontshow{\}) # examplesIf}
 }
 \references{
 Newman, M.E.J. (2002). Assortative mixing in networks.

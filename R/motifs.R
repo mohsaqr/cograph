@@ -17,7 +17,7 @@
 #'   The motif size, directed flag, null-model method, and number of random
 #'   networks are stored as attributes.
 #'
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' # Create a directed network
 #' mat <- matrix(c(
 #'   0, 1, 1, 0,
@@ -40,6 +40,7 @@ motif_census <- function(x, size = 3, n_random = 100,
                          directed = NULL, seed = NULL) {
 
   method <- match.arg(method)
+  .need_igraph("motif_census()")
 
   # Convert to igraph
   if (inherits(x, "igraph")) {
@@ -395,7 +396,7 @@ print.cograph_motifs <- function(x, ...) {
 #'
 #' @return A ggplot2 object (invisibly)
 #'
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' mat <- matrix(sample(0:1, 100, replace = TRUE, prob = c(0.7, 0.3)), 10, 10)
 #' diag(mat) <- 0
 #' m <- motif_census(mat, directed = TRUE, n_random = 50)
@@ -705,40 +706,308 @@ extract_triads <- function(x, type = NULL, involving = NULL,
   lookup
 }
 
-# Vectorized triad counting for a single matrix
+# One replicate of the individual census null: shuffle every eligible unit's
+# target stubs, classify the resulting matrix, and return the per-class totals.
+# Factored out of the permutation loop so the same code runs serially and in
+# parallel - the two must never drift into computing different nulls.
 # @noRd
-.count_triads_matrix_vectorized <- function(mat, edge_method, edge_threshold,
-                                             expected_mat = NULL,
-                                             exclude = character(0),
-                                             include = NULL) {
-  s <- nrow(mat)
-  if (s < 3) return(NULL)
+.motif_census_replicate <- function(valid, rows_stubs, cols_stubs, s, ss,
+                                    types, edge_method, edge_threshold,
+                                    exclude, include) {
+  totals <- stats::setNames(integer(length(types)), types)
+
+  # Units are permuted one at a time: each draws its own stub shuffle, so the
+  # work cannot be expressed as a single vectorised call.
+  for (ind in valid) {
+    rs <- rows_stubs[[ind]]
+    cs <- cols_stubs[[ind]]
+    cs_shuf <- cs[sample.int(length(cs))]
+    lin <- (cs_shuf - 1L) * s + rs
+    perm_mat <- matrix(tabulate(lin, nbins = ss), s, s)
+
+    expected_mat <- NULL
+    if (edge_method == "expected") {
+      total_mat <- sum(perm_mat)
+      if (total_mat > 0) {
+        expected_mat <- outer(rowSums(perm_mat), colSums(perm_mat)) / total_mat
+        expected_mat[expected_mat == 0] <- 0.001
+      }
+    }
+
+    # Class counts only: the replicate needs per-type totals, never the
+    # triples themselves, and materialising a row per triple here dominated
+    # the whole permutation loop.
+    tc <- .count_triad_types(
+      perm_mat, edge_method, edge_threshold,
+      expected_mat = expected_mat, exclude = exclude, include = include
+    )
+    add <- tc[types]
+    add[is.na(add)] <- 0L
+    totals <- totals + add
+  }
+  totals
+}
+
+# Validate a worker count. `cores = 1` is the default everywhere and must stay
+# the only path that reproduces a serial run's RNG stream exactly.
+# @noRd
+.motif_validate_cores <- function(cores) {
+  stopifnot(
+    "`cores` must be one finite whole number of at least 1" =
+      is.numeric(cores) && length(cores) == 1L && !is.na(cores) &&
+      is.finite(cores) && cores >= 1 && cores == floor(cores)
+  )
+  cores <- as.integer(cores)
+  available <- parallel::detectCores()
+  if (is.na(available)) {
+    # detectCores() is NA on some platforms. The request cannot be validated,
+    # so say so rather than letting an absurd value reach the backend unremarked.
+    if (cores > 1L) {
+      warning(warningCondition(
+        sprintf(paste("the available core count could not be detected;",
+                      "`cores = %d` is being used unverified."), cores),
+        class = "cograph_cores_undetected"
+      ))
+    }
+    return(cores)
+  }
+  if (cores > available) {
+    warning(warningCondition(
+      sprintf("`cores = %d` exceeds the %d detected cores; using %d.",
+              cores, available, available),
+      class = "cograph_cores_capped"
+    ))
+    cores <- as.integer(available)
+  }
+  cores
+}
+
+# One independent L'Ecuyer-CMRG stream per replicate, derived from `seed`.
+# Streams are assigned per replicate rather than per worker, so a result
+# depends only on the seed - never on the worker count or on how replicates
+# were chunked across workers. That is a stronger guarantee than the serial
+# path offers, but it is a DIFFERENT stream from the serial path: the same
+# seed does not reproduce `cores = 1` numbers.
+# @noRd
+.motif_rng_streams <- function(n, seed) {
+  old_kind <- RNGkind("L'Ecuyer-CMRG")
+  on.exit(RNGkind(old_kind[1]), add = TRUE)
+  if (!is.null(seed)) set.seed(seed, kind = "L'Ecuyer-CMRG")
+
+  streams <- vector("list", n)
+  current <- .Random.seed
+  # nextRNGStream() is inherently a chain: stream p is defined by stream p-1.
+  for (p in seq_len(n)) {
+    streams[[p]] <- current
+    current <- parallel::nextRNGStream(current)
+  }
+  streams
+}
+
+# Run `fun(p)` for each replicate, serially or across workers, with replicate
+# `p` drawing from its own stream. Forking is used where available; Windows
+# falls back to a PSOCK cluster, which must ship the closure's environment to
+# each worker.
+# @noRd
+.motif_run_replicates <- function(n, cores, streams, fun) {
+  # `streams` and `fun` are passed as arguments rather than captured from this
+  # frame: a PSOCK worker does not receive the closure's enclosing environment,
+  # so capturing them fails there with "object 'streams' not found". Arguments
+  # are serialised as data and reach every backend intact.
+  #
+  # The dotted names matter. These travel through the backend's `...`, and
+  # `parLapply(cl, X, fun, ...)` already has a parameter called `fun`, so a
+  # plain `fun =` binds to parLapply's own argument instead of being forwarded.
+  one <- function(p, .streams, .fn) {
+    assign(".Random.seed", .streams[[p]], envir = globalenv())
+    .fn(p)
+  }
+  if (cores <= 1L) {
+    return(lapply(seq_len(n), one, .streams = streams, .fn = fun))
+  }
+
+  reps <- if (.Platform$OS.type != "windows") {
+    parallel::mclapply(seq_len(n), one, .streams = streams, .fn = fun,
+                       mc.cores = cores)
+  } else {
+    cl <- parallel::makePSOCKcluster(cores)
+    on.exit(parallel::stopCluster(cl), add = TRUE)
+    parallel::parLapply(cl, seq_len(n), one, .streams = streams, .fn = fun)
+  }
+  .motif_check_replicates(reps, n)
+}
+
+# A worker that dies leaves a "try-error" in the result list rather than
+# raising: mclapply() does not propagate it. Binding those into the null
+# matrix coerces the whole thing to character *silently*, so an unchecked
+# failure surfaces as corrupt statistics rather than an error. Fail here.
+# @noRd
+.motif_check_replicates <- function(reps, n) {
+  failed <- vapply(reps, function(r) inherits(r, "try-error"), logical(1))
+  if (any(failed)) {
+    cond <- attr(reps[[which(failed)[1L]]], "condition")
+    detail <- if (is.null(cond)) "no condition recorded" else
+      conditionMessage(cond)
+    stop(errorCondition(
+      sprintf(paste("%d of %d permutation replicates failed in a parallel",
+                    "worker; first error: %s"),
+              sum(failed), length(reps), detail),
+      class = "cograph_parallel_failure", call = NULL
+    ))
+  }
+  if (length(reps) != n) {
+    stop(errorCondition( # nocov start
+      sprintf("parallel backend returned %d replicates, expected %d.",
+              length(reps), n),
+      class = "cograph_parallel_failure", call = NULL
+    )) # nocov end
+  }
+  reps
+}
+
+# Per-unit occurrence counts of every (triple, MAN class) pair, laid out as one
+# integer vector indexed by (class - 1) * n_triples + triple position. The
+# instance-level null only needs how many units exhibit each observed
+# (triple, class) pair; building a labelled row per triple per unit and then
+# re-aggregating it dominated that loop, and the labels it pasted were
+# discarded unread.
+#
+# `min_weight` reproduces the aggregate-level per-triad weight filter; leave it
+# NULL at individual level, where `min_transitions` gates the unit instead.
+# @noRd
+.motif_triad_pair_counts <- function(trans_array, units, idx, edge_method,
+                                     edge_threshold, exclude, include,
+                                     min_weight = NULL) {
+  man <- .triad_type_names()
+  nc <- idx$n
+  bins <- integer(nc * length(man))
+  if (length(units) == 0L) return(bins)
+
+  keep_type <- rep(TRUE, length(man))
+  if (!is.null(include) && length(include) > 0) keep_type <- man %in% include
+  if (length(exclude) > 0) keep_type <- keep_type & !(man %in% exclude)
+  if (!any(keep_type)) return(bins)
+
+  type_index <- .triad_type_index()
+  positions <- seq_len(nc)
+
+  # Units are counted one at a time: each has its own matrix, so there is no
+  # single vectorised form over units.
+  for (ind in units) {
+    mat <- .motif_unit_matrix(trans_array, ind)
+    w <- .triad_edge_weights(mat, idx)
+
+    expected_mat <- NULL
+    if (edge_method == "expected") {
+      total_mat <- sum(mat)
+      expected_mat <- outer(rowSums(mat), colSums(mat)) / total_mat
+      expected_mat[expected_mat == 0] <- 0.001
+    }
+    e <- .triad_edge_indicators(w, idx, edge_method, edge_threshold,
+                                expected_mat)
+
+    code <- e$e_ij + 2L * e$e_ji + 4L * e$e_ik + 8L * e$e_ki +
+      16L * e$e_jk + 32L * e$e_kj
+    tix <- type_index[code + 1L]
+    keep <- keep_type[tix]
+    if (!is.null(min_weight)) keep <- keep & (w$total >= min_weight)
+    if (!any(keep)) next
+
+    bins <- bins + tabulate((tix[keep] - 1L) * nc + positions[keep],
+                            nbins = length(bins))
+  }
+  bins
+}
+
+# Bin index, in the .motif_triad_pair_counts() layout, of each observed
+# (triple key, class) row. NA for a row whose triple is not enumerable at this
+# state count, which cannot happen for rows derived from the same matrices.
+# @noRd
+.motif_triad_pair_bins <- function(triad_keys, types, idx) {
+  man <- .triad_type_names()
+  position <- match(triad_keys, paste(idx$i, idx$j, idx$k, sep = "\r"))
+  (match(types, man) - 1L) * idx$n + position
+}
+
+# Vertex triples for an s-node matrix, plus the six linear indices that read a
+# triple's directed edges out of that matrix. Cached because the permutation
+# null calls the counters once per unit per replicate at a constant `s`:
+# rebuilding combn() and six cbind() index matrices there cost more than the
+# classification itself. Only small `s` is cached - a large `s` is a
+# single-call census where the rebuild is noise against the O(s^3) work, and
+# holding its indices would pin hundreds of megabytes for the session.
+# @noRd
+.triad_indices <- function(s) {
+  key <- paste0(".triad_idx_", s)
+  if (exists(key, envir = .cograph_cache)) {
+    return(get(key, envir = .cograph_cache))
+  }
 
   combos <- utils::combn(s, 3)
-  nc <- ncol(combos)
-  if (nc == 0) return(NULL) # nocov — s >= 3 guaranteed above
+  i <- as.integer(combos[1, ])
+  j <- as.integer(combos[2, ])
+  k <- as.integer(combos[3, ])
+  idx <- list(
+    i = i, j = j, k = k, n = ncol(combos),
+    ij = (j - 1L) * s + i, ji = (i - 1L) * s + j,
+    ik = (k - 1L) * s + i, ki = (i - 1L) * s + k,
+    jk = (k - 1L) * s + j, kj = (j - 1L) * s + k
+  )
+  if (s <= 64L) assign(key, idx, envir = .cograph_cache)
+  idx
+}
 
-  i <- combos[1, ]
-  j <- combos[2, ]
-  k <- combos[3, ]
+# The 16 MAN class names, in canonical order. Cached: the class counter asks
+# for them once per unit per permutation, and the canonical pattern list
+# rebuilds sixteen 3x3 matrices every time it is consulted.
+# @noRd
+.triad_type_names <- function() {
+  if (exists(".triad_type_names_cache", envir = .cograph_cache)) {
+    return(get(".triad_type_names_cache", envir = .cograph_cache))
+  }
+  v <- names(.get_triad_patterns_canonical())
+  assign(".triad_type_names_cache", v, envir = .cograph_cache)
+  v
+}
 
-  obs_ij <- mat[cbind(i, j)]
-  obs_ji <- mat[cbind(j, i)]
-  obs_ik <- mat[cbind(i, k)]
-  obs_ki <- mat[cbind(k, i)]
-  obs_jk <- mat[cbind(j, k)]
-  obs_kj <- mat[cbind(k, j)]
+# Map each of the 64 six-bit edge codes onto its index in .triad_type_names().
+# Lets a census tabulate() straight into class counts in one pass.
+# @noRd
+.triad_type_index <- function() {
+  if (exists(".triad_type_index_cache", envir = .cograph_cache)) {
+    return(get(".triad_type_index_cache", envir = .cograph_cache))
+  }
+  v <- match(.get_triad_lookup(), .triad_type_names())
+  assign(".triad_type_index_cache", v, envir = .cograph_cache)
+  v
+}
 
-  total <- obs_ij + obs_ji + obs_ik + obs_ki + obs_jk + obs_kj
-  weight <- total
+# The six directed edge weights of every triple, and their per-triple total.
+# Split from the indicator step so a caller can apply its empty-input early
+# return before the edge rule is consulted at all.
+# @noRd
+.triad_edge_weights <- function(mat, idx) {
+  obs_ij <- mat[idx$ij]
+  obs_ji <- mat[idx$ji]
+  obs_ik <- mat[idx$ik]
+  obs_ki <- mat[idx$ki]
+  obs_jk <- mat[idx$jk]
+  obs_kj <- mat[idx$kj]
 
-  # Empty triples are only enumerable when the caller admits the 003 class
-  # (pattern = "all"): every other pattern excludes or never includes it, and
-  # dropping empties early keeps those paths cheap.
-  admits_003 <- (is.null(include) || "003" %in% include) &&
-    !("003" %in% exclude)
-  has_edges <- total > 0
-  if (!admits_003 && !any(has_edges)) return(NULL)
+  list(ij = obs_ij, ji = obs_ji, ik = obs_ik, ki = obs_ki,
+       jk = obs_jk, kj = obs_kj,
+       total = obs_ij + obs_ji + obs_ik + obs_ki + obs_jk + obs_kj)
+}
+
+# Directed edge indicators for every triple, under the requested edge rule.
+# Shared by the triple-level and the class-count counters so the two can never
+# disagree about what counts as an edge.
+# @noRd
+.triad_edge_indicators <- function(w, idx, edge_method, edge_threshold,
+                                   expected_mat = NULL) {
+  obs_ij <- w$ij; obs_ji <- w$ji; obs_ik <- w$ik
+  obs_ki <- w$ki; obs_jk <- w$jk; obs_kj <- w$kj
+  total <- w$total
 
   if (edge_method == "any") {
     e_ij <- as.integer(obs_ij > 0)
@@ -753,7 +1022,7 @@ extract_triads <- function(x, type = NULL, involving = NULL,
     # threshold above 1 is a percentage (1.5 means 1.5% of the triad's
     # weight); at or below 1 it is a fraction. The old code required
     # weight > total * threshold, which no edge can satisfy for
-    # threshold > 1 — the default silently classified nothing.
+    # threshold > 1 - the default silently classified nothing.
     frac <- if (edge_threshold > 1) edge_threshold / 100 else edge_threshold
     thresh <- total * frac
     e_ij <- as.integer(obs_ij > 0 & obs_ij >= thresh)
@@ -767,12 +1036,12 @@ extract_triads <- function(x, type = NULL, involving = NULL,
     if (is.null(expected_mat)) {
       stop("expected_mat required for edge_method='expected'", call. = FALSE)
     }
-    exp_ij <- expected_mat[cbind(i, j)]
-    exp_ji <- expected_mat[cbind(j, i)]
-    exp_ik <- expected_mat[cbind(i, k)]
-    exp_ki <- expected_mat[cbind(k, i)]
-    exp_jk <- expected_mat[cbind(j, k)]
-    exp_kj <- expected_mat[cbind(k, j)]
+    exp_ij <- expected_mat[idx$ij]
+    exp_ji <- expected_mat[idx$ji]
+    exp_ik <- expected_mat[idx$ik]
+    exp_ki <- expected_mat[idx$ki]
+    exp_jk <- expected_mat[idx$jk]
+    exp_kj <- expected_mat[idx$kj]
 
     e_ij <- as.integer((obs_ij / exp_ij) >= edge_threshold & obs_ij > 0)
     e_ji <- as.integer((obs_ji / exp_ji) >= edge_threshold & obs_ji > 0)
@@ -781,6 +1050,84 @@ extract_triads <- function(x, type = NULL, involving = NULL,
     e_jk <- as.integer((obs_jk / exp_jk) >= edge_threshold & obs_jk > 0)
     e_kj <- as.integer((obs_kj / exp_kj) >= edge_threshold & obs_kj > 0)
   }
+
+  list(e_ij = e_ij, e_ji = e_ji, e_ik = e_ik,
+       e_ki = e_ki, e_jk = e_jk, e_kj = e_kj)
+}
+
+# MAN class counts for one matrix, without materialising the triple table.
+# The permutation null only needs how many triples fall in each class; building
+# a data.frame of every triple and then table()-ing it dominated that loop.
+# Filtering matches .count_triads_matrix_vectorized(): `include`/`exclude` are
+# applied to classes, and codes above 0 never classify as "003", so dropping
+# edgeless triples early and zeroing an excluded class are the same thing.
+# @noRd
+.count_triad_types <- function(mat, edge_method, edge_threshold,
+                               expected_mat = NULL,
+                               exclude = character(0),
+                               include = NULL) {
+  man <- .triad_type_names()
+  counts <- stats::setNames(integer(length(man)), man)
+
+  s <- nrow(mat)
+  if (s < 3) return(counts)
+
+  idx <- .triad_indices(s)
+  w <- .triad_edge_weights(mat, idx)
+  e <- .triad_edge_indicators(w, idx, edge_method, edge_threshold,
+                              expected_mat)
+
+  code <- e$e_ij + 2L * e$e_ji + 4L * e$e_ik + 8L * e$e_ki +
+    16L * e$e_jk + 32L * e$e_kj
+  counts <- tabulate(.triad_type_index()[code + 1L], nbins = length(man))
+  names(counts) <- man
+
+  if (!is.null(include) && length(include) > 0) {
+    counts[!(man %in% include)] <- 0L
+  }
+  if (length(exclude) > 0) {
+    counts[man %in% exclude] <- 0L
+  }
+  counts
+}
+
+# Vectorized triad counting for a single matrix
+# @noRd
+.count_triads_matrix_vectorized <- function(mat, edge_method, edge_threshold,
+                                             expected_mat = NULL,
+                                             exclude = character(0),
+                                             include = NULL) {
+  s <- nrow(mat)
+  if (s < 3) return(NULL)
+
+  idx <- .triad_indices(s)
+  nc <- idx$n
+  if (nc == 0) return(NULL) # nocov — s >= 3 guaranteed above
+
+  i <- idx$i
+  j <- idx$j
+  k <- idx$k
+
+  w <- .triad_edge_weights(mat, idx)
+  total <- w$total
+  weight <- total
+
+  # Empty triples are only enumerable when the caller admits the 003 class
+  # (pattern = "all"): every other pattern excludes or never includes it, and
+  # dropping empties early keeps those paths cheap.
+  admits_003 <- (is.null(include) || "003" %in% include) &&
+    !("003" %in% exclude)
+  has_edges <- total > 0
+  if (!admits_003 && !any(has_edges)) return(NULL)
+
+  e <- .triad_edge_indicators(w, idx, edge_method, edge_threshold,
+                              expected_mat)
+  e_ij <- e$e_ij
+  e_ji <- e$e_ji
+  e_ik <- e$e_ik
+  e_ki <- e$e_ki
+  e_jk <- e$e_jk
+  e_kj <- e$e_kj
 
   edge_sum <- e_ij + e_ji + e_ik + e_ki + e_jk + e_kj
 

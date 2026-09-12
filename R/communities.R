@@ -1,7 +1,10 @@
 # Community Detection Functions
 # Wrapper functions for igraph community detection algorithms with full parameter exposure
-# igraph is Suggests — every call site uses `igraph::` with a
-# `requireNamespace("igraph", quietly = TRUE)` guard, so no @importFrom here.
+# igraph is Suggests, so there is no @importFrom here. Call sites use
+# `igraph::` directly and are reached through `to_igraph()`, which raises a
+# classed `cograph_missing_suggest` via `.need_igraph()` when igraph is
+# absent. A function here that reaches igraph WITHOUT going through
+# `to_igraph()` must call `.need_igraph()` itself.
 
 # ==============================================================================
 # Main Function
@@ -1116,6 +1119,9 @@ membership <- function(x) {
     names(m) <- x$node
     return(m)
   }
+  # Fallback for igraph community objects. Reached by any input that is not a
+  # cograph_communities, so it must announce the missing Suggests itself.
+  .need_igraph("membership()")
   igraph::membership(x)
 }
 

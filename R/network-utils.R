@@ -25,7 +25,7 @@
 #' @seealso \code{\link{to_data_frame}}, \code{\link{as_cograph}}
 #'
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' # From matrix
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
 #' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
@@ -34,6 +34,8 @@
 #' # Force directed
 #' g_dir <- to_igraph(adj, directed = TRUE)
 to_igraph <- function(x, directed = NULL) {
+  .need_igraph("to_igraph()")
+
   if (inherits(x, "igraph")) {
     # If directed override specified and different from current, convert
     if (!is.null(directed)) {
@@ -167,7 +169,7 @@ to_igraph <- function(x, directed = NULL) {
 #'   }
 #'
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' # Basic usage
 #' adj <- matrix(c(0, .5, .8, 0,
 #'                 .5, 0, .3, .6,

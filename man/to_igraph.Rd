@@ -29,6 +29,7 @@ matrices, edge-list data frames, igraph objects, network objects,
 cograph_network, and tna objects.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # From matrix
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
 rownames(adj) <- colnames(adj) <- c("A", "B", "C")
@@ -36,6 +37,7 @@ g <- to_igraph(adj)
 
 # Force directed
 g_dir <- to_igraph(adj, directed = TRUE)
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link{to_data_frame}}, \code{\link{as_cograph}}

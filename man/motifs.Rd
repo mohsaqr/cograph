@@ -17,6 +17,7 @@ motifs(
   exclude = NULL,
   significance = TRUE,
   n_perm = 1000L,
+  cores = 1L,
   min_count = if (named_nodes) 5L else NULL,
   edge_method = c("any", "expected", "percent"),
   edge_threshold = 1.5,
@@ -88,6 +89,20 @@ Overrides \code{pattern} and \code{exclude}.}
 \item{n_perm}{Number of permutations for significance. When
 \code{significance = TRUE}, must be a whole number of at least 2.
 Default 1000.}
+
+\item{cores}{Number of worker processes for the permutation null. Default
+\code{1} runs serially and is the only setting that reproduces results from
+earlier versions: it consumes a single RNG stream in replicate-then-unit
+order, so a given \code{seed} gives the historical numbers. \code{cores > 1} gives
+each replicate its own L'Ecuyer-CMRG stream, which makes a result depend
+on \code{seed} alone and not on the worker count or on how replicates were
+chunked -- but those are a \emph{different} set of draws, so the p-values will
+not match a \code{cores = 1} run of the same seed. They remain a valid
+permutation null, and repeated parallel runs of one seed agree exactly
+with each other at any \code{cores}. Forking is used where available; Windows
+uses a PSOCK cluster. Only the individual-level census null is
+parallelised. Values above \code{parallel::detectCores()} are capped with a
+\code{cograph_cores_capped} warning.}
 
 \item{min_count}{Inclusive minimum count to keep a row — rows with
 \code{count >= min_count} are retained. In instance mode

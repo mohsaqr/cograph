@@ -50,12 +50,13 @@ A ggplot2 object (invisibly)
 Visualize motif frequencies and their statistical significance.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 mat <- matrix(sample(0:1, 100, replace = TRUE, prob = c(0.7, 0.3)), 10, 10)
 diag(mat) <- 0
 m <- motif_census(mat, directed = TRUE, n_random = 50)
 plot(m)
 plot(m, type = "network")
-
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link[=motif_census]{motif_census()}} for the analysis that produces this object

@@ -239,3 +239,20 @@ get_palette <- function(name) {
 list_palettes <- function() {
   names(.cograph_env$palettes)
 }
+
+# igraph is a Suggests dependency: it is not installed with cograph, so every
+# entry point that reaches it must say so plainly instead of letting R raise
+# the bare "there is no package called 'igraph'" from the `::` operator.
+# Raises a classed condition so callers and tests can catch it precisely.
+# @noRd
+.need_igraph <- function(what) {
+  if (!requireNamespace("igraph", quietly = TRUE)) {
+    stop(errorCondition(
+      sprintf(paste("`%s` requires the 'igraph' package, which is not",
+                    "installed.\nInstall it with",
+                    "install.packages(\"igraph\")."), what),
+      class = "cograph_missing_suggest", call = NULL
+    ))
+  }
+  invisible(TRUE)
+}

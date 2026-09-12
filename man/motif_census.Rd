@@ -44,6 +44,7 @@ Analyze recurring subgraph patterns (motifs) in networks and test their
 statistical significance against null models.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Create a directed network
 mat <- matrix(c(
   0, 1, 1, 0,
@@ -56,7 +57,7 @@ mat <- matrix(c(
 m <- motif_census(mat)
 print(m)
 plot(m)
-
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link[=motifs]{motifs()}} for the unified API, \code{\link[=extract_motifs]{extract_motifs()}} for detailed

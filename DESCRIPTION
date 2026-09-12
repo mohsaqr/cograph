@@ -1,6 +1,6 @@
 Package: cograph
 Title: Analysis and Visualization of Complex Networks
-Version: 2.6.2
+Version: 2.6.3
 Authors@R: c(
     person("Mohammed", "Saqr", role = c("aut", "cph")),
     person("Sonsoles", "L\u00f3pez-Pernas",
@@ -24,6 +24,7 @@ Imports:
     ggplot2 (>= 3.4.0),
     grDevices,
     grid,
+    parallel,
     R6,
     stats,
     utils

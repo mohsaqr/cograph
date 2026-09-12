@@ -79,6 +79,19 @@
 #' @param n_perm Number of permutations for significance. When
 #'   \code{significance = TRUE}, must be a whole number of at least 2.
 #'   Default 1000.
+#' @param cores Number of worker processes for the permutation null. Default
+#'   `1` runs serially and is the only setting that reproduces results from
+#'   earlier versions: it consumes a single RNG stream in replicate-then-unit
+#'   order, so a given `seed` gives the historical numbers. `cores > 1` gives
+#'   each replicate its own L'Ecuyer-CMRG stream, which makes a result depend
+#'   on `seed` alone and not on the worker count or on how replicates were
+#'   chunked -- but those are a *different* set of draws, so the p-values will
+#'   not match a `cores = 1` run of the same seed. They remain a valid
+#'   permutation null, and repeated parallel runs of one seed agree exactly
+#'   with each other at any `cores`. Forking is used where available; Windows
+#'   uses a PSOCK cluster. Only the individual-level census null is
+#'   parallelised. Values above `parallel::detectCores()` are capped with a
+#'   `cograph_cores_capped` warning.
 #' @param min_count Inclusive minimum count to keep a row — rows with
 #'   \code{count >= min_count} are retained. In instance mode
 #'   (\code{named_nodes = TRUE}) this filters the \code{observed} column:
@@ -167,6 +180,7 @@ motifs <- function(x,
                    exclude = NULL,
                    significance = TRUE,
                    n_perm = 1000L,
+                   cores = 1L,
                    min_count = if (named_nodes) 5L else NULL,
                    edge_method = c("any", "expected", "percent"),
                    edge_threshold = 1.5,
@@ -181,6 +195,7 @@ motifs <- function(x,
   edge_method <- match.arg(edge_method)
   if (significance) {
     n_perm <- .validate_motif_repetitions(n_perm, "n_perm")
+    cores <- .motif_validate_cores(cores)
   }
 
   if (!is.null(seed)) {
@@ -442,44 +457,27 @@ motifs <- function(x,
           cols_stubs_c[[ind]] <- stubs_c$cols
         }
         ss_c <- as.integer(s * s)
+        types_c <- results$type
 
-        for (perm in seq_len(n_perm)) {
-          perm_totals <- setNames(integer(nrow(results)), results$type)
+        replicate_fun <- function(p) {
+          .motif_census_replicate(
+            valid_c, rows_stubs_c, cols_stubs_c, s, ss_c, types_c,
+            edge_method, edge_threshold, final_exclude, final_include
+          )
+        }
 
-          for (ind in valid_c) {
-            rs_c <- rows_stubs_c[[ind]]
-            cs_c <- cols_stubs_c[[ind]]
-            cs_shuf <- cs_c[sample.int(length(cs_c))]
-            lin_c <- (cs_shuf - 1L) * s + rs_c
-            perm_mat <- matrix(tabulate(lin_c, nbins = ss_c), s, s)
-
-            expected_mat <- NULL
-            if (edge_method == "expected") {
-              total_mat <- sum(perm_mat)
-              row_sums <- rowSums(perm_mat)
-              col_sums <- colSums(perm_mat)
-              if (total_mat > 0) {
-                expected_mat <- outer(row_sums, col_sums) / total_mat
-                expected_mat[expected_mat == 0] <- 0.001
-              }
-            }
-
-            counted <- .count_triads_matrix_vectorized(
-              perm_mat, edge_method, edge_threshold,
-              expected_mat = expected_mat,
-              exclude = final_exclude,
-              include = final_include
-            )
-            if (!is.null(counted) && nrow(counted) > 0) {
-              tc <- table(counted$type)
-              for (nm in names(tc)) {
-                if (nm %in% names(perm_totals)) {
-                  perm_totals[nm] <- perm_totals[nm] + tc[nm]
-                }
-              }
-            }
+        if (cores <= 1L) {
+          # Serial path, unchanged: one RNG stream consumed in replicate then
+          # unit order, so a given `seed` reproduces historical results
+          # exactly. Parallel runs use independent per-replicate streams and
+          # deliberately do NOT reproduce these numbers.
+          for (perm in seq_len(n_perm)) {
+            null_matrix[, perm] <- replicate_fun(perm)
           }
-          null_matrix[, perm] <- perm_totals
+        } else {
+          streams <- .motif_rng_streams(n_perm, seed)
+          reps <- .motif_run_replicates(n_perm, cores, streams, replicate_fun)
+          null_matrix[] <- do.call(cbind, reps)
         }
 
         ns <- .motif_null_stats(results$count, t(null_matrix))

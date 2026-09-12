@@ -1,4 +1,58 @@
-# cograph 2.6.2
+# cograph 2.6.3
+
+## Clearer errors when igraph is not installed
+
+igraph is a suggested dependency. Functions that need it -- including
+`to_igraph()`, `motif_census()`, `detect_communities()`, `robustness()`,
+`vulnerability()`, `rich_club()` and `network_summary()` -- now raise a
+`cograph_missing_suggest` error naming the function and how to install igraph,
+instead of R's bare "there is no package called 'igraph'". Functions that need
+no igraph, such as `motifs(significance = FALSE)`, `subgraphs()`,
+`extract_triads()` and `centrality()`, keep working without it.
+
+## Faster motif permutation tests
+
+`motifs()` on individual-level data (a `tna` model, or an edge list with an
+actor column) now runs its permutation null several times faster — on
+`tna::group_regulation` with the default `n_perm = 1000`, 255s to 39s. The
+null builds class counts directly instead of materialising and then
+re-counting a row per node triple, and the triple indices are computed once
+per state space rather than once per unit per replicate.
+
+Results are unchanged: for a given `seed` the permutation draws, and every
+count, expectation, z score and p value, are identical to previous versions.
+
+## Faster `extract_motifs(significance = TRUE)`
+
+The instance-level permutation null now counts (triple, class) pairs directly
+instead of building a labelled row per triple per unit and re-aggregating it
+by a pasted key. On `tna::group_regulation` at `n_perm = 1000`, 428s to 32s.
+Results are unchanged for a given `seed`.
+
+## `motifs(cores = )`
+
+The individual-level permutation null can now run across worker processes.
+`cores = 1` remains the default and is byte-for-byte the previous behaviour.
+
+`cores > 1` gives each replicate its own L'Ecuyer-CMRG stream, so a result
+depends on `seed` alone -- not on the worker count, and not on how replicates
+were chunked across workers. Repeated parallel runs of one seed agree exactly,
+at any `cores`. Those are a different set of draws from the serial path, so
+p-values from `cores > 1` will not match a `cores = 1` run of the same seed;
+both are valid permutation nulls. Forking is used where available, with a
+PSOCK cluster on Windows.
+
+Measured on 10,000 simulated sequences (10 states) at `n_perm = 400`:
+103.0s at `cores = 1`, 20.5s at `cores = 10`.
+
+On Windows the null runs through a PSOCK cluster, which is exercised in the
+test suite on every platform.
+
+A replicate that fails in a worker raises a `cograph_parallel_failure` error
+naming the failure, rather than being folded into the null matrix. If the
+available core count cannot be detected, `cores > 1` is used but reported
+with a `cograph_cores_undetected` warning.
+
 
 ## `plot_mcml(expand = )`
 

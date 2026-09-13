@@ -90,7 +90,7 @@ calculate_iira <- function(cg, mass = "coreness", beta = 0.2, steps = 50) {
 #' \eqn{(2/3,4/3,4/3,2/3)}. Neither the source nor the Centrality Zoo
 #' mentions this. cograph runs the source's own rule, stops at
 #' \code{ira_max_iter}, raises a \code{cograph_no_converge} warning naming
-#' the largest remaining change, and returns \eqn{I(\code{ira_max_iter})}.
+#' the largest remaining change, and returns \eqn{I}{I} at \code{ira_max_iter}.
 #' It does not silently report that iterate as an equilibrium, and it does
 #' not substitute the average of the two alternating iterates, which would
 #' converge but is not the source's rule. Every graph in the source's own

@@ -57,6 +57,29 @@
   length(ev) < 2L || ev[1L] <= 0 || (ev[1L] - ev[2L]) > 1e-8 * ev[1L]
 }
 
+# Eigenvector centrality is unique (up to scaling) only when the Perron root
+# -- the largest real eigenvalue, the one eigen_centrality() uses -- is simple.
+# `two_components` is two components whose leading eigenvalues are both exactly
+# 2, so that root has multiplicity 2, the dominant eigenspace is
+# two-dimensional, and every vector in it is a valid answer. ARPACK returns
+# whichever one its starting vector lands on, which differs between igraph
+# builds: this comparison passes on macOS and fails on Linux and Windows.
+# Comparing implementations there tests the solver's arbitrary choice, not the
+# statistic.
+#
+# Test the Perron root's MULTIPLICITY, not the gap between the two largest
+# moduli: a bipartite graph has a spectrum symmetric about 0, so -L1 ties L1 in
+# modulus while L1 itself is perfectly simple. A modulus-based test excludes
+# star, path, tree, grid and bipartite networks for no reason -- 16 of the 66
+# corpus networks instead of 1.
+.pa_eigen_unique <- function(m) {
+  if (nrow(m) < 2L) return(TRUE)
+  ev <- eigen(unname(m), only.values = TRUE)$values
+  r <- max(Re(ev))
+  if (r <= 0) return(TRUE)
+  sum(abs(Re(ev) - r) <= 1e-8 * r & abs(Im(ev)) <= 1e-8 * r) < 2L
+}
+
 .pa_muffle_negative <- function(expr) {
   withCallingHandlers(expr, cograph_negative_weights = function(w) {
     invokeRestart("muffleWarning")
@@ -391,6 +414,7 @@ test_that("filter_nodes' eager centralities match igraph on every corpus network
     )
     got <- .compute_centrality_vars(.cg_graph(m))
     if (!.pa_hits_unique(m)) ref <- ref[setdiff(names(ref), c("hub", "authority"))]
+    if (!.pa_eigen_unique(m)) ref <- ref[setdiff(names(ref), "eigenvector")]
     # .cg_betweenness() / .cg_closeness() (kernels-path.R, not part of this
     # port) resolve path-length ties with an absolute 1e-15 epsilon; igraph's
     # tie rule differs at the 1e-9 weight scale, so those two are excluded on

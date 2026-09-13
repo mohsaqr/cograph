@@ -170,6 +170,20 @@ test_that("seeded census significance is unchanged and reproducible", {
 
 # ---- cores = : parallel permutation null ----------------------------------
 
+# R CMD check sets _R_CHECK_LIMIT_CORES_ (always under --as-cran), and
+# parallel:::.check_ncores() then ERRORS on any request above 2 workers:
+#   Error in .check_ncores(cores): 4 simultaneous processes spawned
+# The tests below deliberately use 3 and 4 workers to prove that results do not
+# depend on how replicates are chunked, so they cannot run under that limit.
+# skip_on_cran() does not cover this: r-lib/actions sets NOT_CRAN=true, so the
+# check runs with --as-cran while skip_on_cran() stays inactive -- which is why
+# these failed on ubuntu and windows while passing locally and on macOS.
+.cores_limited <- function(n) {
+  chk <- tolower(Sys.getenv("_R_CHECK_LIMIT_CORES_", ""))
+  nzchar(chk) && chk != "false" && n > 2L
+}
+
+
 test_that(".motif_validate_cores() enforces its contract and caps at detected", {
   expect_identical(cograph:::.motif_validate_cores(1), 1L)
   expect_identical(cograph:::.motif_validate_cores(2L), 2L)
@@ -224,6 +238,7 @@ test_that("cores > 1 is core-count independent and leaves cores = 1 alone", {
   skip_if_not_installed("tna")
   skip_on_os("windows")
   skip_on_cran()
+  skip_if(.cores_limited(4L), "R CMD check limits parallel workers to 2")
   skip_if(is.na(parallel::detectCores()) || parallel::detectCores() < 4)
 
   model <- tna::tna(tna::group_regulation)
@@ -435,8 +450,12 @@ test_that("the PSOCK backend receives the streams and matches serial", {
   expect_length(psock, 6L)
   expect_identical(psock, serial)
   # Results must not depend on how replicates were chunked across workers.
-  expect_identical(cograph:::.motif_run_replicates(6L, 3L, streams, draw),
-                   serial)
+  # 3 workers exceeds the R CMD check core limit, so this one assertion is
+  # conditional; the 2-worker comparison above still runs under check.
+  if (!.cores_limited(3L)) {
+    expect_identical(cograph:::.motif_run_replicates(6L, 3L, streams, draw),
+                     serial)
+  }
 })
 
 # ---- regression pins against the pre-refactor implementation ---------------

@@ -1,4 +1,10 @@
 url: https://sonsoles.me/cograph/
+
+# Build the site OUTSIDE docs/. docs/ is this repo's own design and audit
+# material (plans, the centrality zoo, its scripts), which is tracked in git.
+# pkgdown refuses to clean a non-empty directory it did not build, so pointing
+# it at docs/ aborted every build at check_dest_is_pkgdown().
+destination: pkgdown-site
 template:
   bootstrap: 5
   bootswatch: yeti

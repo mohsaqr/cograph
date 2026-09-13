@@ -77,3 +77,42 @@ test_that("vertex-transitive graphs give constant degree, closeness and betweenn
                 info = nm)
   }
 })
+
+# Regression guard for the manifest hash. The corpus manifest is a committed
+# fixture, so .hash_matrix() must depend on the matrix ALONE. It previously
+# hashed serialize(m, NULL, version = 3), whose header carries the writing R
+# version, so every CI runner recomputed a different hash and the manifest
+# test failed everywhere except the machine that baked it. These are golden
+# values: if the hash ever becomes R-version- or platform-coupled again, they
+# fail on the very first runner that differs.
+test_that(".hash_matrix() is a pure content hash, not an R-serialization hash", {
+  skip_if_not_installed("digest")
+  m <- matrix(c(0, 1, 2.5, -3), 2, 2, dimnames = list(c("a", "b"), c("a", "b")))
+
+  expect_identical(
+    .hash_matrix(m),
+    "8d3f945a5dcc6eebd968c81b6944bdb00bede8dc36274a80537f9d8fa2d9d18c"
+  )
+  expect_identical(
+    .hash_matrix(matrix(numeric(0), 0, 0)),
+    "ccbe684d87216976b9bf6a93b8b58530c124aae6c985558aaef78e5134876901"
+  )
+
+  # The R version must not leak into the hashed bytes. serialize() format 3
+  # writes it at bytes 7-10; assert we are not hashing such a stream.
+  rv <- as.raw(c(0L, as.integer(strsplit(as.character(getRversion()), ".", fixed = TRUE)[[1]])))
+  expect_identical(serialize(m, NULL, version = 3)[7:10], rv)
+  expect_false(identical(
+    .hash_matrix(m),
+    digest::digest(serialize(m, NULL, version = 3), algo = "sha256", serialize = FALSE)
+  ))
+
+  # Content sensitivity and equal-value invariance.
+  changed <- m; changed[1, 2] <- 99
+  expect_false(identical(.hash_matrix(m), .hash_matrix(changed)))
+  renamed <- m; dimnames(renamed) <- list(c("a", "z"), c("a", "b"))
+  expect_false(identical(.hash_matrix(m), .hash_matrix(renamed)))
+  neg_zero <- m; neg_zero[1, 1] <- -0
+  expect_identical(.hash_matrix(m), .hash_matrix(neg_zero))
+  expect_identical(.hash_matrix(matrix(1:4, 2, 2)), .hash_matrix(matrix(as.double(1:4), 2, 2)))
+})

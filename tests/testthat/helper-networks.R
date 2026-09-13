@@ -8,7 +8,31 @@
 # Design: docs/test-networks-plan.md.
 
 .hash_matrix <- function(m) {
-  digest::digest(serialize(m, NULL, version = 3), algo = "sha256", serialize = FALSE)
+  # Version-stable content hash.
+  #
+  # This must NOT hash serialize() output. A format-3 stream carries the
+  # writing R version in bytes 7-10 of its header (00 04 05 02 for R 4.5.2),
+  # so an identical matrix hashes differently under every R build. The
+  # committed manifest was baked on one R version and became unmatchable on
+  # CI's release / devel / oldrel runners -- the test was detecting the
+  # runner's R version, not a change in the data.
+  #
+  # Hash an explicit, self-describing payload instead: dimensions and dimnames
+  # as UTF-8, then the values as big-endian IEEE-754 doubles. No R version, no
+  # platform endianness, no locale. -0 is folded onto 0 because the two
+  # compare equal but carry different bytes.
+  vals <- as.double(m)
+  vals[vals == 0] <- 0
+  txt <- enc2utf8(c(
+    paste(dim(m), collapse = "x"),
+    paste(rownames(m), collapse = "\r"),
+    paste(colnames(m), collapse = "\r")
+  ))
+  payload <- c(
+    charToRaw(paste(c(txt, ""), collapse = "\n")),
+    writeBin(vals, raw(), size = 8, endian = "big")
+  )
+  digest::digest(payload, algo = "sha256", serialize = FALSE)
 }
 
 .components_native <- function(m) {

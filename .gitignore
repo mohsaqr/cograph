@@ -72,3 +72,6 @@ local_testing_and_equivalence/
 # committed test-network corpus (docs/test-networks-plan.md)
 !tests/testthat/networks/real_small.rds
 !tests/testthat/networks/degenerate.rds
+
+# pkgdown build output (deployed to gh-pages by CI, never committed)
+pkgdown-site/

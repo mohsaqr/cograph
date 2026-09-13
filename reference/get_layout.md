@@ -65,6 +65,6 @@ get_layout("circle")
 #>     coords[order, ] <- coords
 #>     coords
 #> }
-#> <bytecode: 0x55efd8b6cf80>
+#> <bytecode: 0x56134cc09870>
 #> <environment: namespace:cograph>
 ```

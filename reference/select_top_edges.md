@@ -28,8 +28,10 @@ select_top_edges(
 
 - by:
 
-  Character. Metric for ranking. One of: `"weight"`, `"abs_weight"`,
-  `"edge_betweenness"`. Default `"weight"`.
+  Character. Metric for ranking. One of: `"weight"` (default),
+  `"abs_weight"`, `"edge_betweenness"`, `"from_degree"`, `"to_degree"`,
+  `"from_strength"`, `"to_strength"`, `"weight_rank"`. Any other name
+  raises a `cograph_bad_selection` error.
 
 - ...:
 

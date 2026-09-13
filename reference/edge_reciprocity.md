@@ -36,8 +36,16 @@ edge_reciprocity(x, top = NULL, directed = NULL, digits = NULL, ...)
 
 ## Value
 
-A data frame with columns: `from`, `to`, `weight`, `reciprocated`,
-`reverse_weight`, `weight_ratio`.
+A data frame with one row per directed edge and columns `from`, `to`,
+`weight`, `reciprocated` (logical), `reverse_weight` (NA when not
+reciprocated) and `weight_ratio` (`weight / reverse_weight`; NA when not
+reciprocated). Rows are ordered with reciprocated edges first, then by
+`|weight_ratio|` descending.
+
+## Errors
+
+Raises an error when the resolved network is undirected: reciprocity is
+only defined for directed edges.
 
 ## See also
 

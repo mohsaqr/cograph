@@ -12,7 +12,7 @@ Plots the original network with nodes colored by community membership.
 The network is retrieved from attr(x, &quot;network&quot;), which
 detect_communities() / .wrap_communities() sets automatically.
 Applies TNA-compatible styling defaults before delegating to splot():
-directed networks get oval layout, coloured nodes, and sized arrows;
+directed networks get oval layout, colored nodes, and sized arrows;
 undirected networks get spring layout with no arrows or dashes.
 All parameters can be overridden by the caller.
 Visualizes boot_glasso objects from the Nestimate package.
@@ -41,7 +41,7 @@ Plots the original network with nodes colored by community membership.
 The network is retrieved from attr(x, &quot;network&quot;), which
 detect_communities() / .wrap_communities() sets automatically.
 Applies TNA-compatible styling defaults before delegating to splot():
-directed networks get oval layout, coloured nodes, and sized arrows;
+directed networks get oval layout, colored nodes, and sized arrows;
 undirected networks get spring layout with no arrows or dashes.
 All parameters can be overridden by the caller.
 Visualizes boot_glasso objects from the Nestimate package.
@@ -117,7 +117,7 @@ available algorithm column.</p>
 The network is retrieved from <code>attr(x, "network")</code>, which
 <code><a href="detect_communities.html">detect_communities()</a></code> / <code>.wrap_communities()</code> sets automatically.</p>
 <p>Applies TNA-compatible styling defaults before delegating to <code>splot()</code>:
-directed networks get oval layout, coloured nodes, and sized arrows;
+directed networks get oval layout, colored nodes, and sized arrows;
 undirected networks get spring layout with no arrows or dashes.
 All parameters can be overridden by the caller.</p>
 <p>Visualizes <code>boot_glasso</code> objects from the Nestimate package.
@@ -406,7 +406,8 @@ Default TRUE.</p></dd>
 
 <dt id="arg-inclusion-threshold">inclusion_threshold<a class="anchor" aria-label="anchor" href="#arg-inclusion-threshold"></a></dt>
 <dd><p>Numeric: minimum inclusion probability to show an edge.
-Default <code>1 - x$alpha</code> (i.e. the complement of the alpha level).</p></dd>
+Default <code>NULL</code>, which uses <code>1 - x$alpha</code> (i.e. the complement of
+the alpha level, falling back to <code>1 - 0.05</code> when <code>$alpha</code> is absent).</p></dd>
 
 
 <dt id="arg-edge-positive-color">edge_positive_color<a class="anchor" aria-label="anchor" href="#arg-edge-positive-color"></a></dt>
@@ -1032,7 +1033,10 @@ identical absolute scales — useful for bootstrap panels, comparison
 grids with networks of different node counts, or any case where
 visual-size parity across panels matters more than canvas fill.
 Default <code>FALSE</code> uses dynamic, layout-driven bounds (the
-pre-2.1.x behaviour) which renders tighter on the canvas. The
+pre-2.1.x behavior) which renders tighter on the canvas. The fixed
+box is only applied when the layout is being rescaled, so
+<code>align_panels = TRUE</code> has no effect under
+<code>rescale = FALSE</code>. The
 per-node loop-reservation pad in <code>compute_plot_limits</code> runs
 regardless, so networks with different self-loop patterns stay
 centered consistently in either mode.</p></dd>
@@ -1078,7 +1082,8 @@ otherwise. Can be used with any input type (matrix, igraph, cograph_network).</p
 <dt id="arg-psych-styling">psych_styling<a class="anchor" aria-label="anchor" href="#arg-psych-styling"></a></dt>
 <dd><p>Logical or NULL. Undirected counterpart of <code>tna_styling</code>.
 If <code>TRUE</code>, applies psychometric-network defaults (spring layout,
-Okabe-Ito palette, no arrows, thin edges) as a base layer. If <code>NULL</code>
+Okabe-Ito palette, no arrows, solid edge lines, and
+<code>minimum = 0.01</code>) as a base layer. If <code>NULL</code>
 (default), <code>splot.netobject</code> auto-enables it on correlation-family input
 (glasso, cor, pcor, ising) and on the undirected constituents of
 <code>net_mlvar</code>. Explicit user args always win.</p></dd>
@@ -1123,14 +1128,18 @@ plots only that group.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Invisibly returns the plot.</p>
-<p>Invisibly, the splot result.</p>
-<p>Invisibly, the splot result.</p>
+    <p>Invisibly returns the <code>cograph_network</code> object built by
+<code>splot()</code>. Called for the side effect of drawing.</p>
+<p>Invisibly, the <code>splot</code> result: a <code>cograph_network</code> object.</p>
+<p>Invisibly, the <code>splot</code> result: a <code>cograph_network</code> object.</p>
 <p>Invisibly returns <code>x</code>.</p>
-<p>Invisibly returns the plot.</p>
-<p>Invisibly returns the plot.</p>
+<p>Invisibly returns the <code>cograph_network</code> object built by
+<code>splot()</code>. Called for the side effect of drawing.</p>
+<p>Invisibly returns the <code>cograph_network</code> object built by
+<code>splot()</code>. Called for the side effect of drawing.</p>
 <p>Invisibly returns <code>x</code>.</p>
-<p>Invisibly returns the plot.</p>
+<p>Invisibly returns the <code>cograph_network</code> object built by
+<code>splot()</code>, or <code>NULL</code> when there is no edge to draw.</p>
 <p>Invisibly returns the cograph_network object.</p>
     </div>
     <div class="section level2">
@@ -1250,7 +1259,7 @@ comparisons), <code>{stars}</code> for significance stars.</p></dd>
 
 <p>Packages that create <code>cograph_network</code>-compatible objects can attach a
 small plotting contract at <code>x$meta$splot</code>. This lets producer packages
-such as Nestimate, lagdynamics, or other modelling packages describe their
+such as Nestimate, lagdynamics, or other modeling packages describe their
 preferred cograph rendering without adding a new cograph-side class branch for
 every object type.</p>
 <p>The contract is optional. Objects without <code>meta$splot</code> follow the normal

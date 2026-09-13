@@ -15,31 +15,38 @@ cqual(x, clusters, weighted = TRUE, directed = TRUE)
 
 - x:
 
-  Adjacency matrix
+  Adjacency matrix (numeric)
 
 - clusters:
 
-  Cluster specification (list or membership vector)
+  Cluster specification (named list, data frame, or membership vector;
+  see [`csum`](https://sonsoles.me/cograph/reference/csum.md))
 
 - weighted:
 
-  Logical; if TRUE, use edge weights; if FALSE, binarize
+  Logical; if TRUE (default), use edge weights; if FALSE, binarize the
+  matrix first
 
 - directed:
 
-  Logical; if TRUE, treat as directed network
+  Logical; if TRUE (default), treat as directed network
 
 ## Value
 
-A `cluster_quality` object with:
+A `cluster_quality` object (a list) with:
 
 - per_cluster:
 
-  Data frame with per-cluster metrics
+  Data frame, one row per cluster, with columns `cluster` (index),
+  `cluster_name`, `n_nodes`, `internal_edges` (within-cluster weight),
+  `cut_edges` (boundary-crossing weight), `internal_density`,
+  `avg_internal_degree`, `expansion`, `cut_ratio` and `conductance`.
 
 - global:
 
-  List of global metrics (modularity, coverage)
+  List with `modularity` (Newman-Girvan, computed on the weighted or
+  binarized matrix), `coverage` (share of total weight that is internal
+  to some cluster) and `n_clusters`.
 
 See `cluster_quality`.
 

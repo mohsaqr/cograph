@@ -91,7 +91,7 @@ times, reflecting repeated interactions.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The dataset includes self-loops (34 rows where <code>from == to</code>),
 which may represent self-directed actions. These can be removed with
-<code>student_interactions[student_interactions$from != student_interactions$to, ]</code>.</p>
+<code>subset(student_interactions, from != to)</code>.</p>
 <p>Because interactions repeat, this edge list naturally represents a
 multigraph when loaded into igraph with
 <code><a href="https://r.igraph.org/reference/graph_from_data_frame.html" class="external-link">igraph::graph_from_data_frame()</a></code>.</p>
@@ -110,15 +110,12 @@ multigraph when loaded into igraph with
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5   Ac Ac</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6   Ad Ac</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Remove self-loops and build igraph</span></span></span>
-<span class="r-in"><span><span class="va">el</span> <span class="op">&lt;-</span> <span class="va">student_interactions</span><span class="op">[</span><span class="va">student_interactions</span><span class="op">$</span><span class="va">from</span> <span class="op">!=</span> <span class="va">student_interactions</span><span class="op">$</span><span class="va">to</span>, <span class="op">]</span></span></span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"igraph"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>  <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">igraph</span><span class="fu">::</span><span class="fu"><a href="https://r.igraph.org/reference/graph_from_data_frame.html" class="external-link">graph_from_data_frame</a></span><span class="op">(</span><span class="va">el</span>, directed <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Students:"</span>, <span class="fu">igraph</span><span class="fu">::</span><span class="fu"><a href="https://r.igraph.org/reference/gorder.html" class="external-link">vcount</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Interactions:"</span>, <span class="fu">igraph</span><span class="fu">::</span><span class="fu"><a href="https://r.igraph.org/reference/gsize.html" class="external-link">ecount</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Students: 34 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Interactions: 355 </span>
+<span class="r-in"><span><span class="co"># Remove self-loops and build a network</span></span></span>
+<span class="r-in"><span><span class="va">el</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">student_interactions</span>, <span class="va">from</span> <span class="op">!=</span> <span class="va">to</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="n_edges.html">n_edges</a></span><span class="op">(</span><span class="fu"><a href="as_cograph.html">as_cograph</a></span><span class="op">(</span><span class="va">el</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 355</span>
+<span class="r-in"><span><span class="fu"><a href="n_nodes.html">n_nodes</a></span><span class="op">(</span><span class="fu"><a href="as_cograph.html">as_cograph</a></span><span class="op">(</span><span class="va">el</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 34</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

@@ -53,8 +53,11 @@ binarize(
 
 ## Value
 
-A `cograph_network` whose weights are all 1 (or `-1` when
-`signed = TRUE`), or the input format when `keep_format = TRUE`.
+A `cograph_network` whose weights are all `1` (or, when `signed = TRUE`,
+`1` for a positive edge and `-1` for a negative one), or the input
+format when `keep_format = TRUE`. Nodes left without edges are kept and
+reported in a `cograph_isolates_created` warning, unless
+`keep_isolates = FALSE`.
 
 ## References
 

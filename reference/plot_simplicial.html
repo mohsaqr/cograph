@@ -297,7 +297,7 @@ has collapsed the source/target two-tone (undirected input such as
 <dd><p>Node core radius in data units, used only on the
 directed path (rings and cores become polygons there so the ring
 gradient and the arrow offset are expressible; <code>geom_point()</code>
-sizes are device millimetres and cannot answer either).
+sizes are device millimeters and cannot answer either).
 <code>NULL</code> (default) scales it to the panel extent so the nodes
 keep the size they have today.</p></dd>
 
@@ -315,8 +315,12 @@ when auto-building.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code>ggplot</code> object (or combined grid if dismantled),
-invisibly.</p>
+    <p>Invisibly, a <code>ggplot</code> object for the combined overlay. With
+<code>dismantled = TRUE</code> the arranged grid is returned instead: a
+<code>gtable</code> when <span class="pkg">gridExtra</span> is available, otherwise a plain list
+of the per-pathway <code>ggplot</code> objects. <code>NULL</code> is returned when
+there is nothing to draw (no pathways could be extracted). Called for the
+side effect of drawing.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

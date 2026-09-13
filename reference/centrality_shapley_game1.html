@@ -84,7 +84,7 @@ object).</p></dd>
 
 
 <dt id="arg-shapley-k">shapley_k<a class="anchor" aria-label="anchor" href="#arg-shapley-k"></a></dt>
-<dd><p>Neighbour threshold \(k\) for game 2. Default 2.</p></dd>
+<dd><p>Neighbor threshold \(k\) for game 2. Default 2.</p></dd>
 
 
 <dt id="arg-shapley-cutoff">shapley_cutoff<a class="anchor" aria-label="anchor" href="#arg-shapley-cutoff"></a></dt>
@@ -105,7 +105,7 @@ adjacent to it. \(SV(v) = \sum_{u \in \{v\} \cup N(v)}
 
 <dt>Game 2 (<code>shapley_game2</code>)</dt>
 <dd><p>\(v(C)\) = nodes in \(C\) or
-with at least \(k\) neighbours in \(C\).
+with at least \(k\) neighbors in \(C\).
 \(SV(v) = \min(1, k / (1 + k_v)) + \sum_{u \in N(v)}
     \max(0, (k_u - k + 1) / (k_u (1 + k_u)))\). With \(k = 1\) this is
 game 1. Threshold via <code>shapley_k</code> (default 2).</p></dd>

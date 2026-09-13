@@ -44,11 +44,16 @@ detect_communities(x, method = "louvain", directed = NULL, weights = TRUE)
 
 ## Value
 
-A data frame with columns:
+A `cograph_communities` object, which inherits from `data.frame` and has
+one row per node with columns:
 
 - `node`: Node labels/names
 
 - `community`: Integer community membership
+
+The algorithm name, the igraph community object, the modularity and the
+input network are carried as attributes for the `print`, `plot` and
+`modularity` methods.
 
 ## Examples
 

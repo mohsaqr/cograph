@@ -57,7 +57,7 @@ plot_ml_heatmap(
   `nrow(x) * compress` units tall, so a fixed spacing that suits a small
   network makes a larger one overlap itself. `NULL` (the default) scales
   the spacing to the plane so planes never collide; pass a number for
-  the older absolute behaviour.
+  the older absolute behavior.
 
 - skew:
 

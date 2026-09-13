@@ -145,7 +145,7 @@ plot(
   remain a valid permutation null, and repeated parallel runs of one
   seed agree exactly with each other at any `cores`. Forking is used
   where available; Windows uses a PSOCK cluster. Only the
-  individual-level census null is parallelised. Values above
+  individual-level census null is parallelized. Values above
   [`parallel::detectCores()`](https://rdrr.io/r/parallel/detectCores.html)
   are capped with a `cograph_cores_capped` warning.
 
@@ -439,7 +439,6 @@ motifs(mat, n_perm = 10L, seed = 1)
 #>  type count expected    z         p   sig
 #>  030C     2      0.8 1.16 0.4545455 FALSE
 #>  030T     2      0.8 1.16 0.4545455 FALSE
-
 # \donttest{
 Mod <- tna::tna(tna::group_regulation)
 motifs(Mod, n_perm = 10L, seed = 1)

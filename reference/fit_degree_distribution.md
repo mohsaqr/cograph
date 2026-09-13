@@ -91,6 +91,16 @@ discrete distribution; p-values are approximate.
 
 **Geometric**: \\P(k) \sim (1-p)^k p\\. MLE: \\p = 1 / (1 + \bar{k})\\.
 
+`ks_stat` is always reported. `ks_p` comes from
+[`stats::ks.test()`](https://rdrr.io/r/stats/ks.test.html) for the
+exponential and Poisson fits and from
+[`igraph::fit_power_law()`](https://r.igraph.org/reference/fit_power_law.html)
+for the automatic power-law fit; it is `NA` for the geometric fit and
+for the manual (non-igraph or explicit `xmin`) power-law fit, whose KS
+statistics are computed directly against the theoretical CDF without a
+reference distribution. AIC and BIC count one free parameter per
+distribution, so the power-law `xmin` is not penalized.
+
 ## References
 
 Clauset, A., Shalizi, C. R., & Newman, M. E. J. (2009). Power-law

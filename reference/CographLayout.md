@@ -134,6 +134,10 @@ Print layout summary.
 
     CographLayout$print()
 
+#### Returns
+
+The object itself, invisibly.
+
 ------------------------------------------------------------------------
 
 ### Method `clone()`

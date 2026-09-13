@@ -1,9 +1,9 @@
 # Ego-Network Metrics
 
-Extracts the ego network of each requested node (the node, its
-neighbours up to a given order, and the ties among them) and reports a
-tidy table of personal-network metrics: size, internal tie counts and
-densities, and Burt's structural-hole measures. One row per ego.
+Extracts the ego network of each requested node (the node, its neighbors
+up to a given order, and the ties among them) and reports a tidy table
+of personal-network metrics: size, internal tie counts and densities,
+and Burt's structural-hole measures. One row per ego.
 
 ## Usage
 
@@ -32,14 +32,14 @@ ego_networks(
 
 - order:
 
-  Integer neighbourhood order defining the ego network. 1 (default) is
-  the standard ego network (ego + direct neighbours). Burt's
+  Integer neighborhood order defining the ego network. 1 (default) is
+  the standard ego network (ego + direct neighbors). Burt's
   `effective_size` and `constraint` are only defined for `order = 1` and
   are returned as `NA` otherwise.
 
 - mode:
 
-  For directed networks, which ties define the neighbourhood: `"all"`
+  For directed networks, which ties define the neighborhood: `"all"`
   (default), `"out"`, or `"in"`.
 
 - directed:
@@ -48,8 +48,9 @@ ego_networks(
 
 - ...:
 
-  Additional arguments passed to
-  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md).
+  Currently unused; `directed` is already an explicit argument above and
+  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
+  accepts no others.
 
 ## Value
 

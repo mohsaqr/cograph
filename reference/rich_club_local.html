@@ -102,14 +102,18 @@ above median degree (or strength) are prominent.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments passed to <code><a href="to_igraph.html">to_igraph</a></code>.</p></dd>
+<dd><p>Currently unused; <code>directed</code> is already an explicit
+argument above and <code><a href="to_igraph.html">to_igraph</a></code> accepts no others.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A data frame with columns <code>node</code> and <code>score</code>, sorted
-by <code>score</code> descending. Values &gt; 1 indicate the node directs
-disproportionately strong ties to prominent nodes.</p>
+    <p>A plain data frame with one row per node and columns <code>node</code>
+(node label) and <code>score</code>, sorted by <code>sort_by</code> descending
+(<code>"score"</code> by default; pass <code>sort_by = NULL</code> to keep node
+order). Values &gt; 1 indicate the node directs disproportionately strong
+ties to prominent nodes; a node with no neighbors, no prominent
+neighbor, or zero mean tie weight scores 1.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

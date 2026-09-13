@@ -25,13 +25,19 @@ to_df(x, directed = NULL)
 
 ## Value
 
-A data frame with columns:
+A base `data.frame` with one row per edge and exactly three columns:
 
 - `from`: Source node name/label
 
 - `to`: Target node name/label
 
 - `weight`: Edge weight
+
+Any further edge columns the network carries (for example `session` or
+`time` from temporal edge lists) are *not* included; use
+[`get_edges`](https://sonsoles.me/cograph/reference/get_edges.md), which
+returns the edge table whole. An undirected network contributes one row
+per unordered pair, not two.
 
 ## See also
 

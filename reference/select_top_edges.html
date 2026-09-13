@@ -76,8 +76,10 @@
 
 <dt id="arg-by">by<a class="anchor" aria-label="anchor" href="#arg-by"></a></dt>
 <dd><p>Character. Metric for ranking. One of:
-<code>"weight"</code>, <code>"abs_weight"</code>, <code>"edge_betweenness"</code>.
-Default <code>"weight"</code>.</p></dd>
+<code>"weight"</code> (default), <code>"abs_weight"</code>,
+<code>"edge_betweenness"</code>, <code>"from_degree"</code>, <code>"to_degree"</code>,
+<code>"from_strength"</code>, <code>"to_strength"</code>, <code>"weight_rank"</code>.
+Any other name raises a <code>cograph_bad_selection</code> error.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

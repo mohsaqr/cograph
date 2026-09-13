@@ -18,12 +18,14 @@ network_radius(x, directed = NULL, ...)
 
 - directed:
 
-  Logical. Consider edge direction? Default TRUE for directed graphs.
+  Logical or NULL. Consider edge direction? Default NULL, which follows
+  the directedness of the converted graph.
 
 - ...:
 
-  Additional arguments passed to
+  Currently unused; `directed` is already an explicit argument above and
   [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
+  accepts no others.
 
 ## Value
 

@@ -2,9 +2,9 @@
 
 - `weighted_kshell` (Garas, Schweitzer & Havlin 2012):
 
-  k-shell decomposition on the generalised degree \\k' = (k^\alpha
+  k-shell decomposition on the generalized degree \\k' = (k^\alpha
   s^\beta)^{1 / (\alpha + \beta)}\\ (`wks_alpha`, `wks_beta`, both 1),
-  after the paper's weight normalisation (divide by the mean, then by
+  after the paper's weight normalization (divide by the mean, then by
   the minimum, round to the nearest integer). Integer thresholds label
   the shells, so unit weights give the k-core number and isolates
   score 0. Reproduces the paper's Figure 1 example and its Table 2 core
@@ -18,7 +18,7 @@
   the residual graph is the renewed coreness. A clique with no outside
   links collapses to 0. Reproduces the paper's Figure 1 and all twelve
   percentages of its supplementary Table S1; the Zoo's transcription
-  with open neighbourhoods is off by one.
+  with open neighborhoods is off by one.
 
 - `geodesic_kpath` (Borgatti & Everett 2006):
 

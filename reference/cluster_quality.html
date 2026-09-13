@@ -64,29 +64,38 @@ Supports both binary and weighted networks.</p>
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>Adjacency matrix</p></dd>
+<dd><p>Adjacency matrix (numeric)</p></dd>
 
 
 <dt id="arg-clusters">clusters<a class="anchor" aria-label="anchor" href="#arg-clusters"></a></dt>
-<dd><p>Cluster specification (list or membership vector)</p></dd>
+<dd><p>Cluster specification (named list, data frame, or membership
+vector; see <code><a href="csum.html">csum</a></code>)</p></dd>
 
 
 <dt id="arg-weighted">weighted<a class="anchor" aria-label="anchor" href="#arg-weighted"></a></dt>
-<dd><p>Logical; if TRUE, use edge weights; if FALSE, binarize</p></dd>
+<dd><p>Logical; if TRUE (default), use edge weights; if FALSE,
+binarize the matrix first</p></dd>
 
 
 <dt id="arg-directed">directed<a class="anchor" aria-label="anchor" href="#arg-directed"></a></dt>
-<dd><p>Logical; if TRUE, treat as directed network</p></dd>
+<dd><p>Logical; if TRUE (default), treat as directed network</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code>cluster_quality</code> object with:</p>
+    <p>A <code>cluster_quality</code> object (a list) with:</p>
 <dl><dt>per_cluster</dt>
-<dd><p>Data frame with per-cluster metrics</p></dd>
+<dd><p>Data frame, one row per cluster, with columns
+<code>cluster</code> (index), <code>cluster_name</code>, <code>n_nodes</code>,
+<code>internal_edges</code> (within-cluster weight), <code>cut_edges</code>
+(boundary-crossing weight), <code>internal_density</code>,
+<code>avg_internal_degree</code>, <code>expansion</code>, <code>cut_ratio</code> and
+<code>conductance</code>.</p></dd>
 
 <dt>global</dt>
-<dd><p>List of global metrics (modularity, coverage)</p></dd>
+<dd><p>List with <code>modularity</code> (Newman-Girvan, computed on the
+weighted or binarized matrix), <code>coverage</code> (share of total weight
+that is internal to some cluster) and <code>n_clusters</code>.</p></dd>
 
 
 </dl><p>See <code>cluster_quality</code>.</p>

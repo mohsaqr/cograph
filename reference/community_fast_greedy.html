@@ -98,12 +98,15 @@ Produces a dendrogram of community merges.</p>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments passed to <code><a href="to_igraph.html">to_igraph</a></code></p></dd>
+<dd><p>Passed to <code><a href="to_igraph.html">to_igraph</a></code>, whose only other argument
+is <code>directed</code>; anything else raises an "unused argument" error.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code>cograph_communities</code> object with optional dendrogram</p>
+    <p>A <code>cograph_communities</code> object. The full igraph
+<code>communities</code> result, including the merge dendrogram when
+<code>merges = TRUE</code>, is kept in the <code>"igraph_result"</code> attribute.</p>
 <p>A <code>cograph_communities</code> object. See <code><a href="detect_communities.html">detect_communities</a></code>.</p>
     </div>
     <div class="section level2">

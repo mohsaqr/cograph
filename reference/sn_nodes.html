@@ -186,7 +186,7 @@ Still works for backwards compatibility.</p></dd>
 Single color sets fill for all nodes.
 Two colors set fill and background for all nodes.
 More than 2 colors set per-node fill colors (recycled to n_nodes).
-Default: "lightgray" fill, "gray90" background when shape="donut".</p></dd>
+Default: "maroon" fill, "gray90" background when shape="donut".</p></dd>
 
 
 <dt id="arg-donut-colors">donut_colors<a class="anchor" aria-label="anchor" href="#arg-donut-colors"></a></dt>
@@ -206,7 +206,10 @@ Default: "lightgray" fill, "gray90" background when shape="donut".</p></dd>
 
 
 <dt id="arg-donut-shape">donut_shape<a class="anchor" aria-label="anchor" href="#arg-donut-shape"></a></dt>
-<dd><p>For donut: base shape for ring ("circle", "square", "hexagon", "triangle", "diamond", "pentagon"). Default "circle".</p></dd>
+<dd><p>For donut: base shape for ring ("circle", "square",
+"hexagon", "triangle", "diamond", "pentagon"). Default NULL, which inherits
+the ring shape from the node's own shape (hexagon nodes get hexagon
+donuts); set it explicitly to override that for every node.</p></dd>
 
 
 <dt id="arg-donut-show-value">donut_show_value<a class="anchor" aria-label="anchor" href="#arg-donut-show-value"></a></dt>

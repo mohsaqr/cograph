@@ -45,7 +45,7 @@ centrality_epc(x, epc_threshold = 0.5, epc_runs = 1000, epc_seed = NULL, ...)
 
 - epc_runs:
 
-  Number of percolation realisations. Default 1000.
+  Number of percolation realizations. Default 1000.
 
 - epc_seed:
 
@@ -60,11 +60,11 @@ Named numeric vector, one value per node.
 
 - `local_efficiency` (Latora & Marchiori 2001):
 
-  The global efficiency of the subgraph induced on the node's
-  neighbours, the node itself removed: the mean of \\1 / d\_{jl}\\ over
-  ordered pairs of neighbours, with distances measured inside that
-  subgraph. Nodes with fewer than two neighbours score 0. High values
-  mark a node whose neighbourhood survives its loss. Matches
+  The global efficiency of the subgraph induced on the node's neighbors,
+  the node itself removed: the mean of \\1 / d\_{jl}\\ over ordered
+  pairs of neighbors, with distances measured inside that subgraph.
+  Nodes with fewer than two neighbors score 0. High values mark a node
+  whose neighborhood survives its loss. Matches
   [`igraph::local_efficiency()`](https://r.igraph.org/reference/global_efficiency.html)
   and `brainGraph::efficiency(type = "local")`.
 
@@ -96,7 +96,7 @@ Named numeric vector, one value per node.
 
   Edge percolated component: each edge survives with probability
   `1 - epc_threshold`, and the score is the mean size of the node's
-  component over `epc_runs` realisations, as a share of the network.
+  component over `epc_runs` realizations, as a share of the network.
   cytoHubba and
   [`centiserve::epc()`](https://rdrr.io/pkg/centiserve/man/epc.html)
   divide by the node count alone, so their number is `epc_runs` times

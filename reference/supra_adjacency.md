@@ -57,7 +57,15 @@ supra(
 
 ## Value
 
-Supra-adjacency matrix of dimension (N*L) x (N*L)
+A supra-adjacency matrix of dimension (N*L) x (N*L) with class
+`c("supra_adjacency", "matrix")`. Diagonal N x N blocks hold the
+intra-layer adjacencies and off-diagonal blocks the inter-layer
+coupling. The attributes `"n_nodes"`, `"n_layers"`, `"node_names"`,
+`"layer_names"`, `"omega"` and `"coupling"` record the construction and
+are read back by
+[`supra_layer()`](https://sonsoles.me/cograph/reference/supra_layer.md)
+and
+[`supra_interlayer()`](https://sonsoles.me/cograph/reference/supra_interlayer.md).
 
 ## Examples
 

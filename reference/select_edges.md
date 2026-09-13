@@ -116,7 +116,8 @@ select_edges(
 
 A cograph_network object with selected edges. If `keep_format = TRUE`,
 matrix, igraph, and statnet network inputs are converted back to that
-type.
+type. Nodes left without edges are kept and reported in a
+`cograph_isolates_created` warning, unless `keep_isolates = FALSE`.
 
 ## Details
 

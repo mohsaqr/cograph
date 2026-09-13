@@ -34,7 +34,7 @@ Uses the simple undirected, unweighted skeleton: either direction
 creates an edge, parallel edges count once, and self-loops are removed.
 Singleton cliques are excluded, so isolates score zero. This is an
 explicit cograph convention consistent with the paper's degree reduction
-when neighbours have no edges between them. Reading the printed sum
+when neighbors have no edges between them. Reading the printed sum
 literally with singleton cliques would instead assign isolates \\0! =
 1\\.
 

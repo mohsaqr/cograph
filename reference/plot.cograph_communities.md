@@ -25,7 +25,10 @@ plot(x, network = NULL, ...)
 
 ## Value
 
-Invisibly returns the plot
+The value returned by
+[`splot`](https://sonsoles.me/cograph/reference/splot.md) (invisibly).
+Called for the side effect of drawing the network with nodes grouped by
+community.
 
 ## Examples
 

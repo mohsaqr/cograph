@@ -102,7 +102,7 @@ object).</p></dd>
 <dl><dt><code>wvoterank</code> (Sun, Chen, He &amp; Ch'ng 2019)</dt>
 <dd><p>VoteRank for
 weighted graphs: \(s_v = \sqrt{k_v \sum_{u \in N(v)} va_u w_{vu}}\).
-After an election the winner's ability is 0 and its neighbours lose
+After an election the winner's ability is 0 and its neighbors lose
 \(1 / \langle w \rangle\), where \(\langle w \rangle\) is the
 average strength (the paper's Figure 1 pins strength, not degree).
 Uses edge weights; with unit weights it is VoteRank with a
@@ -123,7 +123,7 @@ factor turns negative when \(\langle k \rangle &lt; e\).</p></dd>
 <dt><code>voterank_plus</code> (Liu, Li, Fang &amp; Yao 2021)</dt>
 <dd><p>Initial ability
 \(\ln(1 + k_i / k_{\max})\), degree-proportional vote shares over
-unelected neighbours, score \(\sqrt{k_i \sum_j va_j w_{j \to i}}\),
+unelected neighbors, score \(\sqrt{k_i \sum_j va_j w_{j \to i}}\),
 and after an election abilities are multiplied by \(\lambda\)
 one step away and \(\sqrt{\lambda}\) two steps away
 (<code>voterank_lambda</code>, default 0.1). The article is closed access;

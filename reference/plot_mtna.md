@@ -218,8 +218,10 @@ mtna(
 
 ## Value
 
-Invisibly returns a cluster_summary object for summary mode, or the
-plot_tna result otherwise.
+Invisibly returns a `cluster_summary` object when
+`summary_edges = TRUE`, and otherwise the
+[`plot_tna()`](https://sonsoles.me/cograph/reference/plot_tna.md) result
+(a `cograph_network` object).
 
 See `plot_mtna`.
 

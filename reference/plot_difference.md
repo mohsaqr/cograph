@@ -43,11 +43,15 @@ plot_difference(
 
 - i:
 
-  Index/name of first group when x is group_tna. NULL for all pairs.
+  Index/name of first group when x is group_tna or a plain list. NULL
+  plots all pairs for a `group_tna` of more than two groups, and selects
+  the first element otherwise.
 
 - j:
 
-  Index/name of second group when x is group_tna. NULL for all pairs.
+  Index/name of second group when x is group_tna or a plain list. NULL
+  plots all pairs for a `group_tna` of more than two groups, and selects
+  the second element otherwise.
 
 - pos_color:
 
@@ -76,8 +80,8 @@ plot_difference(
 
 - show_inits:
 
-  Logical: show node differences as donuts? Default TRUE if inits
-  available.
+  Logical: show node differences as donuts? Default `NULL`, which shows
+  them when inits are available for both networks.
 
 - donut_inner_ratio:
 
@@ -110,7 +114,11 @@ plot_difference(
 
 ## Value
 
-Invisibly returns a list with difference matrix and inits difference.
+Invisibly returns a list with elements `weights` (the element-wise
+difference matrix `x - y`) and `inits` (the node-value difference, or
+`NULL` when no inits were available). For the `group_tna` all-pairs
+path, a named list of such lists — one element per pair, named
+`"<group_i>_vs_<group_j>"`.
 
 ## Details
 
@@ -135,7 +143,8 @@ compare using i and j parameters.
 ## See also
 
 [`plot_compare`](https://sonsoles.me/cograph/reference/plot_compare.md),
-the deprecated alias of this function.
+a first-class alias of this function kept for the `tna` integration.
+`plot_difference()` is the preferred name.
 
 ## Examples
 

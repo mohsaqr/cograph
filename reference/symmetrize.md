@@ -68,7 +68,11 @@ symmetrize(
 
 An undirected `cograph_network`, or the input format when
 `keep_format = TRUE`. The weight matrix satisfies
-[`isSymmetric()`](https://rdrr.io/r/base/isSymmetric.html).
+[`isSymmetric()`](https://rdrr.io/r/base/isSymmetric.html). Zero is how
+this representation stores "no edge", so any pair whose combined weight
+is exactly zero disappears: every unreciprocated arc under
+`method = "mutual"`, and a cancelling pair under `"sum"`. A
+`cograph_edges_dropped` warning says how many.
 
 ## Details
 

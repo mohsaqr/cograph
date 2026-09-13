@@ -36,8 +36,10 @@ plot_group_permutation(x, i = NULL, combined = TRUE, ...)
 
 ## Value
 
-When `i` is supplied, returns the selected permutation plot. Otherwise
-invisibly returns `NULL` after drawing all panels.
+When `i` is supplied, invisibly returns the
+[`plot_permutation()`](https://sonsoles.me/cograph/reference/plot_permutation.md)
+result for the selected panel (a `cograph_network`). Otherwise invisibly
+returns `NULL` after drawing all panels.
 
 ## Examples
 

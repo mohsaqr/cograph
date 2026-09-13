@@ -54,9 +54,9 @@ Built-in themes include:
 
 - `minimal`: Clean, minimal style
 
-- `viridis`: Viridis-based colour theme
+- `viridis`: Viridis-based color theme
 
-- `nature`: Nature-inspired colour theme
+- `nature`: Nature-inspired color theme
 
 ## Weight conventions
 

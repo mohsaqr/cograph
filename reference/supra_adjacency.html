@@ -102,7 +102,13 @@ is used (previously this happened silently).</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Supra-adjacency matrix of dimension (N<em>L) x (N</em>L)</p>
+    <p>A supra-adjacency matrix of dimension (N<em>L) x (N</em>L) with class
+<code>c("supra_adjacency", "matrix")</code>. Diagonal N x N blocks hold the
+intra-layer adjacencies and off-diagonal blocks the inter-layer coupling.
+The attributes <code>"n_nodes"</code>, <code>"n_layers"</code>, <code>"node_names"</code>,
+<code>"layer_names"</code>, <code>"omega"</code> and <code>"coupling"</code> record the
+construction and are read back by <code><a href="supra_layer.html">supra_layer()</a></code> and
+<code><a href="supra_interlayer.html">supra_interlayer()</a></code>.</p>
     </div>
 
     <div class="section level2">

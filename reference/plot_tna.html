@@ -180,7 +180,8 @@ Accepts qgraph parameter names for seamless migration from qgraph to cograph.</p
 
 
 <dt id="arg-arrowangle">arrowAngle<a class="anchor" aria-label="anchor" href="#arg-arrowangle"></a></dt>
-<dd><p>Arrow head angle in radians. Default pi/6 (30 degrees).</p></dd>
+<dd><p>Arrow head angle in radians. Default NULL, which leaves
+<code><a href="splot.html">splot()</a></code>'s own <code>arrow_angle</code> default of pi/6 (30 degrees) in place.</p></dd>
 
 
 <dt id="arg-title">title<a class="anchor" aria-label="anchor" href="#arg-title"></a></dt>
@@ -194,7 +195,6 @@ Accepts qgraph parameter names for seamless migration from qgraph to cograph.</p
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>Invisibly returns the cograph_network object from splot().</p>
-<p>Invisibly returns the cograph_network object from splot().</p>
     </div>
 
     <div class="section level2">
@@ -209,7 +209,7 @@ Accepts qgraph parameter names for seamless migration from qgraph to cograph.</p
 <span class="r-plt img"><img src="plot_tna-2.png" alt="" width="1080" height="1080"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># With custom colors</span></span></span>
-<span class="r-in"><span><span class="fu">plot_tna</span><span class="op">(</span><span class="va">m</span>, color <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">rainbow</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span>, vsize <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">plot_tna</span><span class="op">(</span><span class="va">m</span>, color <span class="op">=</span> <span class="fu"><a href="palette_colorblind.html">palette_colorblind</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span>, vsize <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plot_tna-3.png" alt="" width="1080" height="1080"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">25</span><span class="op">)</span>, <span class="fl">5</span>, <span class="fl">5</span><span class="op">)</span></span></span>

@@ -26,8 +26,10 @@ Invisible NULL.
 ## Examples
 
 ``` r
-# Register a custom hexagon shape
-register_shape("hexagon", function(x, y, size, fill, border_color, border_width, ...) {
+# Register a custom hexagon shape under a new name. Registering an existing
+# name (for example "hexagon") would replace the built-in shape for the rest
+# of the session, so pick a name of your own.
+register_shape("my_hexagon", function(x, y, size, fill, border_color, border_width, ...) {
   angles <- seq(0, 2 * pi, length.out = 7)
   grid::polygonGrob(
     x = x + size * cos(angles),

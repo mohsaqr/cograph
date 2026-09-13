@@ -68,7 +68,8 @@ subset_edges(
 
 A cograph_network object with filtered edges. If `keep_format = TRUE`,
 matrix, igraph, and statnet network inputs are converted back to that
-type.
+type. Nodes are never removed by the filter itself; when the filter
+strands a node a `cograph_isolates_created` warning is raised.
 
 See `filter_edges`.
 

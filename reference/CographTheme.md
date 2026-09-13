@@ -159,6 +159,10 @@ Set a theme parameter.
 
   Parameter value.
 
+#### Returns
+
+The object itself, invisibly.
+
 ------------------------------------------------------------------------
 
 ### Method `get_all()`
@@ -216,6 +220,10 @@ Print theme summary.
 #### Usage
 
     CographTheme$print()
+
+#### Returns
+
+The object itself, invisibly.
 
 ------------------------------------------------------------------------
 

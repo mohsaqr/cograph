@@ -65,8 +65,8 @@ plot_trajectories(
 
 - from_title:
 
-  Title for the left column. Default "From". For multi-step, use a
-  vector of titles (e.g., c("T1", "T2", "T3", "T4")).
+  Column titles. Default `NULL`, which uses the column names of `x`.
+  Pass a character vector to override them.
 
 - title:
 

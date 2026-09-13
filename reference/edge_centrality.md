@@ -67,40 +67,53 @@ edge_betweenness(x, ...)
 
 - ...:
 
-  Additional arguments passed to
-  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
+  Additional arguments forwarded to the graph constructor, namely
+  `loops` and `simplify` (see
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md)).
 
 ## Value
 
-A data frame with columns `from`, `to`, and one column per requested
-measure.
+A base `data.frame` with one row per edge, in the canonical (row-major)
+edge order of the input. The first two columns are `from` and `to`
+(character when the input carried node names, numeric indices
+otherwise); the remaining columns are those the requested measures
+contribute, as listed in Details. `measures = "all"` on an undirected
+input therefore gives `from`, `to`, `weight`, `betweenness`, `overlap`,
+`shared_neighbors` and `triangles`, and a directed input adds
+`reciprocated`, `reverse_weight` and `weight_ratio`.
 
 Named numeric vector of edge betweenness values (named by `"from->to"`).
 
 ## Details
 
-Edge measures available:
+Edge measures available, with the column(s) each one adds:
 
 - betweenness:
 
-  Number of shortest paths passing through the edge.
+  Number of shortest paths passing through the edge. Adds `betweenness`.
 
 - weight:
 
-  Original edge weight.
+  Original edge weight (1 for an unweighted input). Adds `weight`.
 
 - overlap:
 
-  Jaccard neighborhood overlap of edge endpoints.
+  Jaccard neighborhood overlap of the edge endpoints. Adds `overlap` and
+  the raw count `shared_neighbors`.
 
 - simmelian:
 
-  Number of triangles the edge participates in.
+  Number of triangles the edge participates in. Adds `triangles` (there
+  is no column called `simmelian`).
 
 - reciprocity:
 
-  Whether the reverse edge exists (directed only). Adds columns:
-  `reciprocated`, `reverse_weight`, `weight_ratio`.
+  Whether the reverse edge exists. Directed only: on an undirected input
+  it warns and adds nothing. Adds `reciprocated`, `reverse_weight` and
+  `weight_ratio`, the last two `NA` where the edge is not reciprocated.
+
+`measures = "all"` requests every measure, dropping `reciprocity` on an
+undirected input.
 
 ## Examples
 

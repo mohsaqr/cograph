@@ -29,7 +29,7 @@ centrality_shapley_game3(x, shapley_cutoff = 2, ...)
 
 - shapley_k:
 
-  Neighbour threshold \\k\\ for game 2. Default 2.
+  Neighbor threshold \\k\\ for game 2. Default 2.
 
 - shapley_cutoff:
 
@@ -48,7 +48,7 @@ Named numeric vector, one Shapley value per node.
 
 - Game 2 (`shapley_game2`):
 
-  \\v(C)\\ = nodes in \\C\\ or with at least \\k\\ neighbours in \\C\\.
+  \\v(C)\\ = nodes in \\C\\ or with at least \\k\\ neighbors in \\C\\.
   \\SV(v) = \min(1, k / (1 + k_v)) + \sum\_{u \in N(v)} \max(0, (k_u -
   k + 1) / (k_u (1 + k_u)))\\. With \\k = 1\\ this is game 1. Threshold
   via `shapley_k` (default 2).

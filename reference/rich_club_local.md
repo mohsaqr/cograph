@@ -50,14 +50,17 @@ rich_club_local(
 
 - ...:
 
-  Additional arguments passed to
-  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md).
+  Currently unused; `directed` is already an explicit argument above and
+  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
+  accepts no others.
 
 ## Value
 
-A data frame with columns `node` and `score`, sorted by `score`
-descending. Values \> 1 indicate the node directs disproportionately
-strong ties to prominent nodes.
+A plain data frame with one row per node and columns `node` (node label)
+and `score`, sorted by `sort_by` descending (`"score"` by default; pass
+`sort_by = NULL` to keep node order). Values \> 1 indicate the node
+directs disproportionately strong ties to prominent nodes; a node with
+no neighbors, no prominent neighbor, or zero mean tie weight scores 1.
 
 ## Details
 

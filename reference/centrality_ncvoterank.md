@@ -1,14 +1,14 @@
 # NCVoteRank
 
-Kumar and Panda's (2020) neighbourhood-coreness VoteRank. As in
-VoteRank, every node votes for its neighbours with its voting ability,
-the top scorer is elected, and the abilities around it are weakened;
-here each voter's ability is additionally weighted by its neighbourhood
-coreness, \$\$s_u = \sum\_{v \in N(u)} va_v \\\[\theta + (1 - \theta)\\
-nc_v\], \qquad nc_v = \frac{\sum\_{w \in N(v)} ks(w)} {\max_j \sum\_{w
-\in N(j)} ks(w)},\$\$ with \\ks\\ the k-shell index (Bae & Kim 2014) and
-\\\theta = 0.5\\. After an election the winner's ability drops to 0, its
-neighbours lose \\1 / \langle k \rangle\\ and the nodes two steps away
+Kumar and Panda's (2020) neighborhood-coreness VoteRank. As in VoteRank,
+every node votes for its neighbors with its voting ability, the top
+scorer is elected, and the abilities around it are weakened; here each
+voter's ability is additionally weighted by its neighborhood coreness,
+\$\$s_u = \sum\_{v \in N(u)} va_v \\\[\theta + (1 - \theta)\\ nc_v\],
+\qquad nc_v = \frac{\sum\_{w \in N(v)} ks(w)} {\max_j \sum\_{w \in N(j)}
+ks(w)},\$\$ with \\ks\\ the k-shell index (Bae & Kim 2014) and \\\theta
+= 0.5\\. After an election the winner's ability drops to 0, its
+neighbors lose \\1 / \langle k \rangle\\ and the nodes two steps away
 lose \\1 / (2 \langle k \rangle)\\. Elections continue until every node
 is placed, as in
 [`centrality_voterank`](https://sonsoles.me/cograph/reference/centrality_voterank.md);
@@ -46,7 +46,7 @@ this definition follows the Centrality Zoo encyclopedia (Shvydun 2025)
 and three independent restatements (Yu et al. 2020, Li et al. 2022, Zhu
 et al. 2023), which agree on the voter-side coreness weighting. The
 scaling of the coreness term by its maximum follows Yu et al., who state
-the coreness is normalised without giving the form. With \\\theta = 1\\
+the coreness is normalized without giving the form. With \\\theta = 1\\
 and no two-hop weakening the procedure is exactly VoteRank, which is
 reproduced against `networkx.voterank`. Defined for undirected graphs;
 direction, weights and loops are ignored.

@@ -51,6 +51,13 @@ network carries (for example `session`). For `what = "nodes"`, one row
 per node with the node metadata columns (`id`, `label`, layout
 coordinates, and any custom columns).
 
+This is the accessor, so it hands back everything the object holds,
+including columns
+[`mutate_edges`](https://sonsoles.me/cograph/reference/mutate_edges.md)
+computed.
+[`to_df`](https://sonsoles.me/cograph/reference/to_data_frame.md) is the
+narrower conversion verb: it returns `from`, `to` and `weight` only.
+
 ## See also
 
 [`to_df`](https://sonsoles.me/cograph/reference/to_data_frame.md),

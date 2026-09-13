@@ -91,7 +91,8 @@ or an unnamed vector in node order.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments passed to <code><a href="to_igraph.html">to_igraph</a></code>.</p></dd>
+<dd><p>Currently unused; <code>directed</code> is already an explicit
+argument above and <code><a href="to_igraph.html">to_igraph</a></code> accepts no others.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -126,7 +127,12 @@ $$r = \frac{\text{tr}(\mathbf{e}) - \|\mathbf{e}^2\|}{1 - \|\mathbf{e}^2\|}$$
 where \(\mathbf{e}\) is the mixing matrix with \(e_{ij}\) = fraction of
 edges connecting type \(i\) to type \(j\).</p>
 <p>For numeric (scalar) attributes, the coefficient is the Pearson correlation
-between attribute values at edge endpoints.</p>
+between attribute values at edge endpoints (computed over both orientations
+of every edge when the network is undirected). Any non-numeric
+<code>values</code> vector (character or factor) is treated as nominal.</p>
+<p>The coefficient is <code>NA</code> when the network has no edges, when a nominal
+attribute has a single category, or when either value vector has zero
+variance.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

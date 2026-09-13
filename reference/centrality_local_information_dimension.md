@@ -6,7 +6,7 @@ around \\i\\ (node included), the box information is \\I_i(l) = -p_i(l)
 \ln p_i(l)\\ and \$\$D^I_i = -\frac{d I_i(l)}{d \ln l},\$\$ estimated as
 minus the least-squares slope of \\I_i(l)\\ on \\\ln l\\ for \\l = 1,
 \ldots, \lceil d\_{\max}(i) / 2 \rceil\\. **Higher values mark more
-influential nodes.** When only one box size is available the discretised
+influential nodes.** When only one box size is available the discretized
 derivative of the source paper, \\l (1 + \ln p_i(l))\\ n_i(l) / N\\, is
 reported.
 

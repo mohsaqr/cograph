@@ -3,17 +3,17 @@
 user to weight them. Each index is first turned into a discrete
 distribution over the nodes, and the integrated score is the distribution
 that has the smallest total relative entropy to all of them. Chen, Wang
-and Luo (2016) show that the minimiser has a closed form, equation (11):
+and Luo (2016) show that the minimizer has a closed form, equation (11):
 \(w_i=\prod_{j=1}^{m}u_{ji}^{1/m}/\sum_{i}\prod_{j=1}^{m}u_{ji}^{1/m}\),
-the normalised geometric mean of the \(m\) index distributions. The
+the normalized geometric mean of the \(m\) index distributions. The
 result sums to one, so it reads as a share of importance rather than a
 raw score."><meta property="og:description" content="Integrates several centrality indexes into one score without asking the
 user to weight them. Each index is first turned into a discrete
 distribution over the nodes, and the integrated score is the distribution
 that has the smallest total relative entropy to all of them. Chen, Wang
-and Luo (2016) show that the minimiser has a closed form, equation (11):
+and Luo (2016) show that the minimizer has a closed form, equation (11):
 \(w_i=\prod_{j=1}^{m}u_{ji}^{1/m}/\sum_{i}\prod_{j=1}^{m}u_{ji}^{1/m}\),
-the normalised geometric mean of the \(m\) index distributions. The
+the normalized geometric mean of the \(m\) index distributions. The
 result sums to one, so it reads as a share of importance rather than a
 raw score."><meta property="og:image" content="https://sonsoles.me/cograph/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -66,9 +66,9 @@ raw score."><meta property="og:image" content="https://sonsoles.me/cograph/logo.
 user to weight them. Each index is first turned into a discrete
 distribution over the nodes, and the integrated score is the distribution
 that has the smallest total relative entropy to all of them. Chen, Wang
-and Luo (2016) show that the minimiser has a closed form, equation (11):
+and Luo (2016) show that the minimizer has a closed form, equation (11):
 \(w_i=\prod_{j=1}^{m}u_{ji}^{1/m}/\sum_{i}\prod_{j=1}^{m}u_{ji}^{1/m}\),
-the normalised geometric mean of the \(m\) index distributions. The
+the normalized geometric mean of the \(m\) index distributions. The
 result sums to one, so it reads as a share of importance rather than a
 raw score.</p>
     </div>
@@ -124,7 +124,7 @@ are invariant to rescaling a positive index, so only the shape of an
 index matters, never its units.</p>
 <p>The geometric mean is unforgiving: a node that scores exactly zero on any
 one index scores exactly zero overall. That is the source's own printed
-behaviour – its Table 2 gives zero to the three Kite nodes with zero
+behavior – its Table 2 gives zero to the three Kite nodes with zero
 betweenness – and cograph reproduces it rather than smoothing it away.</p>
     </div>
     <div class="section level2">
@@ -135,7 +135,7 @@ betweenness – and cograph reproduces it rather than smoothing it away.</p>
 <p><code>re_indexes</code> accepts the six indexes the source both defines and
 declares a direction for. Their default directions are the source's own.</p>
 <dl><dt>degree</dt>
-<dd><p>Number of neighbours (section 3.2). Positive.</p></dd>
+<dd><p>Number of neighbors (section 3.2). Positive.</p></dd>
 
 <dt>closeness</dt>
 <dd><p>Equation (3), \(1/\sum_j l_{ij}\), the reciprocal of
@@ -143,13 +143,13 @@ the raw distance sum with no \(|V|-1\) factor. Positive.</p></dd>
 
 <dt>betweenness</dt>
 <dd><p>Equation (4), summed over ordered pairs
-\(j\ne i\ne k\), so twice the usual unnormalised undirected
+\(j\ne i\ne k\), so twice the usual unnormalized undirected
 betweenness. Positive.</p></dd>
 
 <dt>constraint</dt>
 <dd><p>Equation (6), the network constraint coefficient,
 with the outer sum over every other node rather than over the
-neighbours alone. Negative.</p></dd>
+neighbors alone. Negative.</p></dd>
 
 <dt>n_components</dt>
 <dd><p>Number of connected components left after deleting

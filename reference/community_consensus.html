@@ -102,16 +102,22 @@ placed in the same community.</p></dd>
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
 <dd><p>Optional seed for reproducibility. If provided, the RNG state is
-initialized once before repeated runs.</p></dd>
+initialized once before repeated runs and restored on exit.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments passed to the community detection method.</p></dd>
+<dd><p>Currently ignored. Each run calls the underlying
+<code>igraph::cluster_*()</code> function with its own defaults; no extra
+arguments are forwarded.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code>cograph_communities</code> object with consensus membership.</p>
+    <p>A <code>cograph_communities</code> data frame (columns <code>node</code> and
+<code>community</code>) holding the consensus membership. Its
+<code>"algorithm"</code> attribute is <code>"consensus_&lt;method&gt;"</code> and its
+<code>"modularity"</code> attribute is that of the final walktrap partition of
+the consensus graph, not of the original network.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

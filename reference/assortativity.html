@@ -78,10 +78,12 @@ symmetry. Set TRUE to force directed, FALSE to force undirected.</p></dd>
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
-<dd><p>Character string specifying which degree correlation to compute.
-One of <code>"out-in"</code> (default for directed), <code>"in-in"</code>,
-<code>"out-out"</code>, <code>"in-out"</code>, or <code>"degree"</code> (for undirected).
-Ignored for undirected networks.</p></dd>
+<dd><p>Character string specifying which degree correlation to compute,
+or NULL (default) to choose automatically: <code>"out-in"</code> for directed
+networks and <code>"degree"</code> for undirected ones. For a directed network
+the accepted values are <code>"out-in"</code>, <code>"in-in"</code>,
+<code>"out-out"</code> and <code>"in-out"</code>; for an undirected network the only
+accepted value is <code>"degree"</code>. Any other value raises an error.</p></dd>
 
 
 <dt id="arg-digits">digits<a class="anchor" aria-label="anchor" href="#arg-digits"></a></dt>
@@ -90,7 +92,8 @@ Default NULL (no rounding).</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments passed to <code><a href="to_igraph.html">to_igraph</a></code>.</p></dd>
+<dd><p>Currently unused; <code>directed</code> is already an explicit
+argument above and <code><a href="to_igraph.html">to_igraph</a></code> accepts no others.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -125,14 +128,25 @@ coefficient between the degrees of nodes at either end of each edge
 <p>where \(e_{jk}\) is the fraction of edges connecting degree-\(j\) to
 degree-\(k\) vertices, \(q_k\) is the excess degree distribution, and
 \(\sigma_q^2\) its variance.</p>
-<p>For directed networks, different degree combinations (in/out) at source and
-target ends can be specified via the <code>type</code> parameter.</p>
+<p>Because the Pearson correlation is invariant to subtracting a constant, the
+implementation computes the correlation of the raw (rather than excess)
+degrees at the two ends of each edge, counting every undirected edge in both
+orientations; this is numerically identical to the formula above.</p>
+<p>For directed networks, the coefficient is the Pearson correlation between
+the source-end and target-end degrees over each edge in its stored
+orientation, with the degree mode at each end chosen by <code>type</code>
+(Foster et al. 2010).</p>
+<p>The coefficient is <code>NA</code> when the network has no edges or when either
+degree vector has zero variance.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>Newman, M.E.J. (2002). Assortative mixing in networks.
 <em>Physical Review Letters</em>, 89(20), 208701.
 <a href="https://doi.org/10.1103/PhysRevLett.89.208701" class="external-link">doi:10.1103/PhysRevLett.89.208701</a></p>
+<p>Foster, J.G., Foster, D.V., Grassberger, P., &amp; Paczuski, M. (2010).
+Edge direction and the structure of networks. <em>PNAS</em>, 107(24),
+10815-10820. <a href="https://doi.org/10.1073/pnas.0912671107" class="external-link">doi:10.1073/pnas.0912671107</a></p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

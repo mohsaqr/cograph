@@ -87,7 +87,8 @@ symmetry. Set TRUE to force directed, FALSE to force undirected.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments passed to <code><a href="to_igraph.html">to_igraph</a></code></p></dd>
+<dd><p>Currently unused; <code>directed</code> is already an explicit
+argument above and <code><a href="to_igraph.html">to_igraph</a></code> accepts no others.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -110,6 +111,9 @@ ignore weights and treat all edges as having unit distance.</p>
 <p>Note: <code><a href="https://r.igraph.org/reference/distances.html" class="external-link">igraph::distances()</a></code> with <code>weights = NULL</code> automatically
 uses edge weight attributes if present. To force unweighted computation,
 pass <code>weights = NA</code> explicitly.</p>
+<p>igraph also exports a <code>shortest_paths()</code> with a different signature and
+return value; when both packages are attached, qualify the call as
+<code>cograph::shortest_paths()</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -141,7 +145,6 @@ pass <code>weights = NA</code> explicitly.</p>
 <span class="r-in"><span><span class="co"># Point-to-point</span></span></span>
 <span class="r-in"><span><span class="fu">cograph</span><span class="fu">::</span><span class="fu">shortest_paths</span><span class="op">(</span><span class="va">adj</span>, from <span class="op">=</span> <span class="st">"A"</span>, to <span class="op">=</span> <span class="st">"D"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3</span>
-<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

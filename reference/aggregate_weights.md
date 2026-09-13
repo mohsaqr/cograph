@@ -15,20 +15,23 @@ wagg(w, method = "sum", n_possible = NULL)
 
 - w:
 
-  Numeric vector of edge weights
+  Numeric vector of edge weights. `NA` and zero entries are dropped
+  before aggregation.
 
 - method:
 
   Aggregation method: "sum", "mean", "median", "max", "min", "prod",
-  "density", "geomean"
+  "density", "geomean". Default "sum". Any other value is an error.
 
 - n_possible:
 
-  Number of possible edges (for density calculation)
+  Number of possible edges (used only by `method = "density"`; when NULL
+  or not positive, the number of surviving weights is used as the
+  denominator instead).
 
 ## Value
 
-Single aggregated value
+A single numeric value, or 0 when no non-zero, non-NA weight remains.
 
 ## Examples
 

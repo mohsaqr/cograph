@@ -19,27 +19,41 @@ centralization(
 
 - x:
 
-  Network input
+  Network input (matrix, edge-list data frame, igraph, network,
+  cograph_network, tna object).
 
 - measure:
 
-  One of "degree", "betweenness", "closeness", "eigenvector"
+  One of `"degree"` (default), `"betweenness"`, `"closeness"` or
+  `"eigenvector"`.
 
 - directed:
 
-  Logical or NULL
+  Logical or `NULL`. `NULL` (default) auto-detects from matrix symmetry;
+  `TRUE`/`FALSE` forces it.
 
 - mode:
 
-  "all", "in", or "out"
+  For directed networks: `"all"` (default), `"in"` or `"out"`. Used by
+  `"degree"` and `"closeness"` only.
 
 - ...:
 
-  Additional arguments passed to to_igraph()
+  Ignored; accepted for call compatibility with the other centrality
+  verbs.
 
 ## Value
 
-Numeric scalar in \\\[0, 1\]\\
+A single number: the summed gap between the most central node and every
+other node, divided by the theoretical maximum for the measure, so 0
+marks a perfectly even network and 1 a perfect star. Nodes whose score
+is `NA` or `NaN` are dropped from the sum. Returns 0 when the network
+has two or fewer nodes.
+
+## Details
+
+A weighted input carries its weights into betweenness, closeness and
+eigenvector centrality; degree centralization ignores them.
 
 ## Examples
 

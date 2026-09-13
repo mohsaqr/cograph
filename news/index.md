@@ -1,5 +1,232 @@
 # Changelog
 
+## cograph 2.6.9
+
+### A full audit of the reference manual
+
+Every exported and internal function was read against its own roxygen
+block. Everything below is a documentation correction unless a heading
+says otherwise.
+
+#### Examples no longer assume a suggested package is installed
+
+`igraph` is in `Suggests`, but examples throughout the manual failed
+without it. 78 roxygen example blocks are now
+`@examplesIf requireNamespace("igraph", quietly = TRUE)`.
+
+Most built their example network with
+[`igraph::make_ring()`](https://r.igraph.org/reference/make_ring.html),
+[`igraph::make_star()`](https://r.igraph.org/reference/make_star.html)
+or `igraph::make_graph("Zachary")` and were found by reading the
+examples. The last 21 were not:
+[`network_summary()`](https://sonsoles.me/cograph/reference/network_summary.md),
+[`network_girth()`](https://sonsoles.me/cograph/reference/network_girth.md),
+[`network_radius()`](https://sonsoles.me/cograph/reference/network_radius.md),
+[`degree_distribution()`](https://sonsoles.me/cograph/reference/degree_distribution.md),
+[`dyad_census()`](https://sonsoles.me/cograph/reference/dyad_census.md),
+[`ego_networks()`](https://sonsoles.me/cograph/reference/ego_networks.md),
+[`shortest_paths()`](https://sonsoles.me/cograph/reference/shortest_paths.md)
+and the rest of that family take a plain matrix and reach igraph
+internally through
+[`to_igraph()`](https://sonsoles.me/cograph/reference/to_igraph.md), so
+nothing in the example text revealed the dependency. They were found by
+removing igraph and running the manual.
+
+Verified by running every example in a library where `igraph` (and
+therefore `tna`) could not be loaded: 403 topics, no failures.
+
+#### `...` documented an argument that could not be passed
+
+32 verbs – the community detection family, the `network_*` summaries,
+[`assortativity()`](https://sonsoles.me/cograph/reference/assortativity.md),
+[`core_periphery()`](https://sonsoles.me/cograph/reference/core_periphery.md),
+[`dyad_census()`](https://sonsoles.me/cograph/reference/dyad_census.md),
+[`ego_networks()`](https://sonsoles.me/cograph/reference/ego_networks.md),
+[`shortest_paths()`](https://sonsoles.me/cograph/reference/shortest_paths.md),
+[`k_shortest_paths()`](https://sonsoles.me/cograph/reference/k_shortest_paths.md),
+[`rich_club()`](https://sonsoles.me/cograph/reference/rich_club.md),
+[`rich_club_local()`](https://sonsoles.me/cograph/reference/rich_club_local.md),
+[`robustness()`](https://sonsoles.me/cograph/reference/robustness.md)
+and
+[`vulnerability()`](https://sonsoles.me/cograph/reference/vulnerability.md)
+– documented `...` as “additional arguments passed to
+[`to_igraph()`](https://sonsoles.me/cograph/reference/to_igraph.md)”.
+[`to_igraph()`](https://sonsoles.me/cograph/reference/to_igraph.md) is
+`function(x, directed = NULL)`: it has no `...`, so anything passed
+raised an “unused argument” error. Each site now says what is true.
+Where `directed` is already an explicit formal the dots are documented
+as unused; where it is not, they are documented as carrying `directed`
+and nothing else.
+
+#### A lost title, a lost contract
+
+[`plot_mcml()`](https://sonsoles.me/cograph/reference/plot_mcml.md)’s
+title line was missing its leading `#`, so R parsed it as a stray
+top-level string and roxygen took the next ten lines of prose as the
+title. `man/plot_mcml.Rd` now has the title it was meant to have.
+
+A roxygen block in `blob-helpers.R` had been separated from its function
+by a later comment banner, which silently moved
+`.expand_repeated_nodes()`’s `@param` and `@return` onto the one-line
+accessor that followed it.
+
+#### Corrections to documented behaviour
+
+Among the factual fixes:
+[`core_periphery()`](https://sonsoles.me/cograph/reference/core_periphery.md)’s
+example printed a component that does not exist;
+[`network_global_efficiency()`](https://sonsoles.me/cograph/reference/network_global_efficiency.md)
+documented the wrong value for its own example;
+[`community_consensus()`](https://sonsoles.me/cograph/reference/community_consensus.md)
+documented `...` as reaching the detection method when it is discarded;
+[`degree_distribution()`](https://sonsoles.me/cograph/reference/degree_distribution.md)
+marked three always-present components as conditional;
+`binarize(signed = TRUE)` was described as producing `-1` rather than
+`+1` or `-1`;
+[`get_edges()`](https://sonsoles.me/cograph/reference/get_edges.md) did
+not say its `from`/`to` are integer indices rather than labels; several
+verbs did not name the classed condition they raise; and the
+[`register_shape()`](https://sonsoles.me/cograph/reference/register_shape.md)
+and
+[`register_layout()`](https://sonsoles.me/cograph/reference/register_layout.md)
+examples overwrote a built-in shape and layout for the rest of the
+session. `show_zero_edges` in
+[`from_tna()`](https://sonsoles.me/cograph/reference/from_tna.md) and
+[`from_qgraph()`](https://sonsoles.me/cograph/reference/from_qgraph.md)
+is documented as having no effect, which is what it has.
+
+The [`plot_tna()`](https://sonsoles.me/cograph/reference/plot_tna.md)
+example that demonstrated custom colours with `rainbow(5)` now uses
+`palette_colorblind(5)`: the reference manual was teaching the one
+palette the package’s own style rules exclude.
+
+British spellings in roxygen prose were normalized to the `en-US` that
+`DESCRIPTION` declares (513 words across 79 files; comments only).
+
+### One fewer dependency
+
+`scales` has been dropped from `Suggests`. It was used for exactly one
+call – [`scales::squish`](https://scales.r-lib.org/reference/oob.html)
+as the out-of-bounds handler on the centrality heatmap’s fill scale –
+and that behaviour is now a nine-line base R helper. Clamping is
+unchanged: a finite value outside the limits is pulled to the nearer
+end, and `NA` and the infinities are left alone.
+
+### `show_zero_edges` now does something
+
+[`from_tna()`](https://sonsoles.me/cograph/reference/from_tna.md) and
+[`from_qgraph()`](https://sonsoles.me/cograph/reference/from_qgraph.md)
+have accepted and documented a `show_zero_edges` argument for several
+releases without ever reading it. Zero is how a weight matrix stores “no
+edge”, so an edge whose weight rounds to zero at `weight_digits`
+disappears from the plot, and there was no way to prevent that. With
+`show_zero_edges = TRUE` such an edge is now drawn at the smallest
+magnitude `weight_digits` can express, carrying its sign; every other
+weight is untouched. The default, `FALSE`, behaves exactly as before.
+
+### Three parameters now say what is wrong with them
+
+`ld_radius`, `s_shell_a` and `comm_r` were unvalidated, so a value
+outside their domain surfaced as an opaque failure from deep inside a
+kernel – `values must be length 1, but FUN(X[[1]]) result is length 0`
+for `ld_radius = 0`, and an all-`NA` result with a coercion warning for
+a `comm_r` that is neither `"max_intra"` nor a number. All three now
+raise a classed `cograph_bad_parameter` error naming the argument and
+its domain, matching the other tuning parameters in the centrality
+surface.
+
+### Two regressions against reverse dependencies
+
+Both were introduced before this release and are found by checking
+cograph against the eight packages that depend on it. All eight now
+check identically against this version and against the current CRAN
+cograph.
+
+[`centrality()`](https://sonsoles.me/cograph/reference/centrality.md)
+failed with *arguments imply differing number of rows* on a network
+whose node table carries no `label` column. The node-label fallback
+tested only for `NULL`, and a source with no labels arrives as a
+zero-length character vector instead, so the fallback to node indices
+never fired and the `node` column came out empty beside full-length
+measure columns. The fallback now checks that there is exactly one label
+per node, which also rejects a label vector of the wrong length.
+
+[`to_df()`](https://sonsoles.me/cograph/reference/to_data_frame.md) and
+[`to_data_frame()`](https://sonsoles.me/cograph/reference/to_data_frame.md)
+return `from`, `to` and `weight` again. When these stopped routing
+through igraph, the round-trip that used to discard extra edge columns
+went with it, and the verb silently began returning every column the
+edge table carried. They are the narrow conversion verbs; to get the
+edge table whole – including columns
+[`mutate_edges()`](https://sonsoles.me/cograph/reference/mutate_edges.md)
+computed – use
+[`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html) on the
+network, which is the accessor and is unchanged.
+
+### Fixes
+
+`centrality(measures = "hubbell")` refused to report a divergent result
+only when the largest *real part* of the scaled spectrum reached 1. The
+Neumann series behind Hubbell diverges once the *spectral radius* does,
+so a signed network carrying a complex pair of modulus above 1 – or a
+real eigenvalue below -1 – was reported as a confident number instead of
+`NA`. The guard now tests the modulus. For a non-negative weight matrix
+the Perron root is real, positive and equal to the spectral radius, so
+no unsigned network changes.
+
+`centrality(measures = "delta_closeness", closeness_delta = 0)` scored
+every node of a disconnected graph 1. R evaluates `Inf^0` as `1` and
+`is.finite(1)` is `TRUE`, so an unreachable pair passed the filter and
+counted as fully close. The distance matrix is now screened as well.
+Only `closeness_delta = 0` is affected; every positive delta already
+behaved.
+
+[`centrality_expected_influence_1()`](https://sonsoles.me/cograph/reference/centrality_expected_influence_1.md)
+and
+[`centrality_expected_influence_2()`](https://sonsoles.me/cograph/reference/centrality_expected_influence_2.md)
+read their result column by `$` partial matching, because the column is
+really `expected_influence_1_out`. They now index the column by name.
+Results are unchanged.
+
+[`mcml()`](https://sonsoles.me/cograph/reference/mcml.md)’s deprecation
+marker no longer depends on the `lifecycle` package, which was not
+declared anywhere, and no longer points at an SVG that the package does
+not ship – the HTML help image for that topic was broken.
+
+## cograph 2.6.5
+
+### Direction cues on simplicial pathway panels
+
+A simplex is a set of vertices, so a blob on its own cannot say which
+state came first: `A -> B -> B` and `B -> A -> B` drew the identical
+shape. With `dismantled = TRUE` each panel shows one ordered pathway, so
+[`plot_simplicial()`](https://sonsoles.me/cograph/reference/plot_simplicial.md)
+can now draw the traversal three ways, selected with `direction_cues`: a
+light-to-dark core ramp along the path (`"shade"`), a ring whose
+highlight peaks on the side facing the next state (`"ring"`), and an
+arrowhead just outside each node aimed at its successor (`"arrows"`).
+
+`direction` defaults to `NULL`, which turns the cues on exactly when
+`dismantled = TRUE`. A single combined blob cannot express direction, so
+`direction = TRUE` with `dismantled = FALSE` raises a classed
+`cograph_direction_needs_panels` error rather than drawing a misleading
+figure. `legend` draws the in-figure legend strip beneath a dismantled
+grid and defaults to `TRUE` whenever the cues are on.
+
+### Unordered pathways are no longer forced into a source/target split
+
+An association-rule itemset and a clique of a simplicial complex are
+sets: every member is co-equal and there is no target at all. These are
+now carried through the pipeline as genuinely unordered —
+`ordered = FALSE` — instead of having a source/target split imposed on
+them, and their panels are titled with a member list rather than a path.
+Ordered HON/HYPA/MOGen pathways are unaffected.
+
+### Fixes
+
+A panel-centring clip that could cut a blob off at the panel edge is
+fixed, and an NSE-related `R CMD check` NOTE is resolved.
+
 ## cograph 2.6.4
 
 ### Fixes to the parallel motif null

@@ -116,28 +116,38 @@ attacks; random removal is unaffected.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments passed to <code><a href="to_igraph.html">to_igraph</a></code></p></dd>
+<dd><p>Passed to <code><a href="to_igraph.html">to_igraph</a></code>, whose only other argument
+is <code>directed</code>; anything else raises an "unused argument" error.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A data frame (class "cograph_robustness") with columns:</p><dl><dt>removed_pct</dt>
+    <p>A data frame (class "cograph_robustness") with one row per removal
+step, from zero removed through all removed (<code>n + 1</code> rows, where
+<code>n</code> is the number of vertices or edges), and columns:</p><dl><dt>removed_pct</dt>
 <dd><p>Fraction of vertices/edges removed (0 to 1)</p></dd>
 
 <dt>comp_size</dt>
-<dd><p>Size of largest component after removal</p></dd>
+<dd><p>Size of largest component after removal (averaged over
+<code>n_iter</code> runs when <code>measure = "random"</code>)</p></dd>
 
 <dt>comp_pct</dt>
 <dd><p>Ratio of component size to original maximum</p></dd>
 
 <dt>measure</dt>
-<dd><p>Attack strategy used</p></dd>
+<dd><p>The <code>measure</code> argument: "betweenness", "degree", or
+"random"</p></dd>
 
 <dt>type</dt>
-<dd><p>Type of analysis (vertex or edge removal)</p></dd>
+<dd><p>A human-readable label for the analysis, one of
+"Targeted vertex attack", "Targeted edge attack",
+"Random vertex removal" or "Random edge removal" - not the bare
+<code>type</code> argument</p></dd>
 
 
-</dl></div>
+</dl><p>The original number of vertices/edges (<code>"n_original"</code>) and the original
+largest-component size (<code>"orig_max"</code>) are stored as attributes.</p>
+    </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Three attack strategies are available:</p>

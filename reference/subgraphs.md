@@ -24,9 +24,10 @@ subgraphs(...)
   Arguments forwarded to
   [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md). See
   [`?motifs`](https://sonsoles.me/cograph/reference/motifs.md) for the
-  full parameter list (`x`, `actor`, `window`, `pattern`, `include`,
-  `exclude`, `significance`, `n_perm`, `min_count`, `edge_method`,
-  `edge_threshold`, `min_transitions`, `top`, `seed`).
+  full parameter list (`x`, `actor`, `window`, `window_type`, `pattern`,
+  `include`, `exclude`, `significance`, `n_perm`, `cores`, `min_count`,
+  `edge_method`, `edge_threshold`, `min_transitions`, `top`, `seed`).
+  `named_nodes` is fixed to `TRUE` and must not be supplied.
 
 ## Value
 

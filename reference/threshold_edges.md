@@ -77,7 +77,11 @@ threshold_edges(
 ## Value
 
 A `cograph_network` with the surviving edges, or the input format when
-`keep_format = TRUE`. Every node is kept unless `keep_isolates = FALSE`.
+`keep_format = TRUE`. Every node is kept unless `keep_isolates = FALSE`;
+nodes the threshold stranded are reported in a
+`cograph_isolates_created` warning. An out-of-range `minimum`,
+`maximum`, `proportion`, `density` or `top` raises a
+`cograph_bad_selection` error.
 
 ## Details
 

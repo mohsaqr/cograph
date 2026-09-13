@@ -152,9 +152,9 @@ referenced in expressions or the `by` parameter are computed. This makes
 [`filter_nodes()`](https://sonsoles.me/cograph/reference/filter_nodes.md)
 for large networks.
 
-For networks with negative edge weights, `betweenness` and `closeness`
-will return NA with a warning (igraph cannot compute these with negative
-weights).
+For networks with negative edge weights, `betweenness`, `closeness` and
+`pagerank` are undefined and return `NA`, with a
+`cograph_negative_weights` warning.
 
 ## See also
 

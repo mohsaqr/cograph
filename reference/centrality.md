@@ -140,7 +140,9 @@ centrality(
 
   `"all"`
 
-  :   Every available measure.
+  :   Every measure except the costly ones, which are held back (see
+      `include` and
+      [`list_centralities`](https://sonsoles.me/cograph/reference/list_centralities.md)).
 
   Passing `measures` explicitly overrides `type`.
 
@@ -148,12 +150,14 @@ centrality(
 
   Character vector of specific measure names to compute. When `NULL`
   (default) the tier selected by `type` is used. Accepts `"all"` as a
-  shortcut for every measure. Any custom vector of valid measure names
-  is also accepted. **Core** (igraph-backed): "degree", "strength",
-  "betweenness", "closeness", "eigenvector", "pagerank", "authority",
-  "hub", "eccentricity", "coreness", "constraint", "transitivity",
-  "harmonic", "alpha", "power", "subgraph". **Native**: "diffusion",
-  "leverage", "kreach", "laplacian", "load", "current_flow_closeness",
+  shortcut for `type = "all"`, i.e. every measure except the costly
+  ones. Any custom vector of valid measure names is also accepted, and
+  naming a costly measure there always computes it. **Core**
+  (igraph-backed): "degree", "strength", "betweenness", "closeness",
+  "eigenvector", "pagerank", "authority", "hub", "eccentricity",
+  "coreness", "constraint", "transitivity", "harmonic", "alpha",
+  "power", "subgraph". **Native**: "diffusion", "leverage", "kreach",
+  "laplacian", "load", "current_flow_closeness",
   "current_flow_betweenness", "voterank", "percolation".
   **Distance-based**: "radiality", "lin", "decay", "residual_closeness",
   "dangalchev", "generalized_closeness", "harary", "average_distance",
@@ -296,9 +300,11 @@ centrality(
 
 - simplify:
 
-  How to combine multiple edges between the same node pair. Options:
-  "sum" (default), "mean", "max", "min", or FALSE/"none" to keep
-  multiple edges.
+  How to combine multiple edges between the same node pair (possible
+  only from edge-list, cograph_network or igraph input). Options: "sum"
+  (default), "mean", "max", "min". `FALSE` and `"none"` also sum them:
+  the network is held as a dense weight matrix, which cannot carry
+  parallel edges.
 
 - digits:
 
@@ -312,9 +318,12 @@ centrality(
 
 - cutoff:
 
-  Maximum path length to consider for betweenness, closeness, and
-  harmonic centrality. Default -1 (no limit). Set to a positive value
-  for faster computation on large networks at the cost of accuracy.
+  Maximum path length to consider for betweenness, closeness, harmonic
+  centrality and the distance-based closeness variants (radiality, lin,
+  decay, residual_closeness, dangalchev, generalized_closeness, harary,
+  average_distance, barycenter, wiener, centroid, closeness_vitality,
+  delta_closeness). Default -1 (no limit). Set to a positive value for
+  faster computation on large networks at the cost of accuracy.
 
 - invert_weights:
 
@@ -414,13 +423,14 @@ centrality(
 
 - hubbell_weight:
 
-  Weight factor \\w\\ for Hubbell centrality. Must satisfy \\w \cdot
-  \rho(W) \le 1\\ for solvability. Default 0.5. Only used when
+  Weight factor \\w\\ for Hubbell centrality. Must be positive and
+  satisfy \\w \cdot \rho(W) \< 1\\ for solvability; otherwise the
+  measure warns and returns `NA`. Default 0.5. Only used when
   `"hubbell"` is in `measures`.
 
 - shapley_k:
 
-  Neighbour threshold \\k\\ for `"shapley_game2"`. Default 2. See
+  Neighbor threshold \\k\\ for `"shapley_game2"`. Default 2. See
   [`centrality_shapley_game2`](https://sonsoles.me/cograph/reference/centrality_shapley_game1.md).
 
 - shapley_cutoff:
@@ -430,8 +440,8 @@ centrality(
 
 - s_shell_a:
 
-  Exponent of the asymmetric link weights for `"s_shell"`. Default 0.5.
-  See
+  Exponent of the asymmetric link weights for `"s_shell"`. A single
+  non-negative number; default 0.5. See
   [`centrality_s_shell`](https://sonsoles.me/cograph/reference/centrality_s_shell.md).
 
 - discount_p:
@@ -447,11 +457,12 @@ centrality(
 - comm_r:
 
   Scale \\R\\ of `"comm_centrality"`: `"max_intra"` (default) or a
-  positive number.
+  single positive number.
 
 - ld_radius:
 
-  Radius for `"local_dimension_fixed"`. Default 2.
+  Radius for `"local_dimension_fixed"`, in hops. A single number of at
+  least 1; default 2.
 
 - enrenew_depth:
 
@@ -489,7 +500,7 @@ centrality(
 
 - epc_runs:
 
-  Number of percolation realisations for `"epc"`. Default 1000.
+  Number of percolation realizations for `"epc"`. Default 1000.
 
 - epc_seed:
 
@@ -527,7 +538,7 @@ centrality(
 
 - volume_radius:
 
-  Closed neighbourhood radius for `"volume"`: a nonnegative integer or
+  Closed neighborhood radius for `"volume"`: a nonnegative integer or
   `Inf`, default 2. Degrees are measured in the full simple undirected
   graph. See
   [`centrality_volume`](https://sonsoles.me/cograph/reference/centrality_volume.md).
@@ -597,8 +608,8 @@ centrality(
 
 - rwd_decay:
 
-  Finite first-arrival discount in \[0,1) for `"random_walk_decay"`,
-  default0.5.
+  Finite first-arrival discount in \\\[0,1)\\ for `"random_walk_decay"`,
+  default 0.5.
 
 - rwd_node_weights:
 
@@ -743,7 +754,7 @@ centrality(
   Radius of the ball \\\Phi(v)\\ summed over by `"lhc"`, the \\d\\ of
   the source's equation (1); a single whole number of at least one,
   default 2 as the source sets it. The source sweeps it and reports 2-3
-  as optimal. At one the ball collapses to the neighbours; at or above
+  as optimal. At one the ball collapses to the neighbors; at or above
   the diameter the score stops moving. Values below one and non-integers
   are refused. See
   [`centrality_lhc`](https://sonsoles.me/cograph/reference/centrality_lhc.md).
@@ -846,12 +857,17 @@ centrality(
 
 ## Value
 
-A data frame with columns:
+A base `data.frame` with one row per node, in the input's node order
+unless `sort_by` is given, and the columns:
 
-- `node`: Node labels/names
+- `node`: character, the node labels (the index as a string when the
+  input carried no names)
 
-- One column per measure, with mode suffix for directional measures
-  (e.g., `degree_in`, `closeness_all`)
+- One numeric column per requested measure, with a mode suffix for the
+  mode-aware measures (e.g., `degree_in`, `closeness_all`); see
+  [`list_centralities`](https://sonsoles.me/cograph/reference/list_centralities.md)
+  for which measures carry a suffix. A measure that a tier supplied but
+  that has no value on this input is an all-`NA` column.
 
 ## Details
 
@@ -1137,7 +1153,7 @@ The following centrality measures are available:
 
 - distance_entropy:
 
-  Normalised Shannon entropy of a node's hop-distance profile; 1 =
+  Normalized Shannon entropy of a node's hop-distance profile; 1 =
   distances spread evenly, 0 = all at one distance.
 
 - local_dimension:
@@ -1152,8 +1168,8 @@ The following centrality measures are available:
 
 - neighborhood_connectivity:
 
-  Mean degree of a node's neighbours (average neighbour degree);
-  isolates score 0.
+  Mean degree of a node's neighbors (average neighbor degree); isolates
+  score 0.
 
 - modularity_vitality:
 
@@ -1163,7 +1179,7 @@ The following centrality measures are available:
 - shapley_game1, shapley_game2, shapley_game3:
 
   Shapley value of the node in the coverage games of Michalak et al.
-  (2013): one-hop coverage, `shapley_k`-neighbour coverage, and coverage
+  (2013): one-hop coverage, `shapley_k`-neighbor coverage, and coverage
   within `shapley_cutoff` hops. Values sum to the node count.
 
 - access_information:
@@ -1203,7 +1219,7 @@ The following centrality measures are available:
 
 - ncvoterank:
 
-  VoteRank with voters weighted by normalised neighbourhood coreness
+  VoteRank with voters weighted by normalized neighborhood coreness
   (`ncvote_theta`); election order scored like `voterank`.
 
 - community_based, comm_centrality, community_mediator:
@@ -1228,7 +1244,7 @@ The following centrality measures are available:
 - node_contraction, node_contraction_improved:
 
   One minus the agglomeration ratio after contracting the node with its
-  neighbours; the improved form adds the same score of its edges on the
+  neighbors; the improved form adds the same score of its edges on the
   line graph (`contraction_rho`).
 
 - two_way_rw:
@@ -1238,11 +1254,11 @@ The following centrality measures are available:
 
 - heatmap:
 
-  Farness minus mean neighbour farness; lower = more central.
+  Farness minus mean neighbor farness; lower = more central.
 
 - flow_coefficient:
 
-  Share of neighbour pairs linked through the node but not directly.
+  Share of neighbor pairs linked through the node but not directly.
 
 - local_entropy:
 
@@ -1255,13 +1271,13 @@ The following centrality measures are available:
 
 - redundancy:
 
-  Mean degree of the neighbours inside the ego network; degree minus
+  Mean degree of the neighbors inside the ego network; degree minus
   effective size.
 
 - weighted_kshell:
 
   k-shell on \\(k^\alpha s^\beta)^{1/(\alpha + \beta)}\\ after Garas'
-  weight normalisation (`wks_alpha`, `wks_beta`).
+  weight normalization (`wks_alpha`, `wks_beta`).
 
 - renewed_coreness:
 
@@ -1275,10 +1291,10 @@ The following centrality measures are available:
 
 - local_efficiency:
 
-  Global efficiency of the subgraph induced on the node's neighbours,
-  the node itself removed. Note that
+  Global efficiency of the subgraph induced on the node's neighbors, the
+  node itself removed. Note that
   [`igraph::local_efficiency()`](https://r.igraph.org/reference/global_efficiency.html)
-  instead measures the distances between those neighbours through the
+  instead measures the distances between those neighbors through the
   rest of the network.
 
 - s_core:
@@ -1299,7 +1315,7 @@ The following centrality measures are available:
 - epc:
 
   Edge percolated component: mean size of the node's component over
-  `epc_runs` bond-percolation realisations, as a share of the network. A
+  `epc_runs` bond-percolation realizations, as a share of the network. A
   Monte Carlo estimate.
 
 - length_scaled_betweenness:
@@ -1327,13 +1343,13 @@ The following centrality measures are available:
 
 - bridging_coefficient, godfather, support:
 
-  Reciprocal-degree ratio, count of unconnected neighbour pairs, and
+  Reciprocal-degree ratio, count of unconnected neighbor pairs, and
   count of triangle-supported relationships on the simple undirected
   skeleton.
 
 - volume:
 
-  Sum of degrees in the closed `volume_radius`-hop neighbourhood on the
+  Sum of degrees in the closed `volume_radius`-hop neighborhood on the
   simple undirected skeleton.
 
 - mcc:
@@ -1363,7 +1379,7 @@ The following centrality measures are available:
 
 - malatya:
 
-  Sum of focal-to-neighbour degree ratios on the simple undirected
+  Sum of focal-to-neighbor degree ratios on the simple undirected
   skeleton; the reciprocal of the bridging coefficient on nonisolated
   vertices.
 
@@ -1416,8 +1432,8 @@ The following centrality measures are available:
 
 - ked:
 
-  KED method: the degree times one plus the normalised entropy of the
-  neighbours' degrees times \\\exp(K_i/N)\\ for the neighbour-degree sum
+  KED method: the degree times one plus the normalized entropy of the
+  neighbors' degrees times \\\exp(K_i/N)\\ for the neighbor-degree sum
   \\K_i\\ and the whole graph's order \\N\\. Parameter-free. See
   [`centrality_ked`](https://sonsoles.me/cograph/reference/centrality_ked.md).
 
@@ -1491,7 +1507,7 @@ The following centrality measures are available:
 
 - relative_entropy:
 
-  Normalised geometric mean of several index distributions, the
+  Normalized geometric mean of several index distributions, the
   minimum-relative-entropy integration of `re_indexes`; sums to one. See
   [`centrality_relative_entropy`](https://sonsoles.me/cograph/reference/centrality_relative_entropy.md).
 

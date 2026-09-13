@@ -40,8 +40,8 @@ centrality_community_mediator(x, membership = NULL, mode = "all", ...)
 
 - comm_r:
 
-  Scale \\R\\ of Comm centrality: `"max_intra"` (default) or a positive
-  number.
+  Scale \\R\\ of Comm centrality: `"max_intra"` (default) or a single
+  positive number. Anything else raises a `cograph_bad_parameter` error.
 
 ## Value
 

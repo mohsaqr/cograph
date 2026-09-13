@@ -94,7 +94,8 @@ whole number of at least 2. Default 100.</p></dd>
 
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
-<dd><p>Random seed for reproducibility</p></dd>
+<dd><p>Random seed for reproducibility. Default NULL. When supplied,
+the caller's RNG state is saved and restored.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -103,10 +104,35 @@ whole number of at least 2. Default 100.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code>cograph_motifs</code> data frame with motif count, null-model mean,
-null-model standard deviation, z-score, p-value, and significance columns.
-The motif size, directed flag, null-model method, and number of random
-networks are stored as attributes.</p>
+    <p>A <code>cograph_motifs</code> data frame with one row per motif class and
+columns:</p><dl><dt>motif</dt>
+<dd><p>Motif class name (the 16 MAN codes for directed triads, the
+four undirected triad classes, or <code>motif_&lt;i&gt;</code> labels for size 4).</p></dd>
+
+<dt>count</dt>
+<dd><p>Observed number of that motif in the network.</p></dd>
+
+<dt>null_mean, null_sd</dt>
+<dd><p>Mean and standard deviation of the count
+across the <code>n_random</code> null graphs.</p></dd>
+
+<dt>z_score</dt>
+<dd><p><code>(count - null_mean) / null_sd</code>; <code>NA</code> when the
+null is degenerate (<code>null_sd = 0</code>) and the observation differs
+from it.</p></dd>
+
+<dt>p_value</dt>
+<dd><p>Two-sided empirical (add-one corrected) permutation
+p-value, not a Gaussian approximation.</p></dd>
+
+<dt>significant</dt>
+<dd><p>Logical, <code>p_value &lt; 0.05</code>.</p></dd>
+
+
+</dl><p>The motif size (<code>"size"</code>), directed flag (<code>"directed"</code>),
+null-model method (<code>"method"</code>), and number of random networks
+(<code>"n_random"</code>) are stored as attributes. Self-loops and multiple
+edges are removed before counting.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

@@ -1,12 +1,12 @@
 # Extended hybrid characteristic centrality
 
 The extended hybrid characteristic centrality of Liu and Zheng is the
-closed-neighbourhood sum of
+closed-neighborhood sum of
 [`centrality_hcc`](https://sonsoles.me/cograph/reference/centrality_hcc.md):
 \\EHCC(u)=HCC(u)+\sum\_{v\in\phi(u)}HCC(v)\\, the focal node counted
-once and each neighbour of the open 1-order neighbourhood once. It
-rewards a node whose neighbours are themselves high in both the extended
-degree and the E-shell hierarchy, which a node can be without being high
+once and each neighbor of the open 1-order neighborhood once. It rewards
+a node whose neighbors are themselves high in both the extended degree
+and the E-shell hierarchy, which a node can be without being high
 itself.
 
 ## Usage
@@ -39,7 +39,7 @@ Everything recorded on
 carries over unchanged: the source's \\\arg\max\\/\\\arg\min\\ typo in
 step 3 of the E-shell procedure, the original-graph reading of
 \\k^{ex}\\ and \\k^{ex}\_{max}\\ against the residual-graph peel, the
-global and therefore not component-local normalisers, the `hcc_delta`
+global and therefore not component-local normalizers, the `hcc_delta`
 domain \\\[0,1\]\\, the \\0/0\\ of an edgeless graph written as zero,
 the simple undirected unweighted skeleton, and the ignored weights,
 mode, cutoff and inversion. Because HCC lies in \\\[0,2\]\\, EHCC lies
@@ -68,7 +68,7 @@ centrality_ehcc(igraph::make_ring(6))
 #> 1 2 3 4 5 6 
 #> 6 6 6 6 6 6 
 
-# The star's centre collects every leaf's score as well as its own.
+# The star's center collects every leaf's score as well as its own.
 centrality_ehcc(igraph::make_star(6, mode = "undirected"))
 #>   1   2   3   4   5   6 
 #> 7.5 3.1 3.1 3.1 3.1 3.1 

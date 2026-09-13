@@ -44,7 +44,7 @@ Named numeric vector in \\(0, 1\]\\, one score per node.
 
   VoteRank for weighted graphs: \\s_v = \sqrt{k_v \sum\_{u \in N(v)}
   va_u w\_{vu}}\\. After an election the winner's ability is 0 and its
-  neighbours lose \\1 / \langle w \rangle\\, where \\\langle w \rangle\\
+  neighbors lose \\1 / \langle w \rangle\\, where \\\langle w \rangle\\
   is the average strength (the paper's Figure 1 pins strength, not
   degree). Uses edge weights; with unit weights it is VoteRank with a
   square-root score. Reproduces all sixty numbers of the paper's Figure
@@ -64,7 +64,7 @@ Named numeric vector in \\(0, 1\]\\, one score per node.
 - `voterank_plus` (Liu, Li, Fang & Yao 2021):
 
   Initial ability \\\ln(1 + k_i / k\_{\max})\\, degree-proportional vote
-  shares over unelected neighbours, score \\\sqrt{k_i \sum_j va_j w\_{j
+  shares over unelected neighbors, score \\\sqrt{k_i \sum_j va_j w\_{j
   \to i}}\\, and after an election abilities are multiplied by
   \\\lambda\\ one step away and \\\sqrt{\lambda}\\ two steps away
   (`voterank_lambda`, default 0.1). The article is closed access; the

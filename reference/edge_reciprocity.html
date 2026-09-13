@@ -84,8 +84,19 @@ object.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A data frame with columns: <code>from</code>, <code>to</code>, <code>weight</code>,
-<code>reciprocated</code>, <code>reverse_weight</code>, <code>weight_ratio</code>.</p>
+    <p>A data frame with one row per directed edge and columns
+<code>from</code>, <code>to</code>, <code>weight</code>, <code>reciprocated</code> (logical),
+<code>reverse_weight</code> (NA when not reciprocated) and <code>weight_ratio</code>
+(<code>weight / reverse_weight</code>; NA when not reciprocated). Rows are
+ordered with reciprocated edges first, then by <code>|weight_ratio|</code>
+descending.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="errors">Errors<a class="anchor" aria-label="anchor" href="#errors"></a></h2>
+
+
+<p>Raises an error when the resolved network is undirected: reciprocity is
+only defined for directed edges.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

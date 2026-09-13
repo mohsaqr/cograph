@@ -1,6 +1,6 @@
 # mcml - Deprecated alias for csum
 
-**\[deprecated\]**
+**\[Deprecated\]**
 
 Use [`csum`](https://sonsoles.me/cograph/reference/csum.md) instead.
 This function is provided for backward compatibility only.

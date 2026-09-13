@@ -129,7 +129,10 @@ TRUE. Set FALSE, or call <code><a href="remove_isolates.html">remove_isolates()<
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A <code>cograph_network</code> with the surviving edges, or the input
 format when <code>keep_format = TRUE</code>. Every node is kept unless
-<code>keep_isolates = FALSE</code>.</p>
+<code>keep_isolates = FALSE</code>; nodes the threshold stranded are reported in
+a <code>cograph_isolates_created</code> warning. An out-of-range
+<code>minimum</code>, <code>maximum</code>, <code>proportion</code>, <code>density</code> or
+<code>top</code> raises a <code>cograph_bad_selection</code> error.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

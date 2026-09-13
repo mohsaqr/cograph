@@ -23,7 +23,9 @@ complement_network(
 
 - weight:
 
-  Numeric. Weight to give the new edges. Default 1.
+  Numeric. Weight to give the new edges. Default 1. Zero is how this
+  representation stores "no edge", so `weight = 0` raises a
+  `cograph_bad_selection` error rather than returning an empty network.
 
 - loops:
 

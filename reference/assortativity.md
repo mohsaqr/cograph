@@ -25,10 +25,12 @@ assortativity(x, directed = NULL, type = NULL, digits = NULL, ...)
 
 - type:
 
-  Character string specifying which degree correlation to compute. One
-  of `"out-in"` (default for directed), `"in-in"`, `"out-out"`,
-  `"in-out"`, or `"degree"` (for undirected). Ignored for undirected
-  networks.
+  Character string specifying which degree correlation to compute, or
+  NULL (default) to choose automatically: `"out-in"` for directed
+  networks and `"degree"` for undirected ones. For a directed network
+  the accepted values are `"out-in"`, `"in-in"`, `"out-out"` and
+  `"in-out"`; for an undirected network the only accepted value is
+  `"degree"`. Any other value raises an error.
 
 - digits:
 
@@ -37,8 +39,9 @@ assortativity(x, directed = NULL, type = NULL, digits = NULL, ...)
 
 - ...:
 
-  Additional arguments passed to
-  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md).
+  Currently unused; `directed` is already an explicit argument above and
+  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
+  accepts no others.
 
 ## Value
 
@@ -80,14 +83,29 @@ where \\e\_{jk}\\ is the fraction of edges connecting degree-\\j\\ to
 degree-\\k\\ vertices, \\q_k\\ is the excess degree distribution, and
 \\\sigma_q^2\\ its variance.
 
-For directed networks, different degree combinations (in/out) at source
-and target ends can be specified via the `type` parameter.
+Because the Pearson correlation is invariant to subtracting a constant,
+the implementation computes the correlation of the raw (rather than
+excess) degrees at the two ends of each edge, counting every undirected
+edge in both orientations; this is numerically identical to the formula
+above.
+
+For directed networks, the coefficient is the Pearson correlation
+between the source-end and target-end degrees over each edge in its
+stored orientation, with the degree mode at each end chosen by `type`
+(Foster et al. 2010).
+
+The coefficient is `NA` when the network has no edges or when either
+degree vector has zero variance.
 
 ## References
 
 Newman, M.E.J. (2002). Assortative mixing in networks. *Physical Review
 Letters*, 89(20), 208701.
 [doi:10.1103/PhysRevLett.89.208701](https://doi.org/10.1103/PhysRevLett.89.208701)
+
+Foster, J.G., Foster, D.V., Grassberger, P., & Paczuski, M. (2010). Edge
+direction and the structure of networks. *PNAS*, 107(24), 10815-10820.
+[doi:10.1073/pnas.0912671107](https://doi.org/10.1073/pnas.0912671107)
 
 ## See also
 

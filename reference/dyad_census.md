@@ -28,8 +28,9 @@ dyad_census(x, directed = NULL, ...)
 
 - ...:
 
-  Additional arguments passed to
-  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md).
+  Currently unused; `directed` is already an explicit argument above and
+  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
+  accepts no others.
 
 ## Value
 

@@ -49,10 +49,24 @@ subset_nodes(
 
   :   `degree`, `indegree`, `outdegree`, `strength`, `instrength`,
       `outstrength`, `betweenness`, `closeness`, `eigenvector`,
-      `pagerank`, `hub`, `authority`
+      `pagerank`, `hub`, `authority`, `coreness`. Any other measure
+      [`centrality()`](https://sonsoles.me/cograph/reference/centrality.md)
+      computes can be named too; see
+      [`list_centralities()`](https://sonsoles.me/cograph/reference/list_centralities.md).
+
+  Structural context and predicates
+
+  :   The same vocabulary
+      [`select_nodes()`](https://sonsoles.me/cograph/reference/select_nodes.md)
+      documents, for example `component`, `component_size`, `k_core`,
+      `is_isolated`, `is_cut`, `local_transitivity`.
 
   Examples: `degree >= 3`, `label %in% c("A", "B")`,
   `pagerank > 0.1 & degree >= 2`.
+
+  On a network with negative edge weights, `betweenness`, `closeness`
+  and `pagerank` are undefined: they return `NA` with a
+  `cograph_negative_weights` warning.
 
 - keep_edges:
 

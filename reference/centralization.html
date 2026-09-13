@@ -68,28 +68,42 @@ or eigenvector centrality.</p>
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>Network input</p></dd>
+<dd><p>Network input (matrix, edge-list data frame, igraph, network,
+cograph_network, tna object).</p></dd>
 
 
 <dt id="arg-measure">measure<a class="anchor" aria-label="anchor" href="#arg-measure"></a></dt>
-<dd><p>One of "degree", "betweenness", "closeness", "eigenvector"</p></dd>
+<dd><p>One of <code>"degree"</code> (default), <code>"betweenness"</code>,
+<code>"closeness"</code> or <code>"eigenvector"</code>.</p></dd>
 
 
 <dt id="arg-directed">directed<a class="anchor" aria-label="anchor" href="#arg-directed"></a></dt>
-<dd><p>Logical or NULL</p></dd>
+<dd><p>Logical or <code>NULL</code>. <code>NULL</code> (default) auto-detects
+from matrix symmetry; <code>TRUE</code>/<code>FALSE</code> forces it.</p></dd>
 
 
 <dt id="arg-mode">mode<a class="anchor" aria-label="anchor" href="#arg-mode"></a></dt>
-<dd><p>"all", "in", or "out"</p></dd>
+<dd><p>For directed networks: <code>"all"</code> (default), <code>"in"</code> or
+<code>"out"</code>. Used by <code>"degree"</code> and <code>"closeness"</code> only.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments passed to to_igraph()</p></dd>
+<dd><p>Ignored; accepted for call compatibility with the other
+centrality verbs.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Numeric scalar in \([0, 1]\)</p>
+    <p>A single number: the summed gap between the most central node and
+every other node, divided by the theoretical maximum for the measure, so
+0 marks a perfectly even network and 1 a perfect star. Nodes whose score
+is <code>NA</code> or <code>NaN</code> are dropped from the sum. Returns 0 when the
+network has two or fewer nodes.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>A weighted input carries its weights into betweenness, closeness and
+eigenvector centrality; degree centralization ignores them.</p>
     </div>
 
     <div class="section level2">

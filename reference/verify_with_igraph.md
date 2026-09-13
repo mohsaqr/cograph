@@ -18,11 +18,12 @@ verify_igraph(x, clusters, method = "sum", type = "raw")
 
 - clusters:
 
-  Cluster specification
+  Cluster specification (see
+  [`csum`](https://sonsoles.me/cograph/reference/csum.md))
 
 - method:
 
-  Aggregation method
+  Aggregation method. Default "sum".
 
 - type:
 
@@ -30,7 +31,14 @@ verify_igraph(x, clusters, method = "sum", type = "raw")
 
 ## Value
 
-List with comparison results
+A list with components `our_result` (cograph's macro weight matrix),
+`igraph_result` (igraph's `contract()` +
+[`simplify()`](https://sonsoles.me/cograph/reference/simplify.md)
+matrix), `matches` (logical: do the off-diagonals agree to within
+1e-10?) and `difference` (the
+[`all.equal()`](https://rdrr.io/r/base/all.equal.html) report when they
+do not, otherwise NULL). Returns `NULL` with a message if igraph is not
+installed.
 
 ## Examples
 
@@ -44,15 +52,15 @@ if (requireNamespace("igraph", quietly = TRUE)) {
 }
 #> $our_result
 #>          1        2        3
-#> 1 3.384887 4.322376 6.592236
-#> 2 5.539816 2.510548 5.899448
-#> 3 6.807112 5.960876 5.690940
+#> 1 3.216644 4.649900 5.903074
+#> 2 4.144425 3.476482 6.006692
+#> 3 6.027886 4.447357 7.180965
 #> 
 #> $igraph_result
 #>          A        D        G
-#> A 0.000000 4.322376 6.592236
-#> D 5.539816 0.000000 5.899448
-#> G 6.807112 5.960876 0.000000
+#> A 0.000000 4.649900 5.903074
+#> D 4.144425 0.000000 6.006692
+#> G 6.027886 4.447357 0.000000
 #> 
 #> $matches
 #> [1] TRUE

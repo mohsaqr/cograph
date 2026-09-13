@@ -52,8 +52,8 @@ plot(
 - colors:
 
   Three-element color vector for under-represented, neutral, and
-  over-represented motifs. Default `c("#2166AC", "#999999", "#B2182B")`
-  (blue/gray/red).
+  over-represented motifs. Default `c("#2166AC", "#F7F7F7", "#B2182B")`
+  (blue/near-white/red).
 
 - combined:
 
@@ -72,7 +72,10 @@ plot(
 
 ## Value
 
-A ggplot2 object (invisibly)
+For `type = "bar"` and `type = "heatmap"`, a ggplot2 object. For
+`type = "network"`, `NULL` (the panels are drawn with base graphics for
+their side effect). `invisible(NULL)` with a message when no motif
+survives the `show_nonsig` / `top_n` filters.
 
 ## See also
 

@@ -72,7 +72,9 @@ complement, and vice versa.</p>
 
 
 <dt id="arg-weight">weight<a class="anchor" aria-label="anchor" href="#arg-weight"></a></dt>
-<dd><p>Numeric. Weight to give the new edges. Default 1.</p></dd>
+<dd><p>Numeric. Weight to give the new edges. Default 1. Zero is how
+this representation stores "no edge", so <code>weight = 0</code> raises a
+<code>cograph_bad_selection</code> error rather than returning an empty network.</p></dd>
 
 
 <dt id="arg-loops">loops<a class="anchor" aria-label="anchor" href="#arg-loops"></a></dt>

@@ -83,7 +83,7 @@ per undirected edge. A pair sharing both endpoints is adjacent once.</p>
 
 
 <dt id="arg-damping">damping<a class="anchor" aria-label="anchor" href="#arg-damping"></a></dt>
-<dd><p>Edge-walk continuation probability in [0,1), default0.85.</p></dd>
+<dd><p>Edge-walk continuation probability in [0,1), default 0.85.</p></dd>
 
 
 <dt id="arg-linerank-aggregation">linerank_aggregation<a class="anchor" aria-label="anchor" href="#arg-linerank-aggregation"></a></dt>
@@ -110,7 +110,7 @@ behavior. Damping accepts [0,1), default 0.85; zero is a limit extension.</p>
 probabilities, following the definition's prose and the later study.
 Raw scores then sum to two on a graph with edges. <code>"weight"</code>
 additionally multiplies each probability by its original edge weight,
-matching the weighted incidence aggregation in Kang et al.'s Algorithm2.
+matching the weighted incidence aggregation in Kang et al.'s Algorithm 2.
 These conventions differ for weighted inputs and are not interchangeable.
 The original pseudocode also has inconsistent row/column normalization;
 this implementation follows its random-walk definition, corroborated by
@@ -135,12 +135,12 @@ weight overflow by scaling weights first; tiny ratios can underflow.</p>
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>Kang, U., Papadimitriou, S., Sun, J., &amp; Tong, H. (2011).
 Centralities in Large Networks: Algorithms and Observations.
-SDM, 119-130. Definitions2-4, Algorithm2.
+SDM, 119-130. Definitions 2-4, Algorithm 2.
 <a href="https://doi.org/10.1137/1.9781611972818.11" class="external-link">doi:10.1137/1.9781611972818.11</a>
 .
 Kosa, B., Balassi, M., Englert, P., &amp; Kiss, A. (2015).
 Betweenness versus Linerank. Computer Science and Information Systems,
-12(1), 33-48, section4. <a href="https://doi.org/10.2298/CSIS141101092K" class="external-link">doi:10.2298/CSIS141101092K</a>
+12(1), 33-48, section 4. <a href="https://doi.org/10.2298/CSIS141101092K" class="external-link">doi:10.2298/CSIS141101092K</a>
 .</p>
     </div>
 

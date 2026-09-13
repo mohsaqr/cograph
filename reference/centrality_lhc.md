@@ -1,15 +1,15 @@
 # Lhc Index
 
 Wang, Yang, Liu and Ma's Lhc index is a semi-local hybrid: it reads a
-node's *neighbour information* from degree and its *topological
-location* from the share of the network's triangles that sit on it, then
-spreads both over a small ball and collects the result one step out. The
+node's *neighbor information* from degree and its *topological location*
+from the share of the network's triangles that sit on it, then spreads
+both over a small ball and collects the result one step out. The
 influence of a node is \\C(v)=\sum\_{u\in\Phi(v)}k_u(1+TP(u))/d^2(uv)\\,
 a sum over the ball \\\Phi(v)\\ of radius `lhc_radius` in which each
 member contributes its degree, inflated by its triangle share,
 discounted by the square of its distance; and the index itself is
 \\Lhc(v)=\sum\_{w\in\tau(v)}C(w)\\, the influence summed over the open
-neighbourhood \\\tau(v)=N(v)\\. The triangle share is
+neighborhood \\\tau(v)=N(v)\\. The triangle share is
 \\TP(u)=NTS(u)/TNTS\\, with \\NTS(u)\\ the number of triangles
 containing \\u\\ and \\TNTS=\sum_u NTS(u)\\.
 
@@ -57,23 +57,23 @@ default.** The paper writes it \\d\\, states on page 4 that "the
 distance ranged \\d\\ is set to be 2, namely, only the nearest neighbors
 and the next-nearest neighbors are taken into consideration", and then
 sweeps it in section 3 over eleven real networks, reporting that "the
-optimal value of \\d\\ is about 2-3" and that the correlation stabilises
-beyond 3. It is therefore a genuine modelling knob rather than an
+optimal value of \\d\\ is about 2-3" and that the correlation stabilizes
+beyond 3. It is therefore a genuine modeling knob rather than an
 implementation detail, and it is exposed with the paper's 2 as the
-default. At `lhc_radius = 1` the ball collapses to the neighbours and
+default. At `lhc_radius = 1` the ball collapses to the neighbors and
 \\C(v)\\ becomes \\\sum\_{u\in N(v)}k_u(1+TP(u))\\; a radius at or above
 the graph's diameter takes in everything reachable and the score stops
 moving. The domain is a whole number of at least one; anything else is
 refused with a `cograph_bad_parameter` error.
 
-**Both neighbourhoods are open, and a node contributes to its own
+**Both neighborhoods are open, and a node contributes to its own
 score.** \\\Phi(v)\\ is \\1\le d(u,v)\le\\ `lhc_radius`: the focal node
 is outside it, because \\d^2(vv)=0\\ would divide by zero, and
 unreachable nodes fall outside the radius so no infinity arises.
-\\\tau(v)\\ is the open neighbourhood. It follows – the paper does not
+\\\tau(v)\\ is the open neighborhood. It follows – the paper does not
 remark on it, but its equations say so – that \\v\\ does enter its own
 \\Lhc(v)\\, since \\v\\ lies in \\\Phi(w)\\ at distance 1 for every
-neighbour \\w\\.
+neighbor \\w\\.
 
 **Triangle-free graphs are a cograph decision, taken explicitly.** Every
 tree, star, path, even cycle and bipartite graph has \\TNTS=0\\, and
@@ -82,7 +82,7 @@ case. Since \\TNTS\\ is a sum of nonnegative counts, it vanishes exactly
 when every numerator \\NTS(u)\\ vanishes too, so there is no share to
 distribute and no node with a claim on one: \\TP\\ is written as
 **zero**, and the index reduces to the pure degree-over-squared-distance
-sum, which is the neighbour and location half of the hybrid with the
+sum, which is the neighbor and location half of the hybrid with the
 triangle half contributing nothing. The test is made on \\TNTS\\ before
 any division, so no \\0/0\\ is evaluated; `NA` or an error would refuse
 every tree, which the source's own construction handles perfectly well.
@@ -131,7 +131,7 @@ and
 [`centrality_ked`](https://sonsoles.me/cograph/reference/centrality_ked.md)
 for other degree-and-position hybrids,
 [`centrality_neighbor_distance`](https://sonsoles.me/cograph/reference/centrality_neighbor_distance.md)
-for another distance-discounted neighbourhood sum, and
+for another distance-discounted neighborhood sum, and
 [`list_centralities`](https://sonsoles.me/cograph/reference/list_centralities.md)
 for the catalogue.
 

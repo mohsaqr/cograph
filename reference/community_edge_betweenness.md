@@ -67,8 +67,9 @@ com_eb(
 
 - ...:
 
-  Additional arguments passed to
+  Currently unused; `directed` is already an explicit argument above and
   [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
+  accepts no others.
 
 ## Value
 

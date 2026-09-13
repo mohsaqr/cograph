@@ -61,7 +61,10 @@ plot(x, ...)
 
 ## Value
 
-Invisibly returns `x`.
+Invisibly returns `x`. With a single group the
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md) result for
+that panel (a `cograph_network`) is returned instead, and with an empty
+group list `NULL`.
 
 ## Examples
 

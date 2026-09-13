@@ -28,10 +28,14 @@ select_top(
 
 - by:
 
-  Character. Centrality measure for ranking. One of: `"degree"`,
-  `"indegree"`, `"outdegree"`, `"strength"`, `"instrength"`,
-  `"outstrength"`, `"betweenness"`, `"closeness"`, `"eigenvector"`,
-  `"pagerank"`, `"hub"`, `"authority"`, `"coreness"`. Default
+  Character. Centrality measure for ranking: `"degree"`, `"indegree"`,
+  `"outdegree"`, `"strength"`, `"instrength"`, `"outstrength"`,
+  `"betweenness"`, `"closeness"`, `"eigenvector"`, `"pagerank"`,
+  `"hub"`, `"authority"`, `"coreness"`, or the name of any other measure
+  [`centrality()`](https://sonsoles.me/cograph/reference/centrality.md)
+  computes (see
+  [`list_centralities()`](https://sonsoles.me/cograph/reference/list_centralities.md)).
+  An unknown name raises a `cograph_bad_selection` error. Default
   `"degree"`.
 
 - ...:

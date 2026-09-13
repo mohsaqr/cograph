@@ -188,8 +188,9 @@ top 10 nodes <strong>within</strong> the largest component</p></li>
 </ul><p>Centrality measures are computed lazily - only measures actually referenced
 in expressions or the <code>by</code> parameter are computed. This makes
 <code>select_nodes()</code> faster than <code><a href="filter_nodes.html">filter_nodes()</a></code> for large networks.</p>
-<p>For networks with negative edge weights, <code>betweenness</code> and <code>closeness</code>
-will return NA with a warning (igraph cannot compute these with negative weights).</p>
+<p>For networks with negative edge weights, <code>betweenness</code>,
+<code>closeness</code> and <code>pagerank</code> are undefined and return <code>NA</code>,
+with a <code>cograph_negative_weights</code> warning.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

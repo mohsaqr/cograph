@@ -43,7 +43,7 @@ A data frame with 389 rows and 2 columns:
 
 The dataset includes self-loops (34 rows where `from == to`), which may
 represent self-directed actions. These can be removed with
-`student_interactions[student_interactions$from != student_interactions$to, ]`.
+`subset(student_interactions, from != to)`.
 
 Because interactions repeat, this edge list naturally represents a
 multigraph when loaded into igraph with
@@ -63,13 +63,10 @@ head(student_interactions)
 #> 5   Ac Ac
 #> 6   Ad Ac
 
-# Remove self-loops and build igraph
-el <- student_interactions[student_interactions$from != student_interactions$to, ]
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::graph_from_data_frame(el, directed = FALSE)
-  cat("Students:", igraph::vcount(g), "\n")
-  cat("Interactions:", igraph::ecount(g), "\n")
-}
-#> Students: 34 
-#> Interactions: 355 
+# Remove self-loops and build a network
+el <- subset(student_interactions, from != to)
+n_edges(as_cograph(el))
+#> [1] 355
+n_nodes(as_cograph(el))
+#> [1] 34
 ```

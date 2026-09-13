@@ -64,16 +64,21 @@
 
 
 <dl><dt id="arg-layers">layers<a class="anchor" aria-label="anchor" href="#arg-layers"></a></dt>
-<dd><p>List of adjacency matrices (one per layer)</p></dd>
+<dd><p>Named list of adjacency matrices (one per layer); at least two
+are required.</p></dd>
 
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
-<dd><p>Similarity method</p></dd>
+<dd><p>Comparison method: "jaccard" (default), "overlap", "cosine" or
+"pearson". Note that <code>"hamming"</code>, accepted by
+<code><a href="layer_similarity.html">layer_similarity</a></code>, is <em>not</em> available here because it is
+a distance rather than a similarity.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Symmetric matrix of pairwise similarities</p>
+    <p>A symmetric L x L matrix of pairwise similarities with the layer
+names as dimnames and 1 on the diagonal.</p>
     </div>
 
     <div class="section level2">

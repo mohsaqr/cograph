@@ -139,7 +139,7 @@ sn_nodes(
   For donut shape: fill color(s) for the donut ring. Single color sets
   fill for all nodes. Two colors set fill and background for all nodes.
   More than 2 colors set per-node fill colors (recycled to n_nodes).
-  Default: "lightgray" fill, "gray90" background when shape="donut".
+  Default: "maroon" fill, "gray90" background when shape="donut".
 
 - donut_colors:
 
@@ -160,7 +160,9 @@ sn_nodes(
 - donut_shape:
 
   For donut: base shape for ring ("circle", "square", "hexagon",
-  "triangle", "diamond", "pentagon"). Default "circle".
+  "triangle", "diamond", "pentagon"). Default NULL, which inherits the
+  ring shape from the node's own shape (hexagon nodes get hexagon
+  donuts); set it explicitly to override that for every node.
 
 - donut_show_value:
 

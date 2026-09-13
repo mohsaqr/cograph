@@ -52,15 +52,20 @@ com_consensus(
 - seed:
 
   Optional seed for reproducibility. If provided, the RNG state is
-  initialized once before repeated runs.
+  initialized once before repeated runs and restored on exit.
 
 - ...:
 
-  Additional arguments passed to the community detection method.
+  Currently ignored. Each run calls the underlying `igraph::cluster_*()`
+  function with its own defaults; no extra arguments are forwarded.
 
 ## Value
 
-A `cograph_communities` object with consensus membership.
+A `cograph_communities` data frame (columns `node` and `community`)
+holding the consensus membership. Its `"algorithm"` attribute is
+`"consensus_<method>"` and its `"modularity"` attribute is that of the
+final walktrap partition of the consensus graph, not of the original
+network.
 
 ## Details
 

@@ -3,11 +3,11 @@
 Chen, Wang and Yang's (2009) degree-discount heuristics for choosing
 spreaders under the independent-cascade model. Nodes are selected one at
 a time by the largest *discounted* degree; after each selection every
-unselected neighbour \\v\\ of the new seed counts one more selected
-neighbour, \\t_v\\, and its discounted degree becomes \$\$dd_v = d_v - 2
+unselected neighbor \\v\\ of the new seed counts one more selected
+neighbor, \\t_v\\, and its discounted degree becomes \$\$dd_v = d_v - 2
 t_v - (d_v - t_v)\\ t_v\\ p\$\$ for DegreeDiscountIC (Algorithm 4 of the
 paper, with propagation probability \\p\\, default 0.01), or simply
-\\d_v - t_v\\ for SingleDiscount, where each neighbour of a new seed
+\\d_v - t_v\\ for SingleDiscount, where each neighbor of a new seed
 discounts its degree by one. Every node is placed, so the result is a
 full ranking, returned as a score: the first node selected scores 1, the
 last \\1 / n\\.

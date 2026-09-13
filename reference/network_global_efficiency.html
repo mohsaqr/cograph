@@ -79,7 +79,8 @@ better global communication efficiency. Handles disconnected graphs gracefully
 
 
 <dt id="arg-directed">directed<a class="anchor" aria-label="anchor" href="#arg-directed"></a></dt>
-<dd><p>Logical. Consider edge direction? Default TRUE for directed graphs.</p></dd>
+<dd><p>Logical or NULL. Consider edge direction? Default NULL,
+which follows the directedness of the converted graph.</p></dd>
 
 
 <dt id="arg-weights">weights<a class="anchor" aria-label="anchor" href="#arg-weights"></a></dt>
@@ -98,7 +99,8 @@ Default 1.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments passed to <code><a href="to_igraph.html">to_igraph</a></code></p></dd>
+<dd><p>Currently unused; <code>directed</code> is already an explicit
+argument above and <code><a href="to_igraph.html">to_igraph</a></code> accepts no others.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -116,7 +118,7 @@ Default 1.</p></dd>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Star has lower efficiency</span></span></span>
 <span class="r-in"><span><span class="va">star</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>, <span class="fl">1</span>,<span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">0</span>, <span class="fl">1</span>,<span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">0</span>, <span class="fl">1</span>,<span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">0</span><span class="op">)</span>, <span class="fl">4</span>, <span class="fl">4</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">network_global_efficiency</span><span class="op">(</span><span class="va">star</span><span class="op">)</span>  <span class="co"># ~0.83</span></span></span>
+<span class="r-in"><span><span class="fu">network_global_efficiency</span><span class="op">(</span><span class="va">star</span><span class="op">)</span>  <span class="co"># 0.75</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.75</span>
 </code></pre></div>
     </div>

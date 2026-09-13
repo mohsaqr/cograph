@@ -16,7 +16,8 @@ triad_census(x)
 
 ## Value
 
-Named vector of triad counts
+A named numeric vector of length 16 giving the count of each MAN triad
+type, in the order listed under Details.
 
 ## Details
 
@@ -54,9 +55,11 @@ Other motifs:
 ## Examples
 
 ``` r
+set.seed(1)
 mat <- matrix(sample(0:1, 100, replace = TRUE), 10, 10)
 diag(mat) <- 0
-triad_census(mat)
+# igraph and sna also export triad_census(); qualify the call.
+cograph::triad_census(mat)
 #>  003  012  102 021D 021U 021C 111D 111U 030T 030C  201 120D 120U 120C  210  300 
-#>    1    3    2    4    5    9   11   17   16    2    5    6    7   10   17    5 
+#>    2   12    8    3    5    5   12   12    5    3   13    3    5   10   22    0 
 ```

@@ -57,14 +57,14 @@ different measure.
 and the difference is not a rescaling.** The two are both built from
 mean first passage times and are easy to confuse – cograph's own
 candidate ledger confused them for several rounds – but they differ
-twice over. `markov` normalises \\A\\ without adding the diagonal, and
+twice over. `markov` normalizes \\A\\ without adding the diagonal, and
 it divides the column sum by \\n\\, counting the excluded diagonal
 entry, where equation (20) divides by \\n-1\\. The second difference is
 a constant factor \\n/(n-1)\\ and cannot reorder anything; the first can
 and does. On the five-node star `markov` gives \\1.25, 0.161, 0.161,
 0.161, 0.161\\ where `iec` gives \\0.5, 0.08, 0.08, 0.08, 0.08\\, and
 the two rank the nodes differently on 2 of the 21 connected five-node
-graphs. Both are kept: `markov` is the older behaviour that existing
+graphs. Both are kept: `markov` is the older behavior that existing
 results depend on, `iec` is Friedkin's published measure.
 
 **Reducible input is refused, not extended.** Equation (11) needs an
@@ -142,7 +142,7 @@ centrality_iec(igraph::make_full_graph(5))
 #>   1   2   3   4   5 
 #> 0.2 0.2 0.2 0.2 0.2 
 
-# The five-node star is row 1 of that table: .500 at the centre and .080
+# The five-node star is row 1 of that table: .500 at the center and .080
 # at each leaf.
 centrality_iec(igraph::make_star(5, mode = "undirected"))
 #>    1    2    3    4    5 

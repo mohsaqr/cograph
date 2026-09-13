@@ -20,7 +20,7 @@ igraph, statnet network or tna input comes back in that format.
 - [`filter_nodes()`](https://sonsoles.me/cograph/reference/filter_nodes.md),
   [`select_nodes()`](https://sonsoles.me/cograph/reference/select_nodes.md):
 
-  Keep nodes by expression, name, index, top-N, neighbourhood or
+  Keep nodes by expression, name, index, top-N, neighborhood or
   component.
 
 - [`filter_edges()`](https://sonsoles.me/cograph/reference/filter_edges.md),

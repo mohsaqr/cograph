@@ -49,12 +49,16 @@ com_fg(
 
 - ...:
 
-  Additional arguments passed to
-  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
+  Passed to
+  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md),
+  whose only other argument is `directed`; anything else raises an
+  "unused argument" error.
 
 ## Value
 
-A `cograph_communities` object with optional dendrogram
+A `cograph_communities` object. The full igraph `communities` result,
+including the merge dendrogram when `merges = TRUE`, is kept in the
+`"igraph_result"` attribute.
 
 A `cograph_communities` object. See
 [`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md).

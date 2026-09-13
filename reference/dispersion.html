@@ -96,10 +96,14 @@ form; otherwise the raw count.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
 
 <ul><li><p>Scalar if both <code>u</code> and <code>v</code> are specified.</p></li>
-<li><p>Named numeric vector if exactly one of <code>u</code>, <code>v</code> is given
-(names are the other endpoints).</p></li>
+<li><p>Named numeric vector if exactly one of <code>u</code>, <code>v</code> is given,
+one element per neighbor of that node; the names are the neighbors'
+1-based node <em>indices</em> as character strings, not their labels.</p></li>
 <li><p>A data frame with columns <code>from</code>, <code>to</code>, <code>dispersion</code>
-when neither <code>u</code> nor <code>v</code> is given (one row per ordered edge).</p></li>
+when neither <code>u</code> nor <code>v</code> is given, one row per ordered
+(node, neighbor) pair, with <code>from</code> and <code>to</code> given as 1-based
+integer node indices.</p></li>
+<li><p><code>numeric(0)</code> for an empty graph.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

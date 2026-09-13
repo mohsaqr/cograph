@@ -1,7 +1,7 @@
 # Distance Entropy
 
 Shannon entropy of the distribution of hop distances from a node to
-every node it can reach (Stella & De Domenico 2018), normalised so that
+every node it can reach (Stella & De Domenico 2018), normalized so that
 a uniform spread over the node's distance range scores 1: \$\$h(i) =
 -\frac{1}{\log(M_i - m_i + 1)} \sum\_{k = m_i}^{M_i} p_k^{(i)} \log
 p_k^{(i)}, \qquad p_k^{(i)} = n_k^{(i)} / R_i,\$\$ where \\n_k^{(i)}\\
@@ -9,8 +9,8 @@ is the number of nodes at distance \\k\\ from \\i\\, \\R_i\\ the number
 of reachable nodes, and \\m_i, M_i\\ the minimum and maximum distance.
 High values mark nodes whose reach is spread evenly across many network
 layers; a node whose reachable nodes all sit at one distance scores 0.
-Closeness summarises the mean of the same distribution; distance entropy
-summarises its spread.
+Closeness summarizes the mean of the same distribution; distance entropy
+summarizes its spread.
 
 ## Usage
 
@@ -42,7 +42,7 @@ that reaches no other node.
 ## Details
 
 Distances are hop counts (edge weights are ignored). The original paper
-normalises by \\\log(M_i - m_i)\\, which is undefined when only two
+normalizes by \\\log(M_i - m_i)\\, which is undefined when only two
 distinct distances occur; \\\log(M_i - m_i + 1)\\ is used here so the
 index is bounded by 1 for a uniform distribution.
 

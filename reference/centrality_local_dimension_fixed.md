@@ -1,7 +1,7 @@
 # Fixed-Radius, Fuzzy and Volume Local Dimensions
 
 Three further members of the local-dimension family, all computed from
-hop counts (edge weights are ignored) with the centre node counted in
+hop counts (edge weights are ignored) with the center node counted in
 its own ball, as in
 [`centrality_local_dimension`](https://sonsoles.me/cograph/reference/centrality_local_dimension.md).
 
@@ -28,7 +28,9 @@ centrality_local_volume_dimension(x, mode = "all", ...)
 
 - ld_radius:
 
-  Radius \\r\\ for `local_dimension_fixed`. Default 2.
+  Radius \\r\\ for `local_dimension_fixed`, in hops. A single number of
+  at least 1; default 2. Anything else raises a `cograph_bad_parameter`
+  error.
 
 - ...:
 
@@ -43,7 +45,7 @@ Named numeric vector, one value per node.
 
 - `local_dimension_fixed` (Silva & Costa 2013):
 
-  The discretised estimator \\D_i(r) = r\\ n_i(r) / B_i(r)\\ at one
+  The discretized estimator \\D_i(r) = r\\ n_i(r) / B_i(r)\\ at one
   radius `ld_radius` (default 2), where \\n_i(r)\\ is the ring at
   distance \\r\\ and \\B_i(r)\\ the ball within it. A structural
   descriptor rather than an importance ranking; nodes with eccentricity

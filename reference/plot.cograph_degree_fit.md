@@ -31,9 +31,10 @@ plot(
 
 - log:
 
-  Character string for log-scale axes: `""` (default), `"y"`, or `"xy"`.
-  Values containing `"x"` are accepted for compatibility but only filter
-  non-positive fitted curve values.
+  Character string for log-scale axes: one of `""` (default), `"x"`,
+  `"y"` or `"xy"`. Only `"y"` and `"xy"` actually log the histogram
+  axis; the values containing `"x"` are accepted for compatibility but
+  merely filter non-positive fitted curve values.
 
 - cols:
 

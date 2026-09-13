@@ -8,7 +8,7 @@ is the number of nodes in \\i\\'s own community, \\k^{intra}\_i\\ and
 and \\NNC_i\\ the number of *other* communities it is linked to (eqs. 2
 to 4 of the paper). Higher values mark nodes whose removal both
 fragments their community and cuts links between communities. A
-normalised variant with the same name exists in later work by the same
+normalized variant with the same name exists in later work by the same
 group; this is the original raw form.
 
 ## Usage

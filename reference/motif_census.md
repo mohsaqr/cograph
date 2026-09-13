@@ -45,7 +45,8 @@ print(x, ...)
 
 - seed:
 
-  Random seed for reproducibility
+  Random seed for reproducibility. Default NULL. When supplied, the
+  caller's RNG state is saved and restored.
 
 - ...:
 
@@ -53,10 +54,40 @@ print(x, ...)
 
 ## Value
 
-A `cograph_motifs` data frame with motif count, null-model mean,
-null-model standard deviation, z-score, p-value, and significance
-columns. The motif size, directed flag, null-model method, and number of
-random networks are stored as attributes.
+A `cograph_motifs` data frame with one row per motif class and columns:
+
+- motif:
+
+  Motif class name (the 16 MAN codes for directed triads, the four
+  undirected triad classes, or `motif_<i>` labels for size 4).
+
+- count:
+
+  Observed number of that motif in the network.
+
+- null_mean, null_sd:
+
+  Mean and standard deviation of the count across the `n_random` null
+  graphs.
+
+- z_score:
+
+  `(count - null_mean) / null_sd`; `NA` when the null is degenerate
+  (`null_sd = 0`) and the observation differs from it.
+
+- p_value:
+
+  Two-sided empirical (add-one corrected) permutation p-value, not a
+  Gaussian approximation.
+
+- significant:
+
+  Logical, `p_value < 0.05`.
+
+The motif size (`"size"`), directed flag (`"directed"`), null-model
+method (`"method"`), and number of random networks (`"n_random"`) are
+stored as attributes. Self-loops and multiple edges are removed before
+counting.
 
 ## See also
 

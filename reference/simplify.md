@@ -82,7 +82,9 @@ simplify(
 
 ## Value
 
-The simplified network in the same format as the input.
+The simplified network, in the same format and class as the input
+(matrix in / matrix out, `cograph_network` in / `cograph_network` out,
+and so on). The default method raises an error for any other class.
 
 ## Details
 
@@ -110,10 +112,11 @@ which has its own `simplify` parameter
 ## Examples
 
 ``` r
+# igraph also exports simplify(); qualify the call when both are loaded.
 # Matrix with self-loops
 mat <- matrix(c(0.5, 0.3, 0, 0.3, 0.2, 0.4, 0, 0.4, 0.1), 3, 3)
 rownames(mat) <- colnames(mat) <- c("A", "B", "C")
-simplify(mat)
+cograph::simplify(mat)
 #>     A   B   C
 #> A 0.0 0.3 0.0
 #> B 0.3 0.0 0.4
@@ -122,7 +125,7 @@ simplify(mat)
 # Edge list with duplicates
 edges <- data.frame(from = c(1, 1, 2), to = c(2, 2, 3), weight = c(0.3, 0.7, 0.5))
 net <- cograph(edges, layout = NULL)
-simplify(net)
+cograph::simplify(net)
 #> Cograph network: 3 nodes, 2 edges ( undirected )
 #> Source: edgelist 
 #> Data: data.frame (3 x 3) 
@@ -130,7 +133,7 @@ simplify(net)
 #> Weights: 0.5 (all equal)
 #> Layout: none 
 #>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
-simplify(net, edge_attr_comb = "sum")
+cograph::simplify(net, edge_attr_comb = "sum")
 #> Cograph network: 3 nodes, 2 edges ( undirected )
 #> Source: edgelist 
 #> Data: data.frame (3 x 3) 

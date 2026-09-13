@@ -96,8 +96,8 @@ significance direction (over/under-represented).</p></dd>
 
 <dt id="arg-colors">colors<a class="anchor" aria-label="anchor" href="#arg-colors"></a></dt>
 <dd><p>Three-element color vector for under-represented, neutral, and
-over-represented motifs. Default <code>c("#2166AC", "#999999", "#B2182B")</code>
-(blue/gray/red).</p></dd>
+over-represented motifs. Default <code>c("#2166AC", "#F7F7F7", "#B2182B")</code>
+(blue/near-white/red).</p></dd>
 
 
 <dt id="arg-combined">combined<a class="anchor" aria-label="anchor" href="#arg-combined"></a></dt>
@@ -116,7 +116,11 @@ per-motif <code>igraph</code> plot calls. The ggplot-based types (<code>"bar"</c
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A ggplot2 object (invisibly)</p>
+    <p>For <code>type = "bar"</code> and <code>type = "heatmap"</code>, a ggplot2
+object. For <code>type = "network"</code>, <code>NULL</code> (the panels are drawn
+with base graphics for their side effect). <code>invisible(NULL)</code> with a
+message when no motif survives the <code>show_nonsig</code> / <code>top_n</code>
+filters.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

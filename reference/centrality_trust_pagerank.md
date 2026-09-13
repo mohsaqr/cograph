@@ -140,9 +140,9 @@ argues that "the value of \\C\\ does not affect the results, since only
 the ratio of similarity is calculated". That holds for a homogeneous
 recursion, where \\C\\ is an overall scale, but not for this one: the
 diagonal makes it affine, so \\C\\ enters the resolvent as well as the
-scale. Measured on the Zachary karate club this session, moving \\C\\
-from 1 to 0.5 moves \\Rs\\ by up to 0.141 and the scores by up to
-\\9.1\times 10^{-4}\\. `tpr_decay` defaults to the source's 1.
+scale. Measured on the Zachary karate club, moving \\C\\ from 1 to 0.5
+moves \\Rs\\ by up to 0.141 and the scores by up to \\9.1\times
+10^{-4}\\. `tpr_decay` defaults to the source's 1.
 
 **Both published fixtures are reproduced.** Table 3 on page 6 prints
 seven similarities of the five-node network of Fig. 3, and Table 5 on

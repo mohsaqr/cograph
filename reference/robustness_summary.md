@@ -29,7 +29,11 @@ robustness_summary(..., x = NULL, measures = NULL, n_iter = 1000)
 
 ## Value
 
-Data frame with AUC and critical points for each measure.
+A data frame with one row per supplied (or computed) robustness result
+and columns `measure`, `auc` (area under the robustness curve),
+`critical_50` (fraction removed when the largest component first falls
+below 50\\ same at 10\\ crossed. All numeric columns are rounded to 4
+decimal places.
 
 ## Examples
 

@@ -86,9 +86,13 @@ symmetry. Set TRUE to force directed, FALSE to force undirected.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A data frame with columns:</p><ul><li><p><code>node</code>: Node labels/names</p></li>
+    <p>A <code>cograph_communities</code> object, which inherits from
+<code>data.frame</code> and has one row per node with columns:</p><ul><li><p><code>node</code>: Node labels/names</p></li>
 <li><p><code>community</code>: Integer community membership</p></li>
-</ul></div>
+</ul><p>The algorithm name, the igraph community object, the modularity and the
+input network are carried as attributes for the <code>print</code>, <code>plot</code>
+and <code>modularity</code> methods.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>

@@ -17,7 +17,7 @@ The network is retrieved from `attr(x, "network")`, which
 / `.wrap_communities()` sets automatically.
 
 Applies TNA-compatible styling defaults before delegating to `splot()`:
-directed networks get oval layout, coloured nodes, and sized arrows;
+directed networks get oval layout, colored nodes, and sized arrows;
 undirected networks get spring layout with no arrows or dashes. All
 parameters can be overridden by the caller.
 
@@ -317,7 +317,8 @@ splot(
 - inclusion_threshold:
 
   Numeric: minimum inclusion probability to show an edge. Default
-  `1 - x$alpha` (i.e. the complement of the alpha level).
+  `NULL`, which uses `1 - x$alpha` (i.e. the complement of the alpha
+  level, falling back to `1 - 0.05` when `$alpha` is absent).
 
 - edge_positive_color:
 
@@ -954,8 +955,10 @@ splot(
   absolute scales — useful for bootstrap panels, comparison grids with
   networks of different node counts, or any case where visual-size
   parity across panels matters more than canvas fill. Default `FALSE`
-  uses dynamic, layout-driven bounds (the pre-2.1.x behaviour) which
-  renders tighter on the canvas. The per-node loop-reservation pad in
+  uses dynamic, layout-driven bounds (the pre-2.1.x behavior) which
+  renders tighter on the canvas. The fixed box is only applied when the
+  layout is being rescaled, so `align_panels = TRUE` has no effect under
+  `rescale = FALSE`. The per-node loop-reservation pad in
   `compute_plot_limits` runs regardless, so networks with different
   self-loop patterns stay centered consistently in either mode.
 
@@ -1001,10 +1004,10 @@ splot(
 
   Logical or NULL. Undirected counterpart of `tna_styling`. If `TRUE`,
   applies psychometric-network defaults (spring layout, Okabe-Ito
-  palette, no arrows, thin edges) as a base layer. If `NULL` (default),
-  `splot.netobject` auto-enables it on correlation-family input (glasso,
-  cor, pcor, ising) and on the undirected constituents of `net_mlvar`.
-  Explicit user args always win.
+  palette, no arrows, solid edge lines, and `minimum = 0.01`) as a base
+  layer. If `NULL` (default), `splot.netobject` auto-enables it on
+  correlation-family input (glasso, cor, pcor, ising) and on the
+  undirected constituents of `net_mlvar`. Explicit user args always win.
 
 - predictability:
 
@@ -1046,21 +1049,25 @@ splot(
 
 ## Value
 
-Invisibly returns the plot.
+Invisibly returns the `cograph_network` object built by `splot()`.
+Called for the side effect of drawing.
 
-Invisibly, the splot result.
+Invisibly, the `splot` result: a `cograph_network` object.
 
-Invisibly, the splot result.
-
-Invisibly returns `x`.
-
-Invisibly returns the plot.
-
-Invisibly returns the plot.
+Invisibly, the `splot` result: a `cograph_network` object.
 
 Invisibly returns `x`.
 
-Invisibly returns the plot.
+Invisibly returns the `cograph_network` object built by `splot()`.
+Called for the side effect of drawing.
+
+Invisibly returns the `cograph_network` object built by `splot()`.
+Called for the side effect of drawing.
+
+Invisibly returns `x`.
+
+Invisibly returns the `cograph_network` object built by `splot()`, or
+`NULL` when there is no edge to draw.
 
 Invisibly returns the cograph_network object.
 
@@ -1178,7 +1185,7 @@ For statistical output, use templates to format complex labels:
 
 Packages that create `cograph_network`-compatible objects can attach a
 small plotting contract at `x$meta$splot`. This lets producer packages
-such as Nestimate, lagdynamics, or other modelling packages describe
+such as Nestimate, lagdynamics, or other modeling packages describe
 their preferred cograph rendering without adding a new cograph-side
 class branch for every object type.
 

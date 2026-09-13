@@ -8,7 +8,7 @@ tree is rooted at \\v\\: the number of spreading orders that could have
 started at \\v\\. On a general graph the paper evaluates \\R\\ on the
 breadth-first tree rooted at each node (its eq. 24). Higher values mark
 nodes that are more plausible origins, which in practice are nodes near
-the centre of the network.
+the center of the network.
 
 ## Usage
 
@@ -38,7 +38,7 @@ overflows beyond 170 nodes; rankings and differences are unchanged.
 \\N\\ is the size of the node's component, so a disconnected graph is
 scored component by component and an isolate scores 0. The breadth-first
 tree attaches each node to the earliest discovered node of the previous
-layer, scanning neighbours in label order; the paper does not fix a tie
+layer, scanning neighbors in label order; the paper does not fix a tie
 rule, and this one reproduces its Figure 3. Direction and edge weights
 are ignored.
 

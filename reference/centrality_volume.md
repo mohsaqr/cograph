@@ -3,7 +3,7 @@
 Sum of the original-graph degrees of all vertices within `volume_radius`
 hops, including the focal vertex. This is the localized volume measure
 of Wehmuth & Ziviani (DANCE/DACCER). Degrees include edges leaving the
-neighbourhood; they are not recomputed inside the induced subgraph.
+neighborhood; they are not recomputed inside the induced subgraph.
 Radius zero returns degree. Infinite radius returns twice the number of
 edges in the focal connected component.
 
@@ -41,7 +41,7 @@ Named numeric vector in input node order.
 Uses the simple undirected, unweighted skeleton: either direction
 creates an edge, parallel edges count once, and self-loops are removed.
 This is an explicit input projection, not a weighted or directed
-generalisation. Isolates score zero.
+generalization. Isolates score zero.
 
 ## References
 

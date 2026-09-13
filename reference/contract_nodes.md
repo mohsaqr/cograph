@@ -51,7 +51,7 @@ contract_nodes(
 
 ## Value
 
-A `cograph_network` with one node per group, labelled by group name, or
+A `cograph_network` with one node per group, labeled by group name, or
 the input format when `keep_format = TRUE`.
 
 ## See also

@@ -40,37 +40,37 @@ Named numeric vector, one value per node.
 
 - `heatmap` (Duron 2020):
 
-  Farness minus the mean farness of the neighbours, \\C(v) = f(v) -
+  Farness minus the mean farness of the neighbors, \\C(v) = f(v) -
   \frac{1}{k_v} \sum\_{u \in N(v)} f(u)\\, with \\f\\ the sum of hop
   distances to reachable nodes. **Lower is more central.** Isolates
   score `NaN`. Reproduces Table 1 of the paper.
 
 - `flow_coefficient` (Honey et al. 2007):
 
-  Among ordered pairs of distinct neighbours, the fraction joined by a
+  Among ordered pairs of distinct neighbors, the fraction joined by a
   two-step path through the node but not by a direct link, as
   implemented in the Brain Connectivity Toolbox. On an undirected graph
   it equals one minus the clustering coefficient; it carries new
   information only on directed graphs. Nodes with fewer than two
-  neighbours score 0.
+  neighbors score 0.
 
 - `local_entropy` (Nie et al. 2016):
 
   \\-\sum\_{j \in N(i)} k_j \ln k_j\\, as printed by the sources. Always
-  non-positive and more negative for larger, denser neighbourhoods, so
+  non-positive and more negative for larger, denser neighborhoods, so
   **lower is more central**; isolates score 0, the maximum. The original
   article is closed access; the formula is that of the Zoo and of Omar
   and Plapper's 2021 survey, which agree.
 
 - `weighted_h_index` (Gao et al. 2019):
 
-  h-index of the multiset in which each neighbour \\j\\ contributes the
+  h-index of the multiset in which each neighbor \\j\\ contributes the
   topological weight \\k_i k_j\\ repeated \\k_j\\ times. Edge weights on
   the input play no role.
 
 - `redundancy` (Burt 1992; Borgatti 1997):
 
-  Mean degree of the node's neighbours within its ego network, \\2 t_i /
+  Mean degree of the node's neighbors within its ego network, \\2 t_i /
   k_i\\; equal to degree minus effective size. Higher = fewer structural
   holes. Reproduces Borgatti's worked example.
 

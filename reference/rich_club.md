@@ -42,7 +42,12 @@ rich_club(
 - normalized:
 
   Logical. If TRUE (default), normalize against degree-preserving random
-  graphs and include confidence intervals.
+  graphs and include confidence intervals. The null graphs are drawn
+  with
+  [`igraph::sample_degseq()`](https://r.igraph.org/reference/sample_degseq.html)
+  (which fixes the degree sequence); for a weighted rich club the
+  observed edge weights are additionally reshuffled across the null
+  edges, following Opsahl et al. (2008).
 
 - n_random:
 
@@ -62,14 +67,39 @@ rich_club(
 
 - ...:
 
-  Additional arguments passed to
-  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md).
+  Currently unused; `directed` is already an explicit argument above and
+  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
+  accepts no others.
 
 ## Value
 
-A data frame with class `"cograph_rich_club"` and columns: `threshold`,
-`n_rich`, `phi`, and if normalized: `phi_norm`, `phi_rand`, `ci_lo`,
-`ci_hi`.
+A data frame with class `"cograph_rich_club"`, one row per prominence
+threshold at which at least two nodes are "rich", and columns:
+
+- threshold:
+
+  The prominence cut-off; nodes with prominence strictly greater than
+  this value form the club. Thresholds range over the observed
+  prominence values excluding the maximum.
+
+- n_rich:
+
+  Number of club members at that threshold.
+
+- phi:
+
+  Observed rich club coefficient.
+
+- phi_norm, phi_rand, ci_lo, ci_hi:
+
+  Present only when `normalized = TRUE`: the observed coefficient
+  divided by the null mean, the null mean itself, and the 2.5\\ null
+  distribution.
+
+The data frame has zero rows for graphs that are too small, complete, or
+regular for any threshold to yield a club. The arguments `rich`,
+`weighted`, `normalized` and the original input (`"network"`) are stored
+as attributes.
 
 ## Details
 

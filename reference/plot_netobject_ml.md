@@ -27,7 +27,8 @@ plot(x, ...)
 
 - layout:
 
-  Character: layout algorithm. Default `"oval"` (deterministic).
+  Character: layout algorithm. Default `NULL`, which resolves to
+  `"oval"` (deterministic).
 
 - common_scale:
 

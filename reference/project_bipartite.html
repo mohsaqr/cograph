@@ -110,12 +110,18 @@ through exclusive affiliations.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A square adjacency matrix with row and column names preserved from
-the input. Diagonal is set to 0 (no self-loops).</p>
+    <p>A square adjacency matrix, one row and column per node of the
+projected mode: <code>n_rows x n_rows</code> named by <code>rownames(x)</code> for
+<code>mode = "rows"</code>, <code>n_cols x n_cols</code> named by <code>colnames(x)</code>
+for <code>mode = "columns"</code>. The diagonal is set to 0 (no self-loops).</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>For the Newman projection, affiliations shared with only one node of the
+    <p>Only <code>method = "sum"</code> and <code>method = "cosine"</code> use the incidence
+values themselves. <code>"binary"</code>, <code>"jaccard"</code> and <code>"newman"</code>
+first binarize the incidence matrix (<code>x &gt; 0</code>), so any weights are
+discarded for those three.</p>
+<p>For the Newman projection, affiliations shared with only one node of the
 focal type (<code>d_k = 1</code>) are skipped, since <code>1 / (d_k - 1)</code> is
 undefined. This follows the convention in Newman (2001).</p>
     </div>

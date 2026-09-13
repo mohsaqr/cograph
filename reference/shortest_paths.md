@@ -38,8 +38,9 @@ shortest_paths(x, from = NULL, to = NULL, weights = NULL, directed = NULL, ...)
 
 - ...:
 
-  Additional arguments passed to
+  Currently unused; `directed` is already an explicit argument above and
   [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
+  accepts no others.
 
 ## Value
 
@@ -70,6 +71,10 @@ Note:
 with `weights = NULL` automatically uses edge weight attributes if
 present. To force unweighted computation, pass `weights = NA`
 explicitly.
+
+igraph also exports a `shortest_paths()` with a different signature and
+return value; when both packages are attached, qualify the call as
+`cograph::shortest_paths()`.
 
 ## See also
 

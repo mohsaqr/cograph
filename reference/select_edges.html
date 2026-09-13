@@ -165,7 +165,10 @@ inputs are returned in that format. Default FALSE returns cograph_network.</p></
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A cograph_network object with selected edges. If <code>keep_format = TRUE</code>,
-matrix, igraph, and statnet network inputs are converted back to that type.</p>
+matrix, igraph, and statnet network inputs are converted back to that type.
+Nodes left without edges are kept and reported in a
+<code>cograph_isolates_created</code> warning, unless
+<code>keep_isolates = FALSE</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

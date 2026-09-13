@@ -115,37 +115,52 @@ Default NULL (auto-detect: TRUE for tna objects, FALSE otherwise).</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments passed to <code><a href="to_igraph.html">to_igraph</a></code></p></dd>
+<dd><p>Additional arguments forwarded to the graph constructor, namely
+<code>loops</code> and <code>simplify</code> (see <code><a href="centrality.html">centrality</a></code>).</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A data frame with columns <code>from</code>, <code>to</code>, and one column
-per requested measure.</p>
+    <p>A base <code>data.frame</code> with one row per edge, in the canonical
+(row-major) edge order of the input. The first two columns are
+<code>from</code> and <code>to</code> (character when the input carried node names,
+numeric indices otherwise); the remaining columns are those the requested
+measures contribute, as listed in Details. <code>measures = "all"</code> on an
+undirected input therefore gives <code>from</code>, <code>to</code>, <code>weight</code>,
+<code>betweenness</code>, <code>overlap</code>, <code>shared_neighbors</code> and
+<code>triangles</code>, and a directed input adds <code>reciprocated</code>,
+<code>reverse_weight</code> and <code>weight_ratio</code>.</p>
 <p>Named numeric vector of edge betweenness values (named by
 <code>"from-&gt;to"</code>).</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Edge measures available:</p><dl><dt>betweenness</dt>
-<dd><p>Number of shortest paths passing through the edge.</p></dd>
+    <p>Edge measures available, with the column(s) each one adds:</p><dl><dt>betweenness</dt>
+<dd><p>Number of shortest paths passing through the edge.
+Adds <code>betweenness</code>.</p></dd>
 
 <dt>weight</dt>
-<dd><p>Original edge weight.</p></dd>
+<dd><p>Original edge weight (1 for an unweighted input). Adds
+<code>weight</code>.</p></dd>
 
 <dt>overlap</dt>
-<dd><p>Jaccard neighborhood overlap of edge endpoints.</p></dd>
+<dd><p>Jaccard neighborhood overlap of the edge endpoints. Adds
+<code>overlap</code> and the raw count <code>shared_neighbors</code>.</p></dd>
 
 <dt>simmelian</dt>
-<dd><p>Number of triangles the edge participates in.</p></dd>
+<dd><p>Number of triangles the edge participates in. Adds
+<code>triangles</code> (there is no column called <code>simmelian</code>).</p></dd>
 
 <dt>reciprocity</dt>
-<dd><p>Whether the reverse edge exists (directed only).
-Adds columns: <code>reciprocated</code>, <code>reverse_weight</code>,
-<code>weight_ratio</code>.</p></dd>
+<dd><p>Whether the reverse edge exists. Directed only: on an
+undirected input it warns and adds nothing. Adds
+<code>reciprocated</code>, <code>reverse_weight</code> and <code>weight_ratio</code>,
+the last two <code>NA</code> where the edge is not reciprocated.</p></dd>
 
 
-</dl></div>
+</dl><p><code>measures = "all"</code> requests every measure, dropping
+<code>reciprocity</code> on an undirected input.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>

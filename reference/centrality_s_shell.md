@@ -1,14 +1,14 @@
 # s-shell Index
 
-Liu, Tang, Do and Hui's (2017) strength-based generalisation of k-shell
+Liu, Tang, Do and Hui's (2017) strength-based generalization of k-shell
 for identifying spreaders. Each link is given an asymmetric weight from
 the topology alone, \$\$w\_{ij} = 1 + (k_i \\ k^{out}\_j)^a,\$\$ where
-\\k^{out}\_j\\ is the number of \\j\\'s neighbours that lie outside
-\\i\\'s closed neighbourhood (links that lead a spreading process to new
+\\k^{out}\_j\\ is the number of \\j\\'s neighbors that lie outside
+\\i\\'s closed neighborhood (links that lead a spreading process to new
 territory), and each node's strength is \\s_i = \sum\_{j \in N(i)}
 w\_{ij}\\. The graph is then peeled like a k-shell but by strength: the
 minimum remaining strength is the threshold, everything at or below it
-is removed (neighbours lose the corresponding \\w\_{ji}\\), removals
+is removed (neighbors lose the corresponding \\w\_{ji}\\), removals
 cascade until the threshold holds, and the removed nodes receive the
 next shell index. Higher index = more central. With \\a = 0\\ the shells
 are the dense ranks of the k-core numbers.
@@ -27,7 +27,8 @@ centrality_s_shell(x, s_shell_a = 0.5, ...)
 
 - s_shell_a:
 
-  Exponent \\a\\ of the link weights. Default 0.5.
+  Exponent \\a\\ of the link weights. A single non-negative number;
+  default 0.5. Anything else raises a `cograph_bad_parameter` error.
 
 - ...:
 

@@ -18,8 +18,10 @@ network_vertex_connectivity(x, ...)
 
 - ...:
 
-  Additional arguments passed to
-  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
+  Passed to
+  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md),
+  whose only other argument is `directed`; anything else raises an
+  "unused argument" error.
 
 ## Value
 

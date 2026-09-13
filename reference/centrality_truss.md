@@ -4,7 +4,7 @@ Five measures with explicit definitions and numerical reference checks.
 All use the simple, unweighted, undirected skeleton: either direction
 creates an edge, parallel edges count once and self-loops are removed.
 This projection is a cograph input convention; no directed or weighted
-generalisation of the published measures is claimed. All isolates score
+generalization of the published measures is claimed. All isolates score
 0.
 
 ## Usage
@@ -71,14 +71,14 @@ Named numeric vector in input node order.
 
 - `godfather`:
 
-  Jackson's Godfather index: the number of unordered pairs of neighbours
+  Jackson's Godfather index: the number of unordered pairs of neighbors
   with no edge between them. Equals \\d_i(d_i-1)/2\\ minus the number of
   triangles containing i.
 
 - `support`:
 
-  Jackson's supported relationships: the number of neighbours sharing at
-  least one common neighbour with i. An edge is counted once even if it
+  Jackson's supported relationships: the number of neighbors sharing at
+  least one common neighbor with i. An edge is counted once even if it
   belongs to multiple triangles.
 
 LocalRank (Chen et al. 2012), also listed in the Centrality Zoo, is

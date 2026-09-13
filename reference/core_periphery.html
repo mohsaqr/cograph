@@ -96,28 +96,46 @@ places. Default NULL (no rounding).</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments passed to <code><a href="to_igraph.html">to_igraph</a></code></p></dd>
+<dd><p>Currently unused; <code>directed</code> is already an explicit
+argument above and <code><a href="to_igraph.html">to_igraph</a></code> accepts no others.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A data frame with class <code>"cograph_core_periphery"</code> and columns
-<code>node</code>, <code>role</code>, and <code>coreness</code>. Fitness, core density,
-periphery density, and the original network are stored as attributes.</p>
+    <p>A data frame with class <code>"cograph_core_periphery"</code>, one row per
+node, and columns:</p><dl><dt>node</dt>
+<dd><p>Node label.</p></dd>
+
+<dt>role</dt>
+<dd><p>Character: <code>"core"</code> or <code>"periphery"</code>.</p></dd>
+
+<dt>coreness</dt>
+<dd><p>Numeric continuous coreness score, rescaled to
+\([0, 1]\). Reported for both methods.</p></dd>
+
+
+</dl><p>The attributes <code>"fitness"</code>, <code>"core_density"</code>,
+<code>"periphery_density"</code> and <code>"network"</code> (the original input) carry
+the remaining results.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p><strong>Continuous method (Borgatti-Everett):</strong>
-Finds a coreness vector <code>c</code> (values 0-1) that maximizes the correlation
-between the adjacency matrix and the ideal rank-1 pattern matrix
-(the outer product of the coreness vector with itself). The algorithm
-initializes from eigenvector centrality and iteratively refines via
-power iteration until convergence.</p>
+Seeks a coreness vector <code>c</code> (rescaled to the 0-1 range) whose ideal
+rank-1 pattern matrix (the outer product of the vector with itself)
+correlates as highly as possible with the adjacency matrix. The vector is
+approximated by initializing from the dominant eigenvector of the adjacency
+matrix and refining it by power iteration until convergence or <code>iter</code>
+steps; the achieved correlation is reported as the <code>"fitness"</code>
+attribute rather than being optimized directly.</p>
 <p><strong>Discrete method:</strong>
-Produces a binary core (1) / periphery (0) assignment. Starts from the
-continuous solution, thresholds at the median, then greedily swaps node
-assignments to maximize fitness. Discrete fitness is defined by high density
-within the core and low density within the periphery.</p>
+Produces a binary core / periphery assignment. Starts from the continuous
+solution thresholded at the median, then greedily flips the single node
+assignment that most improves fitness until no flip improves it. The
+discrete fitness being maximized is
+<code>density(core) - density(periphery)</code>; the <code>"fitness"</code> attribute
+reported for <code>method = "discrete"</code> is the correlation between the
+adjacency matrix and the ideal block pattern of that assignment.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -155,8 +173,16 @@ within the core and low density within the periphery.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Discrete assignment</span></span></span>
 <span class="r-in"><span><span class="va">cp_disc</span> <span class="op">&lt;-</span> <span class="fu">cograph</span><span class="fu">::</span><span class="fu">core_periphery</span><span class="op">(</span><span class="va">adj</span>, method <span class="op">=</span> <span class="st">"discrete"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">cp_disc</span><span class="op">$</span><span class="va">assignment</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
+<span class="r-in"><span><span class="va">cp_disc</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Core-Periphery | Core: 4  Periphery: 1  Fitness: 0.612</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Core density: 1.000 | Periphery density: 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  node      role  coreness</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     A      core 0.6504481</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     B      core 0.6504481</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     C      core 1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     D      core 1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     E periphery 0.0000000</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

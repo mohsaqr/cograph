@@ -2,14 +2,14 @@
 
 Computes the average local efficiency across all nodes, delegating to
 [`igraph::average_local_efficiency()`](https://r.igraph.org/reference/global_efficiency.html).
-igraph removes the node and measures the distances between its
-neighbours *through the rest of the network*, so the value can exceed
-the one Latora & Marchiori (2001) define, which restricts those
-distances to the subgraph induced on the neighbours.
+igraph removes the node and measures the distances between its neighbors
+*through the rest of the network*, so the value can exceed the one
+Latora & Marchiori (2001) define, which restricts those distances to the
+subgraph induced on the neighbors.
 `centrality(x, measures = "local_efficiency")` reports the
 induced-subgraph form, matching networkx, brainGraph and the Brain
 Connectivity Toolbox. Both measure fault tolerance and local
-integration; the two agree whenever the neighbours have no detour
+integration; the two agree whenever the neighbors have no detour
 available.
 
 ## Usage
@@ -48,8 +48,10 @@ network_local_efficiency(
 
 - ...:
 
-  Additional arguments passed to
-  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
+  Passed to
+  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md),
+  whose only other argument is `directed`; anything else raises an
+  "unused argument" error.
 
 ## Value
 

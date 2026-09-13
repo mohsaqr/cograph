@@ -76,7 +76,7 @@ those cannot, because \\(I-W)\\ stays nonsingular whatever the
 connectivity.
 
 **`rsp_beta` defaults to 0.01, which is not the source's number.** The
-paper fixes no default and treats \\\beta\\ as a modelling choice; 0.01
+paper fixes no default and treats \\\beta\\ as a modeling choice; 0.01
 is the value recommended by `NetworkToolbox::rspbc()`, adopted here so
 that the two implementations are directly comparable out of the box. It
 sits near the high-temperature end, so the default reading is close to
@@ -101,7 +101,7 @@ matrix, and a negative cost makes \\\exp(-\beta C)\>1\\ and the Neumann
 series diverge.
 
 Direction is read from the graph, not from `mode`: \\P^{ref}\\
-normalises by out-strength and \\Z\\ counts directed walks, so a
+normalizes by out-strength and \\Z\\ counts directed walks, so a
 directed input is scored as directed and a reversed input generally
 scores differently. There is no in/out/all variant to select, so the
 measure sits in the no-mode family. Loops are dropped and `cutoff` and

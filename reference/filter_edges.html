@@ -118,7 +118,9 @@ Only used for non-cograph_network inputs.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A cograph_network object with filtered edges. If <code>keep_format = TRUE</code>,
-matrix, igraph, and statnet network inputs are converted back to that type.</p>
+matrix, igraph, and statnet network inputs are converted back to that type.
+Nodes are never removed by the filter itself; when the filter strands a
+node a <code>cograph_isolates_created</code> warning is raised.</p>
 <p>See <code>filter_edges</code>.</p>
     </div>
     <div class="section level2">

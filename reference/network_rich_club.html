@@ -82,12 +82,24 @@ If NULL, uses median degree.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments passed to <code><a href="to_igraph.html">to_igraph</a></code></p></dd>
+<dd><p>Passed to <code><a href="to_igraph.html">to_igraph</a></code>, whose only other argument
+is <code>directed</code>; anything else raises an "unused argument" error.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Numeric: rich club coefficient (&gt; 1 indicates rich club effect when normalized)</p>
+    <p>Numeric: rich club coefficient (&gt; 1 indicates rich club effect when
+normalized). <code>NA</code> when fewer than two nodes exceed <code>k</code>.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="reproducibility">Reproducibility<a class="anchor" aria-label="anchor" href="#reproducibility"></a></h2>
+
+
+<p>When <code>normalized = TRUE</code> the null graphs are drawn from the caller's
+RNG stream; this function takes no <code>seed</code> argument and does not save or
+restore <code>.Random.seed</code>. Call <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> beforehand for a
+reproducible result. <code><a href="rich_club.html">rich_club()</a></code> offers a <code>seed</code>
+argument, confidence intervals, and the full rich club curve.</p>
     </div>
 
     <div class="section level2">

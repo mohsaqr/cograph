@@ -18,21 +18,33 @@ network_small_world(x, n_random = 10, ...)
 
 - n_random:
 
-  Number of random graphs for comparison. Default 10.
+  Number of Erdos-Renyi comparison graphs (same `n` and `m` as the
+  observed graph). Default 10.
 
 - ...:
 
-  Additional arguments passed to
-  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
+  Passed to
+  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md),
+  whose only other argument is `directed`; anything else raises an
+  "unused argument" error.
 
 ## Value
 
-Numeric: small-world coefficient sigma
+Numeric: small-world coefficient sigma. `NA` when the graph has fewer
+than 4 nodes, no edges, or an undefined/zero mean path length.
 
 ## Details
 
 Values \> 1 indicate small-world properties. Typically small-world
 networks have sigma \>\> 1.
+
+## Reproducibility
+
+The comparison graphs are drawn from the caller's RNG stream; this
+function takes no `seed` argument and does not save or restore
+`.Random.seed`. Call [`set.seed()`](https://rdrr.io/r/base/Random.html)
+beforehand for a reproducible result, and prefer a larger `n_random`
+than the default for anything you report.
 
 ## Examples
 

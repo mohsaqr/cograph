@@ -17,7 +17,8 @@ sn_save(network, filename, width = 7, height = 7, dpi = 300, title = NULL, ...)
 
 - filename:
 
-  Output filename. Format is detected from extension.
+  Output filename. Format is detected from the extension; one of `.pdf`,
+  `.png`, `.svg`, `.jpeg`/`.jpg`, `.tiff`, `.eps`/`.ps`.
 
 - width:
 
@@ -49,5 +50,5 @@ The output `filename`, invisibly.
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
 net <- cograph(adj)
 sn_save(net, file.path(tempdir(), "network.pdf"))
-#> Saved to: /tmp/RtmpeI3LN5/network.pdf
+#> Saved to: /tmp/RtmpyiWXmJ/network.pdf
 ```

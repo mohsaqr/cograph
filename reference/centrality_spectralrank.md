@@ -81,7 +81,7 @@ probability or a general guarantee of predictive performance.
 
 ## References
 
-Xu, S., Wang, P., Zhang, C.-X. and Lu, J. (2019; online2018). Spectral
+Xu, S., Wang, P., Zhang, C.-X. and Lu, J. (2019; online 2018). Spectral
 Learning Algorithm Reveals Propagation Capability of Complex Networks.
 IEEE Transactions on Cybernetics, 49(12), 4253-4261. Section III-A,
 equations 4-8 and Algorithm 1.

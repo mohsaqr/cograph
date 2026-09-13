@@ -1,10 +1,10 @@
 # Neighborhood Connectivity
 
-Mean degree of a node's neighbours (Maslov & Sneppen 2002), the "average
-neighbour degree" reported by Cytoscape: \$\$C\_{NC}(i) = \frac{1}{k_i}
+Mean degree of a node's neighbors (Maslov & Sneppen 2002), the "average
+neighbor degree" reported by Cytoscape: \$\$C\_{NC}(i) = \frac{1}{k_i}
 \sum\_{j \in N(i)} k_j.\$\$ High values mark nodes attached to hubs.
-Isolates score 0. Under `mode = "out"` the out-neighbours' out-degrees
-are averaged, under `"in"` the in-neighbours' in-degrees.
+Isolates score 0. Under `mode = "out"` the out-neighbors' out-degrees
+are averaged, under `"in"` the in-neighbors' in-degrees.
 
 ## Usage
 
@@ -41,7 +41,7 @@ of protein networks. Science, 296(5569), 910-913.
 
 [`centrality_degree`](https://sonsoles.me/cograph/reference/centrality_degree.md),
 and [`igraph::knn()`](https://r.igraph.org/reference/knn.html) for the
-Barrat weighted generalisation.
+Barrat weighted generalization.
 
 ## Examples
 

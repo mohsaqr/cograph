@@ -36,8 +36,9 @@ homophily(x, values, directed = NULL, digits = NULL, ...)
 
 - ...:
 
-  Additional arguments passed to
-  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md).
+  Currently unused; `directed` is already an explicit argument above and
+  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
+  accepts no others.
 
 ## Value
 
@@ -79,7 +80,13 @@ For categorical (nominal) attributes, the coefficient is: \$\$r =
 \\e\_{ij}\\ = fraction of edges connecting type \\i\\ to type \\j\\.
 
 For numeric (scalar) attributes, the coefficient is the Pearson
-correlation between attribute values at edge endpoints.
+correlation between attribute values at edge endpoints (computed over
+both orientations of every edge when the network is undirected). Any
+non-numeric `values` vector (character or factor) is treated as nominal.
+
+The coefficient is `NA` when the network has no edges, when a nominal
+attribute has a single category, or when either value vector has zero
+variance.
 
 ## References
 

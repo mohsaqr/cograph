@@ -37,12 +37,16 @@ from_qgraph(
 - weight_digits:
 
   Number of decimal places to round edge weights to. Default 2. Edges
-  that round to zero are removed unless `show_zero_edges = TRUE`.
+  whose weight rounds to zero at this precision are dropped unless
+  `show_zero_edges = TRUE`.
 
 - show_zero_edges:
 
-  Logical. If TRUE, keep edges even if their weight rounds to zero.
-  Default: FALSE.
+  Logical. Zero is how this representation stores "no edge", so an edge
+  whose weight rounds to zero at `weight_digits` is dropped. With `TRUE`
+  such an edge is instead drawn at the smallest magnitude
+  `weight_digits` can express, carrying its sign; every other weight is
+  unchanged. Default: FALSE.
 
 - preserve_node_size:
 
@@ -94,9 +98,12 @@ to cograph equivalents:
 
 - `lty` `->` `edge_style` (numeric to name conversion)
 
-- `curve` `->` `curvature`
+- `curve` `->` `curvature` (only when qgraph resolved a single curvature
+  for the whole graph)
 
 - `asize` `->` `arrow_size` (scaled by 0.3x)
+
+- `edge.label.position` `->` `edge_label_position`
 
 **Graph properties:**
 
@@ -110,9 +117,12 @@ to cograph equivalents:
 
 - `posCol`/`negCol` `->` `edge_positive_color`/`edge_negative_color`
 
+- `theme` `->` `theme`
+
 **Pie/Donut:**
 
-- `pie` values `->` `donut_fill` with `donut_inner_ratio=0.8`
+- `pie` values `->` `donut_fill` with `donut_inner_ratio = 0.8` and
+  `donut_empty = FALSE`
 
 - `pieColor` `->` `donut_color`
 

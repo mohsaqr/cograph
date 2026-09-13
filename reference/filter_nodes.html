@@ -96,11 +96,23 @@ Available variables include:</p><dl><dt>Node columns</dt>
 <dt>Centrality measures</dt>
 <dd><p><code>degree</code>, <code>indegree</code>, <code>outdegree</code>,
 <code>strength</code>, <code>instrength</code>, <code>outstrength</code>, <code>betweenness</code>,
-<code>closeness</code>, <code>eigenvector</code>, <code>pagerank</code>, <code>hub</code>, <code>authority</code></p></dd>
+<code>closeness</code>, <code>eigenvector</code>, <code>pagerank</code>, <code>hub</code>,
+<code>authority</code>, <code>coreness</code>. Any other measure
+<code><a href="centrality.html">centrality()</a></code> computes can be named too; see
+<code><a href="list_centralities.html">list_centralities()</a></code>.</p></dd>
+
+<dt>Structural context and predicates</dt>
+<dd><p>The same vocabulary
+<code><a href="select_nodes.html">select_nodes()</a></code> documents, for example <code>component</code>,
+<code>component_size</code>, <code>k_core</code>, <code>is_isolated</code>,
+<code>is_cut</code>, <code>local_transitivity</code>.</p></dd>
 
 
 </dl><p>Examples: <code>degree &gt;= 3</code>, <code>label %in% c("A", "B")</code>,
-<code>pagerank &gt; 0.1 &amp; degree &gt;= 2</code>.</p></dd>
+<code>pagerank &gt; 0.1 &amp; degree &gt;= 2</code>.</p>
+<p>On a network with negative edge weights, <code>betweenness</code>,
+<code>closeness</code> and <code>pagerank</code> are undefined: they return <code>NA</code>
+with a <code>cograph_negative_weights</code> warning.</p></dd>
 
 
 <dt id="arg-keep-edges">keep_edges<a class="anchor" aria-label="anchor" href="#arg-keep-edges"></a></dt>

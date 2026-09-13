@@ -85,19 +85,20 @@ a <code>tna_communities</code> object.</p></dd>
 
 <dt id="arg-blob-colors">blob_colors<a class="anchor" aria-label="anchor" href="#arg-blob-colors"></a></dt>
 <dd><p>Character vector of fill colors for blobs.
-Recycled if shorter than the number of communities.</p></dd>
+Recycled if shorter than the number of communities. Default
+<code>NULL</code> uses the built-in blob palette.</p></dd>
 
 
 <dt id="arg-blob-alpha">blob_alpha<a class="anchor" aria-label="anchor" href="#arg-blob-alpha"></a></dt>
-<dd><p>Numeric. Fill transparency (0-1).</p></dd>
+<dd><p>Numeric. Fill transparency (0-1). Default <code>0.25</code>.</p></dd>
 
 
 <dt id="arg-blob-linewidth">blob_linewidth<a class="anchor" aria-label="anchor" href="#arg-blob-linewidth"></a></dt>
-<dd><p>Numeric. Border line width.</p></dd>
+<dd><p>Numeric. Border line width. Default <code>0.7</code>.</p></dd>
 
 
 <dt id="arg-blob-line-alpha">blob_line_alpha<a class="anchor" aria-label="anchor" href="#arg-blob-line-alpha"></a></dt>
-<dd><p>Numeric. Border line transparency (0-1).</p></dd>
+<dd><p>Numeric. Border line transparency (0-1). Default <code>0.8</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -106,7 +107,8 @@ Recycled if shorter than the number of communities.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The <code>splot</code> result (invisibly).</p>
+    <p>The <code><a href="splot.html">splot</a></code> result — a <code>cograph_network</code>
+object — invisibly. Called for the side effect of drawing.</p>
     </div>
 
     <div class="section level2">

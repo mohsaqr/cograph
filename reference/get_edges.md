@@ -16,7 +16,13 @@ get_edges(x)
 
 ## Value
 
-A data frame with columns: from, to, weight.
+A data frame with one row per edge and columns `from` and `to` (integer
+row numbers into the node table, *not* labels) and `weight`, plus any
+extra edge columns the network carries. An undirected network stores one
+row per unordered pair. Use
+[`as.data.frame.cograph_network`](https://sonsoles.me/cograph/reference/as.data.frame.cograph_network.md)
+or [`to_df`](https://sonsoles.me/cograph/reference/to_data_frame.md) for
+the same table with the endpoints given as node labels.
 
 ## See also
 

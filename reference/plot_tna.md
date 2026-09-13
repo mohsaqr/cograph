@@ -132,7 +132,9 @@ tplot(
 
 - arrowAngle:
 
-  Arrow head angle in radians. Default pi/6 (30 degrees).
+  Arrow head angle in radians. Default NULL, which leaves
+  [`splot()`](https://sonsoles.me/cograph/reference/splot.md)'s own
+  `arrow_angle` default of pi/6 (30 degrees) in place.
 
 - title:
 
@@ -143,8 +145,6 @@ tplot(
   Additional arguments passed to splot()
 
 ## Value
-
-Invisibly returns the cograph_network object from splot().
 
 Invisibly returns the cograph_network object from splot().
 
@@ -161,7 +161,7 @@ plot_tna(m, vsize = 15, edge.label.cex = 2, layout = "circle")
 
 
 # With custom colors
-plot_tna(m, color = rainbow(5), vsize = 10)
+plot_tna(m, color = palette_colorblind(5), vsize = 10)
 
 
 m <- matrix(runif(25), 5, 5)

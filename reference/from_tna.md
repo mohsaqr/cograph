@@ -35,13 +35,19 @@ from_tna(
 
 - weight_digits:
 
-  Number of decimal places to round edge weights to. Default 2. Edges
-  that round to zero are removed unless `show_zero_edges = TRUE`.
+  Number of decimal places to round edge weights to. Default `NULL`,
+  which picks the number of digits from the matrix: `0` when every
+  non-zero weight is a whole number (counts, as in `ftna`/`ctna` models)
+  and `2` otherwise (probabilities). Edges whose weight rounds to zero
+  at this precision are dropped unless `show_zero_edges = TRUE`.
 
 - show_zero_edges:
 
-  Logical. If TRUE, keep edges even if their weight rounds to zero.
-  Default: FALSE.
+  Logical. Zero is how this representation stores "no edge", so an edge
+  whose weight rounds to zero at `weight_digits` is dropped. With `TRUE`
+  such an edge is instead drawn at the smallest magnitude
+  `weight_digits` can express, carrying its sign; every other weight is
+  unchanged. Default: FALSE.
 
 - ...:
 
@@ -106,6 +112,12 @@ overridden via `...`):
   networks
 
 - `edge_start_length = 0.2`: 20% of directed edges are dotted
+
+- `edge_label_style = "estimate"` and `edge_label_leading_zero = FALSE`:
+  labels show the weight alone, written without a leading zero (`.42`,
+  not `0.42`)
+
+- `minimum = 0.01`: transitions weaker than 0.01 are not drawn
 
 ## See also
 

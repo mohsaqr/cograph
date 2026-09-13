@@ -95,7 +95,7 @@ Default 3.</p></dd>
 
 
 <dt id="arg-epc-runs">epc_runs<a class="anchor" aria-label="anchor" href="#arg-epc-runs"></a></dt>
-<dd><p>Number of percolation realisations. Default 1000.</p></dd>
+<dd><p>Number of percolation realizations. Default 1000.</p></dd>
 
 
 <dt id="arg-epc-seed">epc_seed<a class="anchor" aria-label="anchor" href="#arg-epc-seed"></a></dt>
@@ -112,11 +112,11 @@ caller's stream alone and makes the estimate vary between calls.</p></dd>
 
 <dl><dt><code>local_efficiency</code> (Latora &amp; Marchiori 2001)</dt>
 <dd><p>The global
-efficiency of the subgraph induced on the node's neighbours, the node
+efficiency of the subgraph induced on the node's neighbors, the node
 itself removed: the mean of \(1 / d_{jl}\) over ordered pairs of
-neighbours, with distances measured inside that subgraph. Nodes with
-fewer than two neighbours score 0. High values mark a node whose
-neighbourhood survives its loss. Matches
+neighbors, with distances measured inside that subgraph. Nodes with
+fewer than two neighbors score 0. High values mark a node whose
+neighborhood survives its loss. Matches
 <code><a href="https://r.igraph.org/reference/global_efficiency.html" class="external-link">igraph::local_efficiency()</a></code> and
 <code>brainGraph::efficiency(type = "local")</code>.</p></dd>
 
@@ -144,7 +144,7 @@ so cost grows with branching factor to the power <code>kpath_len</code>.</p></dd
 <dd><p>Edge percolated component: each
 edge survives with probability <code>1 - epc_threshold</code>, and the
 score is the mean size of the node's component over <code>epc_runs</code>
-realisations, as a share of the network. cytoHubba and
+realizations, as a share of the network. cytoHubba and
 <code><a href="https://rdrr.io/pkg/centiserve/man/epc.html" class="external-link">centiserve::epc()</a></code> divide by the node count alone, so their
 number is <code>epc_runs</code> times this one; the ranking is the same.
 A Monte Carlo estimate – pass <code>epc_seed</code> for a reproducible

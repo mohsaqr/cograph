@@ -17,7 +17,10 @@ sn_layout(network, layout, seed = 42, ...)
 
 - layout:
 
-  Layout algorithm name or a CographLayout object.
+  Layout algorithm name (see Details), a two-letter or full igraph
+  layout name, an igraph layout function, a `CographLayout` object, or a
+  coordinate matrix / data frame with one row per node and `x`, `y` in
+  its first two columns. Anything else is an error.
 
 - seed:
 

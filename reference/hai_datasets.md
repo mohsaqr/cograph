@@ -3,9 +3,9 @@
 Coded sequences of human-AI programming interactions from 34 projects
 across 429 sessions. Actions are coded at two granularity levels (broad
 categories vs fine-grained codes) and split by actor (Human, AI, or both
-combined). Each row is one session (project + session_id); columns T1,
-T2, ... hold the sequential actions. `NA` indicates the session ended
-before that time step.
+combined). Each row is one session and every column is a time step: the
+columns are named T1, T2, ... Tn and hold the sequential actions. `NA`
+indicates the session ended before that time step.
 
 ## Usage
 
@@ -77,28 +77,29 @@ Human-AI programming interaction study, 34 projects, 429 sessions.
 
 ## Value
 
-A `data.frame` where each row is one session. The first columns identify
-the session; the remaining columns (T1, T2, ...) hold the sequential
-action codes, with `NA` indicating the session ended before that time
-step. Six variants are provided: `coding` (human actions by category, 9
-states), `coding_detailed` (human actions by fine-grained code, 15
-states), `ai_coding` (AI actions by category, 8 states), `ai_detailed`
-(AI actions by fine-grained code, 18 states), `human_ai` (both actors by
-category, 17 states), and `human_ai_detailed` (both actors by
-fine-grained code, 32 states).
+A `data.frame` where each row is one session and each column is one time
+step. Every column is named T1, T2, ... Tn and holds the action code at
+that step, with `NA` indicating the session ended before that time step;
+there are no identifier columns. Six variants are provided: `coding`
+(human actions by category, 9 states), `coding_detailed` (human actions
+by fine-grained code, 15 states), `ai_coding` (AI actions by category, 8
+states), `ai_detailed` (AI actions by fine-grained code, 18 states),
+`human_ai` (both actors by category, 17 states), and `human_ai_detailed`
+(both actors by fine-grained code, 32 states).
 
 ## Examples
 
 ``` r
 data(coding)
-head(coding[, 1:6])
-#>                      T1      T2      T3        T4      T5        T6
-#> Project_1_S1    Request Specify Command   Correct Specify Frustrate
-#> Project_10_S186 Command Request Command Interrupt Correct   Request
-#> Project_10_S187 Specify Command Specify Interrupt Request   Specify
-#> Project_10_S188 Specify Command Specify Interrupt Command   Request
-#> Project_10_S189 Specify Command Specify Interrupt Request   Specify
-#> Project_11_S190 Command Inquire Correct   Inquire  Verify   Request
+str(coding, list.len = 6)
+#> 'data.frame':    429 obs. of  164 variables:
+#>  $ T1  : chr  "Request" "Command" "Specify" "Specify" ...
+#>  $ T2  : chr  "Specify" "Request" "Command" "Command" ...
+#>  $ T3  : chr  "Command" "Command" "Specify" "Specify" ...
+#>  $ T4  : chr  "Correct" "Interrupt" "Interrupt" "Interrupt" ...
+#>  $ T5  : chr  "Specify" "Correct" "Request" "Command" ...
+#>  $ T6  : chr  "Frustrate" "Request" "Specify" "Request" ...
+#>   [list output truncated]
 dim(coding)
 #> [1] 429 164
 ```

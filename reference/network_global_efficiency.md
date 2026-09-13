@@ -26,7 +26,8 @@ network_global_efficiency(
 
 - directed:
 
-  Logical. Consider edge direction? Default TRUE for directed graphs.
+  Logical or NULL. Consider edge direction? Default NULL, which follows
+  the directedness of the converted graph.
 
 - weights:
 
@@ -47,8 +48,9 @@ network_global_efficiency(
 
 - ...:
 
-  Additional arguments passed to
+  Currently unused; `directed` is already an explicit argument above and
   [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
+  accepts no others.
 
 ## Value
 
@@ -66,6 +68,6 @@ network_global_efficiency(k4)  # 1
 
 # Star has lower efficiency
 star <- matrix(c(0,1,1,1, 1,0,0,0, 1,0,0,0, 1,0,0,0), 4, 4)
-network_global_efficiency(star)  # ~0.83
+network_global_efficiency(star)  # 0.75
 #> [1] 0.75
 ```

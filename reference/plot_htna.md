@@ -323,7 +323,9 @@ htna(
 
 ## Value
 
-Invisibly returns the result from tplot().
+Invisibly returns the
+[`tplot()`](https://sonsoles.me/cograph/reference/plot_tna.md) result: a
+`cograph_network` object. Called for the side effect of drawing.
 
 ## Examples
 

@@ -135,6 +135,14 @@ et al. (2009) method. Otherwise, computes the simple MLE:
 for a discrete distribution; p-values are approximate.</p>
 <p><strong>Geometric</strong>: \(P(k) \sim (1-p)^k p\). MLE:
 \(p = 1 / (1 + \bar{k})\).</p>
+<p><code>ks_stat</code> is always reported. <code>ks_p</code> comes from
+<code><a href="https://rdrr.io/r/stats/ks.test.html" class="external-link">stats::ks.test()</a></code> for the exponential and Poisson fits and from
+<code><a href="https://r.igraph.org/reference/fit_power_law.html" class="external-link">igraph::fit_power_law()</a></code> for the automatic power-law fit; it is
+<code>NA</code> for the geometric fit and for the manual (non-igraph or explicit
+<code>xmin</code>) power-law fit, whose KS statistics are computed directly
+against the theoretical CDF without a reference distribution. AIC and BIC
+count one free parameter per distribution, so the power-law <code>xmin</code> is
+not penalized.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

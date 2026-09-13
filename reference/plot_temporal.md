@@ -79,9 +79,9 @@ plot_temporal(
 - node_color:
 
   Character or vector. Node fill color. A single color applies
-  everywhere. An unnamed vector is recycled across *layers*, colouring
+  everywhere. An unnamed vector is recycled across *layers*, coloring
   each plane as a whole. A **named** vector is matched to node names
-  instead and colours each *node* the same on every plane, which is what
+  instead and colors each *node* the same on every plane, which is what
   makes a node identifiable as it moves through the stack; names not
   present in the network are an error rather than silent. See also
   `color_by`. The original text of this parameter continues: a single
@@ -90,9 +90,9 @@ plot_temporal(
 
 - color_by:
 
-  One of `"layer"` (the default, and the historical behaviour) or
+  One of `"layer"` (the default, and the historical behavior) or
   `"node"`. Chooses what an unnamed `node_color` vector indexes. A named
-  `node_color` always colours by node and ignores this argument.
+  `node_color` always colors by node and ignores this argument.
 
 - node_shape:
 

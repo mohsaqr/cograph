@@ -1,8 +1,8 @@
 # Iterative resource allocation (IRA)
 
 Every node starts with one unit of resource and hands it to its
-neighbours in proportion to the *receiver's* centrality, repeatedly,
-until the amounts stop moving. The share node \\j\\ sends to a neighbour
+neighbors in proportion to the *receiver's* centrality, repeatedly,
+until the amounts stop moving. The share node \\j\\ sends to a neighbor
 \\i\\ is
 \\a\_{ij}=\theta_i^{\alpha}/\sum\_{u\in\Gamma(j)}\theta_u^{\alpha}\\,
 the recursion is \\I(t+1)=AI(t)\\ from \\I(0)=(1,\dots,1)\\, and the
@@ -100,7 +100,7 @@ it, and it carries no \\\sum_i I_i=n\\ scale.
 Uses the simple undirected unweighted skeleton, which is the source
 domain: either arc creates one edge, parallel edges count once and loops
 are removed. Edge weights, mode, cutoff and path-weight inversion are
-ignored. An isolate is in nobody's neighbourhood, so it receives nothing
+ignored. An isolate is in nobody's neighborhood, so it receives nothing
 and its own unit is not passed on: it scores zero from the first step,
 which is the value of the source's empty sum and not an accidental zero,
 and it is the reason \\\sum_i I_i=n\\ is stated only for graphs with no

@@ -130,15 +130,18 @@ Invisibly returns a list with components:
 
 - breaks:
 
-  Breakpoints used for the histogram (non-cumulative only).
+  Breakpoints of the degree histogram.
 
 - counts:
 
-  Bin counts (non-cumulative only).
+  Bin counts.
 
 - proportions:
 
-  Bin proportions (non-cumulative only).
+  Bin proportions (`counts / sum(counts)`).
+
+All five components are returned for both the histogram and the
+cumulative plot; `cumulative = TRUE` only changes what is drawn.
 
 ## Examples
 

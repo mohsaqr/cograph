@@ -76,7 +76,12 @@
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Data frame with AUC and critical points for each measure.</p>
+    <p>A data frame with one row per supplied (or computed) robustness
+result and columns <code>measure</code>, <code>auc</code> (area under the robustness
+curve), <code>critical_50</code> (fraction removed when the largest component
+first falls below 50\<!-- % of its original size) and \code{critical_10} (the -->
+same at 10\<!-- %). The critical columns are 1 when the threshold is never -->
+crossed. All numeric columns are rounded to 4 decimal places.</p>
     </div>
 
     <div class="section level2">

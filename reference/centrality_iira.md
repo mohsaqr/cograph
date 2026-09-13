@@ -69,7 +69,7 @@ scales. A large `iira_steps` underflows to zero.
 
 **The Centrality Zoo entry is not this formula.** Section 2.185 prints
 \\p\_{ij}=(1-(1-\beta)^{d_i})a\_{ij}c_i/\sum_k a\_{ik}c_k\\, which pairs
-the numerator's index with the denominator's own neighbourhood; the
+the numerator's index with the denominator's own neighborhood; the
 source pairs them with opposite sets. As printed, the Zoo's row sums are
 \\\psi_i c_i d_i/\sum\_{k\in N(i)}c_k\\, so its matrix is stochastic in
 neither direction although the entry calls it stochastic, and it does
@@ -79,7 +79,7 @@ cograph implements the source.
 Uses the simple undirected unweighted skeleton, which is the source
 domain: either arc creates one edge, parallel edges count once and loops
 are removed. Edge weights, mode, cutoff and path-weight inversion are
-ignored. An isolate has an empty neighbour sum and \\\psi=0\\, so it
+ignored. An isolate has an empty neighbor sum and \\\psi=0\\, so it
 scores zero from the first step; that is the value of the source's empty
 sum, not an accidental zero. `iira_steps = 0` returns the initial
 \\I(0)\\, a vector of ones. Empty graphs return no scores. Cost is one

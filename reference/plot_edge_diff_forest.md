@@ -1,6 +1,6 @@
 # Forest Plot for Bootstrap Edge Differences
 
-Visualises pairwise edge weight differences from a `boot_glasso` object.
+Visualizes pairwise edge weight differences from a `boot_glasso` object.
 Each row (linear) or spoke (circular) is one edge pair; the CI bar spans
 the bootstrap CI of the difference; a dashed line/ring marks zero. Red =
 first edge larger; blue = second edge larger.
@@ -46,13 +46,14 @@ plot_edge_diff_forest(
 
 - alpha:
 
-  Significance threshold. Default: inherits from object.
+  Significance threshold. Default `NULL`, which inherits `x$alpha`,
+  falling back to `0.05`.
 
 - layout:
 
   `"linear"` (default), `"circular"`, `"chord"`, or `"tile"`. The chord
   layout places all edge names on a unit circle and connects significant
-  pairs with bezier arcs; arc width and colour encode the mean bootstrap
+  pairs with bezier arcs; arc width and color encode the mean bootstrap
   difference. The tile layout draws the pairwise-difference matrix.
 
 - show_nonsig:
@@ -63,7 +64,7 @@ plot_edge_diff_forest(
 
   If `TRUE`, restrict to edges that are non-zero in the original network
   (identified via `$original_pcor`). Useful for EBICglasso results where
-  many edges are regularised to exactly zero. Default `FALSE`.
+  many edges are regularized to exactly zero. Default `FALSE`.
 
 - sort_by:
 
@@ -75,19 +76,19 @@ plot_edge_diff_forest(
 
 - pos_color:
 
-  Colour when edge1 \> edge2. Default crimson.
+  Color when edge1 \> edge2. Default crimson.
 
 - neg_color:
 
-  Colour when edge1 \< edge2. Default teal.
+  Color when edge1 \< edge2. Default teal.
 
 - nonsig_color:
 
-  Colour for non-significant pairs.
+  Color for non-significant pairs.
 
 - ring_color:
 
-  Ring colour (circular/chord). Default light grey.
+  Ring color (circular/chord). Default light grey.
 
 - label_size:
 
@@ -95,11 +96,12 @@ plot_edge_diff_forest(
 
 - label_color:
 
-  Fixed label colour (`NULL` = inherit).
+  Fixed label color (`NULL` = inherit).
 
 - point_size:
 
-  Size of estimate square (linear/circular).
+  Size of estimate square (linear/circular). Default `2` for
+  `layout = "circular"` and `3` otherwise.
 
 - r_inner:
 

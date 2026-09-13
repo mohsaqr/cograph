@@ -75,11 +75,14 @@
 
 
 <dt id="arg-by">by<a class="anchor" aria-label="anchor" href="#arg-by"></a></dt>
-<dd><p>Character. Centrality measure for ranking. One of:
+<dd><p>Character. Centrality measure for ranking:
 <code>"degree"</code>, <code>"indegree"</code>, <code>"outdegree"</code>, <code>"strength"</code>,
 <code>"instrength"</code>, <code>"outstrength"</code>, <code>"betweenness"</code>,
 <code>"closeness"</code>, <code>"eigenvector"</code>, <code>"pagerank"</code>,
-<code>"hub"</code>, <code>"authority"</code>, <code>"coreness"</code>. Default <code>"degree"</code>.</p></dd>
+<code>"hub"</code>, <code>"authority"</code>, <code>"coreness"</code>, or the name of any
+other measure <code><a href="centrality.html">centrality()</a></code> computes (see
+<code><a href="list_centralities.html">list_centralities()</a></code>). An unknown name raises a
+<code>cograph_bad_selection</code> error. Default <code>"degree"</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

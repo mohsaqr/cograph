@@ -5,7 +5,7 @@ global characteristic on the same scale:
 \\HCC(u)=k^{ex}(u)/k^{ex}\_{max}+pos(u)/pos\_{max}\\. The local half is
 the *extended degree* \\k^{ex}(u)=\delta
 k(u)+(1-\delta)\sum\_{v\in\phi(u)}k(v)\\, the node's own degree blended
-with its neighbours'; the global half is the *E-shell* position index,
+with its neighbors'; the global half is the *E-shell* position index,
 the round in which a repeated minimum-extended-degree peel removes the
 node. Both terms are divided by their largest value, so each lies in
 \\\[0,1\]\\ and the raw score lies in \\\[0,2\]\\.
@@ -90,7 +90,7 @@ which the source never contemplates.
 Uses the simple undirected unweighted skeleton, the source's stated
 domain: either arc creates one edge, parallel edges count once and loops
 are removed. Edge weights, mode, cutoff and path-weight inversion are
-ignored, and directed input is symmetrised rather than read as a
+ignored, and directed input is symmetrized rather than read as a
 directed case, which the source does not define. The source states no
 further normalization; `normalized = TRUE` max-scales the finished
 vector as elsewhere in
@@ -116,7 +116,7 @@ E-shell procedure on page 3, with the worked example on page 4.
 ## See also
 
 [`centrality_ehcc`](https://sonsoles.me/cograph/reference/centrality_ehcc.md)
-for the neighbourhood sum of this score,
+for the neighborhood sum of this score,
 [`centrality_dkgm`](https://sonsoles.me/cograph/reference/centrality_dkgm.md)
 for another shell-and-degree hybrid, and
 [`list_centralities`](https://sonsoles.me/cograph/reference/list_centralities.md)
@@ -131,7 +131,7 @@ centrality_hcc(igraph::make_ring(6))
 #> 1 2 3 4 5 6 
 #> 2 2 2 2 2 2 
 
-# A star peels its leaves first and its centre second.
+# A star peels its leaves first and its center second.
 centrality_hcc(igraph::make_star(6, mode = "undirected"))
 #>   1   2   3   4   5   6 
 #> 2.0 1.1 1.1 1.1 1.1 1.1 

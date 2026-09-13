@@ -104,6 +104,10 @@ columns <code>from</code> and <code>to</code> (node labels), <code>weight</code>
 extra edge columns the network carries (for example <code>session</code>). For
 <code>what = "nodes"</code>, one row per node with the node metadata columns
 (<code>id</code>, <code>label</code>, layout coordinates, and any custom columns).</p>
+<p>This is the accessor, so it hands back everything the object holds,
+including columns <code><a href="mutate_edges.html">mutate_edges</a></code> computed.
+<code><a href="to_data_frame.html">to_df</a></code> is the narrower conversion verb: it returns
+<code>from</code>, <code>to</code> and <code>weight</code> only.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

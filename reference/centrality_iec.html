@@ -127,7 +127,7 @@ computing a different measure.</p>
 difference is not a rescaling.</strong> The two are both built from mean first
 passage times and are easy to confuse – cograph's own candidate ledger
 confused them for several rounds – but they differ twice over.
-<code>markov</code> normalises \(A\) without adding the diagonal, and it
+<code>markov</code> normalizes \(A\) without adding the diagonal, and it
 divides the column sum by \(n\), counting the excluded diagonal entry,
 where equation (20) divides by \(n-1\). The second difference is a
 constant factor \(n/(n-1)\) and cannot reorder anything; the first can
@@ -135,7 +135,7 @@ and does. On the five-node star <code>markov</code> gives
 \(1.25, 0.161, 0.161, 0.161, 0.161\) where <code>iec</code> gives
 \(0.5, 0.08, 0.08, 0.08, 0.08\), and the two rank the nodes
 differently on 2 of the 21 connected five-node graphs. Both are kept:
-<code>markov</code> is the older behaviour that existing results depend on,
+<code>markov</code> is the older behavior that existing results depend on,
 <code>iec</code> is Friedkin's published measure.</p>
 <p><strong>Reducible input is refused, not extended.</strong> Equation (11) needs an
 irreducible chain. Without one the eigenvector of equation (9) has a
@@ -207,7 +207,7 @@ catalogue.</p></div>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   1   2   3   4   5 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0.2 0.2 0.2 0.2 0.2 </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># The five-node star is row 1 of that table: .500 at the centre and .080</span></span></span>
+<span class="r-in"><span><span class="co"># The five-node star is row 1 of that table: .500 at the center and .080</span></span></span>
 <span class="r-in"><span><span class="co"># at each leaf.</span></span></span>
 <span class="r-in"><span><span class="fu">centrality_iec</span><span class="op">(</span><span class="fu">igraph</span><span class="fu">::</span><span class="fu"><a href="https://r.igraph.org/reference/make_star.html" class="external-link">make_star</a></span><span class="op">(</span><span class="fl">5</span>, mode <span class="op">=</span> <span class="st">"undirected"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    1    2    3    4    5 </span>

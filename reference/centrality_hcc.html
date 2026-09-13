@@ -4,7 +4,7 @@ global characteristic on the same scale:
 \(HCC(u)=k^{ex}(u)/k^{ex}_{max}+pos(u)/pos_{max}\). The local half is
 the extended degree
 \(k^{ex}(u)=\delta k(u)+(1-\delta)\sum_{v\in\phi(u)}k(v)\), the node's
-own degree blended with its neighbours'; the global half is the
+own degree blended with its neighbors'; the global half is the
 E-shell position index, the round in which a repeated
 minimum-extended-degree peel removes the node. Both terms are divided
 by their largest value, so each lies in \([0,1]\) and the raw score
@@ -13,7 +13,7 @@ global characteristic on the same scale:
 \(HCC(u)=k^{ex}(u)/k^{ex}_{max}+pos(u)/pos_{max}\). The local half is
 the extended degree
 \(k^{ex}(u)=\delta k(u)+(1-\delta)\sum_{v\in\phi(u)}k(v)\), the node's
-own degree blended with its neighbours'; the global half is the
+own degree blended with its neighbors'; the global half is the
 E-shell position index, the round in which a repeated
 minimum-extended-degree peel removes the node. Both terms are divided
 by their largest value, so each lies in \([0,1]\) and the raw score
@@ -69,7 +69,7 @@ global characteristic on the same scale:
 \(HCC(u)=k^{ex}(u)/k^{ex}_{max}+pos(u)/pos_{max}\). The local half is
 the <em>extended degree</em>
 \(k^{ex}(u)=\delta k(u)+(1-\delta)\sum_{v\in\phi(u)}k(v)\), the node's
-own degree blended with its neighbours'; the global half is the
+own degree blended with its neighbors'; the global half is the
 <em>E-shell</em> position index, the round in which a repeated
 minimum-extended-degree peel removes the node. Both terms are divided
 by their largest value, so each lies in \([0,1]\) and the raw score
@@ -151,7 +151,7 @@ by a nonpositive maximum, which the source never contemplates.</p>
 <p>Uses the simple undirected unweighted skeleton, the source's stated
 domain: either arc creates one edge, parallel edges count once and loops
 are removed. Edge weights, mode, cutoff and path-weight inversion are
-ignored, and directed input is symmetrised rather than read as a
+ignored, and directed input is symmetrized rather than read as a
 directed case, which the source does not define. The source states no
 further normalization; <code>normalized = TRUE</code> max-scales the finished
 vector as elsewhere in <code><a href="centrality.html">centrality</a></code>, on top of the two
@@ -174,7 +174,7 @@ page 4. <a href="https://doi.org/10.1038/s41598-023-30308-5" class="external-lin
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="centrality_ehcc.html">centrality_ehcc</a></code> for the neighbourhood sum of this
+    <div class="dont-index"><p><code><a href="centrality_ehcc.html">centrality_ehcc</a></code> for the neighborhood sum of this
 score, <code><a href="centrality_dkgm.html">centrality_dkgm</a></code> for another shell-and-degree
 hybrid, and <code><a href="list_centralities.html">list_centralities</a></code> for the catalogue.</p></div>
     </div>
@@ -187,7 +187,7 @@ hybrid, and <code><a href="list_centralities.html">list_centralities</a></code> 
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 2 3 4 5 6 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2 2 2 2 2 2 </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># A star peels its leaves first and its centre second.</span></span></span>
+<span class="r-in"><span><span class="co"># A star peels its leaves first and its center second.</span></span></span>
 <span class="r-in"><span><span class="fu">centrality_hcc</span><span class="op">(</span><span class="fu">igraph</span><span class="fu">::</span><span class="fu"><a href="https://r.igraph.org/reference/make_star.html" class="external-link">make_star</a></span><span class="op">(</span><span class="fl">6</span>, mode <span class="op">=</span> <span class="st">"undirected"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   1   2   3   4   5   6 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2.0 1.1 1.1 1.1 1.1 1.1 </span>

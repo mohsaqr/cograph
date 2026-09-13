@@ -73,13 +73,26 @@
 
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
-<dd><p>Similarity method: "jaccard", "overlap", "hamming", "cosine",
-"pearson"</p></dd>
+<dd><p>Comparison method: "jaccard" (default), "overlap", "hamming",
+"cosine" or "pearson"</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Numeric similarity value</p>
+    <p>A single numeric value. All methods except <code>"hamming"</code> return a
+similarity (higher = more alike); <code>"hamming"</code> returns a
+<em>distance</em> - the number of matrix cells whose edge presence differs
+between the two layers - so lower means more alike and the value is not
+bounded by 1. <code>NA</code> is returned when the denominator is undefined
+(<code>"jaccard"</code> with no edges in either layer, <code>"overlap"</code> with an
+empty layer, <code>"cosine"</code> with an all-zero layer).</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p><code>"jaccard"</code>, <code>"overlap"</code> and <code>"hamming"</code> compare edge
+<em>presence</em> (<code>A &gt; 0</code>) and therefore ignore weights;
+<code>"cosine"</code> and <code>"pearson"</code> are computed on the raw cell values.
+The two matrices must have identical dimensions.</p>
     </div>
 
     <div class="section level2">

@@ -74,10 +74,15 @@ symmetry. Set TRUE to force directed, FALSE to force undirected.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A data frame with columns:</p><ul><li><p><code>from</code>: Source node name/label</p></li>
+    <p>A base <code>data.frame</code> with one row per edge and exactly three
+columns:</p><ul><li><p><code>from</code>: Source node name/label</p></li>
 <li><p><code>to</code>: Target node name/label</p></li>
 <li><p><code>weight</code>: Edge weight</p></li>
-</ul></div>
+</ul><p>Any further edge columns the network carries (for example <code>session</code>
+or <code>time</code> from temporal edge lists) are <em>not</em> included; use
+<code><a href="get_edges.html">get_edges</a></code>, which returns the edge table whole. An
+undirected network contributes one row per unordered pair, not two.</p>
+    </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code>to_df</code>, <code><a href="to_igraph.html">to_igraph</a></code>, <code><a href="as_cograph.html">as_cograph</a></code></p></div>

@@ -232,7 +232,7 @@ plot_simplicial(
 
   Node core radius in data units, used only on the directed path (rings
   and cores become polygons there so the ring gradient and the arrow
-  offset are expressible; `geom_point()` sizes are device millimetres
+  offset are expressible; `geom_point()` sizes are device millimeters
   and cannot answer either). `NULL` (default) scales it to the panel
   extent so the nodes keep the size they have today.
 
@@ -251,7 +251,11 @@ plot_simplicial(
 
 ## Value
 
-A `ggplot` object (or combined grid if dismantled), invisibly.
+Invisibly, a `ggplot` object for the combined overlay. With
+`dismantled = TRUE` the arranged grid is returned instead: a `gtable`
+when gridExtra is available, otherwise a plain list of the per-pathway
+`ggplot` objects. `NULL` is returned when there is nothing to draw (no
+pathways could be extracted). Called for the side effect of drawing.
 
 ## Details
 

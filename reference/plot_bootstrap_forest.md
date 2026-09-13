@@ -8,7 +8,7 @@ marks the point estimate. A dashed reference line runs through zero.
 Produces a ggplot2 forest plot where each row is one network edge, the
 square marks the bootstrap mean estimate, and the horizontal bar spans
 the selected interval. A dashed reference line runs through zero.
-Significant edges are highlighted in colour; non-significant ones appear
+Significant edges are highlighted in color; non-significant ones appear
 in grey (only shown when `show_nonsig = TRUE`).
 
 ## Usage
@@ -136,8 +136,9 @@ plot_bootstrap_forest(
 
 - alpha:
 
-  Significance threshold. Default: inherits from the object (`$ci_level`
-  or `$alpha`), falling back to `0.05`.
+  Significance threshold. Default `NULL`, which inherits from the
+  object: `$ci_level` for `net_bootstrap`, `$level` for `tna_bootstrap`,
+  `$alpha` for `boot_glasso`, each falling back to `0.05`.
 
 - layout:
 
@@ -169,30 +170,30 @@ plot_bootstrap_forest(
 
 - node_colors:
 
-  Optional node-colour vector for grouped radial layouts.
+  Optional node-color vector for grouped radial layouts.
 
 - sig_color:
 
-  Colour for significant CI bars and points. Default `"#2C6E8A"`
+  Color for significant CI bars and points. Default `"#2C6E8A"`
   (teal-blue).
 
 - cr_color:
 
-  Colour for the consistency range bar (`interval = "cr"` or `"both"`).
+  Color for the consistency range bar (`interval = "cr"` or `"both"`).
   Default `"#D4829A"`.
 
 - nonsig_color:
 
-  Colour for non-significant edges. Default `"#CCCCCC"`.
+  Color for non-significant edges. Default `"#CCCCCC"`.
 
 - ring_color:
 
-  Colour for the reference rings (radial layout only). Default
+  Color for the reference rings (radial layout only). Default
   `"#C8C8C8"`.
 
 - median_color:
 
-  Colour for the dashed median ring (radial layout only). Default
+  Color for the dashed median ring (radial layout only). Default
   `"#AAAAAA"`.
 
 - label_size:
@@ -203,8 +204,8 @@ plot_bootstrap_forest(
 
 - label_color:
 
-  Fixed colour for edge labels (radial layout only). `NULL` (default)
-  inherits the edge colour (teal for significant, grey for
+  Fixed color for edge labels (radial layout only). `NULL` (default)
+  inherits the edge color (teal for significant, grey for
   non-significant).
 
 - point_size:

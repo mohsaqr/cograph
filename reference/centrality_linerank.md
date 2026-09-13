@@ -27,7 +27,7 @@ centrality_linerank(
 
 - damping:
 
-  Edge-walk continuation probability in \[0,1), default0.85.
+  Edge-walk continuation probability in \[0,1), default 0.85.
 
 - linerank_aggregation:
 
@@ -56,7 +56,7 @@ Default `linerank_aggregation = "probability"` sums stationary edge
 probabilities, following the definition's prose and the later study. Raw
 scores then sum to two on a graph with edges. `"weight"` additionally
 multiplies each probability by its original edge weight, matching the
-weighted incidence aggregation in Kang et al.'s Algorithm2. These
+weighted incidence aggregation in Kang et al.'s Algorithm 2. These
 conventions differ for weighted inputs and are not interchangeable. The
 original pseudocode also has inconsistent row/column normalization; this
 implementation follows its random-walk definition, corroborated by the
@@ -83,12 +83,12 @@ weight overflow by scaling weights first; tiny ratios can underflow.
 ## References
 
 Kang, U., Papadimitriou, S., Sun, J., & Tong, H. (2011). Centralities in
-Large Networks: Algorithms and Observations. SDM, 119-130.
-Definitions2-4, Algorithm2.
+Large Networks: Algorithms and Observations. SDM, 119-130. Definitions
+2-4, Algorithm 2.
 [doi:10.1137/1.9781611972818.11](https://doi.org/10.1137/1.9781611972818.11)
 . Kosa, B., Balassi, M., Englert, P., & Kiss, A. (2015). Betweenness
 versus Linerank. Computer Science and Information Systems, 12(1), 33-48,
-section4.
+section 4.
 [doi:10.2298/CSIS141101092K](https://doi.org/10.2298/CSIS141101092K) .
 
 ## Examples

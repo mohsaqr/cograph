@@ -178,16 +178,18 @@ log-log CCDF (standard for power-law inspection).</p></dd>
 <dd><p>Table of degree frequencies.</p></dd>
 
 <dt>breaks</dt>
-<dd><p>Breakpoints used for the histogram (non-cumulative only).</p></dd>
+<dd><p>Breakpoints of the degree histogram.</p></dd>
 
 <dt>counts</dt>
-<dd><p>Bin counts (non-cumulative only).</p></dd>
+<dd><p>Bin counts.</p></dd>
 
 <dt>proportions</dt>
-<dd><p>Bin proportions (non-cumulative only).</p></dd>
+<dd><p>Bin proportions (<code>counts / sum(counts)</code>).</p></dd>
 
 
-</dl></div>
+</dl><p>All five components are returned for both the histogram and the
+cumulative plot; <code>cumulative = TRUE</code> only changes what is drawn.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>

@@ -62,12 +62,16 @@ robustness(
 
 - ...:
 
-  Additional arguments passed to
-  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
+  Passed to
+  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md),
+  whose only other argument is `directed`; anything else raises an
+  "unused argument" error.
 
 ## Value
 
-A data frame (class "cograph_robustness") with columns:
+A data frame (class "cograph_robustness") with one row per removal step,
+from zero removed through all removed (`n + 1` rows, where `n` is the
+number of vertices or edges), and columns:
 
 - removed_pct:
 
@@ -75,7 +79,8 @@ A data frame (class "cograph_robustness") with columns:
 
 - comp_size:
 
-  Size of largest component after removal
+  Size of largest component after removal (averaged over `n_iter` runs
+  when `measure = "random"`)
 
 - comp_pct:
 
@@ -83,11 +88,16 @@ A data frame (class "cograph_robustness") with columns:
 
 - measure:
 
-  Attack strategy used
+  The `measure` argument: "betweenness", "degree", or "random"
 
 - type:
 
-  Type of analysis (vertex or edge removal)
+  A human-readable label for the analysis, one of "Targeted vertex
+  attack", "Targeted edge attack", "Random vertex removal" or "Random
+  edge removal" - not the bare `type` argument
+
+The original number of vertices/edges (`"n_original"`) and the original
+largest-component size (`"orig_max"`) are stored as attributes.
 
 ## Details
 

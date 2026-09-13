@@ -149,6 +149,10 @@ Set nodes data frame.
 
   Data frame with node information.
 
+#### Returns
+
+The object itself, invisibly.
+
 ------------------------------------------------------------------------
 
 ### Method [`set_edges()`](https://sonsoles.me/cograph/reference/set_edges.md)
@@ -164,6 +168,10 @@ Set edges data frame.
 - `edges`:
 
   Data frame with edge information.
+
+#### Returns
+
+The object itself, invisibly.
 
 ------------------------------------------------------------------------
 
@@ -181,6 +189,10 @@ Set directed flag.
 
   Logical.
 
+#### Returns
+
+The object itself, invisibly.
+
 ------------------------------------------------------------------------
 
 ### Method `set_weights()`
@@ -195,7 +207,11 @@ Set edge weights.
 
 - `weights`:
 
-  Numeric vector of weights.
+  Numeric vector of edge weights, one per edge.
+
+#### Returns
+
+The object itself, invisibly.
 
 ------------------------------------------------------------------------
 
@@ -211,7 +227,11 @@ Set layout coordinates.
 
 - `coords`:
 
-  Matrix or data frame with x, y columns.
+  Matrix or data frame with x, y columns, one row per node.
+
+#### Returns
+
+The object itself, invisibly.
 
 ------------------------------------------------------------------------
 
@@ -229,6 +249,10 @@ Set node aesthetics.
 
   List of aesthetic parameters.
 
+#### Returns
+
+The object itself, invisibly.
+
 ------------------------------------------------------------------------
 
 ### Method `set_edge_aes()`
@@ -245,6 +269,10 @@ Set edge aesthetics.
 
   List of aesthetic parameters.
 
+#### Returns
+
+The object itself, invisibly.
+
 ------------------------------------------------------------------------
 
 ### Method `set_theme()`
@@ -260,6 +288,10 @@ Set theme.
 - `theme`:
 
   CographTheme object or theme name.
+
+#### Returns
+
+The object itself, invisibly.
 
 ------------------------------------------------------------------------
 
@@ -361,6 +393,10 @@ Set layout info.
 
   List with layout information (name, seed, etc.).
 
+#### Returns
+
+The object itself, invisibly.
+
 ------------------------------------------------------------------------
 
 ### Method `get_layout_info()`
@@ -391,6 +427,10 @@ Set plot parameters.
 
   List of all plot parameters used.
 
+#### Returns
+
+The object itself, invisibly.
+
 ------------------------------------------------------------------------
 
 ### Method `get_plot_params()`
@@ -414,6 +454,10 @@ Print network summary.
 #### Usage
 
     CographNetwork$print()
+
+#### Returns
+
+The object itself, invisibly.
 
 ------------------------------------------------------------------------
 

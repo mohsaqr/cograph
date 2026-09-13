@@ -1,12 +1,15 @@
-# Produces a two-layer hierarchical visualization of a clustered network. The **bottom layer** shows every node arranged inside elliptical cluster shells with full within-cluster and between-cluster edges drawn at the individual-node level. The **top layer** collapses each cluster into a single summary pie-chart node whose colored slice represents, by default, the cluster's share of the initial state distribution (see `summary_pie` for the alternative self-retention interpretation), with edges carrying the aggregated between-cluster weights. Dashed inter-layer lines connect each detail node to its corresponding summary node, making the hierarchical mapping explicit.
+# Plot Multi-Cluster Multi-Layer Network
 
-Use `plot_mcml` when you need a simultaneous micro/macro view of cluster
-structure — the bottom layer reveals internal cluster dynamics while the
-top layer provides a bird's-eye summary. For a flat multi-cluster plot
-without the summary layer, see
-[`plot_mtna`](https://sonsoles.me/cograph/reference/plot_mtna.md). For
-stacked multilevel/multiplex layers, see
-[`plot_mlna`](https://sonsoles.me/cograph/reference/plot_mlna.md).
+Produces a two-layer hierarchical visualization of a clustered network.
+The **bottom layer** shows every node arranged inside elliptical cluster
+shells with full within-cluster and between-cluster edges drawn at the
+individual-node level. The **top layer** collapses each cluster into a
+single summary pie-chart node whose colored slice represents, by
+default, the cluster's share of the initial state distribution (see
+`summary_pie` for the alternative self-retention interpretation), with
+edges carrying the aggregated between-cluster weights. Dashed
+inter-layer lines connect each detail node to its corresponding summary
+node, making the hierarchical mapping explicit.
 
 ## Usage
 
@@ -585,6 +588,14 @@ analysis.
 
 ## Details
 
+Use `plot_mcml` when you need a simultaneous micro/macro view of cluster
+structure — the bottom layer reveals internal cluster dynamics while the
+top layer provides a bird's-eye summary. For a flat multi-cluster plot
+without the summary layer, see
+[`plot_mtna`](https://sonsoles.me/cograph/reference/plot_mtna.md). For
+stacked multilevel/multiplex layers, see
+[`plot_mlna`](https://sonsoles.me/cograph/reference/plot_mlna.md).
+
 **Two workflows:**
 
 1.  **Direct**: pass a weight matrix (or tna / cograph_network object)
@@ -625,7 +636,7 @@ on an oval above the bottom layer whose proportions are controlled by
 
 ## Input Formats
 
-`x` accepts four types:
+`x` accepts the following types:
 
 - **matrix**:
 
@@ -650,6 +661,12 @@ on an oval above the bottom layer whose proportions are controlled by
   type is passed, the `cluster_list`, `aggregation`, and `nodes`
   parameters are ignored because the summary already contains everything
   needed.
+
+- **mcml / mcml_pc**:
+
+  A Nestimate multi-cluster multi-layer object; handled exactly like a
+  `cluster_summary`, with `mcml_pc` rendered undirected via its
+  `meta$directed` flag.
 
 ## Edge Types
 

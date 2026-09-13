@@ -17,15 +17,21 @@ lsim_matrix(layers, method = c("jaccard", "overlap", "cosine", "pearson"))
 
 - layers:
 
-  List of adjacency matrices (one per layer)
+  Named list of adjacency matrices (one per layer); at least two are
+  required.
 
 - method:
 
-  Similarity method
+  Comparison method: "jaccard" (default), "overlap", "cosine" or
+  "pearson". Note that `"hamming"`, accepted by
+  [`layer_similarity`](https://sonsoles.me/cograph/reference/layer_similarity.md),
+  is *not* available here because it is a distance rather than a
+  similarity.
 
 ## Value
 
-Symmetric matrix of pairwise similarities
+A symmetric L x L matrix of pairwise similarities with the layer names
+as dimnames and 1 on the diagonal.
 
 ## Examples
 

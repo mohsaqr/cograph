@@ -72,21 +72,34 @@ are values from equivalent random graphs.</p>
 
 
 <dt id="arg-n-random">n_random<a class="anchor" aria-label="anchor" href="#arg-n-random"></a></dt>
-<dd><p>Number of random graphs for comparison. Default 10.</p></dd>
+<dd><p>Number of Erdos-Renyi comparison graphs (same <code>n</code> and
+<code>m</code> as the observed graph). Default 10.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments passed to <code><a href="to_igraph.html">to_igraph</a></code></p></dd>
+<dd><p>Passed to <code><a href="to_igraph.html">to_igraph</a></code>, whose only other argument
+is <code>directed</code>; anything else raises an "unused argument" error.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Numeric: small-world coefficient sigma</p>
+    <p>Numeric: small-world coefficient sigma. <code>NA</code> when the graph has
+fewer than 4 nodes, no edges, or an undefined/zero mean path length.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Values &gt; 1 indicate small-world properties. Typically small-world
 networks have sigma &gt;&gt; 1.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="reproducibility">Reproducibility<a class="anchor" aria-label="anchor" href="#reproducibility"></a></h2>
+
+
+<p>The comparison graphs are drawn from the caller's RNG stream; this function
+takes no <code>seed</code> argument and does not save or restore
+<code>.Random.seed</code>. Call <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> beforehand for a reproducible
+result, and prefer a larger <code>n_random</code> than the default for anything
+you report.</p>
     </div>
 
     <div class="section level2">

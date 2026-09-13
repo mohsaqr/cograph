@@ -46,11 +46,15 @@ dispersion(x, u = NULL, v = NULL, normalized = TRUE, alpha = 1, b = 0, c = 0)
 
 - Scalar if both `u` and `v` are specified.
 
-- Named numeric vector if exactly one of `u`, `v` is given (names are
-  the other endpoints).
+- Named numeric vector if exactly one of `u`, `v` is given, one element
+  per neighbor of that node; the names are the neighbors' 1-based node
+  *indices* as character strings, not their labels.
 
 - A data frame with columns `from`, `to`, `dispersion` when neither `u`
-  nor `v` is given (one row per ordered edge).
+  nor `v` is given, one row per ordered (node, neighbor) pair, with
+  `from` and `to` given as 1-based integer node indices.
+
+- `numeric(0)` for an empty graph.
 
 ## Details
 

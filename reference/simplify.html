@@ -131,7 +131,9 @@ No-op for matrix/tna inputs (see Details).</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The simplified network in the same format as the input.</p>
+    <p>The simplified network, in the same format and class as the input
+(matrix in / matrix out, <code>cograph_network</code> in / <code>cograph_network</code>
+out, and so on). The default method raises an error for any other class.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -154,10 +156,11 @@ merged via <code>aggregate_duplicate_edges()</code> using
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Matrix with self-loops</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># igraph also exports simplify(); qualify the call when both are loaded.</span></span></span>
+<span class="r-in"><span><span class="co"># Matrix with self-loops</span></span></span>
 <span class="r-in"><span><span class="va">mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.3</span>, <span class="fl">0</span>, <span class="fl">0.3</span>, <span class="fl">0.2</span>, <span class="fl">0.4</span>, <span class="fl">0</span>, <span class="fl">0.4</span>, <span class="fl">0.1</span><span class="op">)</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">simplify</span><span class="op">(</span><span class="va">mat</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">cograph</span><span class="fu">::</span><span class="fu">simplify</span><span class="op">(</span><span class="va">mat</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     A   B   C</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> A 0.0 0.3 0.0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> B 0.3 0.0 0.4</span>
@@ -166,7 +169,7 @@ merged via <code>aggregate_duplicate_edges()</code> using
 <span class="r-in"><span><span class="co"># Edge list with duplicates</span></span></span>
 <span class="r-in"><span><span class="va">edges</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, to <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>, weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.3</span>, <span class="fl">0.7</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="cograph.html">cograph</a></span><span class="op">(</span><span class="va">edges</span>, layout <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">simplify</span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">cograph</span><span class="fu">::</span><span class="fu">simplify</span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 3 nodes, 2 edges ( undirected )</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Source: edgelist </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data: data.frame (3 x 3) </span>
@@ -174,7 +177,7 @@ merged via <code>aggregate_duplicate_edges()</code> using
 <span class="r-out co"><span class="r-pr">#&gt;</span> Weights: 0.5 (all equal)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.</span>
-<span class="r-in"><span><span class="fu">simplify</span><span class="op">(</span><span class="va">net</span>, edge_attr_comb <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">cograph</span><span class="fu">::</span><span class="fu">simplify</span><span class="op">(</span><span class="va">net</span>, edge_attr_comb <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 3 nodes, 2 edges ( undirected )</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Source: edgelist </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data: data.frame (3 x 3) </span>

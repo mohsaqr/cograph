@@ -64,7 +64,12 @@
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A data frame with columns: from, to, weight.</p>
+    <p>A data frame with one row per edge and columns <code>from</code> and
+<code>to</code> (integer row numbers into the node table, <em>not</em> labels) and
+<code>weight</code>, plus any extra edge columns the network carries. An
+undirected network stores one row per unordered pair. Use
+<code><a href="as.data.frame.cograph_network.html">as.data.frame.cograph_network</a></code> or <code><a href="to_data_frame.html">to_df</a></code> for the
+same table with the endpoints given as node labels.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

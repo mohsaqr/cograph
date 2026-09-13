@@ -85,13 +85,21 @@ Default: <code>"splot"</code>.</p></dd>
 
 
 <dt id="arg-weight-digits">weight_digits<a class="anchor" aria-label="anchor" href="#arg-weight-digits"></a></dt>
-<dd><p>Number of decimal places to round edge weights to. Default 2.
-Edges that round to zero are removed unless <code>show_zero_edges = TRUE</code>.</p></dd>
+<dd><p>Number of decimal places to round edge weights to.
+Default <code>NULL</code>, which picks the number of digits from the matrix:
+<code>0</code> when every non-zero weight is a whole number (counts, as in
+<code>ftna</code>/<code>ctna</code> models) and <code>2</code> otherwise (probabilities).
+Edges whose weight rounds to zero at this precision are dropped unless
+<code>show_zero_edges = TRUE</code>.</p></dd>
 
 
 <dt id="arg-show-zero-edges">show_zero_edges<a class="anchor" aria-label="anchor" href="#arg-show-zero-edges"></a></dt>
-<dd><p>Logical. If TRUE, keep edges even if their weight rounds to
-zero. Default: FALSE.</p></dd>
+<dd><p>Logical. Zero is how this representation stores
+"no edge", so an edge whose weight rounds to zero at
+<code>weight_digits</code> is dropped. With <code>TRUE</code> such an edge is
+instead drawn at the smallest magnitude <code>weight_digits</code> can
+express, carrying its sign; every other weight is unchanged. Default:
+FALSE.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -146,6 +154,10 @@ networks</p></li>
 <li><p><code>edge_start_style = "dotted"</code>: Dotted line at edge source for
 directed networks</p></li>
 <li><p><code>edge_start_length = 0.2</code>: 20% of directed edges are dotted</p></li>
+<li><p><code>edge_label_style = "estimate"</code> and
+<code>edge_label_leading_zero = FALSE</code>: labels show the weight alone,
+written without a leading zero (<code>.42</code>, not <code>0.42</code>)</p></li>
+<li><p><code>minimum = 0.01</code>: transitions weaker than 0.01 are not drawn</p></li>
 </ul></div>
 
     </div>

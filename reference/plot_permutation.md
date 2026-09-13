@@ -70,7 +70,10 @@ plot_permutation(
 
 ## Value
 
-Invisibly returns the plot.
+Invisibly returns the `cograph_network` object built by
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md), or `NULL`
+when no edge survives the significance filter. Called for the side
+effect of drawing.
 
 ## Details
 

@@ -4,10 +4,10 @@ Integrates several centrality indexes into one score without asking the
 user to weight them. Each index is first turned into a discrete
 distribution over the nodes, and the integrated score is the
 distribution that has the smallest total relative entropy to all of
-them. Chen, Wang and Luo (2016) show that the minimiser has a closed
+them. Chen, Wang and Luo (2016) show that the minimizer has a closed
 form, equation (11):
 \\w_i=\prod\_{j=1}^{m}u\_{ji}^{1/m}/\sum\_{i}\prod\_{j=1}^{m}u\_{ji}^{1/m}\\,
-the normalised geometric mean of the \\m\\ index distributions. The
+the normalized geometric mean of the \\m\\ index distributions. The
 result sums to one, so it reads as a share of importance rather than a
 raw score.
 
@@ -64,7 +64,7 @@ units.
 
 The geometric mean is unforgiving: a node that scores exactly zero on
 any one index scores exactly zero overall. That is the source's own
-printed behaviour – its Table 2 gives zero to the three Kite nodes with
+printed behavior – its Table 2 gives zero to the three Kite nodes with
 zero betweenness – and cograph reproduces it rather than smoothing it
 away.
 
@@ -75,7 +75,7 @@ declares a direction for. Their default directions are the source's own.
 
 - degree:
 
-  Number of neighbours (section 3.2). Positive.
+  Number of neighbors (section 3.2). Positive.
 
 - closeness:
 
@@ -85,12 +85,12 @@ declares a direction for. Their default directions are the source's own.
 - betweenness:
 
   Equation (4), summed over ordered pairs \\j\ne i\ne k\\, so twice the
-  usual unnormalised undirected betweenness. Positive.
+  usual unnormalized undirected betweenness. Positive.
 
 - constraint:
 
   Equation (6), the network constraint coefficient, with the outer sum
-  over every other node rather than over the neighbours alone. Negative.
+  over every other node rather than over the neighbors alone. Negative.
 
 - n_components:
 

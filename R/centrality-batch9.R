@@ -4,7 +4,7 @@
 # igraph-facing calculators over R/kernels-batch9.R and the exported verbs.
 # ===========================================================================
 
-#' Undirected simple neighbour matrix by mode, with membership validation
+#' Undirected simple neighbor matrix by mode, with membership validation
 #' @keywords internal
 #' @noRd
 .cg_community_input <- function(cg, membership, mode, what) {
@@ -40,6 +40,13 @@ calculate_community_based <- function(cg, membership = NULL, mode = "all") {
 #' @noRd
 calculate_comm_centrality <- function(cg, membership = NULL, mode = "all",
                                       r = "max_intra") {
+  ok_r <- identical(r, "max_intra") ||
+    (is.numeric(r) && length(r) == 1L && is.finite(r) && r > 0)
+  if (!ok_r) {
+    stop(errorCondition(
+      "`comm_r` must be \"max_intra\" or a single positive number",
+      class = "cograph_bad_parameter", call = NULL))
+  }
   n <- cg$n
   if (n == 0L) return(numeric(0))
   nb <- .cg_community_input(cg, membership, mode, "comm_centrality")
@@ -62,6 +69,11 @@ calculate_community_mediator <- function(cg, membership = NULL, mode = "all") {
 #' @noRd
 calculate_local_dimension_fixed <- function(cg, mode = "all", r = 2,
                                             hop_mat = NULL) {
+  if (!is.numeric(r) || length(r) != 1L || !is.finite(r) || r < 1) {
+    stop(errorCondition(
+      "`ld_radius` must be a single number of at least 1: it is a ball radius in hops",
+      class = "cograph_bad_parameter", call = NULL))
+  }
   if (cg$n == 0L) return(numeric(0))
   .cg_local_dimension_fixed(hop_mat %||% .cg_hop_distances(cg, mode), r = r)
 }
@@ -122,7 +134,8 @@ calculate_local_volume_dimension <- function(cg, mode = "all",
 #' @param mode For directed networks: \code{"all"} (default), \code{"out"},
 #'   or \code{"in"}.
 #' @param comm_r Scale \eqn{R} of Comm centrality: \code{"max_intra"}
-#'   (default) or a positive number.
+#'   (default) or a single positive number. Anything else raises a
+#'   \code{cograph_bad_parameter} error.
 #' @param ... Additional arguments passed to \code{\link{centrality}}.
 #'
 #' @return Named numeric vector, one value per node.
@@ -183,12 +196,12 @@ centrality_community_mediator <- function(x, membership = NULL, mode = "all",
 #' Fixed-Radius, Fuzzy and Volume Local Dimensions
 #'
 #' Three further members of the local-dimension family, all computed from
-#' hop counts (edge weights are ignored) with the centre node counted in
+#' hop counts (edge weights are ignored) with the center node counted in
 #' its own ball, as in \code{\link{centrality_local_dimension}}.
 #'
 #' \describe{
 #'   \item{\code{local_dimension_fixed} (Silva & Costa 2013)}{The
-#'     discretised estimator \eqn{D_i(r) = r\, n_i(r) / B_i(r)} at one
+#'     discretized estimator \eqn{D_i(r) = r\, n_i(r) / B_i(r)} at one
 #'     radius \code{ld_radius} (default 2), where \eqn{n_i(r)} is the ring
 #'     at distance \eqn{r} and \eqn{B_i(r)} the ball within it. A
 #'     structural descriptor rather than an importance ranking; nodes with
@@ -212,8 +225,9 @@ centrality_community_mediator <- function(x, membership = NULL, mode = "all",
 #' than two radii.
 #'
 #' @inheritParams centrality_distance_entropy
-#' @param ld_radius Radius \eqn{r} for \code{local_dimension_fixed}.
-#'   Default 2.
+#' @param ld_radius Radius \eqn{r} for \code{local_dimension_fixed}, in
+#'   hops. A single number of at least 1; default 2. Anything else raises a
+#'   \code{cograph_bad_parameter} error.
 #'
 #' @return Named numeric vector, one value per node.
 #'
@@ -315,7 +329,7 @@ calculate_two_way_rw <- function(cg, weights = NULL) {
 #' \describe{
 #'   \item{\code{wvoterank} (Sun, Chen, He & Ch'ng 2019)}{VoteRank for
 #'     weighted graphs: \eqn{s_v = \sqrt{k_v \sum_{u \in N(v)} va_u w_{vu}}}.
-#'     After an election the winner's ability is 0 and its neighbours lose
+#'     After an election the winner's ability is 0 and its neighbors lose
 #'     \eqn{1 / \langle w \rangle}, where \eqn{\langle w \rangle} is the
 #'     average strength (the paper's Figure 1 pins strength, not degree).
 #'     Uses edge weights; with unit weights it is VoteRank with a
@@ -332,7 +346,7 @@ calculate_two_way_rw <- function(cg, weights = NULL) {
 #'     factor turns negative when \eqn{\langle k \rangle < e}.}
 #'   \item{\code{voterank_plus} (Liu, Li, Fang & Yao 2021)}{Initial ability
 #'     \eqn{\ln(1 + k_i / k_{\max})}, degree-proportional vote shares over
-#'     unelected neighbours, score \eqn{\sqrt{k_i \sum_j va_j w_{j \to i}}},
+#'     unelected neighbors, score \eqn{\sqrt{k_i \sum_j va_j w_{j \to i}}},
 #'     and after an election abilities are multiplied by \eqn{\lambda}
 #'     one step away and \eqn{\sqrt{\lambda}} two steps away
 #'     (\code{voterank_lambda}, default 0.1). The article is closed access;
@@ -401,13 +415,13 @@ centrality_voterank_plus <- function(x, voterank_lambda = 0.1, ...) {
 #' Wang et al. (2011). The agglomeration (cohesion) of a graph is
 #' \eqn{\partial(G) = 1 / (N \bar{L})}, with \eqn{\bar{L}} the mean
 #' shortest-path length over ordered pairs; contracting a node merges it
-#' with all its neighbours into one node, and
+#' with all its neighbors into one node, and
 #' \deqn{IMC(v) = 1 - \partial(G) / \partial(G_v).}
 #' The improved form (\code{node_contraction_improved}) adds the same score
 #' of the node's edges computed on the line graph:
 #' \eqn{IIMC(v) = \alpha\, IMC(v) + \beta \sum_{e \ni v} IMC_{L(G)}(e)},
 #' with \eqn{\alpha / \beta = 5} (\code{contraction_rho}) and
-#' \eqn{\alpha + \beta = 1}, the normalisation that reproduces the paper's
+#' \eqn{\alpha + \beta = 1}, the normalization that reproduces the paper's
 #' Table 1. Higher = more important. Both reproduce Table 1 of Wang et al.
 #' (2011). The Zoo entry describes the contracted graph as the graph with
 #' the node removed; the sources define it by contraction, which is what
@@ -506,7 +520,7 @@ centrality_two_way_rw <- function(x, ...) {
 # Simple local measures, coreness variants, geodesic k-path
 # ---------------------------------------------------------------------------
 
-#' Neighbour matrix by mode with loops dropped
+#' Neighbor matrix by mode with loops dropped
 #' @keywords internal
 #' @noRd
 .cg_mode_neighbours <- function(cg, mode) {
@@ -580,28 +594,28 @@ calculate_geodesic_kpath <- function(cg, mode = "all", k = 3, hop_mat = NULL) {
 #'
 #' \describe{
 #'   \item{\code{heatmap} (Duron 2020)}{Farness minus the mean farness of
-#'     the neighbours, \eqn{C(v) = f(v) - \frac{1}{k_v} \sum_{u \in N(v)}
+#'     the neighbors, \eqn{C(v) = f(v) - \frac{1}{k_v} \sum_{u \in N(v)}
 #'     f(u)}, with \eqn{f} the sum of hop distances to reachable nodes.
 #'     **Lower is more central.** Isolates score \code{NaN}. Reproduces
 #'     Table 1 of the paper.}
 #'   \item{\code{flow_coefficient} (Honey et al. 2007)}{Among ordered pairs
-#'     of distinct neighbours, the fraction joined by a two-step path
+#'     of distinct neighbors, the fraction joined by a two-step path
 #'     through the node but not by a direct link, as implemented in the
 #'     Brain Connectivity Toolbox. On an undirected graph it equals one
 #'     minus the clustering coefficient; it carries new information only on
-#'     directed graphs. Nodes with fewer than two neighbours score 0.}
+#'     directed graphs. Nodes with fewer than two neighbors score 0.}
 #'   \item{\code{local_entropy} (Nie et al. 2016)}{\eqn{-\sum_{j \in N(i)}
 #'     k_j \ln k_j}, as printed by the sources. Always non-positive and more
-#'     negative for larger, denser neighbourhoods, so **lower is more
+#'     negative for larger, denser neighborhoods, so **lower is more
 #'     central**; isolates score 0, the maximum. The original article is
 #'     closed access; the formula is that of the Zoo and of Omar and
 #'     Plapper's 2021 survey, which agree.}
 #'   \item{\code{weighted_h_index} (Gao et al. 2019)}{h-index of the
-#'     multiset in which each neighbour \eqn{j} contributes the topological
+#'     multiset in which each neighbor \eqn{j} contributes the topological
 #'     weight \eqn{k_i k_j} repeated \eqn{k_j} times. Edge weights on the
 #'     input play no role.}
 #'   \item{\code{redundancy} (Burt 1992; Borgatti 1997)}{Mean degree of the
-#'     node's neighbours within its ego network, \eqn{2 t_i / k_i}; equal to
+#'     node's neighbors within its ego network, \eqn{2 t_i / k_i}; equal to
 #'     degree minus effective size. Higher = fewer structural holes.
 #'     Reproduces Borgatti's worked example.}
 #' }
@@ -677,9 +691,9 @@ centrality_redundancy <- function(x, ...) {
 #'
 #' \describe{
 #'   \item{\code{weighted_kshell} (Garas, Schweitzer & Havlin 2012)}{k-shell
-#'     decomposition on the generalised degree \eqn{k' = (k^\alpha
+#'     decomposition on the generalized degree \eqn{k' = (k^\alpha
 #'     s^\beta)^{1 / (\alpha + \beta)}} (\code{wks_alpha}, \code{wks_beta},
-#'     both 1), after the paper's weight normalisation (divide by the mean,
+#'     both 1), after the paper's weight normalization (divide by the mean,
 #'     then by the minimum, round to the nearest integer). Integer
 #'     thresholds label the shells, so unit weights give the k-core number
 #'     and isolates score 0. Reproduces the paper's Figure 1 example and its
@@ -691,7 +705,7 @@ centrality_redundancy <- function(x, ...) {
 #'     the renewed coreness. A clique with no outside links collapses to 0.
 #'     Reproduces the paper's Figure 1 and all twelve percentages of its
 #'     supplementary Table S1; the Zoo's transcription with open
-#'     neighbourhoods is off by one.}
+#'     neighborhoods is off by one.}
 #'   \item{\code{geodesic_kpath} (Borgatti & Everett 2006)}{The number of
 #'     shortest paths of length at most \code{kpath_k} (default 3) that
 #'     start at the node, counted with multiplicity. Note that

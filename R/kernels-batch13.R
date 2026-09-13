@@ -1,9 +1,9 @@
 # Numerical kernels for volume and maximal clique centrality.
 
-#' Volume of a closed hop neighbourhood
+#' Volume of a closed hop neighborhood
 #' @param b Symmetric binary adjacency matrix with zero diagonal.
 #' @param radius Nonnegative integer hop radius, or Inf.
-#' @return Sum of original-graph degrees in each closed neighbourhood.
+#' @return Sum of original-graph degrees in each closed neighborhood.
 #' @keywords internal
 #' @noRd
 .cg_volume <- function(b, radius = 2) {

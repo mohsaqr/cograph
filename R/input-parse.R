@@ -175,6 +175,9 @@ detect_duplicate_edges <- function(edges, directed = FALSE) {
 #' @param method Aggregation method: \code{"mean"} (default), \code{"sum"},
 #'   \code{"max"}, \code{"min"}, \code{"first"}, or a custom function that
 #'   takes a numeric vector and returns a single value.
+#' @param directed Logical. If FALSE (default), reverse-direction edges are
+#'   treated as duplicates of each other and the output uses canonical
+#'   (lower-index-first) endpoint ordering.
 #'
 #' @details
 #' ## Aggregation Methods

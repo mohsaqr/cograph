@@ -13,7 +13,7 @@
 #' with `DC(v_i) = d(v_i)/(n - 1)` (1), `P(v_i) = 1/d(v_i)` (2) and the
 #' cluster degree `D(v_i) = sum_{j in N(i)} d(v_j)` (3). Because
 #' `P(v_j) DC(v_j) = (1/d_j)(d_j/(n - 1))` collapses to `1/(n - 1)`, the
-#' inner sum of (4) is just a count and the neighbours enter only through
+#' inner sum of (4) is just a count and the neighbors enter only through
 #' `D(v_i)`.
 #'
 #' The printed equations are self-inconsistent about that count `k`: the

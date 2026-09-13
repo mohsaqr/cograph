@@ -20,18 +20,19 @@ object.}
 \item{nodes}{Character vector of node names or integer vector of node
 indices selecting which egos to report. NULL (default) uses every node.}
 
-\item{order}{Integer neighbourhood order defining the ego network. 1
-(default) is the standard ego network (ego + direct neighbours). Burt's
+\item{order}{Integer neighborhood order defining the ego network. 1
+(default) is the standard ego network (ego + direct neighbors). Burt's
 \code{effective_size} and \code{constraint} are only defined for
 \code{order = 1} and are returned as \code{NA} otherwise.}
 
-\item{mode}{For directed networks, which ties define the neighbourhood:
+\item{mode}{For directed networks, which ties define the neighborhood:
 \code{"all"} (default), \code{"out"}, or \code{"in"}.}
 
 \item{directed}{Logical or NULL. If NULL (default), auto-detect from matrix
 symmetry.}
 
-\item{...}{Additional arguments passed to \code{\link{to_igraph}}.}
+\item{...}{Currently unused; \code{directed} is already an explicit
+argument above and \code{\link{to_igraph}} accepts no others.}
 }
 \value{
 A tidy data.frame of class \code{"cograph_ego_networks"} with one row
@@ -50,7 +51,7 @@ many structural holes / brokerage opportunities.}
 }
 }
 \description{
-Extracts the ego network of each requested node (the node, its neighbours up
+Extracts the ego network of each requested node (the node, its neighbors up
 to a given order, and the ties among them) and reports a tidy table of
 personal-network metrics: size, internal tie counts and densities, and Burt's
 structural-hole measures. One row per ego.
@@ -62,6 +63,7 @@ reusing the same implementations as \code{\link{centrality}} so results match
 \code{centrality(x, measures = c("effective_size", "constraint"))}.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 adj <- matrix(c(
   0, 1, 1, 0, 0,
   1, 0, 1, 0, 0,
@@ -71,6 +73,7 @@ adj <- matrix(c(
 ), 5, 5, byrow = TRUE)
 rownames(adj) <- colnames(adj) <- LETTERS[1:5]
 cograph::ego_networks(adj)
+\dontshow{\}) # examplesIf}
 }
 \references{
 Burt, R.S. (1992). \emph{Structural Holes: The Social Structure of

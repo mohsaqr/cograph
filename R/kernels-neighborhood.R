@@ -1,8 +1,8 @@
 # ===========================================================================
-# Neighbourhood-aggregate centralities
+# Neighborhood-aggregate centralities
 # ===========================================================================
 
-#' Distinct neighbour set (no reciprocation multiplicity)
+#' Distinct neighbor set (no reciprocation multiplicity)
 #'
 #' Distinct from `.cg_adjlist()`, which repeats a reciprocated dyad. Measures
 #' that aggregate *over vertices* need this one; measures that aggregate over
@@ -47,9 +47,9 @@
 
 #' Diffusion centrality, cograph's formulation
 #'
-#' Own scaled degree plus the scaled degrees of its neighbours. Note this is
+#' Own scaled degree plus the scaled degrees of its neighbors. Note this is
 #' **not** the Banerjee power series: reciprocated dyads are collapsed with a
-#' logical OR so a mutual edge is not counted twice in the neighbour sum,
+#' logical OR so a mutual edge is not counted twice in the neighbor sum,
 #' even though the degree itself counts it twice.
 #'
 #' @param b Binary adjacency matrix. @param directed Whether directed.
@@ -67,10 +67,10 @@
   as.numeric(d + adj %*% d)
 }
 
-#' Lobby index: h-index over the closed neighbourhood's degrees
+#' Lobby index: h-index over the closed neighborhood's degrees
 #'
-#' The neighbourhood is *closed* -- the vertex counts itself -- and both the
-#' degrees and the neighbour set are taken at `mode`.
+#' The neighborhood is *closed* -- the vertex counts itself -- and both the
+#' degrees and the neighbor set are taken at `mode`.
 #'
 #' @param b Binary adjacency matrix. @param directed Whether directed.
 #' @param mode One of `"all"`, `"out"`, `"in"`.
@@ -88,7 +88,7 @@
 }
 
 #' h-index over strengths rather than degrees
-#' @param nbrs Neighbour lists. @param strength Strength vector.
+#' @param nbrs Neighbor lists. @param strength Strength vector.
 #' @return Numeric vector.
 #' @keywords internal
 #' @noRd
@@ -97,8 +97,14 @@
     .cg_hindex(c(strength[i], strength[nbrs[[i]]])), numeric(1L))
 }
 
-#' ClusterRank (Chen et al. 2013)
-#' @param clust Local transitivity. @param adj Neighbour lists (with multiplicity).
+#' ClusterRank (Chen et al. 2013), cograph's formulation
+#'
+#' `c_v * sum_{u in N(v)} (k_u + 1)`. Chen et al. damp by `f(c_v) = 10^-c_v`
+#' rather than by `c_v` itself; cograph multiplies by the raw coefficient,
+#' which is what `centrality()` documents as "Clustering coefficient times
+#' neighbor degree sum".
+#'
+#' @param clust Local transitivity. @param adj Neighbor lists (with multiplicity).
 #' @param deg Degree vector.
 #' @return Numeric vector; `NaN` wherever local transitivity is undefined.
 #' @keywords internal
@@ -110,10 +116,10 @@
   }, numeric(1L))
 }
 
-#' Maximum neighbourhood component
-#' @param b Binary adjacency matrix. @param nbrs Neighbour lists.
+#' Maximum neighborhood component
+#' @param b Binary adjacency matrix. @param nbrs Neighbor lists.
 #' @return Numeric vector: the largest connected component among a vertex's
-#'   neighbours.
+#'   neighbors.
 #' @keywords internal
 #' @noRd
 .cg_mnc <- function(b, nbrs) {
@@ -156,8 +162,12 @@
   best
 }
 
-#' Expected degree of a vertex's neighbours
-#' @param adj Distinct neighbour lists. @param deg Degree vector.
+#' Summed degree of a vertex's neighbors
+#'
+#' The neighbor degrees are added, not averaged -- `centrality()` documents
+#' the `expected` measure as "Sum of neighbor degrees".
+#'
+#' @param adj Distinct neighbor lists. @param deg Degree vector.
 #' @return Numeric vector.
 #' @keywords internal
 #' @noRd

@@ -22,8 +22,10 @@ into a layout the caller has already configured (e.g. via
 \code{\link{panel_layout}()}). Ignored when \code{i} selects a single panel.}
 }
 \value{
-When \code{i} is supplied, returns the selected permutation plot.
-Otherwise invisibly returns \code{NULL} after drawing all panels.
+When \code{i} is supplied, invisibly returns the
+\code{\link{plot_permutation}()} result for the selected panel (a
+\code{cograph_network}). Otherwise invisibly returns \code{NULL} after
+drawing all panels.
 }
 \description{
 Visualizes all pairwise permutation test results from a group_tna object.

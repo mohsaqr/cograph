@@ -19,9 +19,11 @@ Invisible NULL.
 Register a new layout algorithm that can be used for network visualization.
 }
 \examples{
-# Register a simple random layout
-register_layout("random", function(network, ...) {
+# Register a simple random layout under a new name. Registering an existing
+# name (for example "random") would replace the built-in layout for the rest
+# of the session, so pick a name of your own.
+register_layout("my_random", function(network, ...) {
   n <- network$n_nodes
-  cbind(x = runif(n), y = runif(n))
+  cbind(x = stats::runif(n), y = stats::runif(n))
 })
 }

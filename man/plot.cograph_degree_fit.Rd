@@ -21,9 +21,11 @@
 \item{which}{Character vector of distribution names to display. Default
 \code{NULL} shows all fitted distributions.}
 
-\item{log}{Character string for log-scale axes: \code{""} (default),
-\code{"y"}, or \code{"xy"}. Values containing \code{"x"} are accepted
-for compatibility but only filter non-positive fitted curve values.}
+\item{log}{Character string for log-scale axes: one of \code{""} (default),
+\code{"x"}, \code{"y"} or \code{"xy"}. Only \code{"y"} and \code{"xy"}
+actually log the histogram axis; the values containing \code{"x"} are
+accepted for compatibility but merely filter non-positive fitted curve
+values.}
 
 \item{cols}{Named or unnamed character vector of colors for distribution
 curves. Default uses a built-in palette.}

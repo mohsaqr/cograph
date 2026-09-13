@@ -162,11 +162,15 @@ to_igraph <- function(x, directed = NULL) {
 #'   symmetry. Set TRUE to force directed, FALSE to force undirected.
 #' @param weights Logical. Use edge weights for community detection. Default TRUE.
 #'
-#' @return A data frame with columns:
+#' @return A \code{cograph_communities} object, which inherits from
+#'   \code{data.frame} and has one row per node with columns:
 #'   \itemize{
 #'     \item \code{node}: Node labels/names
 #'     \item \code{community}: Integer community membership
 #'   }
+#'   The algorithm name, the igraph community object, the modularity and the
+#'   input network are carried as attributes for the \code{print}, \code{plot}
+#'   and \code{modularity} methods.
 #'
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
@@ -269,7 +273,7 @@ detect_communities <- function(x, method = "louvain", directed = NULL,
 #' @seealso \code{\link{detect_communities}}, \code{\link{splot}}
 #'
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' adj <- matrix(c(0, .5, .8, 0,
 #'                 .5, 0, .3, .6,
 #'                 .8, .3, 0, .4,
@@ -356,6 +360,8 @@ color_communities <- function(x, method = "louvain", palette = NULL, ...) {
 #'
 #' @return A cograph_network object with filtered edges. If \code{keep_format = TRUE},
 #'   matrix, igraph, and statnet network inputs are converted back to that type.
+#'   Nodes are never removed by the filter itself; when the filter strands a
+#'   node a \code{cograph_isolates_created} warning is raised.
 #'
 #' @seealso \code{\link{filter_nodes}}, \code{\link{splot}}, \code{\link{subset_edges}}
 #'
@@ -426,10 +432,21 @@ filter_edges <- function(x, ..., keep_isolates = TRUE, keep_format = FALSE,
 #'       \code{name}, \code{x}, \code{y}, \code{inits}, \code{color}, plus any custom}
 #'     \item{Centrality measures}{\code{degree}, \code{indegree}, \code{outdegree},
 #'       \code{strength}, \code{instrength}, \code{outstrength}, \code{betweenness},
-#'       \code{closeness}, \code{eigenvector}, \code{pagerank}, \code{hub}, \code{authority}}
+#'       \code{closeness}, \code{eigenvector}, \code{pagerank}, \code{hub},
+#'       \code{authority}, \code{coreness}. Any other measure
+#'       \code{\link{centrality}()} computes can be named too; see
+#'       \code{\link{list_centralities}()}.}
+#'     \item{Structural context and predicates}{The same vocabulary
+#'       \code{\link{select_nodes}()} documents, for example \code{component},
+#'       \code{component_size}, \code{k_core}, \code{is_isolated},
+#'       \code{is_cut}, \code{local_transitivity}.}
 #'   }
 #'   Examples: \code{degree >= 3}, \code{label \%in\% c("A", "B")},
 #'   \code{pagerank > 0.1 & degree >= 2}.
+#'
+#'   On a network with negative edge weights, \code{betweenness},
+#'   \code{closeness} and \code{pagerank} are undefined: they return \code{NA}
+#'   with a \code{cograph_negative_weights} warning.
 #' @param .keep_edges Deprecated. Use \code{keep_edges}.
 #' @param keep_edges How to handle edges. One of:
 #'   \describe{
@@ -731,7 +748,7 @@ subset_edges <- filter_edges
 
 #' Build a weight matrix from an edge table
 #'
-#' One vectorised matrix assignment rather than a cell-by-cell loop. For an
+#' One vectorized matrix assignment rather than a cell-by-cell loop. For an
 #' undirected network the edge table holds one row per unordered pair, so the
 #' transposed positions are filled as well; without that the rebuilt matrix is
 #' upper-triangular and every downstream consumer reads the network as
@@ -983,7 +1000,7 @@ subset_edges <- filter_edges
 #'
 #' Replaces the edge table. Filtering edges never removes nodes (igraph's
 #' `delete_edges()` and tidygraph's `filter()` on edges behave the same way);
-#' pass `keep_isolates = FALSE` for the pruning behaviour, or call
+#' pass `keep_isolates = FALSE` for the pruning behavior, or call
 #' [remove_isolates()] afterwards.
 #'
 #' @noRd
@@ -1124,6 +1141,40 @@ subset_edges <- filter_edges
   invisible(length(created))
 }
 
+#' The edge table as a labelled data frame, computed columns included
+#'
+#' What `as.data.frame(<cograph_network>)` returns: `from`/`to` resolved from
+#' node indices to labels, `weight`, and then every further column the edge
+#' table carries -- the ones `mutate_edges()` computes, and metadata such as
+#' `session` or `time` from a temporal edge list.
+#'
+#' `to_data_frame()` deliberately does NOT use this. That verb converts a
+#' network to the three-column edge list other packages consume, and reverse
+#' dependencies pin that shape; this accessor is the Rule 0 surface that hands
+#' the caller everything the object holds.
+#' @noRd
+.edges_as_df <- function(x, directed = NULL) {
+  net <- as_cograph(x, directed = directed)
+  edges <- get_edges(net)
+  labels <- get_labels(net)
+
+  df <- data.frame(
+    from = labels[edges$from],
+    to = labels[edges$to],
+    weight = as.numeric(edges$weight),
+    stringsAsFactors = FALSE
+  )
+  if (nrow(edges) == 0) {
+    df$from <- character(0)
+    df$to <- character(0)
+  }
+  extra_cols <- setdiff(names(edges), c("from", "to", "weight"))
+  if (length(extra_cols) > 0) {
+    df[extra_cols] <- edges[extra_cols]
+  }
+  df
+}
+
 #' Export Network as Edge List Data Frame
 #'
 #' Converts a network to an edge list data frame with columns for source,
@@ -1133,12 +1184,17 @@ subset_edges <- filter_edges
 #' @param directed Logical or NULL. If NULL (default), auto-detect from matrix
 #'   symmetry. Set TRUE to force directed, FALSE to force undirected.
 #'
-#' @return A data frame with columns:
+#' @return A base \code{data.frame} with one row per edge and exactly three
+#'   columns:
 #'   \itemize{
 #'     \item \code{from}: Source node name/label
 #'     \item \code{to}: Target node name/label
 #'     \item \code{weight}: Edge weight
 #'   }
+#'   Any further edge columns the network carries (for example \code{session}
+#'   or \code{time} from temporal edge lists) are \emph{not} included; use
+#'   \code{\link{get_edges}}, which returns the edge table whole. An
+#'   undirected network contributes one row per unordered pair, not two.
 #'
 #' @seealso \code{\link{to_df}}, \code{\link{to_igraph}}, \code{\link{as_cograph}}
 #'
@@ -1167,18 +1223,14 @@ to_data_frame <- function(x, directed = NULL) {
     stringsAsFactors = FALSE
   )
   if (nrow(edges) == 0) {
-    # Keep the column skeleton so that an empty result still reports the extra
-    # columns the network carries.
     df$from <- character(0)
     df$to <- character(0)
   }
 
-  # Keep any extra edge columns the network carries (session, time, ...).
-  extra_cols <- setdiff(names(edges), c("from", "to", "weight"))
-  if (length(extra_cols) > 0) {
-    df[extra_cols] <- edges[extra_cols]
-  }
-
+  # Exactly `from`, `to`, `weight`. This is a flattening verb, not an accessor:
+  # any further edge columns the network carries stay on `get_edges()`, which
+  # returns the edge table whole. Dropping the igraph round-trip in 2.4.9 let
+  # those extra columns leak through here and silently widened the contract.
   df
 }
 
@@ -1368,8 +1420,9 @@ to_network <- function(x, directed = NULL) {
 #' in expressions or the \code{by} parameter are computed. This makes
 #' \code{select_nodes()} faster than \code{filter_nodes()} for large networks.
 #'
-#' For networks with negative edge weights, \code{betweenness} and \code{closeness}
-#' will return NA with a warning (igraph cannot compute these with negative weights).
+#' For networks with negative edge weights, \code{betweenness},
+#' \code{closeness} and \code{pagerank} are undefined and return \code{NA},
+#' with a \code{cograph_negative_weights} warning.
 #'
 #' @return A cograph_network object with selected nodes. If \code{keep_format = TRUE},
 #'   matrix, igraph, and statnet network inputs are converted back to that type.
@@ -1782,11 +1835,14 @@ select_component <- function(x, which = "largest", ...,
 #'
 #' @param x Network input.
 #' @param n Integer. Number of top nodes to select.
-#' @param by Character. Centrality measure for ranking. One of:
+#' @param by Character. Centrality measure for ranking:
 #'   \code{"degree"}, \code{"indegree"}, \code{"outdegree"}, \code{"strength"},
 #'   \code{"instrength"}, \code{"outstrength"}, \code{"betweenness"},
 #'   \code{"closeness"}, \code{"eigenvector"}, \code{"pagerank"},
-#'   \code{"hub"}, \code{"authority"}, \code{"coreness"}. Default \code{"degree"}.
+#'   \code{"hub"}, \code{"authority"}, \code{"coreness"}, or the name of any
+#'   other measure \code{\link{centrality}()} computes (see
+#'   \code{\link{list_centralities}()}). An unknown name raises a
+#'   \code{cograph_bad_selection} error. Default \code{"degree"}.
 #' @param ... Additional filter expressions to apply.
 #' @param keep_edges How to handle edges. Default "internal".
 #' @param keep_format Logical. Keep input format? Default FALSE.
@@ -1879,6 +1935,9 @@ select_top <- function(x, n, by = "degree", ...,
 #'
 #' @return A cograph_network object with selected edges. If \code{keep_format = TRUE},
 #'   matrix, igraph, and statnet network inputs are converted back to that type.
+#'   Nodes left without edges are kept and reported in a
+#'   \code{cograph_isolates_created} warning, unless
+#'   \code{keep_isolates = FALSE}.
 #'
 #' @seealso \code{\link{filter_edges}}, \code{\link{select_nodes}},
 #'   \code{\link{select_bridges}}, \code{\link{select_top_edges}}
@@ -2298,8 +2357,10 @@ select_bridges <- function(x, ..., keep_isolates = TRUE,
 #' @param x Network input.
 #' @param n Integer. Number of top edges to select.
 #' @param by Character. Metric for ranking. One of:
-#'   \code{"weight"}, \code{"abs_weight"}, \code{"edge_betweenness"}.
-#'   Default \code{"weight"}.
+#'   \code{"weight"} (default), \code{"abs_weight"},
+#'   \code{"edge_betweenness"}, \code{"from_degree"}, \code{"to_degree"},
+#'   \code{"from_strength"}, \code{"to_strength"}, \code{"weight_rank"}.
+#'   Any other name raises a \code{cograph_bad_selection} error.
 #' @param ... Additional filter expressions.
 #' @param keep_isolates Keep nodes that end up with no edges? Default TRUE.
 #' @param keep_format Keep input format? Default FALSE.

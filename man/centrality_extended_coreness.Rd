@@ -38,7 +38,9 @@ is a cograph convention for inputs outside the published domain. Weights,
 \code{mode} and shortest-path weight inversion do not affect the score.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_extended_coreness(igraph::make_ring(6))
+\dontshow{\}) # examplesIf}
 }
 \references{
 Bae, J., & Kim, S. (2014). Identifying and ranking influential spreaders

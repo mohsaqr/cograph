@@ -31,7 +31,7 @@ Default 3.}
 
 \item{epc_threshold}{Edge removal probability. Default 0.5.}
 
-\item{epc_runs}{Number of percolation realisations. Default 1000.}
+\item{epc_runs}{Number of percolation realizations. Default 1000.}
 
 \item{epc_seed}{Random seed. Default \code{NULL}, which leaves the
 caller's stream alone and makes the estimate vary between calls.}
@@ -47,11 +47,11 @@ Five node measures that other centrality packages expose and
 \details{
 \describe{
 \item{\code{local_efficiency} (Latora & Marchiori 2001)}{The global
-efficiency of the subgraph induced on the node's neighbours, the node
+efficiency of the subgraph induced on the node's neighbors, the node
 itself removed: the mean of \eqn{1 / d_{jl}} over ordered pairs of
-neighbours, with distances measured inside that subgraph. Nodes with
-fewer than two neighbours score 0. High values mark a node whose
-neighbourhood survives its loss. Matches
+neighbors, with distances measured inside that subgraph. Nodes with
+fewer than two neighbors score 0. High values mark a node whose
+neighborhood survives its loss. Matches
 \code{igraph::local_efficiency()} and
 \code{brainGraph::efficiency(type = "local")}.}
 \item{\code{s_core} (Eidsaa & Almaas 2013)}{The weighted k-core: the
@@ -71,7 +71,7 @@ so cost grows with branching factor to the power \code{kpath_len}.}
 \item{\code{epc} (Lin et al. 2008)}{Edge percolated component: each
 edge survives with probability \code{1 - epc_threshold}, and the
 score is the mean size of the node's component over \code{epc_runs}
-realisations, as a share of the network. cytoHubba and
+realizations, as a share of the network. cytoHubba and
 \code{centiserve::epc()} divide by the node count alone, so their
 number is \code{epc_runs} times this one; the ranking is the same.
 A Monte Carlo estimate -- pass \code{epc_seed} for a reproducible

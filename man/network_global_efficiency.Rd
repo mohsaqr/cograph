@@ -16,7 +16,8 @@ network_global_efficiency(
 \arguments{
 \item{x}{Network input: matrix, igraph, network, cograph_network, or tna object}
 
-\item{directed}{Logical. Consider edge direction? Default TRUE for directed graphs.}
+\item{directed}{Logical or NULL. Consider edge direction? Default NULL,
+which follows the directedness of the converted graph.}
 
 \item{weights}{Edge weights (NULL for unweighted). Set to NA to ignore existing weights.}
 
@@ -27,7 +28,8 @@ paths? Default NULL which auto-detects: TRUE for tna objects, FALSE otherwise
 \item{alpha}{Numeric. Exponent for weight inversion: distance = 1/weight^alpha.
 Default 1.}
 
-\item{...}{Additional arguments passed to \code{\link{to_igraph}}}
+\item{...}{Currently unused; \code{directed} is already an explicit
+argument above and \code{\link{to_igraph}} accepts no others.}
 }
 \value{
 Numeric global efficiency. For unweighted simple graphs this is in
@@ -40,11 +42,13 @@ better global communication efficiency. Handles disconnected graphs gracefully
 (infinite distances contribute 0).
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Complete graph has efficiency 1
 k4 <- matrix(1, 4, 4); diag(k4) <- 0
 network_global_efficiency(k4)  # 1
 
 # Star has lower efficiency
 star <- matrix(c(0,1,1,1, 1,0,0,0, 1,0,0,0, 1,0,0,0), 4, 4)
-network_global_efficiency(star)  # ~0.83
+network_global_efficiency(star)  # 0.75
+\dontshow{\}) # examplesIf}
 }

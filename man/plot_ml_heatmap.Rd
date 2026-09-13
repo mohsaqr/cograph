@@ -45,7 +45,7 @@ or NULL for auto-detection from cograph_network nodes.}
 plane is \code{nrow(x) * compress} units tall, so a fixed spacing that
 suits a small network makes a larger one overlap itself. \code{NULL}
 (the default) scales the spacing to the plane so planes never collide;
-pass a number for the older absolute behaviour.}
+pass a number for the older absolute behavior.}
 
 \item{skew}{Horizontal skew for perspective effect (0-1). Default 0.4.}
 

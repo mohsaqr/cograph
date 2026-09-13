@@ -73,8 +73,10 @@ init_registries <- function() {
 #' @export
 #'
 #' @examples
-#' # Register a custom hexagon shape
-#' register_shape("hexagon", function(x, y, size, fill, border_color, border_width, ...) {
+#' # Register a custom hexagon shape under a new name. Registering an existing
+#' # name (for example "hexagon") would replace the built-in shape for the rest
+#' # of the session, so pick a name of your own.
+#' register_shape("my_hexagon", function(x, y, size, fill, border_color, border_width, ...) {
 #'   angles <- seq(0, 2 * pi, length.out = 7)
 #'   grid::polygonGrob(
 #'     x = x + size * cos(angles),
@@ -128,10 +130,12 @@ list_shapes <- function() {
 #' @export
 #'
 #' @examples
-#' # Register a simple random layout
-#' register_layout("random", function(network, ...) {
+#' # Register a simple random layout under a new name. Registering an existing
+#' # name (for example "random") would replace the built-in layout for the rest
+#' # of the session, so pick a name of your own.
+#' register_layout("my_random", function(network, ...) {
 #'   n <- network$n_nodes
-#'   cbind(x = runif(n), y = runif(n))
+#'   cbind(x = stats::runif(n), y = stats::runif(n))
 #' })
 register_layout <- function(name, layout_fn) {
   if (!is.function(layout_fn)) {

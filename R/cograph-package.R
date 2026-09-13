@@ -34,8 +34,8 @@
 #'   \item \code{gray}: Grayscale theme
 #'   \item \code{dark}: Dark background theme
 #'   \item \code{minimal}: Clean, minimal style
-#'   \item \code{viridis}: Viridis-based colour theme
-#'   \item \code{nature}: Nature-inspired colour theme
+#'   \item \code{viridis}: Viridis-based color theme
+#'   \item \code{nature}: Nature-inspired color theme
 #' }
 #'
 #' @section Weight conventions:

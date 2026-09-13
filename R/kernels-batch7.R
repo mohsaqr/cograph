@@ -48,11 +48,11 @@
 #' Distance entropy (Stella & De Domenico 2018)
 #'
 #' Shannon entropy of the distribution of hop distances from a node to the
-#' nodes it can reach, normalised to \[0, 1\] by the entropy of a uniform
+#' nodes it can reach, normalized to \[0, 1\] by the entropy of a uniform
 #' distribution over the `M - m + 1` distance values between the node's
 #' minimum and maximum distance. The printed formula in the source divides
 #' by `log(M - m)`, which is undefined when only two distinct distances
-#' occur; `log(M - m + 1)` is the normaliser that actually bounds the index
+#' occur; `log(M - m + 1)` is the normalizer that actually bounds the index
 #' at 1 for a uniform distribution.
 #'
 #' @param d Hop-distance matrix.
@@ -70,7 +70,7 @@
     if (length(observed) == 1L) return(0)
     # Distinct distance values span from the first non-empty ring to the
     # last one; the uniform distribution over that span has the maximum
-    # entropy, so it is the normaliser.
+    # entropy, so it is the normalizer.
     span <- length(rings) - which(rings > 0)[1L] + 1L
     p <- observed / sum(observed)
     -sum(p * log(p)) / log(span)
@@ -82,10 +82,10 @@
 #' The ball `B_i(r)` around node `i` counts the node itself plus every node
 #' within `r` hops. Its growth exponent, the slope of `ln B_i(r)` on
 #' `ln r` for \code{r = 1, ..., d_max(i)}, is the local dimension. Calibrated
-#' against the worked example in Wen & Deng (2019), which reports 0.9231
-#' for ring sizes 4, 5, 4, 4 only when the centre is counted in the ball.
+#' against the worked example in Wen & Jiang (2019), which reports 0.9231
+#' for ring sizes 4, 5, 4, 4 only when the center is counted in the ball.
 #'
-#' With a single radius the regression is undefined, so the discretised
+#' With a single radius the regression is undefined, so the discretized
 #' derivative from the same paper, \code{r * n_i(r) / B_i(r)} at \code{r = 1}, is
 #' reported instead.
 #'
@@ -112,7 +112,7 @@
 #' `I_i(l) = -p ln p`, `p = B_i(l) / N`, and grows the box only to half the
 #' node's eccentricity, `l = 1, ..., ceil(d_max(i) / 2)`. The measure is
 #' minus the slope of `I_i(l)` on `ln l`. With a single box size the
-#' discretised derivative of the paper (its eq. 15),
+#' discretized derivative of the paper (its eq. 15),
 #' `l * (1 + ln p) * n_i(l) / N`, is reported instead.
 #'
 #' @param d Hop-distance matrix.
@@ -140,7 +140,7 @@
 #' `Q = (1 / W) sum_ij (m_ij - k_i^out k_j^in / W) delta(c_i, c_j)` with
 #' `W = sum(m)`. On a symmetric matrix this is the classical undirected
 #' formula (`W = 2m`); on an asymmetric one it is the Leicht-Newman
-#' directed generalisation, which is also what igraph computes.
+#' directed generalization, which is also what igraph computes.
 #'
 #' @param m Weight matrix.
 #' @param membership Community labels, one per node.
@@ -199,11 +199,11 @@
   as.numeric(q_full - q_i)
 }
 
-#' Neighborhood connectivity: mean degree of a node's neighbours
+#' Neighborhood connectivity: mean degree of a node's neighbors
 #'
-#' Also called average neighbour degree (Maslov & Sneppen 2002). Under
-#' `mode = "out"` the out-neighbours' out-degrees are averaged, under
-#' `"in"` the in-neighbours' in-degrees, and under `"all"` direction is
+#' Also called average neighbor degree (Maslov & Sneppen 2002). Under
+#' `mode = "out"` the out-neighbors' out-degrees are averaged, under
+#' `"in"` the in-neighbors' in-degrees, and under `"all"` direction is
 #' ignored. Isolates score 0, following the Zoo convention.
 #'
 #' @param b Adjacency matrix (any non-zero entry is an edge).
@@ -225,17 +225,17 @@
 }
 
 
-#' Average nearest-neighbour degree (Barrat et al. 2004), igraph semantics
+#' Average nearest-neighbor degree (Barrat et al. 2004), igraph semantics
 #'
 #' `knn_i = sum_e w_e k_{j(e)} / sum_e w_e` over the edge incidences `e` of
 #' node `i` under `mode`, where `k_j` is the *unweighted* degree of the
-#' neighbour under `neighbor_mode` (what `igraph::knn()` computes with
-#' `weights`; with unit weights it is the plain mean neighbour degree).
+#' neighbor under `neighbor_mode` (what `igraph::knn()` computes with
+#' `weights`; with unit weights it is the plain mean neighbor degree).
 #' Conventions pinned against `igraph::knn()`:
 #'
 #' * A self-loop is an incidence like any other, and it appears twice when
 #'   both of its endpoints are counted -- undirected graphs and directed
-#'   `mode = "all"` -- but once under `"out"` or `"in"`. The neighbour it
+#'   `mode = "all"` -- but once under `"out"` or `"in"`. The neighbor it
 #'   contributes is the node itself.
 #' * An undirected graph ignores `mode` and `neighbor_mode`.
 #' * A node with no incidence at all scores `NaN` (0 / 0), as igraph does.
@@ -247,9 +247,9 @@
 #' @param w Weight matrix in the same layout; pass `b` for the unweighted
 #'   average.
 #' @param directed Whether the graph is directed.
-#' @param mode Which incidences of `i` define its neighbours: `"all"`,
+#' @param mode Which incidences of `i` define its neighbors: `"all"`,
 #'   `"out"` or `"in"`.
-#' @param neighbor_mode Which degree of the neighbour is averaged; igraph's
+#' @param neighbor_mode Which degree of the neighbor is averaged; igraph's
 #'   default is `"all"`.
 #' @return Numeric vector, one value per node.
 #' @references Barrat, A., Barthelemy, M., Pastor-Satorras, R., &

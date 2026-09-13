@@ -1445,6 +1445,22 @@ plot_centrality_compare <- function(...,
 # plot_centrality_heatmap -- nodes x measures
 # ============================================================================
 
+#' Clamp out-of-bounds values into the scale limits
+#'
+#' ggplot2's `oob` contract is a function of `(x, range)` returning a vector of
+#' the same length. A finite value outside `range` is pulled to the nearer end;
+#' `NA` is left alone, and so is a non-finite value unless `only.finite` is
+#' FALSE. This is the behaviour of `scales::squish()`, written out in base R so
+#' the package does not take a dependency for a single call.
+#' @noRd
+.oob_squish <- function(x, range = c(0, 1), only.finite = TRUE) {
+  force(range)
+  ok <- if (only.finite) is.finite(x) else !is.na(x)
+  x[ok & x < range[1]] <- range[1]
+  x[ok & x > range[2]] <- range[2]
+  x
+}
+
 #' Plot Centrality Heatmap
 #'
 #' Heatmap of nodes (rows) by centrality measures (columns), z-standardized
@@ -1542,7 +1558,7 @@ plot_centrality_heatmap <- function(x,
     ggplot2::scale_fill_gradient2(
       low = low, mid = mid, high = high,
       midpoint = 0, limits = limits,
-      oob = scales::squish,
+      oob = .oob_squish,
       name = "z-score",
       guide = ggplot2::guide_colorbar(
         title.position = "left", title.vjust = 1,

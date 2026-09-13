@@ -35,8 +35,10 @@ through exclusive affiliations.}
 \item{...}{Additional arguments (currently unused).}
 }
 \value{
-A square adjacency matrix with row and column names preserved from
-the input. Diagonal is set to 0 (no self-loops).
+A square adjacency matrix, one row and column per node of the
+projected mode: \code{n_rows x n_rows} named by \code{rownames(x)} for
+\code{mode = "rows"}, \code{n_cols x n_cols} named by \code{colnames(x)}
+for \code{mode = "columns"}. The diagonal is set to 0 (no self-loops).
 }
 \description{
 Projects a two-mode (bipartite/incidence) network into a one-mode adjacency
@@ -44,6 +46,11 @@ matrix. Row-mode projection yields a matrix of shared-column connections
 among row nodes; column-mode projection does the converse.
 }
 \details{
+Only \code{method = "sum"} and \code{method = "cosine"} use the incidence
+values themselves. \code{"binary"}, \code{"jaccard"} and \code{"newman"}
+first binarize the incidence matrix (\code{x > 0}), so any weights are
+discarded for those three.
+
 For the Newman projection, affiliations shared with only one node of the
 focal type (\code{d_k = 1}) are skipped, since \code{1 / (d_k - 1)} is
 undefined. This follows the convention in Newman (2001).

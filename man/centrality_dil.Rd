@@ -115,6 +115,7 @@ independently by the paper's own degree column. See the batch 50
 published audit in the package's verification directory.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Every line of a complete graph is shortcut by n - 2 triangles, so U is
 # zero throughout and the score is the degree.
 centrality_dil(igraph::make_full_graph(5))
@@ -133,6 +134,7 @@ centrality_dil(igraph::make_graph(c(1, 2, 2, 3, 3, 4, 4, 5),
 # score 3 + 1/3. Reading lambda as 2p + 1 would give 3 + 1/6.
 centrality_dil(igraph::make_graph(c(1, 2, 1, 3, 2, 3, 1, 4, 2, 5),
                                   directed = FALSE))
+\dontshow{\}) # examplesIf}
 }
 \references{
 Liu, J., Xiong, Q., Shi, W., Shi, X. and Wang, K. (2016).

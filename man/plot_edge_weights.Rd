@@ -45,7 +45,9 @@ Invisibly returns the weight vector.
 Histogram of edge weights in a network.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 adj <- matrix(c(0, 2, 3, 2, 0, 1, 3, 1, 0), 3, 3)
 rownames(adj) <- colnames(adj) <- c("A", "B", "C")
 cograph::plot_edge_weights(adj)
+\dontshow{\}) # examplesIf}
 }

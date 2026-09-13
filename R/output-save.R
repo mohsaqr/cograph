@@ -10,7 +10,9 @@ NULL
 #'
 #' @param network A cograph_network object, matrix, data.frame, or igraph object.
 #'   Matrices and other inputs are auto-converted.
-#' @param filename Output filename. Format is detected from extension.
+#' @param filename Output filename. Format is detected from the extension;
+#'   one of \code{.pdf}, \code{.png}, \code{.svg}, \code{.jpeg}/\code{.jpg},
+#'   \code{.tiff}, \code{.eps}/\code{.ps}.
 #' @param width Width in inches (default 7).
 #' @param height Height in inches (default 7).
 #' @param dpi Resolution for raster formats (default 300).
@@ -94,10 +96,11 @@ sn_save <- function(network, filename, width = 7, height = 7, dpi = 300,
 #' Save network as a ggplot2 object to file using ggsave.
 #'
 #' @param network A cograph_network object.
-#' @param filename Output filename.
-#' @param width Width in inches.
-#' @param height Height in inches.
-#' @param dpi Resolution for raster formats.
+#' @param filename Output filename. Format is detected from the extension by
+#'   \code{ggplot2::ggsave()}.
+#' @param width Width in inches (default 7).
+#' @param height Height in inches (default 7).
+#' @param dpi Resolution for raster formats (default 300).
 #' @param title Optional plot title.
 #' @param ... Additional arguments passed to ggsave.
 #'

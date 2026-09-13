@@ -26,9 +26,11 @@ Matches \code{networkx.estrada_index} at machine epsilon (max relative
 difference ~5e-15 across random test graphs).
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Karate club
 g <- igraph::make_graph("Zachary")
 estrada_index(g)
+\dontshow{\}) # examplesIf}
 }
 \references{
 Estrada, E. (2000). Characterization of 3D molecular structure.

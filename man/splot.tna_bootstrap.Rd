@@ -50,7 +50,8 @@ Use \code{display = "ci"} for CI underlays on edges.}
 \item{inherit_style}{Logical: inherit colors/layout from original TNA model? Default TRUE.}
 }
 \value{
-Invisibly returns the plot.
+Invisibly returns the \code{cograph_network} object built by
+\code{\link{splot}()}. Called for the side effect of drawing.
 }
 \description{
 Visualizes bootstrap analysis results with styling to distinguish

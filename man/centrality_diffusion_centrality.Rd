@@ -54,8 +54,10 @@ The existing \code{lambda} and \code{diffusion_method} arguments do not
 affect this measure. Computation uses T matrix-vector products.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 g <- igraph::make_graph(c(1, 2, 2, 3), directed = TRUE)
 centrality_diffusion_centrality(g, diffusion_q = 0.5, diffusion_steps = 2)
+\dontshow{\}) # examplesIf}
 }
 \references{
 Banerjee, A., Chandrasekhar, A. G., Duflo, E., & Jackson, M. O. (2013).

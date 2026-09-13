@@ -26,13 +26,13 @@ Tan, Wu and Deng's (2006) node-contraction importance, as restated by
 Wang et al. (2011). The agglomeration (cohesion) of a graph is
 \eqn{\partial(G) = 1 / (N \bar{L})}, with \eqn{\bar{L}} the mean
 shortest-path length over ordered pairs; contracting a node merges it
-with all its neighbours into one node, and
+with all its neighbors into one node, and
 \deqn{IMC(v) = 1 - \partial(G) / \partial(G_v).}
 The improved form (\code{node_contraction_improved}) adds the same score
 of the node's edges computed on the line graph:
 \eqn{IIMC(v) = \alpha\, IMC(v) + \beta \sum_{e \ni v} IMC_{L(G)}(e)},
 with \eqn{\alpha / \beta = 5} (\code{contraction_rho}) and
-\eqn{\alpha + \beta = 1}, the normalisation that reproduces the paper's
+\eqn{\alpha + \beta = 1}, the normalization that reproduces the paper's
 Table 1. Higher = more important. Both reproduce Table 1 of Wang et al.
 (2011). The Zoo entry describes the contracted graph as the graph with
 the node removed; the sources define it by contraction, which is what

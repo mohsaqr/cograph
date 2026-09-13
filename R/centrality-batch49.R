@@ -59,7 +59,7 @@ calculate_iec <- function(cg) {
 #' difference is not a rescaling.} The two are both built from mean first
 #' passage times and are easy to confuse -- cograph's own candidate ledger
 #' confused them for several rounds -- but they differ twice over.
-#' \code{markov} normalises \eqn{A} without adding the diagonal, and it
+#' \code{markov} normalizes \eqn{A} without adding the diagonal, and it
 #' divides the column sum by \eqn{n}, counting the excluded diagonal entry,
 #' where equation (20) divides by \eqn{n-1}. The second difference is a
 #' constant factor \eqn{n/(n-1)} and cannot reorder anything; the first can
@@ -67,7 +67,7 @@ calculate_iec <- function(cg) {
 #' \eqn{1.25, 0.161, 0.161, 0.161, 0.161} where \code{iec} gives
 #' \eqn{0.5, 0.08, 0.08, 0.08, 0.08}, and the two rank the nodes
 #' differently on 2 of the 21 connected five-node graphs. Both are kept:
-#' \code{markov} is the older behaviour that existing results depend on,
+#' \code{markov} is the older behavior that existing results depend on,
 #' \code{iec} is Friedkin's published measure.
 #'
 #' \strong{Reducible input is refused, not extended.} Equation (11) needs an
@@ -131,13 +131,13 @@ calculate_iec <- function(cg) {
 #'   another chain-based score, and \code{\link{list_centralities}} for the
 #'   catalogue.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' # On a complete graph W = J/n, so Z = I, every mean first passage time is
 #' # n, and the score is (n - 1) / (n (n - 1)) = 1/n. Friedkin's Table 1
 #' # prints .200 for the five-node case.
 #' centrality_iec(igraph::make_full_graph(5))
 #'
-#' # The five-node star is row 1 of that table: .500 at the centre and .080
+#' # The five-node star is row 1 of that table: .500 at the center and .080
 #' # at each leaf.
 #' centrality_iec(igraph::make_star(5, mode = "undirected"))
 #'

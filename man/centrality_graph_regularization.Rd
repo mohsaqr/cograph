@@ -56,7 +56,9 @@ precision; default author-software values need not coincide. Optional
 \code{normalized = TRUE} divides scores by their global maximum.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_graph_regularization(igraph::make_ring(4), grc_gamma = 0.5)
+\dontshow{\}) # examplesIf}
 }
 \references{
 Dal Col, A., & Petronetto, F. (2023). Graph regularization

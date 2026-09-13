@@ -19,8 +19,9 @@ object).}
 \item{mode}{For directed networks: \code{"all"} (default), \code{"out"}
 (distances along out-edges), or \code{"in"}.}
 
-\item{ld_radius}{Radius \eqn{r} for \code{local_dimension_fixed}.
-Default 2.}
+\item{ld_radius}{Radius \eqn{r} for \code{local_dimension_fixed}, in
+hops. A single number of at least 1; default 2. Anything else raises a
+\code{cograph_bad_parameter} error.}
 
 \item{...}{Additional arguments passed to \code{\link{centrality}}.}
 }
@@ -29,13 +30,13 @@ Named numeric vector, one value per node.
 }
 \description{
 Three further members of the local-dimension family, all computed from
-hop counts (edge weights are ignored) with the centre node counted in
+hop counts (edge weights are ignored) with the center node counted in
 its own ball, as in \code{\link{centrality_local_dimension}}.
 }
 \details{
 \describe{
 \item{\code{local_dimension_fixed} (Silva & Costa 2013)}{The
-discretised estimator \eqn{D_i(r) = r\, n_i(r) / B_i(r)} at one
+discretized estimator \eqn{D_i(r) = r\, n_i(r) / B_i(r)} at one
 radius \code{ld_radius} (default 2), where \eqn{n_i(r)} is the ring
 at distance \eqn{r} and \eqn{B_i(r)} the ball within it. A
 structural descriptor rather than an importance ranking; nodes with

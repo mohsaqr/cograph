@@ -45,7 +45,7 @@
     "weighted_h_index", "geodesic_kpath",
     # Batch 10 — cross-package gaps
     "local_efficiency", "fragmentation", "kpath",
-    # Batch 11 — parameterised family members
+    # Batch 11 — parameterized family members
     "delta_closeness",
     # Psychometric family — signed-weight sums
     "expected_influence_1", "expected_influence_2")
@@ -312,7 +312,7 @@ list_centralities <- function(orientation = NULL, costly = NULL,
 #' conditions: the caller asked for that measure, so an undefined result is
 #' an error they must see. A measure a *tier* supplied is different --
 #' `type = "all"` asks for everything, and one measure without a value on
-#' this particular graph must not take the other 178 down with it. Such a
+#' this particular graph must not take the rest of the tier down with it. Such a
 #' measure warns and returns `NA`, exactly as the community-partition
 #' measures already do when `membership` is missing.
 #'

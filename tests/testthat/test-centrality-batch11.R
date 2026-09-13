@@ -142,6 +142,22 @@ test_that("delta = 0 counts the reachable set", {
   expect_true(all(centrality_delta_closeness(adj6, closeness_delta = 0) == 1))
 })
 
+test_that("delta = 0 counts only the reachable set when some pairs are unreachable", {
+  # Regression: R evaluates Inf^0 as 1, so screening only the contribution
+  # matrix let an unreachable pair count as fully close and every node of a
+  # disconnected graph scored 1. Two disjoint edges: each node reaches exactly
+  # one of the other three.
+  m <- matrix(0, 4, 4)
+  m[1, 2] <- m[2, 1] <- m[3, 4] <- m[4, 3] <- 1
+  rownames(m) <- colnames(m) <- LETTERS[1:4]
+  expect_equal(unname(centrality_delta_closeness(m, closeness_delta = 0)),
+               rep(1 / 3, 4))
+  # A connected graph is unaffected, and delta > 0 was never affected.
+  expect_true(all(centrality_delta_closeness(adj6, closeness_delta = 0) == 1))
+  expect_equal(unname(centrality_delta_closeness(m, closeness_delta = 1)),
+               rep(1 / 3, 4))
+})
+
 test_that("a large delta approaches degree over n - 1", {
   v <- centrality_delta_closeness(adj6, closeness_delta = 40)
   expect_equal(unname(v), unname(centrality_degree(adj6)) / 5)

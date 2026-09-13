@@ -31,6 +31,7 @@ Generate colors for nodes based on community membership. Designed for
 direct use with \code{splot()} \code{node_fill} parameter.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 adj <- matrix(c(0, .5, .8, 0,
                 .5, 0, .3, .6,
                 .8, .3, 0, .4,
@@ -42,6 +43,7 @@ splot(adj, node_fill = color_communities(adj))
 
 # Custom palette
 splot(adj, node_fill = color_communities(adj, palette = c("red", "blue")))
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link{detect_communities}}, \code{\link{splot}}

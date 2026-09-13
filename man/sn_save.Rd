@@ -10,7 +10,9 @@ sn_save(network, filename, width = 7, height = 7, dpi = 300, title = NULL, ...)
 \item{network}{A cograph_network object, matrix, data.frame, or igraph object.
 Matrices and other inputs are auto-converted.}
 
-\item{filename}{Output filename. Format is detected from extension.}
+\item{filename}{Output filename. Format is detected from the extension;
+one of \code{.pdf}, \code{.png}, \code{.svg}, \code{.jpeg}/\code{.jpg},
+\code{.tiff}, \code{.eps}/\code{.ps}.}
 
 \item{width}{Width in inches (default 7).}
 

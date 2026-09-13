@@ -100,7 +100,7 @@ calculate_expected_force <- function(cg, modified = FALSE, exf_alpha = 2) {
 #'   adjustment. \code{\link{centrality_expected}} computes a different
 #'   quantity, the sum of neighbor degrees.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_expected_force(igraph::make_graph("Zachary"))
 centrality_expected_force <- function(x, ...) {
   df <- centrality(x, measures = "expected_force", ...)
@@ -127,7 +127,7 @@ centrality_expected_force <- function(x, ...) {
 #'   in a network. Scientific Reports, 5, 8665, equation 2.
 #'   \doi{10.1038/srep08665}.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_modified_expected_force(igraph::make_graph("Zachary"))
 # nolint start: object_length_linter.
 centrality_modified_expected_force <- function(x, exf_alpha = 2, ...) {

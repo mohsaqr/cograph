@@ -4,7 +4,7 @@
 \alias{wrangle-weights}
 \title{Weight Wrangling Verbs}
 \description{
-Verbs that change edge weights: thresholding, binarising,
-symmetrising, normalising and inverting.
+Verbs that change edge weights: thresholding, binarizing,
+symmetrizing, normalizing and inverting.
 }
 \keyword{internal}

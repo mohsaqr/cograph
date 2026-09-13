@@ -44,7 +44,9 @@ function and matrix definition does not establish immunization efficacy,
 exact eigendrop prediction or an unconditional spectral upper bound.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_x_degree(igraph::make_graph("Zachary"))
+\dontshow{\}) # examplesIf}
 }
 \references{
 Torres, L., Chan, K. S., Tong, H., & Eliassi-Rad, T. (2021).

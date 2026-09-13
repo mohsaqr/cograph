@@ -74,7 +74,7 @@ NULL
 #' rownames(m) <- colnames(m) <- LETTERS[1:5]
 #' plot_heatmap(m)
 #'
-#' # With clusters, values, and a different colour scale
+#' # With clusters, values, and a different color scale
 #' clusters <- list(G1 = c("A","B"), G2 = c("C","D","E"))
 #' plot_heatmap(m, cluster_list = clusters, colors = "heat", show_values = TRUE)
 #'

@@ -63,8 +63,10 @@ very small raw scores can underflow. Uniform weight scaling multiplies
 raw scores by the same factor.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_controlrank(igraph::make_ring(5))
 centrality_controlrank(igraph::make_star(6, mode = "undirected"))
+\dontshow{\}) # examplesIf}
 }
 \references{
 Zhou, J., Yu, X. and Lu, J.-A. (2019; online 2018).

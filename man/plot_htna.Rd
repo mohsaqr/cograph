@@ -223,7 +223,8 @@ or "auto" (adaptive based on node count). Applied before passing to tplot.}
 \item{...}{Additional parameters passed to tplot().}
 }
 \value{
-Invisibly returns the result from tplot().
+Invisibly returns the \code{\link{tplot}()} result: a
+\code{cograph_network} object. Called for the side effect of drawing.
 }
 \description{
 Plots a TNA model with nodes arranged in multiple groups using geometric layouts:

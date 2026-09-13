@@ -36,7 +36,9 @@ splot.group_tna_permutation <- function(x, ...) {
 #' @param edge_nonsig_alpha Alpha for non-significant edges. Default 0.4.
 #' @param ... Additional arguments passed to splot().
 #'
-#' @return Invisibly returns the plot.
+#' @return Invisibly returns the \code{cograph_network} object built by
+#'   \code{\link{splot}()}, or \code{NULL} when no edge survives the
+#'   significance filter. Called for the side effect of drawing.
 #'
 #' @details
 #' The function expects a tna_permutation object containing:
@@ -303,8 +305,10 @@ plot_permutation <- function(x,
 #'   \code{\link{panel_layout}()}). Ignored when \code{i} selects a single panel.
 #' @param ... Additional arguments passed to plot_permutation().
 #'
-#' @return When \code{i} is supplied, returns the selected permutation plot.
-#'   Otherwise invisibly returns \code{NULL} after drawing all panels.
+#' @return When \code{i} is supplied, invisibly returns the
+#'   \code{\link{plot_permutation}()} result for the selected panel (a
+#'   \code{cograph_network}). Otherwise invisibly returns \code{NULL} after
+#'   drawing all panels.
 #'
 #' @examples
 #' # Mock a group_tna_permutation object
@@ -387,7 +391,8 @@ plot_group_permutation <- function(x, i = NULL, combined = TRUE, ...) {
 #' @param show_stars Logical: show significance stars? Default TRUE.
 #' @param ... Additional arguments passed to \code{splot()}.
 #'
-#' @return Invisibly returns the plot.
+#' @return Invisibly returns the \code{cograph_network} object built by
+#'   \code{\link{splot}()}, or \code{NULL} when there is no edge to draw.
 #' @rdname splot
 #' @export
 splot.net_permutation <- function(x,

@@ -98,7 +98,7 @@ calculate_ninl <- function(cg, ninl_order = 3, ninl_radius = NULL,
 #'   Symmetry, 13, 1570. Section 2.1, equations 1-2 and Table 1.
 #'   \doi{10.3390/sym13091570}.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_ninl(igraph::make_graph("Zachary"))
 #' centrality_ninl(igraph::make_star(5, mode = "undirected"), ninl_order = 2)
 centrality_ninl <- function(x, ninl_order = 3, ninl_radius = NULL, ...) {

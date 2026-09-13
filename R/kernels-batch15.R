@@ -37,7 +37,7 @@
 
 #' Malatya degree-ratio centrality
 #' @param b Symmetric binary zero-diagonal adjacency matrix.
-#' @return Sum of focal-to-neighbour degree ratios; isolates score zero.
+#' @return Sum of focal-to-neighbor degree ratios; isolates score zero.
 #' @keywords internal
 #' @noRd
 .cg_malatya <- function(b) {

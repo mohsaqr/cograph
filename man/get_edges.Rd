@@ -10,7 +10,12 @@ get_edges(x)
 \item{x}{A cograph_network object.}
 }
 \value{
-A data frame with columns: from, to, weight.
+A data frame with one row per edge and columns \code{from} and
+\code{to} (integer row numbers into the node table, \emph{not} labels) and
+\code{weight}, plus any extra edge columns the network carries. An
+undirected network stores one row per unordered pair. Use
+\code{\link{as.data.frame.cograph_network}} or \code{\link{to_df}} for the
+same table with the endpoints given as node labels.
 }
 \description{
 Extracts the edges data frame from a cograph_network object.

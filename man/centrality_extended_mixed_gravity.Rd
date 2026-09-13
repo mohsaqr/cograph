@@ -44,7 +44,9 @@ time and O(n squared) memory. Verification of these numerical equations
 does not establish author-software parity or predictive superiority.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_extended_mixed_gravity(igraph::make_ring(6))
+\dontshow{\}) # examplesIf}
 }
 \references{
 Wang, J., Li, C. and Xia, C. (2018).

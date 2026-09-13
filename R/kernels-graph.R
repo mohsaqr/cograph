@@ -1,6 +1,6 @@
 # Native graph context for the centrality surface.
 #
-# `.cg_graph()` turns any supported input into a dense, labelled weight
+# `.cg_graph()` turns any supported input into a dense, labeled weight
 # matrix plus a canonical edge list, without igraph for matrix,
 # cograph_network, tna, netobject and edge-list input. Every centrality
 # kernel reads from this object. `.cg_igraph()` is the only sanctioned way
@@ -39,7 +39,15 @@
   acc <- .cg_accumulate(src$from, src$to, src$weight, src$n, src$directed, simplify)
   w <- acc$w
   if (!loops) diag(w) <- 0
-  labels <- src$labels %||% as.character(seq_len(src$n))
+  # One label per node or none at all. `%||%` alone is not enough: a source
+  # with no label column reaches here as character(0) rather than NULL --
+  # `as.character(NULL)` in the cograph_network branch, for one -- and a
+  # zero-length `node` column then collides with the n-length measure
+  # columns when the result data.frame is assembled.
+  labels <- src$labels
+  if (is.null(labels) || length(labels) != src$n) {
+    labels <- as.character(seq_len(src$n))
+  }
   if (src$n > 0L) dimnames(w) <- list(labels, labels)
   .cg_graph_from_matrix(w, src$directed, labels, src$has_names, src$weighted)
 }
@@ -218,7 +226,7 @@
   g
 }
 
-#' Memoise a per-context computation
+#' Memoize a per-context computation
 #' @keywords internal
 #' @noRd
 .cg_memo <- function(ctx, key, expr) {
@@ -266,7 +274,7 @@
   m
 }
 
-#' Hop-distance matrix under a mode (memoised on a context)
+#' Hop-distance matrix under a mode (memoized on a context)
 #' @keywords internal
 #' @noRd
 .cg_hop_distances <- function(g, mode = "all") {

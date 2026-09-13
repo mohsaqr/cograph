@@ -33,7 +33,7 @@ times, reflecting repeated interactions.
 \details{
 The dataset includes self-loops (34 rows where \code{from == to}),
 which may represent self-directed actions. These can be removed with
-\code{student_interactions[student_interactions$from != student_interactions$to, ]}.
+\code{subset(student_interactions, from != to)}.
 
 Because interactions repeat, this edge list naturally represents a
 multigraph when loaded into igraph with
@@ -44,13 +44,10 @@ multigraph when loaded into igraph with
 data(student_interactions)
 head(student_interactions)
 
-# Remove self-loops and build igraph
-el <- student_interactions[student_interactions$from != student_interactions$to, ]
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::graph_from_data_frame(el, directed = FALSE)
-  cat("Students:", igraph::vcount(g), "\n")
-  cat("Interactions:", igraph::ecount(g), "\n")
-}
+# Remove self-loops and build a network
+el <- subset(student_interactions, from != to)
+n_edges(as_cograph(el))
+n_nodes(as_cograph(el))
 
 }
 \keyword{datasets}

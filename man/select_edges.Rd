@@ -75,6 +75,9 @@ inputs are returned in that format. Default FALSE returns cograph_network.}
 \value{
 A cograph_network object with selected edges. If \code{keep_format = TRUE},
 matrix, igraph, and statnet network inputs are converted back to that type.
+Nodes left without edges are kept and reported in a
+\code{cograph_isolates_created} warning, unless
+\code{keep_isolates = FALSE}.
 }
 \description{
 A powerful edge selection function with lazy computation (only computes

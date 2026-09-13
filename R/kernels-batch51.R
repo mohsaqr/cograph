@@ -26,10 +26,10 @@
 #' indicates that there is no edge between the two nodes" -- so the map
 #' holds an entry for every adjacent pair and for the diagonal, and a
 #' non-adjacent pair entering the double sum contributes **zero**, not the
-#' `0.1` that initialises the adjacent entries. That domain restriction is
+#' `0.1` that initializes the adjacent entries. That domain restriction is
 #' the whole reason the recursion is usable: the diagonal `s(l, l) = 1` is
 #' the only inhomogeneous term, and it enters `s(a, b)` exactly when `l` is
-#' a common neighbour of `a` and `b`, so the constant of the affine map is
+#' a common neighbor of `a` and `b`, so the constant of the affine map is
 #' the triangle census of the line.
 #'
 #' Writing `A` for the binary skeleton and `S` for the similarity carried
@@ -47,7 +47,7 @@
 #' is homogeneous instead of drifting to whatever the start happened to be.
 #' The start does not matter where the map contracts; it is the whole answer
 #' where it does not, and zero is the choice that reports the degeneracy
-#' rather than hiding it. **The source's `0.1` initialisation is therefore
+#' rather than hiding it. **The source's `0.1` initialization is therefore
 #' not used**, and `centrality_trust_pagerank()` records why.
 #'
 #' Every row sum of the linear part is at most `1 - p/(d_a d_b)` for a line
@@ -86,7 +86,7 @@
   iterations <- 0L
   delta <- Inf
   # A fixed-point sweep consumes the previous sweep, so it cannot be
-  # vectorised away; the bound and the residual are both reported.
+  # vectorized away; the bound and the residual are both reported.
   while (iterations < max_iter && !(delta < tol)) {
     m <- s
     diag(m) <- 1
@@ -126,7 +126,7 @@
 #' closure, rather than by testing the converged doubles against zero,
 #' matters for the same reason it does in `.cg_reach_closure()`: a value
 #' produced by a long chain of divisions can be a legitimate `1e-300`, and
-#' a threshold cannot tell that from a rounding artefact.
+#' a threshold cannot tell that from a rounding artifact.
 #'
 #' @param a Binary symmetric loop-free adjacency matrix.
 #' @return Logical matrix, `TRUE` on the lines with positive similarity.
@@ -134,7 +134,7 @@
 #' @noRd
 .cg_tpr_support <- function(a) {
   edge <- a > 0
-  # A line lies on a triangle iff its endpoints have a common neighbour.
+  # A line lies on a triangle iff its endpoints have a common neighbor.
   support <- edge & ((a %*% a) > 0)
   # Each round moves the frontier one hop at each endpoint, so the closure
   # is reached in at most a diameter's worth of rounds; it is monotone and
@@ -162,12 +162,12 @@
 #' TPR_i^t  = (1 - alpha)/n + alpha sum_{j in N_i} T(i, j) TPR_j^{t-1} (7)
 #' ```
 #'
-#' Both ratios in equation (6) are normalised over `N_j`, and `s` is
+#' Both ratios in equation (6) are normalized over `N_j`, and `s` is
 #' symmetric, so `sum_{i in N_j} Rs(i, j) = 1` and
 #' `sum_{i in N_j} Rd(i, j) = 1` for every `k`: **`T` is column-stochastic
 #' on the lines**. Equation (7) is therefore an ordinary damped PageRank
 #' with a unique fixed point, and its iteration count is a convergence
-#' tolerance rather than a modelling choice. The scores sum to one on a
+#' tolerance rather than a modeling choice. The scores sum to one on a
 #' graph without isolates; an isolate's column is empty, so it emits
 #' nothing and the total falls by the mass it holds.
 #'
@@ -221,7 +221,7 @@
   s <- fit$s
   support <- .cg_tpr_support(a)
 
-  # A node needs a trust column only if it has neighbours at all; an
+  # A node needs a trust column only if it has neighbors at all; an
   # isolate is never a `j` in equation (7), so it is not undefined.
   undefined_node <- d > 0 & rowSums(support) == 0L
   reach <- .cg_reach_closure(a)

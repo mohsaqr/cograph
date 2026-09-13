@@ -64,7 +64,11 @@ remove_isolates <- function(x, keep_format = FALSE, directed = NULL) {
 #' @param directed Logical or NULL. Directedness to read the input with.
 #'
 #' @return An undirected \code{cograph_network}, or the input format when
-#'   \code{keep_format = TRUE}.
+#'   \code{keep_format = TRUE}. Zero is how this representation stores "no
+#'   edge", so any pair whose combined weight is exactly zero disappears: every
+#'   unreciprocated arc under \code{method = "mutual"}, and a cancelling pair
+#'   under \code{"sum"}. A \code{cograph_edges_dropped} warning says how
+#'   many.
 #'
 #' @seealso \code{\link{to_directed}}, \code{\link{symmetrize}}
 #'
@@ -371,7 +375,7 @@ spanning_tree <- function(x, weights = c("weight", "none"), maximum = FALSE,
   edges_to <- integer(0)
 
   # One iteration per node: Prim's frontier is inherently sequential, there is
-  # no vectorised form. The inner work is a vectorised column scan.
+  # no vectorized form. The inner work is a vectorized column scan.
   repeat {
     if (all(in_tree)) break
     if (!any(in_tree)) {
@@ -401,7 +405,9 @@ spanning_tree <- function(x, weights = c("weight", "none"), maximum = FALSE,
 #' complement, and vice versa.
 #'
 #' @param x Network input.
-#' @param weight Numeric. Weight to give the new edges. Default 1.
+#' @param weight Numeric. Weight to give the new edges. Default 1. Zero is how
+#'   this representation stores "no edge", so \code{weight = 0} raises a
+#'   \code{cograph_bad_selection} error rather than returning an empty network.
 #' @param loops Logical. Include self-loops in the complement. Default FALSE.
 #' @param keep_format Logical. Return the input format when TRUE.
 #' @param directed Logical or NULL. If NULL (default), auto-detect.
@@ -462,7 +468,7 @@ complement_network <- function(x, weight = 1, loops = FALSE,
 #' @param keep_format Logical. Return the input format when TRUE.
 #' @param directed Logical or NULL. If NULL (default), auto-detect.
 #'
-#' @return A \code{cograph_network} with one node per group, labelled by group
+#' @return A \code{cograph_network} with one node per group, labeled by group
 #'   name, or the input format when \code{keep_format = TRUE}.
 #'
 #' @seealso \code{\link{summarize_clusters}}, \code{\link{detect_communities}},
@@ -564,7 +570,7 @@ contract_nodes <- function(x, groups, weight = c("sum", "mean", "max", "min"),
 #' Aggregate an edge table to group level
 #'
 #' One row per group pair. For an undirected network the group pair is
-#' canonicalised (low index first) so that A-B and B-A land in the same cell,
+#' canonicalized (low index first) so that A-B and B-A land in the same cell,
 #' and the result is mirrored once at the end.
 #'
 #' @param edges Edge table with `from`, `to`, `weight` in node-index space.

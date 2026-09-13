@@ -88,7 +88,7 @@ calculate_coleman_theil <- function(cg, weights = NULL) {
 #'   definition attributed to equation 2.9 in Burt (1992), Structural Holes:
 #'   The Social Structure of Competition, Harvard University Press.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_coleman_theil(igraph::make_star(5, mode = "undirected"))
 centrality_coleman_theil <- function(x, ...) {
   df <- centrality(x, measures = "coleman_theil", ...)

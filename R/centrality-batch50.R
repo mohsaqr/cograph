@@ -124,7 +124,7 @@ calculate_dil <- function(cg) {
 #'   node by the lines it carries, and \code{\link{list_centralities}} for
 #'   the catalogue.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' # Every line of a complete graph is shortcut by n - 2 triangles, so U is
 #' # zero throughout and the score is the degree.
 #' centrality_dil(igraph::make_full_graph(5))

@@ -43,7 +43,13 @@ warning is emitted and the diagonal default \code{omega[a,b] * I}
 is used (previously this happened silently).}
 }
 \value{
-Supra-adjacency matrix of dimension (N\emph{L) x (N}L)
+A supra-adjacency matrix of dimension (N\emph{L) x (N}L) with class
+\code{c("supra_adjacency", "matrix")}. Diagonal N x N blocks hold the
+intra-layer adjacencies and off-diagonal blocks the inter-layer coupling.
+The attributes \code{"n_nodes"}, \code{"n_layers"}, \code{"node_names"},
+\code{"layer_names"}, \code{"omega"} and \code{"coupling"} record the
+construction and are read back by \code{\link{supra_layer}()} and
+\code{\link{supra_interlayer}()}.
 }
 \description{
 Builds the supra-adjacency matrix for multilayer networks.

@@ -47,6 +47,8 @@ Only used for non-cograph_network inputs.}
 \value{
 A cograph_network object with filtered edges. If \code{keep_format = TRUE},
 matrix, igraph, and statnet network inputs are converted back to that type.
+Nodes are never removed by the filter itself; when the filter strands a
+node a \code{cograph_isolates_created} warning is raised.
 
 See \code{\link{filter_edges}}.
 }

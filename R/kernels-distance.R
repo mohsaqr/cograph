@@ -40,7 +40,7 @@
 #' igraph, which refuses them outright. Binary graphs use breadth-first
 #' layering by boolean matrix products (one product per hop); weighted
 #' graphs use Floyd-Warshall with each of the n relaxation sweeps
-#' vectorised, which is far faster in R than n interpreted Dijkstra runs.
+#' vectorized, which is far faster in R than n interpreted Dijkstra runs.
 #' Single-source Dijkstra (`.cg_dijkstra`) remains for callers that need
 #' one row or a predecessor structure.
 #'
@@ -100,7 +100,7 @@
   d
 }
 
-#' Floyd-Warshall with vectorised sweeps
+#' Floyd-Warshall with vectorized sweeps
 #' @param w Effective out-edge weight matrix.
 #' @param has_edge Logical adjacency.
 #' @param n Vertex count.
@@ -132,7 +132,7 @@
   used <- rep(FALSE, n)
   dist[source] <- 0
   # Settling one vertex depends on every previous settlement, so the outer
-  # sweep is irreducibly sequential; the relaxation inside it is vectorised.
+  # sweep is irreducibly sequential; the relaxation inside it is vectorized.
   for (step in seq_len(n)) {
     cand <- dist
     cand[used] <- Inf

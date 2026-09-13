@@ -1,6 +1,29 @@
 # Shared helpers for plot_simplicial() and overlay_communities()
 
 # =========================================================================
+# Pathway accessors
+# =========================================================================
+#
+# A higher-order structure is not always a path. A HON/HYPA/MOGen pathway is
+# ORDERED and its last state is the target; an association-rule itemset or a
+# clique of a simplicial complex is a SET, where every member is co-equal and
+# there is no target at all. Both travel through this pipeline, so the three
+# accessors below are the only places that need to know which is which —
+# `pw$target` is absent, not merely recolored, when the pathway is unordered.
+
+#' Every state in a pathway, in path order when there is one
+#' @noRd
+.pw_members <- function(pw) c(pw$source, pw$target)
+
+#' Is this pathway ordered? Unflagged pathways are ordered (the old contract).
+#' @noRd
+.pw_is_ordered <- function(pw) !isFALSE(pw$ordered)
+
+#' The target state, or NULL when the pathway is a set
+#' @noRd
+.pw_target <- function(pw) if (.pw_is_ordered(pw)) pw$target else NULL
+
+# =========================================================================
 # Repeated-node expansion
 # =========================================================================
 
@@ -16,29 +39,6 @@
 #' @return List with \code{states} (expanded), \code{pw_list} (updated),
 #'   and \code{display_labels} (original names for all states).
 #' @noRd
-# =========================================================================
-# Pathway accessors
-# =========================================================================
-#
-# A higher-order structure is not always a path. A HON/HYPA/MOGen pathway is
-# ORDERED and its last state is the target; an association-rule itemset or a
-# clique of a simplicial complex is a SET, where every member is co-equal and
-# there is no target at all. Both travel through this pipeline, so the three
-# accessors below are the only places that need to know which is which —
-# `pw$target` is absent, not merely recoloured, when the pathway is unordered.
-
-#' Every state in a pathway, in path order when there is one
-#' @noRd
-.pw_members <- function(pw) c(pw$source, pw$target)
-
-#' Is this pathway ordered? Unflagged pathways are ordered (the old contract).
-#' @noRd
-.pw_is_ordered <- function(pw) !isFALSE(pw$ordered)
-
-#' The target state, or NULL when the pathway is a set
-#' @noRd
-.pw_target <- function(pw) if (.pw_is_ordered(pw)) pw$target else NULL
-
 .expand_repeated_nodes <- function(pw_list, states) {
   new_states <- states
 
@@ -469,7 +469,7 @@
   rules <- x$rules
   if (nrow(rules) == 0L) return(character(0))
   rules <- rules[order(-rules$lift, -rules$confidence), , drop = FALSE]
-  # Normalise antecedent/consequent columns to space-separated itemset strings.
+  # Normalize antecedent/consequent columns to space-separated itemset strings.
   # Works on both Nestimate shapes: list-column (character vectors per row) and
   # character-column ("A, B" per row). Vectorized per column — no per-row split.
   norm_col <- function(col) {

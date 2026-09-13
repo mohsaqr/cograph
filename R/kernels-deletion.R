@@ -1,5 +1,5 @@
 # ===========================================================================
-# Deletion-based and neighbourhood centralities
+# Deletion-based and neighborhood centralities
 # ===========================================================================
 # Several of these score a vertex by what the graph loses when it is removed,
 # so each one costs an all-pairs solve per vertex.
@@ -25,8 +25,8 @@
   }, numeric(1L))
 }
 
-#' Semi-local centrality: the two-step neighbourhood mass of one's neighbours
-#' @param adj Neighbour lists.
+#' Semi-local centrality: the two-step neighborhood mass of one's neighbors
+#' @param adj Neighbor lists.
 #' @return Numeric vector.
 #' @keywords internal
 #' @noRd
@@ -40,10 +40,15 @@
     sum(vapply(adj[[v]], function(u) sum(nb2[adj[[u]]]), numeric(1L))), numeric(1L))
 }
 
-#' Closeness vitality: the total distance a graph gains when a vertex leaves
+#' Closeness vitality: the total distance a graph loses when a vertex leaves
+#'
+#' `W(G) - W(G - v)` over the finite distances, the same orientation
+#' `networkx::closeness_vitality()` uses.
+#'
 #' @param m Weight matrix. @param mode Distance mode. @param full_dist Distances
 #'   on the intact graph.
-#' @return Numeric vector.
+#' @return Numeric vector; `NaN` throughout when the graph has at most one
+#'   vertex.
 #' @keywords internal
 #' @noRd
 .cg_closeness_vitality <- function(m, mode = "all", full_dist) {
@@ -59,7 +64,7 @@
 
 #' Local average connectivity
 #' @param b Binary adjacency matrix. @param directed Whether directed.
-#' @param mode Neighbour mode.
+#' @param mode Neighbor mode.
 #' @return Numeric vector.
 #' @keywords internal
 #' @noRd
@@ -112,6 +117,7 @@
 }
 
 #' Pairwise disconnectivity (Potapov et al. 2008)
+#'
 #' Counts directed paths, so it is undefined without direction.
 #'
 #' @param b Binary adjacency matrix. @param directed Whether directed.
@@ -145,7 +151,7 @@
   selected <- rep(FALSE, n)
   rank <- numeric(n)
   # Each election depends on the previous winner's suppression of its
-  # neighbours, so the rounds cannot be vectorised.
+  # neighbors, so the rounds cannot be vectorized.
   for (r in seq_len(n)) {
     votes <- vapply(seq_len(n), function(v) {
       if (selected[v]) return(-1)

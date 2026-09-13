@@ -90,7 +90,7 @@
 #'   permutation null, and repeated parallel runs of one seed agree exactly
 #'   with each other at any `cores`. Forking is used where available; Windows
 #'   uses a PSOCK cluster. Only the individual-level census null is
-#'   parallelised. Values above `parallel::detectCores()` are capped with a
+#'   parallelized. Values above `parallel::detectCores()` are capped with a
 #'   `cograph_cores_capped` warning.
 #' @param min_count Inclusive minimum count to keep a row — rows with
 #'   \code{count >= min_count} are retained. In instance mode
@@ -151,7 +151,7 @@
 #'       \code{plot()} dispatcher.}
 #'   }
 #'
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' # Census from a matrix (no significance test -- fastest path)
 #' mat <- matrix(c(0,3,2,0, 0,0,5,1, 0,0,0,4, 2,0,0,0), 4, 4, byrow = TRUE)
 #' rownames(mat) <- colnames(mat) <- c("Plan","Execute","Monitor","Adapt")
@@ -806,9 +806,11 @@ motifs <- function(x,
 #'
 #' @param ... Arguments forwarded to \code{\link{motifs}()}. See \code{?motifs}
 #'   for the full parameter list (\code{x}, \code{actor}, \code{window},
-#'   \code{pattern}, \code{include}, \code{exclude}, \code{significance},
-#'   \code{n_perm}, \code{min_count}, \code{edge_method}, \code{edge_threshold},
-#'   \code{min_transitions}, \code{top}, \code{seed}).
+#'   \code{window_type}, \code{pattern}, \code{include}, \code{exclude},
+#'   \code{significance}, \code{n_perm}, \code{cores}, \code{min_count},
+#'   \code{edge_method}, \code{edge_threshold}, \code{min_transitions},
+#'   \code{top}, \code{seed}). \code{named_nodes} is fixed to \code{TRUE} and
+#'   must not be supplied.
 #' @return A \code{cograph_motif_result} object with \code{named_nodes = TRUE}.
 #'   Contains \code{$results} (data frame with columns \code{triad},
 #'   \code{node1}, \code{node2}, \code{node3}, \code{observed}, \code{type},

@@ -52,7 +52,9 @@ up to O(n cubed + n squared times m) per component; the measure is
 excluded from the default all tier and must be requested explicitly.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_resistance_curvature(igraph::make_star(5, mode = "undirected"))
+\dontshow{\}) # examplesIf}
 }
 \references{
 Devriendt, K., & Lambiotte, R. (2022). Discrete curvature on graphs from

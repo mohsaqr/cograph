@@ -30,8 +30,8 @@ significance direction (over/under-represented).}
 \item{top_n}{Show only top N motifs by |z-score|. Default NULL (all).}
 
 \item{colors}{Three-element color vector for under-represented, neutral, and
-over-represented motifs. Default \code{c("#2166AC", "#999999", "#B2182B")}
-(blue/gray/red).}
+over-represented motifs. Default \code{c("#2166AC", "#F7F7F7", "#B2182B")}
+(blue/near-white/red).}
 
 \item{combined}{Logical: when TRUE (default) and \code{type = "network"},
 arrange the per-motif panels in an internal grid via
@@ -44,7 +44,11 @@ per-motif \code{igraph} plot calls. The ggplot-based types (\code{"bar"},
 \code{"heatmap"}) do not consume them.}
 }
 \value{
-A ggplot2 object (invisibly)
+For \code{type = "bar"} and \code{type = "heatmap"}, a ggplot2
+object. For \code{type = "network"}, \code{NULL} (the panels are drawn
+with base graphics for their side effect). \code{invisible(NULL)} with a
+message when no motif survives the \code{show_nonsig} / \code{top_n}
+filters.
 }
 \description{
 Visualize motif frequencies and their statistical significance.

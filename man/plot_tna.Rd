@@ -90,15 +90,14 @@ tplot(
 
 \item{negCol}{Color for negative edges}
 
-\item{arrowAngle}{Arrow head angle in radians. Default pi/6 (30 degrees).}
+\item{arrowAngle}{Arrow head angle in radians. Default NULL, which leaves
+\code{splot()}'s own \code{arrow_angle} default of pi/6 (30 degrees) in place.}
 
 \item{title}{Plot title}
 
 \item{...}{Additional arguments passed to splot()}
 }
 \value{
-Invisibly returns the cograph_network object from splot().
-
 Invisibly returns the cograph_network object from splot().
 }
 \description{
@@ -114,7 +113,7 @@ plot_tna(m)
 plot_tna(m, vsize = 15, edge.label.cex = 2, layout = "circle")
 
 # With custom colors
-plot_tna(m, color = rainbow(5), vsize = 10)
+plot_tna(m, color = palette_colorblind(5), vsize = 10)
 
 m <- matrix(runif(25), 5, 5)
 tplot(m)

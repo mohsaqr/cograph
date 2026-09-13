@@ -63,7 +63,7 @@ calculate_cda <- function(cg, weights = NULL, alpha = 0.5) {
 #' Algorithm in Weighted Complex Network. IEEE Access, 6, 19550-19559,
 #' equations 2-6. \doi{10.1109/ACCESS.2018.2822844}.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_cda(igraph::make_ring(5), cda_alpha = 0.5)
 centrality_cda <- function(x, cda_alpha = 0.5, ...) {
   df <- centrality(x, measures = "cda", cda_alpha = cda_alpha, ...)

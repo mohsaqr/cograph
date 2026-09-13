@@ -30,7 +30,7 @@ mcml(
 A cluster_summary object (or tna if as_tna = TRUE)
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+\strong{[Deprecated]}
 
 Use \code{\link{csum}} instead. This function is provided for
 backward compatibility only.

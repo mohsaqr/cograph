@@ -17,13 +17,14 @@ sn_save_ggplot(
 \arguments{
 \item{network}{A cograph_network object.}
 
-\item{filename}{Output filename.}
+\item{filename}{Output filename. Format is detected from the extension by
+\code{ggplot2::ggsave()}.}
 
-\item{width}{Width in inches.}
+\item{width}{Width in inches (default 7).}
 
-\item{height}{Height in inches.}
+\item{height}{Height in inches (default 7).}
 
-\item{dpi}{Resolution for raster formats.}
+\item{dpi}{Resolution for raster formats (default 300).}
 
 \item{title}{Optional plot title.}
 

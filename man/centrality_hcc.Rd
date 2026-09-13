@@ -21,7 +21,7 @@ global characteristic on the same scale:
 \eqn{HCC(u)=k^{ex}(u)/k^{ex}_{max}+pos(u)/pos_{max}}. The local half is
 the \emph{extended degree}
 \eqn{k^{ex}(u)=\delta k(u)+(1-\delta)\sum_{v\in\phi(u)}k(v)}, the node's
-own degree blended with its neighbours'; the global half is the
+own degree blended with its neighbors'; the global half is the
 \emph{E-shell} position index, the round in which a repeated
 minimum-extended-degree peel removes the node. Both terms are divided
 by their largest value, so each lies in \eqn{[0,1]} and the raw score
@@ -85,7 +85,7 @@ by a nonpositive maximum, which the source never contemplates.
 Uses the simple undirected unweighted skeleton, the source's stated
 domain: either arc creates one edge, parallel edges count once and loops
 are removed. Edge weights, mode, cutoff and path-weight inversion are
-ignored, and directed input is symmetrised rather than read as a
+ignored, and directed input is symmetrized rather than read as a
 directed case, which the source does not define. The source states no
 further normalization; \code{normalized = TRUE} max-scales the finished
 vector as elsewhere in \code{\link{centrality}}, on top of the two
@@ -99,15 +99,17 @@ author software, which does not exist, and not any claim about
 spreading performance.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Every node of a regular graph has the same extended degree, so one
 # round removes the whole graph and every node scores 1 + 1 = 2.
 centrality_hcc(igraph::make_ring(6))
 
-# A star peels its leaves first and its centre second.
+# A star peels its leaves first and its center second.
 centrality_hcc(igraph::make_star(6, mode = "undirected"))
 
 # delta = 1 is the classical degree in the extended-degree slot.
 centrality_hcc(igraph::make_star(6, mode = "undirected"), hcc_delta = 1)
+\dontshow{\}) # examplesIf}
 }
 \references{
 Liu, J. and Zheng, J. (2023). Identifying important nodes in
@@ -117,7 +119,7 @@ the eight-step E-shell procedure on page 3, with the worked example on
 page 4. \doi{10.1038/s41598-023-30308-5}.
 }
 \seealso{
-\code{\link{centrality_ehcc}} for the neighbourhood sum of this
+\code{\link{centrality_ehcc}} for the neighborhood sum of this
 score, \code{\link{centrality_dkgm}} for another shell-and-degree
 hybrid, and \code{\link{list_centralities}} for the catalogue.
 }

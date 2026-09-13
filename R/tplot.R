@@ -21,7 +21,8 @@
 #' @param minimum Minimum edge weight to display
 #' @param posCol Color for positive edges
 #' @param negCol Color for negative edges
-#' @param arrowAngle Arrow head angle in radians. Default pi/6 (30 degrees).
+#' @param arrowAngle Arrow head angle in radians. Default NULL, which leaves
+#'   \code{splot()}'s own \code{arrow_angle} default of pi/6 (30 degrees) in place.
 #' @param title Plot title
 #' @param ... Additional arguments passed to splot()
 #'
@@ -38,7 +39,7 @@
 #' plot_tna(m, vsize = 15, edge.label.cex = 2, layout = "circle")
 #'
 #' # With custom colors
-#' plot_tna(m, color = rainbow(5), vsize = 10)
+#' plot_tna(m, color = palette_colorblind(5), vsize = 10)
 #'
 plot_tna <- function(
     x,
@@ -132,7 +133,6 @@ plot_tna <- function(
 }
 
 #' @rdname plot_tna
-#' @return Invisibly returns the cograph_network object from splot().
 #' @export
 #' @examples
 #' m <- matrix(runif(25), 5, 5)

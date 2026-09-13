@@ -39,7 +39,8 @@ plot.tna_bootstrap <- function(x, ...) {
 #' @param inherit_style Logical: inherit colors/layout from original TNA model? Default TRUE.
 #' @param ... Additional arguments passed to splot().
 #'
-#' @return Invisibly returns the plot.
+#' @return Invisibly returns the \code{cograph_network} object built by
+#'   \code{\link{splot}()}. Called for the side effect of drawing.
 #'
 #' @details
 #' The function expects a tna_bootstrap object containing:
@@ -339,7 +340,8 @@ splot.tna_bootstrap <- function(x,
 #' @param inherit_style Logical: inherit labels/layout/colors from network? Default TRUE.
 #' @param ... Additional arguments passed to \code{splot()}.
 #'
-#' @return Invisibly returns the plot.
+#' @return Invisibly returns the \code{cograph_network} object built by
+#'   \code{\link{splot}()}. Called for the side effect of drawing.
 #' @rdname splot
 #' @export
 splot.net_bootstrap <- function(x,

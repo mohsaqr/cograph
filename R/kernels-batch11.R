@@ -1,5 +1,5 @@
 # ===========================================================================
-# Batch 11 kernels — parameterised members of families cograph already had
+# Batch 11 kernels — parameterized members of families cograph already had
 #
 # Each measure here sits at 0.90 <= tau < 1 against a measure cograph
 # already computed (docs/zoo/parameter_candidates.csv), because it is the
@@ -51,10 +51,10 @@
 #' Ego betweenness (Everett & Borgatti 2005)
 #'
 #' Betweenness computed inside each node's own ego network -- the subgraph
-#' induced on the node and its neighbours -- rather than across the whole
+#' induced on the node and its neighbors -- rather than across the whole
 #' graph. It asks how much of the brokerage a node could observe from where
 #' it stands, which is why it can be estimated from ego-network data alone.
-#' A node with fewer than two neighbours brokers nothing.
+#' A node with fewer than two neighbors brokers nothing.
 #'
 #' @param a 0/1 matrix. `a[i, j] = 1` when `i` and `j` are adjacent.
 #' @param directed Whether the graph is directed.
@@ -77,14 +77,19 @@
 #' Geodesic power closeness (Agneessens, Borgatti & Everett 2017, eq. 2)
 #'
 #' `c_delta(i) = sum_j d_ij^-delta / (n - 1)`, one exponent tuning how far
-#' the measure looks. Unreachable nodes contribute nothing but stay in the
-#' denominator. The family spans the usual closeness measures: `delta = 1`
-#' is harmonic centrality over `n - 1`, `delta = 2` is the sum of inverse
-#' squared distances, a large `delta` approaches degree over `n - 1`, and
-#' `delta = 0` counts the reachable set.
+#' the measure looks. For `delta > 0` unreachable nodes contribute nothing
+#' but stay in the denominator. The family spans the usual closeness
+#' measures: `delta = 1` is harmonic centrality over `n - 1`, `delta = 2` is
+#' the sum of inverse squared distances, and a large `delta` approaches
+#' degree over `n - 1`.
+#'
+#' `delta = 0` is the one value that does **not** behave as the family
+#' suggests. `Inf^0` is `1` in R and survives the finiteness filter, so every
+#' node scores `1` on a disconnected graph rather than the share of the graph
+#' it actually reaches. Use a strictly positive `delta`.
 #'
 #' @param d Distance matrix.
-#' @param delta Exponent, at least 0.
+#' @param delta Exponent, at least 0; see the note on `delta = 0` above.
 #' @return Numeric vector.
 #' @keywords internal
 #' @noRd
@@ -93,7 +98,9 @@
   if (is.null(n) || n == 0L) return(numeric(0))
   if (n == 1L) return(0)
   contrib <- d^(-delta)
-  contrib[!is.finite(contrib) | row(d) == col(d) | d == 0] <- 0
+  # `d` itself must be screened, not just `contrib`: at delta == 0 R gives
+  # Inf^0 == 1, so an unreachable pair would otherwise count as fully close.
+  contrib[!is.finite(d) | !is.finite(contrib) | row(d) == col(d) | d == 0] <- 0
   rowSums(contrib) / (n - 1)
 }
 
@@ -145,7 +152,7 @@
 #' `.cg_coreness()` reads a zero diagonal. igraph's Batagelj-Zaversnik
 #' implementation instead starts from the loop-inclusive degree (a loop
 #' counts twice on an undirected graph and under directed `"all"`, once
-#' under `"out"` or `"in"`) and, because a loop's only neighbour is the node
+#' under `"out"` or `"in"`) and, because a loop's only neighbor is the node
 #' being processed, never subtracts it again. The loop therefore acts as a
 #' fixed per-node offset on the degree throughout the peeling, and a node's
 #' core index rises with it. The gravity family inherits this convention

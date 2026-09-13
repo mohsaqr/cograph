@@ -788,7 +788,7 @@ utils::globalVariables(c(
 #' Produces a ggplot2 forest plot where each row is one network edge, the
 #' square marks the bootstrap mean estimate, and the horizontal bar spans the
 #' selected interval. A dashed reference line runs through zero. Significant
-#' edges are highlighted in colour; non-significant ones appear in grey (only
+#' edges are highlighted in color; non-significant ones appear in grey (only
 #' shown when \code{show_nonsig = TRUE}).
 #'
 #' For \code{net_bootstrap} objects from stability inference, both a bootstrap
@@ -799,8 +799,10 @@ utils::globalVariables(c(
 #' @param x A \code{tna_bootstrap} (from \code{tna::bootstrap}),
 #'   \code{net_bootstrap}, \code{net_bootstrap_group}, or
 #'   \code{boot_glasso} object.
-#' @param alpha Significance threshold. Default: inherits from the object
-#'   (\code{$ci_level} or \code{$alpha}), falling back to \code{0.05}.
+#' @param alpha Significance threshold. Default \code{NULL}, which inherits
+#'   from the object: \code{$ci_level} for \code{net_bootstrap},
+#'   \code{$level} for \code{tna_bootstrap}, \code{$alpha} for
+#'   \code{boot_glasso}, each falling back to \code{0.05}.
 #' @param interval Which interval to display: \code{"ci"} (bootstrap confidence
 #'   interval, default), \code{"cr"} (consistency range, stability inference
 #'   only), or \code{"both"} (CI as outer bar, CR as inner bar).
@@ -816,18 +818,18 @@ utils::globalVariables(c(
 #'   significant at top), or \code{"name"} (alphabetical).
 #' @param n_top Integer: restrict to the \code{n_top} edges with the largest
 #'   absolute estimate. Applied after significance filtering. Default \code{NULL}.
-#' @param sig_color Colour for significant CI bars and points. Default \code{"#2C6E8A"} (teal-blue).
-#' @param node_colors Optional node-colour vector for grouped radial layouts.
-#' @param cr_color Colour for the consistency range bar (\code{interval = "cr"} or \code{"both"}).
+#' @param sig_color Color for significant CI bars and points. Default \code{"#2C6E8A"} (teal-blue).
+#' @param node_colors Optional node-color vector for grouped radial layouts.
+#' @param cr_color Color for the consistency range bar (\code{interval = "cr"} or \code{"both"}).
 #'   Default \code{"#D4829A"}.
-#' @param nonsig_color Colour for non-significant edges. Default \code{"#CCCCCC"}.
-#' @param ring_color Colour for the reference rings (radial layout only). Default \code{"#C8C8C8"}.
-#' @param median_color Colour for the dashed median ring (radial layout only). Default \code{"#AAAAAA"}.
+#' @param nonsig_color Color for non-significant edges. Default \code{"#CCCCCC"}.
+#' @param ring_color Color for the reference rings (radial layout only). Default \code{"#C8C8C8"}.
+#' @param median_color Color for the dashed median ring (radial layout only). Default \code{"#AAAAAA"}.
 #' @param label_size Text size for edge labels (radial and grouped layouts).
 #'   Default \code{NULL} for automatic sizing in the main methods, or
 #'   \code{2.8} for \code{net_bootstrap_group}.
-#' @param label_color Fixed colour for edge labels (radial layout only). \code{NULL} (default)
-#'   inherits the edge colour (teal for significant, grey for non-significant).
+#' @param label_color Fixed color for edge labels (radial layout only). \code{NULL} (default)
+#'   inherits the edge color (teal for significant, grey for non-significant).
 #' @param point_size Size of the estimate square. Default \code{3} (linear) or \code{2} (radial).
 #' @param r_inner Inner ring radius (grouped layout). Default \code{NULL} (auto).
 #' @param r_outer Outer ring radius (grouped layout). Default \code{NULL} (auto).
@@ -1641,34 +1643,36 @@ plot_bootstrap_forest.net_bootstrap_group <- function(
 
 #' Forest Plot for Bootstrap Edge Differences
 #'
-#' Visualises pairwise edge weight differences from a \code{boot_glasso} object.
+#' Visualizes pairwise edge weight differences from a \code{boot_glasso} object.
 #' Each row (linear) or spoke (circular) is one edge pair; the CI bar spans the
 #' bootstrap CI of the difference; a dashed line/ring marks zero.
 #' Red = first edge larger; blue = second edge larger.
 #'
 #' @param x A \code{boot_glasso} object with \code{$boot_edges} and
 #'   \code{$edge_diff_p}.
-#' @param alpha Significance threshold. Default: inherits from object.
+#' @param alpha Significance threshold. Default \code{NULL}, which inherits
+#'   \code{x$alpha}, falling back to \code{0.05}.
 #' @param layout \code{"linear"} (default), \code{"circular"}, \code{"chord"},
 #'   or \code{"tile"}. The chord layout places all edge names on a unit circle
-#'   and connects significant pairs with bezier arcs; arc width and colour
+#'   and connects significant pairs with bezier arcs; arc width and color
 #'   encode the mean bootstrap difference. The tile layout draws the
 #'   pairwise-difference matrix.
 #' @param show_nonsig Include non-significant pairs? Default \code{FALSE}.
 #' @param nonzero_only If \code{TRUE}, restrict to edges that are non-zero in
 #'   the original network (identified via \code{$original_pcor}). Useful for
-#'   EBICglasso results where many edges are regularised to exactly zero.
+#'   EBICglasso results where many edges are regularized to exactly zero.
 #'   Default \code{FALSE}.
 #' @param sort_by \code{"estimate"} (default), \code{"significance"}, or
 #'   \code{"name"} (linear only).
 #' @param n_top Restrict to top N pairs by absolute difference.
-#' @param pos_color Colour when edge1 > edge2. Default crimson.
-#' @param neg_color Colour when edge1 < edge2. Default teal.
-#' @param nonsig_color Colour for non-significant pairs.
-#' @param ring_color Ring colour (circular/chord). Default light grey.
+#' @param pos_color Color when edge1 > edge2. Default crimson.
+#' @param neg_color Color when edge1 < edge2. Default teal.
+#' @param nonsig_color Color for non-significant pairs.
+#' @param ring_color Ring color (circular/chord). Default light grey.
 #' @param label_size Text size. Default \code{2.3}.
-#' @param label_color Fixed label colour (\code{NULL} = inherit).
-#' @param point_size Size of estimate square (linear/circular).
+#' @param label_color Fixed label color (\code{NULL} = inherit).
+#' @param point_size Size of estimate square (linear/circular). Default
+#'   \code{2} for \code{layout = "circular"} and \code{3} otherwise.
 #' @param r_inner Inner ring radius (circular). Default \code{0.38}.
 #' @param r_outer Outer ring radius (circular). Default \code{0.72}.
 #' @param title Plot title.
@@ -1824,7 +1828,7 @@ plot_edge_diff_forest.boot_glasso <- function(
   r_out <- 1.00
   n_arc <- 60L
 
-  # Node colour by degree (light -> dark blue)
+  # Node color by degree (light -> dark blue)
   max_deg  <- max(node_degree, 1L)
   deg_ramp <- grDevices::colorRamp(c("#AED6F1", "#1A5276"))
   node_col <- vapply(node_degree, function(d) {
@@ -1844,7 +1848,7 @@ plot_edge_diff_forest.boot_glasso <- function(
   })
   seg_df <- do.call(rbind, seg_list)
 
-  # --- colour ramp for ribbons (neg -> white -> pos) --------------------------
+  # --- color ramp for ribbons (neg -> white -> pos) --------------------------
   diff_max <- max(abs(df_arcs$estimate), na.rm = TRUE)
   if (diff_max == 0) diff_max <- 1
   cramp    <- grDevices::colorRamp(c(neg_color, "#FFFFFF", pos_color))
@@ -1905,7 +1909,7 @@ plot_edge_diff_forest.boot_glasso <- function(
       ggplot2::aes(x = x, y = y, group = group,
                    colour = color, alpha = alpha, linewidth = linewidth)
     ) +
-    # Node arc segments (thick, coloured by degree)
+    # Node arc segments (thick, colored by degree)
     ggplot2::geom_polygon(
       data = seg_df,
       ggplot2::aes(x = x, y = y, group = node, fill = fill),

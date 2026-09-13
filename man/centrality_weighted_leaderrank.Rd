@@ -54,7 +54,9 @@ are calculated with shifted logarithms, avoiding overflow for large
 exponents; extremely small probabilities may underflow to zero.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_weighted_leaderrank(igraph::make_ring(4, directed = TRUE))
+\dontshow{\}) # examplesIf}
 }
 \references{
 Li, Q., Zhou, T., Lu, L., & Chen, D. (2014). Identifying

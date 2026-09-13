@@ -56,8 +56,10 @@ normalization, global rescaling after every step avoids overflow;
 extremely small relative scores can still underflow in double precision.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_ninl(igraph::make_graph("Zachary"))
 centrality_ninl(igraph::make_star(5, mode = "undirected"), ninl_order = 2)
+\dontshow{\}) # examplesIf}
 }
 \references{
 Zhu, J. and Wang, L. (2021). Identifying Influential Nodes

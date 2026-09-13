@@ -46,7 +46,8 @@ com_eb(
 
 \item{membership}{Logical; return membership vector? Default TRUE.}
 
-\item{...}{Additional arguments passed to \code{\link{to_igraph}}}
+\item{...}{Currently unused; \code{directed} is already an explicit
+argument above and \code{\link{to_igraph}} accepts no others.}
 }
 \value{
 A \code{cograph_communities} object

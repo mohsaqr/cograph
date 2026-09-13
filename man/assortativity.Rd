@@ -13,15 +13,18 @@ object.}
 \item{directed}{Logical or NULL. If NULL (default), auto-detect from matrix
 symmetry. Set TRUE to force directed, FALSE to force undirected.}
 
-\item{type}{Character string specifying which degree correlation to compute.
-One of \code{"out-in"} (default for directed), \code{"in-in"},
-\code{"out-out"}, \code{"in-out"}, or \code{"degree"} (for undirected).
-Ignored for undirected networks.}
+\item{type}{Character string specifying which degree correlation to compute,
+or NULL (default) to choose automatically: \code{"out-in"} for directed
+networks and \code{"degree"} for undirected ones. For a directed network
+the accepted values are \code{"out-in"}, \code{"in-in"},
+\code{"out-out"} and \code{"in-out"}; for an undirected network the only
+accepted value is \code{"degree"}. Any other value raises an error.}
 
 \item{digits}{Integer or NULL. Round result to this many decimal places.
 Default NULL (no rounding).}
 
-\item{...}{Additional arguments passed to \code{\link{to_igraph}}.}
+\item{...}{Currently unused; \code{directed} is already an explicit
+argument above and \code{\link{to_igraph}} accepts no others.}
 }
 \value{
 An object of class \code{"cograph_assortativity"} with components:
@@ -52,8 +55,18 @@ where \eqn{e_{jk}} is the fraction of edges connecting degree-\eqn{j} to
 degree-\eqn{k} vertices, \eqn{q_k} is the excess degree distribution, and
 \eqn{\sigma_q^2} its variance.
 
-For directed networks, different degree combinations (in/out) at source and
-target ends can be specified via the \code{type} parameter.
+Because the Pearson correlation is invariant to subtracting a constant, the
+implementation computes the correlation of the raw (rather than excess)
+degrees at the two ends of each edge, counting every undirected edge in both
+orientations; this is numerically identical to the formula above.
+
+For directed networks, the coefficient is the Pearson correlation between
+the source-end and target-end degrees over each edge in its stored
+orientation, with the degree mode at each end chosen by \code{type}
+(Foster et al. 2010).
+
+The coefficient is \code{NA} when the network has no edges or when either
+degree vector has zero variance.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
@@ -73,6 +86,10 @@ cograph::assortativity(adj)
 Newman, M.E.J. (2002). Assortative mixing in networks.
 \emph{Physical Review Letters}, 89(20), 208701.
 \doi{10.1103/PhysRevLett.89.208701}
+
+Foster, J.G., Foster, D.V., Grassberger, P., & Paczuski, M. (2010).
+Edge direction and the structure of networks. \emph{PNAS}, 107(24),
+10815-10820. \doi{10.1073/pnas.0912671107}
 }
 \seealso{
 \code{\link{assortativity_attribute}}, \code{\link{centrality}},

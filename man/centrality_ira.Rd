@@ -37,9 +37,9 @@ Named numeric vector in input node order.
 }
 \description{
 Every node starts with one unit of resource and hands it to its
-neighbours in proportion to the \emph{receiver's} centrality, repeatedly,
+neighbors in proportion to the \emph{receiver's} centrality, repeatedly,
 until the amounts stop moving. The share node \eqn{j} sends to a
-neighbour \eqn{i} is
+neighbor \eqn{i} is
 \eqn{a_{ij}=\theta_i^{\alpha}/\sum_{u\in\Gamma(j)}\theta_u^{\alpha}},
 the recursion is \eqn{I(t+1)=AI(t)} from \eqn{I(0)=(1,\dots,1)}, and the
 steady state \eqn{I} ranks the spreaders. Because every non-isolate
@@ -85,7 +85,7 @@ it, and it carries no \eqn{\sum_i I_i=n} scale.
 Uses the simple undirected unweighted skeleton, which is the source
 domain: either arc creates one edge, parallel edges count once and loops
 are removed. Edge weights, mode, cutoff and path-weight inversion are
-ignored. An isolate is in nobody's neighbourhood, so it receives nothing
+ignored. An isolate is in nobody's neighborhood, so it receives nothing
 and its own unit is not passed on: it scores zero from the first step,
 which is the value of the source's empty sum and not an accidental zero,
 and it is the reason \eqn{\sum_i I_i=n} is stated only for graphs with no
@@ -98,6 +98,7 @@ author software, which does not exist, and not any claim about spreading
 performance.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # The source's figure 1(a): a triangle with two pendants on one corner.
 # The printed steady state is 15/8, 5/4, 5/4, 5/16, 5/16.
 fig1a <- igraph::make_graph(c(1, 2, 1, 3, 2, 3, 1, 4, 1, 5),
@@ -106,6 +107,7 @@ centrality_ira(fig1a)
 
 # The source's other mass, and a nonlinear exponent
 centrality_ira(fig1a, ira_mass = "degree", ira_alpha = 2)
+\dontshow{\}) # examplesIf}
 }
 \references{
 Ren, Z.-M., Zeng, A., Chen, D.-B., Liao, H. and Liu, J.-G.

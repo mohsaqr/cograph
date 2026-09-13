@@ -53,7 +53,7 @@ calculate_weighted_leaderrank <- function(cg, alpha = 1) {
 #'   section 2, equations 1-2. \doi{10.1016/j.physa.2014.02.041}.
 #'   Author preprint: \url{https://arxiv.org/abs/1306.5042}.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_weighted_leaderrank(igraph::make_ring(4, directed = TRUE))
 centrality_weighted_leaderrank <- function(x, wlr_alpha = 1, ...) {
   df <- centrality(x, measures = "weighted_leaderrank", wlr_alpha = wlr_alpha,

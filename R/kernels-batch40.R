@@ -13,7 +13,7 @@
 #' paper's Methods definition of k-shell says "remove nodes whose degree
 #' k <= 1 ... Until there are no nodes in the network with degree k <= 1".
 #' Read as strict equality the pseudocode cannot terminate on a path of three
-#' nodes, where removing both degree-one ends leaves a degree-zero centre. The
+#' nodes, where removing both degree-one ends leaves a degree-zero center. The
 #' at-most reading is the only one consistent with the printed termination
 #' condition and the prose, and it reproduces the paper's Table 2.
 #'
@@ -41,7 +41,7 @@
   k <- 1L
   max_stage <- 1L
   # Iterative peeling: each stage depends on the degrees the previous stage
-  # left behind, so there is nothing to vectorise across stages.
+  # left behind, so there is nothing to vectorize across stages.
   while (any(alive)) {
     q <- 0L
     repeat {

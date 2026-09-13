@@ -10,11 +10,15 @@
 #' Aggregates a vector of edge weights using various methods.
 #' Compatible with igraph's edge.attr.comb parameter.
 #'
-#' @param w Numeric vector of edge weights
+#' @param w Numeric vector of edge weights. \code{NA} and zero entries are
+#'   dropped before aggregation.
 #' @param method Aggregation method: "sum", "mean", "median", "max", "min",
-#'   "prod", "density", "geomean"
-#' @param n_possible Number of possible edges (for density calculation)
-#' @return Single aggregated value
+#'   "prod", "density", "geomean". Default "sum". Any other value is an error.
+#' @param n_possible Number of possible edges (used only by
+#'   \code{method = "density"}; when NULL or not positive, the number of
+#'   surviving weights is used as the denominator instead).
+#' @return A single numeric value, or 0 when no non-zero, non-NA weight
+#'   remains.
 #' @export
 #' @examples
 #' w <- c(0.5, 0.8, 0.3, 0.9)
@@ -83,7 +87,6 @@ wagg <- aggregate_weights
 #'       Throws an error if no cluster column is found.
 #'       This option only works when \code{x} is a cograph_network.}
 #'     \item{vector}{Cluster membership for each node, in the same order as the
-
 #'       matrix rows/columns. Can be numeric (1, 2, 3) or character ("A", "B").
 #'       Cluster names will be derived from unique values.
 #'       Example: \code{c(1, 1, 2, 2, 3, 3)} assigns first two nodes to cluster 1.}
@@ -1565,13 +1568,22 @@ as_mcml.default <- function(x, ...) {
 #' Computes per-cluster and global quality metrics for network partitioning.
 #' Supports both binary and weighted networks.
 #'
-#' @param x Adjacency matrix
-#' @param clusters Cluster specification (list or membership vector)
-#' @param weighted Logical; if TRUE, use edge weights; if FALSE, binarize
-#' @param directed Logical; if TRUE, treat as directed network
-#' @return A `cluster_quality` object with:
-#'   \item{per_cluster}{Data frame with per-cluster metrics}
-#'   \item{global}{List of global metrics (modularity, coverage)}
+#' @param x Adjacency matrix (numeric)
+#' @param clusters Cluster specification (named list, data frame, or membership
+#'   vector; see \code{\link{csum}})
+#' @param weighted Logical; if TRUE (default), use edge weights; if FALSE,
+#'   binarize the matrix first
+#' @param directed Logical; if TRUE (default), treat as directed network
+#' @return A `cluster_quality` object (a list) with:
+#'   \item{per_cluster}{Data frame, one row per cluster, with columns
+#'     \code{cluster} (index), \code{cluster_name}, \code{n_nodes},
+#'     \code{internal_edges} (within-cluster weight), \code{cut_edges}
+#'     (boundary-crossing weight), \code{internal_density},
+#'     \code{avg_internal_degree}, \code{expansion}, \code{cut_ratio} and
+#'     \code{conductance}.}
+#'   \item{global}{List with \code{modularity} (Newman-Girvan, computed on the
+#'     weighted or binarized matrix), \code{coverage} (share of total weight
+#'     that is internal to some cluster) and \code{n_clusters}.}
 #' @export
 #' @examples
 #' mat <- matrix(runif(100), 10, 10)
@@ -2013,9 +2025,21 @@ plot.cograph_cluster_significance <- function(x, ...) {
 #'
 #' @param A1 First adjacency matrix
 #' @param A2 Second adjacency matrix
-#' @param method Similarity method: "jaccard", "overlap", "hamming", "cosine",
-#'   "pearson"
-#' @return Numeric similarity value
+#' @param method Comparison method: "jaccard" (default), "overlap", "hamming",
+#'   "cosine" or "pearson"
+#' @return A single numeric value. All methods except \code{"hamming"} return a
+#'   similarity (higher = more alike); \code{"hamming"} returns a
+#'   \emph{distance} - the number of matrix cells whose edge presence differs
+#'   between the two layers - so lower means more alike and the value is not
+#'   bounded by 1. \code{NA} is returned when the denominator is undefined
+#'   (\code{"jaccard"} with no edges in either layer, \code{"overlap"} with an
+#'   empty layer, \code{"cosine"} with an all-zero layer).
+#'
+#' @details
+#' \code{"jaccard"}, \code{"overlap"} and \code{"hamming"} compare edge
+#' \emph{presence} (\code{A > 0}) and therefore ignore weights;
+#' \code{"cosine"} and \code{"pearson"} are computed on the raw cell values.
+#' The two matrices must have identical dimensions.
 #' @export
 #' @examples
 #' A1 <- matrix(c(0,1,1,0, 1,0,0,1, 1,0,0,1, 0,1,1,0), 4, 4)
@@ -2069,9 +2093,14 @@ lsim <- layer_similarity
 #'
 #' Computes similarity matrix for all pairs of layers.
 #'
-#' @param layers List of adjacency matrices (one per layer)
-#' @param method Similarity method
-#' @return Symmetric matrix of pairwise similarities
+#' @param layers Named list of adjacency matrices (one per layer); at least two
+#'   are required.
+#' @param method Comparison method: "jaccard" (default), "overlap", "cosine" or
+#'   "pearson". Note that \code{"hamming"}, accepted by
+#'   \code{\link{layer_similarity}}, is \emph{not} available here because it is
+#'   a distance rather than a similarity.
+#' @return A symmetric L x L matrix of pairwise similarities with the layer
+#'   names as dimnames and 1 on the diagonal.
 #' @export
 #' @examples
 #' nodes <- c("A", "B", "C")
@@ -2177,7 +2206,13 @@ ldegcor <- layer_degree_correlation
 #'   If no entry matches a pair and no legacy chain layout applies, a
 #'   warning is emitted and the diagonal default \code{omega[a,b] * I}
 #'   is used (previously this happened silently).
-#' @return Supra-adjacency matrix of dimension (N*L) x (N*L)
+#' @return A supra-adjacency matrix of dimension (N*L) x (N*L) with class
+#'   \code{c("supra_adjacency", "matrix")}. Diagonal N x N blocks hold the
+#'   intra-layer adjacencies and off-diagonal blocks the inter-layer coupling.
+#'   The attributes \code{"n_nodes"}, \code{"n_layers"}, \code{"node_names"},
+#'   \code{"layer_names"}, \code{"omega"} and \code{"coupling"} record the
+#'   construction and are read back by \code{\link{supra_layer}()} and
+#'   \code{\link{supra_interlayer}()}.
 #' @export
 #' @examples
 #' nodes <- c("A", "B", "C")
@@ -2469,10 +2504,15 @@ lagg <- aggregate_layers
 #' Confirms numerical match with igraph's contract_vertices + simplify.
 #'
 #' @param x Adjacency matrix
-#' @param clusters Cluster specification
-#' @param method Aggregation method
+#' @param clusters Cluster specification (see \code{\link{csum}})
+#' @param method Aggregation method. Default "sum".
 #' @param type Normalization type. Defaults to "raw" for igraph compatibility.
-#' @return List with comparison results
+#' @return A list with components \code{our_result} (cograph's macro weight
+#'   matrix), \code{igraph_result} (igraph's
+#'   \code{contract()} + \code{simplify()} matrix), \code{matches} (logical:
+#'   do the off-diagonals agree to within 1e-10?) and \code{difference} (the
+#'   \code{all.equal()} report when they do not, otherwise NULL). Returns
+#'   \code{NULL} with a message if igraph is not installed.
 #' @export
 verify_with_igraph <- function(x, clusters, method = "sum", type = "raw") {
 

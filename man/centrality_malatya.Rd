@@ -17,7 +17,7 @@ Named numeric vector in input node order.
 }
 \description{
 The static Malatya score of a node is the sum of its degree divided by
-each neighbour's degree: \eqn{M(i)=\sum_{j\in N(i)}d_i/d_j}.
+each neighbor's degree: \eqn{M(i)=\sum_{j\in N(i)}d_i/d_j}.
 Computes the score on the original graph. On nonisolated vertices it is
 exactly the reciprocal of \code{\link{centrality_bridging_coefficient}};
 this relationship follows from their definitions, not rank correlation.
@@ -26,11 +26,13 @@ this relationship follows from their definitions, not rank correlation.
 Uses the simple undirected unweighted skeleton: either direction creates
 an edge, parallel edges count once and self-loops are removed. This is an
 explicit projection of other inputs to the source's domain. The empty
-neighbour sum assigns isolates zero. On a regular graph the score equals
-degree. High scores favour nodes with many neighbours of low degree.
+neighbor sum assigns isolates zero. On a regular graph the score equals
+degree. High scores favor nodes with many neighbors of low degree.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_malatya(igraph::make_star(5, mode = "undirected"))
+\dontshow{\}) # examplesIf}
 }
 \references{
 Karci, A., Yakut, S., & Oztemiz, F. (2022). A New Approach Based on

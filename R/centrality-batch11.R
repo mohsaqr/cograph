@@ -1,5 +1,5 @@
 # ===========================================================================
-# Batch 11 — parameterised members of families cograph already had
+# Batch 11 — parameterized members of families cograph already had
 #
 # igraph-facing calculators over R/kernels-batch11.R and the exported verbs.
 # ===========================================================================
@@ -95,7 +95,7 @@ calculate_gravity <- function(cg, mode = "all", mass = "kshell",
 #'     brokered pairs.}
 #'   \item{\code{ego_betweenness} (Everett & Borgatti 2005)}{Betweenness
 #'     computed inside the node's own ego network rather than the whole
-#'     graph. A node with fewer than two neighbours scores 0. It is close
+#'     graph. A node with fewer than two neighbors scores 0. It is close
 #'     to, but not a function of, \code{effective_size}.}
 #'   \item{\code{delta_closeness} (Agneessens, Borgatti & Everett 2017,
 #'     eq. 2)}{\eqn{\sum_j d_{ij}^{-\delta} / (n-1)}

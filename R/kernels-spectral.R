@@ -6,7 +6,9 @@
 
 #' Binary adjacency with the diagonal cleared
 #' @param w Weight matrix. @param directed Whether to fold in the transpose.
-#' @return A numeric 0/1 matrix.
+#' @return A numeric matrix with a zero diagonal. `0/1` when `directed` is
+#'   `FALSE`; when `TRUE` the transpose is **added**, so a reciprocated dyad
+#'   becomes `2` rather than `1`.
 #' @keywords internal
 #' @noRd
 .cg_binary <- function(w, directed) {

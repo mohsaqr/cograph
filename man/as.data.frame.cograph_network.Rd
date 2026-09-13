@@ -32,6 +32,11 @@ columns \code{from} and \code{to} (node labels), \code{weight}, and any
 extra edge columns the network carries (for example \code{session}). For
 \code{what = "nodes"}, one row per node with the node metadata columns
 (\code{id}, \code{label}, layout coordinates, and any custom columns).
+
+This is the accessor, so it hands back everything the object holds,
+including columns \code{\link{mutate_edges}} computed.
+\code{\link{to_df}} is the narrower conversion verb: it returns
+\code{from}, \code{to} and \code{weight} only.
 }
 \description{
 The tidy accessor for a \code{cograph_network}: one row per edge (or per

@@ -37,7 +37,7 @@ are ignored.
 \describe{
 \item{\code{wvoterank} (Sun, Chen, He & Ch'ng 2019)}{VoteRank for
 weighted graphs: \eqn{s_v = \sqrt{k_v \sum_{u \in N(v)} va_u w_{vu}}}.
-After an election the winner's ability is 0 and its neighbours lose
+After an election the winner's ability is 0 and its neighbors lose
 \eqn{1 / \langle w \rangle}, where \eqn{\langle w \rangle} is the
 average strength (the paper's Figure 1 pins strength, not degree).
 Uses edge weights; with unit weights it is VoteRank with a
@@ -54,7 +54,7 @@ from the paper in several ways; the paper is implemented. Note the
 factor turns negative when \eqn{\langle k \rangle < e}.}
 \item{\code{voterank_plus} (Liu, Li, Fang & Yao 2021)}{Initial ability
 \eqn{\ln(1 + k_i / k_{\max})}, degree-proportional vote shares over
-unelected neighbours, score \eqn{\sqrt{k_i \sum_j va_j w_{j \to i}}},
+unelected neighbors, score \eqn{\sqrt{k_i \sum_j va_j w_{j \to i}}},
 and after an election abilities are multiplied by \eqn{\lambda}
 one step away and \eqn{\sqrt{\lambda}} two steps away
 (\code{voterank_lambda}, default 0.1). The article is closed access;

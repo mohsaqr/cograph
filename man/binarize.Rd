@@ -33,8 +33,12 @@ correlation network keeps its strong negative edges.}
 \item{directed}{Logical or NULL. If NULL (default), auto-detect.}
 }
 \value{
-A \code{cograph_network} whose weights are all 1 (or \code{-1} when
-\code{signed = TRUE}), or the input format when \code{keep_format = TRUE}.
+A \code{cograph_network} whose weights are all \code{1} (or, when
+\code{signed = TRUE}, \code{1} for a positive edge and \code{-1} for a
+negative one), or the input format when \code{keep_format = TRUE}. Nodes
+left without edges are kept and reported in a
+\code{cograph_isolates_created} warning, unless
+\code{keep_isolates = FALSE}.
 }
 \description{
 Replaces every surviving weight with 1, dropping edges at or below the

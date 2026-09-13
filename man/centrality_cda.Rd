@@ -51,7 +51,9 @@ Nonfinite intermediate strengths or scores raise an error, including
 when normalization is requested.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_cda(igraph::make_ring(5), cda_alpha = 0.5)
+\dontshow{\}) # examplesIf}
 }
 \references{
 Wang, Q., Ren, J., Wang, Y., Zhang, B., Cheng, Y., & Zhao, X. (2018).

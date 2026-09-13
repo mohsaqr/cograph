@@ -61,7 +61,7 @@ calculate_beta_measure <- function(cg, beta_direction = "positive") {
 #'   Boldi, P. and Vigna, S. (2014). Axioms for centrality. Internet
 #'   Mathematics, 10, 222-262. \doi{10.1080/15427951.2013.865686}.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_beta_measure(igraph::make_graph("Zachary"))
 #' centrality_beta_measure(igraph::make_star(5, mode = "out"),
 #'                         beta_direction = "negative")

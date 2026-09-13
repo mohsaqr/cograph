@@ -40,14 +40,17 @@
 
 #' PageRank by power iteration
 #'
-#' Dangling vertices redistribute their mass uniformly, which is igraph's
-#' behaviour and the reason a sink does not silently drain the ranking.
+#' Dangling vertices redistribute their mass along the reset distribution --
+#' uniformly by default, along `personalized` when one is given -- which is
+#' igraph's behavior and the reason a sink does not silently drain the
+#' ranking.
 #'
 #' @param w Weight matrix. @param n Vertex count.
 #' @param damping Damping factor. @param max_iter Iteration cap.
 #' @param tol L1 convergence tolerance.
 #' @param personalized Optional reset distribution; uniform when `NULL`.
-#' @return Numeric vector summing to 1.
+#' @return Numeric vector summing to 1. Hitting `max_iter` without reaching
+#'   `tol` returns the last iterate silently; there is no convergence flag.
 #' @keywords internal
 #' @noRd
 .cg_pagerank <- function(w, n, damping = 0.85, max_iter = 1000L, tol = 1e-14,

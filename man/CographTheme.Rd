@@ -136,6 +136,9 @@ Set a theme parameter.
 }
 \if{html}{\out{</div>}}
 }
+\subsection{Returns}{
+The object itself, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CographTheme-get_all"></a>}}
@@ -192,6 +195,9 @@ Print theme summary.
 \if{html}{\out{<div class="r">}}\preformatted{CographTheme$print()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+The object itself, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CographTheme-clone"></a>}}

@@ -177,7 +177,7 @@ calculate_map_equation <- function(cg, weights = NULL, membership = NULL,
 #'   networks with smart teleportation. Physical Review E, 85, 056107.
 #'   \doi{10.1103/PhysRevE.85.056107}.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' g <- igraph::make_graph("Zachary")
 #' centrality_map_equation(g)
 #' centrality_map_equation(g, membership = rep(1:2, each = 17),

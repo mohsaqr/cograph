@@ -32,12 +32,16 @@ above median degree (or strength) are prominent.}
 \item{sort_by}{Character or NULL. Column to sort by (descending). Default
 \code{"score"}.}
 
-\item{...}{Additional arguments passed to \code{\link{to_igraph}}.}
+\item{...}{Currently unused; \code{directed} is already an explicit
+argument above and \code{\link{to_igraph}} accepts no others.}
 }
 \value{
-A data frame with columns \code{node} and \code{score}, sorted
-by \code{score} descending. Values > 1 indicate the node directs
-disproportionately strong ties to prominent nodes.
+A plain data frame with one row per node and columns \code{node}
+(node label) and \code{score}, sorted by \code{sort_by} descending
+(\code{"score"} by default; pass \code{sort_by = NULL} to keep node
+order). Values > 1 indicate the node directs disproportionately strong
+ties to prominent nodes; a node with no neighbors, no prominent
+neighbor, or zero mean tie weight scores 1.
 }
 \description{
 For each node, measures whether it preferentially directs its strongest
@@ -48,9 +52,11 @@ prominent nodes are stronger than average.
 For each node i: \eqn{r_i = \bar{w}_{i \to rich} / \bar{w}_i}
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 adj <- matrix(c(0,5,3,1, 5,0,4,2, 3,4,0,1, 1,2,1,0), 4, 4)
 rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
 cograph::rich_club_local(adj, prominence = c(1, 1, 0, 0))
+\dontshow{\}) # examplesIf}
 }
 \references{
 Opsahl, T., Colizza, V., Panzarasa, P. & Ramasco, J.J. (2008).

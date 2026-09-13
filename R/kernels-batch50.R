@@ -25,7 +25,7 @@
 #' ```
 #'
 #' with `k_m` the degree of `v_m`, `p` the number of triangles one of whose
-#' edges is `e_mn`, `Gamma_i` the open neighbourhood of `v_i`, and
+#' edges is `e_mn`, `Gamma_i` the open neighborhood of `v_i`, and
 #' `W_vivj` "the contribution that `v_i` makes to the importance of
 #' `e_ij`". In a simple graph `p` is `|N(m) intersect N(n)|`.
 #'
@@ -86,7 +86,7 @@
   k <- rowSums(a)
 
   # p_ij, the number of triangles carrying the line e_ij, is the number of
-  # common neighbours. (A A)[i, j] counts walks of length two, which on a
+  # common neighbors. (A A)[i, j] counts walks of length two, which on a
   # loop-free binary matrix is exactly that count; it is masked to the edge
   # set because equations (1)-(3) are only ever evaluated on lines.
   triangles <- (a %*% a) * a

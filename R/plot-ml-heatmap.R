@@ -13,7 +13,7 @@
 #'   plane is \code{nrow(x) * compress} units tall, so a fixed spacing that
 #'   suits a small network makes a larger one overlap itself. \code{NULL}
 #'   (the default) scales the spacing to the plane so planes never collide;
-#'   pass a number for the older absolute behaviour.
+#'   pass a number for the older absolute behavior.
 #' @param skew Horizontal skew for perspective effect (0-1). Default 0.4.
 #' @param compress Vertical compression for perspective (0-1). Default 0.6.
 #' @param show_connections Show inter-layer connection lines? Default FALSE.
@@ -365,7 +365,7 @@ plot_ml_heatmap <- function(
 #'
 #' Row names sit left of column one at the row's mid-height; column names sit
 #' below row one at the column's mid-width, rotated so that long names do not
-#' collide with their neighbours. The `skew` shear is already applied by the
+#' collide with their neighbors. The `skew` shear is already applied by the
 #' transform, so both sets follow the plane's edges rather than the page.
 #'
 #' @param layers The list of layer matrices.

@@ -116,6 +116,23 @@ tna_color_palette <- function(n_states) {
   defaults
 }
 
+#' Keep edges that rounding would otherwise delete
+#'
+#' Zero is how this representation stores "no edge", so an edge whose weight
+#' rounds to zero at `digits` vanishes from the plot entirely. When the caller
+#' asked to keep such edges, each one is nudged to the smallest magnitude
+#' `digits` can express, carrying its sign, so it survives the engine's
+#' rounding and is still drawn. Every other weight is left exactly as it was,
+#' and a matrix with nothing at risk is returned unchanged.
+#' @noRd
+.keep_rounded_zero_edges <- function(x, digits) {
+  if (!is.matrix(x) || is.null(digits)) return(x)
+  vanishing <- !is.na(x) & x != 0 & round(x, digits) == 0
+  if (!any(vanishing)) return(x)
+  x[vanishing] <- sign(x[vanishing]) * 10^(-digits)
+  x
+}
+
 #' Convert a tna object to cograph parameters
 #'
 #' Extracts the transition matrix, labels, and initial state probabilities
@@ -126,10 +143,18 @@ tna_color_palette <- function(n_states) {
 #' @param engine Which cograph renderer to use: \code{"splot"} or \code{"soplot"}.
 #'   Default: \code{"splot"}.
 #' @param plot Logical. If TRUE (default), immediately plot using the chosen engine.
-#' @param weight_digits Number of decimal places to round edge weights to. Default 2.
-#'   Edges that round to zero are removed unless \code{show_zero_edges = TRUE}.
-#' @param show_zero_edges Logical. If TRUE, keep edges even if their weight rounds to
-#'   zero. Default: FALSE.
+#' @param weight_digits Number of decimal places to round edge weights to.
+#'   Default \code{NULL}, which picks the number of digits from the matrix:
+#'   \code{0} when every non-zero weight is a whole number (counts, as in
+#'   \code{ftna}/\code{ctna} models) and \code{2} otherwise (probabilities).
+#'   Edges whose weight rounds to zero at this precision are dropped unless
+#'   \code{show_zero_edges = TRUE}.
+#' @param show_zero_edges Logical. Zero is how this representation stores
+#'   "no edge", so an edge whose weight rounds to zero at
+#'   \code{weight_digits} is dropped. With \code{TRUE} such an edge is
+#'   instead drawn at the smallest magnitude \code{weight_digits} can
+#'   express, carrying its sign; every other weight is unchanged. Default:
+#'   FALSE.
 #' @param ... Additional parameters passed to the plotting engine (e.g., \code{layout},
 #'   \code{node_fill}, \code{donut_color}).
 #'
@@ -169,6 +194,10 @@ tna_color_palette <- function(n_states) {
 #'   \item \code{edge_start_style = "dotted"}: Dotted line at edge source for
 #'     directed networks
 #'   \item \code{edge_start_length = 0.2}: 20% of directed edges are dotted
+#'   \item \code{edge_label_style = "estimate"} and
+#'     \code{edge_label_leading_zero = FALSE}: labels show the weight alone,
+#'     written without a leading zero (\code{.42}, not \code{0.42})
+#'   \item \code{minimum = 0.01}: transitions weaker than 0.01 are not drawn
 #' }
 #'
 #' @return Invisibly, a named list of cograph parameters that can be passed to
@@ -214,6 +243,10 @@ from_tna <- function(tna_object, engine = c("splot", "soplot"), plot = TRUE,
   if (is.null(weight_digits)) {
     nz <- x[x != 0]
     weight_digits <- if (length(nz) > 0 && all(nz == floor(nz))) 0L else 2L
+  }
+
+  if (isTRUE(show_zero_edges)) {
+    x <- .keep_rounded_zero_edges(x, weight_digits)
   }
 
   # --- Determine directedness ---
@@ -282,9 +315,14 @@ from_tna <- function(tna_object, engine = c("splot", "soplot"), plot = TRUE,
 #'   Default: \code{"splot"}.
 #' @param plot Logical. If TRUE (default), immediately plot using the chosen engine.
 #' @param weight_digits Number of decimal places to round edge weights to. Default 2.
-#'   Edges that round to zero are removed unless \code{show_zero_edges = TRUE}.
-#' @param show_zero_edges Logical. If TRUE, keep edges even if their weight rounds to
-#'   zero. Default: FALSE.
+#'   Edges whose weight rounds to zero at this precision are dropped unless
+#'   \code{show_zero_edges = TRUE}.
+#' @param show_zero_edges Logical. Zero is how this representation stores
+#'   "no edge", so an edge whose weight rounds to zero at
+#'   \code{weight_digits} is dropped. With \code{TRUE} such an edge is
+#'   instead drawn at the smallest magnitude \code{weight_digits} can
+#'   express, carrying its sign; every other weight is unchanged. Default:
+#'   FALSE.
 #' @param preserve_node_size Logical. If TRUE, use the node sizes extracted
 #'   from the qgraph object. Default FALSE uses cograph's standard sizing.
 #' @param ... Override any extracted parameter. Use qgraph-style names (e.g.,
@@ -313,8 +351,10 @@ from_tna <- function(tna_object, engine = c("splot", "soplot"), plot = TRUE,
 #'   \item \code{labels} \code{->} \code{edge_labels}
 #'   \item \code{label.cex} \code{->} \code{edge_label_size} (scaled by 0.5x)
 #'   \item \code{lty} \code{->} \code{edge_style} (numeric to name conversion)
-#'   \item \code{curve} \code{->} \code{curvature}
+#'   \item \code{curve} \code{->} \code{curvature} (only when qgraph resolved a
+#'     single curvature for the whole graph)
 #'   \item \code{asize} \code{->} \code{arrow_size} (scaled by 0.3x)
+#'   \item \code{edge.label.position} \code{->} \code{edge_label_position}
 #' }
 #'
 #' \strong{Graph properties:}
@@ -324,11 +364,13 @@ from_tna <- function(tna_object, engine = c("splot", "soplot"), plot = TRUE,
 #'   \item \code{groups} \code{->} \code{groups}
 #'   \item \code{directed} \code{->} \code{directed}
 #'   \item \code{posCol}/\code{negCol} \code{->} \code{edge_positive_color}/\code{edge_negative_color}
+#'   \item \code{theme} \code{->} \code{theme}
 #' }
 #'
 #' \strong{Pie/Donut:}
 #' \itemize{
-#'   \item \code{pie} values \code{->} \code{donut_fill} with \code{donut_inner_ratio=0.8}
+#'   \item \code{pie} values \code{->} \code{donut_fill} with
+#'     \code{donut_inner_ratio = 0.8} and \code{donut_empty = FALSE}
 #'   \item \code{pieColor} \code{->} \code{donut_color}
 #' }
 #'
@@ -400,6 +442,10 @@ from_qgraph <- function(qgraph_object, engine = c("splot", "soplot"), plot = TRU
     }
   }
   n <- nrow(x)
+
+  if (isTRUE(show_zero_edges)) {
+    x <- .keep_rounded_zero_edges(x, weight_digits)
+  }
 
   # --- Build params ---
   params <- list(x = x, weight_digits = weight_digits)

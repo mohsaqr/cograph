@@ -15,7 +15,7 @@
 #   2. a ring whose gold peaks on the side facing the next state, and
 #   3. an arrowhead just outside each node, aimed at its successor.
 #
-# All three are drawn in DATA units, not device millimetres. `geom_point()`
+# All three are drawn in DATA units, not device millimeters. `geom_point()`
 # sizes are in mm, so a point's radius in data units depends on the panel
 # extent and the device — which makes "just outside the ring" unanswerable
 # and a gradient ring unexpressible. Drawing ring and core as polygons fixes
@@ -25,7 +25,7 @@
 #'
 #' Port of ladyna's `stepShade()`. \code{t} is the node's position in the
 #' pathway, 0 for the first state and 1 for the last: the first sits 62%
-#' of the way to white, the last 15% below the base colour. Vectorised
+#' of the way to white, the last 15% below the base color. Vectorized
 #' over \code{t}; \code{hex} is recycled.
 #' @noRd
 .step_shade <- function(hex, t) {
@@ -45,10 +45,10 @@
   grDevices::rgb(out[1L, ], out[2L, ], out[3L, ], maxColorValue = 255)
 }
 
-#' Linear blend between two colours
+#' Linear blend between two colors
 #'
 #' \code{w} is the weight on \code{to}: 0 returns \code{from}, 1 returns
-#' \code{to}. Vectorised over \code{w}.
+#' \code{to}. Vectorized over \code{w}.
 #' @noRd
 .blend_colors <- function(from, to, w) {
   stopifnot("`w` must be numeric" = is.numeric(w))
@@ -74,7 +74,7 @@
 #' \code{(x - dx, y - dy)} (palest) to \code{(x + dx, y + dy)} (full
 #' strength), where the axis points at the successor. A linear gradient
 #' assigns each point a weight by its projection onto that axis, so sector
-#' \code{theta} gets \code{w = (1 + cos(theta - angle)) / 2}. Discretising
+#' \code{theta} gets \code{w = (1 + cos(theta - angle)) / 2}. Discretizing
 #' the annulus into \code{n_sector} wedges reproduces it; the chord error
 #' at 48 wedges is under 0.1% of the radius.
 #'
@@ -311,8 +311,8 @@
       ggplot2::geom_point(data = swatch, ggplot2::aes(x = x, y = y),
                           fill = ring_color, color = ring_border,
                           shape = 21, size = 4.2, stroke = 0.6) +
-      # shape 19 takes `colour`, so the core needs no fill/colour split;
-      # `colour = NA` would count as a missing aesthetic and drop the row.
+      # shape 19 takes `color`, so the core needs no fill/color split;
+      # `color = NA` would count as a missing aesthetic and drop the row.
       ggplot2::geom_point(data = swatch,
                           ggplot2::aes(x = x, y = y, colour = fill),
                           shape = 19, size = 2.6) +

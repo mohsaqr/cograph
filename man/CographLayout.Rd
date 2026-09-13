@@ -131,6 +131,9 @@ Print layout summary.
 \if{html}{\out{<div class="r">}}\preformatted{CographLayout$print()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+The object itself, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CographLayout-clone"></a>}}

@@ -118,13 +118,13 @@ calculate_spectralrank <- function(cg, weights = NULL, sr_prior = 0) {
 #'   Default zero selects SpectralRank; one selects a uniform unit prior.
 #' @param ... Additional arguments to \code{\link{centrality}}.
 #' @return Named numeric vector in input node order.
-#' @references Xu, S., Wang, P., Zhang, C.-X. and Lu, J. (2019; online2018).
+#' @references Xu, S., Wang, P., Zhang, C.-X. and Lu, J. (2019; online 2018).
 #'   Spectral Learning Algorithm Reveals Propagation Capability of Complex
 #'   Networks. IEEE Transactions on Cybernetics, 49(12), 4253-4261.
 #'   Section III-A, equations 4-8 and Algorithm 1.
 #'   \doi{10.1109/TCYB.2018.2861568}.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_spectralrank(igraph::make_ring(5))
 #' centrality_spectralrank(igraph::make_star(5), sr_prior = 1)
 centrality_spectralrank <- function(x, sr_prior = 0, ...) {

@@ -422,7 +422,7 @@ extract_motifs <- function(x = NULL,
 
     # The null scores each observed (triple, class) row by how many units
     # exhibit that pair in a replicate. Counting the pairs directly is the
-    # same statistic as aggregating a labelled row per triple per unit and
+    # same statistic as aggregating a labeled row per triple per unit and
     # matching on a pasted key, without building the labels the null discards.
     perm_idx <- .triad_indices(s)
     perm_units <- which(eligible_individuals)

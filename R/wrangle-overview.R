@@ -11,7 +11,7 @@
 #' @section Selecting:
 #' \describe{
 #'   \item{\code{\link{filter_nodes}()}, \code{\link{select_nodes}()}}{Keep
-#'     nodes by expression, name, index, top-N, neighbourhood or component.}
+#'     nodes by expression, name, index, top-N, neighborhood or component.}
 #'   \item{\code{\link{filter_edges}()}, \code{\link{select_edges}()}}{Keep
 #'     edges by expression, endpoints, bridges, mutuality or top-N.}
 #'   \item{\code{\link{select_neighbors}()}, \code{\link{select_component}()},

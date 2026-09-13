@@ -18,7 +18,8 @@
 #'       constraint, effective_size, bridging, transitivity, subgraph,
 #'       diffusion, laplacian, kreach, current_flow_betweenness,
 #'       current_flow_closeness.}
-#'     \item{\code{"all"}}{Every available measure.}
+#'     \item{\code{"all"}}{Every measure except the costly ones, which are
+#'       held back (see \code{include} and \code{\link{list_centralities}}).}
 #'   }
 #'   Passing \code{measures} explicitly overrides \code{type}.
 #' @param include Character vector of costly measures to add back to a tier,
@@ -29,8 +30,9 @@
 #'   whatever its cost. Default \code{NULL}.
 #' @param measures Character vector of specific measure names to compute.
 #'   When \code{NULL} (default) the tier selected by \code{type} is used.
-#'   Accepts \code{"all"} as a shortcut for every measure. Any custom vector
-#'   of valid measure names is also accepted.
+#'   Accepts \code{"all"} as a shortcut for \code{type = "all"}, i.e. every
+#'   measure except the costly ones. Any custom vector of valid measure names
+#'   is also accepted, and naming a costly measure there always computes it.
 #'   **Core** (igraph-backed): "degree", "strength", "betweenness", "closeness",
 #'   "eigenvector", "pagerank", "authority", "hub", "eccentricity", "coreness",
 #'   "constraint", "transitivity", "harmonic", "alpha", "power", "subgraph".
@@ -146,15 +148,20 @@
 #'   symmetry. Set TRUE to force directed, FALSE to force undirected.
 #' @param loops Logical. If TRUE (default), keep self-loops. Set to FALSE to
 #'   remove them before calculation.
-#' @param simplify How to combine multiple edges between the same node pair.
-#'   Options: "sum" (default), "mean", "max", "min", or FALSE/"none" to keep
-#'   multiple edges.
+#' @param simplify How to combine multiple edges between the same node pair
+#'   (possible only from edge-list, cograph_network or igraph input).
+#'   Options: "sum" (default), "mean", "max", "min". \code{FALSE} and
+#'   \code{"none"} also sum them: the network is held as a dense weight
+#'   matrix, which cannot carry parallel edges.
 #' @param digits Integer or NULL. Round all numeric columns to this many
 #'   decimal places. Default NULL (no rounding).
 #' @param sort_by Character or NULL. Column name to sort results by
 #'   (descending order). Default NULL (original node order).
 #' @param cutoff Maximum path length to consider for betweenness, closeness,
-#'   and harmonic centrality.
+#'   harmonic centrality and the distance-based closeness variants (radiality,
+#'   lin, decay, residual_closeness, dangalchev, generalized_closeness,
+#'   harary, average_distance, barycenter, wiener, centroid,
+#'   closeness_vitality, delta_closeness).
 #'   Default -1 (no limit). Set to a positive value for faster computation
 #'   on large networks at the cost of accuracy.
 #' @param invert_weights Logical or NULL. For path- and distance-based measures
@@ -210,19 +217,21 @@
 #' @param katz_alpha Attenuation factor for Katz centrality. Must satisfy
 #'   \eqn{\alpha < 1 / \rho(A)}. Default 0.1 (matches centiserve and NetworkX
 #'   conventions). Only used when \code{"katz"} is in \code{measures}.
-#' @param shapley_k Neighbour threshold \eqn{k} for \code{"shapley_game2"}.
+#' @param shapley_k Neighbor threshold \eqn{k} for \code{"shapley_game2"}.
 #'   Default 2. See \code{\link{centrality_shapley_game2}}.
 #' @param shapley_cutoff Hop cutoff for \code{"shapley_game3"}. Default 2.
 #'   See \code{\link{centrality_shapley_game3}}.
 #' @param s_shell_a Exponent of the asymmetric link weights for
-#'   \code{"s_shell"}. Default 0.5. See \code{\link{centrality_s_shell}}.
+#'   \code{"s_shell"}. A single non-negative number; default 0.5. See
+#'   \code{\link{centrality_s_shell}}.
 #' @param discount_p Propagation probability for \code{"degree_discount"}.
 #'   Default 0.01. See \code{\link{centrality_degree_discount}}.
 #' @param ncvote_theta Weight of the plain vote in \code{"ncvoterank"}.
 #'   Default 0.5. See \code{\link{centrality_ncvoterank}}.
 #' @param comm_r Scale \eqn{R} of \code{"comm_centrality"}:
-#'   \code{"max_intra"} (default) or a positive number.
-#' @param ld_radius Radius for \code{"local_dimension_fixed"}. Default 2.
+#'   \code{"max_intra"} (default) or a single positive number.
+#' @param ld_radius Radius for \code{"local_dimension_fixed"}, in hops. A
+#'   single number of at least 1; default 2.
 #' @param enrenew_depth Renewal radius for \code{"enrenew"}. Default 2.
 #' @param voterank_lambda Suppression factor for \code{"voterank_plus"}.
 #'   Default 0.1.
@@ -238,7 +247,7 @@
 #'   this power.
 #' @param epc_threshold Edge removal probability for \code{"epc"}.
 #'   Default 0.5.
-#' @param epc_runs Number of percolation realisations for \code{"epc"}.
+#' @param epc_runs Number of percolation realizations for \code{"epc"}.
 #'   Default 1000.
 #' @param epc_seed Random seed for \code{"epc"}. Default \code{NULL},
 #'   which leaves the caller's stream alone and lets the estimate vary
@@ -259,7 +268,7 @@
 #'   integer (ties to even), and has minimum 1; these are cograph conventions.
 #' @param mdd_lambda Exhausted-degree weight for \code{"mdd"}, between
 #'   0 and 1. Default 0.7. See \code{\link{centrality_truss}}.
-#' @param volume_radius Closed neighbourhood radius for \code{"volume"}:
+#' @param volume_radius Closed neighborhood radius for \code{"volume"}:
 #'   a nonnegative integer or \code{Inf}, default 2. Degrees are measured
 #'   in the full simple undirected graph. See \code{\link{centrality_volume}}.
 #' @param diffusion_q Multiplier between 0 and 1 for \code{"diffusion_centrality"},
@@ -346,7 +355,7 @@
 #'   \code{"lhc"}, the \eqn{d} of the source's equation (1); a single whole
 #'   number of at least one, default 2 as the source sets it. The source
 #'   sweeps it and reports 2-3 as optimal. At one the ball collapses to the
-#'   neighbours; at or above the diameter the score stops moving. Values
+#'   neighbors; at or above the diameter the score stops moving. Values
 #'   below one and non-integers are refused. See
 #'   \code{\link{centrality_lhc}}.
 #' @param tpr_alpha Jump probability of the trust-PageRank iteration used
@@ -399,8 +408,8 @@
 #' @param bridging_steps Nonnegative bridging-capital walk horizon, default two.
 #' @param bridging_values Optional source-destination value matrix for
 #'   \code{\link{centrality_bridging_capital}}; NULL uses ones.
-#' @param rwd_decay Finite first-arrival discount in [0,1) for
-#'   \code{"random_walk_decay"}, default0.5.
+#' @param rwd_decay Finite first-arrival discount in \eqn{[0,1)} for
+#'   \code{"random_walk_decay"}, default 0.5.
 #' @param rwd_node_weights Nonnegative starting weights for
 #'   \code{"random_walk_decay"}; NULL means ones. See
 #'   \code{\link{centrality_random_walk_decay}}.
@@ -425,16 +434,22 @@
 #'   absolute expected-influence value, preserving sign and bounding the result from
 #'   -1 to 1.
 #'   \code{FALSE} keeps the generic cograph normalization convention.
-#' @param hubbell_weight Weight factor \eqn{w} for Hubbell centrality. Must
-#'   satisfy \eqn{w \cdot \rho(W) \le 1} for solvability. Default 0.5. Only
-#'   used when \code{"hubbell"} is in \code{measures}.
+#' @param hubbell_weight Weight factor \eqn{w} for Hubbell centrality. Must be
+#'   positive and satisfy \eqn{w \cdot \rho(W) < 1} for solvability; otherwise
+#'   the measure warns and returns \code{NA}. Default 0.5. Only used when
+#'   \code{"hubbell"} is in \code{measures}.
 #' @param ... Additional arguments (currently unused)
 #'
-#' @return A data frame with columns:
+#' @return A base \code{data.frame} with one row per node, in the input's node
+#'   order unless \code{sort_by} is given, and the columns:
 #'   \itemize{
-#'     \item \code{node}: Node labels/names
-#'     \item One column per measure, with mode suffix for directional measures
-#'       (e.g., \code{degree_in}, \code{closeness_all})
+#'     \item \code{node}: character, the node labels (the index as a string
+#'       when the input carried no names)
+#'     \item One numeric column per requested measure, with a mode suffix for
+#'       the mode-aware measures (e.g., \code{degree_in},
+#'       \code{closeness_all}); see \code{\link{list_centralities}} for which
+#'       measures carry a suffix. A measure that a tier supplied but that has
+#'       no value on this input is an all-\code{NA} column.
 #'   }
 #'
 #' @details
@@ -536,7 +551,7 @@
 #'     connectivity (requires \code{membership}).}
 #'   \item{gateway}{Gateway coefficient. Inter-community brokerage weighted by
 #'     centrality (requires \code{membership}).}
-#'   \item{distance_entropy}{Normalised Shannon entropy of a node's
+#'   \item{distance_entropy}{Normalized Shannon entropy of a node's
 #'     hop-distance profile; 1 = distances spread evenly, 0 = all at one
 #'     distance.}
 #'   \item{local_dimension}{Growth exponent of the ball around a node
@@ -545,14 +560,14 @@
 #'   \item{local_information_dimension}{Entropy-weighted local dimension
 #'     over boxes up to half the node's eccentricity; higher = more
 #'     influential.}
-#'   \item{neighborhood_connectivity}{Mean degree of a node's neighbours
-#'     (average neighbour degree); isolates score 0.}
+#'   \item{neighborhood_connectivity}{Mean degree of a node's neighbors
+#'     (average neighbor degree); isolates score 0.}
 #'   \item{modularity_vitality}{Drop in modularity when the node is removed
 #'     under a fixed partition; positive = community hub, negative = bridge
 #'     (requires \code{membership}).}
 #'   \item{shapley_game1, shapley_game2, shapley_game3}{Shapley value of the
 #'     node in the coverage games of Michalak et al. (2013): one-hop
-#'     coverage, \code{shapley_k}-neighbour coverage, and coverage within
+#'     coverage, \code{shapley_k}-neighbor coverage, and coverage within
 #'     \code{shapley_cutoff} hops. Values sum to the node count.}
 #'   \item{access_information}{Mean bits needed to reach every other node
 #'     along shortest paths without a map; low = well connected.}
@@ -571,8 +586,8 @@
 #'   \item{degree_discount, single_discount}{Greedy seed-selection order
 #'     under degree discounting (\code{discount_p}) or unit discounting,
 #'     scored 1 for the first selected down to 1/n.}
-#'   \item{ncvoterank}{VoteRank with voters weighted by normalised
-#'     neighbourhood coreness (\code{ncvote_theta}); election order scored
+#'   \item{ncvoterank}{VoteRank with voters weighted by normalized
+#'     neighborhood coreness (\code{ncvote_theta}); election order scored
 #'     like \code{voterank}.}
 #'   \item{community_based, comm_centrality, community_mediator}{Links
 #'     weighted by the size of the community they reach; Gupta's scaled
@@ -588,32 +603,32 @@
 #'     (\code{voterank_lambda}) VoteRank variants, scored like
 #'     \code{voterank}.}
 #'   \item{node_contraction, node_contraction_improved}{One minus the
-#'     agglomeration ratio after contracting the node with its neighbours;
+#'     agglomeration ratio after contracting the node with its neighbors;
 #'     the improved form adds the same score of its edges on the line graph
 #'     (\code{contraction_rho}).}
 #'   \item{two_way_rw}{Number of node pairs whose most likely two-way
 #'     random-walk route passes through the node.}
-#'   \item{heatmap}{Farness minus mean neighbour farness; lower = more
+#'   \item{heatmap}{Farness minus mean neighbor farness; lower = more
 #'     central.}
-#'   \item{flow_coefficient}{Share of neighbour pairs linked through the
+#'   \item{flow_coefficient}{Share of neighbor pairs linked through the
 #'     node but not directly.}
 #'   \item{local_entropy}{\eqn{-\sum_{j \in N(i)} k_j \ln k_j}; lower = more
 #'     central.}
 #'   \item{weighted_h_index}{h-index over topological link weights
 #'     \eqn{k_i k_j} repeated \eqn{k_j} times.}
-#'   \item{redundancy}{Mean degree of the neighbours inside the ego
+#'   \item{redundancy}{Mean degree of the neighbors inside the ego
 #'     network; degree minus effective size.}
 #'   \item{weighted_kshell}{k-shell on \eqn{(k^\alpha s^\beta)^{1/(\alpha
-#'     + \beta)}} after Garas' weight normalisation (\code{wks_alpha},
+#'     + \beta)}} after Garas' weight normalization (\code{wks_alpha},
 #'     \code{wks_beta}).}
 #'   \item{renewed_coreness}{k-core of the graph after removing links whose
 #'     diffusion importance is below \code{renewed_threshold}.}
 #'   \item{geodesic_kpath}{Number of shortest paths of length at most
 #'     \code{kpath_k} starting at the node.}
 #'   \item{local_efficiency}{Global efficiency of the subgraph induced on
-#'     the node's neighbours, the node itself removed. Note that
+#'     the node's neighbors, the node itself removed. Note that
 #'     \code{igraph::local_efficiency()} instead measures the distances
-#'     between those neighbours through the rest of the network.}
+#'     between those neighbors through the rest of the network.}
 #'   \item{s_core}{Largest strength threshold whose s-core still contains
 #'     the node; the k-core number when weights are absent.}
 #'   \item{fragmentation}{Distance-weighted fragmentation of the network
@@ -621,7 +636,7 @@
 #'   \item{kpath}{Number of simple paths of length at most
 #'     \code{kpath_len} that the node lies on, endpoints included.}
 #'   \item{epc}{Edge percolated component: mean size of the node's
-#'     component over \code{epc_runs} bond-percolation realisations, as a
+#'     component over \code{epc_runs} bond-percolation realizations, as a
 #'     share of the network. A Monte Carlo estimate.}
 #'   \item{length_scaled_betweenness}{Betweenness with each separated pair
 #'     weighted by \eqn{1 / d(s,t)}.}
@@ -634,10 +649,10 @@
 #'     mixed-degree shell threshold (\code{mdd_lambda}). Both use the
 #'     simple undirected skeleton; see \code{\link{centrality_truss}}.}
 #'   \item{bridging_coefficient, godfather, support}{Reciprocal-degree
-#'     ratio, count of unconnected neighbour pairs, and count of
+#'     ratio, count of unconnected neighbor pairs, and count of
 #'     triangle-supported relationships on the simple undirected skeleton.}
 #'   \item{volume}{Sum of degrees in the closed \code{volume_radius}-hop
-#'     neighbourhood on the simple undirected skeleton.}
+#'     neighborhood on the simple undirected skeleton.}
 #'   \item{mcc}{Maximal clique centrality: sum of \eqn{(|C|-1)!} over
 #'     incident maximal cliques of size at least two. Costly; see
 #'     \code{\link{centrality_mcc}} for isolate and precision conventions.}
@@ -650,7 +665,7 @@
 #'   \item{dynamics_sensitive}{Finite-time spreading score including
 #'     \code{ds_beta}, \code{ds_mu} and \code{ds_steps}; uses the simple
 #'     undirected skeleton.}
-#'   \item{malatya}{Sum of focal-to-neighbour degree ratios on the simple
+#'   \item{malatya}{Sum of focal-to-neighbor degree ratios on the simple
 #'     undirected skeleton; the reciprocal of the bridging coefficient
 #'     on nonisolated vertices.}
 #'   \item{resistance_curvature}{One minus half the incident conductance
@@ -678,9 +693,9 @@
 #'     binomial own-contribution factor \eqn{(1-1/d_i)^{d_i-1}} times the
 #'     neighbors' degree sum over \eqn{n-1}. Parameter-free; raw scores
 #'     depend on the whole graph's order. See \code{\link{centrality_lnc}}.}
-#'   \item{ked}{KED method: the degree times one plus the normalised
-#'     entropy of the neighbours' degrees times \eqn{\exp(K_i/N)} for the
-#'     neighbour-degree sum \eqn{K_i} and the whole graph's order
+#'   \item{ked}{KED method: the degree times one plus the normalized
+#'     entropy of the neighbors' degrees times \eqn{\exp(K_i/N)} for the
+#'     neighbor-degree sum \eqn{K_i} and the whole graph's order
 #'     \eqn{N}. Parameter-free. See \code{\link{centrality_ked}}.}
 #'   \item{hcc}{Hybrid characteristic centrality: the extended degree
 #'     \eqn{\delta k_i+(1-\delta)\sum_{j\in N(i)}k_j} over its maximum,
@@ -730,7 +745,7 @@
 #'     random-walk and shortest-path readings. Direction-sensitive,
 #'     component-local, and costly (one dense inverse). See
 #'     \code{\link{centrality_rsp_betweenness}}.}
-#'   \item{relative_entropy}{Normalised geometric mean of several index
+#'   \item{relative_entropy}{Normalized geometric mean of several index
 #'     distributions, the minimum-relative-entropy integration of
 #'     \code{re_indexes}; sums to one. See
 #'     \code{\link{centrality_relative_entropy}}.}
@@ -1177,9 +1192,6 @@ centrality <- function(x, type = c("basic", "extended", "all"),
   df
 }
 
-# Calculate diffusion centrality (vectorized). For each node, sums the
-# scaled degrees of itself and its neighbors.
-
 #' Calculate Onnela-style weighted clustering coefficient (matches tna)
 #'
 #' Implements `wcc(x + t(x))` per the formula used by `tna::centralities(.,
@@ -1218,6 +1230,8 @@ calculate_diffusion_power_series <- function(cg, loops = TRUE) {
   .rowSums(s, n, n)
 }
 
+# Calculate diffusion centrality (vectorized). For each node, sums the
+# scaled degrees of itself and its neighbors.
 calculate_diffusion <- function(cg, mode = "all", lambda = 1) {
   cg <- .cg_context(cg)
   if (cg$n == 0) return(numeric(0))
@@ -1241,8 +1255,8 @@ calculate_leverage <- function(cg, mode = "all", loops = TRUE) {
   if (n == 0) return(numeric(0))
   b <- cg$b
   if (!isTRUE(loops)) diag(b) <- 0
-  # Degrees at `mode` (a loop counts as igraph counts it), and the neighbour
-  # set at `mode` -- a vertex with a loop is its own neighbour, as in the
+  # Degrees at `mode` (a loop counts as igraph counts it), and the neighbor
+  # set at `mode` -- a vertex with a loop is its own neighbor, as in the
   # adjacency igraph reported.
   k <- .cg_degree(b, cg$directed, mode)
   adj <- if (!cg$directed) b != 0
@@ -1262,7 +1276,7 @@ calculate_leverage <- function(cg, mode = "all", loops = TRUE) {
 #' Fast vectorized implementation of geodesic k-path centrality.
 #' Counts neighbors that are on a geodesic path less than or equal to k away.
 #'
-#' @param g igraph object
+#' @param cg A `cg_graph` context (an igraph object is accepted and converted).
 #' @param mode "all", "in", or "out" for directed graphs
 #' @param weights Edge weights (NULL for unweighted)
 #' @param k Maximum path length. Default 3.
@@ -1287,7 +1301,7 @@ calculate_kreach <- function(cg, mode = "all", weights = NULL, k = 3) {
 #' Measures the drop in Laplacian energy when a node is removed.
 #' Higher values indicate more important nodes.
 #'
-#' @param g igraph object
+#' @param cg A `cg_graph` context (an igraph object is accepted and converted).
 #' @param weights Edge weights (NULL for unweighted)
 #' @param normalized Whether to normalize by max value
 #' @return Numeric vector of Laplacian centrality values
@@ -1300,9 +1314,9 @@ calculate_laplacian <- function(cg, weights = NULL, normalized = FALSE) {
   if (n == 0) return(numeric(0))
   if (n == 1) return(0)
 
-  # Degrees count a loop twice (igraph's convention), and the neighbour
+  # Degrees count a loop twice (igraph's convention), and the neighbor
   # list igraph reported includes the vertex itself for a loop -- once on
-  # a directed graph, twice on an undirected one -- so the neighbour-degree
+  # a directed graph, twice on an undirected one -- so the neighbor-degree
   # sum is a count-weighted product rather than a plain adjacency product.
   deg <- .cg_degree(cg$b, cg$directed, "all")
   count <- cg$b
@@ -1322,7 +1336,7 @@ calculate_laplacian <- function(cg, weights = NULL, normalized = FALSE) {
 #' Uses Brandes-style algorithm where flow is divided equally among
 #' shortest-path predecessors. Matches sna::loadcent().
 #'
-#' @param g igraph object
+#' @param cg A `cg_graph` context (an igraph object is accepted and converted).
 #' @param weights Edge weights (NULL for unweighted)
 #' @param directed Whether to consider edge direction
 #' @return Numeric vector of load centrality values
@@ -1347,7 +1361,7 @@ calculate_load <- function(cg, weights = NULL, directed = TRUE) {
 #' Based on electrical current flow through the network.
 #' Uses the pseudoinverse of the Laplacian matrix.
 #'
-#' @param g igraph object
+#' @param cg A `cg_graph` context (an igraph object is accepted and converted).
 #' @param weights Edge weights (NULL for unweighted)
 #' @return Numeric vector of current-flow closeness values
 #' @noRd
@@ -1403,7 +1417,7 @@ calculate_current_flow_closeness <- function(cg, weights = NULL) {
 #' Betweenness based on current flow rather than shortest paths.
 #' Measures the amount of current passing through each node.
 #'
-#' @param g igraph object
+#' @param cg A `cg_graph` context (an igraph object is accepted and converted).
 #' @param weights Edge weights (NULL for unweighted, treated as conductances)
 #' @return Numeric vector of current-flow betweenness values
 #' @noRd
@@ -1449,7 +1463,7 @@ calculate_current_flow_betweenness <- function(cg, weights = NULL) {
 #' Each iteration selects the node with most votes, then reduces voting
 #' power of its neighbors.
 #'
-#' @param g igraph object
+#' @param cg A `cg_graph` context (an igraph object is accepted and converted).
 #' @param directed Whether to consider edge direction
 #' @return Numeric vector with rank order (1 = most influential, higher = less)
 #' @noRd
@@ -1468,7 +1482,7 @@ calculate_voterank <- function(cg, directed = TRUE)
 #' Each node has a "percolation state" (0-1) representing how activated/infected it is.
 #' When all states are 1, this equals betweenness centrality.
 #'
-#' @param g igraph object
+#' @param cg A `cg_graph` context (an igraph object is accepted and converted).
 #' @param states Named numeric vector of percolation states (0-1) for each node.
 #'   If NULL, all nodes get state 1 (equivalent to betweenness).
 #' @param weights Edge weights (NULL for unweighted)
@@ -1544,7 +1558,7 @@ calculate_percolation <- function(cg, states = NULL, weights = NULL, directed = 
 #' @param cg A `cg_graph` context.
 #' @param type One of igraph's transitivity types.
 #' @param isolates `"nan"` or `"zero"` for vertices with fewer than two
-#'   neighbours (local types only).
+#'   neighbors (local types only).
 #' @return Numeric vector (local) or a single number (global).
 #' @noRd
 calculate_transitivity <- function(cg, type = "local", isolates = "nan") {
@@ -1633,7 +1647,7 @@ calculate_measure <- function(cg, measure, mode, weights, normalized,
     "closeness" = {
       d <- .cg_distances(.cg_attr_matrix(cg, weights), mode, cutoff)
       cl <- .cg_closeness(d, n)
-      # igraph's normalisation: multiply by the number of vertices reached.
+      # igraph's normalization: multiply by the number of vertices reached.
       if (normalized) cl * (rowSums(is.finite(d)) - 1) else cl
     },
     # igraph::eccentricity() reads the graph's own weights whatever
@@ -1878,7 +1892,7 @@ calculate_measure <- function(cg, measure, mode, weights, normalized,
     "epc" = calculate_epc(cg, threshold = epc_threshold, runs = epc_runs,
                           seed = epc_seed),
 
-    # Batch 11 — parameterised family members (R/centrality-batch11.R)
+    # Batch 11 — parameterized family members (R/centrality-batch11.R)
     "length_scaled_betweenness" = calculate_length_scaled_betweenness(cg, weights = weights),
     "delta_betweenness" = calculate_delta_betweenness(cg, weights = weights, delta = betweenness_delta),
     "ego_betweenness" = calculate_ego_betweenness(cg),
@@ -3068,7 +3082,7 @@ centrality_mnc <- function(x, mode = "all", ...) {
 #'
 #' Edges divided by nodes raised to \code{dmnc_epsilon}, both taken from the
 #' largest connected component of the subgraph induced on a node's
-#' neighbours (the focal node excluded).
+#' neighbors (the focal node excluded).
 #'
 #' @inheritParams centrality_degree
 #' @param dmnc_epsilon Numeric. Epsilon exponent for DMNC. Default 1.7 as
@@ -3081,7 +3095,7 @@ centrality_mnc <- function(x, mode = "all", ...) {
 #' \code{centiserve::dmnc()} returns different values, and not only because
 #' of its different \code{epsilon} default. Its edge count is taken with
 #' \code{induced.subgraph(graph, which(c$membership \%in\% ...))}, where the
-#' membership vector indexes the neighbourhood subgraph but is used to
+#' membership vector indexes the neighborhood subgraph but is used to
 #' subset the original graph. The two index spaces are not the same, so the
 #' edges counted are those of an unrelated vertex set. On the Zachary karate
 #' club the two disagree on 14 of 34 nodes at a matched epsilon, and
@@ -3233,7 +3247,7 @@ centrality_stress <- function(x, ...) {
 #'   \code{\link{centrality_betweenness}} for shortest-path variant.
 #'
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
 #' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
 #' centrality_flow_betweenness(adj)
@@ -3274,7 +3288,7 @@ centrality_flow_betweenness <- function(x, ...) {
 #' centrality_expected_influence_1(W)
 centrality_expected_influence_1 <- function(x, mode = "out", ...) {
   df <- centrality(x, measures = "expected_influence_1", mode = mode, ...)
-  stats::setNames(df$expected_influence_1, df$node)
+  stats::setNames(df[[paste0("expected_influence_1_", mode)]], df$node)
 }
 
 #' Expected Influence (two-step)
@@ -3305,7 +3319,7 @@ centrality_expected_influence_1 <- function(x, mode = "out", ...) {
 #' centrality_expected_influence_2(W)
 centrality_expected_influence_2 <- function(x, mode = "out", ...) {
   df <- centrality(x, measures = "expected_influence_2", mode = mode, ...)
-  stats::setNames(df$expected_influence_2, df$node)
+  stats::setNames(df[[paste0("expected_influence_2_", mode)]], df$node)
 }
 
 #' Topological Coefficient
@@ -4151,22 +4165,37 @@ centrality_brokerage_liaison <- function(x, membership = NULL, ...) {
 #' @param alpha Numeric. Exponent for weight inversion. Default 1.
 #' @param digits Integer or NULL. Round numeric columns. Default NULL.
 #' @param sort_by Character or NULL. Column to sort by (descending). Default NULL.
-#' @param ... Additional arguments passed to \code{\link{to_igraph}}
+#' @param ... Additional arguments forwarded to the graph constructor, namely
+#'   \code{loops} and \code{simplify} (see \code{\link{centrality}}).
 #'
-#' @return A data frame with columns \code{from}, \code{to}, and one column
-#'   per requested measure.
+#' @return A base \code{data.frame} with one row per edge, in the canonical
+#'   (row-major) edge order of the input. The first two columns are
+#'   \code{from} and \code{to} (character when the input carried node names,
+#'   numeric indices otherwise); the remaining columns are those the requested
+#'   measures contribute, as listed in Details. \code{measures = "all"} on an
+#'   undirected input therefore gives \code{from}, \code{to}, \code{weight},
+#'   \code{betweenness}, \code{overlap}, \code{shared_neighbors} and
+#'   \code{triangles}, and a directed input adds \code{reciprocated},
+#'   \code{reverse_weight} and \code{weight_ratio}.
 #'
 #' @details
-#' Edge measures available:
+#' Edge measures available, with the column(s) each one adds:
 #' \describe{
-#'   \item{betweenness}{Number of shortest paths passing through the edge.}
-#'   \item{weight}{Original edge weight.}
-#'   \item{overlap}{Jaccard neighborhood overlap of edge endpoints.}
-#'   \item{simmelian}{Number of triangles the edge participates in.}
-#'   \item{reciprocity}{Whether the reverse edge exists (directed only).
-#'     Adds columns: \code{reciprocated}, \code{reverse_weight},
-#'     \code{weight_ratio}.}
+#'   \item{betweenness}{Number of shortest paths passing through the edge.
+#'     Adds \code{betweenness}.}
+#'   \item{weight}{Original edge weight (1 for an unweighted input). Adds
+#'     \code{weight}.}
+#'   \item{overlap}{Jaccard neighborhood overlap of the edge endpoints. Adds
+#'     \code{overlap} and the raw count \code{shared_neighbors}.}
+#'   \item{simmelian}{Number of triangles the edge participates in. Adds
+#'     \code{triangles} (there is no column called \code{simmelian}).}
+#'   \item{reciprocity}{Whether the reverse edge exists. Directed only: on an
+#'     undirected input it warns and adds nothing. Adds
+#'     \code{reciprocated}, \code{reverse_weight} and \code{weight_ratio},
+#'     the last two \code{NA} where the edge is not reciprocated.}
 #' }
+#' \code{measures = "all"} requests every measure, dropping
+#' \code{reciprocity} on an undirected input.
 #'
 #' @export
 #' @examples

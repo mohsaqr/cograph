@@ -43,7 +43,7 @@ calculate_extended_core <- function(cg, measure, radius = 3) {
 #' Ma, Zhang & Wang (2016), Physica A, 451, 205-212.
 #' \doi{10.1016/j.physa.2015.12.162}.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_extended_coreness(igraph::make_ring(6))
 centrality_extended_coreness <- function(x, ...) {
   df <- centrality(x, measures = "extended_coreness", ...)
@@ -91,7 +91,7 @@ centrality_extended_coreness <- function(x, ...) {
 #' \doi{10.1016/j.physa.2015.12.162}.
 #' @seealso \code{\link{centrality_gravity}}.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_extended_gravity(igraph::make_ring(6), gravity_radius = 3)
 centrality_extended_gravity <- function(x, gravity_radius = 3, ...) {
   df <- centrality(x, measures = "extended_gravity",

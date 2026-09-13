@@ -16,7 +16,12 @@ robustness_summary(..., x = NULL, measures = NULL, n_iter = 1000)
 \item{n_iter}{Iterations for random. Default 1000.}
 }
 \value{
-Data frame with AUC and critical points for each measure.
+A data frame with one row per supplied (or computed) robustness
+result and columns \code{measure}, \code{auc} (area under the robustness
+curve), \code{critical_50} (fraction removed when the largest component
+first falls below 50\\% of its original size) and \code{critical_10} (the
+same at 10\\%). The critical columns are 1 when the threshold is never
+crossed. All numeric columns are rounded to 4 decimal places.
 }
 \description{
 Provides a summary comparing robustness metrics across attack strategies.

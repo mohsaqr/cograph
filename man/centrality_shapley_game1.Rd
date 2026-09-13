@@ -18,7 +18,7 @@ object).}
 
 \item{...}{Additional arguments passed to \code{\link{centrality}}.}
 
-\item{shapley_k}{Neighbour threshold \eqn{k} for game 2. Default 2.}
+\item{shapley_k}{Neighbor threshold \eqn{k} for game 2. Default 2.}
 
 \item{shapley_cutoff}{Hop cutoff for game 3. Default 2.}
 }
@@ -38,7 +38,7 @@ linear time.
 adjacent to it. \eqn{SV(v) = \sum_{u \in \{v\} \cup N(v)}
     1 / (1 + k_u)}.}
 \item{Game 2 (\code{shapley_game2})}{\eqn{v(C)} = nodes in \eqn{C} or
-with at least \eqn{k} neighbours in \eqn{C}.
+with at least \eqn{k} neighbors in \eqn{C}.
 \eqn{SV(v) = \min(1, k / (1 + k_v)) + \sum_{u \in N(v)}
     \max(0, (k_u - k + 1) / (k_u (1 + k_u)))}. With \eqn{k = 1} this is
 game 1. Threshold via \code{shapley_k} (default 2).}

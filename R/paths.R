@@ -13,7 +13,8 @@
 #'   weights.
 #' @param directed Logical or NULL. If NULL (default), auto-detect from matrix
 #'   symmetry. Set TRUE to force directed, FALSE to force undirected.
-#' @param ... Additional arguments passed to \code{\link{to_igraph}}
+#' @param ... Currently unused; \code{directed} is already an explicit
+#'   argument above and \code{\link{to_igraph}} accepts no others.
 #'
 #' @return Depends on the query:
 #' \itemize{
@@ -37,8 +38,12 @@
 #' uses edge weight attributes if present. To force unweighted computation,
 #' pass \code{weights = NA} explicitly.
 #'
+#' igraph also exports a \code{shortest_paths()} with a different signature and
+#' return value; when both packages are attached, qualify the call as
+#' \code{cograph::shortest_paths()}.
+#'
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' # All-pairs distances
 #' adj <- matrix(c(
 #'   0, 1, 0, 0,
@@ -138,7 +143,8 @@ shortest_paths <- function(x,
 #'   weights.
 #' @param directed Logical or NULL. If NULL (default), auto-detect from matrix
 #'   symmetry. Set TRUE to force directed, FALSE to force undirected.
-#' @param ... Additional arguments passed to \code{\link{to_igraph}}
+#' @param ... Currently unused; \code{directed} is already an explicit
+#'   argument above and \code{\link{to_igraph}} accepts no others.
 #'
 #' @return A list with class "cograph_k_paths" containing:
 #' \describe{
@@ -170,7 +176,7 @@ shortest_paths <- function(x,
 #' \doi{10.1287/mnsc.17.11.712}
 #'
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' # Find 3 shortest paths in a small network
 #' adj <- matrix(c(
 #'   0, 1, 1, 0, 0,

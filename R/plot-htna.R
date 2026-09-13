@@ -114,7 +114,8 @@
 #'   or "auto" (adaptive based on node count). Applied before passing to tplot.
 #' @param ... Additional parameters passed to tplot().
 #'
-#' @return Invisibly returns the result from tplot().
+#' @return Invisibly returns the \code{\link{tplot}()} result: a
+#'   \code{cograph_network} object. Called for the side effect of drawing.
 #'
 #' @export
 #'

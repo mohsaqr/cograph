@@ -20,7 +20,8 @@ or an unnamed vector in node order.}
 
 \item{digits}{Integer or NULL. Round result. Default NULL.}
 
-\item{...}{Additional arguments passed to \code{\link{to_igraph}}.}
+\item{...}{Currently unused; \code{directed} is already an explicit
+argument above and \code{\link{to_igraph}} accepts no others.}
 }
 \value{
 An object of class \code{"cograph_assortativity"} with components:
@@ -48,13 +49,21 @@ where \eqn{\mathbf{e}} is the mixing matrix with \eqn{e_{ij}} = fraction of
 edges connecting type \eqn{i} to type \eqn{j}.
 
 For numeric (scalar) attributes, the coefficient is the Pearson correlation
-between attribute values at edge endpoints.
+between attribute values at edge endpoints (computed over both orientations
+of every edge when the network is undirected). Any non-numeric
+\code{values} vector (character or factor) is treated as nominal.
+
+The coefficient is \code{NA} when the network has no edges, when a nominal
+attribute has a single category, or when either value vector has zero
+variance.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 adj <- matrix(c(0,1,1,0, 1,0,0,0, 1,0,0,1, 0,0,1,0), 4, 4)
 rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
 groups <- c(A = "x", B = "x", C = "y", D = "y")
 cograph::assortativity_attribute(adj, groups)
+\dontshow{\}) # examplesIf}
 }
 \references{
 Newman, M.E.J. (2003). Mixing patterns in networks.

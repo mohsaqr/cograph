@@ -1778,6 +1778,8 @@ plot_alluvial <- function(x,
 #' @inheritParams plot_transitions
 #' @param x Data frame with one column per time point and one row per
 #'   individual trajectory.
+#' @param from_title Column titles. Default \code{NULL}, which uses the
+#'   column names of \code{x}. Pass a character vector to override them.
 #' @param flow_color_by Color trajectory lines by state. Supports
 #'   \code{"source"}, \code{"destination"}, \code{"first"}, \code{"last"}, or
 #'   NULL. Default \code{"first"}.

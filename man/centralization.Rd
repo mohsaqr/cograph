@@ -13,22 +13,35 @@ centralization(
 )
 }
 \arguments{
-\item{x}{Network input}
+\item{x}{Network input (matrix, edge-list data frame, igraph, network,
+cograph_network, tna object).}
 
-\item{measure}{One of "degree", "betweenness", "closeness", "eigenvector"}
+\item{measure}{One of \code{"degree"} (default), \code{"betweenness"},
+\code{"closeness"} or \code{"eigenvector"}.}
 
-\item{directed}{Logical or NULL}
+\item{directed}{Logical or \code{NULL}. \code{NULL} (default) auto-detects
+from matrix symmetry; \code{TRUE}/\code{FALSE} forces it.}
 
-\item{mode}{"all", "in", or "out"}
+\item{mode}{For directed networks: \code{"all"} (default), \code{"in"} or
+\code{"out"}. Used by \code{"degree"} and \code{"closeness"} only.}
 
-\item{...}{Additional arguments passed to to_igraph()}
+\item{...}{Ignored; accepted for call compatibility with the other
+centrality verbs.}
 }
 \value{
-Numeric scalar in \eqn{[0, 1]}
+A single number: the summed gap between the most central node and
+every other node, divided by the theoretical maximum for the measure, so
+0 marks a perfectly even network and 1 a perfect star. Nodes whose score
+is \code{NA} or \code{NaN} are dropped from the sum. Returns 0 when the
+network has two or fewer nodes.
 }
 \description{
 Computes Freeman's centralization for degree, betweenness, closeness,
 or eigenvector centrality.
+}
+\details{
+A weighted input carries its weights into betweenness, closeness and
+eigenvector centrality; degree centralization ignores them.
 }
 \examples{
 star <- matrix(0, 5, 5)

@@ -74,7 +74,7 @@
 #' }
 #'
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' # Basic usage with adjacency matrix
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
 #' network_summary(adj)
@@ -292,13 +292,15 @@ network_summary <- function(x,
 #'   \describe{
 #'     \item{degree}{Named numeric vector of per-node degrees.}
 #'     \item{table}{Table of degree frequencies.}
-#'     \item{breaks}{Breakpoints used for the histogram (non-cumulative only).}
-#'     \item{counts}{Bin counts (non-cumulative only).}
-#'     \item{proportions}{Bin proportions (non-cumulative only).}
+#'     \item{breaks}{Breakpoints of the degree histogram.}
+#'     \item{counts}{Bin counts.}
+#'     \item{proportions}{Bin proportions (\code{counts / sum(counts)}).}
 #'   }
+#'   All five components are returned for both the histogram and the
+#'   cumulative plot; \code{cumulative = TRUE} only changes what is drawn.
 #'
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' # Undirected network
 #' adj <- matrix(c(0, 1, 1, 0, 1, 0, 1, 1,
 #'                 1, 1, 0, 1, 0, 1, 1, 0), 4, 4, byrow = TRUE)
@@ -500,12 +502,13 @@ degree_distribution <- function(x,
 #' Returns Inf for acyclic graphs (trees, DAGs).
 #'
 #' @param x Network input: matrix, igraph, network, cograph_network, or tna object
-#' @param ... Additional arguments passed to \code{\link{to_igraph}}
+#' @param ... Passed to \code{\link{to_igraph}}, whose only other argument
+#'   is \code{directed}; anything else raises an "unused argument" error.
 #'
 #' @return Integer: length of shortest cycle, or Inf if no cycles exist
 #'
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' # Triangle has girth 3
 #' triangle <- matrix(c(0,1,1, 1,0,1, 1,1,0), 3, 3)
 #' network_girth(triangle)  # 3
@@ -531,13 +534,15 @@ network_girth <- function(x, ...) {
 #' The radius is the smallest such maximum distance.
 #'
 #' @param x Network input: matrix, igraph, network, cograph_network, or tna object
-#' @param directed Logical. Consider edge direction? Default TRUE for directed graphs.
-#' @param ... Additional arguments passed to \code{\link{to_igraph}}
+#' @param directed Logical or NULL. Consider edge direction? Default NULL,
+#'   which follows the directedness of the converted graph.
+#' @param ... Currently unused; \code{directed} is already an explicit
+#'   argument above and \code{\link{to_igraph}} accepts no others.
 #'
 #' @return Numeric: the network radius
 #'
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' # Star graph: center has eccentricity 1, leaves have 2, so radius = 1
 #' star <- matrix(c(0,1,1,1, 1,0,0,0, 1,0,0,0, 1,0,0,0), 4, 4)
 #' network_radius(star)  # 1
@@ -561,12 +566,13 @@ network_radius <- function(x, directed = NULL, ...) {
 #' Higher values indicate more robust network structure.
 #'
 #' @param x Network input: matrix, igraph, network, cograph_network, or tna object
-#' @param ... Additional arguments passed to \code{\link{to_igraph}}
+#' @param ... Passed to \code{\link{to_igraph}}, whose only other argument
+#'   is \code{directed}; anything else raises an "unused argument" error.
 #'
 #' @return Integer: minimum vertex cut size
 #'
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' # Complete graph K4 has vertex connectivity 3
 #' k4 <- matrix(1, 4, 4); diag(k4) <- 0
 #' network_vertex_connectivity(k4)  # 3
@@ -593,12 +599,13 @@ network_vertex_connectivity <- function(x, ...) {
 #' Also known as the clique number or omega of the graph.
 #'
 #' @param x Network input: matrix, igraph, network, cograph_network, or tna object
-#' @param ... Additional arguments passed to \code{\link{to_igraph}}
+#' @param ... Passed to \code{\link{to_igraph}}, whose only other argument
+#'   is \code{directed}; anything else raises an "unused argument" error.
 #'
 #' @return Integer: size of the largest clique
 #'
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' # Triangle embedded in larger graph
 #' adj <- matrix(c(0,1,1,1, 1,0,1,0, 1,1,0,0, 1,0,0,0), 4, 4)
 #' network_clique_size(adj)  # 3
@@ -619,13 +626,14 @@ network_clique_size <- function(x, ...) {
 #'
 #' @param x Network input: matrix, igraph, network, cograph_network, or tna object
 #' @param count_only Logical. If TRUE, return only the count. Default FALSE.
-#' @param ... Additional arguments passed to \code{\link{to_igraph}}
+#' @param ... Passed to \code{\link{to_igraph}}, whose only other argument
+#'   is \code{directed}; anything else raises an "unused argument" error.
 #'
 #' @return If count_only = FALSE, vector of node indices (or names if graph is named).
 #'   If count_only = TRUE, integer count.
 #'
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' # Bridge node connecting two components
 #' adj <- matrix(c(0,1,1,0,0, 1,0,1,0,0, 1,1,0,1,0, 0,0,1,0,1, 0,0,0,1,0), 5, 5)
 #' network_cut_vertices(adj)  # Node 3 is cut vertex
@@ -654,13 +662,14 @@ network_cut_vertices <- function(x, count_only = FALSE, ...) {
 #'
 #' @param x Network input: matrix, igraph, network, cograph_network, or tna object
 #' @param count_only Logical. If TRUE, return only the count. Default FALSE.
-#' @param ... Additional arguments passed to \code{\link{to_igraph}}
+#' @param ... Passed to \code{\link{to_igraph}}, whose only other argument
+#'   is \code{directed}; anything else raises an "unused argument" error.
 #'
 #' @return If count_only = FALSE, data frame with from/to columns.
 #'   If count_only = TRUE, integer count.
 #'
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' # Two triangles connected by single edge
 #' adj <- matrix(0, 6, 6)
 #' adj[1,2] <- adj[2,1] <- adj[1,3] <- adj[3,1] <- adj[2,3] <- adj[3,2] <- 1
@@ -706,27 +715,29 @@ network_bridges <- function(x, count_only = FALSE, ...) {
 #' (infinite distances contribute 0).
 #'
 #' @param x Network input: matrix, igraph, network, cograph_network, or tna object
-#' @param directed Logical. Consider edge direction? Default TRUE for directed graphs.
+#' @param directed Logical or NULL. Consider edge direction? Default NULL,
+#'   which follows the directedness of the converted graph.
 #' @param weights Edge weights (NULL for unweighted). Set to NA to ignore existing weights.
 #' @param invert_weights Logical or NULL. Invert weights so higher weights = shorter
 #'   paths? Default NULL which auto-detects: TRUE for tna objects, FALSE otherwise
 #'   (matching igraph/sna). Set TRUE for strength/frequency weights (qgraph style).
 #' @param alpha Numeric. Exponent for weight inversion: distance = 1/weight^alpha.
 #'   Default 1.
-#' @param ... Additional arguments passed to \code{\link{to_igraph}}
+#' @param ... Currently unused; \code{directed} is already an explicit
+#'   argument above and \code{\link{to_igraph}} accepts no others.
 #'
 #' @return Numeric global efficiency. For unweighted simple graphs this is in
 #'   \eqn{[0, 1]}; weighted graphs can exceed 1 when edge distances are below 1.
 #'
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' # Complete graph has efficiency 1
 #' k4 <- matrix(1, 4, 4); diag(k4) <- 0
 #' network_global_efficiency(k4)  # 1
 #'
 #' # Star has lower efficiency
 #' star <- matrix(c(0,1,1,1, 1,0,0,0, 1,0,0,0, 1,0,0,0), 4, 4)
-#' network_global_efficiency(star)  # ~0.83
+#' network_global_efficiency(star)  # 0.75
 network_global_efficiency <- function(x, directed = NULL, weights = NULL,
                                       invert_weights = NULL, alpha = 1, ...) {
   # Auto-detect invert_weights for tna objects
@@ -775,13 +786,13 @@ network_global_efficiency <- function(x, directed = NULL, weights = NULL,
 #'
 #' Computes the average local efficiency across all nodes, delegating to
 #' \code{igraph::average_local_efficiency()}. igraph removes the node and
-#' measures the distances between its neighbours \emph{through the rest of
+#' measures the distances between its neighbors \emph{through the rest of
 #' the network}, so the value can exceed the one Latora & Marchiori (2001)
 #' define, which restricts those distances to the subgraph induced on the
-#' neighbours. \code{centrality(x, measures = "local_efficiency")} reports
+#' neighbors. \code{centrality(x, measures = "local_efficiency")} reports
 #' the induced-subgraph form, matching networkx, brainGraph and the Brain
 #' Connectivity Toolbox. Both measure fault tolerance and local integration;
-#' the two agree whenever the neighbours have no detour available.
+#' the two agree whenever the neighbors have no detour available.
 #'
 #' @param x Network input: matrix, igraph, network, cograph_network, or tna object
 #' @param weights Edge weights (NULL for unweighted). Set to NA to ignore existing weights.
@@ -789,14 +800,15 @@ network_global_efficiency <- function(x, directed = NULL, weights = NULL,
 #'   paths? Default NULL which auto-detects: TRUE for tna objects, FALSE otherwise
 #'   (matching igraph/sna). Set TRUE for strength/frequency weights (qgraph style).
 #' @param alpha Numeric. Exponent for weight inversion. Default 1.
-#' @param ... Additional arguments passed to \code{\link{to_igraph}}
+#' @param ... Passed to \code{\link{to_igraph}}, whose only other argument
+#'   is \code{directed}; anything else raises an "unused argument" error.
 #'
 #' @return Numeric average local efficiency. For unweighted simple graphs this
 #'   is in \eqn{[0, 1]}; weighted graphs can exceed 1 when edge distances are
 #'   below 1.
 #'
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' # Complete graph: removing any node leaves complete subgraph, so local efficiency = 1
 #' k5 <- matrix(1, 5, 5); diag(k5) <- 0
 #' network_local_efficiency(k5)  # 1
@@ -855,10 +867,20 @@ network_local_efficiency <- function(x, weights = NULL, invert_weights = NULL, a
 #' networks have sigma >> 1.
 #'
 #' @param x Network input: matrix, igraph, network, cograph_network, or tna object
-#' @param n_random Number of random graphs for comparison. Default 10.
-#' @param ... Additional arguments passed to \code{\link{to_igraph}}
+#' @param n_random Number of Erdos-Renyi comparison graphs (same \code{n} and
+#'   \code{m} as the observed graph). Default 10.
+#' @param ... Passed to \code{\link{to_igraph}}, whose only other argument
+#'   is \code{directed}; anything else raises an "unused argument" error.
 #'
-#' @return Numeric: small-world coefficient sigma
+#' @return Numeric: small-world coefficient sigma. \code{NA} when the graph has
+#'   fewer than 4 nodes, no edges, or an undefined/zero mean path length.
+#'
+#' @section Reproducibility:
+#' The comparison graphs are drawn from the caller's RNG stream; this function
+#' takes no \code{seed} argument and does not save or restore
+#' \code{.Random.seed}. Call \code{set.seed()} beforehand for a reproducible
+#' result, and prefer a larger \code{n_random} than the default for anything
+#' you report.
 #'
 #' @export
 #' @examples
@@ -931,9 +953,18 @@ network_small_world <- function(x, n_random = 10, ...) {
 #'   If NULL, uses median degree.
 #' @param normalized Logical. Normalize by random graph expectation? Default FALSE.
 #' @param n_random Number of random graphs for normalization. Default 10.
-#' @param ... Additional arguments passed to \code{\link{to_igraph}}
+#' @param ... Passed to \code{\link{to_igraph}}, whose only other argument
+#'   is \code{directed}; anything else raises an "unused argument" error.
 #'
-#' @return Numeric: rich club coefficient (> 1 indicates rich club effect when normalized)
+#' @return Numeric: rich club coefficient (> 1 indicates rich club effect when
+#'   normalized). \code{NA} when fewer than two nodes exceed \code{k}.
+#'
+#' @section Reproducibility:
+#' When \code{normalized = TRUE} the null graphs are drawn from the caller's
+#' RNG stream; this function takes no \code{seed} argument and does not save or
+#' restore \code{.Random.seed}. Call \code{set.seed()} beforehand for a
+#' reproducible result. \code{\link{rich_club}()} offers a \code{seed}
+#' argument, confidence intervals, and the full rich club curve.
 #'
 #' @export
 #' @examples
@@ -1048,7 +1079,7 @@ network_rich_club <- function(x, k = NULL, normalized = FALSE, n_random = 10, ..
 #' \emph{Chemical Physics Letters}, 319(5-6), 713-718.
 #'
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' # Karate club
 #' g <- igraph::make_graph("Zachary")
 #' estrada_index(g)
@@ -1206,7 +1237,7 @@ trophic_incoherence <- function(x, cannibalism = TRUE) {
 #' and Mining} (pp. 196-200). IEEE.
 #'
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' g <- igraph::make_graph("Zachary")
 #' group_centrality(g, nodes = c(1, 2, 3), measure = "betweenness")
 #' group_centrality(g, nodes = c(1, 2, 3), measure = "closeness")
@@ -1358,10 +1389,14 @@ group_centrality <- function(x, nodes,
 #' @return
 #' \itemize{
 #'   \item Scalar if both \code{u} and \code{v} are specified.
-#'   \item Named numeric vector if exactly one of \code{u}, \code{v} is given
-#'     (names are the other endpoints).
+#'   \item Named numeric vector if exactly one of \code{u}, \code{v} is given,
+#'     one element per neighbor of that node; the names are the neighbors'
+#'     1-based node \emph{indices} as character strings, not their labels.
 #'   \item A data frame with columns \code{from}, \code{to}, \code{dispersion}
-#'     when neither \code{u} nor \code{v} is given (one row per ordered edge).
+#'     when neither \code{u} nor \code{v} is given, one row per ordered
+#'     (node, neighbor) pair, with \code{from} and \code{to} given as 1-based
+#'     integer node indices.
+#'   \item \code{numeric(0)} for an empty graph.
 #' }
 #'
 #' @references
@@ -1371,7 +1406,7 @@ group_centrality <- function(x, nodes,
 #' \url{https://arxiv.org/pdf/1310.6753v1.pdf}
 #'
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' g <- igraph::make_graph("Zachary")
 #' # Node 0 (R index 1) to node 33 (R index 34)
 #' dispersion(g, u = 1, v = 34)
@@ -1403,7 +1438,7 @@ dispersion <- function(x, u = NULL, v = NULL,
   u <- resolve_node(u)
   v <- resolve_node(v)
 
-  # Out-neighbour lists (NetworkX reads G[u] as out-neighbours on a directed
+  # Out-neighbor lists (NetworkX reads G[u] as out-neighbors on a directed
   # graph). A self-loop lists the node itself, twice on an undirected graph,
   # which is what `igraph::neighbors()` and NetworkX both report.
   adj <- unname(cg$b) != 0
@@ -1423,7 +1458,7 @@ dispersion <- function(x, u = NULL, v = NULL,
     total <- 0L
     if (length(ST) >= 2L) {
       # Every unordered pair {s, t} of mutual friends is "dispersed" when s
-      # and t are not adjacent and share no common neighbour inside u's ego
+      # and t are not adjacent and share no common neighbor inside u's ego
       # network other than u and v.
       pairs <- utils::combn(ST, 2L)
       dispersed <- vapply(seq_len(ncol(pairs)), function(p) {
@@ -1461,7 +1496,7 @@ dispersion <- function(x, u = NULL, v = NULL,
     return(out)
   }
 
-  # Both NULL: one row per (u, v) with v a neighbour of u
+  # Both NULL: one row per (u, v) with v a neighbor of u
   nbr_lists <- lapply(seq_len(n), nbrs_of)
   from <- rep(seq_len(n), lengths(nbr_lists))
   to <- as.integer(unlist(nbr_lists))

@@ -27,10 +27,14 @@ form; otherwise the raw count.}
 \value{
 \itemize{
 \item Scalar if both \code{u} and \code{v} are specified.
-\item Named numeric vector if exactly one of \code{u}, \code{v} is given
-(names are the other endpoints).
+\item Named numeric vector if exactly one of \code{u}, \code{v} is given,
+one element per neighbor of that node; the names are the neighbors'
+1-based node \emph{indices} as character strings, not their labels.
 \item A data frame with columns \code{from}, \code{to}, \code{dispersion}
-when neither \code{u} nor \code{v} is given (one row per ordered edge).
+when neither \code{u} nor \code{v} is given, one row per ordered
+(node, neighbor) pair, with \code{from} and \code{to} given as 1-based
+integer node indices.
+\item \code{numeric(0)} for an empty graph.
 }
 }
 \description{
@@ -56,11 +60,13 @@ Matches \code{networkx.dispersion} bit-exact for all three call modes
 (single pair, single source, full matrix).
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 g <- igraph::make_graph("Zachary")
 # Node 0 (R index 1) to node 33 (R index 34)
 dispersion(g, u = 1, v = 34)
 # All pairs from node 1
 head(dispersion(g, u = 1))
+\dontshow{\}) # examplesIf}
 }
 \references{
 Backstrom, L., & Kleinberg, J. (2014). Romantic partnerships and the

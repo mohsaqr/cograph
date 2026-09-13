@@ -22,19 +22,21 @@ Named numeric vector in input node order.
 Sum of the original-graph degrees of all vertices within
 \code{volume_radius} hops, including the focal vertex. This is the
 localized volume measure of Wehmuth & Ziviani (DANCE/DACCER). Degrees
-include edges leaving the neighbourhood; they are not recomputed inside
+include edges leaving the neighborhood; they are not recomputed inside
 the induced subgraph. Radius zero returns degree. Infinite radius returns
 twice the number of edges in the focal connected component.
 }
 \details{
 Uses the simple undirected, unweighted skeleton: either direction creates
 an edge, parallel edges count once, and self-loops are removed. This is
-an explicit input projection, not a weighted or directed generalisation.
+an explicit input projection, not a weighted or directed generalization.
 Isolates score zero.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_volume(igraph::make_ring(6), volume_radius = 1)
 centrality_volume(igraph::make_ring(6), volume_radius = 0)
+\dontshow{\}) # examplesIf}
 }
 \references{
 Wehmuth, K., & Ziviani, A. (2011). Distributed Assessment of Network

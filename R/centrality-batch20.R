@@ -65,7 +65,7 @@ calculate_exogenous <- function(cg, mode = "all", base = "reverse_closeness") {
 #'   and exogenous centrality. Social Networks, 32(4), 339-344. Equations
 #'   3 and 8, sections 3.1-3.3. \doi{10.1016/j.socnet.2010.06.004}.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_exogenous(igraph::make_ring(4), exogenous_base = "betweenness")
 centrality_exogenous <- function(x, mode = "all",
                                  exogenous_base = "reverse_closeness", ...) {

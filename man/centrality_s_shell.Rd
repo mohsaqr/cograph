@@ -10,7 +10,9 @@ centrality_s_shell(x, s_shell_a = 0.5, ...)
 \item{x}{Network input (matrix, igraph, network, cograph_network, tna
 object).}
 
-\item{s_shell_a}{Exponent \eqn{a} of the link weights. Default 0.5.}
+\item{s_shell_a}{Exponent \eqn{a} of the link weights. A single
+non-negative number; default 0.5. Anything else raises a
+\code{cograph_bad_parameter} error.}
 
 \item{...}{Additional arguments passed to \code{\link{centrality}}.}
 }
@@ -18,16 +20,16 @@ object).}
 Named integer vector of shell indices, one per node.
 }
 \description{
-Liu, Tang, Do and Hui's (2017) strength-based generalisation of k-shell
+Liu, Tang, Do and Hui's (2017) strength-based generalization of k-shell
 for identifying spreaders. Each link is given an asymmetric weight from
 the topology alone,
 \deqn{w_{ij} = 1 + (k_i \, k^{out}_j)^a,}
-where \eqn{k^{out}_j} is the number of \eqn{j}'s neighbours that lie
-outside \eqn{i}'s closed neighbourhood (links that lead a spreading
+where \eqn{k^{out}_j} is the number of \eqn{j}'s neighbors that lie
+outside \eqn{i}'s closed neighborhood (links that lead a spreading
 process to new territory), and each node's strength is
 \eqn{s_i = \sum_{j \in N(i)} w_{ij}}. The graph is then peeled like a
 k-shell but by strength: the minimum remaining strength is the
-threshold, everything at or below it is removed (neighbours lose the
+threshold, everything at or below it is removed (neighbors lose the
 corresponding \eqn{w_{ji}}), removals cascade until the threshold holds,
 and the removed nodes receive the next shell index. Higher index = more
 central. With \eqn{a = 0} the shells are the dense ranks of the k-core

@@ -13,7 +13,8 @@ object.}
 \item{directed}{Logical or NULL. If NULL (default), auto-detect from matrix
 symmetry. Set TRUE to force directed, FALSE to force undirected.}
 
-\item{...}{Additional arguments passed to \code{\link{to_igraph}}.}
+\item{...}{Currently unused; \code{directed} is already an explicit
+argument above and \code{\link{to_igraph}} accepts no others.}
 }
 \value{
 A tidy data.frame of class \code{"cograph_dyad_census"} with one row
@@ -43,6 +44,7 @@ present/absent split. The total number of dyads is \eqn{n(n-1)/2} regardless
 of direction.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Directed network with a mix of mutual and asymmetric ties
 adj <- matrix(c(
   0, 1, 1, 0,
@@ -52,6 +54,7 @@ adj <- matrix(c(
 ), 4, 4, byrow = TRUE)
 rownames(adj) <- colnames(adj) <- LETTERS[1:4]
 cograph::dyad_census(adj)
+\dontshow{\}) # examplesIf}
 }
 \references{
 Wasserman, S., & Faust, K. (1994). \emph{Social Network Analysis: Methods

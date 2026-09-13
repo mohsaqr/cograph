@@ -18,9 +18,11 @@ Named numeric vector of flow betweenness values.
 Max-flow based betweenness centrality.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
 rownames(adj) <- colnames(adj) <- c("A", "B", "C")
 centrality_flow_betweenness(adj)
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link{centrality}} for computing multiple measures at once,

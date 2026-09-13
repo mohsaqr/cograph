@@ -31,7 +31,8 @@ or \code{"in"}.}
 \item{...}{Additional arguments passed to \code{\link{centrality}}.}
 
 \item{comm_r}{Scale \eqn{R} of Comm centrality: \code{"max_intra"}
-(default) or a positive number.}
+(default) or a single positive number. Anything else raises a
+\code{cograph_bad_parameter} error.}
 }
 \value{
 Named numeric vector, one value per node.

@@ -326,7 +326,10 @@ cograph <- function(input, layout = NULL, directed = NULL,
 #'
 #' @param network A cograph_network object, matrix, data.frame, or igraph object.
 #'   Matrices and other inputs are auto-converted.
-#' @param layout Layout algorithm name or a CographLayout object.
+#' @param layout Layout algorithm name (see Details), a two-letter or full
+#'   igraph layout name, an igraph layout function, a \code{CographLayout}
+#'   object, or a coordinate matrix / data frame with one row per node and
+#'   \code{x}, \code{y} in its first two columns. Anything else is an error.
 #' @param seed Random seed for deterministic layouts. Default 42. Set NULL for random.
 #' @param ... Additional arguments passed to the layout function.
 #'

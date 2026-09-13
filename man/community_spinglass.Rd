@@ -67,7 +67,8 @@ NULL for full partitioning.}
 
 \item{seed}{Random seed for reproducibility. Default NULL.}
 
-\item{...}{Additional arguments passed to \code{\link{to_igraph}}}
+\item{...}{Passed to \code{\link{to_igraph}}, whose only other argument
+is \code{directed}; anything else raises an "unused argument" error.}
 }
 \value{
 A \code{cograph_communities} object

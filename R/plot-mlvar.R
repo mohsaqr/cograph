@@ -8,10 +8,15 @@ NULL
 
 #' Plot a Nestimate net_mlvar object
 #'
-#' @param x A \code{net_mlvar} object from Nestimate.
+#' @param x A \code{net_mlvar} object from Nestimate, of class
+#'   \code{c("net_mlvar", "netobject_group")}. The group itself is not a
+#'   \code{cograph_network}; its three elements \code{$temporal},
+#'   \code{$contemporaneous} and \code{$between} are. Model-level metadata
+#'   (\code{coefs}, \code{n_obs}, \code{n_subjects}, \code{lag},
+#'   \code{standardize}) lives in attributes, not list elements.
 #' @param type Which network: \code{"temporal"} / \code{"t"} (default),
 #'   \code{"contemporaneous"} / \code{"c"}, \code{"between"} / \code{"b"},
-#'   or \code{"all"} (1x3 panel).
+#'   or \code{"all"} / \code{"a"} (1x3 panel). Matching is case-insensitive.
 #' @param combined Logical: when \code{type = "all"}, controls whether the
 #'   three panels are arranged in an internal 1 x 3 grid (TRUE, default) or
 #'   drawn into a layout the caller has already configured (FALSE — pair

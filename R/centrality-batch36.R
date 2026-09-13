@@ -104,7 +104,7 @@ calculate_controlrank <- function(cg, weights = NULL, normalized = FALSE) {
 #'   Section III-C, Theorem 3; Figure 1 and section IV-A.
 #'   \doi{10.1109/TCSII.2018.2845940}.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_controlrank(igraph::make_ring(5))
 #' centrality_controlrank(igraph::make_star(6, mode = "undirected"))
 centrality_controlrank <- function(x, ...) {

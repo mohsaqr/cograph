@@ -39,7 +39,9 @@ Agreement with a numerical definition does not establish author-software
 parity or superior epidemic-spreading predictions.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_global_structure(igraph::make_ring(4))
+\dontshow{\}) # examplesIf}
 }
 \references{
 Ullah, A., Wang, B., Sheng, J., Long, J., Khan, N., & Sun, Z.

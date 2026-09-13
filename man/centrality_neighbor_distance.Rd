@@ -87,12 +87,14 @@ printed in the author preprint, not parity with author software, which
 does not exist, and not any claim about spreading performance.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Neighbor distance centrality: degree benchmark, two steps, a = 0.2
 centrality_neighbor_distance(igraph::make_ring(6))
 
 # The source's other benchmark, and a wider neighborhood
 centrality_neighbor_distance(igraph::make_star(7, mode = "undirected"),
                              nd_order = 3, nd_mass = "coreness")
+\dontshow{\}) # examplesIf}
 }
 \references{
 Liu, Y., Tang, M., Zhou, T. and Do, Y. (2016). Identify

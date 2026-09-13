@@ -79,7 +79,7 @@ calculate_dynamical_importance <- function(cg, weights = NULL) {
 #' Randomized Controlled Trials. Review of Economic Studies, 86, 2453-2490,
 #' section 3.1.2. \doi{10.1093/restud/rdz008}.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' g <- igraph::make_graph(c(1, 2, 2, 3), directed = TRUE)
 #' centrality_diffusion_centrality(g, diffusion_q = 0.5, diffusion_steps = 2)
 # nolint start: object_length_linter.
@@ -129,7 +129,7 @@ centrality_diffusion_centrality <- function(x, diffusion_q = 1,
 #' Dynamical Importance of Network Nodes and Links. Physical Review Letters,
 #' 97, 094102. \doi{10.1103/PhysRevLett.97.094102}.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_dynamical_importance(igraph::make_full_graph(4))
 # nolint start: object_length_linter.
 centrality_dynamical_importance <- function(x, ...) {

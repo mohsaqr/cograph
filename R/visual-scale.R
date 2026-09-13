@@ -19,7 +19,7 @@ NULL
 #' stay stable when the device canvas changes.
 #'
 #' At the reference canvas (about 5.9 geometric-mean inches, matching the
-#' default RStudio plot pane), every multiplier is 1.0 and behaviour is
+#' default RStudio plot pane), every multiplier is 1.0 and behavior is
 #' identical to pre-fix cograph. At larger canvases (high-DPI PNG with pixel
 #' defaults where inches grow, or large explicit inches) multipliers exceed 1
 #' so labels/lines scale up with nodes. At smaller canvases they shrink.
@@ -183,7 +183,7 @@ compute_visual_scale <- function(reference = NULL, cap = NULL) {
 #' Resolve scaling mode to a visual-scale object.
 #'
 #' @param scaling Either `"default"` / `"legacy"` / `"visual"` (device-aware,
-#'   current behaviour) or `"fixed"` (reproducibility mode — identity scale).
+#'   current behavior) or `"fixed"` (reproducibility mode — identity scale).
 #'   Also accepts `NULL` (treated as default/visual).
 #' @keywords internal
 #' @noRd

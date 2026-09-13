@@ -64,7 +64,7 @@ calculate_graph_regularization <- function(cg, weights = NULL, gamma = 1) {
 #'   Author implementation: GRC, Mendeley Data, version 1.
 #'   \doi{10.17632/ns63f5dj86.1}.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_graph_regularization(igraph::make_ring(4), grc_gamma = 0.5)
 # nolint start: object_length_linter.
 centrality_graph_regularization <- function(x, grc_gamma = 1, ...) {

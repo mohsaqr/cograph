@@ -79,10 +79,12 @@ numerically singular flow solves raise errors. Optional maximum scaling
 changes the raw bit units; tiny relative scores may underflow.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 g <- igraph::make_graph("Zachary")
 centrality_map_equation(g)
 centrality_map_equation(g, membership = rep(1:2, each = 17),
                         map_convention = "infomap")
+\dontshow{\}) # examplesIf}
 }
 \references{
 Blocker, C., Nieves, J. C. and Rosvall, M. (2022). Map equation

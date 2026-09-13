@@ -70,11 +70,13 @@ errors. The score defines a spectral ranking, not a spreading probability
 or a general guarantee of predictive performance.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_spectralrank(igraph::make_ring(5))
 centrality_spectralrank(igraph::make_star(5), sr_prior = 1)
+\dontshow{\}) # examplesIf}
 }
 \references{
-Xu, S., Wang, P., Zhang, C.-X. and Lu, J. (2019; online2018).
+Xu, S., Wang, P., Zhang, C.-X. and Lu, J. (2019; online 2018).
 Spectral Learning Algorithm Reveals Propagation Capability of Complex
 Networks. IEEE Transactions on Cybernetics, 49(12), 4253-4261.
 Section III-A, equations 4-8 and Algorithm 1.

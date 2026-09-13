@@ -21,11 +21,19 @@ Default: \code{"splot"}.}
 
 \item{plot}{Logical. If TRUE (default), immediately plot using the chosen engine.}
 
-\item{weight_digits}{Number of decimal places to round edge weights to. Default 2.
-Edges that round to zero are removed unless \code{show_zero_edges = TRUE}.}
+\item{weight_digits}{Number of decimal places to round edge weights to.
+Default \code{NULL}, which picks the number of digits from the matrix:
+\code{0} when every non-zero weight is a whole number (counts, as in
+\code{ftna}/\code{ctna} models) and \code{2} otherwise (probabilities).
+Edges whose weight rounds to zero at this precision are dropped unless
+\code{show_zero_edges = TRUE}.}
 
-\item{show_zero_edges}{Logical. If TRUE, keep edges even if their weight rounds to
-zero. Default: FALSE.}
+\item{show_zero_edges}{Logical. Zero is how this representation stores
+"no edge", so an edge whose weight rounds to zero at
+\code{weight_digits} is dropped. With \code{TRUE} such an edge is
+instead drawn at the smallest magnitude \code{weight_digits} can
+express, carrying its sign; every other weight is unchanged. Default:
+FALSE.}
 
 \item{...}{Additional parameters passed to the plotting engine (e.g., \code{layout},
 \code{node_fill}, \code{donut_color}).}
@@ -80,6 +88,10 @@ networks
 \item \code{edge_start_style = "dotted"}: Dotted line at edge source for
 directed networks
 \item \code{edge_start_length = 0.2}: 20\% of directed edges are dotted
+\item \code{edge_label_style = "estimate"} and
+\code{edge_label_leading_zero = FALSE}: labels show the weight alone,
+written without a leading zero (\code{.42}, not \code{0.42})
+\item \code{minimum = 0.01}: transitions weaker than 0.01 are not drawn
 }
 }
 }

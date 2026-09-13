@@ -148,7 +148,7 @@ calculate_bridging_capital <- function(cg, weights = NULL, steps = 2,
 #'   arXiv:1711.09504v3 (2019), section 3.3, page 18; transmission model
 #'   section 3.1 and formal graph conventions section 2.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_bridging_capital(igraph::make_ring(4), bridging_steps = 2)
 centrality_bridging_capital <- function(x, bridging_steps = 2,
                                         bridging_values = NULL, ...) {

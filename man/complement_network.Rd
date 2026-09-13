@@ -15,7 +15,9 @@ complement_network(
 \arguments{
 \item{x}{Network input.}
 
-\item{weight}{Numeric. Weight to give the new edges. Default 1.}
+\item{weight}{Numeric. Weight to give the new edges. Default 1. Zero is how
+this representation stores "no edge", so \code{weight = 0} raises a
+\code{cograph_bad_selection} error rather than returning an empty network.}
 
 \item{loops}{Logical. Include self-loops in the complement. Default FALSE.}
 

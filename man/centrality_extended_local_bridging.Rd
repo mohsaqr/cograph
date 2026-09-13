@@ -35,7 +35,9 @@ O(n to the fourth power), with O(n squared) memory. This measure is
 marked costly and must be selected explicitly or through \code{include}.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_extended_local_bridging(igraph::make_graph("Zachary"))
+\dontshow{\}) # examplesIf}
 }
 \references{
 Macker, J. P. (2016). An improved local bridging centrality

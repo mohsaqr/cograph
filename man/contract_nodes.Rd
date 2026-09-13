@@ -31,7 +31,7 @@ contracted node. Default FALSE.}
 \item{directed}{Logical or NULL. If NULL (default), auto-detect.}
 }
 \value{
-A \code{cograph_network} with one node per group, labelled by group
+A \code{cograph_network} with one node per group, labeled by group
 name, or the input format when \code{keep_format = TRUE}.
 }
 \description{

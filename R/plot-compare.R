@@ -19,15 +19,20 @@ NULL
 #'   plots all pairwise comparisons (or specify i, j).
 #' @param y Second network: same type as x. Ignored if x is a list or
 #'   \code{group_tna}.
-#' @param i Index/name of first group when x is group_tna. NULL for all pairs.
-#' @param j Index/name of second group when x is group_tna. NULL for all pairs.
+#' @param i Index/name of first group when x is group_tna or a plain list.
+#'   NULL plots all pairs for a \code{group_tna} of more than two groups, and
+#'   selects the first element otherwise.
+#' @param j Index/name of second group when x is group_tna or a plain list.
+#'   NULL plots all pairs for a \code{group_tna} of more than two groups, and
+#'   selects the second element otherwise.
 #' @param pos_color Color for positive differences (x > y). Default "#009900" (green).
 #' @param neg_color Color for negative differences (x < y). Default "#C62828" (red).
 #' @param labels Node labels. NULL uses rownames or defaults.
 #' @param title Plot title. NULL for auto-generated title.
 #' @param inits_x Node values for x (e.g., initial probabilities). NULL to auto-extract from tna.
 #' @param inits_y Node values for y. NULL to auto-extract from tna.
-#' @param show_inits Logical: show node differences as donuts? Default TRUE if inits available.
+#' @param show_inits Logical: show node differences as donuts? Default
+#'   \code{NULL}, which shows them when inits are available for both networks.
 #' @param donut_inner_ratio Inner radius ratio for donut (0-1). Default 0.8.
 #' @param difference Logical. If \code{TRUE}, \code{x} is treated as an
 #'   already-subtracted difference network (no \code{y} needed). A
@@ -41,7 +46,11 @@ NULL
 #'   \code{\link{panel_layout}()}). Has no effect for the single-pair path.
 #' @param ... Additional arguments passed to splot().
 #'
-#' @return Invisibly returns a list with difference matrix and inits difference.
+#' @return Invisibly returns a list with elements \code{weights} (the
+#'   element-wise difference matrix \code{x - y}) and \code{inits} (the
+#'   node-value difference, or \code{NULL} when no inits were available).
+#'   For the \code{group_tna} all-pairs path, a named list of such lists —
+#'   one element per pair, named \code{"<group_i>_vs_<group_j>"}.
 #'
 #' @details
 #' The function computes element-wise subtraction of the weight matrices.
@@ -70,7 +79,9 @@ NULL
 #'                 inits_x = c(.3, .2, .2, .15, .15),
 #'                 inits_y = c(.1, .4, .2, .2, .1))
 #'
-#' @seealso \code{\link{plot_compare}}, the deprecated alias of this function.
+#' @seealso \code{\link{plot_compare}}, a first-class alias of this function
+#'   kept for the \code{tna} integration. \code{plot_difference()} is the
+#'   preferred name.
 #' @export
 plot_difference <- function(x, y = NULL,
                          i = NULL,
@@ -98,8 +109,8 @@ plot_difference <- function(x, y = NULL,
 
   # Consume a pre-computed difference: a tna_comparison object (uses its
   # $difference_matrix) or, with difference = TRUE, x is treated as the already
-  # subtracted matrix/network. Modelled as x - 0 so the whole downstream
-  # pipeline (styling, sign colouring) is reused unchanged.
+  # subtracted matrix/network. Modeled as x - 0 so the whole downstream
+  # pipeline (styling, sign coloring) is reused unchanged.
   p_diff_matrix <- NULL
   if (inherits(x, c("tna_comparison", "netdifference")) ||
       (is.list(x) && is.matrix(x$difference_matrix))) {
@@ -332,14 +343,14 @@ plot_difference <- function(x, y = NULL,
   # the TNA look for a directed difference, the psychometric (Okabe-Ito) look
   # for an undirected one. The presets supply the node size (qgraph scale, which
   # splot transforms) and a per-node palette; edge_color is dropped so the
-  # sign-based positive/negative edge colours are kept.
+  # sign-based positive/negative edge colors are kept.
   n_states <- nrow(diff_mat)
   diff_directed <- is_tna_input ||
     !isTRUE(all.equal(unname(diff_mat), unname(t(diff_mat)), tolerance = 1e-8))
 
   if (diff_directed) {
     style_defaults <- .tna_style_defaults(n_nodes = n_states, directed = TRUE)
-    # Prefer the tna object's own state colours when available.
+    # Prefer the tna object's own state colors when available.
     tna_colors <- if (is_tna_input && !is.null(x$data)) attr(x$data, "colors") else NULL
     if (!is.null(tna_colors)) style_defaults$node_fill <- tna_colors
   } else {
@@ -624,8 +635,12 @@ plot_comparison_heatmap <- function(x, y = NULL,
 #' @param labels Node labels.
 #' @param show_inits Show donut inits.
 #' @param donut_inner_ratio Donut inner ratio.
+#' @param combined Logical: when TRUE (default), arrange the pairwise panels
+#'   in an internal grid via \code{graphics::par(mfrow=...)}, restored on exit.
 #' @param ... Additional arguments passed to splot().
-#' @return Invisibly returns list of comparison results.
+#' @return Invisibly returns a named list of comparison results, one element
+#'   per pair (named \code{"<group_i>_vs_<group_j>"}), each a list with
+#'   \code{weights} and \code{inits}.
 #' @keywords internal
 #' @noRd
 .plot_compare_all_pairs <- function(x, pos_color, neg_color, labels,

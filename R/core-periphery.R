@@ -13,25 +13,39 @@
 #'   Default 100.
 #' @param digits Integer or NULL. Round numeric outputs to this many decimal
 #'   places. Default NULL (no rounding).
-#' @param ... Additional arguments passed to \code{\link{to_igraph}}
+#' @param ... Currently unused; \code{directed} is already an explicit
+#'   argument above and \code{\link{to_igraph}} accepts no others.
 #'
-#' @return A data frame with class \code{"cograph_core_periphery"} and columns
-#'   \code{node}, \code{role}, and \code{coreness}. Fitness, core density,
-#'   periphery density, and the original network are stored as attributes.
+#' @return A data frame with class \code{"cograph_core_periphery"}, one row per
+#'   node, and columns:
+#'   \describe{
+#'     \item{node}{Node label.}
+#'     \item{role}{Character: \code{"core"} or \code{"periphery"}.}
+#'     \item{coreness}{Numeric continuous coreness score, rescaled to
+#'       \eqn{[0, 1]}. Reported for both methods.}
+#'   }
+#'   The attributes \code{"fitness"}, \code{"core_density"},
+#'   \code{"periphery_density"} and \code{"network"} (the original input) carry
+#'   the remaining results.
 #'
 #' @details
 #' \strong{Continuous method (Borgatti-Everett):}
-#' Finds a coreness vector \code{c} (values 0-1) that maximizes the correlation
-#' between the adjacency matrix and the ideal rank-1 pattern matrix
-#' (the outer product of the coreness vector with itself). The algorithm
-#' initializes from eigenvector centrality and iteratively refines via
-#' power iteration until convergence.
+#' Seeks a coreness vector \code{c} (rescaled to the 0-1 range) whose ideal
+#' rank-1 pattern matrix (the outer product of the vector with itself)
+#' correlates as highly as possible with the adjacency matrix. The vector is
+#' approximated by initializing from the dominant eigenvector of the adjacency
+#' matrix and refining it by power iteration until convergence or \code{iter}
+#' steps; the achieved correlation is reported as the \code{"fitness"}
+#' attribute rather than being optimized directly.
 #'
 #' \strong{Discrete method:}
-#' Produces a binary core (1) / periphery (0) assignment. Starts from the
-#' continuous solution, thresholds at the median, then greedily swaps node
-#' assignments to maximize fitness. Discrete fitness is defined by high density
-#' within the core and low density within the periphery.
+#' Produces a binary core / periphery assignment. Starts from the continuous
+#' solution thresholded at the median, then greedily flips the single node
+#' assignment that most improves fitness until no flip improves it. The
+#' discrete fitness being maximized is
+#' \code{density(core) - density(periphery)}; the \code{"fitness"} attribute
+#' reported for \code{method = "discrete"} is the correlation between the
+#' adjacency matrix and the ideal block pattern of that assignment.
 #'
 #' @references
 #' Borgatti, S.P. & Everett, M.G. (2000). Models of core/periphery structures.
@@ -54,7 +68,7 @@
 #'
 #' # Discrete assignment
 #' cp_disc <- cograph::core_periphery(adj, method = "discrete")
-#' cp_disc$assignment
+#' cp_disc
 #'
 #' @seealso \code{\link{centrality}}, \code{\link{network_summary}}
 core_periphery <- function(x,

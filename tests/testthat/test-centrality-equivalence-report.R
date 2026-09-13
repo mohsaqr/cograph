@@ -181,6 +181,7 @@ test_that("centiserve equivalence: radiality", {
   cat(sprintf("  radiality: %s (%s, %d failures, %d errors)\n",
               r$status, r$pass_rate, r$failures, r$errors))
   expect_equal(r$failures, 0L)
+  expect_equal(r$errors, 0L)
 })
 
 test_that("centiserve equivalence: lin", {
@@ -193,6 +194,7 @@ test_that("centiserve equivalence: lin", {
   cat(sprintf("  lin: %s (%s, %d failures, %d errors)\n",
               r$status, r$pass_rate, r$failures, r$errors))
   expect_equal(r$failures, 0L)
+  expect_equal(r$errors, 0L)
 })
 
 test_that("centiserve equivalence: decay", {
@@ -206,6 +208,7 @@ test_that("centiserve equivalence: decay", {
   cat(sprintf("  decay: %s (%s, %d failures, %d errors)\n",
               r$status, r$pass_rate, r$failures, r$errors))
   expect_equal(r$failures, 0L)
+  expect_equal(r$errors, 0L)
 })
 
 test_that("centiserve equivalence: residual_closeness", {
@@ -219,6 +222,7 @@ test_that("centiserve equivalence: residual_closeness", {
   cat(sprintf("  residual_closeness: %s (%s, %d failures, %d errors)\n",
               r$status, r$pass_rate, r$failures, r$errors))
   expect_equal(r$failures, 0L)
+  expect_equal(r$errors, 0L)
 })
 
 test_that("centiserve equivalence: lobby", {
@@ -231,6 +235,7 @@ test_that("centiserve equivalence: lobby", {
   cat(sprintf("  lobby: %s (%s, %d failures, %d errors)\n",
               r$status, r$pass_rate, r$failures, r$errors))
   expect_equal(r$failures, 0L)
+  expect_equal(r$errors, 0L)
 })
 
 test_that("centiserve equivalence: barycenter", {
@@ -243,6 +248,7 @@ test_that("centiserve equivalence: barycenter", {
   cat(sprintf("  barycenter: %s (%s, %d failures, %d errors)\n",
               r$status, r$pass_rate, r$failures, r$errors))
   expect_equal(r$failures, 0L)
+  expect_equal(r$errors, 0L)
 })
 
 test_that("centiserve equivalence: bottleneck", {
@@ -255,6 +261,7 @@ test_that("centiserve equivalence: bottleneck", {
   cat(sprintf("  bottleneck: %s (%s, %d failures, %d errors)\n",
               r$status, r$pass_rate, r$failures, r$errors))
   expect_equal(r$failures, 0L)
+  expect_equal(r$errors, 0L)
 })
 
 test_that("centiserve equivalence: mnc", {
@@ -267,6 +274,7 @@ test_that("centiserve equivalence: mnc", {
   cat(sprintf("  mnc: %s (%s, %d failures, %d errors)\n",
               r$status, r$pass_rate, r$failures, r$errors))
   expect_equal(r$failures, 0L)
+  expect_equal(r$errors, 0L)
 })
 
 test_that("centiserve equivalence: average_distance", {
@@ -280,6 +288,7 @@ test_that("centiserve equivalence: average_distance", {
   cat(sprintf("  average_distance: %s (%s, %d failures, %d errors)\n",
               r$status, r$pass_rate, r$failures, r$errors))
   expect_equal(r$failures, 0L)
+  expect_equal(r$errors, 0L)
 })
 
 test_that("centiserve equivalence: closeness_vitality", {
@@ -305,6 +314,7 @@ test_that("centiserve equivalence: closeness_vitality", {
   cat(sprintf("  closeness_vitality: %s (%s, %d failures, %d errors)\n",
               r$status, r$pass_rate, r$failures, r$errors))
   expect_equal(r$failures, 0L)
+  expect_equal(r$errors, 0L)
 })
 
 test_that("centiserve equivalence: cross_clique", {
@@ -317,6 +327,7 @@ test_that("centiserve equivalence: cross_clique", {
   cat(sprintf("  cross_clique: %s (%s, %d failures, %d errors)\n",
               r$status, r$pass_rate, r$failures, r$errors))
   expect_equal(r$failures, 0L)
+  expect_equal(r$errors, 0L)
 })
 
 test_that("centiserve equivalence: semilocal", {
@@ -329,6 +340,7 @@ test_that("centiserve equivalence: semilocal", {
   cat(sprintf("  semilocal: %s (%s, %d failures, %d errors)\n",
               r$status, r$pass_rate, r$failures, r$errors))
   expect_equal(r$failures, 0L)
+  expect_equal(r$errors, 0L)
 })
 
 test_that("centiserve equivalence: clusterrank", {
@@ -341,6 +353,7 @@ test_that("centiserve equivalence: clusterrank", {
   cat(sprintf("  clusterrank: %s (%s, %d failures, %d errors)\n",
               r$status, r$pass_rate, r$failures, r$errors))
   expect_equal(r$failures, 0L)
+  expect_equal(r$errors, 0L)
 })
 
 test_that("centiserve equivalence: entropy", {
@@ -353,6 +366,7 @@ test_that("centiserve equivalence: entropy", {
   cat(sprintf("  entropy: %s (%s, %d failures, %d errors)\n",
               r$status, r$pass_rate, r$failures, r$errors))
   expect_equal(r$failures, 0L)
+  expect_equal(r$errors, 0L)
 })
 
 test_that("centiserve equivalence: markov", {
@@ -365,6 +379,7 @@ test_that("centiserve equivalence: markov", {
   cat(sprintf("  markov: %s (%s, %d failures, %d errors)\n",
               r$status, r$pass_rate, r$failures, r$errors))
   expect_equal(r$failures, 0L)
+  expect_equal(r$errors, 0L)
 })
 
 test_that("centiserve equivalence: topological_coefficient", {
@@ -377,6 +392,7 @@ test_that("centiserve equivalence: topological_coefficient", {
   cat(sprintf("  topological_coefficient: %s (%s, %d failures, %d errors)\n",
               r$status, r$pass_rate, r$failures, r$errors))
   expect_equal(r$failures, 0L)
+  expect_equal(r$errors, 0L)
 })
 
 test_that("centiserve equivalence: leverage", {
@@ -389,6 +405,7 @@ test_that("centiserve equivalence: leverage", {
   cat(sprintf("  leverage: %s (%s, %d failures, %d errors)\n",
               r$status, r$pass_rate, r$failures, r$errors))
   expect_equal(r$failures, 0L)
+  expect_equal(r$errors, 0L)
 })
 
 test_that("centiserve equivalence: diffusion", {
@@ -401,6 +418,7 @@ test_that("centiserve equivalence: diffusion", {
   cat(sprintf("  diffusion: %s (%s, %d failures, %d errors)\n",
               r$status, r$pass_rate, r$failures, r$errors))
   expect_equal(r$failures, 0L)
+  expect_equal(r$errors, 0L)
 })
 
 test_that("centiserve equivalence: laplacian", {
@@ -414,6 +432,7 @@ test_that("centiserve equivalence: laplacian", {
   cat(sprintf("  laplacian: %s (%s, %d failures, %d errors)\n",
               r$status, r$pass_rate, r$failures, r$errors))
   expect_equal(r$failures, 0L)
+  expect_equal(r$errors, 0L)
 })
 
 test_that("centiserve equivalence: geokpath (kreach)", {
@@ -427,6 +446,7 @@ test_that("centiserve equivalence: geokpath (kreach)", {
   cat(sprintf("  kreach: %s (%s, %d failures, %d errors)\n",
               r$status, r$pass_rate, r$failures, r$errors))
   expect_equal(r$failures, 0L)
+  expect_equal(r$errors, 0L)
 })
 
 # centiserve::salsa() returns eigenvalues (bug) but rank order should correlate.
@@ -467,6 +487,7 @@ test_that("centiserve equivalence: leaderrank (directed)", {
   cat(sprintf("  leaderrank: %s (%s, %d failures, %d errors)\n",
               r$status, r$pass_rate, r$failures, r$errors))
   expect_equal(r$failures, 0L)
+  expect_equal(r$errors, 0L)
 })
 
 # ===========================================================================
@@ -486,6 +507,7 @@ test_that("sna equivalence: stress", {
   cat(sprintf("  stress: %s (%s, %d failures, %d errors)\n",
               r$status, r$pass_rate, r$failures, r$errors))
   expect_equal(r$failures, 0L)
+  expect_equal(r$errors, 0L)
 })
 
 # sna::flowbet uses a different max-flow decomposition. Rank correlation validates.
@@ -526,6 +548,7 @@ test_that("sna equivalence: gilschmidt", {
   cat(sprintf("  gilschmidt: %s (%s, %d failures, %d errors)\n",
               r$status, r$pass_rate, r$failures, r$errors))
   expect_equal(r$failures, 0L)
+  expect_equal(r$errors, 0L)
 })
 
 test_that("sna equivalence: load", {
@@ -541,6 +564,7 @@ test_that("sna equivalence: load", {
   cat(sprintf("  load: %s (%s, %d failures, %d errors)\n",
               r$status, r$pass_rate, r$failures, r$errors))
   expect_equal(r$failures, 0L)
+  expect_equal(r$errors, 0L)
 })
 
 # ===========================================================================
@@ -557,6 +581,7 @@ test_that("influenceR equivalence: effective_size", {
   cat(sprintf("  effective_size: %s (%s, %d failures, %d errors)\n",
               r$status, r$pass_rate, r$failures, r$errors))
   expect_equal(r$failures, 0L)
+  expect_equal(r$errors, 0L)
 })
 
 # ===========================================================================
@@ -582,6 +607,7 @@ test_that("brainGraph equivalence: participation", {
   cat(sprintf("  participation: %s (%s, %d failures, %d errors)\n",
               r$status, r$pass_rate, r$failures, r$errors))
   expect_equal(r$failures, 0L)
+  expect_equal(r$errors, 0L)
 })
 
 test_that("brainGraph equivalence: within_module_z", {
@@ -631,6 +657,7 @@ test_that("brainGraph equivalence: gateway (centr=degree)", {
   cat(sprintf("  gateway (brainGraph centr=degree): %s (%s, %d failures)\n",
               r$status, r$pass_rate, r$failures))
   expect_equal(r$failures, 0L)
+  expect_equal(r$errors, 0L)
 })
 
 # ===========================================================================
@@ -664,9 +691,20 @@ test_that("igraph equivalence: diversity (shared weights)", {
 # ===========================================================================
 # SECTION 6: tidygraph equivalence
 # ===========================================================================
+#
+# These four route through netrankr: tidygraph::centrality_communicability() is
+# centrality_manual("walks", FUN = netrankr::walks_exp), and netrankr is only a
+# *Suggests* of tidygraph. It was not declared by this package, so CI never
+# installed it and all four reference calls threw. run_equivalence() catches a
+# throwing reference into its `errors` counter, and the assertions only checked
+# `failures` -- so these reported "0 failures" and passed while comparing
+# nothing at all (100/100, 100/100, 100/100 and 50/50 errors on CI).
+# netrankr is now in Suggests, the tests skip honestly when it is absent, and
+# every assertion in this file checks `errors` too.
 
 test_that("tidygraph equivalence: communicability", {
   skip_if_not_installed("tidygraph")
+  skip_if_not_installed("netrankr")
   r <- run_equivalence("communicability_tg", graphs_undirected,
     function(g) cograph:::calculate_communicability(g),
     function(g) {
@@ -679,10 +717,12 @@ test_that("tidygraph equivalence: communicability", {
   cat(sprintf("  communicability (tidygraph): %s (%s, %d failures)\n",
               r$status, r$pass_rate, r$failures))
   expect_equal(r$failures, 0L)
+  expect_equal(r$errors, 0L)
 })
 
 test_that("tidygraph equivalence: communicability_betweenness", {
   skip_if_not_installed("tidygraph")
+  skip_if_not_installed("netrankr")
   # Use only smaller graphs (n<=12) since this is O(n^3) per graph
   small_graphs <- graphs_undirected[vapply(graphs_undirected,
     function(g) igraph::vcount(g), numeric(1)) <= 12]
@@ -698,10 +738,12 @@ test_that("tidygraph equivalence: communicability_betweenness", {
   cat(sprintf("  communicability_betweenness (tidygraph): %s (%s, %d failures, n=%d)\n",
               r$status, r$pass_rate, r$failures, r$n_graphs))
   expect_equal(r$failures, 0L)
+  expect_equal(r$errors, 0L)
 })
 
 test_that("tidygraph equivalence: integration", {
   skip_if_not_installed("tidygraph")
+  skip_if_not_installed("netrankr")
   r <- run_equivalence("integration_tg", graphs_undirected,
     function(g) cograph:::calculate_integration(g, mode = "all"),
     function(g) {
@@ -714,10 +756,12 @@ test_that("tidygraph equivalence: integration", {
   cat(sprintf("  integration (tidygraph): %s (%s, %d failures)\n",
               r$status, r$pass_rate, r$failures))
   expect_equal(r$failures, 0L)
+  expect_equal(r$errors, 0L)
 })
 
 test_that("tidygraph equivalence: residual_closeness", {
   skip_if_not_installed("tidygraph")
+  skip_if_not_installed("netrankr")
   r <- run_equivalence("residual_closeness_tg", graphs_undirected,
     function(g) cograph:::calculate_residual_closeness(g, mode = "all",
                                                         weights = NULL),
@@ -731,6 +775,7 @@ test_that("tidygraph equivalence: residual_closeness", {
   cat(sprintf("  residual_closeness (tidygraph): %s (%s, %d failures)\n",
               r$status, r$pass_rate, r$failures))
   expect_equal(r$failures, 0L)
+  expect_equal(r$errors, 0L)
 })
 
 # ===========================================================================

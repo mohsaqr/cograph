@@ -116,7 +116,7 @@
 #' @param node_radius Node core radius in data units, used only on the
 #'   directed path (rings and cores become polygons there so the ring
 #'   gradient and the arrow offset are expressible; \code{geom_point()}
-#'   sizes are device millimetres and cannot answer either).
+#'   sizes are device millimeters and cannot answer either).
 #'   \code{NULL} (default) scales it to the panel extent so the nodes
 #'   keep the size they have today.
 #' @param legend Draw the in-figure legend strip beneath a dismantled
@@ -125,8 +125,12 @@
 #'   \code{Nestimate::build_hon()} or \code{Nestimate::build_hypa()}
 #'   when auto-building.
 #'
-#' @return A \code{ggplot} object (or combined grid if dismantled),
-#'   invisibly.
+#' @return Invisibly, a \code{ggplot} object for the combined overlay. With
+#'   \code{dismantled = TRUE} the arranged grid is returned instead: a
+#'   \code{gtable} when \pkg{gridExtra} is available, otherwise a plain list
+#'   of the per-pathway \code{ggplot} objects. \code{NULL} is returned when
+#'   there is nothing to draw (no pathways could be extracted). Called for the
+#'   side effect of drawing.
 #'
 #' @examples
 #' set.seed(1)
@@ -223,7 +227,7 @@ plot_simplicial <- function(x = NULL,
     }
     # Association rules are undirected itemsets — every node in a blob is
     # co-equal. Say so once; the absent target is what collapses the
-    # two-tone, rather than a colour assignment standing in for it.
+    # two-tone, rather than a color assignment standing in for it.
     ordered <- ordered %||% FALSE
   } else if (inherits(pathways, "simplicial_complex")) {
     pathways <- .extract_simplicial_pathways(pathways, max_pathways)
@@ -593,13 +597,13 @@ plot_simplicial <- function(x = NULL,
                          linetype = blob_lty, linewidth = blob_linewidth,
                          alpha = blob_alpha)
   if (isTRUE(direction) && .pw_is_ordered(pw)) {
-    # Data units, not device millimetres — see R/blob-direction.R. The
+    # Data units, not device millimeters — see R/blob-direction.R. The
     # default tracks the panel extent so the nodes keep the size the
     # geom_point() rendering gives them today.
     # 0.1174 was MEASURED off a rendered panel, not derived: the ring in the
     # geom_point() rendering came out 37.3 px against 44.4 px per data unit,
     # i.e. 0.1491 * half, and the core is that over 1.27. Deriving it from
-    # `size` in millimetres gets it wrong in both directions, because
+    # `size` in millimeters gets it wrong in both directions, because
     # `respect = TRUE` squares the panel inside its grid cell. The engine's
     # own proportion is tighter at 18/205 = 0.088 * half; pass
     # `node_radius = 0.088 * half` for figures that must match it.

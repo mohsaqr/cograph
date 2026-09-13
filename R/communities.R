@@ -166,7 +166,8 @@ communities <- function(x,
 #' @param resolution Resolution parameter. Higher values = more communities.
 #'   Default 1 (standard modularity).
 #' @param seed Random seed for reproducibility. Default NULL.
-#' @param ... Additional arguments passed to \code{\link{to_igraph}}
+#' @param ... Passed to \code{\link{to_igraph}}, whose only other argument
+#'   is \code{directed}; anything else raises an "unused argument" error.
 #'
 #' @return A \code{cograph_communities} object
 #'
@@ -216,7 +217,8 @@ community_louvain <- function(x, weights = NULL, resolution = 1, seed = NULL, ..
 #' @param n_iterations Number of iterations. Default 2. Use -1 for convergence.
 #' @param vertex_weights Vertex weights for CPM objective.
 #' @param seed Random seed for reproducibility. Default NULL.
-#' @param ... Additional arguments passed to \code{\link{to_igraph}}
+#' @param ... Passed to \code{\link{to_igraph}}, whose only other argument
+#'   is \code{directed}; anything else raises an "unused argument" error.
 #'
 #' @return A \code{cograph_communities} object
 #'
@@ -283,9 +285,12 @@ community_leiden <- function(x,
 #' @param merges Logical; return merge matrix? Default TRUE.
 #' @param modularity Logical; return modularity scores? Default TRUE.
 #' @param membership Logical; return membership vector? Default TRUE.
-#' @param ... Additional arguments passed to \code{\link{to_igraph}}
+#' @param ... Passed to \code{\link{to_igraph}}, whose only other argument
+#'   is \code{directed}; anything else raises an "unused argument" error.
 #'
-#' @return A \code{cograph_communities} object with optional dendrogram
+#' @return A \code{cograph_communities} object. The full igraph
+#'   \code{communities} result, including the merge dendrogram when
+#'   \code{merges = TRUE}, is kept in the \code{"igraph_result"} attribute.
 #'
 #' @references
 #' Clauset, A., Newman, M.E.J., & Moore, C. (2004).
@@ -337,7 +342,8 @@ community_fast_greedy <- function(x,
 #' @param merges Logical; return merge matrix? Default TRUE.
 #' @param modularity Logical; return modularity scores? Default TRUE.
 #' @param membership Logical; return membership vector? Default TRUE.
-#' @param ... Additional arguments passed to \code{\link{to_igraph}}
+#' @param ... Passed to \code{\link{to_igraph}}, whose only other argument
+#'   is \code{directed}; anything else raises an "unused argument" error.
 #'
 #' @return A \code{cograph_communities} object
 #'
@@ -392,7 +398,8 @@ community_walktrap <- function(x,
 #' @param nb.trials Number of optimization trials. Default 10.
 #' @param modularity Logical; calculate modularity? Default TRUE.
 #' @param seed Random seed for reproducibility. Default NULL.
-#' @param ... Additional arguments passed to \code{\link{to_igraph}}
+#' @param ... Passed to \code{\link{to_igraph}}, whose only other argument
+#'   is \code{directed}; anything else raises an "unused argument" error.
 #'
 #' @return A \code{cograph_communities} object
 #'
@@ -445,7 +452,8 @@ community_infomap <- function(x,
 #' @param initial Initial labels (integer vector or NULL for unique labels).
 #' @param fixed Logical vector indicating which labels are fixed.
 #' @param seed Random seed for reproducibility. Default NULL.
-#' @param ... Additional arguments passed to \code{\link{to_igraph}}
+#' @param ... Passed to \code{\link{to_igraph}}, whose only other argument
+#'   is \code{directed}; anything else raises an "unused argument" error.
 #'
 #' @return A \code{cograph_communities} object
 #'
@@ -511,7 +519,8 @@ community_label_propagation <- function(x,
 #' @param bridges Logical; return bridge edges? Default TRUE.
 #' @param modularity Logical; return modularity scores? Default TRUE.
 #' @param membership Logical; return membership vector? Default TRUE.
-#' @param ... Additional arguments passed to \code{\link{to_igraph}}
+#' @param ... Currently unused; \code{directed} is already an explicit
+#'   argument above and \code{\link{to_igraph}} accepts no others.
 #'
 #' @return A \code{cograph_communities} object
 #'
@@ -569,7 +578,8 @@ community_edge_betweenness <- function(x,
 #' @param callback Optional callback function called after each split.
 #' @param extra Extra argument passed to callback.
 #' @param env Environment for callback evaluation.
-#' @param ... Additional arguments passed to \code{\link{to_igraph}}
+#' @param ... Passed to \code{\link{to_igraph}}, whose only other argument
+#'   is \code{directed}; anything else raises an "unused argument" error.
 #'
 #' @return A \code{cograph_communities} object
 #'
@@ -636,7 +646,8 @@ community_leading_eigenvector <- function(x,
 #' @param implementation "orig" (default) or "neg" (for negative weights).
 #' @param gamma.minus Gamma for negative weights in "neg" implementation.
 #' @param seed Random seed for reproducibility. Default NULL.
-#' @param ... Additional arguments passed to \code{\link{to_igraph}}
+#' @param ... Passed to \code{\link{to_igraph}}, whose only other argument
+#'   is \code{directed}; anything else raises an "unused argument" error.
 #'
 #' @return A \code{cograph_communities} object
 #'
@@ -710,7 +721,8 @@ community_spinglass <- function(x,
 #'
 #' @param x Network input
 #' @param weights Edge weights. NULL uses network weights, NA for unweighted.
-#' @param ... Additional arguments passed to \code{\link{to_igraph}}
+#' @param ... Passed to \code{\link{to_igraph}}, whose only other argument
+#'   is \code{directed}; anything else raises an "unused argument" error.
 #'
 #' @return A \code{cograph_communities} object
 #'
@@ -750,7 +762,8 @@ community_optimal <- function(x, weights = NULL, ...) {
 #'
 #' @param x Network input
 #' @param no.of.communities Number of communities to detect. Required.
-#' @param ... Additional arguments passed to \code{\link{to_igraph}}
+#' @param ... Passed to \code{\link{to_igraph}}, whose only other argument
+#'   is \code{directed}; anything else raises an "unused argument" error.
 #'
 #' @return A \code{cograph_communities} object
 #'
@@ -812,10 +825,16 @@ community_fluid <- function(x, no.of.communities, ...) {
 #'   Nodes that appear together in >= threshold proportion of runs are
 #'   placed in the same community.
 #' @param seed Optional seed for reproducibility. If provided, the RNG state is
-#'   initialized once before repeated runs.
-#' @param ... Additional arguments passed to the community detection method.
+#'   initialized once before repeated runs and restored on exit.
+#' @param ... Currently ignored. Each run calls the underlying
+#'   \code{igraph::cluster_*()} function with its own defaults; no extra
+#'   arguments are forwarded.
 #'
-#' @return A \code{cograph_communities} object with consensus membership.
+#' @return A \code{cograph_communities} data frame (columns \code{node} and
+#'   \code{community}) holding the consensus membership. Its
+#'   \code{"algorithm"} attribute is \code{"consensus_<method>"} and its
+#'   \code{"modularity"} attribute is that of the final walktrap partition of
+#'   the consensus graph, not of the original network.
 #'
 #' @details
 #' The algorithm works as follows:
@@ -1230,7 +1249,8 @@ compare_communities <- function(comm1, comm2,
 #' @param x A cograph_communities object
 #' @param network The original network (required if not stored)
 #' @param ... Additional arguments passed to splot
-#' @return Invisibly returns the plot
+#' @return The value returned by \code{\link{splot}} (invisibly). Called for
+#'   the side effect of drawing the network with nodes grouped by community.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' g <- igraph::make_graph("Zachary")

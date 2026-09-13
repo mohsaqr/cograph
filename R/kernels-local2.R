@@ -2,11 +2,11 @@
 # Further local, linear-solve and peeling centralities
 # ===========================================================================
 
-#' Neighbour lists under igraph's mode semantics
+#' Neighbor lists under igraph's mode semantics
 #'
 #' On a directed graph with `mode = "all"` a reciprocated dyad appears
 #' **twice**, which is what makes degree, coreness and transitivity agree
-#' with igraph. Callers that need the distinct neighbour set must `unique()`.
+#' with igraph. Callers that need the distinct neighbor set must `unique()`.
 #'
 #' @param b Binary adjacency matrix. @param directed Whether directed.
 #' @param mode One of `"all"`, `"out"`, `"in"`.
@@ -42,7 +42,8 @@
 
 #' Hubbell centrality (Hubbell 1965)
 #' @param m Weight matrix. @param factor Scaling applied before the solve.
-#' @return Numeric vector.
+#' @return Numeric vector; `NA` throughout when the divergence guard fires or
+#'   `I - factor * m` cannot be solved.
 #' @keywords internal
 #' @noRd
 .cg_hubbell <- function(m, factor = 0.5) {
@@ -52,8 +53,13 @@
   # The Neumann series behind Hubbell only converges when the spectral radius
   # is below 1. Past that, (I - W) can still be inverted numerically while the
   # result means nothing, so refuse rather than return a confident number.
+  # The test is on the MODULUS, not the real part: a signed network can carry a
+  # complex pair of modulus above 1 whose real part is below it, and a real
+  # eigenvalue below -1 diverges just as surely as one above 1. For a
+  # non-negative matrix the Perron root is real and positive and equals the
+  # spectral radius, so this is the same test the old Re() form performed.
   ev <- tryCatch(eigen(scaled, only.values = TRUE)$values, error = function(e) NULL)
-  if (is.null(ev) || any(Re(ev) >= 1 - 1e-10)) return(rep(NA_real_, n))
+  if (is.null(ev) || any(Mod(ev) >= 1 - 1e-10)) return(rep(NA_real_, n))
   out <- tryCatch(solve(diag(1, n, n) - scaled, rep(1, n)), error = function(e) NULL)
   if (is.null(out)) rep(NA_real_, n) else as.numeric(out)
 }
@@ -113,7 +119,7 @@
   }, numeric(1L))
 }
 
-#' Weight diversity: normalised Shannon entropy of a vertex's edge weights
+#' Weight diversity: normalized Shannon entropy of a vertex's edge weights
 #' @param m Weight matrix. @param weighted Whether weights carry information.
 #' @param directed Whether directed.
 #' @return Numeric vector.
@@ -143,13 +149,14 @@
 
 #' Local h-index, iterated to a fixed point
 #'
-#' Both the neighbour set and the seed degrees are taken at `mode`; pinning
+#' Both the neighbor set and the seed degrees are taken at `mode`; pinning
 #' either to `"all"` silently answers the undirected question on a directed
 #' graph.
 #'
 #' @param b Binary adjacency matrix. @param directed Whether directed.
 #' @param mode One of `"all"`, `"out"`, `"in"`.
-#' @return Numeric vector.
+#' @return Numeric vector. The iteration is capped at 100 passes and returns
+#'   the 100th iterate silently if no fixed point was reached by then.
 #' @keywords internal
 #' @noRd
 .cg_local_hindex <- function(b, directed, mode = c("all", "out", "in")) {
@@ -231,7 +238,7 @@
   }, numeric(1L))
 }
 
-#' Neighbour multiset, mode-aware
+#' Neighbor multiset, mode-aware
 #'
 #' Under `"all"` on a directed graph a reciprocated dyad appears twice, which
 #' is what makes the degree-based measures agree with igraph.
@@ -281,7 +288,7 @@
 
 #' Weighted local reaching centrality
 #'
-#' Paths are found by minimising total/weight, so a heavy edge is cheap to
+#' Paths are found by minimizing total/weight, so a heavy edge is cheap to
 #' traverse; the score then averages the traversed weights. Note the
 #' reciprocated-dyad rule differs from the distance kernel: here the
 #' **larger** of the two directions is taken, not the smaller.
@@ -307,10 +314,10 @@
       if (all(is.infinite(cand))) break
       # Settle the LAST vertex holding the minimum, not the first. When two
       # routes tie, which one survives is decided by the order the reference's
-      # binary heap pops equal keys, and that order favours the later-inserted
+      # binary heap pops equal keys, and that order favors the later-inserted
       # vertex more often than not.
       #
-      # This is a PARTIAL match, not parity: across randomised integer-weight
+      # This is a PARTIAL match, not parity: across randomized integer-weight
       # graphs (where exact ties are common) it agrees with the reference on
       # roughly 76% of cases, against roughly 50% for which.min(). True parity
       # would mean simulating igraph's two-way indexed heap, whose pop order

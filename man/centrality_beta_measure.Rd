@@ -48,9 +48,11 @@ The score is an expected number of predecessor selections, not a
 probability distribution or a stationary random-walk centrality.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_beta_measure(igraph::make_graph("Zachary"))
 centrality_beta_measure(igraph::make_star(5, mode = "out"),
                         beta_direction = "negative")
+\dontshow{\}) # examplesIf}
 }
 \references{
 van den Brink, R. and Gilles, R. P. (1992). Measuring

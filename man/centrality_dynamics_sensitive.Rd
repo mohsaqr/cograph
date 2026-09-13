@@ -48,9 +48,11 @@ a spectral convergence condition, subject to numerical precision. Overflow
 raises an error, even if normalization is requested.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 g <- igraph::make_ring(5)
 centrality_dynamics_sensitive(g, ds_beta = 0.1, ds_mu = 1, ds_steps = 5)
 centrality_dynamics_sensitive(g, ds_mu = 0)
+\dontshow{\}) # examplesIf}
 }
 \references{
 Liu, J. G., Lin, J. H., Guo, Q., & Zhou, T. (2016). Locating influential

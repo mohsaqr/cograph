@@ -32,7 +32,7 @@ A \code{cograph_network} with rescaled weights, or the input format
 when \code{keep_format = TRUE}.
 }
 \description{
-Rescales the weight matrix. Row normalisation is what turns a transition
+Rescales the weight matrix. Row normalization is what turns a transition
 count matrix into the transition probabilities that TNA models use.
 }
 \details{
@@ -50,7 +50,7 @@ independently and therefore keep any extra edge columns. \code{"row"} and
 \code{"column"} scale an edge by a total that differs at its two endpoints,
 so they break symmetry and return a directed network.
 
-Row and column normalisation are meaningful on directed networks. On an
+Row and column normalization are meaningful on directed networks. On an
 undirected network they still work but break symmetry, so the result is
 returned as directed.
 }

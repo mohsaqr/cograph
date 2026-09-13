@@ -54,7 +54,9 @@ memory O(n squared), including dense graph preparation. Scores remain
 independent between components before maximum normalization.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_expected_force(igraph::make_graph("Zachary"))
+\dontshow{\}) # examplesIf}
 }
 \references{
 Lawyer, G. (2015). Understanding the influence of all nodes

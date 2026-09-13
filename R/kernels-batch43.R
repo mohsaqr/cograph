@@ -14,7 +14,7 @@
 #' "a certain centrality of node i". Both worked examples use the k-shell
 #' index; both papers also list degree. Isolates have mass zero under either
 #' choice, and a zero mass is never raised to `alpha`, because an isolate is
-#' in no neighbourhood and so never enters the matrix.
+#' in no neighborhood and so never enters the matrix.
 #'
 #' @param a Simple undirected 0/1 adjacency matrix with a zero diagonal.
 #' @param n Vertex count.
@@ -29,8 +29,8 @@
 #' Allocation matrix for the resource-allocation recursion
 #'
 #' Entry `(i, j)` is the share of node `j`'s resource that flows to `i`.
-#' It exists only when `i` is a neighbour of `j`; the share is
-#' `spread[i] / sum(weight[u] for u in neighbours(j))`. For IRA
+#' It exists only when `i` is a neighbor of `j`; the share is
+#' `spread[i] / sum(weight[u] for u in neighbors(j))`. For IRA
 #' `spread == weight == theta^alpha`, so every non-isolate column sums to
 #' one; for IIRA `spread` carries the extra factor `psi`, so columns sum to
 #' at most `max(psi) < 1`.
@@ -76,7 +76,7 @@
 #' Ren et al. (2014) step iii) terminates when
 #' `Delta I(t) = |I(t) - I(t - 1)| < epsilon`. The loop is a `while`, not an
 #' apply, because the stopping test reads the value the previous step
-#' produced; there is no vectorised form of a fixed-point iteration.
+#' produced; there is no vectorized form of a fixed-point iteration.
 #'
 #' The iteration provably has no limit on a bipartite component whose two
 #' vertex classes differ in size: `A` is then similar to a symmetric matrix

@@ -59,9 +59,9 @@
 #' from `igraph::constraint()`:
 #'
 #' * The outer sum runs over every other node, not only over `i`'s
-#'   neighbours, so a node two steps away contributes through `P^2` alone.
+#'   neighbors, so a node two steps away contributes through `P^2` alone.
 #'   On the paper's Kite this is what gives node 1 the printed 1.25 where
-#'   the neighbour-restricted sum gives 1.
+#'   the neighbor-restricted sum gives 1.
 #' * The printed outer limit is `j = 1 ... |V|`, which would add the term
 #'   `(sum_{q != i} P_iq P_qi)^2` at `j = i` and raise node 1 to 1.5.
 #'   Excluding `j = i` is the only reading that reproduces Table 1, and it
@@ -124,7 +124,7 @@
 #' is undefined; cograph gives it closeness zero, also an extension.
 #'
 #' Betweenness is equation (4), summed over ordered pairs `j != i != k`, so
-#' it is twice the usual unnormalised undirected betweenness. Equation (8)
+#' it is twice the usual unnormalized undirected betweenness. Equation (8)
 #' divides the index by its own total, so the factor of two cancels; it is
 #' kept because the paper's Table 1 prints the doubled values.
 #'
@@ -155,7 +155,7 @@
 #' Map one index to a discrete distribution, equations (8) and (9)
 #'
 #' A positive index becomes `C(i) / sum_j C(j)`; a negative index becomes
-#' `(1 - C(i)/sum_j C(j))` renormalised over the nodes. The result is
+#' `(1 - C(i)/sum_j C(j))` renormalized over the nodes. The result is
 #' returned in logarithms because equation (11) multiplies the `m`
 #' distributions together, and a product of small shares underflows long
 #' before its geometric mean does. An exact zero maps to `-Inf`, whose

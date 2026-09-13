@@ -137,6 +137,7 @@ CographNetwork <- R6::R6Class(
 
     #' @description Set nodes data frame.
     #' @param nodes Data frame with node information.
+    #' @return The object itself, invisibly.
     set_nodes = function(nodes) {
       private$.nodes <- nodes
       invisible(self)
@@ -144,6 +145,7 @@ CographNetwork <- R6::R6Class(
 
     #' @description Set edges data frame.
     #' @param edges Data frame with edge information.
+    #' @return The object itself, invisibly.
     set_edges = function(edges) {
       private$.edges <- edges
       invisible(self)
@@ -151,20 +153,23 @@ CographNetwork <- R6::R6Class(
 
     #' @description Set directed flag.
     #' @param directed Logical.
+    #' @return The object itself, invisibly.
     set_directed = function(directed) {
       private$.directed <- directed
       invisible(self)
     },
 
     #' @description Set edge weights.
-    #' @param weights Numeric vector of weights.
+    #' @param weights Numeric vector of edge weights, one per edge.
+    #' @return The object itself, invisibly.
     set_weights = function(weights) {
       private$.weights <- weights
       invisible(self)
     },
 
     #' @description Set layout coordinates.
-    #' @param coords Matrix or data frame with x, y columns.
+    #' @param coords Matrix or data frame with x, y columns, one row per node.
+    #' @return The object itself, invisibly.
     set_layout_coords = function(coords) {
       if (!is.null(coords)) {
         if (is.matrix(coords)) {
@@ -192,6 +197,7 @@ CographNetwork <- R6::R6Class(
 
     #' @description Set node aesthetics.
     #' @param aes List of aesthetic parameters.
+    #' @return The object itself, invisibly.
     set_node_aes = function(aes) {
       private$.node_aes <- utils::modifyList(private$.node_aes, aes)
       invisible(self)
@@ -199,6 +205,7 @@ CographNetwork <- R6::R6Class(
 
     #' @description Set edge aesthetics.
     #' @param aes List of aesthetic parameters.
+    #' @return The object itself, invisibly.
     set_edge_aes = function(aes) {
       private$.edge_aes <- utils::modifyList(private$.edge_aes, aes)
       invisible(self)
@@ -206,6 +213,7 @@ CographNetwork <- R6::R6Class(
 
     #' @description Set theme.
     #' @param theme CographTheme object or theme name.
+    #' @return The object itself, invisibly.
     set_theme = function(theme) {
       private$.theme <- theme
       invisible(self)
@@ -249,6 +257,7 @@ CographNetwork <- R6::R6Class(
 
     #' @description Set layout info.
     #' @param info List with layout information (name, seed, etc.).
+    #' @return The object itself, invisibly.
     set_layout_info = function(info) {
       private$.layout_info <- info
       invisible(self)
@@ -262,6 +271,7 @@ CographNetwork <- R6::R6Class(
 
     #' @description Set plot parameters.
     #' @param params List of all plot parameters used.
+    #' @return The object itself, invisibly.
     set_plot_params = function(params) {
       private$.plot_params <- params
       invisible(self)
@@ -274,6 +284,7 @@ CographNetwork <- R6::R6Class(
     },
 
     #' @description Print network summary.
+    #' @return The object itself, invisibly.
     print = function() {
       cat("CographNetwork\n")
       cat("  Nodes:", self$n_nodes, "\n")
@@ -457,7 +468,12 @@ get_nodes <- function(x) {
 #' Extracts the edges data frame from a cograph_network object.
 #'
 #' @param x A cograph_network object.
-#' @return A data frame with columns: from, to, weight.
+#' @return A data frame with one row per edge and columns \code{from} and
+#'   \code{to} (integer row numbers into the node table, \emph{not} labels) and
+#'   \code{weight}, plus any extra edge columns the network carries. An
+#'   undirected network stores one row per unordered pair. Use
+#'   \code{\link{as.data.frame.cograph_network}} or \code{\link{to_df}} for the
+#'   same table with the endpoints given as node labels.
 #'
 #' @seealso \code{\link{as_cograph}}, \code{\link{n_edges}}, \code{\link{get_nodes}}
 #'
@@ -1266,6 +1282,11 @@ n_edges <- function(x) {
 #'   \code{what = "nodes"}, one row per node with the node metadata columns
 #'   (\code{id}, \code{label}, layout coordinates, and any custom columns).
 #'
+#'   This is the accessor, so it hands back everything the object holds,
+#'   including columns \code{\link{mutate_edges}} computed.
+#'   \code{\link{to_df}} is the narrower conversion verb: it returns
+#'   \code{from}, \code{to} and \code{weight} only.
+#'
 #' @seealso \code{\link{to_df}}, \code{\link{get_edges}}, \code{\link{get_nodes}}
 #'
 #' @export
@@ -1288,7 +1309,9 @@ as.data.frame.cograph_network <- function(x, row.names = NULL, optional = FALSE,
     rownames(nodes) <- NULL
     nodes
   } else {
-    to_data_frame(x)
+    # The accessor hands back the edge table whole, computed columns included.
+    # to_data_frame() is the narrow conversion verb and is not used here.
+    .edges_as_df(x)
   }
 
   if (!is.null(row.names)) {

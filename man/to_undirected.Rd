@@ -24,7 +24,11 @@ to_undirected(
 }
 \value{
 An undirected \code{cograph_network}, or the input format when
-\code{keep_format = TRUE}.
+\code{keep_format = TRUE}. Zero is how this representation stores "no
+edge", so any pair whose combined weight is exactly zero disappears: every
+unreciprocated arc under \code{method = "mutual"}, and a cancelling pair
+under \code{"sum"}. A \code{cograph_edges_dropped} warning says how
+many.
 }
 \description{
 Collapses each pair of opposite arcs into one undirected edge. The

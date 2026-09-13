@@ -25,7 +25,7 @@ where \eqn{T^v_u} is the number of nodes in the subtree rooted at
 orders that could have started at \eqn{v}. On a general graph the paper
 evaluates \eqn{R} on the breadth-first tree rooted at each node (its
 eq. 24). Higher values mark nodes that are more plausible origins, which
-in practice are nodes near the centre of the network.
+in practice are nodes near the center of the network.
 }
 \details{
 The value is returned as \eqn{\log R(v)} (natural log) because
@@ -33,7 +33,7 @@ The value is returned as \eqn{\log R(v)} (natural log) because
 unchanged. \eqn{N} is the size of the node's component, so a
 disconnected graph is scored component by component and an isolate
 scores 0. The breadth-first tree attaches each node to the earliest
-discovered node of the previous layer, scanning neighbours in label
+discovered node of the previous layer, scanning neighbors in label
 order; the paper does not fix a tie rule, and this one reproduces its
 Figure 3. Direction and edge weights are ignored.
 

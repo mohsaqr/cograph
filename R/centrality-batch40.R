@@ -82,7 +82,7 @@ calculate_dkgm <- function(cg, radius = 2) {
 #' @seealso \code{\link{centrality_mcgm}} and
 #'   \code{\link{centrality_mixed_gravity}} for the other gravity masses.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_dkgm(igraph::make_ring(6))
 #' centrality_dkgm(igraph::make_star(6), dkgm_radius = 1)
 centrality_dkgm <- function(x, dkgm_radius = 2, ...) {

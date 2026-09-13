@@ -164,7 +164,7 @@ calculate_trust_pagerank <- function(cg, alpha = 0.85, mix = 0.85, decay = 1,
 #' the ratio of similarity is calculated". That holds for a homogeneous
 #' recursion, where \eqn{C} is an overall scale, but not for this one: the
 #' diagonal makes it affine, so \eqn{C} enters the resolvent as well as the
-#' scale. Measured on the Zachary karate club this session, moving \eqn{C}
+#' scale. Measured on the Zachary karate club, moving \eqn{C}
 #' from 1 to 0.5 moves \eqn{Rs} by up to 0.141 and the scores by up to
 #' \eqn{9.1\times 10^{-4}}. \code{tpr_decay} defaults to the source's 1.
 #'
@@ -204,7 +204,7 @@ calculate_trust_pagerank <- function(cg, alpha = 0.85, mix = 0.85, decay = 1,
 #'   \code{NA} outside its domain, and \code{\link{list_centralities}} for
 #'   the catalogue.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' # The Krackhardt kite, one of the source's two published fixtures. Its
 #' # automorphism forces three exact ties, so the paper's printed order
 #' # 7, 4, 5, 9, 10, 3, 6, 8, 2, 1 is recovered up to those ties.

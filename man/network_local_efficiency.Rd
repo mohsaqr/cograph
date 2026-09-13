@@ -23,7 +23,8 @@ paths? Default NULL which auto-detects: TRUE for tna objects, FALSE otherwise
 
 \item{alpha}{Numeric. Exponent for weight inversion. Default 1.}
 
-\item{...}{Additional arguments passed to \code{\link{to_igraph}}}
+\item{...}{Passed to \code{\link{to_igraph}}, whose only other argument
+is \code{directed}; anything else raises an "unused argument" error.}
 }
 \value{
 Numeric average local efficiency. For unweighted simple graphs this
@@ -33,15 +34,16 @@ below 1.
 \description{
 Computes the average local efficiency across all nodes, delegating to
 \code{igraph::average_local_efficiency()}. igraph removes the node and
-measures the distances between its neighbours \emph{through the rest of
+measures the distances between its neighbors \emph{through the rest of
 the network}, so the value can exceed the one Latora & Marchiori (2001)
 define, which restricts those distances to the subgraph induced on the
-neighbours. \code{centrality(x, measures = "local_efficiency")} reports
+neighbors. \code{centrality(x, measures = "local_efficiency")} reports
 the induced-subgraph form, matching networkx, brainGraph and the Brain
 Connectivity Toolbox. Both measure fault tolerance and local integration;
-the two agree whenever the neighbours have no detour available.
+the two agree whenever the neighbors have no detour available.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Complete graph: removing any node leaves complete subgraph, so local efficiency = 1
 k5 <- matrix(1, 5, 5); diag(k5) <- 0
 network_local_efficiency(k5)  # 1
@@ -52,4 +54,5 @@ network_local_efficiency(star)  # 0
 
 # Per-node values under the Latora definition
 centrality(star, measures = "local_efficiency")
+\dontshow{\}) # examplesIf}
 }

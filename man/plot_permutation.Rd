@@ -42,7 +42,9 @@ plot_permutation(
 \item{edge_nonsig_alpha}{Alpha for non-significant edges. Default 0.4.}
 }
 \value{
-Invisibly returns the plot.
+Invisibly returns the \code{cograph_network} object built by
+\code{\link{splot}()}, or \code{NULL} when no edge survives the
+significance filter. Called for the side effect of drawing.
 }
 \description{
 Visualizes permutation test results with styling to distinguish

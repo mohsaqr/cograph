@@ -76,6 +76,7 @@ CographTheme <- R6::R6Class(
     #' @description Set a theme parameter.
     #' @param name Parameter name.
     #' @param value Parameter value.
+    #' @return The object itself, invisibly.
     set = function(name, value) {
       private$.params[[name]] <- value
       invisible(self)
@@ -109,6 +110,7 @@ CographTheme <- R6::R6Class(
     },
 
     #' @description Print theme summary.
+    #' @return The object itself, invisibly.
     print = function() {
       cat("CographTheme:", private$.name, "\n")
       cat("  Background:", private$.params$background, "\n")

@@ -38,12 +38,15 @@ NULL
 #'   Single color sets fill for all nodes.
 #'   Two colors set fill and background for all nodes.
 #'   More than 2 colors set per-node fill colors (recycled to n_nodes).
-#'   Default: "lightgray" fill, "gray90" background when shape="donut".
+#'   Default: "maroon" fill, "gray90" background when shape="donut".
 #' @param donut_colors Deprecated. Use donut_color instead.
 #' @param donut_border_width Border width for donut chart nodes.
 #' @param donut_inner_ratio For donut shape: inner radius ratio (0-1). Default 0.5.
 #' @param donut_bg_color For donut shape: background color for unfilled portion.
-#' @param donut_shape For donut: base shape for ring ("circle", "square", "hexagon", "triangle", "diamond", "pentagon"). Default "circle".
+#' @param donut_shape For donut: base shape for ring ("circle", "square",
+#'   "hexagon", "triangle", "diamond", "pentagon"). Default NULL, which inherits
+#'   the ring shape from the node's own shape (hexagon nodes get hexagon
+#'   donuts); set it explicitly to override that for every node.
 #' @param donut_show_value For donut shape: show value in center? Default FALSE.
 #' @param donut_value_size For donut shape: font size for center value.
 #' @param donut_value_color For donut shape: color for center value text.

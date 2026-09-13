@@ -22,7 +22,8 @@ weights.}
 \item{directed}{Logical or NULL. If NULL (default), auto-detect from matrix
 symmetry. Set TRUE to force directed, FALSE to force undirected.}
 
-\item{...}{Additional arguments passed to \code{\link{to_igraph}}}
+\item{...}{Currently unused; \code{directed} is already an explicit
+argument above and \code{\link{to_igraph}} accepts no others.}
 }
 \value{
 Depends on the query:
@@ -50,8 +51,13 @@ ignore weights and treat all edges as having unit distance.
 Note: \code{igraph::distances()} with \code{weights = NULL} automatically
 uses edge weight attributes if present. To force unweighted computation,
 pass \code{weights = NA} explicitly.
+
+igraph also exports a \code{shortest_paths()} with a different signature and
+return value; when both packages are attached, qualify the call as
+\code{cograph::shortest_paths()}.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # All-pairs distances
 adj <- matrix(c(
   0, 1, 0, 0,
@@ -67,7 +73,7 @@ cograph::shortest_paths(adj, from = "A")
 
 # Point-to-point
 cograph::shortest_paths(adj, from = "A", to = "D")
-
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link{k_shortest_paths}}, \code{\link{network_summary}}

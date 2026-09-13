@@ -10,7 +10,10 @@ sn_layout(network, layout, seed = 42, ...)
 \item{network}{A cograph_network object, matrix, data.frame, or igraph object.
 Matrices and other inputs are auto-converted.}
 
-\item{layout}{Layout algorithm name or a CographLayout object.}
+\item{layout}{Layout algorithm name (see Details), a two-letter or full
+igraph layout name, an igraph layout function, a \code{CographLayout}
+object, or a coordinate matrix / data frame with one row per node and
+\code{x}, \code{y} in its first two columns. Anything else is an error.}
 
 \item{seed}{Random seed for deterministic layouts. Default 42. Set NULL for random.}
 

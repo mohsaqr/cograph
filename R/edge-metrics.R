@@ -71,12 +71,20 @@ simmelian_strength <- function(x, top = NULL, directed = NULL,
 #'
 #' @inheritParams neighborhood_overlap
 #'
-#' @return A data frame with columns: \code{from}, \code{to}, \code{weight},
-#'   \code{reciprocated}, \code{reverse_weight}, \code{weight_ratio}.
+#' @return A data frame with one row per directed edge and columns
+#'   \code{from}, \code{to}, \code{weight}, \code{reciprocated} (logical),
+#'   \code{reverse_weight} (NA when not reciprocated) and \code{weight_ratio}
+#'   (\code{weight / reverse_weight}; NA when not reciprocated). Rows are
+#'   ordered with reciprocated edges first, then by \code{|weight_ratio|}
+#'   descending.
+#'
+#' @section Errors:
+#' Raises an error when the resolved network is undirected: reciprocity is
+#' only defined for directed edges.
 #'
 #' @seealso \code{\link{edge_centrality}}
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' adj <- matrix(c(0, 0.8, 0, 0.3, 0, 0.5, 0.7, 0, 0), 3, 3, byrow = TRUE)
 #' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
 #' cograph::edge_reciprocity(adj, directed = TRUE)

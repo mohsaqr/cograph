@@ -37,7 +37,9 @@ This implements IGSM itself, without an additional nearest-neighbor
 aggregation for the extended IGSM variant.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_improved_global_structure(igraph::make_ring(4))
+\dontshow{\}) # examplesIf}
 }
 \references{
 Zhu, J.-C., & Wang, L.-W. (2022). An extended improved global

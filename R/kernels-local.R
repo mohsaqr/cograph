@@ -1,5 +1,5 @@
 # ===========================================================================
-# Local and neighbourhood centralities, dependency-free
+# Local and neighborhood centralities, dependency-free
 # ===========================================================================
 
 #' Degree and strength under igraph's mode and loop semantics
@@ -37,8 +37,16 @@
     all = out + inn + 2 * loop)
 }
 
+#' Strength: `.cg_degree()` on the weights instead of the support
+#'
+#' Same mode and self-loop semantics as `.cg_degree()`; only the quantity
+#' summed differs.
+#'
 #' @param w Weight matrix (the diagonal is read, not assumed zero).
-#' @rdname dot-cg_degree
+#' @param directed Whether the graph is directed.
+#' @param mode One of `"all"`, `"out"`, `"in"`.
+#' @param loops Whether self-loops are counted at all.
+#' @return Numeric vector.
 #' @keywords internal
 #' @noRd
 .cg_strength <- function(w, directed, mode = c("all", "out", "in"),
@@ -90,7 +98,7 @@
 
 #' Leverage centrality (Joyce et al. 2010)
 #'
-#' Degrees and the neighbour set are both taken at `mode`; using the
+#' Degrees and the neighbor set are both taken at `mode`; using the
 #' undirected reading for either would silently answer a different question
 #' on a directed graph.
 #'
@@ -122,9 +130,9 @@
 #'
 #' The denominator uses igraph's `mode = "all"` degree, so on a directed
 #' graph a reciprocated dyad counts twice. That is why a vertex with a single
-#' reciprocated neighbour scores 0 rather than `NaN`: it has degree two, and
+#' reciprocated neighbor scores 0 rather than `NaN`: it has degree two, and
 #' therefore a triple that simply is not closed. Triangles are counted over
-#' the distinct neighbour set.
+#' the distinct neighbor set.
 #'
 #' @param b Binary adjacency matrix. @param n Vertex count.
 #' @param directed Whether the graph is directed.
@@ -138,7 +146,7 @@
   u <- ((bb + t(bb)) != 0) * 1
   diag(u) <- 0
   # Directed: in + out, so a reciprocated dyad counts twice. Undirected: the
-  # neighbour count. Taking out-degree here would let an asymmetric matrix
+  # neighbor count. Taking out-degree here would let an asymmetric matrix
   # read as undirected produce a coefficient above 1.
   k <- if (directed) rowSums(bb) + colSums(bb) else rowSums(u)
   vapply(seq_len(n), function(i) {
@@ -153,7 +161,7 @@
 #' Barrat weighted local clustering coefficient
 #'
 #' Barrat et al. (2004): for node i with strength s_i and degree k_i,
-#' C_i = 1 / (s_i (k_i - 1)) * sum over ordered neighbour pairs (j, h) with
+#' C_i = 1 / (s_i (k_i - 1)) * sum over ordered neighbor pairs (j, h) with
 #' a_jh = 1 of (w_ij + w_ih) / 2. Matches igraph::transitivity(type =
 #' "barrat"), which is defined for undirected graphs without multi-edges;
 #' igraph refuses directed input, and so does this kernel.

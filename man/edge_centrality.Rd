@@ -43,11 +43,19 @@ Default NULL (auto-detect: TRUE for tna objects, FALSE otherwise).}
 
 \item{sort_by}{Character or NULL. Column to sort by (descending). Default NULL.}
 
-\item{...}{Additional arguments passed to \code{\link{to_igraph}}}
+\item{...}{Additional arguments forwarded to the graph constructor, namely
+\code{loops} and \code{simplify} (see \code{\link{centrality}}).}
 }
 \value{
-A data frame with columns \code{from}, \code{to}, and one column
-per requested measure.
+A base \code{data.frame} with one row per edge, in the canonical
+(row-major) edge order of the input. The first two columns are
+\code{from} and \code{to} (character when the input carried node names,
+numeric indices otherwise); the remaining columns are those the requested
+measures contribute, as listed in Details. \code{measures = "all"} on an
+undirected input therefore gives \code{from}, \code{to}, \code{weight},
+\code{betweenness}, \code{overlap}, \code{shared_neighbors} and
+\code{triangles}, and a directed input adds \code{reciprocated},
+\code{reverse_weight} and \code{weight_ratio}.
 
 Named numeric vector of edge betweenness values (named by
 \code{"from->to"}).
@@ -57,16 +65,23 @@ Computes centrality measures for edges in a network and returns a tidy
 data frame. Unlike node centrality, these measures describe edge importance.
 }
 \details{
-Edge measures available:
+Edge measures available, with the column(s) each one adds:
 \describe{
-\item{betweenness}{Number of shortest paths passing through the edge.}
-\item{weight}{Original edge weight.}
-\item{overlap}{Jaccard neighborhood overlap of edge endpoints.}
-\item{simmelian}{Number of triangles the edge participates in.}
-\item{reciprocity}{Whether the reverse edge exists (directed only).
-Adds columns: \code{reciprocated}, \code{reverse_weight},
-\code{weight_ratio}.}
+\item{betweenness}{Number of shortest paths passing through the edge.
+Adds \code{betweenness}.}
+\item{weight}{Original edge weight (1 for an unweighted input). Adds
+\code{weight}.}
+\item{overlap}{Jaccard neighborhood overlap of the edge endpoints. Adds
+\code{overlap} and the raw count \code{shared_neighbors}.}
+\item{simmelian}{Number of triangles the edge participates in. Adds
+\code{triangles} (there is no column called \code{simmelian}).}
+\item{reciprocity}{Whether the reverse edge exists. Directed only: on an
+undirected input it warns and adds nothing. Adds
+\code{reciprocated}, \code{reverse_weight} and \code{weight_ratio},
+the last two \code{NA} where the edge is not reciprocated.}
 }
+\code{measures = "all"} requests every measure, dropping
+\code{reciprocity} on an undirected input.
 }
 \examples{
 # Create test network

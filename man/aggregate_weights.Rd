@@ -10,15 +10,19 @@ aggregate_weights(w, method = "sum", n_possible = NULL)
 wagg(w, method = "sum", n_possible = NULL)
 }
 \arguments{
-\item{w}{Numeric vector of edge weights}
+\item{w}{Numeric vector of edge weights. \code{NA} and zero entries are
+dropped before aggregation.}
 
 \item{method}{Aggregation method: "sum", "mean", "median", "max", "min",
-"prod", "density", "geomean"}
+"prod", "density", "geomean". Default "sum". Any other value is an error.}
 
-\item{n_possible}{Number of possible edges (for density calculation)}
+\item{n_possible}{Number of possible edges (used only by
+\code{method = "density"}; when NULL or not positive, the number of
+surviving weights is used as the denominator instead).}
 }
 \value{
-Single aggregated value
+A single numeric value, or 0 when no non-zero, non-NA weight
+remains.
 }
 \description{
 Aggregates a vector of edge weights using various methods.

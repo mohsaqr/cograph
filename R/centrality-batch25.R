@@ -85,7 +85,7 @@ calculate_random_walk_decay <- function(cg, weights = NULL, decay = 0.5,
 #'   equation 3 and terminal-sink convention.
 #'   \doi{10.1609/aaai.v33i01.33012197}.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_random_walk_decay(igraph::make_ring(4), rwd_decay = 0.8)
 centrality_random_walk_decay <- function(x, rwd_decay = 0.5,
                                          rwd_node_weights = NULL, ...) {

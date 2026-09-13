@@ -1,8 +1,8 @@
 #' KED method terms (Chen, Xiao, Zeng and Zhang 2014, eqs. 1, 2 and 6)
 #'
 #' Chen, Xiao, Zeng and Zhang (2014), EPL 104(6):68006, rank spreaders by
-#' the product of a node's degree, the evenness of its neighbours' degrees
-#' and the size of its two-step neighbourhood. Preprint page 2, equations
+#' the product of a node's degree, the evenness of its neighbors' degrees
+#' and the size of its two-step neighborhood. Preprint page 2, equations
 #' (1) and (2):
 #'
 #' ```
@@ -24,13 +24,13 @@
 #' ```
 #'
 #' `H_i` is a ratio of two logarithms in the same base -- equation (2)
-#' divides the neighbour-degree entropy by its own maximum, the entropy of
+#' divides the neighbor-degree entropy by its own maximum, the entropy of
 #' the uniform distribution on `k_i` outcomes -- so the base cancels and
 #' the natural logarithm used here is not a choice. `H_i` lies in `[0, 1]`
-#' and equals one exactly when the neighbour degrees are all equal, which
+#' and equals one exactly when the neighbor degrees are all equal, which
 #' is the paper's `1 <= E_i <= 2`.
 #'
-#' The entropy is not accumulated neighbour by neighbour. Substituting
+#' The entropy is not accumulated neighbor by neighbor. Substituting
 #' `p_j = k_j / K_i` into equation (1) and separating the logarithm gives
 #'
 #' ```
@@ -41,12 +41,12 @@
 #' products against the degree vector and against `k log k`.
 #'
 #' Two cases the paper never mentions are decided here and recorded on
-#' `centrality_ked()`. At `k_i = 1` the single neighbour has `p = 1`, so
-#' `h_i = 0`, and the normaliser `log(k_i)` is zero as well: `H_i` is
+#' `centrality_ked()`. At `k_i = 1` the single neighbor has `p = 1`, so
+#' `h_i = 0`, and the normalizer `log(k_i)` is zero as well: `H_i` is
 #' `0/0` and is written as **zero**, the value the `k_i = 2` limit of a
-#' vanishing minority neighbour approaches and the one that gives a
+#' vanishing minority neighbor approaches and the one that gives a
 #' one-path node the least path diversity. At `k_i = 0` both the entropy
-#' and its normaliser are empty sums; `H_i` is written as zero there too,
+#' and its normalizer are empty sums; `H_i` is written as zero there too,
 #' and the score is zero whatever finite `E_i` is chosen, because `k_i`
 #' multiplies the product.
 #'
@@ -77,15 +77,15 @@
   cluster <- as.numeric(a %*% degree)
   # k log k, with the isolate's undefined 0 log 0 written as zero first so
   # that a zero adjacency entry can never multiply a NaN. An isolate is in
-  # nobody's neighbourhood, so this never changes a neighbour sum.
+  # nobody's neighborhood, so this never changes a neighbor sum.
   scaled_log <- numeric(n)
   live <- degree > 0
   scaled_log[live] <- degree[live] * log(degree[live])
   neighbour_log <- as.numeric(a %*% scaled_log)
   entropy <- numeric(n)
   diversity <- numeric(n)
-  # Only a node with at least two neighbours has a non-degenerate entropy
-  # and a non-zero normaliser; k_i <= 1 is the 0/0 written as zero above.
+  # Only a node with at least two neighbors has a non-degenerate entropy
+  # and a non-zero normalizer; k_i <= 1 is the 0/0 written as zero above.
   plural <- degree > 1
   if (any(plural)) {
     entropy[plural] <- log(cluster[plural]) -

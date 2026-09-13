@@ -58,7 +58,9 @@ scores by their maximum. This implements expected walk counts EInf, not
 the source's alternative probability-of-ever-hearing measure PInf.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_bridging_capital(igraph::make_ring(4), bridging_steps = 2)
+\dontshow{\}) # examplesIf}
 }
 \references{
 Jackson, M. O. (2020). A typology of social capital and

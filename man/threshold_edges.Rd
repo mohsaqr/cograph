@@ -48,7 +48,10 @@ TRUE. Set FALSE, or call \code{\link{remove_isolates}()}, to drop them.}
 \value{
 A \code{cograph_network} with the surviving edges, or the input
 format when \code{keep_format = TRUE}. Every node is kept unless
-\code{keep_isolates = FALSE}.
+\code{keep_isolates = FALSE}; nodes the threshold stranded are reported in
+a \code{cograph_isolates_created} warning. An out-of-range
+\code{minimum}, \code{maximum}, \code{proportion}, \code{density} or
+\code{top} raises a \code{cograph_bad_selection} error.
 }
 \description{
 Keeps the edges that satisfy every criterion supplied. This is the network

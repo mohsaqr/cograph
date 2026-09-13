@@ -37,12 +37,18 @@ Nodes that appear together in >= threshold proportion of runs are
 placed in the same community.}
 
 \item{seed}{Optional seed for reproducibility. If provided, the RNG state is
-initialized once before repeated runs.}
+initialized once before repeated runs and restored on exit.}
 
-\item{...}{Additional arguments passed to the community detection method.}
+\item{...}{Currently ignored. Each run calls the underlying
+\code{igraph::cluster_*()} function with its own defaults; no extra
+arguments are forwarded.}
 }
 \value{
-A \code{cograph_communities} object with consensus membership.
+A \code{cograph_communities} data frame (columns \code{node} and
+\code{community}) holding the consensus membership. Its
+\code{"algorithm"} attribute is \code{"consensus_<method>"} and its
+\code{"modularity"} attribute is that of the final walktrap partition of
+the consensus graph, not of the original network.
 }
 \description{
 Runs a stochastic community detection algorithm multiple times and finds

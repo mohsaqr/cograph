@@ -28,7 +28,7 @@ Entropy-weighted local dimension (Wen & Deng 2020). With
 estimated as minus the least-squares slope of \eqn{I_i(l)} on
 \eqn{\ln l} for \eqn{l = 1, \ldots, \lceil d_{\max}(i) / 2 \rceil}.
 \strong{Higher values mark more influential nodes.} When only one box size is
-available the discretised derivative of the source paper,
+available the discretized derivative of the source paper,
 \eqn{l (1 + \ln p_i(l))\, n_i(l) / N}, is reported.
 }
 \details{

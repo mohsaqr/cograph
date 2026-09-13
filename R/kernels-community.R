@@ -28,7 +28,7 @@
 }
 
 #' Participation coefficient (Guimera & Amaral 2005)
-#' @param adj Neighbour lists. @param deg Degree vector.
+#' @param adj Neighbor lists. @param deg Degree vector.
 #' @param membership Integer community labels, or `NULL`.
 #' @return Numeric vector; all `NaN` when no partition is supplied.
 #' @keywords internal
@@ -44,7 +44,7 @@
 }
 
 #' Within-module degree z-score (Guimera & Amaral 2005)
-#' @param adj Neighbour lists. @param membership Integer community labels.
+#' @param adj Neighbor lists. @param membership Integer community labels.
 #' @return Numeric vector; `NaN` where a module has no spread.
 #' @keywords internal
 #' @noRd
@@ -64,9 +64,15 @@
 }
 
 #' Domain prestige and proximity prestige (Wasserman & Faust)
+#'
 #' Prestige is defined by who can reach you, so it is meaningless without
 #' direction; an undirected graph yields `NA` rather than a symmetric number
 #' dressed up as prestige.
+#'
+#' The two branches normalize differently, matching `sna::prestige()`.
+#' `proximity = FALSE` returns the **raw** size of the influence domain
+#' `|I_v|`, not Wasserman & Faust's `|I_v| / (g - 1)`. `proximity = TRUE`
+#' returns the fully normalized `|I_v|^2 / (sum of the in-distances * (n - 1))`.
 #'
 #' @param b Binary adjacency matrix. @param proximity Whether to scale by distance.
 #' @param directed Whether the graph is directed.
@@ -94,7 +100,8 @@
 #'
 #' @param b Binary adjacency matrix. @param directed Whether directed.
 #' @return Numeric vector; `NA` on undirected input, where the ranking is
-#'   not defined.
+#'   not defined. The power iteration is capped at 1000 sweeps and returns
+#'   the last iterate silently if the 2e-5 mean relative change is not met.
 #' @keywords internal
 #' @noRd
 .cg_leaderrank <- function(b, directed = TRUE) {
@@ -121,7 +128,8 @@
 
 #' Trophic level
 #' @param b Binary adjacency matrix. @param directed Whether directed.
-#' @return Numeric vector; `NA` on undirected input or a singular system.
+#' @return Numeric vector; `NA` on undirected input, `NaN` throughout when
+#'   `I - t(W)` is singular.
 #' @keywords internal
 #' @noRd
 .cg_trophic_level <- function(b, directed = TRUE) {

@@ -5,7 +5,7 @@
 
 #' Ego-Network Metrics
 #'
-#' Extracts the ego network of each requested node (the node, its neighbours up
+#' Extracts the ego network of each requested node (the node, its neighbors up
 #' to a given order, and the ties among them) and reports a tidy table of
 #' personal-network metrics: size, internal tie counts and densities, and Burt's
 #' structural-hole measures. One row per ego.
@@ -14,15 +14,16 @@
 #'   object.
 #' @param nodes Character vector of node names or integer vector of node
 #'   indices selecting which egos to report. NULL (default) uses every node.
-#' @param order Integer neighbourhood order defining the ego network. 1
-#'   (default) is the standard ego network (ego + direct neighbours). Burt's
+#' @param order Integer neighborhood order defining the ego network. 1
+#'   (default) is the standard ego network (ego + direct neighbors). Burt's
 #'   \code{effective_size} and \code{constraint} are only defined for
 #'   \code{order = 1} and are returned as \code{NA} otherwise.
-#' @param mode For directed networks, which ties define the neighbourhood:
+#' @param mode For directed networks, which ties define the neighborhood:
 #'   \code{"all"} (default), \code{"out"}, or \code{"in"}.
 #' @param directed Logical or NULL. If NULL (default), auto-detect from matrix
 #'   symmetry.
-#' @param ... Additional arguments passed to \code{\link{to_igraph}}.
+#' @param ... Currently unused; \code{directed} is already an explicit
+#'   argument above and \code{\link{to_igraph}} accepts no others.
 #'
 #' @return A tidy data.frame of class \code{"cograph_ego_networks"} with one row
 #'   per ego and columns:
@@ -53,7 +54,7 @@
 #'   \code{dispersion}), \code{\link{select_neighbors}}, \code{\link{neighborhood_overlap}}
 #'
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' adj <- matrix(c(
 #'   0, 1, 1, 0, 0,
 #'   1, 0, 1, 0, 0,
@@ -93,7 +94,7 @@ ego_networks <- function(x,
     stop("Unknown node(s) requested in `nodes`.", call. = FALSE)
   }
 
-  # Neighbourhoods, vectorised over all requested egos (no explicit loop)
+  # Neighborhoods, vectorized over all requested egos (no explicit loop)
   egos <- igraph::ego(g, order = order, nodes = idx, mode = mode)
 
   per_ego <- lapply(seq_along(idx), function(j) {

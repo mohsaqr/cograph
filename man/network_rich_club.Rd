@@ -16,16 +16,27 @@ If NULL, uses median degree.}
 
 \item{n_random}{Number of random graphs for normalization. Default 10.}
 
-\item{...}{Additional arguments passed to \code{\link{to_igraph}}}
+\item{...}{Passed to \code{\link{to_igraph}}, whose only other argument
+is \code{directed}; anything else raises an "unused argument" error.}
 }
 \value{
-Numeric: rich club coefficient (> 1 indicates rich club effect when normalized)
+Numeric: rich club coefficient (> 1 indicates rich club effect when
+normalized). \code{NA} when fewer than two nodes exceed \code{k}.
 }
 \description{
 Computes the rich club coefficient for a given degree threshold k.
 Measures the tendency of high-degree nodes to connect to each other.
 A normalized version compares to random graphs.
 }
+\section{Reproducibility}{
+
+When \code{normalized = TRUE} the null graphs are drawn from the caller's
+RNG stream; this function takes no \code{seed} argument and does not save or
+restore \code{.Random.seed}. Call \code{set.seed()} beforehand for a
+reproducible result. \code{\link{rich_club}()} offers a \code{seed}
+argument, confidence intervals, and the full rich club curve.
+}
+
 \examples{
 # Scale-free networks often show rich-club effect
 if (requireNamespace("igraph", quietly = TRUE)) {

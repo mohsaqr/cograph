@@ -69,8 +69,10 @@ and the printed nine-node example, not parity with author software, which
 was not located, nor any claim about spreading performance.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_dkgm(igraph::make_ring(6))
 centrality_dkgm(igraph::make_star(6), dkgm_radius = 1)
+\dontshow{\}) # examplesIf}
 }
 \references{
 Li, Z. and Huang, X. (2021). Identifying influential spreaders

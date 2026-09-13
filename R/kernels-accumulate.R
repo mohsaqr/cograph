@@ -10,8 +10,9 @@
 #' four things every Brandes-style accumulation needs.
 #'
 #' Ties between equally short paths are judged on a **scale-relative**
-#' tolerance, `tol * pmax(|a|, |b|, 1)`, matching the reference. An absolute
-#' epsilon silently stops recognising ties once the weights are large: at a
+#' tolerance, `tol * max(|a|, |b|)`, with no absolute floor, so ties are
+#' recognized identically at every weight scale. An absolute
+#' epsilon silently stops recognizing ties once the weights are large: at a
 #' distance of 2e9 the reference tolerance is about 30, while a fixed 1.5e-8
 #' treats two genuinely tied routes as distinct.
 #'
@@ -26,7 +27,7 @@
   pred <- vector("list", n)
   used <- rep(FALSE, n)
   ordered <- integer(0)
-  # Settling is sequential; the relaxation within each step is vectorised.
+  # Settling is sequential; the relaxation within each step is vectorized.
   for (step in seq_len(n)) {
     cand <- dist; cand[used] <- Inf
     if (all(is.infinite(cand))) break
@@ -39,7 +40,7 @@
       # An unreached target is always a strict improvement; scaling by an
       # infinite current distance would give Inf - Inf.
       # Relative to the path lengths themselves (no absolute floor), so ties
-      # are recognised identically at every weight scale.
+      # are recognized identically at every weight scale.
       eps <- if (is.finite(dist[v])) tol * max(abs(nd), abs(dist[v])) else 0
       if (nd < dist[v] - eps) {
         dist[v] <- nd; sigma[v] <- sigma[u]; pred[[v]] <- u
@@ -109,7 +110,7 @@
     pred <- vector("list", n)
     for (wn in ordered_nodes) {
       v <- which(w[, wn] > 0 & is.finite(dist_s))
-      # relative to the path lengths, so ties are recognised at every weight scale
+      # relative to the path lengths, so ties are recognized at every weight scale
       on_path <- v[abs(dist_s[wn] - dist_s[v] - w[cbind(v, wn)]) <= 1e-10 * pmax(abs(dist_s[wn]), abs(dist_s[v]))]
       pred[[wn]] <- on_path
     }
@@ -155,7 +156,7 @@
     pred <- vector("list", n)
     for (wn in ordered_nodes) {
       v <- which(w[, wn] > 0 & is.finite(dist_s))
-      # relative to the path lengths, so ties are recognised at every weight scale
+      # relative to the path lengths, so ties are recognized at every weight scale
       on_path <- v[abs(dist_s[wn] - dist_s[v] - w[cbind(v, wn)]) <= 1e-10 * pmax(abs(dist_s[wn]), abs(dist_s[v]))]
       pred[[wn]] <- on_path
       sigma[wn] <- sigma[wn] + sum(sigma[on_path])

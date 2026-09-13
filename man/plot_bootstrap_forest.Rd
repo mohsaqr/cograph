@@ -118,8 +118,10 @@ plot_bootstrap_forest(x, ...)
 
 \item{...}{Currently unused.}
 
-\item{alpha}{Significance threshold. Default: inherits from the object
-(\code{$ci_level} or \code{$alpha}), falling back to \code{0.05}.}
+\item{alpha}{Significance threshold. Default \code{NULL}, which inherits
+from the object: \code{$ci_level} for \code{net_bootstrap},
+\code{$level} for \code{tna_bootstrap}, \code{$alpha} for
+\code{boot_glasso}, each falling back to \code{0.05}.}
 
 \item{layout}{\code{"linear"} (default) draws the classic tall forest plot;
 \code{"circular"} arranges each edge as a spoke around a circle, with the
@@ -141,25 +143,25 @@ significant at top), or \code{"name"} (alphabetical).}
 \item{n_top}{Integer: restrict to the \code{n_top} edges with the largest
 absolute estimate. Applied after significance filtering. Default \code{NULL}.}
 
-\item{node_colors}{Optional node-colour vector for grouped radial layouts.}
+\item{node_colors}{Optional node-color vector for grouped radial layouts.}
 
-\item{sig_color}{Colour for significant CI bars and points. Default \code{"#2C6E8A"} (teal-blue).}
+\item{sig_color}{Color for significant CI bars and points. Default \code{"#2C6E8A"} (teal-blue).}
 
-\item{cr_color}{Colour for the consistency range bar (\code{interval = "cr"} or \code{"both"}).
+\item{cr_color}{Color for the consistency range bar (\code{interval = "cr"} or \code{"both"}).
 Default \code{"#D4829A"}.}
 
-\item{nonsig_color}{Colour for non-significant edges. Default \code{"#CCCCCC"}.}
+\item{nonsig_color}{Color for non-significant edges. Default \code{"#CCCCCC"}.}
 
-\item{ring_color}{Colour for the reference rings (radial layout only). Default \code{"#C8C8C8"}.}
+\item{ring_color}{Color for the reference rings (radial layout only). Default \code{"#C8C8C8"}.}
 
-\item{median_color}{Colour for the dashed median ring (radial layout only). Default \code{"#AAAAAA"}.}
+\item{median_color}{Color for the dashed median ring (radial layout only). Default \code{"#AAAAAA"}.}
 
 \item{label_size}{Text size for edge labels (radial and grouped layouts).
 Default \code{NULL} for automatic sizing in the main methods, or
 \code{2.8} for \code{net_bootstrap_group}.}
 
-\item{label_color}{Fixed colour for edge labels (radial layout only). \code{NULL} (default)
-inherits the edge colour (teal for significant, grey for non-significant).}
+\item{label_color}{Fixed color for edge labels (radial layout only). \code{NULL} (default)
+inherits the edge color (teal for significant, grey for non-significant).}
 
 \item{point_size}{Size of the estimate square. Default \code{3} (linear) or \code{2} (radial).}
 
@@ -202,7 +204,7 @@ line runs through zero.
 Produces a ggplot2 forest plot where each row is one network edge, the
 square marks the bootstrap mean estimate, and the horizontal bar spans the
 selected interval. A dashed reference line runs through zero. Significant
-edges are highlighted in colour; non-significant ones appear in grey (only
+edges are highlighted in color; non-significant ones appear in grey (only
 shown when \code{show_nonsig = TRUE}).
 }
 \details{

@@ -44,7 +44,9 @@ use \code{include = "dynamical_importance"}; it is held back from the
 default \code{type = "all"} tier.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_dynamical_importance(igraph::make_full_graph(4))
+\dontshow{\}) # examplesIf}
 }
 \references{
 Restrepo, J. G., Ott, E., & Hunt, B. R. (2006). Characterizing the

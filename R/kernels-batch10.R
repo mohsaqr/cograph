@@ -11,13 +11,13 @@
 
 #' Local efficiency (Latora & Marchiori 2001, eq. 6)
 #'
-#' The global efficiency of the subgraph induced on a node's neighbours, the
+#' The global efficiency of the subgraph induced on a node's neighbors, the
 #' node itself excluded: `E_loc(i) = mean over ordered pairs (j, l) of
-#' neighbours of 1 / d_jl` measured *inside* that subgraph. A node with
-#' fewer than two neighbours scores 0, since the average is over an empty
+#' neighbors of 1 / d_jl` measured *inside* that subgraph. A node with
+#' fewer than two neighbors scores 0, since the average is over an empty
 #' set of pairs. Detours through the rest of the graph do not count, which
 #' is what makes the measure a local fault-tolerance statistic: it asks how
-#' well a node's neighbourhood still communicates when the node is gone.
+#' well a node's neighborhood still communicates when the node is gone.
 #'
 #' @param m Numeric matrix. Row `i` holds the edges leaving `i`; symmetric
 #'   for an undirected graph.
@@ -41,10 +41,10 @@
 
 #' s-core index (Eidsaa & Almaas 2013)
 #'
-#' The weighted generalisation of the k-core: the `s`-core is the maximal
+#' The weighted generalization of the k-core: the `s`-core is the maximal
 #' subgraph in which every node has strength at least `s`, and a node's
 #' s-core index is the largest `s` whose core still contains it. The peeling
-#' below realises that definition directly -- prune everything below the
+#' below realizes that definition directly -- prune everything below the
 #' current smallest strength, repeat until the survivors are stable, then
 #' raise the threshold to the new smallest strength. Unit weights make
 #' strength equal degree, so the index reduces exactly to the k-core number.
@@ -89,7 +89,8 @@
 #'
 #' @param m Numeric matrix. Row `i` holds the edges leaving `i`.
 #' @param mode Direction for the distances, one of `"all"`, `"out"`, `"in"`.
-#' @return Numeric vector; `NaN` when fewer than three nodes remain.
+#' @return Numeric vector; `NaN` throughout when the graph itself has fewer
+#'   than three nodes (the guard is on `n`, not on the residual graph).
 #' @keywords internal
 #' @noRd
 .cg_fragmentation <- function(m, mode = "all") {
@@ -142,8 +143,8 @@
 #' Connected-component label of every node
 #'
 #' Label propagation to a fixed point: each node takes the smallest label in
-#' its closed neighbourhood until nothing moves, which leaves every
-#' component labelled by its smallest member.
+#' its closed neighborhood until nothing moves, which leaves every
+#' component labeled by its smallest member.
 #'
 #' @param a Logical or 0/1 symmetric matrix.
 #' @return Integer vector of component labels.
@@ -166,7 +167,7 @@
 
 #' Edge percolated component (Lin et al. 2008)
 #'
-#' Bond percolation averaged over `runs` realisations: each edge survives
+#' Bond percolation averaged over `runs` realizations: each edge survives
 #' independently with probability `1 - threshold`, and the node's score is
 #' the mean size of the component it lands in, as a share of the network.
 #' The value is therefore in `[1/n, 1]` and does not move when `runs`
@@ -178,7 +179,7 @@
 #'
 #' @param a 0/1 symmetric matrix.
 #' @param threshold Edge removal probability. Default 0.5.
-#' @param runs Number of realisations. Default 1000.
+#' @param runs Number of realizations. Default 1000.
 #' @return Numeric vector of expected component shares.
 #' @keywords internal
 #' @noRd

@@ -56,7 +56,7 @@ calculate_malatya <- function(cg) {
 #' \url{https://arxiv.org/abs/1504.06672}.
 #' @seealso \code{\link{centrality_diffusion_centrality}}.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' g <- igraph::make_ring(5)
 #' centrality_dynamics_sensitive(g, ds_beta = 0.1, ds_mu = 1, ds_steps = 5)
 #' centrality_dynamics_sensitive(g, ds_mu = 0)
@@ -72,7 +72,7 @@ centrality_dynamics_sensitive <- function(x, ds_beta = 0.1, ds_mu = 1,
 #' Malatya centrality
 #'
 #' The static Malatya score of a node is the sum of its degree divided by
-#' each neighbour's degree: \eqn{M(i)=\sum_{j\in N(i)}d_i/d_j}.
+#' each neighbor's degree: \eqn{M(i)=\sum_{j\in N(i)}d_i/d_j}.
 #' Computes the score on the original graph. On nonisolated vertices it is
 #' exactly the reciprocal of \code{\link{centrality_bridging_coefficient}};
 #' this relationship follows from their definitions, not rank correlation.
@@ -80,8 +80,8 @@ centrality_dynamics_sensitive <- function(x, ds_beta = 0.1, ds_mu = 1,
 #' Uses the simple undirected unweighted skeleton: either direction creates
 #' an edge, parallel edges count once and self-loops are removed. This is an
 #' explicit projection of other inputs to the source's domain. The empty
-#' neighbour sum assigns isolates zero. On a regular graph the score equals
-#' degree. High scores favour nodes with many neighbours of low degree.
+#' neighbor sum assigns isolates zero. On a regular graph the score equals
+#' degree. High scores favor nodes with many neighbors of low degree.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
 #' @param ... Additional arguments to \code{\link{centrality}}. With
@@ -93,7 +93,7 @@ centrality_dynamics_sensitive <- function(x, ds_beta = 0.1, ds_mu = 1,
 #' Centrality Algorithm. Journal of Computer Science, 7(2), 81-88,
 #' equation 1. \doi{10.53070/bbd.1195501}.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_malatya(igraph::make_star(5, mode = "undirected"))
 centrality_malatya <- function(x, ...) {
   df <- centrality(x, measures = "malatya", ...)

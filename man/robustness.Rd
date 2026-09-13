@@ -35,17 +35,27 @@ attacks; random removal is unaffected.}
 
 \item{seed}{Random seed for reproducibility. Default NULL.}
 
-\item{...}{Additional arguments passed to \code{\link{to_igraph}}}
+\item{...}{Passed to \code{\link{to_igraph}}, whose only other argument
+is \code{directed}; anything else raises an "unused argument" error.}
 }
 \value{
-A data frame (class "cograph_robustness") with columns:
+A data frame (class "cograph_robustness") with one row per removal
+step, from zero removed through all removed (\code{n + 1} rows, where
+\code{n} is the number of vertices or edges), and columns:
 \describe{
 \item{removed_pct}{Fraction of vertices/edges removed (0 to 1)}
-\item{comp_size}{Size of largest component after removal}
+\item{comp_size}{Size of largest component after removal (averaged over
+\code{n_iter} runs when \code{measure = "random"})}
 \item{comp_pct}{Ratio of component size to original maximum}
-\item{measure}{Attack strategy used}
-\item{type}{Type of analysis (vertex or edge removal)}
+\item{measure}{The \code{measure} argument: "betweenness", "degree", or
+"random"}
+\item{type}{A human-readable label for the analysis, one of
+"Targeted vertex attack", "Targeted edge attack",
+"Random vertex removal" or "Random edge removal" - not the bare
+\code{type} argument}
 }
+The original number of vertices/edges (\code{"n_original"}) and the original
+largest-component size (\code{"orig_max"}) are stored as attributes.
 }
 \description{
 Performs a targeted attack or random failure analysis on a network,

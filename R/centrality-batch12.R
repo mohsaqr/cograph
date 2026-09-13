@@ -16,7 +16,7 @@ calculate_candidate_local <- function(cg, measure, mdd_lambda = 0.7) {
 #' All use the simple, unweighted, undirected skeleton: either direction
 #' creates an edge, parallel edges count once and self-loops are removed.
 #' This projection is a cograph input convention; no directed or weighted
-#' generalisation of the published measures is claimed. All isolates score 0.
+#' generalization of the published measures is claimed. All isolates score 0.
 #'
 #' \describe{
 #'   \item{\code{truss}}{Maximum truss number of an incident edge
@@ -35,10 +35,10 @@ calculate_candidate_local <- function(cg, measure, mdd_lambda = 0.7) {
 #'     ratio: \eqn{(1/d_i) / \sum_{j \in N(i)} 1/d_j}. This is the
 #'     coefficient itself, before multiplication by betweenness.}
 #'   \item{\code{godfather}}{Jackson's Godfather index: the number of
-#'     unordered pairs of neighbours with no edge between them. Equals
+#'     unordered pairs of neighbors with no edge between them. Equals
 #'     \eqn{d_i(d_i-1)/2} minus the number of triangles containing i.}
 #'   \item{\code{support}}{Jackson's supported relationships: the number
-#'     of neighbours sharing at least one common neighbour with i. An
+#'     of neighbors sharing at least one common neighbor with i. An
 #'     edge is counted once even if it belongs to multiple triangles.}
 #' }
 #'

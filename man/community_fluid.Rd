@@ -14,7 +14,8 @@ com_fl(x, no.of.communities, ...)
 
 \item{no.of.communities}{Number of communities to detect. Required.}
 
-\item{...}{Additional arguments passed to \code{\link{to_igraph}}}
+\item{...}{Passed to \code{\link{to_igraph}}, whose only other argument
+is \code{directed}; anything else raises an "unused argument" error.}
 }
 \value{
 A \code{cograph_communities} object

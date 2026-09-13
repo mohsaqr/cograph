@@ -153,8 +153,9 @@ or "auto" (adaptive based on node count).}
 \item{...}{Additional parameters passed to plot_tna().}
 }
 \value{
-Invisibly returns a cluster_summary object for summary mode, or the
-plot_tna result otherwise.
+Invisibly returns a \code{cluster_summary} object when
+\code{summary_edges = TRUE}, and otherwise the
+\code{\link{plot_tna}()} result (a \code{cograph_network} object).
 
 See \code{\link{plot_mtna}}.
 }

@@ -32,12 +32,12 @@
 #' Shapley-value centrality, games 1 to 3 (Michalak et al. 2013)
 #'
 #' Closed forms for the Shapley value of three coalition games on a graph.
-#' `N(v)` is the out-neighbourhood of `v` and `deg(u)` the in-degree of
+#' `N(v)` is the out-neighborhood of `v` and `deg(u)` the in-degree of
 #' `u`; on an undirected graph both reduce to the paper's formulas.
 #'
 #' * Game 1: `v(C)` = nodes in `C` or adjacent to `C`.
 #'   `SV(v) = sum_{u in {v} + N(v)} 1 / (1 + deg(u))`.
-#' * Game 2: `v(C)` = nodes in `C` or with at least `k` neighbours in `C`.
+#' * Game 2: `v(C)` = nodes in `C` or with at least `k` neighbors in `C`.
 #'   `SV(v) = min(1, k / (1 + deg(v))) +`
 #'   `sum_{u in N(v)} max(0, (deg(u) - k + 1) / (deg(u) (1 + deg(u))))`.
 #' * Game 3: `v(C)` = nodes within `cutoff` hops of `C`.
@@ -71,7 +71,7 @@
     share <- 1 / (1 + deg)
     return(as.numeric(share + nb %*% share))
   }
-  # game 2: an out-neighbour u always has deg(u) >= 1, but the guard keeps
+  # game 2: an out-neighbor u always has deg(u) >= 1, but the guard keeps
   # the vector finite for nodes nobody points at.
   own <- pmin(1, k / (1 + deg))
   gain <- ifelse(deg > 0, pmax(0, (deg - k + 1) / (deg * (1 + deg))), 0)
@@ -202,7 +202,7 @@
 #' size of the subtree below `u` (eq. 10 of Shah & Zaman 2011): the number
 #' of spreading orders that start at `v`. On a general graph the paper
 #' evaluates it on the breadth-first tree rooted at `v` (their eq. 24).
-#' The BFS is first-in-first-out with neighbours scanned in label order,
+#' The BFS is first-in-first-out with neighbors scanned in label order,
 #' so a node hangs from the earliest-discovered node of the previous layer
 #' (the paper leaves the tie rule open; this is the rule its Figure 3
 #' follows). `N` is the size of `v`'s component. Returned on the natural
@@ -262,7 +262,7 @@
 #' size of the node's own community, plus the inter-community degree
 #' weighted by the number of *other* communities the node touches.
 #'
-#' @param nb 0/1 neighbour matrix (`nb[i, j] = 1` when `j` is a neighbour
+#' @param nb 0/1 neighbor matrix (`nb[i, j] = 1` when `j` is a neighbor
 #'   of `i` under the caller's mode).
 #' @param membership Community labels, one per node.
 #' @return Numeric vector.
@@ -355,7 +355,7 @@
 #' Asymmetric link weights and node strengths of Liu et al. (2017)
 #'
 #' `w_ij = 1 + (k_i k_j^out(i))^a`, where `k_j^out(i)` counts the
-#' neighbours of `j` outside `i`'s closed neighbourhood (eq. 3), and
+#' neighbors of `j` outside `i`'s closed neighborhood (eq. 3), and
 #' `s_i = sum_{j in N(i)} w_ij` (eq. 4). Self-loops are ignored.
 #'
 #' @param b Adjacency matrix. @param a Exponent, default 0.5.
@@ -368,7 +368,7 @@
   k <- rowSums(nb)
   common <- nb %*% nb
   # For an edge i -- j, j's out-reaching links are its k_j links minus the
-  # ones into i's neighbourhood and minus the link back to i.
+  # ones into i's neighborhood and minus the link back to i.
   k_out <- sweep(-common, 2, k, "+") - 1
   w <- nb * (1 + (outer(k, rep(1, length(k))) * pmax(k_out, 0))^a)
   list(w = w, s = rowSums(w))
@@ -378,7 +378,7 @@
 #'
 #' Peels the graph by strength the way k-shell peels it by degree: the
 #' minimum remaining strength `s_m` is the threshold, every node at or
-#' below it is removed (neighbours lose `w_ji`), the removal is repeated
+#' below it is removed (neighbors lose `w_ji`), the removal is repeated
 #' until nothing is at or below `s_m`, and the removed nodes get the next
 #' shell index. With `a = 0` the shells are the dense ranks of k-core.
 #'
@@ -449,7 +449,7 @@
   which(admissible & score >= top - tol)[1L]
 }
 
-#' Undirected simple neighbour matrix (direction and loops dropped)
+#' Undirected simple neighbor matrix (direction and loops dropped)
 #' @keywords internal
 #' @noRd
 .cg_undirected_view <- function(b) {
@@ -460,8 +460,8 @@
 #' DegreeDiscountIC and SingleDiscount (Chen, Wang & Yang 2009, Alg. 4)
 #'
 #' Repeatedly select the node with the largest discounted degree `dd`;
-#' each unselected neighbour `v` of the selected node then counts one more
-#' selected neighbour (`t_v`) and its discounted degree becomes
+#' each unselected neighbor `v` of the selected node then counts one more
+#' selected neighbor (`t_v`) and its discounted degree becomes
 #' `d_v - 2 t_v - (d_v - t_v) t_v p` (DegreeDiscountIC, line 12 of the
 #' algorithm) or `d_v - t_v` (SingleDiscount: "each neighbor of a newly
 #' selected seed discounts its degree by one"). Ties go to the lowest node
@@ -497,10 +497,10 @@
 
 #' NCVoteRank (Kumar & Panda 2020), as restated by the Centrality Zoo
 #'
-#' VoteRank whose voters weight their ability by neighbourhood coreness:
+#' VoteRank whose voters weight their ability by neighborhood coreness:
 #' node `u` scores `sum_{v in N(u)} va_v (theta + (1 - theta) nc_v)`, where
 #' `nc_v = sum_{w in N(v)} ks(w)` (Bae & Kim 2014) scaled by its maximum.
-#' The top scorer is elected, its ability drops to 0, its neighbours lose
+#' The top scorer is elected, its ability drops to 0, its neighbors lose
 #' `1 / <k>` and the nodes at distance two lose `1 / (2 <k>)`. Elections
 #' continue until every node is placed (ties to the lowest index), matching
 #' `.cg_voterank()`.
@@ -510,7 +510,8 @@
 #'   nodes at distance two are weakened.
 #' @param return_scores Return the n x n matrix of scores before each
 #'   election instead (row = round); for tie diagnostics.
-#' @return Numeric score vector from `.cg_rank_score()`.
+#' @return Numeric score vector from `.cg_rank_score()`, or, when
+#'   `return_scores` is `TRUE`, the n x n score matrix described above.
 #' @keywords internal
 #' @noRd
 .cg_ncvoterank <- function(b, ks, theta = 0.5, two_hop = TRUE,

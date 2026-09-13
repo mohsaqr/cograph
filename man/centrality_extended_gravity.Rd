@@ -47,7 +47,9 @@ this measure: its masses are always k-shell indices. Computation includes
 all-pairs hop distances, so it can be expensive for large graphs.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_extended_gravity(igraph::make_ring(6), gravity_radius = 3)
+\dontshow{\}) # examplesIf}
 }
 \references{
 Ma, L. L., Ma, C., Zhang, H. F., & Wang, B. H. (2016). Identifying

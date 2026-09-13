@@ -14,7 +14,8 @@ com_op(x, weights = NULL, ...)
 
 \item{weights}{Edge weights. NULL uses network weights, NA for unweighted.}
 
-\item{...}{Additional arguments passed to \code{\link{to_igraph}}}
+\item{...}{Passed to \code{\link{to_igraph}}, whose only other argument
+is \code{directed}; anything else raises an "unused argument" error.}
 }
 \value{
 A \code{cograph_communities} object

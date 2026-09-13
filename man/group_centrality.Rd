@@ -67,10 +67,12 @@ match NetworkX exactly.
 }
 
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 g <- igraph::make_graph("Zachary")
 group_centrality(g, nodes = c(1, 2, 3), measure = "betweenness")
 group_centrality(g, nodes = c(1, 2, 3), measure = "closeness")
 group_centrality(g, nodes = c(1, 2, 3), measure = "degree")
+\dontshow{\}) # examplesIf}
 }
 \references{
 Everett, M. G., & Borgatti, S. P. (1999). The centrality of groups and

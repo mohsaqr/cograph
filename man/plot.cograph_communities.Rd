@@ -14,7 +14,8 @@
 \item{...}{Additional arguments passed to splot}
 }
 \value{
-Invisibly returns the plot
+The value returned by \code{\link{splot}} (invisibly). Called for
+the side effect of drawing the network with nodes grouped by community.
 }
 \description{
 Visualizes network with community coloring using splot.

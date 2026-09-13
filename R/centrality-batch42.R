@@ -100,7 +100,7 @@ calculate_neighbor_distance <- function(cg, order = 2, decay = 0.2,
 #'   \code{\link{centrality_extended_coreness}} for other neighborhood sums,
 #'   and \code{\link{list_centralities}} for the catalogue.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' # Neighbor distance centrality: degree benchmark, two steps, a = 0.2
 #' centrality_neighbor_distance(igraph::make_ring(6))
 #'

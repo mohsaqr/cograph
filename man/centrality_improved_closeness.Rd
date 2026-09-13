@@ -48,7 +48,9 @@ representation. Default alpha 0.2 is a setting studied in the source,
 not an estimate or a guarantee of optimal spreading predictions.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_improved_closeness(igraph::make_ring(4), icc_alpha = 0.2)
+\dontshow{\}) # examplesIf}
 }
 \references{
 Luan, Y., Bao, Z., & Zhang, H. (2021). Identifying Influential Spreaders

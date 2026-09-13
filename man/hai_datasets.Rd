@@ -61,10 +61,11 @@ human_ai
 human_ai_detailed
 }
 \value{
-A \code{data.frame} where each row is one session. The first
-columns identify the session; the remaining columns (T1, T2, ...) hold
-the sequential action codes, with \code{NA} indicating the session ended
-before that time step.  Six variants are provided: \code{coding} (human
+A \code{data.frame} where each row is one session and each column is
+one time step. Every column is named T1, T2, ... Tn and holds the action
+code at that step, with \code{NA} indicating the session ended before that
+time step; there are no identifier columns. Six variants are provided:
+\code{coding} (human
 actions by category, 9 states), \code{coding_detailed} (human actions by
 fine-grained code, 15 states), \code{ai_coding} (AI actions by category,
 8 states), \code{ai_detailed} (AI actions by fine-grained code, 18 states),
@@ -75,13 +76,13 @@ fine-grained code, 15 states), \code{ai_coding} (AI actions by category,
 Coded sequences of human-AI programming interactions from 34 projects
 across 429 sessions. Actions are coded at two granularity levels
 (broad categories vs fine-grained codes) and split by actor
-(Human, AI, or both combined). Each row is one session (project +
-session_id); columns T1, T2, ... hold the sequential actions.
-\code{NA} indicates the session ended before that time step.
+(Human, AI, or both combined). Each row is one session and every column is
+a time step: the columns are named T1, T2, ... Tn and hold the sequential
+actions. \code{NA} indicates the session ended before that time step.
 }
 \examples{
 data(coding)
-head(coding[, 1:6])
+str(coding, list.len = 6)
 dim(coding)
 }
 \keyword{datasets}

@@ -102,7 +102,7 @@ calculate_localized_bridging <- function(cg, radius = 1L) {
 #'   ego networks. \code{\link{centrality_local_bridging}} retains the
 #'   distinct legacy score, inverse degree times bridging coefficient.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_localized_bridging(igraph::make_graph("Zachary"))
 centrality_localized_bridging <- function(x, ...) {
   df <- centrality(x, measures = "localized_bridging", ...)
@@ -134,7 +134,7 @@ centrality_localized_bridging <- function(x, ...) {
 #'   sections IV-V, equation 5 and Table I.
 #'   \doi{10.1109/MILCOM.2016.7795393}.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_extended_local_bridging(igraph::make_graph("Zachary"))
 centrality_extended_local_bridging <- function(x, ...) { # nolint: object_length_linter
   df <- centrality(x, measures = "extended_local_bridging", ...)

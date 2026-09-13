@@ -2,7 +2,7 @@
 #'
 #' `NTS(u)` in the notation of Wang, Yang, Liu and Ma (2021): the number of
 #' triangles that contain `u`, equivalently the number of edges among the
-#' neighbours of `u`. Computed by masking the common-neighbour matrix
+#' neighbors of `u`. Computed by masking the common-neighbor matrix
 #' `A %*% A` with `A` itself and halving, because
 #' `sum_v A[u, v] (A %*% A)[u, v]` counts every triangle at `u` once from
 #' each of its two other corners.
@@ -25,11 +25,11 @@
 #' The Lhc index and its parts (Wang, Yang, Liu and Ma 2021)
 #'
 #' Wang, Yang, Liu and Ma (2021), *PLoS ONE* 16(5):e0251208, combine a
-#' node's neighbour information with its topological location. Journal
+#' node's neighbor information with its topological location. Journal
 #' page 3, equation (1), scores the *influence* of a node by a
 #' distance-discounted sum over a ball around it, and page 4, equation (2),
 #' turns that into the index by summing the influence over the node's own
-#' neighbours:
+#' neighbors:
 #'
 #' ```
 #' C(v)   = sum_{u in Phi(v)}  k_u (1 + TP(u)) / d(uv)^2        (1)
@@ -38,7 +38,7 @@
 #'
 #' with `k_u` the degree of `u`, `d(uv)` the shortest-path distance,
 #' `Phi(v)` the ball of radius `d` around `v` and `tau(v)` its "nearest
-#' neighbourhood". The triangle share `TP(u)` is defined on the same page
+#' neighborhood". The triangle share `TP(u)` is defined on the same page
 #' as
 #'
 #' ```
@@ -50,7 +50,7 @@
 #' `d` on eleven real networks finding "the optimal value of d is about
 #' 2-3".
 #'
-#' **The normaliser is `TNTS`, not the number of triangles.** The paper
+#' **The normalizer is `TNTS`, not the number of triangles.** The paper
 #' settles this itself, in the sentence after the definition: "the total
 #' number of triangle structure exists in the network are `1/3 * TNTS`".
 #' So `TNTS = 3 * Delta` with `Delta` the number of distinct triangles, and
@@ -64,8 +64,8 @@
 #' **`Phi(v)` is open and so is `tau(v)`.** `Phi(v)` is `1 <= d(u,v) <= d`:
 #' `v` itself cannot be in it, since `d^2(vv) = 0` would divide by zero,
 #' and the paper describes it as "the nearby nodes include but not bounded
-#' the nearest neighbors". `tau(v)` is the open neighbourhood `N(v)`, "the
-#' nearest neighbourhood of node v". A consequence the paper does not
+#' the nearest neighbors". `tau(v)` is the open neighborhood `N(v)`, "the
+#' nearest neighborhood of node v". A consequence the paper does not
 #' remark on but which follows from its equations: `v` **does** contribute
 #' to its own `Lhc(v)`, because `v` lies in `Phi(w)` at distance 1 for
 #' every `w` in `tau(v)`.
@@ -78,7 +78,7 @@
 #' zero as well, so there is no share to distribute and no node has a claim
 #' on one. `TP` is therefore written as **zero** on a triangle-free graph,
 #' which leaves the index as the pure
-#' `sum_{w in tau(v)} sum_{u in Phi(w)} k_u / d(uw)^2` -- the neighbour and
+#' `sum_{w in tau(v)} sum_{u in Phi(w)} k_u / d(uw)^2` -- the neighbor and
 #' location half of the hybrid, with the triangle half contributing
 #' nothing. The branch is taken by testing `TNTS` before any division, so
 #' no `0/0` is ever evaluated; the alternatives, `NA` or an error, would
@@ -148,7 +148,7 @@
   # matrix is symmetric on the undirected skeleton, so the row and column
   # readings coincide.
   influence <- as.numeric(discount %*% (degree * (1 + tp)))
-  # Equation (2): Lhc(v) = sum over the open neighbourhood of v.
+  # Equation (2): Lhc(v) = sum over the open neighborhood of v.
   lhc <- as.numeric(a %*% influence)
 
   out <- data.frame(degree = degree, nts = nts, tp = tp,

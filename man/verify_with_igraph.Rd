@@ -12,14 +12,19 @@ verify_igraph(x, clusters, method = "sum", type = "raw")
 \arguments{
 \item{x}{Adjacency matrix}
 
-\item{clusters}{Cluster specification}
+\item{clusters}{Cluster specification (see \code{\link{csum}})}
 
-\item{method}{Aggregation method}
+\item{method}{Aggregation method. Default "sum".}
 
 \item{type}{Normalization type. Defaults to "raw" for igraph compatibility.}
 }
 \value{
-List with comparison results
+A list with components \code{our_result} (cograph's macro weight
+matrix), \code{igraph_result} (igraph's
+\code{contract()} + \code{simplify()} matrix), \code{matches} (logical:
+do the off-diagonals agree to within 1e-10?) and \code{difference} (the
+\code{all.equal()} report when they do not, otherwise NULL). Returns
+\code{NULL} with a message if igraph is not installed.
 }
 \description{
 Confirms numerical match with igraph's contract_vertices + simplify.

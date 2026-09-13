@@ -14,13 +14,13 @@ calculate_candidate_structure <- function(cg, measure, volume_radius = 2) {
 #' Sum of the original-graph degrees of all vertices within
 #' \code{volume_radius} hops, including the focal vertex. This is the
 #' localized volume measure of Wehmuth & Ziviani (DANCE/DACCER). Degrees
-#' include edges leaving the neighbourhood; they are not recomputed inside
+#' include edges leaving the neighborhood; they are not recomputed inside
 #' the induced subgraph. Radius zero returns degree. Infinite radius returns
 #' twice the number of edges in the focal connected component.
 #'
 #' Uses the simple undirected, unweighted skeleton: either direction creates
 #' an edge, parallel edges count once, and self-loops are removed. This is
-#' an explicit input projection, not a weighted or directed generalisation.
+#' an explicit input projection, not a weighted or directed generalization.
 #' Isolates score zero.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
@@ -39,7 +39,7 @@ calculate_candidate_structure <- function(cg, measure, volume_radius = 2) {
 #' 2536-2548. \doi{10.1016/j.comnet.2013.05.001}.
 #' @seealso \code{\link{centrality_kreach}}, \code{\link{centrality_degree}}.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_volume(igraph::make_ring(6), volume_radius = 1)
 #' centrality_volume(igraph::make_ring(6), volume_radius = 0)
 centrality_volume <- function(x, volume_radius = 2, ...) {
@@ -56,7 +56,7 @@ centrality_volume <- function(x, volume_radius = 2, ...) {
 #' Uses the simple undirected, unweighted skeleton: either direction creates
 #' an edge, parallel edges count once, and self-loops are removed. Singleton
 #' cliques are excluded, so isolates score zero. This is an explicit cograph
-#' convention consistent with the paper's degree reduction when neighbours
+#' convention consistent with the paper's degree reduction when neighbors
 #' have no edges between them. Reading the printed sum literally with
 #' singleton cliques would instead assign isolates \eqn{0! = 1}.
 #'
@@ -77,7 +77,7 @@ centrality_volume <- function(x, volume_radius = 2, ...) {
 #' @seealso \code{\link{centrality_cross_clique}},
 #'   \code{\link{list_centralities}}.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_mcc(igraph::make_full_graph(5))
 centrality_mcc <- function(x, ...) {
   df <- centrality(x, measures = "mcc", ...)

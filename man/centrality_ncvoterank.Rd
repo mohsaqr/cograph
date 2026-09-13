@@ -18,16 +18,16 @@ object).}
 Named numeric vector in \eqn{(0, 1]}, one score per node.
 }
 \description{
-Kumar and Panda's (2020) neighbourhood-coreness VoteRank. As in
-VoteRank, every node votes for its neighbours with its voting ability,
+Kumar and Panda's (2020) neighborhood-coreness VoteRank. As in
+VoteRank, every node votes for its neighbors with its voting ability,
 the top scorer is elected, and the abilities around it are weakened;
-here each voter's ability is additionally weighted by its neighbourhood
+here each voter's ability is additionally weighted by its neighborhood
 coreness,
 \deqn{s_u = \sum_{v \in N(u)} va_v \,[\theta + (1 - \theta)\, nc_v],
   \qquad nc_v = \frac{\sum_{w \in N(v)} ks(w)}
   {\max_j \sum_{w \in N(j)} ks(w)},}
 with \eqn{ks} the k-shell index (Bae & Kim 2014) and \eqn{\theta = 0.5}.
-After an election the winner's ability drops to 0, its neighbours lose
+After an election the winner's ability drops to 0, its neighbors lose
 \eqn{1 / \langle k \rangle} and the nodes two steps away lose
 \eqn{1 / (2 \langle k \rangle)}. Elections continue until every node is
 placed, as in \code{\link{centrality_voterank}}; the first elected
@@ -39,7 +39,7 @@ this definition follows the Centrality Zoo encyclopedia (Shvydun 2025)
 and three independent restatements (Yu et al. 2020, Li et al. 2022,
 Zhu et al. 2023), which agree on the voter-side coreness weighting.
 The scaling of the coreness term by its maximum follows Yu et al., who
-state the coreness is normalised without giving the form. With
+state the coreness is normalized without giving the form. With
 \eqn{\theta = 1} and no two-hop weakening the procedure is exactly
 VoteRank, which is reproduced against \code{networkx.voterank}.
 Defined for undirected graphs; direction, weights and loops are ignored.

@@ -69,8 +69,10 @@ precision. This establishes numerical agreement, not a universal guarantee
 of spreading prediction or parity with unreleased author software.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_mcgm(igraph::make_ring(6))
 centrality_mcgm(igraph::make_star(6), mcgm_radius = 3)
+\dontshow{\}) # examplesIf}
 }
 \references{
 Li, Z. and Huang, X. (2022). Identifying influential spreaders

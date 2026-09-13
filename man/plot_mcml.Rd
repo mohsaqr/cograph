@@ -2,16 +2,7 @@
 % Please edit documentation in R/plot-mcml.R
 \name{plot_mcml}
 \alias{plot_mcml}
-\title{Produces a two-layer hierarchical visualization of a clustered network.
-The \strong{bottom layer} shows every node arranged inside elliptical cluster
-shells with full within-cluster and between-cluster edges drawn at the
-individual-node level. The \strong{top layer} collapses each cluster into a
-single summary pie-chart node whose colored slice represents, by default,
-the cluster's share of the initial state distribution (see
-\code{summary_pie} for the alternative self-retention interpretation),
-with edges carrying the aggregated between-cluster weights. Dashed
-inter-layer lines connect each detail node to its corresponding summary
-node, making the hierarchical mapping explicit.}
+\title{Plot Multi-Cluster Multi-Layer Network}
 \usage{
 plot_mcml(
   x,
@@ -435,13 +426,24 @@ avoid recomputation, inspected with \code{print()}, or fed to
 \code{\link{as_tna}} for further analysis.
 }
 \description{
+Produces a two-layer hierarchical visualization of a clustered network.
+The \strong{bottom layer} shows every node arranged inside elliptical cluster
+shells with full within-cluster and between-cluster edges drawn at the
+individual-node level. The \strong{top layer} collapses each cluster into a
+single summary pie-chart node whose colored slice represents, by default,
+the cluster's share of the initial state distribution (see
+\code{summary_pie} for the alternative self-retention interpretation),
+with edges carrying the aggregated between-cluster weights. Dashed
+inter-layer lines connect each detail node to its corresponding summary
+node, making the hierarchical mapping explicit.
+}
+\details{
 Use \code{plot_mcml} when you need a simultaneous micro/macro view of
 cluster structure — the bottom layer reveals internal cluster dynamics while
 the top layer provides a bird's-eye summary. For a flat multi-cluster plot
 without the summary layer, see \code{\link{plot_mtna}}. For stacked
 multilevel/multiplex layers, see \code{\link{plot_mlna}}.
-}
-\details{
+
 \strong{Two workflows:}
 \enumerate{
 \item \strong{Direct}: pass a weight matrix (or tna / cograph_network
@@ -481,7 +483,7 @@ whose proportions are controlled by \code{top_layer_scale}.
 }
 \section{Input Formats}{
 
-\code{x} accepts four types:
+\code{x} accepts the following types:
 \describe{
 \item{\strong{matrix}}{A square numeric weight matrix with row/column
 names matching the node identifiers in \code{cluster_list}.}
@@ -494,6 +496,9 @@ is read from the \code{$nodes} data frame.}
 \code{\link{csum}}. When this type is passed, the
 \code{cluster_list}, \code{aggregation}, and \code{nodes} parameters
 are ignored because the summary already contains everything needed.}
+\item{\strong{mcml / mcml_pc}}{A Nestimate multi-cluster multi-layer
+object; handled exactly like a \code{cluster_summary}, with
+\code{mcml_pc} rendered undirected via its \code{meta$directed} flag.}
 }
 }
 

@@ -22,7 +22,8 @@ weights.}
 \item{directed}{Logical or NULL. If NULL (default), auto-detect from matrix
 symmetry. Set TRUE to force directed, FALSE to force undirected.}
 
-\item{...}{Additional arguments passed to \code{\link{to_igraph}}}
+\item{...}{Currently unused; \code{directed} is already an explicit
+argument above and \code{\link{to_igraph}} accepts no others.}
 }
 \value{
 A list with class "cograph_k_paths" containing:
@@ -55,6 +56,7 @@ The algorithm may return fewer than \code{k} paths if fewer distinct loopless
 paths exist between the two nodes.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Find 3 shortest paths in a small network
 adj <- matrix(c(
   0, 1, 1, 0, 0,
@@ -66,7 +68,7 @@ adj <- matrix(c(
 rownames(adj) <- colnames(adj) <- LETTERS[1:5]
 kp <- cograph::k_shortest_paths(adj, from = "A", to = "E", k = 3)
 kp
-
+\dontshow{\}) # examplesIf}
 }
 \references{
 Yen, J.Y. (1971). Finding the K shortest loopless paths in a network.

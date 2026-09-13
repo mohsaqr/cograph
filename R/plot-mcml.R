@@ -93,7 +93,7 @@
   list(weights = net$weights, inits = net$initial)
 }
 
-' Plot Multi-Cluster Multi-Layer Network
+#' Plot Multi-Cluster Multi-Layer Network
 #'
 #' Produces a two-layer hierarchical visualization of a clustered network.
 #' The **bottom layer** shows every node arranged inside elliptical cluster
@@ -151,7 +151,7 @@
 #' whose proportions are controlled by \code{top_layer_scale}.
 #'
 #' @section Input Formats:
-#' \code{x} accepts four types:
+#' \code{x} accepts the following types:
 #' \describe{
 #'   \item{\strong{matrix}}{A square numeric weight matrix with row/column
 #'     names matching the node identifiers in \code{cluster_list}.}
@@ -164,6 +164,9 @@
 #'     \code{\link{csum}}. When this type is passed, the
 #'     \code{cluster_list}, \code{aggregation}, and \code{nodes} parameters
 #'     are ignored because the summary already contains everything needed.}
+#'   \item{\strong{mcml / mcml_pc}}{A Nestimate multi-cluster multi-layer
+#'     object; handled exactly like a \code{cluster_summary}, with
+#'     \code{mcml_pc} rendered undirected via its \code{meta$directed} flag.}
 #' }
 #'
 #' @section Edge Types:
@@ -771,7 +774,7 @@ plot_mcml <- function(
   n_top <- length(top_labels)
 
   # Which cluster owns each top node: itself when the node IS a cluster,
-  # otherwise the cluster holding that state. Drives the node colour and the
+  # otherwise the cluster holding that state. Drives the node color and the
   # dashed link down to the lower layer.
   top_owner <- vapply(top_labels, function(l) {
     if (l %in% cluster_names) {
@@ -845,7 +848,7 @@ plot_mcml <- function(
            "#0072B2", "#D55E00", "#CC79A7", "#999999")
   if (is.null(colors)) colors <- rep_len(pal, n_clusters)
 
-  # An expanded state takes its own cluster's colour, so the top layer still
+  # An expanded state takes its own cluster's color, so the top layer still
   # reads as groups. Identical to `colors` when nothing is expanded.
   top_colors <- colors[match(top_owner, cluster_names)]
   top_colors[is.na(top_colors)] <- colors[1L]
@@ -1548,7 +1551,7 @@ plot_mcml <- function(
 #' mcml - Deprecated alias for csum
 #'
 #' @description
-#' `r lifecycle::badge("deprecated")`
+#' \strong{\[Deprecated\]}
 #'
 #' Use \code{\link{csum}} instead. This function is provided for
 #' backward compatibility only.

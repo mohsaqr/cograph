@@ -57,7 +57,7 @@ calculate_rsp_betweenness <- function(cg, weights = NULL, rsp_beta = 0.01,
 #' because \eqn{(I-W)} stays nonsingular whatever the connectivity.
 #'
 #' \strong{\code{rsp_beta} defaults to 0.01, which is not the source's
-#' number.} The paper fixes no default and treats \eqn{\beta} as a modelling
+#' number.} The paper fixes no default and treats \eqn{\beta} as a modeling
 #' choice; 0.01 is the value recommended by \code{NetworkToolbox::rspbc()},
 #' adopted here so that the two implementations are directly comparable out of
 #' the box. It sits near the high-temperature end, so the default reading is
@@ -82,7 +82,7 @@ calculate_rsp_betweenness <- function(cg, weights = NULL, rsp_beta = 0.01,
 #' series diverge.
 #'
 #' Direction is read from the graph, not from \code{mode}: \eqn{P^{ref}}
-#' normalises by out-strength and \eqn{Z} counts directed walks, so a directed
+#' normalizes by out-strength and \eqn{Z} counts directed walks, so a directed
 #' input is scored as directed and a reversed input generally scores
 #' differently. There is no in/out/all variant to select, so the measure sits
 #' in the no-mode family. Loops are dropped and \code{cutoff} and
@@ -119,7 +119,7 @@ calculate_rsp_betweenness <- function(cg, weights = NULL, rsp_beta = 0.01,
 #'   spectrum, \code{\link{centrality_betweenness}} for the shortest-path end,
 #'   and \code{\link{list_centralities}} for the catalogue.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' # A single edge scores exactly 1 at both nodes, for every rsp_beta.
 #' centrality_rsp_betweenness(igraph::make_full_graph(2))
 #'

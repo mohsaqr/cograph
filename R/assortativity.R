@@ -14,13 +14,16 @@
 #'   object.
 #' @param directed Logical or NULL. If NULL (default), auto-detect from matrix
 #'   symmetry. Set TRUE to force directed, FALSE to force undirected.
-#' @param type Character string specifying which degree correlation to compute.
-#'   One of \code{"out-in"} (default for directed), \code{"in-in"},
-#'   \code{"out-out"}, \code{"in-out"}, or \code{"degree"} (for undirected).
-#'   Ignored for undirected networks.
+#' @param type Character string specifying which degree correlation to compute,
+#'   or NULL (default) to choose automatically: \code{"out-in"} for directed
+#'   networks and \code{"degree"} for undirected ones. For a directed network
+#'   the accepted values are \code{"out-in"}, \code{"in-in"},
+#'   \code{"out-out"} and \code{"in-out"}; for an undirected network the only
+#'   accepted value is \code{"degree"}. Any other value raises an error.
 #' @param digits Integer or NULL. Round result to this many decimal places.
 #'   Default NULL (no rounding).
-#' @param ... Additional arguments passed to \code{\link{to_igraph}}.
+#' @param ... Currently unused; \code{directed} is already an explicit
+#'   argument above and \code{\link{to_igraph}} accepts no others.
 #'
 #' @return An object of class \code{"cograph_assortativity"} with components:
 #'   \describe{
@@ -44,13 +47,27 @@
 #' degree-\eqn{k} vertices, \eqn{q_k} is the excess degree distribution, and
 #' \eqn{\sigma_q^2} its variance.
 #'
-#' For directed networks, different degree combinations (in/out) at source and
-#' target ends can be specified via the \code{type} parameter.
+#' Because the Pearson correlation is invariant to subtracting a constant, the
+#' implementation computes the correlation of the raw (rather than excess)
+#' degrees at the two ends of each edge, counting every undirected edge in both
+#' orientations; this is numerically identical to the formula above.
+#'
+#' For directed networks, the coefficient is the Pearson correlation between
+#' the source-end and target-end degrees over each edge in its stored
+#' orientation, with the degree mode at each end chosen by \code{type}
+#' (Foster et al. 2010).
+#'
+#' The coefficient is \code{NA} when the network has no edges or when either
+#' degree vector has zero variance.
 #'
 #' @references
 #' Newman, M.E.J. (2002). Assortative mixing in networks.
 #' \emph{Physical Review Letters}, 89(20), 208701.
 #' \doi{10.1103/PhysRevLett.89.208701}
+#'
+#' Foster, J.G., Foster, D.V., Grassberger, P., & Paczuski, M. (2010).
+#' Edge direction and the structure of networks. \emph{PNAS}, 107(24),
+#' 10815-10820. \doi{10.1073/pnas.0912671107}
 #'
 #' @seealso \code{\link{assortativity_attribute}}, \code{\link{centrality}},
 #'   \code{\link{network_summary}}
@@ -138,7 +155,8 @@ assortativity <- function(x,
 #'   or an unnamed vector in node order.
 #' @param directed Logical or NULL. If NULL (default), auto-detect.
 #' @param digits Integer or NULL. Round result. Default NULL.
-#' @param ... Additional arguments passed to \code{\link{to_igraph}}.
+#' @param ... Currently unused; \code{directed} is already an explicit
+#'   argument above and \code{\link{to_igraph}} accepts no others.
 #'
 #' @return An object of class \code{"cograph_assortativity"} with components:
 #'   \describe{
@@ -158,7 +176,13 @@ assortativity <- function(x,
 #' edges connecting type \eqn{i} to type \eqn{j}.
 #'
 #' For numeric (scalar) attributes, the coefficient is the Pearson correlation
-#' between attribute values at edge endpoints.
+#' between attribute values at edge endpoints (computed over both orientations
+#' of every edge when the network is undirected). Any non-numeric
+#' \code{values} vector (character or factor) is treated as nominal.
+#'
+#' The coefficient is \code{NA} when the network has no edges, when a nominal
+#' attribute has a single category, or when either value vector has zero
+#' variance.
 #'
 #' @references
 #' Newman, M.E.J. (2003). Mixing patterns in networks.
@@ -168,7 +192,7 @@ assortativity <- function(x,
 #' @seealso \code{\link{assortativity}}, \code{\link{detect_communities}}
 #'
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' adj <- matrix(c(0,1,1,0, 1,0,0,0, 1,0,0,1, 0,0,1,0), 4, 4)
 #' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
 #' groups <- c(A = "x", B = "x", C = "y", D = "y")

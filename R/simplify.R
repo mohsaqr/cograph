@@ -26,23 +26,26 @@
 #'   \code{"first"}, or a custom function. Ignored for matrix/tna inputs.
 #' @param ... Additional arguments (currently unused).
 #'
-#' @return The simplified network in the same format as the input.
+#' @return The simplified network, in the same format and class as the input
+#'   (matrix in / matrix out, \code{cograph_network} in / \code{cograph_network}
+#'   out, and so on). The default method raises an error for any other class.
 #'
 #' @seealso \code{\link{filter_edges}} for conditional edge removal,
 #'   \code{\link{centrality}} which has its own \code{simplify} parameter
 #'
 #' @export
 #' @examples
+#' # igraph also exports simplify(); qualify the call when both are loaded.
 #' # Matrix with self-loops
 #' mat <- matrix(c(0.5, 0.3, 0, 0.3, 0.2, 0.4, 0, 0.4, 0.1), 3, 3)
 #' rownames(mat) <- colnames(mat) <- c("A", "B", "C")
-#' simplify(mat)
+#' cograph::simplify(mat)
 #'
 #' # Edge list with duplicates
 #' edges <- data.frame(from = c(1, 1, 2), to = c(2, 2, 3), weight = c(0.3, 0.7, 0.5))
 #' net <- cograph(edges, layout = NULL)
-#' simplify(net)
-#' simplify(net, edge_attr_comb = "sum")
+#' cograph::simplify(net)
+#' cograph::simplify(net, edge_attr_comb = "sum")
 simplify <- function(x, remove_loops, remove_multiple, edge_attr_comb, ...) {
   UseMethod("simplify")
 }

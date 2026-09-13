@@ -333,7 +333,7 @@ resolve_label_sizes <- function(label_size, node_size_usr, n, scaling = "default
 
   # qgraph-style invariant: label cex tracks node_size so their ratio is
   # locked. At the defaults (node_size = 7, node_default = 7) this evaluates
-  # to 1.0 — backward-compatible with pre-fix behaviour. When a user doubles
+  # to 1.0 — backward-compatible with pre-fix behavior. When a user doubles
   # node_size, labels double too; when they shrink nodes, labels shrink.
   ns <- if (is.null(node_size)) scale$node_default else node_size[1]
   if (!is.numeric(ns) || !is.finite(ns) || ns <= 0) ns <- scale$node_default

@@ -57,7 +57,9 @@ acts on the returned ordinary-node scores. Numerical definition agreement
 does not establish superior spreading predictions or author-code parity.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_adaptive_leaderrank(igraph::make_ring(4))
+\dontshow{\}) # examplesIf}
 }
 \references{
 Xu, S., & Wang, P. (2017). Identifying important nodes by

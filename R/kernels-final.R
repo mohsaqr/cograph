@@ -9,7 +9,7 @@
 #' worst case; it is bounded here only by graph size.
 #'
 #' @param b Binary adjacency matrix. @param directed Whether directed.
-#' @param source Source index. @param mode Neighbour mode.
+#' @param source Source index. @param mode Neighbor mode.
 #' @return Numeric vector of counts.
 #' @keywords internal
 #' @noRd
@@ -42,7 +42,7 @@
 
 #' Bottleneck centrality
 #' @param b Binary adjacency matrix. @param directed Whether directed.
-#' @param n Vertex count. @param mode Neighbour mode.
+#' @param n Vertex count. @param mode Neighbor mode.
 #' @return Numeric vector.
 #' @keywords internal
 #' @noRd
@@ -121,9 +121,9 @@
   comps
 }
 
-#' Density of maximum neighbourhood component
+#' Density of maximum neighborhood component
 #'
-#' Reproduces a reference quirk deliberately: the neighbour list carries
+#' Reproduces a reference quirk deliberately: the neighbor list carries
 #' reciprocation multiplicity (`2 2 3 3`), component membership is computed on
 #' the deduplicated subgraph, and the result is then indexed back into the
 #' *multiplied* list. That mismatch can select the same vertex twice. It is
@@ -131,7 +131,7 @@
 #' both do, so matching it is the contract.
 #'
 #' @param b Binary adjacency matrix. @param directed Whether directed.
-#' @param mode Neighbour mode. @param epsilon Exponent on component size.
+#' @param mode Neighbor mode. @param epsilon Exponent on component size.
 #' @return Numeric vector.
 #' @keywords internal
 #' @noRd
@@ -219,10 +219,10 @@
 #'
 #' Sums per-depth transmission weight over every self-avoiding walk of length
 #' up to `max_length`. Implemented as backtracking depth-first search with a
-#' mutable visited flag: memoising on the visited set is far more expensive
+#' mutable visited flag: memoizing on the visited set is far more expensive
 #' than the search it saves, because the key is rebuilt at every call.
 #'
-#' The neighbour list keeps reciprocation multiplicity, so a mutual dyad is
+#' The neighbor list keeps reciprocation multiplicity, so a mutual dyad is
 #' traversed twice.
 #'
 #' @param b Binary adjacency matrix. @param directed Whether directed.

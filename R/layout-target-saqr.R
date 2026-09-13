@@ -59,7 +59,7 @@ NULL
 #' @param ... Additional arguments (ignored).
 #' @return Data frame with \code{x}, \code{y} coordinates, one row per node.
 #'
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' adj <- matrix(c(0, 1, 1, 0, 1, 0, 0, 1,
 #'                 1, 0, 0, 0, 0, 1, 0, 0), nrow = 4, byrow = TRUE)
 #' net <- CographNetwork$new(adj)

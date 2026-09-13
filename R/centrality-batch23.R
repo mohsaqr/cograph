@@ -55,7 +55,7 @@ calculate_adaptive_leaderrank <- function(cg, h_mode = "all") {
 #'   adaptive LeaderRank. Physica A, 469, 654-664, section 2.2, equation 3
 #'   and algorithm steps 1-4. \doi{10.1016/j.physa.2016.11.034}.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_adaptive_leaderrank(igraph::make_ring(4))
 centrality_adaptive_leaderrank <- function(x, alr_h_mode = "all", ...) {
   df <- centrality(x, measures = "adaptive_leaderrank",

@@ -72,7 +72,7 @@ calculate_mixed_gravity <- function(cg, radius = 3, extended = FALSE) {
 #'   \doi{10.1038/s41598-022-14005-3}.
 #' @seealso \code{\link{centrality_extended_mixed_gravity}}.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_mixed_gravity(igraph::make_ring(6))
 #' centrality_mixed_gravity(igraph::make_star(6), gravity_radius = 1)
 centrality_mixed_gravity <- function(x, gravity_radius = 3, ...) {
@@ -110,7 +110,7 @@ centrality_mixed_gravity <- function(x, gravity_radius = 3, ...) {
 #'   12, 9879, equations 5-8 and reference 19.
 #'   \doi{10.1038/s41598-022-14005-3}.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_extended_mixed_gravity(igraph::make_ring(6))
 # nolint start: object_length_linter.
 centrality_extended_mixed_gravity <- function(x, gravity_radius = 3, ...) {

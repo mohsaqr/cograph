@@ -59,7 +59,7 @@
       order_stack <- c(order_stack, u)
       edge <- w[u, ]
       move <- which(!visited & edge > 0)
-      # Relaxation must see the tie test per neighbour, so it stays a loop.
+      # Relaxation must see the tie test per neighbor, so it stays a loop.
       for (v in move) {
         nd <- dist[u] + edge[v]
         if (nd < dist[v] - eps) {

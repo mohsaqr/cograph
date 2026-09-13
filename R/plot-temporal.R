@@ -18,8 +18,8 @@
 #' @param node_size Numeric. Node size. Default 2.5.
 #' @param node_color Character or vector. Node fill color. A single color
 #'   applies everywhere. An unnamed vector is recycled across \emph{layers},
-#'   colouring each plane as a whole. A \strong{named} vector is matched to
-#'   node names instead and colours each \emph{node} the same on every plane,
+#'   coloring each plane as a whole. A \strong{named} vector is matched to
+#'   node names instead and colors each \emph{node} the same on every plane,
 #'   which is what makes a node identifiable as it moves through the stack;
 #'   names not present in the network are an error rather than silent. See
 #'   also \code{color_by}. The original text of this parameter continues:
@@ -53,8 +53,8 @@
 #' @param angle Numeric vector of length 2: \code{c(dz_x, dz_y)} controlling
 #'   the oblique projection shear. Default \code{c(1.0, 0.7)}.
 #' @param color_by One of \code{"layer"} (the default, and the historical
-#'   behaviour) or \code{"node"}. Chooses what an unnamed \code{node_color}
-#'   vector indexes. A named \code{node_color} always colours by node and
+#'   behavior) or \code{"node"}. Chooses what an unnamed \code{node_color}
+#'   vector indexes. A named \code{node_color} always colors by node and
 #'   ignores this argument.
 #' @param seed Integer or NULL. Default 42.
 #' @param ... Additional arguments (currently unused).
@@ -62,7 +62,7 @@
 #' @return Invisible list of adjacency matrices per layer.
 #' @seealso \code{\link{plot_network_evolution}}, \code{\link{plot_mlna}}
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' set.seed(1)
 #' edges <- data.frame(
 #'   from = sample(LETTERS[1:5], 30, replace = TRUE),
@@ -108,7 +108,7 @@ plot_temporal <- function(x,
   nn <- length(all_nodes)
   n_layers <- length(mats)
 
-  # A colour per layer paints whole planes; a colour per node is what lets a
+  # A color per layer paints whole planes; a color per node is what lets a
   # reader follow one node through the stack. Both are wanted, so resolve
   # which was meant before recycling.
   color_by <- match.arg(color_by)
@@ -245,8 +245,8 @@ plot_temporal <- function(x,
 
     # Nodes — for non-fillable shapes (pch < 21), use col as the fill
     fillable <- node_shape >= 21 && node_shape <= 25
-    # One colour per node on this plane: a length-nn vector when colouring by
-    # node, the plane's single colour repeated when colouring by layer.
+    # One color per node on this plane: a length-nn vector when coloring by
+    # node, the plane's single color repeated when coloring by layer.
     fill_here <- grDevices::adjustcolor(
       if (ncol(node_fill) == 1L) node_fill[, 1L] else node_fill[, li], 0.85)
     graphics::points(node_screen[, 1], node_screen[, 2],
@@ -290,21 +290,21 @@ plot_temporal <- function(x,
 }
 
 
-#' Resolve node fill colours for a temporal stack
+#' Resolve node fill colors for a temporal stack
 #'
 #' `plot_temporal()` historically recycled `node_color` to the number of
-#' layers and indexed it by layer, so every node on a plane shared a colour
+#' layers and indexed it by layer, so every node on a plane shared a color
 #' and a named per-node vector was silently discarded. Node identity then
 #' rested entirely on shared position and label. This resolves both readings:
-#' a named vector, or `color_by = "node"`, colours each node the same on
-#' every plane; anything else keeps the per-layer behaviour.
+#' a named vector, or `color_by = "node"`, colors each node the same on
+#' every plane; anything else keeps the per-layer behavior.
 #'
-#' @param node_color The user's colour or vector.
+#' @param node_color The user's color or vector.
 #' @param color_by `"layer"` or `"node"`.
 #' @param all_nodes Character vector of node names, in draw order.
 #' @param n_layers Number of planes.
 #' @return A character matrix with one row per node. One column when the
-#'   colouring is per node, `n_layers` columns when it is per layer.
+#'   coloring is per node, `n_layers` columns when it is per layer.
 #' @keywords internal
 #' @noRd
 .temporal_node_fill <- function(node_color, color_by, all_nodes, n_layers) {

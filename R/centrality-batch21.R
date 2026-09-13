@@ -40,7 +40,7 @@ calculate_global_structure <- function(cg, model = "gsm", normalized = FALSE) {
 #'   model in complex networks. Scientific Reports, 11, 6173, equations
 #'   5-8. \doi{10.1038/s41598-021-84684-x}.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_global_structure(igraph::make_ring(4))
 centrality_global_structure <- function(x, ...) {
   df <- centrality(x, measures = "global_structure", ...)
@@ -79,7 +79,7 @@ centrality_global_structure <- function(x, ...) {
 #'   Scientific Reports, 13, 11411, equations 6-8.
 #'   \doi{10.1038/s41598-023-37570-7}.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_hybrid_global_structure(igraph::make_ring(4))
 centrality_hybrid_global_structure <- function(x, ...) { # nolint: object_length_linter
   df <- centrality(x, measures = "hybrid_global_structure", ...)
@@ -118,7 +118,7 @@ centrality_hybrid_global_structure <- function(x, ...) { # nolint: object_length
 #'   The implemented IGSM formula is reproduced as equation 5 in Mukhtar
 #'   et al. (2023), \doi{10.1038/s41598-023-37570-7}.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_improved_global_structure(igraph::make_ring(4))
 centrality_improved_global_structure <- function(x, ...) { # nolint: object_length_linter
   df <- centrality(x, measures = "improved_global_structure", ...)

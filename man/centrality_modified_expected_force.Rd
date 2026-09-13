@@ -31,7 +31,9 @@ All graph, event-counting and zero-force conventions of
 overflow when alpha times degree cannot be represented.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_modified_expected_force(igraph::make_graph("Zachary"))
+\dontshow{\}) # examplesIf}
 }
 \references{
 Lawyer, G. (2015). Understanding the influence of all nodes

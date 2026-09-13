@@ -61,8 +61,9 @@
 #'   \code{shapes} to control cluster shell shapes.
 #' @param ... Additional parameters passed to plot_tna().
 #'
-#' @return Invisibly returns a cluster_summary object for summary mode, or the
-#'   plot_tna result otherwise.
+#' @return Invisibly returns a \code{cluster_summary} object when
+#'   \code{summary_edges = TRUE}, and otherwise the
+#'   \code{\link{plot_tna}()} result (a \code{cograph_network} object).
 #'
 #' @export
 #' @seealso \code{\link{csum}}, \code{\link{plot_mcml}}

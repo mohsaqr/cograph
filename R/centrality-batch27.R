@@ -52,7 +52,7 @@ calculate_x_degree <- function(cg) {
 #'   3(2), 656-675. Proposition 3.8, equation 3.15.
 #'   \doi{10.1137/20M1352132}.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_x_degree(igraph::make_graph("Zachary"))
 centrality_x_degree <- function(x, ...) {
   df <- centrality(x, measures = "x_degree", ...)

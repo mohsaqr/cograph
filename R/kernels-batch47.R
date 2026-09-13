@@ -24,7 +24,7 @@
   reach <- (a > 0)
   diag(reach) <- TRUE
   # Each squaring at least doubles the reachable radius, so the loop runs
-  # at most ceiling(log2(n)) + 1 times; vectorising it away is not possible
+  # at most ceiling(log2(n)) + 1 times; vectorizing it away is not possible
   # because every round consumes the previous round's closure.
   repeat {
     nxt <- ((reach * 1) %*% (reach * 1)) > 0

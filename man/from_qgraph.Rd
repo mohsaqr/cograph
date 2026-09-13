@@ -23,10 +23,15 @@ Default: \code{"splot"}.}
 \item{plot}{Logical. If TRUE (default), immediately plot using the chosen engine.}
 
 \item{weight_digits}{Number of decimal places to round edge weights to. Default 2.
-Edges that round to zero are removed unless \code{show_zero_edges = TRUE}.}
+Edges whose weight rounds to zero at this precision are dropped unless
+\code{show_zero_edges = TRUE}.}
 
-\item{show_zero_edges}{Logical. If TRUE, keep edges even if their weight rounds to
-zero. Default: FALSE.}
+\item{show_zero_edges}{Logical. Zero is how this representation stores
+"no edge", so an edge whose weight rounds to zero at
+\code{weight_digits} is dropped. With \code{TRUE} such an edge is
+instead drawn at the smallest magnitude \code{weight_digits} can
+express, carrying its sign; every other weight is unchanged. Default:
+FALSE.}
 
 \item{preserve_node_size}{Logical. If TRUE, use the node sizes extracted
 from the qgraph object. Default FALSE uses cograph's standard sizing.}
@@ -67,8 +72,10 @@ cograph equivalents:
 \item \code{labels} \code{->} \code{edge_labels}
 \item \code{label.cex} \code{->} \code{edge_label_size} (scaled by 0.5x)
 \item \code{lty} \code{->} \code{edge_style} (numeric to name conversion)
-\item \code{curve} \code{->} \code{curvature}
+\item \code{curve} \code{->} \code{curvature} (only when qgraph resolved a
+single curvature for the whole graph)
 \item \code{asize} \code{->} \code{arrow_size} (scaled by 0.3x)
+\item \code{edge.label.position} \code{->} \code{edge_label_position}
 }
 
 \strong{Graph properties:}
@@ -78,11 +85,13 @@ cograph equivalents:
 \item \code{groups} \code{->} \code{groups}
 \item \code{directed} \code{->} \code{directed}
 \item \code{posCol}/\code{negCol} \code{->} \code{edge_positive_color}/\code{edge_negative_color}
+\item \code{theme} \code{->} \code{theme}
 }
 
 \strong{Pie/Donut:}
 \itemize{
-\item \code{pie} values \code{->} \code{donut_fill} with \code{donut_inner_ratio=0.8}
+\item \code{pie} values \code{->} \code{donut_fill} with
+\code{donut_inner_ratio = 0.8} and \code{donut_empty = FALSE}
 \item \code{pieColor} \code{->} \code{donut_color}
 }
 }

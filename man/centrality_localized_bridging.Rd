@@ -40,7 +40,9 @@ worst-case O(n to the fourth power) time and O(n squared) memory for
 dense matrix multiplication across all nodes.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_localized_bridging(igraph::make_graph("Zachary"))
+\dontshow{\}) # examplesIf}
 }
 \references{
 Nanda, S. and Kotz, D. (2012). Localized Bridging Centrality.

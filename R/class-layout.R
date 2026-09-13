@@ -106,6 +106,7 @@ CographLayout <- R6::R6Class(
     },
 
     #' @description Print layout summary.
+    #' @return The object itself, invisibly.
     print = function() {
       cat("CographLayout\n")
       cat("  Type:", private$.type, "\n")

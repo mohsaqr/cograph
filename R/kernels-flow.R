@@ -54,9 +54,10 @@
 
 #' Moore-Penrose inverse of the shifted Laplacian
 #'
-#' The Laplacian is singular by construction (its rows sum to zero), so it is
-#' shifted by 1/n before inversion and falls back to a pseudo-inverse when
-#' even that is rank-deficient.
+#' The Laplacian is singular by construction (its rows sum to zero), so
+#' `1/n` is subtracted from every entry before inversion. The primary route
+#' is an ordinary `solve()` of that shifted matrix; the SVD pseudo-inverse is
+#' the fallback when even the shifted matrix is rank-deficient.
 #'
 #' @inheritParams .cg_adj_la
 #' @param n Vertex count.
@@ -126,8 +127,9 @@
 #' it already uses `solve(V)` on asymmetric input. It is reproduced faithfully,
 #' singular-eigenbasis `NA` included.
 #'
-#' @param w Weight matrix. @param n Vertex count.
-#' @return Numeric vector.
+#' @param w Weight matrix; only its support is read, so the kernel is
+#'   unweighted (`w != 0`, diagonal cleared). @param n Vertex count.
+#' @return Numeric vector; `NA` throughout when any eigenbasis is singular.
 #' @keywords internal
 #' @noRd
 .cg_communicability_betweenness <- function(w, n) {
@@ -161,7 +163,6 @@
 }
 
 #' SALSA authority scores
-#' SALSA authority scores
 #'
 #' The stationary vector is taken as the eigenvector whose eigenvalue is
 #' nearest 1, not the dominant one. Power iteration converges to the dominant
@@ -170,7 +171,9 @@
 #'
 #' SALSA separates hubs from authorities, so it is undefined without direction.
 #'
-#' @param w Weight matrix. @param n Vertex count. @param directed Whether directed.
+#' @param w Weight matrix; only its support is read, so the kernel is
+#'   unweighted (`w != 0`, diagonal cleared). @param n Vertex count.
+#' @param directed Whether directed.
 #' @return Numeric vector scaled to a maximum of 1; `NA` on undirected input.
 #' @keywords internal
 #' @noRd
@@ -193,7 +196,12 @@
   if (!(mx > 0)) rep(0, n) else auth / mx
 }
 
-#' Cross-clique connectivity: how many maximal-and-partial cliques a vertex joins
+#' Cross-clique connectivity: how many cliques a vertex joins
+#'
+#' Every complete subgraph is counted, not only the maximal ones, and the
+#' singleton clique counts too: each vertex of a triangle scores 4 (itself,
+#' its two edges, the triangle).
+#'
 #' @param b Binary adjacency matrix.
 #' @return Numeric vector.
 #' @keywords internal

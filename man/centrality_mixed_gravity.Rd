@@ -53,8 +53,10 @@ maximum normalization applies to the complete result over all nodes.
 Dense all-pairs distances cost O(n cubed) time and O(n squared) memory.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_mixed_gravity(igraph::make_ring(6))
 centrality_mixed_gravity(igraph::make_star(6), gravity_radius = 1)
+\dontshow{\}) # examplesIf}
 }
 \references{
 Wang, J., Li, C. and Xia, C. (2018). Improved centrality

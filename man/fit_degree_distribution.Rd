@@ -66,6 +66,15 @@ for a discrete distribution; p-values are approximate.
 
 \strong{Geometric}: \eqn{P(k) \sim (1-p)^k p}. MLE:
 \eqn{p = 1 / (1 + \bar{k})}.
+
+\code{ks_stat} is always reported. \code{ks_p} comes from
+\code{stats::ks.test()} for the exponential and Poisson fits and from
+\code{igraph::fit_power_law()} for the automatic power-law fit; it is
+\code{NA} for the geometric fit and for the manual (non-igraph or explicit
+\code{xmin}) power-law fit, whose KS statistics are computed directly
+against the theoretical CDF without a reference distribution. AIC and BIC
+count one free parameter per distribution, so the power-law \code{xmin} is
+not penalized.
 }
 \examples{
 adj <- matrix(c(0, 1, 1, 0, 0,

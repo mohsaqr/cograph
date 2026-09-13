@@ -31,7 +31,9 @@ layout the caller already configured (e.g. via \code{\link{panel_layout}()}).}
 (e.g. \code{display = "significant"}, \code{show_stars = FALSE}).}
 }
 \value{
-Invisibly returns \code{x}.
+Invisibly returns \code{x}. With a single group the
+\code{\link{splot}()} result for that panel (a \code{cograph_network})
+is returned instead, and with an empty group list \code{NULL}.
 }
 \description{
 Plots each cluster's \code{net_bootstrap} in a grid, routing every panel

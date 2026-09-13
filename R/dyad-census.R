@@ -16,7 +16,8 @@
 #'   object.
 #' @param directed Logical or NULL. If NULL (default), auto-detect from matrix
 #'   symmetry. Set TRUE to force directed, FALSE to force undirected.
-#' @param ... Additional arguments passed to \code{\link{to_igraph}}.
+#' @param ... Currently unused; \code{directed} is already an explicit
+#'   argument above and \code{\link{to_igraph}} accepts no others.
 #'
 #' @return A tidy data.frame of class \code{"cograph_dyad_census"} with one row
 #'   per dyad type and columns:
@@ -44,7 +45,7 @@
 #'   \code{\link{network_summary}}
 #'
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' # Directed network with a mix of mutual and asymmetric ties
 #' adj <- matrix(c(
 #'   0, 1, 1, 0,

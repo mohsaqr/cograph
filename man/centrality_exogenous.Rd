@@ -73,7 +73,9 @@ with worst-case O(N^4) time using the current dense kernels. The measure
 is therefore in the costly tier even when the degree base is selected.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_exogenous(igraph::make_ring(4), exogenous_base = "betweenness")
+\dontshow{\}) # examplesIf}
 }
 \references{
 Everett, M. G., & Borgatti, S. P. (2010). Induced, endogenous

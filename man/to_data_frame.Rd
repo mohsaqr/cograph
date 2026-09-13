@@ -16,12 +16,17 @@ to_df(x, directed = NULL)
 symmetry. Set TRUE to force directed, FALSE to force undirected.}
 }
 \value{
-A data frame with columns:
+A base \code{data.frame} with one row per edge and exactly three
+columns:
 \itemize{
 \item \code{from}: Source node name/label
 \item \code{to}: Target node name/label
 \item \code{weight}: Edge weight
 }
+Any further edge columns the network carries (for example \code{session}
+or \code{time} from temporal edge lists) are \emph{not} included; use
+\code{\link{get_edges}}, which returns the edge table whole. An
+undirected network contributes one row per unordered pair, not two.
 }
 \description{
 Converts a network to an edge list data frame with columns for source,

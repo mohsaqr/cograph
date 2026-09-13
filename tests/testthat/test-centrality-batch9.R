@@ -397,3 +397,29 @@ test_that("batch 9 measures are invariant to node relabelling", {
   expect_equal(got[keep], ref[keep])
   for (m in greedy) expect_equal(sort(got[[m]]), sort(ref[[m]]), info = m)
 })
+
+# ===========================================================================
+# Parameter validation (classed conditions, not opaque internal failures)
+# ===========================================================================
+
+test_that("ld_radius below 1 raises a classed condition", {
+  star <- matrix(0, 5, 5); star[1, 2:5] <- 1; star[2:5, 1] <- 1
+  rownames(star) <- colnames(star) <- LETTERS[1:5]
+  for (bad in list(0, -1, NA_real_, Inf, c(1, 2), "two")) {
+    expect_error(centrality_local_dimension_fixed(star, ld_radius = bad),
+                 class = "cograph_bad_parameter")
+  }
+  expect_silent(centrality_local_dimension_fixed(star, ld_radius = 2))
+})
+
+test_that("comm_r rejects anything but \"max_intra\" or a positive number", {
+  star <- matrix(0, 5, 5); star[1, 2:5] <- 1; star[2:5, 1] <- 1
+  rownames(star) <- colnames(star) <- LETTERS[1:5]
+  memb <- c(1, 1, 2, 2, 2)
+  for (bad in list("bogus", 0, -2, NA_real_, Inf, c(1, 2))) {
+    expect_error(centrality_comm_centrality(star, membership = memb, comm_r = bad),
+                 class = "cograph_bad_parameter")
+  }
+  expect_type(centrality_comm_centrality(star, membership = memb), "double")
+  expect_type(centrality_comm_centrality(star, membership = memb, comm_r = 3), "double")
+})

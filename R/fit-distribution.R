@@ -46,6 +46,15 @@
 #' **Geometric**: \eqn{P(k) \sim (1-p)^k p}. MLE:
 #' \eqn{p = 1 / (1 + \bar{k})}.
 #'
+#' \code{ks_stat} is always reported. \code{ks_p} comes from
+#' \code{stats::ks.test()} for the exponential and Poisson fits and from
+#' \code{igraph::fit_power_law()} for the automatic power-law fit; it is
+#' \code{NA} for the geometric fit and for the manual (non-igraph or explicit
+#' \code{xmin}) power-law fit, whose KS statistics are computed directly
+#' against the theoretical CDF without a reference distribution. AIC and BIC
+#' count one free parameter per distribution, so the power-law \code{xmin} is
+#' not penalized.
+#'
 #' @references
 #' Clauset, A., Shalizi, C. R., & Newman, M. E. J. (2009). Power-law
 #' distributions in empirical data. \emph{SIAM Review}, 51(4), 661--703.
@@ -349,9 +358,11 @@ print.cograph_degree_fit <- function(x, digits = 4, ...) {
 #'   \code{\link{fit_degree_distribution}}.
 #' @param which Character vector of distribution names to display. Default
 #'   \code{NULL} shows all fitted distributions.
-#' @param log Character string for log-scale axes: \code{""} (default),
-#'   \code{"y"}, or \code{"xy"}. Values containing \code{"x"} are accepted
-#'   for compatibility but only filter non-positive fitted curve values.
+#' @param log Character string for log-scale axes: one of \code{""} (default),
+#'   \code{"x"}, \code{"y"} or \code{"xy"}. Only \code{"y"} and \code{"xy"}
+#'   actually log the histogram axis; the values containing \code{"x"} are
+#'   accepted for compatibility but merely filter non-positive fitted curve
+#'   values.
 #' @param cols Named or unnamed character vector of colors for distribution
 #'   curves. Default uses a built-in palette.
 #' @param lwd Line width for fitted curves. Default 2.

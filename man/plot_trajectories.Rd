@@ -55,8 +55,8 @@ plot_trajectories(
 \item{x}{Data frame with one column per time point and one row per
 individual trajectory.}
 
-\item{from_title}{Title for the left column. Default "From". For multi-step,
-use a vector of titles (e.g., c("T1", "T2", "T3", "T4")).}
+\item{from_title}{Column titles. Default \code{NULL}, which uses the
+column names of \code{x}. Pass a character vector to override them.}
 
 \item{title}{Optional plot title. Applied via ggplot2::labs(title = title).}
 

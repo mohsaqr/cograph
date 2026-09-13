@@ -14,7 +14,7 @@
 # These measures were written against igraph objects and validated against
 # centiserve, sna, brainGraph, influenceR and NetworkX. They now read the
 # `cg_graph` context (R/kernels-graph.R). Where the old code leaned on an
-# igraph convention -- a self-loop listed twice in a neighbour list, a
+# igraph convention -- a self-loop listed twice in a neighbor list, a
 # `weights = NULL` default that silently used the weight attribute -- the
 # helper below reproduces that convention so the pinned values do not move.
 
@@ -29,7 +29,7 @@
   if (!inherits(cg, "igraph")) return(cg)
   g <- cg
   cg <- .cg_graph(g)
-  # igraph keeps edges in insertion order; the context re-canonicalises them
+  # igraph keeps edges in insertion order; the context re-canonicalizes them
   # row-major. Remember the permutation so a weights vector the caller built
   # in igraph's order can be re-aligned by .ext_weights().
   el <- igraph::as_edgelist(g, names = FALSE)
@@ -62,9 +62,9 @@
   .cg_path_matrix(cg, .ext_weights(cg, weights))
 }
 
-#' Neighbour lists with igraph's `as_adj_list()` / `neighbors()` semantics
+#' Neighbor lists with igraph's `as_adj_list()` / `neighbors()` semantics
 #'
-#' Sorted by neighbour id. On a directed graph `mode = "all"` lists a
+#' Sorted by neighbor id. On a directed graph `mode = "all"` lists a
 #' reciprocated dyad twice. A self-loop is listed once under `"out"` or
 #' `"in"` and twice on an undirected graph. On a directed graph under
 #' `"all"` the two igraph accessors disagree: `neighbors()` lists the loop
@@ -126,7 +126,7 @@
 #' Bridging coefficient (Hwang et al. 2008)
 #'
 #' `(1 / deg(v)) / sum_{u in N(v)} 1 / deg(u)` on the undirected degree,
-#' with the neighbour multiset as igraph lists it.
+#' with the neighbor multiset as igraph lists it.
 #'
 #' @param cg A `cg_graph` context.
 #' @return Numeric vector; 0 for an isolate.
@@ -186,7 +186,7 @@
 
 #' Weighted local reaching centrality
 #'
-#' Paths minimise `total / w` (a heavy edge is cheap to cross) and the score
+#' Paths minimize `total / w` (a heavy edge is cheap to cross) and the score
 #' averages the traversed weights along each path.
 #'
 #' @param cg A `cg_graph` context. @param w Weights in canonical edge order.
@@ -219,8 +219,8 @@
 
 #' Incident arcs with traversal costs, in igraph's incidence-list order
 #'
-#' Neighbours ascending; under directed `"all"` the out-arc precedes the
-#' in-arc to the same neighbour. Self-loops are dropped (they can never
+#' Neighbors ascending; under directed `"all"` the out-arc precedes the
+#' in-arc to the same neighbor. Self-loops are dropped (they can never
 #' shorten a path).
 #'
 #' @param m Weight matrix. @param directed Whether directed.
@@ -936,8 +936,9 @@ calculate_mnc <- function(cg, mode = "all") {
 #'
 #' ec / max_component_size^epsilon where ec is the edge count of the
 #' largest connected component in the neighborhood subgraph.
-#' Default epsilon from centiserve is the parameter (default 1.0 I think...
-#' actually the centiserve default is between 1 and 2, let me check).
+#' `epsilon` defaults to 1.7, the value Lin et al. (2008) recommend;
+#' centiserve defaults to 1.67 (its four-community assumption). Both are
+#' valid per the original paper.
 #' @keywords internal
 #' @noRd
 calculate_dmnc <- function(cg, mode = "all", epsilon = 1.7) {
@@ -961,7 +962,7 @@ calculate_dmnc <- function(cg, mode = "all", epsilon = 1.7) {
     sizes <- lengths(comps)
     mc_size <- max(sizes)
     # Reference quirk kept on purpose: the positions of the largest
-    # component index the raw neighbour list, repeats included, not the
+    # component index the raw neighbor list, repeats included, not the
     # deduplicated vertex set the components were computed on.
     positions <- sort(unlist(comps[sizes == mc_size], use.names = FALSE))
     mc_nodes <- unique(nbs[positions])
@@ -975,9 +976,10 @@ calculate_dmnc <- function(cg, mode = "all", epsilon = 1.7) {
 #' Topological coefficient (centiserve-compatible)
 #'
 #' For each node v with neighbors N(v), for each neighbor nb:
-#'   - Count distinct neighbors-of-nb that are not v
-#'   - Track unique "extended neighbors" across all nb
-#'   - Add extra +1 for each extended neighbor that is also in N(v)
+#'   - Count neighbors-of-nb that are not v, WITH multiplicity across the
+#'     neighbors nb (a node reached from two neighbors counts twice)
+#'   - Track the distinct "extended neighbors" across all nb
+#'   - Add extra +1 for each distinct extended neighbor that is also in N(v)
 #' tc = total / (|extended_set| * |N(v)|)
 #' @keywords internal
 #' @noRd
@@ -993,8 +995,8 @@ calculate_topological_coefficient <- function(cg) {
     k_v <- length(nbs_v)
     if (k_v == 0) return(0)
 
-    # Every neighbour-of-a-neighbour other than v counts once (with
-    # multiplicity); each distinct one that is also a neighbour of v counts
+    # Every neighbor-of-a-neighbor other than v counts once (with
+    # multiplicity); each distinct one that is also a neighbor of v counts
     # once more.
     nn <- unlist(adj[nbs_v], use.names = FALSE)
     nn <- nn[nn != v]
@@ -1257,7 +1259,7 @@ calculate_lac <- function(cg, mode = "all") {
     if (k == 0) return(0)
 
     # Subgraph C_v induced by neighbors of v; local connectivity is each
-    # neighbour's degree within C_v
+    # neighbor's degree within C_v
     nodes <- unique(nbs)
     local_deg <- .cg_degree(b[nodes, nodes, drop = FALSE], cg$directed, mode)
 
@@ -1344,12 +1346,24 @@ calculate_gateway <- function(cg, membership = NULL, mode = "all") {
 #' Computes Freeman's centralization for degree, betweenness, closeness,
 #' or eigenvector centrality.
 #'
-#' @param x Network input
-#' @param measure One of "degree", "betweenness", "closeness", "eigenvector"
-#' @param directed Logical or NULL
-#' @param mode "all", "in", or "out"
-#' @param ... Additional arguments passed to to_igraph()
-#' @return Numeric scalar in \eqn{[0, 1]}
+#' A weighted input carries its weights into betweenness, closeness and
+#' eigenvector centrality; degree centralization ignores them.
+#'
+#' @param x Network input (matrix, edge-list data frame, igraph, network,
+#'   cograph_network, tna object).
+#' @param measure One of \code{"degree"} (default), \code{"betweenness"},
+#'   \code{"closeness"} or \code{"eigenvector"}.
+#' @param directed Logical or \code{NULL}. \code{NULL} (default) auto-detects
+#'   from matrix symmetry; \code{TRUE}/\code{FALSE} forces it.
+#' @param mode For directed networks: \code{"all"} (default), \code{"in"} or
+#'   \code{"out"}. Used by \code{"degree"} and \code{"closeness"} only.
+#' @param ... Ignored; accepted for call compatibility with the other
+#'   centrality verbs.
+#' @return A single number: the summed gap between the most central node and
+#'   every other node, divided by the theoretical maximum for the measure, so
+#'   0 marks a perfectly even network and 1 a perfect star. Nodes whose score
+#'   is \code{NA} or \code{NaN} are dropped from the sum. Returns 0 when the
+#'   network has two or fewer nodes.
 #'
 #' @export
 #' @examples
@@ -1795,12 +1809,17 @@ calculate_hubbell <- function(cg, weights = NULL, weightfactor = 0.5) {
   W <- .ext_path_matrix(cg, weights %||% cg$weights)
 
   scaledW <- W * weightfactor
-  # Solvability: largest eigenvalue of scaledW must be strictly < 1 for
-  # (I - scaledW) to be nonsingular. We use a small buffer to catch
-  # eigenvalues that land exactly on the unit boundary (e.g. K3 at wf=0.5).
+  # Solvability: the SPECTRAL RADIUS of scaledW must be strictly < 1 for the
+  # Neumann series to converge. We use a small buffer to catch eigenvalues
+  # that land exactly on the unit boundary (e.g. K3 at wf=0.5). The test is on
+  # the modulus, not the real part: a signed network can carry a complex pair
+  # of modulus above 1 whose real part is below it, and a real eigenvalue
+  # below -1 diverges just as surely as one above 1. For a non-negative matrix
+  # the Perron root is real, positive and equal to the spectral radius, so
+  # this is the same test the earlier Re() form performed.
   ev <- tryCatch(eigen(scaledW, only.values = TRUE)$values,
                  error = function(e) NULL)
-  if (is.null(ev) || any(Re(ev) >= 1 - 1e-10)) {
+  if (is.null(ev) || any(Mod(ev) >= 1 - 1e-10)) {
     warning("hubbell: not solvable for this graph at weightfactor=",
             format(weightfactor, digits = 4),
             " (spectral radius >= 1); returning NA",
@@ -1846,7 +1865,7 @@ calculate_information <- function(cg, weights = NULL) {
   if (n == 0) return(numeric(0))
   if (n == 1) return(0)
 
-  # Symmetrised inside the kernel (Stephenson-Zelen is undirected); the
+  # Symmetrized inside the kernel (Stephenson-Zelen is undirected); the
   # construction mirrors sna::infocent so the result is bit-exact.
   .cg_information(.ext_path_matrix(cg, weights), weighted = !is.null(weights))
 }

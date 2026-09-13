@@ -18,7 +18,7 @@
   }
   common <- b %*% b
   if (measure == "support") return(as.numeric(rowSums(b != 0 & common > 0)))
-  # Each edge between two neighbours participates in one focal triangle.
+  # Each edge between two neighbors participates in one focal triangle.
   as.numeric(deg * (deg - 1) / 2 - rowSums(b * common) / 2)
 }
 

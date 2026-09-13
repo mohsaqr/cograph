@@ -35,9 +35,10 @@ connectivity matters) and disconnected nodes are placed in an extra trailing
 level instead of raising an error.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 adj <- matrix(c(0, 1, 1, 0, 1, 0, 0, 1,
                 1, 0, 0, 0, 0, 1, 0, 0), nrow = 4, byrow = TRUE)
 net <- CographNetwork$new(adj)
 layout_target(net, target = 1)
-
+\dontshow{\}) # examplesIf}
 }

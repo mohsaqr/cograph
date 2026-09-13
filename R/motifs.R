@@ -10,12 +10,28 @@
 #' @param method Null model method: "configuration" (preserves degree) or
 #'   "gnm" (preserves edge count). Default "configuration".
 #' @param directed Logical. Treat as directed? Default auto-detected.
-#' @param seed Random seed for reproducibility
+#' @param seed Random seed for reproducibility. Default NULL. When supplied,
+#'   the caller's RNG state is saved and restored.
 #'
-#' @return A `cograph_motifs` data frame with motif count, null-model mean,
-#'   null-model standard deviation, z-score, p-value, and significance columns.
-#'   The motif size, directed flag, null-model method, and number of random
-#'   networks are stored as attributes.
+#' @return A `cograph_motifs` data frame with one row per motif class and
+#'   columns:
+#'   \describe{
+#'     \item{motif}{Motif class name (the 16 MAN codes for directed triads, the
+#'       four undirected triad classes, or \code{motif_<i>} labels for size 4).}
+#'     \item{count}{Observed number of that motif in the network.}
+#'     \item{null_mean, null_sd}{Mean and standard deviation of the count
+#'       across the \code{n_random} null graphs.}
+#'     \item{z_score}{\code{(count - null_mean) / null_sd}; \code{NA} when the
+#'       null is degenerate (\code{null_sd = 0}) and the observation differs
+#'       from it.}
+#'     \item{p_value}{Two-sided empirical (add-one corrected) permutation
+#'       p-value, not a Gaussian approximation.}
+#'     \item{significant}{Logical, \code{p_value < 0.05}.}
+#'   }
+#'   The motif size (\code{"size"}), directed flag (\code{"directed"}),
+#'   null-model method (\code{"method"}), and number of random networks
+#'   (\code{"n_random"}) are stored as attributes. Self-loops and multiple
+#'   edges are removed before counting.
 #'
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' # Create a directed network
@@ -383,8 +399,8 @@ print.cograph_motifs <- function(x, ...) {
 #' @param show_nonsig Show non-significant motifs? Default FALSE.
 #' @param top_n Show only top N motifs by |z-score|. Default NULL (all).
 #' @param colors Three-element color vector for under-represented, neutral, and
-#'   over-represented motifs. Default \code{c("#2166AC", "#999999", "#B2182B")}
-#'   (blue/gray/red).
+#'   over-represented motifs. Default \code{c("#2166AC", "#F7F7F7", "#B2182B")}
+#'   (blue/near-white/red).
 #' @param combined Logical: when TRUE (default) and \code{type = "network"},
 #'   arrange the per-motif panels in an internal grid via
 #'   \code{graphics::par(mfrow=...)}. Set to FALSE to draw into a layout the
@@ -394,7 +410,11 @@ print.cograph_motifs <- function(x, ...) {
 #'   per-motif \code{igraph} plot calls. The ggplot-based types (\code{"bar"},
 #'   \code{"heatmap"}) do not consume them.
 #'
-#' @return A ggplot2 object (invisibly)
+#' @return For \code{type = "bar"} and \code{type = "heatmap"}, a ggplot2
+#'   object. For \code{type = "network"}, \code{NULL} (the panels are drawn
+#'   with base graphics for their side effect). \code{invisible(NULL)} with a
+#'   message when no motif survives the \code{show_nonsig} / \code{top_n}
+#'   filters.
 #'
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' mat <- matrix(sample(0:1, 100, replace = TRUE, prob = c(0.7, 0.3)), 10, 10)
@@ -464,7 +484,8 @@ plot.cograph_motifs <- function(x, type = c("bar", "heatmap", "network"),
 #'
 #' @param x A matrix, igraph object, or cograph_network
 #'
-#' @return Named vector of triad counts
+#' @return A named numeric vector of length 16 giving the count of each MAN
+#'   triad type, in the order listed under Details.
 #'
 #' @details
 #' Triad census is defined only for directed networks. Matrix input is built
@@ -479,10 +500,12 @@ plot.cograph_motifs <- function(x, type = c("bar", "heatmap", "network"),
 #' 003, 012, 102, 021D, 021U, 021C, 111D, 111U,
 #' 030T, 030C, 201, 120D, 120U, 120C, 210, 300
 #'
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' set.seed(1)
 #' mat <- matrix(sample(0:1, 100, replace = TRUE), 10, 10)
 #' diag(mat) <- 0
-#' triad_census(mat)
+#' # igraph and sna also export triad_census(); qualify the call.
+#' cograph::triad_census(mat)
 #'
 #' @seealso [motifs()] for the unified API, [motif_census()]
 #' @family motifs
@@ -737,7 +760,7 @@ extract_triads <- function(x, type = NULL, involving = NULL,
     }
 
     # Class counts only: the replicate needs per-type totals, never the
-    # triples themselves, and materialising a row per triple here dominated
+    # triples themselves, and materializing a row per triple here dominated
     # the whole permutation loop.
     tc <- .count_triad_types(
       perm_mat, edge_method, edge_threshold,
@@ -821,7 +844,7 @@ extract_triads <- function(x, type = NULL, involving = NULL,
   # `streams` and `fun` are passed as arguments rather than captured from this
   # frame: a PSOCK worker does not receive the closure's enclosing environment,
   # so capturing them fails there with "object 'streams' not found". Arguments
-  # are serialised as data and reach every backend intact.
+  # are serialized as data and reach every backend intact.
   #
   # The dotted names matter. These travel through the backend's `...`, and
   # `parLapply(cl, X, fun, ...)` already has a parameter called `fun`, so a
@@ -903,7 +926,7 @@ extract_triads <- function(x, type = NULL, involving = NULL,
 # Per-unit occurrence counts of every (triple, MAN class) pair, laid out as one
 # integer vector indexed by (class - 1) * n_triples + triple position. The
 # instance-level null only needs how many units exhibit each observed
-# (triple, class) pair; building a labelled row per triple per unit and then
+# (triple, class) pair; building a labeled row per triple per unit and then
 # re-aggregating it dominated that loop, and the labels it pasted were
 # discarded unread.
 #
@@ -926,8 +949,8 @@ extract_triads <- function(x, type = NULL, involving = NULL,
   type_index <- .triad_type_index()
   positions <- seq_len(nc)
 
-  # Accumulates into one shared `bins` vector. Vectorising over units would
-  # materialise a bins column PER UNIT -- n_triples * 16 integers each, which
+  # Accumulates into one shared `bins` vector. Vectorizing over units would
+  # materialize a bins column PER UNIT -- n_triples * 16 integers each, which
   # at s = 64 is ~2.7 MB per unit and tens of GB across a large cohort. The
   # loop keeps peak memory at one vector.
   for (ind in units) {
@@ -1092,7 +1115,7 @@ extract_triads <- function(x, type = NULL, involving = NULL,
        e_ki = e_ki, e_jk = e_jk, e_kj = e_kj)
 }
 
-# MAN class counts for one matrix, without materialising the triple table.
+# MAN class counts for one matrix, without materializing the triple table.
 # The permutation null only needs how many triples fall in each class; building
 # a data.frame of every triple and then table()-ing it dominated that loop.
 # Filtering matches .count_triads_matrix_vectorized(): `include`/`exclude` are

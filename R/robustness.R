@@ -21,16 +21,26 @@
 #'   (matching brainGraph convention)
 #' @param mode For directed networks: "all", "in", or "out". Default "all".
 #' @param seed Random seed for reproducibility. Default NULL.
-#' @param ... Additional arguments passed to \code{\link{to_igraph}}
+#' @param ... Passed to \code{\link{to_igraph}}, whose only other argument
+#'   is \code{directed}; anything else raises an "unused argument" error.
 #'
-#' @return A data frame (class "cograph_robustness") with columns:
+#' @return A data frame (class "cograph_robustness") with one row per removal
+#' step, from zero removed through all removed (\code{n + 1} rows, where
+#' \code{n} is the number of vertices or edges), and columns:
 #' \describe{
 #'   \item{removed_pct}{Fraction of vertices/edges removed (0 to 1)}
-#'   \item{comp_size}{Size of largest component after removal}
+#'   \item{comp_size}{Size of largest component after removal (averaged over
+#'     \code{n_iter} runs when \code{measure = "random"})}
 #'   \item{comp_pct}{Ratio of component size to original maximum}
-#'   \item{measure}{Attack strategy used}
-#'   \item{type}{Type of analysis (vertex or edge removal)}
+#'   \item{measure}{The \code{measure} argument: "betweenness", "degree", or
+#'     "random"}
+#'   \item{type}{A human-readable label for the analysis, one of
+#'     "Targeted vertex attack", "Targeted edge attack",
+#'     "Random vertex removal" or "Random edge removal" - not the bare
+#'     \code{type} argument}
 #' }
+#' The original number of vertices/edges (\code{"n_original"}) and the original
+#' largest-component size (\code{"orig_max"}) are stored as attributes.
 #'
 #' @details
 #' Three attack strategies are available:
@@ -601,7 +611,12 @@ robustness_auc <- function(x) {
 #' @param measures Measures to compute if x provided.
 #' @param n_iter Iterations for random. Default 1000.
 #'
-#' @return Data frame with AUC and critical points for each measure.
+#' @return A data frame with one row per supplied (or computed) robustness
+#'   result and columns \code{measure}, \code{auc} (area under the robustness
+#'   curve), \code{critical_50} (fraction removed when the largest component
+#'   first falls below 50\% of its original size) and \code{critical_10} (the
+#'   same at 10\%). The critical columns are 1 when the threshold is never
+#'   crossed. All numeric columns are rounded to 4 decimal places.
 #'
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' g <- igraph::sample_pa(30, m = 2, directed = FALSE)

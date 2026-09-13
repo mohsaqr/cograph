@@ -114,6 +114,37 @@ test_that("hubbell works with appropriate weightfactor", {
   expect_true(all(v > 0))
 })
 
+test_that("hubbell refuses a signed network whose spectral radius exceeds 1", {
+  # Regression: the divergence guard tested max(Re(lambda)), not the spectral
+  # radius. This signed network scales to eigenvalues 0 +/- 1.5i and +/- 0.5,
+  # so the Neumann series diverges (modulus 1.5) while every real part is 0.5.
+  # It previously returned confident finite scores.
+  W <- matrix(c(0, 3, 0, 0,
+                -3, 0, 0, 0,
+                0, 0, 0, 1,
+                0, 0, 1, 0), 4, 4, byrow = TRUE)
+  rownames(W) <- colnames(W) <- LETTERS[1:4]
+  ev <- eigen(W * 0.5, only.values = TRUE)$values
+  expect_gt(max(Mod(ev)), 1)
+  expect_lt(max(Re(ev)), 1)
+  expect_warning(res <- centrality_hubbell(W), "not solvable")
+  expect_true(all(is.na(res)))
+})
+
+test_that("the hubbell guard is unchanged for non-negative networks", {
+  # For a non-negative matrix the Perron root is real, positive and equal to
+  # the spectral radius, so max(Re) and max(Mod) agree and the fix is a no-op.
+  set.seed(4242)
+  for (i in 1:40) {
+    n <- sample(3:8, 1)
+    m <- matrix(stats::rbinom(n * n, 1, 0.4) * stats::runif(n * n, 0.1, 3), n, n)
+    m[lower.tri(m)] <- t(m)[lower.tri(m)]
+    diag(m) <- 0
+    ev <- eigen(m * 0.5, only.values = TRUE)$values
+    expect_equal(max(Re(ev)), max(Mod(ev)), tolerance = 1e-8, info = paste("i =", i))
+  }
+})
+
 test_that("hubbell matches centiserve::hubbell BIT-EXACT (weighted)", {
   skip_if_not_installed("centiserve")
   skip_if_not_installed("igraph")

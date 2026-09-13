@@ -9,7 +9,8 @@ network_girth(x, ...)
 \arguments{
 \item{x}{Network input: matrix, igraph, network, cograph_network, or tna object}
 
-\item{...}{Additional arguments passed to \code{\link{to_igraph}}}
+\item{...}{Passed to \code{\link{to_igraph}}, whose only other argument
+is \code{directed}; anything else raises an "unused argument" error.}
 }
 \value{
 Integer: length of shortest cycle, or Inf if no cycles exist
@@ -19,6 +20,7 @@ Computes the girth of a network - the length of the shortest cycle.
 Returns Inf for acyclic graphs (trees, DAGs).
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Triangle has girth 3
 triangle <- matrix(c(0,1,1, 1,0,1, 1,1,0), 3, 3)
 network_girth(triangle)  # 3
@@ -26,4 +28,5 @@ network_girth(triangle)  # 3
 # Tree has no cycles (Inf)
 tree <- matrix(c(0,1,0, 1,0,1, 0,1,0), 3, 3)
 network_girth(tree)  # Inf
+\dontshow{\}) # examplesIf}
 }

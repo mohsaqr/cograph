@@ -83,10 +83,12 @@ Invisibly returns a list with components:
 \describe{
 \item{degree}{Named numeric vector of per-node degrees.}
 \item{table}{Table of degree frequencies.}
-\item{breaks}{Breakpoints used for the histogram (non-cumulative only).}
-\item{counts}{Bin counts (non-cumulative only).}
-\item{proportions}{Bin proportions (non-cumulative only).}
+\item{breaks}{Breakpoints of the degree histogram.}
+\item{counts}{Bin counts.}
+\item{proportions}{Bin proportions (\code{counts / sum(counts)}).}
 }
+All five components are returned for both the histogram and the
+cumulative plot; \code{cumulative = TRUE} only changes what is drawn.
 }
 \description{
 Creates a histogram or cumulative distribution plot of node degrees. By
@@ -94,6 +96,7 @@ default, bins are integer-aligned (one bar per degree value) so each bar
 maps to an exact degree.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Undirected network
 adj <- matrix(c(0, 1, 1, 0, 1, 0, 1, 1,
                 1, 1, 0, 1, 0, 1, 1, 0), 4, 4, byrow = TRUE)
@@ -104,4 +107,5 @@ cograph::degree_distribution(adj, cumulative = TRUE)
 directed_adj <- matrix(c(0, 1, 0, 0, 0, 0, 1, 0,
                          1, 0, 0, 1, 0, 1, 0, 0), 4, 4, byrow = TRUE)
 cograph::degree_distribution(directed_adj, mode = "in")
+\dontshow{\}) # examplesIf}
 }

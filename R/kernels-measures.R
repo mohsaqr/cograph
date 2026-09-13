@@ -7,7 +7,9 @@
 
 .cg_offdiag <- function(d) row(d) != col(d)
 
-#' @param d Distance matrix. @param n Vertex count. @return Numeric vector.
+#' @param d Distance matrix. @param n Vertex count.
+#' @param diameter Largest finite distance; defaults to `.cg_diameter(d)`.
+#' @return Numeric vector.
 #' @keywords internal
 #' @noRd
 .cg_radiality <- function(d, n, diameter = .cg_diameter(d)) {

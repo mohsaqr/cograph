@@ -2,11 +2,11 @@
 #'
 #' Maps each requested index to a discrete distribution with equation (8) or
 #' equation (9) and integrates them with the closed form of equation (11),
-#' the normalised geometric mean. The geometric mean is taken in logarithms
+#' the normalized geometric mean. The geometric mean is taken in logarithms
 #' so that a product of `m` small shares cannot underflow; an exact zero
 #' survives as `exp(-Inf) = 0`.
 #'
-#' @param g An igraph object.
+#' @param cg Internal cograph structure, as built by `centrality()`.
 #' @param re_indexes Character vector of constituent index names.
 #' @param re_negative Character vector of the indexes to treat as negative,
 #'   or `NULL` for the source's own declarations.
@@ -79,9 +79,9 @@ calculate_relative_entropy <- function(cg,
 #' user to weight them. Each index is first turned into a discrete
 #' distribution over the nodes, and the integrated score is the distribution
 #' that has the smallest total relative entropy to all of them. Chen, Wang
-#' and Luo (2016) show that the minimiser has a closed form, equation (11):
+#' and Luo (2016) show that the minimizer has a closed form, equation (11):
 #' \eqn{w_i=\prod_{j=1}^{m}u_{ji}^{1/m}/\sum_{i}\prod_{j=1}^{m}u_{ji}^{1/m}},
-#' the normalised geometric mean of the \eqn{m} index distributions. The
+#' the normalized geometric mean of the \eqn{m} index distributions. The
 #' result sums to one, so it reads as a share of importance rather than a
 #' raw score.
 #'
@@ -95,7 +95,7 @@ calculate_relative_entropy <- function(cg,
 #'
 #' The geometric mean is unforgiving: a node that scores exactly zero on any
 #' one index scores exactly zero overall. That is the source's own printed
-#' behaviour -- its Table 2 gives zero to the three Kite nodes with zero
+#' behavior -- its Table 2 gives zero to the three Kite nodes with zero
 #' betweenness -- and cograph reproduces it rather than smoothing it away.
 #'
 #' @section Constituent indexes:
@@ -104,15 +104,15 @@ calculate_relative_entropy <- function(cg,
 #' declares a direction for. Their default directions are the source's own.
 #'
 #' \describe{
-#'   \item{degree}{Number of neighbours (section 3.2). Positive.}
+#'   \item{degree}{Number of neighbors (section 3.2). Positive.}
 #'   \item{closeness}{Equation (3), \eqn{1/\sum_j l_{ij}}, the reciprocal of
 #'     the raw distance sum with no \eqn{|V|-1} factor. Positive.}
 #'   \item{betweenness}{Equation (4), summed over ordered pairs
-#'     \eqn{j\ne i\ne k}, so twice the usual unnormalised undirected
+#'     \eqn{j\ne i\ne k}, so twice the usual unnormalized undirected
 #'     betweenness. Positive.}
 #'   \item{constraint}{Equation (6), the network constraint coefficient,
 #'     with the outer sum over every other node rather than over the
-#'     neighbours alone. Negative.}
+#'     neighbors alone. Negative.}
 #'   \item{n_components}{Number of connected components left after deleting
 #'     the node (section 4.2). Positive.}
 #'   \item{largest_component}{Size of the largest component left after
@@ -194,7 +194,7 @@ calculate_relative_entropy <- function(cg,
 #'   cograph measure by rank correlation, and \code{\link{list_centralities}}
 #'   for every measure's orientation.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' # The source's own Kite study: four distinctiveness indexes.
 #' centrality_relative_entropy(igraph::make_graph("Krackhardt kite"))
 #'

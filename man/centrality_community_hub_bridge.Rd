@@ -31,7 +31,7 @@ where \eqn{|C_i|} is the number of nodes in \eqn{i}'s own community,
 outside that community, and \eqn{NNC_i} the number of \emph{other}
 communities it is linked to (eqs. 2 to 4 of the paper). Higher values
 mark nodes whose removal both fragments their community and cuts links
-between communities. A normalised variant with the same name exists in
+between communities. A normalized variant with the same name exists in
 later work by the same group; this is the original raw form.
 }
 \details{

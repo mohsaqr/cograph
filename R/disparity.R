@@ -28,7 +28,6 @@ NULL
 #'
 #' @details
 #' For each node \eqn{i} with degree \eqn{k_i}, and each edge \eqn{(i,j)}
-
 #' with normalized weight \eqn{p_{ij} = w_{ij} / s_i} (where \eqn{s_i} is
 #' the node's strength), the p-value is:
 #'

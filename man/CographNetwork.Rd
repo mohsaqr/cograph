@@ -126,6 +126,9 @@ Set nodes data frame.
 }
 \if{html}{\out{</div>}}
 }
+\subsection{Returns}{
+The object itself, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CographNetwork-set_edges"></a>}}
@@ -142,6 +145,9 @@ Set edges data frame.
 \item{\code{edges}}{Data frame with edge information.}
 }
 \if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The object itself, invisibly.
 }
 }
 \if{html}{\out{<hr>}}
@@ -160,6 +166,9 @@ Set directed flag.
 }
 \if{html}{\out{</div>}}
 }
+\subsection{Returns}{
+The object itself, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CographNetwork-set_weights"></a>}}
@@ -173,9 +182,12 @@ Set edge weights.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{weights}}{Numeric vector of weights.}
+\item{\code{weights}}{Numeric vector of edge weights, one per edge.}
 }
 \if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The object itself, invisibly.
 }
 }
 \if{html}{\out{<hr>}}
@@ -190,9 +202,12 @@ Set layout coordinates.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{coords}}{Matrix or data frame with x, y columns.}
+\item{\code{coords}}{Matrix or data frame with x, y columns, one row per node.}
 }
 \if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The object itself, invisibly.
 }
 }
 \if{html}{\out{<hr>}}
@@ -211,6 +226,9 @@ Set node aesthetics.
 }
 \if{html}{\out{</div>}}
 }
+\subsection{Returns}{
+The object itself, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CographNetwork-set_edge_aes"></a>}}
@@ -228,6 +246,9 @@ Set edge aesthetics.
 }
 \if{html}{\out{</div>}}
 }
+\subsection{Returns}{
+The object itself, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CographNetwork-set_theme"></a>}}
@@ -244,6 +265,9 @@ Set theme.
 \item{\code{theme}}{CographTheme object or theme name.}
 }
 \if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The object itself, invisibly.
 }
 }
 \if{html}{\out{<hr>}}
@@ -340,6 +364,9 @@ Set layout info.
 }
 \if{html}{\out{</div>}}
 }
+\subsection{Returns}{
+The object itself, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CographNetwork-get_layout_info"></a>}}
@@ -370,6 +397,9 @@ Set plot parameters.
 }
 \if{html}{\out{</div>}}
 }
+\subsection{Returns}{
+The object itself, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CographNetwork-get_plot_params"></a>}}
@@ -393,6 +423,9 @@ Print network summary.
 \if{html}{\out{<div class="r">}}\preformatted{CographNetwork$print()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+The object itself, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CographNetwork-clone"></a>}}

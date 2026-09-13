@@ -59,6 +59,7 @@ list data frame with a time column, or a pre-built list of networks.
 All panels share the same node layout for visual comparison.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 set.seed(1)
 edges <- data.frame(
   from = sample(LETTERS[1:5], 30, replace = TRUE),
@@ -66,4 +67,5 @@ edges <- data.frame(
   week = sample(1:4, 30, replace = TRUE))
 cograph::plot_network_evolution(edges, time = "week")
 cograph::plot_network_evolution(edges, time = "week", cumulative = TRUE)
+\dontshow{\}) # examplesIf}
 }

@@ -380,3 +380,14 @@ test_that("batch 8 measures are invariant to node relabelling", {
   expect_equal(got[keep], ref[keep])
   for (m in greedy) expect_equal(sort(got[[m]]), sort(ref[[m]]), info = m)
 })
+
+test_that("a negative s_shell_a raises a classed condition", {
+  star <- matrix(0, 5, 5); star[1, 2:5] <- 1; star[2:5, 1] <- 1
+  rownames(star) <- colnames(star) <- LETTERS[1:5]
+  for (bad in list(-1, NA_real_, Inf, c(0.5, 1), "half")) {
+    expect_error(centrality_s_shell(star, s_shell_a = bad),
+                 class = "cograph_bad_parameter")
+  }
+  expect_type(centrality_s_shell(star, s_shell_a = 0.5), "integer")
+  expect_type(centrality_s_shell(star, s_shell_a = 0), "integer")
+})

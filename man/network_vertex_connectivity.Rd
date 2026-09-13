@@ -9,7 +9,8 @@ network_vertex_connectivity(x, ...)
 \arguments{
 \item{x}{Network input: matrix, igraph, network, cograph_network, or tna object}
 
-\item{...}{Additional arguments passed to \code{\link{to_igraph}}}
+\item{...}{Passed to \code{\link{to_igraph}}, whose only other argument
+is \code{directed}; anything else raises an "unused argument" error.}
 }
 \value{
 Integer: minimum vertex cut size
@@ -20,6 +21,7 @@ vertices that must be removed to disconnect the graph (or make it trivial).
 Higher values indicate more robust network structure.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Complete graph K4 has vertex connectivity 3
 k4 <- matrix(1, 4, 4); diag(k4) <- 0
 network_vertex_connectivity(k4)  # 3
@@ -27,4 +29,5 @@ network_vertex_connectivity(k4)  # 3
 # Path graph has vertex connectivity 1
 path <- matrix(c(0,1,0,0, 1,0,1,0, 0,1,0,1, 0,0,1,0), 4, 4)
 network_vertex_connectivity(path)  # 1
+\dontshow{\}) # examplesIf}
 }

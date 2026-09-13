@@ -63,7 +63,7 @@ calculate_resistance_curvature <- function(cg, weights = NULL) {
 #' \doi{10.1088/2632-072X/ac730d}.
 #' \url{https://arxiv.org/abs/2201.06385}.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_resistance_curvature(igraph::make_star(5, mode = "undirected"))
 # nolint start: object_length_linter.
 centrality_resistance_curvature <- function(x, ...) {

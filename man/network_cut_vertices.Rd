@@ -11,7 +11,8 @@ network_cut_vertices(x, count_only = FALSE, ...)
 
 \item{count_only}{Logical. If TRUE, return only the count. Default FALSE.}
 
-\item{...}{Additional arguments passed to \code{\link{to_igraph}}}
+\item{...}{Passed to \code{\link{to_igraph}}, whose only other argument
+is \code{directed}; anything else raises an "unused argument" error.}
 }
 \value{
 If count_only = FALSE, vector of node indices (or names if graph is named).
@@ -22,8 +23,10 @@ Finds nodes whose removal would disconnect the network.
 These are critical nodes for network connectivity.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Bridge node connecting two components
 adj <- matrix(c(0,1,1,0,0, 1,0,1,0,0, 1,1,0,1,0, 0,0,1,0,1, 0,0,0,1,0), 5, 5)
 network_cut_vertices(adj)  # Node 3 is cut vertex
 network_cut_vertices(adj, count_only = TRUE)  # 1
+\dontshow{\}) # examplesIf}
 }

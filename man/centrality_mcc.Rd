@@ -24,7 +24,7 @@ excluded. This is Chin et al.'s MCC, not a count of all cliques.
 Uses the simple undirected, unweighted skeleton: either direction creates
 an edge, parallel edges count once, and self-loops are removed. Singleton
 cliques are excluded, so isolates score zero. This is an explicit cograph
-convention consistent with the paper's degree reduction when neighbours
+convention consistent with the paper's degree reduction when neighbors
 have no edges between them. Reading the printed sum literally with
 singleton cliques would instead assign isolates \eqn{0! = 1}.
 
@@ -35,7 +35,9 @@ error, including any clique with more than 171 vertices. Normalization
 happens after raw calculation and does not bypass this limit.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_mcc(igraph::make_full_graph(5))
+\dontshow{\}) # examplesIf}
 }
 \references{
 Chin, C. H., et al. (2014). cytoHubba: identifying hub objects and

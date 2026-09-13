@@ -34,10 +34,13 @@ com_fg(
 
 \item{membership}{Logical; return membership vector? Default TRUE.}
 
-\item{...}{Additional arguments passed to \code{\link{to_igraph}}}
+\item{...}{Passed to \code{\link{to_igraph}}, whose only other argument
+is \code{directed}; anything else raises an "unused argument" error.}
 }
 \value{
-A \code{cograph_communities} object with optional dendrogram
+A \code{cograph_communities} object. The full igraph
+\code{communities} result, including the merge dendrogram when
+\code{merges = TRUE}, is kept in the \code{"igraph_result"} attribute.
 
 A \code{cograph_communities} object. See \code{\link{detect_communities}}.
 }

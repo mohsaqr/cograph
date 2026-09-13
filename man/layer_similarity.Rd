@@ -18,14 +18,26 @@ lsim(A1, A2, method = c("jaccard", "overlap", "hamming", "cosine", "pearson"))
 
 \item{A2}{Second adjacency matrix}
 
-\item{method}{Similarity method: "jaccard", "overlap", "hamming", "cosine",
-"pearson"}
+\item{method}{Comparison method: "jaccard" (default), "overlap", "hamming",
+"cosine" or "pearson"}
 }
 \value{
-Numeric similarity value
+A single numeric value. All methods except \code{"hamming"} return a
+similarity (higher = more alike); \code{"hamming"} returns a
+\emph{distance} - the number of matrix cells whose edge presence differs
+between the two layers - so lower means more alike and the value is not
+bounded by 1. \code{NA} is returned when the denominator is undefined
+(\code{"jaccard"} with no edges in either layer, \code{"overlap"} with an
+empty layer, \code{"cosine"} with an all-zero layer).
 }
 \description{
 Computes similarity between two network layers.
+}
+\details{
+\code{"jaccard"}, \code{"overlap"} and \code{"hamming"} compare edge
+\emph{presence} (\code{A > 0}) and therefore ignore weights;
+\code{"cosine"} and \code{"pearson"} are computed on the raw cell values.
+The two matrices must have identical dimensions.
 }
 \examples{
 A1 <- matrix(c(0,1,1,0, 1,0,0,1, 1,0,0,1, 0,1,1,0), 4, 4)

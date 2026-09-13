@@ -105,7 +105,7 @@ calculate_proximal_betweenness <- function(cg, variant = "source") {
 #'   \doi{10.1016/j.socnet.2007.11.001}. Section 3.2, Algorithm 3;
 #'   author preprint dated 12 November 2007, pages 7-8.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_proximal_betweenness(igraph::make_graph("Zachary"))
 #' centrality_proximal_betweenness(igraph::make_ring(5),
 #'                               proximal_variant = "union")

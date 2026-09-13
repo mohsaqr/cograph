@@ -19,7 +19,8 @@ plot_netobject_ml(
 \arguments{
 \item{x}{A \code{netobject_ml} object with \code{$between} and \code{$within} networks.}
 
-\item{layout}{Character: layout algorithm. Default \code{"oval"} (deterministic).}
+\item{layout}{Character: layout algorithm. Default \code{NULL}, which
+resolves to \code{"oval"} (deterministic).}
 
 \item{common_scale}{Logical: use the same maximum weight for both panels? Default TRUE.}
 

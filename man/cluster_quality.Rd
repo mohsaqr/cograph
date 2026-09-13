@@ -10,18 +10,27 @@ cluster_quality(x, clusters, weighted = TRUE, directed = TRUE)
 cqual(x, clusters, weighted = TRUE, directed = TRUE)
 }
 \arguments{
-\item{x}{Adjacency matrix}
+\item{x}{Adjacency matrix (numeric)}
 
-\item{clusters}{Cluster specification (list or membership vector)}
+\item{clusters}{Cluster specification (named list, data frame, or membership
+vector; see \code{\link{csum}})}
 
-\item{weighted}{Logical; if TRUE, use edge weights; if FALSE, binarize}
+\item{weighted}{Logical; if TRUE (default), use edge weights; if FALSE,
+binarize the matrix first}
 
-\item{directed}{Logical; if TRUE, treat as directed network}
+\item{directed}{Logical; if TRUE (default), treat as directed network}
 }
 \value{
-A \code{cluster_quality} object with:
-\item{per_cluster}{Data frame with per-cluster metrics}
-\item{global}{List of global metrics (modularity, coverage)}
+A \code{cluster_quality} object (a list) with:
+\item{per_cluster}{Data frame, one row per cluster, with columns
+\code{cluster} (index), \code{cluster_name}, \code{n_nodes},
+\code{internal_edges} (within-cluster weight), \code{cut_edges}
+(boundary-crossing weight), \code{internal_density},
+\code{avg_internal_degree}, \code{expansion}, \code{cut_ratio} and
+\code{conductance}.}
+\item{global}{List with \code{modularity} (Newman-Girvan, computed on the
+weighted or binarized matrix), \code{coverage} (share of total weight
+that is internal to some cluster) and \code{n_clusters}.}
 
 See \code{\link{cluster_quality}}.
 }

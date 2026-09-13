@@ -12,14 +12,15 @@ NULL
 #' Plot a Nestimate netobject
 #'
 #' Applies TNA-compatible styling defaults before delegating to \code{splot()}:
-#' directed networks get oval layout, coloured nodes, and sized arrows;
+#' directed networks get oval layout, colored nodes, and sized arrows;
 #' undirected networks get spring layout with no arrows or dashes.
 #' All parameters can be overridden by the caller.
 #'
 #' @param x A \code{netobject} (from Nestimate).
 #' @param ... Additional arguments passed to \code{splot()}.
 #'
-#' @return Invisibly returns the plot.
+#' @return Invisibly returns the \code{cograph_network} object built by
+#'   \code{\link{splot}()}. Called for the side effect of drawing.
 #' @rdname splot
 #' @export
 splot.netobject <- function(x, ...) {
@@ -93,12 +94,14 @@ splot.netobject <- function(x, ...) {
 #' @param show_inclusion Logical: scale edge alpha by inclusion probability?
 #'   Default TRUE.
 #' @param inclusion_threshold Numeric: minimum inclusion probability to show an edge.
-#'   Default \code{1 - x$alpha} (i.e. the complement of the alpha level).
+#'   Default \code{NULL}, which uses \code{1 - x$alpha} (i.e. the complement of
+#'   the alpha level, falling back to \code{1 - 0.05} when \code{$alpha} is absent).
 #' @param edge_positive_color Color for positive partial correlations. Default \code{"#2E7D32"}.
 #' @param edge_negative_color Color for negative partial correlations. Default \code{"#C62828"}.
 #' @param ... Additional arguments passed to \code{splot()}.
 #'
-#' @return Invisibly returns the plot.
+#' @return Invisibly returns the \code{cograph_network} object built by
+#'   \code{\link{splot}()}. Called for the side effect of drawing.
 #' @rdname splot
 #' @export
 splot.boot_glasso <- function(x,
@@ -217,7 +220,9 @@ splot.wtna_mixed <- function(x, type = c("overlay", "group"), ...) {
 #'   when laying panels out yourself with \code{\link{panel_layout}()}.
 #' @param ... Additional arguments passed to \code{splot()}.
 #'
-#' @return Invisibly returns \code{x}.
+#' @return Invisibly returns \code{x}. With a single group the
+#'   \code{\link{splot}()} result for that panel (a \code{cograph_network})
+#'   is returned instead, and with an empty group list \code{NULL}.
 #' @examples
 #' mat <- matrix(c(0, .5, .3, .5, 0, .4, .3, .4, 0), 3, 3)
 #' colnames(mat) <- rownames(mat) <- c("A", "B", "C")
@@ -288,7 +293,8 @@ plot.netobject_group <- function(x, ...) plot_netobject_group(x, ...)
 #' between-person and within-person networks.
 #'
 #' @param x A \code{netobject_ml} object with \code{$between} and \code{$within} networks.
-#' @param layout Character: layout algorithm. Default \code{"oval"} (deterministic).
+#' @param layout Character: layout algorithm. Default \code{NULL}, which
+#'   resolves to \code{"oval"} (deterministic).
 #' @param common_scale Logical: use the same maximum weight for both panels? Default TRUE.
 #' @param titles Character vector of length 2: panel titles. Default
 #'   \code{c("Between-person", "Within-person")}.
@@ -364,7 +370,9 @@ plot.netobject_ml <- function(x, ...) plot_netobject_ml(x, ...)
 #' @param ... Additional arguments passed to \code{splot.net_bootstrap}
 #'   (e.g. \code{display = "significant"}, \code{show_stars = FALSE}).
 #'
-#' @return Invisibly returns \code{x}.
+#' @return Invisibly returns \code{x}. With a single group the
+#'   \code{\link{splot}()} result for that panel (a \code{cograph_network})
+#'   is returned instead, and with an empty group list \code{NULL}.
 #' @export
 #' @examplesIf requireNamespace("Nestimate", quietly = TRUE)
 #' set.seed(1)

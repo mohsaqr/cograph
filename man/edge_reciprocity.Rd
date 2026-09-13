@@ -19,17 +19,29 @@ object.}
 \item{...}{Additional arguments passed to \code{\link{edge_centrality}}.}
 }
 \value{
-A data frame with columns: \code{from}, \code{to}, \code{weight},
-\code{reciprocated}, \code{reverse_weight}, \code{weight_ratio}.
+A data frame with one row per directed edge and columns
+\code{from}, \code{to}, \code{weight}, \code{reciprocated} (logical),
+\code{reverse_weight} (NA when not reciprocated) and \code{weight_ratio}
+(\code{weight / reverse_weight}; NA when not reciprocated). Rows are
+ordered with reciprocated edges first, then by \code{|weight_ratio|}
+descending.
 }
 \description{
 Convenience wrapper around \code{\link{edge_centrality}} that returns only
 reciprocity information for directed networks.
 }
+\section{Errors}{
+
+Raises an error when the resolved network is undirected: reciprocity is
+only defined for directed edges.
+}
+
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 adj <- matrix(c(0, 0.8, 0, 0.3, 0, 0.5, 0.7, 0, 0), 3, 3, byrow = TRUE)
 rownames(adj) <- colnames(adj) <- c("A", "B", "C")
 cograph::edge_reciprocity(adj, directed = TRUE)
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link{edge_centrality}}

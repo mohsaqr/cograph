@@ -48,7 +48,7 @@ calculate_improved_closeness <- function(cg, alpha = 0.2) {
 #' Paths. Journal of Systems Science and Complexity, 34, 2168-2181,
 #' equation 7. \doi{10.1007/s11424-021-0111-7}.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_improved_closeness(igraph::make_ring(4), icc_alpha = 0.2)
 centrality_improved_closeness <- function(x, icc_alpha = 0.2, ...) {
   df <- centrality(x, measures = "improved_closeness",

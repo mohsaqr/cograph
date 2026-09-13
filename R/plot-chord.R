@@ -116,7 +116,7 @@ plot_chord <- function(
   n <- nrow(mat)
   node_labels <- .chord_resolve_labels(labels, mat)
 
-  # --- Step 2: Segment colours ---
+  # --- Step 2: Segment colors ---
   if (is.null(segment_colors)) {
     segment_colors <- .chord_default_palette(n)
   } else {
@@ -130,7 +130,7 @@ plot_chord <- function(
   # --- Step 4: Compute chords ---
   chords <- .chord_compute_chords(mat, directed, segs)
 
-  # --- Step 5: Resolve chord colours ---
+  # --- Step 5: Resolve chord colors ---
   chord_cols <- .chord_resolve_colors(chords, chord_color_by,
                                       segment_colors, chord_alpha)
 
@@ -203,7 +203,7 @@ plot_chord <- function(
 
 #' Default Vibrant Palette for Chord Diagrams
 #'
-#' Saturated Material Design-inspired colours that look good as filled arcs
+#' Saturated Material Design-inspired colors that look good as filled arcs
 #' and translucent chord ribbons.
 #' @noRd
 .chord_default_palette <- function(n) {
@@ -468,7 +468,7 @@ plot_chord <- function(
 #' Bezier from the END of the source arc to the START of the target arc
 #' (control at origin), then target arc, then a second Bezier back.
 #' The cross-connection of opposite arc corners naturally keeps the two
-#' curves apart so ribbons stay thick through the centre.
+#' curves apart so ribbons stay thick through the center.
 #' @noRd
 .chord_draw_ribbon <- function(from_start, from_end, to_start, to_end,
                                inner_r, fill, border, n_pts = 50) {

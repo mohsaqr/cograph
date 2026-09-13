@@ -9,9 +9,11 @@ subgraphs(...)
 \arguments{
 \item{...}{Arguments forwarded to \code{\link{motifs}()}. See \code{?motifs}
 for the full parameter list (\code{x}, \code{actor}, \code{window},
-\code{pattern}, \code{include}, \code{exclude}, \code{significance},
-\code{n_perm}, \code{min_count}, \code{edge_method}, \code{edge_threshold},
-\code{min_transitions}, \code{top}, \code{seed}).}
+\code{window_type}, \code{pattern}, \code{include}, \code{exclude},
+\code{significance}, \code{n_perm}, \code{cores}, \code{min_count},
+\code{edge_method}, \code{edge_threshold}, \code{min_transitions},
+\code{top}, \code{seed}). \code{named_nodes} is fixed to \code{TRUE} and
+must not be supplied.}
 }
 \value{
 A \code{cograph_motif_result} object with \code{named_nodes = TRUE}.

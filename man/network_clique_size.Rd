@@ -9,7 +9,8 @@ network_clique_size(x, ...)
 \arguments{
 \item{x}{Network input: matrix, igraph, network, cograph_network, or tna object}
 
-\item{...}{Additional arguments passed to \code{\link{to_igraph}}}
+\item{...}{Passed to \code{\link{to_igraph}}, whose only other argument
+is \code{directed}; anything else raises an "unused argument" error.}
 }
 \value{
 Integer: size of the largest clique
@@ -19,7 +20,9 @@ Finds the size of the largest clique (complete subgraph) in the network.
 Also known as the clique number or omega of the graph.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Triangle embedded in larger graph
 adj <- matrix(c(0,1,1,1, 1,0,1,0, 1,1,0,0, 1,0,0,0), 4, 4)
 network_clique_size(adj)  # 3
+\dontshow{\}) # examplesIf}
 }

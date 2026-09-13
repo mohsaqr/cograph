@@ -101,7 +101,7 @@ not match a \code{cores = 1} run of the same seed. They remain a valid
 permutation null, and repeated parallel runs of one seed agree exactly
 with each other at any \code{cores}. Forking is used where available; Windows
 uses a PSOCK cluster. Only the individual-level census null is
-parallelised. Values above \code{parallel::detectCores()} are capped with a
+parallelized. Values above \code{parallel::detectCores()} are capped with a
 \code{cograph_cores_capped} warning.}
 
 \item{min_count}{Inclusive minimum count to keep a row — rows with
@@ -297,6 +297,7 @@ These limitations do not affect descriptive results with
 \code{significance = FALSE} or the default \code{edge_method = "any"}.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Census from a matrix (no significance test -- fastest path)
 mat <- matrix(c(0,3,2,0, 0,0,5,1, 0,0,0,4, 2,0,0,0), 4, 4, byrow = TRUE)
 rownames(mat) <- colnames(mat) <- c("Plan","Execute","Monitor","Adapt")
@@ -304,7 +305,7 @@ motifs(mat, significance = FALSE)
 
 # With a minimal significance test (set n_perm >= 500 in practice)
 motifs(mat, n_perm = 10L, seed = 1)
-
+\dontshow{\}) # examplesIf}
 \dontshow{if (requireNamespace("tna", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 \donttest{
 Mod <- tna::tna(tna::group_regulation)

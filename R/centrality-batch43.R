@@ -59,9 +59,9 @@ calculate_iira <- function(cg, mass = "coreness", beta = 0.2, steps = 50) {
 #' Iterative resource allocation (IRA)
 #'
 #' Every node starts with one unit of resource and hands it to its
-#' neighbours in proportion to the *receiver's* centrality, repeatedly,
+#' neighbors in proportion to the *receiver's* centrality, repeatedly,
 #' until the amounts stop moving. The share node \eqn{j} sends to a
-#' neighbour \eqn{i} is
+#' neighbor \eqn{i} is
 #' \eqn{a_{ij}=\theta_i^{\alpha}/\sum_{u\in\Gamma(j)}\theta_u^{\alpha}},
 #' the recursion is \eqn{I(t+1)=AI(t)} from \eqn{I(0)=(1,\dots,1)}, and the
 #' steady state \eqn{I} ranks the spreaders. Because every non-isolate
@@ -106,7 +106,7 @@ calculate_iira <- function(cg, mass = "coreness", beta = 0.2, steps = 50) {
 #' Uses the simple undirected unweighted skeleton, which is the source
 #' domain: either arc creates one edge, parallel edges count once and loops
 #' are removed. Edge weights, mode, cutoff and path-weight inversion are
-#' ignored. An isolate is in nobody's neighbourhood, so it receives nothing
+#' ignored. An isolate is in nobody's neighborhood, so it receives nothing
 #' and its own unit is not passed on: it scores zero from the first step,
 #' which is the value of the source's empty sum and not an accidental zero,
 #' and it is the reason \eqn{\sum_i I_i=n} is stated only for graphs with no
@@ -140,7 +140,7 @@ calculate_iira <- function(cg, mass = "coreness", beta = 0.2, steps = 50) {
 #' @seealso \code{\link{centrality_iira}} for the improved variant, and
 #'   \code{\link{list_centralities}} for the catalogue.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' # The source's figure 1(a): a triangle with two pendants on one corner.
 #' # The printed steady state is 15/8, 5/4, 5/4, 5/16, 5/16.
 #' fig1a <- igraph::make_graph(c(1, 2, 1, 3, 2, 3, 1, 4, 1, 5),
@@ -181,7 +181,7 @@ centrality_ira <- function(x, ira_mass = "coreness", ira_alpha = 1,
 #'
 #' \strong{The Centrality Zoo entry is not this formula.} Section 2.185
 #' prints \eqn{p_{ij}=(1-(1-\beta)^{d_i})a_{ij}c_i/\sum_k a_{ik}c_k}, which
-#' pairs the numerator's index with the denominator's own neighbourhood; the
+#' pairs the numerator's index with the denominator's own neighborhood; the
 #' source pairs them with opposite sets. As printed, the Zoo's row sums are
 #' \eqn{\psi_i c_i d_i/\sum_{k\in N(i)}c_k}, so its matrix is stochastic in
 #' neither direction although the entry calls it stochastic, and it does not
@@ -191,7 +191,7 @@ centrality_ira <- function(x, ira_mass = "coreness", ira_alpha = 1,
 #' Uses the simple undirected unweighted skeleton, which is the source
 #' domain: either arc creates one edge, parallel edges count once and loops
 #' are removed. Edge weights, mode, cutoff and path-weight inversion are
-#' ignored. An isolate has an empty neighbour sum and \eqn{\psi=0}, so it
+#' ignored. An isolate has an empty neighbor sum and \eqn{\psi=0}, so it
 #' scores zero from the first step; that is the value of the source's empty
 #' sum, not an accidental zero. \code{iira_steps = 0} returns the initial
 #' \eqn{I(0)}, a vector of ones. Empty graphs return no scores. Cost is one
@@ -226,7 +226,7 @@ centrality_ira <- function(x, ira_mass = "coreness", ira_alpha = 1,
 #' @seealso \code{\link{centrality_ira}} for the measure this improves, and
 #'   \code{\link{list_centralities}} for the catalogue.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' # The source's figure 2, whose printed I(50) is
 #' # 8.19e-20, 4.32e-20, 4.32e-20, 6.7e-21, 6.7e-21
 #' fig2 <- igraph::make_graph(c(1, 2, 1, 3, 2, 3, 1, 4, 1, 5),

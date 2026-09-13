@@ -18,13 +18,13 @@ Named numeric vector in input node order.
 The KED method of Chen, Xiao, Zeng and Zhang combines how many local
 paths leave a node with how diverse they are:
 \eqn{KED(i)=k_i\,(1+H_i)\,\exp(K_i/N)}, where
-\eqn{K_i=\sum_{j\in N(i)}k_j} is the sum of the neighbours' degrees,
+\eqn{K_i=\sum_{j\in N(i)}k_j} is the sum of the neighbors' degrees,
 \eqn{H_i=\bigl(\sum_{j\in N(i)}-p_j\log p_j\bigr)/\log k_i} with
-\eqn{p_j=k_j/K_i} is the normalised entropy of the neighbour-degree
+\eqn{p_j=k_j/K_i} is the normalized entropy of the neighbor-degree
 distribution, and \eqn{N} is the number of nodes in the whole graph.
 The source calls \eqn{K_i} the local path number and \eqn{H_i} the path
 diversity: two nodes of equal degree with equally many second
-neighbours are separated by how evenly their neighbours carry those
+neighbors are separated by how evenly their neighbors carry those
 paths.
 }
 \details{
@@ -32,7 +32,7 @@ paths.
 divides the entropy by the entropy of the uniform distribution on
 \eqn{k_i} outcomes -- so the base cancels and no choice of base is
 being made. \eqn{H_i} lies in \eqn{[0,1]} and is exactly one when the
-neighbour degrees are all equal, which is the source's
+neighbor degrees are all equal, which is the source's
 \eqn{1\le E_i\le 2}.
 
 The measure takes no parameters. Equation (6) is a bare product; the
@@ -40,10 +40,10 @@ exponents \eqn{\alpha} and \eqn{\beta} the Centrality Zoo attributes to
 Chen et al. appear nowhere in the paper, and none is offered here.
 
 \strong{Two degenerate cases are cograph decisions, not the source's.}
-A node with one neighbour has \eqn{p=1}, so its entropy is zero, and
-its normaliser \eqn{\log k_i} is zero too: \eqn{H_i} is \eqn{0/0} and
+A node with one neighbor has \eqn{p=1}, so its entropy is zero, and
+its normalizer \eqn{\log k_i} is zero too: \eqn{H_i} is \eqn{0/0} and
 is written as \strong{zero}, giving \eqn{E_i=1}. That is the value
-approached from \eqn{k_i=2} as one neighbour's share vanishes, and the
+approached from \eqn{k_i=2} as one neighbor's share vanishes, and the
 one that gives a node with a single path the least path diversity; the
 alternative reading of \eqn{0/0} as "the entropy equals its own
 maximum, so \eqn{H=1}" would double every leaf's score. An isolate has
@@ -82,9 +82,9 @@ Uses the simple undirected unweighted skeleton, the source's undirected
 domain: either arc creates one edge, parallel edges count once and
 loops are removed. Edge weights, mode, cutoff and path-weight inversion
 are ignored. The source also defines a directed variant (its equation
-3, replacing the neighbourhood by the out-neighbourhood and \eqn{k_i}
+3, replacing the neighborhood by the out-neighborhood and \eqn{k_i}
 by \eqn{k_i^{out}}); that variant is not implemented, so a directed
-input is symmetrised rather than being read as the paper's directed
+input is symmetrized rather than being read as the paper's directed
 case. The source states no normalization; \code{normalized = TRUE}
 max-scales the finished vector as elsewhere in \code{\link{centrality}}.
 Cost is two sparse matrix-vector products, O(n + m).
@@ -94,13 +94,15 @@ source prints for its figure 1, not parity with author software, which
 does not exist, and not any claim about spreading performance.
 }
 \examples{
-# Every node of a ring has two neighbours of degree two, so the
-# neighbour degrees are even, H is one and the score is 4 exp(4 / n)
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+# Every node of a ring has two neighbors of degree two, so the
+# neighbor degrees are even, H is one and the score is 4 exp(4 / n)
 centrality_ked(igraph::make_ring(8))
 
-# A star: the centre's neighbours are all leaves, so H is one again,
-# and the centre scores exactly 2q times a leaf
+# A star: the center's neighbors are all leaves, so H is one again,
+# and the center scores exactly 2 (n - 1) times a leaf, here 10
 centrality_ked(igraph::make_star(6, mode = "undirected"))
+\dontshow{\}) # examplesIf}
 }
 \references{
 Chen, D.-B., Xiao, R., Zeng, A. and Zhang, Y.-C. (2014).
@@ -113,7 +115,7 @@ author preprint arXiv:1305.7480.
 \seealso{
 \code{\link{centrality_lnc}} and
 \code{\link{centrality_neighbor_distance}} for other
-neighbour-degree sums, \code{\link{centrality_entropy}} for a plain
-neighbourhood entropy, and \code{\link{list_centralities}} for the
+neighbor-degree sums, \code{\link{centrality_entropy}} for a plain
+neighborhood entropy, and \code{\link{list_centralities}} for the
 catalogue.
 }

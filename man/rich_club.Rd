@@ -28,7 +28,11 @@ coefficient. If FALSE, compute the unweighted version (density among rich
 nodes).}
 
 \item{normalized}{Logical. If TRUE (default), normalize against
-degree-preserving random graphs and include confidence intervals.}
+degree-preserving random graphs and include confidence intervals. The
+null graphs are drawn with \code{igraph::sample_degseq()} (which fixes the
+degree sequence); for a weighted rich club the observed edge weights are
+additionally reshuffled across the null edges, following Opsahl et al.
+(2008).}
 
 \item{n_random}{Integer. Number of random graphs for normalization. Default
 100.}
@@ -39,12 +43,27 @@ degree-preserving random graphs and include confidence intervals.}
 
 \item{digits}{Integer or NULL. Round numeric output. Default NULL.}
 
-\item{...}{Additional arguments passed to \code{\link{to_igraph}}.}
+\item{...}{Currently unused; \code{directed} is already an explicit
+argument above and \code{\link{to_igraph}} accepts no others.}
 }
 \value{
-A data frame with class \code{"cograph_rich_club"} and columns:
-\code{threshold}, \code{n_rich}, \code{phi}, and if normalized:
-\code{phi_norm}, \code{phi_rand}, \code{ci_lo}, \code{ci_hi}.
+A data frame with class \code{"cograph_rich_club"}, one row per
+prominence threshold at which at least two nodes are "rich", and columns:
+\describe{
+\item{threshold}{The prominence cut-off; nodes with prominence strictly
+greater than this value form the club. Thresholds range over the
+observed prominence values excluding the maximum.}
+\item{n_rich}{Number of club members at that threshold.}
+\item{phi}{Observed rich club coefficient.}
+\item{phi_norm, phi_rand, ci_lo, ci_hi}{Present only when
+\code{normalized = TRUE}: the observed coefficient divided by the null
+mean, the null mean itself, and the 2.5\\% / 97.5\\% quantiles of the
+null distribution.}
+}
+The data frame has zero rows for graphs that are too small, complete, or
+regular for any threshold to yield a club. The arguments \code{rich},
+\code{weighted}, \code{normalized} and the original input
+(\code{"network"}) are stored as attributes.
 }
 \description{
 Computes the rich club curve across all prominence thresholds, measuring

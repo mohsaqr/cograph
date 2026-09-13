@@ -51,7 +51,9 @@ Relative deviations of local constraints within 16 machine epsilons are
 treated as uniform; a series stabilizes the entropy near uniformity.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_coleman_theil(igraph::make_star(5, mode = "undirected"))
+\dontshow{\}) # examplesIf}
 }
 \references{
 Burt, R. S. (1991). STRUCTURE, version 4.2, Reference Manual,

@@ -1,6 +1,6 @@
 #' @title Weight Wrangling Verbs
-#' @description Verbs that change edge weights: thresholding, binarising,
-#'   symmetrising, normalising and inverting.
+#' @description Verbs that change edge weights: thresholding, binarizing,
+#'   symmetrizing, normalizing and inverting.
 #' @name wrangle-weights
 #' @keywords internal
 NULL
@@ -46,7 +46,10 @@ NULL
 #'
 #' @return A \code{cograph_network} with the surviving edges, or the input
 #'   format when \code{keep_format = TRUE}. Every node is kept unless
-#'   \code{keep_isolates = FALSE}.
+#'   \code{keep_isolates = FALSE}; nodes the threshold stranded are reported in
+#'   a \code{cograph_isolates_created} warning. An out-of-range
+#'   \code{minimum}, \code{maximum}, \code{proportion}, \code{density} or
+#'   \code{top} raises a \code{cograph_bad_selection} error.
 #'
 #' @seealso \code{\link{binarize}}, \code{\link{filter_edges}},
 #'   \code{\link{disparity_filter}}, \code{\link{remove_isolates}}
@@ -179,8 +182,12 @@ threshold_edges <- function(x, minimum = NULL, maximum = NULL,
 #' @param keep_format Logical. Return the input format when TRUE.
 #' @param directed Logical or NULL. If NULL (default), auto-detect.
 #'
-#' @return A \code{cograph_network} whose weights are all 1 (or \code{-1} when
-#'   \code{signed = TRUE}), or the input format when \code{keep_format = TRUE}.
+#' @return A \code{cograph_network} whose weights are all \code{1} (or, when
+#'   \code{signed = TRUE}, \code{1} for a positive edge and \code{-1} for a
+#'   negative one), or the input format when \code{keep_format = TRUE}. Nodes
+#'   left without edges are kept and reported in a
+#'   \code{cograph_isolates_created} warning, unless
+#'   \code{keep_isolates = FALSE}.
 #'
 #' @seealso \code{\link{threshold_edges}}, \code{\link{normalize_weights}}
 #'
@@ -269,7 +276,10 @@ binarize <- function(x, threshold = 0, absolute = TRUE, signed = FALSE,
 #'
 #' @return An undirected \code{cograph_network}, or the input format when
 #'   \code{keep_format = TRUE}. The weight matrix satisfies
-#'   \code{isSymmetric()}.
+#'   \code{isSymmetric()}. Zero is how this representation stores "no edge", so
+#'   any pair whose combined weight is exactly zero disappears: every
+#'   unreciprocated arc under \code{method = "mutual"}, and a cancelling pair
+#'   under \code{"sum"}. A \code{cograph_edges_dropped} warning says how many.
 #'
 #' @seealso \code{\link{to_undirected}}, \code{\link{normalize_weights}}
 #'
@@ -332,7 +342,7 @@ symmetrize <- function(x, method = c("max", "min", "mean", "sum", "mutual",
 
 #' Normalize Edge Weights
 #'
-#' Rescales the weight matrix. Row normalisation is what turns a transition
+#' Rescales the weight matrix. Row normalization is what turns a transition
 #' count matrix into the transition probabilities that TNA models use.
 #'
 #' @param x Network input.
@@ -362,7 +372,7 @@ symmetrize <- function(x, method = c("max", "min", "mean", "sum", "mutual",
 #' \code{"column"} scale an edge by a total that differs at its two endpoints,
 #' so they break symmetry and return a directed network.
 #'
-#' Row and column normalisation are meaningful on directed networks. On an
+#' Row and column normalization are meaningful on directed networks. On an
 #' undirected network they still work but break symmetry, so the result is
 #' returned as directed.
 #'
@@ -409,7 +419,7 @@ normalize_weights <- function(x, method = c("row", "column", "max", "sum", "minm
                           x, input_class, keep_format))
   }
 
-  # Row and column normalisation scale an edge by a total that differs at each
+  # Row and column normalization scale an edge by a total that differs at each
   # endpoint, so they break symmetry and the result is directed.
   normalized <- .scale_margin(m, if (method == "row") 1L else 2L)
 
@@ -449,7 +459,7 @@ normalize_weights <- function(x, method = c("row", "column", "max", "sum", "minm
   m / denominator
 }
 
-#' Rescale a weight vector to [0, 1]
+#' Rescale a weight vector to the unit interval
 #'
 #' The edge at the minimum maps to `.Machine$double.eps` rather than to 0,
 #' because 0 is how this representation stores "no edge" and mapping to it

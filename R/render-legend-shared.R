@@ -16,12 +16,12 @@ NULL
 #' in user coordinates.
 #'
 #' @param legend Character vector of entry labels.
-#' @param col Per-entry colours.
+#' @param col Per-entry colors.
 #' @param pch Per-entry plotting symbols.
 #' @param lty Per-entry line types.
 #' @param lwd Per-entry line widths. Multiplied by `visual_scale$line`.
 #' @param pt.cex Per-entry point cex. Multiplied by `visual_scale$point`.
-#' @param pt.bg Per-entry point background colours.
+#' @param pt.bg Per-entry point background colors.
 #' @param position Either a keyword string (`"topright"`) or a numeric
 #'   `c(x, y)` in user coordinates.
 #' @param cex Base text cex, multiplied by `visual_scale$text`.

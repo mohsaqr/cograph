@@ -22,7 +22,7 @@
 #' whose `(k-1)`-walk ended `... -> j -> u`. The number of non-backtracking
 #' `(k-1)`-walks from `i` to `u` with penultimate node `j` is
 #' `A_{k-2}[i, j]` minus the ones that would have to step `u -> j -> u`, so
-#' summing over the `d_j` neighbours `u` of `j` gives
+#' summing over the `d_j` neighbors `u` of `j` gives
 #' `d_j A_{k-2}[i, j] - A_{k-2}[i, j]` for `k >= 3`, because every
 #' non-backtracking walk of length `k - 2 >= 1` ending at `j` has exactly one
 #' penultimate node. At `k = 2` the walk of length zero has no penultimate
@@ -51,7 +51,7 @@
   previous <- theta                       # S_0 = A_0 theta = theta
   current <- as.numeric(b %*% theta)      # S_1 = A theta
   out[[1L]] <- current
-  # Each step needs the two before it, so the levels cannot be vectorised
+  # Each step needs the two before it, so the levels cannot be vectorized
   # across k; the work inside a step already is.
   for (k in seq_len(order - 1L) + 1L) {
     correction <- if (k == 2L) degree else degree - 1

@@ -12,13 +12,15 @@
 #'   a \code{cograph_communities} object, or
 #'   a \code{tna_communities} object.
 #' @param blob_colors Character vector of fill colors for blobs.
-#'   Recycled if shorter than the number of communities.
-#' @param blob_alpha Numeric. Fill transparency (0-1).
-#' @param blob_linewidth Numeric. Border line width.
-#' @param blob_line_alpha Numeric. Border line transparency (0-1).
+#'   Recycled if shorter than the number of communities. Default
+#'   \code{NULL} uses the built-in blob palette.
+#' @param blob_alpha Numeric. Fill transparency (0-1). Default \code{0.25}.
+#' @param blob_linewidth Numeric. Border line width. Default \code{0.7}.
+#' @param blob_line_alpha Numeric. Border line transparency (0-1). Default \code{0.8}.
 #' @param ... Additional arguments passed to \code{\link{splot}}.
 #'
-#' @return The \code{splot} result (invisibly).
+#' @return The \code{\link{splot}} result — a \code{cograph_network}
+#'   object — invisibly. Called for the side effect of drawing.
 #'
 #' @examples
 #' set.seed(1)
@@ -152,7 +154,7 @@ overlay_communities <- function(x,
 #' @param x A \code{tna_communities} object from \code{tna::communities()}.
 #' @param ... Additional arguments forwarded to \code{\link{splot}}.
 #'
-#' @return Invisibly, the splot result.
+#' @return Invisibly, the \code{\link{splot}} result: a \code{cograph_network} object.
 #' @rdname splot
 #' @export
 splot.tna_communities <- function(x, ...) {
@@ -178,7 +180,7 @@ splot.tna_communities <- function(x, ...) {
 #'   \code{community_<algorithm>()} helpers.
 #' @param ... Additional arguments forwarded to \code{\link{splot}}.
 #'
-#' @return Invisibly, the splot result.
+#' @return Invisibly, the \code{\link{splot}} result: a \code{cograph_network} object.
 #' @rdname splot
 #' @export
 splot.cograph_communities <- function(x, ...) {

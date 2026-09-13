@@ -129,7 +129,7 @@ argues that "the value of \eqn{C} does not affect the results, since only
 the ratio of similarity is calculated". That holds for a homogeneous
 recursion, where \eqn{C} is an overall scale, but not for this one: the
 diagonal makes it affine, so \eqn{C} enters the resolvent as well as the
-scale. Measured on the Zachary karate club this session, moving \eqn{C}
+scale. Measured on the Zachary karate club, moving \eqn{C}
 from 1 to 0.5 moves \eqn{Rs} by up to 0.141 and the scores by up to
 \eqn{9.1\times 10^{-4}}. \code{tpr_decay} defaults to the source's 1.
 
@@ -142,6 +142,7 @@ kite is recovered up to three exact ties forced by its own automorphism.
 See the batch 51 published audit.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # The Krackhardt kite, one of the source's two published fixtures. Its
 # automorphism forces three exact ties, so the paper's printed order
 # 7, 4, 5, 9, 10, 3, 6, 8, 2, 1 is recovered up to those ties.
@@ -157,6 +158,7 @@ centrality_trust_pagerank(igraph::make_full_graph(5))
 # The similarity has nothing to work with on a triangle-free graph, so
 # the measure declines to score a ring rather than inventing a split.
 suppressWarnings(centrality_trust_pagerank(igraph::make_ring(6)))
+\dontshow{\}) # examplesIf}
 }
 \references{
 Sheng, J., Zhu, J., Wang, Y., Wang, B. and Hou, Z. (2020).

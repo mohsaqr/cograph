@@ -19,12 +19,12 @@ object).}
 Named numeric vector, one value per node.
 }
 \description{
-Mean degree of a node's neighbours (Maslov & Sneppen 2002), the
-"average neighbour degree" reported by Cytoscape:
+Mean degree of a node's neighbors (Maslov & Sneppen 2002), the
+"average neighbor degree" reported by Cytoscape:
 \deqn{C_{NC}(i) = \frac{1}{k_i} \sum_{j \in N(i)} k_j.}
 High values mark nodes attached to hubs. Isolates score 0. Under
-\code{mode = "out"} the out-neighbours' out-degrees are averaged, under
-\code{"in"} the in-neighbours' in-degrees.
+\code{mode = "out"} the out-neighbors' out-degrees are averaged, under
+\code{"in"} the in-neighbors' in-degrees.
 }
 \examples{
 star5 <- matrix(0, 5, 5)
@@ -38,5 +38,5 @@ in topology of protein networks. Science, 296(5569), 910-913.
 }
 \seealso{
 \code{\link{centrality_degree}}, and \code{igraph::knn()} for
-the Barrat weighted generalisation.
+the Barrat weighted generalization.
 }

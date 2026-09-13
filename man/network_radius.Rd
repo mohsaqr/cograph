@@ -9,9 +9,11 @@ network_radius(x, directed = NULL, ...)
 \arguments{
 \item{x}{Network input: matrix, igraph, network, cograph_network, or tna object}
 
-\item{directed}{Logical. Consider edge direction? Default TRUE for directed graphs.}
+\item{directed}{Logical or NULL. Consider edge direction? Default NULL,
+which follows the directedness of the converted graph.}
 
-\item{...}{Additional arguments passed to \code{\link{to_igraph}}}
+\item{...}{Currently unused; \code{directed} is already an explicit
+argument above and \code{\link{to_igraph}} accepts no others.}
 }
 \value{
 Numeric: the network radius
@@ -22,7 +24,9 @@ The eccentricity of a node is the maximum shortest path distance to any other no
 The radius is the smallest such maximum distance.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Star graph: center has eccentricity 1, leaves have 2, so radius = 1
 star <- matrix(c(0,1,1,1, 1,0,0,0, 1,0,0,0, 1,0,0,0), 4, 4)
 network_radius(star)  # 1
+\dontshow{\}) # examplesIf}
 }

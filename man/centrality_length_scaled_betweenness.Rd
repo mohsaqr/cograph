@@ -50,7 +50,7 @@ ordinary betweenness; raising it concentrates the score on locally
 brokered pairs.}
 \item{\code{ego_betweenness} (Everett & Borgatti 2005)}{Betweenness
 computed inside the node's own ego network rather than the whole
-graph. A node with fewer than two neighbours scores 0. It is close
+graph. A node with fewer than two neighbors scores 0. It is close
 to, but not a function of, \code{effective_size}.}
 \item{\code{delta_closeness} (Agneessens, Borgatti & Everett 2017,
 eq. 2)}{\eqn{\sum_j d_{ij}^{-\delta} / (n-1)}

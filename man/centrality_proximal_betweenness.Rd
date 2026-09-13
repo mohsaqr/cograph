@@ -54,9 +54,11 @@ instead of returning invalid fractions. Counts above the exact-integer
 range can be rounded, so numerical equivalence is tolerance-based.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_proximal_betweenness(igraph::make_graph("Zachary"))
 centrality_proximal_betweenness(igraph::make_ring(5),
                               proximal_variant = "union")
+\dontshow{\}) # examplesIf}
 }
 \references{
 Brandes, U. (2008). On variants of shortest-path betweenness

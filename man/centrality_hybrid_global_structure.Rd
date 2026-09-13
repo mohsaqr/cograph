@@ -39,7 +39,9 @@ ratios may underflow to zero. Normalization is applied to the complete
 score, not separately to self-influence or neighbor contributions.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_hybrid_global_structure(igraph::make_ring(4))
+\dontshow{\}) # examplesIf}
 }
 \references{
 Mukhtar, M. F., et al. (2023). Integrating local and global

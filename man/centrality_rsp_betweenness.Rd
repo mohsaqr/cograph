@@ -66,7 +66,7 @@ disconnected input; this measure is able to answer where those cannot,
 because \eqn{(I-W)} stays nonsingular whatever the connectivity.
 
 \strong{\code{rsp_beta} defaults to 0.01, which is not the source's
-number.} The paper fixes no default and treats \eqn{\beta} as a modelling
+number.} The paper fixes no default and treats \eqn{\beta} as a modeling
 choice; 0.01 is the value recommended by \code{NetworkToolbox::rspbc()},
 adopted here so that the two implementations are directly comparable out of
 the box. It sits near the high-temperature end, so the default reading is
@@ -91,7 +91,7 @@ matrix, and a negative cost makes \eqn{\exp(-\beta C)>1} and the Neumann
 series diverge.
 
 Direction is read from the graph, not from \code{mode}: \eqn{P^{ref}}
-normalises by out-strength and \eqn{Z} counts directed walks, so a directed
+normalizes by out-strength and \eqn{Z} counts directed walks, so a directed
 input is scored as directed and a reversed input generally scores
 differently. There is no in/out/all variant to select, so the measure sits
 in the no-mode family. Loops are dropped and \code{cutoff} and
@@ -115,6 +115,7 @@ that the score becomes proportional to degree as \eqn{\beta\to 0^+} on an
 undirected graph.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # A single edge scores exactly 1 at both nodes, for every rsp_beta.
 centrality_rsp_betweenness(igraph::make_full_graph(2))
 
@@ -129,6 +130,7 @@ kite <- igraph::make_graph(c(1,2, 1,3, 1,4, 1,6, 2,4, 2,5, 2,7, 3,4, 3,6,
                            directed = FALSE)
 centrality_rsp_betweenness(kite)
 centrality_rsp_betweenness(kite, rsp_beta = 1)
+\dontshow{\}) # examplesIf}
 }
 \references{
 Kivimaki, I., Lebichot, B., Saramaki, J. and Saerens, M.

@@ -14,7 +14,7 @@
 
 #' Community link counts: how many links each node has into each community
 #'
-#' @param nb 0/1 neighbour matrix (`nb[i, j] = 1` when `j` is a neighbour of
+#' @param nb 0/1 neighbor matrix (`nb[i, j] = 1` when `j` is a neighbor of
 #' `i`).
 #' @param membership Community labels, one per node.
 #' @return List with `links` (n x K), `own` (n x K indicator), `comm`
@@ -116,7 +116,7 @@
 #' Silva-Costa local dimension at a fixed radius (their eq. 4)
 #'
 #' `D_i(r) = r n_i(r) / B_i(r)`, with `n_i(r)` the ring at distance `r` and
-#' `B_i(r)` the ball within `r` (centre included). Nodes whose eccentricity
+#' `B_i(r)` the ball within `r` (center included). Nodes whose eccentricity
 #' is below `r` have an empty ring and score 0, as the paper states for
 #' \code{r -> Inf}.
 #'
@@ -138,7 +138,7 @@
 #' Fuzzy local dimension (Wen & Jiang 2019)
 #'
 #' Fuzzy ball `N_i(r) = sum_{d_ij <= r} exp(-d_ij^2 / r^2) / |{j : d_ij <= r}|`
-#' (centre included, its term equal to 1), for \code{r = 1, ..., d_max(i)};
+#' (center included, its term equal to 1), for \code{r = 1, ..., d_max(i)};
 #' the measure is the OLS slope of `log N_i(r)` on `log r`. Larger = more
 #' influential. `NaN` when fewer than two radii exist.
 #'
@@ -165,7 +165,7 @@
 #' Local volume dimension (Li & Deng 2021)
 #'
 #' Volume `V_i(l) = sum_{d_ij <= l} k_j` (degrees of every node within `l`
-#' hops, centre included), `l = 1, ..., ecc(i)`; the measure is the OLS
+#' hops, center included), `l = 1, ..., ecc(i)`; the measure is the OLS
 #' slope of `ln V_i(l)` on `ln l`. Smaller = more important. `NaN` when
 #' fewer than two radii exist.
 #'
@@ -195,13 +195,16 @@
 #' WVoteRank (Sun, Chen, He & Ch'ng 2019), eq. 2 and Figure 1
 #'
 #' Weighted VoteRank: node `v` scores `sqrt(k_v * sum_{u in N(v)} va_u w_vu)`,
-#' the top scorer is elected, its ability drops to 0 and its neighbours
+#' the top scorer is elected, its ability drops to 0 and its neighbors
 #' lose `1 / <w>`, with `<w>` the average strength `2 sum w / n` (the
 #' paper's worked Figure 1 pins the strength, not the degree). Elections
 #' continue until every node is placed; ties go to the lowest index.
 #'
 #' @param w Symmetric weight matrix (diagonal ignored).
-#' @return Numeric score vector from `.cg_rank_score()`.
+#' @param return_scores Return the n x n matrix of scores before each
+#'   election instead (row = round); for tie diagnostics.
+#' @return Numeric score vector from `.cg_rank_score()`, or, when
+#'   `return_scores` is `TRUE`, the n x n score matrix described above.
 #' @keywords internal
 #' @noRd
 .cg_wvoterank <- function(w, return_scores = FALSE) {
@@ -235,7 +238,7 @@
 
 #' EnRenew (Guo, Yang, Guo, Pan & Chen 2020), eq. 1 and Algorithm 1
 #'
-#' Each node's spreading ability is the entropy its neighbours supply,
+#' Each node's spreading ability is the entropy its neighbors supply,
 #' `E_v = sum_{u in N(v)} -p_uv log p_uv`, `p_uv = k_u / sum_{l in N(v)} k_l`.
 #' The largest `E` is elected; then, for depths `1..l` around it, every
 #' entropy term flowing from a node at depth `d - 1` to a node at depth `d`
@@ -256,7 +259,7 @@
   deg <- rowSums(nb)
   k_avg <- sum(deg) / n
   e_k <- if (k_avg > 0) log(k_avg) else 1
-  # h[v, u] = entropy neighbour u supplies to v
+  # h[v, u] = entropy neighbor u supplies to v
   nb_sum <- as.numeric(nb %*% deg)
   p <- nb * rep(deg, each = n) / pmax(nb_sum, .Machine$double.eps)
   h <- ifelse(p > 0, -p * log(pmax(p, .Machine$double.xmin)), 0)
@@ -285,14 +288,17 @@
 #' VoteRank++ (Liu, Li, Fang & Yao 2021), as in the authors' code
 #'
 #' Initial ability `va_i = ln(1 + k_i / k_max)`; voter `j` splits its vote
-#' among its not-yet-elected neighbours in proportion to their degree,
+#' among its not-yet-elected neighbors in proportion to their degree,
 #' `w_{j -> i} = k_i / sum_{x in N(j), unelected} k_x`; node `i` scores
 #' `sqrt(k_i sum_{j in N(i)} va_j w_{j -> i})`. After an election the
-#' winner's ability is 0, its neighbours' abilities are multiplied by
+#' winner's ability is 0, its neighbors' abilities are multiplied by
 #' `lambda` and the unelected nodes two steps away by `sqrt(lambda)`.
 #'
 #' @param b Adjacency matrix. @param lambda Suppression factor (0.1).
-#' @return Numeric score vector from `.cg_rank_score()`.
+#' @param return_scores Return the n x n matrix of scores before each
+#'   election instead (row = round); for tie diagnostics.
+#' @return Numeric score vector from `.cg_rank_score()`, or, when
+#'   `return_scores` is `TRUE`, the n x n score matrix described above.
 #' @keywords internal
 #' @noRd
 .cg_voterank_plus <- function(b, lambda = 0.1, return_scores = FALSE) {
@@ -310,7 +316,7 @@
   for (r in seq_len(n)) {
     live <- !selected
     denom <- as.numeric(nb %*% (deg * live))   # per voter
-    # each voter's ability per unit of live neighbour degree
+    # each voter's ability per unit of live neighbor degree
     share <- ifelse(denom > 0, va / denom, 0)
     acc <- deg * as.numeric(nb %*% share) * live
     score <- ifelse(acc > 0, sqrt(deg * acc), 0)
@@ -356,7 +362,7 @@
 #'
 #' `IMC(v) = 1 - agglomeration(G) / agglomeration(G contracted at v)`
 #' (eq. 2 of Wang et al. 2011), where contracting `v` merges `v` and all
-#' its neighbours into one node, leaving `N - k_v` nodes; a contracted
+#' its neighbors into one node, leaving `N - k_v` nodes; a contracted
 #' graph of one node has agglomeration 1. Reproduces Table 1 of the paper.
 #'
 #' @param nb 0/1 symmetric adjacency matrix.
@@ -403,7 +409,7 @@
 #'
 #' `IIMC(v) = alpha IMC(v) + beta sum_{e incident to v} IMC_L(e)`, with
 #' `IMC_L` the node-contraction score of the edge in the line graph. The
-#' paper fixes `alpha / beta = 5`; `alpha + beta = 1` is the normalisation
+#' paper fixes `alpha / beta = 5`; `alpha + beta = 1` is the normalization
 #' that reproduces its Table 1.
 #'
 #' @param nb 0/1 symmetric adjacency matrix. @param rho `alpha / beta`.
@@ -478,13 +484,13 @@
 
 #' Heatmap centrality (Duron 2020)
 #'
-#' Farness minus the mean farness of the neighbours,
+#' Farness minus the mean farness of the neighbors,
 #' `C(v) = f(v) - mean_{u in N(v)} f(u)`, with `f(v)` the sum of hop
 #' distances from `v` to the nodes it can reach. Lower (more negative) is
-#' more central; an isolate has no neighbours and scores `NaN`.
+#' more central; an isolate has no neighbors and scores `NaN`.
 #' Reproduces Table 1 of the paper.
 #'
-#' @param nb 0/1 neighbour matrix (rows = node, columns = its neighbours).
+#' @param nb 0/1 neighbor matrix (rows = node, columns = its neighbors).
 #' @param d Hop-distance matrix in the same direction.
 #' @return Numeric vector.
 #' @keywords internal
@@ -499,14 +505,14 @@
 
 #' Flow coefficient (Honey, Kotter, Breakspear & Sporns 2007), BCT form
 #'
-#' Among the ordered pairs `(j, k)` of distinct neighbours of `v` (in- or
-#' out-neighbours), the fraction joined by a two-step path `j -> v -> k`
+#' Among the ordered pairs `(j, k)` of distinct neighbors of `v` (in- or
+#' out-neighbors), the fraction joined by a two-step path `j -> v -> k`
 #' but not by a direct link `j -> k`. Equal to `1 - clustering` on an
 #' undirected graph; distinct only on directed graphs. Matches the Brain
 #' Connectivity Toolbox `flow_coef_bd` exactly.
 #'
 #' @param b Adjacency matrix (direction kept).
-#' @return Numeric vector in `[0, 1]`; 0 for fewer than two neighbours.
+#' @return Numeric vector in `[0, 1]`; 0 for fewer than two neighbors.
 #' @keywords internal
 #' @noRd
 .cg_flow_coefficient <- function(b) {
@@ -529,9 +535,9 @@
 #'
 #' `LE(i) = -sum_{j in N(i)} k_j log k_j`, natural log, as printed by the
 #' sources. Always non-positive; more negative for larger, denser
-#' neighbourhoods. Isolates score 0.
+#' neighborhoods. Isolates score 0.
 #'
-#' @param nb 0/1 neighbour matrix. @param deg Degree vector to weight by.
+#' @param nb 0/1 neighbor matrix. @param deg Degree vector to weight by.
 #' @return Numeric vector.
 #' @keywords internal
 #' @noRd
@@ -554,10 +560,10 @@
 #' Weighted h-index (Gao, Yu, Li, Shen & Gao 2019), eq. 3
 #'
 #' Topological link weights `w_ij = k_i k_j`; the h-index is taken over
-#' the multiset in which each neighbour's weight is repeated `k_j` times.
+#' the multiset in which each neighbor's weight is repeated `k_j` times.
 #' Input edge weights play no role.
 #'
-#' @param nb 0/1 neighbour matrix. @param deg Degree vector.
+#' @param nb 0/1 neighbor matrix. @param deg Degree vector.
 #' @return Integer vector.
 #' @keywords internal
 #' @noRd
@@ -570,13 +576,14 @@
   }, integer(1L))
 }
 
-#' Redundancy (Burt 1992; Borgatti 1997): mean degree of ego's alters
+#' Redundancy (Burt 1992; Borgatti 1997): mean within-ego-network degree
+#' of ego's alters
 #'
-#' `2 t_i / k_i`, with `t_i` the number of links among `i`'s neighbours;
-#' 0 for fewer than two neighbours. Equal to degree minus effective size.
+#' `2 t_i / k_i`, with `t_i` the number of links among `i`'s neighbors;
+#' 0 for fewer than two neighbors. Equal to degree minus effective size.
 #' Higher = fewer structural holes.
 #'
-#' @param nb 0/1 symmetric neighbour matrix.
+#' @param nb 0/1 symmetric neighbor matrix.
 #' @return Numeric vector.
 #' @keywords internal
 #' @noRd
@@ -592,14 +599,14 @@
 # Coreness variants and geodesic k-path
 # ---------------------------------------------------------------------------
 
-#' Integer-threshold peeling on a generalised degree (Garas et al. 2012)
+#' Integer-threshold peeling on a generalized degree (Garas et al. 2012)
 #'
-#' For `t = 0, 1, 2, ...` delete every remaining node whose generalised
+#' For `t = 0, 1, 2, ...` delete every remaining node whose generalized
 #' degree is at most `t`, recomputing after each deletion round, and label
 #' it `t`. With the plain degree this is the k-core number.
 #'
-#' @param nb 0/1 symmetric neighbour matrix.
-#' @param gen Function of (remaining indicator) returning the generalised
+#' @param nb 0/1 symmetric neighbor matrix.
+#' @param gen Function of (remaining indicator) returning the generalized
 #'   degree of every node on the remaining subgraph.
 #' @return Integer vector of shell labels.
 #' @keywords internal
@@ -627,9 +634,9 @@
 
 #' Weighted k-shell (Garas, Schweitzer & Havlin 2012)
 #'
-#' Weights are normalised by their mean, divided by their minimum and
+#' Weights are normalized by their mean, divided by their minimum and
 #' rounded to the nearest integer (section 3 of the paper); the
-#' generalised degree is `k' = (k^alpha s^beta)^(1 / (alpha + beta))` on
+#' generalized degree is `k' = (k^alpha s^beta)^(1 / (alpha + beta))` on
 #' the remaining subgraph, and the graph is peeled by integer thresholds.
 #' Unit weights give the ordinary k-core number. Reproduces the paper's
 #' Figure 1 example.
@@ -663,12 +670,12 @@
 #' Renewed coreness (Liu, Tang, Zhou & Do 2015)
 #'
 #' Each link gets a diffusion importance
-#' `D_ij = (|N(j) \ N[i]| + |N(i) \ N[j]|) / 2` (closed neighbourhoods,
+#' `D_ij = (|N(j) \ N[i]| + |N(i) \ N[j]|) / 2` (closed neighborhoods,
 #' as the paper's Figure 1 requires); links with `D_ij` below the
 #' threshold (paper: 2) are removed and the k-core number of the residual
 #' graph, with isolates at 0, is the renewed coreness.
 #'
-#' @param nb 0/1 symmetric neighbour matrix. @param threshold Default 2.
+#' @param nb 0/1 symmetric neighbor matrix. @param threshold Default 2.
 #' @return Integer vector.
 #' @keywords internal
 #' @noRd
@@ -677,8 +684,8 @@
   if (is.null(n) || n == 0L) return(integer(0))
   common <- nb %*% nb                  # shared neighbours of i and j
   deg <- rowSums(nb)
-  # Links of j that leave i's closed neighbourhood: j's degree less the
-  # shared neighbours and less the link back to i.
+  # Links of j that leave i's closed neighborhood: j's degree less the
+  # shared neighbors and less the link back to i.
   leave <- sweep(-common, 2, deg, "+") - 1
   d_ij <- (leave + t(leave)) / 2
   residual <- nb * (d_ij >= threshold)
@@ -694,7 +701,7 @@
 #' The number of shortest paths of length at most `k` that start at the
 #' node, counted with multiplicity: `sum_{0 < d(i, j) <= k} sigma(i, j)`.
 #'
-#' @param nb 0/1 neighbour matrix in walking direction. @param d Matching
+#' @param nb 0/1 neighbor matrix in walking direction. @param d Matching
 #'   hop-distance matrix. @param k Maximum length (default 3).
 #' @return Numeric vector of path counts.
 #' @keywords internal

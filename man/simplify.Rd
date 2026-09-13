@@ -66,7 +66,9 @@ No-op for matrix/tna inputs (see Details).}
 \item{...}{Additional arguments (currently unused).}
 }
 \value{
-The simplified network in the same format as the input.
+The simplified network, in the same format and class as the input
+(matrix in / matrix out, \code{cograph_network} in / \code{cograph_network}
+out, and so on). The default method raises an error for any other class.
 }
 \description{
 Removes self-loops and (where representable) merges duplicate
@@ -88,16 +90,17 @@ merged via \code{aggregate_duplicate_edges()} using
 }
 }
 \examples{
+# igraph also exports simplify(); qualify the call when both are loaded.
 # Matrix with self-loops
 mat <- matrix(c(0.5, 0.3, 0, 0.3, 0.2, 0.4, 0, 0.4, 0.1), 3, 3)
 rownames(mat) <- colnames(mat) <- c("A", "B", "C")
-simplify(mat)
+cograph::simplify(mat)
 
 # Edge list with duplicates
 edges <- data.frame(from = c(1, 1, 2), to = c(2, 2, 3), weight = c(0.3, 0.7, 0.5))
 net <- cograph(edges, layout = NULL)
-simplify(net)
-simplify(net, edge_attr_comb = "sum")
+cograph::simplify(net)
+cograph::simplify(net, edge_attr_comb = "sum")
 }
 \seealso{
 \code{\link{filter_edges}} for conditional edge removal,

@@ -33,9 +33,13 @@ plots all pairwise comparisons (or specify i, j).}
 \item{y}{Second network: same type as x. Ignored if x is a list or
 \code{group_tna}.}
 
-\item{i}{Index/name of first group when x is group_tna. NULL for all pairs.}
+\item{i}{Index/name of first group when x is group_tna or a plain list.
+NULL plots all pairs for a \code{group_tna} of more than two groups, and
+selects the first element otherwise.}
 
-\item{j}{Index/name of second group when x is group_tna. NULL for all pairs.}
+\item{j}{Index/name of second group when x is group_tna or a plain list.
+NULL plots all pairs for a \code{group_tna} of more than two groups, and
+selects the second element otherwise.}
 
 \item{pos_color}{Color for positive differences (x > y). Default "#009900" (green).}
 
@@ -49,7 +53,8 @@ plots all pairwise comparisons (or specify i, j).}
 
 \item{inits_y}{Node values for y. NULL to auto-extract from tna.}
 
-\item{show_inits}{Logical: show node differences as donuts? Default TRUE if inits available.}
+\item{show_inits}{Logical: show node differences as donuts? Default
+\code{NULL}, which shows them when inits are available for both networks.}
 
 \item{donut_inner_ratio}{Inner radius ratio for donut (0-1). Default 0.8.}
 
@@ -69,7 +74,11 @@ automatically and its \code{$difference_matrix} is used.}
 \item{...}{Additional arguments passed to splot().}
 }
 \value{
-Invisibly returns a list with difference matrix and inits difference.
+Invisibly returns a list with elements \code{weights} (the
+element-wise difference matrix \code{x - y}) and \code{inits} (the
+node-value difference, or \code{NULL} when no inits were available).
+For the \code{group_tna} all-pairs path, a named list of such lists —
+one element per pair, named \code{"<group_i>_vs_<group_j>"}.
 }
 \description{
 Plots the difference between two networks (x - y) using splot.
@@ -110,5 +119,7 @@ plot_difference(m1, m2,
 
 }
 \seealso{
-\code{\link{plot_compare}}, the deprecated alias of this function.
+\code{\link{plot_compare}}, a first-class alias of this function
+kept for the \code{tna} integration. \code{plot_difference()} is the
+preferred name.
 }

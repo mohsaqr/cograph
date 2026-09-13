@@ -1,5 +1,5 @@
 # ===========================================================================
-# Structural kernels: cut vertices, bridges, ego neighbourhoods,
+# Structural kernels: cut vertices, bridges, ego neighborhoods,
 # shortest-path counts and edge betweenness, dependency-free
 # ===========================================================================
 # These serve the wrangling verbs (filter_nodes, select_nodes, select_edges)
@@ -109,8 +109,8 @@
   clock <- 0L
   # The DFS is inherently sequential: every low-link value depends on the
   # discovery order of the vertices visited before it, so the walk cannot be
-  # expressed as a vectorised operation. The explicit stack replaces
-  # recursion; `ptr` remembers where each vertex's neighbour scan stopped.
+  # expressed as a vectorized operation. The explicit stack replaces
+  # recursion; `ptr` remembers where each vertex's neighbor scan stopped.
   for (root in seq_len(n)) {
     if (disc[root] > 0L) next
     clock <- clock + 1L
@@ -197,12 +197,12 @@
 }
 
 # ---------------------------------------------------------------------------
-# Ego neighbourhoods
+# Ego neighborhoods
 # ---------------------------------------------------------------------------
 
 #' Vertices within `order` hops of a seed set
 #'
-#' Breadth-first expansion with a vectorised frontier: each ring is one
+#' Breadth-first expansion with a vectorized frontier: each ring is one
 #' matrix-vector product. Matches `igraph::ego(g, order, nodes, mode)` taken
 #' as a union, seeds included (order 0 returns the seeds themselves).
 #'
@@ -402,6 +402,8 @@
 #' (1e-10): two lengths tie when their difference is below 1e-10 of their
 #' magnitude, so ties are found at any weight scale.
 #' @param a,b Two path lengths (either may be `Inf`).
+#' @param eps Relative tolerance; `1e-10`, igraph's
+#'   `IGRAPH_SHORTEST_PATH_EPSILON`.
 #' @return `-1L`, `0L` or `1L` as `a` is shorter, tied or longer.
 #' @keywords internal
 #' @noRd
@@ -424,8 +426,11 @@
 #' peeling (two under `"all"` and undirected, one under `"out"` / `"in"`),
 #' whereas `.cg_coreness()` reads the graph without its diagonal. The loop
 #' contribution is a constant offset that only its own vertex can remove, so
-#' the peeling below starts from `.cg_degree(loops = TRUE)` and subtracts
+#' the peeling starts from `.cg_degree(loops = TRUE)` and subtracts
 #' off-diagonal losses only. Identical to `.cg_coreness()` on a loop-free graph.
+#'
+#' This is a thin alias: the peeling itself is `.cg_loop_coreness()` in
+#' `R/kernels-batch11.R`, where the gravity family already needed it.
 #'
 #' @param b Binary adjacency matrix (diagonal read, not assumed zero).
 #' @param n Vertex count. @param directed Whether directed.
@@ -434,6 +439,5 @@
 #' @keywords internal
 #' @noRd
 .cg_coreness_loops <- function(b, n, directed = FALSE, mode = c("all", "out", "in")) {
-  # One implementation of igraph's loop convention lives in R/kernels-batch11.R.
   .cg_loop_coreness(b, n, directed = directed, mode = match.arg(mode))
 }

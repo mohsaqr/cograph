@@ -180,7 +180,7 @@ has collapsed the source/target two-tone (undirected input such as
 \item{node_radius}{Node core radius in data units, used only on the
 directed path (rings and cores become polygons there so the ring
 gradient and the arrow offset are expressible; \code{geom_point()}
-sizes are device millimetres and cannot answer either).
+sizes are device millimeters and cannot answer either).
 \code{NULL} (default) scales it to the panel extent so the nodes
 keep the size they have today.}
 
@@ -192,8 +192,12 @@ grid. Default \code{TRUE} when \code{direction} is on.}
 when auto-building.}
 }
 \value{
-A \code{ggplot} object (or combined grid if dismantled),
-invisibly.
+Invisibly, a \code{ggplot} object for the combined overlay. With
+\code{dismantled = TRUE} the arranged grid is returned instead: a
+\code{gtable} when \pkg{gridExtra} is available, otherwise a plain list
+of the per-pathway \code{ggplot} objects. \code{NULL} is returned when
+there is nothing to draw (no pathways could be extracted). Called for the
+side effect of drawing.
 }
 \description{
 Visualize higher-order pathways as smooth blobs overlaid on a

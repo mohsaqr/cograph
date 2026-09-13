@@ -71,7 +71,7 @@ calculate_neighborhood_connectivity <- function(cg, mode = "all") {
 #' Distance Entropy
 #'
 #' Shannon entropy of the distribution of hop distances from a node to every
-#' node it can reach (Stella & De Domenico 2018), normalised so that a
+#' node it can reach (Stella & De Domenico 2018), normalized so that a
 #' uniform spread over the node's distance range scores 1:
 #' \deqn{h(i) = -\frac{1}{\log(M_i - m_i + 1)} \sum_{k = m_i}^{M_i}
 #'   p_k^{(i)} \log p_k^{(i)}, \qquad p_k^{(i)} = n_k^{(i)} / R_i,}
@@ -79,11 +79,11 @@ calculate_neighborhood_connectivity <- function(cg, mode = "all") {
 #' \eqn{i}, \eqn{R_i} the number of reachable nodes, and \eqn{m_i, M_i} the
 #' minimum and maximum distance. High values mark nodes whose reach is
 #' spread evenly across many network layers; a node whose reachable nodes
-#' all sit at one distance scores 0. Closeness summarises the mean of the
-#' same distribution; distance entropy summarises its spread.
+#' all sit at one distance scores 0. Closeness summarizes the mean of the
+#' same distribution; distance entropy summarizes its spread.
 #'
 #' Distances are hop counts (edge weights are ignored). The original paper
-#' normalises by \eqn{\log(M_i - m_i)}, which is undefined when only two
+#' normalizes by \eqn{\log(M_i - m_i)}, which is undefined when only two
 #' distinct distances occur; \eqn{\log(M_i - m_i + 1)} is used here so the
 #' index is bounded by 1 for a uniform distribution.
 #'
@@ -124,11 +124,11 @@ centrality_distance_entropy <- function(x, mode = "all", ...) {
 #' A node that reaches most of the network in a few hops has a small
 #' exponent, so **lower values mark more influential nodes**. When a node
 #' has a single radius (it reaches every other node in one hop) the
-#' regression is undefined and the discretised derivative
+#' regression is undefined and the discretized derivative
 #' \eqn{r\, n_i(r) / B_i(r)} at \eqn{r = 1} is reported, where
 #' \eqn{n_i(r)} counts the nodes at distance exactly \eqn{r}.
 #'
-#' The implementation reproduces the worked example in Wen & Deng (2019),
+#' The implementation reproduces the worked example in Wen & Jiang (2019),
 #' which reports 0.9231 for ring sizes 4, 5, 4, 4. Distances are hop counts;
 #' edge weights are ignored.
 #'
@@ -144,7 +144,7 @@ centrality_distance_entropy <- function(x, mode = "all", ...) {
 #' Pu, J., Chen, X., Wei, D., Liu, Q., & Deng, Y. (2014). Identifying
 #'   influential nodes based on local dimension. EPL, 107(1), 10010.
 #'
-#' Wen, T., & Deng, Y. (2019). Identifying influential nodes based on fuzzy
+#' Wen, T., & Jiang, W. (2019). Identifying influential nodes based on fuzzy
 #'   local dimension in complex networks. Chaos, Solitons & Fractals, 119,
 #'   332-342.
 #'
@@ -172,7 +172,7 @@ centrality_local_dimension <- function(x, mode = "all", ...) {
 #' estimated as minus the least-squares slope of \eqn{I_i(l)} on
 #' \eqn{\ln l} for \eqn{l = 1, \ldots, \lceil d_{\max}(i) / 2 \rceil}.
 #' **Higher values mark more influential nodes.** When only one box size is
-#' available the discretised derivative of the source paper,
+#' available the discretized derivative of the source paper,
 #' \eqn{l (1 + \ln p_i(l))\, n_i(l) / N}, is reported.
 #'
 #' Distances are hop counts; edge weights are ignored.
@@ -255,12 +255,12 @@ centrality_modularity_vitality <- function(x, membership = NULL, ...) {
 
 #' Neighborhood Connectivity
 #'
-#' Mean degree of a node's neighbours (Maslov & Sneppen 2002), the
-#' "average neighbour degree" reported by Cytoscape:
+#' Mean degree of a node's neighbors (Maslov & Sneppen 2002), the
+#' "average neighbor degree" reported by Cytoscape:
 #' \deqn{C_{NC}(i) = \frac{1}{k_i} \sum_{j \in N(i)} k_j.}
 #' High values mark nodes attached to hubs. Isolates score 0. Under
-#' \code{mode = "out"} the out-neighbours' out-degrees are averaged, under
-#' \code{"in"} the in-neighbours' in-degrees.
+#' \code{mode = "out"} the out-neighbors' out-degrees are averaged, under
+#' \code{"in"} the in-neighbors' in-degrees.
 #'
 #' @inheritParams centrality_distance_entropy
 #'
@@ -270,7 +270,7 @@ centrality_modularity_vitality <- function(x, membership = NULL, ...) {
 #'   in topology of protein networks. Science, 296(5569), 910-913.
 #'
 #' @seealso \code{\link{centrality_degree}}, and \code{igraph::knn()} for
-#'   the Barrat weighted generalisation.
+#'   the Barrat weighted generalization.
 #'
 #' @export
 #' @examples

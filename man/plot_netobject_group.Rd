@@ -36,7 +36,9 @@ when laying panels out yourself with \code{\link{panel_layout}()}.}
 \item{...}{Additional arguments passed to \code{splot()}.}
 }
 \value{
-Invisibly returns \code{x}.
+Invisibly returns \code{x}. With a single group the
+\code{\link{splot}()} result for that panel (a \code{cograph_network})
+is returned instead, and with an empty group list \code{NULL}.
 }
 \description{
 Creates a multi-panel plot for a \code{netobject_group} list, one panel per group.

@@ -98,8 +98,9 @@ Centrality measures are computed lazily - only measures actually referenced
 in expressions or the \code{by} parameter are computed. This makes
 \code{select_nodes()} faster than \code{filter_nodes()} for large networks.
 
-For networks with negative edge weights, \code{betweenness} and \code{closeness}
-will return NA with a warning (igraph cannot compute these with negative weights).
+For networks with negative edge weights, \code{betweenness},
+\code{closeness} and \code{pagerank} are undefined and return \code{NA},
+with a \code{cograph_negative_weights} warning.
 }
 \examples{
 adj <- matrix(c(0, .5, .8, 0, .5, 0, .3, .6,

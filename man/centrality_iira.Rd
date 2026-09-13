@@ -57,7 +57,7 @@ to zero.
 
 \strong{The Centrality Zoo entry is not this formula.} Section 2.185
 prints \eqn{p_{ij}=(1-(1-\beta)^{d_i})a_{ij}c_i/\sum_k a_{ik}c_k}, which
-pairs the numerator's index with the denominator's own neighbourhood; the
+pairs the numerator's index with the denominator's own neighborhood; the
 source pairs them with opposite sets. As printed, the Zoo's row sums are
 \eqn{\psi_i c_i d_i/\sum_{k\in N(i)}c_k}, so its matrix is stochastic in
 neither direction although the entry calls it stochastic, and it does not
@@ -67,7 +67,7 @@ cograph implements the source.
 Uses the simple undirected unweighted skeleton, which is the source
 domain: either arc creates one edge, parallel edges count once and loops
 are removed. Edge weights, mode, cutoff and path-weight inversion are
-ignored. An isolate has an empty neighbour sum and \eqn{\psi=0}, so it
+ignored. An isolate has an empty neighbor sum and \eqn{\psi=0}, so it
 scores zero from the first step; that is the value of the source's empty
 sum, not an accidental zero. \code{iira_steps = 0} returns the initial
 \eqn{I(0)}, a vector of ones. Empty graphs return no scores. Cost is one
@@ -81,6 +81,7 @@ preprint's figure 2 example, not parity with author software, which does
 not exist, and not any claim about spreading performance.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # The source's figure 2, whose printed I(50) is
 # 8.19e-20, 4.32e-20, 4.32e-20, 6.7e-21, 6.7e-21
 fig2 <- igraph::make_graph(c(1, 2, 1, 3, 2, 3, 1, 4, 1, 5),
@@ -89,6 +90,7 @@ centrality_iira(fig2)
 
 # Only the order carries meaning, so max-scale for reading
 centrality_iira(fig2, normalized = TRUE)
+\dontshow{\}) # examplesIf}
 }
 \references{
 Zhong, L.-F., Liu, J.-G. and Shang, M.-S. (2015). Iterative

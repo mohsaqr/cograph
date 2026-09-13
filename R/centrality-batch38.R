@@ -137,7 +137,7 @@ calculate_mcgm <- function(cg, mcgm_radius = 2, mcgm_alpha = NULL,
 #'   Scientific Reports, 12, 9879. Equations 17-18, Algorithm 1, Tables 1-2.
 #'   \doi{10.1038/s41598-022-14005-3}.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_mcgm(igraph::make_ring(6))
 #' centrality_mcgm(igraph::make_star(6), mcgm_radius = 3)
 centrality_mcgm <- function(x, mcgm_radius = 2, mcgm_alpha = NULL, ...) {

@@ -112,7 +112,7 @@ plot_centrality_distribution <- function(x,
 #'
 #' @return Invisibly returns the weight vector.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' adj <- matrix(c(0, 2, 3, 2, 0, 1, 3, 1, 0), 3, 3)
 #' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
 #' cograph::plot_edge_weights(adj)
@@ -273,7 +273,7 @@ plot_degree_correlation <- function(x,
 #'
 #' @return Invisible list of per-panel networks or edge-list data frames.
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' set.seed(1)
 #' edges <- data.frame(
 #'   from = sample(LETTERS[1:5], 30, replace = TRUE),

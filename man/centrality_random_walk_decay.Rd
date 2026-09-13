@@ -69,7 +69,9 @@ Unrepresentably small final contributions can still underflow to zero.
 starting weights first; tiny normalized contributions may underflow.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 centrality_random_walk_decay(igraph::make_ring(4), rwd_decay = 0.8)
+\dontshow{\}) # examplesIf}
 }
 \references{
 Was, T., Rahwan, T., & Skibski, O. (2019). Random Walk Decay

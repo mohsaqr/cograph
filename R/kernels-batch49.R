@@ -109,7 +109,7 @@
 
   # The source's own construction: binary arcs, then a_ii = 1 everywhere.
   # Any loop already in the input is absorbed by that diagonal, and the row
-  # sums are at least one, so the normalisation never divides by zero.
+  # sums are at least one, so the normalization never divides by zero.
   a <- .cg_edge_indicator(b)
   diag(a) <- 1
   w <- a / rowSums(a)

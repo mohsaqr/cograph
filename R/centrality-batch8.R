@@ -33,7 +33,7 @@ calculate_shapley <- function(cg, game = 1L, k = 2, cutoff = 2,
 #'     adjacent to it. \eqn{SV(v) = \sum_{u \in \{v\} \cup N(v)}
 #'     1 / (1 + k_u)}.}
 #'   \item{Game 2 (\code{shapley_game2})}{\eqn{v(C)} = nodes in \eqn{C} or
-#'     with at least \eqn{k} neighbours in \eqn{C}.
+#'     with at least \eqn{k} neighbors in \eqn{C}.
 #'     \eqn{SV(v) = \min(1, k / (1 + k_v)) + \sum_{u \in N(v)}
 #'     \max(0, (k_u - k + 1) / (k_u (1 + k_u)))}. With \eqn{k = 1} this is
 #'     game 1. Threshold via \code{shapley_k} (default 2).}
@@ -57,7 +57,7 @@ calculate_shapley <- function(cg, game = 1L, k = 2, cutoff = 2,
 #'
 #' @param x Network input (matrix, igraph, network, cograph_network, tna
 #'   object).
-#' @param shapley_k Neighbour threshold \eqn{k} for game 2. Default 2.
+#' @param shapley_k Neighbor threshold \eqn{k} for game 2. Default 2.
 #' @param shapley_cutoff Hop cutoff for game 3. Default 2.
 #' @param ... Additional arguments passed to \code{\link{centrality}}.
 #'
@@ -220,14 +220,14 @@ calculate_rumor <- function(cg, hop_mat = NULL) {
 #' orders that could have started at \eqn{v}. On a general graph the paper
 #' evaluates \eqn{R} on the breadth-first tree rooted at each node (its
 #' eq. 24). Higher values mark nodes that are more plausible origins, which
-#' in practice are nodes near the centre of the network.
+#' in practice are nodes near the center of the network.
 #'
 #' The value is returned as \eqn{\log R(v)} (natural log) because
 #' \eqn{N!} overflows beyond 170 nodes; rankings and differences are
 #' unchanged. \eqn{N} is the size of the node's component, so a
 #' disconnected graph is scored component by component and an isolate
 #' scores 0. The breadth-first tree attaches each node to the earliest
-#' discovered node of the previous layer, scanning neighbours in label
+#' discovered node of the previous layer, scanning neighbors in label
 #' order; the paper does not fix a tie rule, and this one reproduces its
 #' Figure 3. Direction and edge weights are ignored.
 #'
@@ -301,7 +301,7 @@ calculate_community_hub_bridge <- function(cg, membership = NULL,
 #' outside that community, and \eqn{NNC_i} the number of *other*
 #' communities it is linked to (eqs. 2 to 4 of the paper). Higher values
 #' mark nodes whose removal both fragments their community and cuts links
-#' between communities. A normalised variant with the same name exists in
+#' between communities. A normalized variant with the same name exists in
 #' later work by the same group; this is the original raw form.
 #'
 #' Under \code{mode = "out"} or \code{"in"} only out- or in-links count;
@@ -358,7 +358,7 @@ calculate_entropy_variation <- function(cg, of = c("degree", "betweenness"),
   if (of == "degree") {
     b <- .cg_path_matrix(cg, NULL)
     # An undirected graph has one degree; "all" reads it (as 2k, which the
-    # normalisation in the entropy cancels).
+    # normalization in the entropy cancels).
     if (!cg$directed) mode <- "all"
     return(.cg_entropy_variation_degree(b, mode))
   }
@@ -435,22 +435,27 @@ centrality_entropy_variation <- function(x, of = c("degree", "betweenness"),
 #' @keywords internal
 #' @noRd
 calculate_s_shell <- function(cg, a = 0.5) {
+  if (!is.numeric(a) || length(a) != 1L || !is.finite(a) || a < 0) {
+    stop(errorCondition(
+      "`s_shell_a` must be a single non-negative number: it is the exponent on the link strengths",
+      class = "cograph_bad_parameter", call = NULL))
+  }
   if (cg$n == 0L) return(integer(0))
   .cg_s_shell(.cg_path_matrix(cg, NULL), a = a)
 }
 
 #' s-shell Index
 #'
-#' Liu, Tang, Do and Hui's (2017) strength-based generalisation of k-shell
+#' Liu, Tang, Do and Hui's (2017) strength-based generalization of k-shell
 #' for identifying spreaders. Each link is given an asymmetric weight from
 #' the topology alone,
 #' \deqn{w_{ij} = 1 + (k_i \, k^{out}_j)^a,}
-#' where \eqn{k^{out}_j} is the number of \eqn{j}'s neighbours that lie
-#' outside \eqn{i}'s closed neighbourhood (links that lead a spreading
+#' where \eqn{k^{out}_j} is the number of \eqn{j}'s neighbors that lie
+#' outside \eqn{i}'s closed neighborhood (links that lead a spreading
 #' process to new territory), and each node's strength is
 #' \eqn{s_i = \sum_{j \in N(i)} w_{ij}}. The graph is then peeled like a
 #' k-shell but by strength: the minimum remaining strength is the
-#' threshold, everything at or below it is removed (neighbours lose the
+#' threshold, everything at or below it is removed (neighbors lose the
 #' corresponding \eqn{w_{ji}}), removals cascade until the threshold holds,
 #' and the removed nodes receive the next shell index. Higher index = more
 #' central. With \eqn{a = 0} the shells are the dense ranks of the k-core
@@ -469,7 +474,9 @@ calculate_s_shell <- function(cg, a = 0.5) {
 #'
 #' @param x Network input (matrix, igraph, network, cograph_network, tna
 #'   object).
-#' @param s_shell_a Exponent \eqn{a} of the link weights. Default 0.5.
+#' @param s_shell_a Exponent \eqn{a} of the link weights. A single
+#'   non-negative number; default 0.5. Anything else raises a
+#'   \code{cograph_bad_parameter} error.
 #' @param ... Additional arguments passed to \code{\link{centrality}}.
 #'
 #' @return Named integer vector of shell indices, one per node.
@@ -521,12 +528,12 @@ calculate_ncvoterank <- function(cg, theta = 0.5) {
 #' Chen, Wang and Yang's (2009) degree-discount heuristics for choosing
 #' spreaders under the independent-cascade model. Nodes are selected one
 #' at a time by the largest *discounted* degree; after each selection every
-#' unselected neighbour \eqn{v} of the new seed counts one more selected
-#' neighbour, \eqn{t_v}, and its discounted degree becomes
+#' unselected neighbor \eqn{v} of the new seed counts one more selected
+#' neighbor, \eqn{t_v}, and its discounted degree becomes
 #' \deqn{dd_v = d_v - 2 t_v - (d_v - t_v)\, t_v\, p}
 #' for DegreeDiscountIC (Algorithm 4 of the paper, with propagation
 #' probability \eqn{p}, default 0.01), or simply \eqn{d_v - t_v} for
-#' SingleDiscount, where each neighbour of a new seed discounts its degree
+#' SingleDiscount, where each neighbor of a new seed discounts its degree
 #' by one. Every node is placed, so the result is a full ranking, returned
 #' as a score: the first node selected scores 1, the last \eqn{1 / n}.
 #'
@@ -575,16 +582,16 @@ centrality_single_discount <- function(x, ...) {
 
 #' NCVoteRank
 #'
-#' Kumar and Panda's (2020) neighbourhood-coreness VoteRank. As in
-#' VoteRank, every node votes for its neighbours with its voting ability,
+#' Kumar and Panda's (2020) neighborhood-coreness VoteRank. As in
+#' VoteRank, every node votes for its neighbors with its voting ability,
 #' the top scorer is elected, and the abilities around it are weakened;
-#' here each voter's ability is additionally weighted by its neighbourhood
+#' here each voter's ability is additionally weighted by its neighborhood
 #' coreness,
 #' \deqn{s_u = \sum_{v \in N(u)} va_v \,[\theta + (1 - \theta)\, nc_v],
 #'   \qquad nc_v = \frac{\sum_{w \in N(v)} ks(w)}
 #'   {\max_j \sum_{w \in N(j)} ks(w)},}
 #' with \eqn{ks} the k-shell index (Bae & Kim 2014) and \eqn{\theta = 0.5}.
-#' After an election the winner's ability drops to 0, its neighbours lose
+#' After an election the winner's ability drops to 0, its neighbors lose
 #' \eqn{1 / \langle k \rangle} and the nodes two steps away lose
 #' \eqn{1 / (2 \langle k \rangle)}. Elections continue until every node is
 #' placed, as in \code{\link{centrality_voterank}}; the first elected
@@ -595,7 +602,7 @@ centrality_single_discount <- function(x, ...) {
 #' and three independent restatements (Yu et al. 2020, Li et al. 2022,
 #' Zhu et al. 2023), which agree on the voter-side coreness weighting.
 #' The scaling of the coreness term by its maximum follows Yu et al., who
-#' state the coreness is normalised without giving the form. With
+#' state the coreness is normalized without giving the form. With
 #' \eqn{\theta = 1} and no two-hop weakening the procedure is exactly
 #' VoteRank, which is reproduced against \code{networkx.voterank}.
 #' Defined for undirected graphs; direction, weights and loops are ignored.

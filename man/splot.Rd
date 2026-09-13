@@ -258,7 +258,8 @@ with \code{\link{panel_layout}()}). Ignored for single-network types.}
 Default TRUE.}
 
 \item{inclusion_threshold}{Numeric: minimum inclusion probability to show an edge.
-Default \code{1 - x$alpha} (i.e. the complement of the alpha level).}
+Default \code{NULL}, which uses \code{1 - x$alpha} (i.e. the complement of
+the alpha level, falling back to \code{1 - 0.05} when \code{$alpha} is absent).}
 
 \item{edge_positive_color}{Color for positive weights.}
 
@@ -615,7 +616,10 @@ identical absolute scales — useful for bootstrap panels, comparison
 grids with networks of different node counts, or any case where
 visual-size parity across panels matters more than canvas fill.
 Default \code{FALSE} uses dynamic, layout-driven bounds (the
-pre-2.1.x behaviour) which renders tighter on the canvas. The
+pre-2.1.x behavior) which renders tighter on the canvas. The fixed
+box is only applied when the layout is being rescaled, so
+\code{align_panels = TRUE} has no effect under
+\code{rescale = FALSE}. The
 per-node loop-reservation pad in \code{compute_plot_limits} runs
 regardless, so networks with different self-loop patterns stay
 centered consistently in either mode.}
@@ -643,7 +647,8 @@ otherwise. Can be used with any input type (matrix, igraph, cograph_network).}
 
 \item{psych_styling}{Logical or NULL. Undirected counterpart of \code{tna_styling}.
 If \code{TRUE}, applies psychometric-network defaults (spring layout,
-Okabe-Ito palette, no arrows, thin edges) as a base layer. If \code{NULL}
+Okabe-Ito palette, no arrows, solid edge lines, and
+\code{minimum = 0.01}) as a base layer. If \code{NULL}
 (default), \code{splot.netobject} auto-enables it on correlation-family input
 (glasso, cor, pcor, ising) and on the undirected constituents of
 \code{net_mlvar}. Explicit user args always win.}
@@ -672,21 +677,25 @@ plots only that group.}
 \item{res}{Resolution in DPI for raster outputs (PNG, JPEG, TIFF). Default 600.}
 }
 \value{
-Invisibly returns the plot.
+Invisibly returns the \code{cograph_network} object built by
+\code{\link{splot}()}. Called for the side effect of drawing.
 
-Invisibly, the splot result.
+Invisibly, the \code{\link{splot}} result: a \code{cograph_network} object.
 
-Invisibly, the splot result.
-
-Invisibly returns \code{x}.
-
-Invisibly returns the plot.
-
-Invisibly returns the plot.
+Invisibly, the \code{\link{splot}} result: a \code{cograph_network} object.
 
 Invisibly returns \code{x}.
 
-Invisibly returns the plot.
+Invisibly returns the \code{cograph_network} object built by
+\code{\link{splot}()}. Called for the side effect of drawing.
+
+Invisibly returns the \code{cograph_network} object built by
+\code{\link{splot}()}. Called for the side effect of drawing.
+
+Invisibly returns \code{x}.
+
+Invisibly returns the \code{cograph_network} object built by
+\code{\link{splot}()}, or \code{NULL} when there is no edge to draw.
 
 Invisibly returns the cograph_network object.
 }
@@ -707,7 +716,7 @@ The network is retrieved from \code{attr(x, "network")}, which
 \code{detect_communities()} / \code{.wrap_communities()} sets automatically.
 
 Applies TNA-compatible styling defaults before delegating to \code{splot()}:
-directed networks get oval layout, coloured nodes, and sized arrows;
+directed networks get oval layout, colored nodes, and sized arrows;
 undirected networks get spring layout with no arrows or dashes.
 All parameters can be overridden by the caller.
 
@@ -813,7 +822,7 @@ comparisons), \code{\{stars\}} for significance stars.}
 
 Packages that create \code{cograph_network}-compatible objects can attach a
 small plotting contract at \code{x$meta$splot}. This lets producer packages
-such as Nestimate, lagdynamics, or other modelling packages describe their
+such as Nestimate, lagdynamics, or other modeling packages describe their
 preferred cograph rendering without adding a new cograph-side class branch for
 every object type.
 

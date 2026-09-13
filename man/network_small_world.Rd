@@ -9,12 +9,15 @@ network_small_world(x, n_random = 10, ...)
 \arguments{
 \item{x}{Network input: matrix, igraph, network, cograph_network, or tna object}
 
-\item{n_random}{Number of random graphs for comparison. Default 10.}
+\item{n_random}{Number of Erdos-Renyi comparison graphs (same \code{n} and
+\code{m} as the observed graph). Default 10.}
 
-\item{...}{Additional arguments passed to \code{\link{to_igraph}}}
+\item{...}{Passed to \code{\link{to_igraph}}, whose only other argument
+is \code{directed}; anything else raises an "unused argument" error.}
 }
 \value{
-Numeric: small-world coefficient sigma
+Numeric: small-world coefficient sigma. \code{NA} when the graph has
+fewer than 4 nodes, no edges, or an undefined/zero mean path length.
 }
 \description{
 Computes the small-world coefficient sigma, defined as:
@@ -26,6 +29,15 @@ are values from equivalent random graphs.
 Values > 1 indicate small-world properties. Typically small-world
 networks have sigma >> 1.
 }
+\section{Reproducibility}{
+
+The comparison graphs are drawn from the caller's RNG stream; this function
+takes no \code{seed} argument and does not save or restore
+\code{.Random.seed}. Call \code{set.seed()} beforehand for a reproducible
+result, and prefer a larger \code{n_random} than the default for anything
+you report.
+}
+
 \examples{
 # Watts-Strogatz small-world graph
 if (requireNamespace("igraph", quietly = TRUE)) {

@@ -8,7 +8,7 @@
 #' k^ex(u) = delta * k(u) + (1 - delta) * sum_{v in phi(u)} k(v)
 #' ```
 #'
-#' over the open 1-order neighbourhood `phi(u)`, with `delta` in `[0, 1]`
+#' over the open 1-order neighborhood `phi(u)`, with `delta` in `[0, 1]`
 #' and `delta = 1` recovering the classical degree. The *E-shell hierarchy
 #' decomposition* on the same page then peels the graph: in each iteration
 #' it removes **every** node attaining the current minimum extended degree,
@@ -94,7 +94,7 @@
   residual <- degree
   rounds <- 0L
   # Each round's minimum depends on the degrees the previous round left
-  # behind, so there is nothing to vectorise across rounds. At least one
+  # behind, so there is nothing to vectorize across rounds. At least one
   # node leaves per round, so the loop runs at most n times.
   while (any(alive)) {
     rounds <- rounds + 1L

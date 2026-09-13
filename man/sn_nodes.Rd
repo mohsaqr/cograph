@@ -98,7 +98,7 @@ Still works for backwards compatibility.}
 Single color sets fill for all nodes.
 Two colors set fill and background for all nodes.
 More than 2 colors set per-node fill colors (recycled to n_nodes).
-Default: "lightgray" fill, "gray90" background when shape="donut".}
+Default: "maroon" fill, "gray90" background when shape="donut".}
 
 \item{donut_colors}{Deprecated. Use donut_color instead.}
 
@@ -108,7 +108,10 @@ Default: "lightgray" fill, "gray90" background when shape="donut".}
 
 \item{donut_bg_color}{For donut shape: background color for unfilled portion.}
 
-\item{donut_shape}{For donut: base shape for ring ("circle", "square", "hexagon", "triangle", "diamond", "pentagon"). Default "circle".}
+\item{donut_shape}{For donut: base shape for ring ("circle", "square",
+"hexagon", "triangle", "diamond", "pentagon"). Default NULL, which inherits
+the ring shape from the node's own shape (hexagon nodes get hexagon
+donuts); set it explicitly to override that for every node.}
 
 \item{donut_show_value}{For donut shape: show value in center? Default FALSE.}
 

@@ -35,11 +35,12 @@ plot_edge_diff_forest(x, ...)
 
 \item{...}{Currently unused.}
 
-\item{alpha}{Significance threshold. Default: inherits from object.}
+\item{alpha}{Significance threshold. Default \code{NULL}, which inherits
+\code{x$alpha}, falling back to \code{0.05}.}
 
 \item{layout}{\code{"linear"} (default), \code{"circular"}, \code{"chord"},
 or \code{"tile"}. The chord layout places all edge names on a unit circle
-and connects significant pairs with bezier arcs; arc width and colour
+and connects significant pairs with bezier arcs; arc width and color
 encode the mean bootstrap difference. The tile layout draws the
 pairwise-difference matrix.}
 
@@ -47,7 +48,7 @@ pairwise-difference matrix.}
 
 \item{nonzero_only}{If \code{TRUE}, restrict to edges that are non-zero in
 the original network (identified via \code{$original_pcor}). Useful for
-EBICglasso results where many edges are regularised to exactly zero.
+EBICglasso results where many edges are regularized to exactly zero.
 Default \code{FALSE}.}
 
 \item{sort_by}{\code{"estimate"} (default), \code{"significance"}, or
@@ -55,19 +56,20 @@ Default \code{FALSE}.}
 
 \item{n_top}{Restrict to top N pairs by absolute difference.}
 
-\item{pos_color}{Colour when edge1 > edge2. Default crimson.}
+\item{pos_color}{Color when edge1 > edge2. Default crimson.}
 
-\item{neg_color}{Colour when edge1 < edge2. Default teal.}
+\item{neg_color}{Color when edge1 < edge2. Default teal.}
 
-\item{nonsig_color}{Colour for non-significant pairs.}
+\item{nonsig_color}{Color for non-significant pairs.}
 
-\item{ring_color}{Ring colour (circular/chord). Default light grey.}
+\item{ring_color}{Ring color (circular/chord). Default light grey.}
 
 \item{label_size}{Text size. Default \code{2.3}.}
 
-\item{label_color}{Fixed label colour (\code{NULL} = inherit).}
+\item{label_color}{Fixed label color (\code{NULL} = inherit).}
 
-\item{point_size}{Size of estimate square (linear/circular).}
+\item{point_size}{Size of estimate square (linear/circular). Default
+\code{2} for \code{layout = "circular"} and \code{3} otherwise.}
 
 \item{r_inner}{Inner ring radius (circular). Default \code{0.38}.}
 
@@ -81,7 +83,7 @@ Default \code{FALSE}.}
 A \code{ggplot} object.
 }
 \description{
-Visualises pairwise edge weight differences from a \code{boot_glasso} object.
+Visualizes pairwise edge weight differences from a \code{boot_glasso} object.
 Each row (linear) or spoke (circular) is one edge pair; the CI bar spans the
 bootstrap CI of the difference; a dashed line/ring marks zero.
 Red = first edge larger; blue = second edge larger.

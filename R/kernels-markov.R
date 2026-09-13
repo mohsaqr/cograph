@@ -28,8 +28,15 @@
 #' fundamental matrix. A disconnected graph has no stationary distribution to
 #' speak of, so all three are `NaN` rather than computed per component.
 #'
-#' @param w Weight matrix. @param n Vertex count. @param directed Whether directed.
-#' @return A list with `markov`, `random_walk` and `second_order`.
+#' The walk runs on the **support** of `w` (`w != 0`, diagonal cleared), so
+#' edge weights do not enter: every out-edge of a vertex is equally likely.
+#'
+#' @param w Weight matrix; only its support is read. @param n Vertex count.
+#' @param directed Whether directed.
+#' @return A list with `markov`, `random_walk` and `second_order`. All three
+#'   are `NaN` throughout when the graph is disconnected or the fundamental
+#'   matrix cannot be formed; `markov` and `random_walk` carry `NA` at an
+#'   individual vertex whose passage-time sum is not positive.
 #' @keywords internal
 #' @noRd
 .cg_mfpt <- function(w, n, directed) {
@@ -114,8 +121,11 @@
 #' folded back onto vertices. Built on directed edge pairs, so an undirected
 #' graph is first split into its two arcs.
 #'
-#' @param w Weight matrix. @param n Vertex count. @param directed Whether directed.
-#' @return Numeric vector scaled to a maximum of 1.
+#' @param w Weight matrix; only its support is read. @param n Vertex count.
+#' @param directed Whether directed.
+#' @return Numeric vector scaled to a maximum of 1; `NA` throughout on an
+#'   edgeless graph, where the operator is empty and has no dominant
+#'   eigenvector.
 #' @keywords internal
 #' @noRd
 .cg_nonbacktracking <- function(w, n, directed) {

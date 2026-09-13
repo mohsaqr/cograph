@@ -13,12 +13,17 @@ layer_similarity_matrix(
 lsim_matrix(layers, method = c("jaccard", "overlap", "cosine", "pearson"))
 }
 \arguments{
-\item{layers}{List of adjacency matrices (one per layer)}
+\item{layers}{Named list of adjacency matrices (one per layer); at least two
+are required.}
 
-\item{method}{Similarity method}
+\item{method}{Comparison method: "jaccard" (default), "overlap", "cosine" or
+"pearson". Note that \code{"hamming"}, accepted by
+\code{\link{layer_similarity}}, is \emph{not} available here because it is
+a distance rather than a similarity.}
 }
 \value{
-Symmetric matrix of pairwise similarities
+A symmetric L x L matrix of pairwise similarities with the layer
+names as dimnames and 1 on the diagonal.
 }
 \description{
 Computes similarity matrix for all pairs of layers.

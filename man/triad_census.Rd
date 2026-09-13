@@ -10,7 +10,8 @@ triad_census(x)
 \item{x}{A matrix, igraph object, or cograph_network}
 }
 \value{
-Named vector of triad counts
+A named numeric vector of length 16 giving the count of each MAN
+triad type, in the order listed under Details.
 }
 \description{
 Count the 16 types of triads in a directed network using MAN notation.
@@ -31,10 +32,13 @@ The 16 triad types are:
 030T, 030C, 201, 120D, 120U, 120C, 210, 300
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+set.seed(1)
 mat <- matrix(sample(0:1, 100, replace = TRUE), 10, 10)
 diag(mat) <- 0
-triad_census(mat)
-
+# igraph and sna also export triad_census(); qualify the call.
+cograph::triad_census(mat)
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link[=motifs]{motifs()}} for the unified API, \code{\link[=motif_census]{motif_census()}}

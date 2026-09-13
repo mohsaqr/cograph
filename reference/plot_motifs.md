@@ -42,10 +42,13 @@ plot_motifs(
   `"triads"`
 
   :   Network diagrams of specific node triples (instance mode) or falls
-      back to patterns (census mode). Each panel title reads
-      `"<MAN code>: <description>"` (e.g. `"030T: Feed-forward"`) and,
-      in census mode, appends the z-score and a significance star (`*`
-      p\<.05, `**` p\<.01, `***` p\<.001). Arranged in a grid.
+      back to patterns (census mode). Instance panels use a canonical
+      representative of the MAN class: concrete labels identify
+      participants, not their observed node-role orientation. Each panel
+      title reads `"<MAN code>: <description>"` (e.g.
+      `"030T: Feed-forward"`) and, in census mode, appends the z-score
+      and a significance star (`*` p\<.05, `**` p\<.01, `***` p\<.001).
+      Arranged in a grid.
 
   `"types"`
 

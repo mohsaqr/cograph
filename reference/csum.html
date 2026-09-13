@@ -11,7 +11,7 @@ both macro (cluster-to-cluster) transitions and per-cluster transitions
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -24,6 +24,7 @@ both macro (cluster-to-cluster) transitions and per-cluster transitions
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
     <li><a class="dropdown-item" href="../articles/centrality-catalogue.html">Centrality catalogue</a></li>
+    <li><a class="dropdown-item" href="../articles/centrality-zoo-lookup.html">Centrality Zoo lookup</a></li>
     <li><a class="dropdown-item" href="../articles/why-cograph.html">Why cograph?</a></li>
     <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">TNA Plotting Gallery and Visual Smoke Test</a></li>
     <li><a class="dropdown-item" href="../articles/mcml-examples.html">Advanced examples</a></li>
@@ -310,9 +311,9 @@ analysis with the tna package.</p><div class="section">
 <span class="r-in"><span><span class="va">cs</span> <span class="op">&lt;-</span> <span class="fu">csum</span><span class="op">(</span><span class="va">mat</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">2</span>,<span class="fl">2</span>,<span class="fl">3</span>,<span class="fl">3</span>,<span class="fl">3</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">cs</span><span class="op">$</span><span class="va">macro</span><span class="op">$</span><span class="va">weights</span>      <span class="co"># 3x3 cluster transition matrix</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           1         2         3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.1838662 0.1963128 0.6198211</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.4730634 0.2032878 0.3236488</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.4026309 0.2624785 0.3348906</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.1461614 0.3592531 0.4945855</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.2592081 0.2351695 0.5056225</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.3428930 0.3149788 0.3421282</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Named list of clusters, TNA-normalized</span></span></span>
 <span class="r-in"><span><span class="va">clusters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Alpha <span class="op">=</span> <span class="va">LETTERS</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span>, Beta <span class="op">=</span> <span class="va">LETTERS</span><span class="op">[</span><span class="fl">4</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>, Gamma <span class="op">=</span> <span class="va">LETTERS</span><span class="op">[</span><span class="fl">7</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span><span class="op">)</span></span></span>

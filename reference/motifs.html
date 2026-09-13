@@ -21,7 +21,7 @@ exchangeable.
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,6 +34,7 @@ exchangeable.
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
     <li><a class="dropdown-item" href="../articles/centrality-catalogue.html">Centrality catalogue</a></li>
+    <li><a class="dropdown-item" href="../articles/centrality-zoo-lookup.html">Centrality Zoo lookup</a></li>
     <li><a class="dropdown-item" href="../articles/why-cograph.html">Why cograph?</a></li>
     <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">TNA Plotting Gallery and Visual Smoke Test</a></li>
     <li><a class="dropdown-item" href="../articles/mcml-examples.html">Advanced examples</a></li>
@@ -79,6 +80,7 @@ exchangeable.</p></li>
 <span>  exclude <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  significance <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  n_perm <span class="op">=</span> <span class="fl">1000L</span>,</span>
+<span>  cores <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>  min_count <span class="op">=</span> <span class="kw">if</span> <span class="op">(</span><span class="va">named_nodes</span><span class="op">)</span> <span class="fl">5L</span> <span class="kw">else</span> <span class="cn">NULL</span>,</span>
 <span>  edge_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"any"</span>, <span class="st">"expected"</span>, <span class="st">"percent"</span><span class="op">)</span>,</span>
 <span>  edge_threshold <span class="op">=</span> <span class="fl">1.5</span>,</span>
@@ -182,6 +184,22 @@ Overrides <code>pattern</code> and <code>exclude</code>.</p></dd>
 <dd><p>Number of permutations for significance. When
 <code>significance = TRUE</code>, must be a whole number of at least 2.
 Default 1000.</p></dd>
+
+
+<dt id="arg-cores">cores<a class="anchor" aria-label="anchor" href="#arg-cores"></a></dt>
+<dd><p>Number of worker processes for the permutation null. Default
+<code>1</code> runs serially and is the only setting that reproduces results from
+earlier versions: it consumes a single RNG stream in replicate-then-unit
+order, so a given <code>seed</code> gives the historical numbers. <code>cores &gt; 1</code> gives
+each replicate its own L'Ecuyer-CMRG stream, which makes a result depend
+on <code>seed</code> alone and not on the worker count or on how replicates were
+chunked – but those are a <em>different</em> set of draws, so the p-values will
+not match a <code>cores = 1</code> run of the same seed. They remain a valid
+permutation null, and repeated parallel runs of one seed agree exactly
+with each other at any <code>cores</code>. Forking is used where available; Windows
+uses a PSOCK cluster. Only the individual-level census null is
+parallelised. Values above <code><a href="https://rdrr.io/r/parallel/detectCores.html" class="external-link">parallel::detectCores()</a></code> are capped with a
+<code>cograph_cores_capped</code> warning.</p></dd>
 
 
 <dt id="arg-min-count">min_count<a class="anchor" aria-label="anchor" href="#arg-min-count"></a></dt>

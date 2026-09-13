@@ -16,6 +16,7 @@ plot_temporal(
   layout = "spring",
   node_size = 2.5,
   node_color = "steelblue",
+  color_by = c("layer", "node"),
   node_shape = 21,
   node_border = "gray30",
   edge_color = "#E41A1C",
@@ -77,9 +78,21 @@ plot_temporal(
 
 - node_color:
 
-  Character or vector. Node fill color. A single color applies to all
-  layers, or a vector of length `n_layers` for per-layer colors. Default
-  `"steelblue"`.
+  Character or vector. Node fill color. A single color applies
+  everywhere. An unnamed vector is recycled across *layers*, colouring
+  each plane as a whole. A **named** vector is matched to node names
+  instead and colours each *node* the same on every plane, which is what
+  makes a node identifiable as it moves through the stack; names not
+  present in the network are an error rather than silent. See also
+  `color_by`. The original text of this parameter continues: a single
+  color applies to all layers, or a vector of length `n_layers` for
+  per-layer colors. Default `"steelblue"`.
+
+- color_by:
+
+  One of `"layer"` (the default, and the historical behaviour) or
+  `"node"`. Chooses what an unnamed `node_color` vector indexes. A named
+  `node_color` always colours by node and ignores this argument.
 
 - node_shape:
 

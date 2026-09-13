@@ -12,17 +12,19 @@ formats.
 filter_nodes(
   x,
   ...,
-  .keep_edges = c("internal", "none"),
+  keep_edges = c("internal", "none"),
   keep_format = FALSE,
-  directed = NULL
+  directed = NULL,
+  .keep_edges = NULL
 )
 
 subset_nodes(
   x,
   ...,
-  .keep_edges = c("internal", "none"),
+  keep_edges = c("internal", "none"),
   keep_format = FALSE,
-  directed = NULL
+  directed = NULL,
+  .keep_edges = NULL
 )
 ```
 
@@ -52,7 +54,7 @@ subset_nodes(
   Examples: `degree >= 3`, `label %in% c("A", "B")`,
   `pagerank > 0.1 & degree >= 2`.
 
-- .keep_edges:
+- keep_edges:
 
   How to handle edges. One of:
 
@@ -76,6 +78,10 @@ subset_nodes(
   Set TRUE to force directed, FALSE to force undirected. Only used for
   non-cograph_network inputs.
 
+- .keep_edges:
+
+  Deprecated. Use `keep_edges`.
+
 ## Value
 
 A cograph_network object with filtered nodes. If `keep_format = TRUE`,
@@ -98,18 +104,19 @@ rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
 # Keep only high-degree nodes
 filter_nodes(adj, degree >= 3)
 #> Cograph network: 2 nodes, 1 edges ( undirected )
-#> Source: filtered 
+#> Source: matrix 
 #>   Nodes (2): B, C
 #>   Edges: 1 / 1 (density: 100.0%)
 #>   Weights: [0.300, 0.300]  |  mean: 0.300
 #>   Strongest edges:
 #>     B -- C  0.300
 #> Layout: none 
+#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 
 # Filter by label, combined with degree
 filter_nodes(adj, degree >= 2 & label != "D")
 #> Cograph network: 3 nodes, 3 edges ( undirected )
-#> Source: filtered 
+#> Source: matrix 
 #>   Nodes (3): A, B, C
 #>   Edges: 3 / 3 (density: 100.0%)
 #>   Weights: [0.300, 0.800]  |  mean: 0.533
@@ -118,4 +125,5 @@ filter_nodes(adj, degree >= 2 & label != "D")
 #>     A -- B  0.500
 #>     B -- C  0.300
 #> Layout: none 
+#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

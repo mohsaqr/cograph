@@ -1,7 +1,8 @@
 # Density of Maximum Neighborhood Component (DMNC)
 
-Edge count divided by max component size^1.5 in the neighborhood
-subgraph.
+Edges divided by nodes raised to `dmnc_epsilon`, both taken from the
+largest connected component of the subgraph induced on a node's
+neighbours (the focal node excluded).
 
 ## Usage
 
@@ -34,6 +35,19 @@ centrality_dmnc(x, mode = "all", dmnc_epsilon = 1.7, ...)
 ## Value
 
 Named numeric vector of DMNC values.
+
+## Divergence from centiserve
+
+[`centiserve::dmnc()`](https://rdrr.io/pkg/centiserve/man/dmnc.html)
+returns different values, and not only because of its different
+`epsilon` default. Its edge count is taken with
+`induced.subgraph(graph, which(c$membership %in% ...))`, where the
+membership vector indexes the neighbourhood subgraph but is used to
+subset the original graph. The two index spaces are not the same, so the
+edges counted are those of an unrelated vertex set. On the Zachary
+karate club the two disagree on 14 of 34 nodes at a matched epsilon, and
+reproducing that indexing exactly reproduces centiserve's output.
+cograph counts the edges of the component it actually found.
 
 ## See also
 

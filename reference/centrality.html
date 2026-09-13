@@ -11,7 +11,7 @@ cograph_network, or tna objects."><meta property="og:image" content="https://son
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -24,6 +24,7 @@ cograph_network, or tna objects."><meta property="og:image" content="https://son
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
     <li><a class="dropdown-item" href="../articles/centrality-catalogue.html">Centrality catalogue</a></li>
+    <li><a class="dropdown-item" href="../articles/centrality-zoo-lookup.html">Centrality Zoo lookup</a></li>
     <li><a class="dropdown-item" href="../articles/why-cograph.html">Why cograph?</a></li>
     <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">TNA Plotting Gallery and Visual Smoke Test</a></li>
     <li><a class="dropdown-item" href="../articles/mcml-examples.html">Advanced examples</a></li>
@@ -60,6 +61,7 @@ cograph_network, or tna objects.</p>
 <span>  <span class="va">x</span>,</span>
 <span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"basic"</span>, <span class="st">"extended"</span>, <span class="st">"all"</span><span class="op">)</span>,</span>
 <span>  measures <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  include <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  mode <span class="op">=</span> <span class="st">"all"</span>,</span>
 <span>  normalized <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  weighted <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -84,6 +86,77 @@ cograph_network, or tna objects.</p>
 <span>  membership <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  katz_alpha <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>  hubbell_weight <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  shapley_k <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  shapley_cutoff <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  s_shell_a <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  discount_p <span class="op">=</span> <span class="fl">0.01</span>,</span>
+<span>  ncvote_theta <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  comm_r <span class="op">=</span> <span class="st">"max_intra"</span>,</span>
+<span>  ld_radius <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  enrenew_depth <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  voterank_lambda <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>  contraction_rho <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  wks_alpha <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  wks_beta <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  renewed_threshold <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  kpath_k <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  kpath_len <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  epc_threshold <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  epc_runs <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>  epc_seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  betweenness_delta <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  closeness_delta <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  gravity_mass <span class="op">=</span> <span class="st">"kshell"</span>,</span>
+<span>  gravity_radius <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  mdd_lambda <span class="op">=</span> <span class="fl">0.7</span>,</span>
+<span>  volume_radius <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  diffusion_q <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  diffusion_steps <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  ds_beta <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>  ds_mu <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  ds_steps <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  cda_alpha <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  icc_alpha <span class="op">=</span> <span class="fl">0.2</span>,</span>
+<span>  exogenous_base <span class="op">=</span> <span class="st">"reverse_closeness"</span>,</span>
+<span>  wlr_alpha <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  alr_h_mode <span class="op">=</span> <span class="st">"all"</span>,</span>
+<span>  grc_gamma <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  rwd_decay <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  rwd_node_weights <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  linerank_aggregation <span class="op">=</span> <span class="st">"probability"</span>,</span>
+<span>  bridging_steps <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  bridging_values <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  proximal_variant <span class="op">=</span> <span class="st">"source"</span>,</span>
+<span>  exf_alpha <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  beta_direction <span class="op">=</span> <span class="st">"positive"</span>,</span>
+<span>  ninl_order <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  ninl_radius <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  map_flow <span class="op">=</span> <span class="st">"unrecorded"</span>,</span>
+<span>  map_convention <span class="op">=</span> <span class="st">"paper"</span>,</span>
+<span>  sr_prior <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  mcgm_radius <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  mcgm_alpha <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  dkgm_radius <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  nd_order <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  nd_decay <span class="op">=</span> <span class="fl">0.2</span>,</span>
+<span>  nd_mass <span class="op">=</span> <span class="st">"degree"</span>,</span>
+<span>  ira_mass <span class="op">=</span> <span class="st">"coreness"</span>,</span>
+<span>  ira_alpha <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  ira_tol <span class="op">=</span> <span class="fl">1e-06</span>,</span>
+<span>  ira_max_iter <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>  iira_beta <span class="op">=</span> <span class="fl">0.2</span>,</span>
+<span>  iira_steps <span class="op">=</span> <span class="fl">50</span>,</span>
+<span>  hcc_delta <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  lhc_radius <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  tpr_alpha <span class="op">=</span> <span class="fl">0.85</span>,</span>
+<span>  tpr_k <span class="op">=</span> <span class="fl">0.85</span>,</span>
+<span>  tpr_decay <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  tpr_tol <span class="op">=</span> <span class="fl">1e-14</span>,</span>
+<span>  tpr_max_iter <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>  rsp_beta <span class="op">=</span> <span class="fl">0.01</span>,</span>
+<span>  rsp_cost <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"inverse"</span>, <span class="st">"weight"</span><span class="op">)</span>,</span>
+<span>  re_indexes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"degree"</span>, <span class="st">"closeness"</span>, <span class="st">"betweenness"</span>, <span class="st">"constraint"</span><span class="op">)</span>,</span>
+<span>  re_negative <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  tna_network <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  psych_network <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -161,7 +234,80 @@ a directed graph; see <code><a href="centrality_brokerage_coordinator.html">cent
 <strong>Psychometric (signed-weight)</strong>: "expected_influence_1",
 "expected_influence_2" (Robinaugh, Millner &amp; McNally 2016). Expected
 influence keeps signed edge contributions, which is important when edges
-can be negative (partial-correlation, glasso, signed correlation networks).</p></dd>
+can be negative (partial-correlation, glasso, signed correlation networks).
+<strong>Zoo (batch 7, lowest rank-redundancy with the rest of the package per
+the Centrality Zoo comparison)</strong>: "distance_entropy" (Stella &amp; De
+Domenico 2018), "local_dimension" (Pu et al. 2014),
+"local_information_dimension" (Wen &amp; Deng 2020),
+"neighborhood_connectivity" (Maslov &amp; Sneppen 2002), and
+"modularity_vitality" (Magelinski et al. 2021; requires
+<code>membership</code>). The first three are hop-count measures and ignore
+edge weights. See <code><a href="centrality_distance_entropy.html">centrality_distance_entropy</a></code>,
+<code><a href="centrality_local_dimension.html">centrality_local_dimension</a></code>,
+<code><a href="centrality_local_information_dimension.html">centrality_local_information_dimension</a></code>,
+<code><a href="centrality_neighborhood_connectivity.html">centrality_neighborhood_connectivity</a></code>,
+<code><a href="centrality_modularity_vitality.html">centrality_modularity_vitality</a></code>.
+<strong>Zoo (batch 8, the measures the Zoo comparison left "on the way")</strong>:
+"shapley_game1", "shapley_game2", "shapley_game3" (Michalak et al.
+2013), "access_information", "hide_information" (Rosvall et al. 2005),
+"rumor" (Shah &amp; Zaman 2011), "community_hub_bridge" (Ghalmane et al.
+2019; requires <code>membership</code>), "entropy_variation_degree",
+"entropy_variation_betweenness" (Ai 2017), "s_shell" (Liu et al. 2017),
+"degree_discount", "single_discount" (Chen, Wang &amp; Yang 2009),
+"ncvoterank" (Kumar &amp; Panda 2020). All are hop-count or topology-only
+measures; edge weights are ignored. See the per-measure pages, e.g.
+<code><a href="centrality_shapley_game1.html">centrality_shapley_game1</a></code>,
+<code><a href="centrality_access_information.html">centrality_access_information</a></code>,
+<code><a href="centrality_rumor.html">centrality_rumor</a></code>,
+<code><a href="centrality_community_hub_bridge.html">centrality_community_hub_bridge</a></code>,
+<code><a href="centrality_entropy_variation.html">centrality_entropy_variation</a></code>,
+<code><a href="centrality_s_shell.html">centrality_s_shell</a></code>,
+<code><a href="centrality_degree_discount.html">centrality_degree_discount</a></code>,
+<code><a href="centrality_ncvoterank.html">centrality_ncvoterank</a></code>.
+<strong>Zoo (batch 9, the remaining measures with a pinned definition)</strong>:
+community-aware "community_based" (Zhao et al. 2015), "comm_centrality"
+(Gupta et al. 2016), "community_mediator" (Tulu et al. 2018), all
+requiring <code>membership</code>; dimension family "local_dimension_fixed"
+(Silva &amp; Costa 2013), "fuzzy_local_dimension" (Wen &amp; Jiang 2019),
+"local_volume_dimension" (Li &amp; Deng 2021); VoteRank family
+"wvoterank" (Sun et al. 2019), "enrenew" (Guo et al. 2020),
+"voterank_plus" (Liu et al. 2021); "node_contraction",
+"node_contraction_improved" (Tan et al. 2006; Wang et al. 2011);
+"two_way_rw" (Curado et al. 2022); local measures "heatmap"
+(Duron 2020), "flow_coefficient" (Honey et al. 2007), "local_entropy"
+(Nie et al. 2016), "weighted_h_index" (Gao et al. 2019), "redundancy"
+(Burt 1992); "weighted_kshell" (Garas et al. 2012),
+"renewed_coreness" (Liu et al. 2015), "geodesic_kpath" (Borgatti &amp;
+Everett 2006). Only "wvoterank", "two_way_rw" and "weighted_kshell"
+use edge weights. See <code><a href="centrality_community_based.html">centrality_community_based</a></code>,
+<code><a href="centrality_local_dimension_fixed.html">centrality_local_dimension_fixed</a></code>,
+<code><a href="centrality_wvoterank.html">centrality_wvoterank</a></code>,
+<code><a href="centrality_node_contraction.html">centrality_node_contraction</a></code>,
+<code><a href="centrality_two_way_rw.html">centrality_two_way_rw</a></code>, <code><a href="centrality_heatmap.html">centrality_heatmap</a></code>,
+<code><a href="centrality_weighted_kshell.html">centrality_weighted_kshell</a></code>.</p>
+<p>Batch 10 closes the gaps other centrality packages had and cograph did
+not: "local_efficiency" (Latora &amp; Marchiori 2001), "s_core" (Eidsaa &amp;
+Almaas 2013), "fragmentation" (Borgatti 2006), "kpath" (Sade 1989) and
+"epc" (Lin et al. 2008). "fragmentation" and "epc" are costly, so
+<code>type = "all"</code> holds them back. See
+<code><a href="centrality_local_efficiency.html">centrality_local_efficiency</a></code>.</p>
+<p>Batch 11 tunes families cograph already had: "length_scaled_betweenness"
+(Brandes 2008), "delta_betweenness" and "delta_closeness" (Agneessens
+et al. 2017), "ego_betweenness" (Everett &amp; Borgatti 2005). "gravity"
+gained <code>gravity_mass</code> and <code>gravity_radius</code>, and its formula
+was corrected – see <code><a href="centrality_gravity.html">centrality_gravity</a></code>. Bounded-distance
+("k-") betweenness needs no measure of its own: it is
+<code>cutoff = k</code>. See
+<code><a href="centrality_length_scaled_betweenness.html">centrality_length_scaled_betweenness</a></code>.</p></dd>
+
+
+<dt id="arg-include">include<a class="anchor" aria-label="anchor" href="#arg-include"></a></dt>
+<dd><p>Character vector of costly measures to add back to a tier,
+or <code>"costly"</code> for all of them. <code>type = "all"</code> holds back the
+measures whose cost grows steeply with network size (see
+<code><a href="list_centralities.html">list_centralities</a></code>), so that one call cannot take minutes
+by accident. Naming a measure in <code>measures</code> always computes it,
+whatever its cost. Default <code>NULL</code>.</p></dd>
 
 
 <dt id="arg-mode">mode<a class="anchor" aria-label="anchor" href="#arg-mode"></a></dt>
@@ -298,8 +444,9 @@ centiserve uses 1.67 (four-community assumption). Must be between 1 and 2.</p></
 
 <dt id="arg-membership">membership<a class="anchor" aria-label="anchor" href="#arg-membership"></a></dt>
 <dd><p>Integer vector of community assignments (one per node) for
-community-aware measures: participation, within_module_z, gateway, and the
-Gould-Fernandez brokerage roles. Default NULL. Required when requesting
+community-aware measures: participation, within_module_z, gateway,
+modularity_vitality, and the Gould-Fernandez brokerage roles. Default
+NULL. Required when requesting
 these measures.</p></dd>
 
 
@@ -313,6 +460,405 @@ conventions). Only used when <code>"katz"</code> is in <code>measures</code>.</p
 <dd><p>Weight factor \(w\) for Hubbell centrality. Must
 satisfy \(w \cdot \rho(W) \le 1\) for solvability. Default 0.5. Only
 used when <code>"hubbell"</code> is in <code>measures</code>.</p></dd>
+
+
+<dt id="arg-shapley-k">shapley_k<a class="anchor" aria-label="anchor" href="#arg-shapley-k"></a></dt>
+<dd><p>Neighbour threshold \(k\) for <code>"shapley_game2"</code>.
+Default 2. See <code><a href="centrality_shapley_game1.html">centrality_shapley_game2</a></code>.</p></dd>
+
+
+<dt id="arg-shapley-cutoff">shapley_cutoff<a class="anchor" aria-label="anchor" href="#arg-shapley-cutoff"></a></dt>
+<dd><p>Hop cutoff for <code>"shapley_game3"</code>. Default 2.
+See <code><a href="centrality_shapley_game1.html">centrality_shapley_game3</a></code>.</p></dd>
+
+
+<dt id="arg-s-shell-a">s_shell_a<a class="anchor" aria-label="anchor" href="#arg-s-shell-a"></a></dt>
+<dd><p>Exponent of the asymmetric link weights for
+<code>"s_shell"</code>. Default 0.5. See <code><a href="centrality_s_shell.html">centrality_s_shell</a></code>.</p></dd>
+
+
+<dt id="arg-discount-p">discount_p<a class="anchor" aria-label="anchor" href="#arg-discount-p"></a></dt>
+<dd><p>Propagation probability for <code>"degree_discount"</code>.
+Default 0.01. See <code><a href="centrality_degree_discount.html">centrality_degree_discount</a></code>.</p></dd>
+
+
+<dt id="arg-ncvote-theta">ncvote_theta<a class="anchor" aria-label="anchor" href="#arg-ncvote-theta"></a></dt>
+<dd><p>Weight of the plain vote in <code>"ncvoterank"</code>.
+Default 0.5. See <code><a href="centrality_ncvoterank.html">centrality_ncvoterank</a></code>.</p></dd>
+
+
+<dt id="arg-comm-r">comm_r<a class="anchor" aria-label="anchor" href="#arg-comm-r"></a></dt>
+<dd><p>Scale \(R\) of <code>"comm_centrality"</code>:
+<code>"max_intra"</code> (default) or a positive number.</p></dd>
+
+
+<dt id="arg-ld-radius">ld_radius<a class="anchor" aria-label="anchor" href="#arg-ld-radius"></a></dt>
+<dd><p>Radius for <code>"local_dimension_fixed"</code>. Default 2.</p></dd>
+
+
+<dt id="arg-enrenew-depth">enrenew_depth<a class="anchor" aria-label="anchor" href="#arg-enrenew-depth"></a></dt>
+<dd><p>Renewal radius for <code>"enrenew"</code>. Default 2.</p></dd>
+
+
+<dt id="arg-voterank-lambda">voterank_lambda<a class="anchor" aria-label="anchor" href="#arg-voterank-lambda"></a></dt>
+<dd><p>Suppression factor for <code>"voterank_plus"</code>.
+Default 0.1.</p></dd>
+
+
+<dt id="arg-contraction-rho">contraction_rho<a class="anchor" aria-label="anchor" href="#arg-contraction-rho"></a></dt>
+<dd><p>\(\alpha / \beta\) for
+<code>"node_contraction_improved"</code>. Default 5.</p></dd>
+
+
+<dt id="arg-wks-alpha-wks-beta">wks_alpha, wks_beta<a class="anchor" aria-label="anchor" href="#arg-wks-alpha-wks-beta"></a></dt>
+<dd><p>Degree and strength exponents for
+<code>"weighted_kshell"</code>. Default 1 and 1.</p></dd>
+
+
+<dt id="arg-renewed-threshold">renewed_threshold<a class="anchor" aria-label="anchor" href="#arg-renewed-threshold"></a></dt>
+<dd><p>Diffusion-importance threshold for
+<code>"renewed_coreness"</code>. Default 2.</p></dd>
+
+
+<dt id="arg-kpath-k">kpath_k<a class="anchor" aria-label="anchor" href="#arg-kpath-k"></a></dt>
+<dd><p>Maximum path length for <code>"geodesic_kpath"</code>. Default 3.</p></dd>
+
+
+<dt id="arg-kpath-len">kpath_len<a class="anchor" aria-label="anchor" href="#arg-kpath-len"></a></dt>
+<dd><p>Maximum path length for <code>"kpath"</code>. Default 3; the
+enumeration is exhaustive, so cost grows with the branching factor to
+this power.</p></dd>
+
+
+<dt id="arg-epc-threshold">epc_threshold<a class="anchor" aria-label="anchor" href="#arg-epc-threshold"></a></dt>
+<dd><p>Edge removal probability for <code>"epc"</code>.
+Default 0.5.</p></dd>
+
+
+<dt id="arg-epc-runs">epc_runs<a class="anchor" aria-label="anchor" href="#arg-epc-runs"></a></dt>
+<dd><p>Number of percolation realisations for <code>"epc"</code>.
+Default 1000.</p></dd>
+
+
+<dt id="arg-epc-seed">epc_seed<a class="anchor" aria-label="anchor" href="#arg-epc-seed"></a></dt>
+<dd><p>Random seed for <code>"epc"</code>. Default <code>NULL</code>,
+which leaves the caller's stream alone and lets the estimate vary
+between calls.</p></dd>
+
+
+<dt id="arg-betweenness-delta">betweenness_delta<a class="anchor" aria-label="anchor" href="#arg-betweenness-delta"></a></dt>
+<dd><p>Decay exponent for <code>"delta_betweenness"</code>.
+Default 1; 0 gives ordinary betweenness.</p></dd>
+
+
+<dt id="arg-closeness-delta">closeness_delta<a class="anchor" aria-label="anchor" href="#arg-closeness-delta"></a></dt>
+<dd><p>Distance exponent for <code>"delta_closeness"</code>.
+Default 1, which is <code>harmonic</code> over \(n - 1\).</p></dd>
+
+
+<dt id="arg-gravity-mass">gravity_mass<a class="anchor" aria-label="anchor" href="#arg-gravity-mass"></a></dt>
+<dd><p>Mass in <code>"gravity"</code>: <code>"kshell"</code> (default,
+Ma et al. 2016), <code>"degree"</code> (Li et al. 2019) or <code>"legacy"</code>
+for cograph's pre-2.4.8 form.</p></dd>
+
+
+<dt id="arg-gravity-radius">gravity_radius<a class="anchor" aria-label="anchor" href="#arg-gravity-radius"></a></dt>
+<dd><p>Largest distance each gravity source reaches in
+<code>"gravity"</code>, <code>"extended_gravity"</code>,
+<code>"mixed_gravity"</code> or <code>"extended_mixed_gravity"</code>: a
+number (default 3), <code>"auto"</code> for half the mean distance, or
+<code>NULL</code> for the whole graph.
+The auto radius uses finite positive distances, rounds to the nearest
+integer (ties to even), and has minimum 1; these are cograph conventions.</p></dd>
+
+
+<dt id="arg-mdd-lambda">mdd_lambda<a class="anchor" aria-label="anchor" href="#arg-mdd-lambda"></a></dt>
+<dd><p>Exhausted-degree weight for <code>"mdd"</code>, between
+0 and 1. Default 0.7. See <code><a href="centrality_truss.html">centrality_truss</a></code>.</p></dd>
+
+
+<dt id="arg-volume-radius">volume_radius<a class="anchor" aria-label="anchor" href="#arg-volume-radius"></a></dt>
+<dd><p>Closed neighbourhood radius for <code>"volume"</code>:
+a nonnegative integer or <code>Inf</code>, default 2. Degrees are measured
+in the full simple undirected graph. See <code><a href="centrality_volume.html">centrality_volume</a></code>.</p></dd>
+
+
+<dt id="arg-diffusion-q">diffusion_q<a class="anchor" aria-label="anchor" href="#arg-diffusion-q"></a></dt>
+<dd><p>Multiplier between 0 and 1 for <code>"diffusion_centrality"</code>,
+default 1. Independent of the existing <code>lambda</code> argument.</p></dd>
+
+
+<dt id="arg-diffusion-steps">diffusion_steps<a class="anchor" aria-label="anchor" href="#arg-diffusion-steps"></a></dt>
+<dd><p>Nonnegative integer horizon for
+<code>"diffusion_centrality"</code>, default 3. See
+<code><a href="centrality_diffusion_centrality.html">centrality_diffusion_centrality</a></code> for its weighted-walk
+definition, direction, probability interpretation and precision limits.</p></dd>
+
+
+<dt id="arg-ds-beta">ds_beta<a class="anchor" aria-label="anchor" href="#arg-ds-beta"></a></dt>
+<dd><p>Spreading rate for <code>"dynamics_sensitive"</code>, between
+zero and one, default 0.1.</p></dd>
+
+
+<dt id="arg-ds-mu">ds_mu<a class="anchor" aria-label="anchor" href="#arg-ds-mu"></a></dt>
+<dd><p>Recovery rate for <code>"dynamics_sensitive"</code>, between zero
+and one, default 1. Zero selects the SI case.</p></dd>
+
+
+<dt id="arg-ds-steps">ds_steps<a class="anchor" aria-label="anchor" href="#arg-ds-steps"></a></dt>
+<dd><p>Nonnegative integer horizon for <code>"dynamics_sensitive"</code>,
+default 5. See <code><a href="centrality_dynamics_sensitive.html">centrality_dynamics_sensitive</a></code>.</p></dd>
+
+
+<dt id="arg-cda-alpha">cda_alpha<a class="anchor" aria-label="anchor" href="#arg-cda-alpha"></a></dt>
+<dd><p>Degree-versus-strength weight for <code>"cda"</code>,
+between zero and one; default 0.5. See <code><a href="centrality_cda.html">centrality_cda</a></code>.</p></dd>
+
+
+<dt id="arg-icc-alpha">icc_alpha<a class="anchor" aria-label="anchor" href="#arg-icc-alpha"></a></dt>
+<dd><p>Shortest-path multiplicity exponent for
+<code>"improved_closeness"</code>, between zero and one; default 0.2.</p></dd>
+
+
+<dt id="arg-exogenous-base">exogenous_base<a class="anchor" aria-label="anchor" href="#arg-exogenous-base"></a></dt>
+<dd><p>Base for <code>"exogenous"</code>: reverse_closeness
+(default), betweenness or degree. See <code><a href="centrality_exogenous.html">centrality_exogenous</a></code>.</p></dd>
+
+
+<dt id="arg-wlr-alpha">wlr_alpha<a class="anchor" aria-label="anchor" href="#arg-wlr-alpha"></a></dt>
+<dd><p>Finite in-degree exponent for <code>"weighted_leaderrank"</code>,
+default one. See <code><a href="centrality_weighted_leaderrank.html">centrality_weighted_leaderrank</a></code>.</p></dd>
+
+
+<dt id="arg-alr-h-mode">alr_h_mode<a class="anchor" aria-label="anchor" href="#arg-alr-h-mode"></a></dt>
+<dd><p>H-index convention for <code>"adaptive_leaderrank"</code>:
+all (default), out or in. See <code><a href="centrality_adaptive_leaderrank.html">centrality_adaptive_leaderrank</a></code>.</p></dd>
+
+
+<dt id="arg-grc-gamma">grc_gamma<a class="anchor" aria-label="anchor" href="#arg-grc-gamma"></a></dt>
+<dd><p>Finite nonnegative regularization strength for
+<code>"graph_regularization"</code>, default one. See
+<code><a href="centrality_graph_regularization.html">centrality_graph_regularization</a></code>.</p></dd>
+
+
+<dt id="arg-rwd-decay">rwd_decay<a class="anchor" aria-label="anchor" href="#arg-rwd-decay"></a></dt>
+<dd><p>Finite first-arrival discount in [0,1) for
+<code>"random_walk_decay"</code>, default0.5.</p></dd>
+
+
+<dt id="arg-rwd-node-weights">rwd_node_weights<a class="anchor" aria-label="anchor" href="#arg-rwd-node-weights"></a></dt>
+<dd><p>Nonnegative starting weights for
+<code>"random_walk_decay"</code>; NULL means ones. See
+<code><a href="centrality_random_walk_decay.html">centrality_random_walk_decay</a></code>.</p></dd>
+
+
+<dt id="arg-linerank-aggregation">linerank_aggregation<a class="anchor" aria-label="anchor" href="#arg-linerank-aggregation"></a></dt>
+<dd><p>LineRank endpoint aggregation: probability
+(default) or weight. See <code><a href="centrality_linerank.html">centrality_linerank</a></code>.</p></dd>
+
+
+<dt id="arg-bridging-steps">bridging_steps<a class="anchor" aria-label="anchor" href="#arg-bridging-steps"></a></dt>
+<dd><p>Nonnegative bridging-capital walk horizon, default two.</p></dd>
+
+
+<dt id="arg-bridging-values">bridging_values<a class="anchor" aria-label="anchor" href="#arg-bridging-values"></a></dt>
+<dd><p>Optional source-destination value matrix for
+<code><a href="centrality_bridging_capital.html">centrality_bridging_capital</a></code>; NULL uses ones.</p></dd>
+
+
+<dt id="arg-proximal-variant">proximal_variant<a class="anchor" aria-label="anchor" href="#arg-proximal-variant"></a></dt>
+<dd><p>Proximal betweenness role: source (default),
+target, sum, or union. See <code><a href="centrality_proximal_betweenness.html">centrality_proximal_betweenness</a></code>.</p></dd>
+
+
+<dt id="arg-exf-alpha">exf_alpha<a class="anchor" aria-label="anchor" href="#arg-exf-alpha"></a></dt>
+<dd><p>Modified Expected Force degree factor, default two,
+finite and greater than one.</p></dd>
+
+
+<dt id="arg-beta-direction">beta_direction<a class="anchor" aria-label="anchor" href="#arg-beta-direction"></a></dt>
+<dd><p>BG-index orientation, positive (default) or negative.
+See <code><a href="centrality_beta_measure.html">centrality_beta_measure</a></code>.</p></dd>
+
+
+<dt id="arg-ninl-order">ninl_order<a class="anchor" aria-label="anchor" href="#arg-ninl-order"></a></dt>
+<dd><p>Nonnegative NINL iteration count, default three.</p></dd>
+
+
+<dt id="arg-ninl-radius">ninl_radius<a class="anchor" aria-label="anchor" href="#arg-ninl-radius"></a></dt>
+<dd><p>NINL hop radius, NULL for ceiling of mean path length.
+See <code><a href="centrality_ninl.html">centrality_ninl</a></code> for disconnected graphs and overrides.</p></dd>
+
+
+<dt id="arg-map-flow">map_flow<a class="anchor" aria-label="anchor" href="#arg-map-flow"></a></dt>
+<dd><p>Map equation flow model, unrecorded (default) or recorded.</p></dd>
+
+
+<dt id="arg-map-convention">map_convention<a class="anchor" aria-label="anchor" href="#arg-map-convention"></a></dt>
+<dd><p>Map equation coding convention, paper (default) or
+infomap. See <code><a href="centrality_map_equation.html">centrality_map_equation</a></code>.</p></dd>
+
+
+<dt id="arg-sr-prior">sr_prior<a class="anchor" aria-label="anchor" href="#arg-sr-prior"></a></dt>
+<dd><p>SpectralRank diagonal prior, default zero; scalar or one
+value per node. See <code><a href="centrality_spectralrank.html">centrality_spectralrank</a></code>.</p></dd>
+
+
+<dt id="arg-mcgm-radius">mcgm_radius<a class="anchor" aria-label="anchor" href="#arg-mcgm-radius"></a></dt>
+<dd><p>MCGM hop cutoff, default two; NULL includes all reachable nodes.</p></dd>
+
+
+<dt id="arg-mcgm-alpha">mcgm_alpha<a class="anchor" aria-label="anchor" href="#arg-mcgm-alpha"></a></dt>
+<dd><p>MCGM coefficient, NULL for the published adaptive rule.
+See <code><a href="centrality_mcgm.html">centrality_mcgm</a></code> for disconnected-graph conventions.</p></dd>
+
+
+<dt id="arg-dkgm-radius">dkgm_radius<a class="anchor" aria-label="anchor" href="#arg-dkgm-radius"></a></dt>
+<dd><p>DKGM hop cutoff, default two as in the paper's printed
+example; NULL or infinity includes all reachable nodes and "auto"
+applies the paper's half-mean-distance rule with cograph rounding.
+See <code><a href="centrality_dkgm.html">centrality_dkgm</a></code>.</p></dd>
+
+
+<dt id="arg-nd-order">nd_order<a class="anchor" aria-label="anchor" href="#arg-nd-order"></a></dt>
+<dd><p>Steps of neighbors summed by <code>"neighbor_distance"</code>,
+a nonnegative whole number, default two; zero returns <code>nd_mass</code>.
+See <code><a href="centrality_neighbor_distance.html">centrality_neighbor_distance</a></code>.</p></dd>
+
+
+<dt id="arg-nd-decay">nd_decay<a class="anchor" aria-label="anchor" href="#arg-nd-decay"></a></dt>
+<dd><p>Per-step decay for <code>"neighbor_distance"</code>, a finite
+number, default 0.2 as in the source.</p></dd>
+
+
+<dt id="arg-nd-mass">nd_mass<a class="anchor" aria-label="anchor" href="#arg-nd-mass"></a></dt>
+<dd><p>Benchmark centrality summed by
+<code>"neighbor_distance"</code>: degree (default) or coreness.</p></dd>
+
+
+<dt id="arg-ira-mass">ira_mass<a class="anchor" aria-label="anchor" href="#arg-ira-mass"></a></dt>
+<dd><p>Node centrality allocated by <code>"ira"</code> and
+<code>"iira"</code>: coreness (default, the k-shell index both sources use in
+their worked examples) or degree. See <code><a href="centrality_ira.html">centrality_ira</a></code>.</p></dd>
+
+
+<dt id="arg-ira-alpha">ira_alpha<a class="anchor" aria-label="anchor" href="#arg-ira-alpha"></a></dt>
+<dd><p>Exponent on the <code>"ira"</code> mass, a finite number,
+default one as in the source.</p></dd>
+
+
+<dt id="arg-ira-tol">ira_tol<a class="anchor" aria-label="anchor" href="#arg-ira-tol"></a></dt>
+<dd><p>Stopping tolerance for <code>"ira"</code> on the largest
+absolute change between iterates, a positive finite number, default
+<code>1e-6</code> as in the source.</p></dd>
+
+
+<dt id="arg-ira-max-iter">ira_max_iter<a class="anchor" aria-label="anchor" href="#arg-ira-max-iter"></a></dt>
+<dd><p>Iteration bound for <code>"ira"</code>, a whole number of
+at least one, default 1000. Reaching it raises
+<code>cograph_no_converge</code>, which a bipartite component with unequal
+vertex classes always does. See <code><a href="centrality_ira.html">centrality_ira</a></code>.</p></dd>
+
+
+<dt id="arg-iira-beta">iira_beta<a class="anchor" aria-label="anchor" href="#arg-iira-beta"></a></dt>
+<dd><p>Spreading rate for <code>"iira"</code>, a number in
+\((0,1]\), default 0.2 as in the source.</p></dd>
+
+
+<dt id="arg-iira-steps">iira_steps<a class="anchor" aria-label="anchor" href="#arg-iira-steps"></a></dt>
+<dd><p>Iterations for <code>"iira"</code>, a nonnegative whole
+number, default 50 as in the source; zero returns the initial unit
+resource. See <code><a href="centrality_iira.html">centrality_iira</a></code>.</p></dd>
+
+
+<dt id="arg-hcc-delta">hcc_delta<a class="anchor" aria-label="anchor" href="#arg-hcc-delta"></a></dt>
+<dd><p>Weight on a node's own degree in the extended degree
+used by <code>"hcc"</code> and <code>"ehcc"</code>, a single number in
+\([0,1]\), default 0.5 as in the source; one recovers the classical
+degree and zero drops the node's own degree entirely. Values outside
+\([0,1]\) are refused. See <code><a href="centrality_hcc.html">centrality_hcc</a></code>.</p></dd>
+
+
+<dt id="arg-lhc-radius">lhc_radius<a class="anchor" aria-label="anchor" href="#arg-lhc-radius"></a></dt>
+<dd><p>Radius of the ball \(\Phi(v)\) summed over by
+<code>"lhc"</code>, the \(d\) of the source's equation (1); a single whole
+number of at least one, default 2 as the source sets it. The source
+sweeps it and reports 2-3 as optimal. At one the ball collapses to the
+neighbours; at or above the diameter the score stops moving. Values
+below one and non-integers are refused. See
+<code><a href="centrality_lhc.html">centrality_lhc</a></code>.</p></dd>
+
+
+<dt id="arg-tpr-alpha">tpr_alpha<a class="anchor" aria-label="anchor" href="#arg-tpr-alpha"></a></dt>
+<dd><p>Jump probability of the trust-PageRank iteration used
+by <code>"trust_pagerank"</code>, a single number strictly between zero and
+one, default 0.85 as the source sets it below its equation (7). See
+<code><a href="centrality_trust_pagerank.html">centrality_trust_pagerank</a></code>.</p></dd>
+
+
+<dt id="arg-tpr-k">tpr_k<a class="anchor" aria-label="anchor" href="#arg-tpr-k"></a></dt>
+<dd><p>Weight the trust-value puts on the degree ratio rather than
+the similarity ratio in <code>"trust_pagerank"</code>, the \(k\) of the
+source's equation (6); a single number in \([0,1]\), default 0.85,
+the value the source's section 3.3 selects from a Kendall-against-SIR
+sweep. One drops the similarity entirely and zero drops the degree.</p></dd>
+
+
+<dt id="arg-tpr-decay">tpr_decay<a class="anchor" aria-label="anchor" href="#arg-tpr-decay"></a></dt>
+<dd><p>Attenuation factor of the similarity recursion used by
+<code>"trust_pagerank"</code>, the \(C\) of the source's equation (4); a
+single number in \((0,1]\), default 1 as the source fixes it. The
+source's claim that \(C\) does not affect the result holds only for a
+homogeneous recursion and not for this one; see
+<code><a href="centrality_trust_pagerank.html">centrality_trust_pagerank</a></code>.</p></dd>
+
+
+<dt id="arg-tpr-tol">tpr_tol<a class="anchor" aria-label="anchor" href="#arg-tpr-tol"></a></dt>
+<dd><p>Convergence tolerance on the largest <em>relative</em>
+change of either trust-PageRank recursion, a single positive number,
+default <code>1e-14</code>. The source fixes no iteration count because it
+does not need one: both recursions have unique fixed points. The test
+is relative rather than absolute because the similarities on one graph
+span many orders of magnitude; see
+<code><a href="centrality_trust_pagerank.html">centrality_trust_pagerank</a></code>.</p></dd>
+
+
+<dt id="arg-tpr-max-iter">tpr_max_iter<a class="anchor" aria-label="anchor" href="#arg-tpr-max-iter"></a></dt>
+<dd><p>Iteration bound for both trust-PageRank recursions, a
+whole number of at least one, default 1000. Reaching it raises
+<code>cograph_no_converge</code>.</p></dd>
+
+
+<dt id="arg-rsp-beta">rsp_beta<a class="anchor" aria-label="anchor" href="#arg-rsp-beta"></a></dt>
+<dd><p>Inverse temperature of the randomized-shortest-paths
+model used by <code>"rsp_betweenness"</code>, a single finite number strictly
+above zero, default 0.01. The source fixes no default; 0.01 is the
+value <code>NetworkToolbox::rspbc()</code> recommends, and it sits near the
+random-walk limit, so raise it towards 1 and beyond to move the reading
+towards shortest paths. See
+<code><a href="centrality_rsp_betweenness.html">centrality_rsp_betweenness</a></code>.</p></dd>
+
+
+<dt id="arg-rsp-cost">rsp_cost<a class="anchor" aria-label="anchor" href="#arg-rsp-cost"></a></dt>
+<dd><p>How an edge weight becomes a traversal cost for
+<code>"rsp_betweenness"</code>: <code>"inverse"</code> (default) for \(C=1/w\),
+reading a weight as an affinity, or <code>"weight"</code> for \(C=w\),
+reading it as a distance. The source leaves the cost matrix free; both
+settings give unit cost per arc on a binary graph. See
+<code><a href="centrality_rsp_betweenness.html">centrality_rsp_betweenness</a></code>.</p></dd>
+
+
+<dt id="arg-re-indexes">re_indexes<a class="anchor" aria-label="anchor" href="#arg-re-indexes"></a></dt>
+<dd><p>Constituent indexes integrated by
+<code>"relative_entropy"</code>, default the source's four distinctiveness
+indexes; the vocabulary also holds <code>"n_components"</code> and
+<code>"largest_component"</code>. See <code><a href="centrality_relative_entropy.html">centrality_relative_entropy</a></code>.</p></dd>
+
+
+<dt id="arg-re-negative">re_negative<a class="anchor" aria-label="anchor" href="#arg-re-negative"></a></dt>
+<dd><p>Which of <code>re_indexes</code> are negative indexes, NULL
+for the source's own declarations. See
+<code><a href="centrality_relative_entropy.html">centrality_relative_entropy</a></code>.</p></dd>
 
 
 <dt id="arg-tna-network">tna_network<a class="anchor" aria-label="anchor" href="#arg-tna-network"></a></dt>
@@ -573,8 +1119,446 @@ connectivity (requires <code>membership</code>).</p></dd>
 <dd><p>Gateway coefficient. Inter-community brokerage weighted by
 centrality (requires <code>membership</code>).</p></dd>
 
+<dt>distance_entropy</dt>
+<dd><p>Normalised Shannon entropy of a node's
+hop-distance profile; 1 = distances spread evenly, 0 = all at one
+distance.</p></dd>
+
+<dt>local_dimension</dt>
+<dd><p>Growth exponent of the ball around a node
+(slope of \(\ln B_i(r)\) on \(\ln r\)); lower = more
+influential.</p></dd>
+
+<dt>local_information_dimension</dt>
+<dd><p>Entropy-weighted local dimension
+over boxes up to half the node's eccentricity; higher = more
+influential.</p></dd>
+
+<dt>neighborhood_connectivity</dt>
+<dd><p>Mean degree of a node's neighbours
+(average neighbour degree); isolates score 0.</p></dd>
+
+<dt>modularity_vitality</dt>
+<dd><p>Drop in modularity when the node is removed
+under a fixed partition; positive = community hub, negative = bridge
+(requires <code>membership</code>).</p></dd>
+
+<dt>shapley_game1, shapley_game2, shapley_game3</dt>
+<dd><p>Shapley value of the
+node in the coverage games of Michalak et al. (2013): one-hop
+coverage, <code>shapley_k</code>-neighbour coverage, and coverage within
+<code>shapley_cutoff</code> hops. Values sum to the node count.</p></dd>
+
+<dt>access_information</dt>
+<dd><p>Mean bits needed to reach every other node
+along shortest paths without a map; low = well connected.</p></dd>
+
+<dt>hide_information</dt>
+<dd><p>Mean bits others need to find the node;
+high = hidden.</p></dd>
+
+<dt>rumor</dt>
+<dd><p>Log rumor centrality on the node's BFS tree: log of the
+number of spreading orders that could start there.</p></dd>
+
+<dt>community_hub_bridge</dt>
+<dd><p>Community size times intra-community
+degree plus number of other communities touched times
+inter-community degree (requires <code>membership</code>).</p></dd>
+
+<dt>entropy_variation_degree, entropy_variation_betweenness</dt>
+<dd><p>Drop in
+the Shannon entropy of the degree (by <code>mode</code>) or betweenness
+distribution when the node is deleted; signed, nats.</p></dd>
+
+<dt>s_shell</dt>
+<dd><p>Shell index of the strength-based peeling with
+asymmetric topological link weights, exponent <code>s_shell_a</code>.</p></dd>
+
+<dt>degree_discount, single_discount</dt>
+<dd><p>Greedy seed-selection order
+under degree discounting (<code>discount_p</code>) or unit discounting,
+scored 1 for the first selected down to 1/n.</p></dd>
+
+<dt>ncvoterank</dt>
+<dd><p>VoteRank with voters weighted by normalised
+neighbourhood coreness (<code>ncvote_theta</code>); election order scored
+like <code>voterank</code>.</p></dd>
+
+<dt>community_based, comm_centrality, community_mediator</dt>
+<dd><p>Links
+weighted by the size of the community they reach; Gupta's scaled
+intra/inter-degree combination (<code>comm_r</code>); base-2 entropy of the
+link distribution over communities times degree share (all require
+<code>membership</code>).</p></dd>
+
+<dt>local_dimension_fixed, fuzzy_local_dimension,
+local_volume_dimension</dt>
+<dd><p>Silva-Costa estimator at <code>ld_radius</code>;
+slope of the fuzzy ball (higher = more influential); slope of the
+degree volume (lower = more important).</p></dd>
+
+<dt>wvoterank, enrenew, voterank_plus</dt>
+<dd><p>Election orders of the
+weighted, entropy-based (<code>enrenew_depth</code>) and degree-weighted
+(<code>voterank_lambda</code>) VoteRank variants, scored like
+<code>voterank</code>.</p></dd>
+
+<dt>node_contraction, node_contraction_improved</dt>
+<dd><p>One minus the
+agglomeration ratio after contracting the node with its neighbours;
+the improved form adds the same score of its edges on the line graph
+(<code>contraction_rho</code>).</p></dd>
+
+<dt>two_way_rw</dt>
+<dd><p>Number of node pairs whose most likely two-way
+random-walk route passes through the node.</p></dd>
+
+<dt>heatmap</dt>
+<dd><p>Farness minus mean neighbour farness; lower = more
+central.</p></dd>
+
+<dt>flow_coefficient</dt>
+<dd><p>Share of neighbour pairs linked through the
+node but not directly.</p></dd>
+
+<dt>local_entropy</dt>
+<dd><p>\(-\sum_{j \in N(i)} k_j \ln k_j\); lower = more
+central.</p></dd>
+
+<dt>weighted_h_index</dt>
+<dd><p>h-index over topological link weights
+\(k_i k_j\) repeated \(k_j\) times.</p></dd>
+
+<dt>redundancy</dt>
+<dd><p>Mean degree of the neighbours inside the ego
+network; degree minus effective size.</p></dd>
+
+<dt>weighted_kshell</dt>
+<dd><p>k-shell on \((k^\alpha s^\beta)^{1/(\alpha
+    + \beta)}\) after Garas' weight normalisation (<code>wks_alpha</code>,
+<code>wks_beta</code>).</p></dd>
+
+<dt>renewed_coreness</dt>
+<dd><p>k-core of the graph after removing links whose
+diffusion importance is below <code>renewed_threshold</code>.</p></dd>
+
+<dt>geodesic_kpath</dt>
+<dd><p>Number of shortest paths of length at most
+<code>kpath_k</code> starting at the node.</p></dd>
+
+<dt>local_efficiency</dt>
+<dd><p>Global efficiency of the subgraph induced on
+the node's neighbours, the node itself removed. Note that
+<code><a href="https://r.igraph.org/reference/global_efficiency.html" class="external-link">igraph::local_efficiency()</a></code> instead measures the distances
+between those neighbours through the rest of the network.</p></dd>
+
+<dt>s_core</dt>
+<dd><p>Largest strength threshold whose s-core still contains
+the node; the k-core number when weights are absent.</p></dd>
+
+<dt>fragmentation</dt>
+<dd><p>Distance-weighted fragmentation of the network
+after deleting the node. Higher means a more disruptive removal.</p></dd>
+
+<dt>kpath</dt>
+<dd><p>Number of simple paths of length at most
+<code>kpath_len</code> that the node lies on, endpoints included.</p></dd>
+
+<dt>epc</dt>
+<dd><p>Edge percolated component: mean size of the node's
+component over <code>epc_runs</code> bond-percolation realisations, as a
+share of the network. A Monte Carlo estimate.</p></dd>
+
+<dt>length_scaled_betweenness</dt>
+<dd><p>Betweenness with each separated pair
+weighted by \(1 / d(s,t)\).</p></dd>
+
+<dt>delta_betweenness</dt>
+<dd><p>Betweenness with the pair weight
+\((d(s,t) - 1)^{-\delta}\) (<code>betweenness_delta</code>).</p></dd>
+
+<dt>ego_betweenness</dt>
+<dd><p>Betweenness inside the node's own ego network.</p></dd>
+
+<dt>delta_closeness</dt>
+<dd><p>\(\sum_j d_{ij}^{-\delta} / (n-1)\)
+(<code>closeness_delta</code>).</p></dd>
+
+<dt>truss, mdd</dt>
+<dd><p>Node truss number (k-2 triangles convention) and
+mixed-degree shell threshold (<code>mdd_lambda</code>). Both use the
+simple undirected skeleton; see <code><a href="centrality_truss.html">centrality_truss</a></code>.</p></dd>
+
+<dt>bridging_coefficient, godfather, support</dt>
+<dd><p>Reciprocal-degree
+ratio, count of unconnected neighbour pairs, and count of
+triangle-supported relationships on the simple undirected skeleton.</p></dd>
+
+<dt>volume</dt>
+<dd><p>Sum of degrees in the closed <code>volume_radius</code>-hop
+neighbourhood on the simple undirected skeleton.</p></dd>
+
+<dt>mcc</dt>
+<dd><p>Maximal clique centrality: sum of \((|C|-1)!\) over
+incident maximal cliques of size at least two. Costly; see
+<code><a href="centrality_mcc.html">centrality_mcc</a></code> for isolate and precision conventions.</p></dd>
+
+<dt>diffusion_centrality</dt>
+<dd><p>Finite-horizon weighted outgoing walks:
+\(\sum_{t=1}^{T}(qA)^t\mathbf{1}\), with <code>diffusion_q</code> and
+<code>diffusion_steps</code>. Distinct from diffusion degree.</p></dd>
+
+<dt>dynamical_importance</dt>
+<dd><p>Relative spectral-radius loss on vertex
+deletion, evaluated by repeated eigendecomposition. Costly; see
+<code><a href="centrality_dynamical_importance.html">centrality_dynamical_importance</a></code> for zero-radius graphs.</p></dd>
+
+<dt>dynamics_sensitive</dt>
+<dd><p>Finite-time spreading score including
+<code>ds_beta</code>, <code>ds_mu</code> and <code>ds_steps</code>; uses the simple
+undirected skeleton.</p></dd>
+
+<dt>malatya</dt>
+<dd><p>Sum of focal-to-neighbour degree ratios on the simple
+undirected skeleton; the reciprocal of the bridging coefficient
+on nonisolated vertices.</p></dd>
+
+<dt>resistance_curvature</dt>
+<dd><p>One minus half the incident conductance
+times effective-resistance sum. Weighted, componentwise and costly;
+see <code><a href="centrality_resistance_curvature.html">centrality_resistance_curvature</a></code>.</p></dd>
+
+<dt>extended_coreness</dt>
+<dd><p>Sum of neighbors' neighborhood coreness;
+equivalently the squared simple adjacency times core numbers.</p></dd>
+
+<dt>dkgm</dt>
+<dd><p>Gravity with the degree k-shell index as the mass at both
+ends, default radius two; see <code><a href="centrality_dkgm.html">centrality_dkgm</a></code>.</p></dd>
+
+<dt>neighbor_distance</dt>
+<dd><p>Benchmark centrality plus its decayed sums
+over non-backtracking walks of up to <code>nd_order</code> steps; the
+Zoo's neighbor distance centrality at the defaults. See
+<code><a href="centrality_neighbor_distance.html">centrality_neighbor_distance</a></code>.</p></dd>
+
+<dt>ira</dt>
+<dd><p>Steady state of a unit resource repeatedly reallocated to
+neighbors in proportion to their <code>ira_mass</code>; conserved, so the
+scores of a component sum to its size. Warns
+<code>cograph_no_converge</code> where no steady state exists. See
+<code><a href="centrality_ira.html">centrality_ira</a></code>.</p></dd>
+
+<dt>iira</dt>
+<dd><p>The same recursion with each share scaled by
+\(1-(1-\beta)^{k_i}\) for the <code>iira_beta</code> spreading rate,
+run <code>iira_steps</code> times.
+Decays geometrically, so only the order is meaningful. See
+<code><a href="centrality_iira.html">centrality_iira</a></code>.</p></dd>
+
+<dt>lnc</dt>
+<dd><p>Local neighbor contribution: the cubed degree times the
+binomial own-contribution factor \((1-1/d_i)^{d_i-1}\) times the
+neighbors' degree sum over \(n-1\). Parameter-free; raw scores
+depend on the whole graph's order. See <code><a href="centrality_lnc.html">centrality_lnc</a></code>.</p></dd>
+
+<dt>ked</dt>
+<dd><p>KED method: the degree times one plus the normalised
+entropy of the neighbours' degrees times \(\exp(K_i/N)\) for the
+neighbour-degree sum \(K_i\) and the whole graph's order
+\(N\). Parameter-free. See <code><a href="centrality_ked.html">centrality_ked</a></code>.</p></dd>
+
+<dt>hcc</dt>
+<dd><p>Hybrid characteristic centrality: the extended degree
+\(\delta k_i+(1-\delta)\sum_{j\in N(i)}k_j\) over its maximum,
+plus the E-shell peeling round in which the node leaves over the
+number of rounds. Raw scores lie in \([0,2]\) and are not
+component-local. See <code><a href="centrality_hcc.html">centrality_hcc</a></code>.</p></dd>
+
+<dt>ehcc</dt>
+<dd><p>Extended hybrid characteristic centrality: the
+closed-neighborhood sum of <code>hcc</code>, the focal node counted once.
+See <code><a href="centrality_ehcc.html">centrality_ehcc</a></code>.</p></dd>
+
+<dt>lhc</dt>
+<dd><p>Lhc index: the degree-and-triangle-share influence
+\(C(v)=\sum_{u\in\Phi(v)}k_u(1+TP(u))/d^2(uv)\) over the ball of
+radius <code>lhc_radius</code>, summed over the open neighborhood. The
+triangle share is normalized by \(TNTS=\sum_u NTS(u)\), three
+times the number of distinct triangles, and is written as zero on a
+triangle-free graph. Raw scores are not component-local. See
+<code><a href="centrality_lhc.html">centrality_lhc</a></code>.</p></dd>
+
+<dt>iec</dt>
+<dd><p>Immediate effects centrality: the reciprocal mean length
+of the influence sequences that end at a node,
+\((n-1)/\sum_{i\neq j}m_{ij}\) for the mean first passage times
+\(M=(I-Z+EZ_{dg})\mathrm{diag}(1/c)\) of the influence chain
+\(W=A/\mathrm{rowSums}(A)\) built with \(a_{ii}=1\).
+Direction-sensitive and costly (one eigenproblem and two dense
+solves). <code>NA</code> at every node when the chain is reducible or the
+graph has one node. Not the same measure as <code>markov</code>. See
+<code><a href="centrality_iec.html">centrality_iec</a></code>.</p></dd>
+
+<dt>dil</dt>
+<dd><p>Degree and importance of lines: the degree plus the share
+of each incident line's importance \(I_e=(k_m-p-1)(k_n-p-1)/
+    (p/2+1)\) that the node's own degree claims,
+\(k_i+\sum_{j\in\Gamma_i}I_{e_{ij}}(k_i-1)/(k_i+k_j-2)\), with
+\(p\) the number of triangles on the line. Two-hop local and
+component-local; never below the node's degree. See
+<code><a href="centrality_dil.html">centrality_dil</a></code>.</p></dd>
+
+<dt>trust_pagerank</dt>
+<dd><p>Trust-PageRank: a damped PageRank whose split of
+a node's score among its neighbors is the column-stochastic
+trust-value \(T(i,j)=(1-k)s(i,j)/\sum_{l\in N_j}s(j,l)+
+    k\,d_i/\sum_{l\in N_j}d_l\), with \(s\) the fixed point of SimRank
+restricted to the lines of the graph. Scores sum to one when no node
+is isolated. <code>NA</code> at every node of a component that has lines
+but no triangle, where the similarity vanishes and the ratio is
+undefined. Costly
+(two fixed-point recursions over dense matrices). See
+<code><a href="centrality_trust_pagerank.html">centrality_trust_pagerank</a></code>.</p></dd>
+
+<dt>rsp_betweenness</dt>
+<dd><p>Simple randomized shortest paths betweenness:
+the expected number of visits a node receives over the Boltzmann
+distribution on absorbing walks, summed over every ordered
+source-target pair. <code>rsp_beta</code> interpolates between the
+random-walk and shortest-path readings. Direction-sensitive,
+component-local, and costly (one dense inverse). See
+<code><a href="centrality_rsp_betweenness.html">centrality_rsp_betweenness</a></code>.</p></dd>
+
+<dt>relative_entropy</dt>
+<dd><p>Normalised geometric mean of several index
+distributions, the minimum-relative-entropy integration of
+<code>re_indexes</code>; sums to one. See
+<code><a href="centrality_relative_entropy.html">centrality_relative_entropy</a></code>.</p></dd>
+
+<dt>mixed_gravity</dt>
+<dd><p>Gravity with focal core-number and partner-degree
+masses, default radius three.</p></dd>
+
+<dt>extended_mixed_gravity</dt>
+<dd><p>Sum of immediate neighbors' raw
+mixed gravitational centralities.</p></dd>
+
+<dt>extended_gravity</dt>
+<dd><p>Sum of neighbors' raw k-shell gravity scores,
+with <code>gravity_radius</code> applied around each neighbor.</p></dd>
+
+<dt>cda</dt>
+<dd><p>Weighted degree and strength, adjusted by Barrat clustering,
+plus weighted neighbor contributions; uses <code>cda_alpha</code>.</p></dd>
+
+<dt>improved_closeness</dt>
+<dd><p>Closeness using distances divided by the
+number of shortest paths raised to <code>icc_alpha</code>.</p></dd>
+
+<dt>exogenous</dt>
+<dd><p>Contribution to all other nodes' base centrality,
+measured by deletion. Selects a base using <code>exogenous_base</code>.</p></dd>
+
+<dt>global_structure</dt>
+<dd><p>Exponential focal coreness times
+distance-discounted partner coreness (GSM).</p></dd>
+
+<dt>hybrid_global_structure</dt>
+<dd><p>Exponential degree-coreness influences
+with an adaptive distance exponent (H-GSM).</p></dd>
+
+<dt>improved_global_structure</dt>
+<dd><p>Exponential focal degree with partner
+degrees discounted by a global mean-degree distance exponent (IGSM).</p></dd>
+
+<dt>weighted_leaderrank</dt>
+<dd><p>Stationary scores with ground-node outgoing
+weights determined by original in-degree and <code>wlr_alpha</code>.</p></dd>
+
+<dt>linerank</dt>
+<dd><p>PageRank on the line graph, aggregated at endpoints;
+uses <code>damping</code> and <code>linerank_aggregation</code>.</p></dd>
+
+<dt>expected_force</dt>
+<dd><p>Entropy of onward boundary degrees over
+all two-event transmission sequences.</p></dd>
+
+<dt>mcgm</dt>
+<dd><p>Multi-characteristics gravity with degree, coreness and
+eigenvector masses; default radius two.</p></dd>
+
+<dt>spectralrank</dt>
+<dd><p>Outgoing Perron eigenvector with a unit-linked
+ground node; <code>sr_prior</code> supplies optional diagonal information.</p></dd>
+
+<dt>controlrank</dt>
+<dd><p>Smallest eigenvalue of each grounded symmetric
+row-Laplacian; see <code><a href="centrality_controlrank.html">centrality_controlrank</a></code>.</p></dd>
+
+<dt>map_equation</dt>
+<dd><p>Codelength saving on silencing a node, conditional
+on the supplied partition, flow model and coding convention.</p></dd>
+
+<dt>ninl</dt>
+<dd><p>Finite neighbor propagation of closed-neighborhood degree
+volume; uses <code>ninl_order</code> and <code>ninl_radius</code>.</p></dd>
+
+<dt>beta_measure</dt>
+<dd><p>BG power shared by successors among predecessors;
+<code>beta_direction</code> selects positive or negative orientation.</p></dd>
+
+<dt>localized_bridging, extended_local_bridging</dt>
+<dd><p>Betweenness in
+one-hop or two-hop ego networks times the original bridging coefficient.</p></dd>
+
+<dt>modified_expected_force</dt>
+<dd><p>Expected Force multiplied by
+log degree with the scaling parameter <code>exf_alpha</code>.</p></dd>
+
+<dt>proximal_betweenness</dt>
+<dd><p>First/last shortest-path intermediaries;
+uses <code>proximal_variant</code> on the directed unweighted skeleton.</p></dd>
+
+<dt>x_degree</dt>
+<dd><p>Counts four-edge nonbacktracking walks with each node
+at the middle, using original neighbor excess degrees.</p></dd>
+
+<dt>coleman_theil</dt>
+<dd><p>Concentration of dyadic Burt constraints across
+contacts; isolates zero and single-contact nodes one.</p></dd>
+
+<dt>bridging_capital</dt>
+<dd><p>Information-walk loss under single-entry deletion;
+uses <code>bridging_steps</code> and <code>bridging_values</code>.</p></dd>
+
+<dt>random_walk_decay</dt>
+<dd><p>Weighted sum of discounted first arrivals
+from random walks; uses <code>rwd_decay</code> and <code>rwd_node_weights</code>.</p></dd>
+
+<dt>graph_regularization</dt>
+<dd><p>Reciprocal diagonal of the inverse
+regularized weighted Laplacian, using <code>grc_gamma</code>.</p></dd>
+
+<dt>adaptive_leaderrank</dt>
+<dd><p>Stationary scores with destination weights
+determined by original H-indices using <code>alr_h_mode</code>.</p></dd>
+
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="measures-without-a-value-on-a-given-input">Measures without a value on a given input<a class="anchor" aria-label="anchor" href="#measures-without-a-value-on-a-given-input"></a></h2>
+    <p>A few measures are
+undefined on some graphs – the community-partition measures without
+<code>membership</code>, or <code>"relative_entropy"</code> when one of its
+constituent indexes is zero at every node. Naming such a measure in
+<code>measures</code> or <code>include</code> raises a classed condition, because
+you asked for that measure. When a tier (<code>type = "basic"</code>,
+<code>"extended"</code> or <code>"all"</code>) supplied it, the condition becomes a
+<code>cograph_undefined_measure</code> warning and the column is <code>NA</code>,
+so one undefined measure does not take the rest of the tier with it.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
@@ -615,7 +1599,7 @@ centrality (requires <code>membership</code>).</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 31   Su          6            9    0.01369863   33.154401 1.028472e-04</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 32   Ln          7            8    0.01408451    5.749708 1.376854e-02</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 33   Gi          3            4    0.01351351    0.000000 0.000000e+00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 34   Uw          4            7    0.01250000    0.000000 2.943751e-20</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 34   Uw          4            7    0.01250000    0.000000 0.000000e+00</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       pagerank</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.285861728</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2  0.052985644</span>

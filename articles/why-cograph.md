@@ -127,11 +127,11 @@ get_edges(code_edges)
 top5 <- select_top_edges(net, n = 5)
 get_edges(top5)
 #>   from to weight
-#> 1    2  1    0.7
-#> 2    1  2    0.8
-#> 3    4  2    0.6
-#> 4    4  3    0.8
-#> 5    3  4    0.9
+#> 1    3  1    0.7
+#> 2    1  3    0.8
+#> 3    5  3    0.6
+#> 4    5  4    0.8
+#> 5    4  5    0.9
 ```
 
 ``` r
@@ -143,12 +143,12 @@ between <- select_edges_between(net,
 )
 get_edges(between)
 #>   from to weight
-#> 1    4  1    0.1
-#> 2    3  2    0.4
-#> 3    4  2    0.3
-#> 4    1  3    0.1
-#> 5    2  3    0.6
-#> 6    2  4    0.4
+#> 1    5  1    0.1
+#> 2    4  2    0.4
+#> 3    5  2    0.3
+#> 4    1  4    0.1
+#> 5    2  4    0.6
+#> 6    2  5    0.4
 ```
 
 ### Format in, same format out
@@ -215,7 +215,7 @@ centrality(student_interactions)
 #> 30   Cf         12           15    0.01724138  119.109163 1.243207e-02
 #> 31   Su          6            9    0.01369863   33.154401 1.028472e-04
 #> 32   Ln          7            8    0.01408451    5.749708 1.376854e-02
-#> 33   Gi          3            4    0.01351351    0.000000 3.768001e-18
+#> 33   Gi          3            4    0.01351351    0.000000 0.000000e+00
 #> 34   Uw          4            7    0.01250000    0.000000 0.000000e+00
 #>       pagerank
 #> 1  0.285861728
@@ -349,7 +349,7 @@ centrality(student_interactions, normalized = TRUE,
 #> 31   Gi      0.091        0.031         0.446       0.000       0.000    0.019
 #> 32   Su      0.182        0.070         0.452       0.278       0.000    0.018
 #> 33   Df      0.242        0.078         0.516       0.093       0.000    0.017
-#> 34   Uw      0.121        0.054         0.412       0.000       0.000    0.015
+#> 34   Uw      0.121        0.054         0.413       0.000       0.000    0.015
 ```
 
 ### Edge-level centrality
@@ -365,17 +365,17 @@ edge_centrality(net, sort_by = "betweenness", digits = 3)
 #> 5   Test  Read    0.1         3.0       1                3         3
 #> 6  Write  Test    0.4         2.5       1                3         3
 #> 7   Plan  Test    0.5         1.5       1                3         3
-#> 8   Test Write    0.3         1.0       1                3         3
-#> 9  Write  Plan    0.2         1.0       1                3         3
-#> 10  Plan  Code    0.3         1.0       1                3         3
-#> 11  Plan  Read    0.7         0.0       1                3         3
-#> 12  Read Write    0.5         0.0       1                3         3
-#> 13  Code Write    0.4         0.0       1                3         3
-#> 14  Read  Plan    0.8         0.0       1                3         3
-#> 15  Test  Plan    0.6         0.0       1                3         3
-#> 16 Write  Code    0.6         0.0       1                3         3
-#> 17  Test  Code    0.8         0.0       1                3         3
-#> 18  Code  Test    0.9         0.0       1                3         3
+#> 8  Write  Plan    0.2         1.0       1                3         3
+#> 9   Plan  Code    0.3         1.0       1                3         3
+#> 10  Test Write    0.3         1.0       1                3         3
+#> 11  Read Write    0.5         0.0       1                3         3
+#> 12  Read  Plan    0.8         0.0       1                3         3
+#> 13 Write  Code    0.6         0.0       1                3         3
+#> 14  Plan  Read    0.7         0.0       1                3         3
+#> 15  Code Write    0.4         0.0       1                3         3
+#> 16  Code  Test    0.9         0.0       1                3         3
+#> 17  Test  Plan    0.6         0.0       1                3         3
+#> 18  Test  Code    0.8         0.0       1                3         3
 #>    reciprocated reverse_weight weight_ratio
 #> 1          TRUE            0.3        1.500
 #> 2         FALSE             NA           NA
@@ -384,17 +384,17 @@ edge_centrality(net, sort_by = "betweenness", digits = 3)
 #> 5         FALSE             NA           NA
 #> 6          TRUE            0.3        0.750
 #> 7          TRUE            0.6        1.200
-#> 8          TRUE            0.4        1.333
-#> 9          TRUE            0.1        0.500
-#> 10         TRUE            0.2        0.667
-#> 11         TRUE            0.8        1.143
-#> 12         TRUE            0.3        0.600
-#> 13         TRUE            0.6        1.500
-#> 14         TRUE            0.7        0.875
-#> 15         TRUE            0.5        0.833
-#> 16         TRUE            0.4        0.667
-#> 17         TRUE            0.9        1.125
-#> 18         TRUE            0.8        0.889
+#> 8          TRUE            0.1        0.500
+#> 9          TRUE            0.2        0.667
+#> 10         TRUE            0.4        1.333
+#> 11         TRUE            0.3        0.600
+#> 12         TRUE            0.7        0.875
+#> 13         TRUE            0.4        0.667
+#> 14         TRUE            0.8        1.143
+#> 15         TRUE            0.6        1.500
+#> 16         TRUE            0.8        0.889
+#> 17         TRUE            0.5        0.833
+#> 18         TRUE            0.9        1.125
 ```
 
 ### Network-level summary

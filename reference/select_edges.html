@@ -11,7 +11,7 @@ awareness (bridges, communities, reciprocity)."><meta property="og:image" conten
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -24,6 +24,7 @@ awareness (bridges, communities, reciprocity)."><meta property="og:image" conten
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
     <li><a class="dropdown-item" href="../articles/centrality-catalogue.html">Centrality catalogue</a></li>
+    <li><a class="dropdown-item" href="../articles/centrality-zoo-lookup.html">Centrality Zoo lookup</a></li>
     <li><a class="dropdown-item" href="../articles/why-cograph.html">Why cograph?</a></li>
     <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">TNA Plotting Gallery and Visual Smoke Test</a></li>
     <li><a class="dropdown-item" href="../articles/mcml-examples.html">Advanced examples</a></li>
@@ -66,9 +67,10 @@ awareness (bridges, communities, reciprocity).</p>
 <span>  bridges_only <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  mutual_only <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  community <span class="op">=</span> <span class="st">"louvain"</span>,</span>
-<span>  .keep_isolates <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  keep_isolates <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  keep_format <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  directed <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  directed <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  .keep_isolates <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -88,8 +90,16 @@ Available variables:</p><dl><dt>Edge columns</dt>
 <dt>Computed metrics</dt>
 <dd><p><code>abs_weight</code>, <code>from_degree</code>, <code>to_degree</code>,
 <code>from_strength</code>, <code>to_strength</code>, <code>edge_betweenness</code>,
-<code>is_bridge</code>, <code>is_mutual</code>, <code>same_community</code>,
-<code>from_label</code>, <code>to_label</code></p></dd>
+<code>weight_rank</code></p></dd>
+
+<dt>Predicates</dt>
+<dd><p><code>is_bridge</code>, <code>is_mutual</code> (alias
+<code>is_reciprocal</code>), <code>is_loop</code>, <code>is_multiple</code>,
+<code>same_community</code></p></dd>
+
+<dt>Endpoint labels</dt>
+<dd><p><code>from_label</code>, <code>to_label</code>,
+<code>from_community</code>, <code>to_community</code></p></dd>
 
 
 </dl></dd>
@@ -101,7 +111,9 @@ Available variables:</p><dl><dt>Edge columns</dt>
 
 <dt id="arg-by">by<a class="anchor" aria-label="anchor" href="#arg-by"></a></dt>
 <dd><p>Character. Metric for top selection. Default <code>"weight"</code>.
-Options: <code>"weight"</code>, <code>"abs_weight"</code>, <code>"edge_betweenness"</code>.</p></dd>
+Options: <code>"weight"</code>, <code>"abs_weight"</code>, <code>"edge_betweenness"</code>,
+<code>"from_degree"</code>, <code>"to_degree"</code>, <code>"from_strength"</code>,
+<code>"to_strength"</code>, <code>"weight_rank"</code>.</p></dd>
 
 
 <dt id="arg-involving">involving<a class="anchor" aria-label="anchor" href="#arg-involving"></a></dt>
@@ -130,8 +142,11 @@ variable. One of <code>"louvain"</code>, <code>"walktrap"</code>, <code>"fast_gr
 <code>"label_prop"</code>, <code>"infomap"</code>, <code>"leiden"</code>. Default <code>"louvain"</code>.</p></dd>
 
 
-<dt id="arg--keep-isolates">.keep_isolates<a class="anchor" aria-label="anchor" href="#arg--keep-isolates"></a></dt>
-<dd><p>Logical. Keep nodes with no remaining edges? Default FALSE.</p></dd>
+<dt id="arg-keep-isolates">keep_isolates<a class="anchor" aria-label="anchor" href="#arg-keep-isolates"></a></dt>
+<dd><p>Logical. Keep nodes that end up with no edges?
+Default TRUE, matching <code><a href="https://r.igraph.org/reference/delete_edges.html" class="external-link">igraph::delete_edges()</a></code> and tidygraph:
+filtering edges does not remove nodes. Set FALSE to drop them, or call
+<code><a href="remove_isolates.html">remove_isolates()</a></code> afterwards.</p></dd>
 
 
 <dt id="arg-keep-format">keep_format<a class="anchor" aria-label="anchor" href="#arg-keep-format"></a></dt>
@@ -141,6 +156,10 @@ inputs are returned in that format. Default FALSE returns cograph_network.</p></
 
 <dt id="arg-directed">directed<a class="anchor" aria-label="anchor" href="#arg-directed"></a></dt>
 <dd><p>Logical or NULL. If NULL (default), auto-detect.</p></dd>
+
+
+<dt id="arg--keep-isolates">.keep_isolates<a class="anchor" aria-label="anchor" href="#arg--keep-isolates"></a></dt>
+<dd><p>Deprecated. Use <code>keep_isolates</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -170,7 +189,7 @@ expressions or required by selection modes are computed.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">select_edges</span><span class="op">(</span><span class="va">adj</span>, <span class="va">weight</span> <span class="op">&gt;</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 4 nodes, 2 edges ( undirected )</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Source: filtered </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Source: matrix </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (4): A, B, C, D</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 2 / 6 (density: 33.3%)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [0.600, 0.800]  |  mean: 0.700</span>
@@ -178,9 +197,10 @@ expressions or required by selection modes are computed.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     A -- C  0.800</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     B -- D  0.600</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.</span>
 <span class="r-in"><span><span class="fu">select_edges</span><span class="op">(</span><span class="va">adj</span>, top <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 4 nodes, 3 edges ( undirected )</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Source: filtered </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Source: matrix </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (4): A, B, C, D</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 3 / 6 (density: 50.0%)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [0.500, 0.800]  |  mean: 0.633</span>
@@ -189,19 +209,22 @@ expressions or required by selection modes are computed.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     B -- D  0.600</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     A -- B  0.500</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.</span>
 <span class="r-in"><span><span class="fu">select_edges</span><span class="op">(</span><span class="va">adj</span>, involving <span class="op">=</span> <span class="st">"A"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 3 nodes, 2 edges ( undirected )</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Source: filtered </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (3): A, B, C</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 2 / 3 (density: 66.7%)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>1 node(s) have no edges left. Nodes are kept; call remove_isolates() to drop them.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 4 nodes, 2 edges ( undirected )</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Source: matrix </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (4): A, B, C, D</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 2 / 6 (density: 33.3%)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [0.500, 0.800]  |  mean: 0.650</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Strongest edges:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     A -- C  0.800</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     A -- B  0.500</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.</span>
 <span class="r-in"><span><span class="fu">select_edges</span><span class="op">(</span><span class="va">adj</span>, between <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C"</span>, <span class="st">"D"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 4 nodes, 3 edges ( undirected )</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Source: filtered </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Source: matrix </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (4): A, B, C, D</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 3 / 6 (density: 50.0%)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [0.300, 0.800]  |  mean: 0.567</span>
@@ -210,6 +233,7 @@ expressions or required by selection modes are computed.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     B -- D  0.600</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     B -- C  0.300</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

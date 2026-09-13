@@ -17,9 +17,10 @@ select_edges(
   bridges_only = FALSE,
   mutual_only = FALSE,
   community = "louvain",
-  .keep_isolates = FALSE,
+  keep_isolates = TRUE,
   keep_format = FALSE,
-  directed = NULL
+  directed = NULL,
+  .keep_isolates = NULL
 )
 ```
 
@@ -42,8 +43,16 @@ select_edges(
   Computed metrics
 
   :   `abs_weight`, `from_degree`, `to_degree`, `from_strength`,
-      `to_strength`, `edge_betweenness`, `is_bridge`, `is_mutual`,
-      `same_community`, `from_label`, `to_label`
+      `to_strength`, `edge_betweenness`, `weight_rank`
+
+  Predicates
+
+  :   `is_bridge`, `is_mutual` (alias `is_reciprocal`), `is_loop`,
+      `is_multiple`, `same_community`
+
+  Endpoint labels
+
+  :   `from_label`, `to_label`, `from_community`, `to_community`
 
 - top:
 
@@ -52,7 +61,8 @@ select_edges(
 - by:
 
   Character. Metric for top selection. Default `"weight"`. Options:
-  `"weight"`, `"abs_weight"`, `"edge_betweenness"`.
+  `"weight"`, `"abs_weight"`, `"edge_betweenness"`, `"from_degree"`,
+  `"to_degree"`, `"from_strength"`, `"to_strength"`, `"weight_rank"`.
 
 - involving:
 
@@ -80,9 +90,14 @@ select_edges(
   One of `"louvain"`, `"walktrap"`, `"fast_greedy"`, `"label_prop"`,
   `"infomap"`, `"leiden"`. Default `"louvain"`.
 
-- .keep_isolates:
+- keep_isolates:
 
-  Logical. Keep nodes with no remaining edges? Default FALSE.
+  Logical. Keep nodes that end up with no edges? Default TRUE, matching
+  [`igraph::delete_edges()`](https://r.igraph.org/reference/delete_edges.html)
+  and tidygraph: filtering edges does not remove nodes. Set FALSE to
+  drop them, or call
+  [`remove_isolates()`](https://sonsoles.me/cograph/reference/remove_isolates.md)
+  afterwards.
 
 - keep_format:
 
@@ -92,6 +107,10 @@ select_edges(
 - directed:
 
   Logical or NULL. If NULL (default), auto-detect.
+
+- .keep_isolates:
+
+  Deprecated. Use `keep_isolates`.
 
 ## Value
 
@@ -127,7 +146,7 @@ rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
 
 select_edges(adj, weight > 0.5)
 #> Cograph network: 4 nodes, 2 edges ( undirected )
-#> Source: filtered 
+#> Source: matrix 
 #>   Nodes (4): A, B, C, D
 #>   Edges: 2 / 6 (density: 33.3%)
 #>   Weights: [0.600, 0.800]  |  mean: 0.700
@@ -135,9 +154,10 @@ select_edges(adj, weight > 0.5)
 #>     A -- C  0.800
 #>     B -- D  0.600
 #> Layout: none 
+#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 select_edges(adj, top = 3)
 #> Cograph network: 4 nodes, 3 edges ( undirected )
-#> Source: filtered 
+#> Source: matrix 
 #>   Nodes (4): A, B, C, D
 #>   Edges: 3 / 6 (density: 50.0%)
 #>   Weights: [0.500, 0.800]  |  mean: 0.633
@@ -146,19 +166,22 @@ select_edges(adj, top = 3)
 #>     B -- D  0.600
 #>     A -- B  0.500
 #> Layout: none 
+#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 select_edges(adj, involving = "A")
-#> Cograph network: 3 nodes, 2 edges ( undirected )
-#> Source: filtered 
-#>   Nodes (3): A, B, C
-#>   Edges: 2 / 3 (density: 66.7%)
+#> Warning: 1 node(s) have no edges left. Nodes are kept; call remove_isolates() to drop them.
+#> Cograph network: 4 nodes, 2 edges ( undirected )
+#> Source: matrix 
+#>   Nodes (4): A, B, C, D
+#>   Edges: 2 / 6 (density: 33.3%)
 #>   Weights: [0.500, 0.800]  |  mean: 0.650
 #>   Strongest edges:
 #>     A -- C  0.800
 #>     A -- B  0.500
 #> Layout: none 
+#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 select_edges(adj, between = list(c("A", "B"), c("C", "D")))
 #> Cograph network: 4 nodes, 3 edges ( undirected )
-#> Source: filtered 
+#> Source: matrix 
 #>   Nodes (4): A, B, C, D
 #>   Edges: 3 / 6 (density: 50.0%)
 #>   Weights: [0.300, 0.800]  |  mean: 0.567
@@ -167,4 +190,5 @@ select_edges(adj, between = list(c("A", "B"), c("C", "D")))
 #>     B -- D  0.600
 #>     B -- C  0.300
 #> Layout: none 
+#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

@@ -19,9 +19,10 @@ select_nodes(
   neighbors_of = NULL,
   order = 1L,
   component = NULL,
-  .keep_edges = c("internal", "none"),
+  keep_edges = c("internal", "none"),
   keep_format = FALSE,
-  directed = NULL
+  directed = NULL,
+  .keep_edges = NULL
 )
 ```
 
@@ -47,13 +48,21 @@ select_nodes(
 
   :   `degree`, `indegree`, `outdegree`, `strength`, `instrength`,
       `outstrength`, `betweenness`, `closeness`, `eigenvector`,
-      `pagerank`, `hub`, `authority`, `coreness`
+      `pagerank`, `hub`, `authority`, `coreness`. Any other measure
+      [`centrality()`](https://sonsoles.me/cograph/reference/centrality.md)
+      computes can be named too; see
+      [`list_centralities()`](https://sonsoles.me/cograph/reference/list_centralities.md).
 
   Global context
 
   :   `component`, `component_size`, `is_largest_component`,
       `neighborhood_size`, `k_core`, `is_articulation`,
       `is_bridge_endpoint`
+
+  Predicates
+
+  :   `is_isolated`, `is_source`, `is_sink`, `is_leaf`, `is_cut`,
+      `local_transitivity`, `local_triangles`
 
 - name:
 
@@ -97,7 +106,7 @@ select_nodes(
 
   :   Select component containing node with this name
 
-- .keep_edges:
+- keep_edges:
 
   How to handle edges. One of:
 
@@ -117,6 +126,10 @@ select_nodes(
 - directed:
 
   Logical or NULL. If NULL (default), auto-detect.
+
+- .keep_edges:
+
+  Deprecated. Use `keep_edges`.
 
 ## Value
 
@@ -159,25 +172,27 @@ rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
 
 select_nodes(adj, degree >= 3)
 #> Cograph network: 2 nodes, 1 edges ( undirected )
-#> Source: filtered 
+#> Source: matrix 
 #>   Nodes (2): B, C
 #>   Edges: 1 / 1 (density: 100.0%)
 #>   Weights: [0.300, 0.300]  |  mean: 0.300
 #>   Strongest edges:
 #>     B -- C  0.300
 #> Layout: none 
+#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 select_nodes(adj, top = 2, by = "pagerank")
 #> Cograph network: 2 nodes, 1 edges ( undirected )
-#> Source: filtered 
+#> Source: matrix 
 #>   Nodes (2): B, C
 #>   Edges: 1 / 1 (density: 100.0%)
 #>   Weights: [0.300, 0.300]  |  mean: 0.300
 #>   Strongest edges:
 #>     B -- C  0.300
 #> Layout: none 
+#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 select_nodes(adj, neighbors_of = "A", order = 2)
 #> Cograph network: 4 nodes, 5 edges ( undirected )
-#> Source: filtered 
+#> Source: matrix 
 #>   Nodes (4): A, B, C, D
 #>   Edges: 5 / 6 (density: 83.3%)
 #>   Weights: [0.300, 0.800]  |  mean: 0.520
@@ -188,9 +203,10 @@ select_nodes(adj, neighbors_of = "A", order = 2)
 #>     C -- D  0.400
 #>     B -- C  0.300
 #> Layout: none 
+#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 select_nodes(adj, component = "largest")
 #> Cograph network: 4 nodes, 5 edges ( undirected )
-#> Source: filtered 
+#> Source: matrix 
 #>   Nodes (4): A, B, C, D
 #>   Edges: 5 / 6 (density: 83.3%)
 #>   Weights: [0.300, 0.800]  |  mean: 0.520
@@ -201,4 +217,5 @@ select_nodes(adj, component = "largest")
 #>     C -- D  0.400
 #>     B -- C  0.300
 #> Layout: none 
+#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

@@ -6,6 +6,8 @@
   cograph](https://sonsoles.me/cograph/articles/introduction.md):
 - [Centrality
   catalogue](https://sonsoles.me/cograph/articles/centrality-catalogue.md):
+- [Centrality Zoo
+  lookup](https://sonsoles.me/cograph/articles/centrality-zoo-lookup.md):
 - [Why cograph?](https://sonsoles.me/cograph/articles/why-cograph.md):
 - [TNA Plotting Gallery and Visual Smoke
   Test](https://sonsoles.me/cograph/articles/plotting-tna-models.md):

@@ -9,7 +9,7 @@ select_component(
   x,
   which = "largest",
   ...,
-  .keep_edges = c("internal", "none"),
+  keep_edges = c("internal", "none"),
   keep_format = FALSE,
   directed = NULL
 )
@@ -41,7 +41,7 @@ select_component(
 
   Additional filter expressions to apply after component selection.
 
-- .keep_edges:
+- keep_edges:
 
   How to handle edges. Default "internal".
 
@@ -77,7 +77,7 @@ rownames(adj) <- colnames(adj) <- LETTERS[1:6]
 # Largest component
 select_component(adj, which = "largest")
 #> Cograph network: 3 nodes, 2 edges ( undirected )
-#> Source: filtered 
+#> Source: matrix 
 #>   Nodes (3): A, B, C
 #>   Edges: 2 / 3 (density: 66.7%)
 #>   Weights: [1.000, 1.000]  |  mean: 1.000
@@ -85,11 +85,12 @@ select_component(adj, which = "largest")
 #>     A -- B  1.000
 #>     A -- C  1.000
 #> Layout: none 
+#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 
 # Component containing node "A"
 select_component(adj, which = "A")
 #> Cograph network: 3 nodes, 2 edges ( undirected )
-#> Source: filtered 
+#> Source: matrix 
 #>   Nodes (3): A, B, C
 #>   Edges: 2 / 3 (density: 66.7%)
 #>   Weights: [1.000, 1.000]  |  mean: 1.000
@@ -97,4 +98,5 @@ select_component(adj, which = "A")
 #>     A -- B  1.000
 #>     A -- C  1.000
 #> Layout: none 
+#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

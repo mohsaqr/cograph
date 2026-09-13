@@ -39,4 +39,5 @@ print(net)
 #>     1 -- 3  1.000
 #>     2 -- 3  1.000
 #> Layout: none 
+#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

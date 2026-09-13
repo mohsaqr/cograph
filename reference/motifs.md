@@ -24,6 +24,7 @@ motifs(
   exclude = NULL,
   significance = TRUE,
   n_perm = 1000L,
+  cores = 1L,
   min_count = if (named_nodes) 5L else NULL,
   edge_method = c("any", "expected", "percent"),
   edge_threshold = 1.5,
@@ -130,6 +131,23 @@ plot(
 
   Number of permutations for significance. When `significance = TRUE`,
   must be a whole number of at least 2. Default 1000.
+
+- cores:
+
+  Number of worker processes for the permutation null. Default `1` runs
+  serially and is the only setting that reproduces results from earlier
+  versions: it consumes a single RNG stream in replicate-then-unit
+  order, so a given `seed` gives the historical numbers. `cores > 1`
+  gives each replicate its own L'Ecuyer-CMRG stream, which makes a
+  result depend on `seed` alone and not on the worker count or on how
+  replicates were chunked – but those are a *different* set of draws, so
+  the p-values will not match a `cores = 1` run of the same seed. They
+  remain a valid permutation null, and repeated parallel runs of one
+  seed agree exactly with each other at any `cores`. Forking is used
+  where available; Windows uses a PSOCK cluster. Only the
+  individual-level census null is parallelised. Values above
+  [`parallel::detectCores()`](https://rdrr.io/r/parallel/detectCores.html)
+  are capped with a `cograph_cores_capped` warning.
 
 - min_count:
 

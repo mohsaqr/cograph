@@ -11,17 +11,19 @@ the input used one of those formats.
 filter_edges(
   x,
   ...,
-  .keep_isolates = FALSE,
+  keep_isolates = TRUE,
   keep_format = FALSE,
-  directed = NULL
+  directed = NULL,
+  .keep_isolates = NULL
 )
 
 subset_edges(
   x,
   ...,
-  .keep_isolates = FALSE,
+  keep_isolates = TRUE,
   keep_format = FALSE,
-  directed = NULL
+  directed = NULL,
+  .keep_isolates = NULL
 )
 ```
 
@@ -37,9 +39,14 @@ subset_edges(
   Filter expressions using any edge column (e.g., `weight > 0.5`,
   `weight > mean(weight)`, `abs(weight) > 0.3`).
 
-- .keep_isolates:
+- keep_isolates:
 
-  Logical. Keep nodes with no remaining edges? Default FALSE.
+  Logical. Keep nodes that end up with no edges? Default TRUE, matching
+  [`igraph::delete_edges()`](https://r.igraph.org/reference/delete_edges.html)
+  and tidygraph: filtering edges does not remove nodes. Set FALSE to
+  drop them, or call
+  [`remove_isolates()`](https://sonsoles.me/cograph/reference/remove_isolates.md)
+  afterwards.
 
 - keep_format:
 
@@ -52,6 +59,10 @@ subset_edges(
   Logical or NULL. If NULL (default), auto-detect from matrix symmetry.
   Set TRUE to force directed, FALSE to force undirected. Only used for
   non-cograph_network inputs.
+
+- .keep_isolates:
+
+  Deprecated. Use `keep_isolates`.
 
 ## Value
 
@@ -77,7 +88,7 @@ rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
 # Keep only strong edges
 filter_edges(adj, weight > 0.5)
 #> Cograph network: 4 nodes, 2 edges ( undirected )
-#> Source: filtered 
+#> Source: matrix 
 #>   Nodes (4): A, B, C, D
 #>   Edges: 2 / 6 (density: 33.3%)
 #>   Weights: [0.600, 0.800]  |  mean: 0.700
@@ -85,14 +96,15 @@ filter_edges(adj, weight > 0.5)
 #>     A -- C  0.800
 #>     B -- D  0.600
 #> Layout: none 
+#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 
 # Matrix in, matrix out
 filter_edges(adj, weight > 0.5, keep_format = TRUE)
-#>   A B   C   D
-#> A 0 0 0.8 0.0
-#> B 0 0 0.0 0.6
-#> C 0 0 0.0 0.0
-#> D 0 0 0.0 0.0
+#>     A   B   C   D
+#> A 0.0 0.0 0.8 0.0
+#> B 0.0 0.0 0.0 0.6
+#> C 0.8 0.0 0.0 0.0
+#> D 0.0 0.6 0.0 0.0
 
 # Pipe-friendly with cograph_network
 as_cograph(adj) |>

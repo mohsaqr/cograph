@@ -8,7 +8,7 @@ Select edges whose removal would disconnect the graph.
 select_bridges(
   x,
   ...,
-  .keep_isolates = FALSE,
+  keep_isolates = TRUE,
   keep_format = FALSE,
   directed = NULL
 )
@@ -24,9 +24,9 @@ select_bridges(
 
   Additional filter expressions.
 
-- .keep_isolates:
+- keep_isolates:
 
-  Keep nodes with no edges? Default FALSE.
+  Keep nodes that end up with no edges? Default TRUE.
 
 - keep_format:
 
@@ -58,13 +58,15 @@ adj[3, 5] <- adj[5, 3] <- 1
 rownames(adj) <- colnames(adj) <- LETTERS[1:5]
 
 select_bridges(adj)
-#> Cograph network: 3 nodes, 2 edges ( undirected )
-#> Source: filtered 
-#>   Nodes (3): A, B, C
-#>   Edges: 2 / 3 (density: 66.7%)
+#> Warning: 2 node(s) have no edges left. Nodes are kept; call remove_isolates() to drop them.
+#> Cograph network: 5 nodes, 2 edges ( undirected )
+#> Source: matrix 
+#>   Nodes (5): A, B, C, D, E
+#>   Edges: 2 / 10 (density: 20.0%)
 #>   Weights: [1.000, 1.000]  |  mean: 1.000
 #>   Strongest edges:
 #>     A -- B  1.000
 #>     B -- C  1.000
 #> Layout: none 
+#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

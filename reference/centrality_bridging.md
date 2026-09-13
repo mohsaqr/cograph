@@ -28,8 +28,8 @@ Named numeric vector of bridging centrality values.
 
 [`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
 computing multiple measures at once,
-[`centrality_local_bridging`](https://sonsoles.me/cograph/reference/centrality_local_bridging.md)
-for the local variant.
+[`centrality_localized_bridging`](https://sonsoles.me/cograph/reference/centrality_localized_bridging.md)
+for the ego-network variant.
 
 ## Examples
 

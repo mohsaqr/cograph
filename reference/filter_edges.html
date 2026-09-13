@@ -13,7 +13,7 @@ and the input used one of those formats."><meta property="og:image" content="htt
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -26,6 +26,7 @@ and the input used one of those formats."><meta property="og:image" content="htt
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
     <li><a class="dropdown-item" href="../articles/centrality-catalogue.html">Centrality catalogue</a></li>
+    <li><a class="dropdown-item" href="../articles/centrality-zoo-lookup.html">Centrality Zoo lookup</a></li>
     <li><a class="dropdown-item" href="../articles/why-cograph.html">Why cograph?</a></li>
     <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">TNA Plotting Gallery and Visual Smoke Test</a></li>
     <li><a class="dropdown-item" href="../articles/mcml-examples.html">Advanced examples</a></li>
@@ -62,17 +63,19 @@ and the input used one of those formats.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">filter_edges</span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
 <span>  <span class="va">...</span>,</span>
-<span>  .keep_isolates <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  keep_isolates <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  keep_format <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  directed <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  directed <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  .keep_isolates <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">subset_edges</span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
 <span>  <span class="va">...</span>,</span>
-<span>  .keep_isolates <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  keep_isolates <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  keep_format <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  directed <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  directed <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  .keep_isolates <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -89,8 +92,11 @@ and the input used one of those formats.</p>
 <code>weight &gt; mean(weight)</code>, <code>abs(weight) &gt; 0.3</code>).</p></dd>
 
 
-<dt id="arg--keep-isolates">.keep_isolates<a class="anchor" aria-label="anchor" href="#arg--keep-isolates"></a></dt>
-<dd><p>Logical. Keep nodes with no remaining edges? Default FALSE.</p></dd>
+<dt id="arg-keep-isolates">keep_isolates<a class="anchor" aria-label="anchor" href="#arg-keep-isolates"></a></dt>
+<dd><p>Logical. Keep nodes that end up with no edges?
+Default TRUE, matching <code><a href="https://r.igraph.org/reference/delete_edges.html" class="external-link">igraph::delete_edges()</a></code> and tidygraph:
+filtering edges does not remove nodes. Set FALSE to drop them, or call
+<code><a href="remove_isolates.html">remove_isolates()</a></code> afterwards.</p></dd>
 
 
 <dt id="arg-keep-format">keep_format<a class="anchor" aria-label="anchor" href="#arg-keep-format"></a></dt>
@@ -103,6 +109,10 @@ returns cograph_network (universal format).</p></dd>
 <dd><p>Logical or NULL. If NULL (default), auto-detect from matrix
 symmetry. Set TRUE to force directed, FALSE to force undirected.
 Only used for non-cograph_network inputs.</p></dd>
+
+
+<dt id="arg--keep-isolates">.keep_isolates<a class="anchor" aria-label="anchor" href="#arg--keep-isolates"></a></dt>
+<dd><p>Deprecated. Use <code>keep_isolates</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -125,7 +135,7 @@ matrix, igraph, and statnet network inputs are converted back to that type.</p>
 <span class="r-in"><span><span class="co"># Keep only strong edges</span></span></span>
 <span class="r-in"><span><span class="fu">filter_edges</span><span class="op">(</span><span class="va">adj</span>, <span class="va">weight</span> <span class="op">&gt;</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 4 nodes, 2 edges ( undirected )</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Source: filtered </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Source: matrix </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (4): A, B, C, D</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 2 / 6 (density: 33.3%)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [0.600, 0.800]  |  mean: 0.700</span>
@@ -133,14 +143,15 @@ matrix, igraph, and statnet network inputs are converted back to that type.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     A -- C  0.800</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     B -- D  0.600</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Matrix in, matrix out</span></span></span>
 <span class="r-in"><span><span class="fu">filter_edges</span><span class="op">(</span><span class="va">adj</span>, <span class="va">weight</span> <span class="op">&gt;</span> <span class="fl">0.5</span>, keep_format <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   A B   C   D</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> A 0 0 0.8 0.0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> B 0 0 0.0 0.6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> C 0 0 0.0 0.0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> D 0 0 0.0 0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     A   B   C   D</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> A 0.0 0.0 0.8 0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> B 0.0 0.0 0.0 0.6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> C 0.8 0.0 0.0 0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> D 0.0 0.6 0.0 0.0</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Pipe-friendly with cograph_network</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="as_cograph.html">as_cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>

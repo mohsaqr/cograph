@@ -9,7 +9,7 @@ select_edges_involving(
   x,
   nodes,
   ...,
-  .keep_isolates = FALSE,
+  keep_isolates = TRUE,
   keep_format = FALSE,
   directed = NULL
 )
@@ -29,9 +29,9 @@ select_edges_involving(
 
   Additional filter expressions.
 
-- .keep_isolates:
+- keep_isolates:
 
-  Keep nodes with no edges? Default FALSE.
+  Keep nodes that end up with no edges? Default TRUE.
 
 - keep_format:
 
@@ -61,20 +61,22 @@ rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
 
 # Edges involving A
 select_edges_involving(adj, nodes = "A")
-#> Cograph network: 3 nodes, 2 edges ( undirected )
-#> Source: filtered 
-#>   Nodes (3): A, B, C
-#>   Edges: 2 / 3 (density: 66.7%)
+#> Warning: 1 node(s) have no edges left. Nodes are kept; call remove_isolates() to drop them.
+#> Cograph network: 4 nodes, 2 edges ( undirected )
+#> Source: matrix 
+#>   Nodes (4): A, B, C, D
+#>   Edges: 2 / 6 (density: 33.3%)
 #>   Weights: [0.500, 0.800]  |  mean: 0.650
 #>   Strongest edges:
 #>     A -- C  0.800
 #>     A -- B  0.500
 #> Layout: none 
+#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 
 # Edges involving A or B
 select_edges_involving(adj, nodes = c("A", "B"))
 #> Cograph network: 4 nodes, 4 edges ( undirected )
-#> Source: filtered 
+#> Source: matrix 
 #>   Nodes (4): A, B, C, D
 #>   Edges: 4 / 6 (density: 66.7%)
 #>   Weights: [0.300, 0.800]  |  mean: 0.550
@@ -84,4 +86,5 @@ select_edges_involving(adj, nodes = c("A", "B"))
 #>     A -- B  0.500
 #>     B -- C  0.300
 #> Layout: none 
+#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

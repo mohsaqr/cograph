@@ -1,7 +1,10 @@
 # Local Bridging Centrality
 
 (1/degree) times bridging coefficient. Local measure of inter-community
-connectivity.
+connectivity. This legacy score differs from Nanda and Kotz's
+ego-betweenness product; use
+[`centrality_localized_bridging`](https://sonsoles.me/cograph/reference/centrality_localized_bridging.md)
+for their LBC definition.
 
 ## Usage
 

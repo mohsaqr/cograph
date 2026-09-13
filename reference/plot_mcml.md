@@ -1,15 +1,12 @@
-# Plot Multi-Cluster Multi-Layer Network
+# Produces a two-layer hierarchical visualization of a clustered network. The **bottom layer** shows every node arranged inside elliptical cluster shells with full within-cluster and between-cluster edges drawn at the individual-node level. The **top layer** collapses each cluster into a single summary pie-chart node whose colored slice represents, by default, the cluster's share of the initial state distribution (see `summary_pie` for the alternative self-retention interpretation), with edges carrying the aggregated between-cluster weights. Dashed inter-layer lines connect each detail node to its corresponding summary node, making the hierarchical mapping explicit.
 
-Produces a two-layer hierarchical visualization of a clustered network.
-The **bottom layer** shows every node arranged inside elliptical cluster
-shells with full within-cluster and between-cluster edges drawn at the
-individual-node level. The **top layer** collapses each cluster into a
-single summary pie-chart node whose colored slice represents, by
-default, the cluster's share of the initial state distribution (see
-`summary_pie` for the alternative self-retention interpretation), with
-edges carrying the aggregated between-cluster weights. Dashed
-inter-layer lines connect each detail node to its corresponding summary
-node, making the hierarchical mapping explicit.
+Use `plot_mcml` when you need a simultaneous micro/macro view of cluster
+structure — the bottom layer reveals internal cluster dynamics while the
+top layer provides a bird's-eye summary. For a flat multi-cluster plot
+without the summary layer, see
+[`plot_mtna`](https://sonsoles.me/cograph/reference/plot_mtna.md). For
+stacked multilevel/multiplex layers, see
+[`plot_mlna`](https://sonsoles.me/cograph/reference/plot_mlna.md).
 
 ## Usage
 
@@ -17,6 +14,7 @@ node, making the hierarchical mapping explicit.
 plot_mcml(
   x,
   cluster_list = NULL,
+  expand = NULL,
   mode = c("weights", "tna"),
   theme = c("classic", "rich", "light"),
   layer_spacing = NULL,
@@ -118,6 +116,22 @@ plot_mcml(
     `group`, etc.) in node metadata.
 
   Ignored when `x` is a `cluster_summary`.
+
+- expand:
+
+  Names of clusters whose member states are drawn as separate nodes in
+  the top (macro) layer; `"all"` or `TRUE` expands every cluster. The
+  bottom layer always shows the partition, so an expanded state appears
+  as its own summary node while staying inside its cluster's shell
+  below, linked by the dashed line. Default `NULL` draws one summary
+  node per cluster.
+
+  The expanded macro is re-counted from `x` with a refined partition (an
+  expanded cluster contributes one group per member state), because a k
+  x k aggregate cannot be disaggregated after the fact. That needs the
+  source, so passing a pre-built `cluster_summary` or `mcml` instead of
+  the data falls back to `Nestimate::macro_network()` and raises a
+  `cograph_expand_unavailable` error when that is not available.
 
 - mode:
 
@@ -570,14 +584,6 @@ inspected with [`print()`](https://rdrr.io/r/base/print.html), or fed to
 analysis.
 
 ## Details
-
-Use `plot_mcml` when you need a simultaneous micro/macro view of cluster
-structure — the bottom layer reveals internal cluster dynamics while the
-top layer provides a bird's-eye summary. For a flat multi-cluster plot
-without the summary layer, see
-[`plot_mtna`](https://sonsoles.me/cograph/reference/plot_mtna.md). For
-stacked multilevel/multiplex layers, see
-[`plot_mlna`](https://sonsoles.me/cograph/reference/plot_mlna.md).
 
 **Two workflows:**
 

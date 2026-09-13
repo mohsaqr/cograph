@@ -10,7 +10,7 @@ select_edges_between(
   set1,
   set2,
   ...,
-  .keep_isolates = FALSE,
+  keep_isolates = TRUE,
   keep_format = FALSE,
   directed = NULL
 )
@@ -34,9 +34,9 @@ select_edges_between(
 
   Additional filter expressions.
 
-- .keep_isolates:
+- keep_isolates:
 
-  Keep nodes with no edges? Default FALSE.
+  Keep nodes that end up with no edges? Default TRUE.
 
 - keep_format:
 
@@ -67,7 +67,7 @@ rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
 # Edges between {A, B} and {C, D}
 select_edges_between(adj, set1 = c("A", "B"), set2 = c("C", "D"))
 #> Cograph network: 4 nodes, 3 edges ( undirected )
-#> Source: filtered 
+#> Source: matrix 
 #>   Nodes (4): A, B, C, D
 #>   Edges: 3 / 6 (density: 50.0%)
 #>   Weights: [0.300, 0.800]  |  mean: 0.567
@@ -76,4 +76,5 @@ select_edges_between(adj, set1 = c("A", "B"), set2 = c("C", "D"))
 #>     B -- D  0.600
 #>     B -- C  0.300
 #> Layout: none 
+#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

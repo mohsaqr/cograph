@@ -14,15 +14,16 @@ structure. Centralities describe **nodes**, not edges or whole graphs,
 and they are the most widely used way to compare the relative prominence
 of actors within a network.
 
-`cograph` ships the **widest collection of node centrality measures
-available in R — 99 in total** — spanning degree and strength, distance
-and closeness, shortest-path brokerage, spectral and walk-based
+[`centrality()`](https://sonsoles.me/cograph/reference/centrality.md)
+offers **191 selectable measures**, spanning degree and strength,
+distance and closeness, shortest-path brokerage, spectral and walk-based
 influence, neighbourhood cohesion, directed prestige, and
-community/group-based roles. Every measure is **equivalence-validated**:
-its output is checked numerically against an established reference
-implementation (`igraph`, `sna`, `centiserve`, `brainGraph`,
-`influenceR`, `tidygraph`, and NetworkX via `reticulate`), so values
-match the canonical definitions to within documented tolerances.
+community/group-based roles. This catalogue also describes named
+variants. Verification evidence varies by measure: external
+implementations, published examples, independently evaluated
+definitions, or rank comparisons. The reference entry states the
+evidence; rank comparison alone does not establish numerical
+equivalence.
 
 `student_interactions` is a built-in edge-list dataset of observed
 student interactions. It can be passed to
@@ -69,8 +70,8 @@ centrality(student_interactions)
 #> 30   Cf         12           15    0.01724138  119.109163 1.243207e-02
 #> 31   Su          6            9    0.01369863   33.154401 1.028472e-04
 #> 32   Ln          7            8    0.01408451    5.749708 1.376854e-02
-#> 33   Gi          3            4    0.01351351    0.000000 1.130400e-17
-#> 34   Uw          4            7    0.01250000    0.000000 8.831252e-20
+#> 33   Gi          3            4    0.01351351    0.000000 0.000000e+00
+#> 34   Uw          4            7    0.01250000    0.000000 0.000000e+00
 #>       pagerank
 #> 1  0.285861728
 #> 2  0.052985644
@@ -108,9 +109,9 @@ centrality(student_interactions)
 #> 34 0.004411765
 ```
 
-Pass `type = "all"` to compute every measure at once,
-`measures = c(...)` to pick a subset, `digits =` to round, and
-`sort_by =` to order the result.
+Pass `type = "all"` for all ordinary-cost measures, `include = "costly"`
+to add costly ones, `measures = c(...)` to pick a subset, `digits =` to
+round, and `sort_by =` to order the result.
 
 ## How to read this catalogue
 
@@ -139,23 +140,37 @@ the graph Laplacian and $`\mathbf{1}`$ the all-ones vector.
 
 **Degree, strength and local connectivity**
 
-[Degree Centrality](#cent-degree) · [Indegree
-Centrality](#cent-indegree) · [Outdegree Centrality](#cent-outdegree) ·
-[Strength Centrality](#cent-strength) · [Instrength
-Centrality](#cent-instrength) · [Outstrength
-Centrality](#cent-outstrength) · [Expected Centrality](#cent-expected) ·
-[Leverage Centrality](#cent-leverage) · [Lobby Centrality](#cent-lobby)
-· [H-Index Strength Centrality](#cent-hindex_strength) · [Local H-Index
+[X-degree](#cent-x_degree) · [Clustering Degree Algorithm](#cent-cda) ·
+[Extended Neighborhood Coreness](#cent-extended_coreness) · [Malatya
+Centrality](#cent-malatya) · [Volume Centrality](#cent-volume) · [Degree
+Centrality](#cent-degree) · [Indegree Centrality](#cent-indegree) ·
+[Outdegree Centrality](#cent-outdegree) · [Strength
+Centrality](#cent-strength) · [Instrength Centrality](#cent-instrength)
+· [Outstrength Centrality](#cent-outstrength) · [Expected
+Centrality](#cent-expected) · [Leverage Centrality](#cent-leverage) ·
+[Lobby Centrality](#cent-lobby) · [H-Index Strength
+Centrality](#cent-hindex_strength) · [Local H-Index
 Centrality](#cent-local_hindex) · [Semi-Local
 Centrality](#cent-semilocal) · [ClusterRank
 Centrality](#cent-clusterrank) · [Collective Influence
 Centrality](#cent-collective_influence) · [MNC Centrality](#cent-mnc) ·
 [DMNC Centrality](#cent-dmnc) · [LAC Centrality](#cent-lac) · [Gravity
-Centrality](#cent-gravity)
+Centrality](#cent-gravity) · [Neighborhood
+Connectivity](#cent-neighborhood_connectivity) · [Entropy Variation,
+Degree](#cent-entropy_variation_degree) · [Flow
+Coefficient](#cent-flow_coefficient) · [Local
+Entropy](#cent-local_entropy) · [Weighted
+h-index](#cent-weighted_h_index) · [Redundancy](#cent-redundancy)
 
 **Distance and closeness**
 
-[Closeness Centrality](#cent-closeness) · [Incloseness
+[Improved Global Structure Model](#cent-improved_global_structure) ·
+[Global Structure Model](#cent-global_structure) · [Hybrid Global
+Structure Model](#cent-hybrid_global_structure) · [Exogenous
+Centrality](#cent-exogenous) · [Improved Closeness
+Centrality](#cent-improved_closeness) · [Extended Gravity
+Centrality](#cent-extended_gravity) · [Closeness
+Centrality](#cent-closeness) · [Incloseness
 Centrality](#cent-incloseness) · [Outcloseness
 Centrality](#cent-outcloseness) · [Harmonic Centrality](#cent-harmonic)
 · [Inharmonic Centrality](#cent-inharmonic) · [Outharmonic
@@ -174,70 +189,265 @@ Centrality](#cent-eccentricity) · [Ineccentricity
 Centrality](#cent-ineccentricity) · [Outeccentricity
 Centrality](#cent-outeccentricity) · [Closeness
 Vitality](#cent-closeness_vitality) · [Entropy
-Centrality](#cent-entropy) · [Centroid Centrality](#cent-centroid)
+Centrality](#cent-entropy) · [Centroid Centrality](#cent-centroid) ·
+[Distance Entropy](#cent-distance_entropy) · [Local
+Dimension](#cent-local_dimension) · [Local Information
+Dimensionality](#cent-local_information_dimension) · [Access
+Information](#cent-access_information) · [Hide
+Information](#cent-hide_information) · [Local Dimension, Fixed
+Radius](#cent-local_dimension_fixed) · [Fuzzy Local
+Dimension](#cent-fuzzy_local_dimension) · [Local Volume
+Dimension](#cent-local_volume_dimension) · [Heatmap
+Centrality](#cent-heatmap) · [Geodesic k-path](#cent-geodesic_kpath) ·
+[k-path Census](#cent-kpath) · [Distance-weighted
+Fragmentation](#cent-fragmentation) · [Geodesic Power
+Closeness](#cent-delta_closeness)
 
 **Shortest-path brokerage and flow**
 
-[Betweenness Centrality](#cent-betweenness) · [Stress
-Centrality](#cent-stress) · [Load Centrality](#cent-load) · [Bottleneck
+[Randomized shortest paths (RSP) betweenness](#cent-rsp_betweenness) ·
+[Relative-entropy integrated evaluation](#cent-relative_entropy) ·
+[DK-based gravity model](#cent-dkgm) · [Mixed gravitational
+centrality](#cent-mixed_gravity) · [Extended mixed gravitational
+centrality](#cent-extended_mixed_gravity) · [Localized bridging
+centrality](#cent-localized_bridging) · [Extended local bridging
+centrality](#cent-extended_local_bridging) · [Proximal
+betweenness](#cent-proximal_betweenness) · [Betweenness
+Centrality](#cent-betweenness) · [Stress Centrality](#cent-stress) ·
+[Load Centrality](#cent-load) · [Length-scaled
+Betweenness](#cent-length_scaled_betweenness) · [Distance-decayed
+Betweenness](#cent-delta_betweenness) · [Ego
+Betweenness](#cent-ego_betweenness) · [Bottleneck
 Centrality](#cent-bottleneck) · [Bridging Centrality](#cent-bridging) ·
-[Local Bridging Centrality](#cent-local_bridging) · [Percolation
-Centrality](#cent-percolation) · [Flow Betweenness
+[Local bridging (legacy degree product)](#cent-local_bridging) ·
+[Percolation Centrality](#cent-percolation) · [Flow Betweenness
 Centrality](#cent-flow_betweenness) · [Current-Flow Betweenness
 Centrality](#cent-current_flow_betweenness) · [Current-Flow Closeness
-Centrality](#cent-current_flow_closeness)
+Centrality](#cent-current_flow_closeness) · [Entropy Variation,
+Betweenness](#cent-entropy_variation_betweenness)
 
 **Spectral, walk and influence**
 
-[Eigenvector Centrality](#cent-eigenvector) · [PageRank
-Centrality](#cent-pagerank) · [Authority Centrality](#cent-authority) ·
-[Hub Centrality](#cent-hub) · [SALSA Centrality](#cent-salsa) ·
-[LeaderRank Centrality](#cent-leaderrank) · [Alpha
-Centrality](#cent-alpha) · [Bonacich Power Centrality](#cent-power) ·
-[Katz Centrality](#cent-katz) · [Hubbell Centrality](#cent-hubbell) ·
-[Subgraph Centrality](#cent-subgraph) · [Laplacian
-Centrality](#cent-laplacian) · [Communicability
-Centrality](#cent-communicability) · [Communicability Betweenness
-Centrality](#cent-communicability_betweenness) · [Random Walk
-Centrality](#cent-random_walk) · [Markov Centrality](#cent-markov) ·
-[Second-Order Centrality](#cent-second_order) · [Information
+[Trust-PageRank](#cent-trust_pagerank) · [Iterative resource allocation
+(IRA)](#cent-ira) · [Improved iterative resource allocation
+(IIRA)](#cent-iira) · [Multi-characteristics gravity model](#cent-mcgm)
+· [SpectralRank](#cent-spectralrank) · [ControlRank](#cent-controlrank)
+· [Node and Neighbor Layer Information](#cent-ninl) · [Expected
+Force](#cent-expected_force) · [Modified Expected
+Force](#cent-modified_expected_force) · [Bridging
+capital](#cent-bridging_capital) · [LineRank](#cent-linerank) · [Random
+walk decay](#cent-random_walk_decay) · [Graph regularization
+centrality](#cent-graph_regularization) · [Adaptive
+LeaderRank](#cent-adaptive_leaderrank) · [Weighted
+LeaderRank](#cent-weighted_leaderrank) · [Node Resistance
+Curvature](#cent-resistance_curvature) · [Dynamics-Sensitive
+Centrality](#cent-dynamics_sensitive) · [Finite-Horizon Diffusion
+Centrality](#cent-diffusion_centrality) · [Dynamical
+Importance](#cent-dynamical_importance) · [Eigenvector
+Centrality](#cent-eigenvector) · [PageRank Centrality](#cent-pagerank) ·
+[Authority Centrality](#cent-authority) · [Hub Centrality](#cent-hub) ·
+[SALSA Centrality](#cent-salsa) · [LeaderRank
+Centrality](#cent-leaderrank) · [Alpha Centrality](#cent-alpha) ·
+[Bonacich Power Centrality](#cent-power) · [Katz Centrality](#cent-katz)
+· [Hubbell Centrality](#cent-hubbell) · [Subgraph
+Centrality](#cent-subgraph) · [Laplacian Centrality](#cent-laplacian) ·
+[Communicability Centrality](#cent-communicability) · [Communicability
+Betweenness Centrality](#cent-communicability_betweenness) · [Random
+Walk Centrality](#cent-random_walk) · [Markov Centrality](#cent-markov)
+· [Immediate Effects Centrality (IEC)](#cent-iec) · [Second-Order
+Centrality](#cent-second_order) · [Information
 Centrality](#cent-information) · [Nonbacktracking
-Centrality](#cent-nonbacktracking) · [Diffusion
-Centrality](#cent-diffusion) · [Infection Centrality](#cent-infection) ·
-[VoteRank Centrality](#cent-voterank) · [Expected Influence
-1-Step](#cent-expected_influence_1) · [Expected Influence
-2-Step](#cent-expected_influence_2) · [Spanning Tree
-Centrality](#cent-spanning_tree)
+Centrality](#cent-nonbacktracking) · [Diffusion Degree](#cent-diffusion)
+· [Infection Centrality](#cent-infection) · [Edge Percolated
+Component](#cent-epc) · [VoteRank Centrality](#cent-voterank) ·
+[Expected Influence 1-Step](#cent-expected_influence_1) · [Expected
+Influence 2-Step](#cent-expected_influence_2) · [Spanning Tree
+Centrality](#cent-spanning_tree) · [Shapley Value, Game
+1](#cent-shapley_game1) · [Shapley Value, Game 2](#cent-shapley_game2) ·
+[Shapley Value, Game 3](#cent-shapley_game3) · [Rumor
+Centrality](#cent-rumor) · [DegreeDiscountIC](#cent-degree_discount) ·
+[SingleDiscount](#cent-single_discount) · [NCVoteRank](#cent-ncvoterank)
+· [WVoteRank](#cent-wvoterank) · [EnRenew](#cent-enrenew) ·
+[VoteRank++](#cent-voterank_plus) · [Node
+Contraction](#cent-node_contraction) · [Improved Node
+Contraction](#cent-node_contraction_improved) · [Two-Way Random Walk
+Betweenness](#cent-two_way_rw)
 
 **Neighbourhood structure and cohesion**
 
+[Degree and importance of lines (DIL)](#cent-dil) · [Lhc
+index](#cent-lhc) · [Hybrid characteristic centrality (HCC)](#cent-hcc)
+· [Extended hybrid characteristic centrality (EHCC)](#cent-ehcc) · [KED
+method](#cent-ked) · [Local neighbor contribution (LNC)](#cent-lnc) ·
+[Neighborhood (neighbor distance) centrality](#cent-neighbor_distance) ·
+[Coleman-Theil hierarchy](#cent-coleman_theil) · [Maximal Clique
+Centrality](#cent-mcc) · [Node Truss Number](#cent-truss) · [Mixed
+Degree Decomposition](#cent-mdd) · [Bridging
+Coefficient](#cent-bridging_coefficient) · [Godfather
+Index](#cent-godfather) · [Supported Relationships](#cent-support) ·
 [Transitivity Centrality](#cent-transitivity) · [Constraint
 Centrality](#cent-constraint) · [Effective Size
 Centrality](#cent-effective_size) · [Topological Coefficient
 Centrality](#cent-topological_coefficient) · [Diversity
 Centrality](#cent-diversity) · [Cross-Clique
 Centrality](#cent-cross_clique) · [Coreness Centrality](#cent-coreness)
-· [Onion Centrality](#cent-onion) · [K-Reach Centrality](#cent-kreach)
+· [Onion Centrality](#cent-onion) · [K-Reach Centrality](#cent-kreach) ·
+[s-shell Index](#cent-s_shell) · [Weighted
+k-shell](#cent-weighted_kshell) · [Renewed
+Coreness](#cent-renewed_coreness) · [s-core Index](#cent-s_core) ·
+[Local Efficiency](#cent-local_efficiency)
 
 **Directed prestige and hierarchy**
 
-[Prestige Domain Centrality](#cent-prestige_domain) · [Prestige Domain
-Proximity Centrality](#cent-prestige_domain_proximity) · [Local Reaching
+[BG-index (beta power)](#cent-beta_measure) · [Prestige Domain
+Centrality](#cent-prestige_domain) · [Prestige Domain Proximity
+Centrality](#cent-prestige_domain_proximity) · [Local Reaching
 Centrality](#cent-reaching_local) · [Pairwise Disconnectivity
 Centrality](#cent-pairwisedis) · [Trophic Level
 Centrality](#cent-trophic_level)
 
 **Community and group-based**
 
-[Participation Coefficient](#cent-participation) · [Within-Module Z
+[Map equation centrality](#cent-map_equation) · [Participation
+Coefficient](#cent-participation) · [Within-Module Z
 Centrality](#cent-within_module_z) · [Gateway Centrality](#cent-gateway)
 · [Brokerage Coordinator Centrality](#cent-brokerage_coordinator) ·
 [Brokerage Itinerant Centrality](#cent-brokerage_itinerant) · [Brokerage
 Representative Centrality](#cent-brokerage_representative) · [Brokerage
 Gatekeeper Centrality](#cent-brokerage_gatekeeper) · [Brokerage Liaison
-Centrality](#cent-brokerage_liaison)
+Centrality](#cent-brokerage_liaison) · [Modularity
+Vitality](#cent-modularity_vitality) · [Community
+Hub-Bridge](#cent-community_hub_bridge) · [Community-Based
+Centrality](#cent-community_based) · [Comm
+Centrality](#cent-comm_centrality) · [Community-Based
+Mediator](#cent-community_mediator)
 
 ## Degree, strength and local connectivity
+
+### X-degree
+
+Nonbacktracking four-edge walks centered at each node.
+
+``` math
+Xdeg(i)=\left[\sum_{j\in N(i)}(d_j-1)\right]^2-\sum_{j\in N(i)}(d_j-1)^2
+```
+
+**Meaning.** Uses original neighbor degrees on the simple undirected
+unweighted skeleton. Loops and repeated connections are removed;
+weights, direction, mode, inversion and cutoff are ignored. Isolates,
+leaves and every node in a star score zero. Walks may revisit vertices
+but cannot immediately reverse an edge. Components are independent
+before maximum normalization. Native pair accumulation avoids
+subtracting large squares; dense skeleton preparation uses O(n^2) time
+and memory. This is a static centrality score, not the iterative
+immunization strategy.
+
+``` r
+
+centrality_x_degree(student_interactions)
+```
+
+**Equivalence reference.** Torres et al. (2021), DOI10.1137/20M1352132,
+Proposition3.8 eq3.15. Verified against the unchanged x_degree function
+from the author’s inbox repository,
+commit401bf028b56886ce67b15b2c5eacd7a28dbb4a48, independent
+nonbacktracking block products DFE and explicit four-edge walk
+enumeration. Includes every simple labeled graph through five vertices.
+
+### Clustering Degree Algorithm
+
+Degree and strength adjusted by Barrat weighted clustering, plus
+weighted contributions from immediate neighbors.
+
+``` math
+PC_i=CD_i+\sum_j\frac{w_{ij}}{w_{\max}}CD_j,\quad CD_i=\frac{\alpha d_i+(1-\alpha)s_i}{1+e^{-C_i^w}}
+```
+
+**Meaning.** Higher scores combine connectivity, clustering and neighbor
+contributions. Alpha defaults to 0.5; endpoints select strength or
+degree while preserving the weighted clustering and neighbor terms. The
+maximum weight is global across components. Weight units matter. Zero
+weights are absent edges; low-degree clustering and isolate scores are
+zero. Directed weighted arcs are summed into undirected weights; loops
+are removed.
+
+``` r
+
+centrality_cda(student_interactions)
+```
+
+**Equivalence reference.** Wang et al. (2018), equations 2–6; igraph
+Barrat clustering and independently enumerated weighted neighbor pairs,
+checked across the alpha family on binary and weighted graphs.
+
+### Extended Neighborhood Coreness
+
+The sum of neighbors’ neighborhood-coreness scores, using core numbers
+from the original simple undirected graph.
+
+``` math
+C_{nc+}(i)=\sum_{j\in N(i)}\sum_{l\in N(j)}k_s(l)=(A^2 k_s)_i
+```
+
+**Meaning.** Rewards access to core-rich neighborhoods. Every length-two
+walk contributes, including returns to the focal node and multiple walks
+reaching the same endpoint. Isolates score zero; on a regular graph of
+degree d it equals d cubed. Other inputs are projected to the simple
+undirected skeleton.
+
+``` r
+
+centrality_extended_coreness(student_interactions)
+```
+
+**Equivalence reference.** Bae & Kim (2014); explicit equations 2 and 3
+reproduced in Ma et al. (2016). Verified using NetworkX cores,
+common-neighbor walk counts and exhaustive subset-derived core numbers.
+
+### Malatya Centrality
+
+The sum of a node’s degree divided by each neighbour’s degree,
+calculated on the original simple undirected graph.
+
+``` math
+M(i)=\sum_{j\in N(i)}\frac{d_i}{d_j}
+```
+
+**Meaning.** Favours nodes with many low-degree neighbours. Isolates
+score zero. On nonisolated vertices the score is exactly the reciprocal
+of the bridging coefficient; on a regular graph it equals degree.
+
+``` r
+
+centrality_malatya(student_interactions)
+```
+
+**Equivalence reference.** Karci, Yakut & Oztemiz (2022), equation 1;
+independent NetworkX neighbour ratios and a separate reciprocal identity
+check.
+
+### Volume Centrality
+
+The total original-graph degree inside a closed hop neighbourhood,
+including its centre.
+
+``` math
+V_r(i) = \sum_{j:\,d(i,j)\leq r,\ d(i,j)<\infty} k_j
+```
+
+**Meaning.** Measures connectivity within and leaving the neighbourhood.
+Radius 0 gives degree, default 2 uses two hops, and infinite radius
+gives twice the component’s edge count. Uses the simple undirected
+skeleton.
+
+``` r
+
+centrality_volume(student_interactions)
+```
+
+**Equivalence reference.** Wehmuth & Ziviani (2011, eq. 1; 2013 DACCER);
+independently checked using NetworkX BFS neighbourhoods and full-graph
+degrees.
 
 ### Degree Centrality
 
@@ -552,8 +762,12 @@ are the edges and nodes of the largest component of $`G[N(v)]`$.
 centrality_dmnc(student_interactions)
 ```
 
-**Equivalence reference.** Validated against
-[`centiserve::dmnc()`](https://rdrr.io/pkg/centiserve/man/dmnc.html).
+**Equivalence reference.** Lin et al. (2008). Not equal to
+[`centiserve::dmnc()`](https://rdrr.io/pkg/centiserve/man/dmnc.html):
+that implementation counts the component’s edges in the wrong index
+space, so it disagrees on 14 of the 34 karate nodes even at a matched
+epsilon. See the “Divergence from centiserve” section of
+[`?centrality_dmnc`](https://sonsoles.me/cograph/reference/centrality_dmnc.md).
 
 ### LAC Centrality
 
@@ -577,25 +791,316 @@ connectivity.
 
 ### Gravity Centrality
 
-Gravity centrality treats node degree or mass as attracting over graph
-distance.
+Gravity centrality treats each node’s mass as attracting the mass of
+others over graph distance, and can be truncated at a radius.
 
 ``` math
-G(v) = \sum_{u \ne v,\; d(u,v) < \infty} \frac{k_u \cdot ks(u)}{d(u, v)^2}, \quad ks = \text{k-shell}
+G(v) = \sum_{u \ne v,\; d(u,v) \le R} \frac{m_v\, m_u}{d(u, v)^2}, \quad m = \text{k-shell or degree}
 ```
 
-**Meaning.** A high value indicates proximity to high-degree nodes under
-the gravity formula.
+**Meaning.** A high value indicates proximity to massive nodes. The
+default is Ma et al.’s gravity centrality (k-shell mass, radius 3);
+`gravity_mass = "degree", gravity_radius = NULL` is Li et al.’s gravity
+model and `gravity_radius = "auto"` their local gravity model.
 
 ``` r
 
-centrality(student_interactions, measures = "gravity")
+centrality_gravity(student_interactions)
 ```
 
-**Equivalence reference.** Formula verified in package tests against the
-degree-mass-over-distance definition.
+**Equivalence reference.** Ma, Ma, Zhang & Wang (2016); Li, Ren, Ma,
+Liu, Zhang & Zhou (2019), eqs. 1, 2 and 5. Before 2.4.8 cograph summed
+$`k_u\, ks(u)/d^2`$ with no mass on the focal node, which matched no
+published formula; `gravity_mass = "legacy"` reproduces those values.
+
+### Neighborhood Connectivity
+
+Neighborhood connectivity is the mean degree of a node’s neighbours
+(average neighbour degree).
+
+``` math
+C_{NC}(v) = \frac{1}{k_v} \sum_{u \in N(v)} k_u
+```
+
+**Meaning.** A high value indicates attachment to hubs. Isolates score
+0. Direction is respected under `mode`.
+
+``` r
+
+centrality_neighborhood_connectivity(student_interactions)
+```
+
+**Equivalence reference.** Equivalent to `igraph::knn(weights = NA)`
+(Maslov & Sneppen 2002); isolates return 0 instead of NaN.
+
+### Entropy Variation, Degree
+
+Entropy variation is the drop in the Shannon entropy of the degree
+distribution when the node and its links are removed.
+
+``` math
+EnV_k(i) = I_k(G) - I_k(G - i), \quad I_k(G) = -\sum_j \frac{k_j}{\sum_l k_l} \ln \frac{k_j}{\sum_l k_l}
+```
+
+**Meaning.** A high value indicates a node whose removal makes the
+remaining degree distribution more concentrated. Signed; negative values
+occur.
+
+``` r
+
+centrality(student_interactions, measures = "entropy_variation_degree")
+```
+
+**Equivalence reference.** Ai (2017), eqs. 5-10. Matches the author’s R
+code path and the paper’s Table 2 quantiles on its 4234-node network.
+
+### Flow Coefficient
+
+The flow coefficient is the share of a node’s neighbour pairs that are
+linked through the node but not directly.
+
+``` math
+fc(v) = \frac{|\{(j, k) : j \to v \to k,\ j \not\to k\}|}{k_v (k_v - 1)}
+```
+
+**Meaning.** A high value indicates a node that mediates local flow. On
+an undirected graph it equals one minus the clustering coefficient.
+
+``` r
+
+centrality_flow_coefficient(student_interactions)
+```
+
+**Equivalence reference.** Honey, Kotter, Breakspear & Sporns (2007), as
+implemented in the Brain Connectivity Toolbox; matches
+`bctpy.flow_coef_bd` exactly.
+
+### Local Entropy
+
+Local entropy sums $`-k \log k`$ over a node’s neighbours.
+
+``` math
+LE(v) = -\sum_{u \in N(v)} k_u \ln k_u
+```
+
+**Meaning.** Always non-positive; a lower (more negative) value
+indicates a larger, denser neighbourhood. Isolates score 0.
+
+``` r
+
+centrality_local_entropy(student_interactions)
+```
+
+**Equivalence reference.** Nie, Guo, Zhao & Lu (2016), as printed by the
+Zoo and by Omar & Plapper’s 2021 survey; the article is closed access.
+
+### Weighted h-index
+
+The weighted h-index takes the h-index over topological link weights,
+each neighbour’s weight repeated by its degree.
+
+``` math
+h^w_v = H\big(\{k_v k_u \text{ repeated } k_u \text{ times} : u \in N(v)\}\big)
+```
+
+**Meaning.** A high value indicates a node with many well-connected
+neighbours. Input edge weights play no role.
+
+``` r
+
+centrality_weighted_h_index(student_interactions)
+```
+
+**Equivalence reference.** Gao, Yu, Li, Shen & Gao (2019), eq. 3.
+Matches an independent implementation on 200 random graphs.
+
+### Redundancy
+
+Redundancy is the mean degree of a node’s neighbours inside its ego
+network.
+
+``` math
+r(v) = \frac{2 t_v}{k_v} = k_v - \text{effective size}(v)
+```
+
+**Meaning.** A high value indicates neighbours that are connected to
+each other, so fewer structural holes.
+
+``` r
+
+centrality_redundancy(student_interactions)
+```
+
+**Equivalence reference.** Burt (1992); Borgatti (1997). Reproduces
+Borgatti’s worked example and equals degree minus effective size.
 
 ## Distance and closeness
+
+### Improved Global Structure Model
+
+Focal degree influence combined with degrees of reachable partners and a
+distance exponent set by global mean degree.
+
+``` math
+IGSM_i=e^{k_i/N}\sum_{j\ne i}\frac{k_j}{d_{ij}^{a}},\quad a=\lceil\log_2\overline{k}\rceil
+```
+
+**Meaning.** Uses simple undirected degrees, hop distances and original
+N, including isolates. Weights, mode, loops and cutoffs are ignored.
+Unreachable partners contribute zero; edgeless graphs score zero by
+explicit extension. Zero or negative exponents for sparse disconnected
+graphs are retained; negative powers increase contributions from distant
+reachable partners. No additional neighbor aggregation for extended IGSM
+is applied.
+
+``` r
+
+centrality_improved_global_structure(student_interactions)
+```
+
+**Equivalence reference.** Zhu and Wang (2022),
+DOI10.1088/1674-1056/ac380d; the exact implemented definition was read
+in Mukhtar et al. (2023), DOI10.1038/s41598-023-37570-7, eq. 5, not the
+original full text. Verified using independent NetworkX degrees/BFS,
+Floyd-Warshall distances and analytic mean-degree ceiling cases.
+
+### Global Structure Model
+
+Focal coreness combined with distance-discounted coreness of all
+reachable partners.
+
+``` math
+GSM_i=e^{k_s(i)/N}\sum_{j\ne i}\frac{k_s(j)}{d_{ij}}
+```
+
+**Meaning.** Original core numbers and global N are used, including
+isolates. All reachable partners contribute, with no radius cutoff. Uses
+the simple undirected skeleton; weights, mode and loops are ignored.
+Unreachable partners contribute zero and isolates score zero. Other
+components can change the focal exponential through N.
+
+``` r
+
+centrality_global_structure(student_interactions)
+```
+
+**Equivalence reference.** Ullah et al. (2021),
+DOI10.1038/s41598-021-84684-x, eqs. 5–8. Verified against NetworkX
+cores/BFS distances and exhaustive subset cores with Floyd-Warshall. A
+constructed graph consistent with the paper’s stated core/distance
+inputs reproduces its focal calculation; the original figure was not
+visually transcribed.
+
+### Hybrid Global Structure Model
+
+Exponential degree-coreness influences with a distance penalty set by
+their global mean.
+
+``` math
+s_i=e^{k_s(i)k_i/N},\quad a=\lceil\log_2\overline{s}\rceil,\quad H\!GSM_i=s_i\sum_{j\ne i}\frac{s_j}{d_{ij}^{a}}
+```
+
+**Meaning.** Uses original N and the mean over all nodes, including
+isolates. Only reachable partners contribute. Uses the simple undirected
+skeleton and ignores weights/mode. Logarithmic arithmetic supports
+normalized results even if raw scores overflow; requesting an
+unrepresentable raw score raises an error. Very small normalized ratios
+can underflow to zero.
+
+``` r
+
+centrality_hybrid_global_structure(student_interactions)
+```
+
+**Equivalence reference.** Mukhtar et al. (2023),
+DOI10.1038/s41598-023-37570-7, eqs. 6–8. Verified against independent
+direct formulas using NetworkX cores/distances, exhaustive small-graph
+cores and Floyd-Warshall, a published focal calculation on a constructed
+consistent graph, and 100-digit mpmath clique identities. No author-code
+or epidemic-performance parity is claimed.
+
+### Exogenous Centrality
+
+Contribution of a node to the base centrality of all other nodes,
+measured by deleting it.
+
+``` math
+E_i=\sum_{j\ne i}\left[C_G(j)-C_{G-i}(j)\right]
+```
+
+**Meaning.** Bases are degree, betweenness and reverse_closeness
+(default). Reverse-closeness sums N minus finite hop distances and zero
+for unreachable partners; N stays the original input size after
+deletion. Betweenness contributions may be negative. Directed mode
+refers to the base direction; outgoing degree gives incoming exogenous
+degree. Weights are ignored, loops removed, parallel connections
+collapsed. Final max normalization retains signs. Costly tier.
+
+``` r
+
+centrality_exogenous(student_interactions)
+```
+
+**Equivalence reference.** Everett & Borgatti (2010),
+DOI10.1016/j.socnet.2010.06.004, eqs. 3 and 8, sections 3.1–3.3.
+Independently checked against NetworkX base recomputation and explicit
+path enumeration. Some Florentine table entries remain inconsistent with
+the reconstructed graph; verification is of the stated definition, not
+full published-table or UCINET parity.
+
+### Improved Closeness Centrality
+
+Closeness adjusted for the number of shortest paths connecting each pair
+of nodes.
+
+``` math
+ICC_i=\frac{n-1}{\sum_{j\ne i}d_{ij}/\sigma_{ij}^{\alpha}},\quad 0\le\alpha\le1
+```
+
+**Meaning.** Multiple shortest paths reduce effective distances. Alpha
+defaults to 0.2; zero recovers ordinary normalized closeness on
+connected graphs, and trees are independent of alpha. Scores may exceed
+one. Uses the simple undirected skeleton and ignores weights.
+Disconnected graphs score all zero under a global infinite-distance
+convention; singleton zero is a cograph extension. Final max
+normalization is optional.
+
+``` r
+
+centrality_improved_closeness(student_interactions)
+```
+
+**Equivalence reference.** Luan, Bao & Zhang (2021),
+DOI10.1007/s11424-021-0111-7, eq. 7. Verified using independent Python
+exact integer adjacency powers, NetworkX shortest-path enumeration,
+igraph alpha-zero closeness, and a closed-form layered graph with 2^1029
+shortest paths. These checks establish numerical definition agreement,
+not author-code parity or spreading-performance superiority.
+
+### Extended Gravity Centrality
+
+The sum of immediate neighbors’ raw gravity scores, with k-shell masses
+and hop distances.
+
+``` math
+G^+(i)=\sum_{j\in N(i)}\sum_{l:0<d(j,l)\le r}\frac{k_s(j)k_s(l)}{d(j,l)^2}
+```
+
+**Meaning.** The radius applies around each neighbor, so contributions
+can reach one hop beyond the focal node’s radius. Default r=3 follows
+the paper; zero gives zero and NULL or infinity includes all reachable
+partners. Auto is an explicit cograph heuristic. Uses the simple
+undirected skeleton, with k-shell masses fixed regardless of
+gravity_mass. Normalize only after summing raw neighbor scores.
+
+``` r
+
+centrality_extended_gravity(student_interactions)
+```
+
+**Equivalence reference.** Ma, Ma, Zhang & Wang (2016), equations 6 and
+7; independently checked using NetworkX core numbers and BFS distances
+across radii, plus an exhaustive core oracle on small graphs.
 
 ### Closeness Centrality
 
@@ -760,7 +1265,7 @@ equivalent used in `cograph`.
 
 ### Generalized Closeness Centrality
 
-Generalized closeness sums $`\alpha^d`$, where $`d`$ is the
+Generalized closeness sums \$\\alpha^d\$, where $`d`$ is the
 shortest-path distance.
 
 ``` math
@@ -1018,7 +1523,8 @@ centrality_outeccentricity(student_interactions)
 ### Closeness Vitality
 
 Closeness vitality measures how total network distance changes when a
-node is removed, using the Wiener index $`W(G) = \sum_{s, t} d(s, t)`$.
+node is removed, using the Wiener index \$W(G) = \\sum\_{s, t} d(s,
+t)\$.
 
 ``` math
 \mathrm{CV}(v) = W(G) - W(G \setminus v)
@@ -1075,7 +1581,646 @@ centrality_centroid(student_interactions)
 **Equivalence reference.** Implemented natively because some reference
 implementations have known edge-case issues.
 
+### Distance Entropy
+
+Distance entropy is the normalised Shannon entropy of a node’s
+hop-distance profile, so it summarises the spread of distances where
+closeness summarises their mean.
+
+``` math
+h(v) = -\frac{1}{\log(M_v - m_v + 1)} \sum_{k = m_v}^{M_v} p_k \log p_k, \quad p_k = \frac{n_k(v)}{R_v}
+```
+
+**Meaning.** A high value (up to 1) indicates reach spread evenly across
+many network layers; 0 means every reachable node sits at the same
+distance. Hop counts only; weights are ignored.
+
+``` r
+
+centrality_distance_entropy(student_interactions)
+```
+
+**Equivalence reference.** Stella & De Domenico (2018). The normaliser
+uses $`M_v - m_v + 1`$ distance values so the index is bounded by 1; the
+printed formula divides by $`\log(M_v - m_v)`$, which is undefined for
+two distinct distances.
+
+### Local Dimension
+
+Local dimension is the growth exponent of the ball around a node: how
+fast the number of nodes within $`r`$ hops grows with $`r`$.
+
+``` math
+D_v = \frac{d \ln B_v(r)}{d \ln r}, \quad B_v(r) = 1 + |\{u : d(v, u) \le r\}|, \; r = 1, \ldots, d_{\max}(v)
+```
+
+**Meaning.** A low value indicates a node that reaches most of the
+network within a few hops, so lower is more influential. With a single
+radius the discretised derivative $`r\, n_v(r) / B_v(r)`$ is reported.
+
+``` r
+
+centrality_local_dimension(student_interactions)
+```
+
+**Equivalence reference.** Pu et al. (2014). Reproduces the worked
+example of Wen & Deng (2019), 0.9231 for ring sizes 4, 5, 4, 4.
+
+### Local Information Dimensionality
+
+Local information dimensionality replaces the ball count of local
+dimension by its Shannon information and grows the box only to half the
+node’s eccentricity.
+
+``` math
+D^I_v = -\frac{d I_v(l)}{d \ln l}, \quad I_v(l) = -p_v(l) \ln p_v(l), \; p_v(l) = \frac{B_v(l)}{n}, \; l = 1, \ldots, \lceil d_{\max}(v) / 2 \rceil
+```
+
+**Meaning.** A high value indicates a more influential node. With a
+single box size the discretised derivative
+$`l (1 + \ln p_v(l))\, n_v(l) / n`$ is reported.
+
+``` r
+
+centrality_local_information_dimension(student_interactions)
+```
+
+**Equivalence reference.** Wen & Deng (2020), formula verified against
+hand-computed path and star values.
+
+### Access Information
+
+Access information is the mean number of bits a map-less walker needs to
+reach every other node along shortest paths.
+
+``` math
+A_i = \frac{1}{N} \sum_j S(i \to j), \quad S(i \to j) = -\log_2 \sum_{p(i, j)} \frac{1}{k_i} \prod_{l \in p,\, l \ne i, j} \frac{1}{k_l - 1}
+```
+
+**Meaning.** A low value indicates a node that reaches the network with
+few decisions. Hubs score high, because a walker leaving a hub has many
+links to choose from.
+
+``` r
+
+centrality_access_information(student_interactions)
+```
+
+**Equivalence reference.** Rosvall et al. (2005); Sneppen et al. (2005).
+Matches enumeration of all shortest paths and the papers’ star and
+bipartite examples.
+
+### Hide Information
+
+Hide information is the mean number of bits the rest of the network
+needs to locate a node.
+
+``` math
+H_i = \frac{1}{N} \sum_j S(j \to i)
+```
+
+**Meaning.** A high value indicates a hidden, peripheral node; hubs have
+low hide information.
+
+``` r
+
+centrality_hide_information(student_interactions)
+```
+
+**Equivalence reference.** Rosvall et al. (2005); Sneppen et al. (2005).
+Matches enumeration of all shortest paths.
+
+### Local Dimension, Fixed Radius
+
+The Silva-Costa local dimension is the discretised growth exponent of
+the ball around a node at one chosen radius.
+
+``` math
+D_v(r) = \frac{r\, n_v(r)}{B_v(r)}
+```
+
+**Meaning.** A structural descriptor rather than a ranking: higher means
+the neighbourhood is still growing fast at that radius. Nodes with
+eccentricity below the radius score 0.
+
+``` r
+
+centrality_local_dimension_fixed(student_interactions)
+```
+
+**Equivalence reference.** Silva & Costa (2013), eq. 4, at a fixed
+radius (default 2). Reproduces the paper’s path-graph values.
+
+### Fuzzy Local Dimension
+
+Fuzzy local dimension replaces the ball count by a Gaussian-weighted
+average and takes its log-log slope.
+
+``` math
+N_v(r) = \frac{\sum_{d_{vu} \le r} e^{-d_{vu}^2 / r^2}}{|\{u : d_{vu} \le r\}|}, \quad FLD(v) = \frac{d \log N_v(r)}{d \log r}
+```
+
+**Meaning.** A high value indicates a more influential node (the
+opposite orientation to the rest of the dimension family).
+
+``` r
+
+centrality_fuzzy_local_dimension(student_interactions)
+```
+
+**Equivalence reference.** Wen & Jiang (2019). Reproduces the paper’s
+Table 1 (Krackhardt kite) and its karate-club top ten in order.
+
+### Local Volume Dimension
+
+Local volume dimension is the log-log slope of the total degree inside
+the ball around a node.
+
+``` math
+V_v(l) = \sum_{d_{vu} \le l} k_u, \quad LVD(v) = \frac{d \ln V_v(l)}{d \ln l}
+```
+
+**Meaning.** A low value indicates a more important node. The source
+article is closed access; the definition follows the authors’ later
+preprint.
+
+``` r
+
+centrality_local_volume_dimension(student_interactions)
+```
+
+**Equivalence reference.** Li & Deng (2021). No published per-node
+values exist; matches an independent implementation.
+
+### Heatmap Centrality
+
+Heatmap centrality is a node’s farness minus the mean farness of its
+neighbours.
+
+``` math
+C_{HM}(v) = f(v) - \frac{1}{k_v} \sum_{u \in N(v)} f(u)
+```
+
+**Meaning.** A low (more negative) value indicates a more central node.
+Isolates are undefined.
+
+``` r
+
+centrality_heatmap(student_interactions)
+```
+
+**Equivalence reference.** Duron (2020). Reproduces every value and the
+ranking of the paper’s Table 1.
+
+### Geodesic k-path
+
+Geodesic k-path centrality counts the shortest paths of length at most
+$`k`$ that start at a node, with multiplicity.
+
+``` math
+C_k(v) = \sum_{0 < d(v, u) \le k} \sigma(v, u)
+```
+
+**Meaning.** A high value indicates many short geodesics leaving the
+node. Counting nodes instead of paths gives m-reach, which is what
+[`centiserve::geokpath`](https://rdrr.io/pkg/centiserve/man/geokpath.html)
+computes.
+
+``` r
+
+centrality_geodesic_kpath(student_interactions)
+```
+
+**Equivalence reference.** Borgatti & Everett (2006), p. 469. Matches
+full shortest-path enumeration.
+
+### k-path Census
+
+The k-path census counts the simple paths of length at most $`k`$ that a
+node lies on, endpoints included.
+
+``` math
+C_{kP}(v) = |\{\, P : |P| \le k,\; v \in P \,\}|
+```
+
+**Meaning.** A high value indicates a node embedded in many short walks,
+not only in shortest ones. Length 1 alone reproduces degree. Enumeration
+is exhaustive, so cost grows with the branching factor to the power
+$`k`$.
+
+``` r
+
+centrality_kpath(student_interactions)
+```
+
+**Equivalence reference.** Sade (1989). Matches the per-vertex counts of
+[`sna::kpath.census()`](https://rdrr.io/pkg/sna/man/path.census.html)
+for $`k = 2`$ and $`k = 3`$ on directed and undirected graphs.
+
+### Distance-weighted Fragmentation
+
+Distance-weighted fragmentation asks how much worse the network
+communicates once a node is deleted.
+
+``` math
+F_d(v) = 1 - \frac{\sum_{i \ne j \ne v} 1 / d_{ij}^{\,G - v}}{(n-1)(n-2)}
+```
+
+**Meaning.** A high value indicates a node whose removal fragments the
+network or stretches its distances. A node inside a clique scores near
+0.
+
+``` r
+
+centrality_fragmentation(student_interactions)
+```
+
+**Equivalence reference.** Borgatti (2006), eq. 4. Matches
+[`keyplayer::fragment()`](https://rdrr.io/pkg/keyplayer/man/fragment.html)
+on unweighted graphs. Held back from `type = \"all\"`: it re-solves
+all-pairs shortest paths once per node.
+
+### Geodesic Power Closeness
+
+Geodesic power closeness raises every distance to a negative power, so
+one exponent moves the measure between a local and a global reading.
+
+``` math
+c_\delta(i) = \frac{1}{n-1} \sum_{j \ne i} d_{ij}^{-\delta}
+```
+
+**Meaning.** A high value indicates a node close to many others. The
+exponent spans the family: $`\delta = 1`$ is harmonic centrality over
+$`n-1`$, $`\delta = 2`$ is the inverse-square sum, a large $`\delta`$
+approaches degree, and $`\delta = 0`$ counts the reachable set.
+Unreachable nodes contribute nothing but stay in the denominator.
+
+``` r
+
+centrality_delta_closeness(student_interactions)
+```
+
+**Equivalence reference.** Agneessens, Borgatti & Everett (2017), eq. 2.
+Reproduces `harmonic` and `harary` exactly at $`\delta`$ = 1 and 2.
+
 ## Shortest-path brokerage and flow
+
+### Randomized shortest paths (RSP) betweenness
+
+Count the visits a node gets from walks that are neither strictly
+shortest nor purely random, and slide between the two with one
+parameter.
+
+``` math
+bet_i=\sum_{s=1}^{n}\sum_{t=1}^{n}\Bigl(\frac{z_{si}}{z_{st}}-\frac{z_{ti}}{z_{tt}}\Bigr)z_{it},\qquad \mathbf{Z}=(\mathbf{I}-\mathbf{W})^{-1},\quad \mathbf{W}=(\mathbf{D}^{-1}\mathbf{A})\circ\exp(-\beta\mathbf{C})
+```
+
+**Meaning.** One knob between shortest-path betweenness and a random
+walk. The randomized shortest paths framework puts a Boltzmann
+distribution over the absorbing walks from s to t: at a high inverse
+temperature the distribution concentrates on the cheapest walks and the
+score approaches shortest-path likelihood betweenness, while at a low
+one it relaxes to the unbiased random walk, where the source states that
+an undirected network’s score becomes proportional to degree. A node
+scores the expected number of visits it receives, summed over every
+ordered source-target pair, so the source contributes to its own score
+while the target never does, which is the paper’s definition and not an
+oversight. The published closed form of equation (15) divides by every
+entry of the fundamental matrix and is therefore defined only on a
+strongly connected graph, which is what Algorithm 1 demands; cograph
+evaluates it masked by reachability, applying the source’s own rule
+below equation (9) that a pair with no s-to-t path contributes zero.
+That mask reproduces equation (15) to machine precision whenever the
+graph is strongly connected and extends it consistently when it is not,
+and it must reach both halves of the term because both come from the
+same expected-visit expression. NetworkToolbox::rspbc masks only the
+reciprocal and leaves the other half counting every source, so the two
+agree exactly on strongly connected input and part company on a
+disconnected graph. The consequence is that scores are component-local:
+two disjoint triangles score exactly what one triangle scores, and
+adding a disconnected component or an isolate leaves every existing
+score untouched. A node with no outgoing arc has an undefined D inverse;
+cograph writes that row of the reference transition matrix as zero,
+which is the paper’s own killed random walk read at a node where the
+walker dies at once, and the arithmetic then gives exactly 1 - 1 = 0. An
+isolate, a singleton and every node of an edgeless graph therefore score
+a derived zero rather than an imputed one, where NetworkToolbox::rspbc
+raises an error and current-flow betweenness returns NA. rsp_beta
+defaults to 0.01, which is not the source’s number: the paper fixes no
+default and treats beta as a modelling choice, and 0.01 is the value
+NetworkToolbox recommends, adopted so the two implementations are
+comparable out of the box. It sits near the high-temperature end, so the
+default reading is close to the random walk; raise it to 1 or beyond to
+move towards shortest paths, which can reorder the nodes. The domain is
+beta \> 0 and anything outside it is refused. rsp_cost decides how a
+weight becomes a cost, which the source leaves free: inverse, the
+default, reads a weight as an affinity and sets C = 1/w, as
+NetworkToolbox hard-codes; weight reads it as a distance and sets C = w.
+The two coincide on a binary graph, where both give unit cost per arc.
+Negative and non-finite weights are refused, Algorithm 1 requiring a
+non-negative cost matrix. Direction is read from the graph rather than
+from mode, since the reference transition matrix normalises by
+out-strength and the fundamental matrix counts directed walks; a
+reversed input generally scores differently. Loops are dropped and mode,
+cutoff and weight inversion are ignored. Empty graphs return no scores
+and normalized = TRUE max-scales the finished vector. Marked costly: one
+dense n x n inverse, which the source itself calls the computational
+bottleneck at O(n^3) time and O(n^2) memory.
+
+``` r
+
+centrality_rsp_betweenness(student_interactions)
+```
+
+**Equivalence reference.** Kivimaki, Lebichot, Saramaki and Saerens
+(2016), Scientific Reports6, 19668, DOI10.1038/srep19668, equations (6)
+and (8) on pages5-6, equations (14) and (15) and Algorithm1 on pages6-7,
+and the beta to 0+ limit on page9. The paper is fully open access and
+the publisher PDF was read, pages5, 6, 7 and9 visually inspected for the
+equations, the pseudocode and the limit claim. The paper prints no table
+of node scores on a small graph, so there is no published numerical
+example to reproduce; what is checked against the paper instead is its
+printed page9 claim that the score becomes proportional to degree as
+beta approaches zero from above, which holds and does so at first order
+in beta. Verified against four independent references: equation (15) in
+float64 NumPy through an explicit inverse with NetworkX reachability,
+the definitional double sum of equations (8) and (14) accumulated pair
+by pair with no matrix product at all, the same double sum over a
+fundamental matrix built as a truncated Neumann series with no inverse
+or solve anywhere, and equation (15) again in mpmath at 60 decimal
+digits with mpmath’s own inverse. Three hand-derived closed forms are
+also checked: a single undirected edge scores exactly1 at every beta, a
+directed n-cycle scores n(n-1)/2 at every beta, and a complete graph
+matches a Sherman-Morrison derivation. Cross-checked against CRAN
+NetworkToolbox::rspbc1.4.4 on the strongly connected fixtures after
+undoing that function’s rounding and shifting, which are its own
+post-processing and are nowhere in the paper. The authors’ MATLAB at
+github.com/ikivimak/RSP-betweenness, named in the paper’s Materials
+section, was not fetched, so no author-code parity claim is made, and
+the paper’s OpenStreetMap and Wikipedia experiments were not reproduced.
+
+### Relative-entropy integrated evaluation
+
+Turn several indexes into distributions and take the distribution
+closest to all of them.
+
+``` math
+u_{ji}=C_j(i)/\textstyle\sum_k C_j(k)\ \text{or}\ (1-C_j(i)/\sum_k C_j(k))/\sum_l(1-C_j(l)/\sum_k C_j(k)),\quad w_i=\prod_{j=1}^{m}u_{ji}^{1/m}\Big/\sum_{i}\prod_{j=1}^{m}u_{ji}^{1/m}
+```
+
+**Meaning.** The score minimising the total relative entropy to m index
+distributions has a closed form: the normalised geometric mean of those
+distributions. No index weights have to be chosen, and the result sums
+to one, so it reads as a share of importance. A positive index (larger
+is more important) is divided by its own total; a negative index
+(smaller is more important) has its complement renormalised instead, so
+only an index’s shape matters, never its units, and the log base in the
+objective cancels out entirely. The geometric mean is unforgiving: a
+node that is exactly zero on any one index is exactly zero overall,
+which is the paper’s own printed behaviour for the three Kite nodes with
+zero betweenness. re_indexes defaults to the paper’s four
+distinctiveness indexes (degree, closeness, betweenness, constraint) and
+also accepts n_components and largest_component, the two destructiveness
+indexes measured after deleting the node; re_negative overrides which of
+them are read as negative. Only these six are offered because the paper
+defines and declares a direction for exactly these six. Two conventions
+are unusual: equation 6’s constraint sums over every other node rather
+than over the neighbours, so it is not Burt’s constraint, and equation
+4’s betweenness counts ordered pairs, twice the usual value, which the
+map then cancels. Equation 3’s closeness sums distances over the whole
+node set, which is identically zero on a disconnected graph; cograph
+sums the reachable partners instead, an explicit extension outside the
+paper’s connected domain, giving isolates closeness and constraint zero.
+There is no value when an index is zero at every node, so betweenness on
+a complete graph, degree on an edgeless one, and equation 9 on a single
+node all raise a classed error rather than returning zeros. Naming the
+measure yourself always raises; when a tier such as centrality(type =
+“all”) asked for it instead, the condition becomes a warning and an NA
+column, which is what happens on a complete graph. Uses the simple
+undirected unweighted skeleton; weights, mode, cutoff and inversion are
+ignored; empty graphs return no scores. Raw output already sums to one,
+so normalized = TRUE only rescales it by the maximum.
+
+``` r
+
+centrality_relative_entropy(student_interactions)
+```
+
+**Equivalence reference.** Chen, Wang and Luo (2016), Journal of Systems
+Engineering and Electronics27(6),1219-1226, DOI10.21629/JSEE.2016.06.10,
+equations3,4,6,8,9,10,11 and Tables1-3. All60 printed Table1 and Table3
+index entries reproduce exactly at the printed precision, and all30
+printed Table2 integrated values reproduce to six decimals when the
+paper’s own rounded columns are used as inputs; from the exact graph the
+printed values differ by up to 3.6e-5, because the paper integrated its
+rounded intermediates. Verified against independent NetworkX
+shortest-path counts, exact rational constraint sums and high-precision
+roots. The paper offers no software, so no author-software or
+spreading-performance claim is made.
+
+### DK-based gravity model
+
+Degree, k-shell and the stage at which peeling reached the node act
+together as gravitational mass.
+
+``` math
+k_s^*(i)=k_s(i)+p(i)/(\max_k q(k)+1),\quad DK(i)=k(i)+k_s^*(i),\quad DKGM_i=\sum_{j\ne i,\,d(i,j)\le R}DK(i)DK(j)/d(i,j)^2
+```
+
+**Meaning.** The stage p(i) counts how many synchronous removal rounds
+the node’s own shell needed before it left, so two nodes of the same
+shell are separated by how late the peeling reached them. Stages restart
+inside every shell, but max q(k)+1 is a single global denominator:
+adding a disconnected component that peels in more stages changes every
+raw score. That follows the published definition, not a cograph choice.
+The paper’s Algorithm 1 prints degree exactly k while its stage loop
+ends at degree greater than k and its Methods define k-shell by degree
+at most k; cograph follows the at-most reading, the only one that
+terminates, and it reproduces the printed Tables 2 to 5. The level
+starts at one, so an isolate lands in the one-shell rather than the
+zero-shell coreness reports; isolates carry no edges, so nothing else
+changes. Default radius two is the printed example’s setting and one of
+the two the paper recommends generally; NULL or infinity includes all
+reachable partners, fractional cutoffs are literal and values below one
+give zero. Auto applies the paper’s own R = mean distance over two, with
+cograph rounding to the nearest integer, ties to even, minimum one, over
+reachable pairs. Uses the simple undirected unweighted skeleton: either
+arc creates one edge, parallels count once and loops are removed.
+Weights, mode, cutoff, gravity_mass and inversion are ignored. Isolates
+and singleton graphs score zero; empty graphs return no scores. Dense
+O(n^3) time/O(n^2) memory.
+
+``` r
+
+centrality_dkgm(student_interactions)
+```
+
+**Equivalence reference.** Li and Huang (2021), Scientific
+Reports11,22194, DOI10.1038/s41598-021-01218-1, equations1-3, Algorithm1
+and Tables1-5. All45 printed Table1-5 entries and the printed node-3
+worked example reproduce; independent NetworkX node-deletion peeling,
+exhaustive subset cores, integer-power distances and exact rational
+sums. No author software was located, so no author-software parity or
+spreading-performance claim is made.
+
+### Mixed gravitational centrality
+
+Core-number mass at the source interacts with degree mass at nearby
+nodes.
+
+``` math
+MGC_i=k_s(i)\sum_{j:0<d(i,j)\le r}k(j)/d(i,j)^2
+```
+
+**Meaning.** Default radius three follows the explicit published
+reproduction. Source core number and partner degree are asymmetric
+masses, both measured on the original graph. The Zoo’s literal
+immediate-neighbor sum is available with radius one. NULL or infinity
+includes all reachable partners; fractional cutoffs are literal and
+values below one give zero. Auto is a cograph heuristic: rounded half
+the mean finite positive hop distance, ties to even, minimum one. Uses
+the simple undirected unweighted skeleton: either arc creates one edge,
+parallels count once, loops are removed. Weights, mode, cutoff,
+gravity_mass and inversion are ignored. Isolates and singleton graphs
+score zero; empty graphs return no scores. With fixed radius,
+disconnected additions preserve existing raw scores; auto and global
+maximum normalization can change them. Dense O(n^3) time/O(n^2) memory.
+
+``` r
+
+centrality_mixed_gravity(student_interactions)
+```
+
+**Equivalence reference.** Wang, Li and Xia2018,
+DOI10.1016/j.amc.2018.04.028, as reproduced in Li and Huang2022,
+DOI10.1038/s41598-022-14005-3, equations5-8. The original full equations
+and software have not been inspected. Verified with NetworkX core/BFS,
+exhaustive subset cores, integer-power distances and exact rational
+sums; no author-software or general predictive-performance claim.
+
+### Extended mixed gravitational centrality
+
+Sum immediate neighbors’ raw mixed gravitational scores.
+
+``` math
+EMGC_i=\sum_{j\in N(i)}k_s(j)\sum_{l:0<d(j,l)\le r}k(l)/d(j,l)^2
+```
+
+**Meaning.** The inner radius is centered on each neighbor j, so
+contributions can reach r+1 hops from the focal node; returns to the
+focal node count. The outer sum has no distance or mass factor. Default
+inner radius three follows the published reproduction; radius one
+matches the Zoo literal interpretation. All features and distances
+belong to the original simple undirected unweighted skeleton. Weights,
+mode, cutoff, gravity_mass and inversion are ignored; loops are removed
+and parallels count once. NULL/Inf, fractional and auto radius
+conventions are shared with MGC. Isolates, singleton graphs and radii
+below one score zero; empty graphs return no scores. Optional maximum
+normalization occurs only after the raw outer sum. Dense O(n^3)
+time/O(n^2) memory.
+
+``` r
+
+centrality_extended_mixed_gravity(student_interactions)
+```
+
+**Equivalence reference.** Wang, Li and Xia2018,
+DOI10.1016/j.amc.2018.04.028, reproduced in Li and Huang2022,
+DOI10.1038/s41598-022-14005-3, equation8 with neighborhoods defined in
+equations5-7. Original full equations/software unread. Verified with
+independent nested pair sums, exact rational references and public
+analytic graph families.
+
+### Localized bridging centrality
+
+Brokerage in the one-hop ego network, adjusted for neighbor degrees.
+
+``` math
+LBC(v)=B_{G[N_{\leq1}(v)]}(v)\,\frac{1/d_v}{\sum_{u\in N(v)}1/d_u}
+```
+
+**Meaning.** Ego betweenness counts unordered pairs, excludes endpoints
+and is not normalized by ego size. Bridging-coefficient degrees come
+from the original graph. Uses simple undirected unweighted topology:
+either direction creates an edge; loops and duplicate edges removed;
+weights/mode/inversion/cutoff ignored. Isolates and leaves score zero;
+the isolate rule extends the undefined coefficient by zero. Final
+maximum scaling is optional. Common-neighbor matrix multiplication over
+all ego networks has worst-case O(n^4) time and O(n^2) memory.
+
+``` r
+
+centrality_localized_bridging(student_interactions)
+```
+
+**Equivalence reference.** Nanda and Kotz (2012),
+DOI10.1007/978-1-4614-0857-4_7, eq7.7-7.8, author chapter restating
+their2008 LBC definition. Macker2016 eq4 and TableI reproduce this
+definition. Verified with NetworkX ego graphs/Brandes, independent
+explicit shortest-path enumeration, and all11rows of Macker’s synthetic
+example. The legacy local_bridging key computes inverse degree times the
+coefficient and is a different score.
+
+### Extended local bridging centrality
+
+Brokerage in the two-hop ego network, adjusted for neighbor degrees.
+
+``` math
+LBC_2(v)=B_{G[N_{\leq2}(v)]}(v)\,\frac{1/d_v}{\sum_{u\in N(v)}1/d_u}
+```
+
+**Meaning.** Uses every edge induced by the focal vertex and all
+vertices at hop distance at most two. Paths inside this ego graph can
+have up to four edges; this is not a global path-length cutoff.
+Betweenness uses unordered pairs and no ego-size scaling; coefficient
+degrees come from the original graph. Same simple undirected unweighted
+projection and zero conventions as localized_bridging. Macker’s weighted
+link-quality/cost model is outside this implementation. Native
+breadth-first counts take O(sum n_ego(n_ego+m_ego)) time, at worst
+O(n^4), and O(n^2) memory. Marked costly; select explicitly.
+
+``` r
+
+centrality_extended_local_bridging(student_interactions)
+```
+
+**Equivalence reference.** Macker (2016),
+DOI10.1109/MILCOM.2016.7795393, sectionsIV-V, eq5 and TableI; original
+PDFpages2-3 visually read. Independently verified by NetworkX
+ego/Brandes and explicit shortest-path enumeration. All11original
+synthetic example rows agree. Numerical definition verification does not
+establish the paper’s empirical ranking correlations or equivalence to
+unreleased Zoo code.
+
+### Proximal betweenness
+
+Brokerage at the first or last intermediate vertex of shortest paths.
+
+``` math
+C_{ps}(v)=\sum_{s,t:(v,t)\in E}\sigma_{st}(v)/\sigma_{st}
+```
+
+**Meaning.** Source (default) means the last intermediary before the
+destination; target means the first after the origin. Sum counts both
+roles; union counts a two-edge intermediary once. Endpoints and
+unreachable pairs are excluded. Raw scores use ordered pairs even on
+undirected graphs, without halving. Directed simple unweighted skeleton:
+loops and duplicate arcs removed, weights/mode/inversion/cutoff ignored.
+Empty graphs return no scores; isolates and complete graphs score zero.
+Breadth-first traversal takes O(n(n+m)) time after dense O(n^2)
+preparation; nonfinite path counts raise an error.
+
+``` r
+
+centrality_proximal_betweenness(student_interactions)
+```
+
+**Equivalence reference.** Brandes (2008),
+DOI10.1016/j.socnet.2007.11.001, section3.2 Algorithm3; author
+preprint12Nov2007 pp7-8 read. Independent NetworkX shortest-path
+enumeration and exact integer adjacency powers verify all four variants.
+No equivalence claim for weighted geodesics, edge-distinct multigraph
+paths, or unreleased Zoo/UCINET software.
 
 ### Betweenness Centrality
 
@@ -1140,6 +2285,74 @@ centrality_load(student_interactions)
 **Equivalence reference.** Validated against
 [`sna::loadcent()`](https://rdrr.io/pkg/sna/man/loadcent.html).
 
+### Length-scaled Betweenness
+
+Length-scaled betweenness counts the same brokered pairs as betweenness
+but weights each pair by the reciprocal of its distance.
+
+``` math
+C_{LS}(v) = \sum_{s \ne v \ne t} \frac{1}{d(s,t)} \cdot \frac{\sigma_{st}(v)}{\sigma_{st}}
+```
+
+**Meaning.** A high value indicates brokerage between pairs that were
+already close, which ordinary betweenness treats the same as brokerage
+across the graph.
+
+``` r
+
+centrality_length_scaled_betweenness(student_interactions)
+```
+
+**Equivalence reference.** Borgatti & Everett (2006); Brandes (2008),
+Algorithm 5. Matches a brute-force enumeration of weighted geodesic
+pairs on directed and undirected graphs.
+
+### Distance-decayed Betweenness
+
+Distance-decayed betweenness discounts each brokered pair by a power of
+its distance, so the exponent tunes how local the measure is.
+
+``` math
+C_\delta(v) = \sum_{s \ne v \ne t} (d(s,t) - 1)^{-\delta} \cdot \frac{\sigma_{st}(v)}{\sigma_{st}}
+```
+
+**Meaning.** A high value indicates brokerage concentrated among nearby
+pairs. At $`\delta = 0`$ the measure is ordinary betweenness. Adjacent
+pairs have no intermediary, so the singularity at $`d = 1`$ never
+arises.
+
+``` r
+
+centrality_delta_betweenness(student_interactions)
+```
+
+**Equivalence reference.** Agneessens, Borgatti & Everett (2017).
+Matches brute force at three exponents and reproduces betweenness
+exactly at zero.
+
+### Ego Betweenness
+
+Ego betweenness is betweenness computed inside a node’s own ego network
+rather than across the whole graph.
+
+``` math
+C_{EB}(v) = \sum_{i < j \in N(v),\; A_{ij} = 0} \frac{1}{(A^2)_{ij}}
+```
+
+**Meaning.** A high value indicates a node that brokers among its own
+neighbours, which is what an egocentric survey can measure. A node with
+fewer than two neighbours scores 0. It is close to Burt’s effective size
+but is not a function of it.
+
+``` r
+
+centrality_ego_betweenness(student_interactions)
+```
+
+**Equivalence reference.** Everett & Borgatti (2005). Matches the
+paper’s $`A^2(1-A)`$ shortcut and ordinary betweenness on the induced
+ego subgraph.
+
 ### Bottleneck Centrality
 
 Bottleneck centrality counts cases where a node is critical in
@@ -1179,25 +2392,26 @@ centrality_bridging(student_interactions)
 **Equivalence reference.** Based on bridging centrality formulations by
 Hwang and colleagues.
 
-### Local Bridging Centrality
+### Local bridging (legacy degree product)
 
-Local bridging centrality measures bridge-like position using local
-neighbourhood information.
+Inverse focal degree multiplied by the bridging coefficient.
 
 ``` math
 \mathrm{LBr}(v) = \frac{1}{k_v} \cdot \beta(v), \quad \beta(v) = \frac{1/k_v}{\sum_{u \in N(v)} 1/k_u}
 ```
 
-**Meaning.** A high value indicates that the node connects neighbours
-that are not strongly connected through local alternatives.
+**Meaning.** Retains the original cograph degree-only score. This
+formula uses degrees and does not calculate paths between neighbors.
 
 ``` r
 
 centrality_local_bridging(student_interactions)
 ```
 
-**Equivalence reference.** Based on local bridging coefficient
-formulations.
+**Equivalence reference.** Legacy formula, not Nanda-Kotz localized
+bridging or Macker Extended LBC. Use localized_bridging or
+extended_local_bridging for those source-defined ego-betweenness
+products.
 
 ### Percolation Centrality
 
@@ -1280,7 +2494,762 @@ centrality_current_flow_closeness(student_interactions)
 **Equivalence reference.** Corresponds to NetworkX current-flow
 closeness centrality.
 
+### Entropy Variation, Betweenness
+
+Entropy variation of the betweenness distribution: the drop in its
+Shannon entropy when the node is removed.
+
+``` math
+EnV_b(i) = I_b(G) - I_b(G - i)
+```
+
+**Meaning.** A high value indicates a node whose removal concentrates
+shortest-path traffic on fewer nodes. Betweenness is recomputed per
+removal.
+
+``` r
+
+centrality(student_interactions, measures = "entropy_variation_betweenness")
+```
+
+**Equivalence reference.** Ai (2017). Matches the author’s R code path
+and the paper’s Table 2 betweenness quantiles.
+
 ## Spectral, walk and influence
+
+### Trust-PageRank
+
+Replace PageRank’s even split of a node’s score among its neighbours by
+a trust-value that mixes how similar the two nodes are with how large
+the receiver’s degree is.
+
+``` math
+TPR_i=\frac{1-\alpha}{n}+\alpha\sum_{j\in N_i}T(i,j)TPR_j,\qquad T(i,j)=(1-k)\frac{s(i,j)}{\sum_{l\in N_j}s(j,l)}+k\frac{d_i}{\sum_{l\in N_j}d_l}
+```
+
+**Meaning.** PageRank hands a node’s score to its neighbours in equal
+shares, which the source argues is not how information actually moves: a
+node passes more to the neighbours it trusts, and trust has two parts.
+The similarity ratio is SimRank, the recursive statement that two nodes
+are similar when their neighbours are similar; the degree ratio says a
+neighbour with a large degree is worth more of the message because it
+can carry it further. Both ratios are normalised over the receiving
+node’s neighbourhood and the similarity is symmetric, so each of them
+sums to one down a column and so does their blend, whatever the mixing
+weight k is. The trust matrix is therefore column-stochastic, the
+iteration is an ordinary damped PageRank with a unique fixed point, and
+the scores sum to one on a graph with no isolate. That also settles a
+question the source leaves open: it never fixes an iteration count, and
+it does not need to, because the count is a convergence tolerance rather
+than a modelling choice. Both recursions here stop on a relative change
+below tpr_tol, relative rather than absolute because the similarities on
+one graph span many orders of magnitude, the mass reaching a line
+decaying geometrically with its distance from the nearest triangle; a
+recursion still moving at tpr_max_iter raises a warning rather than
+returning a quietly unconverged estimate. The similarity recursion runs
+on the lines of the graph only. The source’s algorithm quantifies over
+connected pairs and its similarity table marks every non-adjacent cell
+with a dash, so a non-adjacent pair entering the recursion contributes
+zero rather than the 0.1 that initialises the lines, and that
+restriction is what makes the recursion usable: the base case s(a, a) =
+1 becomes the only term that is not a multiple of another similarity,
+and it reaches a line exactly through the common neighbours of its
+endpoints, which is to say through the triangles the line carries. Each
+row of the linear part then sums to less than one on any line carrying a
+triangle, so the recursion contracts even at the source’s decay constant
+of one. Pinning the non-adjacent pairs at 0.1 instead reproduces neither
+of the paper’s two published fixtures. The consequence is a degenerate
+class that is not a corner case: on a component that has lines but no
+triangle the recursion is homogeneous, its least non-negative fixed
+point is zero everywhere, and the similarity ratio is a zero over zero.
+Every path, tree, star, even cycle and complete bipartite graph is in
+that class, and so is the Petersen graph. cograph returns NA for the
+whole of such a component, with a classed warning, rather than naming a
+value: unlike the vanishing denominators of the degree and importance of
+lines and of the Lhc index, this quotient is not determined by its
+numerator, since the ratios need only sum to one over the neighbourhood
+and nothing in the source chooses between the ways of doing that. The
+obvious fallback, one over the receiver’s degree, would silently turn
+the measure into a degree-ratio PageRank over that whole class while
+still calling it Trust-PageRank. An isolate is not in the class: it is
+never a denominator, and it keeps the bare teleport share (1 - alpha)/n,
+so a graph with isolates has scores summing to less than one. The domain
+does not move with tpr_k either, k = 1 included, because the similarity
+ratio is part of the trust-value at every mixing weight. tpr_alpha and
+tpr_k both default to the source’s 0.85, the second chosen there from a
+Kendall-against-SIR sweep on four networks. tpr_decay defaults to the
+source’s 1, and the source’s claim that its value does not affect the
+results is false for the converged recursion: that holds for a
+homogeneous recursion, where the constant is an overall scale, but the
+base case makes this one affine, so the constant enters the resolvent as
+well, and moving it from 1 to 0.5 moves the similarity ratios of the
+karate club by up to 0.141. Direction and weights are dropped to the
+simple undirected skeleton the source defines on; mode, cutoff and
+weight inversion are ignored, empty graphs return no scores, and
+normalized = TRUE max-scales the finished vector. Marked costly: two
+fixed-point recursions over dense n by n matrices, one of them a triple
+product per sweep.
+
+``` r
+
+centrality_trust_pagerank(student_interactions)
+```
+
+**Equivalence reference.** Sheng, Zhu, Wang, Wang and Hou (2020),
+Algorithms13(11), 280, DOI10.3390/a13110280, equations (2) and (4) on
+page5, equations (5) and (6) on page5, equation (7) and Algorithm1 on
+page7, figure3 and table3 on page6, and table5 on page10. The paper is
+fully open access and the publisher PDF was read, pages5, 6, 7 and10
+visually inspected for the equations, the pseudocode, the annotated
+figure and both printed tables. THE CENTRALITY ZOO CITES THE WRONG
+PAPER: its entry 2.381 attributes Trust-PageRank to Sheng et al.,
+Physica A541, 123262, which defines the unrelated
+global-and-local-structure index of entry 2.149; a reader following that
+reference lands on a different measure. Both published fixtures
+reproduce. Table3’s seven similarities each round to their printed two
+decimals, and its S_v column is the sum of the paper’s own rounded cells
+rather than the rounded sum, a convention that node5 alone separates.
+Table5’s karate club top ten reproduces in order at all ten positions,
+the eighth and ninth separated by a real gap of about 3e-05, and its
+kite top ten reproduces up to three exact ties forced by the kite’s own
+automorphism group. The one printed value that does not reproduce is
+table4’s karate mean degree, printed 4.5888 where 156/34 is 4.588235; it
+is recorded as a slip rather than rounded away. Verified in addition
+against three independent references: a pure-Python route holding the
+graph as sets and iterating both recursions by explicit loops with no
+matrix anywhere, a NumPy route that solves both fixed points as linear
+systems rather than iterating them, and exact rational arithmetic end to
+end with a hand-written Gauss-Jordan, whose zero test on the similarity
+denominator settles the domain question without any tolerance. The
+restatement in Hajarathaiah, Enduri, Anamalamudi, Subba Reddy and Tokala
+(2022), Entropy24(5), 704, DOI10.3390/e24050704, was also read; its own
+figure2 contradicts its own equation on which ratio carries the weight
+k, and the annotated figure3 of the original settles the orientation. No
+author or third-party code exists, so no author-parity claim is made,
+and the paper’s SIR spreading experiments were not reproduced.
+
+### Iterative resource allocation (IRA)
+
+Give every node one unit of resource, hand it repeatedly to neighbours
+in proportion to the receiver’s centrality, and read the steady state.
+
+``` math
+I(t+1)=AI(t),\quad a_{ij}=\frac{\theta_i^{\alpha}}{\sum_{u\in\Gamma(j)}\theta_u^{\alpha}}\delta_{ij},\quad I(0)=\mathbf{1}
+```
+
+**Meaning.** Resource flows out of a node in proportion to what its
+neighbours are worth, so a node scores well when the nodes that feed it
+are themselves well fed. Every non-empty column of A sums to one, so
+nothing is created or destroyed: the scores of a connected component
+always sum to its vertex count, and that makes raw scores comparable
+across components. The equilibrium has a closed form, I_i proportional
+to theta_i^alpha times the sum of theta^alpha over its neighbours, which
+reproduces the source’s own printed steady state exactly. Defaults
+ira_mass = coreness, ira_alpha = 1 and ira_tol = 1e-6 are the source’s
+values; ira_max_iter = 1000 covers its stated bound of 2N - 1 for graphs
+up to 500 nodes. The iteration does not always converge, and cograph
+says so rather than hiding it. A is the transition matrix of a
+reversible walk, so on a bipartite component it has an eigenvalue of
+exactly -1 whose coefficient in the all-ones start is the difference
+between the two class sizes. When those sizes differ the resource
+settles into a period-two cycle and never meets the tolerance: the
+three-star alternates for ever between 3, 1/3, 1/3, 1/3 and 1, 1, 1, 1,
+while the four-path, whose classes are equal, converges to 2/3, 4/3,
+4/3, 2/3. In that case cograph stops at ira_max_iter, raises a
+cograph_no_converge warning naming the largest remaining change, and
+returns that iterate, which depends on the parity of the bound. It does
+not average the two alternating iterates and it does not substitute the
+eigenvector the Centrality Zoo asks for; both converge, and neither is
+the source’s algorithm. Uses the simple undirected unweighted skeleton:
+either arc creates one edge, parallels count once and loops are removed.
+Weights, mode, cutoff and inversion are ignored. An isolate is in
+nobody’s neighbourhood, so it receives nothing and passes nothing on and
+scores zero, which is why the sum-to-n conservation is stated only for
+graphs without isolates. Empty graphs return no scores; normalized =
+TRUE max-scales.
+
+``` r
+
+centrality_ira(student_interactions)
+```
+
+**Equivalence reference.** Ren, Zeng, Chen, Liao and Liu (2014),
+EPL106(4):48005, DOI10.1209/0295-5075/106/48005, equations1-3 page2 and
+algorithm i-iii page3. The original was obtained and read as the author
+postprint recovered through the Internet Archive, with pages2 and3
+visually inspected. All25 printed entries of the equation4 matrix and
+all20 printed table1 values reproduce, table1 from the exact steady
+states. One qualification: panel (a) node0 has exact limit 15/8, which
+the paper rounds up to1.88, while the iteration approaches from below
+and at the source’s own tolerance returns1.8749998, which rounds to1.87.
+The paper’s own claim that I(50) equals those fractions is off by up
+to1.86e-7. Verified against exact rational propagation, exact binary
+exponentiation of A, a per-component eigen-decomposition of the
+symmetrised matrix, the exact closed-form spectral projections, mpmath
+and extended precision. No author software exists, so no author-parity
+claim is made, and the SIR spreading results were not reproduced.
+
+### Improved iterative resource allocation (IIRA)
+
+The same resource iteration, with each node’s share scaled by how much
+of a spreading process it could actually carry.
+
+``` math
+a_{ij}=\bigl[1-(1-\beta)^{k_i}\bigr]\theta_i\Bigl(\sum_{u\in\Gamma(j)}\theta_u\Bigr)^{-1}\delta_{ij},\quad I(t)=A^{t}\mathbf{1}
+```
+
+**Meaning.** The extra factor 1 - (1 - beta)^k is the chance that a node
+with k neighbours is reached at least once at spreading rate beta, so a
+well-connected receiver draws more resource than its centrality alone
+would earn it. There is no alpha exponent here: the exponent of IRA is
+dropped, not set to a value. That factor is strictly below one, so every
+column of A sums to less than one, the spectral radius is below one, and
+the resource decays geometrically instead of settling. The source
+therefore fixes the number of steps rather than a tolerance, runs 50 of
+them, and prints an I(50) of order 1e-20; cograph returns that raw
+vector so the printed example is reproducible, and normalized = TRUE
+max-scales it for reading. Only the ranking carries meaning, and raw
+scores from different connected components must never be compared: each
+component decays at its own rate, so after iira_steps steps they sit on
+different exponential scales. A large iira_steps underflows to zero.
+Defaults iira_beta = 0.2, iira_steps = 50 and ira_mass = coreness are
+the worked example’s settings; the experiments sweep beta and the step
+count, so 50 is an example value rather than a tuned recommendation.
+beta = 0 would annihilate the whole matrix and is refused rather than
+silently returning zeros; iira_steps = 0 returns the initial unit
+resource. The Centrality Zoo prints a different formula, pairing the
+numerator index with the denominator’s own neighbourhood, which is
+stochastic in neither direction and reproduces neither printed quantity;
+cograph implements the paper. Uses the simple undirected unweighted
+skeleton; weights, mode, cutoff and inversion are ignored; isolates
+score zero and empty graphs return no scores.
+
+``` r
+
+centrality_iira(student_interactions)
+```
+
+**Equivalence reference.** Zhong, Liu and Shang (2015), Physics
+LettersA379(38):2272-2276, DOI10.1016/j.physleta.2015.05.021,
+equations1, 2 and4 page2. What was read is the author preprint
+arXiv:1505.03214v1, with page2 visually inspected; the Elsevier version
+of record was not read. All25 printed entries of the equation5 matrix
+reproduce at the paper’s own truncation, which truncates rather than
+rounds, and all five printed I(50) values reproduce at the printed three
+significant figures. Because the raw values are of order1e-20 the
+equivalence run requires a plain relative error as well as a scaled one.
+Verified against the same independent reference family as IRA. No author
+software exists, so no author-parity claim is made, and the SIR
+spreading results were not reproduced.
+
+### Multi-characteristics gravity model
+
+Combine degree, coreness and eigenvector features in distance-decaying
+node interactions.
+
+``` math
+m_i=K_i+\alpha S_i+X_i,\quad \alpha=\max\{\mathrm{med}(K),\mathrm{med}(X)\}/\mathrm{med}(S),\quad MCGM_i=\sum_{j:0<d(i,j)\le R}m_i m_j/d(i,j)^2
+```
+
+**Meaning.** K, S and X divide each original-graph feature by its global
+maximum. Default radius two follows the paper; NULL or infinity includes
+all reachable partners. Uses the simple undirected unweighted skeleton:
+either arc creates one edge, parallel edges count once and loops are
+removed. Weights, mode, cutoff, gravity parameters and inversion are
+ignored. For disconnected inputs, the explicit cograph eigenvector
+convention projects a uniform vector onto the global dominant
+eigenspace; weaker components have eigenvector feature zero. Roots
+within 64 machine epsilons times n times max(1,rho) are treated as tied.
+Medians and maxima remain global. A zero median coreness with edges
+makes automatic alpha undefined and raises an error; supply an explicit
+nonnegative mcgm_alpha to override it. Alpha one recovers equation16.
+Edgeless graphs and radii below one score zero by an empty-interaction
+convention. Isolates score zero when masses are defined. Optional
+maximum normalization follows the complete gravity sum and supports
+large alpha when raw scores overflow. Dense O(n^3) time/O(n^2) memory;
+unresolved positive eigenvectors and overflowing raw scores error.
+
+``` r
+
+centrality_mcgm(student_interactions)
+```
+
+**Equivalence reference.** Li and Huang (2022), Scientific
+Reports12,9879, DOI10.1038/s41598-022-14005-3, equations17-18 and
+Algorithm1. All36 Table1-2 feature and score entries reproduced at
+printed precision; independent NetworkX power/BFS/core and exact-root
+resolvent references. No author-software or universal
+predictive-performance claim.
+
+### SpectralRank
+
+Outgoing influence after adding a ground node and optional node priors.
+
+``` math
+B=\begin{pmatrix}A+\operatorname{diag}(p)&\mathbf{1}\\\mathbf{1}^{T}&0\end{pmatrix},\quad Bs=\rho(B)s,\quad SR_i=s_i/\max_{j\le n+1}s_j
+```
+
+**Meaning.** Default prior zero gives SpectralRank. A scalar prior
+broadcasts; a vector supplies nonnegative node information, with named
+values reordered to match nodes. The ground prior remains zero and its
+links have fixed unit weights. Raw maximum scaling includes the ground
+node; it is omitted without redistribution, so returned maxima can be
+below one. Optional normalized=TRUE rescales original nodes alone. Uses
+outgoing neighbors; transpose input for incoming influence. Binary
+adjacency follows the source, while nonnegative interaction weights
+extend the same matrix definition and differ from the paper’s
+diagonal-prior meaning of weighted SpectralRank. Tiny asymmetric
+matrices require explicit directed=TRUE or a directed igraph object.
+Loops removed, remaining parallel edges sum after simplify; unweighted
+remaining edges count one each. Mode/inversion/cutoff ignored. Isolates
+are positive; edgeless prior-zero scores are1/sqrt(n), singleton1 and
+empty output. Adding disconnected nodes changes the common ground
+system. Uses the unique positive Perron eigenvector even where the
+source’s unshifted iteration oscillates. Dense O(n^3) time/O(n^2)
+memory; unresolved positive eigenpairs or extreme ranges error.
+
+``` r
+
+centrality_spectralrank(student_interactions)
+```
+
+**Equivalence reference.** Xu, Wang, Zhang and Lu (2019; online2018),
+IEEE TCYB49(12),4253-4261, DOI10.1109/TCYB.2018.2861568, sectionIII-A
+eq4-8. Nonzero priors follow the prose’s Atilde+P; Algorithm1 constructs
+this matrix but omits P in its update line. Independent NetworkX shifted
+iteration on the reversed augmented graph, exact-polynomial-root
+resolvents and high-precision eigenvectors verify values. Figure2’s two
+outgoing update equations are reproduced; no published numerical table
+or author-code parity is claimed.
+
+### ControlRank
+
+Smallest grounded eigenvalue after pinning each node in turn.
+
+``` math
+CR_i=\lambda_{\min}(((L+L^T)/2)_{-i,-i}),\quad L=\operatorname{diag}(A\mathbf{1})-A
+```
+
+**Meaning.** Original degrees are retained after deletion. Directed
+inputs use outgoing strengths; transpose the input for incoming
+strengths. Tiny asymmetric matrix weights require explicit directed=TRUE
+or a directed igraph object because the shared parser uses approximate
+symmetry. Symmetrizing this row-Laplacian differs from taking the
+Laplacian of an undirected projection, and signed directed scores are
+retained. Uses finite nonnegative interaction weights, removes loops,
+and sums remaining parallel edges after the simplify rule; unweighted
+remaining edges contribute one each. Mode, inversion and cutoff are
+ignored. Connected undirected graphs have positive scores; disconnected
+undirected graphs score zero globally. Empty graphs return no scores and
+singleton zero explicitly extends the undefined empty minor. The matrix
+formula extends the source beyond its no-isolates domain. Optional
+normalization divides by a positive maximum, otherwise retains raw
+units. Global weight scaling multiplies raw scores. Dense O(n^4)
+time/O(n^2) memory; marked costly. Separate disconnected blocks preserve
+structural zeros before normalization. Extreme weight ranges or
+unresolved positive grounded spectra raise errors; small eigenvalues can
+lose relative accuracy. This spectral index does not simulate
+controllers, establish a general directed stability guarantee, or
+optimize controller sets.
+
+``` r
+
+centrality_controlrank(student_interactions)
+```
+
+**Equivalence reference.** Zhou, Yu and Lu (2019; online2018), IEEE
+TCAS-II66(3),437-441, DOI10.1109/TCSII.2018.2845940, Theorem3 and
+Figure1. The published bi-star has11 numerical node values. Independent
+references use SciPy row-Laplacians and spectral bisection, exact SymPy
+characteristic-polynomial root intervals, and NetworkX incidence-matrix
+singular values. Counterexamples retain the distinction between grounded
+scores and finite-feedback convergence rates.
+
+### Node and Neighbor Layer Information
+
+Propagate degree volume through a chosen number of neighbor steps.
+
+``` math
+b_i=\sum_{j:d(i,j)\le r}d_j,\quad r=\lceil L\rceil,\quad NINL_p=A^p b
+```
+
+**Meaning.** Default order3 follows Zhu and Wang. Order0 returns
+closed-neighborhood degree volume; walks may repeat edges and vertices.
+Automatic radius is the ceiling of mean distance over all distinct
+pairs. For disconnected graphs, cograph explicitly extends this to
+infinite radius and sums only reachable nodes. Isolates score zero;
+empty graphs return no scores. Numeric radius or Inf overrides
+generalize the source rule. Uses simple undirected unweighted topology,
+removing loops and duplicates; either arc creates an edge, and
+weights/mode/inversion/cutoff are ignored. Stepwise propagation
+preserves finite-order bipartite alternation. Only exactly repeated
+floating-point states of period1 or2 permit skipping; no approximate
+convergence criterion. Maximum normalization rescales each step to avoid
+overflow; raw overflow errors and very small relative values can
+underflow. Dense O(n^(3+p\*n)2) time/O(n^2) memory; huge orders may be
+slow without an exact repeated state.
+
+``` r
+
+centrality_ninl(student_interactions)
+```
+
+**Equivalence reference.** Zhu and Wang (2021), Symmetry13,1570,
+DOI10.3390/sym13091570, section2.1 eq1-2, Figure1 and Table1. All52
+published entries reproduced. Independent NetworkX BFS neighborhoods,
+NumPy powers with arbitrary-precision integers, and explicit walks
+verify numerical values. This is a finite walk family; ranking
+correlation with communicability is not equivalence.
+
+### Expected Force
+
+Entropy of onward transmission opportunities after two infection events.
+
+``` math
+ExF(i)=-\sum_{j=1}^{J}p_j\log p_j,\quad p_j=D_j/\sum_kD_k
+```
+
+**Meaning.** Enumerates ordered infected-to-susceptible edge
+transmissions without recovery. Each event sequence retains its own
+normalized boundary degree, even when infected sets coincide. Boundary
+edges to the same susceptible node count separately. Directed inputs use
+outgoing edges. Simple unweighted graph: loops and duplicate arcs
+removed; weights/mode/inversion/cutoff ignored. No two-event sequences
+or no positive onward force gives zero, the latter an explicit extension
+of undefined all-zero normalization. A single positive-force outcome
+also has entropy zero. Worst-case O(n^3) time/O(n^2) memory. This is a
+local score, not an epidemic probability.
+
+``` r
+
+centrality_expected_force(student_interactions)
+```
+
+**Equivalence reference.** Lawyer (2015), DOI10.1038/srep08665, eq1 and
+directed extension. Verified by NetworkX explicit transmission sequences
+and pinned author C++ on connected undirected graphs of order\>=4. The
+author R example counts distinct outside nodes, whereas the paper/C++
+count edges; that R behavior is not replicated. The existing expected
+key sums neighbor degrees and is a different measure.
+
+### Modified Expected Force
+
+Expected Force adjusted for the seed degree.
+
+``` math
+ExF^M(i)=\log(\alpha d_i)ExF(i),\quad\alpha>1
+```
+
+**Meaning.** Uses Expected Force after exactly two events. Alpha
+defaults to two as in the paper; it must be finite and greater than one.
+Directed graphs use outgoing degree. Isolates return zero without
+log(0). All Expected Force graph and exhausted-force conventions apply.
+Log addition avoids overflow of alpha times degree; normalization
+divides the resulting modified scores by their maximum. The weighted
+extension and alternative event horizons are outside the verified scope.
+
+``` r
+
+centrality_modified_expected_force(student_interactions)
+```
+
+**Equivalence reference.** Lawyer (2015), DOI10.1038/srep08665, eq2.
+Independent event enumeration and the pinned author C++ force followed
+by the published degree modification. Tested across
+alpha1.0001/1.5/2/4/16/1e308; high ranking correlations are not used as
+evidence of equivalence.
+
+### Bridging capital
+
+Loss of valued information walks after deleting each outgoing matrix
+entry.
+
+``` math
+Brid_i=\sum_j\sum_{s,t}v_{st}\sum_{h=1}^{T}[P^h-(P-P_{ij}E_{ij})^h]_{st}
+```
+
+**Meaning.** Per-contact transmission probabilities must be in \[0,1\];
+row sums need not equal one. Default horizon is two and
+source-destination values are all ones. Named value matrices reorder by
+node labels. Single-entry deletion leaves the reverse entry intact even
+on undirected input. Walks may repeat nodes/edges, but each distinct
+selected arc receives each lost walk once. Loops remain; parallel
+weights aggregate within probability bounds. Zero horizon/values and
+isolates yield zero. Mode/inversion/cutoff are ignored. Dense O(m T n^3)
+time/O(n^2) memory; request explicitly. Use weighted=FALSE for a binary
+probability-one example when input weights are interaction counts.
+
+``` r
+
+centrality_bridging_capital(student_interactions, weighted = FALSE)
+```
+
+**Equivalence reference.** Jackson (2020),
+DOI10.1007/s00355-019-01189-3; author preprint arXiv1711.09504v3
+section3.3, printedp18 visually read. Implements EInf expected walk
+counts and the literal single-entry deletion, not PInf or
+whole-edge/node removal. Verified by NetworkX graph deletion/NumPy
+powers and independent explicit walk-set enumeration. Native first-use
+tracking avoids power-subtraction cancellation; nonrepresentable
+intermediate masses raise errors.
+
+### LineRank
+
+Stationary edge-state probabilities aggregated at original endpoints.
+
+``` math
+p=cQ^T p+(1-c)\mathbf{1}/m,\quad LR_v=\sum_{e\text{ incident to }v}p_e
+```
+
+**Meaning.** Directed line transitions join consecutive edges;
+undirected inputs use one state per edge and connect distinct states
+sharing an endpoint. Transition weights are products of original edge
+weights, evaluated without forming those products. Default probability
+aggregation sums endpoint probabilities; weight aggregation additionally
+multiplies original edge weights. Loops count twice in endpoint
+aggregation, directed loops permit self transitions, and undirected line
+graphs exclude self transitions. Generic loops/simplify apply first;
+remaining parallel states are retained. Dangling states redistribute
+uniformly. Isolates and edgeless graphs score zero. Dense O(m^3)
+time/O(m^2) memory; request explicitly.
+
+``` r
+
+centrality_linerank(student_interactions)
+```
+
+**Equivalence reference.** Kang et al. (2011),
+DOI10.1137/1.9781611972818.11, definitions2–4 and weighted aggregation
+in Algorithm2; Kosa et al. (2015), DOI10.2298/CSIS141101092K, section4
+clarifies undirected construction. Follows the random-walk definition;
+the original pseudocode’s inconsistent row/column normalization is not
+replicated. Verified against NetworkX line_graph and PageRank and
+independent Markov-chain tree cofactors.
+
+### Random walk decay
+
+Discounted first arrival at each node, summed over starting-node
+weights.
+
+``` math
+RWD_v=\sum_u b_u\,\mathbb{E}_u[a^{T_v};T_v<\infty],\quad 0\leq a<1
+```
+
+**Meaning.** Decay defaults to0.5 and starting weights default to one.
+Each node contributes its own starting weight at time zero; later
+returns do not count. Sinks terminate the walk outside the graph.
+Retains direction, loops and nonnegative edge weights; undirected edges
+become opposite transitions. Use simplify=FALSE to retain unweighted
+parallel multiplicity. Named starting weights match node labels;
+all-zero weights and zero decay have explicit linear/limit extensions.
+Raw scores obey lack of self-impact: changing a node’s outgoing edges
+cannot change its own score. Generic mode, inversion and cutoff are
+ignored. Per-target absorbing solves cost up to O(n^4), so request
+explicitly.
+
+``` r
+
+centrality_random_walk_decay(student_interactions)
+```
+
+**Equivalence reference.** Was, Rahwan and Skibski (2019),
+DOI10.1609/aaai.v33i01.33012197, Definition1 eq6, transition eq3 and
+terminal-sink convention. Original PDF and figures read visually.
+Independent full-resolvent ratios, first-visit series, exact rational
+and high-precision arithmetic; published Example4/5 tables agree.
+Example3 contains internally inconsistent numbers retained in the audit.
+
+### Graph regularization centrality
+
+Reciprocal retention of a unit impulse under weighted Laplacian
+smoothing.
+
+``` math
+GRC_i=1/[(I+\gamma L)^{-1}]_{ii},\quad L=D-W,\quad \gamma\geq0
+```
+
+**Meaning.** Finite nonnegative gamma defaults to one. Uses the
+unnormalized weighted Laplacian; scores lie between one and component
+size. Isolates and gamma zero score one. Weighted opposite arcs and
+remaining parallel edges are summed; unweighted graphs use the simple
+skeleton. Loops, mode, inversion and cutoff are ignored. These directed
+projections are cograph conventions. A component spectral calculation
+separates the constant mode and uses log-space attenuation for extreme
+parameters; unresolved weight ranges or spectra raise errors.
+
+``` r
+
+centrality_graph_regularization(student_interactions)
+```
+
+**Equivalence reference.** Dal Col and Petronetto (2023),
+DOI10.1016/j.physa.2023.129188; author implementation linked by Mendeley
+Data DOI10.17632/ns63f5dj86.1. Independent SciPy Cholesky solves, LU
+determinant ratios and 700-digit arithmetic verify the exact inverse
+definition. The retained author’s ten-term Chebyshev approximation
+differs in general; convergence at 1024 terms is checked separately.
+
+### Adaptive LeaderRank
+
+Stationary resource scores with every destination weighted by its
+original H-index and a ground node with H-index one.
+
+``` math
+h_g=1,\quad w_{ji}=a_{ji}h_i,\quad s_i=\sum_j\frac{w_{ji}}{\sum_k w_{jk}}s_j,\quad \sum_{i\cup g}s_i=N
+```
+
+**Meaning.** Computes H-indices from original open neighborhoods before
+adding ground. Default H-index mode all uses the undirected skeleton;
+out uses outgoing neighbors’ out-degrees and in uses incoming neighbors’
+in-degrees. The paper leaves this directed convention unspecified, so
+these are explicit cograph choices. Resource flow retains original arcs.
+Input weights, generic mode, loops and cutoffs are ignored; parallels
+collapse. Raw scores omit ground without redistribution. All-zero
+H-indices give NaN; otherwise H-zero nodes score zero. A native
+stationary solve handles periodicity.
+
+``` r
+
+centrality_adaptive_leaderrank(student_interactions)
+```
+
+**Equivalence reference.** Xu and Wang (2017),
+DOI10.1016/j.physa.2016.11.034, section 2.2, equation 3 and steps 1–4.
+Published PDF obtained from the author’s archive and equation visually
+checked. Verified using independent H-index threshold enumeration and
+NetworkX lazy-chain iteration, Markov-chain tree cofactors, and the
+undirected reversible-conductance identity.
+
+### Weighted LeaderRank
+
+Stationary resource scores with a ground node that distributes according
+to original in-degree powers.
+
+``` math
+w_{gi}=(k_i^{in})^{\alpha},\quad w_{ig}=1,\quad s_i=\sum_j\frac{w_{ji}}{\sum_l w_{jl}}s_j,\quad \sum_{i\cup g}s_i=N+1
+```
+
+**Meaning.** Retains original directed arcs; undirected edges become
+opposite arcs. Input weights, mode, loops and cutoffs are ignored. Raw
+scores follow the paper’s all-nodes-one initialization and omit the
+ground without redistribution. Zoo’s ground-zero initialization gives
+scores multiplied by N/(N+1); max normalization agrees. Any finite
+exponent is accepted, but negative values require positive in-degree
+everywhere. At zero exponent all ground weights are one; positive
+exponent with no edges gives NaN. A stationary solve handles
+periodicity; shifted logarithms avoid power overflow, with tiny
+probabilities allowed to underflow.
+
+``` r
+
+centrality_weighted_leaderrank(student_interactions)
+```
+
+**Equivalence reference.** Li, Zhou, Lu and Chen (2014),
+DOI10.1016/j.physa.2014.02.041, section 2 and equations 1–2; author
+preprint arxiv1306.5042v2. Independently checked with NetworkX PageRank
+on the lazy augmented chain, Markov-chain tree cofactors and 100-digit
+mpmath stationary equations. No author-code or predictive-performance
+parity is claimed.
+
+### Node Resistance Curvature
+
+A geometric descriptor based on electrical resistance, evaluated
+separately within each connected component.
+
+``` math
+p_i=1-\frac{1}{2}\sum_{j\sim i}w_{ij}R_{ij}
+```
+
+**Meaning.** Low or negative curvature identifies tree-like junctions;
+higher values indicate redundant connections. Weights are conductances.
+Isolates score one, and raw scores sum to the component count. Weighted
+directed arcs are added into undirected conductances; unweighted inputs
+use the simple skeleton. Loops are removed. Dense electrical solves make
+this an explicitly requested costly measure. Normalization preserves
+negative values but changes the component-sum identity.
+
+``` r
+
+centrality_resistance_curvature(student_interactions)
+```
+
+**Equivalence reference.** Devriendt & Lambiotte (2022), definition 1,
+equation 2; NetworkX effective resistance and exhaustive
+conductance-weighted spanning-tree degree expectations.
+
+### Dynamics-Sensitive Centrality
+
+A finite-time linearized spreading score with explicit spreading and
+recovery rates, on the simple undirected skeleton.
+
+``` math
+S(T)=\sum_{r=0}^{T-1}\beta A[\beta A+(1-\mu)I]^r\mathbf{1}
+```
+
+**Meaning.** Higher scores indicate more cumulative spreading activity
+in this approximation. Values can exceed the node count and are not
+bounded infection probabilities. Defaults are beta=0.1, mu=1, T=5.
+Recovery mu=1 recovers finite diffusion; mu=0 selects the SI case.
+Isolates and horizon zero score zero; overflow raises an error.
+
+``` r
+
+centrality_dynamics_sensitive(student_interactions)
+```
+
+**Equivalence reference.** Liu et al. (2016), preprint equations 5 and
+7; binomial expansion checked through NumPy adjacency powers and
+explicit walk enumeration over spreading, recovery and time parameters.
+
+### Finite-Horizon Diffusion Centrality
+
+Total weighted walks of lengths 1 through T starting at a node, allowing
+repeated visits and returns.
+
+``` math
+DC(A;q,T) = \sum_{t=1}^{T}(qA)^t\mathbf{1}
+```
+
+**Meaning.** High values indicate more weighted walk activity from the
+source. Probability interpretation requires entries of qA in \[0,1\].
+Defaults q=1 and T=3 are cograph choices. Directed arcs carry
+information outwards; mode and path-weight inversion do not alter the
+result. Overflow raises an error.
+
+``` r
+
+centrality_diffusion_centrality(student_interactions)
+```
+
+**Equivalence reference.** Banerjee et al. (2013, eq. 5; 2019, section
+3.1.2); independent Python walk enumeration and NumPy matrix powers. T=1
+gives q times outgoing strength; T=0 gives zero.
+
+### Dynamical Importance
+
+Relative loss of adjacency spectral radius after removing the node,
+recomputed directly for each deletion.
+
+``` math
+I_i = \frac{\rho(A)-\rho(A_{-i})}{\rho(A)}
+```
+
+**Meaning.** High values indicate a larger effect on the graph’s
+spectral radius. Supports directed nonnegative weighted graphs and
+always removes loops. The ratio is undefined (NaN) if the original
+radius is zero. Repeated eigendecomposition is held back from the
+default all tier. This is the deletion definition, not the paper’s
+eigenvector-product approximation.
+
+``` r
+
+centrality_dynamical_importance(student_interactions)
+```
+
+**Equivalence reference.** Restrepo, Ott & Hunt (2006, eq. 2);
+independent NumPy eigenspectra, exact SymPy characteristic polynomials
+for small binary graphs, and analytic clique/star/cycle examples.
 
 ### Eigenvector Centrality
 
@@ -1434,7 +3403,7 @@ under matching parameters.
 ### Bonacich Power Centrality
 
 Bonacich power centrality scores nodes using the centrality of their
-neighbours and a parameter $`\beta`$ controlling dependence.
+neighbours and a parameter \$\\beta\$ controlling dependence.
 
 ``` math
 \mathbf{c}(\alpha, \beta) = \alpha (I - \beta A)^{-1} A\,\mathbf{1}
@@ -1613,6 +3582,87 @@ centrality_markov(student_interactions)
 
 **Equivalence reference.** Validated against
 [`centiserve::markovcent()`](https://rdrr.io/pkg/centiserve/man/markovcent.html).
+This is *not* Friedkin’s immediate effects centrality; see `iec` for
+that measure and for the two differences between them.
+
+### Immediate Effects Centrality (IEC)
+
+Score a node by how quickly everyone else’s influence reaches it, along
+a chain in which every actor also listens to itself.
+
+``` math
+c_{IEC}(j)=\Bigl(\frac{\sum_{i \ne j} m_{ij}}{n-1}\Bigr)^{-1},\qquad \mathbf{M}=(\mathbf{I}-\mathbf{Z}+\mathbf{E}\mathbf{Z}_{dg})\operatorname{diag}(1/c),\qquad \mathbf{Z}=(\mathbf{I}-\mathbf{W}+\mathbf{1}c')^{-1}
+```
+
+**Meaning.** Immediacy rather than reach. Friedkin’s model sends opinion
+round a group along a row-stochastic matrix of interpersonal influence;
+an actor whose effects travel over long sequences of influence is more
+dependent on the people in between than one whose effects travel over
+short sequences, so the measure is the reciprocal of the mean length of
+the sequences that end at the node. Those mean lengths are the mean
+first passage times of the chain, so the sum runs down a column of M and
+a high score marks a node the rest of the network reaches fast. The
+influence matrix is built the way the source builds it, and the
+construction is not cosmetic: the diagonal of the adjacency matrix is
+set to one before each row is divided by its sum, so every actor gives
+itself the same weight it gives each neighbour, a specification the
+paper takes from French (1956). Its footnote says why the self-loop is
+there — a strong network with a positive diagonal must be aperiodic —
+and the paper gives the two-cycle counterexample that a zero diagonal
+admits. This is what separates the measure from cograph’s older
+`markov`, which drops the self-loop and also divides by n rather than
+n - 1: the second difference is a constant factor and cannot reorder
+anything, the first can and does, and the two rank the nodes differently
+on 2 of the 21 connected five-node graphs. Both are kept, `markov`
+because existing results depend on it. A reducible influence chain is
+refused rather than extended. Without irreducibility the left
+eigenvector has one dimension per closed class, so it is not determined
+and the diagonal matrix of its reciprocals is undefined; worse, the
+closed form does not announce the failure, returning a perfectly finite
+number for a pair whose true mean first passage time is infinite. Rather
+than publish a finite wrong number, cograph tests the chain first and
+returns NA at every node with a warning that says why. In practice that
+means a connected undirected graph or a strongly connected directed one;
+a graph with an isolate, an edgeless graph and a digraph that is
+connected but not strongly connected are all NA, and so is a one-node
+graph, where the formula divides by n - 1 = 0. An empty graph returns no
+scores. Direction is kept, because the influence matrix is directed by
+construction and row i is what actor i attends to, so there is no
+in/out/all variant and mode, cutoff and weight inversion are ignored.
+Weights are dropped deliberately: the unit diagonal is calibrated
+against unit edges, so rescaling the weights would silently re-weight
+each actor’s self-reliance against the network, and the source
+demonstrates only the binary case. Loops in the input are absorbed by
+the mandated diagonal and parallel edges collapse. Marked costly, since
+the score needs one reachability closure and two dense solves;
+normalized = TRUE max-scales the finished vector, the source stating no
+normalization.
+
+``` r
+
+centrality_iec(student_interactions)
+```
+
+**Equivalence reference.** Friedkin (1991), American Journal of
+Sociology 96(6), 1478-1504, DOI 10.1086/229694, equation (9) on page
+1485, equation (11) on page 1486, equation (20) on page 1489, and the
+construction of W with Table 1 on pages 1492-1494; the mean first
+passage form is Kemeny and Snell (1960), page 79. The paper is open
+access at the author’s institutional deposit and the full text was read,
+but the deposit is a 600 dpi scan with no text layer, so every equation
+was read from rendered page images rather than extracted. The paper
+prints a complete numerical fixture, rare in this catalogue: Table 1
+gives the measure to three decimals for every node of all 21 connected
+non-isomorphic five-node graphs, and all 105 printed values are
+reproduced, in the paper’s own node order, with the two values it
+truncates rather than rounds identified explicitly instead of absorbed
+into a tolerance. The 105 printed values of the companion total effects
+column reproduce as well. Verified in addition against four independent
+references — the closed form with an eigendecomposition, a first-step
+route that never forms the eigenvector or the fundamental matrix at all,
+exact rational arithmetic, and 60-digit mpmath — and against four closed
+forms derived by hand for complete graphs, rings, stars and directed
+cycles.
 
 ### Second-Order Centrality
 
@@ -1675,26 +3725,30 @@ centrality(student_interactions, measures = "nonbacktracking")
 **Equivalence reference.** Validated against NetworkX-style
 nonbacktracking behavior in package tests.
 
-### Diffusion Centrality
+### Diffusion Degree
 
-Diffusion centrality estimates reach through a diffusion process over
-the graph.
+The default Kandhway-Kuri method adds the scaled degree of the focal
+node and its neighbours. On a simple undirected graph:
 
 ``` math
-\mathbf{DC} = \sum_{t=1}^{T} (\lambda A)^{t}\,\mathbf{1}, \quad \lambda = 1
+DD(i) = \lambda\left(k_i + \sum_{j\in N(i)} k_j\right)
 ```
 
-**Meaning.** A high value indicates a structurally favourable position
-for spreading under the selected diffusion model.
+**Meaning.** High values indicate local connectivity through the node
+and its neighbours. With `diffusion_method = "power_series"` (automatic
+for TNA inputs), the function instead returns row sums of W + W^2 + … +
+W^n. That variant fixes the horizon at n and does not use lambda or
+mode.
 
 ``` r
 
 centrality_diffusion(student_interactions)
 ```
 
-**Equivalence reference.** Validated against `centiserve::diffusion()`
-where applicable and TNA-style diffusion conventions for transition
-networks.
+**Equivalence reference.** Default diffusion degree is checked against
+`centiserve::diffusion()` on simple graphs; the power-series variant
+follows TNA conventions. The independently parameterized Banerjee
+measure is `diffusion_centrality`.
 
 ### Infection Centrality
 
@@ -1716,6 +3770,31 @@ centrality(student_interactions, measures = "infection")
 
 **Equivalence reference.** Implemented according to infection centrality
 formulas used in the network centrality literature.
+
+### Edge Percolated Component
+
+The edge percolated component averages the size of the component a node
+ends up in when edges survive at random.
+
+``` math
+\mathrm{EPC}(v) = \frac{1}{R\,n} \sum_{r=1}^{R} |C_r(v)|, \quad \Pr(\text{edge survives}) = 1 - t
+```
+
+**Meaning.** A high value indicates a node that stays connected to a
+large share of the network under random link failure. The value is a
+Monte Carlo estimate; set `epc_seed` to make it reproducible.
+
+``` r
+
+centrality_epc(student_interactions)
+```
+
+**Equivalence reference.** Lin et al. (2008), the cytoHubba EPC.
+Recovers the exact bond-percolation mean on small graphs. cytoHubba and
+[`centiserve::epc()`](https://rdrr.io/pkg/centiserve/man/epc.html)
+divide by $`n`$ alone, so their number is `epc_runs` times this one.
+Held back from `type = \"all\"` because it is both costly and
+stochastic.
 
 ### VoteRank Centrality
 
@@ -1793,7 +3872,897 @@ centrality(student_interactions, measures = "spanning_tree")
 **Equivalence reference.** Based on matrix-tree theorem centrality
 formulations.
 
+### Shapley Value, Game 1
+
+Shapley value of the node in the coalition game whose worth is the
+number of nodes a coalition covers within one hop.
+
+``` math
+SV_1(v) = \sum_{u \in \{v\} \cup N(v)} \frac{1}{1 + k_u}
+```
+
+**Meaning.** A high value indicates a node whose presence adds much
+one-hop coverage to a typical coalition. Values sum to $`n`$.
+
+``` r
+
+centrality_shapley_game1(student_interactions)
+```
+
+**Equivalence reference.** Michalak et al. (2013), game 1. Equal to
+exact Shapley values from full coalition enumeration in package tests.
+
+### Shapley Value, Game 2
+
+Shapley value in the game where a node is covered once at least $`k`$
+coalition members are adjacent to it.
+
+``` math
+SV_2(v) = \min\!\left(1, \frac{k}{1 + k_v}\right) + \sum_{u \in N(v)} \max\!\left(0, \frac{k_u - k + 1}{k_u (1 + k_u)}\right)
+```
+
+**Meaning.** A high value indicates a node that helps push many
+neighbours over the $`k`$-neighbour threshold. With $`k = 1`$ this is
+game 1.
+
+``` r
+
+centrality_shapley_game2(student_interactions)
+```
+
+**Equivalence reference.** Michalak et al. (2013), game 2. Equal to
+exact Shapley values from full coalition enumeration in package tests.
+
+### Shapley Value, Game 3
+
+Shapley value in the game where a coalition covers every node within a
+hop cutoff.
+
+``` math
+SV_3(v) = \sum_{u \in \{v\} \cup N_d(v)} \frac{1}{1 + |N_d(u)|}, \quad N_d(u) = \{w : d(u, w) \le d_{cut}\}
+```
+
+**Meaning.** A high value indicates a node that reaches many otherwise
+hard-to-reach nodes within the cutoff. With cutoff 1 this is game 1.
+
+``` r
+
+centrality_shapley_game3(student_interactions)
+```
+
+**Equivalence reference.** Michalak et al. (2013), game 3. Equal to
+exact Shapley values from full coalition enumeration in package tests.
+
+### Rumor Centrality
+
+Rumor centrality counts the spreading orders that could have started at
+a node; on a general graph it is evaluated on the node’s breadth-first
+tree.
+
+``` math
+\log R(v) = \log N! - \sum_{u} \log T^v_u
+```
+
+**Meaning.** A high value indicates a plausible origin of a spread,
+typically a node near the centre. Returned on the log scale.
+
+``` r
+
+centrality_rumor(student_interactions)
+```
+
+**Equivalence reference.** Shah & Zaman (2011), eq. 24. Reproduces the
+paper’s Fig. 5 values and brute-force spreading-order counts on trees.
+
+### DegreeDiscountIC
+
+DegreeDiscountIC is the greedy seed-selection order under degree
+discounting for the independent-cascade model.
+
+``` math
+dd_v = d_v - 2 t_v - (d_v - t_v)\, t_v\, p
+```
+
+**Meaning.** A high score indicates an early selection: the first node
+selected scores 1, the last $`1/n`$. Ties follow node order.
+
+``` r
+
+centrality_degree_discount(student_interactions)
+```
+
+**Equivalence reference.** Chen, Wang & Yang (2009), Algorithm 4.
+Selection order matches an independent implementation on random graphs
+and the karate club.
+
+### SingleDiscount
+
+SingleDiscount is the greedy seed-selection order where each neighbour
+of a new seed discounts its degree by one.
+
+``` math
+dd_v = d_v - t_v
+```
+
+**Meaning.** A high score indicates an early selection. Equivalent to
+repeatedly removing the highest-degree node.
+
+``` r
+
+centrality_single_discount(student_interactions)
+```
+
+**Equivalence reference.** Chen, Wang & Yang (2009). Selection order
+matches an independent implementation and the node-removal formulation.
+
+### NCVoteRank
+
+NCVoteRank is VoteRank with each voter’s ability weighted by its
+normalised neighbourhood coreness, and two-hop weakening after each
+election.
+
+``` math
+s_u = \sum_{v \in N(u)} va_v \,[\theta + (1 - \theta)\, nc_v]
+```
+
+**Meaning.** A high score indicates an early election. With
+$`\theta = 1`$ and no two-hop weakening this is VoteRank.
+
+``` r
+
+centrality_ncvoterank(student_interactions)
+```
+
+**Equivalence reference.** Kumar & Panda (2020), as restated by the
+Centrality Zoo and three later papers; the original article was not
+obtainable. VoteRank limit reproduces `networkx.voterank`.
+
+### WVoteRank
+
+WVoteRank is VoteRank for weighted graphs: votes are weighted by edge
+weight and the score takes a square root.
+
+``` math
+s_v = \sqrt{k_v \sum_{u \in N(v)} va_u w_{vu}}
+```
+
+**Meaning.** A high score indicates an early election. Neighbours of an
+elected node lose $`1/\langle w \rangle`$, with $`\langle w \rangle`$
+the average strength.
+
+``` r
+
+centrality_wvoterank(student_interactions)
+```
+
+**Equivalence reference.** Sun, Chen, He & Ch’ng (2019). Reproduces all
+sixty numbers of the paper’s Figure 1.
+
+### EnRenew
+
+EnRenew elects the node whose neighbours supply the most entropy, then
+renews the entropies around it.
+
+``` math
+E_v = \sum_{u \in N(v)} -p_{uv} \ln p_{uv}, \quad p_{uv} = \frac{k_u}{\sum_{l \in N(v)} k_l}
+```
+
+**Meaning.** A high score indicates an early election. Terms within the
+renewal radius are scaled by $`1 - 1/(2^{d-1} \ln\langle k \rangle)`$.
+
+``` r
+
+centrality_enrenew(student_interactions)
+```
+
+**Equivalence reference.** Guo, Yang, Guo, Pan & Chen (2020), eq. 1 and
+Algorithm 1. Reproduces the paper’s Figure 1.
+
+### VoteRank++
+
+VoteRank++ starts abilities from degree, splits votes in proportion to
+neighbour degree, and suppresses abilities multiplicatively after each
+election.
+
+``` math
+s_v = \sqrt{k_v \sum_{u \in N(v)} va_u\, w_{u \to v}}, \quad va_v^{(0)} = \ln(1 + k_v / k_{\max})
+```
+
+**Meaning.** A high score indicates an early election. Abilities are
+multiplied by $`\lambda`$ one step away and $`\sqrt{\lambda}`$ two steps
+away.
+
+``` r
+
+centrality_voterank_plus(student_interactions)
+```
+
+**Equivalence reference.** Liu, Li, Fang & Yao (2021). Matches the
+authors’ released code exactly; the article is closed access.
+
+### Node Contraction
+
+Node contraction importance measures how much the network’s cohesion
+rises when a node and its neighbours are merged into one.
+
+``` math
+IMC(v) = 1 - \frac{\partial(G)}{\partial(G_v)}, \quad \partial(G) = \frac{1}{N \bar{L}}
+```
+
+**Meaning.** A high value indicates a node whose contraction shortens
+paths most. Reproduces the paper’s Table 1 and the path-graph closed
+forms.
+
+``` r
+
+centrality_node_contraction(student_interactions)
+```
+
+**Equivalence reference.** Tan, Wu & Deng (2006), as restated by Wang et
+al. (2011), eqs. 1-3.
+
+### Improved Node Contraction
+
+Improved node contraction adds the contraction scores of a node’s edges,
+computed on the line graph.
+
+``` math
+IIMC(v) = \alpha\, IMC(v) + \beta \sum_{e \ni v} IMC_{L(G)}(e), \quad \alpha / \beta = 5
+```
+
+**Meaning.** A high value indicates a node that is important both itself
+and through its edges. Not bounded by 1.
+
+``` r
+
+centrality_node_contraction_improved(student_interactions)
+```
+
+**Equivalence reference.** Wang et al. (2011), eq. 4. Reproduces the
+paper’s Table 1 with $`\alpha + \beta = 1`$.
+
+### Two-Way Random Walk Betweenness
+
+Two-way random walk betweenness counts, over all node pairs, how often a
+node lies on the most likely two-step out-and-back route.
+
+``` math
+T_{ij}[t, k] = P_{itj} P_{jki}, \quad P_{itj} = \frac{w_{it} w_{tj}}{d_i d_j}
+```
+
+**Meaning.** A high count indicates a node on many dominant two-way
+routes; nodes on none score 0. Cost grows as $`n^4`$.
+
+``` r
+
+centrality_two_way_rw(student_interactions)
+```
+
+**Equivalence reference.** Curado, Rodriguez, Tortosa & Vicent (2022).
+Reproduces the paper’s toy example exactly.
+
 ## Neighbourhood structure and cohesion
+
+### Degree and importance of lines (DIL)
+
+Add to a node’s degree the share it can claim of the importance of the
+lines that touch it, where a line matters when its endpoints reach far
+beyond it and no triangle offers a way round.
+
+``` math
+L_{v_i}=k_i+\sum_{v_j\in\Gamma_i}W_{v_iv_j},\qquad W_{v_iv_j}=I_{e_{ij}}\frac{k_i-1}{k_i+k_j-2},\qquad I_{e_{mn}}=\frac{(k_m-p-1)(k_n-p-1)}{p/2+1}
+```
+
+**Meaning.** Degree, corrected for whether a node’s lines are worth
+anything. Degree alone counts every line the same; this measure first
+asks what each line is worth and then asks how much of that worth
+belongs to the node at each end. A line is worth a lot when both its
+endpoints reach far past it, which is the product of the two degrees
+reduced by the line itself and by the triangles carrying it, and it is
+worth less when triangles do carry it, because a triangle is a way
+round. The worth is then split between the two endpoints in proportion
+to their own degrees, so the busier endpoint claims more of it. The two
+shares sum to one, which makes the split a genuine conservation: the
+network’s total excess over degree is exactly the total importance of
+its lines. The number of triangles on a line is the number of common
+neighbours of its endpoints, and because an endpoint’s neighbour list
+already contains the other endpoint, that count can never exceed either
+degree minus one. Both factors of the numerator are therefore at least
+zero, every line’s importance is at least zero, and no score ever falls
+below its node’s degree. Equality is the common case rather than the
+exceptional one: every line of a complete graph is carried by n - 2
+triangles, and every line of a star touches a leaf, so both score
+exactly the degree at every node. The parameter written lambda is p/2 +
+1 and not 2p + 1, which matters because the published PDF’s text layer
+renders that stacked fraction wrongly in the original as well as in its
+later reproduction; the paper’s own worked example prints the value 1.5
+at one triangle and settles it. The one undefined case is an isolated
+pair of nodes, where the denominator of the split vanishes because both
+degrees are one. The source says nothing about it. It resolves rather
+than refuses, because the same two degrees that make the split
+indeterminate also make the line’s importance exactly zero, and a share
+of nothing is nothing whichever share it is; the test is taken before
+the division, so no zero over zero is ever evaluated, and both nodes of
+an isolated pair score one. Nothing in the construction reaches past a
+node’s second neighbours, so raw scores are component-local and a
+disjoint component moves nothing: an isolate scores zero, a singleton
+graph and an edgeless graph score zero everywhere, a disconnected graph
+needs no special rule, and an empty graph returns no scores. Direction
+and weights are dropped to the simple undirected skeleton, the authors
+stating that domain themselves in the opening line of their derivation
+and every quantity in the three equations being a count; mode, cutoff
+and weight inversion are ignored, and normalized = TRUE max-scales the
+finished vector, the source stating no normalization. Not costly: the
+source calls it local information at O(n^2), and the kernel is one
+masked matrix product plus elementwise work.
+
+``` r
+
+centrality_dil(student_interactions)
+```
+
+**Equivalence reference.** Liu, Xiong, Shi, Shi and Wang (2016), Physica
+A 452, 209-219, DOI 10.1016/j.physa.2016.02.049, equation (1) with its
+symbol list on page 210, equations (2) and (3) on page 211, the
+complexity claim in table 4 on page 218, and the ARPA fixture in table 3
+and figure 6 on page 217. The paper is CC-BY-NC-ND open access and the
+original was read, every equation and every figure from 300 dpi page
+images rather than from the text layer, which mangles the definition of
+lambda. Its three published fixtures all reproduce: the two edge
+importances of figure 1 as exact fractions, the four edge importances
+and both node scores of figure 2 as exact fractions, and all twenty-one
+values of the table 3 column for the ARPA network, each matching the
+paper’s own rounding at four decimal places, in the descending order the
+table prints them. The edge list read off figure 6 is corroborated by
+the paper’s own degree column, which it matches at all twenty-one nodes;
+the paper’s prose calls that network twenty-three lines where its table
+and its figure both say twenty-six, and the table and the figure are
+followed. Zoo entry 2.62 and the reproduction in Almasi and Hu (2019),
+PLoS ONE 14(3), e0205936, agree with the original symbol for symbol, so
+no divergence is recorded anywhere. Verified in addition against four
+independent references: exact rational arithmetic over Python sets, a
+NetworkX route accumulating the equations one incident line at a time, a
+dense NumPy route, and exact rational arithmetic again with the triangle
+census by exhaustive enumeration of every node triple. Seven closed
+forms derived by hand are also checked, for complete graphs, stars,
+rings, the Petersen graph, paths and complete bipartite graphs. No
+author or third-party code exists, so no author-parity claim is made,
+and the paper’s network-efficiency experiments were not reproduced.
+
+### Lhc index
+
+Score a node by how much degree, inflated by each contributor’s share of
+the network’s triangles, sits within a couple of steps of its
+neighbours.
+
+``` math
+Lhc(v)=\sum_{w\in\tau(v)}C(w),\qquad C(v)=\sum_{u\in\Phi(v)}\frac{k_u\bigl(1+TP(u)\bigr)}{d^{2}(uv)},\qquad TP(u)=\frac{NTS(u)}{TNTS}
+```
+
+**Meaning.** Neighbour information and topological location in one
+number. The neighbour half is degree; the location half is the share of
+the network’s triangles that sit on a node, on the reasoning that a node
+carrying many triangles is embedded in a dense part of the graph rather
+than dangling off it. Both travel: each member of the ball of radius
+lhc_radius around a node contributes its degree, inflated by its
+triangle share, discounted by the square of its distance, and the index
+is that influence summed once more over the node’s own neighbours. The
+two-step construction is what makes it semi-local rather than local, and
+it is why a node with modest degree but well-embedded neighbours can
+outscore a locally busy one. The triangle share is normalised by TNTS,
+the sum over nodes of the triangle counts, which the source states is
+three times the number of distinct triangles; the share therefore sums
+to exactly one over the nodes. Entry 2.221 of the Centrality Zoo
+transcribes both equations correctly but names the denominator the
+number of triangular structures in the network, which read literally is
+three times too small and gives 125.45 where the paper gives 100.15 on
+the Krackhardt kite; cograph follows the paper, which settles the point
+itself. Both neighbourhoods are open: the focal node is outside its own
+ball, because a zero distance would divide by zero, and unreachable
+nodes fall outside the radius so nothing becomes infinite. It follows,
+though the source does not remark on it, that a node does enter its own
+score, since it lies at distance one from each of its neighbours.
+lhc_radius is the source’s own parameter, written d there, set to 2 in
+the paper and swept over eleven real networks in its experiments, which
+report 2 to 3 as optimal and the correlation as stable beyond 3. At
+radius 1 the ball collapses to the neighbours; at or above the graph
+radius the ball has saturated and the score stops moving. A
+triangle-free graph is a cograph decision the source does not make:
+every tree, star, path, even cycle and bipartite graph has no triangles
+at all, so the share is a zero over zero at every node. Because the
+total vanishes exactly when every numerator does, there is no share to
+distribute and none is given: the share is written as zero and the index
+reduces to the pure degree-over-squared-distance sum, which is the
+neighbour and location half of the hybrid with the triangle half
+contributing nothing. The test is made before any division, so nothing
+divides by zero and nothing is returned as an unexplained zero. Raw
+scores are not component-local, because the triangle total is global:
+attaching a disconnected component that carries a triangle rescales
+every share and moves every score, while attaching one with no triangle,
+an isolate included, changes nothing. An isolate scores zero because it
+has no neighbours to sum over, and a singleton graph and every node of
+an edgeless graph score zero for the same reason. Direction, weights,
+loops and parallel edges are dropped to the simple undirected skeleton
+the source defines on, since degree is a count, distance a hop count and
+the triangle count combinatorial; mode, cutoff and weight inversion are
+ignored, empty graphs return no scores, and normalized = TRUE max-scales
+the finished vector, the source stating no normalization. The paper
+prints no worked example and no table of node scores, so there is no
+published fixture to reproduce; verification rests on independent
+reference implementations and on hand-derived closed forms for stars,
+complete graphs, rings and paths.
+
+``` r
+
+centrality_lhc(student_interactions)
+```
+
+**Equivalence reference.** Wang, Yang, Liu and Ma (2021), PLoS ONE
+16(5), e0251208, DOI 10.1371/journal.pone.0251208, equation (1) and its
+symbol list on page 3, equation (2), the d = 2 statement and Algorithm 1
+on page 4, and the d sweep on page 7. The paper is fully open access and
+the publisher PDF was read.
+
+### Hybrid characteristic centrality (HCC)
+
+Add a node’s blended local degree to how late a repeated minimum-degree
+peel gets round to removing it.
+
+``` math
+HCC(u)=\frac{k^{ex}(u)}{k^{ex}_{\max}}+\frac{pos(u)}{pos_{\max}},\qquad k^{ex}(u)=\delta k(u)+(1-\delta)\!\!\sum_{v\in\phi(u)}\!\!k(v)
+```
+
+**Meaning.** Two characteristics on one scale. The extended degree is
+the node’s own degree blended with its neighbours’, so a node with few
+but well-connected neighbours is not written off; the E-shell position
+index is the round in which a peel that repeatedly removes every
+remaining node of minimum extended degree gets to this one, so it says
+how deep in the graph the node sits. Both are divided by their largest
+value, so each lies in \[0, 1\] and the raw score lies in \[0, 2\]. The
+E-shell decomposition is not a k-shell decomposition, although the
+Centrality Zoo describes it as a variant of one: there is no outer loop
+over a shell index and no repeat-until-stable inner loop, so the
+position indexes run 1 to pos_max with every value attained. On a
+four-node path the k-shell reading puts all four nodes in one shell,
+while the E-shell peel takes two rounds. The source’s printed step 3 is
+a typo, and cograph implements the correction the source’s own tables
+require: it prints arg max where the same sentence calls the set ‘the
+set of minimum nodes’ and where table 2’s column, headed ‘Minimum
+extended degree’, increases through 2, 2.5, 3, 4.5, 5, 6. Reading it
+literally as a maximum peel gives a different measure. A second reading
+is settled the same way: step 6 recomputes the extended degrees on the
+residual graph after each removal, but the k^ex and k^ex_max of the
+score itself are the original-graph values, as the paper’s worked line
+4.5/11 + 4/6 shows and as its node d confirms, the original 9.5 giving
+the printed 1.86 where the residual 6 would give 1.55. hcc_delta
+defaults to the source’s 0.5 and is confined to the source’s stated \[0,
+1\]; one recovers the classical degree, zero drops the node’s own degree
+entirely, and a value outside the interval is refused rather than
+extended, because it can make the extended degree negative and then the
+score divides by a nonpositive maximum. Raw scores are not
+component-local: k^ex_max and pos_max are single global constants, so
+adding a disconnected component rescales the two halves independently
+rather than applying one common factor. An isolate has extended degree
+zero, the global minimum for every admissible delta, so it always leaves
+in the first round; on an edgeless graph every extended degree is zero
+and the first term is 0/0, written as zero, which leaves the E-shell
+term alone, so every node of an edgeless graph, a singleton included,
+scores exactly 1. Uses the simple undirected unweighted skeleton: either
+arc creates one edge, parallels count once and loops are removed.
+Weights, mode, cutoff and inversion are ignored and a directed input is
+symmetrised, the source defining no directed case. Empty graphs return
+no scores; normalized = TRUE max-scales on top of the two divisions the
+formula already performs. Cost is one dense matrix-vector product per
+peeling round.
+
+``` r
+
+centrality_hcc(student_interactions)
+```
+
+**Equivalence reference.** Liu and Zheng (2023), Scientific Reports13,
+3197, DOI10.1038/s41598-023-30308-5, equations (3) and (4) and the
+eight-step E-shell hierarchy decomposition on page3, with the worked
+example and tables1-3 on page4. The paper is fully open access and the
+publisher PDF was read, pages2-4 visually inspected and the figure1 edge
+list transcribed from a 500dpi crop. Eighty-five of the eighty-six
+values it prints reproduce: all ten classical degrees, all ten extended
+degrees, all six rows of the decomposition trace, both worked lines, the
+stated maxima 11 and 6, all ten HCC values and nine of the ten EHCC
+values. The tenth is an unresolved disagreement, recorded rather than
+tuned away: table3 prints EHCC(g) = 10.01 where the exact value 661/66
+is 10.015151 and rounds to 10.02; that cell is the truncation, but six
+other printed cells require rounding, so no single convention reproduces
+all twenty. Verified against four independent references: a NetworkX
+induced-subgraph rebuild every round with exact rational extended
+degrees, a repeated-minimum-extraction peel over rational-keyed buckets
+with local rebucketing, the same peel decided at 60 digits, and the
+closed neighbourhood as an exact integer matrix product. No author
+software exists, so no author-parity claim is made, and the paper’s SIR
+spreading results were not reproduced.
+
+### Extended hybrid characteristic centrality (EHCC)
+
+Collect a node’s own hybrid characteristic score together with every
+neighbour’s.
+
+``` math
+EHCC(u)=HCC(u)+\sum_{v\in\phi(u)}HCC(v)
+```
+
+**Meaning.** The closed-neighbourhood sum of the hybrid characteristic
+centrality, the focal node counted once and each neighbour of the open
+one-order neighbourhood once. It rewards a node whose neighbours are
+themselves both locally dense and deep in the hierarchy, which a node
+can be without being either itself; on the source’s own figure 1 it
+lifts node g above node e, which ties with it on HCC. Because HCC lies
+in \[0, 2\], EHCC lies in \[0, 2(1 + k)\], and an isolate scores exactly
+its own HCC, having nothing to add. Everything recorded for the hybrid
+characteristic centrality carries over unchanged: the source’s arg max /
+arg min typo, the original-graph reading of the extended degree against
+the residual-graph peel, the global and therefore not component-local
+normalisers, the hcc_delta domain \[0, 1\], the 0/0 of an edgeless graph
+written as zero, the simple undirected unweighted skeleton, and the
+ignored weights, mode, cutoff and inversion.
+
+``` r
+
+centrality_ehcc(student_interactions)
+```
+
+**Equivalence reference.** Liu and Zheng (2023), Scientific Reports13,
+3197, DOI10.1038/s41598-023-30308-5, equation (5) on page3, with the
+printed worked line EHCC(a) = HCC(a) + HCC(b) + HCC(e) = 4.15 and table3
+on page4. Nine of the ten printed EHCC values reproduce; the tenth,
+EHCC(g), is printed 10.01 where the exact 661/66 rounds to 10.02, and
+that disagreement is retained in the batch’s published audit. Verified
+against the same four independent references as HCC, with a fourth
+EHCC-only route forming the closed neighbourhood as an exact
+object-dtype matrix product instead of a floating-point one.
+
+### KED method
+
+Weight the degree by how evenly a node’s neighbours carry its local
+paths, then by how many second-step paths there are.
+
+``` math
+KED(i)=k_i\bigl(1+H_i\bigr)\exp\!\Bigl(\frac{K_i}{N}\Bigr),\qquad H_i=\frac{\sum_{j\in N(i)}-p_j\log p_j}{\log k_i},\quad p_j=\frac{k_j}{K_i},\quad K_i=\sum_{j\in N(i)}k_j
+```
+
+**Meaning.** Two nodes of the same degree with the same number of second
+neighbours can still spread very differently: if one neighbour carries
+almost all the onward paths, the information dies with it. H is the
+entropy of the neighbours’ degree distribution divided by its own
+maximum, the entropy of the uniform distribution on k_i outcomes, so it
+lies in \[0, 1\] and equals one exactly when the neighbour degrees are
+all equal. That ratio is taken in one base top and bottom, so the
+logarithm base cancels and is not a convention to choose. The measure
+takes no parameters: equation (6) is a bare product, and the tunable
+exponents alpha and beta the Centrality Zoo attributes to Chen et
+al. appear nowhere in the paper. Two degenerate cases are cograph
+decisions the source never mentions. A node with one neighbour has zero
+entropy and a zero normaliser, a 0/0 written as H = 0, which is the
+value approached from k_i = 2 as one neighbour’s share vanishes and the
+one that gives a single-path node the least diversity; reading it as H =
+1 instead would double every leaf’s score. An isolate has both sums
+empty and scores zero, which the degree factor forces anyway. Raw scores
+are not comparable across graphs of different order, and here that is
+more than a rescaling: N is the whole graph’s vertex count, and
+exp(K_i/N) shrinks a large neighbour-degree sum more than a small one,
+so adding a disconnected component can reorder nodes. The source’s
+stated range 1 \<= D \<= e is not general either; it needs K_i \<= N,
+which holds on its sparse toy networks and fails on dense graphs, where
+every node of the five-clique has K_i = 16 against N = 5. cograph
+implements the formula, not the range claim. The Centrality Zoo prints
+the formula twice wrong, dropping the 1 + from E and dividing by the
+largest cluster degree instead of by N, which gives 13.5914 and 6.5672
+where the paper prints 25.9187 and 19.2212, so no Zoo variant is
+offered. Uses the simple undirected unweighted skeleton: either arc
+creates one edge, parallels count once and loops are removed. Weights,
+mode, cutoff and inversion are ignored, and the source’s directed
+out-degree variant is not implemented, so a directed input is
+symmetrised. Empty graphs return no scores; normalized = TRUE
+max-scales. Cost is two matrix-vector products; an exponent past the
+range of exp(), which needs about 710 vertices on a complete graph,
+raises an error rather than returning Inf.
+
+``` r
+
+centrality_ked(student_interactions)
+```
+
+**Equivalence reference.** Chen, Xiao, Zeng and Zhang (2014),
+EPL104(6):68006, DOI10.1209/0295-5075/104/68006, equations (1) and (2)
+page2 and equation (6) page4. The IOP version of record was NOT read;
+what was read is the author preprint arXiv:1305.7480, with pages2-4
+visually inspected and the figure1 graphs transcribed from a 500dpi
+crop. Both scores the paper prints, f=25.9187 for the red node of panel
+(a) and f=19.2212 for the red node of panel (b), reproduce to all four
+printed decimals, as do the figure1 caption’s three structural claims.
+Verified against five independent references: exact rational neighbour
+probabilities with the entropy accumulated at 60 digits, the same terms
+in float64 with an exactly rounded sum, a traversal bucketed by distinct
+neighbour degree, the whole ratio taken in base ten, and the exponential
+split at the exact integer quotient and remainder. No author software
+exists, so no author-parity claim is made, and the paper’s SIR spreading
+results were not reproduced.
+
+### Local neighbor contribution (LNC)
+
+Multiply what a node contributes on its own by what its neighbourhood
+contributes to it.
+
+``` math
+LNC(i)=\underbrace{d_i\bigl(1-1/d_i\bigr)^{d_i-1}}_{ownCon(i)}\cdot\underbrace{d_i^{2}\frac{\sum_{j\in N(i)}d_j}{n-1}}_{neiCon(i)},\qquad 0^0:=1
+```
+
+**Meaning.** The own contribution is the chance that a node picking one
+neighbour uniformly at random picks a given one and misses the rest,
+scaled by its degree; the neighbour contribution is the source’s cluster
+degree, the sum of the neighbours’ degrees, weighted by their degree
+centralities. A node scores well when it has many neighbours and those
+neighbours are themselves well connected, and a degree-one node scores
+exactly its neighbour’s degree centrality. The measure takes no
+parameters at all, which the source advertises as one of its
+contributions. Raw scores are not comparable across graphs of different
+order: the 1/(n - 1) comes from the degree centrality of equation (1),
+where n is the vertex count of the whole network rather than of the
+node’s component, so adding a disconnected component multiplies every
+score by (n - 1)/(n’ - 1) and leaves only the ranking untouched. The
+source’s printed equations do not literally give its printed numbers,
+and cograph follows the numbers. Equations (4) and (5) both sum a term
+over j = 1 to k, and k is described three incompatible ways: the prose
+calls it the number of nearest and next nearest neighbours, Algorithm 1
+sets it to the degree, and equation (5) taken literally carries one
+factor of d_i too many, giving 6.75 for the node the paper prints 1.6875
+for. Inverting each of the eleven printed influences gives k = d_i^2 in
+equation (4) and k = d_i in equation (5), the reading implemented here;
+the equally literal split that moves one d_i from the neighbour factor
+to the own factor gives the same product, so the measure itself is
+unambiguous. The Centrality Zoo prints a different formula again,
+replacing the focal node’s contribution probability by each neighbour’s
+and the binomial count by the size of the two-hop neighbourhood; it
+reproduces none of the printed values and inverts the source’s headline
+ranking, so it is not offered. Uses the simple undirected unweighted
+skeleton: either arc creates one edge, parallels count once and loops
+are removed. Weights, mode, cutoff and inversion are ignored. An isolate
+has no contribution probability and scores zero by explicit extension,
+and so does the single node of a singleton graph, where n - 1 vanishes
+too; empty graphs return no scores. There is no normalization in the
+source; normalized = TRUE max-scales. Cost is one sparse matrix-vector
+product, and nothing overflows.
+
+``` r
+
+centrality_lnc(student_interactions)
+```
+
+**Equivalence reference.** Dai, Wang, Sheng, Sun, Khawaja, Ullah, Dejene
+and Duan (2019), IEEE Access7,131719-131731,
+DOI10.1109/ACCESS.2019.2939804, Definitions1-5, equations (1)-(6) and
+Algorithm1, journal pages131721-131723, with the Figure1 graph and
+Table1 on page131720. IEEE Xplore refuses non-browser clients, so the
+open-access PDF read is the Internet Archive capture of the publisher
+file; pages2-5 were visually inspected. All eleven printed Table1
+influences, the printed ranking and the three printed intermediates
+D(v5)=12, ownCon(v5)=1.6875 and neiCon(v5)=19.2 reproduce. Verified
+against five independent references: exact rational sums over NetworkX
+neighbour lists, the cluster degree read off an exact integer square of
+the adjacency matrix, an alternating binomial expansion with explicitly
+enumerated length-two walks, 60-digit arithmetic, and a separately
+formed own/neighbour split. No author software exists, so no
+author-parity claim is made, and the paper’s SIR spreading results were
+not reproduced.
+
+### Neighborhood (neighbor distance) centrality
+
+Add up a benchmark centrality over the non-backtracking walks that leave
+the node, discounted once per step.
+
+``` math
+C^n_i(\theta)=\theta_i+\sum_{k=1}^{n}a^k\!\!\sum_{w\in W_k(i)}\!\!\theta_{\mathrm{end}(w)},\quad W_k(i)=\{\text{non-backtracking walks of length }k\text{ from }i\}
+```
+
+**Meaning.** The source writes the terms as nested sums, over j in
+Gamma_i, then over l in Gamma_j minus i, then over m in Gamma_l minus j,
+and so on: each level excludes only the node the walk just came from.
+The k-th term is therefore a sum over the non-backtracking walks of
+length k, and an endpoint reached by several such walks counts once per
+walk. A walk may return to a node it already visited, the focal node
+included; only immediate backtracking is barred. This is not a sum over
+distance shells. The Centrality Zoo paraphrases the measure with sums
+over the k-hop neighbour sets, which agrees on trees and disagrees on
+any graph with a triangle or a cycle of length at most 2n. On the
+triangle-plus-pendant A-B, A-C, B-C, A-D the implemented reading gives
+4.16, 3.24, 3.24, 1.76 while distance shells would give 4.00, 3.04,
+3.04, 1.76. No shell variant is offered, because the shell form appears
+only in that paraphrase. Defaults nd_mass = degree, nd_order = 2 and
+nd_decay = 0.2 are the source’s own recommendation and are what the Zoo
+calls neighbor distance centrality; nd_mass = coreness is the source’s
+other benchmark. nd_order = 0 or nd_decay = 0 returns the benchmark
+itself. The source’s parameter domain is a in \[0,1\] and n from 1 to 4;
+cograph accepts any finite decay and any nonnegative whole order, which
+leaves that domain. Uses the simple undirected unweighted skeleton:
+either arc creates one edge, parallels count once and loops are removed,
+since a loop would make the previous node ambiguous. Weights, mode,
+cutoff and inversion are ignored. Isolates score zero, walks never leave
+a component so raw scores are component-local, and empty graphs return
+no scores. There is no normalization in the source; normalized = TRUE
+max-scales as elsewhere. Cost is nd_order matrix-vector products, O(n^2)
+each; walk counts grow geometrically, so a large order overflows.
+
+``` r
+
+centrality_neighbor_distance(student_interactions)
+```
+
+**Equivalence reference.** Liu, Tang, Zhou and Do (2016), Physica
+A452,289-298, DOI10.1016/j.physa.2016.02.028, section2.3 equation1, read
+in the author preprint arXiv:1511.00441v1 page4; the published version
+is paywalled and was not read. The paper prints no table of node scores,
+so there is no published numerical fixture; its printed statements about
+the measure are checked instead. Verified against four independent
+walk-counting references: dictionary edge propagation, explicit
+enumeration of every non-backtracking walk, brute-force enumeration of
+all walks with the backtracking ones filtered out, and a dense Hashimoto
+edge matrix, all in exact rational arithmetic. No author software
+exists, so no author-parity claim is made, and the paper’s SIR spreading
+results were not reproduced.
+
+### Coleman-Theil hierarchy
+
+Concentration of Burt’s dyadic constraints over a node’s contacts.
+
+``` math
+H_i=\frac{\sum_{j\in N(i)}r_{ij}\log(r_{ij})}{d_i\log d_i},\quad r_{ij}=c_{ij}/\operatorname{mean}_{k\in N(i)}c_{ik}
+```
+
+**Meaning.** Mutual weights sum both directions; local constraints use
+full-graph investment proportions and organizational multipliers fixed
+at one. Distinct positive mutual contacts determine the count. Zero
+weights and loops are removed; remaining parallel weights sum. The
+author’s manual sets isolates to zero and one-contact nodes to one.
+Default scores lie in \[0,1\]; normalized=TRUE additionally divides by
+the global maximum. Mode, inversion and cutoff are ignored. Dense O(n^3)
+time/O(n^2) memory; stable entropy arithmetic preserves tiny departures
+from uniformity.
+
+``` r
+
+centrality_coleman_theil(student_interactions)
+```
+
+**Equivalence reference.** Burt, STRUCTURE4.2 Reference Manual
+(copyright1991), pp181–183, reproducing Burt1992 eq2.9. Author formula
+and small-network conventions visually read. Verified using NetworkX
+local_constraint plus direct entropy, exact rational constraints and
+mpmath100 near-uniform cases. JUNG documents a different isolate
+convention (NaN); that behavior is not claimed equivalent.
+
+### Maximal Clique Centrality
+
+Sum of factorial contributions from maximal cliques containing the node,
+on the simple undirected skeleton.
+
+``` math
+MCC(v) = \sum_{C\in\mathcal{M}(v),\,|C|\geq2} (|C|-1)!
+```
+
+**Meaning.** Larger cliques contribute much more than edges or
+triangles. Contained cliques are excluded. Isolates score 0 by explicit
+convention. Exponential enumeration is held back from the default all
+tier; raw-score overflow raises an error.
+
+``` r
+
+centrality_mcc(student_interactions)
+```
+
+**Equivalence reference.** Chin et al. (2014); NetworkX maximal cliques
+and independent exhaustive subset recognition on small graphs. No
+author-software parity claim.
+
+### Node Truss Number
+
+The largest truss number of an incident edge, on the simple undirected
+skeleton.
+
+``` math
+t(v) = \max\{k : v \in V(T_k)\},\quad T_k:\ \text{each edge has at least } k-2\text{ triangles}
+```
+
+**Meaning.** Higher values indicate triangle-supported cohesion. Tree
+vertices score 2, a k-clique scores k, and isolates score 0.
+
+``` r
+
+centrality_truss(student_interactions)
+```
+
+**Equivalence reference.** Malliaros et al. (2016); exact comparison
+against NetworkX k_truss using the k-2 convention.
+
+### Mixed Degree Decomposition
+
+Shell thresholds from residual degree plus attenuated exhausted degree.
+
+``` math
+k_i^{m} = k_i^{r} + \lambda k_i^{e}
+```
+
+**Meaning.** Higher means membership of a stronger mixed-degree shell.
+Lambda 0 gives coreness; lambda 1 gives degree. Default 0.7; scores need
+not be integers.
+
+``` r
+
+centrality_mdd(student_interactions)
+```
+
+**Equivalence reference.** Zeng & Zhang (2013); exhaustive
+subset-threshold oracle independent of peeling, plus igraph coreness and
+degree limits.
+
+### Bridging Coefficient
+
+The reciprocal-degree ratio before multiplication by betweenness.
+
+``` math
+B(i) = \frac{1/k_i}{\sum_{j\in N(i)}1/k_j}
+```
+
+**Meaning.** Higher values identify low-degree nodes adjacent to
+high-degree nodes. Isolates score 0. Uses the simple undirected
+skeleton.
+
+``` r
+
+centrality_bridging_coefficient(student_interactions)
+```
+
+**Equivalence reference.** Hwang et al. (2006, eq. 3; 2008); independent
+Python evaluation using NetworkX neighbourhoods and degrees.
+
+### Godfather Index
+
+The number of unconnected unordered pairs of a node’s neighbours.
+
+``` math
+GF(i) = {k_i\choose 2} - t_i
+```
+
+**Meaning.** Higher values indicate more local brokerage opportunities.
+Here t_i counts focal triangles. Uses the simple undirected skeleton.
+
+``` r
+
+centrality_godfather(student_interactions)
+```
+
+**Equivalence reference.** Jackson (2020), section 3.2; Python
+neighbour-pair enumeration checks the production triangle-subtraction
+formula.
+
+### Supported Relationships
+
+The number of neighbours sharing at least one common neighbour with the
+node.
+
+``` math
+S(i) = |\{j\in N(i):(A^2)_{ij}>0\}|
+```
+
+**Meaning.** Higher values mean more triangle-supported relationships; a
+relationship counts once even if several common neighbours support it.
+Uses the simple undirected skeleton.
+
+``` r
+
+centrality_support(student_interactions)
+```
+
+**Equivalence reference.** Jackson (2020), section 3.4; exact comparison
+to degrees in the NetworkX 3-truss.
 
 ### Transitivity Centrality
 
@@ -1971,7 +4940,151 @@ centrality_kreach(student_interactions)
 
 **Equivalence reference.** Validated against k-path reach conventions.
 
+### s-shell Index
+
+The s-shell index peels the graph by node strength built from asymmetric
+topological link weights, generalising k-shell.
+
+``` math
+w_{ij} = 1 + (k_i\, k^{out}_j)^a, \quad s_i = \sum_{j \in N(i)} w_{ij}
+```
+
+**Meaning.** A high shell index indicates a node deep in the
+strength-based core. With $`a = 0`$ the shells are the dense ranks of
+k-core.
+
+``` r
+
+centrality_s_shell(student_interactions)
+```
+
+**Equivalence reference.** Liu, Tang, Do & Hui (2017). Each peeled shell
+equals the complement of the maximal subgraph with strength above the
+threshold; $`a = 0`$ reproduces k-core ranks.
+
+### Weighted k-shell
+
+The weighted k-shell peels the graph by a generalised degree that mixes
+degree and strength.
+
+``` math
+k'_v = \big(k_v^{\alpha} s_v^{\beta}\big)^{1 / (\alpha + \beta)}
+```
+
+**Meaning.** A high shell index indicates a node deep in the weighted
+core. Unit weights give the k-core number.
+
+``` r
+
+centrality_weighted_kshell(student_interactions)
+```
+
+**Equivalence reference.** Garas, Schweitzer & Havlin (2012), eq. 1 with
+their weight normalisation. Reproduces the paper’s Figure 1 example and
+Table 2 core size.
+
+### Renewed Coreness
+
+Renewed coreness is the k-core number after removing links that lead
+nowhere new.
+
+``` math
+D_{ij} = \frac{|N(j) \setminus N[i]| + |N(i) \setminus N[j]|}{2}, \quad \text{keep } D_{ij} \ge 2
+```
+
+**Meaning.** A high value indicates a core node whose links reach beyond
+shared neighbourhoods. A clique with no outside links scores 0.
+
+``` r
+
+centrality_renewed_coreness(student_interactions)
+```
+
+**Equivalence reference.** Liu, Tang, Zhou & Do (2015). Reproduces the
+paper’s Figure 1 and all twelve percentages of its Table S1.
+
+### s-core Index
+
+The s-core index is the weighted k-core: the largest strength threshold
+whose core still contains the node.
+
+``` math
+s\text{-core}(s) = \text{maximal } H \subseteq G \text{ with } s_i^H \ge s \;\; \forall i \in H
+```
+
+**Meaning.** A high value indicates a node deep in the strength-based
+core. Unit weights give the k-core number exactly.
+
+``` r
+
+centrality_s_core(student_interactions)
+```
+
+**Equivalence reference.** Eidsaa & Almaas (2013). Matches
+[`igraph::coreness()`](https://r.igraph.org/reference/coreness.html) on
+unweighted graphs and a brute-force reading of the definition on
+weighted ones;
+[`brainGraph::s_core()`](https://rdrr.io/pkg/brainGraph/man/s_core.html)
+reports the peeling round instead.
+
+### Local Efficiency
+
+Local efficiency is how well a node’s neighbours still communicate once
+the node itself is gone, using only the links among them.
+
+``` math
+E_{loc}(v) = \frac{1}{k_v (k_v - 1)} \sum_{i \ne j \in N(v)} \frac{1}{d_{ij}^{\,G_v}}
+```
+
+**Meaning.** A high value indicates a fault-tolerant neighbourhood; a
+node whose neighbours are mutually unconnected scores 0. Note that
+[`igraph::local_efficiency()`](https://r.igraph.org/reference/global_efficiency.html)
+measures those distances through the rest of the network instead, so it
+reports larger values.
+
+``` r
+
+centrality_local_efficiency(student_interactions)
+```
+
+**Equivalence reference.** Latora & Marchiori (2001). Matches
+`brainGraph::efficiency(type = \"local\")` and the networkx
+induced-subgraph form.
+
 ## Directed prestige and hierarchy
+
+### BG-index (beta power)
+
+Expected number of times a node is selected as a predecessor.
+
+``` math
+\beta^+(i)=\sum_{i\to j}1/d^-(j),\quad\beta^-(i)=\sum_{j\to i}1/d^+(j)
+```
+
+**Meaning.** Positive (default) credits sources; each successor divides
+one unit equally among its predecessors. Negative applies the same rule
+to the reversed graph. Both coincide on undirected graphs. Uses simple
+unweighted topology, preserving direction: loops and duplicate arcs
+removed; weights/mode/inversion/cutoff ignored. Isolates score zero and
+empty graphs return no scores. Raw totals equal the number of vertices
+with positive in-degree (positive variant) or out-degree (negative
+variant); normalized=TRUE divides by the maximum, not the total. Dense
+O(n^2) time and memory. The original weighted extension is outside this
+implementation.
+
+``` r
+
+centrality_beta_measure(student_interactions)
+```
+
+**Equivalence reference.** Van den Brink and Gilles (1992), FEW565
+definition2.1/example2.2 pp3-4, visually read; (2000)
+DOI10.1016/S0378-8733(00)00019-8 definition2.1. Negative orientation:
+Boldi and Vigna (2014), DOI10.1080/15427951.2013.865686. Verified by
+independent exact predecessor-choice enumeration, NetworkX neighbor
+queries with rational arithmetic, and the original diamond example. This
+is numerical definition verification, not parity with unreleased Zoo
+code.
 
 ### Prestige Domain Centrality
 
@@ -2096,6 +5209,50 @@ centrality_participation(student_interactions, membership = groups)
 
 ## Community and group-based
 
+### Map equation centrality
+
+Bits saved by redesigning a fixed module’s codebook after silencing a
+node.
+
+``` math
+MEC(i)=-(s_m-p_i)\log_2((s_m-p_i)/s_m),\quad s_m=\sum_{j\in m}p_j+q_m
+```
+
+**Meaning.** Default paper convention includes module-exit flow q_m. The
+infomap convention sets q_m to zero in this score, reproducing
+Infomap2.15.1 and the paper’s Table1; these conventions can change
+rankings and are not made equivalent by normalization. Both are
+nonnegative, with the continuous boundary value zero. Default unrecorded
+link teleportation targets out-strength and records only link steps; on
+undirected inputs visit rates are proportional to strength. Recorded
+node teleportation uses uniform targets and records all moves. Damping
+defaults to0.85 and must be below1; dangling nodes teleport. NULL
+membership uses one global module. Supply globally unique leaf-module
+labels for a hierarchical partition; upper codebooks cancel. The
+partition stays fixed and no community detection runs. Retains direction
+and nonnegative interaction weights, removes loops, and sums remaining
+parallel edges after the simplify rule. Mode/inversion/cutoff ignored.
+Empty/singleton scores are empty/zero; edgeless unrecorded scores zero,
+recorded flow uniform. Dense O(n^3) time/O(n^2) memory; unrecorded
+undirected flow O(n^2). Raw units are bits; optional maximum scaling
+changes those units. Extreme weight ranges or singular numerical solves
+error.
+
+``` r
+
+centrality_map_equation(student_interactions)
+```
+
+**Equivalence reference.** Blocker, Nieves and Rosvall2022,
+DOI10.1007/s41109-022-00477-9, eq2/9-11 and Figure2 (paper convention),
+Table1 (Infomap convention). Lambiotte-Rosvall2012,
+DOI10.1103/PhysRevE.85.056107, unrecorded link teleportation. Verified
+with NetworkX PageRank, direct silenced-code differences, external
+Infomap2.15.1, all24 table entries, hierarchical codebooks and700-digit
+small-score calculations. The Zoo summary subtracts from the full
+original code length and thus includes a different self-information
+term.
+
 ### Participation Coefficient
 
 Participation coefficient measures how evenly a node’s ties are
@@ -2159,8 +5316,8 @@ conventions.
 ### Brokerage Coordinator Centrality
 
 Coordinator brokerage occurs when a node mediates between two nodes in
-its own group. It counts open directed two-paths $`a \to v \to c`$ (with
-no direct $`a \to c`$).
+its own group. It counts open directed two-paths \$a \\to v \\to c\$
+(with no direct \$a \\to c\$).
 
 ``` math
 \mathrm{Coord}(v) = |\{\, a \to v \to c : g(a) = g(v) = g(c) \,\}|
@@ -2252,6 +5409,115 @@ centrality_brokerage_liaison(student_interactions, membership = groups)
 
 **Equivalence reference.** Based on Gould-Fernandez brokerage roles.
 
+### Modularity Vitality
+
+Modularity vitality is the drop in Newman modularity when a node is
+deleted and the remaining nodes keep their communities.
+
+``` math
+V_Q(v) = Q(G, C) - Q(G - v,\; C \setminus \{v\})
+```
+
+**Meaning.** A positive value indicates a community hub; a negative
+value indicates a bridge whose removal sharpens the partition. Weighted
+and directed graphs use the corresponding modularity.
+
+``` r
+
+centrality_modularity_vitality(student_interactions, membership = groups)
+```
+
+**Equivalence reference.** Magelinski, Bartulovic & Carley (2021).
+Matches brute-force
+[`igraph::modularity()`](https://r.igraph.org/reference/modularity.igraph.html)
+after vertex deletion on random directed, undirected and weighted
+graphs.
+
+### Community Hub-Bridge
+
+Community hub-bridge scores nodes that are hubs inside their community
+and bridges between communities.
+
+``` math
+CHB(v) = |C_v|\, k^{intra}_v + NNC_v\, k^{inter}_v
+```
+
+**Meaning.** A high value indicates a node with many intra-community
+links in a large community and links into several other communities.
+
+``` r
+
+centrality_community_hub_bridge(student_interactions, membership = groups)
+```
+
+**Equivalence reference.** Ghalmane, El Hassouni & Cherifi (2019), eqs.
+2-4, raw form. Matches an independent implementation on random
+partitions.
+
+### Community-Based Centrality
+
+Community-based centrality weights every link of a node by the size of
+the community it lands in.
+
+``` math
+CbC(v) = \frac{1}{N} \sum_w d_{vw} S_w
+```
+
+**Meaning.** A high value indicates many links into large communities.
+No tuning parameter.
+
+``` r
+
+centrality_community_based(student_interactions, membership = groups)
+```
+
+**Equivalence reference.** Zhao, Wang, Zhang & Zhu (2015), eq. 1.
+Reproduces the paper’s Table 1 and Table 1 of Tulu et al. (2018).
+
+### Comm Centrality
+
+Comm centrality combines a node’s scaled intra-community degree with the
+square of its scaled inter-community degree, weighted by how
+outward-looking its community is.
+
+``` math
+CC(v) = (1 + \mu_C)\,\frac{k^{in}_v}{\max_{u \in C} k^{in}_u} R + (1 - \mu_C)\left(\frac{k^{out}_v}{\max_{u \in C} k^{out}_u} R\right)^2
+```
+
+**Meaning.** A high value indicates a node that is central within its
+community and well linked outside it. $`R`$ defaults to the community’s
+maximum intra-degree.
+
+``` r
+
+centrality_comm_centrality(student_interactions, membership = groups)
+```
+
+**Equivalence reference.** Gupta, Singh & Cherifi (2016), eqs. 3-4.
+Matches an independent implementation; the paper prints no per-node
+values.
+
+### Community-Based Mediator
+
+The community-based mediator score is the entropy of a node’s link
+distribution over communities times its share of total degree.
+
+``` math
+CbM(v) = H_v \frac{d_v}{\sum_u d_u}, \quad H_v = -\sum_k p_{vk} \log_2 p_{vk}
+```
+
+**Meaning.** A high value indicates a well-connected node whose links
+are spread over several communities; nodes linked to one community score
+0.
+
+``` r
+
+centrality_community_mediator(student_interactions, membership = groups)
+```
+
+**Equivalence reference.** Tulu, Hou & Younas (2018), eqs. 9-12. Base-2
+entropy reproduces the paper’s Table 1 exactly.
+
 ## Argument catalogue
 
 All measures are reachable through the single
@@ -2261,7 +5527,21 @@ knobs are repeated in each measure’s **Arguments** line.
 
 | Argument | Default | Affects | What it does |
 |----|----|----|----|
-| `type` | `"basic"` | all | Curated tier of measures: `"basic"`, `"extended"`, or `"all"`. |
+| `type` | `"basic"` | all | Curated tier: `"basic"`, `"extended"`, or `"all"` (ordinary-cost measures). |
+| `include` | `NULL` | all | Add named measures, or `"costly"` for every costly measure. |
+| `map_flow` | `"unrecorded"` | Map equation | Unrecorded link teleportation, or `"recorded"` uniform node teleportation. |
+| `map_convention` | `"paper"` | Map equation | Include module exits as in eq11, or `"infomap"` to reproduce its implementation and Table1. |
+| `ninl_order` | `3` | NINL | Nonnegative iteration count; zero returns initial degree volume. |
+| `sr_prior` | `0` | SpectralRank | Nonnegative scalar or node vector; zero gives ordinary SR and nonzero values give diagonal-prior WSR. Ground prior stays zero. |
+| `ninl_radius` | `NULL` | NINL | Automatic ceiling of mean path length, or explicit nonnegative integer/`Inf`. Disconnected automatic radius is infinite; only reachable nodes contribute. |
+| `beta_direction` | `"positive"` | BG-index / beta power | Positive credits predecessors; negative reverses the graph and credits destinations. |
+| `mdd_lambda` | `0.7` | MDD | Weight assigned to exhausted degree, between 0 and 1. |
+| `volume_radius` | `2` | Volume | Closed hop neighbourhood; nonnegative integer or `Inf`. |
+| `diffusion_q` | `1` | Finite-horizon diffusion | Walk multiplier in \[0, 1\]. |
+| `diffusion_steps` | `3` | Finite-horizon diffusion | Nonnegative integer horizon; independent of the TNA method. |
+| `ds_beta` | `0.1` | Dynamics-sensitive | Spreading rate between zero and one. |
+| `ds_mu` | `1` | Dynamics-sensitive | Recovery rate between zero and one; zero selects SI. |
+| `ds_steps` | `5` | Dynamics-sensitive | Nonnegative integer time horizon. |
 | `measures` | `NULL` | all | Character vector of specific measures to compute (overrides `type`). |
 | `mode` | `"all"` | directed measures | Traversal direction: `"all"`, `"in"`, or `"out"`. |
 | `normalized` | `FALSE` | most | Divide each score by its maximum. |

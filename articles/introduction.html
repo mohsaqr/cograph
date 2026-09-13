@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,6 +40,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
     <li><a class="dropdown-item" href="../articles/centrality-catalogue.html">Centrality catalogue</a></li>
+    <li><a class="dropdown-item" href="../articles/centrality-zoo-lookup.html">Centrality Zoo lookup</a></li>
     <li><a class="dropdown-item" href="../articles/why-cograph.html">Why cograph?</a></li>
     <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">TNA Plotting Gallery and Visual Smoke Test</a></li>
     <li><a class="dropdown-item" href="../articles/mcml-examples.html">Advanced examples</a></li>
@@ -340,31 +341,60 @@ custom SVG via <code><a href="../reference/register_svg_shape.html">register_svg
 </table>
 </div>
 <div class="section level2">
-<h2 id="filtering-and-selection">Filtering and selection<a class="anchor" aria-label="anchor" href="#filtering-and-selection"></a>
+<h2 id="wrangling">Wrangling<a class="anchor" aria-label="anchor" href="#wrangling"></a>
 </h2>
-<p>Filter edges and nodes with expressions. Centrality measures are
-lazy-computed inside <code><a href="../reference/filter_nodes.html">filter_nodes()</a></code>.</p>
+<p>Every wrangling verb takes any supported input, takes its options as
+named arguments, and returns a network. <code><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame()</a></code>
+gives the tidy edge table, with endpoints as labels;
+<code>as.data.frame(what = "nodes")</code> gives the nodes. See
+<code><a href="../reference/network_wrangling.html">?network_wrangling</a></code> for the whole family.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">strong</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/filter_edges.html">filter_edges</a></span><span class="op">(</span><span class="va">mat</span>, <span class="va">weight</span> <span class="op">&gt;</span> <span class="fl">0.3</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/get_edges.html">get_edges</a></span><span class="op">(</span><span class="va">strong</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    from to weight</span></span>
-<span><span class="co">#&gt; 1     8  3   0.33</span></span>
-<span><span class="co">#&gt; 2    10  3   0.49</span></span>
-<span><span class="co">#&gt; 3     8  4   0.43</span></span>
-<span><span class="co">#&gt; 4    10  4   0.39</span></span>
-<span><span class="co">#&gt; 5     1  5   0.35</span></span>
-<span><span class="co">#&gt; 6     6  5   0.35</span></span>
-<span><span class="co">#&gt; 7     7  5   0.42</span></span>
-<span><span class="co">#&gt; 8     2  6   0.40</span></span>
-<span><span class="co">#&gt; 9     4  6   0.34</span></span>
-<span><span class="co">#&gt; 10    2  8   0.49</span></span>
-<span><span class="co">#&gt; 11    9  8   0.39</span></span>
-<span><span class="co">#&gt; 12    3  9   0.37</span></span>
-<span><span class="co">#&gt; 13    2 10   0.36</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">strong</span><span class="op">)</span></span>
+<span><span class="co">#&gt;          from       to weight</span></span>
+<span><span class="co">#&gt; 1    Evaluate  Monitor   0.33</span></span>
+<span><span class="co">#&gt; 2       Share  Monitor   0.49</span></span>
+<span><span class="co">#&gt; 3    Evaluate    Adapt   0.43</span></span>
+<span><span class="co">#&gt; 4       Share    Adapt   0.39</span></span>
+<span><span class="co">#&gt; 5     Explore  Reflect   0.35</span></span>
+<span><span class="co">#&gt; 6     Discuss  Reflect   0.35</span></span>
+<span><span class="co">#&gt; 7  Synthesize  Reflect   0.42</span></span>
+<span><span class="co">#&gt; 8        Plan  Discuss   0.40</span></span>
+<span><span class="co">#&gt; 9       Adapt  Discuss   0.34</span></span>
+<span><span class="co">#&gt; 10       Plan Evaluate   0.49</span></span>
+<span><span class="co">#&gt; 11     Create Evaluate   0.39</span></span>
+<span><span class="co">#&gt; 12    Monitor   Create   0.37</span></span>
+<span><span class="co">#&gt; 13       Plan    Share   0.36</span></span></code></pre></div>
+<p>Centrality measures are computed lazily, and any measure
+<code><a href="../reference/centrality.html">centrality()</a></code> knows can be named directly:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">top3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/select_nodes.html">select_nodes</a></span><span class="op">(</span><span class="va">mat</span>, top <span class="op">=</span> <span class="fl">3</span>, by <span class="op">=</span> <span class="st">"betweenness"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/get_labels.html">get_labels</a></span><span class="op">(</span><span class="va">top3</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Plan"    "Monitor" "Adapt"</span></span></code></pre></div>
+<p>Verbs compose, and the whole vocabulary is available inside
+expressions:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mat</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/threshold_edges.html">threshold_edges</a></span><span class="op">(</span>minimum <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/remove_isolates.html">remove_isolates</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/mutate_nodes.html">mutate_nodes</a></span><span class="op">(</span>deg <span class="op">=</span> <span class="va">degree</span>, hub <span class="op">=</span> <span class="va">degree</span> <span class="op">&gt;=</span> <span class="fl">3</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span>what <span class="op">=</span> <span class="st">"nodes"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    id      label       name  x  y deg   hub</span></span>
+<span><span class="co">#&gt; 1   1    Explore    Explore NA NA   2 FALSE</span></span>
+<span><span class="co">#&gt; 2   2       Plan       Plan NA NA   3  TRUE</span></span>
+<span><span class="co">#&gt; 3   3    Monitor    Monitor NA NA   3  TRUE</span></span>
+<span><span class="co">#&gt; 4   4      Adapt      Adapt NA NA   3  TRUE</span></span>
+<span><span class="co">#&gt; 5   5    Reflect    Reflect NA NA   3  TRUE</span></span>
+<span><span class="co">#&gt; 6   6    Discuss    Discuss NA NA   4  TRUE</span></span>
+<span><span class="co">#&gt; 7   7 Synthesize Synthesize NA NA   1 FALSE</span></span>
+<span><span class="co">#&gt; 8   8   Evaluate   Evaluate NA NA   4  TRUE</span></span>
+<span><span class="co">#&gt; 9   9     Create     Create NA NA   2 FALSE</span></span>
+<span><span class="co">#&gt; 10 10      Share      Share NA NA   3  TRUE</span></span></code></pre></div>
+<p>Filtering edges does not remove nodes, matching igraph and tidygraph;
+call <code><a href="../reference/remove_isolates.html">remove_isolates()</a></code> when you want them gone.</p>
+<div class="section level3">
+<h3 id="selecting">Selecting<a class="anchor" aria-label="anchor" href="#selecting"></a>
+</h3>
 <table class="table">
 <colgroup>
 <col width="52%">
@@ -377,7 +407,7 @@ lazy-computed inside <code><a href="../reference/filter_nodes.html">filter_nodes
 <tbody>
 <tr class="odd">
 <td><code>filter_edges(x, ...)</code></td>
-<td>Filter by weight, from, to</td>
+<td>Filter by weight, endpoints, any edge column</td>
 </tr>
 <tr class="even">
 <td><code>filter_nodes(x, ...)</code></td>
@@ -385,7 +415,7 @@ lazy-computed inside <code><a href="../reference/filter_nodes.html">filter_nodes
 </tr>
 <tr class="odd">
 <td><code>select_nodes(x, ...)</code></td>
-<td>Top-N by centrality, by name, neighbors</td>
+<td>Top-N by centrality, by name, neighbors, component</td>
 </tr>
 <tr class="even">
 <td><code>select_edges(x, ...)</code></td>
@@ -402,6 +432,14 @@ lazy-computed inside <code><a href="../reference/filter_nodes.html">filter_nodes
 <tr class="odd">
 <td><code>select_top(x, n, by)</code></td>
 <td>Top-N nodes by any centrality</td>
+</tr>
+<tr class="even">
+<td><code>select_k_core(x, k)</code></td>
+<td>The k-core</td>
+</tr>
+<tr class="odd">
+<td><code>split_components(x)</code></td>
+<td>One network per component</td>
 </tr>
 <tr class="even">
 <td><code>select_bridges(x)</code></td>
@@ -424,7 +462,110 @@ lazy-computed inside <code><a href="../reference/filter_nodes.html">filter_nodes
 <code>subset_nodes(x, ...)</code> /
 <code>subset_edges(x, ...)</code>
 </td>
-<td>Base R-style subsetting</td>
+<td>Aliases of the filters</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level3">
+<h3 id="weights">Weights<a class="anchor" aria-label="anchor" href="#weights"></a>
+</h3>
+<table class="table">
+<colgroup>
+<col width="52%">
+<col width="47%">
+</colgroup>
+<thead><tr class="header">
+<th>Function</th>
+<th>Purpose</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>threshold_edges(x, ...)</code></td>
+<td>Keep edges by weight, count, proportion, density</td>
+</tr>
+<tr class="even">
+<td><code>binarize(x)</code></td>
+<td>Replace weights with 0/1</td>
+</tr>
+<tr class="odd">
+<td><code>symmetrize(x, method)</code></td>
+<td>Combine opposite arcs into one edge</td>
+</tr>
+<tr class="even">
+<td><code>normalize_weights(x, method)</code></td>
+<td>Rescale by row, column, max, sum, min-max</td>
+</tr>
+<tr class="odd">
+<td><code>invert_weights(x, method)</code></td>
+<td>Similarities to distances</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level3">
+<h3 id="structure-and-editing">Structure and editing<a class="anchor" aria-label="anchor" href="#structure-and-editing"></a>
+</h3>
+<table class="table">
+<colgroup>
+<col width="52%">
+<col width="47%">
+</colgroup>
+<thead><tr class="header">
+<th>Function</th>
+<th>Purpose</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>
+<code>to_undirected(x)</code> / <code>to_directed(x)</code>
+</td>
+<td>Change directedness</td>
+</tr>
+<tr class="even">
+<td><code>reverse_edges(x)</code></td>
+<td>Reverse every arc</td>
+</tr>
+<tr class="odd">
+<td><code>remove_isolates(x)</code></td>
+<td>Drop nodes with no edges</td>
+</tr>
+<tr class="even">
+<td><code>contract_nodes(x, groups)</code></td>
+<td>Collapse groups into single nodes</td>
+</tr>
+<tr class="odd">
+<td><code>spanning_tree(x)</code></td>
+<td>Minimum or maximum spanning tree</td>
+</tr>
+<tr class="even">
+<td><code>complement_network(x)</code></td>
+<td>Join the non-adjacent pairs</td>
+</tr>
+<tr class="odd">
+<td>
+<code>reorder_nodes(x, order)</code> /
+<code>rename_nodes(x, from, to)</code>
+</td>
+<td>Node order and labels</td>
+</tr>
+<tr class="even">
+<td>
+<code><a href="../reference/add_nodes.html">add_nodes()</a></code> / <code><a href="../reference/remove_nodes.html">remove_nodes()</a></code> /
+<code><a href="../reference/add_edges.html">add_edges()</a></code> / <code><a href="../reference/remove_edges.html">remove_edges()</a></code>
+</td>
+<td>Editing</td>
+</tr>
+<tr class="odd">
+<td>
+<code>mutate_nodes(x, ...)</code> /
+<code>mutate_edges(x, ...)</code>
+</td>
+<td>Compute and store attributes</td>
+</tr>
+<tr class="even">
+<td><code>bind_networks(x, y, method)</code></td>
+<td>Union, intersection, difference</td>
 </tr>
 <tr class="odd">
 <td><code>simplify(x)</code></td>
@@ -440,47 +581,52 @@ lazy-computed inside <code><a href="../reference/filter_nodes.html">filter_nodes
 </tr></thead>
 <tbody>
 <tr class="odd">
+<td><code>as.data.frame(x)</code></td>
+<td>Tidy edge table (<code>what = "nodes"</code> for nodes)</td>
+</tr>
+<tr class="even">
 <td>
 <code>get_nodes(x)</code> / <code>set_nodes(x, df)</code>
 </td>
 <td>Node data frame</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>
 <code>get_edges(x)</code> / <code>set_edges(x, df)</code>
 </td>
 <td>Edge data frame</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>get_labels(x)</code></td>
 <td>Node label vector</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>
 <code>n_nodes(x)</code> / <code>n_edges(x)</code>
 </td>
 <td>Counts</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>is_directed(x)</code></td>
 <td>Directedness</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>
 <code>set_groups(x)</code> / <code>get_groups(x)</code>
 </td>
 <td>Group assignments</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>set_layout(x, layout)</code></td>
 <td>Layout coordinates</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>summarize_network(x)</code></td>
 <td>Network summary</td>
 </tr>
 </tbody>
 </table>
+</div>
 </div>
 <div class="section level2">
 <h2 id="centrality">Centrality<a class="anchor" aria-label="anchor" href="#centrality"></a>
@@ -489,7 +635,7 @@ lazy-computed inside <code><a href="../reference/filter_nodes.html">filter_nodes
 returns one tidy data frame. The built-in
 <code>student_interactions</code> edge list works directly: no igraph
 object, no matrix conversion, no setup code.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">student_interactions</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/centrality.html">centrality</a></span><span class="op">(</span><span class="va">student_interactions</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    node degree_all strength_all closeness_all betweenness  eigenvector</span></span>
@@ -526,7 +672,7 @@ object, no matrix conversion, no setup code.</p>
 <span><span class="co">#&gt; 31   Su          6            9    0.01369863   33.154401 1.028472e-04</span></span>
 <span><span class="co">#&gt; 32   Ln          7            8    0.01408451    5.749708 1.376854e-02</span></span>
 <span><span class="co">#&gt; 33   Gi          3            4    0.01351351    0.000000 0.000000e+00</span></span>
-<span><span class="co">#&gt; 34   Uw          4            7    0.01250000    0.000000 5.887502e-20</span></span>
+<span><span class="co">#&gt; 34   Uw          4            7    0.01250000    0.000000 0.000000e+00</span></span>
 <span><span class="co">#&gt;       pagerank</span></span>
 <span><span class="co">#&gt; 1  0.285861728</span></span>
 <span><span class="co">#&gt; 2  0.052985644</span></span>
@@ -565,7 +711,7 @@ object, no matrix conversion, no setup code.</p>
 <p>That one call returns the default centrality table: degree, strength,
 closeness, betweenness, eigenvector centrality, and PageRank. Individual
 functions return named vectors when you want one measure only:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/centrality_degree.html">centrality_degree</a></span><span class="op">(</span><span class="va">student_interactions</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Ac Ad Fi Ik Vx Rt Km Gj Bd Ce Oq Ya Mo Hj Tv Eg Pr Qs Xz Np Dg Hk Wy Jl Fh Zb </span></span>
 <span><span class="co">#&gt; 33 20 24 14 26 20 11 19 12 10 14 13 12 12 10 10 11 15 14  8 13 16 11 15 21  7 </span></span>
@@ -657,7 +803,7 @@ functions return named vectors when you want one measure only:</p>
 </h2>
 <p><code><a href="../reference/network_summary.html">network_summary()</a></code> computes up to 37 network-level
 metrics.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/network_summary.html">network_summary</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   node_count edge_count density component_count diameter mean_distance min_cut</span></span>
 <span><span class="co">#&gt; 1         10         30   0.333               1     0.97         0.435       1</span></span>
@@ -732,7 +878,7 @@ metrics.</p>
 <h2 id="community-detection">Community detection<a class="anchor" aria-label="anchor" href="#community-detection"></a>
 </h2>
 <p>11 algorithms with a consistent interface.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">comms</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/communities.html">communities</a></span><span class="op">(</span><span class="va">mat</span>, method <span class="op">=</span> <span class="st">"walktrap"</span><span class="op">)</span></span>
 <span><span class="va">comms</span></span>
 <span><span class="co">#&gt; Community structure (walktrap)</span></span>
@@ -867,7 +1013,7 @@ metrics.</p>
 </h2>
 <p>Motif analysis identifies recurring 3-node patterns using the MAN
 classification (16 directed triad types).</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/motifs.html">motifs</a></span><span class="op">(</span><span class="va">mat</span>, significance <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">mot</span></span>
 <span><span class="co">#&gt; Motif Census </span></span>
@@ -928,7 +1074,7 @@ classification (16 directed triad types).</p>
 <h2 id="robustness">Robustness<a class="anchor" aria-label="anchor" href="#robustness"></a>
 </h2>
 <p>Simulate network degradation under targeted and random removal.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/robustness.html">robustness</a></span><span class="op">(</span><span class="va">mat</span>, type <span class="op">=</span> <span class="st">"vertex"</span>, measure <span class="op">=</span> <span class="st">"betweenness"</span>, n_iter <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plot_robustness.html">plot_robustness</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">mat</span>, measures <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"betweenness"</span>, <span class="st">"degree"</span>, <span class="st">"random"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
@@ -961,14 +1107,14 @@ classification (16 directed triad types).</p>
 </h2>
 <p>Backbone extraction using the disparity filter (Serrano et
 al. 2009).</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/disparity_filter.html">disparity_filter</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/splot.tna_disparity.html">splot.tna_disparity</a></span><span class="op">(</span><span class="fu"><a href="../reference/disparity_filter.html">disparity_filter</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="multi-cluster-visualization">Multi-cluster visualization<a class="anchor" aria-label="anchor" href="#multi-cluster-visualization"></a>
 </h2>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">clusters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  Cognitive  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Explore"</span>, <span class="st">"Plan"</span>, <span class="st">"Monitor"</span>, <span class="st">"Adapt"</span>, <span class="st">"Reflect"</span><span class="op">)</span>,</span>
 <span>  Social     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Discuss"</span>, <span class="st">"Synthesize"</span>, <span class="st">"Share"</span><span class="op">)</span>,</span>
@@ -1196,7 +1342,7 @@ Requires the <strong>Nestimate</strong> package.</p>
 </h2>
 <p>The <code>sn_*</code> functions provide a chainable builder for the
 grid/ggplot2 rendering path.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mat</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/cograph.html">cograph</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/sn_layout.html">sn_layout</a></span><span class="op">(</span><span class="st">"spring"</span><span class="op">)</span> <span class="op">|&gt;</span></span>

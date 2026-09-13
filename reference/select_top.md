@@ -10,7 +10,7 @@ select_top(
   n,
   by = "degree",
   ...,
-  .keep_edges = c("internal", "none"),
+  keep_edges = c("internal", "none"),
   keep_format = FALSE,
   directed = NULL
 )
@@ -38,7 +38,7 @@ select_top(
 
   Additional filter expressions to apply.
 
-- .keep_edges:
+- keep_edges:
 
   How to handle edges. Default "internal".
 
@@ -71,22 +71,24 @@ rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
 # Top 2 by degree
 select_top(adj, n = 2)
 #> Cograph network: 2 nodes, 1 edges ( undirected )
-#> Source: filtered 
+#> Source: matrix 
 #>   Nodes (2): B, C
 #>   Edges: 1 / 1 (density: 100.0%)
 #>   Weights: [0.300, 0.300]  |  mean: 0.300
 #>   Strongest edges:
 #>     B -- C  0.300
 #> Layout: none 
+#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 
 # Top 2 by PageRank
 select_top(adj, n = 2, by = "pagerank")
 #> Cograph network: 2 nodes, 1 edges ( undirected )
-#> Source: filtered 
+#> Source: matrix 
 #>   Nodes (2): B, C
 #>   Edges: 1 / 1 (density: 100.0%)
 #>   Weights: [0.300, 0.300]  |  mean: 0.300
 #>   Strongest edges:
 #>     B -- C  0.300
 #> Layout: none 
+#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

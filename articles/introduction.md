@@ -147,31 +147,39 @@ Conversion utilities:
 | `to_network(x)`                 | statnet network object             |
 | `from_qgraph(q)`                | Extract qgraph styles into cograph |
 
-## Filtering and selection
+## Wrangling
 
-Filter edges and nodes with expressions. Centrality measures are
-lazy-computed inside
-[`filter_nodes()`](https://sonsoles.me/cograph/reference/filter_nodes.md).
+Every wrangling verb takes any supported input, takes its options as
+named arguments, and returns a network.
+[`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html) gives the
+tidy edge table, with endpoints as labels;
+`as.data.frame(what = "nodes")` gives the nodes. See
+[`?network_wrangling`](https://sonsoles.me/cograph/reference/network_wrangling.md)
+for the whole family.
 
 ``` r
 
 strong <- filter_edges(mat, weight > 0.3)
-get_edges(strong)
-#>    from to weight
-#> 1     8  3   0.33
-#> 2    10  3   0.49
-#> 3     8  4   0.43
-#> 4    10  4   0.39
-#> 5     1  5   0.35
-#> 6     6  5   0.35
-#> 7     7  5   0.42
-#> 8     2  6   0.40
-#> 9     4  6   0.34
-#> 10    2  8   0.49
-#> 11    9  8   0.39
-#> 12    3  9   0.37
-#> 13    2 10   0.36
+as.data.frame(strong)
+#>          from       to weight
+#> 1    Evaluate  Monitor   0.33
+#> 2       Share  Monitor   0.49
+#> 3    Evaluate    Adapt   0.43
+#> 4       Share    Adapt   0.39
+#> 5     Explore  Reflect   0.35
+#> 6     Discuss  Reflect   0.35
+#> 7  Synthesize  Reflect   0.42
+#> 8        Plan  Discuss   0.40
+#> 9       Adapt  Discuss   0.34
+#> 10       Plan Evaluate   0.49
+#> 11     Create Evaluate   0.39
+#> 12    Monitor   Create   0.37
+#> 13       Plan    Share   0.36
 ```
+
+Centrality measures are computed lazily, and any measure
+[`centrality()`](https://sonsoles.me/cograph/reference/centrality.md)
+knows can be named directly:
 
 ``` r
 
@@ -180,34 +188,91 @@ get_labels(top3)
 #> [1] "Plan"    "Monitor" "Adapt"
 ```
 
+Verbs compose, and the whole vocabulary is available inside expressions:
+
+``` r
+
+mat |>
+  threshold_edges(minimum = 0.3) |>
+  remove_isolates() |>
+  mutate_nodes(deg = degree, hub = degree >= 3) |>
+  as.data.frame(what = "nodes")
+#>    id      label       name  x  y deg   hub
+#> 1   1    Explore    Explore NA NA   2 FALSE
+#> 2   2       Plan       Plan NA NA   3  TRUE
+#> 3   3    Monitor    Monitor NA NA   3  TRUE
+#> 4   4      Adapt      Adapt NA NA   3  TRUE
+#> 5   5    Reflect    Reflect NA NA   3  TRUE
+#> 6   6    Discuss    Discuss NA NA   4  TRUE
+#> 7   7 Synthesize Synthesize NA NA   1 FALSE
+#> 8   8   Evaluate   Evaluate NA NA   4  TRUE
+#> 9   9     Create     Create NA NA   2 FALSE
+#> 10 10      Share      Share NA NA   3  TRUE
+```
+
+Filtering edges does not remove nodes, matching igraph and tidygraph;
+call
+[`remove_isolates()`](https://sonsoles.me/cograph/reference/remove_isolates.md)
+when you want them gone.
+
+### Selecting
+
 | Function | Purpose |
 |----|----|
-| `filter_edges(x, ...)` | Filter by weight, from, to |
+| `filter_edges(x, ...)` | Filter by weight, endpoints, any edge column |
 | `filter_nodes(x, ...)` | Filter by degree, centrality, label |
-| `select_nodes(x, ...)` | Top-N by centrality, by name, neighbors |
+| `select_nodes(x, ...)` | Top-N by centrality, by name, neighbors, component |
 | `select_edges(x, ...)` | Top-N, involving, between, bridges, mutual |
 | `select_neighbors(x, of)` | Ego-network extraction (multi-hop) |
 | `select_component(x)` | Largest or named component |
 | `select_top(x, n, by)` | Top-N nodes by any centrality |
+| `select_k_core(x, k)` | The k-core |
+| `split_components(x)` | One network per component |
 | `select_bridges(x)` | Bridge edges only |
 | `select_top_edges(x, n)` | Top-N edges by weight |
 | `select_edges_involving(x, nodes)` | Edges touching specific nodes |
 | `select_edges_between(x, s1, s2)` | Edges between two node sets |
-| `subset_nodes(x, ...)` / `subset_edges(x, ...)` | Base R-style subsetting |
+| `subset_nodes(x, ...)` / `subset_edges(x, ...)` | Aliases of the filters |
+
+### Weights
+
+| Function | Purpose |
+|----|----|
+| `threshold_edges(x, ...)` | Keep edges by weight, count, proportion, density |
+| `binarize(x)` | Replace weights with 0/1 |
+| `symmetrize(x, method)` | Combine opposite arcs into one edge |
+| `normalize_weights(x, method)` | Rescale by row, column, max, sum, min-max |
+| `invert_weights(x, method)` | Similarities to distances |
+
+### Structure and editing
+
+| Function | Purpose |
+|----|----|
+| `to_undirected(x)` / `to_directed(x)` | Change directedness |
+| `reverse_edges(x)` | Reverse every arc |
+| `remove_isolates(x)` | Drop nodes with no edges |
+| `contract_nodes(x, groups)` | Collapse groups into single nodes |
+| `spanning_tree(x)` | Minimum or maximum spanning tree |
+| `complement_network(x)` | Join the non-adjacent pairs |
+| `reorder_nodes(x, order)` / `rename_nodes(x, from, to)` | Node order and labels |
+| [`add_nodes()`](https://sonsoles.me/cograph/reference/add_nodes.md) / [`remove_nodes()`](https://sonsoles.me/cograph/reference/remove_nodes.md) / [`add_edges()`](https://sonsoles.me/cograph/reference/add_edges.md) / [`remove_edges()`](https://sonsoles.me/cograph/reference/remove_edges.md) | Editing |
+| `mutate_nodes(x, ...)` / `mutate_edges(x, ...)` | Compute and store attributes |
+| `bind_networks(x, y, method)` | Union, intersection, difference |
 | `simplify(x)` | Remove multi-edges and self-loops |
 
 Getters and setters:
 
-| Function                            | Purpose            |
-|-------------------------------------|--------------------|
-| `get_nodes(x)` / `set_nodes(x, df)` | Node data frame    |
-| `get_edges(x)` / `set_edges(x, df)` | Edge data frame    |
-| `get_labels(x)`                     | Node label vector  |
-| `n_nodes(x)` / `n_edges(x)`         | Counts             |
-| `is_directed(x)`                    | Directedness       |
-| `set_groups(x)` / `get_groups(x)`   | Group assignments  |
-| `set_layout(x, layout)`             | Layout coordinates |
-| `summarize_network(x)`              | Network summary    |
+| Function | Purpose |
+|----|----|
+| `as.data.frame(x)` | Tidy edge table (`what = "nodes"` for nodes) |
+| `get_nodes(x)` / `set_nodes(x, df)` | Node data frame |
+| `get_edges(x)` / `set_edges(x, df)` | Edge data frame |
+| `get_labels(x)` | Node label vector |
+| `n_nodes(x)` / `n_edges(x)` | Counts |
+| `is_directed(x)` | Directedness |
+| `set_groups(x)` / `get_groups(x)` | Group assignments |
+| `set_layout(x, layout)` | Layout coordinates |
+| `summarize_network(x)` | Network summary |
 
 ## Centrality
 
@@ -254,7 +319,7 @@ centrality(student_interactions)
 #> 31   Su          6            9    0.01369863   33.154401 1.028472e-04
 #> 32   Ln          7            8    0.01408451    5.749708 1.376854e-02
 #> 33   Gi          3            4    0.01351351    0.000000 0.000000e+00
-#> 34   Uw          4            7    0.01250000    0.000000 5.887502e-20
+#> 34   Uw          4            7    0.01250000    0.000000 0.000000e+00
 #>       pagerank
 #> 1  0.285861728
 #> 2  0.052985644

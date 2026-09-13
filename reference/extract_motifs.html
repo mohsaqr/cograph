@@ -15,7 +15,7 @@ as directed dyads using the 16-class MAN system."><meta property="og:image" cont
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -28,6 +28,7 @@ as directed dyads using the 16-class MAN system."><meta property="og:image" cont
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
     <li><a class="dropdown-item" href="../articles/centrality-catalogue.html">Centrality catalogue</a></li>
+    <li><a class="dropdown-item" href="../articles/centrality-zoo-lookup.html">Centrality Zoo lookup</a></li>
     <li><a class="dropdown-item" href="../articles/why-cograph.html">Why cograph?</a></li>
     <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">TNA Plotting Gallery and Visual Smoke Test</a></li>
     <li><a class="dropdown-item" href="../articles/mcml-examples.html">Advanced examples</a></li>
@@ -231,10 +232,9 @@ use a directed weighted stub-matching null: positive weights retain at least
 one integer stub, shuffled targets preserve the integerized in/out margins,
 and generated loops/parallel edges are reduced to a simple loopless
 projection for triad classification. This differs from aggregate
-<code><a href="motifs.html">motifs()</a></code>, which delegates to
-<code><a href="motif_census.html">motif_census()</a></code> and its simple-graph rewiring null.
-Observed self-loops are excluded before activity gating, counting, and null
-construction.
+<code><a href="motifs.html">motifs()</a></code>, which delegates to <code><a href="motif_census.html">motif_census()</a></code> and its simple-graph rewiring
+null. Observed self-loops are excluded before activity gating, counting, and
+null construction.
 The selected <code>edge_method</code> is reapplied to each null replicate, but
 positive fractional weights retain at least one integer stub. This preserves
 support while potentially changing the mass scale used by

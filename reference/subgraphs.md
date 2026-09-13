@@ -11,11 +11,6 @@ deliberately drop the significance decoration here, because aggregating
 per type requires a rule (median? max-\|z\|?) that isn't pinned and
 would be misleading by default.
 
-The `"triads"` diagram uses a canonical representative of the row's MAN
-isomorphism class. Concrete labels identify the participating nodes;
-their positions in that representative diagram do not encode the nodes'
-observed source/sink roles.
-
 ## Usage
 
 ``` r
@@ -43,6 +38,13 @@ individual level, each result row is a node-triple and MAN-type
 combination, and `observed` counts sessions/units exhibiting it. In
 instance mode, `$type_summary` is built via `table(results$type)` so it
 counts how many node-triples fall under each MAN type.
+
+## Details
+
+The `"triads"` diagram uses a canonical representative of the row's MAN
+isomorphism class. Concrete labels identify the participating nodes;
+their positions in that representative diagram do not encode the nodes'
+observed source/sink roles.
 
 ## See also
 

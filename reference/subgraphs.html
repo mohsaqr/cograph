@@ -9,11 +9,7 @@ plot(., type = &quot;significance&quot;) or plot(., type = &quot;triads&quot;);
 the per-type plots (&quot;types&quot;, &quot;patterns&quot;) deliberately drop
 the significance decoration here, because aggregating per type requires a
 rule (median? max-|z|?) that isn't pinned and would be misleading by
-default.
-The &quot;triads&quot; diagram uses a canonical representative of the row's
-MAN isomorphism class. Concrete labels identify the participating nodes;
-their positions in that representative diagram do not encode the nodes'
-observed source/sink roles."><meta property="og:description" content="Convenience wrapper for motifs(x, named_nodes = TRUE, ...). Returns
+default."><meta property="og:description" content="Convenience wrapper for motifs(x, named_nodes = TRUE, ...). Returns
 one row per concrete node-triple and MAN type. At individual level,
 observed counts sessions/units exhibiting that combination, so one
 triple can occupy multiple rows when its type differs across units. The same
@@ -23,11 +19,7 @@ plot(., type = &quot;significance&quot;) or plot(., type = &quot;triads&quot;);
 the per-type plots (&quot;types&quot;, &quot;patterns&quot;) deliberately drop
 the significance decoration here, because aggregating per type requires a
 rule (median? max-|z|?) that isn't pinned and would be misleading by
-default.
-The &quot;triads&quot; diagram uses a canonical representative of the row's
-MAN isomorphism class. Concrete labels identify the participating nodes;
-their positions in that representative diagram do not encode the nodes'
-observed source/sink roles."><meta property="og:image" content="https://sonsoles.me/cograph/logo.png"></head><body>
+default."><meta property="og:image" content="https://sonsoles.me/cograph/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -35,7 +27,7 @@ observed source/sink roles."><meta property="og:image" content="https://sonsoles
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,6 +40,7 @@ observed source/sink roles."><meta property="og:image" content="https://sonsoles
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
     <li><a class="dropdown-item" href="../articles/centrality-catalogue.html">Centrality catalogue</a></li>
+    <li><a class="dropdown-item" href="../articles/centrality-zoo-lookup.html">Centrality Zoo lookup</a></li>
     <li><a class="dropdown-item" href="../articles/why-cograph.html">Why cograph?</a></li>
     <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">TNA Plotting Gallery and Visual Smoke Test</a></li>
     <li><a class="dropdown-item" href="../articles/mcml-examples.html">Advanced examples</a></li>
@@ -84,10 +77,6 @@ the per-type plots (<code>"types"</code>, <code>"patterns"</code>) deliberately 
 the significance decoration here, because aggregating per type requires a
 rule (median? max-|z|?) that isn't pinned and would be misleading by
 default.</p>
-<p>The <code>"triads"</code> diagram uses a canonical representative of the row's
-MAN isomorphism class. Concrete labels identify the participating nodes;
-their positions in that representative diagram do not encode the nodes'
-observed source/sink roles.</p>
     </div>
 
     <div class="section level2">
@@ -120,6 +109,13 @@ combination, and <code>observed</code> counts sessions/units exhibiting it.
 In instance mode, <code>$type_summary</code> is built via
 <code>table(results$type)</code> so it counts how many node-triples fall under
 each MAN type.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>The <code>"triads"</code> diagram uses a canonical representative of the row's
+MAN isomorphism class. Concrete labels identify the participating nodes;
+their positions in that representative diagram do not encode the nodes'
+observed source/sink roles.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

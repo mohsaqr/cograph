@@ -10,7 +10,7 @@ plot_ml_heatmap(
   x,
   layer_list = NULL,
   colors = "viridis",
-  layer_spacing = 2.5,
+  layer_spacing = NULL,
   skew = 0.4,
   compress = 0.6,
   show_connections = FALSE,
@@ -22,6 +22,8 @@ plot_ml_heatmap(
   cell_border_color = "white",
   cell_border_width = 0.2,
   show_labels = TRUE,
+  show_node_labels = TRUE,
+  node_label_size = 3,
   label_size = 5,
   show_legend = TRUE,
   legend_title = "Weight",
@@ -51,7 +53,11 @@ plot_ml_heatmap(
 
 - layer_spacing:
 
-  Vertical spacing between layers. Default 2.5.
+  Vertical spacing between layers, in data units. A plane is
+  `nrow(x) * compress` units tall, so a fixed spacing that suits a small
+  network makes a larger one overlap itself. `NULL` (the default) scales
+  the spacing to the plane so planes never collide; pass a number for
+  the older absolute behaviour.
 
 - skew:
 
@@ -96,6 +102,18 @@ plot_ml_heatmap(
 - show_labels:
 
   Show layer name labels? Default TRUE.
+
+- show_node_labels:
+
+  Show the row and column names of the matrix? Default TRUE. Without
+  them a plane is an anonymous grid and a reader cannot tell which cell
+  is which pair. Every plane shares one node ordering, so the names are
+  drawn once, against the front plane: rows down its left edge, columns
+  along its lower edge.
+
+- node_label_size:
+
+  Size of the row and column names. Default 3.
 
 - label_size:
 

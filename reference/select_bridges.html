@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -20,6 +20,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
     <li><a class="dropdown-item" href="../articles/centrality-catalogue.html">Centrality catalogue</a></li>
+    <li><a class="dropdown-item" href="../articles/centrality-zoo-lookup.html">Centrality Zoo lookup</a></li>
     <li><a class="dropdown-item" href="../articles/why-cograph.html">Why cograph?</a></li>
     <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">TNA Plotting Gallery and Visual Smoke Test</a></li>
     <li><a class="dropdown-item" href="../articles/mcml-examples.html">Advanced examples</a></li>
@@ -53,7 +54,7 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">select_bridges</span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
 <span>  <span class="va">...</span>,</span>
-<span>  .keep_isolates <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  keep_isolates <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  keep_format <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  directed <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -71,8 +72,8 @@
 <dd><p>Additional filter expressions.</p></dd>
 
 
-<dt id="arg--keep-isolates">.keep_isolates<a class="anchor" aria-label="anchor" href="#arg--keep-isolates"></a></dt>
-<dd><p>Keep nodes with no edges? Default FALSE.</p></dd>
+<dt id="arg-keep-isolates">keep_isolates<a class="anchor" aria-label="anchor" href="#arg-keep-isolates"></a></dt>
+<dd><p>Keep nodes that end up with no edges? Default TRUE.</p></dd>
 
 
 <dt id="arg-keep-format">keep_format<a class="anchor" aria-label="anchor" href="#arg-keep-format"></a></dt>
@@ -104,15 +105,17 @@
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">LETTERS</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">select_bridges</span><span class="op">(</span><span class="va">adj</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 3 nodes, 2 edges ( undirected )</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Source: filtered </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (3): A, B, C</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 2 / 3 (density: 66.7%)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>2 node(s) have no edges left. Nodes are kept; call remove_isolates() to drop them.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 5 nodes, 2 edges ( undirected )</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Source: matrix </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (5): A, B, C, D, E</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 2 / 10 (density: 20.0%)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [1.000, 1.000]  |  mean: 1.000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Strongest edges:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     A -- B  1.000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     B -- C  1.000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

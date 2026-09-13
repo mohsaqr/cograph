@@ -35,6 +35,11 @@ plot_simplicial(
   title = NULL,
   dismantled = FALSE,
   ncol = NULL,
+  ordered = NULL,
+  direction = NULL,
+  direction_cues = c("shade", "ring", "arrows"),
+  node_radius = NULL,
+  legend = NULL,
   ...
 )
 ```
@@ -44,9 +49,10 @@ plot_simplicial(
 - x:
 
   A network object: `tna`, `netobject`, matrix, `igraph`,
-  `cograph_network`, `net_hon`, or `net_hypa`. When `x` is a `tna` or
-  `netobject` with sequence data and `pathways` is `NULL`, higher-order
-  pathways are built automatically using the `method` parameter.
+  `cograph_network`, `net_hon`, `net_hypa`, or `simplicial_complex` (an
+  unordered complex — see `ordered`). When `x` is a `tna` or `netobject`
+  with sequence data and `pathways` is `NULL`, higher-order pathways are
+  built automatically using the `method` parameter.
 
 - pathways:
 
@@ -193,6 +199,47 @@ plot_simplicial(
 
   Number of columns in the grid when `dismantled = TRUE`. Default `NULL`
   auto-selects based on the number of pathways.
+
+- ordered:
+
+  Is each higher-order structure a PATH or a SET? `TRUE` treats the last
+  state of every pathway as its target (HON / HYPA / MOGen). `FALSE`
+  treats every member as co-equal: there is no target, so no node is
+  painted with `target_color`, no direction cue is drawn, and the panel
+  title is a member list rather than an arrow. `NULL` (default) reads it
+  off the input — `net_association_rules` and `simplicial_complex` are
+  sets, everything else is a path.
+
+- direction:
+
+  Draw the traversal inside each per-pathway panel: a light-to-dark core
+  ramp along the path, a ring whose gold peaks on the side facing the
+  next state, and an arrowhead just outside each node aimed at its
+  successor. `NULL` (default) enables them exactly when
+  `dismantled = TRUE`. A simplex is a set of vertices, so the combined
+  overlay — where blobs overlap and a state can sit in several pathways
+  at once — cannot express direction; `direction = TRUE` with
+  `dismantled = FALSE` is an error rather than a silent no-op. Also
+  forced off when the caller has collapsed the source/target two-tone
+  (undirected input such as `net_association_rules`).
+
+- direction_cues:
+
+  Which cues to draw, any of `"shade"`, `"ring"`, `"arrows"`. Default
+  all three.
+
+- node_radius:
+
+  Node core radius in data units, used only on the directed path (rings
+  and cores become polygons there so the ring gradient and the arrow
+  offset are expressible; `geom_point()` sizes are device millimetres
+  and cannot answer either). `NULL` (default) scales it to the panel
+  extent so the nodes keep the size they have today.
+
+- legend:
+
+  Draw the in-figure legend strip beneath a dismantled grid. Default
+  `TRUE` when `direction` is on.
 
 - ...:
 

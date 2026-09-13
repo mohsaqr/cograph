@@ -66,7 +66,9 @@ plot(
 
 - ...:
 
-  Additional arguments passed to plotting functions
+  For `type = "network"`, additional arguments passed to the per-motif
+  `igraph` plot calls. The ggplot-based types (`"bar"`, `"heatmap"`) do
+  not consume them.
 
 ## Value
 
@@ -96,5 +98,4 @@ m <- motif_census(mat, directed = TRUE, n_random = 50)
 plot(m)
 
 plot(m, type = "network")
-
 ```

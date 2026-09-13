@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -20,6 +20,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
     <li><a class="dropdown-item" href="../articles/centrality-catalogue.html">Centrality catalogue</a></li>
+    <li><a class="dropdown-item" href="../articles/centrality-zoo-lookup.html">Centrality Zoo lookup</a></li>
     <li><a class="dropdown-item" href="../articles/why-cograph.html">Why cograph?</a></li>
     <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">TNA Plotting Gallery and Visual Smoke Test</a></li>
     <li><a class="dropdown-item" href="../articles/mcml-examples.html">Advanced examples</a></li>
@@ -157,6 +158,274 @@
 
         </dt>
         <dd>Multilevel Network Visualization</dd>
+      </dl></div><div class="section level2">
+      <h2 id="wrangling">Wrangling<a class="anchor" aria-label="anchor" href="#wrangling"></a></h2>
+
+      <div class="section-desc"><p>Reshaping a network: selecting, thresholding, restructuring and editing. Every verb takes any supported input and returns a cograph_network.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="network_wrangling.html">network_wrangling</a></code>
+
+        </dt>
+        <dd>Network Wrangling Verbs</dd>
+
+        <dt>
+
+          <code><a href="as.data.frame.cograph_network.html">as.data.frame(<i>&lt;cograph_network&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Cograph Network as a Data Frame</dd>
+
+        <dt>
+
+          <code><a href="filter_edges.html">filter_edges()</a></code> <code><a href="filter_edges.html">subset_edges()</a></code>
+
+        </dt>
+        <dd>Filter Edges by Metadata</dd>
+
+        <dt>
+
+          <code><a href="filter_nodes.html">filter_nodes()</a></code> <code><a href="filter_nodes.html">subset_nodes()</a></code>
+
+        </dt>
+        <dd>Filter Nodes by Metadata or Centrality</dd>
+
+        <dt>
+
+          <code><a href="select_nodes.html">select_nodes()</a></code>
+
+        </dt>
+        <dd>Select Nodes with Lazy Centrality Computation</dd>
+
+        <dt>
+
+          <code><a href="select_edges.html">select_edges()</a></code>
+
+        </dt>
+        <dd>Select Edges with Lazy Computation</dd>
+
+        <dt>
+
+          <code><a href="select_neighbors.html">select_neighbors()</a></code>
+
+        </dt>
+        <dd>Select Node Neighbors (Ego Network)</dd>
+
+        <dt>
+
+          <code><a href="select_component.html">select_component()</a></code>
+
+        </dt>
+        <dd>Select Connected Component</dd>
+
+        <dt>
+
+          <code><a href="select_top.html">select_top()</a></code>
+
+        </dt>
+        <dd>Select Top N Nodes by Centrality</dd>
+
+        <dt>
+
+          <code><a href="select_bridges.html">select_bridges()</a></code>
+
+        </dt>
+        <dd>Select Bridge Edges</dd>
+
+        <dt>
+
+          <code><a href="select_top_edges.html">select_top_edges()</a></code>
+
+        </dt>
+        <dd>Select Top N Edges</dd>
+
+        <dt>
+
+          <code><a href="select_edges_involving.html">select_edges_involving()</a></code>
+
+        </dt>
+        <dd>Select Edges Involving Nodes</dd>
+
+        <dt>
+
+          <code><a href="select_edges_between.html">select_edges_between()</a></code>
+
+        </dt>
+        <dd>Select Edges Between Node Sets</dd>
+
+        <dt>
+
+          <code><a href="select_k_core.html">select_k_core()</a></code>
+
+        </dt>
+        <dd>Select the k-Core of a Network</dd>
+
+        <dt>
+
+          <code><a href="split_components.html">split_components()</a></code>
+
+        </dt>
+        <dd>Split a Network into Its Connected Components</dd>
+
+        <dt>
+
+          <code><a href="threshold_edges.html">threshold_edges()</a></code>
+
+        </dt>
+        <dd>Threshold Edges by Weight, Count, Proportion or Density</dd>
+
+        <dt>
+
+          <code><a href="binarize.html">binarize()</a></code>
+
+        </dt>
+        <dd>Binarize Edge Weights</dd>
+
+        <dt>
+
+          <code><a href="symmetrize.html">symmetrize()</a></code>
+
+        </dt>
+        <dd>Symmetrize a Directed Network</dd>
+
+        <dt>
+
+          <code><a href="normalize_weights.html">normalize_weights()</a></code>
+
+        </dt>
+        <dd>Normalize Edge Weights</dd>
+
+        <dt>
+
+          <code><a href="invert_weights.html">invert_weights()</a></code>
+
+        </dt>
+        <dd>Invert Edge Weights (Similarity to Distance and Back)</dd>
+
+        <dt>
+
+          <code><a href="to_undirected.html">to_undirected()</a></code>
+
+        </dt>
+        <dd>Convert a Directed Network to Undirected</dd>
+
+        <dt>
+
+          <code><a href="to_directed.html">to_directed()</a></code>
+
+        </dt>
+        <dd>Convert an Undirected Network to Directed</dd>
+
+        <dt>
+
+          <code><a href="reverse_edges.html">reverse_edges()</a></code>
+
+        </dt>
+        <dd>Reverse Edge Direction</dd>
+
+        <dt>
+
+          <code><a href="remove_isolates.html">remove_isolates()</a></code>
+
+        </dt>
+        <dd>Remove Isolated Nodes</dd>
+
+        <dt>
+
+          <code><a href="contract_nodes.html">contract_nodes()</a></code>
+
+        </dt>
+        <dd>Contract Nodes into Groups</dd>
+
+        <dt>
+
+          <code><a href="spanning_tree.html">spanning_tree()</a></code>
+
+        </dt>
+        <dd>Minimum or Maximum Spanning Tree</dd>
+
+        <dt>
+
+          <code><a href="complement_network.html">complement_network()</a></code>
+
+        </dt>
+        <dd>Complement of a Network</dd>
+
+        <dt>
+
+          <code><a href="reorder_nodes.html">reorder_nodes()</a></code>
+
+        </dt>
+        <dd>Reorder the Nodes of a Network</dd>
+
+        <dt>
+
+          <code><a href="rename_nodes.html">rename_nodes()</a></code>
+
+        </dt>
+        <dd>Rename Nodes</dd>
+
+        <dt>
+
+          <code><a href="add_nodes.html">add_nodes()</a></code>
+
+        </dt>
+        <dd>Add Nodes to a Network</dd>
+
+        <dt>
+
+          <code><a href="remove_nodes.html">remove_nodes()</a></code>
+
+        </dt>
+        <dd>Remove Nodes from a Network</dd>
+
+        <dt>
+
+          <code><a href="add_edges.html">add_edges()</a></code>
+
+        </dt>
+        <dd>Add Edges to a Network</dd>
+
+        <dt>
+
+          <code><a href="remove_edges.html">remove_edges()</a></code>
+
+        </dt>
+        <dd>Remove Edges from a Network</dd>
+
+        <dt>
+
+          <code><a href="mutate_nodes.html">mutate_nodes()</a></code>
+
+        </dt>
+        <dd>Add or Change Node Attributes</dd>
+
+        <dt>
+
+          <code><a href="mutate_edges.html">mutate_edges()</a></code>
+
+        </dt>
+        <dd>Add or Change Edge Attributes</dd>
+
+        <dt>
+
+          <code><a href="bind_networks.html">bind_networks()</a></code>
+
+        </dt>
+        <dd>Combine Two Networks</dd>
+
+        <dt>
+
+          <code><a href="simplify.html">simplify()</a></code>
+
+        </dt>
+        <dd>Simplify a Network</dd>
       </dl></div><div class="section level2">
       <h2 id="network-functions">Network functions<a class="anchor" aria-label="anchor" href="#network-functions"></a></h2>
 
@@ -657,6 +926,20 @@
 
         <dt>
 
+          <code><a href="centrality_access_information.html">centrality_access_information()</a></code> <code><a href="centrality_access_information.html">centrality_hide_information()</a></code>
+
+        </dt>
+        <dd>Access and Hide Information</dd>
+
+        <dt>
+
+          <code><a href="centrality_adaptive_leaderrank.html">centrality_adaptive_leaderrank()</a></code>
+
+        </dt>
+        <dd>Adaptive LeaderRank centrality</dd>
+
+        <dt>
+
           <code><a href="centrality_alpha.html">centrality_alpha()</a></code>
 
         </dt>
@@ -685,6 +968,13 @@
 
         <dt>
 
+          <code><a href="centrality_beta_measure.html">centrality_beta_measure()</a></code>
+
+        </dt>
+        <dd>BG-index or beta power measure</dd>
+
+        <dt>
+
           <code><a href="centrality_betweenness.html">centrality_betweenness()</a></code>
 
         </dt>
@@ -703,6 +993,13 @@
 
         </dt>
         <dd>Bridging Centrality</dd>
+
+        <dt>
+
+          <code><a href="centrality_bridging_capital.html">centrality_bridging_capital()</a></code>
+
+        </dt>
+        <dd>Bridging capital from lost information walks</dd>
 
         <dt>
 
@@ -741,6 +1038,13 @@
 
         <dt>
 
+          <code><a href="centrality_cda.html">centrality_cda()</a></code>
+
+        </dt>
+        <dd>Clustering degree algorithm centrality</dd>
+
+        <dt>
+
           <code><a href="centrality_centroid.html">centrality_centroid()</a></code>
 
         </dt>
@@ -769,6 +1073,13 @@
 
         <dt>
 
+          <code><a href="centrality_coleman_theil.html">centrality_coleman_theil()</a></code>
+
+        </dt>
+        <dd>Coleman-Theil hierarchy index</dd>
+
+        <dt>
+
           <code><a href="centrality_communicability.html">centrality_communicability()</a></code>
 
         </dt>
@@ -783,10 +1094,31 @@
 
         <dt>
 
+          <code><a href="centrality_community_based.html">centrality_community_based()</a></code> <code><a href="centrality_community_based.html">centrality_comm_centrality()</a></code> <code><a href="centrality_community_based.html">centrality_community_mediator()</a></code>
+
+        </dt>
+        <dd>Community-Based Centrality, Comm Centrality and Community-Based Mediator</dd>
+
+        <dt>
+
+          <code><a href="centrality_community_hub_bridge.html">centrality_community_hub_bridge()</a></code>
+
+        </dt>
+        <dd>Community Hub-Bridge Centrality</dd>
+
+        <dt>
+
           <code><a href="centrality_constraint.html">centrality_constraint()</a></code>
 
         </dt>
         <dd>Burt's Constraint</dd>
+
+        <dt>
+
+          <code><a href="centrality_controlrank.html">centrality_controlrank()</a></code>
+
+        </dt>
+        <dd>ControlRank centrality</dd>
 
         <dt>
 
@@ -839,10 +1171,38 @@
 
         <dt>
 
+          <code><a href="centrality_degree_discount.html">centrality_degree_discount()</a></code> <code><a href="centrality_degree_discount.html">centrality_single_discount()</a></code>
+
+        </dt>
+        <dd>DegreeDiscountIC and SingleDiscount Rankings</dd>
+
+        <dt>
+
           <code><a href="centrality_diffusion.html">centrality_diffusion()</a></code>
 
         </dt>
         <dd>Diffusion Centrality</dd>
+
+        <dt>
+
+          <code><a href="centrality_diffusion_centrality.html">centrality_diffusion_centrality()</a></code>
+
+        </dt>
+        <dd>Finite-horizon diffusion centrality</dd>
+
+        <dt>
+
+          <code><a href="centrality_dil.html">centrality_dil()</a></code>
+
+        </dt>
+        <dd>Degree and Importance of Lines</dd>
+
+        <dt>
+
+          <code><a href="centrality_distance_entropy.html">centrality_distance_entropy()</a></code>
+
+        </dt>
+        <dd>Distance Entropy</dd>
 
         <dt>
 
@@ -853,10 +1213,31 @@
 
         <dt>
 
+          <code><a href="centrality_dkgm.html">centrality_dkgm()</a></code>
+
+        </dt>
+        <dd>DK-based gravity model</dd>
+
+        <dt>
+
           <code><a href="centrality_dmnc.html">centrality_dmnc()</a></code>
 
         </dt>
         <dd>Density of Maximum Neighborhood Component (DMNC)</dd>
+
+        <dt>
+
+          <code><a href="centrality_dynamical_importance.html">centrality_dynamical_importance()</a></code>
+
+        </dt>
+        <dd>Dynamical importance by exact vertex deletion</dd>
+
+        <dt>
+
+          <code><a href="centrality_dynamics_sensitive.html">centrality_dynamics_sensitive()</a></code>
+
+        </dt>
+        <dd>Dynamics-sensitive centrality</dd>
 
         <dt>
 
@@ -874,6 +1255,13 @@
 
         <dt>
 
+          <code><a href="centrality_ehcc.html">centrality_ehcc()</a></code>
+
+        </dt>
+        <dd>Extended hybrid characteristic centrality</dd>
+
+        <dt>
+
           <code><a href="centrality_eigenvector.html">centrality_eigenvector()</a></code>
 
         </dt>
@@ -888,10 +1276,31 @@
 
         <dt>
 
+          <code><a href="centrality_entropy_variation.html">centrality_entropy_variation()</a></code>
+
+        </dt>
+        <dd>Entropy Variation</dd>
+
+        <dt>
+
+          <code><a href="centrality_exogenous.html">centrality_exogenous()</a></code>
+
+        </dt>
+        <dd>Exogenous centrality</dd>
+
+        <dt>
+
           <code><a href="centrality_expected.html">centrality_expected()</a></code>
 
         </dt>
         <dd>Expected Centrality</dd>
+
+        <dt>
+
+          <code><a href="centrality_expected_force.html">centrality_expected_force()</a></code>
+
+        </dt>
+        <dd>Expected Force centrality</dd>
 
         <dt>
 
@@ -906,6 +1315,34 @@
 
         </dt>
         <dd>Expected Influence (two-step)</dd>
+
+        <dt>
+
+          <code><a href="centrality_extended_coreness.html">centrality_extended_coreness()</a></code>
+
+        </dt>
+        <dd>Extended neighborhood coreness</dd>
+
+        <dt>
+
+          <code><a href="centrality_extended_gravity.html">centrality_extended_gravity()</a></code>
+
+        </dt>
+        <dd>Extended gravity centrality</dd>
+
+        <dt>
+
+          <code><a href="centrality_extended_local_bridging.html">centrality_extended_local_bridging()</a></code>
+
+        </dt>
+        <dd>Extended local bridging centrality</dd>
+
+        <dt>
+
+          <code><a href="centrality_extended_mixed_gravity.html">centrality_extended_mixed_gravity()</a></code>
+
+        </dt>
+        <dd>Extended mixed gravitational centrality</dd>
 
         <dt>
 
@@ -937,6 +1374,27 @@
 
         <dt>
 
+          <code><a href="centrality_global_structure.html">centrality_global_structure()</a></code>
+
+        </dt>
+        <dd>Global structure model centrality</dd>
+
+        <dt>
+
+          <code><a href="centrality_graph_regularization.html">centrality_graph_regularization()</a></code>
+
+        </dt>
+        <dd>Graph regularization centrality</dd>
+
+        <dt>
+
+          <code><a href="centrality_gravity.html">centrality_gravity()</a></code>
+
+        </dt>
+        <dd>Gravity centrality</dd>
+
+        <dt>
+
           <code><a href="centrality_harary.html">centrality_harary()</a></code>
 
         </dt>
@@ -951,10 +1409,59 @@
 
         <dt>
 
+          <code><a href="centrality_hcc.html">centrality_hcc()</a></code>
+
+        </dt>
+        <dd>Hybrid characteristic centrality</dd>
+
+        <dt>
+
+          <code><a href="centrality_heatmap.html">centrality_heatmap()</a></code> <code><a href="centrality_heatmap.html">centrality_flow_coefficient()</a></code> <code><a href="centrality_heatmap.html">centrality_local_entropy()</a></code> <code><a href="centrality_heatmap.html">centrality_weighted_h_index()</a></code> <code><a href="centrality_heatmap.html">centrality_redundancy()</a></code>
+
+        </dt>
+        <dd>Heatmap, Flow Coefficient, Local Entropy, Weighted h-index, Redundancy</dd>
+
+        <dt>
+
           <code><a href="centrality_hubbell.html">centrality_hubbell()</a></code>
 
         </dt>
         <dd>Hubbell Centrality</dd>
+
+        <dt>
+
+          <code><a href="centrality_hybrid_global_structure.html">centrality_hybrid_global_structure()</a></code>
+
+        </dt>
+        <dd>Hybrid global structure model centrality</dd>
+
+        <dt>
+
+          <code><a href="centrality_iec.html">centrality_iec()</a></code>
+
+        </dt>
+        <dd>Immediate Effects Centrality</dd>
+
+        <dt>
+
+          <code><a href="centrality_iira.html">centrality_iira()</a></code>
+
+        </dt>
+        <dd>Improved iterative resource allocation (IIRA)</dd>
+
+        <dt>
+
+          <code><a href="centrality_improved_closeness.html">centrality_improved_closeness()</a></code>
+
+        </dt>
+        <dd>Improved closeness centrality</dd>
+
+        <dt>
+
+          <code><a href="centrality_improved_global_structure.html">centrality_improved_global_structure()</a></code>
+
+        </dt>
+        <dd>Improved global structure model centrality</dd>
 
         <dt>
 
@@ -972,10 +1479,24 @@
 
         <dt>
 
+          <code><a href="centrality_ira.html">centrality_ira()</a></code>
+
+        </dt>
+        <dd>Iterative resource allocation (IRA)</dd>
+
+        <dt>
+
           <code><a href="centrality_katz.html">centrality_katz()</a></code>
 
         </dt>
         <dd>Katz Centrality</dd>
+
+        <dt>
+
+          <code><a href="centrality_ked.html">centrality_ked()</a></code>
+
+        </dt>
+        <dd>KED method centrality</dd>
 
         <dt>
 
@@ -1007,6 +1528,13 @@
 
         <dt>
 
+          <code><a href="centrality_length_scaled_betweenness.html">centrality_length_scaled_betweenness()</a></code> <code><a href="centrality_length_scaled_betweenness.html">centrality_delta_betweenness()</a></code> <code><a href="centrality_length_scaled_betweenness.html">centrality_ego_betweenness()</a></code> <code><a href="centrality_length_scaled_betweenness.html">centrality_delta_closeness()</a></code>
+
+        </dt>
+        <dd>Betweenness and closeness variants that carry a tuning parameter</dd>
+
+        <dt>
+
           <code><a href="centrality_leverage.html">centrality_leverage()</a></code>
 
         </dt>
@@ -1014,10 +1542,31 @@
 
         <dt>
 
+          <code><a href="centrality_lhc.html">centrality_lhc()</a></code>
+
+        </dt>
+        <dd>Lhc Index</dd>
+
+        <dt>
+
           <code><a href="centrality_lin.html">centrality_lin()</a></code>
 
         </dt>
         <dd>Lin Centrality</dd>
+
+        <dt>
+
+          <code><a href="centrality_linerank.html">centrality_linerank()</a></code>
+
+        </dt>
+        <dd>LineRank centrality</dd>
+
+        <dt>
+
+          <code><a href="centrality_lnc.html">centrality_lnc()</a></code>
+
+        </dt>
+        <dd>Local neighbor contribution centrality</dd>
 
         <dt>
 
@@ -1042,6 +1591,55 @@
 
         <dt>
 
+          <code><a href="centrality_local_dimension.html">centrality_local_dimension()</a></code>
+
+        </dt>
+        <dd>Local Dimension</dd>
+
+        <dt>
+
+          <code><a href="centrality_local_dimension_fixed.html">centrality_local_dimension_fixed()</a></code> <code><a href="centrality_local_dimension_fixed.html">centrality_fuzzy_local_dimension()</a></code> <code><a href="centrality_local_dimension_fixed.html">centrality_local_volume_dimension()</a></code>
+
+        </dt>
+        <dd>Fixed-Radius, Fuzzy and Volume Local Dimensions</dd>
+
+        <dt>
+
+          <code><a href="centrality_local_efficiency.html">centrality_local_efficiency()</a></code> <code><a href="centrality_local_efficiency.html">centrality_s_core()</a></code> <code><a href="centrality_local_efficiency.html">centrality_fragmentation()</a></code> <code><a href="centrality_local_efficiency.html">centrality_kpath()</a></code> <code><a href="centrality_local_efficiency.html">centrality_epc()</a></code>
+
+        </dt>
+        <dd>Local efficiency, s-core, fragmentation, k-path census and EPC</dd>
+
+        <dt>
+
+          <code><a href="centrality_local_information_dimension.html">centrality_local_information_dimension()</a></code>
+
+        </dt>
+        <dd>Local Information Dimensionality</dd>
+
+        <dt>
+
+          <code><a href="centrality_localized_bridging.html">centrality_localized_bridging()</a></code>
+
+        </dt>
+        <dd>Localized bridging centrality from ego betweenness</dd>
+
+        <dt>
+
+          <code><a href="centrality_malatya.html">centrality_malatya()</a></code>
+
+        </dt>
+        <dd>Malatya centrality</dd>
+
+        <dt>
+
+          <code><a href="centrality_map_equation.html">centrality_map_equation()</a></code>
+
+        </dt>
+        <dd>Map equation centrality with explicit coding and flow conventions</dd>
+
+        <dt>
+
           <code><a href="centrality_markov.html">centrality_markov()</a></code>
 
         </dt>
@@ -1049,10 +1647,80 @@
 
         <dt>
 
+          <code><a href="centrality_mcc.html">centrality_mcc()</a></code>
+
+        </dt>
+        <dd>Maximal clique centrality</dd>
+
+        <dt>
+
+          <code><a href="centrality_mcgm.html">centrality_mcgm()</a></code>
+
+        </dt>
+        <dd>Multi-characteristics gravity model</dd>
+
+        <dt>
+
+          <code><a href="centrality_mixed_gravity.html">centrality_mixed_gravity()</a></code>
+
+        </dt>
+        <dd>Mixed gravitational centrality</dd>
+
+        <dt>
+
           <code><a href="centrality_mnc.html">centrality_mnc()</a></code>
 
         </dt>
         <dd>Maximum Neighborhood Component (MNC)</dd>
+
+        <dt>
+
+          <code><a href="centrality_modified_expected_force.html">centrality_modified_expected_force()</a></code>
+
+        </dt>
+        <dd>Modified Expected Force centrality</dd>
+
+        <dt>
+
+          <code><a href="centrality_modularity_vitality.html">centrality_modularity_vitality()</a></code>
+
+        </dt>
+        <dd>Modularity Vitality</dd>
+
+        <dt>
+
+          <code><a href="centrality_ncvoterank.html">centrality_ncvoterank()</a></code>
+
+        </dt>
+        <dd>NCVoteRank</dd>
+
+        <dt>
+
+          <code><a href="centrality_neighbor_distance.html">centrality_neighbor_distance()</a></code>
+
+        </dt>
+        <dd>Neighborhood centrality, and its neighbor distance special case</dd>
+
+        <dt>
+
+          <code><a href="centrality_neighborhood_connectivity.html">centrality_neighborhood_connectivity()</a></code>
+
+        </dt>
+        <dd>Neighborhood Connectivity</dd>
+
+        <dt>
+
+          <code><a href="centrality_ninl.html">centrality_ninl()</a></code>
+
+        </dt>
+        <dd>Node and Neighbor Layer Information centrality</dd>
+
+        <dt>
+
+          <code><a href="centrality_node_contraction.html">centrality_node_contraction()</a></code> <code><a href="centrality_node_contraction.html">centrality_node_contraction_improved()</a></code>
+
+        </dt>
+        <dd>Node Contraction Centrality (IMC and IIMC)</dd>
 
         <dt>
 
@@ -1105,6 +1773,13 @@
 
         <dt>
 
+          <code><a href="centrality_proximal_betweenness.html">centrality_proximal_betweenness()</a></code>
+
+        </dt>
+        <dd>Proximal betweenness centrality</dd>
+
+        <dt>
+
           <code><a href="centrality_radiality.html">centrality_radiality()</a></code>
 
         </dt>
@@ -1119,6 +1794,13 @@
 
         <dt>
 
+          <code><a href="centrality_random_walk_decay.html">centrality_random_walk_decay()</a></code>
+
+        </dt>
+        <dd>Random walk decay centrality</dd>
+
+        <dt>
+
           <code><a href="centrality_reaching_local.html">centrality_reaching_local()</a></code>
 
         </dt>
@@ -1126,10 +1808,45 @@
 
         <dt>
 
+          <code><a href="centrality_relative_entropy.html">centrality_relative_entropy()</a></code>
+
+        </dt>
+        <dd>Relative-Entropy Integrated Evaluation</dd>
+
+        <dt>
+
           <code><a href="centrality_residual_closeness.html">centrality_residual_closeness()</a></code>
 
         </dt>
         <dd>Residual Closeness Centrality</dd>
+
+        <dt>
+
+          <code><a href="centrality_resistance_curvature.html">centrality_resistance_curvature()</a></code>
+
+        </dt>
+        <dd>Node resistance curvature</dd>
+
+        <dt>
+
+          <code><a href="centrality_rsp_betweenness.html">centrality_rsp_betweenness()</a></code>
+
+        </dt>
+        <dd>Randomized Shortest Paths Betweenness Centrality</dd>
+
+        <dt>
+
+          <code><a href="centrality_rumor.html">centrality_rumor()</a></code>
+
+        </dt>
+        <dd>Rumor Centrality</dd>
+
+        <dt>
+
+          <code><a href="centrality_s_shell.html">centrality_s_shell()</a></code>
+
+        </dt>
+        <dd>s-shell Index</dd>
 
         <dt>
 
@@ -1144,6 +1861,20 @@
 
         </dt>
         <dd>Semi-Local Centrality</dd>
+
+        <dt>
+
+          <code><a href="centrality_shapley_game1.html">centrality_shapley_game1()</a></code> <code><a href="centrality_shapley_game1.html">centrality_shapley_game2()</a></code> <code><a href="centrality_shapley_game1.html">centrality_shapley_game3()</a></code>
+
+        </dt>
+        <dd>Shapley Value Centrality (Games 1, 2 and 3)</dd>
+
+        <dt>
+
+          <code><a href="centrality_spectralrank.html">centrality_spectralrank()</a></code>
+
+        </dt>
+        <dd>SpectralRank with optional diagonal prior information</dd>
 
         <dt>
 
@@ -1182,10 +1913,52 @@
 
         <dt>
 
+          <code><a href="centrality_truss.html">centrality_truss()</a></code> <code><a href="centrality_truss.html">centrality_mdd()</a></code> <code><a href="centrality_truss.html">centrality_bridging_coefficient()</a></code> <code><a href="centrality_truss.html">centrality_godfather()</a></code> <code><a href="centrality_truss.html">centrality_support()</a></code>
+
+        </dt>
+        <dd>Truss, mixed-degree decomposition and local social-capital measures</dd>
+
+        <dt>
+
+          <code><a href="centrality_trust_pagerank.html">centrality_trust_pagerank()</a></code>
+
+        </dt>
+        <dd>Trust-PageRank</dd>
+
+        <dt>
+
+          <code><a href="centrality_two_way_rw.html">centrality_two_way_rw()</a></code>
+
+        </dt>
+        <dd>Two-Way Random Walk Betweenness</dd>
+
+        <dt>
+
+          <code><a href="centrality_volume.html">centrality_volume()</a></code>
+
+        </dt>
+        <dd>Volume centrality</dd>
+
+        <dt>
+
           <code><a href="centrality_voterank.html">centrality_voterank()</a></code>
 
         </dt>
         <dd>VoteRank Centrality</dd>
+
+        <dt>
+
+          <code><a href="centrality_weighted_kshell.html">centrality_weighted_kshell()</a></code> <code><a href="centrality_weighted_kshell.html">centrality_renewed_coreness()</a></code> <code><a href="centrality_weighted_kshell.html">centrality_geodesic_kpath()</a></code>
+
+        </dt>
+        <dd>Weighted k-shell, Renewed Coreness and Geodesic k-path</dd>
+
+        <dt>
+
+          <code><a href="centrality_weighted_leaderrank.html">centrality_weighted_leaderrank()</a></code>
+
+        </dt>
+        <dd>Weighted LeaderRank centrality</dd>
 
         <dt>
 
@@ -1200,6 +1973,20 @@
 
         </dt>
         <dd>Within-Module Degree Z-Score</dd>
+
+        <dt>
+
+          <code><a href="centrality_wvoterank.html">centrality_wvoterank()</a></code> <code><a href="centrality_wvoterank.html">centrality_enrenew()</a></code> <code><a href="centrality_wvoterank.html">centrality_voterank_plus()</a></code>
+
+        </dt>
+        <dd>WVoteRank, EnRenew and VoteRank++</dd>
+
+        <dt>
+
+          <code><a href="centrality_x_degree.html">centrality_x_degree()</a></code>
+
+        </dt>
+        <dd>X-degree centrality</dd>
 
         <dt>
 
@@ -1329,6 +2116,13 @@
 
         <dt>
 
+          <code><a href="select_k_core.html">select_k_core()</a></code>
+
+        </dt>
+        <dd>Select the k-Core of a Network</dd>
+
+        <dt>
+
           <code><a href="select_neighbors.html">select_neighbors()</a></code>
 
         </dt>
@@ -1448,6 +2242,13 @@
 
         <dt>
 
+          <code><a href="network_wrangling.html">network_wrangling</a></code>
+
+        </dt>
+        <dd>Network Wrangling Verbs</dd>
+
+        <dt>
+
           <code><a href="as_cograph.html">as_cograph()</a></code> <code><a href="as_cograph.html">to_cograph()</a></code>
 
         </dt>
@@ -1459,6 +2260,13 @@
 
         </dt>
         <dd>Export Network as Edge List Data Frame</dd>
+
+        <dt>
+
+          <code><a href="to_directed.html">to_directed()</a></code>
+
+        </dt>
+        <dd>Convert an Undirected Network to Directed</dd>
 
         <dt>
 
@@ -1480,6 +2288,13 @@
 
         </dt>
         <dd>Convert Network to statnet network Object</dd>
+
+        <dt>
+
+          <code><a href="to_undirected.html">to_undirected()</a></code>
+
+        </dt>
+        <dd>Convert a Directed Network to Undirected</dd>
 
         <dt>
 
@@ -1598,7 +2413,7 @@
           <code><a href="plot_mcml.html">plot_mcml()</a></code>
 
         </dt>
-        <dd>Plot Multi-Cluster Multi-Layer Network</dd>
+        <dd>Produces a two-layer hierarchical visualization of a clustered network. The <strong>bottom layer</strong> shows every node arranged inside elliptical cluster shells with full within-cluster and between-cluster edges drawn at the individual-node level. The <strong>top layer</strong> collapses each cluster into a single summary pie-chart node whose colored slice represents, by default, the cluster's share of the initial state distribution (see <code>summary_pie</code> for the alternative self-retention interpretation), with edges carrying the aggregated between-cluster weights. Dashed inter-layer lines connect each detail node to its corresponding summary node, making the hierarchical mapping explicit.</dd>
 
         <dt>
 
@@ -2134,6 +2949,27 @@
 
         <dt>
 
+          <code><a href="add_edges.html">add_edges()</a></code>
+
+        </dt>
+        <dd>Add Edges to a Network</dd>
+
+        <dt>
+
+          <code><a href="add_nodes.html">add_nodes()</a></code>
+
+        </dt>
+        <dd>Add Nodes to a Network</dd>
+
+        <dt>
+
+          <code><a href="as.data.frame.cograph_network.html">as.data.frame(<i>&lt;cograph_network&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Cograph Network as a Data Frame</dd>
+
+        <dt>
+
           <code><a href="as_mcml.html">as_mcml()</a></code>
 
         </dt>
@@ -2162,6 +2998,20 @@
 
         <dt>
 
+          <code><a href="binarize.html">binarize()</a></code>
+
+        </dt>
+        <dd>Binarize Edge Weights</dd>
+
+        <dt>
+
+          <code><a href="bind_networks.html">bind_networks()</a></code>
+
+        </dt>
+        <dd>Combine Two Networks</dd>
+
+        <dt>
+
           <code><a href="centralization.html">centralization()</a></code>
 
         </dt>
@@ -2180,6 +3030,20 @@
 
         </dt>
         <dd>Create a Network Visualization</dd>
+
+        <dt>
+
+          <code><a href="complement_network.html">complement_network()</a></code>
+
+        </dt>
+        <dd>Complement of a Network</dd>
+
+        <dt>
+
+          <code><a href="contract_nodes.html">contract_nodes()</a></code>
+
+        </dt>
+        <dd>Contract Nodes into Groups</dd>
 
         <dt>
 
@@ -2330,6 +3194,13 @@
 
         <dt>
 
+          <code><a href="invert_weights.html">invert_weights()</a></code>
+
+        </dt>
+        <dd>Invert Edge Weights (Similarity to Distance and Back)</dd>
+
+        <dt>
+
           <code><a href="is_bipartite.html">is_bipartite()</a></code>
 
         </dt>
@@ -2386,6 +3257,13 @@
 
         <dt>
 
+          <code><a href="list_centralities.html">list_centralities()</a></code>
+
+        </dt>
+        <dd>Catalogue of the Centrality Measures</dd>
+
+        <dt>
+
           <code><a href="list_layouts.html">list_layouts()</a></code>
 
         </dt>
@@ -2421,6 +3299,20 @@
 
         <dt>
 
+          <code><a href="mutate_edges.html">mutate_edges()</a></code>
+
+        </dt>
+        <dd>Add or Change Edge Attributes</dd>
+
+        <dt>
+
+          <code><a href="mutate_nodes.html">mutate_nodes()</a></code>
+
+        </dt>
+        <dd>Add or Change Node Attributes</dd>
+
+        <dt>
+
           <code><a href="n_edges.html">n_edges()</a></code>
 
         </dt>
@@ -2439,6 +3331,13 @@
 
         </dt>
         <dd>Neighborhood Overlap (Jaccard) for Each Edge</dd>
+
+        <dt>
+
+          <code><a href="normalize_weights.html">normalize_weights()</a></code>
+
+        </dt>
+        <dd>Normalize Edge Weights</dd>
 
         <dt>
 
@@ -2554,6 +3453,34 @@
 
         <dt>
 
+          <code><a href="remove_edges.html">remove_edges()</a></code>
+
+        </dt>
+        <dd>Remove Edges from a Network</dd>
+
+        <dt>
+
+          <code><a href="remove_isolates.html">remove_isolates()</a></code>
+
+        </dt>
+        <dd>Remove Isolated Nodes</dd>
+
+        <dt>
+
+          <code><a href="remove_nodes.html">remove_nodes()</a></code>
+
+        </dt>
+        <dd>Remove Nodes from a Network</dd>
+
+        <dt>
+
+          <code><a href="rename_nodes.html">rename_nodes()</a></code>
+
+        </dt>
+        <dd>Rename Nodes</dd>
+
+        <dt>
+
           <code><a href="render-ggplot.html">render-ggplot</a></code>
 
         </dt>
@@ -2565,6 +3492,20 @@
 
         </dt>
         <dd>Grid Rendering</dd>
+
+        <dt>
+
+          <code><a href="reorder_nodes.html">reorder_nodes()</a></code>
+
+        </dt>
+        <dd>Reorder the Nodes of a Network</dd>
+
+        <dt>
+
+          <code><a href="reverse_edges.html">reverse_edges()</a></code>
+
+        </dt>
+        <dd>Reverse Edge Direction</dd>
 
         <dt>
 
@@ -2687,6 +3628,20 @@
 
         <dt>
 
+          <code><a href="spanning_tree.html">spanning_tree()</a></code>
+
+        </dt>
+        <dd>Minimum or Maximum Spanning Tree</dd>
+
+        <dt>
+
+          <code><a href="split_components.html">split_components()</a></code>
+
+        </dt>
+        <dd>Split a Network into Its Connected Components</dd>
+
+        <dt>
+
           <code><a href="student_interactions.html">student_interactions</a></code>
 
         </dt>
@@ -2705,6 +3660,13 @@
 
         </dt>
         <dd>Summarize Network by Clusters</dd>
+
+        <dt>
+
+          <code><a href="symmetrize.html">symmetrize()</a></code>
+
+        </dt>
+        <dd>Symmetrize a Directed Network</dd>
 
         <dt>
 
@@ -2754,6 +3716,13 @@
 
         </dt>
         <dd>Viridis Theme</dd>
+
+        <dt>
+
+          <code><a href="threshold_edges.html">threshold_edges()</a></code>
+
+        </dt>
+        <dd>Threshold Edges by Weight, Count, Proportion or Density</dd>
 
         <dt>
 

@@ -9,7 +9,7 @@ similar to the plot_mlna network visualization style."><meta property="og:image"
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -22,6 +22,7 @@ similar to the plot_mlna network visualization style."><meta property="og:image"
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
     <li><a class="dropdown-item" href="../articles/centrality-catalogue.html">Centrality catalogue</a></li>
+    <li><a class="dropdown-item" href="../articles/centrality-zoo-lookup.html">Centrality Zoo lookup</a></li>
     <li><a class="dropdown-item" href="../articles/why-cograph.html">Why cograph?</a></li>
     <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">TNA Plotting Gallery and Visual Smoke Test</a></li>
     <li><a class="dropdown-item" href="../articles/mcml-examples.html">Advanced examples</a></li>
@@ -57,7 +58,7 @@ similar to the plot_mlna network visualization style.</p>
 <span>  <span class="va">x</span>,</span>
 <span>  layer_list <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  colors <span class="op">=</span> <span class="st">"viridis"</span>,</span>
-<span>  layer_spacing <span class="op">=</span> <span class="fl">2.5</span>,</span>
+<span>  layer_spacing <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  skew <span class="op">=</span> <span class="fl">0.4</span>,</span>
 <span>  compress <span class="op">=</span> <span class="fl">0.6</span>,</span>
 <span>  show_connections <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -69,6 +70,8 @@ similar to the plot_mlna network visualization style.</p>
 <span>  cell_border_color <span class="op">=</span> <span class="st">"white"</span>,</span>
 <span>  cell_border_width <span class="op">=</span> <span class="fl">0.2</span>,</span>
 <span>  show_labels <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  show_node_labels <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  node_label_size <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>  label_size <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  show_legend <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  legend_title <span class="op">=</span> <span class="st">"Weight"</span>,</span>
@@ -99,7 +102,11 @@ or NULL for auto-detection from cograph_network nodes.</p></dd>
 
 
 <dt id="arg-layer-spacing">layer_spacing<a class="anchor" aria-label="anchor" href="#arg-layer-spacing"></a></dt>
-<dd><p>Vertical spacing between layers. Default 2.5.</p></dd>
+<dd><p>Vertical spacing between layers, in data units. A
+plane is <code>nrow(x) * compress</code> units tall, so a fixed spacing that
+suits a small network makes a larger one overlap itself. <code>NULL</code>
+(the default) scales the spacing to the plane so planes never collide;
+pass a number for the older absolute behaviour.</p></dd>
 
 
 <dt id="arg-skew">skew<a class="anchor" aria-label="anchor" href="#arg-skew"></a></dt>
@@ -144,6 +151,18 @@ or NULL for auto-detection from cograph_network nodes.</p></dd>
 
 <dt id="arg-show-labels">show_labels<a class="anchor" aria-label="anchor" href="#arg-show-labels"></a></dt>
 <dd><p>Show layer name labels? Default TRUE.</p></dd>
+
+
+<dt id="arg-show-node-labels">show_node_labels<a class="anchor" aria-label="anchor" href="#arg-show-node-labels"></a></dt>
+<dd><p>Show the row and column names of the matrix?
+Default TRUE. Without them a plane is an anonymous grid and a reader
+cannot tell which cell is which pair. Every plane shares one node
+ordering, so the names are drawn once, against the front plane: rows down
+its left edge, columns along its lower edge.</p></dd>
+
+
+<dt id="arg-node-label-size">node_label_size<a class="anchor" aria-label="anchor" href="#arg-node-label-size"></a></dt>
+<dd><p>Size of the row and column names. Default 3.</p></dd>
 
 
 <dt id="arg-label-size">label_size<a class="anchor" aria-label="anchor" href="#arg-label-size"></a></dt>

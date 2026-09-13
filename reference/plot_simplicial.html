@@ -9,7 +9,7 @@ network layout. Source nodes are blue, target nodes are red."><meta property="og
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -22,6 +22,7 @@ network layout. Source nodes are blue, target nodes are red."><meta property="og
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
     <li><a class="dropdown-item" href="../articles/centrality-catalogue.html">Centrality catalogue</a></li>
+    <li><a class="dropdown-item" href="../articles/centrality-zoo-lookup.html">Centrality Zoo lookup</a></li>
     <li><a class="dropdown-item" href="../articles/why-cograph.html">Why cograph?</a></li>
     <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">TNA Plotting Gallery and Visual Smoke Test</a></li>
     <li><a class="dropdown-item" href="../articles/mcml-examples.html">Advanced examples</a></li>
@@ -82,6 +83,11 @@ network layout. Source nodes are blue, target nodes are red.</p>
 <span>  title <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  dismantled <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  ncol <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ordered <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  direction <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  direction_cues <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"shade"</span>, <span class="st">"ring"</span>, <span class="st">"arrows"</span><span class="op">)</span>,</span>
+<span>  node_radius <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  legend <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -92,8 +98,9 @@ network layout. Source nodes are blue, target nodes are red.</p>
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>A network object: <code>tna</code>, <code>netobject</code>, matrix,
-<code>igraph</code>, <code>cograph_network</code>, <code>net_hon</code>, or
-<code>net_hypa</code>. When <code>x</code> is a <code>tna</code> or
+<code>igraph</code>, <code>cograph_network</code>, <code>net_hon</code>,
+<code>net_hypa</code>, or <code>simplicial_complex</code> (an unordered
+complex — see <code>ordered</code>). When <code>x</code> is a <code>tna</code> or
 <code>netobject</code> with sequence data and <code>pathways</code> is
 <code>NULL</code>, higher-order pathways are built automatically
 using the <code>method</code> parameter.</p></dd>
@@ -254,6 +261,50 @@ in a grid layout.</p></dd>
 <dt id="arg-ncol">ncol<a class="anchor" aria-label="anchor" href="#arg-ncol"></a></dt>
 <dd><p>Number of columns in the grid when <code>dismantled = TRUE</code>.
 Default <code>NULL</code> auto-selects based on the number of pathways.</p></dd>
+
+
+<dt id="arg-ordered">ordered<a class="anchor" aria-label="anchor" href="#arg-ordered"></a></dt>
+<dd><p>Is each higher-order structure a PATH or a SET?
+<code>TRUE</code> treats the last state of every pathway as its target
+(HON / HYPA / MOGen). <code>FALSE</code> treats every member as co-equal:
+there is no target, so no node is painted with <code>target_color</code>,
+no direction cue is drawn, and the panel title is a member list
+rather than an arrow. <code>NULL</code> (default) reads it off the input
+— <code>net_association_rules</code> and <code>simplicial_complex</code> are
+sets, everything else is a path.</p></dd>
+
+
+<dt id="arg-direction">direction<a class="anchor" aria-label="anchor" href="#arg-direction"></a></dt>
+<dd><p>Draw the traversal inside each per-pathway panel:
+a light-to-dark core ramp along the path, a ring whose gold peaks
+on the side facing the next state, and an arrowhead just outside
+each node aimed at its successor. <code>NULL</code> (default) enables
+them exactly when <code>dismantled = TRUE</code>. A simplex is a set of
+vertices, so the combined overlay — where blobs overlap and a state
+can sit in several pathways at once — cannot express direction;
+<code>direction = TRUE</code> with <code>dismantled = FALSE</code> is an
+error rather than a silent no-op. Also forced off when the caller
+has collapsed the source/target two-tone (undirected input such as
+<code>net_association_rules</code>).</p></dd>
+
+
+<dt id="arg-direction-cues">direction_cues<a class="anchor" aria-label="anchor" href="#arg-direction-cues"></a></dt>
+<dd><p>Which cues to draw, any of <code>"shade"</code>,
+<code>"ring"</code>, <code>"arrows"</code>. Default all three.</p></dd>
+
+
+<dt id="arg-node-radius">node_radius<a class="anchor" aria-label="anchor" href="#arg-node-radius"></a></dt>
+<dd><p>Node core radius in data units, used only on the
+directed path (rings and cores become polygons there so the ring
+gradient and the arrow offset are expressible; <code>geom_point()</code>
+sizes are device millimetres and cannot answer either).
+<code>NULL</code> (default) scales it to the panel extent so the nodes
+keep the size they have today.</p></dd>
+
+
+<dt id="arg-legend">legend<a class="anchor" aria-label="anchor" href="#arg-legend"></a></dt>
+<dd><p>Draw the in-figure legend strip beneath a dismantled
+grid. Default <code>TRUE</code> when <code>direction</code> is on.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

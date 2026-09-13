@@ -10,7 +10,7 @@ select_top_edges(
   n,
   by = "weight",
   ...,
-  .keep_isolates = FALSE,
+  keep_isolates = TRUE,
   keep_format = FALSE,
   directed = NULL
 )
@@ -35,9 +35,9 @@ select_top_edges(
 
   Additional filter expressions.
 
-- .keep_isolates:
+- keep_isolates:
 
-  Keep nodes with no edges? Default FALSE.
+  Keep nodes that end up with no edges? Default TRUE.
 
 - keep_format:
 
@@ -68,7 +68,7 @@ rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
 # Top 3 edges by weight
 select_top_edges(adj, n = 3)
 #> Cograph network: 4 nodes, 3 edges ( undirected )
-#> Source: filtered 
+#> Source: matrix 
 #>   Nodes (4): A, B, C, D
 #>   Edges: 3 / 6 (density: 50.0%)
 #>   Weights: [0.500, 0.800]  |  mean: 0.633
@@ -77,16 +77,19 @@ select_top_edges(adj, n = 3)
 #>     B -- D  0.600
 #>     A -- B  0.500
 #> Layout: none 
+#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 
 # Top 2 by edge betweenness
 select_top_edges(adj, n = 2, by = "edge_betweenness")
-#> Cograph network: 3 nodes, 2 edges ( undirected )
-#> Source: filtered 
-#>   Nodes (3): A, B, D
-#>   Edges: 2 / 3 (density: 66.7%)
+#> Warning: 1 node(s) have no edges left. Nodes are kept; call remove_isolates() to drop them.
+#> Cograph network: 4 nodes, 2 edges ( undirected )
+#> Source: matrix 
+#>   Nodes (4): A, B, C, D
+#>   Edges: 2 / 6 (density: 33.3%)
 #>   Weights: [0.500, 0.600]  |  mean: 0.550
 #>   Strongest edges:
 #>     B -- D  0.600
 #>     A -- B  0.500
 #> Layout: none 
+#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

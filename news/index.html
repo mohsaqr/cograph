@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -20,6 +20,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
     <li><a class="dropdown-item" href="../articles/centrality-catalogue.html">Centrality catalogue</a></li>
+    <li><a class="dropdown-item" href="../articles/centrality-zoo-lookup.html">Centrality Zoo lookup</a></li>
     <li><a class="dropdown-item" href="../articles/why-cograph.html">Why cograph?</a></li>
     <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">TNA Plotting Gallery and Visual Smoke Test</a></li>
     <li><a class="dropdown-item" href="../articles/mcml-examples.html">Advanced examples</a></li>
@@ -43,6 +44,573 @@
       <small>Source: <a href="https://github.com/sonsoleslp/cograph/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.6.4" id="cograph-264">cograph 2.6.4<a class="anchor" aria-label="anchor" href="#cograph-264"></a></h2>
+<div class="section level3">
+<h3 id="fixes-to-the-parallel-motif-null-2-6-4">Fixes to the parallel motif null<a class="anchor" aria-label="anchor" href="#fixes-to-the-parallel-motif-null-2-6-4"></a></h3>
+<p>A permutation replicate that does not come back intact from a parallel worker now raises an error. Previously only an explicit worker error was caught; a worker killed by the operating system returns <code>NULL</code> for its whole chunk with only a warning, and those gaps were silently filled by recycling the surviving replicates – part of a permutation null replaced by duplicates, with no warning and no error.</p>
+<p>The serial replicate path no longer leaves the session’s random number generator switched to L’Ecuyer-CMRG. <code><a href="../reference/motifs.html">motifs()</a></code> itself never used that path, but the package’s own test suite did, which changed the random fixtures of every test file that ran afterwards.</p>
+<p><code>cores</code> validation now raises a classed <code>cograph_bad_cores</code> condition.</p>
+</div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.6.3" id="cograph-263">cograph 2.6.3<a class="anchor" aria-label="anchor" href="#cograph-263"></a></h2>
+<div class="section level3">
+<h3 id="clearer-errors-when-igraph-is-not-installed-2-6-3">Clearer errors when igraph is not installed<a class="anchor" aria-label="anchor" href="#clearer-errors-when-igraph-is-not-installed-2-6-3"></a></h3>
+<p>igraph is a suggested dependency. Functions that need it – including <code><a href="../reference/to_igraph.html">to_igraph()</a></code>, <code><a href="../reference/motif_census.html">motif_census()</a></code>, <code><a href="../reference/detect_communities.html">detect_communities()</a></code>, <code><a href="../reference/robustness.html">robustness()</a></code>, <code><a href="../reference/vulnerability.html">vulnerability()</a></code>, <code><a href="../reference/rich_club.html">rich_club()</a></code> and <code><a href="../reference/network_summary.html">network_summary()</a></code> – now raise a <code>cograph_missing_suggest</code> error naming the function and how to install igraph, instead of R’s bare “there is no package called ‘igraph’”. Functions that need no igraph, such as <code>motifs(significance = FALSE)</code>, <code><a href="../reference/subgraphs.html">subgraphs()</a></code>, <code><a href="../reference/extract_triads.html">extract_triads()</a></code> and <code><a href="../reference/centrality.html">centrality()</a></code>, keep working without it.</p>
+</div>
+<div class="section level3">
+<h3 id="faster-motif-permutation-tests-2-6-3">Faster motif permutation tests<a class="anchor" aria-label="anchor" href="#faster-motif-permutation-tests-2-6-3"></a></h3>
+<p><code><a href="../reference/motifs.html">motifs()</a></code> on individual-level data (a <code>tna</code> model, or an edge list with an actor column) now runs its permutation null several times faster — on <code><a href="http://sonsoles.me/tna/reference/group_regulation.html" class="external-link">tna::group_regulation</a></code> with the default <code>n_perm = 1000</code>, 255s to 39s. The null builds class counts directly instead of materialising and then re-counting a row per node triple, and the triple indices are computed once per state space rather than once per unit per replicate.</p>
+<p>Results are unchanged: for a given <code>seed</code> the permutation draws, and every count, expectation, z score and p value, are identical to previous versions.</p>
+</div>
+<div class="section level3">
+<h3 id="faster-extract_motifssignificance--true-2-6-3">Faster <code>extract_motifs(significance = TRUE)</code>
+<a class="anchor" aria-label="anchor" href="#faster-extract_motifssignificance--true-2-6-3"></a></h3>
+<p>The instance-level permutation null now counts (triple, class) pairs directly instead of building a labelled row per triple per unit and re-aggregating it by a pasted key. On <code><a href="http://sonsoles.me/tna/reference/group_regulation.html" class="external-link">tna::group_regulation</a></code> at <code>n_perm = 1000</code>, 428s to 32s. Results are unchanged for a given <code>seed</code>.</p>
+</div>
+<div class="section level3">
+<h3 id="motifscores---2-6-3"><code>motifs(cores = )</code><a class="anchor" aria-label="anchor" href="#motifscores---2-6-3"></a></h3>
+<p>The individual-level permutation null can now run across worker processes. <code>cores = 1</code> remains the default and is byte-for-byte the previous behaviour.</p>
+<p><code>cores &gt; 1</code> gives each replicate its own L’Ecuyer-CMRG stream, so a result depends on <code>seed</code> alone – not on the worker count, and not on how replicates were chunked across workers. Repeated parallel runs of one seed agree exactly, at any <code>cores</code>. Those are a different set of draws from the serial path, so p-values from <code>cores &gt; 1</code> will not match a <code>cores = 1</code> run of the same seed; both are valid permutation nulls. Forking is used where available, with a PSOCK cluster on Windows.</p>
+<p>Measured on 10,000 simulated sequences (10 states) at <code>n_perm = 400</code>: 103.0s at <code>cores = 1</code>, 20.5s at <code>cores = 10</code>.</p>
+<p>On Windows the null runs through a PSOCK cluster, which is exercised in the test suite on every platform.</p>
+<p>A replicate that does not come back intact from a worker – an error, a NULL from a killed process, or a wrong-length result – raises a <code>cograph_parallel_failure</code> error naming the problem, rather than being folded into the null matrix. If the available core count cannot be detected, <code>cores &gt; 1</code> is used but reported with a <code>cograph_cores_undetected</code> warning.</p>
+</div>
+<div class="section level3">
+<h3 id="plot_mcmlexpand---2-6-3"><code>plot_mcml(expand = )</code><a class="anchor" aria-label="anchor" href="#plot_mcmlexpand---2-6-3"></a></h3>
+<p>The top layer can now be drawn at a finer resolution than the partition: named clusters appear as their member states while every other cluster stays a single node, and the bottom layer still shows the partition, so an expanded state sits inside its cluster’s shell and is linked to its own summary node. <code>expand = "all"</code> (or <code>TRUE</code>) expands every cluster.</p>
+<p>The expanded macro is re-counted from the input with a refined partition, using cograph’s own <code><a href="https://saqr.me/Nestimate/reference/cluster_summary.html" class="external-link">cluster_summary()</a></code>; a k x k aggregate cannot be disaggregated after the fact. Only a pre-built <code>cluster_summary</code> or <code>mcml</code>, which carries no source to re-count from, falls back to <code>Nestimate::macro_network()</code>, and says so with a <code>cograph_expand_unavailable</code> error when that is unavailable.</p>
+<p>This also fixes a silent defect in the previous layout code: the top layer was indexed positionally against the cluster count, so a macro with more nodes than the partition was truncated to its first <em>k</em> rows and drawn under the cluster names — a confident, wrong figure with no error. It is now matched by name, and a macro wider than the partition that cograph did not build itself is refused.</p>
+</div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.6.1" id="cograph-261">cograph 2.6.1<a class="anchor" aria-label="anchor" href="#cograph-261"></a></h2>
+<p>Fixes for defects an adversarial review found in the 2.6.0 wrangling verbs. All of them were introduced in 2.6.0 except the last, which was older.</p>
+<div class="section level3">
+<h3 id="signed-weights-are-no-longer-deleted-2-6-1">Signed weights are no longer deleted<a class="anchor" aria-label="anchor" href="#signed-weights-are-no-longer-deleted-2-6-1"></a></h3>
+<p>Zero is how cograph stores “no edge”, so it must never be compared against a real weight. <code><a href="../reference/to_undirected.html">to_undirected()</a></code>, <code><a href="../reference/symmetrize.html">symmetrize()</a></code>, <code><a href="../reference/spanning_tree.html">spanning_tree()</a></code> and <code><a href="../reference/bind_networks.html">bind_networks()</a></code> did exactly that, which silently deleted edges in networks that carry negative weights — correlation and partial-correlation networks above all:</p>
+<ul><li>a one-way edge of weight <code>-2</code> was deleted by <code>method = "max"</code>, because <code>pmax(-2, 0)</code> is <code>0</code>;</li>
+<li>a one-way edge of weight <code>2</code> was deleted by <code>method = "min"</code>;</li>
+<li>
+<code>method = "mean"</code> halved every unreciprocated edge against a phantom reverse arc;</li>
+<li>
+<code><a href="../reference/spanning_tree.html">spanning_tree()</a></code> returned an empty network on any all-negative graph: Prim chose the right edges, then the mirroring step compared each against zero and erased it;</li>
+<li>
+<code>bind_networks(weight = "max")</code> lost an edge only one network had if its weight was negative.</li>
+</ul><p>Presence is now carried separately from weight throughout: two values are combined only where both arcs exist, and an unreciprocated edge keeps its own weight. Combining to exactly zero raises a <code>cograph_edges_dropped</code> warning rather than shrinking the edge set in silence.</p>
+<p><code><a href="../reference/symmetrize.html">symmetrize()</a></code> gains <code>method = "mutual"</code> for the reciprocated-only rule (sna’s “strong”). <code>method = "min"</code> no longer means that: it is a weight combination that keeps unreciprocated edges, which is a different operation.</p>
+</div>
+<div class="section level3">
+<h3 id="other-fixes-2-6-1">Other fixes<a class="anchor" aria-label="anchor" href="#other-fixes-2-6-1"></a></h3>
+<ul><li>
+<code><a href="../reference/contract_nodes.html">contract_nodes()</a></code> counted an undirected within-group edge twice, because a symmetric matrix holds every such edge twice. It now aggregates the edge table, so a single edge of weight 3 becomes a self-loop of 3, not 6.</li>
+<li>
+<code><a href="../reference/reorder_nodes.html">reorder_nodes()</a></code> checked only the length of <code>order</code>, so a non-permutation such as <code>c("A", "A", "B")</code> produced duplicate labels or an internal subscript error. It now requires an exact permutation.</li>
+<li>
+<code><a href="../reference/add_edges.html">add_edges()</a></code> and <code><a href="../reference/set_edges.html">set_edges()</a></code> accepted the same undirected edge twice (<code>A-&gt;B</code> and <code>B-&gt;A</code>), leaving the edge table and the weight matrix disagreeing about how many edges exist. Both now reject it.</li>
+<li>
+<code><a href="../reference/mutate_nodes.html">mutate_nodes()</a></code> and <code><a href="../reference/mutate_edges.html">mutate_edges()</a></code> could overwrite the columns the structure is keyed on (<code>label</code>, <code>id</code>, <code>from</code>, <code>to</code>), leaving the node table, edge table and matrix describing different networks. Those columns are now reserved. A weight mutated to zero drops the edge with a classed warning rather than leaving a row the matrix does not have.</li>
+<li>Removing every edge now also raises <code>cograph_isolates_created</code>, as the documented invariant says: the nodes are kept, so they are newly isolated.</li>
+<li>
+<code><a href="../reference/split_components.html">split_components()</a></code> and <code><a href="../reference/contract_nodes.html">contract_nodes()</a></code> no longer fail on a zero-node network, and the matrix-level verbs raise <code>cograph_bad_selection</code> on non-finite weights instead of an internal error several frames later.</li>
+<li>
+<code>proportion</code> and <code>density</code> reject 0, and <code>top</code>, <code>k</code> and <code>min_size</code> reject fractional values, as documented. <code><a href="../reference/complement_network.html">complement_network()</a></code> rejects <code>weight = 0</code>, which would have produced an empty complement.</li>
+<li>
+<code>bind_networks(directed = FALSE)</code> on directed input returned an “undirected” network whose matrix was asymmetric and whose edge table was empty; it now symmetrises the inputs first. It also carries <code>x</code>’s metadata, estimation data and node attributes instead of dropping them.</li>
+<li>Empty results keep the estimation data, and <code><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame()</a></code> on one keeps the extra edge columns.</li>
+<li>
+<code><a href="../reference/reverse_edges.html">reverse_edges()</a></code> and <code><a href="../reference/normalize_weights.html">normalize_weights()</a></code> (<code>"max"</code>, <code>"sum"</code>, <code>"minmax"</code>) keep extra edge columns; they map edges one-to-one, so there was no reason to lose them. <code>network_to_igraph()</code> carries node columns across as vertex attributes, so attributes added with <code><a href="../reference/mutate_nodes.html">mutate_nodes()</a></code> survive <code>keep_format = TRUE</code>.</li>
+<li>
+<code>parse_matrix()</code> read an undirected matrix from the strict upper triangle, so a self-loop on the diagonal was dropped from the edge table while <code>$weights</code> kept it — the two disagreed, and a later matrix-level verb could resurrect the loop. Undirected self-loops are now edges. This predates 2.6.0.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.6.0" id="cograph-260">cograph 2.6.0<a class="anchor" aria-label="anchor" href="#cograph-260"></a></h2>
+<div class="section level3">
+<h3 id="network-wrangling-2-6-0">Network wrangling<a class="anchor" aria-label="anchor" href="#network-wrangling-2-6-0"></a></h3>
+<p>The verbs that reshape a network are now a family with one contract: any supported input, options as named arguments, a <code>cograph_network</code> back (or the input format with <code>keep_format = TRUE</code>), and classed conditions. See <code><a href="../reference/network_wrangling.html">?network_wrangling</a></code>.</p>
+<div class="section level4">
+<h4 id="new-accessor-2-6-0">New accessor<a class="anchor" aria-label="anchor" href="#new-accessor-2-6-0"></a></h4>
+<p><code><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame()</a></code> on a <code>cograph_network</code> returns the tidy edge table, with endpoints as labels rather than internal indices, and <code>as.data.frame(what = "nodes")</code> returns the node table. No caller needs to reach into the object with <code>$</code> any more.</p>
+</div>
+<div class="section level4">
+<h4 id="new-verbs-2-6-0">New verbs<a class="anchor" aria-label="anchor" href="#new-verbs-2-6-0"></a></h4>
+<ul><li>Weights: <code><a href="../reference/threshold_edges.html">threshold_edges()</a></code>, <code><a href="../reference/binarize.html">binarize()</a></code>, <code><a href="../reference/symmetrize.html">symmetrize()</a></code>, <code><a href="../reference/normalize_weights.html">normalize_weights()</a></code>, <code><a href="../reference/invert_weights.html">invert_weights()</a></code>.</li>
+<li>Structure: <code><a href="../reference/to_undirected.html">to_undirected()</a></code>, <code><a href="../reference/to_directed.html">to_directed()</a></code>, <code><a href="../reference/reverse_edges.html">reverse_edges()</a></code>, <code><a href="../reference/remove_isolates.html">remove_isolates()</a></code>, <code><a href="../reference/contract_nodes.html">contract_nodes()</a></code>, <code><a href="../reference/split_components.html">split_components()</a></code>, <code><a href="../reference/select_k_core.html">select_k_core()</a></code>, <code><a href="../reference/spanning_tree.html">spanning_tree()</a></code>, <code><a href="../reference/complement_network.html">complement_network()</a></code>, <code><a href="../reference/reorder_nodes.html">reorder_nodes()</a></code>, <code><a href="../reference/rename_nodes.html">rename_nodes()</a></code>.</li>
+<li>Editing: <code><a href="../reference/add_nodes.html">add_nodes()</a></code>, <code><a href="../reference/remove_nodes.html">remove_nodes()</a></code>, <code><a href="../reference/add_edges.html">add_edges()</a></code>, <code><a href="../reference/remove_edges.html">remove_edges()</a></code>, <code><a href="../reference/mutate_nodes.html">mutate_nodes()</a></code>, <code><a href="../reference/mutate_edges.html">mutate_edges()</a></code>, <code><a href="../reference/bind_networks.html">bind_networks()</a></code>.</li>
+</ul><p><code><a href="../reference/add_edges.html">add_edges()</a></code> shares its name with <code><a href="https://r.igraph.org/reference/add_edges.html" class="external-link">igraph::add_edges()</a></code>; call <code><a href="../reference/add_edges.html">cograph::add_edges()</a></code> when igraph is attached.</p>
+</div>
+<div class="section level4">
+<h4 id="wider-vocabulary-inside-expressions-2-6-0">Wider vocabulary inside expressions<a class="anchor" aria-label="anchor" href="#wider-vocabulary-inside-expressions-2-6-0"></a></h4>
+<p>Node expressions gain <code>is_isolated</code>, <code>is_source</code>, <code>is_sink</code>, <code>is_leaf</code>, <code>is_cut</code>, <code>local_transitivity</code> and <code>local_triangles</code>, and any measure <code><a href="../reference/centrality.html">centrality()</a></code> computes can now be named directly — <code>select_nodes(x, harmonic &gt; 0)</code> works, as does <code>select_top(x, n = 5, by = "leverage")</code>. Edge expressions gain <code>is_loop</code>, <code>is_multiple</code>, <code>is_reciprocal</code>, <code>weight_rank</code>, <code>from_community</code> and <code>to_community</code>, and <code>select_edges(by = )</code> accepts the endpoint metrics.</p>
+</div>
+<div class="section level4">
+<h4 id="bug-fixes-all-user-visible-2-6-0">Bug fixes (all user-visible)<a class="anchor" aria-label="anchor" href="#bug-fixes-all-user-visible-2-6-0"></a></h4>
+<ul><li>A network whose last node has no edges no longer crashes <code><a href="../reference/filter_nodes.html">filter_nodes()</a></code>, <code><a href="../reference/select_nodes.html">select_nodes()</a></code>, <code><a href="../reference/select_edges.html">select_edges()</a></code>, <code><a href="../reference/to_data_frame.html">to_df()</a></code>, <code><a href="../reference/to_network.html">to_network()</a></code> or <code><a href="../reference/to_igraph.html">to_igraph()</a></code>. <code>network_to_igraph()</code> built the graph from the edge list, so every node after the last edge endpoint disappeared and the label assignment then failed.</li>
+<li>An undirected network stays undirected through every verb. The rebuilt weight matrix was upper-triangular, so <code><a href="../reference/as_cograph.html">as_cograph()</a></code> re-detected the result as directed and every downstream consumer saw half the strength.</li>
+<li>
+<code><a href="../reference/set_edges.html">set_edges()</a></code> and <code><a href="../reference/set_nodes.html">set_nodes()</a></code> rebuild the stored weight matrix, so <code><a href="../reference/to_matrix.html">to_matrix()</a></code> can no longer return the pre-edit network, and <code><a href="../reference/set_edges.html">set_edges()</a></code> keeps extra edge columns.</li>
+<li>Extra columns of an edge-list input (<code>session</code>, <code>time</code>, …) survive <code><a href="../reference/as_cograph.html">as_cograph()</a></code> and are usable in filter expressions, as documented.</li>
+<li>Node groups, estimation data, layout and the original source type survive every filter.</li>
+<li>An empty result with <code>keep_format = TRUE</code> returns an empty object of the input type instead of erroring with “No such edge attribute”.</li>
+<li>
+<code>keep_format = TRUE</code> on a tna model returns a rebuilt tna model.</li>
+<li>
+<code><a href="../reference/to_matrix.html">to_matrix()</a></code> and <code><a href="../reference/to_data_frame.html">to_data_frame()</a></code> no longer route through igraph.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="behaviour-changes-2-6-0">Behaviour changes<a class="anchor" aria-label="anchor" href="#behaviour-changes-2-6-0"></a></h4>
+<ul><li>
+<strong>Filtering edges no longer removes nodes.</strong> <code><a href="../reference/filter_edges.html">filter_edges()</a></code>, <code><a href="../reference/select_edges.html">select_edges()</a></code> and friends now keep every node, matching <code><a href="https://r.igraph.org/reference/delete_edges.html" class="external-link">igraph::delete_edges()</a></code> and tidygraph, and warn (<code>cograph_isolates_created</code>) when the filter left a node without edges. Use <code><a href="../reference/remove_isolates.html">remove_isolates()</a></code>, or <code>keep_isolates = FALSE</code>, for the old behaviour.</li>
+<li>
+<code>.keep_isolates</code> and <code>.keep_edges</code> are renamed to <code>keep_isolates</code> and <code>keep_edges</code>. The dotted names still work and warn.</li>
+<li>Malformed selections are errors of class <code>cograph_bad_selection</code> rather than warnings that return something plausible: unknown node names, out-of-range or fractional indices, a <code>between</code> that is not two node sets, an unknown measure in <code>by</code>.</li>
+<li>The “Result converted to cograph_network” message is gone; the conversion is documented instead.</li>
+<li>
+<code><a href="../reference/filter_nodes.html">filter_nodes()</a></code> computes only the measures its expression names. It used to compute all twelve, including HITS, on every call.</li>
+</ul></div>
+</div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.5.0" id="cograph-250">cograph 2.5.0<a class="anchor" aria-label="anchor" href="#cograph-250"></a></h2>
+<ul><li>
+<code>Matrix</code> is no longer imported (nothing used it after the port); the committed test-network fixtures are now tracked; two tests no longer need <code>withr</code>.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.4.9" id="cograph-249">cograph 2.4.9<a class="anchor" aria-label="anchor" href="#cograph-249"></a></h2>
+<div class="section level3">
+<h3 id="centrality-without-igraph-2-4-9">Centrality without igraph<a class="anchor" aria-label="anchor" href="#centrality-without-igraph-2-4-9"></a></h3>
+<p>The whole centrality surface (<code><a href="../reference/centrality.html">centrality()</a></code> and its 191 <code>centrality_*</code> wrappers, <code><a href="../reference/edge_centrality.html">edge_centrality()</a></code>, <code><a href="../reference/centralization.html">centralization()</a></code>, <code><a href="../reference/group_centrality.html">group_centrality()</a></code>, <code><a href="../reference/dispersion.html">dispersion()</a></code>, <code><a href="../reference/estrada_index.html">estrada_index()</a></code>, <code><a href="../reference/trophic_incoherence.html">trophic_incoherence()</a></code>, and the centrality vocabulary of the wrangling verbs) now computes on cograph’s own kernels. Every input is turned once into a dense, labelled weight matrix (<code>R/kernels-graph.R</code>); no igraph object is built. igraph stays in Suggests for input conversion of igraph objects and for community detection and layouts.</p>
+<p>Equivalence was verified measure by measure against the igraph-backed implementation on a golden corpus of 62 unsigned networks (30 real, 32 synthetic edge cases) under every mode and weighting, at relative tolerance <code>sqrt(.Machine$double.eps)</code>, with the following documented exceptions.</p>
+<ul><li>
+<code>flow_betweenness</code> still needs igraph and raises <code>cograph_needs_igraph</code> when it is not installed.</li>
+<li>Hub, authority and eigenvector scores on graphs whose adjacency (or <code>A'A</code>) is not primitive are not unique; igraph returned a random member of the eigenspace and sometimes failed to converge. The native kernels are deterministic and verified by eigen-residual tests instead.</li>
+<li>Local transitivity and clusterrank on directed graphs with reciprocated dyads now follow igraph’s documented semantics (collapse to a simple undirected graph). igraph 2.3.3 returned a different value after <code>any_multiple()</code> had been called on the object, which the old <code><a href="../reference/centrality.html">centrality()</a></code> always did.</li>
+<li>
+<code>alpha</code> now computes on weighted graphs with self-loops; igraph 2.3.3 errored there.</li>
+<li>Path-based measures are now scale-invariant: the same graph with all weights multiplied by <code>1e-18</code> gives identical betweenness. igraph’s absolute epsilon does not.</li>
+<li>Parallel edges are always combined: a dense weight matrix holds one value per cell, so <code>simplify = FALSE</code> or <code>"none"</code> now sum them (the old adapters summed them when assembling an adjacency anyway). Only <code>degree</code> on a multigraph changes, counting a parallel pair once.</li>
+<li>Weighted local reaching centrality averages weights along one shortest path per target; among tied shortest paths the kernel’s choice is deterministic (lowest predecessor index) where igraph’s was implementation-dependent. Values agree exactly whenever no ties exist.</li>
+<li>Weighted (Barrat) transitivity has a native kernel; like igraph it refuses directed input, with class <code>cograph_directed_unsupported</code>.</li>
+</ul><p>New internal kernels: edge betweenness, Barrat transitivity, average neighbour degree, articulation points, bridges, ego masks, and a loop-preserving coreness matching igraph’s convention.</p>
+<p>Test infrastructure: a versioned corpus of test networks under <code>tests/testthat/networks/</code> (32 real, 35 degenerate, plus local tiers), a golden-file comparison harness, a scale-invariance property test, and a CI job that runs the centrality tests with igraph uninstalled.</p>
+</div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.4.8" id="cograph-248">cograph 2.4.8<a class="anchor" aria-label="anchor" href="#cograph-248"></a></h2>
+<div class="section level3">
+<h3 id="new-features-2-4-8">New features<a class="anchor" aria-label="anchor" href="#new-features-2-4-8"></a></h3>
+<div class="section level4">
+<h4 id="centrality-batch--trust-pagerank-2-4-8">Centrality Batch 51 — trust-PageRank<a class="anchor" aria-label="anchor" href="#centrality-batch--trust-pagerank-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_trust_pagerank.html">centrality_trust_pagerank()</a></code>, Sheng, Zhu, Wang, Wang and Hou’s trust-PageRank. PageRank’s even split of a node’s score among its neighbours is replaced by a <em>trust-value</em> mixing a similarity ratio with a degree ratio: <code>T(i,j) = (1-k) s(i,j)/sum_{l in N_j} s(j,l) + k d_i/sum_{l in N_j} d_l</code>, fed to <code>TPR_i = (1-alpha)/n + alpha sum_{j in N_i} T(i,j) TPR_j</code>, with <code>s</code> the fixed point of SimRank restricted to the lines of the graph. New parameters <code>tpr_alpha</code> (0.85), <code>tpr_k</code> (0.85), <code>tpr_decay</code> (1), <code>tpr_tol</code> (1e-14) and <code>tpr_max_iter</code> (1000).</li>
+<li>
+<strong>The Centrality Zoo cites the wrong paper.</strong> Its entry 2.381 attributes Trust-PageRank to Sheng et al., <em>Physica A</em> 541:123262, which defines the unrelated global-and-local-structure index of entry 2.149. The formulas it prints are equations (2), (4), (5), (6) and (7) of a different, fully open-access Sheng et al. paper, <em>Algorithms</em> 13(11):280, <code>doi:10.3390/a13110280</code>, which is what cograph implements. A reader following the Zoo’s reference lands on a different measure.</li>
+<li>
+<strong>The similarity recursion runs on the lines of the graph only, and that is what makes it converge.</strong> Algorithm 1 quantifies over <em>connected</em> pairs and table 3 marks every non-adjacent cell with a dash, so a non-adjacent pair contributes zero rather than the <code>0.1</code> that initialises the lines. The base case <code>s(a,a) = 1</code> is then the only inhomogeneous term, and it reaches a line exactly through the triangles that line carries, so the recursion contracts even at the source’s <code>C = 1</code>. Pinning non-adjacent pairs at <code>0.1</code> instead reproduces neither published fixture.</li>
+<li>
+<strong>Both published fixtures reproduce.</strong> Table 3 on page 6 prints seven similarities, and all seven round to their printed two decimals; its <code>S_v</code> column is the sum of the paper’s own rounded cells rather than the rounded sum, a convention node 5 alone separates. Table 5 on page 10 prints two top-ten rankings: the karate club’s reproduces in order at all ten positions, and the kite’s up to three exact ties forced by its own automorphism group.</li>
+<li>
+<strong>A component with lines but no triangle has no value, and cograph returns <code>NA</code> there rather than inventing one.</strong> The recursion is then homogeneous, its least non-negative fixed point is zero, and the similarity ratio is <code>0/0</code>. Every path, tree, star, even cycle and complete bipartite graph is in that class, and so is the Petersen graph. Unlike <code><a href="../reference/centrality_dil.html">centrality_dil()</a></code> and <code><a href="../reference/centrality_lhc.html">centrality_lhc()</a></code>, the quotient is not determined by its numerator, so the <code>1/d_j</code> fallback would silently turn the measure into a degree-ratio PageRank over the whole class; this follows <code><a href="../reference/centrality_iec.html">centrality_iec()</a></code> instead. An isolate is <em>not</em> in the class and keeps the bare <code>(1 - alpha)/n</code>.</li>
+<li>
+<strong>The trust matrix is column-stochastic</strong>, so the scores sum to one on a graph without isolates and the iteration count is a convergence tolerance rather than a modelling choice. Both recursions stop on a <em>relative</em> change, because the similarities on one graph span twenty orders of magnitude; a recursion still moving at <code>tpr_max_iter</code> raises <code>cograph_no_converge</code>.</li>
+<li>
+<strong>The source’s claim that its decay constant <code>C</code> does not matter is false for the converged recursion.</strong> It holds for a homogeneous recursion; the base case makes this one affine, so <code>C</code> enters the resolvent. Moving it from 1 to 0.5 moves the karate club’s similarity ratios by up to 0.141.</li>
+<li>Direction, weights, loops and parallel edges are projected onto the simple undirected skeleton the source defines on. Marked costly, so <code>type = "all"</code> excludes it unless asked for.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--degree-and-importance-of-lines-2-4-8">Centrality Batch 50 — degree and importance of lines<a class="anchor" aria-label="anchor" href="#centrality-batch--degree-and-importance-of-lines-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_dil.html">centrality_dil()</a></code>, Liu, Xiong, Shi, Shi and Wang’s degree and importance of lines. A node’s degree is corrected by the share it can claim of the importance of the lines touching it: <code>I_e(m,n) = (k_m - p - 1)(k_n - p - 1) / (p/2 + 1)</code> is the importance of a line, <code>p</code> being the number of triangles carrying it; <code>W(i,j) = I_e(i,j) (k_i - 1)/(k_i + k_j - 2)</code> is the endpoint’s share of it; and <code>DIL(i) = k_i + sum over the open neighbourhood of W(i,j)</code>. No new parameter.</li>
+<li>
+<strong><code>lambda</code> is <code>p/2 + 1</code>, and a text-layer reading gets it wrong.</strong> The stacked fraction extracts from the published PDF as <code>lambda = 2p + 1</code>, in the original as much as in the Almasi and Hu (2019) reproduction of it. The equations were read from 300 dpi page images, and the paper’s own worked example settles it in printed prose: at <code>p = 1</code> it writes <code>lambda = 1/2 + 1 = 1.5</code> and <code>I_e45 = 8/3</code>.</li>
+<li>
+<strong>No Zoo divergence.</strong> Unlike several recent batches, Zoo entry 2.62 transcribes the source correctly, and the original agrees with the Almasi and Hu reproduction symbol for symbol — only the symbol names differ.</li>
+<li>
+<strong>All three published fixtures reproduce, 29 printed values in total.</strong> Figure 1 on page 210 prints <code>I_e45 = 9</code> and <code>8/3</code>; figure 2 on page 211 prints four edge importances and then <code>L_v2 = 26/9</code> and <code>L_v5 = 52/15</code>; and table 3 on page 217 prints a value for all 21 nodes of the ARPA network. The figure-1 and figure-2 values match as exact fractions with no tolerance at all, and all 21 table-3 values match under the paper’s own four-decimal rounding, in the descending order it prints them. The edge list read off figure 6 is corroborated by the paper’s own degree column at all 21 nodes.</li>
+<li>
+<strong>An isolated pair of nodes is the one undefined split, and it resolves.</strong> The share’s denominator <code>k_i + k_j - 2</code> vanishes only when both degrees are one, and there the line’s importance is exactly zero as well, so every admissible share of it gives the same contribution. The share is written as zero with the test taken before the division, and both nodes score 1. The source is silent on the case; the choice follows <code><a href="../reference/centrality_lhc.html">centrality_lhc()</a></code>, not <code><a href="../reference/centrality_iec.html">centrality_iec()</a></code>, and the help page says why.</li>
+<li>
+<strong>A score is never below its node’s degree</strong>, because <code>p</code> can never exceed either endpoint’s degree minus one, and the network’s total excess over degree is exactly the total importance of its lines — the two endpoint shares of a line sum to one. Raw scores are component-local: the measure never reaches past a node’s second neighbours.</li>
+<li>Direction, weights, loops and parallel edges are projected onto the simple undirected skeleton the authors state their domain to be. Not costly, so <code>type = "all"</code> includes it.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--immediate-effects-centrality-2-4-8">Centrality Batch 49 — immediate effects centrality<a class="anchor" aria-label="anchor" href="#centrality-batch--immediate-effects-centrality-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_iec.html">centrality_iec()</a></code>, Friedkin’s immediate effects centrality. A node is scored by how quickly the rest of the network’s influence reaches it: <code>c_IEC(j) = (n - 1) / sum_{i != j} m_ij</code>, where <code>M = (I - Z + E Z_dg) diag(1/c)</code> is the mean first passage time matrix of the influence chain <code>W = A / rowSums(A)</code>, <code>c</code> is <code>W</code>’s left eigenvector at eigenvalue one and <code>Z = (I - W + 1 c')^-1</code> is the fundamental matrix. The sum runs <em>down</em> column <code>j</code>, so a high score marks a node the network reaches fast. No new parameter.</li>
+<li>
+<strong>The influence matrix carries a unit self-loop, and the self-loop is load-bearing.</strong> The source sets <code>a_ii = 1</code> before row-normalising, a construction it attributes to French (1956) and states twice on page
+<ol start="1494" style="list-style-type: decimal"><li>Its footnote 10 gives the reason — a strong network with <code>w_ii &gt; 0</code> must be regular, meaning aperiodic — and its footnote 9 the periodic counterexample a zero diagonal admits.</li>
+</ol></li>
+<li>
+<strong>This is not cograph’s <code><a href="../reference/centrality_markov.html">centrality_markov()</a></code>, and the difference is not a rescaling.</strong> The package’s own candidate ledger recorded for several rounds that the two differed only in an <code>n</code> versus <code>n - 1</code> numerator. That is wrong: <code>markov</code> <em>also</em> omits the self-loop. The numerator is a constant factor and cannot reorder anything; the self-loop can and does. On the five-node star <code>markov</code> gives <code>1.25, 0.161, ...</code> where <code>iec</code> gives <code>0.5, 0.08, ...</code>, and the two rank the nodes differently on 2 of the 21 connected five-node graphs. <code>markov</code> is unchanged; the two ship side by side, and each help page now points at the other.</li>
+<li>
+<strong>A reducible influence chain is refused, not extended.</strong> Without irreducibility the eigenvector of equation (9) has one dimension per closed class, so <code>c</code> is undetermined and <code>diag(1/c)</code> undefined. Worse, the closed form does not announce the failure: for <code>i</code> and <code>j</code> in different classes <code>z_ij = 0</code>, and equation (11) returns the entirely finite <code>m_ij = z_jj / c_j</code> where the true mean first passage time is infinite. Rather than publish a finite wrong number, <code>iec</code> tests the chain by boolean closure before any solve and returns <code>NA</code> at every node with a <code>cograph_undefined_measure</code> warning. In practice the requirement is a connected undirected graph or a strongly connected digraph. A one-node graph is <code>NA</code> too, equation (20) dividing by <code>n - 1 = 0</code>; an empty graph returns no scores.</li>
+<li>Direction is kept, because <code>W</code> is a matrix of directed influence and row <code>i</code> is what actor <code>i</code> attends to; there is no in/out/all variant, so <code>mode</code>, <code>cutoff</code> and <code>invert_weights</code> are ignored. Weights are dropped deliberately — <code>a_ii = 1</code> is calibrated against <code>a_ij = 1</code>, so a rescaling of the weights would silently re-weight each actor’s self-reliance against the network — and loops in the input are absorbed by the mandated diagonal while parallel edges collapse. The measure is marked costly and is therefore held back from <code>type = "all"</code>.</li>
+<li>
+<strong>The source prints a complete numerical fixture and all 105 values reproduce.</strong> Table 1, pages 1492-1494, gives the measure to three decimals for every node of all 21 connected non-isomorphic five-node graphs. The published audit enumerates those 21 graphs from scratch, recovers each printed row’s node labelling from the table’s own TEC and IEC columns, and matches every value exactly against one of two stated printing rules rather than against a tolerance: 103 of 105 under round-half-away-from-zero at three decimals and 2 under truncation, the two being the exactly halfway <code>0.1875</code> the paper prints as <code>.187</code>. The 105 printed values of the companion TEC column reproduce as well, three of them needing the same truncation rule.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--the-lhc-index-2-4-8">Centrality Batch 48 — the Lhc index<a class="anchor" aria-label="anchor" href="#centrality-batch--the-lhc-index-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_lhc.html">centrality_lhc()</a></code>, the Lhc index of Wang, Yang, Liu and Ma. A node’s <em>influence</em> is <code>C(v) = sum_{u in Phi(v)} k_u (1 + TP(u)) / d^2(uv)</code>, a sum over the ball <code>Phi(v)</code> of radius <code>lhc_radius</code> in which each member contributes its degree, inflated by its share of the network’s triangles, discounted by the square of its distance; the index is <code>Lhc(v) = sum_{w in tau(v)} C(w)</code>, that influence summed over the open neighbourhood. The triangle share is <code>TP(u) = NTS(u) / TNTS</code> with <code>NTS(u)</code> the number of triangles containing <code>u</code>. New parameter <code>lhc_radius</code>.</li>
+<li>
+<strong>The denominator is <code>TNTS</code>, not the number of triangles, and the paper settles it rather than the Zoo.</strong> Immediately after defining <code>TNTS</code> the source writes that “the total number of triangle structure exists in the network are <code>1/3 * TNTS</code>”, so <code>TNTS = 3 * Delta</code> and the share sums to exactly one over the nodes. Entry 2.221 of the Centrality Zoo transcribes the structure of both equations correctly but names the denominator “<code>Delta</code>, the total number of triangular structures in the network”, which read literally is three times too small: on the Krackhardt kite that reading scores node 1 at 125.45 where the paper gives 100.15. cograph follows the paper.</li>
+<li>
+<code>lhc_radius</code> is the source’s own parameter, exposed with the source’s default. The paper writes it <code>d</code>, states on page 4 that it “is set to be 2”, and sweeps it in section 3 over eleven real networks, reporting “the optimal value of d is about 2-3”. At <code>lhc_radius = 1</code> the ball collapses to the neighbours; at or above the graph’s radius the score stops moving. The domain is a whole number of at least one and anything else raises <code>cograph_bad_parameter</code>.</li>
+<li>
+<strong>Triangle-free graphs are an explicit cograph decision.</strong> Every tree, star, path, even cycle and bipartite graph has <code>TNTS = 0</code>, making <code>TP(u)</code> a <code>0/0</code> at every node, and the source never mentions the case. Since <code>TNTS</code> is a sum of nonnegative counts it vanishes exactly when every numerator does, so there is no share to distribute: <code>TP</code> is written as zero and the index reduces to the pure degree-over-squared-distance sum. The test is made before any division, so no <code>0/0</code> is evaluated.</li>
+<li>
+<strong>Raw scores are not component-local.</strong> <code>TNTS</code> is a global sum, so attaching a disconnected component that carries a triangle rescales every score, while attaching one with no triangle – an isolate included – changes nothing. An isolate scores zero because its neighbourhood is empty; a singleton and every node of an edgeless graph score zero for the same reason.</li>
+<li>Direction, weights, loops and parallel edges are dropped to the simple undirected skeleton the source defines on; <code>mode</code>, <code>cutoff</code> and <code>invert_weights</code> are ignored, and <code>normalized = TRUE</code> max-scales, the source stating no normalization.</li>
+<li>
+<strong>The source prints no numerical example</strong>, so there is no published per-node table to reproduce. Acceptance rests on three independent reference routes and on hand-derived closed forms for stars, complete graphs, rings and paths.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--randomized-shortest-paths-betweenness-2-4-8">Centrality Batch 47 — randomized shortest paths betweenness<a class="anchor" aria-label="anchor" href="#centrality-batch--randomized-shortest-paths-betweenness-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_rsp_betweenness.html">centrality_rsp_betweenness()</a></code>, the simple randomized shortest paths betweenness of Kivimaki, Lebichot, Saramaki and Saerens. A Boltzmann distribution over the absorbing walks from <code>s</code> to <code>t</code> is tilted by an inverse temperature away from the unbiased random walk and towards low-cost walks, and a node scores the expected number of visits it receives summed over every ordered source-target pair, <code>bet_i = sum_{s,t} (z_si / z_st - z_ti / z_tt) z_it</code> with <code>Z = (I - W)^-1</code> and <code>W = (D^-1 A) o exp(-beta C)</code>. New parameters <code>rsp_beta</code> and <code>rsp_cost</code>.</li>
+<li>
+<strong>The published closed form is defined only on a strongly connected graph, and the source says what to do otherwise.</strong> Equation (15) divides by every entry of <code>Z</code>, and Algorithm 1 takes a strongly connected graph as its input, but the text below equation (9) settles the general case: the derivation “holds only if there exists a path from <code>s</code> to <code>t</code>. Otherwise, naturally, <code>eta_ij(s, t) = 0</code>.” cograph evaluates the closed form masked by reachability, which reproduces equation (15) to machine precision whenever the graph is strongly connected and applies the source’s own zero rule when it is not.</li>
+<li>
+<strong>Scores are therefore component-local.</strong> Two disjoint triangles score exactly what one triangle scores, and adding a disconnected component – an isolate included – leaves every existing score untouched.</li>
+<li>
+<strong>A zero out-degree gives a derived zero, not an imputed one.</strong> <code>D^-1</code> is undefined there, so cograph writes that row of <code>P^ref</code> as zero, which is the paper’s own killed random walk read at a node where the walker dies at once; <code>Z</code> then has <code>z_ii = 1</code> and the arithmetic gives exactly <code>1 - 1 = 0</code>. An isolate, a singleton graph and every node of an edgeless graph score zero for that reason. <code>NetworkToolbox::rspbc()</code> raises an error on such input and <code>plot</code>-side <code>current_flow_betweenness</code> returns <code>NA</code> on disconnected input; this measure can answer where those cannot, because <code>(I - W)</code> stays nonsingular whatever the connectivity.</li>
+<li>Records a divergence from the CRAN reference implementation: <code>NetworkToolbox::rspbc()</code> masks only the reciprocal half of the term and leaves the <code>n Diag(Z')</code> half counting every source, so the two agree exactly on strongly connected input and part company on a disconnected graph. That function additionally rounds to zero decimals and shifts so its minimum is one, post-processing that is nowhere in the paper and is not copied here.</li>
+<li>
+<code>rsp_beta</code> defaults to 0.01, which is <strong>not</strong> the source’s number: the paper fixes no default and treats it as a modelling choice. 0.01 is the value <code>NetworkToolbox::rspbc()</code> recommends, adopted so the two are comparable out of the box; it sits near the random-walk end, so raise it towards 1 and beyond to move the reading towards shortest paths. The domain is <code>rsp_beta &gt; 0</code> and values outside it raise <code>cograph_bad_parameter</code>.</li>
+<li>
+<code>rsp_cost</code> chooses how a weight becomes a cost, which the source leaves free: <code>"inverse"</code> (default) sets <code>C = 1 / w</code>, reading a weight as an affinity, as the CRAN reference hard-codes; <code>"weight"</code> sets <code>C = w</code>, reading it as a distance. The two coincide on a binary graph. Negative and non-finite weights raise <code>cograph_bad_input</code>, Algorithm 1 requiring a non-negative cost matrix.</li>
+<li>Direction is read from the graph rather than from <code>mode</code>, so a reversed input generally scores differently. Marked <strong>costly</strong>: one dense <code>n x n</code> inverse, which the source itself calls the computational bottleneck at <code>O(n^3)</code> time and <code>O(n^2)</code> memory.</li>
+<li>The paper prints no table of node scores on a small graph, so there is no published per-node example to reproduce. What is checked against the paper instead is its printed page 9 limit claim, that the score becomes proportional to degree as <code>beta</code> approaches zero from above on an undirected network; it holds, and does so at first order in <code>beta</code>.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--hybrid-characteristic-centrality-hcc-and-ehcc-2-4-8">Centrality Batch 46 — hybrid characteristic centrality (HCC and EHCC)<a class="anchor" aria-label="anchor" href="#centrality-batch--hybrid-characteristic-centrality-hcc-and-ehcc-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_hcc.html">centrality_hcc()</a></code> and <code><a href="../reference/centrality_ehcc.html">centrality_ehcc()</a></code>, the hybrid characteristic centrality of Liu and Zheng and its extension. HCC adds two normalised halves: the <em>extended degree</em> <code>delta * k + (1 - delta) * sum of the neighbours' degrees</code> over its largest value, and the round in which an <em>E-shell</em> peel removes the node over the number of rounds. EHCC is the closed-neighbourhood sum of HCC, the focal node counted once. New parameter <code>hcc_delta</code>, default the source’s 0.5.</li>
+<li>
+<strong>The source’s printed algorithm contains a typo, and cograph implements the correction its own tables require.</strong> Step 3 of the E-shell procedure prints <code>S_p = arg max</code> while the same sentence calls <code>S_p</code> “the set of minimum nodes” and the paper’s table 2 heads its column “Minimum extended degree” with the increasing values 2, 2.5, 3, 4.5, 5, 6. The minimum reading reproduces every printed row; the literal maximum peel deletes a different set first and finishes in four rounds instead of six.</li>
+<li>
+<strong>The peel recomputes but equation (4) does not.</strong> Step 6 updates the extended degrees on the residual graph, which is what the printed table 2 minima require, while equation (4)’s <code>k^ex</code> and <code>k^ex_max</code> are the original-graph values. The paper’s node <code>d</code> settles it: its original 9.5 gives the printed 1.86, its residual 6 gives 1.55.</li>
+<li>
+<strong>Raw scores are not component-local.</strong> <code>k^ex_max</code> and <code>pos_max</code> are single global constants, so a disconnected addition rescales the two halves independently rather than by one common factor.</li>
+<li>Records an unresolved disagreement with the source: table 3 prints <code>EHCC(g) = 10.01</code> for its figure 1, where the exact value <code>661/66</code> is 10.015151… and rounds to 10.02. That printed cell is the truncation, but six other printed cells require rounding, so no single convention reproduces all twenty table 3 entries. The other 85 printed values reproduce.</li>
+<li>Degenerate cases are stated on the help pages: an isolate has extended degree zero, the global minimum for every <code>hcc_delta</code> in <code>[0, 1]</code>, so it always leaves in the first round; an edgeless graph makes equation (4)’s first term <code>0/0</code>, written as zero, so every node of an edgeless graph — a singleton included — scores exactly 1. <code>hcc_delta</code> outside the source’s stated <code>[0, 1]</code> raises <code>cograph_bad_parameter</code> rather than being extended.</li>
+<li>Documents a divergence from the Centrality Zoo: it calls the E-shell decomposition “a variant of k-shell decomposition”, which it is not — there is no outer level loop and no repeat-until-stable inner loop. On a four-node path the k-shell reading puts all four nodes in one shell where the E-shell peel takes two rounds.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--ked-method-2-4-8">Centrality Batch 45 — KED method<a class="anchor" aria-label="anchor" href="#centrality-batch--ked-method-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_ked.html">centrality_ked()</a></code>, the KED method of Chen, Xiao, Zeng and Zhang: the degree, weighted by one plus the normalised entropy of the neighbours’ degrees, times <code>exp(K / N)</code> for the neighbour-degree sum <code>K</code> and the whole graph’s order <code>N</code>. Two nodes with the same degree and the same number of second neighbours are separated by how evenly their neighbours carry the onward paths. It takes no parameters: equation (6) is a bare product.</li>
+<li>
+<strong>The logarithm base is not a convention to choose.</strong> Equation (2) divides the neighbour-degree entropy by the entropy of the uniform distribution on <code>k</code> outcomes, so the base cancels top and bottom. A full base-ten reading gives identical scores, which is asserted to 60 digits on every verification fixture.</li>
+<li>
+<strong>Raw scores depend on the whole graph’s order, and can reorder.</strong> <code>N</code> is the vertex count of the whole network, and <code>exp(K / N)</code> shrinks a large neighbour-degree sum more than a small one, so adding a disconnected component is not a rescaling: on a seven-node example in the tests, one extra isolate swaps two nodes’ places.</li>
+<li>Records that the source’s stated range <code>1 &lt;= D &lt;= e</code> is not general. It needs <code>K &lt;= N</code>, which holds on the sparse toy networks of its figure 1 and on only 1,598 of the 5,532 verification fixtures; every node of the five-clique has <code>K = 16</code> against <code>N = 5</code>. cograph implements the formula, not the range claim, and raises an error rather than returning <code>Inf</code> if the exponent ever leaves the range of <code><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp()</a></code>.</li>
+<li>Documents a divergence from the Centrality Zoo: its section 2.215 drops the <code>1 +</code> from <code>E</code>, divides <code>K</code> by the largest cluster degree instead of by <code>N</code>, and adds tunable exponents that appear nowhere in the paper. On the source’s own figure 1 that reading gives 13.5914 and 6.5672 where the paper prints 25.9187 and 19.2212. cograph implements the paper and offers no Zoo variant.</li>
+<li>Two cases the source never mentions are cograph decisions, stated on the help page: a node with one neighbour has <code>0/0</code> for its normalised entropy and takes zero, and an isolate scores zero.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--local-neighbor-contribution-lnc-2-4-8">Centrality Batch 44 — Local neighbor contribution (LNC)<a class="anchor" aria-label="anchor" href="#centrality-batch--local-neighbor-contribution-lnc-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_lnc.html">centrality_lnc()</a></code>, the local neighbor contribution of Dai, Wang, Sheng, Sun, Khawaja, Ullah, Dejene and Duan: the chance that a node picking a neighbour at random picks a given one and misses the rest, scaled by its degree, multiplied by the sum of its neighbours’ degrees weighted by their degree centralities. It takes no parameters, which the source advertises as one of its contributions.</li>
+<li>
+<strong>Raw scores depend on the whole graph’s order.</strong> The <code>1 / (n - 1)</code> comes from the source’s degree centrality, where <code>n</code> counts every node in the network rather than in the component, so adding a disconnected component multiplies every score by <code>(n - 1) / (n' - 1)</code>. The ranking is untouched; the raw values are not.</li>
+<li>Implements the source’s printed numbers, not its printed equations, and says so. Equations (4) and (5) sum over <code>j = 1</code> to <code>k</code>, and <code>k</code> is described three incompatible ways: the prose calls it the number of nearest and next nearest neighbours, Algorithm 1 sets it to the degree, and equation (5) read literally carries one factor of the degree too many and returns 6.75 where the paper prints 1.6875. Inverting each of the eleven printed influences gives <code>k = d^2</code> in (4) and <code>k = d</code> in (5), the reading implemented here; the alternative literal split of the two factors gives the same product, so the measure itself is unambiguous.</li>
+<li>Documents a divergence from the Centrality Zoo: its section 2.238 replaces the focal node’s contribution probability with each neighbour’s and the binomial count with the size of the two-hop neighbourhood. That formula reproduces none of the eleven printed values and inverts the paper’s headline ranking, so no Zoo variant is offered.</li>
+<li>Isolates and the single node of a singleton graph score zero as an explicit cograph extension: the source has no value where the degree, and hence <code>1 / d</code>, is undefined, and no result is silently <code>NaN</code>.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--iterative-resource-allocation-ira-and-iira-2-4-8">Centrality Batch 43 — Iterative resource allocation (IRA and IIRA)<a class="anchor" aria-label="anchor" href="#centrality-batch--iterative-resource-allocation-ira-and-iira-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_ira.html">centrality_ira()</a></code>, the iterative resource allocation of Ren, Zeng, Chen, Liao and Liu: every node starts with one unit of resource and hands it repeatedly to its neighbours in proportion to the receiver’s centrality until the amounts stop moving. <code>ira_mass</code>, <code>ira_alpha</code>, <code>ira_tol</code> and <code>ira_max_iter</code> expose the source’s <code>theta</code>, <code>alpha</code>, <code>epsilon</code> and iteration bound. Every non-empty column of the allocation matrix sums to one, so a component’s scores sum to its vertex count.</li>
+<li>Added <code><a href="../reference/centrality_iira.html">centrality_iira()</a></code>, the improved variant of Zhong, Liu and Shang, which scales each share by <code>1 - (1 - beta)^k</code>. That factor is strictly below one, so the resource decays geometrically; the source fixes the step count instead of a tolerance. <code>iira_beta</code> and <code>iira_steps</code> default to the source’s 0.2 and 50, the raw <code>I(50)</code> is returned so the printed example is reproducible, and <code>normalized = TRUE</code> max-scales it. Raw IIRA scores from different connected components are on different exponential scales and must not be compared.</li>
+<li>
+<strong><code>ira</code> reports non-convergence instead of hiding it.</strong> The allocation matrix is a reversible walk, so on a bipartite component it has an eigenvalue of exactly -1 whose coefficient in the all-ones start is the difference between the two class sizes. When those differ, the resource settles into a period-two cycle and no tolerance is ever met: the three-star alternates for ever between <code>3, 1/3, 1/3, 1/3</code> and <code>1, 1, 1, 1</code>. <code><a href="../reference/centrality_ira.html">centrality_ira()</a></code> then stops at <code>ira_max_iter</code>, raises a classed <code>cograph_no_converge</code> warning naming the largest remaining change, and returns that parity-dependent iterate. Neither source mentions this case.</li>
+<li>Documents two divergences from the Centrality Zoo: its IRA entry states the transpose and asks for an eigenvector, which sidesteps rather than reports the bipartite case, and its IIRA formula pairs the numerator index with the wrong neighbourhood, giving a matrix that is stochastic in neither direction and reproduces neither printed quantity. cograph implements the papers.</li>
+<li>Records that one printed table entry is reproduced only from the exact steady state: the source rounds <code>15/8</code> up to <code>1.88</code>, while the iteration approaches that limit from below and returns <code>1.8749998</code>, which rounds to <code>1.87</code>. No author software exists for either measure.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--neighborhood-neighbor-distance-centrality-2-4-8">Centrality Batch 42 — Neighborhood (neighbor distance) centrality<a class="anchor" aria-label="anchor" href="#centrality-batch--neighborhood-neighbor-distance-centrality-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_neighbor_distance.html">centrality_neighbor_distance()</a></code>, the neighborhood centrality of Liu, Tang, Zhou and Do: a benchmark centrality plus its decayed sums over the non-backtracking walks that leave the node. <code>nd_order</code>, <code>nd_decay</code> and <code>nd_mass</code> expose the source’s <code>n</code>, <code>a</code> and <code>theta</code>, and the defaults (degree, two steps, 0.2) are the setting the Centrality Zoo calls neighbor distance centrality.</li>
+<li>Implements the source’s nested sums, in which each level excludes only the node the walk just came from, so an endpoint reached by several walks is counted once per walk. This is <strong>not</strong> a sum over distance shells. The Zoo’s paraphrase writes k-hop neighbour sets instead; the two agree on trees and differ on any graph with a triangle or a short cycle, and the difference is documented rather than offered as a variant.</li>
+<li>Documents that the source prints no table of node scores, so there is no published numerical fixture, and that no author software exists.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--relative-entropy-integrated-evaluation-2-4-8">Centrality Batch 41 — Relative-entropy integrated evaluation<a class="anchor" aria-label="anchor" href="#centrality-batch--relative-entropy-integrated-evaluation-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_relative_entropy.html">centrality_relative_entropy()</a></code>, which turns several indexes into discrete distributions and returns the unit-sum distribution with the smallest total relative entropy to all of them: the normalised geometric mean of the index distributions.</li>
+<li>
+<code>re_indexes</code> chooses the constituents from six the source both defines and gives an evaluating direction (degree, closeness, betweenness, constraint, and the two post-deletion destructiveness indexes <code>n_components</code> and <code>largest_component</code>); <code>re_negative</code> overrides which of them are read as “smaller is more important”. The default reproduces the published Kite study’s four-index column, and all three of its printed integrated columns are reproduced.</li>
+<li>Documents the two non-standard conventions the source uses – its constraint sums over every node rather than over the neighbours, so it is not Burt’s constraint, and its betweenness counts ordered pairs – along with the reachable-partner closeness extension used outside its connected domain. An index that is zero at every node leaves the definition without a value and raises a classed <code>cograph_undefined_index</code> error rather than returning zeros.</li>
+<li>
+<code><a href="../reference/centrality.html">centrality()</a></code> no longer lets one undefined measure end a whole tier. A measure named in <code>measures</code> or <code>include</code> still raises, but when <code>type = "basic"</code>, <code>"extended"</code> or <code>"all"</code> supplied it, an undefined result becomes a <code>cograph_undefined_measure</code> warning and an <code>NA</code> column, matching what the community-partition measures already do without <code>membership</code>.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--dk-based-gravity-model-2-4-8">Centrality Batch 40 — DK-based gravity model<a class="anchor" aria-label="anchor" href="#centrality-batch--dk-based-gravity-model-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_dkgm.html">centrality_dkgm()</a></code>, whose mass is the degree k-shell index: the original degree plus a shell number refined by the stage at which the node left that shell during the k-shell peeling.</li>
+<li>Default <code>dkgm_radius = 2</code> matches the paper’s printed nine-node example, which the implementation reproduces along with its removal stages, improved shell indices and DK values. <code>"auto"</code> applies the paper’s own half-mean-distance rule with cograph rounding.</li>
+<li>Documents the published pseudocode/prose disagreement over removing nodes of degree exactly <code>k</code> versus at most <code>k</code>, the one-shell placement of isolates, and the single global stage denominator, which makes raw scores depend on disconnected components.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--mixed-gravitational-centralities-2-4-8">Centrality Batch 39 — Mixed gravitational centralities<a class="anchor" aria-label="anchor" href="#centrality-batch--mixed-gravitational-centralities-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_mixed_gravity.html">centrality_mixed_gravity()</a></code> and <code><a href="../reference/centrality_extended_mixed_gravity.html">centrality_extended_mixed_gravity()</a></code>, using focal core numbers and partner degrees, with an optional outer sum over immediate neighbors.</li>
+<li>Default radius three follows the explicit published reproduction; radius one exposes the Zoo summary’s literal interpretation. Both functions document source provenance, skeleton projections and normalization.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--multi-characteristics-gravity-model-2-4-8">Centrality Batch 38 — Multi-characteristics gravity model<a class="anchor" aria-label="anchor" href="#centrality-batch--multi-characteristics-gravity-model-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_mcgm.html">centrality_mcgm()</a></code> with the published adaptive coefficient and default radius two, plus explicit radius and coefficient overrides.</li>
+<li>Reproduces the nine-node published example. Uses a simple undirected skeleton and documents the eigenvector convention for disconnected graphs. Undefined automatic coefficients require an explicit override.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--spectralrank-2-4-8">Centrality Batch 37 — SpectralRank<a class="anchor" aria-label="anchor" href="#centrality-batch--spectralrank-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_spectralrank.html">centrality_spectralrank()</a></code> with optional scalar or node-specific diagonal priors. Scores use outgoing neighbors in an augmented graph.</li>
+<li>Preserves the paper’s normalization over original and ground nodes; optional package normalization rescales original nodes alone. Uses the Perron eigenvector also on edgeless graphs where plain iteration oscillates.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--controlrank-2-4-8">Centrality Batch 36 — ControlRank<a class="anchor" aria-label="anchor" href="#centrality-batch--controlrank-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_controlrank.html">centrality_controlrank()</a></code>, the smallest eigenvalue of each grounded symmetric row-Laplacian, retaining original degrees after node deletion.</li>
+<li>Supports nonnegative weighted graphs, an explicit outgoing orientation for directed inputs, and signed directed scores. Reproduces the published bi-star example and is marked costly because it solves one spectrum per node.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--map-equation-centrality-2-4-8">Centrality Batch 35 — Map equation centrality<a class="anchor" aria-label="anchor" href="#centrality-batch--map-equation-centrality-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_map_equation.html">centrality_map_equation()</a></code> for fixed one-level or leaf-module partitions, with recorded node and unrecorded link teleportation.</li>
+<li>Coding conventions are explicit: <code>paper</code> includes module-exit flow as defined in the equations; <code>infomap</code> reproduces the author’s visit-only implementation and published table. Both conventions have independent numerical verification. Stable arithmetic retains extremely small scores.</li>
+<li>Invalid missing, nonfinite, nonscalar or nonnumeric damping inputs now receive the centrality argument error instead of an incidental R error.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--node-and-neighbor-layer-information-2-4-8">Centrality Batch 34 — Node and Neighbor Layer Information<a class="anchor" aria-label="anchor" href="#centrality-batch--node-and-neighbor-layer-information-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_ninl.html">centrality_ninl()</a></code> with the full finite iteration family (default three) and optional radius overrides. The initial score sums degrees within the ceiling of average path length, then propagates through neighbors.</li>
+<li>Reproduces all 52 entries in Zhu and Wang’s published example. Uses simple undirected unweighted topology, with explicit disconnected-graph and normalization conventions. Preserves bipartite alternation at large orders.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--localized-bridging-and-extended-lbc-2-4-8">Centrality Batch 33 — Localized bridging and Extended LBC<a class="anchor" aria-label="anchor" href="#centrality-batch--localized-bridging-and-extended-lbc-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_localized_bridging.html">centrality_localized_bridging()</a></code> and <code><a href="../reference/centrality_extended_local_bridging.html">centrality_extended_local_bridging()</a></code>: one-hop and two-hop ego betweenness multiplied by the original-graph bridging coefficient. Uses simple, undirected, unweighted topology; the two-hop variant is marked costly.</li>
+<li>Corrected the Zoo localized-bridging mapping. <code>local_bridging</code> retains its existing inverse-degree product, which is a different score.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--bg-index-and-beta-power-2-4-8">Centrality Batch 32 — BG-index and beta power<a class="anchor" aria-label="anchor" href="#centrality-batch--bg-index-and-beta-power-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_beta_measure.html">centrality_beta_measure()</a></code> with positive and negative directed variants. Successors share one unit equally among their predecessors; the negative variant reverses the graph. Loops and duplicate arcs are removed, weights ignored, and isolates score zero.</li>
+<li>Covers both Zoo labels BG-index and beta-measure. Independent predecessor choice enumeration and the original published diamond example verify numerical scores, with direction and normalization checked through the API.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--expected-force-and-its-degree-adjustment-2-4-8">Centrality Batch 31 — Expected Force and its degree adjustment<a class="anchor" aria-label="anchor" href="#centrality-batch--expected-force-and-its-degree-adjustment-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_expected_force.html">centrality_expected_force()</a></code> and <code><a href="../reference/centrality_modified_expected_force.html">centrality_modified_expected_force()</a></code> from Lawyer’s two-event definition, with explicit sequence multiplicity, boundary-edge counting, direction and exhausted-force conventions.</li>
+<li>Corrected the Zoo Expected Force mapping: <code>expected</code> computes neighbor-degree sums and remains available under that definition. ExF now maps to <code>expected_force</code>; the original ExFm candidate maps to the modified function.</li>
+<li>Verified against independent event enumeration and pinned author C++ on its connected undirected domain. No author code is included in the package.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--proximal-betweenness-2-4-8">Centrality Batch 30 — Proximal betweenness<a class="anchor" aria-label="anchor" href="#centrality-batch--proximal-betweenness-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_proximal_betweenness.html">centrality_proximal_betweenness()</a></code> with source, target, sum and union variants from Brandes. Uses directed unweighted shortest paths, excludes endpoints, and explicitly preserves ordered-pair raw scaling.</li>
+<li>Independent path enumeration and exact integer adjacency powers verify both orientations and overlap counting. Nonfinite path counts raise errors.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--bridging-capital-2-4-8">Centrality Batch 29 — Bridging capital<a class="anchor" aria-label="anchor" href="#centrality-batch--bridging-capital-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_bridging_capital.html">centrality_bridging_capital()</a></code> with a finite walk horizon and optional source-destination information values. It follows Jackson’s single-entry deletion definition using transmission probabilities between zero and one.</li>
+<li>Independent matrix-power and walk-enumeration checks verify repeated-edge counting, direction, loops and valued information. Native tracking avoids cancellation; this dense, costly measure must be requested explicitly.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--coleman-theil-hierarchy-2-4-8">Centrality Batch 28 — Coleman-Theil hierarchy<a class="anchor" aria-label="anchor" href="#centrality-batch--coleman-theil-hierarchy-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_coleman_theil.html">centrality_coleman_theil()</a></code>, measuring concentration of Burt’s dyadic constraints using mutual tie weights. Follows the author’s explicit isolate-zero and single-contact-one conventions, with organizational multipliers fixed at one.</li>
+<li>Verified against NetworkX local constraints, exact rational calculations and high-precision entropy checks. Stable arithmetic preserves small departures from uniformity; weights, direction and parallel ties have documented handling.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--x-degree-2-4-8">Centrality Batch 27 — X-degree<a class="anchor" aria-label="anchor" href="#centrality-batch--x-degree-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_x_degree.html">centrality_x_degree()</a></code>, counting four-edge nonbacktracking walks centered at each node using original neighbor excess degrees. It uses the simple undirected unweighted skeleton and supports maximum normalization.</li>
+<li>Verified against pinned author code, independent nonbacktracking matrix blocks and explicit walk enumeration, including all simple labeled graphs through five vertices. This adds a static score; it does not perform the paper’s iterative immunization strategy.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--linerank-2-4-8">Centrality Batch 26 — LineRank<a class="anchor" aria-label="anchor" href="#centrality-batch--linerank-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_linerank.html">centrality_linerank()</a></code>, using directed line-graph walks or the ordinary undirected line graph clarified by Kosa et al. (2015).</li>
+<li>Exposes probability aggregation and the original pseudocode’s additional edge-weight aggregation as explicit <code>linerank_aggregation</code> choices. Supports loops and remaining parallel edge states with documented conventions, uniform dangling redistribution and damping in [0,1).</li>
+<li>Uses a native dense stationary solve and is marked costly. Verification compares NetworkX line graphs/PageRank and Markov-chain tree cofactors. The original pseudocode’s inconsistent normalization is not replicated.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--random-walk-decay-2-4-8">Centrality Batch 25 — random walk decay<a class="anchor" aria-label="anchor" href="#centrality-batch--random-walk-decay-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_random_walk_decay.html">centrality_random_walk_decay()</a></code> with <code>rwd_decay</code> and optional <code>rwd_node_weights</code>. Scores sum discounted first-arrival probabilities, including the starting node. Retains directed flow, weighted transitions and loops; sinks terminate the walk without restarting it elsewhere.</li>
+<li>Supports personalized starting mass, zero decay as a limit, disconnected graphs and normalized scores when raw sums overflow. Per-target absorbing solves make the measure costly; request it explicitly.</li>
+<li>Independently verified using full-resolvent ratios, explicit first-visit series, exact rational arithmetic and high-precision calculations. Reproduces the published Example 4 and 5 tables; the inconsistent Example 3 values are retained as a source discrepancy.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--graph-regularization-centrality-2-4-8">Centrality Batch 24 — graph regularization centrality<a class="anchor" aria-label="anchor" href="#centrality-batch--graph-regularization-centrality-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_graph_regularization.html">centrality_graph_regularization()</a></code> with finite nonnegative <code>grc_gamma</code>, default one. Computes reciprocal diagonal entries of the inverse regularized weighted Laplacian. Isolates and zero regularization score one; disconnected components are independent before normalization.</li>
+<li>A component spectral calculation supports extreme regularization and uniform weight scales without overflowing their product. Unresolvable weight ranges or positive spectra raise explicit numerical errors.</li>
+<li>Verified against SciPy direct solves, determinant ratios, high-precision arithmetic and convergence of the retained author implementation. The author’s default ten-term approximation is audited separately and is not claimed to give identical values.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--adaptive-leaderrank-2-4-8">Centrality Batch 23 — adaptive LeaderRank<a class="anchor" aria-label="anchor" href="#centrality-batch--adaptive-leaderrank-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_adaptive_leaderrank.html">centrality_adaptive_leaderrank()</a></code>, weighting every destination by its original open-neighborhood H-index and adding a ground node with H-index one. Retains source total mass N and omits the ground score without redistribution. Zero H-indices receive zero stationary scores; an all-zero H-index vector yields NaN.</li>
+<li>
+<code>alr_h_mode</code> selects the H-index convention: all (default), out or in. The paper leaves its directed H-index choice unspecified; these choices are explicit cograph conventions, while resource flow retains input arcs. The focal node is excluded from the H-index calculation.</li>
+<li>Verified against independent NetworkX iteration, Markov-chain tree cofactors and a reversible-conductance identity for undirected inputs.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--weighted-leaderrank-2-4-8">Centrality Batch 22 — weighted LeaderRank<a class="anchor" aria-label="anchor" href="#centrality-batch--weighted-leaderrank-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_weighted_leaderrank.html">centrality_weighted_leaderrank()</a></code> with finite <code>wlr_alpha</code>, default one. Original directed arcs retain unit weight and ground-to-node weights depend on original in-degree. Input edge weights are ignored. Undirected edges are represented as opposite arcs.</li>
+<li>Uses the original paper’s N+1 initial mass and omits the ground score without redistribution. Zoo’s N-mass initialization differs by a constant factor; max-normalized scores agree. Negative exponents require positive in-degrees; positive exponents on edgeless graphs return NaN.</li>
+<li>A native stationary solve handles periodic chains and shifted logarithms avoid overflow in degree powers. Verification uses NetworkX lazy-chain iteration, Markov-chain tree cofactors and 100-digit stress references.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--global-structure-models-2-4-8">Centrality Batch 21 — global structure models<a class="anchor" aria-label="anchor" href="#centrality-batch--global-structure-models-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_global_structure.html">centrality_global_structure()</a></code> (GSM), <code><a href="../reference/centrality_hybrid_global_structure.html">centrality_hybrid_global_structure()</a></code> (H-GSM) and <code><a href="../reference/centrality_improved_global_structure.html">centrality_improved_global_structure()</a></code> (IGSM). GSM uses coreness; H-GSM combines degree and coreness; IGSM uses degree. The latter two use their published adaptive distance exponents. All three use the simple undirected skeleton, with explicit zero contributions for unreachable partners and global size/means that include isolates.</li>
+<li>IGSM follows the equation reproduced in Mukhtar et al. (2023); the original Zhu and Wang (2022) full text was unavailable. Its zero or negative distance exponents on sparse disconnected graphs are retained.</li>
+<li>Verified against independent NetworkX calculations, exhaustive small-graph core enumeration, and published focal calculations. H-GSM uses logarithmic sums so normalized results remain available when raw scores or self-influence exceed double precision; 100-digit reference stress checks cover both overflow and very small normalized values.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--exogenous-centrality-2-4-8">Centrality Batch 20 — exogenous centrality<a class="anchor" aria-label="anchor" href="#centrality-batch--exogenous-centrality-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_exogenous.html">centrality_exogenous()</a></code> with degree, betweenness and adjusted reverse-closeness bases. Measures the contribution to other nodes’ centrality when the focal node is deleted. Supports directed base directions and retains negative betweenness contributions.</li>
+<li>Reverse-closeness retains the original graph size after deletion. All bases use simple binary topology and raw scores before any optional final normalization. Repeated graph deletion places this measure in the costly tier. Verification includes independent NetworkX scores, explicit path enumeration and a documented audit of discrepancies in the original paper’s Florentine table.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--improved-closeness-2-4-8">Centrality Batch 19 — improved closeness<a class="anchor" aria-label="anchor" href="#centrality-batch--improved-closeness-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_improved_closeness.html">centrality_improved_closeness()</a></code> with <code>icc_alpha</code> in [0,1], default 0.2, following Luan et al.’s shortest-path multiplicity formula. Uses the simple undirected skeleton; alpha zero recovers ordinary normalized closeness on connected graphs. Disconnected graphs and singletons score zero under explicit cograph conventions.</li>
+<li>Verified against exact integer adjacency powers, NetworkX shortest-path enumeration and igraph’s closeness limit. Logarithmic path counting avoids overflow on graphs with more shortest paths than doubles can hold.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--weighted-clustering-degree-algorithm-2-4-8">Centrality Batch 18 — weighted clustering degree algorithm<a class="anchor" aria-label="anchor" href="#centrality-batch--weighted-clustering-degree-algorithm-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_cda.html">centrality_cda()</a></code> with <code>cda_alpha</code>, default 0.5. Returns Wang et al.’s propagation-capability score using degree, strength, Barrat clustering and weighted neighbor contributions. The full weighted calculation retains original weight units and a global maximum weight.</li>
+<li>Verified against igraph Barrat clustering and independent Python neighbor-pair enumeration across mixing parameters, including endpoint scaling, disconnected inputs, labels and input projections.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--extended-coreness-and-gravity-2-4-8">Centrality Batch 17 — extended coreness and gravity<a class="anchor" aria-label="anchor" href="#centrality-batch--extended-coreness-and-gravity-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_extended_coreness.html">centrality_extended_coreness()</a></code>, the two-step aggregation of original core numbers, and <code><a href="../reference/centrality_extended_gravity.html">centrality_extended_gravity()</a></code>, the sum of immediate neighbors’ raw k-shell gravity scores. Both use the simple undirected skeleton and assign isolates zero.</li>
+<li>Extended gravity supports <code>gravity_radius</code>, default three as in Ma et al. The radius applies around each neighbor before the outer sum. Independent checks use NetworkX cores and distances and an exhaustive core-number oracle on small graphs, covering multiple radii and input projections.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--node-resistance-curvature-2-4-8">Centrality Batch 16 — node resistance curvature<a class="anchor" aria-label="anchor" href="#centrality-batch--node-resistance-curvature-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_resistance_curvature.html">centrality_resistance_curvature()</a></code>, implementing Devriendt and Lambiotte’s conductance-weighted node curvature component by component. Raw scores can be negative; isolates score one. Directed projection, zero conductances, normalization and numerical limits are documented.</li>
+<li>Independent checks use NetworkX effective resistance and exhaustive weighted spanning-tree degree expectations on small graphs. Dense electrical solves make this an explicitly requested costly measure.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--dynamics-sensitive-and-malatya-centrality-2-4-8">Centrality Batch 15 — dynamics-sensitive and Malatya centrality<a class="anchor" aria-label="anchor" href="#centrality-batch--dynamics-sensitive-and-malatya-centrality-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_dynamics_sensitive.html">centrality_dynamics_sensitive()</a></code> with <code>ds_beta</code>, <code>ds_mu</code> and <code>ds_steps</code>, including the full recovery-rate family from Liu et al. Recovery rate one recovers the finite-diffusion formula listed by Zoo; recovery zero supports the paper’s SI case. These are linearized scores, with their interpretation and numerical limits documented explicitly.</li>
+<li>Added <code><a href="../reference/centrality_malatya.html">centrality_malatya()</a></code>, the static degree-ratio sum. On nonisolated nodes it is exactly the reciprocal of the bridging coefficient. Both additions use the simple undirected skeleton and assign isolates zero.</li>
+<li>Verification uses independently expanded matrix/walk formulas and NetworkX neighbour-degree arithmetic, with documented parameter limits.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--finite-diffusion-and-dynamical-importance-2-4-8">Centrality Batch 14 — finite diffusion and dynamical importance<a class="anchor" aria-label="anchor" href="#centrality-batch--finite-diffusion-and-dynamical-importance-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_diffusion_centrality.html">centrality_diffusion_centrality()</a></code> with <code>diffusion_q</code> and <code>diffusion_steps</code>. It evaluates Banerjee et al.’s finite weighted walk sum, separate from existing diffusion degree and the TNA power series. Directed edges follow their outgoing orientation; weights, loops and repeated walks are supported. Probability interpretation and default parameter choices are documented explicitly.</li>
+<li>Added <code><a href="../reference/centrality_dynamical_importance.html">centrality_dynamical_importance()</a></code>: relative spectral-radius loss on node deletion, recomputed directly. It supports nonnegative directed weighted graphs, removes loops and returns NaN when the original radius is zero. This costly measure is held back from the default all tier.</li>
+<li>Independent numerical checks use explicit walk enumeration, NumPy matrix powers and eigenspectra, and SymPy exact characteristic polynomials.</li>
+<li>Fixed the existing TNA power-series method’s missing binary fallback for unweighted igraph inputs. Normalization now preserves entirely undefined or empty result vectors without an empty-maximum warning.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--volume-and-maximal-cliques-2-4-8">Centrality Batch 13 — volume and maximal cliques<a class="anchor" aria-label="anchor" href="#centrality-batch--volume-and-maximal-cliques-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_volume.html">centrality_volume()</a></code> with <code>volume_radius</code> and <code><a href="../reference/centrality_mcc.html">centrality_mcc()</a></code>, also available through <code>centrality(measures = )</code>. Both use the simple undirected skeleton. Volume sums original degrees over closed hop neighbourhoods; MCC sums factorial contributions from maximal cliques.</li>
+<li>MCC explicitly excludes singleton cliques (isolates score zero), reports numerical overflow, and is held back from the default <code>type = "all"</code> tier because clique enumeration has exponential worst-case cost.</li>
+<li>Verification uses NetworkX neighbourhoods and maximal cliques, plus exhaustive recognition of maximal cliques on graphs of up to ten nodes.</li>
+<li>Corrected the catalogue’s existing diffusion entry: default diffusion degree and the TNA power series are separate formulas. The Banerjee diffusion-centrality candidate remains pending.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--verified-parameter-candidates-2-4-8">Centrality Batch 12 — verified parameter candidates<a class="anchor" aria-label="anchor" href="#centrality-batch--verified-parameter-candidates-2-4-8"></a></h4>
+<ul><li>Added <code><a href="../reference/centrality_truss.html">centrality_truss()</a></code>, <code><a href="../reference/centrality_truss.html">centrality_mdd()</a></code>, <code><a href="../reference/centrality_truss.html">centrality_bridging_coefficient()</a></code>, <code><a href="../reference/centrality_truss.html">centrality_godfather()</a></code> and <code><a href="../reference/centrality_truss.html">centrality_support()</a></code>, also available through <code>centrality(measures = )</code>. They use the simple undirected skeleton. <code>mdd_lambda</code> controls the exhausted-degree weight; truss numbers use the k-2 triangle convention.</li>
+<li>Documented LocalRank as the existing <code>semilocal</code> measure on simple undirected graphs. Corrected parameterized Zoo lookup calls and replaced unsupported equivalence claims based solely on rank correlation.</li>
+<li>Numerical checks cover NetworkX, centiserve and independent combinatorial references. The original 160 candidate rows remain tracked in <code>docs/zoo/parameter_candidate_status.csv</code>.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="centrality-batch--centrality-zoo-comparison-batch-2-4-8">Centrality Batch 7 — Centrality Zoo comparison batch<a class="anchor" aria-label="anchor" href="#centrality-batch--centrality-zoo-comparison-batch-2-4-8"></a></h4>
+<p>Five measures chosen from the Centrality Zoo correlation study (Shvydun 2025; 349 measures, 648 ICON networks, average Kendall tau) as the ones with the <strong>lowest rank redundancy</strong> against what <code><a href="../reference/centrality.html">centrality()</a></code> already computed (maximum tau with any existing measure in parentheses). All are implemented in base R on matrices (<code>R/kernels-batch7.R</code>) with thin igraph glue and one exported verb each (<code>R/centrality-batch7.R</code>).</p>
+<ul><li>
+<code><a href="../reference/centrality_distance_entropy.html">centrality_distance_entropy()</a></code> (tau 0.30) — Stella &amp; De Domenico (2018). Normalised Shannon entropy of a node’s hop-distance profile; closeness is the mean of that profile, this is its spread. The normaliser is <code>log(M - m + 1)</code> so a uniform profile scores exactly 1 (the printed formula’s <code>log(M - m)</code> is undefined for two distances).</li>
+<li>
+<code><a href="../reference/centrality_local_dimension.html">centrality_local_dimension()</a></code> (tau 0.50) — Pu et al. (2014). OLS slope of <code>ln B(r)</code> on <code>ln r</code>, ball including the centre. Reproduces the worked example of Wen &amp; Deng (2019) exactly (0.9231). Lower = more influential.</li>
+<li>
+<code><a href="../reference/centrality_local_information_dimension.html">centrality_local_information_dimension()</a></code> (tau 0.38) — Wen &amp; Deng (2020). Entropy-weighted local dimension over boxes up to half the eccentricity. Higher = more influential. Single-box nodes use the paper’s discretised derivative.</li>
+<li>
+<code><a href="../reference/centrality_modularity_vitality.html">centrality_modularity_vitality()</a></code> (tau 0.40) — Magelinski, Bartulovic &amp; Carley (2021). <code>Q(G, C) - Q(G - i, C \ i)</code> under a fixed partition; positive = community hub, negative = bridge. Closed-form vectorised update (one matrix product for all nodes); matches brute-force <code><a href="https://r.igraph.org/reference/modularity.igraph.html" class="external-link">igraph::modularity()</a></code> after deletion on random directed, undirected and weighted graphs. Requires <code>membership</code>; wrong-length input raises <code>cograph_bad_membership</code>.</li>
+<li>
+<code><a href="../reference/centrality_neighborhood_connectivity.html">centrality_neighborhood_connectivity()</a></code> (tau 0.64) — Maslov &amp; Sneppen (2002). Mean neighbour degree, isolates 0; equals <code>igraph::knn(weights = NA)</code>, with <code>mode</code> support.</li>
+</ul><p>The three distance-scaling measures are hop-count measures and ignore edge weights (as <code>gravity</code> and <code>collective_influence</code> already do); they share one unweighted all-pairs matrix per <code><a href="../reference/centrality.html">centrality()</a></code> call.</p>
+</div>
+<div class="section level4">
+<h4 id="centrality-batch--the-zoos-on-the-way-measures-2-4-8">Centrality Batch 8 — the Zoo’s “on the way” measures<a class="anchor" aria-label="anchor" href="#centrality-batch--the-zoos-on-the-way-measures-2-4-8"></a></h4>
+<p>The twelve measures the batch 7 lookup listed as “on the way” are now implemented (thirteen <code><a href="../reference/centrality.html">centrality()</a></code> measures), each verified against an exact brute-force definition or the source paper’s own numbers, plus an independent Python reference written from the paper (kept in <code>local_testing_and_equivalence/batch8/</code>, not shipped). Base-R kernels in <code>R/kernels-batch8.R</code>, verbs in <code>R/centrality-batch8.R</code>.</p>
+<ul><li>
+<code><a href="../reference/centrality_shapley_game1.html">centrality_shapley_game1()</a></code>, <code>_game2()</code>, <code>_game3()</code> — Michalak et al.
+<ol start="2013" style="list-style-type: decimal"><li>closed-form Shapley values of the one-hop, <code>shapley_k</code>-neighbour and <code>shapley_cutoff</code>-hop coverage games. Equal to exact Shapley values from full coalition enumeration on random graphs of up to 8 nodes (with isolates, loops, several components), directed extension included.</li>
+</ol></li>
+<li>
+<code><a href="../reference/centrality_access_information.html">centrality_access_information()</a></code>, <code><a href="../reference/centrality_access_information.html">centrality_hide_information()</a></code> — Rosvall et al. (2005) / Sneppen et al. (2005) search information, averaged from and to each node; shortest-path DAG accumulation, no path enumeration. Equal to explicit all-shortest-paths enumeration; reproduces the papers’ star and complete-bipartite values. Disconnected graphs average over each node’s reachable set.</li>
+<li>
+<code><a href="../reference/centrality_rumor.html">centrality_rumor()</a></code> — Shah &amp; Zaman (2011) rumor centrality on each node’s BFS tree, log scale. <code><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp()</a></code> of it equals brute-force spreading-order counts on trees; reproduces the paper’s Fig. 5 (8, 12, 2, 3, 3).</li>
+<li>
+<code><a href="../reference/centrality_community_hub_bridge.html">centrality_community_hub_bridge()</a></code> — Ghalmane, El Hassouni &amp; Cherifi
+<ol start="2019" style="list-style-type: decimal"><li>raw hub-bridge score (needs <code>membership</code>; <code>cograph_bad_membership</code> on bad input).</li>
+</ol></li>
+<li>
+<code>centrality_entropy_variation(of = "degree" | "betweenness")</code> — Ai (2017) signed entropy drop on node deletion; degree variant in closed form. Equal to the author’s own R code path to 1e-15 and to the paper’s Table 2 quantiles on its 4234-node network.</li>
+<li>
+<code><a href="../reference/centrality_s_shell.html">centrality_s_shell()</a></code> — Liu, Tang, Do &amp; Hui (2017) strength-based shell index with asymmetric topological weights (<code>s_shell_a</code>, default 0.5). The Zoo’s “s-shell index” is this measure, not the Eidsaa-Almaas s-core. Shells verified against the maximal-subgraph definition; <code>a = 0</code> gives k-core dense ranks.</li>
+<li>
+<code><a href="../reference/centrality_degree_discount.html">centrality_degree_discount()</a></code>, <code><a href="../reference/centrality_degree_discount.html">centrality_single_discount()</a></code> — Chen, Wang &amp; Yang (2009) greedy seed-selection orders (<code>discount_p</code>), scored like <code>voterank</code> (first selected = 1).</li>
+<li>
+<code><a href="../reference/centrality_ncvoterank.html">centrality_ncvoterank()</a></code> — Kumar &amp; Panda (2020) neighbourhood-coreness VoteRank (<code>ncvote_theta</code>). The original article could not be obtained; the definition follows the Zoo encyclopedia and three restatements, and the coreness normalisation (by its maximum) is a documented choice. Its VoteRank limit reproduces <code>networkx.voterank</code>.</li>
+</ul><p>The Centrality Zoo lookup article and coverage document were regenerated: 82 Zoo measures are now available in cograph and nothing is “on the way”.</p>
+</div>
+<div class="section level4">
+<h4 id="centrality-tiers-and-a-catalogue-of-the-measures-2-4-8">
+<code>centrality()</code> tiers, and a catalogue of the measures<a class="anchor" aria-label="anchor" href="#centrality-tiers-and-a-catalogue-of-the-measures-2-4-8"></a></h4>
+<ul><li>
+<strong><code>type = "all"</code> no longer runs the measures whose cost grows steeply with network size.</strong> Four are held back: <code>infection</code>, <code>two_way_rw</code>, <code>node_contraction_improved</code> and <code>entropy_variation_betweenness</code>. On an 81-node graph <code>infection</code> alone took 611 seconds while every other measure together took about five, so a single <code>type = "all"</code> call could take minutes by accident. <code>type = "basic"</code> (the default) and <code>type = "extended"</code> are unchanged.</li>
+<li>
+<strong>New <code>include</code> argument</strong> puts them back: <code>include = "costly"</code> for all four, or name the ones you want. Naming a measure in <code>measures =</code> always computes it whatever its cost, so nothing became unreachable.</li>
+<li>
+<strong><code><a href="../reference/list_centralities.html">list_centralities()</a></code></strong> (new export) is a tidy table of every measure with the facts you need before reading a column: <code>orientation</code> (which end of the scale marks a prominent node), <code>mode_aware</code>, <code>needs_membership</code>, <code>uses_weights</code> and <code>costly</code>. Twelve measures are oriented so that a <em>low</em> value marks the more central node, including <code>eccentricity</code>, <code>constraint</code>, <code>heatmap</code> and the local-dimension family; sorting their column the usual way puts the periphery on top. <code>list_centralities(orientation = "lower")</code> lists them. The measure lists now live in one place that both <code><a href="../reference/centrality.html">centrality()</a></code> and <code><a href="../reference/list_centralities.html">list_centralities()</a></code> read, and a test asserts the two agree.</li>
+</ul></div>
+</div>
+<div class="section level3">
+<h3 id="bug-fixes-2-4-8">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-4-8"></a></h3>
+<ul><li>
+<code>katz</code> now warns with a <code>cograph_katz_diverged</code> condition when <code>katz_alpha</code> is too large for the graph. Katz converges only for <code>alpha &lt; 1 / rho(A)</code>; above it the linear solve still returns numbers, but they are not Katz scores and can be negative. The default 0.1 is invalid on any graph whose spectral radius exceeds 10, which includes many weighted networks. The check costs nothing on the happy path and the warning names the valid bound.</li>
+<li>
+<code>alpha</code> and <code>power</code> now raise a classed <code>cograph_singular_system</code> error instead of surfacing a bare LU factorization message from igraph when <code>I - alpha A</code> is singular.</li>
+<li>
+<code><a href="../reference/centrality_dmnc.html">?centrality_dmnc</a></code> gains a “Divergence from centiserve” section. <code><a href="https://rdrr.io/pkg/centiserve/man/dmnc.html" class="external-link">centiserve::dmnc()</a></code> counts the largest component’s edges in the wrong index space: its membership vector indexes the neighbourhood subgraph but is used to subset the original graph. The two disagree on 14 of the 34 karate nodes even at a matched epsilon, and reproducing that indexing exactly reproduces centiserve’s output. cograph counts the edges of the component it actually found. The catalogue’s equivalence claim was corrected.</li>
+</ul><div class="section level4">
+<h4 id="centrality-batch--the-remaining-zoo-measures-with-a-pinned-definition-2-4-8">Centrality Batch 9 — the remaining Zoo measures with a pinned definition<a class="anchor" aria-label="anchor" href="#centrality-batch--the-remaining-zoo-measures-with-a-pinned-definition-2-4-8"></a></h4>
+<p>Twenty more measures (<code>R/kernels-batch9.R</code>, <code>R/centrality-batch9.R</code>), each researched from its source paper by a dedicated agent and verified against published tables, brute-force definitions and an independent Python reference (kept in <code>local_testing_and_equivalence/batch9/</code>, not shipped).</p>
+<ul><li>Community-aware (need <code>membership</code>): <code><a href="../reference/centrality_community_based.html">centrality_community_based()</a></code> (Zhao et al. 2015; reproduces the paper’s Table 1 and Tulu et al.’s Table 1), <code><a href="../reference/centrality_community_based.html">centrality_comm_centrality()</a></code> (Gupta, Singh &amp; Cherifi 2016; <code>comm_r</code>), <code><a href="../reference/centrality_community_based.html">centrality_community_mediator()</a></code> (Tulu, Hou &amp; Younas 2018; base-2 entropy reproduces its Table 1).</li>
+<li>Dimension family: <code><a href="../reference/centrality_local_dimension_fixed.html">centrality_local_dimension_fixed()</a></code> (Silva &amp; Costa 2013; <code>ld_radius</code>), <code><a href="../reference/centrality_local_dimension_fixed.html">centrality_fuzzy_local_dimension()</a></code> (Wen &amp; Jiang 2019; reproduces its kite Table 1 and karate top ten in order), <code><a href="../reference/centrality_local_dimension_fixed.html">centrality_local_volume_dimension()</a></code> (Li &amp; Deng 2021; definition from the authors’ later preprint, flagged).</li>
+<li>VoteRank family: <code><a href="../reference/centrality_wvoterank.html">centrality_wvoterank()</a></code> (Sun et al. 2019; reproduces all sixty numbers of its Figure 1), <code><a href="../reference/centrality_wvoterank.html">centrality_enrenew()</a></code> (Guo et al. 2020; reproduces its Figure 1; <code>enrenew_depth</code>), <code><a href="../reference/centrality_wvoterank.html">centrality_voterank_plus()</a></code> (Liu et al. 2021; matches the authors’ code; <code>voterank_lambda</code>).</li>
+<li>
+<code><a href="../reference/centrality_node_contraction.html">centrality_node_contraction()</a></code> and <code><a href="../reference/centrality_node_contraction.html">centrality_node_contraction_improved()</a></code> (Tan, Wu &amp; Deng 2006; Wang et al. 2011; reproduce Table 1 and the path closed forms; <code>contraction_rho</code>). The Zoo entry’s “removal” wording is wrong; the sources contract.</li>
+<li>
+<code><a href="../reference/centrality_two_way_rw.html">centrality_two_way_rw()</a></code> (Curado et al. 2022; reproduces the paper’s toy example including every fraction; O(n^4)).</li>
+<li>Local measures: <code><a href="../reference/centrality_heatmap.html">centrality_heatmap()</a></code> (Duron 2020; reproduces Table 1; lower = more central), <code><a href="../reference/centrality_heatmap.html">centrality_flow_coefficient()</a></code> (Honey et al. 2007, BCT form; equals one minus clustering on undirected graphs), <code><a href="../reference/centrality_heatmap.html">centrality_local_entropy()</a></code> (Nie et al. 2016), <code><a href="../reference/centrality_heatmap.html">centrality_weighted_h_index()</a></code> (Gao et al. 2019), <code><a href="../reference/centrality_heatmap.html">centrality_redundancy()</a></code> (Burt 1992; Borgatti’s worked example).</li>
+<li>
+<code><a href="../reference/centrality_weighted_kshell.html">centrality_weighted_kshell()</a></code> (Garas, Schweitzer &amp; Havlin 2012; <code>wks_alpha</code>, <code>wks_beta</code>; Figure 1 example and Table 2 core size), <code><a href="../reference/centrality_weighted_kshell.html">centrality_renewed_coreness()</a></code> (Liu, Tang, Zhou &amp; Do 2015; Figure 1 and all twelve percentages of its Table S1; the Zoo’s transcription is off by one), <code><a href="../reference/centrality_weighted_kshell.html">centrality_geodesic_kpath()</a></code> (Borgatti &amp; Everett 2006; paths counted with multiplicity; <code><a href="https://rdrr.io/pkg/centiserve/man/geokpath.html" class="external-link">centiserve::geokpath</a></code> counts nodes instead).</li>
+</ul><p>Not shipped, with reasons recorded in the coverage document: DegreePunishment, improved WVoteRank and local degree dimension (source articles unobtainable, definitions rest on the Zoo alone) and multi-local dimension (a rescaling of local dimension for every q outside (0, 1)).</p>
+<p>New pkgdown article <strong>Centrality Zoo lookup</strong> answers “is the Zoo measure I want in cograph?”: every Zoo measure listed once under Available, Almost identical (tau &gt;= 0.99, with the cograph measure to use), Near-duplicate (0.90 &lt;= tau &lt; 0.99), On the way, or Not available. <code>docs/CENTRALITY-ZOO-COVERAGE.md</code> records the full intersection of the Zoo matrix with cograph: which Zoo measures are rank-identical to an existing cograph measure (and therefore not worth adding), which are near-duplicates, and the remaining ranked candidates.</p>
+</div>
+<div class="section level4">
+<h4 id="centrality-batch--the-gaps-against-the-other-centrality-packages-2-4-8">Centrality Batch 10 — the gaps against the other centrality packages<a class="anchor" aria-label="anchor" href="#centrality-batch--the-gaps-against-the-other-centrality-packages-2-4-8"></a></h4>
+<p><code>docs/CENTRALITY-CROSS-COVERAGE.md</code> counted, in both directions, what each R and Python centrality package reaches of the Zoo. The five node measures that other packages offered and <code><a href="../reference/centrality.html">centrality()</a></code> did not are now implemented (<code>R/kernels-batch10.R</code>, <code>R/centrality-batch10.R</code>), each verified against the package whose gap it closes:</p>
+<ul><li>
+<code><a href="../reference/centrality_local_efficiency.html">centrality_local_efficiency()</a></code> — Latora &amp; Marchiori (2001). Global efficiency of the subgraph induced on a node’s neighbours, the node removed. Matches <code>brainGraph::efficiency(type = "local")</code> and the networkx induced-subgraph form on 25 random graphs. Note that <code><a href="https://r.igraph.org/reference/global_efficiency.html" class="external-link">igraph::local_efficiency()</a></code> measures those distances <em>through the rest of the network</em> and so reports larger values; <code><a href="../reference/network_local_efficiency.html">network_local_efficiency()</a></code> keeps its igraph parity and its help page now says so.</li>
+<li>
+<code><a href="../reference/centrality_local_efficiency.html">centrality_s_core()</a></code> — Eidsaa &amp; Almaas (2013). The weighted k-core: the largest strength threshold whose core still contains the node. Matches <code><a href="https://r.igraph.org/reference/coreness.html" class="external-link">igraph::coreness()</a></code> on unweighted graphs and a brute-force reading of the definition on weighted ones. <code><a href="https://rdrr.io/pkg/brainGraph/man/s_core.html" class="external-link">brainGraph::s_core()</a></code> returns the peeling round instead, which is documented as a divergence.</li>
+<li>
+<code><a href="../reference/centrality_local_efficiency.html">centrality_fragmentation()</a></code> — Borgatti (2006). Distance-weighted fragmentation after deleting the node; matches <code><a href="https://rdrr.io/pkg/keyplayer/man/fragment.html" class="external-link">keyplayer::fragment()</a></code>. This is the Zoo’s “Distance-weighted fragmentation”, taking cograph’s Zoo coverage to 103 of 349.</li>
+<li>
+<code><a href="../reference/centrality_local_efficiency.html">centrality_kpath()</a></code> — Sade (1989). Simple paths of length at most <code>kpath_len</code> that the node lies on; matches the per-vertex counts of <code><a href="https://rdrr.io/pkg/sna/man/path.census.html" class="external-link">sna::kpath.census()</a></code> for k = 2 and 3, directed and undirected.</li>
+<li>
+<code><a href="../reference/centrality_local_efficiency.html">centrality_epc()</a></code> — Lin et al. (2008), the cytoHubba edge percolated component. Recovers the exact bond-percolation mean on small graphs and matches the normalisation of <code><a href="https://rdrr.io/pkg/centiserve/man/epc.html" class="external-link">centiserve::epc()</a></code>. Monte Carlo: pass <code>epc_seed</code> for a reproducible value; the caller’s random stream is restored.</li>
+</ul><p><code>fragmentation</code> and <code>epc</code> join the costly list, so <code>type = "all"</code> holds them back (<code>include = "costly"</code> or naming them restores them).</p>
+<p>Three of the reported gaps turned out not to be gaps at all, and the document now says so with the evidence: <code><a href="https://rdrr.io/pkg/centiserve/man/closeness.latora.html" class="external-link">centiserve::closeness.latora()</a></code> is cograph’s <code>harmonic</code> exactly, <code><a href="https://rdrr.io/pkg/centiserve/man/communibet.html" class="external-link">centiserve::communibet()</a></code> is <code>communicability_betweenness</code> exactly, and <code>brainGraph::efficiency(type = "nodal")</code> is <code>harmonic</code> over <code>n - 1</code>. Two remain unimplemented and are listed with the reason: the link-community centrality of Kalinka &amp; Tomancak (its reference package <code>linkcomm</code> is archived, so no equivalence check is possible) and <code><a href="https://rdrr.io/pkg/keyplayer/man/kpset.html" class="external-link">keyplayer::kpset()</a></code> (a set search, not a node measure).</p>
+</div>
+<div class="section level4">
+<h4 id="centrality-batch--tuning-the-families-cograph-already-had-2-4-8">Centrality Batch 11 — tuning the families cograph already had<a class="anchor" aria-label="anchor" href="#centrality-batch--tuning-the-families-cograph-already-had-2-4-8"></a></h4>
+<p>160 of the Zoo’s measures sit at a rank correlation of 0.90 or better with something <code><a href="../reference/centrality.html">centrality()</a></code> already computes (<code>docs/zoo/parameter_candidates.csv</code>), which suggests many are the same family at a different setting rather than different ideas. The first five investigated bear that out, and four new measures plus two arguments cover seven more Zoo labels (coverage 103 -&gt; 110 of 349):</p>
+<ul><li>
+<code><a href="../reference/centrality_length_scaled_betweenness.html">centrality_length_scaled_betweenness()</a></code> — Borgatti &amp; Everett (2006), Brandes (2008) Algorithm 5. Betweenness with each separated pair weighted by <code>1 / d(s,t)</code>.</li>
+<li>
+<code><a href="../reference/centrality_length_scaled_betweenness.html">centrality_delta_betweenness()</a></code> — Agneessens, Borgatti &amp; Everett (2017). Betweenness with the pair weight <code>(d - 1)^-delta</code> (<code>betweenness_delta</code>, default 1); <code>delta = 0</code> is ordinary betweenness.</li>
+<li>
+<code><a href="../reference/centrality_length_scaled_betweenness.html">centrality_ego_betweenness()</a></code> — Everett &amp; Borgatti (2005). Betweenness inside the node’s own ego network. Close to <code>effective_size</code>, and a test pins that it is not a function of it.</li>
+<li>
+<code><a href="../reference/centrality_length_scaled_betweenness.html">centrality_delta_closeness()</a></code> — Agneessens et al. (2017) eq. 2. <code>sum_j d_ij^-delta / (n-1)</code> (<code>closeness_delta</code>, default 1). One exponent spans the family: <code>delta = 1</code> is <code>harmonic</code> over <code>n-1</code>, <code>delta = 2</code> is <code>harary</code> over <code>n-1</code>, a large <code>delta</code> approaches degree, <code>delta = 0</code> counts the reachable set.</li>
+<li>
+<strong>Bounded-distance (“k-”) betweenness needs no new measure</strong>: <code>centrality(x, measures = "betweenness", cutoff = k)</code> already computes it, verified against a brute-force reading of the definition on directed and undirected graphs. It is now mapped as covered.</li>
+</ul><p>All four are exact under a brute-force enumeration of weighted geodesic pairs (<code>local_testing_and_equivalence/batch11/run_equivalence.R</code>, 6 blocks, 6 PASS).</p>
+</div>
+</div>
+<div class="section level3">
+<h3 id="bug-fixes-2-4-8-1">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-4-8-1"></a></h3>
+<ul><li>
+<strong><code>gravity</code> computed a formula that appears in no paper.</strong> It summed <code>deg(j) * kshell(j) / d(i,j)^2</code> over every reachable <code>j</code>: the product of two masses on the partner, none on the focal node, and no truncation. Its help page cited Li et al. (2019), whose formula is <code>k_i k_j / d^2</code>. Dropping the focal mass changes the ranking, not just the scale. The measure now computes <code>m_i m_j / d^exponent</code> and gains two arguments: <code>gravity_mass</code> (<code>"kshell"</code> default, <code>"degree"</code>, or <code>"legacy"</code>) and <code>gravity_radius</code> (a number, default 3, <code>"auto"</code> for half the mean distance, or <code>NULL</code>). The default is now Ma, Ma, Zhang &amp; Wang (2016); <code>gravity_mass = "degree", gravity_radius = NULL</code> is Li et al.’s gravity model and <code>gravity_radius = "auto"</code> their local gravity model, so one measure covers three Zoo labels. <strong><code>gravity</code> returns different values than in 2.4.7 and earlier</strong>; <code>gravity_mass = "legacy"</code> with <code>gravity_radius = NULL</code> reproduces the old numbers exactly, and a test pins that.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.4.6" id="cograph-246">cograph 2.4.6<a class="anchor" aria-label="anchor" href="#cograph-246"></a></h2>
 <div class="section level3">

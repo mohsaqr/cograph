@@ -129,6 +129,7 @@ simplify(net)
 #>   Nodes (3): 1, 2, 3
 #> Weights: 0.5 (all equal)
 #> Layout: none 
+#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 simplify(net, edge_attr_comb = "sum")
 #> Cograph network: 3 nodes, 2 edges ( undirected )
 #> Source: edgelist 
@@ -136,4 +137,5 @@ simplify(net, edge_attr_comb = "sum")
 #>   Nodes (3): 1, 2, 3
 #> Weights: 0.5 to 1 
 #> Layout: none 
+#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

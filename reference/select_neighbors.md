@@ -10,7 +10,7 @@ select_neighbors(
   of,
   order = 1L,
   ...,
-  .keep_edges = c("internal", "none"),
+  keep_edges = c("internal", "none"),
   keep_format = FALSE,
   directed = NULL
 )
@@ -34,7 +34,7 @@ select_neighbors(
 
   Additional filter expressions to apply after neighborhood selection.
 
-- .keep_edges:
+- keep_edges:
 
   How to handle edges. Default "internal".
 
@@ -67,7 +67,7 @@ rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
 # Direct neighbors of A
 select_neighbors(adj, of = "A")
 #> Cograph network: 3 nodes, 3 edges ( undirected )
-#> Source: filtered 
+#> Source: matrix 
 #>   Nodes (3): A, B, C
 #>   Edges: 3 / 3 (density: 100.0%)
 #>   Weights: [0.300, 0.800]  |  mean: 0.533
@@ -76,11 +76,12 @@ select_neighbors(adj, of = "A")
 #>     A -- B  0.500
 #>     B -- C  0.300
 #> Layout: none 
+#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 
 # Neighbors up to 2 hops
 select_neighbors(adj, of = "A", order = 2)
 #> Cograph network: 4 nodes, 5 edges ( undirected )
-#> Source: filtered 
+#> Source: matrix 
 #>   Nodes (4): A, B, C, D
 #>   Edges: 5 / 6 (density: 83.3%)
 #>   Weights: [0.300, 0.800]  |  mean: 0.520
@@ -91,4 +92,5 @@ select_neighbors(adj, of = "A", order = 2)
 #>     C -- D  0.400
 #>     B -- C  0.300
 #> Layout: none 
+#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

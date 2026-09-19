@@ -151,12 +151,22 @@ test_that(".mcml_top_layer_y solves the aspect equation, hand-checked", {
     unlink(tmp)
   }, add = TRUE)
   graphics::par(mar = c(0, 0, 0, 0))
+  # 1e-5, not testthat's default 1.5e-8: the device reports par("pin") in
+  # inches with float rounding, so "a 4 x 8 in region" has a ratio of 2 only to
+  # ~1e-7 on Windows (CI: 11.0000028). The layout needs nothing finer.
+  pin_tolerance <- 1e-5
   expect_equal(top_y("fill", auto_y = 3.9, content_width = 8, fixed_height = 5,
-                     bottom_top = 2.1), 11)
+                     bottom_top = 2.1), 11, tolerance = pin_tolerance)
+  # and exactly what the device's own region implies, to full precision
+  pin <- graphics::par("pin")
+  expect_equal(top_y("fill", auto_y = 3.9, content_width = 8, fixed_height = 5,
+                     bottom_top = 2.1), 8 * pin[2] / pin[1] - 5)
   # never tighter than automatic
   expect_equal(top_y("fill", auto_y = 20, content_width = 8, fixed_height = 5,
                      bottom_top = 2.1), 20)
   # scale invariance: doubling every length doubles the answer
   expect_equal(top_y("fill", auto_y = 7.8, content_width = 16, fixed_height = 10,
-                     bottom_top = 4.2), 22)
+                     bottom_top = 4.2),
+               2 * top_y("fill", auto_y = 3.9, content_width = 8, fixed_height = 5,
+                         bottom_top = 2.1))
 })

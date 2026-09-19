@@ -287,3 +287,64 @@ test_that("without a legend band the figure is drawn exactly as before (htna's p
   expect_equal(seen$mar[2:4], eval(formals(splot)$margins)[2:4])
   expect_gt(seen$mar[1], 1)
 })
+
+test_that("shrink-to-fit converges when the legend's size is not proportional to cex", {
+  # Regression (CI, Linux + Windows): one proportional shrink left the legend
+  # 0.5% off the page under Cairo fonts, while Quartz fitted exactly. A legend's
+  # width is a fixed part plus a part that scales, so this test makes the
+  # measurement deliberately non-proportional -- it fails with a single pass on
+  # every platform, whatever fonts the machine has.
+  tmp <- tempfile(fileext = ".png")
+  grDevices::png(tmp, width = 6, height = 6, units = "in", res = 72)
+  on.exit({
+    grDevices::dev.off()
+    unlink(tmp)
+  }, add = TRUE)
+  graphics::par(mar = c(4, 1, 1, 1))
+  graphics::plot(0:1, 0:1, type = "n", axes = FALSE, xlab = "", ylab = "")
+  fig_x <- graphics::grconvertX(c(0, 1), "nfc", "user")
+  band_w <- diff(fig_x)
+  drawn <- new.env()
+  testthat::local_mocked_bindings(
+    .render_legend_base = function(..., cex, position, plot = TRUE) {
+      # 60% of the band is fixed furniture; the rest grows with cex.
+      w <- band_w * (0.6 + 0.9 * cex)
+      if (!isFALSE(plot)) drawn$w <- w
+      invisible(list(rect = list(left = position[1] - w / 2, top = position[2],
+                                 w = w, h = 0.01)))
+    },
+    .package = "cograph"
+  )
+  cograph:::.render_legend_in_band(list(legend = "a", cex = 1, pt.cex = 1.8),
+                                   side = "bottom")
+  expect_lte(drawn$w, band_w)
+  # and it did not give up by collapsing the legend to nothing
+  expect_gt(drawn$w, 0.9 * band_w)
+})
+
+test_that("a legend that already fits is left at its size", {
+  tmp <- tempfile(fileext = ".png")
+  grDevices::png(tmp, width = 6, height = 6, units = "in", res = 72)
+  on.exit({
+    grDevices::dev.off()
+    unlink(tmp)
+  }, add = TRUE)
+  graphics::par(mar = c(6, 1, 1, 1))
+  graphics::plot(0:1, 0:1, type = "n", axes = FALSE, xlab = "", ylab = "")
+  seen <- new.env()
+  original <- cograph:::.render_legend_base
+  testthat::local_mocked_bindings(
+    .render_legend_base = function(...) {
+      if (!isFALSE(list(...)$plot)) seen$cex <- list(...)$cex
+      original(...)
+    },
+    .package = "cograph"
+  )
+  identity_scale <- list(text = 1, point = 1, line = 1)
+  cograph:::.render_legend_in_band(
+    list(legend = c("a", "b"), pch = 21, cex = 0.8, bty = "n",
+         visual_scale = identity_scale),
+    side = "bottom"
+  )
+  expect_equal(seen$cex, 0.8)
+})

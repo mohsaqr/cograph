@@ -204,15 +204,21 @@ NULL
     do.call(.render_legend_base,
             c(args, list(position = c(0, 0), plot = FALSE)))$rect
   }
-  size <- measure(legend_args)
-  fit <- min(1, diff(band$x) / size$w, diff(band$y) / size$h)
-  if (fit < 1) {
-    # 0.97: legend() geometry is close to, not exactly, linear in cex.
-    legend_args$cex <- legend_args$cex * fit * 0.97
-    if (!is.null(legend_args$pt.cex)) {
-      legend_args$pt.cex <- legend_args$pt.cex * fit * 0.97
-    }
+  # Shrink until the MEASURED box fits. A legend's size is not proportional to
+  # cex: symbols and padding scale differently from text, and font hinting
+  # makes text widths step rather than scale (one pass landed 0.5% off the
+  # page under Cairo on Linux and Windows while fitting exactly under Quartz).
+  # So each pass re-measures; the passes are bounded, and one that already
+  # fits changes nothing.
+  shrink_to_fit <- function(args, pass) {
+    size <- measure(args)
+    fit <- min(diff(band$x) / size$w, diff(band$y) / size$h)
+    if (fit >= 1) return(args)
+    args$cex <- args$cex * fit * 0.97
+    if (!is.null(args$pt.cex)) args$pt.cex <- args$pt.cex * fit * 0.97
+    args
   }
+  legend_args <- Reduce(shrink_to_fit, seq_len(8L), legend_args)
   do.call(.render_legend_base, c(legend_args, list(
     position = c(mean(band$x), mean(band$y)),
     xjust = 0.5, yjust = 0.5, xpd = TRUE

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,24 @@
       <small>Source: <a href="https://github.com/sonsoleslp/cograph/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.6.11" id="cograph-2611">cograph 2.6.11<a class="anchor" aria-label="anchor" href="#cograph-2611"></a></h2>
+<div class="section level3">
+<h3 id="plot_mcml-the-figures-height-can-now-be-controlled-2-6-11">
+<code>plot_mcml()</code>: the figure’s height can now be controlled<a class="anchor" aria-label="anchor" href="#plot_mcml-the-figures-height-can-now-be-controlled-2-6-11"></a></h3>
+<p><code><a href="../reference/plot_mcml.html">plot_mcml()</a></code> is drawn with a locked aspect ratio from fixed layout numbers, so its shape never changed: a taller image only added white space (an 8 x 12 in image used 59% of its height, 8 x 16 in 44%). And the argument documented for this, <code>layer_spacing</code>, was accepted and then ignored – <code>2</code> and <code>30</code> drew the same figure.</p>
+<p><code>layer_spacing</code> now works, and takes three kinds of value:</p>
+<ul><li>
+<code>NULL</code> (default) – the automatic layout, exactly as before. Existing figures are unchanged.</li>
+<li>
+<code>"fill"</code> – the gap between the two layers is stretched so the figure uses the full height of the image it is drawn on. Change the image height and the plot follows. Shapes stay round; on a wide image, where height is what binds, nothing changes.</li>
+<li>a positive number – the distance from the centre of the bottom layer to the centre of the summary layer, in the units of <code>spacing</code>. Overrides <code>inter_layer_gap</code>. A value that overlaps the layers raises a <code>cograph_layers_overlap</code> warning; anything else invalid raises <code>cograph_bad_layer_spacing</code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fix-a-shrunken-plot_htna-legend-could-still-run-off-the-page-2-6-11">Bug fix: a shrunken <code>plot_htna()</code> legend could still run off the page<a class="anchor" aria-label="anchor" href="#bug-fix-a-shrunken-plot_htna-legend-could-still-run-off-the-page-2-6-11"></a></h3>
+<p>When a side legend is too large for its band it is scaled down to fit (new in 2.6.10). That scaling made one proportional adjustment, but a legend’s size is not proportional to its text size – symbols and padding scale differently, and font hinting makes text widths step – so under Cairo fonts (Linux, Windows) the result could still extend 0.5% past the edge of the page, while fitting exactly on macOS. The legend is now re-measured after each adjustment until the measured box fits. Legends that already fit are unaffected.</p>
+</div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.6.10" id="cograph-2610">cograph 2.6.10<a class="anchor" aria-label="anchor" href="#cograph-2610"></a></h2>
 <div class="section level3">

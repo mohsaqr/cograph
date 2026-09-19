@@ -25,7 +25,7 @@ node, making the hierarchical mapping explicit."><meta property="og:image" conte
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -231,10 +231,20 @@ override the preset when supplied.</p></dd>
 
 
 <dt id="arg-layer-spacing">layer_spacing<a class="anchor" aria-label="anchor" href="#arg-layer-spacing"></a></dt>
-<dd><p>Vertical distance between the bottom and top layers.
-<code>NULL</code> (default) auto-calculates a gap that prevents overlap based
-on cluster positions and shell sizes. Increase for more vertical
-separation; decrease to make the plot more compact.</p></dd>
+<dd><p>Vertical position of the summary (top) layer, which is
+what decides how tall the figure is.</p><ul><li><p><code>NULL</code> (default): placed automatically, just clear of the
+bottom layer (<code>inter_layer_gap</code> sets the clearance). The figure
+then has a fixed shape, and a taller image only adds white space.</p></li>
+<li><p><code>"fill"</code>: the gap between the layers is stretched so the
+figure uses the full height of the image it is drawn on. Change the
+image height and the plot follows. Shapes stay round; only the space
+between the layers grows. Never tighter than the automatic layout.</p></li>
+<li><p>A single positive number: the distance from the centre of the
+bottom layer to the centre of the summary layer, in the same units as
+<code>spacing</code>. Overrides <code>inter_layer_gap</code>. A value small
+enough to overlap the two layers raises a
+<code>cograph_layers_overlap</code> warning.</p></li>
+</ul></dd>
 
 
 <dt id="arg-spacing">spacing<a class="anchor" aria-label="anchor" href="#arg-spacing"></a></dt>

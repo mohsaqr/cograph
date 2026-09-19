@@ -1,5 +1,41 @@
 # Changelog
 
+## cograph 2.6.11
+
+### `plot_mcml()`: the figure’s height can now be controlled
+
+[`plot_mcml()`](https://sonsoles.me/cograph/reference/plot_mcml.md) is
+drawn with a locked aspect ratio from fixed layout numbers, so its shape
+never changed: a taller image only added white space (an 8 x 12 in image
+used 59% of its height, 8 x 16 in 44%). And the argument documented for
+this, `layer_spacing`, was accepted and then ignored – `2` and `30` drew
+the same figure.
+
+`layer_spacing` now works, and takes three kinds of value:
+
+- `NULL` (default) – the automatic layout, exactly as before. Existing
+  figures are unchanged.
+- `"fill"` – the gap between the two layers is stretched so the figure
+  uses the full height of the image it is drawn on. Change the image
+  height and the plot follows. Shapes stay round; on a wide image, where
+  height is what binds, nothing changes.
+- a positive number – the distance from the centre of the bottom layer
+  to the centre of the summary layer, in the units of `spacing`.
+  Overrides `inter_layer_gap`. A value that overlaps the layers raises a
+  `cograph_layers_overlap` warning; anything else invalid raises
+  `cograph_bad_layer_spacing`.
+
+### Bug fix: a shrunken `plot_htna()` legend could still run off the page
+
+When a side legend is too large for its band it is scaled down to fit
+(new in 2.6.10). That scaling made one proportional adjustment, but a
+legend’s size is not proportional to its text size – symbols and padding
+scale differently, and font hinting makes text widths step – so under
+Cairo fonts (Linux, Windows) the result could still extend 0.5% past the
+edge of the page, while fitting exactly on macOS. The legend is now
+re-measured after each adjustment until the measured box fits. Legends
+that already fit are unaffected.
+
 ## cograph 2.6.10
 
 ### `plot_htna()` gains `legend_size`, and its legend is no longer oversized

@@ -175,10 +175,22 @@ plot_mcml(
 
 - layer_spacing:
 
-  Vertical distance between the bottom and top layers. `NULL` (default)
-  auto-calculates a gap that prevents overlap based on cluster positions
-  and shell sizes. Increase for more vertical separation; decrease to
-  make the plot more compact.
+  Vertical position of the summary (top) layer, which is what decides
+  how tall the figure is.
+
+  - `NULL` (default): placed automatically, just clear of the bottom
+    layer (`inter_layer_gap` sets the clearance). The figure then has a
+    fixed shape, and a taller image only adds white space.
+
+  - `"fill"`: the gap between the layers is stretched so the figure uses
+    the full height of the image it is drawn on. Change the image height
+    and the plot follows. Shapes stay round; only the space between the
+    layers grows. Never tighter than the automatic layout.
+
+  - A single positive number: the distance from the centre of the bottom
+    layer to the centre of the summary layer, in the same units as
+    `spacing`. Overrides `inter_layer_gap`. A value small enough to
+    overlap the two layers raises a `cograph_layers_overlap` warning.
 
 - spacing:
 

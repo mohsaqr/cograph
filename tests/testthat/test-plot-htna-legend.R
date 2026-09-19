@@ -257,3 +257,33 @@ test_that(".render_legend_in_band keeps the box inside the band on every side", 
     expect_true(outside, label = paste(side, "legend outside the plot region"))
   }
 })
+
+test_that("without a legend band the figure is drawn exactly as before (htna's path)", {
+  # htna::plot_htna() calls plot_htna(legend = FALSE) and draws its own legend.
+  # The legend fix must not move that figure: the margin that reaches splot()
+  # stays splot's own default, which is what was always really in effect.
+  seen <- new.env()
+  original <- cograph::tplot
+  testthat::local_mocked_bindings(
+    tplot = function(...) {
+      seen$mar <- list(...)$mar
+      original(...)
+    },
+    .package = "cograph"
+  )
+  tmp <- tempfile(fileext = ".png")
+  grDevices::png(tmp, width = 6, height = 6, units = "in", res = 72)
+  on.exit({
+    grDevices::dev.off()
+    unlink(tmp)
+  }, add = TRUE)
+  m <- htna_legend_matrix()
+  plot_htna(m, node_list = htna_legend_groups, legend = FALSE)
+  expect_equal(seen$mar, eval(formals(splot)$margins))
+  plot_htna(m, node_list = htna_legend_groups, legend_position = "topright")
+  expect_equal(seen$mar, eval(formals(splot)$margins))
+  # a side legend changes only its own side
+  plot_htna(m, node_list = htna_legend_groups, legend_position = "bottom")
+  expect_equal(seen$mar[2:4], eval(formals(splot)$margins)[2:4])
+  expect_gt(seen$mar[1], 1)
+})

@@ -664,7 +664,11 @@ plot_htna <- function(
     legend_position %in% c("top", "bottom")
   }
   legend_cols <- if (!legend_is_horiz && !is.null(legend_ncol)) legend_ncol else 1
-  mar_vals <- c(0.5, 0.5, 0.5, 0.5)
+  # 0.1 is splot()'s own default and what every plot_htna() figure has really
+  # been drawn with: the 0.5 that used to be set here never took effect (see
+  # below). Keeping 0.1 leaves legend = FALSE and corner-legend figures --
+  # including htna::plot_htna(), which draws its own legend -- unchanged.
+  mar_vals <- c(0.1, 0.1, 0.1, 0.1)
   if (!is.na(legend_outside_side)) {
     side_idx <- switch(legend_outside_side,
                        bottom = 1L, left = 2L, top = 3L, right = 4L)

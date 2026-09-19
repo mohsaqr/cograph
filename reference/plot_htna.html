@@ -15,7 +15,7 @@ Supports triangle (3), rectangle (4), pentagon (5), hexagon (6), and beyond.'><m
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.10</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -93,6 +93,7 @@ Supports triangle (3), rectangle (4), pentagon (5), hexagon (6), and beyond.'><m
 <span>  legend_position <span class="op">=</span> <span class="st">"bottom"</span>,</span>
 <span>  legend_horiz <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  legend_ncol <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  legend_size <span class="op">=</span> <span class="fl">0.8</span>,</span>
 <span>  extend_lines <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  scale <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  nodes <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -131,6 +132,7 @@ Supports triangle (3), rectangle (4), pentagon (5), hexagon (6), and beyond.'><m
 <span>  legend_position <span class="op">=</span> <span class="st">"bottom"</span>,</span>
 <span>  legend_horiz <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  legend_ncol <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  legend_size <span class="op">=</span> <span class="fl">0.8</span>,</span>
 <span>  extend_lines <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  scale <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  nodes <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -309,6 +311,12 @@ positions, vertical otherwise.</p></dd>
 <dd><p>Integer. Number of columns when the legend is vertical.
 NULL (default) lets <code><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">graphics::legend</a></code> pick. Ignored when the legend
 is horizontal.</p></dd>
+
+
+<dt id="arg-legend-size">legend_size<a class="anchor" aria-label="anchor" href="#arg-legend-size"></a></dt>
+<dd><p>Legend text size (<code>cex</code>), as in <code><a href="splot.html">splot()</a></code>.
+Default 0.8. The legend's symbols are sized from it. Like all cograph text
+it is scaled with the device, and with <code>scale</code>.</p></dd>
 
 
 <dt id="arg-extend-lines">extend_lines<a class="anchor" aria-label="anchor" href="#arg-extend-lines"></a></dt>

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.10</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,23 @@
       <small>Source: <a href="https://github.com/sonsoleslp/cograph/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.6.10" id="cograph-2610">cograph 2.6.10<a class="anchor" aria-label="anchor" href="#cograph-2610"></a></h2>
+<div class="section level3">
+<h3 id="plot_htna-gains-legend_size-and-its-legend-is-no-longer-oversized-2-6-10">
+<code>plot_htna()</code> gains <code>legend_size</code>, and its legend is no longer oversized<a class="anchor" aria-label="anchor" href="#plot_htna-gains-legend_size-and-its-legend-is-no-longer-oversized-2-6-10"></a></h3>
+<p>The “Groups” legend was drawn at a hard-coded <code>cex = 1.4</code> – larger than the node labels it explains – with no argument to change it. <code><a href="../reference/plot_htna.html">plot_htna()</a></code> now takes <code>legend_size</code> (a <code>cex</code>, default <code>0.8</code>, the same default and meaning as <code>splot(legend_size = )</code>), and the legend’s symbols are sized from it. <strong>The default legend is therefore visibly smaller than in 2.6.9</strong>; pass <code>legend_size = 1.4</code> for the old text size. Anything other than a single positive number raises a <code>cograph_bad_legend_size</code> error.</p>
+</div>
+<div class="section level3">
+<h3 id="bug-fix-the-plot_htna-legend-overlapped-the-network-and-was-cut-off-2-6-10">Bug fix: the <code>plot_htna()</code> legend overlapped the network and was cut off<a class="anchor" aria-label="anchor" href="#bug-fix-the-plot_htna-legend-overlapped-the-network-and-was-cut-off-2-6-10"></a></h3>
+<p>With a side legend (<code>legend_position = "bottom"</code>, the default, or <code>"top"</code>, <code>"left"</code>, <code>"right"</code>), the “Groups” legend was drawn partly on top of the network and partly off the page, at every figure size. Two causes:</p>
+<ul><li>
+<code><a href="../reference/plot_htna.html">plot_htna()</a></code> reserved the legend’s margin with <code>par(mar = )</code>, which <code><a href="../reference/splot.html">splot()</a></code> replaces with its own <code>margins</code> before drawing. The margin now travels as <code>splot(margins = )</code>, so the band the legend needs really exists.</li>
+<li>The legend was pushed out of the plot with a negative <code>inset</code>, which is a fraction of the plot region and moves the box by only a sliver of its own height. The legend is now measured first and anchored by coordinates in the centre of its band.</li>
+</ul><p>The band is sized from the legend itself (rows, title, longest group name, <code>legend_size</code>, and the device’s text scale) rather than a fixed 6.5 lines. If a legend still cannot fit – many long group names on a small figure – it is scaled down instead of overlapping the plot or leaving the page.</p>
+<p>A margin passed explicitly (<code>mar =</code> or <code>margins =</code>) is left untouched. With <code>legend_position = "top"</code> and a <code>title</code>, the title is drawn on the outer lines of the top margin and the legend below it; previously <code><a href="../reference/splot.html">splot()</a></code> centred the title in that margin, on top of the legend. Corner positions (<code>"topright"</code> etc.) are unchanged and still draw inside the plot box.</p>
+</div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.6.9" id="cograph-269">cograph 2.6.9<a class="anchor" aria-label="anchor" href="#cograph-269"></a></h2>
 <div class="section level3">

@@ -47,6 +47,7 @@ plot_htna(
   legend_position = "bottom",
   legend_horiz = NULL,
   legend_ncol = NULL,
+  legend_size = 0.8,
   extend_lines = FALSE,
   scale = 1,
   nodes = NULL,
@@ -85,6 +86,7 @@ htna(
   legend_position = "bottom",
   legend_horiz = NULL,
   legend_ncol = NULL,
+  legend_size = 0.8,
   extend_lines = FALSE,
   scale = 1,
   nodes = NULL,
@@ -280,6 +282,13 @@ htna(
   Integer. Number of columns when the legend is vertical. NULL (default)
   lets [`graphics::legend`](https://rdrr.io/r/graphics/legend.html)
   pick. Ignored when the legend is horizontal.
+
+- legend_size:
+
+  Legend text size (`cex`), as in
+  [`splot()`](https://sonsoles.me/cograph/reference/splot.md). Default
+  0.8. The legend's symbols are sized from it. Like all cograph text it
+  is scaled with the device, and with `scale`.
 
 - extend_lines:
 

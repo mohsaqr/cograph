@@ -89,6 +89,9 @@
 #' @param legend_ncol Integer. Number of columns when the legend is vertical.
 #'   NULL (default) lets \code{graphics::legend} pick. Ignored when the legend
 #'   is horizontal.
+#' @param legend_size Legend text size (\code{cex}), as in \code{\link{splot}()}.
+#'   Default 0.8. The legend's symbols are sized from it. Like all cograph text
+#'   it is scaled with the device, and with \code{scale}.
 #' @param legend_position Position for legend: "topright", "topleft", "bottomright",
 #'   "bottomleft", "right", "left", "top", "bottom". Default "bottom".
 #' @param extend_lines Logical or numeric. Draw extension lines from nodes.
@@ -163,6 +166,7 @@ plot_htna <- function(
     legend_position = "bottom",
     legend_horiz = NULL,
     legend_ncol = NULL,
+    legend_size = 0.8,
     extend_lines = FALSE,
     scale = 1,
     nodes = NULL,
@@ -170,6 +174,13 @@ plot_htna <- function(
     ...
 ) {
   explicit_args <- names(as.list(match.call())[-1])
+  if (!is.numeric(legend_size) || length(legend_size) != 1L ||
+      !is.finite(legend_size) || legend_size <= 0) {
+    stop(errorCondition(
+      "`legend_size` must be a single positive number",
+      class = "cograph_bad_legend_size", call = NULL
+    ))
+  }
 
   # Apply scale: use sqrt(scale) for gentler compensation at high-resolution
   size_scale <- sqrt(scale)
@@ -646,13 +657,44 @@ plot_htna <- function(
   } else {
     NA_character_
   }
+  legend_labels <- names(node_list) %||% paste0("Group ", seq_len(n_groups))
+  legend_is_horiz <- if (!is.null(legend_horiz)) {
+    isTRUE(legend_horiz)
+  } else {
+    legend_position %in% c("top", "bottom")
+  }
+  legend_cols <- if (!legend_is_horiz && !is.null(legend_ncol)) legend_ncol else 1
   mar_vals <- c(0.5, 0.5, 0.5, 0.5)
   if (!is.na(legend_outside_side)) {
     side_idx <- switch(legend_outside_side,
                        bottom = 1L, left = 2L, top = 3L, right = 4L)
-    mar_vals[side_idx] <- 6.5
+    mar_vals[side_idx] <- .legend_band_lines(
+      legend_labels, side = legend_outside_side,
+      cex = legend_size / size_scale,
+      title = "Groups", horiz = legend_is_horiz, ncol = legend_cols
+    )
   }
-  old_par <- graphics::par(mar = mar_vals)
+  # splot() centres its title in the top margin, which is exactly where a top
+  # legend sits. When the two share that margin the title is drawn here
+  # instead, on the outer lines, and the legend takes the rest of the band.
+  own_title <- NULL
+  title_lines <- 0
+  if (identical(legend_outside_side, "top") && !is.null(dots$title)) {
+    own_title <- list(text = dots$title, cex = dots$title_size %||% 1.2)
+    title_lines <- max(1.5, own_title$cex * 1.2)
+    dots$title <- NULL
+    dots$title_size <- NULL
+    mar_vals[3L] <- mar_vals[3L] + title_lines
+  }
+
+  # The reservation has to travel as splot's own `margins` argument. splot()
+  # sets par(mar = margins) itself (default 0.1 all round) and restores the
+  # caller's value on exit, so a bare par(mar = ) here was overwritten before
+  # anything was drawn: the network filled the page and the legend landed half
+  # over the edges, half off the device. A margin the caller passes explicitly
+  # (`margins`, or tplot's `mar`) is theirs and is left alone.
+  user_mar <- dots$margins %||% dots$mar
+  old_par <- graphics::par(mar = user_mar %||% mar_vals)
   on.exit(graphics::par(old_par), add = TRUE)
 
   tplot_base <- list(
@@ -663,6 +705,7 @@ plot_htna <- function(
     curvature = curvature,
     layout_margin = layout_margin
   )
+  if (is.null(user_mar)) tplot_base$mar <- mar_vals
   # We normalize layout ourselves — disable splot's rescaling
   tplot_base$rescale <- FALSE
   tplot_base$layout_scale <- 1
@@ -682,46 +725,39 @@ plot_htna <- function(
 
   # Draw legend if requested
   if (isTRUE(legend) && n_groups >= 2) {
-    # Get group names
-    group_names <- names(node_list)
-    if (is.null(group_names)) {
-      group_names <- paste0("Group ", seq_len(n_groups))
-    }
-
-    pch_values <- .shape_to_pch(group_shapes)
-
-    horiz_legend <- if (!is.null(legend_horiz)) {
-      isTRUE(legend_horiz)
-    } else {
-      legend_position %in% c("top", "bottom")
-    }
-    # Push the legend out of the plot region for single-side positions so it
-    # reads as a separate band; corner positions stay inside with a small inset.
-    # Inset is a fraction of the plot region — keep it within the reserved
-    # margin (mar_vals above) so xpd = TRUE doesn't clip it.
-    legend_inset <- switch(legend_position,
-                           bottom = c(0, -0.05),
-                           top    = c(0, -0.05),
-                           left   = c(-0.05, 0),
-                           right  = c(-0.05, 0),
-                           c(0.02, 0.02))
-    .render_legend_base(
-      legend   = group_names,
-      pch      = pch_values,
-      pt.bg    = group_colors,
-      col      = if (!is.null(edge_colors)) edge_colors else "black",
-      pt.cex   = 2.5 / size_scale,
-      cex      = 1.4 / size_scale,
-      bty      = "n",
-      title    = "Groups",
-      position = legend_position,
-      horiz    = horiz_legend,
-      inset    = legend_inset,
-      xpd      = TRUE,
-      # graphics::legend ignores ncol when horiz = TRUE; pass it anyway only
-      # when meaningful so callers get the expected layout.
-      ncol     = if (!horiz_legend && !is.null(legend_ncol)) legend_ncol else 1
+    legend_args <- list(
+      legend = legend_labels,
+      pch    = .shape_to_pch(group_shapes),
+      pt.bg  = group_colors,
+      col    = if (!is.null(edge_colors)) edge_colors else "black",
+      # symbols a little larger than the text's x-height, as legend() expects
+      pt.cex = 1.8 * legend_size / size_scale,
+      cex    = legend_size / size_scale,
+      bty    = "n",
+      title  = "Groups",
+      horiz  = legend_is_horiz,
+      # graphics::legend ignores ncol when horiz = TRUE
+      ncol   = legend_cols
     )
+    if (is.na(legend_outside_side)) {
+      # Corner positions draw inside the plot box, with a small inset.
+      do.call(.render_legend_base, c(legend_args, list(
+        position = legend_position, inset = c(0.02, 0.02), xpd = TRUE
+      )))
+    } else {
+      # Side positions get their own band, reserved as `mar_vals` above.
+      .render_legend_in_band(legend_args, side = legend_outside_side,
+                             outer_lines = title_lines)
+    }
+  }
+  if (!is.null(own_title)) {
+    vs <- .get_current_visual_scale()
+    # mtext's cex is absolute; title()'s is relative to par("cex").
+    graphics::mtext(own_title$text, side = 3L, font = graphics::par("font.main"),
+                    col = graphics::par("col.main"),
+                    line = max(0, graphics::par("mar")[3L] - title_lines),
+                    cex = own_title$cex * (vs$scale %||% vs$text %||% 1) *
+                      graphics::par("cex"))
   }
 
   # Draw extension lines if requested (bipartite only)

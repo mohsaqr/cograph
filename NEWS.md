@@ -1,3 +1,40 @@
+# cograph 2.6.10
+
+## `plot_htna()` gains `legend_size`, and its legend is no longer oversized
+
+The "Groups" legend was drawn at a hard-coded `cex = 1.4` -- larger than the
+node labels it explains -- with no argument to change it. `plot_htna()` now
+takes `legend_size` (a `cex`, default `0.8`, the same default and meaning as
+`splot(legend_size = )`), and the legend's symbols are sized from it. **The
+default legend is therefore visibly smaller than in 2.6.9**; pass
+`legend_size = 1.4` for the old text size. Anything other than a single
+positive number raises a `cograph_bad_legend_size` error.
+
+## Bug fix: the `plot_htna()` legend overlapped the network and was cut off
+
+With a side legend (`legend_position = "bottom"`, the default, or `"top"`,
+`"left"`, `"right"`), the "Groups" legend was drawn partly on top of the
+network and partly off the page, at every figure size. Two causes:
+
+* `plot_htna()` reserved the legend's margin with `par(mar = )`, which
+  `splot()` replaces with its own `margins` before drawing. The margin now
+  travels as `splot(margins = )`, so the band the legend needs really exists.
+* The legend was pushed out of the plot with a negative `inset`, which is a
+  fraction of the plot region and moves the box by only a sliver of its own
+  height. The legend is now measured first and anchored by coordinates in the
+  centre of its band.
+
+The band is sized from the legend itself (rows, title, longest group name,
+`legend_size`, and the device's text scale) rather than a fixed 6.5 lines. If a legend still
+cannot fit -- many long group names on a small figure -- it is scaled down
+instead of overlapping the plot or leaving the page.
+
+A margin passed explicitly (`mar = ` or `margins = `) is left untouched. With
+`legend_position = "top"` and a `title`, the title is drawn on the outer lines
+of the top margin and the legend below it; previously `splot()` centred the
+title in that margin, on top of the legend. Corner positions (`"topright"`
+etc.) are unchanged and still draw inside the plot box.
+
 # cograph 2.6.9
 
 ## A full audit of the reference manual

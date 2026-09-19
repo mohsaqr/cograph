@@ -36,6 +36,7 @@ plot_htna(
   legend_position = "bottom",
   legend_horiz = NULL,
   legend_ncol = NULL,
+  legend_size = 0.8,
   extend_lines = FALSE,
   scale = 1,
   nodes = NULL,
@@ -74,6 +75,7 @@ htna(
   legend_position = "bottom",
   legend_horiz = NULL,
   legend_ncol = NULL,
+  legend_size = 0.8,
   extend_lines = FALSE,
   scale = 1,
   nodes = NULL,
@@ -194,6 +196,10 @@ positions, vertical otherwise.}
 \item{legend_ncol}{Integer. Number of columns when the legend is vertical.
 NULL (default) lets \code{graphics::legend} pick. Ignored when the legend
 is horizontal.}
+
+\item{legend_size}{Legend text size (\code{cex}), as in \code{\link{splot}()}.
+Default 0.8. The legend's symbols are sized from it. Like all cograph text
+it is scaled with the device, and with \code{scale}.}
 
 \item{extend_lines}{Logical or numeric. Draw extension lines from nodes.
 Only applies to bipartite layout.

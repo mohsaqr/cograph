@@ -93,6 +93,57 @@
   list(weights = net$weights, inits = net$initial)
 }
 
+#' Vertical position of the MCML summary (top) layer.
+#'
+#' The one place `layer_spacing` is interpreted, shared by [plot_mcml()] and
+#' [plot_mcml_donut()]. Both draw with `asp = 1` so shapes stay round, which
+#' means the figure has a fixed shape and a taller device only adds white space
+#' -- unless the layout itself grows. The gap between the two layers is the one
+#' dimension that can grow without distorting anything, so that is what
+#' `"fill"` spends the spare height on.
+#'
+#' Must be called after `par(mar = )` is set for the plot, because `"fill"`
+#' reads `par("pin")`, the plot region in inches.
+#'
+#' @param layer_spacing `NULL`, a single positive number, or `"fill"`.
+#' @param auto_y Top-layer centre for the automatic layout
+#'   (`bottom_top + spacing * inter_layer_gap`).
+#' @param content_width Width of the plot limits, in layout units.
+#' @param fixed_height Height of the plot limits that does not depend on the
+#'   top layer's position (everything except the top-layer centre's own y).
+#' @param bottom_top Upper edge of the bottom layer, for the overlap warning.
+#' @return A single number: the y coordinate of the top layer's centre.
+#' @keywords internal
+#' @noRd
+.mcml_top_layer_y <- function(layer_spacing, auto_y, content_width,
+                              fixed_height, bottom_top) {
+  if (is.null(layer_spacing)) return(auto_y)
+  if (identical(layer_spacing, "fill")) {
+    pin <- graphics::par("pin")
+    if (!all(is.finite(pin)) || any(pin <= 0)) return(auto_y)
+    # content_height / content_width == pin height / pin width, solved for y.
+    # Never tighter than the automatic layout: on a wide device the width is
+    # not what binds, and squeezing the layers together would overlap them.
+    return(max(auto_y, content_width * pin[2L] / pin[1L] - fixed_height))
+  }
+  if (!is.numeric(layer_spacing) || length(layer_spacing) != 1L ||
+      !is.finite(layer_spacing) || layer_spacing <= 0) {
+    stop(errorCondition(
+      "`layer_spacing` must be NULL, a single positive number, or \"fill\"",
+      class = "cograph_bad_layer_spacing", call = NULL
+    ))
+  }
+  if (layer_spacing < bottom_top) {
+    warning(warningCondition(
+      sprintf(paste0("`layer_spacing = %s` puts the summary layer inside the ",
+                     "bottom layer (whose upper edge is at %s); the two will ",
+                     "overlap"), format(layer_spacing), format(round(bottom_top, 2))),
+      class = "cograph_layers_overlap", call = NULL
+    ))
+  }
+  layer_spacing
+}
+
 #' Plot Multi-Cluster Multi-Layer Network
 #'
 #' Produces a two-layer hierarchical visualization of a clustered network.
@@ -263,10 +314,22 @@
 #' @param summary_curve Numeric or \code{NULL}. Curvature of curved summary
 #'   edges (only used when curved). \code{NULL} auto-selects (0.25 for directed,
 #'   straight for undirected).
-#' @param layer_spacing Vertical distance between the bottom and top layers.
-#'   \code{NULL} (default) auto-calculates a gap that prevents overlap based
-#'   on cluster positions and shell sizes. Increase for more vertical
-#'   separation; decrease to make the plot more compact.
+#' @param layer_spacing Vertical position of the summary (top) layer, which is
+#'   what decides how tall the figure is.
+#'   \itemize{
+#'     \item \code{NULL} (default): placed automatically, just clear of the
+#'       bottom layer (\code{inter_layer_gap} sets the clearance). The figure
+#'       then has a fixed shape, and a taller image only adds white space.
+#'     \item \code{"fill"}: the gap between the layers is stretched so the
+#'       figure uses the full height of the image it is drawn on. Change the
+#'       image height and the plot follows. Shapes stay round; only the space
+#'       between the layers grows. Never tighter than the automatic layout.
+#'     \item A single positive number: the distance from the centre of the
+#'       bottom layer to the centre of the summary layer, in the same units as
+#'       \code{spacing}. Overrides \code{inter_layer_gap}. A value small
+#'       enough to overlap the two layers raises a
+#'       \code{cograph_layers_overlap} warning.
+#'   }
 #' @param spacing Distance from the center to each cluster's position in the
 #'   bottom layer. Larger values spread clusters farther apart. Default 3.
 #' @param shape_size Radius of each cluster's elliptical shell in the bottom
@@ -871,17 +934,7 @@ plot_mcml <- function(
   bx <- bx_base
   by <- by_base * compress
 
-  # Auto-calculate layer_spacing to ensure no overlap
   bottom_top <- max(by) + shape_size * compress
-  bottom_bottom <- min(by) - shape_size * compress
-
-  if (is.null(layer_spacing)) {
-    layer_spacing <- (bottom_top - bottom_bottom) + 2
-  }
-
-  # Top layer positioned above bottom layer
-  gap <- spacing * inter_layer_gap
-  top_base_y <- bottom_top + gap
 
   # Top layer: oval layout with spaced nodes
   top_radius_x <- spacing * top_layer_scale[1]
@@ -898,7 +951,29 @@ plot_mcml <- function(
   top_spread <- sqrt(max(n_top, 1L) / max(n_clusters, 1L))
   top_angles <- pi/2 - (seq_len(n_top) - 1) * 2 * pi / n_top
   tx <- top_radius_x * top_spread * cos(top_angles)
-  ty <- top_radius_y * top_spread * sin(top_angles) + top_base_y
+  top_offset_y <- top_radius_y * top_spread * sin(top_angles)
+
+  # Margins first: `layer_spacing = "fill"` reads the plot region they leave.
+  # Reserve top/bottom margin only when titles/subtitles are set -- otherwise
+  # graphics::title() clips against the tight 0.2-line edge.
+  top_mar <- if (!is.null(title)) max(2.5, title_size * 2) else 0.2
+  bot_mar <- if (!is.null(subtitle)) max(1.8, subtitle_size * 2) else 0.2
+  old_par <- graphics::par(mar = c(bot_mar, 0.2, top_mar, 0.2))
+  on.exit(graphics::par(old_par), add = TRUE)
+
+  # Plot limits (tight padding). Only the top layer's height is still open.
+  pad <- shape_size * 0.3
+  xlim <- range(c(bx, tx)) + c(-shape_size - pad, shape_size + pad)
+  ylim_bottom <- min(by) - shape_size * compress - pad
+  top_base_y <- .mcml_top_layer_y(
+    layer_spacing,
+    auto_y = bottom_top + spacing * inter_layer_gap,
+    content_width = diff(xlim),
+    fixed_height = max(top_offset_y) + shape_size + pad - ylim_bottom,
+    bottom_top = bottom_top
+  )
+  ty <- top_offset_y + top_base_y
+  ylim <- c(ylim_bottom, max(ty) + shape_size + pad)
 
   # Edge weight scaling (magnitude, so signed weights scale by absolute value)
   max_sw <- max(abs(bw))
@@ -929,18 +1004,6 @@ plot_mcml <- function(
   # ============================================================================
   # Plot setup
   # ============================================================================
-
-  # Plot limits (tight padding)
-  pad <- shape_size * 0.3
-  xlim <- range(c(bx, tx)) + c(-shape_size - pad, shape_size + pad)
-  ylim <- range(c(by, ty)) + c(-shape_size * compress - pad, shape_size + pad)
-
-  # Reserve top/bottom margin only when titles/subtitles are set — otherwise
-  # graphics::title() clips against the tight 0.2-line edge.
-  top_mar <- if (!is.null(title)) max(2.5, title_size * 2) else 0.2
-  bot_mar <- if (!is.null(subtitle)) max(1.8, subtitle_size * 2) else 0.2
-  old_par <- graphics::par(mar = c(bot_mar, 0.2, top_mar, 0.2))
-  on.exit(graphics::par(old_par), add = TRUE)
 
   graphics::plot.new()
   graphics::plot.window(xlim = xlim, ylim = ylim, asp = 1)

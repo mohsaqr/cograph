@@ -304,24 +304,36 @@ plot_mcml_donut <- function(
   bx <- bx_base
   by <- by_base * compress
 
-  # Auto-calculate layer_spacing to ensure no overlap
   bottom_top <- max(by) + shape_size * compress
-  bottom_bottom <- min(by) - shape_size * compress
-
-  if (is.null(layer_spacing)) {
-    layer_spacing <- (bottom_top - bottom_bottom) + 2
-  }
-
-  # Top layer positioned above bottom layer
-  gap <- spacing * inter_layer_gap
-  top_base_y <- bottom_top + gap
 
   # Top layer: oval layout with spaced nodes
   top_radius_x <- spacing * top_layer_scale[1]
   top_radius_y <- spacing * top_layer_scale[2]
 
   tx <- top_radius_x * cos(angles)
-  ty <- top_radius_y * sin(angles) + top_base_y
+  top_offset_y <- top_radius_y * sin(angles)
+
+  # Margins first: `layer_spacing = "fill"` reads the plot region they leave.
+  # Reserve top/bottom margin only when titles/subtitles are set -- otherwise
+  # graphics::title() clips against the tight 0.2-line edge.
+  top_mar <- if (!is.null(title)) max(2.5, title_size * 2) else 0.2
+  bot_mar <- if (!is.null(subtitle)) max(1.8, subtitle_size * 2) else 0.2
+  old_par <- graphics::par(mar = c(bot_mar, 0.2, top_mar, 0.2))
+  on.exit(graphics::par(old_par), add = TRUE)
+
+  # Plot limits (tight padding). Only the top layer's height is still open.
+  pad <- shape_size * 0.3
+  xlim <- range(c(bx, tx)) + c(-shape_size - pad, shape_size + pad)
+  ylim_bottom <- min(by) - shape_size * compress - pad
+  top_base_y <- .mcml_top_layer_y(
+    layer_spacing,
+    auto_y = bottom_top + spacing * inter_layer_gap,
+    content_width = diff(xlim),
+    fixed_height = max(top_offset_y) + shape_size + pad - ylim_bottom,
+    bottom_top = bottom_top
+  )
+  ty <- top_offset_y + top_base_y
+  ylim <- c(ylim_bottom, max(ty) + shape_size + pad)
 
   # Edge weight scaling
   max_sw <- max(bw)
@@ -352,18 +364,6 @@ plot_mcml_donut <- function(
   # ============================================================================
   # Plot setup
   # ============================================================================
-
-  # Plot limits (tight padding)
-  pad <- shape_size * 0.3
-  xlim <- range(c(bx, tx)) + c(-shape_size - pad, shape_size + pad)
-  ylim <- range(c(by, ty)) + c(-shape_size * compress - pad, shape_size + pad)
-
-  # Reserve top/bottom margin only when titles/subtitles are set — otherwise
-  # graphics::title() clips against the tight 0.2-line edge.
-  top_mar <- if (!is.null(title)) max(2.5, title_size * 2) else 0.2
-  bot_mar <- if (!is.null(subtitle)) max(1.8, subtitle_size * 2) else 0.2
-  old_par <- graphics::par(mar = c(bot_mar, 0.2, top_mar, 0.2))
-  on.exit(graphics::par(old_par), add = TRUE)
 
   graphics::plot.new()
   graphics::plot.window(xlim = xlim, ylim = ylim, asp = 1)

@@ -139,10 +139,22 @@ outline and a softer shell fill.}
 The granular style arguments (\code{node_donut}, \code{curved_edges})
 override the preset when supplied.}
 
-\item{layer_spacing}{Vertical distance between the bottom and top layers.
-\code{NULL} (default) auto-calculates a gap that prevents overlap based
-on cluster positions and shell sizes. Increase for more vertical
-separation; decrease to make the plot more compact.}
+\item{layer_spacing}{Vertical position of the summary (top) layer, which is
+what decides how tall the figure is.
+\itemize{
+\item \code{NULL} (default): placed automatically, just clear of the
+bottom layer (\code{inter_layer_gap} sets the clearance). The figure
+then has a fixed shape, and a taller image only adds white space.
+\item \code{"fill"}: the gap between the layers is stretched so the
+figure uses the full height of the image it is drawn on. Change the
+image height and the plot follows. Shapes stay round; only the space
+between the layers grows. Never tighter than the automatic layout.
+\item A single positive number: the distance from the centre of the
+bottom layer to the centre of the summary layer, in the same units as
+\code{spacing}. Overrides \code{inter_layer_gap}. A value small
+enough to overlap the two layers raises a
+\code{cograph_layers_overlap} warning.
+}}
 
 \item{spacing}{Distance from the center to each cluster's position in the
 bottom layer. Larger values spread clusters farther apart. Default 3.}

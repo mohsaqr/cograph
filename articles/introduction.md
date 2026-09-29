@@ -13,23 +13,26 @@ psychometric networks, statnet for statistical network models and
 tidygraph for data manipulation. An analysis that uses more than one of
 them begins by converting the network between their formats.
 
-cograph accepts the formats of all of these packages without conversion,
-and cograph’s analysis functions return their results as tidy data
-frames. cograph visualizes networks with specialized styling for
-transition and psychological networks, and plots the results of
-bootstrap, permutation and stability analyses directly. cograph offers a
-family of wrangling verbs for selecting, filtering, thresholding and
-editing networks, a large collection of node centrality measures across
-all major families, and a wide array of network-level statistics from
-density and diameter to efficiency and clique size. For community
-structure, cograph provides a range of detection algorithms together
-with consensus, comparison and significance testing of partitions, and
-for local structure, cograph provides motif analysis that identifies the
-nodes forming each pattern. cograph also supports robustness and
-vulnerability analysis, backbone extraction with the disparity filter,
-hierarchical plots for multi-cluster networks, multilayer networks and
-higher-order pathways. cograph’s figures carry statistical annotations
-such as confidence intervals, p-values and significance stars.
+cograph is designed as a modern R package that offers a comprehensive
+set of analysis options for social and complex networks, one that is
+tidy and simple to work with, and above all feature-rich and beautiful.
+cograph accepts the formats of all of these packages without conversion
+and returns its own results as tidy data frames. cograph visualizes
+networks with specialized styling for transition and psychological
+networks, and plots the results of bootstrap, permutation and stability
+analyses directly. cograph offers a family of wrangling verbs for
+selecting, filtering, thresholding and editing networks, a large
+collection of node centrality measures across all major families, and a
+wide array of network-level statistics from density and diameter to
+efficiency and clique size. For community structure, cograph provides a
+range of detection algorithms together with consensus, comparison and
+significance testing of partitions, and for local structure, cograph
+provides motif analysis that identifies the nodes forming each pattern.
+cograph also supports robustness and vulnerability analysis, backbone
+extraction with the disparity filter, hierarchical plots for
+multi-cluster networks, multilayer networks and higher-order pathways.
+cograph’s figures carry statistical annotations such as confidence
+intervals, p-values and significance stars.
 
 The examples below use `regulation_net`, a synthetic weighted transition
 network among ten learning states such as Explore, Plan and Reflect,

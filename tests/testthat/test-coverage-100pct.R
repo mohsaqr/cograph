@@ -1075,7 +1075,7 @@ test_that("soplot: edge labels with string fontface", {
   expect_true(result$success || TRUE)
 })
 
-# ---- network-summary.R: hub_score / authority_score in extended ----
+# ---- network-summary.R: extended + detailed on a directed graph ----
 
 test_that("network_summary: extended + detailed on directed graph", {
   mat <- matrix(c(0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0), 4, 4,
@@ -1562,17 +1562,13 @@ test_that("parse_statnet: with edge weights", {
   expect_true(any(parsed$weights != 1))
 })
 
-# ---- network-summary.R: hub_score/authority_score (lines 180, 183) ----
+# ---- network-summary.R: HITS columns removed in 2.7.0 ----
 
-test_that("network_summary: hub and authority scores on directed graph", {
-  # Directed graph with reciprocal edges for valid HITS scores
+test_that("network_summary: no hub or authority columns on a directed graph", {
   mat <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3,
                 dimnames = list(LETTERS[1:3], LETTERS[1:3]))
   result <- network_summary(mat, directed = TRUE)
-  expect_true("hub_score" %in% names(result))
-  expect_true("authority_score" %in% names(result))
-  # HITS scores should be computed (may be NA for some graphs)
-  expect_true(is.numeric(result$hub_score))
+  expect_false(any(c("hub_score", "authority_score") %in% names(result)))
 })
 
 # ---- network-summary.R: rich_club ----

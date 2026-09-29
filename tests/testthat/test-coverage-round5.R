@@ -180,15 +180,14 @@ test_that("gephi FR layout with empty graph", {
 })
 
 # ============================================================================
-# R/network-summary.R — line 180: hub_score on undirected, line 183: authority
+# R/network-summary.R — undirected graph, HITS columns removed in 2.7.0
 # ============================================================================
 
-test_that("network_summary hub/authority on undirected graph", {
+test_that("network_summary on an undirected graph has no hub or authority columns", {
   skip_if_not_installed("igraph")
   g <- igraph::make_ring(5)
   result <- cograph:::network_summary(g, extended = FALSE)
-  # On undirected, hub_score and authority_score should be in result
-  expect_true("hub_score" %in% names(result) || is.list(result))
+  expect_false(any(c("hub_score", "authority_score") %in% names(result)))
 })
 
 # ============================================================================

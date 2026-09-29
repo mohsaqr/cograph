@@ -395,12 +395,11 @@ test_that("sn_save: TIFF format (output-save line 73)", {
 })
 
 # ============================================================================
-# network-summary.R: hub_score/authority_score NA path (lines 180, 183)
+# network-summary.R: single-node graph
 # ============================================================================
 
-test_that("network_summary: hub/authority on trivial graph (lines 180, 183)", {
+test_that("network_summary: single-node graph", {
   skip_if_not_installed("igraph")
-  # Single node graph - HITS may return empty
   mat1 <- matrix(0, 1, 1, dimnames = list("A", "A"))
   result <- tryCatch(network_summary(mat1), error = function(e) NULL)
   if (!is.null(result)) {

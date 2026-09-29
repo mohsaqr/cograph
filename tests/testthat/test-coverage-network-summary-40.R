@@ -166,15 +166,11 @@ test_that("network_summary computes transitivity (clustering coefficient)", {
   expect_equal(result$transitivity, 1)
 })
 
-test_that("network_summary computes hub and authority scores", {
+test_that("network_summary has no hub or authority columns", {
   skip_if_not_installed("igraph")
-  # Use a larger connected graph for stable HITS scores
   g <- igraph::make_ring(10)
   result <- network_summary(g)
-
-  # Hub and authority scores should be numeric (may be NA for some graphs)
-  expect_true(is.numeric(result$hub_score))
-  expect_true(is.numeric(result$authority_score))
+  expect_false(any(c("hub_score", "authority_score") %in% names(result)))
 })
 
 test_that("network_summary with weighted = TRUE uses weights", {

@@ -69,8 +69,6 @@ A data frame with one row containing network-level statistics:
 \item{transitivity}{Global clustering coefficient}
 \item{reciprocity}{Proportion of mutual edges (directed only)}
 \item{assortativity_degree}{Degree assortativity coefficient}
-\item{hub_score}{Maximum hub score (HITS algorithm)}
-\item{authority_score}{Maximum authority score (HITS algorithm)}
 }
 
 \strong{Extended measures (when extended = TRUE):}

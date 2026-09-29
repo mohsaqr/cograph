@@ -45,8 +45,6 @@
 #'   \item{transitivity}{Global clustering coefficient}
 #'   \item{reciprocity}{Proportion of mutual edges (directed only)}
 #'   \item{assortativity_degree}{Degree assortativity coefficient}
-#'   \item{hub_score}{Maximum hub score (HITS algorithm)}
-#'   \item{authority_score}{Maximum authority score (HITS algorithm)}
 #' }
 #'
 #' **Extended measures (when extended = TRUE):**
@@ -132,12 +130,6 @@ network_summary <- function(x,
     NULL
   }
 
-  # Compute HITS scores once (hub and authority)
-  hits <- tryCatch(
-    igraph::hits_scores(g, weights = weights),
-    error = function(e) NULL
-  )
-
   # Basic measures (always computed)
   results <- list(
     node_count = igraph::vcount(g),
@@ -176,13 +168,7 @@ network_summary <- function(x,
     } else {
       NA_real_
     },
-    assortativity_degree = igraph::assortativity_degree(g, directed = is_directed),
-    hub_score = if (!is.null(hits) && length(hits$hub_score) > 0) { # nocov start
-      max(hits$hub_score)
-    } else NA_real_, # nocov end
-    authority_score = if (!is.null(hits) && length(hits$authority_score) > 0) { # nocov start
-      max(hits$authority_score)
-    } else NA_real_ # nocov end
+    assortativity_degree = igraph::assortativity_degree(g, directed = is_directed)
   )
 
   # Extended structural measures (only when extended = TRUE)

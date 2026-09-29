@@ -327,7 +327,7 @@ centrality(student_interactions,
 cograph offers network-level statistics through `network_summary()`, which
 returns density, diameter, mean distance, centralization, reciprocity,
 transitivity and degree assortativity in a data frame with one row for the
-network, and up to 37 statistics with `detailed = TRUE` and
+network, and up to 35 statistics with `detailed = TRUE` and
 `extended = TRUE`. Individual functions compute small-worldness, global and
 local efficiency, the rich-club coefficient, girth, radius, bridges, cut
 vertices, vertex connectivity and clique size.
@@ -338,7 +338,7 @@ network_summary(regulation_net)
 
 | Function | Purpose |
 |----------|---------|
-| `network_summary()` | 37 metrics (density, diameter, clustering, etc.) |
+| `network_summary()` | Up to 35 statistics (density, diameter, clustering, etc.) |
 | `network_small_world()` | Small-world coefficient |
 | `network_rich_club()` | Rich-club coefficient |
 | `network_global_efficiency()` | Global efficiency |

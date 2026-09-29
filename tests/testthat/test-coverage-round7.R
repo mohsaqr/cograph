@@ -544,16 +544,15 @@ test_that("network_rich_club: phi_rand = 0 returns NA (line 906)", {
 })
 
 # ============================================================================
-# network-summary.R — hub_score/authority_score NULL cases (lines 180, 183)
+# network-summary.R — empty graph
 # ============================================================================
 
-test_that("network_summary: empty graph doesn't crash on HITS", {
+test_that("network_summary: empty graph", {
   g <- igraph::make_empty_graph(2, directed = TRUE)
   result <- tryCatch(
     network_summary(g),
     error = function(e) NULL
   )
-  # Even if it errors, the hub/authority path should be exercised
   expect_true(TRUE)
 })
 

@@ -249,3 +249,18 @@ test_that("network_summary(extended = TRUE) runs on student_interactions", {
   expect_identical(as.numeric(res$largest_clique_size),
                    as.numeric(network_clique_size(student_interactions)))
 })
+
+# HITS columns removed in 2.7.0 -------------------------------------------------
+# hub_score / authority_score were always NA (the code read fields igraph does
+# not return), and igraph scales HITS scores to a maximum of 1, so the maximum
+# carried no information. They are gone; the column counts pin the contract.
+
+test_that("network_summary() returns 16, 27 and 35 statistics by level", {
+  skip_if_not_installed("igraph")
+  basic <- network_summary(student_interactions)
+  detailed <- network_summary(student_interactions, detailed = TRUE)
+  extended <- network_summary(student_interactions, detailed = TRUE, extended = TRUE)
+  expect_false(any(c("hub_score", "authority_score") %in% names(extended)))
+  expect_identical(c(ncol(basic), ncol(detailed), ncol(extended)), c(16L, 27L, 35L))
+  expect_false(anyNA(basic$assortativity_degree))
+})

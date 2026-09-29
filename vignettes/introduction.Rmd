@@ -33,8 +33,11 @@ networks, statnet for statistical network models and tidygraph for data
 manipulation. An analysis that uses more than one of them begins by
 converting the network between their formats.
 
-cograph accepts the formats of all of these packages without conversion, and
-cograph's analysis functions return their results as tidy data frames.
+cograph is designed as a modern R package that offers a comprehensive set of
+analysis options for social and complex networks, one that is tidy and simple
+to work with, and above all feature-rich and beautiful. cograph accepts the
+formats of all of these packages without conversion and returns its own
+results as tidy data frames.
 cograph visualizes networks with specialized styling for transition and
 psychological networks, and plots the results of bootstrap, permutation and
 stability analyses directly. cograph offers a family of wrangling verbs for

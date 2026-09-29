@@ -4,6 +4,17 @@
 
 ### Bug fixes
 
+- [`network_summary()`](https://sonsoles.me/cograph/reference/network_summary.md)
+  no longer returns `hub_score` and `authority_score`. Both columns were
+  always `NA`, because the code read fields that igraph does not return,
+  and igraph scales HITS scores to a maximum of 1, so the maximum
+  carried no information.
+  [`network_summary()`](https://sonsoles.me/cograph/reference/network_summary.md)
+  now returns 16 statistics by default, 27 with `detailed = TRUE` and 35
+  with `extended = TRUE` as well.
+
+- `inst/CITATION` lists the package authors as in `DESCRIPTION`.
+
 - [`network_clique_size()`](https://sonsoles.me/cograph/reference/network_clique_size.md),
   and with it `network_summary(extended = TRUE)`, crashed R with a C
   stack overflow on directed networks such as `student_interactions`.

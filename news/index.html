@@ -48,8 +48,9 @@
 <h2 class="pkg-version" data-toc-text="2.7.0" id="cograph-270">cograph 2.7.0<a class="anchor" aria-label="anchor" href="#cograph-270"></a></h2>
 <div class="section level3">
 <h3 id="bug-fixes-2-7-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-7-0"></a></h3>
-<ul><li>
-<code><a href="../reference/network_clique_size.html">network_clique_size()</a></code>, and with it <code>network_summary(extended = TRUE)</code>, crashed R with a C stack overflow on directed networks such as <code>student_interactions</code>. The crash is in <code><a href="https://r.igraph.org/reference/cliques.html" class="external-link">igraph::clique_num()</a></code> (igraph 2.3.3) on directed input. Cliques ignore direction, so the count now runs on the simple undirected network; the result is unchanged for undirected input.</li>
+<ul><li><p><code><a href="../reference/network_summary.html">network_summary()</a></code> no longer returns <code>hub_score</code> and <code>authority_score</code>. Both columns were always <code>NA</code>, because the code read fields that igraph does not return, and igraph scales HITS scores to a maximum of 1, so the maximum carried no information. <code><a href="../reference/network_summary.html">network_summary()</a></code> now returns 16 statistics by default, 27 with <code>detailed = TRUE</code> and 35 with <code>extended = TRUE</code> as well.</p></li>
+<li><p><code>inst/CITATION</code> lists the package authors as in <code>DESCRIPTION</code>.</p></li>
+<li><p><code><a href="../reference/network_clique_size.html">network_clique_size()</a></code>, and with it <code>network_summary(extended = TRUE)</code>, crashed R with a C stack overflow on directed networks such as <code>student_interactions</code>. The crash is in <code><a href="https://r.igraph.org/reference/cliques.html" class="external-link">igraph::clique_num()</a></code> (igraph 2.3.3) on directed input. Cliques ignore direction, so the count now runs on the simple undirected network; the result is unchanged for undirected input.</p></li>
 </ul></div>
 <div class="section level3">
 <h3 id="documentation-2-7-0">Documentation<a class="anchor" aria-label="anchor" href="#documentation-2-7-0"></a></h3>

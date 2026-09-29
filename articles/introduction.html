@@ -891,7 +891,7 @@ measure with its definition, interpretation and an example.</p>
 <p>cograph offers network-level statistics through
 <code><a href="../reference/network_summary.html">network_summary()</a></code>, which returns density, diameter, mean
 distance, centralization, reciprocity, transitivity and degree
-assortativity in a data frame with one row for the network, and up to 37
+assortativity in a data frame with one row for the network, and up to 35
 statistics with <code>detailed = TRUE</code> and
 <code>extended = TRUE</code>. Individual functions compute
 small-worldness, global and local efficiency, the rich-club coefficient,
@@ -905,8 +905,8 @@ size.</p>
 <span><span class="co">#&gt; 1                 0.123                    0.333                     0.222</span></span>
 <span><span class="co">#&gt;   centralization_betweenness centralization_closeness centralization_eigen</span></span>
 <span><span class="co">#&gt; 1                      0.149                    0.238                0.479</span></span>
-<span><span class="co">#&gt;   transitivity reciprocity assortativity_degree hub_score authority_score</span></span>
-<span><span class="co">#&gt; 1        0.423       0.111               -0.116        NA              NA</span></span></code></pre></div>
+<span><span class="co">#&gt;   transitivity reciprocity assortativity_degree</span></span>
+<span><span class="co">#&gt; 1        0.423       0.111               -0.116</span></span></code></pre></div>
 <table class="table">
 <colgroup>
 <col width="52%">
@@ -919,7 +919,7 @@ size.</p>
 <tbody>
 <tr class="odd">
 <td><code><a href="../reference/network_summary.html">network_summary()</a></code></td>
-<td>37 metrics (density, diameter, clustering, etc.)</td>
+<td>Up to 35 statistics (density, diameter, clustering, etc.)</td>
 </tr>
 <tr class="even">
 <td><code><a href="../reference/network_small_world.html">network_small_world()</a></code></td>

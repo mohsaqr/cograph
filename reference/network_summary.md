@@ -142,14 +142,6 @@ A data frame with one row containing network-level statistics:
 
   Degree assortativity coefficient
 
-- hub_score:
-
-  Maximum hub score (HITS algorithm)
-
-- authority_score:
-
-  Maximum authority score (HITS algorithm)
-
 **Extended measures (when extended = TRUE):**
 
 - girth:
@@ -230,8 +222,8 @@ network_summary(adj)
 #> 1                     0                       NA                        NA
 #>   centralization_betweenness centralization_closeness centralization_eigen
 #> 1                          0                        0                    0
-#>   transitivity reciprocity assortativity_degree hub_score authority_score
-#> 1            1          NA                  NaN        NA              NA
+#>   transitivity reciprocity assortativity_degree
+#> 1            1          NA                  NaN
 
 # With detailed statistics
 network_summary(adj, detailed = TRUE)
@@ -241,14 +233,12 @@ network_summary(adj, detailed = TRUE)
 #> 1                     0                       NA                        NA
 #>   centralization_betweenness centralization_closeness centralization_eigen
 #> 1                          0                        0                    0
-#>   transitivity reciprocity assortativity_degree hub_score authority_score
-#> 1            1          NA                  NaN        NA              NA
-#>   mean_degree sd_degree median_degree mean_strength sd_strength
-#> 1           2         0             2             2           0
-#>   mean_betweenness mean_closeness mean_eigenvector mean_pagerank
-#> 1                0            0.5                1         0.333
-#>   mean_constraint mean_local_transitivity
-#> 1           1.125                       1
+#>   transitivity reciprocity assortativity_degree mean_degree sd_degree
+#> 1            1          NA                  NaN           2         0
+#>   median_degree mean_strength sd_strength mean_betweenness mean_closeness
+#> 1             2             2           0                0            0.5
+#>   mean_eigenvector mean_pagerank mean_constraint mean_local_transitivity
+#> 1                1         0.333           1.125                       1
 
 # With extended structural metrics
 network_summary(adj, extended = TRUE)
@@ -258,10 +248,10 @@ network_summary(adj, extended = TRUE)
 #> 1                     0                       NA                        NA
 #>   centralization_betweenness centralization_closeness centralization_eigen
 #> 1                          0                        0                    0
-#>   transitivity reciprocity assortativity_degree hub_score authority_score girth
-#> 1            1          NA                  NaN        NA              NA     3
-#>   radius vertex_connectivity largest_clique_size cut_vertex_count bridge_count
-#> 1      1                   2                   3                0            0
+#>   transitivity reciprocity assortativity_degree girth radius
+#> 1            1          NA                  NaN     3      1
+#>   vertex_connectivity largest_clique_size cut_vertex_count bridge_count
+#> 1                   2                   3                0            0
 #>   global_efficiency local_efficiency
 #> 1                 1                1
 
@@ -273,10 +263,10 @@ network_summary(adj, detailed = TRUE, extended = TRUE)
 #> 1                     0                       NA                        NA
 #>   centralization_betweenness centralization_closeness centralization_eigen
 #> 1                          0                        0                    0
-#>   transitivity reciprocity assortativity_degree hub_score authority_score girth
-#> 1            1          NA                  NaN        NA              NA     3
-#>   radius vertex_connectivity largest_clique_size cut_vertex_count bridge_count
-#> 1      1                   2                   3                0            0
+#>   transitivity reciprocity assortativity_degree girth radius
+#> 1            1          NA                  NaN     3      1
+#>   vertex_connectivity largest_clique_size cut_vertex_count bridge_count
+#> 1                   2                   3                0            0
 #>   global_efficiency local_efficiency mean_degree sd_degree median_degree
 #> 1                 1                1           2         0             2
 #>   mean_strength sd_strength mean_betweenness mean_closeness mean_eigenvector
@@ -290,11 +280,11 @@ if (requireNamespace("igraph", quietly = TRUE)) {
   network_summary(g)
 }
 #>   node_count edge_count density component_count diameter mean_distance min_cut
-#> 1         20         58   0.305               1        3         1.816       2
+#> 1         20         52   0.274               1        4         1.921       1
 #>   centralization_degree centralization_in_degree centralization_out_degree
-#> 1                 0.221                       NA                        NA
+#> 1                   0.2                       NA                        NA
 #>   centralization_betweenness centralization_closeness centralization_eigen
-#> 1                      0.104                     0.21                0.426
-#>   transitivity reciprocity assortativity_degree hub_score authority_score
-#> 1        0.328          NA               -0.134        NA              NA
+#> 1                      0.112                    0.276                0.468
+#>   transitivity reciprocity assortativity_degree
+#> 1         0.22          NA               -0.064
 ```

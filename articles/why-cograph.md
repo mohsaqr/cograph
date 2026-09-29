@@ -411,8 +411,8 @@ network_summary(net, digits = 3)
 #> 1                 0.125                      0.1                       0.1
 #>   centralization_betweenness centralization_closeness centralization_eigen
 #> 1                      0.028                        0                0.097
-#>   transitivity reciprocity assortativity_degree hub_score authority_score
-#> 1        1.009         0.8                -0.25        NA              NA
+#>   transitivity reciprocity assortativity_degree
+#> 1        1.009         0.8                -0.25
 ```
 
 Add `detailed = TRUE` for mean/sd of node-level measures, or

@@ -524,7 +524,7 @@ cograph offers network-level statistics through
 [`network_summary()`](https://sonsoles.me/cograph/reference/network_summary.md),
 which returns density, diameter, mean distance, centralization,
 reciprocity, transitivity and degree assortativity in a data frame with
-one row for the network, and up to 37 statistics with `detailed = TRUE`
+one row for the network, and up to 35 statistics with `detailed = TRUE`
 and `extended = TRUE`. Individual functions compute small-worldness,
 global and local efficiency, the rich-club coefficient, girth, radius,
 bridges, cut vertices, vertex connectivity and clique size.
@@ -538,13 +538,13 @@ network_summary(regulation_net)
 #> 1                 0.123                    0.333                     0.222
 #>   centralization_betweenness centralization_closeness centralization_eigen
 #> 1                      0.149                    0.238                0.479
-#>   transitivity reciprocity assortativity_degree hub_score authority_score
-#> 1        0.423       0.111               -0.116        NA              NA
+#>   transitivity reciprocity assortativity_degree
+#> 1        0.423       0.111               -0.116
 ```
 
 | Function | Purpose |
 |----|----|
-| [`network_summary()`](https://sonsoles.me/cograph/reference/network_summary.md) | 37 metrics (density, diameter, clustering, etc.) |
+| [`network_summary()`](https://sonsoles.me/cograph/reference/network_summary.md) | Up to 35 statistics (density, diameter, clustering, etc.) |
 | [`network_small_world()`](https://sonsoles.me/cograph/reference/network_small_world.md) | Small-world coefficient |
 | [`network_rich_club()`](https://sonsoles.me/cograph/reference/network_rich_club.md) | Rich-club coefficient |
 | [`network_global_efficiency()`](https://sonsoles.me/cograph/reference/network_global_efficiency.md) | Global efficiency |

@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.12</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,7 +40,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
     <li><a class="dropdown-item" href="../articles/centrality-catalogue.html">Centrality catalogue</a></li>
-    <li><a class="dropdown-item" href="../articles/centrality-zoo-lookup.html">Centrality Zoo lookup</a></li>
+    <li><a class="dropdown-item" href="../articles/centrality-zoo-lookup.html">cograph and the Centrality Zoo</a></li>
     <li><a class="dropdown-item" href="../articles/why-cograph.html">Why cograph?</a></li>
     <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">TNA Plotting Gallery and Visual Smoke Test</a></li>
     <li><a class="dropdown-item" href="../articles/mcml-examples.html">Advanced examples</a></li>
@@ -70,6 +70,9 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>TNA Plotting Gallery and Visual Smoke Test</h1>
+                        <h4 data-toc-skip class="author">
+<a href="https://saqr.me" class="external-link">Mohammed Saqr</a> and <a href="https://sonsoles.me" class="external-link">Sonsoles López-Pernas</a>
+</h4>
             
       
       <small class="dont-index">Source: <a href="https://github.com/sonsoleslp/cograph/blob/main/vignettes/articles/plotting-tna-models.Rmd" class="external-link"><code>vignettes/articles/plotting-tna-models.Rmd</code></a></small>
@@ -91,10 +94,10 @@ visual and API verification, not inference.</p>
 objects, centralities, cliques, communities, comparisons, permutations,
 reliability, sequence comparisons, and stability objects;</li>
 <li>
-<code><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist()</a></code>, <code><a href="http://sonsoles.me/tna/reference/plot_model.html" class="external-link">plot_model()</a></code>,
-<code><a href="../reference/plot_compare.html">plot_compare()</a></code>, <code><a href="http://sonsoles.me/tna/reference/plot_frequencies.html" class="external-link">plot_frequencies()</a></code>,
-<code><a href="http://sonsoles.me/tna/reference/plot_mosaic.html" class="external-link">plot_mosaic()</a></code>, <code><a href="http://sonsoles.me/tna/reference/plot_sequences.html" class="external-link">plot_sequences()</a></code>, and
-<code><a href="http://sonsoles.me/tna/reference/plot_associations.html" class="external-link">plot_associations()</a></code>;</li>
+<code><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist()</a></code>, <code>plot_model()</code>,
+<code><a href="../reference/plot_compare.html">plot_compare()</a></code>, <code>plot_frequencies()</code>,
+<code>plot_mosaic()</code>, <code>plot_sequences()</code>, and
+<code>plot_associations()</code>;</li>
 <li>cograph’s enhanced TNA bootstrap, difference, permutation, forest,
 and heterogeneous-network renderers.</li>
 </ul>
@@ -107,8 +110,8 @@ and heterogeneous-network renderers.</li>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt;   package version</span></span>
-<span><span class="co">#&gt; 1     tna   1.2.3</span></span>
-<span><span class="co">#&gt; 2 cograph  2.6.12</span></span></code></pre></div>
+<span><span class="co">#&gt; 1     tna   1.3.1</span></span>
+<span><span class="co">#&gt; 2 cograph   2.7.0</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="shared-fixtures">Shared fixtures<a class="anchor" aria-label="anchor" href="#shared-fixtures"></a>
 </h2>
@@ -159,9 +162,9 @@ renderer.</p>
 <div class="section level3">
 <h3 id="weight-matrix">Weight matrix<a class="anchor" aria-label="anchor" href="#weight-matrix"></a>
 </h3>
-<p>Exercises the exported <code><a href="http://sonsoles.me/tna/reference/plot_model.html" class="external-link">plot_model()</a></code> entry point.</p>
+<p>Exercises the exported <code>plot_model()</code> entry point.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="http://sonsoles.me/tna/reference/plot_model.html" class="external-link">plot_model</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="https://sonsoles.me/tna/reference/plot_model.html" class="external-link">plot_model</a></span><span class="op">(</span></span>
 <span>  <span class="va">model</span><span class="op">$</span><span class="va">weights</span>,</span>
 <span>  labels <span class="op">=</span> <span class="va">model</span><span class="op">$</span><span class="va">labels</span>,</span>
 <span>  title <span class="op">=</span> <span class="st">"TNA weight matrix"</span></span>
@@ -190,10 +193,10 @@ renderer.</p>
 <p>Exercises <code>plot_frequencies.tna()</code> and
 <code>plot_frequencies.group_tna()</code>.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="http://sonsoles.me/tna/reference/plot_frequencies.html" class="external-link">plot_frequencies</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="https://sonsoles.me/tna/reference/plot_frequencies.html" class="external-link">plot_frequencies</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></code></pre></div>
 <p><img src="plotting-tna-models_files/figure-html/plot-frequencies-tna-1.png" class="r-plt" alt="" width="840"></p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="http://sonsoles.me/tna/reference/plot_frequencies.html" class="external-link">plot_frequencies</a></span><span class="op">(</span><span class="va">group_models</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="https://sonsoles.me/tna/reference/plot_frequencies.html" class="external-link">plot_frequencies</a></span><span class="op">(</span><span class="va">group_models</span><span class="op">)</span></span></code></pre></div>
 <p><img src="plotting-tna-models_files/figure-html/plot-frequencies-group-1.png" class="r-plt" alt="" width="840"></p>
 </div>
 <div class="section level3">
@@ -202,13 +205,13 @@ renderer.</p>
 <p>Exercises mosaic methods for frequency TNA, grouped frequency TNA,
 and prepared <code>tna_data</code> objects.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="http://sonsoles.me/tna/reference/plot_mosaic.html" class="external-link">plot_mosaic</a></span><span class="op">(</span><span class="va">frequency_model</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="https://sonsoles.me/tna/reference/plot_mosaic.html" class="external-link">plot_mosaic</a></span><span class="op">(</span><span class="va">frequency_model</span><span class="op">)</span></span></code></pre></div>
 <p><img src="plotting-tna-models_files/figure-html/plot-mosaic-tna-1.png" class="r-plt" alt="" width="840"></p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="http://sonsoles.me/tna/reference/plot_mosaic.html" class="external-link">plot_mosaic</a></span><span class="op">(</span><span class="va">group_frequency_models</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="https://sonsoles.me/tna/reference/plot_mosaic.html" class="external-link">plot_mosaic</a></span><span class="op">(</span><span class="va">group_frequency_models</span><span class="op">)</span></span></code></pre></div>
 <p><img src="plotting-tna-models_files/figure-html/plot-mosaic-group-1.png" class="r-plt" alt="" width="840"></p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="http://sonsoles.me/tna/reference/plot_mosaic.html" class="external-link">plot_mosaic</a></span><span class="op">(</span><span class="va">prepared_data</span>, group <span class="op">=</span> <span class="st">"cohort"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="https://sonsoles.me/tna/reference/plot_mosaic.html" class="external-link">plot_mosaic</a></span><span class="op">(</span><span class="va">prepared_data</span>, group <span class="op">=</span> <span class="st">"cohort"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="plotting-tna-models_files/figure-html/plot-mosaic-tna-data-1.png" class="r-plt" alt="" width="840"></p>
 </div>
 <div class="section level3">
@@ -217,7 +220,7 @@ and prepared <code>tna_data</code> objects.</p>
 <p>Exercises <code>plot_associations.tna()</code> using the required
 integer-valued frequency model.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="http://sonsoles.me/tna/reference/plot_associations.html" class="external-link">plot_associations</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="https://sonsoles.me/tna/reference/plot_associations.html" class="external-link">plot_associations</a></span><span class="op">(</span></span>
 <span>  <span class="va">frequency_model</span>,</span>
 <span>  title <span class="op">=</span> <span class="st">"Association network"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -232,10 +235,10 @@ integer-valued frequency model.</p>
 </h3>
 <p>Exercises <code>plot_sequences.tna()</code> in both modes.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="http://sonsoles.me/tna/reference/plot_sequences.html" class="external-link">plot_sequences</a></span><span class="op">(</span><span class="va">model</span>, type <span class="op">=</span> <span class="st">"index"</span>, tick <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="https://sonsoles.me/tna/reference/plot_sequences.html" class="external-link">plot_sequences</a></span><span class="op">(</span><span class="va">model</span>, type <span class="op">=</span> <span class="st">"index"</span>, tick <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <p><img src="plotting-tna-models_files/figure-html/plot-sequences-tna-index-1.png" class="r-plt" alt="" width="1080"></p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="http://sonsoles.me/tna/reference/plot_sequences.html" class="external-link">plot_sequences</a></span><span class="op">(</span><span class="va">model</span>, type <span class="op">=</span> <span class="st">"distribution"</span>, geom <span class="op">=</span> <span class="st">"area"</span>, tick <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="https://sonsoles.me/tna/reference/plot_sequences.html" class="external-link">plot_sequences</a></span><span class="op">(</span><span class="va">model</span>, type <span class="op">=</span> <span class="st">"distribution"</span>, geom <span class="op">=</span> <span class="st">"area"</span>, tick <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <p><img src="plotting-tna-models_files/figure-html/plot-sequences-tna-distribution-1.png" class="r-plt" alt="" width="1080"></p>
 </div>
 <div class="section level3">
@@ -243,7 +246,7 @@ integer-valued frequency model.</p>
 </h3>
 <p>Exercises <code>plot_sequences.group_tna()</code>.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="http://sonsoles.me/tna/reference/plot_sequences.html" class="external-link">plot_sequences</a></span><span class="op">(</span><span class="va">group_models</span>, type <span class="op">=</span> <span class="st">"distribution"</span>, tick <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="https://sonsoles.me/tna/reference/plot_sequences.html" class="external-link">plot_sequences</a></span><span class="op">(</span><span class="va">group_models</span>, type <span class="op">=</span> <span class="st">"distribution"</span>, tick <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <p><img src="plotting-tna-models_files/figure-html/plot-sequences-group-1.png" class="r-plt" alt="" width="1200"></p>
 </div>
 <div class="section level3">
@@ -252,7 +255,7 @@ integer-valued frequency model.</p>
 <p>Exercises <code>plot_sequences.default()</code> with an explicit
 grouping vector.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="http://sonsoles.me/tna/reference/plot_sequences.html" class="external-link">plot_sequences</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="https://sonsoles.me/tna/reference/plot_sequences.html" class="external-link">plot_sequences</a></span><span class="op">(</span></span>
 <span>  <span class="va">gallery_data</span>,</span>
 <span>  group <span class="op">=</span> <span class="va">gallery_group</span>,</span>
 <span>  type <span class="op">=</span> <span class="st">"distribution"</span>,</span>
@@ -266,7 +269,7 @@ grouping vector.</p>
 <p>Exercises <code>plot_sequences.tna_data()</code> and metadata-based
 grouping.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="http://sonsoles.me/tna/reference/plot_sequences.html" class="external-link">plot_sequences</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="https://sonsoles.me/tna/reference/plot_sequences.html" class="external-link">plot_sequences</a></span><span class="op">(</span></span>
 <span>  <span class="va">prepared_data</span>,</span>
 <span>  group <span class="op">=</span> <span class="st">"cohort"</span>,</span>
 <span>  type <span class="op">=</span> <span class="st">"index"</span>,</span>
@@ -382,7 +385,6 @@ display modes.</p>
 <p>Exercises <code>plot.tna_permutation()</code>.</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">permutation_result</span>, title <span class="op">=</span> <span class="st">"TNA permutation differences"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="plotting-tna-models_files/figure-html/plot-permutation-tna-1.png" class="r-plt" alt="" width="960"></p>
 </div>
 <div class="section level3">
 <h3 id="grouped-permutation-method">Grouped permutation method<a class="anchor" aria-label="anchor" href="#grouped-permutation-method"></a>
@@ -452,14 +454,14 @@ explicitly.</p>
 <code>plot_compare.group_tna()</code>, both of which delegate to
 <code><a href="../reference/plot_compare.html">cograph::plot_compare()</a></code>.</p>
 <div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="http://sonsoles.me/tna/reference/plot_compare.html" class="external-link">plot_compare</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="https://sonsoles.me/tna/reference/plot_compare.html" class="external-link">plot_compare</a></span><span class="op">(</span></span>
 <span>  <span class="va">model_first</span>,</span>
 <span>  <span class="va">model_second</span>,</span>
 <span>  title <span class="op">=</span> <span class="st">"First half minus second half"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="plotting-tna-models_files/figure-html/plot-compare-tna-1.png" class="r-plt" alt="" width="960"></p>
 <div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="http://sonsoles.me/tna/reference/plot_compare.html" class="external-link">plot_compare</a></span><span class="op">(</span><span class="va">group_models</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="https://sonsoles.me/tna/reference/plot_compare.html" class="external-link">plot_compare</a></span><span class="op">(</span><span class="va">group_models</span><span class="op">)</span></span></code></pre></div>
 <p><img src="plotting-tna-models_files/figure-html/plot-compare-group-1.png" class="r-plt" alt="" width="960"></p>
 </div>
 <div class="section level3">
@@ -501,7 +503,7 @@ without an error.</p>
 <span>  rendered_at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span>, tz <span class="op">=</span> <span class="st">"UTC"</span>, usetz <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt;   status   tna cograph             rendered_at</span></span>
-<span><span class="co">#&gt; 1   PASS 1.2.3  2.6.12 2026-09-19 20:54:06 UTC</span></span></code></pre></div>
+<span><span class="co">#&gt; 1   PASS 1.3.1   2.7.0 2026-09-29 05:48:31 UTC</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

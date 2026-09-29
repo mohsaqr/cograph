@@ -116,9 +116,7 @@ performance.
 
 Ren, Z.-M., Zeng, A., Chen, D.-B., Liao, H. and Liu, J.-G. (2014).
 Iterative resource allocation for ranking spreaders in complex networks.
-EPL (Europhysics Letters), 106(4), 48005. Equations 1-3 on page 2 and
-the algorithm i)-iii) on page 3, read in the author postprint recovered
-from the Internet Archive.
+EPL (Europhysics Letters), 106(4), 48005.
 [doi:10.1209/0295-5075/106/48005](https://doi.org/10.1209/0295-5075/106/48005)
 .
 

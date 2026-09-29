@@ -29,8 +29,8 @@ as_tna(x)
   cluster_summary should typically be created with `type = "tna"` to
   ensure row-normalized transition probabilities. If created with
   `type = "raw"`, the raw counts will be passed to
-  [`tna::tna()`](http://sonsoles.me/tna/reference/build_model.md) which
-  will normalize them.
+  [`tna::tna()`](https://sonsoles.me/tna/reference/build_model.html)
+  which will normalize them.
 
 ## Value
 
@@ -106,7 +106,7 @@ still includes all clusters.
 input object,
 [`plot_mcml`](https://sonsoles.me/cograph/reference/plot_mcml.md) for
 visualization without conversion,
-[`tna::tna`](http://sonsoles.me/tna/reference/build_model.md) for the
+[`tna::tna`](https://sonsoles.me/tna/reference/build_model.html) for the
 underlying tna constructor
 
 ## Examples

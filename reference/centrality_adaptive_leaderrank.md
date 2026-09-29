@@ -72,8 +72,7 @@ author-code parity.
 ## References
 
 Xu, S., & Wang, P. (2017). Identifying important nodes by adaptive
-LeaderRank. Physica A, 469, 654-664, section 2.2, equation 3 and
-algorithm steps 1-4.
+LeaderRank. Physica A, 469, 654-664.
 [doi:10.1016/j.physa.2016.11.034](https://doi.org/10.1016/j.physa.2016.11.034)
 .
 

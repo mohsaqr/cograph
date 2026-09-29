@@ -86,8 +86,7 @@ may underflow.
 
 Was, T., Rahwan, T., & Skibski, O. (2019). Random Walk Decay Centrality.
 Proceedings of the AAAI Conference on Artificial Intelligence, 33(01),
-2197-2204. Definition 1, equation 6; transition equation 3 and
-terminal-sink convention.
+2197-2204.
 [doi:10.1609/aaai.v33i01.33012197](https://doi.org/10.1609/aaai.v33i01.33012197)
 .
 

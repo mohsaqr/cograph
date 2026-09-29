@@ -22,7 +22,7 @@ from_tna(
 - tna_object:
 
   A `tna` object from
-  [`tna::tna()`](http://sonsoles.me/tna/reference/build_model.md)
+  [`tna::tna()`](https://sonsoles.me/tna/reference/build_model.html)
 
 - engine:
 

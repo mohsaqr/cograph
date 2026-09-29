@@ -64,9 +64,8 @@ excluded from the default all tier and must be requested explicitly.
 
 Devriendt, K., & Lambiotte, R. (2022). Discrete curvature on graphs from
 the effective resistance. Journal of Physics: Complexity, 3, 025008.
-Definition 1, equation 2; Property 2; Appendix A.1, Theorem 2.
 [doi:10.1088/2632-072X/ac730d](https://doi.org/10.1088/2632-072X/ac730d)
-. <https://arxiv.org/abs/2201.06385>.
+.
 
 ## Examples
 

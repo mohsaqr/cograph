@@ -2,8 +2,8 @@
 
 Keeps the edges that satisfy every criterion supplied. This is the
 network equivalent of qgraph's `minimum`/`cut` arguments and of
-[`tna::prune()`](http://sonsoles.me/tna/reference/prune.md), except that
-it returns a network rather than a plot setting, so the thresholded
+[`tna::prune()`](https://sonsoles.me/tna/reference/prune.html), except
+that it returns a network rather than a plot setting, so the thresholded
 network can be analysed, not only drawn.
 
 ## Usage

@@ -1097,6 +1097,8 @@ Every verb takes any supported input and returns a cograph_network.
   : Register Custom SVG Shape
 - [`register_theme()`](https://sonsoles.me/cograph/reference/register_theme.md)
   : Register a Custom Theme
+- [`regulation_net`](https://sonsoles.me/cograph/reference/regulation_net.md)
+  : Learning Regulation Transition Network
 - [`remove_edges()`](https://sonsoles.me/cograph/reference/remove_edges.md)
   : Remove Edges from a Network
 - [`remove_isolates()`](https://sonsoles.me/cograph/reference/remove_isolates.md)

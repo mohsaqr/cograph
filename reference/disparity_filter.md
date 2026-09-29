@@ -68,7 +68,7 @@ National Academy of Sciences, 106(16), 6483-6488.
 
 ## See also
 
-[`bootstrap`](http://sonsoles.me/tna/reference/bootstrap.md) for
+[`bootstrap`](https://sonsoles.me/tna/reference/bootstrap.html) for
 bootstrap-based significance testing
 
 ## Examples

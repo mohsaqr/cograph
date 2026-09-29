@@ -26,6 +26,12 @@ network_clique_size(x, ...)
 
 Integer: size of the largest clique
 
+## Details
+
+A clique is defined on undirected ties, so a directed network is read
+with each pair of nodes joined when either direction is present, and
+loops and repeated edges are dropped before counting.
+
 ## Examples
 
 ``` r

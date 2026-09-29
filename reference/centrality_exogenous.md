@@ -94,8 +94,7 @@ is therefore in the costly tier even when the degree base is selected.
 ## References
 
 Everett, M. G., & Borgatti, S. P. (2010). Induced, endogenous and
-exogenous centrality. Social Networks, 32(4), 339-344. Equations 3 and
-8, sections 3.1-3.3.
+exogenous centrality. Social Networks, 32(4), 339-344.
 [doi:10.1016/j.socnet.2010.06.004](https://doi.org/10.1016/j.socnet.2010.06.004)
 .
 

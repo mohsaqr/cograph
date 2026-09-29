@@ -156,15 +156,8 @@ See the batch 51 published audit.
 
 Sheng, J., Zhu, J., Wang, Y., Wang, B. and Hou, Z. (2020). Identifying
 Influential Nodes of Complex Networks Based on Trust-Value. Algorithms,
-13(11), 280. Equations (2) and (4) on page 5, equations (5) and (6) on
-page 5, equation (7) and Algorithm 1 on page 7, Figure 3 and Table 3 on
-page 6, and Table 5 on page 10.
-[doi:10.3390/a13110280](https://doi.org/10.3390/a13110280) . The same
-construction is restated as equations (1)-(5) by Hajarathaiah, K.,
-Enduri, M. K., Anamalamudi, S., Subba Reddy, T. and Tokala, S. (2022).
-Computing Influential Nodes Using the Nearest Neighborhood Trust Value
-and PageRank in Complex Networks. Entropy, 24(5), 704.
-[doi:10.3390/e24050704](https://doi.org/10.3390/e24050704) .
+13(11), 280. [doi:10.3390/a13110280](https://doi.org/10.3390/a13110280)
+.
 
 ## See also
 

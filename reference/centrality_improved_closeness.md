@@ -62,8 +62,7 @@ not an estimate or a guarantee of optimal spreading predictions.
 
 Luan, Y., Bao, Z., & Zhang, H. (2021). Identifying Influential Spreaders
 in Complex Networks by Considering the Impact of the Number of Shortest
-Paths. Journal of Systems Science and Complexity, 34, 2168-2181,
-equation 7.
+Paths. Journal of Systems Science and Complexity, 34, 2168-2181.
 [doi:10.1007/s11424-021-0111-7](https://doi.org/10.1007/s11424-021-0111-7)
 .
 

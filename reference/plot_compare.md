@@ -3,7 +3,7 @@
 `plot_compare()` is an alias of
 [`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md).
 It is **not deprecated**:
-[`tna::plot_compare()`](http://sonsoles.me/tna/reference/plot_compare.md)
+[`tna::plot_compare()`](https://sonsoles.me/tna/reference/plot_compare.html)
 delegates to it by name (`cograph::plot_compare(x, y, ...)`), so the
 alias is part of the tna integration and must keep working. New cograph
 code may prefer the

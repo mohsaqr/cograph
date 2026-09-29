@@ -61,13 +61,12 @@ probability distribution or a stationary random-walk centrality.
 
 ## References
 
-van den Brink, R. and Gilles, R. P. (1992). Measuring domination in
-directed graphs. Tilburg Research Memorandum FEW 565, definition 2.1 and
-example 2.2, pp. 3-4. van den Brink, R. and Gilles, R. P. (2000).
-Measuring domination in directed networks. Social Networks, 22, 141-157,
-definition 2.1.
+van den Brink, R. and Gilles, R. P. (2000). Measuring domination in
+directed networks. Social Networks, 22, 141-157.
 [doi:10.1016/S0378-8733(00)00019-8](https://doi.org/10.1016/S0378-8733%2800%2900019-8)
-. Boldi, P. and Vigna, S. (2014). Axioms for centrality. Internet
+.
+
+Boldi, P. and Vigna, S. (2014). Axioms for centrality. Internet
 Mathematics, 10, 222-262.
 [doi:10.1080/15427951.2013.865686](https://doi.org/10.1080/15427951.2013.865686)
 .

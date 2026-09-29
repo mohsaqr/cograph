@@ -116,12 +116,8 @@ the package's verification directory.
 ## References
 
 Friedkin, N. E. (1991). Theoretical foundations for centrality measures.
-American Journal of Sociology, 96(6), 1478-1504. Equation (9) on page
-1485, equation (11) on page 1486, equation (20) on page 1489, the
-construction of \\W\\ and Table 1 on pages 1492-1494.
-[doi:10.1086/229694](https://doi.org/10.1086/229694) . The fundamental
-matrix and the mean first passage form are Kemeny, J. G. and Snell, J.
-L. (1960). Finite Markov Chains, page 79.
+American Journal of Sociology, 96(6), 1478-1504.
+[doi:10.1086/229694](https://doi.org/10.1086/229694) .
 
 ## See also
 

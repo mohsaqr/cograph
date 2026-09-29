@@ -126,15 +126,8 @@ published audit in the package's verification directory.
 
 Liu, J., Xiong, Q., Shi, W., Shi, X. and Wang, K. (2016). Evaluating the
 importance of nodes in complex networks. Physica A: Statistical
-Mechanics and its Applications, 452, 209-219. Equation (1) and the
-definitions of \\U\\, \\p\\ and \\\lambda\\ on page 210, equations (2)
-and (3) on page 211, the complexity claim in Table 4 on page 218, and
-the ARPA fixture in Table 3 and Fig. 6 on page 217.
+Mechanics and its Applications, 452, 209-219.
 [doi:10.1016/j.physa.2016.02.049](https://doi.org/10.1016/j.physa.2016.02.049)
-. The same three equations are reproduced as equations (7)-(9) by
-Almasi, S. and Hu, T. (2019). Measuring the importance of vertices in
-the weighted human disease network. PLoS ONE, 14(3), e0205936.
-[doi:10.1371/journal.pone.0205936](https://doi.org/10.1371/journal.pone.0205936)
 .
 
 ## See also

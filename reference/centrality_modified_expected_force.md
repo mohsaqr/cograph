@@ -43,7 +43,7 @@ Named numeric vector in input node order.
 ## References
 
 Lawyer, G. (2015). Understanding the influence of all nodes in a
-network. Scientific Reports, 5, 8665, equation 2.
+network. Scientific Reports, 5, 8665.
 [doi:10.1038/srep08665](https://doi.org/10.1038/srep08665) .
 
 ## Examples

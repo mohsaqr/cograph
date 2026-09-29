@@ -37,7 +37,10 @@ Directed-only.
 
 ## References
 
-Gould & Fernandez (1989).
+Gould, R. V., & Fernandez, R. M. (1989). Structures of mediation: A
+formal approach to brokerage in transaction networks. *Sociological
+Methodology*, 19, 89-126.
+[doi:10.2307/270949](https://doi.org/10.2307/270949) .
 
 ## See also
 

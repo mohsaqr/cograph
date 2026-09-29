@@ -7,7 +7,7 @@ are no donut/inits.
 
 Plots the original tna model with nodes colored by community membership.
 The original model is retrieved from `attr(x, "tna")`, which
-[`tna::communities()`](http://sonsoles.me/tna/reference/communities.md)
+[`tna::communities()`](https://sonsoles.me/tna/reference/communities.html)
 sets automatically. Uses `walktrap` if present in `x$assignments`;
 otherwise falls back to the first available algorithm column.
 

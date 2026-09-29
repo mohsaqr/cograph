@@ -96,9 +96,7 @@ not exist, and not any claim about spreading performance.
 
 Zhong, L.-F., Liu, J.-G. and Shang, M.-S. (2015). Iterative resource
 allocation based on propagation feature of node for identifying the
-influential nodes. Physics Letters A, 379(38), 2272-2276. Equations 1, 2
-and 4 and figure 2 on page 2 of the author preprint arXiv:1505.03214v1,
-which is what was read.
+influential nodes. Physics Letters A, 379(38), 2272-2276.
 [doi:10.1016/j.physleta.2015.05.021](https://doi.org/10.1016/j.physleta.2015.05.021)
 .
 

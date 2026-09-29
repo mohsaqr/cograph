@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.12</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -20,7 +20,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
     <li><a class="dropdown-item" href="../articles/centrality-catalogue.html">Centrality catalogue</a></li>
-    <li><a class="dropdown-item" href="../articles/centrality-zoo-lookup.html">Centrality Zoo lookup</a></li>
+    <li><a class="dropdown-item" href="../articles/centrality-zoo-lookup.html">cograph and the Centrality Zoo</a></li>
     <li><a class="dropdown-item" href="../articles/why-cograph.html">Why cograph?</a></li>
     <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">TNA Plotting Gallery and Visual Smoke Test</a></li>
     <li><a class="dropdown-item" href="../articles/mcml-examples.html">Advanced examples</a></li>
@@ -44,6 +44,23 @@
       <small>Source: <a href="https://github.com/sonsoleslp/cograph/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.7.0" id="cograph-270">cograph 2.7.0<a class="anchor" aria-label="anchor" href="#cograph-270"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-2-7-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-7-0"></a></h3>
+<ul><li>
+<code><a href="../reference/network_clique_size.html">network_clique_size()</a></code>, and with it <code>network_summary(extended = TRUE)</code>, crashed R with a C stack overflow on directed networks such as <code>student_interactions</code>. The crash is in <code><a href="https://r.igraph.org/reference/cliques.html" class="external-link">igraph::clique_num()</a></code> (igraph 2.3.3) on directed input. Cliques ignore direction, so the count now runs on the simple undirected network; the result is unchanged for undirected input.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="documentation-2-7-0">Documentation<a class="anchor" aria-label="anchor" href="#documentation-2-7-0"></a></h3>
+<ul><li><p>New dataset <code>regulation_net</code>: a synthetic weighted transition network among ten learning regulation states, used in the examples. Its help page states that it is synthetic and gives the recipe that generated it.</p></li>
+<li><p>The introduction vignette is rewritten section by section. Each section opens with what cograph offers for the task, the tables are corrected (the higher-order functions are marked as Nestimate’s, <code><a href="../reference/plot_mlna.html">mlna()</a></code> is listed as the plot it is, <code><a href="../reference/summarize_network.html">summarize_network()</a></code> is listed with the cluster tools, and <code><a href="../reference/plot_difference.html">plot_difference()</a></code> replaces <code><a href="../reference/plot_compare.html">plot_compare()</a></code>), the disparity example uses the object <code><a href="../reference/splot.html">splot()</a></code> expects, and the examples use <code>regulation_net</code>.</p></li>
+<li><p>The README is redesigned: a statement of the package’s scope, a quick start with four examples on <code>regulation_net</code> (plotting, centrality, a hierarchical multi-cluster plot and higher-order pathways), a summary of each area linked to its article, and a list of the tutorials and articles. It replaces the long function tables and the example figures from the June release.</p></li>
+<li><p>Every citation in the help pages was checked against Crossref, arXiv and DataCite. Two did not exist and are gone: a 2011 <em>Procedia Engineering</em> paper cited by <code><a href="../reference/centrality_node_contraction.html">centrality_node_contraction()</a></code> and a 2008 conference paper cited by <code><a href="../reference/group_centrality.html">group_centrality()</a></code>, which now cites Puzis, Elovici and Dolev (2007). <code><a href="../reference/centrality_pairwisedis.html">centrality_pairwisedis()</a></code> now cites the paper that introduced the index (Potapov, Goemann and Wingender, 2008). The brokerage role pages give the full Gould and Fernandez (1989) reference, and 53 references are reduced to standard form, with DOIs where they exist.</p></li>
+<li><p>The centrality catalogue vignette no longer prints a reference paragraph under each of its 201 measures. Those paragraphs carried citations, page numbers and verification claims that could not be vouched for, so they were removed rather than kept unchecked. The 46 “Meaning” paragraphs that had grown into implementation notes (up to 728 words, arguing with source papers and with the Centrality Zoo’s transcriptions) are rewritten as short interpretations of what a high value means; the longest is now 62 words.</p></li>
+<li><p>The “Centrality Zoo lookup” article is now “cograph and the Centrality Zoo”. It compares the number of centralities in cograph with nine other centrality packages and lists which of the Zoo’s 349 measures <code><a href="../reference/centrality.html">centrality()</a></code> implements, with the closest implemented measure for each of the others. Every number on the page is computed from the files in <code>docs/zoo/</code>.</p></li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.6.11" id="cograph-2611">cograph 2.6.11<a class="anchor" aria-label="anchor" href="#cograph-2611"></a></h2>
 <div class="section level3">
@@ -167,13 +184,13 @@
 </div>
 <div class="section level3">
 <h3 id="faster-motif-permutation-tests-2-6-3">Faster motif permutation tests<a class="anchor" aria-label="anchor" href="#faster-motif-permutation-tests-2-6-3"></a></h3>
-<p><code><a href="../reference/motifs.html">motifs()</a></code> on individual-level data (a <code>tna</code> model, or an edge list with an actor column) now runs its permutation null several times faster — on <code><a href="http://sonsoles.me/tna/reference/group_regulation.html" class="external-link">tna::group_regulation</a></code> with the default <code>n_perm = 1000</code>, 255s to 39s. The null builds class counts directly instead of materialising and then re-counting a row per node triple, and the triple indices are computed once per state space rather than once per unit per replicate.</p>
+<p><code><a href="../reference/motifs.html">motifs()</a></code> on individual-level data (a <code>tna</code> model, or an edge list with an actor column) now runs its permutation null several times faster — on <code><a href="https://sonsoles.me/tna/reference/group_regulation.html" class="external-link">tna::group_regulation</a></code> with the default <code>n_perm = 1000</code>, 255s to 39s. The null builds class counts directly instead of materialising and then re-counting a row per node triple, and the triple indices are computed once per state space rather than once per unit per replicate.</p>
 <p>Results are unchanged: for a given <code>seed</code> the permutation draws, and every count, expectation, z score and p value, are identical to previous versions.</p>
 </div>
 <div class="section level3">
 <h3 id="faster-extract_motifssignificance--true-2-6-3">Faster <code>extract_motifs(significance = TRUE)</code>
 <a class="anchor" aria-label="anchor" href="#faster-extract_motifssignificance--true-2-6-3"></a></h3>
-<p>The instance-level permutation null now counts (triple, class) pairs directly instead of building a labelled row per triple per unit and re-aggregating it by a pasted key. On <code><a href="http://sonsoles.me/tna/reference/group_regulation.html" class="external-link">tna::group_regulation</a></code> at <code>n_perm = 1000</code>, 428s to 32s. Results are unchanged for a given <code>seed</code>.</p>
+<p>The instance-level permutation null now counts (triple, class) pairs directly instead of building a labelled row per triple per unit and re-aggregating it by a pasted key. On <code><a href="https://sonsoles.me/tna/reference/group_regulation.html" class="external-link">tna::group_regulation</a></code> at <code>n_perm = 1000</code>, 428s to 32s. Results are unchanged for a given <code>seed</code>.</p>
 </div>
 <div class="section level3">
 <h3 id="motifscores---2-6-3"><code>motifs(cores = )</code><a class="anchor" aria-label="anchor" href="#motifscores---2-6-3"></a></h3>
@@ -789,7 +806,7 @@
 <h2 class="pkg-version" data-toc-text="2.4.2" id="cograph-242">cograph 2.4.2<a class="anchor" aria-label="anchor" href="#cograph-242"></a></h2>
 <div class="section level3">
 <h3 id="bug-fixes--changes-2-4-2">Bug fixes / changes<a class="anchor" aria-label="anchor" href="#bug-fixes--changes-2-4-2"></a></h3>
-<ul><li><p><code><a href="../reference/plot_compare.html">plot_compare()</a></code> is <strong>no longer deprecated</strong> — it is a plain alias of <code><a href="../reference/plot_difference.html">plot_difference()</a></code>. <code><a href="http://sonsoles.me/tna/reference/plot_compare.html" class="external-link">tna::plot_compare()</a></code> delegates to it by name (<code>cograph::plot_compare(x, y, ...)</code>), so deprecating it wrongly made every <code><a href="http://sonsoles.me/tna/reference/plot_compare.html" class="external-link">tna::plot_compare()</a></code> call emit a warning; the warning is removed. Both names call the same implementation; <code><a href="../reference/plot_difference.html">plot_difference()</a></code> is the preferred spelling for new cograph code.</p></li>
+<ul><li><p><code><a href="../reference/plot_compare.html">plot_compare()</a></code> is <strong>no longer deprecated</strong> — it is a plain alias of <code><a href="../reference/plot_difference.html">plot_difference()</a></code>. <code><a href="https://sonsoles.me/tna/reference/plot_compare.html" class="external-link">tna::plot_compare()</a></code> delegates to it by name (<code>cograph::plot_compare(x, y, ...)</code>), so deprecating it wrongly made every <code><a href="https://sonsoles.me/tna/reference/plot_compare.html" class="external-link">tna::plot_compare()</a></code> call emit a warning; the warning is removed. Both names call the same implementation; <code><a href="../reference/plot_difference.html">plot_difference()</a></code> is the preferred spelling for new cograph code.</p></li>
 <li><p><code><a href="../reference/plot_difference.html">plot_difference()</a></code> also auto-detects a Nestimate <code>netdifference</code> object (or any object exposing <code>$difference_matrix</code>), alongside <code>tna_comparison</code>.</p></li>
 </ul></div>
 </div>
@@ -798,7 +815,7 @@
 <div class="section level3">
 <h3 id="new-features-2-4-1">New features<a class="anchor" aria-label="anchor" href="#new-features-2-4-1"></a></h3>
 <ul><li>
-<code><a href="../reference/plot_difference.html">plot_difference()</a></code> can now consume a <strong>pre-computed difference network</strong>: a <code>tna_comparison</code> object (from <code><a href="http://sonsoles.me/tna/reference/compare.html" class="external-link">tna::compare()</a></code>) is detected automatically and its <code>$difference_matrix</code> is plotted, and <code>difference = TRUE</code> treats <code>x</code> as an already-subtracted matrix/network (no <code>y</code> needed). The two-network <code>plot_difference(x, y)</code> path is unchanged.</li>
+<code><a href="../reference/plot_difference.html">plot_difference()</a></code> can now consume a <strong>pre-computed difference network</strong>: a <code>tna_comparison</code> object (from <code><a href="https://sonsoles.me/tna/reference/compare.html" class="external-link">tna::compare()</a></code>) is detected automatically and its <code>$difference_matrix</code> is plotted, and <code>difference = TRUE</code> treats <code>x</code> as an already-subtracted matrix/network (no <code>y</code> needed). The two-network <code>plot_difference(x, y)</code> path is unchanged.</li>
 </ul></div>
 </div>
     <div class="section level2">
@@ -815,7 +832,7 @@
 <div class="section level3">
 <h3 id="bug-fixes--changes-2-4-0">Bug fixes / changes<a class="anchor" aria-label="anchor" href="#bug-fixes--changes-2-4-0"></a></h3>
 <ul><li><p><code><a href="../reference/plot_difference.html">plot_difference()</a></code> now <strong>styles the difference network automatically</strong> instead of drawing bare default-blue nodes: an undirected difference gets the psychometric look (Okabe-Ito node palette, no arrows, thin edges), a directed difference gets the TNA look (TNA palette, arrows). Node size uses the calibrated preset (previously nodes could render near-invisible), and edges stay coloured by the sign of the difference. Explicit <code>node_*</code> arguments still override the preset.</p></li>
-<li><p><code><a href="../reference/plot_difference.html">plot_difference()</a></code> is added as the preferred name for the difference-network plotter. <code><a href="../reference/plot_compare.html">plot_compare()</a></code> remains a first-class alias of it (<code><a href="http://sonsoles.me/tna/reference/plot_compare.html" class="external-link">tna::plot_compare()</a></code> delegates to <code><a href="../reference/plot_compare.html">cograph::plot_compare()</a></code> by name, so the name must keep working).</p></li>
+<li><p><code><a href="../reference/plot_difference.html">plot_difference()</a></code> is added as the preferred name for the difference-network plotter. <code><a href="../reference/plot_compare.html">plot_compare()</a></code> remains a first-class alias of it (<code><a href="https://sonsoles.me/tna/reference/plot_compare.html" class="external-link">tna::plot_compare()</a></code> delegates to <code><a href="../reference/plot_compare.html">cograph::plot_compare()</a></code> by name, so the name must keep working).</p></li>
 <li><p><code><a href="../reference/plot_difference.html">plot_difference()</a></code> (the renamed difference-network plotter) now treats an S3 <code>cograph_network</code> (which is itself a list — e.g. a <code>psychnet</code> fit, a Nestimate <code>netobject</code>, or any <code><a href="../reference/as_cograph.html">as_cograph()</a></code> result) as a single network. Previously such an object fell into the “plain list of networks” branch and was misread as a list of sub-networks, failing with “x must be a matrix, cograph_network, tna, or igraph object”. Comparing two psychnet/netobject networks with <code>plot_difference(net1, net2)</code> now works.</p></li>
 </ul></div>
 </div>
@@ -948,7 +965,7 @@
 <div class="section level3">
 <h3 id="centrality-2-3-0">Centrality<a class="anchor" aria-label="anchor" href="#centrality-2-3-0"></a></h3>
 <ul><li>
-<code><a href="../reference/centrality.html">centrality()</a></code> gains an umbrella argument <code>tna_network</code> (logical or NULL). When <code>TRUE</code> (or auto-detected from a <code>tna</code>/<code>group_tna</code>/<code>ctna</code>/ <code>ftna</code>/<code>atna</code> input), all measures shared with <code><a href="http://sonsoles.me/tna/reference/centralities.html" class="external-link">tna::centralities()</a></code> match byte-for-byte: <code>loops = FALSE</code>, <code>invert_weights = TRUE</code>, <code>diffusion_method = "power_series"</code>, <code>transitivity_type = "onnela"</code>. Side-by-side audit confirms zero divergence on <code>OutStrength</code>, <code>InStrength</code>, <code>ClosenessIn/Out/All</code>, <code>Betweenness</code>, <code>Diffusion</code>, <code>Clustering</code> (<code>max|diff| = 0</code>). Any per-argument override the user passes explicitly always wins over the umbrella.</li>
+<code><a href="../reference/centrality.html">centrality()</a></code> gains an umbrella argument <code>tna_network</code> (logical or NULL). When <code>TRUE</code> (or auto-detected from a <code>tna</code>/<code>group_tna</code>/<code>ctna</code>/ <code>ftna</code>/<code>atna</code> input), all measures shared with <code><a href="https://sonsoles.me/tna/reference/centralities.html" class="external-link">tna::centralities()</a></code> match byte-for-byte: <code>loops = FALSE</code>, <code>invert_weights = TRUE</code>, <code>diffusion_method = "power_series"</code>, <code>transitivity_type = "onnela"</code>. Side-by-side audit confirms zero divergence on <code>OutStrength</code>, <code>InStrength</code>, <code>ClosenessIn/Out/All</code>, <code>Betweenness</code>, <code>Diffusion</code>, <code>Clustering</code> (<code>max|diff| = 0</code>). Any per-argument override the user passes explicitly always wins over the umbrella.</li>
 <li>
 <code><a href="../reference/centrality.html">centrality()</a></code> (and <code><a href="../reference/centrality_diffusion.html">centrality_diffusion()</a></code>) gain a <code>diffusion_method = c("kandhway_kuri", "power_series")</code> argument. The default <code>NULL</code> auto-detects: <code>"power_series"</code> for tna inputs (matches <code>tna::centralities(., measures = "Diffusion")</code> byte-for-byte when <code>loops = FALSE</code>), <code>"kandhway_kuri"</code> (the existing 1-hop binary-degree formula, Kandhway &amp; Kuri 2014) for everything else. Previously cograph’s diffusion silently disagreed with tna’s because cograph used an unweighted neighborhood-degree sum while tna uses <code>rowSums(P + P^2 + ... + P^n)</code> on the diagonal-zeroed weighted matrix — the same name covered two different statistics. Set explicitly to override the auto-detect.</li>
 </ul></div>

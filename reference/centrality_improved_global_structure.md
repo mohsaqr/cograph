@@ -50,9 +50,6 @@ Zhu, J.-C., & Wang, L.-W. (2022). An extended improved global structure
 model for influential node identification in complex networks. Chinese
 Physics B, 31, 068904.
 [doi:10.1088/1674-1056/ac380d](https://doi.org/10.1088/1674-1056/ac380d)
-. The implemented IGSM formula is reproduced as equation 5 in Mukhtar et
-al. (2023),
-[doi:10.1038/s41598-023-37570-7](https://doi.org/10.1038/s41598-023-37570-7)
 .
 
 ## Examples

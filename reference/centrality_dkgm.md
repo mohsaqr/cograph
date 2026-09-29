@@ -85,7 +85,7 @@ performance.
 
 Li, Z. and Huang, X. (2021). Identifying influential spreaders in
 complex networks by an improved gravity model. Scientific Reports, 11,
-22194. Equations 1-3, Algorithm 1 and Tables 2-5.
+22194.
 [doi:10.1038/s41598-021-01218-1](https://doi.org/10.1038/s41598-021-01218-1)
 .
 

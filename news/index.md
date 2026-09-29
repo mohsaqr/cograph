@@ -1,5 +1,76 @@
 # Changelog
 
+## cograph 2.7.0
+
+### Bug fixes
+
+- [`network_clique_size()`](https://sonsoles.me/cograph/reference/network_clique_size.md),
+  and with it `network_summary(extended = TRUE)`, crashed R with a C
+  stack overflow on directed networks such as `student_interactions`.
+  The crash is in
+  [`igraph::clique_num()`](https://r.igraph.org/reference/cliques.html)
+  (igraph 2.3.3) on directed input. Cliques ignore direction, so the
+  count now runs on the simple undirected network; the result is
+  unchanged for undirected input.
+
+### Documentation
+
+- New dataset `regulation_net`: a synthetic weighted transition network
+  among ten learning regulation states, used in the examples. Its help
+  page states that it is synthetic and gives the recipe that generated
+  it.
+
+- The introduction vignette is rewritten section by section. Each
+  section opens with what cograph offers for the task, the tables are
+  corrected (the higher-order functions are marked as Nestimate’s,
+  [`mlna()`](https://sonsoles.me/cograph/reference/plot_mlna.md) is
+  listed as the plot it is,
+  [`summarize_network()`](https://sonsoles.me/cograph/reference/summarize_network.md)
+  is listed with the cluster tools, and
+  [`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md)
+  replaces
+  [`plot_compare()`](https://sonsoles.me/cograph/reference/plot_compare.md)),
+  the disparity example uses the object
+  [`splot()`](https://sonsoles.me/cograph/reference/splot.md) expects,
+  and the examples use `regulation_net`.
+
+- The README is redesigned: a statement of the package’s scope, a quick
+  start with four examples on `regulation_net` (plotting, centrality, a
+  hierarchical multi-cluster plot and higher-order pathways), a summary
+  of each area linked to its article, and a list of the tutorials and
+  articles. It replaces the long function tables and the example figures
+  from the June release.
+
+- Every citation in the help pages was checked against Crossref, arXiv
+  and DataCite. Two did not exist and are gone: a 2011 *Procedia
+  Engineering* paper cited by
+  [`centrality_node_contraction()`](https://sonsoles.me/cograph/reference/centrality_node_contraction.md)
+  and a 2008 conference paper cited by
+  [`group_centrality()`](https://sonsoles.me/cograph/reference/group_centrality.md),
+  which now cites Puzis, Elovici and Dolev (2007).
+  [`centrality_pairwisedis()`](https://sonsoles.me/cograph/reference/centrality_pairwisedis.md)
+  now cites the paper that introduced the index (Potapov, Goemann and
+  Wingender, 2008). The brokerage role pages give the full Gould and
+  Fernandez (1989) reference, and 53 references are reduced to standard
+  form, with DOIs where they exist.
+
+- The centrality catalogue vignette no longer prints a reference
+  paragraph under each of its 201 measures. Those paragraphs carried
+  citations, page numbers and verification claims that could not be
+  vouched for, so they were removed rather than kept unchecked. The 46
+  “Meaning” paragraphs that had grown into implementation notes (up to
+  728 words, arguing with source papers and with the Centrality Zoo’s
+  transcriptions) are rewritten as short interpretations of what a high
+  value means; the longest is now 62 words.
+
+- The “Centrality Zoo lookup” article is now “cograph and the Centrality
+  Zoo”. It compares the number of centralities in cograph with nine
+  other centrality packages and lists which of the Zoo’s 349 measures
+  [`centrality()`](https://sonsoles.me/cograph/reference/centrality.md)
+  implements, with the closest implemented measure for each of the
+  others. Every number on the page is computed from the files in
+  `docs/zoo/`.
+
 ## cograph 2.6.11
 
 ### `plot_mcml()`: the figure’s height can now be controlled
@@ -352,7 +423,7 @@ keep working without it.
 [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md) on
 individual-level data (a `tna` model, or an edge list with an actor
 column) now runs its permutation null several times faster — on
-[`tna::group_regulation`](http://sonsoles.me/tna/reference/group_regulation.md)
+[`tna::group_regulation`](https://sonsoles.me/tna/reference/group_regulation.html)
 with the default `n_perm = 1000`, 255s to 39s. The null builds class
 counts directly instead of materialising and then re-counting a row per
 node triple, and the triple indices are computed once per state space
@@ -367,7 +438,7 @@ versions.
 The instance-level permutation null now counts (triple, class) pairs
 directly instead of building a labelled row per triple per unit and
 re-aggregating it by a pasted key. On
-[`tna::group_regulation`](http://sonsoles.me/tna/reference/group_regulation.md)
+[`tna::group_regulation`](https://sonsoles.me/tna/reference/group_regulation.html)
 at `n_perm = 1000`, 428s to 32s. Results are unchanged for a given
 `seed`.
 
@@ -2347,10 +2418,10 @@ blocks, 6 PASS).
 - [`plot_compare()`](https://sonsoles.me/cograph/reference/plot_compare.md)
   is **no longer deprecated** — it is a plain alias of
   [`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md).
-  [`tna::plot_compare()`](http://sonsoles.me/tna/reference/plot_compare.md)
+  [`tna::plot_compare()`](https://sonsoles.me/tna/reference/plot_compare.html)
   delegates to it by name (`cograph::plot_compare(x, y, ...)`), so
   deprecating it wrongly made every
-  [`tna::plot_compare()`](http://sonsoles.me/tna/reference/plot_compare.md)
+  [`tna::plot_compare()`](https://sonsoles.me/tna/reference/plot_compare.html)
   call emit a warning; the warning is removed. Both names call the same
   implementation;
   [`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md)
@@ -2367,7 +2438,7 @@ blocks, 6 PASS).
 - [`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md)
   can now consume a **pre-computed difference network**: a
   `tna_comparison` object (from
-  [`tna::compare()`](http://sonsoles.me/tna/reference/compare.md)) is
+  [`tna::compare()`](https://sonsoles.me/tna/reference/compare.html)) is
   detected automatically and its `$difference_matrix` is plotted, and
   `difference = TRUE` treats `x` as an already-subtracted matrix/network
   (no `y` needed). The two-network `plot_difference(x, y)` path is
@@ -2406,7 +2477,7 @@ blocks, 6 PASS).
   is added as the preferred name for the difference-network plotter.
   [`plot_compare()`](https://sonsoles.me/cograph/reference/plot_compare.md)
   remains a first-class alias of it
-  ([`tna::plot_compare()`](http://sonsoles.me/tna/reference/plot_compare.md)
+  ([`tna::plot_compare()`](https://sonsoles.me/tna/reference/plot_compare.html)
   delegates to
   [`cograph::plot_compare()`](https://sonsoles.me/cograph/reference/plot_compare.md)
   by name, so the name must keep working).
@@ -2736,7 +2807,7 @@ CRAN release: 2026-05-31
   gains an umbrella argument `tna_network` (logical or NULL). When
   `TRUE` (or auto-detected from a `tna`/`group_tna`/`ctna`/
   `ftna`/`atna` input), all measures shared with
-  [`tna::centralities()`](http://sonsoles.me/tna/reference/centralities.md)
+  [`tna::centralities()`](https://sonsoles.me/tna/reference/centralities.html)
   match byte-for-byte: `loops = FALSE`, `invert_weights = TRUE`,
   `diffusion_method = "power_series"`, `transitivity_type = "onnela"`.
   Side-by-side audit confirms zero divergence on `OutStrength`,

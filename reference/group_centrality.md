@@ -72,9 +72,9 @@ A single numeric scalar — the group centrality of the set `nodes`.
 
 ## Divergence from NetworkX on betweenness
 
-`networkx.group_betweenness_centrality` uses the Puzis-Yahalom-Elovici
+`networkx.group_betweenness_centrality` uses the Puzis-Elovici-Dolev
 iterative algorithm, which produces results that diverge from the
-textbook Everett-Borgatti / Puzis 2008 "at least one node in C"
+textbook Everett-Borgatti / Puzis 2007 "at least one node in C"
 definition on some graph topologies (verified via an independent Python
 brute-force). cograph implements the textbook formula directly;
 group_closeness and group_degree match NetworkX exactly.
@@ -84,9 +84,11 @@ group_closeness and group_degree match NetworkX exactly.
 Everett, M. G., & Borgatti, S. P. (1999). The centrality of groups and
 classes. *Journal of Mathematical Sociology*, 23(3), 181-201.
 
-Puzis, R., Yahalom, R., & Elovici, Y. (2008). Augmentative data
-collection for betweenness centrality. In *Advances in Social Networks
-Analysis and Mining* (pp. 196-200). IEEE.
+Puzis, R., Elovici, Y., & Dolev, S. (2007). Fast algorithm for
+successive computation of group betweenness centrality. *Physical Review
+E*, 76, 056709.
+[doi:10.1103/PhysRevE.76.056709](https://doi.org/10.1103/PhysRevE.76.056709)
+.
 
 ## See also
 

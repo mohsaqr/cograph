@@ -51,7 +51,7 @@ parity or superior epidemic-spreading predictions.
 
 Ullah, A., Wang, B., Sheng, J., Long, J., Khan, N., & Sun, Z. (2021).
 Identification of nodes influence based on global structure model in
-complex networks. Scientific Reports, 11, 6173, equations 5-8.
+complex networks. Scientific Reports, 11, 6173.
 [doi:10.1038/s41598-021-84684-x](https://doi.org/10.1038/s41598-021-84684-x)
 .
 

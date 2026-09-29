@@ -51,10 +51,10 @@ dense matrix multiplication across all nodes.
 
 ## References
 
-Nanda, S. and Kotz, D. (2012). Localized Bridging Centrality. Handbook
-of Optimization in Complex Networks, pp. 197-224, equations 7.7-7.8.
+Nanda, S. and Kotz, D. (2012). Localized Bridging Centrality. In
+Handbook of Optimization in Complex Networks, pp. 197-224.
 [doi:10.1007/978-1-4614-0857-4_7](https://doi.org/10.1007/978-1-4614-0857-4_7)
-. This author chapter restates their 2008 LBC definition.
+.
 
 ## See also
 

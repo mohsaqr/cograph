@@ -43,8 +43,7 @@ degree. High scores favor nodes with many neighbors of low degree.
 
 Karci, A., Yakut, S., & Oztemiz, F. (2022). A New Approach Based on
 Centrality Value in Solving the Minimum Vertex Cover Problem: Malatya
-Centrality Algorithm. Journal of Computer Science, 7(2), 81-88,
-equation 1.
+Centrality Algorithm. Journal of Computer Science, 7(2), 81-88.
 [doi:10.53070/bbd.1195501](https://doi.org/10.53070/bbd.1195501) .
 
 ## Examples

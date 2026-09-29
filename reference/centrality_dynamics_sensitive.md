@@ -67,8 +67,7 @@ Overflow raises an error, even if normalization is requested.
 
 Liu, J. G., Lin, J. H., Guo, Q., & Zhou, T. (2016). Locating influential
 nodes via dynamics-sensitive centrality. Scientific Reports, 6, 21380.
-[doi:10.1038/srep21380](https://doi.org/10.1038/srep21380) . Preprint
-equations 5 and 7: <https://arxiv.org/abs/1504.06672>.
+[doi:10.1038/srep21380](https://doi.org/10.1038/srep21380) .
 
 ## See also
 

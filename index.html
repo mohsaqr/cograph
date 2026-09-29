@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.12</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,7 +43,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="articles/introduction.html">Introduction to cograph</a></li>
     <li><a class="dropdown-item" href="articles/centrality-catalogue.html">Centrality catalogue</a></li>
-    <li><a class="dropdown-item" href="articles/centrality-zoo-lookup.html">Centrality Zoo lookup</a></li>
+    <li><a class="dropdown-item" href="articles/centrality-zoo-lookup.html">cograph and the Centrality Zoo</a></li>
     <li><a class="dropdown-item" href="articles/why-cograph.html">Why cograph?</a></li>
     <li><a class="dropdown-item" href="articles/plotting-tna-models.html">TNA Plotting Gallery and Visual Smoke Test</a></li>
     <li><a class="dropdown-item" href="articles/mcml-examples.html">Advanced examples</a></li>
@@ -74,304 +74,119 @@
 </div>
 <!-- badges: start -->
 
-<p><strong>cograph</strong> is a modern R package for the analysis, visualization, and manipulation of complex networks. It provides publication-ready plotting with customizable layouts, node shapes, edge styles, and themes through an intuitive, pipe-friendly API. It includes first-class support for Transition Network Analysis (TNA), multilayer networks, and community detection.</p>
+<p>cograph is a modern R package for the analysis and visualization of complex networks, designed for simplicity, tidy outputs, comprehensive statistics and up-to-date network science. cograph accepts matrices, edge lists, and igraph, statnet, qgraph and tna objects without conversion, and offers a wide array of tools for plotting, wrangling, centrality, community detection, motif, robustness, multilayer and higher-order analysis.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Install from CRAN</span></span>
+<code class="sourceCode R"><span><span class="co"># Release version from CRAN</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"cograph"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Development version from GitHub</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"sonsoleslp/cograph"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># install.packages("remotes")</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"sonsoleslp/cograph"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="how-to-use-it">How to use it?<a class="anchor" aria-label="anchor" href="#how-to-use-it"></a>
+<h2 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
 </h2>
-<div class="section level3">
-<h3 id="full-tutorials">Full tutorials<a class="anchor" aria-label="anchor" href="#full-tutorials"></a>
-</h3>
-<ul>
-<li><a href="https://sonsoles.me/cograph/articles/cograph-tutorial-plotting.html">Network Visualization with <code>cograph</code></a></li>
-<li><a href="https://sonsoles.me/cograph/articles/cograph-tutorial-communities.html">Visualization of communities and higher-order networks</a></li>
-<li><a href="https://sonsoles.me/cograph/articles/cograph-tutorial-nestimate.html">Network Estimation and Visualization with <code>Nestimate</code> + cograph</a></li>
-<li><a href="https://sonsoles.me/cograph/articles/cograph-tutorial-mcml.html">Multi-Cluster Multi-Level Visualization with <code>plot_mcml</code></a></li>
-<li><a href="https://sonsoles.me/cograph/articles/cograph-tutorial-simplicial.html">Higher-Order Network Analysis with Simplicial Complexes</a></li>
-</ul>
-</div>
-<div class="section level3">
-<h3 id="quick-guides">Quick guides<a class="anchor" aria-label="anchor" href="#quick-guides"></a>
-</h3>
-<ul>
-<li><a href="https://sonsoles.me/cograph/articles/why-cograph.html">Why cograph?</a></li>
-<li><a href="https://sonsoles.me/cograph/articles/centrality-catalogue.html">Centrality catalogue</a></li>
-<li><a href="https://sonsoles.me/cograph/articles/plotting-tna-models.html">Plotting TNA Models with <code>splot</code></a></li>
-<li><a href="https://sonsoles.me/cograph/articles/mcml-examples.html">Advanced examples</a></li>
-<li><a href="https://sonsoles.me/cograph/articles/bootstrap-forest.html">Bootstrap Forest Plots</a></li>
-<li><a href="https://sonsoles.me/cograph/articles/qgraph-to-splot.html">Migrating from <code>qgraph</code> to <code>splot</code></a></li>
-</ul>
-</div>
-</div>
-<div class="section level2">
-<h2 id="features">Features<a class="anchor" aria-label="anchor" href="#features"></a>
-</h2>
-<div class="section level3">
-<h3 id="network-plotting">Network Plotting<a class="anchor" aria-label="anchor" href="#network-plotting"></a>
-</h3>
-<table class="table">
-<thead><tr>
-<th>Function</th>
-<th>Description</th>
-</tr></thead>
-<tbody>
-<tr>
-<td><code><a href="reference/splot.html">splot()</a></code></td>
-<td>Base R network plot (core engine)</td>
-</tr>
-<tr>
-<td><code><a href="reference/soplot.html">soplot()</a></code></td>
-<td>Grid/ggplot2 network rendering</td>
-</tr>
-<tr>
-<td><code><a href="reference/plot_tna.html">tplot()</a></code></td>
-<td>qgraph drop-in replacement for TNA</td>
-</tr>
-<tr>
-<td><code><a href="reference/plot_htna.html">plot_htna()</a></code></td>
-<td>Hierarchical multi-group TNA layouts</td>
-</tr>
-<tr>
-<td><code><a href="reference/plot_mtna.html">plot_mtna()</a></code></td>
-<td>Multi-cluster TNA with shape containers</td>
-</tr>
-<tr>
-<td><code><a href="reference/plot_mcml.html">plot_mcml()</a></code></td>
-<td>Markov Chain Multi-Level visualization</td>
-</tr>
-<tr>
-<td><code><a href="reference/plot_mlna.html">plot_mlna()</a></code></td>
-<td>Multilayer 3D perspective networks</td>
-</tr>
-<tr>
-<td><code><a href="reference/plot_mixed_network.html">plot_mixed_network()</a></code></td>
-<td>Combined symmetric/asymmetric edges</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section level3">
-<h3 id="flow-and-comparison-plots">Flow and Comparison Plots<a class="anchor" aria-label="anchor" href="#flow-and-comparison-plots"></a>
-</h3>
-<table class="table">
-<thead><tr>
-<th>Function</th>
-<th>Description</th>
-</tr></thead>
-<tbody>
-<tr>
-<td><code><a href="reference/plot_transitions.html">plot_transitions()</a></code></td>
-<td>Alluvial/Sankey flow diagrams</td>
-</tr>
-<tr>
-<td><code><a href="reference/plot_alluvial.html">plot_alluvial()</a></code></td>
-<td>Alluvial wrapper with flow coloring</td>
-</tr>
-<tr>
-<td><code><a href="reference/plot_trajectories.html">plot_trajectories()</a></code></td>
-<td>Individual tracking with line bundling</td>
-</tr>
-<tr>
-<td><code><a href="reference/plot_chord.html">plot_chord()</a></code></td>
-<td>Chord diagrams with ticks</td>
-</tr>
-<tr>
-<td><code><a href="reference/plot_heatmap.html">plot_heatmap()</a></code></td>
-<td>Adjacency heatmaps with clustering</td>
-</tr>
-<tr>
-<td><code><a href="reference/plot_compare.html">plot_compare()</a></code></td>
-<td>Difference network visualization</td>
-</tr>
-<tr>
-<td><code>plot_bootstrap()</code></td>
-<td>Bootstrap CI result plots</td>
-</tr>
-<tr>
-<td><code><a href="reference/plot_permutation.html">plot_permutation()</a></code></td>
-<td>Permutation test result plots</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section level3">
-<h3 id="community-and-higher-order-structure">Community and Higher-Order Structure<a class="anchor" aria-label="anchor" href="#community-and-higher-order-structure"></a>
-</h3>
-<table class="table">
-<colgroup>
-<col width="50%">
-<col width="50%">
-</colgroup>
-<thead><tr>
-<th>Function</th>
-<th>Description</th>
-</tr></thead>
-<tbody>
-<tr>
-<td><code><a href="reference/overlay_communities.html">overlay_communities()</a></code></td>
-<td>Community blob overlays on network plots</td>
-</tr>
-<tr>
-<td><code><a href="reference/plot_simplicial.html">plot_simplicial()</a></code></td>
-<td>Higher-order pathway (simplicial complex) visualization</td>
-</tr>
-<tr>
-<td><code><a href="reference/detect_communities.html">detect_communities()</a></code></td>
-<td>11 igraph algorithms with shorthand wrappers</td>
-</tr>
-<tr>
-<td><code><a href="reference/communities.html">communities()</a></code></td>
-<td>Unified community detection interface</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section level3">
-<h3 id="network-analysis">Network Analysis<a class="anchor" aria-label="anchor" href="#network-analysis"></a>
-</h3>
-<table class="table">
-<colgroup>
-<col width="50%">
-<col width="50%">
-</colgroup>
-<thead><tr>
-<th>Function</th>
-<th>Description</th>
-</tr></thead>
-<tbody>
-<tr>
-<td><code><a href="reference/centrality.html">centrality()</a></code></td>
-<td>87 centrality measures, validated against centiserve/sna/igraph/NetworkX</td>
-</tr>
-<tr>
-<td>
-<code><a href="reference/motifs.html">motifs()</a></code> / <code><a href="reference/subgraphs.html">subgraphs()</a></code>
-</td>
-<td>Motif/triad census with per-actor windowing</td>
-</tr>
-<tr>
-<td><code><a href="reference/robustness.html">robustness()</a></code></td>
-<td>Network robustness analysis</td>
-</tr>
-<tr>
-<td><code><a href="reference/disparity_filter.html">disparity_filter()</a></code></td>
-<td>Backbone extraction (Serrano et al. 2009)</td>
-</tr>
-<tr>
-<td><code>cluster_summary()</code></td>
-<td>Between/within cluster weight aggregation</td>
-</tr>
-<tr>
-<td><code>build_mcml()</code></td>
-<td>Markov Chain Multi-Level model construction</td>
-</tr>
-<tr>
-<td><code><a href="reference/summarize_network.html">summarize_network()</a></code></td>
-<td>Comprehensive network-level statistics</td>
-</tr>
-<tr>
-<td><code><a href="reference/verify_with_igraph.html">verify_with_igraph()</a></code></td>
-<td>Cross-validation against igraph</td>
-</tr>
-<tr>
-<td><code><a href="reference/simplify.html">simplify()</a></code></td>
-<td>Prune weak edges</td>
-</tr>
-</tbody>
-</table>
+<p>The examples use <code>regulation_net</code>, a synthetic weighted transition network among ten learning states included in the package. <code><a href="reference/splot.html">splot()</a></code> plots it in one call, and <code>tna_styling = TRUE</code> applies the visual conventions of transition networks.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">student_interactions</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/centrality.html">centrality</a></span><span class="op">(</span><span class="va">student_interactions</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="multilayer-networks">Multilayer Networks<a class="anchor" aria-label="anchor" href="#multilayer-networks"></a>
-</h3>
-<table class="table">
-<thead><tr>
-<th>Function</th>
-<th>Description</th>
-</tr></thead>
-<tbody>
-<tr>
-<td><code><a href="reference/supra_adjacency.html">supra_adjacency()</a></code></td>
-<td>Supra-adjacency matrix construction</td>
-</tr>
-<tr>
-<td><code><a href="reference/layer_similarity.html">layer_similarity()</a></code></td>
-<td>Layer comparison measures</td>
-</tr>
-<tr>
-<td><code><a href="reference/aggregate_layers.html">aggregate_layers()</a></code></td>
-<td>Weight aggregation across layers</td>
-</tr>
-<tr>
-<td><code><a href="reference/plot_ml_heatmap.html">plot_ml_heatmap()</a></code></td>
-<td>Multilayer heatmaps with 3D perspective</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="section level2">
-<h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
-</h2>
-<div class="section level3">
-<h3 id="tna-plot">TNA Plot<a class="anchor" aria-label="anchor" href="#tna-plot"></a>
-</h3>
-<p>The primary use case: visualize transition networks from the <code>tna</code> package.</p>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sonsoles.me/cograph/">cograph</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/splot.html">splot</a></span><span class="op">(</span><span class="va">regulation_net</span>, tna_styling <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-quick-splot-1.jpeg" alt="" width="100%"></p>
+<p><code><a href="reference/centrality.html">centrality()</a></code> returns any combination of measures as a tidy data frame, from the classical measures to recent ones such as randomized shortest-path betweenness and Trust-PageRank.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/sonsoleslp/tna/" class="external-link">tna</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sonsoles.me/cograph/">cograph</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Build a TNA model from sequence data</span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://sonsoles.me/tna/reference/build_model.html" class="external-link">tna</a></span><span class="op">(</span><span class="va">group_regulation</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># One-liner visualization</span></span>
-<span><span class="fu"><a href="reference/splot.html">splot</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-tna-plot-1.jpeg" alt="" width="100%"></p>
-</div>
-<div class="section level3">
-<h3 id="donut--pie">Donut + Pie<a class="anchor" aria-label="anchor" href="#donut--pie"></a>
-</h3>
-<p>Combine outer donut ring with inner pie segments.</p>
+<code class="sourceCode R"><span><span class="fu"><a href="reference/centrality.html">centrality</a></span><span class="op">(</span><span class="va">regulation_net</span>,</span>
+<span>           measures <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"strength"</span>, <span class="st">"betweenness"</span>, <span class="st">"pagerank"</span>,</span>
+<span>                        <span class="st">"rsp_betweenness"</span>, <span class="st">"trust_pagerank"</span><span class="op">)</span>,</span>
+<span>           sort_by <span class="op">=</span> <span class="st">"pagerank"</span>, digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;          node strength_all betweenness pagerank rsp_betweenness trust_pagerank</span></span>
+<span><span class="co">#&gt; 1     Monitor         1.87        18.0    0.184         132.027          0.147</span></span>
+<span><span class="co">#&gt; 2      Create         1.64        13.0    0.138         102.913          0.117</span></span>
+<span><span class="co">#&gt; 3     Reflect         1.39        10.0    0.125          79.405          0.084</span></span>
+<span><span class="co">#&gt; 4       Adapt         1.77        15.0    0.124          91.887          0.112</span></span>
+<span><span class="co">#&gt; 5     Explore         1.39         5.0    0.118          79.715          0.086</span></span>
+<span><span class="co">#&gt; 6       Share         1.95         9.0    0.095          69.907          0.092</span></span>
+<span><span class="co">#&gt; 7    Evaluate         1.71         3.0    0.074          51.387          0.092</span></span>
+<span><span class="co">#&gt; 8     Discuss         1.53         0.5    0.068          43.823          0.088</span></span>
+<span><span class="co">#&gt; 9  Synthesize         0.77         6.5    0.038          23.304          0.067</span></span>
+<span><span class="co">#&gt; 10       Plan         1.90        15.5    0.036          22.235          0.114</span></span></code></pre></div>
+<p><code><a href="reference/plot_mcml.html">plot_mcml()</a></code> shows a network whose nodes belong to clusters as a two-layer hierarchy, with the node-level network below and the cluster-level network above.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/splot.html">splot</a></span><span class="op">(</span><span class="va">mat</span>,</span>
-<span>  donut_fill <span class="op">=</span> <span class="va">fills</span>,</span>
-<span>  donut_color <span class="op">=</span> <span class="st">"steelblue"</span>,</span>
-<span>  pie_values <span class="op">=</span> <span class="va">pie_vals</span>,</span>
-<span>  pie_colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#E41A1C"</span>, <span class="st">"#377EB8"</span>, <span class="st">"#4DAF4A"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-donut-pie-1.jpeg" alt="" width="100%"></p>
-</div>
-<div class="section level3">
-<h3 id="chord-diagram">Chord Diagram<a class="anchor" aria-label="anchor" href="#chord-diagram"></a>
-</h3>
+<code class="sourceCode R"><span><span class="va">clusters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Cognitive  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Explore"</span>, <span class="st">"Plan"</span>, <span class="st">"Monitor"</span>, <span class="st">"Adapt"</span>, <span class="st">"Reflect"</span><span class="op">)</span>,</span>
+<span>                 Social     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Discuss"</span>, <span class="st">"Synthesize"</span>, <span class="st">"Share"</span><span class="op">)</span>,</span>
+<span>                 Evaluative <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Evaluate"</span>, <span class="st">"Create"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/plot_mcml.html">plot_mcml</a></span><span class="op">(</span><span class="va">regulation_net</span>, <span class="va">clusters</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-quick-mcml-1.jpeg" alt="" width="100%"></p>
+<p><code><a href="reference/plot_simplicial.html">plot_simplicial()</a></code> visualizes higher-order pathways over the network, with each pathway joining the states that lead to a target state.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/plot_chord.html">plot_chord</a></span><span class="op">(</span><span class="va">mat</span>, title <span class="op">=</span> <span class="st">"Transition Chord Diagram"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-chord-1.jpeg" alt="" width="100%"></p>
-</div>
-<div class="section level3">
-<h3 id="heatmap">Heatmap<a class="anchor" aria-label="anchor" href="#heatmap"></a>
-</h3>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/plot_heatmap.html">plot_heatmap</a></span><span class="op">(</span><span class="va">mat</span>, show_values <span class="op">=</span> <span class="cn">TRUE</span>, colors <span class="op">=</span> <span class="st">"viridis"</span>,</span>
-<span>             value_fontface <span class="op">=</span> <span class="st">"bold"</span>, title <span class="op">=</span> <span class="st">"Transition Heatmap"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-heatmap-1.jpeg" alt="" width="100%"></p>
-</div>
+<code class="sourceCode R"><span><span class="fu"><a href="reference/plot_simplicial.html">plot_simplicial</a></span><span class="op">(</span><span class="va">regulation_net</span>,</span>
+<span>                <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Explore Plan -&gt; Monitor"</span>, <span class="st">"Monitor Adapt -&gt; Reflect"</span>,</span>
+<span>                  <span class="st">"Discuss Synthesize -&gt; Evaluate"</span>, <span class="st">"Create Share -&gt; Explore"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-quick-simplicial-1.jpeg" alt="" width="100%"></p>
 </div>
 <div class="section level2">
-<h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
+<h2 id="what-cograph-covers">What cograph covers<a class="anchor" aria-label="anchor" href="#what-cograph-covers"></a>
 </h2>
-<p>MIT License.</p>
+<ul>
+<li>
+<strong><a href="https://sonsoles.me/cograph/articles/cograph-tutorial-plotting.html">Visualization</a>.</strong> <code><a href="reference/splot.html">splot()</a></code> plots any supported input with specialized styling for transition and psychological networks, alongside a wide array of specialized plots from alluvial flows and chord diagrams to bootstrap forest plots and temporal prisms.</li>
+<li>
+<strong><a href="https://sonsoles.me/cograph/articles/introduction.html#wrangling">Wrangling</a>.</strong> cograph offers a family of wrangling verbs for selecting, filtering, thresholding, transforming and editing networks, each returning a network so that the verbs chain with the native pipe.</li>
+<li>
+<strong><a href="https://sonsoles.me/cograph/articles/centrality-catalogue.html">Centrality</a>.</strong> <code><a href="reference/centrality.html">centrality()</a></code> returns a large collection of node centrality measures across all major families as a tidy data frame, tested against igraph, sna, centiserve, NetworkX and other implementations where they exist.</li>
+<li>
+<strong><a href="https://sonsoles.me/cograph/articles/introduction.html#network-properties">Network statistics</a>.</strong> <code><a href="reference/network_summary.html">network_summary()</a></code> returns density, diameter, centralization, reciprocity, transitivity and many further statistics in one data frame.</li>
+<li>
+<strong><a href="https://sonsoles.me/cograph/articles/cograph-tutorial-communities.html">Communities</a>.</strong> <code><a href="reference/communities.html">communities()</a></code> runs a range of detection algorithms through one call, with consensus, comparison and significance testing of partitions.</li>
+<li>
+<strong><a href="https://sonsoles.me/cograph/articles/introduction.html#motifs">Motifs</a>.</strong> <code><a href="reference/motifs.html">motifs()</a></code> and <code><a href="reference/subgraphs.html">subgraphs()</a></code> count the triads of the MAN classification, test their frequencies and identify the nodes that form each pattern.</li>
+<li>
+<strong><a href="https://sonsoles.me/cograph/articles/introduction.html#robustness">Robustness</a>.</strong> <code><a href="reference/robustness.html">robustness()</a></code> and <code><a href="reference/vulnerability.html">vulnerability()</a></code> simulate targeted and random attacks and measure each node’s contribution to the efficiency of the network.</li>
+<li>
+<strong><a href="https://sonsoles.me/cograph/articles/cograph-tutorial-mcml.html">Clusters, layers and higher-order structure</a>.</strong> cograph offers hierarchical plots for multi-cluster networks, supra-adjacency tools for multilayer networks, and visualization of higher-order pathways estimated with Nestimate.</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
+</h2>
+<p><strong>Tutorials</strong></p>
+<ul>
+<li>
+<a href="https://sonsoles.me/cograph/articles/cograph-tutorial-plotting.html">Network visualization with cograph</a>: a complete guide to plotting with <code><a href="reference/splot.html">splot()</a></code>.</li>
+<li>
+<a href="https://sonsoles.me/cograph/articles/cograph-tutorial-communities.html">Communities and higher-order networks</a>: detecting communities and visualizing them over the network.</li>
+<li>
+<a href="https://sonsoles.me/cograph/articles/cograph-tutorial-nestimate.html">Network estimation with Nestimate and cograph</a>: from sequence data to bootstrapped, compared and clustered networks.</li>
+<li>
+<a href="https://sonsoles.me/cograph/articles/cograph-tutorial-mcml.html">Multi-cluster multi-level visualization</a>: hierarchical plots of clustered networks with <code><a href="reference/plot_mcml.html">plot_mcml()</a></code>.</li>
+<li>
+<a href="https://sonsoles.me/cograph/articles/cograph-tutorial-simplicial.html">Higher-order network analysis with simplicial complexes</a>: from transition networks to topological analysis.</li>
+</ul>
+<p><strong>Articles</strong></p>
+<ul>
+<li>
+<a href="https://sonsoles.me/cograph/articles/introduction.html">Introduction to cograph</a>: an overview of the package.</li>
+<li>
+<a href="https://sonsoles.me/cograph/articles/why-cograph.html">Why cograph?</a>: the design of the package.</li>
+<li>
+<a href="https://sonsoles.me/cograph/articles/centrality-catalogue.html">Centrality catalogue</a>: every centrality measure with its definition and interpretation.</li>
+<li>
+<a href="https://sonsoles.me/cograph/articles/centrality-zoo-lookup.html">cograph and the Centrality Zoo</a>: cograph’s measures compared with the Zoo and with other packages.</li>
+<li>
+<a href="https://sonsoles.me/cograph/articles/plotting-tna-models.html">Plotting TNA models</a>: a gallery of TNA plots.</li>
+<li>
+<a href="https://sonsoles.me/cograph/articles/mcml-examples.html">Advanced MCML examples</a>: further multi-cluster figures.</li>
+<li>
+<a href="https://sonsoles.me/cograph/articles/bootstrap-forest.html">Bootstrap forest plots</a>: confidence intervals of bootstrapped edges.</li>
+<li>
+<a href="https://sonsoles.me/cograph/articles/qgraph-to-splot.html">Migrating from qgraph to splot</a>: qgraph arguments and their cograph equivalents.</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="citation-and-license">Citation and license<a class="anchor" aria-label="anchor" href="#citation-and-license"></a>
+</h2>
+<p>Please cite cograph with <code>citation("cograph")</code>. cograph is released under the MIT license.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

@@ -62,10 +62,9 @@ uniformity.
 
 ## References
 
-Burt, R. S. (1991). STRUCTURE, version 4.2, Reference Manual, Columbia
-University, pages 181-183. These pages reproduce the hierarchy
-definition attributed to equation 2.9 in Burt (1992), Structural Holes:
-The Social Structure of Competition, Harvard University Press.
+Burt, R. S. (1992). Structural Holes: The Social Structure of
+Competition. Harvard University Press.
+[doi:10.4159/9780674029095](https://doi.org/10.4159/9780674029095) .
 
 ## Examples
 

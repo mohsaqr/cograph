@@ -108,8 +108,7 @@ performance.
 
 Liu, J. and Zheng, J. (2023). Identifying important nodes in complex
 networks based on extended degree and E-shell hierarchy decomposition.
-Scientific Reports, 13, 3197. Equations (3) and (4) and the eight-step
-E-shell procedure on page 3, with the worked example on page 4.
+Scientific Reports, 13, 3197.
 [doi:10.1038/s41598-023-30308-5](https://doi.org/10.1038/s41598-023-30308-5)
 .
 

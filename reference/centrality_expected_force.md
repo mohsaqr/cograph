@@ -65,8 +65,7 @@ independent between components before maximum normalization.
 ## References
 
 Lawyer, G. (2015). Understanding the influence of all nodes in a
-network. Scientific Reports, 5, 8665. Equations 1 and 2 and the directed
-extension in the Weighted graphs section.
+network. Scientific Reports, 5, 8665.
 [doi:10.1038/srep08665](https://doi.org/10.1038/srep08665) .
 
 ## See also

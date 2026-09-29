@@ -129,9 +129,7 @@ limit claim on page 9, that the score becomes proportional to degree as
 
 Kivimaki, I., Lebichot, B., Saramaki, J. and Saerens, M. (2016). Two
 betweenness centrality measures based on Randomized Shortest Paths.
-Scientific Reports, 6, 19668. Equations (6) and (8) on pages 5-6,
-equations (14) and (15) and Algorithm 1 on pages 6-7, and the \\\beta\to
-0^+\\ limit on page 9.
+Scientific Reports, 6, 19668.
 [doi:10.1038/srep19668](https://doi.org/10.1038/srep19668) .
 
 ## See also

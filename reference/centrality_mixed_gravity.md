@@ -69,9 +69,9 @@ Mathematics and Computation, 334, 388-400.
 [doi:10.1016/j.amc.2018.04.028](https://doi.org/10.1016/j.amc.2018.04.028)
 .
 
-Definition read in Li, Z. and Huang, X. (2022). Identifying influential
-spreaders by gravity model considering multi-characteristics of nodes.
-Scientific Reports, 12, 9879. Equations 5-8 and reference 19.
+Li, Z. and Huang, X. (2022). Identifying influential spreaders by
+gravity model considering multi-characteristics of nodes. Scientific
+Reports, 12, 9879.
 [doi:10.1038/s41598-022-14005-3](https://doi.org/10.1038/s41598-022-14005-3)
 .
 

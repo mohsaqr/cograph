@@ -7,96 +7,90 @@ library(cograph)
 
 ## Why cograph
 
-R has several network packages — igraph for graph algorithms, qgraph for
-psychometric networks, tidygraph for dplyr-style manipulation. Each does
-one thing well but forces you into its own data format and API. Going
-from a raw matrix to a filtered, annotated, publication-ready figure
-typically means loading three packages, converting between formats, and
-writing boilerplate code to stitch the results together.
+R offers several network packages, each with its own data format and
+interface, among them igraph for graph algorithms, qgraph for
+psychometric networks, statnet for statistical network models and
+tidygraph for data manipulation. An analysis that uses more than one of
+them begins by converting the network between their formats.
 
-cograph was designed to eliminate that friction. Every function —
-plotting, centrality, community detection, filtering — accepts any major
-network format directly: matrices, edge lists, igraph, statnet, qgraph,
-and tna objects. No manual conversion. Centrality returns a tidy data
-frame, not a list of separate calls. Community detection is one function
-with 11 algorithms behind it. Statistical annotations (confidence
-intervals, p-values, significance stars) render directly on the figure.
-And when you need igraph or statnet for something cograph does not do,
-[`to_igraph()`](https://sonsoles.me/cograph/reference/to_igraph.md) and
-[`to_network()`](https://sonsoles.me/cograph/reference/to_network.md)
-convert back without data loss.
+cograph accepts the formats of all of these packages without conversion,
+and cograph’s analysis functions return their results as tidy data
+frames. cograph visualizes networks with specialized styling for
+transition and psychological networks, and plots the results of
+bootstrap, permutation and stability analyses directly. cograph offers a
+family of wrangling verbs for selecting, filtering, thresholding and
+editing networks, a large collection of node centrality measures across
+all major families, and a wide array of network-level statistics from
+density and diameter to efficiency and clique size. For community
+structure, cograph provides a range of detection algorithms together
+with consensus, comparison and significance testing of partitions, and
+for local structure, cograph provides motif analysis that identifies the
+nodes forming each pattern. cograph also supports robustness and
+vulnerability analysis, backbone extraction with the disparity filter,
+hierarchical plots for multi-cluster networks, multilayer networks and
+higher-order pathways. cograph’s figures carry statistical annotations
+such as confidence intervals, p-values and significance stars.
 
-Beyond standard network analysis, cograph visualizes higher-order
-sequential pathways as simplicial blob diagrams, renders bootstrap
-stability results with forest plots (linear, circular, and grouped
-layouts), and performs motif analysis that identifies specific named
-node triples — not just abstract type counts.
-
-The result is a single package that covers the full workflow from data
-import to publication-ready output, while remaining interoperable with
-the rest of the R network ecosystem.
-
-``` r
-
-set.seed(42)
-n <- 10
-states <- c("Explore", "Plan", "Monitor", "Adapt", "Reflect",
-            "Discuss", "Synthesize", "Evaluate", "Create", "Share")
-mat <- matrix(0, n, n, dimnames = list(states, states))
-# Sparse: ~30% of edges populated
-edges <- sample(which(row(mat) != col(mat)), 30)
-mat[edges] <- round(runif(30, 0.05, 0.5), 2)
-```
+The examples below use `regulation_net`, a synthetic weighted transition
+network among ten learning states such as Explore, Plan and Reflect,
+included in the package.
 
 ## Plotting
 
-[`splot()`](https://sonsoles.me/cograph/reference/splot.md) is the main
-plotting function. One call, publication-ready output.
+cograph offers tools for visualizing networks through
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md) and a set of
+specialized plots.
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md) plots any
+supported network input with base R graphics and has arguments for
+controlling the layout, the nodes and their pie and donut decorations,
+the edges with their curvature, arrows and labels, the legends and the
+theme. It has specialized styling for transition networks
+(`tna_styling`) and psychological networks (`psych_styling`), and it
+plots the result objects of tna and Nestimate directly, including
+bootstrap, permutation and stability results, multilevel VAR models and
+group comparisons. Heterogeneous transition networks are plotted with
+[`plot_htna()`](https://sonsoles.me/cograph/reference/plot_htna.md).
 
 ``` r
 
-splot(mat, tna_styling = TRUE, minimum = 0.1,
+splot(regulation_net, tna_styling = TRUE, minimum = 0.1,
   title = "Learning Regulation Network")
 ```
 
-![](introduction_files/figure-html/unnamed-chunk-3-1.png)
-
-Key parameters: `layout`, `minimum`, `node_fill`, `node_size`,
-`edge_labels`, `curvature`, `scale_nodes_by`, `theme`, `tna_styling`.
+![](introduction_files/figure-html/unnamed-chunk-2-1.png)
 
 ``` r
 
-splot(mat, layout = "spring")
-splot(mat, minimum = 0.1, edge_labels = TRUE)
-splot(mat, scale_nodes_by = "betweenness")
-splot(mat, theme = "dark")
-splot(mat, tna_styling = TRUE)
+splot(regulation_net, layout = "spring")
+splot(regulation_net, minimum = 0.1, edge_labels = TRUE)
+splot(regulation_net, scale_nodes_by = "betweenness")
+splot(regulation_net, theme = "dark")
+splot(regulation_net, tna_styling = TRUE)
 ```
 
-Layouts: `"oval"`, `"spring"`, `"circle"`, `"grid"`, `"mds"`, `"star"`,
-`"bipartite"`, `"groups"`, or a custom coordinate matrix.
-
-Themes: `"default"`, `"dark"`, `"minimal"`, `"gray"`, `"nature"`,
-`"colorblind"`, `"viridis"`.
-
-Node shapes: `"circle"`, `"square"`, `"triangle"`, `"diamond"`,
-`"pentagon"`, `"hexagon"`, `"star"`, `"heart"`, `"ellipse"`, `"cross"`,
-`"rectangle"`, `"pie"`, `"donut"`, or custom SVG via
-[`register_svg_shape()`](https://sonsoles.me/cograph/reference/register_svg_shape.md).
-
 ## Specialized plots
+
+cograph offers a wide array of network plots across visualization
+domains. These include transitions, flows and individual trajectories
+over time, network evolution in temporal small multiples and
+three-dimensional prisms, weight matrices as heatmaps and chord
+diagrams, centrality profiles with their distributions, comparisons and
+stability, edge-weight and degree distributions, motifs, comparisons
+between networks, bootstrap confidence intervals and permutation tests,
+mixed directed and undirected networks, multi-cluster, multi-group and
+multilayer structure, community overlays, higher-order pathways and
+robustness curves.
 
 | Function | Purpose |
 |----|----|
 | [`splot()`](https://sonsoles.me/cograph/reference/splot.md) | Network graph (base R) |
-| [`soplot()`](https://sonsoles.me/cograph/reference/soplot.md) | Grid/ggplot2 network |
 | [`plot_tna()`](https://sonsoles.me/cograph/reference/plot_tna.md) / [`tplot()`](https://sonsoles.me/cograph/reference/plot_tna.md) | TNA-style wrappers with qgraph-compatible parameters |
 | [`plot_chord()`](https://sonsoles.me/cograph/reference/plot_chord.md) | Chord diagram (directed/undirected ribbons) |
 | [`plot_heatmap()`](https://sonsoles.me/cograph/reference/plot_heatmap.md) | Adjacency heatmap with clustering |
 | [`plot_ml_heatmap()`](https://sonsoles.me/cograph/reference/plot_ml_heatmap.md) | Multi-layer comparison heatmap |
 | [`plot_transitions()`](https://sonsoles.me/cograph/reference/plot_transitions.md) / [`plot_alluvial()`](https://sonsoles.me/cograph/reference/plot_alluvial.md) | Alluvial / Sankey flow diagrams |
 | [`plot_trajectories()`](https://sonsoles.me/cograph/reference/plot_trajectories.md) | Individual trajectory tracking |
-| [`plot_compare()`](https://sonsoles.me/cograph/reference/plot_compare.md) | Difference network between two matrices |
+| [`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md) | Difference network between two matrices |
 | [`plot_comparison_heatmap()`](https://sonsoles.me/cograph/reference/plot_comparison_heatmap.md) | Side-by-side heatmap comparison |
 | [`plot_mixed_network()`](https://sonsoles.me/cograph/reference/plot_mixed_network.md) | Directed + undirected edges combined |
 | [`plot_bootstrap_forest()`](https://sonsoles.me/cograph/reference/plot_bootstrap_forest.md) | Bootstrap CI forest plots (linear, circular, grouped) |
@@ -109,10 +103,17 @@ Node shapes: `"circle"`, `"square"`, `"triangle"`, `"diamond"`,
 | [`plot_htna()`](https://sonsoles.me/cograph/reference/plot_htna.md) | Multi-group heterogeneous TNA layout |
 | [`plot_robustness()`](https://sonsoles.me/cograph/reference/plot_robustness.md) | Robustness degradation curves |
 | [`plot_permutation()`](https://sonsoles.me/cograph/reference/plot_permutation.md) / [`plot_group_permutation()`](https://sonsoles.me/cograph/reference/plot_group_permutation.md) | Permutation test results |
+| [`plot_centrality()`](https://sonsoles.me/cograph/reference/plot_centrality.md) / [`plot_centrality_distribution()`](https://sonsoles.me/cograph/reference/plot_centrality_distribution.md) | Centrality profiles and their distributions |
+| [`plot_centrality_heatmap()`](https://sonsoles.me/cograph/reference/plot_centrality_heatmap.md) / [`plot_centrality_compare()`](https://sonsoles.me/cograph/reference/plot_centrality_compare.md) | Centrality across nodes and groups |
+| [`plot_net_stability()`](https://sonsoles.me/cograph/reference/plot_net_stability.md) | Centrality stability results |
+| [`plot_edge_weights()`](https://sonsoles.me/cograph/reference/plot_edge_weights.md) / [`plot_degree_correlation()`](https://sonsoles.me/cograph/reference/plot_degree_correlation.md) | Edge-weight distribution and degree-degree correlation |
+| [`plot_motifs()`](https://sonsoles.me/cograph/reference/plot_motifs.md) | Motif and subgraph results |
+| [`plot_network_evolution()`](https://sonsoles.me/cograph/reference/plot_network_evolution.md) | Network evolution in small multiples |
+| [`plot_temporal()`](https://sonsoles.me/cograph/reference/plot_temporal.md) | Temporal network as a three-dimensional prism |
 
 ``` r
 
-plot_simplicial(mat,
+plot_simplicial(regulation_net,
   c("Explore Plan -> Monitor",
     "Monitor Adapt -> Reflect",
     "Discuss Synthesize -> Evaluate",
@@ -121,22 +122,25 @@ plot_simplicial(mat,
   title = "Higher-Order Pathways")
 ```
 
-![](introduction_files/figure-html/unnamed-chunk-5-1.png)
+![](introduction_files/figure-html/unnamed-chunk-4-1.png)
 
 ## Input formats
 
-Every function accepts six formats directly.
+cograph accepts adjacency matrices, edge lists, and igraph, statnet,
+qgraph and tna objects without conversion. Its conversion functions
+export a network to igraph, statnet, matrix and edge-list formats for
+exchange with other packages, and
+[`from_qgraph()`](https://sonsoles.me/cograph/reference/from_qgraph.md)
+imports the styling of a qgraph plot.
 
 | Format    | Example                                               |
 |-----------|-------------------------------------------------------|
-| Matrix    | `splot(mat)`                                          |
+| Matrix    | `splot(regulation_net)`                               |
 | Edge list | `splot(data.frame(from = "A", to = "B", weight = 1))` |
 | igraph    | `splot(igraph::make_ring(5))`                         |
-| statnet   | `splot(network::network(mat))`                        |
+| statnet   | `splot(network::network(regulation_net))`             |
 | qgraph    | `from_qgraph(q)`                                      |
 | tna       | `splot(tna::tna(data))`                               |
-
-Conversion utilities:
 
 | Function                        | Output                             |
 |---------------------------------|------------------------------------|
@@ -149,17 +153,18 @@ Conversion utilities:
 
 ## Wrangling
 
-Every wrangling verb takes any supported input, takes its options as
-named arguments, and returns a network.
-[`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html) gives the
-tidy edge table, with endpoints as labels;
-`as.data.frame(what = "nodes")` gives the nodes. See
-[`?network_wrangling`](https://sonsoles.me/cograph/reference/network_wrangling.md)
-for the whole family.
+cograph offers a family of wrangling verbs for selecting and filtering
+nodes and edges, thresholding and transforming weights, and
+restructuring and editing a network. Every verb accepts any supported
+input, takes its options as named arguments and returns a network, so
+verbs chain with the native pipe.
+[`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html) returns
+the edges as a tidy data frame, and `as.data.frame(what = "nodes")`
+returns the nodes.
 
 ``` r
 
-strong <- filter_edges(mat, weight > 0.3)
+strong <- filter_edges(regulation_net, weight > 0.3)
 as.data.frame(strong)
 #>          from       to weight
 #> 1    Evaluate  Monitor   0.33
@@ -177,22 +182,37 @@ as.data.frame(strong)
 #> 13       Plan    Share   0.36
 ```
 
-Centrality measures are computed lazily, and any measure
-[`centrality()`](https://sonsoles.me/cograph/reference/centrality.md)
-knows can be named directly:
+[`select_nodes()`](https://sonsoles.me/cograph/reference/select_nodes.md)
+selects nodes by name or index, the top nodes by any centrality measure,
+the neighbours of given nodes up to a chosen order, or the nodes of a
+connected component.
+[`select_edges()`](https://sonsoles.me/cograph/reference/select_edges.md)
+selects the strongest edges, the edges involving or joining given sets
+of nodes, bridges and mutual ties. Centrality measures named in a
+selection are computed when the verb runs.
 
 ``` r
 
-top3 <- select_nodes(mat, top = 3, by = "betweenness")
+top3 <- select_nodes(regulation_net, top = 3, by = "betweenness")
 get_labels(top3)
 #> [1] "Plan"    "Monitor" "Adapt"
 ```
 
-Verbs compose, and the whole vocabulary is available inside expressions:
+[`filter_nodes()`](https://sonsoles.me/cograph/reference/filter_nodes.md)
+keeps the nodes that satisfy logical expressions over node attributes,
+any centrality measure, and structural properties such as component
+membership, k-core, isolation and cut vertices.
+[`filter_edges()`](https://sonsoles.me/cograph/reference/filter_edges.md)
+keeps the edges that satisfy expressions over edge columns, such as
+`weight > mean(weight)`. Filters combine with the other verbs into
+pipelines that prepare a network for analysis in a single, reproducible
+expression. The pipeline below keeps the ties with weights of at least
+0.3, removes the nodes left without ties, and adds each node’s degree
+and a hub indicator to the node table.
 
 ``` r
 
-mat |>
+regulation_net |>
   threshold_edges(minimum = 0.3) |>
   remove_isolates() |>
   mutate_nodes(deg = degree, hub = degree >= 3) |>
@@ -210,12 +230,11 @@ mat |>
 #> 10 10      Share      Share NA NA   3  TRUE
 ```
 
-Filtering edges does not remove nodes, matching igraph and tidygraph;
-call
-[`remove_isolates()`](https://sonsoles.me/cograph/reference/remove_isolates.md)
-when you want them gone.
-
 ### Selecting
+
+cograph provides functions for extracting ego networks of several
+orders, connected components, k-cores, bridges and the edges between two
+sets of nodes.
 
 | Function | Purpose |
 |----|----|
@@ -236,6 +255,12 @@ when you want them gone.
 
 ### Weights
 
+cograph provides functions for thresholding edges by weight, count,
+proportion or density, binarizing weights, and symmetrizing a directed
+network by maximum, minimum, mean, sum or mutuality. Further functions
+normalize weights by row, column, maximum, sum or range, and convert
+similarities into distances for path-based measures.
+
 | Function | Purpose |
 |----|----|
 | `threshold_edges(x, ...)` | Keep edges by weight, count, proportion, density |
@@ -245,6 +270,13 @@ when you want them gone.
 | `invert_weights(x, method)` | Similarities to distances |
 
 ### Structure and editing
+
+cograph provides functions for converting between directed and
+undirected networks, reversing arcs, contracting groups of nodes into
+single nodes with aggregated weights, extracting minimum or maximum
+spanning trees and forming the complement of a network. Nodes and edges
+can be added or removed, their attributes computed, and two networks
+combined by union, intersection or difference.
 
 | Function | Purpose |
 |----|----|
@@ -260,7 +292,8 @@ when you want them gone.
 | `bind_networks(x, y, method)` | Union, intersection, difference |
 | `simplify(x)` | Remove multi-edges and self-loops |
 
-Getters and setters:
+The node and edge tables, labels, size, direction, group assignments and
+layout of a network object can be read and set with accessor functions.
 
 | Function | Purpose |
 |----|----|
@@ -272,14 +305,21 @@ Getters and setters:
 | `is_directed(x)` | Directedness |
 | `set_groups(x)` / `get_groups(x)` | Group assignments |
 | `set_layout(x, layout)` | Layout coordinates |
-| `summarize_network(x)` | Network summary |
 
 ## Centrality
 
+cograph offers 191 node centrality measures through
+[`centrality()`](https://sonsoles.me/cograph/reference/centrality.md),
+which returns a tidy data frame with a column for each measure, and
+through individual functions that return a single measure. The measures
+span degree and strength, distance and closeness, shortest-path
+brokerage, spectral and walk-based influence, neighbourhood cohesion,
+directed prestige and community-based roles. Measures that are also
+implemented elsewhere are tested against igraph, sna, centiserve,
+brainGraph, influenceR, netrankr and NetworkX. The examples in this
+section use the built-in `student_interactions` edge list, which
 [`centrality()`](https://sonsoles.me/cograph/reference/centrality.md)
-computes node centrality measures and returns one tidy data frame. The
-built-in `student_interactions` edge list works directly: no igraph
-object, no matrix conversion, no setup code.
+accepts directly.
 
 ``` r
 
@@ -357,9 +397,12 @@ centrality(student_interactions)
 #> 34 0.004411765
 ```
 
-That one call returns the default centrality table: degree, strength,
-closeness, betweenness, eigenvector centrality, and PageRank. Individual
-functions return named vectors when you want one measure only:
+By default,
+[`centrality()`](https://sonsoles.me/cograph/reference/centrality.md)
+returns six classical measures: degree, strength, closeness,
+betweenness, eigenvector centrality and PageRank. Any other measure is
+chosen by name with `measures`, and `type = "all"` returns every measure
+of ordinary computational cost.
 
 ``` r
 
@@ -383,29 +426,109 @@ centrality_pagerank(student_interactions)
 #> 0.005136500 0.007628879 0.005483193 0.004411765
 ```
 
-Selected measures:
-
-| Category | Functions |
-|----|----|
-| Degree | [`centrality_degree()`](https://sonsoles.me/cograph/reference/centrality_degree.md), [`centrality_strength()`](https://sonsoles.me/cograph/reference/centrality_strength.md), [`centrality_indegree()`](https://sonsoles.me/cograph/reference/centrality_degree.md), [`centrality_outdegree()`](https://sonsoles.me/cograph/reference/centrality_degree.md), [`centrality_instrength()`](https://sonsoles.me/cograph/reference/centrality_strength.md), [`centrality_outstrength()`](https://sonsoles.me/cograph/reference/centrality_strength.md) |
-| Path | [`centrality_betweenness()`](https://sonsoles.me/cograph/reference/centrality_betweenness.md), [`centrality_closeness()`](https://sonsoles.me/cograph/reference/centrality_closeness.md), [`centrality_harmonic()`](https://sonsoles.me/cograph/reference/centrality_harmonic.md), [`centrality_eccentricity()`](https://sonsoles.me/cograph/reference/centrality_eccentricity.md) (each with in/out variants) |
-| Spectral | [`centrality_eigenvector()`](https://sonsoles.me/cograph/reference/centrality_eigenvector.md), [`centrality_pagerank()`](https://sonsoles.me/cograph/reference/centrality_pagerank.md), [`centrality_authority()`](https://sonsoles.me/cograph/reference/centrality_authority.md), [`centrality_hub()`](https://sonsoles.me/cograph/reference/centrality_authority.md), [`centrality_alpha()`](https://sonsoles.me/cograph/reference/centrality_alpha.md), [`centrality_power()`](https://sonsoles.me/cograph/reference/centrality_power.md), [`centrality_subgraph()`](https://sonsoles.me/cograph/reference/centrality_subgraph.md) |
-| Structural | [`centrality_coreness()`](https://sonsoles.me/cograph/reference/centrality_coreness.md), [`centrality_constraint()`](https://sonsoles.me/cograph/reference/centrality_constraint.md), [`centrality_transitivity()`](https://sonsoles.me/cograph/reference/centrality_transitivity.md), [`centrality_laplacian()`](https://sonsoles.me/cograph/reference/centrality_laplacian.md) |
-| Flow | [`centrality_current_flow_closeness()`](https://sonsoles.me/cograph/reference/centrality_current_flow_closeness.md), [`centrality_current_flow_betweenness()`](https://sonsoles.me/cograph/reference/centrality_current_flow_betweenness.md), [`centrality_load()`](https://sonsoles.me/cograph/reference/centrality_load.md) |
-| Spreading | [`centrality_diffusion()`](https://sonsoles.me/cograph/reference/centrality_diffusion.md), [`centrality_leverage()`](https://sonsoles.me/cograph/reference/centrality_leverage.md), [`centrality_kreach()`](https://sonsoles.me/cograph/reference/centrality_kreach.md), [`centrality_voterank()`](https://sonsoles.me/cograph/reference/centrality_voterank.md), [`centrality_percolation()`](https://sonsoles.me/cograph/reference/centrality_percolation.md) |
-
-Edge centrality:
-[`edge_centrality()`](https://sonsoles.me/cograph/reference/edge_centrality.md),
-[`edge_betweenness()`](https://sonsoles.me/cograph/reference/edge_centrality.md).
-
-## Network properties
-
-[`network_summary()`](https://sonsoles.me/cograph/reference/network_summary.md)
-computes up to 37 network-level metrics.
+The measures fall into seven families: degree, strength and local
+connectivity; distance and closeness; shortest-path brokerage and flow;
+spectral, walk and influence; neighbourhood structure and cohesion;
+community and group-based roles; and directed prestige and hierarchy.
+Recent measures from these families include Trust-PageRank, randomized
+shortest-path betweenness, the Lhc index and the BG-index, and any of
+them can be requested alongside the classical ones. Community-based
+measures also require a partition, supplied with `membership`. The
+centrality catalogue documents every measure with its definition,
+interpretation and an example.
 
 ``` r
 
-network_summary(mat)
+centrality(student_interactions,
+           measures = c("collective_influence", "harmonic", "rsp_betweenness",
+                        "trust_pagerank", "lhc", "beta_measure"),
+           sort_by = "trust_pagerank", digits = 3)
+#>    node collective_influence_all harmonic_all rsp_betweenness trust_pagerank
+#> 1    Ac                     2048       21.333       15055.406          0.088
+#> 2    Vx                     2950       24.000        3387.848          0.074
+#> 3    Rt                     2603       21.500        3724.557          0.052
+#> 4    Ad                     3154       21.667        4614.339          0.045
+#> 5    Fi                     3772       20.500        5264.067          0.044
+#> 6    Fh                     3540       22.000        5578.933          0.043
+#> 7    Gj                     3168       22.000        1648.887          0.040
+#> 8    Hk                     3090       22.000        3731.066          0.035
+#> 9    Jl                     2954       22.333        1450.774          0.035
+#> 10   Dg                     2340       23.000         455.822          0.034
+#> 11   Ik                     2522       20.167        1538.618          0.033
+#> 12   Be                     2860       22.500         337.701          0.033
+#> 13   Oq                     2691       21.667        1022.913          0.032
+#> 14   Hj                     2354       21.333        1246.753          0.030
+#> 15   Qs                     3192       21.833        1237.349          0.030
+#> 16   Cf                     2585       20.833        1088.757          0.029
+#> 17   Ya                     2652       20.167        1060.565          0.026
+#> 18   Mo                     2475       19.333        2926.244          0.026
+#> 19   Xz                     3172       20.333         515.158          0.024
+#> 20   Pr                     2450       19.833        1998.787          0.023
+#> 21   Bd                     2728       19.500         778.216          0.022
+#> 22   Eg                     2277       20.000         433.358          0.022
+#> 23   Km                     2350       19.667        1129.461          0.021
+#> 24   Ce                     2484       19.500         416.241          0.021
+#> 25   Tv                     2376       19.833         760.272          0.021
+#> 26   Wy                     2890       20.000         203.339          0.021
+#> 27   Np                     1827       20.167         419.853          0.017
+#> 28   Df                     1953       18.833          37.163          0.017
+#> 29   Zb                     1836       18.333          66.797          0.012
+#> 30   Eh                     1896       16.833         292.769          0.012
+#> 31   Ln                     1890       17.333         339.688          0.012
+#> 32   Su                     1630       16.333          86.133          0.011
+#> 33   Gi                      642       15.833          40.747          0.007
+#> 34   Uw                      705       14.833          33.000          0.007
+#>         lhc beta_measure
+#> 1  5498.268        0.830
+#> 2  4901.961        0.894
+#> 3  4109.675        0.918
+#> 4  3743.248        0.709
+#> 5  3734.960        0.793
+#> 6  3693.777        1.809
+#> 7  3526.831        1.324
+#> 8  3256.110        0.831
+#> 9  3229.885        1.559
+#> 10 3186.124        1.020
+#> 11 3140.255        0.524
+#> 12 2967.967        2.311
+#> 13 3110.130        0.987
+#> 14 2910.090        0.513
+#> 15 3021.652        1.310
+#> 16 2745.034        1.084
+#> 17 2706.990        0.625
+#> 18 2684.175        0.782
+#> 19 2552.081        0.774
+#> 20 2470.132        0.979
+#> 21 2396.457        0.702
+#> 22 2372.132        0.818
+#> 23 2300.650        0.412
+#> 24 2351.081        0.678
+#> 25 2330.983        1.121
+#> 26 2100.728        0.935
+#> 27 2021.546        0.615
+#> 28 1909.727        0.789
+#> 29 1394.676        1.027
+#> 30 1358.228        1.181
+#> 31 1437.061        0.588
+#> 32 1338.202        1.515
+#> 33  608.184        0.262
+#> 34  705.928        1.783
+```
+
+## Network properties
+
+cograph offers network-level statistics through
+[`network_summary()`](https://sonsoles.me/cograph/reference/network_summary.md),
+which returns density, diameter, mean distance, centralization,
+reciprocity, transitivity and degree assortativity in a data frame with
+one row for the network, and up to 37 statistics with `detailed = TRUE`
+and `extended = TRUE`. Individual functions compute small-worldness,
+global and local efficiency, the rich-club coefficient, girth, radius,
+bridges, cut vertices, vertex connectivity and clique size.
+
+``` r
+
+network_summary(regulation_net)
 #>   node_count edge_count density component_count diameter mean_distance min_cut
 #> 1         10         30   0.333               1     0.97         0.435       1
 #>   centralization_degree centralization_in_degree centralization_out_degree
@@ -433,11 +556,29 @@ network_summary(mat)
 
 ## Community detection
 
-11 algorithms with a consistent interface.
+cograph offers tools for studying community structure through detection,
+consensus, comparison, quality assessment and significance testing of
+partitions.
+[`communities()`](https://sonsoles.me/cograph/reference/communities.md)
+runs eleven community detection algorithms, including Louvain, Leiden,
+Infomap, walktrap and spinglass, through one call and returns the
+partition with its modularity, and each algorithm also has its own
+function with a short alias.
+[`community_consensus()`](https://sonsoles.me/cograph/reference/community_consensus.md)
+runs an algorithm repeatedly and returns the consensus partition across
+runs.
+[`compare_communities()`](https://sonsoles.me/cograph/reference/compare_communities.md)
+compares two partitions by variation of information, normalized mutual
+information, split-join distance or the Rand and adjusted Rand indices,
+[`cluster_quality()`](https://sonsoles.me/cograph/reference/cluster_quality.md)
+scores a partition, and
+[`cluster_significance()`](https://sonsoles.me/cograph/reference/cluster_significance.md)
+tests its modularity against random networks that preserve the degree
+sequence or the number of edges.
 
 ``` r
 
-comms <- communities(mat, method = "walktrap")
+comms <- communities(regulation_net, method = "walktrap")
 comms
 #> Community structure (walktrap)
 #>   Nodes: 10  | Communities: 2  | Modularity: 0.1976 
@@ -472,13 +613,10 @@ community_sizes(comms)
 | [`community_optimal()`](https://sonsoles.me/cograph/reference/community_optimal.md) | Exact optimization | [`com_op()`](https://sonsoles.me/cograph/reference/community_optimal.md) |
 | [`community_fluid()`](https://sonsoles.me/cograph/reference/community_fluid.md) | Fluid communities | [`com_fl()`](https://sonsoles.me/cograph/reference/community_fluid.md) |
 
-Additional community functions:
-
 | Function | Purpose |
 |----|----|
 | [`community_consensus()`](https://sonsoles.me/cograph/reference/community_consensus.md) | Run algorithm N times, keep stable assignments |
 | [`compare_communities()`](https://sonsoles.me/cograph/reference/compare_communities.md) | Compare partitions (NMI, VI, Rand, adjusted Rand) |
-| `modularity()` | Modularity score |
 | [`community_sizes()`](https://sonsoles.me/cograph/reference/community_sizes.md) | Size of each community |
 | [`color_communities()`](https://sonsoles.me/cograph/reference/color_communities.md) | Color vector from community membership |
 | [`cluster_quality()`](https://sonsoles.me/cograph/reference/cluster_quality.md) | Quality metrics (silhouette, Dunn index) |
@@ -487,12 +625,21 @@ Additional community functions:
 
 ## Motifs
 
-Motif analysis identifies recurring 3-node patterns using the MAN
-classification (16 directed triad types).
+cograph offers motif analysis for directed networks based on the 16
+triads of the MAN classification.
+[`motifs()`](https://sonsoles.me/cograph/reference/motifs.md) counts
+each triad type and tests its frequency with a permutation test, across
+the whole network, per actor, or within rolling and tumbling windows.
+[`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md)
+identifies the nodes behind each motif and reports which node triples
+form each pattern, in how many sessions or actors they occur, and
+whether they occur more often than expected.
+[`plot()`](https://rdrr.io/r/graphics/plot.default.html) visualizes the
+counts, their significance, the triads and the patterns.
 
 ``` r
 
-mot <- motifs(mat, significance = FALSE)
+mot <- motifs(regulation_net, significance = FALSE)
 mot
 #> Motif Census 
 #> Level: aggregate | States: 10 | Pattern: triangle 
@@ -520,17 +667,30 @@ mot
 | [`triad_census()`](https://sonsoles.me/cograph/reference/triad_census.md) | Raw 16-type triad count |
 | [`get_edge_list()`](https://sonsoles.me/cograph/reference/get_edge_list.md) | Edge list from tna for motif input |
 
-Plot types: `plot(mot, type = "types")`, `"significance"`, `"triads"`,
-`"patterns"`.
-
 ## Robustness
 
-Simulate network degradation under targeted and random removal.
+cograph offers tools for studying network robustness and vulnerability
+through simulated attacks and node-level efficiency loss.
+[`robustness()`](https://sonsoles.me/cograph/reference/robustness.md)
+simulates the sequential removal of nodes or edges, ordered by a
+centrality measure or at random, and returns the size of the largest
+component at each step. The ranking can be recomputed after every
+removal or fixed at the start, and random removal is averaged over
+repeated runs.
+[`robustness_auc()`](https://sonsoles.me/cograph/reference/robustness_auc.md)
+and
+[`robustness_summary()`](https://sonsoles.me/cograph/reference/robustness_summary.md)
+summarize each curve, including the area under it, and
+[`plot_robustness()`](https://sonsoles.me/cograph/reference/plot_robustness.md)
+visualizes several attack strategies together.
+[`vulnerability()`](https://sonsoles.me/cograph/reference/vulnerability.md)
+computes, for each node, the relative drop in global efficiency when
+that node is removed.
 
 ``` r
 
-robustness(mat, type = "vertex", measure = "betweenness", n_iter = 100)
-plot_robustness(x = mat, measures = c("betweenness", "degree", "random"))
+robustness(regulation_net, type = "vertex", measure = "betweenness", n_iter = 100)
+plot_robustness(x = regulation_net, measures = c("betweenness", "degree", "random"))
 ```
 
 | Function | Purpose |
@@ -539,18 +699,44 @@ plot_robustness(x = mat, measures = c("betweenness", "degree", "random"))
 | [`plot_robustness()`](https://sonsoles.me/cograph/reference/plot_robustness.md) | Plot robustness curves for multiple strategies |
 | [`robustness_summary()`](https://sonsoles.me/cograph/reference/robustness_summary.md) | AUC and summary statistics |
 | [`robustness_auc()`](https://sonsoles.me/cograph/reference/robustness_auc.md) | Area under the robustness curve |
+| [`vulnerability()`](https://sonsoles.me/cograph/reference/vulnerability.md) | Relative drop in global efficiency when each node is removed |
 
 ## Disparity filter
 
-Backbone extraction using the disparity filter (Serrano et al. 2009).
+cograph offers backbone extraction for weighted networks through the
+disparity filter (Serrano et al., 2009), which keeps the edges whose
+weights are significantly larger than expected if each node’s strength
+were spread uniformly over its ties.
+[`disparity_filter()`](https://sonsoles.me/cograph/reference/disparity_filter.md)
+applies the test at a chosen significance level. For a matrix it returns
+a binary matrix of the significant edges, and for a network object it
+returns a backbone that
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md) plots
+directly.
 
 ``` r
 
-disparity_filter(mat)
-splot.tna_disparity(disparity_filter(mat))
+backbone <- disparity_filter(as_cograph(regulation_net), level = 0.05)
+splot(backbone)
 ```
 
 ## Multi-cluster visualization
+
+cograph offers hierarchical plots for multi-cluster multi-level (MCML)
+networks, whose nodes belong to known clusters.
+[`plot_mcml()`](https://sonsoles.me/cograph/reference/plot_mcml.md)
+shows the network as a two-layer hierarchy. The lower layer places every
+node inside its cluster’s shell with the within- and between-cluster
+edges, and the upper layer collapses each cluster into a single node
+whose pie chart shows its share of the initial state distribution.
+[`plot_mtna()`](https://sonsoles.me/cograph/reference/plot_mtna.md)
+shows the clusters as shells in one plane, with individual edges within
+clusters and summary edges between them.
+[`csum()`](https://sonsoles.me/cograph/reference/csum.md) aggregates an
+estimated weight matrix into cluster-level transitions, and
+[`summarize_clusters()`](https://sonsoles.me/cograph/reference/summarize_clusters.md)
+estimates the Markov chain over cluster states from the raw transition
+data.
 
 ``` r
 
@@ -559,53 +745,92 @@ clusters <- list(
   Social     = c("Discuss", "Synthesize", "Share"),
   Evaluative = c("Evaluate", "Create")
 )
-plot_mcml(mat, clusters, mode = "tna")
-plot_mtna(mat, clusters)
+plot_mcml(regulation_net, clusters, mode = "tna")
+plot_mtna(regulation_net, clusters)
 ```
 
 | Function | Architecture |
 |----|----|
 | [`plot_mcml()`](https://sonsoles.me/cograph/reference/plot_mcml.md) | Two-layer: detail nodes + summary pies |
 | [`plot_mtna()`](https://sonsoles.me/cograph/reference/plot_mtna.md) | Flat cluster layout |
-| [`plot_mlna()`](https://sonsoles.me/cograph/reference/plot_mlna.md) | Stacked 3D multilayer |
-| [`plot_htna()`](https://sonsoles.me/cograph/reference/plot_htna.md) | Multi-group heterogeneous TNA |
-| [`csum()`](https://sonsoles.me/cograph/reference/csum.md) / [`summarize_clusters()`](https://sonsoles.me/cograph/reference/summarize_clusters.md) | Pre-compute cluster aggregation |
+| [`csum()`](https://sonsoles.me/cograph/reference/csum.md) | Aggregate an estimated weight matrix to cluster level |
+| [`summarize_clusters()`](https://sonsoles.me/cograph/reference/summarize_clusters.md) | Estimate the cluster-level Markov chain from transition data |
 | [`as_tna()`](https://sonsoles.me/cograph/reference/as_tna.md) / [`as_mcml()`](https://sonsoles.me/cograph/reference/as_mcml.md) | Convert cluster summaries to tna objects |
 | [`summarize_network()`](https://sonsoles.me/cograph/reference/summarize_network.md) / [`cnet()`](https://sonsoles.me/cograph/reference/summarize_network.md) | Extract cluster-level network (matrix aggregation) |
 
 ## Multilayer networks
 
-Construct and analyze supra-adjacency matrices for multilayer/multiplex
-networks.
+cograph offers tools for constructing, analysing and visualizing
+multilayer and multiplex networks.
+[`supra_adjacency()`](https://sonsoles.me/cograph/reference/supra_adjacency.md)
+builds the supra-adjacency matrix, with the layers as its diagonal
+blocks and the inter-layer coupling, diagonal, full or user-defined and
+weighted by `omega`, off the diagonal.
+[`supra_layer()`](https://sonsoles.me/cograph/reference/supra_layer.md)
+and
+[`supra_interlayer()`](https://sonsoles.me/cograph/reference/supra_interlayer.md)
+extract its blocks.
+[`aggregate_layers()`](https://sonsoles.me/cograph/reference/aggregate_layers.md)
+combines layers by sum, mean, maximum, minimum, union or intersection,
+and
+[`layer_similarity()`](https://sonsoles.me/cograph/reference/layer_similarity.md)
+compares two layers by Jaccard, overlap, Hamming, cosine or Pearson
+similarity.
+[`plot_mlna()`](https://sonsoles.me/cograph/reference/plot_mlna.md)
+visualizes the layers stacked in a three-dimensional perspective with
+dashed inter-layer edges, and
+[`plot_ml_heatmap()`](https://sonsoles.me/cograph/reference/plot_ml_heatmap.md)
+shows each layer as a heatmap on a tilted plane.
 
 | Function | Purpose |
 |----|----|
-| [`mlna()`](https://sonsoles.me/cograph/reference/plot_mlna.md) / [`supra_adjacency()`](https://sonsoles.me/cograph/reference/supra_adjacency.md) | Build supra-adjacency matrix |
+| [`supra_adjacency()`](https://sonsoles.me/cograph/reference/supra_adjacency.md) | Build the supra-adjacency matrix |
 | [`supra_layer()`](https://sonsoles.me/cograph/reference/supra_layer.md) / [`supra_interlayer()`](https://sonsoles.me/cograph/reference/supra_interlayer.md) | Extract individual layers |
 | [`aggregate_layers()`](https://sonsoles.me/cograph/reference/aggregate_layers.md) / [`aggregate_weights()`](https://sonsoles.me/cograph/reference/aggregate_weights.md) | Combine layers |
-| [`plot_mlna()`](https://sonsoles.me/cograph/reference/plot_mlna.md) | 3D perspective visualization |
+| [`layer_similarity()`](https://sonsoles.me/cograph/reference/layer_similarity.md) | Similarity between two layers |
+| [`plot_mlna()`](https://sonsoles.me/cograph/reference/plot_mlna.md) / [`mlna()`](https://sonsoles.me/cograph/reference/plot_mlna.md) | Layers stacked in 3D perspective |
 | [`plot_ml_heatmap()`](https://sonsoles.me/cograph/reference/plot_ml_heatmap.md) | Multi-layer heatmap comparison |
 
 ## Higher-order networks
 
-Detect sequential dependencies beyond first-order Markov models.
-Requires the **Nestimate** package.
+cograph offers visualization of higher-order network models, which
+capture sequential dependencies beyond a first-order Markov chain and
+are estimated with the Nestimate package.
+[`plot_simplicial()`](https://sonsoles.me/cograph/reference/plot_simplicial.md)
+visualizes higher-order pathways as blobs over the network layout, from
+pathway strings, higher-order network (HON) and HYPA objects, or
+multi-order model transitions. Given a tna model or a Nestimate network
+with sequence data, it builds the pathways itself, as a HON, as
+anomalous paths under a hypergeometric null, or as association rules.
 
 | Function | Purpose |
 |----|----|
-| `build_hon()` | Higher-Order Network construction |
-| `build_hypa()` | Path anomaly detection (hypergeometric null) |
-| `build_mogen()` | Multi-order model selection (AIC/BIC) |
-| `path_counts()` | k-step path frequencies |
+| [`Nestimate::build_hon()`](https://saqr.me/Nestimate/reference/build_hon.html) | Higher-Order Network construction |
+| [`Nestimate::build_hypa()`](https://saqr.me/Nestimate/reference/build_hypa.html) | Path anomaly detection (hypergeometric null) |
+| [`Nestimate::build_mogen()`](https://saqr.me/Nestimate/reference/build_mogen.html) | Multi-order model selection (AIC/BIC) |
+| [`Nestimate::path_counts()`](https://saqr.me/Nestimate/reference/path_counts.html) | k-step path frequencies |
 | [`plot_simplicial()`](https://sonsoles.me/cograph/reference/plot_simplicial.md) | Visualize pathways as blob overlays |
-| `build_simplicial()` | Simplicial complex from cliques |
-| `persistent_homology()` | Topological persistence across thresholds |
-| `q_analysis()` | Multi-level structural connectivity |
-| `verify_simplicial()` | Cross-validate via Euler-Poincare theorem |
+| [`Nestimate::build_simplicial()`](https://saqr.me/Nestimate/reference/build_simplicial.html) | Simplicial complex from cliques |
+| [`Nestimate::persistent_homology()`](https://saqr.me/Nestimate/reference/persistent_homology.html) | Topological persistence across thresholds |
+| [`Nestimate::q_analysis()`](https://saqr.me/Nestimate/reference/q_analysis.html) | Multi-level structural connectivity |
+| [`Nestimate::verify_simplicial()`](https://saqr.me/Nestimate/reference/verify_simplicial.html) | Cross-validate via Euler-Poincare theorem |
 
 ## TNA integration
 
-Direct support for all tna package objects:
+cograph offers visualization for Transition Network Analysis (TNA)
+models estimated with the tna package.
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md) plots tna
+models with donut rings filled by the initial probabilities, bootstrap
+results with edges styled by stability, permutation tests as difference
+networks, and communities and disparity backbones. Group models appear
+as one panel per group, or as a single group selected with `i`.
+[`plot_tna()`](https://sonsoles.me/cograph/reference/plot_tna.md) and
+[`tplot()`](https://sonsoles.me/cograph/reference/plot_tna.md) accept
+qgraph’s argument names, so plotting code written for qgraph carries
+over, and
+[`plot_htna()`](https://sonsoles.me/cograph/reference/plot_htna.md)
+plots heterogeneous TNA models, whose nodes belong to groups of
+different kinds, in circular, bipartite or polygonal layouts.
 
 | Object                  | What splot() does                     |
 |-------------------------|---------------------------------------|
@@ -614,9 +839,16 @@ Direct support for all tna package objects:
 | `tna_bootstrap`         | Stability-styled edges                |
 | `tna_permutation`       | Colored difference network            |
 | `group_tna_permutation` | Multi-panel permutation results       |
+| `tna_communities`       | Network coloured by community         |
 | `tna_disparity`         | Backbone filter visualization         |
 
 ## Palettes
+
+cograph offers colour palettes for sequential, diverging and categorical
+encodings. They include viridis, blue and red gradients, a
+blue-white-red diverging scale with a configurable midpoint, the
+colour-blind-safe Okabe-Ito colours and a pastel set. Each palette
+function returns `n` colours.
 
 | Function                | Colors          |
 |-------------------------|-----------------|
@@ -628,62 +860,35 @@ Direct support for all tna package objects:
 | `palette_colorblind(n)` | Colorblind-safe |
 | `palette_rainbow(n)`    | Rainbow         |
 
-## Pipe API
-
-The `sn_*` functions provide a chainable builder for the grid/ggplot2
-rendering path.
-
-``` r
-
-mat |>
-  cograph() |>
-  sn_layout("spring") |>
-  sn_theme("minimal") |>
-  sn_nodes(size = 8, fill = "steelblue") |>
-  sn_edges(curvature = 0.2) |>
-  sn_render(title = "My Network")
-
-mat |> cograph() |> sn_save("network.pdf")
-p <- mat |> cograph() |> sn_ggplot()
-```
-
-| Function | Purpose |
-|----|----|
-| [`cograph()`](https://sonsoles.me/cograph/reference/cograph.md) / [`as_cograph()`](https://sonsoles.me/cograph/reference/as_cograph.md) | Create network object |
-| [`sn_nodes()`](https://sonsoles.me/cograph/reference/sn_nodes.md) | Node aesthetics |
-| [`sn_edges()`](https://sonsoles.me/cograph/reference/sn_edges.md) | Edge aesthetics |
-| [`sn_layout()`](https://sonsoles.me/cograph/reference/sn_layout.md) | Layout algorithm |
-| [`sn_theme()`](https://sonsoles.me/cograph/reference/sn_theme.md) | Visual theme |
-| [`sn_palette()`](https://sonsoles.me/cograph/reference/sn_palette.md) | Color palette |
-| [`sn_render()`](https://sonsoles.me/cograph/reference/soplot.md) | Render to screen |
-| [`sn_save()`](https://sonsoles.me/cograph/reference/sn_save.md) / [`sn_save_ggplot()`](https://sonsoles.me/cograph/reference/sn_save_ggplot.md) | Save to file |
-| [`sn_ggplot()`](https://sonsoles.me/cograph/reference/sn_ggplot.md) | Convert to ggplot2 object |
-| [`register_theme()`](https://sonsoles.me/cograph/reference/register_theme.md) / [`register_layout()`](https://sonsoles.me/cograph/reference/register_layout.md) / [`register_shape()`](https://sonsoles.me/cograph/reference/register_shape.md) | Register custom themes, layouts, shapes |
-
 ## Further reading
 
 **Package resources:**
 
-- [cograph function reference](https://saqr.me/cograph/) — complete list
+- [cograph function reference](https://saqr.me/cograph/), complete list
   of all functions with examples
-- [cograph pkgdown site](https://sonsoles.me/cograph/) — full
+- [cograph pkgdown site](https://sonsoles.me/cograph/), full
   documentation and articles
 
 **Blog posts:**
 
 - [cograph: Complex Network Analysis and
-  Visualization](https://saqr.me/blog/2026/cograph-network-visualization/)
-  — overview of the package design and capabilities
+  Visualization](https://saqr.me/blog/2026/cograph-network-visualization/),
+  overview of the package design and capabilities
 - [Human–AI Interaction: A TNA with
-  cograph](https://saqr.me/blog/2026/human-ai-interaction-cograph/) —
+  cograph](https://saqr.me/blog/2026/human-ai-interaction-cograph/),
   worked example analyzing 13,002 turns of human–AI coding collaboration
 
 **References:**
 
-- Saqr, M., López-Pernas, S., Conde, M. A., & Hernández-García, A.
-  (2024). Social Network Analysis: A Primer, a Guide and a Tutorial
-  in R. In *Learning Analytics Methods and Tutorials*. Springer.
-  <https://doi.org/10.1007/978-3-031-54464-4_15>
+- Serrano, M. Á., Boguñá, M., & Vespignani, A. (2009). Extracting the
+  multiscale backbone of complex weighted networks. *Proceedings of the
+  National Academy of Sciences*, 106(16), 6483–6488.
+  <https://doi.org/10.1073/pnas.0808904106>
+
+- Saqr, M., López-Pernas, S., Conde-González, M. Á., & Hernández-García,
+  Á. (2024). Social Network Analysis: A Primer, a Guide and a Tutorial
+  in R. In *Learning Analytics Methods and Tutorials* (pp. 491–518).
+  Springer. <https://doi.org/10.1007/978-3-031-54464-4_15>
 
 - Hernández-García, Á., Cuenca-Enrique, C., Traxler, A., López-Pernas,
   S., Conde-González, M. Á., & Saqr, M. (2024). Community detection in
@@ -699,5 +904,5 @@ p <- mat |> cograph() |> sn_ggplot()
   <https://doi.org/10.1145/3706468.3706513>
 
 - Tikka, S., López-Pernas, S., & Saqr, M. (2025). tna: An R Package for
-  Transition Network Analysis. *Applied Psychological Measurement*.
-  <https://doi.org/10.1177/01466216251348840>
+  Transition Network Analysis. *Applied Psychological Measurement*,
+  49(6), 326–328. <https://doi.org/10.1177/01466216251348840>

@@ -105,7 +105,7 @@ plot_difference(
 
   Logical. If `TRUE`, `x` is treated as an already-subtracted difference
   network (no `y` needed). A `tna_comparison` object (from
-  [`tna::compare()`](http://sonsoles.me/tna/reference/compare.md)) is
+  [`tna::compare()`](https://sonsoles.me/tna/reference/compare.html)) is
   detected automatically and its `$difference_matrix` is used.
 
 - ...:

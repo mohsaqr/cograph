@@ -14,7 +14,7 @@ get_edge_list(x, by_individual = TRUE, drop_zeros = TRUE)
 - x:
 
   A tna object created by
-  [`tna::tna()`](http://sonsoles.me/tna/reference/build_model.md)
+  [`tna::tna()`](https://sonsoles.me/tna/reference/build_model.html)
 
 - by_individual:
 

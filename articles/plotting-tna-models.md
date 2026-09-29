@@ -13,14 +13,10 @@ The gallery covers:
   and grouped TNA models, bootstrap objects, centralities, cliques,
   communities, comparisons, permutations, reliability, sequence
   comparisons, and stability objects;
-- [`hist()`](https://rdrr.io/r/graphics/hist.html),
-  [`plot_model()`](http://sonsoles.me/tna/reference/plot_model.md),
+- [`hist()`](https://rdrr.io/r/graphics/hist.html), `plot_model()`,
   [`plot_compare()`](https://sonsoles.me/cograph/reference/plot_compare.md),
-  [`plot_frequencies()`](http://sonsoles.me/tna/reference/plot_frequencies.md),
-  [`plot_mosaic()`](http://sonsoles.me/tna/reference/plot_mosaic.md),
-  [`plot_sequences()`](http://sonsoles.me/tna/reference/plot_sequences.md),
-  and
-  [`plot_associations()`](http://sonsoles.me/tna/reference/plot_associations.md);
+  `plot_frequencies()`, `plot_mosaic()`, `plot_sequences()`, and
+  `plot_associations()`;
 - cograph’s enhanced TNA bootstrap, difference, permutation, forest, and
   heterogeneous-network renderers.
 
@@ -34,8 +30,8 @@ data.frame(
   )
 )
 #>   package version
-#> 1     tna   1.2.3
-#> 2 cograph  2.6.12
+#> 1     tna   1.3.1
+#> 2 cograph   2.7.0
 ```
 
 ## Shared fixtures
@@ -92,9 +88,7 @@ plot(
 
 ### Weight matrix
 
-Exercises the exported
-[`plot_model()`](http://sonsoles.me/tna/reference/plot_model.md) entry
-point.
+Exercises the exported `plot_model()` entry point.
 
 ``` r
 
@@ -395,8 +389,6 @@ Exercises `plot.tna_permutation()`.
 plot(permutation_result, title = "TNA permutation differences")
 ```
 
-![](plotting-tna-models_files/figure-html/plot-permutation-tna-1.png)
-
 ### Grouped permutation method
 
 Exercises `plot.group_tna_permutation()`.
@@ -557,5 +549,5 @@ data.frame(
   rendered_at = format(Sys.time(), tz = "UTC", usetz = TRUE)
 )
 #>   status   tna cograph             rendered_at
-#> 1   PASS 1.2.3  2.6.12 2026-09-19 20:54:06 UTC
+#> 1   PASS 1.3.1   2.7.0 2026-09-29 05:48:31 UTC
 ```

@@ -36,8 +36,10 @@ a warning on undirected inputs.
 
 ## References
 
-Potapov, A. P., Voss, N., Sasse, N., & Wingender, E. (2008). Topology of
-mammalian transcription networks. *Genome Informatics*, 18, 193-204.
+Potapov, A. P., Goemann, B., & Wingender, E. (2008). The pairwise
+disconnectivity index as a new metric for the topological analysis of
+regulatory networks. *BMC Bioinformatics*, 9, 227.
+[doi:10.1186/1471-2105-9-227](https://doi.org/10.1186/1471-2105-9-227) .
 
 ## See also
 

@@ -50,7 +50,7 @@ separately to self-influence or neighbor contributions.
 
 Mukhtar, M. F., et al. (2023). Integrating local and global information
 to identify influential nodes in complex networks. Scientific Reports,
-13, 11411, equations 6-8.
+13, 11411.
 [doi:10.1038/s41598-023-37570-7](https://doi.org/10.1038/s41598-023-37570-7)
 .
 

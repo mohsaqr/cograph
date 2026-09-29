@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.12</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,7 +40,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
     <li><a class="dropdown-item" href="../articles/centrality-catalogue.html">Centrality catalogue</a></li>
-    <li><a class="dropdown-item" href="../articles/centrality-zoo-lookup.html">Centrality Zoo lookup</a></li>
+    <li><a class="dropdown-item" href="../articles/centrality-zoo-lookup.html">cograph and the Centrality Zoo</a></li>
     <li><a class="dropdown-item" href="../articles/why-cograph.html">Why cograph?</a></li>
     <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">TNA Plotting Gallery and Visual Smoke Test</a></li>
     <li><a class="dropdown-item" href="../articles/mcml-examples.html">Advanced examples</a></li>
@@ -70,6 +70,9 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Advanced examples</h1>
+                        <h4 data-toc-skip class="author">
+<a href="https://saqr.me" class="external-link">Mohammed Saqr</a> and <a href="https://sonsoles.me" class="external-link">Sonsoles López-Pernas</a>
+</h4>
             
       
       <small class="dont-index">Source: <a href="https://github.com/sonsoleslp/cograph/blob/main/vignettes/articles/mcml-examples.Rmd" class="external-link"><code>vignettes/articles/mcml-examples.Rmd</code></a></small>
@@ -83,7 +86,7 @@
 </h2>
 <p>TNA model of group regulation processes.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://sonsoles.me/tna/reference/build_model.html" class="external-link">tna</a></span><span class="op">(</span><span class="va">group_regulation</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu">tna</span><span class="op">(</span><span class="va">group_regulation</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/splot.html">splot</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></code></pre></div>
 <p><img src="mcml-examples_files/figure-html/group-regulation-1.png" class="r-plt" alt="" width="2400"></p>
 </div>

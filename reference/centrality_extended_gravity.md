@@ -59,7 +59,7 @@ all-pairs hop distances, so it can be expensive for large graphs.
 
 Ma, L. L., Ma, C., Zhang, H. F., & Wang, B. H. (2016). Identifying
 influential spreaders in complex networks based on gravity formula.
-Physica A, 451, 205-212, equations 6 and 7.
+Physica A, 451, 205-212.
 [doi:10.1016/j.physa.2015.12.162](https://doi.org/10.1016/j.physa.2015.12.162)
 .
 

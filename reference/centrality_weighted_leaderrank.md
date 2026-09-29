@@ -69,10 +69,9 @@ exponents; extremely small probabilities may underflow to zero.
 ## References
 
 Li, Q., Zhou, T., Lu, L., & Chen, D. (2014). Identifying influential
-spreaders by weighted LeaderRank. Physica A, 404, 47-55, section 2,
-equations 1-2.
+spreaders by weighted LeaderRank. Physica A, 404, 47-55.
 [doi:10.1016/j.physa.2014.02.041](https://doi.org/10.1016/j.physa.2014.02.041)
-. Author preprint: <https://arxiv.org/abs/1306.5042>.
+.
 
 ## Examples
 

@@ -11,7 +11,7 @@ flow through each node and chord width is proportional to edge weight."><meta pr
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.12</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -24,7 +24,7 @@ flow through each node and chord width is proportional to edge weight."><meta pr
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/introduction.html">Introduction to cograph</a></li>
     <li><a class="dropdown-item" href="../articles/centrality-catalogue.html">Centrality catalogue</a></li>
-    <li><a class="dropdown-item" href="../articles/centrality-zoo-lookup.html">Centrality Zoo lookup</a></li>
+    <li><a class="dropdown-item" href="../articles/centrality-zoo-lookup.html">cograph and the Centrality Zoo</a></li>
     <li><a class="dropdown-item" href="../articles/why-cograph.html">Why cograph?</a></li>
     <li><a class="dropdown-item" href="../articles/plotting-tna-models.html">TNA Plotting Gallery and Visual Smoke Test</a></li>
     <li><a class="dropdown-item" href="../articles/mcml-examples.html">Advanced examples</a></li>
@@ -251,7 +251,7 @@ networks each edge is drawn once and the full segment arc is shared.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"tna"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span>  <span class="co"># TNA transition network</span></span></span>
-<span class="r-in"><span>  <span class="va">model</span> <span class="op">&lt;-</span> <span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="http://sonsoles.me/tna/reference/build_model.html" class="external-link">tna</a></span><span class="op">(</span><span class="fu">tna</span><span class="fu">::</span><span class="va"><a href="http://sonsoles.me/tna/reference/group_regulation.html" class="external-link">group_regulation</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">model</span> <span class="op">&lt;-</span> <span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="https://sonsoles.me/tna/reference/build_model.html" class="external-link">tna</a></span><span class="op">(</span><span class="fu">tna</span><span class="fu">::</span><span class="va"><a href="https://sonsoles.me/tna/reference/group_regulation.html" class="external-link">group_regulation</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu">plot_chord</span><span class="op">(</span><span class="va">model</span>, ticks <span class="op">=</span> <span class="cn">TRUE</span>, segment_width <span class="op">=</span> <span class="fl">0.10</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-plt img"><img src="plot_chord-3.png" alt="" width="1080" height="1080"></span>

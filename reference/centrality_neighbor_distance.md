@@ -103,8 +103,7 @@ does not exist, and not any claim about spreading performance.
 
 Liu, Y., Tang, M., Zhou, T. and Do, Y. (2016). Identify influential
 spreaders in complex networks, the role of neighborhood. Physica A:
-Statistical Mechanics and its Applications, 452, 289-298. Section 2.3,
-equation 1, read in the author preprint arXiv:1511.00441v1 page 4.
+Statistical Mechanics and its Applications, 452, 289-298.
 [doi:10.1016/j.physa.2016.02.028](https://doi.org/10.1016/j.physa.2016.02.028)
 .
 

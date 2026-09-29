@@ -63,8 +63,7 @@ requested.
 
 Wang, Q., Ren, J., Wang, Y., Zhang, B., Cheng, Y., & Zhao, X. (2018).
 CDA: A Clustering Degree Based Influential Spreader Identification
-Algorithm in Weighted Complex Network. IEEE Access, 6, 19550-19559,
-equations 2-6.
+Algorithm in Weighted Complex Network. IEEE Access, 6, 19550-19559.
 [doi:10.1109/ACCESS.2018.2822844](https://doi.org/10.1109/ACCESS.2018.2822844)
 .
 

@@ -104,9 +104,7 @@ does not exist, and not any claim about spreading performance.
 
 Chen, D.-B., Xiao, R., Zeng, A. and Zhang, Y.-C. (2014). Path diversity
 improves the identification of influential spreaders. Europhysics
-Letters, 104(6), 68006. Equations (1) and (2) on page 2 and equation (6)
-with its \\D_i\\ definition on page 4, read as the author preprint
-arXiv:1305.7480.
+Letters, 104(6), 68006.
 [doi:10.1209/0295-5075/104/68006](https://doi.org/10.1209/0295-5075/104/68006)
 .
 

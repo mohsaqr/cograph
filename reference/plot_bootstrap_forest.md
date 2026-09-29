@@ -127,7 +127,7 @@ plot_bootstrap_forest(
 - x:
 
   A `tna_bootstrap` (from
-  [`tna::bootstrap`](http://sonsoles.me/tna/reference/bootstrap.md)),
+  [`tna::bootstrap`](https://sonsoles.me/tna/reference/bootstrap.html)),
   `net_bootstrap`, `net_bootstrap_group`, or `boot_glasso` object.
 
 - ...:

@@ -76,9 +76,7 @@ PInf.
 Jackson, M. O. (2020). A typology of social capital and associated
 network measures. Social Choice and Welfare, 54, 311-336.
 [doi:10.1007/s00355-019-01189-3](https://doi.org/10.1007/s00355-019-01189-3)
-. Definition read in author preprint arXiv:1711.09504v3 (2019), section
-3.3, page 18; transmission model section 3.1 and formal graph
-conventions section 2.
+.
 
 ## Examples
 

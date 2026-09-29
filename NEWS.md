@@ -1,5 +1,12 @@
 # cograph 2.7.0
 
+## New features
+
+* `as.data.frame()` method for the results of `motifs()` and `subgraphs()`.
+  It returns the main table by default (triad types for a census, node
+  triples for `subgraphs()`), and the counts per triad type with
+  `what = "types"`.
+
 ## Bug fixes
 
 * `network_summary()` no longer returns `hub_score` and `authority_score`.

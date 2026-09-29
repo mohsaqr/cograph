@@ -868,6 +868,56 @@ print.cograph_motif_result <- function(x, ...) {
 }
 
 
+#' Motif Results as a Data Frame
+#'
+#' Returns the tables held by a motif result from \code{\link{motifs}} or
+#' \code{\link{subgraphs}} as tidy data frames.
+#'
+#' @param x A \code{cograph_motif_result} object.
+#' @param row.names,optional Standard \code{\link[base]{as.data.frame}}
+#'   arguments; \code{row.names} replaces the default row names.
+#' @param ... Unused.
+#' @param what Which table to return. \code{"results"} (default) returns the
+#'   main table: one row per triad type for a census, or one row per node
+#'   triple and type for \code{subgraphs()}. \code{"types"} returns one row per
+#'   triad type with its \code{count}: the number of triads of that type in a
+#'   census, or the number of node triples of that type in \code{subgraphs()}.
+#'
+#' @return A \code{data.frame}. For \code{what = "results"} in a census, the
+#'   columns are \code{type} and \code{count}, plus \code{expected}, \code{z},
+#'   \code{p} and \code{sig} when significance was tested. For
+#'   \code{subgraphs()}, the columns are \code{triad}, \code{node1},
+#'   \code{node2}, \code{node3}, \code{type} and \code{observed}, plus the
+#'   significance columns when tested. For \code{what = "types"}, the columns
+#'   are \code{type} and \code{count}.
+#'
+#' @seealso \code{\link{motifs}}, \code{\link{subgraphs}}
+#' @method as.data.frame cograph_motif_result
+#' @export
+#' @examples
+#' census <- motifs(regulation_net, significance = FALSE)
+#' as.data.frame(census)
+#' as.data.frame(census, what = "types")
+as.data.frame.cograph_motif_result <- function(x, row.names = NULL,
+                                               optional = FALSE, ...,
+                                               what = c("results", "types")) {
+  what <- match.arg(what)
+  df <- if (what == "types") {
+    tab <- x$type_summary
+    data.frame(type = names(tab), count = as.integer(tab),
+               stringsAsFactors = FALSE)
+  } else {
+    out <- x$results
+    rownames(out) <- NULL
+    out
+  }
+  if (!is.null(row.names)) {
+    rownames(df) <- row.names
+  }
+  df
+}
+
+
 #' @param type Plot type:
 #'   \describe{
 #'     \item{\code{"triads"}}{Network diagrams of specific node triples

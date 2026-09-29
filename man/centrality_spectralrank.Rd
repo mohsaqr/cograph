@@ -76,9 +76,8 @@ centrality_spectralrank(igraph::make_star(5), sr_prior = 1)
 \dontshow{\}) # examplesIf}
 }
 \references{
-Xu, S., Wang, P., Zhang, C.-X. and Lu, J. (2019; online 2018).
-Spectral Learning Algorithm Reveals Propagation Capability of Complex
-Networks. IEEE Transactions on Cybernetics, 49(12), 4253-4261.
-Section III-A, equations 4-8 and Algorithm 1.
+Xu, S., Wang, P., Zhang, C.-X. and Lu, J. (2019). Spectral Learning
+Algorithm Reveals Propagation Capability of Complex Networks. IEEE
+Transactions on Cybernetics, 49(12), 4253-4261.
 \doi{10.1109/TCYB.2018.2861568}.
 }

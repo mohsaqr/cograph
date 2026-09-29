@@ -119,13 +119,9 @@ calculate_iec <- function(cg) {
 #' @param ... Additional arguments to \code{\link{centrality}}.
 #' @return Named numeric vector in input node order, \code{NA} at every node
 #'   when the influence chain is reducible or the graph has one node.
-#' @references Friedkin, N. E. (1991). Theoretical foundations for
-#'   centrality measures. American Journal of Sociology, 96(6), 1478-1504.
-#'   Equation (9) on page 1485, equation (11) on page 1486, equation (20) on
-#'   page 1489, the construction of \eqn{W} and Table 1 on pages 1492-1494.
-#'   \doi{10.1086/229694}. The fundamental matrix and the mean first passage
-#'   form are Kemeny, J. G. and Snell, J. L. (1960). Finite Markov Chains,
-#'   page 79.
+#' @references
+#' Friedkin, N. E. (1991). Theoretical foundations for centrality measures.
+#'   American Journal of Sociology, 96(6), 1478-1504. \doi{10.1086/229694}.
 #' @seealso \code{\link{centrality_markov}} for the older, and different,
 #'   mean-first-passage measure, \code{\link{centrality_random_walk}} for
 #'   another chain-based score, and \code{\link{list_centralities}} for the

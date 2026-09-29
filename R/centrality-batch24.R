@@ -59,9 +59,11 @@ calculate_graph_regularization <- function(cg, weights = NULL, gamma = 1) {
 #' @param grc_gamma Finite nonnegative regularization strength, default one.
 #' @param ... Additional arguments to \code{\link{centrality}}.
 #' @return Named numeric vector in input node order.
-#' @references Dal Col, A., & Petronetto, F. (2023). Graph regularization
-#'   centrality. Physica A, 628, 129188. \doi{10.1016/j.physa.2023.129188}.
-#'   Author implementation: GRC, Mendeley Data, version 1.
+#' @references
+#' Dal Col, A., & Petronetto, F. (2023). Graph regularization centrality.
+#'   Physica A, 628, 129188. \doi{10.1016/j.physa.2023.129188}.
+#'
+#' Dal Col, A. (2023). GRC. Mendeley Data, version 1.
 #'   \doi{10.17632/ns63f5dj86.1}.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)

@@ -3818,8 +3818,10 @@ centrality_information <- function(x, ...) {
 #'
 #' @seealso \code{\link{centrality}}, \code{\link{robustness}}.
 #' @references
-#' Potapov, A. P., Voss, N., Sasse, N., & Wingender, E. (2008). Topology of
-#' mammalian transcription networks. \emph{Genome Informatics}, 18, 193-204.
+#' Potapov, A. P., Goemann, B., & Wingender, E. (2008). The pairwise
+#'   disconnectivity index as a new metric for the topological analysis of
+#'   regulatory networks. \emph{BMC Bioinformatics}, 9, 227.
+#'   \doi{10.1186/1471-2105-9-227}.
 #'
 #' @export
 #' @examples
@@ -4060,7 +4062,10 @@ centrality_brokerage_coordinator <- function(x, membership = NULL, ...) {
 #' @inheritParams centrality_brokerage_coordinator
 #' @return Named integer vector of itinerant role counts.
 #' @seealso \code{\link{centrality_brokerage_coordinator}}.
-#' @references Gould & Fernandez (1989).
+#' @references
+#' Gould, R. V., & Fernandez, R. M. (1989). Structures of mediation: A formal
+#'   approach to brokerage in transaction networks. \emph{Sociological
+#'   Methodology}, 19, 89-126. \doi{10.2307/270949}.
 #' @export
 #' @examples
 #' adj <- matrix(c(0,1,1,0, 0,0,1,1, 0,0,0,1, 1,0,0,0), 4, 4, byrow = TRUE)
@@ -4085,7 +4090,10 @@ centrality_brokerage_itinerant <- function(x, membership = NULL, ...) {
 #' @inheritParams centrality_brokerage_coordinator
 #' @return Named integer vector of representative role counts.
 #' @seealso \code{\link{centrality_brokerage_coordinator}}.
-#' @references Gould & Fernandez (1989).
+#' @references
+#' Gould, R. V., & Fernandez, R. M. (1989). Structures of mediation: A formal
+#'   approach to brokerage in transaction networks. \emph{Sociological
+#'   Methodology}, 19, 89-126. \doi{10.2307/270949}.
 #' @export
 #' @examples
 #' adj <- matrix(c(0,1,1,0, 0,0,1,1, 0,0,0,1, 1,0,0,0), 4, 4, byrow = TRUE)
@@ -4110,7 +4118,10 @@ centrality_brokerage_representative <- function(x, membership = NULL, ...) {
 #' @inheritParams centrality_brokerage_coordinator
 #' @return Named integer vector of gatekeeper role counts.
 #' @seealso \code{\link{centrality_brokerage_coordinator}}.
-#' @references Gould & Fernandez (1989).
+#' @references
+#' Gould, R. V., & Fernandez, R. M. (1989). Structures of mediation: A formal
+#'   approach to brokerage in transaction networks. \emph{Sociological
+#'   Methodology}, 19, 89-126. \doi{10.2307/270949}.
 #' @export
 #' @examples
 #' adj <- matrix(c(0,1,1,0, 0,0,1,1, 0,0,0,1, 1,0,0,0), 4, 4, byrow = TRUE)
@@ -4134,7 +4145,10 @@ centrality_brokerage_gatekeeper <- function(x, membership = NULL, ...) {
 #' @inheritParams centrality_brokerage_coordinator
 #' @return Named integer vector of liaison role counts.
 #' @seealso \code{\link{centrality_brokerage_coordinator}}.
-#' @references Gould & Fernandez (1989).
+#' @references
+#' Gould, R. V., & Fernandez, R. M. (1989). Structures of mediation: A formal
+#'   approach to brokerage in transaction networks. \emph{Sociological
+#'   Methodology}, 19, 89-126. \doi{10.2307/270949}.
 #' @export
 #' @examples
 #' adj <- matrix(c(0,1,1,0, 0,0,1,1, 0,0,0,1, 1,0,0,0), 4, 4, byrow = TRUE)

@@ -33,7 +33,9 @@ rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
 centrality_brokerage_representative(adj, membership = c(1, 1, 2, 2))
 }
 \references{
-Gould & Fernandez (1989).
+Gould, R. V., & Fernandez, R. M. (1989). Structures of mediation: A formal
+approach to brokerage in transaction networks. \emph{Sociological
+Methodology}, 19, 89-126. \doi{10.2307/270949}.
 }
 \seealso{
 \code{\link{centrality_brokerage_coordinator}}.

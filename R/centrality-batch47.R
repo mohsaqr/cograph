@@ -109,11 +109,10 @@ calculate_rsp_betweenness <- function(cg, weights = NULL, rsp_beta = 0.01,
 #' @param ... Additional arguments to \code{\link{centrality}}, including
 #'   \code{rsp_beta} and \code{rsp_cost}.
 #' @return Named numeric vector in input node order.
-#' @references Kivimaki, I., Lebichot, B., Saramaki, J. and Saerens, M.
-#'   (2016). Two betweenness centrality measures based on Randomized Shortest
-#'   Paths. Scientific Reports, 6, 19668. Equations (6) and (8) on pages 5-6,
-#'   equations (14) and (15) and Algorithm 1 on pages 6-7, and the
-#'   \eqn{\beta\to 0^+} limit on page 9. \doi{10.1038/srep19668}.
+#' @references
+#' Kivimaki, I., Lebichot, B., Saramaki, J. and Saerens, M. (2016). Two
+#'   betweenness centrality measures based on Randomized Shortest Paths.
+#'   Scientific Reports, 6, 19668. \doi{10.1038/srep19668}.
 #' @seealso \code{\link{centrality_current_flow_betweenness}} and
 #'   \code{\link{centrality_random_walk}} for the random-walk end of the same
 #'   spectrum, \code{\link{centrality_betweenness}} for the shortest-path end,

@@ -72,11 +72,12 @@ centrality_linerank(igraph::make_ring(4))
 \dontshow{\}) # examplesIf}
 }
 \references{
-Kang, U., Papadimitriou, S., Sun, J., & Tong, H. (2011).
-Centralities in Large Networks: Algorithms and Observations.
-SDM, 119-130. Definitions 2-4, Algorithm 2.
+Kang, U., Papadimitriou, S., Sun, J., & Tong, H. (2011). Centralities in
+Large Networks: Algorithms and Observations. Proceedings of the 2011 SIAM
+International Conference on Data Mining, 119-130.
 \doi{10.1137/1.9781611972818.11}.
-Kosa, B., Balassi, M., Englert, P., & Kiss, A. (2015).
-Betweenness versus Linerank. Computer Science and Information Systems,
-12(1), 33-48, section 4. \doi{10.2298/CSIS141101092K}.
+
+Kosa, B., Balassi, M., Englert, P., & Kiss, A. (2015). Betweenness versus
+Linerank. Computer Science and Information Systems, 12(1), 33-48.
+\doi{10.2298/CSIS141101092K}.
 }

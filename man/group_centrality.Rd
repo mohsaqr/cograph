@@ -58,9 +58,9 @@ neighborhood.}
 }
 \section{Divergence from NetworkX on betweenness}{
 
-\code{networkx.group_betweenness_centrality} uses the Puzis-Yahalom-Elovici
+\code{networkx.group_betweenness_centrality} uses the Puzis-Elovici-Dolev
 iterative algorithm, which produces results that diverge from the textbook
-Everett-Borgatti / Puzis 2008 "at least one node in C" definition on some
+Everett-Borgatti / Puzis 2007 "at least one node in C" definition on some
 graph topologies (verified via an independent Python brute-force). cograph
 implements the textbook formula directly; group_closeness and group_degree
 match NetworkX exactly.
@@ -78,9 +78,9 @@ group_centrality(g, nodes = c(1, 2, 3), measure = "degree")
 Everett, M. G., & Borgatti, S. P. (1999). The centrality of groups and
 classes. \emph{Journal of Mathematical Sociology}, 23(3), 181-201.
 
-Puzis, R., Yahalom, R., & Elovici, Y. (2008). Augmentative data collection
-for betweenness centrality. In \emph{Advances in Social Networks Analysis
-and Mining} (pp. 196-200). IEEE.
+Puzis, R., Elovici, Y., & Dolev, S. (2007). Fast algorithm for successive
+computation of group betweenness centrality. \emph{Physical Review E}, 76,
+056709. \doi{10.1103/PhysRevE.76.056709}.
 }
 \seealso{
 \code{\link{centrality}} for per-node measures.

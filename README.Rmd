@@ -26,178 +26,120 @@ knitr::opts_chunk$set(
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 <!-- badges: end -->
 
-**cograph** is a modern R package for the analysis, visualization, and
-manipulation of complex networks. It provides publication-ready plotting
-with customizable layouts, node shapes, edge styles, and themes through
-an intuitive, pipe-friendly API. It includes first-class support for Transition
-Network Analysis (TNA), multilayer networks, and community detection.
+cograph is a modern R package for the analysis and visualization of complex
+networks, designed for simplicity, tidy outputs, comprehensive statistics and
+up-to-date network science. cograph accepts matrices, edge lists, and igraph,
+statnet, qgraph and tna objects without conversion, and offers a wide array of
+tools for plotting, wrangling, centrality, community detection, motif,
+robustness, multilayer and higher-order analysis.
 
 ## Installation
 
 ```{r, eval = FALSE}
-# Install from CRAN
+# Release version from CRAN
 install.packages("cograph")
 
 # Development version from GitHub
-devtools::install_github("sonsoleslp/cograph")
+# install.packages("remotes")
+remotes::install_github("sonsoleslp/cograph")
 ```
 
+## Quick start
 
-## How to use it?
+The examples use `regulation_net`, a synthetic weighted transition network
+among ten learning states included in the package. `splot()` plots it in one
+call, and `tna_styling = TRUE` applies the visual conventions of transition
+networks.
 
-
-### Full tutorials
-
-- [Network Visualization with `cograph`](https://sonsoles.me/cograph/articles/cograph-tutorial-plotting.html)
-- [Visualization of communities and higher-order networks](https://sonsoles.me/cograph/articles/cograph-tutorial-communities.html)
-- [Network Estimation and Visualization with `Nestimate` + cograph](https://sonsoles.me/cograph/articles/cograph-tutorial-nestimate.html)
-- [Multi-Cluster Multi-Level Visualization with `plot_mcml`](https://sonsoles.me/cograph/articles/cograph-tutorial-mcml.html)
-- [Higher-Order Network Analysis with Simplicial Complexes](https://sonsoles.me/cograph/articles/cograph-tutorial-simplicial.html)
-
-### Quick guides
-
-- [Why cograph?](https://sonsoles.me/cograph/articles/why-cograph.html)
-- [Centrality catalogue](https://sonsoles.me/cograph/articles/centrality-catalogue.html)
-- [Plotting TNA Models with `splot`](https://sonsoles.me/cograph/articles/plotting-tna-models.html)
-- [Advanced examples](https://sonsoles.me/cograph/articles/mcml-examples.html)
-- [Bootstrap Forest Plots](https://sonsoles.me/cograph/articles/bootstrap-forest.html)
-- [Migrating from `qgraph` to `splot`](https://sonsoles.me/cograph/articles/qgraph-to-splot.html)
-
-
-## Features
-
-### Network Plotting
-
-| Function | Description |
-|---|---|
-| `splot()` | Base R network plot (core engine) |
-| `soplot()` | Grid/ggplot2 network rendering |
-| `tplot()` | qgraph drop-in replacement for TNA |
-| `plot_htna()` | Hierarchical multi-group TNA layouts |
-| `plot_mtna()` | Multi-cluster TNA with shape containers |
-| `plot_mcml()` | Markov Chain Multi-Level visualization |
-| `plot_mlna()` | Multilayer 3D perspective networks |
-| `plot_mixed_network()` | Combined symmetric/asymmetric edges |
-
-### Flow and Comparison Plots
-
-| Function | Description |
-|---|---|
-| `plot_transitions()` | Alluvial/Sankey flow diagrams |
-| `plot_alluvial()` | Alluvial wrapper with flow coloring |
-| `plot_trajectories()` | Individual tracking with line bundling |
-| `plot_chord()` | Chord diagrams with ticks |
-| `plot_heatmap()` | Adjacency heatmaps with clustering |
-| `plot_compare()` | Difference network visualization |
-| `plot_bootstrap()` | Bootstrap CI result plots |
-| `plot_permutation()` | Permutation test result plots |
-
-### Community and Higher-Order Structure
-
-| Function | Description |
-|---|---|
-| `overlay_communities()` | Community blob overlays on network plots |
-| `plot_simplicial()` | Higher-order pathway (simplicial complex) visualization |
-| `detect_communities()` | 11 igraph algorithms with shorthand wrappers |
-| `communities()` | Unified community detection interface |
-
-### Network Analysis
-
-| Function | Description |
-|---|---|
-| `centrality()` | 87 centrality measures, validated against centiserve/sna/igraph/NetworkX |
-| `motifs()` / `subgraphs()` | Motif/triad census with per-actor windowing |
-| `robustness()` | Network robustness analysis |
-| `disparity_filter()` | Backbone extraction (Serrano et al. 2009) |
-| `cluster_summary()` | Between/within cluster weight aggregation |
-| `build_mcml()` | Markov Chain Multi-Level model construction |
-| `summarize_network()` | Comprehensive network-level statistics |
-| `verify_with_igraph()` | Cross-validation against igraph |
-| `simplify()` | Prune weak edges |
-
-```{r centrality-built-in, eval=FALSE}
-data(student_interactions)
-centrality(student_interactions)
-```
-
-### Multilayer Networks
-
-| Function | Description |
-|---|---|
-| `supra_adjacency()` | Supra-adjacency matrix construction |
-| `layer_similarity()` | Layer comparison measures |
-| `aggregate_layers()` | Weight aggregation across layers |
-| `plot_ml_heatmap()` | Multilayer heatmaps with 3D perspective |
-
-## Examples
-
-```{r setup-demo, include = FALSE}
+```{r quick-splot, message = FALSE}
 library(cograph)
-
-states <- c("Explore", "Plan", "Monitor", "Adapt", "Reflect")
-mat <- matrix(
-  c(0.0, 0.4, 0.2, 0.1, 0.3,
-    0.3, 0.0, 0.3, 0.2, 0.2,
-    0.2, 0.3, 0.0, 0.3, 0.2,
-    0.1, 0.2, 0.4, 0.0, 0.3,
-    0.2, 0.2, 0.2, 0.4, 0.0),
-  nrow = 5, byrow = TRUE,
-  dimnames = list(states, states)
-)
-
-fills <- c(0.9, 0.7, 0.5, 0.3, 0.8)
-
-pie_vals <- list(
-  c(0.5, 0.3, 0.2),
-  c(0.4, 0.4, 0.2),
-  c(0.3, 0.3, 0.4),
-  c(0.6, 0.2, 0.2),
-  c(0.2, 0.5, 0.3)
-)
+splot(regulation_net, tna_styling = TRUE)
 ```
 
-### TNA Plot
+`centrality()` returns any combination of measures as a tidy data frame, from
+the classical measures to recent ones such as randomized shortest-path
+betweenness and Trust-PageRank.
 
-The primary use case: visualize transition networks from the `tna` package.
-
-```{r tna-plot, message = FALSE}
-library(tna)
-library(cograph)
-
-# Build a TNA model from sequence data
-fit <- tna(group_regulation)
-
-# One-liner visualization
-splot(fit)
+```{r quick-centrality}
+centrality(regulation_net,
+           measures = c("strength", "betweenness", "pagerank",
+                        "rsp_betweenness", "trust_pagerank"),
+           sort_by = "pagerank", digits = 3)
 ```
 
-### Donut + Pie
+`plot_mcml()` shows a network whose nodes belong to clusters as a two-layer
+hierarchy, with the node-level network below and the cluster-level network
+above.
 
-Combine outer donut ring with inner pie segments.
-
-```{r donut-pie}
-splot(mat,
-  donut_fill = fills,
-  donut_color = "steelblue",
-  pie_values = pie_vals,
-  pie_colors = c("#E41A1C", "#377EB8", "#4DAF4A")
-)
+```{r quick-mcml, fig.height = 9}
+clusters <- list(Cognitive  = c("Explore", "Plan", "Monitor", "Adapt", "Reflect"),
+                 Social     = c("Discuss", "Synthesize", "Share"),
+                 Evaluative = c("Evaluate", "Create"))
+plot_mcml(regulation_net, clusters)
 ```
 
-### Chord Diagram
+`plot_simplicial()` visualizes higher-order pathways over the network, with
+each pathway joining the states that lead to a target state.
 
-```{r chord, fig.height = 7}
-plot_chord(mat, title = "Transition Chord Diagram")
+```{r quick-simplicial, fig.height = 6}
+plot_simplicial(regulation_net,
+                c("Explore Plan -> Monitor", "Monitor Adapt -> Reflect",
+                  "Discuss Synthesize -> Evaluate", "Create Share -> Explore"))
 ```
 
-### Heatmap
+## What cograph covers
 
-```{r heatmap}
-plot_heatmap(mat, show_values = TRUE, colors = "viridis",
-             value_fontface = "bold", title = "Transition Heatmap")
-```
+- **[Visualization](https://sonsoles.me/cograph/articles/cograph-tutorial-plotting.html).** `splot()` plots any
+  supported input with specialized styling for transition and psychological
+  networks, alongside a wide array of specialized plots from alluvial flows and
+  chord diagrams to bootstrap forest plots and temporal prisms.
+- **[Wrangling](https://sonsoles.me/cograph/articles/introduction.html#wrangling).** cograph offers a family of
+  wrangling verbs for selecting, filtering, thresholding, transforming and
+  editing networks, each returning a network so that the verbs chain with the
+  native pipe.
+- **[Centrality](https://sonsoles.me/cograph/articles/centrality-catalogue.html).** `centrality()` returns a
+  large collection of node centrality measures across all major families as a
+  tidy data frame, tested against igraph, sna, centiserve, NetworkX and other
+  implementations where they exist.
+- **[Network statistics](https://sonsoles.me/cograph/articles/introduction.html#network-properties).**
+  `network_summary()` returns density, diameter, centralization, reciprocity,
+  transitivity and many further statistics in one data frame.
+- **[Communities](https://sonsoles.me/cograph/articles/cograph-tutorial-communities.html).** `communities()`
+  runs a range of detection algorithms through one call, with consensus,
+  comparison and significance testing of partitions.
+- **[Motifs](https://sonsoles.me/cograph/articles/introduction.html#motifs).** `motifs()` and `subgraphs()`
+  count the triads of the MAN classification, test their frequencies and
+  identify the nodes that form each pattern.
+- **[Robustness](https://sonsoles.me/cograph/articles/introduction.html#robustness).** `robustness()` and
+  `vulnerability()` simulate targeted and random attacks and measure each
+  node's contribution to the efficiency of the network.
+- **[Clusters, layers and higher-order structure](https://sonsoles.me/cograph/articles/cograph-tutorial-mcml.html).**
+  cograph offers hierarchical plots for multi-cluster networks, supra-adjacency
+  tools for multilayer networks, and visualization of higher-order pathways
+  estimated with Nestimate.
 
+## Documentation
 
-## License
+**Tutorials**
 
-MIT License.
+- [Network visualization with cograph](https://sonsoles.me/cograph/articles/cograph-tutorial-plotting.html): a complete guide to plotting with `splot()`.
+- [Communities and higher-order networks](https://sonsoles.me/cograph/articles/cograph-tutorial-communities.html): detecting communities and visualizing them over the network.
+- [Network estimation with Nestimate and cograph](https://sonsoles.me/cograph/articles/cograph-tutorial-nestimate.html): from sequence data to bootstrapped, compared and clustered networks.
+- [Multi-cluster multi-level visualization](https://sonsoles.me/cograph/articles/cograph-tutorial-mcml.html): hierarchical plots of clustered networks with `plot_mcml()`.
+- [Higher-order network analysis with simplicial complexes](https://sonsoles.me/cograph/articles/cograph-tutorial-simplicial.html): from transition networks to topological analysis.
+
+**Articles**
+
+- [Introduction to cograph](https://sonsoles.me/cograph/articles/introduction.html): an overview of the package.
+- [Why cograph?](https://sonsoles.me/cograph/articles/why-cograph.html): the design of the package.
+- [Centrality catalogue](https://sonsoles.me/cograph/articles/centrality-catalogue.html): every centrality measure with its definition and interpretation.
+- [cograph and the Centrality Zoo](https://sonsoles.me/cograph/articles/centrality-zoo-lookup.html): cograph's measures compared with the Zoo and with other packages.
+- [Plotting TNA models](https://sonsoles.me/cograph/articles/plotting-tna-models.html): a gallery of TNA plots.
+- [Advanced MCML examples](https://sonsoles.me/cograph/articles/mcml-examples.html): further multi-cluster figures.
+- [Bootstrap forest plots](https://sonsoles.me/cograph/articles/bootstrap-forest.html): confidence intervals of bootstrapped edges.
+- [Migrating from qgraph to splot](https://sonsoles.me/cograph/articles/qgraph-to-splot.html): qgraph arguments and their cograph equivalents.
+
+## Citation and license
+
+Please cite cograph with `citation("cograph")`. cograph is released under the
+MIT license.

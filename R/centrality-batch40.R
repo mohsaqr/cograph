@@ -75,9 +75,9 @@ calculate_dkgm <- function(cg, radius = 2) {
 #'   the treatment of disconnected graphs are cograph's, not the paper's.
 #' @param ... Additional arguments to \code{\link{centrality}}.
 #' @return Named numeric vector in input node order.
-#' @references Li, Z. and Huang, X. (2021). Identifying influential spreaders
-#'   in complex networks by an improved gravity model. Scientific Reports,
-#'   11, 22194. Equations 1-3, Algorithm 1 and Tables 2-5.
+#' @references
+#' Li, Z. and Huang, X. (2021). Identifying influential spreaders in complex
+#'   networks by an improved gravity model. Scientific Reports, 11, 22194.
 #'   \doi{10.1038/s41598-021-01218-1}.
 #' @seealso \code{\link{centrality_mcgm}} and
 #'   \code{\link{centrality_mixed_gravity}} for the other gravity masses.

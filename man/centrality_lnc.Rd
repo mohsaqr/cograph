@@ -95,12 +95,10 @@ centrality_lnc(igraph::make_star(5, mode = "undirected"))
 \dontshow{\}) # examplesIf}
 }
 \references{
-Dai, J., Wang, B., Sheng, J., Sun, Z., Khawaja, F. R.,
-Ullah, A., Dejene, D. A. and Duan, G. (2019). Identifying influential
-nodes in complex networks based on local neighbor contribution. IEEE
-Access, 7, 131719-131731. Definitions 1-5, equations (1)-(6) and
-Algorithm 1, journal pages 131721-131723, with the Figure 1 graph and
-Table 1 on page 131720. \doi{10.1109/ACCESS.2019.2939804}.
+Dai, J., Wang, B., Sheng, J., Sun, Z., Khawaja, F. R., Ullah, A., Dejene,
+D. A. and Duan, G. (2019). Identifying influential nodes in complex
+networks based on local neighbor contribution. IEEE Access, 7,
+131719-131731. \doi{10.1109/ACCESS.2019.2939804}.
 }
 \seealso{
 \code{\link{centrality_semilocal}} and

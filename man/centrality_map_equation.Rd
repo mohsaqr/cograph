@@ -88,8 +88,9 @@ centrality_map_equation(g, membership = rep(1:2, each = 17),
 }
 \references{
 Blocker, C., Nieves, J. C. and Rosvall, M. (2022). Map equation
-centrality: community-aware centrality based on the map equation.
-Applied Network Science, 7, 56. \doi{10.1007/s41109-022-00477-9}.
+centrality: community-aware centrality based on the map equation. Applied
+Network Science, 7, 56. \doi{10.1007/s41109-022-00477-9}.
+
 Lambiotte, R. and Rosvall, M. (2012). Ranking and clustering of nodes in
 networks with smart teleportation. Physical Review E, 85, 056107.
 \doi{10.1103/PhysRevE.85.056107}.

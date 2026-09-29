@@ -50,8 +50,7 @@ centrality_x_degree(igraph::make_graph("Zachary"))
 }
 \references{
 Torres, L., Chan, K. S., Tong, H., & Eliassi-Rad, T. (2021).
-Nonbacktracking Eigenvalues under Node Removal: X-Centrality and
-Targeted Immunization. SIAM Journal on Mathematics of Data Science,
-3(2), 656-675. Proposition 3.8, equation 3.15.
+Nonbacktracking Eigenvalues under Node Removal: X-Centrality and Targeted
+Immunization. SIAM Journal on Mathematics of Data Science, 3(2), 656-675.
 \doi{10.1137/20M1352132}.
 }

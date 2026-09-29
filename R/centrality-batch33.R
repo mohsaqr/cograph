@@ -94,10 +94,10 @@ calculate_localized_bridging <- function(cg, radius = 1L) {
 #'   \code{normalized = TRUE} divides final scores by their maximum;
 #'   all-zero scores remain zero. Ego betweenness is never scaled by ego size.
 #' @return Named numeric vector in input node order.
-#' @references Nanda, S. and Kotz, D. (2012). Localized Bridging Centrality.
-#'   Handbook of Optimization in Complex Networks, pp. 197-224,
-#'   equations 7.7-7.8. \doi{10.1007/978-1-4614-0857-4_7}.
-#'   This author chapter restates their 2008 LBC definition.
+#' @references
+#' Nanda, S. and Kotz, D. (2012). Localized Bridging Centrality. In Handbook
+#'   of Optimization in Complex Networks, pp. 197-224.
+#'   \doi{10.1007/978-1-4614-0857-4_7}.
 #' @seealso \code{\link{centrality_extended_local_bridging}} for two-hop
 #'   ego networks. \code{\link{centrality_local_bridging}} retains the
 #'   distinct legacy score, inverse degree times bridging coefficient.
@@ -129,9 +129,9 @@ centrality_localized_bridging <- function(x, ...) {
 #'
 #' @inheritParams centrality_localized_bridging
 #' @return Named numeric vector in input node order.
-#' @references Macker, J. P. (2016). An improved local bridging centrality
-#'   model for distributed network analytics. MILCOM, pp. 600-605,
-#'   sections IV-V, equation 5 and Table I.
+#' @references
+#' Macker, J. P. (2016). An improved local bridging centrality model for
+#'   distributed network analytics. MILCOM, pp. 600-605.
 #'   \doi{10.1109/MILCOM.2016.7795393}.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)

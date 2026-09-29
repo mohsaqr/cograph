@@ -1,5 +1,6 @@
 ---
 title: "Migrating from qgraph to splot"
+author: "[Mohammed Saqr](https://saqr.me) and [Sonsoles López-Pernas](https://sonsoles.me)"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Migrating from qgraph to splot}

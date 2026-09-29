@@ -33,8 +33,10 @@ rownames(adj) <- colnames(adj) <- c("A", "B", "C")
 centrality_pairwisedis(adj)
 }
 \references{
-Potapov, A. P., Voss, N., Sasse, N., & Wingender, E. (2008). Topology of
-mammalian transcription networks. \emph{Genome Informatics}, 18, 193-204.
+Potapov, A. P., Goemann, B., & Wingender, E. (2008). The pairwise
+disconnectivity index as a new metric for the topological analysis of
+regulatory networks. \emph{BMC Bioinformatics}, 9, 227.
+\doi{10.1186/1471-2105-9-227}.
 }
 \seealso{
 \code{\link{centrality}}, \code{\link{robustness}}.

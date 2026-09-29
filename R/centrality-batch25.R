@@ -79,11 +79,10 @@ calculate_random_walk_decay <- function(cg, weights = NULL, decay = 0.5,
 #'   named vectors must match every node name exactly and are reordered.
 #' @param ... Additional arguments to \code{\link{centrality}}.
 #' @return Named numeric vector in input node order.
-#' @references Was, T., Rahwan, T., & Skibski, O. (2019). Random Walk Decay
-#'   Centrality. Proceedings of the AAAI Conference on Artificial
-#'   Intelligence, 33(01), 2197-2204. Definition 1, equation 6; transition
-#'   equation 3 and terminal-sink convention.
-#'   \doi{10.1609/aaai.v33i01.33012197}.
+#' @references
+#' Was, T., Rahwan, T., & Skibski, O. (2019). Random Walk Decay Centrality.
+#'   Proceedings of the AAAI Conference on Artificial Intelligence, 33(01),
+#'   2197-2204. \doi{10.1609/aaai.v33i01.33012197}.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_random_walk_decay(igraph::make_ring(4), rwd_decay = 0.8)

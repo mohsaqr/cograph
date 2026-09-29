@@ -185,10 +185,10 @@ calculate_relative_entropy <- function(cg,
 #'   \code{character(0)} to treat every requested index as positive.
 #' @param ... Additional arguments to \code{\link{centrality}}.
 #' @return Named numeric vector in input node order, summing to one.
-#' @references Chen, B., Wang, Z. and Luo, C. (2016). Integrated evaluation
-#'   approach for node importance of complex networks based on relative
-#'   entropy. Journal of Systems Engineering and Electronics, 27(6),
-#'   1219-1226. Equations 3, 4, 6, 8, 9, 10 and 11 and Tables 1-3.
+#' @references
+#' Chen, B., Wang, Z. and Luo, C. (2016). Integrated evaluation approach for
+#'   node importance of complex networks based on relative entropy. Journal of
+#'   Systems Engineering and Electronics, 27(6), 1219-1226.
 #'   \doi{10.21629/JSEE.2016.06.10}.
 #' @seealso \code{\link{centrality_bridging}} for the nearest existing
 #'   cograph measure by rank correlation, and \code{\link{list_centralities}}

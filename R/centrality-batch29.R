@@ -142,11 +142,10 @@ calculate_bridging_capital <- function(cg, weights = NULL, steps = 2,
 #'   information-value matrix; NULL uses ones. Both dimensions may be named.
 #' @param ... Additional arguments to \code{\link{centrality}}.
 #' @return Named numeric vector in input node order.
-#' @references Jackson, M. O. (2020). A typology of social capital and
-#'   associated network measures. Social Choice and Welfare, 54, 311-336.
-#'   \doi{10.1007/s00355-019-01189-3}. Definition read in author preprint
-#'   arXiv:1711.09504v3 (2019), section 3.3, page 18; transmission model
-#'   section 3.1 and formal graph conventions section 2.
+#' @references
+#' Jackson, M. O. (2020). A typology of social capital and associated network
+#'   measures. Social Choice and Welfare, 54, 311-336.
+#'   \doi{10.1007/s00355-019-01189-3}.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_bridging_capital(igraph::make_ring(4), bridging_steps = 2)

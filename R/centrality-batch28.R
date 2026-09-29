@@ -83,10 +83,9 @@ calculate_coleman_theil <- function(cg, weights = NULL) {
 #' @param x Network input accepted by \code{\link{centrality}}.
 #' @param ... Additional arguments to \code{\link{centrality}}.
 #' @return Named numeric vector in input node order.
-#' @references Burt, R. S. (1991). STRUCTURE, version 4.2, Reference Manual,
-#'   Columbia University, pages 181-183. These pages reproduce the hierarchy
-#'   definition attributed to equation 2.9 in Burt (1992), Structural Holes:
-#'   The Social Structure of Competition, Harvard University Press.
+#' @references
+#' Burt, R. S. (1992). Structural Holes: The Social Structure of Competition.
+#'   Harvard University Press. \doi{10.4159/9780674029095}.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_coleman_theil(igraph::make_star(5, mode = "undirected"))

@@ -51,9 +51,8 @@ calculate_malatya <- function(cg) {
 #' @return Named numeric vector in input node order.
 #' @references
 #' Liu, J. G., Lin, J. H., Guo, Q., & Zhou, T. (2016). Locating influential
-#' nodes via dynamics-sensitive centrality. Scientific Reports, 6, 21380.
-#' \doi{10.1038/srep21380}. Preprint equations 5 and 7:
-#' \url{https://arxiv.org/abs/1504.06672}.
+#'   nodes via dynamics-sensitive centrality. Scientific Reports, 6, 21380.
+#'   \doi{10.1038/srep21380}.
 #' @seealso \code{\link{centrality_diffusion_centrality}}.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
@@ -89,9 +88,9 @@ centrality_dynamics_sensitive <- function(x, ds_beta = 0.1, ds_mu = 1,
 #' @return Named numeric vector in input node order.
 #' @references
 #' Karci, A., Yakut, S., & Oztemiz, F. (2022). A New Approach Based on
-#' Centrality Value in Solving the Minimum Vertex Cover Problem: Malatya
-#' Centrality Algorithm. Journal of Computer Science, 7(2), 81-88,
-#' equation 1. \doi{10.53070/bbd.1195501}.
+#'   Centrality Value in Solving the Minimum Vertex Cover Problem: Malatya
+#'   Centrality Algorithm. Journal of Computer Science, 7(2), 81-88.
+#'   \doi{10.53070/bbd.1195501}.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_malatya(igraph::make_star(5, mode = "undirected"))

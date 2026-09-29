@@ -127,12 +127,10 @@ centrality_lhc(ring, lhc_radius = 4)
 \dontshow{\}) # examplesIf}
 }
 \references{
-Wang, X., Yang, Q., Liu, M. and Ma, X. (2021).
-Comprehensive influence of topological location and neighbor
-information on identifying influential nodes in complex networks.
-PLoS ONE, 16(5), e0251208. Equation (1) and its symbol list on page 3,
-equation (2), the \eqn{d=2} statement and Algorithm 1 on page 4, and
-the \eqn{d} sweep on page 7. \doi{10.1371/journal.pone.0251208}.
+Wang, X., Yang, Q., Liu, M. and Ma, X. (2021). Comprehensive influence of
+topological location and neighbor information on identifying influential
+nodes in complex networks. PLoS ONE, 16(5), e0251208.
+\doi{10.1371/journal.pone.0251208}.
 }
 \seealso{
 \code{\link{centrality_hcc}} and \code{\link{centrality_ked}}

@@ -36,7 +36,6 @@ centrality_modified_expected_force(igraph::make_graph("Zachary"))
 \dontshow{\}) # examplesIf}
 }
 \references{
-Lawyer, G. (2015). Understanding the influence of all nodes
-in a network. Scientific Reports, 5, 8665, equation 2.
-\doi{10.1038/srep08665}.
+Lawyer, G. (2015). Understanding the influence of all nodes in a network.
+Scientific Reports, 5, 8665. \doi{10.1038/srep08665}.
 }

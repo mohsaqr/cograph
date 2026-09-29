@@ -62,8 +62,7 @@ centrality_ninl(igraph::make_star(5, mode = "undirected"), ninl_order = 2)
 \dontshow{\}) # examplesIf}
 }
 \references{
-Zhu, J. and Wang, L. (2021). Identifying Influential Nodes
-in Complex Networks Based on Node Itself and Neighbor Layer Information.
-Symmetry, 13, 1570. Section 2.1, equations 1-2 and Table 1.
-\doi{10.3390/sym13091570}.
+Zhu, J. and Wang, L. (2021). Identifying Influential Nodes in Complex
+Networks Based on Node Itself and Neighbor Layer Information. Symmetry,
+13, 1570. \doi{10.3390/sym13091570}.
 }

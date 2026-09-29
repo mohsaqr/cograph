@@ -91,11 +91,11 @@ calculate_neighbor_distance <- function(cg, order = 2, decay = 0.2,
 #'   (default) or \code{"coreness"}. These are the two the source uses.
 #' @param ... Additional arguments to \code{\link{centrality}}.
 #' @return Named numeric vector in input node order.
-#' @references Liu, Y., Tang, M., Zhou, T. and Do, Y. (2016). Identify
-#'   influential spreaders in complex networks, the role of neighborhood.
-#'   Physica A: Statistical Mechanics and its Applications, 452, 289-298.
-#'   Section 2.3, equation 1, read in the author preprint arXiv:1511.00441v1
-#'   page 4. \doi{10.1016/j.physa.2016.02.028}.
+#' @references
+#' Liu, Y., Tang, M., Zhou, T. and Do, Y. (2016). Identify influential
+#'   spreaders in complex networks, the role of neighborhood. Physica A:
+#'   Statistical Mechanics and its Applications, 452, 289-298.
+#'   \doi{10.1016/j.physa.2016.02.028}.
 #' @seealso \code{\link{centrality_semilocal}} and
 #'   \code{\link{centrality_extended_coreness}} for other neighborhood sums,
 #'   and \code{\link{list_centralities}} for the catalogue.

@@ -216,3 +216,36 @@ test_that("degree_distribution integer-aligned default for small range", {
   diffs <- diff(res$breaks)
   expect_true(all(abs(diffs - 1) < 1e-10))
 })
+
+# network_clique_size() on directed input --------------------------------------
+# Regression: igraph 2.3.3's clique_num() overflowed the C stack on a directed
+# graph, which crashed network_summary(extended = TRUE) on student_interactions.
+
+test_that("network_clique_size() handles a directed multigraph", {
+  skip_if_not_installed("igraph")
+  g <- to_igraph(student_interactions)
+  expect_true(igraph::is_directed(g))
+  skel <- igraph::simplify(igraph::as_undirected(g, mode = "collapse"))
+  reference <- length(igraph::largest_cliques(skel)[[1]])
+  expect_identical(as.numeric(network_clique_size(student_interactions)),
+                   as.numeric(reference))
+  expect_identical(as.numeric(network_clique_size(g)), as.numeric(reference))
+})
+
+test_that("network_clique_size() ignores edge direction", {
+  skip_if_not_installed("igraph")
+  # Directed triangle a->b, b->c, c->a plus a pendant d: clique number 3
+  # whichever way the arcs point.
+  forward <- data.frame(from = c("a", "b", "c", "c"), to = c("b", "c", "a", "d"))
+  reversed <- data.frame(from = forward$to, to = forward$from)
+  expect_identical(as.numeric(network_clique_size(forward)), 3)
+  expect_identical(as.numeric(network_clique_size(reversed)), 3)
+})
+
+test_that("network_summary(extended = TRUE) runs on student_interactions", {
+  skip_if_not_installed("igraph")
+  res <- network_summary(student_interactions, detailed = TRUE, extended = TRUE)
+  expect_s3_class(res, "data.frame")
+  expect_identical(as.numeric(res$largest_clique_size),
+                   as.numeric(network_clique_size(student_interactions)))
+})

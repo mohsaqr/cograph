@@ -51,9 +51,9 @@ calculate_adaptive_leaderrank <- function(cg, h_mode = "all") {
 #' @param alr_h_mode Original H-index convention: all (default), out or in.
 #' @param ... Additional arguments to \code{\link{centrality}}.
 #' @return Named numeric vector in input node order.
-#' @references Xu, S., & Wang, P. (2017). Identifying important nodes by
-#'   adaptive LeaderRank. Physica A, 469, 654-664, section 2.2, equation 3
-#'   and algorithm steps 1-4. \doi{10.1016/j.physa.2016.11.034}.
+#' @references
+#' Xu, S., & Wang, P. (2017). Identifying important nodes by adaptive
+#'   LeaderRank. Physica A, 469, 654-664. \doi{10.1016/j.physa.2016.11.034}.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_adaptive_leaderrank(igraph::make_ring(4))

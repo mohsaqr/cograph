@@ -446,10 +446,6 @@ centrality_voterank_plus <- function(x, voterank_lambda = 0.1, ...) {
 #'   importance based on node contraction in complex networks. Systems
 #'   Engineering: Theory & Practice, 26(11), 79-83.
 #'
-#' Wang, J., Li, C., & Xia, C. (2011). Improved centrality indicators to
-#'   characterize the nodal spreading capability in complex networks.
-#'   Procedia Engineering, 15, 3304-3308.
-#'
 #' @seealso \code{\link{centrality_closeness_vitality}}.
 #'
 #' @export
@@ -728,8 +724,8 @@ centrality_redundancy <- function(x, ...) {
 #'   method for weighted networks. New Journal of Physics, 14, 083030.
 #'
 #' Liu, Y., Tang, M., Zhou, T., & Do, Y. (2015). Improving the accuracy of
-#'   the k-shell method by removing redundant links. Scientific Reports, 5,
-#'   13172.
+#'   the k-shell method by removing redundant links: From a perspective of
+#'   spreading dynamics. Scientific Reports, 5, 13172. \doi{10.1038/srep13172}.
 #'
 #' Borgatti, S. P., & Everett, M. G. (2006). A graph-theoretic perspective
 #'   on centrality. Social Networks, 28(4), 466-484.

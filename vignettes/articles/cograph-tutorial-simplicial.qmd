@@ -1,7 +1,13 @@
 ---
 title: "Higher-Order Network Analysis with Simplicial Complexes"
 subtitle: "From Transition Networks to Topological Analysis"
-author: "Mohammed Saqr & Sonsoles López-Pernas"
+author:
+  - name: Mohammed Saqr
+    url: https://saqr.me
+    affiliation: University of Eastern Finland
+  - name: Sonsoles López-Pernas
+    url: https://sonsoles.me
+    affiliation: University of Eastern Finland
 date: today
 format:
   html:

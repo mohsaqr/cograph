@@ -1,3 +1,55 @@
+# cograph 2.7.0
+
+## Bug fixes
+
+* `network_clique_size()`, and with it `network_summary(extended = TRUE)`,
+  crashed R with a C stack overflow on directed networks such as
+  `student_interactions`. The crash is in `igraph::clique_num()` (igraph
+  2.3.3) on directed input. Cliques ignore direction, so the count now runs on
+  the simple undirected network; the result is unchanged for undirected input.
+
+## Documentation
+
+* New dataset `regulation_net`: a synthetic weighted transition network
+  among ten learning regulation states, used in the examples. Its help page
+  states that it is synthetic and gives the recipe that generated it.
+
+* The introduction vignette is rewritten section by section. Each section
+  opens with what cograph offers for the task, the tables are corrected (the
+  higher-order functions are marked as Nestimate's, `mlna()` is listed as the
+  plot it is, `summarize_network()` is listed with the cluster tools, and
+  `plot_difference()` replaces `plot_compare()`), the disparity example uses
+  the object `splot()` expects, and the examples use `regulation_net`.
+
+* The README is redesigned: a statement of the package's scope, a quick start
+  with four examples on `regulation_net` (plotting, centrality, a hierarchical
+  multi-cluster plot and higher-order pathways), a summary of each area linked
+  to its article, and a list of the tutorials and articles. It replaces the
+  long function tables and the example figures from the June release.
+
+* Every citation in the help pages was checked against Crossref, arXiv and
+  DataCite. Two did not exist and are gone: a 2011 *Procedia Engineering*
+  paper cited by `centrality_node_contraction()` and a 2008 conference paper
+  cited by `group_centrality()`, which now cites Puzis, Elovici and Dolev
+  (2007). `centrality_pairwisedis()` now cites the paper that introduced the
+  index (Potapov, Goemann and Wingender, 2008). The brokerage role pages give
+  the full Gould and Fernandez (1989) reference, and 53 references are reduced
+  to standard form, with DOIs where they exist.
+
+* The centrality catalogue vignette no longer prints a reference paragraph
+  under each of its 201 measures. Those paragraphs carried citations, page
+  numbers and verification claims that could not be vouched for, so they were
+  removed rather than kept unchecked. The 46 "Meaning" paragraphs that had
+  grown into implementation notes (up to 728 words, arguing with source papers
+  and with the Centrality Zoo's transcriptions) are rewritten as short
+  interpretations of what a high value means; the longest is now 62 words.
+
+* The "Centrality Zoo lookup" article is now "cograph and the Centrality
+  Zoo". It compares the number of centralities in cograph with nine other
+  centrality packages and lists which of the Zoo's 349 measures `centrality()`
+  implements, with the closest implemented measure for each of the others.
+  Every number on the page is computed from the files in `docs/zoo/`.
+
 # cograph 2.6.11
 
 ## `plot_mcml()`: the figure's height can now be controlled

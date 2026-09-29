@@ -98,11 +98,10 @@ calculate_controlrank <- function(cg, weights = NULL, normalized = FALSE) {
 #'   otherwise raw scores are retained. This package normalization is
 #'   optional and is not part of the published definition.
 #' @return Named numeric vector in input node order.
-#' @references Zhou, J., Yu, X. and Lu, J.-A. (2019; online 2018).
-#'   Node Importance in Controlled Complex Networks. IEEE Transactions on
-#'   Circuits and Systems II: Express Briefs, 66(3), 437-441.
-#'   Section III-C, Theorem 3; Figure 1 and section IV-A.
-#'   \doi{10.1109/TCSII.2018.2845940}.
+#' @references
+#' Zhou, J., Yu, X. and Lu, J.-A. (2019). Node Importance in Controlled
+#'   Complex Networks. IEEE Transactions on Circuits and Systems II: Express
+#'   Briefs, 66(3), 437-441. \doi{10.1109/TCSII.2018.2845940}.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_controlrank(igraph::make_ring(5))

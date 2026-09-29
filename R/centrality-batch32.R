@@ -52,13 +52,12 @@ calculate_beta_measure <- function(cg, beta_direction = "positive") {
 #'   \code{normalized = TRUE} divides scores by their maximum; all-zero
 #'   scores remain zero. This differs from normalizing to unit total mass.
 #' @return Named numeric vector in input node order.
-#' @references van den Brink, R. and Gilles, R. P. (1992). Measuring
-#'   domination in directed graphs. Tilburg Research Memorandum FEW 565,
-#'   definition 2.1 and example 2.2, pp. 3-4.
-#'   van den Brink, R. and Gilles, R. P. (2000). Measuring domination in
-#'   directed networks. Social Networks, 22, 141-157, definition 2.1.
+#' @references
+#' van den Brink, R. and Gilles, R. P. (2000). Measuring domination in
+#'   directed networks. Social Networks, 22, 141-157.
 #'   \doi{10.1016/S0378-8733(00)00019-8}.
-#'   Boldi, P. and Vigna, S. (2014). Axioms for centrality. Internet
+#'
+#' Boldi, P. and Vigna, S. (2014). Axioms for centrality. Internet
 #'   Mathematics, 10, 222-262. \doi{10.1080/15427951.2013.865686}.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)

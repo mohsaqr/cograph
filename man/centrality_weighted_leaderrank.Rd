@@ -59,8 +59,7 @@ centrality_weighted_leaderrank(igraph::make_ring(4, directed = TRUE))
 \dontshow{\}) # examplesIf}
 }
 \references{
-Li, Q., Zhou, T., Lu, L., & Chen, D. (2014). Identifying
-influential spreaders by weighted LeaderRank. Physica A, 404, 47-55,
-section 2, equations 1-2. \doi{10.1016/j.physa.2014.02.041}.
-Author preprint: \url{https://arxiv.org/abs/1306.5042}.
+Li, Q., Zhou, T., Lu, L., & Chen, D. (2014). Identifying influential
+spreaders by weighted LeaderRank. Physica A, 404, 47-55.
+\doi{10.1016/j.physa.2014.02.041}.
 }

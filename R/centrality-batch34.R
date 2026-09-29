@@ -93,10 +93,10 @@ calculate_ninl <- function(cg, ninl_order = 3, ninl_radius = NULL,
 #'   remain zero. Normalization is optional and is not part of the raw
 #'   definition in the original paper.
 #' @return Named numeric vector in input node order.
-#' @references Zhu, J. and Wang, L. (2021). Identifying Influential Nodes
-#'   in Complex Networks Based on Node Itself and Neighbor Layer Information.
-#'   Symmetry, 13, 1570. Section 2.1, equations 1-2 and Table 1.
-#'   \doi{10.3390/sym13091570}.
+#' @references
+#' Zhu, J. and Wang, L. (2021). Identifying Influential Nodes in Complex
+#'   Networks Based on Node Itself and Neighbor Layer Information. Symmetry,
+#'   13, 1570. \doi{10.3390/sym13091570}.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_ninl(igraph::make_graph("Zachary"))

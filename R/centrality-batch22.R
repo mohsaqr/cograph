@@ -48,10 +48,10 @@ calculate_weighted_leaderrank <- function(cg, alpha = 1) {
 #' @param ... Additional arguments to \code{\link{centrality}}.
 #'   \code{normalized = TRUE} divides final scores by their maximum.
 #' @return Named numeric vector in input node order.
-#' @references Li, Q., Zhou, T., Lu, L., & Chen, D. (2014). Identifying
-#'   influential spreaders by weighted LeaderRank. Physica A, 404, 47-55,
-#'   section 2, equations 1-2. \doi{10.1016/j.physa.2014.02.041}.
-#'   Author preprint: \url{https://arxiv.org/abs/1306.5042}.
+#' @references
+#' Li, Q., Zhou, T., Lu, L., & Chen, D. (2014). Identifying influential
+#'   spreaders by weighted LeaderRank. Physica A, 404, 47-55.
+#'   \doi{10.1016/j.physa.2014.02.041}.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_weighted_leaderrank(igraph::make_ring(4, directed = TRUE))

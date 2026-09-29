@@ -35,10 +35,11 @@ calculate_global_structure <- function(cg, model = "gsm", normalized = FALSE) {
 #' @param ... Additional arguments to \code{\link{centrality}}.
 #'   \code{normalized = TRUE} divides final scores by their maximum.
 #' @return Named numeric vector in input node order.
-#' @references Ullah, A., Wang, B., Sheng, J., Long, J., Khan, N., & Sun, Z.
-#'   (2021). Identification of nodes influence based on global structure
-#'   model in complex networks. Scientific Reports, 11, 6173, equations
-#'   5-8. \doi{10.1038/s41598-021-84684-x}.
+#' @references
+#' Ullah, A., Wang, B., Sheng, J., Long, J., Khan, N., & Sun, Z. (2021).
+#'   Identification of nodes influence based on global structure model in
+#'   complex networks. Scientific Reports, 11, 6173.
+#'   \doi{10.1038/s41598-021-84684-x}.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_global_structure(igraph::make_ring(4))
@@ -74,10 +75,10 @@ centrality_global_structure <- function(x, ...) {
 #' @param x Network input accepted by \code{\link{centrality}}.
 #' @param ... Additional arguments to \code{\link{centrality}}.
 #' @return Named numeric vector in input node order.
-#' @references Mukhtar, M. F., et al. (2023). Integrating local and global
-#'   information to identify influential nodes in complex networks.
-#'   Scientific Reports, 13, 11411, equations 6-8.
-#'   \doi{10.1038/s41598-023-37570-7}.
+#' @references
+#' Mukhtar, M. F., et al. (2023). Integrating local and global information to
+#'   identify influential nodes in complex networks. Scientific Reports, 13,
+#'   11411. \doi{10.1038/s41598-023-37570-7}.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_hybrid_global_structure(igraph::make_ring(4))
@@ -111,12 +112,10 @@ centrality_hybrid_global_structure <- function(x, ...) { # nolint: object_length
 #' @param x Network input accepted by \code{\link{centrality}}.
 #' @param ... Additional arguments to \code{\link{centrality}}.
 #' @return Named numeric vector in input node order.
-#' @references Zhu, J.-C., & Wang, L.-W. (2022). An extended improved global
-#'   structure model for influential node identification in complex
-#'   networks. Chinese Physics B, 31, 068904.
-#'   \doi{10.1088/1674-1056/ac380d}.
-#'   The implemented IGSM formula is reproduced as equation 5 in Mukhtar
-#'   et al. (2023), \doi{10.1038/s41598-023-37570-7}.
+#' @references
+#' Zhu, J.-C., & Wang, L.-W. (2022). An extended improved global structure
+#'   model for influential node identification in complex networks. Chinese
+#'   Physics B, 31, 068904. \doi{10.1088/1674-1056/ac380d}.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_improved_global_structure(igraph::make_ring(4))

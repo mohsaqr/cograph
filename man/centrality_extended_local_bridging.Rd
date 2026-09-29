@@ -40,8 +40,7 @@ centrality_extended_local_bridging(igraph::make_graph("Zachary"))
 \dontshow{\}) # examplesIf}
 }
 \references{
-Macker, J. P. (2016). An improved local bridging centrality
-model for distributed network analytics. MILCOM, pp. 600-605,
-sections IV-V, equation 5 and Table I.
+Macker, J. P. (2016). An improved local bridging centrality model for
+distributed network analytics. MILCOM, pp. 600-605.
 \doi{10.1109/MILCOM.2016.7795393}.
 }

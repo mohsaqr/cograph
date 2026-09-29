@@ -100,10 +100,10 @@ calculate_proximal_betweenness <- function(cg, variant = "source") {
 #'   \code{normalized = TRUE} divides by the maximum score; all-zero
 #'   results remain zero.
 #' @return Named numeric vector in input node order.
-#' @references Brandes, U. (2008). On variants of shortest-path betweenness
-#'   centrality and their generic computation. Social Networks, 30, 136-145.
-#'   \doi{10.1016/j.socnet.2007.11.001}. Section 3.2, Algorithm 3;
-#'   author preprint dated 12 November 2007, pages 7-8.
+#' @references
+#' Brandes, U. (2008). On variants of shortest-path betweenness centrality
+#'   and their generic computation. Social Networks, 30, 136-145.
+#'   \doi{10.1016/j.socnet.2007.11.001}.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_proximal_betweenness(igraph::make_graph("Zachary"))

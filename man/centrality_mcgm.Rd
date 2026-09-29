@@ -75,8 +75,7 @@ centrality_mcgm(igraph::make_star(6), mcgm_radius = 3)
 \dontshow{\}) # examplesIf}
 }
 \references{
-Li, Z. and Huang, X. (2022). Identifying influential spreaders
-by gravity model considering multi-characteristics of nodes.
-Scientific Reports, 12, 9879. Equations 17-18, Algorithm 1, Tables 1-2.
-\doi{10.1038/s41598-022-14005-3}.
+Li, Z. and Huang, X. (2022). Identifying influential spreaders by gravity
+model considering multi-characteristics of nodes. Scientific Reports, 12,
+9879. \doi{10.1038/s41598-022-14005-3}.
 }

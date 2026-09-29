@@ -45,10 +45,9 @@ centrality_ehcc(igraph::make_star(6, mode = "undirected"))
 \dontshow{\}) # examplesIf}
 }
 \references{
-Liu, J. and Zheng, J. (2023). Identifying important nodes in
-complex networks based on extended degree and E-shell hierarchy
-decomposition. Scientific Reports, 13, 3197. Equation (5) on page 3.
-\doi{10.1038/s41598-023-30308-5}.
+Liu, J. and Zheng, J. (2023). Identifying important nodes in complex
+networks based on extended degree and E-shell hierarchy decomposition.
+Scientific Reports, 13, 3197. \doi{10.1038/s41598-023-30308-5}.
 }
 \seealso{
 \code{\link{centrality_hcc}} for the summand and

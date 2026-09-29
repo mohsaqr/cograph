@@ -44,8 +44,8 @@ centrality_global_structure(igraph::make_ring(4))
 \dontshow{\}) # examplesIf}
 }
 \references{
-Ullah, A., Wang, B., Sheng, J., Long, J., Khan, N., & Sun, Z.
-(2021). Identification of nodes influence based on global structure
-model in complex networks. Scientific Reports, 11, 6173, equations
-5-8. \doi{10.1038/s41598-021-84684-x}.
+Ullah, A., Wang, B., Sheng, J., Long, J., Khan, N., & Sun, Z. (2021).
+Identification of nodes influence based on global structure model in
+complex networks. Scientific Reports, 11, 6173.
+\doi{10.1038/s41598-021-84684-x}.
 }

@@ -58,10 +58,8 @@ calculate_resistance_curvature <- function(cg, weights = NULL) {
 #' @return Named numeric vector in input node order.
 #' @references
 #' Devriendt, K., & Lambiotte, R. (2022). Discrete curvature on graphs from
-#' the effective resistance. Journal of Physics: Complexity, 3, 025008.
-#' Definition 1, equation 2; Property 2; Appendix A.1, Theorem 2.
-#' \doi{10.1088/2632-072X/ac730d}.
-#' \url{https://arxiv.org/abs/2201.06385}.
+#'   the effective resistance. Journal of Physics: Complexity, 3, 025008.
+#'   \doi{10.1088/2632-072X/ac730d}.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_resistance_curvature(igraph::make_star(5, mode = "undirected"))

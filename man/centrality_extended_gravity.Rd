@@ -54,8 +54,7 @@ centrality_extended_gravity(igraph::make_ring(6), gravity_radius = 3)
 \references{
 Ma, L. L., Ma, C., Zhang, H. F., & Wang, B. H. (2016). Identifying
 influential spreaders in complex networks based on gravity formula.
-Physica A, 451, 205-212, equations 6 and 7.
-\doi{10.1016/j.physa.2015.12.162}.
+Physica A, 451, 205-212. \doi{10.1016/j.physa.2015.12.162}.
 }
 \seealso{
 \code{\link{centrality_gravity}}.

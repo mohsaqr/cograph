@@ -56,10 +56,6 @@ centrality_node_contraction_improved(path5)
 Tan, Y.-J., Wu, J., & Deng, H.-Z. (2006). Evaluation method for node
 importance based on node contraction in complex networks. Systems
 Engineering: Theory & Practice, 26(11), 79-83.
-
-Wang, J., Li, C., & Xia, C. (2011). Improved centrality indicators to
-characterize the nodal spreading capability in complex networks.
-Procedia Engineering, 15, 3304-3308.
 }
 \seealso{
 \code{\link{centrality_closeness_vitality}}.

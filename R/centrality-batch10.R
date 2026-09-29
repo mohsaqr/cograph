@@ -125,8 +125,8 @@ calculate_epc <- function(cg, threshold = 0.5, runs = 1000, seed = NULL) {
 #'   networks. Physical Review Letters, 87(19), 198701.
 #'
 #' Eidsaa, M., & Almaas, E. (2013). s-core network decomposition: A
-#'   generalization of k-core analysis to weighted networks. Physical Review
-#'   E, 88(6), 062819.
+#'   generalization of k-core analysis to weighted networks. Physical Review E,
+#'   88(6), 062819. \doi{10.1103/PhysRevE.88.062819}.
 #'
 #' Borgatti, S. P. (2006). Identifying sets of key players in a social
 #'   network. Computational and Mathematical Organization Theory, 12(1),
@@ -136,8 +136,9 @@ calculate_epc <- function(cg, threshold = 0.5, runs = 1000, seed = NULL) {
 #'   in grooming networks. Social Networks, 11(3), 273-292.
 #'
 #' Lin, C.-Y., Chin, C.-H., Wu, H.-H., Chen, S.-H., Ho, C.-W., & Ko, M.-T.
-#'   (2008). Hubba: hub objects analyzer. Nucleic Acids Research, 36,
-#'   W438-W443.
+#'   (2008). Hubba: hub objects analyzer, a framework of interactome hubs
+#'   identification for network biology. Nucleic Acids Research, 36, W438-W443.
+#'   \doi{10.1093/nar/gkn257}.
 #'
 #' @seealso \code{\link{centrality_coreness}},
 #'   \code{\link{centrality_weighted_kshell}},

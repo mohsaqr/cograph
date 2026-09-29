@@ -1,5 +1,6 @@
 ---
 title: "TNA Plotting Gallery and Visual Smoke Test"
+author: "[Mohammed Saqr](https://saqr.me) and [Sonsoles López-Pernas](https://sonsoles.me)"
 output:
   html_document:
     toc: true

@@ -44,8 +44,7 @@ centrality_hybrid_global_structure(igraph::make_ring(4))
 \dontshow{\}) # examplesIf}
 }
 \references{
-Mukhtar, M. F., et al. (2023). Integrating local and global
-information to identify influential nodes in complex networks.
-Scientific Reports, 13, 11411, equations 6-8.
-\doi{10.1038/s41598-023-37570-7}.
+Mukhtar, M. F., et al. (2023). Integrating local and global information to
+identify influential nodes in complex networks. Scientific Reports, 13,
+11411. \doi{10.1038/s41598-023-37570-7}.
 }

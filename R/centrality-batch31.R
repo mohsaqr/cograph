@@ -92,10 +92,9 @@ calculate_expected_force <- function(cg, modified = FALSE, exf_alpha = 2) {
 #'   \code{normalized = TRUE} divides by the maximum score; all-zero
 #'   results remain zero.
 #' @return Named numeric vector in input node order.
-#' @references Lawyer, G. (2015). Understanding the influence of all nodes
-#'   in a network. Scientific Reports, 5, 8665. Equations 1 and 2 and
-#'   the directed extension in the Weighted graphs section.
-#'   \doi{10.1038/srep08665}.
+#' @references
+#' Lawyer, G. (2015). Understanding the influence of all nodes in a network.
+#'   Scientific Reports, 5, 8665. \doi{10.1038/srep08665}.
 #' @seealso \code{\link{centrality_modified_expected_force}} for degree
 #'   adjustment. \code{\link{centrality_expected}} computes a different
 #'   quantity, the sum of neighbor degrees.
@@ -123,9 +122,9 @@ centrality_expected_force <- function(x, ...) {
 #'   than one. The paper motivates small values; larger finite values are
 #'   permitted by the formula without a predictive-performance claim.
 #' @return Named numeric vector in input node order.
-#' @references Lawyer, G. (2015). Understanding the influence of all nodes
-#'   in a network. Scientific Reports, 5, 8665, equation 2.
-#'   \doi{10.1038/srep08665}.
+#' @references
+#' Lawyer, G. (2015). Understanding the influence of all nodes in a network.
+#'   Scientific Reports, 5, 8665. \doi{10.1038/srep08665}.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_modified_expected_force(igraph::make_graph("Zachary"))

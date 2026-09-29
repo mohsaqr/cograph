@@ -19,6 +19,11 @@ Integer: size of the largest clique
 Finds the size of the largest clique (complete subgraph) in the network.
 Also known as the clique number or omega of the graph.
 }
+\details{
+A clique is defined on undirected ties, so a directed network is read with
+each pair of nodes joined when either direction is present, and loops and
+repeated edges are dropped before counting.
+}
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Triangle embedded in larger graph

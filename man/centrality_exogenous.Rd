@@ -78,7 +78,7 @@ centrality_exogenous(igraph::make_ring(4), exogenous_base = "betweenness")
 \dontshow{\}) # examplesIf}
 }
 \references{
-Everett, M. G., & Borgatti, S. P. (2010). Induced, endogenous
-and exogenous centrality. Social Networks, 32(4), 339-344. Equations
-3 and 8, sections 3.1-3.3. \doi{10.1016/j.socnet.2010.06.004}.
+Everett, M. G., & Borgatti, S. P. (2010). Induced, endogenous and
+exogenous centrality. Social Networks, 32(4), 339-344.
+\doi{10.1016/j.socnet.2010.06.004}.
 }

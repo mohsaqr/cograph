@@ -61,8 +61,9 @@ centrality_graph_regularization(igraph::make_ring(4), grc_gamma = 0.5)
 \dontshow{\}) # examplesIf}
 }
 \references{
-Dal Col, A., & Petronetto, F. (2023). Graph regularization
-centrality. Physica A, 628, 129188. \doi{10.1016/j.physa.2023.129188}.
-Author implementation: GRC, Mendeley Data, version 1.
+Dal Col, A., & Petronetto, F. (2023). Graph regularization centrality.
+Physica A, 628, 129188. \doi{10.1016/j.physa.2023.129188}.
+
+Dal Col, A. (2023). GRC. Mendeley Data, version 1.
 \doi{10.17632/ns63f5dj86.1}.
 }

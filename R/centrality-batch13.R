@@ -31,8 +31,7 @@ calculate_candidate_structure <- function(cg, measure, volume_radius = 2) {
 #' @return Named numeric vector in input node order.
 #' @references
 #' Wehmuth, K., & Ziviani, A. (2011). Distributed Assessment of Network
-#' Centrality. Section II-A, equation 1.
-#' \url{https://arxiv.org/abs/1108.1067v1}.
+#'   Centrality. arXiv:1108.1067.
 #'
 #' Wehmuth, K., & Ziviani, A. (2013). DACCER: Distributed Assessment of the
 #' Closeness CEntrality Ranking in complex networks. Computer Networks, 57,

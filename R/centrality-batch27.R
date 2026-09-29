@@ -47,9 +47,8 @@ calculate_x_degree <- function(cg) {
 #'   result stays zero.
 #' @return Named numeric vector in input node order.
 #' @references Torres, L., Chan, K. S., Tong, H., & Eliassi-Rad, T. (2021).
-#'   Nonbacktracking Eigenvalues under Node Removal: X-Centrality and
-#'   Targeted Immunization. SIAM Journal on Mathematics of Data Science,
-#'   3(2), 656-675. Proposition 3.8, equation 3.15.
+#'   Nonbacktracking Eigenvalues under Node Removal: X-Centrality and Targeted
+#'   Immunization. SIAM Journal on Mathematics of Data Science, 3(2), 656-675.
 #'   \doi{10.1137/20M1352132}.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)

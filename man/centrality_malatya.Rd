@@ -37,6 +37,6 @@ centrality_malatya(igraph::make_star(5, mode = "undirected"))
 \references{
 Karci, A., Yakut, S., & Oztemiz, F. (2022). A New Approach Based on
 Centrality Value in Solving the Minimum Vertex Cover Problem: Malatya
-Centrality Algorithm. Journal of Computer Science, 7(2), 81-88,
-equation 1. \doi{10.53070/bbd.1195501}.
+Centrality Algorithm. Journal of Computer Science, 7(2), 81-88.
+\doi{10.53070/bbd.1195501}.
 }

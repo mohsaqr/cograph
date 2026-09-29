@@ -99,11 +99,10 @@ calculate_ehcc <- function(cg, delta = 0.5) {
 #' @param ... Additional arguments to \code{\link{centrality}}, including
 #'   \code{hcc_delta}.
 #' @return Named numeric vector in input node order.
-#' @references Liu, J. and Zheng, J. (2023). Identifying important nodes in
-#'   complex networks based on extended degree and E-shell hierarchy
-#'   decomposition. Scientific Reports, 13, 3197. Equations (3) and (4) and
-#'   the eight-step E-shell procedure on page 3, with the worked example on
-#'   page 4. \doi{10.1038/s41598-023-30308-5}.
+#' @references
+#' Liu, J. and Zheng, J. (2023). Identifying important nodes in complex
+#'   networks based on extended degree and E-shell hierarchy decomposition.
+#'   Scientific Reports, 13, 3197. \doi{10.1038/s41598-023-30308-5}.
 #' @seealso \code{\link{centrality_ehcc}} for the neighborhood sum of this
 #'   score, \code{\link{centrality_dkgm}} for another shell-and-degree
 #'   hybrid, and \code{\link{list_centralities}} for the catalogue.
@@ -147,10 +146,10 @@ centrality_hcc <- function(x, ...) {
 #' @param ... Additional arguments to \code{\link{centrality}}, including
 #'   \code{hcc_delta}.
 #' @return Named numeric vector in input node order.
-#' @references Liu, J. and Zheng, J. (2023). Identifying important nodes in
-#'   complex networks based on extended degree and E-shell hierarchy
-#'   decomposition. Scientific Reports, 13, 3197. Equation (5) on page 3.
-#'   \doi{10.1038/s41598-023-30308-5}.
+#' @references
+#' Liu, J. and Zheng, J. (2023). Identifying important nodes in complex
+#'   networks based on extended degree and E-shell hierarchy decomposition.
+#'   Scientific Reports, 13, 3197. \doi{10.1038/s41598-023-30308-5}.
 #' @seealso \code{\link{centrality_hcc}} for the summand and
 #'   \code{\link{list_centralities}} for the catalogue.
 #' @export

@@ -45,10 +45,9 @@ centrality_localized_bridging(igraph::make_graph("Zachary"))
 \dontshow{\}) # examplesIf}
 }
 \references{
-Nanda, S. and Kotz, D. (2012). Localized Bridging Centrality.
-Handbook of Optimization in Complex Networks, pp. 197-224,
-equations 7.7-7.8. \doi{10.1007/978-1-4614-0857-4_7}.
-This author chapter restates their 2008 LBC definition.
+Nanda, S. and Kotz, D. (2012). Localized Bridging Centrality. In Handbook
+of Optimization in Complex Networks, pp. 197-224.
+\doi{10.1007/978-1-4614-0857-4_7}.
 }
 \seealso{
 \code{\link{centrality_extended_local_bridging}} for two-hop

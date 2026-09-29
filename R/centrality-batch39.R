@@ -66,10 +66,9 @@ calculate_mixed_gravity <- function(cg, radius = 3, extended = FALSE) {
 #'   networks. Applied Mathematics and Computation, 334, 388-400.
 #'   \doi{10.1016/j.amc.2018.04.028}.
 #'
-#'   Definition read in Li, Z. and Huang, X. (2022). Identifying influential
-#'   spreaders by gravity model considering multi-characteristics of nodes.
-#'   Scientific Reports, 12, 9879. Equations 5-8 and reference 19.
-#'   \doi{10.1038/s41598-022-14005-3}.
+#' Li, Z. and Huang, X. (2022). Identifying influential spreaders by gravity
+#'   model considering multi-characteristics of nodes. Scientific Reports, 12,
+#'   9879. \doi{10.1038/s41598-022-14005-3}.
 #' @seealso \code{\link{centrality_extended_mixed_gravity}}.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
@@ -104,11 +103,15 @@ centrality_mixed_gravity <- function(x, gravity_radius = 3, ...) {
 #'
 #' @inheritParams centrality_mixed_gravity
 #' @return Named numeric vector in input node order.
-#' @references Wang, J., Li, C. and Xia, C. (2018).
+#' @references
+#' Wang, J., Li, C. and Xia, C. (2018). Improved centrality indicators to
+#'   characterize the nodal spreading capability in complex networks. Applied
+#'   Mathematics and Computation, 334, 388-400.
 #'   \doi{10.1016/j.amc.2018.04.028}.
-#'   Definition read in Li, Z. and Huang, X. (2022), Scientific Reports,
-#'   12, 9879, equations 5-8 and reference 19.
-#'   \doi{10.1038/s41598-022-14005-3}.
+#'
+#' Li, Z. and Huang, X. (2022). Identifying influential spreaders by gravity
+#'   model considering multi-characteristics of nodes. Scientific Reports, 12,
+#'   9879. \doi{10.1038/s41598-022-14005-3}.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_extended_mixed_gravity(igraph::make_ring(6))

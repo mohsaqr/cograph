@@ -108,16 +108,10 @@ calculate_dil <- function(cg) {
 #' @param ... Additional arguments to \code{\link{centrality}}.
 #' @return Named numeric vector in input node order, one score per node,
 #'   each at least the node's degree in the simple undirected skeleton.
-#' @references Liu, J., Xiong, Q., Shi, W., Shi, X. and Wang, K. (2016).
-#'   Evaluating the importance of nodes in complex networks. Physica A:
-#'   Statistical Mechanics and its Applications, 452, 209-219. Equation (1)
-#'   and the definitions of \eqn{U}, \eqn{p} and \eqn{\lambda} on page 210,
-#'   equations (2) and (3) on page 211, the complexity claim in Table 4 on
-#'   page 218, and the ARPA fixture in Table 3 and Fig. 6 on page 217.
-#'   \doi{10.1016/j.physa.2016.02.049}. The same three equations are
-#'   reproduced as equations (7)-(9) by Almasi, S. and Hu, T. (2019).
-#'   Measuring the importance of vertices in the weighted human disease
-#'   network. PLoS ONE, 14(3), e0205936. \doi{10.1371/journal.pone.0205936}.
+#' @references
+#' Liu, J., Xiong, Q., Shi, W., Shi, X. and Wang, K. (2016). Evaluating the
+#'   importance of nodes in complex networks. Physica A: Statistical Mechanics
+#'   and its Applications, 452, 209-219. \doi{10.1016/j.physa.2016.02.049}.
 #' @seealso \code{\link{centrality_lhc}} and \code{\link{centrality_hcc}}
 #'   for other degree-and-triangle hybrids,
 #'   \code{\link{centrality_bridging}} for another measure that scores a

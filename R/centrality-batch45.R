@@ -87,12 +87,10 @@ calculate_ked <- function(cg) {
 #' @param x Network input accepted by \code{\link{centrality}}.
 #' @param ... Additional arguments to \code{\link{centrality}}.
 #' @return Named numeric vector in input node order.
-#' @references Chen, D.-B., Xiao, R., Zeng, A. and Zhang, Y.-C. (2014).
-#'   Path diversity improves the identification of influential spreaders.
-#'   Europhysics Letters, 104(6), 68006. Equations (1) and (2) on page 2
-#'   and equation (6) with its \eqn{D_i} definition on page 4, read as the
-#'   author preprint arXiv:1305.7480.
-#'   \doi{10.1209/0295-5075/104/68006}.
+#' @references
+#' Chen, D.-B., Xiao, R., Zeng, A. and Zhang, Y.-C. (2014). Path diversity
+#'   improves the identification of influential spreaders. Europhysics Letters,
+#'   104(6), 68006. \doi{10.1209/0295-5075/104/68006}.
 #' @seealso \code{\link{centrality_lnc}} and
 #'   \code{\link{centrality_neighbor_distance}} for other
 #'   neighbor-degree sums, \code{\link{centrality_entropy}} for a plain

@@ -153,10 +153,9 @@ centrality_relative_entropy(
 \dontshow{\}) # examplesIf}
 }
 \references{
-Chen, B., Wang, Z. and Luo, C. (2016). Integrated evaluation
-approach for node importance of complex networks based on relative
-entropy. Journal of Systems Engineering and Electronics, 27(6),
-1219-1226. Equations 3, 4, 6, 8, 9, 10 and 11 and Tables 1-3.
+Chen, B., Wang, Z. and Luo, C. (2016). Integrated evaluation approach for
+node importance of complex networks based on relative entropy. Journal of
+Systems Engineering and Electronics, 27(6), 1219-1226.
 \doi{10.21629/JSEE.2016.06.10}.
 }
 \seealso{

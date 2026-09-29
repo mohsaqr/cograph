@@ -46,7 +46,4 @@ centrality_extended_coreness(igraph::make_ring(6))
 Bae, J., & Kim, S. (2014). Identifying and ranking influential spreaders
 in complex networks by neighborhood coreness. Physica A, 395, 549-559.
 \doi{10.1016/j.physa.2013.10.047}.
-The equations used here are reproduced as equations 2 and 3 in Ma,
-Ma, Zhang & Wang (2016), Physica A, 451, 205-212.
-\doi{10.1016/j.physa.2015.12.162}.
 }

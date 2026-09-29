@@ -37,11 +37,8 @@ calculate_extended_core <- function(cg, measure, radius = 3) {
 #' @return Named numeric vector in input node order.
 #' @references
 #' Bae, J., & Kim, S. (2014). Identifying and ranking influential spreaders
-#' in complex networks by neighborhood coreness. Physica A, 395, 549-559.
-#' \doi{10.1016/j.physa.2013.10.047}.
-#' The equations used here are reproduced as equations 2 and 3 in Ma,
-#' Ma, Zhang & Wang (2016), Physica A, 451, 205-212.
-#' \doi{10.1016/j.physa.2015.12.162}.
+#'   in complex networks by neighborhood coreness. Physica A, 395, 549-559.
+#'   \doi{10.1016/j.physa.2013.10.047}.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_extended_coreness(igraph::make_ring(6))
@@ -86,9 +83,8 @@ centrality_extended_coreness <- function(x, ...) {
 #' @return Named numeric vector in input node order.
 #' @references
 #' Ma, L. L., Ma, C., Zhang, H. F., & Wang, B. H. (2016). Identifying
-#' influential spreaders in complex networks based on gravity formula.
-#' Physica A, 451, 205-212, equations 6 and 7.
-#' \doi{10.1016/j.physa.2015.12.162}.
+#'   influential spreaders in complex networks based on gravity formula.
+#'   Physica A, 451, 205-212. \doi{10.1016/j.physa.2015.12.162}.
 #' @seealso \code{\link{centrality_gravity}}.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)

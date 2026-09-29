@@ -132,10 +132,10 @@ calculate_mcgm <- function(cg, mcgm_radius = 2, mcgm_alpha = NULL,
 #'   A finite nonnegative scalar explicitly overrides it.
 #' @param ... Additional arguments to \code{\link{centrality}}.
 #' @return Named numeric vector in input node order.
-#' @references Li, Z. and Huang, X. (2022). Identifying influential spreaders
-#'   by gravity model considering multi-characteristics of nodes.
-#'   Scientific Reports, 12, 9879. Equations 17-18, Algorithm 1, Tables 1-2.
-#'   \doi{10.1038/s41598-022-14005-3}.
+#' @references
+#' Li, Z. and Huang, X. (2022). Identifying influential spreaders by gravity
+#'   model considering multi-characteristics of nodes. Scientific Reports, 12,
+#'   9879. \doi{10.1038/s41598-022-14005-3}.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' centrality_mcgm(igraph::make_ring(6))

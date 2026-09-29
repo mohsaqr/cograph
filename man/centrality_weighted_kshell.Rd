@@ -72,8 +72,8 @@ Garas, A., Schweitzer, F., & Havlin, S. (2012). A k-shell decomposition
 method for weighted networks. New Journal of Physics, 14, 083030.
 
 Liu, Y., Tang, M., Zhou, T., & Do, Y. (2015). Improving the accuracy of
-the k-shell method by removing redundant links. Scientific Reports, 5,
-13172.
+the k-shell method by removing redundant links: From a perspective of
+spreading dynamics. Scientific Reports, 5, 13172. \doi{10.1038/srep13172}.
 
 Borgatti, S. P., & Everett, M. G. (2006). A graph-theoretic perspective
 on centrality. Social Networks, 28(4), 466-484.

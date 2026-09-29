@@ -62,7 +62,6 @@ centrality_adaptive_leaderrank(igraph::make_ring(4))
 \dontshow{\}) # examplesIf}
 }
 \references{
-Xu, S., & Wang, P. (2017). Identifying important nodes by
-adaptive LeaderRank. Physica A, 469, 654-664, section 2.2, equation 3
-and algorithm steps 1-4. \doi{10.1016/j.physa.2016.11.034}.
+Xu, S., & Wang, P. (2017). Identifying important nodes by adaptive
+LeaderRank. Physica A, 469, 654-664. \doi{10.1016/j.physa.2016.11.034}.
 }

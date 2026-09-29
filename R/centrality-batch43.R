@@ -131,11 +131,10 @@ calculate_iira <- function(cg, mass = "coreness", beta = 0.2, steps = 50) {
 #'   one; default 1000. Reaching it raises \code{cograph_no_converge}.
 #' @param ... Additional arguments to \code{\link{centrality}}.
 #' @return Named numeric vector in input node order.
-#' @references Ren, Z.-M., Zeng, A., Chen, D.-B., Liao, H. and Liu, J.-G.
-#'   (2014). Iterative resource allocation for ranking spreaders in complex
-#'   networks. EPL (Europhysics Letters), 106(4), 48005. Equations 1-3 on
-#'   page 2 and the algorithm i)-iii) on page 3, read in the author
-#'   postprint recovered from the Internet Archive.
+#' @references
+#' Ren, Z.-M., Zeng, A., Chen, D.-B., Liao, H. and Liu, J.-G. (2014).
+#'   Iterative resource allocation for ranking spreaders in complex networks.
+#'   EPL (Europhysics Letters), 106(4), 48005.
 #'   \doi{10.1209/0295-5075/106/48005}.
 #' @seealso \code{\link{centrality_iira}} for the improved variant, and
 #'   \code{\link{list_centralities}} for the catalogue.
@@ -217,11 +216,10 @@ centrality_ira <- function(x, ira_mass = "coreness", ira_alpha = 1,
 #'   returns \eqn{I(0)}.
 #' @param ... Additional arguments to \code{\link{centrality}}.
 #' @return Named numeric vector in input node order.
-#' @references Zhong, L.-F., Liu, J.-G. and Shang, M.-S. (2015). Iterative
-#'   resource allocation based on propagation feature of node for
-#'   identifying the influential nodes. Physics Letters A, 379(38),
-#'   2272-2276. Equations 1, 2 and 4 and figure 2 on page 2 of the author
-#'   preprint arXiv:1505.03214v1, which is what was read.
+#' @references
+#' Zhong, L.-F., Liu, J.-G. and Shang, M.-S. (2015). Iterative resource
+#'   allocation based on propagation feature of node for identifying the
+#'   influential nodes. Physics Letters A, 379(38), 2272-2276.
 #'   \doi{10.1016/j.physleta.2015.05.021}.
 #' @seealso \code{\link{centrality_ira}} for the measure this improves, and
 #'   \code{\link{list_centralities}} for the catalogue.

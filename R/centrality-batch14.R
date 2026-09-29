@@ -71,13 +71,13 @@ calculate_dynamical_importance <- function(cg, weights = NULL) {
 #' @return Named numeric vector in input node order.
 #' @references
 #' Banerjee, A., Chandrasekhar, A. G., Duflo, E., & Jackson, M. O. (2013).
-#' The Diffusion of Microfinance. Science, 341, 1236498, equation 5.
-#' \doi{10.1126/science.1236498}.
+#'   The Diffusion of Microfinance. Science, 341, 1236498.
+#'   \doi{10.1126/science.1236498}.
 #'
 #' Banerjee, A., Chandrasekhar, A. G., Duflo, E., & Jackson, M. O. (2019).
-#' Using Gossips to Spread Information: Theory and Evidence from Two
-#' Randomized Controlled Trials. Review of Economic Studies, 86, 2453-2490,
-#' section 3.1.2. \doi{10.1093/restud/rdz008}.
+#'   Using Gossips to Spread Information: Theory and Evidence from Two
+#'   Randomized Controlled Trials. Review of Economic Studies, 86, 2453-2490.
+#'   \doi{10.1093/restud/rdz008}.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' g <- igraph::make_graph(c(1, 2, 2, 3), directed = TRUE)

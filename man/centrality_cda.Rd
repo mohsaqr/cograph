@@ -56,8 +56,8 @@ centrality_cda(igraph::make_ring(5), cda_alpha = 0.5)
 \dontshow{\}) # examplesIf}
 }
 \references{
-Wang, Q., Ren, J., Wang, Y., Zhang, B., Cheng, Y., & Zhao, X. (2018).
-CDA: A Clustering Degree Based Influential Spreader Identification
-Algorithm in Weighted Complex Network. IEEE Access, 6, 19550-19559,
-equations 2-6. \doi{10.1109/ACCESS.2018.2822844}.
+Wang, Q., Ren, J., Wang, Y., Zhang, B., Cheng, Y., & Zhao, X. (2018). CDA:
+A Clustering Degree Based Influential Spreader Identification Algorithm in
+Weighted Complex Network. IEEE Access, 6, 19550-19559.
+\doi{10.1109/ACCESS.2018.2822844}.
 }

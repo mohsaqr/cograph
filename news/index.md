@@ -2,6 +2,17 @@
 
 ## cograph 2.7.0
 
+### New features
+
+- [`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html) method
+  for the results of
+  [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md) and
+  [`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md).
+  It returns the main table by default (triad types for a census, node
+  triples for
+  [`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md)),
+  and the counts per triad type with `what = "types"`.
+
 ### Bug fixes
 
 - [`network_summary()`](https://sonsoles.me/cograph/reference/network_summary.md)

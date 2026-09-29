@@ -1135,6 +1135,8 @@ Every verb takes any supported input and returns a cograph_network.
   Add Edges to a Network
 - [`add_nodes()`](https://sonsoles.me/cograph/reference/add_nodes.md) :
   Add Nodes to a Network
+- [`as.data.frame(`*`<cograph_motif_result>`*`)`](https://sonsoles.me/cograph/reference/as.data.frame.cograph_motif_result.md)
+  : Motif Results as a Data Frame
 - [`as.data.frame(`*`<cograph_network>`*`)`](https://sonsoles.me/cograph/reference/as.data.frame.cograph_network.md)
   : Cograph Network as a Data Frame
 - [`as_mcml()`](https://sonsoles.me/cograph/reference/as_mcml.md) :

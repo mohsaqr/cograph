@@ -157,19 +157,6 @@ test_that("symmetrize always produces a symmetric undirected network", {
   expect_true(all(vapply(results, function(r) !is_directed(r), logical(1))))
 })
 
-test_that("symmetrize agrees with sna::symmetrize on the weak and strong rules", {
-  skip_if_not_installed("sna")
-  d <- (ww_dir() != 0) * 1
-
-  weak <- sna::symmetrize(d, rule = "weak")
-  strong <- sna::symmetrize(d, rule = "strong")
-
-  # "strong" is the reciprocated-only rule, which is `mutual`. `min` is a
-  # weight combination that keeps an unreciprocated edge at its own weight —
-  # a different operation that happens to coincide on binary reciprocal data.
-  expect_equal(unname(to_matrix(symmetrize(d, "max"))), unname(weak))
-  expect_equal(unname(to_matrix(symmetrize(d, "mutual"))), unname(strong))
-})
 
 test_that("symmetrize('min') keeps an unreciprocated edge, unlike 'mutual'", {
   d <- ww_dir()

@@ -111,6 +111,9 @@
 .corpus_path <- function(tier) {
   committed <- testthat::test_path("networks", paste0(tier, ".rds"))
   if (file.exists(committed)) return(committed)
+  # from tests/equivalence, the corpus is in the sibling tests/testthat
+  sibling <- testthat::test_path("..", "testthat", "networks", paste0(tier, ".rds"))
+  if (file.exists(sibling)) return(sibling)
   local <- testthat::test_path("..", "..", "local_testing_and_equivalence", "networks",
                                paste0(tier, ".rds"))
   if (file.exists(local)) return(local)

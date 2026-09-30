@@ -356,6 +356,7 @@ batch9 <- c("community_based", "comm_centrality", "community_mediator",
             "geodesic_kpath")
 
 test_that("centrality(): batch 9 measures run and appear under type = all", {
+  skip_on_cran()
   df <- centrality(bridge6, measures = batch9, membership = bridge_membership)
   expect_equal(nrow(df), 6)
   expect_equal(ncol(df), length(batch9) + 1)

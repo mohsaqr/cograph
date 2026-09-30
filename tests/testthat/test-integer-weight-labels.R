@@ -1,6 +1,9 @@
 # Regression: integer-valued tna weight matrices (ftna, ctna, raw counts)
 # must render edge labels without a ".00" decimal tail.
 
+# Plotting tests check that figures draw; they run in CI, not on CRAN.
+skip_on_cran()
+
 test_that("from_tna picks weight_digits = 0 for integer weights", {
   fit_int <- structure(
     list(weights = matrix(c(0, 12, 5, 0), 2, 2,

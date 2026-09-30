@@ -29,6 +29,7 @@ test_that("cograph() handles single-node network", {
 })
 
 test_that("splot() renders single-node network", {
+  skip_on_cran()
   adj <- matrix(0, 1, 1)
 
   result <- safe_plot(splot(adj))
@@ -44,6 +45,7 @@ test_that("cograph() handles two-node network", {
 })
 
 test_that("splot() renders two-node network", {
+  skip_on_cran()
   adj <- matrix(c(0, 1, 1, 0), 2, 2)
 
   result <- safe_plot(splot(adj))
@@ -60,6 +62,7 @@ test_that("cograph() handles network with no edges", {
 })
 
 test_that("splot() renders network with no edges", {
+  skip_on_cran()
   adj <- matrix(0, 5, 5)
 
   result <- safe_plot(splot(adj))
@@ -79,6 +82,7 @@ test_that("cograph() handles network with self-loops", {
 })
 
 test_that("splot() renders self-loops correctly", {
+  skip_on_cran()
   adj <- matrix(0, 3, 3)
   diag(adj) <- 1  # Only self-loops
 
@@ -97,6 +101,7 @@ test_that("cograph() handles network with only self-loops", {
 })
 
 test_that("splot() handles self-loop rotation parameter", {
+  skip_on_cran()
   adj <- diag(3)
 
   result <- safe_plot(splot(adj, loop_rotation = c(0, pi/2, pi)))
@@ -117,6 +122,7 @@ test_that("cograph() handles complete graph", {
 })
 
 test_that("splot() renders complete graph", {
+  skip_on_cran()
   adj <- create_test_topology("complete", n = 6)
 
   result <- safe_plot(splot(adj))
@@ -132,6 +138,7 @@ test_that("cograph() handles star graph", {
 })
 
 test_that("splot() renders star graph", {
+  skip_on_cran()
   adj <- create_test_topology("star", n = 6)
 
   result <- safe_plot(splot(adj, layout = "spring"))
@@ -147,6 +154,7 @@ test_that("cograph() handles ring graph", {
 })
 
 test_that("splot() renders ring graph with circle layout", {
+  skip_on_cran()
   adj <- create_test_topology("ring", n = 8)
 
   result <- safe_plot(splot(adj, layout = "circle"))
@@ -169,6 +177,7 @@ test_that("cograph() handles disconnected graph", {
 })
 
 test_that("splot() renders disconnected graph", {
+  skip_on_cran()
   adj <- create_test_topology("disconnected", n = 6)
 
   result <- safe_plot(splot(adj))
@@ -197,6 +206,7 @@ test_that("cograph() handles negative weights", {
 })
 
 test_that("splot() handles negative weights with coloring", {
+  skip_on_cran()
   adj <- matrix(c(0, -0.5, -0.3, -0.5, 0, -0.8, -0.3, -0.8, 0), 3, 3)
 
   result <- safe_plot(splot(adj, edge_positive_color = "blue", edge_negative_color = "red"))
@@ -227,6 +237,7 @@ test_that("cograph() handles very large weights", {
 })
 
 test_that("splot() handles weight_digits filtering near-zero weights", {
+  skip_on_cran()
   adj <- create_test_matrix(4, weighted = TRUE)
   adj[adj != 0] <- 0.001  # Very small weights
 
@@ -240,6 +251,7 @@ test_that("splot() handles weight_digits filtering near-zero weights", {
 # ============================================
 
 test_that("splot() handles very long node labels", {
+  skip_on_cran()
   adj <- create_test_matrix(3)
   labels <- c(
     "This is an extremely long label that might overflow",
@@ -252,6 +264,7 @@ test_that("splot() handles very long node labels", {
 })
 
 test_that("splot() handles empty string labels", {
+  skip_on_cran()
   adj <- create_test_matrix(3)
   labels <- c("", "B", "")
 
@@ -260,6 +273,7 @@ test_that("splot() handles empty string labels", {
 })
 
 test_that("splot() handles numeric labels", {
+  skip_on_cran()
   adj <- create_test_matrix(3)
   labels <- 1:3
 
@@ -278,6 +292,7 @@ test_that("splot() handles Unicode labels", {
 })
 
 test_that("splot() handles labels with special characters", {
+  skip_on_cran()
   adj <- create_test_matrix(3)
   labels <- c("Node & 1", "Node < 2 >", "Node \"3\"")
 
@@ -286,6 +301,7 @@ test_that("splot() handles labels with special characters", {
 })
 
 test_that("splot() handles labels with newlines", {
+  skip_on_cran()
   adj <- create_test_matrix(3)
   labels <- c("Line1\nLine2", "Single", "A\nB\nC")
 
@@ -334,6 +350,7 @@ test_that("cograph() handles mismatched row/colnames", {
 # ============================================
 
 test_that("splot() handles NA colors gracefully", {
+  skip_on_cran()
   adj <- create_test_matrix(4)
 
   # This might error or substitute default
@@ -347,6 +364,7 @@ test_that("splot() handles NA colors gracefully", {
 })
 
 test_that("splot() handles transparent colors", {
+  skip_on_cran()
   adj <- create_test_matrix(4)
 
   result <- safe_plot(splot(adj, node_fill = "transparent"))
@@ -354,6 +372,7 @@ test_that("splot() handles transparent colors", {
 })
 
 test_that("splot() handles RGB color strings", {
+  skip_on_cran()
   adj <- create_test_matrix(4)
 
   result <- safe_plot(splot(adj, node_fill = "#FF573380"))  # With alpha
@@ -365,6 +384,7 @@ test_that("splot() handles RGB color strings", {
 # ============================================
 
 test_that("splot() handles zero node size", {
+  skip_on_cran()
   adj <- create_test_matrix(3)
 
   # Zero size might make nodes invisible
@@ -373,6 +393,7 @@ test_that("splot() handles zero node size", {
 })
 
 test_that("splot() handles very small node sizes", {
+  skip_on_cran()
   adj <- create_test_matrix(3)
 
   result <- safe_plot(splot(adj, node_size = 0.001))
@@ -380,6 +401,7 @@ test_that("splot() handles very small node sizes", {
 })
 
 test_that("splot() handles very large node sizes", {
+  skip_on_cran()
   adj <- create_test_matrix(3)
 
   result <- safe_plot(splot(adj, node_size = 50))
@@ -387,6 +409,7 @@ test_that("splot() handles very large node sizes", {
 })
 
 test_that("splot() handles zero edge width", {
+  skip_on_cran()
   adj <- create_test_matrix(4)
 
   result <- safe_plot(splot(adj, edge_width = 0))
@@ -421,6 +444,7 @@ test_that("splot() renders moderately large network", {
 # ============================================
 
 test_that("splot() handles custom layout with NaN values gracefully", {
+  skip_on_cran()
   adj <- create_test_matrix(3)
   layout <- matrix(c(0, NaN, 1, 0.5, 1, 0.5), ncol = 2)
 
@@ -434,6 +458,7 @@ test_that("splot() handles custom layout with NaN values gracefully", {
 })
 
 test_that("splot() handles custom layout with Inf values gracefully", {
+  skip_on_cran()
   adj <- create_test_matrix(3)
   layout <- matrix(c(0, Inf, 1, 0.5, 1, 0.5), ncol = 2)
 
@@ -446,6 +471,7 @@ test_that("splot() handles custom layout with Inf values gracefully", {
 })
 
 test_that("splot() handles collinear layout (all nodes in a line)", {
+  skip_on_cran()
   adj <- create_test_matrix(4)
   layout <- matrix(c(0, 0.33, 0.67, 1, 0.5, 0.5, 0.5, 0.5), ncol = 2)
 
@@ -454,6 +480,7 @@ test_that("splot() handles collinear layout (all nodes in a line)", {
 })
 
 test_that("splot() handles coincident nodes (same position)", {
+  skip_on_cran()
   adj <- create_test_matrix(3)
   layout <- matrix(c(0.5, 0.5, 0.5, 0.5, 0.5, 0.5), ncol = 2)
 
@@ -466,6 +493,7 @@ test_that("splot() handles coincident nodes (same position)", {
 # ============================================
 
 test_that("splot() handles pie with single value per node", {
+  skip_on_cran()
   adj <- create_test_matrix(3)
   pie_vals <- list(c(1), c(1), c(1))
 
@@ -474,6 +502,7 @@ test_that("splot() handles pie with single value per node", {
 })
 
 test_that("splot() handles pie with many segments", {
+  skip_on_cran()
   adj <- create_test_matrix(3)
   pie_vals <- list(1:10, 1:5, 1:3)
 
@@ -482,6 +511,7 @@ test_that("splot() handles pie with many segments", {
 })
 
 test_that("splot() handles donut_fill at boundaries (0 and 1)", {
+  skip_on_cran()
   adj <- create_test_matrix(3)
 
   result <- safe_plot(splot(adj, donut_fill = c(0, 0.5, 1)))
@@ -489,6 +519,7 @@ test_that("splot() handles donut_fill at boundaries (0 and 1)", {
 })
 
 test_that("splot() handles partial donut_fill list", {
+  skip_on_cran()
   adj <- create_test_matrix(4)
   # Only 2 values for 4 nodes
   donut_fill <- c(0.3, 0.7)
@@ -531,6 +562,7 @@ test_that("cograph() handles edge list with all same edge", {
 # ============================================
 
 test_that("splot() handles theme with NULL background", {
+  skip_on_cran()
   adj <- create_test_matrix(4)
 
   result <- safe_plot(splot(adj, background = NULL))
@@ -538,6 +570,7 @@ test_that("splot() handles theme with NULL background", {
 })
 
 test_that("sn_theme() applies correctly after other customizations", {
+  skip_on_cran()
   adj <- create_test_matrix(4)
 
   # Apply node customizations first, then theme
@@ -599,6 +632,7 @@ test_that("splot() handles dense network (50 nodes, 50% density)", {
 # ============================================
 
 test_that("splot() API core parameters work", {
+  skip_on_cran()
   mat <- matrix(c(0, 1, 1, 0), 2, 2)
 
   # These should all work (core API)
@@ -611,6 +645,7 @@ test_that("splot() API core parameters work", {
 })
 
 test_that("splot() API node aesthetics work", {
+  skip_on_cran()
   mat <- create_test_matrix(4)
 
   expect_no_error(with_temp_png(splot(mat, node_fill = "steelblue")))
@@ -621,6 +656,7 @@ test_that("splot() API node aesthetics work", {
 })
 
 test_that("splot() API edge aesthetics work", {
+  skip_on_cran()
   mat <- create_test_matrix(4, weighted = TRUE)
 
   expect_no_error(with_temp_png(splot(mat, edge_width = 2)))
@@ -631,6 +667,7 @@ test_that("splot() API edge aesthetics work", {
 })
 
 test_that("splot() API layout options work", {
+  skip_on_cran()
   mat <- create_test_matrix(5)
 
   expect_no_error(with_temp_png(splot(mat, layout = "circle")))
@@ -642,6 +679,7 @@ test_that("splot() API layout options work", {
 })
 
 test_that("splot() API theme options work", {
+  skip_on_cran()
   mat <- create_test_matrix(4)
 
   expect_no_error(with_temp_png(splot(mat, theme = "classic")))

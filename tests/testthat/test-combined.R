@@ -3,6 +3,9 @@
 # `combined = FALSE` leaves par("mfrow") untouched so the caller's external
 # layout (e.g. panel_layout()) survives.
 
+# Plotting tests check that figures draw; they run in CI, not on CRAN.
+skip_on_cran()
+
 skip_if_no_device <- function() {
   if (!capabilities("png") && !capabilities("cairo")) {
     skip("no graphics device available") # nocov

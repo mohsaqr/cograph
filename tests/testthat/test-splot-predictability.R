@@ -2,6 +2,9 @@
 # by the `predictability` argument (TRUE/FALSE/NULL-auto). This is the hook a
 # psychnet object uses to self-draw its predictability ring.
 
+# Plotting tests check that figures draw; they run in CI, not on CRAN.
+skip_on_cran()
+
 make_net <- function(pred = c(0.8, 0.5, 0.2), default = FALSE) {
   w <- matrix(c(0, .4, .3, .4, 0, .2, .3, .2, 0), 3, 3)
   net <- as_cograph(w)

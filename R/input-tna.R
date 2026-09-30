@@ -273,7 +273,7 @@ parse_group_tna <- function(group_tna_obj, i = 1, directed = NULL,
 #' is_tna_network(net)  # FALSE
 #'
 #' @examplesIf requireNamespace("tna", quietly = TRUE)
-#' model <- tna::tna(tna::group_regulation)
+#' model <- tna::tna(regulation_net)
 #' net_tna <- as_cograph(model)
 #' is_tna_network(net_tna)  # TRUE
 #'

@@ -559,12 +559,12 @@
 #' \code{\link{detect_communities}} for algorithmic cluster detection
 #'
 #' @examples
-#' mat <- matrix(runif(36), 6, 6); diag(mat) <- 0
-#' colnames(mat) <- rownames(mat) <- LETTERS[1:6]
-#' clusters <- list(C1 = c("A","B"), C2 = c("C","D"), C3 = c("E","F"))
-#' plot_mcml(mat, clusters)
+#' clusters <- list(C1 = c("Explore", "Reflect", "Discuss"),
+#'                  C2 = c("Plan", "Create", "Share"),
+#'                  C3 = c("Monitor", "Adapt", "Synthesize", "Evaluate"))
+#' plot_mcml(regulation_net, clusters)
 #' \donttest{
-#' cs <- csum(mat, clusters)
+#' cs <- csum(regulation_net, clusters)
 #' plot_mcml(cs, mode = "tna", edge_labels = TRUE)
 #' }
 plot_mcml <- function(

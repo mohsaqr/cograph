@@ -11,6 +11,9 @@
 # way must respond to these arguments identically.
 
 # Same transitions expressed as a data frame and as a list of matrices.
+# Plotting tests check that figures draw; they run in CI, not on CRAN.
+skip_on_cran()
+
 multi_step_data_frame <- function(n = 200, seed = 1) {
   set.seed(seed)
   data.frame(

@@ -160,27 +160,6 @@ test_that("local_information_dimension: star hub scores above the leaves", {
 # Modularity and modularity vitality
 # ===========================================================================
 
-test_that("modularity kernel matches igraph::modularity", {
-  skip_if_not_installed("igraph")
-  skip_on_cran()
-  set.seed(11)
-  # Sequential sweep: each random graph is one independent expectation and
-  # the seed stream must advance in order for the run to be reproducible.
-  for (i in 1:12) {
-    directed <- i %% 2 == 0
-    weighted <- i %% 3 == 0
-    g <- igraph::sample_gnp(sample(6:14, 1), 0.35, directed = directed)
-    if (igraph::ecount(g) < 3) next
-    w <- if (weighted) stats::runif(igraph::ecount(g), 0.5, 3) else NULL
-    if (weighted) igraph::E(g)$weight <- w
-    memb <- sample(1:3, igraph::vcount(g), replace = TRUE)
-    m <- cograph:::.cg_path_matrix(g, w)
-    expect_equal(cograph:::.cg_modularity(m, memb),
-                 igraph::modularity(g, memb, weights = w),
-                 info = sprintf("graph %d directed=%s weighted=%s",
-                                i, directed, weighted))
-  }
-})
 
 test_that("modularity_vitality matches brute-force node deletion", {
   skip_if_not_installed("igraph")
@@ -258,21 +237,6 @@ test_that("neighborhood_connectivity: star and isolate hand values", {
   expect_equal(w[["F"]], 0)
 })
 
-test_that("neighborhood_connectivity matches igraph::knn", {
-  skip_if_not_installed("igraph")
-  g <- igraph::make_graph("Zachary")
-  v <- centrality(g, measures = "neighborhood_connectivity")
-  expect_equal(v$neighborhood_connectivity_all,
-               igraph::knn(g, weights = NA)$knn)
-
-  set.seed(5)
-  gd <- igraph::sample_gnp(15, 0.3, directed = TRUE)
-  out <- centrality(gd, measures = "neighborhood_connectivity", mode = "out")
-  ref <- igraph::knn(gd, mode = "out", neighbor.degree.mode = "out",
-                     weights = NA)$knn
-  ref[is.nan(ref)] <- 0
-  expect_equal(out$neighborhood_connectivity_out, ref)
-})
 
 # ===========================================================================
 # Verb integration and invariants

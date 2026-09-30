@@ -69,6 +69,7 @@ test_that("proximal ties receive fractions and preserve directed paths", {
 })
 
 test_that("proximal path-count overflow is explicit", {
+  skip_on_cran()
   # Two vertices in each of 1030 layers, all four arcs between layers.
   # The first source alone reaches a layer with more than DBL_MAX paths.
   layers <- 1030L

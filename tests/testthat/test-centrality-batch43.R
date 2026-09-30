@@ -229,6 +229,7 @@ test_that("both measures project their input and preserve labels", {
 })
 
 test_that("both measures validate their parameters and metadata", {
+  skip_on_cran()
   g <- igraph::make_ring(6)
   for (alpha in list(NA_real_, NaN, Inf, -Inf, "1", TRUE, c(1, 2), numeric())) {
     expect_error(centrality_ira(g, ira_alpha = alpha), "ira_alpha")

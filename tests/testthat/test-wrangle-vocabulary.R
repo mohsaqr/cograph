@@ -55,28 +55,6 @@ test_that("is_cut selects the articulation points", {
   expect_equal(get_labels(select_nodes(wv_star(), is_cut)), "A")
 })
 
-test_that("is_cut agrees with igraph::articulation_points", {
-  skip_if_not_installed("igraph")
-  m <- wv_star()
-  g <- igraph::graph_from_adjacency_matrix(m, mode = "undirected")
-  expected <- sort(names(igraph::articulation_points(g)))
-
-  expect_equal(sort(get_labels(select_nodes(m, is_cut))), expected)
-})
-
-test_that("local_transitivity and local_triangles match igraph", {
-  skip_if_not_installed("igraph")
-  m <- wv_star()
-  g <- igraph::graph_from_adjacency_matrix(m, mode = "undirected")
-
-  nodes <- as.data.frame(
-    mutate_nodes(m, lt = local_transitivity, tri = local_triangles),
-    what = "nodes"
-  )
-
-  expect_equal(nodes$lt, unname(igraph::transitivity(g, type = "local")))
-  expect_equal(nodes$tri, unname(as.numeric(igraph::count_triangles(g))))
-})
 
 test_that("node predicates combine with other criteria", {
   kept <- select_nodes(wv_star(), !is_leaf, degree >= 2)

@@ -9,6 +9,9 @@
 # these tests assert the geometry: the box legend() reports must not intersect
 # the plot region and must lie inside the device.
 
+# Plotting tests check that figures draw; they run in CI, not on CRAN.
+skip_on_cran()
+
 htna_legend_matrix <- function() {
   set.seed(1)
   m <- matrix(runif(36, 0, 0.3), 6, 6)

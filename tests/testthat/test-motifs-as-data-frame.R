@@ -18,6 +18,7 @@ test_that("as.data.frame(what = 'types') matches the type summary", {
 })
 
 test_that("as.data.frame() carries the significance columns when tested", {
+  skip_if_not_installed("igraph")
   census <- motifs(regulation_net, significance = TRUE, n_perm = 20, seed = 1)
   expect_identical(names(as.data.frame(census)),
                    c("type", "count", "expected", "z", "p", "sig"))

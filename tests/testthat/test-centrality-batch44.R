@@ -83,6 +83,7 @@ test_that("lnc rescales when a disconnected component is added", {
 })
 
 test_that("lnc scores isolates, singletons and empty graphs explicitly", {
+  skip_on_cran()
   # A degree-zero node has no contribution probability; cograph extends the
   # source with zero rather than dividing by a zero degree.
   for (n in 0:4) {

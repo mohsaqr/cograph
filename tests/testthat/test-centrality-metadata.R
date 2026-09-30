@@ -118,6 +118,7 @@ test_that("the uses_weights flag matches whether weights change the result", {
 # ===========================================================================
 
 test_that("type = all omits the costly measures; include = adds them back", {
+  skip_on_cran()
   costly <- list_centralities(costly = TRUE)$measure
   # A mode-aware measure arrives as `name_all`, so match on the stem.
   present <- function(df, m) any(names(df) == m | names(df) == paste0(m, "_all"))

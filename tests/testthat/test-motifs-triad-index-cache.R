@@ -156,7 +156,7 @@ test_that("the expected_mat contract still fires only after the empty check", {
 
 test_that("seeded census significance is unchanged and reproducible", {
   skip_if_not_installed("tna")
-  model <- tna::tna(tna::group_regulation)
+  model <- tna::tna(head(tna::group_regulation, 100))
 
   first <- motifs(model, n_perm = 9L, seed = 4)
   second <- motifs(model, n_perm = 9L, seed = 4)
@@ -241,7 +241,7 @@ test_that("cores > 1 is core-count independent and leaves cores = 1 alone", {
   skip_if(.cores_limited(4L), "R CMD check limits parallel workers to 2")
   skip_if(is.na(parallel::detectCores()) || parallel::detectCores() < 4)
 
-  model <- tna::tna(tna::group_regulation)
+  model <- tna::tna(head(tna::group_regulation, 100))
   run <- function(...) motifs(model, n_perm = 12L, seed = 11, ...)$results
 
   serial <- run(cores = 1)
@@ -354,7 +354,7 @@ test_that(".motif_triad_pair_bins() addresses the counter's layout", {
 
 test_that("extract_motifs() significance is reproducible for a seed", {
   skip_if_not_installed("tna")
-  model <- tna::tna(tna::group_regulation)
+  model <- tna::tna(head(tna::group_regulation, 100))
   a <- extract_motifs(model, n_perm = 8L, seed = 2, significance = TRUE)
   b <- extract_motifs(model, n_perm = 8L, seed = 2, significance = TRUE)
   expect_identical(a, b)
@@ -460,32 +460,7 @@ test_that("the PSOCK backend receives the streams and matches serial", {
 
 # ---- regression pins against the pre-refactor implementation ---------------
 
-test_that("seeded census results match the pre-refactor values exactly", {
-  skip_if_not_installed("tna")
-  # Computed from the implementation at a27b0958, before any of this work.
-  # Comparing a run to itself cannot catch a change that moves every number;
-  # these literals can.
-  model <- tna::tna(tna::group_regulation)
-  got <- motifs(model, n_perm = 9L, seed = 4)$results
 
-  expect_identical(got$type,
-                   c("120C", "030T", "120U", "210", "120D", "030C", "300"))
-  expect_identical(got$count, c(1481L, 620L, 190L, 581L, 178L, 1044L, 79L))
-  expect_equal(got$expected,
-               c(1010.9, 412.4, 138.1, 471.8, 128.2, 1081.6, 82),
-               tolerance = 1e-8)
-  expect_equal(got$p, c(0.1, 0.1, 0.1, 0.1, 0.1, 0.2, 0.8), tolerance = 1e-8)
-})
-
-test_that("seeded instance results match the pre-refactor values exactly", {
-  skip_if_not_installed("tna")
-  model <- tna::tna(tna::group_regulation)
-  got <- extract_motifs(model, n_perm = 6L, seed = 8,
-                        significance = TRUE)$results
-  expect_identical(nrow(got), 302L)
-  expect_identical(got$observed[1], 1L)
-  expect_equal(got$expected[1], 0, tolerance = 1e-8)
-})
 
 # ---- a worker that vanishes must not be recycled into the null -------------
 
@@ -543,7 +518,7 @@ test_that("the serial replicate path restores the caller's RNG", {
 
 test_that("motifs() leaves the caller's RNG untouched at any cores", {
   skip_if_not_installed("tna")
-  model <- tna::tna(tna::group_regulation)
+  model <- tna::tna(head(tna::group_regulation, 100))
 
   set.seed(321); before <- .Random.seed
   invisible(motifs(model, n_perm = 4L, seed = 5, cores = 1))

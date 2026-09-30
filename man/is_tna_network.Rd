@@ -22,7 +22,7 @@ net <- as_cograph(mat)
 is_tna_network(net)  # FALSE
 
 \dontshow{if (requireNamespace("tna", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-model <- tna::tna(tna::group_regulation)
+model <- tna::tna(regulation_net)
 net_tna <- as_cograph(model)
 is_tna_network(net_tna)  # TRUE
 \dontshow{\}) # examplesIf}

@@ -1287,8 +1287,8 @@ summarize_clusters <- function(x,
 #'     \item{<cluster_name>}{Per-cluster tna objects, one per cluster. Each tna
 #'       object represents internal transitions within that cluster. Contains
 #'       \code{$weights} (n_i x n_i matrix), \code{$inits} (initial distribution),
-#'       and \code{$labels} (node labels). Clusters with single nodes or zero-row
-#'       nodes are excluded (tna requires positive row sums).}
+#'       and \code{$labels} (node labels). A cluster that cannot become a tna
+#'       model is left out with a warning (see Excluded Clusters).}
 #'   }
 #'
 #' @details
@@ -1324,8 +1324,10 @@ summarize_clusters <- function(x,
 #'   \item Some nodes in the cluster have no outgoing edges (row sums to 0)
 #' }
 #'
-#' These clusters are silently excluded. The macro (cluster-level)
-#' model still includes all clusters.
+#' These clusters are left out of the result with a warning of class
+#' \code{cograph_cluster_dropped}, which names each cluster and the nodes
+#' that have no transition within it. The macro (cluster-level) model still
+#' includes all clusters.
 #'
 #' @export
 #' @seealso
@@ -1334,12 +1336,12 @@ summarize_clusters <- function(x,
 #'   \code{tna::tna} for the underlying tna constructor
 #'
 #' @examplesIf requireNamespace("tna", quietly = TRUE)
-#' mat <- matrix(runif(36), 6, 6); diag(mat) <- 0
-#' rownames(mat) <- colnames(mat) <- LETTERS[1:6]
-#' clusters <- list(G1 = c("A","B"), G2 = c("C","D"), G3 = c("E","F"))
-#' cs <- csum(mat, clusters, type = "tna")
+#' clusters <- list(C1 = c("Explore", "Reflect", "Discuss"),
+#'                  C2 = c("Plan", "Create", "Share"),
+#'                  C3 = c("Monitor", "Adapt", "Synthesize", "Evaluate"))
+#' cs <- csum(regulation_net, clusters, type = "tna")
 #' tna_models <- as_tna(cs)
-#' names(tna_models)          # "macro", "G1", "G2", "G3"
+#' names(tna_models)          # "macro", "C1", "C2", "C3"
 #' splot(tna_models$macro)    # cograph renderer avoids tna's plot deps
 as_tna <- function(x) {
   UseMethod("as_tna")
@@ -1357,24 +1359,7 @@ as_tna.cluster_summary <- function(x) {
   between_tna <- tna::tna(x$macro$weights, inits = x$macro$inits)
   between_tna$data <- x$macro$data
 
-  # Per-cluster tnas
-  within_tnas <- lapply(names(x$clusters), function(cl) {
-    w <- x$clusters[[cl]]$weights
-    inits <- x$clusters[[cl]]$inits
-
-    # Skip if matrix has rows that sum to 0 (tna requires positive rows)
-    if (any(rowSums(w) == 0)) {
-      return(NULL)
-    }
-
-    obj <- tna::tna(w, inits = inits)
-    obj$data <- x$clusters[[cl]]$data
-    obj
-  })
-  names(within_tnas) <- names(x$clusters)
-
-  # Remove NULL entries
-  within_tnas <- within_tnas[!vapply(within_tnas, is.null, logical(1))]
+  within_tnas <- .within_cluster_tnas(x$clusters)
 
   # Combine macro + all cluster tnas into flat group_tna
   all_tnas <- c(list(macro = between_tna), within_tnas)
@@ -1394,29 +1379,62 @@ as_tna.mcml <- function(x) {
   between_tna <- tna::tna(x$macro$weights, inits = x$macro$inits)
   between_tna$data <- x$macro$data
 
-  # Per-cluster tnas
-  within_tnas <- list()
-  if (!is.null(x$clusters)) {
-    within_tnas <- lapply(names(x$clusters), function(cl) {
-      w <- x$clusters[[cl]]$weights
-      inits <- x$clusters[[cl]]$inits
-
-      # Skip if matrix has rows that sum to 0 (tna requires positive rows)
-      if (any(rowSums(w) == 0)) { # nocov start
-        return(NULL)
-      } # nocov end
-
-      obj <- tna::tna(w, inits = inits)
-      obj$data <- x$clusters[[cl]]$data
-      obj
-    })
-    names(within_tnas) <- names(x$clusters)
-    within_tnas <- within_tnas[!vapply(within_tnas, is.null, logical(1))]
-  }
+  within_tnas <- .within_cluster_tnas(x$clusters)
 
   all_tnas <- c(list(macro = between_tna), within_tnas)
   class(all_tnas) <- "group_tna"
   all_tnas
+}
+
+# Build one tna model per cluster from its within-cluster weights. tna::tna()
+# needs every row to have a positive sum, so a cluster in which some node has
+# no transition to another node of the same cluster (every one-node cluster
+# included) cannot become a model. Those clusters are left out, and a single
+# warning of class `cograph_cluster_dropped` names each one and its nodes.
+.within_cluster_tnas <- function(clusters) {
+  if (is.null(clusters)) return(list())
+  zero_nodes <- lapply(clusters, function(cl) {
+    w <- cl$weights
+    nodes <- rownames(w) %||% as.character(seq_len(nrow(w)))
+    nodes[!(rowSums(w) > 0)]
+  })
+  dropped <- lengths(zero_nodes) > 0
+  if (any(dropped)) {
+    quote_list <- function(v) {
+      v <- sprintf("\"%s\"", v)
+      if (length(v) == 1L) return(v)
+      paste(paste(v[-length(v)], collapse = ", "), "and", v[length(v)])
+    }
+    detail <- vapply(names(clusters)[dropped], function(cl) {
+      nodes <- zero_nodes[[cl]]
+      if (nrow(clusters[[cl]]$weights) == 1L) {
+        return(sprintf("\"%s\": single-node cluster (%s).", cl,
+                       quote_list(nodes)))
+      }
+      sprintf("\"%s\": no outgoing within-cluster transitions from %s.",
+              cl, quote_list(nodes))
+    }, character(1))
+    n_dropped <- sum(dropped)
+    warning(warningCondition(
+      paste0(
+        if (n_dropped == 1L) {
+          "The within-cluster TNA model for 1 cluster was not estimated"
+        } else {
+          sprintf("Within-cluster TNA models for %d clusters were not estimated",
+                  n_dropped)
+        },
+        ": transition probabilities are undefined for a node with no ",
+        "outgoing within-cluster transitions.\n",
+        paste0("  * ", detail, collapse = "\n")
+      ),
+      class = "cograph_cluster_dropped", call = NULL
+    ))
+  }
+  lapply(clusters[!dropped], function(cl) {
+    obj <- tna::tna(cl$weights, inits = cl$inits)
+    obj$data <- cl$data
+    obj
+  })
 }
 
 #' @rdname as_tna
@@ -2626,39 +2644,9 @@ print.cluster_summary <- function(x, ...) {
   invisible(x)
 }
 
-#' @noRd
-#' @export
-print.mcml <- function(x, ...) {
-  n_clusters <- x$meta$n_clusters
-  n_nodes <- x$meta$n_nodes
-  cluster_sizes <- x$meta$cluster_sizes
-
-  cat("MCML Network\n")
-  cat("============\n")
-  cat("Type:", x$meta$type, " | Method:", x$meta$method, "\n")
-  cat("Nodes:", n_nodes, " | Clusters:", n_clusters, "\n")
-
-  # Edge-less mcml objects (e.g. aggregate / matrix-derived) carry no $edges
-  # slot; nrow(NULL)/sum(NULL == "between") would otherwise print a blank
-  # `Transitions:` line and a misleading `Macro: 0 | Per-cluster: 0`.
-  if (!is.null(x$edges)) {
-    cat("Transitions:", nrow(x$edges), "\n")
-    cat("  Macro:", sum(x$edges$type == "between"),
-        " | Per-cluster:", sum(x$edges$type == "within"), "\n")
-  }
-  cat("\n")
-
-  cat("Clusters:\n")
-  for (cl in names(x$cluster_members)) {
-    cat("  ", cl, " (", cluster_sizes[cl], "): ",
-        paste(x$cluster_members[[cl]], collapse = ", "), "\n", sep = "")
-  }
-
-  cat("\nMacro (cluster-level) weights:\n")
-  print(round(x$macro$weights, 4))
-
-  invisible(x)
-}
+# print.mcml lives in Nestimate, which owns the mcml class. Registering a
+# second method here made the printed form depend on which package was loaded
+# last.
 
 #' @noRd
 #' @export

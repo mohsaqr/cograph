@@ -12,6 +12,9 @@
 
 # Render the same 5-node network at a given (width, height, res) and return
 # measurements useful for ratio assertions.
+# Plotting tests check that figures draw; they run in CI, not on CRAN.
+skip_on_cran()
+
 .device_ratio_probe <- function(width, height, res) {
   set.seed(1)
   m <- matrix(runif(25), 5, 5)

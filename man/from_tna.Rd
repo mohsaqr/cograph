@@ -98,7 +98,7 @@ written without a leading zero (\code{.42}, not \code{0.42})
 \examples{
 \dontshow{if (requireNamespace("tna", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Convert and plot a tna object
-model <- tna::tna(tna::group_regulation)
+model <- tna::tna(regulation_net)
 from_tna(model)  # Plots with donut rings showing initial probabilities
 
 # Use soplot engine instead

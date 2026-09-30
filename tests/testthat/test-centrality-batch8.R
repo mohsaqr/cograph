@@ -338,6 +338,7 @@ batch8_done <- c("shapley_game1", "shapley_game2", "shapley_game3",
                  "degree_discount", "single_discount", "ncvoterank")
 
 test_that("centrality(): batch 8 columns and type = 'all'", {
+  skip_on_cran()
   df <- centrality(bridge6, measures = batch8_done,
                    membership = bridge_membership)
   expect_named(df, c("node", "shapley_game1", "shapley_game2", "shapley_game3",

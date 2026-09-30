@@ -810,31 +810,6 @@ test_that("static strategy works with degree measure", {
   expect_equal(rob$comp_pct[nrow(rob)], 0.0)
 })
 
-test_that("static strategy matches brainGraph output", {
-  skip_if_not_installed("brainGraph")
-
-  set.seed(99)
-  g <- igraph::sample_gnm(25, 50, directed = FALSE)
-  igraph::V(g)$name <- paste0("V", seq_len(igraph::vcount(g)))
-
-  cg <- robustness(g, measure = "betweenness", strategy = "static")
-  bg <- brainGraph::robustness(g, type = "vertex", measure = "btwn.cent")
-
-  expect_equal(cg$comp_pct, bg$comp.pct)
-})
-
-test_that("static strategy with degree matches brainGraph", {
-  skip_if_not_installed("brainGraph")
-
-  set.seed(99)
-  g <- igraph::sample_gnm(25, 50, directed = FALSE)
-  igraph::V(g)$name <- paste0("V", seq_len(igraph::vcount(g)))
-
-  cg <- robustness(g, measure = "degree", strategy = "static")
-  bg <- brainGraph::robustness(g, type = "vertex", measure = "degree")
-
-  expect_equal(cg$comp_pct, bg$comp.pct)
-})
 
 test_that("strategy does not affect random measure", {
   set.seed(42)

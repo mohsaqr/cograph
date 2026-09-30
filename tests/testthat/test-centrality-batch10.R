@@ -41,16 +41,6 @@ test_that("a hub whose neighbours are unconnected has zero local efficiency", {
   expect_true(all(eff == 0))                 # leaves have one neighbour
 })
 
-test_that("local efficiency matches brainGraph on a real network", {
-  skip_if_not_installed("igraph")
-  skip_if_not_installed("brainGraph")
-  skip_on_cran()
-  g <- igraph::make_graph("Zachary")
-  expect_equal(
-    centrality(g, measures = "local_efficiency")$local_efficiency_all,
-    unname(brainGraph::efficiency(g, type = "local", use.parallel = FALSE))
-  )
-})
 
 test_that("local efficiency is not igraph's local_efficiency", {
   skip_if_not_installed("igraph")
@@ -108,15 +98,6 @@ test_that("fragmentation follows Borgatti's definition on the six-node graph", {
   expect_true(all(frag >= 0 & frag <= 1))
 })
 
-test_that("fragmentation matches keyplayer::fragment", {
-  skip_if_not_installed("keyplayer")
-  skip_if_not_installed("sna")
-  skip_on_cran()
-  expect_equal(
-    unname(centrality_fragmentation(adj6)),
-    as.numeric(keyplayer::fragment(adj6, binary = TRUE, large = FALSE))
-  )
-})
 
 test_that("fragmentation needs three nodes", {
   m <- matrix(c(0, 1, 1, 0), 2, 2)
@@ -144,14 +125,6 @@ test_that("the k-path census counts each undirected path once", {
   expect_equal(unname(centrality_kpath(p3, kpath_len = 2)), c(2, 3, 2))
 })
 
-test_that("the k-path census matches sna::kpath.census", {
-  skip_if_not_installed("sna")
-  skip_on_cran()
-  ref <- sna::kpath.census(adj6, maxlen = 3, mode = "graph",
-                           tabulate.by.vertex = TRUE)$path.count
-  expect_equal(unname(centrality_kpath(adj6, kpath_len = 3)),
-               unname(colSums(ref)[-1]))
-})
 
 test_that("direction is followed when mode is out", {
   skip_if_not_installed("igraph")
@@ -184,6 +157,7 @@ test_that("EPC leaves the caller's random stream alone", {
 })
 
 test_that("EPC recovers the exact percolation mean on a triangle", {
+  skip_on_cran()
   # Each of the three edges survives with probability 1/2, so over the eight
   # equally likely configurations a node sits in a component of size 3 in the
   # four with two or three edges, size 2 in the two single-edge cases that
@@ -197,27 +171,13 @@ test_that("EPC recovers the exact percolation mean on a triangle", {
 })
 
 test_that("EPC does not move when the number of runs changes", {
+  skip_on_cran()
   a <- centrality_epc(adj6, epc_runs = 2000, epc_seed = 5)
   b <- centrality_epc(adj6, epc_runs = 8000, epc_seed = 5)
   expect_equal(unname(a), unname(b), tolerance = 0.05)
   expect_true(all(a > 0 & a <= 1))
 })
 
-test_that("EPC is centiserve's number divided by the run count", {
-  skip_if_not_installed("centiserve")
-  skip_if_not_installed("igraph")
-  skip_on_cran()
-  # Different random draws, so the two agree in scale rather than exactly.
-  # centiserve is fixed at 1000 runs, whose standard error on a component
-  # share is about 0.011; over 34 nodes the largest gap runs to a few of
-  # those, so the bound is set at 0.06 rather than at the per-node error.
-  g <- igraph::make_graph("Zachary")
-  set.seed(4)
-  ref <- as.numeric(centiserve::epc(g)) / 1000
-  mine <- centrality(g, measures = "epc", epc_runs = 20000, epc_seed = 4)$epc
-  expect_lt(max(abs(mine - ref)), 0.06)
-  expect_gt(stats::cor(mine, ref, method = "kendall"), 0.9)
-})
 
 test_that("a graph with no edges gives every node the same score", {
   m <- matrix(0, 4, 4)
@@ -231,6 +191,7 @@ test_that("a graph with no edges gives every node the same score", {
 # ===========================================================================
 
 test_that("the new measures are listed and the costly ones held back", {
+  skip_on_cran()
   tab <- list_centralities()
   new <- c("local_efficiency", "s_core", "fragmentation", "kpath", "epc")
   expect_true(all(new %in% tab$measure))
@@ -265,50 +226,3 @@ test_that("mode-aware columns carry the suffix and no-mode ones do not", {
 # Three functions the cross-coverage document listed as missing are measures
 # cograph already computed under another name. These pin that claim.
 # ===========================================================================
-
-test_that("centiserve::closeness.latora is cograph's harmonic centrality", {
-  skip_if_not_installed("centiserve")
-  skip_if_not_installed("igraph")
-  skip_on_cran()
-  g <- igraph::make_graph("Zachary")
-  expect_equal(centrality(g, measures = "harmonic")$harmonic_all,
-               unname(centiserve::closeness.latora(g)))
-})
-
-test_that("brainGraph nodal efficiency is harmonic centrality over n - 1", {
-  skip_if_not_installed("brainGraph")
-  skip_if_not_installed("igraph")
-  skip_on_cran()
-  g <- igraph::make_graph("Zachary")
-  expect_equal(
-    centrality(g, measures = "harmonic")$harmonic_all / (igraph::vcount(g) - 1),
-    unname(brainGraph::efficiency(g, type = "nodal", use.parallel = FALSE))
-  )
-})
-
-test_that("centiserve::communibet is cograph's communicability betweenness", {
-  skip_if_not_installed("Matrix")
-  skip_if_not_installed("igraph")
-  skip_on_cran()
-  # centiserve::communibet transcribed with Matrix::expm, which uses scaling
-  # and squaring rather than the eigendecomposition cograph uses, so the two
-  # routes to exp(A) are independent.
-  g <- igraph::make_graph("Zachary")
-  n <- igraph::vcount(g)
-  adj <- as.matrix(igraph::as_adjacency_matrix(g, names = FALSE))
-  ex <- function(m) as.matrix(Matrix::expm(Matrix::Matrix(m)))
-  exp_adj <- ex(adj)
-  ref <- vapply(seq_len(n), function(v) {
-    reduced <- adj
-    reduced[v, ] <- 0
-    reduced[, v] <- 0
-    b <- (exp_adj - ex(reduced)) / exp_adj
-    b[v, ] <- 0
-    b[, v] <- 0
-    diag(b) <- 0
-    sum(b)
-  }, numeric(1)) / ((n - 1)^2 - (n - 1))
-  expect_equal(
-    centrality(g, measures = "communicability_betweenness")$communicability_betweenness,
-    ref, tolerance = 1e-8)
-})

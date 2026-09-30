@@ -22,6 +22,7 @@
 }
 
 test_that("visual triad patterns match their labeled MAN class", {
+  skip_if_not_installed("igraph")
   patterns <- cograph:::.get_triad_patterns_visual()
   expect_setequal(names(patterns), .census_names)
   actual <- vapply(patterns, .classify_triad, character(1))
@@ -29,6 +30,7 @@ test_that("visual triad patterns match their labeled MAN class", {
 })
 
 test_that("canonical triad patterns match their labeled MAN class", {
+  skip_if_not_installed("igraph")
   patterns <- cograph:::.get_triad_patterns_canonical()
   expect_setequal(names(patterns), .census_names)
   actual <- vapply(patterns, .classify_triad, character(1))
@@ -36,6 +38,7 @@ test_that("canonical triad patterns match their labeled MAN class", {
 })
 
 test_that("all 16 MAN classes are represented exactly once in each set", {
+  skip_if_not_installed("igraph")
   for (getter in list(cograph:::.get_triad_patterns_visual,
                       cograph:::.get_triad_patterns_canonical)) {
     classes <- vapply(getter(), .classify_triad, character(1))
@@ -44,6 +47,7 @@ test_that("all 16 MAN classes are represented exactly once in each set", {
 })
 
 test_that("120D, 120U, 120C are pairwise non-isomorphic in the visual set", {
+  skip_if_not_installed("igraph")
   patterns <- cograph:::.get_triad_patterns_visual()
   trio <- c("120D", "120U", "120C")
   graphs <- lapply(patterns[trio], function(m) {
@@ -54,20 +58,4 @@ test_that("120D, 120U, 120C are pairwise non-isomorphic in the visual set", {
     igraph::isomorphic(graphs[[p[1]]], graphs[[p[2]]])
   }, logical(1))
   expect_false(any(iso))
-})
-
-test_that("the 64-entry classifier lookup matches igraph exhaustively", {
-  edge_positions <- matrix(c(1L, 2L, 2L, 1L, 1L, 3L,
-                             3L, 1L, 2L, 3L, 3L, 2L),
-                           ncol = 2, byrow = TRUE)
-  lookup <- cograph:::.get_triad_lookup()
-
-  reference <- vapply(0:63, function(code) {
-    m <- matrix(0L, 3, 3)
-    bits <- as.integer(intToBits(code))[1:6]
-    m[edge_positions] <- bits
-    .classify_triad(m)
-  }, character(1))
-
-  expect_identical(unname(lookup), unname(reference))
 })

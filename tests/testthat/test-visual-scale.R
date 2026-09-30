@@ -11,6 +11,9 @@
 # open. Sets tight margins (splot uses c(0.1, 0.1, 0.1, 0.1) by default) so
 # par("pin") closely tracks dev.size and the scale reflects the canvas, not
 # a plot region shrunk by generous default margins.
+# Plotting tests check that figures draw; they run in CI, not on CRAN.
+skip_on_cran()
+
 with_png <- function(width, height, res, expr, mar = c(0.1, 0.1, 0.1, 0.1)) {
   tf <- tempfile(fileext = ".png")
   grDevices::png(tf, width = width, height = height, res = res)

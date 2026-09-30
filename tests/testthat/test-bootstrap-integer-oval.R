@@ -1,6 +1,9 @@
 # Bootstrap plots: oval layout default for undirected co-occurrence nets,
 # and ".00" suppression on integer-valued (count) weight matrices.
 
+# Plotting tests check that figures draw; they run in CI, not on CRAN.
+skip_on_cran()
+
 capture_splot_args <- function(expr) {
   .cograph_test_splot_call <<- NULL
   trace(

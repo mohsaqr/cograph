@@ -124,7 +124,7 @@
 #'
 #' @examplesIf requireNamespace("tna", quietly = TRUE)
 #' \donttest{
-#' Mod <- tna::tna(tna::group_regulation)
+#' Mod <- tna::tna(head(tna::group_regulation, 100))
 #' # Individual-level from tna -- keep n_perm tiny for example speed
 #' extract_motifs(Mod, top = 10, significance = TRUE, n_perm = 10L, seed = 1)
 #' # Filter to feed-forward loops only

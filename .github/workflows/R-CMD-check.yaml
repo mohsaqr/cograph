@@ -54,8 +54,8 @@ jobs:
           upload-snapshots: true
           build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
 
-  # Proof that the centrality surface runs without igraph: install only the
-  # hard dependencies, remove igraph, and run the centrality test files.
+  # Proof that native computations and the CRAN regressions run without igraph:
+  # install only the hard dependencies, remove igraph, and run the test files.
   # Tests that use igraph as an oracle skip; every computation must run.
   centrality-without-igraph:
     runs-on: ubuntu-latest
@@ -80,7 +80,46 @@ jobs:
           R CMD INSTALL --no-docs .
           Rscript -e '
             library(testthat); library(cograph)
-            files <- list.files("tests/testthat", pattern = "^test-(centrality|kernels|port|networks|equiv-standalone)", full.names = TRUE)
+            files <- list.files(c("tests/testthat", "tests/equivalence"), pattern = "^test-(centrality|kernels|port|networks|equiv-standalone)", full.names = TRUE)
             res <- do.call(rbind, lapply(files, function(f) { r <- as.data.frame(test_file(f, reporter = "summary", package = "cograph")); data.frame(file = basename(f), n = sum(r$nb), failed = sum(r$failed), errors = sum(r$error), skipped = sum(r$skipped)) }))
             print(res, row.names = FALSE)
             stopifnot(sum(res$failed) + sum(res$errors) == 0)'
+      - name: Check CRAN regressions and community examples without igraph
+        run: |
+          Rscript -e '
+            stopifnot(!requireNamespace("igraph", quietly = TRUE))
+            library(testthat); library(cograph)
+            test_dir("tests/testthat", filter = "^(audit-fixes|layout-target-saqr|motifs-as-data-frame|motifs-triad-patterns|wrangling-invariants)$", package = "cograph")
+            code <- tempfile(fileext = ".R")
+            tools::Rd2ex("man/overlay_communities.Rd", out = code)
+            pdf(tempfile(fileext = ".pdf"))
+            sys.source(code, envir = new.env(parent = globalenv()))
+            dev.off()'
+
+  # Equivalence tests (cograph against igraph, sna, centiserve, NetworkX and
+  # the golden corpus) live in tests/equivalence, outside R CMD check, so the
+  # CRAN check stays within its time budget. They run here on every push.
+  equivalence:
+    runs-on: ubuntu-latest
+    name: equivalence tests
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      NOT_CRAN: true
+      COGRAPH_COVERAGE_TESTS: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: 'release'
+          use-public-rspm: true
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::testthat, any::digest
+      - name: Run tests/equivalence
+        run: |
+          R CMD INSTALL --no-docs .
+          Rscript -e '
+            library(testthat); library(cograph)
+            r <- as.data.frame(test_dir("tests/equivalence", reporter = "summary", package = "cograph", stop_on_failure = FALSE))
+            cat("passed", sum(r$passed), "failed", sum(r$failed), "errors", sum(r$error), "skipped", sum(r$skipped), "\n")
+            stopifnot(sum(r$failed) + sum(r$error) == 0)'

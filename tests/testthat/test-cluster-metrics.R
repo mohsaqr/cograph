@@ -221,15 +221,6 @@ test_that("aggregate_layers union/intersection", {
 # Test igraph verification (if available)
 # ==============================================================================
 
-test_that("cluster_summary matches igraph", {
-  skip_if_not_installed("igraph")
-
-  # verify_with_igraph defaults to type = "raw" for igraph comparison
-  result <- verify_with_igraph(mat, clusters_list, method = "sum")
-
-  expect_true(result$matches,
-              info = paste("Difference:", result$difference))
-})
 
 # ==============================================================================
 # Edge Cases

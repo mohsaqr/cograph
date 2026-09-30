@@ -271,6 +271,7 @@ test_that("cutoff computes bounded-distance (k-)betweenness", {
 # ===========================================================================
 
 test_that("the new measures are listed and reach type = all", {
+  skip_on_cran()
   tab <- list_centralities()
   new <- c("length_scaled_betweenness", "delta_betweenness",
            "ego_betweenness", "delta_closeness")

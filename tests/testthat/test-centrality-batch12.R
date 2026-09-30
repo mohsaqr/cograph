@@ -66,6 +66,7 @@ test_that("new topology measures handle empty graphs and isolates", {
 })
 
 test_that("LocalRank is the existing semilocal measure on simple graphs", {
+  skip_on_cran()
   g <- igraph::make_graph("Zachary")
   a <- as.matrix(igraph::as_adjacency_matrix(g))
   d <- igraph::distances(g, weights = NA)

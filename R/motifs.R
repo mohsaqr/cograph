@@ -1257,7 +1257,7 @@ extract_triads <- function(x, type = NULL, involving = NULL,
 #'   }
 #'
 #' @examplesIf requireNamespace("tna", quietly = TRUE)
-#' Mod <- tna::tna(tna::group_regulation)
+#' Mod <- tna::tna(head(tna::group_regulation, 100))
 #'
 #' # Get edge list by individual
 #' edges <- get_edge_list(Mod)

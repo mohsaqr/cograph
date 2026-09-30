@@ -5,6 +5,9 @@
 # INPUT TYPES
 # ============================================
 
+# Plotting tests check that figures draw; they run in CI, not on CRAN.
+skip_on_cran()
+
 test_that("splot() accepts adjacency matrix", {
   adj <- create_test_matrix(4)
 

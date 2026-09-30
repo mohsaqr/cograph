@@ -5,6 +5,9 @@
 # Basic plot_difference() Tests
 # ============================================
 
+# Plotting tests check that figures draw; they run in CI, not on CRAN.
+skip_on_cran()
+
 test_that("plot_difference works with basic matrices", {
   mat1 <- matrix(c(0, 0.5, 0.5, 0), 2, 2)
   mat2 <- matrix(c(0, 0.3, 0.7, 0), 2, 2)
@@ -685,10 +688,9 @@ test_that("plot_difference consumes a pre-computed difference (difference = TRUE
 
 test_that("plot_difference consumes a tna_comparison object", {
   skip_if_no_tna()
-  data(group_regulation, package = "tna")
-  n <- nrow(group_regulation)
-  a <- tna::tna(group_regulation[1:(n / 2), ])
-  b <- tna::tna(group_regulation[(n / 2 + 1):n, ])
+  seqs <- head(tna::group_regulation, 200)
+  a <- tna::tna(seqs[1:100, ])
+  b <- tna::tna(seqs[101:200, ])
   cmp <- tna::compare(a, b)
   expect_s3_class(cmp, "tna_comparison")
 

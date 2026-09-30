@@ -308,7 +308,7 @@ motifs(mat, n_perm = 10L, seed = 1)
 \dontshow{\}) # examplesIf}
 \dontshow{if (requireNamespace("tna", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 \donttest{
-Mod <- tna::tna(tna::group_regulation)
+Mod <- tna::tna(head(tna::group_regulation, 100))
 motifs(Mod, n_perm = 10L, seed = 1)
 subgraphs(Mod, n_perm = 10L, seed = 1)
 }

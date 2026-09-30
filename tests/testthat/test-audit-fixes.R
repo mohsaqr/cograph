@@ -63,64 +63,6 @@ test_that("aggregate_duplicate_edges preserves direction for directed graphs", {
 })
 
 
-test_that("aggregate_duplicate_edges directed matches igraph::simplify", {
-  # Build a directed igraph with duplicate 1->2 edges
-  g <- igraph::make_empty_graph(n = 4, directed = TRUE)
-  g <- igraph::add_edges(g, c(1,2, 1,2, 2,1, 1,3, 3,4))
-  igraph::E(g)$weight <- c(0.3, 0.7, 0.5, 0.4, 0.6)
-
-  g_simple <- igraph::simplify(g, remove.multiple = TRUE, remove.loops = TRUE,
-                                edge.attr.comb = list(weight = "sum"))
-
-  # Extract igraph result as edge list
-  ig_edges <- igraph::as_data_frame(g_simple, what = "edges")
-
-  # Build the same edge list for cograph
-  co_edges <- data.frame(
-    from   = c(1, 1, 2, 1, 3),
-    to     = c(2, 2, 1, 3, 4),
-    weight = c(0.3, 0.7, 0.5, 0.4, 0.6)
-  )
-  co_agg <- aggregate_duplicate_edges(co_edges, method = "sum", directed = TRUE)
-
-  # Both should produce 4 edges after merging 1->2 duplicates
-
-  expect_equal(nrow(co_agg), nrow(ig_edges))
-
-  # Compare edge weights — sort both by from,to for stable comparison
-  ig_sorted <- ig_edges[order(ig_edges$from, ig_edges$to), ]
-  co_sorted <- co_agg[order(co_agg$from, co_agg$to), ]
-  expect_equal(co_sorted$weight, ig_sorted$weight)
-  expect_equal(co_sorted$from, ig_sorted$from)
-  expect_equal(co_sorted$to, ig_sorted$to)
-})
-
-
-test_that("aggregate_duplicate_edges undirected matches igraph::simplify", {
-  # Undirected igraph: 1--2 with two edges, 2--1 with another
-  g <- igraph::make_empty_graph(n = 3, directed = FALSE)
-  g <- igraph::add_edges(g, c(1,2, 1,2, 2,3))
-  igraph::E(g)$weight <- c(0.3, 0.7, 0.5)
-
-  g_simple <- igraph::simplify(g, remove.multiple = TRUE, remove.loops = TRUE,
-                                edge.attr.comb = list(weight = "mean"))
-  ig_edges <- igraph::as_data_frame(g_simple, what = "edges")
-
-  co_edges <- data.frame(
-    from   = c(1, 1, 2),
-    to     = c(2, 2, 3),
-    weight = c(0.3, 0.7, 0.5)
-  )
-  co_agg <- aggregate_duplicate_edges(co_edges, method = "mean", directed = FALSE)
-
-  expect_equal(nrow(co_agg), nrow(ig_edges))
-
-  ig_sorted <- ig_edges[order(ig_edges$from, ig_edges$to), ]
-  co_sorted <- co_agg[order(co_agg$from, co_agg$to), ]
-  expect_equal(co_sorted$weight, ig_sorted$weight)
-})
-
-
 test_that("simplify.cograph_network respects directedness", {
   # Directed network: 1->2 and 2->1 should both survive
   dir_mat <- matrix(c(0, 0.5, 0, 0.8, 0, 0, 0, 0.3, 0), 3, 3, byrow = TRUE)
@@ -136,29 +78,6 @@ test_that("simplify.cograph_network respects directedness", {
   expect_true(any(edges_after$from == 1 & edges_after$to == 2))
   expect_true(any(edges_after$from == 2 & edges_after$to == 1))
   expect_equal(nrow(edges_before), nrow(edges_after))
-})
-
-
-test_that("simplify.cograph_network directed matches igraph::simplify", {
-  # 5-node directed network with some reciprocal edges
-  mat <- matrix(0, 5, 5)
-  mat[1, 2] <- 0.3; mat[2, 1] <- 0.7
-  mat[1, 3] <- 0.5; mat[3, 1] <- 0.2
-  mat[2, 3] <- 0.4
-  mat[4, 5] <- 0.9; mat[5, 4] <- 0.1
-  rownames(mat) <- colnames(mat) <- LETTERS[1:5]
-
-  # igraph reference
-  g <- igraph::graph_from_adjacency_matrix(mat, mode = "directed", weighted = TRUE)
-  g_simple <- igraph::simplify(g, remove.loops = TRUE, remove.multiple = TRUE)
-  ig_n <- igraph::ecount(g_simple)
-
-  # cograph
-  net <- as_cograph(mat)
-  net_s <- simplify(net)
-  co_n <- nrow(get_edges(net_s))
-
-  expect_equal(co_n, ig_n)
 })
 
 
@@ -229,6 +148,7 @@ test_that("is_directed works on S3 cograph_network", {
 
 
 test_that("is_directed agrees across R6, S3, and igraph for the same matrix", {
+  skip_if_not_installed("igraph")
   # Directed
   mat_dir <- matrix(c(0, 1, 0, 0), 2, 2)
   rownames(mat_dir) <- colnames(mat_dir) <- c("A", "B")
@@ -279,6 +199,7 @@ test_that("aggregate_duplicate_edges default (directed=FALSE) preserves old beha
 # ---------------------------------------------------------------------------
 
 test_that("detect_communities fast_greedy handles collapsed directed weights", {
+  skip_if_not_installed("igraph")
   mat <- matrix(c(
     0, 1, 2, 0,
     3, 0, 4, 0,

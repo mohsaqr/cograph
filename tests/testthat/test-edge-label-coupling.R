@@ -2,6 +2,9 @@
 # Default edge_label_size = mean(label_cex) * EDGE_LABEL_NODE_CEX_FRACTION
 # when the user doesn't pass it. User-explicit values skip coupling.
 
+# Plotting tests check that figures draw; they run in CI, not on CRAN.
+skip_on_cran()
+
 harmony_matrix <- function() {
   nm <- c("A", "B", "C", "D", "E")
   m <- matrix(0, 5, 5, dimnames = list(nm, nm))
@@ -147,7 +150,7 @@ test_that("from_tna() override of NULL stores NULL instead of deleting", {
   # User passing `from_tna(model, donut_fill = NULL)` to opt out of the
   # auto-donut feature was silently ignored.
   skip_if_not_installed("tna")
-  model <- tna::tna(tna::group_regulation)
+  model <- tna::tna(head(tna::group_regulation, 100))
   params <- from_tna(model, donut_fill = NULL, plot = FALSE)
   expect_true("donut_fill" %in% names(params))
   expect_null(params$donut_fill)

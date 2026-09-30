@@ -7,6 +7,9 @@
 # of its height, 8x16 in 44%. These tests assert the limits the function hands
 # to plot.window(), which is the quantity that was stuck.
 
+# Plotting tests check that figures draw; they run in CI, not on CRAN.
+skip_on_cran()
+
 mcml_layer_matrix <- function() {
   set.seed(7)
   m <- matrix(runif(81, 0, 0.4), 9, 9)

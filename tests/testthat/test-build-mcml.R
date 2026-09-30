@@ -409,9 +409,10 @@ test_that("node-level self-loops (A->A) count on diagonal", {
 })
 
 test_that("build_mcml output works with print methods", {
+  skip_if_not_installed("Nestimate")
+  loadNamespace("Nestimate") # print.mcml is registered by Nestimate
   result <- summarize_clusters(edges_simple, clusters_list, type = "tna")
 
-  # Should print via mcml method
   expect_output(print(result), "MCML")
   expect_s3_class(result, "mcml")
 })

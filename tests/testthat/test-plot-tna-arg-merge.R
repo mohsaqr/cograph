@@ -7,6 +7,9 @@
 # errored with "formal argument X matched by multiple actual arguments".
 # The fix: dots override translated splot_args — cograph name wins.
 
+# Plotting tests check that figures draw; they run in CI, not on CRAN.
+skip_on_cran()
+
 test_that("plot_tna() accepts cograph-native edge_labels without argument collision", {
   m <- matrix(c(0, 0.3, 0.1,
                 0.2, 0,   0.4,

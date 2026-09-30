@@ -3,6 +3,9 @@
 # and documented on from_tna()/from_qgraph() for several releases without ever
 # being read; these tests pin the behaviour it now has.
 
+# Plotting tests check that figures draw; they run in CI, not on CRAN.
+skip_on_cran()
+
 test_that(".keep_rounded_zero_edges rescues only the weights that would vanish", {
   m <- matrix(c(0, 0.004, -0.003, 0,
                 0.5,  0,    0,     0.2,
@@ -43,7 +46,7 @@ test_that("digits = 0 rescues to the smallest representable integer", {
 
 test_that("from_tna(show_zero_edges = TRUE) keeps edges that rounding would drop", {
   skip_if_not_installed("tna")
-  mod <- tna::tna(tna::group_regulation)
+  mod <- tna::tna(head(tna::group_regulation, 100))
   w <- mod$weights
   at_risk <- sum(w != 0 & round(w, 2) == 0)
   skip_if(at_risk == 0, "fixture has no weight that rounds to zero")

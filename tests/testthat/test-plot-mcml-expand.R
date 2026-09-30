@@ -11,6 +11,9 @@
 # source to re-count from; that path delegates to Nestimate and is tested
 # separately, skipped when this Nestimate does not provide macro_network().
 
+# Plotting tests check that figures draw; they run in CI, not on CRAN.
+skip_on_cran()
+
 mcml_matrix <- function() {
   m <- matrix(0, 4, 4, dimnames = list(LETTERS[1:4], LETTERS[1:4]))
   m["A", "B"] <- 2

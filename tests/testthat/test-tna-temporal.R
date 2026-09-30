@@ -272,8 +272,7 @@ test_that("parse_tna handles single-element sessions", {
 test_that("simplify with real tna data produces correct totals", {
   skip_on_cran()
   skip_if_not_installed("tna")
-  data("group_regulation", package = "tna")
-  mod <- tna::tna(group_regulation)
+  mod <- tna::tna(head(tna::group_regulation, 100))
 
   parsed_raw <- parse_tna(mod, simplify = FALSE)
   parsed_agg <- parse_tna(mod, simplify = "sum")

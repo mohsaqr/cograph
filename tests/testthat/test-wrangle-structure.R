@@ -77,17 +77,6 @@ test_that("to_undirected('mutual') keeps only reciprocated pairs", {
   expect_equal(m["B", "C"], 0)
 })
 
-test_that("to_undirected agrees with igraph::as_undirected on the collapse rules", {
-  skip_if_not_installed("igraph")
-  d <- ws_dir()
-  g <- igraph::graph_from_adjacency_matrix(d, mode = "directed", weighted = TRUE)
-
-  ig_sum <- igraph::as_undirected(g, mode = "collapse",
-                                  edge.attr.comb = list(weight = "sum"))
-  ig_mat <- as.matrix(igraph::as_adjacency_matrix(ig_sum, attr = "weight"))
-
-  expect_equal(unname(to_matrix(to_undirected(d, "sum"))), unname(ig_mat))
-})
 
 test_that("to_directed('mutual') mirrors every edge", {
   u <- ws_und()
@@ -145,13 +134,6 @@ test_that("split_components(min_size) drops the small components", {
   expect_equal(length(parts), 1L)
 })
 
-test_that("split_components agrees with igraph on the component count", {
-  skip_if_not_installed("igraph")
-  m <- ws_split()
-  g <- igraph::graph_from_adjacency_matrix(m, mode = "undirected", weighted = TRUE)
-
-  expect_equal(length(split_components(m)), igraph::components(g)$no)
-})
 
 # --- select_k_core -----------------------------------------------------------
 
@@ -160,14 +142,6 @@ test_that("select_k_core keeps the nodes of coreness at least k", {
   expect_equal(get_labels(select_k_core(ws_core(), k = 1)), LETTERS[1:4])
 })
 
-test_that("select_k_core agrees with igraph coreness", {
-  skip_if_not_installed("igraph")
-  m <- ws_core()
-  g <- igraph::graph_from_adjacency_matrix(m, mode = "undirected")
-  expected <- names(igraph::coreness(g))[igraph::coreness(g) >= 2]
-
-  expect_equal(get_labels(select_k_core(m, k = 2)), expected)
-})
 
 test_that("select_k_core warns and returns empty when k is unreachable", {
   expect_warning(out <- select_k_core(ws_core(), k = 10))
@@ -204,14 +178,6 @@ test_that("spanning_tree(maximum = TRUE) maximises total weight", {
   expect_equal(total, 1.9)
 })
 
-test_that("spanning_tree agrees with igraph::mst on total weight", {
-  skip_if_not_installed("igraph")
-  m <- ws_und()
-  g <- igraph::graph_from_adjacency_matrix(m, mode = "undirected", weighted = TRUE)
-  ig_total <- sum(igraph::E(igraph::mst(g))$weight)
-
-  expect_equal(sum(as.data.frame(spanning_tree(m))$weight), ig_total)
-})
 
 test_that("spanning_tree on a disconnected network gives a forest", {
   forest <- spanning_tree(ws_split())
@@ -244,14 +210,6 @@ test_that("complement of the complement is the original edge set", {
   expect_equal(unname(twice), unname(m))
 })
 
-test_that("complement_network agrees with igraph::complementer", {
-  skip_if_not_installed("igraph")
-  m <- (ws_und() != 0) * 1
-  g <- igraph::graph_from_adjacency_matrix(m, mode = "undirected")
-  ig <- as.matrix(igraph::as_adjacency_matrix(igraph::complementer(g)))
-
-  expect_equal(unname(to_matrix(complement_network(m))), unname(ig))
-})
 
 # --- contract_nodes ----------------------------------------------------------
 

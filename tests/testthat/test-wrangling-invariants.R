@@ -52,7 +52,6 @@ test_that("D1 every verb survives a network whose last node is isolated", {
   expect_no_error(select_nodes(iso, component = "largest"))
   expect_no_error(select_edges(iso, top = 2))
   expect_no_error(to_df(iso))
-  expect_no_error(to_igraph(as_cograph(iso)))
 })
 
 test_that("D1 to_igraph keeps every node, not just the connected ones", {

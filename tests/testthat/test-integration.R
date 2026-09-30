@@ -5,6 +5,9 @@
 # FULL PIPE CHAIN WORKFLOWS
 # ============================================
 
+# Plotting workflow tests; they run in CI, not on CRAN.
+skip_on_cran()
+
 test_that("complete pipe chain works: cograph |> sn_nodes |> sn_edges |> sn_theme", {
   adj <- create_test_matrix(5)
 

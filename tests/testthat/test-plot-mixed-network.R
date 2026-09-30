@@ -5,6 +5,9 @@
 # Basic Functionality Tests
 # ============================================
 
+# Plotting tests check that figures draw; they run in CI, not on CRAN.
+skip_on_cran()
+
 test_that("plot_mixed_network works with basic matrices", {
   sym <- matrix(0, 4, 4, dimnames = list(LETTERS[1:4], LETTERS[1:4]))
   sym[1, 2] <- sym[2, 1] <- 0.5

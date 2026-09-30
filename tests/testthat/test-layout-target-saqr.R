@@ -70,6 +70,7 @@ test_that("layout_saqr jitter widens the spread of the first middle row", {
 })
 
 test_that("layout_target orders nodes by BFS distance from the focal node", {
+  skip_if_not_installed("igraph")
   m <- matrix(c(0, 1, 1, 1, 0, 0,
                 1, 0, 0, 0, 1, 0,
                 1, 0, 0, 0, 0, 1,
@@ -87,6 +88,7 @@ test_that("layout_target orders nodes by BFS distance from the focal node", {
 })
 
 test_that("layout_target defaults the focal node to highest degree", {
+  skip_if_not_installed("igraph")
   m <- matrix(c(0, 1, 1, 1,
                 1, 0, 0, 0,
                 1, 0, 0, 0,
@@ -97,6 +99,7 @@ test_that("layout_target defaults the focal node to highest degree", {
 })
 
 test_that("layout_target vertical orientation flips axes", {
+  skip_if_not_installed("igraph")
   m <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3, byrow = TRUE)
   net <- CographNetwork$new(m)
   ch <- layout_target(net, target = 1, horizontal = TRUE)
@@ -107,6 +110,7 @@ test_that("layout_target vertical orientation flips axes", {
 })
 
 test_that("layout_target handles disconnected graphs without erroring", {
+  skip_if_not_installed("igraph")
   md <- matrix(0, 4, 4)
   md[1, 2] <- md[2, 1] <- 1  # nodes 3 and 4 isolated
   net <- CographNetwork$new(md)
@@ -139,7 +143,9 @@ test_that("target and saqr are reachable through splot() and the registry", {
   tmp <- tempfile(fileext = ".pdf")
   grDevices::pdf(tmp)
   expect_no_error(splot(adj, layout = "saqr", start = "Start", end = "End", directed = TRUE))
-  expect_no_error(splot(adj, layout = "target", target = "Start", directed = TRUE))
+  if (requireNamespace("igraph", quietly = TRUE)) {
+    expect_no_error(splot(adj, layout = "target", target = "Start", directed = TRUE))
+  }
   grDevices::dev.off()
   unlink(tmp)
 })

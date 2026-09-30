@@ -71,3 +71,4 @@
 ^MOTIFS-AUDIT-FIXING-PLAN\.md$
 ^\.playwright-mcp$
 ^pkgdown-site$
+^tests/equivalence$

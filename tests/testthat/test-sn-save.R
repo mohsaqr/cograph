@@ -5,6 +5,9 @@
 # SN_SAVE() FORMAT SUPPORT
 # ============================================
 
+# Plotting tests check that figures draw; they run in CI, not on CRAN.
+skip_on_cran()
+
 test_that("sn_save() creates PDF file", {
   adj <- create_test_matrix(4)
   net <- cograph(adj)

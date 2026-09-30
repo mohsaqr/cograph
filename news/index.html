@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,21 @@
       <small>Source: <a href="https://github.com/sonsoleslp/cograph/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.7.3" id="cograph-273">cograph 2.7.3<a class="anchor" aria-label="anchor" href="#cograph-273"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-2-7-3">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-7-3"></a></h3>
+<ul><li>Examples and tests that require the optional <code>igraph</code> package now check that it is available. This fixes CRAN check failures on Intel macOS when <code>igraph</code> is unavailable, while examples and tests using native cograph functionality continue to run.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.7.2" id="cograph-272">cograph 2.7.2<a class="anchor" aria-label="anchor" href="#cograph-272"></a></h2><p class="text-muted">CRAN release: 2026-09-30</p>
+<div class="section level3">
+<h3 id="bug-fixes-2-7-2">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-7-2"></a></h3>
+<ul><li><p><code><a href="../reference/as_tna.html">as_tna()</a></code> warns when it leaves a cluster out. A cluster becomes a tna model only when every node in it has a transition to another node of the same cluster, so a one-node cluster, or a cluster with a node whose transitions all leave it, was dropped from the result without notice. The warning, of class <code>cograph_cluster_dropped</code>, names each dropped cluster and the nodes responsible. The clusters remain in the macro model.</p></li>
+<li><p>cograph no longer registers a <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> method for <code>mcml</code> objects. Nestimate owns the <code>mcml</code> class and its print method; with both packages registering one, the printed form, and whether unknown arguments were rejected, depended on which package was loaded last. <code>mcml</code> objects print through Nestimate’s method (Nestimate is in Suggests).</p></li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.7.0" id="cograph-270">cograph 2.7.0<a class="anchor" aria-label="anchor" href="#cograph-270"></a></h2>
 <div class="section level3">

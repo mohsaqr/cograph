@@ -60,8 +60,8 @@ com_fl(net, no.of.communities = 2)
 #> 
 #>  node community
 #>     1         2
-#>     2         2
+#>     2         1
 #>     3         1
-#>     4         1
+#>     4         2
 #>     5         2
 ```

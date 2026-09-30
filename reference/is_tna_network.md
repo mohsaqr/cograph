@@ -33,7 +33,7 @@ net <- as_cograph(mat)
 is_tna_network(net)  # FALSE
 #> [1] FALSE
 
-model <- tna::tna(tna::group_regulation)
+model <- tna::tna(regulation_net)
 net_tna <- as_cograph(model)
 is_tna_network(net_tna)  # TRUE
 #> [1] TRUE

@@ -15,7 +15,7 @@ as directed dyads using the 16-class MAN system."><meta property="og:image" cont
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -309,62 +309,62 @@ plus all triangle patterns</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4  Plan - Execute - Monitor 030T        1</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="va">Mod</span> <span class="op">&lt;-</span> <span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="https://sonsoles.me/tna/reference/build_model.html" class="external-link">tna</a></span><span class="op">(</span><span class="fu">tna</span><span class="fu">::</span><span class="va"><a href="https://sonsoles.me/tna/reference/group_regulation.html" class="external-link">group_regulation</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">Mod</span> <span class="op">&lt;-</span> <span class="fu">tna</span><span class="fu">::</span><span class="fu"><a href="https://sonsoles.me/tna/reference/build_model.html" class="external-link">tna</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu">tna</span><span class="fu">::</span><span class="va"><a href="https://sonsoles.me/tna/reference/group_regulation.html" class="external-link">group_regulation</a></span>, <span class="fl">100</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Individual-level from tna -- keep n_perm tiny for example speed</span></span></span>
 <span class="r-in"><span><span class="fu">extract_motifs</span><span class="op">(</span><span class="va">Mod</span>, top <span class="op">=</span> <span class="fl">10</span>, significance <span class="op">=</span> <span class="cn">TRUE</span>, n_perm <span class="op">=</span> <span class="fl">10L</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Motif Analysis</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Pattern: triangle | Edge method: any</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Individuals: 2000 | States: 9 | Total triads: 10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Individuals: 100 | States: 9 | Total triads: 10</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Type distribution:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 120C 030C 030T  210 120U 120D  300 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1481 1044  620  581  190  178   79 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 120C 030C  210 030T 120U 120D  300 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   75   54   42   37   12   10    8 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Top 10 triads:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                               triad type observed expected     z sig</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1         adapt - discuss - monitor 120D        2      0.0    NA    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2       adapt - discuss - synthesis 120U        1      0.0    NA    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3    cohesion - consensus - emotion 030T       57     11.0 24.40    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4   consensus - discuss - synthesis 120C       82     19.6 15.69    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5     consensus - coregulate - plan 120C      172     71.5 15.62    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6       adapt - discuss - synthesis 030T       11      0.8 12.93    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7       adapt - discuss - synthesis 120C        7      0.6 12.39    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8    cohesion - consensus - emotion 120C       98     32.6 12.07    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9   consensus - discuss - synthesis 030C       59     17.6 10.71    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 consensus - coregulate - emotion 030C       74     35.3 10.34    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                               triad type observed expected    z sig</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  coregulate - emotion - synthesis 030T        1      0.0   NA    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    coregulate - discuss - monitor 120C        1      0.0   NA    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3        adapt - cohesion - discuss 120D        1      0.0   NA    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4   consensus - discuss - synthesis 030C        6      0.8 6.59    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5     consensus - discuss - emotion  210        9      3.5 6.47    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6      adapt - cohesion - consensus 030C        2      0.1 6.01    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  consensus - coregulate - discuss 120U        4      0.6 4.86    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8   cohesion - coregulate - emotion 120C        2      0.2 4.27    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9   consensus - discuss - synthesis 120C        7      1.4 3.55    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10    consensus - discuss - monitor  210        2      0.3 3.52    </span>
 <span class="r-in"><span><span class="co"># Filter to feed-forward loops only</span></span></span>
 <span class="r-in"><span><span class="fu">extract_motifs</span><span class="op">(</span><span class="va">Mod</span>, include_types <span class="op">=</span> <span class="st">"030T"</span>, significance <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Motif Analysis</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Pattern: triangle | Edge method: any</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Individuals: 2000 | States: 9 | Total triads: 59</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Individuals: 100 | States: 9 | Total triads: 20</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Type distribution:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 030T </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  620 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   37 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Top 20 triads:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                triad type observed</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1     cohesion - consensus - emotion 030T       57</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2           discuss - emotion - plan 030T       33</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3   consensus - coregulate - discuss 030T       32</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4        coregulate - emotion - plan 030T       27</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  cohesion - consensus - coregulate 030T       26</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6    consensus - discuss - synthesis 030T       26</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7      consensus - coregulate - plan 030T       23</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8     cohesion - consensus - discuss 030T       22</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9      consensus - discuss - emotion 030T       22</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10        consensus - emotion - plan 030T       22</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11          discuss - monitor - plan 030T       21</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12  consensus - coregulate - monitor 030T       20</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13      cohesion - discuss - emotion 030T       19</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14    coregulate - discuss - emotion 030T       18</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15       adapt - consensus - discuss 030T       17</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16       coregulate - discuss - plan 030T       17</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17         cohesion - emotion - plan 030T       17</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18     consensus - discuss - monitor 030T       14</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19        consensus - monitor - plan 030T       13</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20  consensus - coregulate - emotion 030T       12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1     cohesion - consensus - emotion 030T        4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2      consensus - coregulate - plan 030T        3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3         consensus - emotion - plan 030T        3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4        coregulate - emotion - plan 030T        3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5           discuss - emotion - plan 030T        3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  cohesion - consensus - coregulate 030T        2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7       cohesion - discuss - emotion 030T        2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8     coregulate - discuss - emotion 030T        2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9        discuss - emotion - monitor 030T        2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10        consensus - discuss - plan 030T        2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11        consensus - monitor - plan 030T        2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12       adapt - consensus - discuss 030T        1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13    cohesion - consensus - monitor 030T        1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14     consensus - emotion - monitor 030T        1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15    coregulate - emotion - monitor 030T        1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16       coregulate - monitor - plan 030T        1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17          discuss - monitor - plan 030T        1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18          emotion - monitor - plan 030T        1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19   consensus - discuss - synthesis 030T        1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20  coregulate - emotion - synthesis 030T        1</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

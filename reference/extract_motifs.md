@@ -275,61 +275,61 @@ print(m)
 #> 4  Plan - Execute - Monitor 030T        1
 
 # \donttest{
-Mod <- tna::tna(tna::group_regulation)
+Mod <- tna::tna(head(tna::group_regulation, 100))
 # Individual-level from tna -- keep n_perm tiny for example speed
 extract_motifs(Mod, top = 10, significance = TRUE, n_perm = 10L, seed = 1)
 #> Motif Analysis
 #> Pattern: triangle | Edge method: any
-#> Individuals: 2000 | States: 9 | Total triads: 10
+#> Individuals: 100 | States: 9 | Total triads: 10
 #> 
 #> Type distribution:
 #> 
-#> 120C 030C 030T  210 120U 120D  300 
-#> 1481 1044  620  581  190  178   79 
+#> 120C 030C  210 030T 120U 120D  300 
+#>   75   54   42   37   12   10    8 
 #> 
 #> Top 10 triads:
-#>                               triad type observed expected     z sig
-#> 1         adapt - discuss - monitor 120D        2      0.0    NA    
-#> 2       adapt - discuss - synthesis 120U        1      0.0    NA    
-#> 3    cohesion - consensus - emotion 030T       57     11.0 24.40    
-#> 4   consensus - discuss - synthesis 120C       82     19.6 15.69    
-#> 5     consensus - coregulate - plan 120C      172     71.5 15.62    
-#> 6       adapt - discuss - synthesis 030T       11      0.8 12.93    
-#> 7       adapt - discuss - synthesis 120C        7      0.6 12.39    
-#> 8    cohesion - consensus - emotion 120C       98     32.6 12.07    
-#> 9   consensus - discuss - synthesis 030C       59     17.6 10.71    
-#> 10 consensus - coregulate - emotion 030C       74     35.3 10.34    
+#>                               triad type observed expected    z sig
+#> 1  coregulate - emotion - synthesis 030T        1      0.0   NA    
+#> 2    coregulate - discuss - monitor 120C        1      0.0   NA    
+#> 3        adapt - cohesion - discuss 120D        1      0.0   NA    
+#> 4   consensus - discuss - synthesis 030C        6      0.8 6.59    
+#> 5     consensus - discuss - emotion  210        9      3.5 6.47    
+#> 6      adapt - cohesion - consensus 030C        2      0.1 6.01    
+#> 7  consensus - coregulate - discuss 120U        4      0.6 4.86    
+#> 8   cohesion - coregulate - emotion 120C        2      0.2 4.27    
+#> 9   consensus - discuss - synthesis 120C        7      1.4 3.55    
+#> 10    consensus - discuss - monitor  210        2      0.3 3.52    
 # Filter to feed-forward loops only
 extract_motifs(Mod, include_types = "030T", significance = FALSE)
 #> Motif Analysis
 #> Pattern: triangle | Edge method: any
-#> Individuals: 2000 | States: 9 | Total triads: 59
+#> Individuals: 100 | States: 9 | Total triads: 20
 #> 
 #> Type distribution:
 #> 030T 
-#>  620 
+#>   37 
 #> 
 #> Top 20 triads:
 #>                                triad type observed
-#> 1     cohesion - consensus - emotion 030T       57
-#> 2           discuss - emotion - plan 030T       33
-#> 3   consensus - coregulate - discuss 030T       32
-#> 4        coregulate - emotion - plan 030T       27
-#> 5  cohesion - consensus - coregulate 030T       26
-#> 6    consensus - discuss - synthesis 030T       26
-#> 7      consensus - coregulate - plan 030T       23
-#> 8     cohesion - consensus - discuss 030T       22
-#> 9      consensus - discuss - emotion 030T       22
-#> 10        consensus - emotion - plan 030T       22
-#> 11          discuss - monitor - plan 030T       21
-#> 12  consensus - coregulate - monitor 030T       20
-#> 13      cohesion - discuss - emotion 030T       19
-#> 14    coregulate - discuss - emotion 030T       18
-#> 15       adapt - consensus - discuss 030T       17
-#> 16       coregulate - discuss - plan 030T       17
-#> 17         cohesion - emotion - plan 030T       17
-#> 18     consensus - discuss - monitor 030T       14
-#> 19        consensus - monitor - plan 030T       13
-#> 20  consensus - coregulate - emotion 030T       12
+#> 1     cohesion - consensus - emotion 030T        4
+#> 2      consensus - coregulate - plan 030T        3
+#> 3         consensus - emotion - plan 030T        3
+#> 4        coregulate - emotion - plan 030T        3
+#> 5           discuss - emotion - plan 030T        3
+#> 6  cohesion - consensus - coregulate 030T        2
+#> 7       cohesion - discuss - emotion 030T        2
+#> 8     coregulate - discuss - emotion 030T        2
+#> 9        discuss - emotion - monitor 030T        2
+#> 10        consensus - discuss - plan 030T        2
+#> 11        consensus - monitor - plan 030T        2
+#> 12       adapt - consensus - discuss 030T        1
+#> 13    cohesion - consensus - monitor 030T        1
+#> 14     consensus - emotion - monitor 030T        1
+#> 15    coregulate - emotion - monitor 030T        1
+#> 16       coregulate - monitor - plan 030T        1
+#> 17          discuss - monitor - plan 030T        1
+#> 18          emotion - monitor - plan 030T        1
+#> 19   consensus - discuss - synthesis 030T        1
+#> 20  coregulate - emotion - synthesis 030T        1
 # }
 ```

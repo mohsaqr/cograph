@@ -1,5 +1,36 @@
 # Changelog
 
+## cograph 2.7.3
+
+### Bug fixes
+
+- Examples and tests that require the optional `igraph` package now
+  check that it is available. This fixes CRAN check failures on Intel
+  macOS when `igraph` is unavailable, while examples and tests using
+  native cograph functionality continue to run.
+
+## cograph 2.7.2
+
+CRAN release: 2026-09-30
+
+### Bug fixes
+
+- [`as_tna()`](https://sonsoles.me/cograph/reference/as_tna.md) warns
+  when it leaves a cluster out. A cluster becomes a tna model only when
+  every node in it has a transition to another node of the same cluster,
+  so a one-node cluster, or a cluster with a node whose transitions all
+  leave it, was dropped from the result without notice. The warning, of
+  class `cograph_cluster_dropped`, names each dropped cluster and the
+  nodes responsible. The clusters remain in the macro model.
+
+- cograph no longer registers a
+  [`print()`](https://rdrr.io/r/base/print.html) method for `mcml`
+  objects. Nestimate owns the `mcml` class and its print method; with
+  both packages registering one, the printed form, and whether unknown
+  arguments were rejected, depended on which package was loaded last.
+  `mcml` objects print through Nestimate’s method (Nestimate is in
+  Suggests).
+
 ## cograph 2.7.0
 
 ### New features

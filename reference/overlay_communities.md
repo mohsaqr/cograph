@@ -72,7 +72,9 @@ diag(mat) <- 0
 overlay_communities(mat, list(g1 = c("A","B"), g2 = c("C","D","E")))
 
 
-model <- tna::tna(tna::group_regulation)
-comm <- cograph::communities(model$weights, method = "infomap")
-overlay_communities(model, comm)
+if (requireNamespace("igraph", quietly = TRUE)) {
+  comm <- cograph::communities(regulation_net, method = "infomap")
+  overlay_communities(regulation_net, comm)
+}
+
 ```

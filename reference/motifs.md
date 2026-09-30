@@ -440,79 +440,61 @@ motifs(mat, n_perm = 10L, seed = 1)
 #>  030C     2      0.8 1.16 0.4545455 FALSE
 #>  030T     2      0.8 1.16 0.4545455 FALSE
 # \donttest{
-Mod <- tna::tna(tna::group_regulation)
+Mod <- tna::tna(head(tna::group_regulation, 100))
 motifs(Mod, n_perm = 10L, seed = 1)
 #> Motif Census 
-#> Level: individual | 2000 units | States: 9 | Pattern: triangle 
+#> Level: individual | 100 units | States: 9 | Pattern: triangle 
 #> Significance: permutation (n_perm=10)
 #> 
 #> Type distribution:
-#> 120C 030C 030T  210 120U 120D  300 
-#> 1481 1044  620  581  190  178   79 
+#> 120C 030C  210 030T 120U 120D  300 
+#>   75   54   42   37   12   10    8 
 #> 
 #> Top 7 results:
-#>  type count expected     z          p   sig
-#>  120C  1481   1030.4 24.21 0.09090909 FALSE
-#>  030T   620    419.1  7.02 0.09090909 FALSE
-#>  120U   190    139.4  5.31 0.09090909 FALSE
-#>   210   581    473.7  3.67 0.09090909 FALSE
-#>  120D   178    140.5  2.41 0.09090909 FALSE
-#>  030C  1044   1091.9 -1.47 0.27272727 FALSE
-#>   300    79     80.9 -0.38 0.90909091 FALSE
+#>  type count expected    z          p   sig
+#>  030T    37     19.5 4.09 0.09090909 FALSE
+#>  120C    75     59.0 2.39 0.09090909 FALSE
+#>   210    42     34.4 1.30 0.27272727 FALSE
+#>  120U    12      9.1 1.08 0.36363636 FALSE
+#>  030C    54     49.0 0.96 0.27272727 FALSE
+#>  120D    10      7.6 0.87 0.45454545 FALSE
+#>   300     8      7.6 0.14 1.00000000 FALSE
 subgraphs(Mod, n_perm = 10L, seed = 1)
 #> Showing triangle patterns (count >= 5). For all MAN types use pattern = 'all'.
 #> Motif Subgraphs 
-#> Level: individual | 2000 units | States: 9 | Pattern: triangle 
+#> Level: individual | 100 units | States: 9 | Pattern: triangle 
 #> Significance: permutation (n_perm=10)
 #> Min count: >= 5 
 #> 
 #> Type distribution:
 #> 
-#> 030C 030T 120C  210 120D 120U  300 
-#>   42   34   33   18   13    9    6 
+#> 120C 030C  210 
+#>    7    2    2 
 #> 
-#> Top 20 results:
-#>                              triad      node1      node2      node3 observed
-#>      consensus - coregulate - plan  consensus coregulate       plan      172
-#>     cohesion - consensus - emotion   cohesion  consensus    emotion       57
-#>    consensus - discuss - synthesis  consensus    discuss  synthesis       82
-#>        adapt - discuss - synthesis      adapt    discuss  synthesis       11
-#>        cohesion - consensus - plan   cohesion  consensus       plan       31
-#>    consensus - discuss - synthesis  consensus    discuss  synthesis       26
-#>  cohesion - consensus - coregulate   cohesion  consensus coregulate       26
-#>     cohesion - consensus - emotion   cohesion  consensus    emotion       98
-#>   consensus - coregulate - emotion  consensus coregulate    emotion       74
-#>         consensus - emotion - plan  consensus    emotion       plan      171
-#>         consensus - emotion - plan  consensus    emotion       plan      123
-#>   consensus - coregulate - discuss  consensus coregulate    discuss      129
-#>        adapt - consensus - discuss      adapt  consensus    discuss       46
-#>     cohesion - consensus - emotion   cohesion  consensus    emotion       22
-#>   consensus - coregulate - discuss  consensus coregulate    discuss       70
-#>    consensus - discuss - synthesis  consensus    discuss  synthesis       59
-#>    cohesion - coregulate - emotion   cohesion coregulate    emotion       34
-#>     cohesion - consensus - emotion   cohesion  consensus    emotion       60
-#>      consensus - discuss - monitor  consensus    discuss    monitor       50
-#>     coregulate - discuss - emotion coregulate    discuss    emotion       18
-#>  type expected     z          p   sig
-#>  120C     71.0 17.55 0.09090909 FALSE
-#>  030T     12.7 17.44 0.09090909 FALSE
-#>  120C     17.1 16.17 0.09090909 FALSE
-#>  030T      0.9 13.69 0.09090909 FALSE
-#>  120D      5.5 13.02 0.09090909 FALSE
-#>  030T      4.5 11.68 0.09090909 FALSE
-#>  030T      8.4 10.28 0.09090909 FALSE
-#>  120C     33.8 10.18 0.09090909 FALSE
-#>  030C     37.6  9.49 0.09090909 FALSE
-#>  120C     95.8  9.24 0.09090909 FALSE
-#>   210     67.6  8.37 0.09090909 FALSE
-#>  120C     52.5  8.27 0.09090909 FALSE
-#>  120C     12.8  8.04 0.09090909 FALSE
-#>  120U      5.9  7.37 0.09090909 FALSE
-#>   210     30.3  7.27 0.09090909 FALSE
-#>  030C     18.3  6.58 0.09090909 FALSE
-#>  030C     12.0  6.35 0.09090909 FALSE
-#>  030C     33.0  6.11 0.09090909 FALSE
-#>  120C     27.9  5.98 0.09090909 FALSE
-#>  030T      8.8  5.94 0.09090909 FALSE
+#> Top 11 results:
+#>                             triad     node1      node2     node3 observed type
+#>   consensus - discuss - synthesis consensus    discuss synthesis        7 120C
+#>   consensus - discuss - synthesis consensus    discuss synthesis        6 030C
+#>     consensus - discuss - emotion consensus    discuss   emotion        9  210
+#>    cohesion - consensus - emotion  cohesion  consensus   emotion        6 120C
+#>        consensus - emotion - plan consensus    emotion      plan       10  210
+#>     consensus - coregulate - plan consensus coregulate      plan        9 120C
+#>  consensus - coregulate - emotion consensus coregulate   emotion        6 120C
+#>        consensus - emotion - plan consensus    emotion      plan        6 030C
+#>    cohesion - consensus - discuss  cohesion  consensus   discuss        5 120C
+#>     consensus - discuss - emotion consensus    discuss   emotion        6 120C
+#>        consensus - emotion - plan consensus    emotion      plan        5 120C
+#>  expected     z          p   sig
+#>       1.4  8.01 0.09090909 FALSE
+#>       0.9  4.63 0.09090909 FALSE
+#>       3.2  3.93 0.09090909 FALSE
+#>       3.5  2.57 0.09090909 FALSE
+#>       4.6  2.55 0.09090909 FALSE
+#>       4.5  1.90 0.18181818 FALSE
+#>       3.1  1.90 0.18181818 FALSE
+#>       3.1  1.62 0.27272727 FALSE
+#>       2.8  1.30 0.18181818 FALSE
+#>       4.5  0.69 0.54545455 FALSE
+#>       6.1 -0.49 0.90909091 FALSE
 # }
 ```

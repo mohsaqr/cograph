@@ -51,8 +51,8 @@ internal transitions within each cluster.
   Per-cluster tna objects, one per cluster. Each tna object represents
   internal transitions within that cluster. Contains `$weights` (n_i x
   n_i matrix), `$inits` (initial distribution), and `$labels` (node
-  labels). Clusters with single nodes or zero-row nodes are excluded
-  (tna requires positive row sums).
+  labels). A cluster that cannot become a tna model is left out with a
+  warning (see Excluded Clusters).
 
 A `group_tna` object (flat list of tna objects: macro + per-cluster).
 
@@ -97,8 +97,10 @@ A per-cluster tna cannot be created when:
 
 - Some nodes in the cluster have no outgoing edges (row sums to 0)
 
-These clusters are silently excluded. The macro (cluster-level) model
-still includes all clusters.
+These clusters are left out of the result with a warning of class
+`cograph_cluster_dropped`, which names each cluster and the nodes that
+have no transition within it. The macro (cluster-level) model still
+includes all clusters.
 
 ## See also
 
@@ -112,12 +114,12 @@ underlying tna constructor
 ## Examples
 
 ``` r
-mat <- matrix(runif(36), 6, 6); diag(mat) <- 0
-rownames(mat) <- colnames(mat) <- LETTERS[1:6]
-clusters <- list(G1 = c("A","B"), G2 = c("C","D"), G3 = c("E","F"))
-cs <- csum(mat, clusters, type = "tna")
+clusters <- list(C1 = c("Explore", "Reflect", "Discuss"),
+                 C2 = c("Plan", "Create", "Share"),
+                 C3 = c("Monitor", "Adapt", "Synthesize", "Evaluate"))
+cs <- csum(regulation_net, clusters, type = "tna")
 tna_models <- as_tna(cs)
-names(tna_models)          # "macro", "G1", "G2", "G3"
-#> [1] "macro" "G1"    "G2"    "G3"   
+names(tna_models)          # "macro", "C1", "C2", "C3"
+#> [1] "macro" "C1"    "C2"    "C3"   
 splot(tna_models$macro)    # cograph renderer avoids tna's plot deps
 ```

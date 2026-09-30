@@ -133,7 +133,7 @@ for qgraph object conversion
 
 ``` r
 # Convert and plot a tna object
-model <- tna::tna(tna::group_regulation)
+model <- tna::tna(regulation_net)
 from_tna(model)  # Plots with donut rings showing initial probabilities
 
 

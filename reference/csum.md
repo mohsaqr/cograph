@@ -296,9 +296,9 @@ rownames(mat) <- colnames(mat) <- LETTERS[1:10]
 cs <- csum(mat, c(1,1,1,2,2,2,3,3,3,3))
 cs$macro$weights      # 3x3 cluster transition matrix
 #>           1         2         3
-#> 1 0.1461614 0.3592531 0.4945855
-#> 2 0.2592081 0.2351695 0.5056225
-#> 3 0.3428930 0.3149788 0.3421282
+#> 1 0.2679512 0.3408310 0.3912178
+#> 2 0.3553020 0.2538749 0.3908231
+#> 3 0.2776148 0.3642677 0.3581175
 
 # Named list of clusters, TNA-normalized
 clusters <- list(Alpha = LETTERS[1:3], Beta = LETTERS[4:6], Gamma = LETTERS[7:10])

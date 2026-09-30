@@ -63,7 +63,7 @@ Other motifs:
 ## Examples
 
 ``` r
-Mod <- tna::tna(tna::group_regulation)
+Mod <- tna::tna(head(tna::group_regulation, 100))
 
 # Get edge list by individual
 edges <- get_edge_list(Mod)

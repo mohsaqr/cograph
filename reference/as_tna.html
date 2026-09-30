@@ -13,7 +13,7 @@ cluster), returned as a flat group_tna object."><meta property="og:image" conten
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -100,8 +100,8 @@ groups or phases.</p></dd>
 <dd><p>Per-cluster tna objects, one per cluster. Each tna
 object represents internal transitions within that cluster. Contains
 <code>$weights</code> (n_i x n_i matrix), <code>$inits</code> (initial distribution),
-and <code>$labels</code> (node labels). Clusters with single nodes or zero-row
-nodes are excluded (tna requires positive row sums).</p></dd>
+and <code>$labels</code> (node labels). A cluster that cannot become a tna
+model is left out with a warning (see Excluded Clusters).</p></dd>
 
 
 </dl><p>A <code>group_tna</code> object (flat list of tna objects: macro + per-cluster).</p>
@@ -148,8 +148,10 @@ an error with installation instructions.</p>
 
 <p>A per-cluster tna cannot be created when:</p><ul><li><p>The cluster has only 1 node (no internal transitions possible)</p></li>
 <li><p>Some nodes in the cluster have no outgoing edges (row sums to 0)</p></li>
-</ul><p>These clusters are silently excluded. The macro (cluster-level)
-model still includes all clusters.</p>
+</ul><p>These clusters are left out of the result with a warning of class
+<code>cograph_cluster_dropped</code>, which names each cluster and the nodes
+that have no transition within it. The macro (cluster-level) model still
+includes all clusters.</p>
 </div>
 
     </div>
@@ -162,13 +164,13 @@ model still includes all clusters.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">36</span><span class="op">)</span>, <span class="fl">6</span>, <span class="fl">6</span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fl">0</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">LETTERS</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span></span></span>
-<span class="r-in"><span><span class="va">clusters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>G1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>,<span class="st">"B"</span><span class="op">)</span>, G2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C"</span>,<span class="st">"D"</span><span class="op">)</span>, G3 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"E"</span>,<span class="st">"F"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">cs</span> <span class="op">&lt;-</span> <span class="fu"><a href="csum.html">csum</a></span><span class="op">(</span><span class="va">mat</span>, <span class="va">clusters</span>, type <span class="op">=</span> <span class="st">"tna"</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">clusters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>C1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Explore"</span>, <span class="st">"Reflect"</span>, <span class="st">"Discuss"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                 C2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Plan"</span>, <span class="st">"Create"</span>, <span class="st">"Share"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                 C3 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Monitor"</span>, <span class="st">"Adapt"</span>, <span class="st">"Synthesize"</span>, <span class="st">"Evaluate"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">cs</span> <span class="op">&lt;-</span> <span class="fu"><a href="csum.html">csum</a></span><span class="op">(</span><span class="va">regulation_net</span>, <span class="va">clusters</span>, type <span class="op">=</span> <span class="st">"tna"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">tna_models</span> <span class="op">&lt;-</span> <span class="fu">as_tna</span><span class="op">(</span><span class="va">cs</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">tna_models</span><span class="op">)</span>          <span class="co"># "macro", "G1", "G2", "G3"</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "macro" "G1"    "G2"    "G3"   </span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">tna_models</span><span class="op">)</span>          <span class="co"># "macro", "C1", "C2", "C3"</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "macro" "C1"    "C2"    "C3"   </span>
 <span class="r-in"><span><span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span><span class="va">tna_models</span><span class="op">$</span><span class="va">macro</span><span class="op">)</span>    <span class="co"># cograph renderer avoids tna's plot deps</span></span></span>
 <span class="r-plt img"><img src="as_tna-1.png" alt="" width="1080" height="1080"></span>
 </code></pre></div>

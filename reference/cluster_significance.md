@@ -158,11 +158,11 @@ print(sig)
 #> =========================
 #> 
 #>   Null model:           configuration (n = 20 )
-#>   Observed modularity:  0.3952 
+#>   Observed modularity:  0.4151 
 #>   Null mean:            0.3776 
 #>   Null SD:              0.031 
-#>   Z-score:              0.57 
-#>   P-value:              0.28443 
+#>   Z-score:              1.21 
+#>   P-value:              0.11286 
 #> 
 #>   Conclusion: No significant community structure (p >= 0.05)
 if (requireNamespace("igraph", quietly = TRUE)) {

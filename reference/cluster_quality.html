@@ -9,7 +9,7 @@ Supports both binary and weighted networks."><meta property="og:image" content="
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -110,19 +110,19 @@ that is internal to some cluster) and <code>n_clusters</code>.</p></dd>
 <span class="r-in"><span><span class="va">q</span> <span class="op">&lt;-</span> <span class="fu">cluster_quality</span><span class="op">(</span><span class="va">mat</span>, <span class="va">clusters</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">q</span><span class="op">$</span><span class="va">per_cluster</span>   <span class="co"># Per-cluster metrics</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   cluster cluster_name n_nodes internal_edges cut_edges internal_density</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1       1            1       3       3.786687  21.06550        0.6311144</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2       2            2       3       2.859344  21.89879        0.4765574</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3       3            3       4       6.569519  24.70585        0.5474599</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       1            1       3       3.312209  18.45718        0.5520348</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2       2            2       3       3.362291  18.80158        0.5603818</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3       3            3       4       5.066853  23.66512        0.4222378</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   avg_internal_degree expansion cut_ratio conductance</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1            2.524458  7.021834  1.003119   0.7355562</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2            1.906229  7.299596  1.042799   0.7929323</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3            3.284760  6.176463  1.029411   0.6528187</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1            2.208139  6.152393 0.8789133   0.7358853</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2            2.241527  6.267192 0.8953131   0.7365611</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3            2.533427  5.916279 0.9860465   0.7001758</span>
 <span class="r-in"><span><span class="va">q</span><span class="op">$</span><span class="va">global</span>        <span class="co"># Modularity, coverage</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $modularity</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.05841018</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.06139144</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $coverage</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2808794</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2782094</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $n_clusters</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3</span>
@@ -134,19 +134,19 @@ that is internal to some cluster) and <code>n_clusters</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> =======================</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Global metrics:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Modularity: -0.1139 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Coverage:   0.2214 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Modularity: -0.1103 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Coverage:   0.229 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Clusters:   3 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Per-cluster metrics:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  cluster cluster_name n_nodes internal_edges cut_edges internal_density</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        1            1       3       2.609745  23.94103        0.4349575</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        2            2       3       3.044833  24.35574        0.5074722</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        3            3       4       5.093286  27.31874        0.4244405</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        1            1       3       3.363784  24.13739        0.5606306</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        2            2       3       2.012768  24.71564        0.3354613</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        3            3       4       5.943414  27.37954        0.4952845</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  avg_internal_degree expansion cut_ratio conductance</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             1.739830  7.980343  1.140049   0.8210083</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             2.029889  8.118581  1.159797   0.7999808</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             2.546643  6.829684  1.138281   0.7283965</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             2.242522  8.045796  1.149399   0.7820322</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             1.341845  8.238545  1.176935   0.8599383</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             2.971707  6.844886  1.140814   0.6972772</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

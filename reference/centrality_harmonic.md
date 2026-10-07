@@ -44,14 +44,12 @@ A named numeric vector with one score per node, in input node order.
 ## Details
 
 Edge weights are read as distances, and `invert_weights = TRUE` converts
-a weight \\w\\ to the distance \\1/w^\alpha\\. `weighted = FALSE` has no
-effect, because the measure then reads the weights stored in the
-network; hop-count harmonic centrality needs a binary input such as
-`(x != 0) * 1`. `mode = "all"` treats edges as undirected, `"out"` uses
+a weight \\w\\ to the distance \\1/w^\alpha\\. `weighted = FALSE` uses
+hop counts. `mode = "all"` treats edges as undirected, `"out"` uses
 distances from the node and `"in"` distances to it. The scores equal
 [`igraph::harmonic_centrality()`](https://r.igraph.org/reference/harmonic_centrality.html)
-on the weighted graph. `normalized = TRUE` divides the scores by their
-maximum.
+on the weighted graph. `normalized = TRUE` divides the scores by \\n -
+1\\, as `igraph::harmonic_centrality(normalized = TRUE)` does.
 
 ## References
 

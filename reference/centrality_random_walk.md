@@ -30,12 +30,11 @@ A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Edge weights are ignored. A disconnected network gives `NA` for every
-node with a warning that carries no condition class. On a directed
-network that is not strongly connected, some nodes have stationary
-probability zero, their passage times are set to 0, and the scores are
-then not random-walk distances. The passage times are symmetrized before
-the sum, so the values differ from
+Edge weights are ignored. The measure is defined for connected
+undirected and strongly connected directed networks. On any other
+network every score is `NA`, with a `cograph_undefined_measure` warning,
+because some passage times are infinite. The passage times are
+symmetrized before the sum, so the values differ from
 [`tidygraph::centrality_random_walk()`](https://tidygraph.data-imaginist.com/reference/centrality.html),
 which sums them unsymmetrized.
 

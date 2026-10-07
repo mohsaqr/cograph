@@ -11,7 +11,7 @@ track_individuals = TRUE."><meta property="og:image" content="https://sonsoles.m
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -111,7 +111,12 @@ plotted as a separate line. It calls <code><a href="plot_transitions.html">plot_
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>Data frame with one column per time point and one row per
-individual trajectory, or a <code>tna</code> object with sequence data.</p></dd>
+individual trajectory, or a <code>tna</code> object with sequence data. In a
+data frame, a missing value (<code>NA</code>) marks a time point at which the
+individual was not observed: no line enters or leaves that column for
+the individual, and the node sizes count the observed states only. Colors by
+<code>"first"</code> and <code>"last"</code> use the first and last observed
+states.</p></dd>
 
 
 <dt id="arg-from-title">from_title<a class="anchor" aria-label="anchor" href="#arg-from-title"></a></dt>

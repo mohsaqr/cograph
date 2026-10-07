@@ -35,7 +35,10 @@ summarize_clusters(
   data.frame without from/to columns
 
   :   Sequence data. Each row is a sequence, columns are time steps.
-      Consecutive pairs (t, t+1) become transitions.
+      Consecutive pairs (t, t+1) become transitions. A data frame with
+      three or more columns that all have the default names V1, V2, V3,
+      ... is read as sequence data, even though V1 and V2 are also
+      from/to names.
 
   tna object
 
@@ -112,8 +115,10 @@ summarize_clusters(
 
 - directed:
 
-  Logical. Default `TRUE`. The value is recorded in `meta$directed`; the
-  weights are not modified.
+  Logical. Default `TRUE`. With `FALSE` the node-level weights are
+  symmetrized as \\(A + A^T) / 2\\ before aggregation: a matrix input is
+  averaged with its transpose, and each observed transition counts half
+  in each direction. The value is recorded in `meta$directed`.
 
 - compute_within:
 

@@ -17,7 +17,7 @@ hubbell_weight."><meta property="og:image" content="https://sonsoles.me/cograph/
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -94,9 +94,10 @@ order.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The system is solvable when the spectral radius of \(wW\) is below one.
-Otherwise every score is <code>NA</code> with a warning that carries no
-condition class. A <code>hubbell_weight</code> of zero or below raises an error.
-Edge weights are always used, and <code>weighted = FALSE</code> has no effect.
+Otherwise every score is <code>NA</code> with a <code>cograph_undefined_measure</code>
+warning. A <code>hubbell_weight</code> of zero or below raises a
+<code>cograph_bad_parameter</code> error. <code>weighted = FALSE</code> gives every
+edge weight one.
 The rows of \(W\) are outgoing ties, so on a directed network the score
 sums attenuated walks that leave the node. <code><a href="https://rdrr.io/pkg/centiserve/man/hubbell.html" class="external-link">centiserve::hubbell()</a></code>
 with <code>weights = NULL</code> sets every weight to 1, so it reproduces these

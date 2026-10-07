@@ -26,8 +26,8 @@ centrality_pagerank(x, damping = 0.85, personalized = NULL, ...)
 - personalized:
 
   Reset distribution \\p\\, a non-negative numeric vector with one entry
-  per node in input node order. The default `NULL` gives the uniform
-  distribution.
+  per node, named by node or in input node order. The default `NULL`
+  gives the uniform distribution.
 
 - ...:
 
@@ -40,15 +40,16 @@ A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Edge weights are always used, and `weighted = FALSE` has no effect. A
-node without out-edges passes its score to the reset distribution. The
-scores sum to one and equal
+`weighted = FALSE` gives every edge weight one. A node without out-edges
+passes its score to the reset distribution. The scores sum to one and
+equal
 [`igraph::page_rank()`](https://r.igraph.org/reference/page_rank.html).
-The vector `personalized` is rescaled to sum to one and matched to nodes
-by position; its names are ignored. A negative weight raises a
-`cograph_negative_weights` error, an invalid `personalized` a
-`cograph_bad_input` error, and a `damping` outside \\\[0, 1\]\\ an
-error.
+The vector `personalized` is rescaled to sum to one. A named vector is
+matched to the node names, and its names must be the node names, each
+used once; an unnamed vector is matched by position. A negative weight
+raises a `cograph_negative_weights` error, an invalid `personalized` a
+`cograph_bad_input` error, and a `damping` outside \\\[0, 1\]\\ a
+`cograph_bad_parameter` error.
 
 ## References
 

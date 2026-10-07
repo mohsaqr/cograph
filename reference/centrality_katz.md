@@ -36,10 +36,11 @@ A named numeric vector with one score per node, in input node order.
 The series converges for \\\alpha \< 1/\rho(A)\\, where \\\rho(A)\\ is
 the spectral radius. A divergent series is detected from scores below
 one and raises a `cograph_katz_diverged` warning that names the bound;
-the returned values are then not Katz scores. Edge weights are always
-used, and `weighted = FALSE` has no effect. On a directed network the
-score counts walks that arrive at the node. The values equal
-`igraph::alpha_centrality(exo = 1)` with the same `alpha`.
+the returned values are then not Katz scores. `weighted = FALSE` gives
+every edge weight one. On a directed network the score counts walks that
+arrive at the node. A network of one node without a self-loop scores 1.
+The values equal `igraph::alpha_centrality(exo = 1)` with the same
+`alpha`.
 
 ## References
 

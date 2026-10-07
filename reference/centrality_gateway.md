@@ -23,11 +23,12 @@ centrality_gateway(x, membership = NULL, mode = "all", ...)
 
 - membership:
 
-  Integer module codes, one per node.
+  Module labels, one per node: integer codes, character labels or a
+  factor.
 
 - mode:
 
-  Accepted for a uniform interface. It has no effect. Default `"all"`.
+  For directed networks: `"all"` (default), `"out"` or `"in"`.
 
 - ...:
 
@@ -41,14 +42,18 @@ A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Edge weights are ignored. On an undirected network the score lies
-between 0 and 1. On a directed network \\k_i\\ is the in-degree while
-\\k\_{is}\\ counts outgoing links, and the score can be negative, as on
-`regulation_net`. `membership` must hold integer codes `1, ..., m`.
-Without `membership` the function raises an unclassed warning and
-returns `NA`, and a `membership` of the wrong length or with character
-labels raises an unclassed error. With a single module every node scores
-0, and so does a node without incoming links.
+Edge weights are ignored, and the score lies between 0 and 1. On a
+directed network `mode` chooses the ties: `"out"` uses outgoing links,
+`"in"` incoming links and `"all"` (default) both, with a reciprocated
+tie counted twice. The degree \\k_i\\, the module links \\k\_{is}\\ and
+the neighbors whose degrees enter \\g\_{is}\\ all use the same ties. On
+an undirected network the three modes agree and equal
+`brainGraph::gateway_coeff(centr = "degree")`. `membership` can hold
+integer, character or factor labels. Without `membership` the function
+returns `NA` with a warning of classes `cograph_bad_membership` and
+`cograph_undefined_measure`, and a `membership` of the wrong length
+raises a `cograph_bad_membership` error. With a single module every node
+scores 0, and so does a node without links in the chosen mode.
 
 ## References
 
@@ -69,7 +74,7 @@ European Physical Journal B, 87(7), 161.
 ``` r
 centrality_gateway(regulation_net, membership = rep(1:2, each = 5))
 #>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
-#>  0.8864840 -2.4522161  0.9504836  0.5123884  0.7838566 -0.1706674 -7.3560786 
+#>  0.5808315  0.5490589  0.6204854  0.5562922  0.5796028  0.4941561  0.2874009 
 #>   Evaluate     Create      Share 
-#> -1.1420159  0.2270155  0.1404383 
+#>  0.5067149  0.6424167  0.5239164 
 ```

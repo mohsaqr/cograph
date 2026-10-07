@@ -19,7 +19,7 @@ where \(k_{is}\) is the number of links of \(i\) into module
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -81,12 +81,13 @@ where \(k_{is}\) is the number of links of \(i\) into module
 
 
 <dt id="arg-membership">membership<a class="anchor" aria-label="anchor" href="#arg-membership"></a></dt>
-<dd><p>Integer module codes, one per node.</p></dd>
+<dd><p>Module labels, one per node: integer codes, character
+labels or a factor.</p></dd>
 
 
 <dt id="arg-mode">mode<a class="anchor" aria-label="anchor" href="#arg-mode"></a></dt>
-<dd><p>Accepted for a uniform interface. It has no effect. Default
-<code>"all"</code>.</p></dd>
+<dd><p>For directed networks: <code>"all"</code> (default), <code>"out"</code> or
+<code>"in"</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -101,15 +102,19 @@ order.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Edge weights are ignored. On an undirected network the score lies between 0
-and 1. On a directed network \(k_i\) is the in-degree while
-\(k_{is}\) counts outgoing links, and the score can be negative, as
-on <code>regulation_net</code>. <code>membership</code> must hold integer codes
-<code>1, ..., m</code>. Without <code>membership</code> the function raises an
-unclassed warning and returns <code>NA</code>, and a <code>membership</code> of the
-wrong length or with character labels raises an unclassed error. With a
-single module every node scores 0, and so does a node without incoming
-links.</p>
+    <p>Edge weights are ignored, and the score lies between 0 and 1. On a
+directed network <code>mode</code> chooses the ties: <code>"out"</code> uses outgoing
+links, <code>"in"</code> incoming links and <code>"all"</code> (default) both, with a
+reciprocated tie counted twice. The degree \(k_i\), the module
+links \(k_{is}\) and the neighbors whose degrees enter
+\(g_{is}\) all use the same ties. On an undirected network the
+three modes agree and equal <code>brainGraph::gateway_coeff(centr =
+"degree")</code>. <code>membership</code> can hold integer, character or factor
+labels. Without <code>membership</code> the function returns <code>NA</code> with a
+warning of classes <code>cograph_bad_membership</code> and
+<code>cograph_undefined_measure</code>, and a <code>membership</code> of the wrong
+length raises a <code>cograph_bad_membership</code> error. With a single module
+every node scores 0, and so does a node without links in the chosen mode.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -129,9 +134,9 @@ European Physical Journal B, 87(7), 161.
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">centrality_gateway</span><span class="op">(</span><span class="va">regulation_net</span>, membership <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, each <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.8864840 -2.4522161  0.9504836  0.5123884  0.7838566 -0.1706674 -7.3560786 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.5808315  0.5490589  0.6204854  0.5562922  0.5796028  0.4941561  0.2874009 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Evaluate     Create      Share </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -1.1420159  0.2270155  0.1404383 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.5067149  0.6424167  0.5239164 </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

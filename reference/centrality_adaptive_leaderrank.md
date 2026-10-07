@@ -45,7 +45,8 @@ original network. With `alr_h_mode = "all"` they use the simple
 undirected skeleton, `"out"` uses the out-degrees of out-neighbors and
 `"in"` the in-degrees of in-neighbors. The returned scores omit the
 ground, so they sum to less than \\N\\. A node with H-index 0 scores 0,
-and when every H-index is 0 all scores are `NaN` without a warning.
+and when every H-index is 0 all scores are `NaN` with a
+`cograph_undefined_measure` warning.
 
 ## References
 

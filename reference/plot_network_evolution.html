@@ -13,7 +13,7 @@ share one node layout. At least two periods are required."><meta property="og:im
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -93,7 +93,8 @@ data frame input and ignored if <code>x</code> is a list.</p></dd>
 
 <dt id="arg-slices">slices<a class="anchor" aria-label="anchor" href="#arg-slices"></a></dt>
 <dd><p>Integer or NULL. Number of equal-width bins of the numeric
-time column. Default NULL uses the unique time values.</p></dd>
+time column. Default NULL uses the unique time values. Bins work with
+<code>cumulative = TRUE</code> as well.</p></dd>
 
 
 <dt id="arg-cumulative">cumulative<a class="anchor" aria-label="anchor" href="#arg-cumulative"></a></dt>
@@ -109,9 +110,12 @@ for list input.</p></dd>
 
 
 <dt id="arg-layout">layout<a class="anchor" aria-label="anchor" href="#arg-layout"></a></dt>
-<dd><p>Character. Any character value computes one
-Fruchterman-Reingold layout from the union of all edges and uses it for
-every panel. Default <code>"spring"</code>.</p></dd>
+<dd><p>Character, or a matrix or data frame of coordinates. Any
+character value computes one Fruchterman-Reingold layout from the union
+of all edges and uses it for every panel. A matrix or data frame gives
+the x and y coordinates of the nodes in its first two columns, one row
+per node; rows named after the nodes are matched by name, otherwise they
+are taken in node order. Default <code>"spring"</code>.</p></dd>
 
 
 <dt id="arg-ncol">ncol<a class="anchor" aria-label="anchor" href="#arg-ncol"></a></dt>

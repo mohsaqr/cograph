@@ -33,11 +33,11 @@ A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-\\A\\ holds the edge weights. Edge weights are always used, and
-`weighted = FALSE` has no effect. Both scores are scaled to a maximum of
-one, so they lie between 0 and 1. On an undirected network both equal
-eigenvector centrality. A network without edges gives every node a score
-of one. `centrality_hub()` returns the hub scores.
+\\A\\ holds the edge weights, or ones with `weighted = FALSE`. Both
+scores are scaled to a maximum of one, so they lie between 0 and 1. On
+an undirected network both equal eigenvector centrality. A network
+without edges gives every node a score of one. `centrality_hub()`
+returns the hub scores.
 
 ## References
 

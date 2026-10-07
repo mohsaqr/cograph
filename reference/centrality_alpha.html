@@ -15,7 +15,7 @@ vector of ones, the defaults of igraph::alpha_centrality()."><meta property="og:
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -75,8 +75,8 @@ vector of ones, the defaults of <code><a href="https://r.igraph.org/reference/al
 
 
 <dt id="arg-mode">mode<a class="anchor" aria-label="anchor" href="#arg-mode"></a></dt>
-<dd><p>Accepted for a uniform interface. It has no effect. Default
-<code>"all"</code>.</p></dd>
+<dd><p>For directed networks: <code>"all"</code> (default), <code>"in"</code> or
+<code>"out"</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -91,13 +91,18 @@ order.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>\(A\) holds the edge weights with the diagonal set to zero. Edge weights
-are always used, and <code>weighted = FALSE</code> has no effect. The
+    <p>\(A\) holds the edge weights, or ones with <code>weighted = FALSE</code>,
+with the diagonal set to zero. The
 <code>alpha</code> argument of <code><a href="centrality.html">centrality</a></code> is the weight-inversion
 exponent, which this measure does not read. The
 scores are positive when the spectral radius of \(A\) is below one and
 can be negative otherwise. A singular system or a negative edge weight
 raises an error of class <code>cograph_singular_system</code>.</p>
+<p>On a directed network <code>mode = "in"</code> sums over incoming ties as above
+and equals <code><a href="https://r.igraph.org/reference/alpha_centrality.html" class="external-link">igraph::alpha_centrality()</a></code>, <code>mode = "out"</code> uses
+\(A\) in place of \(A^{T}\) and so sums over outgoing ties, and
+<code>mode = "all"</code> (default) uses the symmetrized weights
+\(A + A^{T}\). On an undirected network the three modes agree.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -116,9 +121,9 @@ for asymmetric relations. Social Networks, 23(3), 191-201.
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">centrality_alpha</span><span class="op">(</span><span class="va">regulation_net</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   4.226004   1.997912   5.811274   4.935278   4.717213   3.477159   1.838997 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1294030 -2.1294525 -2.2733148 -1.2166591  0.6012820 -0.3834963  0.6523346 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Evaluate     Create      Share </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   3.553234   4.036556   3.788677 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -2.0816623 -2.0691360 -2.3130493 </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

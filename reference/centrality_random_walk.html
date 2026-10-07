@@ -15,7 +15,7 @@ where \(m_{ij}\) is the mean first passage time from \(i\) to
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -85,11 +85,11 @@ order.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Edge weights are ignored. A disconnected network gives <code>NA</code> for every
-node with a warning that carries no condition class. On a directed
-network that is not strongly connected, some nodes have stationary
-probability zero, their passage times are set to 0, and the scores are
-then not random-walk distances. The passage times are symmetrized before
+    <p>Edge weights are ignored. The measure is defined for connected undirected
+and strongly connected directed networks. On any other network every
+score is <code>NA</code>, with a <code>cograph_undefined_measure</code> warning,
+because some passage times are infinite. The passage times are
+symmetrized before
 the sum, so the values differ from
 <code><a href="https://tidygraph.data-imaginist.com/reference/centrality.html" class="external-link">tidygraph::centrality_random_walk()</a></code>, which sums them unsymmetrized.</p>
     </div>

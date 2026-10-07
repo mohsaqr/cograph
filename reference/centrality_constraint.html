@@ -17,7 +17,7 @@ Low constraint marks access to structural holes."><meta property="og:image" cont
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,8 +90,8 @@ order.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Ties are symmetrized as \(w_{ij} + w_{ji}\) before the
-proportions are formed, so edge direction is ignored. Edge weights are
-always used, and <code>weighted = FALSE</code> has no effect. The values match
+proportions are formed, so edge direction is ignored. With
+<code>weighted = FALSE</code> every tie has weight one. The values match
 <code><a href="https://r.igraph.org/reference/constraint.html" class="external-link">igraph::constraint()</a></code>. An isolated node returns <code>NaN</code>, and a
 node whose only tie is a self-loop scores 0.</p>
     </div>

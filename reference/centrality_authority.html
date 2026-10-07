@@ -17,7 +17,7 @@ the dominant eigenvector of \(A A^{T}\)."><meta property="og:image" content="htt
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,8 +91,8 @@ order.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>\(A\) holds the edge weights. Edge weights are always used, and
-<code>weighted = FALSE</code> has no effect. Both scores are scaled to a maximum
+    <p>\(A\) holds the edge weights, or ones with <code>weighted = FALSE</code>.
+Both scores are scaled to a maximum
 of one, so they lie between 0 and 1. On an undirected network both equal
 eigenvector centrality. A network without edges gives every node a score
 of one. <code>centrality_hub()</code> returns the hub scores.</p>

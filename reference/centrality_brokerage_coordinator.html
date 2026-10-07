@@ -15,7 +15,7 @@ in the notation of the source."><meta property="og:image" content="https://sonso
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,9 +91,11 @@ order. <code>normalized = TRUE</code> returns a numeric vector.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The measure is defined for directed networks. On an undirected network it
-raises an unclassed warning and returns <code>NA</code>, and the same happens when
-<code>membership</code> is missing. A <code>membership</code> whose length differs from
-the number of nodes raises an unclassed error. Group labels may be numbers
+returns <code>NA</code> with a <code>cograph_undefined_measure</code> warning, and the
+same happens when <code>membership</code> is missing, where the warning also has
+class <code>cograph_bad_membership</code>. A <code>membership</code> whose length
+differs from the number of nodes raises a <code>cograph_bad_membership</code>
+error. Group labels may be numbers
 or strings. Edge weights and self-loops are ignored. The other four roles
 are <code><a href="centrality_brokerage_itinerant.html">centrality_brokerage_itinerant</a></code>,
 <code><a href="centrality_brokerage_representative.html">centrality_brokerage_representative</a></code>,

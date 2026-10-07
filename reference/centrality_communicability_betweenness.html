@@ -17,7 +17,7 @@ $$\omega_r = \frac{1}{(n-1)(n-2)} \sum_{p \ne q,\; p, q \ne r}
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,10 +91,10 @@ order.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>\(A\) is the binary adjacency matrix, so edge weights are ignored. The
 scores lie between 0 and 1. The measure is defined for undirected networks.
-On a directed network the matrix exponential needs the inverse of an
-eigenvector matrix, and when that matrix is singular the function stops
-with an unclassed error, as it does for <code>regulation_net</code>.
-<code>directed = FALSE</code> gives the undirected reading.</p>
+On a directed network \(G\) and \(G^{(r)}\) are computed by
+scaling and squaring with a Pade approximation, as in
+<code><a href="centrality_communicability.html">centrality_communicability</a></code>, so the measure is defined there
+as well. <code>directed = FALSE</code> gives the undirected reading.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

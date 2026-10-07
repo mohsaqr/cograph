@@ -139,9 +139,11 @@ csum(
 
 - directed:
 
-  Logical. Default `TRUE`. The value is recorded in `meta$directed` and
-  does not change the weights. With `type = "cooccurrence"` the weights
-  are symmetrized and `meta$directed` is `FALSE` whatever this value is.
+  Logical. Default `TRUE`. With `FALSE` the node-level weights are
+  symmetrized as \\(A + A^T) / 2\\ before aggregation, so the direction
+  of a tie is ignored, and `meta$directed` is `FALSE`. With
+  `type = "cooccurrence"` the aggregated weights are symmetrized and
+  `meta$directed` is `FALSE` whatever this value is.
 
 - compute_within:
 

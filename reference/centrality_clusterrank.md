@@ -60,7 +60,7 @@ ONE, 8(10), e77455.
 ``` r
 centrality_clusterrank(regulation_net)
 #>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
-#>   14.00000   16.00000   22.00000   13.33333    8.00000   14.80000   15.50000 
+#>   21.00000   22.40000   29.33333   13.33333   12.00000   14.80000   15.50000 
 #>   Evaluate     Create      Share 
-#>   19.50000   19.80952   18.80000 
+#>   19.50000   27.73333   28.20000 
 ```

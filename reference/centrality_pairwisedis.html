@@ -15,7 +15,7 @@ where \(|P(G)|\) is the number of ordered pairs \((s, t)\),
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,7 +86,7 @@ order.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The measure needs a directed network. On undirected input every score is
-<code>NA</code> with a warning that carries no condition class. Reachability
+<code>NA</code> with a <code>cograph_undefined_measure</code> warning. Reachability
 uses hop counts, so edge weights are ignored. The score lies between 0
 and 1, and a network without reachable pairs scores 0 everywhere. The
 values equal <code><a href="https://rdrr.io/pkg/centiserve/man/pairwisedis.html" class="external-link">centiserve::pairwisedis()</a></code>.</p>

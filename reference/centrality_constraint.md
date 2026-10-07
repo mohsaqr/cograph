@@ -32,8 +32,8 @@ A named numeric vector with one score per node, in input node order.
 ## Details
 
 Ties are symmetrized as \\w\_{ij} + w\_{ji}\\ before the proportions are
-formed, so edge direction is ignored. Edge weights are always used, and
-`weighted = FALSE` has no effect. The values match
+formed, so edge direction is ignored. With `weighted = FALSE` every tie
+has weight one. The values match
 [`igraph::constraint()`](https://r.igraph.org/reference/constraint.html).
 An isolated node returns `NaN`, and a node whose only tie is a self-loop
 scores 0.

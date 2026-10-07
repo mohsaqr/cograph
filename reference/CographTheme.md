@@ -182,7 +182,8 @@ List of parameters.
 ### Method [`merge()`](https://rdrr.io/r/base/merge.html)
 
 Merge with another theme. Parameters in `other` replace the matching
-parameters of this theme.
+parameters of this theme; parameters present in only one of the two,
+including ones added with `$set()`, are kept.
 
 #### Usage
 
@@ -202,7 +203,7 @@ A new CographTheme named `"merged"`.
 
 ### Method `clone_theme()`
 
-Clone the theme.
+Clone the theme. Parameters added with `$set()` are copied as well.
 
 #### Usage
 

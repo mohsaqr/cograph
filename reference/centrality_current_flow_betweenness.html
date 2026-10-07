@@ -25,7 +25,7 @@ the pseudoinverse of the Laplacian, and the inner sum is set to zero for
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -102,11 +102,12 @@ order.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The measure is defined for connected undirected networks. On a
-disconnected network every score is <code>NA</code>, with an unclassed warning.
+disconnected network every score is <code>NA</code>, with a
+<code>cograph_undefined_measure</code> warning.
 On a directed network the Laplacian is built from the asymmetric weight
-matrix, and <code>directed = FALSE</code> gives the undirected reading. With
-<code>weighted = FALSE</code> the potentials still come from the weighted
-Laplacian while the currents are read off the binary adjacency matrix.
+matrix, and <code>directed = FALSE</code> gives the undirected reading. The
+potentials and the currents come from the same weights, and
+<code>weighted = FALSE</code> gives every edge conductance one.
 The fixed factor \(2/((n-1)(n-2))\) is the normalization of
 <code>networkx::current_flow_betweenness_centrality()</code>.</p>
     </div>

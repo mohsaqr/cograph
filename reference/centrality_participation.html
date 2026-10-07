@@ -15,7 +15,7 @@ where \(k_{is}\) counts the ties of node \(i\) to community
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -99,8 +99,9 @@ order.</p>
 <code>mode = "all"</code> on a directed network a reciprocated tie counts twice.
 A node whose ties all stay in one community scores 0, as does an isolated
 node, and the score is below 1. Without <code>membership</code> every score is
-<code>NA</code> with a warning that carries no condition class, and a
-<code>membership</code> of the wrong length raises an error. On undirected
+<code>NA</code> with a warning of classes <code>cograph_bad_membership</code> and
+<code>cograph_undefined_measure</code>, and a <code>membership</code> of the wrong
+length raises a <code>cograph_bad_membership</code> error. On undirected
 networks the values equal <code><a href="https://rdrr.io/pkg/brainGraph/man/vertex_roles.html" class="external-link">brainGraph::part_coeff()</a></code>.</p>
     </div>
     <div class="section level2">

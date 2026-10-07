@@ -47,7 +47,8 @@ Edge weights are read as path lengths. `invert_weights = TRUE` uses
 `weighted = FALSE` counts hops. `mode` sets the direction of the paths.
 The values equal those of
 [`centrality_decay`](https://sonsoles.me/cograph/reference/centrality_decay.md)
-with the same `decay_parameter`, which is not checked.
+with the same `decay_parameter`, which must lie strictly between 0 and
+1; other values raise a `cograph_bad_parameter` error.
 
 ## See also
 

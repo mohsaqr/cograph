@@ -43,13 +43,12 @@ A named numeric vector with one score per node, in input node order.
 ## Details
 
 Edge weights are read as path lengths, and `invert_weights = TRUE` uses
-\\1/w^\alpha\\ instead. Edge weights are always used, and
-`weighted = FALSE` has no effect. `mode = "out"` follows paths leaving
-the node and `mode = "in"` paths arriving at it.
-`centrality_outcloseness()` and `centrality_incloseness()` are these two
-forms. A node that reaches no other node returns `NaN`.
-`normalized = TRUE` multiplies each score by the number of other nodes
-the node reaches, as igraph does.
+\\1/w^\alpha\\ instead. `weighted = FALSE` uses hop counts.
+`mode = "out"` follows paths leaving the node and `mode = "in"` paths
+arriving at it. `centrality_outcloseness()` and
+`centrality_incloseness()` are these two forms. A node that reaches no
+other node returns `NaN`. `normalized = TRUE` multiplies each score by
+the number of other nodes the node reaches, as igraph does.
 
 ## References
 

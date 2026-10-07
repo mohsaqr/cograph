@@ -43,9 +43,10 @@ Edge weights are ignored. `mode` selects the ties counted, and with
 `mode = "all"` on a directed network a reciprocated tie counts twice. A
 node whose ties all stay in one community scores 0, as does an isolated
 node, and the score is below 1. Without `membership` every score is `NA`
-with a warning that carries no condition class, and a `membership` of
-the wrong length raises an error. On undirected networks the values
-equal
+with a warning of classes `cograph_bad_membership` and
+`cograph_undefined_measure`, and a `membership` of the wrong length
+raises a `cograph_bad_membership` error. On undirected networks the
+values equal
 [`brainGraph::part_coeff()`](https://rdrr.io/pkg/brainGraph/man/vertex_roles.html).
 
 ## References

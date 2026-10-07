@@ -31,10 +31,13 @@ A named numeric vector with one score per node, in input node order.
 ## Details
 
 The walk moves from a node to each of its out-neighbors with equal
-probability, so edge weights are ignored. A disconnected network gives
-`NA` for every node with a warning that carries no condition class. On a
-directed network that is connected but not strongly connected some
-scores are `NA` without a warning. The values equal
+probability, so edge weights are ignored. A disconnected network, or a
+directed network with a node that has no outgoing edge, gives `NA` for
+every node with a `cograph_undefined_measure` warning. On a directed
+network that is not strongly connected, a node that some other node
+cannot reach has an infinite mean passage time, and its score is `NA`
+with the same warning. On connected undirected and strongly connected
+directed networks the values equal
 [`centiserve::markovcent()`](https://rdrr.io/pkg/centiserve/man/markovcent.html).
 
 ## References

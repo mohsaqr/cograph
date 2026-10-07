@@ -33,10 +33,9 @@ A named numeric vector with one score per node, in input node order.
 ## Details
 
 On a directed network incoming and outgoing edges are separate entries,
-and \\k_v\\ counts both. Edge weights are always used, and
-`weighted = FALSE` has no effect. On an unweighted input every node with
-two or more edges scores 1. A node with fewer than two edges, or with
-edge weights summing to zero, scores 0.
+and \\k_v\\ counts both. With `weighted = FALSE`, or on an unweighted
+input, every node with two or more edges scores 1. A node with fewer
+than two edges, or with edge weights summing to zero, scores 0.
 
 ## References
 

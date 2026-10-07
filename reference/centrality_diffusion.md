@@ -47,9 +47,9 @@ The `"kandhway_kuri"` form uses binary degrees, so edge weights are
 ignored, and `mode` sets both the degrees and the neighbor set. On a
 directed network `mode = "all"` uses total degrees and the undirected
 neighbor set. `lambda` multiplies every score. The `"power_series"` form
-uses the edge weights and ignores `mode`, `lambda` and `weighted`. With
-`loops = FALSE` the diagonal of \\W\\ is set to zero. The
-`"power_series"` values match
+uses the edge weights, or ones with `weighted = FALSE`, and ignores
+`mode` and `lambda`. With `loops = FALSE` the diagonal of \\W\\ is set
+to zero. The `"power_series"` values match
 `tna::centralities(measures = "Diffusion")`.
 
 ## See also

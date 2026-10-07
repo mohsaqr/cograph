@@ -34,10 +34,11 @@ A named numeric vector with one score per node, in input node order.
 ## Details
 
 The measure is defined for connected undirected networks. On a
-disconnected network every score is `NA`, with an unclassed warning. On
-a directed network the Laplacian is built from the asymmetric weight
-matrix, and `directed = FALSE` gives the undirected reading. Edge
-weights are always used, and `weighted = FALSE` has no effect.
+disconnected network every score is `NA`, with a
+`cograph_undefined_measure` warning. On a directed network the Laplacian
+is built from the asymmetric weight matrix, and `directed = FALSE` gives
+the undirected reading. Edge weights are conductances, and
+`weighted = FALSE` gives every edge conductance one.
 
 ## References
 

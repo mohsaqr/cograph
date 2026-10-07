@@ -17,7 +17,7 @@ eigenvector approximation of the paper (eq. 5)."><meta property="og:image" conte
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -95,7 +95,7 @@ self-loops are removed. Negative or non-finite weights raise an error.
 The scores lie between 0 and 1 and are unchanged when every arc is
 reversed, so <code>mode</code> has no effect. A network with spectral radius
 0, such as any directed acyclic network, gives <code>NaN</code> for every
-node without a warning. An isolated node in a network with positive
+node with a <code>cograph_undefined_measure</code> warning. An isolated node in a network with positive
 spectral radius scores 0.</p>
     </div>
     <div class="section level2">

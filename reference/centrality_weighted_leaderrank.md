@@ -43,9 +43,10 @@ arcs. Edge weights, loops and parallel arcs are ignored, and `mode` has
 no effect. The returned scores omit the ground, so they sum to less than
 \\N+1\\. With \\\alpha = 0\\ every ground arc has weight 1. With a
 positive \\\alpha\\ a node with in-degree 0 scores 0, and when every
-in-degree is 0 all scores are `NaN` without a warning. A negative
-\\\alpha\\ requires a positive in-degree at every node and raises an
-error otherwise.
+in-degree is 0 all scores are `NaN` with a `cograph_undefined_measure`
+warning. A negative \\\alpha\\ requires a positive in-degree at every
+node and raises a `cograph_bad_parameter` error otherwise, as does a
+`wlr_alpha` that is not a finite number.
 
 ## References
 

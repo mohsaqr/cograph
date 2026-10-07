@@ -15,7 +15,7 @@ centrality_outstrength() are these two forms.'><meta property="og:image" content
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -96,8 +96,9 @@ order.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The stored weights are always summed, and <code>weighted = FALSE</code> has no
-effect; <code><a href="centrality_degree.html">centrality_degree</a></code> counts edges. A self-loop
+    <p>The stored weights are summed, and <code>weighted = FALSE</code> gives every
+edge weight one, so the scores equal <code><a href="centrality_degree.html">centrality_degree</a></code>. A
+self-loop
 counts twice on an undirected network and under <code>mode = "all"</code>, and
 once under <code>"in"</code> or <code>"out"</code>; <code>loops = FALSE</code> drops it.
 Negative weights are summed with their sign. <code>normalized = TRUE</code>

@@ -15,7 +15,7 @@ centrality divided by \(n - 1\)."><meta property="og:image" content="https://son
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,8 +91,8 @@ order.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>A network counts as weighted unless every weight is 1, and
-<code>weighted = FALSE</code> has no effect. In the weighted form a shortest
-path uses the edge lengths \(W/w_e\), with \(W\) the total
+<code>weighted = FALSE</code> gives the unweighted form. In the weighted form
+a shortest path uses the edge lengths \(W/w_e\), with \(W\) the total
 edge weight, and each reached node contributes the mean edge weight along
 its path; the sum is divided by \(n - 1\). With <code>mode = "out"</code> the
 weighted values equal <code>networkx.local_reaching_centrality()</code> with

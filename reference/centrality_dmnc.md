@@ -42,11 +42,12 @@ A named numeric vector with one score per node, in input node order.
 
 Edge weights are ignored, and `mode` sets the neighbor set. On an
 undirected network the result follows this definition. On a directed
-network the component is a strongly connected component, and its nodes
-are read from the neighbor list with each reciprocated neighbor listed
-twice, as in the centiserve package. The edge count can then belong to a
-different node set, and scores above one occur. The value of
-`dmnc_epsilon` is not checked.
+network the component is a strongly connected component of the induced
+subnetwork, \\E\\ counts its directed edges, and a reciprocated neighbor
+enters the subnetwork once. When several components share the largest
+size, \\E\\ counts the edges among all of their nodes. A `dmnc_epsilon`
+that is not a single positive finite number raises a
+`cograph_bad_parameter` error.
 
 ## References
 

@@ -31,7 +31,9 @@ layout_oval(
 
 - order:
 
-  Optional vector specifying node order (indices or labels).
+  Optional vector specifying node order, as node indices or as node
+  labels. Labels are matched for both `CographNetwork` and
+  `cograph_network` input.
 
 - start_angle:
 

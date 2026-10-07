@@ -19,7 +19,7 @@ and self-loops are removed."><meta property="og:image" content="https://sonsoles
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -108,7 +108,9 @@ degree-preserving random graphs and report the null distribution. The
 null graphs are generated with <code><a href="https://r.igraph.org/reference/sample_degseq.html" class="external-link">igraph::sample_degseq()</a></code>, which fixes
 the degree sequence. For a weighted rich club the observed edge weights
 are also reshuffled across the null edges, following Opsahl et al.
-(2008).</p></dd>
+(2008). A null graph that <code>sample_degseq()</code> cannot draw is left
+out with a warning of class <code>"cograph_null_draw_failed"</code> that
+reports how many draws failed.</p></dd>
 
 
 <dt id="arg-n-random">n_random<a class="anchor" aria-label="anchor" href="#arg-n-random"></a></dt>

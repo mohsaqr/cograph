@@ -35,7 +35,7 @@ communities."><meta property="og:image" content="https://sonsoles.me/cograph/log
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -150,8 +150,9 @@ recommends. The prose of Gupta et al. writes \(\mu_C\) where their
 equation has \(1 + \mu_C\), and the equation is implemented.
 Nodes
 linked to one community only score 0 on the mediator measure. Without
-<code>membership</code> each function raises an unclassed warning and returns
-<code>NA</code>. A <code>membership</code> that is not one non-missing label per node
+<code>membership</code> each function raises a warning of classes <code>cograph_bad_membership</code> and
+<code>cograph_undefined_measure</code> and
+returns <code>NA</code>. A <code>membership</code> that is not one non-missing label per node
 raises an error of class <code>cograph_bad_membership</code>, and an invalid
 <code>comm_r</code> raises <code>cograph_bad_parameter</code>.</p>
     </div>

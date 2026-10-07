@@ -17,7 +17,7 @@ adjacency matrices."><meta property="og:image" content="https://sonsoles.me/cogr
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -89,7 +89,7 @@ order.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The measure needs a directed network. On undirected input every score is
-<code>NA</code> with a warning that carries no condition class. Edge weights are
+<code>NA</code> with a <code>cograph_undefined_measure</code> warning. Edge weights are
 ignored. The scores are scaled so that the largest is 1, and a node
 without incoming edges scores 0.</p>
     </div>

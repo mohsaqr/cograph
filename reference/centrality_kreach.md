@@ -41,11 +41,10 @@ Edge weights are read as distances, so on a weighted network \\k\\ is
 compared with the summed weights along a path; on `regulation_net`,
 whose weights lie below one, every node reaches all others within \\k =
 1\\. `invert_weights = TRUE` converts a weight \\w\\ to the distance
-\\1/w^\alpha\\. `weighted = FALSE` has no effect, because the measure
-then reads the weights stored in the network; a hop-count reach needs a
-binary input such as `(x != 0) * 1`. `mode = "all"` treats edges as
-undirected, `"out"` counts nodes reached from the node and `"in"` nodes
-that reach it. A `k` of zero or below raises an error.
+\\1/w^\alpha\\. `weighted = FALSE` uses hop counts. `mode = "all"`
+treats edges as undirected, `"out"` counts nodes reached from the node
+and `"in"` nodes that reach it. A `k` of zero or below raises a
+`cograph_bad_parameter` error.
 
 ## References
 

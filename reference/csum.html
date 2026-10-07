@@ -11,7 +11,7 @@ within-cluster connections per cluster."><meta property="og:image" content="http
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -176,10 +176,12 @@ as computed.</p></dd>
 
 
 <dt id="arg-directed">directed<a class="anchor" aria-label="anchor" href="#arg-directed"></a></dt>
-<dd><p>Logical. Default <code>TRUE</code>. The value is recorded in
-<code>meta$directed</code> and does not change the weights. With
-<code>type = "cooccurrence"</code> the weights are symmetrized and
-<code>meta$directed</code> is <code>FALSE</code> whatever this value is.</p></dd>
+<dd><p>Logical. Default <code>TRUE</code>. With <code>FALSE</code> the
+node-level weights are symmetrized as \((A + A^T) / 2\)
+before aggregation, so the direction of a tie is ignored, and
+<code>meta$directed</code> is <code>FALSE</code>. With <code>type = "cooccurrence"</code>
+the aggregated weights are symmetrized and <code>meta$directed</code> is
+<code>FALSE</code> whatever this value is.</p></dd>
 
 
 <dt id="arg-compute-within">compute_within<a class="anchor" aria-label="anchor" href="#arg-compute-within"></a></dt>

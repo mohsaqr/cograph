@@ -39,7 +39,8 @@ plot_network_evolution(
 - slices:
 
   Integer or NULL. Number of equal-width bins of the numeric time
-  column. Default NULL uses the unique time values.
+  column. Default NULL uses the unique time values. Bins work with
+  `cumulative = TRUE` as well.
 
 - cumulative:
 
@@ -54,9 +55,12 @@ plot_network_evolution(
 
 - layout:
 
-  Character. Any character value computes one Fruchterman-Reingold
-  layout from the union of all edges and uses it for every panel.
-  Default `"spring"`.
+  Character, or a matrix or data frame of coordinates. Any character
+  value computes one Fruchterman-Reingold layout from the union of all
+  edges and uses it for every panel. A matrix or data frame gives the x
+  and y coordinates of the nodes in its first two columns, one row per
+  node; rows named after the nodes are matched by name, otherwise they
+  are taken in node order. Default `"spring"`.
 
 - ncol:
 

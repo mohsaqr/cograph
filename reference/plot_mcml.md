@@ -125,9 +125,11 @@ plot_mcml(
 
 - mode:
 
-  `"weights"` (default) or `"tna"`. With `"tna"`, `edge_labels` and
-  `summary_edge_labels` default to `TRUE` unless they are supplied. The
-  plotted weights are the same in both modes.
+  `"weights"` (default) or `"tna"`. With `"weights"` the summary layer
+  shows the raw aggregated weights of a directed network. With `"tna"`
+  they are row-normalized into transition probabilities, and
+  `edge_labels` and `summary_edge_labels` default to `TRUE` unless they
+  are supplied.
 
 - theme:
 
@@ -489,10 +491,13 @@ A weight matrix, tna object or cograph_network is passed together with
 `x` instead, which avoids repeating the aggregation when the same
 clustering is plotted several times.
 
-For a directed network the aggregated weights are computed with
-`type = "tna"`, so each row of the summary matrix sums to 1. For an
-undirected network they are computed with `type = "cooccurrence"`. The
-`mode` argument changes only the default of the edge labels.
+For a directed network, `mode = "weights"` plots the aggregated weights
+as computed (`type = "raw"` in
+[`csum`](https://sonsoles.me/cograph/reference/csum.md)), and
+`mode = "tna"` row-normalizes them (`type = "tna"`), so each row of the
+summary matrix sums to 1. For an undirected network the weights are
+computed with `type = "cooccurrence"` in both modes. A `cluster_summary`
+passed as `x` is plotted with the weights it already holds.
 
 Bottom-layer clusters are arranged on a circle of radius `spacing`,
 flattened by the perspective `skew_angle`. Nodes inside each cluster sit

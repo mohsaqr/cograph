@@ -6,9 +6,9 @@ eigenvalues of the binary adjacency matrix. Edge weights are ignored.
 For an undirected network the index equals \\\sum_k M_k / k!\\, where
 \\M_k\\ is the number of closed walks of length \\k\\, and it is the sum
 of the subgraph centralities of all nodes. For a directed network the
-function sums \\e^{Re(\lambda_i)}\\ over the real parts of the
-eigenvalues, which differs from the closed-walk sum when the adjacency
-matrix has complex eigenvalues.
+eigenvalues may be complex. They come in conjugate pairs, so the sum of
+their exponentials is real and again equals the trace of \\e^A\\, the
+weighted count of closed walks.
 
 ## Usage
 
@@ -42,5 +42,5 @@ for the per-node measure. On an undirected network its values sum to
 
 ``` r
 estrada_index(regulation_net)
-#> [1] 24.23546
+#> [1] 21.01953
 ```

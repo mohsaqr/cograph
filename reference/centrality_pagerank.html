@@ -19,7 +19,7 @@ damping."><meta property="og:image" content="https://sonsoles.me/cograph/logo.pn
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,7 +86,8 @@ where \(P\) is the row-normalized weight matrix and \(d\) is
 
 <dt id="arg-personalized">personalized<a class="anchor" aria-label="anchor" href="#arg-personalized"></a></dt>
 <dd><p>Reset distribution \(p\), a non-negative numeric
-vector with one entry per node in input node order. The default
+vector with one entry per node, named by node or in input node order.
+The default
 <code>NULL</code> gives the uniform distribution.</p></dd>
 
 
@@ -101,14 +102,15 @@ order.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Edge weights are always used, and <code>weighted = FALSE</code> has no effect.
-A node without out-edges passes its score to the reset distribution. The
-scores sum to one and equal <code><a href="https://r.igraph.org/reference/page_rank.html" class="external-link">igraph::page_rank()</a></code>. The vector
-<code>personalized</code> is rescaled to sum to one and matched to nodes by
-position; its names are ignored. A negative weight raises a
+    <p><code>weighted = FALSE</code> gives every edge weight one. A node without
+out-edges passes its score to the reset distribution. The scores sum to
+one and equal <code><a href="https://r.igraph.org/reference/page_rank.html" class="external-link">igraph::page_rank()</a></code>. The vector <code>personalized</code>
+is rescaled to sum to one. A named vector is matched to the node names,
+and its names must be the node names, each used once; an unnamed vector
+is matched by position. A negative weight raises a
 <code>cograph_negative_weights</code> error, an invalid <code>personalized</code> a
 <code>cograph_bad_input</code> error, and a <code>damping</code> outside
-\([0, 1]\) an error.</p>
+\([0, 1]\) a <code>cograph_bad_parameter</code> error.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

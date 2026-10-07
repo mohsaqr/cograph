@@ -21,7 +21,7 @@ with \(L^{+}\) the pseudoinverse of the Laplacian."><meta property="og:image" co
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -96,10 +96,12 @@ order.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The measure is defined for connected undirected networks. On a
-disconnected network every score is <code>NA</code>, with an unclassed warning.
+disconnected network every score is <code>NA</code>, with a
+<code>cograph_undefined_measure</code> warning.
 On a directed network the Laplacian is built from the asymmetric weight
 matrix, and <code>directed = FALSE</code> gives the undirected reading. Edge
-weights are always used, and <code>weighted = FALSE</code> has no effect.</p>
+weights are conductances, and <code>weighted = FALSE</code> gives every edge
+conductance one.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

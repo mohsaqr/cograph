@@ -32,10 +32,10 @@ A named numeric vector with one score per node, in input node order.
 ## Details
 
 The betweenness factor reads edge weights as path lengths and follows
-the edge direction of a directed network. Edge weights are always used,
-and `weighted = FALSE` and `invert_weights` have no effect. The degrees
-are total degrees, and on a directed network a reciprocated neighbor
-enters the sum twice. An isolated node scores 0.
+the edge direction of a directed network. `weighted = FALSE` uses hop
+counts, and `invert_weights` has no effect. The degrees are total
+degrees, and on a directed network a reciprocated neighbor enters the
+sum twice. An isolated node scores 0.
 
 ## References
 

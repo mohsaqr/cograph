@@ -19,7 +19,7 @@ weights, started with one unit on every node and the ground included."><meta pro
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -103,8 +103,10 @@ has no effect. The returned scores omit the ground, so they sum to less
 than \(N+1\). With \(\alpha = 0\) every ground arc
 has weight 1. With a positive \(\alpha\) a node with in-degree
 0 scores 0, and when every in-degree is 0 all scores are <code>NaN</code>
-without a warning. A negative \(\alpha\) requires a positive
-in-degree at every node and raises an error otherwise.</p>
+with a <code>cograph_undefined_measure</code> warning. A negative
+\(\alpha\) requires a positive in-degree at every node and
+raises a <code>cograph_bad_parameter</code> error otherwise, as does a
+<code>wlr_alpha</code> that is not a finite number.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

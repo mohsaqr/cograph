@@ -21,7 +21,7 @@ where \(T\) is the trace of \(C\) and \(R_i\) the sum of row
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -98,8 +98,9 @@ order.</p>
     <p>The network is symmetrized with \((w_{ij} + w_{ji})/2\),
 so direction is ignored. Edge weights enter as tie strengths, and
 <code>weighted = FALSE</code> uses the binary matrix. Isolated nodes score 0 and
-are left out of \(n\). When \(B\) is singular, as on some disconnected
-networks, every score is <code>NA</code> without a warning. On unweighted
+are left out of \(n\). When the other nodes do not form one connected
+component, or \(B\) is singular, every score is <code>NA</code> with a
+<code>cograph_undefined_measure</code> warning. On unweighted
 undirected networks the values equal <code><a href="https://rdrr.io/pkg/sna/man/infocent.html" class="external-link">sna::infocent()</a></code>.</p>
     </div>
     <div class="section level2">

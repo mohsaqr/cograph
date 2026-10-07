@@ -15,7 +15,7 @@ $$TC(v) = \sum_{w} \left[ e^{A} \right]_{vw}
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,11 +86,13 @@ order.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>\(A\) is the binary adjacency matrix, so edge weights are ignored. The
-matrix exponential is formed from an eigendecomposition that assumes a
-symmetric matrix. On a directed network the result therefore differs from
-the row sums of \(e^{A}\), and <code>directed = FALSE</code> gives the
-undirected reading for which the measure is defined.</p>
+    <p>\(A\) is the binary adjacency matrix, so edge weights are ignored. On an
+undirected network the matrix exponential is formed from the
+eigendecomposition of the symmetric \(A\). On a directed network it is
+computed by scaling and squaring with a Pade approximation (Moler and Van
+Loan 2003), and the scores are the row sums of \(e^{A}\), the
+walks that leave each node. <code>directed = FALSE</code> gives the undirected
+reading.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -100,6 +102,10 @@ Physical Review E, 77(3), 036111. <a href="https://doi.org/10.1103/PhysRevE.77.0
 <p>Benzi, M., &amp; Klymko, C. (2013). Total communicability as a centrality
 measure. Journal of Complex Networks, 1(2), 124-149.
 <a href="https://doi.org/10.1093/comnet/cnt007" class="external-link">doi:10.1093/comnet/cnt007</a>
+.</p>
+<p>Moler, C., &amp; Van Loan, C. (2003). Nineteen dubious ways to compute the
+exponential of a matrix, twenty-five years later. SIAM Review, 45(1),
+3-49. <a href="https://doi.org/10.1137/S00361445024180" class="external-link">doi:10.1137/S00361445024180</a>
 .</p>
     </div>
     <div class="section level2">

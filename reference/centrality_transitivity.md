@@ -41,21 +41,23 @@ A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Triangles are counted on the undirected skeleton and edge weights are
-ignored. On a directed network \\k_i\\ is the total degree, in plus out,
-so a reciprocated tie counts twice and the values can be lower than
-`igraph::transitivity(type = "local")`, which uses the skeleton degree.
-`"localundirected"` gives the same values as `"local"`. `"global"` and
-`"undirected"` return the network-level ratio of closed to connected
-triples for every node. `"barrat"` and `"weighted"` compute the weighted
-coefficient of Barrat et al. (2004) and raise a
+Triangles and degrees are counted on the undirected skeleton, so a
+reciprocated tie counts once, and edge weights are ignored. The values
+equal `igraph::transitivity(type = "local")` on directed and undirected
+networks. `"localundirected"` gives the same values as `"local"`, as in
+igraph. `"global"` and `"undirected"` return the network-level ratio of
+closed to connected triples for every node. `"barrat"` and `"weighted"`
+compute the weighted coefficient of Barrat et al. (2004) and raise a
 `cograph_directed_unsupported` error on directed input. `"onnela"`
-computes \\(M^3)\_{ii} / (s_i^2 - \sum_j M\_{ij}^2)\\ on \\M = W +
-W^{T}\\ with strengths \\s_i\\, the value
+computes the weighted clustering coefficient of Zhang and Horvath
+(2005), \\(M^3)\_{ii} / (s_i^2 - \sum_j M\_{ij}^2)\\ on \\M = W +
+W^{T}\\ with strengths \\s_i\\. This is the value
 [`tna::centralities()`](https://sonsoles.me/tna/reference/centralities.html)
-reports as Clustering, and it is the default for tna input. Under the
-local and Barrat types a node with fewer than two ties is `NaN`, or 0
-with `isolates = "zero"`.
+reports as Clustering, and it is the default for tna input. The option
+keeps the name `"onnela"` used by tna, but the formula multiplies the
+raw weights of a triangle and differs from the geometric-mean form of
+Onnela et al. (2005). Under the local and Barrat types a node with fewer
+than two neighbors is `NaN`, or 0 with `isolates = "zero"`.
 
 ## References
 
@@ -68,6 +70,17 @@ Barrat, A., Barthelemy, M., Pastor-Satorras, R., & Vespignani, A.
 the National Academy of Sciences, 101(11), 3747-3752.
 [doi:10.1073/pnas.0400087101](https://doi.org/10.1073/pnas.0400087101) .
 
+Zhang, B., & Horvath, S. (2005). A general framework for weighted gene
+co-expression network analysis. Statistical Applications in Genetics and
+Molecular Biology, 4(1), Article 17.
+[doi:10.2202/1544-6115.1128](https://doi.org/10.2202/1544-6115.1128) .
+
+Onnela, J.-P., Saramaki, J., Kertesz, J., & Kaski, K. (2005). Intensity
+and coherence of motifs in weighted complex networks. Physical Review E,
+71(6), 065103.
+[doi:10.1103/PhysRevE.71.065103](https://doi.org/10.1103/PhysRevE.71.065103)
+.
+
 ## See also
 
 [`centrality_clusterrank`](https://sonsoles.me/cograph/reference/centrality_clusterrank.md),
@@ -79,7 +92,7 @@ the National Academy of Sciences, 101(11), 3747-3752.
 ``` r
 centrality_transitivity(regulation_net)
 #>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
-#>  0.3333333  0.3333333  0.3928571  0.3333333  0.2000000  0.4000000  0.5000000 
+#>  0.5000000  0.4666667  0.5238095  0.3333333  0.3000000  0.4000000  0.5000000 
 #>   Evaluate     Create      Share 
-#>  0.5000000  0.3809524  0.4000000 
+#>  0.5000000  0.5333333  0.6000000 
 ```

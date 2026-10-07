@@ -50,7 +50,9 @@ rich_club(
   [`igraph::sample_degseq()`](https://r.igraph.org/reference/sample_degseq.html),
   which fixes the degree sequence. For a weighted rich club the observed
   edge weights are also reshuffled across the null edges, following
-  Opsahl et al. (2008).
+  Opsahl et al. (2008). A null graph that `sample_degseq()` cannot draw
+  is left out with a warning of class `"cograph_null_draw_failed"` that
+  reports how many draws failed.
 
 - n_random:
 

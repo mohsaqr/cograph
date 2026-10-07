@@ -17,7 +17,7 @@ where \(T_i\) is the number of triangles through node \(i\) and
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -100,21 +100,25 @@ order.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Triangles are counted on the undirected skeleton and edge weights are
-ignored. On a directed network \(k_i\) is the total degree, in plus
-out, so a reciprocated tie counts twice and the values can be lower than
-<code>igraph::transitivity(type = "local")</code>, which uses the skeleton
-degree. <code>"localundirected"</code> gives the same values as
-<code>"local"</code>. <code>"global"</code> and <code>"undirected"</code> return the
-network-level ratio of closed to connected triples for every node.
-<code>"barrat"</code> and <code>"weighted"</code> compute the weighted coefficient of
-Barrat et al. (2004) and raise a <code>cograph_directed_unsupported</code>
-error on directed input. <code>"onnela"</code> computes
+    <p>Triangles and degrees are counted on the undirected skeleton, so a
+reciprocated tie counts once, and edge weights are ignored. The values
+equal <code>igraph::transitivity(type = "local")</code> on directed and
+undirected networks. <code>"localundirected"</code> gives the same values as
+<code>"local"</code>, as in igraph. <code>"global"</code> and <code>"undirected"</code>
+return the network-level ratio of closed to connected triples for every
+node. <code>"barrat"</code> and <code>"weighted"</code> compute the weighted
+coefficient of Barrat et al. (2004) and raise a
+<code>cograph_directed_unsupported</code> error on directed input.
+<code>"onnela"</code> computes the weighted clustering coefficient of Zhang and
+Horvath (2005),
 \((M^3)_{ii} / (s_i^2 - \sum_j M_{ij}^2)\)
-on \(M = W + W^{T}\) with strengths \(s_i\), the value
-<code><a href="https://sonsoles.me/tna/reference/centralities.html" class="external-link">tna::centralities()</a></code> reports as Clustering, and it is the default
-for tna input. Under the local and Barrat types a node with fewer than
-two ties is <code>NaN</code>, or 0 with <code>isolates = "zero"</code>.</p>
+on \(M = W + W^{T}\) with strengths \(s_i\). This is the
+value <code><a href="https://sonsoles.me/tna/reference/centralities.html" class="external-link">tna::centralities()</a></code> reports as Clustering, and it is the
+default for tna input. The option keeps the name <code>"onnela"</code> used by
+tna, but the formula multiplies the raw weights of a triangle and differs
+from the geometric-mean form of Onnela et al. (2005). Under the local and
+Barrat types a node with fewer than two neighbors is <code>NaN</code>, or 0
+with <code>isolates = "zero"</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -126,6 +130,14 @@ two ties is <code>NaN</code>, or 0 with <code>isolates = "zero"</code>.</p>
 The architecture of complex weighted networks. Proceedings of the
 National Academy of Sciences, 101(11), 3747-3752.
 <a href="https://doi.org/10.1073/pnas.0400087101" class="external-link">doi:10.1073/pnas.0400087101</a>
+.</p>
+<p>Zhang, B., &amp; Horvath, S. (2005). A general framework for weighted gene
+co-expression network analysis. Statistical Applications in Genetics and
+Molecular Biology, 4(1), Article 17. <a href="https://doi.org/10.2202/1544-6115.1128" class="external-link">doi:10.2202/1544-6115.1128</a>
+.</p>
+<p>Onnela, J.-P., Saramaki, J., Kertesz, J., &amp; Kaski, K. (2005). Intensity
+and coherence of motifs in weighted complex networks. Physical Review E,
+71(6), 065103. <a href="https://doi.org/10.1103/PhysRevE.71.065103" class="external-link">doi:10.1103/PhysRevE.71.065103</a>
 .</p>
     </div>
     <div class="section level2">
@@ -139,9 +151,9 @@ National Academy of Sciences, 101(11), 3747-3752.
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">centrality_transitivity</span><span class="op">(</span><span class="va">regulation_net</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3333333  0.3333333  0.3928571  0.3333333  0.2000000  0.4000000  0.5000000 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.5000000  0.4666667  0.5238095  0.3333333  0.3000000  0.4000000  0.5000000 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Evaluate     Create      Share </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.5000000  0.3809524  0.4000000 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.5000000  0.5333333  0.6000000 </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

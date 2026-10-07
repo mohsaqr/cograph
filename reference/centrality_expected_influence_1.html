@@ -15,7 +15,7 @@ partial-correlation and other signed networks."><meta property="og:image" conten
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -93,10 +93,9 @@ order.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p><code>mode = "out"</code> (the default here) sums the outgoing weights,
 <code>mode = "in"</code> the incoming weights and <code>mode = "all"</code> both, with
-a self-loop counted once. On an undirected network <code>"out"</code> and
-<code>"in"</code> agree, and <code>"all"</code> counts every edge twice. Edge weights
-are always used, and <code>weighted = FALSE</code> has no effect. On an
-unweighted input the score is the degree in the chosen mode. When the
+a self-loop counted once. On an undirected network the three modes
+agree and each edge is counted once. With <code>weighted = FALSE</code>, or on
+an unweighted input, the score is the degree in the chosen mode. When the
 network has a negative edge, <code>normalized = TRUE</code> divides by the
 largest absolute score and keeps the sign.</p>
     </div>

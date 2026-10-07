@@ -15,7 +15,7 @@ katz_alpha."><meta property="og:image" content="https://sonsoles.me/cograph/logo
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -93,9 +93,9 @@ order.</p>
 \(\rho(A)\) is the spectral radius. A divergent series is
 detected from scores below one and raises a <code>cograph_katz_diverged</code>
 warning that names the bound; the returned values are then not Katz
-scores. Edge weights are always used, and <code>weighted = FALSE</code> has no
-effect. On a directed network the score counts walks that arrive at the
-node. The values equal <code>igraph::alpha_centrality(exo = 1)</code> with the
+scores. <code>weighted = FALSE</code> gives every edge weight one. On a
+directed network the score counts walks that arrive at the node. A
+network of one node without a self-loop scores 1. The values equal <code>igraph::alpha_centrality(exo = 1)</code> with the
 same <code>alpha</code>.</p>
     </div>
     <div class="section level2">

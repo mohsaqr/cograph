@@ -15,7 +15,7 @@ csum, which aggregates them."><meta property="og:image" content="https://sonsole
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,7 +86,9 @@ auto-detected. Optional weight column (weight/w/value/strength).</p></dd>
 <dt>data.frame without from/to columns</dt>
 <dd><p>Sequence data. Each row is a
 sequence, columns are time steps. Consecutive pairs (t, t+1) become
-transitions.</p></dd>
+transitions. A data frame with three or more columns that all have
+the default names V1, V2, V3, ... is read as sequence data, even
+though V1 and V2 are also from/to names.</p></dd>
 
 <dt>tna object</dt>
 <dd><p>If <code>x$data</code> is non-NULL, uses sequence path on
@@ -153,8 +155,11 @@ column containing cluster labels. The mapping is built from unique
 
 
 <dt id="arg-directed">directed<a class="anchor" aria-label="anchor" href="#arg-directed"></a></dt>
-<dd><p>Logical. Default <code>TRUE</code>. The value is recorded in
-<code>meta$directed</code>; the weights are not modified.</p></dd>
+<dd><p>Logical. Default <code>TRUE</code>. With <code>FALSE</code> the
+node-level weights are symmetrized as \((A + A^T) / 2\)
+before aggregation: a matrix input is averaged with its transpose, and
+each observed transition counts half in each direction. The value is
+recorded in <code>meta$directed</code>.</p></dd>
 
 
 <dt id="arg-compute-within">compute_within<a class="anchor" aria-label="anchor" href="#arg-compute-within"></a></dt>

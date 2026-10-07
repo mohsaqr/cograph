@@ -124,7 +124,7 @@ n_edges(x)
 
   The node table, with `id` and `label` columns plus layout coordinates
   or other metadata columns when present. `nodes()` is a deprecated
-  alias of `get_nodes()`.
+  alias of `get_nodes()` and signals a deprecation warning.
 
 - `get_edges()`:
 

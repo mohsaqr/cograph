@@ -108,10 +108,12 @@ plot_ml_heatmap(
 
 - show_node_labels:
 
-  Show the row and column names? Default TRUE. The names of the first
-  layer are shown once, along the left and lower edges of the front
-  plane, so they identify the cells of every plane only when all layers
-  share one node ordering.
+  Show the row and column names? Default TRUE. When all layers have the
+  same row and column names, the names are shown once, along the left
+  and lower edges of the front plane. When the layers hold different
+  nodes, each plane shows its own row names along its left edge and the
+  column names below the front plane are those of the front (last)
+  layer.
 
 - node_label_size:
 

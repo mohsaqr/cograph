@@ -29,7 +29,7 @@ A named numeric vector with one score per node, in input node order.
 ## Details
 
 The measure needs a directed network. On undirected input every score is
-`NA` with a warning that carries no condition class. Edge weights are
+`NA` with a `cograph_undefined_measure` warning. Edge weights are
 ignored. The score is a whole number between 0 and \\n - 1\\. The values
 equal `sna::prestige(cmode = "domain")`.
 

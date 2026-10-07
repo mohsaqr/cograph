@@ -21,7 +21,7 @@ numbers of links inside and outside that community, and
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -109,8 +109,9 @@ order.</p>
 <code>mode = "in"</code> only out-links or in-links count, and the default
 ignores direction. This is the raw form of the original article. Later
 work by the same group uses a normalized variant with the same name.
-Without <code>membership</code> the function raises an unclassed warning and
-returns <code>NA</code> for every node. A <code>membership</code> that is not one
+Without <code>membership</code> the function raises a warning of classes <code>cograph_bad_membership</code> and
+<code>cograph_undefined_measure</code>
+and returns <code>NA</code> for every node. A <code>membership</code> that is not one
 non-missing label per node raises an error of class
 <code>cograph_bad_membership</code>.</p>
     </div>

@@ -30,7 +30,7 @@ A named numeric vector with one score per node, in input node order.
 ## Details
 
 The measure needs a directed network. On undirected input every score is
-`NA` with a warning that carries no condition class. Edge weights are
+`NA` with a `cograph_undefined_measure` warning. Edge weights are
 ignored;
 [`centrality_weighted_leaderrank`](https://sonsoles.me/cograph/reference/centrality_weighted_leaderrank.md)
 uses them. The walk starts with one unit at every node and none at the

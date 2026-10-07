@@ -21,7 +21,7 @@ summary node."><meta property="og:image" content="https://sonsoles.me/cograph/lo
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -186,9 +186,12 @@ not available.</p></dd>
 
 
 <dt id="arg-mode">mode<a class="anchor" aria-label="anchor" href="#arg-mode"></a></dt>
-<dd><p><code>"weights"</code> (default) or <code>"tna"</code>. With <code>"tna"</code>,
-<code>edge_labels</code> and <code>summary_edge_labels</code> default to <code>TRUE</code>
-unless they are supplied. The plotted weights are the same in both modes.</p></dd>
+<dd><p><code>"weights"</code> (default) or <code>"tna"</code>. With
+<code>"weights"</code> the summary layer shows the raw aggregated weights of a
+directed network. With <code>"tna"</code> they are row-normalized into
+transition probabilities, and <code>edge_labels</code> and
+<code>summary_edge_labels</code> default to <code>TRUE</code> unless they are
+supplied.</p></dd>
 
 
 <dt id="arg-theme">theme<a class="anchor" aria-label="anchor" href="#arg-theme"></a></dt>
@@ -583,10 +586,13 @@ can be passed back to <code>plot_mcml()</code>, printed, or converted with
 <code><a href="csum.html">csum</a></code> can be passed as <code>x</code> instead, which avoids
 repeating the aggregation when the same clustering is plotted several
 times.</p>
-<p>For a directed network the aggregated weights are computed with
-<code>type = "tna"</code>, so each row of the summary matrix sums to 1. For an
-undirected network they are computed with <code>type = "cooccurrence"</code>.
-The <code>mode</code> argument changes only the default of the edge labels.</p>
+<p>For a directed network, <code>mode = "weights"</code> plots the aggregated
+weights as computed (<code>type = "raw"</code> in <code><a href="csum.html">csum</a></code>), and
+<code>mode = "tna"</code> row-normalizes them (<code>type = "tna"</code>), so each row
+of the summary matrix sums to 1. For an undirected network the weights are
+computed with <code>type = "cooccurrence"</code> in both modes. A
+<code>cluster_summary</code> passed as <code>x</code> is plotted with the weights it
+already holds.</p>
 <p>Bottom-layer clusters are arranged on a circle of radius <code>spacing</code>,
 flattened by the perspective <code>skew_angle</code>. Nodes inside each cluster
 sit on a smaller circle of radius <code>shape_size * node_radius_scale</code>.

@@ -44,8 +44,8 @@ A named numeric vector with one score per node, in input node order.
 
 Edge weights are read as path lengths. `invert_weights = TRUE` uses
 \\1/w^\alpha\\ as the length, and `weighted = FALSE` counts hops. `mode`
-sets the direction of the paths. The value of `decay_parameter` is not
-checked, and values above 1 give more weight to distant nodes.
+sets the direction of the paths. `decay_parameter` must lie strictly
+between 0 and 1, and other values raise a `cograph_bad_parameter` error.
 [`centrality_generalized_closeness`](https://sonsoles.me/cograph/reference/centrality_generalized_closeness.md)
 computes the same quantity, and `decay_parameter = 0.5` gives
 [`centrality_dangalchev`](https://sonsoles.me/cograph/reference/centrality_dangalchev.md).

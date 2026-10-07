@@ -36,12 +36,11 @@ A named numeric vector with one score per node, in input node order.
 
 `mode = "out"` (the default here) sums the outgoing weights,
 `mode = "in"` the incoming weights and `mode = "all"` both, with a
-self-loop counted once. On an undirected network `"out"` and `"in"`
-agree, and `"all"` counts every edge twice. Edge weights are always
-used, and `weighted = FALSE` has no effect. On an unweighted input the
-score is the degree in the chosen mode. When the network has a negative
-edge, `normalized = TRUE` divides by the largest absolute score and
-keeps the sign.
+self-loop counted once. On an undirected network the three modes agree
+and each edge is counted once. With `weighted = FALSE`, or on an
+unweighted input, the score is the degree in the chosen mode. When the
+network has a negative edge, `normalized = TRUE` divides by the largest
+absolute score and keeps the sign.
 
 ## References
 

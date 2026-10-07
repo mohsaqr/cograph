@@ -82,7 +82,9 @@ plot_heatmap(
   ("viridis", "heat", "blues", "reds", "greens", "diverging"), or a
   single color name, which gives a gradient from white to that color.
   With a diverging scale the first three colors are used as low, mid and
-  high. Default "viridis".
+  high. Two colors are used as low and high around a white midpoint, and
+  a single color name is used as the high end, with the blue low end and
+  the light gray midpoint of the "diverging" palette. Default "viridis".
 
 - limits:
 

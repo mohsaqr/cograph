@@ -40,13 +40,13 @@ A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-The stored weights are always summed, and `weighted = FALSE` has no
-effect;
-[`centrality_degree`](https://sonsoles.me/cograph/reference/centrality_degree.md)
-counts edges. A self-loop counts twice on an undirected network and
-under `mode = "all"`, and once under `"in"` or `"out"`; `loops = FALSE`
-drops it. Negative weights are summed with their sign.
-`normalized = TRUE` divides the scores by their maximum.
+The stored weights are summed, and `weighted = FALSE` gives every edge
+weight one, so the scores equal
+[`centrality_degree`](https://sonsoles.me/cograph/reference/centrality_degree.md).
+A self-loop counts twice on an undirected network and under
+`mode = "all"`, and once under `"in"` or `"out"`; `loops = FALSE` drops
+it. Negative weights are summed with their sign. `normalized = TRUE`
+divides the scores by their maximum.
 
 ## References
 

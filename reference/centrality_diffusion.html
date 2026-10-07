@@ -17,7 +17,7 @@ $$DC(v) = \sum_{w} \left( W + W^2 + \cdots + W^n \right)_{vw}.$$"><meta property
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -106,8 +106,9 @@ input. The <code>"kandhway_kuri"</code> form uses binary degrees, so edge
 weights are ignored, and <code>mode</code> sets both the degrees and the
 neighbor set. On a directed network <code>mode = "all"</code> uses total degrees
 and the undirected neighbor set. <code>lambda</code> multiplies every score. The
-<code>"power_series"</code> form uses the edge weights and ignores <code>mode</code>,
-<code>lambda</code> and <code>weighted</code>. With <code>loops = FALSE</code> the diagonal
+<code>"power_series"</code> form uses the edge weights, or ones with
+<code>weighted = FALSE</code>, and ignores <code>mode</code> and <code>lambda</code>. With
+<code>loops = FALSE</code> the diagonal
 of \(W\) is set to zero. The <code>"power_series"</code> values match
 <code>tna::centralities(measures = "Diffusion")</code>.</p>
     </div>

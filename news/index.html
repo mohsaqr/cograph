@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,35 @@
       <small>Source: <a href="https://github.com/sonsoleslp/cograph/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.7.5" id="cograph-275">cograph 2.7.5<a class="anchor" aria-label="anchor" href="#cograph-275"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-2-7-5">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-7-5"></a></h3>
+<ul><li>
+<code>weighted = FALSE</code> is now honoured by every centrality measure. About twenty measures, among them closeness, betweenness, harmonic, eigenvector, pagerank, strength and katz, used the edge weights regardless of this argument.</li>
+<li>Communicability is computed with a general matrix exponential, so its values are correct on directed networks. Communicability betweenness no longer stops with a singular-system error, and <code>centrality(x, type = "all")</code> runs on the bundled <code>regulation_net</code>.</li>
+<li>
+<code><a href="../reference/centrality_gateway.html">centrality_gateway()</a></code> uses the same ties for degree and module links, so the score lies between 0 and 1 on directed networks; it honours <code>mode</code> and accepts character or factor membership.</li>
+<li>
+<code><a href="../reference/centrality_alpha.html">centrality_alpha()</a></code> and <code><a href="../reference/centrality_power.html">centrality_power()</a></code> honour <code>mode</code>. With the default <code>mode = "all"</code> a directed network is symmetrized, which changes their default results on directed input.</li>
+<li>
+<code><a href="../reference/centrality_expected_influence_1.html">centrality_expected_influence_1()</a></code> and <code>_2()</code> no longer count each edge twice on undirected networks with <code>mode = "all"</code>.</li>
+<li>Local transitivity on directed networks equals <code>igraph::transitivity(type = "local")</code>; DMNC no longer double-counts reciprocated neighbors.</li>
+<li>Harmonic centrality with <code>normalized = TRUE</code> is divided by n - 1 only; a named <code>personalized</code> vector in PageRank is matched to node names; percolation honours <code>invert_weights</code>; Katz centrality of a single node is 1.</li>
+<li>Delta betweenness weights each pair by the number of edges on its shortest path, so it no longer returns zeros when all weights are below 1 and no longer depends on the scale of the weights.</li>
+<li>Undefined values (disconnected or degenerate networks, missing membership, directed-only measures on undirected input) now come with a <code>cograph_undefined_measure</code> warning, and invalid arguments raise classed errors (<code>cograph_bad_parameter</code>, <code>cograph_bad_membership</code>). <code>decay_parameter</code> and <code>dmnc_epsilon</code> are validated.</li>
+<li>
+<code><a href="../reference/estrada_index.html">estrada_index()</a></code> is correct on directed networks; the efficiency functions accept tna input with <code>weights = NA</code>; <code><a href="../reference/simplify.html">simplify()</a></code> keeps the weight matrix in step with the merged edges; <code><a href="../reference/is_bipartite.html">is_bipartite()</a></code> works on named graphs; <code><a href="../reference/split_components.html">split_components()</a></code> handles an empty network.</li>
+<li>
+<code><a href="../reference/cluster_significance.html">cluster_significance()</a></code> compares weighted modularity against null graphs that carry the observed weights. <code><a href="../reference/csum.html">csum()</a></code> and <code><a href="../reference/summarize_clusters.html">summarize_clusters()</a></code> symmetrize the input when <code>directed = FALSE</code>, and sequence data with columns V1, V2, … is read as sequences. <code><a href="../reference/aggregate_layers.html">aggregate_layers()</a></code> binarizes a single layer for union and intersection; <code><a href="../reference/cluster_quality.html">cluster_quality()</a></code> density ignores self-loops.</li>
+<li>
+<code><a href="../reference/rich_club.html">rich_club()</a></code> warns (<code>cograph_null_draw_failed</code>) when null graphs cannot be drawn. <code><a href="../reference/get_nodes.html">nodes()</a></code> now signals its deprecation.</li>
+<li>
+<code><a href="../reference/plot_mcml.html">plot_mcml()</a></code> plots raw aggregated weights with <code>mode = "weights"</code> (the default) and row-normalized weights with <code>mode = "tna"</code>.</li>
+<li>
+<code><a href="../reference/plot_trajectories.html">plot_trajectories()</a></code> handles missing states; <code><a href="../reference/plot_network_evolution.html">plot_network_evolution()</a></code> accumulates slices correctly and accepts a coordinate layout; <code><a href="../reference/plot_heatmap.html">plot_heatmap()</a></code> builds a full diverging scale from one colour; <code><a href="../reference/plot_ml_heatmap.html">plot_ml_heatmap()</a></code> labels every layer with its own nodes; <code><a href="../reference/layout_oval.html">layout_oval()</a></code> orders by node names; <code><a href="../reference/sn_layout.html">sn_layout()</a></code> reports an unknown layout clearly; <code>CographTheme</code> clone and merge keep added parameters.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.7.4" id="cograph-274">cograph 2.7.4<a class="anchor" aria-label="anchor" href="#cograph-274"></a></h2>
 <div class="section level3">

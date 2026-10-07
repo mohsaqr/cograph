@@ -19,7 +19,7 @@ where \(\sigma_{st}\) is the number of shortest paths from
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -87,7 +87,9 @@ default <code>NULL</code> gives every node state 1.</p></dd>
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Further arguments to <code><a href="centrality.html">centrality</a></code>. The measure uses
-<code>weighted</code> (default <code>TRUE</code>).</p></dd>
+<code>weighted</code> (default <code>TRUE</code>), <code>invert_weights</code> (default
+<code>NULL</code>, which inverts for tna input only) and <code>alpha</code>
+(inversion exponent, default 1).</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -98,7 +100,8 @@ order.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Edge weights are read as distances, <code>weighted = FALSE</code> uses hop
-counts, and <code>invert_weights</code> has no effect on this measure. Paths
+counts, and <code>invert_weights = TRUE</code> uses the distance
+\(1/w^\alpha\), so tna input is inverted by default. Paths
 follow edge direction on a directed network. <code>states</code> is matched to
 nodes by name when it has names and by position otherwise. Its values are
 clipped to \([0, 1]\) and missing values are set to 1, and a vector of

@@ -31,7 +31,7 @@ A named numeric vector with one score per node, in input node order.
 ## Details
 
 The measure needs a directed network. On undirected input every score is
-`NA` with a warning that carries no condition class. Edge weights are
+`NA` with a `cograph_undefined_measure` warning. Edge weights are
 ignored. A node that no other node reaches scores 0, and the score lies
 between 0 and 1. On strongly connected networks the values equal
 `sna::prestige(cmode = "domain.proximity")`. On other networks sna sets

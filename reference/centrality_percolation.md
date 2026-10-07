@@ -30,7 +30,9 @@ centrality_percolation(x, states = NULL, ...)
 
   Further arguments to
   [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
-  The measure uses `weighted` (default `TRUE`).
+  The measure uses `weighted` (default `TRUE`), `invert_weights`
+  (default `NULL`, which inverts for tna input only) and `alpha`
+  (inversion exponent, default 1).
 
 ## Value
 
@@ -39,11 +41,12 @@ A named numeric vector with one score per node, in input node order.
 ## Details
 
 Edge weights are read as distances, `weighted = FALSE` uses hop counts,
-and `invert_weights` has no effect on this measure. Paths follow edge
-direction on a directed network. `states` is matched to nodes by name
-when it has names and by position otherwise. Its values are clipped to
-\\\[0, 1\]\\ and missing values are set to 1, and a vector of the wrong
-length raises an error. A network with fewer than three nodes scores 0.
+and `invert_weights = TRUE` uses the distance \\1/w^\alpha\\, so tna
+input is inverted by default. Paths follow edge direction on a directed
+network. `states` is matched to nodes by name when it has names and by
+position otherwise. Its values are clipped to \\\[0, 1\]\\ and missing
+values are set to 1, and a vector of the wrong length raises an error. A
+network with fewer than three nodes scores 0.
 
 ## References
 

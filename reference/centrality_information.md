@@ -35,9 +35,10 @@ A named numeric vector with one score per node, in input node order.
 The network is symmetrized with \\(w\_{ij} + w\_{ji})/2\\, so direction
 is ignored. Edge weights enter as tie strengths, and `weighted = FALSE`
 uses the binary matrix. Isolated nodes score 0 and are left out of
-\\n\\. When \\B\\ is singular, as on some disconnected networks, every
-score is `NA` without a warning. On unweighted undirected networks the
-values equal
+\\n\\. When the other nodes do not form one connected component, or
+\\B\\ is singular, every score is `NA` with a
+`cograph_undefined_measure` warning. On unweighted undirected networks
+the values equal
 [`sna::infocent()`](https://rdrr.io/pkg/sna/man/infocent.html).
 
 ## References

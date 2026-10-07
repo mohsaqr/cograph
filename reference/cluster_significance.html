@@ -9,7 +9,7 @@ whether the detected community structure is statistically significant."><meta pr
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -167,8 +167,10 @@ stronger than the partitions detection recovers on random networks. With
 network. A low p-value then indicates that the partition explains more
 structure in the observed network than in random networks, independently
 of any detection algorithm.</p>
-<p>The observed modularity is computed with the edge weights of <code>x</code>. The
-null networks are unweighted.</p>
+<p>The observed modularity is computed with the edge weights of <code>x</code>.
+When <code>x</code> is weighted, each null network receives the observed edge
+weights, randomly reassigned to its edges, so the observed and null
+modularity are on the same scale.</p>
     </div>
     <div class="section level2">
     <h2 id="printing-and-plotting">Printing and plotting<a class="anchor" aria-label="anchor" href="#printing-and-plotting"></a></h2>
@@ -198,10 +200,10 @@ Statistical mechanics of community detection.
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Null model:           configuration (n = 20 )</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Observed modularity:  0.2033 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Null mean:            0.2683 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Null SD:              0.0506 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Z-score:              -1.29 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   P-value:              0.90066 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Null mean:            0.2828 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Null SD:              0.0702 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Z-score:              -1.13 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   P-value:              0.87136 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Conclusion: No significant community structure (p &gt;= 0.05)</span>
 </code></pre></div>

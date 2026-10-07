@@ -37,11 +37,12 @@ A named integer vector with one count per node, in input node order.
 ## Details
 
 The measure is defined for directed networks. On an undirected network
-it raises an unclassed warning and returns `NA`, and the same happens
-when `membership` is missing. A `membership` whose length differs from
-the number of nodes raises an unclassed error. Group labels may be
-numbers or strings. Edge weights and self-loops are ignored. The other
-four roles are
+it returns `NA` with a `cograph_undefined_measure` warning, and the same
+happens when `membership` is missing, where the warning also has class
+`cograph_bad_membership`. A `membership` whose length differs from the
+number of nodes raises a `cograph_bad_membership` error. Group labels
+may be numbers or strings. Edge weights and self-loops are ignored. The
+other four roles are
 [`centrality_brokerage_itinerant`](https://sonsoles.me/cograph/reference/centrality_brokerage_itinerant.md),
 [`centrality_brokerage_representative`](https://sonsoles.me/cograph/reference/centrality_brokerage_representative.md),
 [`centrality_brokerage_gatekeeper`](https://sonsoles.me/cograph/reference/centrality_brokerage_gatekeeper.md)

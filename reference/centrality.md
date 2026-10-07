@@ -337,12 +337,15 @@ centrality(
   scales non-negative measures to 0-1. A measure whose maximum is not
   positive is left unchanged. Closeness follows igraph's normalization
   instead, multiplying each value by the number of nodes the node
-  reaches. Under `psych_network = TRUE` expected influence is divided by
-  its maximum absolute value and keeps its sign. Default `FALSE`.
+  reaches, and harmonic centrality is divided by \\n - 1\\ only. Under
+  `psych_network = TRUE` expected influence is divided by its maximum
+  absolute value and keeps its sign. Default `FALSE`.
 
 - weighted:
 
-  Logical. Use edge weights if available. Default TRUE.
+  Logical. Use edge weights if available. Default TRUE. With `FALSE`
+  every measure works on the binary adjacency, every edge with weight
+  one.
 
 - directed:
 
@@ -410,9 +413,9 @@ centrality(
 - personalized:
 
   Non-negative numeric vector of reset probabilities for personalized
-  PageRank, one value per node in node order. Names are not used for
-  matching. The vector is rescaled to sum to 1. Default NULL (standard
-  PageRank).
+  PageRank, one value per node. A named vector is matched to the node
+  names, an unnamed one is taken in node order. The vector is rescaled
+  to sum to 1. Default NULL (standard PageRank).
 
 - transitivity_type:
 
@@ -421,8 +424,9 @@ centrality(
   "onnela". The first six follow the conventions of
   [`igraph::transitivity()`](https://r.igraph.org/reference/transitivity.html).
   `"global"` and `"undirected"` give one graph-level value, repeated on
-  every row. `"onnela"` computes the Onnela weighted clustering
-  coefficient on the symmetrized matrix `x + t(x)` and matches
+  every row. `"onnela"` computes the weighted clustering coefficient of
+  Zhang and Horvath (2005) on the symmetrized matrix `x + t(x)`, the
+  form tna uses under that name, and matches
   `tna::centralities(x, "Clustering")`. `tna_network = TRUE` changes the
   default to `"onnela"`.
 
@@ -465,21 +469,24 @@ centrality(
 - decay_parameter:
 
   Numeric. Decay parameter for decay and generalized closeness
-  centrality. A value between 0 and 1 discounts distant nodes. Default
-  0.5.
+  centrality, strictly between 0 and 1; smaller values discount distant
+  nodes more. Other values raise a `cograph_bad_parameter` error when
+  one of these measures is requested. Default 0.5.
 
 - dmnc_epsilon:
 
   Numeric. Epsilon exponent for DMNC (Density of Maximum Neighborhood
-  Component). Default 1.7, as recommended by Lin et al. (2008).
-  centiserve uses 1.67.
+  Component), a single positive number. Default 1.7, as recommended by
+  Lin et al. (2008). centiserve uses 1.67. Other values raise a
+  `cograph_bad_parameter` error when `"dmnc"` is requested.
 
 - membership:
 
   Integer vector of community assignments (one per node) for the
   community-aware measures listed under `measures`. Default NULL.
-  Without it those measures warn and return `NA`. `"map_equation"` uses
-  it when supplied.
+  Without it those measures return `NA` with a warning of classes
+  `cograph_bad_membership` and `cograph_undefined_measure`.
+  `"map_equation"` uses it when supplied.
 
 - katz_alpha:
 
@@ -974,7 +981,8 @@ The following centrality measures are available:
 - eccentricity:
 
   Maximum distance to other nodes (supports mode). Distances use the raw
-  edge weights, whatever `weighted` and `invert_weights` say.
+  edge weights whatever `invert_weights` says, and hop counts with
+  `weighted = FALSE`.
 
 - coreness:
 
@@ -1012,12 +1020,13 @@ The following centrality measures are available:
 - alpha:
 
   Alpha centrality. Influence through paths, attenuated by length, with
-  a unit exogenous contribution at every node
+  a unit exogenous contribution at every node (supports mode:
+  in/out/all)
 
 - power:
 
   Bonacich power centrality. Influence based on connections to other
-  influential nodes
+  influential nodes (supports mode: in/out/all)
 
 - subgraph:
 
@@ -1401,8 +1410,9 @@ The following centrality measures are available:
 
 - delta_betweenness:
 
-  Betweenness with the pair weight \\(d(s,t) - 1)^{-\delta}\\
-  (`betweenness_delta`).
+  Betweenness with the pair weight \\(h(s,t) - 1)^{-\delta}\\
+  (`betweenness_delta`), where \\h(s,t)\\ is the number of edges on a
+  shortest path.
 
 - ego_betweenness:
 

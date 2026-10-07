@@ -15,7 +15,7 @@ the first visit of \(j\) and \(m_{jj} = 0\)."><meta property="og:image" content=
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,10 +86,13 @@ order.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The walk moves from a node to each of its out-neighbors with equal
-probability, so edge weights are ignored. A disconnected network gives
-<code>NA</code> for every node with a warning that carries no condition class.
-On a directed network that is connected but not strongly connected some
-scores are <code>NA</code> without a warning. The values equal
+probability, so edge weights are ignored. A disconnected network, or a
+directed network with a node that has no outgoing edge, gives <code>NA</code>
+for every node with a <code>cograph_undefined_measure</code> warning. On a
+directed network that is not strongly connected, a node that some other
+node cannot reach has an infinite mean passage time, and its score is
+<code>NA</code> with the same warning. On connected undirected and strongly
+connected directed networks the values equal
 <code><a href="https://rdrr.io/pkg/centiserve/man/markovcent.html" class="external-link">centiserve::markovcent()</a></code>.</p>
     </div>
     <div class="section level2">

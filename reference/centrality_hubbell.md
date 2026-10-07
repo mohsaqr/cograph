@@ -34,11 +34,11 @@ A named numeric vector with one score per node, in input node order.
 ## Details
 
 The system is solvable when the spectral radius of \\wW\\ is below one.
-Otherwise every score is `NA` with a warning that carries no condition
-class. A `hubbell_weight` of zero or below raises an error. Edge weights
-are always used, and `weighted = FALSE` has no effect. The rows of \\W\\
-are outgoing ties, so on a directed network the score sums attenuated
-walks that leave the node.
+Otherwise every score is `NA` with a `cograph_undefined_measure`
+warning. A `hubbell_weight` of zero or below raises a
+`cograph_bad_parameter` error. `weighted = FALSE` gives every edge
+weight one. The rows of \\W\\ are outgoing ties, so on a directed
+network the score sums attenuated walks that leave the node.
 [`centiserve::hubbell()`](https://rdrr.io/pkg/centiserve/man/hubbell.html)
 with `weights = NULL` sets every weight to 1, so it reproduces these
 values only when the weights are passed explicitly.

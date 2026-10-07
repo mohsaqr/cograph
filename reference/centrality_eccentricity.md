@@ -37,12 +37,12 @@ A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Edge weights are read as path lengths. The raw weights are always used,
-so `weighted = FALSE` and `invert_weights` have no effect. On an
-unweighted input the distances are hop counts. `mode = "out"` follows
-paths leaving the node and `mode = "in"` paths arriving at it.
-`centrality_outeccentricity()` and `centrality_ineccentricity()` are
-these two forms. A node that reaches no other node scores 0.
+Edge weights are read as path lengths, and `invert_weights` has no
+effect. `weighted = FALSE`, or an unweighted input, gives hop counts.
+`mode = "out"` follows paths leaving the node and `mode = "in"` paths
+arriving at it. `centrality_outeccentricity()` and
+`centrality_ineccentricity()` are these two forms. A node that reaches
+no other node scores 0.
 
 ## References
 

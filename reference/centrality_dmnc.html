@@ -17,7 +17,7 @@ A node without neighbors scores 0."><meta property="og:image" content="https://s
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -101,11 +101,12 @@ order.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Edge weights are ignored, and <code>mode</code> sets the neighbor set. On an
 undirected network the result follows this definition. On a directed
-network the component is a strongly connected component, and its nodes are
-read from the neighbor list with each reciprocated neighbor listed twice,
-as in the centiserve package. The edge count can then belong to a
-different node set, and scores above one occur. The value of
-<code>dmnc_epsilon</code> is not checked.</p>
+network the component is a strongly connected component of the induced
+subnetwork, \(E\) counts its directed edges, and a reciprocated
+neighbor enters the subnetwork once. When several components share the
+largest size, \(E\) counts the edges among all of their nodes. A
+<code>dmnc_epsilon</code> that is not a single positive finite number raises a
+<code>cograph_bad_parameter</code> error.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

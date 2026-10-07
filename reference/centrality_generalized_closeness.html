@@ -15,7 +15,7 @@ unreachable nodes contribute 0."><meta property="og:image" content="https://sons
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -104,7 +104,8 @@ order.</p>
 <code>alpha</code> of <code><a href="centrality.html">centrality</a></code>, and <code>weighted = FALSE</code>
 counts hops. <code>mode</code> sets the direction of the paths. The values equal
 those of <code><a href="centrality_decay.html">centrality_decay</a></code> with the same
-<code>decay_parameter</code>, which is not checked.</p>
+<code>decay_parameter</code>, which must lie strictly between 0 and 1; other
+values raise a <code>cograph_bad_parameter</code> error.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

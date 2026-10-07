@@ -44,9 +44,10 @@ Edge weights are ignored. `mode` selects the ties counted, and with
 `mode = "all"` on a directed network a reciprocated tie counts twice.
 The standard deviation is the sample value. A community with one member,
 or whose members all have the same within-community degree, gives `NaN`.
-Without `membership` every score is `NA` with a warning that carries no
-condition class, and a `membership` of the wrong length raises an error.
-On undirected networks the values equal
+Without `membership` every score is `NA` with a warning of classes
+`cograph_bad_membership` and `cograph_undefined_measure`, and a
+`membership` of the wrong length raises a `cograph_bad_membership`
+error. On undirected networks the values equal
 [`brainGraph::within_module_deg_z_score()`](https://rdrr.io/pkg/brainGraph/man/vertex_roles.html).
 
 ## References

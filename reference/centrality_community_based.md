@@ -70,7 +70,8 @@ degree of each community, the choice the source recommends. The prose of
 Gupta et al. writes \\\mu_C\\ where their equation has \\1 + \mu_C\\,
 and the equation is implemented. Nodes linked to one community only
 score 0 on the mediator measure. Without `membership` each function
-raises an unclassed warning and returns `NA`. A `membership` that is not
+raises a warning of classes `cograph_bad_membership` and
+`cograph_undefined_measure` and returns `NA`. A `membership` that is not
 one non-missing label per node raises an error of class
 `cograph_bad_membership`, and an invalid `comm_r` raises
 `cograph_bad_parameter`.

@@ -34,10 +34,11 @@ A named numeric vector with one score per node, in input node order.
 
 \\A\\ is the binary adjacency matrix, so edge weights are ignored. The
 scores lie between 0 and 1. The measure is defined for undirected
-networks. On a directed network the matrix exponential needs the inverse
-of an eigenvector matrix, and when that matrix is singular the function
-stops with an unclassed error, as it does for `regulation_net`.
-`directed = FALSE` gives the undirected reading.
+networks. On a directed network \\G\\ and \\G^{(r)}\\ are computed by
+scaling and squaring with a Pade approximation, as in
+[`centrality_communicability`](https://sonsoles.me/cograph/reference/centrality_communicability.md),
+so the measure is defined there as well. `directed = FALSE` gives the
+undirected reading.
 
 ## References
 

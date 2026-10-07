@@ -15,7 +15,7 @@ the scores so that their squares sum to \(n\)."><meta property="og:image" conten
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -75,8 +75,8 @@ the scores so that their squares sum to \(n\).</p>
 
 
 <dt id="arg-mode">mode<a class="anchor" aria-label="anchor" href="#arg-mode"></a></dt>
-<dd><p>Accepted for a uniform interface; it has no effect on this
-measure (default <code>"all"</code>).</p></dd>
+<dd><p>For directed networks: <code>"all"</code> (default), <code>"out"</code> or
+<code>"in"</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -90,10 +90,13 @@ order.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The exponent is fixed at 1, and the values equal
-<code>igraph::power_centrality(exponent = 1)</code>. Edge weights and self-loops
-are ignored. On a directed network the score sums over out-ties, and the
-argument <code>mode</code> has no effect. Where \(I - A\) is singular, as on a
+    <p>The exponent is fixed at 1. Edge weights and self-loops are ignored. On a
+directed network <code>mode = "out"</code> sums over out-ties and equals
+<code>igraph::power_centrality(exponent = 1)</code>, <code>mode = "in"</code> sums
+over in-ties, and <code>mode = "all"</code> (default) uses the undirected
+skeleton, the binary matrix with a tie wherever either direction has one.
+On an undirected network the three modes agree. Where \(I - A\) is
+singular, as on a
 network that contains an isolated edge, a <code>cograph_singular_system</code>
 error is raised, and a network without edges gives <code>NaN</code>. The scores
 can be negative, as on <code>regulation_net</code>, and <code>normalized = TRUE</code>
@@ -114,10 +117,10 @@ Journal of Sociology, 92(5), 1170-1182. <a href="https://doi.org/10.1086/228631"
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">centrality_power</span><span class="op">(</span><span class="va">regulation_net</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.7865422 -1.5805753 -0.8165057 -0.8239966 -0.4494527 -0.6517064 -1.1161409 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Evaluate     Create      Share </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.3595622 -1.1461044 -1.4906848 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Explore          Plan       Monitor         Adapt       Reflect </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -1.217161e+00 -6.756602e-16 -6.085806e-01 -1.217161e+00 -1.825742e+00 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Discuss    Synthesize      Evaluate        Create         Share </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -1.217161e+00 -1.217161e+00 -6.085806e-01 -5.855722e-16 -3.941351e-16 </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

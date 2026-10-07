@@ -21,7 +21,7 @@ outside their induced subgraph.'><meta property="og:image" content="https://sons
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,8 +91,8 @@ outside their induced subgraph.</p>
 
 <dt id="arg-weights">weights<a class="anchor" aria-label="anchor" href="#arg-weights"></a></dt>
 <dd><p>Numeric vector of edge weights. Default NULL uses the
-graph's <code>weight</code> attribute when present. NA ignores weights when
-<code>invert_weights</code> is FALSE.</p></dd>
+graph's <code>weight</code> attribute when present. NA ignores weights, so
+every edge has length 1, whatever <code>invert_weights</code> is.</p></dd>
 
 
 <dt id="arg-invert-weights">invert_weights<a class="anchor" aria-label="anchor" href="#arg-invert-weights"></a></dt>

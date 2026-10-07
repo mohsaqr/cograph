@@ -36,12 +36,12 @@ A named numeric vector with one score per node, in input node order.
 ## Details
 
 The measure is defined for connected undirected networks. On a
-disconnected network every score is `NA`, with an unclassed warning. On
-a directed network the Laplacian is built from the asymmetric weight
-matrix, and `directed = FALSE` gives the undirected reading. With
-`weighted = FALSE` the potentials still come from the weighted Laplacian
-while the currents are read off the binary adjacency matrix. The fixed
-factor \\2/((n-1)(n-2))\\ is the normalization of
+disconnected network every score is `NA`, with a
+`cograph_undefined_measure` warning. On a directed network the Laplacian
+is built from the asymmetric weight matrix, and `directed = FALSE` gives
+the undirected reading. The potentials and the currents come from the
+same weights, and `weighted = FALSE` gives every edge conductance one.
+The fixed factor \\2/((n-1)(n-2))\\ is the normalization of
 `networkx::current_flow_betweenness_centrality()`.
 
 ## References

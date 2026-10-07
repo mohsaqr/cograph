@@ -30,10 +30,10 @@ A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-\\A\\ holds the edge weights. Edge weights are always used, and
-`weighted = FALSE` has no effect. On a directed network a node gains
-standing from its incoming edges. The scores lie between 0 and 1. A
-network without edges gives every node a score of one.
+\\A\\ holds the edge weights, or ones with `weighted = FALSE`. On a
+directed network a node gains standing from its incoming edges. The
+scores lie between 0 and 1. A network without edges gives every node a
+score of one.
 
 ## References
 

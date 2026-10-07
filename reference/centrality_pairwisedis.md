@@ -31,10 +31,9 @@ A named numeric vector with one score per node, in input node order.
 ## Details
 
 The measure needs a directed network. On undirected input every score is
-`NA` with a warning that carries no condition class. Reachability uses
-hop counts, so edge weights are ignored. The score lies between 0 and 1,
-and a network without reachable pairs scores 0 everywhere. The values
-equal
+`NA` with a `cograph_undefined_measure` warning. Reachability uses hop
+counts, so edge weights are ignored. The score lies between 0 and 1, and
+a network without reachable pairs scores 0 everywhere. The values equal
 [`centiserve::pairwisedis()`](https://rdrr.io/pkg/centiserve/man/pairwisedis.html).
 
 ## References

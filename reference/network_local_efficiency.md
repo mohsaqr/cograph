@@ -31,8 +31,8 @@ network_local_efficiency(
 - weights:
 
   Numeric vector of edge weights. Default NULL uses the graph's `weight`
-  attribute when present. NA ignores weights when `invert_weights` is
-  FALSE.
+  attribute when present. NA ignores weights, so every edge has length
+  1, whatever `invert_weights` is.
 
 - invert_weights:
 

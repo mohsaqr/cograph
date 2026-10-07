@@ -61,7 +61,11 @@ plot_trajectories(
 - x:
 
   Data frame with one column per time point and one row per individual
-  trajectory, or a `tna` object with sequence data.
+  trajectory, or a `tna` object with sequence data. In a data frame, a
+  missing value (`NA`) marks a time point at which the individual was
+  not observed: no line enters or leaves that column for the individual,
+  and the node sizes count the observed states only. Colors by `"first"`
+  and `"last"` use the first and last observed states.
 
 - from_title:
 

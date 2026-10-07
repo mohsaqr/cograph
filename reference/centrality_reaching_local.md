@@ -35,13 +35,14 @@ A named numeric vector with one score per node, in input node order.
 ## Details
 
 A network counts as weighted unless every weight is 1, and
-`weighted = FALSE` has no effect. In the weighted form a shortest path
-uses the edge lengths \\W/w_e\\, with \\W\\ the total edge weight, and
-each reached node contributes the mean edge weight along its path; the
-sum is divided by \\n - 1\\. With `mode = "out"` the weighted values
-equal `networkx.local_reaching_centrality()` with `normalized = False`.
-`mode = "all"` treats edges as undirected, and `"in"` counts the nodes
-that reach the node. A negative weight raises an error.
+`weighted = FALSE` gives the unweighted form. In the weighted form a
+shortest path uses the edge lengths \\W/w_e\\, with \\W\\ the total edge
+weight, and each reached node contributes the mean edge weight along its
+path; the sum is divided by \\n - 1\\. With `mode = "out"` the weighted
+values equal `networkx.local_reaching_centrality()` with
+`normalized = False`. `mode = "all"` treats edges as undirected, and
+`"in"` counts the nodes that reach the node. A negative weight raises an
+error.
 [`reaching_global`](https://sonsoles.me/cograph/reference/reaching_global.md)
 is the network-level hierarchy measure built from these scores.
 

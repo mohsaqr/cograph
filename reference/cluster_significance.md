@@ -129,8 +129,10 @@ network. A low p-value then indicates that the partition explains more
 structure in the observed network than in random networks, independently
 of any detection algorithm.
 
-The observed modularity is computed with the edge weights of `x`. The
-null networks are unweighted.
+The observed modularity is computed with the edge weights of `x`. When
+`x` is weighted, each null network receives the observed edge weights,
+randomly reassigned to its edges, so the observed and null modularity
+are on the same scale.
 
 ## Printing and plotting
 
@@ -160,10 +162,10 @@ cluster_significance(regulation_net, comm, n_random = 20, seed = 1)
 #> 
 #>   Null model:           configuration (n = 20 )
 #>   Observed modularity:  0.2033 
-#>   Null mean:            0.2683 
-#>   Null SD:              0.0506 
-#>   Z-score:              -1.29 
-#>   P-value:              0.90066 
+#>   Null mean:            0.2828 
+#>   Null SD:              0.0702 
+#>   Z-score:              -1.13 
+#>   P-value:              0.87136 
 #> 
 #>   Conclusion: No significant community structure (p >= 0.05)
 ```

@@ -38,9 +38,9 @@ A named numeric vector with one score per node, in input node order.
 On a directed network the sum runs over ordered pairs along the edge
 direction, and on an undirected network over unordered pairs. Edge
 weights are read as path lengths, and `invert_weights = TRUE` uses
-\\1/w^\alpha\\ instead. Edge weights are always used, and
-`weighted = FALSE` has no effect. `cutoff` drops paths longer than the
-given length. `normalized = TRUE` divides the scores by their maximum.
+\\1/w^\alpha\\ instead. `weighted = FALSE` uses hop counts. `cutoff`
+drops paths longer than the given length. `normalized = TRUE` divides
+the scores by their maximum.
 
 ## References
 

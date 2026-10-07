@@ -17,7 +17,7 @@ and 1 discount distant nodes."><meta property="og:image" content="https://sonsol
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -103,9 +103,9 @@ order.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Edge weights are read as path lengths. <code>invert_weights = TRUE</code> uses
 \(1/w^\alpha\) as the length, and <code>weighted = FALSE</code>
-counts hops. <code>mode</code> sets the direction of the paths. The value of
-<code>decay_parameter</code> is not checked, and values above 1 give more weight
-to distant nodes. <code><a href="centrality_generalized_closeness.html">centrality_generalized_closeness</a></code> computes
+counts hops. <code>mode</code> sets the direction of the paths.
+<code>decay_parameter</code> must lie strictly between 0 and 1, and other values
+raise a <code>cograph_bad_parameter</code> error. <code><a href="centrality_generalized_closeness.html">centrality_generalized_closeness</a></code> computes
 the same quantity, and <code>decay_parameter = 0.5</code> gives
 <code><a href="centrality_dangalchev.html">centrality_dangalchev</a></code>.</p>
     </div>

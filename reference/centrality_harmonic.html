@@ -19,7 +19,7 @@ mode = "in" and mode = "out" forms.'><meta property="og:image" content="https://
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -106,13 +106,12 @@ order.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Edge weights are read as distances, and <code>invert_weights = TRUE</code>
 converts a weight \(w\) to the distance \(1/w^\alpha\).
-<code>weighted = FALSE</code> has no effect, because the measure then reads the
-weights stored in the network; hop-count harmonic centrality needs a
-binary input such as <code>(x != 0) * 1</code>. <code>mode = "all"</code> treats edges
+<code>weighted = FALSE</code> uses hop counts. <code>mode = "all"</code> treats edges
 as undirected, <code>"out"</code> uses distances from the node and <code>"in"</code>
 distances to it. The scores equal <code><a href="https://r.igraph.org/reference/harmonic_centrality.html" class="external-link">igraph::harmonic_centrality()</a></code> on
-the weighted graph. <code>normalized = TRUE</code> divides the scores by their
-maximum.</p>
+the weighted graph. <code>normalized = TRUE</code> divides the scores by
+\(n - 1\), as <code>igraph::harmonic_centrality(normalized = TRUE)</code>
+does.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

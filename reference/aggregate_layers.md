@@ -38,7 +38,9 @@ lagg(
 ## Value
 
 The aggregated adjacency matrix, with the dimnames of the first layer. A
-list with a single layer is returned unchanged for every `method`.
+list with a single layer is aggregated the same way, so `"union"` and
+`"intersection"` binarize it and `"sum"` multiplies it by its layer
+weight.
 
 ## Examples
 

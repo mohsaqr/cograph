@@ -44,9 +44,10 @@ each node and recomputing
 [`igraph::modularity()`](https://r.igraph.org/reference/modularity.igraph.html).
 Self-loops enter the modularity, and `loops = FALSE` drops them. A node
 whose deletion leaves a graph with no edges returns `NaN`. Without
-`membership` the function raises an unclassed warning and returns `NA`
-for every node. A `membership` that is not one non-missing label per
-node raises an error of class `cograph_bad_membership`.
+`membership` the function raises a warning of classes
+`cograph_bad_membership` and `cograph_undefined_measure` and returns
+`NA` for every node. A `membership` that is not one non-missing label
+per node raises an error of class `cograph_bad_membership`.
 
 ## References
 

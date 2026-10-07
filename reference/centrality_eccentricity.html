@@ -13,7 +13,7 @@ Lower values mark more central nodes."><meta property="og:image" content="https:
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -92,9 +92,9 @@ order.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Edge weights are read as path lengths. The raw weights are always used,
-so <code>weighted = FALSE</code> and <code>invert_weights</code> have no effect. On an
-unweighted input the distances are hop counts. <code>mode = "out"</code> follows
+    <p>Edge weights are read as path lengths, and <code>invert_weights</code> has no
+effect. <code>weighted = FALSE</code>, or an unweighted input, gives hop
+counts. <code>mode = "out"</code> follows
 paths leaving the node and <code>mode = "in"</code> paths arriving at it.
 <code>centrality_outeccentricity()</code> and <code>centrality_ineccentricity()</code>
 are these two forms. A node that reaches no other node scores 0.</p>

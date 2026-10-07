@@ -22,7 +22,7 @@ centrality_alpha(x, mode = "all", ...)
 
 - mode:
 
-  Accepted for a uniform interface. It has no effect. Default `"all"`.
+  For directed networks: `"all"` (default), `"in"` or `"out"`.
 
 - ...:
 
@@ -36,14 +36,20 @@ A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-\\A\\ holds the edge weights with the diagonal set to zero. Edge weights
-are always used, and `weighted = FALSE` has no effect. The `alpha`
-argument of
+\\A\\ holds the edge weights, or ones with `weighted = FALSE`, with the
+diagonal set to zero. The `alpha` argument of
 [`centrality`](https://sonsoles.me/cograph/reference/centrality.md) is
 the weight-inversion exponent, which this measure does not read. The
 scores are positive when the spectral radius of \\A\\ is below one and
 can be negative otherwise. A singular system or a negative edge weight
 raises an error of class `cograph_singular_system`.
+
+On a directed network `mode = "in"` sums over incoming ties as above and
+equals
+[`igraph::alpha_centrality()`](https://r.igraph.org/reference/alpha_centrality.html),
+`mode = "out"` uses \\A\\ in place of \\A^{T}\\ and so sums over
+outgoing ties, and `mode = "all"` (default) uses the symmetrized weights
+\\A + A^{T}\\. On an undirected network the three modes agree.
 
 ## References
 
@@ -63,7 +69,7 @@ centrality for asymmetric relations. Social Networks, 23(3), 191-201.
 ``` r
 centrality_alpha(regulation_net)
 #>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
-#>   4.226004   1.997912   5.811274   4.935278   4.717213   3.477159   1.838997 
+#> -0.1294030 -2.1294525 -2.2733148 -1.2166591  0.6012820 -0.3834963  0.6523346 
 #>   Evaluate     Create      Share 
-#>   3.553234   4.036556   3.788677 
+#> -2.0816623 -2.0691360 -2.3130493 
 ```

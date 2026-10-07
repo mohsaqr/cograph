@@ -31,7 +31,7 @@ A named numeric vector with one score per node, in input node order.
 ## Details
 
 The measure needs a directed network. On undirected input every score is
-`NA` with a warning that carries no condition class. Edge weights are
+`NA` with a `cograph_undefined_measure` warning. Edge weights are
 ignored. The scores are scaled so that the largest is 1, and a node
 without incoming edges scores 0.
 

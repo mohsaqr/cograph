@@ -534,10 +534,10 @@ csig(mat, comm, n_random = 200, seed = 1)
 #> 
 #>   Null model:           configuration (n = 200 )
 #>   Observed modularity:  0 
-#>   Null mean:            0.1486 
-#>   Null SD:              0.0781 
-#>   Z-score:              -1.9 
-#>   P-value:              0.97139 
+#>   Null mean:            0.1787 
+#>   Null SD:              0.0953 
+#>   Z-score:              -1.88 
+#>   P-value:              0.96961 
 #> 
 #>   Conclusion: No significant community structure (p >= 0.05)
 ```

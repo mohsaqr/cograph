@@ -5,17 +5,17 @@ where \(\lambda_i\) are the eigenvalues of the binary adjacency matrix.
 Edge weights are ignored. For an undirected network the index equals
 \(\sum_k M_k / k!\), where \(M_k\) is the number of closed walks of
 length \(k\), and it is the sum of the subgraph centralities of all
-nodes. For a directed network the function sums \(e^{Re(\lambda_i)}\)
-over the real parts of the eigenvalues, which differs from the closed-walk
-sum when the adjacency matrix has complex eigenvalues."><meta property="og:description" content="Computes the Estrada index, a graph-level spectral invariant
+nodes. For a directed network the eigenvalues may be complex. They come in
+conjugate pairs, so the sum of their exponentials is real and again equals
+the trace of \(e^A\), the weighted count of closed walks."><meta property="og:description" content="Computes the Estrada index, a graph-level spectral invariant
 $$EE(G) = \sum_{i=1}^{n} e^{\lambda_i}$$
 where \(\lambda_i\) are the eigenvalues of the binary adjacency matrix.
 Edge weights are ignored. For an undirected network the index equals
 \(\sum_k M_k / k!\), where \(M_k\) is the number of closed walks of
 length \(k\), and it is the sum of the subgraph centralities of all
-nodes. For a directed network the function sums \(e^{Re(\lambda_i)}\)
-over the real parts of the eigenvalues, which differs from the closed-walk
-sum when the adjacency matrix has complex eigenvalues."><meta property="og:image" content="https://sonsoles.me/cograph/logo.png"></head><body>
+nodes. For a directed network the eigenvalues may be complex. They come in
+conjugate pairs, so the sum of their exponentials is real and again equals
+the trace of \(e^A\), the weighted count of closed walks."><meta property="og:image" content="https://sonsoles.me/cograph/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -23,7 +23,7 @@ sum when the adjacency matrix has complex eigenvalues."><meta property="og:image
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,9 +68,9 @@ where \(\lambda_i\) are the eigenvalues of the binary adjacency matrix.
 Edge weights are ignored. For an undirected network the index equals
 \(\sum_k M_k / k!\), where \(M_k\) is the number of closed walks of
 length \(k\), and it is the sum of the subgraph centralities of all
-nodes. For a directed network the function sums \(e^{Re(\lambda_i)}\)
-over the real parts of the eigenvalues, which differs from the closed-walk
-sum when the adjacency matrix has complex eigenvalues.</p>
+nodes. For a directed network the eigenvalues may be complex. They come in
+conjugate pairs, so the sum of their exponentials is real and again equals
+the trace of \(e^A\), the weighted count of closed walks.</p>
     </div>
 
     <div class="section level2">
@@ -105,7 +105,7 @@ undirected network its values sum to <code>estrada_index(x)</code>.</p></div>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">estrada_index</span><span class="op">(</span><span class="va">regulation_net</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 24.23546</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 21.01953</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

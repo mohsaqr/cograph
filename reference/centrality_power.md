@@ -21,8 +21,7 @@ centrality_power(x, mode = "all", ...)
 
 - mode:
 
-  Accepted for a uniform interface; it has no effect on this measure
-  (default `"all"`).
+  For directed networks: `"all"` (default), `"out"` or `"in"`.
 
 - ...:
 
@@ -35,14 +34,16 @@ A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-The exponent is fixed at 1, and the values equal
-`igraph::power_centrality(exponent = 1)`. Edge weights and self-loops
-are ignored. On a directed network the score sums over out-ties, and the
-argument `mode` has no effect. Where \\I - A\\ is singular, as on a
-network that contains an isolated edge, a `cograph_singular_system`
-error is raised, and a network without edges gives `NaN`. The scores can
-be negative, as on `regulation_net`, and `normalized = TRUE` leaves
-scores that are all negative unchanged.
+The exponent is fixed at 1. Edge weights and self-loops are ignored. On
+a directed network `mode = "out"` sums over out-ties and equals
+`igraph::power_centrality(exponent = 1)`, `mode = "in"` sums over
+in-ties, and `mode = "all"` (default) uses the undirected skeleton, the
+binary matrix with a tie wherever either direction has one. On an
+undirected network the three modes agree. Where \\I - A\\ is singular,
+as on a network that contains an isolated edge, a
+`cograph_singular_system` error is raised, and a network without edges
+gives `NaN`. The scores can be negative, as on `regulation_net`, and
+`normalized = TRUE` leaves scores that are all negative unchanged.
 
 ## References
 
@@ -60,8 +61,8 @@ American Journal of Sociology, 92(5), 1170-1182.
 
 ``` r
 centrality_power(regulation_net)
-#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
-#> -0.7865422 -1.5805753 -0.8165057 -0.8239966 -0.4494527 -0.6517064 -1.1161409 
-#>   Evaluate     Create      Share 
-#> -0.3595622 -1.1461044 -1.4906848 
+#>       Explore          Plan       Monitor         Adapt       Reflect 
+#> -1.217161e+00 -6.756602e-16 -6.085806e-01 -1.217161e+00 -1.825742e+00 
+#>       Discuss    Synthesize      Evaluate        Create         Share 
+#> -1.217161e+00 -1.217161e+00 -6.085806e-01 -5.855722e-16 -3.941351e-16 
 ```

@@ -3,8 +3,9 @@
 Length-scaled betweenness (Borgatti and Everett 2006; Brandes 2008)
 weights each pair \\s,t\\ in the betweenness sum by \\1/d(s,t)\\. Delta
 betweenness (Agneessens et al. 2017) uses the pair weight
-\\(d(s,t)-1)^{-\delta}\\, so \\\delta = 0\\ gives ordinary betweenness.
-Ego betweenness (Everett and Borgatti 2005) is the betweenness of a node
+\\(h(s,t)-1)^{-\delta}\\, where \\h(s,t)\\ is the number of edges on a
+shortest path, so \\\delta = 0\\ gives ordinary betweenness. Ego
+betweenness (Everett and Borgatti 2005) is the betweenness of a node
 inside its own ego network. Delta closeness (Agneessens et al. 2017, eq.
 2) is \$\$C\_\delta(i) = \frac{1}{n-1} \sum\_{j \ne i}
 d\_{ij}^{-\delta}.\$\$
@@ -58,9 +59,12 @@ A named numeric vector with one score per node, in input node order.
 On a directed network the three betweenness measures count directed
 paths. Length-scaled and delta betweenness and delta closeness read edge
 weights as distances, and `invert_weights = TRUE` converts weights to
-distances \\1/w^\alpha\\. Delta betweenness counts only pairs at
-distance greater than one, so on a network whose weighted distances are
-all below one every score is 0. `weighted = FALSE` uses hop counts. Ego
+distances \\1/w^\alpha\\. In delta betweenness the weighted distances
+decide which paths are shortest, and the pair weight \\(h -
+1)^{-\delta}\\ uses the number of edges \\h\\ on a shortest path (the
+fewest when several tie), so \\h - 1\\ is the number of intermediaries.
+On a binary network \\h = d(s,t)\\. A pair joined by a one-edge shortest
+path contributes nothing. `weighted = FALSE` uses hop counts. Ego
 betweenness ignores weights, and a node with fewer than two neighbors
 scores 0. Delta closeness follows `mode` and `cutoff`. On hop distances
 \\\delta = 1\\ gives harmonic closeness divided by \\n-1\\ and \\\delta
